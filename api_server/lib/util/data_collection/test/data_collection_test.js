@@ -109,7 +109,7 @@ class Data_Collection_Test extends Generic_Test {
 	}
 
 	create_one_random_model (n, callback) {
-		let flag = this.randomizer + (this.want_n(n) ? 'yes' : 'no')
+		let flag = this.randomizer + (this.want_n(n) ? 'yes' : 'no');
 		this.models[n] = new Data_Model({
 			text: 'hello' + n,
 			number: n,
@@ -141,7 +141,6 @@ class Data_Collection_Test extends Generic_Test {
 			text: 'replaced!',
 			number: 123
 		};
-console.warn('updt ' + this.test_model.id);
 		this.data.test.update(
 			update,
 			(error) => {
@@ -155,8 +154,6 @@ console.warn('updt ' + this.test_model.id);
 	validate_model_response () {
 		Assert(typeof this.response === 'object', 'improper response');
 		Assert(typeof this.response.attributes === 'object', 'improper fetched model');
-console.warn('r', this.response.attributes);
-console.warn('td', this.test_model.attributes);
 		Assert.deepEqual(this.response.attributes, this.test_model.attributes, 'fetched model doesn\'t match');
 	}
 
@@ -172,8 +169,6 @@ console.warn('td', this.test_model.attributes);
 		response_objects.sort((a, b) => {
 			return a.number - b.number;
 		});
-console.warn('r', response_objects);
-console.warn('td', test_objects);
 		Assert.deepEqual(response_objects, test_objects, 'fetched models don\'t match');
 	}
 

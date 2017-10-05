@@ -30,7 +30,7 @@ class Stream_Creator extends Model_Creator {
 
 	validate_type () {
 		if (STREAM_TYPES.indexOf(this.attributes.type) === -1) {
-			return { type: `invalid stream type: ${value}` };
+			return { type: `invalid stream type: ${this.attributes.type}` };
 		}
 		if (this.attributes.type === 'channel' && !this.attributes.name) {
 			return { name: 'channel type streams must have a name' };
@@ -46,14 +46,14 @@ class Stream_Creator extends Model_Creator {
 	}
 
 	validate_member_ids () {
-		if (type === 'file') {
+		if (this.attributes.tyoe === 'file') {
 			delete this.attributes.member_ids;
 			return; // not required (or desired) for files
 		}
 		if (!(this.attributes.member_ids instanceof Array)) {
 			return { member_ids: 'must be an array' };
 		}
-		if (type === 'direct') {
+		if (this.attributes.file === 'direct') {
 			return 'direct message streams should not have a name';
 		}
 	}
@@ -64,16 +64,16 @@ class Stream_Creator extends Model_Creator {
 	}
 
 	ensure_user_is_member () {
-		if (type === 'file') {
+		if (this.attributes.file === 'file') {
 			return; // not required for files
 		}
-		this.attributes.member_ids = this.attributes.member_ids || [this.user._id.toString()];
+		this.attributes.member_ids = this.attributes.member_ids || [this.user.id];
 		if (!(this.attributes.member_ids instanceof Array)) {
 			// this will get caught later
 			return;
 		}
-		if (this.attributes.member_ids.indexOf(this.user._id.toString()) === -1) {
-			this.attributes.member_ids.push(this.user._id.toString());
+		if (this.attributes.member_ids.indexOf(this.user.id) === -1) {
+			this.attributes.member_ids.push(this.user.id);
 		}
 		this.attributes.member_ids.sort();
 	}
@@ -101,7 +101,7 @@ class Stream_Creator extends Model_Creator {
 	}
 
 	pre_save (callback) {
-		this.attributes.creator_id = this.user._id.toString();
+		this.attributes.creator_id = this.user.id;
 		super.pre_save(callback);
 	}
 }

@@ -23,7 +23,6 @@ class Get_Some_Users_Test extends CodeStream_API_Test {
 	}
 
 	validate_response (data) {
-console.warn('data', data);
 		this.validate_matching_objects(this.user_subset, data.users, 'users');
 		this.validate_sanitized_objects(data.users, User_Test_Constants.UNSANITIZED_ATTRIBUTES);
 	}

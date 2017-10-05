@@ -1,6 +1,5 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Update_To_Database_Test = require('./update_to_database_test');
 
 class Apply_No_Pull_To_Database_Test extends Update_To_Database_Test {

@@ -5,7 +5,7 @@ var Confirmation_Test = require('./confirmation_test');
 class Confirmation_Expiration_Test extends Confirmation_Test {
 
 	get_description () {
-		return 'should return an error when a confirmation code is expired'
+		return 'should return an error when a confirmation code is expired';
 	}
 
 	get_expected_fields () {

@@ -42,8 +42,6 @@ class Delete_From_Database_Test extends Data_Collection_Test {
 		this.response.sort((a, b) => {
 			return a.number - b.number;
 		});
-console.warn('r', this.response);
-console.warn('td', test_objects);
 		Assert.deepEqual(this.response, test_objects, 'fetched models don\'t match');
 	}
 }

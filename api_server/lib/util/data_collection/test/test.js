@@ -42,6 +42,8 @@ var Update_Direct_Test = require('./update_direct_test');
 var Delete_From_Cache_Test = require('./delete_from_cache_test');
 var Delete_From_Database_Test = require('./delete_from_database_test');
 
+/* jshint -W071 */
+
 describe('data_collection', function() {
 
 	new Get_By_Id_From_Cache_Test().test();
@@ -84,3 +86,5 @@ describe('data_collection', function() {
 	new Delete_From_Database_Test().test();
 
 });
+
+/* jshint +W071 */

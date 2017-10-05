@@ -43,12 +43,12 @@ class Team_Joiner  {
 			{
 				team_ids: this.team._id,
 				deactivated: false,
-				searchable_username: this.user.username.toLowerCase()
+				searchable_username: this.user.get('username').toLowerCase()
 			},
 			(error, user) => {
 				if (error) { return callback(error); }
 				if (user) {
-					return callback(this.error_handler.error('username_not_unique', { info: this.user.username }));
+					return callback(this.error_handler.error('username_not_unique', { info: this.user.get('username') }));
 				}
 				callback();
 			}
@@ -58,14 +58,14 @@ class Team_Joiner  {
 	add_to_team (callback) {
 		this.data.teams.apply_op_by_id(
 			this.team._id,
-			{ add: { member_ids: this.user._id } },
+			{ add: { member_ids: this.user.id } },
 			callback
 		);
 	}
 
 	update_user (callback) {
 		this.data.users.apply_op_by_id(
-			this.user._id,
+			this.user.id,
 			{
 				add: {
 					company_ids: this.team.company_id,

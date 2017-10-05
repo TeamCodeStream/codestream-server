@@ -22,7 +22,7 @@ class Get_Many_Request extends Restful_Request {
 		if (!query_and_options.query) {
 			return callback(query_and_options); // error
 		}
-		let { query, query_options } = query_and_options;
+		let { func, query, query_options } = query_and_options;
 		this.data[this.module.collection_name][func](
 			query,
 			(error, models) => {
@@ -52,17 +52,33 @@ class Get_Many_Request extends Restful_Request {
 			}
 			query = query.split(',');
 		}
-		return { query, query_options };
+		return { func, query, query_options };
 	}
 
 	sanitize (callback) {
-		this.sanitized_objects = [];
+		this.sanitize_models(
+			this.models,
+			(error, objects) => {
+				if (error) { return callback(error); }
+				this.sanitized_objects = objects;
+				callback();
+			}
+		);
+	}
+
+	sanitize_models (models, callback) {
+		let sanitized_objects = [];
 		Bound_Async.forEachLimit(
 			this,
-			this.models,
+			models,
 			20,
-			this.sanitize_model,
-			callback
+			(model, foreach_callback) => {
+				sanitized_objects.push(model.get_sanitized_object());
+				process.nextTick(foreach_callback);
+			},
+			() => {
+				callback(null, sanitized_objects);
+			}
 		);
 	}
 

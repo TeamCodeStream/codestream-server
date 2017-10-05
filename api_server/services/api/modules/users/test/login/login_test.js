@@ -3,7 +3,6 @@
 var Assert = require('assert');
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
 var User_Test_Constants = require('../user_test_constants');
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 
 const DESCRIPTION = 'should return valid user when doing login';
 

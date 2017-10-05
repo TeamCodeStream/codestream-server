@@ -30,6 +30,8 @@ var Delete_By_Id_Test = require('./delete_by_id_test');
 var Delete_By_Ids_Test = require('./delete_by_ids_test');
 var Delete_By_Query_Test = require('./delete_by_query_test');
 
+/* jshint -W071 */
+
 describe('mongo', function() {
 
 	new Get_By_Id_Test().test();
@@ -60,3 +62,5 @@ describe('mongo', function() {
 	new Delete_By_Query_Test().test();
 
 });
+
+/* jshint +W071 */

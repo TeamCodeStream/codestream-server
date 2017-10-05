@@ -67,13 +67,13 @@ class Model_Creator {
 		}
 		this.collection.get_one_by_query(
 			query,
-			(error, object) => {
+			(error, model) => {
 				if (error) { return callback(error); }
-				if (object) {
-					if (!this.model_can_exist(object)) {
+				if (model) {
+					if (!this.model_can_exist(model)) {
 						return callback(this.error_handler.error('exists'));
 					}
-					this.existing_model = new this.model_class(object);
+					this.existing_model = model;
 				}
 				return process.nextTick(callback);
 			}
@@ -84,7 +84,7 @@ class Model_Creator {
 		return null;
 	}
 
-	model_can_exist (/**model*/) {
+	model_can_exist (/*model*/) {
 		return false;
 	}
 
@@ -137,9 +137,9 @@ class Model_Creator {
 		}
 		this.collection.update(
 			this.model.attributes,
-			(error, updated_object) => {
+			(error, updated_model) => {
 				if (error) { return callback(error); }
-				this.model = new this.model_class(updated_object);
+				this.model = updated_model;
 				this.did_exist = true;
 				process.nextTick(callback);
 			}
@@ -149,9 +149,9 @@ class Model_Creator {
 	create (callback) {
 		this.collection.create(
 			this.model.attributes,
-			(error, created_object) => {
+			(error, created_model) => {
 				if (error) { return callback(error); }
-				this.model = new this.model_class(created_object);
+				this.model = created_model;
 				process.nextTick(callback);
 			}
 		);

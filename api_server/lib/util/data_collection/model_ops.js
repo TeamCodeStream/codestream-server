@@ -15,7 +15,7 @@ var _Ops = {
 
 	add: function(document, field, value) {
 		if (typeof document[field] === 'undefined') {
-			document[field] = new Array();
+			document[field] = [];
 		}
 		if (
 			document[field] instanceof Array &&
@@ -27,7 +27,7 @@ var _Ops = {
 
 	push: function(document, field, value) {
 		if (typeof document[field] === 'undefined') {
-			document[field] = new Array();
+			document[field] = [];
 		}
 		if (document[field] instanceof Array) {
 			document[field].push(value);
@@ -36,7 +36,7 @@ var _Ops = {
 
 	pull: function(document, field, value) {
 		if (typeof document[field] === 'undefined') {
-			document[field] = new Array();
+			document[field] = [];
 			return;
 		}
 		if (document[field] instanceof Array) {
@@ -47,6 +47,8 @@ var _Ops = {
 		}
 	}
 };
+
+var _document_ops_helper; // make jshint happy
 
 var _sub_op = function(op_type, document, op, field) {
 	var match = field.match(/^(.+)\.(.+)$/);

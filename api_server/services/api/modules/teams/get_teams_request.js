@@ -15,7 +15,7 @@ class Get_Teams_Request extends Get_Many_Request {
 
 	respond_with_teams (callback) {
 		this.data.teams.get_by_ids(
-			this.user.team_ids,
+			this.user.get('team_ids'),
 			(error, teams) => {
 				if (error) { return callback(error); }
 				this.response_data = { teams: teams };

@@ -11,4 +11,4 @@ module.exports = () => {
 	code = code.toString();
 	code = '0'.repeat(6 - code.length) + code;
 	return code;
-}
+};

@@ -89,7 +89,7 @@ class Mongo_Test extends Generic_Test {
 	}
 
 	create_one_random_document (n, callback) {
-		let flag = this.randomizer + (this.want_n(n) ? 'yes' : 'no')
+		let flag = this.randomizer + (this.want_n(n) ? 'yes' : 'no');
 		this.documents[n] = {
 			text: 'hello' + n,
 			number: n,
@@ -116,14 +116,10 @@ class Mongo_Test extends Generic_Test {
 	}
 
 	validate_document_response () {
-console.warn('r', this.response);
-console.warn('td', this.test_document);
 		Assert.deepEqual(this.response, this.test_document, 'fetched document doesn\'t match');
 	}
 
 	validate_array_response () {
-console.warn('r', this.response);
-console.warn('td', this.test_documents);
 		Assert(this.response instanceof Array, 'response must be an array');
 		this.response.sort((a, b) => {
 			return a.number - b.number;

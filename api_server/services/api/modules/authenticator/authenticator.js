@@ -2,6 +2,7 @@
 
 var API_Server_Module = require(process.env.CI_API_TOP + '/lib/api_server/api_server_module.js');
 var Token_Authenticator = require('./token_authenticator');
+var User = require(process.env.CI_API_TOP + '/services/api/modules/users/user');
 
 const DEPENDENCIES = [
 	'body_parser',
@@ -19,7 +20,8 @@ class Authenticator extends API_Server_Module {
 			new Token_Authenticator({
 				request: request,
 				response: response,
-				api: this.api
+				api: this.api,
+				user_class: User
 			}).authenticate((error) => {
 				if (error) {
 					response.set('WWW-Authenticate', 'Bearer');

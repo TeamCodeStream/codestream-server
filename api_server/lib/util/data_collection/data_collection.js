@@ -3,7 +3,6 @@
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Data_Collection_Fetcher = require('./data_collection_fetcher');
 var Model_Ops = require('./model_ops');
-var Deep_Clone = require(process.env.CI_API_TOP + '/lib/util/deep_clone');
 var Error_Handler = require(process.env.CI_API_TOP + '/lib/util/error_handler');
 const Errors = require('./errors');
 
@@ -116,7 +115,7 @@ class Data_Collection {
 		});
 	}
 
-	apply_op_by_id (id, op, callback, options) {
+	apply_op_by_id (id, op, callback) {
 		this._add_model_op(id, op);
 		let model = this._get_from_cache(id);
 		process.nextTick(() => {
@@ -222,7 +221,7 @@ class Data_Collection {
 	}
 
 	_add_model_op (id, op) {
-		let is_dirty = this.dirty_model_ids[id] || this.to_create_ids[id]
+		let is_dirty = this.dirty_model_ids[id] || this.to_create_ids[id];
 		let cached_model = this.models[id];
 		if (!cached_model) {
 			this.models[id] = new this.model_class({ [this.id_attribute]: id });

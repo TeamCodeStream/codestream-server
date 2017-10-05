@@ -1,6 +1,5 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Data_Collection_Test = require('./data_collection_test');
 var Assert = require('assert');
 

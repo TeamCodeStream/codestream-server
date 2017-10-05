@@ -1,6 +1,7 @@
 'use strict';
 
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
+var Deep_Clone = require(process.env.CI_API_TOP + '/lib/util/deep_clone');
 
 class Data_Model_Validator {
 
@@ -177,7 +178,7 @@ class Data_Model_Validator {
 	}
 
 	sanitize_model (model) {
-		this.sanitize_object(model.attributes);
+		this.sanitize_attributes(model.attributes);
 		return model;
 	}
 

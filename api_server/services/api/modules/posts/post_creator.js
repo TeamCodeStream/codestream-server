@@ -3,7 +3,7 @@
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Post = require('./post');
 var Model_Creator = require(process.env.CI_API_TOP + '/lib/util/restful/model_creator');
-//var Group_Creator = require(process.env.CI_API_TOP + '/services/api/modules/groups/group_creator');
+var Stream_Creator = require(process.env.CI_API_TOP + '/services/api/modules/streams/stream_creator');
 
 class Post_Creator extends Model_Creator {
 
@@ -36,7 +36,7 @@ class Post_Creator extends Model_Creator {
 	}
 
 	pre_save (callback) {
-		this.attributes.creator_id = this.user._id.toString();
+		this.attributes.creator_id = this.user.id;
 		Bound_Async.series(this, [
 			this.check_create_stream
 		], (error) => {

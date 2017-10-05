@@ -61,7 +61,7 @@ class Get_Posts_Request extends Get_Many_Request {
 			}
 		}
 		else if (parameter === 'mine') {
-			query.creator_id = this.user._id.toString();
+			query.creator_id = this.user.id;
 		}
 		else if (RELATIONAL_PARAMETERS.indexOf(parameter) !== -1) {
 			var error = this.process_relational_parameter(parameter, query);

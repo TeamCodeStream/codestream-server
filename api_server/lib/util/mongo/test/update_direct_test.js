@@ -3,7 +3,6 @@
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Mongo_Test = require('./mongo_test');
 var Assert = require('assert');
-var Random_String = require('randomstring');
 
 class Update_Direct_Test extends Mongo_Test {
 

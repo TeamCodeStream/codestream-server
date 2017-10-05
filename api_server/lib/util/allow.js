@@ -31,14 +31,14 @@ var _type_matches = function(value, type) {
 			return false;
 		}
 		return value instanceof Array &&
-			!value.find(elem => { return typeof elem !== match[1] });
+			!value.find(elem => { return typeof elem !== match[1]; });
 	}
 	else {
 		return false;
 	}
 };
 
-module.exports = function(object, allowed_attributes, type) {
+module.exports = function(object, allowed_attributes) {
 	if (typeof object !== 'object') { return; }
 	Object.keys(object).forEach(attribute => {
 		let type = _find_attribute(allowed_attributes, attribute);

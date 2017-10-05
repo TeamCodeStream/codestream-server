@@ -41,7 +41,6 @@ class Get_One_By_Query_Skips_Cache_Test extends Data_Collection_Test {
 				flag: test_model.get('flag')
 			},
 			(error, response) => {
-console.warn('resp', response);
 				this.check_response(error, response, callback);
 			}
 		);

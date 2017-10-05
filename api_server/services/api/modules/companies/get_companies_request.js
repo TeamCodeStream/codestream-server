@@ -15,7 +15,7 @@ class Get_Companies_Request extends Get_Many_Request {
 
 	respond_with_companies (callback) {
 		this.data.companies.get_by_ids(
-			this.user.company_ids,
+			this.user.get('company_ids'),
 			(error, companies) => {
 				if (error) { return callback(error); }
 				this.response_data = { companies: companies };

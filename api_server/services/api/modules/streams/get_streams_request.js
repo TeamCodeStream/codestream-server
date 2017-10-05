@@ -39,7 +39,7 @@ class Get_Streams_Request extends Get_Many_Request {
 			return 'can\'t query on type and repo_id at the same time unless type is file';
 		}
 		if (query.type && STREAM_TYPES.indexOf(query.type) === -1) {
-			return `invalid stream type: ${value}`;
+			return `invalid stream type: ${query.type}`;
 		}
 		return query;
 	}

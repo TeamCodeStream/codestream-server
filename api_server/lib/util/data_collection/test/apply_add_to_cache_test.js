@@ -1,6 +1,5 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Update_To_Cache_Test = require('./update_to_cache_test');
 
 class Apply_Add_To_Cache_Test extends Update_To_Cache_Test {

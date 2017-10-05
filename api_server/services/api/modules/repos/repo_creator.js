@@ -70,7 +70,7 @@ class Repo_Creator extends Model_Creator {
 	}
 
 	pre_save (callback) {
-		this.attributes.creator_id = this.user._id.toString();
+		this.attributes.creator_id = this.user.id;
 		Bound_Async.series(this, [
 			this.join_to_team,
 			super.pre_save
@@ -98,7 +98,7 @@ class Repo_Creator extends Model_Creator {
 		if (this.attributes.first_commit_sha !== this.existing_model.get('first_commit_sha')) {
 			return callback(this.error_handler.error('sha_mismatch'));
 		}
-		if ((this.user.team_ids || []).indexOf(this.existing_model.get('team_id')) !== -1) {
+		if ((this.user.get('team_ids') || []).indexOf(this.existing_model.get('team_id')) !== -1) {
 			return callback();
 		}
 		new Team_Joiner({
@@ -114,7 +114,7 @@ class Repo_Creator extends Model_Creator {
 			this.attributes.team_id,
 			(error, team) => {
 			 	if (error) { return callback(error); }
-				this.attributes.company_id = team.company_id;
+				this.attributes.company_id = team.get('company_id');
 				callback();
 			}
 		);
@@ -126,11 +126,11 @@ class Repo_Creator extends Model_Creator {
 			request: this.request
 		}).create_team(
 			this.attributes.team,
-			(error, team_model) => {
+			(error, team) => {
 				if (error) { return callback(error); }
-				this.attributes.team_id = team_model.id;
-				this.attributes.company_id = team_model.get('company_id');
-				this.attach_to_response = { team: team_model.sanitize().attributes };
+				this.attributes.team_id = team.id;
+				this.attributes.company_id = team.get('company_id');
+				this.attach_to_response = { team: team.get_sanitized_object() };
 				delete this.attributes.team;
 				callback();
 			}

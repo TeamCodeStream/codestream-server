@@ -3,7 +3,6 @@
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Data_Collection_Test = require('./data_collection_test');
 var Assert = require('assert');
-var Random_String = require('randomstring');
 
 class Update_Direct_Test extends Data_Collection_Test {
 
@@ -41,8 +40,6 @@ class Update_Direct_Test extends Data_Collection_Test {
 	}
 
 	validate_response () {
-console.warn('r', this.response);
-console.warn('d', this.models);
 		Assert(this.response instanceof Array, 'response must be an array');
 		Assert(this.response.length === this.models.length);
 		this.response.forEach(response_object => {

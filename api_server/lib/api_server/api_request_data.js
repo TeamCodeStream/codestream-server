@@ -25,7 +25,7 @@ class API_Request_Data {
 
 	add_data_collection (collection_name, callback) {
 		var options = this[Options_Symbol];
-		var model_class = this.api.config.data_collections[collection_name];
+		var model_class = this[Options_Symbol].api.config.data_collections[collection_name];
 		var collection = new Data_Collection({
 			database_collection: options.api.data[collection_name],
 			model_class: model_class,

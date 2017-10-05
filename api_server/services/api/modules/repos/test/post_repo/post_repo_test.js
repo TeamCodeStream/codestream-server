@@ -32,8 +32,6 @@ class Post_Repo_Test extends CodeStream_API_Test {
 	}
 
 	validate_response (data) {
-console.warn('this.data', this.data);
-console.warn('data', data);
 		var repo = data.repo;
 		var errors = [];
 		var result = (

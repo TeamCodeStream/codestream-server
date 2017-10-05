@@ -71,7 +71,12 @@ class Token_Authenticator {
 				if (!user) {
 					return callback(this.error_handler.error('user_not_found'));
 				}
-				this.request.user = user;
+				if (this.user_class) {
+					this.request.user = new this.user_class(user);
+				}
+				else {
+					this.request.user = user;
+				}
 				this.request.auth_payload = this.payload;
 				process.nextTick(callback);
 			},

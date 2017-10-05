@@ -50,13 +50,13 @@ class Team_Creator extends Model_Creator {
 	}
 
 	ensure_user_is_member () {
-		this.attributes.member_ids = this.attributes.member_ids || [this.user._id.toString()];
+		this.attributes.member_ids = this.attributes.member_ids || [this.user.id];
 		if (!(this.attributes.member_ids instanceof Array)) {
 			// this will get caught later
 			return;
 		}
-		if (this.attributes.member_ids.indexOf(this.user._id.toString()) === -1) {
-			this.attributes.member_ids.push(this.user._id.toString());
+		if (this.attributes.member_ids.indexOf(this.user.id) === -1) {
+			this.attributes.member_ids.push(this.user.id);
 		}
 		this.attributes.member_ids.sort();
 	}
@@ -82,7 +82,7 @@ class Team_Creator extends Model_Creator {
 	}
 
 	pre_save (callback) {
-		this.attributes.creator_id = this.user._id.toString();
+		this.attributes.creator_id = this.user.id;
 		Bound_Async.series(this, [
 			this.check_create_company,
 			super.pre_save
@@ -123,7 +123,7 @@ class Team_Creator extends Model_Creator {
 
 	update_user (callback) {
 		this.data.users.apply_op_by_id(
-			this.user._id,
+			this.user.id,
 			{
 				add: {
 					company_ids: this.attributes.company_id,

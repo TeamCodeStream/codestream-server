@@ -3,7 +3,6 @@
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Restful_Request = require(process.env.CI_API_TOP + '/lib/util/restful/restful_request.js');
 var Tokenizer = require('./tokenizer');
-var User = require('./user');
 const Errors = require('./errors');
 
 const MAX_CONFIRMATION_ATTEMPTS = 3;
@@ -28,10 +27,7 @@ class Confirm_Request extends Restful_Request {
 			this.update_user,
 			this.generate_token,
 			this.form_response
-		], (error) => {
-			console.warn('back');
-			callback(error);
-		});
+		], callback);
 	}
 
 	allow (callback) {
@@ -73,13 +69,13 @@ class Confirm_Request extends Restful_Request {
 	}
 
 	verify_code (callback) {
-		if (this.request.body.confirmation_code !== this.user.confirmation_code) {
+		if (this.request.body.confirmation_code !== this.user.get('confirmation_code')) {
 			this.confirmation_failed = true;
-			if (this.user.get('confirmation_attempts') === 3) {
+			if (this.user.get('confirmation_attempts') === MAX_CONFIRMATION_ATTEMPTS) {
 				this.max_confirmation_attempts = true;
 			}
 		}
-		else if (Date.now() > this.user.confirmation_code_expires_at) {
+		else if (Date.now() > this.user.get('confirmation_code_expires_at')) {
 			this.confirmation_failed = true;
 			this.confirmation_expired = true;
 		}
@@ -103,7 +99,7 @@ class Confirm_Request extends Restful_Request {
 			set.confirmation_code_expires_at = null;
 		}
 		else {
-			set.confirmation_attempts = this.user.confirmation_attempts + 1;
+			set.confirmation_attempts = this.user.get('confirmation_attempts') + 1;
 		}
 		this.data.users.update_direct(
 			{ _id: this.data.users.object_id_safe(this.request.body.user_id) },

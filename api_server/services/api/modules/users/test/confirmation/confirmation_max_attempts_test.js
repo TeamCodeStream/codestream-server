@@ -34,7 +34,7 @@ class Confirmation_Max_Attempts_Test extends Confirmation_Test {
 			method: this.method,
 			path: this.path,
 			data: this.data
-		}, (error) => {
+		}, () => {
 			callback();
 		});
 	}

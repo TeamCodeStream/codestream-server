@@ -6,7 +6,7 @@ var Confirm_Code = require('../../confirm_code');
 class Confirmation_Incorrect_Code_Test extends Confirmation_Test {
 
 	get_description () {
-		return 'should return an error when an incorrect confirmation code is used during confirmation'
+		return 'should return an error when an incorrect confirmation code is used during confirmation';
 	}
 
 	get_expected_fields () {

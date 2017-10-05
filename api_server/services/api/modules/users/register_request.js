@@ -21,7 +21,7 @@ class Register_Request extends Restful_Request {
 			this.send_email
 		], (error) => {
 			if (error) { return callback(error); }
-			this.response_data = { user: this.user.sanitize().attributes };
+			this.response_data = { user: this.user.get_sanitized_object() };
 			callback();
 		});
 	}

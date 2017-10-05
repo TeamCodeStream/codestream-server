@@ -2,7 +2,6 @@
 
 var Restful_Request = require('./restful_request');
 var Model_Creator = require('./model_creator');
-var Deep_Clone = require(process.env.CI_API_TOP + '/lib/util/deep_clone');
 
 class Post_Request extends Restful_Request {
 

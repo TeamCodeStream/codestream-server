@@ -16,6 +16,9 @@ var Simple_File_Logger = require(process.env.CI_API_TOP + '/lib/util/simple_file
 
 var Logger = new Simple_File_Logger(Logger_Config);
 
+// remove me when colin's arm is healed
+global.cw = console.warn;
+
 if (Mongo_Config.query_logging) {
 	Object.assign(Mongo_Config.query_logging, Logger_Config, Mongo_Config.query_logging);
 }
@@ -43,7 +46,7 @@ var My_API_Cluster = new API_Cluster({
 	email: Email_Config,
 	logger: Logger,
 	limits: Limits,
-	allow_config_override: true
+	allow_config_override: true,
 	data_collections: data_collections
 }, Logger);
 

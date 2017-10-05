@@ -30,8 +30,6 @@ class Get_By_Query_Sort_Test extends Get_By_Query_Test {
 		Assert(this.response instanceof Array, 'response must be an array');
 		let response_objects = this.response.map(model => { return model.attributes; });
 		let test_objects = this.test_models.map(model => { return model.attributes; });
-console.warn('r', response_objects);
-console.warn('td', test_objects);
 		Assert.deepEqual(response_objects, test_objects, 'fetched models don\'t match');
 	}
 }
