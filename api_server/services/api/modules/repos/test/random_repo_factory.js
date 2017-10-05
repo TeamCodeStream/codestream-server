@@ -21,10 +21,14 @@ class Random_Repo_Factory {
 		return `https://${Random_String.generate(6)}.${Random_String.generate(6)}.com`;
 	}
 
+	random_sha () {
+		return Random_String.generate(40);
+	}
+
 	get_random_repo_data (callback, options = {}) {
 		let data = {
 			url: this.random_url(),
-			first_commit_sha: Random_String.generate(40)
+			first_commit_sha: this.random_sha()
 		};
 		if (options.team_id) {
 			data.team_id = options.team_id;

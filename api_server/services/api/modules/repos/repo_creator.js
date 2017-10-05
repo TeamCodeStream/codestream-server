@@ -55,7 +55,12 @@ class Repo_Creator extends Model_Creator {
 	}
 
 	normalize () {
-		this.attributes.url = Normalize_URL(this.attributes.url.toLowerCase());
+		this.attributes.url = Normalize_URL(
+			this.attributes.url.toLowerCase(),
+			{
+				removeQueryParameters: [/^.+/] // remove them all!
+			}
+		);
 		this.attributes.first_commit_sha = this.attributes.first_commit_sha.toLowerCase();
 	}
 
