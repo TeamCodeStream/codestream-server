@@ -1,0 +1,16 @@
+{
+	"node": true,
+	"esversion": 6,
+	"curly": true,
+	"eqeqeq": true,
+	"forin": true,
+	"freeze": true,
+	"latedef": true,
+	"maxdepth": 4,
+	"maxparams": 6,
+	"maxstatements": 20,
+	"undef": true,
+	"unused": true
+}
+
+

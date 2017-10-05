@@ -1,0 +1,33 @@
+# Quick set of curl commands you can do to do very quickly test the api server
+
+# Register new user using email 
+curl -X PUT "https://127.0.0.1:11079/no-auth/register" -H "Content-Type: application/json" -d '{"email": "colin.stryker@gmail.com"}' -k
+
+# Returns something like this:
+{
+	"_id":"587ea812bc2dbeda10681729",
+	"email":"colin.stryker@gmail.com",
+	"searchable_email":"colin.stryker@gmail.com",
+	"deactivated":false,
+	"created_at":1484695570743,
+	"modified_at":1484695570743,
+	"creator_id":"587ea812bc2dbeda10681729",
+	"was_created":true,
+	"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTg3ZWE4MTJiYzJkYmVkYTEwNjgxNzI5IiwiaWF0IjoxNDg0Njk1NTcwfQ.cKhQRvsDsQT2sj4jcB6sUvWhjpDSKrhQwxbAp0M0ghw"
+}
+
+# Grab the access_token and use it for authorization in the header of the next request...
+# Create a post
+curl -X POST "https://127.0.0.1:12079/post" -H "Content-Type: application/json" -d '{"text": "hello"}' -k -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTg3ZWE4MTJiYzJkYmVkYTEwNjgxNzI5IiwiaWF0IjoxNDg0Njk1NTcwfQ.cKhQRvsDsQT2sj4jcB6sUvWhjpDSKrhQwxbAp0M0ghw"
+
+# Returns something like this:
+{
+	"_id":"587ea837bc2dbeda1068172a",
+	"text":"hello",
+	"creator_id":"587ea812bc2dbeda10681729",
+	"deactivated":false,
+	"created_at":1484695607569,
+	"modified_at":1484695607569
+}
+
+

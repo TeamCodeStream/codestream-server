@@ -1,0 +1,16 @@
+#!/bin/bash
+
+[ -z "$1" ] && echo "Do not run this script directly. Run dt-configure-sandbox instead." && exit 1
+
+
+# This script is called from dt-configure-sandbox. Do not call it directly.
+#
+# Place any commands needed to prepare the sandbox for use here. Assume all
+# environment variables have been set.
+
+cd $CI_API_TOP
+echo "npm install (from `pwd`)"
+npm install
+
+# You must exit with a status of '0' if the script was successful or '1' otherwise.
+exit 0
