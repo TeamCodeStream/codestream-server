@@ -91,6 +91,10 @@ class Random_User_Factory {
 		return data;
 	}
 
+	create_user (data, callback) {
+		new _User_Creator(this).create_user(data, callback);
+	}
+
 	create_random_user (callback, options = {}) {
 		var data = this.get_random_user_data(options);
 		if (options.no_confirm) {

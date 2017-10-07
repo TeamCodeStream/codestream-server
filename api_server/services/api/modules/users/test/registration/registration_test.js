@@ -52,6 +52,7 @@ class Registration_Test extends CodeStream_API_Test {
 			((typeof user.confirmation_code === 'string') || errors.push('confirmation_code is not a string'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		delete user.confirmation_code; // this is technically unsanitized, but this request (and only this request) allows it
 		this.validate_sanitized(user, User_Test_Constants.UNSANITIZED_ATTRIBUTES);
 	}
 }
