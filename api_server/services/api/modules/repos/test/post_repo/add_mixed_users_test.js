@@ -10,7 +10,8 @@ class Add_Mixed_Users_Test extends Add_Users_Test {
 	}
 
 	before (callback) {
-		this.team_emails = [this.current_user.emails[0]];
+		this.team_emails = this.team_emails || [];
+		this.team_emails.push(this.current_user.emails[0]);
 		Bound_Async.series(this, [
 			this.create_unregistered_users,
 			this.create_registered_users,

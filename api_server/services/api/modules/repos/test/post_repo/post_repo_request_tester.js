@@ -9,6 +9,7 @@ var Add_Users_Test = require('./add_users_test');
 var Add_Existing_Users_Test = require('./add_existing_users_test');
 var Add_Existing_Unregistered_Users_Test = require('./add_existing_unregistered_users_test');
 var Add_Mixed_Users_Test = require('./add_mixed_users_test');
+var Add_Users_Unique_Usernames_Test = require('./add_users_unique_usernames_test');
 
 class Post_Repo_Request_Tester {
 
@@ -23,6 +24,7 @@ class Post_Repo_Request_Tester {
 		new Add_Existing_Users_Test().test();
 		new Add_Existing_Unregistered_Users_Test().test();
 		new Add_Mixed_Users_Test().test();
+		new Add_Users_Unique_Usernames_Test().test();
 	}
 }
 

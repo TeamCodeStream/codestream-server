@@ -8,11 +8,13 @@ var User_Creator = require(process.env.CI_API_TOP + '/services/api/modules/users
 var CodeStream_Model_Validator = require(process.env.CI_API_TOP + '/lib/models/codestream_model_validator');
 var Team_Attributes = require('./team_attributes');
 var Allow = require(process.env.CI_API_TOP + '/lib/util/allow');
+const Errors = require('./errors');
 
 class Team_Creator extends Model_Creator {
 
 	constructor (options) {
 		super(options);
+		this.error_handler.add(Errors);
 		this.dont_save_if_exists = true;
 	}
 
@@ -113,6 +115,7 @@ class Team_Creator extends Model_Creator {
 		this.attributes.creator_id = this.user.id;
 		Bound_Async.series(this, [
 			this.check_create_users,
+			this.check_usernames_unique,
 			this.check_create_company,
 			super.pre_save
 		], callback);
@@ -157,6 +160,25 @@ class Team_Creator extends Model_Creator {
 				process.nextTick(callback);
 			}
 		);
+	}
+
+	check_usernames_unique (callback) {
+		if (!this.users_created) { return callback(); }
+		let usernames = this.users_created.map(user => user.get('username') ? user.get('username').toLowerCase() : null);
+		usernames.push(this.user.get('username') ? this.user.get('username') : null);
+		usernames = usernames.filter(username => !!username);
+		usernames.sort();
+		for (var i = 0, len = usernames.length; i < len; i++) {
+			if (i > 0 && usernames[i].localeCompare(usernames[i-1]) === 0) {
+				break;
+			}
+		}
+		if (i < len) {
+			return callback(this.error_handler.error('username_not_unique', { info: usernames[i] }));
+		}
+		else {
+			return process.nextTick(callback);
+		}
 	}
 
 	check_create_company (callback) {

@@ -88,6 +88,7 @@ class Random_User_Factory {
 		if (!options.no_username) {
 			data.username = Random_String.generate(12);
 		}
+		Object.assign(data, options.with || {});
 		return data;
 	}
 
