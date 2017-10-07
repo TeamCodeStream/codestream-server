@@ -12,6 +12,7 @@ class Add_Users_Test extends Post_Repo_Test {
 	}
 
 	before (callback) {
+		this.team_emails = this.team_emails || [this.current_user.emails[0]];
 		Bound_Async.series(this, [
 			this.create_other_users,
 			super.before
@@ -19,7 +20,6 @@ class Add_Users_Test extends Post_Repo_Test {
 	}
 
 	create_other_users (callback) {
-		this.team_emails = [this.current_user.emails[0]];
 		for (let i = 0; i < 3; i++) {
 			this.team_emails.push(this.user_factory.random_email());
 		}

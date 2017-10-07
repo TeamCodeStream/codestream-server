@@ -13,8 +13,7 @@ class Add_Existing_Users_Test extends Add_Users_Test {
 			3,
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
-				let emails = this.other_user_data.map(user_data => { return user_data.user.emails[0]; });
+				let emails = response.map(user_data => { return user_data.user.emails[0]; });
 				this.team_emails = [...emails, this.current_user.emails[0]];
 				this.repo_options = {
 					with_emails: emails
