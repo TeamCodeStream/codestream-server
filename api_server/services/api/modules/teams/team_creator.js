@@ -151,6 +151,9 @@ class Team_Creator extends Model_Creator {
 			(error, user) => {
 				if (error) { return callback(error); }
 				this.users_created.push(user);
+				if (user.id !== this.user.id) {
+					this.attributes.member_ids.push(user.id);
+				}
 				process.nextTick(callback);
 			}
 		);
