@@ -72,10 +72,6 @@ class Random_User_Factory {
 		Object.assign(this, options);
 	}
 
-	create_user (data, callback) {
-		new _User_Creator(this).create_user(data, callback);
-	}
-
 	random_email () {
 		return `somebody.${Random_String.generate(12)}@${Random_String.generate(12)}.com`;
 	}
@@ -95,25 +91,32 @@ class Random_User_Factory {
 		return data;
 	}
 
-	create_random_user (callback, options) {
+	create_random_user (callback, options = {}) {
 		var data = this.get_random_user_data(options);
-		this.create_user(data, callback);
+		if (options.no_confirm) {
+			new _User_Creator(this).register_user(data, callback);
+		}
+		else {
+			new _User_Creator(this).create_user(data, callback);
+		}
 	}
 
-	register_random_user (callback, options) {
+	register_random_user (callback, options = {}) {
 		let data = this.get_random_user_data(options);
 		new _User_Creator(this).register_user(data, callback);
 	}
 
-	create_random_nth_user (n, callback) {
-		this.create_random_user(callback);
+	create_random_nth_user (n, callback, options = {}) {
+		this.create_random_user(callback, options);
 	}
 
-	create_random_users (howmany, callback) {
+	create_random_users (howmany, callback, options = {}) {
 		Bound_Async.times(
 			this,
 			howmany,
-			this.create_random_nth_user,
+			(n, times_callback) => {
+				this.create_random_nth_user(n, times_callback, options);
+			},
 			callback
 		);
 	}
