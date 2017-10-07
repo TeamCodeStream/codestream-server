@@ -40,6 +40,9 @@ class Random_Repo_Factory {
 			data.team = {
 				name: this.team_factory.random_name()
 			};
+			if (options.with_emails) {
+				data.team.emails = options.with_emails;
+			}
 		}
 		return callback(null, data);
 	}

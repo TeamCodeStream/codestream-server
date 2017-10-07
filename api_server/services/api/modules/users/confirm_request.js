@@ -3,6 +3,7 @@
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Restful_Request = require(process.env.CI_API_TOP + '/lib/util/restful/restful_request.js');
 var Tokenizer = require('./tokenizer');
+var Password_Hasher = require('./password_hasher');
 const Errors = require('./errors');
 
 const MAX_CONFIRMATION_ATTEMPTS = 3;
@@ -23,7 +24,9 @@ class Confirm_Request extends Restful_Request {
 			this.allow,
 			this.require,
 			this.get_user,
+			this.check_attributes,
 			this.verify_code,
+			this.hash_password,
 			this.update_user,
 			this.generate_token,
 			this.form_response
@@ -34,7 +37,7 @@ class Confirm_Request extends Restful_Request {
 		this.allow_parameters(
 			'body',
 			{
-				string: ['user_id', 'email', 'confirmation_code']
+				string: ['user_id', 'email', 'confirmation_code', 'password', 'username']
 			},
 			callback
 		);
@@ -53,19 +56,29 @@ class Confirm_Request extends Restful_Request {
 			this.request.body.user_id,
 			(error, user) => {
 				if (error) { return callback(error); }
-				if (!user || user.get('deactivated')) {
-					return callback(this.error_handler.error('not_found', { info: 'user_id' }));
-				}
-				if (user.get('searchable_emails').indexOf(this.request.body.email.toLowerCase()) === -1) {
-					return callback(this.error_handler.error('email_mismatch'));
-				}
-				if (user.get('is_registered')) {
-					return callback(this.error_handler.error('already_registered'));
-				}
 				this.user = user;
 				callback();
 			}
 		);
+	}
+
+	check_attributes (callback) {
+		if (!this.user || this.user.get('deactivated')) {
+			return callback(this.error_handler.error('not_found', { info: 'user_id' }));
+		}
+		if (this.user.get('searchable_emails').indexOf(this.request.body.email.toLowerCase()) === -1) {
+			return callback(this.error_handler.error('email_mismatch'));
+		}
+		if (this.user.get('is_registered')) {
+			return callback(this.error_handler.error('already_registered'));
+		}
+		if (!this.user.get('password_hash') && !this.request.body.password) {
+			return callback(this.error_handler.error('parameter_required', { info: 'password' }));
+		}
+		if (!this.user.get('username') && !this.request.body.username) {
+			return callback(this.error_handler.error('parameter_required', { info: 'username' }));
+		}
+		process.nextTick(callback);
 	}
 
 	verify_code (callback) {
@@ -80,6 +93,19 @@ class Confirm_Request extends Restful_Request {
 			this.confirmation_expired = true;
 		}
 		process.nextTick(callback);
+	}
+
+	hash_password (callback) {
+		if (!this.request.body.password) { return callback(); }
+		new Password_Hasher({
+			error_handler: this.error_handler,
+			password: this.request.body.password
+		}).hash_password((error, password_hash) => {
+			if (error) { return callback(error); }
+			this.request.body.password_hash = password_hash;
+			delete this.request.body.password;
+			process.nextTick(callback);
+		});
 	}
 
 	update_user (callback) {
@@ -119,6 +145,12 @@ class Confirm_Request extends Restful_Request {
 				confirmation_code_expires_at: true
 			}
 		};
+		if (this.password_hash) {
+			op.set.password_hash = this.password_hash;
+		}
+		if (this.request.body.username) {
+			op.set.username = this.request.body.username;
+		}
 		this.data.users.apply_op_by_id(
 			this.user.id,
 			op,

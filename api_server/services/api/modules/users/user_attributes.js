@@ -24,14 +24,12 @@ module.exports = {
 	},
 	username: {
 		type: 'username',
-		max_length: 21,
-		required: true
+		max_length: 21
 	},
 	searchable_username: {
 		type: 'username',
 		max_length: 21,
 		lowercase_only: true,
-		required: true,
 		server_only: true
 	},
 	is_registered: {

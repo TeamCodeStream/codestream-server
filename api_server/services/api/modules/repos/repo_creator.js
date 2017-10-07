@@ -5,8 +5,10 @@ var Model_Creator = require(process.env.CI_API_TOP + '/lib/util/restful/model_cr
 var Repo = require('./repo');
 var Normalize_URL = require('normalize-url');
 var Allow = require(process.env.CI_API_TOP + '/lib/util/allow');
+var Repo_Attributes = require('./repo_attributes');
 var Team_Joiner = require(process.env.CI_API_TOP + '/services/api/modules/teams/team_joiner');
 var Team_Creator = require(process.env.CI_API_TOP + '/services/api/modules/teams/team_creator');
+var CodeStream_Model_Validator = require(process.env.CI_API_TOP + '/lib/models/codestream_model_validator');
 const Errors = require('./errors');
 
 class Repo_Creator extends Model_Creator {
@@ -14,6 +16,7 @@ class Repo_Creator extends Model_Creator {
 	constructor (options) {
 		super(options);
 		this.error_handler.add(Errors);
+		this.dont_save_if_exists = true;
 	}
 
 	get model_class () {
@@ -28,6 +31,50 @@ class Repo_Creator extends Model_Creator {
 		return this.create_model(attributes, callback);
 	}
 
+	get_required_attributes () {
+		return ['url', 'first_commit_sha'];
+	}
+
+	validate_attributes (callback) {
+		this.validator = new CodeStream_Model_Validator(Repo_Attributes);
+		var error =
+			this.validate_url() ||
+			this.validate_sha();
+		if (error) {
+			return callback(error);
+		}
+		process.nextTick(callback);
+	}
+
+	validate_url () {
+		var error = this.validator.validate_url(this.attributes.url);
+		if (error) {
+		 	return { url: error };
+	 	}
+	}
+
+	validate_sha () {
+		var error = this.validator.validate_string(this.attributes.first_commit_sha);
+		if (error) {
+			return { first_commit_sha: error };
+		}
+	}
+
+	normalize (callback) {
+		if (typeof this.attributes.url === 'string') { // validation to come later
+			this.attributes.url = Normalize_URL(
+				this.attributes.url.toLowerCase(),
+				{
+					removeQueryParameters: [/^.+/] // remove them all!
+				}
+			);
+		}
+		if (typeof this.attributes.first_commit_sha === 'string') { // validation to come later
+			this.attributes.first_commit_sha = this.attributes.first_commit_sha.toLowerCase();
+		}
+		process.nextTick(callback);
+	}
+
 	allow_attributes (callback) {
 		Allow(
 			this.attributes,
@@ -37,31 +84,6 @@ class Repo_Creator extends Model_Creator {
 			}
 		);
 		process.nextTick(callback);
-	}
-
-	validate_attributes (callback) {
-		var required_attributes = ['url', 'first_commit_sha'];
-		var error =	this.check_required(required_attributes);
-		if (error) {
-			return process.nextTick(() => callback(error));
-		}
-		this.set_defaults();
-		process.nextTick(callback);
-	}
-
-	set_defaults () {
-		this.normalize();
-		this.dont_save_if_exists = true;
-	}
-
-	normalize () {
-		this.attributes.url = Normalize_URL(
-			this.attributes.url.toLowerCase(),
-			{
-				removeQueryParameters: [/^.+/] // remove them all!
-			}
-		);
-		this.attributes.first_commit_sha = this.attributes.first_commit_sha.toLowerCase();
 	}
 
 	model_can_exist () {
@@ -127,15 +149,18 @@ class Repo_Creator extends Model_Creator {
 
 	create_team_for_repo (callback) {
 		// create a new team for this repo
-		new Team_Creator({
+		this.team_creator = new Team_Creator({
 			request: this.request
-		}).create_team(
+		});
+		this.team_creator.create_team(
 			this.attributes.team,
 			(error, team) => {
 				if (error) { return callback(error); }
 				this.attributes.team_id = team.id;
 				this.attributes.company_id = team.get('company_id');
-				this.attach_to_response = { team: team.get_sanitized_object() };
+				this.attach_to_response.team = team.get_sanitized_object();
+				this.attach_to_response.company = this.team_creator.attach_to_response.company;
+				this.attach_to_response.users = this.team_creator.attach_to_response.users;
 				delete this.attributes.team;
 				callback();
 			}

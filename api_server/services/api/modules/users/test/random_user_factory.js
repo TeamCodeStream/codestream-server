@@ -82,12 +82,17 @@ class Random_User_Factory {
 
 	get_random_user_data (options = {}) {
 		let emails = [this.random_email()];
-		let password = Random_String.generate(12);
-		let username = Random_String.generate(12);
 		let first_name = Random_String.generate(10);
 		let last_name = Random_String.generate(10);
 		let timeout = options.timeout || null;
-		return { emails, password, username, first_name, last_name, timeout };
+		let data = { emails, first_name, last_name, timeout };
+		if (!options.no_password) {
+			data.password = Random_String.generate(12);
+		}
+		if (!options.no_username) {
+			data.username = Random_String.generate(12);
+		}
+		return data;
 	}
 
 	create_random_user (callback, options) {
@@ -109,17 +114,6 @@ class Random_User_Factory {
 			this,
 			howmany,
 			this.create_random_nth_user,
-			callback
-		);
-	}
-
-	create_random_coworkers (howmany, company_name, callback) {
-		Bound_Async.timesSeries(
-			this,
-			howmany,
-			(n, callback) => {
-				this.create_random_user(callback, { company_name: company_name });
-			},
 			callback
 		);
 	}

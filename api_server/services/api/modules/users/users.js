@@ -6,7 +6,7 @@ var User_Creator = require('./user_creator');
 var User = require('./user');
 
 const USERS_STANDARD_ROUTES = {
-	want: ['get', 'get_many'],
+	want: ['get', 'get_many', 'post'],
 	base_route_name: 'users',
 	request_classes: {
 		'get': require('./get_user_request')

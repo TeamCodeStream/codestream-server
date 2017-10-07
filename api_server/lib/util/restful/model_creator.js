@@ -7,6 +7,7 @@ class Model_Creator {
 	constructor (options) {
 		Object.assign(this, options);
 		['data', 'api', 'error_handler', 'user'].forEach(x => this[x] = this.request[x]);
+		this.attach_to_response = {};
 	}
 
 	create_model (attributes, callback) {
@@ -17,8 +18,10 @@ class Model_Creator {
 
 		this.attributes = attributes;
 		Bound_Async.series(this, [
-			this.allow_attributes,
+			this.normalize,
+			this.require_attributes,
 			this.validate,
+			this.allow_attributes,
 			this.check_existing,
 			this.pre_save,
 			this.check_validation_warnings,
@@ -29,8 +32,28 @@ class Model_Creator {
 		});
 	}
 
-	allow_attributes (callback) {
+	normalize (callback) {
 		process.nextTick(callback);
+	}
+
+	require_attributes (callback) {
+		let required_attributes = this.get_required_attributes() || [];
+		let missing_attributes = [];
+		required_attributes.forEach(attribute => {
+			if (typeof this.attributes[attribute] === 'undefined') {
+				missing_attributes.push(attribute);
+			}
+		});
+		if (missing_attributes.length) {
+			return callback(this.error_handler.error('attribute_required', { info: missing_attributes.join(',') }));
+		}
+		else {
+			process.nextTick(callback);
+		}
+	}
+
+	get_required_attributes () {
+		return null;
 	}
 
 	validate (callback) {
@@ -51,13 +74,8 @@ class Model_Creator {
 		process.nextTick(callback);
 	}
 
-	check_required (required_attributes) {
-		var missing_attribute = required_attributes.find(attribute => {
-			return (typeof this.attributes[attribute] === 'undefined');
-		});
-		if (missing_attribute) {
-			return { [missing_attribute]: 'is required' };
-		}
+	allow_attributes (callback) {
+		process.nextTick(callback);
 	}
 
 	check_existing (callback) {
@@ -90,6 +108,10 @@ class Model_Creator {
 
 	pre_save (callback) {
 		if (this.existing_model) {
+			if (this.dont_save_if_exists) {
+				this.model = this.existing_model;
+				return callback();
+			}
 			this.attributes = Object.assign({}, this.existing_model.attributes, this.attributes);
 		}
 		this.model = new this.model_class(this.attributes);

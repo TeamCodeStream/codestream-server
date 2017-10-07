@@ -3,6 +3,7 @@
 var Data_Model_Validator = require(process.env.CI_API_TOP + '/lib/util/data_collection/data_model_validator');
 var CodeStream_Model_Attributes = require('./codestream_model_attributes');
 var URL = require('url');
+var ObjectID = require('mongodb').ObjectID;
 
 class CodeStream_Model_Validator extends Data_Model_Validator {
 
@@ -20,13 +21,25 @@ class CodeStream_Model_Validator extends Data_Model_Validator {
 		});
 	}
 
-	validate_id (/*value, definition, options*/) {
-		// TODO -- any way to validate mongo ID?
+	validate_id (value/*, definition, options*/) {
+		try {
+			ObjectID(value);
+		}
+		catch(error) {
+			return `invalid ID: ${error}`;
+		}
 	}
 
 	validate_array_of_ids (value, definition, options) {
 		if (!(value instanceof Array)) {
 			return 'must be an array of IDs';
+		}
+		if (
+			definition &&
+			definition.max_length &&
+			value.length > definition.max_length
+		) {
+			return 'array is too long';
 		}
 		for (let index = 0, length = value.length; index < length; index++) {
 			var result = this.validate_id(value[index], definition, options);
@@ -37,16 +50,19 @@ class CodeStream_Model_Validator extends Data_Model_Validator {
 	}
 
 	validate_url (value, definition/*, options*/) {
-		const message = 'invalid url';
 		if (!value || typeof value !== 'string') {
-			return message;
+			return 'not a string';
 		}
-		if (definition.max_length && value.length > definition.max_length) {
+		if (
+			definition &&
+			definition.max_length &&
+			value.length > definition.max_length
+		) {
 			return 'url is too long';
 		}
 		var parsed = URL.parse(value);
 		if (!parsed.host || !parsed.pathname) {
-			return message;
+			return 'invalid url';
 		}
 	}
 }

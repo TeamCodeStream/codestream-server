@@ -125,12 +125,14 @@ class Data_Model_Validator {
 			return 'must be a string';
 		}
 		if (
+			definition &&
 			definition.max_length &&
 			value.length > definition.max_length
 		) {
 			return `string length must be less than or equal to ${definition.max_length} characters`;
 		}
 		if (
+			definition &&
 			definition.min_length &&
 			value.length < definition.min_length
 		) {
@@ -143,6 +145,7 @@ class Data_Model_Validator {
 			return 'must be an object';
 		}
 		if (
+			definition &&
 			definition.max_size &&
 			JSON.stringify(value).length > definition.max_size
 		) {
@@ -155,12 +158,14 @@ class Data_Model_Validator {
 			return 'must be an array';
 		}
 		if (
+			definition &&
 			definition.max_length &&
 			value.length > definition.max_length
 		) {
 			return 'too many elements in array';
 		}
 		if (
+			definition &&
 			definition.max_size &&
 			JSON.stringify(value).length > definition.max_size
 		) {

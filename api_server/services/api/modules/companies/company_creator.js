@@ -18,6 +18,10 @@ class Company_Creator extends Model_Creator {
 		return this.create_model(attributes, callback);
 	}
 
+	get_required_attributes () {
+		return ['name'];
+	}
+
 	allow_attributes (callback) {
 		Allow(
 			this.attributes,
@@ -28,10 +32,9 @@ class Company_Creator extends Model_Creator {
 		process.nextTick(callback);
 	}
 
-	validate_attributes (callback) {
-		let required_attributes = ['name'];
-		let error =	this.check_required(required_attributes);
-		return process.nextTick(() => callback(error));
+	pre_save (callback) {
+		this.attributes.creator_id = this.user.id;
+		super.pre_save(callback);
 	}
 }
 

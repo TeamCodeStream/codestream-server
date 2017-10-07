@@ -16,6 +16,7 @@ class Register_Request extends Restful_Request {
 	process (callback) {
 		Bound_Async.series(this, [
 			this.allow,
+			this.require,
 			this.generate_confirm_code,
 			this.save_user,
 			this.send_email
@@ -38,6 +39,17 @@ class Register_Request extends Restful_Request {
 		);
 	}
 
+	require (callback) {
+		if (!this.request.body.emails && !this.request.body.email) {
+			return callback(this.error_handler.error('parameter_required', { info: 'emails' }));
+		}
+		this.require_parameters(
+			'body',
+			['password', 'username'],
+			callback
+		);
+	}
+
 	generate_confirm_code (callback) {
 		this.request.body.confirmation_code = Confirm_Code();
 		this.request.body.confirmation_attempts = 0;
@@ -49,10 +61,6 @@ class Register_Request extends Restful_Request {
 	}
 
 	save_user (callback) {
-		if (this.request.body.email) {
-			this.request.body.emails = [this.request.body.email];
-			delete this.request.body.email;
-		}
 		this.user_creator = new User_Creator({
 			request: this
 		});

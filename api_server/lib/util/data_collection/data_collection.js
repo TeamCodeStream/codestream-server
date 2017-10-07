@@ -96,7 +96,7 @@ class Data_Collection {
 	}
 
 	create_id () {
-		return this.database_collection.create_id();
+		return this.database_collection.create_id().toString();
 	}
 
 	update (data, callback, options = {}) {

@@ -66,7 +66,7 @@ class Post_Creator extends Model_Creator {
 
 	post_save (callback) {
 		if (this.stream) {
-			this.attach_to_response = { stream: this.stream.attributes };
+			this.attach_to_response.stream = this.stream.get_sanitized_object();
 		}
 		process.nextTick(callback);
 	}
