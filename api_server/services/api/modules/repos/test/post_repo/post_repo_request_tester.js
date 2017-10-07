@@ -5,7 +5,8 @@ var No_Attribute_Test = require('./no_attribute_test');
 var Normalize_Url_Test = require('./normalize_url_test');
 var Sha_Mismatch_Test = require('./sha_mismatch_test');
 var Already_Have_Repo_Test = require('./already_have_repo_test');
-var Create_Users_Test = require('./create_users_test');
+var Add_Users_Test = require('./add_users_test');
+var Add_Existing_Registered_Users_Test = require('./add_existing_registered_users_test');
 
 class Post_Repo_Request_Tester {
 
@@ -16,7 +17,8 @@ class Post_Repo_Request_Tester {
 		new Normalize_Url_Test().test();
 		new Sha_Mismatch_Test().test();
 		new Already_Have_Repo_Test().test();
-		new Create_Users_Test().test();
+		new Add_Users_Test().test();
+		new Add_Existing_Registered_Users_Test().test();
 	}
 }
 
