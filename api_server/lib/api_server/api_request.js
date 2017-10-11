@@ -92,7 +92,13 @@ class API_Request {
 	}
 
 	make_data (callback) {
-		this.data.make_data(callback);
+		this.data.make_data(error => {
+			if (error) { return callback(error); }
+			if (this.data.users && this.user) {
+				this.data.users.add_model_to_cache(this.user);
+			}
+			callback();
+		});
 	}
 
 	// finish with this request

@@ -165,7 +165,7 @@ class Team_Creator extends Model_Creator {
 	check_usernames_unique (callback) {
 		if (!this.users_created) { return callback(); }
 		let usernames = this.users_created.map(user => user.get('username') ? user.get('username').toLowerCase() : null);
-		usernames.push(this.user.get('username') ? this.user.get('username') : null);
+		usernames.push(this.user.get('username') ? this.user.get('username').toLowerCase() : null);
 		usernames = usernames.filter(username => !!username);
 		usernames.sort();
 		for (var i = 0, len = usernames.length; i < len; i++) {

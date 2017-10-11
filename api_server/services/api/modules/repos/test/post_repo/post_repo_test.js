@@ -3,9 +3,18 @@
 var Assert = require('assert');
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
 var Repo_Test_Constants = require('../repo_test_constants');
+var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Normalize_URL = require('normalize-url');
 
 class Post_Repo_Test extends CodeStream_API_Test {
+
+	constructor (options) {
+		super(options);
+		this.test_options = {};
+		this.team_emails = [];
+		this.repo_options = {};
+		this.user_data = [];
+	}
 
 	get method () {
 		return 'post';
@@ -21,7 +30,7 @@ class Post_Repo_Test extends CodeStream_API_Test {
 
 	get_expected_fields () {
 		let expected_response = Repo_Test_Constants.EXPECTED_REPO_RESPONSE;
-		if (this.team_not_required) {
+		if (this.test_options.team_not_required) {
 			delete expected_response.team;
 			delete expected_response.company;
 		}
@@ -29,6 +38,114 @@ class Post_Repo_Test extends CodeStream_API_Test {
 	}
 
 	before (callback) {
+		Bound_Async.series(this, [
+			this.create_other_user,
+			this.create_mixed_users,
+			this.create_other_repo,
+			this.make_repo_data,
+			this.create_conflicting_user_with_current_user,
+			this.create_conflicting_user_with_existing_user
+		], callback);
+	}
+
+	create_other_user (callback) {
+		if (!this.test_options.want_other_user) {
+			return callback();
+		}
+		this.user_factory.create_random_user(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.other_user_data = response;
+				callback();
+			}
+		);
+	}
+
+	create_mixed_users (callback) {
+		if (!this.test_options.want_random_emails) {
+			return callback();
+		}
+		Bound_Async.series(this, [
+			this.create_random_unregistered_users,
+			this.create_random_registered_users,
+			this.create_random_emails
+		], callback);
+	}
+
+	create_random_unregistered_users (callback) {
+		this.create_random_users(callback, { no_confirm: true});
+	}
+
+	create_random_registered_users (callback) {
+		this.create_random_users(callback);
+	}
+
+	create_random_users (callback, options) {
+		this.user_factory.create_random_users(
+			2,
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.user_data = [...this.user_data, ...response];
+				let emails = response.map(user_data => { return user_data.user.emails[0]; });
+				this.team_emails = [...this.team_emails, ...emails];
+				callback();
+			},
+			options
+		);
+	}
+
+	create_random_emails (callback) {
+		for (let i = 0; i < 2; i++) {
+			this.team_emails.push(this.user_factory.random_email());
+		}
+		callback();
+	}
+
+	create_other_repo (callback) {
+		if (!this.test_options.want_other_repo) {
+			return callback();
+		}
+		this.other_repo_options = this.other_repo_options || { token: this.token };
+		this.repo_factory.create_random_repo((error, response) => {
+			if (error) { return callback(error); }
+			this.existing_repo = response.repo;
+			callback();
+		}, this.other_repo_options);
+	}
+
+	create_conflicting_user_with_current_user (callback) {
+		if (!this.test_options.want_conflicting_user_with_current_user) {
+			return callback();
+		}
+		this.user_factory.create_random_user(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.team_emails.push(response.user.emails[0]);
+				callback();
+			},
+			{ with: { username: this.current_user.username } }
+		);
+	}
+
+	create_conflicting_user_with_existing_user (callback) {
+		if (!this.test_options.want_conflicting_user_with_existing_user) {
+			return callback();
+		}
+		let user_with_username = this.user_data.find(user => !!user.user.username);
+		this.user_factory.create_random_user(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.team_emails.push(response.user.emails[0]);
+				callback();
+			},
+			{ with: { username: user_with_username.user.username } }
+		);
+	}
+
+	make_repo_data (callback) {
+		if (this.team_emails.length > 0) {
+			this.repo_options.with_emails = this.team_emails;
+		}
 		this.repo_factory.get_random_repo_data((error, data) => {
 			if (error) { return callback(error); }
 			this.data = data;
@@ -49,7 +166,10 @@ class Post_Repo_Test extends CodeStream_API_Test {
 			(!this.not_created_by_me || (repo.creator_id === this.current_user._id) || errors.push('creator_id not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-		if (!this.team_not_required) {
+		if (this.team_emails && this.team_emails.length > 0) {
+			this.validate_users(data);
+		}
+		if (!this.test_options.team_not_required) {
 			this.validate_team(data);
 			this.validate_company(data);
 		}
@@ -91,7 +211,23 @@ class Post_Repo_Test extends CodeStream_API_Test {
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		this.validate_sanitized(team, Repo_Test_Constants.UNSANITIZED_COMPANY_ATTRIBUTES);
+	}
 
+	validate_users (data) {
+		Assert(data.users instanceof Array, 'no users array returned');
+		data.users.forEach(user => {
+			Assert(this.team_emails.indexOf(user.emails[0]) !== -1, `got unexpected email ${user.emails[0]}`);
+			Assert(user.team_ids.indexOf(data.repo.team_id) !== -1, `user ${user.emails[0]} doesn't have the team for the repo`);
+			Assert(user.company_ids.indexOf(data.repo.company_id) !== -1, `user ${user.emails[0]} doesn't have the company for the repo`);
+			if (data.team) {
+				Assert(data.team.member_ids.indexOf(user._id) !== -1, `user ${user.emails[0]} not a member of the team for the repo`);
+			}
+			this.validate_sanitized(user, Repo_Test_Constants.UNSANITIZED_USER_ATTRIBUTES);
+		});
+		if (!this.test_options.team_not_required) {
+			let added_user_ids = data.users.map(user => user._id);
+			this.team_data.member_ids = [this.current_user._id, ...added_user_ids].sort();
+		}
 	}
 }
 

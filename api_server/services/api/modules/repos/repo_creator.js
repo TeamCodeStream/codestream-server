@@ -6,7 +6,7 @@ var Repo = require('./repo');
 var Normalize_URL = require('normalize-url');
 var Allow = require(process.env.CI_API_TOP + '/lib/util/allow');
 var Repo_Attributes = require('./repo_attributes');
-var Team_Joiner = require(process.env.CI_API_TOP + '/services/api/modules/teams/team_joiner');
+var Add_Team_Members = require(process.env.CI_API_TOP + '/services/api/modules/teams/add_team_members');
 var Team_Creator = require(process.env.CI_API_TOP + '/services/api/modules/teams/team_creator');
 var CodeStream_Model_Validator = require(process.env.CI_API_TOP + '/lib/models/codestream_model_validator');
 const Errors = require('./errors');
@@ -80,7 +80,8 @@ class Repo_Creator extends Model_Creator {
 			this.attributes,
 			{
 				string: ['url', 'first_commit_sha', 'team_id'],
-				object: ['team']
+				object: ['team'],
+				'array(string)': ['emails']
 			}
 		);
 		process.nextTick(callback);
@@ -106,7 +107,7 @@ class Repo_Creator extends Model_Creator {
 
 	join_to_team (callback) {
 		if (this.existing_model) {
-			this.join_user_to_repo_team(callback);
+			this.join_users_to_repo_team(callback);
 		}
 		else if (this.attributes.team_id) {
 			this.join_repo_to_existing_team(callback);
@@ -119,32 +120,72 @@ class Repo_Creator extends Model_Creator {
 		}
 	}
 
-	join_user_to_repo_team (callback) {
-		// join the user to the team that already owns this repo
+	join_users_to_repo_team (callback) {
+		// join the current user and any other users to the team that already owns this repo
 		// first verify that the SHA for the first commit is valid
 		if (this.attributes.first_commit_sha !== this.existing_model.get('first_commit_sha')) {
 			return callback(this.error_handler.error('sha_mismatch'));
 		}
-		if ((this.user.get('team_ids') || []).indexOf(this.existing_model.get('team_id')) !== -1) {
+		if (
+			!this.attributes.emails &&
+			(this.user.get('team_ids') || []).indexOf(this.existing_model.get('team_id')) !== -1
+		) {
 			return callback();
 		}
-		new Team_Joiner({
+		let adder = new Add_Team_Members({
 			request: this.request,
+			users: [this.user],
+			emails: this.attributes.emails,
 			team_id: this.existing_model.get('team_id')
-		}).join_team(callback);
+		});
+		adder.add_team_members(error => {
+			if (error) { return callback(error); }
+			this.attach_to_response.users = adder.sanitized_users;
+			process.nextTick(callback);
+		});
 	}
 
 	join_repo_to_existing_team (callback) {
+		Bound_Async.series(this, [
+			this.get_team,
+			this.add_users_to_team
+		], callback);
+	}
+
+	get_team (callback) {
 		// join this repo to the team already specified by the caller
-		// ACL concern: this user must already be a member of the team
 		this.data.teams.get_by_id(
 			this.attributes.team_id,
 			(error, team) => {
 			 	if (error) { return callback(error); }
+				if (!team) {
+					return callback(this.error_handler.error('not_found', { info: 'team' }));
+				}
+				if ((team.get('member_ids') || []).indexOf(this.user.id) === -1) {
+					return callback(this.error_handler.error('update_auth', { reason: 'user not on team' }));
+				}
+				this.team = team;
 				this.attributes.company_id = team.get('company_id');
 				callback();
 			}
 		);
+	}
+
+	add_users_to_team (callback) {
+		if (!(this.attributes.emails instanceof Array)) {
+			return callback();
+		}
+		let adder = new Add_Team_Members({
+			request: this.request,
+			emails: this.attributes.emails,
+			team: this.team
+		});
+		adder.add_team_members(error => {
+			if (error) { return callback(error); }
+			this.attach_to_response.users = adder.sanitized_users;
+			delete this.attributes.emails;
+			process.nextTick(callback);
+		});
 	}
 
 	create_team_for_repo (callback) {

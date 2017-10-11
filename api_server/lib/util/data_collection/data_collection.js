@@ -87,7 +87,7 @@ class Data_Collection {
 		let id = (data[this.id_attribute] || this.create_id()).toString();
 		data[this.id_attribute] = id;
 		let model = new this.model_class(data);
-		this._add_model_to_cache(model);
+		this.add_model_to_cache(model);
 		delete this.dirty_model_ids[id];
 		delete this.to_delete_ids[id];
 		delete this.model_ops[id];
@@ -158,7 +158,7 @@ class Data_Collection {
 		}
 		else {
 			model = new this.model_class(data);
-			this._add_model_to_cache(model);
+			this.add_model_to_cache(model);
 		}
 		if (callback) {
 			return callback(null, model);
@@ -185,7 +185,7 @@ class Data_Collection {
 		);
 	}
 
-	_add_model_to_cache (model, callback) {
+	add_model_to_cache (model, callback) {
 		var id = model.id;
 		var model_ops = this.model_ops[id];
 		var cached_model = this.models[id];
@@ -208,7 +208,7 @@ class Data_Collection {
 			this,
 			models,
 			50,
-			this._add_model_to_cache,
+			this.add_model_to_cache,
 			callback
 		);
 	}
@@ -259,7 +259,7 @@ class Data_Collection {
 			model.attributes,
 			(error, updated_model) => {
 				if (error) { return callback(error); }
-				this._add_model_to_cache(updated_model);
+				this.add_model_to_cache(updated_model);
 				delete this.model_ops[id];
 				delete this.dirty_model_ids[id];
 				process.nextTick(callback);

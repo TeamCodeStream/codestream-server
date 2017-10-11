@@ -32,6 +32,9 @@ class Random_Repo_Factory {
 		};
 		if (options.team_id) {
 			data.team_id = options.team_id;
+			if (options.with_emails) {
+				data.emails = options.with_emails;
+			}
 		}
 		else if (options.team) {
 			data.team = options.team;

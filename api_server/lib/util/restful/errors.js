@@ -38,6 +38,14 @@ const ERRORS = {
 		code: 'RAPI-1008',
 		message: 'Missing argument',
 		internal: true
+	},
+	'read_auth': {
+		code: 'RAPI-1009',
+		message: 'Not authorized to read'
+	},
+	'update_auth': {
+		code: 'RAPI-1010',
+		message: 'Not authorized to update'
 	}
 };
 

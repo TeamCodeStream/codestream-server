@@ -1,9 +1,13 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
-var Add_Mixed_Users_Test = require('./add_mixed_users_test');
+var Add_Users_Test = require('./add_users_test');
 
-class Add_Users_Unique_Usernames_Test extends Add_Mixed_Users_Test {
+class Add_Users_Unique_Usernames_Test extends Add_Users_Test {
+
+	constructor (options) {
+		super(options);
+		this.test_options.want_conflicting_user_with_existing_user = true;
+	}
 
 	get_description () {
 		return 'should return an error when creating a repo with emails where there is a uername conflict with an existing email';
@@ -17,25 +21,6 @@ class Add_Users_Unique_Usernames_Test extends Add_Mixed_Users_Test {
 		return {
 			code: 'TEAM-1000'
 		};
-	}
-
-	before (callback) {
-		Bound_Async.series(this, [
-			this.create_conflicting_user,
-			super.before
-		], callback);
-	}
-
-	create_conflicting_user (callback) {
-		this.user_factory.create_random_user(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team_emails = [response.user.emails[0]];
-				callback();
-			},
-			{ with: { username: this.current_user.username } }
-		);
-
 	}
 }
 

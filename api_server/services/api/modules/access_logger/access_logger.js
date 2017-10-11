@@ -32,15 +32,15 @@ class Access_Logger extends API_Server_Module {
 
 	log_request (request, response, status, start_timer) {
 		var elapsed_time = new Date().getTime() - start_timer;  // more like elapsed time until event loop gets to here
-		var user_id = (request.user && request.user._id) || '???';
+		var user_id = (request.user && request.user.id) || '???';
 		this.logger.log(
 			request.id                     + ' '   +
 			status                         + ' '   +
-			request.method                 + ' '   + 
-			request.url                    + ' '   + 
-			user_id                        + ' '   + 
-			response.statusCode            + ' '   + 
-			response.get('content-length') + ' '   + 
+			request.method                 + ' '   +
+			request.url                    + ' '   +
+			user_id                        + ' '   +
+			response.statusCode            + ' '   +
+			response.get('content-length') + ' '   +
 			elapsed_time                   + ' '   +
 			request.headers.host           + ' "'  +
 			request.headers.referer        + '" "' +
