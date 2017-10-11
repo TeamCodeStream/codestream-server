@@ -1,14 +1,12 @@
 'use strict';
 
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
-var Company_Test_Constants = require('../company_test_constants');
-
-const DESCRIPTION = 'should return company when requesting another company';
+const Company_Test_Constants = require('../company_test_constants');
 
 class Get_Other_Company_Test extends CodeStream_API_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return company when requesting another company';
 	}
 
 	get_expected_fields () {

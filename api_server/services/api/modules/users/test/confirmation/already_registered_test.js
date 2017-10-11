@@ -5,7 +5,7 @@ var Confirmation_Test = require('./confirmation_test');
 
 class Already_Registered_Test extends Confirmation_Test {
 
-	get_description () {
+	get description () {
 		return 'should return an error when confirming a registration with an email that has already been confirmed';
 	}
 

@@ -5,7 +5,7 @@ var Mongo_Test = require('./mongo_test');
 
 class Delete_By_Ids_Test extends Mongo_Test {
 
-	get_description () {
+	get description () {
 		return 'should not get documents after they have been deleted by ID';
 	}
 
@@ -30,7 +30,7 @@ class Delete_By_Ids_Test extends Mongo_Test {
 	}
 
 	run (callback) {
-		var ids = this.documents.map(document => { return document._id; });
+		let ids = this.documents.map(document => { return document._id; });
 		this.data.test.get_by_ids(
 			ids,
 			(error, response) => {

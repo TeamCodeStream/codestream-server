@@ -1,6 +1,6 @@
 'use strict';
 
-var User_Attributes = require(process.env.CI_API_TOP + '/services/api/modules/users/user_attributes');
+const User_Attributes = require(process.env.CI_API_TOP + '/services/api/modules/users/user_attributes');
 
 const EXPECTED_USER_FIELDS = [
 	'_id',

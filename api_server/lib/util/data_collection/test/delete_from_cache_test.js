@@ -5,7 +5,7 @@ var Data_Collection_Test = require('./data_collection_test');
 
 class Delete_From_Cache_Test extends Data_Collection_Test {
 
-	get_description () {
+	get description () {
 		return 'should not get a model after it has been deleted from the cache';
 	}
 

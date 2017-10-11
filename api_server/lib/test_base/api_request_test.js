@@ -23,16 +23,16 @@ class API_Request_Test extends Generic_Test {
 	}
 
 	do_api_request (options = {}, callback = null) {
-		var request_options = Object.assign({}, options.request_options || {});
+		let request_options = Object.assign({}, options.request_options || {});
 		request_options.rejectUnauthorized = false;
 		if (options.token) {
 			request_options.headers = Object.assign({}, request_options.headers || {});
 			request_options.headers.Authorization = 'Bearer ' + options.token;
 		}
 
-		var method = options.method || 'get';
-		var path = options.path || '/';
-		var data = options.data || null;
+		const method = options.method || 'get';
+		const path = options.path || '/';
+		const data = options.data || null;
 		HTTPS_Bot[method](
 			Test_API_Config.api.host,
 			Test_API_Config.api.port,

@@ -4,12 +4,10 @@ var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
 var Post_Group_Post_Test = require('./post_group_post_test');
 
-const DESCRIPTION = 'should return a valid post for new group if group attributes are provided';
-
 class Post_Post_On_The_Fly_Group_Test extends Post_Group_Post_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return a valid post for new group if group attributes are provided';
 	}
 
 	before (callback) {
@@ -37,8 +35,8 @@ class Post_Post_On_The_Fly_Group_Test extends Post_Group_Post_Test {
 
 	validate_response (data) {
 		super.validate_response(data);
-		var group = data.group;
-		var members_with_current_user = [this.current_user._id, ...this.data.group.member_ids];
+		let group = data.group;
+		let members_with_current_user = [this.current_user._id, ...this.data.group.member_ids];
 		members_with_current_user.sort();
 		Assert(
 			group &&

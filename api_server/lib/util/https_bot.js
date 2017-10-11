@@ -9,17 +9,17 @@ function _Simple_Request (method, host, port, path, data, callback, options) { /
         'Content-Type': 'application/json'
     });
 
-    var request = HTTPS.request(
+    let request = HTTPS.request(
         options,
         (response) => {
-            var response_data = '';
+            let response_data = '';
 
             response.on('data', (data) => {
                 response_data += data;
             });
 
             response.on('end', () => {
-                var parsed;
+                let parsed;
                 try {
                     parsed = JSON.parse(response_data);
                 }

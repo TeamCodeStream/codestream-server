@@ -1,6 +1,6 @@
 'use strict';
 
-var Strftime = require('strftime');   
+var Strftime = require('strftime');
 var Path = require('path');
 var FS = require('fs');
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
@@ -17,7 +17,7 @@ class Simple_File_Logger {
 		Object.assign(this, options);
 		if (typeof options.retention_period !== 'undefined') {
 			this.retention_period = options.retention_period;
-		} 
+		}
 		else {
 			this.retention_period = this.retention_period || (7 * 24 * 60 * 60 * 1000); // one week by default
 		}
@@ -30,7 +30,7 @@ class Simple_File_Logger {
 	}
 
 	open_next_log_file (callback) {
-		var now = Date.now();
+		const now = Date.now();
 		this.current_filename = this.get_log_file_name(now);
 		try {
 			this.fd = FS.createWriteStream(this.current_filename, { flags: 'a' });
@@ -49,9 +49,9 @@ class Simple_File_Logger {
 		if (typeof date === 'number') {
 			date = new Date(date);
 		}
-		var format = this.format || '%Y%m%d';
-		var formatted = Strftime(format, date);
-		var extension = this.extension || 'log';
+		const format = this.format || '%Y%m%d';
+		const formatted = Strftime(format, date);
+		const extension = this.extension || 'log';
 		return Path.join(
 			this.directory,
 			this.basename + '-' + formatted + '.' + extension
@@ -59,7 +59,7 @@ class Simple_File_Logger {
 	}
 
 	get_link_name () {
-		var extension = this.extension || 'log';
+		const extension = this.extension || 'log';
 		return Path.join(
 			this.directory,
 			this.basename + '.' + extension
@@ -102,7 +102,7 @@ class Simple_File_Logger {
 	}
 
 	out (text, request_id) {
-		var full_text = Strftime('%Y-%m-%d %H:%M:%S.%L');
+		let full_text = Strftime('%Y-%m-%d %H:%M:%S.%L');
 		if (this.logger_host) {
 			full_text += ' ' + this.logger_host;
 		}
@@ -113,7 +113,7 @@ class Simple_File_Logger {
 		if (request_id) {
 			full_text += ' ' + request_id;
 		}
-		full_text += ' ' + text; 
+		full_text += ' ' + text;
 		if (this.fd) {
 			this.fd.write(full_text + '\n', 'utf8');
 		}
@@ -124,24 +124,24 @@ class Simple_File_Logger {
 	}
 
 	maybe_rotate (callback) {
-		var now = Date.now();
-		var now_midnight = this.midnight(now);
-		var last_written_midnight = this.midnight(this.last_written);
+		const now = Date.now();
+		const now_midnight = this.midnight(now);
+		const last_written_midnight = this.midnight(this.last_written);
 		if (now_midnight > last_written_midnight) {
 			this.rotate(callback);
 		}
 		else {
 			callback();
 		}
-	}	
+	}
 
 	midnight (timestamp) {
-		var one_day = 24 * 60 * 60 * 1000;
-		var ms_since_midnight_gmt = timestamp % one_day;
-		var midnight_gmt = timestamp - ms_since_midnight_gmt;
-		var one_minute = 60 * 1000;
-		var timezone_offset = new Date().getTimezoneOffset() * one_minute;
-		var my_midnight = midnight_gmt + timezone_offset - one_day;
+		const one_day = 24 * 60 * 60 * 1000;
+		const ms_since_midnight_gmt = timestamp % one_day;
+		const midnight_gmt = timestamp - ms_since_midnight_gmt;
+		const one_minute = 60 * 1000;
+		const timezone_offset = new Date().getTimezoneOffset() * one_minute;
+		const my_midnight = midnight_gmt + timezone_offset - one_day;
 		return my_midnight;
 	}
 
@@ -182,14 +182,14 @@ class Simple_File_Logger {
 	}
 
 	cleanup_old (callback) {
-		var now = Date.now();
-		var now_midnight = this.midnight(now);
-		var delete_through = now_midnight - this.retention_period;
-		var one_day = 24 * 60 * 60 * 1000;
-		var delete_from = delete_through - 30 * one_day; 
-		var day = delete_from;
+		const now = Date.now();
+		const now_midnight = this.midnight(now);
+		const delete_through = now_midnight - this.retention_period;
+		const one_day = 24 * 60 * 60 * 1000;
+		const delete_from = delete_through - 30 * one_day;
+		let day = delete_from;
 		Bound_Async.whilst(
-			this, 
+			this,
 			() => {
 				return day <= delete_through;
 			},
@@ -204,7 +204,7 @@ class Simple_File_Logger {
 	}
 
 	delete_day (day, callback) {
-		var filename = this.get_log_file_name(day);
+		const filename = this.get_log_file_name(day);
 		FS.unlink(filename, callback);
 	}
 }

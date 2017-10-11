@@ -4,7 +4,7 @@ var Registration_Test = require('./registration_test');
 
 class No_Attribute_Test extends Registration_Test {
 
-	get_description () {
+	get description () {
 		return `should return error when registering with no ${this.attribute}`;
 	}
 

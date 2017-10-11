@@ -3,12 +3,10 @@
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
 
-const DESCRIPTION = 'should return the right posts when requesting posts newer than a time';
-
 class Get_Posts_By_Newer_Than_Test extends CodeStream_API_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return the right posts when requesting posts newer than a time';
 	}
 
 	before (callback) {
@@ -33,7 +31,7 @@ class Get_Posts_By_Newer_Than_Test extends CodeStream_API_Test {
 	 		5,
 	 		(error, posts) => {
 	 			if (error) { return callback(error); }
-	 			var which = for_when + '_posts';
+	 			const which = for_when + '_posts';
 	 			this[which] = [];
 	 			Object.keys(posts).forEach(type => {
 					this[which] = [...this[which], ...posts[type]];

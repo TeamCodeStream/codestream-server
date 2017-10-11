@@ -5,7 +5,7 @@ var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codes
 
 class Get_Posts_By_Query_Test extends CodeStream_API_Test {
 
-	get_description () {
+	get description () {
 		return 'should return the right posts when requesting posts by ' + this.type;
 	}
 
@@ -51,7 +51,7 @@ class Get_Posts_By_Query_Test extends CodeStream_API_Test {
 
 	prepare (callback) {
 		this.path = '/posts?org_id=' + this.current_orgs[0]._id;
-		var query = this.get_query(this.created_query_posts);
+		let query = this.get_query(this.created_query_posts);
 		if (query) {
 			this.path += '&' + query;
 		}

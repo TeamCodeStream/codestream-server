@@ -6,8 +6,9 @@ var PubNub_Client = require('pubnub');
 
 var pubnub = new PubNub_Client(PubNub_Config);
 
+var channels;
 if (process.argv[2]) {
-	var channels = process.argv[2].split(',');
+	channels = process.argv[2].split(',');
 }
 else {
 	console.error('No channels');
@@ -16,7 +17,7 @@ else {
 }
 pubnub.addListener({
 	message: (message) => {
-		var stringified = JSON.stringify(message.message, undefined, 5);
+		let stringified = JSON.stringify(message.message, undefined, 5);
 		console.log(`\nMESSAGE ON ${message.channel}:\n${stringified}`);
 	}
 });

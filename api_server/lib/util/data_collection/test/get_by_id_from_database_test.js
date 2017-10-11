@@ -6,7 +6,7 @@ var Data_Model = require('../data_model');
 
 class Get_By_Id_From_Database_Test extends Data_Collection_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct model when getting a model by ID and it is not cached';
 	}
 

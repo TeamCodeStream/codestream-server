@@ -9,7 +9,7 @@ class Already_On_Team_Add_Users_Unique_Usernames_Test extends Already_On_Team_Ad
 		this.test_options.want_conflicting_user_with_existing_user = true;
 	}
 
-	get_description () {
+	get description () {
 		return 'should return an error when a user who is already on a team tries to create a repo with emails when there is a username conflict with an existing email';
 	}
 

@@ -27,13 +27,13 @@ class Mongo_Collection {
 
 	run_query (mongo_func, query, callback, options, ...args) {
 		options = options || {};
-		var start_time = Date.now();
-		var request_id = options.request_id;
+		const start_time = Date.now();
+		const request_id = options.request_id;
 		delete options.request_id;
 
-		var query_callback = (error, results) => {
-			var time = Date.now() - start_time;
-			var log_options = { query, mongo_func, time, request_id, error };
+		let query_callback = (error, results) => {
+			const time = Date.now() - start_time;
+			let log_options = { query, mongo_func, time, request_id, error };
 			log_options.query_options = options;
 			this._log_mongo_query(log_options, args);
 			if (error) {
@@ -52,7 +52,7 @@ class Mongo_Collection {
 	}
 
 	get_by_id (id, callback, options) {
-		var query = {};
+		let query = {};
 		query[this.id_attribute] = this.object_id_safe(id);
 		if (!query[this.id_attribute]) {
 			return callback(null, null);
@@ -68,8 +68,8 @@ class Mongo_Collection {
 	}
 
 	get_by_ids (ids, callback, options) {
-		var query = {};
-		var object_ids = [];
+		let query = {};
+		let object_ids = [];
 		Bound_Async.forEachLimit(
 			this,
 			ids,
@@ -86,26 +86,26 @@ class Mongo_Collection {
 	}
 
 	get_by_query (query, callback, options = {}) {
-		var cursor = this.db_collection.find(query);
+		let cursor = this.db_collection.find(query);
 		if (options.sort) {
 			cursor = cursor.sort(options.sort);
 		}
 		if (options.limit) {
 			cursor = cursor.limit(options.limit);
 		}
-		var start_time = Date.now();
+		const start_time = Date.now();
 
-		var log_query = (error) => {
-			var request_id = options.request_id;
+		let log_query = (error) => {
+			const request_id = options.request_id;
 			delete options.request_id;
-			var time = Date.now() - start_time;
-			var mongo_func = 'find';
-			var log_options = { query, mongo_func, time, request_id, error };
+			const time = Date.now() - start_time;
+			const mongo_func = 'find';
+			let log_options = { query, mongo_func, time, request_id, error };
 			log_options.query_options = options;
 			this._log_mongo_query(log_options);
 		};
 
-		var query_callback = (error, results) => {
+		let query_callback = (error, results) => {
 			log_query(error);
 			if (error) {
 				return callback(this.error_handler.data_error(error));
@@ -173,7 +173,7 @@ class Mongo_Collection {
 	}
 
 	update (document, callback, options) {
-		var id = document[this.id_attribute];
+		let id = document[this.id_attribute];
 		if (!id) {
 			return callback(this.error_handler.error('id', { info: this.id_attribute }));
 		}
@@ -202,12 +202,12 @@ class Mongo_Collection {
 	}
 
 	apply_op_by_id (id, op, callback, options) {
-		var mongo_op = this.op_to_db_op(op);
+		let mongo_op = this.op_to_db_op(op);
 		this._apply_mongo_op_by_id(id, mongo_op, callback, options);
 	}
 
 	op_to_db_op (op) {
-		var db_op = {};
+		let db_op = {};
 		Object.keys(OP_TO_DB_OP).forEach(op_key => {
 			if (typeof op[op_key] === 'object') {
 				db_op[OP_TO_DB_OP[op_key]] = op[op_key];
@@ -217,7 +217,7 @@ class Mongo_Collection {
 	}
 
 	_apply_mongo_op_by_id (id, op, callback, options) {
-		var query = {};
+		let query = {};
 		query[this.id_attribute] = this.object_id_safe(id);
 		this.run_query(
 			'updateOne',
@@ -239,7 +239,7 @@ class Mongo_Collection {
 	}
 
 	delete_by_id (id, callback, options) {
-		var query = {
+		let query = {
 			[this.id_attribute]: this.object_id_safe(id)
 		};
 		this.run_query(
@@ -251,8 +251,8 @@ class Mongo_Collection {
 	}
 
 	delete_by_ids (ids, callback, options) {
-		var query = {};
-		var object_ids = [];
+		let query = {};
+		let object_ids = [];
 		Bound_Async.forEachLimit(
 			this,
 			ids,
@@ -291,7 +291,7 @@ class Mongo_Collection {
 	}
 
 	_log_mongo_query_to_logger (logger, options, ...args) {
-		var {
+		let {
 			error = null,
 			query = {},
 			time = 0,
@@ -300,10 +300,10 @@ class Mongo_Collection {
 			query_options = {},
 			no_slow = false
 		} = options;
-		var query_string = this._json_stringify(query);
-		var options_string = this._json_stringify(query_options);
-		var additional_arguments_string = this._json_stringify(args || {});
-		var full_query = `${request_id} db.${this.db_collection.collectionName}.${mongo_func}(${query_string},${options_string},${additional_arguments_string})`;
+		let query_string = this._json_stringify(query);
+		let options_string = this._json_stringify(query_options);
+		let additional_arguments_string = this._json_stringify(args || {});
+		let full_query = `${request_id} db.${this.db_collection.collectionName}.${mongo_func}(${query_string},${options_string},${additional_arguments_string})`;
 		logger.log(`${full_query}|${time}|${error}`);
 		if (
 			!no_slow &&

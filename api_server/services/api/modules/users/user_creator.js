@@ -35,7 +35,7 @@ class User_Creator extends Model_Creator {
 
 	validate_attributes (callback) {
 		this.user_validator = new User_Validator();
-		var error =
+		let error =
 			this.validate_emails() ||
 			this.validate_password() ||
 			this.validate_username();
@@ -43,7 +43,7 @@ class User_Creator extends Model_Creator {
 	}
 
 	validate_emails () {
-		var error = this.user_validator.validate_array_of_emails(this.attributes.emails);
+		let error = this.user_validator.validate_array_of_emails(this.attributes.emails);
 		if (error) {
 		 	return { email: error };
 	 	}
@@ -51,7 +51,7 @@ class User_Creator extends Model_Creator {
 
 	validate_password () {
 		if (!this.attributes.password) { return; }
-		var error = this.user_validator.validate_password(this.attributes.password);
+		let error = this.user_validator.validate_password(this.attributes.password);
 		if (error) {
 			return { password: error };
 		}
@@ -59,7 +59,7 @@ class User_Creator extends Model_Creator {
 
 	validate_username () {
 		if (!this.attributes.username) { return; }
-		var error = this.user_validator.validate_username(this.attributes.username);
+		let error = this.user_validator.validate_username(this.attributes.username);
 		if (error) {
 		 	return { username: error };
 	 	}
@@ -82,7 +82,7 @@ class User_Creator extends Model_Creator {
 	}
 
 	check_existing_query () {
-		var lowercase_emails = this.attributes.emails.map(email => email.toLowerCase());
+		let lowercase_emails = this.attributes.emails.map(email => email.toLowerCase());
 		return {
 			searchable_emails: { $in: lowercase_emails },
 			deactivated: false

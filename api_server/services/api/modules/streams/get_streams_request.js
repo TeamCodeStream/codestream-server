@@ -17,10 +17,10 @@ class Get_Streams_Request extends Get_Many_Request {
 		) {
 			return null;
 		}
-		var query = {};
-		for (var parameter in this.request.query || {}) {
+		let query = {};
+		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
-				var error = this.process_query_parameter(parameter, query);
+				let error = this.process_query_parameter(parameter, query);
 				if (error) {
 					return error;
 				}

@@ -4,12 +4,10 @@ var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
 var Post_Group_Post_Test = require('./post_group_post_test');
 
-const DESCRIPTION = 'should return a valid post for existing group if group attributes of existing group are provided';
-
 class Post_Post_Find_Existing_Group_Test extends Post_Group_Post_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return a valid post for existing group if group attributes of existing group are provided';
 	}
 
 	before (callback) {
@@ -37,7 +35,7 @@ class Post_Post_Find_Existing_Group_Test extends Post_Group_Post_Test {
 
 	validate_response (data) {
 		super.validate_response(data);
-		var group = data.group;
+		let group = data.group;
 		Assert(
 			group &&
 			group.member_ids instanceof Array &&

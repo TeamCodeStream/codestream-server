@@ -1,14 +1,12 @@
 'use strict';
 
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
-var User_Test_Constants = require('../user_test_constants');
-
-const DESCRIPTION = 'should return myself when requesting myself';
+const User_Test_Constants = require('../user_test_constants');
 
 class Get_Myself_Test extends CodeStream_API_Test {
 
-	get_description () {
-		return DESCRIPTION + (this.id ? ' by id' : '');
+	get description () {
+		return 'should return myself when requesting myself' + (this.id ? ' by id' : '');
 	}
 
 	get_expected_fields () {

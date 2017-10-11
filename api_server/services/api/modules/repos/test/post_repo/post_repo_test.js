@@ -2,9 +2,9 @@
 
 var Assert = require('assert');
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
-var Repo_Test_Constants = require('../repo_test_constants');
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Normalize_URL = require('normalize-url');
+const Repo_Test_Constants = require('../repo_test_constants');
 
 class Post_Repo_Test extends CodeStream_API_Test {
 
@@ -24,7 +24,7 @@ class Post_Repo_Test extends CodeStream_API_Test {
 		return '/repos';
 	}
 
-	get_description () {
+	get description () {
 		return `should return valid repo when creating a new repo`;
 	}
 
@@ -155,9 +155,9 @@ class Post_Repo_Test extends CodeStream_API_Test {
 	}
 
 	validate_response (data) {
-		var repo = data.repo;
-		var errors = [];
-		var result = (
+		let repo = data.repo;
+		let errors = [];
+		let result = (
 			((repo.url === Normalize_URL(this.data.url.toLowerCase())) || errors.push('incorrect url')) &&
 			((repo.first_commit_sha === this.data.first_commit_sha.toLowerCase()) || errors.push('incorrect first_commit_sha')) &&
 			((repo.deactivated === false) || errors.push('deactivated not false')) &&
@@ -177,11 +177,11 @@ class Post_Repo_Test extends CodeStream_API_Test {
 	}
 
 	validate_team (data) {
-		var team = data.team;
-		var repo = data.repo;
-		var errors = [];
+		let team = data.team;
+		let repo = data.repo;
+		let errors = [];
 		Assert(typeof team === 'object', 'team expected with response');
-		var result = (
+		let result = (
 			((team._id === repo.team_id) || errors.push('team id is not the same as repo team_id')) &&
 			((team.name === this.team_data.name) || errors.push('team name doesn\'t match')) &&
 			((JSON.stringify(team.member_ids.sort()) === JSON.stringify((this.team_data.member_ids || [this.current_user._id]).sort())) || errors.push('team membership doesn\'t match')) &&
@@ -196,12 +196,12 @@ class Post_Repo_Test extends CodeStream_API_Test {
 	}
 
 	validate_company (data) {
-		var repo = data.repo;
-		var team = data.team;
-		var company = data.company;
-		var errors = [];
+		let repo = data.repo;
+		let team = data.team;
+		let company = data.company;
+		let errors = [];
 		Assert(typeof company === 'object', 'company expected with response');
-		var result = (
+		let result = (
 			((company._id === repo.company_id) || errors.push('company id is not the same as repo company_id')) &&
 			((company.name === this.team_data.name) || errors.push('company name doesn\'t match')) &&
 			((company.deactivated === false) || errors.push('company.deactivated not false')) &&

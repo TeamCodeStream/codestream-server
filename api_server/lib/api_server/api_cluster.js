@@ -51,11 +51,11 @@ class API_Cluster {
 		if (!Cluster.isMaster) {
 			return process.nextTick(callback);
 		}
-		var port = this.config.express && this.config.express.port;
+		const port = this.config.express && this.config.express.port;
 		if (!port) {
 			return process.nextTick(callback);
 		}
-		var test_socket = Net.connect(port);
+		let test_socket = Net.connect(port);
 		// Error means either there is nothing listening OR we can let the workers reliably trap the
 		// error, for example EACCES
 		test_socket.on('error', () => {
@@ -182,7 +182,7 @@ class API_Cluster {
 	}
 
 	handle_config_override (override) {
-		var match = override.match(/^(.*)\.(.*)=(.*)$/);
+		let match = override.match(/^(.*)\.(.*)=(.*)$/);
 		if (!match || match.length < 4) {
 			this.logger.warn('Ignoring configuration override (' + override + '), format is config.key=value');
 			return;
@@ -193,7 +193,7 @@ class API_Cluster {
 }
 
 function Global_Error_Handler (error, type) {
-	var message = (error instanceof Error) ?
+	const message = (error instanceof Error) ?
 		type + `: ${error.message}\n${error.stack}` :
 		JSON.stringify(error);
 	if (

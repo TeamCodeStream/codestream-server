@@ -6,8 +6,8 @@ var Team = require('./team');
 var Company_Creator = require(process.env.CI_API_TOP + '/services/api/modules/companies/company_creator');
 var User_Creator = require(process.env.CI_API_TOP + '/services/api/modules/users/user_creator');
 var CodeStream_Model_Validator = require(process.env.CI_API_TOP + '/lib/models/codestream_model_validator');
-var Team_Attributes = require('./team_attributes');
 var Allow = require(process.env.CI_API_TOP + '/lib/util/allow');
+const Team_Attributes = require('./team_attributes');
 const Errors = require('./errors');
 
 class Team_Creator extends Model_Creator {
@@ -44,14 +44,14 @@ class Team_Creator extends Model_Creator {
 	}
 
 	validate_name () {
-		var error = this.validator.validate_string(this.attributes.name);
+		let error = this.validator.validate_string(this.attributes.name);
 		if (error) {
 			return { name: error };
 		}
 	}
 
 	validate_member_ids () {
-		var error = this.validator.validate_array_of_ids(this.attributes.member_ids);
+		let error = this.validator.validate_array_of_ids(this.attributes.member_ids);
 		if (error) {
 			return { member_ids: error };
 		}
@@ -59,7 +59,7 @@ class Team_Creator extends Model_Creator {
 
 	validate_emails () {
 		if (!this.attributes.emails) { return; }
-		var error = this.validator.validate_array(this.attributes.emails);
+		let error = this.validator.validate_array(this.attributes.emails);
 		if (error) {
 			return { emails: error };
 		}
@@ -95,7 +95,7 @@ class Team_Creator extends Model_Creator {
 		if (!this.attributes.company_id) {
 			return; // no need if no company yet, this will be the first team for this company
 		}
-		var query = {
+		let query = {
 			company_id: this.attributes.company_id
 		};
 		if (this.attributes.name) {
@@ -168,7 +168,8 @@ class Team_Creator extends Model_Creator {
 		usernames.push(this.user.get('username') ? this.user.get('username').toLowerCase() : null);
 		usernames = usernames.filter(username => !!username);
 		usernames.sort();
-		for (var i = 0, len = usernames.length; i < len; i++) {
+		let i, len;
+		for (i = 0, len = usernames.length; i < len; i++) {
 			if (i > 0 && usernames[i].localeCompare(usernames[i-1]) === 0) {
 				break;
 			}

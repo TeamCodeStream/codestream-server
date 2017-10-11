@@ -1,14 +1,12 @@
 'use strict';
 
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
-var Team_Test_Constants = require('../team_test_constants');
-
-const DESCRIPTION = 'should return a valid team when requesting a team';
+const Team_Test_Constants = require('../team_test_constants');
 
 class Get_Team_Test extends CodeStream_API_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return a valid team when requesting a team';
 	}
 
 	get_expected_fields () {

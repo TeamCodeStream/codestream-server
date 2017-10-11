@@ -5,7 +5,7 @@ var Assert = require('assert');
 
 class Get_By_Query_Limit_Test extends Get_By_Query_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct limited documents when getting several documents by query with a limit option';
 	}
 

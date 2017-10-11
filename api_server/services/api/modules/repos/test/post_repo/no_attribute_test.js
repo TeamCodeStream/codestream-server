@@ -4,7 +4,7 @@ var Post_Repo_Test = require('./post_repo_test');
 
 class No_Attribute_Test extends Post_Repo_Test {
 
-	get_description () {
+	get description () {
 		return `should return error when attempting to create a repo with no ${this.attribute}`;
 	}
 

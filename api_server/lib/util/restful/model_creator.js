@@ -79,7 +79,7 @@ class Model_Creator {
 	}
 
 	check_existing (callback) {
-		var query = this.check_existing_query();
+		let query = this.check_existing_query();
 		if (!query) {
 			return process.nextTick(callback);
 		}

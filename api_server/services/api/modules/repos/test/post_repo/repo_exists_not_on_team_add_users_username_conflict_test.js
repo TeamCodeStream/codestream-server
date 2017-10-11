@@ -9,7 +9,7 @@ class Repo_Exists_Not_On_Team_Add_Users_Username_Conflict_Test extends Repo_Exis
 		this.test_options.want_conflicting_user_with_current_user = true;
 	}
 
-	get_description () {
+	get description () {
 		return 'should return an error when a user tries to add a repo that already exists and the user is not on the team, and the user adds other users, and there is a username conflict with the current user';
 	}
 

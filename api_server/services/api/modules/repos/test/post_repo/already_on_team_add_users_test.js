@@ -4,7 +4,7 @@ var Already_On_Team_Test = require('./already_on_team_test');
 
 class Already_On_Team_Add_Users_Test extends Already_On_Team_Test {
 
-	get_description () {
+	get description () {
 		return 'should return the new repo when trying to add a repo to an existing team that the user is already on, including adding new users';
 	}
 

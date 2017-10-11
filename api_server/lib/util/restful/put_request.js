@@ -10,7 +10,7 @@ class Put_Request extends Restful_Request {
 	}
 
 	process (callback) {
-		var updater_class = this.module.updater_class || Model_Updater;
+		let updater_class = this.module.updater_class || Model_Updater;
 		this.updater = new updater_class({
 			module: this,
 			user: this.user,
@@ -26,7 +26,7 @@ class Put_Request extends Restful_Request {
 
 	model_updated (error, model, callback) {
 		if (error) { return callback(error); }
-		var model_name = this.module.model_name || 'model';
+		const model_name = this.module.model_name || 'model';
 		this.response_data[model_name] = model.get_sanitized_object();
 		Object.assign(
 			this.response_data,

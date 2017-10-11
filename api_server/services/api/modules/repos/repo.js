@@ -2,8 +2,8 @@
 
 var CodeStream_Model = require(process.env.CI_API_TOP + '/lib/models/codestream_model');
 var CodeStream_Model_Validator = require(process.env.CI_API_TOP + '/lib/models/codestream_model_validator');
-var Repo_Attributes = require('./repo_attributes');
 var Normalize_URL = require('normalize-url');
+const Repo_Attributes = require('./repo_attributes');
 
 class Repo extends CodeStream_Model {
 

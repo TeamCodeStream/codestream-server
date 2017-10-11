@@ -3,12 +3,10 @@
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
 
-const DESCRIPTION = 'should return the right teams when requesting teams by IDs';
-
 class Get_Some_Teams_Test extends CodeStream_API_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return the right teams when requesting teams by IDs';
 	}
 
 	before (callback) {
@@ -42,7 +40,7 @@ class Get_Some_Teams_Test extends CodeStream_API_Test {
 			this.created_teams[3],
 			this.created_teams[4]
 		];
-		var ids_subset = this.team_subset.map(team => team._id);
+		let ids_subset = this.team_subset.map(team => team._id);
 		this.path = '/teams?ids=' + ids_subset.join(',');
 		callback();
 	}

@@ -17,7 +17,7 @@ class Versioner extends API_Server_Module {
 	}
 
 	parse_version (version_string) {
-		var parts = version_string.split('.');
+		let parts = version_string.split('.');
 		parts = parts.map(part => parseInt(part, 10) || 0);
 		return {
 			major: parts[0] || 0,

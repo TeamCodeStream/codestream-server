@@ -38,7 +38,7 @@ class PubNub_Broadcaster {
 	}
 
 	handle_pubnub_message (message) {
-		var stringified = JSON.stringify(message.messagE);
+		let stringified = JSON.stringify(message.messagE);
 		console.warn(`MESSAGE FROM PUBNUB ON ${message.channel}: ${stringified}`);
 	}
 
@@ -50,5 +50,3 @@ class PubNub_Broadcaster {
 }
 
 module.exports = PubNub_Broadcaster;
-
-

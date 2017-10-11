@@ -4,7 +4,7 @@ var Login_Test = require('./login_test');
 
 class No_Attribute_Test extends Login_Test {
 
-	get_description () {
+	get description () {
 		return `should return error when no ${this.attribute} provided`;
 	}
 

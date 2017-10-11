@@ -2,12 +2,10 @@
 
 var Get_Posts_By_Commit_Test = require('./get_posts_by_commit_test');
 
-const DESCRIPTION = 'should return an error if org_id is not provided in query';
-
 class Get_Posts_Org_ID_Required_Test extends Get_Posts_By_Commit_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return an error if org_id is not provided in query';
 	}
 
 	get_expected_error () {

@@ -5,7 +5,7 @@ var Data_Collection_Test = require('./data_collection_test');
 
 class Get_By_Query_Skips_Cache_Test extends Data_Collection_Test {
 
-	get_description () {
+	get description () {
 		return 'should get no models when fetching several models by query, when those models have not yet been persisted';
 	}
 

@@ -5,7 +5,7 @@ var Assert = require('assert');
 
 class Get_By_Query_Sort_Test extends Get_By_Query_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct documents in sorted order when getting several documents by query with a sort option';
 	}
 

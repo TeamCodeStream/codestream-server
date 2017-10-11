@@ -31,7 +31,7 @@ class Token_Authenticator {
 		if (this.path_is_no_auth(this.request)) {
 			return callback(true);
 		}
-		var token =
+		let token =
 			(this.request.signedCookies && this.request.signedCookies.t) ||
 			(this.request.query && this.request.query.t) ||
 			(this.request.body && this.request.body.t) ||
@@ -58,7 +58,7 @@ class Token_Authenticator {
 	}
 
 	get_user (callback) {
-		var user_id = this.payload.user_id;
+		let user_id = this.payload.user_id;
 		if (!user_id) {
 			return callback(this.error_handler.error('no_user_id'));
 		}
@@ -92,7 +92,7 @@ class Token_Authenticator {
 
 	token_from_header (request) {
 		if (request.headers.authorization) {
-			var match = request.headers.authorization.match(/^Bearer (.+)$/);
+			let match = request.headers.authorization.match(/^Bearer (.+)$/);
 			return match && match[1];
 		}
 	}

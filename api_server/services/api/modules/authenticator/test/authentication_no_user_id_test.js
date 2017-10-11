@@ -2,14 +2,12 @@
 
 var Authentication_Test = require('./authentication_test');
 var JSON_Web_Token = require('jsonwebtoken');
-var Secrets_Config = require(process.env.CI_API_TOP + '/config/secrets.js');
-
-const DESCRIPTION = 'should prevent access to resources when no user_id found in the payload of the access token';
+const Secrets_Config = require(process.env.CI_API_TOP + '/config/secrets.js');
 
 class Authentication_No_User_ID_Test extends Authentication_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should prevent access to resources when no user_id found in the payload of the access token';
 	}
 
 	get_expected_error () {
@@ -24,7 +22,7 @@ class Authentication_No_User_ID_Test extends Authentication_Test {
 	}
 
 	remove_user_id_from_token (callback) {
-		var payload;
+		let payload;
 		const secret = Secrets_Config.auth;
 		try {
 			payload = JSON_Web_Token.verify(this.token, secret);

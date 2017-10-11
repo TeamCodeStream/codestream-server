@@ -21,8 +21,6 @@ class Generic_Test {
 
 	test () {
 
-		var description = this.get_description();
-
 		if (typeof this.authenticate === 'function') {
 			before((callback) => {
 				this.authenticate(callback);
@@ -34,7 +32,7 @@ class Generic_Test {
 		});
 
 		it(
-			description || '???',
+			this.description || '???',
 			(callback) => {
 				this.run(callback);
 			}
@@ -51,7 +49,7 @@ class Generic_Test {
 
 	check_response (error, response, callback) {
 		this.error = error ? response : null;
-		var expect_error = this.get_expected_error();
+		const expect_error = this.get_expected_error();
 		if (expect_error) {
 			this.expect_error(expect_error);
 		}
@@ -67,14 +65,14 @@ class Generic_Test {
 	}
 
 	expect_fields () {
-		var expect_fields = this.get_expected_fields();
+		const expect_fields = this.get_expected_fields();
 		if (!expect_fields) { return; }
 		Assert(typeof this.response === 'object', 'response should be an object');
 		this.expect(this.response, expect_fields, '');
 	}
 
 	expect (response_data, expect_data, chain) {
-		var message = chain ? `response expects ${chain}` : 'response expected';
+		const message = chain ? `response expects ${chain}` : 'response expected';
 		if (this.is_array_of_strings(expect_data)) {
 			Assert(typeof response_data === 'object', `${message} to be an object`);
 			this.expect_array(response_data, expect_data, chain);
@@ -102,7 +100,7 @@ class Generic_Test {
 
 	expect_array (response_data, expect_fields, chain) {
 		Object.keys(expect_fields).forEach(key => {
-			var expect = expect_fields[key];
+			const expect = expect_fields[key];
 			if (typeof expect === 'string') {
 				Assert(typeof response_data[expect] !== 'undefined', `response requires ${chain}.${expect}`);
 			}
@@ -135,8 +133,8 @@ class Generic_Test {
 	}
 
 	validate_matching_objects (objects_1, objects_2, name) {
-		var object_ids_1 = objects_1.map(object => object._id).sort();
-		var object_ids_2 = objects_2.map(object => object._id).sort();
+		let object_ids_1 = objects_1.map(object => object._id).sort();
+		let object_ids_2 = objects_2.map(object => object._id).sort();
 		Assert.deepEqual(object_ids_1, object_ids_2, `${name} returned don't match`);
 	}
 

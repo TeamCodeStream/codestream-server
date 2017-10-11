@@ -2,12 +2,10 @@
 
 var Login_Test = require('./login_test');
 
-const DESCRIPTION = 'should return error when invalid email provided';
-
 class Invalid_Email_Test extends Login_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return error when invalid email provided';
 	}
 
 	get_expected_fields () {

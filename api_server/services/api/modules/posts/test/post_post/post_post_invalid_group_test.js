@@ -2,12 +2,10 @@
 
 var Post_Group_Post_Test = require('./post_group_post_test');
 
-const DESCRIPTION = 'should return an error if invalid group attribute is provided';
-
 class Post_Post_Invalid_Group_Test extends Post_Group_Post_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return an error if invalid group attribute is provided';
 	}
 
 	get_expected_error () {

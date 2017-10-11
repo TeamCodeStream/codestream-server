@@ -89,7 +89,7 @@ class Get_Many_Request extends Restful_Request {
 
 	respond (callback) {
 		this.response_data = this.response_data || {};
-		var collection_name = this.module.collection_name || 'objects';
+		const collection_name = this.module.collection_name || 'objects';
 		this.response_data[collection_name] = this.sanitized_objects;
 		process.nextTick(callback);
 	}

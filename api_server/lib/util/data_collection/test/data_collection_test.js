@@ -13,7 +13,7 @@ class Data_Collection_Test extends Generic_Test {
 
 	before (callback) {
 		this.mongo_client_factory = new Mongo_Client();
-		var mongo_config = Object.assign({}, Test_API_Config.mongo, { collections: ['test'] });
+		const mongo_config = Object.assign({}, Test_API_Config.mongo, { collections: ['test'] });
 		this.mongo_client_factory.open_mongo_client(
 			mongo_config,
 			(error, mongo_client) => {
@@ -136,7 +136,7 @@ class Data_Collection_Test extends Generic_Test {
 	}
 
 	update_test_model (callback) {
-		var update = {
+		const update = {
 			_id: this.test_model.id,
 			text: 'replaced!',
 			number: 123

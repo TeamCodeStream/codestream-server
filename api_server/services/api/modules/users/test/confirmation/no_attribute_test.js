@@ -4,7 +4,7 @@ var Confirmation_Test = require('./confirmation_test');
 
 class No_Attribute_Test extends Confirmation_Test {
 
-	get_description () {
+	get description () {
 		return `should return an error when confirming a registration with no ${this.attribute}`;
 	}
 

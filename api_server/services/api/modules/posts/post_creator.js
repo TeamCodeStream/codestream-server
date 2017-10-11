@@ -20,8 +20,8 @@ class Post_Creator extends Model_Creator {
 	}
 
 	validate_attributes (callback) {
-		var required_attributes = ['company_id', 'team_id'];
-		var error = this.check_required(required_attributes) ||
+		const required_attributes = ['company_id', 'team_id'];
+		let error = this.check_required(required_attributes) ||
 			this.validate_stream();
 		return callback(error);
 	}

@@ -2,12 +2,10 @@
 
 var Post_Commit_Post_Test = require('./post_commit_post_test');
 
-const DESCRIPTION = 'should return an error if no org_id is passed';
-
 class Post_Post_Org_ID_Required_Test extends Post_Commit_Post_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return an error if no org_id is passed';
 	}
 
 	get_expected_error () {

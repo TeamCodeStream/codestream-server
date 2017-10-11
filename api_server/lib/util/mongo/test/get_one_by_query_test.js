@@ -5,7 +5,7 @@ var Mongo_Test = require('./mongo_test');
 
 class Get_One_By_Query_Test extends Mongo_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct document when getting one document by query';
 	}
 

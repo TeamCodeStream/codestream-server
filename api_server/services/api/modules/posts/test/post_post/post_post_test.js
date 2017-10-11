@@ -2,11 +2,11 @@
 
 var Assert = require('assert');
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
-var Post_Test_Constants = require('../post_test_constants');
+const Post_Test_Constants = require('../post_test_constants');
 
 class Post_Post_Test extends CodeStream_API_Test {
 
-	get_description () {
+	get description () {
 		return `should return a valid post when creating a ${this.type} post`;
 	}
 
@@ -19,7 +19,7 @@ class Post_Post_Test extends CodeStream_API_Test {
 	}
 
 	get_expected_fields () {
-		var position_fields = Post_Test_Constants.WANT_POSITION[this.type] ? Post_Test_Constants.EXPECTED_POST_POSITION_FIELDS : [];
+		const position_fields = Post_Test_Constants.WANT_POSITION[this.type] ? Post_Test_Constants.EXPECTED_POST_POSITION_FIELDS : [];
 		return {
 			post: [
 				...Post_Test_Constants.EXPECTED_POST_FIELDS,
@@ -45,9 +45,9 @@ class Post_Post_Test extends CodeStream_API_Test {
 	}
 
 	validate_response (data) {
-		var post = data.post;
-		var errors = [];
-		var result = (
+		let post = data.post;
+		let errors = [];
+		let result = (
 			((post.creator_id === this.current_user._id) || errors.push('group creator is not the current user')) &&
 			((post.org_id === this.current_orgs[0]._id) || errors.push('org_id is not equal to current user\'s org id')) &&
 			((typeof post.text === 'string') || errors.push('text is not a string'))
@@ -56,9 +56,9 @@ class Post_Post_Test extends CodeStream_API_Test {
 	}
 
 	validate_position (data) {
-		var post = data.post;
-		var errors = [];
-		var result = (
+		let post = data.post;
+		let errors = [];
+		let result = (
 			((typeof post.char_start === 'number') || errors.push('char_start is not a number')) &&
 			((typeof post.char_end === 'number') || errors.push('char_end is not a number')) &&
 			((typeof post.line_start === 'number') || errors.push('line_start is not a number')) &&

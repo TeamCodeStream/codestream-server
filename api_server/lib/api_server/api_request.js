@@ -42,9 +42,6 @@ class API_Request {
 			'process',
 			// any changes are written to the database here, we acquire a hard lock on the data and handle any version conflicts and merges
 			'persist',
-			// once the data has been successfully persisted it is sanitized such that it can be returned to the client, a separate
-			// "sanitized" cache is maintained
-			'sanitize',
 			// send the response back to the client, along with any sanitized data
 			'handle_response',
 			// do any post-processing, meaning any processing of the request that goes on after the response is sent back to the client
@@ -157,12 +154,6 @@ class API_Request {
 	// persist all database changes to the database
 	persist (callback) {
 		this.data.persist(callback);
-	}
-
-	// sanitize manipulated data in anticipation of return to client or broadcast
-	sanitize (callback) {
-		process.nextTick(callback);
-		// TODO 	this.data.sanitize(callback);
 	}
 
 	// persist all database changes to the database, after the request has been fully processed

@@ -6,7 +6,7 @@ var Confirm_Code = require('../../confirm_code');
 
 class Max_Attempts_Test extends Confirmation_Test {
 
-	get_description () {
+	get description () {
 		return 'should return an error when an incorrect confirmation code is used during confirmation and the maximum number of attempts has been reached';
 	}
 

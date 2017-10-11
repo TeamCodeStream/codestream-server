@@ -11,7 +11,7 @@ class Already_Have_Repo_Test extends Post_Repo_Test {
 		this.test_options.team_not_required = true;
 	}
 
-	get_description () {
+	get description () {
 		return 'should return the repo when trying to create a repo that the user already created';
 	}
 

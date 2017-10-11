@@ -11,12 +11,12 @@ class CodeStream_Emails {
 	}
 
 	send_confirmation_email (options, callback) {
-		var { user, email, request } = options;
+		let { user, email, request } = options;
 		if (request) {
 			request.log(`Sending confirmation email to ${email}`);
 		}
-		var name = Email_Utils.get_user_name(user);
-		var subject = `Welcome to CodeStream, ${name}`;
+		const name = Email_Utils.get_user_name(user);
+		const subject = `Welcome to CodeStream, ${name}`;
 		this.sendgrid_email.send_email(
 			{
 				from: this.sender_email,

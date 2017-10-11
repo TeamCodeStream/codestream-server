@@ -54,7 +54,7 @@ class Data_Model {
 	}
 
 	set (attribute, value) {
-		var attributes = {};
+		let attributes = {};
 		if (typeof attribute === 'string') {
 			attributes[attribute] = value;
 		}

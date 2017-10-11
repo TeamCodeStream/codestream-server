@@ -6,7 +6,7 @@ var Assert = require('assert');
 
 class Password_Username_Test extends Confirmation_Test {
 
-	get_description () {
+	get description () {
 		return 'should return valid user data and an access token when confirming with password and username for user who doesn\'t have them set yet';
 	}
 

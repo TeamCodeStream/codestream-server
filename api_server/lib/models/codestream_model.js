@@ -10,7 +10,7 @@ class CodeStream_Model extends Data_Model {
 	}
 
 	set_defaults () {
-		var now = new Date().getTime();
+		const now = new Date().getTime();
 		Object.assign(
 			this.attributes,
 			{

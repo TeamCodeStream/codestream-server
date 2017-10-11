@@ -2,12 +2,10 @@
 
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
 
-const DESCRIPTION = 'should return error if IDs are not provided';
-
 class Get_Posts_IDs_Required_Test extends CodeStream_API_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return error if IDs are not provided';
 	}
 
 	get path () {

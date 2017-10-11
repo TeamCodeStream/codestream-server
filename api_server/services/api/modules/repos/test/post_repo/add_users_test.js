@@ -9,7 +9,7 @@ class Add_Users_Test extends Post_Repo_Test {
 		this.test_options.want_random_emails = true;
 	}
 
-	get_description () {
+	get description () {
 		return 'should return the repo and users when creating a repo with emails representing new users';
 	}
 }

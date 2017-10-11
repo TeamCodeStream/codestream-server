@@ -3,12 +3,10 @@
 var Registration_Test = require('./registration_test');
 var Random_String = require('randomstring');
 
-const DESCRIPTION = 'should return an invalid email error when registering with a bad email';
-
 class Bad_Email_Test extends Registration_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return an invalid email error when registering with a bad email';
 	}
 
 	get_expected_fields () {

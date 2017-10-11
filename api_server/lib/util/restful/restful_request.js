@@ -19,9 +19,9 @@ class Restful_Request extends API_Request {
 	}
 
 	require_parameters (where, required_parameters, callback) {
-		var parameters = this.request[where];
+		let parameters = this.request[where];
 		if (typeof parameters !== 'object') { return callback(); }
-		var missing_parameters = [];
+		let missing_parameters = [];
 		required_parameters.forEach(parameter => {
 			if (typeof parameters[parameter] === 'undefined') {
 				missing_parameters.push(parameter);

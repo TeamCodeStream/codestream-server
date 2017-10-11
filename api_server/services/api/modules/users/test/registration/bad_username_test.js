@@ -3,12 +3,10 @@
 var Registration_Test = require('./registration_test');
 var Random_String = require('randomstring');
 
-const DESCRIPTION = 'should return an invalid username error when registering with a bad username';
-
 class Bad_Username_Test extends Registration_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return an invalid username error when registering with a bad username';
 	}
 
 	get_expected_fields () {

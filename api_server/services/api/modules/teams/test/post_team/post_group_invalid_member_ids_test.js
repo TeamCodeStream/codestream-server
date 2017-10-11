@@ -2,12 +2,10 @@
 
 var Post_Team_Test = require('./post_team_test');
 
-const DESCRIPTION = 'should return an error if the member_ids array is invalid';
-
 class Post_Team_Invalid_Member_IDs_Test extends Post_Team_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return an error if the member_ids array is invalid';
 	}
 
 	get_expected_error () {

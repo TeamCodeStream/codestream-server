@@ -2,7 +2,6 @@
 
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Data_Collection = require(process.env.CI_API_TOP + '/lib/util/data_collection/data_collection');
-
 var Options_Symbol = Symbol('options');
 var Collections_Symbol = Symbol('collections');
 
@@ -24,9 +23,9 @@ class API_Request_Data {
 	}
 
 	add_data_collection (collection_name, callback) {
-		var options = this[Options_Symbol];
-		var model_class = this[Options_Symbol].api.config.data_collections[collection_name];
-		var collection = new Data_Collection({
+		const options = this[Options_Symbol];
+		const model_class = this[Options_Symbol].api.config.data_collections[collection_name];
+		let collection = new Data_Collection({
 			database_collection: options.api.data[collection_name],
 			model_class: model_class,
 			request: options.request
@@ -37,7 +36,7 @@ class API_Request_Data {
 	}
 
 	persist (callback) {
-		var collection_names = Object.keys(this[Collections_Symbol]);
+		const collection_names = Object.keys(this[Collections_Symbol]);
 		Bound_Async.forEachLimit(
 			this,
 			collection_names,

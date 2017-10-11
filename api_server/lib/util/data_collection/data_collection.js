@@ -100,7 +100,7 @@ class Data_Collection {
 	}
 
 	update (data, callback, options = {}) {
-		var id = data[this.id_attribute] || options.id;
+		let id = data[this.id_attribute] || options.id;
 		if (!id) {
 			return callback(this.error_handler.error('id', { info: this.id_attribute }));
 		}
@@ -186,9 +186,9 @@ class Data_Collection {
 	}
 
 	add_model_to_cache (model, callback) {
-		var id = model.id;
-		var model_ops = this.model_ops[id];
-		var cached_model = this.models[id];
+		let id = model.id;
+		let model_ops = this.model_ops[id];
+		let cached_model = this.models[id];
 		if (cached_model) {
 			if (model_ops) {
 				model_ops.push({ set: model.attributes });
@@ -248,11 +248,11 @@ class Data_Collection {
 	}
 
 	_persist_document (id, callback) {
-		var model_ops = this.model_ops[id];
+		let model_ops = this.model_ops[id];
 		if (model_ops && model_ops.length > 0) {
 			return this._persist_document_by_ops(id, model_ops, callback);
 		}
-		var model = this._get_from_cache(id);
+		let model = this._get_from_cache(id);
 		if (!model) { return process.nextTick(callback); }
 		model.attributes[this.id_attribute] = id;
 		this.database_collection.update(

@@ -3,11 +3,11 @@
 var Event_Emitter = require('events');
 
 class Forever_Bot extends Event_Emitter () {
-	
+
 	run_forever (func, options) {
 		this.run_forever_func = func;
 		this.run_forever_options = options;
-		var now = Date.now();
+		const now = Date.now();
 		if (!options.start_at || options.start_at < now) {
 			process.nextTick(this.forever_run_now);
 		}
@@ -27,13 +27,12 @@ class Forever_Bot extends Event_Emitter () {
 	}
 
 	schedule_next_run () {
-		var now = Date.now();
-		var start_when = this.last_run + (this.run_forever_options.interval || 1);
-		var wait = start_when - now;
+		const now = Date.now();
+		let start_when = this.last_run + (this.run_forever_options.interval || 1);
+		let wait = start_when - now;
 		this.emit('forever_scheduled', { at: start_when, wait: wait });
 		setTimeout(this.forever_run_now, wait);
 	}
 }
 
 module.exports = Forever_Bot;
-

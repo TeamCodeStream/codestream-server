@@ -97,7 +97,7 @@ class Random_User_Factory {
 	}
 
 	create_random_user (callback, options = {}) {
-		var data = this.get_random_user_data(options);
+		let data = this.get_random_user_data(options);
 		if (options.no_confirm) {
 			new _User_Creator(this).register_user(data, callback);
 		}

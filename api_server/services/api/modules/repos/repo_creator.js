@@ -5,10 +5,10 @@ var Model_Creator = require(process.env.CI_API_TOP + '/lib/util/restful/model_cr
 var Repo = require('./repo');
 var Normalize_URL = require('normalize-url');
 var Allow = require(process.env.CI_API_TOP + '/lib/util/allow');
-var Repo_Attributes = require('./repo_attributes');
 var Add_Team_Members = require(process.env.CI_API_TOP + '/services/api/modules/teams/add_team_members');
 var Team_Creator = require(process.env.CI_API_TOP + '/services/api/modules/teams/team_creator');
 var CodeStream_Model_Validator = require(process.env.CI_API_TOP + '/lib/models/codestream_model_validator');
+const Repo_Attributes = require('./repo_attributes');
 const Errors = require('./errors');
 
 class Repo_Creator extends Model_Creator {
@@ -37,7 +37,7 @@ class Repo_Creator extends Model_Creator {
 
 	validate_attributes (callback) {
 		this.validator = new CodeStream_Model_Validator(Repo_Attributes);
-		var error =
+		let error =
 			this.validate_url() ||
 			this.validate_sha();
 		if (error) {
@@ -47,14 +47,14 @@ class Repo_Creator extends Model_Creator {
 	}
 
 	validate_url () {
-		var error = this.validator.validate_url(this.attributes.url);
+		let error = this.validator.validate_url(this.attributes.url);
 		if (error) {
 		 	return { url: error };
 	 	}
 	}
 
 	validate_sha () {
-		var error = this.validator.validate_string(this.attributes.first_commit_sha);
+		let error = this.validator.validate_string(this.attributes.first_commit_sha);
 		if (error) {
 			return { first_commit_sha: error };
 		}

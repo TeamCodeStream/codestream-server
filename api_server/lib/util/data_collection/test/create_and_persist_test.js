@@ -5,7 +5,7 @@ var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 
 class Create_And_Persist_Test extends Data_Collection_Test {
 
-	get_description () {
+	get description () {
 		return 'should create a model that can then be fetched from the database by its ID after it is persisted';
 	}
 

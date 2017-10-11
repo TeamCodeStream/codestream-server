@@ -4,7 +4,7 @@ var Repo_Exists_Test = require('./repo_exists_test');
 
 class Repo_Exists_Add_Users_Test extends Repo_Exists_Test {
 
-	get_description () {
+	get description () {
 		return 'should return the repo when trying to add a repo that already exists and the user is on the team, including adding new users';
 	}
 

@@ -10,7 +10,7 @@ class Repo_Exists_Test extends Already_Have_Repo_Test {
 		this.test_options.want_random_emails = true;
 	}
 
-	get_description () {
+	get description () {
 		return 'should return the repo when trying to create a repo that already exists and the user is already on the team';
 	}
 

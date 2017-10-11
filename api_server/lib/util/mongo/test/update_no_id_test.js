@@ -6,7 +6,7 @@ var Assert = require('assert');
 
 class Update_No_Id_Test extends Mongo_Test {
 
-	get_description () {
+	get description () {
 		return 'should return an error when attempting to update a document with no ID';
 	}
 
@@ -18,14 +18,14 @@ class Update_No_Id_Test extends Mongo_Test {
 	}
 
 	run (callback) {
-		var update = {
+		const update = {
 			text: 'replaced!',
 			number: 123
 		};
 		this.data.test.update(
 			update,
 			(error) => {
-				var error_code = 'MDTA-1001';
+				const error_code = 'MDTA-1001';
 				Assert(typeof error === 'object' && error.code && error.code === error_code, `error code ${error_code} expected`);
 				callback();
 			}

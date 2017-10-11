@@ -13,7 +13,7 @@ class Data_Model_Validator {
 
 	set_required_attributes () {
 		this.required_attributes = [];
-		var attribute_definitions = Object.keys(this.attribute_definitions);
+		let attribute_definitions = Object.keys(this.attribute_definitions);
 		attribute_definitions.forEach(attribute => {
 			if (this.attribute_definitions[attribute].required) {
 				this.required_attributes.push(attribute);
@@ -40,7 +40,7 @@ class Data_Model_Validator {
 			this.check_required,
 			this.validate_attributes
 		], () => {
-			var errors = this.errors && this.errors.length ? this.errors : null;
+			let errors = this.errors && this.errors.length ? this.errors : null;
 			return callback && callback(errors, this.warnings);
 		});
 	}
@@ -49,7 +49,7 @@ class Data_Model_Validator {
 		if (!this.options.new) {
 			return process.nextTick(callback);
 		}
-		var missing_attributes = [];
+		let missing_attributes = [];
 		this.required_attributes.forEach(required_attribute => {
 			if (this.existing_attributes.indexOf(required_attribute) === -1) {
 				missing_attributes.push(required_attribute);
@@ -72,7 +72,7 @@ class Data_Model_Validator {
 	}
 
 	validate_attribute (attribute, callback) {
-		var attribute_definition = this.attribute_definitions[attribute];
+		const attribute_definition = this.attribute_definitions[attribute];
 		if (!attribute_definition) {
 			if (!this.attribute_definitions.$free_form_ok) {
 				this.warnings = this.warnings || [];
@@ -82,8 +82,8 @@ class Data_Model_Validator {
 			return process.nextTick(callback);
 		}
 
-		var type = attribute_definition.type;
-		var validation_function = this.validation_functions[type];
+		const type = attribute_definition.type;
+		let validation_function = this.validation_functions[type];
 		if (typeof validation_function !== 'function') {
 			this.warnings = this.warnings || [];
 			this.warnings.push(`Deleting attribute ${attribute}, type ${type} is not recognized`);
@@ -92,7 +92,7 @@ class Data_Model_Validator {
 		}
 
 		if (typeof this.attributes[attribute] !== 'undefined') {
-			var validation_result = validation_function(this.attributes[attribute], attribute_definition);
+			let validation_result = validation_function(this.attributes[attribute], attribute_definition);
 			if (validation_result) {
 				this.errors = this.errors || [];
 				this.errors.push({ [attribute]: validation_result });

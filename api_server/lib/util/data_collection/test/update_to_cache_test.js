@@ -5,7 +5,7 @@ var Data_Collection_Test = require('./data_collection_test');
 
 class Update_To_Cache_Test extends Data_Collection_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct model after updating a cached model';
 	}
 

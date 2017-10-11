@@ -4,7 +4,7 @@ var Confirmation_Test = require('./confirmation_test');
 
 class No_Username_Test extends Confirmation_Test {
 
-	get_description () {
+	get description () {
 		return 'should return an error when no username passed in confirmation and user has no username yet';
 	}
 

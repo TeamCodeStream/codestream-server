@@ -5,7 +5,7 @@ var Data_Collection_Test = require('./data_collection_test');
 
 class Get_One_By_Query_Test extends Data_Collection_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct model when getting one model by query';
 	}
 

@@ -2,14 +2,12 @@
 
 var Assert = require('assert');
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
-var User_Test_Constants = require('../user_test_constants');
-
-const DESCRIPTION = 'should return valid user data and an access token when confirming a registration';
+const User_Test_Constants = require('../user_test_constants');
 
 class Confirmation_Test extends CodeStream_API_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return valid user data and an access token when confirming a registration';
 	}
 
 	get method () {
@@ -41,9 +39,9 @@ class Confirmation_Test extends CodeStream_API_Test {
 	}
 
 	validate_response (data) {
-		var user = data.user;
-		var errors = [];
-		var result = (
+		let user = data.user;
+		let errors = [];
+		let result = (
 			((
 				user.emails instanceof Array &&
 				user.emails.length === 1 &&

@@ -4,12 +4,12 @@ var Update_To_Cache_Test = require('./update_to_cache_test');
 
 class Apply_Set_Sub_Object_To_Cache_Test extends Update_To_Cache_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct model after applying a sub-object set to a cached model';
 	}
 
 	update_test_model (callback) {
-		var set = {
+		const set = {
 			'object.x': 'replaced!',
 			'object.z': 3
 		};

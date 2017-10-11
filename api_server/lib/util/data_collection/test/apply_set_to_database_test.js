@@ -4,12 +4,12 @@ var Update_To_Database_Test = require('./update_to_database_test');
 
 class Apply_Set_To_Database_Test extends Update_To_Database_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct model after applying a set update and persisting';
 	}
 
 	update_test_model (callback) {
-		var set = {
+		const set = {
 			text: 'replaced!',
 			number: 123
 		};

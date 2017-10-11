@@ -5,7 +5,7 @@ var Get_By_Id_Test = require('./get_by_id_test');
 
 class Apply_Set_By_Id_Test extends Get_By_Id_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correctly updated document after applying a set operation to a document';
 	}
 
@@ -17,7 +17,7 @@ class Apply_Set_By_Id_Test extends Get_By_Id_Test {
 	}
 
 	update_document (callback) {
-		var update = {
+		const update = {
 			text: 'replaced!',
 			number: 123
 		};

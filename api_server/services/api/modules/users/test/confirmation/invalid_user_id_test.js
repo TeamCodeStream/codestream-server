@@ -5,7 +5,7 @@ var ObjectID = require('mongodb').ObjectID;
 
 class Invalid_User_Id_Test extends Confirmation_Test {
 
-	get_description () {
+	get description () {
 		return 'should return an error when confirming a registration with an invalid user ID';
 	}
 

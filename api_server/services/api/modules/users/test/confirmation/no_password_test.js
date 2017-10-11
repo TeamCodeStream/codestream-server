@@ -4,7 +4,7 @@ var Confirmation_Test = require('./confirmation_test');
 
 class No_Password_Test extends Confirmation_Test {
 
-	get_description () {
+	get description () {
 		return 'should return an error when no password passed in confirmation and user has no password yet';
 	}
 

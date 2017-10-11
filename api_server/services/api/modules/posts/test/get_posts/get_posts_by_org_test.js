@@ -2,12 +2,10 @@
 
 var Get_Posts_By_Commit_Test = require('./get_posts_by_commit_test');
 
-const DESCRIPTION = 'should return all the posts for an org if nothing else besides org_id is specified';
-
 class Get_Posts_By_Org_Test extends Get_Posts_By_Commit_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return all the posts for an org if nothing else besides org_id is specified';
 	}
 
 	get no_reply_posts () {

@@ -13,7 +13,7 @@ class SendGrid_Email {
 	}
 
 	send_email (options, callback) {
-		var request = this.create_mail_request(options);
+		let request = this.create_mail_request(options);
 		if (this.block) {
 			if (options.request) {
 				options.request.log(`Would have sent to ${options.to}: ${options.subject}`);
@@ -35,7 +35,7 @@ class SendGrid_Email {
 	}
 
 	create_mail_request (options) {
-		var mail = this.create_mail_object(options);
+		let mail = this.create_mail_object(options);
 		return this.sendgrid.emptyRequest({
 			method: 'POST',
 			path: this.url,
@@ -44,10 +44,10 @@ class SendGrid_Email {
 	}
 
 	create_mail_object (options) {
-		var helper = SendGrid.mail;
-		var from_email = new helper.Email(options.from);
-		var subject = options.subject || '';
-		var to = options.to;
+		let helper = SendGrid.mail;
+		let from_email = new helper.Email(options.from);
+		let subject = options.subject || '';
+		let to = options.to;
 		if (this.divert_to && !this.block) {
 			subject = `{{{${to}}}} ${subject}`;
 			to = this.divert_to;
@@ -55,9 +55,9 @@ class SendGrid_Email {
 				options.request.log(`Diverting to ${to}`);
 			}
 		}
-		var to_email = new helper.Email(to);
-		var content = new helper.Content('text/html', options.content || '<html></html>');
-		var mail = new helper.Mail(from_email, subject || '', to_email, content);
+		let to_email = new helper.Email(to);
+		let content = new helper.Content('text/html', options.content || '<html></html>');
+		let mail = new helper.Mail(from_email, subject || '', to_email, content);
 		Object.keys(options.fields || {}).map(field => {
 			mail.personalizations[0].addSubstitution(
 				new helper.Substitution(

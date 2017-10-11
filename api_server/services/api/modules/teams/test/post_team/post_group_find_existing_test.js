@@ -4,12 +4,10 @@ var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
 var Post_Team_Test = require('./post_team_test');
 
-const DESCRIPTION = 'should return the same team when trying to create a team with the same members';
-
 class Post_Team_Find_Existing_Test extends Post_Team_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return the same team when trying to create a team with the same members';
 	}
 
 	before (callback) {
@@ -44,7 +42,7 @@ class Post_Team_Find_Existing_Test extends Post_Team_Test {
 	}
 
 	validate_response (data) {
-		var team = data.team;
+		let team = data.team;
 		Assert(team._id === this.existing_team._id, '_id of the returned team should equal _id of team with same members');
 	}
 }

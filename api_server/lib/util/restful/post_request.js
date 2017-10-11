@@ -10,7 +10,7 @@ class Post_Request extends Restful_Request {
 	}
 
 	process (callback) {
-		var creator_class = this.module.creator_class || Model_Creator;
+		let creator_class = this.module.creator_class || Model_Creator;
 		this.creator = new creator_class({
 			request: this
 		});
@@ -24,7 +24,7 @@ class Post_Request extends Restful_Request {
 
 	model_created (error, model, callback) {
 		if (error) { return callback(error); }
-		var model_name = this.module.model_name || 'model';
+		const model_name = this.module.model_name || 'model';
 		this.response_data[model_name] = model.get_sanitized_object();
 		Object.assign(
 			this.response_data,

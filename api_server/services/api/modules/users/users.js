@@ -56,7 +56,7 @@ class Users extends Restful {
 */
 
 	get_routes () {
-		var standard_routes = super.get_routes(USERS_STANDARD_ROUTES);
+		let standard_routes = super.get_routes(USERS_STANDARD_ROUTES);
 		return [...standard_routes, ...USERS_ADDITIONAL_ROUTES];
 	}
 }

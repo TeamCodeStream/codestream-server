@@ -118,7 +118,7 @@ class Confirm_Request extends Restful_Request {
 	}
 
 	update_user_confirmation_failed (callback) {
-		var set = {};
+		let set = {};
 		if (this.max_confirmation_attempts || this.confirmation_expired) {
 			set.confirmation_code = null;
 			set.confirmation_attempts = 0;

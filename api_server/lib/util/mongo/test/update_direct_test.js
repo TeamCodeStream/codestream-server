@@ -6,7 +6,7 @@ var Assert = require('assert');
 
 class Update_Direct_Test extends Mongo_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct documents after they are directly updated';
 	}
 
@@ -19,7 +19,7 @@ class Update_Direct_Test extends Mongo_Test {
 	}
 
 	update_documents (callback) {
-		var regexp = new RegExp(`^${this.randomizer}yes$`);
+		let regexp = new RegExp(`^${this.randomizer}yes$`);
 		this.data.test.update_direct(
 			{ flag: regexp },
 			{ $set: { text: 'goodbye'} },
@@ -28,7 +28,7 @@ class Update_Direct_Test extends Mongo_Test {
 	}
 
 	run (callback) {
-		var ids = this.documents.map(document => { return document._id; });
+		let ids = this.documents.map(document => { return document._id; });
 		this.data.test.get_by_ids(
 			ids,
 			(error, response) => {

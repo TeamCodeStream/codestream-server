@@ -46,7 +46,7 @@ class Teams extends Restful {
 */
 
 	get_routes () {
-		var standard_routes = super.get_routes(TEAM_STANDARD_ROUTES);
+		let standard_routes = super.get_routes(TEAM_STANDARD_ROUTES);
 		return [...standard_routes, ...TEAM_ADDITIONAL_ROUTES];
 	}
 }

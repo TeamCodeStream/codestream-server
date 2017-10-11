@@ -6,7 +6,7 @@ var Assert = require('assert');
 
 class Get_One_By_Query_Skips_Cache_Test extends Data_Collection_Test {
 
-	get_description () {
+	get description () {
 		return 'should get no models when fetching one model by query, when that model has not yet been persisted';
 	}
 

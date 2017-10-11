@@ -50,7 +50,7 @@ class API_Server {
 
 	start_services (callback) {
 		this.log('Starting services...');
-		var service_functions = this.modules.get_service_functions();
+		let service_functions = this.modules.get_service_functions();
 		Bound_Async.forEachLimit(
 			this,
 			service_functions,
@@ -87,7 +87,7 @@ class API_Server {
 	register_middleware (callback) {
 		this.log('Registering middleware...');
 		this.express.use(this.setup_request.bind(this));
-		var middleware_functions = this.modules.get_middleware_functions();
+		let middleware_functions = this.modules.get_middleware_functions();
 		Bound_Async.forEachLimit(
 			this,
 			middleware_functions,
@@ -124,7 +124,7 @@ class API_Server {
 
 	register_data_sources (callback) {
 		this.log('Registering data sources...');
-		var data_source_functions = this.modules.get_data_source_functions();
+		let data_source_functions = this.modules.get_data_source_functions();
 		Bound_Async.forEachLimit(
 			this,
 			data_source_functions,
@@ -135,14 +135,14 @@ class API_Server {
 	}
 
 	register_data_source (data_source_function, callback) {
-		var data_source = data_source_function();
+		let data_source = data_source_function();
 		Object.assign(this.data, data_source);
 		return process.nextTick(callback);
 	}
 
 	register_routes (callback) {
 		this.log('Registering routes...');
-		var route_objects = this.modules.get_route_objects();
+		let route_objects = this.modules.get_route_objects();
 		Bound_Async.forEachLimit(
 			this,
 			route_objects,
@@ -153,14 +153,14 @@ class API_Server {
 	}
 
 	register_route_object (route_object, callback) {
-		var middleware = route_object.middleware || [];
-		var args = [ route_object.path, ...middleware, route_object.func];
+		let middleware = route_object.middleware || [];
+		let args = [ route_object.path, ...middleware, route_object.func];
 		this.express[route_object.method].apply(this.express, args);
 		process.nextTick(callback);
 	}
 
 	listen (callback) {
-		var server_options = this.get_server_options();
+		const server_options = this.get_server_options();
 		if (typeof server_options === 'string') {
 			return callback('failed to make server options: ' + server_options);
 		}
@@ -187,8 +187,8 @@ class API_Server {
 	}
 
 	get_server_options () {
-		var options = {};
-		var error = this.make_https_options(options);
+		let options = {};
+		const error = this.make_https_options(options);
 		if (error) {
 			return error;
 		}
@@ -214,7 +214,7 @@ class API_Server {
 				return 'could not read certificate file: ' + this.config.express.https.certfile + ': ' + error;
 			}
 			if (this.config.express.https.cafile) {
-				var ca_certificate;
+				let ca_certificate;
 				try {
 					ca_certificate = FS.readFileSync(this.config.express.https.cafile);
 				}
@@ -253,7 +253,7 @@ class API_Server {
 	}
 
 	want_shutdown (signal) {
-		var num_open_requests =
+		let num_open_requests =
 			this.services.request_tracker &&
 			this.services.request_tracker.num_open_requests();
 

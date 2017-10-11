@@ -24,7 +24,7 @@ class Mongo extends API_Server_Module {
 				this.api.warn('Will not connect to mongo, no mongo configuration supplied');
 				return process.nextTick(callback);
 			}
-			var mongo_options = Object.assign({}, this.api.config.mongo, {
+			const mongo_options = Object.assign({}, this.api.config.mongo, {
 				logger: this.api
 			});
 			if (mongo_options.query_logging && this.api.logger_id) {

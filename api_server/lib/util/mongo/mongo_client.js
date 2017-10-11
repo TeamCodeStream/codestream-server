@@ -35,14 +35,14 @@ class Mongo_Client {
 	establish_query_logger (callback) {
 		this.config.query_logger = new Simple_File_Logger(this.config.query_logging);
 		if (this.config.query_logging.slow_basename) {
-			var slow_config = Object.assign(this.config.query_logging, {
+			const slow_config = Object.assign(this.config.query_logging, {
 				basename: this.config.query_logging.slow_basename,
 				slow_threshold: this.config.query_logging.slow_threshold || 100
 			});
 			this.config.slow_logger = new Simple_File_Logger(slow_config);
 		}
 		if (this.config.query_logging.really_slow_basename) {
-			var really_slow_config = Object.assign(this.config.query_logging, {
+			const really_slow_config = Object.assign(this.config.query_logging, {
 				basename: this.config.query_logging.really_slow_basename,
 				slow_threshold: this.config.query_logging.really_slow_threshold || 1000
 			});
@@ -56,8 +56,8 @@ class Mongo_Client {
 			return callback('mongo configuration required');
 		}
 		if (!this.config.url) {
-			var host = this.config.host || '127.0.0.1';
-			var port = this.config.port || 27017;
+			const host = this.config.host || '127.0.0.1';
+			const port = this.config.port || 27017;
 			if (!this.config.database) {
 				return callback('mongo configuration needs database');
 			}

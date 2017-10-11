@@ -22,7 +22,7 @@ class Random_Team_Factory {
 	}
 
 	get_random_team_data (callback, options = {}) {
-		var company_name = options.org ? 
+		let company_name = options.org ?
 			options.org.git_owner :
 			Random_String.generate(12);
 		this.user_factory.create_random_coworkers(
@@ -30,9 +30,9 @@ class Random_Team_Factory {
 			company_name,
 			(error, users_data) => {
 				if (error) { return callback(error); }
-				var users = users_data.map(user_data => user_data.user);
+				let users = users_data.map(user_data => user_data.user);
 				users.splice(3, 1);
-				var data = {
+				let data = {
 					member_ids: users.map(user => user._id)
 				};
 				if (options.org) {

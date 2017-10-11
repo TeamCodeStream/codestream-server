@@ -5,7 +5,7 @@ var Mongo_Test = require('./mongo_test');
 
 class Get_By_Id_Test extends Mongo_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct document when getting a document by ID';
 	}
 

@@ -36,7 +36,7 @@ class Error_Handler {
 		if (typeof error !== 'object') {
 			return error;
 		}
-		var client_error = Object.assign({}, error);
+		let client_error = Object.assign({}, error);
 		if (client_error.internal) {
 			delete client_error.internal;
 			delete client_error.reason;

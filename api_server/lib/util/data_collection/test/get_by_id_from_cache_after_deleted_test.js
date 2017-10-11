@@ -5,7 +5,7 @@ var Data_Collection_Test = require('./data_collection_test');
 
 class Get_By_Id_From_Cache_After_Deleted_Test extends Data_Collection_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct model when getting a model by ID and it is cached, even if deleted in the database';
 	}
 

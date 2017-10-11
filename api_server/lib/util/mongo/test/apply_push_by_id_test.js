@@ -5,7 +5,7 @@ var Get_By_Id_Test = require('./get_by_id_test');
 
 class Apply_Push_By_Id_Test extends Get_By_Id_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correctly updated document after applying a push operation to a document';
 	}
 
@@ -17,7 +17,7 @@ class Apply_Push_By_Id_Test extends Get_By_Id_Test {
 	}
 
 	update_document (callback) {
-		var update = {
+		const update = {
 			array: 7
 		};
 		this.data.test.apply_op_by_id(

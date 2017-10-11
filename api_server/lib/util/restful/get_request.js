@@ -9,7 +9,7 @@ class Get_Request extends Restful_Request {
 	}
 
 	process(callback) {
-		var id = this.request.params.id;
+		let id = this.request.params.id;
 		this.data[this.module.collection_name].get_by_id(
 			id,
 			(error, model) => {
@@ -20,7 +20,7 @@ class Get_Request extends Restful_Request {
 
 	got_model (error, model, callback) {
 		if (error) { return callback(error); }
-		var model_name = this.module.model_name || 'model';
+		const model_name = this.module.model_name || 'model';
 		if (!model) {
 			return callback(this.error_handler.error('not_found', { info: model_name }));
 		}

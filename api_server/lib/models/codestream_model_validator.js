@@ -1,14 +1,14 @@
 'use strict';
 
 var Data_Model_Validator = require(process.env.CI_API_TOP + '/lib/util/data_collection/data_model_validator');
-var CodeStream_Model_Attributes = require('./codestream_model_attributes');
 var URL = require('url');
 var ObjectID = require('mongodb').ObjectID;
+const CodeStream_Model_Attributes = require('./codestream_model_attributes');
 
 class CodeStream_Model_Validator extends Data_Model_Validator {
 
 	constructor (attribute_definitions) {
-		var total_attribute_definitions = Object.assign({}, CodeStream_Model_Attributes, attribute_definitions);
+		let total_attribute_definitions = Object.assign({}, CodeStream_Model_Attributes, attribute_definitions);
 		super(total_attribute_definitions);
 	}
 
@@ -42,7 +42,7 @@ class CodeStream_Model_Validator extends Data_Model_Validator {
 			return 'array is too long';
 		}
 		for (let index = 0, length = value.length; index < length; index++) {
-			var result = this.validate_id(value[index], definition, options);
+			let result = this.validate_id(value[index], definition, options);
 			if (result) {
 				return `element ${index} is not a valid ID: ${result}`;
 			}
@@ -60,7 +60,7 @@ class CodeStream_Model_Validator extends Data_Model_Validator {
 		) {
 			return 'url is too long';
 		}
-		var parsed = URL.parse(value);
+		let parsed = URL.parse(value);
 		if (!parsed.host || !parsed.pathname) {
 			return 'invalid url';
 		}

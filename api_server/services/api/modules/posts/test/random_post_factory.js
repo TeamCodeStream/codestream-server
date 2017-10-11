@@ -2,7 +2,7 @@
 
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Random_String = require('randomstring');
-var Post_Test_Constants = require('./post_test_constants');
+const Post_Test_Constants = require('./post_test_constants');
 
 class Random_Post_Factory {
 
@@ -28,25 +28,25 @@ class Random_Post_Factory {
 	}
 
 	random_text () {
-		var length = 1 + this.random_upto(1000);
+		const length = 1 + this.random_upto(1000);
 		return Random_String.generate(length);
 	}
 
 	random_position () {
-		var line_start = this.random_upto(1000);
-		var line_end = line_start + this.random_upto(1000);
-		var char_start = this.random_upto(100);
-		var char_end = (line_start === line_end) ?
+		const line_start = this.random_upto(1000);
+		const line_end = line_start + this.random_upto(1000);
+		const char_start = this.random_upto(100);
+		const char_end = (line_start === line_end) ?
 			(char_start + this.random_upto(100)) :
 			this.random_upto(100);
 		return { line_start, line_end, char_start, char_end };
 	}
 
 	get_random_post_type (options) {
-		var types = Object.keys(this.data_function_by_type);
-		var num_types = types.length;
-		var type_index = Math.floor(Math.random() * num_types);
-		var type = types[type_index];
+		const types = Object.keys(this.data_function_by_type);
+		const num_types = types.length;
+		const type_index = Math.floor(Math.random() * num_types);
+		const type = types[type_index];
 		if (type === 'reply' && options.no_reply) {
 			return this.get_random_post_type(options);
 		}
@@ -66,7 +66,7 @@ class Random_Post_Factory {
 	}
 
 	get_random_post_data (callback, options = {}) {
-		var type = options.type || this.get_random_post_type(options);
+		let type = options.type || this.get_random_post_type(options);
 		if (typeof this.data_function_by_type[type] !== 'function') {
 			return callback('no function for type ' + type);
 		}
@@ -99,7 +99,7 @@ class Random_Post_Factory {
 	}
 
 	get_random_group_post_data (callback, options = {}) {
-		var have_group = (group) => {
+		let have_group = (group) => {
 			return callback(null, {
 				group_id: group._id,
 				org_id: group.org_id
@@ -126,8 +126,8 @@ class Random_Post_Factory {
 	}
 
 	get_random_reply_post_data (callback, options = {}) {
-		var have_post = (post) => {
-			var data = {
+		let have_post = (post) => {
+			let data = {
 				parent_post_id: post._id,
 				org_id: post.org_id
 			};
@@ -155,9 +155,9 @@ class Random_Post_Factory {
 	}
 
 	get_random_path () {
-		var length = 1 + Math.floor(Math.random() * 4);
-		var path_elems = [];
-		for (var i = 0; i < length; i++) {
+		const length = 1 + Math.floor(Math.random() * 4);
+		let path_elems = [];
+		for (let i = 0; i < length; i++) {
 			path_elems.push(Random_String.generate(6));
 		}
 		return path_elems.join('/');
@@ -247,12 +247,12 @@ class Random_Post_Factory {
 
 	create_n_of_each_type (n, callback, options) {
 		this.posts_created = {};
-		var types = Object.keys(this.data_function_by_type);
+		let types = Object.keys(this.data_function_by_type);
 		Bound_Async.timesSeries(
 			this,
 			types.length,
 			(type_index, times_callback) => {
-				var type = types[type_index];
+				let type = types[type_index];
 				if (type === 'reply' && options.no_reply) {
 					return times_callback();
 				}

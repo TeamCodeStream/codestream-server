@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = (data) => {
-	var stringified = JSON.stringify(data);
-	var cloned = null;
+	let stringified = JSON.stringify(data);
+	let cloned = null;
 	try {
 	        cloned = JSON.parse(stringified);
 	}

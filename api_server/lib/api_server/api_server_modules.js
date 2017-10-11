@@ -21,7 +21,7 @@ class API_Server_Modules {
 		this.routes = [];
 		this.data_sources = [];
 	}
-	 
+
 	load_modules (callback) {
 		Bound_Async.series(this, [
 			this.read_module_directory,
@@ -57,8 +57,8 @@ class API_Server_Modules {
 	}
 
 	process_module_file (module_file, callback) {
-		var module_path = Path.join(this.config.module_directory, module_file);
-		FS.stat( 
+		const module_path = Path.join(this.config.module_directory, module_file);
+		FS.stat(
 			module_path,
 			(error, stats) => {
 				if (error) {
@@ -76,9 +76,9 @@ class API_Server_Modules {
 		if (!stats.isDirectory()) {
 			return process.nextTick(callback);
 		}
-		var module_js = Path.join(module_directory, 'module.js');
-		var name = Path.basename(module_directory);
-		var module = this.instantiate_module(module_js, name);
+		const module_js = Path.join(module_directory, 'module.js');
+		const name = Path.basename(module_directory);
+		let module = this.instantiate_module(module_js, name);
 		if (typeof module === 'string') {
 			return callback(module);
 		}
@@ -88,7 +88,7 @@ class API_Server_Modules {
 	}
 
 	instantiate_module (module_js, name) {
-		var module_class;
+		let module_class;
 		try {
 			module_class = require(module_js);
 		}
@@ -98,7 +98,7 @@ class API_Server_Modules {
 		if (!module_class) {
 			return `No exported class found in ${module_js}`;
 		}
-		var module;
+		let module;
 		try {
 			module = new module_class({
 				modules: this,
@@ -124,8 +124,8 @@ class API_Server_Modules {
 	}
 
 	collect_module_dependencies (module_name, callback) {
-		var module = this.modules[module_name];
-		var dependencies = module.get_dependencies();
+		let module = this.modules[module_name];
+		let dependencies = module.get_dependencies();
 		if (dependencies instanceof Array) {
 			dependencies.forEach(dep => {
 				this.module_dependencies.push(
@@ -137,7 +137,7 @@ class API_Server_Modules {
 	}
 
 	resolve_dependencies (callback) {
-		var sorted;
+		let sorted;
 		try {
 			sorted = TopoSort.array(
 				this.module_names,
@@ -145,8 +145,8 @@ class API_Server_Modules {
 			);
 		}
 		catch(error) {
-			if (error) { 
-				return callback(`Error resolving module dependencies: ${error}`); 
+			if (error) {
+				return callback(`Error resolving module dependencies: ${error}`);
 			}
 		}
 		this.modules = sorted.map(module_name => this.modules[module_name]);
@@ -180,7 +180,7 @@ class API_Server_Modules {
 		if (typeof module[type] !== 'function') {
 			return process.nextTick(callback);
 		}
-		var functions = module[type]();
+		let functions = module[type]();
 		if (!functions) {
 			return process.nextTick(callback);
 		}
@@ -222,7 +222,7 @@ class API_Server_Modules {
 	}
 
 	register_module_routes (module, callback) {
-		var routes = module.get_routes();
+		let routes = module.get_routes();
 		if (!routes || !(routes instanceof Array)) {
 			return process.nextTick(callback);
 		}
@@ -238,7 +238,7 @@ class API_Server_Modules {
 	}
 
 	register_one_module_route (module, route, callback) {
-		var route_object = this.normalize_route(route, module);
+		let route_object = this.normalize_route(route, module);
 		if (!route_object) {
 			return process.nextTick(callback);
 		}
@@ -250,12 +250,12 @@ class API_Server_Modules {
 		if (!this.validate_route(route, module)) {
 			return;
 		}
-		var method = route.method;
-		var path = route.path;
+		const method = route.method;
+		let path = route.path;
 		if (path.substring(0, 1) !== '/') {
 			path = '/' + path;
 		}
-		var func;
+		let func;
 		if (route.func && typeof route.func === 'string') {
 			if (typeof module[route.func] === 'function') {
 				func = (request, response, next) => {
@@ -287,7 +287,7 @@ class API_Server_Modules {
 			this.api.warn(`Bad method for module ${module.name}`, route);
 			return false;
 		}
-		var valid_methods = ['get', 'post', 'put', 'delete', 'options'];
+		const valid_methods = ['get', 'post', 'put', 'delete', 'options'];
 		route.method = (route.method || 'get').toLowerCase();
 		if (valid_methods.indexOf(route.method) === -1) {
 			this.api.warn(`Invalid route method "${route.method}" for module ${module.name}`, route);
@@ -302,7 +302,7 @@ class API_Server_Modules {
 
 	request_class_fulfiller (request_class, route, module) {
 		return (request, response) => {
-			var api_request = new request_class({
+			let api_request = new request_class({
 				api: this.api,
 				module: module,
 				request: request,
@@ -318,4 +318,3 @@ class API_Server_Modules {
 }
 
 module.exports = API_Server_Modules;
-

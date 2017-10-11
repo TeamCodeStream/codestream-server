@@ -6,7 +6,7 @@ var Assert = require('assert');
 
 class Create_Many_Test extends Mongo_Test {
 
-	get_description () {
+	get description () {
 		return 'should create several documents that can then be fetched by ID';
 	}
 

@@ -9,7 +9,7 @@ class Not_On_Team_Test extends Already_On_Team_Test {
 		this.test_options.dont_include_current_user = true;
 	}
 
-	get_description () {
+	get description () {
 		return 'should return an error when trying to add a repo to an existing team that the user is not a member of';
 	}
 

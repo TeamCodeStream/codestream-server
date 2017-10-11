@@ -14,7 +14,7 @@ class Already_On_Team_Test extends Post_Repo_Test {
 		};
 	}
 
-	get_description () {
+	get description () {
 		return 'should return the new repo when trying to add a repo to an existing team that the user is already on';
 	}
 

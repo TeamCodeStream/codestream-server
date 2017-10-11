@@ -4,12 +4,10 @@ var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
 
-const DESCRIPTION = 'should return teams i am a member of when requesting my teams';
-
 class Get_My_Teams_Test extends CodeStream_API_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return teams i am a member of when requesting my teams';
 	}
 
 	get path () {
@@ -41,7 +39,7 @@ class Get_My_Teams_Test extends CodeStream_API_Test {
 	}
 
 	validate_response (data) {
-		Assert(data.teams.length === this.created_teams.length, 'number of teams should match number created'); 
+		Assert(data.teams.length === this.created_teams.length, 'number of teams should match number created');
 		return this.validate_matching_objects(this.created_teams, data.teams, 'teams');
 	}
 }

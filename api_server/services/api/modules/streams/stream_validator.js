@@ -1,13 +1,13 @@
 'use strict';
 
 var CodeStream_Model_Validator = require(process.env.CI_API_TOP + '/lib/models/codestream_model_validator');
-var Stream_Attributes = require('./stream_attributes');
+const Stream_Attributes = require('./stream_attributes');
 const STREAM_TYPES = require('./stream_types');
 
 class Stream_Validator extends CodeStream_Model_Validator {
 
 	constructor (attribute_definitions) {
-		var total_attribute_definitions = Object.assign({}, Stream_Attributes, attribute_definitions);
+		let total_attribute_definitions = Object.assign({}, Stream_Attributes, attribute_definitions);
 		super(total_attribute_definitions);
 	}
 

@@ -6,7 +6,7 @@ var Assert = require('assert');
 
 class Delete_From_Database_Test extends Data_Collection_Test {
 
-	get_description () {
+	get description () {
 		return 'should not get a model after it has been deleted and persisted';
 	}
 

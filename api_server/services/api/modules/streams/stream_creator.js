@@ -20,8 +20,8 @@ class Stream_Creator extends Model_Creator {
 
 	validate_attributes (callback) {
 		this.set_defaults();
-		var required_attributes = ['company_id', 'team_id', 'type'];
-		var error =
+		const required_attributes = ['company_id', 'team_id', 'type'];
+		let error =
 			this.check_required(required_attributes) ||
 			this.validate_type() ||
 			this.validate_member_ids();
@@ -79,7 +79,7 @@ class Stream_Creator extends Model_Creator {
 	}
 
 	check_existing_query () {
-		var query = {
+		let query = {
 			company_id: this.attributes.company_id,
 			team_id: this.attributes.team_id
 		};

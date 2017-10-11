@@ -5,7 +5,7 @@ var Random_String = require('randomstring');
 
 class Normalize_Url_Test extends Post_Repo_Test {
 
-	get_description () {
+	get description () {
 		return `should return valid repo when creating a new repo, and the URL should be appropriately normalized`;
 	}
 

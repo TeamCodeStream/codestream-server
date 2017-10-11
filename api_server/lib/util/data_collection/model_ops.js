@@ -51,9 +51,9 @@ var _Ops = {
 var _document_ops_helper; // make jshint happy
 
 var _sub_op = function(op_type, document, op, field) {
-	var match = field.match(/^(.+)\.(.+)$/);
+	let match = field.match(/^(.+)\.(.+)$/);
 	if (match) {
-		var [ , top_field, sub_field ] = match;
+		let [ , top_field, sub_field ] = match;
 		if (typeof document[top_field] === 'object') {
 			_document_ops_helper(op_type, document[top_field], { [sub_field]: op[field] });
 		}

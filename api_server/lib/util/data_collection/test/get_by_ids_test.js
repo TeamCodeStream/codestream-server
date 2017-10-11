@@ -5,7 +5,7 @@ var Data_Collection_Test = require('./data_collection_test');
 
 class Get_By_Ids_Test extends Data_Collection_Test {
 
-	get_description () {
+	get description () {
 		return 'should get the correct models when getting several models by ID, including models from cache and from database';
 	}
 

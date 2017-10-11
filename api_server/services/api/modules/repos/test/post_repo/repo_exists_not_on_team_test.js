@@ -9,7 +9,7 @@ class Repo_Exists_Not_On_Team_Test extends Repo_Exists_Test {
 		this.test_options.dont_include_current_user = true;
 	}
 
-	get_description () {
+	get description () {
 		return 'should return the repo when trying to create a repo that already exists and the user is not on the team (the user should be added to the team)';
 	}
 }

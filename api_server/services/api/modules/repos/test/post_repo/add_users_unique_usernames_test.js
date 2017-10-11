@@ -9,7 +9,7 @@ class Add_Users_Unique_Usernames_Test extends Add_Users_Test {
 		this.test_options.want_conflicting_user_with_existing_user = true;
 	}
 
-	get_description () {
+	get description () {
 		return 'should return an error when creating a repo with emails where there is a uername conflict with an existing email';
 	}
 

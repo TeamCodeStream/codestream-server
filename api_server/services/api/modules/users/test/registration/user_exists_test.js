@@ -2,12 +2,10 @@
 
 var Registration_Test = require('./registration_test');
 
-const DESCRIPTION = 'should return an object exists error when registering an email that already exists';
-
 class User_Exists_Test extends Registration_Test {
 
-	get_description () {
-		return DESCRIPTION;
+	get description () {
+		return 'should return an object exists error when registering an email that already exists';
 	}
 
 	get_expected_fields () {

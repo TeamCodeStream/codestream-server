@@ -5,12 +5,12 @@ var Assert = require('assert');
 
 class Get_By_Id_Not_Found_Test extends Data_Collection_Test {
 
-	get_description () {
+	get description () {
 		return 'should get null when getting model that does not exist';
 	}
 
 	run (callback) {
-		var next_id = this.data.test.create_id();
+		let next_id = this.data.test.create_id();
 		this.data.test.get_by_id(
 			next_id,
 			(error, response) => {

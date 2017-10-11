@@ -14,7 +14,7 @@ class Data_Collection_Fetcher {
 			[id],
 			(error, models) => {
 				if (error) { return callback(error); }
-				var model = models.length > 0 ? models[0] : null;
+				let model = models.length > 0 ? models[0] : null;
 				callback(null, model);
 			},
 			options
@@ -90,7 +90,7 @@ class Data_Collection_Fetcher {
 	}
 
 	try_find_model (id, callback) {
-		var model = this.collection._get_from_cache(id);
+		let model = this.collection._get_from_cache(id);
 		if (model) {
 			this.cached_models.push(model);
 		}

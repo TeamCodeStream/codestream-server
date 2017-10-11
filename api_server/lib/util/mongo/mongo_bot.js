@@ -12,7 +12,7 @@ class Mongo_Bot {
 
 	foreach (collection, query, iterator, callback) {
 		if (!this.mongo_client) {
-			return callback('no mongo client');		
+			return callback('no mongo client');
 		}
 		if (!this.mongo_client.mongo_collections[collection]) {
 			return callback('invalid collection: ' + collection);
@@ -69,7 +69,7 @@ class Mongo_Bot {
 						this.logger.warn(error);
 					}
 				}
-				var wait = this.throttle || 0;
+				const wait = this.throttle || 0;
 				setTimeout(callback, wait);
 			},
 			this.iteration_data
@@ -78,4 +78,3 @@ class Mongo_Bot {
 }
 
 module.exports = Mongo_Bot;
-

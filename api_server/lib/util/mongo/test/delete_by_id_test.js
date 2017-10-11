@@ -5,7 +5,7 @@ var Mongo_Test = require('./mongo_test');
 
 class Delete_By_Id_Test extends Mongo_Test {
 
-	get_description () {
+	get description () {
 		return 'should not get a document after it has been deleted';
 	}
 

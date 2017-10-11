@@ -9,7 +9,7 @@ class Sha_Mismatch_Test extends Post_Repo_Test {
 		this.test_options.want_other_repo = true;
 	}
 
-	get_description () {
+	get description () {
 		return 'should return an error when trying to create a repo that already exists and the first commit SHA doesn\'t match';
 	}
 

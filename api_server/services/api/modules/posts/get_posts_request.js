@@ -31,11 +31,11 @@ class Get_Posts_Request extends Get_Many_Request {
 		) {
 			return null;
 		}
-		var query = {};
+		let query = {};
 		this.have_relational = false;
-		for (var parameter in this.request.query || {}) {
+		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
-				var error = this.process_query_parameter(parameter, query);
+				let error = this.process_query_parameter(parameter, query);
 				if (error) {
 					return error;
 				}
@@ -55,7 +55,7 @@ class Get_Posts_Request extends Get_Many_Request {
 			query[parameter] = decodeURIComponent(this.request.query[parameter]);
 		}
 		else if (parameter === 'newer_than') {
-			var newer_than = parseInt(this.request.query[parameter], 10);
+			let newer_than = parseInt(this.request.query[parameter], 10);
 			if (newer_than) {
 				query.modified_at = { $gt: parseInt(this.request.query[parameter], 10) };
 			}
@@ -64,7 +64,7 @@ class Get_Posts_Request extends Get_Many_Request {
 			query.creator_id = this.user.id;
 		}
 		else if (RELATIONAL_PARAMETERS.indexOf(parameter) !== -1) {
-			var error = this.process_relational_parameter(parameter, query);
+			let error = this.process_relational_parameter(parameter, query);
 			if (error) { return error; }
 		}
 		else if (NON_FILTERING_PARAMETERS.indexOf(parameter) === -1) {
@@ -78,8 +78,8 @@ class Get_Posts_Request extends Get_Many_Request {
 		}
 		this.have_relational = true;
 		query._id = {};
-		var relational_id = this.request.query[parameter];
-		var id = this.data.posts.object_id_safe(decodeURIComponent(relational_id));
+		let relational_id = this.request.query[parameter];
+		let id = this.data.posts.object_id_safe(decodeURIComponent(relational_id));
 		if (!id) {
 			return 'invalid id: ' + relational_id;
 		}
@@ -87,12 +87,12 @@ class Get_Posts_Request extends Get_Many_Request {
 	}
 
 	get_query_options () {
-		var limit = parseInt(this.request.query.limit || 0, 10);
+		let limit = parseInt(this.request.query.limit || 0, 10);
 		this.limit = limit ?
 			Math.min(limit, this.api.config.limits.max_posts_per_request || 100) :
 			this.api.config.limits.max_posts_per_request;
 		this.limit += 1;
-		var sort = { _id: -1 };
+		let sort = { _id: -1 };
 		if (this.request.query.sort && this.request.query.sort.toLowerCase() === 'asc') {
 			sort = { _id: 1 };
 		}
