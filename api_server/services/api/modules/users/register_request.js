@@ -23,11 +23,18 @@ class Register_Request extends Restful_Request {
 		], (error) => {
 			if (error) { return callback(error); }
 			this.response_data = { user: this.user.get_sanitized_object() };
+			if (this.confirmation_cheat === this.api.config.secrets.confirmation_cheat) {
+				// this allows for testing without actually receiving the email
+				this.log('Confirmation cheat detected, hopefully this was called by test code');
+				this.response_data.user.confirmation_code = this.user.get('confirmation_code');
+			}
 			callback();
 		});
 	}
 
 	allow (callback) {
+		this.confirmation_cheat = this.request.body._confirmation_cheat;	// cheat code for testing only
+		delete this.request.body._confirmation_cheat;
 		this.allow_parameters(
 			'body',
 			{

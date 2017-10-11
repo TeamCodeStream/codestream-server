@@ -50,7 +50,8 @@ module.exports = {
 	},
 	confirmation_code: {
 		type: 'string',
-		max_length: 6
+		max_length: 6,
+		server_only: true
 	},
 	confirmation_attempts: {
 		type: 'number',

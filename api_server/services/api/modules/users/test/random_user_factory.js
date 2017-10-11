@@ -2,6 +2,7 @@
 
 var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 var Random_String = require('randomstring');
+const Secrets_Config = require(process.env.CI_API_TOP + '/config/secrets.js');
 
 class _User_Creator {
 
@@ -81,7 +82,8 @@ class Random_User_Factory {
 		let first_name = Random_String.generate(10);
 		let last_name = Random_String.generate(10);
 		let timeout = options.timeout || null;
-		let data = { emails, first_name, last_name, timeout };
+		let _confirmation_cheat = Secrets_Config.confirmation_cheat;
+		let data = { emails, first_name, last_name, timeout, _confirmation_cheat };
 		if (!options.no_password) {
 			data.password = Random_String.generate(12);
 		}

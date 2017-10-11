@@ -3,6 +3,7 @@
 var Assert = require('assert');
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
 const User_Test_Constants = require('../user_test_constants');
+const Secrets_Config = require(process.env.CI_API_TOP + '/config/secrets.js');
 
 class Registration_Test extends CodeStream_API_Test {
 
@@ -28,6 +29,7 @@ class Registration_Test extends CodeStream_API_Test {
 
 	before (callback) {
 		this.data = this.user_factory.get_random_user_data();
+		this.data._confirmation_cheat = Secrets_Config.confirmation_cheat;
 		callback();
 	}
 
@@ -50,7 +52,7 @@ class Registration_Test extends CodeStream_API_Test {
 			((typeof user.confirmation_code === 'string') || errors.push('confirmation_code is not a string'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-		delete user.confirmation_code; // this is technically unsanitized, but this request (and only this request) allows it
+		delete user.confirmation_code; // this is technically unsanitized, but we "cheat" during the test
 		this.validate_sanitized(user, User_Test_Constants.UNSANITIZED_ATTRIBUTES);
 	}
 }

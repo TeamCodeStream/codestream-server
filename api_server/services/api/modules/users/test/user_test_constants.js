@@ -15,7 +15,7 @@ const EXPECTED_USER_FIELDS = [
 ];
 
 const EXPECTED_REGISTRATION_FIELDS = EXPECTED_USER_FIELDS.concat([
-	'confirmation_code'
+	'confirmation_code'	// only because we cheat using a special cheat code
 ]);
 
 const EXPECTED_USER_RESPONSE = {

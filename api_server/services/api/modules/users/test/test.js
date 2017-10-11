@@ -14,4 +14,5 @@ describe('user requests', function() {
 	describe('PUT /login', user_request_tester.login_test);
 	describe('GET /users/:id', user_request_tester.get_user_test);
 	describe('GET /users', user_request_tester.get_users_test);
+
 });
