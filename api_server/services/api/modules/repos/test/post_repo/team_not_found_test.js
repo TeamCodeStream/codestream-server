@@ -21,7 +21,8 @@ class Team_Not_Found_Test extends Post_Repo_Test {
 	}
 
 	before (callback) {
-		super.before(() => {
+		super.before(error => {
+			if (error) { return callback(error); }
 			delete this.data.team;
 			this.data.team_id = ObjectID();
 			callback();

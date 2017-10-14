@@ -2,12 +2,19 @@
 
 var Assert = require('assert');
 var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
+var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
 const Post_Test_Constants = require('../post_test_constants');
 
 class Post_Post_Test extends CodeStream_API_Test {
 
+	constructor (options) {
+		super(options);
+		this.test_options = {};
+		this.team_emails = [];
+	}
+
 	get description () {
-		return `should return a valid post when creating a ${this.type} post`;
+		return 'should return a valid post when creating a post in a direct stream (simplest case: me-group)';
 	}
 
 	get method () {
@@ -15,32 +22,109 @@ class Post_Post_Test extends CodeStream_API_Test {
 	}
 
 	get path () {
-		return '/post';
+		return '/posts';
 	}
 
 	get_expected_fields () {
-		const position_fields = Post_Test_Constants.WANT_POSITION[this.type] ? Post_Test_Constants.EXPECTED_POST_POSITION_FIELDS : [];
-		return {
-			post: [
-				...Post_Test_Constants.EXPECTED_POST_FIELDS,
-				...Post_Test_Constants.EXPECTED_POST_FIELDS_BY_TYPE[this.type],
-				...position_fields
-			]
-		};
+		return { post: Post_Test_Constants.EXPECTED_POST_FIELDS };
 	}
 
 	before (callback) {
+		Bound_Async.series(this, [
+			this.create_other_user,
+			this.make_random_emails,
+			this.create_random_repo,
+			this.make_stream_options,
+			this.create_random_stream,
+			this.make_post_options,
+			this.create_other_post,
+			this.make_post_data
+		], callback);
+	}
+
+	create_other_user (callback) {
+		this.user_factory.create_random_user(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.other_user_data = response;
+				callback();
+			}
+		);
+	}
+
+	make_random_emails (callback) {
+		for (let i = 0; i < 2; i++) {
+			this.team_emails.push(this.user_factory.random_email());
+		}
+		callback();
+	}
+
+	create_random_repo (callback) {
+		this.repo_factory.create_random_repo(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.repo = response.repo;
+				this.team = response.team;
+				this.users = response.users;
+				callback();
+			},
+			{
+				with_emails: this.team_emails,
+				token: this.other_user_data.access_token
+			}
+		);
+	}
+
+	make_stream_options (callback) {
+		this.stream_options = {
+			type: this.stream_type || 'direct',
+			company_id: this.team.company_id,
+			team_id: this.team._id,
+			token: this.other_user_data.access_token
+		};
+		callback();
+	}
+
+	create_random_stream (callback) {
+		this.stream_factory.create_random_stream(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.stream = response.stream;
+				callback();
+			},
+			this.stream_options
+		);
+	}
+
+	make_post_options (callback) {
+		this.post_options = {
+			stream_id: this.stream._id
+		};
+		callback();
+	}
+
+	create_other_post (callback) {
+		if (!this.test_options.want_other_post) {
+			return callback();
+		}
+		this.post_factory.create_random_post(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.other_post_data = response;
+				callback();
+			},
+			Object.assign({}, this.post_options, { token: this.other_user_data.access_token })
+		);
+	}
+
+	make_post_data (callback) {
 		this.post_factory.get_random_post_data(
 			(error, data) => {
 				if (error) { return callback(error); }
 				this.data = data;
 				callback();
 			},
-			{
-				type: this.type,
-				org: this.current_orgs[0],
-				token: this.token
-			}
+			this.post_options
 		);
 	}
 
@@ -48,23 +132,17 @@ class Post_Post_Test extends CodeStream_API_Test {
 		let post = data.post;
 		let errors = [];
 		let result = (
-			((post.creator_id === this.current_user._id) || errors.push('group creator is not the current user')) &&
-			((post.org_id === this.current_orgs[0]._id) || errors.push('org_id is not equal to current user\'s org id')) &&
-			((typeof post.text === 'string') || errors.push('text is not a string'))
+			((post.text === this.data.text) || errors.push('text does not match')) &&
+			((post.team_id === this.team._id) || errors.push('team_id does not match the team')) &&
+			((post.company_id === this.team.company_id) || errors.push('company_id does not match the team')) &&
+			((post.stream_id === this.data.stream_id) || errors.push('stream_id does not match')) &&
+			((post.deactivated === false) || errors.push('deactivated not false')) &&
+			((typeof post.created_at === 'number') || errors.push('created_at not number')) &&
+			((post.modified_at >= post.created_at) || errors.push('modified_at not greater than or equal to created_at')) &&
+			((post.creator_id === this.current_user._id) || errors.push('creator_id not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-	}
-
-	validate_position (data) {
-		let post = data.post;
-		let errors = [];
-		let result = (
-			((typeof post.char_start === 'number') || errors.push('char_start is not a number')) &&
-			((typeof post.char_end === 'number') || errors.push('char_end is not a number')) &&
-			((typeof post.line_start === 'number') || errors.push('line_start is not a number')) &&
-			((typeof post.line_end === 'number') || errors.push('line_end is not a number'))
-		);
-		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		this.validate_sanitized(post, Post_Test_Constants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 

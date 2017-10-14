@@ -2,9 +2,17 @@
 
 var Model_Creator = require(process.env.CI_API_TOP + '/lib/util/restful/model_creator');
 var Stream = require('./stream');
-const STREAM_TYPES = require('./stream_types');
+var Allow = require(process.env.CI_API_TOP + '/lib/util/allow');
+const Stream_Types = require('./stream_types');
+const Errors = require('./errors');
 
 class Stream_Creator extends Model_Creator {
+
+	constructor (options) {
+		super(options);
+		this.error_handler.add(Errors);
+		this.dont_save_if_exists = true;
+	}
 
 	get model_class () {
 		return Stream;
@@ -18,53 +26,43 @@ class Stream_Creator extends Model_Creator {
 		return this.create_model(attributes, callback);
 	}
 
-	validate_attributes (callback) {
-		this.set_defaults();
-		const required_attributes = ['company_id', 'team_id', 'type'];
-		let error =
-			this.check_required(required_attributes) ||
-			this.validate_type() ||
-			this.validate_member_ids();
-		callback(error);
+	get_required_attributes () {
+		return ['company_id', 'team_id', 'type'];
 	}
 
-	validate_type () {
-		if (STREAM_TYPES.indexOf(this.attributes.type) === -1) {
-			return { type: `invalid stream type: ${this.attributes.type}` };
+	validate_attributes (callback) {
+		this.ensure_user_is_member();
+		this.attributes.type = this.attributes.type.toLowerCase();
+		if (Stream_Types.indexOf(this.attributes.type) === -1) {
+			return callback(this.error_handler.error('invalid_stream_type', { info: this.attributes.type }));
 		}
-		if (this.attributes.type === 'channel' && !this.attributes.name) {
-			return { name: 'channel type streams must have a name' };
+		if (this.attributes.type === 'channel') {
+			if (!this.attributes.name) {
+				return callback(this.error_handler.error('name_required'));
+			}
+			delete this.attributes.file;
+			delete this.attributes.repo_id;
 		}
 		else if (this.attributes.type === 'file') {
 			if (!this.attributes.repo_id) {
-				return { repo_id: 'file type streams must have a repo_id' };
+				return callback(this.error_handler.error('repo_id_required'));
 			}
 			else if (!this.attributes.file) {
-				return { file: 'file type streams must have a file' };
+				return callback(this.error_handler.error('file_required'));
 			}
-		}
-	}
-
-	validate_member_ids () {
-		if (this.attributes.tyoe === 'file') {
+			delete this.attributes.name;
 			delete this.attributes.member_ids;
-			return; // not required (or desired) for files
 		}
-		if (!(this.attributes.member_ids instanceof Array)) {
-			return { member_ids: 'must be an array' };
+		else if (this.attributes.type === 'direct') {
+			delete this.attributes.file;
+			delete this.attributes.repo_id;
+			delete this.attributes.name;
 		}
-		if (this.attributes.file === 'direct') {
-			return 'direct message streams should not have a name';
-		}
-	}
-
-	set_defaults () {
-		this.ensure_user_is_member();
-		this.dont_save_if_exists = true;
+		process.nextTick(callback);
 	}
 
 	ensure_user_is_member () {
-		if (this.attributes.file === 'file') {
+		if (this.attributes.type === 'file') {
 			return; // not required for files
 		}
 		this.attributes.member_ids = this.attributes.member_ids || [this.user.id];
@@ -78,18 +76,30 @@ class Stream_Creator extends Model_Creator {
 		this.attributes.member_ids.sort();
 	}
 
+	allow_attributes (callback) {
+		Allow(
+			this.attributes,
+			{
+				string: ['company_id', 'team_id', 'repo_id', 'type', 'file', 'name'],
+				'array(string)': ['member_ids']
+			}
+		);
+		process.nextTick(callback);
+	}
+
 	check_existing_query () {
 		let query = {
 			company_id: this.attributes.company_id,
-			team_id: this.attributes.team_id
+			team_id: this.attributes.team_id,
+			type: this.attributes.type
 		};
-		if (this.type === 'channel') {
+		if (this.attributes.type === 'channel') {
 			query.name = this.attributes.name;
 		}
-		else if (this.type === 'direct') {
+		else if (this.attributes.type === 'direct') {
 			query.member_ids = this.attributes.member_ids;
 		}
-		else if (this.type === 'file') {
+		else if (this.attributes.type === 'file') {
 			query.repo_id = this.attributes.repo_id;
 			query.file = this.attributes.file;
 		}
@@ -97,7 +107,7 @@ class Stream_Creator extends Model_Creator {
 	}
 
 	model_can_exist () {
-		return this.type !== 'channel';
+		return this.attributes.type !== 'channel';
 	}
 
 	pre_save (callback) {

@@ -2,7 +2,7 @@
 
 var CodeStream_Model_Validator = require(process.env.CI_API_TOP + '/lib/models/codestream_model_validator');
 const Stream_Attributes = require('./stream_attributes');
-const STREAM_TYPES = require('./stream_types');
+const Stream_Types = require('./stream_types');
 
 class Stream_Validator extends CodeStream_Model_Validator {
 
@@ -19,7 +19,7 @@ class Stream_Validator extends CodeStream_Model_Validator {
 	}
 
 	validate_stream_type (value/*, definition, options*/) {
-		if (STREAM_TYPES.indexOf(value) === -1) {
+		if (Stream_Types.indexOf(value.toLowerCase()) === -1) {
 			return `invalid stream type: ${value}`;
 		}
 	}

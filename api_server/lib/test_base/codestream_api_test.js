@@ -4,9 +4,8 @@ var API_Request_Test = require('./api_request_test');
 var Random_User_Factory = require(process.env.CI_API_TOP + '/services/api/modules/users/test/random_user_factory');
 var Random_Team_Factory = require(process.env.CI_API_TOP + '/services/api/modules/teams/test/random_team_factory');
 var Random_Repo_Factory = require(process.env.CI_API_TOP + '/services/api/modules/repos/test/random_repo_factory');
-/*
+var Random_Stream_Factory = require(process.env.CI_API_TOP + '/services/api/modules/streams/test/random_stream_factory');
 var Random_Post_Factory = require(process.env.CI_API_TOP + '/services/api/modules/posts/test/random_post_factory');
-*/
 
 class CodeStream_API_Test extends API_Request_Test {
 
@@ -23,12 +22,12 @@ class CodeStream_API_Test extends API_Request_Test {
 			api_requester: this,
 			team_factory: this.team_factory
 		});
-/*
-		this.post_factory = new Random_Post_Factory({
-			api_requester: this,
-			group_factory: this.group_factory
+		this.stream_factory = new Random_Stream_Factory({
+			api_requester: this
 		});
-*/
+		this.post_factory = new Random_Post_Factory({
+			api_requester: this
+		});
 	}
 
 	authenticate (callback) {

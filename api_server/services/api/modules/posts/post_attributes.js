@@ -16,25 +16,18 @@ module.exports = {
 		type: 'id',
 		required: true
 	},
-	commit_id: {
+	commit_sha_when_posted: {
 		type: 'string',
-		max_length: 64
+		min_length: 40,
+		max_length: 40
 	},
-	char_end: {
-		type: 'number'
-	},
-	char_start: {
-		type: 'number'
-	},
-	line_end: {
-		type: 'number'
-	},
-	line_start: {
-		type: 'number'
-	},
-	diff_data: {
+	location: {
 		type: 'object',
-		max_length: 4096
+		max_length: 200
+	},
+	replay_info: {
+		type: 'object',
+		max_length: 50000
 	},
 	parent_post_id: {
 		type: 'id'

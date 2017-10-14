@@ -10,8 +10,7 @@ module.exports = {
 		required: true
 	},
 	repo_id: {
-		type: 'id',
-		required: true
+		type: 'id'
 	},
 	type: {
 		type: 'stream_type', // channel, direct, file
@@ -27,7 +26,6 @@ module.exports = {
 	},
 	member_ids: {
 		type: 'array_of_ids',
-		max_length: 256,
-		required: true
+		max_length: 256
 	}
 };

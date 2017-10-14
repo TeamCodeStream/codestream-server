@@ -10,7 +10,7 @@ class Normalize_Url_Test extends Post_Repo_Test {
 	}
 
 	before (callback) {
-		super.before((error) => {
+		super.before(error => {
 			if (error) { return callback(error); }
 			this.base_url = `ABC${Random_String.generate(8)}.CoM`;
 			this.data.url = `wWw.${this.base_url}/?x=1&y=2#frag`;
