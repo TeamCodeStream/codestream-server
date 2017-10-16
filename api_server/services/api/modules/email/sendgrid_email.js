@@ -14,7 +14,7 @@ class SendGrid_Email {
 
 	send_email (options, callback) {
 		let request = this.create_mail_request(options);
-		if (this.block) {
+		if (!this.email_to) {
 			if (options.request) {
 				options.request.log(`Would have sent to ${options.to}: ${options.subject}`);
 			}
@@ -48,9 +48,9 @@ class SendGrid_Email {
 		let from_email = new helper.Email(options.from);
 		let subject = options.subject || '';
 		let to = options.to;
-		if (this.divert_to && !this.block) {
+		if (this.email_to && this.email_to !== 'on') {
 			subject = `{{{${to}}}} ${subject}`;
-			to = this.divert_to;
+			to = this.email_to;
 			if (options.request) {
 				options.request.log(`Diverting to ${to}`);
 			}

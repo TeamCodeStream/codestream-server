@@ -22,6 +22,12 @@ export CS_API_SSL_KEYFILE=$HOME/.certs/wildcard.codestream.us/wildcard.codestrea
 export CS_API_SSL_CERTFILE=$HOME/.certs/wildcard.codestream.us/wildcard.codestream.us-crt
 export CS_API_SSL_CAFILE=$HOME/.certs/wildcard.codestream.us/wildcard.codestream.us-ca
 
+# Emails by default are not sent ... set this to "on" to send emails normally
+# (as in production, and exercise extreme caution when testing) ...
+# or set to a valid email to have all emails diverted to the specified address,
+# this is good and risk-free for developer testing
+export CS_API_EMAIL_TO=
+
 # see README.pubnub for more details
 export CS_API_PUBNUB_PUBLISH_KEY=pub-c-8603fed4-39da-4feb-a82e-cf5311ddb4d6
 export CS_API_PUBNUB_SUBSCRIBE_KEY=sub-c-e830d7da-fb14-11e6-9f57-02ee2ddab7fe
