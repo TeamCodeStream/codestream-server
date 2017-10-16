@@ -4,6 +4,7 @@
 var API_Cluster = require(process.env.CS_API_TOP + '/lib/api_server/api_cluster.js');
 const Config_Directory = process.env.CS_API_TOP + '/config';
 const Module_Directory = process.env.CS_API_TOP + '/services/api/modules';
+const Api_Config = require(Config_Directory + '/api.js');
 const Express_Config = require(Config_Directory + '/express.js');
 const Mongo_Config = require(Config_Directory + '/mongo.js');
 const Secrets_Config = require(Config_Directory + '/secrets.js');
@@ -35,6 +36,7 @@ const mongo_collections = Object.keys(data_collections);
 
 var My_API_Cluster = new API_Cluster({
 	module_directory: Module_Directory,
+	api: Api_Config,
 	version: Version,
 	secrets: Secrets_Config,
 	express: Express_Config,

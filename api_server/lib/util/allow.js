@@ -19,7 +19,7 @@ var _find_attribute = function(allowed_attributes, attribute) {
 };
 
 var _type_matches = function(value, type) {
-	if (['object', 'string', 'number'].indexOf(type) !== -1) {
+	if (['object', 'string', 'number', 'boolean'].indexOf(type) !== -1) {
 		return typeof value === type;
 	}
 	else if (type === 'array') {

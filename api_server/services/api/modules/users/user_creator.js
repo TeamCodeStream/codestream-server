@@ -71,6 +71,7 @@ class User_Creator extends Model_Creator {
 			{
 				string: ['password', 'username', 'first_name', 'last_name', 'confirmation_code'],
 				number: ['confirmation_attempts', 'confirmation_code_expires_at'],
+				boolean: ['is_registered'],
 				'array(string)': ['emails']
 			}
 		);

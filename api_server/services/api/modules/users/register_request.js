@@ -4,6 +4,7 @@ var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Restful_Request = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 var User_Creator = require('./user_creator');
 var Confirm_Code = require('./confirm_code');
+var Tokenizer = require('./tokenizer');
 
 const CONFIRMATION_CODE_TIMEOUT = 7 * 24 * 60 * 60 * 1000;
 
@@ -19,7 +20,8 @@ class Register_Request extends Restful_Request {
 			this.require,
 			this.generate_confirm_code,
 			this.save_user,
-			this.send_email
+			this.send_email,
+			this.generate_token
 		], (error) => {
 			if (error) { return callback(error); }
 			this.response_data = { user: this.user.get_sanitized_object() };
@@ -27,6 +29,9 @@ class Register_Request extends Restful_Request {
 				// this allows for testing without actually receiving the email
 				this.log('Confirmation cheat detected, hopefully this was called by test code');
 				this.response_data.user.confirmation_code = this.user.get('confirmation_code');
+			}
+			if (this.access_token) {
+				this.response_data.access_token = this.access_token;
 			}
 			callback();
 		});
@@ -58,6 +63,11 @@ class Register_Request extends Restful_Request {
 	}
 
 	generate_confirm_code (callback) {
+		if (!this.api.config.api.confirmation_required) {
+			this.log('Note: confirmation not required in environment - THIS SHOULD NOT BE PRODUCTION - email will be automatically confirmed');
+			this.request.body.is_registered = true;
+			return callback();
+		}
 		this.request.body.confirmation_code = Confirm_Code();
 		this.request.body.confirmation_attempts = 0;
 		let timeout = this.request.body.timeout || CONFIRMATION_CODE_TIMEOUT;
@@ -82,6 +92,9 @@ class Register_Request extends Restful_Request {
 	}
 
 	send_email (callback) {
+		if (!this.api.config.api.confirmation_required) {
+			return callback();
+		}
 		this.api.services.email.send_confirmation_email(
 			{
 				user: this.user.attributes,
@@ -89,6 +102,23 @@ class Register_Request extends Restful_Request {
 				request: this
 			},
 			callback
+		);
+	}
+
+	generate_token (callback) {
+		if (this.api.config.api.confirmation_required) {
+			return callback();
+		}
+		Tokenizer(
+			this.user.attributes,
+			this.api.config.secrets.auth,
+			(error, token) => {
+				if (error) {
+					return callback(this.error_handler.error('token', { reason: error }));
+				}
+				this.access_token = token;
+				process.nextTick(callback);
+			}
 		);
 	}
 }
