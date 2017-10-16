@@ -83,7 +83,8 @@ class Random_User_Factory {
 		let last_name = Random_String.generate(10);
 		let timeout = options.timeout || null;
 		let _confirmation_cheat = Secrets_Config.confirmation_cheat;
-		let data = { emails, first_name, last_name, timeout, _confirmation_cheat };
+		let _force_confirmation = 1;
+		let data = { emails, first_name, last_name, timeout, _confirmation_cheat, _force_confirmation };
 		if (!options.no_password) {
 			data.password = Random_String.generate(12);
 		}

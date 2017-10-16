@@ -10,6 +10,12 @@ const CONFIRMATION_CODE_TIMEOUT = 7 * 24 * 60 * 60 * 1000;
 
 class Register_Request extends Restful_Request {
 
+	constructor (options) {
+		super(options);
+		this.confirmation_required = this.api.config.api.confirmation_required || this.request.body._force_confirmation;
+		delete this.request.body._force_confirmation;
+	}
+
 	authorize (callback) {
 		return callback(false);
 	}
@@ -63,7 +69,7 @@ class Register_Request extends Restful_Request {
 	}
 
 	generate_confirm_code (callback) {
-		if (!this.api.config.api.confirmation_required) {
+		if (!this.confirmation_required) {
 			this.log('Note: confirmation not required in environment - THIS SHOULD NOT BE PRODUCTION - email will be automatically confirmed');
 			this.request.body.is_registered = true;
 			return callback();
@@ -92,7 +98,7 @@ class Register_Request extends Restful_Request {
 	}
 
 	send_email (callback) {
-		if (!this.api.config.api.confirmation_required) {
+		if (!this.confirmation_required) {
 			return callback();
 		}
 		this.api.services.email.send_confirmation_email(
@@ -106,7 +112,7 @@ class Register_Request extends Restful_Request {
 	}
 
 	generate_token (callback) {
-		if (this.api.config.api.confirmation_required) {
+		if (this.confirmation_required) {
 			return callback();
 		}
 		Tokenizer(

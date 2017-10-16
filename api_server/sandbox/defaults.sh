@@ -28,6 +28,11 @@ export CS_API_SSL_CAFILE=$HOME/.certs/wildcard.codestream.us/wildcard.codestream
 # this is good and risk-free for developer testing
 export CS_API_EMAIL_TO=
 
+# By default we do not require email confirmation, for developer convenience
+# But for testing the email confirmation process, or in production,
+# this should be set to "1"
+export CS_API_CONFIRMATION_REQUIRED=
+
 # see README.pubnub for more details
 export CS_API_PUBNUB_PUBLISH_KEY=pub-c-8603fed4-39da-4feb-a82e-cf5311ddb4d6
 export CS_API_PUBNUB_SUBSCRIBE_KEY=sub-c-e830d7da-fb14-11e6-9f57-02ee2ddab7fe
