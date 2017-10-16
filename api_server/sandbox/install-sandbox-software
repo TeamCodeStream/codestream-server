@@ -46,7 +46,7 @@ if [ -L $CS_API_SANDBOX/$software_pkg ]; then
 	echo "Additional software is already installed"
 else
 	echo "Installing $software_pkg"
-	dt_get_software $CS_API_SANDBOX $software_pkg || exit 1
+	dt-get-software $software_pkg $CS_API_SANDBOX || exit 1
 fi
 
 exit 0
