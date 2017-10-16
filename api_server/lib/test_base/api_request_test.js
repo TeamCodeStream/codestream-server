@@ -1,8 +1,8 @@
 'use strict';
 
 var Generic_Test = require('./generic_test');
-var HTTPS_Bot = require(process.env.CI_API_TOP + '/lib/util/https_bot');
-var Test_API_Config = require(process.env.CI_API_TOP + '/config/api_test');
+var HTTPS_Bot = require(process.env.CS_API_TOP + '/lib/util/https_bot');
+var Test_API_Config = require(process.env.CS_API_TOP + '/config/api_test');
 
 class API_Request_Test extends Generic_Test {
 

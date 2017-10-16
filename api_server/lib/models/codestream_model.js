@@ -1,6 +1,6 @@
 'use strict';
 
-var Data_Model = require(process.env.CI_API_TOP + '/lib/util/data_collection/data_model');
+var Data_Model = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model');
 var CodeStream_Model_Validator = require('./codestream_model_validator');
 
 class CodeStream_Model extends Data_Model {

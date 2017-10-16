@@ -9,7 +9,7 @@ function usage {
     exit 1
 }
 
-[ -z "$CI_API_TOP" ] && echo "ci_api sandbox not loaded">&2 && exit 1
+[ -z "$CS_API_TOP" ] && echo "cs_api sandbox not loaded">&2 && exit 1
 [[ ! ( "$1" == start || "$1" == stop || "$1" == status ) ]] && usage
 
 . $DT_TOP/lib/init_funcs.sh
@@ -29,11 +29,11 @@ shift `expr $OPTIND - 1`
 server_args=$*
 case "$action" in
 	start)
-		echo "Starting $CI_API_TOP/bin/api_server.js. Logging to $CI_API_LOG_DIRECTORY/api.log"
+		echo "Starting $CS_API_TOP/bin/api_server.js. Logging to $CS_API_LOG_DIRECTORY/api.log"
 		if [ $run_fg -eq 1 ]; then
-			$CI_API_TOP/bin/api_server.js $server_args
+			$CS_API_TOP/bin/api_server.js $server_args
 		else
-			nohup $CI_API_TOP/bin/api_server.js $server_args >/dev/null 2>&1 </dev/null &
+			nohup $CS_API_TOP/bin/api_server.js $server_args >/dev/null 2>&1 </dev/null &
 			sleep 1
 			service_status api_server.js
 		fi

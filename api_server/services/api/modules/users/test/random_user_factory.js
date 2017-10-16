@@ -1,8 +1,8 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Random_String = require('randomstring');
-const Secrets_Config = require(process.env.CI_API_TOP + '/config/secrets.js');
+const Secrets_Config = require(process.env.CS_API_TOP + '/config/secrets.js');
 
 class _User_Creator {
 

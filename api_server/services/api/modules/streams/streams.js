@@ -1,6 +1,6 @@
 'use strict';
 
-var Restful = require(process.env.CI_API_TOP + '/lib/util/restful/restful');
+var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 var Stream_Creator = require('./stream_creator');
 //var Team_Updater = require('./team_updater');
 var Stream = require('./stream');

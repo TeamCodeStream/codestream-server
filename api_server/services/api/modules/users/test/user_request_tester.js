@@ -1,6 +1,6 @@
 'use strict';
 
-var Aggregation = require(process.env.CI_API_TOP + '/lib/util/aggregation');
+var Aggregation = require(process.env.CS_API_TOP + '/lib/util/aggregation');
 var Registration_Request_Tester = require('./registration/registration_request_tester');
 var Confirmation_Request_Tester = require('./confirmation/confirmation_request_tester');
 var Login_Request_Tester = require('./login/login_request_tester');

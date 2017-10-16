@@ -1,9 +1,9 @@
 'use strict';
 
 var Assert = require('assert');
-var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
+var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const User_Test_Constants = require('../user_test_constants');
-const Secrets_Config = require(process.env.CI_API_TOP + '/config/secrets.js');
+const Secrets_Config = require(process.env.CS_API_TOP + '/config/secrets.js');
 
 class Registration_Test extends CodeStream_API_Test {
 

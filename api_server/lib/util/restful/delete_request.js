@@ -1,6 +1,6 @@
 'use strict';
 
-var API_Request = require(process.env.CI_API_TOP + '/lib/api_server/api_request.js');
+var API_Request = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 //var Object_Deleter = require('./object_deleter');
 
 class Delete_Request extends API_Request {

@@ -1,7 +1,7 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
-var User_Creator = require(process.env.CI_API_TOP + '/services/api/modules/users/user_creator');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var User_Creator = require(process.env.CS_API_TOP + '/services/api/modules/users/user_creator');
 const Errors = require('./errors');
 
 class Add_Team_Members  {

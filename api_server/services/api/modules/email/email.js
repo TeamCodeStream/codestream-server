@@ -1,6 +1,6 @@
 'use strict';
 
-var API_Server_Module = require(process.env.CI_API_TOP + '/lib/api_server/api_server_module');
+var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
 var CodeStream_Emails = require('./codestream_emails');
 
 class Email extends API_Server_Module {

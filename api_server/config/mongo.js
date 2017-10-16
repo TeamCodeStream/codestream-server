@@ -1,9 +1,9 @@
 'use strict';
 
 module.exports = {
-	host: process.env.CI_API_MONGO_HOST,
-	port: process.env.CI_API_MONGO_PORT,
-	database: process.env.CI_API_MONGO_DATABASE,
+	host: process.env.CS_API_MONGO_HOST,
+	port: process.env.CS_API_MONGO_PORT,
+	database: process.env.CS_API_MONGO_DATABASE,
 	query_logging: {
 		basename: 'mongo-query',
 		slow_basename: 'slow-mongo-query',

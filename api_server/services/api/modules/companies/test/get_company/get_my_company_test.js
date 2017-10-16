@@ -1,6 +1,6 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
+var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const Company_Test_Constants = require('../company_test_constants');
 
 class Get_My_Company_Test extends CodeStream_API_Test {

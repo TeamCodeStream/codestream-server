@@ -1,7 +1,7 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
-var Restful_Request = require(process.env.CI_API_TOP + '/lib/util/restful/restful_request.js');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var Restful_Request = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 var Tokenizer = require('./tokenizer');
 var Password_Hasher = require('./password_hasher');
 const Errors = require('./errors');

@@ -1,7 +1,7 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
-var Restful_Request = require(process.env.CI_API_TOP + '/lib/util/restful/restful_request.js');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var Restful_Request = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 var User_Creator = require('./user_creator');
 var Confirm_Code = require('./confirm_code');
 

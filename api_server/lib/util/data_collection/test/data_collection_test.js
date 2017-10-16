@@ -1,10 +1,10 @@
 'use strict';
 
-var Generic_Test = require(process.env.CI_API_TOP + '/lib/test_base/generic_test');
-var Mongo_Client = require(process.env.CI_API_TOP + '/lib/util/mongo/mongo_client.js');
-var Test_API_Config = require(process.env.CI_API_TOP + '/config/api_test');
+var Generic_Test = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
+var Mongo_Client = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
+var Test_API_Config = require(process.env.CS_API_TOP + '/config/api_test');
 var Random_String = require('randomstring');
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
 var Data_Collection = require('../data_collection');
 var Data_Model = require('../data_model');

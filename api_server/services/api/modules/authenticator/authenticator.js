@@ -1,8 +1,8 @@
 'use strict';
 
-var API_Server_Module = require(process.env.CI_API_TOP + '/lib/api_server/api_server_module.js');
+var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 var Token_Authenticator = require('./token_authenticator');
-var User = require(process.env.CI_API_TOP + '/services/api/modules/users/user');
+var User = require(process.env.CS_API_TOP + '/services/api/modules/users/user');
 
 const DEPENDENCIES = [
 	'body_parser',

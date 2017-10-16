@@ -1,7 +1,7 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
-var Get_Many_Request = require(process.env.CI_API_TOP + '/lib/util/restful/get_many_request');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var Get_Many_Request = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 
 class Get_Repos_Request extends Get_Many_Request {
 

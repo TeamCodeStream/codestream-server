@@ -8,7 +8,7 @@
 # Place any commands needed to prepare the sandbox for use here. Assume all
 # environment variables have been set.
 
-cd $CI_API_TOP
+cd $CS_API_TOP
 echo "npm install (from `pwd`)"
 npm install
 

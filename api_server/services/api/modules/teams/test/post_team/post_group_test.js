@@ -1,7 +1,7 @@
 'use strict';
 
 var Assert = require('assert');
-var CodeStream_API_Test = require(process.env.CI_API_TOP + '/lib/test_base/codestream_api_test');
+var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const Team_Test_Constants = require('../team_test_constants');
 
 class Post_Team_Test extends CodeStream_API_Test {

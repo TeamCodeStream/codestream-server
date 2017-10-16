@@ -1,7 +1,7 @@
 'use strict';
 
-var API_Server_Module = require(process.env.CI_API_TOP + '/lib/api_server/api_server_module.js');
-var Mongo_Client = require(process.env.CI_API_TOP + '/lib/util/mongo/mongo_client.js');
+var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+var Mongo_Client = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
 
 const DEPENDENCIES = [
 	'access_logger'

@@ -3,7 +3,7 @@
 var Strftime = require('strftime');
 var Path = require('path');
 var FS = require('fs');
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
 class Simple_File_Logger {
 

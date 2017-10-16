@@ -1,6 +1,6 @@
 'use strict';
 
-var Restful = require(process.env.CI_API_TOP + '/lib/util/restful/restful');
+var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 var Post_Creator = require('./post_creator');
 var Post = require('./post');
 

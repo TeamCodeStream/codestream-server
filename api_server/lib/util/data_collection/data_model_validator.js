@@ -1,7 +1,7 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
-var Deep_Clone = require(process.env.CI_API_TOP + '/lib/util/deep_clone');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var Deep_Clone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
 
 class Data_Model_Validator {
 

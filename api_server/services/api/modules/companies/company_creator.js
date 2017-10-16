@@ -1,8 +1,8 @@
 'use strict';
 
-var Model_Creator = require(process.env.CI_API_TOP + '/lib/util/restful/model_creator');
+var Model_Creator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Company = require('./company');
-var Allow = require(process.env.CI_API_TOP + '/lib/util/allow');
+var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 
 class Company_Creator extends Model_Creator {
 

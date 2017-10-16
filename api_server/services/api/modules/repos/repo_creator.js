@@ -1,13 +1,13 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
-var Model_Creator = require(process.env.CI_API_TOP + '/lib/util/restful/model_creator');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var Model_Creator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Repo = require('./repo');
 var Normalize_URL = require('normalize-url');
-var Allow = require(process.env.CI_API_TOP + '/lib/util/allow');
-var Add_Team_Members = require(process.env.CI_API_TOP + '/services/api/modules/teams/add_team_members');
-var Team_Creator = require(process.env.CI_API_TOP + '/services/api/modules/teams/team_creator');
-var CodeStream_Model_Validator = require(process.env.CI_API_TOP + '/lib/models/codestream_model_validator');
+var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
+var Add_Team_Members = require(process.env.CS_API_TOP + '/services/api/modules/teams/add_team_members');
+var Team_Creator = require(process.env.CS_API_TOP + '/services/api/modules/teams/team_creator');
+var CodeStream_Model_Validator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
 const Repo_Attributes = require('./repo_attributes');
 const Errors = require('./errors');
 

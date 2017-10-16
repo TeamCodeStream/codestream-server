@@ -2,4 +2,4 @@
 
 #desc# brief command summary
 
-dt-help $CI_API_TOP/bin
+dt-help $CS_API_TOP/bin

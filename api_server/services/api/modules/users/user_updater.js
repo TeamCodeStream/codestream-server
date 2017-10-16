@@ -3,7 +3,7 @@
 /*
 
 var Async = require('async');
-var Model_Updater = require(process.env.CI_API_TOP + '/lib/util/data_module/model_updater');
+var Model_Updater = require(process.env.CS_API_TOP + '/lib/util/data_module/model_updater');
 var User = require('./user');
 
 var User_Updater = function(options) {

@@ -1,5 +1,5 @@
-SB_TYPE=ci_api
-SB_PREFIX=CI_API
-GIT_ORIGIN=https://github.com/pkt4dev/cider_api_server
-SB_PROJECT_PATH=cider_api_server
+SB_TYPE=cs_api
+SB_PREFIX=CS_API
+GIT_ORIGIN=https://github.com/teamcodestream/api_server
+SB_PROJECT_PATH=api_server
 SB_DEPS=mongo

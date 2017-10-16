@@ -1,7 +1,7 @@
 'use strict';
 
-const Post_Attributes = require(process.env.CI_API_TOP + '/services/api/modules/posts/post_attributes');
-const Stream_Attributes = require(process.env.CI_API_TOP + '/services/api/modules/streams/stream_attributes');
+const Post_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/posts/post_attributes');
+const Stream_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_attributes');
 
 const EXPECTED_POST_FIELDS = [
 	'_id',

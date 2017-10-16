@@ -1,6 +1,6 @@
 'use strict';
 
-var Get_Many_Request = require(process.env.CI_API_TOP + '/lib/util/restful/get_many_request');
+var Get_Many_Request = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 
 class Get_Teams_Request extends Get_Many_Request {
 

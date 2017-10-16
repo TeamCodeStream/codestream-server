@@ -1,6 +1,6 @@
 'use strict';
 
-var Restful = require(process.env.CI_API_TOP + '/lib/util/restful/restful');
+var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 var Company_Creator = require('./company_creator');
 //var Company_Updater = require('./company_updater');
 var Company = require('./company');

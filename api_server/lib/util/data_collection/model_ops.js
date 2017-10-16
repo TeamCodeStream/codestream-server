@@ -1,6 +1,6 @@
 'use strict';
 
-var Deep_Clone = require(process.env.CI_API_TOP + '/lib/util/deep_clone');
+var Deep_Clone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
 
 var _Ops = {
 	set: function(document, field, value) {

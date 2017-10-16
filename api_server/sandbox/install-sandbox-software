@@ -8,22 +8,22 @@
 # needed from the defaults.sh (or other env file) must be setup
 # manually.
 
-export CI_API_SANDBOX=$1  # root of the sandbox
-export CI_API_TOP=$2      # root of the primary git project
+export CS_API_SANDBOX=$1  # root of the sandbox
+export CS_API_TOP=$2      # root of the primary git project
 SB_ENV_FILE=$3            # name of the environment file to use
-export CI_API_NAME=`dirname $CI_API_SANDBOX`
+export CS_API_NAME=`dirname $CS_API_SANDBOX`
 [ -z "$SB_ENV_FILE" ] && SB_ENV_FILE=defaults.sh
 
 # With the previous 3 variables defined, you can now load a defaults file if
 # need be.
-. $CI_API_TOP/sandbox/$SB_ENV_FILE
+. $CS_API_TOP/sandbox/$SB_ENV_FILE
 
 
 # Install additional git projects
-# cd $CI_API_SANDBOX
+# cd $CS_API_SANDBOX
 # if [ ! -d cider_tools ]; then
 # 	echo "Cloning cider_tools and installing node modules"
-# 	origin_url=`(cd $CI_API_TOP && git config remote.origin.url)`
+# 	origin_url=`(cd $CS_API_TOP && git config remote.origin.url)`
 # 	if [ `echo $origin_url|grep -c http` -eq 1 ]; then
 # 		tools_proj=https://github.com/pkt4dev/cider_tools
 # 	else
@@ -42,11 +42,11 @@ export CI_API_NAME=`dirname $CI_API_SANDBOX`
 # case we're install the mongodb binaries from a tarball.
 
 software_pkg=node
-if [ -L $CI_API_SANDBOX/$software_pkg ]; then
+if [ -L $CS_API_SANDBOX/$software_pkg ]; then
 	echo "Additional software is already installed"
 else
 	echo "Installing $software_pkg"
-	dt_get_software $CI_API_SANDBOX $software_pkg || exit 1
+	dt_get_software $CS_API_SANDBOX $software_pkg || exit 1
 fi
 
 exit 0

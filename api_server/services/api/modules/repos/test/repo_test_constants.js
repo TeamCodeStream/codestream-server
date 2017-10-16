@@ -1,9 +1,9 @@
 'use strict';
 
-const Repo_Attributes = require(process.env.CI_API_TOP + '/services/api/modules/repos/repo_attributes');
-const Team_Attributes = require(process.env.CI_API_TOP + '/services/api/modules/teams/team_attributes');
-const Company_Attributes = require(process.env.CI_API_TOP + '/services/api/modules/companies/company_attributes');
-const User_Attributes = require(process.env.CI_API_TOP + '/services/api/modules/users/user_attributes');
+const Repo_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/repos/repo_attributes');
+const Team_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/teams/team_attributes');
+const Company_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/companies/company_attributes');
+const User_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/users/user_attributes');
 
 const EXPECTED_REPO_FIELDS = [
 	'_id',

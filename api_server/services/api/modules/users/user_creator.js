@@ -1,10 +1,10 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
-var Model_Creator = require(process.env.CI_API_TOP + '/lib/util/restful/model_creator');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var Model_Creator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var User_Validator = require('./user_validator');
 var User = require('./user');
-var Allow = require(process.env.CI_API_TOP + '/lib/util/allow');
+var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var Password_Hasher = require('./password_hasher');
 
 class User_Creator extends Model_Creator {

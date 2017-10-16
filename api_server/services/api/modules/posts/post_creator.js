@@ -1,10 +1,10 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Post = require('./post');
-var Model_Creator = require(process.env.CI_API_TOP + '/lib/util/restful/model_creator');
-var Stream_Creator = require(process.env.CI_API_TOP + '/services/api/modules/streams/stream_creator');
-var Allow = require(process.env.CI_API_TOP + '/lib/util/allow');
+var Model_Creator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+var Stream_Creator = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_creator');
+var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 
 class Post_Creator extends Model_Creator {
 

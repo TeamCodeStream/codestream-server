@@ -2,7 +2,7 @@
 
 var Authentication_Test = require('./authentication_test');
 var JSON_Web_Token = require('jsonwebtoken');
-const Secrets_Config = require(process.env.CI_API_TOP + '/config/secrets.js');
+const Secrets_Config = require(process.env.CS_API_TOP + '/config/secrets.js');
 
 class Authentication_No_User_ID_Test extends Authentication_Test {
 

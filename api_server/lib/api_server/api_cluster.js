@@ -1,11 +1,11 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var OS = require('os');
 var Program = require('commander');
 var Net = require('net');
 var Cluster = require('cluster');
-var API_Server = require(process.env.CI_API_TOP + '/lib/api_server/api_server');
+var API_Server = require(process.env.CS_API_TOP + '/lib/api_server/api_server');
 
 Program
   .option('--one_worker [one_worker]', 'Use only one worker')

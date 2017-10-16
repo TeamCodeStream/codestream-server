@@ -1,6 +1,6 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Get_Posts_By_Org_Test = require('./get_posts_by_org_test');
 
 class Get_Posts_For_Two_Users_Test extends Get_Posts_By_Org_Test {

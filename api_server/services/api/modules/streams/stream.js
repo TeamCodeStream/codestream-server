@@ -1,6 +1,6 @@
 'use strict';
 
-var CodeStream_Model = require(process.env.CI_API_TOP + '/lib/models/codestream_model');
+var CodeStream_Model = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
 var Stream_Validator = require('./stream_validator');
 
 class Stream extends CodeStream_Model {

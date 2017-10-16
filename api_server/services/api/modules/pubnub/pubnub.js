@@ -1,8 +1,8 @@
 'use strict';
 
-var API_Server_Module = require(process.env.CI_API_TOP + '/lib/api_server/api_server_module');
+var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
 var PubNub_Client = require('pubnub');
-var PubNub_Broadcaster = require(process.env.CI_API_TOP + '/lib/util/pubnub_broadcaster');
+var PubNub_Broadcaster = require(process.env.CS_API_TOP + '/lib/util/pubnub_broadcaster');
 
 class PubNub extends API_Server_Module {
 

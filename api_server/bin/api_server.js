@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 'use strict';
 
-var API_Cluster = require(process.env.CI_API_TOP + '/lib/api_server/api_cluster.js');
-const Config_Directory = process.env.CI_API_TOP + '/config';
-const Module_Directory = process.env.CI_API_TOP + '/services/api/modules';
+var API_Cluster = require(process.env.CS_API_TOP + '/lib/api_server/api_cluster.js');
+const Config_Directory = process.env.CS_API_TOP + '/config';
+const Module_Directory = process.env.CS_API_TOP + '/services/api/modules';
 const Express_Config = require(Config_Directory + '/express.js');
 const Mongo_Config = require(Config_Directory + '/mongo.js');
 const Secrets_Config = require(Config_Directory + '/secrets.js');
@@ -12,7 +12,7 @@ const Logger_Config = require(Config_Directory + '/logger.js');
 const Email_Config = require(Config_Directory + '/email.js');
 const Limits = require(Config_Directory + '/limits.js');
 const Version = require(Config_Directory + '/version.js');
-const Simple_File_Logger = require(process.env.CI_API_TOP + '/lib/util/simple_file_logger');
+const Simple_File_Logger = require(process.env.CS_API_TOP + '/lib/util/simple_file_logger');
 
 var Logger = new Simple_File_Logger(Logger_Config);
 

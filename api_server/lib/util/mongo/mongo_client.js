@@ -1,9 +1,9 @@
 'use strict';
 
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var MongoClient = require('mongodb').MongoClient;
 var Mongo_Collection = require('./mongo_collection');
-var Simple_File_Logger = require(process.env.CI_API_TOP + '/lib/util/simple_file_logger');
+var Simple_File_Logger = require(process.env.CS_API_TOP + '/lib/util/simple_file_logger');
 
 class Mongo_Client {
 

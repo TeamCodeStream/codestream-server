@@ -1,8 +1,8 @@
 'use strict';
 
-var Model_Creator = require(process.env.CI_API_TOP + '/lib/util/restful/model_creator');
+var Model_Creator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Stream = require('./stream');
-var Allow = require(process.env.CI_API_TOP + '/lib/util/allow');
+var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 const Stream_Types = require('./stream_types');
 const Errors = require('./errors');
 

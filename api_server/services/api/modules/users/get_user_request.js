@@ -1,6 +1,6 @@
 'use strict';
 
-var Get_Request = require(process.env.CI_API_TOP + '/lib/util/restful/get_request');
+var Get_Request = require(process.env.CS_API_TOP + '/lib/util/restful/get_request');
 
 class Get_User_Request extends Get_Request {
 
