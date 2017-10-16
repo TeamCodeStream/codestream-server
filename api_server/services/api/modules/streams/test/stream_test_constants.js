@@ -1,6 +1,6 @@
 'use strict';
 
-const Stream_Attributes = require(process.env.CI_API_TOP + '/services/api/modules/streams/stream_attributes');
+const Stream_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_attributes');
 
 const EXPECTED_STREAM_FIELDS = [
 	'_id',

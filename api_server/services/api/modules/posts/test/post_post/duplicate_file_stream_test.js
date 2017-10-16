@@ -2,7 +2,7 @@
 
 var File_Stream_On_The_Fly_Test = require('./file_stream_on_the_fly_test');
 var Assert = require('assert');
-var Bound_Async = require(process.env.CI_API_TOP + '/lib/util/bound_async');
+var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
 class Duplicate_File_Stream_Test extends File_Stream_On_The_Fly_Test {
 
