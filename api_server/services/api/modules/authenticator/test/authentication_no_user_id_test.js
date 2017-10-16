@@ -16,7 +16,8 @@ class Authentication_No_User_ID_Test extends Authentication_Test {
  		};
  	}
 	before (callback) {
-		this.remove_user_id_from_token(() => {
+		this.remove_user_id_from_token(error => {
+			if (error) { return callback(error); }
 			super.before(callback);
 		});
 	}
