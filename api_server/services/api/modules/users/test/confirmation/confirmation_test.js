@@ -31,7 +31,7 @@ class Confirmation_Test extends CodeStream_API_Test {
 			if (error) { return callback(error); }
 			this.data = {
 				user_id: data.user._id,
-				email: data.user.emails[0],
+				email: data.user.email,
 				confirmation_code: data.user.confirmation_code
 			};
 			callback();
@@ -42,11 +42,7 @@ class Confirmation_Test extends CodeStream_API_Test {
 		let user = data.user;
 		let errors = [];
 		let result = (
-			((
-				user.emails instanceof Array &&
-				user.emails.length === 1 &&
-				user.emails[0] === this.data.email
-			) || errors.push('incorrect emails')) &&
+			((user.email === this.data.email) || errors.push('incorrect email')) &&
 			((user._id === this.data.user_id) || errors.push('incorrect user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));

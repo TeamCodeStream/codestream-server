@@ -22,7 +22,7 @@ class User_Exists_Test extends Registration_Test {
 		this.user_factory.create_random_user((error, data) => {
 			if (error) { return callback(error); }
 			this.data = this.user_factory.get_random_user_data();
-			this.data.emails = data.user.emails;
+			this.data.email = data.user.email;
 			callback();
 		});
 	}

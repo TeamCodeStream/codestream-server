@@ -86,7 +86,7 @@ class Post_Repo_Test extends CodeStream_API_Test {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.user_data = [...this.user_data, ...response];
-				let emails = response.map(user_data => { return user_data.user.emails[0]; });
+				let emails = response.map(user_data => { return user_data.user.email; });
 				this.team_emails = [...this.team_emails, ...emails];
 				callback();
 			},
@@ -120,7 +120,7 @@ class Post_Repo_Test extends CodeStream_API_Test {
 		this.user_factory.create_random_user(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.team_emails.push(response.user.emails[0]);
+				this.team_emails.push(response.user.email);
 				callback();
 			},
 			{ with: { username: this.current_user.username } }
@@ -135,7 +135,7 @@ class Post_Repo_Test extends CodeStream_API_Test {
 		this.user_factory.create_random_user(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.team_emails.push(response.user.emails[0]);
+				this.team_emails.push(response.user.email);
 				callback();
 			},
 			{ with: { username: user_with_username.user.username } }
@@ -216,11 +216,11 @@ class Post_Repo_Test extends CodeStream_API_Test {
 	validate_users (data) {
 		Assert(data.users instanceof Array, 'no users array returned');
 		data.users.forEach(user => {
-			Assert(this.team_emails.indexOf(user.emails[0]) !== -1, `got unexpected email ${user.emails[0]}`);
-			Assert(user.team_ids.indexOf(data.repo.team_id) !== -1, `user ${user.emails[0]} doesn't have the team for the repo`);
-			Assert(user.company_ids.indexOf(data.repo.company_id) !== -1, `user ${user.emails[0]} doesn't have the company for the repo`);
+			Assert(this.team_emails.indexOf(user.email) !== -1, `got unexpected email ${user.email}`);
+			Assert(user.team_ids.indexOf(data.repo.team_id) !== -1, `user ${user.email} doesn't have the team for the repo`);
+			Assert(user.company_ids.indexOf(data.repo.company_id) !== -1, `user ${user.email} doesn't have the company for the repo`);
 			if (data.team) {
-				Assert(data.team.member_ids.indexOf(user._id) !== -1, `user ${user.emails[0]} not a member of the team for the repo`);
+				Assert(data.team.member_ids.indexOf(user._id) !== -1, `user ${user.email} not a member of the team for the repo`);
 			}
 			this.validate_sanitized(user, Repo_Test_Constants.UNSANITIZED_USER_ATTRIBUTES);
 		});

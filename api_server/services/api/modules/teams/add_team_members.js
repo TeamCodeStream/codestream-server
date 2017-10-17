@@ -86,7 +86,7 @@ class Add_Team_Members  {
 
 	create_user (email, callback) {
 		if (this.existing_members.find(member => {
-			return member.get('searchable_emails').indexOf(email.toLowerCase()) !== -1;
+			return member.get('searchable_email') === email.toLowerCase();
 		})) {
 			return callback();
 		}
@@ -97,7 +97,7 @@ class Add_Team_Members  {
 		});
 		this.user_creator.create_user(
 			{
-				emails: [email]
+				email: email
 			},
 			(error, user) => {
 				if (error) { return callback(error); }

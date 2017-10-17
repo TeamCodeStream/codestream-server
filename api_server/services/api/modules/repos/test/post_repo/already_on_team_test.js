@@ -24,7 +24,7 @@ class Already_On_Team_Test extends Post_Repo_Test {
 			token: this.other_user_data.access_token
 		};
 		if (!this.test_options.dont_include_current_user) {
-			this.other_repo_options.with_emails.push(this.current_user.emails[0]);
+			this.other_repo_options.with_emails.push(this.current_user.email);
 		}
 		super.create_other_repo(error => {
 			if (error) { return callback(error); }

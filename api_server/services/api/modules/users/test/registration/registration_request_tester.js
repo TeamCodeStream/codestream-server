@@ -6,16 +6,14 @@ var User_Exists_Test = require('./user_exists_test');
 var Bad_Email_Test = require('./bad_email_test');
 var Bad_Username_Test = require('./bad_username_test');
 var Bad_Password_Test = require('./bad_password_test');
-var Email_Becomes_Emails_Test = require('./email_becomes_emails_test');
 
 class Registration_Request_Tester {
 
 	registration_test () {
 		new Registration_Test().test();
-		new No_Attribute_Test({ attribute: 'emails' }).test();
+		new No_Attribute_Test({ attribute: 'email' }).test();
 		new No_Attribute_Test({ attribute: 'password' }).test();
 		new No_Attribute_Test({ attribute: 'username' }).test();
-		new Email_Becomes_Emails_Test().test();
 		new Bad_Email_Test().test();
 		new Bad_Username_Test().test();
 		new Bad_Password_Test().test();

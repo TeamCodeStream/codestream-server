@@ -66,7 +66,7 @@ class Confirm_Request extends Restful_Request {
 		if (!this.user || this.user.get('deactivated')) {
 			return callback(this.error_handler.error('not_found', { info: 'user_id' }));
 		}
-		if (this.user.get('searchable_emails').indexOf(this.request.body.email.toLowerCase()) === -1) {
+		if (this.user.get('searchable_email') !== this.request.body.email.toLowerCase()) {
 			return callback(this.error_handler.error('email_mismatch'));
 		}
 		if (this.user.get('is_registered')) {

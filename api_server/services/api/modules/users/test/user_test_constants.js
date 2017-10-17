@@ -4,7 +4,7 @@ const User_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/
 
 const EXPECTED_USER_FIELDS = [
 	'_id',
-	'emails',
+	'email',
 	'username',
 	'first_name',
 	'last_name',

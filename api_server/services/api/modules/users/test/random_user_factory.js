@@ -49,7 +49,7 @@ class _User_Creator {
 	_confirm_user (callback) {
 		let data = {
 			user_id: this.user._id,
-			email: this.user.emails[0],
+			email: this.user.email,
 			confirmation_code: this.user.confirmation_code
 		};
 		this.factory.api_requester.do_api_request(
@@ -78,13 +78,17 @@ class Random_User_Factory {
 	}
 
 	get_random_user_data (options = {}) {
-		let emails = [this.random_email()];
+		let email = this.random_email();
+		let secondary_emails = [
+			this.random_email(),
+			this.random_email()
+		];
 		let first_name = Random_String.generate(10);
 		let last_name = Random_String.generate(10);
 		let timeout = options.timeout || null;
 		let _confirmation_cheat = Secrets_Config.confirmation_cheat;
 		let _force_confirmation = 1;
-		let data = { emails, first_name, last_name, timeout, _confirmation_cheat, _force_confirmation };
+		let data = { email, secondary_emails, first_name, last_name, timeout, _confirmation_cheat, _force_confirmation };
 		if (!options.no_password) {
 			data.password = Random_String.generate(12);
 		}

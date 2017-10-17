@@ -48,7 +48,7 @@ class Login_Request extends Restful_Request {
 	get_user (callback) {
 		this.data.users.get_one_by_query(
 			{
-				searchable_emails: this.request.body.email.toLowerCase(),
+				searchable_email: this.request.body.email.toLowerCase(),
 				deactivated: false
 			},
 			(error, user) => {

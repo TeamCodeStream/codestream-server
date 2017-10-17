@@ -51,19 +51,16 @@ class Register_Request extends Restful_Request {
 			{
 				string: ['email', 'password', 'username', 'first_name', 'last_name'],
 				number: ['timeout'],
-				'array(string)': ['emails']
+				'array(string)': ['secondary_emails']
 			},
 			callback
 		);
 	}
 
 	require (callback) {
-		if (!this.request.body.emails && !this.request.body.email) {
-			return callback(this.error_handler.error('parameter_required', { info: 'emails' }));
-		}
 		this.require_parameters(
 			'body',
-			['password', 'username'],
+			['email', 'password', 'username'],
 			callback
 		);
 	}
@@ -104,7 +101,7 @@ class Register_Request extends Restful_Request {
 		this.api.services.email.send_confirmation_email(
 			{
 				user: this.user.attributes,
-				email: this.user.get('emails')[0],
+				email: this.user.get('email'),
 				request: this
 			},
 			callback

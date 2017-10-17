@@ -9,18 +9,20 @@ module.exports = {
 		type: 'array_of_ids',
 		max_length: 256
 	},
-	emails: {
-		type: 'array_of_emails',
-		max_length: 20,
-		required: true,
-		max_email_length: 256
+	email: {
+		type: 'email',
+		max_length: 256,
+		required: true
 	},
-	searchable_emails: {
+	searchable_email: {
+		type: 'email',
+		max_length: 256,
+		required: true
+	},
+	secondary_emails: {
 		type: 'array_of_emails',
 		max_length: 20,
-		required: true,
-		max_email_length: 256,
-		server_only: true
+		max_email_length: 256
 	},
 	username: {
 		type: 'username',

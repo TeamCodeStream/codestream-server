@@ -36,12 +36,11 @@ class Registration_Test extends CodeStream_API_Test {
 	validate_response (data) {
 		let user = data.user;
 		let errors = [];
+		(user.secondary_emails || []).sort();
+		(this.data.secondary_emails || []).sort();
 		let result = (
-			((
-				user.emails instanceof Array &&
-				user.emails.length === 1 &&
-				user.emails[0] === this.data.emails[0]
-			) || errors.push('incorrect emails')) &&
+			((user.email === this.data.email) || errors.push('incorrect email')) &&
+			((JSON.stringify(user.secondary_emails) === JSON.stringify(this.data.secondary_emails)) || errors.push('secondary_emails does not natch')) &&
 			((user.username === this.data.username) || errors.push('incorrect username')) &&
 			((user.first_name === this.data.first_name) || errors.push('incorrect first name')) &&
 			((user.last_name === this.data.last_name) || errors.push('incorrect last name')) &&

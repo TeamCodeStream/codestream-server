@@ -32,7 +32,7 @@ class Login_Test extends CodeStream_API_Test {
 			if (error) { return callback(error); }
 			this.user = user_data.user;
 			this.data = {
-				email: this.user.emails[0],
+				email: this.user.email,
 				password: this.user_data.password
 			};
 			callback();
@@ -40,8 +40,7 @@ class Login_Test extends CodeStream_API_Test {
 	}
 
 	validate_response (data) {
-		Assert(data.user.emails instanceof Array && data.user.emails.length > 0, 'emails is not an array');
-		Assert(data.user.emails[0] === this.data.email, 'email doesn\'t match');
+		Assert(data.user.email === this.data.email, 'email doesn\'t match');
 		this.validate_sanitized(data.user, User_Test_Constants.UNSANITIZED_ATTRIBUTES);
 	}
 }

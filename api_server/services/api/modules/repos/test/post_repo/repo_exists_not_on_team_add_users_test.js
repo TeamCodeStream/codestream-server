@@ -14,7 +14,7 @@ class Repo_Exists_Not_On_Team_Add_Users_Test extends Repo_Exists_Add_Users_Test 
 	}
 
 	validate_response (data) {
-		this.team_emails.push(this.current_user.emails[0]);
+		this.team_emails.push(this.current_user.email);
 		super.validate_response(data);
 	}
 }

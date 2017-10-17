@@ -149,7 +149,7 @@ class Team_Creator extends Model_Creator {
 		});
 		this.user_creator.create_user(
 			{
-				emails: [email]
+				email: email
 			},
 			(error, user) => {
 				if (error) { return callback(error); }

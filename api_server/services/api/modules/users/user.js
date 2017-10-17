@@ -10,7 +10,7 @@ class User extends CodeStream_Model {
 	}
 
 	pre_save (callback, options) {
-		this.attributes.searchable_emails = this.attributes.emails.map(email => email.toLowerCase());
+		this.attributes.searchable_email = this.attributes.email.toLowerCase();
 		if (this.attributes.username) {
 			this.attributes.searchable_username = this.attributes.username.toLowerCase();
 		}

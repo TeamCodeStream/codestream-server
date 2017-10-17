@@ -24,7 +24,7 @@ class Bad_Email_Test extends Registration_Test {
 
 	before (callback) {
 		this.data = this.user_factory.get_random_user_data();
-		this.data.emails[0] = Random_String.generate(12);
+		this.data.email = Random_String.generate(12);
 		callback();
 	}
 }
