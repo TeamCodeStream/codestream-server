@@ -11,7 +11,7 @@ describe('team requests', function() {
 
 	this.timeout(10000);
 
-//	describe('GET /teams/:id', teams_request_tester.get_team_test);
+	describe('GET /teams/:id', teams_request_tester.get_team_test);
 	describe('GET /teams', teams_request_tester.get_teams_test);
 
 });

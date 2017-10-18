@@ -5,23 +5,10 @@ var Get_Many_Request = require(process.env.CS_API_TOP + '/lib/util/restful/get_m
 class Get_Companies_Request extends Get_Many_Request {
 
 	process (callback) {
-		if (this.request.params.id === '~') {
-			this.respond_with_companies(callback);
+		if (this.request.query.hasOwnProperty('mine')) {
+			this.ids = this.user.get('company_ids') || [];
 		}
-		else {
-			super.process(callback);
-		}
-	}
-
-	respond_with_companies (callback) {
-		this.data.companies.get_by_ids(
-			this.user.get('company_ids'),
-			(error, companies) => {
-				if (error) { return callback(error); }
-				this.response_data = { companies: companies };
-				return process.nextTick(callback);
-			}
-		);
+		super.process(callback);
 	}
 }
 

@@ -13,14 +13,6 @@ const COMPANY_STANDARD_ROUTES = {
 	}
 };
 
-const COMPANY_ADDITIONAL_ROUTES = [
-	{
-		method: 'get',
-		path: COMPANY_STANDARD_ROUTES.base_route_name + '/:id',
-		request_class: require('./get_companies_request')
-	}
-];
-
 class Companies extends Restful {
 
 	get collection_name () {
@@ -46,8 +38,7 @@ class Companies extends Restful {
 */
 
 	get_routes () {
- 		let standard_routes = super.get_routes(COMPANY_STANDARD_ROUTES);
-		return [...standard_routes, ...COMPANY_ADDITIONAL_ROUTES];
+		return super.get_routes(COMPANY_STANDARD_ROUTES);
 	}
 }
 

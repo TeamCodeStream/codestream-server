@@ -1,25 +1,22 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var Get_Companies_Test = require('./get_companies_test');
 
-class Get_Some_Companies_Test extends CodeStream_API_Test {
+class Get_Some_Companies_Test extends Get_Companies_Test {
 
 	get description () {
-		return 'should return the right companies when requesting companies by IDs';
+		return 'should return the correct companies when requesting companies by ID';
 	}
 
-	before (callback) {
-		this.user_factory.create_random_users(4, (error, users) => {
-			if (error) { return callback(error); }
-			this.company_subset = [users[1], users[3]].map(user => user.companies && user.companies[0]);
-			let ids_subset = this.company_subset.map(company => company._id);
-			this.path = '/companies?ids=' + ids_subset.join(',');
-			callback();
-		});
+	set_path (callback) {
+		this.path = `/companies?ids=${this.my_company._id},${this.other_companies[0]._id}`;
+		callback();
 	}
 
 	validate_response (data) {
-		this.validate_matching_objects(this.company_subset, data.companies, 'companies');
+		let my_companies = [this.my_company, this.other_companies[0]];
+		this.validate_matching_objects(my_companies, data.companies, 'companies');
+		super.validate_response(data);
 	}
 }
 
