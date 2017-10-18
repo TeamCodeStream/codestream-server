@@ -42,9 +42,9 @@ class Post_Repo_Test extends CodeStream_API_Test {
 			this.create_other_user,
 			this.create_mixed_users,
 			this.create_other_repo,
-			this.make_repo_data,
 			this.create_conflicting_user_with_current_user,
-			this.create_conflicting_user_with_existing_user
+			this.create_conflicting_user_with_existing_user,
+			this.make_repo_data
 		], callback);
 	}
 

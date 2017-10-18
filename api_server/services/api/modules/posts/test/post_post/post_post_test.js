@@ -10,7 +10,6 @@ class Post_Post_Test extends CodeStream_API_Test {
 	constructor (options) {
 		super(options);
 		this.test_options = {};
-		this.team_emails = [];
 	}
 
 	get description () {
@@ -32,7 +31,6 @@ class Post_Post_Test extends CodeStream_API_Test {
 	before (callback) {
 		Bound_Async.series(this, [
 			this.create_other_user,
-			this.make_random_emails,
 			this.create_random_repo,
 			this.make_stream_options,
 			this.create_random_stream,
@@ -52,13 +50,6 @@ class Post_Post_Test extends CodeStream_API_Test {
 		);
 	}
 
-	make_random_emails (callback) {
-		for (let i = 0; i < 2; i++) {
-			this.team_emails.push(this.user_factory.random_email());
-		}
-		callback();
-	}
-
 	create_random_repo (callback) {
 		this.repo_factory.create_random_repo(
 			(error, response) => {
@@ -69,7 +60,7 @@ class Post_Post_Test extends CodeStream_API_Test {
 				callback();
 			},
 			{
-				with_emails: this.team_emails,
+				with_random_emails: 2,
 				token: this.other_user_data.access_token
 			}
 		);

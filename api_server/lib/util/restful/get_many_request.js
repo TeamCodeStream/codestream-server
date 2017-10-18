@@ -46,11 +46,13 @@ class Get_Many_Request extends Restful_Request {
 		}
 		else {
 			func = 'get_by_ids';
-			query = this.request.query.ids || this.request.body.ids;
+			query = this.ids || this.request.query.ids || this.request.body.ids;
 			if (!query) {
 				return this.error_handler.error('parameter_required', { info: 'ids' });
 			}
-			query = query.split(',');
+			if (typeof query === 'string') {
+				query = query.split(',');
+			}
 		}
 		return { func, query, query_options };
 	}

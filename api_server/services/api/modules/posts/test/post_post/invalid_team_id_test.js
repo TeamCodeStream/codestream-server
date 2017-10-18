@@ -6,7 +6,7 @@ var ObjectID = require('mongodb').ObjectID;
 class Invalid_Team_Id_Test extends Direct_On_The_Fly_Test {
 
 	get description () {
-		return 'should return an error when attempting to create a post and creating a direct stream on the fly with no team id';
+		return 'should return an error when attempting to create a post and creating a direct stream on the fly with an invalid team id';
 	}
 
 	get_expected_fields () {

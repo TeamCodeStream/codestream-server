@@ -13,7 +13,7 @@ class Authentication_Test extends CodeStream_API_Test {
 	}
 
 	get path () {
-		return '/users/~';
+		return '/users/me';
 	}
 }
 

@@ -44,10 +44,23 @@ class Random_Repo_Factory {
 				name: this.team_factory.random_name()
 			};
 			if (options.with_emails) {
-				data.team.emails = options.with_emails;
+				data.team.emails = (data.team.emails || []).concat(options.with_emails);
+			}
+			if (options.with_random_emails) {
+				data.team.emails = (data.team.emails || []).concat(
+					this.get_n_random_emails(options.with_random_emails)
+				);
 			}
 		}
 		return callback(null, data);
+	}
+
+	get_n_random_emails (n) {
+		let emails = [];
+		for (let i = 0; i < n; i++) {
+			emails.push(this.user_factory.random_email());
+		}
+		return emails;
 	}
 
 	create_random_repo (callback, options = {}) {

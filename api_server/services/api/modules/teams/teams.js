@@ -6,20 +6,12 @@ var Team_Creator = require('./team_creator');
 var Team = require('./team');
 
 const TEAM_STANDARD_ROUTES = {
-	want: ['get', 'get_many', 'post'],
+	want: ['get', 'get_many'],
 	base_route_name: 'teams',
 	request_classes: {
 		'get_many': require('./get_teams_request')
 	}
 };
-
-const TEAM_ADDITIONAL_ROUTES = [
-	{
-		method: 'get',
-		path: 'teams/:id',
-		request_class: require('./get_teams_request')
-	}
-];
 
 class Teams extends Restful {
 
@@ -46,8 +38,7 @@ class Teams extends Restful {
 */
 
 	get_routes () {
-		let standard_routes = super.get_routes(TEAM_STANDARD_ROUTES);
-		return [...standard_routes, ...TEAM_ADDITIONAL_ROUTES];
+		return super.get_routes(TEAM_STANDARD_ROUTES);
 	}
 }
 

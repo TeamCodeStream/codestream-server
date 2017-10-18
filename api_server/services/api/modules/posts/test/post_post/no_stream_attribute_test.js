@@ -5,7 +5,7 @@ var Direct_On_The_Fly_Test = require('./direct_on_the_fly_test');
 class No_Stream_Attribute_Test extends Direct_On_The_Fly_Test {
 
 	get description () {
-		return `should return an error when attempting to create a post and creating a direct stream on the fly with no ${this.attribte}`;
+		return `should return an error when attempting to create a post and creating a direct stream on the fly with no ${this.attribute}`;
 	}
 
 	get_expected_fields () {

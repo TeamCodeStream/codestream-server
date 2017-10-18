@@ -5,7 +5,7 @@ var Get_Request = require(process.env.CS_API_TOP + '/lib/util/restful/get_reques
 class Get_User_Request extends Get_Request {
 
 	process (callback) {
-		if (this.request.params.id === '~') {
+		if (this.request.params.id.toLowerCase() === 'me') {
 			this.response_data = { user: this.user.get_sanitized_object() };
 			return process.nextTick(callback);
 		}

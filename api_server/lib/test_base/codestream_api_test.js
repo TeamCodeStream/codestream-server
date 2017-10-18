@@ -20,7 +20,8 @@ class CodeStream_API_Test extends API_Request_Test {
 		});
 		this.repo_factory = new Random_Repo_Factory({
 			api_requester: this,
-			team_factory: this.team_factory
+			team_factory: this.team_factory,
+			user_factory: this.user_factory
 		});
 		this.stream_factory = new Random_Stream_Factory({
 			api_requester: this
