@@ -9,7 +9,7 @@ var companies_request_tester = new Companies_Request_Tester();
 
 describe('company requests', function() {
 
-	describe('GET /company/:id', companies_request_tester.get_company_test);
+	describe('GET /companies/:id', companies_request_tester.get_company_test);
 	describe('GET /companies', companies_request_tester.get_companies_test);
 
 });
