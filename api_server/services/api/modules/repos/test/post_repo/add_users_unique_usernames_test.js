@@ -10,7 +10,6 @@ class Add_Users_Unique_Usernames_Test extends Add_Users_Test {
 	}
 
 	get description () {
-console.warn('d2');
 		return 'should return an error when creating a repo with emails where there is a username conflict with an existing email';
 	}
 

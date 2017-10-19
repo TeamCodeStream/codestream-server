@@ -65,7 +65,6 @@ class Post_Stream_Test extends CodeStream_API_Test {
 	make_stream_options (callback) {
 		this.stream_options = {
 			type: this.type,
-			company_id: this.team.company_id,
 			team_id: this.team._id
 		};
 		callback();
@@ -101,7 +100,6 @@ class Post_Stream_Test extends CodeStream_API_Test {
 		let errors = [];
 		let result = (
 			((stream.type === this.data.type) || errors.push('type does not match')) &&
-			((stream.company_id === this.data.company_id) || errors.push('company_id does not match')) &&
 			((stream.team_id === this.data.team_id) || errors.push('team_id does not match')) &&
 			((stream.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof stream.created_at === 'number') || errors.push('created_at not number')) &&

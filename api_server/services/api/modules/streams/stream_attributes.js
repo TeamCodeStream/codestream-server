@@ -1,10 +1,6 @@
 'use strict';
 
 module.exports = {
-	company_id: {
-		type: 'id',
-		required: true
-	},
 	team_id: {
 		type: 'id',
 		required: true

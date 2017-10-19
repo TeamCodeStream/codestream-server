@@ -27,7 +27,7 @@ class Stream_Creator extends Model_Creator {
 	}
 
 	get_required_attributes () {
-		return ['company_id', 'team_id', 'type'];
+		return ['team_id', 'type'];
 	}
 
 	validate_attributes (callback) {
@@ -80,7 +80,7 @@ class Stream_Creator extends Model_Creator {
 		Allow(
 			this.attributes,
 			{
-				string: ['company_id', 'team_id', 'repo_id', 'type', 'file', 'name'],
+				string: ['team_id', 'repo_id', 'type', 'file', 'name'],
 				'array(string)': ['member_ids']
 			}
 		);
@@ -89,7 +89,6 @@ class Stream_Creator extends Model_Creator {
 
 	check_existing_query () {
 		let query = {
-			company_id: this.attributes.company_id,
 			team_id: this.attributes.team_id,
 			type: this.attributes.type
 		};

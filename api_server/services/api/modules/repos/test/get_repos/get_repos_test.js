@@ -106,6 +106,7 @@ class Get_Repos_Test extends CodeStream_API_Test {
 	}
 
 	validate_response (data) {
+		this.validate_matching_objects(this.my_repos, data.repos, 'repos');
 		this.validate_sanitized_objects(data.repos, Repo_Test_Constants.UNSANITIZED_ATTRIBUTES);
 	}
 }

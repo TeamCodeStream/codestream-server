@@ -27,16 +27,11 @@ class Random_Stream_Factory {
 
 	get_random_stream_data (callback, options = {}) {
 		let type = options.type || 'file';
-		if (!options.company_id) {
-			return callback('must provide company_id for stream creation');
-		}
 		if (!options.team_id) {
 			return callback('must provide team_id for stream creation');
-
 		}
 		let data = {
 			type: type,
-			company_id: options.company_id,
 			team_id: options.team_id
 		};
 		if (type === 'channel') {

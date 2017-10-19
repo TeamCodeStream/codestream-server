@@ -4,6 +4,7 @@ var Get_Many_Request = require(process.env.CS_API_TOP + '/lib/util/restful/get_m
 const STREAM_TYPES = require('./stream_types');
 
 const BASIC_QUERY_PARAMETERS = [
+	'team_id',
 	'repo_id',
 	'type'
 ];
@@ -11,12 +12,14 @@ const BASIC_QUERY_PARAMETERS = [
 class Get_Streams_Request extends Get_Many_Request {
 
 	build_query () {
-		if (
-			Object.keys(this.request.query).length === 1 &&
-			Object.keys(this.request.query)[0] === 'ids'
-		) {
+		if (this.request.query.hasOwnProperty('ids')) {
 			return null;
 		}
+		let query = this.form_query_from_parameters();
+		return this.check_valid_query(query);
+	}
+
+	form_query_from_parameters () {
 		let query = {};
 		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
@@ -26,20 +29,34 @@ class Get_Streams_Request extends Get_Many_Request {
 				}
 			}
 		}
+		return query;
+	}
+
+	check_valid_query (query) {
 		if (Object.keys(query).length === 0) {
 			 return null;
 		}
-		if (Object.keys(query).indexOf('company_id') === -1) {
-			return 'company_id is required';	// company_id is required for all queries (anticipating sharding)
-		}
-		if (Object.keys(query).indexOf('team_id') === -1) {
-			return 'team_id is required';	// team_id is required for all queries (just for extra specificity)
-		}
-		if (query.type && query.repo_id && query.type !== 'file') {
-			return 'can\'t query on type and repo_id at the same time unless type is file';
-		}
 		if (query.type && STREAM_TYPES.indexOf(query.type) === -1) {
 			return `invalid stream type: ${query.type}`;
+		}
+		if (!query.team_id && !query.repo_id) {
+			return ('team_id or repo_id required');
+		}
+		if (query.type && query.type === 'file') {
+			if (!query.repo_id) {
+				return 'queries for file streams require repo_id';
+			}
+			delete query.team_id;
+		}
+		else if (query.type) {
+			if (!query.team_id) {
+				return `queries for ${query.type} streams require team_id`;
+			}
+			delete query.repo_id;
+			query.member_ids = this.user.id;
+		}
+		else if (query.team_id) {
+			query.member_ids = this.user.id;
 		}
 		return query;
 	}

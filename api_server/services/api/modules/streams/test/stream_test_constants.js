@@ -8,7 +8,6 @@ const EXPECTED_STREAM_FIELDS = [
 	'created_at',
 	'modified_at',
 	'creator_id',
-	'company_id',
 	'team_id',
 	'type'
 ];

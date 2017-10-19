@@ -26,7 +26,6 @@ class Post_Stream_Request_Tester {
 		new Post_File_Stream_Test().test();
 		new Post_Channel_Stream_Test().test();
 		new Post_Direct_Stream_Test().test();
-		new No_Attribute_Test({ attribute: 'company_id' }).test();
 		new No_Attribute_Test({ attribute: 'team_id' }).test();
 		new No_Attribute_Test({ attribute: 'type' }).test();
 		new Invalid_Type_Test().test();

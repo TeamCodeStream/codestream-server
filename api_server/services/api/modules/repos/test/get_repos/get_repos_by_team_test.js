@@ -11,14 +11,9 @@ class Get_Repos_By_Team_Test extends Get_Repos_Test {
 	set_path (callback) {
 		let repo = this.other_repos[2];
 		this.team_id = repo.team_id;
+		this.my_repos = this.other_repos.filter(repo => repo.team_id === this.team_id);
 		this.path = '/repos?team_id=' + this.team_id;
 		callback();
-	}
-
-	validate_response (data) {
-		let my_repos = this.other_repos.filter(repo => repo.team_id === this.team_id);
-		this.validate_matching_objects(my_repos, data.repos, 'repos');
-		super.validate_response(data);
 	}
 }
 

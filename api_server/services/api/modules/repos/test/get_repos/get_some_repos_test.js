@@ -9,14 +9,10 @@ class Get_Some_Repos_Test extends Get_Repos_Test {
 	}
 
 	set_path (callback) {
-		this.path = `/repos?ids=${this.my_repo._id},${this.other_repos[0]._id},${this.other_repos[2]._id}`;
+		this.my_repos = [this.my_repo, this.other_repos[0], this.other_repos[2]];
+		let ids = this.my_repos.map(repo => repo._id);
+		this.path = '/repos?ids=' + ids;
 		callback();
-	}
-
-	validate_response (data) {
-		let my_repos = [this.my_repo, this.other_repos[0], this.other_repos[2]];
-		this.validate_matching_objects(my_repos, data.repos, 'repos');
-		super.validate_response(data);
 	}
 }
 

@@ -30,10 +30,19 @@ class Random_Repo_Factory {
 			url: this.random_url(),
 			first_commit_sha: this.random_sha()
 		};
+		let emails;
+		if (options.with_emails) {
+			emails = options.with_emails;
+		}
+		if (options.with_random_emails) {
+			emails = (emails || []).concat(
+				this.get_n_random_emails(options.with_random_emails)
+			);
+		}
 		if (options.team_id) {
 			data.team_id = options.team_id;
-			if (options.with_emails) {
-				data.emails = options.with_emails;
+			if (emails) {
+				data.emails = emails;
 			}
 		}
 		else if (options.team) {
@@ -43,13 +52,8 @@ class Random_Repo_Factory {
 			data.team = {
 				name: this.team_factory.random_name()
 			};
-			if (options.with_emails) {
-				data.team.emails = (data.team.emails || []).concat(options.with_emails);
-			}
-			if (options.with_random_emails) {
-				data.team.emails = (data.team.emails || []).concat(
-					this.get_n_random_emails(options.with_random_emails)
-				);
+			if (emails) {
+				data.team.emails = emails;
 			}
 		}
 		return callback(null, data);
