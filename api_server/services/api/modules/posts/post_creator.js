@@ -112,7 +112,6 @@ class Post_Creator extends Model_Creator {
 				}
 				this.team = team;
 				this.attributes.team_id = team.id;
-				this.attributes.company_id = team.get('company_id');
 				callback();
 			}
 		);
@@ -123,7 +122,6 @@ class Post_Creator extends Model_Creator {
 			return callback(); // no need to create
 		}
 		this.attributes.stream.team_id = this.team.id;
-		this.attributes.stream.company_id = this.team.get('company_id');
 		new Stream_Creator({
 			request: this.request
 		}).create_stream(

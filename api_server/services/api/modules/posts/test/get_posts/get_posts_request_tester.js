@@ -1,41 +1,56 @@
 'use strict';
 
-var Get_Some_Posts_Test = require('./get_some_posts_test');
-var Get_Posts_IDs_Required_Test = require('./get_posts_ids_required_test');
-var Get_Posts_Org_ID_Required_Test = require('./get_posts_org_id_required_test');
-var Get_Posts_By_Group_Test = require('./get_posts_by_group_test');
-var Get_Posts_By_Parent_Test = require('./get_posts_by_parent_test');
-var Get_Posts_By_Repo_Test = require('./get_posts_by_repo_test');
-var Get_Posts_By_File_Test = require('./get_posts_by_file_test');
-var Get_Posts_By_Commit_Test = require('./get_posts_by_commit_test');
-var Get_Posts_By_Patch_Test = require('./get_posts_by_patch_test');
-var Get_Posts_By_Diff_Test = require('./get_posts_by_diff_test');
-var Get_Posts_By_Org_Test = require('./get_posts_by_org_test');
-var Get_My_Posts_Test = require('./get_my_posts_test');
-var Get_Posts_By_Creator_Test = require('./get_posts_by_creator_test');
-var Get_Posts_By_Newer_Than_Test = require('./get_posts_by_newer_than_test');
-var Get_Posts_Invalid_Query_Test = require('./get_posts_invalid_query_test');
+var Get_Posts_Test = require('./get_posts_test');
+var Get_Posts_By_Me_Test = require('./get_posts_by_me_test');
+var Get_Posts_By_Other_Test = require('./get_posts_by_other_test');
+var Get_Posts_Newer_Than_Test = require('./get_posts_newer_than_test');
+var Get_Child_Posts_Test = require('./get_child_posts_test');
+var Get_Posts_By_Id_Test = require('./Get_Posts_By_Id_Test');
+var Get_Posts_Limit_Test = require('./get_posts_limit_test');
+var Get_Posts_Sort_Test = require('./get_posts_sort_test');
+var Get_Posts_Default_Sort_Test = require('./get_posts_default_sort_test');
+var Get_Posts_Greater_Than_Test = require('./get_posts_greater_than_test');
+var Get_Posts_Greater_Than_Equal_Test = require('./get_posts_greater_than_equal_test');
+var Get_Posts_Less_Than_Test = require('./get_posts_less_than_test');
+var Get_Posts_Less_Than_Equal_Test = require('./get_posts_less_than_equal_test');
+var Pagination_Test = require('./pagination_test');
+var IDs_Required_Test = require('./ids_required_test');
+var Invalid_Parameter_Test = require('./invalid_parameter_test');
+var One_Relational_Test = require('./one_relational_test');
+var Invalid_ID_Test = require('./invalid_id_test');
+
+/* jshint -W071 */
 
 class Get_Posts_Request_Tester {
 
 	get_posts_test () {
-
-		new Get_Some_Posts_Test().test();
-		new Get_Posts_IDs_Required_Test().test();
-		new Get_Posts_Org_ID_Required_Test().test();
-		new Get_Posts_By_Group_Test().test();
-		new Get_Posts_By_Parent_Test().test();
-		new Get_Posts_By_Repo_Test().test();
-		new Get_Posts_By_File_Test().test();
-		new Get_Posts_By_Commit_Test().test();
-		new Get_Posts_By_Patch_Test().test();
-		new Get_Posts_By_Diff_Test().test();
-		new Get_Posts_By_Org_Test().test();
-		new Get_My_Posts_Test().test();
-		new Get_Posts_By_Creator_Test().test();
-		new Get_Posts_By_Newer_Than_Test().test();
-		new Get_Posts_Invalid_Query_Test().test();
+		new Get_Posts_Test({type: 'channel'}).test();
+		new Get_Posts_Test({type: 'direct'}).test();
+		new Get_Posts_Test({type: 'file'}).test();
+		new Get_Posts_By_Me_Test().test();
+		new Get_Posts_By_Other_Test().test();
+		new Get_Posts_Newer_Than_Test().test();
+		new Get_Child_Posts_Test().test();
+		new Get_Posts_By_Id_Test().test();
+		new Get_Posts_Limit_Test().test();
+		new Get_Posts_Sort_Test().test();
+		new Get_Posts_Default_Sort_Test().test();
+		new Get_Posts_Greater_Than_Test().test();
+		new Get_Posts_Greater_Than_Equal_Test().test();
+		new Get_Posts_Less_Than_Test().test();
+		new Get_Posts_Less_Than_Equal_Test().test();
+		new Pagination_Test().test();
+		new Pagination_Test({ascending: true}).test();
+		new Pagination_Test({default_pagination: true}).test();
+		new Pagination_Test({default_pagination: true, ascending: true}).test();
+		new Pagination_Test({default_pagination: true, try_over_limit: 150}).test();
+		new IDs_Required_Test().test();
+		new Invalid_Parameter_Test().test();
+		new One_Relational_Test().test();
+		new Invalid_ID_Test().test();
 	}
 }
+
+/* jshint +W071 */
 
 module.exports = Get_Posts_Request_Tester;

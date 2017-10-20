@@ -2,7 +2,7 @@
 
 var Get_Streams_Test = require('./get_streams_test');
 
-class Get_Some_Streams_Test extends Get_Streams_Test {
+class Get_Streams_By_Id_Test extends Get_Streams_Test {
 
 	get description () {
 		return 'should return the correct streams when requesting streams by ID';
@@ -21,4 +21,4 @@ class Get_Some_Streams_Test extends Get_Streams_Test {
 	}
 }
 
-module.exports = Get_Some_Streams_Test;
+module.exports = Get_Streams_By_Id_Test;

@@ -2,7 +2,7 @@
 
 var Get_Repos_Test = require('./get_repos_test');
 
-class Get_Some_Repos_Test extends Get_Repos_Test {
+class Get_Repos_By_Id_Test extends Get_Repos_Test {
 
 	get description () {
 		return 'should return the correct repos when requesting repos by ID';
@@ -16,4 +16,4 @@ class Get_Some_Repos_Test extends Get_Repos_Test {
 	}
 }
 
-module.exports = Get_Some_Repos_Test;
+module.exports = Get_Repos_By_Id_Test;

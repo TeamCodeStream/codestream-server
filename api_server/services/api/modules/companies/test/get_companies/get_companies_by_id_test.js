@@ -2,7 +2,7 @@
 
 var Get_Companies_Test = require('./get_companies_test');
 
-class Get_Some_Companies_Test extends Get_Companies_Test {
+class Get_Companies_By_Id_Test extends Get_Companies_Test {
 
 	get description () {
 		return 'should return the correct companies when requesting companies by ID';
@@ -20,4 +20,4 @@ class Get_Some_Companies_Test extends Get_Companies_Test {
 	}
 }
 
-module.exports = Get_Some_Companies_Test;
+module.exports = Get_Companies_By_Id_Test;

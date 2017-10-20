@@ -47,7 +47,6 @@ class Direct_On_The_Fly_Test extends Post_To_Direct_Test {
 		}
 		let result = (
 			((stream.type === this.data.stream.type) || errors.push('type does not match')) &&
-			((stream.company_id === this.data.stream.company_id) || errors.push('company_id does not match')) &&
 			((stream.team_id === this.data.stream.team_id) || errors.push('team_id does not match')) &&
 			((stream.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof stream.created_at === 'number') || errors.push('created_at not number')) &&

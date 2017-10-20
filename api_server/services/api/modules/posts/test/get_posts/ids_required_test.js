@@ -2,7 +2,7 @@
 
 var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
-class Get_Posts_IDs_Required_Test extends CodeStream_API_Test {
+class IDs_Required_Test extends CodeStream_API_Test {
 
 	get description () {
 		return 'should return error if IDs are not provided';
@@ -20,4 +20,4 @@ class Get_Posts_IDs_Required_Test extends CodeStream_API_Test {
 	}
 }
 
-module.exports = Get_Posts_IDs_Required_Test;
+module.exports = IDs_Required_Test;

@@ -54,7 +54,6 @@ class Get_Stream_Test extends CodeStream_API_Test {
 			{
 				type: this.type,
 				token: this.mine ? this.token : this.other_user_data.access_token,
-				company_id: this.repo.company_id,
 				team_id: this.repo.team_id,
 				repo_id: this.type === 'file' ? this.repo._id : null
 			}

@@ -69,7 +69,6 @@ class Post_Post_Test extends CodeStream_API_Test {
 	make_stream_options (callback) {
 		this.stream_options = {
 			type: this.stream_type || 'direct',
-			company_id: this.team.company_id,
 			team_id: this.team._id,
 			token: this.other_user_data.access_token
 		};
@@ -125,7 +124,6 @@ class Post_Post_Test extends CodeStream_API_Test {
 		let result = (
 			((post.text === this.data.text) || errors.push('text does not match')) &&
 			((post.team_id === this.team._id) || errors.push('team_id does not match the team')) &&
-			((post.company_id === this.team.company_id) || errors.push('company_id does not match the team')) &&
 			((post.stream_id === this.data.stream_id) || errors.push('stream_id does not match')) &&
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof post.created_at === 'number') || errors.push('created_at not number')) &&

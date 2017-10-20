@@ -3,7 +3,7 @@
 var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const User_Test_Constants = require('../user_test_constants');
 
-class Get_Some_Users_Test extends CodeStream_API_Test {
+class Get_Users_By_Id_Test extends CodeStream_API_Test {
 
 	get description () {
 		return 'should return the right users when requesting users by IDs';
@@ -26,4 +26,4 @@ class Get_Some_Users_Test extends CodeStream_API_Test {
 	}
 }
 
-module.exports = Get_Some_Users_Test;
+module.exports = Get_Users_By_Id_Test;

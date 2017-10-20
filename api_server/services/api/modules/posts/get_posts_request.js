@@ -3,9 +3,7 @@
 var Get_Many_Request = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 
 const BASIC_QUERY_PARAMETERS = [
-	'company_id',
 	'stream_id',
-	'commit_id',
 	'creator_id',
 	'parent_post_id'
 ];
@@ -25,10 +23,7 @@ const NON_FILTERING_PARAMETERS = [
 class Get_Posts_Request extends Get_Many_Request {
 
 	build_query () {
-		if (
-			Object.keys(this.request.query).length === 1 &&
-			Object.keys(this.request.query)[0] === 'ids'
-		) {
+		if (this.request.query.hasOwnProperty('ids')) {
 			return null;
 		}
 		let query = {};
@@ -43,9 +38,6 @@ class Get_Posts_Request extends Get_Many_Request {
 		}
 		if (Object.keys(query).length === 0) {
 			 return null;
-		}
-		if (Object.keys(query).indexOf('company_id') === -1) {
-			return 'company_id is required';	// org_id is required for all queries (anticipating sharding)
 		}
 		return query;
 	}

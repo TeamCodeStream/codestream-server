@@ -138,6 +138,10 @@ class Generic_Test {
 		Assert.deepEqual(object_ids_1, object_ids_2, `${name} returned don't match`);
 	}
 
+	validate_sorted_matching_objects(objects_1, objects_2, name) {
+		Assert.deepEqual(objects_1, objects_2, `${name} returned don't match`);		
+	}
+
 	validate_sanitized (object, unsanitized_attributes) {
 		let present = [];
 		let object_attributes = Object.keys(object);

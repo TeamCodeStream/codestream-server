@@ -6,17 +6,14 @@ const Post_Test_Constants = require('../post_test_constants');
 
 class Get_Post_Test extends CodeStream_API_Test {
 
-	get description () {
-		let who = this.mine ? 'me' : 'another user';
-		return `should return a valid post when requesting a post created by ${who} in a ${this.type} stream`;
+	constructor (options) {
+		super(options);
+		this.type = this.type || 'channel';
+		this.num_posts = 5;
 	}
 
-	get_expected_fields () {
-		let response = { post: Post_Test_Constants.EXPECTED_POST_FIELDS };
-		if (this.type === 'file') {
-			response.post = [...response.post, ...Post_Test_Constants.EXPECTED_FILE_POST_FIELDS];
-		}
-		return response;
+	get description () {
+		return `should return the correct posts when requesting posts in a ${this.type} stream`;
 	}
 
 	before (callback) {
@@ -24,7 +21,7 @@ class Get_Post_Test extends CodeStream_API_Test {
 			this.create_other_user,
 			this.create_random_repo,
 			this.create_stream,
-			this.create_post,
+			this.create_posts,
 			this.set_path
 		], callback);
 	}
@@ -70,30 +67,47 @@ class Get_Post_Test extends CodeStream_API_Test {
 		);
 	}
 
-	create_post (callback) {
-		this.post_factory.create_random_post(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.post = response.post;
-				callback();
-			},
-			{
-				token: this.mine ? this.token : this.other_user_data.access_token,
-				stream_id: this.stream._id,
-				repo_id: this.type === 'file' ? this.repo._id : null,
-				want_location: this.type === 'file'
-			}
+	create_posts (callback) {
+		this.my_posts = [];
+		Bound_Async.timesSeries(
+			this,
+			this.num_posts,
+			this.create_post,
+			callback
 		);
 	}
 
+	create_post (n, callback) {
+		let post_options = this.set_post_options(n);
+		this.post_factory.create_random_post(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.my_posts.push(response.post);
+				callback();
+			},
+			post_options
+		);
+	}
+
+	set_post_options (n) {
+		let mine = n % 2 === 1;
+		let post_options = {
+			token: mine ? this.token : this.other_user_data.access_token,
+			stream_id: this.stream._id,
+			repo_id: this.type === 'file' ? this.repo._id : null,
+			want_location: this.type === 'file'
+		};
+		return post_options;
+	}
+
 	set_path (callback) {
-		this.path = '/posts/' + this.post._id;
+		this.path = '/posts/?stream_id=' + this.stream._id;
 		callback();
 	}
 
 	validate_response (data) {
-		this.validate_matching_object(this.post._id, data.post, 'post');
-		this.validate_sanitized(data.post, Post_Test_Constants.UNSANITIZED_ATTRIBUTES);
+		this.validate_matching_objects(data.posts, this.my_posts, 'posts');
+		this.validate_sanitized_objects(data.posts, Post_Test_Constants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 

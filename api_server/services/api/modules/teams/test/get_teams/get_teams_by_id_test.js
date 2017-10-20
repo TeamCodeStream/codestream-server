@@ -2,7 +2,7 @@
 
 var Get_Teams_Test = require('./get_teams_test');
 
-class Get_Some_Teams_Test extends Get_Teams_Test {
+class Get_Teams_By_Id_Test extends Get_Teams_Test {
 
 	get description () {
 		return 'should return the correct teams when requesting teams by ID';
@@ -20,4 +20,4 @@ class Get_Some_Teams_Test extends Get_Teams_Test {
 	}
 }
 
-module.exports = Get_Some_Teams_Test;
+module.exports = Get_Teams_By_Id_Test;
