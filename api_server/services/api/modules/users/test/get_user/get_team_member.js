@@ -2,35 +2,23 @@
 
 var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-const Repo_Test_Constants = require('../repo_test_constants');
+const User_Test_Constants = require('../user_test_constants');
 
-class Get_Repo_Test extends CodeStream_API_Test {
+class Get_Team_Member extends CodeStream_API_Test {
+
+	get description () {
+		return 'should return user when requesting someone else who is on one of my teams (from a repo created by a third user)';
+	}
 
 	get_expected_fields () {
-		return { repo: Repo_Test_Constants.EXPECTED_REPO_FIELDS };
+		return User_Test_Constants.EXPECTED_USER_RESPONSE;
 	}
 
 	before (callback) {
 		Bound_Async.series(this, [
-			this.create_random_repo_by_me,
 			this.create_other_user,
-			this.create_random_repo,
-			this.set_path
+			this.create_random_repo
 		], callback);
-	}
-
-	create_random_repo_by_me (callback) {
-		this.repo_factory.create_random_repo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.my_repo = response.repo;
-				callback();
-			},
-			{
-				with_random_emails: 2,
-				token: this.token
-			}
-		);
 	}
 
 	create_other_user (callback) {
@@ -47,20 +35,22 @@ class Get_Repo_Test extends CodeStream_API_Test {
 		this.repo_factory.create_random_repo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_repo = response.repo;
+				this.other_user = response.users[0];
+				this.path = '/users/' + this.other_user._id;
 				callback();
 			},
 			{
 				with_random_emails: 2,
-				with_emails: this.without_me ? null : [this.current_user.email],
+				with_emails: [this.current_user.email],
 				token: this.other_user_data.access_token
 			}
 		);
 	}
 
 	validate_response (data) {
-		this.validate_sanitized(data.repo, Repo_Test_Constants.UNSANITIZED_ATTRIBUTES);
+		this.validate_matching_object(this.other_user._id, data.user, 'user');
+		this.validate_sanitized(data.user, User_Test_Constants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = Get_Repo_Test;
+module.exports = Get_Team_Member;

@@ -2,17 +2,20 @@
 
 const User_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/users/user_attributes');
 
-const EXPECTED_USER_FIELDS = [
+const EXPECTED_UNREGISTERED_USER_FIELDS = [
 	'_id',
 	'email',
-	'username',
-	'first_name',
-	'last_name',
 	'deactivated',
 	'created_at',
 	'modified_at',
 	'creator_id'
 ];
+
+const EXPECTED_USER_FIELDS = EXPECTED_UNREGISTERED_USER_FIELDS.concat([
+	'username',
+	'first_name',
+	'last_name'
+]);
 
 const EXPECTED_REGISTRATION_FIELDS = EXPECTED_USER_FIELDS.concat([
 	'confirmation_code'	// only because we cheat using a special cheat code

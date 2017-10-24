@@ -48,25 +48,29 @@ class Get_Post_Test extends CodeStream_API_Test {
 			},
 			{
 				with_random_emails: 2,
-				with_emails: [this.current_user.email],
+				with_emails: this.without_me ? null : [this.current_user.email],
 				token: this.other_user_data.access_token
 			}
 		);
 	}
 
 	create_stream (callback) {
+		let stream_options = {
+			type: this.type,
+			token: this.mine ? this.token : this.other_user_data.access_token,
+			team_id: this.repo.team_id,
+			repo_id: this.type === 'file' ? this.repo._id : null,
+		};
+		if (this.type !== 'file' && !this.mine && !this.without_me) {
+			stream_options.member_ids = [this.current_user._id];
+		}
 		this.stream_factory.create_random_stream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-			{
-				type: this.type,
-				token: this.other_user_data.access_token,
-				team_id: this.repo.team_id,
-				repo_id: this.type === 'file' ? this.repo._id : null
-			}
+			stream_options
 		);
 	}
 

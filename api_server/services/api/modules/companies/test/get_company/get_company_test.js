@@ -14,7 +14,7 @@ class Get_Company_Test extends CodeStream_API_Test {
 		Bound_Async.series(this, [
 			this.create_random_repo_by_me,
 			this.create_other_user,
-			this.create_random_repo_with_me,
+			this.create_random_repo,
 			this.set_path
 		], callback);
 	}
@@ -44,7 +44,7 @@ class Get_Company_Test extends CodeStream_API_Test {
 		);
 	}
 
-	create_random_repo_with_me (callback) {
+	create_random_repo (callback) {
 		this.repo_factory.create_random_repo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -54,7 +54,7 @@ class Get_Company_Test extends CodeStream_API_Test {
 			},
 			{
 				with_random_emails: 2,
-				with_emails: [this.current_user.email],
+				with_emails: this.without_me ? null : [this.current_user.email],
 				token: this.other_user_data.access_token
 			}
 		);

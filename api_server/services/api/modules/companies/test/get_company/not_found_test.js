@@ -11,7 +11,7 @@ class Not_Found_Test extends CodeStream_API_Test {
 
 	get_expected_error () {
 		return {
-			code: 'RAPI-1003'
+			code: 'RAPI-1009'
 		};
 	}
 

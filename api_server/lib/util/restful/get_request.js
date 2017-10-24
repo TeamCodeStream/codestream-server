@@ -5,7 +5,20 @@ var Restful_Request = require('./restful_request');
 class Get_Request extends Restful_Request {
 
 	authorize (callback) {
-		return callback(false);
+		return this.user.authorize_model(
+			this.module.model_name,
+			this.request.params.id,
+			this,
+			(error, authorized) => {
+				if (error) { return callback(error); }
+				if (!authorized) {
+					return callback(this.error_handler.error('read_auth'));
+				}
+				else {
+					return process.nextTick(callback);
+				}
+			}
+		);
 	}
 
 	process(callback) {
