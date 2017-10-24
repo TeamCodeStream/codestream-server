@@ -17,9 +17,11 @@ export CS_API_PORT=12079
 export CS_API_AUTH_SECRET="A*y8lN^erPHf$"
 export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
 export CS_API_LOG_CONSOLE_OK=1
-export CS_API_SSL_KEYFILE=$HOME/.certs/wildcard.codestream.us/wildcard.codestream.us-key
-export CS_API_SSL_CERTFILE=$HOME/.certs/wildcard.codestream.us/wildcard.codestream.us-crt
-export CS_API_SSL_CAFILE=$HOME/.certs/wildcard.codestream.us/wildcard.codestream.us-ca
+export CS_API_SSL_CERT_DIR=$HOME/.certs/wildcard.codestream.us
+[ ! -d $CS_API_SSL_CERT_DIR ] && export CS_API_SSL_CERT_DIR=/etc/pki/wildcard.codestream.us
+export CS_API_SSL_KEYFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-key
+export CS_API_SSL_CERTFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-crt
+export CS_API_SSL_CAFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-ca
 
 # Emails by default are not sent ... set this to "on" to send emails normally
 # (as in production, and exercise extreme caution when testing) ...
