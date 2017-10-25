@@ -1,5 +1,5 @@
 #!/bin/bash
 
-#desc# brief command summary
+#desc# brief command summary of the cs_api (CodeStream API) sandbox
 
 dt-help $CS_API_TOP/bin
