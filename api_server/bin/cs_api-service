@@ -26,6 +26,7 @@ do
 done
 shift `expr $OPTIND - 1`
 
+ec=0
 server_args=$*
 case "$action" in
     start)
@@ -40,6 +41,7 @@ case "$action" in
         ;;
     stop)
         service_stop api_server.js
+        ec=$?
         sleep 2
         service_status api_server.js
         ;;
@@ -50,3 +52,4 @@ case "$action" in
         usage
         ;;
 esac
+exit $ec
