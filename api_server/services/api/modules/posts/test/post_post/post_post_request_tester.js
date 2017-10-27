@@ -20,7 +20,7 @@ var Duplicate_File_Stream_Test = require('./duplicate_file_stream_test');
 var Invalid_Type_Test = require('./invalid_type_test');
 var Me_Direct_Test = require('./me_direct_test');
 var Me_Channel_Test = require('./me_channel_test');
-var Name_Required_Test = require('./Name_Required_Test');
+var Name_Required_Test = require('./name_required_test');
 var No_File_Test = require('./no_file_test');
 var No_Repo_Id_Test = require('./no_repo_id_test');
 

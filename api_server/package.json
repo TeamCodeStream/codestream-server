@@ -28,6 +28,7 @@
   ],
   "devDependencies": {
     "jshint": "2.9.5",
+    "mocha-teamcity-reporter": "1.1.1",
     "pre-commit": "1.2.2"
   }
 }
