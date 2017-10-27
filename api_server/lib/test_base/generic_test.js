@@ -135,11 +135,11 @@ class Generic_Test {
 	validate_matching_objects (objects_1, objects_2, name) {
 		let object_ids_1 = objects_1.map(object => object._id).sort();
 		let object_ids_2 = objects_2.map(object => object._id).sort();
-		Assert.deepEqual(object_ids_1, object_ids_2, `${name} returned don't match`);
+		Assert.deepEqual(object_ids_2, object_ids_1, `${name} returned don't match`);
 	}
 
 	validate_sorted_matching_objects(objects_1, objects_2, name) {
-		Assert.deepEqual(objects_1, objects_2, `${name} returned don't match`);		
+		Assert.deepEqual(objects_2, objects_1, `${name} returned don't match`);
 	}
 
 	validate_sanitized (object, unsanitized_attributes) {

@@ -9,7 +9,7 @@ class Get_Channel_Streams_By_Team_Test extends Get_Streams_Test {
 	}
 
 	set_path (callback) {
-		let team_id = this.teams[1]._id;
+		let team_id = this.my_team._id;
 		let team_streams = this.streams_by_team[team_id];
 		let user_id = this.current_user._id;
 		this.my_streams = team_streams.filter(

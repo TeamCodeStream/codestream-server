@@ -1,8 +1,8 @@
 'use strict';
 
-var Get_Channel_Posts_Test = require('./get_posts_test');
+var Get_Posts_Test = require('./get_posts_test');
 
-class Get_Posts_By_Id_Test extends Get_Channel_Posts_Test {
+class Get_Posts_By_Id_Test extends Get_Posts_Test {
 
 	get description () {
 		return 'should return the correct posts when requesting posts by ID';
@@ -15,7 +15,7 @@ class Get_Posts_By_Id_Test extends Get_Channel_Posts_Test {
 			this.my_posts[3]
 		];
 		let ids = this.my_posts.map(post => post._id);
-		this.path = '/posts?ids=' + ids;
+		this.path = `/posts?team_id=${this.team._id}&stream_id=${this.stream._id}&ids=${ids}`;
 		callback();
 	}
 }

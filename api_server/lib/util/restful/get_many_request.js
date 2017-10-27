@@ -5,10 +5,6 @@ var Restful_Request = require('./restful_request');
 
 class Get_Many_Request extends Restful_Request {
 
-	authorize (callback) {
-		return callback(false);
-	}
-
 	process (callback) {
 		Bound_Async.series(this, [
 			this.fetch,
@@ -51,7 +47,7 @@ class Get_Many_Request extends Restful_Request {
 				return this.error_handler.error('parameter_required', { info: 'ids' });
 			}
 			if (typeof query === 'string') {
-				query = query.split(',');
+				query = decodeURIComponent(query).toLowerCase().split(',');
 			}
 		}
 		return { func, query, query_options };

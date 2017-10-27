@@ -1,11 +1,11 @@
 'use strict';
 
-var Get_Channel_Posts_Test = require('./get_posts_test');
+var Get_Posts_Test = require('./get_posts_test');
 var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
 const Limits = require(process.env.CS_API_TOP + '/config/limits');
 
-class Pagination_Test extends Get_Channel_Posts_Test {
+class Pagination_Test extends Get_Posts_Test {
 
 	constructor (options) {
 		super(options);
@@ -41,7 +41,7 @@ class Pagination_Test extends Get_Channel_Posts_Test {
 	}
 
 	fetch_page (page_num, callback) {
-		this.path = `/posts/?stream_id=${this.stream._id}`;
+		this.path = `/posts/?team_id=${this.team._id}&stream_id=${this.stream._id}`;
 		if (this.try_over_limit) {
 			this.path += `&limit=${this.try_over_limit}`;
 		}

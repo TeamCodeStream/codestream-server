@@ -2,6 +2,7 @@
 
 var CodeStream_Model = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
 var User_Validator = require('./user_validator');
+var Array_Utilities = require(process.env.CS_API_TOP + '/lib/util/array_utilities.js');
 
 class User extends CodeStream_Model {
 
@@ -15,6 +16,28 @@ class User extends CodeStream_Model {
 			this.attributes.searchable_username = this.attributes.username.toLowerCase();
 		}
 		super.pre_save(callback, options);
+	}
+
+	has_companies (ids) {
+		return Array_Utilities.has_all_elements(
+			this.get('company_ids') || [],
+			ids
+		);
+	}
+
+	has_company (id) {
+		return (this.get('company_ids') || []).indexOf(id) !== -1;
+	}
+
+	has_teams (ids) {
+		return Array_Utilities.has_all_elements(
+			this.get('team_ids') || [],
+			ids
+		);
+	}
+
+	has_team (id) {
+		return (this.get('team_ids') || []).indexOf(id) !== -1;
 	}
 
 	authorize_model (model_name, id, request, callback) {
@@ -103,9 +126,10 @@ class User extends CodeStream_Model {
 				if (!other_user) {
 					return callback(request.error_handler.error('not_found', { info: 'user' }));
 				}
-				let authorized = (request.user.get('team_ids') || []).find(team_id => {
-					return other_user.get('team_ids').indexOf(team_id) !== -1;
-				});
+				let authorized = Array_Utilities.has_common_element(
+					request.user.get('team_ids') || [],
+					other_user.get('team_ids') || []
+				);
 				return callback(null, authorized);
 			}
 		);

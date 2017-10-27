@@ -9,9 +9,9 @@ class Get_Repos_By_Id_Test extends Get_Repos_Test {
 	}
 
 	set_path (callback) {
-		this.my_repos = [this.my_repo, this.other_repos[0], this.other_repos[2]];
+		this.my_repos = [this.my_repo, this.other_repos[1]];
 		let ids = this.my_repos.map(repo => repo._id);
-		this.path = '/repos?ids=' + ids;
+		this.path = `/repos?team_id=${this.my_team._id}&ids=${ids}`;
 		callback();
 	}
 }

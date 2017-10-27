@@ -65,7 +65,7 @@ class Create_Many_Test extends Mongo_Test {
 		this.response.sort((a, b) => {
 			return a.number - b.number;
 		});
-		Assert.deepEqual(this.response, this.test_documents, 'fetched documents don\'t match');
+		Assert.deepEqual(this.test_documents, this.response, 'fetched documents don\'t match');
 	}
 }
 

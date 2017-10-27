@@ -1,15 +1,16 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var Get_Posts_Test = require('./get_posts_test');
 
-class Invalid_ID_Test extends CodeStream_API_Test {
+class Invalid_ID_Test extends Get_Posts_Test {
 
 	get description () {
 		return 'should return an error if an invalid id is provided with a relational query parameter';
 	}
 
-	get path () {
-		return `/posts?lt=1`;
+	set_path (callback) {
+		this.path = `/posts?team_id=${this.team._id}&stream_id=${this.stream._id}&lt=1`;
+		callback();
 	}
 
 	get_expected_error () {

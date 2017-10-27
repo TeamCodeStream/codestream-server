@@ -1,28 +1,23 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const User_Test_Constants = require('../user_test_constants');
+var Get_Users_Test = require('./get_users_test');
 
-class Get_Users_By_Id_Test extends CodeStream_API_Test {
+class Get_Users_By_Id_Test extends Get_Users_Test {
 
 	get description () {
 		return 'should return the right users when requesting users by IDs';
 	}
 
-	before (callback) {
-		this.user_factory.create_random_users(4, (error, data) => {
-			if (error) { return callback(error); }
-			let users = data.map(user_data => user_data.user);
-			this.user_subset = [users[1], users[3]];
-			let ids_subset = this.user_subset.map(user => user._id);
-			this.path = '/users?ids=' + ids_subset.join(',');
-			callback();
-		});
-	}
-
-	validate_response (data) {
-		this.validate_matching_objects(this.user_subset, data.users, 'users');
-		this.validate_sanitized_objects(data.users, User_Test_Constants.UNSANITIZED_ATTRIBUTES);
+	set_path (callback) {
+		let team_id = this.team._id;
+		this.my_users = [
+			this.users[1],
+			this.users[3],
+			this.users[4]
+		];
+		let ids = this.my_users.map(user => user._id);
+		this.path = `/users?team_id=${team_id}&ids=${ids}`;
+		callback();
 	}
 }
 

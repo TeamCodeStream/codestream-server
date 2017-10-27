@@ -26,7 +26,7 @@ class Get_By_Query_Sort_Test extends Get_By_Query_Test {
 
 	validate_array_response () {
 		Assert(this.response instanceof Array, 'response must be an array');
-		Assert.deepEqual(this.response, this.test_documents, 'fetched documents don\'t match');
+		Assert.deepEqual(this.test_documents, this.response, 'fetched documents don\'t match');
 	}
 }
 

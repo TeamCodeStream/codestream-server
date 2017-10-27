@@ -1,8 +1,8 @@
 'use strict';
 
-var Get_Channel_Posts_Test = require('./get_posts_test');
+var Get_Posts_Test = require('./get_posts_test');
 
-class Get_Child_Posts_Test extends Get_Channel_Posts_Test {
+class Get_Child_Posts_Test extends Get_Posts_Test {
 
 	constructor (options) {
 		super(options);
@@ -26,7 +26,7 @@ class Get_Child_Posts_Test extends Get_Channel_Posts_Test {
 	set_path (callback) {
 		let parent_post_id = this.my_posts[this.which_post_to_reply_to]._id;
 		this.my_posts = this.my_posts.filter(post => post.parent_post_id === parent_post_id);
-		this.path = `/posts/?stream_id=${this.stream._id}&parent_post_id=${parent_post_id}`;
+		this.path = `/posts/?team_id=${this.team._id}&stream_id=${this.stream._id}&parent_post_id=${parent_post_id}`;
 		callback();
 	}
 }

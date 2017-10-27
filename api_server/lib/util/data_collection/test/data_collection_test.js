@@ -154,12 +154,12 @@ class Data_Collection_Test extends Generic_Test {
 	validate_model_response () {
 		Assert(typeof this.response === 'object', 'improper response');
 		Assert(typeof this.response.attributes === 'object', 'improper fetched model');
-		Assert.deepEqual(this.response.attributes, this.test_model.attributes, 'fetched model doesn\'t match');
+		Assert.deepEqual(this.test_model.attributes, this.response.attributes, 'fetched model doesn\'t match');
 	}
 
 	validate_object_response () {
 		Assert(typeof this.response === 'object', 'improper response');
-		Assert.deepEqual(this.response, this.test_model.attributes, 'fetched object doesn\'t match');
+		Assert.deepEqual(this.test_model.attributes, this.response, 'fetched object doesn\'t match');
 	}
 
 	validate_array_response () {
@@ -169,7 +169,7 @@ class Data_Collection_Test extends Generic_Test {
 		response_objects.sort((a, b) => {
 			return a.number - b.number;
 		});
-		Assert.deepEqual(response_objects, test_objects, 'fetched models don\'t match');
+		Assert.deepEqual(test_objects, response_objects, 'fetched models don\'t match');
 	}
 
 	persist (callback) {

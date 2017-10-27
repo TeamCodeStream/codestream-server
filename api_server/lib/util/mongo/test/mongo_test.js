@@ -116,7 +116,7 @@ class Mongo_Test extends Generic_Test {
 	}
 
 	validate_document_response () {
-		Assert.deepEqual(this.response, this.test_document, 'fetched document doesn\'t match');
+		Assert.deepEqual(this.test_document, this.response, 'fetched document doesn\'t match');
 	}
 
 	validate_array_response () {
@@ -124,7 +124,7 @@ class Mongo_Test extends Generic_Test {
 		this.response.sort((a, b) => {
 			return a.number - b.number;
 		});
-		Assert.deepEqual(this.response, this.test_documents, 'fetched documents don\'t match');
+		Assert.deepEqual(this.test_documents, this.response, 'fetched documents don\'t match');
 	}
 }
 

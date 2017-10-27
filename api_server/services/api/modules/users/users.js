@@ -9,7 +9,8 @@ const USERS_STANDARD_ROUTES = {
 	want: ['get', 'get_many', 'post'],
 	base_route_name: 'users',
 	request_classes: {
-		'get': require('./get_user_request')
+		'get': require('./get_user_request'),
+		'get_many': require('./get_users_request')
 	}
 };
 

@@ -18,8 +18,8 @@ class Post_Location_To_File_Stream_Test extends Post_To_File_Stream_Test {
 
 	validate_response (data) {
 		let post = data.post;
-		Assert.deepEqual(post.location, this.data.location, 'location does not match');
-		Assert.deepEqual(post.replay_info, this.data.replay_info, 'replay_info does not match');
+		Assert.deepEqual(this.data.location, post.location, 'location does not match');
+		Assert.deepEqual(this.data.replay_info, post.replay_info, 'replay_info does not match');
 		super.validate_response(data);
 	}
 }

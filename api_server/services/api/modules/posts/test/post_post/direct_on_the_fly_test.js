@@ -43,7 +43,7 @@ class Direct_On_The_Fly_Test extends Post_To_Direct_Test {
 				this.data.stream.member_ids.push(this.current_user._id);
 			}
 			this.data.stream.member_ids.sort();
-			Assert.deepEqual(stream.member_ids, this.data.stream.member_ids, 'member_ids does not match');
+			Assert.deepEqual(this.data.stream.member_ids, stream.member_ids, 'member_ids does not match');
 		}
 		let result = (
 			((stream.type === this.data.stream.type) || errors.push('type does not match')) &&

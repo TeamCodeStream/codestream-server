@@ -4,7 +4,7 @@ var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codes
 var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 const Post_Test_Constants = require('../post_test_constants');
 
-class Get_Post_Test extends CodeStream_API_Test {
+class Get_Posts_Test extends CodeStream_API_Test {
 
 	constructor (options) {
 		super(options);
@@ -41,11 +41,12 @@ class Get_Post_Test extends CodeStream_API_Test {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
+				this.team = response.team;
 				callback();
 			},
 			{
 				with_random_emails: 2,
-				with_emails: [this.current_user.email],
+				with_emails: this.without_me_on_team ? null : [this.current_user.email],
 				token: this.other_user_data.access_token
 			}
 		);
@@ -62,7 +63,8 @@ class Get_Post_Test extends CodeStream_API_Test {
 				type: this.type,
 				token: this.other_user_data.access_token,
 				team_id: this.repo.team_id,
-				repo_id: this.type === 'file' ? this.repo._id : null
+				repo_id: this.type === 'file' ? this.repo._id : null,
+				member_ids: this.without_me_in_stream || this.type === 'file' ? null : [this.current_user._id]
 			}
 		);
 	}
@@ -90,7 +92,8 @@ class Get_Post_Test extends CodeStream_API_Test {
 	}
 
 	set_post_options (n) {
-		let mine = n % 2 === 1;
+		let i_am_in_stream = !this.without_me_on_team && !this.without_me_in_stream;
+		let mine = !i_am_in_stream && n % 2 === 1;
 		let post_options = {
 			token: mine ? this.token : this.other_user_data.access_token,
 			stream_id: this.stream._id,
@@ -101,7 +104,7 @@ class Get_Post_Test extends CodeStream_API_Test {
 	}
 
 	set_path (callback) {
-		this.path = '/posts/?stream_id=' + this.stream._id;
+		this.path = `/posts/?team_id=${this.team._id}&stream_id=${this.stream._id}`;
 		callback();
 	}
 
@@ -111,4 +114,4 @@ class Get_Post_Test extends CodeStream_API_Test {
 	}
 }
 
-module.exports = Get_Post_Test;
+module.exports = Get_Posts_Test;

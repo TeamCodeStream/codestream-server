@@ -33,7 +33,7 @@ class Token_Authenticator {
 		}
 		let token =
 			(this.request.signedCookies && this.request.signedCookies.t) ||
-			(this.request.query && this.request.query.t) ||
+			(this.request.query && this.request.query.t && decodeURIComponent(this.request.query.t)) ||
 			(this.request.body && this.request.body.t) ||
 			this.token_from_header(this.request);
 		if (!token) {

@@ -6,15 +6,24 @@ const STREAM_TYPES = require('./stream_types');
 const BASIC_QUERY_PARAMETERS = [
 	'team_id',
 	'repo_id',
-	'type'
+	'type',
+	'ids'
 ];
 
 class Get_Streams_Request extends Get_Many_Request {
 
-	build_query () {
-		if (this.request.query.hasOwnProperty('ids')) {
-			return null;
+	authorize (callback) {
+		if (!this.request.query.team_id) {
+			return callback(this.error_handler.error('parameter_required', { info: 'team_id' }));
 		}
+		let team_id = decodeURIComponent(this.request.query.team_id).toLowerCase();
+		if (!this.user.has_team(team_id)) {
+			return callback(this.error_handler.error('read_auth'));
+		}
+		return process.nextTick(callback);
+	}
+
+	build_query () {
 		let query = this.form_query_from_parameters();
 		return this.check_valid_query(query);
 	}
@@ -23,7 +32,9 @@ class Get_Streams_Request extends Get_Many_Request {
 		let query = {};
 		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
-				let error = this.process_query_parameter(parameter, query);
+				let value = decodeURIComponent(this.request.query[parameter]).toLowerCase();
+				parameter = decodeURIComponent(parameter).toLowerCase();
+				let error = this.process_query_parameter(parameter, value, query);
 				if (error) {
 					return error;
 				}
@@ -33,37 +44,36 @@ class Get_Streams_Request extends Get_Many_Request {
 	}
 
 	check_valid_query (query) {
-		if (Object.keys(query).length === 0) {
-			 return null;
+		if (!query.team_id) {
+			return ('team_id required');
 		}
 		if (query.type && STREAM_TYPES.indexOf(query.type) === -1) {
 			return `invalid stream type: ${query.type}`;
-		}
-		if (!query.team_id && !query.repo_id) {
-			return ('team_id or repo_id required');
 		}
 		if (query.type && query.type === 'file') {
 			if (!query.repo_id) {
 				return 'queries for file streams require repo_id';
 			}
-			delete query.team_id;
 		}
 		else if (query.type) {
-			if (!query.team_id) {
-				return `queries for ${query.type} streams require team_id`;
-			}
 			delete query.repo_id;
-			query.member_ids = this.user.id;
 		}
-		else if (query.team_id) {
+		if (!query.repo_id) {
 			query.member_ids = this.user.id;
 		}
 		return query;
 	}
 
-	process_query_parameter (parameter, query) {
+	process_query_parameter (parameter, value, query) {
 		if (BASIC_QUERY_PARAMETERS.indexOf(parameter) !== -1) {
-			query[parameter] = decodeURIComponent(this.request.query[parameter]);
+			if (parameter === 'ids') {
+				let ids = value.split(',');
+				ids = ids.map(id => this.data.streams.object_id_safe(id));
+				query._id = { $in: ids };
+			}
+			else {
+				query[parameter] = value;
+			}
 		}
 	}
 }

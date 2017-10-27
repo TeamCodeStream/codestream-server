@@ -1,8 +1,8 @@
 'use strict';
 
-var Get_Channel_Posts_Test = require('./get_posts_test');
+var Get_Posts_Test = require('./get_posts_test');
 
-class Get_Posts_Limit_Test extends Get_Channel_Posts_Test {
+class Get_Posts_Limit_Test extends Get_Posts_Test {
 
 	constructor (options) {
 		super(options);
@@ -15,7 +15,7 @@ class Get_Posts_Limit_Test extends Get_Channel_Posts_Test {
 
 	set_path (callback) {
 		this.my_posts.splice(0, this.num_posts - 3);
-		this.path = `/posts/?stream_id=${this.stream._id}&limit=3`;
+		this.path = `/posts/?team_id=${this.team._id}&stream_id=${this.stream._id}&limit=3`;
 		callback();
 	}
 }

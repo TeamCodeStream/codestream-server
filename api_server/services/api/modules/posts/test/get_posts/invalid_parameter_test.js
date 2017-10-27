@@ -1,15 +1,16 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var Get_Posts_Test = require('./get_posts_test');
 
-class Invalid_Parameter_Test extends CodeStream_API_Test {
+class Invalid_Parameter_Test extends Get_Posts_Test {
 
 	get description () {
 		return 'should return an error if an unknown query parameter is provided';
 	}
 
-	get path () {
-		return '/posts?thisparam=1';
+	set_path (callback) {
+		this.path = `/posts?team_id=${this.team._id}&stream_id=${this.stream._id}&thisparam=1`;
+		callback();
 	}
 
 	get_expected_error () {
