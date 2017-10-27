@@ -22,6 +22,8 @@ var Stream_ID_Required_Test = require('./stream_id_required_test');
 var ACL_Team_Test = require('./acl_team_test');
 var ACL_Stream_Test = require('./acl_stream_test');
 var ACL_Team_File_Test = require('./acl_team_file_test');
+var Stream_Not_Found_Test = require('./stream_not_found_test');
+var Stream_No_Match_Team_Test = require('./stream_no_match_team_test');
 
 /* jshint -W071 */
 
@@ -57,6 +59,8 @@ class Get_Posts_Request_Tester {
 		new ACL_Team_Test().test();
 		new ACL_Stream_Test().test();
 		new ACL_Team_File_Test().test();
+		new Stream_Not_Found_Test().test();
+		new Stream_No_Match_Team_Test().test();
 	}
 }
 
