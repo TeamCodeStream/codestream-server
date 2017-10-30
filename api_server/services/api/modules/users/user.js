@@ -60,11 +60,11 @@ class User extends CodeStream_Model {
 	}
 
 	authorize_company (id, request, callback) {
-		return callback(null, (this.get('company_ids') || []).indexOf(id) !== -1);
+		return callback(null, this.has_company(id));
 	}
 
 	authorize_team (id, request, callback) {
-		return callback(null, (this.get('team_ids') || []).indexOf(id) !== -1);
+		return callback(null, this.has_team(id));
 	}
 
 	authorize_repo (id, request, callback) {

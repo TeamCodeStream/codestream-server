@@ -9,7 +9,8 @@ const STREAM_STANDARD_ROUTES = {
 	want: ['get', 'get_many', 'post'],
 	base_route_name: 'streams',
 	request_classes: {
-		'get_many': require('./get_streams_request')
+		'get_many': require('./get_streams_request'),
+		'post': require('./post_stream_request')
 	}
 };
 

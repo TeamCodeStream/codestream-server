@@ -23,6 +23,10 @@ var Me_Channel_Test = require('./me_channel_test');
 var Name_Required_Test = require('./name_required_test');
 var No_File_Test = require('./no_file_test');
 var No_Repo_Id_Test = require('./no_repo_id_test');
+var ACL_Team_Test = require('./acl_team_test');
+var ACL_Stream_Test = require('./acl_stream_test');
+var ACL_Team_On_The_Fly_Test = require('./acl_team_on_the_fly_test');
+var ACL_Repo_On_The_Fly_Test = require('./acl_repo_on_the_fly_test');
 
 /* jshint -W071 */
 
@@ -53,6 +57,10 @@ class Post_Post_Request_Tester {
 		new Name_Required_Test().test();
 		new No_File_Test().test();
 		new No_Repo_Id_Test().test();
+		new ACL_Team_Test({ }).test();
+		new ACL_Stream_Test().test();
+		new ACL_Team_On_The_Fly_Test().test();
+		new ACL_Repo_On_The_Fly_Test().test();
 	}
 }
 

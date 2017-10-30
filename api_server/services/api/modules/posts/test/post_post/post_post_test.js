@@ -60,6 +60,7 @@ class Post_Post_Test extends CodeStream_API_Test {
 				callback();
 			},
 			{
+				with_emails: [this.current_user.email],
 				with_random_emails: 2,
 				token: this.other_user_data.access_token
 			}
@@ -70,7 +71,7 @@ class Post_Post_Test extends CodeStream_API_Test {
 		this.stream_options = {
 			type: this.stream_type || 'direct',
 			team_id: this.team._id,
-			token: this.other_user_data.access_token
+			token: this.token
 		};
 		callback();
 	}

@@ -17,6 +17,7 @@ var Me_Channel_Test = require('./me_channel_test');
 var Duplicate_Channel_Test = require('./duplicate_channel_test');
 var Duplicate_Direct_Test = require('./duplicate_direct_test');
 var Duplicate_File_Test = require('./duplicate_file_test');
+var ACL_Test = require('./acl_test');
 
 /* jshint -W071 */
 
@@ -41,6 +42,9 @@ class Post_Stream_Request_Tester {
 		new Duplicate_Channel_Test().test();
 		new Duplicate_Direct_Test().test();
 		new Duplicate_File_Test().test();
+		new ACL_Test({ type: 'channel' }).test();
+		new ACL_Test({ type: 'direct' }).test();
+		new ACL_Test({ type: 'file' }).test();
 	}
 }
 

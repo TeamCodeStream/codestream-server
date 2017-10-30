@@ -15,8 +15,7 @@ class Invalid_Team_Id_Test extends Direct_On_The_Fly_Test {
 
 	get_expected_error () {
 		return {
-			code: 'RAPI-1003',
-			info: 'team'
+			code: 'RAPI-1011'
 		};
 	}
 

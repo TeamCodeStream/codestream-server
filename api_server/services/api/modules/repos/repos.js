@@ -9,7 +9,8 @@ const REPO_STANDARD_ROUTES = {
 	want: ['get', 'get_many', 'post'],
 	base_route_name: 'repos',
 	request_classes: {
-		'get_many': require('./get_repos_request')
+		'get_many': require('./get_repos_request'),
+		'post': require('./post_repo_request')
 	}
 };
 

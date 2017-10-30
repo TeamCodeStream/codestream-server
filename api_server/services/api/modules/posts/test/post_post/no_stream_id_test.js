@@ -14,11 +14,8 @@ class No_Stream_Id_Test extends Post_Post_Test {
 
 	get_expected_error () {
 		return {
-			code: 'RAPI-1005',
-			info: [{
-				code: 'RAPI-1002',
-				info: 'stream_id or stream'
-			}]
+			code: 'RAPI-1002',
+			info: 'stream_id'
 		};
 	}
 

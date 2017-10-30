@@ -162,7 +162,7 @@ class Repo_Creator extends Model_Creator {
 					return callback(this.error_handler.error('not_found', { info: 'team' }));
 				}
 				if ((team.get('member_ids') || []).indexOf(this.user.id) === -1) {
-					return callback(this.error_handler.error('update_auth', { reason: 'user not on team' }));
+					return callback(this.error_handler.error('create_auth', { reason: 'user not on team' }));
 				}
 				this.team = team;
 				this.attributes.company_id = team.get('company_id');

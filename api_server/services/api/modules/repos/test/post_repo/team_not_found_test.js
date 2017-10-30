@@ -15,8 +15,7 @@ class Team_Not_Found_Test extends Post_Repo_Test {
 
 	get_expected_error () {
 		return {
-			code: 'RAPI-1003',
-			info: 'team'
+			code: 'RAPI-1011'
 		};
 	}
 
