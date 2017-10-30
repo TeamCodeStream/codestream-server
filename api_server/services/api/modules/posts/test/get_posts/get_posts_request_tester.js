@@ -30,7 +30,6 @@ var Stream_No_Match_Team_Test = require('./stream_no_match_team_test');
 class Get_Posts_Request_Tester {
 
 	get_posts_test () {
-
 		new Get_Posts_Test({type: 'channel'}).test();
 		new Get_Posts_Test({type: 'direct'}).test();
 		new Get_Posts_Test({type: 'file'}).test();

@@ -46,6 +46,10 @@ const ERRORS = {
 	'update_auth': {
 		code: 'RAPI-1010',
 		message: 'Not authorized to update'
+	},
+	'create_auth': {
+		code: 'RAPI-1011',
+		message: 'Not authorized to create'		
 	}
 };
 

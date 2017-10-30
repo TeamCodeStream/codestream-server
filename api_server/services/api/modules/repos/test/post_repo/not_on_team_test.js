@@ -19,7 +19,7 @@ class Not_On_Team_Test extends Already_On_Team_Test {
 
 	get_expected_error () {
 		return {
-			code: 'RAPI-1010',
+			code: 'RAPI-1011',
 		};
 	}
 }

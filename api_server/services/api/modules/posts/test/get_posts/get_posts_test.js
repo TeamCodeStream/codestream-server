@@ -93,7 +93,7 @@ class Get_Posts_Test extends CodeStream_API_Test {
 
 	set_post_options (n) {
 		let i_am_in_stream = !this.without_me_on_team && !this.without_me_in_stream;
-		let mine = !i_am_in_stream && n % 2 === 1;
+		let mine = i_am_in_stream && n % 2 === 1;
 		let post_options = {
 			token: mine ? this.token : this.other_user_data.access_token,
 			stream_id: this.stream._id,

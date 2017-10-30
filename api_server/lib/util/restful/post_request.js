@@ -5,10 +5,6 @@ var Model_Creator = require('./model_creator');
 
 class Post_Request extends Restful_Request {
 
-	authorize (callback) {
-		return callback(false);
-	}
-
 	process (callback) {
 		let creator_class = this.module.creator_class || Model_Creator;
 		this.creator = new creator_class({
