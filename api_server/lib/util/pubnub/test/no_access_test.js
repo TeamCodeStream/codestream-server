@@ -17,7 +17,8 @@ class No_Access_Test extends PubNub_Test {
 	run (callback) {
 		this.listen_on_client(error => {
 			Assert(error.error, 'error expected');
-			Assert(error.operation === 'PNSubscribeOperation', 'operation expected to be PNSubscribeOperation');
+			Assert(error.operation === 'PNSubscribeOperation' || error.operation === 'PNHeartbeatOperation',
+				'operation expected to be PNSubscribeOperation');
 			Assert(error.category === 'PNAccessDeniedCategory', 'category expected to be PNAccessDeniedCategory');
 			this.clear_timer(callback);
 		});

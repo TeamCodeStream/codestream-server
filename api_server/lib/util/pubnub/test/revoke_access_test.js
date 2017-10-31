@@ -38,7 +38,8 @@ class Revoke_Access_Test extends PubNub_Test {
 			this.unexpected_message_received.bind(this),
 			error => {
 				Assert(error.error, 'error expected');
-				Assert(error.operation === 'PNSubscribeOperation', 'operation expected to be PNSubscribeOperation');
+				Assert(error.operation === 'PNSubscribeOperation' || error.operation === 'PNHeartbeatOperation',
+					'operation expected to be PNSubscribeOperation');
 				Assert(error.category === 'PNAccessDeniedCategory', 'category expected to be PNAccessDeniedCategory');
 				callback();
 			}

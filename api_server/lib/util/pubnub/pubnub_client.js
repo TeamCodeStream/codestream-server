@@ -31,20 +31,30 @@ class PubNub_Client {
 					listener(null, message);
 				},
 				status: (status) => {
-					this.handle_status(channel, status, callback);
+					this.handle_subscribe_status(channel, status, callback);
 				}
 			};
 			this.pubnub.addListener(this.channel_listeners[channel]);
 		}
-		this.pubnub.subscribe({
-			channels: [channel]
-		});
+
+		// this timeout sucks ... but there seem to be reliability issues with getting the expected error
+		// status back without it, this is a temporary state of affairs to pass unit tests more reliability
+		// until the issue can be resolved through PubNub tech support
+		setTimeout(() => {
+			this.pubnub.subscribe({
+				channels: [channel]
+			});
+		}, 200);
 	}
 
-	handle_status (channel, status, callback) {
+	handle_subscribe_status (channel, status, callback) {
 		if (
 			status.error &&
-			status.operation === 'PNSubscribeOperation'
+			(
+				status.operation === 'PNSubscribeOperation' ||
+				status.operation === 'PNHeartbeatOperation'
+			) &&
+			status.category === 'PNAccessDeniedCategory'
 		) {
 			this.remove_listener(channel);
 			callback(status);
