@@ -3,7 +3,7 @@
 var Assert = require('assert');
 
 // make jshint happy
-/* globals before, it */
+/* globals before, after, it */
 
 class Generic_Test {
 
@@ -19,6 +19,10 @@ class Generic_Test {
 		callback();
 	}
 
+	after (callback) {
+		callback();
+	}
+
 	test () {
 
 		if (typeof this.authenticate === 'function') {
@@ -29,6 +33,10 @@ class Generic_Test {
 
 		before((callback) => {
 			this.before(callback);
+		});
+
+		after((callback) => {
+			this.after(callback);
 		});
 
 		it(
