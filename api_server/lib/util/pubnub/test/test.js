@@ -10,8 +10,6 @@ var Unsubscribe_Test = require('./unsubscribe_test');
 
 /* jshint -W071 */
 
-global.X = 1;
-
 describe('pubnub', function() {
 
 	this.timeout(10000);
