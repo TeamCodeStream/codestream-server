@@ -16,14 +16,14 @@ class CodeStream_Message_Test extends CodeStream_API_Test {
 			this.set_clients,
 			this.make_data,
 			this.set_channel_name,
-			this.wait,
-			this.listen_on_client
+			this.wait
 		], callback);
 	}
 
 	// during the test, we send a message and wait for it to arrive
 	run (callback) {
 		Bound_Async.series(this, [
+			this.listen_on_client,
 			this.send_from_server,
 			this.wait_for_message,
 			this.clear_timer
@@ -60,7 +60,7 @@ class CodeStream_Message_Test extends CodeStream_API_Test {
 	// begin listening to on the client
 	listen_on_client (callback) {
 		this.message_timer = setTimeout(
-			this.message_timeout.bind(this),
+			this.message_timeout.bind(this, this.channel_name),
 			this.timeout || 5000
 		);
 		this.pubnub_for_client.subscribe(
@@ -76,14 +76,13 @@ class CodeStream_Message_Test extends CodeStream_API_Test {
 	}
 
 	// called if message doesn't arrive after timeout
-	message_timeout () {
-		Assert.fail('message never arrived');
+	message_timeout (channel) {
+		Assert.fail('message never arrived for ' + channel);
 	}
 
 	// called when a message has been received, assert that it matches expectations
 	message_received (error, message) {
 		if (error) { return this.message_callback(error); }
-console.warn('RX', message);
 		Assert(message.channel === this.channel_name, 'received message doesn\'t match channel name');
 		Assert(message.message === this.message, 'received message doesn\'t match');
 		this.message_callback();
