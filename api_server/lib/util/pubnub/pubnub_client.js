@@ -37,14 +37,9 @@ class PubNub_Client {
 			this.pubnub.addListener(this.channel_listeners[channel]);
 		}
 
-		// this timeout sucks ... but there seem to be reliability issues with getting the expected error
-		// status back without it, this is a temporary state of affairs to pass unit tests more reliability
-		// until the issue can be resolved through PubNub tech support
-		setTimeout(() => {
-			this.pubnub.subscribe({
-				channels: [channel]
-			});
-		}, 200);
+		this.pubnub.subscribe({
+			channels: [channel]
+		});
 	}
 
 	handle_subscribe_status (channel, status, callback) {

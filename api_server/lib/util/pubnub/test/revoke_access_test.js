@@ -15,6 +15,7 @@ class Revoke_Access_Test extends PubNub_Test {
 			super.run,
 			this.remove_listener,
 			this.revoke_access,
+			this.wait,
 			this.listen_again
 		], callback);
 	}
@@ -30,6 +31,13 @@ class Revoke_Access_Test extends PubNub_Test {
 			[this.channel_name],
 			callback
 		);
+	}
+
+	wait (callback) {
+		// there can be some delay between when access is revoked and when the channel can become unsubscribed;
+		// we want to test that the channel becomes unsubscribable without explicit unsubscribing and resubscibing,
+		// so we inroduce an artificial delay
+		setTimeout(callback, 5000);
 	}
 
 	listen_again (callback) {
