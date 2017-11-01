@@ -18,7 +18,7 @@ class PubNub_Module extends API_Server_Module {
 			this.pubnub_client = new PubNub_Client({
 				pubnub: this.pubnub
 			});
-			return callback(null, [{ relayer: this.pubnub_client }]);
+			return callback(null, [{ broadcaster: this.pubnub_client }]);
 		};
 	}
 }
