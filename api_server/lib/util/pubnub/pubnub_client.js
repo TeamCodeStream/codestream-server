@@ -76,11 +76,14 @@ class PubNub_Client {
 		delete this.channel_listeners[channel];
 	}
 
-	grant (user_id, channels, callback, options = {}) {
+	grant (user_ids, channel, callback, options = {}) {
+		if (!(user_ids instanceof Array)) {
+			user_ids = [user_ids];
+		}
 		this.pubnub.grant(
 			{
-				channels: channels,
-				authKeys: [user_id],
+				channels: [channel],
+				authKeys: user_ids,
 				read: options.read === false ? false: true,
 				write: options.write === true ? true : false,
 				ttl: options.ttl || 0
@@ -96,11 +99,14 @@ class PubNub_Client {
 		);
 	}
 
-	revoke (user_id, channels, callback) {
+	revoke (user_ids, channel, callback) {
+		if (!(user_ids instanceof Array)) {
+			user_ids = [user_ids];
+		}
 		this.pubnub.grant(
 			{
-				channels: channels,
-				authKeys: [user_id],
+				channels: [channel],
+				authKeys: user_ids,
 				read: false,
 				write: false,
 				manage: false

@@ -1,6 +1,7 @@
 'use strict';
 
 require('./authenticator/test/test.js');
+require('./messager/test/test.js');
 require('./users/test/test.js');
 require('./repos/test/test.js');
 require('./companies/test/test.js');

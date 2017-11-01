@@ -61,7 +61,12 @@ class Data_Collection {
 			conditions,
 			(error, documents) => {
 				if (error) { return callback(error); }
-				this._add_documents_to_cache(documents, callback);
+				if (!options.no_cache) {
+					this._add_documents_to_cache(documents, callback);
+				}
+				else {
+					callback(null, documents);
+				}
 			},
 			Object.assign({}, options.database_options, { request_id: this.request_id })
 		);

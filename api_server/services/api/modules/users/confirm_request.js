@@ -4,6 +4,7 @@ var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Restful_Request = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 var Tokenizer = require('./tokenizer');
 var Password_Hasher = require('./password_hasher');
+var User_Subscription_Granter = require('./user_subscription_granter');
 const Errors = require('./errors');
 
 const MAX_CONFIRMATION_ATTEMPTS = 3;
@@ -29,6 +30,7 @@ class Confirm_Request extends Restful_Request {
 			this.hash_password,
 			this.update_user,
 			this.generate_token,
+			this.grant_subscription_permissions,
 			this.form_response
 		], callback);
 	}
@@ -175,6 +177,23 @@ class Confirm_Request extends Restful_Request {
 				process.nextTick(callback);
 			}
 		);
+	}
+
+	grant_subscription_permissions (callback) {
+		// note - it is tough to determine whether this should go before or after the response ... with users in a lot
+		// of streams, there could be a performance hit here, but do we want to take a performance hit or do we want
+		// to risk the client subscribing to channels for which they don't yet have permissions? i've opted for the
+		// performance hit, and i suspect it won't ever be a problem, but be aware...
+		new User_Subscription_Granter({
+			data: this.data,
+			messager: this.api.services.messager,
+			user: this.user
+		}).grant_all(error => {
+			if (error) {
+				return callback(`Unable to grant subscription permissions for ${this.user.id}: ${JSON.stringify(error)}`);
+			}
+			callback();
+		});
 	}
 
 	form_response (callback) {
