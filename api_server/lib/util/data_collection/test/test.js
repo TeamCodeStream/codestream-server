@@ -30,6 +30,8 @@ var Apply_Unset_Sub_Object_To_Cache_Test = require('./apply_unset_sub_object_to_
 var Apply_Unset_Sub_Object_To_Database_Test = require('./apply_unset_sub_object_to_database_test');
 var Apply_Add_To_Cache_Test = require('./apply_add_to_cache_test');
 var Apply_Add_To_Database_Test = require('./apply_add_to_database_test');
+var Apply_Add_Array_To_Cache_Test = require('./apply_add_array_to_cache_test');
+var Apply_Add_Array_To_Database_Test = require('./apply_add_array_to_database_test');
 var Apply_No_Add_To_Cache_Test = require('./apply_no_add_to_cache_test');
 var Apply_No_Add_To_Database_Test = require('./apply_no_add_to_database_test');
 var Apply_Push_To_Cache_Test = require('./apply_push_to_cache_test');
@@ -73,6 +75,8 @@ describe('data_collection', function() {
 	new Apply_Unset_Sub_Object_To_Database_Test().test();
 	new Apply_Add_To_Cache_Test().test();
 	new Apply_Add_To_Database_Test().test();
+	new Apply_Add_Array_To_Cache_Test().test();
+	new Apply_Add_Array_To_Database_Test().test();
 	new Apply_No_Add_To_Cache_Test().test();
 	new Apply_No_Add_To_Database_Test().test();
 	new Apply_Push_To_Cache_Test().test();

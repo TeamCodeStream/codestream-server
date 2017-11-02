@@ -1,13 +1,14 @@
 'use strict';
 
 var Data_Model_Validator = require('./data_model_validator');
+var Deep_Clone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
 
 class Data_Model {
 
 	constructor (attributes) {
 		this.attributes = {};
 		this.set_defaults();
-		Object.assign(this.attributes, attributes || {});
+		Object.assign(this.attributes, Deep_Clone(attributes || {}));
 		this.id = this.attributes._id;
 		this.validator = this.get_validator();
 	}

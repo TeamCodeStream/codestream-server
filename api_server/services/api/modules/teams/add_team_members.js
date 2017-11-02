@@ -2,6 +2,7 @@
 
 var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var User_Creator = require(process.env.CS_API_TOP + '/services/api/modules/users/user_creator');
+var Team_Subscription_Granter = require('./team_subscription_granter');
 const Errors = require('./errors');
 
 class Add_Team_Members  {
@@ -20,7 +21,8 @@ class Add_Team_Members  {
 			this.check_create_users,
 			this.check_usernames_unique,
 			this.add_to_team,
-			this.update_users
+			this.update_users,
+			this.grant_user_messaging_permissions
 		], callback);
 	}
 
@@ -132,9 +134,9 @@ class Add_Team_Members  {
 	}
 
 	add_to_team (callback) {
-		let ids = this.users_to_add.map(user => user._id);
+		let ids = this.users_to_add.map(user => user.id);
 		this.data.teams.apply_op_by_id(
-			this.team._id,
+			this.team.id,
 			{ add: { member_ids: ids } },
 			callback
 		);
@@ -167,6 +169,20 @@ class Add_Team_Members  {
 				callback();
 			}
 		);
+	}
+
+	grant_user_messaging_permissions (callback) {
+		new Team_Subscription_Granter({
+			data: this.data,
+			messager: this.api.services.messager,
+			team: this.team,
+			members: this.users_to_add
+		}).grant_to_members(error => {
+			if (error) {
+				return callback(this.error_handler.error('messaging_grant', { reason: error }));
+			}
+			callback();
+		});
 	}
 }
 

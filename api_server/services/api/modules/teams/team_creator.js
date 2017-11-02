@@ -251,7 +251,7 @@ class Team_Creator extends Model_Creator {
 		);
 	}
 
-	grant_user_messaging_permissions (callback) {
+ 	grant_user_messaging_permissions (callback) {
 		new Team_Subscription_Granter({
 			data: this.data,
 			messager: this.api.services.messager,

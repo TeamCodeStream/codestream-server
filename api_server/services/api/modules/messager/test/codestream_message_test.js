@@ -85,7 +85,14 @@ class CodeStream_Message_Test extends CodeStream_API_Test {
 		if (error) { return this.message_callback(error); }
 		Assert(message.channel === this.channel_name, 'received message doesn\'t match channel name');
 		Assert(message.message === this.message, 'received message doesn\'t match');
-		this.message_callback();
+
+		// the message can actually arrive before we are waiting for it, so in that case signal that we already got it
+		if (this.message_callback) {
+			this.message_callback();
+		}
+		else {
+			this.message_already_received = true;
+		}
 	}
 
 	// send a random message from the server
@@ -100,8 +107,13 @@ class CodeStream_Message_Test extends CodeStream_API_Test {
 
 	// wait for the message to arrive
 	wait_for_message (callback) {
-		this.message_callback = callback;
-		// do nothing until we get the message or a timeout...
+		if (this.message_already_received) {
+			return callback();
+		}
+		else {
+			this.message_callback = callback;
+			// do nothing until we get the message or a timeout...
+		}
 	}
 
 	// clear out timer
