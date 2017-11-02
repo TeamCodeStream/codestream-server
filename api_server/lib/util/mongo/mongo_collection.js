@@ -5,10 +5,27 @@ var ObjectID = require('mongodb').ObjectID;
 var Error_Handler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
 const Errors = require('./errors');
 
+let _mongo_add_to_set_value = function(value) {
+	let mongo_value = {};
+	Object.keys(value).forEach(field_name => {
+		let field_value = value[field_name];
+		if (field_value instanceof Array) {
+			mongo_value[field_name] = { $each: field_value };
+		}
+		else {
+			mongo_value[field_name] = field_value;
+		}
+	});
+	return mongo_value;
+};
+
 const OP_TO_DB_OP = {
 	set: '$set',
 	unset: '$unset',
-	add: '$addToSet',
+	add: {
+		db_op: '$addToSet',
+		value_func: _mongo_add_to_set_value
+	},
 	push: '$push',
 	pull: '$pull'
 };
@@ -209,8 +226,15 @@ class Mongo_Collection {
 	op_to_db_op (op) {
 		let db_op = {};
 		Object.keys(OP_TO_DB_OP).forEach(op_key => {
-			if (typeof op[op_key] === 'object') {
-				db_op[OP_TO_DB_OP[op_key]] = op[op_key];
+			let op_value = op[op_key];
+			if (typeof op_value === 'object') {
+				let conversion = OP_TO_DB_OP[op_key];
+				if (typeof conversion === 'object') {
+					db_op[conversion.db_op] = conversion.value_func(op_value);
+				}
+				else {
+					 db_op[conversion] = op_value;
+				}
 			}
 		});
 		return db_op;

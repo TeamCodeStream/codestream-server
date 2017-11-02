@@ -17,12 +17,17 @@ var _Ops = {
 		if (typeof document[field] === 'undefined') {
 			document[field] = [];
 		}
-		if (
-			document[field] instanceof Array &&
-			document[field].indexOf(value) === -1
-		) {
-			document[field].push(value);
+		if (!(value instanceof Array)) {
+			value = [value];
 		}
+		value.forEach(elem => {
+			if (
+				document[field] instanceof Array &&
+				document[field].indexOf(elem) === -1
+			) {
+				document[field].push(elem);
+			}
+		});
 	},
 
 	push: function(document, field, value) {
