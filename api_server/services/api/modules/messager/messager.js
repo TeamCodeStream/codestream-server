@@ -4,7 +4,7 @@ var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_se
 var PubNub = require('pubnub');
 var PubNub_Client = require(process.env.CS_API_TOP + '/lib/util/pubnub/pubnub_client');
 
-class PubNub_Module extends API_Server_Module {
+class Messager extends API_Server_Module {
 
 	services () {
 		return (callback) => {
@@ -18,9 +18,9 @@ class PubNub_Module extends API_Server_Module {
 			this.pubnub_client = new PubNub_Client({
 				pubnub: this.pubnub
 			});
-			return callback(null, [{ broadcaster: this.pubnub_client }]);
+			return callback(null, [{ messager: this.pubnub_client }]);
 		};
 	}
 }
 
-module.exports = PubNub_Module;
+module.exports = Messager;

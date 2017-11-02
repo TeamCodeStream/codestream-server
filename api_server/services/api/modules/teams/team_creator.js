@@ -7,6 +7,7 @@ var Company_Creator = require(process.env.CS_API_TOP + '/services/api/modules/co
 var User_Creator = require(process.env.CS_API_TOP + '/services/api/modules/users/user_creator');
 var CodeStream_Model_Validator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
+var Team_Subscription_Granter = require('./team_subscription_granter');
 const Team_Attributes = require('./team_attributes');
 const Errors = require('./errors');
 
@@ -211,7 +212,8 @@ class Team_Creator extends Model_Creator {
 	post_save (callback) {
 		Bound_Async.series(this, [
 			super.post_save,
-			this.update_users
+			this.update_users,
+			this.grant_user_messaging_permissions
 		], callback);
 	}
 
@@ -247,6 +249,20 @@ class Team_Creator extends Model_Creator {
 				process.nextTick(callback);
 			}
 		);
+	}
+
+	grant_user_messaging_permissions (callback) {
+		new Team_Subscription_Granter({
+			data: this.data,
+			messager: this.api.services.messager,
+			team: this.model,
+			members: this.users
+		}).grant_to_members(error => {
+			if (error) {
+				return callback(this.error_handler.error('messaging_grant', { reason: error }));
+			}
+			callback();
+		});
 	}
 }
 

@@ -3,6 +3,7 @@
 var Model_Creator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Stream = require('./stream');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
+var Stream_Subscription_Granter = require('./stream_subscription_granter');
 const Stream_Types = require('./stream_types');
 const Errors = require('./errors');
 
@@ -113,6 +114,24 @@ class Stream_Creator extends Model_Creator {
 		this.attributes.creator_id = this.user.id;
 		super.pre_save(callback);
 	}
+
+	post_save (callback) {
+		this.grant_user_messaging_permissions(callback);
+	}
+
+	grant_user_messaging_permissions (callback) {
+		new Stream_Subscription_Granter({
+			data: this.data,
+			messager: this.api.services.messager,
+			stream: this.model
+		}).grant_to_members(error => {
+			if (error) {
+				return callback(this.error_handler.error('messaging_grant', { reason: error }));
+			}
+			callback();
+		});
+	}
+
 }
 
 module.exports = Stream_Creator;

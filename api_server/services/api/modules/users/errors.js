@@ -29,6 +29,10 @@ const ERRORS = {
 	'already_registered': {
 		code: 'USRC-1006',
 		message: 'This user is already registered and confirmed'
+	},
+	'messaging_grant': {
+		code: 'USRC-1007',
+		message: 'Unable to grant user messaging permissions'
 	}
 };
 

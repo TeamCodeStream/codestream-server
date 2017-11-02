@@ -17,9 +17,6 @@ const Simple_File_Logger = require(process.env.CS_API_TOP + '/lib/util/simple_fi
 
 var Logger = new Simple_File_Logger(Logger_Config);
 
-// remove me when colin's arm is healed
-global.cw = console.warn;
-
 if (Mongo_Config.query_logging) {
 	Object.assign(Mongo_Config.query_logging, Logger_Config, Mongo_Config.query_logging);
 }

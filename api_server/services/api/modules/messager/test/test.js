@@ -1,0 +1,26 @@
+'use strict';
+
+var Me_Channel_Test = require('./me_channel_test');
+var Team_Channel_Test = require('./team_channel_test');
+var Stream_Channel_Test = require('./stream_channel_test');
+var Me_Channel_ACL_Test = require('./me_channel_acl_test');
+var Team_Channel_ACL_Test = require('./team_channel_acl_test');
+var Stream_Channel_ACL_Test = require('./stream_channel_acl_test');
+var Stream_Channel_Team_ACL_Test = require('./stream_channel_team_acl_test');
+
+// make jshint happy
+/* globals describe */
+
+describe('messages', function() {
+
+	this.timeout(10000);
+
+	new Me_Channel_Test().test();
+	new Team_Channel_Test().test();
+	new Stream_Channel_Test().test();
+	new Me_Channel_ACL_Test().test();
+	new Team_Channel_ACL_Test().test();
+	new Stream_Channel_ACL_Test().test();
+	new Stream_Channel_Team_ACL_Test().test();
+
+});
