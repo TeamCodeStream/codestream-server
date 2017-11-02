@@ -5,7 +5,7 @@ var Get_Streams_Test = require('./get_streams_test');
 class Get_Streams_Only_From_Team_Test extends Get_Streams_Test {
 
 	get description () {
-		return 'should return the correct streams when requesting streams by ID';
+		return 'should return the correct streams when requesting streams by ID from a given team';
 	}
 
 	set_path (callback) {
