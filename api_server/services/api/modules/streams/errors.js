@@ -16,6 +16,10 @@ const ERRORS = {
 	'file_required': {
 		code: 'STRM-1003',
 		message: 'File type streams must have a file'
+	},
+	'messaging_grant': {
+		code: 'STRM-1004',
+		message: 'Unable to grant user messaging permissions'
 	}
 };
 

@@ -190,7 +190,7 @@ class Confirm_Request extends Restful_Request {
 			user: this.user
 		}).grant_all(error => {
 			if (error) {
-				return callback(`Unable to grant subscription permissions for ${this.user.id}: ${JSON.stringify(error)}`);
+				return callback(this.error_handler.error('messaging_grant', { reason: error }));
 			}
 			callback();
 		});

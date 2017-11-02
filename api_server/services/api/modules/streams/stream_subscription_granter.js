@@ -2,7 +2,7 @@
 
 var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Team_Subscription_Granter  {
+class Stream_Subscription_Granter  {
 
 	constructor (options) {
 		Object.assign(this, options);
@@ -12,7 +12,7 @@ class Team_Subscription_Granter  {
 		Bound_Async.series(this, [
 			this.get_users,
 			this.determine_registered_users,
-			this.grant_team_channel
+			this.grant_stream_channel
 		], callback);
 	}
 
@@ -21,7 +21,7 @@ class Team_Subscription_Granter  {
 			return callback();
 		}
 		this.data.users.get_by_ids(
-			this.team.get('member_ids') || [],
+			this.stream.get('member_ids') || [],
 			(error, members) => {
 				if (error) { return callback(error); }
 				this.members = members;
@@ -51,12 +51,12 @@ class Team_Subscription_Granter  {
 		callback();
 	}
 
-	grant_team_channel (callback) {
+	grant_stream_channel (callback) {
 		var user_ids = this.registered_users.map(user => user.id);
 		if (user_ids.length === 0) {
 			return callback();
 		}
-		let channel = 'team-' + this.team.id;
+		let channel = 'stream-' + this.stream.id;
 		this.messager.grant(
 			user_ids,
 			channel,
@@ -72,4 +72,4 @@ class Team_Subscription_Granter  {
 	}
 }
 
-module.exports = Team_Subscription_Granter;
+module.exports = Stream_Subscription_Granter;

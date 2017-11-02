@@ -259,7 +259,7 @@ class Team_Creator extends Model_Creator {
 			members: this.users
 		}).grant_to_members(error => {
 			if (error) {
-				return callback(`Unable to grant subscription permissions for team ${this.team.id}: ${JSON.stringify(error)}`);
+				return callback(this.error_handler.error('messaging_grant', { reason: error }));
 			}
 			callback();
 		});
