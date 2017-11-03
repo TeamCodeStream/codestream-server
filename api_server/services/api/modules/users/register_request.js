@@ -82,7 +82,8 @@ class Register_Request extends Restful_Request {
 
 	save_user (callback) {
 		this.user_creator = new User_Creator({
-			request: this
+			request: this,
+			not_ok_if_exists_and_registered: true
 		});
 		this.user_creator.create_user(
 			this.request.body,

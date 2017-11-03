@@ -12,9 +12,10 @@ class CodeStream_Message_Test extends CodeStream_API_Test {
 
 	// before the test, set up pubnub clients and start listening
 	before (callback) {
+		this.pubnub_clients_for_user = {};
 		Bound_Async.series(this, [
-			this.set_clients,
 			this.make_data,
+			this.make_pubnub_clients,
 			this.set_channel_name,
 			this.wait
 		], callback);
@@ -24,37 +25,58 @@ class CodeStream_Message_Test extends CodeStream_API_Test {
 	run (callback) {
 		Bound_Async.series(this, [
 			this.listen_on_client,
-			this.send_from_server,
+			this.generate_message,
 			this.wait_for_message,
 			this.clear_timer
 		], callback);
 	}
 
 	// establish the PubNub clients we will use to send and receive a message
-	set_clients (callback) {
+	make_pubnub_clients (callback) {
 		// set up the pubnub client as if we are the server
+		this.make_pubnub_for_server();
+
+		// set up a pubnub client as if we are a client for the current user
+		this.make_pubnub_for_client(this.current_user);
+
+		callback();
+	}
+
+	// set up the pubnub client as if we are the server
+	make_pubnub_for_server () {
 		// all we have to do here is provide the full config, which includes the secretKey
 		let client = new PubNub(PubNub_Config);
 		this.pubnub_for_server = new PubNub_Client({
 			pubnub: client
 		});
+	}
 
-		// set up the pubnub client as if we are a client, we can't control access rights in this case
+	// set up the pubnub client as if we are a client, we can't control access rights in this case
+	make_pubnub_for_client (user) {
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
 		let client_config = Object.assign({}, PubNub_Config);
 		delete client_config.secretKey;
 		delete client_config.publishKey;
-		client_config.authKey = this.current_user._id;
-		client = new PubNub(client_config);
-		this.pubnub_for_client = new PubNub_Client({
+		client_config.authKey = user._id;
+		let client = new PubNub(client_config);
+		this.pubnub_clients_for_user[user._id] = new PubNub_Client({
 			pubnub: client
 		});
-		callback();
 	}
 
 	// make whatever data we need to set up our messaging, this should be overridden for specific tests
 	make_data (callback) {
 		callback();
+	}
+
+	// set the channel name of interest, this should be overridden for specific tests
+	set_channel_name (callback) {
+		callback('set_channel_name should be overridden');
+	}
+
+	// wait for permissions to be set through pubnub PAM
+	wait (callback) {
+		setTimeout(callback, 2000);
 	}
 
 	// begin listening to on the client
@@ -63,16 +85,11 @@ class CodeStream_Message_Test extends CodeStream_API_Test {
 			this.message_timeout.bind(this, this.channel_name),
 			this.timeout || 5000
 		);
-		this.pubnub_for_client.subscribe(
+		this.pubnub_clients_for_user[this.current_user._id].subscribe(
 			this.channel_name,
 			this.message_received.bind(this),
 			callback
 		);
-	}
-
-	// wait for permissions to be set through pubnub PAM
-	wait (callback) {
-		setTimeout(callback, 2000);
 	}
 
 	// called if message doesn't arrive after timeout
@@ -84,7 +101,11 @@ class CodeStream_Message_Test extends CodeStream_API_Test {
 	message_received (error, message) {
 		if (error) { return this.message_callback(error); }
 		Assert(message.channel === this.channel_name, 'received message doesn\'t match channel name');
-		Assert(message.message === this.message, 'received message doesn\'t match');
+		if (typeof message.message === 'object') {
+			Assert(message.message.request_id, 'received message has no request_id');
+			this.message.request_id = message.message.request_id;	// don't care what it is
+		}
+		Assert.deepEqual(message.message, this.message, 'received message doesn\'t match');
 
 		// the message can actually arrive before we are waiting for it, so in that case signal that we already got it
 		if (this.message_callback) {
@@ -93,6 +114,11 @@ class CodeStream_Message_Test extends CodeStream_API_Test {
 		else {
 			this.message_already_received = true;
 		}
+	}
+
+	// generate the message, this could be overriden but by default it just sends a random message
+	generate_message (callback) {
+		this.send_from_server(callback);
 	}
 
 	// send a random message from the server

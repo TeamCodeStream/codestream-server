@@ -70,8 +70,8 @@ class User_Creator extends Model_Creator {
 		process.nextTick(callback);
 	}
 
-	model_can_exist () {
-		return this.ok_if_exists;
+	model_can_exist (model) {
+		return !model.get('is_registered') || !this.not_ok_if_exists_and_registered;
 	}
 
 	check_existing_query () {
