@@ -19,7 +19,7 @@ var Duplicate_Direct_Test = require('./duplicate_direct_test');
 var Duplicate_File_Test = require('./duplicate_file_test');
 var ACL_Test = require('./acl_test');
 var New_File_Stream_Message_To_Team_Test = require('./new_file_stream_message_to_team_test');
-var New_Stream_To_Members_Test = require('./New_Stream_To_Members_Test');
+var New_Stream_To_Members_Test = require('./new_stream_to_members_test');
 var New_Stream_No_Message_Test = require('./new_stream_no_message_test');
 
 /* jshint -W071 */
