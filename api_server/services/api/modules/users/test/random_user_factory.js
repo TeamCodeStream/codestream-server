@@ -65,6 +65,11 @@ class _User_Creator {
 			}
 		);
 	}
+
+	confirm_user (user, callback) {
+		this.user = user;
+		this._confirm_user(callback);
+	}
 }
 
 class Random_User_Factory {
@@ -131,6 +136,14 @@ class Random_User_Factory {
 			},
 			callback
 		);
+	}
+
+	register_user (user, callback) {
+		new _User_Creator(this).register_user(user, callback);
+	}
+	
+	confirm_user (user, callback) {
+		new _User_Creator(this).confirm_user(user, callback);
 	}
 }
 

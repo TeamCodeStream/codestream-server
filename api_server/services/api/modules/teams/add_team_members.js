@@ -94,7 +94,6 @@ class Add_Team_Members  {
 		}
 		this.user_creator = new User_Creator({
 			request: this.request,
-			ok_if_exists: true,
 			dont_save_if_exists: true
 		});
 		this.user_creator.create_user(

@@ -8,6 +8,8 @@ var Already_Registered_Test = require('./already_registered_test');
 var Incorrect_Code_Test = require('./incorrect_code_test');
 var Max_Attempts_Test = require('./max_attempts_test');
 var Expiration_Test = require('./expiration_test');
+var Confirmation_Message_To_Team_Test = require('./confirmation_message_to_team_test');
+var Confirmation_Message_To_Other_User_Test = require('./confirmation_message_to_other_user_test');
 
 class Confirmation_Request_Tester {
 
@@ -22,6 +24,8 @@ class Confirmation_Request_Tester {
 		new Incorrect_Code_Test().test();
 		new Max_Attempts_Test().test();
 		new Expiration_Test().test();
+		new Confirmation_Message_To_Team_Test().test();
+		new Confirmation_Message_To_Other_User_Test().test();
 	}
 }
 

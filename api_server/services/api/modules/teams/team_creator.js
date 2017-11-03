@@ -145,7 +145,6 @@ class Team_Creator extends Model_Creator {
 	create_user (email, callback) {
 		this.user_creator = new User_Creator({
 			request: this.request,
-			ok_if_exists: true,
 			dont_save_if_exists: true
 		});
 		this.user_creator.create_user(
