@@ -17,7 +17,8 @@ module.exports = {
 	searchable_email: {
 		type: 'email',
 		max_length: 256,
-		required: true
+		required: true,
+		server_only: true
 	},
 	secondary_emails: {
 		type: 'array_of_emails',

@@ -22,6 +22,11 @@ var Repo_Exists_Not_On_Team_Test = require('./repo_exists_not_on_team_test');
 var Repo_Exists_Not_On_Team_Add_Users_Test = require('./repo_exists_not_on_team_add_users_test');
 var Repo_Exists_Not_On_Team_Add_Users_Username_Conflict_Test = require('./repo_exists_not_on_team_add_users_username_conflict_test');
 var Repo_Exists_Not_On_Team_Add_Users_Unique_Usernames_Test = require('./repo_exists_not_on_team_add_users_unique_usernames_test');
+var New_Repo_Message_To_Team_Test = require('./new_repo_message_to_team_test');
+var New_Repo_Message_To_Other_User_Test = require('./new_repo_message_to_other_user_test');
+var Users_Join_New_Team_Message_Test = require('./users_join_new_team_message_test');
+var Users_Join_Existing_Team_Message_Test = require('./users_join_existing_team_message_test');
+var Users_Join_Existing_Repo_Message_Test = require('./users_join_existing_repo_message_test');
 
 /* jshint -W071 */
 
@@ -51,6 +56,12 @@ class Post_Repo_Request_Tester {
 		new Repo_Exists_Not_On_Team_Add_Users_Test().test();
 		new Repo_Exists_Not_On_Team_Add_Users_Username_Conflict_Test().test();
 		new Repo_Exists_Not_On_Team_Add_Users_Unique_Usernames_Test().test();
+		new New_Repo_Message_To_Team_Test().test();
+		new New_Repo_Message_To_Other_User_Test().test();
+		new Users_Join_New_Team_Message_Test().test();
+		new Users_Join_Existing_Team_Message_Test().test();
+		new Users_Join_Existing_Repo_Message_Test().test();
+
 	}
 }
 

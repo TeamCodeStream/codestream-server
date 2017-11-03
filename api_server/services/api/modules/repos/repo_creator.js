@@ -107,6 +107,7 @@ class Repo_Creator extends Model_Creator {
 
 	join_to_team (callback) {
 		if (this.existing_model) {
+			this.repo_existed = true;
 			this.join_users_to_repo_team(callback);
 		}
 		else if (this.attributes.team_id) {
