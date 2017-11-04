@@ -27,6 +27,12 @@ var ACL_Team_Test = require('./acl_team_test');
 var ACL_Stream_Test = require('./acl_stream_test');
 var ACL_Team_On_The_Fly_Test = require('./acl_team_on_the_fly_test');
 var ACL_Repo_On_The_Fly_Test = require('./acl_repo_on_the_fly_test');
+var New_Post_Message_To_Team_Test = require('./new_post_message_to_team_test');
+var New_Post_Message_To_Stream_Test = require('./new_post_message_to_stream_test');
+var New_Post_No_Message_Test = require('./new_post_no_message_test');
+var New_File_Stream_Message_To_Team_Test = require('./new_file_stream_message_to_team_test');
+var New_Stream_Message_To_Members_Test = require('./new_stream_message_to_members_test');
+var New_Stream_No_Message_Test = require('./new_stream_no_message_test');
 
 /* jshint -W071 */
 
@@ -61,6 +67,16 @@ class Post_Post_Request_Tester {
 		new ACL_Stream_Test().test();
 		new ACL_Team_On_The_Fly_Test().test();
 		new ACL_Repo_On_The_Fly_Test().test();
+		new New_Post_Message_To_Team_Test().test();
+		new New_Post_Message_To_Stream_Test({ type: 'channel' }).test();
+		new New_Post_Message_To_Stream_Test({ type: 'direct' }).test();
+		new New_Post_No_Message_Test({ type: 'channel' }).test();
+		new New_Post_No_Message_Test({ type: 'direct' }).test();
+		new New_File_Stream_Message_To_Team_Test().test();
+		new New_Stream_Message_To_Members_Test({ type: 'channel' }).test();
+		new New_Stream_Message_To_Members_Test({ type: 'direct' }).test();
+		new New_Stream_No_Message_Test({ type: 'channel' }).test();
+		new New_Stream_No_Message_Test({ type: 'direct' }).test();
 	}
 }
 

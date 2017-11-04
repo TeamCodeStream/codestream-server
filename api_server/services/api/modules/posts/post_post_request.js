@@ -1,6 +1,7 @@
 'use strict';
 
 var Post_Request = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
+var Post_Publisher = require('./post_publisher');
 
 class Post_Post_Request extends Post_Request {
 
@@ -64,6 +65,19 @@ class Post_Post_Request extends Post_Request {
 				return process.nextTick(callback);
 			}
 		);
+	}
+
+	post_process (callback) {
+		this.publish_post(callback);
+	}
+
+	publish_post (callback) {
+		new Post_Publisher({
+			data: this.response_data,
+			request_id: this.request.id,
+			messager: this.api.services.messager,
+			stream: this.creator.stream.attributes
+		}).publish_post(callback);
 	}
 }
 

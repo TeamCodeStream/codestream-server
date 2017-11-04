@@ -120,6 +120,9 @@ class Stream_Creator extends Model_Creator {
 	}
 
 	grant_user_messaging_permissions (callback) {
+		if (!this.model.get('member_ids')) {
+			return callback();	// no need to grant permissions for file-type stream, these get team-level messages
+		}
 		new Stream_Subscription_Granter({
 			data: this.data,
 			messager: this.api.services.messager,
