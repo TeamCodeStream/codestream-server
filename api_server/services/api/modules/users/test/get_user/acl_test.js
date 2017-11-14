@@ -13,6 +13,7 @@ class ACL_Test extends CodeStream_API_Test {
 			code: 'RAPI-1009'
 		};
 	}
+
 	before (callback) {
 		this.user_factory.create_random_user((error, data) => {
 			if (error) { return callback(error); }

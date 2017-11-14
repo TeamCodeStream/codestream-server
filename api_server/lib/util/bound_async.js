@@ -10,6 +10,12 @@ module.exports = {
 		Async.series(bound_series, bound_callback);
 	},
 
+	parallel (context, parallel, callback = null, bind_callback = false) {
+		let bound_parallel = parallel.map(fn => fn.bind(context));
+		let bound_callback = bind_callback ? callback.bind(context) : callback;
+		Async.parallel(bound_parallel, bound_callback);
+	},
+
 	forEach (context, array, iterator, callback = null, bind_callback = false) {
 		let bound_iterator = iterator.bind(context);
 		let bound_callback = bind_callback ? callback.bind(context) : callback;

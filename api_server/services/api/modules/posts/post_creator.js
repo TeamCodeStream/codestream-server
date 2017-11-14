@@ -5,6 +5,7 @@ var Post = require('./post');
 var Model_Creator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Stream_Creator = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_creator');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
+var Last_Reads_Updater = require('./last_reads_updater');
 
 class Post_Creator extends Model_Creator {
 
@@ -44,11 +45,12 @@ class Post_Creator extends Model_Creator {
 			this.get_stream,
 			this.get_repo,
 			this.get_team,
-			this.create_stream
-		], (error) => {
-			if (error) { return callback(error); }
-			super.pre_save(callback);
-		});
+			this.create_stream,
+			this.create_id,
+			super.pre_save,
+			this.update_stream,
+			this.update_last_reads
+		], callback);
 	}
 
 	get_stream (callback) {
@@ -63,6 +65,7 @@ class Post_Creator extends Model_Creator {
 					return callback(this.error_handler.error('not_found', { info: 'stream'}));
 				}
 				this.stream = stream;
+				this.previous_post_id = stream.get('most_recent_post_id');
 				callback();
 			}
 		);
@@ -135,6 +138,35 @@ class Post_Creator extends Model_Creator {
 				process.nextTick(callback);
 			}
 		);
+	}
+
+	create_id (callback) {
+		this.attributes._id = this.data.posts.create_id();
+		callback();
+	}
+
+	update_stream (callback) {
+		let op = {
+			set: {
+				most_recent_post_id: this.attributes._id
+			}
+		};
+		this.data.streams.apply_op_by_id(
+			this.model.get('stream_id'),
+			op,
+			callback
+		);
+	}
+
+	update_last_reads (callback) {
+		new Last_Reads_Updater({
+			data: this.data,
+			user: this.user,
+			stream: this.stream,
+			team: this.team,
+			previous_post_id: this.previous_post_id,
+			logger: this
+		}).update_last_reads(callback);
 	}
 }
 
