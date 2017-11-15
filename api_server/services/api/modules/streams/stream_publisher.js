@@ -27,8 +27,8 @@ class Stream_Publisher {
 			message,
 			channel,
 			error => {
-				if (error) {
-					this.warn(`Could not publish new stream message to team ${team_id}: ${JSON.stringify(error)}`);
+				if (error && this.logger) {
+					this.logger.warn(`Could not publish new stream message to team ${team_id}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
@@ -55,8 +55,8 @@ class Stream_Publisher {
 			message,
 			channel,
 			error => {
-				if (error) {
-					this.warn(`Could not publish new stream message to user ${user_id}: ${JSON.stringify(error)}`);
+				if (error && this.logger) {
+					this.logger.warn(`Could not publish new stream message to user ${user_id}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();

@@ -227,7 +227,8 @@ class Confirm_Request extends Restful_Request {
 		new User_Publisher({
 			user: this.user.attributes,
 			request_id: this.request.id,
-			messager: this.api.services.messager
+			messager: this.api.services.messager,
+			logger: this
 		}).publish_user_registration_to_teams(callback);
 	}
 }

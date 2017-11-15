@@ -52,7 +52,7 @@ class Read_Request extends Restful_Request {
 			user: {
 				_id: this.user.id
 			},
-			request_id: this.id
+			request_id: this.request.id
 		};
 		Object.assign(message.user, this.op);
 		this.api.services.messager.publish(

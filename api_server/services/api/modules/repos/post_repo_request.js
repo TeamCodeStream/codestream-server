@@ -21,7 +21,8 @@ class Post_Repo_Request extends Post_Request {
 			data: this.response_data,
 			repo_existed: this.creator.repo_existed,
 			request_id: this.request.id,
-			messager: this.api.services.messager
+			messager: this.api.services.messager,
+			logger: this
 		}).publish_repo_data(callback);
 	}
 }

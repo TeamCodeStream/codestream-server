@@ -30,8 +30,8 @@ class User_Publisher {
 			message,
 			'team-' + team_id,
 			error => {
-				if (error) {
-					this.warn(`Could not publish user registration message to team ${team_id}: ${JSON.stringify(error)}`);
+				if (error && this.logger) {
+					this.logger.warn(`Could not publish user registration message to team ${team_id}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();

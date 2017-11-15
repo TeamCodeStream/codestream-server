@@ -56,8 +56,8 @@ class Repo_Publisher {
 			message,
 			channel,
 			error => {
-				if (error) {
-					this.warn(`Could not publish team-add message to user ${user._id}: ${JSON.stringify(error)}`);
+				if (error && this.logger) {
+					this.logger.warn(`Could not publish team-add message to user ${user._id}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
@@ -82,8 +82,8 @@ class Repo_Publisher {
 			message,
 			channel,
 			error => {
-				if (error) {
-					this.warn(`Could not publish repo message to team ${team_id}: ${JSON.stringify(error)}`);
+				if (error && this.logger) {
+					this.logger.warn(`Could not publish repo message to team ${team_id}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();

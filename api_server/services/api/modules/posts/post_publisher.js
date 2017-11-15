@@ -24,7 +24,8 @@ class Post_Publisher {
 			stream: this.data.stream,
 			data: { stream: this.data.stream },
 			request_id: this.request_id,
-			messager: this.messager
+			messager: this.messager,
+			logger: this
 		}).publish_stream(callback);
 	}
 
@@ -48,8 +49,8 @@ class Post_Publisher {
 			message,
 			channel,
 			error => {
-				if (error) {
-					this.warn(`Could not publish post message to team ${team_id}: ${JSON.stringify(error)}`);
+				if (error && this.logger) {
+					this.logger.warn(`Could not publish post message to team ${team_id}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
@@ -68,8 +69,8 @@ class Post_Publisher {
 			message,
 			channel,
 			error => {
-				if (error) {
-					this.warn(`Could not publish post message to stream ${stream_id}: ${JSON.stringify(error)}`);
+				if (error && this.logger) {
+					this.logger.warn(`Could not publish post message to stream ${stream_id}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();

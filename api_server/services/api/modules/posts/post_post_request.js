@@ -24,7 +24,8 @@ class Post_Post_Request extends Post_Request {
 			data: this.response_data,
 			request_id: this.request.id,
 			messager: this.api.services.messager,
-			stream: this.creator.stream.attributes
+			stream: this.creator.stream.attributes,
+			logger: this
 		}).publish_post(callback);
 	}
 }
