@@ -13,7 +13,7 @@ class Repo extends CodeStreamModel {
 
 	preSave (callback, options) {
 		this.attributes.url = NormalizeURL(this.attributes.url.toLowerCase());
-		this.attributes.firstCommitSha = this.attributes.firstCommitSha.toLowerCase();
+		this.attributes.firstCommitHash = this.attributes.firstCommitHash.toLowerCase();
 		super.preSave(callback, options);
 	}
 }

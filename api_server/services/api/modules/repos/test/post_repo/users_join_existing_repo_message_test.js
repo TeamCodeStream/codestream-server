@@ -51,7 +51,7 @@ class UsersJoinExistingRepoMessageTest extends CodeStreamMessageTest {
 		let repoData = {
 			teamId: this.team._id,
 			url: this.repo.url,
-			firstCommitSha: this.repo.firstCommitSha,
+			firstCommitHash: this.repo.firstCommitHash,
 			emails: [this.currentUser.email]
 		};
 		this.repoFactory.createRepo(

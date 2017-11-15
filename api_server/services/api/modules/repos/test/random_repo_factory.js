@@ -21,14 +21,14 @@ class RandomRepoFactory {
 		return `https://${RandomString.generate(6)}.${RandomString.generate(6)}.com`;
 	}
 
-	randomSha () {
+	randomCommitHash () {
 		return RandomString.generate(40);
 	}
 
 	getRandomRepoData (callback, options = {}) {
 		let data = {
 			url: this.randomUrl(),
-			firstCommitSha: this.randomSha()
+			firstCommitHash: this.randomCommitHash()
 		};
 		let emails;
 		if (options.withEmails) {

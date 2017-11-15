@@ -35,7 +35,7 @@ class PostRepoRequestTester {
 	postRepoTest () {
 		new PostRepoTest().test();
 		new NoAttributeTest({ attribute: 'url' }).test();
-		new NoAttributeTest({ attribute: 'firstCommitSha' }).test();
+		new NoAttributeTest({ attribute: 'firstCommitHash' }).test();
 		new NormalizeUrlTest().test();
 		new ShaMismatchTest().test();
 		new AlreadyHaveRepoTest().test();

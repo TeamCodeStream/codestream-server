@@ -18,7 +18,7 @@ class AlreadyHaveRepoTest extends PostRepoTest {
 	makeRepoData (callback) {
 		this.data = {
 			url: this.existingRepo.url,
-			firstCommitSha: this.existingRepo.firstCommitSha
+			firstCommitHash: this.existingRepo.firstCommitHash
 		};
 		if (this.teamEmails.length > 0) {
 			this.data.emails = this.teamEmails;

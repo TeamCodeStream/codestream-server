@@ -26,7 +26,7 @@ class RepoExistsTest extends AlreadyHaveRepoTest {
 			if (error) { return callback(error); }
 			this.data = {
 				url: this.existingRepo.url,
-				firstCommitSha: this.existingRepo.firstCommitSha
+				firstCommitHash: this.existingRepo.firstCommitHash
 			};
 			this.teamEmails = [];
 			callback();

@@ -159,7 +159,7 @@ class PostRepoTest extends CodeStreamAPITest {
 		let errors = [];
 		let result = (
 			((repo.url === NormalizeURL(this.data.url.toLowerCase())) || errors.push('incorrect url')) &&
-			((repo.firstCommitSha === this.data.firstCommitSha.toLowerCase()) || errors.push('incorrect firstCommitSha')) &&
+			((repo.firstCommitHash === this.data.firstCommitHash.toLowerCase()) || errors.push('incorrect firstCommitHash')) &&
 			((repo.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof repo.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((repo.modifiedAt >= repo.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&

@@ -14,7 +14,7 @@ const EXPECTED_REPO_FIELDS = [
 	'companyId',
 	'teamId',
 	'url',
-	'firstCommitSha'
+	'firstCommitHash'
 ];
 
 const EXPECTED_TEAM_FIELDS = [

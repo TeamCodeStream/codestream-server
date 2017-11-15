@@ -26,7 +26,7 @@ class RandomPostFactory {
 		return RandomString.generate(length);
 	}
 
-	randomSha () {
+	randomCommitHash () {
 		return RandomString.generate(40);
 	}
 
@@ -43,7 +43,7 @@ class RandomPostFactory {
 	randomReplayInfo () {
 		// don't really know what form this will take just yet
 		return {
-			commitSha: this.randomSha(),
+			commitSha: this.randomCommitHash(),
 			lines: this.randomUpto(200) - 100
 		};
 	}
@@ -57,7 +57,7 @@ class RandomPostFactory {
 		data.stream = options.stream;
 		if (options.repoId) {
 			data.repoId = options.repoId;
-			data.commitShaWhenPosted = this.randomSha();
+			data.commitShaWhenPosted = this.randomCommitHash();
 		}
 		if (options.wantLocation) {
 			data.location = this.randomLocation();

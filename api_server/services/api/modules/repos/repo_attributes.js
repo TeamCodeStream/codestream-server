@@ -14,7 +14,7 @@ module.exports = {
 		maxLength: 1024,
 		required: true
 	},
-	firstCommitSha: {
+	firstCommitHash: {
 		type: 'string',
 		minLength: 40,
 		maxLength: 40,

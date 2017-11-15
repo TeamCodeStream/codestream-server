@@ -26,7 +26,7 @@ class ShaMismatchTest extends PostRepoTest {
 	makeRepoData (callback) {
 		this.data = {
 			url: this.existingRepo.url,
-			firstCommitSha: this.repoFactory.randomSha()
+			firstCommitHash: this.repoFactory.randomCommitHash()
 		};
 		callback();
 	}

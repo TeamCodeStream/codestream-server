@@ -32,7 +32,7 @@ class RepoCreator extends ModelCreator {
 	}
 
 	getRequiredAttributes () {
-		return ['url', 'firstCommitSha'];
+		return ['url', 'firstCommitHash'];
 	}
 
 	validateAttributes (callback) {
@@ -54,9 +54,9 @@ class RepoCreator extends ModelCreator {
 	}
 
 	validateSha () {
-		let error = this.validator.validateString(this.attributes.firstCommitSha);
+		let error = this.validator.validateString(this.attributes.firstCommitHash);
 		if (error) {
-			return { firstCommitSha: error };
+			return { firstCommitHash: error };
 		}
 	}
 
@@ -69,8 +69,8 @@ class RepoCreator extends ModelCreator {
 				}
 			);
 		}
-		if (typeof this.attributes.firstCommitSha === 'string') { // validation to come later
-			this.attributes.firstCommitSha = this.attributes.firstCommitSha.toLowerCase();
+		if (typeof this.attributes.firstCommitHash === 'string') { // validation to come later
+			this.attributes.firstCommitHash = this.attributes.firstCommitHash.toLowerCase();
 		}
 		process.nextTick(callback);
 	}
@@ -79,7 +79,7 @@ class RepoCreator extends ModelCreator {
 		Allow(
 			this.attributes,
 			{
-				string: ['url', 'firstCommitSha', 'teamId'],
+				string: ['url', 'firstCommitHash', 'teamId'],
 				object: ['team'],
 				'array(string)': ['emails']
 			}
@@ -124,7 +124,7 @@ class RepoCreator extends ModelCreator {
 	joinUsersToRepoTeam (callback) {
 		// join the current user and any other users to the team that already owns this repo
 		// first verify that the SHA for the first commit is valid
-		if (this.attributes.firstCommitSha !== this.existingModel.get('firstCommitSha')) {
+		if (this.attributes.firstCommitHash !== this.existingModel.get('firstCommitHash')) {
 			return callback(this.errorHandler.error('shaMismatch'));
 		}
 		if (

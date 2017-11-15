@@ -63,7 +63,7 @@ class GetPostsRequest extends GetManyRequest {
 		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
 				let value = decodeURIComponent(this.request.query[parameter]).toLowerCase();
-				parameter = decodeURIComponent(parameter).toLowerCase();
+				parameter = decodeURIComponent(parameter);
 				let error = this.processQueryParameter(parameter, value, query);
 				if (error) {
 					return error;
