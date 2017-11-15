@@ -1,0 +1,5 @@
+SB_TYPE=cs_api
+SB_PREFIX=CS_API
+GIT_ORIGIN=git@github.com:teamcodestream/api_server
+SB_PROJECT_PATH=api_server
+#SB_DEPS=a:b:c
