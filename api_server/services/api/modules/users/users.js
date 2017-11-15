@@ -29,6 +29,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'no-auth/login',
 		request_class: require('./login_request')
+	},
+	{
+		method: 'put',
+		path: 'read/:stream_id',
+		request_class: require('./read_request')
 	}
 ];
 

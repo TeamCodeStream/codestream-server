@@ -23,5 +23,8 @@ module.exports = {
 	member_ids: {
 		type: 'array_of_ids',
 		max_length: 256
+	},
+	most_recent_post_id: {
+		type: 'id'
 	}
 };

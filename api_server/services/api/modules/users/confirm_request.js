@@ -5,6 +5,8 @@ var Restful_Request = require(process.env.CS_API_TOP + '/lib/util/restful/restfu
 var Tokenizer = require('./tokenizer');
 var Password_Hasher = require('./password_hasher');
 var User_Subscription_Granter = require('./user_subscription_granter');
+var User_Publisher = require('./user_publisher');
+
 const Errors = require('./errors');
 
 const MAX_CONFIRMATION_ATTEMPTS = 3;
@@ -222,34 +224,12 @@ class Confirm_Request extends Restful_Request {
 	}
 
 	publish_user_registration_to_teams (callback) {
-		Bound_Async.forEachLimit(
-			this,
-			this.user.get('team_ids') || [],
-			10,
-			this.publish_user_registration_to_team,
-			callback
-		);
-	}
-
-	publish_user_registration_to_team (team_id, callback) {
-		let message = {
+		new User_Publisher({
+			user: this.user.attributes,
 			request_id: this.request.id,
-			users: [{
-				_id: this.user.id,
-				is_registered: true
-			}]
-		};
-		this.api.services.messager.publish(
-			message,
-			'team-' + team_id,
-			error => {
-				if (error) {
-					this.warn(`Could not publish user registration message to team ${team_id}: ${JSON.stringify(error)}`);
-				}
-				// this doesn't break the chain, but it is unfortunate...
-				callback();
-			}
-		);
+			messager: this.api.services.messager,
+			logger: this
+		}).publish_user_registration_to_teams(callback);
 	}
 }
 

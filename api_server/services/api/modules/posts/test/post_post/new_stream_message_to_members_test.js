@@ -2,18 +2,17 @@
 
 var CodeStream_Message_Test = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
 var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Assert = require('assert');
 
-class New_Stream_No_Message_Test extends CodeStream_Message_Test {
+class New_Stream_Message_To_Members_Test extends CodeStream_Message_Test {
 
 	get description () {
-		return `members of the team who are not members of the stream should not receive a message with the stream when a ${this.type} stream is added to a team`;
+		return `members of the stream should receive a message with the stream when a post is posted to a ${this.type} stream created on the fly`;
 	}
 
 	make_data (callback) {
 		Bound_Async.series(this, [
 			this.create_team_creator,
-			this.create_stream_creator,
+			this.create_post_creator,
 			this.create_repo
 		], callback);
 	}
@@ -28,11 +27,11 @@ class New_Stream_No_Message_Test extends CodeStream_Message_Test {
 		);
 	}
 
-	create_stream_creator (callback) {
+	create_post_creator (callback) {
 		this.user_factory.create_random_user(
 			(error, response) => {
 				if (error) { return callback(error);}
-				this.stream_creator_data = response;
+				this.post_creator_data = response;
 				callback();
 			}
 		);
@@ -47,7 +46,10 @@ class New_Stream_No_Message_Test extends CodeStream_Message_Test {
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email, this.stream_creator_data.user.email],
+				with_emails: [
+					this.current_user.email,
+					this.post_creator_data.user.email
+				],
 				with_random_emails: 1,
 				token: this.team_creator_data.access_token
 			}
@@ -59,33 +61,26 @@ class New_Stream_No_Message_Test extends CodeStream_Message_Test {
 		callback();
 	}
 
-
 	generate_message (callback) {
-		this.stream_factory.create_random_stream(
+		let stream_options = {
+			type: this.type,
+			name: this.type === 'channel' ? this.team_factory.random_name() : null,
+			team_id: this.team._id,
+			member_ids: [this.current_user._id]
+		};
+		this.post_factory.create_random_post(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.message = { stream: response.stream };
 				callback();
 			},
 			{
-				type: this.type,
-				token: this.stream_creator_data.access_token,
+				token: this.post_creator_data.access_token,
 				team_id: this.team._id,
-				member_ids: [this.team_creator_data.user._id]
+				stream: stream_options
 			}
 		);
 	}
-
-	// called if message doesn't arrive after timeout, in this case, this is what we want
-	message_timeout () {
-		this.message_callback();
-	}
-
-	// called when a message has been received, in this case this is bad
-	message_received (error) {
-		if (error) { return this.message_callback(error); }
-		Assert.fail('message was received');
-	}
 }
 
-module.exports = New_Stream_No_Message_Test;
+module.exports = New_Stream_Message_To_Members_Test;

@@ -21,6 +21,10 @@ const EXPECTED_REGISTRATION_FIELDS = EXPECTED_USER_FIELDS.concat([
 	'confirmation_code'	// only because we cheat using a special cheat code
 ]);
 
+const EXPECTED_ME_FIELDS = [
+	'last_reads'
+];
+
 const EXPECTED_USER_RESPONSE = {
 	user: EXPECTED_USER_FIELDS
 };
@@ -42,5 +46,7 @@ module.exports = {
 	EXPECTED_USER_RESPONSE,
 	EXPECTED_REGISTRATION_RESPONSE,
 	EXPECTED_LOGIN_RESPONSE,
+	EXPECTED_USER_FIELDS,
+	EXPECTED_ME_FIELDS,
 	UNSANITIZED_ATTRIBUTES
 };

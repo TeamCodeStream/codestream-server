@@ -63,5 +63,11 @@ module.exports = {
 	confirmation_code_expires_at: {
 		type: 'timestamp',
 		server_only: true
+	},
+	last_reads: {
+		type: 'object',
+		max_length: 10000,
+		server_only: true,
+		for_me: true
 	}
 };

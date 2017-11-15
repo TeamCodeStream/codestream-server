@@ -27,6 +27,17 @@ var ACL_Team_Test = require('./acl_team_test');
 var ACL_Stream_Test = require('./acl_stream_test');
 var ACL_Team_On_The_Fly_Test = require('./acl_team_on_the_fly_test');
 var ACL_Repo_On_The_Fly_Test = require('./acl_repo_on_the_fly_test');
+var New_Post_Message_To_Team_Test = require('./new_post_message_to_team_test');
+var New_Post_Message_To_Stream_Test = require('./new_post_message_to_stream_test');
+var New_Post_No_Message_Test = require('./new_post_no_message_test');
+var New_File_Stream_Message_To_Team_Test = require('./new_file_stream_message_to_team_test');
+var New_Stream_Message_To_Members_Test = require('./new_stream_message_to_members_test');
+var New_Stream_No_Message_Test = require('./new_stream_no_message_test');
+var Most_Recent_Post_Test = require('./most_recent_post_test');
+var Last_Reads_None_Test = require('./last_reads_none_test');
+var No_Last_Reads_For_Author_Test = require('./no_last_reads_for_author_test');
+var Last_Reads_Previous_Post_Test = require('./last_reads_previous_post_test');
+var No_Last_Reads_Update_Test = require('./no_last_reads_update_test');
 
 /* jshint -W071 */
 
@@ -61,6 +72,25 @@ class Post_Post_Request_Tester {
 		new ACL_Stream_Test().test();
 		new ACL_Team_On_The_Fly_Test().test();
 		new ACL_Repo_On_The_Fly_Test().test();
+		new New_Post_Message_To_Team_Test().test();
+		new New_Post_Message_To_Stream_Test({ type: 'channel' }).test();
+		new New_Post_Message_To_Stream_Test({ type: 'direct' }).test();
+		new New_Post_No_Message_Test({ type: 'channel' }).test();
+		new New_Post_No_Message_Test({ type: 'direct' }).test();
+		new New_File_Stream_Message_To_Team_Test().test();
+		new New_Stream_Message_To_Members_Test({ type: 'channel' }).test();
+		new New_Stream_Message_To_Members_Test({ type: 'direct' }).test();
+		new New_Stream_No_Message_Test({ type: 'channel' }).test();
+		new New_Stream_No_Message_Test({ type: 'direct' }).test();
+		new Most_Recent_Post_Test().test();
+		new Last_Reads_None_Test({ type: 'direct' }).test();
+		new Last_Reads_None_Test({ type: 'channel' }).test();
+		new Last_Reads_None_Test({ type: 'file' }).test();
+		new No_Last_Reads_For_Author_Test().test();
+		new Last_Reads_Previous_Post_Test({ type: 'direct' }).test();
+		new Last_Reads_Previous_Post_Test({ type: 'channel' }).test();
+		new Last_Reads_Previous_Post_Test({ type: 'file' }).test();
+		new No_Last_Reads_Update_Test().test();
 	}
 }
 
