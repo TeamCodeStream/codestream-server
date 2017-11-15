@@ -1,50 +1,50 @@
 'use strict';
 
-var CodeStream_Message_Test = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
+var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
 
-class Users_Join_New_Team_Message_Test extends CodeStream_Message_Test {
+class UsersJoinNewTeamMessageTest extends CodeStreamMessageTest {
 
 	get description () {
 		return 'users added to a team when a repo and team are created should receive a message that they have been added to the team';
 	}
 
-	make_data (callback) {
-		this.user_factory.create_random_user(
+	makeData (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error);}
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	set_channel_name (callback) {
-		this.channel_name = 'user-' + this.current_user._id;
+	setChannelName (callback) {
+		this.channelName = 'user-' + this.currentUser._id;
 		callback();
 	}
 
 
-	generate_message (callback) {
-		this.repo_factory.create_random_repo(
+	generateMessage (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.message = {
 					users: [{
-						_id: this.current_user._id,
+						_id: this.currentUser._id,
 						$add: {
-							team_ids: response.team._id
+							teamIds: response.team._id
 						}
 					}]
 				};
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email],
-				with_random_emails: 1,
-				token: this.other_user_data.access_token
+				withEmails: [this.currentUser.email],
+				withRandomEmails: 1,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 }
 
-module.exports = Users_Join_New_Team_Message_Test;
+module.exports = UsersJoinNewTeamMessageTest;

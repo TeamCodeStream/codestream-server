@@ -1,9 +1,9 @@
 'use strict';
 
-var Post_Channel_Stream_Test = require('./post_channel_stream_test');
+var PostChannelStreamTest = require('./post_channel_stream_test');
 var Assert = require('assert');
 
-class Channel_Ignores_File_Test extends Post_Channel_Stream_Test {
+class ChannelIgnoresFileTest extends PostChannelStreamTest {
 
 	get description () {
 		return 'should return a valid stream and ignore file-related attributes when creating a channel stream';
@@ -12,18 +12,18 @@ class Channel_Ignores_File_Test extends Post_Channel_Stream_Test {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.file = this.stream_factory.random_file();
-			this.data.repo_id = this.repo._id;
+			this.data.file = this.streamFactory.randomFile();
+			this.data.repoId = this.repo._id;
 			callback();
 		});
 	}
 
-	validate_response (data) {
+	validateResponse (data) {
 		let stream = data.stream;
 		Assert(typeof stream.file === 'undefined', 'file should be undefined');
-		Assert(typeof stream.repo_id === 'undefined', 'repo_id should be undefined');
-		super.validate_response(data);
+		Assert(typeof stream.repoId === 'undefined', 'repoId should be undefined');
+		super.validateResponse(data);
 	}
 }
 
-module.exports = Channel_Ignores_File_Test;
+module.exports = ChannelIgnoresFileTest;

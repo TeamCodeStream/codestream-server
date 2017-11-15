@@ -1,23 +1,23 @@
 'use strict';
 
-var Get_Post_Test = require('./get_post_test');
-var Not_Found_Test = require('./not_found_test');
-var ACL_Test = require('./acl_test');
+var GetPostTest = require('./get_post_test');
+var NotFoundTest = require('./not_found_test');
+var ACLTest = require('./acl_test');
 
-class Get_Post_Request_Tester {
+class GetPostRequestTester {
 
-	get_post_test () {
-		new Get_Post_Test({type: 'channel', mine: true}).test();
-		new Get_Post_Test({type: 'direct', mine: true}).test();
-		new Get_Post_Test({type: 'file', mine: true}).test();
-		new Get_Post_Test({type: 'channel'}).test();
-		new Get_Post_Test({type: 'direct'}).test();
-		new Get_Post_Test({type: 'file'}).test();
-		new Not_Found_Test().test();
-		new ACL_Test({ type: 'direct' }).test();
-		new ACL_Test({ type: 'channel' }).test();
-		new ACL_Test({ type: 'file' }).test();
+	getPostTest () {
+		new GetPostTest({type: 'channel', mine: true}).test();
+		new GetPostTest({type: 'direct', mine: true}).test();
+		new GetPostTest({type: 'file', mine: true}).test();
+		new GetPostTest({type: 'channel'}).test();
+		new GetPostTest({type: 'direct'}).test();
+		new GetPostTest({type: 'file'}).test();
+		new NotFoundTest().test();
+		new ACLTest({ type: 'direct' }).test();
+		new ACLTest({ type: 'channel' }).test();
+		new ACLTest({ type: 'file' }).test();
 	}
 }
 
-module.exports = Get_Post_Request_Tester;
+module.exports = GetPostRequestTester;

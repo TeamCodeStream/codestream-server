@@ -1,19 +1,19 @@
 'use strict';
 
-var Post_Repo_Test = require('./post_repo_test');
+var PostRepoTest = require('./post_repo_test');
 var ObjectID = require('mongodb').ObjectID;
 
-class Team_Not_Found_Test extends Post_Repo_Test {
+class TeamNotFoundTest extends PostRepoTest {
 
 	get description () {
 		return `should return error when attempting to create a repo with a bad team id`;
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1011'
 		};
@@ -23,10 +23,10 @@ class Team_Not_Found_Test extends Post_Repo_Test {
 		super.before(error => {
 			if (error) { return callback(error); }
 			delete this.data.team;
-			this.data.team_id = ObjectID();
+			this.data.teamId = ObjectID();
 			callback();
 		});
 	}
 }
 
-module.exports = Team_Not_Found_Test;
+module.exports = TeamNotFoundTest;

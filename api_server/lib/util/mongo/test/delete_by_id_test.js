@@ -1,42 +1,42 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Mongo_Test = require('./mongo_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var MongoTest = require('./mongo_test');
 
-class Delete_By_Id_Test extends Mongo_Test {
+class DeleteByIdTest extends MongoTest {
 
 	get description () {
 		return 'should not get a document after it has been deleted';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_test_and_control_document,
-			this.delete_document
+			this.createTestAndControlDocument,
+			this.deleteDocument
 		], callback);
 	}
 
-	delete_document (callback) {
-		this.data.test.delete_by_id(
-			this.test_document._id,
+	deleteDocument (callback) {
+		this.data.test.deleteById(
+			this.testDocument._id,
 			callback
 		);
 	}
 
 	run (callback) {
-		this.test_documents = [this.control_document];
-		this.data.test.get_by_ids(
-			[this.test_document._id, this.control_document._id],
+		this.testDocuments = [this.controlDocument];
+		this.data.test.getByIds(
+			[this.testDocument._id, this.controlDocument._id],
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
-		this.validate_array_response();
+	validateResponse () {
+		this.validateArrayResponse();
 	}
 }
 
-module.exports = Delete_By_Id_Test;
+module.exports = DeleteByIdTest;

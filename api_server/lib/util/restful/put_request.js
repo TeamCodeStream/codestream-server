@@ -1,39 +1,39 @@
 'use strict';
 
-var Model_Updater = require('./model_updater');
-var Restful_Request = require('./restful_request');
+var ModelUpdater = require('./model_updater');
+var RestfulRequest = require('./restful_request');
 
-class Put_Request extends Restful_Request {
+class PutRequest extends RestfulRequest {
 
 	authorize (callback) {
 		return callback(false);
 	}
 
 	process (callback) {
-		let updater_class = this.module.updater_class || Model_Updater;
-		this.updater = new updater_class({
+		let updaterClass = this.module.updaterClass || ModelUpdater;
+		this.updater = new updaterClass({
 			module: this,
 			user: this.user,
 			logger: this.api,
-			error_handler: this.error_handler
-		}).update_model(
+			errorHandler: this.errorHandler
+		}).updateModel(
 			this.request.body,
 			(error, model) => {
-				this.model_updated(error, model, callback);
+				this.modelUpdated(error, model, callback);
 			}
 		);
 	}
 
-	model_updated (error, model, callback) {
+	modelUpdated (error, model, callback) {
 		if (error) { return callback(error); }
-		const model_name = this.module.model_name || 'model';
-		this.response_data[model_name] = model.get_sanitized_object();
+		const modelName = this.module.modelName || 'model';
+		this.responseData[modelName] = model.getSanitizedObject();
 		Object.assign(
-			this.response_data,
-			this.updater.attach_to_response || {}
+			this.responseData,
+			this.updater.attachToResponse || {}
 		);
 		process.nextTick(callback);
 	}
 }
 
-module.exports = Put_Request;
+module.exports = PutRequest;

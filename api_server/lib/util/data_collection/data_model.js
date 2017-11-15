@@ -1,25 +1,25 @@
 'use strict';
 
-var Data_Model_Validator = require('./data_model_validator');
-var Deep_Clone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
+var DataModelValidator = require('./data_model_validator');
+var DeepClone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
 
-class Data_Model {
+class DataModel {
 
 	constructor (attributes) {
 		this.attributes = {};
-		this.set_defaults();
-		Object.assign(this.attributes, Deep_Clone(attributes || {}));
+		this.setDefaults();
+		Object.assign(this.attributes, DeepClone(attributes || {}));
 		this.id = this.attributes._id;
-		this.validator = this.get_validator();
+		this.validator = this.getValidator();
 	}
 
-	get_validator () {
-		return new Data_Model_Validator();
+	getValidator () {
+		return new DataModelValidator();
 	}
 
-	set_defaults (/*attributes*/) { }
+	setDefaults (/*attributes*/) { }
 
-	pre_save (callback, options) {
+	preSave (callback, options) {
 		this.validate(callback, this.attributes, options);
 	}
 
@@ -28,13 +28,13 @@ class Data_Model {
 		this.validator.validate(
 			attributes,
 			(errors, warnings) => {
-				this.handle_validation(errors, warnings, options, callback);
+				this.handleValidation(errors, warnings, options, callback);
 			},
 			options
 		);
 	}
 
-	handle_validation (errors, warnings, options, callback) {
+	handleValidation (errors, warnings, options, callback) {
 		if (errors) {
 			if (!(errors instanceof Array)) {
 				errors = [errors];
@@ -45,7 +45,7 @@ class Data_Model {
 			if (!(warnings instanceof Array)) {
 				warnings = [warnings];
 			}
-			this.validation_warnings = warnings;
+			this.validationWarnings = warnings;
 		}
 		process.nextTick(callback);
 	}
@@ -65,13 +65,13 @@ class Data_Model {
 		Object.assign(this.attributes, attributes);
 	}
 
-	get_sanitized_object () {
-		return this.validator.get_sanitized_object(this);
+	getSanitizedObject () {
+		return this.validator.getSanitizedObject(this);
 	}
 
 	sanitize () {
-		return this.validator.sanitize_model(this);
+		return this.validator.sanitizeModel(this);
 	}
 }
 
-module.exports = Data_Model;
+module.exports = DataModel;

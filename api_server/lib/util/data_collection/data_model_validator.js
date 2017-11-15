@@ -1,80 +1,80 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Deep_Clone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DeepClone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
 
-class Data_Model_Validator {
+class DataModelValidator {
 
-	constructor (attribute_definitions = {}) {
-		this.attribute_definitions = attribute_definitions;
-		this.set_required_attributes();
-		this.set_validation_functions();
+	constructor (attributeDefinitions = {}) {
+		this.attributeDefinitions = attributeDefinitions;
+		this.setRequiredAttributes();
+		this.setValidationFunctions();
 	}
 
-	set_required_attributes () {
-		this.required_attributes = [];
-		let attribute_definitions = Object.keys(this.attribute_definitions);
-		attribute_definitions.forEach(attribute => {
-			if (this.attribute_definitions[attribute].required) {
-				this.required_attributes.push(attribute);
+	setRequiredAttributes () {
+		this.requiredAttributes = [];
+		let attributeDefinitions = Object.keys(this.attributeDefinitions);
+		attributeDefinitions.forEach(attribute => {
+			if (this.attributeDefinitions[attribute].required) {
+				this.requiredAttributes.push(attribute);
 			}
 		});
 	}
 
-	set_validation_functions () {
-		this.validation_functions = {
-			timestamp: this.validate_timestamp.bind(this),
-			number: this.validate_number.bind(this),
-			boolean: this.validate_boolean.bind(this),
-			string: this.validate_string.bind(this),
-			object: this.validate_object.bind(this),
-			array: this.validate_array.bind(this)
+	setValidationFunctions () {
+		this.validationFunctions = {
+			timestamp: this.validateTimestamp.bind(this),
+			number: this.validateNumber.bind(this),
+			boolean: this.validateBoolean.bind(this),
+			string: this.validateString.bind(this),
+			object: this.validateObject.bind(this),
+			array: this.validateArray.bind(this)
 		};
 	}
 
 	validate (attributes = {}, callback = null, options = {}) {
 		this.attributes = attributes;
 		this.options = options;
-		this.existing_attributes = Object.keys(this.attributes);
-		Bound_Async.series(this, [
-			this.check_required,
-			this.validate_attributes
+		this.existingAttributes = Object.keys(this.attributes);
+		BoundAsync.series(this, [
+			this.checkRequired,
+			this.validateAttributes
 		], () => {
 			let errors = this.errors && this.errors.length ? this.errors : null;
 			return callback && callback(errors, this.warnings);
 		});
 	}
 
-	check_required (callback) {
+	checkRequired (callback) {
 		if (!this.options.new) {
 			return process.nextTick(callback);
 		}
-		let missing_attributes = [];
-		this.required_attributes.forEach(required_attribute => {
-			if (this.existing_attributes.indexOf(required_attribute) === -1) {
-				missing_attributes.push(required_attribute);
+		let missingAttributes = [];
+		this.requiredAttributes.forEach(requiredAttribute => {
+			if (this.existingAttributes.indexOf(requiredAttribute) === -1) {
+				missingAttributes.push(requiredAttribute);
 			}
 		});
-		if (missing_attributes.length) {
-			this.errors = ['these required attributes are missing: ' + missing_attributes.join(',')];
+		if (missingAttributes.length) {
+			this.errors = ['these required attributes are missing: ' + missingAttributes.join(',')];
 		}
 		process.nextTick(callback);
 	}
 
-	validate_attributes (callback) {
-		Bound_Async.forEachLimit(
+	validateAttributes (callback) {
+		BoundAsync.forEachLimit(
 			this,
 			Object.keys(this.attributes),
 			10,
-			this.validate_attribute,
+			this.validateAttribute,
 			callback
 		);
 	}
 
-	validate_attribute (attribute, callback) {
-		const attribute_definition = this.attribute_definitions[attribute];
-		if (!attribute_definition) {
-			if (!this.attribute_definitions.$free_form_ok) {
+	validateAttribute (attribute, callback) {
+		const attributeDefinition = this.attributeDefinitions[attribute];
+		if (!attributeDefinition) {
+			if (!this.attributeDefinitions.$freeFormOk) {
 				this.warnings = this.warnings || [];
 				this.warnings.push(`Deleting attribute ${attribute}, attribute not found in attribute definitions`);
 				delete this.attributes[attribute];
@@ -82,9 +82,9 @@ class Data_Model_Validator {
 			return process.nextTick(callback);
 		}
 
-		const type = attribute_definition.type;
-		let validation_function = this.validation_functions[type];
-		if (typeof validation_function !== 'function') {
+		const type = attributeDefinition.type;
+		let validationFunction = this.validationFunctions[type];
+		if (typeof validationFunction !== 'function') {
 			this.warnings = this.warnings || [];
 			this.warnings.push(`Deleting attribute ${attribute}, type ${type} is not recognized`);
 			delete this.attributes[attribute];
@@ -92,105 +92,105 @@ class Data_Model_Validator {
 		}
 
 		if (typeof this.attributes[attribute] !== 'undefined') {
-			let validation_result = validation_function(this.attributes[attribute], attribute_definition);
-			if (validation_result) {
+			let validationResult = validationFunction(this.attributes[attribute], attributeDefinition);
+			if (validationResult) {
 				this.errors = this.errors || [];
-				this.errors.push({ [attribute]: validation_result });
+				this.errors.push({ [attribute]: validationResult });
 			}
 		}
 
 		process.nextTick(callback);
 	}
 
-	validate_timestamp (value/*, definition*/) {
+	validateTimestamp (value/*, definition*/) {
 		if (typeof value !== 'number') {
 			return 'timestamp must be a number';
 		}
 	}
 
-	validate_number (value/*, definition*/) {
+	validateNumber (value/*, definition*/) {
 		if (typeof value !== 'number') {
 			return 'must be a number';
 		}
 	}
 
-	validate_boolean (value/*, definition*/) {
+	validateBoolean (value/*, definition*/) {
 		if (value !== true && value !== false) {
 			return 'must be a boolean';
 		}
 	}
 
-	validate_string (value, definition) {
+	validateString (value, definition) {
 		if (typeof value !== 'string') {
 			return 'must be a string';
 		}
 		if (
 			definition &&
-			definition.max_length &&
-			value.length > definition.max_length
+			definition.maxLength &&
+			value.length > definition.maxLength
 		) {
-			return `string length must be less than or equal to ${definition.max_length} characters`;
+			return `string length must be less than or equal to ${definition.maxLength} characters`;
 		}
 		if (
 			definition &&
-			definition.min_length &&
-			value.length < definition.min_length
+			definition.minLength &&
+			value.length < definition.minLength
 		) {
-			return `string length must be greater than or equal to ${definition.min_length} characters`;
+			return `string length must be greater than or equal to ${definition.minLength} characters`;
 		}
 	}
 
-	validate_object (value, definition) {
+	validateObject (value, definition) {
 		if (typeof value !== 'object') {
 			return 'must be an object';
 		}
 		if (
 			definition &&
-			definition.max_size &&
-			JSON.stringify(value).length > definition.max_size
+			definition.maxSize &&
+			JSON.stringify(value).length > definition.maxSize
 		) {
 			return 'object is too big';
 		}
 	}
 
-	validate_array (value, definition) {
+	validateArray (value, definition) {
 		if (!(value instanceof Array)) {
 			return 'must be an array';
 		}
 		if (
 			definition &&
-			definition.max_length &&
-			value.length > definition.max_length
+			definition.maxLength &&
+			value.length > definition.maxLength
 		) {
 			return 'too many elements in array';
 		}
 		if (
 			definition &&
-			definition.max_size &&
-			JSON.stringify(value).length > definition.max_size
+			definition.maxSize &&
+			JSON.stringify(value).length > definition.maxSize
 		) {
 			return 'array is too big';
 		}
 	}
 
-	sanitize_attributes (object) {
-		Object.keys(this.attribute_definitions).forEach(attribute => {
-			if (this.attribute_definitions[attribute].server_only) {
+	sanitizeAttributes (object) {
+		Object.keys(this.attributeDefinitions).forEach(attribute => {
+			if (this.attributeDefinitions[attribute].serverOnly) {
 				delete object[attribute];
 			}
 		});
 		return object;
 	}
 
-	sanitize_model (model) {
-		this.sanitize_attributes(model.attributes);
+	sanitizeModel (model) {
+		this.sanitizeAttributes(model.attributes);
 		return model;
 	}
 
-	get_sanitized_object (model) {
-		let object = Deep_Clone(model.attributes);
-		return this.sanitize_attributes(object);
+	getSanitizedObject (model) {
+		let object = DeepClone(model.attributes);
+		return this.sanitizeAttributes(object);
 	}
 }
 
-module.exports = Data_Model_Validator;
+module.exports = DataModelValidator;

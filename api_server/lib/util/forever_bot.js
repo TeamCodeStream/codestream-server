@@ -1,38 +1,38 @@
 'use strict';
 
-var Event_Emitter = require('events');
+var EventEmitter = require('events');
 
-class Forever_Bot extends Event_Emitter () {
+class ForeverBot extends EventEmitter () {
 
-	run_forever (func, options) {
-		this.run_forever_func = func;
-		this.run_forever_options = options;
+	runForever (func, options) {
+		this.runForeverFunc = func;
+		this.runForeverOptions = options;
 		const now = Date.now();
-		if (!options.start_at || options.start_at < now) {
-			process.nextTick(this.forever_run_now);
+		if (!options.startAt || options.startAt < now) {
+			process.nextTick(this.foreverRunNow);
 		}
 		else {
-			this.last_run = options.start_at - options.interval;
-			this.schedule_next_run();
+			this.lastRun = options.startAt - options.interval;
+			this.scheduleNextRun();
 		}
 	}
 
-	forever_run_now () {
-		this.emit('forever_running');
-		this.last_run = Date.now();
-		this.run_forever_func(() => {
-			this.emit('forever_ran');
-			this.schedule_next_run();
+	foreverRunNow () {
+		this.emit('foreverRunning');
+		this.lastRun = Date.now();
+		this.runForeverFunc(() => {
+			this.emit('foreverRan');
+			this.scheduleNextRun();
 		});
 	}
 
-	schedule_next_run () {
+	scheduleNextRun () {
 		const now = Date.now();
-		let start_when = this.last_run + (this.run_forever_options.interval || 1);
-		let wait = start_when - now;
-		this.emit('forever_scheduled', { at: start_when, wait: wait });
-		setTimeout(this.forever_run_now, wait);
+		let startWhen = this.lastRun + (this.runForeverOptions.interval || 1);
+		let wait = startWhen - now;
+		this.emit('foreverScheduled', { at: startWhen, wait: wait });
+		setTimeout(this.foreverRunNow, wait);
 	}
 }
 
-module.exports = Forever_Bot;
+module.exports = ForeverBot;

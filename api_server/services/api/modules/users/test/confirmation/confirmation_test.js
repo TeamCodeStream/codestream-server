@@ -1,10 +1,10 @@
 'use strict';
 
 var Assert = require('assert');
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const User_Test_Constants = require('../user_test_constants');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const UserTestConstants = require('../user_test_constants');
 
-class Confirmation_Test extends CodeStream_API_Test {
+class ConfirmationTest extends CodeStreamAPITest {
 
 	get description () {
 		return 'should return valid user data and an access token when confirming a registration';
@@ -18,36 +18,36 @@ class Confirmation_Test extends CodeStream_API_Test {
 		return '/no-auth/confirm';
 	}
 
-	get_expected_fields () {
-		return User_Test_Constants.EXPECTED_LOGIN_RESPONSE;
+	getExpectedFields () {
+		return UserTestConstants.EXPECTED_LOGIN_RESPONSE;
 	}
 
-	dont_want_token () {
+	dontWantToken () {
 		return true;
 	}
 
 	before (callback) {
-		this.user_factory.register_random_user((error, data) => {
+		this.userFactory.registerRandomUser((error, data) => {
 			if (error) { return callback(error); }
 			this.data = {
-				user_id: data.user._id,
+				userId: data.user._id,
 				email: data.user.email,
-				confirmation_code: data.user.confirmation_code
+				confirmationCode: data.user.confirmationCode
 			};
 			callback();
-		}, this.user_options || {});
+		}, this.userOptions || {});
 	}
 
-	validate_response (data) {
+	validateResponse (data) {
 		let user = data.user;
 		let errors = [];
 		let result = (
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
-			((user._id === this.data.user_id) || errors.push('incorrect user id'))
+			((user._id === this.data.userId) || errors.push('incorrect user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-		this.validate_sanitized(user, User_Test_Constants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = Confirmation_Test;
+module.exports = ConfirmationTest;

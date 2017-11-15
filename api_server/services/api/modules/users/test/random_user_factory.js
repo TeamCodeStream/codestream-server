@@ -1,33 +1,33 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Random_String = require('randomstring');
-const Secrets_Config = require(process.env.CS_API_TOP + '/config/secrets.js');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var RandomString = require('randomstring');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
-class _User_Creator {
+class _UserCreator {
 
 	constructor (factory) {
 		this.factory = factory;
 	}
 
-	create_user (data, callback) {
+	createUser (data, callback) {
 		this.data = data;
-		Bound_Async.series(this, [
-			this._register_user,
-			this._confirm_user
+		BoundAsync.series(this, [
+			this._registerUser,
+			this._confirmUser
 		], (error) => {
 			callback(
 				error,
 				{
 					user: this.user,
-					access_token: this.token
+					accessToken: this.token
 				}
 			);
 		});
 	}
 
-	_register_user (callback) {
-		this.factory.api_requester.do_api_request(
+	_registerUser (callback) {
+		this.factory.apiRequester.doApiRequest(
 			{
 				method: 'post',
 				path: '/no-auth/register',
@@ -41,18 +41,18 @@ class _User_Creator {
 		);
 	}
 
-	register_user (data, callback) {
+	registerUser (data, callback) {
 		this.data = data;
-		this._register_user(callback);
+		this._registerUser(callback);
 	}
 
-	_confirm_user (callback) {
+	_confirmUser (callback) {
 		let data = {
-			user_id: this.user._id,
+			userId: this.user._id,
 			email: this.user.email,
-			confirmation_code: this.user.confirmation_code
+			confirmationCode: this.user.confirmationCode
 		};
-		this.factory.api_requester.do_api_request(
+		this.factory.apiRequester.doApiRequest(
 			{
 				method: 'post',
 				path: '/no-auth/confirm',
@@ -60,91 +60,91 @@ class _User_Creator {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.token = response.access_token;
+				this.token = response.accessToken;
 				callback();
 			}
 		);
 	}
 
-	confirm_user (user, callback) {
+	confirmUser (user, callback) {
 		this.user = user;
-		this._confirm_user(callback);
+		this._confirmUser(callback);
 	}
 }
 
-class Random_User_Factory {
+class RandomUserFactory {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	random_email () {
-		return `somebody.${Random_String.generate(12)}@${Random_String.generate(12)}.com`;
+	randomEmail () {
+		return `somebody.${RandomString.generate(12)}@${RandomString.generate(12)}.com`;
 	}
 
-	get_random_user_data (options = {}) {
-		let email = this.random_email();
-		let secondary_emails = [
-			this.random_email(),
-			this.random_email()
+	getRandomUserData (options = {}) {
+		let email = this.randomEmail();
+		let secondaryEmails = [
+			this.randomEmail(),
+			this.randomEmail()
 		];
-		let first_name = Random_String.generate(10);
-		let last_name = Random_String.generate(10);
+		let firstName = RandomString.generate(10);
+		let lastName = RandomString.generate(10);
 		let timeout = options.timeout || null;
-		let _confirmation_cheat = Secrets_Config.confirmation_cheat;
-		let _force_confirmation = 1;
-		let data = { email, secondary_emails, first_name, last_name, timeout, _confirmation_cheat, _force_confirmation };
-		if (!options.no_password) {
-			data.password = Random_String.generate(12);
+		let _confirmationCheat = SecretsConfig.confirmationCheat;
+		let _forceConfirmation = 1;
+		let data = { email, secondaryEmails, firstName, lastName, timeout, _confirmationCheat, _forceConfirmation };
+		if (!options.noPassword) {
+			data.password = RandomString.generate(12);
 		}
-		if (!options.no_username) {
-			data.username = Random_String.generate(12);
+		if (!options.noUsername) {
+			data.username = RandomString.generate(12);
 		}
 		Object.assign(data, options.with || {});
 		return data;
 	}
 
-	create_user (data, callback) {
-		new _User_Creator(this).create_user(data, callback);
+	createUser (data, callback) {
+		new _UserCreator(this).createUser(data, callback);
 	}
 
-	create_random_user (callback, options = {}) {
-		let data = this.get_random_user_data(options);
-		if (options.no_confirm) {
-			new _User_Creator(this).register_user(data, callback);
+	createRandomUser (callback, options = {}) {
+		let data = this.getRandomUserData(options);
+		if (options.noConfirm) {
+			new _UserCreator(this).registerUser(data, callback);
 		}
 		else {
-			new _User_Creator(this).create_user(data, callback);
+			new _UserCreator(this).createUser(data, callback);
 		}
 	}
 
-	register_random_user (callback, options = {}) {
-		let data = this.get_random_user_data(options);
-		new _User_Creator(this).register_user(data, callback);
+	registerRandomUser (callback, options = {}) {
+		let data = this.getRandomUserData(options);
+		new _UserCreator(this).registerUser(data, callback);
 	}
 
-	create_random_nth_user (n, callback, options = {}) {
-		this.create_random_user(callback, options);
+	createRandomNthUser (n, callback, options = {}) {
+		this.createRandomUser(callback, options);
 	}
 
-	create_random_users (howmany, callback, options = {}) {
-		Bound_Async.times(
+	createRandomUsers (howmany, callback, options = {}) {
+		BoundAsync.times(
 			this,
 			howmany,
-			(n, times_callback) => {
-				this.create_random_nth_user(n, times_callback, options);
+			(n, timesCallback) => {
+				this.createRandomNthUser(n, timesCallback, options);
 			},
 			callback
 		);
 	}
 
-	register_user (user, callback) {
-		new _User_Creator(this).register_user(user, callback);
+	registerUser (user, callback) {
+		new _UserCreator(this).registerUser(user, callback);
 	}
 	
-	confirm_user (user, callback) {
-		new _User_Creator(this).confirm_user(user, callback);
+	confirmUser (user, callback) {
+		new _UserCreator(this).confirmUser(user, callback);
 	}
 }
 
-module.exports = Random_User_Factory;
+module.exports = RandomUserFactory;

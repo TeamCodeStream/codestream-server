@@ -1,18 +1,18 @@
 'use strict';
 
-var File_Stream_On_The_Fly_Test = require('./file_stream_on_the_fly_test');
+var FileStreamOnTheFlyTest = require('./file_stream_on_the_fly_test');
 
-class No_Repo_Id_Test extends File_Stream_On_The_Fly_Test {
+class NoRepoIdTest extends FileStreamOnTheFlyTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post and creating a file stream on the fly with no repo_id';
+		return 'should return an error when attempting to create a post and creating a file stream on the fly with no repoId';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
 			info: [{
@@ -24,10 +24,10 @@ class No_Repo_Id_Test extends File_Stream_On_The_Fly_Test {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			delete this.data.stream.repo_id;
+			delete this.data.stream.repoId;
 			callback();
 		});
 	}
 }
 
-module.exports = No_Repo_Id_Test;
+module.exports = NoRepoIdTest;

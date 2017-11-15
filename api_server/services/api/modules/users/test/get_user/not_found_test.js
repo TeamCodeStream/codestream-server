@@ -1,15 +1,15 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 var ObjectID = require('mongodb').ObjectID;
 
-class Not_Found_Test extends CodeStream_API_Test {
+class NotFoundTest extends CodeStreamAPITest {
 
 	get description () {
 		return 'should return an error when trying to fetch a user that doesn\'t exist';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1003'
 		};
@@ -21,4 +21,4 @@ class Not_Found_Test extends CodeStream_API_Test {
 	}
 }
 
-module.exports = Not_Found_Test;
+module.exports = NotFoundTest;

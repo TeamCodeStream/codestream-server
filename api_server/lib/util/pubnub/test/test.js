@@ -1,9 +1,9 @@
 'use strict';
 
-var PubNub_Test = require('./pubnub_test');
-var No_Access_Test = require('./no_access_test');
-var Revoke_Access_Test = require('./revoke_access_test');
-var Unsubscribe_Test = require('./unsubscribe_test');
+var PubNubTest = require('./pubnub_test');
+var NoAccessTest = require('./no_access_test');
+var RevokeAccessTest = require('./revoke_access_test');
+var UnsubscribeTest = require('./unsubscribe_test');
 
 // make jshint happy
 /* globals describe */
@@ -14,10 +14,10 @@ describe('pubnub', function() {
 
 	this.timeout(10000);
 
-	new PubNub_Test().test();
-	new No_Access_Test().test();
-	new Revoke_Access_Test().test();
-	new Unsubscribe_Test().test();
+	new PubNubTest().test();
+	new NoAccessTest().test();
+	new RevokeAccessTest().test();
+	new UnsubscribeTest().test();
 
 });
 

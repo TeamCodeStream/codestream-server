@@ -1,31 +1,31 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Model_Updater {
+class ModelUpdater {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	update_model (attributes, callback, options) {
+	updateModel (attributes, callback, options) {
 		if (!this.collection) {
-			return callback(this.error_handler.error('internal', { reason: 'can not update model without a collection' }));
+			return callback(this.errorHandler.error('internal', { reason: 'can not update model without a collection' }));
 		}
 		if (!this.model && !this.object) {
-			return callback(this.error_handler.error('internal', { reason: 'can not update model without a model or object' }));
+			return callback(this.errorHandler.error('internal', { reason: 'can not update model without a model or object' }));
 		}
 		if (!this.model) {
-			this.model = new this.model_class(this.object);
+			this.model = new this.modelClass(this.object);
 		}
 		this.attributes = attributes;
 		this.options = options;
-		Bound_Async.series(this, [
-			this.pre_save,
+		BoundAsync.series(this, [
+			this.preSave,
 			this.save
 		], (error) => {
 			if (error && typeof error === 'object' && error.validations) {
-				return callback(this.error_handler.error('validation', { info: error.validations }));
+				return callback(this.errorHandler.error('validation', { info: error.validations }));
 			}
 			else {
 				return callback(error, this.model);
@@ -33,15 +33,15 @@ class Model_Updater {
 		});
 	}
 
-	pre_save (callback) {
+	preSave (callback) {
 		this.model = new this.model(this.attributes);
-		this.model.pre_save(
+		this.model.preSave(
 			(errors) => {
 				if (errors) {
 					if (!(errors instanceof Array)) {
 						errors = [errors];
 					}
-					return callback(this.error_handler.error('validation', { info: errors }));
+					return callback(this.errorHandler.error('validation', { info: errors }));
 				}
 				else {
 					return process.nextTick(callback);
@@ -60,4 +60,4 @@ class Model_Updater {
 	}
 }
 
-module.exports = Model_Updater;
+module.exports = ModelUpdater;

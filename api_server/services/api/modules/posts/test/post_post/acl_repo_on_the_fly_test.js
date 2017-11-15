@@ -1,17 +1,17 @@
 'use strict';
 
-var ACL_Test = require('./acl_test');
+var ACLTest = require('./acl_test');
 
-class ACL_Repo_On_The_Fly_Test extends ACL_Test {
+class ACLRepoOnTheFlyTest extends ACLTest {
 
 	constructor (options) {
 		super(options);
-		this.without_me_on_team = true;
-		this.on_the_fly = true;
+		this.withoutMeOnTeam = true;
+		this.onTheFly = true;
 		this.type = 'file';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1011',
 			reason: 'not authorized for repo'
@@ -23,4 +23,4 @@ class ACL_Repo_On_The_Fly_Test extends ACL_Test {
 	}
 }
 
-module.exports = ACL_Repo_On_The_Fly_Test;
+module.exports = ACLRepoOnTheFlyTest;

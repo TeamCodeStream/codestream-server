@@ -1,23 +1,23 @@
 'use strict';
 
-var Get_Repos_Test = require('./get_repos_test');
+var GetReposTest = require('./get_repos_test');
 
-class Get_Repos_Only_From_Team_Test extends Get_Repos_Test {
+class GetReposOnlyFromTeamTest extends GetReposTest {
 
 	get description () {
 		return 'should return only the repos for the team i\'m a member of';
 	}
 
-	set_path (callback) {
+	setPath (callback) {
 		let ids = [
-			this.my_repo._id,
-			this.other_repos[0]._id,
-			this.foreign_repo._id
+			this.myRepo._id,
+			this.otherRepos[0]._id,
+			this.foreignRepo._id
 		];
-		this.my_repos = [this.my_repo, this.other_repos[0]];
-		this.path = `/repos?team_id=${this.my_team._id}&ids=${ids}`;
+		this.myRepos = [this.myRepo, this.otherRepos[0]];
+		this.path = `/repos?teamId=${this.myTeam._id}&ids=${ids}`;
 		callback();
 	}
 }
 
-module.exports = Get_Repos_Only_From_Team_Test;
+module.exports = GetReposOnlyFromTeamTest;

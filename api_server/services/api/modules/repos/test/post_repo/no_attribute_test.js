@@ -1,18 +1,18 @@
 'use strict';
 
-var Post_Repo_Test = require('./post_repo_test');
+var PostRepoTest = require('./post_repo_test');
 
-class No_Attribute_Test extends Post_Repo_Test {
+class NoAttributeTest extends PostRepoTest {
 
 	get description () {
 		return `should return error when attempting to create a repo with no ${this.attribute}`;
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1002',
 			info: this.attribute
@@ -28,4 +28,4 @@ class No_Attribute_Test extends Post_Repo_Test {
 	}
 }
 
-module.exports = No_Attribute_Test;
+module.exports = NoAttributeTest;

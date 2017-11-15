@@ -1,116 +1,116 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Model_Creator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
-var User_Validator = require('./user_validator');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+var UserValidator = require('./user_validator');
 var User = require('./user');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
-var Password_Hasher = require('./password_hasher');
+var PasswordHasher = require('./password_hasher');
 
-class User_Creator extends Model_Creator {
+class UserCreator extends ModelCreator {
 
-	get model_class () {
+	get modelClass () {
 		return User;
 	}
 
-	get collection_name () {
+	get collectionName () {
 		return 'users';
 	}
 
-	create_user (attributes, callback) {
-		return this.create_model(attributes, callback);
+	createUser (attributes, callback) {
+		return this.createModel(attributes, callback);
 	}
 
-	get_required_attributes () {
+	getRequiredAttributes () {
 		return ['email'];
 	}
 
-	validate_attributes (callback) {
-		this.user_validator = new User_Validator();
+	validateAttributes (callback) {
+		this.userValidator = new UserValidator();
 		let error =
-			this.validate_email() ||
-			this.validate_password() ||
-			this.validate_username();
+			this.validateEmail() ||
+			this.validatePassword() ||
+			this.validateUsername();
 		callback(error);
 	}
 
-	validate_email () {
-		let error = this.user_validator.validate_email(this.attributes.email);
+	validateEmail () {
+		let error = this.userValidator.validateEmail(this.attributes.email);
 		if (error) {
 		 	return { email: error };
 	 	}
 	}
 
-	validate_password () {
+	validatePassword () {
 		if (!this.attributes.password) { return; }
-		let error = this.user_validator.validate_password(this.attributes.password);
+		let error = this.userValidator.validatePassword(this.attributes.password);
 		if (error) {
 			return { password: error };
 		}
 	}
 
-	validate_username () {
+	validateUsername () {
 		if (!this.attributes.username) { return; }
-		let error = this.user_validator.validate_username(this.attributes.username);
+		let error = this.userValidator.validateUsername(this.attributes.username);
 		if (error) {
 		 	return { username: error };
 	 	}
 	}
 
-	allow_attributes (callback) {
+	allowAttributes (callback) {
 		Allow(
 			this.attributes,
 			{
-				string: ['email', 'password', 'username', 'first_name', 'last_name', 'confirmation_code'],
-				number: ['confirmation_attempts', 'confirmation_code_expires_at'],
-				boolean: ['is_registered'],
-				'array(string)': ['secondary_emails']
+				string: ['email', 'password', 'username', 'firstName', 'lastName', 'confirmationCode'],
+				number: ['confirmationAttempts', 'confirmationCodeExpiresAt'],
+				boolean: ['isRegistered'],
+				'array(string)': ['secondaryEmails']
 			}
 		);
 		process.nextTick(callback);
 	}
 
-	model_can_exist (model) {
-		return !model.get('is_registered') || !this.not_ok_if_exists_and_registered;
+	modelCanExist (model) {
+		return !model.get('isRegistered') || !this.notOkIfExistsAndRegistered;
 	}
 
-	check_existing_query () {
+	checkExistingQuery () {
 		return {
-			searchable_email: this.attributes.email.toLowerCase(),
+			searchableEmail: this.attributes.email.toLowerCase(),
 			deactivated: false
 		};
 	}
 
-	pre_save (callback) {
-		Bound_Async.series(this, [
-			this.hash_password,
-			super.pre_save
+	preSave (callback) {
+		BoundAsync.series(this, [
+			this.hashPassword,
+			super.preSave
 		], callback);
 	}
 
-	hash_password (callback) {
+	hashPassword (callback) {
 		if (!this.attributes.password) { return callback(); }
-		new Password_Hasher({
-			error_handler: this.error_handler,
+		new PasswordHasher({
+			errorHandler: this.errorHandler,
 			password: this.attributes.password
-		}).hash_password((error, password_hash) => {
+		}).hashPassword((error, passwordHash) => {
 			if (error) { return callback(error); }
-			this.attributes.password_hash = password_hash;
+			this.attributes.passwordHash = passwordHash;
 			delete this.attributes.password;
 			process.nextTick(callback);
 		});
 	}
 
 	create (callback) {
-		this.model.attributes._id = this.collection.create_id();
+		this.model.attributes._id = this.collection.createId();
 		if (this.user) {
-			this.model.attributes.creator_id = this.user.id;
+			this.model.attributes.creatorId = this.user.id;
 		}
 		else {
-			this.model.attributes.creator_id = this.model.attributes._id;
+			this.model.attributes.creatorId = this.model.attributes._id;
 		}
 		super.create(callback);
 	}
 }
 
-module.exports = User_Creator;
+module.exports = UserCreator;

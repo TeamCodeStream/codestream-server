@@ -1,24 +1,24 @@
 'use strict';
 
-var Direct_On_The_Fly_Test = require('./direct_on_the_fly_test');
+var DirectOnTheFlyTest = require('./direct_on_the_fly_test');
 var Assert = require('assert');
 
-class Channel_On_The_Fly_Test extends Direct_On_The_Fly_Test {
+class ChannelOnTheFlyTest extends DirectOnTheFlyTest {
 
 	constructor (options) {
 		super(options);
-		this.stream_type = 'channel';
+		this.streamType = 'channel';
 	}
 
 	get description () {
 		return 'should return a valid post and stream when creating a post and creating a channel stream on the fly';
 	}
 
-	validate_stream (data) {
+	validateStream (data) {
 		let stream = data.stream;
 		Assert(stream.name === this.data.stream.name, 'name does not match');
-		super.validate_stream(data);
+		super.validateStream(data);
 	}
 }
 
-module.exports = Channel_On_The_Fly_Test;
+module.exports = ChannelOnTheFlyTest;

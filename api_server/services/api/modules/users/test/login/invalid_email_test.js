@@ -1,18 +1,18 @@
 'use strict';
 
-var Login_Test = require('./login_test');
+var LoginTest = require('./login_test');
 
-class Invalid_Email_Test extends Login_Test {
+class InvalidEmailTest extends LoginTest {
 
 	get description () {
 		return 'should return error when invalid email provided';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1003',
 			info: 'email'
@@ -22,10 +22,10 @@ class Invalid_Email_Test extends Login_Test {
 	before (callback) {
 		super.before((error) => {
 			if (error) { return callback(error); }
-			this.data.email = this.user_factory.random_email();
+			this.data.email = this.userFactory.randomEmail();
 			callback();
 		});
 	}
 }
 
-module.exports = Invalid_Email_Test;
+module.exports = InvalidEmailTest;

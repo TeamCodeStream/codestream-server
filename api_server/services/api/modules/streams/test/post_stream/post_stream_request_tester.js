@@ -1,61 +1,61 @@
 'use strict';
 
-var Post_File_Stream_Test = require('./post_file_stream_test');
-var Post_Channel_Stream_Test = require('./post_channel_stream_test');
-var Post_Direct_Stream_Test = require('./post_direct_stream_test');
-var No_Attribute_Test = require('./no_attribute_test');
-var Invalid_Type_Test = require('./invalid_type_test');
-var Name_Required_Test = require('./name_required_test');
-var No_Repo_Id_Test = require('./no_repo_id_test');
-var No_File_Test = require('./no_file_test');
-var Channel_Ignores_File_Test = require('./channel_ignores_file_test');
-var File_Ignores_Channel_Test = require('./file_ignores_channel_test');
-var Direct_Ignores_File_Test = require('./direct_ignores_file_test');
-var Direct_Ignores_Channel_Test = require('./direct_ignores_channel_test');
-var Me_Direct_Test = require('./me_direct_test');
-var Me_Channel_Test = require('./me_channel_test');
-var Duplicate_Channel_Test = require('./duplicate_channel_test');
-var Duplicate_Direct_Test = require('./duplicate_direct_test');
-var Duplicate_File_Test = require('./duplicate_file_test');
-var ACL_Test = require('./acl_test');
-var New_File_Stream_Message_To_Team_Test = require('./new_file_stream_message_to_team_test');
-var New_Stream_To_Members_Test = require('./new_stream_to_members_test');
-var New_Stream_No_Message_Test = require('./new_stream_no_message_test');
+var PostFileStreamTest = require('./post_file_stream_test');
+var PostChannelStreamTest = require('./post_channel_stream_test');
+var PostDirectStreamTest = require('./post_direct_stream_test');
+var NoAttributeTest = require('./no_attribute_test');
+var InvalidTypeTest = require('./invalid_type_test');
+var NameRequiredTest = require('./name_required_test');
+var NoRepoIdTest = require('./no_repo_id_test');
+var NoFileTest = require('./no_file_test');
+var ChannelIgnoresFileTest = require('./channel_ignores_file_test');
+var FileIgnoresChannelTest = require('./file_ignores_channel_test');
+var DirectIgnoresFileTest = require('./direct_ignores_file_test');
+var DirectIgnoresChannelTest = require('./direct_ignores_channel_test');
+var MeDirectTest = require('./me_direct_test');
+var MeChannelTest = require('./me_channel_test');
+var DuplicateChannelTest = require('./duplicate_channel_test');
+var DuplicateDirectTest = require('./duplicate_direct_test');
+var DuplicateFileTest = require('./duplicate_file_test');
+var ACLTest = require('./acl_test');
+var NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_test');
+var NewStreamToMembersTest = require('./new_stream_to_members_test');
+var NewStreamNoMessageTest = require('./new_stream_no_message_test');
 
 /* jshint -W071 */
 
-class Post_Stream_Request_Tester {
+class PostStreamRequestTester {
 
-	post_stream_test () {
-		new Post_File_Stream_Test().test();
-		new Post_Channel_Stream_Test().test();
-		new Post_Direct_Stream_Test().test();
-		new No_Attribute_Test({ attribute: 'team_id' }).test();
-		new No_Attribute_Test({ attribute: 'type' }).test();
-		new Invalid_Type_Test().test();
-		new Name_Required_Test().test();
-		new No_Repo_Id_Test().test();
-		new No_File_Test().test();
-		new Channel_Ignores_File_Test().test();
-		new File_Ignores_Channel_Test().test();
-		new Direct_Ignores_File_Test().test();
-		new Direct_Ignores_Channel_Test().test();
-		new Me_Direct_Test().test();
-		new Me_Channel_Test().test();
-		new Duplicate_Channel_Test().test();
-		new Duplicate_Direct_Test().test();
-		new Duplicate_File_Test().test();
-		new ACL_Test({ type: 'channel' }).test();
-		new ACL_Test({ type: 'direct' }).test();
-		new ACL_Test({ type: 'file' }).test();
-		new New_File_Stream_Message_To_Team_Test().test();
-		new New_Stream_To_Members_Test({ type: 'direct' }).test();
-		new New_Stream_To_Members_Test({ type: 'channel' }).test();
-		new New_Stream_No_Message_Test({ type: 'direct' }).test();
-		new New_Stream_No_Message_Test({ type: 'channel' }).test();
+	postStreamTest () {
+		new PostFileStreamTest().test();
+		new PostChannelStreamTest().test();
+		new PostDirectStreamTest().test();
+		new NoAttributeTest({ attribute: 'teamId' }).test();
+		new NoAttributeTest({ attribute: 'type' }).test();
+		new InvalidTypeTest().test();
+		new NameRequiredTest().test();
+		new NoRepoIdTest().test();
+		new NoFileTest().test();
+		new ChannelIgnoresFileTest().test();
+		new FileIgnoresChannelTest().test();
+		new DirectIgnoresFileTest().test();
+		new DirectIgnoresChannelTest().test();
+		new MeDirectTest().test();
+		new MeChannelTest().test();
+		new DuplicateChannelTest().test();
+		new DuplicateDirectTest().test();
+		new DuplicateFileTest().test();
+		new ACLTest({ type: 'channel' }).test();
+		new ACLTest({ type: 'direct' }).test();
+		new ACLTest({ type: 'file' }).test();
+		new NewFileStreamMessageToTeamTest().test();
+		new NewStreamToMembersTest({ type: 'direct' }).test();
+		new NewStreamToMembersTest({ type: 'channel' }).test();
+		new NewStreamNoMessageTest({ type: 'direct' }).test();
+		new NewStreamNoMessageTest({ type: 'channel' }).test();
 	}
 }
 
 /* jshint +W071 */
 
-module.exports = Post_Stream_Request_Tester;
+module.exports = PostStreamRequestTester;

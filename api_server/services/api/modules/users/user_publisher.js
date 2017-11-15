@@ -1,37 +1,37 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class User_Publisher {
+class UserPublisher {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	publish_user_registration_to_teams (callback) {
-		Bound_Async.forEachLimit(
+	publishUserRegistrationToTeams (callback) {
+		BoundAsync.forEachLimit(
 			this,
-			this.user.team_ids || [],
+			this.user.teamIds || [],
 			10,
-			this.publish_user_registration_to_team,
+			this.publishUserRegistrationToTeam,
 			callback
 		);
 	}
 
-	publish_user_registration_to_team (team_id, callback) {
+	publishUserRegistrationToTeam (teamId, callback) {
 		let message = {
-			request_id: this.request_id,
+			requestId: this.requestId,
 			users: [{
 				_id: this.user._id,
-				is_registered: true
+				isRegistered: true
 			}]
 		};
 		this.messager.publish(
 			message,
-			'team-' + team_id,
+			'team-' + teamId,
 			error => {
 				if (error && this.logger) {
-					this.logger.warn(`Could not publish user registration message to team ${team_id}: ${JSON.stringify(error)}`);
+					this.logger.warn(`Could not publish user registration message to team ${teamId}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
@@ -40,4 +40,4 @@ class User_Publisher {
 	}
 }
 
-module.exports = User_Publisher;
+module.exports = UserPublisher;

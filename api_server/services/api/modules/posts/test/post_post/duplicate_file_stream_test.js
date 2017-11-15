@@ -1,40 +1,40 @@
 'use strict';
 
-var File_Stream_On_The_Fly_Test = require('./file_stream_on_the_fly_test');
+var FileStreamOnTheFlyTest = require('./file_stream_on_the_fly_test');
 var Assert = require('assert');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Duplicate_File_Stream_Test extends File_Stream_On_The_Fly_Test {
+class DuplicateFileStreamTest extends FileStreamOnTheFlyTest {
 
 	get description () {
 		return 'should find and use the existing stream when creating a post and creating a file stream on the fly with matching path';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_duplicate_stream
+			this.createDuplicateStream
 		], callback);
 	}
 
-	create_duplicate_stream (callback) {
-		this.stream_factory.create_random_stream(
+	createDuplicateStream (callback) {
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.duplicate_stream = response.stream;
+				this.duplicateStream = response.stream;
 				callback();
 			},
-			Object.assign({}, this.stream_options, {
+			Object.assign({}, this.streamOptions, {
 				file: this.data.stream.file,
 				token: this.token
 			})
 		);
 	}
 
-	validate_response (data) {
-		Assert(data.stream._id === this.duplicate_stream._id, 'returned stream should be the same as the existing stream');
-		super.validate_response(data);
+	validateResponse (data) {
+		Assert(data.stream._id === this.duplicateStream._id, 'returned stream should be the same as the existing stream');
+		super.validateResponse(data);
 	}
 }
 
-module.exports = Duplicate_File_Stream_Test;
+module.exports = DuplicateFileStreamTest;

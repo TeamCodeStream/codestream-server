@@ -1,131 +1,131 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var ObjectID = require('mongodb').ObjectID;
-var Error_Handler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
+var ErrorHandler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
 const Errors = require('./errors');
 
-let _mongo_add_to_set_value = function(value) {
-	let mongo_value = {};
-	Object.keys(value).forEach(field_name => {
-		let field_value = value[field_name];
-		if (field_value instanceof Array) {
-			mongo_value[field_name] = { $each: field_value };
+let _mongoAddToSetValue = function(value) {
+	let mongoValue = {};
+	Object.keys(value).forEach(fieldName => {
+		let fieldValue = value[fieldName];
+		if (fieldValue instanceof Array) {
+			mongoValue[fieldName] = { $each: fieldValue };
 		}
 		else {
-			mongo_value[field_name] = field_value;
+			mongoValue[fieldName] = fieldValue;
 		}
 	});
-	return mongo_value;
+	return mongoValue;
 };
 
 const OP_TO_DB_OP = {
 	set: '$set',
 	unset: '$unset',
 	add: {
-		db_op: '$addToSet',
-		value_func: _mongo_add_to_set_value
+		dbOp: '$addToSet',
+		valueFunc: _mongoAddToSetValue
 	},
 	push: '$push',
 	pull: '$pull'
 };
 
-class Mongo_Collection {
+class MongoCollection {
 
 	constructor (options) {
 		this.options = options;
-		this.id_attribute = options.id_attribute || '_id';
-		this.db_collection = options.db_collection;
-		if (!this.db_collection) {
-			throw 'no db_collection in constructing Mongo_Collection';
+		this.idAttribute = options.idAttribute || '_id';
+		this.dbCollection = options.dbCollection;
+		if (!this.dbCollection) {
+			throw 'no dbCollection in constructing MongoCollection';
 		}
-		this.error_handler = new Error_Handler(Errors);
+		this.errorHandler = new ErrorHandler(Errors);
 	}
 
-	run_query (mongo_func, query, callback, options, ...args) {
+	runQuery (mongoFunc, query, callback, options, ...args) {
 		options = options || {};
-		const start_time = Date.now();
-		const request_id = options.request_id;
-		delete options.request_id;
+		const startTime = Date.now();
+		const requestId = options.requestId;
+		delete options.requestId;
 
-		let query_callback = (error, results) => {
-			const time = Date.now() - start_time;
-			let log_options = { query, mongo_func, time, request_id, error };
-			log_options.query_options = options;
-			this._log_mongo_query(log_options, args);
+		let queryCallback = (error, results) => {
+			const time = Date.now() - startTime;
+			let logOptions = { query, mongoFunc, time, requestId, error };
+			logOptions.queryOptions = options;
+			this._logMongoQuery(logOptions, args);
 			if (error) {
-				return callback(this.error_handler.data_error(error));
+				return callback(this.errorHandler.dataError(error));
 			}
 			else {
 				callback(null, results);
 			}
 		};
 
-		let mongo_args = [query, ...args, options, query_callback];
-		this.db_collection[mongo_func].apply(
-			this.db_collection,
-			mongo_args
+		let mongoArgs = [query, ...args, options, queryCallback];
+		this.dbCollection[mongoFunc].apply(
+			this.dbCollection,
+			mongoArgs
 		);
 	}
 
-	get_by_id (id, callback, options) {
+	getById (id, callback, options) {
 		let query = {};
-		query[this.id_attribute] = this.object_id_safe(id);
-		if (!query[this.id_attribute]) {
+		query[this.idAttribute] = this.objectIdSafe(id);
+		if (!query[this.idAttribute]) {
 			return callback(null, null);
 		}
-		this.run_query(
+		this.runQuery(
 			'findOne',
 			query,
 			(error, result) => {
-				this._id_stringify_result(error, result, callback);
+				this._idStringifyResult(error, result, callback);
 			},
 			options
 		);
 	}
 
-	get_by_ids (ids, callback, options) {
+	getByIds (ids, callback, options) {
 		let query = {};
-		let object_ids = [];
-		Bound_Async.forEachLimit(
+		let objectIds = [];
+		BoundAsync.forEachLimit(
 			this,
 			ids,
 			50,
-			(id, foreach_callback) => {
-				object_ids.push(this.object_id_safe(id));
-				process.nextTick(foreach_callback);
+			(id, foreachCallback) => {
+				objectIds.push(this.objectIdSafe(id));
+				process.nextTick(foreachCallback);
 			},
 			() => {
-				query[this.id_attribute] = { $in: object_ids };
-				this.get_by_query(query, callback, options);
+				query[this.idAttribute] = { $in: objectIds };
+				this.getByQuery(query, callback, options);
 			}
 		);
 	}
 
-	get_by_query (query, callback, options = {}) {
-		let cursor = this.db_collection.find(query);
+	getByQuery (query, callback, options = {}) {
+		let cursor = this.dbCollection.find(query);
 		if (options.sort) {
 			cursor = cursor.sort(options.sort);
 		}
 		if (options.limit) {
 			cursor = cursor.limit(options.limit);
 		}
-		const start_time = Date.now();
+		const startTime = Date.now();
 
-		let log_query = (error) => {
-			const request_id = options.request_id;
-			delete options.request_id;
-			const time = Date.now() - start_time;
-			const mongo_func = 'find';
-			let log_options = { query, mongo_func, time, request_id, error };
-			log_options.query_options = options;
-			this._log_mongo_query(log_options);
+		let logQuery = (error) => {
+			const requestId = options.requestId;
+			delete options.requestId;
+			const time = Date.now() - startTime;
+			const mongoFunc = 'find';
+			let logOptions = { query, mongoFunc, time, requestId, error };
+			logOptions.queryOptions = options;
+			this._logMongoQuery(logOptions);
 		};
 
-		let query_callback = (error, results) => {
-			log_query(error);
+		let queryCallback = (error, results) => {
+			logQuery(error);
 			if (error) {
-				return callback(this.error_handler.data_error(error));
+				return callback(this.errorHandler.dataError(error));
 			}
 			else {
 				callback(null, results);
@@ -134,7 +134,7 @@ class Mongo_Collection {
 
 		if (!options.stream) {
 			cursor.toArray((error, result) => {
-				this._id_stringify_result(error, result, query_callback);
+				this._idStringifyResult(error, result, queryCallback);
 			});
 		}
 		else {
@@ -143,63 +143,63 @@ class Mongo_Collection {
 				{
 					cursor: cursor,
 					done: (error, results) => {
-						log_query(error, results);
+						logQuery(error, results);
 					}
 				}
 			);
 		}
 	}
 
-	get_one_by_query (query, callback, options) {
-		this.run_query(
+	getOneByQuery (query, callback, options) {
+		this.runQuery(
 			'findOne',
 			query,
 			(error, result) => {
-				this._id_stringify_result(error, result, callback);
+				this._idStringifyResult(error, result, callback);
 			},
 			options
 		);
 	}
 
 	create (document, callback, options) {
-		document._id = document._id ? this.object_id_safe(document._id) : ObjectID();
-		this.run_query(
+		document._id = document._id ? this.objectIdSafe(document._id) : ObjectID();
+		this.runQuery(
 			'insertOne',
 			document,
 			(error) => {
 				if (error) {
-					return callback(this.error_handler.data_error(error));
+					return callback(this.errorHandler.dataError(error));
 				}
 				else {
-					this._id_stringify(document, callback);
+					this._idStringify(document, callback);
 				}
 			},
 			options
 		);
 	}
 
-	create_many (documents, callback, options) {
-		this.run_query(
+	createMany (documents, callback, options) {
+		this.runQuery(
 			'insertMany',
 			documents,
 			(error, result) => {
-				this._id_stringify_result(error, result.ops, callback);
+				this._idStringifyResult(error, result.ops, callback);
 			},
 			options
 		);
 	}
 
 	update (document, callback, options) {
-		let id = document[this.id_attribute];
+		let id = document[this.idAttribute];
 		if (!id) {
-			return callback(this.error_handler.error('id', { info: this.id_attribute }));
+			return callback(this.errorHandler.error('id', { info: this.idAttribute }));
 		}
-		this.update_by_id(id, document, callback, options);
+		this.updateById(id, document, callback, options);
 	}
 
-	update_by_id (id, data, callback, options) {
+	updateById (id, data, callback, options) {
 		delete data._id;
-		this._apply_mongo_op_by_id(
+		this._applyMongoOpById(
 			id,
 			{ $set: data },
 			callback,
@@ -207,43 +207,43 @@ class Mongo_Collection {
 		);
 	}
 
-	apply_ops_by_id (id, ops, callback, options) {
-		Bound_Async.forEachSeries(
+	applyOpsById (id, ops, callback, options) {
+		BoundAsync.forEachSeries(
 			this,
 			ops,
-			(op, foreach_callback) => {
-				this.apply_op_by_id(id, op, foreach_callback, options);
+			(op, foreachCallback) => {
+				this.applyOpById(id, op, foreachCallback, options);
 			},
 			callback
 		);
 	}
 
-	apply_op_by_id (id, op, callback, options) {
-		let mongo_op = this.op_to_db_op(op);
-		this._apply_mongo_op_by_id(id, mongo_op, callback, options);
+	applyOpById (id, op, callback, options) {
+		let mongoOp = this.opToDbOp(op);
+		this._applyMongoOpById(id, mongoOp, callback, options);
 	}
 
-	op_to_db_op (op) {
-		let db_op = {};
-		Object.keys(OP_TO_DB_OP).forEach(op_key => {
-			let op_value = op[op_key];
-			if (typeof op_value === 'object') {
-				let conversion = OP_TO_DB_OP[op_key];
+	opToDbOp (op) {
+		let dbOp = {};
+		Object.keys(OP_TO_DB_OP).forEach(opKey => {
+			let opValue = op[opKey];
+			if (typeof opValue === 'object') {
+				let conversion = OP_TO_DB_OP[opKey];
 				if (typeof conversion === 'object') {
-					db_op[conversion.db_op] = conversion.value_func(op_value);
+					dbOp[conversion.dbOp] = conversion.valueFunc(opValue);
 				}
 				else {
-					 db_op[conversion] = op_value;
+					 dbOp[conversion] = opValue;
 				}
 			}
 		});
-		return db_op;
+		return dbOp;
 	}
 
-	_apply_mongo_op_by_id (id, op, callback, options) {
+	_applyMongoOpById (id, op, callback, options) {
 		let query = {};
-		query[this.id_attribute] = this.object_id_safe(id);
-		this.run_query(
+		query[this.idAttribute] = this.objectIdSafe(id);
+		this.runQuery(
 			'updateOne',
 			query,
 			callback,
@@ -252,8 +252,8 @@ class Mongo_Collection {
 		);
 	}
 
-	update_direct (query, data, callback, options) {
-		this.run_query(
+	updateDirect (query, data, callback, options) {
+		this.runQuery(
 			'updateMany',
 			query,
 			callback,
@@ -262,11 +262,11 @@ class Mongo_Collection {
 		);
 	}
 
-	delete_by_id (id, callback, options) {
+	deleteById (id, callback, options) {
 		let query = {
-			[this.id_attribute]: this.object_id_safe(id)
+			[this.idAttribute]: this.objectIdSafe(id)
 		};
-		this.run_query(
+		this.runQuery(
 			'deleteOne',
 			query,
 			callback,
@@ -274,26 +274,26 @@ class Mongo_Collection {
 		);
 	}
 
-	delete_by_ids (ids, callback, options) {
+	deleteByIds (ids, callback, options) {
 		let query = {};
-		let object_ids = [];
-		Bound_Async.forEachLimit(
+		let objectIds = [];
+		BoundAsync.forEachLimit(
 			this,
 			ids,
 			50,
-			(id, foreach_callback) => {
-				object_ids.push(this.object_id_safe(id));
-				process.nextTick(foreach_callback);
+			(id, foreachCallback) => {
+				objectIds.push(this.objectIdSafe(id));
+				process.nextTick(foreachCallback);
 			},
 			() => {
-				query[this.id_attribute] = { $in: object_ids };
-				this.delete_by_query(query, callback, options);
+				query[this.idAttribute] = { $in: objectIds };
+				this.deleteByQuery(query, callback, options);
 			}
 		);
 	}
 
-	delete_by_query (query, callback, options) {
-		this.run_query(
+	deleteByQuery (query, callback, options) {
+		this.runQuery(
 			'deleteMany',
 			query,
 			callback,
@@ -301,55 +301,55 @@ class Mongo_Collection {
 		);
 	}
 
-	_json_stringify (json) {
+	_jsonStringify (json) {
 		return JSON.stringify(json).
 			replace(/\n/g,'').
 			replace(/\s+/g, ' ');
 	}
 
-	_log_mongo_query (options, ...args) {
-		if (!this.options.query_logger) {
+	_logMongoQuery (options, ...args) {
+		if (!this.options.queryLogger) {
 			return;
 		}
-		this._log_mongo_query_to_logger(this.options.query_logger, options, args);
+		this._logMongoQueryToLogger(this.options.queryLogger, options, args);
 	}
 
-	_log_mongo_query_to_logger (logger, options, ...args) {
+	_logMongoQueryToLogger (logger, options, ...args) {
 		let {
 			error = null,
 			query = {},
 			time = 0,
-			mongo_func = '???',
-			request_id = 'NOREQ',
-			query_options = {},
-			no_slow = false
+			mongoFunc = '???',
+			requestId = 'NOREQ',
+			queryOptions = {},
+			noSlow = false
 		} = options;
-		let query_string = this._json_stringify(query);
-		let options_string = this._json_stringify(query_options);
-		let additional_arguments_string = this._json_stringify(args || {});
-		let full_query = `${request_id} db.${this.db_collection.collectionName}.${mongo_func}(${query_string},${options_string},${additional_arguments_string})`;
-		logger.log(`${full_query}|${time}|${error}`);
+		let queryString = this._jsonStringify(query);
+		let optionsString = this._jsonStringify(queryOptions);
+		let additionalArgumentsString = this._jsonStringify(args || {});
+		let fullQuery = `${requestId} db.${this.dbCollection.collectionName}.${mongoFunc}(${queryString},${optionsString},${additionalArgumentsString})`;
+		logger.log(`${fullQuery}|${time}|${error}`);
 		if (
-			!no_slow &&
-			this.options.slow_logger &&
-			this.options.slow_logger.slow_threshold &&
-			time >= this.options.slow_logger.slow_threshold
+			!noSlow &&
+			this.options.slowLogger &&
+			this.options.slowLogger.slowThreshold &&
+			time >= this.options.slowLogger.slowThreshold
 		) {
-			delete options.no_slow;
-			this._log_mongo_query_to_logger(this.options.slow_logger, Object.assign({}, options, {no_slow: true}), args);
+			delete options.noSlow;
+			this._logMongoQueryToLogger(this.options.slowLogger, Object.assign({}, options, {noSlow: true}), args);
 		}
 		if (
-			!no_slow &&
-			this.options.really_slow_logger &&
-			this.options.really_slow_logger.slow_threshold &&
-			time >= this.options.really_slow_logger.slow_threshold
+			!noSlow &&
+			this.options.reallySlowLogger &&
+			this.options.reallySlowLogger.slowThreshold &&
+			time >= this.options.reallySlowLogger.slowThreshold
 		) {
-			delete options.no_slow;
-			this._log_mongo_query_to_logger(this.options.really_slow_logger, Object.assign({}, options, {no_slow: true}), args);
+			delete options.noSlow;
+			this._logMongoQueryToLogger(this.options.reallySlowLogger, Object.assign({}, options, {noSlow: true}), args);
 		}
 	}
 
-	object_id_safe (id) {
+	objectIdSafe (id) {
 		try {
 			id = ObjectID(id);
 		}
@@ -359,24 +359,24 @@ class Mongo_Collection {
 		return id;
 	}
 
-	create_id () {
+	createId () {
 		return ObjectID();
 	}
 
-	_id_stringify_result (error, result, callback) {
+	_idStringifyResult (error, result, callback) {
 		if (error) {
-			return callback(this.error_handler.data_error(error));
+			return callback(this.errorHandler.dataError(error));
 		}
-		this._id_stringify(result, callback);
+		this._idStringify(result, callback);
 	}
 
-	_id_stringify (object, callback) {
+	_idStringify (object, callback) {
 		if (object instanceof Array) {
-			this._id_stringify_async(object, callback);
+			this._idStringifyAsync(object, callback);
 		}
 		else if (object && typeof object === 'object') {
-			if (object[this.id_attribute]) {
-				object[this.id_attribute] = object[this.id_attribute].toString();
+			if (object[this.idAttribute]) {
+				object[this.idAttribute] = object[this.idAttribute].toString();
 			}
 			return process.nextTick(() => {
 				callback(null, object);
@@ -387,12 +387,12 @@ class Mongo_Collection {
 		}
 	}
 
-	_id_stringify_async (objects, callback) {
-		Bound_Async.forEachLimit(
+	_idStringifyAsync (objects, callback) {
+		BoundAsync.forEachLimit(
 			this,
 			objects,
 			100,
-			this._id_stringify,
+			this._idStringify,
 			() => {
 				callback(null, objects);
 			}
@@ -400,4 +400,4 @@ class Mongo_Collection {
 	}
 }
 
-module.exports = Mongo_Collection;
+module.exports = MongoCollection;

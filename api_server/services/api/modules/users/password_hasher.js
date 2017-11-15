@@ -1,29 +1,29 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var BCrypt = require('bcrypt');
 
-class Password_Hasher  {
+class PasswordHasher  {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	hash_password (callback) {
-		Bound_Async.series(this, [
-			this.generate_salt,
-			this.encrypt_password
+	hashPassword (callback) {
+		BoundAsync.series(this, [
+			this.generateSalt,
+			this.encryptPassword
 		], (error) => {
-			callback(error, this.password_hash);
+			callback(error, this.passwordHash);
 		});
 	}
 
-	generate_salt (callback) {
+	generateSalt (callback) {
 		BCrypt.genSalt(
 			10,
 			(error, salt) => {
 				if (error) {
-					return callback(this.error_handler.error('token', { reason: error }));
+					return callback(this.errorHandler.error('token', { reason: error }));
 				}
 				this.salt = salt;
 				process.nextTick(callback);
@@ -31,19 +31,19 @@ class Password_Hasher  {
 		);
 	}
 
-	encrypt_password (callback) {
+	encryptPassword (callback) {
 		BCrypt.hash(
 			this.password,
 			this.salt,
-			(error, password_hash) => {
+			(error, passwordHash) => {
 				if (error) {
-					return callback(this.error_handler.error('token', { reason: error }));
+					return callback(this.errorHandler.error('token', { reason: error }));
 				}
-				this.password_hash = password_hash;
+				this.passwordHash = passwordHash;
 				process.nextTick(callback);
 			}
 		);
 	}
 }
 
-module.exports = Password_Hasher;
+module.exports = PasswordHasher;

@@ -1,70 +1,70 @@
 'use strict';
 
-var Post_Repo_Test = require('./post_repo_test');
-var No_Attribute_Test = require('./no_attribute_test');
-var Normalize_Url_Test = require('./normalize_url_test');
-var Sha_Mismatch_Test = require('./sha_mismatch_test');
-var Already_Have_Repo_Test = require('./already_have_repo_test');
-var Add_Users_Test = require('./add_users_test');
-var Add_Users_Username_Conflict_Test = require('./add_users_username_conflict_test');
-var Add_Users_Unique_Usernames_Test = require('./add_users_unique_usernames_test');
-var Already_On_Team_Test = require('./already_on_team_test');
-var Not_On_Team_Test = require('./not_on_team_test');
-var Already_On_Team_Add_Users_Test = require('./already_on_team_add_users_test');
-var Already_On_Team_Add_Users_Unique_Usernames_Test = require('./already_on_team_add_users_unique_usernames_test');
-var Already_On_Team_Add_Users_Username_Conflict_Test = require('./already_on_team_add_users_username_conflict_test');
-var Team_Not_Found_Test = require('./team_not_found_test');
-var Repo_Exists_Test = require('./repo_exists_test');
-var Repo_Exists_Add_Users_Test = require('./repo_exists_add_users_test');
-var Repo_Exists_Add_Users_Unique_Usernames_Test = require('./repo_exists_add_users_unique_usernames_test');
-var Repo_Exists_Add_Users_Username_Conflict_Test = require('./repo_exists_add_users_username_conflict_test');
-var Repo_Exists_Not_On_Team_Test = require('./repo_exists_not_on_team_test');
-var Repo_Exists_Not_On_Team_Add_Users_Test = require('./repo_exists_not_on_team_add_users_test');
-var Repo_Exists_Not_On_Team_Add_Users_Username_Conflict_Test = require('./repo_exists_not_on_team_add_users_username_conflict_test');
-var Repo_Exists_Not_On_Team_Add_Users_Unique_Usernames_Test = require('./repo_exists_not_on_team_add_users_unique_usernames_test');
-var New_Repo_Message_To_Team_Test = require('./new_repo_message_to_team_test');
-var New_Repo_Message_To_Other_User_Test = require('./new_repo_message_to_other_user_test');
-var Users_Join_New_Team_Message_Test = require('./users_join_new_team_message_test');
-var Users_Join_Existing_Team_Message_Test = require('./users_join_existing_team_message_test');
-var Users_Join_Existing_Repo_Message_Test = require('./users_join_existing_repo_message_test');
+var PostRepoTest = require('./post_repo_test');
+var NoAttributeTest = require('./no_attribute_test');
+var NormalizeUrlTest = require('./normalize_url_test');
+var ShaMismatchTest = require('./sha_mismatch_test');
+var AlreadyHaveRepoTest = require('./already_have_repo_test');
+var AddUsersTest = require('./add_users_test');
+var AddUsersUsernameConflictTest = require('./add_users_username_conflict_test');
+var AddUsersUniqueUsernamesTest = require('./add_users_unique_usernames_test');
+var AlreadyOnTeamTest = require('./already_on_team_test');
+var NotOnTeamTest = require('./not_on_team_test');
+var AlreadyOnTeamAddUsersTest = require('./already_on_team_add_users_test');
+var AlreadyOnTeamAddUsersUniqueUsernamesTest = require('./already_on_team_add_users_unique_usernames_test');
+var AlreadyOnTeamAddUsersUsernameConflictTest = require('./already_on_team_add_users_username_conflict_test');
+var TeamNotFoundTest = require('./team_not_found_test');
+var RepoExistsTest = require('./repo_exists_test');
+var RepoExistsAddUsersTest = require('./repo_exists_add_users_test');
+var RepoExistsAddUsersUniqueUsernamesTest = require('./repo_exists_add_users_unique_usernames_test');
+var RepoExistsAddUsersUsernameConflictTest = require('./repo_exists_add_users_username_conflict_test');
+var RepoExistsNotOnTeamTest = require('./repo_exists_not_on_team_test');
+var RepoExistsNotOnTeamAddUsersTest = require('./repo_exists_not_on_team_add_users_test');
+var RepoExistsNotOnTeamAddUsersUsernameConflictTest = require('./repo_exists_not_on_team_add_users_username_conflict_test');
+var RepoExistsNotOnTeamAddUsersUniqueUsernamesTest = require('./repo_exists_not_on_team_add_users_unique_usernames_test');
+var NewRepoMessageToTeamTest = require('./new_repo_message_to_team_test');
+var NewRepoMessageToOtherUserTest = require('./new_repo_message_to_other_user_test');
+var UsersJoinNewTeamMessageTest = require('./users_join_new_team_message_test');
+var UsersJoinExistingTeamMessageTest = require('./users_join_existing_team_message_test');
+var UsersJoinExistingRepoMessageTest = require('./users_join_existing_repo_message_test');
 
 /* jshint -W071 */
 
-class Post_Repo_Request_Tester {
+class PostRepoRequestTester {
 
-	post_repo_test () {
-		new Post_Repo_Test().test();
-		new No_Attribute_Test({ attribute: 'url' }).test();
-		new No_Attribute_Test({ attribute: 'first_commit_sha' }).test();
-		new Normalize_Url_Test().test();
-		new Sha_Mismatch_Test().test();
-		new Already_Have_Repo_Test().test();
-		new Add_Users_Test().test();
-		new Add_Users_Username_Conflict_Test().test();
-		new Add_Users_Unique_Usernames_Test().test();
-		new Already_On_Team_Test().test();
-		new Not_On_Team_Test().test();
-		new Already_On_Team_Add_Users_Test().test();
-		new Already_On_Team_Add_Users_Unique_Usernames_Test().test();
-		new Already_On_Team_Add_Users_Username_Conflict_Test().test();
-		new Team_Not_Found_Test().test();
-		new Repo_Exists_Test().test();
-		new Repo_Exists_Add_Users_Test().test();
-		new Repo_Exists_Add_Users_Unique_Usernames_Test().test();
-		new Repo_Exists_Add_Users_Username_Conflict_Test().test();
-		new Repo_Exists_Not_On_Team_Test().test();
-		new Repo_Exists_Not_On_Team_Add_Users_Test().test();
-		new Repo_Exists_Not_On_Team_Add_Users_Username_Conflict_Test().test();
-		new Repo_Exists_Not_On_Team_Add_Users_Unique_Usernames_Test().test();
-		new New_Repo_Message_To_Team_Test().test();
-		new New_Repo_Message_To_Other_User_Test().test();
-		new Users_Join_New_Team_Message_Test().test();
-		new Users_Join_Existing_Team_Message_Test().test();
-		new Users_Join_Existing_Repo_Message_Test().test();
+	postRepoTest () {
+		new PostRepoTest().test();
+		new NoAttributeTest({ attribute: 'url' }).test();
+		new NoAttributeTest({ attribute: 'firstCommitSha' }).test();
+		new NormalizeUrlTest().test();
+		new ShaMismatchTest().test();
+		new AlreadyHaveRepoTest().test();
+		new AddUsersTest().test();
+		new AddUsersUsernameConflictTest().test();
+		new AddUsersUniqueUsernamesTest().test();
+		new AlreadyOnTeamTest().test();
+		new NotOnTeamTest().test();
+		new AlreadyOnTeamAddUsersTest().test();
+		new AlreadyOnTeamAddUsersUniqueUsernamesTest().test();
+		new AlreadyOnTeamAddUsersUsernameConflictTest().test();
+		new TeamNotFoundTest().test();
+		new RepoExistsTest().test();
+		new RepoExistsAddUsersTest().test();
+		new RepoExistsAddUsersUniqueUsernamesTest().test();
+		new RepoExistsAddUsersUsernameConflictTest().test();
+		new RepoExistsNotOnTeamTest().test();
+		new RepoExistsNotOnTeamAddUsersTest().test();
+		new RepoExistsNotOnTeamAddUsersUsernameConflictTest().test();
+		new RepoExistsNotOnTeamAddUsersUniqueUsernamesTest().test();
+		new NewRepoMessageToTeamTest().test();
+		new NewRepoMessageToOtherUserTest().test();
+		new UsersJoinNewTeamMessageTest().test();
+		new UsersJoinExistingTeamMessageTest().test();
+		new UsersJoinExistingRepoMessageTest().test();
 
 	}
 }
 
 /* jshint +W071 */
 
-module.exports = Post_Repo_Request_Tester;
+module.exports = PostRepoRequestTester;

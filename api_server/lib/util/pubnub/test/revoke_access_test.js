@@ -1,34 +1,34 @@
 'use strict';
 
-var PubNub_Test = require('./pubnub_test');
+var PubNubTest = require('./pubnub_test');
 var Assert = require('assert');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Revoke_Access_Test extends PubNub_Test {
+class RevokeAccessTest extends PubNubTest {
 
 	get description () {
 		return 'client should get an error when trying to subscribe to a channel for which read access has been revoked';
 	}
 
 	run (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.run,
-			this.remove_listener,
-			this.revoke_access,
+			this.removeListener,
+			this.revokeAccess,
 			this.wait,
-			this.listen_again
+			this.listenAgain
 		], callback);
 	}
 
-	remove_listener (callback) {
-		this.pubnub_for_client.remove_listener(this.channel_name);
+	removeListener (callback) {
+		this.pubnubForClient.removeListener(this.channelName);
 		callback();
 	}
 
-	revoke_access (callback) {
-		this.pubnub_for_server.revoke(
-			this.auth_key,
-			[this.channel_name],
+	revokeAccess (callback) {
+		this.pubnubForServer.revoke(
+			this.authKey,
+			[this.channelName],
 			callback
 		);
 	}
@@ -40,10 +40,10 @@ class Revoke_Access_Test extends PubNub_Test {
 		setTimeout(callback, 5000);
 	}
 
-	listen_again (callback) {
-		this.pubnub_for_client.subscribe(
-			this.channel_name,
-			this.unexpected_message_received.bind(this),
+	listenAgain (callback) {
+		this.pubnubForClient.subscribe(
+			this.channelName,
+			this.unexpectedMessageReceived.bind(this),
 			error => {
 				Assert(error.error, 'error expected');
 				Assert(error.operation === 'PNSubscribeOperation' || error.operation === 'PNHeartbeatOperation',
@@ -54,9 +54,9 @@ class Revoke_Access_Test extends PubNub_Test {
 		);
 	}
 
-	unexpected_message_received () {
+	unexpectedMessageReceived () {
 		Assert.fail('message should not be received on this channel');
 	}
 }
 
-module.exports = Revoke_Access_Test;
+module.exports = RevokeAccessTest;

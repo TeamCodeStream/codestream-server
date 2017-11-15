@@ -1,18 +1,18 @@
 'use strict';
 
-var Confirmation_Test = require('./confirmation_test');
+var ConfirmationTest = require('./confirmation_test');
 
-class Email_Mismatch_Test extends Confirmation_Test {
+class EmailMismatchTest extends ConfirmationTest {
 
 	get description () {
 		return 'should return an error when confirming a registration with an email that doesn\'t match the original email used during registration';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'USRC-1005'
 		};
@@ -20,10 +20,10 @@ class Email_Mismatch_Test extends Confirmation_Test {
 
 	before (callback) {
 		super.before(() => {
-			this.data.email = this.user_factory.random_email();
+			this.data.email = this.userFactory.randomEmail();
 			callback();
 		});
 	}
 }
 
-module.exports = Email_Mismatch_Test;
+module.exports = EmailMismatchTest;

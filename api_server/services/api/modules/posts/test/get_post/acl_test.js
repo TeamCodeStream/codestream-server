@@ -1,28 +1,28 @@
 'use strict';
 
-var Get_Post_Test = require('./get_post_test');
+var GetPostTest = require('./get_post_test');
 
-class ACL_Test extends Get_Post_Test {
+class ACLTest extends GetPostTest {
 
 	constructor (options) {
 		super(options);
-		this.without_me = true;
+		this.withoutMe = true;
 	}
 
 	get description () {
 		return `should return an error when trying to fetch a post from a ${this.type} stream from a team that i\'m not a member of`;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1009'
 		};
 	}
 
-	set_path (callback) {
+	setPath (callback) {
 		this.path = '/posts/' + this.post._id;
 		callback();
 	}
 }
 
-module.exports = ACL_Test;
+module.exports = ACLTest;

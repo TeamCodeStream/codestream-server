@@ -1,19 +1,19 @@
 'use strict';
 
-var Registration_Test = require('./registration_test');
-var Random_String = require('randomstring');
+var RegistrationTest = require('./registration_test');
+var RandomString = require('randomstring');
 
-class Bad_Username_Test extends Registration_Test {
+class BadUsernameTest extends RegistrationTest {
 
 	get description () {
 		return 'should return an invalid username error when registering with a bad username';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
    			info: [{
@@ -23,10 +23,10 @@ class Bad_Username_Test extends Registration_Test {
 	}
 
 	before (callback) {
-		this.data = this.user_factory.get_random_user_data();
-		this.data.username = Random_String.generate(12) + '%';
+		this.data = this.userFactory.getRandomUserData();
+		this.data.username = RandomString.generate(12) + '%';
 		callback();
 	}
 }
 
-module.exports = Bad_Username_Test;
+module.exports = BadUsernameTest;

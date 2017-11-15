@@ -1,29 +1,29 @@
 'use strict';
 
-var Get_Many_Request = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 
-class Get_Teams_Request extends Get_Many_Request {
+class GetTeamsRequest extends GetManyRequest {
 
 	authorize (callback) {
 		if (this.request.query.hasOwnProperty('mine')) {
 			return callback();
 		}
 		else if (!this.request.query.ids) {
-			return callback(this.error_handler.error('parameter_required', { info: 'ids' }));
+			return callback(this.errorHandler.error('parameterRequired', { info: 'ids' }));
 		}
-		let team_ids = decodeURIComponent(this.request.query.ids).toLowerCase().split(',');
-		if (!this.user.has_teams(team_ids)) {
-			return callback(this.error_handler.error('read_auth'));
+		let teamIds = decodeURIComponent(this.request.query.ids).toLowerCase().split(',');
+		if (!this.user.hasTeams(teamIds)) {
+			return callback(this.errorHandler.error('readAuth'));
 		}
 		return process.nextTick(callback);
 	}
 
 	process (callback) {
 		if (this.request.query.hasOwnProperty('mine')) {
-			this.ids = this.user.get('team_ids') || [];
+			this.ids = this.user.get('teamIds') || [];
 		}
 		super.process(callback);
 	}
 }
 
-module.exports = Get_Teams_Request;
+module.exports = GetTeamsRequest;

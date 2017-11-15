@@ -1,55 +1,55 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Data_Collection = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_collection');
-var Options_Symbol = Symbol('options');
-var Collections_Symbol = Symbol('collections');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DataCollection = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_collection');
+var OptionsSymbol = Symbol('options');
+var CollectionsSymbol = Symbol('collections');
 
-class API_Request_Data {
+class APIRequestData {
 
 	constructor (options) {
-		this[Options_Symbol] = options;
-		this[Collections_Symbol] = {};
+		this[OptionsSymbol] = options;
+		this[CollectionsSymbol] = {};
 	}
 
-	make_data (callback) {
-		Bound_Async.forEachLimit(
+	makeData (callback) {
+		BoundAsync.forEachLimit(
 			this,
-			Object.keys(this[Options_Symbol].api.data),
+			Object.keys(this[OptionsSymbol].api.data),
 			50,
-			this.add_data_collection,
+			this.addDataCollection,
 			callback
 		);
 	}
 
-	add_data_collection (collection_name, callback) {
-		const options = this[Options_Symbol];
-		const model_class = this[Options_Symbol].api.config.data_collections[collection_name];
-		let collection = new Data_Collection({
-			database_collection: options.api.data[collection_name],
-			model_class: model_class,
+	addDataCollection (collectionName, callback) {
+		const options = this[OptionsSymbol];
+		const modelClass = this[OptionsSymbol].api.config.dataCollections[collectionName];
+		let collection = new DataCollection({
+			databaseCollection: options.api.data[collectionName],
+			modelClass: modelClass,
 			request: options.request
 		});
-		this[Collections_Symbol][collection_name] = collection;
-		this[collection_name] = collection;
+		this[CollectionsSymbol][collectionName] = collection;
+		this[collectionName] = collection;
 		process.nextTick(callback);
 	}
 
 	persist (callback) {
-		const collection_names = Object.keys(this[Collections_Symbol]);
-		Bound_Async.forEachLimit(
+		const collectionNames = Object.keys(this[CollectionsSymbol]);
+		BoundAsync.forEachLimit(
 			this,
-			collection_names,
+			collectionNames,
 			10,
-			this.persist_collection,
+			this.persistCollection,
 			callback
 		);
 	}
 
-	persist_collection (collection_name, callback) {
-		if (!this[collection_name]) { return callback(); }
-		this[collection_name].persist(callback);
+	persistCollection (collectionName, callback) {
+		if (!this[collectionName]) { return callback(); }
+		this[collectionName].persist(callback);
 	}
 }
 
-module.exports = API_Request_Data;
+module.exports = APIRequestData;

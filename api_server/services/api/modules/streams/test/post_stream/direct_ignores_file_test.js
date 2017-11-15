@@ -1,9 +1,9 @@
 'use strict';
 
-var Post_Direct_Stream_Test = require('./post_direct_stream_test');
+var PostDirectStreamTest = require('./post_direct_stream_test');
 var Assert = require('assert');
 
-class Direct_Ignores_File_Test extends Post_Direct_Stream_Test {
+class DirectIgnoresFileTest extends PostDirectStreamTest {
 
 	get description () {
 		return 'should return a valid stream and ignore file-related attributes when creating a direct stream';
@@ -12,18 +12,18 @@ class Direct_Ignores_File_Test extends Post_Direct_Stream_Test {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.file = this.stream_factory.random_file();
-			this.data.repo_id = this.repo._id;
+			this.data.file = this.streamFactory.randomFile();
+			this.data.repoId = this.repo._id;
 			callback();
 		});
 	}
 
-	validate_response (data) {
+	validateResponse (data) {
 		let stream = data.stream;
 		Assert(typeof stream.file === 'undefined', 'file should be undefined');
-		Assert(typeof stream.repo_id === 'undefined', 'repo_id should be undefined');
-		super.validate_response(data);
+		Assert(typeof stream.repoId === 'undefined', 'repoId should be undefined');
+		super.validateResponse(data);
 	}
 }
 
-module.exports = Direct_Ignores_File_Test;
+module.exports = DirectIgnoresFileTest;

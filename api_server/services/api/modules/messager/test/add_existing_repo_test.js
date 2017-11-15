@@ -1,36 +1,36 @@
 'use strict';
 
-var CodeStream_Message_Test = require('./codestream_message_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamMessageTest = require('./codestream_message_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Add_Existing_Repo_Test extends CodeStream_Message_Test {
+class AddExistingRepoTest extends CodeStreamMessageTest {
 
 	get description () {
 		return 'should be able to subscribe to and receive a message from the team channel when i introduce a repo to an existing team';
 	}
 
-	make_data (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo_without_me,
-			this.create_same_repo
+	makeData (callback) {
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepoWithoutMe,
+			this.createSameRepo
 		], callback);
 	}
 
 	// create another user who will create the repo with me added to the team
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
 	// create a repo and a team without me as a member
-	create_repo_without_me (callback) {
-		this.repo_factory.create_random_repo(
+	createRepoWithoutMe (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
@@ -38,31 +38,31 @@ class Add_Existing_Repo_Test extends CodeStream_Message_Test {
 				callback();
 			},
 			{
-				with_random_emails: 2,
-				token: this.other_user_data.access_token
+				withRandomEmails: 2,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 	// create a repo and a team with me as a member, since a team has already been created,
 	// this just adds me to the existing team
-	create_same_repo (callback) {
-		let repo_data = {
+	createSameRepo (callback) {
+		let repoData = {
 			url: this.repo.url,
-			first_commit_sha: this.repo.first_commit_sha,
-			team_id: this.team._id,
-			emails: [this.current_user.email]
+			firstCommitSha: this.repo.firstCommitSha,
+			teamId: this.team._id,
+			emails: [this.currentUser.email]
 		};
-		this.repo_factory.create_repo(
-			repo_data,
-			this.other_user_data.access_token,
+		this.repoFactory.createRepo(
+			repoData,
+			this.otherUserData.accessToken,
 			callback
 		);
 	}
 
-	set_channel_name (callback) {
-		this.channel_name = 'team-' + this.team._id;
+	setChannelName (callback) {
+		this.channelName = 'team-' + this.team._id;
 		callback();
 	}
 }
 
-module.exports = Add_Existing_Repo_Test;
+module.exports = AddExistingRepoTest;

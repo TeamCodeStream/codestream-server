@@ -1,47 +1,47 @@
 'use strict';
 
-var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 
 const DEPENDENCIES = [
 	'authenticator',
 	'request_id'
 ];
 
-class Access_Logger extends API_Server_Module {
+class AccessLogger extends APIServerModule {
 
-	get_dependencies () {
+	getDependencies () {
 		return DEPENDENCIES;
 	}
 
 	middlewares () {
 		return (request, response, next) => {
-			const start_timer = Date.now();
-			this.log_request(request, response, 'BEGIN', start_timer);
+			const startTimer = Date.now();
+			this.logRequest(request, response, 'BEGIN', startTimer);
 			response.on('finish', () => {
-				this.log_request(request, response, 'COMPLETE', start_timer);
+				this.logRequest(request, response, 'COMPLETE', startTimer);
 			});
 			response.on('close', () => {
-				this.log_request(request, response, 'ABORTED', start_timer);
+				this.logRequest(request, response, 'ABORTED', startTimer);
 			});
 			response.on('complete', () => {
-				this.log_request(request, response, 'DONE', start_timer);
+				this.logRequest(request, response, 'DONE', startTimer);
 			});
 			process.nextTick(next);
 		};
 	}
 
-	log_request (request, response, status, start_timer) {
-		const elapsed_time = new Date().getTime() - start_timer;  // more like elapsed time until event loop gets to here
-		const user_id = (request.user && request.user.id) || '???';
+	logRequest (request, response, status, startTimer) {
+		const elapsedTime = new Date().getTime() - startTimer;  // more like elapsed time until event loop gets to here
+		const userId = (request.user && request.user.id) || '???';
 		this.logger.log(
 			request.id                     + ' '   +
 			status                         + ' '   +
 			request.method                 + ' '   +
 			request.url                    + ' '   +
-			user_id                        + ' '   +
+			userId                        + ' '   +
 			response.statusCode            + ' '   +
 			response.get('content-length') + ' '   +
-			elapsed_time                   + ' '   +
+			elapsedTime                   + ' '   +
 			request.headers.host           + ' "'  +
 			request.headers.referer        + '" "' +
 			request.headers['user-agent']  + '"'
@@ -49,4 +49,4 @@ class Access_Logger extends API_Server_Module {
 	}
 }
 
-module.exports = Access_Logger;
+module.exports = AccessLogger;

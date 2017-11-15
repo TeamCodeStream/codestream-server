@@ -1,8 +1,8 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
-class IDs_Required_Test extends CodeStream_API_Test {
+class IDsRequiredTest extends CodeStreamAPITest {
 
 	get description () {
 		return 'should return error if IDs are not provided';
@@ -12,7 +12,7 @@ class IDs_Required_Test extends CodeStream_API_Test {
 		return '/teams';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1001',
 			info: 'ids'
@@ -20,4 +20,4 @@ class IDs_Required_Test extends CodeStream_API_Test {
 	}
 }
 
-module.exports = IDs_Required_Test;
+module.exports = IDsRequiredTest;

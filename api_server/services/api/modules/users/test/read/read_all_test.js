@@ -1,27 +1,27 @@
 'use strict';
 
-var Read_Test = require('./read_test');
-const User_Test_Constants = require('../user_test_constants');
+var ReadTest = require('./read_test');
+const UserTestConstants = require('../user_test_constants');
 
-class Read_All_Test extends Read_Test {
+class ReadAllTest extends ReadTest {
 
 	get description () {
-		return 'should clear all of last_reads for the current user when requested';
+		return 'should clear all of lastReads for the current user when requested';
 	}
 
-	get_expected_fields () {
-		let me_fields = [...User_Test_Constants.EXPECTED_ME_FIELDS];
-		let index = me_fields.indexOf('last_reads');
+	getExpectedFields () {
+		let meFields = [...UserTestConstants.EXPECTED_ME_FIELDS];
+		let index = meFields.indexOf('lastReads');
 		if (index !== -1) {
-			me_fields.splice(index);
+			meFields.splice(index);
 		}
-		let user_response = {};
-		user_response.user = [...User_Test_Constants.EXPECTED_USER_FIELDS, ...me_fields];
-		return user_response;
+		let userResponse = {};
+		userResponse.user = [...UserTestConstants.EXPECTED_USER_FIELDS, ...meFields];
+		return userResponse;
 	}
 
-	mark_read (callback) {
-		this.do_api_request(
+	markRead (callback) {
+		this.doApiRequest(
 			{
 				method: 'put',
 				path: '/read/all',
@@ -31,9 +31,9 @@ class Read_All_Test extends Read_Test {
 		);
 	}
 
-	validate_response (data) {
-		this.validate_sanitized(data.user);
+	validateResponse (data) {
+		this.validateSanitized(data.user);
 	}
 }
 
-module.exports = Read_All_Test;
+module.exports = ReadAllTest;

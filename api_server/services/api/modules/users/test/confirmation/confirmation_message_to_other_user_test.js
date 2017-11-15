@@ -1,35 +1,35 @@
 'use strict';
 
-var CodeStream_Message_Test = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Random_String = require('randomstring');
-const Secrets_Config = require(process.env.CS_API_TOP + '/config/secrets.js');
+var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var RandomString = require('randomstring');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
-class Confirmation_Message_To_Other_User_Test extends CodeStream_Message_Test {
+class ConfirmationMessageToOtherUserTest extends CodeStreamMessageTest {
 
 	get description () {
 		return 'team members should receive a message indicating a user is registered when a user on the team confirms registration';
 	}
 
-	make_data (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo
+	makeData (callback) {
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepo
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error);}
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -38,54 +38,54 @@ class Confirmation_Message_To_Other_User_Test extends CodeStream_Message_Test {
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email],
-				with_random_emails: 1,
-				token: this.other_user_data.access_token
+				withEmails: [this.currentUser.email],
+				withRandomEmails: 1,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	set_channel_name (callback) {
-		this.channel_name = 'team-' + this.team._id;
+	setChannelName (callback) {
+		this.channelName = 'team-' + this.team._id;
 		callback();
 	}
 
-	generate_message (callback) {
-		Bound_Async.series(this, [
-			this.register_user,
-			this.confirm_user
+	generateMessage (callback) {
+		BoundAsync.series(this, [
+			this.registerUser,
+			this.confirmUser
 		], callback);
 	}
 
-	register_user (callback) {
-		this.registering_user = this.users.find(user => !user.is_registered);
-		Object.assign(this.registering_user, {
-			username: Random_String.generate(12),
-			password: Random_String.generate(12),
-			_confirmation_cheat: Secrets_Config.confirmation_cheat,	// gives us the confirmation code in the response
-			_force_confirmation: true								// this forces confirmation even if not enforced in environment
+	registerUser (callback) {
+		this.registeringUser = this.users.find(user => !user.isRegistered);
+		Object.assign(this.registeringUser, {
+			username: RandomString.generate(12),
+			password: RandomString.generate(12),
+			_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response
+			_forceConfirmation: true								// this forces confirmation even if not enforced in environment
 		});
-		this.user_factory.register_user(
-			this.registering_user,
+		this.userFactory.registerUser(
+			this.registeringUser,
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.registering_user = response.user;
+				this.registeringUser = response.user;
 				callback();
 			}
 		);
 	}
 
-	confirm_user (callback) {
+	confirmUser (callback) {
 		this.message = {
 			users: [{
-				_id: this.registering_user._id,
-				is_registered: true
+				_id: this.registeringUser._id,
+				isRegistered: true
 			}]
 		};
 
 		// confirming one of the random users created should trigger the message
-		this.user_factory.confirm_user(this.registering_user, callback);
+		this.userFactory.confirmUser(this.registeringUser, callback);
 	}
 }
 
-module.exports = Confirmation_Message_To_Other_User_Test;
+module.exports = ConfirmationMessageToOtherUserTest;

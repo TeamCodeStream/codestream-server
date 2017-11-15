@@ -5,7 +5,7 @@ var Assert = require('assert');
 // make jshint happy
 /* globals before, after, it */
 
-class Generic_Test {
+class GenericTest {
 
 	constructor (options) {
 		Object.assign(this, options);
@@ -47,125 +47,125 @@ class Generic_Test {
 		);
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return null;
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	check_response (error, response, callback) {
+	checkResponse (error, response, callback) {
 		this.error = error ? response : null;
-		const expect_error = this.get_expected_error();
-		if (expect_error) {
-			this.expect_error(expect_error);
+		const expectError = this.getExpectedError();
+		if (expectError) {
+			this.expectError(expectError);
 		}
 		else if (error) {
 			return callback(error);
 		}
 		else {
 			this.response = response;
-			this.expect_fields();
+			this.expectFields();
 			this.validate();
 		}
 		callback();
 	}
 
-	expect_fields () {
-		const expect_fields = this.get_expected_fields();
-		if (!expect_fields) { return; }
+	expectFields () {
+		const expectFields = this.getExpectedFields();
+		if (!expectFields) { return; }
 		Assert(typeof this.response === 'object', 'response should be an object');
-		this.expect(this.response, expect_fields, '');
+		this.expect(this.response, expectFields, '');
 	}
 
-	expect (response_data, expect_data, chain) {
+	expect (responseData, expectData, chain) {
 		const message = chain ? `response expects ${chain}` : 'response expected';
-		if (this.is_array_of_strings(expect_data)) {
-			Assert(typeof response_data === 'object', `${message} to be an object`);
-			this.expect_array(response_data, expect_data, chain);
+		if (this.isArrayOfStrings(expectData)) {
+			Assert(typeof responseData === 'object', `${message} to be an object`);
+			this.expectArray(responseData, expectData, chain);
 		}
-		else if (expect_data instanceof Array) {
-			Assert(response_data instanceof Array, `${message} to be an object`);
-			this.expect_array(response_data, expect_data, chain);
+		else if (expectData instanceof Array) {
+			Assert(responseData instanceof Array, `${message} to be an object`);
+			this.expectArray(responseData, expectData, chain);
 		}
-		else if (typeof expect_data === 'object') {
-			Assert(typeof response_data === 'object', `${message} to be an object`);
-			this.expect_object(response_data, expect_data, chain);
+		else if (typeof expectData === 'object') {
+			Assert(typeof responseData === 'object', `${message} to be an object`);
+			this.expectObject(responseData, expectData, chain);
 		}
-		else if (typeof expect_data === 'string') {
-			Assert(typeof response_data === 'string', `${message} to be a string`);
-			Assert(response_data.match(new RegExp(expect_data)), `${message} to be like ${expect_data}`);
+		else if (typeof expectData === 'string') {
+			Assert(typeof responseData === 'string', `${message} to be a string`);
+			Assert(responseData.match(new RegExp(expectData)), `${message} to be like ${expectData}`);
 		}
 	}
 
-	is_array_of_strings (value) {
+	isArrayOfStrings (value) {
 		return value instanceof Array &&
 			!value.find(elem => {
 				return typeof elem !== 'string';
 			});
 	}
 
-	expect_array (response_data, expect_fields, chain) {
-		Object.keys(expect_fields).forEach(key => {
-			const expect = expect_fields[key];
+	expectArray (responseData, expectFields, chain) {
+		Object.keys(expectFields).forEach(key => {
+			const expect = expectFields[key];
 			if (typeof expect === 'string') {
-				Assert(typeof response_data[expect] !== 'undefined', `response requires ${chain}.${expect}`);
+				Assert(typeof responseData[expect] !== 'undefined', `response requires ${chain}.${expect}`);
 			}
 			else if (typeof expect === 'object') {
-				Assert(typeof response_data[key] === 'object', `response expects ${chain}.${key} to be an object`);
-				this.expect_object(response_data[key], expect, `${chain}.${key}`);
+				Assert(typeof responseData[key] === 'object', `response expects ${chain}.${key} to be an object`);
+				this.expectObject(responseData[key], expect, `${chain}.${key}`);
 			}
 		});
 	}
 
-	expect_object (response_data, expect_data, chain) {
-		Object.keys(expect_data).forEach(key => {
-			Assert(typeof response_data[key] !== 'undefined', `response requires ${chain}.${key}`);
-			this.expect(response_data[key], expect_data[key], `${chain}.${key}`);
+	expectObject (responseData, expectData, chain) {
+		Object.keys(expectData).forEach(key => {
+			Assert(typeof responseData[key] !== 'undefined', `response requires ${chain}.${key}`);
+			this.expect(responseData[key], expectData[key], `${chain}.${key}`);
 		});
 	}
 
 	validate () {
-		if (typeof this.validate_response !== 'function') { return; }
-		this.validate_response(this.response);
+		if (typeof this.validateResponse !== 'function') { return; }
+		this.validateResponse(this.response);
 	}
 
-	expect_error (expect_error) {
+	expectError (expectError) {
 		Assert(this.error, 'test should return an error');
-		this.expect(this.error, expect_error, '');
+		this.expect(this.error, expectError, '');
 	}
 
-	validate_matching_object (id, object, name) {
+	validateMatchingObject (id, object, name) {
 		Assert(id.toString() === object._id.toString(), `${name} doesn't match`);
 	}
 
-	validate_matching_objects (objects_1, objects_2, name) {
-		let object_ids_1 = objects_1.map(object => object._id).sort();
-		let object_ids_2 = objects_2.map(object => object._id).sort();
-		Assert.deepEqual(object_ids_2, object_ids_1, `${name} returned don't match`);
+	validateMatchingObjects (objects1, objects2, name) {
+		let objectIds_1 = objects1.map(object => object._id).sort();
+		let objectIds_2 = objects2.map(object => object._id).sort();
+		Assert.deepEqual(objectIds_2, objectIds_1, `${name} returned don't match`);
 	}
 
-	validate_sorted_matching_objects(objects_1, objects_2, name) {
-		Assert.deepEqual(objects_2, objects_1, `${name} returned don't match`);
+	validateSortedMatchingObjects(objects1, objects2, name) {
+		Assert.deepEqual(objects2, objects1, `${name} returned don't match`);
 	}
 
-	validate_sanitized (object, unsanitized_attributes) {
+	validateSanitized (object, unsanitizedAttributes) {
 		let present = [];
-		let object_attributes = Object.keys(object);
-		unsanitized_attributes.forEach(attribute => {
-			if (object_attributes.indexOf(attribute) !== -1) {
+		let objectAttributes = Object.keys(object);
+		unsanitizedAttributes.forEach(attribute => {
+			if (objectAttributes.indexOf(attribute) !== -1) {
 				present.push(attribute);
 			}
 		});
 		Assert(present.length === 0, 'these attributes are present and shouldn\'t be: ' + present.join(','));
 	}
 
-	validate_sanitized_objects (objects, unsanitized_attributes) {
+	validateSanitizedObjects (objects, unsanitizedAttributes) {
 		objects.forEach(object => {
-			this.validate_sanitized(object, unsanitized_attributes);
+			this.validateSanitized(object, unsanitizedAttributes);
 		});
 	}
 }
 
-module.exports = Generic_Test;
+module.exports = GenericTest;

@@ -1,135 +1,135 @@
 'use strict';
 
-var Model_Creator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Stream = require('./stream');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
-var Stream_Subscription_Granter = require('./stream_subscription_granter');
-const Stream_Types = require('./stream_types');
+var StreamSubscriptionGranter = require('./stream_subscription_granter');
+const StreamTypes = require('./stream_types');
 const Errors = require('./errors');
 
-class Stream_Creator extends Model_Creator {
+class StreamCreator extends ModelCreator {
 
 	constructor (options) {
 		super(options);
-		this.error_handler.add(Errors);
-		this.dont_save_if_exists = true;
+		this.errorHandler.add(Errors);
+		this.dontSaveIfExists = true;
 	}
 
-	get model_class () {
+	get modelClass () {
 		return Stream;
 	}
 
-	get collection_name () {
+	get collectionName () {
 		return 'streams';
 	}
 
-	create_stream (attributes, callback) {
-		return this.create_model(attributes, callback);
+	createStream (attributes, callback) {
+		return this.createModel(attributes, callback);
 	}
 
-	get_required_attributes () {
-		return ['team_id', 'type'];
+	getRequiredAttributes () {
+		return ['teamId', 'type'];
 	}
 
-	validate_attributes (callback) {
-		this.ensure_user_is_member();
+	validateAttributes (callback) {
+		this.ensureUserIsMember();
 		this.attributes.type = this.attributes.type.toLowerCase();
-		if (Stream_Types.indexOf(this.attributes.type) === -1) {
-			return callback(this.error_handler.error('invalid_stream_type', { info: this.attributes.type }));
+		if (StreamTypes.indexOf(this.attributes.type) === -1) {
+			return callback(this.errorHandler.error('invalidStreamType', { info: this.attributes.type }));
 		}
 		if (this.attributes.type === 'channel') {
 			if (!this.attributes.name) {
-				return callback(this.error_handler.error('name_required'));
+				return callback(this.errorHandler.error('nameRequired'));
 			}
 			delete this.attributes.file;
-			delete this.attributes.repo_id;
+			delete this.attributes.repoId;
 		}
 		else if (this.attributes.type === 'file') {
-			if (!this.attributes.repo_id) {
-				return callback(this.error_handler.error('repo_id_required'));
+			if (!this.attributes.repoId) {
+				return callback(this.errorHandler.error('repoIdRequired'));
 			}
 			else if (!this.attributes.file) {
-				return callback(this.error_handler.error('file_required'));
+				return callback(this.errorHandler.error('fileRequired'));
 			}
 			delete this.attributes.name;
-			delete this.attributes.member_ids;
+			delete this.attributes.memberIds;
 		}
 		else if (this.attributes.type === 'direct') {
 			delete this.attributes.file;
-			delete this.attributes.repo_id;
+			delete this.attributes.repoId;
 			delete this.attributes.name;
 		}
 		process.nextTick(callback);
 	}
 
-	ensure_user_is_member () {
+	ensureUserIsMember () {
 		if (this.attributes.type === 'file') {
 			return; // not required for files
 		}
-		this.attributes.member_ids = this.attributes.member_ids || [this.user.id];
-		if (!(this.attributes.member_ids instanceof Array)) {
+		this.attributes.memberIds = this.attributes.memberIds || [this.user.id];
+		if (!(this.attributes.memberIds instanceof Array)) {
 			// this will get caught later
 			return;
 		}
-		if (this.attributes.member_ids.indexOf(this.user.id) === -1) {
-			this.attributes.member_ids.push(this.user.id);
+		if (this.attributes.memberIds.indexOf(this.user.id) === -1) {
+			this.attributes.memberIds.push(this.user.id);
 		}
-		this.attributes.member_ids.sort();
+		this.attributes.memberIds.sort();
 	}
 
-	allow_attributes (callback) {
+	allowAttributes (callback) {
 		Allow(
 			this.attributes,
 			{
-				string: ['team_id', 'repo_id', 'type', 'file', 'name'],
-				'array(string)': ['member_ids']
+				string: ['teamId', 'repoId', 'type', 'file', 'name'],
+				'array(string)': ['memberIds']
 			}
 		);
 		process.nextTick(callback);
 	}
 
-	check_existing_query () {
+	checkExistingQuery () {
 		let query = {
-			team_id: this.attributes.team_id,
+			teamId: this.attributes.teamId,
 			type: this.attributes.type
 		};
 		if (this.attributes.type === 'channel') {
 			query.name = this.attributes.name;
 		}
 		else if (this.attributes.type === 'direct') {
-			query.member_ids = this.attributes.member_ids;
+			query.memberIds = this.attributes.memberIds;
 		}
 		else if (this.attributes.type === 'file') {
-			query.repo_id = this.attributes.repo_id;
+			query.repoId = this.attributes.repoId;
 			query.file = this.attributes.file;
 		}
 		return query;
 	}
 
-	model_can_exist () {
+	modelCanExist () {
 		return this.attributes.type !== 'channel';
 	}
 
-	pre_save (callback) {
-		this.attributes.creator_id = this.user.id;
-		super.pre_save(callback);
+	preSave (callback) {
+		this.attributes.creatorId = this.user.id;
+		super.preSave(callback);
 	}
 
-	post_save (callback) {
-		this.grant_user_messaging_permissions(callback);
+	postSave (callback) {
+		this.grantUserMessagingPermissions(callback);
 	}
 
-	grant_user_messaging_permissions (callback) {
-		if (!this.model.get('member_ids')) {
+	grantUserMessagingPermissions (callback) {
+		if (!this.model.get('memberIds')) {
 			return callback();	// no need to grant permissions for file-type stream, these get team-level messages
 		}
-		new Stream_Subscription_Granter({
+		new StreamSubscriptionGranter({
 			data: this.data,
 			messager: this.api.services.messager,
 			stream: this.model
-		}).grant_to_members(error => {
+		}).grantToMembers(error => {
 			if (error) {
-				return callback(this.error_handler.error('messaging_grant', { reason: error }));
+				return callback(this.errorHandler.error('messagingGrant', { reason: error }));
 			}
 			callback();
 		});
@@ -137,4 +137,4 @@ class Stream_Creator extends Model_Creator {
 
 }
 
-module.exports = Stream_Creator;
+module.exports = StreamCreator;

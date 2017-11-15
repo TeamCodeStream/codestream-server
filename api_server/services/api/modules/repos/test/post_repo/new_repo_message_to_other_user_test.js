@@ -1,76 +1,76 @@
 'use strict';
 
-var CodeStream_Message_Test = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class New_Repo_Message_To_Other_User_Test extends CodeStream_Message_Test {
+class NewRepoMessageToOtherUserTest extends CodeStreamMessageTest {
 
 	get description () {
 		return 'users on a team should receive a message with the repo when a repo is added to the team';
 	}
 
-	make_data (callback) {
-		Bound_Async.series(this, [
-			this.create_team_creator,
-			this.create_posting_user,
-			this.create_repo
+	makeData (callback) {
+		BoundAsync.series(this, [
+			this.createTeamCreator,
+			this.createPostingUser,
+			this.createRepo
 		], callback);
 	}
 
-	create_team_creator (callback) {
-		this.user_factory.create_random_user(
+	createTeamCreator (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error);}
-				this.team_creator_data = response;
+				this.teamCreatorData = response;
 				callback();
 			}
 		);
 	}
 
-	create_posting_user (callback) {
-		this.user_factory.create_random_user(
+	createPostingUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error);}
-				this.posting_user_data = response;
+				this.postingUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email, this.posting_user_data.user.email],
-				with_random_emails: 1,
-				token: this.team_creator_data.access_token
+				withEmails: [this.currentUser.email, this.postingUserData.user.email],
+				withRandomEmails: 1,
+				token: this.teamCreatorData.accessToken
 			}
 		);
 	}
 
-	set_channel_name (callback) {
-		this.channel_name = 'team-' + this.team._id;
+	setChannelName (callback) {
+		this.channelName = 'team-' + this.team._id;
 		callback();
 	}
 
 
-	generate_message (callback) {
-		this.repo_factory.create_random_repo(
+	generateMessage (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.message = { repo: response.repo };
 				callback();
 			},
 			{
-				token: this.posting_user_data.access_token,
-				team_id: this.team._id
+				token: this.postingUserData.accessToken,
+				teamId: this.team._id
 			}
 		);
 	}
 }
 
-module.exports = New_Repo_Message_To_Other_User_Test;
+module.exports = NewRepoMessageToOtherUserTest;

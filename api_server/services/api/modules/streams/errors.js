@@ -1,23 +1,23 @@
 'use strict';
 
 const ERRORS = {
-	'invalid_stream_type': {
+	'invalidStreamType': {
 		code: 'STRM-1000',
 		message: 'Invalid stream type',
 	},
-	'name_required': {
+	'nameRequired': {
 		code: 'STRM-1001',
 		message: 'Channel type streams must have a name'
 	},
-	'repo_id_required': {
+	'repoIdRequired': {
 		code: 'STRM-1002',
-		message: 'File type streams must have a repo_id'
+		message: 'File type streams must have a repoId'
 	},
-	'file_required': {
+	'fileRequired': {
 		code: 'STRM-1003',
 		message: 'File type streams must have a file'
 	},
-	'messaging_grant': {
+	'messagingGrant': {
 		code: 'STRM-1004',
 		message: 'Unable to grant user messaging permissions'
 	}

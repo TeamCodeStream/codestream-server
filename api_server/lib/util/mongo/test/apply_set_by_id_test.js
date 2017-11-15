@@ -1,36 +1,36 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Get_By_Id_Test = require('./get_by_id_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var GetByIdTest = require('./get_by_id_test');
 
-class Apply_Set_By_Id_Test extends Get_By_Id_Test {
+class ApplySetByIdTest extends GetByIdTest {
 
 	get description () {
 		return 'should get the correctly updated document after applying a set operation to a document';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.update_document
+			this.updateDocument
 		], callback);
 	}
 
-	update_document (callback) {
+	updateDocument (callback) {
 		const update = {
 			text: 'replaced!',
 			number: 123
 		};
-		this.data.test.apply_op_by_id(
-			this.test_document._id,
+		this.data.test.applyOpById(
+			this.testDocument._id,
 			{ set: update },
 			(error) => {
 				if (error) { return callback(error); }
-				Object.assign(this.test_document, update);
+				Object.assign(this.testDocument, update);
 				callback();
 			}
 		);
 	}
 }
 
-module.exports = Apply_Set_By_Id_Test;
+module.exports = ApplySetByIdTest;

@@ -1,9 +1,9 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Read_ACL_Test extends CodeStream_API_Test {
+class ReadACLTest extends CodeStreamAPITest {
 
 	get description () {
 		return 'should return error when user attempts to mark a stream read when that user is not a member of the stream';
@@ -13,33 +13,33 @@ class Read_ACL_Test extends CodeStream_API_Test {
 		return 'put';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1010'
 		};
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo,
-			this.create_stream,
-			this.create_post
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepo,
+			this.createStream,
+			this.createPost
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -47,43 +47,43 @@ class Read_ACL_Test extends CodeStream_API_Test {
 				callback();
 			},
 			{
-				token: this.other_user_data.access_token
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	create_stream (callback) {
-		let stream_options = {
+	createStream (callback) {
+		let streamOptions = {
 			type: 'file',
-			team_id: this.team._id,
-			repo_id: this.repo._id,
-			token: this.other_user_data.access_token
+			teamId: this.team._id,
+			repoId: this.repo._id,
+			token: this.otherUserData.accessToken
 		};
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				this.path = '/read/' + this.stream._id;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	create_post (callback) {
-		let post_options = {
-			stream_id: this.stream._id,
-			token: this.other_user_data.access_token
+	createPost (callback) {
+		let postOptions = {
+			streamId: this.stream._id,
+			token: this.otherUserData.accessToken
 		};
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.post = response.post;
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 }
 
-module.exports = Read_ACL_Test;
+module.exports = ReadACLTest;

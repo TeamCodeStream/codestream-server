@@ -1,8 +1,8 @@
 'use strict';
 
-var Post_Channel_Stream_Test = require('./post_channel_stream_test');
+var PostChannelStreamTest = require('./post_channel_stream_test');
 
-class Me_Channel_Test extends Post_Channel_Stream_Test {
+class MeChannelTest extends PostChannelStreamTest {
 
 	get description () {
 		return 'should return a valid channel stream with the user as the only member when creating a channel stream with no member ids specified';
@@ -11,15 +11,15 @@ class Me_Channel_Test extends Post_Channel_Stream_Test {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			delete this.data.member_ids;
+			delete this.data.memberIds;
 			callback();
 		});
 	}
 
-	validate_response (data) {
-		this.data.member_ids = []; // current user will be pushed
-		super.validate_response(data);
+	validateResponse (data) {
+		this.data.memberIds = []; // current user will be pushed
+		super.validateResponse(data);
 	}
 }
 
-module.exports = Me_Channel_Test;
+module.exports = MeChannelTest;

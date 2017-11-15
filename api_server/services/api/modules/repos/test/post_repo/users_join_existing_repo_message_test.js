@@ -1,33 +1,33 @@
 'use strict';
 
-var CodeStream_Message_Test = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Users_Join_Existing_Repo_Message_Test extends CodeStream_Message_Test {
+class UsersJoinExistingRepoMessageTest extends CodeStreamMessageTest {
 
 	get description () {
 		return 'users added to a team when a repo that already exists is introduced should receive a message that they have been added to the team';
 	}
 
-	make_data (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo
+	makeData (callback) {
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepo
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -35,35 +35,35 @@ class Users_Join_Existing_Repo_Message_Test extends CodeStream_Message_Test {
 				callback();
 			},
 			{
-				with_random_emails: 1,
-				token: this.other_user_data.access_token
+				withRandomEmails: 1,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	set_channel_name (callback) {
-		this.channel_name = 'user-' + this.current_user._id;
+	setChannelName (callback) {
+		this.channelName = 'user-' + this.currentUser._id;
 		callback();
 	}
 
 
-	generate_message (callback) {
-		let repo_data = {
-			team_id: this.team._id,
+	generateMessage (callback) {
+		let repoData = {
+			teamId: this.team._id,
 			url: this.repo.url,
-			first_commit_sha: this.repo.first_commit_sha,
-			emails: [this.current_user.email]
+			firstCommitSha: this.repo.firstCommitSha,
+			emails: [this.currentUser.email]
 		};
-		this.repo_factory.create_repo(
-			repo_data,
-			this.other_user_data.access_token,
+		this.repoFactory.createRepo(
+			repoData,
+			this.otherUserData.accessToken,
 			error => {
 				if (error) { return callback(error); }
 				this.message = {
 					users: [{
-						_id: this.current_user._id,
+						_id: this.currentUser._id,
 						$add: {
-							team_ids: this.team._id
+							teamIds: this.team._id
 						}
 					}]
 				};
@@ -73,4 +73,4 @@ class Users_Join_Existing_Repo_Message_Test extends CodeStream_Message_Test {
 	}
 }
 
-module.exports = Users_Join_Existing_Repo_Message_Test;
+module.exports = UsersJoinExistingRepoMessageTest;

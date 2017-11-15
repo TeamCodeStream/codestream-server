@@ -1,7 +1,7 @@
 'use strict';
 
-var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
-var Token_Authenticator = require('./token_authenticator');
+var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+var TokenAuthenticator = require('./token_authenticator');
 var User = require(process.env.CS_API_TOP + '/services/api/modules/users/user');
 
 const DEPENDENCIES = [
@@ -9,23 +9,23 @@ const DEPENDENCIES = [
 	'cookie_parser'
 ];
 
-class Authenticator extends API_Server_Module {
+class Authenticator extends APIServerModule {
 
-	get_dependencies () {
+	getDependencies () {
 		return DEPENDENCIES;
 	}
 
 	middlewares () {
 		return (request, response, next) => {
-			new Token_Authenticator({
+			new TokenAuthenticator({
 				request: request,
 				response: response,
 				api: this.api,
-				user_class: User
+				userClass: User
 			}).authenticate((error) => {
 				if (error) {
 					response.set('WWW-Authenticate', 'Bearer');
-					request.abort_with = {
+					request.abortWith = {
 						status: 401,
 						error: error
 					};

@@ -1,18 +1,18 @@
 'use strict';
 
-var Post_File_Stream_Test = require('./post_file_stream_test');
+var PostFileStreamTest = require('./post_file_stream_test');
 
-class No_File_Test extends Post_File_Stream_Test {
+class NoFileTest extends PostFileStreamTest {
 
 	get description () {
 		return 'should return an error when attempting to create a file stream with no file';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
 			info: [{
@@ -30,4 +30,4 @@ class No_File_Test extends Post_File_Stream_Test {
 	}
 }
 
-module.exports = No_File_Test;
+module.exports = NoFileTest;

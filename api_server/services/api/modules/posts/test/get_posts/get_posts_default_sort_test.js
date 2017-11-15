@@ -1,23 +1,23 @@
 'use strict';
 
-var Get_Posts_Test = require('./get_posts_test');
+var GetPostsTest = require('./get_posts_test');
 
-class Get_Posts_Default_Sort_Test extends Get_Posts_Test {
+class GetPostsDefaultSortTest extends GetPostsTest {
 
 	get description () {
 		return 'should return the correct posts in descending order when requesting posts in default sort order';
 	}
 
-	set_path (callback) {
-		this.my_posts.reverse();
-		this.path = `/posts/?team_id=${this.team._id}&stream_id=${this.stream._id}`;
+	setPath (callback) {
+		this.myPosts.reverse();
+		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}`;
 		callback();
 	}
 
-	validate_response (data) {
-		this.validate_sorted_matching_objects(data.posts, this.my_posts, 'posts');
-		super.validate_response(data);
+	validateResponse (data) {
+		this.validateSortedMatchingObjects(data.posts, this.myPosts, 'posts');
+		super.validateResponse(data);
 	}
 }
 
-module.exports = Get_Posts_Default_Sort_Test;
+module.exports = GetPostsDefaultSortTest;

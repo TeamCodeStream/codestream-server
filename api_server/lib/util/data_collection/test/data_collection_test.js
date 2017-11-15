@@ -1,45 +1,45 @@
 'use strict';
 
-var Generic_Test = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
-var Mongo_Client = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
-var Test_API_Config = require(process.env.CS_API_TOP + '/config/api_test');
-var Random_String = require('randomstring');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
+var MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
+var TestAPIConfig = require(process.env.CS_API_TOP + '/config/api_test');
+var RandomString = require('randomstring');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
-var Data_Collection = require('../data_collection');
-var Data_Model = require('../data_model');
+var DataCollection = require('../data_collection');
+var DataModel = require('../data_model');
 
-class Data_Collection_Test extends Generic_Test {
+class DataCollectionTest extends GenericTest {
 
 	before (callback) {
-		this.mongo_client_factory = new Mongo_Client();
-		const mongo_config = Object.assign({}, Test_API_Config.mongo, { collections: ['test'] });
-		this.mongo_client_factory.open_mongo_client(
-			mongo_config,
-			(error, mongo_client) => {
+		this.mongoClientFactory = new MongoClient();
+		const mongoConfig = Object.assign({}, TestAPIConfig.mongo, { collections: ['test'] });
+		this.mongoClientFactory.openMongoClient(
+			mongoConfig,
+			(error, mongoClient) => {
 				if (error) { return callback(error); }
-				this.mongo_client = mongo_client;
-				this.mongo_data = this.mongo_client.mongo_collections;
-				this.data_collection = new Data_Collection({
-					database_collection: this.mongo_data.test,
-					model_class: Data_Model
+				this.mongoClient = mongoClient;
+				this.mongoData = this.mongoClient.mongoCollections;
+				this.dataCollection = new DataCollection({
+					databaseCollection: this.mongoData.test,
+					modelClass: DataModel
 				});
-				this.data = { test: this.data_collection };
+				this.data = { test: this.dataCollection };
 				callback();
 			}
 		);
 	}
 
-	create_test_and_control_model (callback) {
-		Bound_Async.series(this, [
+	createTestAndControlModel (callback) {
+		BoundAsync.series(this, [
 			super.before,
-			this.create_test_model,
-			this.create_control_model
+			this.createTestModel,
+			this.createControlModel
 		], callback);
 	}
 
-	create_test_model (callback) {
-		this.test_model = new Data_Model({
+	createTestModel (callback) {
+		this.testModel = new DataModel({
 			text: 'hello',
 			number: 12345,
 			array: [1, 2, 3, 4, 5],
@@ -50,17 +50,17 @@ class Data_Collection_Test extends Generic_Test {
 			}
 		});
 		this.data.test.create(
-			this.test_model.attributes,
-			(error, created_model) => {
+			this.testModel.attributes,
+			(error, createdModel) => {
 				if (error) { return callback(error); }
-				this.test_model.id = this.test_model.attributes._id = created_model.id;
+				this.testModel.id = this.testModel.attributes._id = createdModel.id;
 				callback();
 			}
 		);
 	}
 
-	create_control_model (callback) {
-		this.control_model = new Data_Model({
+	createControlModel (callback) {
+		this.controlModel = new DataModel({
 			text: 'goodbye',
 			number: 54321,
 			array: [5, 4, 3, 2, 1],
@@ -71,18 +71,18 @@ class Data_Collection_Test extends Generic_Test {
 			}
 		});
 		this.data.test.create(
-			this.control_model.attributes,
-			(error, created_model) => {
+			this.controlModel.attributes,
+			(error, createdModel) => {
 				if (error) { return callback(error); }
-				this.control_model.id = this.control_model.attributes._id = created_model.id;
+				this.controlModel.id = this.controlModel.attributes._id = createdModel.id;
 				callback();
 			}
 		);
 	}
 
-	confirm_not_persisted (callback) {
-		this.mongo_data.test.get_by_id(
-			this.test_model.id,
+	confirmNotPersisted (callback) {
+		this.mongoData.test.getById(
+			this.testModel.id,
 			(error, response) => {
 				if (error) { return callback(error); }
 				if (response !== null) {
@@ -93,51 +93,51 @@ class Data_Collection_Test extends Generic_Test {
 		);
 	}
 
-	create_random_models (callback) {
+	createRandomModels (callback) {
 		this.models = new Array(10);
-		this.randomizer = Random_String.generate(20);
-		Bound_Async.times(
+		this.randomizer = RandomString.generate(20);
+		BoundAsync.times(
 			this,
 			10,
-			this.create_one_random_model,
+			this.createOneRandomModel,
 			callback
 		);
 	}
 
-	want_n (n) {
+	wantN (n) {
 		return n % 2 || n === 6;
 	}
 
-	create_one_random_model (n, callback) {
-		let flag = this.randomizer + (this.want_n(n) ? 'yes' : 'no');
-		this.models[n] = new Data_Model({
+	createOneRandomModel (n, callback) {
+		let flag = this.randomizer + (this.wantN(n) ? 'yes' : 'no');
+		this.models[n] = new DataModel({
 			text: 'hello' + n,
 			number: n,
 			flag: flag
 		});
 		this.data.test.create(
 			this.models[n].attributes,
-			(error, created_model) => {
+			(error, createdModel) => {
 				if (error) { return callback(error); }
-				this.models[n].id = this.models[n].attributes._id = created_model.id;
+				this.models[n].id = this.models[n].attributes._id = createdModel.id;
 				callback();
 			}
 		);
 	}
 
-	filter_test_models (callback) {
-		this.test_models = this.models.filter(model => {
-			return this.want_n(model.get('number'));
+	filterTestModels (callback) {
+		this.testModels = this.models.filter(model => {
+			return this.wantN(model.get('number'));
 		});
-		this.test_models.sort((a, b) => {
+		this.testModels.sort((a, b) => {
 			return a.get('number') - b.get('number');
 		});
 		callback();
 	}
 
-	update_test_model (callback) {
+	updateTestModel (callback) {
 		const update = {
-			_id: this.test_model.id,
+			_id: this.testModel.id,
 			text: 'replaced!',
 			number: 123
 		};
@@ -145,41 +145,41 @@ class Data_Collection_Test extends Generic_Test {
 			update,
 			(error) => {
 				if (error) { return callback(error); }
-				Object.assign(this.test_model.attributes, update);
+				Object.assign(this.testModel.attributes, update);
 				callback();
 			}
 		);
 	}
 
-	validate_model_response () {
+	validateModelResponse () {
 		Assert(typeof this.response === 'object', 'improper response');
 		Assert(typeof this.response.attributes === 'object', 'improper fetched model');
-		Assert.deepEqual(this.test_model.attributes, this.response.attributes, 'fetched model doesn\'t match');
+		Assert.deepEqual(this.testModel.attributes, this.response.attributes, 'fetched model doesn\'t match');
 	}
 
-	validate_object_response () {
+	validateObjectResponse () {
 		Assert(typeof this.response === 'object', 'improper response');
-		Assert.deepEqual(this.test_model.attributes, this.response, 'fetched object doesn\'t match');
+		Assert.deepEqual(this.testModel.attributes, this.response, 'fetched object doesn\'t match');
 	}
 
-	validate_array_response () {
+	validateArrayResponse () {
 		Assert(this.response instanceof Array, 'response must be an array');
-		let response_objects = this.response.map(model => { return model.attributes; });
-		let test_objects = this.test_models.map(model => { return model.attributes; });
-		response_objects.sort((a, b) => {
+		let responseObjects = this.response.map(model => { return model.attributes; });
+		let testObjects = this.testModels.map(model => { return model.attributes; });
+		responseObjects.sort((a, b) => {
 			return a.number - b.number;
 		});
-		Assert.deepEqual(test_objects, response_objects, 'fetched models don\'t match');
+		Assert.deepEqual(testObjects, responseObjects, 'fetched models don\'t match');
 	}
 
 	persist (callback) {
 		this.data.test.persist(callback);
 	}
 
-	clear_cache (callback) {
+	clearCache (callback) {
 		this.data.test.clear();
 		callback();
 	}
 }
 
-module.exports = Data_Collection_Test;
+module.exports = DataCollectionTest;

@@ -1,26 +1,26 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Mongo_Test = require('./mongo_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var MongoTest = require('./mongo_test');
 var Assert = require('assert');
 
-class Update_Direct_Test extends Mongo_Test {
+class UpdateDirectTest extends MongoTest {
 
 	get description () {
 		return 'should get the correct documents after they are directly updated';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_random_documents,
-			this.update_documents
+			this.createRandomDocuments,
+			this.updateDocuments
 		], callback);
 	}
 
-	update_documents (callback) {
+	updateDocuments (callback) {
 		let regexp = new RegExp(`^${this.randomizer}yes$`);
-		this.data.test.update_direct(
+		this.data.test.updateDirect(
 			{ flag: regexp },
 			{ $set: { text: 'goodbye'} },
 			callback
@@ -29,26 +29,26 @@ class Update_Direct_Test extends Mongo_Test {
 
 	run (callback) {
 		let ids = this.documents.map(document => { return document._id; });
-		this.data.test.get_by_ids(
+		this.data.test.getByIds(
 			ids,
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
+	validateResponse () {
 		Assert(this.response instanceof Array, 'response must be an array');
 		Assert(this.response.length === this.documents.length);
-		this.response.forEach(response_document => {
-			if (this.want_n(response_document.number)) {
-				Assert(response_document.text === 'goodbye', `expected document ${response_document._id} wasn't updated`);
+		this.response.forEach(responseDocument => {
+			if (this.wantN(responseDocument.number)) {
+				Assert(responseDocument.text === 'goodbye', `expected document ${responseDocument._id} wasn't updated`);
 			}
 			else {
-				Assert(response_document.text === 'hello' + response_document.number, `document ${response_document._id} seems to have been improperly updated`);
+				Assert(responseDocument.text === 'hello' + responseDocument.number, `document ${responseDocument._id} seems to have been improperly updated`);
 			}
 		});
 	}
 }
 
-module.exports = Update_Direct_Test;
+module.exports = UpdateDirectTest;

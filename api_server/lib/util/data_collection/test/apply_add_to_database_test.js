@@ -1,27 +1,27 @@
 'use strict';
 
-var Update_To_Database_Test = require('./update_to_database_test');
+var UpdateToDatabaseTest = require('./update_to_database_test');
 
-class Apply_Add_To_Database_Test extends Update_To_Database_Test {
+class ApplyAddToDatabaseTest extends UpdateToDatabaseTest {
 
 	get description () {
 		return 'should get the correct model after applying an add update and persisting';
 	}
 
-	update_test_model (callback) {
+	updateTestModel (callback) {
 		const update = {
 			array: 7
 		};
-		this.data.test.apply_op_by_id(
-			this.test_model.id,
+		this.data.test.applyOpById(
+			this.testModel.id,
 			{ add: update },
 			(error) => {
 				if (error) { return callback(error); }
-				this.test_model.attributes.array.push(7);
+				this.testModel.attributes.array.push(7);
 				callback();
 			}
 		);
 	}
 }
 
-module.exports = Apply_Add_To_Database_Test;
+module.exports = ApplyAddToDatabaseTest;

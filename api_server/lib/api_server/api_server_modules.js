@@ -1,17 +1,17 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var TopoSort = require('toposort');
 var FS = require('fs');
 var Path = require('path');
 
-class API_Server_Modules {
+class APIServerModules {
 
 	constructor (options) {
 		this.options = options || {};
 		this.api = options.api;
 		if (!this.api) {
-			throw 'API_Server instance required for API_Server_Modules';
+			throw 'APIServer instance required for APIServerModules';
 		}
 		this.config = this.api.config;
 		this.logger = options.logger || this.api;
@@ -19,116 +19,116 @@ class API_Server_Modules {
 		this.middlewares = [];
 		this.services = [];
 		this.routes = [];
-		this.data_sources = [];
+		this.dataSources = [];
 	}
 
-	load_modules (callback) {
-		Bound_Async.series(this, [
-			this.read_module_directory,
-			this.process_module_files,
-			this.collect_dependencies,
-			this.resolve_dependencies,
-			this.register_modules
+	loadModules (callback) {
+		BoundAsync.series(this, [
+			this.readModuleDirectory,
+			this.processModuleFiles,
+			this.collectDependencies,
+			this.resolveDependencies,
+			this.registerModules
 		], callback);
 	}
 
-	read_module_directory (callback) {
-		if (!this.config.module_directory) {
+	readModuleDirectory (callback) {
+		if (!this.config.moduleDirectory) {
 			return process.nextTick(callback);
 		}
 		FS.readdir(
-			this.config.module_directory,
-			(error, module_files) => {
+			this.config.moduleDirectory,
+			(error, moduleFiles) => {
 				if (error) { return callback(error); }
-				this.module_files = module_files;
+				this.moduleFiles = moduleFiles;
 				process.nextTick(callback);
 			}
 		);
 	}
 
-	process_module_files (callback) {
-		Bound_Async.forEachLimit(
+	processModuleFiles (callback) {
+		BoundAsync.forEachLimit(
 			this,
-			this.module_files,
+			this.moduleFiles,
 			10,
-			this.process_module_file,
+			this.processModuleFile,
 			callback
 		);
 	}
 
-	process_module_file (module_file, callback) {
-		const module_path = Path.join(this.config.module_directory, module_file);
+	processModuleFile (moduleFile, callback) {
+		const modulePath = Path.join(this.config.moduleDirectory, moduleFile);
 		FS.stat(
-			module_path,
+			modulePath,
 			(error, stats) => {
 				if (error) {
-					this.api.warn(`Could not stat ${module_file}: ${error}`);
+					this.api.warn(`Could not stat ${moduleFile}: ${error}`);
 					return process.nextTick(callback);
 				}
 				else {
-					this.process_module_directory(module_path, stats, callback);
+					this.processModuleDirectory(modulePath, stats, callback);
 				}
 			}
 		);
 	}
 
-	process_module_directory (module_directory, stats, callback) {
+	processModuleDirectory (moduleDirectory, stats, callback) {
 		if (!stats.isDirectory()) {
 			return process.nextTick(callback);
 		}
-		const module_js = Path.join(module_directory, 'module.js');
-		const name = Path.basename(module_directory);
-		let module = this.instantiate_module(module_js, name);
+		const moduleJS = Path.join(moduleDirectory, 'module.js');
+		const name = Path.basename(moduleDirectory);
+		let module = this.instantiateModule(moduleJS, name);
 		if (typeof module === 'string') {
 			return callback(module);
 		}
-		this.api.log(`Accepted module ${module_js}`);
+		this.api.log(`Accepted module ${moduleJS}`);
 		this.modules[name] = module;
 		process.nextTick(callback);
 	}
 
-	instantiate_module (module_js, name) {
-		let module_class;
+	instantiateModule (moduleJS, name) {
+		let moduleClass;
 		try {
-			module_class = require(module_js);
+			moduleClass = require(moduleJS);
 		}
 		catch(error) {
-			return `Error requiring ${module_js}: ${error}\n${error.stack}`;
+			return `Error requiring ${moduleJS}: ${error}\n${error.stack}`;
 		}
-		if (!module_class) {
-			return `No exported class found in ${module_js}`;
+		if (!moduleClass) {
+			return `No exported class found in ${moduleJS}`;
 		}
 		let module;
 		try {
-			module = new module_class({
+			module = new moduleClass({
 				modules: this,
 				api: this.api
 			});
 			module.name = module.name || name;
 		}
 		catch(error) {
-			return `Unable to instantiate module class in ${module_js}: ${error}\n${error.stack}`;
+			return `Unable to instantiate module class in ${moduleJS}: ${error}\n${error.stack}`;
 		}
 		return module;
 	}
 
-	collect_dependencies (callback) {
-		this.module_names = Object.keys(this.modules);
-		this.module_dependencies = [];
-		Bound_Async.forEachSeries(
+	collectDependencies (callback) {
+		this.moduleNames = Object.keys(this.modules);
+		this.moduleDependencies = [];
+		BoundAsync.forEachSeries(
 			this,
-			this.module_names,
-			this.collect_module_dependencies,
+			this.moduleNames,
+			this.collectModuleDependencies,
 			callback
 		);
 	}
 
-	collect_module_dependencies (module_name, callback) {
-		let module = this.modules[module_name];
-		let dependencies = module.get_dependencies();
+	collectModuleDependencies (moduleName, callback) {
+		let module = this.modules[moduleName];
+		let dependencies = module.getDependencies();
 		if (dependencies instanceof Array) {
 			dependencies.forEach(dep => {
-				this.module_dependencies.push(
+				this.moduleDependencies.push(
 					[module.name, dep]
 				);
 			});
@@ -136,12 +136,12 @@ class API_Server_Modules {
 		process.nextTick(callback);
 	}
 
-	resolve_dependencies (callback) {
+	resolveDependencies (callback) {
 		let sorted;
 		try {
 			sorted = TopoSort.array(
-				this.module_names,
-				this.module_dependencies
+				this.moduleNames,
+				this.moduleDependencies
 			);
 		}
 		catch(error) {
@@ -149,34 +149,34 @@ class API_Server_Modules {
 				return callback(`Error resolving module dependencies: ${error}`);
 			}
 		}
-		this.modules = sorted.map(module_name => this.modules[module_name]);
+		this.modules = sorted.map(moduleName => this.modules[moduleName]);
 		this.modules.reverse();
 		process.nextTick(callback);
 	}
 
-	register_modules (callback) {
-		Bound_Async.forEachSeries(
+	registerModules (callback) {
+		BoundAsync.forEachSeries(
 			this,
 			this.modules,
-			this.register_module,
+			this.registerModule,
 			callback
 		);
 	}
 
-	register_module (module, callback) {
-		Bound_Async.forEachSeries(
+	registerModule (module, callback) {
+		BoundAsync.forEachSeries(
 			this,
-			['middlewares', 'services', 'data_sources'],
-			(type, foreach_callback) => {
-				this.register_module_functions(module, type, foreach_callback);
+			['middlewares', 'services', 'dataSources'],
+			(type, foreachCallback) => {
+				this.registerModuleFunctions(module, type, foreachCallback);
 			},
 			() => {
-				this.register_module_routes(module, callback);
+				this.registerModuleRoutes(module, callback);
 			}
 		);
 	}
 
-	register_module_functions (module, type, callback) {
+	registerModuleFunctions (module, type, callback) {
 		if (typeof module[type] !== 'function') {
 			return process.nextTick(callback);
 		}
@@ -185,18 +185,18 @@ class API_Server_Modules {
 			return process.nextTick(callback);
 		}
 		functions = functions instanceof Array ? functions : [functions];
-		Bound_Async.forEachLimit(
+		BoundAsync.forEachLimit(
 			this,
 			functions,
 			10,
-			(func, foreach_callback) => {
-				this.register_one_module_function(module, type, func, foreach_callback);
+			(func, foreachCallback) => {
+				this.registerOneModuleFunction(module, type, func, foreachCallback);
 			},
 			callback
 		);
 	}
 
-	register_one_module_function (module, type, func, callback) {
+	registerOneModuleFunction (module, type, func, callback) {
 		if (typeof func === 'string' && typeof module[func] === 'function') {
 			func = module[func];
 		}
@@ -209,45 +209,45 @@ class API_Server_Modules {
 		process.nextTick(callback);
 	}
 
-	get_middleware_functions () {
+	getMiddlewareFunctions () {
 		return this.middlewares;
 	}
 
-	get_service_functions () {
+	getServiceFunctions () {
 		return this.services;
 	}
 
-	get_data_source_functions () {
-		return this.data_sources;
+	getDataSourceFunctions () {
+		return this.dataSources;
 	}
 
-	register_module_routes (module, callback) {
-		let routes = module.get_routes();
+	registerModuleRoutes (module, callback) {
+		let routes = module.getRoutes();
 		if (!routes || !(routes instanceof Array)) {
 			return process.nextTick(callback);
 		}
-		Bound_Async.forEachLimit(
+		BoundAsync.forEachLimit(
 			this,
 			routes,
 			10,
-			(route, foreach_callback) => {
-				this.register_one_module_route(module, route, foreach_callback);
+			(route, foreachCallback) => {
+				this.registerOneModuleRoute(module, route, foreachCallback);
 			},
 			callback
 		);
 	}
 
-	register_one_module_route (module, route, callback) {
-		let route_object = this.normalize_route(route, module);
-		if (!route_object) {
+	registerOneModuleRoute (module, route, callback) {
+		let routeObject = this.normalizeRoute(route, module);
+		if (!routeObject) {
 			return process.nextTick(callback);
 		}
-		this.routes.push(route_object);
+		this.routes.push(routeObject);
 		process.nextTick(callback);
 	}
 
-	normalize_route (route, module) {
-		if (!this.validate_route(route, module)) {
+	normalizeRoute (route, module) {
+		if (!this.validateRoute(route, module)) {
 			return;
 		}
 		const method = route.method;
@@ -268,8 +268,8 @@ class API_Server_Modules {
 				route.func.call(module, request, response, next);
 			};
 		}
-		else if (route.request_class) {
-			func = this.request_class_fulfiller(route.request_class, route, module);
+		else if (route.requestClass) {
+			func = this.requestClassFulfiller(route.requestClass, route, module);
 		}
 		if (!func) {
 			this.api.warn(`Invalid callback function for module ${module.name}`, route);
@@ -278,7 +278,7 @@ class API_Server_Modules {
 		return { method, path, func };
 	}
 
-	validate_route (route, module) {
+	validateRoute (route, module) {
 		if (typeof route !== 'object') {
 			this.api.warn(`Bad route object for module ${module.name}`, route);
 			return false;
@@ -287,9 +287,9 @@ class API_Server_Modules {
 			this.api.warn(`Bad method for module ${module.name}`, route);
 			return false;
 		}
-		const valid_methods = ['get', 'post', 'put', 'delete', 'options'];
+		const validMethods = ['get', 'post', 'put', 'delete', 'options'];
 		route.method = (route.method || 'get').toLowerCase();
-		if (valid_methods.indexOf(route.method) === -1) {
+		if (validMethods.indexOf(route.method) === -1) {
 			this.api.warn(`Invalid route method "${route.method}" for module ${module.name}`, route);
 			return false;
 		}
@@ -300,21 +300,21 @@ class API_Server_Modules {
 		return true;
 	}
 
-	request_class_fulfiller (request_class, route, module) {
+	requestClassFulfiller (requestClass, route, module) {
 		return (request, response) => {
-			let api_request = new request_class({
+			let apiRequest = new requestClass({
 				api: this.api,
 				module: module,
 				request: request,
 				response: response
 			});
-			api_request.fulfill();
+			apiRequest.fulfill();
 		};
 	}
 
-	get_route_objects () {
+	getRouteObjects () {
 		return this.routes;
 	}
 }
 
-module.exports = API_Server_Modules;
+module.exports = APIServerModules;

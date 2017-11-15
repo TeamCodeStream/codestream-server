@@ -1,20 +1,20 @@
 'use strict';
 
-var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 var BodyParser = require('body-parser');
 
-class Body_Parser extends API_Server_Module {
+class BodyParserModule extends APIServerModule {
 
 	middlewares () {
 		return (request, response, next) => {
-			this.body_parser_func = this.body_parser_func || BodyParser.json({
-				reviver: this.json_body_reviver
+			this.bodyParserFunc = this.bodyParserFunc || BodyParser.json({
+				reviver: this.jsonBodyReviver
 			});
-			this.body_parser_func(request, response, next);
+			this.bodyParserFunc(request, response, next);
 		};
 	}
-	
-	json_body_reviver (key, value) {
+
+	jsonBodyReviver (key, value) {
 		if (typeof value === 'string') {
 			value = value.replace(/[\u0000-\u0008\u200B-\u200F\u2028-\u202F\uFFFC\uFEFF]/g, '');
 		}
@@ -22,4 +22,4 @@ class Body_Parser extends API_Server_Module {
 	}
 }
 
-module.exports = Body_Parser;
+module.exports = BodyParserModule;

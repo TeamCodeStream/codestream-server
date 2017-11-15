@@ -1,16 +1,16 @@
 'use strict';
 
-var Random_String = require('randomstring');
+var RandomString = require('randomstring');
 
-class Random_Team_Factory {
+class RandomTeamFactory {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	random_name () {
-		return 'team ' + Random_String.generate(12);
+	randomName () {
+		return 'team ' + RandomString.generate(12);
 	}
 }
 
-module.exports = Random_Team_Factory;
+module.exports = RandomTeamFactory;

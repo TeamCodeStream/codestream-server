@@ -1,12 +1,12 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Restful_Request = require('./restful_request');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var RestfulRequest = require('./restful_request');
 
-class Get_Many_Request extends Restful_Request {
+class GetManyRequest extends RestfulRequest {
 
 	process (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			this.fetch,
 			this.sanitize,
 			this.respond
@@ -14,91 +14,91 @@ class Get_Many_Request extends Restful_Request {
 	}
 
 	fetch (callback) {
-		let query_and_options = this.make_query_and_options();
-		if (!query_and_options.query) {
-			return callback(query_and_options); // error
+		let queryAndOptions = this.makeQueryAndOptions();
+		if (!queryAndOptions.query) {
+			return callback(queryAndOptions); // error
 		}
-		let { func, query, query_options } = query_and_options;
-		this.data[this.module.collection_name][func](
+		let { func, query, queryOptions } = queryAndOptions;
+		this.data[this.module.collectionName][func](
 			query,
 			(error, models) => {
 				if (error) { return callback(error); }
 				this.models = models;
 				callback();
 			},
-			query_options
+			queryOptions
 		);
 	}
 
-	make_query_and_options () {
-		let query = this.build_query();
+	makeQueryAndOptions () {
+		let query = this.buildQuery();
 		if (typeof query === 'string') {
-			return this.error_handler.error('bad_query', { reason: query });
+			return this.errorHandler.error('badQuery', { reason: query });
 		}
-		let query_options = this.get_query_options();
+		let queryOptions = this.getQueryOptions();
 		let func;
 		if (query) {
-			func = 'get_by_query';
+			func = 'getByQuery';
 		}
 		else {
-			func = 'get_by_ids';
+			func = 'getByIds';
 			query = this.ids || this.request.query.ids || this.request.body.ids;
 			if (!query) {
-				return this.error_handler.error('parameter_required', { info: 'ids' });
+				return this.errorHandler.error('parameterRequired', { info: 'ids' });
 			}
 			if (typeof query === 'string') {
 				query = decodeURIComponent(query).toLowerCase().split(',');
 			}
 		}
-		return { func, query, query_options };
+		return { func, query, queryOptions };
 	}
 
 	sanitize (callback) {
-		this.sanitize_models(
+		this.sanitizeModels(
 			this.models,
 			(error, objects) => {
 				if (error) { return callback(error); }
-				this.sanitized_objects = objects;
+				this.sanitizedObjects = objects;
 				callback();
 			}
 		);
 	}
 
-	sanitize_models (models, callback) {
-		let sanitized_objects = [];
-		Bound_Async.forEachLimit(
+	sanitizeModels (models, callback) {
+		let sanitizedObjects = [];
+		BoundAsync.forEachLimit(
 			this,
 			models,
 			20,
-			(model, foreach_callback) => {
-				sanitized_objects.push(model.get_sanitized_object());
-				process.nextTick(foreach_callback);
+			(model, foreachCallback) => {
+				sanitizedObjects.push(model.getSanitizedObject());
+				process.nextTick(foreachCallback);
 			},
 			() => {
-				callback(null, sanitized_objects);
+				callback(null, sanitizedObjects);
 			}
 		);
 	}
 
-	sanitize_model (model, callback) {
-		this.sanitized_objects.push(model.get_sanitized_object());
+	sanitizeModel (model, callback) {
+		this.sanitizedObjects.push(model.getSanitizedObject());
 		process.nextTick(callback);
 	}
 
 	respond (callback) {
-		this.response_data = this.response_data || {};
-		const collection_name = this.module.collection_name || 'objects';
-		this.response_data[collection_name] = this.sanitized_objects;
+		this.responseData = this.responseData || {};
+		const collectionName = this.module.collectionName || 'objects';
+		this.responseData[collectionName] = this.sanitizedObjects;
 		process.nextTick(callback);
 	}
 
-	build_query () {
+	buildQuery () {
 		return null;
 	}
 
-	get_query_options () {
+	getQueryOptions () {
 		return {};
 	}
 }
 
-module.exports = Get_Many_Request;
+module.exports = GetManyRequest;

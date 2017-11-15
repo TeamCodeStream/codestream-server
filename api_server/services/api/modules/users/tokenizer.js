@@ -1,12 +1,12 @@
 'use strict';
 
-var JSON_Web_Token = require('jsonwebtoken');
+var JSONWebToken = require('jsonwebtoken');
 
 module.exports = (user, secret, callback) => {
 	let payload = {
-		user_id: user._id.toString()
+		userId: user._id.toString()
 	};
-	JSON_Web_Token.sign(
+	JSONWebToken.sign(
 		payload,
 		secret,
 		{},

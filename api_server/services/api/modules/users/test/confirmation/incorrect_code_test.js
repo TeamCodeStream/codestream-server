@@ -1,19 +1,19 @@
 'use strict';
 
-var Confirmation_Test = require('./confirmation_test');
-var Confirm_Code = require('../../confirm_code');
+var ConfirmationTest = require('./confirmation_test');
+var ConfirmCode = require('../../confirm_code');
 
-class Incorrect_Code_Test extends Confirmation_Test {
+class IncorrectCodeTest extends ConfirmationTest {
 
 	get description () {
 		return 'should return an error when an incorrect confirmation code is used during confirmation';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'USRC-1002'
 		};
@@ -21,14 +21,14 @@ class Incorrect_Code_Test extends Confirmation_Test {
 
 	before (callback) {
 		super.before(() => {
-			let new_confirm_code;
+			let newConfirmCode;
 			do {
-				new_confirm_code = Confirm_Code();
-			} while (new_confirm_code === this.data.confirmation_code);
-			this.data.confirmation_code = new_confirm_code;
+				newConfirmCode = ConfirmCode();
+			} while (newConfirmCode === this.data.confirmationCode);
+			this.data.confirmationCode = newConfirmCode;
 			callback();
 		});
 	}
 }
 
-module.exports = Incorrect_Code_Test;
+module.exports = IncorrectCodeTest;

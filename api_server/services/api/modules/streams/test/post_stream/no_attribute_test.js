@@ -1,18 +1,18 @@
 'use strict';
 
-var Post_File_Stream_Test = require('./post_file_stream_test');
+var PostFileStreamTest = require('./post_file_stream_test');
 
-class No_Attribute_Test extends Post_File_Stream_Test {
+class NoAttributeTest extends PostFileStreamTest {
 
 	get description () {
 		return `should return error when attempting to create a stream with no ${this.attribute}`;
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1002',
 			info: this.attribute
@@ -28,4 +28,4 @@ class No_Attribute_Test extends Post_File_Stream_Test {
 	}
 }
 
-module.exports = No_Attribute_Test;
+module.exports = NoAttributeTest;

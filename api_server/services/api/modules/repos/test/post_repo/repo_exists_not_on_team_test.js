@@ -1,12 +1,12 @@
 'use strict';
 
-var Repo_Exists_Test = require('./repo_exists_test');
+var RepoExistsTest = require('./repo_exists_test');
 
-class Repo_Exists_Not_On_Team_Test extends Repo_Exists_Test {
+class RepoExistsNotOnTeamTest extends RepoExistsTest {
 
 	constructor (options) {
 		super(options);
-		this.test_options.dont_include_current_user = true;
+		this.testOptions.dontIncludeCurrentUser = true;
 	}
 
 	get description () {
@@ -14,4 +14,4 @@ class Repo_Exists_Not_On_Team_Test extends Repo_Exists_Test {
 	}
 }
 
-module.exports = Repo_Exists_Not_On_Team_Test;
+module.exports = RepoExistsNotOnTeamTest;

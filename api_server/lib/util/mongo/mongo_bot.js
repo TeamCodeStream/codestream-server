@@ -1,28 +1,28 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Mongo_Bot {
+class MongoBot {
 
 	constructor (options) {
 		Object.assign(this, options);
-		this.iteration_data = {};
+		this.iterationData = {};
 		this.errors = [];
 	}
 
 	foreach (collection, query, iterator, callback) {
-		if (!this.mongo_client) {
+		if (!this.mongoClient) {
 			return callback('no mongo client');
 		}
-		if (!this.mongo_client.mongo_collections[collection]) {
+		if (!this.mongoClient.mongoCollections[collection]) {
 			return callback('invalid collection: ' + collection);
 		}
 		this.iterator = iterator;
-		this.mongo_client.mongo_collections[collection].get_by_query(
+		this.mongoClient.mongoCollections[collection].getByQuery(
 			query,
 			(error, results) => {
 				if (error) { return callback(error); }
-				this.handle_cursor_results(results, callback);
+				this.handleCursorResults(results, callback);
 			},
 			{
 				stream: true
@@ -30,18 +30,18 @@ class Mongo_Bot {
 		);
 	}
 
-	handle_cursor_results (results, callback) {
+	handleCursorResults (results, callback) {
 		this.results = results;
 		this.done = false;
-		Bound_Async.whilst(
+		BoundAsync.whilst(
 			this,
 			() => {
 				return !this.done;
 			},
-			(whilst_callback) => {
+			(whilstCallback) => {
 				this.results.cursor.nextObject((error, object) => {
 					if (error) { return callback(error); }
-					this.handle_next_object(object, whilst_callback);
+					this.handleNextObject(object, whilstCallback);
 				});
 			},
 			(error) => {
@@ -50,7 +50,7 @@ class Mongo_Bot {
 		);
 	}
 
-	handle_next_object (object, callback) {
+	handleNextObject (object, callback) {
 		if (!object) {
 			this.done = true;
 			this.results.done();
@@ -60,7 +60,7 @@ class Mongo_Bot {
 			object,
 			(error) => {
 				if (error) {
-					if (this.error_fatal) {
+					if (this.errorFatal) {
 						this.done = true;
 						return callback(error);
 					}
@@ -72,9 +72,9 @@ class Mongo_Bot {
 				const wait = this.throttle || 0;
 				setTimeout(callback, wait);
 			},
-			this.iteration_data
+			this.iterationData
 		);
 	}
 }
 
-module.exports = Mongo_Bot;
+module.exports = MongoBot;

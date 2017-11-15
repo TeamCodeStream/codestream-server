@@ -1,32 +1,32 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Model_Creator {
+class ModelCreator {
 
 	constructor (options) {
 		Object.assign(this, options);
-		['data', 'api', 'error_handler', 'user'].forEach(x => this[x] = this.request[x]);
-		this.attach_to_response = {};
+		['data', 'api', 'errorHandler', 'user'].forEach(x => this[x] = this.request[x]);
+		this.attachToResponse = {};
 	}
 
-	create_model (attributes, callback) {
-		this.collection = this.data[this.collection_name];
+	createModel (attributes, callback) {
+		this.collection = this.data[this.collectionName];
 		if (!this.collection) {
-			return callback(this.error_handler.error('internal', { reason: `collection ${this.collection_name} is not a valid collection` }));
+			return callback(this.errorHandler.error('internal', { reason: `collection ${this.collectionName} is not a valid collection` }));
 		}
 
 		this.attributes = attributes;
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			this.normalize,
-			this.require_attributes,
+			this.requireAttributes,
 			this.validate,
-			this.allow_attributes,
-			this.check_existing,
-			this.pre_save,
-			this.check_validation_warnings,
-			this.create_or_update,
-			this.post_save
+			this.allowAttributes,
+			this.checkExisting,
+			this.preSave,
+			this.checkValidationWarnings,
+			this.createOrUpdate,
+			this.postSave
 		], (error) => {
 	 		callback(error, this.model);
 		});
@@ -36,33 +36,33 @@ class Model_Creator {
 		process.nextTick(callback);
 	}
 
-	require_attributes (callback) {
-		let required_attributes = this.get_required_attributes() || [];
-		let missing_attributes = [];
-		required_attributes.forEach(attribute => {
+	requireAttributes (callback) {
+		let requiredAttributes = this.getRequiredAttributes() || [];
+		let missingAttributes = [];
+		requiredAttributes.forEach(attribute => {
 			if (typeof this.attributes[attribute] === 'undefined') {
-				missing_attributes.push(attribute);
+				missingAttributes.push(attribute);
 			}
 		});
-		if (missing_attributes.length) {
-			return callback(this.error_handler.error('attribute_required', { info: missing_attributes.join(',') }));
+		if (missingAttributes.length) {
+			return callback(this.errorHandler.error('attributeRequired', { info: missingAttributes.join(',') }));
 		}
 		else {
 			process.nextTick(callback);
 		}
 	}
 
-	get_required_attributes () {
+	getRequiredAttributes () {
 		return null;
 	}
 
 	validate (callback) {
-		this.validate_attributes((errors) => {
+		this.validateAttributes((errors) => {
 			if (errors) {
 				if (!(errors instanceof Array)) {
 					errors = [errors];
 				}
-				return callback(this.error_handler.error('validation', { info: errors }));
+				return callback(this.errorHandler.error('validation', { info: errors }));
 			}
 			else {
 				return process.nextTick(callback);
@@ -70,81 +70,81 @@ class Model_Creator {
 		});
 	}
 
-	validate_attributes (callback) {
+	validateAttributes (callback) {
 		process.nextTick(callback);
 	}
 
-	allow_attributes (callback) {
+	allowAttributes (callback) {
 		process.nextTick(callback);
 	}
 
-	check_existing (callback) {
-		let query = this.check_existing_query();
+	checkExisting (callback) {
+		let query = this.checkExistingQuery();
 		if (!query) {
 			return process.nextTick(callback);
 		}
-		this.collection.get_one_by_query(
+		this.collection.getOneByQuery(
 			query,
 			(error, model) => {
 				if (error) { return callback(error); }
 				if (model) {
-					if (!this.model_can_exist(model)) {
-						return callback(this.error_handler.error('exists'));
+					if (!this.modelCanExist(model)) {
+						return callback(this.errorHandler.error('exists'));
 					}
-					this.existing_model = model;
+					this.existingModel = model;
 				}
 				return process.nextTick(callback);
 			}
 		);
 	}
 
-	check_existing_query () {
+	checkExistingQuery () {
 		return null;
 	}
 
-	model_can_exist (/*model*/) {
+	modelCanExist (/*model*/) {
 		return false;
 	}
 
-	pre_save (callback) {
-		if (this.existing_model) {
-			if (this.dont_save_if_exists) {
-				this.model = this.existing_model;
+	preSave (callback) {
+		if (this.existingModel) {
+			if (this.dontSaveIfExists) {
+				this.model = this.existingModel;
 				return callback();
 			}
-			this.attributes = Object.assign({}, this.existing_model.attributes, this.attributes);
+			this.attributes = Object.assign({}, this.existingModel.attributes, this.attributes);
 		}
-		this.model = new this.model_class(this.attributes);
-		this.model.pre_save(
+		this.model = new this.modelClass(this.attributes);
+		this.model.preSave(
 			(errors) => {
 				if (errors) {
 					if (!(errors instanceof Array)) {
 						errors = [errors];
 					}
-					return callback(this.error_handler.error('validation', { info: errors }));
+					return callback(this.errorHandler.error('validation', { info: errors }));
 				}
 				else {
 					return process.nextTick(callback);
 				}
 			},
 			{
-				new: !this.existing_model
+				new: !this.existingModel
 			}
 		);
 	}
 
-	check_validation_warnings (callback) {
+	checkValidationWarnings (callback) {
 		if (
-			this.model.validation_warnings instanceof Array &&
+			this.model.validationWarnings instanceof Array &&
 			this.api
 		) {
-			this.api.warn(`Validation warnings: \n${this.model.validation_warnings.join('\n')}`);
+			this.api.warn(`Validation warnings: \n${this.model.validationWarnings.join('\n')}`);
 		}
 		process.nextTick(callback);
 	}
 
-	create_or_update (callback) {
-		if (this.existing_model) {
+	createOrUpdate (callback) {
+		if (this.existingModel) {
 			this.update(callback);
 		}
 		else {
@@ -153,16 +153,16 @@ class Model_Creator {
 	}
 
 	update (callback) {
-		if (this.dont_save_if_exists) {
-			this.model = this.existing_model;
+		if (this.dontSaveIfExists) {
+			this.model = this.existingModel;
 			return process.nextTick(callback);
 		}
 		this.collection.update(
 			this.model.attributes,
-			(error, updated_model) => {
+			(error, updatedModel) => {
 				if (error) { return callback(error); }
-				this.model = updated_model;
-				this.did_exist = true;
+				this.model = updatedModel;
+				this.didExist = true;
 				process.nextTick(callback);
 			}
 		);
@@ -171,17 +171,17 @@ class Model_Creator {
 	create (callback) {
 		this.collection.create(
 			this.model.attributes,
-			(error, created_model) => {
+			(error, createdModel) => {
 				if (error) { return callback(error); }
-				this.model = created_model;
+				this.model = createdModel;
 				process.nextTick(callback);
 			}
 		);
 	}
 
-	post_save (callback) {
+	postSave (callback) {
 		process.nextTick(callback);
 	}
 }
 
-module.exports = Model_Creator;
+module.exports = ModelCreator;

@@ -1,45 +1,45 @@
 'use strict';
 
-var Get_Myself_Test = require('./get_myself_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-const User_Test_Constants = require('../user_test_constants');
-const User_Attributes = require('../../user_attributes');
+var GetMyselfTest = require('./get_myself_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const UserTestConstants = require('../user_test_constants');
+const UserAttributes = require('../../user_attributes');
 
-class Get_My_Attributes_Test extends Get_Myself_Test {
+class GetMyAttributesTest extends GetMyselfTest {
 
 	get description () {
 		return 'should return me-only attributes when requesting myself';
 	}
 
-	get_expected_fields () {
-		let user_response = {};
-		user_response.user = [...User_Test_Constants.EXPECTED_USER_FIELDS, ...User_Test_Constants.EXPECTED_ME_FIELDS];
-		return user_response;
+	getExpectedFields () {
+		let userResponse = {};
+		userResponse.user = [...UserTestConstants.EXPECTED_USER_FIELDS, ...UserTestConstants.EXPECTED_ME_FIELDS];
+		return userResponse;
 	}
 
 	before (callback) {
 		this.id = 'me';
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo,
-			this.create_stream,
-			this.create_post,
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepo,
+			this.createStream,
+			this.createPost,
 			super.before
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -47,55 +47,55 @@ class Get_My_Attributes_Test extends Get_Myself_Test {
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email],
-				with_random_emails: 1,
-				token: this.other_user_data.access_token
+				withEmails: [this.currentUser.email],
+				withRandomEmails: 1,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	create_stream (callback) {
-		let stream_options = {
+	createStream (callback) {
+		let streamOptions = {
 			type: 'file',
-			team_id: this.team._id,
-			repo_id: this.repo._id,
-			token: this.other_user_data.access_token
+			teamId: this.team._id,
+			repoId: this.repo._id,
+			token: this.otherUserData.accessToken
 		};
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	create_post (callback) {
-		let post_options = {
-			stream_id: this.stream._id,
-			token: this.other_user_data.access_token
+	createPost (callback) {
+		let postOptions = {
+			streamId: this.stream._id,
+			token: this.otherUserData.accessToken
 		};
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.post = response.post;
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 
-	validate_sanitized (user, fields) {
-		let me_attributes = Object.keys(User_Attributes).filter(attribute => User_Attributes[attribute].for_me);
-		me_attributes.forEach(attribute => {
+	validateSanitized (user, fields) {
+		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
+		meAttributes.forEach(attribute => {
 			let index = fields.indexOf(attribute);
 			if (index !== -1) {
 				fields.splice(index, 1);
 			}
 		});
-		super.validate_sanitized(user, fields);
+		super.validateSanitized(user, fields);
 	}
 }
 
-module.exports = Get_My_Attributes_Test;
+module.exports = GetMyAttributesTest;

@@ -1,23 +1,23 @@
 'use strict';
 
-var Get_Teams_Test = require('./get_teams_test');
+var GetTeamsTest = require('./get_teams_test');
 
-class Get_Teams_By_Id_Test extends Get_Teams_Test {
+class GetTeamsByIdTest extends GetTeamsTest {
 
 	get description () {
 		return 'should return the correct teams when requesting teams by ID';
 	}
 
-	set_path (callback) {
-		this.path = `/teams?ids=${this.my_team._id},${this.other_teams[0]._id}`;
+	setPath (callback) {
+		this.path = `/teams?ids=${this.myTeam._id},${this.otherTeams[0]._id}`;
 		callback();
 	}
 
-	validate_response (data) {
-		let my_teams = [this.my_team, this.other_teams[0]];
-		this.validate_matching_objects(my_teams, data.teams, 'teams');
-		super.validate_response(data);
+	validateResponse (data) {
+		let myTeams = [this.myTeam, this.otherTeams[0]];
+		this.validateMatchingObjects(myTeams, data.teams, 'teams');
+		super.validateResponse(data);
 	}
 }
 
-module.exports = Get_Teams_By_Id_Test;
+module.exports = GetTeamsByIdTest;

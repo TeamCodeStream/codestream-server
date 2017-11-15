@@ -1,46 +1,46 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-const Stream_Test_Constants = require('../stream_test_constants');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const StreamTestConstants = require('../stream_test_constants');
 
-class Get_Streams_Test extends CodeStream_API_Test {
+class GetStreamsTest extends CodeStreamAPITest {
 
 	before (callback) {
-		this.users_by_team = {};
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo_with_me,
-			this.create_repo_without_me,
-			this.create_channel_direct_streams,
-			this.create_file_streams,
-			this.set_path
+		this.usersByTeam = {};
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepoWithMe,
+			this.createRepoWithoutMe,
+			this.createChannelDirectStreams,
+			this.createFileStreams,
+			this.setPath
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo_with_me (callback) {
+	createRepoWithMe (callback) {
 		let options = {
-			with_emails: [this.current_user.email],
-			with_random_emails: 2,
-			token: this.other_user_data.access_token
+			withEmails: [this.currentUser.email],
+			withRandomEmails: 2,
+			token: this.otherUserData.accessToken
 		};
-		this.repo_factory.create_random_repo(
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.my_repo = response.repo;
-				this.my_team = response.team;
-				this.users_by_team[this.my_team._id] = response.users.filter(user => {
-					return user._id !== this.current_user._id && user._id !== this.other_user_data.user._id;
+				this.myRepo = response.repo;
+				this.myTeam = response.team;
+				this.usersByTeam[this.myTeam._id] = response.users.filter(user => {
+					return user._id !== this.currentUser._id && user._id !== this.otherUserData.user._id;
 				});
 				callback();
 			},
@@ -48,122 +48,122 @@ class Get_Streams_Test extends CodeStream_API_Test {
 		);
 	}
 
-	create_repo_without_me (callback) {
+	createRepoWithoutMe (callback) {
 		let options = {
-			with_emails: [this.users_by_team[this.my_team._id][0].email],
-			with_random_emails: 1,
-			token: this.other_user_data.access_token
+			withEmails: [this.usersByTeam[this.myTeam._id][0].email],
+			withRandomEmails: 1,
+			token: this.otherUserData.accessToken
 		};
-		this.repo_factory.create_random_repo(
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.foreign_repo = response.repo;
-				this.foreign_team = response.team;
-				this.users_by_team[this.foreign_team._id] = response.users;
+				this.foreignRepo = response.repo;
+				this.foreignTeam = response.team;
+				this.usersByTeam[this.foreignTeam._id] = response.users;
 				callback();
 			},
 			options
 		);
 	}
 
-	create_channel_direct_streams (callback) {
-		this.streams_by_team = {};
-		Bound_Async.forEachSeries(
+	createChannelDirectStreams (callback) {
+		this.streamsByTeam = {};
+		BoundAsync.forEachSeries(
 			this,
-			[this.my_team, this.foreign_team],
-			this.create_channel_direct_streams_for_team,
+			[this.myTeam, this.foreignTeam],
+			this.createChannelDirectStreamsForTeam,
 			callback
 		);
 	}
 
-	create_channel_direct_streams_for_team (team, callback) {
-		this.streams_by_team[team._id] = [];
-		Bound_Async.forEachSeries(
+	createChannelDirectStreamsForTeam (team, callback) {
+		this.streamsByTeam[team._id] = [];
+		BoundAsync.forEachSeries(
 			this,
 			['channel', 'direct'],
-			(type, foreach_callback) => {
-				this.create_streams_for_team(team, type, foreach_callback);
+			(type, foreachCallback) => {
+				this.createStreamsForTeam(team, type, foreachCallback);
 			},
 			callback
 		);
 	}
 
-	create_streams_for_team (team, type, callback) {
-		Bound_Async.timesSeries(
+	createStreamsForTeam (team, type, callback) {
+		BoundAsync.timesSeries(
 			this,
 			2,
-			(n, times_callback) => {
-				this.create_stream_for_team(team, type, n, times_callback);
+			(n, timesCallback) => {
+				this.createStreamForTeam(team, type, n, timesCallback);
 			},
 			callback
 		);
 	}
 
-	create_stream_for_team (team, type, n, callback) {
-		let user = this.users_by_team[team._id][n];
+	createStreamForTeam (team, type, n, callback) {
+		let user = this.usersByTeam[team._id][n];
 		let options = {
-			team_id: team._id,
+			teamId: team._id,
 			type: type,
-			member_ids: [user._id],
-			token: this.other_user_data.access_token
+			memberIds: [user._id],
+			token: this.otherUserData.accessToken
 		};
 		if (n % 2 === 1) {
-			options.member_ids.push(this.current_user._id);
+			options.memberIds.push(this.currentUser._id);
 		}
 
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.streams_by_team[team._id].push(response.stream);
+				this.streamsByTeam[team._id].push(response.stream);
 				callback();
 			},
 			options
 		);
 	}
 
-	create_file_streams (callback) {
-		this.streams_by_repo = {};
-		Bound_Async.forEachSeries(
+	createFileStreams (callback) {
+		this.streamsByRepo = {};
+		BoundAsync.forEachSeries(
 			this,
-			[this.my_repo, this.foreign_repo],
-			this.create_file_streams_for_repo,
+			[this.myRepo, this.foreignRepo],
+			this.createFileStreamsForRepo,
 			callback
 		);
 	}
 
-	create_file_streams_for_repo (repo, callback) {
-		this.streams_by_repo[repo._id] = [];
-		Bound_Async.timesSeries(
+	createFileStreamsForRepo (repo, callback) {
+		this.streamsByRepo[repo._id] = [];
+		BoundAsync.timesSeries(
 			this,
 			3,
-			(n, times_callback) => {
-				this.create_file_stream_for_repo(repo, times_callback);
+			(n, timesCallback) => {
+				this.createFileStreamForRepo(repo, timesCallback);
 			},
 			callback
 		);
 	}
 
-	create_file_stream_for_repo (repo, callback) {
+	createFileStreamForRepo (repo, callback) {
 		let options = {
-			team_id: repo.team_id,
-			repo_id: repo._id,
+			teamId: repo.teamId,
+			repoId: repo._id,
 			type: 'file',
-			token: this.other_user_data.access_token
+			token: this.otherUserData.accessToken
 		};
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.streams_by_repo[repo._id].push(response.stream);
+				this.streamsByRepo[repo._id].push(response.stream);
 				callback();
 			},
 			options
 		);
 	}
 
-	validate_response (data) {
-		this.validate_matching_objects(this.my_streams, data.streams, 'streams');
-		this.validate_sanitized_objects(data.streams, Stream_Test_Constants.UNSANITIZED_ATTRIBUTES);
+	validateResponse (data) {
+		this.validateMatchingObjects(this.myStreams, data.streams, 'streams');
+		this.validateSanitizedObjects(data.streams, StreamTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = Get_Streams_Test;
+module.exports = GetStreamsTest;

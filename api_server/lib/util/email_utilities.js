@@ -2,7 +2,7 @@
 
 module.exports = {
 
-	parse_email (email) {
+	parseEmail (email) {
 		if (typeof email !== 'string') {
 			return 'email must be string';
 		}
@@ -10,8 +10,8 @@ module.exports = {
 		if (parts.length !== 2) {
 			return 'invalid email';
 		}
-		let domain_parts = parts[1].split('.');
-		if (domain_parts.length < 1) {
+		let domainParts = parts[1].split('.');
+		if (domainParts.length < 1) {
 			return 'invalid domain';
 		}
 		return {

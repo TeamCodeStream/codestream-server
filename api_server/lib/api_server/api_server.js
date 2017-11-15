@@ -1,17 +1,17 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var API_Server_Modules = require('./api_server_modules.js');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var APIServerModules = require('./api_server_modules.js');
 var Express = require('express');
 var HTTPS = require('https');
 var HTTP = require('http');
 var FS = require('fs');
 
-class API_Server {
+class APIServer {
 
 	constructor (config) {
 		this.config = config;
-		if (!config.no_logging) {
+		if (!config.noLogging) {
 			this.logger = this.config.logger || console;
 		}
 		this.express = Express();
@@ -20,86 +20,86 @@ class API_Server {
 	}
 
 	start (callback) {
-		Bound_Async.series(this, [
-			this.set_listeners,
-			this.load_modules,
-			this.start_services,
-			this.register_middleware,
-			this.register_routes,
-			this.register_data_sources,
+		BoundAsync.series(this, [
+			this.setListeners,
+			this.loadModules,
+			this.startServices,
+			this.registerMiddleware,
+			this.registerRoutes,
+			this.registerDataSources,
 			this.listen
 		], (error) => {
 			return callback && callback(error);
 		});
 	}
 
-	set_listeners (callback) {
-		process.on('message', this.handle_message.bind(this));
-		process.on('SIGINT', this.on_sigint.bind(this));
-		process.on('SIGTERM', this.on_sigterm.bind(this));
+	setListeners (callback) {
+		process.on('message', this.handleMessage.bind(this));
+		process.on('SIGINT', this.onSigint.bind(this));
+		process.on('SIGTERM', this.onSigterm.bind(this));
 		process.nextTick(callback);
 	}
 
-	load_modules (callback) {
+	loadModules (callback) {
 		this.log('Loading modules...');
-		this.modules = new API_Server_Modules({
+		this.modules = new APIServerModules({
 			api: this
 		});
-		this.modules.load_modules(callback);
+		this.modules.loadModules(callback);
 	}
 
-	start_services (callback) {
+	startServices (callback) {
 		this.log('Starting services...');
-		let service_functions = this.modules.get_service_functions();
-		Bound_Async.forEachLimit(
+		let serviceFunctions = this.modules.getServiceFunctions();
+		BoundAsync.forEachLimit(
 			this,
-			service_functions,
+			serviceFunctions,
 			10,
-			this.start_service,
+			this.startService,
 			callback
 		);
 	}
 
-	start_service (service_function, callback) {
-		service_function(
-			(error, services_to_accept) => {
+	startService (serviceFunction, callback) {
+		serviceFunction(
+			(error, servicesToAccept) => {
 				if (error) { return callback(error); }
-				this.accept_services(services_to_accept, callback);
+				this.acceptServices(servicesToAccept, callback);
 			}
 		);
 	}
 
-	accept_services (services, callback) {
-		Bound_Async.forEachLimit(
+	acceptServices (services, callback) {
+		BoundAsync.forEachLimit(
 			this,
 			services,
 			10,
-			this.accept_service,
+			this.acceptService,
 			callback
 		);
 	}
 
-	accept_service (service, callback) {
+	acceptService (service, callback) {
 		Object.assign(this.services, service);
 		process.nextTick(callback);
 	}
 
-	register_middleware (callback) {
+	registerMiddleware (callback) {
 		this.log('Registering middleware...');
-		this.express.use(this.setup_request.bind(this));
-		let middleware_functions = this.modules.get_middleware_functions();
-		Bound_Async.forEachLimit(
+		this.express.use(this.setupRequest.bind(this));
+		let middlewareFunctions = this.modules.getMiddlewareFunctions();
+		BoundAsync.forEachLimit(
 			this,
-			middleware_functions,
+			middlewareFunctions,
 			10,
-			this.register_middleware_function,
+			this.registerMiddlewareFunction,
 			() => {
-				this.register_error_handler(callback);
+				this.registerErrorHandler(callback);
 			}
 		);
 	}
 
-	register_error_handler (callback) {
+	registerErrorHandler (callback) {
 		this.express.use((error, request, response, next) => {
 			this.error('Express error: ' + error.message + '\n' + error.stack);
 			if (!response.headersSent) {
@@ -111,91 +111,91 @@ class API_Server {
 		callback();
 	}
 
-	setup_request (request, response, next) {
+	setupRequest (request, response, next) {
 		request.api = this;
-		request.api_modules = this.modules;
+		request.apiModules = this.modules;
 		process.nextTick(next);
 	}
 
-	register_middleware_function (middleware, callback) {
+	registerMiddlewareFunction (middleware, callback) {
 		this.express.use(middleware);
 		process.nextTick(callback);
 	}
 
-	register_data_sources (callback) {
+	registerDataSources (callback) {
 		this.log('Registering data sources...');
-		let data_source_functions = this.modules.get_data_source_functions();
-		Bound_Async.forEachLimit(
+		let dataSourceFunctions = this.modules.getDataSourceFunctions();
+		BoundAsync.forEachLimit(
 			this,
-			data_source_functions,
+			dataSourceFunctions,
 			10,
-			this.register_data_source,
+			this.registerDataSource,
 			callback
 		);
 	}
 
-	register_data_source (data_source_function, callback) {
-		let data_source = data_source_function();
-		Object.assign(this.data, data_source);
+	registerDataSource (dataSourceFunction, callback) {
+		let dataSource = dataSourceFunction();
+		Object.assign(this.data, dataSource);
 		return process.nextTick(callback);
 	}
 
-	register_routes (callback) {
+	registerRoutes (callback) {
 		this.log('Registering routes...');
-		let route_objects = this.modules.get_route_objects();
-		Bound_Async.forEachLimit(
+		let routeObjects = this.modules.getRouteObjects();
+		BoundAsync.forEachLimit(
 			this,
-			route_objects,
+			routeObjects,
 			10,
-			this.register_route_object,
+			this.registerRouteObject,
 			callback
 		);
 	}
 
-	register_route_object (route_object, callback) {
-		let middleware = route_object.middleware || [];
-		let args = [ route_object.path, ...middleware, route_object.func];
-		this.express[route_object.method].apply(this.express, args);
+	registerRouteObject (routeObject, callback) {
+		let middleware = routeObject.middleware || [];
+		let args = [ routeObject.path, ...middleware, routeObject.func];
+		this.express[routeObject.method].apply(this.express, args);
 		process.nextTick(callback);
 	}
 
 	listen (callback) {
-		const server_options = this.get_server_options();
-		if (typeof server_options === 'string') {
-			return callback('failed to make server options: ' + server_options);
+		const serverOptions = this.getServerOptions();
+		if (typeof serverOptions === 'string') {
+			return callback('failed to make server options: ' + serverOptions);
 		}
-		if (this.config.express.https && !this.config.express.ignore_https) {
+		if (this.config.express.https && !this.config.express.ignoreHttps) {
 			this.log('Creating HTTPS server...');
-			this.express_server = HTTPS.createServer(
-				server_options,
+			this.expressServer = HTTPS.createServer(
+				serverOptions,
 				this.express
 			).listen(this.config.express.port);
 		}
 		else {
 			this.log('Creating HTTP server...');
-			this.express_server = HTTP.createServer(
+			this.expressServer = HTTP.createServer(
 				this.express
 			).listen(this.config.express.port);
 		}
-		this.express_server.on('error', (error) => {
+		this.expressServer.on('error', (error) => {
 			callback('Unable to start server on port ' + this.config.express.port + ': ' + error);
 		});
-		this.express_server.on('listening', () => {
+		this.expressServer.on('listening', () => {
 			this.log('Listening on port ' + this.config.express.port + '...');
 			callback();
 		});
 	}
 
-	get_server_options () {
+	getServerOptions () {
 		let options = {};
-		const error = this.make_https_options(options);
+		const error = this.makeHttpsOptions(options);
 		if (error) {
 			return error;
 		}
 		return options;
 	}
 
-	make_https_options (options) {
+	makeHttpsOptions (options) {
 		if (
 			this.config.express.https &&
 			this.config.express.https.keyfile &&
@@ -214,81 +214,81 @@ class API_Server {
 				return 'could not read certificate file: ' + this.config.express.https.certfile + ': ' + error;
 			}
 			if (this.config.express.https.cafile) {
-				let ca_certificate;
+				let caCertificate;
 				try {
-					ca_certificate = FS.readFileSync(this.config.express.https.cafile);
+					caCertificate = FS.readFileSync(this.config.express.https.cafile);
 				}
 				catch(error) {
 					return 'could not read certificate chain file: ' + this.config.express.https.cafile + ': ' + error;
 				}
-				options.ca = ca_certificate;
+				options.ca = caCertificate;
 			}
 		}
 	}
 
-	handle_message (message) {
+	handleMessage (message) {
 		if (typeof message !== 'object') { return; }
 		if (message.shutdown) {
 			this.shutdown();
 		}
-		else if (message.want_shutdown) {
-			this.want_shutdown(message.signal || 'signal');
+		else if (message.wantShutdown) {
+			this.wantShutdown(message.signal || 'signal');
 		}
-		else if (message.you_are) {
-			this.worker_id = message.you_are;
+		else if (message.youAre) {
+			this.workerId = message.youAre;
 			if (this.config.logger) {
-				this.logger_id = 'W' + this.worker_id;
-				this.config.logger.logger_id = this.logger_id;
-				this.config.logger.logger_host = this.config.express.host;
+				this.loggerId = 'W' + this.workerId;
+				this.config.logger.loggerId = this.loggerId;
+				this.config.logger.loggerHost = this.config.express.host;
 			}
 		}
 	}
 
 	shutdown () {
-		if (this.shutting_down) { return; }
-		this.shutting_down = true;
+		if (this.shuttingDown) { return; }
+		this.shuttingDown = true;
 		setTimeout(() => {
 			process.exit(0);
 		}, 100);
 	}
 
-	want_shutdown (signal) {
-		let num_open_requests =
-			this.services.request_tracker &&
-			this.services.request_tracker.num_open_requests();
+	wantShutdown (signal) {
+		let numOpenRequests =
+			this.services.requestTracker &&
+			this.services.requestTracker.numOpenRequests();
 
-		if (num_open_requests && !this.kill_received) {
-			this.critical('Worker ' + this.worker_id + ' received ' + signal + ', waiting for ' + num_open_requests + ' requests to complete, send ' + signal + ' again to kill');
-			this.kill_received = true;
+		if (numOpenRequests && !this.killReceived) {
+			this.critical('Worker ' + this.workerId + ' received ' + signal + ', waiting for ' + numOpenRequests + ' requests to complete, send ' + signal + ' again to kill');
+			this.killReceived = true;
 			setTimeout(
-				() => {	this.kill_received = false; },
+				() => {	this.killReceived = false; },
 				5000
 			);
-			this.express_server.close();
-			this.shutdown_pending = true;
+			this.expressServer.close();
+			this.shutdownPending = true;
 		}
 		else {
-			if (num_open_requests) {
-				this.critical('Worker ' + this.worker_id + ' received ' + signal + ', shutting down despite ' + num_open_requests + ' open requests...');
+			if (numOpenRequests) {
+				this.critical('Worker ' + this.workerId + ' received ' + signal + ', shutting down despite ' + numOpenRequests + ' open requests...');
 			}
 			else {
-				this.critical('Worker ' + this.worker_id + ' received ' + signal + ' and has no open requests, shutting down...');
+				this.critical('Worker ' + this.workerId + ' received ' + signal + ' and has no open requests, shutting down...');
 			}
 			this.shutdown();
 		}
 	}
 
-	no_more_requests () {
-		if (this.shutdown_pending) {
-			this.critical('Worker ' + this.worker_id + ' has no more open requests, shutting down...');
+	noMoreRequests () {
+		if (this.shutdownPending) {
+			this.critical('Worker ' + this.workerId + ' has no more open requests, shutting down...');
 			this.shutdown();
 		}
 	}
 
-	on_sigint () {
+	onSigint () {
 	}
 
-	on_sigterm () {
+	onSigterm () {
 	}
 
 	critical (message) {
@@ -322,4 +322,4 @@ class API_Server {
 	}
 }
 
-module.exports = API_Server;
+module.exports = APIServer;

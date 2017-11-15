@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-	current_version: {
+	currentVersion: {
 		major: 1,
 		minor: 0,
 		build: 0

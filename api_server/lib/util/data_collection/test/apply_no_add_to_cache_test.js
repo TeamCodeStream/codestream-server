@@ -1,23 +1,23 @@
 'use strict';
 
-var Update_To_Cache_Test = require('./update_to_cache_test');
+var UpdateToCacheTest = require('./update_to_cache_test');
 
-class Apply_No_Add_To_Cache_Test extends Update_To_Cache_Test {
+class ApplyNoAddToCacheTest extends UpdateToCacheTest {
 
 	get description () {
 		return 'should get an unchanged model after applying a no-op add update to a cached model';
 	}
 
-	update_test_model (callback) {
+	updateTestModel (callback) {
 		const update = {
 			array: 4
 		};
-		this.data.test.apply_op_by_id(
-			this.test_model.id,
+		this.data.test.applyOpById(
+			this.testModel.id,
 			{ add: update },
 			callback
 		);
 	}
 }
 
-module.exports = Apply_No_Add_To_Cache_Test;
+module.exports = ApplyNoAddToCacheTest;

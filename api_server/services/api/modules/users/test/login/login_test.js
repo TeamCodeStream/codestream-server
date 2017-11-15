@@ -1,10 +1,10 @@
 'use strict';
 
 var Assert = require('assert');
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const User_Test_Constants = require('../user_test_constants');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const UserTestConstants = require('../user_test_constants');
 
-class Login_Test extends CodeStream_API_Test {
+class LoginTest extends CodeStreamAPITest {
 
 	get description () {
 		return 'should return valid user when doing login';
@@ -18,31 +18,31 @@ class Login_Test extends CodeStream_API_Test {
 		return '/no-auth/login';
 	}
 
-	get_expected_fields () {
-		return User_Test_Constants.EXPECTED_LOGIN_RESPONSE;
+	getExpectedFields () {
+		return UserTestConstants.EXPECTED_LOGIN_RESPONSE;
 	}
 
-	dont_want_token () {
+	dontWantToken () {
 		return true;
 	}
 
 	before (callback) {
-		this.user_data = this.user_factory.get_random_user_data();
-		this.user_factory.create_user(this.user_data, (error, user_data) => {
+		this.userData = this.userFactory.getRandomUserData();
+		this.userFactory.createUser(this.userData, (error, userData) => {
 			if (error) { return callback(error); }
-			this.user = user_data.user;
+			this.user = userData.user;
 			this.data = {
 				email: this.user.email,
-				password: this.user_data.password
+				password: this.userData.password
 			};
 			callback();
 		});
 	}
 
-	validate_response (data) {
+	validateResponse (data) {
 		Assert(data.user.email === this.data.email, 'email doesn\'t match');
-		this.validate_sanitized(data.user, User_Test_Constants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = Login_Test;
+module.exports = LoginTest;

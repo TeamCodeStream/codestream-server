@@ -1,20 +1,20 @@
 'use strict';
 
 var SendGrid = require('sendgrid');
-var Error_Handler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
+var ErrorHandler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
 const Errors = require('./errors');
 
-class SendGrid_Email {
+class SendGridEmail {
 
 	constructor (options) {
 		Object.assign(this, options);
-		this.sendgrid = SendGrid(this.api_key);
-		this.error_handler = new Error_Handler(Errors);
+		this.sendgrid = SendGrid(this.apiKey);
+		this.errorHandler = new ErrorHandler(Errors);
 	}
 
-	send_email (options, callback) {
-		let request = this.create_mail_request(options);
-		if (!this.email_to) {
+	sendEmail (options, callback) {
+		let request = this.createMailRequest(options);
+		if (!this.emailTo) {
 			if (options.request) {
 				options.request.log(`Would have sent to ${options.to}: ${options.subject}`);
 			}
@@ -24,18 +24,18 @@ class SendGrid_Email {
 			request,
 			(error, response) => {
 				if (error) {
-					return callback(this.error_handler.error('email', { reason: `error calling sendgrid API: ${error}` }));
+					return callback(this.errorHandler.error('email', { reason: `error calling sendgrid API: ${error}` }));
 				}
 				else if (response.statusCode >= 300) {
-					return callback(this.error_handler.error('email', { reason: `got status ${response.statusCode} calling sendgrid API` }));
+					return callback(this.errorHandler.error('email', { reason: `got status ${response.statusCode} calling sendgrid API` }));
 				}
 		  		callback();
 			}
 		);
 	}
 
-	create_mail_request (options) {
-		let mail = this.create_mail_object(options);
+	createMailRequest (options) {
+		let mail = this.createMailObject(options);
 		return this.sendgrid.emptyRequest({
 			method: 'POST',
 			path: this.url,
@@ -43,21 +43,21 @@ class SendGrid_Email {
 		});
 	}
 
-	create_mail_object (options) {
+	createMailObject (options) {
 		let helper = SendGrid.mail;
-		let from_email = new helper.Email(options.from);
+		let fromEmail = new helper.Email(options.from);
 		let subject = options.subject || '';
 		let to = options.to;
-		if (this.email_to && this.email_to !== 'on') {
+		if (this.emailTo && this.emailTo !== 'on') {
 			subject = `{{{${to}}}} ${subject}`;
-			to = this.email_to;
+			to = this.emailTo;
 			if (options.request) {
 				options.request.log(`Diverting to ${to}`);
 			}
 		}
-		let to_email = new helper.Email(to);
+		let toEmail = new helper.Email(to);
 		let content = new helper.Content('text/html', options.content || '<html></html>');
-		let mail = new helper.Mail(from_email, subject || '', to_email, content);
+		let mail = new helper.Mail(fromEmail, subject || '', toEmail, content);
 		Object.keys(options.fields || {}).map(field => {
 			mail.personalizations[0].addSubstitution(
 				new helper.Substitution(
@@ -66,9 +66,9 @@ class SendGrid_Email {
 				)
 			);
 		});
-		mail.setTemplateId(options.template_id);
+		mail.setTemplateId(options.templateId);
 		return mail;
 	}
 }
 
-module.exports = SendGrid_Email;
+module.exports = SendGridEmail;

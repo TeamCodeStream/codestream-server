@@ -1,31 +1,31 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-const User_Test_Constants = require('../user_test_constants');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const UserTestConstants = require('../user_test_constants');
 
-class Get_Users_Test extends CodeStream_API_Test {
+class GetUsersTest extends CodeStreamAPITest {
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_random_repo,
-			this.set_path
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRandomRepo,
+			this.setPath
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_random_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRandomRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
@@ -33,17 +33,17 @@ class Get_Users_Test extends CodeStream_API_Test {
 				callback();
 			},
 			{
-				with_random_emails: 5,
-				with_emails: [this.current_user.email],
-				token: this.mine ? this.token : this.other_user_data.access_token
+				withRandomEmails: 5,
+				withEmails: [this.currentUser.email],
+				token: this.mine ? this.token : this.otherUserData.accessToken
 			}
 		);
 	}
 
-	validate_response (data) {
-		this.validate_matching_objects(this.my_users, data.users, 'users');
-		this.validate_sanitized_objects(data.users, User_Test_Constants.UNSANITIZED_ATTRIBUTES);
+	validateResponse (data) {
+		this.validateMatchingObjects(this.myUsers, data.users, 'users');
+		this.validateSanitizedObjects(data.users, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = Get_Users_Test;
+module.exports = GetUsersTest;

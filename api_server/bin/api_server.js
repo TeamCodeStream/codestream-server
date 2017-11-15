@@ -1,55 +1,55 @@
 #!/usr/bin/env node
 'use strict';
 
-var API_Cluster = require(process.env.CS_API_TOP + '/lib/api_server/api_cluster.js');
-const Config_Directory = process.env.CS_API_TOP + '/config';
-const Module_Directory = process.env.CS_API_TOP + '/services/api/modules';
-const Api_Config = require(Config_Directory + '/api.js');
-const Express_Config = require(Config_Directory + '/express.js');
-const Mongo_Config = require(Config_Directory + '/mongo.js');
-const Secrets_Config = require(Config_Directory + '/secrets.js');
-const PubNub_Config = require(Config_Directory + '/pubnub.js');
-const Logger_Config = require(Config_Directory + '/logger.js');
-const Email_Config = require(Config_Directory + '/email.js');
-const Limits = require(Config_Directory + '/limits.js');
-const Version = require(Config_Directory + '/version.js');
-const Simple_File_Logger = require(process.env.CS_API_TOP + '/lib/util/simple_file_logger');
+var APICluster = require(process.env.CS_API_TOP + '/lib/api_server/api_cluster.js');
+const ConfigDirectory = process.env.CS_API_TOP + '/config';
+const ModuleDirectory = process.env.CS_API_TOP + '/services/api/modules';
+const ApiConfig = require(ConfigDirectory + '/api.js');
+const ExpressConfig = require(ConfigDirectory + '/express.js');
+const MongoConfig = require(ConfigDirectory + '/mongo.js');
+const SecretsConfig = require(ConfigDirectory + '/secrets.js');
+const PubNubConfig = require(ConfigDirectory + '/pubnub.js');
+const LoggerConfig = require(ConfigDirectory + '/logger.js');
+const EmailConfig = require(ConfigDirectory + '/email.js');
+const Limits = require(ConfigDirectory + '/limits.js');
+const Version = require(ConfigDirectory + '/version.js');
+const SimpleFileLogger = require(process.env.CS_API_TOP + '/lib/util/simple_file_logger');
 
-var Logger = new Simple_File_Logger(Logger_Config);
+var Logger = new SimpleFileLogger(LoggerConfig);
 
-if (Mongo_Config.query_logging) {
-	Object.assign(Mongo_Config.query_logging, Logger_Config, Mongo_Config.query_logging);
+if (MongoConfig.queryLogging) {
+	Object.assign(MongoConfig.queryLogging, LoggerConfig, MongoConfig.queryLogging);
 }
 
-const data_collections = {
-	users: require(Module_Directory + '/users/user'),
-	companies: require(Module_Directory + '/companies/company'),
-	teams: require(Module_Directory + '/teams/team'),
-	repos: require(Module_Directory + '/repos/repo'),
-	streams: require(Module_Directory + '/streams/stream'),
-	posts: require(Module_Directory + '/posts/post')
+const DataCollections = {
+	users: require(ModuleDirectory + '/users/user'),
+	companies: require(ModuleDirectory + '/companies/company'),
+	teams: require(ModuleDirectory + '/teams/team'),
+	repos: require(ModuleDirectory + '/repos/repo'),
+	streams: require(ModuleDirectory + '/streams/stream'),
+	posts: require(ModuleDirectory + '/posts/post')
 };
-const mongo_collections = Object.keys(data_collections);
+const MongoCollections = Object.keys(DataCollections);
 
-var My_API_Cluster = new API_Cluster({
-	module_directory: Module_Directory,
-	api: Api_Config,
+var MyAPICluster = new APICluster({
+	moduleDirectory: ModuleDirectory,
+	api: ApiConfig,
 	version: Version,
-	secrets: Secrets_Config,
-	express: Express_Config,
-	mongo: Object.assign(Mongo_Config, {
-		collections: mongo_collections,
+	secrets: SecretsConfig,
+	express: ExpressConfig,
+	mongo: Object.assign(MongoConfig, {
+		collections: MongoCollections,
 		logger: Logger
 	}),
-	pubnub: PubNub_Config,
-	email: Email_Config,
+	pubnub: PubNubConfig,
+	email: EmailConfig,
 	logger: Logger,
 	limits: Limits,
-	allow_config_override: true,
-	data_collections: data_collections
+	allowConfigOverride: true,
+	dataCollections: DataCollections
 }, Logger);
 
-My_API_Cluster.start((error) => {
+MyAPICluster.start((error) => {
 	if (error) {
 		console.error('Failed to start: ' + error);
 		process.exit(1);

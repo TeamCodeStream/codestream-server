@@ -1,37 +1,37 @@
 'use strict';
 
-var CodeStream_Message_Test = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Read_Message_Test extends CodeStream_Message_Test {
+class ReadMessageTest extends CodeStreamMessageTest {
 
 	get description () {
 		return 'the user should receive a message on their me-channel when they indicate they have read all messages in a stream';
 	}
 
-	make_data (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo,
-			this.create_stream,
-			this.create_other_stream,
-			this.create_post,
-			this.create_other_post
+	makeData (callback) {
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepo,
+			this.createStream,
+			this.createOtherStream,
+			this.createPost,
+			this.createOtherPost
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -39,83 +39,83 @@ class Read_Message_Test extends CodeStream_Message_Test {
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email],
-				token: this.other_user_data.access_token
+				withEmails: [this.currentUser.email],
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	create_stream (callback) {
-		let stream_options = {
+	createStream (callback) {
+		let streamOptions = {
 			type: 'file',
-			team_id: this.team._id,
-			repo_id: this.repo._id,
-			token: this.other_user_data.access_token
+			teamId: this.team._id,
+			repoId: this.repo._id,
+			token: this.otherUserData.accessToken
 		};
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	create_other_stream (callback) {
-		let stream_options = {
+	createOtherStream (callback) {
+		let streamOptions = {
 			type: 'file',
-			team_id: this.team._id,
-			repo_id: this.repo._id,
-			token: this.other_user_data.access_token
+			teamId: this.team._id,
+			repoId: this.repo._id,
+			token: this.otherUserData.accessToken
 		};
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_stream = response.stream;
+				this.otherStream = response.stream;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	create_post (callback) {
-		let post_options = {
-			stream_id: this.stream._id,
-			token: this.other_user_data.access_token
+	createPost (callback) {
+		let postOptions = {
+			streamId: this.stream._id,
+			token: this.otherUserData.accessToken
 		};
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.post = response.post;
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 
-	create_other_post (callback) {
-		let post_options = {
-			stream_id: this.other_stream._id,
-			token: this.other_user_data.access_token
+	createOtherPost (callback) {
+		let postOptions = {
+			streamId: this.otherStream._id,
+			token: this.otherUserData.accessToken
 		};
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_post = response.post;
+				this.otherPost = response.post;
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 
-	set_channel_name (callback) {
-		this.channel_name = 'user-' + this.current_user._id;
+	setChannelName (callback) {
+		this.channelName = 'user-' + this.currentUser._id;
 		callback();
 	}
 
-	generate_message (callback) {
-		this.do_api_request(
+	generateMessage (callback) {
+		this.doApiRequest(
 			{
 				method: 'put',
 				path: '/read/' + this.stream._id,
@@ -125,9 +125,9 @@ class Read_Message_Test extends CodeStream_Message_Test {
 				if (error) { return callback(error); }
 				this.message = {
 					user: {
-						_id: this.current_user._id,
+						_id: this.currentUser._id,
 						unset: {
-							['last_reads.' + this.stream._id]: true
+							['lastReads.' + this.stream._id]: true
 						}
 					}
 				};
@@ -137,4 +137,4 @@ class Read_Message_Test extends CodeStream_Message_Test {
 	}
 }
 
-module.exports = Read_Message_Test;
+module.exports = ReadMessageTest;

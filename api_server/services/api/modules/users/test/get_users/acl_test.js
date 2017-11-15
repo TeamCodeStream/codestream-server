@@ -1,50 +1,50 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class ACL_Test extends CodeStream_API_Test {
+class ACLTest extends CodeStreamAPITest {
 
 	get description () {
 		return 'should return an error when trying to fetch users from a team i\'m not a member of';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1009'
 		};
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_other_repo
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createOtherRepo
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_other_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createOtherRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.path = '/users?team_id=' + response.team._id;
+				this.path = '/users?teamId=' + response.team._id;
 				callback();
 			},
 			{
-				with_random_emails: 2,
-				token: this.other_user_data.access_token
+				withRandomEmails: 2,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 }
 
-module.exports = ACL_Test;
+module.exports = ACLTest;

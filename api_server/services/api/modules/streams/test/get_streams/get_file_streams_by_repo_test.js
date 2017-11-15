@@ -1,20 +1,20 @@
 'use strict';
 
-var Get_Streams_Test = require('./get_streams_test');
+var GetStreamsTest = require('./get_streams_test');
 
-class Get_File_Streams_By_Repo_Test extends Get_Streams_Test {
+class GetFileStreamsByRepoTest extends GetStreamsTest {
 
 	get description () {
 		return 'should return the correct streams when requesting file streams by repo ID';
 	}
 
-	set_path (callback) {
-		let repo_id = this.my_repo._id;
-		let team_id = this.my_team._id;
-		this.my_streams = this.streams_by_repo[repo_id];
-		this.path = `/streams?type=file&repo_id=${repo_id}&team_id=${team_id}`;
+	setPath (callback) {
+		let repoId = this.myRepo._id;
+		let teamId = this.myTeam._id;
+		this.myStreams = this.streamsByRepo[repoId];
+		this.path = `/streams?type=file&repoId=${repoId}&teamId=${teamId}`;
 		callback();
 	}
 }
 
-module.exports = Get_File_Streams_By_Repo_Test;
+module.exports = GetFileStreamsByRepoTest;

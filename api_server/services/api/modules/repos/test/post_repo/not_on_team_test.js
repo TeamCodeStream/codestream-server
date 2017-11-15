@@ -1,27 +1,27 @@
 'use strict';
 
-var Already_On_Team_Test = require('./already_on_team_test');
+var AlreadyOnTeamTest = require('./already_on_team_test');
 
-class Not_On_Team_Test extends Already_On_Team_Test {
+class NotOnTeamTest extends AlreadyOnTeamTest {
 
 	constructor (options) {
 		super(options);
-		this.test_options.dont_include_current_user = true;
+		this.testOptions.dontIncludeCurrentUser = true;
 	}
 
 	get description () {
 		return 'should return an error when trying to add a repo to an existing team that the user is not a member of';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1011',
 		};
 	}
 }
 
-module.exports = Not_On_Team_Test;
+module.exports = NotOnTeamTest;

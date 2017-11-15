@@ -1,67 +1,67 @@
 'use strict';
 
-class Post_Authorizer {
+class PostAuthorizer {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	authorize_post (callback) {
-		if (this.post.stream_id) {
-			this.authorize_stream(this.post.stream_id, callback);
+	authorizePost (callback) {
+		if (this.post.streamId) {
+			this.authorizeStream(this.post.streamId, callback);
 		}
 		else if (typeof this.post.stream === 'object') {
-			if (this.post.stream.repo_id) {
-				this.authorize_repo(this.post.stream.repo_id, callback);
+			if (this.post.stream.repoId) {
+				this.authorizeRepo(this.post.stream.repoId, callback);
 			}
-			else if (this.post.stream.team_id) {
-				this.authorize_team(this.post.stream.team_id, callback);
+			else if (this.post.stream.teamId) {
+				this.authorizeTeam(this.post.stream.teamId, callback);
 			}
 			else {
-				return callback(this.error_handler.error('attribute_required', { info: 'team_id' }));
+				return callback(this.errorHandler.error('attributeRequired', { info: 'teamId' }));
 			}
 		}
 		else {
-			return callback(this.error_handler.error('attribute_required', { info: 'stream_id' }));
+			return callback(this.errorHandler.error('attributeRequired', { info: 'streamId' }));
 		}
 	}
 
-	authorize_stream (stream_id, callback) {
-		this.user.authorize_stream(
-			stream_id,
+	authorizeStream (streamId, callback) {
+		this.user.authorizeStream(
+			streamId,
 			this.request,
 			(error, authorized) => {
 				if (error) { return callback(error); }
 				if (!authorized) {
-					return callback(this.error_handler.error('create_auth', { reason: 'not authorized for stream' }));
+					return callback(this.errorHandler.error('createAuth', { reason: 'not authorized for stream' }));
 				}
 				return process.nextTick(callback);
 			}
 		);
 	}
 
-	authorize_repo (repo_id, callback) {
-		this.user.authorize_repo(
-			repo_id,
+	authorizeRepo (repoId, callback) {
+		this.user.authorizeRepo(
+			repoId,
 			this.request,
 			(error, authorized) => {
 				if (error) { return callback(error); }
 				if (!authorized) {
-					return callback(this.error_handler.error('create_auth', { reason: 'not authorized for repo' }));
+					return callback(this.errorHandler.error('createAuth', { reason: 'not authorized for repo' }));
 				}
 				return process.nextTick(callback);
 			}
 		);
 	}
 
-	authorize_team (team_id, callback) {
-		this.user.authorize_team(
-			team_id,
+	authorizeTeam (teamId, callback) {
+		this.user.authorizeTeam(
+			teamId,
 			this.request,
 			(error, authorized) => {
 				if (error) { return callback(error); }
 				if (!authorized) {
-					return callback(this.error_handler.error('create_auth', { reason: 'user not on team' }));
+					return callback(this.errorHandler.error('createAuth', { reason: 'user not on team' }));
 				}
 				return process.nextTick(callback);
 			}
@@ -69,4 +69,4 @@ class Post_Authorizer {
 	}
 }
 
-module.exports = Post_Authorizer;
+module.exports = PostAuthorizer;

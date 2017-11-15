@@ -1,10 +1,10 @@
 'use strict';
 
-var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
+var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
 var PubNub = require('pubnub');
-var PubNub_Client = require(process.env.CS_API_TOP + '/lib/util/pubnub/pubnub_client');
+var PubNubClient = require(process.env.CS_API_TOP + '/lib/util/pubnub/pubnub_client');
 
-class Messager extends API_Server_Module {
+class Messager extends APIServerModule {
 
 	services () {
 		return (callback) => {
@@ -15,10 +15,10 @@ class Messager extends API_Server_Module {
 
 			this.api.log('Connecting to PubNub...');
 			this.pubnub = new PubNub(this.api.config.pubnub);
-			this.pubnub_client = new PubNub_Client({
+			this.pubnubClient = new PubNubClient({
 				pubnub: this.pubnub
 			});
-			return callback(null, [{ messager: this.pubnub_client }]);
+			return callback(null, [{ messager: this.pubnubClient }]);
 		};
 	}
 }

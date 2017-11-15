@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 'use strict';
 
-var PubNub_Config = require(process.env.CS_API_TOP + '/config/pubnub.js');
-var PubNub_Client = require('pubnub');
+var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub.js');
+var PubNubClient = require('pubnub');
 
-var pubnub = new PubNub_Client(PubNub_Config);
+var pubnub = new PubNubClient(PubNubConfig);
 
 var channels;
 if (process.argv[2]) {

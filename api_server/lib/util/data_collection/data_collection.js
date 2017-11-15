@@ -1,169 +1,169 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Data_Collection_Fetcher = require('./data_collection_fetcher');
-var Model_Ops = require('./model_ops');
-var Error_Handler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DataCollectionFetcher = require('./data_collection_fetcher');
+var ModelOps = require('./model_ops');
+var ErrorHandler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
 const Errors = require('./errors');
 
-class Data_Collection {
+class DataCollection {
 
 	constructor (options) {
 		this.options = options;
-		this.id_attribute = this.options.id_attribute || '_id';
-		this.database_collection = this.options.database_collection;
-		this.model_class = this.options.model_class;
-		if (!this.database_collection) {
-			throw 'database_collection must be provided to Data_Collection';
+		this.idAttribute = this.options.idAttribute || '_id';
+		this.databaseCollection = this.options.databaseCollection;
+		this.modelClass = this.options.modelClass;
+		if (!this.databaseCollection) {
+			throw 'databaseCollection must be provided to DataCollection';
 		}
-		if (!this.model_class) {
-			throw 'model_class must be provided to Data_Collection';
+		if (!this.modelClass) {
+			throw 'modelClass must be provided to DataCollection';
 		}
-		this.request_id = this.options.request && this.options.request.id;
-		this.error_handler = new Error_Handler(Errors);
-		this.fetch_options = {
+		this.requestId = this.options.request && this.options.request.id;
+		this.errorHandler = new ErrorHandler(Errors);
+		this.fetchOptions = {
 			collection: this,
-			database_collection: this.database_collection,
-			model_class: this.model_class,
-			id_attribute: this.id_attribute,
-			request_id: this.request_id
+			databaseCollection: this.databaseCollection,
+			modelClass: this.modelClass,
+			idAttribute: this.idAttribute,
+			requestId: this.requestId
 		};
 		this.clear();
 	}
 
 	clear () {
 		this.models = {};
-		this.model_ops = {};
-		this.dirty_model_ids = {};
-		this.to_delete_ids = {};
-		this.to_create_ids = {};
+		this.modelOps = {};
+		this.dirtyModelIds = {};
+		this.toDeleteIds = {};
+		this.toCreateIds = {};
 	}
 
-	get_by_id (id, callback, options) {
-		new Data_Collection_Fetcher(this.fetch_options).get_by_id(
+	getById (id, callback, options) {
+		new DataCollectionFetcher(this.fetchOptions).getById(
 			id,
 			callback,
 			options
 		);
 	}
 
-	get_by_ids (ids, callback, options) {
-		new Data_Collection_Fetcher(this.fetch_options).get_by_ids(
+	getByIds (ids, callback, options) {
+		new DataCollectionFetcher(this.fetchOptions).getByIds(
 			ids,
 			callback,
 			options
 		);
 	}
 
-	get_by_query (conditions, callback, options) {
+	getByQuery (conditions, callback, options) {
 		options = options || {};
-		this.database_collection.get_by_query(
+		this.databaseCollection.getByQuery(
 			conditions,
 			(error, documents) => {
 				if (error) { return callback(error); }
-				if (!options.no_cache) {
-					this._add_documents_to_cache(documents, callback);
+				if (!options.noCache) {
+					this._addDocumentsToCache(documents, callback);
 				}
 				else {
 					callback(null, documents);
 				}
 			},
-			Object.assign({}, options.database_options, { request_id: this.request_id })
+			Object.assign({}, options.databaseOptions, { requestId: this.requestId })
 		);
 	}
 
-	get_one_by_query (conditions, callback, options) {
+	getOneByQuery (conditions, callback, options) {
 		options = options || {};
-		this.database_collection.get_one_by_query(
+		this.databaseCollection.getOneByQuery(
 			conditions,
 			(error, document) => {
 				if (error) { return callback(error); }
 				let model = null;
 				if (document) {
-					model = this._add_data_to_cache(document);
+					model = this._addDataToCache(document);
 				}
 				return callback(null, model);
 			},
-			Object.assign({}, options.database_options, { request_id: this.request_id })
+			Object.assign({}, options.databaseOptions, { requestId: this.requestId })
 		);
 	}
 
 	create (data, callback) {
-		let id = (data[this.id_attribute] || this.create_id()).toString();
-		data[this.id_attribute] = id;
-		let model = new this.model_class(data);
-		this.add_model_to_cache(model);
-		delete this.dirty_model_ids[id];
-		delete this.to_delete_ids[id];
-		delete this.model_ops[id];
-		this.to_create_ids[id] = true;
+		let id = (data[this.idAttribute] || this.createId()).toString();
+		data[this.idAttribute] = id;
+		let model = new this.modelClass(data);
+		this.addModelToCache(model);
+		delete this.dirtyModelIds[id];
+		delete this.toDeleteIds[id];
+		delete this.modelOps[id];
+		this.toCreateIds[id] = true;
 		return callback(null, model);
 	}
 
-	create_id () {
-		return this.database_collection.create_id().toString();
+	createId () {
+		return this.databaseCollection.createId().toString();
 	}
 
 	update (data, callback, options = {}) {
-		let id = data[this.id_attribute] || options.id;
+		let id = data[this.idAttribute] || options.id;
 		if (!id) {
-			return callback(this.error_handler.error('id', { info: this.id_attribute }));
+			return callback(this.errorHandler.error('id', { info: this.idAttribute }));
 		}
-		data[this.id_attribute] = id;
-		this._add_data_to_cache(data);
-		if (!this.to_create_ids[id]) {
-			this.dirty_model_ids[id] = true;
+		data[this.idAttribute] = id;
+		this._addDataToCache(data);
+		if (!this.toCreateIds[id]) {
+			this.dirtyModelIds[id] = true;
 		}
-		let model = this._get_from_cache(id);
+		let model = this._getFromCache(id);
 		process.nextTick(() => {
 			callback(null, model);
 		});
 	}
 
-	apply_op_by_id (id, op, callback) {
-		this._add_model_op(id, op);
-		let model = this._get_from_cache(id);
+	applyOpById (id, op, callback) {
+		this._addModelOp(id, op);
+		let model = this._getFromCache(id);
 		process.nextTick(() => {
 			callback(null, model);
 		});
 	}
 
-	delete_by_id (id, callback) {
-		this._remove_model_from_cache(id);
-		this.to_delete_ids[id] = true;
+	deleteById (id, callback) {
+		this._removeModelFromCache(id);
+		this.toDeleteIds[id] = true;
 		process.nextTick(callback);
 	}
 
-	update_direct (query, data, callback, options = {}) {
-		this.database_collection.update_direct(
+	updateDirect (query, data, callback, options = {}) {
+		this.databaseCollection.updateDirect(
 			query,
 			data,
 			callback,
-			Object.assign({}, options, { request_id: this.request_id })
+			Object.assign({}, options, { requestId: this.requestId })
 		);
 	}
 
 	persist (callback) {
-		Bound_Async.series(this, [
-			this._persist_documents,
-			this._delete_documents,
-			this._create_documents
+		BoundAsync.series(this, [
+			this._persistDocuments,
+			this._deleteDocuments,
+			this._createDocuments
 		], callback);
 	}
 
-	_get_from_cache (id) {
+	_getFromCache (id) {
 		return this.models[id];
 	}
 
-	_add_data_to_cache (data, callback) {
-		let id = data[this.id_attribute];
+	_addDataToCache (data, callback) {
+		let id = data[this.idAttribute];
 		let model = this.models[id];
 		if (model) {
 			Object.assign(model.attributes, data);
 		}
 		else {
-			model = new this.model_class(data);
-			this.add_model_to_cache(model);
+			model = new this.modelClass(data);
+			this.addModelToCache(model);
 		}
 		if (callback) {
 			return callback(null, model);
@@ -173,16 +173,16 @@ class Data_Collection {
 		}
 	}
 
-	_add_documents_to_cache (documents, callback) {
+	_addDocumentsToCache (documents, callback) {
 		let models = [];
-		Bound_Async.forEachLimit(
+		BoundAsync.forEachLimit(
 			this,
 			documents,
 			50,
-			(document, foreach_callback) => {
-				let model = this._add_data_to_cache(document);
+			(document, foreachCallback) => {
+				let model = this._addDataToCache(document);
 				models.push(model);
-				process.nextTick(foreach_callback);
+				process.nextTick(foreachCallback);
 			},
 			() => {
 				callback(null, models);
@@ -190,16 +190,16 @@ class Data_Collection {
 		);
 	}
 
-	add_model_to_cache (model, callback) {
+	addModelToCache (model, callback) {
 		let id = model.id;
-		let model_ops = this.model_ops[id];
-		let cached_model = this.models[id];
-		if (cached_model) {
-			if (model_ops) {
-				model_ops.push({ set: model.attributes });
+		let modelOps = this.modelOps[id];
+		let cachedModel = this.models[id];
+		if (cachedModel) {
+			if (modelOps) {
+				modelOps.push({ set: model.attributes });
 			}
 			else {
-				Object.assign(cached_model.attributes, model.attributes);
+				Object.assign(cachedModel.attributes, model.attributes);
 			}
 		}
 		else {
@@ -208,135 +208,135 @@ class Data_Collection {
 		return callback && process.nextTick(callback);
 	}
 
-	_add_models_to_cache (models, callback) {
-		Bound_Async.forEachLimit(
+	_addModelsToCache (models, callback) {
+		BoundAsync.forEachLimit(
 			this,
 			models,
 			50,
-			this.add_model_to_cache,
+			this.addModelToCache,
 			callback
 		);
 	}
 
-	_remove_model_from_cache (id) {
+	_removeModelFromCache (id) {
 		delete this.models[id];
-		delete this.model_ops[id];
-		delete this.dirty_model_ids[id];
-		delete this.to_create_ids[id];
+		delete this.modelOps[id];
+		delete this.dirtyModelIds[id];
+		delete this.toCreateIds[id];
 	}
 
-	_add_model_op (id, op) {
-		let is_dirty = this.dirty_model_ids[id] || this.to_create_ids[id];
-		let cached_model = this.models[id];
-		if (!cached_model) {
-			this.models[id] = new this.model_class({ [this.id_attribute]: id });
+	_addModelOp (id, op) {
+		let isDirty = this.dirtyModelIds[id] || this.toCreateIds[id];
+		let cachedModel = this.models[id];
+		if (!cachedModel) {
+			this.models[id] = new this.modelClass({ [this.idAttribute]: id });
 		}
-		this.model_ops[id] = this.model_ops[id] || [];
-		if (cached_model && is_dirty && this.model_ops[id].length === 0) {
-			this.model_ops[id].push({ set: cached_model.attributes });
+		this.modelOps[id] = this.modelOps[id] || [];
+		if (cachedModel && isDirty && this.modelOps[id].length === 0) {
+			this.modelOps[id].push({ set: cachedModel.attributes });
 		}
-		this.model_ops[id].push(op);
-		if (!this.to_create_ids[id]) {
-			this.dirty_model_ids[id] = true;
+		this.modelOps[id].push(op);
+		if (!this.toCreateIds[id]) {
+			this.dirtyModelIds[id] = true;
 		}
-		Model_Ops.apply_op(this.models[id], op);
+		ModelOps.applyOp(this.models[id], op);
 	}
 
-	_persist_documents (callback) {
-		Bound_Async.forEachLimit(
+	_persistDocuments (callback) {
+		BoundAsync.forEachLimit(
 			this,
-			Object.keys(this.dirty_model_ids),
+			Object.keys(this.dirtyModelIds),
 			50,
-			this._persist_document,
+			this._persistDocument,
 			callback
 		);
 	}
 
-	_persist_document (id, callback) {
-		let model_ops = this.model_ops[id];
-		if (model_ops && model_ops.length > 0) {
-			return this._persist_document_by_ops(id, model_ops, callback);
+	_persistDocument (id, callback) {
+		let modelOps = this.modelOps[id];
+		if (modelOps && modelOps.length > 0) {
+			return this._persistDocumentByOps(id, modelOps, callback);
 		}
-		let model = this._get_from_cache(id);
+		let model = this._getFromCache(id);
 		if (!model) { return process.nextTick(callback); }
-		model.attributes[this.id_attribute] = id;
-		this.database_collection.update(
+		model.attributes[this.idAttribute] = id;
+		this.databaseCollection.update(
 			model.attributes,
-			(error, updated_model) => {
+			(error, updatedModel) => {
 				if (error) { return callback(error); }
-				this.add_model_to_cache(updated_model);
-				delete this.model_ops[id];
-				delete this.dirty_model_ids[id];
+				this.addModelToCache(updatedModel);
+				delete this.modelOps[id];
+				delete this.dirtyModelIds[id];
 				process.nextTick(callback);
 			},
-			Object.assign({}, this.options.database_options, { request_id: this.request_id })
+			Object.assign({}, this.options.databaseOptions, { requestId: this.requestId })
 		);
 	}
 
-	_persist_document_by_ops (id, ops, callback) {
-		this.database_collection.apply_ops_by_id(
+	_persistDocumentByOps (id, ops, callback) {
+		this.databaseCollection.applyOpsById(
 			id,
 			ops,
 			(error) => {
 				if (error) { return callback(error); }
-				delete this.model_ops[id];
-				delete this.dirty_model_ids[id];
+				delete this.modelOps[id];
+				delete this.dirtyModelIds[id];
 				callback();
 			},
-			Object.assign({}, this.options.database_options, { request_id: this.request_id })
+			Object.assign({}, this.options.databaseOptions, { requestId: this.requestId })
 		);
 	}
 
-	_create_documents (callback) {
-		Bound_Async.forEachLimit(
+	_createDocuments (callback) {
+		BoundAsync.forEachLimit(
 			this,
-			Object.keys(this.to_create_ids),
+			Object.keys(this.toCreateIds),
 			20,
-			this._create_document,
+			this._createDocument,
 			callback
 		);
 	}
 
-	_create_document (id, callback) {
-		let model = this._get_from_cache(id);
-		this.database_collection.create(
+	_createDocument (id, callback) {
+		let model = this._getFromCache(id);
+		this.databaseCollection.create(
 			model.attributes,
-			(error, created_document) => {
+			(error, createdDocument) => {
 				if (error) { return callback(error); }
-				this._add_data_to_cache(created_document);
-				delete this.to_create_ids[id];
+				this._addDataToCache(createdDocument);
+				delete this.toCreateIds[id];
 				process.nextTick(callback);
 			},
-			Object.assign({}, this.options.database_options, { request_id: this.request_id })
+			Object.assign({}, this.options.databaseOptions, { requestId: this.requestId })
 		);
 	}
 
-	_delete_documents (callback) {
-		Bound_Async.forEachLimit(
+	_deleteDocuments (callback) {
+		BoundAsync.forEachLimit(
 			this,
-			Object.keys(this.to_delete_ids),
+			Object.keys(this.toDeleteIds),
 			50,
-			this._delete_document,
+			this._deleteDocument,
 			callback
 		);
 	}
 
-	_delete_document (id, callback) {
-		this.database_collection.delete_by_id(
+	_deleteDocument (id, callback) {
+		this.databaseCollection.deleteById(
 			id,
 			(error) => {
 				if (error) { return callback(error); }
-				this._remove_model_from_cache(id);
-				delete this.to_delete_ids[id];
+				this._removeModelFromCache(id);
+				delete this.toDeleteIds[id];
 				process.nextTick(callback);
 			},
-			Object.assign({}, this.options.database_options, { request_id: this.request_id })
+			Object.assign({}, this.options.databaseOptions, { requestId: this.requestId })
 		);
 	}
 
-	object_id_safe (id) {
-		return this.database_collection.object_id_safe(id);
+	objectIdSafe (id) {
+		return this.databaseCollection.objectIdSafe(id);
 	}
 }
 
-module.exports = Data_Collection;
+module.exports = DataCollection;

@@ -1,39 +1,39 @@
 'use strict';
 
-const Repo_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/repos/repo_attributes');
-const Team_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/teams/team_attributes');
-const Company_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/companies/company_attributes');
-const User_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/users/user_attributes');
+const RepoAttributes = require(process.env.CS_API_TOP + '/services/api/modules/repos/repo_attributes');
+const TeamAttributes = require(process.env.CS_API_TOP + '/services/api/modules/teams/team_attributes');
+const CompanyAttributes = require(process.env.CS_API_TOP + '/services/api/modules/companies/company_attributes');
+const UserAttributes = require(process.env.CS_API_TOP + '/services/api/modules/users/user_attributes');
 
 const EXPECTED_REPO_FIELDS = [
 	'_id',
 	'deactivated',
-	'created_at',
-	'modified_at',
-	'creator_id',
-	'company_id',
-	'team_id',
+	'createdAt',
+	'modifiedAt',
+	'creatorId',
+	'companyId',
+	'teamId',
 	'url',
-	'first_commit_sha'
+	'firstCommitSha'
 ];
 
 const EXPECTED_TEAM_FIELDS = [
 	'_id',
 	'deactivated',
-	'created_at',
-	'modified_at',
-	'creator_id',
-	'company_id',
+	'createdAt',
+	'modifiedAt',
+	'creatorId',
+	'companyId',
 	'name',
-	'member_ids'
+	'memberIds'
 ];
 
 const EXPECTED_COMPANY_FIELDS = [
 	'_id',
 	'deactivated',
-	'created_at',
-	'modified_at',
-	'creator_id',
+	'createdAt',
+	'modifiedAt',
+	'creatorId',
 	'name'
 ];
 
@@ -43,20 +43,20 @@ const EXPECTED_REPO_RESPONSE = {
 	company: EXPECTED_COMPANY_FIELDS
 };
 
-const UNSANITIZED_ATTRIBUTES = Object.keys(Repo_Attributes).filter(attribute => {
-	return Repo_Attributes[attribute].server_only;
+const UNSANITIZED_ATTRIBUTES = Object.keys(RepoAttributes).filter(attribute => {
+	return RepoAttributes[attribute].serverOnly;
 });
 
-const UNSANITIZED_TEAM_ATTRIBUTES = Object.keys(Team_Attributes).filter(attribute => {
-	return Team_Attributes[attribute].server_only;
+const UNSANITIZED_TEAM_ATTRIBUTES = Object.keys(TeamAttributes).filter(attribute => {
+	return TeamAttributes[attribute].serverOnly;
 });
 
-const UNSANITIZED_COMPANY_ATTRIBUTES = Object.keys(Company_Attributes).filter(attribute => {
-	return Company_Attributes[attribute].server_only;
+const UNSANITIZED_COMPANY_ATTRIBUTES = Object.keys(CompanyAttributes).filter(attribute => {
+	return CompanyAttributes[attribute].serverOnly;
 });
 
-const UNSANITIZED_USER_ATTRIBUTES = Object.keys(User_Attributes).filter(attribute => {
-	return User_Attributes[attribute].server_only;
+const UNSANITIZED_USER_ATTRIBUTES = Object.keys(UserAttributes).filter(attribute => {
+	return UserAttributes[attribute].serverOnly;
 });
 
 module.exports = {

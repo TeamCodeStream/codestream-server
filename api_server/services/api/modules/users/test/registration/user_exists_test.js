@@ -1,26 +1,26 @@
 'use strict';
 
-var Registration_Test = require('./registration_test');
+var RegistrationTest = require('./registration_test');
 
-class User_Exists_Test extends Registration_Test {
+class UserExistsTest extends RegistrationTest {
 
 	get description () {
 		return 'should return the user when registering an email that already exists as an unconfirmed user';
 	}
 
 	before (callback) {
-		this.user_factory.create_random_user(
+		this.userFactory.createRandomUser(
 			(error, data) => {
 				if (error) { return callback(error); }
-				this.data = this.user_factory.get_random_user_data();
+				this.data = this.userFactory.getRandomUserData();
 				this.data.email = data.user.email;
 				callback();
 			},
 			{
-				no_confirm: true
+				noConfirm: true
 			}
 		);
 	}
 }
 
-module.exports = User_Exists_Test;
+module.exports = UserExistsTest;

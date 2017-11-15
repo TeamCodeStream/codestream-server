@@ -1,44 +1,44 @@
 'use strict';
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var Company_Creator = require('./company_creator');
-//var Company_Updater = require('./company_updater');
+var CompanyCreator = require('./company_creator');
+//var CompanyUpdater = require('./company_updater');
 var Company = require('./company');
 
 const COMPANY_STANDARD_ROUTES = {
-	want: ['get', 'get_many'],
-	base_route_name: 'companies',
-	request_classes: {
-		'get_many': require('./get_companies_request')
+	want: ['get', 'getMany'],
+	baseRouteName: 'companies',
+	requestClasses: {
+		'getMany': require('./get_companies_request')
 	}
 };
 
 class Companies extends Restful {
 
-	get collection_name () {
+	get collectionName () {
 		return 'companies';
 	}
 
-	get model_name () {
+	get modelName () {
 		return 'company';
 	}
 
-	get creator_class () {
-		return Company_Creator;
+	get creatorClass () {
+		return CompanyCreator;
 	}
 
-	get model_class () {
+	get modelClass () {
 		return Company;
 	}
 
 /*
-	get updater_class () {
-		return Company_Updater;
+	get updaterClass () {
+		return CompanyUpdater;
 	}
 */
 
-	get_routes () {
-		return super.get_routes(COMPANY_STANDARD_ROUTES);
+	getRoutes () {
+		return super.getRoutes(COMPANY_STANDARD_ROUTES);
 	}
 }
 

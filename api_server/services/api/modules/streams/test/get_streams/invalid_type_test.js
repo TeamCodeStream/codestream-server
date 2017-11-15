@@ -1,14 +1,14 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
-class Invalid_Type_Test extends CodeStream_API_Test {
+class InvalidTypeTest extends CodeStreamAPITest {
 
 	get description () {
 		return 'should return error if an invalid type is provided in the query';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1006',
 			reason: 'invalid stream type'
@@ -16,11 +16,11 @@ class Invalid_Type_Test extends CodeStream_API_Test {
 	}
 
 	before (callback) {
-		this.repo_factory.create_random_repo(
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				let team_id = response.team._id;
-				this.path = `/streams?team_id=${team_id}&type=sometype`;
+				let teamId = response.team._id;
+				this.path = `/streams?teamId=${teamId}&type=sometype`;
 				callback();
 			},
 			{
@@ -30,4 +30,4 @@ class Invalid_Type_Test extends CodeStream_API_Test {
 	}
 }
 
-module.exports = Invalid_Type_Test;
+module.exports = InvalidTypeTest;

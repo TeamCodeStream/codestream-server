@@ -1,23 +1,23 @@
 'use strict';
 
-var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 
 const ROUTES = [
 	{
 		method: 'get',
 		path: 'no-auth/status',
-		func: 'handle_status'
+		func: 'handleStatus'
 	}
 ];
 
-class Health_Checker extends API_Server_Module {
+class HealthChecker extends APIServerModule {
 
-	get_routes () {
+	getRoutes () {
 		return ROUTES;
 	}
 
-	handle_status (request, response) {
-		if (this.api.shutdown_pending) {
+	handleStatus (request, response) {
+		if (this.api.shutdownPending) {
 			response.status(410).send('SHUTDOWN PENDING');
 		}
 		else {
@@ -26,4 +26,4 @@ class Health_Checker extends API_Server_Module {
 	}
 }
 
-module.exports = Health_Checker;
+module.exports = HealthChecker;

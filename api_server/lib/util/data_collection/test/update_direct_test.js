@@ -1,28 +1,28 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Data_Collection_Test = require('./data_collection_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DataCollectionTest = require('./data_collection_test');
 var Assert = require('assert');
 
-class Update_Direct_Test extends Data_Collection_Test {
+class UpdateDirectTest extends DataCollectionTest {
 
 	get description () {
 		return 'should get the correct models after they are directly updated';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_random_models,
+			this.createRandomModels,
 			this.persist,
-			this.clear_cache,
-			this.update_models
+			this.clearCache,
+			this.updateModels
 		], callback);
 	}
 
-	update_models (callback) {
+	updateModels (callback) {
 		let regexp = new RegExp(`^${this.randomizer}yes$`);
-		this.data.test.update_direct(
+		this.data.test.updateDirect(
 			{ flag: regexp },
 			{ $set: { text: 'goodbye'} },
 			callback
@@ -31,26 +31,26 @@ class Update_Direct_Test extends Data_Collection_Test {
 
 	run (callback) {
 		let ids = this.models.map(model => { return model.id; });
-		this.mongo_data.test.get_by_ids(
+		this.mongoData.test.getByIds(
 			ids,
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
+	validateResponse () {
 		Assert(this.response instanceof Array, 'response must be an array');
 		Assert(this.response.length === this.models.length);
-		this.response.forEach(response_object => {
-			if (this.want_n(response_object.number)) {
-				Assert(response_object.text === 'goodbye', `expected model ${response_object._id} wasn't updated`);
+		this.response.forEach(responseObject => {
+			if (this.wantN(responseObject.number)) {
+				Assert(responseObject.text === 'goodbye', `expected model ${responseObject._id} wasn't updated`);
 			}
 			else {
-				Assert(response_object.text === 'hello' + response_object.number, `model ${response_object._id} seems to have been improperly updated`);
+				Assert(responseObject.text === 'hello' + responseObject.number, `model ${responseObject._id} seems to have been improperly updated`);
 			}
 		});
 	}
 }
 
-module.exports = Update_Direct_Test;
+module.exports = UpdateDirectTest;

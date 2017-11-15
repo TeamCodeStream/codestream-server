@@ -1,45 +1,45 @@
 'use strict';
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var Stream_Creator = require('./stream_creator');
-//var Team_Updater = require('./team_updater');
+var StreamCreator = require('./stream_creator');
+//var TeamUpdater = require('./team_updater');
 var Stream = require('./stream');
 
 const STREAM_STANDARD_ROUTES = {
-	want: ['get', 'get_many', 'post'],
-	base_route_name: 'streams',
-	request_classes: {
-		'get_many': require('./get_streams_request'),
+	want: ['get', 'getMany', 'post'],
+	baseRouteName: 'streams',
+	requestClasses: {
+		'getMany': require('./get_streams_request'),
 		'post': require('./post_stream_request')
 	}
 };
 
 class Streams extends Restful {
 
-	get collection_name () {
+	get collectionName () {
 		return 'streams';
 	}
 
-	get model_name () {
+	get modelName () {
 		return 'stream';
 	}
 
-	get creator_class () {
-		return Stream_Creator;
+	get creatorClass () {
+		return StreamCreator;
 	}
 
-	get model_class () {
+	get modelClass () {
 		return Stream;
 	}
 
 /*
-	get updater_class () {
-		return Stream_Updater;
+	get updaterClass () {
+		return StreamUpdater;
 	}
 */
 
-	get_routes () {
-		return super.get_routes(STREAM_STANDARD_ROUTES);
+	getRoutes () {
+		return super.getRoutes(STREAM_STANDARD_ROUTES);
 	}
 }
 

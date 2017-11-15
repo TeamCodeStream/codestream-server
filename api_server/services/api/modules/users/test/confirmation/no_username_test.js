@@ -1,18 +1,18 @@
 'use strict';
 
-var Confirmation_Test = require('./confirmation_test');
+var ConfirmationTest = require('./confirmation_test');
 
-class No_Username_Test extends Confirmation_Test {
+class NoUsernameTest extends ConfirmationTest {
 
 	get description () {
 		return 'should return an error when no username passed in confirmation and user has no username yet';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1001',
 			info: 'username'
@@ -20,11 +20,11 @@ class No_Username_Test extends Confirmation_Test {
 	}
 
 	before (callback) {
-		this.user_options = {
-			no_username: true
+		this.userOptions = {
+			noUsername: true
 		};
 		super.before(callback);
 	}
 }
 
-module.exports = No_Username_Test;
+module.exports = NoUsernameTest;

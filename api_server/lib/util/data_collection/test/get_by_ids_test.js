@@ -1,50 +1,50 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Data_Collection_Test = require('./data_collection_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DataCollectionTest = require('./data_collection_test');
 
-class Get_By_Ids_Test extends Data_Collection_Test {
+class GetByIdsTest extends DataCollectionTest {
 
 	get description () {
 		return 'should get the correct models when getting several models by ID, including models from cache and from database';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_random_models,
-			this.filter_test_models,
+			this.createRandomModels,
+			this.filterTestModels,
 			this.persist,
-			this.clear_cache,
-			this.get_some_test_models
+			this.clearCache,
+			this.getSomeTestModels
 		], callback);
 	}
 
-	get_some_test_models (callback) {
-		let ids = this.test_models.map(model => { return model.id; });
-		let some_ids = [...ids].splice(Math.trunc(ids.length / 2));
-		if (some_ids.length >= ids.length) {
+	getSomeTestModels (callback) {
+		let ids = this.testModels.map(model => { return model.id; });
+		let someIds = [...ids].splice(Math.trunc(ids.length / 2));
+		if (someIds.length >= ids.length) {
 			return callback('not enough models to run this test');
 		}
-		this.data.test.get_by_ids(
-			some_ids,
+		this.data.test.getByIds(
+			someIds,
 			callback
 		);
 	}
 
 	run (callback) {
-		let ids = this.test_models.map(model => { return model.id; });
-		this.data.test.get_by_ids(
+		let ids = this.testModels.map(model => { return model.id; });
+		this.data.test.getByIds(
 			ids,
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
-		this.validate_array_response();
+	validateResponse () {
+		this.validateArrayResponse();
 	}
 }
 
-module.exports = Get_By_Ids_Test;
+module.exports = GetByIdsTest;

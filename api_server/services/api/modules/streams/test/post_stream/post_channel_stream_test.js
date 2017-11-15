@@ -1,46 +1,46 @@
 'use strict';
 
 var Assert = require('assert');
-var Post_Stream_Test = require('./post_stream_test');
-const Stream_Test_Constants = require('../stream_test_constants');
+var PostStreamTest = require('./post_stream_test');
+const StreamTestConstants = require('../stream_test_constants');
 
-class Post_Channel_Stream_Test extends Post_Stream_Test {
+class PostChannelStreamTest extends PostStreamTest {
 
 	constructor (options) {
 		super(options);
 		this.type = 'channel';
 	}
 
-	get_expected_fields () {
-		let fields = Object.assign({}, super.get_expected_fields());
+	getExpectedFields () {
+		let fields = Object.assign({}, super.getExpectedFields());
 		fields.stream = [
 			...fields.stream,
-			...Stream_Test_Constants.EXPECTED_CHANNEL_STREAM_FIELDS
+			...StreamTestConstants.EXPECTED_CHANNEL_STREAM_FIELDS
 		];
 		return fields;
 	}
 
-	make_stream_options (callback) {
-		super.make_stream_options(() => {
-			this.stream_options.member_ids = this.users.splice(1, 3).map(user => user._id);
+	makeStreamOptions (callback) {
+		super.makeStreamOptions(() => {
+			this.streamOptions.memberIds = this.users.splice(1, 3).map(user => user._id);
 			callback();
 		});
 	}
 
-	validate_response (data) {
-		if (this.data.member_ids.indexOf(this.current_user._id) === -1) {
-			this.data.member_ids.push(this.current_user._id);
-			this.data.member_ids.sort();
+	validateResponse (data) {
+		if (this.data.memberIds.indexOf(this.currentUser._id) === -1) {
+			this.data.memberIds.push(this.currentUser._id);
+			this.data.memberIds.sort();
 		}
 		let stream = data.stream;
 		let errors = [];
 		let result = (
 			((stream.name === this.data.name) || errors.push('name does not match')) &&
-			((JSON.stringify(stream.member_ids) === JSON.stringify(this.data.member_ids)) || errors.push('member_ids array does not match'))
+			((JSON.stringify(stream.memberIds) === JSON.stringify(this.data.memberIds)) || errors.push('memberIds array does not match'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-		super.validate_response(data);
+		super.validateResponse(data);
 	}
 }
 
-module.exports = Post_Channel_Stream_Test;
+module.exports = PostChannelStreamTest;

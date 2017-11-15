@@ -1,20 +1,20 @@
 'use strict';
 
-var Get_Posts_Test = require('./get_posts_test');
+var GetPostsTest = require('./get_posts_test');
 var ObjectID = require('mongodb').ObjectID;
 
-class Get_Posts_Greater_Than_Equal_Test extends Get_Posts_Test {
+class GetPostsGreaterThanEqualTest extends GetPostsTest {
 
 	get description () {
 		return 'should return the correct posts when requesting posts in a stream with IDs greater than or equal to some value';
 	}
 
-	set_path (callback) {
-		let pivot = this.my_posts[2]._id;
-		this.my_posts = this.my_posts.filter(post => ObjectID(post._id) >= ObjectID(pivot));
-		this.path = `/posts/?team_id=${this.team._id}&stream_id=${this.stream._id}&gte=${pivot}`;
+	setPath (callback) {
+		let pivot = this.myPosts[2]._id;
+		this.myPosts = this.myPosts.filter(post => ObjectID(post._id) >= ObjectID(pivot));
+		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&gte=${pivot}`;
 		callback();
 	}
 }
 
-module.exports = Get_Posts_Greater_Than_Equal_Test;
+module.exports = GetPostsGreaterThanEqualTest;

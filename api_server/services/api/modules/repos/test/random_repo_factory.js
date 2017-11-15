@@ -1,15 +1,15 @@
 'use strict';
 
-var Random_String = require('randomstring');
+var RandomString = require('randomstring');
 
-class Random_Repo_Factory {
+class RandomRepoFactory {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	create_repo (data, token, callback) {
-		this.api_requester.do_api_request({
+	createRepo (data, token, callback) {
+		this.apiRequester.doApiRequest({
 			method: 'post',
 			path: '/repos',
 			data: data,
@@ -17,30 +17,30 @@ class Random_Repo_Factory {
 		}, callback);
 	}
 
-	random_url () {
-		return `https://${Random_String.generate(6)}.${Random_String.generate(6)}.com`;
+	randomUrl () {
+		return `https://${RandomString.generate(6)}.${RandomString.generate(6)}.com`;
 	}
 
-	random_sha () {
-		return Random_String.generate(40);
+	randomSha () {
+		return RandomString.generate(40);
 	}
 
-	get_random_repo_data (callback, options = {}) {
+	getRandomRepoData (callback, options = {}) {
 		let data = {
-			url: this.random_url(),
-			first_commit_sha: this.random_sha()
+			url: this.randomUrl(),
+			firstCommitSha: this.randomSha()
 		};
 		let emails;
-		if (options.with_emails) {
-			emails = options.with_emails;
+		if (options.withEmails) {
+			emails = options.withEmails;
 		}
-		if (options.with_random_emails) {
+		if (options.withRandomEmails) {
 			emails = (emails || []).concat(
-				this.get_n_random_emails(options.with_random_emails)
+				this.getNRandomEmails(options.withRandomEmails)
 			);
 		}
-		if (options.team_id) {
-			data.team_id = options.team_id;
+		if (options.teamId) {
+			data.teamId = options.teamId;
 			if (emails) {
 				data.emails = emails;
 			}
@@ -50,7 +50,7 @@ class Random_Repo_Factory {
 		}
 		else {
 			data.team = {
-				name: this.team_factory.random_name()
+				name: this.teamFactory.randomName()
 			};
 			if (emails) {
 				data.team.emails = emails;
@@ -59,23 +59,23 @@ class Random_Repo_Factory {
 		return callback(null, data);
 	}
 
-	get_n_random_emails (n) {
+	getNRandomEmails (n) {
 		let emails = [];
 		for (let i = 0; i < n; i++) {
-			emails.push(this.user_factory.random_email());
+			emails.push(this.userFactory.randomEmail());
 		}
 		return emails;
 	}
 
-	create_random_repo (callback, options = {}) {
-		this.get_random_repo_data(
+	createRandomRepo (callback, options = {}) {
+		this.getRandomRepoData(
 			(error, data) => {
 				if (error) { return callback(error); }
-				this.create_repo(data, options.token, callback);
+				this.createRepo(data, options.token, callback);
 			},
 			options
 		);
 	}
 }
 
-module.exports = Random_Repo_Factory;
+module.exports = RandomRepoFactory;

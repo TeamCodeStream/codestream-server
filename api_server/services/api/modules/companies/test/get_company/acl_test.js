@@ -1,28 +1,28 @@
 'use strict';
 
-var Get_Company_Test = require('./get_company_test');
+var GetCompanyTest = require('./get_company_test');
 
-class ACL_Test extends Get_Company_Test {
+class ACLTest extends GetCompanyTest {
 
 	constructor (options) {
 		super(options);
-		this.without_me = true;
+		this.withoutMe = true;
 	}
 
 	get description () {
 		return 'should return an error when trying to fetch a company that i\'m not a member of';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1009'
 		};
 	}
 
-	set_path (callback) {
-		this.path = '/companies/' + this.other_company._id;
+	setPath (callback) {
+		this.path = '/companies/' + this.otherCompany._id;
 		callback();
 	}	
 }
 
-module.exports = ACL_Test;
+module.exports = ACLTest;

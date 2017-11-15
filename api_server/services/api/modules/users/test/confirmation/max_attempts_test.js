@@ -1,36 +1,36 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Confirmation_Test = require('./confirmation_test');
-var Confirm_Code = require('../../confirm_code');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var ConfirmationTest = require('./confirmation_test');
+var ConfirmCode = require('../../confirm_code');
 
-class Max_Attempts_Test extends Confirmation_Test {
+class MaxAttemptsTest extends ConfirmationTest {
 
 	get description () {
 		return 'should return an error when an incorrect confirmation code is used during confirmation and the maximum number of attempts has been reached';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'USRC-1004'
 		};
 	}
 
-	make_bad_confirm_code () {
-		let new_confirm_code;
+	makeBadConfirmCode () {
+		let newConfirmCode;
 		do {
-			new_confirm_code = Confirm_Code();
-		} while (new_confirm_code === this.data.confirmation_code);
-		this.data.confirmation_code = new_confirm_code;
+			newConfirmCode = ConfirmCode();
+		} while (newConfirmCode === this.data.confirmationCode);
+		this.data.confirmationCode = newConfirmCode;
 	}
 
-	attempt_confirm (n, callback) {
-		this.make_bad_confirm_code();
-		this.do_api_request({
+	attemptConfirm (n, callback) {
+		this.makeBadConfirmCode();
+		this.doApiRequest({
 			method: this.method,
 			path: this.path,
 			data: this.data
@@ -41,14 +41,14 @@ class Max_Attempts_Test extends Confirmation_Test {
 
 	before (callback) {
 		super.before(() => {
-			Bound_Async.timesSeries(
+			BoundAsync.timesSeries(
 				this,
 				3,
-				this.attempt_confirm,
+				this.attemptConfirm,
 				callback
 			);
 		});
 	}
 }
 
-module.exports = Max_Attempts_Test;
+module.exports = MaxAttemptsTest;

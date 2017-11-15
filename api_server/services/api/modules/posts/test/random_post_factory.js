@@ -1,15 +1,15 @@
 'use strict';
 
-var Random_String = require('randomstring');
+var RandomString = require('randomstring');
 
-class Random_Post_Factory {
+class RandomPostFactory {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	create_post (data, token, callback) {
-		this.api_requester.do_api_request({
+	createPost (data, token, callback) {
+		this.apiRequester.doApiRequest({
 			method: 'post',
 			path: '/posts',
 			data: data,
@@ -17,68 +17,68 @@ class Random_Post_Factory {
 		}, callback);
 	}
 
-	random_upto (upto) {
+	randomUpto (upto) {
 		return Math.floor(Math.random() * upto);
 	}
 
-	random_text () {
-		const length = 1 + this.random_upto(1000);
-		return Random_String.generate(length);
+	randomText () {
+		const length = 1 + this.randomUpto(1000);
+		return RandomString.generate(length);
 	}
 
-	random_sha () {
-		return Random_String.generate(40);
+	randomSha () {
+		return RandomString.generate(40);
 	}
 
-	random_location () {
-		const line_start = this.random_upto(1000);
-		const line_end = line_start + this.random_upto(1000);
-		const char_start = this.random_upto(100);
-		const char_end = (line_start === line_end) ?
-			(char_start + this.random_upto(100)) :
-			this.random_upto(100);
-		return { line_start, line_end, char_start, char_end };
+	randomLocation () {
+		const lineStart = this.randomUpto(1000);
+		const lineEnd = lineStart + this.randomUpto(1000);
+		const charStart = this.randomUpto(100);
+		const charEnd = (lineStart === lineEnd) ?
+			(charStart + this.randomUpto(100)) :
+			this.randomUpto(100);
+		return { lineStart, lineEnd, charStart, charEnd };
 	}
 
-	random_replay_info () {
+	randomReplayInfo () {
 		// don't really know what form this will take just yet
 		return {
-			commit_sha: this.random_sha(),
-			lines: this.random_upto(200) - 100
+			commitSha: this.randomSha(),
+			lines: this.randomUpto(200) - 100
 		};
 	}
 
-	get_random_post_data (callback, options = {}) {
+	getRandomPostData (callback, options = {}) {
 		let data = {};
-		if (!options.stream_id && !options.stream) {
-			return callback('must provide stream_id or stream');
+		if (!options.streamId && !options.stream) {
+			return callback('must provide streamId or stream');
 		}
-		data.stream_id = options.stream_id;
+		data.streamId = options.streamId;
 		data.stream = options.stream;
-		if (options.repo_id) {
-			data.repo_id = options.repo_id;
-			data.commit_sha_when_posted = this.random_sha();
+		if (options.repoId) {
+			data.repoId = options.repoId;
+			data.commitShaWhenPosted = this.randomSha();
 		}
-		if (options.want_location) {
-			data.location = this.random_location();
-			data.replay_info = this.random_replay_info();
+		if (options.wantLocation) {
+			data.location = this.randomLocation();
+			data.replayInfo = this.randomReplayInfo();
 		}
-		if (options.parent_post_id) {
-			data.parent_post_id = options.parent_post_id;
+		if (options.parentPostId) {
+			data.parentPostId = options.parentPostId;
 		}
-		data.text = this.random_text();
+		data.text = this.randomText();
 		callback(null, data);
 	}
 
-	create_random_post (callback, options = {}) {
-		this.get_random_post_data(
+	createRandomPost (callback, options = {}) {
+		this.getRandomPostData(
 			(error, data) => {
 				if (error) { return callback(error); }
-				this.create_post(data, options.token, callback);
+				this.createPost(data, options.token, callback);
 			},
 			options
 		);
 	}
 }
 
-module.exports = Random_Post_Factory;
+module.exports = RandomPostFactory;

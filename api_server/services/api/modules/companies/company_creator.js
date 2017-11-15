@@ -1,28 +1,28 @@
 'use strict';
 
-var Model_Creator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Company = require('./company');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 
-class Company_Creator extends Model_Creator {
+class CompanyCreator extends ModelCreator {
 
-	get model_class () {
+	get modelClass () {
 		return Company;
 	}
 
-	get collection_name () {
+	get collectionName () {
 		return 'companies';
 	}
 
-	create_company (attributes, callback) {
-		return this.create_model(attributes, callback);
+	createCompany (attributes, callback) {
+		return this.createModel(attributes, callback);
 	}
 
-	get_required_attributes () {
+	getRequiredAttributes () {
 		return ['name'];
 	}
 
-	allow_attributes (callback) {
+	allowAttributes (callback) {
 		Allow(
 			this.attributes,
 			{
@@ -32,10 +32,10 @@ class Company_Creator extends Model_Creator {
 		process.nextTick(callback);
 	}
 
-	pre_save (callback) {
-		this.attributes.creator_id = this.user.id;
-		super.pre_save(callback);
+	preSave (callback) {
+		this.attributes.creatorId = this.user.id;
+		super.preSave(callback);
 	}
 }
 
-module.exports = Company_Creator;
+module.exports = CompanyCreator;

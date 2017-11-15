@@ -1,10 +1,10 @@
 'use strict';
 
-var Generic_Test = require('./generic_test');
-var HTTPS_Bot = require(process.env.CS_API_TOP + '/lib/util/https_bot');
-var Test_API_Config = require(process.env.CS_API_TOP + '/config/api_test');
+var GenericTest = require('./generic_test');
+var HTTPSBot = require(process.env.CS_API_TOP + '/lib/util/https_bot');
+var TestAPIConfig = require(process.env.CS_API_TOP + '/config/api_test');
 
-class API_Request_Test extends Generic_Test {
+class APIRequestTest extends GenericTest {
 
 	get method () {
 		return this._method || 'get';
@@ -22,45 +22,45 @@ class API_Request_Test extends Generic_Test {
 		this._path = path;
 	}
 
-	do_api_request (options = {}, callback = null) {
-		let request_options = Object.assign({}, options.request_options || {});
-		request_options.rejectUnauthorized = false;
+	doApiRequest (options = {}, callback = null) {
+		let requestOptions = Object.assign({}, options.requestOptions || {});
+		requestOptions.rejectUnauthorized = false;
 		if (options.token) {
-			request_options.headers = Object.assign({}, request_options.headers || {});
-			request_options.headers.Authorization = 'Bearer ' + options.token;
+			requestOptions.headers = Object.assign({}, requestOptions.headers || {});
+			requestOptions.headers.Authorization = 'Bearer ' + options.token;
 		}
 
 		const method = options.method || 'get';
 		const path = options.path || '/';
 		const data = options.data || null;
-		HTTPS_Bot[method](
-			Test_API_Config.api.host,
-			Test_API_Config.api.port,
+		HTTPSBot[method](
+			TestAPIConfig.api.host,
+			TestAPIConfig.api.port,
 			path,
 			data,
 			callback,
-			request_options
+			requestOptions
 		);
 	}
 
-	api_request (callback) {
-		this.do_api_request(
+	apiRequest (callback) {
+		this.doApiRequest(
 			{
 				method: this.method,
 				path: this.path,
 				data: this.data,
-				request_options: this.api_request_options || {},
+				requestOptions: this.apiRequestOptions || {},
 				token: this.token
 			},
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
 	run (callback) {
-		this.api_request(callback);
+		this.apiRequest(callback);
 	}
 }
 
-module.exports = API_Request_Test;
+module.exports = APIRequestTest;

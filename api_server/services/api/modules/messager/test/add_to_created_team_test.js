@@ -1,52 +1,52 @@
 'use strict';
 
-var CodeStream_Message_Test = require('./codestream_message_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamMessageTest = require('./codestream_message_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Add_To_Created_Team_Test extends CodeStream_Message_Test {
+class AddToCreatedTeamTest extends CodeStreamMessageTest {
 
 	get description () {
 		return 'should be able to subscribe to and receive a message from the team channel when i am added to a created team';
 	}
 
-	make_data (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo_with_me
+	makeData (callback) {
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepoWithMe
 		], callback);
 	}
 
 	// create another user who will create the repo with me added to the team
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
 	// create a repo and a team with me as a member
-	create_repo_with_me (callback) {
-		this.repo_factory.create_random_repo(
+	createRepoWithMe (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email],
-				with_random_emails: 2,
-				token: this.other_user_data.access_token
+				withEmails: [this.currentUser.email],
+				withRandomEmails: 2,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	set_channel_name (callback) {
-		this.channel_name = 'team-' + this.team._id;
+	setChannelName (callback) {
+		this.channelName = 'team-' + this.team._id;
 		callback();
 	}
 }
 
-module.exports = Add_To_Created_Team_Test;
+module.exports = AddToCreatedTeamTest;

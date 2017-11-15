@@ -1,34 +1,34 @@
 'use strict';
 
-var Get_Many_Request = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 
-class Get_Repos_Request extends Get_Many_Request {
+class GetReposRequest extends GetManyRequest {
 
 	authorize (callback) {
-		if (!this.request.query.team_id) {
-			return callback(this.error_handler.error('parameter_required', { info: 'team_id' }));
+		if (!this.request.query.teamId) {
+			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
 		}
-		let team_id = decodeURIComponent(this.request.query.team_id).toLowerCase();
-		if (!this.user.has_team(team_id)) {
-			return callback(this.error_handler.error('read_auth'));
+		let teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
+		if (!this.user.hasTeam(teamId)) {
+			return callback(this.errorHandler.error('readAuth'));
 		}
 		return process.nextTick(callback);
 	}
 
-	build_query () {
-		if (!this.request.query.team_id) {
-			return this.error_handler.error('parameter_required', { info: 'team_id' });
+	buildQuery () {
+		if (!this.request.query.teamId) {
+			return this.errorHandler.error('parameterRequired', { info: 'teamId' });
 		}
 		let query = {
-			team_id: decodeURIComponent(this.request.query.team_id).toLowerCase()
+			teamId: decodeURIComponent(this.request.query.teamId).toLowerCase()
 		};
 		if (this.request.query.ids) {
 			let ids = decodeURIComponent(this.request.query.ids).toLowerCase().split(',');
-			ids = ids.map(id => this.data.repos.object_id_safe(id));
+			ids = ids.map(id => this.data.repos.objectIdSafe(id));
 			query._id = { $in: ids };
 		}
 		return query;
 	}
 }
 
-module.exports = Get_Repos_Request;
+module.exports = GetReposRequest;

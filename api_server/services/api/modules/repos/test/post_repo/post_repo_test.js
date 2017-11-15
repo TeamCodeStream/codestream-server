@@ -1,19 +1,19 @@
 'use strict';
 
 var Assert = require('assert');
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Normalize_URL = require('normalize-url');
-const Repo_Test_Constants = require('../repo_test_constants');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var NormalizeURL = require('normalize-url');
+const RepoTestConstants = require('../repo_test_constants');
 
-class Post_Repo_Test extends CodeStream_API_Test {
+class PostRepoTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.test_options = {};
-		this.team_emails = [];
-		this.repo_options = {};
-		this.user_data = [];
+		this.testOptions = {};
+		this.teamEmails = [];
+		this.repoOptions = {};
+		this.userData = [];
 	}
 
 	get method () {
@@ -28,207 +28,207 @@ class Post_Repo_Test extends CodeStream_API_Test {
 		return `should return valid repo when creating a new repo`;
 	}
 
-	get_expected_fields () {
-		let expected_response = Repo_Test_Constants.EXPECTED_REPO_RESPONSE;
-		if (this.test_options.team_not_required) {
-			delete expected_response.team;
-			delete expected_response.company;
+	getExpectedFields () {
+		let expectedResponse = RepoTestConstants.EXPECTED_REPO_RESPONSE;
+		if (this.testOptions.teamNotRequired) {
+			delete expectedResponse.team;
+			delete expectedResponse.company;
 		}
-		return expected_response;
+		return expectedResponse;
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_mixed_users,
-			this.create_other_repo,
-			this.create_conflicting_user_with_current_user,
-			this.create_conflicting_user_with_existing_user,
-			this.make_repo_data
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createMixedUsers,
+			this.createOtherRepo,
+			this.createConflictingUserWithCurrentUser,
+			this.createConflictingUserWithExistingUser,
+			this.makeRepoData
 		], callback);
 	}
 
-	create_other_user (callback) {
-		if (!this.test_options.want_other_user) {
+	createOtherUser (callback) {
+		if (!this.testOptions.wantOtherUser) {
 			return callback();
 		}
-		this.user_factory.create_random_user(
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_mixed_users (callback) {
-		if (!this.test_options.want_random_emails) {
+	createMixedUsers (callback) {
+		if (!this.testOptions.wantRandomEmails) {
 			return callback();
 		}
-		Bound_Async.series(this, [
-			this.create_random_unregistered_users,
-			this.create_random_registered_users,
-			this.create_random_emails
+		BoundAsync.series(this, [
+			this.createRandomUnregisteredUsers,
+			this.createRandomRegisteredUsers,
+			this.createRandomEmails
 		], callback);
 	}
 
-	create_random_unregistered_users (callback) {
-		this.create_random_users(callback, { no_confirm: true});
+	createRandomUnregisteredUsers (callback) {
+		this.createRandomUsers(callback, { noConfirm: true});
 	}
 
-	create_random_registered_users (callback) {
-		this.create_random_users(callback);
+	createRandomRegisteredUsers (callback) {
+		this.createRandomUsers(callback);
 	}
 
-	create_random_users (callback, options) {
-		this.user_factory.create_random_users(
+	createRandomUsers (callback, options) {
+		this.userFactory.createRandomUsers(
 			2,
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.user_data = [...this.user_data, ...response];
-				let emails = response.map(user_data => { return user_data.user.email; });
-				this.team_emails = [...this.team_emails, ...emails];
+				this.userData = [...this.userData, ...response];
+				let emails = response.map(userData => { return userData.user.email; });
+				this.teamEmails = [...this.teamEmails, ...emails];
 				callback();
 			},
 			options
 		);
 	}
 
-	create_random_emails (callback) {
+	createRandomEmails (callback) {
 		for (let i = 0; i < 2; i++) {
-			this.team_emails.push(this.user_factory.random_email());
+			this.teamEmails.push(this.userFactory.randomEmail());
 		}
 		callback();
 	}
 
-	create_other_repo (callback) {
-		if (!this.test_options.want_other_repo) {
+	createOtherRepo (callback) {
+		if (!this.testOptions.wantOtherRepo) {
 			return callback();
 		}
-		this.other_repo_options = this.other_repo_options || { token: this.token };
-		this.repo_factory.create_random_repo((error, response) => {
+		this.otherRepoOptions = this.otherRepoOptions || { token: this.token };
+		this.repoFactory.createRandomRepo((error, response) => {
 			if (error) { return callback(error); }
-			this.existing_repo = response.repo;
+			this.existingRepo = response.repo;
 			callback();
-		}, this.other_repo_options);
+		}, this.otherRepoOptions);
 	}
 
-	create_conflicting_user_with_current_user (callback) {
-		if (!this.test_options.want_conflicting_user_with_current_user) {
+	createConflictingUserWithCurrentUser (callback) {
+		if (!this.testOptions.wantConflictingUserWithCurrentUser) {
 			return callback();
 		}
-		this.user_factory.create_random_user(
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.team_emails.push(response.user.email);
+				this.teamEmails.push(response.user.email);
 				callback();
 			},
-			{ with: { username: this.current_user.username } }
+			{ with: { username: this.currentUser.username } }
 		);
 	}
 
-	create_conflicting_user_with_existing_user (callback) {
-		if (!this.test_options.want_conflicting_user_with_existing_user) {
+	createConflictingUserWithExistingUser (callback) {
+		if (!this.testOptions.wantConflictingUserWithExistingUser) {
 			return callback();
 		}
-		let user_with_username = this.user_data.find(user => !!user.user.username);
-		this.user_factory.create_random_user(
+		let userWithUsername = this.userData.find(user => !!user.user.username);
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.team_emails.push(response.user.email);
+				this.teamEmails.push(response.user.email);
 				callback();
 			},
-			{ with: { username: user_with_username.user.username } }
+			{ with: { username: userWithUsername.user.username } }
 		);
 	}
 
-	make_repo_data (callback) {
-		if (this.team_emails.length > 0) {
-			this.repo_options.with_emails = this.team_emails;
+	makeRepoData (callback) {
+		if (this.teamEmails.length > 0) {
+			this.repoOptions.withEmails = this.teamEmails;
 		}
-		this.repo_factory.get_random_repo_data((error, data) => {
+		this.repoFactory.getRandomRepoData((error, data) => {
 			if (error) { return callback(error); }
 			this.data = data;
-			this.team_data = data.team;
+			this.teamData = data.team;
 			callback();
-		}, this.repo_options);
+		}, this.repoOptions);
 	}
 
-	validate_response (data) {
+	validateResponse (data) {
 		let repo = data.repo;
 		let errors = [];
 		let result = (
-			((repo.url === Normalize_URL(this.data.url.toLowerCase())) || errors.push('incorrect url')) &&
-			((repo.first_commit_sha === this.data.first_commit_sha.toLowerCase()) || errors.push('incorrect first_commit_sha')) &&
+			((repo.url === NormalizeURL(this.data.url.toLowerCase())) || errors.push('incorrect url')) &&
+			((repo.firstCommitSha === this.data.firstCommitSha.toLowerCase()) || errors.push('incorrect firstCommitSha')) &&
 			((repo.deactivated === false) || errors.push('deactivated not false')) &&
-			((typeof repo.created_at === 'number') || errors.push('created_at not number')) &&
-			((repo.modified_at >= repo.created_at) || errors.push('modified_at not greater than or equal to created_at')) &&
-			(!this.not_created_by_me || (repo.creator_id === this.current_user._id) || errors.push('creator_id not equal to current user id'))
+			((typeof repo.createdAt === 'number') || errors.push('createdAt not number')) &&
+			((repo.modifiedAt >= repo.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
+			(!this.notCreatedByMe || (repo.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-		if (this.team_emails && this.team_emails.length > 0) {
-			this.validate_users(data);
+		if (this.teamEmails && this.teamEmails.length > 0) {
+			this.validateUsers(data);
 		}
-		if (!this.test_options.team_not_required) {
-			this.validate_team(data);
-			this.validate_company(data);
+		if (!this.testOptions.teamNotRequired) {
+			this.validateTeam(data);
+			this.validateCompany(data);
 		}
-		this.validate_sanitized(repo, Repo_Test_Constants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(repo, RepoTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 
-	validate_team (data) {
+	validateTeam (data) {
 		let team = data.team;
 		let repo = data.repo;
 		let errors = [];
 		Assert(typeof team === 'object', 'team expected with response');
 		let result = (
-			((team._id === repo.team_id) || errors.push('team id is not the same as repo team_id')) &&
-			((team.name === this.team_data.name) || errors.push('team name doesn\'t match')) &&
-			((JSON.stringify(team.member_ids.sort()) === JSON.stringify((this.team_data.member_ids || [this.current_user._id]).sort())) || errors.push('team membership doesn\'t match')) &&
-			((team.company_id === repo.company_id) || errors.push('team company_id is not the same as repo company_id')) &&
+			((team._id === repo.teamId) || errors.push('team id is not the same as repo teamId')) &&
+			((team.name === this.teamData.name) || errors.push('team name doesn\'t match')) &&
+			((JSON.stringify(team.memberIds.sort()) === JSON.stringify((this.teamData.memberIds || [this.currentUser._id]).sort())) || errors.push('team membership doesn\'t match')) &&
+			((team.companyId === repo.companyId) || errors.push('team companyId is not the same as repo companyId')) &&
 			((team.deactivated === false) || errors.push('team.deactivated not false')) &&
-			((typeof team.created_at === 'number') || errors.push('team.created_at not number')) &&
-			((team.modified_at >= team.created_at) || errors.push('team.modified_at not greater than or equal to created_at')) &&
-			((team.creator_id === this.current_user._id) || errors.push('team.creator_id not equal to current user id'))
+			((typeof team.createdAt === 'number') || errors.push('team.createdAt not number')) &&
+			((team.modifiedAt >= team.createdAt) || errors.push('team.modifiedAt not greater than or equal to createdAt')) &&
+			((team.creatorId === this.currentUser._id) || errors.push('team.creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-		this.validate_sanitized(team, Repo_Test_Constants.UNSANITIZED_TEAM_ATTRIBUTES);
+		this.validateSanitized(team, RepoTestConstants.UNSANITIZED_TEAM_ATTRIBUTES);
 	}
 
-	validate_company (data) {
+	validateCompany (data) {
 		let repo = data.repo;
 		let team = data.team;
 		let company = data.company;
 		let errors = [];
 		Assert(typeof company === 'object', 'company expected with response');
 		let result = (
-			((company._id === repo.company_id) || errors.push('company id is not the same as repo company_id')) &&
-			((company.name === this.team_data.name) || errors.push('company name doesn\'t match')) &&
+			((company._id === repo.companyId) || errors.push('company id is not the same as repo companyId')) &&
+			((company.name === this.teamData.name) || errors.push('company name doesn\'t match')) &&
 			((company.deactivated === false) || errors.push('company.deactivated not false')) &&
-			((typeof company.created_at === 'number') || errors.push('company.created_at not number')) &&
-			((company.modified_at >= company.created_at) || errors.push('company.modified_at not greater than or equal to created_at')) &&
-			((company.creator_id === this.current_user._id) || errors.push('company.creator_id not equal to current user id'))
+			((typeof company.createdAt === 'number') || errors.push('company.createdAt not number')) &&
+			((company.modifiedAt >= company.createdAt) || errors.push('company.modifiedAt not greater than or equal to createdAt')) &&
+			((company.creatorId === this.currentUser._id) || errors.push('company.creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-		this.validate_sanitized(team, Repo_Test_Constants.UNSANITIZED_COMPANY_ATTRIBUTES);
+		this.validateSanitized(team, RepoTestConstants.UNSANITIZED_COMPANY_ATTRIBUTES);
 	}
 
-	validate_users (data) {
+	validateUsers (data) {
 		Assert(data.users instanceof Array, 'no users array returned');
 		data.users.forEach(user => {
-			Assert(this.team_emails.indexOf(user.email) !== -1, `got unexpected email ${user.email}`);
-			Assert(user.team_ids.indexOf(data.repo.team_id) !== -1, `user ${user.email} doesn't have the team for the repo`);
-			Assert(user.company_ids.indexOf(data.repo.company_id) !== -1, `user ${user.email} doesn't have the company for the repo`);
+			Assert(this.teamEmails.indexOf(user.email) !== -1, `got unexpected email ${user.email}`);
+			Assert(user.teamIds.indexOf(data.repo.teamId) !== -1, `user ${user.email} doesn't have the team for the repo`);
+			Assert(user.companyIds.indexOf(data.repo.companyId) !== -1, `user ${user.email} doesn't have the company for the repo`);
 			if (data.team) {
-				Assert(data.team.member_ids.indexOf(user._id) !== -1, `user ${user.email} not a member of the team for the repo`);
+				Assert(data.team.memberIds.indexOf(user._id) !== -1, `user ${user.email} not a member of the team for the repo`);
 			}
-			this.validate_sanitized(user, Repo_Test_Constants.UNSANITIZED_USER_ATTRIBUTES);
+			this.validateSanitized(user, RepoTestConstants.UNSANITIZED_USER_ATTRIBUTES);
 		});
-		if (!this.test_options.team_not_required) {
-			let added_user_ids = data.users.map(user => user._id);
-			this.team_data.member_ids = [this.current_user._id, ...added_user_ids].sort();
+		if (!this.testOptions.teamNotRequired) {
+			let addedUserIds = data.users.map(user => user._id);
+			this.teamData.memberIds = [this.currentUser._id, ...addedUserIds].sort();
 		}
 	}
 }
 
-module.exports = Post_Repo_Test;
+module.exports = PostRepoTest;

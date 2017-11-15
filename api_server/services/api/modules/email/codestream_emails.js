@@ -1,32 +1,32 @@
 'use strict';
 
-var SendGrid_Email = require('./sendgrid_email');
-var Email_Utils = require('./utils');
+var SendGridEmail = require('./sendgrid_email');
+var EmailUtils = require('./utils');
 
-class CodeStream_Emails {
+class CodeStreamEmails {
 
 	constructor (options) {
 		Object.assign(this, options);
-		this.sendgrid_email = new SendGrid_Email(this.sendgrid);
+		this.sendgridEmail = new SendGridEmail(this.sendgrid);
 	}
 
-	send_confirmation_email (options, callback) {
+	sendConfirmationEmail (options, callback) {
 		let { user, email, request } = options;
 		if (request) {
 			request.log(`Sending confirmation email to ${email}`);
 		}
-		const name = Email_Utils.get_user_name(user);
+		const name = EmailUtils.getUserName(user);
 		const subject = `Welcome to CodeStream, ${name}`;
-		this.sendgrid_email.send_email(
+		this.sendgridEmail.sendEmail(
 			{
-				from: this.sender_email,
+				from: this.senderEmail,
 				to: email,
 				subject: subject,
 				fields: {
-					code: user.confirmation_code,
+					code: user.confirmationCode,
 					name: name
 				},
-				template_id: this.confirmation_email_template_id,
+				templateId: this.confirmationEmailTemplateId,
 				request: request
 			},
 			callback
@@ -34,4 +34,4 @@ class CodeStream_Emails {
 	}
 }
 
-module.exports = CodeStream_Emails;
+module.exports = CodeStreamEmails;

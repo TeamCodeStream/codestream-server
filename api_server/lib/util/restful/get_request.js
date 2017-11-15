@@ -1,18 +1,18 @@
 'use strict';
 
-var Restful_Request = require('./restful_request');
+var RestfulRequest = require('./restful_request');
 
-class Get_Request extends Restful_Request {
+class GetRequest extends RestfulRequest {
 
 	authorize (callback) {
-		return this.user.authorize_model(
-			this.module.model_name,
+		return this.user.authorizeModel(
+			this.module.modelName,
 			this.request.params.id,
 			this,
 			(error, authorized) => {
 				if (error) { return callback(error); }
 				if (!authorized) {
-					return callback(this.error_handler.error('read_auth'));
+					return callback(this.errorHandler.error('readAuth'));
 				}
 				else {
 					return process.nextTick(callback);
@@ -23,24 +23,24 @@ class Get_Request extends Restful_Request {
 
 	process(callback) {
 		let id = this.request.params.id;
-		this.data[this.module.collection_name].get_by_id(
+		this.data[this.module.collectionName].getById(
 			id,
 			(error, model) => {
-				this.got_model(error, model, callback);
+				this.gotModel(error, model, callback);
 			}
 		);
 	}
 
-	got_model (error, model, callback) {
+	gotModel (error, model, callback) {
 		if (error) { return callback(error); }
-		const model_name = this.module.model_name || 'model';
+		const modelName = this.module.modelName || 'model';
 		if (!model) {
-			return callback(this.error_handler.error('not_found', { info: model_name }));
+			return callback(this.errorHandler.error('notFound', { info: modelName }));
 		}
-		this.response_data = this.response_data || {};
-		this.response_data[model_name] = model.get_sanitized_object();
+		this.responseData = this.responseData || {};
+		this.responseData[modelName] = model.getSanitizedObject();
 		process.nextTick(callback);
 	}
 }
 
-module.exports = Get_Request;
+module.exports = GetRequest;

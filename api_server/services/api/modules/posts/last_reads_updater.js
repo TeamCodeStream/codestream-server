@@ -1,51 +1,51 @@
 'use strict';
 
-class Last_Reads_Updater {
+class LastReadsUpdater {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	update_last_reads (callback) {
-		let member_ids = this.member_ids_without_current_user();
-		if (member_ids.length === 0) {
+	updateLastReads (callback) {
+		let memberIds = this.memberIdsWithoutCurrentUser();
+		if (memberIds.length === 0) {
 			return callback();
 		}
-		let last_reads_elem = 'last_reads.' + this.stream.id;
+		let lastReadsElem = 'lastReads.' + this.stream.id;
 		let query = {
-			_id: { $in: member_ids },
-			[last_reads_elem]: { $exists: false }
+			_id: { $in: memberIds },
+			[lastReadsElem]: { $exists: false }
 		};
-		let previous_post_id = this.previous_post_id || '0';
+		let previousPostId = this.previousPostId || '0';
 		let update = {
 			$set: {
-				[last_reads_elem]: previous_post_id
+				[lastReadsElem]: previousPostId
 			}
 		};
-		this.data.users.update_direct(
+		this.data.users.updateDirect(
 			query,
 			update,
 			error => {
 				if (error && this.logger) {
-					this.logger.warn(`Unable to update last reads for new post, stream_id=${this.stream.id}: ${JSON.stringify(error)}`);
+					this.logger.warn(`Unable to update last reads for new post, streamId=${this.stream.id}: ${JSON.stringify(error)}`);
 				}
 				callback();
 			}
 		);
 	}
 
-	member_ids_without_current_user () {
-		let member_ids = this.stream.get('type') === 'file' ?
-			this.team.get('member_ids') :
-			this.stream.get('member_ids');
-		member_ids = member_ids || [];
-		let user_id_index = member_ids.indexOf(this.user.id);
-		if (user_id_index !== -1) {
-			member_ids.splice(user_id_index, 1);
+	memberIdsWithoutCurrentUser () {
+		let memberIds = this.stream.get('type') === 'file' ?
+			this.team.get('memberIds') :
+			this.stream.get('memberIds');
+		memberIds = memberIds || [];
+		let userIdIndex = memberIds.indexOf(this.user.id);
+		if (userIdIndex !== -1) {
+			memberIds.splice(userIdIndex, 1);
 		}
-		member_ids = member_ids.map(member_id => this.data.users.object_id_safe(member_id));
-		return member_ids;
+		memberIds = memberIds.map(memberId => this.data.users.objectIdSafe(memberId));
+		return memberIds;
 	}
 }
 
-module.exports = Last_Reads_Updater;
+module.exports = LastReadsUpdater;

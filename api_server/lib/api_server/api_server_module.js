@@ -1,20 +1,20 @@
 'use strict';
 
-class API_Server_Module {
+class APIServerModule {
 
 	constructor (config = {}) {
 		Object.assign(this, config);
 		this.logger = config.logger || this.api;
 	}
 
-	set_config (config) {
+	setConfig (config) {
 		Object.assign(this, config);
 	}
 
-	get_routes () { }
+	getRoutes () { }
 
-	get_dependencies () { }
+	getDependencies () { }
 
 }
 
-module.exports = API_Server_Module;
+module.exports = APIServerModule;

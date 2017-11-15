@@ -1,54 +1,54 @@
 'use strict';
 
-var API_Request_Test = require('./api_request_test');
-var Random_User_Factory = require(process.env.CS_API_TOP + '/services/api/modules/users/test/random_user_factory');
-var Random_Team_Factory = require(process.env.CS_API_TOP + '/services/api/modules/teams/test/random_team_factory');
-var Random_Repo_Factory = require(process.env.CS_API_TOP + '/services/api/modules/repos/test/random_repo_factory');
-var Random_Stream_Factory = require(process.env.CS_API_TOP + '/services/api/modules/streams/test/random_stream_factory');
-var Random_Post_Factory = require(process.env.CS_API_TOP + '/services/api/modules/posts/test/random_post_factory');
+var APIRequestTest = require('./api_request_test');
+var RandomUserFactory = require(process.env.CS_API_TOP + '/services/api/modules/users/test/random_user_factory');
+var RandomTeamFactory = require(process.env.CS_API_TOP + '/services/api/modules/teams/test/random_team_factory');
+var RandomRepoFactory = require(process.env.CS_API_TOP + '/services/api/modules/repos/test/random_repo_factory');
+var RandomStreamFactory = require(process.env.CS_API_TOP + '/services/api/modules/streams/test/random_stream_factory');
+var RandomPostFactory = require(process.env.CS_API_TOP + '/services/api/modules/posts/test/random_post_factory');
 
-class CodeStream_API_Test extends API_Request_Test {
+class CodeStreamAPITest extends APIRequestTest {
 
 	constructor (options) {
 		super(options);
-		this.user_factory = new Random_User_Factory({
-			api_requester: this
+		this.userFactory = new RandomUserFactory({
+			apiRequester: this
 		});
-		this.team_factory = new Random_Team_Factory({
-			api_requester: this,
-			user_factory: this.user_factory
+		this.teamFactory = new RandomTeamFactory({
+			apiRequester: this,
+			userFactory: this.userFactory
 		});
-		this.repo_factory = new Random_Repo_Factory({
-			api_requester: this,
-			team_factory: this.team_factory,
-			user_factory: this.user_factory
+		this.repoFactory = new RandomRepoFactory({
+			apiRequester: this,
+			teamFactory: this.teamFactory,
+			userFactory: this.userFactory
 		});
-		this.stream_factory = new Random_Stream_Factory({
-			api_requester: this
+		this.streamFactory = new RandomStreamFactory({
+			apiRequester: this
 		});
-		this.post_factory = new Random_Post_Factory({
-			api_requester: this
+		this.postFactory = new RandomPostFactory({
+			apiRequester: this
 		});
 	}
 
 	authenticate (callback) {
-		if (this.dont_want_token()) {
+		if (this.dontWantToken()) {
 			return callback();
 		}
-		this.user_factory.create_random_user(
+		this.userFactory.createRandomUser(
 			(error, data) => {
 				if (error) { return callback(error); }
-				this.current_user = data.user;
-				this.token = data.access_token;
+				this.currentUser = data.user;
+				this.token = data.accessToken;
 				callback();
 			},
-			this.user_options || {}
+			this.userOptions || {}
 		);
 	}
 
-	dont_want_token () {
+	dontWantToken () {
 		return false;
 	}
 }
 
-module.exports = CodeStream_API_Test;
+module.exports = CodeStreamAPITest;

@@ -1,6 +1,6 @@
 'use strict';
 
-class Error_Handler {
+class ErrorHandler {
 
 	constructor (errors = {}) {
 		this.initialize(errors);
@@ -24,7 +24,7 @@ class Error_Handler {
 		return Object.assign({}, this.errors[key], info);
 	}
 
-	data_error (error) {
+	dataError (error) {
 		return this.error('data', { reason: error });
 	}
 
@@ -32,17 +32,17 @@ class Error_Handler {
 		return typeof error === 'string' ? error : JSON.stringify(error);
 	}
 
-	static to_client (error) {
+	static toClient (error) {
 		if (typeof error !== 'object') {
 			return error;
 		}
-		let client_error = Object.assign({}, error);
-		if (client_error.internal) {
-			delete client_error.internal;
-			delete client_error.reason;
+		let clientError = Object.assign({}, error);
+		if (clientError.internal) {
+			delete clientError.internal;
+			delete clientError.reason;
 		}
-		return client_error;
+		return clientError;
 	}
 }
 
-module.exports = Error_Handler;
+module.exports = ErrorHandler;

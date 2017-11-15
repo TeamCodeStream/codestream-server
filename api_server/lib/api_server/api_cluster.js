@@ -1,53 +1,53 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var OS = require('os');
 var Program = require('commander');
 var Net = require('net');
 var Cluster = require('cluster');
-var API_Server = require(process.env.CS_API_TOP + '/lib/api_server/api_server');
+var APIServer = require(process.env.CS_API_TOP + '/lib/api_server/api_server');
 
 Program
   .option('--one_worker [one_worker]', 'Use only one worker')
-  .option('--override_config [config.key=value]', 'Override configuration value')
+  .option('--overrideConfig [config.key=value]', 'Override configuration value')
   .parse(process.argv);
 
-class API_Cluster {
+class APICluster {
 
 	constructor (config, logger) {
 		this.config = config;
 		this.logger = logger || console;
 		this.workers = {};
-		if (this.config.allow_config_override) {
-			this.handle_config_overrides();
+		if (this.config.allowConfigOverride) {
+			this.handleConfigOverrides();
 		}
 	}
 
 	start (callback) {
 		if (Cluster.isMaster) {
-			this.start_master(callback);
+			this.startMaster(callback);
 		}
 		else {
-			this.start_worker(callback);
+			this.startWorker(callback);
 		}
 	}
 
-	start_master (callback) {
-		Bound_Async.series(this, [
-			this.process_arguments,
-			this.test_ports,
-			this.start_workers
+	startMaster (callback) {
+		BoundAsync.series(this, [
+			this.processArguments,
+			this.testPorts,
+			this.startWorkers
 		], callback);
 	}
 
-	process_arguments (callback) {
+	processArguments (callback) {
 		if (Program.one_worker) {
-			this.one_worker = true;
+			this.oneWorker = true;
 		}
 		process.nextTick(callback);
 	}
 
-	test_ports (callback) {
+	testPorts (callback) {
 		if (!Cluster.isMaster) {
 			return process.nextTick(callback);
 		}
@@ -55,45 +55,45 @@ class API_Cluster {
 		if (!port) {
 			return process.nextTick(callback);
 		}
-		let test_socket = Net.connect(port);
+		let testSocket = Net.connect(port);
 		// Error means either there is nothing listening OR we can let the workers reliably trap the
 		// error, for example EACCES
-		test_socket.on('error', () => {
-			test_socket.end();
+		testSocket.on('error', () => {
+			testSocket.end();
 			process.nextTick(callback);
 		});
 		// Connection made, something is already listening and we need to exit
-		test_socket.on('connect', () => {
-			test_socket.end();
+		testSocket.on('connect', () => {
+			testSocket.end();
 			callback('port ' + port + ' is already in use');
 		});
 	}
 
-	start_workers (callback) {
-		this.num_cpus = this.one_worker ? 1 : OS.cpus().length;
-		for (let i = 0; i < this.num_cpus; i++) {
+	startWorkers (callback) {
+		this.numCpus = this.oneWorker ? 1 : OS.cpus().length;
+		for (let i = 0; i < this.numCpus; i++) {
 			Cluster.fork();
 		}
-		Cluster.on('exit', this.on_exit.bind(this));
-		Cluster.on('disconnect', this.on_disconnect.bind(this));
-		Cluster.on('online', this.on_online.bind(this));
-		process.on('SIGTERM', this.on_sigterm.bind(this));
-		process.on('SIGINT', this.on_sigint.bind(this));
+		Cluster.on('exit', this.onExit.bind(this));
+		Cluster.on('disconnect', this.onDisconnect.bind(this));
+		Cluster.on('online', this.onOnline.bind(this));
+		process.on('SIGTERM', this.onSigterm.bind(this));
+		process.on('SIGINT', this.onSigint.bind(this));
 		process.nextTick(callback);
 	}
 
-	on_exit (worker, code, signal) {
+	onExit (worker, code, signal) {
 		this.logger.warn('Worker ' + worker.id + ' (process ' + worker.process.pid + ') died with exit code:' + code + ' and signal:' + signal);
 
 		// Firing up https server on the worker failed with a known error that will be fatal to all
 		// children no matter how often restarted.  Kill the whole thing!!!
 		if (code === 3) {
-			this.dont_spawn_new_workers = true;
+			this.dontSpawnNewWorkers = true;
 		}
 
 		// if the cluster process sends an explicit shutdown message to the workers, we obviously
 		// don't want to auto-revive them
-		if (this.dont_spawn_new_workers === true) {
+		if (this.dontSpawnNewWorkers === true) {
 			if (code === 3) {
 				this.logger.warn("Fatal error; unable to spawn worker threads without them immediately dying");
 			}
@@ -107,49 +107,49 @@ class API_Cluster {
 		delete this.workers[worker.id];
 	}
 
-	on_disconnect (worker) {
+	onDisconnect (worker) {
 		// Just a quick message to track when the master process sends an explicit
 		// disconnect to the worker
-		if (this.dont_spawn_new_workers === true) {
+		if (this.dontSpawnNewWorkers === true) {
 			this.logger.warn("Worker disconnected from cluster pool >"  + worker.process.pid + "<");
 		}
 		delete this.workers[worker.id];
 	}
 
-	on_online (worker) {
+	onOnline (worker) {
 		this.logger.log('Worker ' + worker.id + ' is online');
 		this.workers[worker.id] = worker;
-		worker.on('message', this.on_worker_message);
-		Cluster.workers[worker.id].send({ you_are: worker.id });
+		worker.on('message', this.onWorkerMessage);
+		Cluster.workers[worker.id].send({ youAre: worker.id });
 	}
 
-	on_worker_message (message) {
+	onWorkerMessage (message) {
 		if (typeof message !== 'object') { return; }
 	}
 
-	on_sigterm () {
+	onSigterm () {
 		this.logger.warn('Got SIGTERM');
 		this.shutdown('SIGTERM');
 	}
 
-	on_sigint () {
+	onSigint () {
 		this.logger.warn('Got SIGINT');
 		this.shutdown('SIGINT');
 	}
 
 	shutdown (signal) {
-		this.dont_spawn_new_workers = true;   // don't fire the auto-revive code
+		this.dontSpawnNewWorkers = true;   // don't fire the auto-revive code
 		Object.keys(Cluster.workers).forEach(id => {
-			this.shutdown_worker(id, signal);
+			this.shutdownWorker(id, signal);
 		});
 	}
 
-	shutdown_worker (id, signal) {
+	shutdownWorker (id, signal) {
 		// Tell workers to start cleaning up.  Not all services automatically listen to
 		// disconnect.
 		try {
 			Cluster.workers[id].send({
-				want_shutdown: true,
+				wantShutdown: true,
 				signal: signal
 			});
 		}
@@ -158,10 +158,10 @@ class API_Cluster {
 		}
 	}
 
-	start_worker () {
-		this.config.cluster = { worker_id: Cluster.worker.id };
-		global.API_Server = this.api_server = new API_Server(this.config);
-		this.api_server.start((error) => {
+	startWorker () {
+		this.config.cluster = { workerId: Cluster.worker.id };
+		global.APIServer = this.apiServer = new APIServer(this.config);
+		this.apiServer.start((error) => {
 			if (error) {
 				console.error('API server worker failed to start: ' + error);
 				process.exit(3);	// 3 means to signal the master that we are not to be re-spawned
@@ -169,19 +169,19 @@ class API_Cluster {
 		});
 	}
 
-	handle_config_overrides () {
-		if (Program.override_config) {
-			this.handle_config_override(Program.override_config);
+	handleConfigOverrides () {
+		if (Program.overrideConfig) {
+			this.handleConfigOverride(Program.overrideConfig);
 		}
 		/*
 		_.each(
-			Program.override_config,
-			this.handle_config_override
+			Program.overrideConfig,
+			this.handleConfigOverride
 		);
 		*/
 	}
 
-	handle_config_override (override) {
+	handleConfigOverride (override) {
 		let match = override.match(/^(.*)\.(.*)=(.*)$/);
 		if (!match || match.length < 4) {
 			this.logger.warn('Ignoring configuration override (' + override + '), format is config.key=value');
@@ -192,15 +192,15 @@ class API_Cluster {
 	}
 }
 
-function Global_Error_Handler (error, type) {
+function GlobalErrorHandler (error, type) {
 	const message = (error instanceof Error) ?
 		type + `: ${error.message}\n${error.stack}` :
 		JSON.stringify(error);
 	if (
-		global.API_Server &&
-		typeof global.API_Server === 'function'
+		global.APIServer &&
+		typeof global.APIServer === 'function'
 	) {
-		global.API_Server.critical(message);
+		global.APIServer.critical(message);
 	}
 	console.error(message);
 	process.exit(1);
@@ -208,10 +208,10 @@ function Global_Error_Handler (error, type) {
 
 // Trap uncaught exceptions, log, and exit
 process.on('uncaughtException', (error) => {
-	Global_Error_Handler(error, 'UNCAUGHT EXCEPTION');
+	GlobalErrorHandler(error, 'UNCAUGHT EXCEPTION');
 });
 process.on('unhandledRejection', (error) => {
-	Global_Error_Handler(error, 'UNHANDLED REJECTION');
+	GlobalErrorHandler(error, 'UNHANDLED REJECTION');
 });
 
-module.exports = API_Cluster;
+module.exports = APICluster;

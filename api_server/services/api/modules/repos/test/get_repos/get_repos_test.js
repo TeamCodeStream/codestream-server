@@ -1,92 +1,92 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-const Repo_Test_Constants = require('../repo_test_constants');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const RepoTestConstants = require('../repo_test_constants');
 
-class Get_Repos_Test extends CodeStream_API_Test {
+class GetReposTest extends CodeStreamAPITest {
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_random_repo_by_me,
-			this.create_random_repos_in_team,
-			this.create_random_repo_in_other_team,
-			this.set_path
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRandomRepoByMe,
+			this.createRandomReposInTeam,
+			this.createRandomRepoInOtherTeam,
+			this.setPath
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_random_repo_by_me (callback) {
-		this.repo_factory.create_random_repo(
+	createRandomRepoByMe (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.my_repo = response.repo;
-				this.my_team = response.team;
+				this.myRepo = response.repo;
+				this.myTeam = response.team;
 				callback();
 			},
 			{
-				with_random_emails: 2,
-				with_emails: [this.other_user_data.user.email],
+				withRandomEmails: 2,
+				withEmails: [this.otherUserData.user.email],
 				token: this.token
 			}
 		);
 	}
 
-	create_random_repos_in_team (callback) {
-		this.other_repos = [];
-		Bound_Async.timesSeries(
+	createRandomReposInTeam (callback) {
+		this.otherRepos = [];
+		BoundAsync.timesSeries(
 			this,
 			2,
-			this.create_random_repo_in_team,
+			this.createRandomRepoInTeam,
 			callback
 		);
 	}
 
-	create_random_repo_in_team (n, callback) {
-		this.repo_factory.create_random_repo(
+	createRandomRepoInTeam (n, callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_repos.push(response.repo);
+				this.otherRepos.push(response.repo);
 				callback();
 			},
 			{
-				with_random_emails: 2,
-				with_emails: [this.current_user.email],
-				team_id: this.my_team._id,
-				token: this.other_user_data.access_token
+				withRandomEmails: 2,
+				withEmails: [this.currentUser.email],
+				teamId: this.myTeam._id,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	create_random_repo_in_other_team (callback) {
-		this.repo_factory.create_random_repo(
+	createRandomRepoInOtherTeam (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.foreign_repo = response.repo;
-				this.foreign_team = response.team;
+				this.foreignRepo = response.repo;
+				this.foreignTeam = response.team;
 				callback();
 			},
 			{
-				with_random_emails: 2,
-				token: this.other_user_data.access_token
+				withRandomEmails: 2,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	validate_response (data) {
-		this.validate_matching_objects(this.my_repos, data.repos, 'repos');
-		this.validate_sanitized_objects(data.repos, Repo_Test_Constants.UNSANITIZED_ATTRIBUTES);
+	validateResponse (data) {
+		this.validateMatchingObjects(this.myRepos, data.repos, 'repos');
+		this.validateSanitizedObjects(data.repos, RepoTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = Get_Repos_Test;
+module.exports = GetReposTest;

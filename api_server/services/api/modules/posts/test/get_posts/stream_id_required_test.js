@@ -1,18 +1,18 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
-class Stream_ID_Required_Test extends CodeStream_API_Test {
+class StreamIDRequiredTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'should return error if stream_id is not provided';
+		return 'should return error if streamId is not provided';
 	}
 
 	before (callback) {
-		this.repo_factory.create_random_repo(
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.path = '/posts?team_id=' + response.team._id;
+				this.path = '/posts?teamId=' + response.team._id;
 				callback();
 			},
 			{
@@ -21,12 +21,12 @@ class Stream_ID_Required_Test extends CodeStream_API_Test {
 		);
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1001',
-			info: 'stream_id'
+			info: 'streamId'
 		};
 	}
 }
 
-module.exports = Stream_ID_Required_Test;
+module.exports = StreamIDRequiredTest;

@@ -1,14 +1,14 @@
 'use strict';
 
-var Authentication_Test = require('./authentication_test');
+var AuthenticationTest = require('./authentication_test');
 
-class Authentication_Invalid_Token_Test extends Authentication_Test {
+class AuthenticationInvalidTokenTest extends AuthenticationTest {
 
 	get description () {
 		return 'should prevent access to resources when access token is invalid';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'AUTH-1002'
 		};
@@ -20,4 +20,4 @@ class Authentication_Invalid_Token_Test extends Authentication_Test {
 	}
 }
 
-module.exports = Authentication_Invalid_Token_Test;
+module.exports = AuthenticationInvalidTokenTest;

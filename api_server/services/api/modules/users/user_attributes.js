@@ -1,73 +1,73 @@
 'use strict';
 
 module.exports = {
-	company_ids: {
-		type: 'array_of_ids',
-		max_length: 256
+	companyIds: {
+		type: 'arrayOfIds',
+		maxLength: 256
 	},
-	team_ids: {
-		type: 'array_of_ids',
-		max_length: 256
+	teamIds: {
+		type: 'arrayOfIds',
+		maxLength: 256
 	},
 	email: {
 		type: 'email',
-		max_length: 256,
+		maxLength: 256,
 		required: true
 	},
-	searchable_email: {
+	searchableEmail: {
 		type: 'email',
-		max_length: 256,
+		maxLength: 256,
 		required: true,
-		server_only: true
+		serverOnly: true
 	},
-	secondary_emails: {
-		type: 'array_of_emails',
-		max_length: 20,
-		max_email_length: 256
+	secondaryEmails: {
+		type: 'arrayOfEmails',
+		maxLength: 20,
+		maxEmailLength: 256
 	},
 	username: {
 		type: 'username',
-		max_length: 21
+		maxLength: 21
 	},
-	searchable_username: {
+	searchableUsername: {
 		type: 'username',
-		max_length: 21,
-		lowercase_only: true,
-		server_only: true
+		maxLength: 21,
+		lowercaseOnly: true,
+		serverOnly: true
 	},
-	is_registered: {
+	isRegistered: {
 		type: 'boolean'
 	},
-	first_name: {
+	firstName: {
 		type: 'string',
-		max_length: 128
+		maxLength: 128
 	},
-	last_name: {
+	lastName: {
 		type: 'string',
-		max_length: 128
+		maxLength: 128
 	},
-	password_hash: {
+	passwordHash: {
 		type: 'string',
-		max_length: 64,
-		server_only: true
+		maxLength: 64,
+		serverOnly: true
 	},
-	confirmation_code: {
+	confirmationCode: {
 		type: 'string',
-		max_length: 6,
-		server_only: true
+		maxLength: 6,
+		serverOnly: true
 	},
-	confirmation_attempts: {
+	confirmationAttempts: {
 		type: 'number',
-		server_only: true
+		serverOnly: true
 	},
-	confirmation_code_expires_at: {
+	confirmationCodeExpiresAt: {
 		type: 'timestamp',
-		server_only: true
+		serverOnly: true
 	},
-	last_reads: {
+	lastReads: {
 		type: 'object',
-		max_length: 10000,
-		server_only: true,
-		for_me: true
+		maxLength: 10000,
+		serverOnly: true,
+		forMe: true
 	}
 };

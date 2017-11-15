@@ -1,25 +1,25 @@
 'use strict';
 
-var Confirmation_Test = require('./confirmation_test');
+var ConfirmationTest = require('./confirmation_test');
 
-class Expiration_Test extends Confirmation_Test {
+class ExpirationTest extends ConfirmationTest {
 
 	get description () {
 		return 'should return an error when a confirmation code is expired';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'USRC-1003'
 		};
 	}
 
 	before (callback) {
-		this.user_options = {
+		this.userOptions = {
 			timeout: 100
 		};
 		super.before(() => {
@@ -28,4 +28,4 @@ class Expiration_Test extends Confirmation_Test {
 	}
 }
 
-module.exports = Expiration_Test;
+module.exports = ExpirationTest;

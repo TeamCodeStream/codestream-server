@@ -1,19 +1,19 @@
 'use strict';
 
-var CodeStream_Model = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
-var Stream_Validator = require('./stream_validator');
+var CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
+var StreamValidator = require('./stream_validator');
 
-class Stream extends CodeStream_Model {
+class Stream extends CodeStreamModel {
 
-	get_validator () {
-		return new Stream_Validator();
+	getValidator () {
+		return new StreamValidator();
 	}
 
-	pre_save (callback, options) {
-		if (this.attributes.member_ids instanceof Array) {
-			this.attributes.member_ids.sort();
+	preSave (callback, options) {
+		if (this.attributes.memberIds instanceof Array) {
+			this.attributes.memberIds.sort();
 		}
-		super.pre_save(callback, options);
+		super.preSave(callback, options);
 	}
 }
 

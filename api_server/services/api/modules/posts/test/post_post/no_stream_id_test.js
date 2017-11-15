@@ -1,31 +1,31 @@
 'use strict';
 
-var Post_Post_Test = require('./post_post_test');
+var PostPostTest = require('./post_post_test');
 
-class No_Stream_Id_Test extends Post_Post_Test {
+class NoStreamIdTest extends PostPostTest {
 
 	get description () {
 		return 'should return error when attempting to create a stream with no stream id';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1002',
-			info: 'stream_id'
+			info: 'streamId'
 		};
 	}
 
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			delete this.data.stream_id;
+			delete this.data.streamId;
 			callback();
 		});
 	}
 }
 
-module.exports = No_Stream_Id_Test;
+module.exports = NoStreamIdTest;

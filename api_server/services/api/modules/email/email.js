@@ -1,9 +1,9 @@
 'use strict';
 
-var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
-var CodeStream_Emails = require('./codestream_emails');
+var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
+var CodeStreamEmails = require('./codestream_emails');
 
-class Email extends API_Server_Module {
+class Email extends APIServerModule {
 
 	services () {
 		return (callback) => {
@@ -13,8 +13,8 @@ class Email extends API_Server_Module {
 			}
 
 			this.api.log('Initiating email...');
-			this.codestream_emails = new CodeStream_Emails(this.api.config.email);
-			return callback(null, [{ email: this.codestream_emails }]);
+			this.codestreamEmails = new CodeStreamEmails(this.api.config.email);
+			return callback(null, [{ email: this.codestreamEmails }]);
 		};
 	}
 }

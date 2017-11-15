@@ -1,16 +1,16 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Data_Collection_Fetcher {
+class DataCollectionFetcher {
 
 	constructor (options) {
 		Object.assign(this, options);
-		this.request_id = (this.request && this.request.id) || this.request_id;
+		this.requestId = (this.request && this.request.id) || this.requestId;
 	}
 
-	get_by_id (id, callback, options) {
-		this.get_by_ids(
+	getById (id, callback, options) {
+		this.getByIds(
 			[id],
 			(error, models) => {
 				if (error) { return callback(error); }
@@ -21,105 +21,105 @@ class Data_Collection_Fetcher {
 		);
 	}
 
-	get_by_ids (ids, callback, options) {
-		this.database_options = Object.assign({}, options || {}, { request_id: this.request_id });
+	getByIds (ids, callback, options) {
+		this.databaseOptions = Object.assign({}, options || {}, { requestId: this.requestId });
 		this.ids = ids;
-		Bound_Async.series(this, [
-			this.get_from_cache,
+		BoundAsync.series(this, [
+			this.getFromCache,
 			this.fetch,
 			this.modelize,
 			this.add
 		], (error) => {
 			if (error) { return callback(error); }
-			let models = (this.cached_models || []).concat(this.fetched_models || []);
+			let models = (this.cachedModels || []).concat(this.fetchedModels || []);
 			callback(null, models);
 		});
 	}
 
-	get_from_cache (callback) {
-		this.cached_models = [];
-		this.not_found = [];
+	getFromCache (callback) {
+		this.cachedModels = [];
+		this.notFound = [];
 		if (this.ids.length === 0) {
 			return process.nextTick(callback);
 		}
-		Bound_Async.forEachLimit(
+		BoundAsync.forEachLimit(
 			this,
 			this.ids,
 			50,
-			this.try_find_model,
+			this.tryFindModel,
 			callback
 		);
 	}
 
 	fetch (callback) {
-		if (this.not_found.length === 0) {
+		if (this.notFound.length === 0) {
 			return callback();
 		}
-		else if (this.not_found.length === 1) {
-			return this.fetch_one(callback);
+		else if (this.notFound.length === 1) {
+			return this.fetchOne(callback);
 		}
 		else {
-			return this.fetch_many(callback);
+			return this.fetchMany(callback);
 		}
 	}
 
-	fetch_one (callback) {
-		this.database_collection.get_by_id(
-			this.not_found[0],
+	fetchOne (callback) {
+		this.databaseCollection.getById(
+			this.notFound[0],
 			(error, document) => {
 				if (error) { return callback(error); }
 				if (document) {
-					this.fetched_documents = [document];
+					this.fetchedDocuments = [document];
 				}
 				process.nextTick(callback);
 			},
-			this.database_options
+			this.databaseOptions
 		);
 	}
 
-	fetch_many (callback) {
-		this.database_collection.get_by_ids(
-			this.not_found,
+	fetchMany (callback) {
+		this.databaseCollection.getByIds(
+			this.notFound,
 			(error, documents) => {
 				if (error) { return callback(error); }
-				this.fetched_documents = documents;
+				this.fetchedDocuments = documents;
 				process.nextTick(callback);
 			},
-			this.database_options
+			this.databaseOptions
 		);
 	}
 
-	try_find_model (id, callback) {
-		let model = this.collection._get_from_cache(id);
+	tryFindModel (id, callback) {
+		let model = this.collection._getFromCache(id);
 		if (model) {
-			this.cached_models.push(model);
+			this.cachedModels.push(model);
 		}
 		else {
-			this.not_found.push(id);
+			this.notFound.push(id);
 		}
 		process.nextTick(callback);
 	}
 
 	modelize (callback) {
-		this.fetched_models = [];
-		Bound_Async.forEachLimit(
+		this.fetchedModels = [];
+		BoundAsync.forEachLimit(
 			this,
-			this.fetched_documents,
+			this.fetchedDocuments,
 			50,
-			this.modelize_document,
+			this.modelizeDocument,
 			callback
 		);
 	}
 
-	modelize_document (document, callback) {
-		let model = new this.model_class(document);
-		this.fetched_models.push(model);
+	modelizeDocument (document, callback) {
+		let model = new this.modelClass(document);
+		this.fetchedModels.push(model);
 		process.nextTick(callback);
 	}
 
 	add (callback) {
-		this.collection._add_models_to_cache(this.fetched_models, callback);
+		this.collection._addModelsToCache(this.fetchedModels, callback);
 	}
 }
 
-module.exports = Data_Collection_Fetcher;
+module.exports = DataCollectionFetcher;

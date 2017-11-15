@@ -1,15 +1,15 @@
 'use strict';
 
-var Me_Channel_Test = require('./me_channel_test');
-var Team_Channel_Test = require('./team_channel_test');
-var Stream_Channel_Test = require('./stream_channel_test');
-var Me_Channel_ACL_Test = require('./me_channel_acl_test');
-var Team_Channel_ACL_Test = require('./team_channel_acl_test');
-var Stream_Channel_ACL_Test = require('./stream_channel_acl_test');
-var Stream_Channel_Team_ACL_Test = require('./stream_channel_team_acl_test');
-var Add_To_Created_Team_Test = require('./add_to_created_team_test');
-var Add_To_Existing_Team_Test = require('./add_to_existing_team_test');
-var Add_Existing_Repo_Test = require('./add_existing_repo_test');
+var MeChannelTest = require('./me_channel_test');
+var TeamChannelTest = require('./team_channel_test');
+var StreamChannelTest = require('./stream_channel_test');
+var MeChannel_ACLTest = require('./me_channel_acl_test');
+var TeamChannel_ACLTest = require('./team_channel_acl_test');
+var StreamChannel_ACLTest = require('./stream_channel_acl_test');
+var StreamChannelTeam_ACLTest = require('./stream_channel_team_acl_test');
+var AddToCreatedTeamTest = require('./add_to_created_team_test');
+var AddToExistingTeamTest = require('./add_to_existing_team_test');
+var AddExistingRepoTest = require('./add_existing_repo_test');
 
 // make jshint happy
 /* globals describe */
@@ -18,15 +18,15 @@ describe('messages', function() {
 
 	this.timeout(10000);
 
-	new Me_Channel_Test().test();
-	new Team_Channel_Test().test();
-	new Stream_Channel_Test().test();
-	new Me_Channel_ACL_Test().test();
-	new Team_Channel_ACL_Test().test();
-	new Stream_Channel_ACL_Test().test();
-	new Stream_Channel_Team_ACL_Test().test();
-	new Add_To_Created_Team_Test().test();
-	new Add_To_Existing_Team_Test().test();
-	new Add_Existing_Repo_Test().test();
+	new MeChannelTest().test();
+	new TeamChannelTest().test();
+	new StreamChannelTest().test();
+	new MeChannel_ACLTest().test();
+	new TeamChannel_ACLTest().test();
+	new StreamChannel_ACLTest().test();
+	new StreamChannelTeam_ACLTest().test();
+	new AddToCreatedTeamTest().test();
+	new AddToExistingTeamTest().test();
+	new AddExistingRepoTest().test();
 
 });

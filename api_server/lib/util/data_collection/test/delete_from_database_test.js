@@ -1,49 +1,49 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Data_Collection_Test = require('./data_collection_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DataCollectionTest = require('./data_collection_test');
 var Assert = require('assert');
 
-class Delete_From_Database_Test extends Data_Collection_Test {
+class DeleteFromDatabaseTest extends DataCollectionTest {
 
 	get description () {
 		return 'should not get a model after it has been deleted and persisted';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_test_and_control_model,
-			this.delete_model,
+			this.createTestAndControlModel,
+			this.deleteModel,
 			this.persist
 		], callback);
 	}
 
-	delete_model (callback) {
-		this.data.test.delete_by_id(
-			this.test_model.id,
+	deleteModel (callback) {
+		this.data.test.deleteById(
+			this.testModel.id,
 			callback
 		);
 	}
 
 	run (callback) {
-		this.test_models = [this.control_model];
-		this.mongo_data.test.get_by_ids(
-			[this.test_model.id, this.control_model.id],
+		this.testModels = [this.controlModel];
+		this.mongoData.test.getByIds(
+			[this.testModel.id, this.controlModel.id],
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
+	validateResponse () {
 		Assert(this.response instanceof Array, 'response must be an array');
-		let test_objects = this.test_models.map(model => { return model.attributes; });
+		let testObjects = this.testModels.map(model => { return model.attributes; });
 		this.response.sort((a, b) => {
 			return a.number - b.number;
 		});
-		Assert.deepEqual(test_objects, this.response, 'fetched models don\'t match');
+		Assert.deepEqual(testObjects, this.response, 'fetched models don\'t match');
 	}
 }
 
-module.exports = Delete_From_Database_Test;
+module.exports = DeleteFromDatabaseTest;

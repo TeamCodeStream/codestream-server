@@ -1,9 +1,9 @@
 'use strict';
 
-var Post_Repo_Test = require('./post_repo_test');
-var Random_String = require('randomstring');
+var PostRepoTest = require('./post_repo_test');
+var RandomString = require('randomstring');
 
-class Normalize_Url_Test extends Post_Repo_Test {
+class NormalizeUrlTest extends PostRepoTest {
 
 	get description () {
 		return `should return valid repo when creating a new repo, and the URL should be appropriately normalized`;
@@ -12,16 +12,16 @@ class Normalize_Url_Test extends Post_Repo_Test {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.base_url = `ABC${Random_String.generate(8)}.CoM`;
-			this.data.url = `wWw.${this.base_url}/?x=1&y=2#frag`;
+			this.baseUrl = `ABC${RandomString.generate(8)}.CoM`;
+			this.data.url = `wWw.${this.baseUrl}/?x=1&y=2#frag`;
 			callback();
 		});
 	}
 
-	validate_response (data) {
-		this.data.url = 'http://' + this.base_url.toLowerCase();
-		super.validate_response(data);
+	validateResponse (data) {
+		this.data.url = 'http://' + this.baseUrl.toLowerCase();
+		super.validateResponse(data);
 	}
 }
 
-module.exports = Normalize_Url_Test;
+module.exports = NormalizeUrlTest;

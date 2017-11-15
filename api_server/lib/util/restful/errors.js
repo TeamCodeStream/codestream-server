@@ -6,15 +6,15 @@ const ERRORS = {
 		message: 'Internal API error',
 		internal: true
 	},
-	'parameter_required': {
+	'parameterRequired': {
 		code: 'RAPI-1001',
 		message: 'Parameter required'
 	},
-	'attribute_required': {
+	'attributeRequired': {
 		code: 'RAPI-1002',
 		message: 'Attribute required'
 	},
-	'not_found': {
+	'notFound': {
 		code: 'RAPI-1003',
 		message: 'Object not found'
 	},
@@ -26,28 +26,28 @@ const ERRORS = {
 		code: 'RAPI-1005',
 		message: 'Validation error'
 	},
-	'bad_query': {
+	'badQuery': {
 		code: 'RAPI-1006',
 		message: 'Query not allowed'
 	},
-	'invalid_attribute': {
+	'invalidAttribute': {
 		code: 'RAPI-1007',
 		message: 'Invalid attribute'
 	},
-	'missing_argument': {
+	'missingArgument': {
 		code: 'RAPI-1008',
 		message: 'Missing argument',
 		internal: true
 	},
-	'read_auth': {
+	'readAuth': {
 		code: 'RAPI-1009',
 		message: 'Not authorized to read'
 	},
-	'update_auth': {
+	'updateAuth': {
 		code: 'RAPI-1010',
 		message: 'Not authorized to update'
 	},
-	'create_auth': {
+	'createAuth': {
 		code: 'RAPI-1011',
 		message: 'Not authorized to create'		
 	}

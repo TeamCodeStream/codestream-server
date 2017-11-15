@@ -1,23 +1,23 @@
 'use strict';
 
-var Get_Streams_Test = require('./get_streams_test');
+var GetStreamsTest = require('./get_streams_test');
 
-class Get_Streams_By_Team_Id_And_Ids_Test extends Get_Streams_Test {
+class GetStreamsByTeamIdAndIdsTest extends GetStreamsTest {
 
 	get description () {
 		return 'should return the correct streams when requesting streams by team ID and IDs';
 	}
 
-	set_path (callback) {
-		let team_id = this.my_team._id;
-		this.my_streams = [
-			this.streams_by_team[team_id][1],
-			this.streams_by_team[team_id][3]
+	setPath (callback) {
+		let teamId = this.myTeam._id;
+		this.myStreams = [
+			this.streamsByTeam[teamId][1],
+			this.streamsByTeam[teamId][3]
 		];
-		let ids = this.my_streams.map(stream => stream._id);
-		this.path = `/streams?team_id=${team_id}&ids=${ids}`;
+		let ids = this.myStreams.map(stream => stream._id);
+		this.path = `/streams?teamId=${teamId}&ids=${ids}`;
 		callback();
 	}
 }
 
-module.exports = Get_Streams_By_Team_Id_And_Ids_Test;
+module.exports = GetStreamsByTeamIdAndIdsTest;

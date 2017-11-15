@@ -8,5 +8,5 @@ module.exports = {
 		certfile: process.env.CS_API_SSL_CERTFILE,
 		cafile: process.env.CS_API_SSL_CAFILE
 	},
-	ignore_https: process.env.CS_API_IGNORE_HTTPS
+	ignoreHttps: process.env.CS_API_IGNORE_HTTPS
 };

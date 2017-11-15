@@ -1,36 +1,36 @@
 'use strict';
 
-const Stream_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_attributes');
+const StreamAttributes = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_attributes');
 
 const EXPECTED_STREAM_FIELDS = [
 	'_id',
 	'deactivated',
-	'created_at',
-	'modified_at',
-	'creator_id',
-	'team_id',
+	'createdAt',
+	'modifiedAt',
+	'creatorId',
+	'teamId',
 	'type'
 ];
 
 const EXPECTED_CHANNEL_STREAM_FIELDS = [
 	'name',
-	'member_ids'
+	'memberIds'
 ];
 
 const EXPECTED_DIRECT_STREAM_FIELDS = [
-	'member_ids'
+	'memberIds'
 ];
 
 const EXPECTED_FILE_STREAM_FIELDS = [
-	'repo_id'
+	'repoId'
 ];
 
 const EXPECTED_STREAM_RESPONSE = {
 	stream: EXPECTED_STREAM_FIELDS
 };
 
-const UNSANITIZED_ATTRIBUTES = Object.keys(Stream_Attributes).filter(attribute => {
-	return Stream_Attributes[attribute].server_only;
+const UNSANITIZED_ATTRIBUTES = Object.keys(StreamAttributes).filter(attribute => {
+	return StreamAttributes[attribute].serverOnly;
 });
 
 module.exports = {
