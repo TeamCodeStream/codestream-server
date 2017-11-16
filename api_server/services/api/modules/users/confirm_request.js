@@ -7,6 +7,7 @@ var PasswordHasher = require('./password_hasher');
 var UsernameChecker = require('./username_checker');
 var UserSubscriptionGranter = require('./user_subscription_granter');
 var UserPublisher = require('./user_publisher');
+var InitialDataFetcher = require('./initial_data_fetcher');
 const TeamErrors = require(process.env.CS_API_TOP + '/services/api/modules/teams/errors.js');
 const Errors = require('./errors');
 
@@ -36,8 +37,16 @@ class ConfirmRequest extends RestfulRequest {
 			this.updateUser,
 			this.generateToken,
 			this.grantSubscriptionPermissions,
+			this.getInitialData,
 			this.formResponse
-		], callback);
+		], error => {
+			if (error === true) {
+				this.failedConfirmation(callback);
+			}
+			else {
+				callback(error);
+			}
+		});
 	}
 
 	allow (callback) {
@@ -89,17 +98,18 @@ class ConfirmRequest extends RestfulRequest {
 	}
 
 	verifyCode (callback) {
+		let confirmFailed = false;
 		if (this.request.body.confirmationCode !== this.user.get('confirmationCode')) {
-			this.confirmationFailed = true;
+			confirmFailed = true;
 			if (this.user.get('confirmationAttempts') === MAX_CONFIRMATION_ATTEMPTS) {
 				this.maxConfirmationAttempts = true;
 			}
 		}
 		else if (Date.now() > this.user.get('confirmationCodeExpiresAt')) {
-			this.confirmationFailed = true;
+			confirmFailed = true;
 			this.confirmationExpired = true;
 		}
-		process.nextTick(callback);
+		callback(confirmFailed);	// if true, shortcuts and prepares for failure response
 	}
 
 	hashPassword (callback) {
@@ -116,9 +126,6 @@ class ConfirmRequest extends RestfulRequest {
 	}
 
 	checkUsernameUnique (callback) {
-		if (this.confirmationFailed) {
-			 return callback();
-		}
 		if ((this.user.get('teamIds') || []).length === 0) {
 			return callback();
 		}
@@ -150,32 +157,6 @@ class ConfirmRequest extends RestfulRequest {
 	}
 
 	updateUser (callback) {
-		if (this.confirmationFailed) {
-			this.updateUserConfirmationFailed(callback);
-		}
-		else {
-			this.updateUserConfirmationSuccess(callback);
-		}
-	}
-
-	updateUserConfirmationFailed (callback) {
-		let set = {};
-		if (this.maxConfirmationAttempts || this.confirmationExpired) {
-			set.confirmationCode = null;
-			set.confirmationAttempts = 0;
-			set.confirmationCodeExpiresAt = null;
-		}
-		else {
-			set.confirmationAttempts = this.user.get('confirmationAttempts') + 1;
-		}
-		this.data.users.updateDirect(
-			{ _id: this.data.users.objectIdSafe(this.request.body.userId) },
-			{ $set: set },
-			callback
-		);
-	}
-
-	updateUserConfirmationSuccess (callback) {
 		let op = {
 			set: {
 				isRegistered: true
@@ -204,7 +185,6 @@ class ConfirmRequest extends RestfulRequest {
 	}
 
 	generateToken (callback) {
-		if (this.confirmationFailed) { return callback(); }
 		Tokenizer(
 			this.user.attributes,
 			this.api.config.secrets.auth,
@@ -235,8 +215,28 @@ class ConfirmRequest extends RestfulRequest {
 		});
 	}
 
+	getInitialData (callback) {
+		new InitialDataFetcher({
+			request: this
+		}).fetchInitialData((error, initialData) => {
+			if (error) { return callback(error); }
+			this.initialData = initialData;
+			callback();
+		});
+	}
+
 	formResponse (callback) {
-		if (this.confirmationFailed) {
+		this.responseData = {
+			user: this.user.getSanitizedObject(),
+			accessToken: this.accessToken
+		};
+		Object.assign(this.responseData, this.initialData);
+		return process.nextTick(callback);
+	}
+
+	failedConfirmation (callback) {
+		this.updateUserConfirmationFailed(error => {
+			if (error) { return callback(error); }
 			if (this.maxConfirmationAttempts) {
 				return callback(this.errorHandler.error('tooManyConfirmAttempts'));
 			}
@@ -246,14 +246,24 @@ class ConfirmRequest extends RestfulRequest {
 			else {
 				return callback(this.errorHandler.error('confirmCodeMismatch'));
 			}
+		});
+	}
+
+	updateUserConfirmationFailed (callback) {
+		let set = {};
+		if (this.maxConfirmationAttempts || this.confirmationExpired) {
+			set.confirmationCode = null;
+			set.confirmationAttempts = 0;
+			set.confirmationCodeExpiresAt = null;
 		}
 		else {
-			this.responseData = {
-				user: this.user.getSanitizedObject(),
-				accessToken: this.accessToken
-			};
-			return process.nextTick(callback);
+			set.confirmationAttempts = this.user.get('confirmationAttempts') + 1;
 		}
+		this.data.users.updateDirect(
+			{ _id: this.data.users.objectIdSafe(this.request.body.userId) },
+			{ $set: set },
+			callback
+		);
 	}
 
 	postProcess (callback) {

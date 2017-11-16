@@ -64,27 +64,6 @@ class GetManyRequest extends RestfulRequest {
 		);
 	}
 
-	sanitizeModels (models, callback) {
-		let sanitizedObjects = [];
-		BoundAsync.forEachLimit(
-			this,
-			models,
-			20,
-			(model, foreachCallback) => {
-				sanitizedObjects.push(model.getSanitizedObject());
-				process.nextTick(foreachCallback);
-			},
-			() => {
-				callback(null, sanitizedObjects);
-			}
-		);
-	}
-
-	sanitizeModel (model, callback) {
-		this.sanitizedObjects.push(model.getSanitizedObject());
-		process.nextTick(callback);
-	}
-
 	respond (callback) {
 		this.responseData = this.responseData || {};
 		const collectionName = this.module.collectionName || 'objects';

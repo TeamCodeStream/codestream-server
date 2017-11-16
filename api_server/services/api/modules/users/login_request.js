@@ -4,6 +4,8 @@ var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 var BCrypt = require('bcrypt');
 var Tokenizer = require('./tokenizer');
+var InitialDataFetcher = require('./initial_data_fetcher');
+
 const Errors = require('./errors');
 
 class LoginRequest extends RestfulRequest {
@@ -23,7 +25,8 @@ class LoginRequest extends RestfulRequest {
 			this.require,
 			this.getUser,
 			this.validatePassword,
-			this.generateToken
+			this.generateToken,
+			this.getInitialData
 		], callback);
 	}
 
@@ -93,6 +96,16 @@ class LoginRequest extends RestfulRequest {
 				process.nextTick(callback);
 			}
 		);
+	}
+
+	getInitialData (callback) {
+		new InitialDataFetcher({
+			request: this
+		}).fetchInitialData((error, initialData) => {
+			if (error) { return callback(error); }
+			Object.assign(this.responseData, initialData);
+			callback();
+		});
 	}
 }
 
