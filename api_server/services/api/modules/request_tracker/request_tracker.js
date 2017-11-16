@@ -1,64 +1,64 @@
 'use strict';
 
-var API_Server_Module = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 
 const DEPENDENCIES = [
 	'request_id'
 ];
 
-class Request_Tracker extends API_Server_Module {
+class RequestTracker extends APIServerModule {
 
 	constructor (config) {
 		super(config);
-		this.tracked_requests = {};
+		this.trackedRequests = {};
 	}
 
-	get_dependencies () {
+	getDependencies () {
 		return DEPENDENCIES;
 	}
 
 	services () {
 		return (callback) => {
-			return callback(null, [{ request_tracker: this }]);
+			return callback(null, [{ requestTracker: this }]);
 		};
 	}
 
 	middlewares () {
 		return (request, response, next) => {
-			this.track_request(request);
+			this.trackRequest(request);
 			response.on('finish', () => {
-				this.maybe_untrack_request(request);
+				this.maybeUntrackRequest(request);
 			});
 			response.on('close', () => {
-				this.maybe_untrack_request(request);
+				this.maybeUntrackRequest(request);
 			});
 			response.on('complete', () => {
-				this.untrack_request(request);
+				this.untrackRequest(request);
 			});
 			process.nextTick(next);
 		};
 	}
 
-	track_request (request) {
-		this.tracked_requests[request.id] = request;
+	trackRequest (request) {
+		this.trackedRequests[request.id] = request;
 	}
 
-	maybe_untrack_request (request) {
-		if (!request.keep_open) {
-			this.untrack_request(request);
+	maybeUntrackRequest (request) {
+		if (!request.keepOpen) {
+			this.untrackRequest(request);
 		}
 	}
 
-	untrack_request (request) {
-		delete this.tracked_requests[request.id];
-		if (this.num_open_requests() === 0) {
-			this.api.no_more_requests();
+	untrackRequest (request) {
+		delete this.trackedRequests[request.id];
+		if (this.numOpenRequests() === 0) {
+			this.api.noMoreRequests();
 		}
 	}
 
-	num_open_requests () {
-		return Object.keys(this.tracked_requests).length;
+	numOpenRequests () {
+		return Object.keys(this.trackedRequests).length;
 	}
 }
 
-module.exports = Request_Tracker;
+module.exports = RequestTracker;

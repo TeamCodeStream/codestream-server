@@ -1,18 +1,18 @@
 'use strict';
 
-var Login_Test = require('./login_test');
+var LoginTest = require('./login_test');
 
-class Invalid_Password_Test extends Login_Test {
+class InvalidPasswordTest extends LoginTest {
 
 	get description () {
 		return 'should return error when invalid password provided';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'USRC-1001'
 		};
@@ -27,4 +27,4 @@ class Invalid_Password_Test extends Login_Test {
 	}
 }
 
-module.exports = Invalid_Password_Test;
+module.exports = InvalidPasswordTest;

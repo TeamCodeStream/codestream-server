@@ -1,28 +1,28 @@
 'use strict';
 
-var Get_Stream_Test = require('./get_stream_test');
+var GetStreamTest = require('./get_stream_test');
 
-class ACL_Test extends Get_Stream_Test {
+class ACLTest extends GetStreamTest {
 
 	constructor (options) {
 		super(options);
-		this.without_me = true;
+		this.withoutMe = true;
 	}
 
 	get description () {
 		return `should return an error when trying to fetch a ${this.type} stream from a team that i\'m not a member of`;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1009'
 		};
 	}
 
-	set_path (callback) {
+	setPath (callback) {
 		this.path = '/streams/' + this.stream._id;
 		callback();
 	}
 }
 
-module.exports = ACL_Test;
+module.exports = ACLTest;

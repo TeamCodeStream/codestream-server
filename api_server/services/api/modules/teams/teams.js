@@ -1,44 +1,44 @@
 'use strict';
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var Team_Creator = require('./team_creator');
-//var Team_Updater = require('./team_updater');
+var TeamCreator = require('./team_creator');
+//var TeamUpdater = require('./team_updater');
 var Team = require('./team');
 
 const TEAM_STANDARD_ROUTES = {
-	want: ['get', 'get_many'],
-	base_route_name: 'teams',
-	request_classes: {
-		'get_many': require('./get_teams_request')
+	want: ['get', 'getMany'],
+	baseRouteName: 'teams',
+	requestClasses: {
+		'getMany': require('./get_teams_request')
 	}
 };
 
 class Teams extends Restful {
 
-	get collection_name () {
+	get collectionName () {
 		return 'teams';
 	}
 
-	get model_name () {
+	get modelName () {
 		return 'team';
 	}
 
-	get creator_class () {
-		return Team_Creator;
+	get creatorClass () {
+		return TeamCreator;
 	}
 
-	get model_class () {
+	get modelClass () {
 		return Team;
 	}
 
 /*
-	get updater_class () {
-		return Team_Updater;
+	get updaterClass () {
+		return TeamUpdater;
 	}
 */
 
-	get_routes () {
-		return super.get_routes(TEAM_STANDARD_ROUTES);
+	getRoutes () {
+		return super.getRoutes(TEAM_STANDARD_ROUTES);
 	}
 }
 

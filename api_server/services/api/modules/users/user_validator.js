@@ -1,77 +1,77 @@
 'use strict';
 
-var CodeStream_Model_Validator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
-var Email_Utilities = require(process.env.CS_API_TOP + '/lib/util/email_utilities.js');
-const User_Attributes = require('./user_attributes');
+var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
+var EmailUtilities = require(process.env.CS_API_TOP + '/lib/util/email_utilities.js');
+const UserAttributes = require('./user_attributes');
 
-class User_Validator extends CodeStream_Model_Validator {
+class UserValidator extends CodeStreamModelValidator {
 
-	constructor (attribute_definitions) {
-		let total_attribute_definitions = Object.assign({}, User_Attributes, attribute_definitions);
-		super(total_attribute_definitions);
+	constructor (attributeDefinitions) {
+		let totalAttributeDefinitions = Object.assign({}, UserAttributes, attributeDefinitions);
+		super(totalAttributeDefinitions);
 	}
 
-	set_validation_functions () {
-		super.set_validation_functions();
-		Object.assign(this.validation_functions, {
-			email: this.validate_email.bind(this),
-			array_of_emails: this.validate_array_of_emails.bind(this),
-			username: this.validate_username.bind(this)
+	setValidationFunctions () {
+		super.setValidationFunctions();
+		Object.assign(this.validationFunctions, {
+			email: this.validateEmail.bind(this),
+			arrayOfEmails: this.validateArrayOfEmails.bind(this),
+			username: this.validateUsername.bind(this)
 		});
 	}
 
-	validate_email (value, definition/*, options*/) {
-		definition = definition || this.attribute_definitions.email;
-		let error = Email_Utilities.parse_email(value);
+	validateEmail (value, definition/*, options*/) {
+		definition = definition || this.attributeDefinitions.email;
+		let error = EmailUtilities.parseEmail(value);
 		if (typeof error === 'string') {
 			return error;
 		}
 		if (
-			definition.max_length &&
-			value.length > definition.max_length
+			definition.maxLength &&
+			value.length > definition.maxLength
 		) {
-			return 'must be less than ' + definition.max_length + ' characters';
+			return 'must be less than ' + definition.maxLength + ' characters';
 		}
 	}
 
-	validate_array_of_emails (value, definition/*, options*/) {
-		definition = definition || this.attribute_definitions.emails;
+	validateArrayOfEmails (value, definition/*, options*/) {
+		definition = definition || this.attributeDefinitions.emails;
 		if (!(value instanceof Array)) {
 			return 'must be an array';
 		}
-		let invalid_emails = [];
-		let email_definition = {
-			max_length: definition.max_email_length || null
+		let invalidEmails = [];
+		let emailDefinition = {
+			maxLength: definition.maxEmailLength || null
 		};
 		value.forEach(email => {
-			let error = this.validate_email(email, email_definition);
+			let error = this.validateEmail(email, emailDefinition);
 			if (error) {
-				invalid_emails.push(`${email}: ${error}`);
+				invalidEmails.push(`${email}: ${error}`);
 			}
 		});
 
-		if (invalid_emails.length > 0) {
-			return invalid_emails.join(',');
+		if (invalidEmails.length > 0) {
+			return invalidEmails.join(',');
 		}
 	}
 
-	validate_username (value, definition/*, options*/) {
-		definition = definition || this.attribute_definitions.username;
+	validateUsername (value, definition/*, options*/) {
+		definition = definition || this.attributeDefinitions.username;
 		if (typeof value !== 'string' || value.length === 0) {
 			return 'must be a string';
 		}
-		let upper = definition.lowercase_only ? '' : 'A-Z';
+		let upper = definition.lowercaseOnly ? '' : 'A-Z';
 		let regexp = new RegExp(`^[${upper}a-z0-9\-\._]+$`);
 		if (!regexp.test(value)) {
 			return 'can only contain alphanumerics, hyphen, period, and underscore';
 		}
 	}
 
-	validate_password (value) {
+	validatePassword (value) {
 		if (typeof value !== 'string' || value.length < 6) {
 			return 'must be at least six characters';
 		}
 	}
 }
 
-module.exports = User_Validator;
+module.exports = UserValidator;

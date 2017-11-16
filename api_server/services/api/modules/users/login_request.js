@@ -1,16 +1,16 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Restful_Request = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 var BCrypt = require('bcrypt');
 var Tokenizer = require('./tokenizer');
 const Errors = require('./errors');
 
-class Login_Request extends Restful_Request {
+class LoginRequest extends RestfulRequest {
 
 	constructor (options) {
 		super(options);
-		this.error_handler.add(Errors);
+		this.errorHandler.add(Errors);
 	}
 
 	authorize (callback) {
@@ -18,17 +18,17 @@ class Login_Request extends Restful_Request {
 	}
 
 	process (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			this.allow,
 			this.require,
-			this.get_user,
-			this.validate_password,
-			this.generate_token
+			this.getUser,
+			this.validatePassword,
+			this.generateToken
 		], callback);
 	}
 
 	allow (callback) {
-		this.allow_parameters(
+		this.allowParameters(
 			'body',
 			{
 				string: ['email', 'password']
@@ -38,23 +38,23 @@ class Login_Request extends Restful_Request {
 	}
 
 	require (callback) {
-		this.require_parameters(
+		this.requireParameters(
 			'body',
 			['email', 'password'],
 			callback
 		);
 	}
 
-	get_user (callback) {
-		this.data.users.get_one_by_query(
+	getUser (callback) {
+		this.data.users.getOneByQuery(
 			{
-				searchable_email: this.request.body.email.toLowerCase(),
+				searchableEmail: this.request.body.email.toLowerCase(),
 				deactivated: false
 			},
 			(error, user) => {
 				if (error) { return callback(error); }
 				if (!user) {
-					return callback(this.error_handler.error('not_found', { info: 'email' }));
+					return callback(this.errorHandler.error('notFound', { info: 'email' }));
 				}
 				this.user = user;
 				process.nextTick(callback);
@@ -62,33 +62,33 @@ class Login_Request extends Restful_Request {
 		);
 	}
 
-	validate_password (callback) {
+	validatePassword (callback) {
 	 	BCrypt.compare(
 	 		this.request.body.password,
-	 		this.user.get('password_hash'),
+	 		this.user.get('passwordHash'),
 	 		(error, result) => {
 	 			if (error) {
-					return callback(this.error_handler.error('token', { reason: error }));
+					return callback(this.errorHandler.error('token', { reason: error }));
 				}
 	 			if (!result) {
-	 				return callback(this.error_handler.error('password_mismatch'));
+	 				return callback(this.errorHandler.error('passwordMismatch'));
 	 			}
 	 			process.nextTick(callback);
 	 		}
 	 	);
 	}
 
-	generate_token (callback) {
+	generateToken (callback) {
 		Tokenizer(
 			this.user.attributes,
 			this.api.config.secrets.auth,
 			(error, token) => {
 				if (error) {
-					return callback(this.error_handler.error('token', { reason: error }));
+					return callback(this.errorHandler.error('token', { reason: error }));
 				}
-				this.response_data = {
-					user: this.user.get_sanitized_object(),
-					access_token: token
+				this.responseData = {
+					user: this.user.getSanitizedObject(),
+					accessToken: token
 				};
 				process.nextTick(callback);
 			}
@@ -96,4 +96,4 @@ class Login_Request extends Restful_Request {
 	}
 }
 
-module.exports = Login_Request;
+module.exports = LoginRequest;

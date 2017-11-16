@@ -1,9 +1,9 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class ACL_Test extends CodeStream_API_Test {
+class ACLTest extends CodeStreamAPITest {
 
 	get description () {
 		return `should return an error when trying to create a ${this.type} stream in a team that i\'m not a member of`;
@@ -17,32 +17,32 @@ class ACL_Test extends CodeStream_API_Test {
 		return '/streams';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1011'
 		};
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_other_repo,
-			this.make_stream_data
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createOtherRepo,
+			this.makeStreamData
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_other_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createOtherRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
@@ -50,14 +50,14 @@ class ACL_Test extends CodeStream_API_Test {
 				callback();
 			},
 			{
-				with_random_emails: 2,
-				token: this.other_user_data.access_token
+				withRandomEmails: 2,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	make_stream_data (callback) {
-		this.stream_factory.get_random_stream_data(
+	makeStreamData (callback) {
+		this.streamFactory.getRandomStreamData(
 			(error, data) => {
 				if (error) { return callback(error); }
 				this.data = data;
@@ -65,11 +65,11 @@ class ACL_Test extends CodeStream_API_Test {
 			},
 			{
 				type: this.type,
-				team_id: this.team._id,
-				repo_id: this.type === 'file' ? this.repo._id : null
+				teamId: this.team._id,
+				repoId: this.type === 'file' ? this.repo._id : null
 			}
 		);
 	}
 }
 
-module.exports = ACL_Test;
+module.exports = ACLTest;

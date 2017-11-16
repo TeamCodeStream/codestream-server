@@ -1,30 +1,30 @@
 'use strict';
 
 module.exports = {
-	team_id: {
+	teamId: {
 		type: 'id',
 		required: true
 	},
-	repo_id: {
+	repoId: {
 		type: 'id'
 	},
 	type: {
-		type: 'stream_type', // channel, direct, file
-		max_length: 7
+		type: 'streamType', // channel, direct, file
+		maxLength: 7
 	},
 	file: {
 		type: 'string',
-		max_length: 1024
+		maxLength: 1024
 	},
 	name: {
 		type: 'string',
-		max_length: 64
+		maxLength: 64
 	},
-	member_ids: {
-		type: 'array_of_ids',
-		max_length: 256
+	memberIds: {
+		type: 'arrayOfIds',
+		maxLength: 256
 	},
-	most_recent_post_id: {
+	mostRecentPostId: {
 		type: 'id'
 	}
 };

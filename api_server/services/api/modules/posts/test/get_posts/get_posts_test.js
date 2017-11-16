@@ -1,15 +1,15 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-const Post_Test_Constants = require('../post_test_constants');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const PostTestConstants = require('../post_test_constants');
 
-class Get_Posts_Test extends CodeStream_API_Test {
+class GetPostsTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
 		this.type = this.type || 'channel';
-		this.num_posts = 5;
+		this.numPosts = 5;
 	}
 
 	get description () {
@@ -17,27 +17,27 @@ class Get_Posts_Test extends CodeStream_API_Test {
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_random_repo,
-			this.create_stream,
-			this.create_posts,
-			this.set_path
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRandomRepo,
+			this.createStream,
+			this.createPosts,
+			this.setPath
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_random_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRandomRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -45,15 +45,15 @@ class Get_Posts_Test extends CodeStream_API_Test {
 				callback();
 			},
 			{
-				with_random_emails: 2,
-				with_emails: this.without_me_on_team ? null : [this.current_user.email],
-				token: this.other_user_data.access_token
+				withRandomEmails: 2,
+				withEmails: this.withoutMeOnTeam ? null : [this.currentUser.email],
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	create_stream (callback) {
-		this.stream_factory.create_random_stream(
+	createStream (callback) {
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
@@ -61,57 +61,57 @@ class Get_Posts_Test extends CodeStream_API_Test {
 			},
 			{
 				type: this.type,
-				token: this.other_user_data.access_token,
-				team_id: this.repo.team_id,
-				repo_id: this.type === 'file' ? this.repo._id : null,
-				member_ids: this.without_me_in_stream || this.type === 'file' ? null : [this.current_user._id]
+				token: this.otherUserData.accessToken,
+				teamId: this.repo.teamId,
+				repoId: this.type === 'file' ? this.repo._id : null,
+				memberIds: this.withoutMeInStream || this.type === 'file' ? null : [this.currentUser._id]
 			}
 		);
 	}
 
-	create_posts (callback) {
-		this.my_posts = [];
-		Bound_Async.timesSeries(
+	createPosts (callback) {
+		this.myPosts = [];
+		BoundAsync.timesSeries(
 			this,
-			this.num_posts,
-			this.create_post,
+			this.numPosts,
+			this.createPost,
 			callback
 		);
 	}
 
-	create_post (n, callback) {
-		let post_options = this.set_post_options(n);
-		this.post_factory.create_random_post(
+	createPost (n, callback) {
+		let postOptions = this.setPostOptions(n);
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.my_posts.push(response.post);
+				this.myPosts.push(response.post);
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 
-	set_post_options (n) {
-		let i_am_in_stream = !this.without_me_on_team && !this.without_me_in_stream;
-		let mine = i_am_in_stream && n % 2 === 1;
-		let post_options = {
-			token: mine ? this.token : this.other_user_data.access_token,
-			stream_id: this.stream._id,
-			repo_id: this.type === 'file' ? this.repo._id : null,
-			want_location: this.type === 'file'
+	setPostOptions (n) {
+		let iAmInStream = !this.withoutMeOnTeam && !this.withoutMeInStream;
+		let mine = iAmInStream && n % 2 === 1;
+		let postOptions = {
+			token: mine ? this.token : this.otherUserData.accessToken,
+			streamId: this.stream._id,
+			repoId: this.type === 'file' ? this.repo._id : null,
+			wantLocation: this.type === 'file'
 		};
-		return post_options;
+		return postOptions;
 	}
 
-	set_path (callback) {
-		this.path = `/posts/?team_id=${this.team._id}&stream_id=${this.stream._id}`;
+	setPath (callback) {
+		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}`;
 		callback();
 	}
 
-	validate_response (data) {
-		this.validate_matching_objects(data.posts, this.my_posts, 'posts');
-		this.validate_sanitized_objects(data.posts, Post_Test_Constants.UNSANITIZED_ATTRIBUTES);
+	validateResponse (data) {
+		this.validateMatchingObjects(data.posts, this.myPosts, 'posts');
+		this.validateSanitizedObjects(data.posts, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = Get_Posts_Test;
+module.exports = GetPostsTest;

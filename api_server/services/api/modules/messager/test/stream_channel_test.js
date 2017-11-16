@@ -1,23 +1,23 @@
 'use strict';
 
-var CodeStream_Message_Test = require('./codestream_message_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamMessageTest = require('./codestream_message_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Stream_Channel_Test extends CodeStream_Message_Test {
+class StreamChannelTest extends CodeStreamMessageTest {
 
 	get description () {
 		return 'should be able to subscribe to and receive a message from the stream channels for all my streams as a confirmed user';
 	}
 
-	make_data (callback) {
-		Bound_Async.series(this, [
-			this.create_repo,
-			this.create_stream
+	makeData (callback) {
+		BoundAsync.series(this, [
+			this.createRepo,
+			this.createStream
 		], callback);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
@@ -25,14 +25,14 @@ class Stream_Channel_Test extends CodeStream_Message_Test {
 				callback();
 			},
 			{
-				with_random_emails: 2,
+				withRandomEmails: 2,
 				token: this.token
 			}
 		);
 	}
 
-	create_stream (callback) {
-		this.stream_factory.create_random_stream(
+	createStream (callback) {
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
@@ -40,17 +40,17 @@ class Stream_Channel_Test extends CodeStream_Message_Test {
 			},
 			{
 				type: 'channel',
-				team_id: this.team._id,
-				member_ids: this.users.map(user => user._id),
+				teamId: this.team._id,
+				memberIds: this.users.map(user => user._id),
 				token: this.token
 			}
 		);
 	}
 
-	set_channel_name (callback) {
-		this.channel_name = 'stream-' + this.stream._id;
+	setChannelName (callback) {
+		this.channelName = 'stream-' + this.stream._id;
 		callback();
 	}
 }
 
-module.exports = Stream_Channel_Test;
+module.exports = StreamChannelTest;

@@ -1,28 +1,28 @@
 'use strict';
 
-var Get_Company_Test = require('./get_team_test');
+var GetCompanyTest = require('./get_team_test');
 
-class ACL_Test extends Get_Company_Test {
+class ACLTest extends GetCompanyTest {
 
 	constructor (options) {
 		super(options);
-		this.without_me = true;
+		this.withoutMe = true;
 	}
 
 	get description () {
 		return 'should return an error when trying to fetch a team that i\'m not a member of';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1009'
 		};
 	}
 
-	set_path (callback) {
-		this.path = '/teams/' + this.other_team._id;
+	setPath (callback) {
+		this.path = '/teams/' + this.otherTeam._id;
 		callback();
 	}
 }
 
-module.exports = ACL_Test;
+module.exports = ACLTest;

@@ -1,14 +1,14 @@
 'use strict';
 
-var Generic_Test = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
-var PubNub_Client = require(process.env.CS_API_TOP + '/lib/util/pubnub/pubnub_client.js');
-var PubNub_Config = require(process.env.CS_API_TOP + '/config/pubnub');
+var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
+var PubNubClient = require(process.env.CS_API_TOP + '/lib/util/pubnub/pubnub_client.js');
+var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 var PubNub = require('pubnub');
-var Random_String = require('randomstring');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var RandomString = require('randomstring');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
 
-class PubNub_Test extends Generic_Test {
+class PubNubTest extends GenericTest {
 
 	get description () {
 		return 'client should receive the correct message through PubNub after message is sent from server';
@@ -16,107 +16,107 @@ class PubNub_Test extends Generic_Test {
 
 	// called before the actual test
 	before (callback) {
-		this.channel_name = Random_String.generate(12);
-		this.message = Random_String.generate(100);
-		this.auth_key = Random_String.generate(12);
-		Bound_Async.series(this, [
-			this.set_clients,
-			this.grant_access
+		this.channelName = RandomString.generate(12);
+		this.message = RandomString.generate(100);
+		this.authKey = RandomString.generate(12);
+		BoundAsync.series(this, [
+			this.setClients,
+			this.grantAccess
 		], callback);
 	}
 
 	// the actual test execution
 	run (callback) {
-		Bound_Async.series(this, [
-			this.listen_on_client,
-			this.send_random_from_server,
-			this.wait_for_message,
-			this.clear_timer
+		BoundAsync.series(this, [
+			this.listenOnClient,
+			this.sendRandomFromServer,
+			this.waitForMessage,
+			this.clearTimer
 		], callback);
 	}
 
 	// establish the PubNub clients we will use
-	set_clients (callback) {
+	setClients (callback) {
 		// set up the pubnub client as if we are the server, this give us the right to set permissions
 		// all we have to do here is provide the full config, which includes the secretKey
-		let client = new PubNub(PubNub_Config);
-		this.pubnub_for_server = new PubNub_Client({
+		let client = new PubNub(PubNubConfig);
+		this.pubnubForServer = new PubNubClient({
 			pubnub: client
 		});
 
 		// set up the pubnub client as if we are a client, we can't control access rights in this case
 		// we remove the secretKey, which clients should NEVER have
-		let client_config = Object.assign({}, PubNub_Config);
-		delete client_config.secretKey;
-		if (this.client_read_only) {
-			delete client_config.publishKey;
+		let clientConfig = Object.assign({}, PubNubConfig);
+		delete clientConfig.secretKey;
+		if (this.clientReadOnly) {
+			delete clientConfig.publishKey;
 		}
-		client_config.authKey = this.auth_key;
-		client = new PubNub(client_config);
-		this.pubnub_for_client = new PubNub_Client({
+		clientConfig.authKey = this.authKey;
+		client = new PubNub(clientConfig);
+		this.pubnubForClient = new PubNubClient({
 			pubnub: client
 		});
 		callback();
 	}
 
 	// grant access for the auth key to subscribe
-	grant_access (callback) {
-		this.pubnub_for_server.grant(
-			this.auth_key,
-			this.channel_name,
+	grantAccess (callback) {
+		this.pubnubForServer.grant(
+			this.authKey,
+			this.channelName,
 			callback
 		);
 	}
 
 	// begin listening to our random channel on the client
-	listen_on_client (callback) {
-		this.message_timer = setTimeout(
-			this.message_timeout.bind(this),
+	listenOnClient (callback) {
+		this.messageTimer = setTimeout(
+			this.messageTimeout.bind(this),
 			this.timeout || 5000
 		);
-		this.pubnub_for_client.subscribe(
-			this.channel_name,
-			this.message_received.bind(this),
+		this.pubnubForClient.subscribe(
+			this.channelName,
+			this.messageReceived.bind(this),
 			callback
 		);
 	}
 
 	// called if message doesn't arrive after timeout
-	message_timeout () {
+	messageTimeout () {
 		Assert.fail('message never arrived');
 	}
 
 	// called when a message has been received, assert that it matches expectations
-	message_received (error, message) {
-		if (error) { return this.message_callback(error); }
-		Assert(message.channel === this.channel_name, 'received message doesn\'t match channel name');
+	messageReceived (error, message) {
+		if (error) { return this.messageCallback(error); }
+		Assert(message.channel === this.channelName, 'received message doesn\'t match channel name');
 		Assert(message.message === this.message, 'received message doesn\'t match');
-		this.message_callback();
+		this.messageCallback();
 	}
 
 	// send a random message from the server
-	send_random_from_server (callback) {
-		this.pubnub_for_server.publish(
+	sendRandomFromServer (callback) {
+		this.pubnubForServer.publish(
 			this.message,
-			this.channel_name,
+			this.channelName,
 			callback
 		);
 	}
 
 	// wait for the message to be received
-	wait_for_message (callback) {
-		this.message_callback = callback;
+	waitForMessage (callback) {
+		this.messageCallback = callback;
 		// now, do nothing...
 	}
 
 	// clear out timer
-	clear_timer (callback) {
-		if (this.message_timer) {
-			clearTimeout(this.message_timer);
-			delete this.message_timer;
+	clearTimer (callback) {
+		if (this.messageTimer) {
+			clearTimeout(this.messageTimer);
+			delete this.messageTimer;
  		}
 		callback();
 	}
 }
 
-module.exports = PubNub_Test;
+module.exports = PubNubTest;

@@ -1,15 +1,15 @@
 'use strict';
 
-var ACL_Test = require('./acl_test');
+var ACLTest = require('./acl_test');
 
-class ACL_Team_Test extends ACL_Test {
+class ACLTeamTest extends ACLTest {
 
 	constructor (options) {
 		super(options);
-		this.without_me_on_team = true;
+		this.withoutMeOnTeam = true;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1011',
 			reason: 'not authorized for stream'
@@ -21,4 +21,4 @@ class ACL_Team_Test extends ACL_Test {
 	}
 }
 
-module.exports = ACL_Team_Test;
+module.exports = ACLTeamTest;

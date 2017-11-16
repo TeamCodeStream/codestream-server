@@ -1,29 +1,29 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Mongo_Test = require('./mongo_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var MongoTest = require('./mongo_test');
 
-class Delete_By_Ids_Test extends Mongo_Test {
+class DeleteByIdsTest extends MongoTest {
 
 	get description () {
 		return 'should not get documents after they have been deleted by ID';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_random_documents,
-			this.filter_test_documents,
-			this.delete_documents
+			this.createRandomDocuments,
+			this.filterTestDocuments,
+			this.deleteDocuments
 		], callback);
 	}
 
-	delete_documents (callback) {
-		let to_delete = this.documents.filter(document => {
-			return !this.want_n(document.number);
+	deleteDocuments (callback) {
+		let toDelete = this.documents.filter(document => {
+			return !this.wantN(document.number);
 		});
-		let ids = to_delete.map(document => { return document._id; });
-		this.data.test.delete_by_ids(
+		let ids = toDelete.map(document => { return document._id; });
+		this.data.test.deleteByIds(
 			ids,
 			callback
 		);
@@ -31,17 +31,17 @@ class Delete_By_Ids_Test extends Mongo_Test {
 
 	run (callback) {
 		let ids = this.documents.map(document => { return document._id; });
-		this.data.test.get_by_ids(
+		this.data.test.getByIds(
 			ids,
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
-		this.validate_array_response();
+	validateResponse () {
+		this.validateArrayResponse();
 	}
 }
 
-module.exports = Delete_By_Ids_Test;
+module.exports = DeleteByIdsTest;

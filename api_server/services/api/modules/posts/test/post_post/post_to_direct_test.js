@@ -1,19 +1,19 @@
 'use strict';
 
-var Post_Post_Test = require('./post_post_test');
+var PostPostTest = require('./post_post_test');
 
-class Post_To_Direct_Test extends Post_Post_Test {
+class PostToDirectTest extends PostPostTest {
 
 	get description () {
 		return 'should return a valid post when creating a post in a direct stream';
 	}
 
-	make_stream_options (callback) {
-		super.make_stream_options(() => {
-			this.stream_options.member_ids = [this.users[1]._id];
+	makeStreamOptions (callback) {
+		super.makeStreamOptions(() => {
+			this.streamOptions.memberIds = [this.users[1]._id];
 			callback();
 		});
 	}
 }
 
-module.exports = Post_To_Direct_Test;
+module.exports = PostToDirectTest;

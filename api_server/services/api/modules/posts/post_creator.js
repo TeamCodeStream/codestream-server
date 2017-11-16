@@ -1,173 +1,173 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Post = require('./post');
-var Model_Creator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
-var Stream_Creator = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_creator');
+var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+var StreamCreator = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_creator');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
-var Last_Reads_Updater = require('./last_reads_updater');
+var LastReadsUpdater = require('./last_reads_updater');
 
-class Post_Creator extends Model_Creator {
+class PostCreator extends ModelCreator {
 
-	get model_class () {
+	get modelClass () {
 		return Post;
 	}
 
-	get collection_name () {
+	get collectionName () {
 		return 'posts';
 	}
 
-	create_post (attributes, callback) {
-		return this.create_model(attributes, callback);
+	createPost (attributes, callback) {
+		return this.createModel(attributes, callback);
 	}
 
-	validate_attributes (callback) {
-		if (!this.attributes.stream_id && typeof this.attributes.stream !== 'object') {
-			return callback(this.error_handler.error('attribute_required', { info: 'stream_id or stream' }));
+	validateAttributes (callback) {
+		if (!this.attributes.streamId && typeof this.attributes.stream !== 'object') {
+			return callback(this.errorHandler.error('attributeRequired', { info: 'streamId or stream' }));
 		}
 		process.nextTick(callback);
 	}
 
-	allow_attributes (callback) {
+	allowAttributes (callback) {
 		Allow(
 			this.attributes,
 			{
-				string: ['stream_id', 'text', 'commit_sha_when_posted', 'parent_post_id'],
-				object: ['stream', 'location', 'replay_info']
+				string: ['streamId', 'text', 'commitShaWhenPosted', 'parentPostId'],
+				object: ['stream', 'location', 'replayInfo']
 			}
 		);
 		process.nextTick(callback);
 	}
 
-	pre_save (callback) {
-		this.attributes.creator_id = this.user.id;
-		Bound_Async.series(this, [
-			this.get_stream,
-			this.get_repo,
-			this.get_team,
-			this.create_stream,
-			this.create_id,
-			super.pre_save,
-			this.update_stream,
-			this.update_last_reads
+	preSave (callback) {
+		this.attributes.creatorId = this.user.id;
+		BoundAsync.series(this, [
+			this.getStream,
+			this.getRepo,
+			this.getTeam,
+			this.createStream,
+			this.createId,
+			super.preSave,
+			this.updateStream,
+			this.updateLastReads
 		], callback);
 	}
 
-	get_stream (callback) {
-		if (!this.attributes.stream_id) {
+	getStream (callback) {
+		if (!this.attributes.streamId) {
 			return callback();
 		}
-		this.data.streams.get_by_id(
-			this.attributes.stream_id,
+		this.data.streams.getById(
+			this.attributes.streamId,
 			(error, stream) => {
 				if (error) { return callback(error); }
 				if (!stream) {
-					return callback(this.error_handler.error('not_found', { info: 'stream'}));
+					return callback(this.errorHandler.error('notFound', { info: 'stream'}));
 				}
 				this.stream = stream;
-				this.previous_post_id = stream.get('most_recent_post_id');
+				this.previousPostId = stream.get('mostRecentPostId');
 				callback();
 			}
 		);
 	}
 
-	get_repo (callback) {
-		let repo_id = this.stream ?
-			this.stream.get('repo_id') :
-			this.attributes.stream.repo_id;
-		if (!repo_id) {
+	getRepo (callback) {
+		let repoId = this.stream ?
+			this.stream.get('repoId') :
+			this.attributes.stream.repoId;
+		if (!repoId) {
 			return callback();
 		}
-		this.data.repos.get_by_id(
-			repo_id,
+		this.data.repos.getById(
+			repoId,
 			(error, repo) => {
 				if (error) { return callback(error); }
 				if (!repo) {
-					return callback(this.error_handler.error('not_found', { info: 'repo'}));
+					return callback(this.errorHandler.error('notFound', { info: 'repo'}));
 				}
 				this.repo = repo;
-				this.attributes.repo_id = repo.id;
+				this.attributes.repoId = repo.id;
 				callback();
 			}
 		);
 	}
 
-	get_team (callback) {
-		let team_id;
+	getTeam (callback) {
+		let teamId;
 		if (this.repo) {
-			team_id = this.repo.get('team_id');
+			teamId = this.repo.get('teamId');
 		}
 		else if (this.stream) {
-			team_id = this.stream.get('team_id');
+			teamId = this.stream.get('teamId');
 		}
 		else if (this.attributes.stream) {
-			team_id = this.attributes.stream.team_id;
+			teamId = this.attributes.stream.teamId;
 		}
-		if (!team_id) {
-			return callback(this.error_handler.error('attribute_required', { info: 'team_id' }));
+		if (!teamId) {
+			return callback(this.errorHandler.error('attributeRequired', { info: 'teamId' }));
 		}
-		this.data.teams.get_by_id(
-			team_id,
+		this.data.teams.getById(
+			teamId,
 			(error, team) => {
 				if (error) { return callback(error); }
 				if (!team) {
-					return callback(this.error_handler.error('not_found', { info: 'team'}));
+					return callback(this.errorHandler.error('notFound', { info: 'team'}));
 				}
 				this.team = team;
-				this.attributes.team_id = team.id;
+				this.attributes.teamId = team.id;
 				callback();
 			}
 		);
 	}
 
-	create_stream (callback) {
+	createStream (callback) {
 		if (this.stream) {
 			return callback(); // no need to create
 		}
-		this.attributes.stream.team_id = this.team.id;
-		new Stream_Creator({
+		this.attributes.stream.teamId = this.team.id;
+		new StreamCreator({
 			request: this.request
-		}).create_stream(
+		}).createStream(
 			this.attributes.stream,
 			(error, stream) => {
 				if (error) { return callback(error); }
 				this.stream = stream;
-				this.attributes.stream_id = stream.id;
-				this.attach_to_response.stream = this.stream.get_sanitized_object();
+				this.attributes.streamId = stream.id;
+				this.attachToResponse.stream = this.stream.getSanitizedObject();
 				delete this.attributes.stream;
 				process.nextTick(callback);
 			}
 		);
 	}
 
-	create_id (callback) {
-		this.attributes._id = this.data.posts.create_id();
+	createId (callback) {
+		this.attributes._id = this.data.posts.createId();
 		callback();
 	}
 
-	update_stream (callback) {
+	updateStream (callback) {
 		let op = {
 			set: {
-				most_recent_post_id: this.attributes._id
+				mostRecentPostId: this.attributes._id
 			}
 		};
-		this.data.streams.apply_op_by_id(
-			this.model.get('stream_id'),
+		this.data.streams.applyOpById(
+			this.model.get('streamId'),
 			op,
 			callback
 		);
 	}
 
-	update_last_reads (callback) {
-		new Last_Reads_Updater({
+	updateLastReads (callback) {
+		new LastReadsUpdater({
 			data: this.data,
 			user: this.user,
 			stream: this.stream,
 			team: this.team,
-			previous_post_id: this.previous_post_id,
+			previousPostId: this.previousPostId,
 			logger: this
-		}).update_last_reads(callback);
+		}).updateLastReads(callback);
 	}
 }
 
-module.exports = Post_Creator;
+module.exports = PostCreator;

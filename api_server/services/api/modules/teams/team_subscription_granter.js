@@ -1,64 +1,64 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Team_Subscription_Granter  {
+class TeamSubscriptionGranter  {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	grant_to_members (callback) {
-		Bound_Async.series(this, [
-			this.get_users,
-			this.determine_registered_users,
-			this.grant_team_channel
+	grantToMembers (callback) {
+		BoundAsync.series(this, [
+			this.getUsers,
+			this.determineRegisteredUsers,
+			this.grantTeamChannel
 		], callback);
 	}
 
-	get_users (callback) {
+	getUsers (callback) {
 		if (this.members) {
 			return callback();
 		}
-		this.data.users.get_by_ids(
-			this.team.get('member_ids') || [],
+		this.data.users.getByIds(
+			this.team.get('memberIds') || [],
 			(error, members) => {
 				if (error) { return callback(error); }
 				this.members = members;
 				callback();
 			},
 			{
-				fields: ['is_registered']
+				fields: ['isRegistered']
 			}
 		);
 	}
 
-	determine_registered_users (callback) {
-		this.registered_users = [];
-		Bound_Async.forEachLimit(
+	determineRegisteredUsers (callback) {
+		this.registeredUsers = [];
+		BoundAsync.forEachLimit(
 			this,
 			this.members,
 			10,
-			this.determine_registered_user,
+			this.determineRegisteredUser,
 			callback
 		);
 	}
 
-	determine_registered_user (user, callback) {
-		if (user.get('is_registered')) {
-			this.registered_users.push(user);
+	determineRegisteredUser (user, callback) {
+		if (user.get('isRegistered')) {
+			this.registeredUsers.push(user);
 		}
 		callback();
 	}
 
-	grant_team_channel (callback) {
-		var user_ids = this.registered_users.map(user => user.id);
-		if (user_ids.length === 0) {
+	grantTeamChannel (callback) {
+		var userIds = this.registeredUsers.map(user => user.id);
+		if (userIds.length === 0) {
 			return callback();
 		}
 		let channel = 'team-' + this.team.id;
 		this.messager.grant(
-			user_ids,
+			userIds,
 			channel,
 			(error) => {
 				if (error) {
@@ -72,4 +72,4 @@ class Team_Subscription_Granter  {
 	}
 }
 
-module.exports = Team_Subscription_Granter;
+module.exports = TeamSubscriptionGranter;

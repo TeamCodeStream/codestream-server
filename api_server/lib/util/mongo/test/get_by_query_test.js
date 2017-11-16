@@ -1,34 +1,34 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Mongo_Test = require('./mongo_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var MongoTest = require('./mongo_test');
 
-class Get_By_Query_Test extends Mongo_Test {
+class GetByQueryTest extends MongoTest {
 
 	get description () {
 		return 'should get the correct documents when getting several documents by query';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_random_documents,
-			this.filter_test_documents
+			this.createRandomDocuments,
+			this.filterTestDocuments
 		], callback);
 	}
 
 	run (callback) {
-		this.data.test.get_by_query(
+		this.data.test.getByQuery(
 			{ flag: this.randomizer + 'yes' },
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
-		this.validate_array_response();
+	validateResponse () {
+		this.validateArrayResponse();
 	}
 }
 
-module.exports = Get_By_Query_Test;
+module.exports = GetByQueryTest;

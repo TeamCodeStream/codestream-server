@@ -1,29 +1,29 @@
 'use strict';
 
-var Get_Streams_Test = require('./get_streams_test');
+var GetStreamsTest = require('./get_streams_test');
 
-class ACL_Test extends Get_Streams_Test {
+class ACLTest extends GetStreamsTest {
 
 	get description () {
 		return 'should return an error when trying to fetch streams from a team i\'m not a member of';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1009'
 		};
 	}
 
-	set_path (callback) {
-		let team_id = this.foreign_team._id;
+	setPath (callback) {
+		let teamId = this.foreignTeam._id;
 		let streams = [
-			this.streams_by_team[this.foreign_team._id][0],
-			this.streams_by_repo[this.foreign_repo._id][1],
+			this.streamsByTeam[this.foreignTeam._id][0],
+			this.streamsByRepo[this.foreignRepo._id][1],
 		];
 		let ids = streams.map(stream => stream._id);
-		this.path = `/streams?team_id=${team_id}&ids=${ids}`;
+		this.path = `/streams?teamId=${teamId}&ids=${ids}`;
 		callback();
 	}
 }
 
-module.exports = ACL_Test;
+module.exports = ACLTest;

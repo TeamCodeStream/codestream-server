@@ -1,27 +1,27 @@
 'use strict';
 
-var Data_Model_Validator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
+var DataModelValidator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
 var URL = require('url');
 var ObjectID = require('mongodb').ObjectID;
-const CodeStream_Model_Attributes = require('./codestream_model_attributes');
+const CodeStreamModelAttributes = require('./codestream_model_attributes');
 
-class CodeStream_Model_Validator extends Data_Model_Validator {
+class CodeStreamModelValidator extends DataModelValidator {
 
-	constructor (attribute_definitions) {
-		let total_attribute_definitions = Object.assign({}, CodeStream_Model_Attributes, attribute_definitions);
-		super(total_attribute_definitions);
+	constructor (attributeDefinitions) {
+		let totalAttributeDefinitions = Object.assign({}, CodeStreamModelAttributes, attributeDefinitions);
+		super(totalAttributeDefinitions);
 	}
 
-	set_validation_functions () {
-		super.set_validation_functions();
-		Object.assign(this.validation_functions, {
-			id: this.validate_id.bind(this),
-			array_of_ids: this.validate_array_of_ids.bind(this),
-			url: this.validate_url.bind(this)
+	setValidationFunctions () {
+		super.setValidationFunctions();
+		Object.assign(this.validationFunctions, {
+			id: this.validateId.bind(this),
+			arrayOfIds: this.validateArrayOfIds.bind(this),
+			url: this.validateUrl.bind(this)
 		});
 	}
 
-	validate_id (value/*, definition, options*/) {
+	validateId (value/*, definition, options*/) {
 		try {
 			ObjectID(value);
 		}
@@ -30,33 +30,33 @@ class CodeStream_Model_Validator extends Data_Model_Validator {
 		}
 	}
 
-	validate_array_of_ids (value, definition, options) {
+	validateArrayOfIds (value, definition, options) {
 		if (!(value instanceof Array)) {
 			return 'must be an array of IDs';
 		}
 		if (
 			definition &&
-			definition.max_length &&
-			value.length > definition.max_length
+			definition.maxLength &&
+			value.length > definition.maxLength
 		) {
 			return 'array is too long';
 		}
 		for (let index = 0, length = value.length; index < length; index++) {
-			let result = this.validate_id(value[index], definition, options);
+			let result = this.validateId(value[index], definition, options);
 			if (result) {
 				return `element ${index} is not a valid ID: ${result}`;
 			}
 		}
 	}
 
-	validate_url (value, definition/*, options*/) {
+	validateUrl (value, definition/*, options*/) {
 		if (!value || typeof value !== 'string') {
 			return 'not a string';
 		}
 		if (
 			definition &&
-			definition.max_length &&
-			value.length > definition.max_length
+			definition.maxLength &&
+			value.length > definition.maxLength
 		) {
 			return 'url is too long';
 		}
@@ -67,4 +67,4 @@ class CodeStream_Model_Validator extends Data_Model_Validator {
 	}
 }
 
-module.exports = CodeStream_Model_Validator;
+module.exports = CodeStreamModelValidator;

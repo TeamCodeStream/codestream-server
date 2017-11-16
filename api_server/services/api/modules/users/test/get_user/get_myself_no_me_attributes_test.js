@@ -1,39 +1,39 @@
 'use strict';
 
-var Get_Myself_Test = require('./get_myself_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var GetMyselfTest = require('./get_myself_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
-const User_Attributes = require('../../user_attributes');
+const UserAttributes = require('../../user_attributes');
 
-class Get_Myself_No_Me_Attributes_Test extends Get_Myself_Test {
+class GetMyselfNoMeAttributesTest extends GetMyselfTest {
 
 	get description () {
 		return 'should not return me-only attributes when requesting myself by id';
 	}
 
 	before (callback) {
-		this.id = this.current_user._id;
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo,
-			this.create_stream,
-			this.create_post,
+		this.id = this.currentUser._id;
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepo,
+			this.createStream,
+			this.createPost,
 			super.before
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -41,56 +41,56 @@ class Get_Myself_No_Me_Attributes_Test extends Get_Myself_Test {
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email],
-				with_random_emails: 1,
-				token: this.other_user_data.access_token
+				withEmails: [this.currentUser.email],
+				withRandomEmails: 1,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	create_stream (callback) {
-		let stream_options = {
+	createStream (callback) {
+		let streamOptions = {
 			type: 'file',
-			team_id: this.team._id,
-			repo_id: this.repo._id,
-			token: this.other_user_data.access_token
+			teamId: this.team._id,
+			repoId: this.repo._id,
+			token: this.otherUserData.accessToken
 		};
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	create_post (callback) {
-		let post_options = {
-			stream_id: this.stream._id,
-			token: this.other_user_data.access_token
+	createPost (callback) {
+		let postOptions = {
+			streamId: this.stream._id,
+			token: this.otherUserData.accessToken
 		};
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.post = response.post;
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 
-	validate_response (data) {
+	validateResponse (data) {
 		let user = data.user;
-		let found_me_attributes = [];
-		let me_attributes = Object.keys(User_Attributes).filter(attribute => User_Attributes[attribute].for_me);
-		me_attributes.forEach(attribute => {
+		let foundMeAttributes = [];
+		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
+		meAttributes.forEach(attribute => {
 			if (user.hasOwnProperty(attribute)) {
-				found_me_attributes.push(attribute);
+				foundMeAttributes.push(attribute);
 			}
 		});
-		Assert(found_me_attributes.length === 0, 'response contains these me-only attributes: ' + found_me_attributes.join(','));
+		Assert(foundMeAttributes.length === 0, 'response contains these me-only attributes: ' + foundMeAttributes.join(','));
 	}
 }
 
-module.exports = Get_Myself_No_Me_Attributes_Test;
+module.exports = GetMyselfNoMeAttributesTest;

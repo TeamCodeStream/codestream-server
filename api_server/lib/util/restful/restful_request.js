@@ -1,35 +1,35 @@
 'use strict';
 
-var API_Request = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
-var Error_Handler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
+var APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
+var ErrorHandler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 const Errors = require('./errors');
 
-class Restful_Request extends API_Request {
+class RestfulRequest extends APIRequest {
 
 	constructor (options) {
 		super(options);
-		this.error_handler = new Error_Handler(Errors);
+		this.errorHandler = new ErrorHandler(Errors);
 	}
 
-	allow_parameters (where, allowed_parameters, callback) {
+	allowParameters (where, allowedParameters, callback) {
 		let parameters = this.request[where];
-		Allow(parameters, allowed_parameters);
+		Allow(parameters, allowedParameters);
 		process.nextTick(callback);
 	}
 
-	require_parameters (where, required_parameters, callback) {
+	requireParameters (where, requiredParameters, callback) {
 		let parameters = this.request[where];
 		if (typeof parameters !== 'object') { return callback(); }
-		let missing_parameters = [];
-		required_parameters.forEach(parameter => {
+		let missingParameters = [];
+		requiredParameters.forEach(parameter => {
 			if (typeof parameters[parameter] === 'undefined') {
-				missing_parameters.push(parameter);
+				missingParameters.push(parameter);
 			}
 		});
-		if (missing_parameters.length) {
-			missing_parameters = missing_parameters.length > 1 ? missing_parameters : missing_parameters[0];
-			return callback(this.error_handler.error('parameter_required', { info: missing_parameters }));
+		if (missingParameters.length) {
+			missingParameters = missingParameters.length > 1 ? missingParameters : missingParameters[0];
+			return callback(this.errorHandler.error('parameterRequired', { info: missingParameters }));
 		}
 		else {
 			process.nextTick(callback);
@@ -37,4 +37,4 @@ class Restful_Request extends API_Request {
 	}
 }
 
-module.exports = Restful_Request;
+module.exports = RestfulRequest;

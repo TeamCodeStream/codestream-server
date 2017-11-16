@@ -1,33 +1,33 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Mongo_Test = require('./mongo_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var MongoTest = require('./mongo_test');
 
-class Get_By_Id_Test extends Mongo_Test {
+class GetByIdTest extends MongoTest {
 
 	get description () {
 		return 'should get the correct document when getting a document by ID';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_test_and_control_document,
+			this.createTestAndControlDocument,
 		], callback);
 	}
 
 	run (callback) {
-		this.data.test.get_by_id(
-			this.test_document._id,
+		this.data.test.getById(
+			this.testDocument._id,
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
-		this.validate_document_response();
+	validateResponse () {
+		this.validateDocumentResponse();
 	}
 }
 
-module.exports = Get_By_Id_Test;
+module.exports = GetByIdTest;

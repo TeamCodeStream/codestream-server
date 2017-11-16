@@ -2,7 +2,7 @@
 
 var HTTPS = require('https');
 
-function _Simple_Request (method, host, port, path, data, callback, options) { // jshint ignore:line
+function _SimpleRequest (method, host, port, path, data, callback, options) { // jshint ignore:line
 
     options = Object.assign({}, options || {}, { method, host, port, path });
     options.headers = Object.assign({}, options.headers || {}, {
@@ -12,16 +12,16 @@ function _Simple_Request (method, host, port, path, data, callback, options) { /
     let request = HTTPS.request(
         options,
         (response) => {
-            let response_data = '';
+            let responseData = '';
 
             response.on('data', (data) => {
-                response_data += data;
+                responseData += data;
             });
 
             response.on('end', () => {
                 let parsed;
                 try {
-                    parsed = JSON.parse(response_data);
+                    parsed = JSON.parse(responseData);
                 }
                 catch(error) {
                     return callback(`error parsing JSON data: ${error}`);
@@ -51,14 +51,14 @@ function _Simple_Request (method, host, port, path, data, callback, options) { /
 module.exports = {
 
     get: (host, port, path, data, callback, options) => {
-        _Simple_Request('get', host, port, path, data, callback, options);
+        _SimpleRequest('get', host, port, path, data, callback, options);
     },
 
     post: (host, port, path, data, callback, options) => {
-        _Simple_Request('post', host, port, path, data, callback, options);
+        _SimpleRequest('post', host, port, path, data, callback, options);
     },
 
     put: (host, port, path, data, callback, options) => {
-        _Simple_Request('put', host, port, path, data, callback, options);
+        _SimpleRequest('put', host, port, path, data, callback, options);
     }
 };

@@ -3,63 +3,63 @@
 // make jshint happy
 /* globals describe */
 
-var Get_By_Id_Test = require('./get_by_id_test');
-var Get_By_Id_Not_Found_Test = require('./get_by_id_not_found_test');
-var Get_By_Ids_Test = require('./get_by_ids_test');
-var Get_By_Query_Test = require('./get_by_query_test');
-var Get_By_Query_Sort_Test = require('./get_by_query_sort_test');
-var Get_By_Query_Limit_Test = require('./get_by_query_limit_test');
-var Get_One_By_Query_Test = require('./get_one_by_query_test');
-var Create_Test = require('./create_test');
-var Create_Many_Test = require('./create_many_test');
-var Update_Test = require('./update_test');
-var Update_By_Id_Test = require('./update_by_id_test');
-var Update_No_Id_Test = require('./update_no_id_test');
-var Apply_Set_By_Id_Test = require('./apply_set_by_id_test');
-var Apply_Set_Sub_Object_By_Id_Test = require('./apply_set_sub_object_by_id_test');
-var Apply_Unset_By_Id_Test = require('./apply_unset_by_id_test');
-var Apply_Unset_Sub_Object_By_Id_Test = require('./apply_unset_sub_object_by_id_test');
-var Apply_Add_By_Id_Test = require('./apply_add_by_id_test');
-var Apply_No_Add_By_Id_Test = require('./apply_no_add_by_id_test');
-var Apply_Push_By_Id_Test = require('./apply_push_by_id_test');
-var Apply_Pull_By_Id_Test = require('./apply_pull_by_id_test');
-var Apply_No_Pull_By_Id_Test = require('./apply_no_pull_by_id_test');
-var Apply_Ops_By_Id_Test = require('./apply_ops_by_id_test');
-var Update_Direct_Test = require('./update_direct_test');
-var Delete_By_Id_Test = require('./delete_by_id_test');
-var Delete_By_Ids_Test = require('./delete_by_ids_test');
-var Delete_By_Query_Test = require('./delete_by_query_test');
+var GetByIdTest = require('./get_by_id_test');
+var GetByIdNotFoundTest = require('./get_by_id_not_found_test');
+var GetByIdsTest = require('./get_by_ids_test');
+var GetByQueryTest = require('./get_by_query_test');
+var GetByQuerySortTest = require('./get_by_query_sort_test');
+var GetByQueryLimitTest = require('./get_by_query_limit_test');
+var GetOneByQueryTest = require('./get_one_by_query_test');
+var CreateTest = require('./create_test');
+var CreateManyTest = require('./create_many_test');
+var UpdateTest = require('./update_test');
+var UpdateByIdTest = require('./update_by_id_test');
+var UpdateNoIdTest = require('./update_no_id_test');
+var ApplySetByIdTest = require('./apply_set_by_id_test');
+var ApplySetSubObjectByIdTest = require('./apply_set_sub_object_by_id_test');
+var ApplyUnsetByIdTest = require('./apply_unset_by_id_test');
+var ApplyUnsetSubObjectByIdTest = require('./apply_unset_sub_object_by_id_test');
+var ApplyAddByIdTest = require('./apply_add_by_id_test');
+var ApplyNoAddByIdTest = require('./apply_no_add_by_id_test');
+var ApplyPushByIdTest = require('./apply_push_by_id_test');
+var ApplyPullByIdTest = require('./apply_pull_by_id_test');
+var ApplyNoPullByIdTest = require('./apply_no_pull_by_id_test');
+var ApplyOpsByIdTest = require('./apply_ops_by_id_test');
+var UpdateDirectTest = require('./update_direct_test');
+var DeleteByIdTest = require('./delete_by_id_test');
+var DeleteByIdsTest = require('./delete_by_ids_test');
+var DeleteByQueryTest = require('./delete_by_query_test');
 
 /* jshint -W071 */
 
 describe('mongo', function() {
 
-	new Get_By_Id_Test().test();
-	new Get_By_Id_Not_Found_Test().test();
-	new Get_By_Ids_Test().test();
-	new Get_By_Query_Test().test();
-	new Get_By_Query_Sort_Test().test();
-	new Get_By_Query_Limit_Test().test();
-	new Get_One_By_Query_Test().test();
-	new Create_Test().test();
-	new Create_Many_Test().test();
-	new Update_Test().test();
-	new Update_By_Id_Test().test();
-	new Update_No_Id_Test().test();
-	new Apply_Set_By_Id_Test().test();
-	new Apply_Set_Sub_Object_By_Id_Test().test();
-	new Apply_Unset_By_Id_Test().test();
-	new Apply_Unset_Sub_Object_By_Id_Test().test();
-	new Apply_Add_By_Id_Test().test();
-	new Apply_No_Add_By_Id_Test().test();
-	new Apply_Push_By_Id_Test().test();
-	new Apply_Pull_By_Id_Test().test();
-	new Apply_No_Pull_By_Id_Test().test();
-	new Apply_Ops_By_Id_Test().test();
-	new Update_Direct_Test().test();
-	new Delete_By_Id_Test().test();
-	new Delete_By_Ids_Test().test();
-	new Delete_By_Query_Test().test();
+	new GetByIdTest().test();
+	new GetByIdNotFoundTest().test();
+	new GetByIdsTest().test();
+	new GetByQueryTest().test();
+	new GetByQuerySortTest().test();
+	new GetByQueryLimitTest().test();
+	new GetOneByQueryTest().test();
+	new CreateTest().test();
+	new CreateManyTest().test();
+	new UpdateTest().test();
+	new UpdateByIdTest().test();
+	new UpdateNoIdTest().test();
+	new ApplySetByIdTest().test();
+	new ApplySetSubObjectByIdTest().test();
+	new ApplyUnsetByIdTest().test();
+	new ApplyUnsetSubObjectByIdTest().test();
+	new ApplyAddByIdTest().test();
+	new ApplyNoAddByIdTest().test();
+	new ApplyPushByIdTest().test();
+	new ApplyPullByIdTest().test();
+	new ApplyNoPullByIdTest().test();
+	new ApplyOpsByIdTest().test();
+	new UpdateDirectTest().test();
+	new DeleteByIdTest().test();
+	new DeleteByIdsTest().test();
+	new DeleteByQueryTest().test();
 
 });
 

@@ -1,65 +1,65 @@
 'use strict';
 
-var CodeStream_Message_Test = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class New_Repo_Message_To_Team_Test extends CodeStream_Message_Test {
+class NewRepoMessageToTeamTest extends CodeStreamMessageTest {
 
 	get description () {
 		return 'the team creator should receive a message with the repo when a repo is added to the team';
 	}
 
-	make_data (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo
+	makeData (callback) {
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepo
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error);}
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
 				callback();
 			},
 			{
-				with_emails: [this.other_user_data.user.email],
-				with_random_emails: 1,
+				withEmails: [this.otherUserData.user.email],
+				withRandomEmails: 1,
 				token: this.token
 			}
 		);
 	}
 
-	set_channel_name (callback) {
-		this.channel_name = 'team-' + this.team._id;
+	setChannelName (callback) {
+		this.channelName = 'team-' + this.team._id;
 		callback();
 	}
 
 
-	generate_message (callback) {
-		this.repo_factory.create_random_repo(
+	generateMessage (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.message = { repo: response.repo };
 				callback();
 			},
 			{
-				token: this.other_user_data.access_token,
-				team_id: this.team._id
+				token: this.otherUserData.accessToken,
+				teamId: this.team._id
 			}
 		);
 	}
 }
 
-module.exports = New_Repo_Message_To_Team_Test;
+module.exports = NewRepoMessageToTeamTest;

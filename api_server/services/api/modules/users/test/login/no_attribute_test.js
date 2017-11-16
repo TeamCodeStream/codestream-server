@@ -1,18 +1,18 @@
 'use strict';
 
-var Login_Test = require('./login_test');
+var LoginTest = require('./login_test');
 
-class No_Attribute_Test extends Login_Test {
+class NoAttributeTest extends LoginTest {
 
 	get description () {
 		return `should return error when no ${this.attribute} provided`;
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1001',
 			info: this.attribute
@@ -27,4 +27,4 @@ class No_Attribute_Test extends Login_Test {
 	}
 }
 
-module.exports = No_Attribute_Test;
+module.exports = NoAttributeTest;

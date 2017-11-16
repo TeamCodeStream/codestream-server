@@ -1,22 +1,22 @@
 'use strict';
 
-var Get_Team_Test = require('./get_team_test');
+var GetTeamTest = require('./get_team_test');
 
-class Get_Other_Team_Test extends Get_Team_Test {
+class GetOtherTeamTest extends GetTeamTest {
 
 	get description () {
 		return 'should return a valid team when requesting a team created by another user that i am on';
 	}
 
-	set_path (callback) {
-		this.path = '/teams/' + this.other_team._id;
+	setPath (callback) {
+		this.path = '/teams/' + this.otherTeam._id;
 		callback();
 	}
 
-	validate_response (data) {
-		this.validate_matching_object(this.other_team._id, data.team, 'team');
-		super.validate_response(data);
+	validateResponse (data) {
+		this.validateMatchingObject(this.otherTeam._id, data.team, 'team');
+		super.validateResponse(data);
 	}
 }
 
-module.exports = Get_Other_Team_Test;
+module.exports = GetOtherTeamTest;

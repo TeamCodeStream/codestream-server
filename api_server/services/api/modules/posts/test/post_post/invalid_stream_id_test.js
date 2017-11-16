@@ -1,19 +1,19 @@
 'use strict';
 
-var Post_Post_Test = require('./post_post_test');
+var PostPostTest = require('./post_post_test');
 var ObjectID = require('mongodb').ObjectID;
 
-class Invalid_Stream_Id_Test extends Post_Post_Test {
+class InvalidStreamIdTest extends PostPostTest {
 
 	get description () {
 		return 'should return error when attempting to create a post with an invalid stream id';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1003',
 			info: 'stream'
@@ -23,10 +23,10 @@ class Invalid_Stream_Id_Test extends Post_Post_Test {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.stream_id = ObjectID();
+			this.data.streamId = ObjectID();
 			callback();
 		});
 	}
 }
 
-module.exports = Invalid_Stream_Id_Test;
+module.exports = InvalidStreamIdTest;

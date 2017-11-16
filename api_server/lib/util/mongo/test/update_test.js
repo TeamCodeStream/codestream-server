@@ -1,24 +1,24 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Get_By_Id_Test = require('./get_by_id_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var GetByIdTest = require('./get_by_id_test');
 
-class Update_Test extends Get_By_Id_Test {
+class UpdateTest extends GetByIdTest {
 
 	get description () {
 		return 'should get the correctly updated document after updating a document';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.update_document
+			this.updateDocument
 		], callback);
 	}
 
-	update_document (callback) {
+	updateDocument (callback) {
 		const update = {
-			_id: this.test_document._id,
+			_id: this.testDocument._id,
 			text: 'replaced!',
 			number: 123
 		};
@@ -26,11 +26,11 @@ class Update_Test extends Get_By_Id_Test {
 			update,
 			(error) => {
 				if (error) { return callback(error); }
-				Object.assign(this.test_document, update);
+				Object.assign(this.testDocument, update);
 				callback();
 			}
 		);
 	}
 }
 
-module.exports = Update_Test;
+module.exports = UpdateTest;

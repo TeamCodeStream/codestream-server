@@ -1,18 +1,18 @@
 'use strict';
 
-var File_Stream_On_The_Fly_Test = require('./file_stream_on_the_fly_test');
+var FileStreamOnTheFlyTest = require('./file_stream_on_the_fly_test');
 
-class No_File_Test extends File_Stream_On_The_Fly_Test {
+class NoFileTest extends FileStreamOnTheFlyTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post and creating a file stream on the fly with no file';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
 			info: [{
@@ -30,4 +30,4 @@ class No_File_Test extends File_Stream_On_The_Fly_Test {
 	}
 }
 
-module.exports = No_File_Test;
+module.exports = NoFileTest;

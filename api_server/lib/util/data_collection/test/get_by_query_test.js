@@ -1,35 +1,35 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Data_Collection_Test = require('./data_collection_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DataCollectionTest = require('./data_collection_test');
 
-class Get_By_Query_Test extends Data_Collection_Test {
+class GetByQueryTest extends DataCollectionTest {
 
 	get description () {
 		return 'should get the correct models when getting several models by query';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_random_models,
+			this.createRandomModels,
 			this.persist,
-			this.filter_test_models
+			this.filterTestModels
 		], callback);
 	}
 
 	run (callback) {
-		this.data.test.get_by_query(
+		this.data.test.getByQuery(
 			{ flag: this.randomizer + 'yes' },
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
-		this.validate_array_response();
+	validateResponse () {
+		this.validateArrayResponse();
 	}
 }
 
-module.exports = Get_By_Query_Test;
+module.exports = GetByQueryTest;

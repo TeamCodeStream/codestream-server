@@ -3,46 +3,46 @@
 var Strftime = require('strftime');
 var Path = require('path');
 var FS = require('fs');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Simple_File_Logger {
+class SimpleFileLogger {
 
 	constructor (options) {
 		if (!options.directory) {
-			throw 'Simple_File_Logger needs a directory option';
+			throw 'SimpleFileLogger needs a directory option';
 		}
 		if (!options.basename) {
-			throw 'Simple_File_Logger needs a basename option';
+			throw 'SimpleFileLogger needs a basename option';
 		}
 		Object.assign(this, options);
-		if (typeof options.retention_period !== 'undefined') {
-			this.retention_period = options.retention_period;
+		if (typeof options.retentionPeriod !== 'undefined') {
+			this.retentionPeriod = options.retentionPeriod;
 		}
 		else {
-			this.retention_period = this.retention_period || (7 * 24 * 60 * 60 * 1000); // one week by default
+			this.retentionPeriod = this.retentionPeriod || (7 * 24 * 60 * 60 * 1000); // one week by default
 		}
-		this.link_name = this.get_link_name();
+		this.linkName = this.getLinkName();
 	}
 
 	initialize (callback) {
-		this.started_on = Date.now();
+		this.startedOn = Date.now();
 		this.rotate(callback);
 	}
 
-	open_next_log_file (callback) {
+	openNextLogFile (callback) {
 		const now = Date.now();
-		this.current_filename = this.get_log_file_name(now);
+		this.currentFilename = this.getLogFileName(now);
 		try {
-			this.fd = FS.createWriteStream(this.current_filename, { flags: 'a' });
+			this.fd = FS.createWriteStream(this.currentFilename, { flags: 'a' });
 		}
 		catch (error) {
-			return callback && callback(`unable to open log file ${this.current_filename}: ${error}`);
+			return callback && callback(`unable to open log file ${this.currentFilename}: ${error}`);
 		}
-		this.last_written = now;
+		this.lastWritten = now;
 		return callback && process.nextTick(callback);
 	}
 
-	get_log_file_name (date) {
+	getLogFileName (date) {
 		if (!date) {
 			date = Date.now();
 		}
@@ -58,7 +58,7 @@ class Simple_File_Logger {
 		);
 	}
 
-	get_link_name () {
+	getLinkName () {
 		const extension = this.extension || 'log';
 		return Path.join(
 			this.directory,
@@ -66,68 +66,68 @@ class Simple_File_Logger {
 		);
 	}
 
-	log (text, request_id) {
-		if (!this.started_on) {
+	log (text, requestId) {
+		if (!this.startedOn) {
 			this.initialize(() => {
-				this.log_after_initialized(text, request_id);
+				this.logAfterInitialized(text, requestId);
 			});
 		}
 		else {
-			this.log_after_initialized(text, request_id);
+			this.logAfterInitialized(text, requestId);
 		}
 	}
 
-	critical (text, request_id) {
-		this.log('\x1b[35mCRITICAL: ' + text + '\x1b[0m', request_id);
+	critical (text, requestId) {
+		this.log('\x1b[35mCRITICAL: ' + text + '\x1b[0m', requestId);
 	}
 
-	error (text, request_id) {
-		this.log('\x1b[31mERROR: ' + text + '\x1b[0m', request_id);
+	error (text, requestId) {
+		this.log('\x1b[31mERROR: ' + text + '\x1b[0m', requestId);
 	}
 
-	warn (text, request_id) {
-		this.log('\x1b[33mWARNING: ' + text + '\x1b[0m', request_id);
+	warn (text, requestId) {
+		this.log('\x1b[33mWARNING: ' + text + '\x1b[0m', requestId);
 	}
 
-	debug (text, request_id) {
-		if (this.debug_ok) {
-			this.log('\x1b[36mDEBUG: ' +  text + '\x1b[0m', request_id);
+	debug (text, requestId) {
+		if (this.debugOk) {
+			this.log('\x1b[36mDEBUG: ' +  text + '\x1b[0m', requestId);
 		}
 	}
 
-	log_after_initialized (text, request_id) {
-		this.maybe_rotate(() => {
-			this.out(text, request_id);
+	logAfterInitialized (text, requestId) {
+		this.maybeRotate(() => {
+			this.out(text, requestId);
 		});
 	}
 
-	out (text, request_id) {
-		let full_text = Strftime('%Y-%m-%d %H:%M:%S.%L');
-		if (this.logger_host) {
-			full_text += ' ' + this.logger_host;
+	out (text, requestId) {
+		let fullText = Strftime('%Y-%m-%d %H:%M:%S.%L');
+		if (this.loggerHost) {
+			fullText += ' ' + this.loggerHost;
 		}
-		if (this.logger_id) {
-			full_text += ' ' + this.logger_id;
+		if (this.loggerId) {
+			fullText += ' ' + this.loggerId;
 		}
-		request_id = request_id || this.request_id;
-		if (request_id) {
-			full_text += ' ' + request_id;
+		requestId = requestId || this.requestId;
+		if (requestId) {
+			fullText += ' ' + requestId;
 		}
-		full_text += ' ' + text;
+		fullText += ' ' + text;
 		if (this.fd) {
-			this.fd.write(full_text + '\n', 'utf8');
+			this.fd.write(fullText + '\n', 'utf8');
 		}
-		if (this.console_ok) {
-			console.log(full_text);
+		if (this.consoleOk) {
+			console.log(fullText);
 		}
-		this.last_written = Date.now();
+		this.lastWritten = Date.now();
 	}
 
-	maybe_rotate (callback) {
+	maybeRotate (callback) {
 		const now = Date.now();
-		const now_midnight = this.midnight(now);
-		const last_written_midnight = this.midnight(this.last_written);
-		if (now_midnight > last_written_midnight) {
+		const nowMidnight = this.midnight(now);
+		const lastWrittenMidnight = this.midnight(this.lastWritten);
+		if (nowMidnight > lastWrittenMidnight) {
 			this.rotate(callback);
 		}
 		else {
@@ -136,13 +136,13 @@ class Simple_File_Logger {
 	}
 
 	midnight (timestamp) {
-		const one_day = 24 * 60 * 60 * 1000;
-		const ms_since_midnight_gmt = timestamp % one_day;
-		const midnight_gmt = timestamp - ms_since_midnight_gmt;
-		const one_minute = 60 * 1000;
-		const timezone_offset = new Date().getTimezoneOffset() * one_minute;
-		const my_midnight = midnight_gmt + timezone_offset - one_day;
-		return my_midnight;
+		const oneDay = 24 * 60 * 60 * 1000;
+		const msSinceMidnightGmt = timestamp % oneDay;
+		const midnightGmt = timestamp - msSinceMidnightGmt;
+		const oneMinute = 60 * 1000;
+		const timezoneOffset = new Date().getTimezoneOffset() * oneMinute;
+		const myMidnight = midnightGmt + timezoneOffset - oneDay;
+		return myMidnight;
 	}
 
 	rotate (callback) {
@@ -150,63 +150,63 @@ class Simple_File_Logger {
 			this.fd.end();
 		}
 		this.fd = null;
-		this.delete_through = this.last_written;
-		Bound_Async.series(this, [
-			this.open_next_log_file,
-			this.remove_old_link,
-			this.make_new_link,
-			this.cleanup_old
+		this.deleteThrough = this.lastWritten;
+		BoundAsync.series(this, [
+			this.openNextLogFile,
+			this.removeOldLink,
+			this.makeNewLink,
+			this.cleanupOld
 		], callback);
 	}
 
-	remove_old_link (callback) {
-		FS.unlink(this.link_name, (error) => {
+	removeOldLink (callback) {
+		FS.unlink(this.linkName, (error) => {
 			if (error && error !== 'ENOENT') {
-				console.error(`unable to unlink ${this.link_name}: ${error}`);
+				console.error(`unable to unlink ${this.linkName}: ${error}`);
 			}
 			process.nextTick(callback);
 		});
 	}
 
-	make_new_link (callback) {
+	makeNewLink (callback) {
 		FS.link(
-			this.current_filename,
-			this.link_name,
+			this.currentFilename,
+			this.linkName,
 			(error) => {
 				if (error) {
-					console.error(`unable to link ${this.link_name}: ${error}`);
+					console.error(`unable to link ${this.linkName}: ${error}`);
 				}
 				process.nextTick(callback);
 			}
 		);
 	}
 
-	cleanup_old (callback) {
+	cleanupOld (callback) {
 		const now = Date.now();
-		const now_midnight = this.midnight(now);
-		const delete_through = now_midnight - this.retention_period;
-		const one_day = 24 * 60 * 60 * 1000;
-		const delete_from = delete_through - 30 * one_day;
-		let day = delete_from;
-		Bound_Async.whilst(
+		const nowMidnight = this.midnight(now);
+		const deleteThrough = nowMidnight - this.retentionPeriod;
+		const oneDay = 24 * 60 * 60 * 1000;
+		const deleteFrom = deleteThrough - 30 * oneDay;
+		let day = deleteFrom;
+		BoundAsync.whilst(
 			this,
 			() => {
-				return day <= delete_through;
+				return day <= deleteThrough;
 			},
-			(whilst_callback) => {
-				this.delete_day(day, () => {
-					day += one_day;
-					process.nextTick(whilst_callback);
+			(whilstCallback) => {
+				this.deleteDay(day, () => {
+					day += oneDay;
+					process.nextTick(whilstCallback);
 				});
 			},
 			callback
 		);
 	}
 
-	delete_day (day, callback) {
-		const filename = this.get_log_file_name(day);
+	deleteDay (day, callback) {
+		const filename = this.getLogFileName(day);
 		FS.unlink(filename, callback);
 	}
 }
 
-module.exports = Simple_File_Logger;
+module.exports = SimpleFileLogger;

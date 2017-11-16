@@ -1,42 +1,42 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var User_Creator = require(process.env.CS_API_TOP + '/services/api/modules/users/user_creator');
-var Team_Subscription_Granter = require('./team_subscription_granter');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var UserCreator = require(process.env.CS_API_TOP + '/services/api/modules/users/user_creator');
+var TeamSubscriptionGranter = require('./team_subscription_granter');
 const Errors = require('./errors');
 
-class Add_Team_Members  {
+class AddTeamMembers  {
 
 	constructor (options) {
 		Object.assign(this, options);
-		['data', 'api', 'error_handler', 'user'].forEach(x => this[x] = this.request[x]);
-		this.error_handler.add(Errors);
+		['data', 'api', 'errorHandler', 'user'].forEach(x => this[x] = this.request[x]);
+		this.errorHandler.add(Errors);
 	}
 
-	add_team_members (callback) {
-		Bound_Async.series(this, [
-			this.get_team,
-			this.get_members,
-			this.eliminate_duplicates,
-			this.check_create_users,
-			this.check_usernames_unique,
-			this.add_to_team,
-			this.update_users,
-			this.grant_user_messaging_permissions
+	addTeamMembers (callback) {
+		BoundAsync.series(this, [
+			this.getTeam,
+			this.getMembers,
+			this.eliminateDuplicates,
+			this.checkCreateUsers,
+			this.checkUsernamesUnique,
+			this.addToTeam,
+			this.updateUsers,
+			this.grantUserMessagingPermissions
 		], callback);
 	}
 
-	get_team (callback) {
+	getTeam (callback) {
 		if (this.team) { return callback(); }
-		if (!this.team_id) {
-			return callback(this.error_handler.error('missing_argument', { info: 'team_id'}));
+		if (!this.teamId) {
+			return callback(this.errorHandler.error('missingArgument', { info: 'teamId'}));
 		}
-		this.data.teams.get_by_id(
-			this.team_id,
+		this.data.teams.getById(
+			this.teamId,
 			(error, team) => {
 				if (error) { return callback(error); }
 				if (!team) {
-					return callback(this.error_handler.error('not_found', { info: 'team'}));
+					return callback(this.errorHandler.error('notFound', { info: 'team'}));
 				}
 				this.team = team;
 				callback();
@@ -44,145 +44,145 @@ class Add_Team_Members  {
 		);
 	}
 
-	get_members (callback) {
-		this.data.users.get_by_ids(
-			this.team.get('member_ids'),
+	getMembers (callback) {
+		this.data.users.getByIds(
+			this.team.get('memberIds'),
 			(error, members) => {
 				if (error) { return callback(error); }
-				this.existing_members = members;
+				this.existingMembers = members;
 				callback();
 			}
 		);
 	}
 
-	eliminate_duplicates (callback) {
+	eliminateDuplicates (callback) {
 		if (!this.users) {
 			return callback();
 		}
-		let existing_ids = this.existing_members.map(member => member.id);
-		let non_duplicate_users = [];
+		let existingIds = this.existingMembers.map(member => member.id);
+		let nonDuplicateUsers = [];
 		this.users.forEach(user => {
-			if (existing_ids.indexOf(user.id) === -1) {
-				non_duplicate_users.push(user);
+			if (existingIds.indexOf(user.id) === -1) {
+				nonDuplicateUsers.push(user);
 			}
 		});
-		this.users = non_duplicate_users;
+		this.users = nonDuplicateUsers;
 		process.nextTick(callback);
 	}
 
-	check_create_users (callback) {
+	checkCreateUsers (callback) {
 		if (
 			!(this.emails instanceof Array) ||
 			this.emails.length === 0
 		) {
 			return callback();
 		}
-		this.users_created = [];
-		Bound_Async.forEachSeries(
+		this.usersCreated = [];
+		BoundAsync.forEachSeries(
 			this,
 			this.emails,
-			this.create_user,
+			this.createUser,
 			callback
 		);
 	}
 
-	create_user (email, callback) {
-		if (this.existing_members.find(member => {
-			return member.get('searchable_email') === email.toLowerCase();
+	createUser (email, callback) {
+		if (this.existingMembers.find(member => {
+			return member.get('searchableEmail') === email.toLowerCase();
 		})) {
 			return callback();
 		}
-		this.user_creator = new User_Creator({
+		this.userCreator = new UserCreator({
 			request: this.request,
-			dont_save_if_exists: true
+			dontSaveIfExists: true
 		});
-		this.user_creator.create_user(
+		this.userCreator.createUser(
 			{
 				email: email
 			},
 			(error, user) => {
 				if (error) { return callback(error); }
-				this.users_created.push(user);
+				this.usersCreated.push(user);
 				process.nextTick(callback);
 			}
 		);
 	}
 
-	check_usernames_unique (callback) {
-		this.users_to_add = [...(this.users || []), ...(this.users_created || [])];
-		let all_users = [...this.users_to_add, ...this.existing_members];
+	checkUsernamesUnique (callback) {
+		this.usersToAdd = [...(this.users || []), ...(this.usersCreated || [])];
+		let allUsers = [...this.usersToAdd, ...this.existingMembers];
 		let usernames = [];
-		let conflicting_username = null;
-		let conflict = all_users.find(user => {
+		let conflictingUsername = null;
+		let conflict = allUsers.find(user => {
 			let username = user.get('username');
 			if (username) {
-				let username_lowercase = username.toLowerCase();
-				if (usernames.indexOf(username_lowercase) !== -1) {
-					conflicting_username = username;
+				let usernameLowercase = username.toLowerCase();
+				if (usernames.indexOf(usernameLowercase) !== -1) {
+					conflictingUsername = username;
 					return true;
 				}
-				usernames.push(username_lowercase);
+				usernames.push(usernameLowercase);
 			}
 		});
 		if (conflict) {
-			return callback(this.error_handler.error('username_not_unique', { info: conflicting_username }));
+			return callback(this.errorHandler.error('usernameNotUnique', { info: conflictingUsername }));
 		}
 		else {
 			return process.nextTick(callback);
 		}
 	}
 
-	add_to_team (callback) {
-		let ids = this.users_to_add.map(user => user.id);
-		this.data.teams.apply_op_by_id(
+	addToTeam (callback) {
+		let ids = this.usersToAdd.map(user => user.id);
+		this.data.teams.applyOpById(
 			this.team.id,
-			{ add: { member_ids: ids } },
+			{ add: { memberIds: ids } },
 			callback
 		);
 	}
 
-	update_users (callback) {
-		this.updated_users = [];
-		this.sanitized_users = [];
-		Bound_Async.forEach(
+	updateUsers (callback) {
+		this.updatedUsers = [];
+		this.sanitizedUsers = [];
+		BoundAsync.forEach(
 			this,
-			this.users_to_add,
-			this.update_user,
+			this.usersToAdd,
+			this.updateUser,
 			callback
 		);
 	}
 
-	update_user (user, callback) {
-		this.data.users.apply_op_by_id(
+	updateUser (user, callback) {
+		this.data.users.applyOpById(
 			user.id,
 			{
 				add: {
-					company_ids: this.team.get('company_id'),
-					team_ids: this.team.id
+					companyIds: this.team.get('companyId'),
+					teamIds: this.team.id
 				}
 			},
-			(error, updated_user) => {
+			(error, updatedUser) => {
 				if (error) { return callback(error); }
-				this.updated_users.push(updated_user);
-				this.sanitized_users.push(updated_user.get_sanitized_object());
+				this.updatedUsers.push(updatedUser);
+				this.sanitizedUsers.push(updatedUser.getSanitizedObject());
 				callback();
 			}
 		);
 	}
 
-	grant_user_messaging_permissions (callback) {
-		new Team_Subscription_Granter({
+	grantUserMessagingPermissions (callback) {
+		new TeamSubscriptionGranter({
 			data: this.data,
 			messager: this.api.services.messager,
 			team: this.team,
-			members: this.users_to_add
-		}).grant_to_members(error => {
+			members: this.usersToAdd
+		}).grantToMembers(error => {
 			if (error) {
-				return callback(this.error_handler.error('messaging_grant', { reason: error }));
+				return callback(this.errorHandler.error('messagingGrant', { reason: error }));
 			}
 			callback();
 		});
 	}
 }
 
-module.exports = Add_Team_Members;
+module.exports = AddTeamMembers;

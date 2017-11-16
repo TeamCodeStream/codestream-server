@@ -1,16 +1,16 @@
 'use strict';
 
-var ACL_Test = require('./acl_test');
+var ACLTest = require('./acl_test');
 
-class ACL_Team_On_The_Fly_Test extends ACL_Test {
+class ACLTeamOnTheFlyTest extends ACLTest {
 
 	constructor (options) {
 		super(options);
-		this.without_me_on_team = true;
-		this.on_the_fly = true;
+		this.withoutMeOnTeam = true;
+		this.onTheFly = true;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1011',
 			reason: 'user not on team'
@@ -22,4 +22,4 @@ class ACL_Team_On_The_Fly_Test extends ACL_Test {
 	}
 }
 
-module.exports = ACL_Team_On_The_Fly_Test;
+module.exports = ACLTeamOnTheFlyTest;

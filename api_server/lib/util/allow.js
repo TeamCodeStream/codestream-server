@@ -1,13 +1,13 @@
 'use strict';
 
-var _find_attribute = function(allowed_attributes, attribute) {
-	if (allowed_attributes instanceof Array) {
-		return allowed_attributes.indexOf(attribute) !== -1;
+var _findAttribute = function(allowedAttributes, attribute) {
+	if (allowedAttributes instanceof Array) {
+		return allowedAttributes.indexOf(attribute) !== -1;
 	}
-	else if (typeof allowed_attributes === 'object') {
-		let types = Object.keys(allowed_attributes);
+	else if (typeof allowedAttributes === 'object') {
+		let types = Object.keys(allowedAttributes);
 		let index = types.findIndex(type => {
-			return _find_attribute(allowed_attributes[type], attribute);
+			return _findAttribute(allowedAttributes[type], attribute);
 		});
 		if (index !== -1) {
 			return types[index];
@@ -18,7 +18,7 @@ var _find_attribute = function(allowed_attributes, attribute) {
 	}
 };
 
-var _type_matches = function(value, type) {
+var _typeMatches = function(value, type) {
 	if (['object', 'string', 'number', 'boolean'].indexOf(type) !== -1) {
 		return typeof value === type;
 	}
@@ -38,15 +38,15 @@ var _type_matches = function(value, type) {
 	}
 };
 
-module.exports = function(object, allowed_attributes) {
+module.exports = function(object, allowedAttributes) {
 	if (typeof object !== 'object') { return; }
 	Object.keys(object).forEach(attribute => {
-		let type = _find_attribute(allowed_attributes, attribute);
+		let type = _findAttribute(allowedAttributes, attribute);
 		if (
 			type !== true &&
 			(
 				type === false ||
-				!_type_matches(object[attribute], type)
+				!_typeMatches(object[attribute], type)
 			)
 		) {
 			delete object[attribute];

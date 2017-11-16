@@ -1,40 +1,40 @@
 'use strict';
 
-var Get_Many_Request = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const STREAM_TYPES = require('./stream_types');
 
 const BASIC_QUERY_PARAMETERS = [
-	'team_id',
-	'repo_id',
+	'teamId',
+	'repoId',
 	'type',
 	'ids'
 ];
 
-class Get_Streams_Request extends Get_Many_Request {
+class GetStreamsRequest extends GetManyRequest {
 
 	authorize (callback) {
-		if (!this.request.query.team_id) {
-			return callback(this.error_handler.error('parameter_required', { info: 'team_id' }));
+		if (!this.request.query.teamId) {
+			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
 		}
-		let team_id = decodeURIComponent(this.request.query.team_id).toLowerCase();
-		if (!this.user.has_team(team_id)) {
-			return callback(this.error_handler.error('read_auth'));
+		let teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
+		if (!this.user.hasTeam(teamId)) {
+			return callback(this.errorHandler.error('readAuth'));
 		}
 		return process.nextTick(callback);
 	}
 
-	build_query () {
-		let query = this.form_query_from_parameters();
-		return this.check_valid_query(query);
+	buildQuery () {
+		let query = this.formQueryFromParameters();
+		return this.checkValidQuery(query);
 	}
 
-	form_query_from_parameters () {
+	formQueryFromParameters () {
 		let query = {};
 		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
 				let value = decodeURIComponent(this.request.query[parameter]).toLowerCase();
-				parameter = decodeURIComponent(parameter).toLowerCase();
-				let error = this.process_query_parameter(parameter, value, query);
+				parameter = decodeURIComponent(parameter);
+				let error = this.processQueryParameter(parameter, value, query);
 				if (error) {
 					return error;
 				}
@@ -43,32 +43,32 @@ class Get_Streams_Request extends Get_Many_Request {
 		return query;
 	}
 
-	check_valid_query (query) {
-		if (!query.team_id) {
-			return ('team_id required');
+	checkValidQuery (query) {
+		if (!query.teamId) {
+			return ('teamId required');
 		}
 		if (query.type && STREAM_TYPES.indexOf(query.type) === -1) {
 			return `invalid stream type: ${query.type}`;
 		}
 		if (query.type && query.type === 'file') {
-			if (!query.repo_id) {
-				return 'queries for file streams require repo_id';
+			if (!query.repoId) {
+				return 'queries for file streams require repoId';
 			}
 		}
 		else if (query.type) {
-			delete query.repo_id;
+			delete query.repoId;
 		}
-		if (!query.repo_id) {
-			query.member_ids = this.user.id;
+		if (!query.repoId) {
+			query.memberIds = this.user.id;
 		}
 		return query;
 	}
 
-	process_query_parameter (parameter, value, query) {
+	processQueryParameter (parameter, value, query) {
 		if (BASIC_QUERY_PARAMETERS.indexOf(parameter) !== -1) {
 			if (parameter === 'ids') {
 				let ids = value.split(',');
-				ids = ids.map(id => this.data.streams.object_id_safe(id));
+				ids = ids.map(id => this.data.streams.objectIdSafe(id));
 				query._id = { $in: ids };
 			}
 			else {
@@ -78,4 +78,4 @@ class Get_Streams_Request extends Get_Many_Request {
 	}
 }
 
-module.exports = Get_Streams_Request;
+module.exports = GetStreamsRequest;

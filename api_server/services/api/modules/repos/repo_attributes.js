@@ -1,23 +1,23 @@
 'use strict';
 
 module.exports = {
-	company_id: {
+	companyId: {
 		type: 'id',
 		required: true
 	},
-	team_id: {
+	teamId: {
 		type: 'id',
 		required: true
 	},
 	url: {
 		type: 'url',
-		max_length: 1024,
+		maxLength: 1024,
 		required: true
 	},
-	first_commit_sha: {
+	firstCommitHash: {
 		type: 'string',
-		min_length: 40,
-		max_length: 40,
+		minLength: 40,
+		maxLength: 40,
 		required: true
 	}
 };

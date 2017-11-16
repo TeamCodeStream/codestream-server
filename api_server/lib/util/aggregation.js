@@ -1,12 +1,12 @@
 // from http://es6-features.org/#ClassInheritanceFromExpressions
 
-module.exports = (base_class, ...mixins) => {
-    let base = class __combined extends base_class {
+module.exports = (baseClass, ...mixins) => {
+    let base = class __combined extends baseClass {
         constructor (...args) {
             super(...args);
          }
     };
-    let copy_props = (target, source) => {
+    let copyProps = (target, source) => {
         Object.getOwnPropertyNames(source)
             .concat(Object.getOwnPropertySymbols(source))
             .forEach(prop => {
@@ -16,8 +16,8 @@ module.exports = (base_class, ...mixins) => {
             });
     };
     mixins.forEach(mixin => {
-        copy_props(base.prototype, mixin.prototype);
-        copy_props(base, mixin);
+        copyProps(base.prototype, mixin.prototype);
+        copyProps(base, mixin);
     });
     return base;
 };

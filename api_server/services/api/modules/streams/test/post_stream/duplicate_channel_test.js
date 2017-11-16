@@ -1,23 +1,23 @@
 'use strict';
 
-var Post_Channel_Stream_Test = require('./post_channel_stream_test');
+var PostChannelStreamTest = require('./post_channel_stream_test');
 
-class Duplicate_Channel_Test extends Post_Channel_Stream_Test {
+class DuplicateChannelTest extends PostChannelStreamTest {
 
 	constructor (options) {
 		super(options);
-		this.test_options.want_duplicate_stream = true;
+		this.testOptions.wantDuplicateStream = true;
 	}
 
 	get description () {
 		return 'should return an error when trying to create a channel stream with a name that is already taken';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1004',
 		};
@@ -26,10 +26,10 @@ class Duplicate_Channel_Test extends Post_Channel_Stream_Test {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.name = this.duplicate_stream.name;
+			this.data.name = this.duplicateStream.name;
 			callback();
 		});
 	}
 }
 
-module.exports = Duplicate_Channel_Test;
+module.exports = DuplicateChannelTest;

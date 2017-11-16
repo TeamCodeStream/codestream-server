@@ -1,16 +1,16 @@
 'use strict';
 
-var Post_Repo_Test = require('./post_repo_test');
+var PostRepoTest = require('./post_repo_test');
 
-class Already_On_Team_Test extends Post_Repo_Test {
+class AlreadyOnTeamTest extends PostRepoTest {
 
 	constructor (options) {
 		super(options);
-		this.test_options = {
-			want_other_user: true,
-			team_not_required: true,
-			want_other_repo: true,
-			want_random_emails: true
+		this.testOptions = {
+			wantOtherUser: true,
+			teamNotRequired: true,
+			wantOtherRepo: true,
+			wantRandomEmails: true
 		};
 	}
 
@@ -18,21 +18,21 @@ class Already_On_Team_Test extends Post_Repo_Test {
 		return 'should return the new repo when trying to add a repo to an existing team that the user is already on';
 	}
 
-	create_other_repo (callback) {
-		this.other_repo_options = {
-			with_emails: this.team_emails,
-			token: this.other_user_data.access_token
+	createOtherRepo (callback) {
+		this.otherRepoOptions = {
+			withEmails: this.teamEmails,
+			token: this.otherUserData.accessToken
 		};
-		if (!this.test_options.dont_include_current_user) {
-			this.other_repo_options.with_emails.push(this.current_user.email);
+		if (!this.testOptions.dontIncludeCurrentUser) {
+			this.otherRepoOptions.withEmails.push(this.currentUser.email);
 		}
-		super.create_other_repo(error => {
+		super.createOtherRepo(error => {
 			if (error) { return callback(error); }
-			this.repo_options.team_id = this.existing_repo.team_id;
-			this.team_emails = [];
+			this.repoOptions.teamId = this.existingRepo.teamId;
+			this.teamEmails = [];
 			callback();
 		});
 	}
 }
 
-module.exports = Already_On_Team_Test;
+module.exports = AlreadyOnTeamTest;

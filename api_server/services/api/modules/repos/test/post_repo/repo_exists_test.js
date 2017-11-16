@@ -1,37 +1,37 @@
 'use strict';
 
-var Already_Have_Repo_Test = require('./already_have_repo_test');
+var AlreadyHaveRepoTest = require('./already_have_repo_test');
 
-class Repo_Exists_Test extends Already_Have_Repo_Test {
+class RepoExistsTest extends AlreadyHaveRepoTest {
 
 	constructor (options) {
 		super(options);
-		this.test_options.want_other_user = true;
-		this.test_options.want_random_emails = true;
+		this.testOptions.wantOtherUser = true;
+		this.testOptions.wantRandomEmails = true;
 	}
 
 	get description () {
 		return 'should return the repo when trying to create a repo that already exists and the user is already on the team';
 	}
 
-	create_other_repo (callback) {
-		this.other_repo_options = {
-			with_emails: this.team_emails,
-			token: this.other_user_data.access_token
+	createOtherRepo (callback) {
+		this.otherRepoOptions = {
+			withEmails: this.teamEmails,
+			token: this.otherUserData.accessToken
 		};
-		if (!this.test_options.dont_include_current_user) {
-			this.other_repo_options.with_emails.push(this.current_user.email);
+		if (!this.testOptions.dontIncludeCurrentUser) {
+			this.otherRepoOptions.withEmails.push(this.currentUser.email);
 		}
-		super.create_other_repo(error => {
+		super.createOtherRepo(error => {
 			if (error) { return callback(error); }
 			this.data = {
-				url: this.existing_repo.url,
-				first_commit_sha: this.existing_repo.first_commit_sha
+				url: this.existingRepo.url,
+				firstCommitHash: this.existingRepo.firstCommitHash
 			};
-			this.team_emails = [];
+			this.teamEmails = [];
 			callback();
 		});
 	}
 }
 
-module.exports = Repo_Exists_Test;
+module.exports = RepoExistsTest;

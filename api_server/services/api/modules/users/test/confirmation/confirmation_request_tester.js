@@ -1,32 +1,32 @@
 'use strict';
 
-var Confirmation_Test = require('./confirmation_test');
-var No_Attribute_Test = require('./no_attribute_test');
-var Invalid_User_Id_Test = require('./invalid_user_id_test');
-var Email_Mismatch_Test = require('./email_mismatch_test');
-var Already_Registered_Test = require('./already_registered_test');
-var Incorrect_Code_Test = require('./incorrect_code_test');
-var Max_Attempts_Test = require('./max_attempts_test');
-var Expiration_Test = require('./expiration_test');
-var Confirmation_Message_To_Team_Test = require('./confirmation_message_to_team_test');
-var Confirmation_Message_To_Other_User_Test = require('./confirmation_message_to_other_user_test');
+var ConfirmationTest = require('./confirmation_test');
+var NoAttributeTest = require('./no_attribute_test');
+var InvalidUserIdTest = require('./invalid_user_id_test');
+var EmailMismatchTest = require('./email_mismatch_test');
+var AlreadyRegisteredTest = require('./already_registered_test');
+var IncorrectCodeTest = require('./incorrect_code_test');
+var MaxAttemptsTest = require('./max_attempts_test');
+var ExpirationTest = require('./expiration_test');
+var ConfirmationMessageToTeamTest = require('./confirmation_message_to_team_test');
+var ConfirmationMessageToOtherUserTest = require('./confirmation_message_to_other_user_test');
 
-class Confirmation_Request_Tester {
+class ConfirmationRequestTester {
 
-	confirmation_test () {
-		new Confirmation_Test().test();
-		new No_Attribute_Test({ attribute: 'user_id' }).test();
-		new No_Attribute_Test({ attribute: 'email' }).test();
-		new No_Attribute_Test({ attribute: 'confirmation_code' }).test();
-		new Invalid_User_Id_Test().test();
-		new Email_Mismatch_Test().test();
-		new Already_Registered_Test().test();
-		new Incorrect_Code_Test().test();
-		new Max_Attempts_Test().test();
-		new Expiration_Test().test();
-		new Confirmation_Message_To_Team_Test().test();
-		new Confirmation_Message_To_Other_User_Test().test();
+	confirmationTest () {
+		new ConfirmationTest().test();
+		new NoAttributeTest({ attribute: 'userId' }).test();
+		new NoAttributeTest({ attribute: 'email' }).test();
+		new NoAttributeTest({ attribute: 'confirmationCode' }).test();
+		new InvalidUserIdTest().test();
+		new EmailMismatchTest().test();
+		new AlreadyRegisteredTest().test();
+		new IncorrectCodeTest().test();
+		new MaxAttemptsTest().test();
+		new ExpirationTest().test();
+		new ConfirmationMessageToTeamTest().test();
+		new ConfirmationMessageToOtherUserTest().test();
 	}
 }
 
-module.exports = Confirmation_Request_Tester;
+module.exports = ConfirmationRequestTester;

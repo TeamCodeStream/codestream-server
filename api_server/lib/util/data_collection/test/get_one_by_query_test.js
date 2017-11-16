@@ -1,39 +1,39 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Data_Collection_Test = require('./data_collection_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DataCollectionTest = require('./data_collection_test');
 
-class Get_One_By_Query_Test extends Data_Collection_Test {
+class GetOneByQueryTest extends DataCollectionTest {
 
 	get description () {
 		return 'should get the correct model when getting one model by query';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_random_models,
+			this.createRandomModels,
 			this.persist,
-			this.clear_cache
+			this.clearCache
 		], callback);
 	}
 
 	run (callback) {
-		this.test_model = this.models[4];
-		this.data.test.get_one_by_query(
+		this.testModel = this.models[4];
+		this.data.test.getOneByQuery(
 			{
-				text: this.test_model.get('text'),
-				flag: this.test_model.get('flag')
+				text: this.testModel.get('text'),
+				flag: this.testModel.get('flag')
 			},
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
-		this.validate_model_response();
+	validateResponse () {
+		this.validateModelResponse();
 	}
 }
 
-module.exports = Get_One_By_Query_Test;
+module.exports = GetOneByQueryTest;

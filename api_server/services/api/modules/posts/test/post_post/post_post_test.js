@@ -1,15 +1,15 @@
 'use strict';
 
 var Assert = require('assert');
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-const Post_Test_Constants = require('../post_test_constants');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const PostTestConstants = require('../post_test_constants');
 
-class Post_Post_Test extends CodeStream_API_Test {
+class PostPostTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.test_options = {};
+		this.testOptions = {};
 	}
 
 	get description () {
@@ -24,34 +24,34 @@ class Post_Post_Test extends CodeStream_API_Test {
 		return '/posts';
 	}
 
-	get_expected_fields () {
-		return { post: Post_Test_Constants.EXPECTED_POST_FIELDS };
+	getExpectedFields () {
+		return { post: PostTestConstants.EXPECTED_POST_FIELDS };
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_random_repo,
-			this.make_stream_options,
-			this.create_random_stream,
-			this.make_post_options,
-			this.create_other_post,
-			this.make_post_data
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRandomRepo,
+			this.makeStreamOptions,
+			this.createRandomStream,
+			this.makePostOptions,
+			this.createOtherPost,
+			this.makePostData
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_random_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRandomRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -60,80 +60,80 @@ class Post_Post_Test extends CodeStream_API_Test {
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email],
-				with_random_emails: 2,
-				token: this.other_user_data.access_token
+				withEmails: [this.currentUser.email],
+				withRandomEmails: 2,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	make_stream_options (callback) {
-		this.stream_options = {
-			type: this.stream_type || 'direct',
-			team_id: this.team._id,
+	makeStreamOptions (callback) {
+		this.streamOptions = {
+			type: this.streamType || 'direct',
+			teamId: this.team._id,
 			token: this.token
 		};
 		callback();
 	}
 
-	create_random_stream (callback) {
-		this.stream_factory.create_random_stream(
+	createRandomStream (callback) {
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-			this.stream_options
+			this.streamOptions
 		);
 	}
 
-	make_post_options (callback) {
-		this.post_options = {
-			stream_id: this.stream._id
+	makePostOptions (callback) {
+		this.postOptions = {
+			streamId: this.stream._id
 		};
 		callback();
 	}
 
-	create_other_post (callback) {
-		if (!this.test_options.want_other_post) {
+	createOtherPost (callback) {
+		if (!this.testOptions.wantOtherPost) {
 			return callback();
 		}
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_post_data = response;
+				this.otherPostData = response;
 				callback();
 			},
-			Object.assign({}, this.post_options, { token: this.other_user_data.access_token })
+			Object.assign({}, this.postOptions, { token: this.otherUserData.accessToken })
 		);
 	}
 
-	make_post_data (callback) {
-		this.post_factory.get_random_post_data(
+	makePostData (callback) {
+		this.postFactory.getRandomPostData(
 			(error, data) => {
 				if (error) { return callback(error); }
 				this.data = data;
 				callback();
 			},
-			this.post_options
+			this.postOptions
 		);
 	}
 
-	validate_response (data) {
+	validateResponse (data) {
 		let post = data.post;
 		let errors = [];
 		let result = (
 			((post.text === this.data.text) || errors.push('text does not match')) &&
-			((post.team_id === this.team._id) || errors.push('team_id does not match the team')) &&
-			((post.stream_id === this.data.stream_id) || errors.push('stream_id does not match')) &&
+			((post.teamId === this.team._id) || errors.push('teamId does not match the team')) &&
+			((post.streamId === this.data.streamId) || errors.push('streamId does not match')) &&
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
-			((typeof post.created_at === 'number') || errors.push('created_at not number')) &&
-			((post.modified_at >= post.created_at) || errors.push('modified_at not greater than or equal to created_at')) &&
-			((post.creator_id === this.current_user._id) || errors.push('creator_id not equal to current user id'))
+			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
+			((post.modifiedAt >= post.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
+			((post.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-		this.validate_sanitized(post, Post_Test_Constants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = Post_Post_Test;
+module.exports = PostPostTest;

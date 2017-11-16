@@ -1,27 +1,27 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Get_By_Id_Test = require('./get_by_id_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var GetByIdTest = require('./get_by_id_test');
 
-class Apply_Ops_By_Id_Test extends Get_By_Id_Test {
+class ApplyOpsByIdTest extends GetByIdTest {
 
 	get description () {
 		return 'should get the correctly updated document after applying several operations to a document';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.update_document
+			this.updateDocument
 		], callback);
 	}
 
-	update_document (callback) {
+	updateDocument (callback) {
 		const ops = [
 			{
 				set: {
 					text: 'replaced!',
-					new_text: 'new text'
+					newText: 'new text'
 				},
 				unset: {
 					flag: true
@@ -34,7 +34,7 @@ class Apply_Ops_By_Id_Test extends Get_By_Id_Test {
 			},
 			{
 				push: {
-					new_array: 1
+					newArray: 1
 				},
 				pull: {
 					array: 1
@@ -42,30 +42,30 @@ class Apply_Ops_By_Id_Test extends Get_By_Id_Test {
 			},
 			{
 				add: {
-					new_array: 2
+					newArray: 2
 				},
 				set: {
-					new_text: 'new text replaced!'
+					newText: 'new text replaced!'
 				}
 			}
 		];
-		this.data.test.apply_ops_by_id(
-			this.test_document._id,
+		this.data.test.applyOpsById(
+			this.testDocument._id,
 			ops,
 			(error) => {
 				if (error) { return callback(error); }
-				Object.assign(this.test_document, {
+				Object.assign(this.testDocument, {
 					text: 'replaced!',
-					new_text: 'new text replaced!',
-					new_array: [1, 2]
+					newText: 'new text replaced!',
+					newArray: [1, 2]
 				});
-				delete this.test_document.flag;
-				this.test_document.array.push(9);
-				this.test_document.array.splice(0, 1);
+				delete this.testDocument.flag;
+				this.testDocument.array.push(9);
+				this.testDocument.array.splice(0, 1);
 				callback();
 			}
 		);
 	}
 }
 
-module.exports = Apply_Ops_By_Id_Test;
+module.exports = ApplyOpsByIdTest;

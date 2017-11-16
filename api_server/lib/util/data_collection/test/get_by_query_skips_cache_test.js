@@ -1,30 +1,30 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Data_Collection_Test = require('./data_collection_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DataCollectionTest = require('./data_collection_test');
 
-class Get_By_Query_Skips_Cache_Test extends Data_Collection_Test {
+class GetByQuerySkipsCacheTest extends DataCollectionTest {
 
 	get description () {
 		return 'should get no models when fetching several models by query, when those models have not yet been persisted';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_random_models,
-			this.filter_test_models,
-			this.confirm_in_cache
+			this.createRandomModels,
+			this.filterTestModels,
+			this.confirmInCache
 		], callback);
 	}
 
-	confirm_in_cache (callback) {
-		let ids = this.test_models.map(model => { return model.id; });
-		this.data.test.get_by_ids(
+	confirmInCache (callback) {
+		let ids = this.testModels.map(model => { return model.id; });
+		this.data.test.getByIds(
 			ids,
 			(error, response) => {
 				if (error) { return callback(error); }
-				if (!(response instanceof Array || response.length !== this.test_models.length)) {
+				if (!(response instanceof Array || response.length !== this.testModels.length)) {
 					return callback('models that should be cached were not fetched');
 				}
 				callback();
@@ -33,18 +33,18 @@ class Get_By_Query_Skips_Cache_Test extends Data_Collection_Test {
 	}
 
 	run (callback) {
-		this.test_models = [];
-		this.data.test.get_by_query(
+		this.testModels = [];
+		this.data.test.getByQuery(
 			{ flag: this.randomizer + 'yes' },
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
-		this.validate_array_response();
+	validateResponse () {
+		this.validateArrayResponse();
 	}
 }
 
-module.exports = Get_By_Query_Skips_Cache_Test;
+module.exports = GetByQuerySkipsCacheTest;

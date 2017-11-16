@@ -1,104 +1,104 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-const Post_Test_Constants = require('../post_test_constants');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const PostTestConstants = require('../post_test_constants');
 
-class Get_Post_Test extends CodeStream_API_Test {
+class GetPostTest extends CodeStreamAPITest {
 
 	get description () {
 		let who = this.mine ? 'me' : 'another user';
 		return `should return a valid post when requesting a post created by ${who} in a ${this.type} stream`;
 	}
 
-	get_expected_fields () {
-		let response = { post: Post_Test_Constants.EXPECTED_POST_FIELDS };
+	getExpectedFields () {
+		let response = { post: PostTestConstants.EXPECTED_POST_FIELDS };
 		if (this.type === 'file') {
-			response.post = [...response.post, ...Post_Test_Constants.EXPECTED_FILE_POST_FIELDS];
+			response.post = [...response.post, ...PostTestConstants.EXPECTED_FILE_POST_FIELDS];
 		}
 		return response;
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_random_repo,
-			this.create_stream,
-			this.create_post,
-			this.set_path
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRandomRepo,
+			this.createStream,
+			this.createPost,
+			this.setPath
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_random_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRandomRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
 				callback();
 			},
 			{
-				with_random_emails: 2,
-				with_emails: this.without_me ? null : [this.current_user.email],
-				token: this.other_user_data.access_token
+				withRandomEmails: 2,
+				withEmails: this.withoutMe ? null : [this.currentUser.email],
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	create_stream (callback) {
-		let stream_options = {
+	createStream (callback) {
+		let streamOptions = {
 			type: this.type,
-			token: this.mine ? this.token : this.other_user_data.access_token,
-			team_id: this.repo.team_id,
-			repo_id: this.type === 'file' ? this.repo._id : null,
+			token: this.mine ? this.token : this.otherUserData.accessToken,
+			teamId: this.repo.teamId,
+			repoId: this.type === 'file' ? this.repo._id : null,
 		};
-		if (this.type !== 'file' && !this.mine && !this.without_me) {
-			stream_options.member_ids = [this.current_user._id];
+		if (this.type !== 'file' && !this.mine && !this.withoutMe) {
+			streamOptions.memberIds = [this.currentUser._id];
 		}
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	create_post (callback) {
-		this.post_factory.create_random_post(
+	createPost (callback) {
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.post = response.post;
 				callback();
 			},
 			{
-				token: this.mine ? this.token : this.other_user_data.access_token,
-				stream_id: this.stream._id,
-				repo_id: this.type === 'file' ? this.repo._id : null,
-				want_location: this.type === 'file'
+				token: this.mine ? this.token : this.otherUserData.accessToken,
+				streamId: this.stream._id,
+				repoId: this.type === 'file' ? this.repo._id : null,
+				wantLocation: this.type === 'file'
 			}
 		);
 	}
 
-	set_path (callback) {
+	setPath (callback) {
 		this.path = '/posts/' + this.post._id;
 		callback();
 	}
 
-	validate_response (data) {
-		this.validate_matching_object(this.post._id, data.post, 'post');
-		this.validate_sanitized(data.post, Post_Test_Constants.UNSANITIZED_ATTRIBUTES);
+	validateResponse (data) {
+		this.validateMatchingObject(this.post._id, data.post, 'post');
+		this.validateSanitized(data.post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = Get_Post_Test;
+module.exports = GetPostTest;

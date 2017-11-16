@@ -1,134 +1,134 @@
 'use strict';
 
-var CodeStream_Model = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
-var User_Validator = require('./user_validator');
-var Array_Utilities = require(process.env.CS_API_TOP + '/lib/util/array_utilities.js');
+var CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
+var UserValidator = require('./user_validator');
+var ArrayUtilities = require(process.env.CS_API_TOP + '/lib/util/array_utilities.js');
 
-class User extends CodeStream_Model {
+class User extends CodeStreamModel {
 
-	get_validator () {
-		return new User_Validator();
+	getValidator () {
+		return new UserValidator();
 	}
 
-	pre_save (callback, options) {
-		this.attributes.searchable_email = this.attributes.email.toLowerCase();
+	preSave (callback, options) {
+		this.attributes.searchableEmail = this.attributes.email.toLowerCase();
 		if (this.attributes.username) {
-			this.attributes.searchable_username = this.attributes.username.toLowerCase();
+			this.attributes.searchableUsername = this.attributes.username.toLowerCase();
 		}
-		super.pre_save(callback, options);
+		super.preSave(callback, options);
 	}
 
-	has_companies (ids) {
-		return Array_Utilities.has_all_elements(
-			this.get('company_ids') || [],
+	hasCompanies (ids) {
+		return ArrayUtilities.hasAllElements(
+			this.get('companyIds') || [],
 			ids
 		);
 	}
 
-	has_company (id) {
-		return (this.get('company_ids') || []).indexOf(id) !== -1;
+	hasCompany (id) {
+		return (this.get('companyIds') || []).indexOf(id) !== -1;
 	}
 
-	has_teams (ids) {
-		return Array_Utilities.has_all_elements(
-			this.get('team_ids') || [],
+	hasTeams (ids) {
+		return ArrayUtilities.hasAllElements(
+			this.get('teamIds') || [],
 			ids
 		);
 	}
 
-	has_team (id) {
-		return (this.get('team_ids') || []).indexOf(id) !== -1;
+	hasTeam (id) {
+		return (this.get('teamIds') || []).indexOf(id) !== -1;
 	}
 
-	authorize_model (model_name, id, request, callback) {
-		switch (model_name) {
+	authorizeModel (modelName, id, request, callback) {
+		switch (modelName) {
 			case 'company':
-				return this.authorize_company(id, request, callback);
+				return this.authorizeCompany(id, request, callback);
 			case 'team':
-				return this.authorize_team(id, request, callback);
+				return this.authorizeTeam(id, request, callback);
 			case 'repo':
-				return this.authorize_repo(id, request, callback);
+				return this.authorizeRepo(id, request, callback);
 			case 'stream':
-				return this.authorize_stream(id, request, callback);
+				return this.authorizeStream(id, request, callback);
 			case 'post':
-				return this.authorize_post(id, request, callback);
+				return this.authorizePost(id, request, callback);
 			case 'user':
-				return this.authorize_user(id, request, callback);
+				return this.authorizeUser(id, request, callback);
 			default:
 				return callback(null, false);
 		}
 	}
 
-	authorize_company (id, request, callback) {
-		return callback(null, this.has_company(id));
+	authorizeCompany (id, request, callback) {
+		return callback(null, this.hasCompany(id));
 	}
 
-	authorize_team (id, request, callback) {
-		return callback(null, this.has_team(id));
+	authorizeTeam (id, request, callback) {
+		return callback(null, this.hasTeam(id));
 	}
 
-	authorize_repo (id, request, callback) {
-		request.data.repos.get_by_id(
+	authorizeRepo (id, request, callback) {
+		request.data.repos.getById(
 			id,
 			(error, repo) => {
 				if (error) { return callback(error); }
 				if (!repo) {
-					return callback(request.error_handler.error('not_found', { info: 'repo' }));
+					return callback(request.errorHandler.error('notFound', { info: 'repo' }));
 				}
-				this.authorize_team(repo.get('team_id'), request, callback);
+				this.authorizeTeam(repo.get('teamId'), request, callback);
 			}
 		);
 	}
 
-	authorize_stream (id, request, callback) {
-		request.data.streams.get_by_id(
+	authorizeStream (id, request, callback) {
+		request.data.streams.getById(
 			id,
 			(error, stream) => {
 				if (error) { return callback(error); }
 				if (!stream) {
-					return callback(request.error_handler.error('not_found', { info: 'stream' }));
+					return callback(request.errorHandler.error('notFound', { info: 'stream' }));
 				}
 				if (
 					stream.get('type') !== 'file' &&
-					stream.get('member_ids').indexOf(this.id) === -1
+					stream.get('memberIds').indexOf(this.id) === -1
 				) {
 					return callback(null, false);
 				}
-				this.authorize_team(stream.get('team_id'), request, callback);
+				this.authorizeTeam(stream.get('teamId'), request, callback);
 			}
 		);
 	}
 
-	authorize_post (id, request, callback) {
-		request.data.posts.get_by_id(
+	authorizePost (id, request, callback) {
+		request.data.posts.getById(
 			id,
 			(error, post) => {
 				if (error) { return callback(error); }
 				if (!post) {
-					return callback(request.error_handler.error('not_found', { info: 'post' }));
+					return callback(request.errorHandler.error('notFound', { info: 'post' }));
 				}
-				this.authorize_stream(post.get('stream_id'), request, callback);
+				this.authorizeStream(post.get('streamId'), request, callback);
 			}
 		);
 	}
 
-	authorize_user (id, request, callback) {
+	authorizeUser (id, request, callback) {
 		if (
 			id === request.user.id ||
 			id.toLowerCase() === 'me'
 		) {
 			return callback(null, true);
 		}
-		request.data.users.get_by_id(
+		request.data.users.getById(
 			id,
-			(error, other_user) => {
+			(error, otherUser) => {
 				if (error) { return callback(error); }
-				if (!other_user) {
-					return callback(request.error_handler.error('not_found', { info: 'user' }));
+				if (!otherUser) {
+					return callback(request.errorHandler.error('notFound', { info: 'user' }));
 				}
-				let authorized = Array_Utilities.has_common_element(
-					request.user.get('team_ids') || [],
-					other_user.get('team_ids') || []
+				let authorized = ArrayUtilities.hasCommonElement(
+					request.user.get('teamIds') || [],
+					otherUser.get('teamIds') || []
 				);
 				return callback(null, authorized);
 			}

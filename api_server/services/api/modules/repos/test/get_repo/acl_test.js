@@ -1,28 +1,28 @@
 'use strict';
 
-var Get_Repo_Test = require('./get_repo_test');
+var GetRepoTest = require('./get_repo_test');
 
-class ACL_Test extends Get_Repo_Test {
+class ACLTest extends GetRepoTest {
 
 	constructor (options) {
 		super(options);
-		this.without_me = true;
+		this.withoutMe = true;
 	}
 
 	get description () {
 		return 'should return an error when trying to fetch a repo for a team that i\'m not a member of';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1009'
 		};
 	}
 
-	set_path (callback) {
-		this.path = '/repos/' + this.other_repo._id;
+	setPath (callback) {
+		this.path = '/repos/' + this.otherRepo._id;
 		callback();
 	}
 }
 
-module.exports = ACL_Test;
+module.exports = ACLTest;

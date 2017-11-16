@@ -4,7 +4,7 @@ module.exports = {
 	_id: {
 		type: 'id'
 	},
-	created_at: {
+	createdAt: {
 		type: 'timestamp',
 		required: true
 	},
@@ -12,11 +12,11 @@ module.exports = {
 		type: 'boolean',
 		required: true
 	},
-	modified_at: {
+	modifiedAt: {
 		type: 'timestamp',
 		required: true
 	},
-	creator_id: {
+	creatorId: {
 		type: 'id'
 	}
 };

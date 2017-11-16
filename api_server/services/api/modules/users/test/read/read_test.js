@@ -1,15 +1,15 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
-const User_Test_Constants = require('../user_test_constants');
-const User_Attributes = require('../../user_attributes');
+const UserTestConstants = require('../user_test_constants');
+const UserAttributes = require('../../user_attributes');
 
-class Read_Test extends CodeStream_API_Test {
+class ReadTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'should clear last_reads for the specified stream ID for the current user ';
+		return 'should clear lastReads for the specified stream ID for the current user ';
 	}
 
 	get method () {
@@ -20,36 +20,36 @@ class Read_Test extends CodeStream_API_Test {
 		return '/users/me';
 	}
 
-	get_expected_fields () {
-		let user_response = {};
-		user_response.user = [...User_Test_Constants.EXPECTED_USER_FIELDS, ...User_Test_Constants.EXPECTED_ME_FIELDS];
-		return user_response;
+	getExpectedFields () {
+		let userResponse = {};
+		userResponse.user = [...UserTestConstants.EXPECTED_USER_FIELDS, ...UserTestConstants.EXPECTED_ME_FIELDS];
+		return userResponse;
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo,
-			this.create_stream,
-			this.create_other_stream,
-			this.create_post,
-			this.create_other_post,
-			this.mark_read
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepo,
+			this.createStream,
+			this.createOtherStream,
+			this.createPost,
+			this.createOtherPost,
+			this.markRead
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -57,78 +57,78 @@ class Read_Test extends CodeStream_API_Test {
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email],
-				token: this.other_user_data.access_token
+				withEmails: [this.currentUser.email],
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	create_stream (callback) {
-		let stream_options = {
+	createStream (callback) {
+		let streamOptions = {
 			type: 'file',
-			team_id: this.team._id,
-			repo_id: this.repo._id,
-			token: this.other_user_data.access_token
+			teamId: this.team._id,
+			repoId: this.repo._id,
+			token: this.otherUserData.accessToken
 		};
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	create_other_stream (callback) {
-		let stream_options = {
+	createOtherStream (callback) {
+		let streamOptions = {
 			type: 'file',
-			team_id: this.team._id,
-			repo_id: this.repo._id,
-			token: this.other_user_data.access_token
+			teamId: this.team._id,
+			repoId: this.repo._id,
+			token: this.otherUserData.accessToken
 		};
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_stream = response.stream;
+				this.otherStream = response.stream;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	create_post (callback) {
-		let post_options = {
-			stream_id: this.stream._id,
-			token: this.other_user_data.access_token
+	createPost (callback) {
+		let postOptions = {
+			streamId: this.stream._id,
+			token: this.otherUserData.accessToken
 		};
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.post = response.post;
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 
-	create_other_post (callback) {
-		let post_options = {
-			stream_id: this.other_stream._id,
-			token: this.other_user_data.access_token
+	createOtherPost (callback) {
+		let postOptions = {
+			streamId: this.otherStream._id,
+			token: this.otherUserData.accessToken
 		};
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_post = response.post;
+				this.otherPost = response.post;
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 
-	mark_read (callback) {
-		this.do_api_request(
+	markRead (callback) {
+		this.doApiRequest(
 			{
 				method: 'put',
 				path: '/read/' + this.stream._id,
@@ -138,25 +138,25 @@ class Read_Test extends CodeStream_API_Test {
 		);
 	}
 
-	validate_response (data) {
-		let expected_last_reads = {
-			[this.other_stream._id]: '0'
+	validateResponse (data) {
+		let expectedLastReads = {
+			[this.otherStream._id]: '0'
 		};
-		Assert.deepEqual(expected_last_reads, data.user.last_reads, 'last_reads doesn\'t match');
-		this.validate_sanitized(data.user);
+		Assert.deepEqual(expectedLastReads, data.user.lastReads, 'lastReads doesn\'t match');
+		this.validateSanitized(data.user);
 	}
 
-	validate_sanitized (user, fields) {
-		fields = fields || User_Test_Constants.UNSANITIZED_ATTRIBUTES;
-		let me_attributes = Object.keys(User_Attributes).filter(attribute => User_Attributes[attribute].for_me);
-		me_attributes.forEach(attribute => {
+	validateSanitized (user, fields) {
+		fields = fields || UserTestConstants.UNSANITIZED_ATTRIBUTES;
+		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
+		meAttributes.forEach(attribute => {
 			let index = fields.indexOf(attribute);
 			if (index !== -1) {
 				fields.splice(index, 1);
 			}
 		});
-		super.validate_sanitized(user, fields);
+		super.validateSanitized(user, fields);
 	}
 }
 
-module.exports = Read_Test;
+module.exports = ReadTest;

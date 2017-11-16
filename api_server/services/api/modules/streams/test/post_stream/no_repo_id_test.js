@@ -1,18 +1,18 @@
 'use strict';
 
-var Post_File_Stream_Test = require('./post_file_stream_test');
+var PostFileStreamTest = require('./post_file_stream_test');
 
-class No_Repo_Id_Test extends Post_File_Stream_Test {
+class NoRepoIdTest extends PostFileStreamTest {
 
 	get description () {
-		return 'should return an error when attempting to create a file stream with no repo_id';
+		return 'should return an error when attempting to create a file stream with no repoId';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
 			info: [{
@@ -24,10 +24,10 @@ class No_Repo_Id_Test extends Post_File_Stream_Test {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			delete this.data.repo_id;
+			delete this.data.repoId;
 			callback();
 		});
 	}
 }
 
-module.exports = No_Repo_Id_Test;
+module.exports = NoRepoIdTest;

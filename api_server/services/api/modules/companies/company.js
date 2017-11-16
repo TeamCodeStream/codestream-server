@@ -1,13 +1,13 @@
 'use strict';
 
-var CodeStream_Model = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
-var CodeStream_Model_Validator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
-const Company_Attributes = require('./company_attributes');
+var CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
+var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
+const CompanyAttributes = require('./company_attributes');
 
-class Company extends CodeStream_Model {
+class Company extends CodeStreamModel {
 
-	get_validator () {
-		return new CodeStream_Model_Validator(Company_Attributes);
+	getValidator () {
+		return new CodeStreamModelValidator(CompanyAttributes);
 	}
 }
 

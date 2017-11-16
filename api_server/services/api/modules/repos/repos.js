@@ -1,45 +1,45 @@
 'use strict';
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var Repo_Creator = require('./repo_creator');
-//var Repo_Updater = require('./repo_updater');
+var RepoCreator = require('./repo_creator');
+//var RepoUpdater = require('./repo_updater');
 var Repo = require('./repo');
 
 const REPO_STANDARD_ROUTES = {
-	want: ['get', 'get_many', 'post'],
-	base_route_name: 'repos',
-	request_classes: {
-		'get_many': require('./get_repos_request'),
+	want: ['get', 'getMany', 'post'],
+	baseRouteName: 'repos',
+	requestClasses: {
+		'getMany': require('./get_repos_request'),
 		'post': require('./post_repo_request')
 	}
 };
 
 class Repos extends Restful {
 
-	get collection_name () {
+	get collectionName () {
 		return 'repos';
 	}
 
-	get model_name () {
+	get modelName () {
 		return 'repo';
 	}
 
-	get creator_class () {
-		return Repo_Creator;
+	get creatorClass () {
+		return RepoCreator;
 	}
 
-	get model_class () {
+	get modelClass () {
 		return Repo;
 	}
 
 /*
-	get updater_class () {
-		return Repo_Updater;
+	get updaterClass () {
+		return RepoUpdater;
 	}
 */
 
-	get_routes () {
-		return super.get_routes(REPO_STANDARD_ROUTES);
+	getRoutes () {
+		return super.getRoutes(REPO_STANDARD_ROUTES);
 	}
 }
 

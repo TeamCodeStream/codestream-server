@@ -1,35 +1,35 @@
 'use strict';
 
 module.exports = {
-	team_id: {
+	teamId: {
 		type: 'id',
 		required: true
 	},
-	repo_id: {
+	repoId: {
 		type: 'id'
 	},
-	stream_id: {
+	streamId: {
 		type: 'id',
 		required: true
 	},
-	commit_sha_when_posted: {
+	commitShaWhenPosted: {
 		type: 'string',
-		min_length: 40,
-		max_length: 40
+		minLength: 40,
+		maxLength: 40
 	},
 	location: {
 		type: 'object',
-		max_length: 200
+		maxLength: 200
 	},
-	replay_info: {
+	replayInfo: {
 		type: 'object',
-		max_length: 50000
+		maxLength: 50000
 	},
-	parent_post_id: {
+	parentPostId: {
 		type: 'id'
 	},
 	text: {
 		type: 'string',
-		max_length: 10000
+		maxLength: 10000
 	}
 };

@@ -1,14 +1,14 @@
 'use strict';
 
-var Authentication_Test = require('./authentication_test');
+var AuthenticationTest = require('./authentication_test');
 
-class Authentication_Missing_Authorization_Test extends Authentication_Test {
+class AuthenticationMissingAuthorizationTest extends AuthenticationTest {
 
 	get description () {
 		return 'should prevent access to resources when no access token is supplied';
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'AUTH-1001'
 		};
@@ -20,4 +20,4 @@ class Authentication_Missing_Authorization_Test extends Authentication_Test {
 	}
 }
 
-module.exports = Authentication_Missing_Authorization_Test;
+module.exports = AuthenticationMissingAuthorizationTest;

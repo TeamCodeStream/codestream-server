@@ -1,24 +1,24 @@
 'use strict';
 
 var Assert = require('assert');
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class No_Last_Reads_Update_Test extends CodeStream_API_Test {
+class NoLastReadsUpdateTest extends CodeStreamAPITest {
 
 	get description () {
 		return 'last read attribute should not be updated for members of the stream who already have a last read attribute for the stream';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_team_creator,
-			this.create_other_user,
-			this.create_repo,
-			this.create_stream,
-			this.create_first_posts,
-			this.mark_read,
-			this.create_last_posts
+		BoundAsync.series(this, [
+			this.createTeamCreator,
+			this.createOtherUser,
+			this.createRepo,
+			this.createStream,
+			this.createFirstPosts,
+			this.markRead,
+			this.createLastPosts
 		], callback);
 	}
 
@@ -30,32 +30,32 @@ class No_Last_Reads_Update_Test extends CodeStream_API_Test {
 		return '/users/me';
 	}
 
-	get_expected_fields () {
-		return { user: ['last_reads'] };
+	getExpectedFields () {
+		return { user: ['lastReads'] };
 	}
 
-	create_team_creator (callback) {
-		this.user_factory.create_random_user(
+	createTeamCreator (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.team_creator_data = response;
+				this.teamCreatorData = response;
 				callback();
 			}
 		);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -63,78 +63,78 @@ class No_Last_Reads_Update_Test extends CodeStream_API_Test {
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email, this.other_user_data.user.email],
-				token: this.team_creator_data.access_token
+				withEmails: [this.currentUser.email, this.otherUserData.user.email],
+				token: this.teamCreatorData.accessToken
 			}
 		);
 	}
 
-	create_stream (callback) {
-		let stream_options = {
+	createStream (callback) {
+		let streamOptions = {
 			type: 'file',
-			team_id: this.team._id,
-			repo_id: this.repo._id,
-			token: this.team_creator_data.access_token
+			teamId: this.team._id,
+			repoId: this.repo._id,
+			token: this.teamCreatorData.accessToken
 		};
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	create_first_posts (callback) {
-		this.first_posts = [];
-		this.current_posts = this.first_posts;
-		Bound_Async.timesSeries(
+	createFirstPosts (callback) {
+		this.firstPosts = [];
+		this.currentPosts = this.firstPosts;
+		BoundAsync.timesSeries(
 			this,
 			2,
-			this.create_post,
+			this.createPost,
 			callback
 		);
 	}
 
-	create_post (n, callback) {
-		let post_options = {
-			stream_id: this.stream._id,
-			token: this.other_user_data.access_token
+	createPost (n, callback) {
+		let postOptions = {
+			streamId: this.stream._id,
+			token: this.otherUserData.accessToken
 		};
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.current_posts.push(response.post);
+				this.currentPosts.push(response.post);
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 
-	mark_read (callback) {
-		this.do_api_request({
+	markRead (callback) {
+		this.doApiRequest({
 			method: 'put',
 			path: '/read/' + this.stream._id,
 			token: this.token
 		}, callback);
 	}
 
-	create_last_posts (callback) {
-		this.last_posts = [];
-		this.current_posts = this.last_posts;
-		Bound_Async.timesSeries(
+	createLastPosts (callback) {
+		this.lastPosts = [];
+		this.currentPosts = this.lastPosts;
+		BoundAsync.timesSeries(
 			this,
 			2,
-			this.create_post,
+			this.createPost,
 			callback
 		);
 	}
 
-	validate_response (data) {
-		let last_read_post = this.first_posts[this.first_posts.length - 1];
-		Assert(data.user.last_reads[this.stream._id] === last_read_post._id, 'last_reads for stream is not equal to the ID of the last post read');
+	validateResponse (data) {
+		let lastReadPost = this.firstPosts[this.firstPosts.length - 1];
+		Assert(data.user.lastReads[this.stream._id] === lastReadPost._id, 'lastReads for stream is not equal to the ID of the last post read');
 	}
 }
 
-module.exports = No_Last_Reads_Update_Test;
+module.exports = NoLastReadsUpdateTest;

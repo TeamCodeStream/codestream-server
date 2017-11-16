@@ -1,33 +1,33 @@
 'use strict';
 
-var Post_Request = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
-var Post_Publisher = require('./post_publisher');
-var Post_Authorizer = require('./post_authorizer');
+var PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
+var PostPublisher = require('./post_publisher');
+var PostAuthorizer = require('./post_authorizer');
 
-class Post_Post_Request extends Post_Request {
+class PostPostRequest extends PostRequest {
 
 	authorize (callback) {
-		new Post_Authorizer({
+		new PostAuthorizer({
 			user: this.user,
 			post: this.request.body,
 			request: this,
-			error_handler: this.error_handler
-		}).authorize_post(callback);
+			errorHandler: this.errorHandler
+		}).authorizePost(callback);
 	}
 
-	post_process (callback) {
-		this.publish_post(callback);
+	postProcess (callback) {
+		this.publishPost(callback);
 	}
 
-	publish_post (callback) {
-		new Post_Publisher({
-			data: this.response_data,
-			request_id: this.request.id,
+	publishPost (callback) {
+		new PostPublisher({
+			data: this.responseData,
+			requestId: this.request.id,
 			messager: this.api.services.messager,
 			stream: this.creator.stream.attributes,
 			logger: this
-		}).publish_post(callback);
+		}).publishPost(callback);
 	}
 }
 
-module.exports = Post_Post_Request;
+module.exports = PostPostRequest;

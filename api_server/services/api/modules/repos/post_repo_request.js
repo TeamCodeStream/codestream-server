@@ -1,30 +1,30 @@
 'use strict';
 
-var Post_Request = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
-var Repo_Publisher = require('./repo_publisher');
+var PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
+var RepoPublisher = require('./repo_publisher');
 
-class Post_Repo_Request extends Post_Request {
+class PostRepoRequest extends PostRequest {
 
 	authorize (callback) {
-		if (!this.request.body.team_id) {
+		if (!this.request.body.teamId) {
 			return callback();
 		}
-		let team_id = decodeURIComponent(this.request.body.team_id).toLowerCase();
-		if (!this.user.has_team(team_id)) {
-			return callback(this.error_handler.error('create_auth', { reason: 'user not on team' }));
+		let teamId = decodeURIComponent(this.request.body.teamId).toLowerCase();
+		if (!this.user.hasTeam(teamId)) {
+			return callback(this.errorHandler.error('createAuth', { reason: 'user not on team' }));
 		}
 		return process.nextTick(callback);
 	}
 
-	post_process (callback) {
-		new Repo_Publisher({
-			data: this.response_data,
-			repo_existed: this.creator.repo_existed,
-			request_id: this.request.id,
+	postProcess (callback) {
+		new RepoPublisher({
+			data: this.responseData,
+			repoExisted: this.creator.repoExisted,
+			requestId: this.request.id,
 			messager: this.api.services.messager,
 			logger: this
-		}).publish_repo_data(callback);
+		}).publishRepoData(callback);
 	}
 }
 
-module.exports = Post_Repo_Request;
+module.exports = PostRepoRequest;

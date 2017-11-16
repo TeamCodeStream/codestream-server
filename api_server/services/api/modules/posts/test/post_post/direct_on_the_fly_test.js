@@ -1,62 +1,62 @@
 'use strict';
 
-var Post_To_Direct_Test = require('./post_to_direct_test');
+var PostToDirectTest = require('./post_to_direct_test');
 var Assert = require('assert');
-const Post_Test_Constants = require('../post_test_constants');
+const PostTestConstants = require('../post_test_constants');
 
-class Direct_On_The_Fly_Test extends Post_To_Direct_Test {
+class DirectOnTheFlyTest extends PostToDirectTest {
 
 	get description () {
 		return 'should return a valid post and stream when creating a post and creating a direct stream on the fly';
 	}
 
-	create_random_stream (callback) {
+	createRandomStream (callback) {
 		// do nothing
 		return callback();
 	}
 
-	make_post_options (callback) {
-		this.stream_factory.get_random_stream_data(
+	makePostOptions (callback) {
+		this.streamFactory.getRandomStreamData(
 			(error, data) => {
 				if (error) { return callback(error); }
-				this.post_options = { stream: data };
+				this.postOptions = { stream: data };
 				callback();
 			},
-			this.stream_options
+			this.streamOptions
 		);
 	}
 
-	validate_response (data) {
+	validateResponse (data) {
 		Assert(typeof data.stream === 'object', 'no stream returned');
-		Assert(data.post.stream_id === data.stream._id, 'the post\'s stream_id does not match the id of the returned stream');
-		this.validate_stream(data);
-		this.data.stream_id = data.stream._id;
-		super.validate_response(data);
+		Assert(data.post.streamId === data.stream._id, 'the post\'s streamId does not match the id of the returned stream');
+		this.validateStream(data);
+		this.data.streamId = data.stream._id;
+		super.validateResponse(data);
 	}
 
-	validate_stream (data) {
+	validateStream (data) {
 		let stream = data.stream;
 		let errors = [];
 		if (stream.type !== 'file') {
-			stream.member_ids.sort();
-			if (this.data.stream.member_ids.indexOf(this.current_user._id) === -1) {
-				this.data.stream.member_ids.push(this.current_user._id);
+			stream.memberIds.sort();
+			if (this.data.stream.memberIds.indexOf(this.currentUser._id) === -1) {
+				this.data.stream.memberIds.push(this.currentUser._id);
 			}
-			this.data.stream.member_ids.sort();
-			Assert.deepEqual(this.data.stream.member_ids, stream.member_ids, 'member_ids does not match');
+			this.data.stream.memberIds.sort();
+			Assert.deepEqual(this.data.stream.memberIds, stream.memberIds, 'memberIds does not match');
 		}
 		let result = (
 			((stream.type === this.data.stream.type) || errors.push('type does not match')) &&
-			((stream.team_id === this.data.stream.team_id) || errors.push('team_id does not match')) &&
+			((stream.teamId === this.data.stream.teamId) || errors.push('teamId does not match')) &&
 			((stream.deactivated === false) || errors.push('deactivated not false')) &&
-			((typeof stream.created_at === 'number') || errors.push('created_at not number')) &&
-			((stream.modified_at >= stream.created_at) || errors.push('modified_at not greater than or equal to created_at')) &&
-			((stream.creator_id === this.current_user._id) || errors.push('creator_id not equal to current user id'))
+			((typeof stream.createdAt === 'number') || errors.push('createdAt not number')) &&
+			((stream.modifiedAt >= stream.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
+			((stream.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'stream response not valid: ' + errors.join(', '));
-		this.validate_sanitized(stream, Post_Test_Constants.UNSANITIZED_STREAM_ATTRIBUTES);
+		this.validateSanitized(stream, PostTestConstants.UNSANITIZED_STREAM_ATTRIBUTES);
 	}
 
 }
 
-module.exports = Direct_On_The_Fly_Test;
+module.exports = DirectOnTheFlyTest;

@@ -6,20 +6,20 @@ const ERRORS = {
 		message: 'Internal authentication error',
 		internal: true
 	},
-	'missing_authorization': {
+	'missingAuthorization': {
 		code: 'AUTH-1001',
 		message: 'Authorization missing'
 	},
-	'token_invalid': {
+	'tokenInvalid': {
 		code: 'AUTH-1002',
 		message: 'Token invalid',
 		internal: true
 	},
-	'no_user_id': {
+	'noUserId': {
 		code: 'AUTH-1003',
 		message: 'Credentials invalid'
 	},
-	'user_not_found': {
+	'userNotFound': {
 		code: 'AUTH-1004',
 		message: 'Invalid identity'
 	}

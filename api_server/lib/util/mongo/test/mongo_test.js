@@ -1,38 +1,38 @@
 'use strict';
 
-var Generic_Test = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
-var Mongo_Client = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
-var Test_API_Config = require(process.env.CS_API_TOP + '/config/api_test');
-var Random_String = require('randomstring');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
+var MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
+var TestAPIConfig = require(process.env.CS_API_TOP + '/config/api_test');
+var RandomString = require('randomstring');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
 
-class Mongo_Test extends Generic_Test {
+class MongoTest extends GenericTest {
 
 	before (callback) {
-		this.mongo_client_factory = new Mongo_Client();
-		const mongo_config = Object.assign({}, Test_API_Config.mongo, { collections: ['test'] });
-		this.mongo_client_factory.open_mongo_client(
-			mongo_config,
-			(error, mongo_client) => {
+		this.mongoClientFactory = new MongoClient();
+		const mongoConfig = Object.assign({}, TestAPIConfig.mongo, { collections: ['test'] });
+		this.mongoClientFactory.openMongoClient(
+			mongoConfig,
+			(error, mongoClient) => {
 				if (error) { return callback(error); }
-				this.mongo_client = mongo_client;
-				this.data = this.mongo_client.mongo_collections;
+				this.mongoClient = mongoClient;
+				this.data = this.mongoClient.mongoCollections;
 				callback();
 			}
 		);
 	}
 
-	create_test_and_control_document (callback) {
-		Bound_Async.series(this, [
+	createTestAndControlDocument (callback) {
+		BoundAsync.series(this, [
 			super.before,
-			this.create_test_document,
-			this.create_control_document
+			this.createTestDocument,
+			this.createControlDocument
 		], callback);
 	}
 
-	create_test_document (callback) {
-		this.test_document = {
+	createTestDocument (callback) {
+		this.testDocument = {
 			text: 'hello',
 			number: 12345,
 			array: [1, 2, 3, 4, 5],
@@ -43,17 +43,17 @@ class Mongo_Test extends Generic_Test {
 			}
 		};
 		this.data.test.create(
-			this.test_document,
-			(error, created_document) => {
+			this.testDocument,
+			(error, createdDocument) => {
 				if (error) { return callback(error); }
-				this.test_document._id = created_document._id;
+				this.testDocument._id = createdDocument._id;
 				callback();
 			}
 		);
 	}
 
-	create_control_document (callback) {
-		this.control_document = {
+	createControlDocument (callback) {
+		this.controlDocument = {
 			text: 'goodbye',
 			number: 54321,
 			array: [5, 4, 3, 2, 1],
@@ -64,32 +64,32 @@ class Mongo_Test extends Generic_Test {
 			}
 		};
 		this.data.test.create(
-			this.control_document,
-			(error, created_document) => {
+			this.controlDocument,
+			(error, createdDocument) => {
 				if (error) { return callback(error); }
-				this.control_document._id = created_document._id;
+				this.controlDocument._id = createdDocument._id;
 				callback();
 			}
 		);
 	}
 
-	create_random_documents (callback) {
+	createRandomDocuments (callback) {
 		this.documents = new Array(10);
-		this.randomizer = Random_String.generate(20);
-		Bound_Async.times(
+		this.randomizer = RandomString.generate(20);
+		BoundAsync.times(
 			this,
 			10,
-			this.create_one_random_document,
+			this.createOneRandomDocument,
 			callback
 		);
 	}
 
-	want_n (n) {
+	wantN (n) {
 		return n % 2 || n === 6;
 	}
 
-	create_one_random_document (n, callback) {
-		let flag = this.randomizer + (this.want_n(n) ? 'yes' : 'no');
+	createOneRandomDocument (n, callback) {
+		let flag = this.randomizer + (this.wantN(n) ? 'yes' : 'no');
 		this.documents[n] = {
 			text: 'hello' + n,
 			number: n,
@@ -97,35 +97,35 @@ class Mongo_Test extends Generic_Test {
 		};
 		this.data.test.create(
 			this.documents[n],
-			(error, created_document) => {
+			(error, createdDocument) => {
 				if (error) { return callback(error); }
-				this.documents[n]._id = created_document._id;
+				this.documents[n]._id = createdDocument._id;
 				callback();
 			}
 		);
 	}
 
-	filter_test_documents (callback) {
-		this.test_documents = this.documents.filter(document => {
-			return this.want_n(document.number);
+	filterTestDocuments (callback) {
+		this.testDocuments = this.documents.filter(document => {
+			return this.wantN(document.number);
 		});
-		this.test_documents.sort((a, b) => {
+		this.testDocuments.sort((a, b) => {
 			return a.number - b.number;
 		});
 		callback();
 	}
 
-	validate_document_response () {
-		Assert.deepEqual(this.test_document, this.response, 'fetched document doesn\'t match');
+	validateDocumentResponse () {
+		Assert.deepEqual(this.testDocument, this.response, 'fetched document doesn\'t match');
 	}
 
-	validate_array_response () {
+	validateArrayResponse () {
 		Assert(this.response instanceof Array, 'response must be an array');
 		this.response.sort((a, b) => {
 			return a.number - b.number;
 		});
-		Assert.deepEqual(this.test_documents, this.response, 'fetched documents don\'t match');
+		Assert.deepEqual(this.testDocuments, this.response, 'fetched documents don\'t match');
 	}
 }
 
-module.exports = Mongo_Test;
+module.exports = MongoTest;

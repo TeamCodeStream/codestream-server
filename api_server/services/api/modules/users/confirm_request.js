@@ -1,21 +1,21 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Restful_Request = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 var Tokenizer = require('./tokenizer');
-var Password_Hasher = require('./password_hasher');
-var User_Subscription_Granter = require('./user_subscription_granter');
-var User_Publisher = require('./user_publisher');
+var PasswordHasher = require('./password_hasher');
+var UserSubscriptionGranter = require('./user_subscription_granter');
+var UserPublisher = require('./user_publisher');
 
 const Errors = require('./errors');
 
 const MAX_CONFIRMATION_ATTEMPTS = 3;
 
-class Confirm_Request extends Restful_Request {
+class ConfirmRequest extends RestfulRequest {
 
 	constructor (options) {
 		super(options);
-		this.error_handler.add(Errors);
+		this.errorHandler.add(Errors);
 	}
 
 	authorize (callback) {
@@ -23,41 +23,41 @@ class Confirm_Request extends Restful_Request {
 	}
 
 	process (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			this.allow,
 			this.require,
-			this.get_user,
-			this.check_attributes,
-			this.verify_code,
-			this.hash_password,
-			this.update_user,
-			this.generate_token,
-			this.grant_subscription_permissions,
-			this.form_response
+			this.getUser,
+			this.checkAttributes,
+			this.verifyCode,
+			this.hashPassword,
+			this.updateUser,
+			this.generateToken,
+			this.grantSubscriptionPermissions,
+			this.formResponse
 		], callback);
 	}
 
 	allow (callback) {
-		this.allow_parameters(
+		this.allowParameters(
 			'body',
 			{
-				string: ['user_id', 'email', 'confirmation_code', 'password', 'username']
+				string: ['userId', 'email', 'confirmationCode', 'password', 'username']
 			},
 			callback
 		);
 	}
 
 	require (callback) {
-		this.require_parameters(
+		this.requireParameters(
 			'body',
-			['user_id', 'email', 'confirmation_code'],
+			['userId', 'email', 'confirmationCode'],
 			callback
 		);
 	}
 
-	get_user (callback) {
-		this.data.users.get_by_id(
-			this.request.body.user_id,
+	getUser (callback) {
+		this.data.users.getById(
+			this.request.body.userId,
 			(error, user) => {
 				if (error) { return callback(error); }
 				this.user = user;
@@ -66,171 +66,171 @@ class Confirm_Request extends Restful_Request {
 		);
 	}
 
-	check_attributes (callback) {
+	checkAttributes (callback) {
 		if (!this.user || this.user.get('deactivated')) {
-			return callback(this.error_handler.error('not_found', { info: 'user_id' }));
+			return callback(this.errorHandler.error('notFound', { info: 'userId' }));
 		}
-		if (this.user.get('searchable_email') !== this.request.body.email.toLowerCase()) {
-			return callback(this.error_handler.error('email_mismatch'));
+		if (this.user.get('searchableEmail') !== this.request.body.email.toLowerCase()) {
+			return callback(this.errorHandler.error('emailMismatch'));
 		}
-		if (this.user.get('is_registered')) {
-			return callback(this.error_handler.error('already_registered'));
+		if (this.user.get('isRegistered')) {
+			return callback(this.errorHandler.error('alreadyRegistered'));
 		}
-		if (!this.user.get('password_hash') && !this.request.body.password) {
-			return callback(this.error_handler.error('parameter_required', { info: 'password' }));
+		if (!this.user.get('passwordHash') && !this.request.body.password) {
+			return callback(this.errorHandler.error('parameterRequired', { info: 'password' }));
 		}
 		if (!this.user.get('username') && !this.request.body.username) {
-			return callback(this.error_handler.error('parameter_required', { info: 'username' }));
+			return callback(this.errorHandler.error('parameterRequired', { info: 'username' }));
 		}
 		process.nextTick(callback);
 	}
 
-	verify_code (callback) {
-		if (this.request.body.confirmation_code !== this.user.get('confirmation_code')) {
-			this.confirmation_failed = true;
-			if (this.user.get('confirmation_attempts') === MAX_CONFIRMATION_ATTEMPTS) {
-				this.max_confirmation_attempts = true;
+	verifyCode (callback) {
+		if (this.request.body.confirmationCode !== this.user.get('confirmationCode')) {
+			this.confirmationFailed = true;
+			if (this.user.get('confirmationAttempts') === MAX_CONFIRMATION_ATTEMPTS) {
+				this.maxConfirmationAttempts = true;
 			}
 		}
-		else if (Date.now() > this.user.get('confirmation_code_expires_at')) {
-			this.confirmation_failed = true;
-			this.confirmation_expired = true;
+		else if (Date.now() > this.user.get('confirmationCodeExpiresAt')) {
+			this.confirmationFailed = true;
+			this.confirmationExpired = true;
 		}
 		process.nextTick(callback);
 	}
 
-	hash_password (callback) {
+	hashPassword (callback) {
 		if (!this.request.body.password) { return callback(); }
-		new Password_Hasher({
-			error_handler: this.error_handler,
+		new PasswordHasher({
+			errorHandler: this.errorHandler,
 			password: this.request.body.password
-		}).hash_password((error, password_hash) => {
+		}).hashPassword((error, passwordHash) => {
 			if (error) { return callback(error); }
-			this.request.body.password_hash = password_hash;
+			this.request.body.passwordHash = passwordHash;
 			delete this.request.body.password;
 			process.nextTick(callback);
 		});
 	}
 
-	update_user (callback) {
-		if (this.confirmation_failed) {
-			this.update_user_confirmation_failed(callback);
+	updateUser (callback) {
+		if (this.confirmationFailed) {
+			this.updateUserConfirmationFailed(callback);
 		}
 		else {
-			this.update_user_confirmation_success(callback);
+			this.updateUserConfirmationSuccess(callback);
 		}
 	}
 
-	update_user_confirmation_failed (callback) {
+	updateUserConfirmationFailed (callback) {
 		let set = {};
-		if (this.max_confirmation_attempts || this.confirmation_expired) {
-			set.confirmation_code = null;
-			set.confirmation_attempts = 0;
-			set.confirmation_code_expires_at = null;
+		if (this.maxConfirmationAttempts || this.confirmationExpired) {
+			set.confirmationCode = null;
+			set.confirmationAttempts = 0;
+			set.confirmationCodeExpiresAt = null;
 		}
 		else {
-			set.confirmation_attempts = this.user.get('confirmation_attempts') + 1;
+			set.confirmationAttempts = this.user.get('confirmationAttempts') + 1;
 		}
-		this.data.users.update_direct(
-			{ _id: this.data.users.object_id_safe(this.request.body.user_id) },
+		this.data.users.updateDirect(
+			{ _id: this.data.users.objectIdSafe(this.request.body.userId) },
 			{ $set: set },
 			callback
 		);
 	}
 
-	update_user_confirmation_success (callback) {
+	updateUserConfirmationSuccess (callback) {
 		let op = {
 			set: {
-				is_registered: true
+				isRegistered: true
 			},
 			unset: {
-				confirmation_code: true,
-				confirmation_attempts: true,
-				confirmation_code_expires_at: true
+				confirmationCode: true,
+				confirmationAttempts: true,
+				confirmationCodeExpiresAt: true
 			}
 		};
-		if (this.password_hash) {
-			op.set.password_hash = this.password_hash;
+		if (this.passwordHash) {
+			op.set.passwordHash = this.passwordHash;
 		}
 		if (this.request.body.username) {
 			op.set.username = this.request.body.username;
 		}
-		this.data.users.apply_op_by_id(
+		this.data.users.applyOpById(
 			this.user.id,
 			op,
-			(error, updated_user) => {
+			(error, updatedUser) => {
 				if (error) { return callback(error); }
-				this.user = updated_user;
+				this.user = updatedUser;
 				callback();
 			}
 		);
 	}
 
-	generate_token (callback) {
-		if (this.confirmation_failed) { return callback(); }
+	generateToken (callback) {
+		if (this.confirmationFailed) { return callback(); }
 		Tokenizer(
 			this.user.attributes,
 			this.api.config.secrets.auth,
 			(error, token) => {
 				if (error) {
-					return callback(this.error_handler.error('token', { reason: error }));
+					return callback(this.errorHandler.error('token', { reason: error }));
 				}
-				this.access_token = token;
+				this.accessToken = token;
 				process.nextTick(callback);
 			}
 		);
 	}
 
-	grant_subscription_permissions (callback) {
+	grantSubscriptionPermissions (callback) {
 		// note - it is tough to determine whether this should go before or after the response ... with users in a lot
 		// of streams, there could be a performance hit here, but do we want to take a performance hit or do we want
 		// to risk the client subscribing to channels for which they don't yet have permissions? i've opted for the
 		// performance hit, and i suspect it won't ever be a problem, but be aware...
-		new User_Subscription_Granter({
+		new UserSubscriptionGranter({
 			data: this.data,
 			messager: this.api.services.messager,
 			user: this.user
-		}).grant_all(error => {
+		}).grantAll(error => {
 			if (error) {
-				return callback(this.error_handler.error('messaging_grant', { reason: error }));
+				return callback(this.errorHandler.error('messagingGrant', { reason: error }));
 			}
 			callback();
 		});
 	}
 
-	form_response (callback) {
-		if (this.confirmation_failed) {
-			if (this.max_confirmation_attempts) {
-				return callback(this.error_handler.error('too_many_confirm_attempts'));
+	formResponse (callback) {
+		if (this.confirmationFailed) {
+			if (this.maxConfirmationAttempts) {
+				return callback(this.errorHandler.error('tooManyConfirmAttempts'));
 			}
-			else if (this.confirmation_expired) {
-				return callback(this.error_handler.error('confirm_code_expired'));
+			else if (this.confirmationExpired) {
+				return callback(this.errorHandler.error('confirmCodeExpired'));
 			}
 			else {
-				return callback(this.error_handler.error('confirm_code_mismatch'));
+				return callback(this.errorHandler.error('confirmCodeMismatch'));
 			}
 		}
 		else {
-			this.response_data = {
-				user: this.user.get_sanitized_object(),
-				access_token: this.access_token
+			this.responseData = {
+				user: this.user.getSanitizedObject(),
+				accessToken: this.accessToken
 			};
 			return process.nextTick(callback);
 		}
 	}
 
-	post_process (callback) {
-		this.publish_user_registration_to_teams(callback);
+	postProcess (callback) {
+		this.publishUserRegistrationToTeams(callback);
 	}
 
-	publish_user_registration_to_teams (callback) {
-		new User_Publisher({
+	publishUserRegistrationToTeams (callback) {
+		new UserPublisher({
 			user: this.user.attributes,
-			request_id: this.request.id,
+			requestId: this.request.id,
 			messager: this.api.services.messager,
 			logger: this
-		}).publish_user_registration_to_teams(callback);
+		}).publishUserRegistrationToTeams(callback);
 	}
 }
 
-module.exports = Confirm_Request;
+module.exports = ConfirmRequest;

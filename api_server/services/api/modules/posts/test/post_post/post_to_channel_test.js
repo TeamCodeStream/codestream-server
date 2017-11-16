@@ -1,12 +1,12 @@
 'use strict';
 
-var Post_Post_Test = require('./post_post_test');
+var PostPostTest = require('./post_post_test');
 
-class Post_To_Channel_Test extends Post_Post_Test {
+class PostToChannelTest extends PostPostTest {
 
 	constructor (options) {
 		super(options);
-		this.stream_type = 'channel';
+		this.streamType = 'channel';
 	}
 
 	get description () {
@@ -14,4 +14,4 @@ class Post_To_Channel_Test extends Post_Post_Test {
 	}
 }
 
-module.exports = Post_To_Channel_Test;
+module.exports = PostToChannelTest;

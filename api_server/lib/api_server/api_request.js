@@ -1,28 +1,28 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var API_Request_Data = require('./api_request_data');
-var Error_Handler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var APIRequestData = require('./api_request_data');
+var ErrorHandler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
 
-class API_Request {
+class APIRequest {
 
 	constructor (options) {
 		Object.assign(this, options);
-		this.response_issued = false;						// this gets set when once the response has been issued
-		this.response_data = {};							// prepare for any response data to be put in here
-		this.data = new API_Request_Data({					// wrapper for all collections relevant to this request
+		this.responseIssued = false;						// this gets set when once the response has been issued
+		this.responseData = {};							// prepare for any response data to be put in here
+		this.data = new APIRequestData({					// wrapper for all collections relevant to this request
 			api: this.api,
 			request: this.request
 		});
 		this.user = this.request.user;
-		this._set_request_phases();
+		this._setRequestPhases();
 	}
 
 	// Default requests have at least these phases:
 	// Derived requests can override this behavior either by overriding the method in question or by changing the
 	// whole structure of the request ... for consistency it is recommended to change the structure only when necessary to
 	// suit a specialized application ... in general this structure should work very well for the vast majority of requests
-	_set_request_phases () {
+	_setRequestPhases () {
 
 		this.REQUEST_PHASES = [
 			// initializion of data
@@ -35,7 +35,7 @@ class API_Request {
 			// read any data needed to process the request, not that we can't read later, but it's good to front-load as much data
 			// as possible so as not to pollute the processing phase with a bunch of database reads
 			// from here on in we assume the process can do anything and everything, there is no deeper acl checking
-			'read_initial_data',
+			'readInitialData',
 			// process the request, this is the meat of it, we maintain a data cache that handles all the database soft-locking and
 			// caching so nothing is retrieved from the database more than once and no objects are repeated, we maintain the touched
 			// objects here as well
@@ -43,12 +43,12 @@ class API_Request {
 			// any changes are written to the database here, we acquire a hard lock on the data and handle any version conflicts and merges
 			'persist',
 			// send the response back to the client, along with any sanitized data
-			'handle_response',
+			'handleResponse',
 			// do any post-processing, meaning any processing of the request that goes on after the response is sent back to the client
-			'post_process',
+			'postProcess',
 			// perform any additional persistence to the database, same as persist but here it is recognized that we have already sent
 			// a response to the client
-			'post_process_persist',
+			'postProcessPersist',
 			// broadcast any and all additions/changes/deletions to listening clients
 			'broadcast',
 			// final cleanup
@@ -58,18 +58,18 @@ class API_Request {
 		];
 
 		// This indicates the phase that handles a response, this phase will get executed regardless of the output of other phases
-		this.RESPONSE_PHASE = 'handle_response';
+		this.RESPONSE_PHASE = 'handleResponse';
 	}
 
 
 	// execute a request phase
-	execute_phase (phase, callback) {
+	executePhase (phase, callback) {
 		if (typeof this[phase] !== 'function') {
 			return process.nextTick(callback);
 		}
 		this[phase]((error) => {
 			if (!error && phase === this.RESPONSE_PHASE) {
-				this.response_issued = true;
+				this.responseIssued = true;
 			}
 			process.nextTick(() => {
 				callback(error);
@@ -79,20 +79,20 @@ class API_Request {
 
 	// initialize the request
 	initialize (callback) {
-		if (this.request.abort_with) {
+		if (this.request.abortWith) {
 			// middleware error
-			this.status_code = this.request.abort_with.status;
-			return callback(this.request.abort_with.error);
+			this.statusCode = this.request.abortWith.status;
+			return callback(this.request.abortWith.error);
 		}
-		this.request.keep_open = true;
-		this.make_data(callback);
+		this.request.keepOpen = true;
+		this.makeData(callback);
 	}
 
-	make_data (callback) {
-		this.data.make_data(error => {
+	makeData (callback) {
+		this.data.makeData(error => {
 			if (error) { return callback(error); }
 			if (this.data.users && this.user) {
-				this.data.users.add_model_to_cache(this.user);
+				this.data.users.addModelToCache(this.user);
 			}
 			callback();
 		});
@@ -103,10 +103,10 @@ class API_Request {
 		// must execute the response phase, no matter what!
 		if (
 			error &&
-			!this.response_issued &&
+			!this.responseIssued &&
 			typeof this[this.RESPONSE_PHASE] === 'function'
 		) {
-			this.got_error = error;
+			this.gotError = error;
 			this[this.RESPONSE_PHASE](
 				(error) => {
 					if (error) {
@@ -122,24 +122,24 @@ class API_Request {
 
 	// fulfill the request
 	fulfill () {
-		this.response_issued = false;
+		this.responseIssued = false;
 		// execute each phase of the request, aborting at any time on error
-		Bound_Async.forEachSeries(
+		BoundAsync.forEachSeries(
 			this,
 			this.REQUEST_PHASES,
-			this.execute_phase,
+			this.executePhase,
 			this.finish,
 			true
 		);
 	}
 
-	deauthorize (error, status_code) {
-		this.status_code = status_code || 403;
-		this.response_data = error || 'not authorized';
+	deauthorize (error, statusCode) {
+		this.statusCode = statusCode || 403;
+		this.responseData = error || 'not authorized';
 	}
 
-	deauthorize_permanent (status_code, error) {
-		this.deauthorize(status_code, error);
+	deauthorizePermanent (statusCode, error) {
+		this.deauthorize(statusCode, error);
 	}
 
 	// default authorize function, authorize the request (which by default means forbidding the request, this function should be overridden!)
@@ -157,35 +157,35 @@ class API_Request {
 	}
 
 	// persist all database changes to the database, after the request has been fully processed
-	post_process_persist (callback) {
+	postProcessPersist (callback) {
 		// nothing different to do here
 		this.persist(callback);
 	}
 
 	// handle the request response
-	handle_response (callback) {
-		if (this.got_error) {
-			return this.handle_error_response(callback);
+	handleResponse (callback) {
+		if (this.gotError) {
+			return this.handleErrorResponse(callback);
 		}
-		this.status_code = this.status_code || 200;
-		this.response.status(this.status_code).send(this.response_data);
+		this.statusCode = this.statusCode || 200;
+		this.response.status(this.statusCode).send(this.responseData);
 		process.nextTick(callback);
 	}
 
-	handle_error_response (callback) {
-		if (!this.status_code) {
-			if (typeof this.got_error === 'object' && this.got_error.internal) {
-				this.status_code = 500;
+	handleErrorResponse (callback) {
+		if (!this.statusCode) {
+			if (typeof this.gotError === 'object' && this.gotError.internal) {
+				this.statusCode = 500;
 			}
 			else {
-				this.status_code = 403;
+				this.statusCode = 403;
 			}
 		}
-		this.warn(Error_Handler.log(this.got_error));
-		if (Object.keys(this.response_data).length === 0) {
-			this.response_data = Error_Handler.to_client(this.got_error);
+		this.warn(ErrorHandler.log(this.gotError));
+		if (Object.keys(this.responseData).length === 0) {
+			this.responseData = ErrorHandler.toClient(this.gotError);
 		}
-		this.response.status(this.status_code).send(this.response_data);
+		this.response.status(this.statusCode).send(this.responseData);
 		process.nextTick(callback);
 	}
 
@@ -215,4 +215,4 @@ class API_Request {
 	}
 }
 
-module.exports = API_Request;
+module.exports = APIRequest;

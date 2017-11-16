@@ -1,10 +1,10 @@
 'use strict';
 
-class PubNub_Client {
+class PubNubClient {
 
 	constructor (options) {
 		Object.assign(this, options);
-		this.channel_listeners = {};
+		this.channelListeners = {};
 	}
 
 	publish (message, channel, callback) {
@@ -25,16 +25,16 @@ class PubNub_Client {
 	}
 
 	subscribe (channel, listener, callback) {
-		if (!this.channel_listeners[channel]) {
-			this.channel_listeners[channel] = {
+		if (!this.channelListeners[channel]) {
+			this.channelListeners[channel] = {
 				message: (message) => {
 					listener(null, message);
 				},
 				status: (status) => {
-					this.handle_subscribe_status(channel, status, callback);
+					this.handleSubscribeStatus(channel, status, callback);
 				}
 			};
-			this.pubnub.addListener(this.channel_listeners[channel]);
+			this.pubnub.addListener(this.channelListeners[channel]);
 		}
 
 		this.pubnub.subscribe({
@@ -42,7 +42,7 @@ class PubNub_Client {
 		});
 	}
 
-	handle_subscribe_status (channel, status, callback) {
+	handleSubscribeStatus (channel, status, callback) {
 		if (
 			status.error &&
 			(
@@ -51,7 +51,7 @@ class PubNub_Client {
 			) &&
 			status.category === 'PNAccessDeniedCategory'
 		) {
-			this.remove_listener(channel);
+			this.removeListener(channel);
 			callback(status);
 		}
 		else if (
@@ -68,22 +68,22 @@ class PubNub_Client {
 		this.pubnub.unsubscribe({
 			channels: [channel]
 		});
-		this.remove_listener(channel);
+		this.removeListener(channel);
 	}
 
-	remove_listener (channel) {
-		this.pubnub.removeListener(this.channel_listeners[channel]);
-		delete this.channel_listeners[channel];
+	removeListener (channel) {
+		this.pubnub.removeListener(this.channelListeners[channel]);
+		delete this.channelListeners[channel];
 	}
 
-	grant (user_ids, channel, callback, options = {}) {
-		if (!(user_ids instanceof Array)) {
-			user_ids = [user_ids];
+	grant (userIds, channel, callback, options = {}) {
+		if (!(userIds instanceof Array)) {
+			userIds = [userIds];
 		}
 		this.pubnub.grant(
 			{
 				channels: [channel],
-				authKeys: user_ids,
+				authKeys: userIds,
 				read: options.read === false ? false: true,
 				write: options.write === true ? true : false,
 				ttl: options.ttl || 0
@@ -99,14 +99,14 @@ class PubNub_Client {
 		);
 	}
 
-	revoke (user_ids, channel, callback) {
-		if (!(user_ids instanceof Array)) {
-			user_ids = [user_ids];
+	revoke (userIds, channel, callback) {
+		if (!(userIds instanceof Array)) {
+			userIds = [userIds];
 		}
 		this.pubnub.grant(
 			{
 				channels: [channel],
-				authKeys: user_ids,
+				authKeys: userIds,
 				read: false,
 				write: false,
 				manage: false
@@ -123,4 +123,4 @@ class PubNub_Client {
 	}
 }
 
-module.exports = PubNub_Client;
+module.exports = PubNubClient;

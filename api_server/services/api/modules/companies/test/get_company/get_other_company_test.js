@@ -1,22 +1,22 @@
 'use strict';
 
-var Get_Company_Test = require('./get_company_test');
+var GetCompanyTest = require('./get_company_test');
 
-class Get_Other_Company_Test extends Get_Company_Test {
+class GetOtherCompanyTest extends GetCompanyTest {
 
 	get description () {
 		return 'should return a valid company when requesting a company created by another user that i am part of';
 	}
 
-	set_path (callback) {
-		this.path = '/companies/' + this.other_company._id;
+	setPath (callback) {
+		this.path = '/companies/' + this.otherCompany._id;
 		callback();
 	}
 
-	validate_response (data) {
-		this.validate_matching_object(this.other_company._id, data.company, 'company');
-		super.validate_response(data);
+	validateResponse (data) {
+		this.validateMatchingObject(this.otherCompany._id, data.company, 'company');
+		super.validateResponse(data);
 	}
 }
 
-module.exports = Get_Other_Company_Test;
+module.exports = GetOtherCompanyTest;

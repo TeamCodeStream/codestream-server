@@ -1,36 +1,36 @@
 'use strict';
 
-const Post_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/posts/post_attributes');
-const Stream_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_attributes');
+const PostAttributes = require(process.env.CS_API_TOP + '/services/api/modules/posts/post_attributes');
+const StreamAttributes = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_attributes');
 
 const EXPECTED_POST_FIELDS = [
 	'_id',
 	'deactivated',
-	'created_at',
-	'modified_at',
-	'creator_id',
-	'team_id',
-	'stream_id',
+	'createdAt',
+	'modifiedAt',
+	'creatorId',
+	'teamId',
+	'streamId',
 	'text'
 ];
 
 const EXPECTED_FILE_POST_FIELDS = [
-	'repo_id',
-	'commit_sha_when_posted',
+	'repoId',
+	'commitShaWhenPosted',
 	'location',
-	'replay_info',
+	'replayInfo',
 ];
 
 const EXPECTED_REPLY_POST_FIELDS = [
-	'parent_post_id'
+	'parentPostId'
 ];
 
-const UNSANITIZED_ATTRIBUTES = Object.keys(Post_Attributes).filter(attribute => {
-	return Post_Attributes[attribute].server_only;
+const UNSANITIZED_ATTRIBUTES = Object.keys(PostAttributes).filter(attribute => {
+	return PostAttributes[attribute].serverOnly;
 });
 
-const UNSANITIZED_STREAM_ATTRIBUTES = Object.keys(Stream_Attributes).filter(attribute => {
-	return Stream_Attributes[attribute].server_only;
+const UNSANITIZED_STREAM_ATTRIBUTES = Object.keys(StreamAttributes).filter(attribute => {
+	return StreamAttributes[attribute].serverOnly;
 });
 
 module.exports = {

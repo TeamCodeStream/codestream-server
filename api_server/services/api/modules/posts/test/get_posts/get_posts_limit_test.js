@@ -1,23 +1,23 @@
 'use strict';
 
-var Get_Posts_Test = require('./get_posts_test');
+var GetPostsTest = require('./get_posts_test');
 
-class Get_Posts_Limit_Test extends Get_Posts_Test {
+class GetPostsLimitTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
-		this.num_posts = 10;
+		this.numPosts = 10;
 	}
 
 	get description () {
 		return 'should return the correct posts when requesting a limited number of posts';
 	}
 
-	set_path (callback) {
-		this.my_posts.splice(0, this.num_posts - 3);
-		this.path = `/posts/?team_id=${this.team._id}&stream_id=${this.stream._id}&limit=3`;
+	setPath (callback) {
+		this.myPosts.splice(0, this.numPosts - 3);
+		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&limit=3`;
 		callback();
 	}
 }
 
-module.exports = Get_Posts_Limit_Test;
+module.exports = GetPostsLimitTest;

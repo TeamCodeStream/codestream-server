@@ -1,28 +1,28 @@
 'use strict';
 
-const User_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/users/user_attributes');
+const UserAttributes = require(process.env.CS_API_TOP + '/services/api/modules/users/user_attributes');
 
 const EXPECTED_UNREGISTERED_USER_FIELDS = [
 	'_id',
 	'email',
 	'deactivated',
-	'created_at',
-	'modified_at',
-	'creator_id'
+	'createdAt',
+	'modifiedAt',
+	'creatorId'
 ];
 
 const EXPECTED_USER_FIELDS = EXPECTED_UNREGISTERED_USER_FIELDS.concat([
 	'username',
-	'first_name',
-	'last_name'
+	'firstName',
+	'lastName'
 ]);
 
 const EXPECTED_REGISTRATION_FIELDS = EXPECTED_USER_FIELDS.concat([
-	'confirmation_code'	// only because we cheat using a special cheat code
+	'confirmationCode'	// only because we cheat using a special cheat code
 ]);
 
 const EXPECTED_ME_FIELDS = [
-	'last_reads'
+	'lastReads'
 ];
 
 const EXPECTED_USER_RESPONSE = {
@@ -35,11 +35,11 @@ const EXPECTED_REGISTRATION_RESPONSE = {
 
 const EXPECTED_LOGIN_RESPONSE = {
 	user: EXPECTED_USER_FIELDS,
-	access_token: 1
+	accessToken: 1
 };
 
-const UNSANITIZED_ATTRIBUTES = Object.keys(User_Attributes).filter(attribute => {
-	return User_Attributes[attribute].server_only;
+const UNSANITIZED_ATTRIBUTES = Object.keys(UserAttributes).filter(attribute => {
+	return UserAttributes[attribute].serverOnly;
 });
 
 module.exports = {

@@ -4,51 +4,51 @@ let Async = require('async');
 
 module.exports = {
 
-	series (context, series, callback = null, bind_callback = false) {
-		let bound_series = series.map(fn => fn.bind(context));
-		let bound_callback = bind_callback ? callback.bind(context) : callback;
-		Async.series(bound_series, bound_callback);
+	series (context, series, callback = null, bindCallback = false) {
+		let boundSeries = series.map(fn => fn.bind(context));
+		let boundCallback = bindCallback ? callback.bind(context) : callback;
+		Async.series(boundSeries, boundCallback);
 	},
 
-	parallel (context, parallel, callback = null, bind_callback = false) {
-		let bound_parallel = parallel.map(fn => fn.bind(context));
-		let bound_callback = bind_callback ? callback.bind(context) : callback;
-		Async.parallel(bound_parallel, bound_callback);
+	parallel (context, parallel, callback = null, bindCallback = false) {
+		let boundParallel = parallel.map(fn => fn.bind(context));
+		let boundCallback = bindCallback ? callback.bind(context) : callback;
+		Async.parallel(boundParallel, boundCallback);
 	},
 
-	forEach (context, array, iterator, callback = null, bind_callback = false) {
-		let bound_iterator = iterator.bind(context);
-		let bound_callback = bind_callback ? callback.bind(context) : callback;
-		Async.forEach(array, bound_iterator, bound_callback);
+	forEach (context, array, iterator, callback = null, bindCallback = false) {
+		let boundIterator = iterator.bind(context);
+		let boundCallback = bindCallback ? callback.bind(context) : callback;
+		Async.forEach(array, boundIterator, boundCallback);
 	},
 
-	forEachSeries (context, array, iterator, callback = null, bind_callback = false) {
-		let bound_iterator = iterator.bind(context);
-		let bound_callback = bind_callback ? callback.bind(context) : callback;
-		Async.forEachSeries(array, bound_iterator, bound_callback);
+	forEachSeries (context, array, iterator, callback = null, bindCallback = false) {
+		let boundIterator = iterator.bind(context);
+		let boundCallback = bindCallback ? callback.bind(context) : callback;
+		Async.forEachSeries(array, boundIterator, boundCallback);
 	},
 
-	forEachLimit (context, array, limit, iterator, callback = null, bind_callback = false) {
-		let bound_iterator = iterator.bind(context);
-		let bound_callback = bind_callback ? callback.bind(context) : callback;
-		Async.forEachLimit(array, limit, bound_iterator, bound_callback);
+	forEachLimit (context, array, limit, iterator, callback = null, bindCallback = false) {
+		let boundIterator = iterator.bind(context);
+		let boundCallback = bindCallback ? callback.bind(context) : callback;
+		Async.forEachLimit(array, limit, boundIterator, boundCallback);
 	},
 
-	whilst (context, condition, iterator, callback = null, bind_callback = false) {
-		let bound_iterator = iterator.bind(context);
-		let bound_callback = bind_callback ? callback.bind(context) : callback;
-		Async.whilst(condition, bound_iterator, bound_callback);
+	whilst (context, condition, iterator, callback = null, bindCallback = false) {
+		let boundIterator = iterator.bind(context);
+		let boundCallback = bindCallback ? callback.bind(context) : callback;
+		Async.whilst(condition, boundIterator, boundCallback);
 	},
 
-	times (context, n, iterator, callback = null, bind_callback = false) {
-		let bound_iterator = iterator.bind(context);
-		let bound_callback = bind_callback ? callback.bind(context) : callback;
-		Async.times(n, bound_iterator, bound_callback);
+	times (context, n, iterator, callback = null, bindCallback = false) {
+		let boundIterator = iterator.bind(context);
+		let boundCallback = bindCallback ? callback.bind(context) : callback;
+		Async.times(n, boundIterator, boundCallback);
 	},
 
-	timesSeries (context, n, iterator, callback = null, bind_callback = false) {
-		let bound_iterator = iterator.bind(context);
-		let bound_callback = bind_callback ? callback.bind(context) : callback;
-		Async.timesSeries(n, bound_iterator, bound_callback);
+	timesSeries (context, n, iterator, callback = null, bindCallback = false) {
+		let boundIterator = iterator.bind(context);
+		let boundCallback = bindCallback ? callback.bind(context) : callback;
+		Async.timesSeries(n, boundIterator, boundCallback);
 	}
 };

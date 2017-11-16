@@ -1,24 +1,24 @@
 'use strict';
 
 var Assert = require('assert');
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Last_Reads_Previous_Post_Test extends CodeStream_API_Test {
+class LastReadsPreviousPostTest extends CodeStreamAPITest {
 
 	get description () {
 		return `last read attribute for members of the stream should get updated to the previous post when a new post is created in a ${this.type} stream, for members who are not caught up on the conversation`;
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_team_creator,
-			this.create_other_user,
-			this.create_repo,
-			this.create_stream,
-			this.create_first_posts,
-			this.mark_read,
-			this.create_last_post
+		BoundAsync.series(this, [
+			this.createTeamCreator,
+			this.createOtherUser,
+			this.createRepo,
+			this.createStream,
+			this.createFirstPosts,
+			this.markRead,
+			this.createLastPost
 		], callback);
 	}
 
@@ -30,32 +30,32 @@ class Last_Reads_Previous_Post_Test extends CodeStream_API_Test {
 		return '/users/me';
 	}
 
-	get_expected_fields () {
-		return { user: ['last_reads'] };
+	getExpectedFields () {
+		return { user: ['lastReads'] };
 	}
 
-	create_team_creator (callback) {
-		this.user_factory.create_random_user(
+	createTeamCreator (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.team_creator_data = response;
+				this.teamCreatorData = response;
 				callback();
 			}
 		);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -63,82 +63,82 @@ class Last_Reads_Previous_Post_Test extends CodeStream_API_Test {
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email, this.other_user_data.user.email],
-				token: this.team_creator_data.access_token
+				withEmails: [this.currentUser.email, this.otherUserData.user.email],
+				token: this.teamCreatorData.accessToken
 			}
 		);
 	}
 
-	create_stream (callback) {
-		let stream_options = {
+	createStream (callback) {
+		let streamOptions = {
 			type: this.type,
-			team_id: this.team._id,
-			repo_id: this.type === 'file' ? this.repo._id : null,
-			member_ids: this.type === 'file' ? null : [this.current_user._id, this.other_user_data.user._id],
-			token: this.team_creator_data.access_token
+			teamId: this.team._id,
+			repoId: this.type === 'file' ? this.repo._id : null,
+			memberIds: this.type === 'file' ? null : [this.currentUser._id, this.otherUserData.user._id],
+			token: this.teamCreatorData.accessToken
 		};
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	create_first_posts (callback) {
-		this.first_posts = [];
-		Bound_Async.timesSeries(
+	createFirstPosts (callback) {
+		this.firstPosts = [];
+		BoundAsync.timesSeries(
 			this,
 			2,
-			this.create_post,
+			this.createPost,
 			callback
 		);
 	}
 
-	create_post (n, callback) {
-		let post_options = {
-			stream_id: this.stream._id,
-			token: this.other_user_data.access_token
+	createPost (n, callback) {
+		let postOptions = {
+			streamId: this.stream._id,
+			token: this.otherUserData.accessToken
 		};
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.first_posts.push(response.post);
+				this.firstPosts.push(response.post);
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 
-	mark_read (callback) {
-		this.do_api_request({
+	markRead (callback) {
+		this.doApiRequest({
 			method: 'put',
 			path: '/read/' + this.stream._id,
 			token: this.token
 		}, callback);
 	}
 
-	create_last_post (callback) {
-		let post_options = {
-			stream_id: this.stream._id,
-			token: this.other_user_data.access_token
+	createLastPost (callback) {
+		let postOptions = {
+			streamId: this.stream._id,
+			token: this.otherUserData.accessToken
 		};
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.last_post = response.post;
+				this.lastPost = response.post;
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 
-	validate_response (data) {
-		let last_post = this.first_posts[this.first_posts.length - 1];
-		Assert(data.user.last_reads[this.stream._id] === last_post._id, 'last_reads for stream is not equal to the ID of the last post read');
+	validateResponse (data) {
+		let lastPost = this.firstPosts[this.firstPosts.length - 1];
+		Assert(data.user.lastReads[this.stream._id] === lastPost._id, 'lastReads for stream is not equal to the ID of the last post read');
 	}
 }
 
-module.exports = Last_Reads_Previous_Post_Test;
+module.exports = LastReadsPreviousPostTest;

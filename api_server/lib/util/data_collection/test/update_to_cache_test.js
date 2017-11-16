@@ -1,35 +1,35 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Data_Collection_Test = require('./data_collection_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DataCollectionTest = require('./data_collection_test');
 
-class Update_To_Cache_Test extends Data_Collection_Test {
+class UpdateToCacheTest extends DataCollectionTest {
 
 	get description () {
 		return 'should get the correct model after updating a cached model';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_test_model,
-			this.update_test_model,
-			this.confirm_not_persisted
+			this.createTestModel,
+			this.updateTestModel,
+			this.confirmNotPersisted
 		], callback);
 	}
 
 	run (callback) {
-		this.data.test.get_by_id(
-			this.test_model.id,
+		this.data.test.getById(
+			this.testModel.id,
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
-		this.validate_model_response();
+	validateResponse () {
+		this.validateModelResponse();
 	}
 }
 
-module.exports = Update_To_Cache_Test;
+module.exports = UpdateToCacheTest;

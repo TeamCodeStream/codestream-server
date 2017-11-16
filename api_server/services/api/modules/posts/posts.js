@@ -1,44 +1,44 @@
 'use strict';
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var Post_Creator = require('./post_creator');
+var PostCreator = require('./post_creator');
 var Post = require('./post');
 
 const POST_STANDARD_ROUTES = {
-	want: ['get', 'get_many', 'post'],
-	base_route_name: 'posts',
-	request_classes: {
-		'get_many': require('./get_posts_request'),
+	want: ['get', 'getMany', 'post'],
+	baseRouteName: 'posts',
+	requestClasses: {
+		'getMany': require('./get_posts_request'),
 		'post': require('./post_post_request')
 	}
 };
 
 class Posts extends Restful {
 
-	get collection_name () {
+	get collectionName () {
 		return 'posts';
 	}
 
-	get model_name () {
+	get modelName () {
 		return 'post';
 	}
 
-	get creator_class () {
-		return Post_Creator;
+	get creatorClass () {
+		return PostCreator;
 	}
 
-	get model_class () {
+	get modelClass () {
 		return Post;
 	}
 
 /*
-	get updater_class () {
-		return Post_Updater;
+	get updaterClass () {
+		return PostUpdater;
 	}
 */
 
-	get_routes () {
-		return super.get_routes(POST_STANDARD_ROUTES);
+	getRoutes () {
+		return super.getRoutes(POST_STANDARD_ROUTES);
 	}
 }
 

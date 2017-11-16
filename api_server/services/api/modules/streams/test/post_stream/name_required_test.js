@@ -1,18 +1,18 @@
 'use strict';
 
-var Post_Channel_Stream_Test = require('./post_channel_stream_test');
+var PostChannelStreamTest = require('./post_channel_stream_test');
 
-class Name_Required_Test extends Post_Channel_Stream_Test {
+class NameRequiredTest extends PostChannelStreamTest {
 
 	get description () {
 		return 'should return an error when attempting to create a channel stream with no name';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
 			info: [{
@@ -30,4 +30,4 @@ class Name_Required_Test extends Post_Channel_Stream_Test {
 	}
 }
 
-module.exports = Name_Required_Test;
+module.exports = NameRequiredTest;

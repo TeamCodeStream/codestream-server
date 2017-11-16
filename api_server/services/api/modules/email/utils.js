@@ -2,12 +2,12 @@
 
 module.exports = {
 
-	get_user_name: function(user) {
-		if (user.first_name && user.last_name) {
-			return user.first_name + ' ' + user.last_name;
+	getUserName: function(user) {
+		if (user.firstName && user.lastName) {
+			return user.firstName + ' ' + user.lastName;
 		}
-		else if (user.first_name) {
-			return user.first_name;
+		else if (user.firstName) {
+			return user.firstName;
 		}
 		else {
 			return user.email;

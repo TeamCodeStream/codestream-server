@@ -1,12 +1,12 @@
 'use strict';
 
-var Post_Repo_Test = require('./post_repo_test');
+var PostRepoTest = require('./post_repo_test');
 
-class Add_Users_Test extends Post_Repo_Test {
+class AddUsersTest extends PostRepoTest {
 
 	constructor (options) {
 		super(options);
-		this.test_options.want_random_emails = true;
+		this.testOptions.wantRandomEmails = true;
 	}
 
 	get description () {
@@ -14,4 +14,4 @@ class Add_Users_Test extends Post_Repo_Test {
 	}
 }
 
-module.exports = Add_Users_Test;
+module.exports = AddUsersTest;

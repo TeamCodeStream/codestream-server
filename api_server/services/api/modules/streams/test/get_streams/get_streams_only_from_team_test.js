@@ -1,29 +1,29 @@
 'use strict';
 
-var Get_Streams_Test = require('./get_streams_test');
+var GetStreamsTest = require('./get_streams_test');
 
-class Get_Streams_Only_From_Team_Test extends Get_Streams_Test {
+class GetStreamsOnlyFromTeamTest extends GetStreamsTest {
 
 	get description () {
 		return 'should return the correct streams when requesting streams by ID from a given team';
 	}
 
-	set_path (callback) {
-		let team_id = this.my_team._id;
-		let foreign_team_id = this.foreign_team._id;
-		this.my_streams = [
-			this.streams_by_team[team_id][1],
-			this.streams_by_team[team_id][3]
+	setPath (callback) {
+		let teamId = this.myTeam._id;
+		let foreignTeamId = this.foreignTeam._id;
+		this.myStreams = [
+			this.streamsByTeam[teamId][1],
+			this.streamsByTeam[teamId][3]
 		];
-		let other_streams = [
-			this.streams_by_team[team_id][0],
-			this.streams_by_team[foreign_team_id][1]
+		let otherStreams = [
+			this.streamsByTeam[teamId][0],
+			this.streamsByTeam[foreignTeamId][1]
 		];
-		let all_streams = [...this.my_streams, ...other_streams];
-		let ids = all_streams.map(stream => stream._id);
-		this.path = `/streams?team_id=${team_id}&ids=${ids}`;
+		let allStreams = [...this.myStreams, ...otherStreams];
+		let ids = allStreams.map(stream => stream._id);
+		this.path = `/streams?teamId=${teamId}&ids=${ids}`;
 		callback();
 	}
 }
 
-module.exports = Get_Streams_Only_From_Team_Test;
+module.exports = GetStreamsOnlyFromTeamTest;

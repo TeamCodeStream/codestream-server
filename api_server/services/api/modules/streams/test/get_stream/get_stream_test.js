@@ -1,78 +1,78 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-const Stream_Test_Constants = require('../stream_test_constants');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const StreamTestConstants = require('../stream_test_constants');
 
-class Get_Stream_Test extends CodeStream_API_Test {
+class GetStreamTest extends CodeStreamAPITest {
 
-	get_expected_fields () {
-		return { stream: Stream_Test_Constants.EXPECTED_STREAM_FIELDS };
+	getExpectedFields () {
+		return { stream: StreamTestConstants.EXPECTED_STREAM_FIELDS };
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_random_repo,
-			this.create_stream,
-			this.set_path
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRandomRepo,
+			this.createStream,
+			this.setPath
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_random_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRandomRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
 				callback();
 			},
 			{
-				with_random_emails: 2,
-				with_emails: this.without_me ? null : [this.current_user.email],
-				token: this.other_user_data.access_token
+				withRandomEmails: 2,
+				withEmails: this.withoutMe ? null : [this.currentUser.email],
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	create_stream (callback) {
-		let stream_options = {
+	createStream (callback) {
+		let streamOptions = {
 			type: this.type,
-			token: this.mine ? this.token : this.other_user_data.access_token,
-			team_id: this.repo.team_id,
-			repo_id: this.type === 'file' ? this.repo._id : null,
+			token: this.mine ? this.token : this.otherUserData.accessToken,
+			teamId: this.repo.teamId,
+			repoId: this.type === 'file' ? this.repo._id : null,
 		};
-		if (this.type !== 'file' && !this.mine && !this.without_me) {
-			stream_options.member_ids = [this.current_user._id];
+		if (this.type !== 'file' && !this.mine && !this.withoutMe) {
+			streamOptions.memberIds = [this.currentUser._id];
 		}
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	set_path (callback) {
+	setPath (callback) {
 		this.path = '/streams/' + this.stream._id;
 		callback();
 	}
 
-	validate_response (data) {
-		this.validate_matching_object(this.stream._id, data.stream, 'stream');
-		this.validate_sanitized(data.stream, Stream_Test_Constants.UNSANITIZED_ATTRIBUTES);
+	validateResponse (data) {
+		this.validateMatchingObject(this.stream._id, data.stream, 'stream');
+		this.validateSanitized(data.stream, StreamTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = Get_Stream_Test;
+module.exports = GetStreamTest;

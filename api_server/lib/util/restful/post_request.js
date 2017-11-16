@@ -1,33 +1,33 @@
 'use strict';
 
-var Restful_Request = require('./restful_request');
-var Model_Creator = require('./model_creator');
+var RestfulRequest = require('./restful_request');
+var ModelCreator = require('./model_creator');
 
-class Post_Request extends Restful_Request {
+class PostRequest extends RestfulRequest {
 
 	process (callback) {
-		let creator_class = this.module.creator_class || Model_Creator;
-		this.creator = new creator_class({
+		let creatorClass = this.module.creatorClass || ModelCreator;
+		this.creator = new creatorClass({
 			request: this
 		});
-		this.creator.create_model(
+		this.creator.createModel(
 			this.request.body,
 			(error, model) => {
-				this.model_created(error, model, callback);
+				this.modelCreated(error, model, callback);
 			}
 		);
 	}
 
-	model_created (error, model, callback) {
+	modelCreated (error, model, callback) {
 		if (error) { return callback(error); }
-		const model_name = this.module.model_name || 'model';
-		this.response_data[model_name] = model.get_sanitized_object();
+		const modelName = this.module.modelName || 'model';
+		this.responseData[modelName] = model.getSanitizedObject();
 		Object.assign(
-			this.response_data,
-			this.creator.attach_to_response || {}
+			this.responseData,
+			this.creator.attachToResponse || {}
 		);
 		process.nextTick(callback);
 	}
 }
 
-module.exports = Post_Request;
+module.exports = PostRequest;

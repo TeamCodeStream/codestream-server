@@ -1,8 +1,8 @@
 'use strict';
 
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
-class Authentication_Test extends CodeStream_API_Test {
+class AuthenticationTest extends CodeStreamAPITest {
 
 	get description () {
 		return 'should allow access to resources when a valid access token is supplied';
@@ -17,4 +17,4 @@ class Authentication_Test extends CodeStream_API_Test {
 	}
 }
 
-module.exports = Authentication_Test;
+module.exports = AuthenticationTest;

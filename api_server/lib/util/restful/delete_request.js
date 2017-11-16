@@ -1,9 +1,9 @@
 'use strict';
 
-var API_Request = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
-//var Object_Deleter = require('./object_deleter');
+var APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
+//var ObjectDeleter = require('./object_deleter');
 
-class Delete_Request extends API_Request {
+class DeleteRequest extends APIRequest {
 
 	authorize (callback) {
 		return callback(false);
@@ -12,15 +12,15 @@ class Delete_Request extends API_Request {
 	process (callback) {
 		callback();
 		/*
-		new Object_Deleter({
+		new ObjectDeleter({
 			data: this.data,
 			user: this.request.user,
 			logger: this.request.api
-		}).update_object(
+		}).updateObject(
 			this.request.body,
 			(error, object) => {
 				if (error) { return callback(error); }
-				this.response_data = object;
+				this.responseData = object;
 				callback();
 			}
 		);
@@ -28,4 +28,4 @@ class Delete_Request extends API_Request {
 	}
 }
 
-module.exports = Delete_Request;
+module.exports = DeleteRequest;

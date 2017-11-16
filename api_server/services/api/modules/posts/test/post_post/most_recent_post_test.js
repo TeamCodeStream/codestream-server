@@ -1,44 +1,44 @@
 'use strict';
 
 var Assert = require('assert');
-var CodeStream_API_Test = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Most_Recent_Post_Test extends CodeStream_API_Test {
+class MostRecentPostTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'most_recent_post_id for the stream should get updated to the post when a post is created in the stream';
+		return 'mostRecentPostId for the stream should get updated to the post when a post is created in the stream';
 	}
 
 	get method () {
 		return 'get';
 	}
 
-	get_expected_fields () {
-		return { stream: ['most_recent_post_id'] };
+	getExpectedFields () {
+		return { stream: ['mostRecentPostId'] };
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
-			this.create_other_user,
-			this.create_repo,
-			this.create_stream,
-			this.create_posts
+		BoundAsync.series(this, [
+			this.createOtherUser,
+			this.createRepo,
+			this.createStream,
+			this.createPosts
 		], callback);
 	}
 
-	create_other_user (callback) {
-		this.user_factory.create_random_user(
+	createOtherUser (callback) {
+		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.other_user_data = response;
+				this.otherUserData = response;
 				callback();
 			}
 		);
 	}
 
-	create_repo (callback) {
-		this.repo_factory.create_random_repo(
+	createRepo (callback) {
+		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
@@ -46,59 +46,59 @@ class Most_Recent_Post_Test extends CodeStream_API_Test {
 				callback();
 			},
 			{
-				with_emails: [this.current_user.email],
-				with_random_emails: 1,
-				token: this.other_user_data.access_token
+				withEmails: [this.currentUser.email],
+				withRandomEmails: 1,
+				token: this.otherUserData.accessToken
 			}
 		);
 	}
 
-	create_stream (callback) {
-		let stream_options = {
+	createStream (callback) {
+		let streamOptions = {
 			type: 'file',
-			team_id: this.team._id,
-			repo_id: this.repo._id,
-			token: this.other_user_data.access_token
+			teamId: this.team._id,
+			repoId: this.repo._id,
+			token: this.otherUserData.accessToken
 		};
-		this.stream_factory.create_random_stream(
+		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				this.path = '/streams/' + this.stream._id;
 				callback();
 			},
-			stream_options
+			streamOptions
 		);
 	}
 
-	create_posts (callback) {
+	createPosts (callback) {
 		this.posts = [];
-		Bound_Async.timesSeries(
+		BoundAsync.timesSeries(
 			this,
 			3,
-			this.create_post,
+			this.createPost,
 			callback
 		);
 	}
 
-	create_post (n, callback) {
-		let post_options = {
-			stream_id: this.stream._id,
-			token: this.other_user_data.access_token
+	createPost (n, callback) {
+		let postOptions = {
+			streamId: this.stream._id,
+			token: this.otherUserData.accessToken
 		};
-		this.post_factory.create_random_post(
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.posts.push(response.post);
 				callback();
 			},
-			post_options
+			postOptions
 		);
 	}
 
-	validate_response (data) {
-		Assert(data.stream.most_recent_post_id === this.posts[this.posts.length - 1]._id, 'most_recent_post_id for stream does not match post');
+	validateResponse (data) {
+		Assert(data.stream.mostRecentPostId === this.posts[this.posts.length - 1]._id, 'mostRecentPostId for stream does not match post');
 	}
 }
 
-module.exports = Most_Recent_Post_Test;
+module.exports = MostRecentPostTest;

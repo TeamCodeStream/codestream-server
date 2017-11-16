@@ -3,15 +3,15 @@
 /*
 
 var Async = require('async');
-var Model_Updater = require(process.env.CS_API_TOP + '/lib/util/data_module/model_updater');
+var ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/data_module/model_updater');
 var User = require('./user');
 
-var User_Updater = function(options) {
-	Model_Updater.prototype.constructor.call(this, options);
+var UserUpdater = function(options) {
+	ModelUpdater.prototype.constructor.call(this, options);
 };
-_.extend(User_Updater.prototype, Model_Updater.prototype);
+_.extend(UserUpdater.prototype, ModelUpdater.prototype);
 
-User_Updater.prototype.update_user = User_Updater.prototype.update_model;
+UserUpdater.prototype.updateUser = UserUpdater.prototype.updateModel;
 
-module.exports = User_Updater;
+module.exports = UserUpdater;
 */

@@ -1,34 +1,34 @@
 'use strict';
 
-var Get_Posts_Test = require('./get_posts_test');
+var GetPostsTest = require('./get_posts_test');
 
-class Get_Child_Posts_Test extends Get_Posts_Test {
+class GetChildPostsTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
-		this.num_posts = 10;
-		this.which_post_to_reply_to = 2;
+		this.numPosts = 10;
+		this.whichPostToReplyTo = 2;
 	}
 
 	get description () {
 		return 'should return the correct posts when requesting the child posts of a parent';
 	}
 
-	set_post_options (n) {
-		let post_options = super.set_post_options(n);
-		if (n > this.which_post_to_reply_to && n % 3 === 0) {
-			delete post_options.want_location;
-			post_options.parent_post_id = this.my_posts[this.which_post_to_reply_to]._id;
+	setPostOptions (n) {
+		let postOptions = super.setPostOptions(n);
+		if (n > this.whichPostToReplyTo && n % 3 === 0) {
+			delete postOptions.wantLocation;
+			postOptions.parentPostId = this.myPosts[this.whichPostToReplyTo]._id;
 		}
-		return post_options;
+		return postOptions;
 	}
 
-	set_path (callback) {
-		let parent_post_id = this.my_posts[this.which_post_to_reply_to]._id;
-		this.my_posts = this.my_posts.filter(post => post.parent_post_id === parent_post_id);
-		this.path = `/posts/?team_id=${this.team._id}&stream_id=${this.stream._id}&parent_post_id=${parent_post_id}`;
+	setPath (callback) {
+		let parentPostId = this.myPosts[this.whichPostToReplyTo]._id;
+		this.myPosts = this.myPosts.filter(post => post.parentPostId === parentPostId);
+		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&parentPostId=${parentPostId}`;
 		callback();
 	}
 }
 
-module.exports = Get_Child_Posts_Test;
+module.exports = GetChildPostsTest;

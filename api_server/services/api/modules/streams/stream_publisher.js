@@ -1,34 +1,34 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Stream_Publisher {
+class StreamPublisher {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
 	// publish a stream ... how we do it depends on its type
-	publish_stream (callback) {
+	publishStream (callback) {
 		if (this.stream.type === 'file') {
-			this.publish_stream_to_team(callback);
+			this.publishStreamToTeam(callback);
 		}
 		else {
-			this.publish_stream_to_members(callback);
+			this.publishStreamToMembers(callback);
 		}
 	}
 
 	// publish a file-type stream to the team that owns it
-	publish_stream_to_team (callback) {
-		let team_id = this.stream.team_id;
-		let channel = 'team-' + team_id;
-		let message = Object.assign({}, this.data, { request_id: this.request_id });
+	publishStreamToTeam (callback) {
+		let teamId = this.stream.teamId;
+		let channel = 'team-' + teamId;
+		let message = Object.assign({}, this.data, { requestId: this.requestId });
 		this.messager.publish(
 			message,
 			channel,
 			error => {
 				if (error && this.logger) {
-					this.logger.warn(`Could not publish new stream message to team ${team_id}: ${JSON.stringify(error)}`);
+					this.logger.warn(`Could not publish new stream message to team ${teamId}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
@@ -37,26 +37,26 @@ class Stream_Publisher {
 	}
 
 	// publish a new channel or direct type stream to its members
-	publish_stream_to_members (callback) {
-		Bound_Async.forEachLimit(
+	publishStreamToMembers (callback) {
+		BoundAsync.forEachLimit(
 			this,
-			this.stream.member_ids,
+			this.stream.memberIds,
 			10,
-			this.publish_stream_to_user,
+			this.publishStreamToUser,
 			callback
 		);
 	}
 
 	// publish a new channel or direct type stream to one of its members
-	publish_stream_to_user (user_id, callback) {
-		let channel = 'user-' + user_id;
-		let message = Object.assign({}, this.data, { request_id: this.request_id });
+	publishStreamToUser (userId, callback) {
+		let channel = 'user-' + userId;
+		let message = Object.assign({}, this.data, { requestId: this.requestId });
 		this.messager.publish(
 			message,
 			channel,
 			error => {
 				if (error && this.logger) {
-					this.logger.warn(`Could not publish new stream message to user ${user_id}: ${JSON.stringify(error)}`);
+					this.logger.warn(`Could not publish new stream message to user ${userId}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
@@ -65,4 +65,4 @@ class Stream_Publisher {
 	}
 }
 
-module.exports = Stream_Publisher;
+module.exports = StreamPublisher;

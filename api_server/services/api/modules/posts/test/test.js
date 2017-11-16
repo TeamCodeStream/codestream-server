@@ -3,16 +3,16 @@
 // make jshint happy
 /* globals describe */
 
-var Posts_Request_Tester = require('./posts_request_tester');
+var PostsRequestTester = require('./posts_request_tester');
 
-var posts_request_tester = new Posts_Request_Tester();
+var postsRequestTester = new PostsRequestTester();
 
 describe('post requests', function() {
 
 	this.timeout(20000);
 
-	describe('GET /post/:id', posts_request_tester.get_post_test);
-	describe('GET /posts', posts_request_tester.get_posts_test);
-	describe('POST /posts', posts_request_tester.post_post_test);
+	describe('GET /post/:id', postsRequestTester.getPostTest);
+	describe('GET /posts', postsRequestTester.getPostsTest);
+	describe('POST /posts', postsRequestTester.postPostTest);
 
 });

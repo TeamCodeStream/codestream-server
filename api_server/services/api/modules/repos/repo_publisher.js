@@ -1,54 +1,54 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class Repo_Publisher {
+class RepoPublisher {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	publish_repo_data (callback) {
-		if (this.data.team || this.repo_existed) {
+	publishRepoData (callback) {
+		if (this.data.team || this.repoExisted) {
 			// if we created a team on the fly, or the repo already existed, in which case we are only concerned
 			// with the new users that may have been added to the team
-			this.publish_new_team_to_users(callback);
+			this.publishNewTeamToUsers(callback);
 		}
 		else {
 			// repo added to existing team
-			this.publish_repo(callback);
+			this.publishRepo(callback);
 		}
 	}
 
 	// in the case of a brand new team created for the repo, we simply publish to each user involved that they
 	// are in a new team, it is then up to the clients to fetch information pertaining to the new team
-	publish_new_team_to_users (callback) {
+	publishNewTeamToUsers (callback) {
 		if (!this.data.users) {
 			return callback();
 		}
-		Bound_Async.forEachLimit(
+		BoundAsync.forEachLimit(
 			this,
 			this.data.users,
 			10,
-			this.publish_new_team_to_user,
+			this.publishNewTeamToUser,
 			callback
 		);
 	}
 
 	// publish to this user that they are on a new team
-	publish_new_team_to_user (user, callback) {
-		if (!user.is_registered) {
+	publishNewTeamToUser (user, callback) {
+		if (!user.isRegistered) {
 			// only registered users get messages
 			return callback();
 		}
-		let team_id = (this.data.team && this.data.team._id) || this.data.repo.team_id;
+		let teamId = (this.data.team && this.data.team._id) || this.data.repo.teamId;
 		let channel = 'user-' + user._id;
 		let message = {
-			request_id: this.request_id,
+			requestId: this.requestId,
 			users: [{
 				_id: user._id,
 				$add: {
-					team_ids: team_id
+					teamIds: teamId
 				}
 			}]
 		};
@@ -66,24 +66,24 @@ class Repo_Publisher {
 	}
 
 	// publish this repo to the team, and message of being added to any users added to the team
-	publish_repo (callback) {
-		Bound_Async.series(this, [
-			this.publish_new_team_to_users,
-			this.publish_repo_to_team
+	publishRepo (callback) {
+		BoundAsync.series(this, [
+			this.publishNewTeamToUsers,
+			this.publishRepoToTeam
 		], callback);
 	}
 
 	// publish this repo, and any associated baggage, to the team channel
-	publish_repo_to_team (callback) {
-		let message = Object.assign({}, this.data, { request_id: this.request_id });
-		let team_id = this.data.repo.team_id;
-		let channel = 'team-' + team_id;
+	publishRepoToTeam (callback) {
+		let message = Object.assign({}, this.data, { requestId: this.requestId });
+		let teamId = this.data.repo.teamId;
+		let channel = 'team-' + teamId;
 		this.messager.publish(
 			message,
 			channel,
 			error => {
 				if (error && this.logger) {
-					this.logger.warn(`Could not publish repo message to team ${team_id}: ${JSON.stringify(error)}`);
+					this.logger.warn(`Could not publish repo message to team ${teamId}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
@@ -92,4 +92,4 @@ class Repo_Publisher {
 	}
 }
 
-module.exports = Repo_Publisher;
+module.exports = RepoPublisher;

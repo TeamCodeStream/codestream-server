@@ -1,18 +1,18 @@
 'use strict';
 
-const Company_Attributes = require(process.env.CS_API_TOP + '/services/api/modules/companies/company_attributes');
+const CompanyAttributes = require(process.env.CS_API_TOP + '/services/api/modules/companies/company_attributes');
 
 const EXPECTED_COMPANY_FIELDS = [
 	'_id',
 	'name',
 	'deactivated',
-	'created_at',
-	'modified_at',
-	'creator_id'
+	'createdAt',
+	'modifiedAt',
+	'creatorId'
 ];
 
-const UNSANITIZED_ATTRIBUTES = Object.keys(Company_Attributes).filter(attribute => {
-	return Company_Attributes[attribute].server_only;
+const UNSANITIZED_ATTRIBUTES = Object.keys(CompanyAttributes).filter(attribute => {
+	return CompanyAttributes[attribute].serverOnly;
 });
 
 module.exports = {

@@ -1,19 +1,19 @@
 'use strict';
 
-var Get_Posts_Test = require('./get_posts_test');
+var GetPostsTest = require('./get_posts_test');
 
-class Get_Posts_By_Other_Test extends Get_Posts_Test {
+class GetPostsByOtherTest extends GetPostsTest {
 
 	get description () {
 		return 'should return the correct posts when requesting posts in a stream authored by another user';
 	}
 
-	set_path (callback) {
-		let user_id = this.other_user_data.user._id;
-		this.my_posts = this.my_posts.filter(post => post.creator_id === user_id);
-		this.path = `/posts/?team_id=${this.team._id}&stream_id=${this.stream._id}&creator_id=${user_id}`;
+	setPath (callback) {
+		let userId = this.otherUserData.user._id;
+		this.myPosts = this.myPosts.filter(post => post.creatorId === userId);
+		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&creatorId=${userId}`;
 		callback();
 	}
 }
 
-module.exports = Get_Posts_By_Other_Test;
+module.exports = GetPostsByOtherTest;

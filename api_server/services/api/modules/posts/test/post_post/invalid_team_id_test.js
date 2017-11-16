@@ -1,19 +1,19 @@
 'use strict';
 
-var Direct_On_The_Fly_Test = require('./direct_on_the_fly_test');
+var DirectOnTheFlyTest = require('./direct_on_the_fly_test');
 var ObjectID = require('mongodb').ObjectID;
 
-class Invalid_Team_Id_Test extends Direct_On_The_Fly_Test {
+class InvalidTeamIdTest extends DirectOnTheFlyTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post and creating a direct stream on the fly with an invalid team id';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return null;
 	}
 
-	get_expected_error () {
+	getExpectedError () {
 		return {
 			code: 'RAPI-1011'
 		};
@@ -22,10 +22,10 @@ class Invalid_Team_Id_Test extends Direct_On_The_Fly_Test {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.stream.team_id = ObjectID();
+			this.data.stream.teamId = ObjectID();
 			callback();
 		});
 	}
 }
 
-module.exports = Invalid_Team_Id_Test;
+module.exports = InvalidTeamIdTest;

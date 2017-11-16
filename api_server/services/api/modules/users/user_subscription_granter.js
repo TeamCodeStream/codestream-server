@@ -1,23 +1,23 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class User_Subscription_Granter  {
+class UserSubscriptionGranter  {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	grant_all (callback) {
-		Bound_Async.series(this, [
-			this.grant_user_channel,
-			this.grant_team_channels,
-			this.get_streams,
-			this.grant_stream_channels
+	grantAll (callback) {
+		BoundAsync.series(this, [
+			this.grantUserChannel,
+			this.grantTeamChannels,
+			this.getStreams,
+			this.grantStreamChannels
 		], callback);
 	}
 
-	grant_channel (channel, callback) {
+	grantChannel (channel, callback) {
 		this.messager.grant(
 			this.user.id,
 			channel,
@@ -32,41 +32,41 @@ class User_Subscription_Granter  {
 		);
 	}
 
-	grant_user_channel (callback) {
-		this.grant_channel('user-' + this.user.id, callback);
+	grantUserChannel (callback) {
+		this.grantChannel('user-' + this.user.id, callback);
 	}
 
-	grant_team_channels (callback) {
-		Bound_Async.forEachLimit(
+	grantTeamChannels (callback) {
+		BoundAsync.forEachLimit(
 			this,
-			this.user.get('team_ids') || [],
+			this.user.get('teamIds') || [],
 			20,
-			this.grant_team_channel,
+			this.grantTeamChannel,
 			callback
 		);
 	}
 
-	grant_team_channel (team_id, callback) {
-		this.grant_channel('team-' + team_id, callback);
+	grantTeamChannel (teamId, callback) {
+		this.grantChannel('team-' + teamId, callback);
 	}
 
-	get_streams (callback) {
+	getStreams (callback) {
 		this.streams = [];
-		Bound_Async.forEachLimit(
+		BoundAsync.forEachLimit(
 			this,
-			this.user.get('team_ids') || [],
+			this.user.get('teamIds') || [],
 			10,
-			this.get_streams_for_team,
+			this.getStreamsForTeam,
 			callback
 		);
 	}
 
-	get_streams_for_team (team_id, callback) {
+	getStreamsForTeam (teamId, callback) {
 		let query = {
-			team_id: team_id,
-			member_ids: this.user.id
+			teamId: teamId,
+			memberIds: this.user.id
 		};
-		this.data.streams.get_by_query(
+		this.data.streams.getByQuery(
 			query,
 			(error, streams) => {
 				if (error) { return callback(error); }
@@ -74,27 +74,27 @@ class User_Subscription_Granter  {
 				callback();
 			},
 			{
-				database_options: {
+				databaseOptions: {
 					fields: ['_id']
 				},
-				no_cache: true
+				noCache: true
 			}
 		);
 	}
 
-	grant_stream_channels (callback) {
-		Bound_Async.forEachLimit(
+	grantStreamChannels (callback) {
+		BoundAsync.forEachLimit(
 			this,
 			this.streams,
 			20,
-			this.grant_stream_channel,
+			this.grantStreamChannel,
 			callback
 		);
 	}
 
-	grant_stream_channel (stream, callback) {
-		this.grant_channel('stream-' + stream._id, callback);
+	grantStreamChannel (stream, callback) {
+		this.grantChannel('stream-' + stream._id, callback);
 	}
 }
 
-module.exports = User_Subscription_Granter;
+module.exports = UserSubscriptionGranter;

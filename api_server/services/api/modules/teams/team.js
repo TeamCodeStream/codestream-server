@@ -1,18 +1,18 @@
 'use strict';
 
-var CodeStream_Model = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
-var CodeStream_Model_Validator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
-const Team_Attributes = require('./team_attributes');
+var CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
+var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
+const TeamAttributes = require('./team_attributes');
 
-class Team extends CodeStream_Model {
+class Team extends CodeStreamModel {
 
-	get_validator () {
-		return new CodeStream_Model_Validator(Team_Attributes);
+	getValidator () {
+		return new CodeStreamModelValidator(TeamAttributes);
 	}
 
-	pre_save (callback, options) {
-		this.attributes.member_ids.sort();
-		super.pre_save(callback, options);
+	preSave (callback, options) {
+		this.attributes.memberIds.sort();
+		super.preSave(callback, options);
 	}
 }
 

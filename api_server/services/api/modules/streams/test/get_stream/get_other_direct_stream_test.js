@@ -1,9 +1,9 @@
 'use strict';
 
-var Get_Stream_Test = require('./get_stream_test');
-const Stream_Test_Constants = require('../stream_test_constants');
+var GetStreamTest = require('./get_stream_test');
+const StreamTestConstants = require('../stream_test_constants');
 
-class Get_Other_Direct_Stream_Test extends Get_Stream_Test {
+class GetOtherDirectStreamTest extends GetStreamTest {
 
 	constructor (options) {
 		super(options);
@@ -14,12 +14,12 @@ class Get_Other_Direct_Stream_Test extends Get_Stream_Test {
 		return 'should return a valid stream when requesting a direct stream created by someone else on my team';
 	}
 
-	get_expected_fields () {
+	getExpectedFields () {
 		return { stream: [
-			...Stream_Test_Constants.EXPECTED_STREAM_FIELDS,
-			...Stream_Test_Constants.EXPECTED_DIRECT_STREAM_FIELDS
+			...StreamTestConstants.EXPECTED_STREAM_FIELDS,
+			...StreamTestConstants.EXPECTED_DIRECT_STREAM_FIELDS
 		] };
 	}
 }
 
-module.exports = Get_Other_Direct_Stream_Test;
+module.exports = GetOtherDirectStreamTest;

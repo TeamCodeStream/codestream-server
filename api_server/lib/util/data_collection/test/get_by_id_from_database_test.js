@@ -1,50 +1,50 @@
 'use strict';
 
-var Bound_Async = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Data_Collection_Test = require('./data_collection_test');
-var Data_Model = require('../data_model');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DataCollectionTest = require('./data_collection_test');
+var DataModel = require('../data_model');
 
-class Get_By_Id_From_Database_Test extends Data_Collection_Test {
+class GetByIdFromDatabaseTest extends DataCollectionTest {
 
 	get description () {
 		return 'should get the correct model when getting a model by ID and it is not cached';
 	}
 
 	before (callback) {
-		Bound_Async.series(this, [
+		BoundAsync.series(this, [
 			super.before,
-			this.create_model_direct
+			this.createModelDirect
 		], callback);
 	}
 
-	create_model_direct (callback) {
-		this.test_model = new Data_Model({
+	createModelDirect (callback) {
+		this.testModel = new DataModel({
 			text: 'hello',
 			number: 12345,
 			array: [1, 2, 3, 4, 5]
 		});
-		this.mongo_data.test.create(
-			this.test_model.attributes,
-			(error, created_document) => {
+		this.mongoData.test.create(
+			this.testModel.attributes,
+			(error, createdDocument) => {
 				if (error) { return callback(error); }
-				this.test_model.id = this.test_model.attributes._id = created_document._id;
+				this.testModel.id = this.testModel.attributes._id = createdDocument._id;
 				callback();
 			}
 		);
 	}
 
 	run (callback) {
-		this.data.test.get_by_id(
-			this.test_model.id,
+		this.data.test.getById(
+			this.testModel.id,
 			(error, response) => {
-				this.check_response(error, response, callback);
+				this.checkResponse(error, response, callback);
 			}
 		);
 	}
 
-	validate_response () {
-		this.validate_model_response();
+	validateResponse () {
+		this.validateModelResponse();
 	}
 }
 
-module.exports = Get_By_Id_From_Database_Test;
+module.exports = GetByIdFromDatabaseTest;
