@@ -35,7 +35,9 @@ const EXPECTED_REGISTRATION_RESPONSE = {
 
 const EXPECTED_LOGIN_RESPONSE = {
 	user: EXPECTED_USER_FIELDS,
-	accessToken: 1
+	accessToken: true,
+	teams: true,
+	repos: true
 };
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(UserAttributes).filter(attribute => {

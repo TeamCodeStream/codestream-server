@@ -3,6 +3,7 @@
 var APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 var ErrorHandler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 const Errors = require('./errors');
 
 class RestfulRequest extends APIRequest {
@@ -34,6 +35,27 @@ class RestfulRequest extends APIRequest {
 		else {
 			process.nextTick(callback);
 		}
+	}
+
+	sanitizeModels (models, callback) {
+		let sanitizedObjects = [];
+		BoundAsync.forEachLimit(
+			this,
+			models,
+			20,
+			(model, foreachCallback) => {
+				sanitizedObjects.push(model.getSanitizedObject());
+				process.nextTick(foreachCallback);
+			},
+			() => {
+				callback(null, sanitizedObjects);
+			}
+		);
+	}
+
+	sanitizeModel (model, callback) {
+		this.sanitizedObjects.push(model.getSanitizedObject());
+		process.nextTick(callback);
 	}
 }
 
