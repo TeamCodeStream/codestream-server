@@ -7,6 +7,7 @@ var RegisteredUserExistsTest = require('./registered_user_exists_test');
 var BadEmailTest = require('./bad_email_test');
 var BadUsernameTest = require('./bad_username_test');
 var BadPasswordTest = require('./bad_password_test');
+var ConflictingUsernameTest = require('./conflicting_username_test');
 
 class RegistrationRequestTester {
 
@@ -20,6 +21,7 @@ class RegistrationRequestTester {
 		new BadPasswordTest().test();
 		new UserExistsTest().test();
 		new RegisteredUserExistsTest().test();
+		new ConflictingUsernameTest().test();
 	}
 }
 
