@@ -10,6 +10,7 @@ var MaxAttemptsTest = require('./max_attempts_test');
 var ExpirationTest = require('./expiration_test');
 var ConfirmationMessageToTeamTest = require('./confirmation_message_to_team_test');
 var ConfirmationMessageToOtherUserTest = require('./confirmation_message_to_other_user_test');
+var ConflictingUsernameTest = require('./conflicting_username_test');
 
 class ConfirmationRequestTester {
 
@@ -26,6 +27,7 @@ class ConfirmationRequestTester {
 		new ExpirationTest().test();
 		new ConfirmationMessageToTeamTest().test();
 		new ConfirmationMessageToOtherUserTest().test();
+		new ConflictingUsernameTest().test();
 	}
 }
 

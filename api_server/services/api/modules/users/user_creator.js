@@ -7,7 +7,7 @@ var User = require('./user');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var PasswordHasher = require('./password_hasher');
 var UsernameChecker = require('./username_checker');
-var TeamErrors = require(process.env.CS_API_TOP + '/services/api/modules/teams/errors.js');
+const TeamErrors = require(process.env.CS_API_TOP + '/services/api/modules/teams/errors.js');
 
 class UserCreator extends ModelCreator {
 
@@ -97,7 +97,10 @@ class UserCreator extends ModelCreator {
 	}
 
 	checkUsernameUnique (callback) {
-		if (!this.existingModel || !this.existingModel.get('teamIds')) {
+		if (
+			!this.existingModel ||
+			(this.existingModel.get('teamIds') || []).length === 0
+		) {
 			return callback();
 		}
 		let username = this.attributes.username || this.existingModel.get('username');
