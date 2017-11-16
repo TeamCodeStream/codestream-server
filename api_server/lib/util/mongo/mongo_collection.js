@@ -110,6 +110,12 @@ class MongoCollection {
 		if (options.limit) {
 			cursor = cursor.limit(options.limit);
 		}
+		let project = {};
+		if (options.fields) {
+			options.fields.forEach(field => {
+				project[field] = 1;
+			});
+		}
 		const startTime = Date.now();
 
 		let logQuery = (error) => {
@@ -133,7 +139,7 @@ class MongoCollection {
 		};
 
 		if (!options.stream) {
-			cursor.toArray((error, result) => {
+			cursor.project(project).toArray((error, result) => {
 				this._idStringifyResult(error, result, queryCallback);
 			});
 		}

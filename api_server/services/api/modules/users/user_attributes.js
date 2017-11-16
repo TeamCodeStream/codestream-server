@@ -29,12 +29,6 @@ module.exports = {
 		type: 'username',
 		maxLength: 21
 	},
-	searchableUsername: {
-		type: 'username',
-		maxLength: 21,
-		lowercaseOnly: true,
-		serverOnly: true
-	},
 	isRegistered: {
 		type: 'boolean'
 	},

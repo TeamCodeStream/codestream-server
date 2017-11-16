@@ -6,8 +6,15 @@ var UserValidator = require('./user_validator');
 var User = require('./user');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var PasswordHasher = require('./password_hasher');
+var UsernameChecker = require('./username_checker');
+const TeamErrors = require(process.env.CS_API_TOP + '/services/api/modules/teams/errors.js');
 
 class UserCreator extends ModelCreator {
+
+	constructor (options) {
+		super(options);
+		this.errorHandler.add(TeamErrors);
+	}
 
 	get modelClass () {
 		return User;
@@ -84,8 +91,43 @@ class UserCreator extends ModelCreator {
 	preSave (callback) {
 		BoundAsync.series(this, [
 			this.hashPassword,
+			this.checkUsernameUnique,
 			super.preSave
 		], callback);
+	}
+
+	checkUsernameUnique (callback) {
+		if (
+			!this.existingModel ||
+			(this.existingModel.get('teamIds') || []).length === 0
+		) {
+			return callback();
+		}
+		let username = this.attributes.username || this.existingModel.get('username');
+		if (!username) {
+			return callback();
+		}
+		let teamIds = this.existingModel.get('teamIds');
+		let usernameChecker = new UsernameChecker({
+			data: this.data,
+			username: username,
+			userId: this.existingModel.id,
+			teamIds: teamIds
+		});
+		usernameChecker.checkUsernameUnique((error, isUnique) => {
+			if (error) { return callback(error); }
+			if (!isUnique) {
+				return callback(this.errorHandler.error('usernameNotUnique', {
+					info: {
+						username: username,
+						teamIds: usernameChecker.notUniqueTeamIds
+					}
+				}));
+			}
+			else {
+				return callback();
+			}
+		});
 	}
 
 	hashPassword (callback) {

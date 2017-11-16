@@ -4,9 +4,10 @@ var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 var Tokenizer = require('./tokenizer');
 var PasswordHasher = require('./password_hasher');
+var UsernameChecker = require('./username_checker');
 var UserSubscriptionGranter = require('./user_subscription_granter');
 var UserPublisher = require('./user_publisher');
-
+const TeamErrors = require(process.env.CS_API_TOP + '/services/api/modules/teams/errors.js');
 const Errors = require('./errors');
 
 const MAX_CONFIRMATION_ATTEMPTS = 3;
@@ -16,6 +17,7 @@ class ConfirmRequest extends RestfulRequest {
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(Errors);
+		this.errorHandler.add(TeamErrors);
 	}
 
 	authorize (callback) {
@@ -30,6 +32,7 @@ class ConfirmRequest extends RestfulRequest {
 			this.checkAttributes,
 			this.verifyCode,
 			this.hashPassword,
+			this.checkUsernameUnique,
 			this.updateUser,
 			this.generateToken,
 			this.grantSubscriptionPermissions,
@@ -109,6 +112,40 @@ class ConfirmRequest extends RestfulRequest {
 			this.request.body.passwordHash = passwordHash;
 			delete this.request.body.password;
 			process.nextTick(callback);
+		});
+	}
+
+	checkUsernameUnique (callback) {
+		if (this.confirmationFailed) {
+			 return callback();
+		}
+		if ((this.user.get('teamIds') || []).length === 0) {
+			return callback();
+		}
+		let username = this.request.body.username || this.user.get('username');
+		if (!username) {
+			return callback();
+		}
+		let teamIds = this.user.get('teamIds');
+		let usernameChecker = new UsernameChecker({
+			data: this.data,
+			username: username,
+			userId: this.user.id,
+			teamIds: teamIds
+		});
+		usernameChecker.checkUsernameUnique((error, isUnique) => {
+			if (error) { return callback(error); }
+			if (!isUnique) {
+				return callback(this.errorHandler.error('usernameNotUnique', {
+					info: {
+						username: username,
+						teamIds: usernameChecker.notUniqueTeamIds
+					}
+				}));
+			}
+			else {
+				return callback();
+			}
 		});
 	}
 

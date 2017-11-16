@@ -141,7 +141,7 @@ class RandomUserFactory {
 	registerUser (user, callback) {
 		new _UserCreator(this).registerUser(user, callback);
 	}
-	
+
 	confirmUser (user, callback) {
 		new _UserCreator(this).confirmUser(user, callback);
 	}
