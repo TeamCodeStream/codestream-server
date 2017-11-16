@@ -88,6 +88,15 @@ class PubNubTest extends GenericTest {
 
 	// called when a message has been received, assert that it matches expectations
 	messageReceived (error, message) {
+		if (!this.messageCallback) {
+			// this can happen (rarely) if the message comes back before we actually start waiting,
+			// in this case we'll just store the message for immediate processing once we start waiting
+			this.gotMessage = {
+				error: error,
+				message: message
+			};
+			return;
+		}
 		if (error) { return this.messageCallback(error); }
 		Assert(message.channel === this.channelName, 'received message doesn\'t match channel name');
 		Assert(message.message === this.message, 'received message doesn\'t match');
@@ -106,7 +115,11 @@ class PubNubTest extends GenericTest {
 	// wait for the message to be received
 	waitForMessage (callback) {
 		this.messageCallback = callback;
-		// now, do nothing...
+		if (this.gotMessage) {
+			// already got the message, before we even started waiting
+			return this.messageReceived(this.gotMessage.error, this.gotMessage.message);
+		}
+		// otherwise, do nothing until the message arrives...
 	}
 
 	// clear out timer
