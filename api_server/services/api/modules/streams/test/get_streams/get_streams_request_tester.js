@@ -12,6 +12,8 @@ var GetAllStreamsByRepoTest = require('./get_all_streams_by_repo_test');
 var InvalidTypeTest = require('./invalid_type_test');
 var NoRepo_IDTest = require('./no_repo_id_test');
 var TeamIDRequiredTest = require('./team_id_required_test');
+var GetUnreadStreamsTest = require('./get_unread_streams_test');
+var GetNoUnreadStreamsTest = require('./get_no_unread_streams_test');
 var ACLTest = require('./acl_test');
 
 class GetStreamsRequestTester {
@@ -29,6 +31,8 @@ class GetStreamsRequestTester {
 		new InvalidTypeTest().test();
 		new NoRepo_IDTest().test();
 		new TeamIDRequiredTest().test();
+		new GetUnreadStreamsTest().test();
+		new GetNoUnreadStreamsTest().test();
 		new ACLTest().test();
 	}
 }

@@ -15,7 +15,11 @@ class GetManyRequest extends RestfulRequest {
 
 	fetch (callback) {
 		let queryAndOptions = this.makeQueryAndOptions();
-		if (!queryAndOptions.query) {
+		if (queryAndOptions.fetchNothing) {
+			this.models = [];
+			return callback();
+		}
+		else if (!queryAndOptions.query) {
 			return callback(queryAndOptions); // error
 		}
 		let { func, query, queryOptions } = queryAndOptions;
@@ -34,6 +38,10 @@ class GetManyRequest extends RestfulRequest {
 		let query = this.buildQuery();
 		if (typeof query === 'string') {
 			return this.errorHandler.error('badQuery', { reason: query });
+		}
+		else if (query === false) {
+			// fetch nothing
+			return { fetchNothing: true };
 		}
 		let queryOptions = this.getQueryOptions();
 		let func;
