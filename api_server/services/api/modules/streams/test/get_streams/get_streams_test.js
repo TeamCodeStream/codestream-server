@@ -6,6 +6,11 @@ const StreamTestConstants = require('../stream_test_constants');
 
 class GetStreamsTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.numStreams = 3;
+	}
+
 	before (callback) {
 		this.usersByTeam = {};
 		BoundAsync.series(this, [
@@ -49,6 +54,7 @@ class GetStreamsTest extends CodeStreamAPITest {
 	}
 
 	createRepoWithoutMe (callback) {
+		if (this.dontDoForeign) { return callback(); }
 		let options = {
 			withEmails: [this.usersByTeam[this.myTeam._id][0].email],
 			withRandomEmails: 1,
@@ -67,10 +73,17 @@ class GetStreamsTest extends CodeStreamAPITest {
 	}
 
 	createChannelDirectStreams (callback) {
+		if (this.dontDoTeamStreams) {
+			return callback();
+		}
 		this.streamsByTeam = {};
+		let teams = [this.myTeam];
+		if (!this.dontDoForeign) {
+			teams.push(this.foreignTeam);
+		}
 		BoundAsync.forEachSeries(
 			this,
-			[this.myTeam, this.foreignTeam],
+			teams,
 			this.createChannelDirectStreamsForTeam,
 			callback
 		);
@@ -91,7 +104,7 @@ class GetStreamsTest extends CodeStreamAPITest {
 	createStreamsForTeam (team, type, callback) {
 		BoundAsync.timesSeries(
 			this,
-			2,
+			this.numStreams,
 			(n, timesCallback) => {
 				this.createStreamForTeam(team, type, n, timesCallback);
 			},
@@ -100,7 +113,7 @@ class GetStreamsTest extends CodeStreamAPITest {
 	}
 
 	createStreamForTeam (team, type, n, callback) {
-		let user = this.usersByTeam[team._id][n];
+		let user = this.usersByTeam[team._id][n % this.usersByTeam[team._id].length];
 		let options = {
 			teamId: team._id,
 			type: type,
@@ -123,9 +136,13 @@ class GetStreamsTest extends CodeStreamAPITest {
 
 	createFileStreams (callback) {
 		this.streamsByRepo = {};
+		let repos = [this.myRepo];
+		if (!this.dontDoForeign) {
+			repos.push(this.foreignRepo);
+		}
 		BoundAsync.forEachSeries(
 			this,
-			[this.myRepo, this.foreignRepo],
+			repos,
 			this.createFileStreamsForRepo,
 			callback
 		);
@@ -135,7 +152,7 @@ class GetStreamsTest extends CodeStreamAPITest {
 		this.streamsByRepo[repo._id] = [];
 		BoundAsync.timesSeries(
 			this,
-			3,
+			this.numStreams,
 			(n, timesCallback) => {
 				this.createFileStreamForRepo(repo, timesCallback);
 			},

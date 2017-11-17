@@ -9,7 +9,8 @@ const EXPECTED_STREAM_FIELDS = [
 	'modifiedAt',
 	'creatorId',
 	'teamId',
-	'type'
+	'type',
+	'sortId'
 ];
 
 const EXPECTED_CHANNEL_STREAM_FIELDS = [

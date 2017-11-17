@@ -7,7 +7,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 class MostRecentPostTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'mostRecentPostId for the stream should get updated to the post when a post is created in the stream';
+		return 'mostRecentPostId and sortId for the stream should get updated to the post when a post is created in the stream';
 	}
 
 	get method () {
@@ -15,7 +15,7 @@ class MostRecentPostTest extends CodeStreamAPITest {
 	}
 
 	getExpectedFields () {
-		return { stream: ['mostRecentPostId'] };
+		return { stream: ['mostRecentPostId', 'sortId'] };
 	}
 
 	before (callback) {
@@ -98,6 +98,7 @@ class MostRecentPostTest extends CodeStreamAPITest {
 
 	validateResponse (data) {
 		Assert(data.stream.mostRecentPostId === this.posts[this.posts.length - 1]._id, 'mostRecentPostId for stream does not match post');
+		Assert(data.stream.sortId === this.posts[this.posts.length - 1]._id, 'sortId for stream does not match post');
 	}
 }
 

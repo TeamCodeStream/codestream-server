@@ -12,7 +12,7 @@ class GetStreamsByTeamIdAndIdsTest extends GetStreamsTest {
 		let teamId = this.myTeam._id;
 		this.myStreams = [
 			this.streamsByTeam[teamId][1],
-			this.streamsByTeam[teamId][3]
+			this.streamsByTeam[teamId][4]
 		];
 		let ids = this.myStreams.map(stream => stream._id);
 		this.path = `/streams?teamId=${teamId}&ids=${ids}`;
