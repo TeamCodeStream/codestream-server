@@ -30,12 +30,6 @@ class APIRequest {
 			// deeper authorization of the request (ACL) which may involve a closer inspection of the details of the request,
 			// including reading some data into the data cache
 			'authorize',
-			// normalize the request (set any default attributes, correct inconsistencies, etc)
-			'normalize',
-			// read any data needed to process the request, not that we can't read later, but it's good to front-load as much data
-			// as possible so as not to pollute the processing phase with a bunch of database reads
-			// from here on in we assume the process can do anything and everything, there is no deeper acl checking
-			'readInitialData',
 			// process the request, this is the meat of it, we maintain a data cache that handles all the database soft-locking and
 			// caching so nothing is retrieved from the database more than once and no objects are repeated, we maintain the touched
 			// objects here as well
@@ -49,8 +43,6 @@ class APIRequest {
 			// perform any additional persistence to the database, same as persist but here it is recognized that we have already sent
 			// a response to the client
 			'postProcessPersist',
-			// broadcast any and all additions/changes/deletions to listening clients
-			'broadcast',
 			// final cleanup
 			'cleanup',
 			// close the request
