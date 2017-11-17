@@ -5,7 +5,7 @@ var RepoCreator = require('./repo_creator');
 //var RepoUpdater = require('./repo_updater');
 var Repo = require('./repo');
 
-const REPO_STANDARD_ROUTES = {
+const REPOS_STANDARD_ROUTES = {
 	want: ['get', 'getMany', 'post'],
 	baseRouteName: 'repos',
 	requestClasses: {
@@ -13,6 +13,15 @@ const REPO_STANDARD_ROUTES = {
 		'post': require('./post_repo_request')
 	}
 };
+
+const REPOS_ADDITIONAL_ROUTES = [
+	{
+		method: 'get',
+		path: 'no-auth/find-repo',
+		requestClass: require('./find_repo_request')
+	}
+];
+
 
 class Repos extends Restful {
 
@@ -39,7 +48,8 @@ class Repos extends Restful {
 */
 
 	getRoutes () {
-		return super.getRoutes(REPO_STANDARD_ROUTES);
+		let standardRoutes = super.getRoutes(REPOS_STANDARD_ROUTES);
+		return [...standardRoutes, ...REPOS_ADDITIONAL_ROUTES];
 	}
 }
 

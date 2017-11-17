@@ -18,7 +18,7 @@ class AccessLogger extends APIServerModule {
 			const startTimer = Date.now();
 			this.logRequest(request, response, 'BEGIN', startTimer);
 			response.on('finish', () => {
-				this.logRequest(request, response, 'COMPLETE', startTimer);
+				this.logRequest(request, response, 'RESPONDED', startTimer);
 			});
 			response.on('close', () => {
 				this.logRequest(request, response, 'ABORTED', startTimer);
