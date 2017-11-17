@@ -4,6 +4,7 @@ var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_cre
 var Stream = require('./stream');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var StreamSubscriptionGranter = require('./stream_subscription_granter');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 const StreamTypes = require('./stream_types');
 const Errors = require('./errors');
 
@@ -112,7 +113,15 @@ class StreamCreator extends ModelCreator {
 
 	preSave (callback) {
 		this.attributes.creatorId = this.user.id;
-		super.preSave(callback);
+		BoundAsync.series(this, [
+			this.createId,
+			super.preSave
+		], callback);
+	}
+
+	createId (callback) {
+		this.attributes._id = this.attributes.sortId = this.data.streams.createId();
+		callback();
 	}
 
 	postSave (callback) {

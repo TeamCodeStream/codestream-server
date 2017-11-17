@@ -1,36 +1,43 @@
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
+var GetStreamsTest = require('./get_streams_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
 const Limits = require(process.env.CS_API_TOP + '/config/limits');
 
-class PaginationTest extends GetPostsTest {
+class PaginationTest extends GetStreamsTest {
 
 	constructor (options) {
 		super(options);
-		this.numPosts = this.defaultPagination ? Math.floor(Limits.maxPostsPerRequest * 2.5) : 17;
-		this.postsPerPage = this.defaultPagination ? Limits.maxPostsPerRequest : 5;
+		this.numStreams = this.defaultPagination ? Math.floor(Limits.maxStreamsPerRequest * 2.5) : 17;
+		this.streamsPerPage = this.defaultPagination ? Limits.maxStreamsPerRequest : 5;
+		this.dontDoForeign = true;
+		this.dontDoTeamStreams = true;
 	}
 
 	get description () {
 		let order = this.ascending ? 'ascending' : 'descending';
 		let type = this.defaultPagination ? 'default' : 'custom';
-		let description = `should return the correct posts in correct ${order} order when requesting posts in ${type} pages`;
+		let description = `should return the correct streams in correct ${order} order when requesting streams in ${type} pages`;
 		if (this.tryOverLimit) {
-			description += `, and should limit page size to ${Limits.maxPostsPerRequest}`;
+			description += `, and should limit page size to ${Limits.maxStreamsPerRequest}`;
 		}
 		return description;
 	}
 
+	setPath (callback) {
+		callback(); // no-op, set path later
+	}
+
 	run (callback) {
-		this.numPages = Math.floor(this.numPosts / this.postsPerPage);
-		if (this.numPosts % this.postsPerPage !== 0) {
+		this.myStreams = this.streamsByRepo[this.myRepo._id];
+		this.numPages = Math.floor(this.numStreams / this.streamsPerPage);
+		if (this.numStreams % this.streamsPerPage !== 0) {
 			this.numPages++;
 		}
-		this.allPosts = this.myPosts;
+		this.allStreams = this.myStreams;
 		if (!this.ascending) {
-			this.allPosts.reverse();
+			this.allStreams.reverse();
 		}
 		BoundAsync.timesSeries(
 			this,
@@ -41,13 +48,13 @@ class PaginationTest extends GetPostsTest {
 	}
 
 	fetchPage (pageNum, callback) {
-		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}`;
+		this.path = `/streams/?teamId=${this.myTeam._id}&repoId=${this.myRepo._id}`;
 		if (this.tryOverLimit) {
-			let limit = Limits.maxPostsPerRequest * 2;
+			let limit = Limits.maxStreamsPerRequest * 2;
 			this.path += `&limit=${limit}`;
 		}
 		else if (!this.defaultPagination) {
-			this.path += `&limit=${this.postsPerPage}`;
+			this.path += `&limit=${this.streamsPerPage}`;
 		}
 		if (this.ascending) {
 			this.path += '&sort=asc';
@@ -72,15 +79,15 @@ class PaginationTest extends GetPostsTest {
 
 	validatePageResponse (pageNum, response) {
 		Assert(typeof response === 'object', `response to page ${pageNum} fetch is not an object`);
-		Assert(response.posts instanceof Array, `response.posts for ${pageNum} fetch is not an array`);
+		Assert(response.streams instanceof Array, `response.streams for ${pageNum} fetch is not an array`);
 		if (pageNum + 1 < this.numPages) {
 			Assert(response.more === true, `more expected for page ${pageNum}`);
 		}
-		let begin = pageNum * this.postsPerPage;
-		let end = begin + this.postsPerPage;
-		this.myPosts = this.allPosts.slice(begin, end);
+		let begin = pageNum * this.streamsPerPage;
+		let end = begin + this.streamsPerPage;
+		this.myStreams = this.allStreams.slice(begin, end);
 		this.validateResponse(response);
-		this.lastId = this.myPosts[this.myPosts.length - 1]._id;
+		this.lastId = this.myStreams[this.myStreams.length - 1].sortId;
 	}
 }
 

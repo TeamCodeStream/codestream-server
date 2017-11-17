@@ -148,7 +148,8 @@ class PostCreator extends ModelCreator {
 	updateStream (callback) {
 		let op = {
 			set: {
-				mostRecentPostId: this.attributes._id
+				mostRecentPostId: this.attributes._id,
+				sortId: this.attributes._id
 			}
 		};
 		this.data.streams.applyOpById(

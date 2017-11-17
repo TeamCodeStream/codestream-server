@@ -49,7 +49,7 @@ class GetPostsRequestTester {
 		new PaginationTest({ascending: true}).test();
 		new PaginationTest({defaultPagination: true}).test();
 		new PaginationTest({defaultPagination: true, ascending: true}).test();
-		new PaginationTest({defaultPagination: true, tryOverLimit: 150}).test();
+		new PaginationTest({defaultPagination: true, tryOverLimit: true}).test();
 		new InvalidParameterTest().test();
 		new OneRelationalTest().test();
 		new InvalidIDTest().test();

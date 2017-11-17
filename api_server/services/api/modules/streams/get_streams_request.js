@@ -10,6 +10,18 @@ const BASIC_QUERY_PARAMETERS = [
 	'ids'
 ];
 
+const RELATIONAL_PARAMETERS = [
+	'lt',
+	'gt',
+	'lte',
+	'gte'
+];
+
+const NON_FILTERING_PARAMETERS = [
+	'limit',
+	'sort'
+];
+
 class GetStreamsRequest extends GetManyRequest {
 
 	authorize (callback) {
@@ -29,11 +41,15 @@ class GetStreamsRequest extends GetManyRequest {
 			// query returns nothing
 			return false;
 		}
+		else if (typeof query !== 'object') {
+			return query;
+		}
 		return this.checkValidQuery(query);
 	}
 
 	formQueryFromParameters () {
 		let query = {};
+		this.haveRelational = false;
 		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
 				let value = decodeURIComponent(this.request.query[parameter]).toLowerCase();
@@ -49,6 +65,28 @@ class GetStreamsRequest extends GetManyRequest {
 			}
 		}
 		return query;
+	}
+
+	getQueryOptions () {
+		let limit = 0;
+		if (this.request.query.limit) {
+			limit = decodeURIComponent(this.request.query.limit);
+			limit = parseInt(limit, 10);
+		}
+		this.limit = limit ?
+			Math.min(limit, this.api.config.limits.maxStreamsPerRequest || 100) :
+			this.api.config.limits.maxStreamsPerRequest;
+		this.limit += 1;
+		let sort = { sortId: -1 };
+		if (this.request.query.sort && this.request.query.sort.toLowerCase() === 'asc') {
+			sort = { sortId: 1 };
+		}
+		return {
+			databaseOptions: {
+				sort: sort,
+				limit: this.limit
+			}
+		};
 	}
 
 	checkValidQuery (query) {
@@ -94,6 +132,34 @@ class GetStreamsRequest extends GetManyRequest {
 				query._id = { $in: ids };
 			}
 		}
+		else if (RELATIONAL_PARAMETERS.indexOf(parameter) !== -1) {
+			let error = this.processRelationalParameter(parameter, value, query);
+			if (error) { return error; }
+		}
+		else if (NON_FILTERING_PARAMETERS.indexOf(parameter) === -1) {
+			return 'invalid query parameter: ' + parameter;
+		}
+	}
+
+	processRelationalParameter (parameter, value, query) {
+		if (this.haveRelational) {
+			return 'only one relational parameter allowed';
+		}
+		this.haveRelational = true;
+		query.sortId = {
+			['$' + parameter]: value
+		};
+	}
+
+	process (callback) {
+		super.process((error) => {
+			if (error) { return callback(error); }
+			if (this.responseData.streams.length === this.limit) {
+				this.responseData.streams.splice(-1);
+				this.responseData.more = true;
+			}
+			process.nextTick(callback);
+		});
 	}
 }
 

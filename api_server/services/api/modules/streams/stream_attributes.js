@@ -26,5 +26,8 @@ module.exports = {
 	},
 	mostRecentPostId: {
 		type: 'id'
+	},
+	sortId: {
+		type: 'id'
 	}
 };
