@@ -25,6 +25,10 @@ class GetStreamsRequest extends GetManyRequest {
 
 	buildQuery () {
 		let query = this.formQueryFromParameters();
+		if (query === false) {
+			// query returns nothing
+			return false;
+		}
 		return this.checkValidQuery(query);
 	}
 
@@ -37,6 +41,10 @@ class GetStreamsRequest extends GetManyRequest {
 				let error = this.processQueryParameter(parameter, value, query);
 				if (error) {
 					return error;
+				}
+				else if (error === false) {
+					// query returns nothing
+					return false;
 				}
 			}
 		}
@@ -73,6 +81,17 @@ class GetStreamsRequest extends GetManyRequest {
 			}
 			else {
 				query[parameter] = value;
+			}
+		}
+		else if (parameter === 'unread') {
+			let ids = Object.keys(this.user.get('lastReads') || {});
+			if (ids.length === 0) {
+				// no unreads
+				return false;
+			}
+			else {
+				ids = ids.map(id => this.data.streams.objectIdSafe(id));
+				query._id = { $in: ids };
 			}
 		}
 	}
