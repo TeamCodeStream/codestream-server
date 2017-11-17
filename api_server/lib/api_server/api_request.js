@@ -160,7 +160,10 @@ class APIRequest {
 			return this.handleErrorResponse(callback);
 		}
 		this.statusCode = this.statusCode || 200;
-		this.response.status(this.statusCode).send(this.responseData);
+		this.response.
+			set('X-Request-Id', this.request.id).
+			status(this.statusCode).
+			send(this.responseData);
 		process.nextTick(callback);
 	}
 
