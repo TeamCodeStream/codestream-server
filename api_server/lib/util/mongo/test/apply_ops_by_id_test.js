@@ -19,32 +19,32 @@ class ApplyOpsByIdTest extends GetByIdTest {
 	updateDocument (callback) {
 		const ops = [
 			{
-				set: {
+				'$set': {
 					text: 'replaced!',
 					newText: 'new text'
 				},
-				unset: {
+				'$unset': {
 					flag: true
 				}
 			},
 			{
-				push: {
+				'$push': {
 					array: 9
 				}
 			},
 			{
-				push: {
+				'$push': {
 					newArray: 1
 				},
-				pull: {
+				'$pull': {
 					array: 1
 				},
 			},
 			{
-				add: {
+				'$addToSet': {
 					newArray: 2
 				},
-				set: {
+				'$set': {
 					newText: 'new text replaced!'
 				}
 			}

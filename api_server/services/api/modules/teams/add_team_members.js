@@ -136,7 +136,7 @@ class AddTeamMembers  {
 		let ids = this.usersToAdd.map(user => user.id);
 		this.data.teams.applyOpById(
 			this.team.id,
-			{ add: { memberIds: ids } },
+			{ '$addToSet': { memberIds: ids } },
 			callback
 		);
 	}
@@ -156,7 +156,7 @@ class AddTeamMembers  {
 		this.data.users.applyOpById(
 			user.id,
 			{
-				add: {
+				'$addToSet': {
 					companyIds: this.team.get('companyId'),
 					teamIds: this.team.id
 				}

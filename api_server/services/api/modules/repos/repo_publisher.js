@@ -47,7 +47,7 @@ class RepoPublisher {
 			requestId: this.requestId,
 			users: [{
 				_id: user._id,
-				$add: {
+				'$addToSet': {
 					teamIds: teamId
 				}
 			}]

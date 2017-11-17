@@ -158,10 +158,10 @@ class ConfirmRequest extends RestfulRequest {
 
 	updateUser (callback) {
 		let op = {
-			set: {
+			'$set': {
 				isRegistered: true
 			},
-			unset: {
+			'$unset': {
 				confirmationCode: true,
 				confirmationAttempts: true,
 				confirmationCodeExpiresAt: true

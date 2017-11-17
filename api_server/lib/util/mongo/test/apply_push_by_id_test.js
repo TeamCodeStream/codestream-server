@@ -22,7 +22,7 @@ class ApplyPushByIdTest extends GetByIdTest {
 		};
 		this.data.test.applyOpById(
 			this.testDocument._id,
-			{ push: update },
+			{ '$push': update },
 			(error) => {
 				if (error) { return callback(error); }
 				this.testDocument.array.push(7);

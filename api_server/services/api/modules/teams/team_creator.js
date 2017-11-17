@@ -235,7 +235,7 @@ class TeamCreator extends ModelCreator {
 		this.data.users.applyOpById(
 			user.id,
 			{
-				add: {
+				'$addToSet': {
 					companyIds: this.attributes.companyId,
 					teamIds: this.model.id
 				}

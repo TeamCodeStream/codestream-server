@@ -15,7 +15,7 @@ class ApplySetSubObjectToCacheTest extends UpdateToCacheTest {
 		};
 		this.data.test.applyOpById(
 			this.testModel.id,
-			{ set: set },
+			{ '$set': set },
 			(error) => {
 				if (error) { return callback(error); }
 				Object.assign(this.testModel.attributes.object, { x: 'replaced!', z: 3 });

@@ -22,7 +22,7 @@ class ApplyUnsetSubObjectByIdTest extends GetByIdTest {
 		};
 		this.data.test.applyOpById(
 			this.testDocument._id,
-			{ unset: update },
+			{ '$unset': update },
 			(error) => {
 				if (error) { return callback(error); }
 				delete this.testDocument.object.y;

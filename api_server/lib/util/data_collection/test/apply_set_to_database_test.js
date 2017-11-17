@@ -15,7 +15,7 @@ class ApplySetToDatabaseTest extends UpdateToDatabaseTest {
 		};
 		this.data.test.applyOpById(
 			this.testModel.id,
-			{ set: set },
+			{ '$set': set },
 			(error) => {
 				if (error) { return callback(error); }
 				Object.assign(this.testModel.attributes, set);

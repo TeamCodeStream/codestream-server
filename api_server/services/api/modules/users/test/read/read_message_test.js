@@ -126,7 +126,7 @@ class ReadMessageTest extends CodeStreamMessageTest {
 				this.message = {
 					user: {
 						_id: this.currentUser._id,
-						unset: {
+						'$unset': {
 							['lastReads.' + this.stream._id]: true
 						}
 					}
