@@ -14,7 +14,7 @@ class ApplyNoPullToDatabaseTest extends UpdateToDatabaseTest {
 		};
 		this.data.test.applyOpById(
 			this.testModel.id,
-			{ pull: update },
+			{ '$pull': update },
 			callback
 		);
 	}

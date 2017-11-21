@@ -22,7 +22,7 @@ class ApplyNoPullByIdTest extends GetByIdTest {
 		};
 		this.data.test.applyOpById(
 			this.testDocument._id,
-			{ pull: update },
+			{ '$pull': update },
 			callback
 		);
 	}

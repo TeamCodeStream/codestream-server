@@ -3,17 +3,17 @@
 var DeepClone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
 
 var _Ops = {
-	set: function(document, field, value) {
+	'$set': function(document, field, value) {
 		document[field] = DeepClone(value);
 	},
 
-	unset: function(document, field, value) {
+	'$unset': function(document, field, value) {
 		if (value) {
 			delete document[field];
 		}
 	},
 
-	add: function(document, field, value) {
+	'$addToSet': function(document, field, value) {
 		if (typeof document[field] === 'undefined') {
 			document[field] = [];
 		}
@@ -30,7 +30,7 @@ var _Ops = {
 		});
 	},
 
-	push: function(document, field, value) {
+	'$push': function(document, field, value) {
 		if (typeof document[field] === 'undefined') {
 			document[field] = [];
 		}
@@ -39,7 +39,7 @@ var _Ops = {
 		}
 	},
 
-	pull: function(document, field, value) {
+	'$pull': function(document, field, value) {
 		if (typeof document[field] === 'undefined') {
 			document[field] = [];
 			return;
@@ -80,23 +80,23 @@ var _documentOpsHelper = function(opType, document, op) {
 
 module.exports = {
 
-	set: function(model, set) {
+	'$set': function(model, set) {
 		_documentOpsHelper('set', model.attributes, set);
 	},
 
-	unset: function(model, set) {
+	'$unset': function(model, set) {
 		_documentOpsHelper('unset', model.attributes, set);
 	},
 
-	add: function(model, set) {
+	'$addToSet': function(model, set) {
 		_documentOpsHelper('add', model.attributes, set);
 	},
 
-	push: function(model, set) {
+	'$push': function(model, set) {
 		_documentOpsHelper('push', model.attributes, set);
 	},
 
-	pull: function(model, set) {
+	'$pull': function(model, set) {
 		_documentOpsHelper('pull', model.attributes, set);
 	},
 

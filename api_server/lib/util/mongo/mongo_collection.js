@@ -20,14 +20,14 @@ let _mongoAddToSetValue = function(value) {
 };
 
 const OP_TO_DB_OP = {
-	set: '$set',
-	unset: '$unset',
-	add: {
+	'$set': '$set',
+	'$unset': '$unset',
+	'$addToSet': {
 		dbOp: '$addToSet',
 		valueFunc: _mongoAddToSetValue
 	},
-	push: '$push',
-	pull: '$pull'
+	'$push': '$push',
+	'$pull': '$pull'
 };
 
 class MongoCollection {

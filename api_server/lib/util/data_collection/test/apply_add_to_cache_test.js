@@ -14,7 +14,7 @@ class ApplyAddToCacheTest extends UpdateToCacheTest {
 		};
 		this.data.test.applyOpById(
 			this.testModel.id,
-			{ add: update },
+			{ '$addToSet': update },
 			(error) => {
 				if (error) { return callback(error); }
 				this.testModel.attributes.array.push(7);

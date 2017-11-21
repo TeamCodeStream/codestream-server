@@ -23,7 +23,7 @@ class ApplySetByIdTest extends GetByIdTest {
 		};
 		this.data.test.applyOpById(
 			this.testDocument._id,
-			{ set: update },
+			{ '$set': update },
 			(error) => {
 				if (error) { return callback(error); }
 				Object.assign(this.testDocument, update);

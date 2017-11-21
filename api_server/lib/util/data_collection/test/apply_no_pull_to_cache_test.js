@@ -14,7 +14,7 @@ class ApplyNoPullToCacheTest extends UpdateToCacheTest {
 		};
 		this.data.test.applyOpById(
 			this.testModel.id,
-			{ pull: update },
+			{ '$pull': update },
 			callback
 		);
 	}

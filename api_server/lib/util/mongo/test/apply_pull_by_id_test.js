@@ -22,7 +22,7 @@ class ApplyPullByIdTest extends GetByIdTest {
 		};
 		this.data.test.applyOpById(
 			this.testDocument._id,
-			{ pull: update },
+			{ '$pull': update },
 			(error) => {
 				if (error) { return callback(error); }
 				let index = this.testDocument.array.indexOf(4);

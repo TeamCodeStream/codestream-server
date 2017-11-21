@@ -14,7 +14,7 @@ class ApplyUnsetSubObjectToCacheTest extends UpdateToCacheTest {
 		};
 		this.data.test.applyOpById(
 			this.testModel.id,
-			{ unset: unset },
+			{ '$unset': unset },
 			(error) => {
 				if (error) { return callback(error); }
 				delete this.testModel.attributes.object.y;

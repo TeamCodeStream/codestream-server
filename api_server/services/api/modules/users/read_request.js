@@ -27,14 +27,14 @@ class ReadRequest extends RestfulRequest {
 		this.streamId = this.request.params.streamId.toLowerCase();
 		if (this.streamId === 'all') {
 			this.op = {
-				unset: {
+				'$unset': {
 					lastReads: true
 				}
 			};
 		}
 		else {
 			this.op = {
-				unset: {
+				'$unset': {
 					['lastReads.' + this.streamId]: true
 				}
 			};

@@ -22,7 +22,7 @@ class ApplyAddByIdTest extends GetByIdTest {
 		};
 		this.data.test.applyOpById(
 			this.testDocument._id,
-			{ add: update },
+			{ '$addToSet': update },
 			(error) => {
 				if (error) { return callback(error); }
 				this.testDocument.array.push(7);

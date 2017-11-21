@@ -196,7 +196,7 @@ class DataCollection {
 		let cachedModel = this.models[id];
 		if (cachedModel) {
 			if (modelOps) {
-				modelOps.push({ set: model.attributes });
+				modelOps.push({ '$set': model.attributes });
 			}
 			else {
 				Object.assign(cachedModel.attributes, model.attributes);
@@ -233,7 +233,7 @@ class DataCollection {
 		}
 		this.modelOps[id] = this.modelOps[id] || [];
 		if (cachedModel && isDirty && this.modelOps[id].length === 0) {
-			this.modelOps[id].push({ set: cachedModel.attributes });
+			this.modelOps[id].push({ '$set': cachedModel.attributes });
 		}
 		this.modelOps[id].push(op);
 		if (!this.toCreateIds[id]) {

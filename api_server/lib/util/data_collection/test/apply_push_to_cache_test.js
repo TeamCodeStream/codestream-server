@@ -14,7 +14,7 @@ class ApplyPushToCacheTest extends UpdateToCacheTest {
 		};
 		this.data.test.applyOpById(
 			this.testModel.id,
-			{ push: update },
+			{ '$push': update },
 			(error) => {
 				if (error) { return callback(error); }
 				this.testModel.attributes.array.push(7);

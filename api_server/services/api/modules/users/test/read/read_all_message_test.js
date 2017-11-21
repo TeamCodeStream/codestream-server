@@ -20,7 +20,7 @@ class ReadAllMessageTest extends ReadMessageTest {
 				this.message = {
 					user: {
 						_id: this.currentUser._id,
-						unset: {
+						'$unset': {
 							lastReads: true
 						}
 					}

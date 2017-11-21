@@ -31,7 +31,7 @@ class UsersJoinNewTeamMessageTest extends CodeStreamMessageTest {
 				this.message = {
 					users: [{
 						_id: this.currentUser._id,
-						$add: {
+						'$addToSet': {
 							teamIds: response.team._id
 						}
 					}]

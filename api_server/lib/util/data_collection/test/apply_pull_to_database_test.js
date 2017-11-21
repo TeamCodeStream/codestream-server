@@ -14,7 +14,7 @@ class ApplyPullToDatabaseTest extends UpdateToDatabaseTest {
 		};
 		this.data.test.applyOpById(
 			this.testModel.id,
-			{ pull: update },
+			{ '$pull': update },
 			(error) => {
 				if (error) { return callback(error); }
 				let index = this.testModel.attributes.array.indexOf(4);
