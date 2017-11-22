@@ -26,7 +26,8 @@ class LoginRequest extends RestfulRequest {
 			this.getUser,
 			this.validatePassword,
 			this.generateToken,
-			this.getInitialData
+			this.getInitialData,
+			this.formResponse
 		], callback);
 	}
 
@@ -89,10 +90,7 @@ class LoginRequest extends RestfulRequest {
 				if (error) {
 					return callback(this.errorHandler.error('token', { reason: error }));
 				}
-				this.responseData = {
-					user: this.user.getSanitizedObject(),
-					accessToken: token
-				};
+				this.accessToken = token;
 				process.nextTick(callback);
 			}
 		);
@@ -103,9 +101,20 @@ class LoginRequest extends RestfulRequest {
 			request: this
 		}).fetchInitialData((error, initialData) => {
 			if (error) { return callback(error); }
-			Object.assign(this.responseData, initialData);
+			this.initialData = initialData;
 			callback();
 		});
+	}
+
+	formResponse (callback) {
+		let meOnlyAttributes = this.user.getMeOnlyAttributes();
+		this.responseData = {
+			user: this.user.getSanitizedObject(),
+			accessToken: this.accessToken
+		};
+		Object.assign(this.responseData, this.initialData);
+		Object.assign(this.responseData.user, meOnlyAttributes);
+		return process.nextTick(callback);
 	}
 }
 

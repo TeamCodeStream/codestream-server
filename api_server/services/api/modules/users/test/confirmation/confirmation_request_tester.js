@@ -12,6 +12,7 @@ var ConfirmationMessageToTeamTest = require('./confirmation_message_to_team_test
 var ConfirmationMessageToOtherUserTest = require('./confirmation_message_to_other_user_test');
 var ConflictingUsernameTest = require('./conflicting_username_test');
 var InitialDataTest = require('./initial_data_test');
+var MeAttributesTest = require('./me_attributes_test');
 
 class ConfirmationRequestTester {
 
@@ -30,6 +31,7 @@ class ConfirmationRequestTester {
 		new ConfirmationMessageToOtherUserTest().test();
 		new ConflictingUsernameTest().test();
 		new InitialDataTest().test();
+		new MeAttributesTest().test();
 	}
 }
 

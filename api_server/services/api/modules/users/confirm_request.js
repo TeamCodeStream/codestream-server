@@ -226,11 +226,13 @@ class ConfirmRequest extends RestfulRequest {
 	}
 
 	formResponse (callback) {
+		let meOnlyAttributes = this.user.getMeOnlyAttributes();
 		this.responseData = {
 			user: this.user.getSanitizedObject(),
 			accessToken: this.accessToken
 		};
 		Object.assign(this.responseData, this.initialData);
+		Object.assign(this.responseData.user, meOnlyAttributes);
 		return process.nextTick(callback);
 	}
 
