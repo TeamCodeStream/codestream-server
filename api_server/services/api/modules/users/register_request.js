@@ -12,7 +12,7 @@ class RegisterRequest extends RestfulRequest {
 
 	constructor (options) {
 		super(options);
-		this.confirmationRequired = this.api.config.api.confirmationRequired || this.request.body._forceConfirmation;
+		this.confirmationRequired = !this.api.config.api.confirmationNotRequired || this.request.body._forceConfirmation;
 		delete this.request.body._forceConfirmation;
 	}
 
