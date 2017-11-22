@@ -3,7 +3,6 @@
 var ConfirmationTest = require('./confirmation_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Assert = require('assert');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
 class InitialDataTest extends ConfirmationTest {
 
@@ -13,9 +12,9 @@ class InitialDataTest extends ConfirmationTest {
 
 	before (callback) {
 		BoundAsync.series(this, [
+			super.before,
 			this.createOtherUser,
-			this.createRepo,
-			this.registerUser
+			this.createRepo
 		], callback);
 	}
 
@@ -30,7 +29,6 @@ class InitialDataTest extends ConfirmationTest {
 	}
 
 	createRepo (callback) {
-		this.email = this.userFactory.randomEmail();
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -39,33 +37,8 @@ class InitialDataTest extends ConfirmationTest {
 				callback();
 			},
 			{
-				withEmails: [this.email],
+				withEmails: [this.data.email],
 				token: this.otherUserData.accessToken
-			}
-		);
-	}
-
-	registerUser (callback) {
-		let data = this.userFactory.getRandomUserData();
-		Object.assign(data, {
-			email: this.email,
-			_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response
-			_forceConfirmation: true	// overrides developer environment, where confirmation might be turned off
-		});
-		this.doApiRequest(
-			{
-				method: 'post',
-				path: '/no-auth/register',
-				data: data
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.data = {
-					userId: response.user._id,
-					email: this.email,
-					confirmationCode: response.user.confirmationCode
-				};
-				callback();
 			}
 		);
 	}

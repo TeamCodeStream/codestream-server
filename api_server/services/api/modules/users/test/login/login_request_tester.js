@@ -5,6 +5,7 @@ var InvalidPasswordTest = require('./invalid_password_test');
 var InvalidEmailTest = require('./invalid_email_test');
 var NoAttributeTest = require('./no_attribute_test');
 var InitialDataTest = require('./initial_data_test');
+var MeAttributesTest = require('./me_attributes_test');
 
 class LoginRequestTester {
 
@@ -15,6 +16,7 @@ class LoginRequestTester {
 		new InvalidPasswordTest().test();
 		new InvalidEmailTest().test();
 		new InitialDataTest().test();
+		new MeAttributesTest().test();
 	}
 }
 

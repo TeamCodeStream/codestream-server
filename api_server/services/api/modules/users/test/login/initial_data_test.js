@@ -12,9 +12,9 @@ class InitialDataTest extends LoginTest {
 
 	before (callback) {
 		BoundAsync.series(this, [
+			super.before,
 			this.createOtherUser,
-			this.createRepo,
-			this.registerUser
+			this.createRepo
 		], callback);
 	}
 
@@ -39,20 +39,10 @@ class InitialDataTest extends LoginTest {
 				callback();
 			},
 			{
-				withEmails: [this.email],
+				withEmails: [this.data.email],
 				token: this.otherUserData.accessToken
 			}
 		);
-	}
-
-	registerUser (callback) {
-		let data = this.userFactory.getRandomUserData();
-		data.email = this.email;
-		this.data = {
-			email: this.email,
-			password: data.password
-		};
-		this.userFactory.createUser(data, callback);
 	}
 
 	validateResponse (data) {
