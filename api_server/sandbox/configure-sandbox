@@ -9,8 +9,14 @@
 # environment variables have been set.
 
 cd $CS_API_TOP
-echo "npm install (from `pwd`)"
-npm install
+if [ "$CS_API_YARN" == true ]; then
+    [ ! -f $CS_API_TOP/yarn.lock ] && echo "WARNING: yarn.lock not found - creating one"
+    echo "yarn install (from `pwd`)"
+    yarn install
+else
+    echo "npm install (from `pwd`)"
+    npm install
+fi
 
 # You must exit with a status of '0' if the script was successful or '1' otherwise.
 exit 0
