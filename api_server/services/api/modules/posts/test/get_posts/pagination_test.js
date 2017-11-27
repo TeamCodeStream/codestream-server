@@ -24,6 +24,9 @@ class PaginationTest extends GetPostsTest {
 	}
 
 	run (callback) {
+		this.myPosts.sort((a, b) => {
+			return a._id.localeCompare(b._id);
+		});
 		this.numPages = Math.floor(this.numPosts / this.postsPerPage);
 		if (this.numPosts % this.postsPerPage !== 0) {
 			this.numPages++;
