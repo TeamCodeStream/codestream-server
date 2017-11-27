@@ -16,6 +16,9 @@ class GetStreamsSortTest extends GetStreamsTest {
 
 	setPath (callback) {
 		this.myStreams = this.streamsByRepo[this.myRepo._id];
+		this.myStreams.sort((a, b) => {
+			return a._id.localeCompare(b._id);
+		});
 		this.path = `/streams/?teamId=${this.myTeam._id}&repoId=${this.myRepo._id}&sort=asc`;
 		callback();
 	}

@@ -9,6 +9,9 @@ class GetPostsSortTest extends GetPostsTest {
 	}
 
 	setPath (callback) {
+		this.myPosts.sort((a, b) => {
+			return a._id.localeCompare(b._id);
+		});
 		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&sort=asc`;
 		callback();
 	}

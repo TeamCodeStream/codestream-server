@@ -31,6 +31,9 @@ class PaginationTest extends GetStreamsTest {
 
 	run (callback) {
 		this.myStreams = this.streamsByRepo[this.myRepo._id];
+		this.myStreams.sort((a, b) => {
+			return a._id.localeCompare(b._id);
+		});
 		this.numPages = Math.floor(this.numStreams / this.streamsPerPage);
 		if (this.numStreams % this.streamsPerPage !== 0) {
 			this.numPages++;
