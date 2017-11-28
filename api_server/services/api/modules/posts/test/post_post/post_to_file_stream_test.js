@@ -24,7 +24,9 @@ class PostToFileStreamTest extends PostPostTest {
 	validateResponse (data) {
 		let post = data.post;
 		Assert(post.repoId === this.repo._id, 'repoId does not match the ID of the repo');
-		Assert(post.commitHashWhenPosted === this.data.commitHashWhenPosted.toLowerCase(), 'commitHashWhenPosted does not match');
+		if (post.commitHashWhenPosted) {
+			Assert(post.commitHashWhenPosted === this.data.commitHashWhenPosted.toLowerCase(), 'commitHashWhenPosted does not match');
+		}
 		super.validateResponse(data);
 	}
 }
