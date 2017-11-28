@@ -6,8 +6,7 @@
 # CS_API_SANDBOX  /path/to/root/of/sandbox
 # CS_API_TOP      /path/to/root/of/primary/git/project
 
-export PATH=$CS_API_SANDBOX/node/bin:$CS_API_TOP/bin:$PATH
-
+export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$PATH
 export CS_API_TOP=$CS_API_TOP
 export CS_API_MONGO_HOST=$MDB_HOST
 export CS_API_MONGO_PORT=$MDB_PORT
@@ -40,5 +39,4 @@ export CS_API_PUBNUB_SUBSCRIBE_KEY=sub-c-e830d7da-fb14-11e6-9f57-02ee2ddab7fe
 export CS_API_PUBNUB_SECRET=sec-c-MmU3MmNlOGQtNjNhYS00NTk1LWI3NDItZDZlMjk3NmJkMDVh
 
 # Specify the yarn package manager
-export CS_API_YARN=false
- 
+export CS_API_YARN=true

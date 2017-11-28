@@ -41,12 +41,14 @@ export CS_API_NAME=`dirname $CS_API_SANDBOX`
 # install it. Software is expected to be in the Sandbox Cloud. In this
 # case we're install the mongodb binaries from a tarball.
 
-software_pkg=node
-if [ -L $CS_API_SANDBOX/$software_pkg ]; then
-	echo "Additional software is already installed"
-else
-	echo "Installing $software_pkg"
-	dt-get-software $software_pkg $CS_API_SANDBOX || exit 1
-fi
+for software_pkg in node yarn
+do
+    if [ -L $CS_API_SANDBOX/$software_pkg ]; then
+    	echo "Additional software is already installed"
+    else
+    	echo "Installing $software_pkg"
+    	dt-get-software $software_pkg $CS_API_SANDBOX || exit 1
+    fi
+done
 
 exit 0
