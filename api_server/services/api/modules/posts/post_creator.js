@@ -4,8 +4,10 @@ var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var Post = require('./post');
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var StreamCreator = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_creator');
+var MarkerCreator = require(process.env.CS_API_TOP + '/services/api/modules/markers/marker_creator');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var LastReadsUpdater = require('./last_reads_updater');
+const PostAttributes = require('./post_attributes');
 
 class PostCreator extends ModelCreator {
 
@@ -25,6 +27,59 @@ class PostCreator extends ModelCreator {
 		if (!this.attributes.streamId && typeof this.attributes.stream !== 'object') {
 			return callback(this.errorHandler.error('attributeRequired', { info: 'streamId or stream' }));
 		}
+		if (this.attributes.codeBlocks && !this.attributes.commitHashWhenPosted) {
+			return callback(this.errorHandler.error('attributeRequired', { info: 'commitHashWhenPosted' }));
+		}
+		if (this.attributes.codeBlocks) {
+			this.validateCodeBlocks(callback);
+		}
+		else {
+			callback();
+		}
+	}
+
+	validateCodeBlocks (callback) {
+		let result = new Post().validator.validateArrayOfObjects(
+			this.attributes.codeBlocks,
+			PostAttributes.codeBlocks
+		);
+		if (result) {
+			return callback(this.errorHandler.error('validation', { info: `codeBlocks: ${result}` }));
+		}
+		BoundAsync.forEachSeries(
+			this,
+			this.attributes.codeBlocks,
+			this.validateCodeBlock,
+			error => {
+				if (error) {
+					return callback(this.errorHandler.error('validation', { info: `codeBlocks: ${error}` }));
+				}
+				else {
+					callback();
+				}
+			}
+		);
+	}
+
+	validateCodeBlock (codeBlock, callback) {
+		let numKeys = 2;
+		if (typeof codeBlock.code !== 'string') {
+			return callback('code must be a string');
+		}
+		let result = MarkerCreator.validateLocation(codeBlock.location);
+		if (result) {
+			return callback(result);
+		}
+		if (codeBlock.streamId) {
+			numKeys++;
+			let result = new Post().validator.validateId(codeBlock.streamId);
+			if (result) {
+				return callback('streamId is not a valid ID');
+			}
+		}
+		if (Object.keys(codeBlock).length > numKeys) {
+			return callback('improper attributes');
+		}
 		process.nextTick(callback);
 	}
 
@@ -32,8 +87,9 @@ class PostCreator extends ModelCreator {
 		Allow(
 			this.attributes,
 			{
-				string: ['streamId', 'text', 'commitShaWhenPosted', 'parentPostId'],
-				object: ['stream', 'location', 'replayInfo']
+				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId'],
+				object: ['stream'],
+				'array(object)': ['codeBlocks']
 			}
 		);
 		process.nextTick(callback);
@@ -47,6 +103,7 @@ class PostCreator extends ModelCreator {
 			this.getTeam,
 			this.createStream,
 			this.createId,
+			this.createMarkers,
 			super.preSave,
 			this.updateStream,
 			this.updateLastReads
@@ -145,6 +202,48 @@ class PostCreator extends ModelCreator {
 		callback();
 	}
 
+	createMarkers (callback) {
+		if (!this.attributes.codeBlocks) {
+			return callback();
+		}
+		this.markers = [];
+		this.attachToResponse.markers = [];
+		BoundAsync.forEachLimit(
+			this,
+			this.attributes.codeBlocks,
+			10,
+			this.createMarker,
+			callback
+		);
+	}
+
+	createMarker (codeBlock, callback) {
+		let markerInfo = {
+			teamId: this.attributes.teamId,
+			streamId: codeBlock.streamId || this.attributes.streamId,
+			postId: this.attributes._id,
+			commitHash: this.attributes.commitHashWhenPosted,
+			location: codeBlock.location
+		};
+		new MarkerCreator({
+			request: this.request
+		}).createMarker(
+			markerInfo,
+			(error, marker) => {
+				if (error) { return callback(error); }
+				this.markers.push(marker);
+				codeBlock.markerId = marker.id;
+				delete codeBlock.streamId; // gets put into the marker
+				let markerObject = marker.getSanitizedObject();
+				markerObject.location = codeBlock.location;
+				delete codeBlock.location; // gets put into the marker
+				markerObject.commitHash = this.attributes.commitHashWhenPosted.toLowerCase();
+				this.attachToResponse.markers.push(markerObject);
+				process.nextTick(callback);
+			}
+		);
+	}
+
 	updateStream (callback) {
 		let op = {
 			$set: {
@@ -152,6 +251,9 @@ class PostCreator extends ModelCreator {
 				sortId: this.attributes._id
 			}
 		};
+		if (this.markers && this.markers.length) {
+			op.$inc = { numMarkers: this.markers.length };
+		}
 		this.data.streams.applyOpById(
 			this.model.get('streamId'),
 			op,

@@ -37,6 +37,7 @@ class DataCollection {
 		this.dirtyModelIds = {};
 		this.toDeleteIds = {};
 		this.toCreateIds = {};
+		this.documentOptions = {};
 	}
 
 	getById (id, callback, options) {
@@ -88,7 +89,7 @@ class DataCollection {
 		);
 	}
 
-	create (data, callback) {
+	create (data, callback, options = {}) {
 		let id = (data[this.idAttribute] || this.createId()).toString();
 		data[this.idAttribute] = id;
 		let model = new this.modelClass(data);
@@ -97,6 +98,9 @@ class DataCollection {
 		delete this.toDeleteIds[id];
 		delete this.modelOps[id];
 		this.toCreateIds[id] = true;
+		if (options.databaseOptions) {
+			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options.databaseOptions);
+		}
 		return callback(null, model);
 	}
 
@@ -115,14 +119,20 @@ class DataCollection {
 			this.dirtyModelIds[id] = true;
 		}
 		let model = this._getFromCache(id);
+		if (options.databaseOptions) {
+			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options.databaseOptions);
+		}
 		process.nextTick(() => {
 			callback(null, model);
 		});
 	}
 
-	applyOpById (id, op, callback) {
+	applyOpById (id, op, callback, options = {}) {
 		this._addModelOp(id, op);
 		let model = this._getFromCache(id);
+		if (options.databaseOptions) {
+			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options.databaseOptions);
+		}
 		process.nextTick(() => {
 			callback(null, model);
 		});
@@ -269,7 +279,12 @@ class DataCollection {
 				delete this.dirtyModelIds[id];
 				process.nextTick(callback);
 			},
-			Object.assign({}, this.options.databaseOptions, { requestId: this.requestId })
+			Object.assign(
+				{},
+				this.options.databaseOptions || {},
+				this.documentOptions[id] || {},
+				{ requestId: this.requestId }
+			)
 		);
 	}
 
@@ -283,7 +298,12 @@ class DataCollection {
 				delete this.dirtyModelIds[id];
 				callback();
 			},
-			Object.assign({}, this.options.databaseOptions, { requestId: this.requestId })
+			Object.assign(
+				{},
+				this.options.databaseOptions || {},
+				this.documentOptions[id] || {},
+				{ requestId: this.requestId }
+			)
 		);
 	}
 
@@ -307,7 +327,12 @@ class DataCollection {
 				delete this.toCreateIds[id];
 				process.nextTick(callback);
 			},
-			Object.assign({}, this.options.databaseOptions, { requestId: this.requestId })
+			Object.assign(
+				{},
+				this.options.databaseOptions || {},
+				this.documentOptions[id] || {},
+				{ requestId: this.requestId }
+			)
 		);
 	}
 

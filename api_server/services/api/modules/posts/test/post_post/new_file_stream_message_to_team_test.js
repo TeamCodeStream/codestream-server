@@ -77,7 +77,7 @@ class NewFileStreamMessageToTeamTest extends CodeStreamMessageTest {
 			{
 				token: this.postCreatorData.accessToken,
 				teamId: this.team._id,
-				wantLocation: true,
+				wantCodeBlocks: 1,
 				stream: streamOptions
 			}
 		);

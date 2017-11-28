@@ -27,34 +27,21 @@ class GetPostsRequest extends GetManyRequest {
 		if (!this.request.query.teamId) {
 			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
 		}
+		let teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
 		if (!this.request.query.streamId) {
 			return callback(this.errorHandler.error('parameterRequired', { info: 'streamId' }));
 		}
-		let teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
-		if (!this.user.hasTeam(teamId)) {
-			return callback(this.errorHandler.error('readAuth'));
-		}
 		let streamId = decodeURIComponent(this.request.query.streamId).toLowerCase();
-		this.authorizeStream(teamId, streamId, callback);
-	}
-
-	authorizeStream (teamId, streamId, callback) {
-		this.data.streams.getById(
-			streamId,
-			(error, stream) => {
-				if (error) { return callback(error); }
-				if (!stream || stream.get('teamId') !== teamId) {
-					return callback(this.errorHandler.error('notFound', { info: 'stream' }));
-				}
-				if (
-					stream.get('type') !== 'file' &&
-					(stream.get('memberIds') || []).indexOf(this.user.id) === -1
-				) {
-					return callback(this.errorHandler.error('readAuth'));
-				}
-				return process.nextTick(callback);
+		this.user.authorizeStream(streamId, this, (error, stream) => {
+			if (error) { return callback(error); }
+			if (!stream) {
+				return callback(this.errorHandler.error('readAuth'));
 			}
-		);
+			if (stream.get('teamId') !== teamId) {
+				return callback(this.errorHandler.error('notFound', { info: 'stream' }));
+			}
+			process.nextTick(callback);
+		});
 	}
 
 	buildQuery () {

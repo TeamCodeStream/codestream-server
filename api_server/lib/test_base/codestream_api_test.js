@@ -6,6 +6,7 @@ var RandomTeamFactory = require(process.env.CS_API_TOP + '/services/api/modules/
 var RandomRepoFactory = require(process.env.CS_API_TOP + '/services/api/modules/repos/test/random_repo_factory');
 var RandomStreamFactory = require(process.env.CS_API_TOP + '/services/api/modules/streams/test/random_stream_factory');
 var RandomPostFactory = require(process.env.CS_API_TOP + '/services/api/modules/posts/test/random_post_factory');
+var RandomMarkerFactory = require(process.env.CS_API_TOP + '/services/api/modules/markers/test/random_marker_factory');
 
 class CodeStreamAPITest extends APIRequestTest {
 
@@ -26,8 +27,12 @@ class CodeStreamAPITest extends APIRequestTest {
 		this.streamFactory = new RandomStreamFactory({
 			apiRequester: this
 		});
-		this.postFactory = new RandomPostFactory({
+		this.markerFactory = new RandomMarkerFactory({
 			apiRequester: this
+		});
+		this.postFactory = new RandomPostFactory({
+			apiRequester: this,
+			markerFactory: this.markerFactory
 		});
 	}
 

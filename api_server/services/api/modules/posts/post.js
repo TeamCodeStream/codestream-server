@@ -9,6 +9,16 @@ class Post extends CodeStreamModel {
 	getValidator () {
 		return new CodeStreamModelValidator(PostAttributes);
 	}
+
+	preSave (callback, options) {
+		this.lowerCase('teamId');
+		this.lowerCase('repoId');
+		this.lowerCase('streamId');
+		this.lowerCase('parentPostId');
+		this.lowerCase('commitHashWhenPosted');
+		this.lowerCase('markerIds');
+		super.preSave(callback, options);
+	}
 }
 
 module.exports = Post;

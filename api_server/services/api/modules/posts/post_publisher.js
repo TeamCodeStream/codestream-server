@@ -45,6 +45,9 @@ class PostPublisher {
 			post: this.data.post,
 			requestId: this.requestId
 		};
+		if (this.data.markers) {
+			message.markers = this.data.markers;
+		}
 		this.messager.publish(
 			message,
 			channel,

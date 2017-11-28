@@ -14,13 +14,8 @@ class PostReplyTest extends PostToFileStreamTest {
 		return 'should return a valid post when creating a reply post in a file stream';
 	}
 
-	createOtherPost (callback) {
-		this.postOptions.wantLocation = true;
-		super.createOtherPost(callback);
-	}
-
 	makePostData (callback) {
-		delete this.postOptions.wantLocation;
+		delete this.postOptions.wantCodeBlocks;
 		this.postOptions.parentPostId = this.otherPostData.post._id;
 		super.makePostData(callback);
 	}
