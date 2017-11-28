@@ -10,11 +10,8 @@ class CodeBlockHasInvalidStreamIdTest extends PostCodeToFileStreamTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1005',
-			info: [{
-				code: 'RAPI-1005',
-				info: 'codeBlocks: streamId is not a valid ID'
-			}]
+			code: 'RAPI-1003',
+			info: 'stream'
 		};
 	}
 
