@@ -26,6 +26,15 @@ class CodeStreamModel extends DataModel {
 		this.attributes.modifiedAt = new Date().getTime();
 		super.preSave(callback, options);
 	}
+
+	lowerCase (attribute) {
+		if (typeof this.attributes[attribute] === 'string') {
+			this.attributes[attribute] = this.attributes[attribute].toLowerCase();
+		}
+		else if (this.attributes[attribute] instanceof Array) {
+			this.attributes[attribute] = this.attributes[attribute].map(elem => elem.toLowerCase());
+		}
+	}
 }
 
 

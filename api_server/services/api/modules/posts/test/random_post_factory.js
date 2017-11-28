@@ -30,24 +30,6 @@ class RandomPostFactory {
 		return RandomString.generate(40);
 	}
 
-	randomLocation () {
-		const lineStart = this.randomUpto(1000);
-		const lineEnd = lineStart + this.randomUpto(1000);
-		const charStart = this.randomUpto(100);
-		const charEnd = (lineStart === lineEnd) ?
-			(charStart + this.randomUpto(100)) :
-			this.randomUpto(100);
-		return { lineStart, lineEnd, charStart, charEnd };
-	}
-
-	randomReplayInfo () {
-		// don't really know what form this will take just yet
-		return {
-			commitSha: this.randomCommitHash(),
-			lines: this.randomUpto(200) - 100
-		};
-	}
-
 	getRandomPostData (callback, options = {}) {
 		let data = {};
 		if (!options.streamId && !options.stream) {
@@ -55,13 +37,22 @@ class RandomPostFactory {
 		}
 		data.streamId = options.streamId;
 		data.stream = options.stream;
-		if (options.repoId) {
-			data.repoId = options.repoId;
-			data.commitShaWhenPosted = this.randomCommitHash();
+		if (options.commitHash) {
+			data.commitHashWhenPosted = options.commitHash;
 		}
-		if (options.wantLocation) {
-			data.location = this.randomLocation();
-			data.replayInfo = this.randomReplayInfo();
+		if (options.wantCodeBlocks) {
+			data.codeBlocks = [];
+			for (let i = 0; i < options.wantCodeBlocks; i++) {
+				let codeBlockInfo = {
+					code: this.randomText(),
+					location: this.markerFactory.randomLocation()
+				};
+				if (options.codeBlockStreamId) {
+					codeBlockInfo.streamId = options.codeBlockStreamId;
+				}
+				data.commitHashWhenPosted = data.commitHashWhenPosted || this.randomCommitHash();
+				data.codeBlocks.push(codeBlockInfo);
+			}
 		}
 		if (options.parentPostId) {
 			data.parentPostId = options.parentPostId;

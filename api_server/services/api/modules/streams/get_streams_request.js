@@ -91,7 +91,7 @@ class GetStreamsRequest extends GetManyRequest {
 
 	checkValidQuery (query) {
 		if (!query.teamId) {
-			return ('teamId required');
+			return 'teamId required';
 		}
 		if (query.type && STREAM_TYPES.indexOf(query.type) === -1) {
 			return `invalid stream type: ${query.type}`;

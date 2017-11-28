@@ -11,6 +11,8 @@ class Team extends CodeStreamModel {
 	}
 
 	preSave (callback, options) {
+		this.lowerCase('memberIds');
+		this.lowerCase('companyId');
 		this.attributes.memberIds.sort();
 		super.preSave(callback, options);
 	}

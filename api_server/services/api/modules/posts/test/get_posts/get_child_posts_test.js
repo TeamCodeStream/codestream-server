@@ -17,7 +17,7 @@ class GetChildPostsTest extends GetPostsTest {
 	setPostOptions (n) {
 		let postOptions = super.setPostOptions(n);
 		if (n > this.whichPostToReplyTo && n % 3 === 0) {
-			delete postOptions.wantLocation;
+			delete postOptions.wantCodeBlocks;
 			postOptions.parentPostId = this.myPosts[this.whichPostToReplyTo]._id;
 		}
 		return postOptions;

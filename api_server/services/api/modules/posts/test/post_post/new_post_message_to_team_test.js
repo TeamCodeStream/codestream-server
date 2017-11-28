@@ -94,14 +94,17 @@ class NewPostMessageToTeamTest extends CodeStreamMessageTest {
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = { post: response.post };
+				this.message = {
+					post: response.post,
+					markers: response.markers
+				};
 				callback();
 			},
 			{
 				token: this.postCreatorData.accessToken,
 				teamId: this.team._id,
 				streamId: this.stream._id,
-				wantLocation: true
+				wantCodeBlocks: 1
 			}
 		);
 	}

@@ -12,18 +12,15 @@ module.exports = {
 		type: 'id',
 		required: true
 	},
-	commitShaWhenPosted: {
+	commitHashWhenPosted: {
 		type: 'string',
 		minLength: 40,
 		maxLength: 40
 	},
-	location: {
-		type: 'object',
-		maxLength: 200
-	},
-	replayInfo: {
-		type: 'object',
-		maxLength: 50000
+	codeBlocks: {
+		type: 'arrayOfObjects',
+		maxLength: 10,
+		maxObjectLength: 10000
 	},
 	parentPostId: {
 		type: 'id'

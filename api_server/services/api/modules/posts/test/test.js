@@ -11,7 +11,7 @@ describe('post requests', function() {
 
 	this.timeout(20000);
 
-	describe('GET /post/:id', postsRequestTester.getPostTest);
+	describe('GET /posts/:id', postsRequestTester.getPostTest);
 	describe('GET /posts', postsRequestTester.getPostsTest);
 	describe('POST /posts', postsRequestTester.postPostTest);
 
