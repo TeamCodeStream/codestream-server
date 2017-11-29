@@ -42,11 +42,10 @@ class GetMarkersRequest extends RestfulRequest {
 		if (this.request.query.ids) {
 			this.ids = decodeURIComponent(this.request.query.ids).toLowerCase().split(',');
 		}
-		BoundAsync.series([
+		BoundAsync.series(this, [
 			this.fetchMarkerLocations,
 			this.fetchMarkers,
-			this.marryMarkers,
-			this.formResponse
+			this.marryMarkers
 		], callback);
 	}
 
@@ -59,21 +58,26 @@ class GetMarkersRequest extends RestfulRequest {
 			query,
 			(error, markerLocations) => {
 				if (error) { return callback(error); }
-				this.markerLocations = markerLocations;
+				if (markerLocations.length === 0) {
+					return callback(this.errorHandler.error('not_found'));
+				}
+				this.markerLocations = markerLocations[0];
 				callback();
 			}
 		);
 	}
 
 	fetchMarkers (callback) {
+		this.responseData = { markers: [] };
+		this.locations = this.markerLocations.get('locations');
 		if (
-			this.markerLocations.length === 0 ||
-			typeof this.markerLocations[0].locations !== 'object' ||
-			Object.keys(this.markerLocations[0].locations).length === 0
+			typeof this.locations !== 'object' ||
+			Object.keys(this.locations).length === 0
 		) {
 			return callback();
 		}
-		let markerIds = this.ids || Object.keys(this.markerLocations.locations);
+		let markerIds = this.ids || Object.keys(this.locations);
+		markerIds = markerIds.map(markerId => this.data.markers.objectIdSafe(markerId));
 		let query = {
 			teamId: this.teamId,
 			_id: { $in: markerIds }
@@ -89,7 +93,6 @@ class GetMarkersRequest extends RestfulRequest {
 	}
 
 	marryMarkers (callback) {
-		this.responseData = { markers: [] };
 		if (!this.markers) {
 			return callback();
 		}
@@ -104,7 +107,7 @@ class GetMarkersRequest extends RestfulRequest {
 
 	marryMarker (marker, callback) {
 		let markerObject = marker.getSanitizedObject();
-		markerObject.location = this.markerLocations[marker.id] || null;
+		markerObject.location = this.locations[marker.id] || null;
 		this.responseData.markers.push(markerObject);
 		process.nextTick(callback);
 	}
