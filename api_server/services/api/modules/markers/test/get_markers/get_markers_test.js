@@ -2,6 +2,7 @@
 
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var Assert = require('assert');
 const MarkerTestConstants = require('../marker_test_constants');
 
 class GetMarkersTest extends CodeStreamAPITest {
@@ -18,11 +19,9 @@ class GetMarkersTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			this.createOtherUser,
-			this.createRandomRepo,
+			this.createRepo,
 			this.createStream,
 			this.createPosts,
-			this.createOtherStream,
-			this.createOtherPosts,
 			this.setPath
 		], callback);
 	}
@@ -37,7 +36,7 @@ class GetMarkersTest extends CodeStreamAPITest {
 		);
 	}
 
-	createRandomRepo (callback) {
+	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -46,7 +45,6 @@ class GetMarkersTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withRandomEmails: 1,
 				withEmails: this.withoutMe ? null : [this.currentUser.email],
 				token: this.otherUserData.accessToken
 			}
@@ -70,7 +68,7 @@ class GetMarkersTest extends CodeStreamAPITest {
 	}
 
 	createPosts (callback) {
-		this.myMarkers = [];
+		this.markers = [];
 		this.commitHash = this.postFactory.randomCommitHash();
 		BoundAsync.timesSeries(
 			this,
@@ -85,38 +83,10 @@ class GetMarkersTest extends CodeStreamAPITest {
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				if (!this.other) {
-					this.myMarkers.push(response.markers[0]);
-				}
+				this.markers.push(response.markers[0]);
 				callback();
 			},
 			postOptions
-		);
-	}
-
-	createOtherStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherStream = response.stream;
-				callback();
-			},
-			{
-				type: 'file',
-				token: this.otherUserData.accessToken,
-				teamId: this.repo.teamId,
-				repoId: this.repo._id
-			}
-		);
-	}
-
-	createOtherPosts (callback) {
-		this.other = true;
-		BoundAsync.timesSeries(
-			this,
-			this.numPosts,
-			this.createPost,
-			callback
 		);
 	}
 
@@ -125,20 +95,33 @@ class GetMarkersTest extends CodeStreamAPITest {
 		let mine = iAmInStream && n % 2 === 1;
 		let postOptions = {
 			token: mine ? this.token : this.otherUserData.accessToken,
-			streamId: this.other ? this.otherStream._id : this.stream._id,
+			streamId: this.stream._id,
 			wantCodeBlocks: 1,
 			commitHash: this.commitHash
 		};
 		return postOptions;
 	}
 
+	getQueryParameters () {
+		return {
+			teamId: this.team._id,
+			streamId: this.stream._id,
+			commitHash: this.commitHash
+		};
+	}
+
 	setPath (callback) {
-		this.path = `/markers/?teamId=${this.team._id}&streamId=${this.stream._id}&commitHash=${this.commitHash}`;
+		let queryParameters = this.getQueryParameters();
+		this.path = '/markers?' + Object.keys(queryParameters).map(parameter => {
+			let value = queryParameters[parameter];
+			return `${parameter}=${value}`;
+		}).join('&');
 		callback();
 	}
 
 	validateResponse (data) {
-		this.validateMatchingObjects(data.markers, this.myMarkers, 'markers');
+		Assert(!data.more, 'more should not be set');
+		this.validateMatchingObjects(data.markers, this.markers, 'markers');
 		this.validateSanitizedObjects(data.markers, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

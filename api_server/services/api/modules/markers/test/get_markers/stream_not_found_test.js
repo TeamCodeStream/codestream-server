@@ -16,10 +16,10 @@ class StreamNotFoundTest extends GetMarkersTest {
 		};
 	}
 
-	setPath (callback) {
-		let streamId = ObjectID();
-		this.path = `/markers?teamId=${this.team._id}&streamId=${streamId}&commitHash=${this.commitHash}`;
-		callback();
+	getQueryParameters () {
+		let queryParameters = super.getQueryParameters();
+		queryParameters.streamId = ObjectID();
+		return queryParameters;
 	}
 }
 

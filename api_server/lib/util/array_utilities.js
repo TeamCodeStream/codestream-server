@@ -12,6 +12,13 @@ module.exports = {
 		return !array2.find(elem => {
 			return array1.indexOf(elem) === -1;
 		});
-	}
+	},
 
+	difference: function(array1, array2) {
+		return array1.filter(elem => array2.indexOf(elem) === -1);
+	},
+
+	intersection: function(array1, array2) {
+		return array1.filter(elem => array2.indexOf(elem) !== -1);
+	}
 };

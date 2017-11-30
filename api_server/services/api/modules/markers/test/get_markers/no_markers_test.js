@@ -1,12 +1,13 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var GetMarkersTest = require('./get_markers_test');
+var Assert = require('assert');
 
-class NoMarkersTest extends CodeStreamAPITest {
+class NoMarkersTest extends GetMarkersTest {
 
-	get description () {
-		return 'should return a flag indicating the stream has no markers when requesting markers for a stream that has no markers';
+	constructor (options) {
+		super(options);
+		this.numPosts = 0;
 	}
 
 	getExpectedFields () {
@@ -15,41 +16,12 @@ class NoMarkersTest extends CodeStreamAPITest {
 		};
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			this.createRepo,
-			this.createStream
-		], callback);
+	get description () {
+		return 'should return a flag indicating the stream has no markers when requesting markers for a stream that has no markers';
 	}
 
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.repo = response.repo;
-				callback();
-			},
-			{
-				token: this.token
-			}
-		);
-	}
-
-	createStream (callback) {
-		let commitHash = this.postFactory.randomCommitHash();
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.path = `/markers?teamId=${this.repo.teamId}&streamId=${response.stream._id}&commitHash=${commitHash}`;
-				callback();
-			},
-			{
-				type: 'file',
-				token: this.token,
-				teamId: this.repo.teamId,
-				repoId: this.repo._id
-			}
-		);
+	validateResponse (data) {
+		Assert(data.streamHasNoMarkers, 'streamHasNoMarkers is not true');
 	}
 }
 

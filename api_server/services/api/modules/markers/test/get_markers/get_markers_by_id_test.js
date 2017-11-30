@@ -8,15 +8,15 @@ class GetMarkersByIdTest extends GetMarkersTest {
 		return 'should return the correct markers when requesting markers by ID';
 	}
 
-	setPath (callback) {
-		this.myMarkers = [
-			this.myMarkers[0],
-			this.myMarkers[2],
-			this.myMarkers[3]
+	getQueryParameters () {
+		let queryParameters = super.getQueryParameters();
+		this.markers = [
+			this.markers[0],
+			this.markers[2],
+			this.markers[3]
 		];
-		let ids = this.myMarkers.map(post => post._id);
-		this.path = `/markers?teamId=${this.team._id}&streamId=${this.stream._id}&commitHash=${this.commitHash}&ids=${ids}`;
-		callback();
+		queryParameters.ids = this.markers.map(post => post._id);
+		return queryParameters;
 	}
 }
 

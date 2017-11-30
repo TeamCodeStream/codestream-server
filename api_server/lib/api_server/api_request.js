@@ -6,7 +6,7 @@ var ErrorHandler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
 
 class APIRequest {
 
-	constructor (options) {
+	constructor (options = {}) {
 		Object.assign(this, options);
 		this.responseIssued = false;						// this gets set when once the response has been issued
 		this.responseData = {};							// prepare for any response data to be put in here
