@@ -44,6 +44,7 @@ class PutMarkerLocationsFetchTest extends PutMarkerLocationsTest {
 		let markers = data.markers;
 		Assert(markers.length === this.markers.length, 'did not receive all markers');
 		markers.sort((a, b) => { return a._id.localeCompare(b._id); });
+		this.markers.sort((a, b) => { return a._id.localeCompare(b._id); });
 		for (var i = 0, length = markers.length; i < length; i++) {
 			this.validateMarker(i, markers[i]);
 		}
