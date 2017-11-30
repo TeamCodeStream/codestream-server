@@ -14,6 +14,8 @@ class User extends CodeStreamModel {
 
 	preSave (callback, options) {
 		this.attributes.searchableEmail = this.attributes.email.toLowerCase();
+		this.lowerCase('teamIds');
+		this.lowerCase('companyIds');
 		super.preSave(callback, options);
 	}
 
@@ -51,6 +53,8 @@ class User extends CodeStreamModel {
 				return this.authorizeStream(id, request, callback);
 			case 'post':
 				return this.authorizePost(id, request, callback);
+			case 'marker':
+				return this.authorizeMarker(id, request, callback);
 			case 'user':
 				return this.authorizeUser(id, request, callback);
 			default:
@@ -74,7 +78,13 @@ class User extends CodeStreamModel {
 				if (!repo) {
 					return callback(request.errorHandler.error('notFound', { info: 'repo' }));
 				}
-				this.authorizeTeam(repo.get('teamId'), request, callback);
+				this.authorizeTeam(
+					repo.get('teamId'),
+					request,
+					(error, authorized) => {
+						callback(error, authorized ? repo : false);
+					}
+				);
 			}
 		);
 	}
@@ -93,7 +103,13 @@ class User extends CodeStreamModel {
 				) {
 					return callback(null, false);
 				}
-				this.authorizeTeam(stream.get('teamId'), request, callback);
+				this.authorizeTeam(
+					stream.get('teamId'),
+					request,
+					(error, authorized) => {
+						callback(error, authorized ? stream : false);
+					}
+				);
 			}
 		);
 	}
@@ -106,7 +122,32 @@ class User extends CodeStreamModel {
 				if (!post) {
 					return callback(request.errorHandler.error('notFound', { info: 'post' }));
 				}
-				this.authorizeStream(post.get('streamId'), request, callback);
+				this.authorizeStream(
+					post.get('streamId'),
+					request,
+					(error, authorized) => {
+						callback(error, authorized ? post : false);
+					}
+				);
+			}
+		);
+	}
+
+	authorizeMarker (id, request, callback) {
+		request.data.markers.getById(
+			id,
+			(error, marker) => {
+				if (error) { return callback(error); }
+				if (!marker) {
+					return callback(request.errorHandler.error('notFound', { info: 'marker' }));
+				}
+				this.authorizeStream(
+					marker.get('streamId'),
+					request,
+					(error, authorized) => {
+						callback(error, authorized ? marker : false);
+					}
+				);
 			}
 		);
 	}
@@ -116,7 +157,7 @@ class User extends CodeStreamModel {
 			id === request.user.id ||
 			id.toLowerCase() === 'me'
 		) {
-			return callback(null, true);
+			return callback(null, request.user);
 		}
 		request.data.users.getById(
 			id,
@@ -129,7 +170,7 @@ class User extends CodeStreamModel {
 					request.user.get('teamIds') || [],
 					otherUser.get('teamIds') || []
 				);
-				return callback(null, authorized);
+				return callback(null, authorized ? otherUser : false);
 			}
 		);
 	}

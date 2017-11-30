@@ -27,7 +27,8 @@ const OP_TO_DB_OP = {
 		valueFunc: _mongoAddToSetValue
 	},
 	'$push': '$push',
-	'$pull': '$pull'
+	'$pull': '$pull',
+	'$inc': '$inc'
 };
 
 class MongoCollection {
@@ -248,7 +249,7 @@ class MongoCollection {
 
 	_applyMongoOpById (id, op, callback, options) {
 		let query = {};
-		query[this.idAttribute] = this.objectIdSafe(id);
+		query[this.idAttribute] = this.objectIdSafe(id) || id;
 		this.runQuery(
 			'updateOne',
 			query,

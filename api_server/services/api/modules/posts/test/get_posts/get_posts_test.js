@@ -98,7 +98,7 @@ class GetPostsTest extends CodeStreamAPITest {
 			token: mine ? this.token : this.otherUserData.accessToken,
 			streamId: this.stream._id,
 			repoId: this.type === 'file' ? this.repo._id : null,
-			wantLocation: this.type === 'file'
+			wantCodeBlocks: this.type === 'file' ? 1 : false
 		};
 		return postOptions;
 	}

@@ -5,7 +5,7 @@ var PostPostTest = require('./post_post_test');
 class NoStreamIdTest extends PostPostTest {
 
 	get description () {
-		return 'should return error when attempting to create a stream with no stream id';
+		return 'should return error when attempting to create a post with no stream id';
 	}
 
 	getExpectedFields () {

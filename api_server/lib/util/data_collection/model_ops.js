@@ -50,6 +50,16 @@ var _Ops = {
 				document[field].splice(index, 1);
 			}
 		}
+	},
+
+	'$inc': function(document, field, value) {
+		if (typeof document[field] === 'undefined') {
+			document[field] = 0;
+			return;
+		}
+		if (typeof document[field] === 'number') {
+			document[field] += value;
+		}
 	}
 };
 
@@ -98,6 +108,10 @@ module.exports = {
 
 	'$pull': function(model, set) {
 		_documentOpsHelper('pull', model.attributes, set);
+	},
+
+	'$inc': function(model, set) {
+		_documentOpsHelper('inc', model.attributes, set);
 	},
 
 	applyOp: function(model, op) {

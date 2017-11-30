@@ -10,6 +10,10 @@ class Stream extends CodeStreamModel {
 	}
 
 	preSave (callback, options) {
+		this.lowerCase('memberIds');
+		this.lowerCase('teamId');
+		this.lowerCase('repoId');
+
 		if (this.attributes.memberIds instanceof Array) {
 			this.attributes.memberIds.sort();
 		}

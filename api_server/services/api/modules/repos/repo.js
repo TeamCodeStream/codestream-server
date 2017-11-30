@@ -13,7 +13,9 @@ class Repo extends CodeStreamModel {
 
 	preSave (callback, options) {
 		this.attributes.url = NormalizeURL(this.attributes.url.toLowerCase());
-		this.attributes.firstCommitHash = this.attributes.firstCommitHash.toLowerCase();
+		this.lowerCase('firstCommitHash');
+		this.lowerCase('companyId');
+		this.lowerCase('teamId');
 		super.preSave(callback, options);
 	}
 }

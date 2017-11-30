@@ -29,5 +29,8 @@ module.exports = {
 	},
 	sortId: {
 		type: 'id'
+	},
+	numMarkers: {
+		type: 'number'
 	}
 };

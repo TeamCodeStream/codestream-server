@@ -27,7 +27,9 @@ const DataCollections = {
 	teams: require(ModuleDirectory + '/teams/team'),
 	repos: require(ModuleDirectory + '/repos/repo'),
 	streams: require(ModuleDirectory + '/streams/stream'),
-	posts: require(ModuleDirectory + '/posts/post')
+	posts: require(ModuleDirectory + '/posts/post'),
+	markers: require(ModuleDirectory + '/markers/marker'),
+	markerLocations: require(ModuleDirectory + '/markers/marker_locations')
 };
 const MongoCollections = Object.keys(DataCollections);
 
