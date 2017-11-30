@@ -21,17 +21,17 @@ class RandomMarkerFactory {
 		let lineStart = this.randomUpto(1000);
 		location.push(lineStart);
 		let lineEnd;
-		if (Math.random() < 0.25) {
+		if (Math.random() < 0.2) {
 			return location; // simulates a single line selected
 		}
-		else if (Math.random() < 0.25) {
+		else if (Math.random() < 0.2) {
 			lineEnd = lineStart; // simulates a single line selected
 		}
 		else {
 			lineEnd = lineStart + this.randomUpto(1000);
 		}
 		location.push(lineEnd);
-		if (Math.random() < 0.5) {
+		if (Math.random() < 0.4) {
 			return location; // simulates a range of lines selected, but no columns
 		}
 		const charStart = this.randomUpto(100);
