@@ -29,7 +29,7 @@ const DataCollections = {
 	streams: require(ModuleDirectory + '/streams/stream'),
 	posts: require(ModuleDirectory + '/posts/post'),
 	markers: require(ModuleDirectory + '/markers/marker'),
-	markerLocations: require(ModuleDirectory + '/markers/marker_locations')
+	markerLocations: require(ModuleDirectory + '/marker_locations/marker_locations')
 };
 const MongoCollections = Object.keys(DataCollections);
 

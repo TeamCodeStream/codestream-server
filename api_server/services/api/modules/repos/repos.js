@@ -22,7 +22,6 @@ const REPOS_ADDITIONAL_ROUTES = [
 	}
 ];
 
-
 class Repos extends Restful {
 
 	get collectionName () {

@@ -177,9 +177,7 @@ class APIRequest {
 			}
 		}
 		this.warn(ErrorHandler.log(this.gotError));
-		if (Object.keys(this.responseData).length === 0) {
-			this.responseData = ErrorHandler.toClient(this.gotError);
-		}
+		this.responseData = ErrorHandler.toClient(this.gotError);
 		this.response.status(this.statusCode).send(this.responseData);
 		process.nextTick(callback);
 	}

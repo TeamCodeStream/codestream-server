@@ -9,7 +9,7 @@ var companiesRequestTester = new CompaniesRequestTester();
 
 describe('company requests', function() {
 
-	this.timeout(10000);
+	this.timeout(20000);
 
 	describe('GET /companies/:id', companiesRequestTester.getCompanyTest);
 	describe('GET /companies', companiesRequestTester.getCompaniesTest);

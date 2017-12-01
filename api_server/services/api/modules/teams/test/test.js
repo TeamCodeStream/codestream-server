@@ -9,7 +9,7 @@ var teamsRequestTester = new TeamsRequestTester();
 
 describe('team requests', function() {
 
-	this.timeout(10000);
+	this.timeout(20000);
 
 	describe('GET /teams/:id', teamsRequestTester.getTeamTest);
 	describe('GET /teams', teamsRequestTester.getTeamsTest);

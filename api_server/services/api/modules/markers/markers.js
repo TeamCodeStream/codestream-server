@@ -5,20 +5,12 @@ var MarkerCreator = require('./marker_creator');
 var Marker = require('./marker');
 
 const MARKER_STANDARD_ROUTES = {
-	want: ['getMany'],
+	want: ['get', 'getMany'],
 	baseRouteName: 'markers',
 	requestClasses: {
 		'getMany': require('./get_markers_request')
 	}
 };
-
-const MARKER_ADDITIONAL_ROUTES = [
-	{
-		method: 'put',
-		path: '/marker-locations',
-		requestClass: require('./put_marker_locations_request')
-	}
-];
 
 class Markers extends Restful {
 
@@ -45,8 +37,7 @@ class Markers extends Restful {
 */
 
 	getRoutes () {
-		let standardRoutes = super.getRoutes(MARKER_STANDARD_ROUTES);
-		return [...standardRoutes, ...MARKER_ADDITIONAL_ROUTES];
+		return  super.getRoutes(MARKER_STANDARD_ROUTES);
 	}
 }
 
