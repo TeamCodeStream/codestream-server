@@ -9,7 +9,7 @@ var userRequestTester = new UserRequestTester();
 
 describe('user requests', function() {
 
-	this.timeout(10000);
+	this.timeout(20000);
 
 	describe('POST /no-auth/register', userRequestTester.registrationTest);
 	describe('POST /no-auth/confirm', userRequestTester.confirmationTest);

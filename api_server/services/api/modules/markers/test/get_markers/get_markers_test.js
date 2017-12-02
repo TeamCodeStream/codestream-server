@@ -2,7 +2,6 @@
 
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Assert = require('assert');
 const MarkerTestConstants = require('../marker_test_constants');
 
 class GetMarkersTest extends CodeStreamAPITest {
@@ -69,6 +68,7 @@ class GetMarkersTest extends CodeStreamAPITest {
 
 	createPosts (callback) {
 		this.markers = [];
+		this.locations = {};
 		this.commitHash = this.postFactory.randomCommitHash();
 		BoundAsync.timesSeries(
 			this,
@@ -83,7 +83,9 @@ class GetMarkersTest extends CodeStreamAPITest {
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.markers.push(response.markers[0]);
+				let marker = response.markers[0];
+				this.markers.push(marker);
+				this.locations[marker._id] = response.markerLocations.locations[marker._id];
 				callback();
 			},
 			postOptions
@@ -105,8 +107,7 @@ class GetMarkersTest extends CodeStreamAPITest {
 	getQueryParameters () {
 		return {
 			teamId: this.team._id,
-			streamId: this.stream._id,
-			commitHash: this.commitHash
+			streamId: this.stream._id
 		};
 	}
 
@@ -120,7 +121,6 @@ class GetMarkersTest extends CodeStreamAPITest {
 	}
 
 	validateResponse (data) {
-		Assert(!data.more, 'more should not be set');
 		this.validateMatchingObjects(data.markers, this.markers, 'markers');
 		this.validateSanitizedObjects(data.markers, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

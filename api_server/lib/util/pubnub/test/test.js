@@ -12,7 +12,7 @@ var UnsubscribeTest = require('./unsubscribe_test');
 
 describe('pubnub', function() {
 
-	this.timeout(10000);
+	this.timeout(20000);
 
 	new PubNubTest().test();
 	new NoAccessTest().test();

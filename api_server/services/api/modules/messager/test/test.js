@@ -16,7 +16,7 @@ var AddExistingRepoTest = require('./add_existing_repo_test');
 
 describe('messages', function() {
 
-	this.timeout(10000);
+	this.timeout(20000);
 
 	new MeChannelTest().test();
 	new TeamChannelTest().test();

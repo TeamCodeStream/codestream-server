@@ -96,6 +96,9 @@ class PostCreator extends ModelCreator {
 	}
 
 	preSave (callback) {
+		if (this.attributes.commitHashWhenPosted) {
+			this.attributes.commitHashWhenPosted = this.attributes.commitHashWhenPosted.toLowerCase();
+		}
 		this.attributes.creatorId = this.user.id;
 		BoundAsync.series(this, [
 			this.getStream,
@@ -208,6 +211,12 @@ class PostCreator extends ModelCreator {
 		}
 		this.markers = [];
 		this.attachToResponse.markers = [];
+		this.attachToResponse.markerLocations = {
+			teamId: this.attributes.teamId,
+			streamId: this.attributes.streamId,
+			commitHash: this.attributes.commitHashWhenPosted,
+			locations: {}
+		};
 		BoundAsync.forEachLimit(
 			this,
 			this.attributes.codeBlocks,
@@ -235,10 +244,9 @@ class PostCreator extends ModelCreator {
 				codeBlock.markerId = marker.id;
 				delete codeBlock.streamId; // gets put into the marker
 				let markerObject = marker.getSanitizedObject();
-				markerObject.location = codeBlock.location;
-				delete codeBlock.location; // gets put into the marker
-				markerObject.commitHash = this.attributes.commitHashWhenPosted.toLowerCase();
 				this.attachToResponse.markers.push(markerObject);
+				this.attachToResponse.markerLocations.locations[marker.id] = codeBlock.location;
+				delete codeBlock.location; // gets put into the marker locations object
 				process.nextTick(callback);
 			}
 		);
