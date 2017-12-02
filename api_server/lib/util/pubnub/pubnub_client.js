@@ -76,6 +76,21 @@ class PubNubClient {
 		delete this.channelListeners[channel];
 	}
 
+	history (channel, callback) {
+		this.pubnub.history(
+			{ channel: channel },
+			(status, response) => {
+				if (status.error) {
+					return callback(status.errorData);
+				}
+				else if (!response || !(response.messages instanceof Array)) {
+					return callback('no messages array');
+				}
+				callback(null, response.messages.map(message => message.entry));
+			}
+		);
+	}
+
 	grant (userIds, channel, callback, options = {}) {
 		if (!(userIds instanceof Array)) {
 			userIds = [userIds];
