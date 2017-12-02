@@ -13,10 +13,15 @@ class HistoryTest extends PubNubTest {
 	run (callback) {
 		BoundAsync.series(this, [
 			super.run,
+			this.wait,
 			this.fetchHistory
 		], callback);
 	}
 
+	wait (callback) {
+		setTimeout(callback, 1000);
+	}
+	
 	fetchHistory (callback) {
 		this.pubnubForClient.history(
 			this.channelName,

@@ -21,13 +21,13 @@ class MultipleHistoryTest extends PubNubTest {
 		], callback);
 	}
 
+	wait (callback) {
+		setTimeout(callback, 1000);
+	}
+	
 	unsubscribe (callback) {
 		this.pubnubForClient.unsubscribe(this.channelName);
 		callback();
-	}
-
-	wait (callback) {
-		setTimeout(callback, 2000);
 	}
 
 	sendMoreMessages (callback) {
@@ -48,7 +48,7 @@ class MultipleHistoryTest extends PubNubTest {
 			this.channelName,
 			error => {
 				if (error) { return callback(error); }
-				setTimeout(callback, 1000);
+				this.wait(callback);
 			}
 		);
 	}
