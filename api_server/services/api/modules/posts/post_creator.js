@@ -271,18 +271,14 @@ class PostCreator extends ModelCreator {
 				this.data.streams.findAndModify(
 					{ _id: this.data.streams.objectIdSafe(this.attributes.streamId) },
 					{ $inc: { nextSeqNum: 1 } },
-					(error, result) => {
+					(error, foundStream) => {
 						if (error) {
 							numRetries++;
 							gotError = error;
 						}
-						else if (!result || !result.value || !result.value.nextSeqNum) {
-							gotError = this.errorHandler.error('internal', { reason: 'invalid response from findAndModify, unable to obtain seqNum' });
-							numRetries++;
-						}
 						else {
 							gotError = null;
-							seqNum = result.value.nextSeqNum;
+							seqNum = foundStream.nextSeqNum;
 						}
 					 	process.nextTick(whilstCallback);
 					},
