@@ -269,7 +269,7 @@ class MongoCollection {
 		);
 	}
 
-	findAndModify (query, data, callback, options) {
+	findAndModify (query, data, callback, options = {}) {
 		this.runQuery(
 			'findAndModify',
 			query,

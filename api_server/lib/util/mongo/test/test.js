@@ -29,6 +29,11 @@ var UpdateDirectTest = require('./update_direct_test');
 var DeleteByIdTest = require('./delete_by_id_test');
 var DeleteByIdsTest = require('./delete_by_ids_test');
 var DeleteByQueryTest = require('./delete_by_query_test');
+var ApplyIncByIdTest = require('./apply_inc_by_id_test');
+var ApplyNewIncByIdTest = require('./apply_new_inc_by_id_test');
+var UpsertTest = require('./upsert_test');
+var ApplyUpsertOpTest = require('./apply_upsert_op_test');
+var FindAndModifyTest = require('./find_and_modify_test');
 
 /* jshint -W071 */
 
@@ -60,6 +65,11 @@ describe('mongo', function() {
 	new DeleteByIdTest().test();
 	new DeleteByIdsTest().test();
 	new DeleteByQueryTest().test();
+	new ApplyIncByIdTest().test();
+	new ApplyNewIncByIdTest().test();
+	new UpsertTest().test();
+	new ApplyUpsertOpTest().test();
+	new FindAndModifyTest().test();
 
 });
 

@@ -20,6 +20,10 @@ var CreateWithoutPersistTest = require('./create_without_persist_test');
 var UpdateNoIdTest = require('./update_no_id_test');
 var UpdateToCacheTest = require('./update_to_cache_test');
 var UpdateToDatabaseTest = require('./update_to_database_test');
+var UpsertToCacheTest = require('./upsert_to_cache_test');
+var UpsertToDatabaseTest = require('./upsert_to_database_test');
+var UpsertOpToCacheTest = require('./upsert_op_to_cache_test');
+var UpsertOpToDatabaseTest = require('./upsert_op_to_database_test');
 var ApplySetToCacheTest = require('./apply_set_to_cache_test');
 var ApplySetToDatabaseTest = require('./apply_set_to_database_test');
 var ApplySetSubObjectToCacheTest = require('./apply_set_sub_object_to_cache_test');
@@ -40,9 +44,12 @@ var ApplyPullToCacheTest = require('./apply_pull_to_cache_test');
 var ApplyPullToDatabaseTest = require('./apply_pull_to_database_test');
 var ApplyNoPullToCacheTest = require('./apply_no_pull_to_cache_test');
 var ApplyNoPullToDatabaseTest = require('./apply_no_pull_to_database_test');
+var ApplyIncToCacheTest = require('./apply_inc_to_cache_test');
+var ApplyIncToDatabaseTest = require('./apply_inc_to_database_test');
 var UpdateDirectTest = require('./update_direct_test');
 var DeleteFromCacheTest = require('./delete_from_cache_test');
 var DeleteFromDatabaseTest = require('./delete_from_database_test');
+var FindAndModifyTest = require('./find_and_modify_test');
 
 /* jshint -W071 */
 
@@ -65,6 +72,10 @@ describe('dataCollection', function() {
 	new UpdateNoIdTest().test();
 	new UpdateToCacheTest().test();
 	new UpdateToDatabaseTest().test();
+	new UpsertToCacheTest().test();
+	new UpsertToDatabaseTest().test();
+	new UpsertOpToCacheTest().test();
+	new UpsertOpToDatabaseTest().test();
 	new ApplySetToCacheTest().test();
 	new ApplySetToDatabaseTest().test();
 	new ApplySetSubObjectToCacheTest().test();
@@ -85,9 +96,12 @@ describe('dataCollection', function() {
 	new ApplyPullToDatabaseTest().test();
 	new ApplyNoPullToCacheTest().test();
 	new ApplyNoPullToDatabaseTest().test();
+	new ApplyIncToCacheTest().test();
+	new ApplyIncToDatabaseTest().test();
 	new UpdateDirectTest().test();
 	new DeleteFromCacheTest().test();
 	new DeleteFromDatabaseTest().test();
+	new FindAndModifyTest().test();
 
 });
 
