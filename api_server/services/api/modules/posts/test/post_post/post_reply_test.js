@@ -8,6 +8,7 @@ class PostReplyTest extends PostToFileStreamTest {
 	constructor (options) {
 		super(options);
 		this.testOptions.wantOtherPost = true;
+		this.testOptions.expectedSeqNum = 2;
 	}
 
 	get description () {

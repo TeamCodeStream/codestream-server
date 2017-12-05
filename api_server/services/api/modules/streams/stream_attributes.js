@@ -32,5 +32,9 @@ module.exports = {
 	},
 	numMarkers: {
 		type: 'number'
+	},
+	nextSeqNum: {
+		type: 'number',
+		serverOnly: true
 	}
 };

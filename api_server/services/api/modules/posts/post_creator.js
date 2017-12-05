@@ -107,6 +107,7 @@ class PostCreator extends ModelCreator {
 			this.createStream,
 			this.createId,
 			this.createMarkers,
+			this.getSeqNum,
 			super.preSave,
 			this.updateStream,
 			this.updateLastReads
@@ -195,6 +196,7 @@ class PostCreator extends ModelCreator {
 				this.attributes.streamId = stream.id;
 				this.attachToResponse.stream = this.stream.getSanitizedObject();
 				delete this.attributes.stream;
+				this.createdStream = true;
 				process.nextTick(callback);
 			}
 		);
@@ -248,6 +250,54 @@ class PostCreator extends ModelCreator {
 				this.attachToResponse.markerLocations.locations[marker.id] = codeBlock.location;
 				delete codeBlock.location; // gets put into the marker locations object
 				process.nextTick(callback);
+			}
+		);
+	}
+
+	getSeqNum (callback) {
+		if (this.createdStream) {
+			this.attributes.seqNum = 1;
+			return callback();
+		}
+		let seqNum = null;
+		let numRetries = 0;
+		let gotError = null;
+		BoundAsync.whilst(
+			this,
+			() => {
+				return !seqNum && numRetries < 20;
+			},
+			(whilstCallback) => {
+				this.data.streams.findAndModify(
+					{ _id: this.data.streams.objectIdSafe(this.attributes.streamId) },
+					{ $inc: { nextSeqNum: 1 } },
+					(error, result) => {
+						if (error) {
+							numRetries++;
+							gotError = error;
+						}
+						else if (!result || !result.value || !result.value.nextSeqNum) {
+							gotError = this.errorHandler.error('internal', { reason: 'invalid response from findAndModify, unable to obtain seqNum' });
+							numRetries++;
+						}
+						else {
+							gotError = null;
+							seqNum = result.value.nextSeqNum;
+						}
+					 	process.nextTick(whilstCallback);
+					},
+					{
+						databaseOptions: {
+							fields: { nextSeqNum: 1 }
+						}
+					}
+				);
+			},
+			() => {
+				if (!gotError) {
+					this.attributes.seqNum = seqNum;
+				}
+				callback(gotError);
 			}
 		);
 	}

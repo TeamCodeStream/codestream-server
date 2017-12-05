@@ -28,5 +28,9 @@ module.exports = {
 	text: {
 		type: 'string',
 		maxLength: 10000
+	},
+	seqNum: {
+		type: 'number',
+		required: true
 	}
 };
