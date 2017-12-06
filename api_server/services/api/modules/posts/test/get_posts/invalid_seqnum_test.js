@@ -9,7 +9,7 @@ class InvalidSeqNumTest extends GetPostsTest {
 	}
 
 	setPath (callback) {
-		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&seqnum&lt=x`;
+		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&seqnum=x`;
 		callback();
 	}
 
