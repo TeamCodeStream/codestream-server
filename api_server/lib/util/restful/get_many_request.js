@@ -29,7 +29,6 @@ class GetManyRequest extends RestfulRequest {
 
 	fetch (callback) {
 		let { func, query, queryOptions } = this.queryAndOptions;
-console.warn('QO', this.queryAndOptions);
 		if (this.queryAndOptions.fetchNothing) {
 			this.models = [];
 			return callback();
