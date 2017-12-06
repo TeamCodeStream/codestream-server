@@ -9,6 +9,7 @@ class GetPostsBySeqNumTest extends GetPostsTest {
 	}
 
 	setPath (callback) {
+		this.myPosts.sort((a, b) => { return a._id.localeCompare(b._id); });
 		this.myPosts = this.myPosts.slice(0, 3);
 		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&lte=3&seqnum`;
 		callback();
