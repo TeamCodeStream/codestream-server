@@ -1,6 +1,7 @@
 'use strict';
 
 var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const PostErrors = require('./errors.js');
 
 const BASIC_QUERY_PARAMETERS = [
 	'teamId',
@@ -22,6 +23,11 @@ const NON_FILTERING_PARAMETERS = [
 ];
 
 class GetPostsRequest extends GetManyRequest {
+
+	constructor (options) {
+		super(options);
+		this.errorHandler.add(PostErrors);
+	}
 
 	authorize (callback) {
 		if (!this.request.query.teamId) {
@@ -46,7 +52,7 @@ class GetPostsRequest extends GetManyRequest {
 
 	buildQuery () {
 		let query = {};
-		this.haveRelational = false;
+		this.relational = null;
 		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
 				let value = decodeURIComponent(this.request.query[parameter]).toLowerCase();
@@ -81,6 +87,10 @@ class GetPostsRequest extends GetManyRequest {
 		else if (parameter === 'mine') {
 			query.creatorId = this.user.id;
 		}
+		else if (parameter === 'seqnum') {
+			let error = this.processSeqNumParameter(value, query);
+			if (error) { return error; }
+		}
 		else if (RELATIONAL_PARAMETERS.indexOf(parameter) !== -1) {
 			let error = this.processRelationalParameter(parameter, value, query);
 			if (error) { return error; }
@@ -90,11 +100,31 @@ class GetPostsRequest extends GetManyRequest {
 		}
 	}
 
+	processSeqNumParameter (value, query) {
+		if (this.relational) {
+			return 'can not query sequence numbers with a relational';
+		}
+		let range = value.split('-');
+		let start = parseInt(range[0] || '', 10);
+		if (isNaN(start)) {
+			return 'invalid sequence number: ' + (range[0] || '');
+		}
+		let end = parseInt(range[1] || range[0], 10);
+		if (isNaN(end)) {
+			return 'invalid sequence number: ' + (range[1] || range[0]);
+		}
+		this.bySeqNum = true;
+		query.seqNum = { $gte: start, $lte: end };
+	}
+
 	processRelationalParameter (parameter, value, query) {
-		if (this.haveRelational) {
+		if (this.relational) {
 			return 'only one relational parameter allowed';
 		}
-		this.haveRelational = true;
+		else if (this.bySeqNum) {
+			return 'can not query sequence numbers with a relational';
+		}
+		this.relational = parameter;
 		query._id = {};
 		let id = this.data.posts.objectIdSafe(value);
 		if (!id) {
@@ -116,6 +146,9 @@ class GetPostsRequest extends GetManyRequest {
 		let sort = { _id: -1 };
 		if (this.request.query.sort && this.request.query.sort.toLowerCase() === 'asc') {
 			sort = { _id: 1 };
+		}
+		else if (this.bySeqNum) {
+			sort = { seqNum: 1 };
 		}
 		return {
 			databaseOptions: {

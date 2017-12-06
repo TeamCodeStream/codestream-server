@@ -153,6 +153,19 @@ class DataCollection {
 		);
 	}
 
+	findAndModify (query, data, callback, options = {}) {
+		this.databaseCollection.findAndModify(
+			query,
+			data,
+			(error, result) => {
+				if (error) { return callback(error); }
+				result.value._id = result.value._id.toString();
+				return callback(null, result.value);
+			},
+			Object.assign({}, options, { requestId: this.requestId })
+		);
+	}
+
 	persist (callback) {
 		BoundAsync.series(this, [
 			this._persistDocuments,

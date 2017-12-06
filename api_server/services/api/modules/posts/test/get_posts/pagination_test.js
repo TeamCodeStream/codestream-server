@@ -83,7 +83,8 @@ class PaginationTest extends GetPostsTest {
 		let end = begin + this.postsPerPage;
 		this.myPosts = this.allPosts.slice(begin, end);
 		this.validateResponse(response);
-		this.lastId = this.myPosts[this.myPosts.length - 1]._id;
+		let lastPost = this.myPosts[this.myPosts.length - 1];
+		this.lastId = lastPost._id;
 	}
 }
 

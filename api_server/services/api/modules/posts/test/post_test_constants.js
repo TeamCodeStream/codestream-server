@@ -12,7 +12,8 @@ const EXPECTED_POST_FIELDS = [
 	'creatorId',
 	'teamId',
 	'streamId',
-	'text'
+	'text',
+	'seqNum'
 ];
 
 const EXPECTED_FILE_POST_FIELDS = [
