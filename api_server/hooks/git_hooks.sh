@@ -15,6 +15,7 @@ githook_file_has_changed() {
 
 githook_reconfigure_sandbox() {
     local update_modules=0
+    [ -z "$CS_API_TOP" ] && echo "CS_API_TOP not set" && return
     githook_file_has_changed package.json; [ $? -eq 1 ] && update_modules=1
     if [[ "$CS_API_YARN" == true ]]; then
         githook_file_has_changed yarn.lock; [ $? -eq 1 ] && update_modules=1
