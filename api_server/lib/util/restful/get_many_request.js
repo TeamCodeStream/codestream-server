@@ -7,22 +7,33 @@ class GetManyRequest extends RestfulRequest {
 
 	process (callback) {
 		BoundAsync.series(this, [
+			this.formQuery,
+			this.preFetchHook,
 			this.fetch,
 			this.sanitize,
 			this.respond
 		], callback);
 	}
 
+	formQuery (callback) {
+		this.queryAndOptions = this.makeQueryAndOptions();
+		if (!this.queryAndOptions.fetchNothing && !this.queryAndOptions.query) {
+			return callback(this.queryAndOptions); // error
+		}
+		process.nextTick(callback);
+	}
+
+	preFetchHook (callback) {
+		callback();
+	}
+
 	fetch (callback) {
-		let queryAndOptions = this.makeQueryAndOptions();
-		if (queryAndOptions.fetchNothing) {
+		let { func, query, queryOptions } = this.queryAndOptions;
+console.warn('QO', this.queryAndOptions);
+		if (this.queryAndOptions.fetchNothing) {
 			this.models = [];
 			return callback();
 		}
-		else if (!queryAndOptions.query) {
-			return callback(queryAndOptions); // error
-		}
-		let { func, query, queryOptions } = queryAndOptions;
 		this.data[this.module.collectionName][func](
 			query,
 			(error, models) => {
