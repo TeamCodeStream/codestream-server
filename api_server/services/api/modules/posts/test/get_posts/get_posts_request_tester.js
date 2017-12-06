@@ -14,6 +14,9 @@ var GetPostsGreaterThanEqualTest = require('./get_posts_greater_than_equal_test'
 var GetPostsLessThanTest = require('./get_posts_less_than_test');
 var GetPostsLessThanEqualTest = require('./get_posts_less_than_equal_test');
 var PaginationTest = require('./pagination_test');
+var InvalidSeqNumTest = require('./invalid_seqnum_test');
+var InvalidSeqNumRangeTest = require('./invalid_seqnum_range_test');
+var SeqNumLimitTest = require('./seqnum_limit_test');
 var InvalidParameterTest = require('./invalid_parameter_test');
 var OneRelationalTest = require('./one_relational_test');
 var InvalidIDTest = require('./invalid_id_test');
@@ -24,6 +27,9 @@ var ACLStreamTest = require('./acl_stream_test');
 var ACLTeamFileTest = require('./acl_team_file_test');
 var StreamNotFoundTest = require('./stream_not_found_test');
 var StreamNoMatchTeamTest = require('./stream_no_match_team_test');
+var GetPostsBySeqNumTest = require('./get_posts_by_seqnum_test');
+var GetPostsBySingleSeqNumTest = require('./get_posts_by_single_seqnum_test');
+var NoSeqNumWithRelationalTest = require('./no_seqnum_with_relational_test');
 
 /* jshint -W071 */
 
@@ -50,6 +56,10 @@ class GetPostsRequestTester {
 		new PaginationTest({defaultPagination: true}).test();
 		new PaginationTest({defaultPagination: true, ascending: true}).test();
 		new PaginationTest({defaultPagination: true, tryOverLimit: true}).test();
+		new InvalidSeqNumTest().test();
+		new InvalidSeqNumRangeTest().test();
+		new NoSeqNumWithRelationalTest().test();
+		new SeqNumLimitTest().test();
 		new InvalidParameterTest().test();
 		new OneRelationalTest().test();
 		new InvalidIDTest().test();
@@ -60,6 +70,8 @@ class GetPostsRequestTester {
 		new ACLTeamFileTest().test();
 		new StreamNotFoundTest().test();
 		new StreamNoMatchTeamTest().test();
+		new GetPostsBySeqNumTest().test();
+		new GetPostsBySingleSeqNumTest().test();
 	}
 }
 

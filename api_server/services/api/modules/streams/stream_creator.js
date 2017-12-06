@@ -113,6 +113,9 @@ class StreamCreator extends ModelCreator {
 
 	preSave (callback) {
 		this.attributes.creatorId = this.user.id;
+		if (!this.existingModel) {
+			this.attributes.nextSeqNum = 1;
+		}
 		BoundAsync.series(this, [
 			this.createId,
 			super.preSave

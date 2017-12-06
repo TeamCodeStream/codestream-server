@@ -269,6 +269,18 @@ class MongoCollection {
 		);
 	}
 
+	findAndModify (query, data, callback, options = {}) {
+		this.runQuery(
+			'findAndModify',
+			query,
+			callback,
+			options,
+			{},
+			data,
+			options.databaseOptions
+		);
+	}
+
 	deleteById (id, callback, options) {
 		let query = {
 			[this.idAttribute]: this.objectIdSafe(id)

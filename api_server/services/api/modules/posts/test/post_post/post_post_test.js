@@ -122,6 +122,7 @@ class PostPostTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		let post = data.post;
 		let errors = [];
+		let expectedSeqNum = this.testOptions.expectedSeqNum || 1;
 		let result = (
 			((post.text === this.data.text) || errors.push('text does not match')) &&
 			((post.teamId === this.team._id) || errors.push('teamId does not match the team')) &&
@@ -129,7 +130,8 @@ class PostPostTest extends CodeStreamAPITest {
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((post.modifiedAt >= post.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((post.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id'))
+			((post.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id')) &&
+			((post.seqNum === expectedSeqNum) || errors.push('seqNum not equal to expected seqNum'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		this.validateSanitized(post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
