@@ -16,8 +16,7 @@ class PaginationTest extends GetPostsTest {
 	get description () {
 		let order = this.ascending ? 'ascending' : 'descending';
 		let type = this.defaultPagination ? 'default' : 'custom';
-		let bySeqNum = this.bySeqNum ? ' by sequence number': '';
-		let description = `should return the correct posts in correct ${order} order when requesting posts in ${type} pages${bySeqNum}`;
+		let description = `should return the correct posts in correct ${order} order when requesting posts in ${type} pages`;
 		if (this.tryOverLimit) {
 			description += `, and should limit page size to ${Limits.maxPostsPerRequest}`;
 		}
@@ -59,9 +58,6 @@ class PaginationTest extends GetPostsTest {
 		if (pageNum > 0) {
 			let op = this.ascending ? 'gt' : 'lt';
 			this.path += `&${op}=${this.lastId}`;
-			if (this.bySeqNum) {
-				this.path += '&seqnum';
-			}
 		}
 		this.doApiRequest(
 			{
@@ -88,7 +84,7 @@ class PaginationTest extends GetPostsTest {
 		this.myPosts = this.allPosts.slice(begin, end);
 		this.validateResponse(response);
 		let lastPost = this.myPosts[this.myPosts.length - 1];
-		this.lastId = this.bySeqNum ? lastPost.seqNum : lastPost._id;
+		this.lastId = lastPost._id;
 	}
 }
 

@@ -88,7 +88,8 @@ class GetPostsRequest extends GetManyRequest {
 			query.creatorId = this.user.id;
 		}
 		else if (parameter === 'seqnum') {
-			this.bySeqNum = this.bySeqNum || 1;
+			let error = this.processSeqNumParameter(value, query);
+			if (error) { return error; }
 		}
 		else if (RELATIONAL_PARAMETERS.indexOf(parameter) !== -1) {
 			let error = this.processRelationalParameter(parameter, value, query);
@@ -99,20 +100,31 @@ class GetPostsRequest extends GetManyRequest {
 		}
 	}
 
+	processSeqNumParameter (value, query) {
+		if (this.relational) {
+			return 'can not query sequence numbers with a relational';
+		}
+		let range = value.split('-');
+		let start = parseInt(range[0] || '', 10);
+		if (isNaN(start)) {
+			return 'invalid sequence number: ' + (range[0] || '');
+		}
+		let end = parseInt(range[1] || range[0], 10);
+		if (isNaN(end)) {
+			return 'invalid sequence number: ' + (range[1] || range[0]);
+		}
+		this.bySeqNum = true;
+		query.seqNum = { $gte: start, $lte: end };
+	}
+
 	processRelationalParameter (parameter, value, query) {
 		if (this.relational) {
 			return 'only one relational parameter allowed';
 		}
-		this.relational = parameter;
-		if (typeof this.request.query.seqnum !== 'undefined') {
-			// we'll deal with this later (see preFetchHook)
-			let seqNum = parseInt(value, 10);
-			if (isNaN(seqNum)) {
-				return 'invalid sequence number';
-			}
-			this.bySeqNum = seqNum;
-			return;
+		else if (this.bySeqNum) {
+			return 'can not query sequence numbers with a relational';
 		}
+		this.relational = parameter;
 		query._id = {};
 		let id = this.data.posts.objectIdSafe(value);
 		if (!id) {
@@ -135,35 +147,15 @@ class GetPostsRequest extends GetManyRequest {
 		if (this.request.query.sort && this.request.query.sort.toLowerCase() === 'asc') {
 			sort = { _id: 1 };
 		}
+		else if (this.bySeqNum) {
+			sort = { seqNum: 1 };
+		}
 		return {
 			databaseOptions: {
 				sort: sort,
 				limit: this.limit
 			}
 		};
-	}
-
-	preFetchHook (callback) {
-		if (typeof this.bySeqNum !== 'number') {
-			return callback();
-		}
-		let query = {
-			teamId: this.queryAndOptions.query.teamId,
-			streamId: this.queryAndOptions.query.streamId,
-			seqNum: this.bySeqNum
-		};
-		this.data.posts.getByQuery(
-			query,
-			(error, posts) => {
-				if (error) { return callback(error); }
-				if (posts.length === 0) {
-					return callback(this.errorHandler.error('seqNumNotFound'));
-				}
-				let id = this.data.posts.objectIdSafe(posts[0].id);
-				this.queryAndOptions.query._id = { ['$' + this.relational]: id };
-				callback();
-			}
-		);
 	}
 
 	process (callback) {
