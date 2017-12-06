@@ -1,6 +1,7 @@
 'use strict';
 
 var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const PostErrors = require('./errors.js');
 
 const BASIC_QUERY_PARAMETERS = [
 	'teamId',
@@ -22,6 +23,11 @@ const NON_FILTERING_PARAMETERS = [
 ];
 
 class GetPostsRequest extends GetManyRequest {
+
+	constructor (options) {
+		super(options);
+		this.errorHandler.add(PostErrors);
+	}
 
 	authorize (callback) {
 		if (!this.request.query.teamId) {
@@ -46,7 +52,7 @@ class GetPostsRequest extends GetManyRequest {
 
 	buildQuery () {
 		let query = {};
-		this.haveRelational = false;
+		this.relational = null;
 		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
 				let value = decodeURIComponent(this.request.query[parameter]).toLowerCase();
@@ -81,6 +87,9 @@ class GetPostsRequest extends GetManyRequest {
 		else if (parameter === 'mine') {
 			query.creatorId = this.user.id;
 		}
+		else if (parameter === 'seqnum') {
+			this.bySeqNum = this.bySeqNum || 1;
+		}
 		else if (RELATIONAL_PARAMETERS.indexOf(parameter) !== -1) {
 			let error = this.processRelationalParameter(parameter, value, query);
 			if (error) { return error; }
@@ -91,10 +100,19 @@ class GetPostsRequest extends GetManyRequest {
 	}
 
 	processRelationalParameter (parameter, value, query) {
-		if (this.haveRelational) {
+		if (this.relational) {
 			return 'only one relational parameter allowed';
 		}
-		this.haveRelational = true;
+		this.relational = parameter;
+		if (typeof this.request.query.seqnum !== 'undefined') {
+			// we'll deal with this later (see preFetchHook)
+			let seqNum = parseInt(value, 10);
+			if (isNaN(seqNum)) {
+				return 'invalid sequence number';
+			}
+			this.bySeqNum = seqNum;
+			return;
+		}
 		query._id = {};
 		let id = this.data.posts.objectIdSafe(value);
 		if (!id) {
@@ -123,6 +141,29 @@ class GetPostsRequest extends GetManyRequest {
 				limit: this.limit
 			}
 		};
+	}
+
+	preFetchHook (callback) {
+		if (typeof this.bySeqNum !== 'number') {
+			return callback();
+		}
+		let query = {
+			teamId: this.queryAndOptions.query.teamId,
+			streamId: this.queryAndOptions.query.streamId,
+			seqNum: this.bySeqNum
+		};
+		this.data.posts.getByQuery(
+			query,
+			(error, posts) => {
+				if (error) { return callback(error); }
+				if (posts.length === 0) {
+					return callback(this.errorHandler.error('seqNumNotFound'));
+				}
+				let id = this.data.posts.objectIdSafe(posts[0].id);
+				this.queryAndOptions.query._id = { ['$' + this.relational]: id };
+				callback();
+			}
+		);
 	}
 
 	process (callback) {
