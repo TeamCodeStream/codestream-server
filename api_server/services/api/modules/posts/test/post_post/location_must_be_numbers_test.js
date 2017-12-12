@@ -13,7 +13,7 @@ class LocationMustBeNumbersTest extends PostCodeToFileStreamTest {
 			code: 'RAPI-1005',
 			info: [{
 				code: 'RAPI-1005',
-				info: 'codeBlocks: location array must consist only of numbers'
+				info: 'codeBlocks: first four coordinations of location array must be numbers'
 			}]
 		};
 	}

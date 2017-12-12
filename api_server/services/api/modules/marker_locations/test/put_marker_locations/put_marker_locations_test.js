@@ -118,7 +118,7 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 	adjustMarker (marker) {
 		let adjustedLocation = [];
 		let location = this.locations[marker._id];
-		location.forEach(coordinate => {
+		location.slice(0, 4).forEach(coordinate => {
 			let adjustedCoordinate = coordinate + Math.floor(Math.random() * coordinate);
 			adjustedLocation.push(adjustedCoordinate);
 		});

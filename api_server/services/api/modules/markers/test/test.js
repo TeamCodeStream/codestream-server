@@ -11,7 +11,7 @@ describe('marker requests', function() {
 
 	this.timeout(20000);
 
-//	describe('GET /markers/:id', markersRequestTester.getMarkerTest);
+	describe('GET /markers/:id', markersRequestTester.getMarkerTest);
 	describe('GET /markers', markersRequestTester.getMarkersTest);
 
 });
