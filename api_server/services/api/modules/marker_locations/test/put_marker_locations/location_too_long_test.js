@@ -18,7 +18,7 @@ class LocationTooLongTest extends PutMarkerLocationsTest {
 	setData (callback) {
 		super.setData(() => {
 			let markerId = Object.keys(this.data.locations)[0];
-			this.data.locations[markerId] = [1, 2, 3, 4, 5];
+			this.data.locations[markerId] = [1, 2, 3, 4, {}, 6];
 			callback();
 		});
 	}

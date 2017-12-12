@@ -11,15 +11,14 @@ class BadLocationCoordinateTest extends PutMarkerLocationsTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'location array must consist only of numbers'
+			info: 'first four coordinations of location array must be numbers'
 		};
 	}
 
 	setData (callback) {
 		super.setData(() => {
 			let markerId = Object.keys(this.data.locations)[0];
-			let length = this.data.locations[markerId].length;
-			this.data.locations[markerId][length - 1] = 'x';
+			this.data.locations[markerId][3] = 'x';
 			callback();
 		});
 	}
