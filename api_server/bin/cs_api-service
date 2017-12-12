@@ -36,17 +36,17 @@ case "$action" in
         else
             nohup $CS_API_TOP/bin/api_server.js $server_args >/dev/null 2>&1 </dev/null &
             sleep 1
-            service_status api_server.js
+            service_status $CS_API_TOP/bin/api_server.js
         fi
         ;;
     stop)
-        service_stop api_server.js
+        service_stop $CS_API_TOP/bin/api_server.js
         ec=$?
         sleep 2
-        service_status api_server.js
+        service_status $CS_API_TOP/bin/api_server.js
         ;;
     status)
-        service_status api_server.js
+        service_status $CS_API_TOP/bin/api_server.js
         ;;
     *)
         usage
