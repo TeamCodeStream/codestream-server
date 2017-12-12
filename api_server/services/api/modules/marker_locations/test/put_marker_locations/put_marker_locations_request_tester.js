@@ -14,7 +14,9 @@ var OtherTeamTest = require('./other_team_test');
 var BadMarkerIdTest = require('./bad_marker_id_test');
 var BadLocationTest = require('./bad_location_test');
 var LocationTooLongTest = require('./location_too_long_test');
+var LocationTooShortTest = require('./location_too_short_test');
 var BadLocationCoordinateTest = require('./bad_location_coordinate_test');
+var InvalidCoordinateObjectTest = require('./invalid_coordinate_object_test');
 var AdditionalMarkerLocationsTest = require('./additional_marker_locations_test');
 var MessageToTeamTest = require('./message_to_team_test');
 
@@ -43,7 +45,9 @@ class PutMarkerLocationsRequestTester {
 		new BadMarkerIdTest().test();
 		new BadLocationTest().test();
 		new LocationTooLongTest().test();
+		new LocationTooShortTest().test();
 		new BadLocationCoordinateTest().test();
+		new InvalidCoordinateObjectTest().test();
 		new AdditionalMarkerLocationsTest().test();
 		new MessageToTeamTest().test();
 	}

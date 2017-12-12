@@ -17,29 +17,34 @@ class RandomMarkerFactory {
 	}
 
 	randomLocation () {
-		let location = [];
-		let lineStart = this.randomUpto(1000);
-		location.push(lineStart);
-		let lineEnd;
+		let lineStart, lineEnd, charStart, charEnd, fifthElement = {};
+		lineStart = this.randomUpto(1000);
 		if (Math.random() < 0.2) {
-			return location; // simulates a single line selected
-		}
-		else if (Math.random() < 0.2) {
 			lineEnd = lineStart; // simulates a single line selected
 		}
 		else {
 			lineEnd = lineStart + this.randomUpto(1000);
 		}
-		location.push(lineEnd);
 		if (Math.random() < 0.4) {
-			return location; // simulates a range of lines selected, but no columns
+			charStart = 0;
+			charEnd = 100; // as best as we can, simulates a range of lines selected, but no columns
 		}
-		const charStart = this.randomUpto(100);
-		const charEnd = (lineStart === lineEnd) ?
-			(charStart + this.randomUpto(100)) :
-			this.randomUpto(100);
-		location.push(charStart);
-		location.push(charEnd);
+		else {
+			charStart = this.randomUpto(100);
+			charEnd = (lineStart === lineEnd) ?
+				(charStart + this.randomUpto(100)) :
+				this.randomUpto(100);
+		}
+		if (Math.random() < 0.1) {
+			fifthElement.startWasDeleted = true;
+		}
+		if (Math.random() < 0.1) {
+			fifthElement.endWasDeleted = true;
+		}
+		let location = [lineStart, charStart, lineEnd, charEnd];
+		if (Object.keys(fifthElement).length) {
+			location.push(fifthElement);
+		}
 		return location;
 	}
 

@@ -28,7 +28,7 @@ class MarkerCreator extends ModelCreator {
 			this.attributes,
 			{
 				string: ['teamId', 'streamId', 'postId', 'commitHash'],
-				'array(number)': ['location']
+				'array': ['location']
 			}
 		);
 		process.nextTick(callback);
@@ -47,11 +47,18 @@ class MarkerCreator extends ModelCreator {
 		if (!(location instanceof Array)) {
 			return 'location must be an array';
 		}
-		else if (location.length > 4) {
+		else if (location.length < 4) {
+			return 'location array must have at least 4 elements';
+		}
+		else if (location.length > 5) {
 			return 'location array is too long';
 		}
-		else if (location.find(coordinate => typeof coordinate !== 'number')) {
-			return 'location array must consist only of numbers';
+		let firstFour = location.slice(0, 4);
+		if (firstFour.find(coordinate => typeof coordinate !== 'number')) {
+			return 'first four coordinations of location array must be numbers';
+		}
+		if (location.length === 5 && typeof location[4] !== 'object') {
+			return 'fifth element of location must be an object';
 		}
 	}
 

@@ -2,7 +2,7 @@
 
 var PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
 
-class LocationTooLongTest extends PostCodeToFileStreamTest {
+class LocationTooShortTest extends PostCodeToFileStreamTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post with a code block element where the location array is too long';
@@ -13,17 +13,17 @@ class LocationTooLongTest extends PostCodeToFileStreamTest {
 			code: 'RAPI-1005',
 			info: [{
 				code: 'RAPI-1005',
-				info: 'codeBlocks: location array is too long'
+				info: 'codeBlocks: location array must have at least 4 elements'
 			}]
 		};
 	}
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.codeBlocks[0].location = [1, 2, 3, 4, 5, 6];
+			this.data.codeBlocks[0].location = [1, 2, 3];
 			callback();
 		});
 	}
 }
 
-module.exports = LocationTooLongTest;
+module.exports = LocationTooShortTest;
