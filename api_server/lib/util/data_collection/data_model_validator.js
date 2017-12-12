@@ -1,3 +1,5 @@
+// provides a validator engine for a generic DataModel, standard validation functions provided here
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
@@ -11,7 +13,9 @@ class DataModelValidator {
 		this.setValidationFunctions();
 	}
 
+	// according to the attribute definitions provided, determine which attributes are required
 	setRequiredAttributes () {
+		// this just gives us an easy way to look up when an attribute is required
 		this.requiredAttributes = [];
 		let attributeDefinitions = Object.keys(this.attributeDefinitions);
 		attributeDefinitions.forEach(attribute => {
@@ -21,6 +25,7 @@ class DataModelValidator {
 		});
 	}
 
+	// establish the set of known validation functions for different attribute types
 	setValidationFunctions () {
 		this.validationFunctions = {
 			timestamp: this.validateTimestamp.bind(this),
@@ -32,10 +37,10 @@ class DataModelValidator {
 		};
 	}
 
+	// validate a set of attributes
 	validate (attributes = {}, callback = null, options = {}) {
 		this.attributes = attributes;
 		this.options = options;
-		this.existingAttributes = Object.keys(this.attributes);
 		BoundAsync.series(this, [
 			this.checkRequired,
 			this.validateAttributes
@@ -45,13 +50,16 @@ class DataModelValidator {
 		});
 	}
 
+	// check that we have all the required attributes
 	checkRequired (callback) {
 		if (!this.options.new) {
+			// we only require attributes for models being created, since for models that have already existed
+			// we can't assume we have their complete set of attributes
 			return process.nextTick(callback);
 		}
 		let missingAttributes = [];
 		this.requiredAttributes.forEach(requiredAttribute => {
-			if (this.existingAttributes.indexOf(requiredAttribute) === -1) {
+			if (typeof this.attributes[requiredAttribute] === 'undefined') {
 				missingAttributes.push(requiredAttribute);
 			}
 		});
@@ -61,6 +69,7 @@ class DataModelValidator {
 		process.nextTick(callback);
 	}
 
+	// validate each individual attribute according to its own validation rule
 	validateAttributes (callback) {
 		BoundAsync.forEachLimit(
 			this,
@@ -71,9 +80,12 @@ class DataModelValidator {
 		);
 	}
 
+	// validate an individual attribute according to its own validation rule
 	validateAttribute (attribute, callback) {
 		const attributeDefinition = this.attributeDefinitions[attribute];
 		if (!attributeDefinition) {
+			// we delete (with a warning) any attributes we don't recognize,
+			// unless the definitions are defined as "free-form"
 			if (!this.attributeDefinitions.$freeFormOk) {
 				this.warnings = this.warnings || [];
 				this.warnings.push(`Deleting attribute ${attribute}, attribute not found in attribute definitions`);
@@ -82,6 +94,8 @@ class DataModelValidator {
 			return process.nextTick(callback);
 		}
 
+		// lookup the attribute type, we must have a validation function for this attribute type or we'll delete
+		// the attribute with a warning
 		const type = attributeDefinition.type;
 		let validationFunction = this.validationFunctions[type];
 		if (typeof validationFunction !== 'function') {
@@ -91,6 +105,7 @@ class DataModelValidator {
 			return process.nextTick(callback);
 		}
 
+		// now run the actual validation function, if the attribute exists
 		if (typeof this.attributes[attribute] !== 'undefined') {
 			let validationResult = validationFunction(this.attributes[attribute], attributeDefinition);
 			if (validationResult) {
@@ -102,24 +117,28 @@ class DataModelValidator {
 		process.nextTick(callback);
 	}
 
+	// validate a timestamp value, must be a number
 	validateTimestamp (value/*, definition*/) {
 		if (typeof value !== 'number') {
 			return 'timestamp must be a number';
 		}
 	}
 
+	// validate a numeric value
 	validateNumber (value/*, definition*/) {
 		if (typeof value !== 'number') {
 			return 'must be a number';
 		}
 	}
 
+	// validate a boolean value
 	validateBoolean (value/*, definition*/) {
 		if (value !== true && value !== false) {
 			return 'must be a boolean';
 		}
 	}
 
+	// validate a string value, which can be restricted in length
 	validateString (value, definition) {
 		if (typeof value !== 'string') {
 			return 'must be a string';
@@ -140,6 +159,7 @@ class DataModelValidator {
 		}
 	}
 
+	// validate a value that can be an object, and can be limited in size (according to JSON.stringify())
 	validateObject (value, definition) {
 		if (typeof value !== 'object') {
 			return 'must be an object';
@@ -153,6 +173,7 @@ class DataModelValidator {
 		}
 	}
 
+	// validate an array value, which can be limited in length or in overall size (according to JSON.stringify())
 	validateArray (value, definition) {
 		if (!(value instanceof Array)) {
 			return 'must be an array';
@@ -173,6 +194,7 @@ class DataModelValidator {
 		}
 	}
 
+	// for a given object, sanitize (delete) any attributes that should not get served to clients
 	sanitizeAttributes (object) {
 		Object.keys(this.attributeDefinitions).forEach(attribute => {
 			if (this.attributeDefinitions[attribute].serverOnly) {
@@ -182,11 +204,14 @@ class DataModelValidator {
 		return object;
 	}
 
+	// for a given model, sanitize (delete) any attributes that should not get served to clients
+	// (convenience wrapper for sanitizeAttributes)
 	sanitizeModel (model) {
 		this.sanitizeAttributes(model.attributes);
 		return model;
 	}
 
+	// for a given model, return a sanitized object with any attributes removed that should not be served to clients
 	getSanitizedObject (model) {
 		let object = DeepClone(model.attributes);
 		return this.sanitizeAttributes(object);

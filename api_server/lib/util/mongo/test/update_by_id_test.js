@@ -9,14 +9,16 @@ class UpdateByIdTest extends GetByIdTest {
 		return 'should get the correctly updated document after updating a document by ID';
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.updateDocument
+			super.before,		// set up mongo client and create a test document
+			this.updateDocument	// update the document
 		], callback);
 	}
 
 	updateDocument (callback) {
+		// update the document and verify the update took
 		const update = {
 			text: 'replaced!',
 			number: 123

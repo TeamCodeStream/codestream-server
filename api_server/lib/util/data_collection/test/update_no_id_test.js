@@ -12,12 +12,14 @@ class UpdateNoIdTest extends DataCollectionTest {
 
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createTestModel
+			super.before,			// set up mongo client
+			this.createTestModel	// create a test model
 		], callback);
 	}
 
 	run (callback) {
+		// to do an update operation, the caller must supply an ID, either in the options,
+		// or in the update itself ... if there is no ID, we should get back an error
 		const update = {
 			text: 'replaced!',
 			number: 123

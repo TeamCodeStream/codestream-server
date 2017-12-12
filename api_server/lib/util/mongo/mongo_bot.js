@@ -1,3 +1,5 @@
+// Provides an independent bot that can perform operations on data from a mongo database
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
@@ -10,6 +12,7 @@ class MongoBot {
 		this.errors = [];
 	}
 
+	// for each document in the collection that matches the query, perform an operation (iterator)
 	foreach (collection, query, iterator, callback) {
 		if (!this.mongoClient) {
 			return callback('no mongo client');
@@ -18,10 +21,12 @@ class MongoBot {
 			return callback('invalid collection: ' + collection);
 		}
 		this.iterator = iterator;
+		// run the query
 		this.mongoClient.mongoCollections[collection].getByQuery(
 			query,
 			(error, results) => {
 				if (error) { return callback(error); }
+				// handle the results
 				this.handleCursorResults(results, callback);
 			},
 			{
@@ -30,6 +35,8 @@ class MongoBot {
 		);
 	}
 
+	// once we get the results back from the query, start iterating over the objects and
+	// handle the results
 	handleCursorResults (results, callback) {
 		this.results = results;
 		this.done = false;
@@ -50,8 +57,10 @@ class MongoBot {
 		);
 	}
 
+	// handle a single fetched object by calling the passed iterator
 	handleNextObject (object, callback) {
 		if (!object) {
+			// no more objects
 			this.done = true;
 			this.results.done();
 			return process.nextTick(callback);

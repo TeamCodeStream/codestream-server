@@ -9,6 +9,8 @@ class ApplyAddArrayToCacheTest extends UpdateToCacheTest {
 	}
 
 	updateTestModel (callback) {
+		// add these elements to the array, some of which are already in it,
+		// make sure the 7 and 8 are added, but not the 5, since it's already there
 		const update = {
 			array: [5, 7, 8]
 		};

@@ -9,18 +9,23 @@ class UpdateToDatabaseTest extends DataCollectionTest {
 		return 'should get the correct model after updating a model and persisting';
 	}
 
+	// before the test...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createTestModel,
-			this.persist,
-			this.clearCache,
-			this.updateTestModel,
-			this.persist
+			super.before,			// set up mongo client
+			this.createTestModel,	// create a test model
+			this.persist,			// persist the model to the database
+			this.clearCache,		// clear the cache
+			this.updateTestModel,	// update the test model
+			this.persist			// persist the update
 		], callback);
 	}
 
+	// run the test...
 	run (callback) {
+		// fetch our test model directly from the database, the change should be reflected
+		// because we persisted the update ... since our test model has the update already,
+		// it should match the object returned
 		this.mongoData.test.getById(
 			this.testModel.id,
 			(error, response) => {

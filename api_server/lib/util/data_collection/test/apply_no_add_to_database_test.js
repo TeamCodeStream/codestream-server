@@ -9,6 +9,7 @@ class ApplyNoAddToDatabaseTest extends UpdateToDatabaseTest {
 	}
 
 	updateTestModel (callback) {
+		// this element is already in the array, so check that the document is not changed at all by this op
 		const update = {
 			array: 4
 		};

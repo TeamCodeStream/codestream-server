@@ -9,6 +9,7 @@ class ApplyPullToDatabaseTest extends UpdateToDatabaseTest {
 	}
 
 	updateTestModel (callback) {
+		// pull this element from the array, and check that it's gone
 		const update = {
 			array: 4
 		};

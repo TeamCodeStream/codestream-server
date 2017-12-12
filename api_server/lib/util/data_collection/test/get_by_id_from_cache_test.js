@@ -9,14 +9,16 @@ class GetByIdFromCacheTest extends DataCollectionTest {
 		return 'should get the correct model when getting a model by ID and it is cached';
 	}
 
+	// before the test...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createTestAndControlModel,
-			this.confirmNotPersisted
+			super.before,					// set up mongo client
+			this.createTestAndControlModel,	// create a test model and a control model
+			this.confirmNotPersisted		// confirm that the test model did not get persisted
 		], callback);
 	}
 
+	// run the test...
 	run (callback) {
 		this.data.test.getById(
 			this.testModel.id,
@@ -27,6 +29,7 @@ class GetByIdFromCacheTest extends DataCollectionTest {
 	}
 
 	validateResponse () {
+		// we should get the model, since it is cached, even though it is not persisted
 		this.validateModelResponse();
 	}
 }

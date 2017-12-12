@@ -9,15 +9,18 @@ class GetByIdsTest extends MongoTest {
 		return 'should get the correct documents when getting several documents by ID';
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createRandomDocuments,
-			this.filterTestDocuments
+			super.before,					// set up mongo client
+			this.createRandomDocuments,		// create a series of random documents
+			this.filterTestDocuments		// filter down to the ones we want`
 		], callback);
 	}
 
+	// run the test...
 	run (callback) {
+		// get the documents we want, and verify we didn't get any others
 		let ids = this.testDocuments.map(document => { return document._id; });
 		this.data.test.getByIds(
 			ids,

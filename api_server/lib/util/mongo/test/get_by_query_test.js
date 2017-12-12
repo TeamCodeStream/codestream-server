@@ -9,15 +9,18 @@ class GetByQueryTest extends MongoTest {
 		return 'should get the correct documents when getting several documents by query';
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createRandomDocuments,
-			this.filterTestDocuments
+			super.before,				// set up mongo client`
+			this.createRandomDocuments,	// create a series of random documents`
+			this.filterTestDocuments	// filter down to the documents we want`
 		], callback);
 	}
 
+	// run the test...
 	run (callback) {
+		// do the query 
 		this.data.test.getByQuery(
 			{ flag: this.randomizer + 'yes' },
 			(error, response) => {

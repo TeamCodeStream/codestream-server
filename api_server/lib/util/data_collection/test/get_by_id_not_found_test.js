@@ -10,6 +10,7 @@ class GetByIdNotFoundTest extends DataCollectionTest {
 	}
 
 	run (callback) {
+		// fetch a new ID (not yet assigned to a document) and try to fetch 
 		let nextId = this.data.test.createId();
 		this.data.test.getById(
 			nextId,

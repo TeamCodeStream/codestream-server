@@ -1,3 +1,5 @@
+// Errors concerning the DataCollection library
+
 'use strict';
 
 const ERRORS = {

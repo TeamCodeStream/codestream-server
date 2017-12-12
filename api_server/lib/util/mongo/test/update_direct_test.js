@@ -10,15 +10,18 @@ class UpdateDirectTest extends MongoTest {
 		return 'should get the correct documents after they are directly updated';
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createRandomDocuments,
-			this.updateDocuments
+			super.before,				// set up mongo client
+			this.createRandomDocuments,	// create a series of random documents
+			this.updateDocuments		// update those documents using a direct update
 		], callback);
 	}
 
+	// update the test documents using a direct update operation
 	updateDocuments (callback) {
+		// do a direct update to change the text of our test documents
 		let regexp = new RegExp(`^${this.randomizer}yes$`);
 		this.data.test.updateDirect(
 			{ flag: regexp },
@@ -27,7 +30,9 @@ class UpdateDirectTest extends MongoTest {
 		);
 	}
 
+	// run the test...
 	run (callback) {
+		// fetch our test documents
 		let ids = this.documents.map(document => { return document._id; });
 		this.data.test.getByIds(
 			ids,
@@ -37,7 +42,9 @@ class UpdateDirectTest extends MongoTest {
 		);
 	}
 
+	// validate the response
 	validateResponse () {
+		// check that our test documents have the update, and the other models don't
 		Assert(this.response instanceof Array, 'response must be an array');
 		Assert(this.response.length === this.documents.length);
 		this.response.forEach(responseDocument => {
