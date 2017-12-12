@@ -11,15 +11,19 @@ class UpsertToCacheTest extends DataCollectionTest {
 		return 'should get the correct model after upserting a cached model that did not exist before';
 	}
 
+	// before the test...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.upsertTestModel,
-			this.confirmNotPersisted
+			super.before,				// set up mongo client
+			this.upsertTestModel,		// upsert a test model, creating it if it doesn't exist
+			this.confirmNotPersisted	// confirm the document hasn't been persisted to the database
 		], callback);
 	}
 
+	// "upsert" a test model (update with an insert options)
 	upsertTestModel (callback) {
+		// do an update operation with the upsert option, this should create the document even though
+		// it did not exist before (but only in the cache, because we're not persisting)
 		this.testModel = new DataModel({
 			_id: ObjectID(),
 			text: 'hello',
@@ -38,7 +42,9 @@ class UpsertToCacheTest extends DataCollectionTest {
 		);
 	}
 
+	// run the test...
 	run (callback) {
+		// fetch the model, if the upsert worked, we should just get it from the cache
 		this.data.test.getById(
 			this.testModel.id,
 			(error, response) => {

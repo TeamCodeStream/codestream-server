@@ -1,23 +1,16 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var GetByIdTest = require('./get_by_id_test');
+var UpdateTest = require('./update_test');
 var ObjectID = require('mongodb').ObjectID;
 
-class ApplyUpsertOpTest extends GetByIdTest {
+class ApplyUpsertOpTest extends UpdateTest {
 
 	get description () {
 		return 'should get the correct document after upserting a document by op that did not exist before';
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.updateDocument
-		], callback);
-	}
-
 	updateDocument (callback) {
+		// do an update with the upsert option, verify that the test document was created
 		const update = {
 			_id: ObjectID(),
 			text: 'upserted!',

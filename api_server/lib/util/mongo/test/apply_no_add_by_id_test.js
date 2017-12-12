@@ -1,22 +1,15 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var GetByIdTest = require('./get_by_id_test');
+var UpdateTest = require('./update_test');
 
-class ApplyNoAddByIdTest extends GetByIdTest {
+class ApplyNoAddByIdTest extends UpdateTest {
 
 	get description () {
 		return 'should get an unchanged document after applying a no-op add operation to a document';
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.updateDocument
-		], callback);
-	}
-
 	updateDocument (callback) {
+		// try to add an element to an array that is already in the array, the document should be unchanged
 		const update = {
 			array: 4
 		};

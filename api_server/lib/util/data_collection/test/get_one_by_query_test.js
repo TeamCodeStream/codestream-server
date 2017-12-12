@@ -9,16 +9,20 @@ class GetOneByQueryTest extends DataCollectionTest {
 		return 'should get the correct model when getting one model by query';
 	}
 
+	// before the test...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createRandomModels,
-			this.persist,
-			this.clearCache
+			super.before,				// set up mongo client
+			this.createRandomModels,	// create a series of random models
+			this.persist,				// persist those models to the database
+			this.clearCache				// clear the local cache
 		], callback);
 	}
 
+	// run the test...
 	run (callback) {
+		// the cache has been cleared, but we should be able to get a model by query,
+		// since the DataCollection should go out to the database for the model
 		this.testModel = this.models[4];
 		this.data.test.getOneByQuery(
 			{

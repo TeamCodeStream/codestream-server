@@ -1,3 +1,5 @@
+// tests of the DataCollection class and its functionality
+
 'use strict';
 
 // make jshint happy

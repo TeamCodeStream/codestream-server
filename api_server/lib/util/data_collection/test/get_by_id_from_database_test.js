@@ -10,10 +10,11 @@ class GetByIdFromDatabaseTest extends DataCollectionTest {
 		return 'should get the correct model when getting a model by ID and it is not cached';
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createModelDirect
+			super.before,			// set up mongo client
+			this.createModelDirect	// create a model directly in the database (bypassing cache)
 		], callback);
 	}
 
@@ -23,6 +24,8 @@ class GetByIdFromDatabaseTest extends DataCollectionTest {
 			number: 12345,
 			array: [1, 2, 3, 4, 5]
 		});
+		// note that we're calling this.mongoData.test.create, not this.data.test.create
+		// this creates the document in the database directly, bypassing the cache
 		this.mongoData.test.create(
 			this.testModel.attributes,
 			(error, createdDocument) => {
@@ -34,6 +37,7 @@ class GetByIdFromDatabaseTest extends DataCollectionTest {
 	}
 
 	run (callback) {
+		// this should fetch the document from the database, since it was never cached
 		this.data.test.getById(
 			this.testModel.id,
 			(error, response) => {

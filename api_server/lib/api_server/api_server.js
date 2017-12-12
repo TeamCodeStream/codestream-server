@@ -1,3 +1,7 @@
+// The APIServer object manages the components of an API Server module
+// While APIServerModules does the module pre-processing, the modules are
+// ultimately processed here
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
@@ -19,6 +23,7 @@ class APIServer {
 		this.data = {};
 	}
 
+	// start 'er up
 	start (callback) {
 		BoundAsync.series(this, [
 			this.setListeners,
@@ -33,6 +38,7 @@ class APIServer {
 		});
 	}
 
+	// set relevant event listeners
 	setListeners (callback) {
 		process.on('message', this.handleMessage.bind(this));
 		process.on('SIGINT', this.onSigint.bind(this));
@@ -40,6 +46,7 @@ class APIServer {
 		process.nextTick(callback);
 	}
 
+	// load all the modules in the modules directory, we'll let APIServerModules handle all that
 	loadModules (callback) {
 		this.log('Loading modules...');
 		this.modules = new APIServerModules({
@@ -48,6 +55,8 @@ class APIServer {
 		this.modules.loadModules(callback);
 	}
 
+	// start whatever services we need, the modules provide us with "service functions",
+	// these get executed and return to us the actual services that become available to the app
 	startServices (callback) {
 		this.log('Starting services...');
 		let serviceFunctions = this.modules.getServiceFunctions();
@@ -60,6 +69,8 @@ class APIServer {
 		);
 	}
 
+	// start the service indicated by the passed service function ... starting a service
+	// really means making it available to the app through the API Server's services object
 	startService (serviceFunction, callback) {
 		serviceFunction(
 			(error, servicesToAccept) => {
@@ -69,6 +80,7 @@ class APIServer {
 		);
 	}
 
+	// accept whatever services a module's service function wants us to accept
 	acceptServices (services, callback) {
 		BoundAsync.forEachLimit(
 			this,
@@ -79,14 +91,18 @@ class APIServer {
 		);
 	}
 
+	// accept a single service
 	acceptService (service, callback) {
+		// accepting a service really means just making it available in our
+		// services object
 		Object.assign(this.services, service);
 		process.nextTick(callback);
 	}
 
+	// register all middleware functions
 	registerMiddleware (callback) {
 		this.log('Registering middleware...');
-		this.express.use(this.setupRequest.bind(this));
+		this.express.use(this.setupRequest.bind(this));	// this is always first in the middleware chain
 		let middlewareFunctions = this.modules.getMiddlewareFunctions();
 		BoundAsync.forEachLimit(
 			this,
@@ -99,6 +115,8 @@ class APIServer {
 		);
 	}
 
+	// register the master error handler, this happens if there is an express js error
+	// of some sort ... it goes last in the middleware chain
 	registerErrorHandler (callback) {
 		this.express.use((error, request, response, next) => {
 			this.error('Express error: ' + error.message + '\n' + error.stack);
@@ -111,17 +129,22 @@ class APIServer {
 		callback();
 	}
 
+	// first in the middleware chain, we'll set up the request so it's properly
+	// initialized
 	setupRequest (request, response, next) {
 		request.api = this;
 		request.apiModules = this.modules;
 		process.nextTick(next);
 	}
 
+	// register a single middleware function
 	registerMiddlewareFunction (middleware, callback) {
 		this.express.use(middleware);
 		process.nextTick(callback);
 	}
 
+	// register all  DataSources, which really means making collections available
+	// in our data object
 	registerDataSources (callback) {
 		this.log('Registering data sources...');
 		let dataSourceFunctions = this.modules.getDataSourceFunctions();
@@ -134,12 +157,14 @@ class APIServer {
 		);
 	}
 
+	// register a single DataSource by making it available in our data object
 	registerDataSource (dataSourceFunction, callback) {
 		let dataSource = dataSourceFunction();
 		Object.assign(this.data, dataSource);
 		return process.nextTick(callback);
 	}
 
+	// regiser all routes
 	registerRoutes (callback) {
 		this.log('Registering routes...');
 		let routeObjects = this.modules.getRouteObjects();
@@ -152,6 +177,8 @@ class APIServer {
 		);
 	}
 
+	// register a single route object, the route object can itself have middleware
+	// functions, but ultimately calls the function as indicated by func
 	registerRouteObject (routeObject, callback) {
 		let middleware = routeObject.middleware || [];
 		let args = [ routeObject.path, ...middleware, routeObject.func];
@@ -159,6 +186,7 @@ class APIServer {
 		process.nextTick(callback);
 	}
 
+	// start listening for requests!
 	listen (callback) {
 		const serverOptions = this.getServerOptions();
 		if (typeof serverOptions === 'string') {
@@ -178,14 +206,15 @@ class APIServer {
 			).listen(this.config.express.port);
 		}
 		this.expressServer.on('error', (error) => {
-			callback('Unable to start server on port ' + this.config.express.port + ': ' + error);
+			callback(`Unable to start server on port ${this.config.express.port}: ${error}`);
 		});
 		this.expressServer.on('listening', () => {
-			this.log('Listening on port ' + this.config.express.port + '...');
+			this.log(`Listening on port ${this.config.express.port}...`);
 			callback();
 		});
 	}
 
+	// get options for express js to listen for requests
 	getServerOptions () {
 		let options = {};
 		const error = this.makeHttpsOptions(options);
@@ -195,7 +224,9 @@ class APIServer {
 		return options;
 	}
 
+	// make https options, so we know how to listen to requests over https
 	makeHttpsOptions (options) {
+		// read in key and cert file
 		if (
 			this.config.express.https &&
 			this.config.express.https.keyfile &&
@@ -226,15 +257,19 @@ class APIServer {
 		}
 	}
 
+	// handle a message from the master
 	handleMessage (message) {
 		if (typeof message !== 'object') { return; }
 		if (message.shutdown) {
+			// master is making us shut down, whether gracefully or not
 			this.shutdown();
 		}
 		else if (message.wantShutdown) {
+			// master wants us to shut down, but is giving us the chance to do it gracefully
 			this.wantShutdown(message.signal || 'signal');
 		}
 		else if (message.youAre) {
+			// master is telling us our worker ID and helping us identify ourselves in the logs
 			this.workerId = message.youAre;
 			if (this.config.logger) {
 				this.loggerId = 'W' + this.workerId;
@@ -244,6 +279,7 @@ class APIServer {
 		}
 	}
 
+	// forced shutdown ... boom!
 	shutdown () {
 		if (this.shuttingDown) { return; }
 		this.shuttingDown = true;
@@ -252,14 +288,20 @@ class APIServer {
 		}, 100);
 	}
 
+	// master wants us to shutdown, but is giving us the chance to finish all open
+	// requests first ... if the master sends another signal within five seoncds,
+	// we're going to commit suicide regardless ... meanie master
 	wantShutdown (signal) {
+		// how many open requests do we have right now?
 		let numOpenRequests =
 			this.services.requestTracker &&
 			this.services.requestTracker.numOpenRequests();
 
 		if (numOpenRequests && !this.killReceived) {
-			this.critical('Worker ' + this.workerId + ' received ' + signal + ', waiting for ' + numOpenRequests + ' requests to complete, send ' + signal + ' again to kill');
+			// we've got some open requests, and no additional commands to die
+			this.critical(`Worker ${this.workerId} received ${signal}, waiting for ${numOpenRequests} requests to complete, send ${signal} again to kill`);
 			this.killReceived = true;
+			// give the user 5 seconds to force-kill us, otherwise their chance to do so expires
 			setTimeout(
 				() => {	this.killReceived = false; },
 				5000
@@ -269,18 +311,24 @@ class APIServer {
 		}
 		else {
 			if (numOpenRequests) {
-				this.critical('Worker ' + this.workerId + ' received ' + signal + ', shutting down despite ' + numOpenRequests + ' open requests...');
+				// the user is impatient, we'll die even though we have open requests
+				this.critical(`Worker ${this.workerId} received ${signal}, shutting down despite ${numOpenRequests} open requests...`);
 			}
 			else {
-				this.critical('Worker ' + this.workerId + ' received ' + signal + ' and has no open requests, shutting down...');
+				// we have no open requests, so we can just die
+				this.critical(`Worker ${this.workerId} received ${signal} and has no open requests, shutting down...`);
 			}
+			// seppuku
 			this.shutdown();
 		}
 	}
 
+	// signal that there are currently no open requests
 	noMoreRequests () {
+		// if there is a shutdown pending (the master commanded us to shutdown, but is allowing all requests to finish),
+		// then since there are no more requests, we can just die
 		if (this.shutdownPending) {
-			this.critical('Worker ' + this.workerId + ' has no more open requests, shutting down...');
+			this.critical(`Worker ${this.workerId} has no more open requests, shutting down...`);
 			this.shutdown();
 		}
 	}

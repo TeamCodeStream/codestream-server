@@ -1,22 +1,16 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var GetByIdTest = require('./get_by_id_test');
+var UpdateTest = require('./update_test');
 
-class ApplyNewIncByIdTest extends GetByIdTest {
+class ApplyNewIncByIdTest extends UpdateTest {
 
 	get description () {
 		return 'should get the correctly updated document after applying an increment operation to a document';
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.updateDocument
-		], callback);
-	}
-
 	updateDocument (callback) {
+		// do an increment on a field which doesn't exist, should act like the field was 0 and create it
+		// with the increment applied
 		const update = {
 			newNumber: 5
 		};

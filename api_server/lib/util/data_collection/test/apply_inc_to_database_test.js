@@ -9,6 +9,7 @@ class ApplyIncToDatabaseTest extends UpdateToDatabaseTest {
 	}
 
 	updateTestModel (callback) {
+		// increment a numeric field, make sure it gets incremented
 		const update = {
 			number: 5
 		};

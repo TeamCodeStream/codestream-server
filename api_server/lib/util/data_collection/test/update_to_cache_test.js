@@ -9,16 +9,20 @@ class UpdateToCacheTest extends DataCollectionTest {
 		return 'should get the correct model after updating a cached model';
 	}
 
+	// before the test...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createTestModel,
-			this.updateTestModel,
-			this.confirmNotPersisted
+			super.before,				// set up mongo client
+			this.createTestModel,		// create our test model (not persisted)
+			this.updateTestModel,		// update our test model (still not persisted)
+			this.confirmNotPersisted	// confirm our model has not been persisted to the database
 		], callback);
 	}
 
+	// run test test...
 	run (callback) {
+		// ensure we can get our test model, even though it has not been persisted to the database
+		// this tests that caching is working properly
 		this.data.test.getById(
 			this.testModel.id,
 			(error, response) => {

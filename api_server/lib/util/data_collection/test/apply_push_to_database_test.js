@@ -9,6 +9,7 @@ class ApplyPushToDatabaseTest extends UpdateToDatabaseTest {
 	}
 
 	updateTestModel (callback) {
+		// push this element to the array, and check that it's there
 		const update = {
 			array: 7
 		};

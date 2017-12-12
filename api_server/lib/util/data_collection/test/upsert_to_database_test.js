@@ -13,14 +13,17 @@ class UpsertToDatabaseTest extends DataCollectionTest {
 
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.upsertTestModel,
-			this.persist,
-			this.clearCache
+			super.before,			// set up mongo client
+			this.upsertTestModel,	// upsert a test model (which creates it even if we are doing an update)
+			this.persist,			// persist that model to the database
+			this.clearCache			// clear the cache
 		], callback);
 	}
 
+	// "upsert" a test model (update with an insert options)
 	upsertTestModel (callback) {
+		// do an update operation with the upsert option, this should create the document even though
+		// it did not exist before
 		this.testModel = new DataModel({
 			_id: ObjectID(),
 			text: 'hello',
@@ -39,7 +42,9 @@ class UpsertToDatabaseTest extends DataCollectionTest {
 		);
 	}
 
+	// run the test...
 	run (callback) {
+		// fetch the model directly from the database, if the upsert worked, we should just get it from the database
 		this.mongoData.test.getById(
 			this.testModel.id,
 			(error, response) => {

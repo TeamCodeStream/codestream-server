@@ -1,3 +1,5 @@
+// Errors concerning the mongo library
+
 'use strict';
 
 const ERRORS = {

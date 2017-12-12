@@ -1,0 +1,22 @@
+The DataCollection class offers an abstraction layer above the layer of a collection that actually fetches
+data from a database (e.g., the MongoCollection class, which fetches from mongo). In theory, a DataCollection
+class could be made to "wrap" any class that retrieves data from a database and conforms to the operations
+supported. The DataCollection class also provides a mechanism for caching data, such that subsequent fetch
+operations for the same document (by ID) do not need to query the database again. Document adds and updates
+are also handled in the cache, and only when the application is ready to persist the sum total of operations
+to the database will the DataCollection do so. This provides a cheap way to do transactions, such that a
+the failure of a given request can cause an abort in mid-stride, with some assurance that changes made up
+to that point will not be persisted. This should, in no way of course, be confused with REAL transactions,
+since a database failure in the middle of the persistence operation will leave things in an unpredictable
+state. Care should be taken to understand and recognize how this works.
+
+There is also the concern that documents can be updated in the database, rendering the cached document
+invalid. Our application is such that we consider such events very rare, so we accept this risk and live
+with the consequences. Note that many operations that directly target certain fields are supported, so
+even if there is a clash between two operations updating a single document, unless they are updating the
+same fields, there should be no conflict.
+
+Another concern is recognizing that the DataCollection can not run queries against cached data. This means
+that queries that are run against the data collection will be directly run against the database, not
+against the cache. Care should be taken to understand the ramifications of this. Note that documents
+fetched by query WILL BE cached, but the cache can't be queried.

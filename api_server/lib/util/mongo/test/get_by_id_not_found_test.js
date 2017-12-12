@@ -9,7 +9,9 @@ class GetByIdNotFoundTest extends MongoTest {
 		return 'should get null when getting document that does not exist';
 	}
 
+	// run the test...
 	run (callback) {
+		// get an unused ID and use it to fetch a document, should get nothing
 		let nextId = this.data.test.createId();
 		this.data.test.getById(
 			nextId,

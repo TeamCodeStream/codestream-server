@@ -9,6 +9,7 @@ class ApplyUnsetSubObjectToDatabaseTest extends UpdateToDatabaseTest {
 	}
 
 	updateTestModel (callback) {
+		// selectively unset some values in the object, and verify they are unset
 		const unset = {
 			'object.y': true
 		};

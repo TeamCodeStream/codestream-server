@@ -1,3 +1,5 @@
+// pubnub configuration
+
 'use strict';
 
 module.exports = {

@@ -1,22 +1,15 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var GetByIdTest = require('./get_by_id_test');
+var UpdateTest = require('./update_test');
 
-class ApplySetSubObjectByIdTest extends GetByIdTest {
+class ApplySetSubObjectByIdTest extends UpdateTest {
 
 	get description () {
 		return 'should get the correctly updated document after applying a set operation to a sub-object of a document';
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.updateDocument
-		], callback);
-	}
-
 	updateDocument (callback) {
+		// do a set operation on some attributes of an object, verify the changes took
 		const update = {
 			'object.x': 'replaced!',
 			'object.z': 3
