@@ -9,6 +9,7 @@ class ApplyPullToCacheTest extends UpdateToCacheTest {
 	}
 
 	updateTestModel (callback) {
+		// pull this element from the array, and check that it's gone
 		const update = {
 			array: 4
 		};

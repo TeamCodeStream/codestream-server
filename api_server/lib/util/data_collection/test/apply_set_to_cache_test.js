@@ -9,6 +9,7 @@ class ApplySetToCacheTest extends UpdateToCacheTest {
 	}
 
 	updateTestModel (callback) {
+		// set some values and verify they are set
 		const set = {
 			text: 'replaced!',
 			number: 123

@@ -1,3 +1,8 @@
+// Provides a mongo client wrapper to the node mongo driver
+// Establishes a set of MongoCollection objects that are directly mapped to the
+// underlying Collection object from the mongo driver
+// Also manages query logging
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
@@ -12,17 +17,19 @@ class MongoClient {
 		this.mongoCollections = {};
 	}
 
+	// open and initialize the mongo client
 	openMongoClient (config, callback) {
 		this.config = config;
 		BoundAsync.series(this, [
-			this.establishQueryLoggerAsNeeded,
-			this.connectToMongo,
-			this.makeCollections
+			this.establishQueryLoggerAsNeeded,	// establish query logging if requested
+			this.connectToMongo,				// connect to the mongo service
+			this.makeCollections				// make our collection mappings
 		], (error) => {
 			callback(error, this);
 		});
 	}
 
+	// establish our query logger as needed
 	establishQueryLoggerAsNeeded (callback) {
 		if (this.config.queryLogging) {
 			this.establishQueryLogger(callback);
@@ -32,6 +39,8 @@ class MongoClient {
 		}
 	}
 
+	// establish the query logger ... in addition to logging all queries, we can also
+	// log slow queries and really slow queries according to threshold settings
 	establishQueryLogger (callback) {
 		this.config.queryLogger = new SimpleFileLogger(this.config.queryLogging);
 		if (this.config.queryLogging.slowBasename) {
@@ -51,6 +60,7 @@ class MongoClient {
 		callback();
 	}
 
+	// connect to the mongo service according to configuration
 	connectToMongo (callback) {
 		if (!this.config) {
 			return callback('mongo configuration required');
@@ -85,6 +95,7 @@ class MongoClient {
 		}
 	}
 
+	// for each desired database collection, create a MongoCollection object as a bridge
 	makeCollections (callback) {
 		if (!this.config.collections || !(this.config.collections instanceof Array)) {
 			return process.nextTick(callback);
@@ -98,6 +109,7 @@ class MongoClient {
 		);
 	}
 
+	// create a single MongoCollection object as a bridge to the mongo driver's Collection object
 	makeCollection (collection, callback) {
 		if (typeof collection !== 'string') { return process.nextTick(callback); }
 		this.dbCollections[collection] = this.db.collection(collection);

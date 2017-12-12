@@ -10,14 +10,17 @@ class UpdateNoIdTest extends MongoTest {
 		return 'should return an error when attempting to update a document with no ID';
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createTestDocument
+			super.before,			// set up mongo client
+			this.createTestDocument // create a test document
 		], callback);
 	}
 
 	run (callback) {
+		// to do an update operation, the caller must supply an ID, either in the options,
+		// or in the update itself ... if there is no ID, we should get back an error
 		const update = {
 			text: 'replaced!',
 			number: 123

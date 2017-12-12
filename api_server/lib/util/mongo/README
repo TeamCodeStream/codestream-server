@@ -1,0 +1,4 @@
+The mongo library provides a mongo client wrapper for the node mongo driver (mongo_client.js). It also provides the
+MongoCollection class (mongo_collection.js), which bridges the abstract DataCollection class to the mongo client.
+Only a limited set of what the mongo driver provides is supported in the MongoCollection class, but this can be
+expanded as needs arise.

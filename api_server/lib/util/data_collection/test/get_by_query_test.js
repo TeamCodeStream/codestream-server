@@ -9,16 +9,19 @@ class GetByQueryTest extends DataCollectionTest {
 		return 'should get the correct models when getting several models by query';
 	}
 
+	// before the test...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createRandomModels,
-			this.persist,
-			this.filterTestModels
+			super.before,				// set up mongo client
+			this.createRandomModels,	// create a series of random models
+			this.persist,				// persist those models to the database
+			this.filterTestModels		// filter our test models to the ones we want
 		], callback);
 	}
 
+	// run the test...
 	run (callback) {
+		// do the query
 		this.data.test.getByQuery(
 			{ flag: this.randomizer + 'yes' },
 			(error, response) => {

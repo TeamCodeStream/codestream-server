@@ -1,3 +1,5 @@
+// Master test script runner
+
 'use strict';
 
 require('./lib/test.js');

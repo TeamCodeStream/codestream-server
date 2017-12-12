@@ -9,14 +9,17 @@ class GetByIdTest extends MongoTest {
 		return 'should get the correct document when getting a document by ID';
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createTestAndControlDocument,
+			super.before,						// set up mongo
+			this.createTestAndControlDocument,	// create a test and control document
 		], callback);
 	}
 
+	// run the test...
 	run (callback) {
+		// get the test document and check that it matches
 		this.data.test.getById(
 			this.testDocument._id,
 			(error, response) => {

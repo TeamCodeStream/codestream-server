@@ -1,22 +1,15 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var GetByIdTest = require('./get_by_id_test');
+var UpdateTest = require('./update_test');
 
-class ApplyNoPullByIdTest extends GetByIdTest {
+class ApplyNoPullByIdTest extends UpdateTest {
 
 	get description () {
 		return 'should get an unchanged document after applying a no-op pull operation to a document';
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.updateDocument
-		], callback);
-	}
-
 	updateDocument (callback) {
+		// try to pull an element from an array that is not in the array, the document should be unchanged
 		const update = {
 			array: 8
 		};

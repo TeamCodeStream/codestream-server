@@ -11,14 +11,16 @@ class DeleteByIdsTest extends MongoTest {
 
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createRandomDocuments,
-			this.filterTestDocuments,
-			this.deleteDocuments
+			super.before,				// set up mongo client
+			this.createRandomDocuments,	// create a set of random documents
+			this.filterTestDocuments,	// filter down to the documents we will NOT delete
+			this.deleteDocuments		// delete some of the documents
 		], callback);
 	}
 
+	// delete a subset of our test documents
 	deleteDocuments (callback) {
+		// delete only the documents we DON'T want to be returned
 		let toDelete = this.documents.filter(document => {
 			return !this.wantN(document.number);
 		});
@@ -29,7 +31,9 @@ class DeleteByIdsTest extends MongoTest {
 		);
 	}
 
+	// run the test...
 	run (callback) {
+		// fetch all the test documents, but we should only get back the ones we didn't delete
 		let ids = this.documents.map(document => { return document._id; });
 		this.data.test.getByIds(
 			ids,

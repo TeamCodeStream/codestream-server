@@ -9,6 +9,7 @@ class ApplySetToDatabaseTest extends UpdateToDatabaseTest {
 	}
 
 	updateTestModel (callback) {
+		// set some values and verify they are set
 		const set = {
 			text: 'replaced!',
 			number: 123

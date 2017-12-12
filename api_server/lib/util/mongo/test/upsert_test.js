@@ -10,6 +10,7 @@ class UpsertTest extends GetByIdTest {
 		return 'should get the correct document after upserting a document that did not exist before';
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
@@ -18,8 +19,10 @@ class UpsertTest extends GetByIdTest {
 	}
 
 	updateDocument (callback) {
+		// do an update operation with the upsert option, this should create the document even though
+		// it did not exist before
 		const update = {
-			_id: ObjectID(),
+			_id: ObjectID(),	// generate a new ID for it
 			text: 'upserted!',
 			number: 123
 		};

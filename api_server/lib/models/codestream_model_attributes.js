@@ -1,3 +1,5 @@
+// attributes that apply to all CodeSteam models
+
 'use strict';
 
 module.exports = {

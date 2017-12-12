@@ -1,3 +1,5 @@
+// tests of the MongoCollection class, the MongoClient class, and related functionality
+
 'use strict';
 
 // make jshint happy

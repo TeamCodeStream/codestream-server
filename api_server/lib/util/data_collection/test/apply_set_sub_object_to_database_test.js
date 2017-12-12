@@ -9,6 +9,7 @@ class ApplySetSubObjectToDatabaseTest extends UpdateToDatabaseTest {
 	}
 
 	updateTestModel (callback) {
+		// selectively set some values in the object, and verify they are set
 		const set = {
 			'object.x': 'replaced!',
 			'object.z': 3

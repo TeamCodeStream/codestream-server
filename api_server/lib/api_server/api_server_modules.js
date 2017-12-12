@@ -1,3 +1,6 @@
+// The APIServerModules class manages reading in all modules and pre-processing them
+// for the actual API Server to take over
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
@@ -22,6 +25,7 @@ class APIServerModules {
 		this.dataSources = [];
 	}
 
+	// load all modules we find in the modules directory, and process
 	loadModules (callback) {
 		BoundAsync.series(this, [
 			this.readModuleDirectory,
@@ -32,6 +36,7 @@ class APIServerModules {
 		], callback);
 	}
 
+	// read the modules directory, see what we find...
 	readModuleDirectory (callback) {
 		if (!this.config.moduleDirectory) {
 			return process.nextTick(callback);
@@ -46,6 +51,7 @@ class APIServerModules {
 		);
 	}
 
+	// process whatever directories we find in the modules directory
 	processModuleFiles (callback) {
 		BoundAsync.forEachLimit(
 			this,
@@ -56,6 +62,7 @@ class APIServerModules {
 		);
 	}
 
+	// process a file or directory in the modules directory (but we're just looking for directories)
 	processModuleFile (moduleFile, callback) {
 		const modulePath = Path.join(this.config.moduleDirectory, moduleFile);
 		FS.stat(
@@ -72,14 +79,18 @@ class APIServerModules {
 		);
 	}
 
+	// process a module directory found in the modules directory
 	processModuleDirectory (moduleDirectory, stats, callback) {
 		if (!stats.isDirectory()) {
+			// we're only interested in directories
 			return process.nextTick(callback);
 		}
+		// we're looking for a module.js file, if we find it, we'll read in the module contents
 		const moduleJS = Path.join(moduleDirectory, 'module.js');
 		const name = Path.basename(moduleDirectory);
 		let module = this.instantiateModule(moduleJS, name);
 		if (typeof module === 'string') {
+			// really an error
 			return callback(module);
 		}
 		this.api.log(`Accepted module ${moduleJS}`);
@@ -87,7 +98,9 @@ class APIServerModules {
 		process.nextTick(callback);
 	}
 
+	// instantiate a module, as given by the module.js file found in the module directory
 	instantiateModule (moduleJS, name) {
+		// we should get a class, derived from APIServerModule
 		let moduleClass;
 		try {
 			moduleClass = require(moduleJS);
@@ -98,6 +111,7 @@ class APIServerModules {
 		if (!moduleClass) {
 			return `No exported class found in ${moduleJS}`;
 		}
+		// instantiate that class and it becomes the module!
 		let module;
 		try {
 			module = new moduleClass({
@@ -112,6 +126,8 @@ class APIServerModules {
 		return module;
 	}
 
+	// figure out which modules may be dependent on which others ... this mainly concerns
+	// setting the correct order for middleware routines
 	collectDependencies (callback) {
 		this.moduleNames = Object.keys(this.modules);
 		this.moduleDependencies = [];
@@ -123,6 +139,7 @@ class APIServerModules {
 		);
 	}
 
+	// collect the module dependencies for a specific module
 	collectModuleDependencies (moduleName, callback) {
 		let module = this.modules[moduleName];
 		let dependencies = module.getDependencies();
@@ -136,9 +153,12 @@ class APIServerModules {
 		process.nextTick(callback);
 	}
 
+	// resolve the dependencies by forming a dependency order, with the guarantee
+	// that modules dependent on other modules are registered later
 	resolveDependencies (callback) {
 		let sorted;
 		try {
+			// we use the toposort module to figure this out...
 			sorted = TopoSort.array(
 				this.moduleNames,
 				this.moduleDependencies
@@ -149,11 +169,15 @@ class APIServerModules {
 				return callback(`Error resolving module dependencies: ${error}`);
 			}
 		}
+		// the result of the TopoSort is an array of module names, where those
+		// dependent on others come first ... we need to reverse this so those
+		// dependent on others are registered later
 		this.modules = sorted.map(moduleName => this.modules[moduleName]);
 		this.modules.reverse();
 		process.nextTick(callback);
 	}
 
+	// register all our modules ... this is where we see what they're really offering
 	registerModules (callback) {
 		BoundAsync.forEachSeries(
 			this,
@@ -163,7 +187,10 @@ class APIServerModules {
 		);
 	}
 
+	// register a given module
 	registerModule (module, callback) {
+		// first we look for middlewares, services, and dataSources...
+		// then we'll register whatever routes for express js
 		BoundAsync.forEachSeries(
 			this,
 			['middlewares', 'services', 'dataSources'],
@@ -176,6 +203,8 @@ class APIServerModules {
 		);
 	}
 
+	// register module functions, this can be middleware, services, or dataSources...
+	// they all follow the same pattern
 	registerModuleFunctions (module, type, callback) {
 		if (typeof module[type] !== 'function') {
 			return process.nextTick(callback);
@@ -196,6 +225,8 @@ class APIServerModules {
 		);
 	}
 
+	// register a single module function, be it middleware, service, or DataSource
+	// the APIServer object will then execute these functions in order
 	registerOneModuleFunction (module, type, func, callback) {
 		if (typeof func === 'string' && typeof module[func] === 'function') {
 			func = module[func];
@@ -209,18 +240,22 @@ class APIServerModules {
 		process.nextTick(callback);
 	}
 
+	// wrapper to get all registered middleware functions
 	getMiddlewareFunctions () {
 		return this.middlewares;
 	}
 
+	// wrapper to get all registered service functions
 	getServiceFunctions () {
 		return this.services;
 	}
 
+	// wrapper to get all registered DataSource functions
 	getDataSourceFunctions () {
 		return this.dataSources;
 	}
 
+	// register module routes for this module
 	registerModuleRoutes (module, callback) {
 		let routes = module.getRoutes();
 		if (!routes || !(routes instanceof Array)) {
@@ -237,6 +272,7 @@ class APIServerModules {
 		);
 	}
 
+	// register a single module route for this module
 	registerOneModuleRoute (module, route, callback) {
 		let routeObject = this.normalizeRoute(route, module);
 		if (!routeObject) {
@@ -246,6 +282,8 @@ class APIServerModules {
 		process.nextTick(callback);
 	}
 
+	// normalize the route before registration, making sure the path information
+	// is consistent and valid
 	normalizeRoute (route, module) {
 		if (!this.validateRoute(route, module)) {
 			return;
@@ -257,6 +295,7 @@ class APIServerModules {
 		}
 		let func;
 		if (route.func && typeof route.func === 'string') {
+			// the execution function can be the name of a method of the module
 			if (typeof module[route.func] === 'function') {
 				func = (request, response, next) => {
 					module[route.func].call(module, request, response, next);
@@ -264,11 +303,13 @@ class APIServerModules {
 			}
 		}
 		else if (route.func && typeof route.func === 'function') {
+			// the execution function can be a method of the module
 			func = (request, response, next) => {
 				route.func.call(module, request, response, next);
 			};
 		}
 		else if (route.requestClass) {
+			// the execution can go through a class object, derived from APIRequest
 			func = this.requestClassFulfiller(route.requestClass, route, module);
 		}
 		if (!func) {
@@ -278,21 +319,26 @@ class APIServerModules {
 		return { method, path, func };
 	}
 
+	// validate a module route
 	validateRoute (route, module) {
+		// has to be an object
 		if (typeof route !== 'object') {
 			this.api.warn(`Bad route object for module ${module.name}`, route);
 			return false;
 		}
+		// method has to be a string
 		if (route.method && typeof route.method !== 'string') {
 			this.api.warn(`Bad method for module ${module.name}`, route);
 			return false;
 		}
+		// has to be one of these methods
 		const validMethods = ['get', 'post', 'put', 'delete', 'options'];
 		route.method = (route.method || 'get').toLowerCase();
 		if (validMethods.indexOf(route.method) === -1) {
 			this.api.warn(`Invalid route method "${route.method}" for module ${module.name}`, route);
 			return false;
 		}
+		// path has to be a string
 		if (typeof route.path !== 'string') {
 			this.api.warn(`Invalid path for module ${module.name}`, route);
 			return false;
@@ -300,6 +346,8 @@ class APIServerModules {
 		return true;
 	}
 
+	// fulfill a request by instantiating the request class for a request
+	// and calling its fulfill() function, see api_request.js
 	requestClassFulfiller (requestClass, route, module) {
 		return (request, response) => {
 			let apiRequest = new requestClass({
@@ -312,6 +360,7 @@ class APIServerModules {
 		};
 	}
 
+	// wrapper to get all registered routes
 	getRouteObjects () {
 		return this.routes;
 	}

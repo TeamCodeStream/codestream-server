@@ -1,3 +1,5 @@
+// current version of the api server
+
 'use strict';
 
 module.exports = {

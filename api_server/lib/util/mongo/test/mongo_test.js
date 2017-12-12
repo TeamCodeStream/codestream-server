@@ -1,3 +1,6 @@
+// base class for all MongoCollection tests, we'll set up the mongo client here, plus provide a bunch
+// of utility functions that other tests can share and run
+
 'use strict';
 
 var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
@@ -9,7 +12,9 @@ var Assert = require('assert');
 
 class MongoTest extends GenericTest {
 
+	// before the test runs...
 	before (callback) {
+		// set up the mongo client, and open it against a test collection
 		this.mongoClientFactory = new MongoClient();
 		const mongoConfig = Object.assign({}, TestAPIConfig.mongo, { collections: ['test'] });
 		this.mongoClientFactory.openMongoClient(
@@ -23,6 +28,7 @@ class MongoTest extends GenericTest {
 		);
 	}
 
+	// create a test document which we'll manipulate and a control document which we won't touch
 	createTestAndControlDocument (callback) {
 		BoundAsync.series(this, [
 			super.before,
@@ -31,6 +37,7 @@ class MongoTest extends GenericTest {
 		], callback);
 	}
 
+	// create a simple test document with a variety of attributes to be used in various derived tests
 	createTestDocument (callback) {
 		this.testDocument = {
 			text: 'hello',
@@ -52,6 +59,7 @@ class MongoTest extends GenericTest {
 		);
 	}
 
+	// create a simple control document, distinct from the test document, we should never see this document again
 	createControlDocument (callback) {
 		this.controlDocument = {
 			text: 'goodbye',
@@ -73,8 +81,10 @@ class MongoTest extends GenericTest {
 		);
 	}
 
+	// create a bunch of random documents
 	createRandomDocuments (callback) {
 		this.documents = new Array(10);
+		// the randomizer ensures we don't pick up data that has been put in the database by other tests
 		this.randomizer = RandomString.generate(20);
 		BoundAsync.times(
 			this,
@@ -84,10 +94,14 @@ class MongoTest extends GenericTest {
 		);
 	}
 
+	// with random documents, we'll establish that we only want certain ones when
+	// retrieving test results
 	wantN (n) {
+		// every odd-numbered model, plus the sixth one, should be a random enough pattern
 		return n % 2 || n === 6;
 	}
 
+	// create a single random document, varying depending upon which document we are creating in order
 	createOneRandomDocument (n, callback) {
 		let flag = this.randomizer + (this.wantN(n) ? 'yes' : 'no');
 		this.documents[n] = {
@@ -105,22 +119,29 @@ class MongoTest extends GenericTest {
 		);
 	}
 
+	// filter the test documents down to only the ones we want in our test results
 	filterTestDocuments (callback) {
 		this.testDocuments = this.documents.filter(document => {
 			return this.wantN(document.number);
 		});
+		// we'll also sort them by their numeric field, to ensure deep comparisons
+		// are not thrown off by objects being fetched out of order
 		this.testDocuments.sort((a, b) => {
 			return a.number - b.number;
 		});
 		callback();
 	}
 
+	// validate that we got back the document that exactly matches the test document
 	validateDocumentResponse () {
 		Assert.deepEqual(this.testDocument, this.response, 'fetched document doesn\'t match');
 	}
 
+	// validate that we got back an array of objects that exactly match the array of test documents
 	validateArrayResponse () {
 		Assert(this.response instanceof Array, 'response must be an array');
+		// sort them by their numeric field, to ensure deep comparisons
+		// are not thrown off by objects being fetched out of order
 		this.response.sort((a, b) => {
 			return a.number - b.number;
 		});
