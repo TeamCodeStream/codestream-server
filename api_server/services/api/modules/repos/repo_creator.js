@@ -3,7 +3,7 @@
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Repo = require('./repo');
-var NormalizeURL = require('normalize-url');
+var NormalizeURL = require(process.env.CS_API_TOP + '/lib/util/url_normalizer/url_normalizer');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var AddTeamMembers = require(process.env.CS_API_TOP + '/services/api/modules/teams/add_team_members');
 var TeamCreator = require(process.env.CS_API_TOP + '/services/api/modules/teams/team_creator');
@@ -62,12 +62,7 @@ class RepoCreator extends ModelCreator {
 
 	normalize (callback) {
 		if (typeof this.attributes.url === 'string') { // validation to come later
-			this.attributes.url = NormalizeURL(
-				this.attributes.url.toLowerCase(),
-				{
-					removeQueryParameters: [/^.+/] // remove them all!
-				}
-			);
+			this.attributes.url = NormalizeURL(this.attributes.url);
 		}
 		if (typeof this.attributes.firstCommitHash === 'string') { // validation to come later
 			this.attributes.firstCommitHash = this.attributes.firstCommitHash.toLowerCase();

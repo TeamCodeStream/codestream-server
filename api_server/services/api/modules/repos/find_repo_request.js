@@ -2,7 +2,7 @@
 
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var NormalizeURL = require('normalize-url');
+var NormalizeURL = require(process.env.CS_API_TOP + '/lib/util/url_normalizer/url_normalizer');
 
 class FindRepoRequest extends RestfulRequest {
 
@@ -24,12 +24,7 @@ class FindRepoRequest extends RestfulRequest {
 	}
 
 	normalize (callback) {
-		this.request.query.url = NormalizeURL(
-			decodeURIComponent(this.request.query.url).toLowerCase(),
-			{
-				removeQueryParameters: [/^.+/] // remove them all!
-			}
-		);
+		this.request.query.url = NormalizeURL(decodeURIComponent(this.request.query.url));
 		this.request.query.firstCommitHash = this.request.query.firstCommitHash.toLowerCase();
 		process.nextTick(callback);
 	}

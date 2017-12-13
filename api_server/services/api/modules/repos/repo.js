@@ -2,7 +2,7 @@
 
 var CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
 var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
-var NormalizeURL = require('normalize-url');
+var NormalizeURL = require(process.env.CS_API_TOP + '/lib/util/url_normalizer/url_normalizer');
 const RepoAttributes = require('./repo_attributes');
 
 class Repo extends CodeStreamModel {
@@ -12,7 +12,7 @@ class Repo extends CodeStreamModel {
 	}
 
 	preSave (callback, options) {
-		this.attributes.url = NormalizeURL(this.attributes.url.toLowerCase());
+		this.attributes.url = NormalizeURL(this.attributes.url);
 		this.lowerCase('firstCommitHash');
 		this.lowerCase('companyId');
 		this.lowerCase('teamId');

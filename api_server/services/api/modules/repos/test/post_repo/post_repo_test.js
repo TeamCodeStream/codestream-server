@@ -3,7 +3,7 @@
 var Assert = require('assert');
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var NormalizeURL = require('normalize-url');
+var NormalizeURL = require(process.env.CS_API_TOP + '/lib/util/url_normalizer/url_normalizer');
 const RepoTestConstants = require('../repo_test_constants');
 
 class PostRepoTest extends CodeStreamAPITest {
@@ -158,7 +158,7 @@ class PostRepoTest extends CodeStreamAPITest {
 		let repo = data.repo;
 		let errors = [];
 		let result = (
-			((repo.url === NormalizeURL(this.data.url.toLowerCase())) || errors.push('incorrect url')) &&
+			((repo.url === NormalizeURL(this.data.url)) || errors.push('incorrect url')) &&
 			((repo.firstCommitHash === this.data.firstCommitHash.toLowerCase()) || errors.push('incorrect firstCommitHash')) &&
 			((repo.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof repo.createdAt === 'number') || errors.push('createdAt not number')) &&
