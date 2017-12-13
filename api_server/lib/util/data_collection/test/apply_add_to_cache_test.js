@@ -9,6 +9,7 @@ class ApplyAddToCacheTest extends UpdateToCacheTest {
 	}
 
 	updateTestModel (callback) {
+		// add an element to the array, make sure it gets added
 		const update = {
 			array: 7
 		};

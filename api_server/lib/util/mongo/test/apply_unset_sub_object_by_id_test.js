@@ -1,22 +1,15 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var GetByIdTest = require('./get_by_id_test');
+var UpdateTest = require('./update_test');
 
-class ApplyUnsetSubObjectByIdTest extends GetByIdTest {
+class ApplyUnsetSubObjectByIdTest extends UpdateTest {
 
 	get description () {
 		return 'should get the correctly updated document after applying an unset operation to a sub-object of a document';
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.updateDocument
-		], callback);
-	}
-
 	updateDocument (callback) {
+		// unset (delete) an attribute of an object in the document, verify that it took
 		const update = {
 			'object.y': 1,
 		};

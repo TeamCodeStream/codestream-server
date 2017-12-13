@@ -1,22 +1,15 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var GetByIdTest = require('./get_by_id_test');
+var UpdateTest = require('./update_test');
 
-class ApplyOpsByIdTest extends GetByIdTest {
+class ApplyOpsByIdTest extends UpdateTest {
 
 	get description () {
 		return 'should get the correctly updated document after applying several operations to a document';
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.updateDocument
-		], callback);
-	}
-
 	updateDocument (callback) {
+		// apply a series of ops to a document, verify the operations result in the correct document in the end
 		const ops = [
 			{
 				'$set': {

@@ -1,0 +1,17 @@
+Herein is the code for a "generic" API server, based on express js. Provide configurations and a directory of modules
+and you're off to the races.
+
+Each module can provide one or more of the following:
+
+Routes - Routes for responding to incoming requests
+Middleware - Middleware functions for pre-processing all requests
+Services - Services available across the app, usually clients to other services ... like mongo, pubnub, redis, etc.
+DataSources - A data object organized into a series of collections. For instance, mongo gives us a DataSource. But we could also have a
+	DataSource from a different provider, like ElasticSearch, MySQL, etc. A layer of abstraction will mostly make it so the app
+	can be indifferent to where the data is coming from or going to.
+
+Each incoming request instantiates an APIRequest object (see api_request.js). The APIRequest object runs a typical flow for the life
+of a request, though any part of the default flow can be overridden. Each APIRequest object maintains its own temporary (for the life
+of the request) data cache to which data is written. The data cache only persists the data to the underlying Datasource at the end
+of the request. This gives us some cheap transactional safety. It also means that during the life of the request, documents can be
+fetched twice at little cost, since the object will come from the cache the second time.

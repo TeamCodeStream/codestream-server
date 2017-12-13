@@ -9,6 +9,7 @@ class ApplyIncToCacheTest extends UpdateToCacheTest {
 	}
 
 	updateTestModel (callback) {
+		// increment a numeric field, make sure it gets incremented
 		const update = {
 			number: 5
 		};

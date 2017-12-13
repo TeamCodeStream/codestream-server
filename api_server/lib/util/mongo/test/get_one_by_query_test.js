@@ -9,14 +9,16 @@ class GetOneByQueryTest extends MongoTest {
 		return 'should get the correct document when getting one document by query';
 	}
 
+	//  before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createRandomDocuments
+			super.before,				// set up mongo client
+			this.createRandomDocuments	// create a series of random documents
 		], callback);
 	}
 
 	run (callback) {
+		// pick one to fetch, and verify we get the one we want
 		this.testDocument = this.documents[4];
 		this.data.test.getOneByQuery(
 			{

@@ -1,3 +1,6 @@
+// base class for all DataCollection tests, we'll set up the mongo client here, plus provide a bunch
+// of utility functions that other tests can share and run
+
 'use strict';
 
 var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
@@ -11,7 +14,9 @@ var DataModel = require('../data_model');
 
 class DataCollectionTest extends GenericTest {
 
+	// before the test runs...
 	before (callback) {
+		// set up the mongo client, and open it against a test collection
 		this.mongoClientFactory = new MongoClient();
 		const mongoConfig = Object.assign({}, TestAPIConfig.mongo, { collections: ['test'] });
 		this.mongoClientFactory.openMongoClient(
@@ -30,6 +35,7 @@ class DataCollectionTest extends GenericTest {
 		);
 	}
 
+	// create a test model which we'll manipulate and a control model which we won't touch
 	createTestAndControlModel (callback) {
 		BoundAsync.series(this, [
 			super.before,
@@ -38,6 +44,7 @@ class DataCollectionTest extends GenericTest {
 		], callback);
 	}
 
+	// create a simple test model with a variety of attributes to be used in various derived tests
 	createTestModel (callback) {
 		this.testModel = new DataModel({
 			text: 'hello',
@@ -59,6 +66,7 @@ class DataCollectionTest extends GenericTest {
 		);
 	}
 
+	// create a simple control model, distinct from the test model, we should never see this model again
 	createControlModel (callback) {
 		this.controlModel = new DataModel({
 			text: 'goodbye',
@@ -80,6 +88,9 @@ class DataCollectionTest extends GenericTest {
 		);
 	}
 
+	// for tests that test the caching ability, we want to ensure that a document has not yet
+	// been persisted to the database, so try to fetch it from the database, which should
+	// return nothing
 	confirmNotPersisted (callback) {
 		this.mongoData.test.getById(
 			this.testModel.id,
@@ -93,8 +104,10 @@ class DataCollectionTest extends GenericTest {
 		);
 	}
 
+	// create a bunch of random models
 	createRandomModels (callback) {
 		this.models = new Array(10);
+		// the randomizer ensures we don't pick up data that has been put in the database by other tests
 		this.randomizer = RandomString.generate(20);
 		BoundAsync.times(
 			this,
@@ -104,12 +117,16 @@ class DataCollectionTest extends GenericTest {
 		);
 	}
 
+	// with random models, we'll establish that we only want certain ones when
+	// retrieving test results
 	wantN (n) {
+		// every odd-numbered model, plus the sixth one, should be a random enough pattern
 		return n % 2 || n === 6;
 	}
 
+	// create a single random model, varying depending upon which model we are creating in order
 	createOneRandomModel (n, callback) {
-		let flag = this.randomizer + (this.wantN(n) ? 'yes' : 'no');
+		let flag = this.randomizer + (this.wantN(n) ? 'yes' : 'no');	// tells us which ones we want in test results
 		this.models[n] = new DataModel({
 			text: 'hello' + n,
 			number: n,
@@ -125,16 +142,20 @@ class DataCollectionTest extends GenericTest {
 		);
 	}
 
+	// filter the test models down to only the ones we want in our test results
 	filterTestModels (callback) {
 		this.testModels = this.models.filter(model => {
 			return this.wantN(model.get('number'));
 		});
+		// we'll also sort them by their numeric field, to ensure deep comparisons
+		// are not thrown off by objects being fetched out of order
 		this.testModels.sort((a, b) => {
 			return a.get('number') - b.get('number');
 		});
 		callback();
 	}
 
+	// do an established update of the test model
 	updateTestModel (callback) {
 		const update = {
 			_id: this.testModel.id,
@@ -151,31 +172,38 @@ class DataCollectionTest extends GenericTest {
 		);
 	}
 
+	// validate that we got back the model that exactly matches the test model
 	validateModelResponse () {
 		Assert(typeof this.response === 'object', 'improper response');
 		Assert(typeof this.response.attributes === 'object', 'improper fetched model');
 		Assert.deepEqual(this.testModel.attributes, this.response.attributes, 'fetched model doesn\'t match');
 	}
 
+	// validate that we got back an object (attributes of a model) that exactly matches the test model
 	validateObjectResponse () {
 		Assert(typeof this.response === 'object', 'improper response');
 		Assert.deepEqual(this.testModel.attributes, this.response, 'fetched object doesn\'t match');
 	}
 
+	// validate that we got back an array of objects that exactly match the array of test models
 	validateArrayResponse () {
 		Assert(this.response instanceof Array, 'response must be an array');
 		let responseObjects = this.response.map(model => { return model.attributes; });
 		let testObjects = this.testModels.map(model => { return model.attributes; });
+		// sort them by their numeric field, to ensure deep comparisons
+		// are not thrown off by objects being fetched out of order
 		responseObjects.sort((a, b) => {
 			return a.number - b.number;
 		});
 		Assert.deepEqual(testObjects, responseObjects, 'fetched models don\'t match');
 	}
 
+	// persist whatever is in the cache to the database
 	persist (callback) {
 		this.data.test.persist(callback);
 	}
 
+	// clear the collection cache
 	clearCache (callback) {
 		this.data.test.clear();
 		callback();

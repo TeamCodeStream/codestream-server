@@ -10,6 +10,7 @@ class GetByQuerySortTest extends GetByQueryTest {
 	}
 
 	run (callback) {
+		// sort our test models so we can compare properly with the fetched models
 		this.testModels.sort((a, b) => {
 			return b.get('number') - a.get('number');
 		});

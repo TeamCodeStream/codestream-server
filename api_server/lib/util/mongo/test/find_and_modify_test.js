@@ -1,30 +1,26 @@
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var GetByIdTest = require('./get_by_id_test');
+var UpdateTest = require('./update_test');
 var Assert = require('assert');
 
-class FindAndModifyTest extends GetByIdTest {
+class FindAndModifyTest extends UpdateTest {
 
 	get description () {
 		return 'should get the original document, and then the modified document, when performing a find-and-modify operation';
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.updateDocument
-		], callback);
-	}
-
+	// run the test...
 	run (callback) {
 		BoundAsync.series(this, [
-			this.checkFetchedDocument,
-			super.run
+			this.checkFetchedDocument,	// check that we got the unmodified document as a result of the operation
+			super.run					// do the normal check for UpdateTest, checking against the updated test document
 		], callback);
 	}
 
 	updateDocument (callback) {
+		// run the findAndModify, which will update the document in the database, but return the document
+		// before the update
 		const update = {
 			number: 5
 		};
@@ -40,6 +36,8 @@ class FindAndModifyTest extends GetByIdTest {
 	}
 
 	checkFetchedDocument (callback) {
+		// check that the fetched document matches the document before the update, but then prepare for the
+		// document to be checked against the document after the update (in the base class's run method)
 		this.fetchedDocument._id = this.fetchedDocument._id.toString();
 		Assert.deepEqual(this.testDocument, this.fetchedDocument, 'fetched document not equal to test document');
 		this.testDocument.number += 5;

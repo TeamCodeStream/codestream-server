@@ -9,7 +9,9 @@ class GetByQuerySortTest extends GetByQueryTest {
 		return 'should get the correct documents in sorted order when getting several documents by query with a sort option';
 	}
 
+	// run the test...
 	run (callback) {
+		// sort our test models so we can compare properly with the fetched models, and then fetch and compare
 		this.testDocuments.sort((a, b) => {
 			return b.number - a.number;
 		});

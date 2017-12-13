@@ -9,6 +9,7 @@ class ApplyUnsetToDatabaseTest extends UpdateToDatabaseTest {
 	}
 
 	updateTestModel (callback) {
+		// unset a value and verify it is unset
 		const unset = {
 			text: 1,
 		};

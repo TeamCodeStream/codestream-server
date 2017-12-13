@@ -1,3 +1,5 @@
+// Base class for unit tests, as a class-based wrapper to mocha
+
 'use strict';
 
 var Assert = require('assert');
@@ -11,22 +13,27 @@ class GenericTest {
 		Object.assign(this, options);
 	}
 
+	// override me!
 	run (callback) {
 		callback(null, {});
 	}
 
+	// before the test runs...
 	before (callback) {
 		callback();
 	}
 
+	// after the test runs...
 	after (callback) {
 		callback();
 	}
 
+	// do the test
 	test () {
 
 		if (typeof this.authenticate === 'function') {
 			before((callback) => {
+				// get a token for requests requiring authentication
 				this.authenticate(callback);
 			});
 		}
@@ -47,14 +54,17 @@ class GenericTest {
 		);
 	}
 
+	// override to indicate an error response is expected for this test
 	getExpectedError () {
 		return null;
 	}
 
+	// override to indicate an object with a set of fields is expected for this test
 	getExpectedFields () {
 		return null;
 	}
 
+	// check the response to this test, there might be an error and a real response
 	checkResponse (error, response, callback) {
 		this.error = error ? response : null;
 		const expectError = this.getExpectedError();
@@ -72,6 +82,7 @@ class GenericTest {
 		callback();
 	}
 
+	// check against an array of expected fields in the response object
 	expectFields () {
 		const expectFields = this.getExpectedFields();
 		if (!expectFields) { return; }
@@ -79,26 +90,32 @@ class GenericTest {
 		this.expect(this.response, expectFields, '');
 	}
 
+	// check for expected data, in the form of objects, sub-objects, and arrays
 	expect (responseData, expectData, chain) {
 		const message = chain ? `response expects ${chain}` : 'response expected';
 		if (this.isArrayOfStrings(expectData)) {
+			// for an array of strings, this indicates a list of expected keys (fields) in the object
 			Assert(typeof responseData === 'object', `${message} to be an object`);
 			this.expectArray(responseData, expectData, chain);
 		}
 		else if (expectData instanceof Array) {
-			Assert(responseData instanceof Array, `${message} to be an object`);
+			// for any other array, we expect an array of elements, usually objects
+			Assert(responseData instanceof Array, `${message} to be an array`);
 			this.expectArray(responseData, expectData, chain);
 		}
 		else if (typeof expectData === 'object') {
+			// for an object, we expect a matching object
 			Assert(typeof responseData === 'object', `${message} to be an object`);
 			this.expectObject(responseData, expectData, chain);
 		}
 		else if (typeof expectData === 'string') {
+			// for a string, we expect a regular expression match
 			Assert(typeof responseData === 'string', `${message} to be a string`);
 			Assert(responseData.match(new RegExp(expectData)), `${message} to be like ${expectData}`);
 		}
 	}
 
+	// is this value an array of (exclusively) strings?
 	isArrayOfStrings (value) {
 		return value instanceof Array &&
 			!value.find(elem => {
@@ -106,6 +123,7 @@ class GenericTest {
 			});
 	}
 
+	// for an array, we expect an object of certain fields, or an array of sub-objects
 	expectArray (responseData, expectFields, chain) {
 		Object.keys(expectFields).forEach(key => {
 			const expect = expectFields[key];
@@ -119,6 +137,7 @@ class GenericTest {
 		});
 	}
 
+	// expect a matching object, matching key for key
 	expectObject (responseData, expectData, chain) {
 		Object.keys(expectData).forEach(key => {
 			Assert(typeof responseData[key] !== 'undefined', `response requires ${chain}.${key}`);
@@ -126,45 +145,16 @@ class GenericTest {
 		});
 	}
 
+	// validate response to a request
 	validate () {
 		if (typeof this.validateResponse !== 'function') { return; }
 		this.validateResponse(this.response);
 	}
 
+	// check for an error response
 	expectError (expectError) {
 		Assert(this.error, 'test should return an error');
 		this.expect(this.error, expectError, '');
-	}
-
-	validateMatchingObject (id, object, name) {
-		Assert(id.toString() === object._id.toString(), `${name} doesn't match`);
-	}
-
-	validateMatchingObjects (objects1, objects2, name) {
-		let objectIds_1 = objects1.map(object => object._id).sort();
-		let objectIds_2 = objects2.map(object => object._id).sort();
-		Assert.deepEqual(objectIds_2, objectIds_1, `${name} returned don't match`);
-	}
-
-	validateSortedMatchingObjects(objects1, objects2, name) {
-		Assert.deepEqual(objects2, objects1, `${name} returned don't match`);
-	}
-
-	validateSanitized (object, unsanitizedAttributes) {
-		let present = [];
-		let objectAttributes = Object.keys(object);
-		unsanitizedAttributes.forEach(attribute => {
-			if (objectAttributes.indexOf(attribute) !== -1) {
-				present.push(attribute);
-			}
-		});
-		Assert(present.length === 0, 'these attributes are present and shouldn\'t be: ' + present.join(','));
-	}
-
-	validateSanitizedObjects (objects, unsanitizedAttributes) {
-		objects.forEach(object => {
-			this.validateSanitized(object, unsanitizedAttributes);
-		});
 	}
 }
 

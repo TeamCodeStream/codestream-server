@@ -9,11 +9,12 @@ class DeleteFromCacheTest extends DataCollectionTest {
 		return 'should not get a model after it has been deleted from the cache';
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createTestAndControlModel,
-			this.deleteModel
+			super.before,					// set up mongo client
+			this.createTestAndControlModel,	// create a test model and a control model that we won't touch
+			this.deleteModel				// delete the test model
 		], callback);
 	}
 
@@ -24,7 +25,10 @@ class DeleteFromCacheTest extends DataCollectionTest {
 		);
 	}
 
+	// run the test...
 	run (callback) {
+		// we'll fetch the test model and control model, but since the test model has been deleted,
+		// we should only get the control model
 		this.testModels = [this.controlModel];
 		this.data.test.getByIds(
 			[this.testModel.id, this.controlModel.id],
@@ -35,6 +39,7 @@ class DeleteFromCacheTest extends DataCollectionTest {
 	}
 
 	validateResponse () {
+		// validate that we get only the control model
 		this.validateArrayResponse();
 	}
 }
