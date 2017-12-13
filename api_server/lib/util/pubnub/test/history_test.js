@@ -19,9 +19,9 @@ class HistoryTest extends PubNubTest {
 	}
 
 	wait (callback) {
-		setTimeout(callback, 1000);
+		setTimeout(callback, 10000);
 	}
-	
+
 	fetchHistory (callback) {
 		this.pubnubForClient.history(
 			this.channelName,

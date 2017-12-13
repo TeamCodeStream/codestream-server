@@ -14,7 +14,7 @@ var MultipleHistoryTest = require('./multiple_history_test');
 
 describe('pubnub', function() {
 
-	this.timeout(20000);
+	this.timeout(30000);
 
 	new PubNubTest().test();
 	new NoAccessTest().test();

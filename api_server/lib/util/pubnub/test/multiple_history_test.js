@@ -17,6 +17,7 @@ class MultipleHistoryTest extends PubNubTest {
 			this.unsubscribe,
 			this.wait,
 			this.sendMoreMessages,
+			this.waitToFetch,
 			this.fetchHistory
 		], callback);
 	}
@@ -24,7 +25,7 @@ class MultipleHistoryTest extends PubNubTest {
 	wait (callback) {
 		setTimeout(callback, 1000);
 	}
-	
+
 	unsubscribe (callback) {
 		this.pubnubForClient.unsubscribe(this.channelName);
 		callback();
@@ -53,6 +54,10 @@ class MultipleHistoryTest extends PubNubTest {
 		);
 	}
 
+	waitToFetch (callback) {
+		setTimeout(callback, 10000);
+	}
+	
 	fetchHistory (callback) {
 		this.pubnubForClient.history(
 			this.channelName,
