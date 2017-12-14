@@ -63,5 +63,9 @@ module.exports = {
 		maxLength: 10000,
 		serverOnly: true,
 		forMe: true
+	},
+	accessToken: {
+		type: 'string',
+		serverOnly: true
 	}
 };

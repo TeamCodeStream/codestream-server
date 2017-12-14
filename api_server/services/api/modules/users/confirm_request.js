@@ -34,8 +34,8 @@ class ConfirmRequest extends RestfulRequest {
 			this.verifyCode,
 			this.hashPassword,
 			this.checkUsernameUnique,
-			this.updateUser,
 			this.generateToken,
+			this.updateUser,
 			this.grantSubscriptionPermissions,
 			this.getInitialData,
 			this.formResponse
@@ -156,10 +156,25 @@ class ConfirmRequest extends RestfulRequest {
 		});
 	}
 
+	generateToken (callback) {
+		Tokenizer(
+			this.user.attributes,
+			this.api.config.secrets.auth,
+			(error, token) => {
+				if (error) {
+					return callback(this.errorHandler.error('token', { reason: error }));
+				}
+				this.accessToken = token;
+				process.nextTick(callback);
+			}
+		);
+	}
+
 	updateUser (callback) {
 		let op = {
 			'$set': {
-				isRegistered: true
+				isRegistered: true,
+				accessToken: this.accessToken
 			},
 			'$unset': {
 				confirmationCode: true,
@@ -180,20 +195,6 @@ class ConfirmRequest extends RestfulRequest {
 				if (error) { return callback(error); }
 				this.user = updatedUser;
 				callback();
-			}
-		);
-	}
-
-	generateToken (callback) {
-		Tokenizer(
-			this.user.attributes,
-			this.api.config.secrets.auth,
-			(error, token) => {
-				if (error) {
-					return callback(this.errorHandler.error('token', { reason: error }));
-				}
-				this.accessToken = token;
-				process.nextTick(callback);
 			}
 		);
 	}
