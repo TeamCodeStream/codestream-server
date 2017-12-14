@@ -11,6 +11,8 @@ var AuthenticationUserNotFoundTest = require('./authentication_user_not_found_te
 
 describe('authentication', function() {
 
+	this.timeout(5000);
+
 	new AuthenticationTest().test();
 	new AuthenticationMissingAuthorizationTest().test();
 	new AuthenticationInvalidTokenTest().test();
