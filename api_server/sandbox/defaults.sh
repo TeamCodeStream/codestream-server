@@ -6,7 +6,7 @@
 # CS_API_SANDBOX  /path/to/root/of/sandbox
 # CS_API_TOP      /path/to/root/of/primary/git/project
 
-export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$PATH
+export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$CS_API_TOP/node_modules/.bin:$PATH
 export CS_API_TOP=$CS_API_TOP
 export CS_API_MONGO_HOST=$MDB_HOST
 export CS_API_MONGO_PORT=$MDB_PORT
