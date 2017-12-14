@@ -37,7 +37,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		this.makePubnubForServer();
 
 		// set up a pubnub client as if we are a client for the current user
-		this.makePubnubForClient(this.currentUser);
+		this.makePubnubForClient(this.token, this.currentUser);
 
 		callback();
 	}
@@ -52,12 +52,12 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	}
 
 	// set up the pubnub client as if we are a client, we can't control access rights in this case
-	makePubnubForClient (user) {
+	makePubnubForClient (token, user) {
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.authKey = user._id;
+		clientConfig.authKey = token;
 		let client = new PubNub(clientConfig);
 		this.pubnubClientsForUser[user._id] = new PubNubClient({
 			pubnub: client

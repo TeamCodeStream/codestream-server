@@ -91,14 +91,14 @@ class PubNubClient {
 		);
 	}
 
-	grant (userIds, channel, callback, options = {}) {
-		if (!(userIds instanceof Array)) {
-			userIds = [userIds];
+	grant (tokens, channel, callback, options = {}) {
+		if (!(tokens instanceof Array)) {
+			tokens = [tokens];
 		}
 		this.pubnub.grant(
 			{
 				channels: [channel],
-				authKeys: userIds,
+				authKeys: tokens,
 				read: options.read === false ? false: true,
 				write: options.write === true ? true : false,
 				ttl: options.ttl || 0
@@ -114,14 +114,14 @@ class PubNubClient {
 		);
 	}
 
-	revoke (userIds, channel, callback) {
-		if (!(userIds instanceof Array)) {
-			userIds = [userIds];
+	revoke (tokens, channel, callback) {
+		if (!(tokens instanceof Array)) {
+			tokens = [tokens];
 		}
 		this.pubnub.grant(
 			{
 				channels: [channel],
-				authKeys: userIds,
+				authKeys: tokens,
 				read: false,
 				write: false,
 				manage: false

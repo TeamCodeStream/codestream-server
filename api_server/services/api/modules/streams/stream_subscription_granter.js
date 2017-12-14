@@ -11,7 +11,7 @@ class StreamSubscriptionGranter  {
 	grantToMembers (callback) {
 		BoundAsync.series(this, [
 			this.getUsers,
-			this.determineRegisteredUsers,
+			this.getTokens,
 			this.grantStreamChannel
 		], callback);
 	}
@@ -28,37 +28,36 @@ class StreamSubscriptionGranter  {
 				callback();
 			},
 			{
-				fields: ['isRegistered']
+				fields: ['isRegistered', 'accessToken']
 			}
 		);
 	}
 
-	determineRegisteredUsers (callback) {
-		this.registeredUsers = [];
+	getTokens (callback) {
+		this.tokens = [];
 		BoundAsync.forEachLimit(
 			this,
 			this.members,
 			10,
-			this.determineRegisteredUser,
+			this.getTokenForRegisteredUser,
 			callback
 		);
 	}
 
-	determineRegisteredUser (user, callback) {
+	getTokenForRegisteredUser (user, callback) {
 		if (user.get('isRegistered')) {
-			this.registeredUsers.push(user);
+			this.tokens.push(user.get('accessToken'));
 		}
-		callback();
+		process.nextTick(callback);
 	}
 
 	grantStreamChannel (callback) {
-		var userIds = this.registeredUsers.map(user => user.id);
-		if (userIds.length === 0) {
+		if (this.tokens.length === 0) {
 			return callback();
 		}
 		let channel = 'stream-' + this.stream.id;
 		this.messager.grant(
-			userIds,
+			this.tokens,
 			channel,
 			(error) => {
 				if (error) {

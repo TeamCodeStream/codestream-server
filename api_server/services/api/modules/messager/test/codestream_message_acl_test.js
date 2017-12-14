@@ -50,7 +50,7 @@ class CodeStreamMessage_ACLTest extends CodeStreamAPITest {
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.authKey = this.otherUserData.user._id;
+		clientConfig.authKey = this.otherUserData.accessToken;
 		client = new PubNub(clientConfig);
 		this.pubnubForClient = new PubNubClient({
 			pubnub: client

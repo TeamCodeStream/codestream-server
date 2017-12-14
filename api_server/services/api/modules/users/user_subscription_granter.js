@@ -19,7 +19,7 @@ class UserSubscriptionGranter  {
 
 	grantChannel (channel, callback) {
 		this.messager.grant(
-			this.user.id,
+			this.user.get('accessToken'),
 			channel,
 			(error) => {
 				if (error) {

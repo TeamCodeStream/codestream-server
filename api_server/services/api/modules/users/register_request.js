@@ -25,9 +25,9 @@ class RegisterRequest extends RestfulRequest {
 			this.allow,
 			this.require,
 			this.generateConfirmCode,
+			this.generateToken,
 			this.saveUser,
-			this.sendEmail,
-			this.generateToken
+			this.sendEmail
 		], (error) => {
 			if (error) { return callback(error); }
 			this.responseData = { user: this.user.getSanitizedObject() };
@@ -80,6 +80,23 @@ class RegisterRequest extends RestfulRequest {
 		process.nextTick(callback);
 	}
 
+	generateToken (callback) {
+		if (this.confirmationRequired) {
+			return callback();
+		}
+		Tokenizer(
+			this.user.attributes,
+			this.api.config.secrets.auth,
+			(error, token) => {
+				if (error) {
+					return callback(this.errorHandler.error('token', { reason: error }));
+				}
+				this.request.body.accessToken = this.accessToken = token;
+				process.nextTick(callback);
+			}
+		);
+	}
+
 	saveUser (callback) {
 		this.userCreator = new UserCreator({
 			request: this,
@@ -106,23 +123,6 @@ class RegisterRequest extends RestfulRequest {
 				request: this
 			},
 			callback
-		);
-	}
-
-	generateToken (callback) {
-		if (this.confirmationRequired) {
-			return callback();
-		}
-		Tokenizer(
-			this.user.attributes,
-			this.api.config.secrets.auth,
-			(error, token) => {
-				if (error) {
-					return callback(this.errorHandler.error('token', { reason: error }));
-				}
-				this.accessToken = token;
-				process.nextTick(callback);
-			}
 		);
 	}
 }
