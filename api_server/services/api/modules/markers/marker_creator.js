@@ -74,6 +74,7 @@ class MarkerCreator extends ModelCreator {
 
 	createId (callback) {
 		this.attributes._id = this.data.markers.createId();
+		this.attributes.numComments = 1; // the original post for this marker
 		callback();
 	}
 
