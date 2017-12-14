@@ -10,8 +10,8 @@ class NormalizeTest extends FindRepoTest {
 
 	makePath (callback) {
 		let url = decodeURIComponent(this.queryData.url);
-		let match = url.match(/^https:\/\/(.+)/);
-		this.queryData.url = encodeURIComponent(`https://www.${match[1]}?x=1&y=2#abc`).toUpperCase();
+		let match = url.match(/^https:\/\/(.+)@(.+)\?(.*)/);
+		this.queryData.url = encodeURIComponent(`https://${match[2]}?x=a&y=b#def`).toUpperCase();
 		this.queryData.firstCommitHash = this.queryData.firstCommitHash.toUpperCase();
 		super.makePath(callback);
 	}
