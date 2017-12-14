@@ -5,7 +5,7 @@ var GetStreamsTest = require('./get_streams_test');
 class InvalidParameterTest extends GetStreamsTest {
 
 	get description () {
-		return 'should return an error if an unknown query parameter is provided';
+		return 'should return an error if an unknown query parameter is provided trying to get a stream';
 	}
 
 	setPath (callback) {

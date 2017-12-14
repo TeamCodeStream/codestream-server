@@ -7,7 +7,7 @@ var Assert = require('assert');
 class FindAndModifyTest extends GetByIdFromDatabaseTest {
 
 	get description () {
-		return 'should get the original document, and then the modified document, when performing a find-and-modify operation';
+		return 'should get the original model, and then the modified model, when performing a find-and-modify operation';
 	}
 
 	// before the test runs...

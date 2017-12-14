@@ -5,7 +5,7 @@ var GetPostsTest = require('./get_posts_test');
 class InvalidParameterTest extends GetPostsTest {
 
 	get description () {
-		return 'should return an error if an unknown query parameter is provided';
+		return 'should return an error if an unknown query parameter is provided trying to get a post';
 	}
 
 	setPath (callback) {
