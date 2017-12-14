@@ -58,6 +58,8 @@ var NoLastReadsForAuthorTest = require('./no_last_reads_for_author_test');
 var LastReadsPreviousPostTest = require('./last_reads_previous_post_test');
 var NoLastReadsUpdateTest = require('./no_last_reads_update_test');
 var SeqNumTest = require('./seqnum_test');
+var NumCommentsTest = require('./num_comments_test');
+var NumCommentsMessageTest = require('./num_comments_message_test');
 
 /* jshint -W071 */
 
@@ -134,6 +136,8 @@ class PostPostRequestTester {
 		new LastReadsPreviousPostTest({ type: 'file' }).test();
 		new NoLastReadsUpdateTest().test();
 		new SeqNumTest().test();
+		new NumCommentsTest().test();
+		new NumCommentsMessageTest().test();
 	}
 }
 

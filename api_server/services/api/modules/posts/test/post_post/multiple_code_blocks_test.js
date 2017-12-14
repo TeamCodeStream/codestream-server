@@ -32,6 +32,7 @@ class MultipleCodeBlocksTest extends PostCodeToFileStreamTest {
 			Assert(marker.streamId === post.streamId, 'streamId does not match');
 			Assert(marker.postId === post._id, 'postId does not match');
 			Assert(marker.deactivated === false, 'deactivated is not false');
+			Assert(marker.numComments === 1, 'marker should have 1 comment');
 			Assert(marker._id === post.codeBlocks[i].markerId, 'markerId in code block does not match marker created');
 			this.validateSanitized(marker, PostTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
 		}

@@ -25,7 +25,8 @@ module.exports = {
 		type: 'boolean',
 		required: true
 	},
-	numPosts: {
-		type: 'number'
+	numComments: {
+		type: 'number',
+		required: true
 	}
 };

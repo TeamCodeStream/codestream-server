@@ -8,7 +8,8 @@ const EXPECTED_MARKER_FIELDS = [
 	'deactivated',
 	'teamId',
 	'streamId',
-	'postId'
+	'postId',
+	'numComments'
 ];
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(MarkerAttributes).filter(attribute => {

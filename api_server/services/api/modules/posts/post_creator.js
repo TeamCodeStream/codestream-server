@@ -110,7 +110,8 @@ class PostCreator extends ModelCreator {
 			this.getSeqNum,
 			super.preSave,
 			this.updateStream,
-			this.updateLastReads
+			this.updateLastReads,
+			this.updateMarkersForReply
 		], callback);
 	}
 
@@ -324,6 +325,60 @@ class PostCreator extends ModelCreator {
 			previousPostId: this.previousPostId,
 			logger: this
 		}).updateLastReads(callback);
+	}
+
+	updateMarkersForReply (callback) {
+		// this only applies to replies
+		if (!this.model.get('parentPostId')) {
+			return callback();
+		}
+		BoundAsync.series(this, [
+			this.getParentPost,
+			this.updateMarkersForParentPost
+		], callback);
+	}
+
+	getParentPost (callback) {
+		this.data.posts.getById(
+			this.model.get('parentPostId'),
+			(error, parentPost) => {
+				if (error) { return callback(error); }
+				if (!parentPost) {
+					return callback();	// this really shouldn't happen, but it's not worth an error
+				}
+				let codeBlocks = parentPost.get('codeBlocks') || [];
+				this.parentPostMarkerIds = codeBlocks.map(codeBlock => codeBlock.markerId);
+				callback();
+			}
+		);
+	}
+
+	updateMarkersForParentPost (callback) {
+		if (!this.parentPostMarkerIds || !this.parentPostMarkerIds.length) {
+			return callback();
+		}
+		this.attachToResponse.markers = this.attachToResponse.markers || [];
+		BoundAsync.forEachLimit(
+			this,
+			this.parentPostMarkerIds,
+			5,
+			this.updateMarkerForParentPost,
+			callback
+		);
+	}
+
+	updateMarkerForParentPost (markerId, callback) {
+		let op = { $inc: { numComments: 1 } };
+		this.data.markers.applyOpById(
+			markerId,
+			op,
+			error => {
+				if (error) { return callback(error); }
+				let messageOp = Object.assign({}, op, { _id: markerId });
+				this.attachToResponse.markers.push(messageOp);
+				callback();
+			}
+		);
 	}
 }
 
