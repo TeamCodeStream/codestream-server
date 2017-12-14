@@ -61,7 +61,6 @@ class PostRepoRequestTester {
 		new UsersJoinNewTeamMessageTest().test();
 		new UsersJoinExistingTeamMessageTest().test();
 		new UsersJoinExistingRepoMessageTest().test();
-
 	}
 }
 

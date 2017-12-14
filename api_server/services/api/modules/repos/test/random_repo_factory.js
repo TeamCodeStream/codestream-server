@@ -18,7 +18,7 @@ class RandomRepoFactory {
 	}
 
 	randomUrl () {
-		return `https://${RandomString.generate(6)}.${RandomString.generate(6)}.com`;
+		return `https://user@${RandomString.generate(6)}.${RandomString.generate(6)}.com/${RandomString.generate(8)}/${RandomString.generate(4)}?x=1&y=2#xyz`;
 	}
 
 	randomCommitHash () {

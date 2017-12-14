@@ -14,6 +14,11 @@ module.exports = {
 		maxLength: 1024,
 		required: true
 	},
+	normalizedUrl: {
+		type: 'string',
+		maxLength: 1024,
+		required: true
+	},
 	firstCommitHash: {
 		type: 'string',
 		minLength: 40,

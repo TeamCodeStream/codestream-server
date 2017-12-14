@@ -12,14 +12,14 @@ class NormalizeUrlTest extends PostRepoTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.baseUrl = `ABC${RandomString.generate(8)}.CoM`;
-			this.data.url = `wWw.${this.baseUrl}/?x=1&y=2#frag`;
+			this.basePath = `${RandomString.generate(8)}.CoM/${RandomString.generate(8)}/${RandomString.generate(5)}/${RandomString.generate(6)}`;
+			this.data.url = `hTtPs://uSEr@${this.basePath}/?x=1&y=2#frag`;
 			callback();
 		});
 	}
 
 	validateResponse (data) {
-		this.data.url = 'http://' + this.baseUrl.toLowerCase();
+		this.data.normalizedUrl = this.basePath.toLowerCase();
 		super.validateResponse(data);
 	}
 }
