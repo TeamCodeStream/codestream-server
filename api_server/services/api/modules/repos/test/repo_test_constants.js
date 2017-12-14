@@ -14,6 +14,7 @@ const EXPECTED_REPO_FIELDS = [
 	'companyId',
 	'teamId',
 	'url',
+	'normalizedUrl',
 	'firstCommitHash'
 ];
 
