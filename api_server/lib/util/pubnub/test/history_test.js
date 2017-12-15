@@ -10,18 +10,24 @@ class HistoryTest extends PubNubTest {
 		return 'should be able to retrieve historical messages for a channel';
 	}
 
+	// run the test...
 	run (callback) {
+		// PubNubTest runs the test of sending and receiving a message, we'll
+		// piggy-back on that test and fetch the history afterwards, making
+		// sure the fetched message matches expectations
 		BoundAsync.series(this, [
-			super.run,
-			this.wait,
-			this.fetchHistory
+			super.run,	// run the send/receive test
+			this.wait,	// wait for the message to persist
+			this.fetchHistory	// fetch the message history
 		], callback);
 	}
 
+	// wait for the message to persist, i've found that several seconds are necessary
 	wait (callback) {
 		setTimeout(callback, 10000);
 	}
 
+	// fetch the history for this channel, we expect the one message we sent
 	fetchHistory (callback) {
 		this.pubnubForClient.history(
 			this.channelName,

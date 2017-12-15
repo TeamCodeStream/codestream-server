@@ -1,3 +1,5 @@
+// perform any tests of these utility libraries
+
 'use strict';
 
 require('./mongo/test/test.js');

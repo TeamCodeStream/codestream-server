@@ -9,18 +9,20 @@ class NoAccessTest extends PubNubTest {
 		return 'client should get an error when trying to subscribe to a channel it has not been granted read access to';
 	}
 
+	// override PubNubTest's grant by skipping the grant entirely
 	grantAccess (callback) {
-		// skip it
 		callback();
 	}
 
+	// run the test
 	run (callback) {
+		// our attempt to listen should get rejected
 		this.listenOnClient(error => {
 			Assert(error.error, 'error expected');
 			Assert(error.operation === 'PNSubscribeOperation' || error.operation === 'PNHeartbeatOperation',
 				'operation expected to be PNSubscribeOperation');
 			Assert(error.category === 'PNAccessDeniedCategory', 'category expected to be PNAccessDeniedCategory');
-			this.clearTimer(callback);
+			this.clearTimer(callback);	// turn off listening for the actual message, we won't get it!
 		});
 	}
 }

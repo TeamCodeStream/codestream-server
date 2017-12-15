@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+
+// just a cheap listener script to listen to one or more pubnub channels
+
 'use strict';
 
 var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub.js');

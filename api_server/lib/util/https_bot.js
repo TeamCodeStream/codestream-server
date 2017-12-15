@@ -1,3 +1,5 @@
+// simple (and limited) wrapper to handle https requests that deal with json data
+
 'use strict';
 
 var HTTPS = require('https');
