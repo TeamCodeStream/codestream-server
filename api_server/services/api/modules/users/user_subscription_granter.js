@@ -1,6 +1,7 @@
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const StreamIndexes = require(process.env.CS_API_TOP + '/services/api/modules/streams/indexes');
 
 class UserSubscriptionGranter  {
 
@@ -75,7 +76,8 @@ class UserSubscriptionGranter  {
 			},
 			{
 				databaseOptions: {
-					fields: ['_id']
+					fields: ['_id'],
+					hint: StreamIndexes.byMemberIds
 				},
 				noCache: true
 			}

@@ -5,7 +5,7 @@ var GetMarkersTest = require('./get_markers_test');
 class OneRelationalTest extends GetMarkersTest {
 
 	get description () {
-		return 'should return an error if more than one relational query parameter is provided';
+		return 'should return an error if more than one relational query parameter is provided for a markers query';
 	}
 
 	getExpectedError () {

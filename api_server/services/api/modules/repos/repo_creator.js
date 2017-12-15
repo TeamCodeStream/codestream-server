@@ -9,6 +9,7 @@ var AddTeamMembers = require(process.env.CS_API_TOP + '/services/api/modules/tea
 var TeamCreator = require(process.env.CS_API_TOP + '/services/api/modules/teams/team_creator');
 var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
 const RepoAttributes = require('./repo_attributes');
+const Indexes = require('./indexes');
 const Errors = require('./errors');
 
 class RepoCreator extends ModelCreator {
@@ -88,7 +89,10 @@ class RepoCreator extends ModelCreator {
 
 	checkExistingQuery () {
 		return {
-			normalizedUrl: this.attributes.normalizedUrl
+			query: {
+				normalizedUrl: this.attributes.normalizedUrl
+			},
+			hint: Indexes.byNormalizedUrl
 		};
 	}
 

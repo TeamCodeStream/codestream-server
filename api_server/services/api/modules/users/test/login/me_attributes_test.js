@@ -8,7 +8,7 @@ const UserTestConstants = require('../user_test_constants');
 class MeAttributesTest extends LoginTest {
 
 	get description () {
-		return 'user should receive me-only attributes with response to email confirmation';
+		return 'user should receive me-only attributes with response to login';
 	}
 
 	getExpectedFields () {

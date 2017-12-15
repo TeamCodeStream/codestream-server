@@ -2,6 +2,7 @@
 
 var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const Indexes = require('./indexes');
 
 class GetMarkersRequest extends GetManyRequest {
 
@@ -42,7 +43,7 @@ class GetMarkersRequest extends GetManyRequest {
 			return callback();
 		}
 		let query = {
-			teamId: this.teamId,
+//			teamId: this.teamId, // will be needed for sharding, but for now, we'll avoid an index here
 			_id: `${this.streamId}|${this.commitHash}`
 		};
 		this.data.markerLocations.getByQuery(
@@ -56,6 +57,11 @@ class GetMarkersRequest extends GetManyRequest {
 				this.markerLocations = markerLocations[0];
 				this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
 				callback();
+			},
+			{
+				databaseOptions: {
+					hint: { _id: 1 }
+				}
 			}
 		);
 	}
@@ -70,11 +76,17 @@ class GetMarkersRequest extends GetManyRequest {
 			if (ids.length > 100) {
 				return 'too many IDs';
 			}
-			query._id = {
-				$in: ids.map(id => this.data.markers.objectIdSafe(id))
-			};
+			query._id = this.data.markers.inQuerySafe(ids);
 		}
 		return query;
+	}
+
+	getQueryOptions () {
+		return {
+			databaseOptions: {
+				hint: Indexes.byStreamId
+			}
+		};
 	}
 }
 

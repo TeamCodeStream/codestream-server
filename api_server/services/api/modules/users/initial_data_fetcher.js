@@ -1,6 +1,7 @@
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const RepoIndexes = require(process.env.CS_API_TOP + '/services/api/modules/repos/indexes');
 
 class InitialDataFetcher  {
 
@@ -54,8 +55,7 @@ class InitialDataFetcher  {
 			return callback();
 		}
 		let query = {
-			teamId: { $in: teamIds },
-			deactivated: false
+			teamId: this.request.data.repos.inQuery(teamIds)
 		};
 		this.request.data.repos.getByQuery(
 			query,
@@ -63,6 +63,11 @@ class InitialDataFetcher  {
 				if (error) { return callback(error); }
 				this.repos = repos;
 				callback();
+			},
+			{
+				databaseOptions: {
+					hint: RepoIndexes.byTeamId
+				}
 			}
 		);
 	}

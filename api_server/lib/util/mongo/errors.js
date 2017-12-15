@@ -12,6 +12,11 @@ const ERRORS = {
 		code: 'MDTA-1001',
 		description: 'Document must have ID attribute',
 		internal: true
+	},
+	'hintRequired': {
+		code: 'MDTA-1002',
+		description: 'Hint required',
+		internal: true
 	}
 };
 

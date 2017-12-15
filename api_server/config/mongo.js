@@ -12,5 +12,6 @@ module.exports = {
 		slowThreshold: 100, // queries that take longer than this go to the slow query log
 		reallySlowBasename: 'really-slow-mongo-query',
 		reallySlowThreshold: 1000 // queries that take longer than this go to the "really slow" query log
-	}
+	},
+	hintsRequired: true
 };

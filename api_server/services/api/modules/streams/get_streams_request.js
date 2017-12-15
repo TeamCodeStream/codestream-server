@@ -2,12 +2,12 @@
 
 var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const STREAM_TYPES = require('./stream_types');
+const Indexes = require('./indexes');
 
 const BASIC_QUERY_PARAMETERS = [
 	'teamId',
 	'repoId',
-	'type',
-	'ids'
+	'type'
 ];
 
 const RELATIONAL_PARAMETERS = [
@@ -36,15 +36,15 @@ class GetStreamsRequest extends GetManyRequest {
 	}
 
 	buildQuery () {
-		let query = this.formQueryFromParameters();
-		if (query === false) {
+		this.query = this.formQueryFromParameters();
+		if (this.query === false) {
 			// query returns nothing
 			return false;
 		}
-		else if (typeof query !== 'object') {
-			return query;
+		else if (typeof this.query !== 'object') {
+			return this.query;
 		}
-		return this.checkValidQuery(query);
+		return this.checkValidQuery(this.query);
 	}
 
 	formQueryFromParameters () {
@@ -68,25 +68,42 @@ class GetStreamsRequest extends GetManyRequest {
 	}
 
 	getQueryOptions () {
+		let limit = this.limit = this.setLimit();
+		let sort = this.setSort();
+		let hint = this.setHint();
+		return {
+			databaseOptions: { limit, sort, hint }
+		};
+	}
+
+	setLimit () {
 		let limit = 0;
 		if (this.request.query.limit) {
 			limit = decodeURIComponent(this.request.query.limit);
 			limit = parseInt(limit, 10);
 		}
-		this.limit = limit ?
+		limit = limit ?
 			Math.min(limit, this.api.config.limits.maxStreamsPerRequest || 100) :
 			this.api.config.limits.maxStreamsPerRequest;
-		this.limit += 1;
+		limit += 1;
+		return limit;
+	}
+
+	setSort () {
 		let sort = { sortId: -1 };
 		if (this.request.query.sort && this.request.query.sort.toLowerCase() === 'asc') {
 			sort = { sortId: 1 };
 		}
-		return {
-			databaseOptions: {
-				sort: sort,
-				limit: this.limit
-			}
-		};
+		return sort;
+	}
+
+	setHint () {
+		if (this.query.type === 'file') {
+			return Indexes.byFile;
+		}
+		else {
+			return Indexes.byMemberIds;
+		}
 	}
 
 	checkValidQuery (query) {
@@ -112,14 +129,11 @@ class GetStreamsRequest extends GetManyRequest {
 
 	processQueryParameter (parameter, value, query) {
 		if (BASIC_QUERY_PARAMETERS.indexOf(parameter) !== -1) {
-			if (parameter === 'ids') {
-				let ids = value.split(',');
-				ids = ids.map(id => this.data.streams.objectIdSafe(id));
-				query._id = { $in: ids };
-			}
-			else {
-				query[parameter] = value;
-			}
+			query[parameter] = value;
+		}
+		else if (parameter === 'ids') {
+			let ids = value.split(',');
+			query._id = this.data.streams.inQuerySafe(ids);
 		}
 		else if (parameter === 'unread') {
 			let ids = Object.keys(this.user.get('lastReads') || {});
@@ -128,8 +142,7 @@ class GetStreamsRequest extends GetManyRequest {
 				return false;
 			}
 			else {
-				ids = ids.map(id => this.data.streams.objectIdSafe(id));
-				query._id = { $in: ids };
+				query._id = this.data.streams.inQuerySafe(ids);
 			}
 		}
 		else if (RELATIONAL_PARAMETERS.indexOf(parameter) !== -1) {

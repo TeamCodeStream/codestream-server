@@ -117,7 +117,8 @@ class MongoClient {
 			dbCollection: this.dbCollections[collection],
 			queryLogger: this.config.queryLogger,
 			slowLogger: this.config.slowLogger,
-			reallySlowLogger: this.config.reallySlowLogger
+			reallySlowLogger: this.config.reallySlowLogger,
+			hintsRequired: this.config.hintsRequired
 		});
 		process.nextTick(callback);
 	}
