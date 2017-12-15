@@ -294,6 +294,8 @@ class MongoCollection {
 			if (typeof opValue === 'object') {
 				let conversion = OP_TO_DB_OP[opKey];
 				if (typeof conversion === 'object') {
+					// here we handle differences between how mongo works and how we want to work,
+					// by invoking a function to convert the value, rather than just taking it literally
 					dbOp[conversion.dbOp] = conversion.valueFunc(opValue);
 				}
 				else {
@@ -304,6 +306,7 @@ class MongoCollection {
 		return dbOp;
 	}
 
+	// apply a mongo op to a document
 	_applyMongoOpById (id, op, callback, options) {
 		let query = {};
 		query[this.idAttribute] = this.objectIdSafe(id) || id;
@@ -316,6 +319,7 @@ class MongoCollection {
 		);
 	}
 
+	// update documents directly, the caller can do whatever they want with the database
 	updateDirect (query, data, callback, options) {
 		this.runQuery(
 			'updateMany',
@@ -326,6 +330,7 @@ class MongoCollection {
 		);
 	}
 
+	// do a find-and-modify operation, a cheap atomic operation
 	findAndModify (query, data, callback, options = {}) {
 		this.runQuery(
 			'findAndModify',
@@ -338,6 +343,7 @@ class MongoCollection {
 		);
 	}
 
+	// delete a document by id
 	deleteById (id, callback, options) {
 		let query = {
 			[this.idAttribute]: this.objectIdSafe(id)
@@ -350,9 +356,11 @@ class MongoCollection {
 		);
 	}
 
+	// delete several documents by id
 	deleteByIds (ids, callback, options) {
 		let query = {};
 		let objectIds = [];
+		// we'll make a query out of the IDs
 		BoundAsync.forEachLimit(
 			this,
 			ids,
@@ -368,6 +376,7 @@ class MongoCollection {
 		);
 	}
 
+	// delete documents by query ... VERY DANGEROUS!!!
 	deleteByQuery (query, callback, options) {
 		this.runQuery(
 			'deleteMany',
@@ -377,12 +386,14 @@ class MongoCollection {
 		);
 	}
 
+	// helper JSON.stringify to clean up whitespace
 	_jsonStringify (json) {
 		return JSON.stringify(json).
 			replace(/\n/g,'').
 			replace(/\s+/g, ' ');
 	}
 
+	// log a mongo query to our logger
 	_logMongoQuery (options, ...args) {
 		if (!this.options.queryLogger) {
 			return;
@@ -390,6 +401,7 @@ class MongoCollection {
 		this._logMongoQueryToLogger(this.options.queryLogger, options, args);
 	}
 
+	// log a mongo query to our logger
 	_logMongoQueryToLogger (logger, options, ...args) {
 		let {
 			error = null,
@@ -411,6 +423,7 @@ class MongoCollection {
 			this.options.slowLogger.slowThreshold &&
 			time >= this.options.slowLogger.slowThreshold
 		) {
+			// this query was slow, log it to the slow-query log
 			delete options.noSlow;
 			this._logMongoQueryToLogger(this.options.slowLogger, Object.assign({}, options, {noSlow: true}), args);
 		}
@@ -420,11 +433,13 @@ class MongoCollection {
 			this.options.reallySlowLogger.slowThreshold &&
 			time >= this.options.reallySlowLogger.slowThreshold
 		) {
+			// this query was REALLY slow, log it to the really-slow-query log
 			delete options.noSlow;
 			this._logMongoQueryToLogger(this.options.reallySlowLogger, Object.assign({}, options, {noSlow: true}), args);
 		}
 	}
 
+	// return a mongo ID, given a mongo ID or a string representation
 	objectIdSafe (id) {
 		try {
 			id = ObjectID(id);
@@ -444,10 +459,13 @@ class MongoCollection {
 		return this.inQuery(ids);
 	}
 
+	// create a new ID
 	createId () {
 		return ObjectID();
 	}
 
+	// handle the result of a query by stringifying any IDs we find before
+	// returning the result to the caller
 	_idStringifyResult (error, result, callback) {
 		if (error) {
 			return callback(this.errorHandler.dataError(error));
@@ -455,6 +473,8 @@ class MongoCollection {
 		this._idStringify(result, callback);
 	}
 
+	// look for IDs or arrays of IDs in an object and stringify them, so the application layer
+	// doesn't have to deal with mongo IDs
 	_idStringify (object, callback) {
 		if (object instanceof Array) {
 			this._idStringifyAsync(object, callback);
@@ -472,6 +492,7 @@ class MongoCollection {
 		}
 	}
 
+	// handle sub-objects and stringify all IDs
 	_idStringifyAsync (objects, callback) {
 		BoundAsync.forEachLimit(
 			this,

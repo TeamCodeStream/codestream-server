@@ -1,3 +1,7 @@
+// provides a set of functions wrapping some common functions from the async module
+// afford the patters of specifying iterator functions without having to explicitly
+// bind everything to the calling context, at the expense of a single this argument
+
 'use strict';
 
 let Async = require('async');

@@ -1,3 +1,5 @@
+// fulfill a restful DELETE request ... this is not yet implemented
+
 'use strict';
 
 var APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');

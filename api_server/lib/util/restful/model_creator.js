@@ -1,3 +1,7 @@
+// provides an abstract base class to handle the creation of a document in the database...
+// a standard flow of operations is provided here, but heavy derivation can be done to
+// tweak this process
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
@@ -7,9 +11,10 @@ class ModelCreator {
 	constructor (options) {
 		Object.assign(this, options);
 		['data', 'api', 'errorHandler', 'user'].forEach(x => this[x] = this.request[x]);
-		this.attachToResponse = {};
+		this.attachToResponse = {};	// additional material we want to get returned to the client
 	}
 
+	// create the model
 	createModel (attributes, callback) {
 		this.collection = this.data[this.collectionName];
 		if (!this.collection) {
@@ -18,26 +23,29 @@ class ModelCreator {
 
 		this.attributes = attributes;
 		BoundAsync.series(this, [
-			this.normalize,
-			this.requireAttributes,
-			this.validate,
-			this.allowAttributes,
-			this.checkExisting,
-			this.preSave,
-			this.checkValidationWarnings,
-			this.createOrUpdate,
-			this.postSave
+			this.normalize,				// normalize the input attributes
+			this.requireAttributes,		// check for required attributes
+			this.validate,				// validate the attributes
+			this.allowAttributes,		// eliminate all but allowed attributes
+			this.checkExisting,			// check if there is already a matching document, according to the derived class
+			this.preSave,				// prepare to save the document
+			this.checkValidationWarnings,	// check for any validation warnings that came up in preSave
+			this.createOrUpdate,		// create the document, or if already existed, we might want to update it
+			this.postSave				// give the derived class a chance to do stuff after we've saved
 		], (error) => {
 	 		callback(error, this.model);
 		});
 	}
 
+	// normalize the input attributes ... override as needed
 	normalize (callback) {
 		process.nextTick(callback);
 	}
 
+	// check that we have all the required attributes ... the derived class will tell us which attributes
+	// are required
 	requireAttributes (callback) {
-		let requiredAttributes = this.getRequiredAttributes() || [];
+		let requiredAttributes = this.getRequiredAttributes() || []; // get this from the derived class
 		let missingAttributes = [];
 		requiredAttributes.forEach(attribute => {
 			if (typeof this.attributes[attribute] === 'undefined') {
@@ -52,10 +60,12 @@ class ModelCreator {
 		}
 	}
 
+	// which attributes are required? override to specify
 	getRequiredAttributes () {
 		return null;
 	}
 
+	// validate the input attributes
 	validate (callback) {
 		this.validateAttributes((errors) => {
 			if (errors) {
@@ -70,27 +80,35 @@ class ModelCreator {
 		});
 	}
 
+	// validate the input attributes ... override as needed
 	validateAttributes (callback) {
 		process.nextTick(callback);
 	}
 
+	// allow only certain attributes ... override to specify
 	allowAttributes (callback) {
 		process.nextTick(callback);
 	}
 
+	// check if there is a matching document already, according to a query specified
+	// by the derived class, which can also decide whether this is allowed or not
 	checkExisting (callback) {
 		let queryData = this.checkExistingQuery();
 		if (!queryData) {
+			// derived class doesn't care
 			return process.nextTick(callback);
 		}
+		// look for a matching document, according to the query
 		this.collection.getOneByQuery(
 			queryData.query,
 			(error, model) => {
 				if (error) { return callback(error); }
 				if (model) {
-					if (!this.modelCanExist(model)) {
+					// got a matching document, is this ok?
+					if (!this.modelCanExist(model)) {	// derived class tells us whether this is allowed
 						return callback(this.errorHandler.error('exists'));
 					}
+					// ok, it's allowed
 					this.existingModel = model;
 				}
 				return process.nextTick(callback);
@@ -103,22 +121,31 @@ class ModelCreator {
 		);
 	}
 
+	// override to provide a query to check for a document matching the input attributes
 	checkExistingQuery () {
 		return null;
 	}
 
+	// override to say that there can be a document matching the input attributes, otherwise
+	// if a match is found the creation will fail
 	modelCanExist (/*model*/) {
 		return false;
 	}
 
+	// right before the document gets saved....
 	preSave (callback) {
 		if (this.existingModel) {
 			if (this.dontSaveIfExists) {
+				// we have a document that matches the input attributes, and there's no need
+				// to make any changes, just pass it back to the client as-is
 				this.model = this.existingModel;
 				return callback();
 			}
+			// override with the attributes passed in, we'll save these
 			this.attributes = Object.assign({}, this.existingModel.attributes, this.attributes);
 		}
+		// create a new model with the passed attributes, and let the model pre-save itself ...
+		// this is where pre-save validation of the attributes happens
 		this.model = new this.modelClass(this.attributes);
 		this.model.preSave(
 			(errors) => {
@@ -138,6 +165,8 @@ class ModelCreator {
 		);
 	}
 
+	// check for any warnings during validation, these don't stop the document from
+	// getting saved but we'll want to log them anyway
 	checkValidationWarnings (callback) {
 		if (
 			this.model.validationWarnings instanceof Array &&
@@ -148,6 +177,7 @@ class ModelCreator {
 		process.nextTick(callback);
 	}
 
+	// create the document, or update it if we found an existing matching document
 	createOrUpdate (callback) {
 		if (this.existingModel) {
 			this.update(callback);
@@ -157,22 +187,26 @@ class ModelCreator {
 		}
 	}
 
+	// update an existing document that matches the input attributes
 	update (callback) {
 		if (this.dontSaveIfExists) {
+			// or don't bother if the derived class says so
 			this.model = this.existingModel;
 			return process.nextTick(callback);
 		}
+		// do the update
 		this.collection.update(
 			this.model.attributes,
 			(error, updatedModel) => {
 				if (error) { return callback(error); }
 				this.model = updatedModel;
-				this.didExist = true;
+				this.didExist = true;	// caller might want to know whether we really created a document or not
 				process.nextTick(callback);
 			}
 		);
 	}
 
+	// truly create a new document
 	create (callback) {
 		this.collection.create(
 			this.model.attributes,
@@ -184,6 +218,7 @@ class ModelCreator {
 		);
 	}
 
+	// override to do stuff after the document has been saved
 	postSave (callback) {
 		process.nextTick(callback);
 	}

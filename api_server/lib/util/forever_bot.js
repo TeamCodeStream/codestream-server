@@ -1,3 +1,5 @@
+// run this process forever, executing a function at a specified interval
+
 'use strict';
 
 var EventEmitter = require('events');

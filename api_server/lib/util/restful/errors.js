@@ -1,3 +1,5 @@
+// Errors concerning restful operations
+
 'use strict';
 
 const ERRORS = {
@@ -49,7 +51,7 @@ const ERRORS = {
 	},
 	'createAuth': {
 		code: 'RAPI-1011',
-		message: 'Not authorized to create'		
+		message: 'Not authorized to create'
 	}
 };
 

@@ -1,3 +1,4 @@
+// multiple inheritance algorithm
 // from http://es6-features.org/#ClassInheritanceFromExpressions
 
 module.exports = (baseClass, ...mixins) => {
