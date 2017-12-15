@@ -22,6 +22,20 @@ export CS_API_SSL_KEYFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-key
 export CS_API_SSL_CERTFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-crt
 export CS_API_SSL_CAFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-ca
 
+# Tell the API service init script to setup mongo when it the api server
+# is started for the first time. This includes creating the database
+# owner in mongo and creating the indexes
+export CS_API_SETUP_MONGO=true
+
+# Uncomment these to tell the API service to use mongo authentication
+#export CS_API_MONGO_USER=api
+#export CS_API_MONGO_PASS=api
+
+# Uncomment these if you want the mdb-mongo CLI to access the database
+# using the system account above (as opposed to 'root')
+#export MDB_CLI_USER=$CS_API_MONGO_USER
+#export MDB_CLI_PASS=$CS_API_MONGO_PASS
+
 # Emails by default are not sent ... set this to "on" to send emails normally
 # (as in production, and exercise extreme caution when testing) ...
 # or set to a valid email to have all emails diverted to the specified address,

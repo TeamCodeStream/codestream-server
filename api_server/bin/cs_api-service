@@ -30,6 +30,18 @@ ec=0
 server_args=$*
 case "$action" in
     start)
+        if [ "$CS_API_SETUP_MONGO" == true ]; then
+            if [ -n "$CS_API_MONGO_USER" -a ! -f $CS_API_SANDBOX/mongo-user.configured ]; then
+                echo "Creating mongo user $CS_API_MONGO_USER as dbOwner of codestream db"
+                mdb-add-user -u $CS_API_MONGO_USER -p $CS_API_MONGO_PASS -r dbOwner -D codestream
+                touch $CS_API_SANDBOX/mongo-user.configured
+            fi
+            if [ ! -f $CS_API_SANDBOX/mongo-indexes.configured ]; then
+                echo "Running ensure-indexes.js..."
+                echo "touch $CS_API_SANDBOX/mongo-indexes.configured to prevent this on future starts."
+                (cd $CS_API_TOP && bin/ensure-indexes.js)
+            fi
+        fi
         echo "Starting $CS_API_TOP/bin/api_server.js. Logging to $CS_API_LOG_DIRECTORY/api.log"
         if [ $run_fg -eq 1 ]; then
             $CS_API_TOP/bin/api_server.js $server_args
