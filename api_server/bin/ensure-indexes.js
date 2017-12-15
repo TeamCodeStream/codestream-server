@@ -1,5 +1,14 @@
 #!/usr/bin/env node
 
+// run this script to ensure the appropriate indexes are present in your mongo database,
+// the api server will not run properly without these indexes in place
+// you can also run this script to drop all the indexes
+//
+// to drop, supply "drop" as a command line argument
+// to build, supply "build" as a command line argument
+//
+// you can supply both, that will drop and build (rebuild from scratch)
+
 var Process = require('child_process');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
