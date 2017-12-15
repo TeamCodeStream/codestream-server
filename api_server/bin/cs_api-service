@@ -39,7 +39,7 @@ case "$action" in
             if [ ! -f $CS_API_SANDBOX/mongo-indexes.configured ]; then
                 echo "Running ensure-indexes.js..."
                 echo "touch $CS_API_SANDBOX/mongo-indexes.configured to prevent this on future starts."
-                (cd $CS_API_TOP && bin/ensure-indexes.js)
+                (cd $CS_API_TOP && bin/ensure-indexes.js build)
             fi
         fi
         echo "Starting $CS_API_TOP/bin/api_server.js. Logging to $CS_API_LOG_DIRECTORY/api.log"
