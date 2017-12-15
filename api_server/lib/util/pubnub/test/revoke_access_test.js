@@ -10,21 +10,24 @@ class RevokeAccessTest extends PubNubTest {
 		return 'client should get an error when trying to subscribe to a channel for which read access has been revoked';
 	}
 
+	// run the test...
 	run (callback) {
 		BoundAsync.series(this, [
-			super.run,
-			this.removeListener,
-			this.revokeAccess,
-			this.wait,
-			this.listenAgain
+			super.run,				// run the standard send/receive test
+			this.removeListener,	// now remove our listener so we don't get any more messages
+			this.revokeAccess,		// revoke our access to the channel
+			this.wait,				// wait for the revocation to take effect
+			this.listenAgain		// now listen again, we should NOT get a message
 		], callback);
 	}
 
+	// remove the client listener for the channel
 	removeListener (callback) {
 		this.pubnubForClient.removeListener(this.channelName);
 		callback();
 	}
 
+	// revoke the client pubnub's access to this channel
 	revokeAccess (callback) {
 		this.pubnubForServer.revoke(
 			this.authKey,
@@ -33,6 +36,7 @@ class RevokeAccessTest extends PubNubTest {
 		);
 	}
 
+	// wait for a bit
 	wait (callback) {
 		// there can be some delay between when access is revoked and when the channel can become unsubscribed;
 		// we want to test that the channel becomes unsubscribable without explicit unsubscribing and resubscibing,
@@ -40,6 +44,7 @@ class RevokeAccessTest extends PubNubTest {
 		setTimeout(callback, 5000);
 	}
 
+	// try to subscribe again, this should fail because permission has been revoked
 	listenAgain (callback) {
 		this.pubnubForClient.subscribe(
 			this.channelName,
@@ -54,6 +59,7 @@ class RevokeAccessTest extends PubNubTest {
 		);
 	}
 
+	// if we get a message, something went wrong
 	unexpectedMessageReceived () {
 		Assert.fail('message should not be received on this channel');
 	}

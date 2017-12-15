@@ -1,3 +1,5 @@
+// tests of the PubNubClient class
+
 'use strict';
 
 var PubNubTest = require('./pubnub_test');

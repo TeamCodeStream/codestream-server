@@ -1,7 +1,10 @@
+// provides any miscellanous functions having to do with emails
+
 'use strict';
 
 module.exports = {
 
+	// parse an email address and separate into parts
 	parseEmail (email) {
 		if (typeof email !== 'string') {
 			return 'email must be string';

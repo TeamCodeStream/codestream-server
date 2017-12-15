@@ -20,18 +20,18 @@ class PubNubTest extends GenericTest {
 		this.message = RandomString.generate(100);
 		this.authKey = RandomString.generate(12);
 		BoundAsync.series(this, [
-			this.setClients,
-			this.grantAccess
+			this.setClients,	// set up the pubnub clients (one will act like our server, one will act like our client)
+			this.grantAccess	// grant access to the client pubnub
 		], callback);
 	}
 
 	// the actual test execution
 	run (callback) {
 		BoundAsync.series(this, [
-			this.listenOnClient,
-			this.sendRandomFromServer,
-			this.waitForMessage,
-			this.clearTimer
+			this.listenOnClient,		// listen on the client pubnub for the message we're going to send
+			this.sendRandomFromServer,	// send a random message, simulating a message sent from the server
+			this.waitForMessage,		// wait for it
+			this.clearTimer				// clear the timer, so we don't trigger a failure
 		], callback);
 	}
 
