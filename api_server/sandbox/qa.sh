@@ -7,4 +7,5 @@ export CS_API_SSL_KEYFILE=/etc/pki/wildcard.codestream.us/wildcard.codestream.us
 export CS_API_SSL_CERTFILE=/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt
 export CS_API_SSL_CAFILE=/etc/pki/wildcard.codestream.us/wildcard.codestream.us-ca
 export CS_API_PORT=8443
-export CS_API_LOG_CONSOLE_OK=
+unset CS_API_LOG_CONSOLE_OK
+unset CS_API_SETUP_MONGO
