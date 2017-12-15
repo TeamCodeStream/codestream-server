@@ -1,9 +1,9 @@
 'use strict';
 
 var GetPostsTest = require('./get_posts_test');
-var GetPostsByMeTest = require('./get_posts_by_me_test');
-var GetPostsByOtherTest = require('./get_posts_by_other_test');
-var GetPostsNewerThanTest = require('./get_posts_newer_than_test');
+//var GetPostsByMeTest = require('./get_posts_by_me_test');
+//var GetPostsByOtherTest = require('./get_posts_by_other_test');
+//var GetPostsNewerThanTest = require('./get_posts_newer_than_test');
 var GetChildPostsTest = require('./get_child_posts_test');
 var GetPostsByIdTest = require('./get_posts_by_id_test');
 var GetPostsLimitTest = require('./get_posts_limit_test');
@@ -39,9 +39,11 @@ class GetPostsRequestTester {
 		new GetPostsTest({type: 'channel'}).test();
 		new GetPostsTest({type: 'direct'}).test();
 		new GetPostsTest({type: 'file'}).test();
-		new GetPostsByMeTest().test();
-		new GetPostsByOtherTest().test();
-		new GetPostsNewerThanTest().test();
+		// with indexing, the tests below are disabled pending the need for them, since
+		// they would require and index
+//		new GetPostsByMeTest().test();
+//		new GetPostsByOtherTest().test();
+//		new GetPostsNewerThanTest().test();
 		new GetChildPostsTest().test();
 		new GetPostsByIdTest().test();
 		new GetPostsLimitTest().test();

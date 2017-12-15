@@ -1,6 +1,7 @@
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const Indexes = require('./indexes');
 
 class UsernameChecker  {
 
@@ -21,8 +22,7 @@ class UsernameChecker  {
 
 	getUsers (callback) {
 		let query = {
-			deactivated: false,
-			teamIds: { $in: this.teamIds }
+			teamIds: this.data.users.inQuery(this.teamIds)
 		};
 		this.data.users.getByQuery(
 			query,
@@ -34,6 +34,7 @@ class UsernameChecker  {
 			{
 				databaseOptions: {
 					fields: ['username', 'teamIds'],
+					hint: Indexes.byTeamIds
 				},
 				noCache: true
 			}
@@ -51,7 +52,7 @@ class UsernameChecker  {
 	}
 
 	arrangeUsernameByTeam (user, callback) {
-		if (user._id === this.userId || !user.username) {
+		if (user._id === this.userId || !user.username || user.deactivated) {
 			return callback();
 		}
 		user.teamIds.forEach(teamId => {

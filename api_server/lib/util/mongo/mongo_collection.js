@@ -105,7 +105,7 @@ class MongoCollection {
 
 	// get several documents by their IDs, we'll shield the caller from having to maintain
 	// a mongo ID; they can use a simple string instead
-	getByIds (ids, callback, options) {
+	getByIds (ids, callback, options = {}) {
 		let query = {};
 		let objectIds = [];
 		// for each ID, convert it into a mongo ID
@@ -120,6 +120,9 @@ class MongoCollection {
 			() => {
 				// now run the actual query using $in
 				query[this.idAttribute] = { $in: objectIds };
+				if (this.options.hintsRequired) {
+					options = Object.assign({}, options, { hint: { _id: 1 } });
+				}
 				this.getByQuery(query, callback, options);
 			}
 		);
@@ -128,7 +131,10 @@ class MongoCollection {
 	// get several documents according to the specified query, providing sort, limit, and fields options
 	// optional streaming of the results is also supported
 	getByQuery (query, callback, options = {}) {
-		let cursor = this.dbCollection.find(query);
+		if (this.options.hintsRequired && !options.hint) {
+			return callback(this.errorHandler.error('hintRequired', { query: query }));
+		}
+		let cursor = this.dbCollection.find(query, { hint: options.hint });
 		if (options.sort) {
 			cursor = cursor.sort(options.sort);
 		}
@@ -189,6 +195,9 @@ class MongoCollection {
 
 	// get a single document (first we find) according to the specified query
 	getOneByQuery (query, callback, options) {
+		if (this.options.hintsRequired && !options.hint) {
+			return callback(this.errorHandler.error('hintRequired', { query: query }));
+		}
 		this.runQuery(
 			'findOne',
 			query,
@@ -424,6 +433,15 @@ class MongoCollection {
 			return null;
 		}
 		return id;
+	}
+
+	inQuery (ids) {
+		return { $in: ids };
+	}
+
+	inQuerySafe (ids) {
+		ids = ids.map(id => this.objectIdSafe(id));
+		return this.inQuery(ids);
 	}
 
 	createId () {

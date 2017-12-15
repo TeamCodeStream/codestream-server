@@ -6,7 +6,7 @@ var ObjectID = require('mongodb').ObjectID;
 class OneRelationalTest extends GetPostsTest {
 
 	get description () {
-		return 'should return an error if more than one relational query parameter is provided';
+		return 'should return an error if more than one relational query parameter is provided for a posts query';
 	}
 
 	setPath (callback) {

@@ -1,12 +1,12 @@
 'use strict';
 
 var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const Indexes = require('./indexes');
 const PostErrors = require('./errors.js');
 
 const BASIC_QUERY_PARAMETERS = [
 	'teamId',
 	'streamId',
-	'creatorId',
 	'parentPostId'
 ];
 
@@ -75,9 +75,10 @@ class GetPostsRequest extends GetManyRequest {
 		}
 		else if (parameter === 'ids') {
 			let ids = value.split(',');
-			ids = ids.map(id => this.data.posts.objectIdSafe(id));
-			query._id = { $in: ids };
+			query._id = this.data.posts.inQuerySafe(ids);
 		}
+/*
+// Not using these for now, since they will require an index, and I'm not sure of their utility
 		else if (parameter === 'newerThan') {
 			let newerThan = parseInt(value, 10);
 			if (newerThan) {
@@ -87,6 +88,7 @@ class GetPostsRequest extends GetManyRequest {
 		else if (parameter === 'mine') {
 			query.creatorId = this.user.id;
 		}
+*/
 		else if (parameter === 'seqnum') {
 			let error = this.processSeqNumParameter(value, query);
 			if (error) { return error; }
@@ -134,15 +136,28 @@ class GetPostsRequest extends GetManyRequest {
 	}
 
 	getQueryOptions () {
+		let limit = this.limit = this.setLimit();
+		let sort = this.setSort();
+		let hint = this.setHint();
+		return {
+			databaseOptions: { limit, sort, hint }
+		};
+	}
+
+	setLimit () {
 		let limit = 0;
 		if (this.request.query.limit) {
 			limit = decodeURIComponent(this.request.query.limit);
 			limit = parseInt(limit, 10);
 		}
-		this.limit = limit ?
+		limit = limit ?
 			Math.min(limit, this.api.config.limits.maxPostsPerRequest || 100) :
 			this.api.config.limits.maxPostsPerRequest;
-		this.limit += 1;
+		limit += 1;
+		return limit;
+	}
+
+	setSort () {
 		let sort = { _id: -1 };
 		if (this.request.query.sort && this.request.query.sort.toLowerCase() === 'asc') {
 			sort = { _id: 1 };
@@ -150,12 +165,19 @@ class GetPostsRequest extends GetManyRequest {
 		else if (this.bySeqNum) {
 			sort = { seqNum: 1 };
 		}
-		return {
-			databaseOptions: {
-				sort: sort,
-				limit: this.limit
-			}
-		};
+		return sort;
+	}
+
+	setHint () {
+		if (this.request.query.parentPostId) {
+			return Indexes.byParentPostId;
+		}
+		else if (this.request.query.seqnum) {
+			return Indexes.bySeqNum;
+		}
+		else {
+			return Indexes.byId;
+		}
 	}
 
 	process (callback) {

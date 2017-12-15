@@ -451,6 +451,17 @@ class DataCollection {
 	objectIdSafe (id) {
 		return this.databaseCollection.objectIdSafe(id);
 	}
+
+	// given a set of IDs, get a query to fetch them, hiding the implementation details
+	inQuery (ids) {
+		return this.databaseCollection.inQuery(ids);
+	}
+
+	// given a set of IDs, get a query to fetch them, hiding the implementation details
+	// ensure the IDs are in the proper format for the underlying database
+	inQuerySafe (ids) {
+		return this.databaseCollection.inQuerySafe(ids);
+	}
 }
 
 module.exports = DataCollection;

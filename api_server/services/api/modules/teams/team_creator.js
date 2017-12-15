@@ -93,6 +93,7 @@ class TeamCreator extends ModelCreator {
 	}
 
 	checkExistingQuery () {
+		// note: this isn't really relevant right now, because we don't allow to specify companyId yet (if ever?)
 		if (!this.attributes.companyId) {
 			return; // no need if no company yet, this will be the first team for this company
 		}

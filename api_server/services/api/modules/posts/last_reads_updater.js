@@ -13,7 +13,7 @@ class LastReadsUpdater {
 		}
 		let lastReadsElem = 'lastReads.' + this.stream.id;
 		let query = {
-			_id: { $in: memberIds },
+			_id: this.data.users.inQuerySafe(memberIds),
 			[lastReadsElem]: { $exists: false }
 		};
 		let previousPostId = this.previousPostId || '0';
@@ -43,7 +43,6 @@ class LastReadsUpdater {
 		if (userIdIndex !== -1) {
 			memberIds.splice(userIdIndex, 1);
 		}
-		memberIds = memberIds.map(memberId => this.data.users.objectIdSafe(memberId));
 		return memberIds;
 	}
 }

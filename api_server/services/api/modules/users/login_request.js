@@ -4,7 +4,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 var BCrypt = require('bcrypt');
 var InitialDataFetcher = require('./initial_data_fetcher');
-
+const Indexes = require('./indexes');
 const Errors = require('./errors');
 
 class LoginRequest extends RestfulRequest {
@@ -50,16 +50,20 @@ class LoginRequest extends RestfulRequest {
 	getUser (callback) {
 		this.data.users.getOneByQuery(
 			{
-				searchableEmail: this.request.body.email.toLowerCase(),
-				deactivated: false
+				searchableEmail: this.request.body.email.toLowerCase()
 			},
 			(error, user) => {
 				if (error) { return callback(error); }
-				if (!user) {
+				if (!user || user.get('deactivated')) {
 					return callback(this.errorHandler.error('notFound', { info: 'email' }));
 				}
 				this.user = user;
 				process.nextTick(callback);
+			},
+			{
+				databaseOptions: {
+					hint: Indexes.bySearchableEmail
+				}
 			}
 		);
 	}

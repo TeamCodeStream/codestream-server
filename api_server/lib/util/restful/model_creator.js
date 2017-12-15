@@ -79,12 +79,12 @@ class ModelCreator {
 	}
 
 	checkExisting (callback) {
-		let query = this.checkExistingQuery();
-		if (!query) {
+		let queryData = this.checkExistingQuery();
+		if (!queryData) {
 			return process.nextTick(callback);
 		}
 		this.collection.getOneByQuery(
-			query,
+			queryData.query,
 			(error, model) => {
 				if (error) { return callback(error); }
 				if (model) {
@@ -94,6 +94,11 @@ class ModelCreator {
 					this.existingModel = model;
 				}
 				return process.nextTick(callback);
+			},
+			{
+				databaseOptions: {
+					hint: queryData.hint
+				}
 			}
 		);
 	}
