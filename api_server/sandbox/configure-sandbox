@@ -14,7 +14,7 @@ cd $CS_API_TOP
 if [ "$CS_API_YARN" == true ]; then
     [ ! -f $CS_API_TOP/yarn.lock ] && echo "WARNING: yarn.lock not found - creating one"
     echo "yarn install (from `pwd`)"
-    yarn install
+    yarn install --frozen-lockfile
 else
     echo "npm install (from `pwd`)"
     npm install

@@ -7,6 +7,7 @@ var User = require('./user');
 var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var PasswordHasher = require('./password_hasher');
 var UsernameChecker = require('./username_checker');
+const Indexes = require('./indexes');
 const TeamErrors = require(process.env.CS_API_TOP + '/services/api/modules/teams/errors.js');
 
 class UserCreator extends ModelCreator {
@@ -83,8 +84,10 @@ class UserCreator extends ModelCreator {
 
 	checkExistingQuery () {
 		return {
-			searchableEmail: this.attributes.email.toLowerCase(),
-			deactivated: false
+			query: {
+				searchableEmail: this.attributes.email.toLowerCase()
+			},
+			hint: Indexes.bySearchableEmail
 		};
 	}
 

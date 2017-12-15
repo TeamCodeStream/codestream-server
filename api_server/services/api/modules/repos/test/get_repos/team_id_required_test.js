@@ -5,7 +5,7 @@ var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestr
 class TeamIDRequiredTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'should return error if teamId is not provided';
+		return 'should return error if teamId is not provided to repos query';
 	}
 
 	get path () {

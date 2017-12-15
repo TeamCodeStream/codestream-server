@@ -93,14 +93,14 @@ class ModelCreator {
 	// check if there is a matching document already, according to a query specified
 	// by the derived class, which can also decide whether this is allowed or not
 	checkExisting (callback) {
-		let query = this.checkExistingQuery();	// derived class provides this
-		if (!query) {
+		let queryData = this.checkExistingQuery();
+		if (!queryData) {
 			// derived class doesn't care
 			return process.nextTick(callback);
 		}
 		// look for a matching document, according to the query
 		this.collection.getOneByQuery(
-			query,
+			queryData.query,
 			(error, model) => {
 				if (error) { return callback(error); }
 				if (model) {
@@ -112,6 +112,11 @@ class ModelCreator {
 					this.existingModel = model;
 				}
 				return process.nextTick(callback);
+			},
+			{
+				databaseOptions: {
+					hint: queryData.hint
+				}
 			}
 		);
 	}

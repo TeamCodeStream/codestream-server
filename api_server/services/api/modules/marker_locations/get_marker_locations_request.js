@@ -39,11 +39,11 @@ class GetMarkerLocationsRequest extends RestfulRequest {
 	}
 
 	findMarkerLocations (callback) {
-		let teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
+//		let teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
 		let streamId = decodeURIComponent(this.request.query.streamId).toLowerCase();
 		let commitHash = decodeURIComponent(this.request.query.commitHash).toLowerCase();
 		let query = {
-			teamId: teamId,
+//			teamId: teamId,	 // will be needed for sharding, but for now, we'll avoiding an index here
 			_id: `${streamId}|${commitHash}`
 		};
 		this.data.markerLocations.getByQuery(
@@ -58,6 +58,11 @@ class GetMarkerLocationsRequest extends RestfulRequest {
 				this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
 				this.responseData.numMarkers = this.stream.get('numMarkers');
 				callback();
+			},
+			{
+				databaseOptions: {
+					hint: { _id: 1 }
+				}
 			}
 		);
 	}

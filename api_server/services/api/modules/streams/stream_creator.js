@@ -7,6 +7,7 @@ var StreamSubscriptionGranter = require('./stream_subscription_granter');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 const StreamTypes = require('./stream_types');
 const Errors = require('./errors');
+const Indexes = require('./indexes');
 
 class StreamCreator extends ModelCreator {
 
@@ -94,17 +95,21 @@ class StreamCreator extends ModelCreator {
 			teamId: this.attributes.teamId,
 			type: this.attributes.type
 		};
+		let hint;
 		if (this.attributes.type === 'channel') {
 			query.name = this.attributes.name;
+			hint = Indexes.byName;
 		}
 		else if (this.attributes.type === 'direct') {
 			query.memberIds = this.attributes.memberIds;
+			hint = Indexes.byMemberIds;
 		}
 		else if (this.attributes.type === 'file') {
 			query.repoId = this.attributes.repoId;
 			query.file = this.attributes.file;
+			hint = Indexes.byFile;
 		}
-		return query;
+		return { query, hint };
 	}
 
 	modelCanExist () {
