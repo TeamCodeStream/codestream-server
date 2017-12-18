@@ -11,17 +11,19 @@ class ACLStreamTest extends PutMarkerLocationsTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1010'
+			code: 'RAPI-1010'	// updateAUth
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createOtherStream
+			super.before,		// run the usual test of putting marker locations
+			this.createOtherStream	// now create another stream as a different user, i won't be a member of this stream
 		], callback);
 	}
 
+	// create a channel stream that i won't be a member of
 	createOtherStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -32,7 +34,7 @@ class ACLStreamTest extends PutMarkerLocationsTest {
 			{
 				type: 'channel',
 				teamId: this.team._id,
-				token: this.otherUserData.accessToken
+				token: this.otherUserData.accessToken	// other user is the creator, and it doesn't include me
 			}
 		);
 	}

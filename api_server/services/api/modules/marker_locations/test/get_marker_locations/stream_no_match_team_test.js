@@ -16,13 +16,15 @@ class StreamNoMatchTeamTest extends GetMarkerLocationsTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherRepo,
-			super.before
+			this.createOtherRepo,	// create another repo, which will create another team
+			super.before	// try to run the usual test, which should fail
 		], callback);
 	}
 
+	// create another repo, which will create another team
 	createOtherRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -36,7 +38,10 @@ class StreamNoMatchTeamTest extends GetMarkerLocationsTest {
 		);
 	}
 
+	// get query parameters for the request
 	getQueryParameters () {
+		// change the team ID in the request, this should cause a failure since the team ID must match
+		// the team ID for the stream
 		let queryParameters = super.getQueryParameters();
 		queryParameters.teamId = this.otherRepo.teamId;
 		return queryParameters;

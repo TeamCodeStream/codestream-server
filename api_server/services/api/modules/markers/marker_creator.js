@@ -1,3 +1,5 @@
+// this class should be used to create all marker documents in the database
+
 'use strict';
 
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
@@ -8,21 +10,24 @@ var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 class MarkerCreator extends ModelCreator {
 
 	get modelClass () {
-		return Marker;
+		return Marker;	// class to use to create a marker model
 	}
 
 	get collectionName () {
-		return 'markers';
+		return 'markers';	// data collection to use
 	}
 
+	// convenience wrapper
 	createMarker (attributes, callback) {
 		return this.createModel(attributes, callback);
 	}
 
+	// these attributes are required to create a marker document
 	getRequiredAttributes () {
 		return ['teamId', 'streamId', 'postId', 'commitHash', 'location'];
 	}
 
+	// ignore any attributes but these to create a marker document
 	allowAttributes (callback) {
 		Allow(
 			this.attributes,
@@ -34,15 +39,20 @@ class MarkerCreator extends ModelCreator {
 		process.nextTick(callback);
 	}
 
+	// right before the document is saved...
 	preSave (callback) {
 		BoundAsync.series(this, [
-			this.validateLocationAttribute,
-			this.createId,
-			this.updateMarkerLocations,
-			super.preSave
+			this.validateLocationAttribute,	// validate the marker's location
+			this.createId,					// create an ID for the marker
+			this.updateMarkerLocations,		// update the marker's location for the particular commit
+			super.preSave					// proceed with the save...
 		], callback);
 	}
 
+	// validate a marker location, must be in the strict format:
+	// [lineStart, columnStart, lineEnd, columnEnd, fifthElement]
+	// the first four elements are coordinates and are required
+	// the fifth element must be an object and can contain additional information about the marker location
 	static validateLocation (location) {
 		if (!(location instanceof Array)) {
 			return 'location must be an array';
@@ -62,6 +72,7 @@ class MarkerCreator extends ModelCreator {
 		}
 	}
 
+	// validate the passed location for the marker
 	validateLocationAttribute (callback) {
 		let error = MarkerCreator.validateLocation(this.attributes.location);
 		if (error) {
@@ -72,15 +83,17 @@ class MarkerCreator extends ModelCreator {
 		callback();
 	}
 
+	// create an ID for this marker
 	createId (callback) {
 		this.attributes._id = this.data.markers.createId();
-		this.attributes.numComments = 1; // the original post for this marker
+		this.attributes.numComments = 1; // the original post for this marker, so there is 1 comment so far
 		callback();
 	}
 
+	// update the location of this marker in the marke locations structure for this stream and commit
 	updateMarkerLocations (callback) {
 		let id = `${this.attributes.streamId}|${this.attributes.commitHash}`.toLowerCase();
-		delete this.attributes.commitHash;
+		delete this.attributes.commitHash;	// the marker itself is commit-agnostic
 		let op = {
 			$set: {
 				teamId: this.attributes.teamId,

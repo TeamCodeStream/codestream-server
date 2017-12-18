@@ -9,11 +9,12 @@ class AddExistingRepoTest extends CodeStreamMessageTest {
 		return 'should be able to subscribe to and receive a message from the team channel when i introduce a repo to an existing team';
 	}
 
+	// make the data needed to prepare for the request that triggers the message
 	makeData (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRepoWithoutMe,
-			this.createSameRepo
+			this.createOtherUser,	// create another user
+			this.createRepoWithoutMe,	// create a repo that i won't be part of
+			this.createSameRepo		// create another repo in the same team
 		], callback);
 	}
 
@@ -38,11 +39,12 @@ class AddExistingRepoTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				withRandomEmails: 2,
-				token: this.otherUserData.accessToken
+				withRandomEmails: 2,	// a few other users
+				token: this.otherUserData.accessToken	// the other user is the creator
 			}
 		);
 	}
+
 	// create a repo and a team with me as a member, since a team has already been created,
 	// this just adds me to the existing team
 	createSameRepo (callback) {
@@ -50,16 +52,18 @@ class AddExistingRepoTest extends CodeStreamMessageTest {
 			url: this.repo.url,
 			firstCommitHash: this.repo.firstCommitHash,
 			teamId: this.team._id,
-			emails: [this.currentUser.email]
+			emails: [this.currentUser.email]	// include me
 		};
 		this.repoFactory.createRepo(
 			repoData,
-			this.otherUserData.accessToken,
+			this.otherUserData.accessToken,	 // the other user is the creator
 			callback
 		);
 	}
 
+	// set the channel name to listen on
 	setChannelName (callback) {
+		// we expect the message on the team channel
 		this.channelName = 'team-' + this.team._id;
 		callback();
 	}

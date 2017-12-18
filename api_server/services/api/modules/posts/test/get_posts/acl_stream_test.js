@@ -6,7 +6,7 @@ class ACLStreamTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMeInStream = true;
+		this.withoutMeInStream = true;	// without me in the stream, i won't be able to fetch a post
 	}
 
 	get description () {

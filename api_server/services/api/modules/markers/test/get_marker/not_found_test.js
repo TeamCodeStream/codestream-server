@@ -15,7 +15,9 @@ class NotFoundTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// try to get a bogus marker, with an ID that doesn't exist
 		this.path = '/markers/' + ObjectID();
 		callback();
 	}

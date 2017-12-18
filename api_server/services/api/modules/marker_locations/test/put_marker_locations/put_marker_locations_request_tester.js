@@ -1,3 +1,5 @@
+// handle unit tests associated with the "PUT /marker-locations" request
+
 'use strict';
 
 var PutMarkerLocationsTest = require('./put_marker_locations_test');

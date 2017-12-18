@@ -14,20 +14,20 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	before (callback) {
 		this.pubnubClientsForUser = {};
 		BoundAsync.series(this, [
-			this.makeData,
-			this.makePubnubClients,
-			this.setChannelName,
-			this.wait
+			this.makeData,	// make whatever data we need to be in the database to proceed
+			this.makePubnubClients,	// make pubnub client simulating server to send and client to receive
+			this.setChannelName,	// set the channel name that we'll listen for
+			this.wait				// wait a bit for access privileges to be set
 		], callback);
 	}
 
 	// during the test, we send a message and wait for it to arrive
 	run (callback) {
 		BoundAsync.series(this, [
-			this.listenOnClient,
-			this.generateMessage,
-			this.waitForMessage,
-			this.clearTimer
+			this.listenOnClient,	// start listening first
+			this.generateMessage,	// now trigger whatever request will cause the message to be sent
+			this.waitForMessage,	// wait for the message to arrive
+			this.clearTimer			// once the message arrives, stop waiting
 		], callback);
 	}
 
@@ -79,12 +79,14 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		setTimeout(callback, 2000);
 	}
 
-	// begin listening to on the client
+	// begin listening on the simulated client
 	listenOnClient (callback) {
+		// we'll time out after 5 seconds
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this, this.channelName),
 			this.timeout || 5000
 		);
+		// subscribe to the channel of interest
 		this.pubnubClientsForUser[this.currentUser._id].subscribe(
 			this.channelName,
 			this.messageReceived.bind(this),

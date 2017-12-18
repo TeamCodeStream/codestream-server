@@ -1,3 +1,5 @@
+// test constants for testing the marker locations module
+
 'use strict';
 
 const MarkerLocationsAttributes = require(process.env.CS_API_TOP + '/services/api/modules/marker_locations/marker_locations_attributes');

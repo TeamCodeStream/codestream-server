@@ -6,7 +6,7 @@ class ACLTeamTest extends GetMarkerLocationsTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;
+		this.withoutMe = true;	// i won't be part of the team to which the stream belongs
 	}
 
 	get description () {
@@ -15,7 +15,7 @@ class ACLTeamTest extends GetMarkerLocationsTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1009'
+			code: 'RAPI-1009'	// readAuth
 		};
 	}
 }

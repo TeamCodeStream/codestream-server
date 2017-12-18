@@ -1,21 +1,23 @@
 'use strict';
 
-var CodeStreamMessage_ACLTest = require('./codestream_message_acl_test');
+var CodeStreamMessageACLTest = require('./codestream_message_acl_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class StreamChannelTeam_ACLTest extends CodeStreamMessage_ACLTest {
+class StreamChannelTeamACLTest extends CodeStreamMessageACLTest {
 
 	get description () {
 		return 'should get an error when trying to subscribe to a stream channel for a team i am not a member of';
 	}
 
+	// make the data needed to prepare for the request that triggers the message
 	makeData (callback) {
 		BoundAsync.series(this, [
-			this.createRepo,
-			this.createStream
+			this.createRepo,	// create a repo, the "other" user will not be in this stream
+			this.createStream	// create a stream in that repo
 		], callback);
 	}
 
+	// create a random repo, leaving out the "other" user
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -25,12 +27,13 @@ class StreamChannelTeam_ACLTest extends CodeStreamMessage_ACLTest {
 				callback();
 			},
 			{
-				withRandomEmails: 2,
-				token: this.token
+				withRandomEmails: 2,	// add a few random users
+				token: this.token		// i am the creator
 			}
 		);
 	}
 
+	// create a stream, with all the users from the team
 	createStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -47,10 +50,12 @@ class StreamChannelTeam_ACLTest extends CodeStreamMessage_ACLTest {
 		);
 	}
 
+	// set the channel name to listen on
 	setChannelName (callback) {
+		// listening on the stream channel for this stream
 		this.channelName = 'stream-' + this.stream._id;
 		callback();
 	}
 }
 
-module.exports = StreamChannelTeam_ACLTest;
+module.exports = StreamChannelTeamACLTest;

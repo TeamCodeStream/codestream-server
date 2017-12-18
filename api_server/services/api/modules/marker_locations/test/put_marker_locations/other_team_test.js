@@ -16,14 +16,16 @@ class OtherTeamTest extends PutMarkerLocationsTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createOtherRepo,
-			this.createOtherStream
+			super.before,	// set up the standard test conditions
+			this.createOtherRepo,	// create another repo (and another team)
+			this.createOtherStream	// create a stream in this other repo
 		], callback);
 	}
 
+	// create another repo
 	createOtherRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -32,12 +34,13 @@ class OtherTeamTest extends PutMarkerLocationsTest {
 				callback();
 			},
 			{
-				token: this.otherUserData.accessToken,
-				withEmails: [this.currentUser.email]
+				token: this.otherUserData.accessToken, // other user is the creator
+				withEmails: [this.currentUser.email]	// but current user is included
 			}
 		);
 	}
 
+	// create another stream to try to put marker locations to
 	createOtherStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -47,9 +50,9 @@ class OtherTeamTest extends PutMarkerLocationsTest {
 			},
 			{
 				type: 'file',
-				teamId: this.otherRepo.teamId,
-				repoId: this.otherRepo._id,
-				token: this.otherUserData.accessToken
+				teamId: this.otherRepo.teamId,	// using the other team
+				repoId: this.otherRepo._id,		// using the other repo
+				token: this.otherUserData.accessToken	// other user is the creator
 			}
 		);
 	}

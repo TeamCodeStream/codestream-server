@@ -15,9 +15,10 @@ class BadMarkerIdTest extends PutMarkerLocationsTest {
 		};
 	}
 
+	// set the data to be used in the PUT request
 	setData (callback) {
 		super.setData(() => {
-			this.data.locations.x = [1];
+			this.data.locations.x = [1]; // use a bad ID in the locations object
 			callback();
 		});
 	}

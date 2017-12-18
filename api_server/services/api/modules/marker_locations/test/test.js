@@ -1,3 +1,5 @@
+// handle unit tests for the marker locations module
+
 'use strict';
 
 // make jshint happy

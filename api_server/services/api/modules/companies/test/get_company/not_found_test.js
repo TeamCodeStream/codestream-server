@@ -15,7 +15,9 @@ class NotFoundTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// try to fetch some company that doesn't exist
 		this.path = '/companies/' + ObjectID();
 		callback();
 	}

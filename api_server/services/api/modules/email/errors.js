@@ -1,3 +1,5 @@
+// errors concerning the email module
+
 'use strict';
 
 const ERRORS = {

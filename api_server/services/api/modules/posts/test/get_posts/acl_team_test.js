@@ -6,7 +6,7 @@ class ACLTeamTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMeOnTeam = true;
+		this.withoutMeOnTeam = true;	// without me on the team, i won't be able to fetch the post, no matter what type the stream is
 	}
 
 	get description () {

@@ -10,11 +10,12 @@ class ACLTest extends GetCompaniesTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1009'
+			code: 'RAPI-1009'	 // readAuth
 		};
 	}
 
 	setPath (callback) {
+		// include the "foreign" company in the IDs, this should fail
 		let ids = [
 			this.myCompany._id,
 			this.otherCompanies[0]._id,

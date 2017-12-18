@@ -7,21 +7,22 @@ var PubNub = require('pubnub');
 var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 var PubNubClient = require(process.env.CS_API_TOP + '/lib/util/pubnub/pubnub_client.js');
 
-class CodeStreamMessage_ACLTest extends CodeStreamAPITest {
+class CodeStreamMessageACLTest extends CodeStreamAPITest {
 
 	// before the test, create a disallowed user and set up pubnub clients
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.setClients,
-			this.makeData,
-			this.setChannelName,
-			this.wait
+			this.createOtherUser,	// create another user
+			this.setClients,		// make pubnub client simulating server to send and client to receive
+			this.makeData,			// make whatever data we need to be in the database to proceed
+			this.setChannelName,	// set the channel name that we'll listen for
+			this.wait				// wait a bit for access privileges to be set
 		], callback);
 	}
 
-	// during the test, we send a message and wait for it to arrive
+	// during the test
 	run (callback) {
+		// try to subscribe to the channel of interest, because we're not in the team, this should fail
 		this.trySubscribe(callback);
 	}
 
@@ -47,6 +48,7 @@ class CodeStreamMessage_ACLTest extends CodeStreamAPITest {
 
 		// set up the pubnub client as if we are a client, we can't control access rights in this case
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
+		// we simulate a client for the other user here, this user should not have access to the channel
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
@@ -68,6 +70,8 @@ class CodeStreamMessage_ACLTest extends CodeStreamAPITest {
 		setTimeout(callback, 2000);
 	}
 
+	// try to subscribe to the channel of interest, since we set up the pubnub client for the "other" user,
+	// we should fail to subscribe
 	trySubscribe (callback) {
 		this.pubnubForClient.subscribe(
 			this.channelName,
@@ -82,4 +86,4 @@ class CodeStreamMessage_ACLTest extends CodeStreamAPITest {
 	}
 }
 
-module.exports = CodeStreamMessage_ACLTest;
+module.exports = CodeStreamMessageACLTest;

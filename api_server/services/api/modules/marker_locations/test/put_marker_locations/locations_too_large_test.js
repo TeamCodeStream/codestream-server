@@ -15,8 +15,10 @@ class LocationsTooLargeTest extends PutMarkerLocationsTest {
 		};
 	}
 
+	// set the data to be used in the PUT request
 	setData (callback) {
 		super.setData(() => {
+			// 1001 keys in the locations object is too many!
 			for (let i = 0; i < 1001; i++) {
 				this.data.locations[i] = i;
 			}

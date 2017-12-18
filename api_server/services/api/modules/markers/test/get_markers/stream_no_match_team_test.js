@@ -16,13 +16,15 @@ class StreamNoMatchTeamTest extends GetMarkersTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherRepo,
-			super.before
+			this.createOtherRepo,	// create a different repo
+			super.before	// set up the GET /markers test
 		], callback);
 	}
 
+	// create a different repo (and team)
 	createOtherRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -36,8 +38,10 @@ class StreamNoMatchTeamTest extends GetMarkersTest {
 		);
 	}
 
+	// get query parameters to use for this test
 	getQueryParameters () {
 		let queryParameters = super.getQueryParameters();
+		// set team ID to the team of the other repo
 		queryParameters.teamId = this.otherRepo.teamId;
 		return queryParameters;
 	}

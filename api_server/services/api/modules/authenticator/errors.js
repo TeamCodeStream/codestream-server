@@ -1,3 +1,5 @@
+// Errors concerning the authenticator module
+
 'use strict';
 
 const ERRORS = {

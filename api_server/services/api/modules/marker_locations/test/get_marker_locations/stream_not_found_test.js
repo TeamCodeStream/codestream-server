@@ -16,9 +16,10 @@ class StreamNotFoundTest extends GetMarkerLocationsTest {
 		};
 	}
 
+	// get query parameters for the request
 	getQueryParameters () {
 		let queryParameters = super.getQueryParameters();
-		queryParameters.streamId = ObjectID();
+		queryParameters.streamId = ObjectID();	// set the stream ID to some random ID that doesn't exist
 		return queryParameters;
 	}
 }

@@ -15,6 +15,8 @@ class AuthenticationUserNotFoundTest extends AuthenticationTest {
  			code: 'AUTH-1004'
  		};
  	}
+
+	// before the test runs...
 	before (callback) {
 		this.alterUserIdInToken(() => {
 			super.before(callback);
@@ -22,6 +24,7 @@ class AuthenticationUserNotFoundTest extends AuthenticationTest {
 	}
 
 	alterUserIdInToken (callback) {
+		// decrypt the token to get payload
 		let payload;
 		const secret = SecretsConfig.auth;
 		try {
@@ -30,6 +33,7 @@ class AuthenticationUserNotFoundTest extends AuthenticationTest {
 		catch(error) {
 			return callback('invalid token: ' + error);
 		}
+		// change the user ID and regenerate the token
 		payload.userId = 'xxx';
 		this.token = JSONWebToken.sign(payload, secret);
 		callback();

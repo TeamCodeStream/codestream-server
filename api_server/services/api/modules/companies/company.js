@@ -1,3 +1,5 @@
+// the Company model
+
 'use strict';
 
 var CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');

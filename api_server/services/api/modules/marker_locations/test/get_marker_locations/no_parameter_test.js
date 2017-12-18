@@ -15,7 +15,9 @@ class NoParameterTest extends GetMarkerLocationsTest {
 		};
 	}
 
+	// get query parameters for the request
 	getQueryParameters () {
+		// eliminate the given required  parameter from the request
 		let queryParameters = super.getQueryParameters();
 		delete queryParameters[this.parameter];
 		return queryParameters;

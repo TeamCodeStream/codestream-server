@@ -1,8 +1,11 @@
+// provide a module to handle requests associated with marker locations
+
 'use strict';
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 var MarkerLocations = require('./marker_locations');
 
+// expose these restful routes
 const MARKER_LOCATIONS_ROUTES = [
 	{
 		method: 'get',
@@ -19,15 +22,15 @@ const MARKER_LOCATIONS_ROUTES = [
 class MarkerLocationsModule extends Restful {
 
 	get collectionName () {
-		return 'markerLocations';
+		return 'markerLocations';	// name of the data collection
 	}
 
 	get modelName () {
-		return 'markerLocations';
+		return 'markerLocations';	// name of the data model
 	}
 
 	get modelClass () {
-		return MarkerLocations;
+		return MarkerLocations;		// use this model to instantiate marker locations
 	}
 
 /*

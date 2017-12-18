@@ -15,10 +15,11 @@ class LocationTooLongTest extends PutMarkerLocationsTest {
 		};
 	}
 
+	// set the data to be used in the PUT request
 	setData (callback) {
 		super.setData(() => {
 			let markerId = Object.keys(this.data.locations)[0];
-			this.data.locations[markerId] = [1, 2, 3, 4, {}, 6];
+			this.data.locations[markerId] = [1, 2, 3, 4, {}, 6];	// can only have 5 elements
 			callback();
 		});
 	}

@@ -1,3 +1,5 @@
+// handles unit tests for "GET /marker-locations" requests
+
 'use strict';
 
 var GetMarkerLocationsTest = require('./get_marker_locations_test');

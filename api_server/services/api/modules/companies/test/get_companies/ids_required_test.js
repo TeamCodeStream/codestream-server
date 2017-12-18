@@ -8,6 +8,7 @@ class IDsRequiredTest extends CodeStreamAPITest {
 		return 'should return error if IDs are not provided to companies query';
 	}
 
+	// can't just GET /companies, need to specify IDs or "mine"
 	get path () {
 		return '/companies';
 	}

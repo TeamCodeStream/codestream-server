@@ -11,18 +11,20 @@ class ACLTeamTest extends PutMarkerLocationsTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1010'
+			code: 'RAPI-1010'	// updateAuth
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createOtherRepo,
-			this.createOtherStream
+			super.before,		// run the usual test of putting marker locations
+			this.createOtherRepo,	// create another repo as the other user, i won't be included in the team for this repo
+			this.createOtherStream	// create a stream in this repo
 		], callback);
 	}
 
+	// create a repo as another user, i won't be included
 	createOtherRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -31,11 +33,13 @@ class ACLTeamTest extends PutMarkerLocationsTest {
 				callback();
 			},
 			{
-				token: this.otherUserData.accessToken
+				token: this.otherUserData.accessToken	// the other user is the creator
 			}
 		);
 	}
 
+	// create a file stream in the other repo we created, i don't have access rights to this since
+	// i'm not in the team
 	createOtherStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -47,7 +51,7 @@ class ACLTeamTest extends PutMarkerLocationsTest {
 				type: 'file',
 				teamId: this.otherRepo.teamId,
 				repoId: this.otherRepo._id,
-				token: this.otherUserData.accessToken
+				token: this.otherUserData.accessToken // the other user is the creator
 			}
 		);
 	}

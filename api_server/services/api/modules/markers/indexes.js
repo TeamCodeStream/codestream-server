@@ -1,3 +1,5 @@
+// database indexes for markers
+
 'use strict';
 
 module.exports = {

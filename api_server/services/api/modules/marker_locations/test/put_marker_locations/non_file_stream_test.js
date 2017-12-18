@@ -15,13 +15,15 @@ class NonFileStreamTest extends PutMarkerLocationsTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createOtherStream
+			super.before,	// set up the standard test conditions
+			this.createOtherStream	// create another stream
 		], callback);
 	}
 
+	// create aanother stream, we'll try to put marker locations to this stream instead
 	createOtherStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -31,9 +33,9 @@ class NonFileStreamTest extends PutMarkerLocationsTest {
 			},
 			{
 				type: this.streamType,
-				withEmails: [this.currentUser.email],
+				withEmails: [this.currentUser.email], // this this user
 				teamId: this.team._id,
-				token: this.otherUserData.accessToken
+				token: this.otherUserData.accessToken // other user is the creator
 			}
 		);
 	}

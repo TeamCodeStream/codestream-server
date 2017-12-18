@@ -15,8 +15,10 @@ class NoParameterTest extends GetMarkersTest {
 		};
 	}
 
+	// get query parameters to use for the test
 	getQueryParameters () {
 		let queryParameters = super.getQueryParameters();
+		// eliminate the parameter in question for this test
 		delete queryParameters[this.parameter];
 		return queryParameters;
 	}

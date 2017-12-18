@@ -6,7 +6,7 @@ class ACLTest extends GetCompanyTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;
+		this.withoutMe = true;	// create the repo without me as a member of the team, therefore company
 	}
 
 	get description () {
@@ -15,14 +15,14 @@ class ACLTest extends GetCompanyTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1009'
+			code: 'RAPI-1009'	// readAuth
 		};
 	}
 
 	setPath (callback) {
 		this.path = '/companies/' + this.otherCompany._id;
 		callback();
-	}	
+	}
 }
 
 module.exports = ACLTest;

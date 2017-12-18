@@ -1,3 +1,7 @@
+// provides a class to authenticate a request based on a token passed in;
+// the token can come from a variety of sources, like cookie, query parameter,
+// body, or header
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
@@ -12,6 +16,7 @@ class TokenAuthenticator {
 		this.errorHandler = new ErrorHandler(Errors);
 	}
 
+	// authenticate the request, we'll look for the token in a variety of places
 	authenticate (callback) {
 		BoundAsync.series(this, [
 			this.getToken,
@@ -27,10 +32,13 @@ class TokenAuthenticator {
 		});
 	}
 
+	// get the authentication token from any number of places
 	getToken (callback) {
 		if (this.pathIsNoAuth(this.request)) {
+			// e.g. '/no-auth/path' ... no authentication required
 			return callback(true);
 		}
+		// look for a token in this order: cookie, query, body, header
 		let token =
 			(this.request.signedCookies && this.request.signedCookies.t) ||
 			(this.request.query && this.request.query.t && decodeURIComponent(this.request.query.t)) ||
@@ -43,6 +51,7 @@ class TokenAuthenticator {
 		process.nextTick(callback);
 	}
 
+	// verify the token is valid and extract its payload
 	verifyToken (callback) {
 		JSONWebToken.verify(
 			this.token,
@@ -57,6 +66,7 @@ class TokenAuthenticator {
 		);
 	}
 
+	// get the user associated with this token payload
 	getUser (callback) {
 		let userId = this.payload.userId;
 		if (!userId) {
@@ -72,6 +82,7 @@ class TokenAuthenticator {
 					return callback(this.errorHandler.error('userNotFound'));
 				}
 				if (this.userClass) {
+					// make a model out of the user attributes
 					this.request.user = new this.userClass(user);
 				}
 				else {
@@ -86,10 +97,13 @@ class TokenAuthenticator {
 		);
 	}
 
+	// certain paths signal that no authentication is required
 	pathIsNoAuth (request) {
+		// we'll use anything starting with /no-auth
 		return request.path.match(/^\/no-auth\//);
 	}
 
+	// look for the token in the http request headers
 	tokenFromHeader (request) {
 		if (request.headers.authorization) {
 			let match = request.headers.authorization.match(/^Bearer (.+)$/);
