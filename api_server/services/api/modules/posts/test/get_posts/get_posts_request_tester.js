@@ -1,3 +1,5 @@
+// handle unit tests for the "GET /posts" request
+
 'use strict';
 
 var GetPostsTest = require('./get_posts_test');

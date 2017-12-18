@@ -11,27 +11,30 @@ class ACLStreamTest extends GetMarkersTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1009'
+			code: 'RAPI-1009'	// readAuth
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createOtherStream
+			super.before,	// do the standard set up for a fetch markers test
+			this.createOtherStream	// but create another stream, we'll try to fetch from this stream instead
 		], callback);
 	}
 
+	// create a different stream than the one we created the markers in
 	createOtherStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
+				// we'll try to fetch from this other stream
 				this.path = `/markers?teamId=${this.team._id}&streamId=${response.stream._id}`;
 				callback();
 			},
 			{
-				type: 'channel',
-				token: this.otherUserData.accessToken,
+				type: 'channel',	// not even a file stream!
+				token: this.otherUserData.accessToken,	// other user is the creator
 				teamId: this.repo.teamId
 			}
 		);

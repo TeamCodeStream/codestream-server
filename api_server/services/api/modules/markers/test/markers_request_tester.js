@@ -1,3 +1,5 @@
+// handle unit tests for the markers module
+
 'use strict';
 
 var Aggregation = require(process.env.CS_API_TOP + '/lib/util/aggregation');

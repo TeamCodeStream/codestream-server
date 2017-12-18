@@ -1,9 +1,12 @@
+// provide a module to handle requests associated with markers
+
 'use strict';
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 var MarkerCreator = require('./marker_creator');
 var Marker = require('./marker');
 
+// expose these restful routes
 const MARKER_STANDARD_ROUTES = {
 	want: ['get', 'getMany'],
 	baseRouteName: 'markers',
@@ -15,19 +18,19 @@ const MARKER_STANDARD_ROUTES = {
 class Markers extends Restful {
 
 	get collectionName () {
-		return 'markers';
+		return 'markers';	// name of the data collection
 	}
 
 	get modelName () {
-		return 'marker';
+		return 'marker';	// name of the data model
 	}
 
 	get creatorClass () {
-		return MarkerCreator;
+		return MarkerCreator;	// use this model to instantiate markers
 	}
 
 	get modelClass () {
-		return Marker;
+		return Marker;	// use this class for the data model
 	}
 
 /*

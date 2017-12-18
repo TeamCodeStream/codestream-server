@@ -8,11 +8,14 @@ class GetMyCompanyTest extends GetCompanyTest {
 		return 'should return a valid company when requesting a company created by me';
 	}
 
+	// set the path for the request to test
 	setPath (callback) {
+		// requesting the company i created
 		this.path = '/companies/' + this.myCompany._id;
 		callback();
 	}
 
+	// validate that we got the right company
 	validateResponse (data) {
 		this.validateMatchingObject(this.myCompany._id, data.company, 'company');
 		super.validateResponse(data);

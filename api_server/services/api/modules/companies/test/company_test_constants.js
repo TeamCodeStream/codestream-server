@@ -1,3 +1,5 @@
+// test constants for testing the companies module
+
 'use strict';
 
 const CompanyAttributes = require(process.env.CS_API_TOP + '/services/api/modules/companies/company_attributes');

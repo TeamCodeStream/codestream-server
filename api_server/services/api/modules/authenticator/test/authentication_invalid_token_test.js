@@ -15,7 +15,7 @@ class AuthenticationInvalidTokenTest extends AuthenticationTest {
 	}
 
 	before (callback) {
-		this.token += 'x';
+		this.token += 'x';	// bad token ... bad, bad token
 		super.before(callback);
 	}
 }

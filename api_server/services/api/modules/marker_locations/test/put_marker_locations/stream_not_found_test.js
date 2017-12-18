@@ -15,8 +15,10 @@ class StreamNotFoundTest extends PutMarkerLocationsTest {
 		};
 	}
 
+	// set the data to be used in the request
 	setData (callback) {
 		super.setData(() => {
+			// put marker locations for a bogus stream ID
 			this.data.streamId = 'x';
 			callback();
 		});

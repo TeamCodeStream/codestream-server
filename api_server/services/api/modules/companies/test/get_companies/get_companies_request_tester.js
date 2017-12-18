@@ -1,3 +1,5 @@
+// handles unit tests for "GET /companies" requests
+
 'use strict';
 
 var GetCompaniesByIdTest = require('./get_companies_by_id_test');

@@ -9,6 +9,7 @@ class GetCompaniesByIdTest extends GetCompaniesTest {
 	}
 
 	setPath (callback) {
+		// i'm in both of these companies, so i should be able to fetch them
 		this.path = `/companies?ids=${this.myCompany._id},${this.otherCompanies[0]._id}`;
 		callback();
 	}

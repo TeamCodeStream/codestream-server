@@ -8,7 +8,9 @@ class GetPostsByIdTest extends GetPostsTest {
 		return 'should return the correct posts when requesting posts by ID';
 	}
 
+	// set the path to use for the request
 	setPath (callback) {
+		// we'll restrict our fetch to a few of the posts we created
 		this.myPosts = [
 			this.myPosts[0],
 			this.myPosts[2],

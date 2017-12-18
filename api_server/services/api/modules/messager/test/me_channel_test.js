@@ -8,6 +8,7 @@ class MeChannelTest extends CodeStreamMessageTest {
 		return 'should be able to subscribe to and receive a message from my me-channel as a confirmed user';
 	}
 
+	// set the channel to try to subscribe to
 	setChannelName (callback) {
 		this.channelName = 'user-' + this.currentUser._id;
 		callback();

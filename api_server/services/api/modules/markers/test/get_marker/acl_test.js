@@ -6,7 +6,7 @@ class ACLTest extends GetMarkerTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;
+		this.withoutMe = true;	 // create a team without me
 	}
 
 	get description () {
@@ -15,11 +15,13 @@ class ACLTest extends GetMarkerTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1009'
+			code: 'RAPI-1009'	 // readAuth
 		};
 	}
 
+	// set path to use for the request
 	setPath (callback) {
+		// this should fail since i'm not a member of the team
 		this.path = '/markers/' + this.marker._id;
 		callback();
 	}

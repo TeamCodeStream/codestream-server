@@ -6,8 +6,8 @@ class ACLTeamFileTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMeOnTeam = true;
-		this.type = 'file';
+		this.withoutMeOnTeam = true;	// without me on the team, i won't be able to fetch a post in a file-type stream
+		this.type = 'file';	// make it a file-type stream, which have team-level ACL
 	}
 
 	get description () {

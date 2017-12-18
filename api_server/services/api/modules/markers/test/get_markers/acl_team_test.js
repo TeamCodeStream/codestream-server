@@ -6,7 +6,7 @@ class ACLTeamTest extends GetMarkersTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;
+		this.withoutMe = true;	// we'll create the setup team without the current user
 	}
 
 	get description () {
@@ -15,7 +15,7 @@ class ACLTeamTest extends GetMarkersTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1009'
+			code: 'RAPI-1009'	// readAuth
 		};
 	}
 }

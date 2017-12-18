@@ -1,3 +1,5 @@
+// handle unit tests for the "GET /markers" request
+
 'use strict';
 
 var GetMarkersTest = require('./get_markers_test');

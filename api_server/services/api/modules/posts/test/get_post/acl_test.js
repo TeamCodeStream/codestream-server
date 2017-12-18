@@ -6,7 +6,7 @@ class ACLTest extends GetPostTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;
+		this.withoutMe = true;	// don't include me in the stream or team
 	}
 
 	get description () {
@@ -15,10 +15,11 @@ class ACLTest extends GetPostTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1009'
+			code: 'RAPI-1009'	// readAuth
 		};
 	}
 
+	// set the path to use in the request
 	setPath (callback) {
 		this.path = '/posts/' + this.post._id;
 		callback();

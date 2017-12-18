@@ -9,10 +9,11 @@ class AddToCreatedTeamTest extends CodeStreamMessageTest {
 		return 'should be able to subscribe to and receive a message from the team channel when i am added to a created team';
 	}
 
+	// make the data needed to prepare for the request that triggers the message
 	makeData (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRepoWithMe
+			this.createOtherUser,	// create another user
+			this.createRepoWithMe	// create a repo with me as a member of the team
 		], callback);
 	}
 
@@ -36,14 +37,16 @@ class AddToCreatedTeamTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				withEmails: [this.currentUser.email],
-				withRandomEmails: 2,
-				token: this.otherUserData.accessToken
+				withEmails: [this.currentUser.email],	// incude me
+				withRandomEmails: 2,	// a few other random users
+				token: this.otherUserData.accessToken	// the other user is the creator
 			}
 		);
 	}
 
+	// set the channel name to listen on
 	setChannelName (callback) {
+		// we expect the message on the team channel
 		this.channelName = 'team-' + this.team._id;
 		callback();
 	}

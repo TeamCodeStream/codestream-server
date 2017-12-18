@@ -15,8 +15,10 @@ class NoAttributeTest extends PutMarkerLocationsTest {
 		};
 	}
 
+	// set the data to be used in the request that triggers the message
 	setData (callback) {
 		super.setData(() => {
+			// delete the attribute from the data for the request
 			delete this.data[this.attribute];
 			callback();
 		});

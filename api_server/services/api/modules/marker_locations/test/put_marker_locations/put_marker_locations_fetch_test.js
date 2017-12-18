@@ -14,14 +14,17 @@ class PutMarkerLocationsFetchTest extends PutMarkerLocationsTest {
 		return 'get';
 	}
 
+	// before the test runs..
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.setMarkerLocations,
-			this.setPath
+			super.before,	// create team/repo/stream/markers
+			this.setMarkerLocations,	// put the marker locations to the server
+			this.setPath	// set the path, this is what we'll use to fetch the markers to verify they are correct
 		], callback);
 	}
 
+	// set marker locations for the markers by calling PUT /marker-locations
+	// the actual test is reading these marker locations and verifying they are correct
 	setMarkerLocations (callback) {
 		this.doApiRequest(
 			{
@@ -34,13 +37,17 @@ class PutMarkerLocationsFetchTest extends PutMarkerLocationsTest {
 		);
 	}
 
+	// set path for the test request
 	setPath (callback) {
+		// the actual test is the fetch of the marker locations we just saved, and verifting they are correct
 		this.path = `/marker-locations?teamId=${this.team._id}&streamId=${this.stream._id}&commitHash=${this.newCommitHash}`;
-		delete this.data;
+		delete this.data;	// don't need this anymore, data is in the query parameters
 		callback();
 	}
 
+	// validate that the response is correct
 	validateResponse (data) {
+		// verify all the marker locations are the same as what we saved
 		let markerLocations = data.markerLocations;
 		let locations = markerLocations.locations;
 		Assert(Object.keys(locations).length === this.markers.length, 'did not receive marker locations for all markers');
@@ -49,6 +56,7 @@ class PutMarkerLocationsFetchTest extends PutMarkerLocationsTest {
 		});
 	}
 
+	// validate an individual marker we retrieved from the server
 	validateMarker (markerId, location) {
 		let marker = this.markers.find(marker => marker._id === markerId);
 		Assert(marker, 'got markerId that does not correspond to a marker created by this request');

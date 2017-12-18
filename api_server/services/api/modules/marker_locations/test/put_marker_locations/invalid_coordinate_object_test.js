@@ -15,10 +15,11 @@ class InvalidCoordinateObjectTest extends PutMarkerLocationsTest {
 		};
 	}
 
+	// set the data to be used in the PUT request
 	setData (callback) {
 		super.setData(() => {
 			let markerId = Object.keys(this.data.locations)[0];
-			this.data.locations[markerId][4] = 1;
+			this.data.locations[markerId][4] = 1;	// the fifth element must be an object!
 			callback();
 		});
 	}

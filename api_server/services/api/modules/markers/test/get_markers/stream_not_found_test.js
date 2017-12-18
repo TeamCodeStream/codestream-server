@@ -16,8 +16,10 @@ class StreamNotFoundTest extends GetMarkersTest {
 		};
 	}
 
+	// get query parameters to use for the test
 	getQueryParameters () {
 		let queryParameters = super.getQueryParameters();
+		// set the stream ID to an ID that doesn't exist
 		queryParameters.streamId = ObjectID();
 		return queryParameters;
 	}

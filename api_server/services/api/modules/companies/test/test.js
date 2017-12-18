@@ -1,3 +1,5 @@
+// handle unit tests for the companies module
+
 'use strict';
 
 // make jshint happy

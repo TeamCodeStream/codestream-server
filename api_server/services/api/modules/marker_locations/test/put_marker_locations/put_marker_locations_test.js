@@ -20,17 +20,19 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 		return 'put';
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRepo,
-			this.createStream,
-			this.createPosts,
-			this.adjustMarkers,
-			this.setData
+			this.createOtherUser,	// create a second user
+			this.createRepo,		// create a repo as the other user
+			this.createStream,		// create a stream as the other user
+			this.createPosts,		// create some posts in the stream
+			this.adjustMarkers,		// adjust the markers in the stream for a new commit
+			this.setData			// set the data to be used int he request
 		], callback);
 	}
 
+	// create another (registered) user
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -41,6 +43,7 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a repo (as the other user)
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -50,12 +53,13 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withEmails: [this.currentUser.email],
-				token: this.otherUserData.accessToken
+				withEmails: [this.currentUser.email],	// include the current user
+				token: this.otherUserData.accessToken	// other user is the creator
 			}
 		);
 	}
 
+	// create a stream in the repo
 	createStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -67,11 +71,12 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 				type: 'file',
 				teamId: this.team._id,
 				repoId: this.repo._id,
-				token: this.otherUserData.accessToken
+				token: this.otherUserData.accessToken // other user is the creator
 			}
 		);
 	}
 
+	// create some posts in the stream
 	createPosts (callback) {
 		this.posts = [];
 		this.markers = [];
@@ -85,11 +90,13 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a single post in the stream (with code blocks, so we have markers)
 	createPost (n, callback) {
-		let token = n % 2 === 1 ? this.token : this.otherUserData.accessToken;
+		let token = n % 2 === 1 ? this.token : this.otherUserData.accessToken;	// we'll alternate who creates the posts
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
+				// store post, marker, and marker location info
 				this.posts.push(response.post);
 				let marker = response.markers[0];
 				this.markers.push(marker);
@@ -101,23 +108,26 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 				streamId: this.stream._id,
 				wantCodeBlocks: 1,
 				token: token,
-				commitHash: this.commitHash
+				commitHash: this.commitHash	// they will all have the same commit hash
 			}
 		);
 	}
 
+	// generate some adjusted marker locations
 	adjustMarkers (callback) {
 		this.adjustedMarkerLocations = {};
-		this.markers.sort((a, b) => { return a._id.localeCompare(b._id); });
+		this.markers.sort((a, b) => { return a._id.localeCompare(b._id); });	// sort for easy compare to the results
 		this.markers.forEach(marker => {
 			this.adjustMarker(marker);
 		});
 		callback();
 	}
 
+	// adjust a single marker for saving as a different commit
 	adjustMarker (marker) {
 		let adjustedLocation = [];
 		let location = this.locations[marker._id];
+		// totally random adjustments, probably not realistic but it should do the trick
 		location.slice(0, 4).forEach(coordinate => {
 			let adjustedCoordinate = coordinate + Math.floor(Math.random() * coordinate);
 			adjustedLocation.push(adjustedCoordinate);
@@ -125,8 +135,9 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 		this.adjustedMarkerLocations[marker._id] = adjustedLocation;
 	}
 
+	// set data to be used in the request
 	setData (callback) {
-		this.newCommitHash = this.postFactory.randomCommitHash();
+		this.newCommitHash = this.postFactory.randomCommitHash();	// adjusted marker locations have a new commit
 		this.data = {
 			teamId: this.team._id,
 			streamId: this.stream._id,
@@ -136,6 +147,7 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 		callback();
 	}
 
+	// validate empty object, we don't get any other data in the response
 	validateResponse (data) {
 		Assert(Object.keys(data).length === 0, 'empty data set not returned');
 	}

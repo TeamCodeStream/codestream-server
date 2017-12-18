@@ -15,10 +15,11 @@ class BadLocationCoordinateTest extends PutMarkerLocationsTest {
 		};
 	}
 
+	// set the data to be used in the PUT request
 	setData (callback) {
 		super.setData(() => {
 			let markerId = Object.keys(this.data.locations)[0];
-			this.data.locations[markerId][3] = 'x';
+			this.data.locations[markerId][3] = 'x';	// put a bad (non-numeric) coordinate in the locations array
 			callback();
 		});
 	}

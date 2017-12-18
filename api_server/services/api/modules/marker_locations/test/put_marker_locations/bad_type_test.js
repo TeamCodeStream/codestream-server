@@ -15,9 +15,10 @@ class BadTypeTest extends PutMarkerLocationsTest {
 		};
 	}
 
+	// set the data to be used in the PUT request
 	setData (callback) {
 		super.setData(() => {
-			this.data[this.attribute] = 1;
+			this.data[this.attribute] = 1; // replace the value of this.attribute with nonsense
 			callback();
 		});
 	}

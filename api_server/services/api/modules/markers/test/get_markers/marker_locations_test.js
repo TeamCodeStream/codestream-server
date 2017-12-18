@@ -10,12 +10,14 @@ class MarkerLocationsTest extends GetMarkersTest {
 		return 'should return the marker locations if commit hash is provided in the request';
 	}
 
+	// get query parameters to use for the request
 	getQueryParameters () {
 		let queryParameters = super.getQueryParameters();
-		queryParameters.commitHash = this.commitHash.toLowerCase();
+		queryParameters.commitHash = this.commitHash.toLowerCase();	// include the commit hash so we get the locations
 		return queryParameters;
 	}
 
+	// validate that we got the marker locations, not just the markers
 	validateResponse (data) {
 		Assert(typeof data.markerLocations === 'object', 'markerLocations is not an object');
 		let markerLocations = data.markerLocations;

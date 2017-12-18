@@ -5,6 +5,7 @@ var CompanyCreator = require('./company_creator');
 //var CompanyUpdater = require('./company_updater');
 var Company = require('./company');
 
+// we'll expose only these routes
 const COMPANY_STANDARD_ROUTES = {
 	want: ['get', 'getMany'],
 	baseRouteName: 'companies',
@@ -16,19 +17,19 @@ const COMPANY_STANDARD_ROUTES = {
 class Companies extends Restful {
 
 	get collectionName () {
-		return 'companies';
+		return 'companies';	// name of the data collection
 	}
 
 	get modelName () {
-		return 'company';
+		return 'company'; // name of the data model
 	}
 
 	get creatorClass () {
-		return CompanyCreator;
+		return CompanyCreator; // derived from ModelCreator, class to use to create a company model
 	}
 
 	get modelClass () {
-		return Company;
+		return Company;	// derived from DataModel, class to use for a company model
 	}
 
 /*
@@ -38,6 +39,7 @@ class Companies extends Restful {
 */
 
 	getRoutes () {
+		// routes the module will expose
 		return super.getRoutes(COMPANY_STANDARD_ROUTES);
 	}
 }
