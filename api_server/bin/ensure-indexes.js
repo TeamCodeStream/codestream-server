@@ -20,10 +20,10 @@ var AllModuleIndexes = {
 };
 
 let AllFinished = {
-    indexes: 0,
-    drops: 0,
-    indexed: 0,
-    dropped: 0
+	indexes: 0,
+	drops: 0,
+	indexed: 0,
+	dropped: 0
 };
 
 const ConfigDirectory = process.env.CS_API_TOP + '/config';
@@ -34,40 +34,40 @@ let MongoClient = require('mongodb').MongoClient;
 let Drop = process.argv.find(arg => arg === 'drop');
 let Build = process.argv.find(arg => arg === 'build');
 if(!Drop && !Build) {
-    Build = 'build';
+	Build = 'build';
 }
 
 var DropIndexes = function(db, collection, callback) {
 	if (!Drop) { return callback(); }
-    AllFinished.drops++;
-    var collectionObj = db.collection(collection);
-    collectionObj.dropIndexes((err) => {
-        if(err) {
-            console.log("error dropping indexes on collection", collection, err);
-        }
-        AllFinished.dropped++;
-    });
-    console.log("dropped indexes for collection", collection);
-    callback();
+	AllFinished.drops++;
+	var collectionObj = db.collection(collection);
+	collectionObj.dropIndexes((err) => {
+		if(err) {
+			console.log("error dropping indexes on collection", collection, err);
+		}
+		AllFinished.dropped++;
+	});
+	console.log("dropped indexes for collection", collection);
+	callback();
 };
 
 var BuildIndexes = function(db, collection, callback) {
 	if (!Build) { return callback(); }
 	let moduleIndexes = AllModuleIndexes[collection];
-    var collectionObj = db.collection(collection);
+	var collectionObj = db.collection(collection);
 	Object.keys(moduleIndexes).forEach(indexName => {
 		let index = moduleIndexes[indexName];
-        AllFinished.indexes++;
-        console.log("ensuring index on collection", collection, index);
-        collectionObj.ensureIndex(index, (err) => {
-            AllFinished.indexed++;
-            if(err) {
-                console.log("error", err);
-            }
-            else {
-                console.log("indexed collection, index", collection, index);
-            }
-        });
+		AllFinished.indexes++;
+		console.log("ensuring index on collection", collection, index);
+		collectionObj.ensureIndex(index, (err) => {
+			AllFinished.indexed++;
+			if(err) {
+				console.log("error", err);
+			}
+			else {
+				console.log("indexed collection, index", collection, index);
+			}
+		});
 	});
 	callback();
 };
@@ -84,25 +84,25 @@ var DoCollection = function(db, collection, callback) {
 };
 
 function WaitUntilFinished() {
-    console.log("waiting to finish", AllFinished);
-    if( (AllFinished.drops === AllFinished.dropped) && (AllFinished.indexes === AllFinished.indexed)) {
-        console.log("we're done");
-        process.exit(0);
-    }
-    setTimeout(WaitUntilFinished, 2000);
+	console.log("waiting to finish", AllFinished);
+	if( (AllFinished.drops === AllFinished.dropped) && (AllFinished.indexes === AllFinished.indexed)) {
+		console.log("we're done");
+		process.exit(0);
+	}
+	setTimeout(WaitUntilFinished, 2000);
 }
 
 MongoClient.connect(MongoConfig.url, (err, db) => {
-    if(err) {
-        console.log("mongo connect error", err);
-        process.exit(1);
-    }
-    BoundAsync.forEachSeries(
-    	this,
-    	Object.keys(AllModuleIndexes),
-    	(collection, foreachCallback) => {
-            DoCollection(db, collection, foreachCallback);
-        },
-        WaitUntilFinished
-    );
+	if(err) {
+		console.log("mongo connect error", err);
+		process.exit(1);
+	}
+	BoundAsync.forEachSeries(
+		this,
+		Object.keys(AllModuleIndexes),
+		(collection, foreachCallback) => {
+			DoCollection(db, collection, foreachCallback);
+		},
+		WaitUntilFinished
+	);
 });
