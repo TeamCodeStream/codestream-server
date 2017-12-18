@@ -8,9 +8,6 @@
 
 export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$CS_API_TOP/node_modules/.bin:$PATH
 export CS_API_TOP=$CS_API_TOP
-export CS_API_MONGO_HOST=$MDB_HOST
-export CS_API_MONGO_PORT=$MDB_PORT
-export CS_API_MONGO_DATABASE=codestream
 export CS_API_HOST=localhost
 export CS_API_PORT=12079
 export CS_API_AUTH_SECRET="A*y8lN^erPHf$"
@@ -22,10 +19,10 @@ export CS_API_SSL_KEYFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-key
 export CS_API_SSL_CERTFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-crt
 export CS_API_SSL_CAFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-ca
 
-# Tell the API service init script to setup mongo when it the api server
-# is started for the first time. This includes creating the database
-# owner in mongo and creating the indexes
-export CS_API_SETUP_MONGO=true
+# Mongo
+export CS_API_MONGO_HOST=$MDB_HOST
+export CS_API_MONGO_PORT=$MDB_PORT
+export CS_API_MONGO_DATABASE=codestream
 
 # Uncomment these to tell the API service to use mongo authentication
 #export CS_API_MONGO_USER=api
@@ -35,6 +32,15 @@ export CS_API_SETUP_MONGO=true
 # using the system account above (as opposed to 'root')
 #export MDB_CLI_USER=$CS_API_MONGO_USER
 #export MDB_CLI_PASS=$CS_API_MONGO_PASS
+
+# Construct the mongo URL (needed if authentication is used)
+#export CS_API_MONGO_URL="mongodb://$CS_API_MONGO_USER:$CS_API_MONGO_PASS@$CS_API_MONGO_HOST:$CS_API_MONGO_PORT/$CS_API_MONGO_DATABASE"
+
+# Tell the API service init script to setup mongo when it the api server
+# is started for the first time. This includes creating the database
+# owner in mongo and creating the indexes
+export CS_API_SETUP_MONGO=true
+
 
 # Emails by default are not sent ... set this to "on" to send emails normally
 # (as in production, and exercise extreme caution when testing) ...
