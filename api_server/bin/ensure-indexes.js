@@ -9,7 +9,6 @@
 //
 // you can supply both, that will drop and build (rebuild from scratch)
 
-var Process = require('child_process');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
 var AllModuleIndexes = {
@@ -20,45 +19,88 @@ var AllModuleIndexes = {
 	users: require(process.env.CS_API_TOP + '/services/api/modules/users/indexes.js')
 };
 
+var allFinished = {
+    indexes: 0,
+    drops: 0,
+    indexed: 0,
+    dropped: 0
+};
+
+const ConfigDirectory = process.env.CS_API_TOP + '/config';
+const MongoConfig = require(ConfigDirectory + '/mongo.js');
+
+var mongoUrl = (MongoConfig.url) ? MongoConfig.url : "mongodb://" + MongoConfig.host + ":" + MongoConfig.port + "/" + MongoConfig.database;
+var MongoClient = require('mongodb').MongoClient;
+
 let Drop = process.argv.find(arg => arg === 'drop');
 let Build = process.argv.find(arg => arg === 'build');
 
-var DropIndexes = function(collection, callback) {
+var DropIndexes = function(db, collection, callback) {
 	if (!Drop) { return callback(); }
-	let command = `mongo codestream --eval "db.${collection}.dropIndexes();"`;
-	console.log(command);
-	Process.exec(command);
-	setTimeout(callback, 1000);
+    allFinished.drops++;
+    var collectionObj = db.collection(collection);
+    collectionObj.dropIndexes((err) => {
+        if(err) {
+            console.log("error dropping indexes on collection", collection, err);
+        }
+        allFinished.dropped++;
+    });
+    console.log("dropped indexes for collection", collection);
+    callback();
 };
 
-var BuildIndexes = function(collection, callback) {
+var BuildIndexes = function(db, collection, callback) {
 	if (!Build) { return callback(); }
 	let moduleIndexes = AllModuleIndexes[collection];
+    var collectionObj = db.collection(collection);
 	Object.keys(moduleIndexes).forEach(indexName => {
 		let index = moduleIndexes[indexName];
-		let command = `mongo codestream --eval "db.${collection}.ensureIndex(${JSON.stringify(index)});"`;
-		console.log(command);
-		Process.exec(command);
+        allFinished.indexes++;
+        console.log("ensuring index on collection", collection, index);
+        collectionObj.ensureIndex(index, (err) => {
+            allFinished.indexed++;
+            if(err) {
+                console.log("error", err);
+            }
+            else {
+                console.log("indexed collection, index", collection, index);
+            }
+        });
 	});
 	callback();
 };
 
-var DoCollection = function(collection, callback) {
+var DoCollection = function(db, collection, callback) {
 	BoundAsync.series(this, [
 		(seriesCallback) => {
-			DropIndexes(collection, seriesCallback);
+			DropIndexes(db, collection, seriesCallback);
 		},
 		(seriesCallback) => {
-			BuildIndexes(collection, seriesCallback);
+			BuildIndexes(db, collection, seriesCallback);
 		}
 	], callback);
 };
 
-BoundAsync.forEachSeries(
-	this,
-	Object.keys(AllModuleIndexes),
-	DoCollection,
-	() => {
-		process.exit();
-	}
-);
+function waitUntilFinished() {
+    console.log("waiting to finish", allFinished);
+    if( (allFinished.drops === allFinished.dropped) && (allFinished.indexes === allFinished.indexed)) {
+        console.log("we're done");
+        process.exit(0);
+    }
+    setTimeout(waitUntilFinished, 2000);
+}
+
+MongoClient.connect(mongoUrl, (err, db) => {
+    if(err) {
+        console.log("mongo connect error", err);
+        process.exit(1);
+    }
+    BoundAsync.forEachSeries(
+    	this,
+    	Object.keys(AllModuleIndexes),
+    	(collection, foreachCallback) => {
+            DoCollection(db, collection, foreachCallback);
+        },
+        waitUntilFinished
+    );
+});
