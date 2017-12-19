@@ -5,6 +5,7 @@
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var RequireAllow = require(process.env.CS_API_TOP + '/lib/util/require_allow');
 
 class ModelCreator {
 
@@ -24,9 +25,8 @@ class ModelCreator {
 		this.attributes = attributes;
 		BoundAsync.series(this, [
 			this.normalize,				// normalize the input attributes
-			this.requireAttributes,		// check for required attributes
+			this.requireAllowAttributes,	// check for required attributes and attributes to ignore
 			this.validate,				// validate the attributes
-			this.allowAttributes,		// eliminate all but allowed attributes
 			this.checkExisting,			// check if there is already a matching document, according to the derived class
 			this.preSave,				// prepare to save the document
 			this.checkValidationWarnings,	// check for any validation warnings that came up in preSave
@@ -42,26 +42,29 @@ class ModelCreator {
 		process.nextTick(callback);
 	}
 
-	// check that we have all the required attributes ... the derived class will tell us which attributes
-	// are required
-	requireAttributes (callback) {
-		let requiredAttributes = this.getRequiredAttributes() || []; // get this from the derived class
-		let missingAttributes = [];
-		requiredAttributes.forEach(attribute => {
-			if (typeof this.attributes[attribute] === 'undefined') {
-				missingAttributes.push(attribute);
+	// check that we have all the required attributes, and ignore any attributes except those that are allowed
+	requireAllowAttributes (callback) {
+		let attributes = this.getRequiredAndOptionalAttributes();
+		if (attributes) {
+			let info = RequireAllow.requireAllow(this.attributes, attributes);
+			if (!info) {
+				return callback();
 			}
-		});
-		if (missingAttributes.length) {
-			return callback(this.errorHandler.error('attributeRequired', { info: missingAttributes.join(',') }));
+			if (info.missing) {
+				return callback(this.errorHandler.error('attributeRequired', { info: info.missing.join(',') }));
+			}
+			else if (info.invalid) {
+				return callback(this.errorHandler.error('invalidAttribute', { info: info.invalid.join(',') }));
+			}
+			else if (info.deleted && this.api) {
+				this.api.warn(`These attributes were deleted: ${info.deleted.join(',')}`);
+			}
 		}
-		else {
-			process.nextTick(callback);
-		}
+		process.nextTick(callback);
 	}
 
 	// which attributes are required? override to specify
-	getRequiredAttributes () {
+	getRequiredAndOptionalAttributes () {
 		return null;
 	}
 
@@ -82,11 +85,6 @@ class ModelCreator {
 
 	// validate the input attributes ... override as needed
 	validateAttributes (callback) {
-		process.nextTick(callback);
-	}
-
-	// allow only certain attributes ... override to specify
-	allowAttributes (callback) {
 		process.nextTick(callback);
 	}
 

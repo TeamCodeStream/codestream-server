@@ -11,10 +11,7 @@ class LocationTooLongTest extends PostCodeToFileStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
-				code: 'RAPI-1005',
-				info: 'codeBlocks: location array is too long'
-			}]
+			info: 'codeBlocks: location array is too long'
 		};
 	}
 

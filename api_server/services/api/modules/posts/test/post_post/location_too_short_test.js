@@ -11,10 +11,7 @@ class LocationTooShortTest extends PostCodeToFileStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
-				code: 'RAPI-1005',
-				info: 'codeBlocks: location array must have at least 4 elements'
-			}]
+			info: 'codeBlocks: location array must have at least 4 elements'
 		};
 	}
 

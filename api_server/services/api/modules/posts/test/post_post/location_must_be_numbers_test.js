@@ -11,10 +11,7 @@ class LocationMustBeNumbersTest extends PostCodeToFileStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
-				code: 'RAPI-1005',
-				info: 'codeBlocks: first four coordinations of location array must be numbers'
-			}]
+			info: 'codeBlocks: first four coordinations of location array must be numbers'
 		};
 	}
 

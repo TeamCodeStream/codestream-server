@@ -10,8 +10,8 @@ class BadTypeLocationTest extends PutMarkerLocationsTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1005',
-			info: 'locations must be an object'
+			code: 'RAPI-1012',
+			info: 'locations'
 		};
 	}
 

@@ -5,7 +5,6 @@ var Post = require('./post');
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var StreamCreator = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_creator');
 var MarkerCreator = require(process.env.CS_API_TOP + '/services/api/modules/markers/marker_creator');
-var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var LastReadsUpdater = require('./last_reads_updater');
 const PostAttributes = require('./post_attributes');
 
@@ -23,6 +22,25 @@ class PostCreator extends ModelCreator {
 		return this.createModel(attributes, callback);
 	}
 
+	normalize (callback) {
+		if (this.attributes.codeBlocks) {
+			this.validateCodeBlocks(callback);
+		}
+		else {
+			callback();
+		}
+	}
+
+	getRequiredAndOptionalAttributes () {
+		return {
+			optional: {
+				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId'],
+				object: ['stream'],
+				'array(object)': ['codeBlocks']
+			}
+		};
+	}
+
 	validateAttributes (callback) {
 		if (!this.attributes.streamId && typeof this.attributes.stream !== 'object') {
 			return callback(this.errorHandler.error('attributeRequired', { info: 'streamId or stream' }));
@@ -30,12 +48,7 @@ class PostCreator extends ModelCreator {
 		if (this.attributes.codeBlocks && !this.attributes.commitHashWhenPosted) {
 			return callback(this.errorHandler.error('attributeRequired', { info: 'commitHashWhenPosted' }));
 		}
-		if (this.attributes.codeBlocks) {
-			this.validateCodeBlocks(callback);
-		}
-		else {
-			callback();
-		}
+		callback();
 	}
 
 	validateCodeBlocks (callback) {
@@ -80,18 +93,6 @@ class PostCreator extends ModelCreator {
 		if (Object.keys(codeBlock).length > numKeys) {
 			return callback('improper attributes');
 		}
-		process.nextTick(callback);
-	}
-
-	allowAttributes (callback) {
-		Allow(
-			this.attributes,
-			{
-				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId'],
-				object: ['stream'],
-				'array(object)': ['codeBlocks']
-			}
-		);
 		process.nextTick(callback);
 	}
 

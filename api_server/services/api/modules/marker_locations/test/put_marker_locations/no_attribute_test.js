@@ -10,7 +10,7 @@ class NoAttributeTest extends PutMarkerLocationsTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1002',
+			code: 'RAPI-1001',
 			info: this.attribute
 		};
 	}

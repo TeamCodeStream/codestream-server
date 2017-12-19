@@ -27,8 +27,7 @@ class ConfirmRequest extends RestfulRequest {
 
 	process (callback) {
 		BoundAsync.series(this, [
-			this.allow,
-			this.require,
+			this.requireAndAllow,
 			this.getUser,
 			this.checkAttributes,
 			this.verifyCode,
@@ -49,20 +48,17 @@ class ConfirmRequest extends RestfulRequest {
 		});
 	}
 
-	allow (callback) {
-		this.allowParameters(
+	requireAndAllow (callback) {
+		this.requireAllowParameters(
 			'body',
 			{
-				string: ['userId', 'email', 'confirmationCode', 'password', 'username']
+				required: {
+					string: ['userId', 'email', 'confirmationCode']
+				},
+				optional: {
+					string: ['password', 'username']
+				}
 			},
-			callback
-		);
-	}
-
-	require (callback) {
-		this.requireParameters(
-			'body',
-			['userId', 'email', 'confirmationCode'],
 			callback
 		);
 	}

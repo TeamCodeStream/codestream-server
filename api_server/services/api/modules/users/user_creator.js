@@ -4,7 +4,6 @@ var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var UserValidator = require('./user_validator');
 var User = require('./user');
-var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var PasswordHasher = require('./password_hasher');
 var UsernameChecker = require('./username_checker');
 const Indexes = require('./indexes');
@@ -29,8 +28,18 @@ class UserCreator extends ModelCreator {
 		return this.createModel(attributes, callback);
 	}
 
-	getRequiredAttributes () {
-		return ['email'];
+	getRequiredAndOptionalAttributes () {
+		return {
+			required: {
+				string: ['email']
+			},
+			optional: {
+				string: ['password', 'username', 'firstName', 'lastName', 'confirmationCode'],
+				number: ['confirmationAttempts', 'confirmationCodeExpiresAt'],
+				boolean: ['isRegistered'],
+				'array(string)': ['secondaryEmails']
+			}
+		};
 	}
 
 	validateAttributes (callback) {
@@ -63,19 +72,6 @@ class UserCreator extends ModelCreator {
 		if (error) {
 		 	return { username: error };
 	 	}
-	}
-
-	allowAttributes (callback) {
-		Allow(
-			this.attributes,
-			{
-				string: ['email', 'password', 'username', 'firstName', 'lastName', 'confirmationCode'],
-				number: ['confirmationAttempts', 'confirmationCodeExpiresAt'],
-				boolean: ['isRegistered'],
-				'array(string)': ['secondaryEmails']
-			}
-		);
-		process.nextTick(callback);
 	}
 
 	modelCanExist (model) {

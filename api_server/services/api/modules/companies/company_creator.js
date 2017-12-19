@@ -4,7 +4,6 @@
 
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Company = require('./company');
-var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 
 class CompanyCreator extends ModelCreator {
 
@@ -21,20 +20,14 @@ class CompanyCreator extends ModelCreator {
 		return this.createModel(attributes, callback);
 	}
 
-	// these attributes are required to create a company document
-	getRequiredAttributes () {
-		return ['name'];
-	}
-
-	// ignore any attributes but these to create a company document
-	allowAttributes (callback) {
-		Allow(
-			this.attributes,
-			{
+	// these attributes are required or optional to create a company document,
+	// others will be ignored
+	getRequiredAndOptionalAttributes () {
+		return {
+			required: {
 				string: ['name']
 			}
-		);
-		process.nextTick(callback);
+		};
 	}
 
 	// right before saving...

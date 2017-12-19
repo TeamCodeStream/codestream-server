@@ -21,8 +21,17 @@ class FindRepoRequest extends RestfulRequest {
 		], callback);
 	}
 
+	// these parameters are required for the request
 	require (callback) {
-		this.requireParameters('query', ['url', 'firstCommitHash'], callback);
+		this.requireAllowParameters(
+			'query',
+			{
+				required: {
+					string: ['url', 'firstCommitHash']
+				}
+			},
+			callback
+		);
 	}
 
 	normalize (callback) {

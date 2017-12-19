@@ -11,10 +11,7 @@ class InvalidCoordinateObjectTest extends PostCodeToFileStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
-				code: 'RAPI-1005',
-				info: 'codeBlocks: fifth element of location must be an object'
-			}]
+			info: 'codeBlocks: fifth element of location must be an object'
 		};
 	}
 

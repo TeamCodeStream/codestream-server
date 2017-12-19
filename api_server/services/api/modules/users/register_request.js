@@ -22,8 +22,7 @@ class RegisterRequest extends RestfulRequest {
 
 	process (callback) {
 		BoundAsync.series(this, [
-			this.allow,
-			this.require,
+			this.requireAndAllow,
 			this.generateConfirmCode,
 			this.generateToken,
 			this.saveUser,
@@ -43,24 +42,21 @@ class RegisterRequest extends RestfulRequest {
 		});
 	}
 
-	allow (callback) {
+	requireAndAllow (callback) {
 		this.confirmationCheat = this.request.body._confirmationCheat;	// cheat code for testing only
 		delete this.request.body._confirmationCheat;
-		this.allowParameters(
+		this.requireAllowParameters(
 			'body',
 			{
-				string: ['email', 'password', 'username', 'firstName', 'lastName'],
-				number: ['timeout'],
-				'array(string)': ['secondaryEmails']
+				required: {
+					string: ['email', 'password', 'username']
+				},
+				optional: {
+					string: ['firstName', 'lastName'],
+					number: ['timeout'],
+					'array(string)': ['secondaryEmails']
+				}
 			},
-			callback
-		);
-	}
-
-	require (callback) {
-		this.requireParameters(
-			'body',
-			['email', 'password', 'username'],
 			callback
 		);
 	}

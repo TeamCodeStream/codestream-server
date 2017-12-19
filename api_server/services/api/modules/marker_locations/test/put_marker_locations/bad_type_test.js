@@ -10,7 +10,7 @@ class BadTypeTest extends PutMarkerLocationsTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1002',
+			code: 'RAPI-1012',
 			info: this.attribute
 		};
 	}
