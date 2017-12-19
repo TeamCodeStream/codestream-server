@@ -175,6 +175,33 @@ class User extends CodeStreamModel {
 		);
 	}
 
+	// authorize the current user for access to a stream owned by a team, as given
+	// by IDs in a request
+	authorizeFromTeamIdAndStreamId (input, callback) {
+		// team ID and stream ID are required, and the user must have access to the stream
+		if (!input.teamId || typeof input.teamId !== 'string') {
+			return callback(this.errorHandler.error('attributeRequired', { info: 'teamId' }));
+		}
+		this.teamId = this.request.body.teamId.toLowerCase();
+		if (!this.request.body.streamId || typeof this.request.body.streamId !== 'string') {
+			return callback(this.errorHandler.error('attributeRequired', { info: 'streamId' }));
+		}
+		this.streamId = this.request.body.streamId.toLowerCase();
+		this.user.authorizeStream(this.streamId, this, (error, stream) => {
+			if (error) { return callback(error); }
+			if (!stream || stream.get('type') !== 'file') {
+				return callback(this.errorHandler.error('updateAuth', { reason: 'not a file stream' }));
+			}
+			if (stream.get('teamId') !== this.teamId) {
+				// stream must be owned by the given team, this anticipates sharding where this query
+				// may not return a valid stream even if it exists but is not owned by the same team
+				return callback(this.errorHandler.error('notFound', { info: 'stream' }));
+			}
+			process.nextTick(callback);
+		});
+
+	}
+
 	getMeOnlyAttributes () {
 		let meOnlyAttributes = {};
 		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);

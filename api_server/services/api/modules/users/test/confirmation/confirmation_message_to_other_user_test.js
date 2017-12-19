@@ -48,15 +48,17 @@ class ConfirmationMessageToOtherUserTest extends CodeStreamMessageTest {
 	}
 
 	registerUser (callback) {
-		this.registeringUser = this.users.find(user => !user.isRegistered);
-		Object.assign(this.registeringUser, {
+		this.registeringUser = this.users[1];
+		let register = {
+			email: this.registeringUser.email,
 			username: RandomString.generate(12),
 			password: RandomString.generate(12),
 			_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response
 			_forceConfirmation: true								// this forces confirmation even if not enforced in environment
-		});
+		};
+		Object.assign(this.registeringUser, register);
 		this.userFactory.registerUser(
-			this.registeringUser,
+			register,
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.registeringUser = response.user;

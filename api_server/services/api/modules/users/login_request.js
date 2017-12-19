@@ -20,8 +20,7 @@ class LoginRequest extends RestfulRequest {
 
 	process (callback) {
 		BoundAsync.series(this, [
-			this.allow,
-			this.require,
+			this.requireAndAllow,
 			this.getUser,
 			this.validatePassword,
 			this.getInitialData,
@@ -29,20 +28,14 @@ class LoginRequest extends RestfulRequest {
 		], callback);
 	}
 
-	allow (callback) {
-		this.allowParameters(
+	requireAndAllow (callback) {
+		this.requireAllowParameters(
 			'body',
 			{
-				string: ['email', 'password']
+				required: {
+					string: ['email', 'password']
+				}
 			},
-			callback
-		);
-	}
-
-	require (callback) {
-		this.requireParameters(
-			'body',
-			['email', 'password'],
 			callback
 		);
 	}

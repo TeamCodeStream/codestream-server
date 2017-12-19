@@ -2,7 +2,6 @@
 
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Stream = require('./stream');
-var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var StreamSubscriptionGranter = require('./stream_subscription_granter');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 const StreamTypes = require('./stream_types');
@@ -29,8 +28,16 @@ class StreamCreator extends ModelCreator {
 		return this.createModel(attributes, callback);
 	}
 
-	getRequiredAttributes () {
-		return ['teamId', 'type'];
+	getRequiredAndOptionalAttributes () {
+		return {
+			required: {
+				string: ['teamId', 'type']
+			},
+			optional: {
+				string: ['repoId', 'type', 'file', 'name'],
+				'array(string)': ['memberIds']
+			}
+		};
 	}
 
 	validateAttributes (callback) {
@@ -77,17 +84,6 @@ class StreamCreator extends ModelCreator {
 			this.attributes.memberIds.push(this.user.id);
 		}
 		this.attributes.memberIds.sort();
-	}
-
-	allowAttributes (callback) {
-		Allow(
-			this.attributes,
-			{
-				string: ['teamId', 'repoId', 'type', 'file', 'name'],
-				'array(string)': ['memberIds']
-			}
-		);
-		process.nextTick(callback);
 	}
 
 	checkExistingQuery () {

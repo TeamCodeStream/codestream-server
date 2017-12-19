@@ -16,7 +16,12 @@ const MARKER_LOCATIONS_ROUTES = [
 		method: 'put',
 		path: 'marker-locations',
 		requestClass: require('./put_marker_locations_request')
-	}
+	}/*,
+	{
+		method: 'put',
+		path: 'calculate-locations',
+		requestClass: require('./calculate_marker_locations_request')
+	}*/
 ];
 
 class MarkerLocationsModule extends Restful {

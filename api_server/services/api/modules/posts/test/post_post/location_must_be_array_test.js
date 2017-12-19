@@ -11,10 +11,7 @@ class LocationMustBeArrayTest extends PostCodeToFileStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
-				code: 'RAPI-1005',
-				info: 'codeBlocks: location must be an array'
-			}]
+			info: 'codeBlocks: location must be an array'
 		};
 	}
 

@@ -11,10 +11,7 @@ class CodeBlocksTooLongTest extends PostCodeToFileStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
-				code: 'RAPI-1005',
-				info: 'codeBlocks: array is too long'
-			}]
+			info: 'codeBlocks: array is too long'
 		};
 	}
 

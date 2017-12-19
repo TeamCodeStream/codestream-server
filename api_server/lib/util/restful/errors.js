@@ -52,6 +52,10 @@ const ERRORS = {
 	'createAuth': {
 		code: 'RAPI-1011',
 		message: 'Not authorized to create'
+	},
+	'invalidParameter': {
+		code: 'RAPI-1012',
+		message: 'Invalid parameter'
 	}
 };
 

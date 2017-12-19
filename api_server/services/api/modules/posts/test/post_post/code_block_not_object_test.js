@@ -11,10 +11,7 @@ class CodeBlockNotObjectTest extends PostCodeToFileStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
-				code: 'RAPI-1005',
-				info: 'codeBlocks: element at [0-9]+ is not an object'
-			}]
+			info: 'codeBlocks: element at [0-9]+ is not an object'
 		};
 	}
 

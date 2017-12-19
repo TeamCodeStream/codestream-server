@@ -6,7 +6,6 @@ var Team = require('./team');
 var CompanyCreator = require(process.env.CS_API_TOP + '/services/api/modules/companies/company_creator');
 var UserCreator = require(process.env.CS_API_TOP + '/services/api/modules/users/user_creator');
 var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
-var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var TeamSubscriptionGranter = require('./team_subscription_granter');
 const TeamAttributes = require('./team_attributes');
 const Errors = require('./errors');
@@ -31,8 +30,15 @@ class TeamCreator extends ModelCreator {
 		return this.createModel(attributes, callback);
 	}
 
-	getRequiredAttributes () {
-		return ['name'];
+	getRequiredAndOptionalAttributes () {
+		return {
+			required: {
+				string: ['name']
+			},
+			optional: {
+				'array(string)': ['memberIds', 'emails']
+			}
+		};
 	}
 
 	validateAttributes (callback) {
@@ -79,17 +85,6 @@ class TeamCreator extends ModelCreator {
 			this.attributes.memberIds.push(this.user.id);
 		}
 		this.attributes.memberIds.sort();
-	}
-
-	allowAttributes (callback) {
-		Allow(
-			this.attributes,
-			{
-				string: ['name'],
-				'array(string)': ['memberIds', 'emails']
-			}
-		);
-		process.nextTick(callback);
 	}
 
 	checkExistingQuery () {

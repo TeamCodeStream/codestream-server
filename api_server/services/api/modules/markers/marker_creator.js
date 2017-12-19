@@ -4,7 +4,6 @@
 
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Marker = require('./marker');
-var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
 class MarkerCreator extends ModelCreator {
@@ -22,31 +21,30 @@ class MarkerCreator extends ModelCreator {
 		return this.createModel(attributes, callback);
 	}
 
-	// these attributes are required to create a marker document
-	getRequiredAttributes () {
-		return ['teamId', 'streamId', 'postId', 'commitHash', 'location'];
-	}
-
-	// ignore any attributes but these to create a marker document
-	allowAttributes (callback) {
-		Allow(
-			this.attributes,
-			{
+	// these attributes are required or optional to create a marker document
+	getRequiredAndOptionalAttributes () {
+		return {
+			required: {
 				string: ['teamId', 'streamId', 'postId', 'commitHash'],
 				'array': ['location']
 			}
-		);
-		process.nextTick(callback);
+		};
 	}
 
-	// right before the document is saved...
-	preSave (callback) {
-		BoundAsync.series(this, [
-			this.validateLocationAttribute,	// validate the marker's location
-			this.createId,					// create an ID for the marker
-			this.updateMarkerLocations,		// update the marker's location for the particular commit
-			super.preSave					// proceed with the save...
-		], callback);
+	// validate the input attributes
+	validateAttributes (callback) {
+		this.validateLocationAttribute(callback);
+	}
+
+	// validate the passed location for the marker
+	validateLocationAttribute (callback) {
+		let error = MarkerCreator.validateLocation(this.attributes.location);
+		if (error) {
+			return callback(error);
+		}
+		this.location = this.attributes.location;
+		delete this.attributes.location; // this actually goes into the markerLocations structure, stored separately
+		callback();
 	}
 
 	// validate a marker location, must be in the strict format:
@@ -72,15 +70,13 @@ class MarkerCreator extends ModelCreator {
 		}
 	}
 
-	// validate the passed location for the marker
-	validateLocationAttribute (callback) {
-		let error = MarkerCreator.validateLocation(this.attributes.location);
-		if (error) {
-			return callback(this.errorHandler.error('validation', { info: error }));
-		}
-		this.location = this.attributes.location;
-		delete this.attributes.location; // this actually goes into the markerLocations structure, stored separately
-		callback();
+	// right before the document is saved...
+	preSave (callback) {
+		BoundAsync.series(this, [
+			this.createId,					// create an ID for the marker
+			this.updateMarkerLocations,		// update the marker's location for the particular commit
+			super.preSave					// proceed with the save...
+		], callback);
 	}
 
 	// create an ID for this marker

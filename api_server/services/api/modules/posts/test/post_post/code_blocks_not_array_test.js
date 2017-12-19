@@ -11,10 +11,7 @@ class CodeBlocksNotArrayTest extends PostCodeToFileStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
-				code: 'RAPI-1005',
-				info: 'codeBlocks: must be an array of objects'
-			}]
+			info: 'codeBlocks: must be an array of objects'
 		};
 	}
 

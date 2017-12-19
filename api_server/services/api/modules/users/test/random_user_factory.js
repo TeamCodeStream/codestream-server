@@ -90,10 +90,12 @@ class RandomUserFactory {
 		];
 		let firstName = RandomString.generate(10);
 		let lastName = RandomString.generate(10);
-		let timeout = options.timeout || null;
 		let _confirmationCheat = SecretsConfig.confirmationCheat;
 		let _forceConfirmation = 1;
-		let data = { email, secondaryEmails, firstName, lastName, timeout, _confirmationCheat, _forceConfirmation };
+		let data = { email, secondaryEmails, firstName, lastName, _confirmationCheat, _forceConfirmation };
+		if (options.timeout) {
+			data.timeout = options.timeout;
+		}
 		if (!options.noPassword) {
 			data.password = RandomString.generate(12);
 		}

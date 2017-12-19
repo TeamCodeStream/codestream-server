@@ -43,7 +43,15 @@ class GetMarkerLocationsRequest extends RestfulRequest {
 
 	// these parameters are required for the request
 	require (callback) {
-		this.requireParameters('query', ['teamId', 'streamId', 'commitHash'], callback);
+		this.requireAllowParameters(
+			'query',
+			{
+				required: {
+					string: ['teamId', 'streamId', 'commitHash']
+				}
+			},
+			callback
+		);
 	}
 
 	// find the marker locations according to the input parameters

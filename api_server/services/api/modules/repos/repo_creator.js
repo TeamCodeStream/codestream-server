@@ -4,7 +4,6 @@ var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Repo = require('./repo');
 var NormalizeURL = require('./normalize_url');
-var Allow = require(process.env.CS_API_TOP + '/lib/util/allow');
 var AddTeamMembers = require(process.env.CS_API_TOP + '/services/api/modules/teams/add_team_members');
 var TeamCreator = require(process.env.CS_API_TOP + '/services/api/modules/teams/team_creator');
 var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
@@ -32,11 +31,22 @@ class RepoCreator extends ModelCreator {
 		return this.createModel(attributes, callback);
 	}
 
-	getRequiredAttributes () {
-		return ['url', 'firstCommitHash'];
+	getRequiredAndOptionalAttributes () {
+		return {
+			required: {
+				string: ['url', 'firstCommitHash']
+			},
+			optional: {
+				string: ['firstCommitHash', 'teamId'],
+				object: ['team'],
+				'array(string)': ['emails']
+			}
+		};
 	}
 
 	validateAttributes (callback) {
+		this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
+		this.attributes.firstCommitHash = this.attributes.firstCommitHash.toLowerCase();
 		this.validator = new CodeStreamModelValidator(RepoAttributes);
 		let error =
 			this.validateUrl() ||
@@ -59,28 +69,6 @@ class RepoCreator extends ModelCreator {
 		if (error) {
 			return { firstCommitHash: error };
 		}
-	}
-
-	normalize (callback) {
-		if (typeof this.attributes.url === 'string') { // validation to come later
-			this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
-		}
-		if (typeof this.attributes.firstCommitHash === 'string') { // validation to come later
-			this.attributes.firstCommitHash = this.attributes.firstCommitHash.toLowerCase();
-		}
-		process.nextTick(callback);
-	}
-
-	allowAttributes (callback) {
-		Allow(
-			this.attributes,
-			{
-				string: ['url', 'normalizedUrl', 'firstCommitHash', 'teamId'],
-				object: ['team'],
-				'array(string)': ['emails']
-			}
-		);
-		process.nextTick(callback);
 	}
 
 	modelCanExist () {

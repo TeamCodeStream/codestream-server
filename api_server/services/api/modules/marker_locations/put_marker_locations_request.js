@@ -11,12 +11,18 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 	// authorize the request
 	authorize (callback) {
 		// team ID and stream ID are required, and the user must have access to the stream
-		if (!this.request.body.teamId || typeof this.request.body.teamId !== 'string') {
-			return callback(this.errorHandler.error('attributeRequired', { info: 'teamId' }));
+		if (!this.request.body.teamId) {
+			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
+		}
+		else if (typeof this.request.body.teamId !== 'string') {
+			return callback(this.errorHandler.error('invalidParameter', { info: 'teamId' }));
 		}
 		this.teamId = this.request.body.teamId.toLowerCase();
-		if (!this.request.body.streamId || typeof this.request.body.streamId !== 'string') {
-			return callback(this.errorHandler.error('attributeRequired', { info: 'streamId' }));
+		if (!this.request.body.streamId) {
+			return callback(this.errorHandler.error('parameterRequired', { info: 'streamId' }));
+		}
+		else if (typeof this.request.body.streamId !== 'string') {
+			return callback(this.errorHandler.error('invalidParameter', { info: 'streamId' }));
 		}
 		this.streamId = this.request.body.streamId.toLowerCase();
 		this.user.authorizeStream(this.streamId, this, (error, stream) => {
@@ -36,26 +42,32 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 	// process the request...
 	process (callback) {
 		BoundAsync.series(this, [
+			this.require,	// check for required parameters
 			this.validate,	// validate input parameters
 			this.handleLocations,	// handle the locations set (validate and prepare for save and broadcast)
 			this.update		// do the actual update
 		], callback);
 	}
 
+	// these parameters are required for the request
+	require (callback) {
+		this.requireAllowParameters(
+			'body',
+			{
+				required: {
+					string: ['teamId', 'streamId', 'commitHash'],
+					object: ['locations']
+				}
+			},
+			callback
+		);
+	}
+
 	// validate the request's input parameters
 	validate (callback) {
-		if (!this.request.body.commitHash || typeof this.request.body.commitHash !== 'string') {
-			return callback(this.errorHandler.error('attributeRequired', { info: 'commitHash' }));
-		}
 		this.commitHash = this.request.body.commitHash.toLowerCase();
-		if (!this.request.body.locations) {
-			return callback(this.errorHandler.error('attributeRequired', { info: 'locations' } ));
-		}
-		if (typeof this.request.body.locations !== 'object') {
-			return callback(this.errorHandler.error('validation', { info: 'locations must be an object' }));
-		}
 		if (Object.keys(this.request.body.locations).length > 1000) {
-			return callback(this.errorHandler.error('validation', { info: 'locations object is too large, please break into pieces of less than 1000 elements '}));
+			return callback(this.errorHandler.error('validation', { info: 'locations object is too large, please break into pieces of less than 1000 elements'}));
 		}
 		process.nextTick(callback);
 	}
