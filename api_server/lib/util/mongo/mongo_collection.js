@@ -255,7 +255,7 @@ class MongoCollection {
 
 	// update a document with an explicitly provided ID
 	updateById (id, data, callback, options) {
-		delete data._id; // since we're using the explicit ID, we'll ignore the one in the data
+		data._id = this.objectIdSafe(id); // since we're using the explicit ID, we'll ignore the one in the data
 		// apply a $set to the data
 		this._applyMongoOpById(
 			id,

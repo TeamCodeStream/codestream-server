@@ -5,6 +5,7 @@ var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful
 var UserCreator = require('./user_creator');
 var ConfirmCode = require('./confirm_code');
 var Tokenizer = require('./tokenizer');
+var UserPublisher = require('./user_publisher');
 
 const CONFIRMATION_CODE_TIMEOUT = 7 * 24 * 60 * 60 * 1000;
 
@@ -124,6 +125,19 @@ class RegisterRequest extends RestfulRequest {
 			},
 			callback
 		);
+	}
+
+	postProcess (callback) {
+		this.publishUserToTeams(callback);
+	}
+
+	publishUserToTeams (callback) {
+		new UserPublisher({
+			user: this.user,
+			requestId: this.request.id,
+			messager: this.api.services.messager,
+			logger: this
+		}).publishUserToTeams(callback);
 	}
 }
 

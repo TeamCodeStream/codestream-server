@@ -6,17 +6,16 @@ var RandomString = require('randomstring');
 var User = require(process.env.CS_API_TOP + '/services/api/modules/users/user');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
-class ConfirmationMessageToOtherUserTest extends CodeStreamMessageTest {
+class UserMessageToOtherUserTest extends CodeStreamMessageTest {
 
 	get description () {
-		return 'team members should receive a message indicating a user is registered when a user on the team confirms registration';
+		return 'team members should receive a user message when a user registers, if they are already on a team';
 	}
 
 	makeData (callback) {
 		BoundAsync.series(this, [
 			this.createOtherUser,
-			this.createRepo,
-			this.registerUser
+			this.createRepo
 		], callback);
 	}
 
@@ -47,40 +46,38 @@ class ConfirmationMessageToOtherUserTest extends CodeStreamMessageTest {
 		);
 	}
 
-	registerUser (callback) {
-		this.registeringUser = this.users.find(user => !user.isRegistered);
-		Object.assign(this.registeringUser, {
-			username: RandomString.generate(12),
-			password: RandomString.generate(12),
-			_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response
-			_forceConfirmation: true								// this forces confirmation even if not enforced in environment
-		});
-		this.userFactory.registerUser(
-			this.registeringUser,
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.registeringUser = response.user;
-				callback();
-			}
-		);
-	}
-
 	setChannelName (callback) {
 		this.channelName = 'team-' + this.team._id;
 		callback();
 	}
 
 	generateMessage (callback) {
+		this.registeringUser = this.users[1];
+		Object.assign(this.registeringUser, {
+			username: RandomString.generate(12),
+			firstName: RandomString.generate(12),
+			lastName: RandomString.generate(12)
+		});
 		let user = new User(this.registeringUser);
 		let userObject = user.getSanitizedObject();
-		userObject.isRegistered = true;
 		this.message = {
 			users: [userObject]
 		};
+		Object.assign(this.registeringUser, {
+			password: RandomString.generate(12),
+			_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response
+			_forceConfirmation: true								// this forces confirmation even if not enforced in environment
+		});
+		this.userFactory.registerUser(this.registeringUser, callback);
+	}
 
-		// confirming one of the random users created should trigger the message
-		this.userFactory.confirmUser(this.registeringUser, callback);
+	messageReceived (error, message) {
+		if (message && message.message && message.message.users && message.message.users[0]) {
+			// no way of knowing what this will be, so just set it to what we receive before we compare
+			this.message.users[0].modifiedAt = message.message.users[0].modifiedAt;
+		}
+		super.messageReceived(error, message);
 	}
 }
 
-module.exports = ConfirmationMessageToOtherUserTest;
+module.exports = UserMessageToOtherUserTest;

@@ -3,6 +3,7 @@
 var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/services/api/modules/messager/test/codestream_message_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var RandomString = require('randomstring');
+var User = require(process.env.CS_API_TOP + '/services/api/modules/users/user');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
 class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
@@ -12,6 +13,13 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 	}
 
 	makeData (callback) {
+		BoundAsync.series(this, [
+			this.createRepo,
+			this.registerUser
+		], callback);
+	}
+
+	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -25,18 +33,6 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 				token: this.token
 			}
 		);
-	}
-
-	setChannelName (callback) {
-		this.channelName = 'team-' + this.team._id;
-		callback();
-	}
-
-	generateMessage (callback) {
-		BoundAsync.series(this, [
-			this.registerUser,
-			this.confirmUser
-		], callback);
 	}
 
 	registerUser (callback) {
@@ -57,12 +53,17 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		);
 	}
 
-	confirmUser (callback) {
+	setChannelName (callback) {
+		this.channelName = 'team-' + this.team._id;
+		callback();
+	}
+
+	generateMessage (callback) {
+		let user = new User(this.registeringUser);
+		let userObject = user.getSanitizedObject();
+		userObject.isRegistered = true;
 		this.message = {
-			users: [{
-				_id: this.registeringUser._id,
-				isRegistered: true
-			}]
+			users: [userObject]
 		};
 
 		// confirming one of the random users created should trigger the message

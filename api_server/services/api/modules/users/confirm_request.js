@@ -270,16 +270,16 @@ class ConfirmRequest extends RestfulRequest {
 	}
 
 	postProcess (callback) {
-		this.publishUserRegistrationToTeams(callback);
+		this.publishUserToTeams(callback);
 	}
 
-	publishUserRegistrationToTeams (callback) {
+	publishUserToTeams (callback) {
 		new UserPublisher({
-			user: this.user.attributes,
+			user: this.user,
 			requestId: this.request.id,
 			messager: this.api.services.messager,
 			logger: this
-		}).publishUserRegistrationToTeams(callback);
+		}).publishUserToTeams(callback);
 	}
 }
 
