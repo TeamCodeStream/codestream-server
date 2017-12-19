@@ -8,30 +8,28 @@ class UserPublisher {
 		Object.assign(this, options);
 	}
 
-	publishUserRegistrationToTeams (callback) {
+	publishUserToTeams (callback) {
 		BoundAsync.forEachLimit(
 			this,
-			this.user.teamIds || [],
+			this.user.get('teamIds') || [],
 			10,
-			this.publishUserRegistrationToTeam,
+			this.publishUserToTeam,
 			callback
 		);
 	}
 
-	publishUserRegistrationToTeam (teamId, callback) {
+	publishUserToTeam (teamId, callback) {
+		let userObject = this.user.getSanitizedObject();
 		let message = {
 			requestId: this.requestId,
-			users: [{
-				_id: this.user._id,
-				isRegistered: true
-			}]
+			users: [userObject]
 		};
 		this.messager.publish(
 			message,
 			'team-' + teamId,
 			error => {
 				if (error && this.logger) {
-					this.logger.warn(`Could not publish user registration message to team ${teamId}: ${JSON.stringify(error)}`);
+					this.logger.warn(`Could not publish user message to team ${teamId}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
