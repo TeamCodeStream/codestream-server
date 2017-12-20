@@ -9,35 +9,25 @@ class GetMarkerLocationsRequest extends RestfulRequest {
 
 	// authorize the request
 	authorize (callback) {
-		// must have a team ID and stream ID, and the user must have access to the stream
-		if (!this.request.query.teamId) {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
-		}
-		this.teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
-		if (!this.request.query.streamId) {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'streamId' }));
-		}
-		this.streamId = decodeURIComponent(this.request.query.streamId).toLowerCase();
-		this.user.authorizeStream(this.streamId, this, (error, stream) => {
-			if (error) { return callback(error); }
-			if (!stream) {
-				return callback(this.errorHandler.error('readAuth'));
+		this.user.authorizeFromTeamIdAndStreamId(
+			this.request.query,
+			this,
+			(error, info) => {
+				if (error) { return callback(error); }
+				Object.assign(this, info);
+				process.nextTick(callback);
+			},
+			{
+				mustBeFileStream: true
 			}
-			if (stream.get('teamId') !== this.teamId) {
-				// stream must be owned by the given team, this anticipates sharding where this query
-				// may not return a valid stream even if it exists but is not owned by the same team
-				return callback(this.errorHandler.error('notFound', { info: 'stream' }));
-			}
-			this.stream = stream;
-			process.nextTick(callback);
-		});
+		);
 	}
 
 	// process the request...
 	process (callback) {
 		BoundAsync.series(this, [
 			this.require,	// check for required parameters
-			this.findMarkerLocations,	// find marker locations based on team ID, stream ID, and commit
+			this.findMarkerLocations	// find marker locations based on team ID, stream ID, and commit
 		], callback);
 	}
 

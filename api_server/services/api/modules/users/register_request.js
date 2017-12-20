@@ -25,8 +25,8 @@ class RegisterRequest extends RestfulRequest {
 		BoundAsync.series(this, [
 			this.requireAndAllow,
 			this.generateConfirmCode,
-			this.generateToken,
 			this.saveUser,
+			this.generateToken,
 			this.sendEmail
 		], (error) => {
 			if (error) { return callback(error); }
@@ -77,6 +77,21 @@ class RegisterRequest extends RestfulRequest {
 		process.nextTick(callback);
 	}
 
+	saveUser (callback) {
+		this.userCreator = new UserCreator({
+			request: this,
+			notOkIfExistsAndRegistered: true
+		});
+		this.userCreator.createUser(
+			this.request.body,
+			(error, user) => {
+				if (error) { return callback(error); }
+				this.user = user;
+				callback();
+			}
+		);
+	}
+
 	generateToken (callback) {
 		if (this.confirmationRequired) {
 			return callback();
@@ -90,21 +105,6 @@ class RegisterRequest extends RestfulRequest {
 				}
 				this.request.body.accessToken = this.accessToken = token;
 				process.nextTick(callback);
-			}
-		);
-	}
-
-	saveUser (callback) {
-		this.userCreator = new UserCreator({
-			request: this,
-			notOkIfExistsAndRegistered: true
-		});
-		this.userCreator.createUser(
-			this.request.body,
-			(error, user) => {
-				if (error) { return callback(error); }
-				this.user = user;
-				callback();
 			}
 		);
 	}

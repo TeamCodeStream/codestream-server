@@ -175,31 +175,57 @@ class User extends CodeStreamModel {
 		);
 	}
 
+	// authorize the current user for access to a team, as given by IDs in the request
+	authorizeFromTeamId (input, request, callback, options = {}) {
+		if (!input.teamId) {
+			return callback(request.errorHandler.error('parameterRequired', { info: 'teamId' }));
+		}
+		let teamId = decodeURIComponent(input.teamId).toLowerCase();
+		this.authorizeTeam(
+			teamId,
+			request,
+			(error, authorized) => {
+				if (error) { return callback(error); }
+				if (!authorized) {
+					return callback(request.errorHandler.error(options.error || 'readAuth'));
+				}
+				return process.nextTick(callback);
+			}
+		);
+	}
+
 	// authorize the current user for access to a stream owned by a team, as given
 	// by IDs in a request
-	authorizeFromTeamIdAndStreamId (input, callback) {
+	authorizeFromTeamIdAndStreamId (input, request, callback, options = {}) {
+		let info = {};
 		// team ID and stream ID are required, and the user must have access to the stream
-		if (!input.teamId || typeof input.teamId !== 'string') {
-			return callback(this.errorHandler.error('attributeRequired', { info: 'teamId' }));
+		if (!input.teamId) {
+			return callback(request.errorHandler.error('parameterRequired', { info: 'teamId' }));
 		}
-		this.teamId = this.request.body.teamId.toLowerCase();
-		if (!this.request.body.streamId || typeof this.request.body.streamId !== 'string') {
-			return callback(this.errorHandler.error('attributeRequired', { info: 'streamId' }));
+		else if (typeof input.teamId !== 'string') {
+			return callback(request.errorHandler.error('invalidParameter', { info: 'teamId' }));
 		}
-		this.streamId = this.request.body.streamId.toLowerCase();
-		this.user.authorizeStream(this.streamId, this, (error, stream) => {
+		info.teamId = input.teamId.toLowerCase();
+		if (!input.streamId) {
+			return callback(request.errorHandler.error('parameterRequired', { info: 'streamId' }));
+		}
+		else if (typeof input.streamId !== 'string') {
+			return callback(request.errorHandler.error('invalidParameter', { info: 'streamId' }));
+		}
+		info.streamId = input.streamId.toLowerCase();
+		this.authorizeStream(info.streamId, request, (error, stream) => {
 			if (error) { return callback(error); }
-			if (!stream || stream.get('type') !== 'file') {
-				return callback(this.errorHandler.error('updateAuth', { reason: 'not a file stream' }));
+			if (!stream || (options.mustBeFileStream && stream.get('type') !== 'file')) {
+				return callback(request.errorHandler.error(options.error || 'readAuth', { reason: 'not a file stream' }));
 			}
-			if (stream.get('teamId') !== this.teamId) {
+			if (stream.get('teamId') !== info.teamId) {
 				// stream must be owned by the given team, this anticipates sharding where this query
 				// may not return a valid stream even if it exists but is not owned by the same team
-				return callback(this.errorHandler.error('notFound', { info: 'stream' }));
+				return callback(request.errorHandler.error('notFound', { info: 'stream' }));
 			}
-			process.nextTick(callback);
+			info.stream = stream;
+			process.nextTick(() => { callback(null, info); });
 		});
-
 	}
 
 	getMeOnlyAttributes () {
