@@ -1,2 +1,4 @@
 # This file is obsolete ... please see https://github.com/TeamCodeStream/dev_tools for instructions on how to get started
 # Then install, configure, and load a mongo sandbox and an API server sandbox and go to town
+
+# Please see sandbox/defaults.sh for descriptions of specific environment variables of interest.
