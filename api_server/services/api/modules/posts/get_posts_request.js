@@ -30,24 +30,15 @@ class GetPostsRequest extends GetManyRequest {
 	}
 
 	authorize (callback) {
-		if (!this.request.query.teamId) {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
-		}
-		let teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
-		if (!this.request.query.streamId) {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'streamId' }));
-		}
-		let streamId = decodeURIComponent(this.request.query.streamId).toLowerCase();
-		this.user.authorizeStream(streamId, this, (error, stream) => {
-			if (error) { return callback(error); }
-			if (!stream) {
-				return callback(this.errorHandler.error('readAuth'));
+		this.user.authorizeFromTeamIdAndStreamId(
+			this.request.query,
+			this,
+			(error, info) => {
+				if (error) { return callback(error); }
+				Object.assign(this, info);
+				process.nextTick(callback);
 			}
-			if (stream.get('teamId') !== teamId) {
-				return callback(this.errorHandler.error('notFound', { info: 'stream' }));
-			}
-			process.nextTick(callback);
-		});
+		);
 	}
 
 	buildQuery () {
