@@ -10,7 +10,7 @@ module.exports = {
 		required: true
 	},
 	url: {
-		type: 'url',
+		type: 'string',
 		maxLength: 1024,
 		required: true
 	},
