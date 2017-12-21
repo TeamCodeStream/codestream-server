@@ -6,8 +6,6 @@ var Repo = require('./repo');
 var NormalizeURL = require('./normalize_url');
 var AddTeamMembers = require(process.env.CS_API_TOP + '/services/api/modules/teams/add_team_members');
 var TeamCreator = require(process.env.CS_API_TOP + '/services/api/modules/teams/team_creator');
-var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
-const RepoAttributes = require('./repo_attributes');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
 
@@ -47,28 +45,7 @@ class RepoCreator extends ModelCreator {
 	validateAttributes (callback) {
 		this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
 		this.attributes.firstCommitHash = this.attributes.firstCommitHash.toLowerCase();
-		this.validator = new CodeStreamModelValidator(RepoAttributes);
-		let error =
-			this.validateUrl() ||
-			this.validateSha();
-		if (error) {
-			return callback(error);
-		}
 		process.nextTick(callback);
-	}
-
-	validateUrl () {
-		let error = this.validator.validateUrl(this.attributes.url);
-		if (error) {
-		 	return { url: error };
-	 	}
-	}
-
-	validateSha () {
-		let error = this.validator.validateString(this.attributes.firstCommitHash);
-		if (error) {
-			return { firstCommitHash: error };
-		}
 	}
 
 	modelCanExist () {
