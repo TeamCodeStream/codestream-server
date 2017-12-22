@@ -96,7 +96,8 @@ class NewPostMessageToTeamTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				this.message = {
 					post: response.post,
-					markers: response.markers
+					markers: response.markers,
+					markerLocations: response.markerLocations
 				};
 				callback();
 			},
