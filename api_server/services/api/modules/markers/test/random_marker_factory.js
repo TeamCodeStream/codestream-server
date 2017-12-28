@@ -27,7 +27,7 @@ class RandomMarkerFactory {
 	// lineStart, columnStart, lineEnd, columnEnd ... and a fifth element for additional information
 	randomLocation () {
 		let lineStart, lineEnd, charStart, charEnd, fifthElement = {};
-		lineStart = this.randomUpto(1000);
+		lineStart = 1 + this.randomUpto(1000);
 		if (Math.random() < 0.2) {
 			lineEnd = lineStart; // simulates a single line selected
 		}
@@ -35,11 +35,11 @@ class RandomMarkerFactory {
 			lineEnd = lineStart + this.randomUpto(1000);
 		}
 		if (Math.random() < 0.4) {
-			charStart = 0;
+			charStart = 1;
 			charEnd = 100; // as best as we can, simulates a range of lines selected, but no columns
 		}
 		else {
-			charStart = this.randomUpto(100);
+			charStart = 1 + this.randomUpto(100);
 			charEnd = (lineStart === lineEnd) ?
 				(charStart + this.randomUpto(100)) :
 				this.randomUpto(100);
@@ -58,6 +58,35 @@ class RandomMarkerFactory {
 			location.push(fifthElement);
 		}
 		return location;
+	}
+
+	// get several random lines of text, just garbage
+	randomLinesOfText (n) {
+		let lines = [];
+		for (let i = 0; i < n; i++) {
+			lines.push(RandomString.generate(80));
+		}
+		return lines;
+	}
+
+	// get a simlulated series of edits, which is what is passed to calculate-markers,
+	// originating from a git diff
+	randomEdits (numEdits) {
+		let edits = [];
+		let balance = 0;
+		let last = 0;
+		for (let i = 0; i < numEdits; i++) {
+			let delLength = this.randomUpto(10);
+			let addLength = this.randomUpto(10);
+			let delStart = last + 1 + this.randomUpto(100);
+			let addStart = delStart + balance;
+			balance += addLength - delLength;
+			last = delStart;
+			let adds = this.randomLinesOfText(addLength);
+			let dels = this.randomLinesOfText(delLength);
+			edits.push({ delStart, delLength, addStart, addLength, adds, dels });
+		}
+		return edits;
 	}
 
 	// get some random marker data

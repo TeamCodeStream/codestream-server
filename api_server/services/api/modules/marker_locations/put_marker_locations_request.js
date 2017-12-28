@@ -132,7 +132,7 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 			error => {
 				if (error) {
 					// this doesn't break the chain, but it is unfortunate...
-					this.warn(`Could not publish post message to team ${this.teamId}: ${JSON.stringify(error)}`);
+					this.warn(`Could not publish marker locations update message to team ${this.teamId}: ${JSON.stringify(error)}`);
 				}
 				callback();
 			}
