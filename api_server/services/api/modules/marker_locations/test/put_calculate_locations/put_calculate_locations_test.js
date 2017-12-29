@@ -133,7 +133,8 @@ class PutCalculateLocationsTest extends CodeStreamAPITest {
 		callback();
 	}
 
-	// validate empty object, we don't get any other data in the response
+	// validate we got back marker locations for each marker, but we're not validating
+	// the actual location calculations here
 	validateResponse (data) {
 		Assert(typeof data.markerLocations === 'object', 'did not get markerLocations in response');
 		const markerLocations = data.markerLocations;
