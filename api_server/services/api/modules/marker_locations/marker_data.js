@@ -110,6 +110,16 @@ class MarkerData {
 		return edit.deletedContent;
 	}
 
+	// get the content that was deleted in the edit that governed the
+	// end line for this marker
+	getLineEndEditDeletedContent () {
+		let edit = this.getLineEndEdit();
+		if (!edit.deletedContent) {
+			edit.deletedContent = edit.dels.join('');
+		}
+		return edit.deletedContent;
+	}
+
 	// for a marker where the start of the marker was in deleted code,
 	// get the content of the line that was deleted
 	getLineStartDataDeletedContent () {
