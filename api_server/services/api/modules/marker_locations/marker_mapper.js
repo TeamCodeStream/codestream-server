@@ -263,16 +263,36 @@ class MarkerMapper {
 	 * by comparing the content that has changed in a given line
 	 */
 	recalculateColumnPair (markerData, callback) {
-		const colStartNew = this.recalculateColumn(
-			markerData.colStartOld,
-			markerData.lineStartOldContent,
-			markerData.lineStartNewContent
-		);
-		const colEndNew = this.recalculateColumn(
-			markerData.colEndOld,
-			markerData.lineEndOldContent,
-			markerData.lineEndNewContent
-		);
+		let colStartNew = markerData.colStartNew;
+		let colEndNew = markerData.colEndNew;
+
+		// don't bother if the start of the marker was in deleted code
+		if (!markerData.info.startWasDeleted) {
+			colStartNew = this.recalculateColumn(
+				markerData.colStartOld,
+				markerData.lineStartOldContent,
+				markerData.lineStartNewContent
+			);
+			if (colStartNew === DELETED) {
+				// give up and move to beginning of line
+				markerData.info.startWasDeleted = true;
+				colStartNew = 1;
+			}
+		}
+
+		// don't bother if the end of the marker was in deleted code
+		if (!markerData.info.endWasDeleted) {
+			colEndNew = this.recalculateColumn(
+				markerData.colEndOld,
+				markerData.lineEndOldContent,
+				markerData.lineEndNewContent
+			);
+			if (colEndNew === DELETED) {
+				// give up and move to end of line
+				colEndNew = markerData.lineEndNewContent.length;
+				markerData.info.endWasDeleted = true;
+			}
+		}
 
 		// if we end up with a start position greater than the end position, just
 		// give up and mark the whole line
@@ -413,11 +433,18 @@ class MarkerMapper {
 	 * line number ... see recalculateMissingMarkers() above
 	 */
 	recalculateMissingMarker (marker, callback) {
-		if (marker.isEntirelyDeleted) {
-			this.findMovedMarker(marker);
-		} else if (marker.isLineStartDeleted) {
+		if (marker.isEntirelyDeleted()) {
+			// maybe it was moved somewhere else?
+			if (!this.findMovedMarker(marker)) {
+				marker.trimLineEdit(); // give up and put a zero-length marker after the edit
+			}
+		}
+		else if (marker.isLineStartDeleted()) {
+			// move to the first line after the edit
 			marker.trimLineStartEdit();
-		} else if (marker.isLineEndDeleted) {
+		}
+		else if (marker.isLineEndDeleted()) {
+			// move to the first line before the edit
 			marker.trimLineEndEdit();
 		}
 		process.nextTick(callback);
@@ -441,19 +468,19 @@ class MarkerMapper {
 	 *    by LINE_SIMILARITY_THRESHOLD, and they are in order (start < end), then
 	 *    we say we found the marker
 	 * 6) if we exhaust all edits from (4) without finding lines (5), then we
-	 *    consider the marker as deleted
+	 *    consider the marker as truly deleted
 	 */
 	findMovedMarker (marker) {
 		// if a multiline marker is considered moved, it means that both its
 		// startLineEdit and endLineEdit are the same, so we can always get
 		// the content from lineStartEdit
-		const deletedContent = marker.lineStartEditDeletedContent;
+		const deletedContent = marker.getLineStartEditDeletedContent();
 		const matchingEdits = this.findEditsWithSimilarAddedContent(deletedContent);
 
 		for (const edit of matchingEdits) {
 			const adds = edit.adds;
 			const lineStartIndex = this.getBestMatchingLineIndex(
-				marker.lineStartDataDeletedContent,
+				marker.getLineStartDataDeletedContent(),
 				adds
 			);
 
@@ -461,9 +488,9 @@ class MarkerMapper {
 				continue;
 			}
 
-			if (marker.isMultiLine) {
+			if (marker.isMultiLine()) {
 				const lineEndIndex = this.getBestMatchingLineIndex(
-					marker.lineEndDataDeletedContent,
+					marker.getLineEndDataDeletedContent(),
 					adds
 				);
 
@@ -481,11 +508,17 @@ class MarkerMapper {
 
 				marker.lineEndNewContent = adds[lineEndIndex];
 				marker.lineEndNew = edit.addStart + lineEndIndex;
+				marker.lineStartNewContent = adds[lineStartIndex];
+				marker.lineStartNew = edit.addStart + lineStartIndex;
+				return true;
 			}
-
-			marker.lineStartNewContent = adds[lineStartIndex];
-			marker.lineStartNew = edit.addStart + lineStartIndex;
+			else {
+				marker.lineStartNewContent = marker.lineEndNewContent = adds[lineStartIndex];
+				marker.lineStartNew = marker.lineEndNew = edit.addStart + lineStartIndex;
+				return true;
+			}
 		}
+		return false;
 	}
 
 	/**
@@ -560,7 +593,7 @@ class MarkerMapper {
 				markerData.lineEndNew,
 				markerData.colEndNew
 			];
-			if (markerData.info) {
+			if (Object.keys(markerData.info).length > 0) {
 				this.outputMarkerLocations[markerData.markerId].push(markerData.info);
 			}
 		}

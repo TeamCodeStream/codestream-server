@@ -9,161 +9,117 @@ const DELETED = -1;
 class MarkerData {
 
 	constructor (markerId, location, mapper) {
-		this._mapper = mapper;
-		this._markerId = markerId;
-		this._lineStartOld = location[0];
-		this._colStartOld = location[1];
-		this._lineEndOld = location[2];
-		this._colEndOld = location[3];
-		this._info = location[4];
+		this.mapper = mapper;
+		this.markerId = markerId;
+		this.lineStartOld = location[0];
+		this.colStartOld = location[1];
+		this.lineEndOld = location[2];
+		this.colEndOld = location[3];
+		this.info = location[4] || {};
 	}
 
-	get markerId () {
-		return this._markerId;
-	}
-
-	trimLineStartEdit() {
-		let edit = this.lineStartEdit;
+	// given a marker where the start of the marker was in code that has been
+	// deleted (and we've found no match for it by looking for "similar" lines),
+	// we'll move the start of the marker to the start of the first line after
+	// code that replaced the deleted code
+	trimLineStartEdit () {
+		let edit = this.getLineStartEdit();
 		this.lineStartNew = edit.addStart + edit.addLength;
+		this.colStartNew = 1;
+		this.info.startWasDeleted = true;
+		this.info.deletedContents = this.getLineStartEditDeletedContent();
 	}
 
-	trimLineEndEdit() {
-		let edit = this.lineEndEdit;
+	// given a marker where the end of the marker was in code that has been
+	// deleted (and we've found no match for it by looking for "similar" lines),
+	// we'll move the end of the marker to the start of the first line of code
+	// that replaced the deleted code
+	trimLineEndEdit () {
+		let edit = this.getLineEndEdit();
 		this.lineEndNew = edit.addStart + -1;
+		this.colEndNew = 1;
+		this.info.endWasDeleted = true;
+		this.info.deletedContents = this.getLineEndEditDeletedContent();
 	}
 
-	get isLineStartDeleted() {
-		if (this._isLineStartDeleted === undefined) {
-			this._isLineStartDeleted = this.lineStartNew === DELETED;
-		}
-		return this._isLineStartDeleted;
+	// given a marker where the code the marker points to was entirely deleted
+	// (and we've found no match for any of it by looking for "similar" lines),
+	// we'll move the start and end of the marker to the start of the first line
+	// of code that replaced the deleted code ... it will be a zero-length marker
+	trimLineEdit () {
+		this.trimLineStartEdit();
+		this.lineEndNew = this.lineStartNew;
+		this.colEndNew = 1;
+		this.info.endWasDeleted = true;
+		this.info.entirelyDeleted = true;
 	}
 
-	get isLineEndDeleted() {
-		if (this._isLineEndDeleted === undefined) {
-			this._isLineEndDeleted = this.lineEndNew === DELETED;
-		}
-		return this._isLineEndDeleted;
+	// was the start line of this marker unrecognizably deleted?
+	isLineStartDeleted () {
+ 		return this.lineStartNew === DELETED;
 	}
 
-	get isMultiLine() {
-		return !!this._lineEndOld;
+	// was the end line of this marker unrecognizably deleted?
+	isLineEndDeleted () {
+		return this.lineEndNew === DELETED;
 	}
 
-	get isEntirelyDeleted() {
-		if (this._isEntirelyDeleted === undefined) {
-			if (this.isMultiLine) {
-				this._isEntirelyDeleted =
-					this.isLineStartDeleted &&
-					this.isLineEndDeleted &&
-					this.lineStartEdit === this.lineEndEdit;
-			} else {
-				this._isEntirelyDeleted = this.isLineStartDeleted;
-			}
-		}
-		return this._isEntirelyDeleted;
+	// is this a multi-line marker?
+	isMultiLine () {
+		return this.lineStartOld !== this.lineEndOld;
 	}
 
-	get lineStartData() {
-		if (!this._lineStartData) {
-			this._lineStartData = this._mapper.lineMap[this._lineStartOld];
-		}
-		return this._lineStartData;
+	// was the code for this marker entirely deleted, meaning, was the
+	// start of the marker and the end of the marker in code deleted by
+	// the same edit?
+	isEntirelyDeleted () {
+		return (
+			this.isLineStartDeleted() &&
+			this.isLineEndDeleted() &&
+			this.getLineStartEdit() === this.getLineEndEdit()
+		);
 	}
 
-	get lineEndData() {
-		if (!this._lineEndData) {
-			this._lineEndData = this._mapper.lineMap[this._lineEndOld];
-		}
-		return this._lineEndData;
+	// get the start line of the marker after adjustment
+	getLineStartData () {
+		return this.mapper.lineMap[this.lineStartOld];
 	}
 
-	get lineStartEdit() {
-		return this.lineStartData.edit;
+	// get the end line of the marker after adjustment
+	getLineEndData () {
+		return this.mapper.lineMap[this.lineEndOld];
 	}
 
-	get lineEndEdit() {
-		return this.lineEndData && this.lineEndData.edit;
+	// get the edit governing the start line for this marker
+	getLineStartEdit () {
+		return this.getLineStartData().edit;
 	}
 
-	get lineStartEditDeletedContent() {
-		let edit = this.lineStartEdit;
+	// get the edit governing the end line for this marker
+	getLineEndEdit () {
+		return this.getLineEndData().edit;
+	}
+
+	// get the content that was deleted in the edit that governed the
+	// start line for this marker
+	getLineStartEditDeletedContent () {
+		let edit = this.getLineStartEdit();
 		if (!edit.deletedContent) {
 			edit.deletedContent = edit.dels.join('');
 		}
 		return edit.deletedContent;
 	}
 
-	get lineStartDataDeletedContent() {
-		return this.lineStartData.delContent;
+	// for a marker where the start of the marker was in deleted code,
+	// get the content of the line that was deleted
+	getLineStartDataDeletedContent () {
+		return this.getLineStartData().delContent;
 	}
 
-	get lineEndDataDeletedContent() {
-		return this.lineEndData.delContent;
-	}
-
-	get lineStartOld() {
-		return this._lineStartOld;
-	}
-
-	get lineEndOld() {
-		return this._lineEndOld;
-	}
-
-	get colStartOld() {
-		return this._colStartOld;
-	}
-
-	get colEndOld() {
-		return this._colEndOld;
-	}
-
-	get lineStartNew() {
-		return this._lineStartNew;
-	}
-
-	set lineStartNew(val) {
-		this._lineStartNew = val;
-	}
-
-	get lineStartOldContent() {
-		return this._lineStartOldContent;
-	}
-
-	set lineStartOldContent(val) {
-		this._lineStartOldContent = val;
-	}
-
-	get lineStartNewContent() {
-		return this._lineStartNewContent;
-	}
-
-	set lineStartNewContent(val) {
-		this._lineStartNewContent = val;
-	}
-
-	get lineEndNew() {
-		return this._lineEndNew;
-	}
-
-	set lineEndNew(val) {
-		this._lineEndNew = val;
-	}
-
-	get lineEndOldContent() {
-		return this._lineEndOldContent;
-	}
-
-	set lineEndOldContent(val) {
-		this._lineEndOldContent = val;
-	}
-
-	get lineEndNewContent() {
-		return this._lineEndNewContent;
-	}
-
-	set lineEndNewContent(val) {
-		this._lineEndNewContent = val;
+	// for a marker where the end of the marker was in deleted code,
+	// get the content of the line that was deleted
+	getLineEndDataDeletedContent () {
+		return this.getLineEndData().delContent;
 	}
 }
 
