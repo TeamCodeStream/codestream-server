@@ -2,17 +2,17 @@
 
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
-class StreamIDRequiredTest extends CodeStreamAPITest {
+class PathRequiredTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'should return error if streamId is not provided';
+		return 'should return error if path is not provided with repoId';
 	}
 
 	before (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.path = '/posts?teamId=' + response.team._id;
+				this.path = `/posts?teamId=${response.team._id}&repoId=${response.repo._id}`;
 				callback();
 			},
 			{
@@ -24,9 +24,9 @@ class StreamIDRequiredTest extends CodeStreamAPITest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1001',
-			info: 'repoId or streamId'
+			info: 'path'
 		};
 	}
 }
 
-module.exports = StreamIDRequiredTest;
+module.exports = PathRequiredTest;
