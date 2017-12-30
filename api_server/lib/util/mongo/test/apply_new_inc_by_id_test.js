@@ -5,7 +5,7 @@ var UpdateTest = require('./update_test');
 class ApplyNewIncByIdTest extends UpdateTest {
 
 	get description () {
-		return 'should get the correctly updated document after applying an increment operation to a document';
+		return 'should get the correctly updated document after applying an increment operation to a document when the field does not yet exist';
 	}
 
 	updateDocument (callback) {

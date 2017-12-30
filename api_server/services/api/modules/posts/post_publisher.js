@@ -48,6 +48,9 @@ class PostPublisher {
 		if (this.data.markers) {
 			message.markers = this.data.markers;
 		}
+		if (this.data.markerLocations) {
+			message.markerLocations = this.data.markerLocations;
+		}
 		this.messager.publish(
 			message,
 			channel,

@@ -2,6 +2,7 @@
 
 var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
+const StreamIndexes = require(process.env.CS_API_TOP + '/services/api/modules/streams/indexes');
 const PostErrors = require('./errors.js');
 
 const BASIC_QUERY_PARAMETERS = [
@@ -30,15 +31,42 @@ class GetPostsRequest extends GetManyRequest {
 	}
 
 	authorize (callback) {
-		this.user.authorizeFromTeamIdAndStreamId(
-			this.request.query,
-			this,
-			(error, info) => {
-				if (error) { return callback(error); }
-				Object.assign(this, info);
-				process.nextTick(callback);
+		if (!this.request.query.streamId) {
+			if (this.request.query.repoId) {
+				return this.authorizePath(callback);
 			}
-		);
+			else {
+				return callback(this.errorHandler.error('parameterRequired', { info: 'repoId or streamId' }));
+			}
+		}
+		else {
+			this.user.authorizeFromTeamIdAndStreamId(
+				this.request.query,
+				this,
+				(error, info) => {
+					if (error) { return callback(error); }
+					Object.assign(this, info);
+					process.nextTick(callback);
+				}
+			);
+		}
+	}
+
+	authorizePath (callback) {
+		if (!this.request.query.path) {
+			return callback(this.errorHandler.error('parameterRequired', { info: 'path' }));
+		}
+		let repoId = decodeURIComponent(this.request.query.repoId);
+		return this.user.authorizeRepo(repoId, this, (error, repo) => {
+			if (error) { return callback(error); }
+			if (!repo) {
+				return callback(this.errorHandler.error('readAuth'));
+			}
+			if (repo.get('teamId') !== this.team.id) {
+				return callback(this.errorHandler.error('notFound', { info: 'repo' }));
+			}
+			return callback();
+		});
 	}
 
 	buildQuery () {
@@ -46,7 +74,7 @@ class GetPostsRequest extends GetManyRequest {
 		this.relational = null;
 		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
-				let value = decodeURIComponent(this.request.query[parameter]).toLowerCase();
+				let value = decodeURIComponent(this.request.query[parameter]);
 				parameter = decodeURIComponent(parameter);
 				let error = this.processQueryParameter(parameter, value, query);
 				if (error) {
@@ -62,7 +90,12 @@ class GetPostsRequest extends GetManyRequest {
 
 	processQueryParameter (parameter, value, query) {
 		if (BASIC_QUERY_PARAMETERS.indexOf(parameter) !== -1) {
-			query[parameter] = value;
+			if (parameter === 'file') {
+				query[parameter] = value;
+			}
+			else {
+				query[parameter] = value.toLowerCase();
+			}
 		}
 		else if (parameter === 'ids') {
 			let ids = value.split(',');
@@ -83,6 +116,12 @@ class GetPostsRequest extends GetManyRequest {
 		else if (parameter === 'seqnum') {
 			let error = this.processSeqNumParameter(value, query);
 			if (error) { return error; }
+		}
+		else if (parameter === 'path') {
+			this.path = value;
+		}
+		else if (parameter === 'repoId') {
+			this.repoId = value.toLowerCase();
 		}
 		else if (RELATIONAL_PARAMETERS.indexOf(parameter) !== -1) {
 			let error = this.processRelationalParameter(parameter, value, query);
@@ -169,6 +208,39 @@ class GetPostsRequest extends GetManyRequest {
 		else {
 			return Indexes.byId;
 		}
+	}
+
+	preFetchHook (callback) {
+		if (!this.path) {
+			return callback();
+		}
+		this.fetchStreamByPath(callback);
+	}
+
+	fetchStreamByPath (callback) {
+		let query = {
+			teamId: this.request.query.teamId.toLowerCase(),
+			repoId: this.repoId,
+			file: this.path
+		};
+		this.data.streams.getByQuery(
+			query,
+			(error, streams) => {
+				if (error) { return callback(error); }
+				if (streams.length === 0) {
+					return callback(this.errorHandler.error('notFound', { info: 'stream' }));
+				}
+				this.queryAndOptions.query.streamId = streams[0]._id;
+				callback();
+			},
+			{
+				databaseOptions: {
+					fields: ['_id'],
+					hint: StreamIndexes.byFile
+				},
+				noCache: true
+			}
+		);
 	}
 
 	process (callback) {
