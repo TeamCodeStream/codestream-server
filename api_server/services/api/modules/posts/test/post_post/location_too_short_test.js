@@ -5,7 +5,7 @@ var PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
 class LocationTooShortTest extends PostCodeToFileStreamTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element where the location array is too long';
+		return 'should return an error when attempting to create a post with a code block element where the location array is too short';
 	}
 
 	getExpectedError () {
