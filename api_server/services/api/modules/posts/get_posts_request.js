@@ -31,6 +31,9 @@ class GetPostsRequest extends GetManyRequest {
 	}
 
 	authorize (callback) {
+		if (!this.request.query.teamId) {
+			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
+		}
 		if (!this.request.query.streamId) {
 			if (this.request.query.repoId) {
 				return this.authorizePath(callback);
@@ -62,7 +65,8 @@ class GetPostsRequest extends GetManyRequest {
 			if (!repo) {
 				return callback(this.errorHandler.error('readAuth'));
 			}
-			if (repo.get('teamId') !== this.team.id) {
+			let teamId = this.request.query.teamId.toLowerCase();
+			if (repo.get('teamId') !== teamId) {
 				return callback(this.errorHandler.error('notFound', { info: 'repo' }));
 			}
 			return callback();
