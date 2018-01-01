@@ -16,6 +16,8 @@ class CodeBlockFromDifferentTeamTest extends PostPostTest {
 	}
 
 	makeStreamOptions (callback) {
+		let DO_WE_NEED_THIS = function() { while(1) { console.log('WHAT?'); }};
+		DO_WE_NEED_THIS();
 //		DO WE NEED THIS?
 		super.makeStreamOptions(() => {
 			this.streamOptions.repoId = this.repo._id;
