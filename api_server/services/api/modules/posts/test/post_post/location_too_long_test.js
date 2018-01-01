@@ -15,7 +15,9 @@ class LocationTooLongTest extends PostCodeToFileStreamTest {
 		};
 	}
 
+	// form the data to use in trying to create the post
 	makePostData (callback) {
+		// 6 elements in the location array ... not allowed!
 		super.makePostData(() => {
 			this.data.codeBlocks[0].location = [1, 2, 3, 4, 5, 6];
 			callback();

@@ -16,7 +16,9 @@ class CodeBlockHasUnknownStreamIdTest extends PostCodeToFileStreamTest {
 		};
 	}
 
+	// form the data to use in trying to create the post
 	makePostData (callback) {
+		// we'll add a code block from a non-existent stream 
 		super.makePostData(() => {
 			this.data.codeBlocks[0].streamId = ObjectID();
 			callback();

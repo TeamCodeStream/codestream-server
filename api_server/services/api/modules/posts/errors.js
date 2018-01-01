@@ -1,3 +1,5 @@
+// Errors related to the posts module
+
 'use strict';
 
 const ERRORS = {

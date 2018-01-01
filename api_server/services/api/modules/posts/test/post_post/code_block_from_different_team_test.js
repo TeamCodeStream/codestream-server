@@ -16,13 +16,17 @@ class CodeBlockFromDifferentTeamTest extends PostPostTest {
 	}
 
 	makeStreamOptions (callback) {
+//		DO WE NEED THIS?
 		super.makeStreamOptions(() => {
 			this.streamOptions.repoId = this.repo._id;
 			callback();
 		});
 	}
 
+	// form the data we'll use in creating the post
 	makePostData (callback) {
+		// before forming the post data, we'll create a second repo and file-type
+		// stream, we'll use this for the code block
 		BoundAsync.series(this, [
 			this.createOtherRepo,
 			this.createOtherFileStream,
@@ -31,6 +35,7 @@ class CodeBlockFromDifferentTeamTest extends PostPostTest {
 		], callback);
 	}
 
+	// create a second repo
 	createOtherRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -44,6 +49,7 @@ class CodeBlockFromDifferentTeamTest extends PostPostTest {
 		);
 	}
 
+	// create a second file-type stream in the other repo
 	createOtherFileStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -60,7 +66,11 @@ class CodeBlockFromDifferentTeamTest extends PostPostTest {
 		);
 	}
 
+	// set the data to use for creating the post
 	setPostData (callback) {
+		// in our post options, try to use a code block from the other file
+		// stream, since the other file stream is from a different team, this
+		// should not be allowed
 		Object.assign(this.postOptions, {
 			wantCodeBlocks: 1,
 			codeBlockStreamId: this.otherFileStream._id

@@ -14,13 +14,15 @@ class PostToFileStreamTest extends PostPostTest {
 		return 'should return a valid post when creating a post in a file stream';
 	}
 
+	// form options to use in creating the stream that will be used for the test
 	makeStreamOptions (callback) {
 		super.makeStreamOptions(() => {
-			this.streamOptions.repoId = this.repo._id;
+			this.streamOptions.repoId = this.repo._id;	// repoId must be specified for file-type streams
 			callback();
 		});
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
 		let post = data.post;
 		Assert(post.repoId === this.repo._id, 'repoId does not match the ID of the repo');

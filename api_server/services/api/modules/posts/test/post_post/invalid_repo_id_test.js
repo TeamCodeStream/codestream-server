@@ -9,10 +9,6 @@ class InvalidRepoIdTest extends FileStreamOnTheFlyTest {
 		return 'should return an error when attempting to create a post and creating a file stream on the fly with an invalid repo id';
 	}
 
-	getExpectedFields () {
-		return null;
-	}
-
 	getExpectedError () {
 		return {
 			code: 'RAPI-1003',
@@ -20,7 +16,9 @@ class InvalidRepoIdTest extends FileStreamOnTheFlyTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// for the stream we want to create on-the-fly, substitute an ID for a non-existent repo
 		super.before(error => {
 			if (error) { return callback(error); }
 			this.data.stream.repoId = ObjectID();

@@ -8,10 +8,6 @@ class InvalidTypeTest extends DirectOnTheFlyTest {
 		return 'should return an error when attempting to create a post and creating a stream on the fly with an invalid type';
 	}
 
-	getExpectedFields () {
-		return null;
-	}
-
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
@@ -21,7 +17,9 @@ class InvalidTypeTest extends DirectOnTheFlyTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// substitute an unrecognized type for the stream we are trying to create on-the-fly
 		super.before(error => {
 			if (error) { return callback(error); }
 			this.data.stream.type = 'sometype';

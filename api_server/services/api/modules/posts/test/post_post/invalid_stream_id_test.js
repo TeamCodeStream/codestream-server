@@ -9,10 +9,6 @@ class InvalidStreamIdTest extends PostPostTest {
 		return 'should return error when attempting to create a post with an invalid stream id';
 	}
 
-	getExpectedFields () {
-		return null;
-	}
-
 	getExpectedError () {
 		return {
 			code: 'RAPI-1003',
@@ -20,7 +16,9 @@ class InvalidStreamIdTest extends PostPostTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// substitute an ID for a non-existent stream when trying to create the post
 		super.before(error => {
 			if (error) { return callback(error); }
 			this.data.streamId = ObjectID();

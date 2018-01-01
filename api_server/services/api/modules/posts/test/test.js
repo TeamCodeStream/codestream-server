@@ -1,3 +1,5 @@
+// handle unit tests for the posts module
+
 'use strict';
 
 // make jshint happy

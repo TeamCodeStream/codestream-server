@@ -1,3 +1,6 @@
+// handle publishing a new post to the messager channel appropriate for the stream
+// in which the post was created
+
 'use strict';
 
 var StreamPublisher = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_publisher');
@@ -10,13 +13,17 @@ class PostPublisher {
 
 	publishPost (callback) {
 		if (this.data.stream) {
+			// we created a stream on-the-fly with this post, so publish the stream,
+			// it will then be up to the client to fetch the post?
 			this.publishNewStream(callback);
 		}
 		else {
+			// publish the post to the members of the stream
 			this.publishPostToStream(callback);
 		}
 	}
 
+	// publish the creation of a new stream
 	publishNewStream (callback) {
 		// if a new stream was created, we publish the stream as needed, then leave it up to clients
 		// to fetch from the stream
@@ -29,15 +36,19 @@ class PostPublisher {
 		}).publishStream(callback);
 	}
 
+	// publish the creation of a new post to the stream it was created in
 	publishPostToStream (callback) {
 		if (this.stream.type === 'file') {
+			// for file-type streams, we publish to the team that owns the stream
 			this.publishPostToTeam(callback);
 		}
 		else {
+			// for channels and direct, we publish to the stream itself
 			this.publishPostToTeamStream(callback);
 		}
 	}
 
+	// publish a post to a team channel
 	publishPostToTeam (callback) {
 		let teamId = this.stream.teamId;
 		let channel = 'team-' + teamId;

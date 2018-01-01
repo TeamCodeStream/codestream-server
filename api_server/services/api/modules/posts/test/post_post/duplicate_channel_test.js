@@ -19,13 +19,15 @@ class DuplicateChannelTest extends ChannelOnTheFlyTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.createDuplicateStream
+			this.createDuplicateStream	// pre-create a channel stream with the same name as we'll use in the test
 		], callback);
 	}
 
+	// create a channel stream which will look like a duplicate when we run the test
 	createDuplicateStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, stream) => {
@@ -33,6 +35,7 @@ class DuplicateChannelTest extends ChannelOnTheFlyTest {
 				this.duplicateStream = stream;
 				callback();
 			},
+			// use the name of the pre-created channel stream when we try to run the test
 			Object.assign({}, this.streamOptions, { name: this.data.stream.name })
 		);
 	}

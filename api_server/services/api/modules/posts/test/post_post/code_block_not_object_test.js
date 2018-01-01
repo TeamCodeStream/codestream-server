@@ -15,7 +15,9 @@ class CodeBlockNotObjectTest extends PostCodeToFileStreamTest {
 		};
 	}
 
+	// form the data to use in trying to create the post
 	makePostData (callback) {
+		// we'll add a "numeric" code-block ... not allowed!
 		super.makePostData(() => {
 			this.data.codeBlocks.push(1);
 			callback();

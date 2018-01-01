@@ -18,7 +18,9 @@ class NoCommitHashTest extends PostCodeToFileStreamTest {
 		};
 	}
 
+	// form the data to use in trying to create the post
 	makePostData (callback) {
+		// remove the commit hash from the data to use in creating the post
 		super.makePostData(() => {
 			delete this.data.commitHashWhenPosted;
 			callback();

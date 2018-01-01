@@ -9,7 +9,9 @@ class NoSeqNumWithRelationalTest extends GetPostsTest {
 		return 'should return an error if both seqnum and a relational query parameter is provided';
 	}
 
+	// set the path to use in the fetch request
 	setPath (callback) {
+		// provide a "gt" parameter, which is not allowed in conjunction with a seqnum parameter
 		let id = ObjectID();
 		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&seqnum=1&gt=${id}`;
 		callback();

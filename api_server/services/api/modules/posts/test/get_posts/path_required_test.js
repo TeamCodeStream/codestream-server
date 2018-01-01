@@ -8,7 +8,10 @@ class PathRequiredTest extends CodeStreamAPITest {
 		return 'should return error if path is not provided with repoId';
 	}
 
+	// before the test runs...
 	before (callback) {
+		// create a random repo and try to do GET /posts for that repo, but without
+		// specifying a path the request should be rejected
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }

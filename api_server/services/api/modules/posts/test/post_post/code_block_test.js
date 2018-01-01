@@ -10,7 +10,10 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 		return 'should return the post with marker info when creating a post with code block info in a file stream';
 	}
 
+	// validate the response to the post request
 	validateResponse (data) {
+		// validate that we got a marker in the response that corresponds to the
+		// code block we sent
 		let post = data.post;
 		Assert(data.markers instanceof Array, 'no markers array');
 		Assert(data.markers.length === 1, 'length of markers array is ' + data.markers.length);
@@ -26,6 +29,7 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 		super.validateResponse(data);
 	}
 
+	// validate that the marker locations structure matches expectations for a created code block
 	validateMarkerLocations (data, post, marker) {
 		Assert(typeof data.markerLocations === 'object', 'missing or invalid markerLocations object');
 		let markerLocations = data.markerLocations;

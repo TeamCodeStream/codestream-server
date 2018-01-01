@@ -16,13 +16,15 @@ class StreamNoMatchTeamTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createReposAndStreams,
-			this.setPath
+			this.createReposAndStreams,	// create a repo and some streams in that repo
+			this.setPath				// set the path to use in the test request
 		], callback);
 	}
 
+	// create two repos and a stream in each one
 	createReposAndStreams (callback) {
 		this.teams = [];
 		this.streams = [];
@@ -34,6 +36,7 @@ class StreamNoMatchTeamTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a repo and then a stream in that repo
 	createRepoAndStream (n, callback) {
 		BoundAsync.series(this, [
 			this.createRepo,
@@ -41,6 +44,7 @@ class StreamNoMatchTeamTest extends CodeStreamAPITest {
 		], callback);
 	}
 
+	// create a repo
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -51,12 +55,13 @@ class StreamNoMatchTeamTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withRandomEmails: 2,
+				withRandomEmails: 2,	// a couple other users for good measure
 				token: this.token
 			}
 		);
 	}
 
+	// create a stream in the last repo we created
 	createStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -73,7 +78,11 @@ class StreamNoMatchTeamTest extends CodeStreamAPITest {
 		);
 	}
 
+	// set the path to use in the test request
 	setPath (callback) {
+		// we'll use the ID of a stream but the ID of a different team ...
+		// the user is in both teams, but the teamId still has to match
+		// the stream you're trying to post in
 		let teamId = this.teams[0]._id;
 		let streamId = this.streams[1]._id;
 		this.path = `/posts?teamId=${teamId}&streamId=${streamId}`;

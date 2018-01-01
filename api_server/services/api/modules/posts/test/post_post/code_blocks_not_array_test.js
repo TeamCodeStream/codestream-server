@@ -15,7 +15,9 @@ class CodeBlocksNotArrayTest extends PostCodeToFileStreamTest {
 		};
 	}
 
+	// form the data to use in trying to create the post
 	makePostData (callback) {
+		// use a "numeric" code block structure ... not allowed!
 		super.makePostData(() => {
 			this.data.codeBlocks = 1;
 			callback();

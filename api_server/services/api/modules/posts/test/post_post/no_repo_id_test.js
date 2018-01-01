@@ -8,10 +8,6 @@ class NoRepoIdTest extends FileStreamOnTheFlyTest {
 		return 'should return an error when attempting to create a post and creating a file stream on the fly with no repoId';
 	}
 
-	getExpectedFields () {
-		return null;
-	}
-
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
@@ -21,7 +17,9 @@ class NoRepoIdTest extends FileStreamOnTheFlyTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// delete the repoId to use when creating the stream on the fly while we create the post
 		super.before(error => {
 			if (error) { return callback(error); }
 			delete this.data.stream.repoId;

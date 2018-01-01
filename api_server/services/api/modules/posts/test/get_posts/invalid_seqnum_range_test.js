@@ -8,7 +8,9 @@ class InvalidSeqNumRangeTest extends GetPostsTest {
 		return 'should return an error if an invalid sequence number range is provided';
 	}
 
+	// set the path to use in the fetch request
 	setPath (callback) {
+		// provide an invalid sequence number (non-numeric), which will be rejected
 		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&seqnum=1-y`;
 		callback();
 	}

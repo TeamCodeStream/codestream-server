@@ -9,6 +9,7 @@ class TeamIDRequiredTest extends CodeStreamAPITest {
 	}
 
 	get path () {
+		// no teamID in this path...
 		return '/posts';
 	}
 
