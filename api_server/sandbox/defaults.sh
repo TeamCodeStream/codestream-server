@@ -61,5 +61,5 @@ export CS_API_PUBNUB_SECRET=sec-c-MmU3MmNlOGQtNjNhYS00NTk1LWI3NDItZDZlMjk3NmJkMD
 # Specify the yarn package manager
 export CS_API_YARN=true
 
-# Specify the path to our "test repo"
-export CS_API_TEST_REPO_PATH=
+# Location of the TestRepo repo used For maintaining test scripts
+export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo
