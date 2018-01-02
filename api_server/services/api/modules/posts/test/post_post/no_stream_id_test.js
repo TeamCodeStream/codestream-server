@@ -14,7 +14,7 @@ class NoStreamIdTest extends PostPostTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1002',
+			code: 'RAPI-1001',
 			info: 'streamId'
 		};
 	}

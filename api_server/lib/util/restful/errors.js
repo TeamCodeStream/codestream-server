@@ -12,10 +12,12 @@ const ERRORS = {
 		code: 'RAPI-1001',
 		message: 'Parameter required'
 	},
+/* Deprecated
 	'attributeRequired': {
 		code: 'RAPI-1002',
 		message: 'Attribute required'
 	},
+*/
 	'notFound': {
 		code: 'RAPI-1003',
 		message: 'Object not found'
@@ -32,10 +34,12 @@ const ERRORS = {
 		code: 'RAPI-1006',
 		message: 'Query not allowed'
 	},
+/* Deprecated
 	'invalidAttribute': {
 		code: 'RAPI-1007',
 		message: 'Invalid attribute'
 	},
+*/
 	'missingArgument': {
 		code: 'RAPI-1008',
 		message: 'Missing argument',

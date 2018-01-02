@@ -51,10 +51,10 @@ class ModelCreator {
 				return callback();
 			}
 			if (info.missing) {
-				return callback(this.errorHandler.error('attributeRequired', { info: info.missing.join(',') }));
+				return callback(this.errorHandler.error('parameterRequired', { info: info.missing.join(',') }));
 			}
 			else if (info.invalid) {
-				return callback(this.errorHandler.error('invalidAttribute', { info: info.invalid.join(',') }));
+				return callback(this.errorHandler.error('invalidParameter', { info: info.invalid.join(',') }));
 			}
 			else if (info.deleted && this.api) {
 				this.api.warn(`These attributes were deleted: ${info.deleted.join(',')}`);

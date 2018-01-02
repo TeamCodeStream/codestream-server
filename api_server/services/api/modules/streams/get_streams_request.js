@@ -25,14 +25,7 @@ const NON_FILTERING_PARAMETERS = [
 class GetStreamsRequest extends GetManyRequest {
 
 	authorize (callback) {
-		if (!this.request.query.teamId) {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
-		}
-		let teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
-		if (!this.user.hasTeam(teamId)) {
-			return callback(this.errorHandler.error('readAuth'));
-		}
-		return process.nextTick(callback);
+		this.user.authorizeFromTeamId(this.request.query, this, callback);
 	}
 
 	buildQuery () {

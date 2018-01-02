@@ -34,7 +34,6 @@ class GetPostsRequest extends GetManyRequest {
 		if (!this.request.query.teamId) {
 			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
 		}
-		this.teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
 		if (!this.request.query.streamId) {
 			if (this.request.query.repoId) {
 				return this.authorizePath(callback);
@@ -43,18 +42,17 @@ class GetPostsRequest extends GetManyRequest {
 				return callback(this.errorHandler.error('parameterRequired', { info: 'repoId or streamId' }));
 			}
 		}
-
-		let streamId = decodeURIComponent(this.request.query.streamId).toLowerCase();
-		this.user.authorizeStream(streamId, this, (error, stream) => {
-			if (error) { return callback(error); }
-			if (!stream) {
-				return callback(this.errorHandler.error('readAuth'));
-			}
-			if (stream.get('teamId') !== this.teamId) {
-				return callback(this.errorHandler.error('notFound', { info: 'stream' }));
-			}
-			process.nextTick(callback);
-		});
+		else {
+			this.user.authorizeFromTeamIdAndStreamId(
+				this.request.query,
+				this,
+				(error, info) => {
+					if (error) { return callback(error); }
+					Object.assign(this, info);
+					process.nextTick(callback);
+				}
+			);
+		}
 	}
 
 	authorizePath (callback) {
@@ -67,7 +65,8 @@ class GetPostsRequest extends GetManyRequest {
 			if (!repo) {
 				return callback(this.errorHandler.error('readAuth'));
 			}
-			if (repo.get('teamId') !== this.teamId) {
+			let teamId = this.request.query.teamId.toLowerCase();
+			if (repo.get('teamId') !== teamId) {
 				return callback(this.errorHandler.error('notFound', { info: 'repo' }));
 			}
 			return callback();

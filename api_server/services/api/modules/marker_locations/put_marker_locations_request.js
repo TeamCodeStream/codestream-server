@@ -10,33 +10,19 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 
 	// authorize the request
 	authorize (callback) {
-		// team ID and stream ID are required, and the user must have access to the stream
-		if (!this.request.body.teamId) {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
-		}
-		else if (typeof this.request.body.teamId !== 'string') {
-			return callback(this.errorHandler.error('invalidParameter', { info: 'teamId' }));
-		}
-		this.teamId = this.request.body.teamId.toLowerCase();
-		if (!this.request.body.streamId) {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'streamId' }));
-		}
-		else if (typeof this.request.body.streamId !== 'string') {
-			return callback(this.errorHandler.error('invalidParameter', { info: 'streamId' }));
-		}
-		this.streamId = this.request.body.streamId.toLowerCase();
-		this.user.authorizeStream(this.streamId, this, (error, stream) => {
-			if (error) { return callback(error); }
-			if (!stream || stream.get('type') !== 'file') {
-				return callback(this.errorHandler.error('updateAuth', { reason: 'not a file stream' }));
+		this.user.authorizeFromTeamIdAndStreamId(
+			this.request.body,
+			this,
+			(error, info) => {
+				if (error) { return callback(error); }
+				Object.assign(this, info);
+				process.nextTick(callback);
+			},
+			{
+				mustBeFileStream: true,
+				error: 'updateAuth'
 			}
-			if (stream.get('teamId') !== this.teamId) {
-				// stream must be owned by the given team, this anticipates sharding where this query
-				// may not return a valid stream even if it exists but is not owned by the same team
-				return callback(this.errorHandler.error('notFound', { info: 'stream' }));
-			}
-			process.nextTick(callback);
-		});
+		);
 	}
 
 	// process the request...
@@ -146,7 +132,7 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 			error => {
 				if (error) {
 					// this doesn't break the chain, but it is unfortunate...
-					this.warn(`Could not publish post message to team ${this.teamId}: ${JSON.stringify(error)}`);
+					this.warn(`Could not publish marker locations update message to team ${this.teamId}: ${JSON.stringify(error)}`);
 				}
 				callback();
 			}

@@ -81,7 +81,7 @@ class RepoCreator extends ModelCreator {
 			this.createTeamForRepo(callback);
 		}
 		else {
-			return callback(this.errorHandler.error('attributeRequired', { info: 'team' }));
+			return callback(this.errorHandler.error('parameterRequired', { info: 'team' }));
 		}
 	}
 
