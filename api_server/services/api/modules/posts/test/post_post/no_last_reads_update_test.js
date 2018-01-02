@@ -17,10 +17,9 @@ class NoLastReadsUpdateTest extends CodeStreamAPITest {
 			this.createOtherUser,	// create another user
 			this.createRepo,		// create a repo (which will also create a team)
 			this.createStream,		// create a stream in the repo or team
-			this.createPosts,		// create some posts in the stream
 			this.createFirstPosts,	// create some posts in the stream, we'll simulate "reading" these posts
 			this.markRead,			// mark the previously created posts as "read"
-			this.createLastPost		// create an additional post in the stream, this will be "unread"
+			this.createLastPosts	// create an additional post in the stream, this will be "unread"
 		], callback);
 	}
 

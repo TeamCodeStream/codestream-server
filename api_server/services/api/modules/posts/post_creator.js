@@ -286,6 +286,11 @@ class PostCreator extends ModelCreator {
 
 	// requisition a sequence number for this post
 	getSeqNum (callback) {
+		if (this.createdStream) {
+			// if we created the stream, start out with seqNum of 1
+			this.attributes.seqNum = 1;
+			return callback();
+		}
 		let seqNum = null;
 		let numRetries = 0;
 		let gotError = null;
