@@ -15,15 +15,19 @@ class MultipleCodeBlocksTest extends PostCodeToFileStreamTest {
 		return 'should see all the markers when a post is created in the stream with multiple code blocks';
 	}
 
+	// form options to use when creating the data for the post we'll create
 	makePostOptions (callback) {
+		// say we want several code blocks when creating the post
 		super.makePostOptions(() => {
 			this.postOptions.wantCodeBlocks = this.numCodeBlocks;
 			callback();
 		});
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
 		let post = data.post;
+		// validate that we got markers for each code block
 		Assert(data.markers instanceof Array, 'no markers array');
 		Assert(data.markers.length === this.numCodeBlocks, 'length of markers array is not equal to the number of code blocks');
 		for (let i = 0; i < this.numCodeBlocks; i++) {
@@ -40,7 +44,10 @@ class MultipleCodeBlocksTest extends PostCodeToFileStreamTest {
 		super.validateResponse(data);
 	}
 
+	// validate the marker locations structure we got back in the response to the test request
 	validateMarkerLocations (data, post) {
+		// validate we got the expected marker locations, according to the code blocks we sent
+		// in the request to create a post
 		Assert(typeof data.markerLocations === 'object', 'missing or invalid markerLocations object');
 		let markerLocations = data.markerLocations;
 		Assert(markerLocations.teamId === post.teamId, 'markerLocations teamId does not match');

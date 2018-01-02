@@ -15,9 +15,10 @@ class CodeBlockForBadStreamTypeTest extends PostPostTest {
 		};
 	}
 
+	// form options to use in trying to create the post
 	makePostOptions (callback) {
 		super.makePostOptions(() => {
-			this.postOptions.wantCodeBlocks = 1;
+			this.postOptions.wantCodeBlocks = 1;	// want code blocks, but this will be a channel or direct stream (not allowed)
 			callback();
 		});
 	}

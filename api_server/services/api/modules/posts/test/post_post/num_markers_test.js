@@ -13,6 +13,9 @@ class NumMarkersTest extends CodeStreamAPITest {
 	}
 
 	get description () {
+		// each time a post with code blocks is created in a stream, we increment an attribute
+		// of the stream called numMarkers ... this is important for the client to know when
+		// it has all the marker locations for a given stream
 		return 'numMarkers for the stream should get incremented when a post is created in the stream with code blocks';
 	}
 
@@ -24,14 +27,16 @@ class NumMarkersTest extends CodeStreamAPITest {
 		return { stream: ['numMarkers'] };
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createRepo,
-			this.createStream,
-			this.createPosts
+			this.createRepo,	// create a repo for the test
+			this.createStream,	// create a stream in the repo
+			this.createPosts	// create some posts in the stream
 		], callback);
 	}
 
+	// create a repo for the test
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -46,6 +51,7 @@ class NumMarkersTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a file-type stream in the repo we created
 	createStream (callback) {
 		let streamOptions = {
 			type: 'file',
@@ -57,6 +63,7 @@ class NumMarkersTest extends CodeStreamAPITest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
+				// for the test, we'll fetch the stream to confirm numMarkers has been incremented
 				this.path = '/streams/' + this.stream._id;
 				callback();
 			},
@@ -64,6 +71,7 @@ class NumMarkersTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create some posts in the stream we created
 	createPosts (callback) {
 		BoundAsync.times(
 			this,
@@ -73,6 +81,7 @@ class NumMarkersTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a single post in the stream we created, with code blocks to increment numMarkers
 	createPost (n, callback) {
 		let postOptions = {
 			streamId: this.stream._id,
@@ -82,7 +91,9 @@ class NumMarkersTest extends CodeStreamAPITest {
 		this.postFactory.createRandomPost(callback, postOptions);
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// verify that numMarkers is equal to the total number of code blocks 
 		let numMarkers = this.numPosts * this.numCodeBlocks;
 		Assert(numMarkers === data.stream.numMarkers, `numMarkers should be ${numMarkers}, but it is ${data.stream.numMarkers}`);
 	}

@@ -15,7 +15,9 @@ class CodeBlockTooBigTest extends PostCodeToFileStreamTest {
 		};
 	}
 
+	// form the data to use in trying to create the post
 	makePostData (callback) {
+		// put a whole bunch of code in the code block, greater than the limit
 		super.makePostData(() => {
 			this.data.codeBlocks[0].code = 'x'.repeat(10001);
 			callback();

@@ -10,21 +10,25 @@ class NumCommentsTest extends PostReplyTest {
 		return 'parent post\'s marker should get its numComments attribute incremented when a reply is created for a post';
 	}
 
+	// make options to use when creating the test post
 	makePostOptions (callback) {
 		super.makePostOptions(() => {
-			this.postOptions.wantCodeBlocks = true;
+			this.postOptions.wantCodeBlocks = true;	// want a code block, then we'll check the marker
 			callback();
 		});
 	}
 
+	// run the test...
 	run (callback) {
 		BoundAsync.series(this, [
-			super.run,
-			this.checkMarker
+			super.run,	// this posts the reply and checks the result, but then...
+			this.checkMarker	// ...we'll check the marker
 		], callback);
 	}
 
+	// check the marker associated with the code block sent with the post reply
 	checkMarker (callback) {
+		// get the marker for the code block
 		this.doApiRequest(
 			{
 				method: 'get',
@@ -33,6 +37,7 @@ class NumCommentsTest extends PostReplyTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
+				// confirm the numComments attribute has been incremented
 				Assert(response.marker.numComments === 2, 'numComments is not 2, it is ' + response.marker.numComments);
 				callback();
 			}

@@ -5,8 +5,9 @@ var ACLTest = require('./acl_test');
 class ACLTeamTest extends ACLTest {
 
 	constructor (options) {
+		// modify the base ACLTest...
 		super(options);
-		this.withoutMeOnTeam = true;
+		this.withoutMeOnTeam = true;	// i won't be on the team that owns the stream in whcih i'm trying to create a post
 	}
 
 	getExpectedError () {

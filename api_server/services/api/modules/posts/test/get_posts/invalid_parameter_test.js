@@ -8,7 +8,9 @@ class InvalidParameterTest extends GetPostsTest {
 		return 'should return an error if an unknown query parameter is provided trying to get a post';
 	}
 
+	// set the path to use in the fetch request
 	setPath (callback) {
+		// provide random parameter "thisparam", which will be rejected
 		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&thisparam=1`;
 		callback();
 	}

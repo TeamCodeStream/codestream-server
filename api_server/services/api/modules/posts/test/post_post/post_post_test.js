@@ -1,3 +1,5 @@
+// base class for many tests of the "POST /posts" requests
+
 'use strict';
 
 var Assert = require('assert');
@@ -28,18 +30,20 @@ class PostPostTest extends CodeStreamAPITest {
 		return { post: PostTestConstants.EXPECTED_POST_FIELDS };
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRandomRepo,
-			this.makeStreamOptions,
-			this.createRandomStream,
-			this.makePostOptions,
-			this.createOtherPost,
-			this.makePostData
+			this.createOtherUser,	// create another registered user
+			this.createRandomRepo,	// create a random repo (and team) for the test
+			this.makeStreamOptions,	// make options associated with the stream that will be created
+			this.createRandomStream,	// create the stream
+			this.makePostOptions,	// make post options associated with the post that will be created
+			this.createOtherPost,	// create another post (before the test post), as needed
+			this.makePostData		// make the data associated with the test post to be created
 		], callback);
 	}
 
+	// create another registered user (in addition to the "current" user)
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -50,6 +54,7 @@ class PostPostTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a random repo to use for the test
 	createRandomRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -60,22 +65,24 @@ class PostPostTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withEmails: [this.currentUser.email],
-				withRandomEmails: 2,
-				token: this.otherUserData.accessToken
+				withEmails: [this.currentUser.email],	// include current user
+				withRandomEmails: 2,	// and 2 other users for good measure
+				token: this.otherUserData.accessToken	// the "other user" is the repo and team creator
 			}
 		);
 	}
 
+	// form options to use in creating the stream that will be used for the test
 	makeStreamOptions (callback) {
 		this.streamOptions = {
-			type: this.streamType || 'direct',
-			teamId: this.team._id,
-			token: this.token
+			type: this.streamType || 'direct',	// stream type as specified for the test
+			teamId: this.team._id,	// create the stream in the team we already created
+			token: this.token	// current user is the stream creator
 		};
 		callback();
 	}
 
+	// create a random stream to use for the test
 	createRandomStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -87,15 +94,17 @@ class PostPostTest extends CodeStreamAPITest {
 		);
 	}
 
+	// form options to be used when creating the test post
 	makePostOptions (callback) {
 		this.postOptions = {
-			streamId: this.stream._id
+			streamId: this.stream._id	// create the post in the stream we already created
 		};
 		callback();
 	}
 
+	// create another post, in addition to the post we will create as part of the test
 	createOtherPost (callback) {
-		if (!this.testOptions.wantOtherPost) {
+		if (!this.testOptions.wantOtherPost) {	// as specified by the derived test
 			return callback();
 		}
 		this.postFactory.createRandomPost(
@@ -104,10 +113,12 @@ class PostPostTest extends CodeStreamAPITest {
 				this.otherPostData = response;
 				callback();
 			},
+			// have the "other user" create the other post
 			Object.assign({}, this.postOptions, { token: this.otherUserData.accessToken })
 		);
 	}
 
+	// form the data for the post we'll create in the test
 	makePostData (callback) {
 		this.postFactory.getRandomPostData(
 			(error, data) => {
@@ -119,7 +130,9 @@ class PostPostTest extends CodeStreamAPITest {
 		);
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// verify we got back a post with the attributes we specified
 		let post = data.post;
 		let errors = [];
 		let expectedSeqNum = this.testOptions.expectedSeqNum || 1;
@@ -134,6 +147,7 @@ class PostPostTest extends CodeStreamAPITest {
 			((post.seqNum === expectedSeqNum) || errors.push('seqNum not equal to expected seqNum'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		// verify the post in the response has no attributes that should not go to clients
 		this.validateSanitized(post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

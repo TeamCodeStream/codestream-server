@@ -15,7 +15,9 @@ class InvalidCoordinateObjectTest extends PostCodeToFileStreamTest {
 		};
 	}
 
+	// form the data to use in trying to create the post
 	makePostData (callback) {
+		// add a fifth coordinate element that is not an object ... not allowed!
 		super.makePostData(() => {
 			this.data.codeBlocks[0].location = [1, 2, 3, 4, 5];
 			callback();

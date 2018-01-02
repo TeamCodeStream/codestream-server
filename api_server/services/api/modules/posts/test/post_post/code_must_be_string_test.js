@@ -15,7 +15,9 @@ class CodeMustBeStringTest extends PostCodeToFileStreamTest {
 		};
 	}
 
+	// form the data to use in trying to create the post
 	makePostData (callback) {
+		// use "numeric" for the actual code text ... not allowed!
 		super.makePostData(() => {
 			this.data.codeBlocks[0].code = 1;
 			callback();

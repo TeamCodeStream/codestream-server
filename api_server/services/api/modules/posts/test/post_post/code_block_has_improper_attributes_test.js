@@ -15,7 +15,9 @@ class CodeBlockHasImproperAttributesTest extends PostCodeToFileStreamTest {
 		};
 	}
 
+	// form the data to use in trying to create the post
 	makePostData (callback) {
+		// we'll add a code block and add some invalid attribute to it
 		super.makePostData(() => {
 			this.data.codeBlocks[0].someAttribute = 1;
 			callback();

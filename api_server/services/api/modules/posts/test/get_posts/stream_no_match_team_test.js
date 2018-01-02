@@ -16,13 +16,16 @@ class StreamNoMatchTeamTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createReposAndStreams,
-			this.setPath
+			this.createReposAndStreams,	// create two team/repo/stream series
+			this.setPath				// set the path for the fetch request
 		], callback);
 	}
 
+	// create two sets of repos and streams (and teams), we'll try to fetch from
+	// one with a teamId matching the other
 	createReposAndStreams (callback) {
 		this.teams = [];
 		this.streams = [];
@@ -34,6 +37,7 @@ class StreamNoMatchTeamTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a repo and a stream in that repo
 	createRepoAndStream (n, callback) {
 		BoundAsync.series(this, [
 			this.createRepo,
@@ -41,6 +45,7 @@ class StreamNoMatchTeamTest extends CodeStreamAPITest {
 		], callback);
 	}
 
+	// create a single repo
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -57,6 +62,7 @@ class StreamNoMatchTeamTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a single stream in the last repo we created
 	createStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -67,13 +73,15 @@ class StreamNoMatchTeamTest extends CodeStreamAPITest {
 			{
 				type: 'channel',
 				teamId: this.lastTeamId,
-				memberIds: [this.lastUsers[0]._id],
+				memberIds: [this.lastUsers[0]._id], // put one of the users on the team in the stream
 				token: this.token
 			}
 		);
 	}
 
+	// set the path to use in the fetch request
 	setPath (callback) {
+		// here the teamId won't match the team that owns the stream 
 		let teamId = this.teams[0]._id;
 		let streamId = this.streams[1]._id;
 		this.path = `/posts?teamId=${teamId}&streamId=${streamId}`;

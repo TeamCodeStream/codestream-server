@@ -1,3 +1,5 @@
+// attributes for post documents/models
+
 'use strict';
 
 module.exports = {

@@ -8,10 +8,6 @@ class NameRequiredTest extends ChannelOnTheFlyTest {
 		return 'should return an error when attempting to create a post and creating a channel stream on the fly with no name';
 	}
 
-	getExpectedFields () {
-		return null;
-	}
-
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
@@ -21,7 +17,10 @@ class NameRequiredTest extends ChannelOnTheFlyTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// delete the name that would otherwise be used in the request
+		// to create a channel stream on the fly with the post
 		super.before(error => {
 			if (error) { return callback(error); }
 			delete this.data.stream.name;

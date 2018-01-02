@@ -10,7 +10,7 @@ class PostToDirectTest extends PostPostTest {
 
 	makeStreamOptions (callback) {
 		super.makeStreamOptions(() => {
-			this.streamOptions.memberIds = [this.users[1]._id];
+			this.streamOptions.memberIds = [this.users[1]._id];	 // add a randomly created user for good measure
 			callback();
 		});
 	}

@@ -1,3 +1,5 @@
+// handle unit tests for the "POST /posts" request
+
 'use strict';
 
 var PostPostTest = require('./post_post_test');

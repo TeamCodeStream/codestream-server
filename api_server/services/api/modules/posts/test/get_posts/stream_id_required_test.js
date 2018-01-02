@@ -8,7 +8,9 @@ class StreamIDRequiredTest extends CodeStreamAPITest {
 		return 'should return error if streamId is not provided';
 	}
 
+	// before the test runs...
 	before (callback) {
+		// create a random repo, then try to fetch posts without specifying a stream ID
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }

@@ -1,9 +1,12 @@
+// test constants for testing the posts module
+
 'use strict';
 
 const PostAttributes = require(process.env.CS_API_TOP + '/services/api/modules/posts/post_attributes');
 const StreamAttributes = require(process.env.CS_API_TOP + '/services/api/modules/streams/stream_attributes');
 const MarkerAttributes = require(process.env.CS_API_TOP + '/services/api/modules/markers/marker_attributes');
 
+// fields expected in all posts
 const EXPECTED_POST_FIELDS = [
 	'_id',
 	'deactivated',
@@ -16,12 +19,14 @@ const EXPECTED_POST_FIELDS = [
 	'seqNum'
 ];
 
+// fields expected for posts in file-type streams
 const EXPECTED_FILE_POST_FIELDS = [
 	'repoId',
 	'commitHashWhenPosted',
 	'codeBlocks'
 ];
 
+// fields expected in posts that are replies to other posts
 const EXPECTED_REPLY_POST_FIELDS = [
 	'parentPostId'
 ];

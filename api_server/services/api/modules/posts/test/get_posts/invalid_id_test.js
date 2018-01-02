@@ -8,7 +8,9 @@ class InvalidIDTest extends GetPostsTest {
 		return 'should return an error if an invalid id is provided with a relational query parameter';
 	}
 
+	// set the path to use in the fetch request
 	setPath (callback) {
+		// provide an invalid ID for the "lt" parameter
 		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&lt=1`;
 		callback();
 	}

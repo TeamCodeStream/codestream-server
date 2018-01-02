@@ -15,7 +15,9 @@ class LocationMustBeNumbersTest extends PostCodeToFileStreamTest {
 		};
 	}
 
+	// form the data to use in trying to create the post
 	makePostData (callback) {
+		// set an element in the location array to a non-numeric ... not allowed!
 		super.makePostData(() => {
 			this.data.codeBlocks[0].location = [1, 2, 'x', 4];
 			callback();

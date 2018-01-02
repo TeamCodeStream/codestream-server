@@ -16,13 +16,16 @@ class RepoNoMatchTeamTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createReposAndStreams,
-			this.setPath
+			this.createReposAndStreams,	// create two series of team/repo/stream
+			this.setPath				// set the path for the post fetch request
 		], callback);
 	}
 
+	// create two sets of repos and streams (and teams), we'll try to fetch from
+	// one with a teamId matching the other
 	createReposAndStreams (callback) {
 		this.teams = [];
 		this.repos = [];
@@ -35,6 +38,7 @@ class RepoNoMatchTeamTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a repo and a stream in that repo
 	createRepoAndStream (n, callback) {
 		BoundAsync.series(this, [
 			this.createRepo,
@@ -42,6 +46,7 @@ class RepoNoMatchTeamTest extends CodeStreamAPITest {
 		], callback);
 	}
 
+	// create a single repo
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -60,6 +65,7 @@ class RepoNoMatchTeamTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a single stream in the last repo we created
 	createStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -71,13 +77,15 @@ class RepoNoMatchTeamTest extends CodeStreamAPITest {
 				type: 'file',
 				teamId: this.lastTeamId,
 				repoId: this.lastRepoId,
-				memberIds: [this.lastUsers[0]._id],
+				memberIds: [this.lastUsers[0]._id],	// put one of the users on the team in the stream
 				token: this.token
 			}
 		);
 	}
 
+	// set the path to use in the fetch request
 	setPath (callback) {
+		// here the teamId won't match the team that owns the repo 
 		let teamId = this.teams[0]._id;
 		let repoId = this.repos[1]._id;
 		let path = encodeURIComponent(this.streams[1].path);

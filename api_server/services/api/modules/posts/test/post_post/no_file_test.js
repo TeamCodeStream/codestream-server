@@ -8,10 +8,6 @@ class NoFileTest extends FileStreamOnTheFlyTest {
 		return 'should return an error when attempting to create a post and creating a file stream on the fly with no file';
 	}
 
-	getExpectedFields () {
-		return null;
-	}
-
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
@@ -21,7 +17,9 @@ class NoFileTest extends FileStreamOnTheFlyTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// delete the file attribute from the stream we are trying to create on the fly
 		super.before(error => {
 			if (error) { return callback(error); }
 			delete this.data.stream.file;

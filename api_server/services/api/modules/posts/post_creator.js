@@ -1,3 +1,5 @@
+// this class should be used to create all post documents in the database
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
@@ -11,18 +13,21 @@ const PostAttributes = require('./post_attributes');
 class PostCreator extends ModelCreator {
 
 	get modelClass () {
-		return Post;
+		return Post;	// class to use to create a post model
 	}
 
 	get collectionName () {
-		return 'posts';
+		return 'posts';	// data collection to use
 	}
 
+	// convenience wrapper
 	createPost (attributes, callback) {
 		return this.createModel(attributes, callback);
 	}
 
+	// normalize post creation operation (pre-save)
 	normalize (callback) {
+		// if we have code blocks, make sure they are valid
 		if (this.attributes.codeBlocks) {
 			this.validateCodeBlocks(callback);
 		}
@@ -31,6 +36,8 @@ class PostCreator extends ModelCreator {
 		}
 	}
 
+	// get attributes that are required for post creation, and those that are optional,
+	// along with their types
 	getRequiredAndOptionalAttributes () {
 		return {
 			optional: {
@@ -41,24 +48,30 @@ class PostCreator extends ModelCreator {
 		};
 	}
 
+	// validate attributes for the post we are creating
 	validateAttributes (callback) {
 		if (!this.attributes.streamId && typeof this.attributes.stream !== 'object') {
+			// must have a stream ID or a stream object (for creating streams on the fly)
 			return callback(this.errorHandler.error('parameterRequired', { info: 'streamId or stream' }));
 		}
 		if (this.attributes.codeBlocks && !this.attributes.commitHashWhenPosted) {
+			// if we have code blocks, must have a commit hash
 			return callback(this.errorHandler.error('parameterRequired', { info: 'commitHashWhenPosted' }));
 		}
 		callback();
 	}
 
+	// validate the code blocks sent with the post creation
 	validateCodeBlocks (callback) {
+		// must be an array of objects
 		let result = new Post().validator.validateArrayOfObjects(
 			this.attributes.codeBlocks,
 			PostAttributes.codeBlocks
 		);
-		if (result) {
+		if (result) {	// really an error
 			return callback(this.errorHandler.error('validation', { info: `codeBlocks: ${result}` }));
 		}
+		// validate each code block in turn
 		BoundAsync.forEachSeries(
 			this,
 			this.attributes.codeBlocks,
@@ -74,15 +87,20 @@ class PostCreator extends ModelCreator {
 		);
 	}
 
+	// validate a single code block
 	validateCodeBlock (codeBlock, callback) {
-		let numKeys = 2;
+		let numKeys = 2;	// we are strict about which keys can be in the code block object
+		// must have code with the code block
 		if (typeof codeBlock.code !== 'string') {
 			return callback('code must be a string');
 		}
+		// the location coordinates must be valid
 		let result = MarkerCreator.validateLocation(codeBlock.location);
 		if (result) {
 			return callback(result);
 		}
+		// if the code block specifies a stream ID (which can be different from the
+		// stream ID for the post), it must be a valid ID
 		if (codeBlock.streamId) {
 			numKeys++;
 			let result = new Post().validator.validateId(codeBlock.streamId);
@@ -91,34 +109,38 @@ class PostCreator extends ModelCreator {
 			}
 		}
 		if (Object.keys(codeBlock).length > numKeys) {
+			// there can't be any additional attributes in the code block
 			return callback('improper attributes');
 		}
 		process.nextTick(callback);
 	}
 
+	// called before the post is actually saved
 	preSave (callback) {
 		if (this.attributes.commitHashWhenPosted) {
+			// commit hash always converted to lowercase
 			this.attributes.commitHashWhenPosted = this.attributes.commitHashWhenPosted.toLowerCase();
 		}
 		this.attributes.creatorId = this.user.id;
 		BoundAsync.series(this, [
-			this.getStream,
-			this.getRepo,
-			this.getTeam,
-			this.createStream,
-			this.createId,
-			this.createMarkers,
-			this.getSeqNum,
-			super.preSave,
-			this.updateStream,
-			this.updateLastReads,
-			this.updateMarkersForReply
+			this.getStream,			// get the stream for the post
+			this.getRepo,			// get the repo (for posts in file-type streams)
+			this.getTeam,			// get the team that owns the stream
+			this.createStream,		// create the stream, if requested to create on-the-fly
+			this.createId,			// create an ID for the post
+			this.createMarkers,		// create markers for any code blocks sent
+			this.getSeqNum,			// requisition a sequence number for the post
+			super.preSave,			// base-class preSave
+			this.updateStream,		// update the stream as needed
+			this.updateLastReads,	// update lastReads attributes for affected users
+			this.updateMarkersForReply	// update markers, if this is a reply to a parent with a code block
 		], callback);
 	}
 
+	// get the stream we're trying to create the post in
 	getStream (callback) {
 		if (!this.attributes.streamId) {
-			return callback();
+			return callback();	// stream will be created on-the-fly
 		}
 		this.data.streams.getById(
 			this.attributes.streamId,
@@ -128,18 +150,19 @@ class PostCreator extends ModelCreator {
 					return callback(this.errorHandler.error('notFound', { info: 'stream'}));
 				}
 				this.stream = stream;
-				this.previousPostId = stream.get('mostRecentPostId');
+				this.previousPostId = stream.get('mostRecentPostId');	// we'll use this to update lastReads for the users
 				callback();
 			}
 		);
 	}
 
+	// get the repo to which the stream belongs, if it is a file-type stream
 	getRepo (callback) {
 		let repoId = this.stream ?
-			this.stream.get('repoId') :
-			this.attributes.stream.repoId;
+			this.stream.get('repoId') :		// stream given by ID
+			this.attributes.stream.repoId;	// on-the-fly stream
 		if (!repoId) {
-			return callback();
+			return callback();	// not a file-type stream
 		}
 		this.data.repos.getById(
 			repoId,
@@ -149,12 +172,13 @@ class PostCreator extends ModelCreator {
 					return callback(this.errorHandler.error('notFound', { info: 'repo'}));
 				}
 				this.repo = repo;
-				this.attributes.repoId = repo.id;
+				this.attributes.repoId = repo.id;	// post gets the same repoId as the stream
 				callback();
 			}
 		);
 	}
 
+	// get the team that owns the stream for which the post is being created
 	getTeam (callback) {
 		let teamId;
 		if (this.repo) {
@@ -183,9 +207,10 @@ class PostCreator extends ModelCreator {
 		);
 	}
 
+	// for streams created on-the-fly, create the stream now
 	createStream (callback) {
 		if (this.stream) {
-			return callback(); // no need to create
+			return callback(); // not an on-the-fly stream creation
 		}
 		this.attributes.stream.teamId = this.team.id;
 		new StreamCreator({
@@ -196,7 +221,7 @@ class PostCreator extends ModelCreator {
 				if (error) { return callback(error); }
 				this.stream = stream;
 				this.attributes.streamId = stream.id;
-				this.attachToResponse.stream = this.stream.getSanitizedObject();
+				this.attachToResponse.stream = this.stream.getSanitizedObject(); // put the stream object in the request response
 				delete this.attributes.stream;
 				this.createdStream = true;
 				process.nextTick(callback);
@@ -204,18 +229,20 @@ class PostCreator extends ModelCreator {
 		);
 	}
 
+	// requisition an ID for the post
 	createId (callback) {
 		this.attributes._id = this.data.posts.createId();
 		callback();
 	}
 
+	// create markers associated with code blocks for the post
 	createMarkers (callback) {
 		if (!this.attributes.codeBlocks) {
-			return callback();
+			return callback();	// no code blocks
 		}
-		this.markers = [];
-		this.attachToResponse.markers = [];
-		this.attachToResponse.markerLocations = {
+		this.markers = [];	// unsanitized
+		this.attachToResponse.markers = [];	// sanitized, to be sent in the response
+		this.attachToResponse.markerLocations = {	// marker locations, to be sent in the response
 			teamId: this.attributes.teamId,
 			streamId: this.attributes.streamId,
 			commitHash: this.attributes.commitHashWhenPosted,
@@ -230,6 +257,7 @@ class PostCreator extends ModelCreator {
 		);
 	}
 
+	// create a marker, associated with a given code block
 	createMarker (codeBlock, callback) {
 		let markerInfo = {
 			teamId: this.attributes.teamId,
@@ -256,14 +284,23 @@ class PostCreator extends ModelCreator {
 		);
 	}
 
+	// requisition a sequence number for this post
 	getSeqNum (callback) {
 		if (this.createdStream) {
+			// if we created the stream, start out with seqNum of 1
 			this.attributes.seqNum = 1;
 			return callback();
 		}
 		let seqNum = null;
 		let numRetries = 0;
 		let gotError = null;
+		// this is a mutex-type operation ... we never want to assign the same
+		// sequence number to two posts ... we maintain the next sequence number
+		// in the stream document, and use findAndModify to increment the next
+		// sequence number and fetch the current sequence number in the same
+		// atomic operation, ensuring no one will ever get the same value ...
+		// since we can get race conditions here (very rare), we'll put this in
+		// a retry loop
 		BoundAsync.whilst(
 			this,
 			() => {
@@ -300,13 +337,18 @@ class PostCreator extends ModelCreator {
 		);
 	}
 
+	// update the stream associated with the created post
 	updateStream (callback) {
+		// update the mostRecentPostId attribute, and the sortId attribute
+		// (which is the same if there is a post in the stream) to the ID of
+		// the created post
 		let op = {
 			$set: {
 				mostRecentPostId: this.attributes._id,
 				sortId: this.attributes._id
 			}
 		};
+		// increment the number of markers in this stream
 		if (this.markers && this.markers.length) {
 			op.$inc = { numMarkers: this.markers.length };
 		}
@@ -317,6 +359,8 @@ class PostCreator extends ModelCreator {
 		);
 	}
 
+	// update the lastReads attribute for each user in the stream or team,
+	// for those users for whom this post represents a new unread message
 	updateLastReads (callback) {
 		new LastReadsUpdater({
 			data: this.data,
@@ -328,6 +372,8 @@ class PostCreator extends ModelCreator {
 		}).updateLastReads(callback);
 	}
 
+	// if the created post is a reply to a parent with code blocks, then the
+	// markers for those code blocks get their numComments attribute incremented
 	updateMarkersForReply (callback) {
 		// this only applies to replies
 		if (!this.model.get('parentPostId')) {
@@ -339,6 +385,7 @@ class PostCreator extends ModelCreator {
 		], callback);
 	}
 
+	// get the parent post, for replies
 	getParentPost (callback) {
 		this.data.posts.getById(
 			this.model.get('parentPostId'),
@@ -347,6 +394,7 @@ class PostCreator extends ModelCreator {
 				if (!parentPost) {
 					return callback();	// this really shouldn't happen, but it's not worth an error
 				}
+				// collect all marker IDs for code blocks referred to by the parent post
 				let codeBlocks = parentPost.get('codeBlocks') || [];
 				this.parentPostMarkerIds = codeBlocks.map(codeBlock => codeBlock.markerId);
 				callback();
@@ -354,6 +402,7 @@ class PostCreator extends ModelCreator {
 		);
 	}
 
+	// update all markers for code blocks referred to by a parent post, increment numComments attribute
 	updateMarkersForParentPost (callback) {
 		if (!this.parentPostMarkerIds || !this.parentPostMarkerIds.length) {
 			return callback();
@@ -368,6 +417,8 @@ class PostCreator extends ModelCreator {
 		);
 	}
 
+	// for a single marker for a code block referred to by a parent post,
+	// increment its numComments attribute
 	updateMarkerForParentPost (markerId, callback) {
 		let op = { $inc: { numComments: 1 } };
 		this.data.markers.applyOpById(
@@ -376,7 +427,7 @@ class PostCreator extends ModelCreator {
 			error => {
 				if (error) { return callback(error); }
 				let messageOp = Object.assign({}, op, { _id: markerId });
-				this.attachToResponse.markers.push(messageOp);
+				this.attachToResponse.markers.push(messageOp);	// we'll send the increment in the response (and also the pubnub message)
 				callback();
 			}
 		);

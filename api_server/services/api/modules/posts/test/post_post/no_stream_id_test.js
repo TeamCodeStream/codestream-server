@@ -8,10 +8,6 @@ class NoStreamIdTest extends PostPostTest {
 		return 'should return error when attempting to create a post with no stream id';
 	}
 
-	getExpectedFields () {
-		return null;
-	}
-
 	getExpectedError () {
 		return {
 			code: 'RAPI-1001',
@@ -19,7 +15,9 @@ class NoStreamIdTest extends PostPostTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// delete the streamId attribute when we try to create the post
 		super.before(error => {
 			if (error) { return callback(error); }
 			delete this.data.streamId;
