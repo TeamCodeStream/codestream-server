@@ -10,7 +10,7 @@ class CodeBlockForBadStreamTypeTest extends PostPostTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1007',
+			code: 'RAPI-1012',
 			reason: 'only file type streams can have code blocks'
 		};
 	}

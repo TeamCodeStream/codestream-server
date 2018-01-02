@@ -8,33 +8,20 @@ const Indexes = require('./indexes');
 
 class GetMarkersRequest extends GetManyRequest {
 
-	// authorize this request given the current user
+	// authorize the request
 	authorize (callback) {
-		// must have team ID, stream ID, and commit hash, and the user must have access to the stream
-		if (!this.request.query.teamId) {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
-		}
-		this.teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
-		if (!this.request.query.streamId) {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'streamId' }));
-		}
-		this.streamId = decodeURIComponent(this.request.query.streamId).toLowerCase();
-		if (this.request.query.commitHash) {
-			this.commitHash = decodeURIComponent(this.request.query.commitHash).toLowerCase();
-		}
-		this.user.authorizeStream(this.streamId, this, (error, stream) => {
-			if (error) { return callback(error); }
-			if (!stream) {
-				return callback(this.errorHandler.error('readAuth'));
+		this.user.authorizeFromTeamIdAndStreamId(
+			this.request.query,
+			this,
+			(error, info) => {
+				if (error) { return callback(error); }
+				Object.assign(this, info);
+				process.nextTick(callback);
+			},
+			{
+				mustBeFileStream: true
 			}
-			if (stream.get('teamId') !== this.teamId) {
-				// stream must be owned by the given team, this anticipates sharding where this query
-				// may not return a valid stream even if it exists but is not owned by the same team
-				return callback(this.errorHandler.error('notFound', { info: 'stream' }));
-			}
-			this.stream = stream;
-			process.nextTick(callback);
-		});
+		);
 	}
 
 	// process the request...
@@ -48,10 +35,11 @@ class GetMarkersRequest extends GetManyRequest {
 	// if the user provides a commit hash, we'll fetch marker locations associated with the markers for the stream,
 	// if we can find any
 	fetchMarkerLocations (callback) {
-		if (!this.commitHash) {
+		if (!this.request.query.commitHash) {
 			// no commit hash, so we're just returning markers with no location info
 			return callback();
 		}
+		this.commitHash = this.request.query.commitHash.toLowerCase();
 		let query = {
 //			teamId: this.teamId, // will be needed for sharding, but for now, we'll avoid an index here
 			_id: `${this.streamId}|${this.commitHash}`

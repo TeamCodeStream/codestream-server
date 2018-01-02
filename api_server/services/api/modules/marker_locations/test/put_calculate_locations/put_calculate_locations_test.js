@@ -4,16 +4,17 @@ var Assert = require('assert');
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class PutMarkerLocationsTest extends CodeStreamAPITest {
+class PutCalculateLocationsTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.numPosts = 5;
-		this.path = '/marker-locations';
+		this.numPosts = 10;
+		this.numEdits = 20;
+		this.path = '/calculate-locations';
 	}
 
 	get description () {
-		return 'should update marker locations when requested';
+		return 'should calculate marker locations when requested';
 	}
 
 	get method () {
@@ -27,7 +28,7 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 			this.createRepo,		// create a repo as the other user
 			this.createStream,		// create a stream as the other user
 			this.createPosts,		// create some posts in the stream
-			this.adjustMarkers,		// adjust the markers in the stream for a new commit
+			this.createRandomEdits,	// create some random edits and throw them at the random markers
 			this.setData			// set the data to be used in the request
 		], callback);
 	}
@@ -113,44 +114,40 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 		);
 	}
 
-	// generate some adjusted marker locations
-	adjustMarkers (callback) {
-		this.adjustedMarkerLocations = {};
-		this.markers.sort((a, b) => { return a._id.localeCompare(b._id); });	// sort for easy compare to the results
-		this.markers.forEach(marker => {
-			this.adjustMarker(marker);
-		});
+	// create some random edits to throw at the random markers, this should be fun
+	createRandomEdits (callback) {
+		this.edits = this.markerFactory.randomEdits(this.numEdits);
 		callback();
-	}
-
-	// adjust a single marker for saving as a different commit
-	adjustMarker (marker) {
-		let adjustedLocation = [];
-		let location = this.locations[marker._id];
-		// totally random adjustments, probably not realistic but it should do the trick
-		location.slice(0, 4).forEach(coordinate => {
-			let adjustedCoordinate = coordinate + Math.floor(Math.random() * coordinate);
-			adjustedLocation.push(adjustedCoordinate);
-		});
-		this.adjustedMarkerLocations[marker._id] = adjustedLocation;
 	}
 
 	// set data to be used in the request
 	setData (callback) {
-		this.newCommitHash = this.postFactory.randomCommitHash();	// adjusted marker locations have a new commit
+		this.newCommitHash = this.postFactory.randomCommitHash();	// give the calculated marker locations a new commit
 		this.data = {
 			teamId: this.team._id,
 			streamId: this.stream._id,
-			commitHash: this.newCommitHash,
-			locations: this.adjustedMarkerLocations
+			originalCommitHash: this.commitHash,
+			newCommitHash: this.newCommitHash,
+			edits: this.edits
 		};
 		callback();
 	}
 
-	// validate empty object, we don't get any other data in the response
+	// validate we got back marker locations for each marker, but we're not validating
+	// the actual location calculations here
 	validateResponse (data) {
-		Assert(Object.keys(data).length === 0, 'empty data set not returned');
+		Assert(typeof data.markerLocations === 'object', 'did not get markerLocations in response');
+		const markerLocations = data.markerLocations;
+		Assert.equal(markerLocations.teamId, this.team._id, 'incorrect teamId');
+		Assert.equal(markerLocations.streamId, this.stream._id, 'incorrect streamId');
+		Assert.equal(markerLocations.commitHash, this.newCommitHash.toLowerCase(), 'incorrect commitHash');
+		Assert(typeof markerLocations.locations === 'object', 'did not get locations in response');
+		let markerIds = Object.keys(markerLocations.locations);
+		markerIds.sort();
+		let myMarkerIds = Object.keys(this.locations);
+		myMarkerIds.sort();
+		Assert.deepEqual(myMarkerIds, markerIds, 'did not get expected markerIds in locations');
 	}
 }
 
-module.exports = PutMarkerLocationsTest;
+module.exports = PutCalculateLocationsTest;

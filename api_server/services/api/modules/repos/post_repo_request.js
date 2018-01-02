@@ -7,13 +7,10 @@ class PostRepoRequest extends PostRequest {
 
 	authorize (callback) {
 		if (!this.request.body.teamId) {
+			// this is acceptable, we can possibly figure out the team if the repo exists
 			return callback();
 		}
-		let teamId = decodeURIComponent(this.request.body.teamId).toLowerCase();
-		if (!this.user.hasTeam(teamId)) {
-			return callback(this.errorHandler.error('createAuth', { reason: 'user not on team' }));
-		}
-		return process.nextTick(callback);
+		this.user.authorizeFromTeamId(this.request.body, this, callback, { error: 'createAuth' });
 	}
 
 	postProcess (callback) {

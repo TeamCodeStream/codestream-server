@@ -6,21 +6,7 @@ var StreamPublisher = require('./stream_publisher');
 class PostStreamRequest extends PostRequest {
 
 	authorize (callback) {
-		if (!this.request.body.teamId) {
-			return callback(this.errorHandler.error('attributeRequired', { info: 'teamId' }));
-		}
-		let teamId = decodeURIComponent(this.request.body.teamId).toLowerCase();
-		this.user.authorizeTeam(
-			teamId,
-			this,
-			(error, authorized) => {
-				if (error) { return callback(error); }
-				if (!authorized) {
-					return callback(this.errorHandler.error('createAuth', { reason: 'user not on team' }));
-				}
-				return process.nextTick(callback);
-			}
-		);
+		this.user.authorizeFromTeamId(this.request.body, this, callback, { error: 'createAuth' });
 	}
 
 	postProcess (callback) {

@@ -34,7 +34,7 @@ export CS_API_NAME=`dirname $CS_API_SANDBOX`
 # 	git clone $tools_proj
 # else
 # 	echo "cider_tools already exists. Not cloning"
-# fi
+# fiC
 
 
 # Example code to fetch additional software needed for the sandbox and
@@ -50,5 +50,9 @@ do
     	dt-get-software $software_pkg $CS_API_SANDBOX || exit 1
     fi
 done
+
+# Install secondary git repos
+echo "Cloning TestRepo"
+(cd $CS_API_SANDBOX && git clone git@github.com:teamcodestream/TestRepo) || exit 1
 
 exit 0

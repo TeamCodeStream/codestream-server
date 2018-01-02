@@ -38,10 +38,11 @@ class GetPostsRequest extends GetManyRequest {
 	// authorize the request for the current user
 	authorize (callback) {
 		if (!this.request.query.teamId) {
+			// must have teamId
 			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
 		}
-		this.teamId = decodeURIComponent(this.request.query.teamId).toLowerCase();
 		if (!this.request.query.streamId) {
+			// for GET /posts?path, can do without streamId, but must have repoId to locate the file
 			if (this.request.query.repoId) {
 				return this.authorizePath(callback);
 			}
@@ -49,18 +50,17 @@ class GetPostsRequest extends GetManyRequest {
 				return callback(this.errorHandler.error('parameterRequired', { info: 'repoId or streamId' }));
 			}
 		}
-
-		let streamId = decodeURIComponent(this.request.query.streamId).toLowerCase();
-		this.user.authorizeStream(streamId, this, (error, stream) => {
-			if (error) { return callback(error); }
-			if (!stream) {
-				return callback(this.errorHandler.error('readAuth'));
-			}
-			if (stream.get('teamId') !== this.teamId) {
-				return callback(this.errorHandler.error('notFound', { info: 'stream' }));
-			}
-			process.nextTick(callback);
-		});
+		else {
+			this.user.authorizeFromTeamIdAndStreamId(
+				this.request.query,
+				this,
+				(error, info) => {
+					if (error) { return callback(error); }
+					Object.assign(this, info);
+					process.nextTick(callback);
+				}
+			);
+		}
 	}
 
 	// for a GET /posts with a path specified (no stream ID known), authorize for
@@ -75,7 +75,8 @@ class GetPostsRequest extends GetManyRequest {
 			if (!repo) {
 				return callback(this.errorHandler.error('readAuth'));
 			}
-			if (repo.get('teamId') !== this.teamId) {	// specified teamId must match the team owning the repo!
+			let teamId = this.request.query.teamId.toLowerCase();
+			if (repo.get('teamId') !== teamId) { // specified teamId must match the team owning the repo!
 				return callback(this.errorHandler.error('notFound', { info: 'repo' }));
 			}
 			return callback();

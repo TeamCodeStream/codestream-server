@@ -37,11 +37,11 @@ class PostAuthorizer {
 				this.authorizeTeam(this.post.stream.teamId, callback);
 			}
 			else {
-				return callback(this.errorHandler.error('attributeRequired', { info: 'teamId' }));
+				return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
 			}
 		}
 		else {
-			return callback(this.errorHandler.error('attributeRequired', { info: 'streamId' }));
+			return callback(this.errorHandler.error('parameterRequired', { info: 'streamId' }));
 		}
 	}
 
@@ -128,7 +128,7 @@ class PostAuthorizer {
 				}
 				else if (stream.get('type') !== 'file') {
 					// can't pull a code block from a stream that is not a file stream
-					return callback(this.errorHandler.error('invalidAttribute', { reason: 'only file type streams can have code blocks' }));
+					return callback(this.errorHandler.error('invalidParameter', { reason: 'only file type streams can have code blocks' }));
 				}
 				else if (stream.get('teamId') !== teamId
 				) {

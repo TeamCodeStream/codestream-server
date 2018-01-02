@@ -12,7 +12,7 @@ class NoCommitHashTest extends PostCodeToFileStreamTest {
 		return {
 			code: 'RAPI-1005',
 			info: [{
-				code: 'RAPI-1002',
+				code: 'RAPI-1001',
 				info: 'commitHashWhenPosted'
 			}]
 		};

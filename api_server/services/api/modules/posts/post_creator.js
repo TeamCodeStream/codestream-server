@@ -52,11 +52,11 @@ class PostCreator extends ModelCreator {
 	validateAttributes (callback) {
 		if (!this.attributes.streamId && typeof this.attributes.stream !== 'object') {
 			// must have a stream ID or a stream object (for creating streams on the fly)
-			return callback(this.errorHandler.error('attributeRequired', { info: 'streamId or stream' }));
+			return callback(this.errorHandler.error('parameterRequired', { info: 'streamId or stream' }));
 		}
 		if (this.attributes.codeBlocks && !this.attributes.commitHashWhenPosted) {
 			// if we have code blocks, must have a commit hash
-			return callback(this.errorHandler.error('attributeRequired', { info: 'commitHashWhenPosted' }));
+			return callback(this.errorHandler.error('parameterRequired', { info: 'commitHashWhenPosted' }));
 		}
 		callback();
 	}
@@ -191,7 +191,7 @@ class PostCreator extends ModelCreator {
 			teamId = this.attributes.stream.teamId;
 		}
 		if (!teamId) {
-			return callback(this.errorHandler.error('attributeRequired', { info: 'teamId' }));
+			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
 		}
 		this.data.teams.getById(
 			teamId,
