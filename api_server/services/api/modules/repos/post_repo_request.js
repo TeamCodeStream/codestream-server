@@ -14,8 +14,16 @@ class PostRepoRequest extends PostRequest {
 	}
 
 	postProcess (callback) {
+		if (this.creator.repoExisted && this.creator.noNewUsers) {
+			// if the repo existed and no users were added to the team, there is
+			// nothing to publish
+			return callback();
+		}
+		let team = this.responseData.team || this.creator.team.getSanitizedObject();
 		new RepoPublisher({
 			data: this.responseData,
+			team: team,
+			teamWasCreated: !!this.responseData.team,
 			repoExisted: this.creator.repoExisted,
 			requestId: this.request.id,
 			messager: this.api.services.messager,

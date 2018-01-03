@@ -95,6 +95,7 @@ class RepoCreator extends ModelCreator {
 			!this.attributes.emails &&
 			(this.user.get('teamIds') || []).indexOf(this.existingModel.get('teamId')) !== -1
 		) {
+			this.noNewUsers = true;
 			return callback();
 		}
 		let adder = new AddTeamMembers({
@@ -105,6 +106,7 @@ class RepoCreator extends ModelCreator {
 		});
 		adder.addTeamMembers(error => {
 			if (error) { return callback(error); }
+			this.team = adder.team;
 			this.attachToResponse.users = adder.sanitizedUsers;
 			process.nextTick(callback);
 		});

@@ -1,6 +1,7 @@
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var DeepClone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
 
 class RepoPublisher {
 
@@ -8,21 +9,17 @@ class RepoPublisher {
 		Object.assign(this, options);
 	}
 
+	// publish the data for a repo, what we publish and where depends on what happened
+	// in the request...
 	publishRepoData (callback) {
-		if (this.data.team || this.repoExisted) {
-			// if we created a team on the fly, or the repo already existed, in which case we are only concerned
-			// with the new users that may have been added to the team
-			this.publishNewTeamToUsers(callback);
-		}
-		else {
-			// repo added to existing team
-			this.publishRepo(callback);
-		}
+		BoundAsync.series(this, [
+			this.publishUserMessages,
+			this.publishTeamMessage
+		], callback);
 	}
 
-	// in the case of a brand new team created for the repo, we simply publish to each user involved that they
-	// are in a new team, it is then up to the clients to fetch information pertaining to the new team
-	publishNewTeamToUsers (callback) {
+	// publish the message to each user that has been added to a team
+	publishUserMessages (callback) {
 		if (!this.data.users) {
 			return callback();
 		}
@@ -30,28 +27,31 @@ class RepoPublisher {
 			this,
 			this.data.users,
 			10,
-			this.publishNewTeamToUser,
+			this.publishToUser,
 			callback
 		);
 	}
 
-	// publish to this user that they are on a new team
-	publishNewTeamToUser (user, callback) {
+	// publish the repo message to a user
+	publishToUser (user, callback) {
 		if (!user.isRegistered) {
 			// only registered users get messages
 			return callback();
 		}
-		let teamId = (this.data.team && this.data.team._id) || this.data.repo.teamId;
+		let message = DeepClone(this.data);
+		message.requestId = this.requestId;
 		let channel = 'user-' + user._id;
-		let message = {
-			requestId: this.requestId,
-			users: [{
-				_id: user._id,
-				'$addToSet': {
-					teamIds: teamId
-				}
-			}]
-		};
+		let currentUser = message.users.find(userInData => user._id === userInData._id);
+		if (currentUser !== -1) {
+			// explicitly send the directive to add company and team to the user attributes
+			// for this user, avoiding race conditions with the arrays
+			delete currentUser.companyIds;
+			delete currentUser.teamIds;
+			currentUser.$addToSet = {
+				companyIds: this.team.companyId,
+				teamIds: this.team._id
+			};
+		}
 		this.messager.publish(
 			message,
 			channel,
@@ -65,18 +65,37 @@ class RepoPublisher {
 		);
 	}
 
-	// publish this repo to the team, and message of being added to any users added to the team
-	publishRepo (callback) {
-		BoundAsync.series(this, [
-			this.publishNewTeamToUsers,
-			this.publishRepoToTeam
-		], callback);
+	// publish a message to the team channel for the team that owns the repo,
+	// though what that message is depends on the context
+	publishTeamMessage (callback) {
+		if (this.teamWasCreated) {
+			// this means the team was created on-the-fly when the repo was
+			// created ... in this case, every member of the nascent team gets
+			// a message, so there is no need for a message here (nobody is
+			// listening on the team channel yet)
+			return callback();
+		}
+		let message = { requestId: this.requestId };
+		if (this.repoExisted) {
+			// if the repo already existed, all we need to do is let the team
+			// members that new users have been added to the team
+			message.users = this.data.users;
+			let newMemberIds = message.users.map(user => user._id);
+			message.team = {
+				$addToSet: { memberIds: newMemberIds }
+			};
+		}
+		else {
+			// this is a new repo for an existing team ... send everything we
+			// have to the team channel
+			Object.assign(message, this.data);
+		}
+		this.publishMessageToTeam(message, callback);
 	}
 
-	// publish this repo, and any associated baggage, to the team channel
-	publishRepoToTeam (callback) {
-		let message = Object.assign({}, this.data, { requestId: this.requestId });
-		let teamId = this.data.repo.teamId;
+	// publish a given message to the team channel for the team that owns the repo
+	publishMessageToTeam (message, callback) {
+		let teamId = this.team._id;
 		let channel = 'team-' + teamId;
 		this.messager.publish(
 			message,

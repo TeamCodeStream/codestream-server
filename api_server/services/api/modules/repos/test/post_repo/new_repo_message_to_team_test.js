@@ -51,7 +51,7 @@ class NewRepoMessageToTeamTest extends CodeStreamMessageTest {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = { repo: response.repo };
+				this.message = response;
 				callback();
 			},
 			{
