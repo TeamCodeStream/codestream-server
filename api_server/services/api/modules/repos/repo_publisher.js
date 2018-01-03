@@ -82,6 +82,7 @@ class RepoPublisher {
 			message.users = this.data.users;
 			let newMemberIds = message.users.map(user => user._id);
 			message.team = {
+				_id: this.team._id,
 				$addToSet: { memberIds: newMemberIds }
 			};
 		}
