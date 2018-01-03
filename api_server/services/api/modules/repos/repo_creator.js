@@ -105,6 +105,7 @@ class RepoCreator extends ModelCreator {
 		});
 		adder.addTeamMembers(error => {
 			if (error) { return callback(error); }
+			this.team = adder.team;
 			this.attachToResponse.users = adder.sanitizedUsers;
 			process.nextTick(callback);
 		});

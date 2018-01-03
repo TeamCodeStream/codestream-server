@@ -28,13 +28,13 @@ class UsersJoinNewTeamMessageTest extends CodeStreamMessageTest {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = {
-					users: [{
-						_id: this.currentUser._id,
-						'$addToSet': {
-							teamIds: response.team._id
-						}
-					}]
+				this.message = response;
+				let currentUser = this.message.users.find(user => user._id === this.currentUser._id);
+				delete currentUser.teamIds;
+				delete currentUser.companyIds;
+				currentUser.$addToSet = {
+					teamIds: response.team._id,
+					companyIds: response.company._id
 				};
 				callback();
 			},

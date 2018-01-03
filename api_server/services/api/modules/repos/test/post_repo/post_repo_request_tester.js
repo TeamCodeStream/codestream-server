@@ -27,6 +27,7 @@ var NewRepoMessageToOtherUserTest = require('./new_repo_message_to_other_user_te
 var UsersJoinNewTeamMessageTest = require('./users_join_new_team_message_test');
 var UsersJoinExistingTeamMessageTest = require('./users_join_existing_team_message_test');
 var UsersJoinExistingRepoMessageTest = require('./users_join_existing_repo_message_test');
+var UsersAddedToTeamTest = require('./users_added_to_team_test');
 
 /* jshint -W071 */
 
@@ -61,6 +62,7 @@ class PostRepoRequestTester {
 		new UsersJoinNewTeamMessageTest().test();
 		new UsersJoinExistingTeamMessageTest().test();
 		new UsersJoinExistingRepoMessageTest().test();
+		new UsersAddedToTeamTest().test();
 	}
 }
 

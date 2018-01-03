@@ -57,15 +57,15 @@ class UsersJoinExistingRepoMessageTest extends CodeStreamMessageTest {
 		this.repoFactory.createRepo(
 			repoData,
 			this.otherUserData.accessToken,
-			error => {
+			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = {
-					users: [{
-						_id: this.currentUser._id,
-						'$addToSet': {
-							teamIds: this.team._id
-						}
-					}]
+				this.message = response;
+				let currentUser = this.message.users.find(user => user._id === this.currentUser._id);
+				delete currentUser.teamIds;
+				delete currentUser.companyIds;
+				currentUser.$addToSet = {
+					teamIds: response.repo.teamId,
+					companyIds: response.repo.companyId
 				};
 				callback();
 			}
