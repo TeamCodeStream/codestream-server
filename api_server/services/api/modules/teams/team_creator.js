@@ -198,7 +198,6 @@ class TeamCreator extends ModelCreator {
 				if (error) { return callback(error); }
 				this.attributes.companyId = company.id;
 				this.company = company;
-				this.attachToResponse.company = company.getSanitizedObject();
 				process.nextTick(callback);
 			}
 		);
@@ -214,16 +213,12 @@ class TeamCreator extends ModelCreator {
 
 	updateUsers (callback) {
 		let users = [this.user, ...(this.usersCreated || [])];
-		this.sanitizedUsers = [];
+		this.members = [];
 		BoundAsync.forEachSeries(
 			this,
 			users,
 			this.updateUser,
-			(error) => {
-				if (error) { return callback(error); }
-				this.attachToResponse.users = this.sanitizedUsers;
-				callback();
-			}
+			callback
 		);
 	}
 
@@ -238,21 +233,20 @@ class TeamCreator extends ModelCreator {
 			},
 			(error, updatedUser) => {
 				if (error) { return callback(error); }
-				if (updatedUser.id !== this.user.id) {
-					this.sanitizedUsers.push(updatedUser.getSanitizedObject());
-				}
+				this.members.push(updatedUser);
 				process.nextTick(callback);
 			}
 		);
 	}
 
  	grantUserMessagingPermissions (callback) {
-		new TeamSubscriptionGranter({
+		let granterOptions = {
 			data: this.data,
 			messager: this.api.services.messager,
 			team: this.model,
 			members: this.users
-		}).grantToMembers(error => {
+		};
+		new TeamSubscriptionGranter(granterOptions).grantToMembers(error => {
 			if (error) {
 				return callback(this.errorHandler.error('messagingGrant', { reason: error }));
 			}

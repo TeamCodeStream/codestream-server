@@ -10,6 +10,8 @@ var StreamChannelTeamACLTest = require('./stream_channel_team_acl_test');
 var AddToCreatedTeamTest = require('./add_to_created_team_test');
 var AddToExistingTeamTest = require('./add_to_existing_team_test');
 var AddExistingRepoTest = require('./add_existing_repo_test');
+var PresenceJoinTest = require('./presence_join_test');
+var PresenceLeaveTest = require('./presence_leave_test');
 
 // make jshint happy
 /* globals describe */
@@ -28,5 +30,9 @@ describe('messages', function() {
 	new AddToCreatedTeamTest().test();
 	new AddToExistingTeamTest().test();
 	new AddExistingRepoTest().test();
+	new PresenceJoinTest({ which: 'team' }).test();
+	new PresenceLeaveTest({ which: 'team' }).test();
+	new PresenceJoinTest({ which: 'repo' }).test();
+	new PresenceLeaveTest({ which: 'repo' }).test();
 
 });

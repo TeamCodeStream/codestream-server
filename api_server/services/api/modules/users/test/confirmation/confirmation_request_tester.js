@@ -13,6 +13,7 @@ var ConfirmationMessageToOtherUserTest = require('./confirmation_message_to_othe
 var ConflictingUsernameTest = require('./conflicting_username_test');
 var InitialDataTest = require('./initial_data_test');
 var MeAttributesTest = require('./me_attributes_test');
+var SubscriptionTest = require('./subscription_test');
 
 class ConfirmationRequestTester {
 
@@ -32,6 +33,10 @@ class ConfirmationRequestTester {
 		new ConflictingUsernameTest().test();
 		new InitialDataTest().test();
 		new MeAttributesTest().test();
+		new SubscriptionTest({ which: 'user' }).test();
+		new SubscriptionTest({ which: 'team' }).test();
+		new SubscriptionTest({ which: 'repo' }).test();
+		new SubscriptionTest({ which: 'stream' }).test();
 	}
 }
 

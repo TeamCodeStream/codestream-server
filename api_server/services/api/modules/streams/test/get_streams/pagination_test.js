@@ -13,6 +13,7 @@ class PaginationTest extends GetStreamsTest {
 		this.streamsPerPage = this.defaultPagination ? Limits.maxStreamsPerRequest : 5;
 		this.dontDoForeign = true;
 		this.dontDoTeamStreams = true;
+		this.streamCreateThrottle = 100;	// slow things down, pubnub gets overwhelmed
 	}
 
 	get description () {

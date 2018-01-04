@@ -28,6 +28,7 @@ var UsersJoinNewTeamMessageTest = require('./users_join_new_team_message_test');
 var UsersJoinExistingTeamMessageTest = require('./users_join_existing_team_message_test');
 var UsersJoinExistingRepoMessageTest = require('./users_join_existing_repo_message_test');
 var UsersAddedToTeamTest = require('./users_added_to_team_test');
+var SubscriptionTest = require('./subscription_test');
 
 /* jshint -W071 */
 
@@ -63,6 +64,18 @@ class PostRepoRequestTester {
 		new UsersJoinExistingTeamMessageTest().test();
 		new UsersJoinExistingRepoMessageTest().test();
 		new UsersAddedToTeamTest().test();
+		new SubscriptionTest({ which: 'team', otherUserCreates: false, repoExists: false, teamExists: false }).test();
+		new SubscriptionTest({ which: 'team', otherUserCreates: false, repoExists: false, teamExists: true }).test();
+		new SubscriptionTest({ which: 'team', otherUserCreates: false, repoExists: true, teamExists: true }).test();
+		new SubscriptionTest({ which: 'team', otherUserCreates: true, repoExists: false, teamExists: false }).test();
+		new SubscriptionTest({ which: 'team', otherUserCreates: true, repoExists: false, teamExists: true }).test();
+		new SubscriptionTest({ which: 'team', otherUserCreates: true, repoExists: true, teamExists: true }).test();
+		new SubscriptionTest({ which: 'repo', otherUserCreates: false, repoExists: false, teamExists: false }).test();
+		new SubscriptionTest({ which: 'repo', otherUserCreates: false, repoExists: false, teamExists: true }).test();
+		new SubscriptionTest({ which: 'repo', otherUserCreates: false, repoExists: true, teamExists: true }).test();
+		new SubscriptionTest({ which: 'repo', otherUserCreates: true, repoExists: false, teamExists: false }).test();
+		new SubscriptionTest({ which: 'repo', otherUserCreates: true, repoExists: false, teamExists: true }).test();
+		new SubscriptionTest({ which: 'repo', otherUserCreates: true, repoExists: true, teamExists: true }).test();
 	}
 }
 

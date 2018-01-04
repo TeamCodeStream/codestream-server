@@ -10,7 +10,7 @@ class GetUsersByTeamIdTest extends GetUsersTest {
 
 	setPath (callback) {
 		let teamId = this.team._id;
-		this.myUsers = [this.otherUserData.user, ...this.users];
+		this.myUsers = this.users;
 		this.path = `/users?teamId=${teamId}`;
 		callback();
 	}

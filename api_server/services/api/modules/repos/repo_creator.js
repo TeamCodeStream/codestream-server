@@ -4,6 +4,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Repo = require('./repo');
 var NormalizeURL = require('./normalize_url');
+var RepoSubscriptionGranter = require('./repo_subscription_granter');
 var AddTeamMembers = require(process.env.CS_API_TOP + '/services/api/modules/teams/add_team_members');
 var TeamCreator = require(process.env.CS_API_TOP + '/services/api/modules/teams/team_creator');
 const Indexes = require('./indexes');
@@ -64,9 +65,15 @@ class RepoCreator extends ModelCreator {
 	preSave (callback) {
 		this.attributes.creatorId = this.user.id;
 		BoundAsync.series(this, [
+			this.createId,
 			this.joinToTeam,
 			super.preSave
 		], callback);
+	}
+
+	createId (callback) {
+		this.attributes._id = this.data.repos.createId();
+		callback();
 	}
 
 	joinToTeam (callback) {
@@ -107,7 +114,8 @@ class RepoCreator extends ModelCreator {
 		adder.addTeamMembers(error => {
 			if (error) { return callback(error); }
 			this.team = adder.team;
-			this.attachToResponse.users = adder.sanitizedUsers;
+			this.newUsers = adder.membersAdded;
+			this.attachToResponse.users = adder.membersAdded.map(member => member.getSanitizedObject());
 			process.nextTick(callback);
 		});
 	}
@@ -133,6 +141,7 @@ class RepoCreator extends ModelCreator {
 				}
 				this.team = team;
 				this.attributes.companyId = team.get('companyId');
+				this.repoAddedToTeam = true;
 				callback();
 			}
 		);
@@ -149,7 +158,9 @@ class RepoCreator extends ModelCreator {
 		});
 		adder.addTeamMembers(error => {
 			if (error) { return callback(error); }
-			this.attachToResponse.users = adder.sanitizedUsers;
+			this.newUsers = adder.membersAdded;
+			this.existingUsers = adder.existingMembers;
+			this.attachToResponse.users = adder.membersAdded.map(member => member.getSanitizedObject());
 			delete this.attributes.emails;
 			process.nextTick(callback);
 		});
@@ -167,13 +178,37 @@ class RepoCreator extends ModelCreator {
 				this.attributes.teamId = team.id;
 				this.attributes.companyId = team.get('companyId');
 				this.attachToResponse.team = team.getSanitizedObject();
-				this.attachToResponse.company = this.teamCreator.attachToResponse.company;
-				this.attachToResponse.users = this.teamCreator.attachToResponse.users;
+				this.attachToResponse.company = this.teamCreator.company.getSanitizedObject();
+				this.newUsers = this.teamCreator.members;
+				this.attachToResponse.users = this.teamCreator.members.map(member => member.getSanitizedObject());
 				delete this.attributes.team;
 				callback();
 			}
 		);
 	}
+
+	postSave (callback) {
+		this.grantUserMessagingPermissions(callback);
+	}
+
+	grantUserMessagingPermissions (callback) {
+		let granterOptions = {
+			data: this.data,
+			messager: this.api.services.messager,
+			repo: this.model,
+			users: this.newUsers || []
+		};
+		if (this.repoAddedToTeam) {
+			granterOptions.users = granterOptions.users.concat(this.existingUsers || []);
+		}
+		new RepoSubscriptionGranter(granterOptions).grantToUsers(error => {
+			if (error) {
+				return callback(this.errorHandler.error('messagingGrant', { reason: error }));
+			}
+			callback();
+		});
+	}
+
 }
 
 module.exports = RepoCreator;

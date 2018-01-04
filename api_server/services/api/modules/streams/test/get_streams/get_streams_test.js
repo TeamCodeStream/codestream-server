@@ -128,7 +128,7 @@ class GetStreamsTest extends CodeStreamAPITest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.streamsByTeam[team._id].push(response.stream);
-				callback();
+				setTimeout(callback, this.streamCreateThrottle || 0);
 			},
 			options
 		);
@@ -171,7 +171,7 @@ class GetStreamsTest extends CodeStreamAPITest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.streamsByRepo[repo._id].push(response.stream);
-				callback();
+				setTimeout(callback, this.streamCreateThrottle || 0);
 			},
 			options
 		);

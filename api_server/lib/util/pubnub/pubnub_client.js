@@ -29,13 +29,16 @@ class PubNubClient {
 
 	// subscribe to the specified channel, providing a listener callback for the
 	// actual message ... the callback is just whether the subscribe succeeded
-	subscribe (channel, listener, callback) {
+	subscribe (channel, listener, callback, options = {}) {
 		// we'll spare the caller from handling status messages, and really
 		// just pass back the message they are interested in
 		if (!this.channelListeners[channel]) {
 			this.channelListeners[channel] = {
 				message: (message) => {
 					// got a message, call the listener
+					listener(null, message);
+				},
+				presence: (message) => {
 					listener(null, message);
 				},
 				status: (status) => {
@@ -48,9 +51,9 @@ class PubNubClient {
 
 		// subscribe to the channel, but success or failure comes back in a
 		// status message
-		this.pubnub.subscribe({
+		this.pubnub.subscribe(Object.assign({}, options, {
 			channels: [channel]
-		});
+		}));
 	}
 
 	// handle a status message from a subscribed channel
@@ -127,7 +130,13 @@ class PubNubClient {
 					return callback(result.errorData);
 				}
 				else {
-					return callback();
+					if (options.includePresence) {
+						// doing presence requires granting access to this channel as well
+						this.grant(tokens, channel + '-pnpres', callback);
+					}
+					else {
+						return callback();
+					}
 				}
 			}
 		);

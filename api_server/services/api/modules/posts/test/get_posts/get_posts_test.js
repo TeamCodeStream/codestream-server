@@ -92,7 +92,7 @@ class GetPostsTest extends CodeStreamAPITest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.myPosts.push(response.post);
-				callback();
+				setTimeout(callback, this.postCreateThrottle || 0);
 			},
 			postOptions
 		);

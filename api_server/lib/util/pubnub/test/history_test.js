@@ -24,12 +24,12 @@ class HistoryTest extends PubNubTest {
 
 	// wait for the message to persist, i've found that several seconds are necessary
 	wait (callback) {
-		setTimeout(callback, 10000);
+		setTimeout(callback, 20000);
 	}
 
 	// fetch the history for this channel, we expect the one message we sent
 	fetchHistory (callback) {
-		this.pubnubForClient.history(
+		this.pubnubForClients[0].history(
 			this.channelName,
 			(error, messages) => {
 				if (error) { return callback(error); }

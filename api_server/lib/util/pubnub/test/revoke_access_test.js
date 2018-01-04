@@ -23,14 +23,14 @@ class RevokeAccessTest extends PubNubTest {
 
 	// remove the client listener for the channel
 	removeListener (callback) {
-		this.pubnubForClient.removeListener(this.channelName);
+		this.pubnubForClients[0].removeListener(this.channelName);
 		callback();
 	}
 
 	// revoke the client pubnub's access to this channel
 	revokeAccess (callback) {
 		this.pubnubForServer.revoke(
-			this.authKey,
+			this.authKeys[0],
 			[this.channelName],
 			callback
 		);
@@ -41,12 +41,12 @@ class RevokeAccessTest extends PubNubTest {
 		// there can be some delay between when access is revoked and when the channel can become unsubscribed;
 		// we want to test that the channel becomes unsubscribable without explicit unsubscribing and resubscibing,
 		// so we inroduce an artificial delay
-		setTimeout(callback, 5000);
+		setTimeout(callback, 10000);
 	}
 
 	// try to subscribe again, this should fail because permission has been revoked
 	listenAgain (callback) {
-		this.pubnubForClient.subscribe(
+		this.pubnubForClients[0].subscribe(
 			this.channelName,
 			this.unexpectedMessageReceived.bind(this),
 			error => {

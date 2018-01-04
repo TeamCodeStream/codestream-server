@@ -2,42 +2,24 @@
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
-class TeamSubscriptionGranter  {
+class RepoSubscriptionGranter  {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	grantToMembers (callback) {
+	grantToUsers (callback) {
 		BoundAsync.series(this, [
-			this.getUsers,
 			this.getTokens,
-			this.grantTeamChannel
+			this.grantRepoChannel
 		], callback);
-	}
-
-	getUsers (callback) {
-		if (this.members) {
-			return callback();
-		}
-		this.data.users.getByIds(
-			this.team.get('memberIds') || [],
-			(error, members) => {
-				if (error) { return callback(error); }
-				this.members = members;
-				callback();
-			},
-			{
-				fields: ['isRegistered', 'accessToken']
-			}
-		);
 	}
 
 	getTokens (callback) {
 		this.tokens = [];
 		BoundAsync.forEachLimit(
 			this,
-			this.members,
+			this.users,
 			10,
 			this.getTokenForRegisteredUser,
 			callback
@@ -51,11 +33,11 @@ class TeamSubscriptionGranter  {
 		process.nextTick(callback);
 	}
 
-	grantTeamChannel (callback) {
+	grantRepoChannel (callback) {
 		if (this.tokens.length === 0) {
 			return callback();
 		}
-		let channel = 'team-' + this.team.id;
+		let channel = 'repo-' + this.repo.id;
 		this.messager.grant(
 			this.tokens,
 			channel,
@@ -74,4 +56,4 @@ class TeamSubscriptionGranter  {
 	}
 }
 
-module.exports = TeamSubscriptionGranter;
+module.exports = RepoSubscriptionGranter;
