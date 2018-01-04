@@ -2,7 +2,6 @@
 
 var BasePubNubTest = require('./base_pubnub_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Assert = require('assert');
 
 class PresenceTest extends BasePubNubTest {
 
@@ -47,10 +46,13 @@ class PresenceTest extends BasePubNubTest {
 	}
 
 	validateMessage (message) {
-		Assert(message.channel === this.channelName, 'received message doesn\'t match channel name');
-		Assert(message.action === 'join', 'message action should be "join" but was ' + message.action);
-		Assert(message.uuid === this.uuids[1], 'uuid does not match');
-		return true;
+		if (
+			message.channel === this.channelName &&
+			message.action === 'join' &&
+			message.uuid === this.uuids[1]
+		) {
+			return true;
+		}
 	}
 }
 

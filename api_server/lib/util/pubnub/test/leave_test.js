@@ -2,7 +2,6 @@
 
 var BasePubNubTest = require('./base_pubnub_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var Assert = require('assert');
 
 class LeaveTest extends BasePubNubTest {
 
@@ -67,14 +66,13 @@ class LeaveTest extends BasePubNubTest {
 			// not ready yet
 			return false;
 		}
-		if (message.action === 'interval') {
-			// ignore these
-			return false;
+		if (
+			message.channel === this.channelName &&
+			message.action === 'leave' &&
+			message.uuid === this.uuids[1]
+		) {
+			return true;
 		}
-		Assert(message.channel === this.channelName, 'received message doesn\'t match channel name');
-		Assert(message.action === 'leave', 'message action should be "leave" but was ' + message.action);
-		Assert(message.uuid === this.uuids[1], 'uuid does not match');
-		return true;
 	}
 }
 
