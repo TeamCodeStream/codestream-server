@@ -30,7 +30,7 @@ class MultipleHistoryTest extends PubNubTest {
 
 	// unsubscribe from the channel, we'll miss the messages from now on
 	unsubscribe (callback) {
-		this.pubnubForClient.unsubscribe(this.channelName);
+		this.pubnubForClients[0].unsubscribe(this.channelName);
 		callback();
 	}
 
@@ -71,7 +71,7 @@ class MultipleHistoryTest extends PubNubTest {
 
 	// fetch the history and ensure we get each message that was sent
 	fetchHistory (callback) {
-		this.pubnubForClient.history(
+		this.pubnubForClients[0].history(
 			this.channelName,
 			(error, messages) => {
 				if (error) { return callback(error); }

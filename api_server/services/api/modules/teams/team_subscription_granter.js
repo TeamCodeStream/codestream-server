@@ -66,6 +66,9 @@ class TeamSubscriptionGranter  {
 				else {
 					return callback();
 				}
+			},
+			{
+				includePresence: true
 			}
 		);
 	}

@@ -23,7 +23,7 @@ class UnsubscribeTest extends PubNubTest {
 	// unsubscribe from the channel
 	unsubscribe (callback) {
 		this.unsubscribed = true;
-		this.pubnubForClient.unsubscribe(this.channelName);
+		this.pubnubForClients[0].unsubscribe(this.channelName);
 		callback();
 	}
 

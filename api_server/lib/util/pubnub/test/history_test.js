@@ -29,7 +29,7 @@ class HistoryTest extends PubNubTest {
 
 	// fetch the history for this channel, we expect the one message we sent
 	fetchHistory (callback) {
-		this.pubnubForClient.history(
+		this.pubnubForClients[0].history(
 			this.channelName,
 			(error, messages) => {
 				if (error) { return callback(error); }
