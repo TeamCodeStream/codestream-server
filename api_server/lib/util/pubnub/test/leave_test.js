@@ -10,7 +10,7 @@ class LeaveTest extends BasePubNubTest {
 		super(options);
 		this.numClients = 2;
 		this.withPresence = true;
-		this.timeout = 10000;
+		this.timeout = 15000;
 	}
 
 	get description () {
