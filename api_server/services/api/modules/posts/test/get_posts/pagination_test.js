@@ -13,6 +13,7 @@ class PaginationTest extends GetPostsTest {
 		// otherwise we'll do 17 posts in pages of 5
 		this.numPosts = this.defaultPagination ? Math.floor(Limits.maxPostsPerRequest * 2.5) : 17;
 		this.postsPerPage = this.defaultPagination ? Limits.maxPostsPerRequest : 5;
+		this.postCreateThrottle = 100;	// slow things down, pubnub gets overwhelmed
 	}
 
 	get description () {
