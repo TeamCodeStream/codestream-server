@@ -48,7 +48,7 @@ class PresenceTest extends BasePubNubTest {
 
 	validateMessage (message) {
 		Assert(message.channel === this.channelName, 'received message doesn\'t match channel name');
-		Assert(message.action === 'join', 'message action should be "join"');
+		Assert(message.action === 'join', 'message action should be "join" but was ' + message.action);
 		Assert(message.uuid === this.uuids[1], 'uuid does not match');
 		return true;
 	}
