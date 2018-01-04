@@ -9,7 +9,7 @@ var streamsRequestTester = new StreamsRequestTester();
 
 describe('stream requests', function() {
 
-	this.timeout(20000);
+	this.timeout(40000);
 
 	describe('GET /streams/:id', streamsRequestTester.getStreamTest);
 	describe('GET /streams', streamsRequestTester.getStreamsTest);

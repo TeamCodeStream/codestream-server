@@ -13,6 +13,7 @@ class PaginationTest extends GetStreamsTest {
 		this.streamsPerPage = this.defaultPagination ? Limits.maxStreamsPerRequest : 5;
 		this.dontDoForeign = true;
 		this.dontDoTeamStreams = true;
+		this.createStreamThrottle = 100;
 	}
 
 	get description () {
