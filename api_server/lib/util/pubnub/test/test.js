@@ -4,10 +4,10 @@
 
 var PubNubTest = require('./pubnub_test');
 var NoAccessTest = require('./no_access_test');
-var RevokeAccessTest = require('./revoke_access_test');
+//var RevokeAccessTest = require('./revoke_access_test');
 var UnsubscribeTest = require('./unsubscribe_test');
 var HistoryTest = require('./history_test');
-var MultipleHistoryTest = require('./multiple_history_test');
+//var MultipleHistoryTest = require('./multiple_history_test');
 var PresenceTest = require('./presence_test');
 var LeaveTest = require('./leave_test');
 
@@ -22,10 +22,10 @@ describe('pubnub', function() {
 
 	new PubNubTest().test();
 	new NoAccessTest().test();
-	new RevokeAccessTest().test();
+//	new RevokeAccessTest().test();
 	new UnsubscribeTest().test();
 	new HistoryTest().test();
-	new MultipleHistoryTest().test(); 
+//	new MultipleHistoryTest().test();
 	new PresenceTest().test();
 	new LeaveTest().test();
 });
