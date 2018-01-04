@@ -30,7 +30,9 @@ describe('messages', function() {
 	new AddToCreatedTeamTest().test();
 	new AddToExistingTeamTest().test();
 	new AddExistingRepoTest().test();
-	new PresenceJoinTest().test();
-	new PresenceLeaveTest().test();
+	new PresenceJoinTest({ which: 'team' }).test();
+	new PresenceLeaveTest({ which: 'team' }).test();
+	new PresenceJoinTest({ which: 'repo' }).test();
+	new PresenceLeaveTest({ which: 'repo' }).test();
 
 });

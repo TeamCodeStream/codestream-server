@@ -11,7 +11,7 @@ class PresenceLeaveTest extends CodeStreamMessageTest {
 	}
 
 	get description () {
-		return 'members of the team should get a "leave" presence message when another user unsubscribes from the team channel';
+		return `members of the team should get a "leave" presence message when another user unsubscribes from the ${this.which} channel`;
 	}
 
 	// make the data needed to prepare for the request that triggers the message
@@ -42,6 +42,7 @@ class PresenceLeaveTest extends CodeStreamMessageTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
+				this.repo = response.repo;
 				this.users = response.users;
 				callback();
 			},
@@ -55,18 +56,23 @@ class PresenceLeaveTest extends CodeStreamMessageTest {
 
 	// subscribe the other user to the team channel, before unsubscribing
 	subscribe (callback) {
+		this.channelName = this.myChannelName();
 		let otherUser = this.otherUserData.user;
 		let token = this.otherUserData.accessToken;
-		let channel = 'team-' + this.team._id;
 		this.makePubnubForClient(token, otherUser);
 		this.pubnubClientsForUser[otherUser._id].subscribe(
-			channel,
+			this.channelName,
 			() => {},
 			callback,
 			{
 				includePresence: this.withPresence
 			}
 		);
+	}
+
+	// what is my channel name? depends on the test
+	myChannelName () {
+		return `${this.which}-${this[this.which]._id}`;
 	}
 
 	// wait for presence debounce interval, defaults to 2 seconds
@@ -76,8 +82,7 @@ class PresenceLeaveTest extends CodeStreamMessageTest {
 
 	// set the channel name to listen on
 	setChannelName (callback) {
-		// we'll listen on the team channel for the presence message
-		this.channelName = 'team-' + this.team._id;
+		// we've already set the channel name
 		callback();
 	}
 

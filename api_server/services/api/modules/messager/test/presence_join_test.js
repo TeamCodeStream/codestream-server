@@ -11,7 +11,7 @@ class PresenceJoinTest extends CodeStreamMessageTest {
 	}
 
 	get description () {
-		return 'members of the team should get a "join" presence message when another user subscribes to the team channel';
+		return `members of the team should get a "join" presence message when another user subscribes to the ${this.which} channel`;
 	}
 
 	// make the data needed to prepare for the request that triggers the message
@@ -39,6 +39,7 @@ class PresenceJoinTest extends CodeStreamMessageTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
+				this.repo = response.repo;
 				this.users = response.users;
 				callback();
 			},
@@ -53,8 +54,13 @@ class PresenceJoinTest extends CodeStreamMessageTest {
 	// set the channel name to listen on
 	setChannelName (callback) {
 		// we'll listen on the team channel for the presence message
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = this.myChannelName();
 		callback();
+	}
+
+	// what is my channel name? depends on the test
+	myChannelName () {
+		return `${this.which}-${this[this.which]._id}`;
 	}
 
 	// generate the message that triggers the test

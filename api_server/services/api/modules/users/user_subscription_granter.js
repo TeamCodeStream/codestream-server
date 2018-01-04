@@ -1,6 +1,7 @@
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const RepoIndexes = require(process.env.CS_API_TOP + '/services/api/modules/repos/indexes');
 const StreamIndexes = require(process.env.CS_API_TOP + '/services/api/modules/streams/indexes');
 
 class UserSubscriptionGranter  {
@@ -13,24 +14,11 @@ class UserSubscriptionGranter  {
 		BoundAsync.series(this, [
 			this.grantUserChannel,
 			this.grantTeamChannels,
+			this.getRepos,
+			this.grantRepoChannels,
 			this.getStreams,
 			this.grantStreamChannels
 		], callback);
-	}
-
-	grantChannel (channel, callback) {
-		this.messager.grant(
-			this.user.get('accessToken'),
-			channel,
-			(error) => {
-				if (error) {
-					 return callback(`unable to grant permissions for subscription (${channel}): ${error}`);
-				}
-				else {
-					return callback();
-				}
-			}
-		);
 	}
 
 	grantUserChannel (callback) {
@@ -49,6 +37,41 @@ class UserSubscriptionGranter  {
 
 	grantTeamChannel (teamId, callback) {
 		this.grantChannel('team-' + teamId, callback);
+	}
+
+	getRepos (callback) {
+		let query = {
+			teamId: this.data.repos.inQuery(this.user.get('teamIds') || [])
+		};
+		this.data.repos.getByQuery(
+			query,
+			(error, repos) => {
+				if (error) { return callback(error); }
+				this.repos = repos;
+				callback();
+			},
+			{
+				databaseOptions: {
+					fields: ['_id'],
+					hint: RepoIndexes.byTeamId
+				},
+				noCache: true
+			}
+		);
+	}
+
+	grantRepoChannels (callback) {
+		BoundAsync.forEachLimit(
+			this,
+			this.repos,
+			20,
+			this.grantRepoChannel,
+			callback
+		);
+	}
+
+	grantRepoChannel (repo, callback) {
+		this.grantChannel('repo-' + repo._id, callback);
 	}
 
 	getStreams (callback) {
@@ -96,6 +119,21 @@ class UserSubscriptionGranter  {
 
 	grantStreamChannel (stream, callback) {
 		this.grantChannel('stream-' + stream._id, callback);
+	}
+
+	grantChannel (channel, callback) {
+		this.messager.grant(
+			this.user.get('accessToken'),
+			channel,
+			(error) => {
+				if (error) {
+					 return callback(`unable to grant permissions for subscription (${channel}): ${error}`);
+				}
+				else {
+					return callback();
+				}
+			}
+		);
 	}
 }
 

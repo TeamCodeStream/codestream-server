@@ -16,7 +16,7 @@ class AddTeamMembers  {
 	addTeamMembers (callback) {
 		BoundAsync.series(this, [
 			this.getTeam,
-			this.getMembers,
+			this.getExistingMembers,
 			this.eliminateDuplicates,
 			this.checkCreateUsers,
 			this.checkUsernamesUnique,
@@ -44,7 +44,7 @@ class AddTeamMembers  {
 		);
 	}
 
-	getMembers (callback) {
+	getExistingMembers (callback) {
 		this.data.users.getByIds(
 			this.team.get('memberIds'),
 			(error, members) => {
@@ -60,13 +60,12 @@ class AddTeamMembers  {
 			return callback();
 		}
 		let existingIds = this.existingMembers.map(member => member.id);
-		let nonDuplicateUsers = [];
+		this.usersToAdd = [];
 		this.users.forEach(user => {
 			if (existingIds.indexOf(user.id) === -1) {
-				nonDuplicateUsers.push(user);
+				this.usersToAdd.push(user);
 			}
 		});
-		this.users = nonDuplicateUsers;
 		process.nextTick(callback);
 	}
 
@@ -109,7 +108,7 @@ class AddTeamMembers  {
 	}
 
 	checkUsernamesUnique (callback) {
-		this.usersToAdd = [...(this.users || []), ...(this.usersCreated || [])];
+		this.usersToAdd = [...(this.usersToAdd || []), ...(this.usersCreated || [])];
 		let allUsers = [...this.usersToAdd, ...this.existingMembers];
 		let usernames = [];
 		let conflictingUsername = null;
@@ -142,8 +141,7 @@ class AddTeamMembers  {
 	}
 
 	updateUsers (callback) {
-		this.updatedUsers = [];
-		this.sanitizedUsers = [];
+		this.membersAdded = [];
 		BoundAsync.forEach(
 			this,
 			this.usersToAdd,
@@ -163,20 +161,20 @@ class AddTeamMembers  {
 			},
 			(error, updatedUser) => {
 				if (error) { return callback(error); }
-				this.updatedUsers.push(updatedUser);
-				this.sanitizedUsers.push(updatedUser.getSanitizedObject());
+				this.membersAdded.push(updatedUser);
 				callback();
 			}
 		);
 	}
 
 	grantUserMessagingPermissions (callback) {
-		new TeamSubscriptionGranter({
+		let granterOptions = {
 			data: this.data,
 			messager: this.api.services.messager,
 			team: this.team,
 			members: this.usersToAdd
-		}).grantToMembers(error => {
+		};
+		new TeamSubscriptionGranter(granterOptions).grantToMembers(error => {
 			if (error) {
 				return callback(this.errorHandler.error('messagingGrant', { reason: error }));
 			}

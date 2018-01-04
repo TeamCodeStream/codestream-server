@@ -181,11 +181,12 @@ class PostRepoTest extends CodeStreamAPITest {
 		let team = data.team;
 		let repo = data.repo;
 		let errors = [];
+		let expectMemberIds = (this.teamData.memberIds || [this.currentUser._id]);
 		Assert(typeof team === 'object', 'team expected with response');
 		let result = (
 			((team._id === repo.teamId) || errors.push('team id is not the same as repo teamId')) &&
 			((team.name === this.teamData.name) || errors.push('team name doesn\'t match')) &&
-			((JSON.stringify(team.memberIds.sort()) === JSON.stringify((this.teamData.memberIds || [this.currentUser._id]).sort())) || errors.push('team membership doesn\'t match')) &&
+			((JSON.stringify(team.memberIds.sort()) === JSON.stringify(expectMemberIds.sort())) || errors.push('team membership doesn\'t match')) &&
 			((team.companyId === repo.companyId) || errors.push('team companyId is not the same as repo companyId')) &&
 			((team.deactivated === false) || errors.push('team.deactivated not false')) &&
 			((typeof team.createdAt === 'number') || errors.push('team.createdAt not number')) &&
@@ -215,6 +216,7 @@ class PostRepoTest extends CodeStreamAPITest {
 	}
 
 	validateUsers (data) {
+		this.teamEmails.push(this.currentUser.email);
 		Assert(data.users instanceof Array, 'no users array returned');
 		data.users.forEach(user => {
 			Assert(this.teamEmails.indexOf(user.email) !== -1, `got unexpected email ${user.email}`);
@@ -227,7 +229,7 @@ class PostRepoTest extends CodeStreamAPITest {
 		});
 		if (!this.testOptions.teamNotRequired) {
 			let addedUserIds = data.users.map(user => user._id);
-			this.teamData.memberIds = [this.currentUser._id, ...addedUserIds].sort();
+			this.teamData.memberIds = addedUserIds.sort();
 		}
 	}
 }
