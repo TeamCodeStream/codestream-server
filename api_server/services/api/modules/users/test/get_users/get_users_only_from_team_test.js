@@ -22,6 +22,7 @@ class GetUsersOnlyFromTeamTest extends GetUsersTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.foreignUsers = response.users;
+				this.foreignUsers = response.users.filter(user => user._id !== this.otherUserData.user._id);
 				callback();
 			},
 			{

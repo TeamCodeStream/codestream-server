@@ -52,23 +52,27 @@ class UserMessageToOtherUserTest extends CodeStreamMessageTest {
 	}
 
 	generateMessage (callback) {
-		this.registeringUser = this.users[1];
-		Object.assign(this.registeringUser, {
+		this.registeringUser = this.users.find(user => {
+			return user._id !== this.currentUser._id && user._id !== this.otherUserData.user._id;
+		});
+		let data = {
 			username: RandomString.generate(12),
 			firstName: RandomString.generate(12),
 			lastName: RandomString.generate(12)
-		});
+		};
+		Object.assign(this.registeringUser, data);
 		let user = new User(this.registeringUser);
 		let userObject = user.getSanitizedObject();
 		this.message = {
 			users: [userObject]
 		};
-		Object.assign(this.registeringUser, {
+		Object.assign(data, {
+			email: this.registeringUser.email,
 			password: RandomString.generate(12),
 			_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response
 			_forceConfirmation: true								// this forces confirmation even if not enforced in environment
 		});
-		this.userFactory.registerUser(this.registeringUser, callback);
+		this.userFactory.registerUser(data, callback);
 	}
 
 	messageReceived (error, message) {

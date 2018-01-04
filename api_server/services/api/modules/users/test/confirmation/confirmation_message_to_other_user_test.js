@@ -48,7 +48,9 @@ class ConfirmationMessageToOtherUserTest extends CodeStreamMessageTest {
 	}
 
 	registerUser (callback) {
-		this.registeringUser = this.users[1];
+		this.registeringUser = this.users.find(user => {
+			return user._id !== this.currentUser._id && user._id !== this.otherUserData.user._id;
+		});
 		let register = {
 			email: this.registeringUser.email,
 			username: RandomString.generate(12),
