@@ -57,7 +57,9 @@ class RandomPostFactory {
 			for (let i = 0; i < options.wantCodeBlocks; i++) {
 				let codeBlockInfo = {
 					code: this.randomText(),
-					location: this.markerFactory.randomLocation()
+					location: this.markerFactory.randomLocation(),
+					preContext: this.randomText(),
+					postContext: this.randomText()
 				};
 				if (options.codeBlockStreamId) {
 					// for code blocks that come from a different stream than the one the post will go into
