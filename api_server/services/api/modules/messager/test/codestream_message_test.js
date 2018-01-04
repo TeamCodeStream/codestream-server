@@ -77,7 +77,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	// wait for permissions to be set through pubnub PAM
 	wait (callback) {
-		setTimeout(callback, 2000);
+		setTimeout(callback, 5000);
 	}
 
 	// begin listening on the simulated client
@@ -91,7 +91,10 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		this.pubnubClientsForUser[this.currentUser._id].subscribe(
 			this.channelName,
 			this.messageReceived.bind(this),
-			callback
+			callback,
+			{
+				withPresence: this.withPresence
+			}
 		);
 	}
 
@@ -104,11 +107,10 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	messageReceived (error, message) {
 		if (error) { return this.messageCallback(error); }
 		Assert(message.channel === this.channelName, 'received message doesn\'t match channel name');
-		if (typeof message.message === 'object') {
-			Assert(message.message.requestId, 'received message has no requestId');
-			this.message.requestId = message.message.requestId;	// don't care what it is
+		if (!this.validateMessage(message)) {
+			// ignore
+			return;
 		}
-		Assert.deepEqual(message.message, this.message, 'received message doesn\'t match');
 
 		// the message can actually arrive before we are waiting for it, so in that case signal that we already got it
 		if (this.messageCallback) {
@@ -117,6 +119,16 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		else {
 			this.messageAlreadyReceived = true;
 		}
+	}
+
+	// validate the message received against expectations
+	validateMessage (message) {
+		if (typeof message.message === 'object') {
+			Assert(message.message.requestId, 'received message has no requestId');
+			this.message.requestId = message.message.requestId;	// don't care what it is
+		}
+		Assert.deepEqual(message.message, this.message, 'received message doesn\'t match');
+		return true;
 	}
 
 	// generate the message, this could be overriden but by default it just sends a random message

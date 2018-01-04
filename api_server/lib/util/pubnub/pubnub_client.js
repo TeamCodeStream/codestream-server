@@ -117,14 +117,9 @@ class PubNubClient {
 		if (!(tokens instanceof Array)) {
 			tokens = [tokens];
 		}
-		let channels = [channel];
-		if (options.includePresence) {
-			// doing presence requires granting access to this channel as well
-			channels.push(channel + '-pnpres');
-		}
 		this.pubnub.grant(
 			{
-				channels: channels,
+				channels: [channel],
 				authKeys: tokens,
 				read: options.read === false ? false: true,
 				write: options.write === true ? true : false,
@@ -135,7 +130,13 @@ class PubNubClient {
 					return callback(result.errorData);
 				}
 				else {
-					return callback();
+					if (options.includePresence) {
+						// doing presence requires granting access to this channel as well
+						this.grant(tokens, channel + '-pnpres', callback);
+					}
+					else {
+						return callback();
+					}
 				}
 			}
 		);
