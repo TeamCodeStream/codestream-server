@@ -94,6 +94,19 @@ class PostCreator extends ModelCreator {
 		if (typeof codeBlock.code !== 'string') {
 			return callback('code must be a string');
 		}
+		// can have pre- and post- context, must be a string
+		if (codeBlock.preContext) {
+			numKeys++;
+			if (typeof codeBlock.preContext !== 'string') {
+				return callback('preContext must be a string');
+			}
+		}
+		if (codeBlock.postContext) {
+			numKeys++;
+			if (typeof codeBlock.postContext !== 'string') {
+				return callback('postContext must be a string');
+			}
+		}
 		// the location coordinates must be valid
 		let result = MarkerCreator.validateLocation(codeBlock.location);
 		if (result) {

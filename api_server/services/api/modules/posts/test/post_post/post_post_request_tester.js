@@ -13,6 +13,8 @@ var CodeBlocksTooLongTest = require('./code_blocks_too_long_test');
 var CodeBlockNotObjectTest = require('./code_block_not_object_test');
 var CodeBlockTooBigTest = require('./code_block_too_big_test');
 var CodeMustBeStringTest = require('./code_must_be_string_test');
+var PreContextMustBeStringTest = require('./pre_context_must_be_string_test');
+var PostContextMustBeStringTest = require('./post_context_must_be_string_test');
 var LocationMustBeArrayTest = require('./location_must_be_array_test');
 var LocationTooLongTest = require('./location_too_long_test');
 var LocationTooShortTest = require('./location_too_short_test');
@@ -80,6 +82,8 @@ class PostPostRequestTester {
 		new CodeBlockNotObjectTest().test();
 		new CodeBlockTooBigTest().test();
 		new CodeMustBeStringTest().test();
+		new PreContextMustBeStringTest().test();
+		new PostContextMustBeStringTest().test();
 		new LocationMustBeArrayTest().test();
 		new LocationTooLongTest().test();
 		new LocationMustBeNumbersTest().test();
