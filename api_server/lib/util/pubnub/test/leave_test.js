@@ -32,7 +32,7 @@ class LeaveTest extends BasePubNubTest {
 
 	// wait for the join message for the first client to pass
 	waitForJoin (callback) {
-		setTimeout(callback, 3000);
+		setTimeout(callback, 5000);
 	}
 
 	// subscribe to our random channel on the second client
