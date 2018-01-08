@@ -4,12 +4,12 @@
 'use strict';
 
 var APIRequestTest = require('./api_request_test');
-var RandomUserFactory = require(process.env.CS_API_TOP + '/services/api/modules/users/test/random_user_factory');
-var RandomTeamFactory = require(process.env.CS_API_TOP + '/services/api/modules/teams/test/random_team_factory');
-var RandomRepoFactory = require(process.env.CS_API_TOP + '/services/api/modules/repos/test/random_repo_factory');
-var RandomStreamFactory = require(process.env.CS_API_TOP + '/services/api/modules/streams/test/random_stream_factory');
-var RandomPostFactory = require(process.env.CS_API_TOP + '/services/api/modules/posts/test/random_post_factory');
-var RandomMarkerFactory = require(process.env.CS_API_TOP + '/services/api/modules/markers/test/random_marker_factory');
+var RandomUserFactory = require(process.env.CS_API_TOP + '/modules/users/test/random_user_factory');
+var RandomTeamFactory = require(process.env.CS_API_TOP + '/modules/teams/test/random_team_factory');
+var RandomRepoFactory = require(process.env.CS_API_TOP + '/modules/repos/test/random_repo_factory');
+var RandomStreamFactory = require(process.env.CS_API_TOP + '/modules/streams/test/random_stream_factory');
+var RandomPostFactory = require(process.env.CS_API_TOP + '/modules/posts/test/random_post_factory');
+var RandomMarkerFactory = require(process.env.CS_API_TOP + '/modules/markers/test/random_marker_factory');
 var Assert = require('assert');
 
 class CodeStreamAPITest extends APIRequestTest {
