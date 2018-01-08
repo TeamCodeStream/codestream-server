@@ -9,3 +9,4 @@ export CS_API_SSL_CAFILE=/etc/pki/wildcard.codestream.us/wildcard.codestream.us-
 export CS_API_PORT=8443
 unset CS_API_LOG_CONSOLE_OK
 unset CS_API_SETUP_MONGO
+export CS_API_REPLY_TO_DOMAIN=qa.codestream.com

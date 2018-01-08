@@ -36,7 +36,7 @@ class RepoCreator extends ModelCreator {
 				string: ['url', 'firstCommitHash']
 			},
 			optional: {
-				string: ['firstCommitHash', 'teamId'],
+				string: ['firstCommitHash', 'teamId', '_subscriptionCheat'],
 				object: ['team'],
 				'array(string)': ['emails']
 			}
@@ -46,6 +46,8 @@ class RepoCreator extends ModelCreator {
 	validateAttributes (callback) {
 		this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
 		this.attributes.firstCommitHash = this.attributes.firstCommitHash.toLowerCase();
+		this.subscriptionCheat = this.attributes._subscriptionCheat === this.request.api.config.secrets.subscriptionCheat;
+		delete this.attributes._subscriptionCheat;
 		process.nextTick(callback);
 	}
 
@@ -109,7 +111,8 @@ class RepoCreator extends ModelCreator {
 			request: this.request,
 			users: [this.user],
 			emails: this.attributes.emails,
-			teamId: this.existingModel.get('teamId')
+			teamId: this.existingModel.get('teamId'),
+			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
 		adder.addTeamMembers(error => {
 			if (error) { return callback(error); }
@@ -154,7 +157,8 @@ class RepoCreator extends ModelCreator {
 		let adder = new AddTeamMembers({
 			request: this.request,
 			emails: this.attributes.emails,
-			team: this.team
+			team: this.team,
+			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
 		adder.addTeamMembers(error => {
 			if (error) { return callback(error); }
@@ -169,7 +173,8 @@ class RepoCreator extends ModelCreator {
 	createTeamForRepo (callback) {
 		// create a new team for this repo
 		this.teamCreator = new TeamCreator({
-			request: this.request
+			request: this.request,
+			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
 		this.teamCreator.createTeam(
 			this.attributes.team,

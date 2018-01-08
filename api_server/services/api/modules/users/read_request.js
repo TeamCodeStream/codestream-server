@@ -63,6 +63,9 @@ class ReadRequest extends RestfulRequest {
 					this.warn(`Unable to publish lastReads message to channel ${channel}: ${JSON.stringify(error)}`);
 				}
 				callback();
+			},
+			{
+				request: this
 			}
 		);
 	}

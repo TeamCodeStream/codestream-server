@@ -19,6 +19,16 @@ class Post extends CodeStreamModel {
 		this.lowerCase('markerIds');
 		super.preSave(callback, options);
 	}
+
+	// does this post mention the current user?
+	mentionsUser (user) {
+		if (!this.get('text') || !user.get('username')) {
+			return false;
+		}
+		// look for @username
+		let regexp = new RegExp(`@${user.get('username')}`);
+		return !!this.get('text').match(regexp);
+	}
 }
 
 module.exports = Post;

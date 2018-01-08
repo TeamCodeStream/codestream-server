@@ -10,6 +10,11 @@ var RandomString = require('randomstring');
 
 class CodeStreamMessageTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
+	}
+
 	// before the test, set up pubnub clients and start listening
 	before (callback) {
 		this.pubnubClientsForUser = {};
@@ -34,7 +39,9 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// establish the PubNub clients we will use to send and receive a message
 	makePubnubClients (callback) {
 		// set up the pubnub client as if we are the server
-		this.makePubnubForServer();
+		if (!this.dontNeedServer) {
+			this.makePubnubForServer();
+		}
 
 		// set up a pubnub client as if we are a client for the current user
 		this.makePubnubForClient(this.token, this.currentUser);
@@ -106,10 +113,11 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// called when a message has been received, assert that it matches expectations
 	messageReceived (error, message) {
 		if (error) { return this.messageCallback(error); }
-		Assert(message.channel === this.channelName, 'received message doesn\'t match channel name');
-		if (!this.validateMessage(message)) {
-			// ignore
-			return;
+		if (message.channel !== this.channelName) {
+			return;	// ignore
+		}
+		else if (!this.validateMessage(message)) {
+			return; // ignore
 		}
 
 		// the message can actually arrive before we are waiting for it, so in that case signal that we already got it

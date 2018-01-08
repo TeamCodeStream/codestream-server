@@ -5,6 +5,8 @@
 var PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
 var PostPublisher = require('./post_publisher');
 var PostAuthorizer = require('./post_authorizer');
+var EmailNotificationSender = require('./email_notification_sender');
+var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
 class PostPostRequest extends PostRequest {
 
@@ -20,19 +22,32 @@ class PostPostRequest extends PostRequest {
 
 	// after the post is created...
 	postProcess (callback) {
-		// publish the post on the appropriate messager channel
-		this.publishPost(callback);
+		BoundAsync.parallel(this, [
+			this.publishPost,
+			this.sendNotificationEmails
+		], callback);
 	}
 
-	// publish the post to the appropriate messager channel 
+	// publish the post to the appropriate messager channel
 	publishPost (callback) {
 		new PostPublisher({
 			data: this.responseData,
-			requestId: this.request.id,
+			request: this,
 			messager: this.api.services.messager,
-			stream: this.creator.stream.attributes,
-			logger: this
+			stream: this.creator.stream.attributes
 		}).publishPost(callback);
+	}
+
+	// send an email notification as needed to users who are offline
+	sendNotificationEmails (callback) {
+		new EmailNotificationSender({
+			request: this,
+			team: this.creator.team,
+			repo: this.creator.repo,
+			stream: this.creator.stream,
+			post: this.creator.model,
+			creator: this.user
+		}).sendEmailNotifications(callback);
 	}
 }
 

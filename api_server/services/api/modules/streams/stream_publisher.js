@@ -22,13 +22,13 @@ class StreamPublisher {
 	publishStreamToTeam (callback) {
 		let teamId = this.stream.teamId;
 		let channel = 'team-' + teamId;
-		let message = Object.assign({}, this.data, { requestId: this.requestId });
+		let message = Object.assign({}, this.data, { requestId: this.request.request.id });
 		this.messager.publish(
 			message,
 			channel,
 			error => {
-				if (error && this.logger) {
-					this.logger.warn(`Could not publish new stream message to team ${teamId}: ${JSON.stringify(error)}`);
+				if (error) {
+					this.request.warn(`Could not publish new stream message to team ${teamId}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
@@ -50,16 +50,19 @@ class StreamPublisher {
 	// publish a new channel or direct type stream to one of its members
 	publishStreamToUser (userId, callback) {
 		let channel = 'user-' + userId;
-		let message = Object.assign({}, this.data, { requestId: this.requestId });
+		let message = Object.assign({}, this.data, { requestId: this.request.request.id });
 		this.messager.publish(
 			message,
 			channel,
 			error => {
-				if (error && this.logger) {
-					this.logger.warn(`Could not publish new stream message to user ${userId}: ${JSON.stringify(error)}`);
+				if (error) {
+					this.request.warn(`Could not publish new stream message to user ${userId}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
+			},
+			{
+				request: this.request
 			}
 		);
 	}

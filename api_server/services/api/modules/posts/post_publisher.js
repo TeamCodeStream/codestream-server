@@ -30,9 +30,8 @@ class PostPublisher {
 		new StreamPublisher({
 			stream: this.data.stream,
 			data: { stream: this.data.stream },
-			requestId: this.requestId,
-			messager: this.messager,
-			logger: this
+			request: this.request,
+			messager: this.messager
 		}).publishStream(callback);
 	}
 
@@ -54,7 +53,7 @@ class PostPublisher {
 		let channel = 'team-' + teamId;
 		let message = {
 			post: this.data.post,
-			requestId: this.requestId
+			requestId: this.request.request.id
 		};
 		if (this.data.markers) {
 			message.markers = this.data.markers;
@@ -66,11 +65,14 @@ class PostPublisher {
 			message,
 			channel,
 			error => {
-				if (error && this.logger) {
-					this.logger.warn(`Could not publish post message to team ${teamId}: ${JSON.stringify(error)}`);
+				if (error) {
+					this.request.warn(`Could not publish post message to team ${teamId}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
+			},
+			{
+				request: this.request
 			}
 		);
 	}
@@ -80,17 +82,20 @@ class PostPublisher {
 		let channel = 'stream-' + streamId;
 		let message = {
 			post: this.data.post,
-			requestId: this.requestId
+			requestId: this.request.request.id
 		};
 		this.messager.publish(
 			message,
 			channel,
 			error => {
-				if (error && this.logger) {
-					this.logger.warn(`Could not publish post message to stream ${streamId}: ${JSON.stringify(error)}`);
+				if (error) {
+					this.request.warn(`Could not publish post message to stream ${streamId}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
+			},
+			{
+				request: this.request
 			}
 		);
 	}

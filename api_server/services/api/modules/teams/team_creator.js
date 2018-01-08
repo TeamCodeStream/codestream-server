@@ -141,7 +141,8 @@ class TeamCreator extends ModelCreator {
 	createUser (email, callback) {
 		this.userCreator = new UserCreator({
 			request: this.request,
-			dontSaveIfExists: true
+			dontSaveIfExists: true,
+			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
 		this.userCreator.createUser(
 			{

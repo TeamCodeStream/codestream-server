@@ -1,6 +1,7 @@
 'use strict';
 
 var RandomString = require('randomstring');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
 class RandomRepoFactory {
 
@@ -38,6 +39,10 @@ class RandomRepoFactory {
 			emails = (emails || []).concat(
 				this.getNRandomEmails(options.withRandomEmails)
 			);
+		}
+		if (options.subscriptionCheat) {
+			// allows unregistered users to subscribe to me-channel, needed for mock email testing
+			data._subscriptionCheat = SecretsConfig.subscriptionCheat;
 		}
 		if (options.teamId) {
 			data.teamId = options.teamId;

@@ -63,3 +63,9 @@ export CS_API_YARN=true
 
 # Location of the TestRepo repo used For maintaining test scripts
 export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo
+
+# Domain to use when setting a reply-to for outgoing emails
+# This is used when sending email notifications, we want replies to come back
+# to us and for the stream where the original post originated to be identified
+# in the reply-to address
+export CS_API_REPLY_TO_DOMAIN=dev.codestream.com

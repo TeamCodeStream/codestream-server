@@ -152,6 +152,24 @@ class UserCreator extends ModelCreator {
 		}
 		super.create(callback);
 	}
+
+	postSave (callback) {
+		this.grantMeChannel(callback);
+	}
+
+	grantMeChannel (callback) {
+		if (!this.subscriptionCheat) {
+			return callback();
+		}
+		// allow unregistered users to subscribe to me-channel, needed for mock email testing
+		this.api.warn(`NOTE - granting subscription permission to me channel for unregistered user ${this.model.id}, this had better be a test!`);
+		this.api.services.messager.grant(
+			[this.model.id],
+			`user-${this.model.id}`,
+			() => {}
+		);
+		callback();
+	}
 }
 
 module.exports = UserCreator;

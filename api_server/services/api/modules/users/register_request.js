@@ -44,8 +44,12 @@ class RegisterRequest extends RestfulRequest {
 	}
 
 	requireAndAllow (callback) {
-		this.confirmationCheat = this.request.body._confirmationCheat;	// cheat code for testing only
+		this.confirmationCheat = this.request.body._confirmationCheat;	// cheat code for testing only, return confirmation code in response
 		delete this.request.body._confirmationCheat;
+		this.subscriptionCheat = this.request.body._subscriptionCheat; // cheat code for testing only, allow subscription to me-channel before confirmation
+		delete this.request.body._subscriptionCheat;
+		this.delayEmail = this.request.body._delayEmail;				// delay sending the confirmation email, for testing
+		delete this.request.body._delayEmail;
 		this.requireAllowParameters(
 			'body',
 			{
@@ -80,7 +84,8 @@ class RegisterRequest extends RestfulRequest {
 	saveUser (callback) {
 		this.userCreator = new UserCreator({
 			request: this,
-			notOkIfExistsAndRegistered: true
+			notOkIfExistsAndRegistered: true,
+			subscriptionCheat: this.subscriptionCheat === this.api.config.secrets.subscriptionCheat
 		});
 		this.userCreator.createUser(
 			this.request.body,
@@ -113,14 +118,18 @@ class RegisterRequest extends RestfulRequest {
 		if (!this.confirmationRequired) {
 			return callback();
 		}
-		this.api.services.email.sendConfirmationEmail(
-			{
-				user: this.user.attributes,
-				email: this.user.get('email'),
-				request: this
-			},
-			callback
-		);
+		if (this.delayEmail) {
+			callback();	// respond, but delay sending the email
+		}
+		setTimeout(() => {	// allow client to delay the email send, for testing purposes
+			this.api.services.email.sendConfirmationEmail(
+				{
+					user: this.user,
+					request: this
+				},
+				this.delayEmail ? () => {} : callback
+			);
+		}, this.delayEmail || 0);
 	}
 
 	postProcess (callback) {
@@ -130,9 +139,8 @@ class RegisterRequest extends RestfulRequest {
 	publishUserToTeams (callback) {
 		new UserPublisher({
 			user: this.user,
-			requestId: this.request.id,
-			messager: this.api.services.messager,
-			logger: this
+			request: this,
+			messager: this.api.services.messager
 		}).publishUserToTeams(callback);
 	}
 }

@@ -24,7 +24,7 @@ class HistoryTest extends PubNubTest {
 
 	// wait for the message to persist, i've found that several seconds are necessary
 	wait (callback) {
-		setTimeout(callback, 20000);
+		setTimeout(callback, 5000);
 	}
 
 	// fetch the history for this channel, we expect the one message we sent
