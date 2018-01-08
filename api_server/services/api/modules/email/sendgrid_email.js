@@ -54,7 +54,12 @@ class SendGridEmail {
 			return true;
 		}
 		else if (!this.emailTo || this.requestSaysToBlockEmails(options)) {
-			if (options.request && !this.emailTo && !options.request.api.config.api.confirmationNotRequired) {
+			if (
+				options.request &&
+				!this.emailTo &&
+				!options.request.api.config.api.confirmationNotRequired &&
+				!this.requestSaysToBlockEmails(options)
+			) {
 				// we throw an error here, it's a configuration (and the default one for developer machines)
 				// that makes it impossible to actually register a new user
 				const error = 'Attempt to block emails while confirmation is required: turn on emails or turn off the confirmation requirement';
