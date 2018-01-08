@@ -10,7 +10,7 @@ var APICluster = require(process.env.CS_API_TOP + '/lib/api_server/api_cluster.j
 
 // load configurations
 const ConfigDirectory = process.env.CS_API_TOP + '/config';
-const ModuleDirectory = process.env.CS_API_TOP + '/services/api/modules';
+const ModuleDirectory = process.env.CS_API_TOP + '/modules';
 const ApiConfig = require(ConfigDirectory + '/api.js');
 const ExpressConfig = require(ConfigDirectory + '/express.js');
 const MongoConfig = require(ConfigDirectory + '/mongo.js');

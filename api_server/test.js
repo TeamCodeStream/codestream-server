@@ -3,4 +3,4 @@
 'use strict';
 
 require('./lib/test.js');
-require('./services/api/test.js');
+require('./modules/test.js');

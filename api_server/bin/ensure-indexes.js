@@ -12,11 +12,11 @@
 var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
 
 var AllModuleIndexes = {
-	repos: require(process.env.CS_API_TOP + '/services/api/modules/repos/indexes.js'),
-	streams: require(process.env.CS_API_TOP + '/services/api/modules/streams/indexes.js'),
-	posts: require(process.env.CS_API_TOP + '/services/api/modules/posts/indexes.js'),
-	markers: require(process.env.CS_API_TOP + '/services/api/modules/markers/indexes.js'),
-	users: require(process.env.CS_API_TOP + '/services/api/modules/users/indexes.js')
+	repos: require(process.env.CS_API_TOP + '/modules/repos/indexes.js'),
+	streams: require(process.env.CS_API_TOP + '/modules/streams/indexes.js'),
+	posts: require(process.env.CS_API_TOP + '/modules/posts/indexes.js'),
+	markers: require(process.env.CS_API_TOP + '/modules/markers/indexes.js'),
+	users: require(process.env.CS_API_TOP + '/modules/users/indexes.js')
 };
 
 let AllFinished = {
