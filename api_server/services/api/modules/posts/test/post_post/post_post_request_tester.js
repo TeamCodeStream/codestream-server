@@ -144,6 +144,8 @@ class PostPostRequestTester {
 		new SeqNumTest().test();
 		new NumCommentsTest().test();
 		new NumCommentsMessageTest().test();
+		/*
+*/
 	}
 }
 

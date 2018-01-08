@@ -29,11 +29,7 @@ class APIRequestTest extends GenericTest {
 	doApiRequest (options = {}, callback = null) {
 		let requestOptions = Object.assign({}, options.requestOptions || {});
 		requestOptions.rejectUnauthorized = false;	// avoid complaints about security
-		if (options.token) {
-			// use this token in the request
-			requestOptions.headers = Object.assign({}, requestOptions.headers || {});
-			requestOptions.headers.Authorization = 'Bearer ' + options.token;
-		}
+		this.makeHeaderOptions(options, requestOptions);
 
 		const method = options.method || 'get';
 		const path = options.path || '/';
@@ -48,16 +44,38 @@ class APIRequestTest extends GenericTest {
 		);
 	}
 
-	// make an API request, and check the response for validity
-	apiRequest (callback) {
+	// make header options to go out with the API request
+	makeHeaderOptions (options, requestOptions) {
+		requestOptions.headers = Object.assign({}, requestOptions.headers || {});
+		if (options.token) {
+			// use this token in the request
+			requestOptions.headers.Authorization = 'Bearer ' + options.token;
+		}
+		if (!options.reallySendEmails) {
+			// since we're just doing testing, block actual emails from going out
+			requestOptions.headers['X-CS-Block-Email-Sends'] = true;
+		}
+		if (!options.reallySendMessages && !this.reallySendMessages) {
+			// since we're just doing testing, block actual messages from going out over the messager
+			requestOptions.headers['X-CS-Block-Message-Sends'] = true;
+		}
+		if (options.testEmails) {
+			// we're doing email testing, block them from being sent but divert contents
+			// to a pubnub channel that we'll listen on
+			requestOptions.headers['X-CS-Test-Email-Sends'] = true;
+		}
+	}
+
+	// make an API requet, and check the response for validity
+	apiRequest (callback, options = {}) {
 		this.doApiRequest(
-			{
+			Object.assign({}, options, {
 				method: this.method,
 				path: this.path,
 				data: this.data,
 				requestOptions: this.apiRequestOptions || {},
 				token: this.token
-			},
+			}),
 			(error, response) => {
 				this.checkResponse(error, response, callback);
 			}
@@ -65,8 +83,8 @@ class APIRequestTest extends GenericTest {
 	}
 
 	// run the test by initiating the request/response cycle
-	run (callback) {
-		this.apiRequest(callback);
+	run (callback, options = {}) {
+		this.apiRequest(callback, options);
 	}
 
 	// check that the object we got back matches expectation, assuming ID

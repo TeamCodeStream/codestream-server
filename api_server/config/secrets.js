@@ -4,5 +4,6 @@
 
 module.exports = {
 	auth: process.env.CS_API_AUTH_SECRET,	// for authentication
-	confirmationCheat: '***REMOVED***'		// for bypassing email confirmation, used for unit testing
+	confirmationCheat: '***REMOVED***',		// for bypassing email confirmation, used for unit testing
+	subscriptionCheat: '***REMOVED***'		// for allowing unregistered users to subscribe to their me-channel, for testing emails
 };

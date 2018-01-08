@@ -25,9 +25,8 @@ class PostRepoRequest extends PostRequest {
 			team: team,
 			teamWasCreated: !!this.responseData.team,
 			repoExisted: this.creator.repoExisted,
-			requestId: this.request.id,
-			messager: this.api.services.messager,
-			logger: this
+			request: this,
+			messager: this.api.services.messager
 		}).publishRepoData(callback);
 	}
 }

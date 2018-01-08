@@ -60,6 +60,7 @@ class _UserCreator {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
+				this.user = response.user;
 				this.token = response.accessToken;
 				callback();
 			}

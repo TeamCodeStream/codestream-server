@@ -39,7 +39,7 @@ class RepoPublisher {
 			return callback();
 		}
 		let message = DeepClone(this.data);
-		message.requestId = this.requestId;
+		message.requestId = this.request.request.id;
 		let channel = 'user-' + user._id;
 		let currentUser = message.users.find(userInData => user._id === userInData._id);
 		if (currentUser !== -1) {
@@ -56,11 +56,14 @@ class RepoPublisher {
 			message,
 			channel,
 			error => {
-				if (error && this.logger) {
-					this.logger.warn(`Could not publish team-add message to user ${user._id}: ${JSON.stringify(error)}`);
+				if (error) {
+					this.request.warn(`Could not publish team-add message to user ${user._id}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
+			},
+			{
+				request: this.request
 			}
 		);
 	}
@@ -75,7 +78,7 @@ class RepoPublisher {
 			// listening on the team channel yet)
 			return callback();
 		}
-		let message = { requestId: this.requestId };
+		let message = { requestId: this.request.request.id };
 		if (this.repoExisted) {
 			// if the repo already existed, all we need to do is let the team
 			// members that new users have been added to the team
@@ -102,11 +105,14 @@ class RepoPublisher {
 			message,
 			channel,
 			error => {
-				if (error && this.logger) {
-					this.logger.warn(`Could not publish repo message to team ${teamId}: ${JSON.stringify(error)}`);
+				if (error) {
+					this.request.warn(`Could not publish repo message to team ${teamId}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
+			},
+			{
+				request: this.request
 			}
 		);
 	}

@@ -10,6 +10,7 @@ var BadPasswordTest = require('./bad_password_test');
 var ConflictingUsernameTest = require('./conflicting_username_test');
 var UserMessageToTeamTest = require('./user_message_to_team_test');
 var UserMessageToOtherUserTest = require('./user_message_to_other_user_test');
+var ConfirmationEmailTest = require('./confirmation_email_test');
 
 class RegistrationRequestTester {
 
@@ -26,6 +27,7 @@ class RegistrationRequestTester {
 		new ConflictingUsernameTest().test();
 		new UserMessageToTeamTest().test();
 		new UserMessageToOtherUserTest().test();
+		new ConfirmationEmailTest().test();
 	}
 }
 

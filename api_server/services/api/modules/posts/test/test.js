@@ -16,5 +16,5 @@ describe('post requests', function() {
 	describe('GET /posts/:id', postsRequestTester.getPostTest);
 	describe('GET /posts', postsRequestTester.getPostsTest);
 	describe('POST /posts', postsRequestTester.postPostTest);
-
+	describe('email notifications', postsRequestTester.emailNotificationTest);
 });

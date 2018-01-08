@@ -21,18 +21,21 @@ class UserPublisher {
 	publishUserToTeam (teamId, callback) {
 		let userObject = this.user.getSanitizedObject();
 		let message = {
-			requestId: this.requestId,
+			requestId: this.request.request.id,
 			users: [userObject]
 		};
 		this.messager.publish(
 			message,
 			'team-' + teamId,
 			error => {
-				if (error && this.logger) {
-					this.logger.warn(`Could not publish user message to team ${teamId}: ${JSON.stringify(error)}`);
+				if (error) {
+					this.request.warn(`Could not publish user message to team ${teamId}: ${JSON.stringify(error)}`);
 				}
 				// this doesn't break the chain, but it is unfortunate...
 				callback();
+			},
+			{
+				request: this.request
 			}
 		);
 	}

@@ -67,5 +67,9 @@ module.exports = {
 	accessToken: {
 		type: 'string',
 		serverOnly: true
+	},
+	hasReceivedFirstEmail: {
+		type: 'boolean',
+		serverOnly: true
 	}
 };

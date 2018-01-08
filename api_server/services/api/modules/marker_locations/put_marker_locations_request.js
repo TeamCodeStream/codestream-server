@@ -135,6 +135,9 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 					this.warn(`Could not publish marker locations update message to team ${this.teamId}: ${JSON.stringify(error)}`);
 				}
 				callback();
+			},
+			{
+				request: this
 			}
 		);
 	}

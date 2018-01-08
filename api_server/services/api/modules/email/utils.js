@@ -6,14 +6,16 @@ module.exports = {
 
 	// given a user, figure out a display name to use in the subject
 	getUserName: function(user) {
-		if (user.firstName && user.lastName) {
-			return user.firstName + ' ' + user.lastName;
+		const firstName = user.get('firstName');
+		const lastName = user.get('lastName');
+		if (firstName && lastName) {
+			return firstName + ' ' + lastName;
 		}
-		else if (user.firstName) {
-			return user.firstName;
+		else if (firstName) {
+			return firstName;
 		}
 		else {
-			return user.email;
+			return user.get('email');
 		}
 	}
 };

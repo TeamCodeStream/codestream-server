@@ -13,9 +13,8 @@ class PostStreamRequest extends PostRequest {
 		new StreamPublisher({
 			data: this.responseData,
 			stream: this.responseData.stream,
-			requestId: this.request.id,
-			messager: this.api.services.messager,
-			logger: this
+			request: this,
+			messager: this.api.services.messager
 		}).publishStream(callback);
 	}
 }

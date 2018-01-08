@@ -237,6 +237,9 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 					this.warn(`Could not publish marker location calculations update to team ${this.teamId}: ${JSON.stringify(error)}`);
 				}
 				callback();
+			},
+			{
+				request: this
 			}
 		);
 	}
