@@ -22,9 +22,11 @@ class OnlineNoEmailTest extends EmailNotificationTest {
 	}
 
 	// called when a message has been received, in this case this is bad
-	messageReceived (error) {
+	messageReceived (error, message) {
 		if (error) { return this.messageCallback(error); }
-		Assert.fail('message was received');
+		if (message.message && message.message.from && message.message.to) {
+			Assert.fail('email message was received');
+		}
 	}
 
 }
