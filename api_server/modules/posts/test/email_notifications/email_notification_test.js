@@ -251,6 +251,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			Assert.equal(codeBlock.postContext, substitutions['{{postContext}}']);
 		}
 		this.validateSubject(substitutions['{{subject}}']);
+		this.validateInstallText(substitutions['{{installText}}']);
 		this.validateCodeBlockDisplay(substitutions['{{displayCodeBlock}}']);
 		this.validateInstallTextDisplay(substitutions['{{displayInstallText}}']);
 	}
@@ -336,6 +337,15 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 				// their first email from CodeStream
 				return `New message about ${filename} on CodeStream`;
 			}
+		}
+	}
+
+	// validate that the install text is correct, text which shows an unregistered
+	// user how to install the plugin
+	validateInstallText (installText) {
+		if (!this.firstEmail && !this.wantRegisteredUser) {
+			let installLink = this.getInstallLink();
+			return Assert.equal(installText, `<a clicktracking=off href="${installLink}">Install the CodeStream plugin</a> and move the conversation out of your Inbox, and into your IDE.`, 'installText is incorrect');
 		}
 	}
 

@@ -69,6 +69,7 @@ class CodeStreamEmails {
 			preContext,
 			postContext,
 			subject,
+			installText,
 			displayCodeBlock,
 			displayInstallText
 		};

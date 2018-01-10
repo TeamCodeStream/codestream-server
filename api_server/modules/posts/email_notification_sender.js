@@ -35,9 +35,7 @@ class EmailNotificationSender {
 			channel,
 			(error, userIds) => {
 				if (error) {
-					this.request.warn(`Unable to obtain subscribed users for channel ${channel}: ${error}`);
-					// not fatal, but unfortunate
-					return callback();
+					return callback(`Unable to obtain subscribed users for channel ${channel}: ${error}`);
 				}
 				this.onlineUserIdsForRepo = userIds;
 				callback();
@@ -53,9 +51,7 @@ class EmailNotificationSender {
 			channel,
 			(error, userIds) => {
 				if (error) {
-					this.request.warn(`Unable to obtain subscribed users for channel ${channel}: ${error}`);
-					// not fatal, but unfortunate
-					return callback();
+					return callback(`Unable to obtain subscribed users for channel ${channel}: ${error}`);
 				}
 				this.onlineUserIdsForTeam = userIds;
 				callback();
