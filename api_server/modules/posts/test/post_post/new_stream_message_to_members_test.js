@@ -9,7 +9,7 @@ class NewStreamMessageToMembersTest extends CodeStreamMessageTest {
 		return `members of the stream should receive a message with the stream when a post is posted to a ${this.type} stream created on the fly`;
 	}
 
-	// make the data that triggers the message to be messageReceived
+	// make the data that triggers the message to be received
 	makeData (callback) {
 		BoundAsync.series(this, [
 			this.createTeamCreator,	// create a user who will create the team (and repo)

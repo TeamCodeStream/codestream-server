@@ -37,9 +37,7 @@ class InboundEmailRequest extends RestfulRequest {
 			this.getStream,
 			this.validate,
 			this.handleAttachments,
-			this.createPost,
-			this.publishPost,
-			this.sendNotificationEmails
+			this.createPost
 		], callback);
 	}
 
@@ -51,7 +49,10 @@ class InboundEmailRequest extends RestfulRequest {
 				required: {
 					object: ['from'],
 					string: ['text', 'mailFile', 'secret'],
-					'array(object)': ['to', 'attachments']
+					'array(object)': ['to']
+				},
+				optional: {
+					'array(object)': ['attachments']
 				}
 			},
 			callback
@@ -110,7 +111,7 @@ class InboundEmailRequest extends RestfulRequest {
 		// make sure it has our reply-to domain, otherwise we are just plain
 		// not interested!
 		let regexp = new RegExp(this.api.config.email.replyToDomain + '$', 'i');
-		if (!email.search(regexp)) {
+		if (!regexp.test(email)) {
 			this.log(`Email ${email} does not match the reply-to domain`);
 			return callback();
 		}
@@ -172,6 +173,7 @@ class InboundEmailRequest extends RestfulRequest {
 			return callback(this.errorHandler.error('streamNoMatchTeam', { info: this.streamId }));
 		}
 		if (!this.fromUser.hasTeam(this.teamId)) {
+			this.log(`User ${this.fromUser.id} is not on team ${this.teamId}`);
 			return callback(this.errorHandler.error('unauthorized'));
 		}
 		process.nextTick(callback);
@@ -196,14 +198,23 @@ class InboundEmailRequest extends RestfulRequest {
 			if (error) {
 				return callback(this.errorHandler.error('internal'), { reason: error });
 			}
+			this.responseData.post = this.postCreator.model.getSanitizedObject();
 			callback();
 		});
+	}
+
+	// after the post is created...
+	postProcess (callback) {
+		BoundAsync.parallel(this, [
+			this.publishPost,
+			this.sendNotificationEmails
+		], callback);
 	}
 
 	// after the post is created, publish it to the team or stream
 	publishPost (callback) {
 		new PostPublisher({
-			data: { post: this.postCreator.model.getSanitizedObject() },
+			data: this.responseData,
 			request: this,
 			messager: this.api.services.messager,
 			stream: this.stream.attributes
