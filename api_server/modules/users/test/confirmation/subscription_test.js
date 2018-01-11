@@ -1,6 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var PubNub = require('pubnub');
 var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 var PubNubClient = require(process.env.CS_API_TOP + '/lib/util/pubnub/pubnub_client.js');

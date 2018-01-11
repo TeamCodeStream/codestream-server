@@ -4,7 +4,7 @@
 
 'use strict';
 
-var DeepClone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
+var DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
 var _Ops = {
 	// set the value of a field, using a deep copy

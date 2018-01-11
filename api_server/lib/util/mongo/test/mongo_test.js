@@ -7,7 +7,7 @@ var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test'
 var MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
 var TestAPIConfig = require(process.env.CS_API_TOP + '/config/api_test');
 var RandomString = require('randomstring');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Assert = require('assert');
 
 class MongoTest extends GenericTest {

@@ -3,7 +3,7 @@
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var Stream = require('./stream');
 var StreamSubscriptionGranter = require('./stream_subscription_granter');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const StreamTypes = require('./stream_types');
 const Errors = require('./errors');
 const Indexes = require('./indexes');

@@ -1,7 +1,7 @@
 'use strict';
 
 var PutCalculateLocationsTest = require('./put_calculate_locations_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Assert = require('assert');
 
 class PutCalculateLocationsFetchTest extends PutCalculateLocationsTest {

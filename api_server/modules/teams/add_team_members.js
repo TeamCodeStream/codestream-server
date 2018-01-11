@@ -1,6 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var UserCreator = require(process.env.CS_API_TOP + '/modules/users/user_creator');
 var TeamSubscriptionGranter = require('./team_subscription_granter');
 const Errors = require('./errors');

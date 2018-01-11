@@ -3,7 +3,7 @@
 'use strict';
 
 const Git = require('nodegit');
-const BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const DeltaBuilder = require('./delta_builder');
 
 class GitRepo {

@@ -1,6 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var MongoTest = require('./mongo_test');
 var Assert = require('assert');
 

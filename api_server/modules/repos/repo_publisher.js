@@ -1,7 +1,7 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var DeepClone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+var DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
 class RepoPublisher {
 

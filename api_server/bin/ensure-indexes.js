@@ -9,7 +9,7 @@
 //
 // you can supply both, that will drop and build (rebuild from scratch)
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 var AllModuleIndexes = {
 	repos: require(process.env.CS_API_TOP + '/modules/repos/indexes.js'),
