@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "async": "^2.6.0",
+    "cluster": "^0.7.7",
+    "commander": "^2.12.2",
+    "html-entities": "^1.2.1",
+    "mailparser": "^2.1.0",
+    "strftime": "^0.10.0",
+    "watchr": "^3.0.1"
+  }
+}
