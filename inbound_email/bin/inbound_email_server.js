@@ -23,7 +23,8 @@ var MyClusterWrapper = new ClusterWrapper(
 	{
 		inboundEmail: InboundEmailConfig,
 		api: ApiConfig,
-		secrets: SecretsConfig
+		secrets: SecretsConfig,
+		logger: Logger
 	},
 	Logger,
 	{

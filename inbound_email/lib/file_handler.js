@@ -450,10 +450,9 @@ class FileHandler {
 			from: this.headers.get('from').value[0],
 			text: this.text,
 			mailFile: this.baseName,
-			aclSecret: this.inboundEmailServer.config.secrets.mailSecret,
+			secret: this.inboundEmailServer.config.secrets.mailSecret,
 			attachments: this.attachmentData
 		};
-console.warn("DATA", data);
 		this.sendDataToApiServer(data, callback);
 	}
 
@@ -473,7 +472,7 @@ console.warn("DATA", data);
 		let requestOptions = {
 			host: urlObject.hostname,
 			port: urlObject.port,
-			path: '/inbound-email',
+			path: '/no-auth/inbound-email',
 			method: 'POST',
 			headers: headers
 		};
