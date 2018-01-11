@@ -11,3 +11,4 @@ require('./teams/test/test.js');
 require('./posts/test/test.js');
 require('./markers/test/test.js');
 require('./marker_locations/test/test.js');
+require('./inbound_emails/test/test.js');
