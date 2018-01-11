@@ -16,8 +16,9 @@ Program
 
 class ClusterWrapper {
 
-	constructor (serverClass, config, logger) {
+	constructor (serverClass, config, logger, options = {}) {
 		this.config = config;
+		this.options = options;
 		this.logger = logger || console;
 		this.workers = {};
 		if (this.config.allowConfigOverride) {
@@ -49,7 +50,7 @@ class ClusterWrapper {
 	}
 
 	processArguments (callback) {
-		if (Program.one_worker) {
+		if (Program.one_worker || this.options.oneWorker) {
 			this.oneWorker = true;
 		}
 		process.nextTick(callback);
