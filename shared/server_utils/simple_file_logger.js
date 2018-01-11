@@ -6,7 +6,7 @@
 var Strftime = require('strftime');
 var Path = require('path');
 var FS = require('fs');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var Async = require('async');
 
 class SimpleFileLogger {
 
@@ -172,11 +172,11 @@ class SimpleFileLogger {
 			this.fd.end();
 		}
 		this.fd = null;
-		BoundAsync.series(this, [
-			this.openNextLogFile,	// open the next one
-			this.removeOldLink,		// remove the link to the last one
-			this.makeNewLink,		// make a link to the new one
-			this.cleanupOld			// clean up and old log files
+		Async.series([
+			this.openNextLogFile.bind(this),	// open the next one
+			this.removeOldLink.bind(this),		// remove the link to the last one
+			this.makeNewLink.bind(this),		// make a link to the new one
+			this.cleanupOld.bind(this)			// clean up and old log files
 		], callback);
 	}
 
@@ -212,13 +212,13 @@ class SimpleFileLogger {
 		const oneDay = 24 * 60 * 60 * 1000;
 		const deleteFrom = deleteThrough - 30 * oneDay;
 		let day = deleteFrom;
-		BoundAsync.whilst(
-			this,
+		let self = this;
+		Async.whilst(
 			() => {
 				return day <= deleteThrough;
 			},
 			(whilstCallback) => {
-				this.deleteDay(day, () => {
+				self.deleteDay(day, () => {
 					day += oneDay;
 					process.nextTick(whilstCallback);
 				});
