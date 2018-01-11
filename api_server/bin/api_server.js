@@ -60,7 +60,8 @@ var MyAPICluster = new ClusterWrapper(
 		email: EmailConfig,
 		limits: Limits,
 		allowConfigOverride: true,
-		dataCollections: DataCollections
+		dataCollections: DataCollections,
+		logger: Logger
 	},
 	Logger
 );

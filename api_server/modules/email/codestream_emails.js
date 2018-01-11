@@ -42,7 +42,7 @@ class CodeStreamEmails {
 
 	// send an email notification to the user specified
 	sendEmailNotification (options, callback) {
-		let { user, creator, post, repo, stream, request } = options;
+		let { user, creator, post, team, repo, stream, request } = options;
 		let email = user.get('email');
 		let authorName = EmailUtils.getUserName(creator);
 		let userName = EmailUtils.getUserName(user);
@@ -60,7 +60,7 @@ class CodeStreamEmails {
 		const postContext = (codeBlock && codeBlock.postContext) || '';
 		const installText = this.getInstallText(options);
 		const displayInstallText = installText ? null : 'display:none';
-		const replyTo = `${stream.id}@${this.replyToDomain}`;
+		const replyTo = `${stream.id}.${team.id}@${this.replyToDomain}`;
 		const fields = {
 			intro,
 			repoUrl,
