@@ -1,7 +1,7 @@
 'use strict';
 
 var GetPostsTest = require('./get_posts_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Assert = require('assert');
 const Limits = require(process.env.CS_API_TOP + '/config/limits');
 

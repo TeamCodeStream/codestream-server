@@ -1,7 +1,7 @@
 'use strict';
 
 var GetMyselfTest = require('./get_myself_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const UserTestConstants = require('../user_test_constants');
 const UserAttributes = require('../../user_attributes');
 

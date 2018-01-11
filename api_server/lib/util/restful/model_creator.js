@@ -4,8 +4,8 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
-var RequireAllow = require(process.env.CS_API_TOP + '/lib/util/require_allow');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+var RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
 
 class ModelCreator {
 

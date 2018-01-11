@@ -3,7 +3,7 @@
 'use strict';
 
 var SendGrid = require('sendgrid');
-var ErrorHandler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
+var ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const Errors = require('./errors');
 
 class SendGridEmail {

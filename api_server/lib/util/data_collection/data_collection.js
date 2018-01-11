@@ -3,10 +3,10 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var DataCollectionFetcher = require('./data_collection_fetcher');
 var ModelOps = require('./model_ops');
-var ErrorHandler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
+var ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const Errors = require('./errors');
 
 class DataCollection {

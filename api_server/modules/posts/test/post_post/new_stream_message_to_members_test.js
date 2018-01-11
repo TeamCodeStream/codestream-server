@@ -1,7 +1,7 @@
 'use strict';
 
 var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class NewStreamMessageToMembersTest extends CodeStreamMessageTest {
 

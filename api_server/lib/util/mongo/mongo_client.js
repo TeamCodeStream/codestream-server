@@ -5,10 +5,10 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var MongoDbClient = require('mongodb').MongoClient;
 var MongoCollection = require('./mongo_collection');
-var SimpleFileLogger = require(process.env.CS_API_TOP + '/lib/util/simple_file_logger');
+var SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
 
 class MongoClient {
 

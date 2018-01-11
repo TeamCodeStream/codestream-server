@@ -1,7 +1,7 @@
 'use strict';
 
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const StreamTestConstants = require('../stream_test_constants');
 
 class GetStreamTest extends CodeStreamAPITest {

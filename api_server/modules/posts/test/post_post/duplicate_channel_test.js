@@ -1,7 +1,7 @@
 'use strict';
 
 var ChannelOnTheFlyTest = require('./channel_on_the_fly_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class DuplicateChannelTest extends ChannelOnTheFlyTest {
 

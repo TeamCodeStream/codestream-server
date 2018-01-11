@@ -2,7 +2,7 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Post = require('./post');
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');

@@ -4,7 +4,7 @@
 'use strict';
 
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var MarkerMapper = require('./marker_mapper');
 var MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 

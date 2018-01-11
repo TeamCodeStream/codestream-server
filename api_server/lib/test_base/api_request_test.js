@@ -3,7 +3,7 @@
 'use strict';
 
 var GenericTest = require('./generic_test');
-var HTTPSBot = require(process.env.CS_API_TOP + '/lib/util/https_bot');
+var HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
 var TestAPIConfig = require(process.env.CS_API_TOP + '/config/api_test');
 var Assert = require('assert');
 

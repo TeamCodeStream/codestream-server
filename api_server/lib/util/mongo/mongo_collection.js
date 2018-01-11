@@ -3,9 +3,9 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var ObjectID = require('mongodb').ObjectID;
-var ErrorHandler = require(process.env.CS_API_TOP + '/lib/util/error_handler');
+var ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const Errors = require('./errors');
 
 // bridges an $addToSet operation to mongo by allowing the caller to specify an

@@ -1,6 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 var UserValidator = require('./user_validator');
 var User = require('./user');

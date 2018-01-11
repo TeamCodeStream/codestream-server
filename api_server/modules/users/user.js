@@ -2,8 +2,8 @@
 
 var CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
 var UserValidator = require('./user_validator');
-var ArrayUtilities = require(process.env.CS_API_TOP + '/lib/util/array_utilities.js');
-var DeepClone = require(process.env.CS_API_TOP + '/lib/util/deep_clone');
+var ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities.js');
+var DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 const UserAttributes = require('./user_attributes');
 
 class User extends CodeStreamModel {

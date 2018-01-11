@@ -5,7 +5,7 @@ var PubNubClient = require(process.env.CS_API_TOP + '/lib/util/pubnub/pubnub_cli
 var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 var PubNub = require('pubnub');
 var RandomString = require('randomstring');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Assert = require('assert');
 
 class BasePubNubTest extends GenericTest {

@@ -69,3 +69,10 @@ export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo
 # to us and for the stream where the original post originated to be identified
 # in the reply-to address
 export CS_API_REPLY_TO_DOMAIN=dev.codestream.com
+
+# Emails sent from CodeStream will be sent using this address
+export CS_API_SENDER_EMAIL=alerts@codestream.com
+
+# Requests to the API server fromm the inbound email server provide this secret
+# This prevents outside clients from simulating inbound emails
+export CS_API_INBOUND_EMAIL_SECRET=X02faOjBxnlQ9Q

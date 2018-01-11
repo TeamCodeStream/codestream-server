@@ -2,7 +2,7 @@
 
 const MarkerData = require('./marker_data');
 const StringSimilarity = require('string-similarity');
-const BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 const LINE_SIMILARITY_THRESHOLD = 0.6;
 const EDIT_SIMILARITY_THRESHOLD = 0.5;

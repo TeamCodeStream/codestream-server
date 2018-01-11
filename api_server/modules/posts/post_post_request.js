@@ -6,7 +6,7 @@ var PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_reque
 var PostPublisher = require('./post_publisher');
 var PostAuthorizer = require('./post_authorizer');
 var EmailNotificationSender = require('./email_notification_sender');
-var BoundAsync = require(process.env.CS_API_TOP + '/lib/util/bound_async');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class PostPostRequest extends PostRequest {
 
