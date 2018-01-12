@@ -318,24 +318,24 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			if (this.firstEmail) {
 				// the user was mentioned in the post, and this is the first email they've ever
 				// received from CodeStream
-				return `${creatorFirstName} mentioned you in a discussion about ${filename} on CodeStream`;
+				return `${creatorFirstName} mentioned you in a discussion about ${filename}`;
 			}
 			else {
 				// the user was mentioned in the post, and they've already received their first
 				// email from CodeStream
-				return `You've been mentioned in a discussion about ${filename} on CodeStream`;
+				return `You've been mentioned in a discussion about ${filename}`;
 			}
 		}
 		else {
 			if (this.firstEmail) {
 				// the user was not mentioned in the post, and this is the first email
 				// they've ever received from CodeStream
-				return `${creatorFirstName} is discussing ${filename} on CodeStream`;
+				return `${creatorFirstName} is discussing ${filename}`;
 			}
 			else {
 				// the user was not mentioned in the post, and they've already received
 				// their first email from CodeStream
-				return `New message about ${filename} on CodeStream`;
+				return `New message about ${filename}`;
 			}
 		}
 	}
