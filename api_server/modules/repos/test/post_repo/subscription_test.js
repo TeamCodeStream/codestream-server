@@ -3,7 +3,7 @@
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var PubNub = require('pubnub');
 var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
-var PubNubClient = require(process.env.CS_API_TOP + '/lib/util/pubnub/pubnub_client.js');
+var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 var Assert = require('assert');
 

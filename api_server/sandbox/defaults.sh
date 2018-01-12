@@ -75,4 +75,4 @@ export CS_API_SENDER_EMAIL=alerts@codestream.com
 
 # Requests to the API server fromm the inbound email server provide this secret
 # This prevents outside clients from simulating inbound emails
-export CS_API_INBOUND_EMAIL_SECRET=X02faOjBxnlQ9Q
+export CS_API_INBOUND_EMAIL_SECRET="X02^faO*Bx+lQ9Q"

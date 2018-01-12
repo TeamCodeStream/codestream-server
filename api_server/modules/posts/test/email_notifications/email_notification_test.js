@@ -383,7 +383,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 	validateReplyTo (message) {
 		// it should be set to the stream ID ... this is how we identify where the reply
 		// goes if the user replies to the email
-		let replyTo = `${this.stream._id}@${EmailConfig.replyToDomain}`;
+		let replyTo = `${this.stream._id}.${this.team._id}@${EmailConfig.replyToDomain}`;
 		Assert.equal(message.reply_to.email, replyTo, 'incorrect reply_to');
 		Assert.equal(message.reply_to.name, 'CodeStream', 'incorrect reply_to name');
 	}
