@@ -4,7 +4,7 @@
 
 var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
 var PubNub = require('pubnub');
-var PubNubClient = require(process.env.CS_API_TOP + '/lib/util/pubnub/pubnub_client');
+var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client');
 
 class Messager extends APIServerModule {
 

@@ -132,6 +132,5 @@ describe('MarkerMapper', () => {
 				}
 			);
 		});
-
 	});
 });
