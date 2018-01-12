@@ -5,6 +5,9 @@
     "commander": "^2.12.2",
     "html-entities": "^1.2.1",
     "mailparser": "^2.1.0",
+    "mocha": "^4.1.0",
+    "pubnub": "^4.20.0",
+    "randomstring": "^1.1.5",
     "strftime": "^0.10.0",
     "watchr": "^3.0.1"
   }

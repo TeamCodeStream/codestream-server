@@ -16,3 +16,4 @@ CS_INBOUND_EMAIL_LOG_CONSOLE_OK (optional) - output to console when running inbo
 CS_INBOUND_EMAIL_SECRET - secret code needed to communicate with API server
 CS_INBOUND_EMAIL_API_HOST - host of the API server
 CS_INBOUND_EMAIL_API_PORT - port of the API server
+CS_INBOUND_EMAIL_PUBNUB_SUBSCRIBE_KEY - subscribe key to pubnub

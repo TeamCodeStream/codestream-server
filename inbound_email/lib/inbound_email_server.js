@@ -14,6 +14,7 @@ var Watchr = require('watchr');
 var Path = require('path');
 var ChildProcess = require('child_process');
 var FileHandler = require('./file_handler');
+var OS = require('os');
 
 class InboundEmailServer {
 
@@ -141,7 +142,7 @@ class InboundEmailServer {
 			if (this.config.logger) {
 				this.loggerId = 'W' + this.workerId;
 				this.config.logger.loggerId = this.loggerId;
-				this.config.logger.loggerHost = this.config.express.host;
+				this.config.logger.loggerHost = OS.hostname();
 			}
 		}
 	}
@@ -210,33 +211,33 @@ class InboundEmailServer {
 	onSigterm () {
 	}
 
-	critical (message) {
+	critical (message, file) {
 		if (this.logger && typeof this.logger.critical === 'function') {
-			this.logger.critical(message);
+			this.logger.critical(message, file);
 		}
 	}
 
-	error (message) {
+	error (message, file) {
 		if (this.logger && typeof this.logger.error === 'function') {
-			this.logger.error(message);
+			this.logger.error(message, file);
 		}
 	}
 
-	warn (message) {
+	warn (message, file) {
 		if (this.logger && typeof this.logger.warn === 'function') {
-			this.logger.warn(message);
+			this.logger.warn(message, file);
 		}
 	}
 
-	log (message) {
+	log (message, file) {
 		if (this.logger && typeof this.logger.log === 'function') {
-			this.logger.log(message);
+			this.logger.log(message, file);
 		}
 	}
 
-	debug (message) {
+	debug (message, file) {
 		if (this.logger && typeof this.logger.debug === 'function') {
-			this.logger.debug(message);
+			this.logger.debug(message, file);
 		}
 	}
 }

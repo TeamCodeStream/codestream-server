@@ -38,7 +38,7 @@ class FileHandler {
 	// this is what we'll actually work with
 	moveToProcessDirectory (callback) {
 		this.baseName = Path.basename(this.filePath);
-		this.inboundEmailServer.log(`Processing file: ${this.baseName}`);
+		this.log(`Processing file: ${this.baseName}`);
 		let processDirectory = this.inboundEmailServer.config.inboundEmail.processDirectory;
 		this.fileToProcess = Path.join(processDirectory, this.baseName);
 		FS.rename(
@@ -127,6 +127,7 @@ class FileHandler {
 		}
 		else if (data.type === 'text') {
 			this.text = data.text;
+			this.html = data.html;
 		}
 	}
 
@@ -137,7 +138,7 @@ class FileHandler {
 		let attachmentIndex = this.attachments.length;
 		let filename = attachment.filename || `attachment.${attachmentIndex+1}`;
 		let attachmentFile = Path.join(this.attachmentPath, filename);
-		this.inboundEmailServer.log(`Writing attachment file ${attachmentFile}`);
+		this.log(`Writing attachment file ${attachmentFile}`);
 		let output = FS.createWriteStream(attachmentFile, { encoding: 'binary ' });
 		output.on(
 			'error',
@@ -166,7 +167,7 @@ class FileHandler {
 		// make this attachment as done -- we won't let this error stop us
 		// from processing the email body
 		let attachmentFile = this.attachments[attachmentIndex].path;
-		this.inboundEmailServer.warn(`Error on writing attachment file ${attachmentFile}: ${error}`);
+		this.warn(`Error on writing attachment file ${attachmentFile}: ${error}`);
 		this.attachments[attachmentIndex].done = true;
 
 		// check if we're done with reading the email
@@ -177,7 +178,7 @@ class FileHandler {
 	handleAttachmentClose (attachmentIndex) {
 		// mark this attachment as done
 		let attachmentFile = this.attachments[attachmentIndex].path;
-		this.inboundEmailServer.log(`Closed attachment file ${attachmentFile}`);
+		this.log(`Closed attachment file ${attachmentFile}`);
 		this.attachments[attachmentIndex].done = true;
 
 		// check if we're done with reading the email
@@ -281,7 +282,7 @@ class FileHandler {
 				approvedTos.push(to);
 			}
 			else {
-				this.inboundEmailServer.log(`Rejecting email address ${JSON.stringify(to)} in ${this.fileToProcess} because it does not match our domain of ${replyToDomain}`);
+				this.log(`Rejecting email address ${JSON.stringify(to)} in ${this.fileToProcess} because it does not match our domain of ${replyToDomain}`);
 			}
 		}
 		return approvedTos;
@@ -324,7 +325,7 @@ class FileHandler {
 			options,
 			(error, storageUrl, downloadUrl, versionId, storagePath) => {
 				if (error) {
-					this.inboundEmailServer.warn(`Unable to handle attachment ${basename}/${filename} and store file to S3: ${JSON.stringify(error)}`);
+					this.warn(`Unable to handle attachment ${basename}/${filename} and store file to S3: ${JSON.stringify(error)}`);
 				}
 				else {
 					// this is the data we'll pass on to the API server
@@ -348,7 +349,7 @@ class FileHandler {
 			(file, forEachCallback) => {
 				FS.unlink(file, error => {
 					if (error) {
-						this.inboundEmailServer.warn(`Unable to delete temp file ${file}: ${error}`);
+						this.warn(`Unable to delete temp file ${file}: ${error}`);
 					}
 					forEachCallback();
 				});
@@ -356,7 +357,7 @@ class FileHandler {
 			() => {
 				FS.rmdir(this.attachmentPath, error => {
 					if (error) {
-						this.inboundEmailServer.warn(`Unable to delete temporary directory ${dirname}: ${error}`);
+						this.warn(`Unable to delete temporary directory ${dirname}: ${error}`);
 					}
 					callback();
 				});
@@ -373,7 +374,7 @@ class FileHandler {
 			text = this.text;
 		}
 		if (!text && typeof this.html === 'string') {
-			text = textFromHtml(this.html);
+			text = this.textFromHtml(this.html);
 		}
 		if (text) {
 			text = this.extractReply(text);
@@ -412,10 +413,8 @@ class FileHandler {
 			new RegExp(`<${qualifiedEmailRegex}>`, 'i'),
 			new RegExp(`${qualifiedEmailRegex}\\s+wrote:`, 'i'),
 			new RegExp(`^(^\n)*On.*(\n)?.*wrote:$`, 'im'),
-			new RegExp(`-+original\\s+message-+\\s*$`, 'i'),
-			new RegExp(`from:\\s*$`, 'i'),
-			new RegExp(`-- \n`),	// standard signature separator
-			new RegExp(`\\s*From:.*\\(via ${productName}\\)\nSent:.*\nTo:.*\n`)
+			new RegExp(`-+original\\s+message-+\\s*`, 'i'),
+			new RegExp(`--\\s\n`),	// standard signature separator
 		];
 
 		// for each regex, look for a match, our final matching index is the
@@ -441,7 +440,7 @@ class FileHandler {
 	// API server will need to construct a post out of it ... send the crucial
 	// pieces on to the API server and be done with it
 	sendToApiServer (callback) {
-		if (!this.text && !this.attachmentData) {
+		if (!this.text && this.attachmentData.length === 0) {
 			// nothing to post, ignore
 			return callback('email rejected because no text and no attachments');
 		}
@@ -459,7 +458,7 @@ class FileHandler {
 	// send data regarding an inbound email along to the API server for posting
 	// to the stream for which it is intended
 	sendDataToApiServer (data, callback) {
-		this.inboundEmailServer.log(`Sending email (${data.mailFile}) from ${JSON.stringify(data.from)} to ${JSON.stringify(data.to)} to API server...`);
+		this.log(`Sending email (${data.mailFile}) from ${JSON.stringify(data.from)} to ${JSON.stringify(data.to)} to API server...`);
 		let host = this.inboundEmailServer.config.api.host;
 		let port = this.inboundEmailServer.config.api.port;
 		let url = `https://${host}:${port}`;
@@ -518,13 +517,23 @@ class FileHandler {
 				error,
 				writeError => {
 					if (writeError) {
-						this.inboundEmailServer.warn(`Unable to write to error file on rejection of ${this.baseName}: ${writeError}`);
+						this.warn(`Unable to write to error file on rejection of ${this.baseName}: ${writeError}`);
 					}
 				}
 			);
 		}
-		this.inboundEmailServer.warn(`Processing of ${this.baseName} failed: ${error}`);
+		this.warn(`Processing of ${this.baseName} failed: ${error}`);
 		this.finalCallback();
+	}
+
+	// warn, adding the basename of the file we are processing
+	warn (message) {
+		this.inboundEmailServer.warn(message, this.baseName);
+	}
+
+	// log, adding the basename of the file we are processing
+	log (message) {
+		this.inboundEmailServer.log(message, this.baseName);
 	}
 }
 
