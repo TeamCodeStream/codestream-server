@@ -3,7 +3,7 @@
 'use strict';
 
 // make jshint happy
-/* globals describe, before, it */
+/* globals describe */
 
 describe('server utils', () => {
 	require('./pubnub/test/test.js');
