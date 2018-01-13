@@ -68,6 +68,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			this.createRepo,		// create the repo to be used in the test
 			this.createStream,		// create a file stream in that repo
 			this.createInitialPost,	// create a first post, as needed, for tests involving "ongoing" emails versus "first" emails
+			this.createParentPost,	// create a parent post, if needed
 			this.setCurrentUser,	// set the current user, the one who will be listening for the pubnub message that represents the email message that would otherwise go out
 			this.makePostData,		// make the data for the post what will trigger the email
 		], callback);
@@ -141,6 +142,24 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a parent post, if needed, for testing that reply-to text appears in the email
+	createParentPost (callback) {
+		if (!this.wantParentPost) {
+			return callback();
+		}
+		this.postFactory.createRandomPost(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.parentPost = response.post;
+				callback();
+			},
+			{
+				streamId: this.stream._id,
+				token: this.creatorToken
+			}
+		);
+	}
+
 	// set the current user, i.e., the user who will be looking for the pubnub message that represents
 	// the email data that would otherwise be going out to the email server
 	setCurrentUser (callback) {
@@ -162,10 +181,14 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 	makePostData (callback) {
 		this.postFactory.getRandomPostData(
 			(error, data) => {
-				// to simlulate a mention, mention the current user's username with an @ in the text
+				// to simulate a mention, mention the current user's username with an @ in the text
 				if (this.wantMention) {
 					let index = this.postFactory.randomUpto(data.text.length);
 					data.text = `${data.text.slice(0, index)}@${this.currentUser.username}${data.text.slice(index)}`;
+				}
+				// if we wanted a parent post, then make this post a reply
+				if (this.parentPost) {
+					data.parentPostId = this.parentPost._id;
 				}
 				this.data = data;
 				callback();
@@ -243,6 +266,10 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		let substitutions = message.personalizations[0].substitutions;
 		this.validateIntro(substitutions['{{intro}}']);
 		this.validateRepoUrl(substitutions['{{repoUrl}}']);
+		if (this.wantParentPost) {
+			Assert.equal(this.parentPost.text, substitutions['{{replyText}}']);
+		}
+		this.validateReplyToDisplay(substitutions['{{displayReplyTo}}']);
 		Assert.equal(this.post.text, substitutions['{{text}}']);
 		if (this.wantCodeBlock) {
 			let codeBlock = this.post.codeBlocks[0];
@@ -308,6 +335,19 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		// for now, attach https:// to the normalized url ... possible an assumption?
 		let expectUrl = `https://${this.repo.normalizedUrl}`;
 		Assert.equal(repoUrl, expectUrl, 'incorrect repo url');
+	}
+
+	// validate that the style for display of the install text (instructions with link
+	// to learn how to install the plugin) is correct
+	validateReplyToDisplay (display) {
+		// if this is a reply to a post, make sure we display the reply-to text,
+		// otherwise, make sure it's hidden
+		if (this.wantParentPost) {
+			Assert(!display, 'displayReplyTo is set');
+		}
+		else {
+			Assert.equal(display, 'display:none', 'displayReplyTo is not set to display:none');
+		}
 	}
 
 	// validate that the subject of the email is correct, based on various scenarios

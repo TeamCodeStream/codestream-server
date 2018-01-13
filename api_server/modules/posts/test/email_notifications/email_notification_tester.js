@@ -12,6 +12,7 @@ var OfflineForRepoTest = require('./offline_for_repo_test');
 var CodeBlockTest = require('./code_block_test');
 var OnlineNoEmailTest = require('./online_no_email_test');
 var CreatorNoEmailTest = require('./creator_no_email_test');
+var ReplyTest = require('./reply_test');
 
 /* jshint -W071 */
 
@@ -28,6 +29,7 @@ class EmailNotificationTester {
 		new CodeBlockTest().test();
 		new OnlineNoEmailTest().test();
 		new CreatorNoEmailTest().test();
+		new ReplyTest().test();
 	}
 }
 

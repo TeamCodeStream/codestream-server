@@ -52,6 +52,8 @@ class CodeStreamEmails {
 		const subject = this.getNotificationSubject(options);
 		const intro = this.getNotificationIntro(options);
 		const repoUrl = 'https://' + repo.get('normalizedUrl');
+		const replyText = this.getReplyText(options);
+		const displayReplyTo = replyText ? null : 'display:none';
 		const text = this.getNotificationText(options);
 		const codeBlock = this.getNotificationCodeBlock(options);
 		const displayCodeBlock = codeBlock ? null : 'display:none';
@@ -64,6 +66,8 @@ class CodeStreamEmails {
 		const fields = {
 			intro,
 			repoUrl,
+			replyText,
+			displayReplyTo,
 			text,
 			code,
 			preContext,
@@ -137,6 +141,12 @@ class CodeStreamEmails {
 		else {
 			return `${authorName} has posted a new message about <b>${filename}</b>.`;
 		}
+	}
+
+	// get the text to display for the parent post, if this is a reply
+	getReplyText (options) {
+		let { parentPost } = options;
+		return parentPost ? parentPost.get('text') : null;
 	}
 
 	// get the text of the post for the notification

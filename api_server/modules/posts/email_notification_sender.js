@@ -21,6 +21,7 @@ class EmailNotificationSender {
 			this.getRepoSubscribedMembers,
 			this.getTeamSubscribedMembers,
 			this.getOfflineMembers,
+			this.getParentPost,
 			this.sendNotifications,
 			this.updateFirstEmails
 		], callback);
@@ -83,6 +84,24 @@ class EmailNotificationSender {
 		);
 	}
 
+	// get the parent post to this post, if this is a reply
+	getParentPost (callback) {
+		if (this.offlineMembers.length === 0) {
+			return callback();	// don't bother if no one to send to
+		}
+		if (!this.post.get('parentPostId')) {
+			return callback();	// not a reply!
+		}
+		this.request.data.posts.getById(
+			this.post.get('parentPostId'),
+			(error, parentPost) => {
+				if (error) { return callback(error); }
+				this.parentPost = parentPost;
+				callback();
+			}
+		);
+	}
+
 	// send email notifications to all the offline members
 	sendNotifications (callback) {
 		BoundAsync.forEachSeries(
@@ -99,6 +118,7 @@ class EmailNotificationSender {
 			request: this.request,
 			user: user,
 			post: this.post,
+			parentPost: this.parentPost,
 			stream: this.stream,
 			repo: this.repo,
 			team: this.team,
