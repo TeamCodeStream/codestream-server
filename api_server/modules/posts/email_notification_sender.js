@@ -18,12 +18,13 @@ class EmailNotificationSender {
 			return callback();
 		}
 		BoundAsync.series(this, [
-			this.getRepoSubscribedMembers,
-			this.getTeamSubscribedMembers,
-			this.getOfflineMembers,
-			this.getParentPost,
-			this.sendNotifications,
-			this.updateFirstEmails
+			this.getRepoSubscribedMembers,	// get users who are subscribed to the repo channel
+			this.getTeamSubscribedMembers,	// get users who are subscribed to the team channel
+			this.getOfflineMembers,			// get offline members: those who are not subscribed to the repo channel
+			this.filterByPreference,		// filter to those who haven't turned email notifications off
+			this.getParentPost,				// get the parent post if this is a reply
+			this.sendNotifications,			// send out the notifications`
+			this.updateFirstEmails			// update "firstEmail" flags, indicating who has received their first email notification
 		], callback);
 	}
 
@@ -84,9 +85,26 @@ class EmailNotificationSender {
 		);
 	}
 
+	// filter the offline members to those who haven't turned email notifications off
+	filterByPreference (callback) {
+		this.toReceiveEmails = this.offlineMembers.filter(user => {
+			let preferences = user.get('preferences');
+			if (!preferences) {
+				return true;	// default to on
+			}
+			// for now, you can just turn them off, but we'll get more sophisticated later...
+			let on = preferences.emailNotifications !== 'off';
+			if (!on) {
+				this.request.log(`User ${user.id} has email notifications turned off`);
+			}
+			return on;
+		});
+		process.nextTick(callback);
+	}
+
 	// get the parent post to this post, if this is a reply
 	getParentPost (callback) {
-		if (this.offlineMembers.length === 0) {
+		if (this.toReceiveEmails.length === 0) {
 			return callback();	// don't bother if no one to send to
 		}
 		if (!this.post.get('parentPostId')) {
@@ -106,7 +124,7 @@ class EmailNotificationSender {
 	sendNotifications (callback) {
 		BoundAsync.forEachSeries(
 			this,
-			this.offlineMembers,
+			this.toReceiveEmails,
 			this.sendNotificationToUser,
 			callback
 		);
