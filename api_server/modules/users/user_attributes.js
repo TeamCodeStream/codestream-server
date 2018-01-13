@@ -71,5 +71,11 @@ module.exports = {
 	hasReceivedFirstEmail: {
 		type: 'boolean',
 		serverOnly: true
+	},
+	preferences: {
+		type: 'object',
+		maxLength: 10000,
+		serverOnly: true,
+		forMe: true
 	}
 };
