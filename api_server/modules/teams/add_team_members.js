@@ -70,24 +70,25 @@ class AddTeamMembers  {
 	}
 
 	checkCreateUsers (callback) {
-		if (
-			!(this.emails instanceof Array) ||
-			this.emails.length === 0
-		) {
-			return callback();
+		let usersToCreate = (this.emails || []).map(email => {
+			return { email: email };
+		});
+		if (this.addUsers instanceof Array) {
+			let usersToAdd = this.addUsers.filter(user => !!user.email);
+			usersToCreate = usersToCreate.concat(usersToAdd);
 		}
 		this.usersCreated = [];
 		BoundAsync.forEachSeries(
 			this,
-			this.emails,
+			usersToCreate,
 			this.createUser,
 			callback
 		);
 	}
 
-	createUser (email, callback) {
+	createUser (user, callback) {
 		if (this.existingMembers.find(member => {
-			return member.get('searchableEmail') === email.toLowerCase();
+			return member.get('searchableEmail') === user.email.toLowerCase();
 		})) {
 			return callback();
 		}
@@ -97,12 +98,10 @@ class AddTeamMembers  {
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
 		this.userCreator.createUser(
-			{
-				email: email
-			},
-			(error, user) => {
+			user,
+			(error, userCreated) => {
 				if (error) { return callback(error); }
-				this.usersCreated.push(user);
+				this.usersCreated.push(userCreated);
 				process.nextTick(callback);
 			}
 		);

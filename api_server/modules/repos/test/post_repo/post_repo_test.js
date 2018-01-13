@@ -12,6 +12,7 @@ class PostRepoTest extends CodeStreamAPITest {
 		super(options);
 		this.testOptions = {};
 		this.teamEmails = [];
+		this.teamUsers = [];
 		this.repoOptions = {};
 		this.userData = [];
 	}
@@ -68,7 +69,8 @@ class PostRepoTest extends CodeStreamAPITest {
 		BoundAsync.series(this, [
 			this.createRandomUnregisteredUsers,
 			this.createRandomRegisteredUsers,
-			this.createRandomEmails
+			this.createRandomEmails,
+			this.createRandomNamedUsers
 		], callback);
 	}
 
@@ -97,6 +99,13 @@ class PostRepoTest extends CodeStreamAPITest {
 	createRandomEmails (callback) {
 		for (let i = 0; i < 2; i++) {
 			this.teamEmails.push(this.userFactory.randomEmail());
+		}
+		callback();
+	}
+
+	createRandomNamedUsers (callback) {
+		for (let i = 0; i < 2; i++) {
+			this.teamUsers.push(this.userFactory.randomNamedUser());
 		}
 		callback();
 	}
@@ -146,6 +155,9 @@ class PostRepoTest extends CodeStreamAPITest {
 		if (this.teamEmails.length > 0) {
 			this.repoOptions.withEmails = this.teamEmails;
 		}
+		if (this.teamUsers.length > 0) {
+			this.repoOptions.withUsers = this.teamUsers;
+		}
 		this.repoFactory.getRandomRepoData((error, data) => {
 			if (error) { return callback(error); }
 			this.data = data;
@@ -167,7 +179,7 @@ class PostRepoTest extends CodeStreamAPITest {
 			(!this.notCreatedByMe || (repo.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-		if (this.teamEmails && this.teamEmails.length > 0) {
+		if (this.teamEmails.length > 0 || this.teamUsers.length > 0) {
 			this.validateUsers(data);
 		}
 		if (!this.testOptions.teamNotRequired) {
@@ -219,7 +231,11 @@ class PostRepoTest extends CodeStreamAPITest {
 		this.teamEmails.push(this.currentUser.email);
 		Assert(data.users instanceof Array, 'no users array returned');
 		data.users.forEach(user => {
-			Assert(this.teamEmails.indexOf(user.email) !== -1, `got unexpected email ${user.email}`);
+			let found = (
+				this.teamEmails.indexOf(user.email) !== -1 ||
+				this.teamUsers.find(teamUser => { return teamUser.email === user.email; })
+			);
+			Assert(found, `got unexpected email ${user.email}`);
 			Assert(user.teamIds.indexOf(data.repo.teamId) !== -1, `user ${user.email} doesn't have the team for the repo`);
 			Assert(user.companyIds.indexOf(data.repo.companyId) !== -1, `user ${user.email} doesn't have the company for the repo`);
 			if (data.team) {

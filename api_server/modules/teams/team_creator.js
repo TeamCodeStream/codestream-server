@@ -36,7 +36,8 @@ class TeamCreator extends ModelCreator {
 				string: ['name']
 			},
 			optional: {
-				'array(string)': ['memberIds', 'emails']
+				'array(string)': ['memberIds', 'emails'],
+				'array(object)': ['users']
 			}
 		};
 	}
@@ -46,7 +47,8 @@ class TeamCreator extends ModelCreator {
 		this.setDefaults();
 		let error =	this.validateName() ||
 			this.validateMemberIds() ||
-			this.validateEmails();
+			this.validateEmails() ||
+			this.validateUsers();
 		return process.nextTick(() => callback(error));
 	}
 
@@ -66,9 +68,17 @@ class TeamCreator extends ModelCreator {
 
 	validateEmails () {
 		if (!this.attributes.emails) { return; }
-		let error = this.validator.validateArray(this.attributes.emails);
+		let error = this.validator.validateArrayOfStrings(this.attributes.emails);
 		if (error) {
 			return { emails: error };
+		}
+	}
+
+	validateUsers () {
+		if (!this.attributes.users) { return; }
+		let error = this.validator.validateArrayOfObjects(this.attributes.users);
+		if (error) {
+			return { users: error };
 		}
 	}
 
@@ -119,40 +129,40 @@ class TeamCreator extends ModelCreator {
 	}
 
 	checkCreateUsers (callback) {
-		if (
-			!(this.attributes.emails instanceof Array) ||
-			this.attributes.emails.length === 0
-		) {
-			return callback();
+		let usersToCreate = (this.attributes.emails || []).map(email => {
+			return { email: email };
+		});
+		if (this.attributes.users instanceof Array) {
+			let usersToAdd = this.attributes.users.filter(user => !!user.email);
+			usersToCreate = usersToCreate.concat(usersToAdd);
 		}
 		this.usersCreated = [];
 		BoundAsync.forEachSeries(
 			this,
-			this.attributes.emails,
+			usersToCreate,
 			this.createUser,
 			(error) => {
 				if (error) { return callback(error); }
 				delete this.attributes.emails;
+				delete this.attributes.users;
 				callback();
 			}
 		);
 	}
 
-	createUser (email, callback) {
+	createUser (user, callback) {
 		this.userCreator = new UserCreator({
 			request: this.request,
 			dontSaveIfExists: true,
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
 		this.userCreator.createUser(
-			{
-				email: email
-			},
-			(error, user) => {
+			user,
+			(error, userCreated) => {
 				if (error) { return callback(error); }
-				this.usersCreated.push(user);
-				if (user.id !== this.user.id) {
-					this.attributes.memberIds.push(user.id);
+				this.usersCreated.push(userCreated);
+				if (userCreated.id !== this.user.id) {
+					this.attributes.memberIds.push(userCreated.id);
 				}
 				process.nextTick(callback);
 			}

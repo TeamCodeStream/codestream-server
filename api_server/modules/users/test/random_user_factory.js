@@ -83,6 +83,14 @@ class RandomUserFactory {
 		return `somebody.${RandomString.generate(12)}@${RandomString.generate(12)}.com`;
 	}
 
+	randomNamedUser () {
+		return {
+			email: this.randomEmail(),
+			firstName: RandomString.generate(10),
+			lastName: RandomString.generate(10)
+		};
+	}
+	
 	getRandomUserData (options = {}) {
 		let email = this.randomEmail();
 		let secondaryEmails = [
