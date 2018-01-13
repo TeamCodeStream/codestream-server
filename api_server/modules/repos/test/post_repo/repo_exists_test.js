@@ -17,6 +17,7 @@ class RepoExistsTest extends AlreadyHaveRepoTest {
 	createOtherRepo (callback) {
 		this.otherRepoOptions = {
 			withEmails: this.teamEmails,
+			withUsers: this.teamUsers,
 			token: this.otherUserData.accessToken
 		};
 		if (!this.testOptions.dontIncludeCurrentUser) {
@@ -29,6 +30,7 @@ class RepoExistsTest extends AlreadyHaveRepoTest {
 				firstCommitHash: this.existingRepo.firstCommitHash
 			};
 			this.teamEmails = [];
+			this.teamUsers = [];
 			callback();
 		});
 	}

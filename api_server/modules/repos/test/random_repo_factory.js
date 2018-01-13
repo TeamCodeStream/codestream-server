@@ -31,13 +31,21 @@ class RandomRepoFactory {
 			url: this.randomUrl(),
 			firstCommitHash: this.randomCommitHash()
 		};
-		let emails;
+		let emails, users;
 		if (options.withEmails) {
 			emails = options.withEmails;
 		}
 		if (options.withRandomEmails) {
 			emails = (emails || []).concat(
 				this.getNRandomEmails(options.withRandomEmails)
+			);
+		}
+		if (options.withUsers) {
+			users = options.withUsers;
+		}
+		if (options.withRandomUsers) {
+			users = (users || []).concat(
+				this.getNRandomUsers(options.withRandomUsers)
 			);
 		}
 		if (options.subscriptionCheat) {
@@ -48,6 +56,9 @@ class RandomRepoFactory {
 			data.teamId = options.teamId;
 			if (emails) {
 				data.emails = emails;
+			}
+			if (users) {
+				data.users = users;
 			}
 		}
 		else if (options.team) {
@@ -60,6 +71,9 @@ class RandomRepoFactory {
 			if (emails) {
 				data.team.emails = emails;
 			}
+			if (users) {
+				data.team.users = users;
+			}
 		}
 		return callback(null, data);
 	}
@@ -70,6 +84,17 @@ class RandomRepoFactory {
 			emails.push(this.userFactory.randomEmail());
 		}
 		return emails;
+	}
+
+	getNRandomUsers (n) {
+		let users = [];
+		for (let i = 0; i < n; i++) {
+			users.push({
+				email: this.userFactory.randomEmail(),
+				firstName: RandomString.generate(8),
+				lastName: RandomString.generate(8)
+			});
+		}
 	}
 
 	createRandomRepo (callback, options = {}) {

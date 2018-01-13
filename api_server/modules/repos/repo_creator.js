@@ -38,7 +38,8 @@ class RepoCreator extends ModelCreator {
 			optional: {
 				string: ['firstCommitHash', 'teamId', '_subscriptionCheat'],
 				object: ['team'],
-				'array(string)': ['emails']
+				'array(string)': ['emails'],
+				'array(object)': ['users']
 			}
 		};
 	}
@@ -102,6 +103,7 @@ class RepoCreator extends ModelCreator {
 		}
 		if (
 			!this.attributes.emails &&
+			!this.attributes.users &&
 			(this.user.get('teamIds') || []).indexOf(this.existingModel.get('teamId')) !== -1
 		) {
 			this.noNewUsers = true;
@@ -110,6 +112,7 @@ class RepoCreator extends ModelCreator {
 		let adder = new AddTeamMembers({
 			request: this.request,
 			users: [this.user],
+			addUsers: this.attributes.users,
 			emails: this.attributes.emails,
 			teamId: this.existingModel.get('teamId'),
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
@@ -119,6 +122,8 @@ class RepoCreator extends ModelCreator {
 			this.team = adder.team;
 			this.newUsers = adder.membersAdded;
 			this.attachToResponse.users = adder.membersAdded.map(member => member.getSanitizedObject());
+			delete this.attributes.emails;
+			delete this.attributes.users;
 			process.nextTick(callback);
 		});
 	}
@@ -151,12 +156,14 @@ class RepoCreator extends ModelCreator {
 	}
 
 	addUsersToTeam (callback) {
-		if (!(this.attributes.emails instanceof Array)) {
+		if (!(this.attributes.emails instanceof Array) &&
+			!(this.attributes.users instanceof Array)) {
 			return callback();
 		}
 		let adder = new AddTeamMembers({
 			request: this.request,
 			emails: this.attributes.emails,
+			addUsers: this.attributes.users,
 			team: this.team,
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
@@ -166,6 +173,7 @@ class RepoCreator extends ModelCreator {
 			this.existingUsers = adder.existingMembers;
 			this.attachToResponse.users = adder.membersAdded.map(member => member.getSanitizedObject());
 			delete this.attributes.emails;
+			delete this.attributes.users;
 			process.nextTick(callback);
 		});
 	}

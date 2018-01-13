@@ -23,6 +23,9 @@ class AlreadyHaveRepoTest extends PostRepoTest {
 		if (this.teamEmails.length > 0) {
 			this.data.emails = this.teamEmails;
 		}
+		if (this.teamUsers.length > 0) {
+			this.data.users = this.teamUsers;
+		}
 		callback();
 	}
 

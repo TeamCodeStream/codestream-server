@@ -21,6 +21,7 @@ class AlreadyOnTeamTest extends PostRepoTest {
 	createOtherRepo (callback) {
 		this.otherRepoOptions = {
 			withEmails: this.teamEmails,
+			withUsers: this.teamUsers,
 			token: this.otherUserData.accessToken
 		};
 		if (!this.testOptions.dontIncludeCurrentUser) {
@@ -30,6 +31,7 @@ class AlreadyOnTeamTest extends PostRepoTest {
 			if (error) { return callback(error); }
 			this.repoOptions.teamId = this.existingRepo.teamId;
 			this.teamEmails = [];
+			this.teamUsers = [];
 			callback();
 		});
 	}
