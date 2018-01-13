@@ -98,18 +98,18 @@ class CodeStreamEmails {
 		let filename = Path.basename(stream.get('file'));
 		if (post.mentionsUser(user)) {
 			if (firstEmail) {
-				return `${authorFirstName} mentioned you in a discussion about ${filename} on CodeStream`;
+				return `${authorFirstName} mentioned you in a discussion about ${filename}`;
 			}
 			else {
-				return `You've been mentioned in a discussion about ${filename} on CodeStream`;
+				return `You've been mentioned in a discussion about ${filename}`;
 			}
 		}
 		else {
 			if (firstEmail) {
-				return `${authorFirstName} is discussing ${filename} on CodeStream`;
+				return `${authorFirstName} is discussing ${filename}`;
 			}
 			else {
-				return `New message about ${filename} on CodeStream`;
+				return `New message about ${filename}`;
 			}
 		}
 	}
