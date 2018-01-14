@@ -3,23 +3,59 @@
 #desc# CodeStream API service init script
 
 function usage {
-    echo "usage: $0 { start | stop | status | restart } [-f] [-- server-args]" >&2
+    echo "usage: $0 { start | stop | status | restart } [-if1] [-- server-args]" >&2
     echo >&2
     echo "   -f  run in foreground"
+	echo "   -1  add the server-arg --one_worker"
+	echo "   -i  force index recreation"
     exit 1
 }
 
+function startup {
+	if [ "$CS_API_SETUP_MONGO" == true ]; then
+		if [ -n "$CS_API_MONGO_USER" -a ! -f $CS_API_SANDBOX/mongo-user.configured ]; then
+			echo "Creating mongo user $CS_API_MONGO_USER as dbOwner of codestream db"
+			mdb-add-user -u $CS_API_MONGO_USER -p $CS_API_MONGO_PASS -r dbOwner -D codestream
+			touch $CS_API_SANDBOX/mongo-user.configured
+		fi
+		if [ ! -f $CS_API_SANDBOX/mongo-indexes.configured -o $reindex -eq 1 ]; then
+			echo "Running ensure-indexes.js..."
+			echo "touch $CS_API_SANDBOX/mongo-indexes.configured to prevent this on future starts."
+			(cd $CS_API_TOP && bin/ensure-indexes.js build)
+		else
+			echo "******"
+			echo "$CS_API_SANDBOX/mongo-indexes.configured was found."
+			echo "If you want to force index creation use the -i flag with the init script"
+			echo "or remove the abovementioned file."
+			echo "usage: $0 {start | restart} [-i]"
+			echo "******"
+		fi
+	fi
+	echo "Starting $CS_API_TOP/bin/api_server.js. Logging to $CS_API_LOG_DIRECTORY/api.log"
+	if [ $run_fg -eq 1 ]; then
+		$CS_API_TOP/bin/api_server.js $server_args
+	else
+		nohup $CS_API_TOP/bin/api_server.js $server_args >/dev/null 2>&1 </dev/null &
+		sleep 1
+		service_status $CS_API_TOP/bin/api_server.js
+	fi
+}
+
 [ -z "$CS_API_TOP" ] && echo "cs_api sandbox not loaded">&2 && exit 1
-[[ ! ( "$1" == start || "$1" == stop || "$1" == status ) ]] && usage
+[[ ! ( "$1" == start || "$1" == stop || "$1" == status || "$1" == restart ) ]] && usage
 
 . $DT_TOP/lib/init_funcs.sh
 
 action=$1
 run_fg=0
+server_args=""
+reindex=0
 OPTIND=2
-while getopts "f" arg
+while getopts "f1i" arg
 do
     case $arg in
+		i) reindex=1;;
+		1) server_args="--one_worker";;
         f) run_fg=1;;
         *) usage;;
     esac
@@ -27,30 +63,11 @@ done
 shift `expr $OPTIND - 1`
 
 ec=0
-server_args=$*
+server_args="$server_args $*"
 case "$action" in
     start)
-        if [ "$CS_API_SETUP_MONGO" == true ]; then
-            if [ -n "$CS_API_MONGO_USER" -a ! -f $CS_API_SANDBOX/mongo-user.configured ]; then
-                echo "Creating mongo user $CS_API_MONGO_USER as dbOwner of codestream db"
-                mdb-add-user -u $CS_API_MONGO_USER -p $CS_API_MONGO_PASS -r dbOwner -D codestream
-                touch $CS_API_SANDBOX/mongo-user.configured
-            fi
-            if [ ! -f $CS_API_SANDBOX/mongo-indexes.configured ]; then
-                echo "Running ensure-indexes.js..."
-                echo "touch $CS_API_SANDBOX/mongo-indexes.configured to prevent this on future starts."
-                (cd $CS_API_TOP && bin/ensure-indexes.js build)
-            fi
-        fi
-        echo "Starting $CS_API_TOP/bin/api_server.js. Logging to $CS_API_LOG_DIRECTORY/api.log"
-        if [ $run_fg -eq 1 ]; then
-            $CS_API_TOP/bin/api_server.js $server_args
-        else
-            nohup $CS_API_TOP/bin/api_server.js $server_args >/dev/null 2>&1 </dev/null &
-            sleep 1
-            service_status $CS_API_TOP/bin/api_server.js
-        fi
-        ;;
+		startup
+		;;
     stop)
         service_stop $CS_API_TOP/bin/api_server.js
         ec=$?
@@ -60,6 +77,14 @@ case "$action" in
     status)
         service_status $CS_API_TOP/bin/api_server.js
         ;;
+	restart)
+		service_stop $CS_API_TOP/bin/api_server.js
+		if [ $ec -ne 0 ]; then
+			echo "error stopping service"
+		else
+			startup
+		fi
+		;;
     *)
         usage
         ;;
