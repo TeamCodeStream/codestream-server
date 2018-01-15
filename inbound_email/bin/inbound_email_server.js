@@ -5,19 +5,19 @@
 'use strict';
 
 // load configurations
-const ConfigDirectory = process.env.CS_INBOUND_EMAIL_TOP + '/config';
+const ConfigDirectory = process.env.CS_MAILIN_TOP + '/config';
 const InboundEmailConfig = require(ConfigDirectory + '/inbound_email');
 const LoggerConfig = require(ConfigDirectory + '/logger');
 const SecretsConfig = require(ConfigDirectory + '/secrets');
 const ApiConfig = require(ConfigDirectory + '/api');
-const SimpleFileLogger = require(process.env.CS_INBOUND_EMAIL_TOP + '/server_utils/simple_file_logger');
-var ClusterWrapper = require(process.env.CS_INBOUND_EMAIL_TOP + '/server_utils/cluster_wrapper');
+const SimpleFileLogger = require(process.env.CS_MAILIN_TOP + '/server_utils/simple_file_logger');
+var ClusterWrapper = require(process.env.CS_MAILIN_TOP + '/server_utils/cluster_wrapper');
 
 // establish our logger
 var Logger = new SimpleFileLogger(LoggerConfig);
 
 // invoke a node cluster master with our configurations provided
-var ServerClass = require(process.env.CS_INBOUND_EMAIL_TOP + '/lib/inbound_email_server');
+var ServerClass = require(process.env.CS_MAILIN_TOP + '/lib/inbound_email_server');
 var MyClusterWrapper = new ClusterWrapper(
 	ServerClass,
 	{

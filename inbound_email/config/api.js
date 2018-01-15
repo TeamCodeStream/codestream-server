@@ -3,6 +3,6 @@
 'use strict';
 
 module.exports = {
-	host: process.env.CS_INBOUND_EMAIL_API_HOST,
-	port: process.env.CS_INBOUND_EMAIL_API_PORT
+	host: process.env.CS_MAILIN_API_HOST,
+	port: process.env.CS_MAILIN_API_PORT
 };

@@ -3,17 +3,28 @@ by our mail server (Postfix), and digests them for use by CodeStream. It reads
 and parses the mail files, does some processing, then sends them to the API server
 using a special http call.
 
-To use the inbound email server, you'll need the following environment variables set:
+This repo should be used within the context of the dev_tools sandbox model. You
+should install it as a working sandbox and load the sandbox into your shell's
+environment before launching any of the services.
 
-CS_INBOUND_EMAIL_SRCTOP - top of the source directory
-CS_INBOUND_EMAIL_DIRECTORY - new email files will appear in this directory
-CS_INBOUND_EMAIL_PROCESS_DIRECTORY - email files will be moved to this directory for processing
-CS_INBOUND_EMAIL_TEMP_ATTACHMENT_DIRECTORY - attachments in incoming emails will be stored temporarily here
-CS_INBOUND_EMAIL_REPLY_TO_DOMAIN - domain we use in the reply-to field of outbound emails_sent
-CS_INBOUND_EMAIL_SENDER_EMAIL - address we send outbound emails from
-CS_INBOUND_EMAIL_LOG_DIRECTORY - directory where log files will be stored
-CS_INBOUND_EMAIL_LOG_CONSOLE_OK (optional) - output to console when running inbound email server, for dev purposes
-CS_INBOUND_EMAIL_SECRET - secret code needed to communicate with API server
-CS_INBOUND_EMAIL_API_HOST - host of the API server
-CS_INBOUND_EMAIL_API_PORT - port of the API server
-CS_INBOUND_EMAIL_PUBNUB_SUBSCRIBE_KEY - subscribe key to pubnub
+Git hooks and submodules are initialized and maintained through hooks which will
+be setup up installation.   See the dev_tools readme for more information concerning
+sandboxes.
+
+Configuration settings are primarily defined in the *sandbox/defaults.sh* file.
+The sandbox type, environment variable & command prefix is *cs_mailin*.
+
+*DO NOT USE NPM TO MANAGE THIS REPO.  USE YARN.*  New npm modules should be installed
+with the *yarn install $module* command. Building node_modules from the package.json file
+should be done with *yarn install --frozen-lockfile*
+
+
+Sandbox commands:
+
+* *cs_mailin-help* will list all commands in the sandbox
+* *cs_mailin-service* is the init script to start, stop and manage the inbound_email
+  service.
+* *cs_mailin-local-poller* is meant to run on a local development machine. It will
+  poll the inbound cloud mail server for new messages and copy them to your local
+  queue. Be aware that this does not support more than one developer using a
+  mail server.

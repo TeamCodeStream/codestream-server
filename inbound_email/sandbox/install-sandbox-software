@@ -1,0 +1,31 @@
+#!/bin/bash
+
+[ -z "$2" ] && echo "Run dt-install-sandbox-software to call this script" && exit 1
+
+# This script is called via the dt-install-sandbox-software command.
+# Do not run it directly.  Further, this is called prior to the
+# sandbox environment being loaded into the shell so any variables
+# needed from the defaults.sh (or other env file) must be setup
+# manually.
+
+export CS_MAILIN_SANDBOX=$1  # root of the sandbox
+export CS_MAILIN_TOP=$2      # root of the primary git project
+SB_ENV_FILE=$3            # name of the environment file to use
+export CS_MAILIN_NAME=`dirname $CS_MAILIN_SANDBOX`
+[ -z "$SB_ENV_FILE" ] && SB_ENV_FILE=defaults.sh
+
+
+. $CS_MAILIN_TOP/sandbox/$SB_ENV_FILE
+
+
+[ ! -d "$CS_MAILIN_DIRECTORY" ] && mkdir -p $CS_MAILIN_DIRECTORY
+[ ! -d "$CS_MAILIN_PROCESS_DIRECTORY" ] && mkdir -p $CS_MAILIN_PROCESS_DIRECTORY
+[ ! -d "$CS_MAILIN_TEMP_ATTACHMENT_DIRECTORY" ] && mkdir -p $CS_MAILIN_TEMP_ATTACHMENT_DIRECTORY
+
+# Install node
+[ -n "$CS_MAILIN_NODE_VER" -a ! -L $CS_MAILIN_SANDBOX/node ] && dt-get-software node $CS_MAILIN_SANDBOX --version $CS_MAININ_NODE_VER
+
+# Install yarn
+[ -n "$CS_MAILIN_YARN_VER" -a ! -L $CS_MAILIN_SANDBOX/yarn ] && dt-get-software yarn $CS_MAILIN_SANDBOX --version $CS_MAININ_YARN_VER
+
+exit 0

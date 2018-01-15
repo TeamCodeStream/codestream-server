@@ -3,6 +3,6 @@
 'use strict';
 
 module.exports = {
-	subscribeKey: process.env.CS_INBOUND_EMAIL_PUBNUB_SUBSCRIBE_KEY,
+	subscribeKey: process.env.CS_MAILIN_PUBNUB_SUBSCRIBE_KEY,
 	ssl: true
 };

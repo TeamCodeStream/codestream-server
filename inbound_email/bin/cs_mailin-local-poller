@@ -1,0 +1,53 @@
+#!/bin/bash
+
+#desc# Collect mail from the development inbound mail server and save it to the local queue
+
+localtop=$CS_MAILIN_MAILQ_TOP
+localin="$CS_MAILIN_DIRECTORY"
+mailserver=$CS_MAILIN_INBOUND_MAIL_SERVER
+maildir=$CS_MAILIN_INBOUND_MAIL_DIR
+localstage="$localtop/poller-stage"
+
+function usage {
+	echo "usage: $0 -p polling_interval"
+	exit 1
+}
+
+while getopts "p:" arg
+do
+    case $arg in
+	p) poll_interval=$OPTARG;;
+	*) usage;;
+    esac
+done
+shift `expr $OPTIND - 1`
+[ -z "$poll_interval" ] && usage
+
+
+ssh $mailserver echo hi >/dev/null
+[ $? -ne 0 ] && echo "Test ssh to $mailserver unsuccessful" && exit 1
+
+[ ! -d $localin ] && echo "creating local queue dirs" && mkdir -p $localin $localstage
+
+while [ 1 ]
+do
+	if [ -f $localtop/stop ]; then
+		echo "Stop request detected"
+		/bin/rm $localtop/stop
+		exit
+	fi
+
+	numFilesToCopy=`ssh $mailserver "ls $maildir|wc -l"`
+	if [ $numFilesToCopy -gt 0 ]; then
+		scp $mailserver:$maildir/* $localstage
+		[ $? -ne 0 ] && echo "scp $mailserver:$maildir/* $localstage FAILED" && exit 1
+		/bin/mv $localstage/* $localin
+		[ $? -ne 0 ] && echo "/bin/mv $localstage/* $localin FAILED" && exit 1
+		ssh $mailserver "/bin/rm -f $maildir/*"
+		[ $? -ne 0 ] && echo "ssh $mailserver \"/bin/echo -f $maildir/*\" FAILED"
+		echo "$numFilesToCopy files processed"
+	else
+		echo "no files found"
+	fi
+	sleep $poll_interval
+done

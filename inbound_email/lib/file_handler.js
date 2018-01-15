@@ -5,7 +5,7 @@
 
 var FS = require('fs');
 var URL = require('url');
-var BoundAsync = require(process.env.CS_INBOUND_EMAIL_TOP + '/server_utils/bound_async');
+var BoundAsync = require(process.env.CS_MAILIN_TOP + '/server_utils/bound_async');
 var MailParser = require('mailparser').MailParser;
 var Path = require('path');
 var HTTPS = require('https');

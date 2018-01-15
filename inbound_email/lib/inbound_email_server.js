@@ -9,7 +9,7 @@
 'use strict';
 
 var FS = require('fs');
-var BoundAsync = require(process.env.CS_INBOUND_EMAIL_TOP + '/server_utils/bound_async');
+var BoundAsync = require(process.env.CS_MAILIN_TOP + '/server_utils/bound_async');
 var Watchr = require('watchr');
 var Path = require('path');
 var ChildProcess = require('child_process');
