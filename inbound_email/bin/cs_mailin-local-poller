@@ -3,7 +3,7 @@
 #desc# Collect mail from the development inbound mail server and save it to the local queue
 
 localtop=$CS_MAILIN_MAILQ_TOP
-localin="$CS_MAILIN_DIRECTORY"
+localin=$CS_MAILIN_DIRECTORY
 mailserver=$CS_MAILIN_INBOUND_MAIL_SERVER
 maildir=$CS_MAILIN_INBOUND_MAIL_DIR
 localstage="$localtop/poller-stage"
@@ -27,7 +27,8 @@ shift `expr $OPTIND - 1`
 ssh $mailserver echo hi >/dev/null
 [ $? -ne 0 ] && echo "Test ssh to $mailserver unsuccessful" && exit 1
 
-[ ! -d $localin ] && echo "creating local queue dirs" && mkdir -p $localin $localstage
+[ ! -d $localin ] && echo "creating $localin" && mkdir -p $localin
+[ ! -d $localstage ] && echo "creating $localstage" && mkdir -p $localstage
 
 while [ 1 ]
 do
