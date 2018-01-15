@@ -23,9 +23,9 @@ export CS_MAILIN_NAME=`dirname $CS_MAILIN_SANDBOX`
 [ ! -d "$CS_MAILIN_TEMP_ATTACHMENT_DIRECTORY" ] && mkdir -p $CS_MAILIN_TEMP_ATTACHMENT_DIRECTORY
 
 # Install node
-[ -n "$CS_MAILIN_NODE_VER" -a ! -L $CS_MAILIN_SANDBOX/node ] && dt-get-software node $CS_MAILIN_SANDBOX --version $CS_MAININ_NODE_VER
+[ -n "$CS_MAILIN_NODE_VER" -a ! -L $CS_MAILIN_SANDBOX/node ] && dt-get-software -V $CS_MAILIN_NODE_VER node $CS_MAILIN_SANDBOX
 
 # Install yarn
-[ -n "$CS_MAILIN_YARN_VER" -a ! -L $CS_MAILIN_SANDBOX/yarn ] && dt-get-software yarn $CS_MAILIN_SANDBOX --version $CS_MAININ_YARN_VER
+[ -n "$CS_MAILIN_YARN_VER" -a ! -L $CS_MAILIN_SANDBOX/yarn ] && dt-get-software -V $CS_MAILIN_YARN_VER yarn $CS_MAILIN_SANDBOX
 
 exit 0
