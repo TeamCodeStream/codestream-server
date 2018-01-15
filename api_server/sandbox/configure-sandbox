@@ -10,6 +10,10 @@
 # environment variables have been set.
 
 cd $CS_API_TOP
+
+git submodule init
+git submodule update
+
 [ -d $CS_API_TOP/node_modules ] && /bin/rm -rf $CS_API_TOP/node_modules
 if [ "$CS_API_YARN" == true ]; then
     [ ! -f $CS_API_TOP/yarn.lock ] && echo "WARNING: yarn.lock not found - creating one"
