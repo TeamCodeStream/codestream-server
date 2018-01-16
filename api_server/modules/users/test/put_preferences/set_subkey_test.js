@@ -5,7 +5,7 @@ var PutPreferencesTest = require('./put_preferences_test');
 class SetSubkeyTest extends PutPreferencesTest {
 
 	get description () {
-		return 'should set several simple preferences when requested via $set';
+		return 'should set several preference subkeys when requested via $set';
 	}
 
 	preSetPreferences (callback) {
