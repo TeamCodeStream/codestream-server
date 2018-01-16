@@ -11,7 +11,6 @@ describe('user requests', function() {
 
 	this.timeout(20000);
 
-/*
 	describe('POST /no-auth/register', userRequestTester.registrationTest);
 	describe('POST /no-auth/confirm', userRequestTester.confirmationTest);
 	describe('PUT /login', userRequestTester.loginTest);
@@ -19,6 +18,5 @@ describe('user requests', function() {
 	describe('GET /users', userRequestTester.getUsersTest);
 	describe('PUT /read/:streamId', userRequestTester.readTest);
 	describe('GET /preferences', userRequestTester.getPreferencesTest);
-*/
 	describe('PUT /preferences', userRequestTester.putPreferencesTest);
 });
