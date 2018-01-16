@@ -34,6 +34,16 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'read/:streamId',
 		requestClass: require('./read_request')
+	},
+	{
+		method: 'get',
+		path: 'preferences',
+		requestClass: require('./get_preferences_request')
+	},
+	{
+		method: 'put',
+		path: 'preferences',
+		requestClass: require('./put_preferences_request')
 	}
 ];
 
