@@ -2,7 +2,7 @@
 
 var EmailNotificationTest = require('./email_notification_test');
 
-class PreferGeneralMentionsTest extends EmailNotificationTest {
+class PreferDefaultOnTest extends EmailNotificationTest {
 
 	constructor (options) {
 		super(options);
@@ -11,15 +11,15 @@ class PreferGeneralMentionsTest extends EmailNotificationTest {
 	}
 
 	get description () {
-		return 'a user who has email notifications turned to mentions generally should get an email notification when they are mentioned';
+		return 'a user who has email notifications turned on by default should get an email notification';
 	}
 
 	// get the preference to set for the user
 	getPreference () {
 		return {
-			general: 'mentions'
+			default: 'on'
 		};
 	}
 }
 
-module.exports = PreferGeneralMentionsTest;
+module.exports = PreferDefaultOnTest;
