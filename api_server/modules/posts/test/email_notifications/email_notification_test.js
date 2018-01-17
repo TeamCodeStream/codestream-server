@@ -7,6 +7,7 @@ var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Path = require('path');
 const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
+const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 
 class EmailNotificationTest extends CodeStreamMessageTest {
 
@@ -210,7 +211,9 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 				// to simulate a mention, mention the current user's username with an @ in the text
 				if (this.wantMention) {
 					let index = this.postFactory.randomUpto(data.text.length);
-					data.text = `${data.text.slice(0, index)}@${this.currentUser.username}${data.text.slice(index)}`;
+					let username = this.currentUser.username ||
+						EmailUtilities.parseEmail(this.currentUser.email).name;
+					data.text = `${data.text.slice(0, index)}@${username}${data.text.slice(index)}`;
 				}
 				// if we wanted a parent post, then make this post a reply
 				if (this.parentPost) {
