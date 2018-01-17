@@ -67,6 +67,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			this.createOtherUser,	// create another registered user, as needed
 			this.createRepo,		// create the repo to be used in the test
 			this.createStream,		// create a file stream in that repo
+			this.setPreferences,	// set the user's email preference as needed for the test
 			this.createInitialPost,	// create a first post, as needed, for tests involving "ongoing" emails versus "first" emails
 			this.createParentPost,	// create a parent post, if needed
 			this.setCurrentUser,	// set the current user, the one who will be listening for the pubnub message that represents the email message that would otherwise go out
@@ -123,6 +124,31 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 				teamId: this.team._id
 			}
 		);
+	}
+
+	// set the user's email preferences, if needed
+	setPreferences (callback) {
+		let preference = this.getPreference();
+		if (!preference) {
+			return callback();
+		}
+		let data = {
+			emailNotifications: preference
+		};
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/preferences',
+				data: data,
+				token: this.otherUserData.accessToken
+			},
+			callback
+		);
+	}
+
+	// get the appropriate email notification presence for the test, to be overridden
+	getPreference () {
+		return null;
 	}
 
 	// create an initial post ... for tests that require emails simulating the "ongoing" emails sent to unregistered
