@@ -89,7 +89,7 @@ class MarkerCreator extends ModelCreator {
 	// update the location of this marker in the marke locations structure for this stream and commit
 	updateMarkerLocations (callback) {
 		let id = `${this.attributes.streamId}|${this.attributes.commitHash}`.toLowerCase();
-		delete this.attributes.commitHash;	// the marker itself is commit-agnostic
+		this.attributes.commitHashWhenCreated = this.attributes.commitHash; 
 		let op = {
 			$set: {
 				teamId: this.attributes.teamId,

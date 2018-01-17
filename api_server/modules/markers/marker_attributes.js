@@ -32,5 +32,10 @@ module.exports = {
 	numComments: {
 		type: 'number',
 		required: true
+	},
+	commitHashWhenCreated: {
+		type: 'string',
+		minLength: 40,
+		maxLength: 40
 	}
 };
