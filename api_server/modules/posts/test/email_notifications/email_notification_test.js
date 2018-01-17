@@ -133,14 +133,11 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		if (!preference) {
 			return callback();
 		}
-		let data = {
-			emailNotifications: preference
-		};
 		this.doApiRequest(
 			{
 				method: 'put',
 				path: '/preferences',
-				data: data,
+				data: preference,
 				token: this.otherUserData.accessToken
 			},
 			callback

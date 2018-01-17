@@ -2,7 +2,7 @@
 
 var EmailNotificationTest = require('./email_notification_test');
 
-class PreferenceOnTest extends EmailNotificationTest {
+class PreferOnTest extends EmailNotificationTest {
 
 	constructor (options) {
 		super(options);
@@ -15,8 +15,10 @@ class PreferenceOnTest extends EmailNotificationTest {
 
 	// get the preference to set for the user
 	getPreference () {
-		return 'on';
+		return {
+			emailNotifications: 'on'
+		};
 	}
 }
 
-module.exports = PreferenceOnTest;
+module.exports = PreferOnTest;
