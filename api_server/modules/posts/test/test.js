@@ -13,10 +13,8 @@ describe('post requests', function() {
 
 	this.timeout(60000);
 
-/*
 	describe('GET /posts/:id', postsRequestTester.getPostTest);
 	describe('GET /posts', postsRequestTester.getPostsTest);
 	describe('POST /posts', postsRequestTester.postPostTest);
-*/
 	describe('email notifications', postsRequestTester.emailNotificationTest);
 });

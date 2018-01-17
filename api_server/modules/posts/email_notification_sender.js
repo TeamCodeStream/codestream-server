@@ -94,9 +94,9 @@ class EmailNotificationSender {
 	// determine whether the givenn user wants an email notification for the current post
 	userWantsEmail (user) {
 		let mentioned = this.post.mentionsUser(user);
-		let wantsEmail = user.wantsEmail(this.post.get('streamId'), mentioned);
+		let wantsEmail = user.wantsEmail(this.stream, mentioned);
 		if (!wantsEmail) {
-			this.request.log(`User ${user.id} has email notifications turned off`);
+			this.request.log(`User ${user.id} has email notifications turned off for this stream`);
 		}
 		return wantsEmail;
 	}

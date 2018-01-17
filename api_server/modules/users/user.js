@@ -5,6 +5,7 @@ var UserValidator = require('./user_validator');
 var ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities.js');
 var DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 const UserAttributes = require('./user_attributes');
+const Path = require('path');
 
 class User extends CodeStreamModel {
 
@@ -239,21 +240,43 @@ class User extends CodeStreamModel {
 		return meOnlyAttributes;
 	}
 
-	wantsEmail (streamId, mentioned) {
+	wantsEmail (stream, mentioned) {
+		// first, look for a general email preference of 'off'
 		let preferences = this.get('preferences') || {};
-		let emailPreference = preferences.emailNotifications || 'on';
-		if (typeof emailPreference === 'object') {
-			let defaultPreference = emailPreference.default || 'on';
-			emailPreference = emailPreference[streamId] || defaultPreference;
+		if (
+			preferences &&
+			(
+				preferences.emailNotifications === 'off' ||
+				(
+					preferences.emailNotifications === 'mentions' &&
+					!mentioned
+				)
+			)
+		) {
+			return false;
 		}
-		switch (emailPreference) {
-			case 'off':
+
+		// now look for individual stream treatments for the repo,
+		// paths can be muted
+		let streamTreatments = typeof preferences.streamTreatments === 'object' &&
+			preferences.streamTreatments[stream.get('repoId')];
+		if (!streamTreatments) {
+			return true;
+		}
+
+		// walk up the path tree looking for any muted directories
+		let path = stream.get('file');
+		do {
+			let starryPath = path.replace(/\./g, '*');
+			if (streamTreatments[starryPath] === 'mute') {
 				return false;
-			case 'mentions':
-				return mentioned;
-			default:
-				return true;
-		}
+			}
+			path = path === '/' ? null : Path.dirname(path);
+		} while (path);
+
+		// no muted directories that are parents to this file, we are free to
+		// send a notification!
+		return true;
 	}
 }
 
