@@ -87,19 +87,18 @@ class EmailNotificationSender {
 
 	// filter the offline members to those who haven't turned email notifications off
 	filterByPreference (callback) {
-		this.toReceiveEmails = this.offlineMembers.filter(user => {
-			let preferences = user.get('preferences');
-			if (!preferences) {
-				return true;	// default to on
-			}
-			// for now, you can just turn them off, but we'll get more sophisticated later...
-			let on = preferences.emailNotifications !== 'off';
-			if (!on) {
-				this.request.log(`User ${user.id} has email notifications turned off`);
-			}
-			return on;
-		});
+		this.toReceiveEmails = this.offlineMembers.filter(user => this.userWantsEmail(user));
 		process.nextTick(callback);
+	}
+
+	// determine whether the givenn user wants an email notification for the current post
+	userWantsEmail (user) {
+		let mentioned = this.post.mentionsUser(user);
+		let wantsEmail = user.wantsEmail(this.post.get('streamId'), mentioned);
+		if (!wantsEmail) {
+			this.request.log(`User ${user.id} has email notifications turned off`);
+		}
+		return wantsEmail;
 	}
 
 	// get the parent post to this post, if this is a reply

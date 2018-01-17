@@ -238,6 +238,23 @@ class User extends CodeStreamModel {
 		});
 		return meOnlyAttributes;
 	}
+
+	wantsEmail (streamId, mentioned) {
+		let preferences = this.get('preferences') || {};
+		let emailPreference = preferences.emailNotifications || 'on';
+		if (typeof emailPreference === 'object') {
+			let generalPreference = emailPreference.general || 'on';
+			emailPreference = emailPreference[streamId] || generalPreference;
+		}
+		switch (emailPreference) {
+			case 'off':
+				return false;
+			case 'mentions':
+				return mentioned;
+			default:
+				return true;
+		}
+	}
 }
 
 module.exports = User;
