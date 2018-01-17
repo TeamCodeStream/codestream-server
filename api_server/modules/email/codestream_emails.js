@@ -176,9 +176,6 @@ class CodeStreamEmails {
 	// link that user should click on to learn about CodeStream and install the plugin
 	getInstallLink (options) {
 		let { user, firstEmail, post } = options;
-		if (user.get('isRegistered')) {
-			return null; // no point if user is already registered, the link won't show anyway
-		}
 		let email = user.get('email');
 		let mentioned = post.mentionsUser(user);
 		let campaign = (
