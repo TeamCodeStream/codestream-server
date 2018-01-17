@@ -11,13 +11,13 @@ class PreferStreamMentionsTest extends EmailNotificationTest {
 	}
 
 	get description () {
-		return 'a user who has email notifications turned to mentions for a specific stream but off generally should get an email notification when they are mentioned';
+		return 'a user who has email notifications turned to mentions for a specific stream but off by default should get an email notification when they are mentioned';
 	}
 
 	// get the preference to set for the user
 	getPreference () {
 		return {
-			general: 'off',
+			default: 'off',
 			[this.stream._id]: 'mentions'
 		};
 	}

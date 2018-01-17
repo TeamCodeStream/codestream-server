@@ -243,8 +243,8 @@ class User extends CodeStreamModel {
 		let preferences = this.get('preferences') || {};
 		let emailPreference = preferences.emailNotifications || 'on';
 		if (typeof emailPreference === 'object') {
-			let generalPreference = emailPreference.general || 'on';
-			emailPreference = emailPreference[streamId] || generalPreference;
+			let defaultPreference = emailPreference.default || 'on';
+			emailPreference = emailPreference[streamId] || defaultPreference;
 		}
 		switch (emailPreference) {
 			case 'off':
