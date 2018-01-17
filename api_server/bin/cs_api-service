@@ -71,7 +71,7 @@ case "$action" in
     stop)
         service_stop $CS_API_TOP/bin/api_server.js
         ec=$?
-        sleep 2
+        sleep 5
         service_status $CS_API_TOP/bin/api_server.js
         ;;
     status)
