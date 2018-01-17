@@ -11,7 +11,8 @@ const EXPECTED_MARKER_FIELDS = [
 	'teamId',
 	'streamId',
 	'postId',
-	'numComments'
+	'numComments',
+	'commitHashWhenCreated'
 ];
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(MarkerAttributes).filter(attribute => {
