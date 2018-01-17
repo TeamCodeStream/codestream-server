@@ -19,6 +19,8 @@ var PreferOffNoEmailTest = require('./prefer_off_no_email_test');
 var PreferMentionsNoEmailTest = require('./prefer_mentions_no_email_test');
 var PreferOffForFileNoEmailTest = require('./prefer_off_for_file_no_email_test');
 var PreferOffForDirectoryNoEmailTest = require('./prefer_off_for_directory_no_email_test');
+var PreferOffForParentDirectoryNoEmailTest = require('./prefer_off_for_parent_directory_no_email_test');
+var PreferOffForRepoNoEmailTest = require('./prefer_off_for_repo_no_email_test');
 var PreferOnTest = require('./prefer_on_test');
 var PreferMentionsTest = require('./prefer_mentions_test');
 
@@ -44,6 +46,8 @@ class EmailNotificationTester {
 		new PreferMentionsNoEmailTest().test();
 		new PreferOffForFileNoEmailTest().test();
 		new PreferOffForDirectoryNoEmailTest().test();
+		new PreferOffForParentDirectoryNoEmailTest().test();
+		new PreferOffForRepoNoEmailTest().test();
 		new PreferOnTest().test();
 		new PreferMentionsTest().test();
 	}

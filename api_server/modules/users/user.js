@@ -271,8 +271,8 @@ class User extends CodeStreamModel {
 			if (streamTreatments[starryPath] === 'mute') {
 				return false;
 			}
-			path = Path.dirname(path);
-		} while (path !== '/');
+			path = path === '/' ? null : Path.dirname(path);
+		} while (path);
 
 		// no muted directories that are parents to this file, we are free to
 		// send a notification!
