@@ -10,13 +10,13 @@ class PreferOnForStreamTest extends EmailNotificationTest {
 	}
 
 	get description () {
-		return 'a user who has email notifications turned on for a specific stream but off generally should get an email notification';
+		return 'a user who has email notifications turned on for a specific stream but off by default should get an email notification';
 	}
 
 	// get the preference to set for the user
 	getPreference () {
 		return {
-			general: 'off',
+			default: 'off',
 			[this.stream._id]: 'on'
 		};
 	}

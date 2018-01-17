@@ -16,13 +16,13 @@ var ReplyTest = require('./reply_test');
 var PreferOffNoEmailTest = require('./prefer_off_no_email_test');
 var PreferMentionsNoEmailTest = require('./prefer_mentions_no_email_test');
 var PreferOffForStreamNoEmailTest = require('./prefer_off_for_stream_no_email_test');
-var PreferGeneralOffNoEmailTest = require('./prefer_general_off_no_email_test');
-var PreferGeneralMentionsNoEmailTest = require('./prefer_general_mentions_no_email_test');
+var PreferDefaultOffNoEmailTest = require('./prefer_default_off_no_email_test');
+var PreferDefaultMentionsNoEmailTest = require('./prefer_default_mentions_no_email_test');
 var PreferStreamMentionsNoEmailTest = require('./prefer_stream_mentions_no_email_test');
 var PreferenceOnTest = require('./preference_on_test');
 var PreferMentionsTest = require('./prefer_mentions_test');
-var PreferGeneralMentionsTest = require('./prefer_general_mentions_test');
-var PreferGeneralOnTest = require('./prefer_general_on_test');
+var PreferDefaultMentionsTest = require('./prefer_default_mentions_test');
+var PreferDefaultOnTest = require('./prefer_default_on_test');
 var PreferOnForStreamTest = require('./prefer_on_for_stream_test');
 var PreferStreamMentionsTest = require('./prefer_stream_mentions_test');
 
@@ -45,13 +45,13 @@ class EmailNotificationTester {
 		new PreferOffNoEmailTest().test();
 		new PreferMentionsNoEmailTest().test();
 		new PreferOffForStreamNoEmailTest().test();
-		new PreferGeneralOffNoEmailTest().test();
-		new PreferGeneralMentionsNoEmailTest().test();
+		new PreferDefaultOffNoEmailTest().test();
+		new PreferDefaultMentionsNoEmailTest().test();
 		new PreferStreamMentionsNoEmailTest().test();
 		new PreferenceOnTest().test();
 		new PreferMentionsTest().test();
-		new PreferGeneralMentionsTest().test();
-		new PreferGeneralOnTest().test();
+		new PreferDefaultMentionsTest().test();
+		new PreferDefaultOnTest().test();
 		new PreferOnForStreamTest().test();
 		new PreferStreamMentionsTest().test();
 	}
