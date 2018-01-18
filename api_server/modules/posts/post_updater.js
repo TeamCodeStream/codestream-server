@@ -40,7 +40,6 @@ class PostUpdater extends ModelUpdater {
 
     // get the post
     getPost (callback) {
-console.warn('GETTING POST ' + this.attributes._id);
         this.request.data.posts.getById(
             this.attributes._id,
             (error, post) => {
@@ -48,7 +47,6 @@ console.warn('GETTING POST ' + this.attributes._id);
                 if (!post) {
                     return callback(this.errorHandler.error('notFound', { info: 'post' }));
                 }
-console.warn('GOT', post.attributes);
                 this.post = post;
                 callback();
             }
