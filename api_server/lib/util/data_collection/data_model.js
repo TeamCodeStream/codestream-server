@@ -8,9 +8,11 @@ var DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
 class DataModel {
 
-	constructor (attributes) {
+	constructor (attributes, options = {}) {
 		this.attributes = {};
-		this.setDefaults();	// set defaults, and _then_ apply the attributes as given (which might overwrite defaults)
+		if (!options.dontSetDefaults) {
+			this.setDefaults();	// set defaults, and _then_ apply the attributes as given (which might overwrite defaults)
+		}
 		Object.assign(this.attributes, DeepClone(attributes || {}));	// make a deep copy of all attributes
 		this.id = this.attributes._id;	// establish an ID field for convenience
 		this.validator = this.getValidator();	// validator engine

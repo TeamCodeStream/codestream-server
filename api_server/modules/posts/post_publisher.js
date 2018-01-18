@@ -78,7 +78,7 @@ class PostPublisher {
 	}
 
 	publishPostToTeamStream (callback) {
-		let streamId = this.data.post.streamId;
+		let streamId = this.stream._id;
 		let channel = 'stream-' + streamId;
 		let message = {
 			post: this.data.post,

@@ -1,5 +1,4 @@
 // fulfill a restful PUT request, update a document with attributes passed in
-// NOTE - we're not really supporting this yet
 
 'use strict';
 
@@ -14,11 +13,10 @@ class PutRequest extends RestfulRequest {
 		// change the behavior by deriving its own updater class
 		let updaterClass = this.module.updaterClass || ModelUpdater;
 		this.updater = new updaterClass({
-			module: this,
-			user: this.user,
-			logger: this.api,
-			errorHandler: this.errorHandler
-		}).updateModel(
+			request: this
+		});
+		this.updater.updateModel(
+			this.request.params.id,
 			this.request.body,
 			(error, model) => {
 				this.modelUpdated(error, model, callback);
@@ -26,14 +24,13 @@ class PutRequest extends RestfulRequest {
 		);
 	}
 
-	// once the model has been created...
+	// once the model has been updated...
 	modelUpdated (error, model, callback) {
 		if (error) { return callback(error); }
 		const modelName = this.module.modelName || 'model';
-		// sanitize the model (eliminate attributes we don't want the client to see),
-		// and set up the response to the client ... the creator class might have
-		// additional information to put in the response, so handle that here as well
-		this.responseData[modelName] = model.getSanitizedObject();
+		// the updater tells us what the update was, this is exactly what we
+		// send to the client
+		this.responseData[modelName] = this.updater.update;
 		Object.assign(
 			this.responseData,
 			this.updater.attachToResponse || {}
