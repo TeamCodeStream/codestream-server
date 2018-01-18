@@ -34,5 +34,12 @@ module.exports = {
 	seqNum: {
 		type: 'number',
 		required: true
+	},
+	hasBeenEdited: {
+		type: 'boolean'
+	},
+	editHistory: {
+		type: 'arrayOfObjects',
+		serverOnly: true	// normally, but it can be retrieved separately
 	}
 };
