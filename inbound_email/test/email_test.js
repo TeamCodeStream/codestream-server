@@ -1,14 +1,14 @@
 'use strict';
 
-const BoundAsync = require(process.env.CS_INBOUND_EMAIL_TOP +'/server_utils/bound_async');
+const BoundAsync = require(process.env.CS_MAILIN_TOP +'/server_utils/bound_async');
 const RandomString = require('randomstring');
-const Secrets = require(process.env.CS_INBOUND_EMAIL_TOP + '/config/secrets');
-const HTTPSBot = require(process.env.CS_INBOUND_EMAIL_TOP + '/server_utils/https_bot');
-const APIConfig = require(process.env.CS_INBOUND_EMAIL_TOP + '/config/api');
-const InboundEmailConfig = require(process.env.CS_INBOUND_EMAIL_TOP + '/config/inbound_email');
-const PubNubConfig = require(process.env.CS_INBOUND_EMAIL_TOP + '/config/pubnub');
+const Secrets = require(process.env.CS_MAILIN_TOP + '/config/secrets');
+const HTTPSBot = require(process.env.CS_MAILIN_TOP + '/server_utils/https_bot');
+const APIConfig = require(process.env.CS_MAILIN_TOP + '/config/api');
+const InboundEmailConfig = require(process.env.CS_MAILIN_TOP + '/config/inbound_email');
+const PubNubConfig = require(process.env.CS_MAILIN_TOP + '/config/pubnub');
 const PubNub = require('pubnub');
-const PubNubClient = require(process.env.CS_INBOUND_EMAIL_TOP + '/server_utils/pubnub/pubnub_client');
+const PubNubClient = require(process.env.CS_MAILIN_TOP + '/server_utils/pubnub/pubnub_client');
 const FS = require('fs');
 const Assert = require('assert');
 const Path = require('path');
@@ -188,7 +188,7 @@ class EmailTest {
 
 	// read the email file indicated for the test
 	readEmailFile (callback) {
-		let path = Path.join(process.env.CS_INBOUND_EMAIL_TOP, 'test', 'test_files', this.emailFile);
+		let path = Path.join(process.env.CS_MAILIN_TOP, 'test', 'test_files', this.emailFile);
 		FS.readFile(
 			path,
 			'utf8',
