@@ -5,6 +5,7 @@
 var SendGridEmail = require('./sendgrid_email');
 var EmailUtils = require('./utils');
 var Path = require('path');
+var HtmlEscape = require(process.env.CS_API_TOP + '/server_utils/html_escape');
 
 class CodeStreamEmails {
 
@@ -189,7 +190,7 @@ class CodeStreamEmails {
 
 	// clean this text for email 
 	cleanForEmail (text) {
-		return text.replace(/\n/g, '<br/>');
+		return HtmlEscape.escapeHtml(text).replace(/\n/g, '<br/>');
 	}
 }
 
