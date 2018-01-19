@@ -10,5 +10,8 @@
     "randomstring": "^1.1.5",
     "strftime": "^0.10.0",
     "watchr": "^3.0.1"
+  },
+  "devDependencies": {
+    "mocha-teamcity-reporter": "^1.1.1"
   }
 }
