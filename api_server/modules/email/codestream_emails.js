@@ -57,9 +57,9 @@ class CodeStreamEmails {
 		const text = this.getNotificationText(options);
 		const codeBlock = this.getNotificationCodeBlock(options);
 		const displayCodeBlock = codeBlock ? null : 'display:none';
-		const code = (codeBlock && codeBlock.code) || '';
-		const preContext = (codeBlock && codeBlock.preContext) || '';
-		const postContext = (codeBlock && codeBlock.postContext) || '';
+		const code = this.cleanForEmail((codeBlock && codeBlock.code) || '');
+		const preContext = this.cleanForEmail((codeBlock && codeBlock.preContext) || '');
+		const postContext = this.cleanForEmail((codeBlock && codeBlock.postContext) || '');
 		const installText = this.getInstallText(options);
 		const displayInstallText = installText ? null : 'display:none';
 		const replyTo = `${stream.id}.${team.id}@${this.replyToDomain}`;
@@ -151,7 +151,7 @@ class CodeStreamEmails {
 
 	// get the text of the post for the notification
 	getNotificationText (options) {
-		return options.post.get('text');
+		return this.cleanForEmail(options.post.get('text') || '');
 	}
 
 	// get any code block associated iwth the post
@@ -185,6 +185,11 @@ class CodeStreamEmails {
 			(!firstEmail && !mentioned && 'newmessage_notification_unreg')
 		);
 		return `http://codestream.com?utm_medium=${email}&utm_source=product&utm_campaign=${campaign}`;
+	}
+
+	// clean this text for email 
+	cleanForEmail (text) {
+		return text.replace(/\n/g, '<br/>');
 	}
 }
 

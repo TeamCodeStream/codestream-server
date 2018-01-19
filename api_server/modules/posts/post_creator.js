@@ -95,13 +95,13 @@ class PostCreator extends ModelCreator {
 			return callback('code must be a string');
 		}
 		// can have pre- and post- context, must be a string
-		if (codeBlock.preContext) {
+		if (typeof codeBlock.preContext !== 'undefined') {
 			numKeys++;
 			if (typeof codeBlock.preContext !== 'string') {
 				return callback('preContext must be a string');
 			}
 		}
-		if (codeBlock.postContext) {
+		if (typeof codeBlock.postContext !== 'undefined') {
 			numKeys++;
 			if (typeof codeBlock.postContext !== 'string') {
 				return callback('postContext must be a string');
