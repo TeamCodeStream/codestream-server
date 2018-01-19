@@ -6,6 +6,17 @@
 # CS_API_SANDBOX  /path/to/root/of/sandbox
 # CS_API_TOP      /path/to/root/of/primary/git/project
 
+# Uncomment and setup if yarn is required. Available versions can be seen
+# with the command:
+#   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/yarn-$DT_OS_TYPE-*
+export CS_API_YARN=true
+export CS_API_YARN_VER=1.3.2
+
+# Uncomment and setup if node is required. Available versions can be seen
+# with the command:
+#   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/node-$DT_OS_TYPE-*
+export CS_API_NODE_VER=8.9.4
+
 export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$CS_API_TOP/node_modules/.bin:$PATH
 export CS_API_TOP=$CS_API_TOP
 export CS_API_HOST=localhost
@@ -57,9 +68,6 @@ export CS_API_SETUP_MONGO=true
 export CS_API_PUBNUB_PUBLISH_KEY=pub-c-8603fed4-39da-4feb-a82e-cf5311ddb4d6
 export CS_API_PUBNUB_SUBSCRIBE_KEY=sub-c-e830d7da-fb14-11e6-9f57-02ee2ddab7fe
 export CS_API_PUBNUB_SECRET=sec-c-MmU3MmNlOGQtNjNhYS00NTk1LWI3NDItZDZlMjk3NmJkMDVh
-
-# Specify the yarn package manager
-export CS_API_YARN=true
 
 # Location of the TestRepo repo used For maintaining test scripts
 export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo
