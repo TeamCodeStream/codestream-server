@@ -24,10 +24,21 @@ class Marker extends DataModel {
 	// called right before we save...
 	preSave (callback, options) {
 		// ensure all IDs are lowercase
-		this.attributes.teamId = this.attributes.teamId.toLowerCase();
-		this.attributes.streamId = this.attributes.streamId.toLowerCase();
-		this.attributes.postId = this.attributes.postId.toLowerCase();
+		this.lowerCase(this.attributes.teamId);
+		this.lowerCase(this.attributes.streamId);
+		this.lowerCase(this.attributes.postId);
+		this.lowerCase(this.attributes.commitHashWhenCreated);
 		super.preSave(callback, options);
+	}
+
+	// cheater function to force an attribute to be lowercase
+	lowerCase (attribute) {
+		if (typeof this.attributes[attribute] === 'string') {
+			this.attributes[attribute] = this.attributes[attribute].toLowerCase();
+		}
+		else if (this.attributes[attribute] instanceof Array) {
+			this.attributes[attribute] = this.attributes[attribute].map(elem => elem.toLowerCase());
+		}
 	}
 }
 

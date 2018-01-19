@@ -10,11 +10,6 @@ const PostTestConstants = require('../post_test_constants');
 
 class PutPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
-	constructor (options) {
-		super(options);
-		this.testOptions = {};
-	}
-
 	get description () {
 		return 'should return the updated post when updating a post';
 	}
@@ -36,6 +31,7 @@ class PutPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	validateResponse (data) {
 		// verify we got back a post with the updated text
         let post = data.post;
+        Assert(post._id === this.post._id, 'returned post ID is not the same');
         Assert.equal(post.text, this.data.text, 'text does not match');
         Assert(post.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was edited');
         Assert(post.hasBeenEdited, 'hasBeenEdited flag not set');
