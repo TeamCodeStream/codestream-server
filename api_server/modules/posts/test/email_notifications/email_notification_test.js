@@ -212,6 +212,12 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 						EmailUtilities.parseEmail(this.currentUser.email).name;
 					data.text = `${data.text.slice(0, index)}@${username}${data.text.slice(index)}`;
 				}
+				// if we want multi-line text, do it now
+				if (this.wantMultiLine) {
+					let index1 = this.postFactory.randomUpto(data.text.length);
+					let index2 = index1 + this.postFactory.randomUpto(data.text.length - index1);
+					data.text = `${data.text.slice(0, index1)} \n ${data.text.slice(index1, index2)} \n ${data.text.slice(index2)}`;
+				}
 				// if we wanted a parent post, then make this post a reply
 				if (this.parentPost) {
 					data.parentPostId = this.parentPost._id;
@@ -296,7 +302,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			Assert.equal(this.parentPost.text, substitutions['{{replyText}}']);
 		}
 		this.validateReplyToDisplay(substitutions['{{displayReplyTo}}']);
-		Assert.equal(this.post.text, substitutions['{{text}}']);
+		this.validateText(substitutions['{{text}}']);
 		if (this.wantCodeBlock) {
 			let codeBlock = this.post.codeBlocks[0];
 			Assert.equal(codeBlock.code, substitutions['{{code}}']);
@@ -374,6 +380,12 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		else {
 			Assert.equal(display, 'display:none', 'displayReplyTo is not set to display:none');
 		}
+	}
+
+	// validate that the text of the email is correct
+	validateText (text) {
+		let wantText = this.post.text.replace(/\n/g, '<br/>');
+		Assert.equal(wantText, text);
 	}
 
 	// validate that the subject of the email is correct, based on various scenarios

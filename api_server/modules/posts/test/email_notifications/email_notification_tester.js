@@ -12,6 +12,7 @@ var MentionUnregisteredFirstEmailTest = require('./mention_unregistered_first_em
 var MentionUnregisteredOngoingEmailTest = require('./mention_unregistered_ongoing_email_test');
 var OfflineForRepoTest = require('./offline_for_repo_test');
 var CodeBlockTest = require('./code_block_test');
+var MultiLineTest = require('./multi_line_test');
 var OnlineNoEmailTest = require('./online_no_email_test');
 var CreatorNoEmailTest = require('./creator_no_email_test');
 var ReplyTest = require('./reply_test');
@@ -39,6 +40,7 @@ class EmailNotificationTester {
 		new MentionUnregisteredOngoingEmailTest().test();
 		new OfflineForRepoTest().test();
 		new CodeBlockTest().test();
+		new MultiLineTest().test();
 		new OnlineNoEmailTest().test();
 		new CreatorNoEmailTest().test();
 		new ReplyTest().test();
