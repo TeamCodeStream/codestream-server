@@ -41,11 +41,11 @@ export CS_API_NAME=`dirname $CS_API_SANDBOX`
 # install it. Software is expected to be in the Sandbox Cloud. In this
 # case we're install the mongodb binaries from a tarball.
 
-# Install node if specified with CS_MAININ_NODE_VER
-[ -n "$CS_API_NODE_VER" -a ! -L $CS_API_SANDBOX/node ] && dt-get-software -V $CS_MAININ_NODE_VER node $CS_API_SANDBOX
+# Install node if specified with CS_API_NODE_VER
+[ -n "$CS_API_NODE_VER" -a ! -L $CS_API_SANDBOX/node ] && dt-get-software -V $CS_API_NODE_VER node $CS_API_SANDBOX
 
-# Install yarn if specified with CS_MAININ_YARN_VER
-[ -n "$CS_API_YARN_VER" -a ! -L $CS_API_SANDBOX/yarn ] && dt-get-software -V $CS_MAILIN_YARN_VER yarn $CS_API_SANDBOX
+# Install yarn if specified with CS_API_YARN_VER
+[ -n "$CS_API_YARN_VER" -a ! -L $CS_API_SANDBOX/yarn ] && dt-get-software -V $CS_API_YARN_VER yarn $CS_API_SANDBOX
 
 
 # Install secondary git repos
