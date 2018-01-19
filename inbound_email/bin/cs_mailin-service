@@ -18,15 +18,15 @@ case "$1" in
 		nohup $CS_MAILIN_TOP/bin/$service_name $server_args >/dev/null 2>&1 </dev/null &
 		sleep 1
 		service_status $service_name
-        ec=$?
+		ec=$?
 		;;
-    stop)
+	stop)
 		service_stop $service_name
+		ec=$?
 		sleep 2
 		service_status $service_name
-        ec=$?
 		;;
-    status)
+	status)
 		service_status $service_name
 		;;
 	restart)
@@ -39,8 +39,8 @@ case "$1" in
 		service_status $service_name
 		ec=$?
 		;;
-    *)
-        usage
+	*)
+		usage
 		;;
 esac
 exit $ec
