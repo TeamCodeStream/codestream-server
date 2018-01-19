@@ -62,5 +62,9 @@ module.exports = {
 
     put: (host, port, path, data, callback, options) => {
         _SimpleRequest('put', host, port, path, data, callback, options);
+    },
+
+    delete: (host, port, path, data, callback, options) => {
+        _SimpleRequest('delete', host, port, path, data, callback, options);
     }
 };
