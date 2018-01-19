@@ -353,9 +353,8 @@ class DataCollection {
 		model.attributes[this.idAttribute] = id;
 		this.databaseCollection.update(
 			model.attributes,
-			(error, updatedModel) => {
+			error => {
 				if (error) { return callback(error); }
-				this.addModelToCache(updatedModel);
 				delete this.modelOps[id];
 				delete this.dirtyModelIds[id];
 				process.nextTick(callback);

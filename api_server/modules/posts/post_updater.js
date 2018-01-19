@@ -53,7 +53,7 @@ class PostUpdater extends ModelUpdater {
         );
     }
 
-    // get the post the stream is in
+    // get the stream the post is in
     getStream (callback) {
         this.request.data.streams.getById(
             this.post.get('streamId'),

@@ -1,32 +1,41 @@
-// fulfill a restful DELETE request ... this is not yet implemented
+// fulfill a restful DELETE request to delete (really deactivate) a document
 
 'use strict';
 
-var APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
-//var ObjectDeleter = require('./object_deleter');
+var ModelDeleter = require('./model_deleter');
+var RestfulRequest = require('./restful_request');
 
-class DeleteRequest extends APIRequest {
+class DeleteRequest extends RestfulRequest {
 
-	authorize (callback) {
-		return callback(false);
-	}
-
+	// process the request...
 	process (callback) {
-		callback();
-		/*
-		new ObjectDeleter({
-			data: this.data,
-			user: this.request.user,
-			logger: this.request.api
-		}).updateObject(
-			this.request.body,
-			(error, object) => {
-				if (error) { return callback(error); }
-				this.responseData = object;
-				callback();
+		// we have a standard model deleter class, but the derived module can
+		// change the behavior by deriving its own deleter class
+		let deleterClass = this.module.deleterClass || ModelDeleter;
+		this.deleter = new deleterClass({
+			request: this
+		});
+		this.deleter.deleteModel(
+			this.request.params.id,
+			(error, update) => {
+				this.modelDeleted(error, update, callback);
 			}
 		);
-		*/
+	}
+
+	// once the model has been deleted...
+	modelDeleted (error, update, callback) {
+		if (error) { return callback(error); }
+		const modelName = this.module.modelName || 'model';
+		// since we're not really deleting the model, it really looks like
+		// an update, and  the deleter tells us what the update was...
+		// this is exactly what we send to the client
+		this.responseData[modelName] = update;
+		Object.assign(
+			this.responseData,
+			this.deleter.attachToResponse || {}
+		);
+		process.nextTick(callback);
 	}
 }
 

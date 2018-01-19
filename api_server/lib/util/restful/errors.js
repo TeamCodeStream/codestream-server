@@ -60,6 +60,14 @@ const ERRORS = {
 	'invalidParameter': {
 		code: 'RAPI-1012',
 		message: 'Invalid parameter'
+	},
+	'deleteAuth': {
+		code: 'RAPI-1013',
+		message: 'Not authorized to delete'
+	},
+	'alreadyDeleted': {
+		code: 'RAPI-1014',
+		message: 'This object is already deleted'
 	}
 };
 
