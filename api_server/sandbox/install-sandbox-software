@@ -41,15 +41,12 @@ export CS_API_NAME=`dirname $CS_API_SANDBOX`
 # install it. Software is expected to be in the Sandbox Cloud. In this
 # case we're install the mongodb binaries from a tarball.
 
-for software_pkg in node yarn
-do
-    if [ -L $CS_API_SANDBOX/$software_pkg ]; then
-    	echo "Additional software is already installed"
-    else
-    	echo "Installing $software_pkg"
-    	dt-get-software $software_pkg $CS_API_SANDBOX || exit 1
-    fi
-done
+# Install node if specified with CS_API_NODE_VER
+[ -n "$CS_API_NODE_VER" -a ! -L $CS_API_SANDBOX/node ] && dt-get-software -V $CS_API_NODE_VER node $CS_API_SANDBOX
+
+# Install yarn if specified with CS_API_YARN_VER
+[ -n "$CS_API_YARN_VER" -a ! -L $CS_API_SANDBOX/yarn ] && dt-get-software -V $CS_API_YARN_VER yarn $CS_API_SANDBOX
+
 
 # Install secondary git repos
 echo "Cloning TestRepo"
