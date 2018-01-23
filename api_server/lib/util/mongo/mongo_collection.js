@@ -131,7 +131,7 @@ class MongoCollection {
 	// get several documents according to the specified query, providing sort, limit, and fields options
 	// optional streaming of the results is also supported
 	getByQuery (query, callback, options = {}) {
-		if (this.options.hintsRequired && !options.hint) {
+		if (this.options.hintsRequired && !options.hint && !options.overrideHintRequired) {
 			return callback(this.errorHandler.error('hintRequired', { query: query }));
 		}
 		let cursor = this.dbCollection.find(query, { hint: options.hint });
@@ -195,7 +195,7 @@ class MongoCollection {
 
 	// get a single document (first we find) according to the specified query
 	getOneByQuery (query, callback, options) {
-		if (this.options.hintsRequired && !options.hint) {
+		if (this.options.hintsRequired && !options.hint && !options.overrideHintRequired) {
 			return callback(this.errorHandler.error('hintRequired', { query: query }));
 		}
 		this.runQuery(
