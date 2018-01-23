@@ -1,0 +1,33 @@
+#!/bin/sh
+
+ARGS=$@
+
+doit () {
+	$(dirname "$0")/cs_delete.js $ARGS
+}
+
+if [[ $1 = "-h" || $1 = "--help" ]]; then
+	doit;
+	exit;
+fi
+
+
+makeSure () {
+	while true; do
+	    read -p "Really? You're sure? Type 'YES' or 'NO' " yn
+	    case $yn in
+	        YES ) echo "OK. Here goes..."; doit; break;;
+	        NO ) exit;;
+	        * ) echo "Please answer YES or NO.";;
+	    esac
+	done
+}
+
+while true; do
+    read -p "Do you really want to do this deletion? This action can not be undone! " yn
+    case $yn in
+        [Yy]* ) makeSure; break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
