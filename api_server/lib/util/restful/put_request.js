@@ -30,7 +30,7 @@ class PutRequest extends RestfulRequest {
 		const modelName = this.module.modelName || 'model';
 		// the updater tells us what the update was, this is exactly what we
 		// send to the client
-		this.responseData[modelName] = this.updater.update;
+		this.responseData[modelName] = this.updater.updatedAttributes;
 		Object.assign(
 			this.responseData,
 			this.updater.attachToResponse || {}
