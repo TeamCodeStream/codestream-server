@@ -20,5 +20,9 @@ module.exports = {
 	},
 	creatorId: {
 		type: 'id'
+	},
+	_forTesting: {
+		type: 'boolean',
+		serverOnly: true
 	}
 };

@@ -64,6 +64,7 @@ class APIRequestTest extends GenericTest {
 			// to a pubnub channel that we'll listen on
 			requestOptions.headers['X-CS-Test-Email-Sends'] = true;
 		}
+		requestOptions.headers['X-CS-For-Testing'] = true;	// makes it easy to wipe test data later on
 	}
 
 	// make an API requet, and check the response for validity

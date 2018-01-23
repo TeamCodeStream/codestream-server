@@ -33,6 +33,7 @@ class CompanyCreator extends ModelCreator {
 	// right before saving...
 	preSave (callback) {
 		this.attributes.creatorId = this.user.id;	// creator is the user making the request
+		this.attributes._forTesting = this.request.isForTesting();	// special for-testing header for easy wiping of test data
 		super.preSave(callback);
 	}
 }

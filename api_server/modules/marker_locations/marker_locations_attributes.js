@@ -19,5 +19,9 @@ module.exports = {
 	},
 	locations: {
 		type: 'object'
+	},
+	_forTesting: {
+		type: 'boolean',
+		serverOnly: true
 	}
 };

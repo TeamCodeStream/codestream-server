@@ -185,6 +185,7 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 					streamId: this.streamId,
 					commitHash: this.newCommitHash,
 					locations: this.calculatedMarkerLocations
+
 				}
 			}
 		);
@@ -198,6 +199,7 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 			$set: this.update
 		};
 		update.$set.teamId = this.teamId;
+		update.$set._forTesting = this.isForTesting();	// special for-testing header for easy wiping of test data
 		this.data.markerLocations.applyOpById(
 			id,
 			update,

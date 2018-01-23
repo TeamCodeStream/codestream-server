@@ -88,6 +88,7 @@ class UserCreator extends ModelCreator {
 	}
 
 	preSave (callback) {
+		this.attributes._forTesting = this.request.isForTesting();	// special for-testing header for easy wiping of test data
 		BoundAsync.series(this, [
 			this.hashPassword,
 			this.checkUsernameUnique,
