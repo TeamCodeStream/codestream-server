@@ -37,5 +37,9 @@ module.exports = {
 		type: 'string',
 		minLength: 40,
 		maxLength: 40
+	},
+	_forTesting: {
+		type: 'boolean',
+		serverOnly: true
 	}
 };

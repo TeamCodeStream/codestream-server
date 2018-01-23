@@ -1,0 +1,3 @@
+#!/bin/sh
+
+mongo $MDB_HOST:$MDB_PORT/codestream $CS_API_TOP/bin/cs_delete_test_data.js 

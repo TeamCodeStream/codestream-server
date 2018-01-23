@@ -189,6 +189,15 @@ class APIRequest {
 		this.closed = true;
 	}
 
+	// does this request have a "for testing" header?
+	isForTesting () {
+		return !!(
+			this.request &&
+			this.request.headers &&
+			this.request.headers['x-cs-for-testing']
+		);
+	}
+	
 	critical (text) {
 		this.api.logger.critical(text, this.request.id);
 	}

@@ -72,6 +72,7 @@ class MarkerCreator extends ModelCreator {
 
 	// right before the document is saved...
 	preSave (callback) {
+		this.attributes._forTesting = this.request.isForTesting();	// special for-testing header for easy wiping of test data
 		BoundAsync.series(this, [
 			this.createId,					// create an ID for the marker
 			this.updateMarkerLocations,		// update the marker's location for the particular commit
@@ -92,6 +93,7 @@ class MarkerCreator extends ModelCreator {
 		this.attributes.commitHashWhenCreated = this.attributes.commitHash; 
 		let op = {
 			$set: {
+				_forTesting: this.request.isForTesting(),	// special for-testing header for easy wiping of test data
 				teamId: this.attributes.teamId,
 				[`locations.${this.attributes._id}`]: this.location
 			}
