@@ -2,15 +2,16 @@
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 var UserCreator = require('./user_creator');
-//var UserUpdater = require('./user_updater');
+var UserUpdater = require('./user_updater');
 var User = require('./user');
 
 const USERS_STANDARD_ROUTES = {
-	want: ['get', 'getMany'],
+	want: ['get', 'getMany', 'put'],
 	baseRouteName: 'users',
 	requestClasses: {
 		'get': require('./get_user_request'),
-		'getMany': require('./get_users_request')
+		'getMany': require('./get_users_request'),
+		'put': require('./put_user_request')
 	}
 };
 
@@ -65,11 +66,9 @@ class Users extends Restful {
 		return User;
 	}
 
-/*
 	get updaterClass () {
 		return UserUpdater;
 	}
-*/
 
 	getRoutes () {
 		let standardRoutes = super.getRoutes(USERS_STANDARD_ROUTES);

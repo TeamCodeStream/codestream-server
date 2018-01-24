@@ -14,7 +14,9 @@ class User extends CodeStreamModel {
 	}
 
 	preSave (callback, options) {
-		this.attributes.searchableEmail = this.attributes.email.toLowerCase();
+		if (this.attributes.email) {
+			this.attributes.searchableEmail = this.attributes.email.toLowerCase();
+		}
 		this.lowerCase('teamIds');
 		this.lowerCase('companyIds');
 		super.preSave(callback, options);

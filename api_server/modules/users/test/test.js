@@ -19,4 +19,5 @@ describe('user requests', function() {
 	describe('PUT /read/:streamId', userRequestTester.readTest);
 	describe('GET /preferences', userRequestTester.getPreferencesTest);
 	describe('PUT /preferences', userRequestTester.putPreferencesTest);
+	describe('PUT /users/:id', userRequestTester.putUserTest);
 });

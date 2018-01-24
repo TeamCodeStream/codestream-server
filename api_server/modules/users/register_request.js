@@ -139,6 +139,7 @@ class RegisterRequest extends RestfulRequest {
 	publishUserToTeams (callback) {
 		new UserPublisher({
 			user: this.user,
+			data: this.user.getSanitizedObject(),
 			request: this,
 			messager: this.api.services.messager
 		}).publishUserToTeams(callback);
