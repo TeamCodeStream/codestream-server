@@ -210,7 +210,8 @@ class RepoCreator extends ModelCreator {
 			data: this.data,
 			messager: this.api.services.messager,
 			repo: this.model,
-			users: this.newUsers || []
+			users: this.newUsers || [],
+			request: this.request
 		};
 		if (this.repoAddedToTeam) {
 			granterOptions.users = granterOptions.users.concat(this.existingUsers || []);

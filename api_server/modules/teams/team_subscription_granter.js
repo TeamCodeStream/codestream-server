@@ -68,7 +68,8 @@ class TeamSubscriptionGranter  {
 				}
 			},
 			{
-				includePresence: true
+				includePresence: true,
+				request: this.request
 			}
 		);
 	}

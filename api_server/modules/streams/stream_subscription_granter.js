@@ -66,6 +66,9 @@ class StreamSubscriptionGranter  {
 				else {
 					return callback();
 				}
+			},
+			{
+				request: this.request
 			}
 		);
 	}

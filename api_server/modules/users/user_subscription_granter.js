@@ -132,6 +132,9 @@ class UserSubscriptionGranter  {
 				else {
 					return callback();
 				}
+			},
+			{
+				request: this.request
 			}
 		);
 	}

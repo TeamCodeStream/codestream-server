@@ -172,7 +172,8 @@ class AddTeamMembers  {
 			data: this.data,
 			messager: this.api.services.messager,
 			team: this.team,
-			members: this.usersToAdd
+			members: this.usersToAdd,
+			request: this.request
 		};
 		new TeamSubscriptionGranter(granterOptions).grantToMembers(error => {
 			if (error) {

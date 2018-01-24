@@ -256,7 +256,8 @@ class TeamCreator extends ModelCreator {
 			data: this.data,
 			messager: this.api.services.messager,
 			team: this.model,
-			members: this.users
+			members: this.users,
+			request: this.request
 		};
 		new TeamSubscriptionGranter(granterOptions).grantToMembers(error => {
 			if (error) {

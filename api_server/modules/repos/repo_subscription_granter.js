@@ -50,7 +50,8 @@ class RepoSubscriptionGranter  {
 				}
 			},
 			{
-				includePresence: true
+				includePresence: true,
+				request: this.request
 			}
 		);
 	}

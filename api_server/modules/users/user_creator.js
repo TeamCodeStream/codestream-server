@@ -167,7 +167,10 @@ class UserCreator extends ModelCreator {
 		this.api.services.messager.grant(
 			[this.model.id],
 			`user-${this.model.id}`,
-			() => {}
+			() => {},
+			{
+				request: this.request
+			}
 		);
 		callback();
 	}

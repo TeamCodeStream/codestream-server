@@ -140,7 +140,8 @@ class StreamCreator extends ModelCreator {
 		new StreamSubscriptionGranter({
 			data: this.data,
 			messager: this.api.services.messager,
-			stream: this.model
+			stream: this.model,
+			request: this.request
 		}).grantToMembers(error => {
 			if (error) {
 				return callback(this.errorHandler.error('messagingGrant', { reason: error }));

@@ -203,7 +203,8 @@ class ConfirmRequest extends RestfulRequest {
 		new UserSubscriptionGranter({
 			data: this.data,
 			messager: this.api.services.messager,
-			user: this.user
+			user: this.user,
+			request: this
 		}).grantAll(error => {
 			if (error) {
 				return callback(this.errorHandler.error('messagingGrant', { reason: error }));
