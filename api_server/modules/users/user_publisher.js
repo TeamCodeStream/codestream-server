@@ -19,10 +19,9 @@ class UserPublisher {
 	}
 
 	publishUserToTeam (teamId, callback) {
-		let userObject = this.user.getSanitizedObject();
 		let message = {
 			requestId: this.request.request.id,
-			users: [userObject]
+			users: [this.data]
 		};
 		this.messager.publish(
 			message,

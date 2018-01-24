@@ -124,13 +124,13 @@ class ModelUpdater {
 	// do the actual update
 	update (callback) {
 		// do the update
-		this.update = DeepClone(this.model.attributes);
+		this.updatedAttributes = DeepClone(this.model.attributes);
 		this.collection.update(
-			this.update,
+			this.updatedAttributes,
 			(error, updatedModel) => {
 				if (error) { return callback(error); }
 				this.model = updatedModel;
-				this.update = this.model.validator.sanitizeAttributes(this.update);
+				this.updatedAttributes = this.model.validator.sanitizeAttributes(this.updatedAttributes);
 				process.nextTick(callback);
 			}
 		);
