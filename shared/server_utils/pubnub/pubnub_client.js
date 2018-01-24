@@ -92,6 +92,7 @@ class PubNubClient {
 		if (!(tokens instanceof Array)) {
 			tokens = [tokens];
 		}
+		options.request && options.request.log(`Granting access for ${tokens} to ${channel}`);
 		this.pubnub.grant(
 			{
 				channels: [channel],
@@ -102,9 +103,11 @@ class PubNubClient {
 			},
 			(result) => {
 				if (result.error) {
+					options.request && options.request.warn(`Unable to grant access for ${tokens} to ${channel}: ${JSON.stringify(result.errorData)}`);
 					return callback(result.errorData);
 				}
 				else {
+					options.request && options.request.log(`Successfully granted access for ${tokens} to ${channel}`);
 					if (options.includePresence) {
 						// doing presence requires granting access to this channel as well
 						this.grant(tokens, channel + '-pnpres', callback);
