@@ -15,6 +15,9 @@ var NonFileStreamTest = require('./non_file_stream_test');
 var OtherTeamTest = require('./other_team_test');
 var MessageToTeamTest = require('./message_to_team_test');
 var ClientSendsLocationsTest = require('./client_sends_locations_test');
+var NoNewCommitHashTest = require('./no_new_commit_hash_test');
+var NoNewCommitHashFetchTest = require('./no_new_commit_hash_fetch_test');
+var NoPublishOnNoNewCommitHashTest = require('./no_publish_on_no_new_commit_hash_test');
 
 /* jshint -W071 */
 
@@ -26,12 +29,10 @@ class PutCalculateLocationsRequestTester {
 		new NoAttributeTest({ attribute: 'teamId' }).test();
 		new NoAttributeTest({ attribute: 'streamId' }).test();
 		new NoAttributeTest({ attribute: 'originalCommitHash' }).test();
-		new NoAttributeTest({ attribute: 'newCommitHash' }).test();
 		new NoAttributeTest({ attribute: 'edits' }).test();
 		new BadTypeTest({ attribute: 'teamId' }).test();
 		new BadTypeTest({ attribute: 'streamId' }).test();
 		new BadTypeTest({ attribute: 'originalCommitHash' }).test();
-		new BadTypeTest({ attribute: 'newCommitHash' }).test();
 		new BadTypeTest({ attribute: 'edits' }).test();
 		new BadEditTest().test();
 		new MissingEditElementTest().test();
@@ -43,6 +44,9 @@ class PutCalculateLocationsRequestTester {
 		new OtherTeamTest().test();
 		new MessageToTeamTest().test();
 		new ClientSendsLocationsTest().test();
+		new NoNewCommitHashTest().test();
+		new NoNewCommitHashFetchTest().test();
+		new NoPublishOnNoNewCommitHashTest().test();
 	}
 }
 

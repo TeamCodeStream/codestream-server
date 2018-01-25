@@ -46,11 +46,12 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['teamId', 'streamId', 'originalCommitHash', 'newCommitHash'],
+					string: ['teamId', 'streamId', 'originalCommitHash'],
 					'array(object)': ['edits']
 				},
 				optional: {
-					'object': ['locations']
+					'object': ['locations'],
+					'string': ['newCommitHash']
 				}
 			},
 			callback
@@ -60,7 +61,9 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 	// validate the request's input parameters
 	validate (callback) {
 		this.originalCommitHash = this.request.body.originalCommitHash.toLowerCase();
-		this.newCommitHash = this.request.body.newCommitHash.toLowerCase();
+		if (this.request.body.newCommitHash) {
+			this.newCommitHash = this.request.body.newCommitHash.toLowerCase();
+		}
 		BoundAsync.series(this, [
 			this.validateEdits,
 			this.validateLocations
@@ -172,28 +175,30 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 	prepareForUpdate (callback) {
 		this.update = {};
 		this.publish = {};
-		Object.keys(this.calculatedMarkerLocations).forEach(markerId => {
-			let location = this.calculatedMarkerLocations[markerId];
-			this.update[`locations.${markerId}`] = location;	// for database update
-			this.publish[markerId] = location;					// for publishing
-		});
-		Object.assign(
-			this.responseData,
-			{
-				markerLocations: {
-					teamId: this.teamId,
-					streamId: this.streamId,
-					commitHash: this.newCommitHash,
-					locations: this.calculatedMarkerLocations
-
-				}
-			}
-		);
+		if (this.newCommitHash) {	// client can request to calculate without saving, indicated by no newCommitHash
+			Object.keys(this.calculatedMarkerLocations).forEach(markerId => {
+				let location = this.calculatedMarkerLocations[markerId];
+				this.update[`locations.${markerId}`] = location;	// for database update
+				this.publish[markerId] = location;					// for publishing
+			});
+		}
+		let markerLocations = {
+			teamId: this.teamId,
+			streamId: this.streamId,
+			locations: this.calculatedMarkerLocations
+		};
+		if (this.newCommitHash) {
+			markerLocations.commitHash = this.newCommitHash;
+		}
+		Object.assign(this.responseData, { markerLocations });
 		process.nextTick(callback);
 	}
 
 	// update marker locations for the new commit
 	update (callback) {
+		if (!this.newCommitHash) {
+			return callback();	// client can request not to save, indicated by no newCommitHash
+		}
 		let id = `${this.streamId}|${this.newCommitHash}`;
 		let update = {
 			$set: this.update
@@ -214,6 +219,10 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 
 	// after processing the request...
 	postProcess (callback) {
+		if (!this.newCommitHash) {
+			// we assume that if the client doesn't want them saved (indicated by no newCommitHash), they don't want them published
+			return callback();	
+		}
 		// publish the marker locations update to users in the team
 		this.publishMarkerLocations(callback);
 	}

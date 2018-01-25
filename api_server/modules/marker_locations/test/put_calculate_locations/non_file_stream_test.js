@@ -23,7 +23,7 @@ class NonFileStreamTest extends PutCalculateLocationsTest {
 		], callback);
 	}
 
-	// create aanother stream, we'll try to put marker locations to this stream instead
+	// create another stream, we'll try to put marker locations to this stream instead
 	createOtherStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -33,9 +33,9 @@ class NonFileStreamTest extends PutCalculateLocationsTest {
 			},
 			{
 				type: this.streamType,
-				withEmails: [this.currentUser.email], // this this user
+				withEmails: [this.currentUser.email], // this user
 				teamId: this.team._id,
-				token: this.otherUserData.accessToken // other user is the creator
+				token: this.streamCreatorData.accessToken // stream creator creates another stream
 			}
 		);
 	}

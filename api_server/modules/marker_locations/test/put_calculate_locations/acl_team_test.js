@@ -33,7 +33,7 @@ class ACLTeamTest extends PutCalculateLocationsTest {
 				callback();
 			},
 			{
-				token: this.otherUserData.accessToken	// the other user is the creator
+				token: this.teamCreatorData.accessToken	// team creator creates another repo and team
 			}
 		);
 	}
@@ -51,7 +51,7 @@ class ACLTeamTest extends PutCalculateLocationsTest {
 				type: 'file',
 				teamId: this.otherRepo.teamId,
 				repoId: this.otherRepo._id,
-				token: this.otherUserData.accessToken // the other user is the creator
+				token: this.teamCreatorData.accessToken // team creator can create this stream too
 			}
 		);
 	}
