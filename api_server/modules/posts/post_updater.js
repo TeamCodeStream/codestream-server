@@ -24,7 +24,8 @@ class PostUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-            string: ['text']
+            string: ['text'],
+            'array(string)': ['mentionedUserIds']
 		};
 	}
 
@@ -72,13 +73,21 @@ class PostUpdater extends ModelUpdater {
     addEditToHistory (callback) {
         this.attributes.hasBeenEdited = true;
         this.attributes.editHistory = this.post.get('editHistory') || [];
-        this.attributes.editHistory.push({
+        let edit = {
             editorId: this.request.user.id,
             editedAt: Date.now(),
             previousAttributes: {
                 text: this.post.get('text')
+            },
+            setAttributes: {
+                text: this.attributes.text
             }
-        });
+        };
+        if (this.attributes.mentionedUserIds) {
+            edit.previousAttributes.mentionedUserIds = this.post.get('mentionedUserIds');
+            edit.setAttributes.mentionedUserIds = this.attributes.mentionedUserIds;
+        }
+        this.attributes.editHistory.push(edit);
         process.nextTick(callback);
     }
 

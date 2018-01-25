@@ -64,6 +64,7 @@ var NoLastReadsUpdateTest = require('./no_last_reads_update_test');
 var SeqNumTest = require('./seqnum_test');
 var NumCommentsTest = require('./num_comments_test');
 var NumCommentsMessageTest = require('./num_comments_message_test');
+var MentionTest = require('./mention_test');
 
 /* jshint -W071 */
 
@@ -144,6 +145,7 @@ class PostPostRequestTester {
 		new SeqNumTest().test();
 		new NumCommentsTest().test();
 		new NumCommentsMessageTest().test();
+		new MentionTest().test();
 	}
 }
 

@@ -43,7 +43,8 @@ class PostCreator extends ModelCreator {
 			optional: {
 				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId'],
 				object: ['stream'],
-				'array(object)': ['codeBlocks']
+				'array(object)': ['codeBlocks'],
+				'array(string)': ['mentionedUserIds']
 			}
 		};
 	}
