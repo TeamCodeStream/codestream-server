@@ -317,12 +317,15 @@ class Deleter {
 
 	deleteUsers (callback) {
 		if (this.teamId) {
-			if (this.deleteTeamlessUsers) {
-				this.deleteWouldBeTeamlessUsers(callback);
-			}
-			else {
-				this.removeUsersFromTeam(callback);
-			}
+			this.removeUsersFromTeam(error => {
+				if (error) { return callback(error); }
+				if (this.deleteTeamlessUsers) {
+					this.deleteWouldBeTeamlessUsers(callback);
+				}
+				else {
+					callback();
+				}
+			});
 		}
 		else if (this.userIdOrEmail) {
 			this.deleteSingleUser(callback);
@@ -359,6 +362,7 @@ class Deleter {
 	}
 
 	removeUsersFromTeam (callback) {
+		this.logger.log('Removing users from team...');
 		this.mongoClient.mongoCollections.users.updateDirect(
 			{ teamIds: this.teamId },
 			{ $pull: { teamIds: this.teamId } },
