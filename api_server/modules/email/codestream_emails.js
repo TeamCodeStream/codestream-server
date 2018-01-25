@@ -177,7 +177,6 @@ class CodeStreamEmails {
 	// link that user should click on to learn about CodeStream and install the plugin
 	getInstallLink (options) {
 		let { user, firstEmail, post } = options;
-		let email = user.get('email');
 		let mentioned = post.mentionsUser(user);
 		let campaign = (
 		 	(firstEmail && mentioned && 'first_mention_notification_unreg') ||
@@ -185,7 +184,7 @@ class CodeStreamEmails {
 			(!firstEmail && mentioned && 'mention_notification_unreg') ||
 			(!firstEmail && !mentioned && 'newmessage_notification_unreg')
 		);
-		return `http://codestream.com?utm_medium=${email}&utm_source=product&utm_campaign=${campaign}`;
+		return `http://codestream.com?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
 	}
 
 	// clean this text for email 
