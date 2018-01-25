@@ -45,7 +45,7 @@ class CommonInit {
 		);
 	}
 
-	// form the data for the post update
+	// form the data for the user update
 	makeUserData (callback) {
 		this.data = {};
 		this.attributes.forEach(attribute => {
