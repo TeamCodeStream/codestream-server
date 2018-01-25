@@ -87,6 +87,9 @@ class CommonInit {
         this.data = {
             text: this.postFactory.randomText()
         };
+        if (this.wantMention) {
+        	this.data.mentionedUserIds = [this.otherUserData.user._id];
+        }
         this.path = '/posts/' + this.post._id;
         this.modifiedAfter = Date.now();
         callback();

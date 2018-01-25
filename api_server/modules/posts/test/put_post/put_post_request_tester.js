@@ -9,6 +9,7 @@ var PostNotFoundTest = require('./post_not_found_test');
 var MessageToTeamTest = require('./message_to_team_test');
 var MessageToStreamTest = require('./message_to_stream_test');
 var NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
+var MentionTest = require('./mention_test');
 
 /* jshint -W071 */
 
@@ -25,6 +26,7 @@ class PutPostRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'streamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'repoId' }).test();
+		new MentionTest().test();
 	}
 }
 

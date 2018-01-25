@@ -41,5 +41,9 @@ module.exports = {
 	editHistory: {
 		type: 'arrayOfObjects',
 		serverOnly: true	// normally, but it can be retrieved separately
+	},
+	mentionedUserIds: {
+		type: 'arrayOfIds',
+		maxLength: 100
 	}
 };

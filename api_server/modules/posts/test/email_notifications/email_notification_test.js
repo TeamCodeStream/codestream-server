@@ -7,7 +7,6 @@ var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Path = require('path');
 const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
-const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 
 class EmailNotificationTest extends CodeStreamMessageTest {
 
@@ -205,12 +204,10 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 	makePostData (callback) {
 		this.postFactory.getRandomPostData(
 			(error, data) => {
-				// to simulate a mention, mention the current user's username with an @ in the text
 				if (this.wantMention) {
-					let index = this.postFactory.randomUpto(data.text.length);
-					let username = this.currentUser.username ||
-						EmailUtilities.parseEmail(this.currentUser.email).name;
-					data.text = `${data.text.slice(0, index)}@${username}${data.text.slice(index)}`;
+					// the mentionedUserIds array is passed by the client and represents the users who are mentioned
+					// in the post
+					data.mentionedUserIds = [this.currentUser._id];
 				}
 				// if we want multi-line text, do it now
 				if (this.wantMultiLine) {

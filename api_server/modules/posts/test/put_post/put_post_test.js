@@ -35,6 +35,9 @@ class PutPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
         Assert.equal(post.text, this.data.text, 'text does not match');
         Assert(post.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was edited');
         Assert(post.hasBeenEdited, 'hasBeenEdited flag not set');
+        if (this.wantMention) {
+        	Assert.deepEqual(post.mentionedUserIds, this.data.mentionedUserIds, 'mentionedUserIds is not correct');
+        }
 		// verify the post in the response has no attributes that should not go to clients
 		this.validateSanitized(post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
