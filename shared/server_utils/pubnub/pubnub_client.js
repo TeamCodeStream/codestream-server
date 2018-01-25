@@ -116,7 +116,7 @@ class PubNubClient {
 					}
 					if (options.includePresence) {
 						// doing presence requires granting access to this channel as well
-						this.grant(tokens, channel + '-pnpres', callback);
+						this.grant(tokens, channel + '-pnpres', callback, { request: options.request });
 					}
 					else {
 						return callback();
