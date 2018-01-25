@@ -4,6 +4,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 var BCrypt = require('bcrypt');
 var InitialDataFetcher = require('./initial_data_fetcher');
+var UserSubscriptionGranter = require('./user_subscription_granter');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
 
@@ -24,6 +25,7 @@ class LoginRequest extends RestfulRequest {
 			this.getUser,
 			this.validatePassword,
 			this.getInitialData,
+			this.grantSubscriptionPermissions,
 			this.formResponse
 		], callback);
 	}
@@ -83,6 +85,24 @@ class LoginRequest extends RestfulRequest {
 		}).fetchInitialData((error, initialData) => {
 			if (error) { return callback(error); }
 			this.initialData = initialData;
+			callback();
+		});
+	}
+
+	grantSubscriptionPermissions (callback) {
+		// note - it is tough to determine whether this should go before or after the response ... with users in a lot
+		// of streams, there could be a performance hit here, but do we want to take a performance hit or do we want
+		// to risk the client subscribing to channels for which they don't yet have permissions? i've opted for the
+		// performance hit, and i suspect it won't ever be a problem, but be aware...
+		new UserSubscriptionGranter({
+			data: this.data,
+			messager: this.api.services.messager,
+			user: this.user,
+			request: this
+		}).grantAll(error => {
+			if (error) {
+				return callback(this.errorHandler.error('messagingGrant', { reason: error }));
+			}
 			callback();
 		});
 	}
