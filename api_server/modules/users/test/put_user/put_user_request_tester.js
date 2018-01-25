@@ -8,6 +8,8 @@ var ACLTest = require('./acl_test');
 var ACLTeamTest = require('./acl_team_test');
 var MessageToTeamTest = require('./message_to_team_test');
 var NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
+var UsernameNotUniqueTest = require('./username_not_unique_test');
+var UsernameNotUniqueForSecondTeamTest = require('./username_not_unique_for_second_team_test');
 
 const UserAttributes = require('../../user_attributes');
 const CAN_UPDATE_ATTRIBUTES = ['username', 'firstName', 'lastName'];
@@ -30,6 +32,8 @@ class PutUserRequestTester {
                 		new NoUpdateOtherAttributeTest({ otherAttribute: attribute }).test();
                 	}
                 });
+                new UsernameNotUniqueTest().test();
+                new UsernameNotUniqueForSecondTeamTest().test();
 	}
 }
 
