@@ -34,7 +34,7 @@ class ACLStreamTest extends PutCalculateLocationsTest {
 			{
 				type: 'channel',
 				teamId: this.team._id,
-				token: this.otherUserData.accessToken	// other user is the creator, and it doesn't include me
+				token: this.streamCreatorData.accessToken	// stream creator creates another team, and it doesn't include me
 			}
 		);
 	}

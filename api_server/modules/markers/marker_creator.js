@@ -74,23 +74,24 @@ class MarkerCreator extends ModelCreator {
 	preSave (callback) {
 		this.attributes._forTesting = this.request.isForTesting();	// special for-testing header for easy wiping of test data
 		BoundAsync.series(this, [
-			this.createId,					// create an ID for the marker
+			this.normalizeMarkerAttributes,	// normalize the attributes for the marker
 			this.updateMarkerLocations,		// update the marker's location for the particular commit
 			super.preSave					// proceed with the save...
 		], callback);
 	}
 
 	// create an ID for this marker
-	createId (callback) {
-		this.attributes._id = this.data.markers.createId();
+	normalizeMarkerAttributes (callback) {
+		this.attributes._id = this.data.markers.createId();	 // pre-allocate an ID
+		this.attributes.commitHashWhenCreated = this.attributes.commitHash; // save commitHash as commitHashWhenCreated
+		delete this.attributes.commitHash;
 		this.attributes.numComments = 1; // the original post for this marker, so there is 1 comment so far
 		callback();
 	}
 
-	// update the location of this marker in the marke locations structure for this stream and commit
+	// update the location of this marker in the marker locations structure for this stream and commit
 	updateMarkerLocations (callback) {
-		let id = `${this.attributes.streamId}|${this.attributes.commitHash}`.toLowerCase();
-		this.attributes.commitHashWhenCreated = this.attributes.commitHash; 
+		let id = `${this.attributes.streamId}|${this.attributes.commitHashWhenCreated}`.toLowerCase();
 		let op = {
 			$set: {
 				_forTesting: this.request.isForTesting(),	// special for-testing header for easy wiping of test data

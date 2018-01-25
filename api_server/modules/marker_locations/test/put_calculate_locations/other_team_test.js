@@ -34,7 +34,7 @@ class OtherTeamTest extends PutCalculateLocationsTest {
 				callback();
 			},
 			{
-				token: this.otherUserData.accessToken, // other user is the creator
+				token: this.teamCreatorData.accessToken, // team creator creates another repo and team
 				withEmails: [this.currentUser.email]	// but current user is included
 			}
 		);
@@ -52,7 +52,7 @@ class OtherTeamTest extends PutCalculateLocationsTest {
 				type: 'file',
 				teamId: this.otherRepo.teamId,	// using the other team
 				repoId: this.otherRepo._id,		// using the other repo
-				token: this.otherUserData.accessToken	// other user is the creator
+				token: this.teamCreatorData.accessToken	// team creator creates a stream 
 			}
 		);
 	}
