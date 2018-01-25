@@ -36,7 +36,7 @@ class UserSubscriptionGranter  {
 	}
 
 	grantTeamChannel (teamId, callback) {
-		this.grantChannel('team-' + teamId, callback);
+		this.grantChannel('team-' + teamId, callback, { includePresence: true });
 	}
 
 	getRepos (callback) {
@@ -71,7 +71,7 @@ class UserSubscriptionGranter  {
 	}
 
 	grantRepoChannel (repo, callback) {
-		this.grantChannel('repo-' + repo._id, callback);
+		this.grantChannel('repo-' + repo._id, callback, { includePresence: true });
 	}
 
 	getStreams (callback) {
@@ -121,7 +121,7 @@ class UserSubscriptionGranter  {
 		this.grantChannel('stream-' + stream._id, callback);
 	}
 
-	grantChannel (channel, callback) {
+	grantChannel (channel, callback, options = {}) {
 		this.messager.grant(
 			this.user.get('accessToken'),
 			channel,
@@ -134,7 +134,8 @@ class UserSubscriptionGranter  {
 				}
 			},
 			{
-				request: this.request
+				request: this.request,
+				includePresence: options.includePresence
 			}
 		);
 	}
