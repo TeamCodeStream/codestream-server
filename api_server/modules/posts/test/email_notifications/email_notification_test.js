@@ -261,13 +261,17 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 	validateMessage (message) {
 		message = message.message;
 		if (!message.from && !message.to) { return false; }	// ignore anything not matching
+		this.validateTemplateId(message);
 		this.validateCreator(message);
 		this.validateReceiver(message);
-		this.validateSubstitutions(message);
-		this.validateSubject(message);
-		this.validateTemplateId(message);
 		this.validateReplyTo(message);
+		this.validateSubstitutions(message);
 		return true;
+	}
+
+	// validate the template is correct for an email notification
+	validateTemplateId (message) {
+		Assert.equal(message.templateId, EmailConfig.notificationEmailTemplateId, 'incorrect templateId');
 	}
 
 	// validate that the creator name is correct by looking at the "from" field in the email data
@@ -288,13 +292,22 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		Assert.equal(to.name, receiverName, 'incorrect to name');
 	}
 
+	// validate that the reply-to info in the email is correct
+	validateReplyTo (message) {
+		// it should be set to the stream ID ... this is how we identify where the reply
+		// goes if the user replies to the email
+		let replyTo = `${this.stream._id}.${this.team._id}@${EmailConfig.replyToDomain}`;
+		Assert.equal(message.reply_to.email, replyTo, 'incorrect reply_to');
+		Assert.equal(message.reply_to.name, 'CodeStream', 'incorrect reply_to name');
+	}
+
 	// validate that all the email "substitutions" are correct, these are the fields that
 	// are set dynamically by the email notification code, sendgrid then uses these
 	// field substitutions in the template
 	validateSubstitutions (message) {
 		let substitutions = message.personalizations[0].substitutions;
-		this.validateIntro(substitutions['{{intro}}']);
-		this.validateRepoUrl(substitutions['{{repoUrl}}']);
+		this.validateSubject(substitutions['{{subject}}']);
+		this.validateAuthor(substitutions['{{author}}']);
 		if (this.wantParentPost) {
 			Assert.equal(this.parentPost.text, substitutions['{{replyText}}']);
 		}
@@ -306,64 +319,29 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			Assert.equal(codeBlock.preContext, substitutions['{{preContext}}']);
 			Assert.equal(codeBlock.postContext, substitutions['{{postContext}}']);
 		}
-		this.validateSubject(substitutions['{{subject}}']);
-		this.validateInstallText(substitutions['{{installText}}']);
 		this.validateCodeBlockDisplay(substitutions['{{displayCodeBlock}}']);
-		this.validateInstallTextDisplay(substitutions['{{displayInstallText}}']);
+		this.validatePathToFile(substitutions['{{pathToFile}}']);
+		this.validateIntro(substitutions['{{intro}}']);
 	}
 
-	// validate that the intro paragraph is correct in the email notification,
-	// given various possible scenarios
-	validateIntro (intro) {
-		let expectIntro;
-		let creatorFirstName = this.postCreator.firstName;
-		let creatorName = this.getUserName(this.postCreator);
-		let filename = Path.basename(this.stream.file);
-		let teamName = this.team.name;
-		let installLink = this.getInstallLink();
-		if (this.currentUser.isRegistered) {
-			if (this.onlineForTeam && !this.onlineForRepo) {
-				// registered user who is online only for the team, but doesn't have the repo open
-				expectIntro = `We noticed that you don’t currently have the following repository open in your IDE and didn’t want you to miss this message from ${creatorFirstName} about <b>${filename}</b>.`;
-			}
-			else {
-				// registered user who is offline
-				expectIntro = `We noticed that you don’t currently have your IDE open and didn’t want you to miss this message from ${creatorFirstName} about <b>${filename}</b>.`;
-			}
-		}
-		else if (this.firstEmail) {
-			// the first email sent to an unregistred user
-			expectIntro = `You’ve been added to ${teamName} on CodeStream, where ${creatorName} has started a discussion about <b>${filename}</b>. We’ll send you an email when the other developers on your team ask and answer questions about code, and you can participate in the discussion by simply replying to the email. Or, <a clicktracking="off" href="${installLink}">learn more about CodeStream</a> and install the plugin so that you can chat right from within your IDE!`;
+
+	// validate that the subject of the email is correct
+	validateSubject (subject) {
+		let filename = this.stream.file;
+		let expectSubject;
+		if (this.wantMention) {
+			expectSubject = `You've been mentioned in ${filename}`;
 		}
 		else {
-			// subsequent emails sent to an unregistered user
-			expectIntro = `${creatorName} has posted a new message about <b>${filename}</b>.`;
+			expectSubject = filename;
 		}
-		Assert.equal(intro, expectIntro, 'incorrect intro');
+		Assert.equal(subject, expectSubject, 'incorrect subject');
 	}
 
-	// get the expected install link ... the link we expect users to click on to find out
-	// how to install CodeStream
-	getInstallLink () {
-		let campaign = this.getCampaign();
-		return `http://codestream.com?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
-	}
-
-	// get the "campaign" field we expect to see in the email for analytics
-	getCampaign () {
-		return (
-			(this.firstEmail && this.wantMention && 'first_mention_notification_unreg') ||
-			(this.firstEmail && !this.wantMention && 'first_newmessage_notification_unreg') ||
-			(!this.firstEmail && this.wantMention && 'mention_notification_unreg') ||
-			(!this.firstEmail && !this.wantMention && 'newmessage_notification_unreg')
-		);
-	}
-
-	// get the url of the repo that we expect to see in the email
-	validateRepoUrl (repoUrl) {
-		// for now, attach https:// to the normalized url ... possible an assumption?
-		let expectUrl = `https://${this.repo.normalizedUrl}`;
-		Assert.equal(repoUrl, expectUrl, 'incorrect repo url');
+	// validate that the author, as shown in the email itself, is correct
+	validateAuthor (author) {
+		let expectAuthor = this.postCreator.username || EmailUtilities.parseEmail(this.postCreator.email).name;
+		Assert.equal(author, expectAuthor, 'author is not correct');
 	}
 
 	// validate that the style for display of the install text (instructions with link
@@ -385,45 +363,6 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		Assert.equal(wantText, text);
 	}
 
-	// validate that the subject of the email is correct, based on various scenarios
-	validateSubject () {
-		let creatorFirstName = this.postCreator.firstName;
-		let filename = Path.basename(this.stream.file);
-		if (this.wantMention) {
-			if (this.firstEmail) {
-				// the user was mentioned in the post, and this is the first email they've ever
-				// received from CodeStream
-				return `${creatorFirstName} mentioned you in a discussion about ${filename}`;
-			}
-			else {
-				// the user was mentioned in the post, and they've already received their first
-				// email from CodeStream
-				return `You've been mentioned in a discussion about ${filename}`;
-			}
-		}
-		else {
-			if (this.firstEmail) {
-				// the user was not mentioned in the post, and this is the first email
-				// they've ever received from CodeStream
-				return `${creatorFirstName} is discussing ${filename}`;
-			}
-			else {
-				// the user was not mentioned in the post, and they've already received
-				// their first email from CodeStream
-				return `New message about ${filename}`;
-			}
-		}
-	}
-
-	// validate that the install text is correct, text which shows an unregistered
-	// user how to install the plugin
-	validateInstallText (installText) {
-		if (!this.firstEmail && !this.wantRegisteredUser) {
-			let installLink = this.getInstallLink();
-			return Assert.equal(installText, `<a clicktracking=off href="${installLink}">Install the CodeStream plugin</a> and move the conversation out of your Inbox, and into your IDE.`, 'installText is incorrect');
-		}
-	}
-
 	// validate that the style for display is correct for displaying a code block
 	// (so if there is a code block, the style is not set to display:none, otherwise it is
 	validateCodeBlockDisplay (display) {
@@ -435,32 +374,54 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		}
 	}
 
-	// validate that the style for display of the install text (instructions with link
-	// to learn how to install the plugin) is correct
-	validateInstallTextDisplay (display) {
-		// if this is the first email the user has received form CodeStream, the
-		// link is present in the intro text, so make sure it is hidden ... and
-		// if the user is registered, there is no need to tell them how to install!
-		if (this.firstEmail || this.currentUser.isRegistered) {
-			Assert.equal(display, 'display:none', 'displayInstallText is not set to display:none');
+	// validate the path-to-file that we expect to see in the email
+	validatePathToFile (pathToFile) {
+		let expectPathToFile = 'https://' + Path.join(this.repo.normalizedUrl, this.stream.file);
+		Assert.equal(pathToFile, expectPathToFile, 'incorrect path-to-file');
+	}
+
+	// validate that the intro paragraph is correct in the email notification,
+	// given various possible scenarios
+	validateIntro (intro) {
+		let expectIntro;
+		let teamName = this.team.name;
+		let installLink = this.getInstallLink();
+		if (this.currentUser.isRegistered) {
+			if (this.onlineForTeam && !this.onlineForRepo) {
+				// registered user who is online only for the team, but doesn't have the repo open
+				expectIntro = `We noticed that you don’t currently have this repo open in your IDE and didn’t want you to miss this discussion. Add to the discussion by replying to this email.`;
+			}
+			else {
+				// registered user who is offline
+				expectIntro = `We noticed that you don’t currently have your IDE open and didn’t want you to miss this discussion. Add to the discussion by replying to this email.`;
+			}
+		}
+		else if (this.firstEmail) {
+			// the first email sent to an unregistred user
+			expectIntro = `You’ve been added to ${teamName} on CodeStream, where your team is currently discussing code. Add to the discussion by replying to this email. <a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
 		}
 		else {
-			Assert(!display, 'displayInstallText is set');
+			// subsequent emails sent to an unregistered user
+			expectIntro = `Add to the discussion by replying to this email. Or <a clicktracking="off" href="${installLink}">learn more about CodeStream</a> and install the plugin so that you can chat right from within your IDE!`;
 		}
+		Assert.equal(intro, expectIntro, 'incorrect intro');
 	}
 
-	// validate the template is correct for an email notification
-	validateTemplateId (message) {
-		Assert.equal(message.templateId, EmailConfig.notificationEmailTemplateId, 'incorrect templateId');
+	// get the expected install link ... the link we expect users to click on to find out
+	// how to install CodeStream
+	getInstallLink () {
+		let campaign = this.getCampaign();
+		return `http://codestream.com?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
 	}
 
-	// validate that the reply-to info in the email is correct
-	validateReplyTo (message) {
-		// it should be set to the stream ID ... this is how we identify where the reply
-		// goes if the user replies to the email
-		let replyTo = `${this.stream._id}.${this.team._id}@${EmailConfig.replyToDomain}`;
-		Assert.equal(message.reply_to.email, replyTo, 'incorrect reply_to');
-		Assert.equal(message.reply_to.name, 'CodeStream', 'incorrect reply_to name');
+	// get the "campaign" field we expect to see in the email for analytics
+	getCampaign () {
+		return (
+			(this.firstEmail && this.wantMention && 'first_mention_notification_unreg') ||
+			(this.firstEmail && !this.wantMention && 'first_newmessage_notification_unreg') ||
+			(!this.firstEmail && this.wantMention && 'mention_notification_unreg') ||
+			(!this.firstEmail && !this.wantMention && 'newmessage_notification_unreg')
+		);
 	}
 
 	// get the expected username for the given user
