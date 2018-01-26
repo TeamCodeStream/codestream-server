@@ -152,7 +152,7 @@ class PubNubClient {
 	}
 
 	// get list of users (by ID) currently subscribed to the passed channel
-	getSubscribedUsers (channel, callback) {
+	getSubscribedUsers (channel, callback, options = {}) {
 		this.pubnub.hereNow(
 			{
 				channels: [channel],
@@ -170,6 +170,9 @@ class PubNubClient {
 					return callback('unable to obtain occupants');
 				}
 				let userIds = response.channels[channel].occupants.map(occupant => occupant.uuid);
+				if (options.request) {
+					options.request.log(`Here now for ${channel}: ${userIds}`);
+				}
 				callback(null, userIds);
 			}
 		);
