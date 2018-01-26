@@ -40,7 +40,11 @@ class EmailNotificationSender {
 					return callback(`Unable to obtain subscribed users for channel ${channel}: ${error}`);
 				}
 				this.onlineUserIdsForRepo = userIds;
+				this.request.log(`These users are online for repo ${this.repo.id}: ${this.onlineUserIdsForRepo}`);
 				callback();
+			},
+			{
+				request: this.request
 			}
 		);
 	}
@@ -56,6 +60,7 @@ class EmailNotificationSender {
 					return callback(`Unable to obtain subscribed users for channel ${channel}: ${error}`);
 				}
 				this.onlineUserIdsForTeam = userIds;
+				this.request.log(`These users are online for team ${this.team.id}: ${this.onlineUserIdsForTeam}`);
 				callback();
 			}
 		);
