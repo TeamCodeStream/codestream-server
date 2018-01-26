@@ -277,10 +277,8 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 
 	// validate that the creator name is correct by looking at the "from" field in the email data
 	validateCreator (message) {
-		let creatorName = this.getUserName(this.postCreator);
-		creatorName = `${creatorName} (via CodeStream)`;
 		Assert.equal(message.from.email, 'alerts@codestream.com', 'incorrect from address');
-		Assert.equal(message.from.name, creatorName, 'incorrect from name');
+		Assert.equal(message.from.name, 'CodeStream', 'incorrect from name');
 	}
 
 	// validate that the reveiver of the email has correct name info, by looking at the
