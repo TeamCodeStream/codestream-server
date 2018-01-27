@@ -8,10 +8,6 @@ class NoAttributeTest extends PostRepoTest {
 		return `should return error when attempting to create a repo with no ${this.attribute}`;
 	}
 
-	getExpectedFields () {
-		return null;
-	}
-
 	getExpectedError () {
 		return {
 			code: 'RAPI-1001',
@@ -19,9 +15,11 @@ class NoAttributeTest extends PostRepoTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
+			// delete the specified attribute from the data to use in the request
 			delete this.data[this.attribute];
 			callback();
 		});

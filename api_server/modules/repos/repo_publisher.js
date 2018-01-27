@@ -1,3 +1,5 @@
+// handle publishing a new repo to the messager channel appropriate for the request 
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');

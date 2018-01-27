@@ -9,13 +9,15 @@ class NewRepoMessageToTeamTest extends CodeStreamMessageTest {
 		return 'the team creator should receive a message with the repo when a repo is added to the team';
 	}
 
+	// make data that needs to exist before the triggering request
 	makeData (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRepo
+			this.createOtherUser,	// create a second user who will create the repo and team
+			this.createRepo 		// have the current user create the repo, which also creates a team with the second user
 		], callback);
 	}
 
+	// create a second user who will create the repo and team
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -26,6 +28,7 @@ class NewRepoMessageToTeamTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// the current user creates the repo, which also creates a team
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -34,20 +37,24 @@ class NewRepoMessageToTeamTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				withEmails: [this.otherUserData.user.email],
-				withRandomEmails: 1,
-				token: this.token
+				withEmails: [this.otherUserData.user.email],	// include the second user in the team
+				withRandomEmails: 1,	// add another user for good measure
+				token: this.token 		// the current user is creating this repo
 			}
 		);
 	}
 
+	// set the channel name we expect to get a message on
 	setChannelName (callback) {
+		// for a new repo, it is the team channel
 		this.channelName = 'team-' + this.team._id;
 		callback();
 	}
 
 
+	// make the request that should trigger the message that gets sent out
 	generateMessage (callback) {
+		// have the second user create a second repo in the team we already created
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -55,7 +62,7 @@ class NewRepoMessageToTeamTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				token: this.otherUserData.accessToken,
+				token: this.otherUserData.accessToken,	// the second user creates this repo
 				teamId: this.team._id
 			}
 		);

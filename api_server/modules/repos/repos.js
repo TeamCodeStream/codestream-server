@@ -1,3 +1,5 @@
+// provide a module to handle requests associated with repos
+
 'use strict';
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
@@ -5,6 +7,7 @@ var RepoCreator = require('./repo_creator');
 //var RepoUpdater = require('./repo_updater');
 var Repo = require('./repo');
 
+// expose these restful routes
 const REPOS_STANDARD_ROUTES = {
 	want: ['get', 'getMany', 'post'],
 	baseRouteName: 'repos',
@@ -14,6 +17,7 @@ const REPOS_STANDARD_ROUTES = {
 	}
 };
 
+// expose additional routes 
 const REPOS_ADDITIONAL_ROUTES = [
 	{
 		method: 'get',
@@ -25,27 +29,28 @@ const REPOS_ADDITIONAL_ROUTES = [
 class Repos extends Restful {
 
 	get collectionName () {
-		return 'repos';
+		return 'repos';	// name of the data collection
 	}
 
 	get modelName () {
-		return 'repo';
+		return 'repo';	// name of the data model
 	}
 
 	get creatorClass () {
-		return RepoCreator;
+		return RepoCreator;	// use this class to instantiate repos
 	}
 
 	get modelClass () {
-		return Repo;
+		return Repo;	// use this class for the data model
 	}
 
 /*
 	get updaterClass () {
-		return RepoUpdater;
+		return RepoUpdater;	// use this class to update repos
 	}
 */
 
+	// compile all the routes to expose
 	getRoutes () {
 		let standardRoutes = super.getRoutes(REPOS_STANDARD_ROUTES);
 		return [...standardRoutes, ...REPOS_ADDITIONAL_ROUTES];

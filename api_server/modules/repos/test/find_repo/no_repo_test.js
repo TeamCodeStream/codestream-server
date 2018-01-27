@@ -13,11 +13,14 @@ class NoRepoTest extends FindRepoTest {
 		return null;
 	}
 
+	// make the path we'll use to run the test request, with pre-established query parameters
 	makePath (callback) {
+		// substitute a fake url 
 		this.queryData.url = 'https://nothingwhatsoever.com';
 		super.makePath(callback);
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
 		Assert.deepEqual({}, data, 'data is not empty as expected');
 	}

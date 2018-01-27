@@ -1,3 +1,5 @@
+// handle unit tests for the "GET /repos/:id" request
+
 'use strict';
 
 var GetMyRepoTest = require('./get_my_repo_test');

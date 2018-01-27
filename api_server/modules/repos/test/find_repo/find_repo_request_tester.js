@@ -1,3 +1,5 @@
+// handle unit tests for the "GET /no-auth/find-repo" request
+
 'use strict';
 
 var FindRepoTest = require('./find_repo_test');

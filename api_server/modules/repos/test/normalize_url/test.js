@@ -1,9 +1,14 @@
+// series of test cases for testing normalization of URLs
+
+'use strict';
+
 var NormalizeURL = require('../../normalize_url');
 var Assert = require('assert');
 
 // make jshint happy
 /* globals it */
 
+// for each test case, first url should normalize to the second url
 var TestCases = [
 	[ 'http://github.com/owner/path', 'github.com/owner/path' ],
 	[ 'https://github.com/owner/path', 'github.com/owner/path' ],

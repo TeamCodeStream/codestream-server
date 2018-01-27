@@ -15,7 +15,9 @@ class NoAttributeTest extends FindRepoTest {
 		};
 	}
 
+	// make the path we'll use to run the test request, with pre-established query parameters
 	makePath (callback) {
+		// remove the attribute from query parameters before really making the path
 		delete this.queryData[this.attribute];
 		super.makePath(callback);
 	}

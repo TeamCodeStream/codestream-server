@@ -15,7 +15,9 @@ class NotFoundTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// substitute a non-existent repo ID
 		this.path = '/repos/' + ObjectID();
 		callback();
 	}

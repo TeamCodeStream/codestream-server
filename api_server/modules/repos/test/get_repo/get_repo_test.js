@@ -10,15 +10,17 @@ class GetRepoTest extends CodeStreamAPITest {
 		return { repo: RepoTestConstants.EXPECTED_REPO_FIELDS };
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createRandomRepoByMe,
-			this.createOtherUser,
-			this.createRandomRepo,
-			this.setPath
+			this.createRandomRepoByMe,	// current user creates a repo and team
+			this.createOtherUser,		// create a second registered user
+			this.createRandomRepo,		// second user creates another repo and team, possibly without the current user, as needed
+			this.setPath				// set the path to use for the test request
 		], callback);
 	}
 
+	// the current user creates a repo and team
 	createRandomRepoByMe (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -27,12 +29,13 @@ class GetRepoTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withRandomEmails: 2,
-				token: this.token
+				withRandomEmails: 2,	// throw in a couple extra users
+				token: this.token 		// current user's access token, they become the creator of the repo and team
 			}
 		);
 	}
 
+	// create another registered user
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -43,6 +46,7 @@ class GetRepoTest extends CodeStreamAPITest {
 		);
 	}
 
+	// have the second user create their own repo and team, which the current user may or not be on, depending on the test
 	createRandomRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -51,14 +55,16 @@ class GetRepoTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withRandomEmails: 2,
-				withEmails: this.withoutMe ? null : [this.currentUser.email],
-				token: this.otherUserData.accessToken
+				withRandomEmails: 2,	// throw in a couple extra users
+				withEmails: this.withoutMe ? null : [this.currentUser.email],	// include the current user or not, depending on the test
+				token: this.otherUserData.accessToken	// the "second" user creates the repo
 			}
 		);
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// make sure we didn't get attributes not suitable for the client 
 		this.validateSanitized(data.repo, RepoTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

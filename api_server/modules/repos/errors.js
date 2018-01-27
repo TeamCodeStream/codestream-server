@@ -1,3 +1,5 @@
+// Errors related to the repos module
+
 'use strict';
 
 const ERRORS = {

@@ -1,3 +1,5 @@
+// attributes for repo documents/models
+
 'use strict';
 
 module.exports = {

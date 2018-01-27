@@ -6,7 +6,7 @@ class AddUsersTest extends PostRepoTest {
 
 	constructor (options) {
 		super(options);
-		this.testOptions.wantRandomEmails = true;
+		this.testOptions.wantRandomEmails = true;	// add a few random emails to the team we create, we should see those users in the response
 	}
 
 	get description () {

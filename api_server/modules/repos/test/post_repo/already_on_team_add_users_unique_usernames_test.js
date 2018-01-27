@@ -6,15 +6,12 @@ class AlreadyOnTeamAddUsersUniqueUsernamesTest extends AlreadyOnTeamAddUsersTest
 
 	constructor (options) {
 		super(options);
+		// adding users to the team on-the-fly, try to add one with a username that conflicts with an already existing user
 		this.testOptions.wantConflictingUserWithExistingUser = true;
 	}
 
 	get description () {
 		return 'should return an error when a user who is already on a team tries to create a repo with emails when there is a username conflict with an existing email';
-	}
-
-	getExpectedFields () {
-		return null;
 	}
 
 	getExpectedError () {

@@ -1,3 +1,5 @@
+// base class for many of the POST /repos request tests, configurable according to various options
+
 'use strict';
 
 var Assert = require('assert');
@@ -32,23 +34,26 @@ class PostRepoTest extends CodeStreamAPITest {
 	getExpectedFields () {
 		let expectedResponse = RepoTestConstants.EXPECTED_REPO_RESPONSE;
 		if (this.testOptions.teamNotRequired) {
+			// not creating a team on-the-fly, so don't expect a team and company in the response
 			delete expectedResponse.team;
 			delete expectedResponse.company;
 		}
 		return expectedResponse;
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createMixedUsers,
-			this.createOtherRepo,
-			this.createConflictingUserWithCurrentUser,
-			this.createConflictingUserWithExistingUser,
-			this.makeRepoData
+			this.createOtherUser,	// create a second registered user as needed
+			this.createMixedUsers,	// create several other users, both registered and unregistered, as needed
+			this.createOtherRepo,	// create a first repo, which also creates a team... for testing adding another repo to the same team
+			this.createConflictingUserWithCurrentUser,	// if needed, try to create a user whose username will conflict with the current user's username
+			this.createConflictingUserWithExistingUser,	// if needed, try to create a user whose username will conflict with an existing user in the team
+			this.makeRepoData		// make the data to use for the POST /repos request to be tested
 		], callback);
 	}
 
+	// create a second registered user, as needed
 	createOtherUser (callback) {
 		if (!this.testOptions.wantOtherUser) {
 			return callback();
@@ -62,26 +67,30 @@ class PostRepoTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create several registered and unregistered users, to be added to the team when the repo is created
 	createMixedUsers (callback) {
 		if (!this.testOptions.wantRandomEmails) {
 			return callback();
 		}
 		BoundAsync.series(this, [
-			this.createRandomUnregisteredUsers,
-			this.createRandomRegisteredUsers,
-			this.createRandomEmails,
-			this.createRandomNamedUsers
+			this.createRandomUnregisteredUsers,	// some already existing unregistered users
+			this.createRandomRegisteredUsers,	// some already existing registered users
+			this.createRandomEmails,			// some random users not known to the system yet
+			this.createRandomNamedUsers			// some random users not known to the system yet, but who have names (gleaned from git in practice)
 		], callback);
 	}
 
+	// create some unregistered users
 	createRandomUnregisteredUsers (callback) {
 		this.createRandomUsers(callback, { noConfirm: true});
 	}
 
+	// create some registered users
 	createRandomRegisteredUsers (callback) {
 		this.createRandomUsers(callback);
 	}
 
+	// create some users, unregistered or registered as required
 	createRandomUsers (callback, options) {
 		this.userFactory.createRandomUsers(
 			2,
@@ -89,13 +98,15 @@ class PostRepoTest extends CodeStreamAPITest {
 				if (error) { return callback(error); }
 				this.userData = [...this.userData, ...response];
 				let emails = response.map(userData => { return userData.user.email; });
-				this.teamEmails = [...this.teamEmails, ...emails];
+				this.teamEmails = [...this.teamEmails, ...emails];	// save the emails of all users created
 				callback();
 			},
 			options
 		);
 	}
 
+	// create a few random emails representing users not yet known to the system, 
+	// we'll try to add these when we create the repo
 	createRandomEmails (callback) {
 		for (let i = 0; i < 2; i++) {
 			this.teamEmails.push(this.userFactory.randomEmail());
@@ -103,6 +114,8 @@ class PostRepoTest extends CodeStreamAPITest {
 		callback();
 	}
 
+	// create a few random users representing users not yet known to the system, but who have first and last names
+	// (gleaned from git in practice) ... we'll try to add these when we create the repo
 	createRandomNamedUsers (callback) {
 		for (let i = 0; i < 2; i++) {
 			this.teamUsers.push(this.userFactory.randomNamedUser());
@@ -110,6 +123,8 @@ class PostRepoTest extends CodeStreamAPITest {
 		callback();
 	}
 
+	// create a repo, this will precede the repo we try to create in the actual test, for testing adding a 
+	// repo to an existing team
 	createOtherRepo (callback) {
 		if (!this.testOptions.wantOtherRepo) {
 			return callback();
@@ -122,6 +137,8 @@ class PostRepoTest extends CodeStreamAPITest {
 		}, this.otherRepoOptions);
 	}
 
+	// if needed, creating a user whose username will conflict with the current user's username,
+	// causing an error when the attempt to create a repo (and team) is made
 	createConflictingUserWithCurrentUser (callback) {
 		if (!this.testOptions.wantConflictingUserWithCurrentUser) {
 			return callback();
@@ -136,6 +153,8 @@ class PostRepoTest extends CodeStreamAPITest {
 		);
 	}
 
+	// if needed, creating a user whose username will conflict with an existing user's username,
+	// causing an error when the attempt to create a repo (and team) is made
 	createConflictingUserWithExistingUser (callback) {
 		if (!this.testOptions.wantConflictingUserWithExistingUser) {
 			return callback();
@@ -151,13 +170,17 @@ class PostRepoTest extends CodeStreamAPITest {
 		);
 	}
 
+	// make the data to be used when making the POST /repos request
 	makeRepoData (callback) {
 		if (this.teamEmails.length > 0) {
+			// include pre-generated emails
 			this.repoOptions.withEmails = this.teamEmails;
 		}
 		if (this.teamUsers.length > 0) {
+			// include emails of pre-created users
 			this.repoOptions.withUsers = this.teamUsers;
 		}
+		// get some random data to use, with users added as needed
 		this.repoFactory.getRandomRepoData((error, data) => {
 			if (error) { return callback(error); }
 			this.data = data;
@@ -166,6 +189,7 @@ class PostRepoTest extends CodeStreamAPITest {
 		}, this.repoOptions);
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
 		let repo = data.repo;
 		let errors = [];
@@ -180,15 +204,18 @@ class PostRepoTest extends CodeStreamAPITest {
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		if (this.teamEmails.length > 0 || this.teamUsers.length > 0) {
-			this.validateUsers(data);
+			this.validateUsers(data);	// validate any users created on the fly
 		}
 		if (!this.testOptions.teamNotRequired) {
+			// validate the team (and company) created on the fly with the repo
 			this.validateTeam(data);
 			this.validateCompany(data);
 		}
+		// make sure we didn't get any attributes not suitable to be sent to the client
 		this.validateSanitized(repo, RepoTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 
+	// for requests that created a team on the fly, validate the team created
 	validateTeam (data) {
 		let team = data.team;
 		let repo = data.repo;
@@ -206,9 +233,11 @@ class PostRepoTest extends CodeStreamAPITest {
 			((team.creatorId === this.currentUser._id) || errors.push('team.creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		// make sure we didn't get any attributes not suitable to be sent to the client
 		this.validateSanitized(team, RepoTestConstants.UNSANITIZED_TEAM_ATTRIBUTES);
 	}
 
+	// for requests that created a team on the fly, validate the company created
 	validateCompany (data) {
 		let repo = data.repo;
 		let team = data.team;
@@ -224,9 +253,11 @@ class PostRepoTest extends CodeStreamAPITest {
 			((company.creatorId === this.currentUser._id) || errors.push('company.creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		// make sure we didn't get any attributes not suitable to be sent to the client
 		this.validateSanitized(team, RepoTestConstants.UNSANITIZED_COMPANY_ATTRIBUTES);
 	}
 
+	// for requests that created users on the fly, validate the users created
 	validateUsers (data) {
 		this.teamEmails.push(this.currentUser.email);
 		Assert(data.users instanceof Array, 'no users array returned');
@@ -241,6 +272,7 @@ class PostRepoTest extends CodeStreamAPITest {
 			if (data.team) {
 				Assert(data.team.memberIds.indexOf(user._id) !== -1, `user ${user.email} not a member of the team for the repo`);
 			}
+			// make sure we didn't get any attributes not suitable to be sent to the client
 			this.validateSanitized(user, RepoTestConstants.UNSANITIZED_USER_ATTRIBUTES);
 		});
 		if (!this.testOptions.teamNotRequired) {

@@ -14,7 +14,9 @@ class ShaMismatchTest extends FindRepoTest {
 		};
 	}
 
+	// make the path we'll use to run the test request, with pre-established query parameters
 	makePath (callback) {
+		// substitute a different commit hash in the request
 		this.queryData.firstCommitHash = this.repoFactory.randomCommitHash();
 		super.makePath(callback);
 	}

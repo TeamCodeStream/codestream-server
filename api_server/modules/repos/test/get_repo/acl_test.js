@@ -6,7 +6,7 @@ class ACLTest extends GetRepoTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;
+		this.withoutMe = true;	// create the repo but don't include current user in the team
 	}
 
 	get description () {
@@ -19,7 +19,9 @@ class ACLTest extends GetRepoTest {
 		};
 	}
 
+	// set the path to use in the test request
 	setPath (callback) {
+		// try to fetch the other repo
 		this.path = '/repos/' + this.otherRepo._id;
 		callback();
 	}

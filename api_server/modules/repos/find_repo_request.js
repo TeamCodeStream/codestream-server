@@ -1,3 +1,7 @@
+// handle the 'GET /no-auth/find-repo' request, to find if a repo is already known to the system, and if
+// so, what team owns it and what are the usernames of the users on the team ... authorization is by
+// having the correct hash for the first commit of the repo
+
 'use strict';
 
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
@@ -14,10 +18,10 @@ class FindRepoRequest extends RestfulRequest {
 
 	process (callback) {
 		BoundAsync.series(this, [
-			this.require,
-			this.normalize,
-			this.findRepo,
-			this.getUsernames
+			this.require,		// handle required request parameters
+			this.normalize,		// normalize the request parameters
+			this.findRepo,		// attempt to find the repo
+			this.getUsernames	// get the unique usernames for the team that owns the repo
 		], callback);
 	}
 
@@ -34,12 +38,15 @@ class FindRepoRequest extends RestfulRequest {
 		);
 	}
 
+	// normalize the request parameters
 	normalize (callback) {
+		// normalize the incoming URL and enforce lowercase on the first commit hash
 		this.normalizedUrl = NormalizeURL(decodeURIComponent(this.request.query.url));
 		this.request.query.firstCommitHash = this.request.query.firstCommitHash.toLowerCase();
 		process.nextTick(callback);
 	}
 
+	// attempt to find the repo by (normalized) URL
 	findRepo (callback) {
 		let query = {
 			normalizedUrl: this.normalizedUrl
@@ -53,6 +60,7 @@ class FindRepoRequest extends RestfulRequest {
 					return callback();	// no matching (active) repos, we'll just send an empty response
 				}
 				if (this.repo.get('firstCommitHash') !== this.request.query.firstCommitHash) {
+					// oops, you have to have the correct hash for the first commit
 					return callback(this.errorHandler.error('shaMismatch'));
 				}
 				this.responseData.repo = this.repo.getSanitizedObject();
@@ -66,12 +74,18 @@ class FindRepoRequest extends RestfulRequest {
 		);
 	}
 
+	// get the set of unique usernames represented by the users who are on the team that owns the repo
 	getUsernames (callback) {
-		if (!this.repo) { return callback(); }
+		if (!this.repo) { 
+			// did not find a matching repo
+			return callback(); 
+		}
 		let teamId = this.repo.get('teamId');
 		let query = {
 			teamIds: teamId
 		};
+		// query for all users in the team that owns the repo, but only send back the usernames
+		// for users who have a username, and users who aren't deactivated
 		this.data.users.getByQuery(
 			query,
 			(error, users) => {

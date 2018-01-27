@@ -1,3 +1,5 @@
+// provide a module to handle requests associated with posts
+
 'use strict';
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
@@ -6,6 +8,7 @@ var PostUpdater = require('./post_updater');
 var PostDeleter = require('./post_deleter');
 var Post = require('./post');
 
+// expose these restful routes
 const POST_STANDARD_ROUTES = {
 	want: ['get', 'getMany', 'post', 'put', 'delete'],
 	baseRouteName: 'posts',
@@ -20,27 +23,27 @@ const POST_STANDARD_ROUTES = {
 class Posts extends Restful {
 
 	get collectionName () {
-		return 'posts';
+		return 'posts';	// name of the data collection
 	}
 
 	get modelName () {
-		return 'post';
+		return 'post';	// name of the data model
 	}
 
 	get creatorClass () {
-		return PostCreator;
+		return PostCreator;	// use this class to instantiate posts
 	}
 
 	get modelClass () {
-		return Post;
+		return Post;	// use this class for the data model
 	}
 
 	get updaterClass () {
-		return PostUpdater;
+		return PostUpdater;	// use this class to update posts
 	}
 
 	get deleterClass () {
-		return PostDeleter;
+		return PostDeleter;	// use this class to delete (deactivate) posts
 	}
 	
 	getRoutes () {

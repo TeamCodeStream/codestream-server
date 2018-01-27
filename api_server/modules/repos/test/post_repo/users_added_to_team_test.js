@@ -9,13 +9,15 @@ class UsersAddedToTeamTest extends CodeStreamMessageTest {
 		return 'users on the the team when new users are added to the team should receive a message with the new users';
 	}
 
+	// make the data needed before triggering the actual test
 	makeData (callback) {
 		BoundAsync.series(this, [
-			this.createRepo,
-			this.createOtherUser
+			this.createRepo,		// create a repo (and team)
+			this.createOtherUser	// create a second registered user
 		], callback);
 	}
 
+	// create the pre-existing repo to use for the test
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -25,12 +27,13 @@ class UsersAddedToTeamTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				token: this.token,
-				withRandomEmails: 1
+				token: this.token,	// "current" user creates the repo
+				withRandomEmails: 1	// include another unregistered user for good measure
 			}
 		);
 	}
 
+	// create a second registered user
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -41,13 +44,17 @@ class UsersAddedToTeamTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// set the name of the channel on which to listen for messages
 	setChannelName (callback) {
+		// for knowing which users are added to a team, this is the team channel
 		this.channelName = 'team-' + this.team._id;
 		callback();
 	}
 
-
+	// issue the request that will generate the message we want to listen for
 	generateMessage (callback) {
+		// "create" the (pre-existing) repo, and add some users while we're add it, this should trigger
+		// a message that the users have been added to the team
 		this.repoFactory.createRepo(
 			{
 				url: this.repo.url,
@@ -57,10 +64,11 @@ class UsersAddedToTeamTest extends CodeStreamMessageTest {
 					this.userFactory.randomEmail()
 				]
 			},
-			this.otherUserData.accessToken,
+			this.otherUserData.accessToken,	// we'll have the "second" user create the repo
 			(error, response) => {
 				if (error) { return callback(error); }
-				let addedMemberIds = response.users.map(user => user._id);
+				// we expect to get both the users that were added, and a message for the team adding them as members
+				let addedMemberIds = response.users.map(user => user._id);	
 				this.message = {
 					users: response.users,
 					team: {

@@ -1,4 +1,4 @@
-// handle unit tests for the "POST /posts" request
+// handle unit tests for the posts module
 
 'use strict';
 

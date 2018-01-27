@@ -1,3 +1,5 @@
+// handle granting permission for users to subscribe to the messager channel for a repo
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -8,13 +10,15 @@ class RepoSubscriptionGranter  {
 		Object.assign(this, options);
 	}
 
+	// grant subscription permission to all indicated users to subscribe to the repo channel for this repo
 	grantToUsers (callback) {
 		BoundAsync.series(this, [
-			this.getTokens,
-			this.grantRepoChannel
+			this.getTokens,		// get the access tokens for each registered user 
+			this.grantRepoChannel	// grant subscription permissions for all of these user
 		], callback);
 	}
 
+	// get access tokens for each registered user
 	getTokens (callback) {
 		this.tokens = [];
 		BoundAsync.forEachLimit(
@@ -26,6 +30,7 @@ class RepoSubscriptionGranter  {
 		);
 	}
 
+	// get an access token for a single user, only registered users can have access tokens
 	getTokenForRegisteredUser (user, callback) {
 		if (user.get('isRegistered')) {
 			this.tokens.push(user.get('accessToken'));
@@ -33,6 +38,7 @@ class RepoSubscriptionGranter  {
 		process.nextTick(callback);
 	}
 
+	// grant permission to all the indicated users to subscribe to the repo channel
 	grantRepoChannel (callback) {
 		if (this.tokens.length === 0) {
 			return callback();
@@ -50,7 +56,7 @@ class RepoSubscriptionGranter  {
 				}
 			},
 			{
-				includePresence: true,
+				includePresence: true,	// we listen to "per-repo" presence
 				request: this.request
 			}
 		);

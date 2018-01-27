@@ -1,3 +1,5 @@
+// provides the Repo model for handling posts
+
 'use strict';
 
 var CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
@@ -11,8 +13,11 @@ class Repo extends CodeStreamModel {
 		return new CodeStreamModelValidator(RepoAttributes);
 	}
 
+	// right before the repo is saved...
 	preSave (callback, options) {
+		// enforce normalization of the URL
 		this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
+		// enforce lowercase on all IDs and the first commit hash
 		this.lowerCase('firstCommitHash');
 		this.lowerCase('companyId');
 		this.lowerCase('teamId');

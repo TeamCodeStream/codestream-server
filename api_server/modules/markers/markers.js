@@ -26,7 +26,7 @@ class Markers extends Restful {
 	}
 
 	get creatorClass () {
-		return MarkerCreator;	// use this model to instantiate markers
+		return MarkerCreator;	// use this class to instantiate markers
 	}
 
 	get modelClass () {

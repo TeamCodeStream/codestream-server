@@ -1,3 +1,5 @@
+// handle unit tests for the "GET /repos" request
+
 'use strict';
 
 var GetReposByTeamTest = require('./get_repos_by_team_test');
