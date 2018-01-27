@@ -46,7 +46,6 @@ class CodeStreamEmails {
 	sendEmailNotification (options, callback) {
 		const { user, creator, post, team, repo, stream, request } = options;
 		const email = user.get('email');
-		const authorName = EmailUtils.getUserName(creator);
 		const userName = EmailUtils.getUserName(user);
 		if (request) {
 			request.log(`Sending email notification to ${email}, post ${post.id}`);
@@ -81,7 +80,7 @@ class CodeStreamEmails {
 		// let SendGrid handle sending the email, they have an email notification template
 		this.sendgridEmail.sendEmail(
 			{
-				from: { email: this.senderEmail, name: `${authorName} (via CodeStream)` },
+				from: { email: this.senderEmail, name: `CodeStream` },
 				to: { email: email, name: userName },
 				replyTo: { email: replyTo, name: 'CodeStream' },
 				subject: subject,
@@ -159,7 +158,7 @@ class CodeStreamEmails {
 			return `You’ve been added to ${teamName} on CodeStream, where your team is currently discussing code. Add to the discussion by replying to this email. <a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
 		}
 		else {
-			return `Add to the discussion by replying to this email. Or <a clicktracking="off" href="${installLink}">learn more about CodeStream</a> and install the plugin so that you can chat right from within your IDE!`;
+			return `Add to the discussion by replying to this email. <a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
 		}
 	}
 

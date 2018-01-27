@@ -7,6 +7,7 @@ var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Path = require('path');
 const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
+const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 
 class EmailNotificationTest extends CodeStreamMessageTest {
 
@@ -276,10 +277,8 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 
 	// validate that the creator name is correct by looking at the "from" field in the email data
 	validateCreator (message) {
-		let creatorName = this.getUserName(this.postCreator);
-		creatorName = `${creatorName} (via CodeStream)`;
 		Assert.equal(message.from.email, 'alerts@codestream.com', 'incorrect from address');
-		Assert.equal(message.from.name, creatorName, 'incorrect from name');
+		Assert.equal(message.from.name, 'CodeStream', 'incorrect from name');
 	}
 
 	// validate that the reveiver of the email has correct name info, by looking at the
@@ -402,7 +401,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		}
 		else {
 			// subsequent emails sent to an unregistered user
-			expectIntro = `Add to the discussion by replying to this email. Or <a clicktracking="off" href="${installLink}">learn more about CodeStream</a> and install the plugin so that you can chat right from within your IDE!`;
+			expectIntro = `Add to the discussion by replying to this email. <a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
 		}
 		Assert.equal(intro, expectIntro, 'incorrect intro');
 	}
