@@ -165,7 +165,10 @@ class CodeStreamEmails {
 
 	// clean this text for email 
 	cleanForEmail (text) {
-		return HtmlEscape.escapeHtml(text).replace(/\n/g, '<br/>').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+		return HtmlEscape.escapeHtml(text)
+			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+			.replace(/^ +/gm, match => { return match.replace(/ /g, '&nbsp;'); })
+			.replace(/\n/g, '<br/>');
 	}
 }
 

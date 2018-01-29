@@ -210,13 +210,17 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 					// in the post
 					data.mentionedUserIds = [this.currentUser._id];
 				}
-				// if we want multi-line text, do it now
+				// if we want multi-line text, do it now, in this case linefeeds should be replaced with <br/>
 				if (this.wantMultiLine) {
 					this.randomDataTextAdd(data, '\n');
 				}
-				// if we want tabs, do it now
+				// if we want tabs, do it now, these should get replaced with &nbsp x 4, to be preserved in the email
 				if (this.wantTabs) {
 					this.randomDataTextAdd(data, '\t');
+				}
+				// if we want leading spaces, do it now ... these should get replaced with &nbsp; to avoid google trimming them
+				if (this.wantLeadingSpaces) {
+					this.randomDataTextAdd(data, '\n    ');
 				}
 				// if we wanted a parent post, then make this post a reply
 				if (this.parentPost) {
@@ -379,7 +383,10 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 
 	// validate that the text of the email is correct
 	validateTextField (actual, expect) {
-		expect = expect.replace(/\n/g, '<br/>').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+		expect = expect
+			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+			.replace(/^ +/gm, match => { return match.replace(/ /g, '&nbsp;'); })
+			.replace(/\n/g, '<br/>');
 		Assert.equal(actual, expect);
 	}
 
