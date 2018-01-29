@@ -212,9 +212,11 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 				}
 				// if we want multi-line text, do it now
 				if (this.wantMultiLine) {
-					let index1 = this.postFactory.randomUpto(data.text.length);
-					let index2 = index1 + this.postFactory.randomUpto(data.text.length - index1);
-					data.text = `${data.text.slice(0, index1)} \n ${data.text.slice(index1, index2)} \n ${data.text.slice(index2)}`;
+					this.randomDataTextAdd(data, '\n');
+				}
+				// if we want tabs, do it now
+				if (this.wantTabs) {
+					this.randomDataTextAdd(data, '\t');
 				}
 				// if we wanted a parent post, then make this post a reply
 				if (this.parentPost) {
@@ -228,6 +230,23 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 				wantCodeBlocks: this.wantCodeBlock ? 1 : 0	// for testing code in the email
 			}
 		);
+	}
+
+	// add random stuff to the text data in the post
+	randomDataTextAdd (data, stuff) {
+		data.text = this.randomTextAdd(data.text, stuff);
+		(data.codeBlocks || []).forEach(codeBlock => {
+			codeBlock.preContext = this.randomTextAdd(codeBlock.preContext, stuff);
+			codeBlock.code = this.randomTextAdd(codeBlock.code, stuff);
+			codeBlock.postContext = this.randomTextAdd(codeBlock.postContext, stuff);
+		});
+	}
+
+	// add random stuff to text
+	randomTextAdd (text, stuff) {
+		let index1 = this.postFactory.randomUpto(text.length);
+		let index2 = index1 + this.postFactory.randomUpto(text.length - index1);
+		return `${text.slice(0, index1)} ${stuff} ${text.slice(index1, index2)} ${stuff} ${text.slice(index2)}`;
 	}
 
 	// set the channel name to listen for the email message on
@@ -313,12 +332,12 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			Assert.equal(this.parentPost.text, substitutions['{{replyText}}']);
 		}
 		this.validateReplyToDisplay(substitutions['{{displayReplyTo}}']);
-		this.validateText(substitutions['{{text}}']);
+		this.validateTextField(substitutions['{{text}}'], this.post.text);
 		if (this.wantCodeBlock) {
 			let codeBlock = this.post.codeBlocks[0];
-			Assert.equal(codeBlock.code, substitutions['{{code}}']);
-			Assert.equal(codeBlock.preContext, substitutions['{{preContext}}']);
-			Assert.equal(codeBlock.postContext, substitutions['{{postContext}}']);
+			this.validateTextField(substitutions['{{code}}'], codeBlock.code);
+			this.validateTextField(substitutions['{{preContext}}'], codeBlock.preContext);
+			this.validateTextField(substitutions['{{postContext}}'], codeBlock.postContext);
 		}
 		this.validateCodeBlockDisplay(substitutions['{{displayCodeBlock}}']);
 		this.validatePathToFile(substitutions['{{pathToFile}}']);
@@ -359,9 +378,9 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 	}
 
 	// validate that the text of the email is correct
-	validateText (text) {
-		let wantText = this.post.text.replace(/\n/g, '<br/>');
-		Assert.equal(wantText, text);
+	validateTextField (actual, expect) {
+		expect = expect.replace(/\n/g, '<br/>').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+		Assert.equal(actual, expect);
 	}
 
 	// validate that the style for display is correct for displaying a code block
