@@ -46,6 +46,7 @@ class CodeStreamEmails {
 	sendEmailNotification (options, callback) {
 		const { user, creator, post, team, repo, stream, request } = options;
 		const email = user.get('email');
+		const authorName = EmailUtils.getUserName(creator);
 		const userName = EmailUtils.getUserName(user);
 		if (request) {
 			request.log(`Sending email notification to ${email}, post ${post.id}`);
@@ -80,7 +81,7 @@ class CodeStreamEmails {
 		// let SendGrid handle sending the email, they have an email notification template
 		this.sendgridEmail.sendEmail(
 			{
-				from: { email: this.senderEmail, name: `CodeStream` },
+				from: { email: this.senderEmail, name: `${authorName} (via CodeStream)` },
 				to: { email: email, name: userName },
 				replyTo: { email: replyTo, name: 'CodeStream' },
 				subject: subject,
