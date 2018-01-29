@@ -228,10 +228,9 @@ class PostCreator extends ModelCreator {
 			return callback(); // not an on-the-fly stream creation
 		}
 		this.attributes.stream.teamId = this.team.id;
-		this.streamCreator = new StreamCreator({
+		new StreamCreator({
 			request: this.request
-		});
-		this.streamCreator.createStream(
+		}).createStream(
 			this.attributes.stream,
 			(error, stream) => {
 				if (error) { return callback(error); }
@@ -239,7 +238,7 @@ class PostCreator extends ModelCreator {
 				this.attributes.streamId = stream.id;
 				this.attachToResponse.stream = this.stream.getSanitizedObject(); // put the stream object in the request response
 				delete this.attributes.stream;
-				this.createdStream = !this.streamCreator.didExist;
+				this.createdStream = true;
 				process.nextTick(callback);
 			}
 		);
@@ -339,8 +338,7 @@ class PostCreator extends ModelCreator {
 					},
 					{
 						databaseOptions: {
-							fields: { nextSeqNum: 1 },
-							new: true
+							fields: { nextSeqNum: 1 }
 						}
 					}
 				);

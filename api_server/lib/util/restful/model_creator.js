@@ -187,7 +187,6 @@ class ModelCreator {
 
 	// update an existing document that matches the input attributes
 	update (callback) {
-		this.didExist = true;	// caller might want to know whether we really created a document or not
 		if (this.dontSaveIfExists) {
 			// or don't bother if the derived class says so
 			this.model = this.existingModel;
@@ -199,6 +198,7 @@ class ModelCreator {
 			(error, updatedModel) => {
 				if (error) { return callback(error); }
 				this.model = updatedModel;
+				this.didExist = true;	// caller might want to know whether we really created a document or not
 				process.nextTick(callback);
 			}
 		);
