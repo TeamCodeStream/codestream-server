@@ -6,12 +6,12 @@ class MultiLineTest extends EmailNotificationTest {
 
 	constructor (options) {
 		super(options);
-		this.wantMultiLine = true;
+		this.wantTabs = true;
 		this.wantCodeBlock = true;
 	}
 
 	get description () {
-		return 'email notification for post with multi-line text should have the linefeeds translated into html line breaks';
+		return 'email notification for post with tabs should have the tabs translated into non-breaking spaces';
 	}
 }
 

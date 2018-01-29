@@ -14,6 +14,7 @@ var OfflineForRepoTest = require('./offline_for_repo_test');
 var CodeBlockTest = require('./code_block_test');
 var MultiLineTest = require('./multi_line_test');
 var HtmlEscapeTest = require('./html_escape_test');
+var TabTest = require('./tab_test');
 var OnlineNoEmailTest = require('./online_no_email_test');
 var CreatorNoEmailTest = require('./creator_no_email_test');
 var ReplyTest = require('./reply_test');
@@ -43,6 +44,7 @@ class EmailNotificationTester {
 		new CodeBlockTest().test();
 		new MultiLineTest().test();
 		new HtmlEscapeTest().test();
+		new TabTest().test();
 		new OnlineNoEmailTest().test();
 		new CreatorNoEmailTest().test();
 		new ReplyTest().test();
