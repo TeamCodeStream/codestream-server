@@ -6,7 +6,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 class NewFileStreamMessageToTeamTest extends CodeStreamMessageTest {
 
 	get description () {
-		return 'members of the team should receive a message with the stream when a post is posted to a file stream created on the fly';
+		return 'members of the team should receive a message with the stream and the post when a post is posted to a file stream created on the fly';
 	}
 
 	// make the data that triggers the message to be received
@@ -81,7 +81,7 @@ class NewFileStreamMessageToTeamTest extends CodeStreamMessageTest {
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = { stream: response.stream };	// the message should look like this
+				this.message = response; // the message should look just like the response
 				callback();
 			},
 			{
