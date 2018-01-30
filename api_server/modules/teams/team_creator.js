@@ -120,7 +120,9 @@ class TeamCreator extends ModelCreator {
 
 	preSave (callback) {
 		this.attributes.creatorId = this.user.id;
-		this.attributes._forTesting = this.request.isForTesting();	// special for-testing header for easy wiping of test data
+		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
+			this.attributes._forTesting = true;
+		}
 		BoundAsync.series(this, [
 			this.checkCreateUsers,
 			this.checkUsernamesUnique,

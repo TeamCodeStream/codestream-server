@@ -96,7 +96,9 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 			$set: this.update
 		};
 		update.$set.teamId = this.teamId;
-		update.$set._forTesting = this.isForTesting();	// special for-testing header for easy wiping of test data
+		if (this.isForTesting()) { // special for-testing header for easy wiping of test data
+			update.$set._forTesting = true;
+		}
 		this.data.markerLocations.applyOpById(
 			id,
 			update,

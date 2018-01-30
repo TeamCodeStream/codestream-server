@@ -136,7 +136,9 @@ class PostCreator extends ModelCreator {
 			this.attributes.commitHashWhenPosted = this.attributes.commitHashWhenPosted.toLowerCase();
 		}
 		this.attributes.creatorId = this.user.id;
-		this.attributes._forTesting = this.request.isForTesting();	// special for-testing header for easy wiping of test data
+		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
+			this.attributes._forTesting = true;
+		}
 		BoundAsync.series(this, [
 			this.getStream,			// get the stream for the post
 			this.getRepo,			// get the repo (for posts in file-type streams)
