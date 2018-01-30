@@ -116,7 +116,7 @@ class StreamCreator extends ModelCreator {
 		this.attributes.creatorId = this.user.id;
 		this.attributes._forTesting = this.request.isForTesting();	// special for-testing header for easy wiping of test data
 		if (!this.existingModel) {
-			this.attributes.nextSeqNum = 1;
+			this.attributes.nextSeqNum = this.nextSeqNum || 1;
 		}
 		BoundAsync.series(this, [
 			this.createId,

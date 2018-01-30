@@ -229,7 +229,8 @@ class PostCreator extends ModelCreator {
 		}
 		this.attributes.stream.teamId = this.team.id;
 		new StreamCreator({
-			request: this.request
+			request: this.request,
+			nextSeqNum: 2
 		}).createStream(
 			this.attributes.stream,
 			(error, stream) => {
