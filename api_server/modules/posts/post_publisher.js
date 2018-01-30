@@ -12,14 +12,14 @@ class PostPublisher {
 	}
 
 	publishPost (callback) {
-		if (this.data.stream) {
-			// we created a stream on-the-fly with this post, so publish the stream,
-			// it will then be up to the client to fetch the post?
+		if (this.data.stream && this.data.stream.type !== 'file') {
+			// we created a non-file stream on-the-fly with this post, so publish the stream,
+			// it will then be up to the client to fetch the post? (because they are not yet subscribed to the stream channel)
 			this.publishNewStream(callback);
 		}
 		else {
-			// publish the post to the members of the stream
-			this.publishPostToStream(callback);
+			// publish the post to the members of the stream or the team if it is a file stream
+			this.publishPostToStreamOrTeam(callback);
 		}
 	}
 
@@ -36,7 +36,7 @@ class PostPublisher {
 	}
 
 	// publish the creation of a new post to the stream it was created in
-	publishPostToStream (callback) {
+	publishPostToStreamOrTeam (callback) {
 		if (this.stream.type === 'file') {
 			// for file-type streams, we publish to the team that owns the stream
 			this.publishPostToTeam(callback);
@@ -60,6 +60,9 @@ class PostPublisher {
 		}
 		if (this.data.markerLocations) {
 			message.markerLocations = this.data.markerLocations;
+		}
+		if (this.data.stream) {
+			message.stream = this.data.stream;
 		}
 		this.messager.publish(
 			message,
