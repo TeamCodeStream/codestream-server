@@ -80,7 +80,9 @@ class RepoCreator extends ModelCreator {
 	// right before we save the model...
 	preSave (callback) {
 		this.attributes.creatorId = this.user.id;	// establish creator of the repo as originator of the request
-		this.attributes._forTesting = this.request.isForTesting();	// special for-testing header for easy wiping of test data
+		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
+			this.attributes._forTesting = true;
+		}
 		BoundAsync.series(this, [
 			this.createId,	// requisition an ID for the repo
 			this.joinToTeam,	// join the repo to a team, depending on whether it already exists and information in the request

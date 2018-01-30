@@ -114,7 +114,9 @@ class StreamCreator extends ModelCreator {
 
 	preSave (callback) {
 		this.attributes.creatorId = this.user.id;
-		this.attributes._forTesting = this.request.isForTesting();	// special for-testing header for easy wiping of test data
+		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
+			this.attributes._forTesting = true;
+		}
 		if (!this.existingModel) {
 			this.attributes.nextSeqNum = this.nextSeqNum || 1;
 		}
