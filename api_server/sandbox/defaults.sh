@@ -31,26 +31,42 @@ export CS_API_SSL_CERTFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-crt
 export CS_API_SSL_CAFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-ca
 
 # Mongo
-export CS_API_MONGO_HOST=$MDB_HOST
-export CS_API_MONGO_PORT=$MDB_PORT
+if [ -f "$HOME/.codestream/mongo/mongo-access" ]; then
+	. $HOME/.codestream/mongo/mongo-access
+	[ -n "$MONGO_HOST" ] && export CS_API_MONGO_HOST=$MONGO_HOST
+	[ -n "$MONGO_PORT" ] && export CS_API_MONGO_PORT=$MONGO_PORT
+	[ -n "$MONGO_URL" ] && export CS_API_MONGO_URL=$MONGO_URL
+	[ -n "$MONGO_APP_USER" ] && export CS_API_MONGO_USER=$MONGO_APP_USER
+	[ -n "$MONGO_APP_PASS" ] && export CS_API_MONGO_PASS=$MONGO_APP_PASS
+else
+	# Take the values from the mongo sandbox in the playground
+	export CS_API_MONGO_HOST=$MDB_HOST
+	export CS_API_MONGO_PORT=$MDB_PORT
+
+	# Define these to tell the API service to use mongo authentication
+	#export CS_API_MONGO_USER=api
+	#export CS_API_MONGO_PASS=api
+fi
+
+# Construct the mongo URL (needed if authentication is used)
+if [ -n "$CS_API_MONGO_USER" -a -z "$CS_API_MONGO_URL" ]; then
+	export CS_API_MONGO_URL="mongodb://$CS_API_MONGO_USER:$CS_API_MONGO_PASS@$CS_API_MONGO_HOST:$CS_API_MONGO_PORT/$CS_API_MONGO_DATABASE"
+fi
+
+# CodeStream mongo database
 export CS_API_MONGO_DATABASE=codestream
 
-# Uncomment these to tell the API service to use mongo authentication
-#export CS_API_MONGO_USER=api
-#export CS_API_MONGO_PASS=api
-
-# Uncomment these if you want the mdb-mongo CLI to access the database
+# Define these if you want the mdb-mongo CLI to access the database
 # using the system account above (as opposed to 'root')
 #export MDB_CLI_USER=$CS_API_MONGO_USER
 #export MDB_CLI_PASS=$CS_API_MONGO_PASS
 
-# Construct the mongo URL (needed if authentication is used)
-#export CS_API_MONGO_URL="mongodb://$CS_API_MONGO_USER:$CS_API_MONGO_PASS@$CS_API_MONGO_HOST:$CS_API_MONGO_PORT/$CS_API_MONGO_DATABASE"
 
 # Tell the API service init script to setup mongo when it the api server
 # is started for the first time. This includes creating the database
 # owner in mongo and creating the indexes
 export CS_API_SETUP_MONGO=true
+
 
 
 # Emails by default are not sent ... set this to "on" to send emails normally
@@ -65,9 +81,19 @@ export CS_API_SETUP_MONGO=true
 #export CS_API_CONFIRMATION_NOT_REQUIRED=
 
 # see README.pubnub for more details
-export CS_API_PUBNUB_PUBLISH_KEY=pub-c-8603fed4-39da-4feb-a82e-cf5311ddb4d6
-export CS_API_PUBNUB_SUBSCRIBE_KEY=sub-c-e830d7da-fb14-11e6-9f57-02ee2ddab7fe
-export CS_API_PUBNUB_SECRET=sec-c-MmU3MmNlOGQtNjNhYS00NTk1LWI3NDItZDZlMjk3NmJkMDVh
+if [ -f "$HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset" ]; then
+	. $HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset
+	export CS_API_PUBNUB_PUBLISH_KEY=$PUBNUB_PUBLISH
+	export CS_API_PUBNUB_SUBSCRIBE_KEY=$PUBNUB_SUBSCRIBE
+	export CS_API_PUBNUB_SECRET=$PUBNUB_SECRET
+else
+	echo "**************************************************************"
+	echo "WARNING: pubnub key files not found. Run dt-update-pubnub-keys"
+	echo "**************************************************************"
+	export CS_API_PUBNUB_PUBLISH_KEY=pub-c-8603fed4-39da-4feb-a82e-cf5311ddb4d6
+	export CS_API_PUBNUB_SUBSCRIBE_KEY=sub-c-e830d7da-fb14-11e6-9f57-02ee2ddab7fe
+	export CS_API_PUBNUB_SECRET=sec-c-MmU3MmNlOGQtNjNhYS00NTk1LWI3NDItZDZlMjk3NmJkMDVh
+fi
 
 # Location of the TestRepo repo used For maintaining test scripts
 export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo

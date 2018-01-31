@@ -15,7 +15,7 @@ function startup {
 	if [ "$CS_API_SETUP_MONGO" == true ]; then
 		if [ -n "$CS_API_MONGO_USER" -a ! -f $CS_API_SANDBOX/mongo-user.configured ]; then
 			echo "Creating mongo user $CS_API_MONGO_USER as dbOwner of codestream db"
-			mdb-add-user -u $CS_API_MONGO_USER -p $CS_API_MONGO_PASS -r dbOwner -D codestream
+			mdb-add-user -u $CS_API_MONGO_USER -p $CS_API_MONGO_PASS -r dbOwner -D $CS_API_MONGO_DATABASE
 			touch $CS_API_SANDBOX/mongo-user.configured
 		fi
 		if [ ! -f $CS_API_SANDBOX/mongo-indexes.configured -o $reindex -eq 1 ]; then
