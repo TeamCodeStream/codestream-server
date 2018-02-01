@@ -266,6 +266,7 @@ class User extends CodeStreamModel {
 			return true;
 		}
 
+		let n = 0;	// failsafe to prevent infinite loop
 		// walk up the path tree looking for any muted directories
 		let path = stream.get('file');
 		do {
@@ -273,8 +274,9 @@ class User extends CodeStreamModel {
 			if (streamTreatments[starryPath] === 'mute') {
 				return false;
 			}
-			path = path === '/' ? null : Path.dirname(path);
-		} while (path);
+			path = (path === '/' || path === '.') ? null : Path.dirname(path);
+			n++;
+		} while (path && n < 100);	// god help them if they have paths with 100 levels
 
 		// no muted directories that are parents to this file, we are free to
 		// send a notification!
