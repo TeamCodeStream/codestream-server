@@ -5,7 +5,7 @@
 
 var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
 var MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
-var TestAPIConfig = require(process.env.CS_API_TOP + '/config/api_test');
+var MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 var RandomString = require('randomstring');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Assert = require('assert');
@@ -18,7 +18,9 @@ class DataCollectionTest extends GenericTest {
 	before (callback) {
 		// set up the mongo client, and open it against a test collection
 		this.mongoClientFactory = new MongoClient();
-		const mongoConfig = Object.assign({}, TestAPIConfig.mongo, { collections: ['test'] });
+		const mongoConfig = Object.assign({}, MongoConfig, { collections: ['test'] });
+		delete mongoConfig.queryLogging;
+		delete mongoConfig.hintsRequired;
 		this.mongoClientFactory.openMongoClient(
 			mongoConfig,
 			(error, mongoClient) => {
