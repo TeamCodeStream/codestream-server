@@ -41,6 +41,8 @@ var FindAndModifyTest = require('./find_and_modify_test');
 
 describe('mongo', function() {
 
+	this.timeout(5000);
+
 	new GetByIdTest().test();
 	new GetByIdNotFoundTest().test();
 	new GetByIdsTest().test();

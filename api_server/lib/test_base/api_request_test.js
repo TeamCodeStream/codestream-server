@@ -4,7 +4,7 @@
 
 var GenericTest = require('./generic_test');
 var HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
-var TestAPIConfig = require(process.env.CS_API_TOP + '/config/api_test');
+var ExpressConfig = require(process.env.CS_API_TOP + '/config/express');
 var Assert = require('assert');
 
 class APIRequestTest extends GenericTest {
@@ -35,8 +35,8 @@ class APIRequestTest extends GenericTest {
 		const path = options.path || '/';
 		const data = options.data || null;
 		HTTPSBot[method](
-			TestAPIConfig.api.host,
-			TestAPIConfig.api.port,
+			ExpressConfig.host,
+			ExpressConfig.port,
 			path,
 			data,
 			callback,
