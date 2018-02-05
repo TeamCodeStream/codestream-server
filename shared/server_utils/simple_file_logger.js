@@ -183,7 +183,7 @@ class SimpleFileLogger {
 	// remove the link from the last master log file to its date-stamped instance
 	removeOldLink (callback) {
 		FS.unlink(this.linkName, (error) => {
-			if (error && error !== 'ENOENT') {
+			if (error && error.code !== 'ENOENT') {
 				console.error(`unable to unlink ${this.linkName}: ${error}`);
 			}
 			process.nextTick(callback);

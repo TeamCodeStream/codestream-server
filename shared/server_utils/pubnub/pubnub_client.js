@@ -169,7 +169,9 @@ class PubNubClient {
 				) {
 					return callback('unable to obtain occupants');
 				}
-				let userIds = response.channels[channel].occupants.map(occupant => occupant.uuid);
+				let userIds = response.channels[channel].occupants.map(occupant => {
+					return occupant.uuid.split('/')[0];
+				});
 				if (options.request) {
 					options.request.log(`Here now for ${channel}: ${userIds}`);
 				}
