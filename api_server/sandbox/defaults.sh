@@ -31,18 +31,20 @@ export CS_API_SSL_CERTFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-crt
 export CS_API_SSL_CAFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-ca
 
 # Mongo
-if [ -f "$HOME/.codestream/mongo/mongo-access" ]; then
-	. $HOME/.codestream/mongo/mongo-access
+[ -z "$CS_API_MONGO_DATABASE" ] && export CS_API_MONGO_DATABASE=codestream
+[ -z "$MONGO_ACCESS_FILE" ] && MONGO_ACCESS_FILE="$HOME/.codestream/mongo/mongo-access"
+if [ -f $MONGO_ACCESS_FILE ]; then
+	. $MONGO_ACCESS_FILE
 	[ -n "$MONGO_HOST" ] && export CS_API_MONGO_HOST=$MONGO_HOST
 	[ -n "$MONGO_PORT" ] && export CS_API_MONGO_PORT=$MONGO_PORT
 	[ -n "$MONGO_URL" ] && export CS_API_MONGO_URL=$MONGO_URL
 	[ -n "$MONGO_APP_USER" ] && export CS_API_MONGO_USER=$MONGO_APP_USER
 	[ -n "$MONGO_APP_PASS" ] && export CS_API_MONGO_PASS=$MONGO_APP_PASS
+	[ -n "$MONGO_DB" ] && export CS_API_MONGO_DATABASE=$MONGO_DB
 else
 	# Take the values from the mongo sandbox in the playground
 	export CS_API_MONGO_HOST=$MDB_HOST
 	export CS_API_MONGO_PORT=$MDB_PORT
-
 	# Define these to tell the API service to use mongo authentication
 	#export CS_API_MONGO_USER=api
 	#export CS_API_MONGO_PASS=api
@@ -52,9 +54,6 @@ fi
 if [ -n "$CS_API_MONGO_USER" -a -z "$CS_API_MONGO_URL" ]; then
 	export CS_API_MONGO_URL="mongodb://$CS_API_MONGO_USER:$CS_API_MONGO_PASS@$CS_API_MONGO_HOST:$CS_API_MONGO_PORT/$CS_API_MONGO_DATABASE"
 fi
-
-# CodeStream mongo database
-export CS_API_MONGO_DATABASE=codestream
 
 # Define these if you want the mdb-mongo CLI to access the database
 # using the system account above (as opposed to 'root')
@@ -81,8 +80,9 @@ export CS_API_SETUP_MONGO=true
 #export CS_API_CONFIRMATION_NOT_REQUIRED=
 
 # see README.pubnub for more details
-if [ -f "$HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset" ]; then
-	. $HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset
+[ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset"
+if [ -f $PUBHUB_KEY_FILE ]; then
+	. $PUBHUB_KEY_FILE
 	export CS_API_PUBNUB_PUBLISH_KEY=$PUBNUB_PUBLISH
 	export CS_API_PUBNUB_SUBSCRIBE_KEY=$PUBNUB_SUBSCRIBE
 	export CS_API_PUBNUB_SECRET=$PUBNUB_SECRET
