@@ -84,8 +84,8 @@ export CS_API_SETUP_MONGO=true
 
 # see README.pubnub for more details
 [ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset"
-if [ -f $PUBHUB_KEY_FILE ]; then
-	. $PUBHUB_KEY_FILE
+if [ -f $PUBNUB_KEY_FILE ]; then
+	. $PUBNUB_KEY_FILE
 	export CS_API_PUBNUB_PUBLISH_KEY=$PUBNUB_PUBLISH
 	export CS_API_PUBNUB_SUBSCRIBE_KEY=$PUBNUB_SUBSCRIBE
 	export CS_API_PUBNUB_SECRET=$PUBNUB_SECRET
