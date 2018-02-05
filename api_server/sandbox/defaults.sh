@@ -50,6 +50,9 @@ else
 	#export CS_API_MONGO_PASS=api
 fi
 
+# CodeStream mongo database
+export CS_API_MONGO_DATABASE=codestream
+
 # Construct the mongo URL (needed if authentication is used)
 if [ -n "$CS_API_MONGO_USER" -a -z "$CS_API_MONGO_URL" ]; then
 	export CS_API_MONGO_URL="mongodb://$CS_API_MONGO_USER:$CS_API_MONGO_PASS@$CS_API_MONGO_HOST:$CS_API_MONGO_PORT/$CS_API_MONGO_DATABASE"
