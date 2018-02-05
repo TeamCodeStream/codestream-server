@@ -4,8 +4,8 @@ MONGO_ACCESS_FILE="$HOME/.codestream/mongo/qa-codestream-dbowner"
 
 . $CS_API_TOP/sandbox/defaults.sh
 
-OTHER_SECRETS_FILE=$HOME/.codestream/codestream-service/qa-api
-[ ! -f $OTHER_SECRETS_FILE ] && echo "secrets file ($OTHER_SECRETS_FILE) not found" && return 1
+OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/qa-api
+[ ! -f $OTHER_SECRETS_FILE ] && echo "secrets file ($OTHER_SECRETS_FILE) not found"
 . $OTHER_SECRETS_FILE
 export CS_API_AUTH_SECRET="$AUTH_SECRET"
 export CS_API_INBOUND_EMAIL_SECRET="$INBOUND_EMAIL_SECRET"
