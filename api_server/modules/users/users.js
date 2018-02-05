@@ -45,6 +45,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'preferences',
 		requestClass: require('./put_preferences_request')
+	},
+	{
+		method: 'put',
+		path: 'grant/:channel',
+		requestClass: require('./grant_request')
 	}
 ];
 

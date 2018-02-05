@@ -33,6 +33,10 @@ const ERRORS = {
 	'messagingGrant': {
 		code: 'USRC-1007',
 		message: 'Unable to grant user messaging permissions'
+	},
+	'invalidGrantChannel': {
+		code: 'USRC-1008',
+		message: 'Invalid grant channel'
 	}
 };
 
