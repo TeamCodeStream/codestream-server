@@ -42,6 +42,10 @@ function startup {
 }
 
 [ -z "$CS_API_TOP" ] && echo "cs_api sandbox not loaded">&2 && exit 1
+if [ -n "$CS_API_TEST_ONLY" ]; then
+	echo "This sandbox is configured as a test-only client (CS_API_TEST_ONLY)"
+	exit 1
+fi
 [[ ! ( "$1" == start || "$1" == stop || "$1" == status || "$1" == restart ) ]] && usage
 
 . $DT_TOP/lib/init_funcs.sh

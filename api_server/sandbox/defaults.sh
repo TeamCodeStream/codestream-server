@@ -24,13 +24,15 @@ export CS_API_PORT=12079
 export CS_API_AUTH_SECRET="A*y8lN^erPHf$"
 export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
 export CS_API_LOG_CONSOLE_OK=1
+
+# =============== SSL Certificate ==================
 export CS_API_SSL_CERT_DIR=$HOME/.certs/wildcard.codestream.us
 [ ! -d $CS_API_SSL_CERT_DIR ] && export CS_API_SSL_CERT_DIR=/etc/pki/wildcard.codestream.us
 export CS_API_SSL_KEYFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-key
 export CS_API_SSL_CERTFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-crt
 export CS_API_SSL_CAFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-ca
 
-# Mongo
+# ================ Mongo Settings ==================
 [ -z "$CS_API_MONGO_DATABASE" ] && export CS_API_MONGO_DATABASE=codestream
 [ -z "$MONGO_ACCESS_FILE" ] && MONGO_ACCESS_FILE="$HOME/.codestream/mongo/mongo-access"
 if [ -f $MONGO_ACCESS_FILE ]; then
@@ -63,25 +65,13 @@ fi
 #export MDB_CLI_USER=$CS_API_MONGO_USER
 #export MDB_CLI_PASS=$CS_API_MONGO_PASS
 
-
 # Tell the API service init script to setup mongo when it the api server
 # is started for the first time. This includes creating the database
 # owner in mongo and creating the indexes
 export CS_API_SETUP_MONGO=true
 
 
-
-# Emails by default are not sent ... set this to "on" to send emails normally
-# (as in production, and exercise extreme caution when testing) ...
-# or set to a valid email to have all emails diverted to the specified address,
-# this is good and risk-free for developer testing
-#export CS_API_EMAIL_TO=
-
-# By default we require email confirmation, but for developer convenience
-# during testing, the requirement of email confirmation can be turned off
-# To turn off the email confirmation requrement, set the below to "1"
-#export CS_API_CONFIRMATION_NOT_REQUIRED=
-
+# =============== PubNub Settings ==============
 # see README.pubnub for more details
 [ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset"
 if [ -f $PUBNUB_KEY_FILE ]; then
@@ -98,8 +88,24 @@ else
 	export CS_API_PUBNUB_SECRET=sec-c-MmU3MmNlOGQtNjNhYS00NTk1LWI3NDItZDZlMjk3NmJkMDVh
 fi
 
+# ============ Testing Settings ==============
 # Location of the TestRepo repo used For maintaining test scripts
 export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo
+
+# Set if this sandbox is for test-only client (no api service)
+#export CS_API_TEST_ONLY=true
+
+# ============ Email Settings ================
+# Emails by default are not sent ... set this to "on" to send emails normally
+# (as in production, and exercise extreme caution when testing) ...
+# or set to a valid email to have all emails diverted to the specified address,
+# this is good and risk-free for developer testing
+#export CS_API_EMAIL_TO=
+
+# By default we require email confirmation, but for developer convenience
+# during testing, the requirement of email confirmation can be turned off
+# To turn off the email confirmation requrement, set the below to "1"
+#export CS_API_CONFIRMATION_NOT_REQUIRED=
 
 # Domain to use when setting a reply-to for outgoing emails
 # This is used when sending email notifications, we want replies to come back
