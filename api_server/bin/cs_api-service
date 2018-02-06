@@ -15,7 +15,7 @@ function startup {
 	if [ "$CS_API_SETUP_MONGO" == true ]; then
 		if [ -n "$CS_API_MONGO_USER" -a ! -f $CS_API_SANDBOX/mongo-user.configured ]; then
 			echo "Creating mongo user $CS_API_MONGO_USER as dbOwner of codestream db"
-			mdb-add-user -u $CS_API_MONGO_USER -p $CS_API_MONGO_PASS -r dbOwner -D codestream
+			mdb-add-user -u $CS_API_MONGO_USER -p $CS_API_MONGO_PASS -r dbOwner -D $CS_API_MONGO_DATABASE
 			touch $CS_API_SANDBOX/mongo-user.configured
 		fi
 		if [ ! -f $CS_API_SANDBOX/mongo-indexes.configured -o $reindex -eq 1 ]; then
@@ -42,6 +42,10 @@ function startup {
 }
 
 [ -z "$CS_API_TOP" ] && echo "cs_api sandbox not loaded">&2 && exit 1
+if [ -n "$CS_API_TEST_ONLY" ]; then
+	echo "This sandbox is configured as a test-only client (CS_API_TEST_ONLY)"
+	exit 1
+fi
 [[ ! ( "$1" == start || "$1" == stop || "$1" == status || "$1" == restart ) ]] && usage
 
 . $DT_TOP/lib/init_funcs.sh
