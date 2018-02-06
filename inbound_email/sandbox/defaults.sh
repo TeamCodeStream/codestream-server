@@ -52,7 +52,7 @@ export CS_MAILIN_API_HOST=localhost.codestream.us
 export CS_MAILIN_API_PORT=12079
 
 # Use Colin's Demo Pubnub Keyset
-PUBNUB_KEYSET=$HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset
+[ -z "$PUBNUB_KEYSET" ] && PUBNUB_KEYSET=$HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset
 . $PUBNUB_KEYSET || echo "***** ERROR could not find pubnub keyset $PUBNUB_KEYSET. Did you run dt-update-pubnub-keys ?"
 export CS_MAILIN_PUBNUB_SUBSCRIBE_KEY=$PUBNUB_SUBSCRIBE
 
