@@ -36,6 +36,7 @@ var RepoNoMatchTeamTest = require('./repo_no_match_team_test');
 var GetPostsBySeqNumTest = require('./get_posts_by_seqnum_test');
 var GetPostsBySingleSeqNumTest = require('./get_posts_by_single_seqnum_test');
 var NoSeqNumWithRelationalTest = require('./no_seqnum_with_relational_test');
+var GetMarkersWithPostsTest = require('./get_markers_with_posts_test');
 
 /* jshint -W071 */
 
@@ -84,6 +85,7 @@ class GetPostsRequestTester {
 		new RepoNoMatchTeamTest().test();
 		new GetPostsBySeqNumTest().test();
 		new GetPostsBySingleSeqNumTest().test();
+		new GetMarkersWithPostsTest().test();
 	}
 }
 

@@ -3,6 +3,7 @@
 'use strict';
 
 var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Indexes = require('./indexes');
 const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
 const PostErrors = require('./errors.js');
@@ -25,7 +26,9 @@ const RELATIONAL_PARAMETERS = [
 // additional options for post fetches
 const NON_FILTERING_PARAMETERS = [
 	'limit',
-	'sort'
+	'sort',
+	'withMarkers',
+	'commitHash'
 ];
 
 class GetPostsRequest extends GetManyRequest {
@@ -270,6 +273,90 @@ class GetPostsRequest extends GetManyRequest {
 					hint: StreamIndexes.byFile
 				},
 				noCache: true
+			}
+		);
+	}
+
+	// called right after the posts are fetched
+	postFetchHook (callback) {
+		if (typeof this.request.query.withMarkers === 'undefined') {
+			return callback();
+		}
+		BoundAsync.series(this, [
+			this.extractMarkerIds,
+			this.fetchMarkers,
+			this.sanitizeMarkers,
+			this.fetchMarkerLocations
+		], callback);
+	}
+
+	// extract the marker IDs from any code blocks in the fetched posts
+	extractMarkerIds (callback) {
+		this.markerIds = this.models.reduce((markerIdsSoFar, post) => {
+			const codeBlockMarkerIds = (post.get('codeBlocks') || []).map(codeBlock => codeBlock.markerId);
+			markerIdsSoFar.push(...codeBlockMarkerIds);
+			return markerIdsSoFar;
+		}, []);
+		process.nextTick(callback);
+	}
+
+	// get the markers for any of the fetched posts, based on marker IDs already extracted
+	fetchMarkers (callback) {
+		if (this.markerIds.length === 0) {
+			return callback();
+		}
+		this.data.markers.getByIds(
+			this.markerIds,
+			(error, markers) => {
+				if (error) { return callback(error); }
+				this.markers = markers;
+				callback();
+			}
+		);
+	}
+
+	// sanitize the fetched markers for return to the client
+	sanitizeMarkers (callback) {
+		if (this.markerIds.length === 0) {
+			return callback();
+		}
+		this.sanitizeModels(
+			this.markers,
+			(error, objects) => {
+				if (error) { return callback(error); }
+				this.responseData.markers = objects;
+				callback();
+			}
+		);
+	}
+
+	// get the marker locations for any of the fetched markers, based on marker IDs already extracted
+	fetchMarkerLocations (callback) {
+		if (this.markerIds.length === 0 || !this.request.query.commitHash) {
+			return callback();
+		}
+		const streamId = decodeURIComponent(this.request.query.streamId || this.queryAndOptions.query.streamId).toLowerCase();
+		const commitHash = decodeURIComponent(this.request.query.commitHash).toLowerCase();
+		const query = {
+//			teamId: teamId,	 // will be needed for sharding, but for now, we'll avoiding an index here
+			_id: `${streamId}|${commitHash}`
+		};
+		this.data.markerLocations.getByQuery(
+			query,
+			(error, markerLocations) => {
+				if (error) { return callback(error); }
+				if (markerLocations.length === 0) {
+					this.responseData.markerLocations = {};
+					return callback();	// no matching marker locations for this commit, we'll just send an empty response
+				}
+				this.markerLocations = markerLocations[0];
+				this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
+				callback();
+			},
+			{
+				databaseOptions: {
+					hint: { _id: 1 }
+				}
 			}
 		);
 	}

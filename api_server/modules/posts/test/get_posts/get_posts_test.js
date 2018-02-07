@@ -77,6 +77,8 @@ class GetPostsTest extends CodeStreamAPITest {
 	// create a series of posts in the stream, we'll fetch some subset of these for the test
 	createPosts (callback) {
 		this.myPosts = [];
+		this.myMarkers = [];
+		this.myMarkerLocations = {};
 		BoundAsync.timesSeries(
 			this,
 			this.numPosts,
@@ -92,6 +94,16 @@ class GetPostsTest extends CodeStreamAPITest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.myPosts.push(response.post);
+				if (response.markers) {
+					this.myMarkers.push(...response.markers);
+				}
+				if (response.markerLocations) {
+					let locations = response.markerLocations.locations;
+					delete response.markerLocations.locations;
+					Object.assign(this.myMarkerLocations, response.markerLocations);
+					this.myMarkerLocations.locations = this.myMarkerLocations.locations || {};
+					Object.assign(this.myMarkerLocations.locations, locations);
+				}
 				setTimeout(callback, this.postCreateThrottle || 0);
 			},
 			postOptions

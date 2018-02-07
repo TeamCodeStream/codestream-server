@@ -13,6 +13,7 @@ class GetManyRequest extends RestfulRequest {
 			this.formQuery,		// let the derived class provide the details of the query based on the request parameters
 			this.preFetchHook,	// let the derived class do more stuff as needed
 			this.fetch,			// run the query and fetch the documents
+			this.postFetchHook,	// let the derived class do stuff after the data is retrieved
 			this.sanitize,		// sanitize the documents for returning to the client
 			this.respond		// respond to the client
 		], callback);
@@ -53,6 +54,11 @@ class GetManyRequest extends RestfulRequest {
 		);
 	}
 
+	// override to do stuff right after we fetch the documents of interest
+	postFetchHook (callback) {
+		callback();
+	}
+	
 	// make our fetch query and any associated query options
 	makeQueryAndOptions () {
 		// build the query (this is where the derived class does its work)
