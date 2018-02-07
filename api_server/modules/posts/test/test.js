@@ -11,7 +11,7 @@ var postsRequestTester = new PostsRequestTester();
 
 describe('post requests', function() {
 
-	this.timeout(120000);
+	this.timeout(180000);
 
 	describe('GET /posts/:id', postsRequestTester.getPostTest);
 	describe('GET /posts', postsRequestTester.getPostsTest);
