@@ -1,6 +1,7 @@
 'use strict';
 
 var GetPostsTest = require('./get_posts_test');
+var Assert = require('assert');
 
 class GetPostsByPathTest extends GetPostsTest {
 
@@ -18,6 +19,17 @@ class GetPostsByPathTest extends GetPostsTest {
 		let streamPath = encodeURIComponent(this.stream.file);
 		this.path = `/posts/?teamId=${this.team._id}&repoId=${this.repo._id}&path=${streamPath}`;
 		callback();
+	}
+
+	// validate the response to the test request
+	validateResponse (data) {
+		Object.assign(this.stream, { 
+			mostRecentPostId: data.stream.mostRecentPostId,
+			sortId: data.stream.sortId,
+			numMarkers: data.stream.numMarkers
+		});
+		Assert.deepEqual(data.stream, this.stream, 'stream is incorrect');
+		super.validateResponse(data);
 	}
 }
 

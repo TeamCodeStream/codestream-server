@@ -7,6 +7,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Indexes = require('./indexes');
 const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
 const PostErrors = require('./errors.js');
+const Stream = require(process.env.CS_API_TOP + '/modules/streams/stream');
 
 // these parameters essentially get passed verbatim to the query
 const BASIC_QUERY_PARAMETERS = [
@@ -264,12 +265,12 @@ class GetPostsRequest extends GetManyRequest {
 				if (streams.length === 0) {
 					return callback(this.errorHandler.error('notFound', { info: 'stream' }));
 				}
+				this.fetchedStream = new Stream(streams[0]);
 				this.queryAndOptions.query.streamId = streams[0]._id;
 				callback();
 			},
 			{
 				databaseOptions: {
-					fields: ['_id'],
 					hint: StreamIndexes.byFile
 				},
 				noCache: true
@@ -370,6 +371,9 @@ class GetPostsRequest extends GetManyRequest {
 			if (this.responseData.posts.length === this.limit) {
 				this.responseData.posts.splice(-1);
 				this.responseData.more = true;
+			}
+			if (this.fetchedStream) {
+				this.responseData.stream = this.fetchedStream.getSanitizedObject();
 			}
 			process.nextTick(callback);
 		});
