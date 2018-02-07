@@ -26,11 +26,12 @@ export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
 export CS_API_LOG_CONSOLE_OK=1
 
 # =============== SSL Certificate ==================
-export CS_API_SSL_CERT_DIR=$HOME/.certs/wildcard.codestream.us
-[ ! -d $CS_API_SSL_CERT_DIR ] && export CS_API_SSL_CERT_DIR=/etc/pki/wildcard.codestream.us
-export CS_API_SSL_KEYFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-key
-export CS_API_SSL_CERTFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-crt
-export CS_API_SSL_CAFILE=$CS_API_SSL_CERT_DIR/wildcard.codestream.us-ca
+[ -z "$SSL_CERT" ] && SSL_CERT=wildcard.codestream.us
+export CS_API_SSL_CERT_DIR=$HOME/.certs/$SSL_CERT
+[ ! -d $CS_API_SSL_CERT_DIR ] && export CS_API_SSL_CERT_DIR=/etc/pki/$SSL_CERT
+export CS_API_SSL_KEYFILE=$CS_API_SSL_CERT_DIR/$SSL_CERT-key
+export CS_API_SSL_CERTFILE=$CS_API_SSL_CERT_DIR/$SSL_CERT-crt
+export CS_API_SSL_CAFILE=$CS_API_SSL_CERT_DIR/$SSL_CERT-ca
 
 # ================ Mongo Settings ==================
 [ -z "$CS_API_MONGO_DATABASE" ] && export CS_API_MONGO_DATABASE=codestream
