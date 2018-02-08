@@ -227,7 +227,8 @@ class ConfirmRequest extends RestfulRequest {
 		let meOnlyAttributes = this.user.getMeOnlyAttributes();
 		this.responseData = {
 			user: this.user.getSanitizedObject(),
-			accessToken: this.accessToken
+			accessToken: this.accessToken,
+			pubnubKey: this.api.config.pubnub.subscribeKey
 		};
 		Object.assign(this.responseData, this.initialData);
 		Object.assign(this.responseData.user, meOnlyAttributes);

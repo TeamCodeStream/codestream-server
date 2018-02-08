@@ -46,6 +46,8 @@ class ConfirmationTest extends CodeStreamAPITest {
 			((user._id === this.data.userId) || errors.push('incorrect user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		Assert(data.accessToken, 'no access token');
+		Assert(data.pubnubKey, 'no pubnub key');
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
