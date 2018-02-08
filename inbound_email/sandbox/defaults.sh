@@ -21,7 +21,7 @@ export PATH=$CS_MAILIN_SANDBOX/yarn/bin:$PATH
 # Uncomment and setup if node is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/node-$DT_OS_TYPE-*
-export CS_MAILIN_NODE_VER=6.9.1
+export CS_MAILIN_NODE_VER=8.9.4
 export PATH=$CS_MAILIN_SANDBOX/node/bin:$CS_MAILIN_TOP/node_modules/.bin:$PATH
 
 # Add sandbox utilities to the search path
@@ -52,8 +52,8 @@ export CS_MAILIN_API_HOST=localhost.codestream.us
 export CS_MAILIN_API_PORT=12079
 
 # Use Colin's Demo Pubnub Keyset
-PUBNUB_KEYSET=$HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset
-. $PUBNUB_KEYSET || echo "***** ERROR could not find pubnub keyset $PUBNUB_KEYSET"
+[ -z "$PUBNUB_KEYSET" ] && PUBNUB_KEYSET=$HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset
+. $PUBNUB_KEYSET || echo "***** ERROR could not find pubnub keyset $PUBNUB_KEYSET. Did you run dt-update-pubnub-keys ?"
 export CS_MAILIN_PUBNUB_SUBSCRIBE_KEY=$PUBNUB_SUBSCRIBE
 
 # domain we use in the reply-to field of outbound emails_sent (match CS_API_REPLY_TO_DOMAIN)
