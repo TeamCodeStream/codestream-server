@@ -12,4 +12,4 @@ export CS_MAILIN_DIRECTORY=$HOME/codestream-mail/inbound/web/new
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/qa-mailin
 [ ! -f $OTHER_SECRETS_FILE ] && echo "secrets file ($OTHER_SECRETS_FILE) not found"
 . $OTHER_SECRETS_FILE
-export CS_API_INBOUND_EMAIL_SECRET="$INBOUND_EMAIL_SECRET"
+export CS_MAILIN_SECRET="$INBOUND_EMAIL_SECRET"
