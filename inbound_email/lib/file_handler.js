@@ -459,10 +459,13 @@ class FileHandler {
 	// to the stream for which it is intended
 	sendDataToApiServer (data, callback) {
 		this.log(`Sending email (${data.mailFile}) from ${JSON.stringify(data.from)} to ${JSON.stringify(data.to)} to API server...`);
+		this.log('CONFIG:' + JSON.stringify(this.inboundEmailServer.config));
 		let host = this.inboundEmailServer.config.api.host;
 		let port = this.inboundEmailServer.config.api.port;
 		let url = `https://${host}:${port}`;
+		this.log('URL=' + url);
 		let urlObject = URL.parse(url);
+		this.log('urlObject: ' + JSON.stringify(urlObject, undefined, 5));
 		let payload = JSON.stringify(data);
 		let headers = {
 			'Content-Type': 'application/json',
@@ -475,6 +478,7 @@ class FileHandler {
 			method: 'POST',
 			headers: headers
 		};
+		this.log('request options: ' + JSON.stringify(requestOptions, undefined, 5));
 		let request = HTTPS.request(
 			requestOptions,
 			response => {
