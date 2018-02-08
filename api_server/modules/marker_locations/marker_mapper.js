@@ -298,7 +298,12 @@ class MarkerMapper {
 		// give up and mark the whole line
 		if (markerData.lineStartNew === markerData.lineEndNew && colStartNew > colEndNew) {
 			markerData.colStartNew = 1;
-			markerData.colEndNew = markerData.lineEndNewContent.length;
+			if (markerData.lineEndNewContent) {
+				markerData.colEndNew = markerData.lineEndNewContent.length;
+			}
+			else {
+				markerData.colEndNew = 100;	// whatevs
+			}
 		}
 		else {
 			markerData.colStartNew = colStartNew;
