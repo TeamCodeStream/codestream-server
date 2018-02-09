@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict';
+
 const Commander = require('commander');
 const Deleter = require(process.env.CS_API_TOP + '/lib/util/deleter');
 

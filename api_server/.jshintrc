@@ -10,5 +10,6 @@
 	"maxparams": 6,
 	"maxstatements": 25,
 	"undef": true,
-	"unused": true
+	"unused": true,
+	"strict": true
 }

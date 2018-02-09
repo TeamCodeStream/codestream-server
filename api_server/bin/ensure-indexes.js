@@ -9,6 +9,8 @@
 //
 // you can supply both, that will drop and build (rebuild from scratch)
 
+'use strict';
+
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 var AllModuleIndexes = {
