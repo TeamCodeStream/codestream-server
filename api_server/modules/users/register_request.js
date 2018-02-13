@@ -6,6 +6,7 @@ var UserCreator = require('./user_creator');
 var ConfirmCode = require('./confirm_code');
 var Tokenizer = require('./tokenizer');
 var UserPublisher = require('./user_publisher');
+const Errors = require('./errors');
 
 const CONFIRMATION_CODE_TIMEOUT = 7 * 24 * 60 * 60 * 1000;
 
@@ -15,6 +16,7 @@ class RegisterRequest extends RestfulRequest {
 		super(options);
 		this.confirmationRequired = !this.api.config.api.confirmationNotRequired || this.request.body._forceConfirmation;
 		delete this.request.body._forceConfirmation;
+		this.errorHandler.add(Errors);
 	}
 
 	authorize (callback) {
@@ -24,6 +26,7 @@ class RegisterRequest extends RestfulRequest {
 	process (callback) {
 		BoundAsync.series(this, [
 			this.requireAndAllow,
+			this.checkBetaCode,
 			this.generateConfirmCode,
 			this.saveUser,
 			this.generateToken,
@@ -54,7 +57,7 @@ class RegisterRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['email', 'password', 'username']
+					string: ['email', 'password', 'username', 'betaCode']
 				},
 				optional: {
 					string: ['firstName', 'lastName'],
@@ -64,6 +67,17 @@ class RegisterRequest extends RestfulRequest {
 			},
 			callback
 		);
+	}
+
+	checkBetaCode (callback) {
+		if (
+			this.request.body.betaCode !== this.api.config.api.testBetaCode && 
+			!this.module.betaCodes.includes(this.request.body.betaCode)
+		) {
+			return callback(this.errorHandler.error('invalidBetaCode'));
+		}
+		delete this.request.body.betaCode;
+		return callback();
 	}
 
 	generateConfirmCode (callback) {

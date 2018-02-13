@@ -1,6 +1,7 @@
 'use strict';
 
 var RegistrationTest = require('./registration_test');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
 
 class UserExistsTest extends RegistrationTest {
 
@@ -14,6 +15,7 @@ class UserExistsTest extends RegistrationTest {
 				if (error) { return callback(error); }
 				this.data = this.userFactory.getRandomUserData();
 				this.data.email = data.user.email;
+				this.data.betaCode = ApiConfig.testBetaCode;	// overrides needing a true beta code
 				callback();
 			},
 			{

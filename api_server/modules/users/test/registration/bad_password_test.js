@@ -2,6 +2,7 @@
 
 var RegistrationTest = require('./registration_test');
 var RandomString = require('randomstring');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
 
 class BadPasswordTest extends RegistrationTest {
 
@@ -25,6 +26,7 @@ class BadPasswordTest extends RegistrationTest {
 	before (callback) {
 		this.data = this.userFactory.getRandomUserData();
 		this.data.password = RandomString.generate(5);
+		this.data.betaCode = ApiConfig.testBetaCode;	// overrides needing a true beta code
 		callback();
 	}
 }
