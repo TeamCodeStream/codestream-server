@@ -1,3 +1,5 @@
+// handle unit tests for the streams module
+
 'use strict';
 
 // make jshint happy

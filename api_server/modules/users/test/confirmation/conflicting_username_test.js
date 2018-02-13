@@ -25,17 +25,19 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 	}
 
 	dontWantToken () {
-		return true;
+		return true;	// don't need a registered user with a token for this test
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRepo,
-			this.registerUser
+			this.createOtherUser,	// create a registered user
+			this.createRepo,		// have that user create a repo, which creates a team
+			this.registerUser		// register a user, we'll try to confirm with the same username as the registered user we created
 		], callback);
 	}
 
+	// create a registered user (with a username, to trigger the conflict)
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -46,7 +48,9 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a repo (which creates a team)
 	createRepo (callback) {
+		// generate a random email, and add that random email when we create the team, but they don't have a username yet
 		this.email = this.userFactory.randomEmail();
 		this.repoFactory.createRandomRepo(
 			error => {
@@ -54,12 +58,14 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withEmails: [this.email],
-				token: this.otherUserData.accessToken
+				withEmails: [this.email],	// add an unregistered user to the team
+				token: this.otherUserData.accessToken	// the registered user creates the repo and team
 			}
 		);
 	}
 
+	// register the user we created with the random email, without confirming,
+	// but we'll give this user the same username as the registered user when we confirm
 	registerUser (callback) {
 		this.doApiRequest(
 			{
@@ -78,8 +84,8 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 				this.data = {
 					userId: response.user._id,
 					email: this.email,
-					username: this.otherUserData.user.username,
-					password: 'blahblahblah',
+					username: this.otherUserData.user.username,	// same username as the registered user, which triggers the conflict
+					password: 'blahblahblah',	// required, whatever
 					confirmationCode: response.user.confirmationCode
 				};
 				callback();

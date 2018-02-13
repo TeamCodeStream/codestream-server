@@ -1,3 +1,5 @@
+// provide a base class to use for testing the "GET /users" request
+
 'use strict';
 
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
@@ -6,14 +8,16 @@ const UserTestConstants = require('../user_test_constants');
 
 class GetUsersTest extends CodeStreamAPITest {
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRandomRepo,
-			this.setPath
+			this.createOtherUser,	// create a second registered user
+			this.createRandomRepo,	// create a repo (and team) to use for the test
+			this.setPath			// set the path to use when issuing the test request
 		], callback);
 	}
 
+	// create a second registered user
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -24,6 +28,7 @@ class GetUsersTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a repo (and team) to use for the test
 	createRandomRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -33,14 +38,16 @@ class GetUsersTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withRandomEmails: 5,
-				withEmails: [this.currentUser.email],
-				token: this.mine ? this.token : this.otherUserData.accessToken
+				withRandomEmails: 5,	// add some additional users, created on the fly
+				withEmails: [this.currentUser.email],	// add the "current" user to the team
+				token: this.mine ? this.token : this.otherUserData.accessToken	// current user or other user creates the repo/team, as needed
 			}
 		);
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// validate we got back the users expected, and ensure no attributes that shouldn't be seen by clients
 		this.validateMatchingObjects(this.myUsers, data.users, 'users');
 		this.validateSanitizedObjects(data.users, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

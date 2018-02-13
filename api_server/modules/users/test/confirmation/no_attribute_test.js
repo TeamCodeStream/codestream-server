@@ -19,7 +19,9 @@ class NoAttributeTest extends ConfirmationTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// run standard set up for a confirmation test but delete the attribute indicated
 		super.before(() => {
 			delete this.data[this.attribute];
 			callback();

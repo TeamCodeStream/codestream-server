@@ -14,7 +14,9 @@ class ACLTest extends GetTeamsTest {
 		};
 	}
 
+	// set the path to use when issuing the test request
 	setPath (callback) {
+		// try to fetch some teams, including the "foregin" one which i am not a member of, this should trigger an error
 		let ids = [
 			this.myTeam._id,
 			this.otherTeams[0]._id,

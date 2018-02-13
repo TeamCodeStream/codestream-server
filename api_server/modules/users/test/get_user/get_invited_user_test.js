@@ -13,22 +13,27 @@ class GetInvitedUserTest extends CodeStreamAPITest {
 		return { user: UserTestConstants.EXPECTED_UNREGISTERED_USER_FIELDS };
 	}
 
+	// before the test runs...
 	before (callback) {
+		// create a repo (which creates a team), include a random user on the team,
+		// we'll then try to fetch that user
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.otherUser = response.users[0];
+				this.otherUser = response.users[0];	// we should be able to fetch this user
 				this.path = '/users/' + this.otherUser._id;
 				callback();
 			},
 			{
-				withRandomEmails: 2,
-				token: this.token
+				withRandomEmails: 2,	// create a couple users on the fly
+				token: this.token		// current user creates the repo and team
 			}
 		);
 	}
 
+	// validate the response to the test request...
 	validateResponse (data) {
+		// validate we got back the expected user, and make sure there aren't any attributes a client shouldn't see
 		this.validateMatchingObject(this.otherUser._id, data.user, 'user');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

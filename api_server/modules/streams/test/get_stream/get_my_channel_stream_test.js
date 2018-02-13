@@ -10,6 +10,7 @@ class GetMyChannelStreamTest extends GetStreamTest {
 		this.type = 'channel';
 		this.mine = true;
 	}
+	
 	get description () {
 		return 'should return a valid stream when requesting a channel stream created by me';
 	}

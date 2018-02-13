@@ -1,3 +1,5 @@
+// attributes for stream documents/models
+
 'use strict';
 
 module.exports = {

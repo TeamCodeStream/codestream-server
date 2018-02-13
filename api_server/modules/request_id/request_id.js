@@ -1,3 +1,5 @@
+// provide middleware to generate a request ID and add it to incoming express requests
+
 'use strict';
 
 var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');

@@ -15,13 +15,15 @@ class ACLTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createOtherRepo
+			this.createOtherUser,	// create a second registered user
+			this.createOtherRepo	// have the other user create a repo and team, and the current is not included
 		], callback);
 	}
 
+	// create a second registered user
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -32,6 +34,8 @@ class ACLTest extends CodeStreamAPITest {
 		);
 	}
 
+	// have the other user create a repo and team, with the current user not included,
+	// the current user should not be able to fetch users for the team
 	createOtherRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -40,8 +44,8 @@ class ACLTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withRandomEmails: 2,
-				token: this.otherUserData.accessToken
+				withRandomEmails: 2,	// add a couple more users for good measure
+				token: this.otherUserData.accessToken	// the "other" user creates the repo and team
 			}
 		);
 	}

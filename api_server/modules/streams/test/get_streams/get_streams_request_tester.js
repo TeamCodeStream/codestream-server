@@ -1,3 +1,5 @@
+// handle unit tests for the "GET /streams" request
+
 'use strict';
 
 var GetStreamsByTeamIdAndIdsTest = require('./get_streams_by_team_id_and_ids_test');

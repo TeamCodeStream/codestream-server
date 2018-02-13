@@ -15,7 +15,9 @@ class GetStreamsLimitTest extends GetStreamsTest {
 		return 'should return the correct streams when requesting a limited number of streams';
 	}
 
+	// set the path to use when issuing the test request
 	setPath (callback) {
+		// set up our expected streams to be in sorted order, and then limit to the first 3
 		this.myStreams = this.streamsByRepo[this.myRepo._id];
 		this.myStreams.sort((a, b) => {
 			return a._id.localeCompare(b._id);

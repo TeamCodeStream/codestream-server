@@ -1,7 +1,10 @@
+// test constants for testing the streams module
+
 'use strict';
 
 const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stream_attributes');
 
+// fields expected in all streams
 const EXPECTED_STREAM_FIELDS = [
 	'_id',
 	'deactivated',
@@ -13,17 +16,21 @@ const EXPECTED_STREAM_FIELDS = [
 	'sortId'
 ];
 
+// fields expected for channel streams
 const EXPECTED_CHANNEL_STREAM_FIELDS = [
 	'name',
 	'memberIds'
 ];
 
+// fields expected for direct streams
 const EXPECTED_DIRECT_STREAM_FIELDS = [
 	'memberIds'
 ];
 
+// fields expected for file-type streams
 const EXPECTED_FILE_STREAM_FIELDS = [
-	'repoId'
+	'repoId',
+	'file'
 ];
 
 const EXPECTED_STREAM_RESPONSE = {

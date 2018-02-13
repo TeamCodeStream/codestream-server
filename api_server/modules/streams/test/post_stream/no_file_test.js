@@ -21,9 +21,12 @@ class NoFileTest extends PostFileStreamTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// run the standard test set up for posting a file-type stream, but...
 		super.before(error => {
 			if (error) { return callback(error); }
+			// ... delete the file attribute
 			delete this.data.file;
 			callback();
 		});

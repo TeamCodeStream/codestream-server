@@ -1,3 +1,5 @@
+// handle publishing a new stream to the messager channel appropriate for the stream
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -11,9 +13,11 @@ class StreamPublisher {
 	// publish a stream ... how we do it depends on its type
 	publishStream (callback) {
 		if (this.stream.type === 'file') {
+			// file-type streams are published to the team that owns the repo that owns the stream
 			this.publishStreamToTeam(callback);
 		}
 		else {
+			// channel and direct streams are published to the individual members of the stream
 			this.publishStreamToMembers(callback);
 		}
 	}

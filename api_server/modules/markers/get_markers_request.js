@@ -1,4 +1,4 @@
-// handle the "GET /markers" request
+// handle the "GET /markers" request to fetch multiple markers
 
 'use strict';
 

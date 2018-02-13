@@ -15,7 +15,12 @@ class NoRepo_IDTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// we're skipping the usual test conditions here, so just create a random repo,
+		// which creates a team ... then try to fetch file-type streams from that team ...
+		// it is not allowed to fetch file-type streams spanning the repos in a team, 
+		// so this should fail
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -24,7 +29,7 @@ class NoRepo_IDTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				token: this.token
+				token: this.token	// the current user creates the team and repo
 			}
 		);
 	}

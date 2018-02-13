@@ -1,4 +1,4 @@
-// handler for the "PUT /marker-locations" request
+// handler for the "PUT /marker-locations" request to update marker locations for a given stream and commit
 
 'use strict';
 

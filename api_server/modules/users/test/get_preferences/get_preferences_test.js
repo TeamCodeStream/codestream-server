@@ -17,7 +17,10 @@ class GetPreferencesTest extends CodeStreamAPITest {
 		return '/preferences';
 	}
 
+	// before the test runs...
 	before (callback) {
+		// make the preferences data, and write it to the server,
+		// we'll then read it back for the test
 		let data = this.makePreferencesData();
 		this.doApiRequest(
 			{
@@ -30,7 +33,10 @@ class GetPreferencesTest extends CodeStreamAPITest {
 		);
 	}
 
+	// make the preferences data for the test, which we'll write out to the 
+	// server and then read back 
 	makePreferencesData () {
+		// a multi-level mix of stuff...
 		this.expectData = {
 			simplePreference: true,
 			topLevelPreference: {
@@ -51,7 +57,9 @@ class GetPreferencesTest extends CodeStreamAPITest {
 		return this.expectData;
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// validate that we got back the data we wrote
 		Assert.deepEqual(data.preferences, this.expectData, 'returned preference data does not match');
 	}
 }

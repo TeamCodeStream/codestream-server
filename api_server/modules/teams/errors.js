@@ -1,3 +1,5 @@
+// Errors related to the teams module
+
 'use strict';
 
 const ERRORS = {

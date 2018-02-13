@@ -23,14 +23,16 @@ class ACLTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createOtherRepo,
-			this.makeStreamData
+			this.createOtherUser,	// create another registered user
+			this.createOtherRepo,	// create a team and repo, but the current user is not a member
+			this.makeStreamData		// make the stream data to pass in the test request
 		], callback);
 	}
 
+	// create a second registered user
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -41,6 +43,7 @@ class ACLTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a repo and team, but the current user is not a member
 	createOtherRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -50,12 +53,13 @@ class ACLTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withRandomEmails: 2,
-				token: this.otherUserData.accessToken
+				withRandomEmails: 2,	// add a few random unregistered users for good measure
+				token: this.otherUserData.accessToken	// "other" user creates the repo and team
 			}
 		);
 	}
 
+	// make the stream data to pass in the test request
 	makeStreamData (callback) {
 		this.streamFactory.getRandomStreamData(
 			(error, data) => {
@@ -66,7 +70,7 @@ class ACLTest extends CodeStreamAPITest {
 			{
 				type: this.type,
 				teamId: this.team._id,
-				repoId: this.type === 'file' ? this.repo._id : null
+				repoId: this.type === 'file' ? this.repo._id : null	// file-type streams require a repo ID
 			}
 		);
 	}

@@ -9,7 +9,7 @@ class IDsRequiredTest extends CodeStreamAPITest {
 	}
 
 	get path () {
-		return '/teams';
+		return '/teams';	// no IDs or any other parameters
 	}
 
 	getExpectedError () {

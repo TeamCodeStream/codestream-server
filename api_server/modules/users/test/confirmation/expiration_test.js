@@ -18,7 +18,10 @@ class ExpirationTest extends ConfirmationTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// run the standard setup for a confirmation, but use a timeout which times out the 
+		// confirmation code VERY quickly
 		this.userOptions = {
 			timeout: 100
 		};

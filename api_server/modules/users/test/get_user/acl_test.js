@@ -14,7 +14,10 @@ class ACLTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// create a user, then we'll try to fetch it ... but because we're not on a team together,
+		// it should fail
 		this.userFactory.createRandomUser((error, data) => {
 			if (error) { return callback(error); }
 			this.path = '/users/' + data.user._id;

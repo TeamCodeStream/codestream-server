@@ -1,4 +1,4 @@
-// handle a GET /posts request
+// handle a GET /posts request to fetch several posts
 
 'use strict';
 

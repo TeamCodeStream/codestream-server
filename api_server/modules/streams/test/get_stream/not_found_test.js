@@ -15,7 +15,9 @@ class NotFoundTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// set path to look for some random stream ID, instead of the one we created
 		this.path = '/streams/' + ObjectID();
 		callback();
 	}

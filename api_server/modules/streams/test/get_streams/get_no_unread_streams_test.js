@@ -9,10 +9,11 @@ class GetNoUnreadStreamsTest extends GetUnreadStreamsTest {
 		return 'should return no streams when asking for streams with unread messages and there are none';
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.readAll
+			super.before,	// do standard test prep...
+			this.readAll	// but then indicate that we're up to date in all streams
 		], callback);
 	}
 
@@ -23,7 +24,7 @@ class GetNoUnreadStreamsTest extends GetUnreadStreamsTest {
 			token: this.token
 		}, error => {
 			if (error) { return callback(error); }
-			this.myStreams = [];
+			this.myStreams = [];	// since we're up to date in all streams, we expect no streams in the response
 			callback();
 		});
 	}

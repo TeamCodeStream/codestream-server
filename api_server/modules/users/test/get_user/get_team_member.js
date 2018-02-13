@@ -14,13 +14,15 @@ class GetTeamMember extends CodeStreamAPITest {
 		return UserTestConstants.EXPECTED_USER_RESPONSE;
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRandomRepo
+			this.createOtherUser,	// create a second registered user
+			this.createRandomRepo	// have the other user create a repo and team
 		], callback);
 	}
 
+	// create a second registered user
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -31,6 +33,9 @@ class GetTeamMember extends CodeStreamAPITest {
 		);
 	}
 
+	// create a repo, which creates a team, with both the current user and the team creator, 
+	// as well as a couple of other users created on the fly ... the current user should then
+	// be able to fetch one of the created users, since they are on the same team
 	createRandomRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -40,14 +45,16 @@ class GetTeamMember extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withRandomEmails: 2,
-				withEmails: [this.currentUser.email],
-				token: this.otherUserData.accessToken
+				withRandomEmails: 2,	// create a few on-the-fly users
+				withEmails: [this.currentUser.email],	// include the current user
+				token: this.otherUserData.accessToken	// "other" user creates the repo and team
 			}
 		);
 	}
 
+	// validate the response to the request test
 	validateResponse (data) {
+		// validate we got back the expected user, and make sure there aren't any attributes a client shouldn't see
 		this.validateMatchingObject(this.otherUser._id, data.user, 'user');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

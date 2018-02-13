@@ -18,7 +18,9 @@ class EmailMismatchTest extends ConfirmationTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// do standard set up for the confirmation test, but change the email
 		super.before(() => {
 			this.data.email = this.userFactory.randomEmail();
 			callback();

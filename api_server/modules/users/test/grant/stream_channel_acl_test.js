@@ -6,9 +6,9 @@ class StreamChannelACLTest extends GrantTest {
 
 	constructor (options) {
 		super(options);
-		this.wantOtherUser = true;
-		this.wantForeignRepo = true;
-		this.wantForeignStream = true;
+		this.wantOtherUser = true;		// we want a second registered user
+		this.wantForeignRepo = true;	// we want a repo and team that the current user is not a member of
+		this.wantForeignStream = true;	// we want a stream in that team
 	}
 
 	getExpectedError () {
@@ -21,7 +21,9 @@ class StreamChannelACLTest extends GrantTest {
 		return 'should return an error when requesting to grant access to a stream channel when i am not a member of the team that owns the stream';
 	}
 
+	// set the path to use when issuing the test request
 	setPath (callback) {
+		// set to grant access to the channel for a stream in the team that the current user is not a member of
 		this.path = '/grant/stream-' + this.foreignStream._id;
 		callback();
 	}

@@ -1,4 +1,4 @@
-// handle a GET /companies request
+// handle a GET /companies request to fetch multiple companies
 
 'use strict';
 

@@ -9,14 +9,16 @@ class NewStreamToMembersTest extends CodeStreamMessageTest {
 		return `members of the stream should receive a message with the stream when a ${this.type} stream is added to a team`;
 	}
 
+	// make the data to use for the test
 	makeData (callback) {
 		BoundAsync.series(this, [
-			this.createTeamCreator,
-			this.createStreamCreator,
-			this.createRepo
+			this.createTeamCreator,		// create a user who will create a team and repo
+			this.createStreamCreator,	// create a user who will create a stream
+			this.createRepo 			// create a repo to use for the test
 		], callback);
 	}
 
+	// create a user who will create a team and repo
 	createTeamCreator (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -27,6 +29,7 @@ class NewStreamToMembersTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a user who will create a stream
 	createStreamCreator (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -37,6 +40,7 @@ class NewStreamToMembersTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a repo to use for the test
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -46,20 +50,25 @@ class NewStreamToMembersTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				withEmails: [this.currentUser.email, this.streamCreatorData.user.email],
-				withRandomEmails: 1,
-				token: this.teamCreatorData.accessToken
+				withEmails: [this.currentUser.email, this.streamCreatorData.user.email],	// current user and stream creator are included
+				withRandomEmails: 1,	// add another user for good measure
+				token: this.teamCreatorData.accessToken	// team creator creates the team
 			}
 		);
 	}
 
+	// set the name of the channel to listen for the message on
 	setChannelName (callback) {
+		// listen on the current user's me-channel, they should get a message that they have been
+		// added to the team
 		this.channelName = 'user-' + this.currentUser._id;
 		callback();
 	}
 
-
+	// issue the request that will trigger the message to be sent
 	generateMessage (callback) {
+		// create a channel or direct stream, this should send a message to the users that they've been 
+		// added to the stream
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -68,9 +77,9 @@ class NewStreamToMembersTest extends CodeStreamMessageTest {
 			},
 			{
 				type: this.type,
-				token: this.streamCreatorData.accessToken,
+				token: this.streamCreatorData.accessToken,	// stream creator creates the stream, and ...
 				teamId: this.team._id,
-				memberIds: [this.currentUser._id]
+				memberIds: [this.currentUser._id]			// ... adds the current user
 			}
 		);
 	}

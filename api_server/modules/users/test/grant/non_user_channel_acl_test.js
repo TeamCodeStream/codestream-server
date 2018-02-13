@@ -15,7 +15,9 @@ class NonUserChannelACLTest extends GrantTest {
 		return 'should return an error when requesting to grant access to the me-channel for a non-existent user';
 	}
 
+	// set the path to use when issuing the test request
 	setPath (callback) {
+		// set to grant access to the channel for a non-existent user
 		this.path = '/grant/user-' + ObjectID();
 		callback();
 	}

@@ -15,7 +15,10 @@ class InvalidTypeTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// we're skipping the usual test conditions here, so just create a random repo,
+		// which creates a team ... then try to fetch a stream from that team using a bogus type
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -24,7 +27,7 @@ class InvalidTypeTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				token: this.token
+				token: this.token	// the current user creates the repo and team
 			}
 		);
 	}

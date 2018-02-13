@@ -1,3 +1,6 @@
+// provide middleware and service to track requests, ensuring that when a node process is terminated, 
+// the process is not immediately killed, but is given the chance to complete all requests first
+
 'use strict';
 
 var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
@@ -39,16 +42,20 @@ class RequestTracker extends APIServerModule {
 		};
 	}
 
+	// track a new request
 	trackRequest (request) {
 		this.trackedRequests[request.id] = request;
 	}
 
+	// stop tracking a request, unless it has declared itself "keep open"
 	maybeUntrackRequest (request) {
 		if (!request.keepOpen) {
 			this.untrackRequest(request);
 		}
 	}
 
+	// stop tracking a request, and announce to the api server if we have no more
+	// requests to work on
 	untrackRequest (request) {
 		delete this.trackedRequests[request.id];
 		if (this.numOpenRequests() === 0) {
@@ -56,6 +63,7 @@ class RequestTracker extends APIServerModule {
 		}
 	}
 
+	// how many requests are we currently serving?
 	numOpenRequests () {
 		return Object.keys(this.trackedRequests).length;
 	}

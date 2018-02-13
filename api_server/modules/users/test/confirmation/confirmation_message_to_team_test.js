@@ -12,13 +12,15 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		return 'the team creator should receive a message indicating a user is registered when a user on the team confirms registration';
 	}
 
+	// make the data we need to trigger the test message
 	makeData (callback) {
 		BoundAsync.series(this, [
-			this.createRepo,
-			this.registerUser
+			this.createRepo,		// create a repo to use for the test
+			this.registerUser 		// register a user (without confirming), this is the user we will now confirm for the test...
 		], callback);
 	}
 
+	// create a repo to use for the test
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -29,14 +31,17 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				withRandomEmails: 2,
-				token: this.token
+				withRandomEmails: 2,	// add a couple unregistered users, one of them will be the user we register 
+				token: this.token		// the "current" user is the repo and team creator
 			}
 		);
 	}
 
+	// register a user (without confirmation)
 	registerUser (callback) {
+		// get one of the users we created who is yet unregistered
 		this.registeringUser = this.users[1];
+		// form the data for the registration
 		let register = {
 			email: this.registeringUser.email,
 			username: RandomString.generate(12),
@@ -45,6 +50,7 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 			_forceConfirmation: true								// this forces confirmation even if not enforced in environment
 		};
 		Object.assign(this.registeringUser, register);
+		// register this user (without confirmation)
 		this.userFactory.registerUser(
 			register,
 			(error, response) => {
@@ -55,12 +61,16 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// set the name of the channel we'll listen on for the test message
 	setChannelName (callback) {
+		// the team channel gets the message that a new user has confirmed registration
 		this.channelName = 'team-' + this.team._id;
 		callback();
 	}
 
+	// generate the test message
 	generateMessage (callback) {
+		// the message we expect to receive is the registered user, with isRegistered flag set
 		let user = new User(this.registeringUser);
 		let userObject = user.getSanitizedObject();
 		userObject.isRegistered = true;
@@ -68,7 +78,7 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 			users: [userObject]
 		};
 
-		// confirming one of the random users created should trigger the message
+		// confirming the user should trigger the message
 		this.userFactory.confirmUser(this.registeringUser, callback);
 	}
 }

@@ -15,7 +15,9 @@ class NonTeamChannelACLTest extends GrantTest {
 		return 'should return an error when requesting to grant access to the team channel for a non-existent team';
 	}
 
+	// set the path to use when issuing the test request
 	setPath (callback) {
+		// set to grant access to the channel for a non-existent team
 		this.path = '/grant/team-' + ObjectID();
 		callback();
 	}

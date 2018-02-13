@@ -13,12 +13,16 @@ class GetMyselfTest extends CodeStreamAPITest {
 		return UserTestConstants.EXPECTED_USER_RESPONSE;
 	}
 
+	// before the test runs...
 	before (callback) {
+		// we'll fetch "ourselves", either by literal ID, or by "me" in the path
 		this.path = '/users/' + (this.id || this.currentUser._id);
 		callback();
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// validate that we got back "ourselves", and that there are no attributes a client shouldn't see
 		this.validateMatchingObject(this.currentUser._id, data.user, 'user');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

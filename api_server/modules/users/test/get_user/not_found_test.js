@@ -15,7 +15,9 @@ class NotFoundTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// we'll try to fetch a non-existent user, with a random ID
 		this.path = '/users/' + ObjectID();
 		callback();
 	}

@@ -10,6 +10,7 @@ class GetMyDirectStreamTest extends GetStreamTest {
 		this.type = 'direct';
 		this.mine = true;
 	}
+	
 	get description () {
 		return 'should return a valid stream when requesting a direct stream created by me';
 	}

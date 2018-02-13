@@ -1,3 +1,5 @@
+// handle unit tests for the "GET /preferences" request 
+
 'use strict';
 
 var GetPreferencesTest = require('./get_preferences_test');

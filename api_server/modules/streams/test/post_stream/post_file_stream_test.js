@@ -12,6 +12,7 @@ class PostFileStreamTest extends PostStreamTest {
 	}
 
 	getExpectedFields () {
+		// expect standard stream fields, plus stream fields for a file-type stream
 		let fields = Object.assign({}, super.getExpectedFields());
 		fields.stream = [
 			...fields.stream,
@@ -20,13 +21,16 @@ class PostFileStreamTest extends PostStreamTest {
 		return fields;
 	}
 
+	// make options to use when creating the stream for the test
 	makeStreamOptions (callback) {
+		// get the standard stream options, and add the repo ID, required for file-type stream
 		super.makeStreamOptions(() => {
 			this.streamOptions.repoId = this.repo._id;
 			callback();
 		});
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
 		let stream = data.stream;
 		let errors = [];

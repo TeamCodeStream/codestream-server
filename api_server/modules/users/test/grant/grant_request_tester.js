@@ -1,3 +1,5 @@
+// handle unit tests for the "PUT /grant/:channel" request 
+
 'use strict';
 
 var MeChannelGrantTest = require('./me_channel_grant_test');

@@ -21,7 +21,10 @@ class InvalidTypeTest extends PostFileStreamTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// set up standard test conditions for creating a file-type stream, 
+		// but set the type to a bogus type
 		super.before(error => {
 			if (error) { return callback(error); }
 			this.data.type = 'sometype';

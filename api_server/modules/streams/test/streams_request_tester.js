@@ -1,3 +1,5 @@
+// handle unit tests for the streams module
+
 'use strict';
 
 var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');

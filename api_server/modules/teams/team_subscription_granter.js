@@ -1,3 +1,5 @@
+// handles granting permission to the users in a team to subscribe to the team's messager channel
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -8,14 +10,16 @@ class TeamSubscriptionGranter  {
 		Object.assign(this, options);
 	}
 
+	// grant permission to the users of a team to subscribe to the team channel
 	grantToMembers (callback) {
 		BoundAsync.series(this, [
-			this.getUsers,
-			this.getTokens,
-			this.grantTeamChannel
+			this.getUsers,			// get the stream users, since only registered users can access
+			this.getTokens,			// get the users' tokens
+			this.grantTeamChannel	// grant the permissions
 		], callback);
 	}
 
+	// get the users in a team
 	getUsers (callback) {
 		if (this.members) {
 			return callback();
@@ -28,11 +32,13 @@ class TeamSubscriptionGranter  {
 				callback();
 			},
 			{
+				// only need these fields
 				fields: ['isRegistered', 'accessToken']
 			}
 		);
 	}
 
+	// get the access tokens for each user in the team that is registered
 	getTokens (callback) {
 		this.tokens = [];
 		BoundAsync.forEachLimit(
@@ -44,6 +50,7 @@ class TeamSubscriptionGranter  {
 		);
 	}
 
+	// get the access token for a registered user in the stream
 	getTokenForRegisteredUser (user, callback) {
 		if (user.get('isRegistered')) {
 			this.tokens.push(user.get('accessToken'));
@@ -51,6 +58,7 @@ class TeamSubscriptionGranter  {
 		process.nextTick(callback);
 	}
 
+	// grant permissions for each registered user to subscribe to the team channel
 	grantTeamChannel (callback) {
 		if (this.tokens.length === 0) {
 			return callback();

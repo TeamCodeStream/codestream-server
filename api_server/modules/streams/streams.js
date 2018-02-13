@@ -1,10 +1,13 @@
+// provide a module to handle requests associated with streams
+
 'use strict';
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 var StreamCreator = require('./stream_creator');
-//var TeamUpdater = require('./team_updater');
+//var StreamUpdater = require('./stream_updater');
 var Stream = require('./stream');
 
+// expose these restful routes
 const STREAM_STANDARD_ROUTES = {
 	want: ['get', 'getMany', 'post'],
 	baseRouteName: 'streams',
@@ -17,24 +20,24 @@ const STREAM_STANDARD_ROUTES = {
 class Streams extends Restful {
 
 	get collectionName () {
-		return 'streams';
+		return 'streams'; // name of the data collection
 	}
 
 	get modelName () {
-		return 'stream';
+		return 'stream'; // name of the data model	
 	}
 
 	get creatorClass () {
-		return StreamCreator;
+		return StreamCreator; // use this class to instantiate streams
 	}
 
 	get modelClass () {
-		return Stream;
+		return Stream;	// use this class for the data model
 	}
 
 /*
 	get updaterClass () {
-		return StreamUpdater;
+		return StreamUpdater;	// use this class to update streams (not supported yet)
 	}
 */
 
