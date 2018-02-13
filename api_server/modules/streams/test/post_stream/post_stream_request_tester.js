@@ -1,3 +1,5 @@
+// handle unit tests for the "POST /streams" request
+
 'use strict';
 
 var PostFileStreamTest = require('./post_file_stream_test');

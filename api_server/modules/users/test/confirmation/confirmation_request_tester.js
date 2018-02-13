@@ -1,3 +1,5 @@
+// handle unit tests for the "POST /confirm" request 
+
 'use strict';
 
 var ConfirmationTest = require('./confirmation_test');

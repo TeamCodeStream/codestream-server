@@ -14,7 +14,9 @@ class ACLTest extends GetStreamsTest {
 		};
 	}
 
+	// set the path to use when issuing the test request
 	setPath (callback) {
+		// try to fetch a few of the streams from the "foreign" team, which we are not a member of
 		let teamId = this.foreignTeam._id;
 		let streams = [
 			this.streamsByTeam[this.foreignTeam._id][0],

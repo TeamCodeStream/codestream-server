@@ -1,3 +1,4 @@
+// provide a base class for many of the tests of the "POST /streams" request to create a stream
 'use strict';
 
 var Assert = require('assert');
@@ -29,16 +30,19 @@ class PostStreamTest extends CodeStreamAPITest {
 		return StreamTestConstants.EXPECTED_STREAM_RESPONSE;
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.makeRandomEmails,
-			this.createRandomRepo,
-			this.makeStreamOptions,
-			this.createDuplicateStream,
-			this.makeStreamData
+			this.makeRandomEmails,		// make some random emails, to be added to the test team and some streams
+			this.createRandomRepo,		// make a repo (and a team), with some of the users as members
+			this.makeStreamOptions,		// make options to use in issuing the test request to create a stream
+			this.createDuplicateStream,	// if needed, create a stream, before the test request, that duplicates the attributes of the stream we will create for the test
+			this.makeStreamData			// make the data to use when issuing the request
 		], callback);
 	}
 
+	// make some random emails, these will be added as users in the team that owns the stream 
+	// created during the test
 	makeRandomEmails (callback) {
 		for (let i = 0; i < 3; i++) {
 			this.teamEmails.push(this.userFactory.randomEmail());
@@ -46,6 +50,7 @@ class PostStreamTest extends CodeStreamAPITest {
 		callback();
 	}
 
+	// create a repo (which creates a team)
 	createRandomRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -56,22 +61,25 @@ class PostStreamTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withEmails: this.teamEmails,
-				token: this.token
+				withEmails: this.teamEmails,	// add users whose emails we generated
+				token: this.token				// current user creates the team
 			}
 		);
 	}
 
+	// make options to use in issuing the test request to create a stream
 	makeStreamOptions (callback) {
 		this.streamOptions = {
-			type: this.type,
-			teamId: this.team._id
+			type: this.type,		// stream type
+			teamId: this.team._id	// ID of the team to own the stream
 		};
 		callback();
 	}
 
+	// if needed, create a stream, before the test request, 
+	// that duplicates the attributes of the stream we will create for the test
 	createDuplicateStream (callback) {
-		if (!this.testOptions.wantDuplicateStream) {
+		if (!this.testOptions.wantDuplicateStream) {	// only if needed for the test
 			return callback();
 		}
 		this.streamFactory.createRandomStream(
@@ -84,6 +92,7 @@ class PostStreamTest extends CodeStreamAPITest {
 		);
 	}
 
+	// make the data to use when issuing the request
 	makeStreamData (callback) {
 		this.streamFactory.getRandomStreamData(
 			(error, data) => {
@@ -95,6 +104,7 @@ class PostStreamTest extends CodeStreamAPITest {
 		);
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
 		let stream = data.stream;
 		let errors = [];

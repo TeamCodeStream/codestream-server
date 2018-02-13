@@ -10,6 +10,7 @@ class GetMyFileStreamTest extends GetStreamTest {
 		this.type = 'file';
 		this.mine = true;
 	}
+	
 	get description () {
 		return 'should return a valid stream when requesting a file stream created by me';
 	}

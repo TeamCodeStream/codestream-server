@@ -19,13 +19,15 @@ class AlreadyRegisteredTest extends ConfirmationTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.confirm
+			super.before,	// run the standard setup, this will actually create a user who has already been confirmed
+			this.confirm 	// now try to confirm again...
 		], callback);
 	}
 
+	// try to confirm the user we just confirmed ... again!
 	confirm (callback) {
 		this.doApiRequest({
 			method: this.method,

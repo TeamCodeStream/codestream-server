@@ -20,6 +20,7 @@ class MaxAttemptsTest extends ConfirmationTest {
 		};
 	}
 
+	// make a confirmation code that doesn't match the expected confirmation code
 	makeBadConfirmCode () {
 		let newConfirmCode;
 		do {
@@ -28,6 +29,7 @@ class MaxAttemptsTest extends ConfirmationTest {
 		this.data.confirmationCode = newConfirmCode;
 	}
 
+	// attempt to confirm the indicated number of times with a bad confirmation code
 	attemptConfirm (n, callback) {
 		this.makeBadConfirmCode();
 		this.doApiRequest({
@@ -39,7 +41,10 @@ class MaxAttemptsTest extends ConfirmationTest {
 		});
 	}
 
+	// before the test runs...
 	before (callback) {
+		// attempt to confirm with an incorrect confirmation code three times ... on the fourth attempt,
+		// we should get a different error indicating we've reached the maximum number of attempts
 		super.before(() => {
 			BoundAsync.timesSeries(
 				this,

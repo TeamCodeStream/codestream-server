@@ -1,3 +1,5 @@
+// handle unit tests for the "GET /teams/:id" request
+
 'use strict';
 
 var GetMyTeamTest = require('./get_my_team_test');

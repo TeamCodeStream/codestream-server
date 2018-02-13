@@ -1,3 +1,6 @@
+// provide middleware to receive a version header from all requests and establish an API version
+// to which the request is targeted
+
 'use strict';
 
 var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
@@ -10,12 +13,13 @@ class Versioner extends APIServerModule {
 				request.version = this.parseVersion(request.headers['x-api-version']);
 			}
 			else {
-				request.version = this.api.config.version;
+				request.version = this.api.config.version;	// current version
 			}
 			next();
 		};
 	}
 
+	// parse the version string and interpret as major/minor/build
 	parseVersion (versionString) {
 		let parts = versionString.split('.');
 		parts = parts.map(part => parseInt(part, 10) || 0);

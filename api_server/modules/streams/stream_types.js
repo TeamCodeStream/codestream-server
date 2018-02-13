@@ -1,3 +1,5 @@
+// define the valid stream types
+
 'use strict';
 
 const STREAM_TYPES = [

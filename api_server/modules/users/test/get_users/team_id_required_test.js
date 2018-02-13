@@ -9,7 +9,7 @@ class TeamIDRequiredTest extends CodeStreamAPITest {
 	}
 
 	get path () {
-		return '/users';
+		return '/users';	// no teamId in the request
 	}
 
 	getExpectedError () {

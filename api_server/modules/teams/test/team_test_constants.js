@@ -1,7 +1,10 @@
+// test constants for testing the teams module
+
 'use strict';
 
 const TeamAttributes = require(process.env.CS_API_TOP + '/modules/teams/team_attributes');
 
+// fields expected in all teams
 const EXPECTED_TEAM_FIELDS = [
 	'_id',
 	'companyId',

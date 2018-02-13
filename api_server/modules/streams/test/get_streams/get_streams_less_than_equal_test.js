@@ -15,7 +15,9 @@ class GetStreamsLessThanEqualTest extends GetStreamsTest {
 		return 'should return the correct streams when requesting streams with sort IDs less than or equal to some value';
 	}
 
+	// set the path to use when issuing the test request
 	setPath (callback) {
+		// pick the ID of a stream in the middle of the streams we created, and expect all those with IDs less than or equal
 		this.myStreams = this.streamsByRepo[this.myRepo._id];
 		let pivot = this.myStreams[2]._id;
 		this.myStreams = this.myStreams.filter(stream => ObjectID(stream.sortId) <= ObjectID(pivot));

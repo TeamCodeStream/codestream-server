@@ -9,14 +9,16 @@ class NewFileStreamMessageToTeamTest extends CodeStreamMessageTest {
 		return 'members of the team should receive a message with the stream when a file stream is added to a repo';
 	}
 
+	// make the data to use for the test
 	makeData (callback) {
 		BoundAsync.series(this, [
-			this.createTeamCreator,
-			this.createStreamCreator,
-			this.createRepo
+			this.createTeamCreator,		// create a user who will create a team and repo
+			this.createStreamCreator,	// create a user who will create a stream
+			this.createRepo 			// create a repo to use for the test
 		], callback);
 	}
 
+	// create a user who will create a team and repo
 	createTeamCreator (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -27,6 +29,7 @@ class NewFileStreamMessageToTeamTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a user who will create a stream
 	createStreamCreator (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -37,6 +40,7 @@ class NewFileStreamMessageToTeamTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a repo to use for the test
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -46,28 +50,31 @@ class NewFileStreamMessageToTeamTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				withEmails: [this.currentUser.email, this.streamCreatorData.user.email],
-				withRandomEmails: 1,
-				token: this.teamCreatorData.accessToken
+				withEmails: [this.currentUser.email, this.streamCreatorData.user.email],	// current user and stream creator are included
+				withRandomEmails: 1,	// add another user for good measure
+				token: this.teamCreatorData.accessToken	// team creator creates the team
 			}
 		);
 	}
 
+	// set the name of the channel to listen for the message on
 	setChannelName (callback) {
+		// when a file-type stream is created, we should get a message on the team channel
 		this.channelName = 'team-' + this.team._id;
 		callback();
 	}
 
-
+	// issue the request that will trigger the message to be sent
 	generateMessage (callback) {
+		// create a file-type stream, this should send a message on the team channel
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = { stream: response.stream };
+				this.message = { stream: response.stream };	// expect the stream as the message
 				callback();
 			},
 			{
-				token: this.streamCreatorData.accessToken,
+				token: this.streamCreatorData.accessToken,	// stream creator creates the stream
 				teamId: this.team._id,
 				repoId: this.repo._id
 			}

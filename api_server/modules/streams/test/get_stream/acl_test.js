@@ -19,6 +19,7 @@ class ACLTest extends GetStreamTest {
 		};
 	}
 
+	// set the path to use when making the test request
 	setPath (callback) {
 		this.path = '/streams/' + this.stream._id;
 		callback();

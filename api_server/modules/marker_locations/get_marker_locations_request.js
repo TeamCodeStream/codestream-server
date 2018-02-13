@@ -1,4 +1,4 @@
-// handler for the "GET /marker-locations" request
+// handler for the "GET /marker-locations" request to fetch marker locations for a given stream and commit
 
 'use strict';
 

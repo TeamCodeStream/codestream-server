@@ -6,7 +6,7 @@ class DuplicateChannelTest extends PostChannelStreamTest {
 
 	constructor (options) {
 		super(options);
-		this.testOptions.wantDuplicateStream = true;
+		this.testOptions.wantDuplicateStream = true;	// indicates to create a duplicate stream before the actual test runs
 	}
 
 	get description () {
@@ -23,9 +23,12 @@ class DuplicateChannelTest extends PostChannelStreamTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// run the standard test setup for creating a channel stream...
 		super.before(error => {
 			if (error) { return callback(error); }
+			// ...and give our test stream the same name, this causes an error
 			this.data.name = this.duplicateStream.name;
 			callback();
 		});

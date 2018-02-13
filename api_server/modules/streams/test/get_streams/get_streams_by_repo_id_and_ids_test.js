@@ -8,7 +8,9 @@ class GetStreamsByRepoIdAndIdsTest extends GetStreamsTest {
 		return 'should return the correct streams when requesting streams by repo ID and IDs';
 	}
 
+	// set the path to use when issuing the test request
 	setPath (callback) {
+		// pick a few file streams in the repo to fetch by ID 
 		let teamId = this.myTeam._id;
 		let repoId = this.myRepo._id;
 		this.myStreams = [

@@ -1,4 +1,4 @@
-// handle the PUT /posts request to edit attributes of a post
+// handle the DELETE /posts request to delete (deactivate) a post
 
 'use strict';
 

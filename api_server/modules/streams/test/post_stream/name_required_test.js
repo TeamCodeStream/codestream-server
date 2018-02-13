@@ -21,7 +21,9 @@ class NameRequiredTest extends PostChannelStreamTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// set up standard test conditions for creating a channel stream, but remove the name, which is required
 		super.before(error => {
 			if (error) { return callback(error); }
 			delete this.data.name;

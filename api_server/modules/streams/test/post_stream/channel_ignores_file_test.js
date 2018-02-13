@@ -9,16 +9,22 @@ class ChannelIgnoresFileTest extends PostChannelStreamTest {
 		return 'should return a valid stream and ignore file-related attributes when creating a channel stream';
 	}
 
+	// before the test runs...
 	before (callback) {
+		// run standard setup for creating a channel stream...
 		super.before(error => {
 			if (error) { return callback(error); }
+			// ...and add some file-type attributes, these should be ignored
 			this.data.file = this.streamFactory.randomFile();
 			this.data.repoId = this.repo._id;
 			callback();
 		});
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// even though we added a file and repo ID, we should not see these in the response, since we created
+		// a channel-type stream
 		let stream = data.stream;
 		Assert(typeof stream.file === 'undefined', 'file should be undefined');
 		Assert(typeof stream.repoId === 'undefined', 'repoId should be undefined');

@@ -15,7 +15,9 @@ class NonStreamChannelACLTest extends GrantTest {
 		return 'should return an error when requesting to grant access to the stream channel for a non-existent stream';
 	}
 
+	// set the path to use when issuing the test request
 	setPath (callback) {
+		// set to grant access to the channel for a non-existent stream
 		this.path = '/grant/stream-' + ObjectID();
 		callback();
 	}

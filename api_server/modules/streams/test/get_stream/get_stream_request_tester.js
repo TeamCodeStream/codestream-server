@@ -1,3 +1,5 @@
+// handle unit tests for the "GET /streams/:id" request
+
 'use strict';
 
 var GetMyFileStreamTest = require('./get_my_file_stream_test');

@@ -23,12 +23,15 @@ class ConfirmationTest extends CodeStreamAPITest {
 	}
 
 	dontWantToken () {
-		return true;
+		return true;	// don't need a registered user with a token for this test
 	}
 
+	// before the test runs...
 	before (callback) {
+		// register a random user, they will be unconfirmed and we will confirm for the test
 		this.userFactory.registerRandomUser((error, data) => {
 			if (error) { return callback(error); }
+			// form the data to send with the confirmation request
 			this.data = {
 				userId: data.user._id,
 				email: data.user.email,
@@ -38,12 +41,15 @@ class ConfirmationTest extends CodeStreamAPITest {
 		}, this.userOptions || {});
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// validate that we got back the expected user, with an access token and pubnub key
 		let user = data.user;
 		let errors = [];
 		let result = (
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
-			((user._id === this.data.userId) || errors.push('incorrect user id'))
+			((user._id === this.data.userId) || errors.push('incorrect user id')) &&
+			((user.isRegistered) || errors.push('isRegistered not set'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert(data.accessToken, 'no access token');

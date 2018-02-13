@@ -19,7 +19,10 @@ class NoPasswordTest extends ConfirmationTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// indicate to suppress the password when we do the initial register call ... so
+		// when they try to confirm (and still don't set a password), the call fails
 		this.userOptions = {
 			noPassword: true
 		};

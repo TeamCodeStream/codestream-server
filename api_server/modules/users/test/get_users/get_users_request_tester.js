@@ -1,3 +1,5 @@
+// handle unit tests for the "GET /users" request 
+
 'use strict';
 
 var GetUsersByIdTest = require('./get_users_by_id_test');

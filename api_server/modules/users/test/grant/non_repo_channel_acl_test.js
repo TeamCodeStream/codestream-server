@@ -15,7 +15,9 @@ class NonRepoChannelACLTest extends GrantTest {
 		return 'should return an error when requesting to grant access to the repo channel for a non-existent repo';
 	}
 
+	// set the path to use when issuing the test request
 	setPath (callback) {
+		// set to grant access to the channel for a non-existent repo
 		this.path = '/grant/repo-' + ObjectID();
 		callback();
 	}

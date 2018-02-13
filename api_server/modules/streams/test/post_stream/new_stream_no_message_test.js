@@ -10,14 +10,16 @@ class NewStreamNoMessageTest extends CodeStreamMessageTest {
 		return `members of the team who are not members of the stream should not receive a message with the stream when a ${this.type} stream is added to a team`;
 	}
 
+	// make the data to use for the test
 	makeData (callback) {
 		BoundAsync.series(this, [
-			this.createTeamCreator,
-			this.createStreamCreator,
-			this.createRepo
+			this.createTeamCreator,		// create a user who will create a team and repo
+			this.createStreamCreator,	// create a user who will create a stream
+			this.createRepo 			// create a repo to use for the test
 		], callback);
 	}
 
+	// create a user who will create a team and repo
 	createTeamCreator (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -28,6 +30,7 @@ class NewStreamNoMessageTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a user who will create a stream
 	createStreamCreator (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -38,6 +41,7 @@ class NewStreamNoMessageTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a repo to use for the test
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -47,20 +51,24 @@ class NewStreamNoMessageTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				withEmails: [this.currentUser.email, this.streamCreatorData.user.email],
-				withRandomEmails: 1,
-				token: this.teamCreatorData.accessToken
+				withEmails: [this.currentUser.email, this.streamCreatorData.user.email],	// current user and stream creator are included
+				withRandomEmails: 1,	// add another user for good measure
+				token: this.teamCreatorData.accessToken	// team creator creates the team
 			}
 		);
 	}
 
+	// set the name of the channel to listen for the message on
 	setChannelName (callback) {
+		// we'll listen on our me-channel, but no message should be received since we're not a member of the stream
 		this.channelName = 'user-' + this.currentUser._id;
 		callback();
 	}
 
-
+	// issue the request that will trigger the message to be sent
 	generateMessage (callback) {
+		// create a channel or direct stream, this should send a message to the users that they've been
+		// added to the stream, but not to the current user, who is not being added to the stream
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -69,9 +77,9 @@ class NewStreamNoMessageTest extends CodeStreamMessageTest {
 			},
 			{
 				type: this.type,
-				token: this.streamCreatorData.accessToken,
+				token: this.streamCreatorData.accessToken,	// stream creator creates the stream, but...
 				teamId: this.team._id,
-				memberIds: [this.teamCreatorData.user._id]
+				memberIds: [this.teamCreatorData.user._id]	// ... the current user is not added
 			}
 		);
 	}

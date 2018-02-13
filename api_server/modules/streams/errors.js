@@ -1,3 +1,5 @@
+// Errors related to the streams module
+
 'use strict';
 
 const ERRORS = {

@@ -1,3 +1,5 @@
+// provide a class for handling adding users to a team
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -13,22 +15,24 @@ class AddTeamMembers  {
 		this.errorHandler.add(Errors);
 	}
 
+	// main function ... add the indicated members to the team
 	addTeamMembers (callback) {
 		BoundAsync.series(this, [
-			this.getTeam,
-			this.getExistingMembers,
-			this.eliminateDuplicates,
-			this.checkCreateUsers,
-			this.checkUsernamesUnique,
-			this.addToTeam,
-			this.updateUsers,
-			this.grantUserMessagingPermissions
+			this.getTeam,					// get the team
+			this.getExistingMembers,		// get the team's existing members
+			this.eliminateDuplicates,		// eliminate any duplicates (people we are asked to add who are in fact already on the team)
+			this.checkCreateUsers,			// check if we are being asked to create any users on the fly, and do so
+			this.checkUsernamesUnique,		// check that all the usernames for added users will be unique to the team
+			this.addToTeam,					// add the users to the team
+			this.updateUsers,				// update the user objects indicating they have been added to the team
+			this.grantUserMessagingPermissions	// grant permissions for all added users to subscribe to the team channel
 		], callback);
 	}
 
+	// get the team
 	getTeam (callback) {
-		if (this.team) { return callback(); }
-		if (!this.teamId) {
+		if (this.team) { return callback(); }	// already provided by the caller
+		if (!this.teamId) {	
 			return callback(this.errorHandler.error('missingArgument', { info: 'teamId'}));
 		}
 		this.data.teams.getById(
@@ -44,6 +48,7 @@ class AddTeamMembers  {
 		);
 	}
 
+	// get the users already on the team
 	getExistingMembers (callback) {
 		this.data.users.getByIds(
 			this.team.get('memberIds'),
@@ -55,9 +60,10 @@ class AddTeamMembers  {
 		);
 	}
 
+	// eliminate any duplicates (people we are asked to add who are in fact already on the team)
 	eliminateDuplicates (callback) {
-		if (!this.users) {
-			return callback();
+		if (!this.users) {	 
+			return callback(); // no existing users to add to the team
 		}
 		let existingIds = this.existingMembers.map(member => member.id);
 		this.usersToAdd = [];
@@ -69,12 +75,14 @@ class AddTeamMembers  {
 		process.nextTick(callback);
 	}
 
+	// if emails are provided by the caller, then we are asked to create new users on-the-fly 
+	// and add them to the team as we go
 	checkCreateUsers (callback) {
 		let usersToCreate = (this.emails || []).map(email => {
 			return { email: email };
 		});
 		if (this.addUsers instanceof Array) {
-			let usersToAdd = this.addUsers.filter(user => !!user.email);
+			let usersToAdd = this.addUsers.filter(user => !!user.email);	// ensure no duplicates
 			usersToCreate = usersToCreate.concat(usersToAdd);
 		}
 		this.usersCreated = [];
@@ -86,15 +94,16 @@ class AddTeamMembers  {
 		);
 	}
 
+	// create a single user who will be added to the team
 	createUser (user, callback) {
 		if (this.existingMembers.find(member => {
-			return member.get('searchableEmail') === user.email.toLowerCase();
+			return member.get('searchableEmail') === user.email.toLowerCase();	// ensure no duplicates
 		})) {
 			return callback();
 		}
 		this.userCreator = new UserCreator({
 			request: this.request,
-			dontSaveIfExists: true,
+			dontSaveIfExists: true,	// if the user already exists, don't bother saving 
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
 		this.userCreator.createUser(
@@ -107,7 +116,11 @@ class AddTeamMembers  {
 		);
 	}
 
+	// check that among all the users being added, none have usernames that will conflict with the usernames of 
+	// users already on the team
 	checkUsernamesUnique (callback) {
+		// the team membership will be the union of users we are asked to add, the users we created, and the
+		// existing members ... for each one, check that the username is unique compared to all the others (case-insensitive)
 		this.usersToAdd = [...(this.usersToAdd || []), ...(this.usersCreated || [])];
 		let allUsers = [...this.usersToAdd, ...this.existingMembers];
 		let usernames = [];
@@ -131,6 +144,7 @@ class AddTeamMembers  {
 		}
 	}
 
+	// add users to the team by adding IDs to the memberIds array 
 	addToTeam (callback) {
 		let ids = this.usersToAdd.map(user => user.id);
 		this.data.teams.applyOpById(
@@ -140,6 +154,7 @@ class AddTeamMembers  {
 		);
 	}
 
+	// update the users who were added, indicating that they are on a new team
 	updateUsers (callback) {
 		this.membersAdded = [];
 		BoundAsync.forEach(
@@ -150,6 +165,7 @@ class AddTeamMembers  {
 		);
 	}
 
+	// update a user who was added, indicating they are now on a team
 	updateUser (user, callback) {
 		this.data.users.applyOpById(
 			user.id,
@@ -167,6 +183,7 @@ class AddTeamMembers  {
 		);
 	}
 
+	// grant permission to the new members to subscribe to the team channel
 	grantUserMessagingPermissions (callback) {
 		let granterOptions = {
 			data: this.data,

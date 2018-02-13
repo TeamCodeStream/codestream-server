@@ -8,7 +8,10 @@ class GetStreamsOnlyFromTeamTest extends GetStreamsTest {
 		return 'should return the correct streams when requesting streams by ID from a given team';
 	}
 
+	// set the path to use when issuing the test request
 	setPath (callback) {
+		// we'll try to fetch a few streams from our team, and one from the "foreign" team, which we
+		// don't belong to ... we should get back only the streams from our team
 		let teamId = this.myTeam._id;
 		let foreignTeamId = this.foreignTeam._id;
 		this.myStreams = [

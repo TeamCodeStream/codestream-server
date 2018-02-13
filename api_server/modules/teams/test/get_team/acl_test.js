@@ -1,12 +1,12 @@
 'use strict';
 
-var GetCompanyTest = require('./get_team_test');
+var GetTeamTest = require('./get_team_test');
 
-class ACLTest extends GetCompanyTest {
+class ACLTest extends GetTeamTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;
+		this.withoutMe = true;	// don't include "current user" in the "other" team
 	}
 
 	get description () {
@@ -19,8 +19,9 @@ class ACLTest extends GetCompanyTest {
 		};
 	}
 
+	// set the path to use when making the test request
 	setPath (callback) {
-		this.path = '/teams/' + this.otherTeam._id;
+		this.path = '/teams/' + this.otherTeam._id;	// fetch the "other" team, current user is not a member of this one
 		callback();
 	}
 }

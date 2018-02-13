@@ -1,3 +1,5 @@
+// handle unit tests for the "GET /users/:id" request 
+
 'use strict';
 
 var GetMyselfTest = require('./get_myself_test');

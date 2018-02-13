@@ -19,7 +19,9 @@ class InvalidUserIdTest extends ConfirmationTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// run the standard setup for a confirmation test, but change the user ID
 		super.before(() => {
 			this.data.userId = ObjectID();
 			callback();
