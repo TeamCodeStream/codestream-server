@@ -19,6 +19,9 @@ class APIServerModule {
 
 	getDependencies () { }
 
+	initialize (callback) { 
+		process.nextTick(callback); 
+	}
 }
 
 module.exports = APIServerModule;

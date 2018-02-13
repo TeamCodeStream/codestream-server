@@ -3,6 +3,7 @@
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var RandomString = require('randomstring');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
 
 class _UserCreator {
 
@@ -27,11 +28,12 @@ class _UserCreator {
 	}
 
 	_registerUser (callback) {
+		let dataWithBetaCode = Object.assign({}, this.data, { betaCode: ApiConfig.testBetaCode });
 		this.factory.apiRequester.doApiRequest(
 			{
 				method: 'post',
 				path: '/no-auth/register',
-				data: this.data
+				data: dataWithBetaCode
 			},
 			(error, response) => {
 				if (error) { return callback(error); }

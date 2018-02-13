@@ -95,7 +95,7 @@ class APIServerModules {
 		}
 		this.api.log(`Accepted module ${moduleJS}`);
 		this.modules[name] = module;
-		process.nextTick(callback);
+		this.modules[name].initialize(callback);
 	}
 
 	// instantiate a module, as given by the module.js file found in the module directory

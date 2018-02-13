@@ -37,6 +37,10 @@ const ERRORS = {
 	'invalidGrantChannel': {
 		code: 'USRC-1008',
 		message: 'Invalid grant channel'
+	},
+	'invalidBetaCode': {
+		code: 'USRC-1009',
+		message: 'Invalid beta code'
 	}
 };
 
