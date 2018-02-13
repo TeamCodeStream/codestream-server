@@ -1,6 +1,8 @@
 // multiple inheritance algorithm
 // from http://es6-features.org/#ClassInheritanceFromExpressions
 
+'use strict';
+
 module.exports = (baseClass, ...mixins) => {
     let base = class __combined extends baseClass {
         constructor (...args) {
