@@ -22,6 +22,13 @@ class PostDeleter extends ModelDeleter {
 		return this.deleteModel(id, callback);
 	}
 
+    // set the actual attributes for deletion
+    setAttributesForDelete (id) {
+        // wipe out the text and replace with something generic
+        super.setAttributesForDelete(id);
+        this.attributes.text = 'this post has been deleted';
+    }
+
 	// called before the delete is actually deleted
 	preDelete (callback) {
 		BoundAsync.series(this, [
@@ -69,7 +76,7 @@ class PostDeleter extends ModelDeleter {
             request: this.request
         });
         this.markerDeleter.deleteMarker(
-            markerId, 
+            markerId,
             (error, markerUpdate) => {
                 if (error) { return callback(error); }
                 this.attachToResponse.markers = this.attachToResponse.markers || [];
