@@ -12,6 +12,8 @@ var MessageToStreamTest = require('./message_to_stream_test');
 var MarkerDeletedTest = require('./marker_deleted_test');
 var MultipleMarkersDeletedTest = require('./multiple_markers_deleted_test');
 var MarkersDeletedMessageTest = require('./markers_deleted_message_test');
+var DeleteReplyToCodeBlockTest = require('./delete_reply_to_code_block_test');
+var NumCommentsMessageTest = require('./num_comments_message_test');
 
 /* jshint -W071 */
 
@@ -29,6 +31,8 @@ class DeletePostRequestTester {
 		new MarkerDeletedTest().test();
 		new MultipleMarkersDeletedTest().test();
 		new MarkersDeletedMessageTest().test();
+		new DeleteReplyToCodeBlockTest().test();
+		new NumCommentsMessageTest().test();
 	}
 }
 

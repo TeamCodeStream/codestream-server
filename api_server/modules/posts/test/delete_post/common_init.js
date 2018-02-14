@@ -11,6 +11,7 @@ class CommonInit {
 			this.createOtherUser,	// create another registered user
 			this.createRandomRepo,	// create a random repo (and team) for the test
 			this.createRandomStream,	// create a stream in that repo
+			this.createParentPost,	// create a parent post, for replies, if needed
             this.createPost        // create the post that will then be deactivated
 		], callback);
 	}
@@ -66,8 +67,33 @@ class CommonInit {
 		);
 	}
 
+	// create a parent post, if we are testing the deletion of a reply
+	createParentPost (callback) {
+		if (!this.wantParentPost) { return callback(); 	}	// only if needed for the test
+		this.postFactory.createRandomPost(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.parentPost = response.post;
+				callback();
+			},
+            {
+                token: this.otherUserData.accessToken,   // we'll let the "other" user create the parent post
+                streamId: this.stream._id,	// create the post in the stream we created
+                wantCodeBlocks: 1			// create a code block when creating a parent post
+            }
+		);
+	}
+
 	// create the post to be updated
 	createPost (callback) {
+		let postOptions = {
+			token: this.token,   // the "current" user is the creator of the post (and will be the deleter)
+			streamId: this.stream._id, // create the post in the stream we created
+			wantCodeBlocks: this.wantCodeBlocks	// with code blocks, to create markers
+		};
+		if (this.parentPost) {
+			postOptions.parentPostId = this.parentPost._id;
+		}
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -76,11 +102,7 @@ class CommonInit {
 				this.modifiedAfter = Date.now();
 				callback();
 			},
-            {
-                token: this.token,   // the "current" user is the creator of the post (and will be the deleter)
-                streamId: this.stream._id, // create the post in the stream we created
-                wantCodeBlocks: this.wantCodeBlocks	// with code blocks, to create markers
-            }
+			postOptions
 		);
 	}
 }
