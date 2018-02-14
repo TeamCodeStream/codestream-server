@@ -34,6 +34,7 @@ class DeletePostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
         Assert(post._id === this.post._id, 'returned post ID is not the same');
         Assert(post.deactivated, 'deactivated flag was not set');
         Assert(post.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was edited');
+		Assert(post.text === 'this post has been deleted', 'text is not wiped and replaced');
 		// verify the post in the response has no attributes that should not go to clients
 		this.validateSanitized(post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 		// validate any markers deleted as well

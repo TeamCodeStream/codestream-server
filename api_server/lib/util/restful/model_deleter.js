@@ -1,5 +1,5 @@
-// provides an abstract base class to handle the deletion (really deactivation) of a document 
-// in the database...  a standard flow of operations is provided here, but heavy derivation 
+// provides an abstract base class to handle the deletion (really deactivation) of a document
+// in the database...  a standard flow of operations is provided here, but heavy derivation
 // can be done to tweak this process
 
 'use strict';
@@ -21,11 +21,7 @@ class ModelDeleter {
 		if (!this.collection) {
 			return callback(this.errorHandler.error('internal', { reason: `collection ${this.collectionName} is not a valid collection` }));
 		}
-
-		this.attributes = {
-			[this.collection.idAttribute]: id,
-			deactivated: true 
-		};
+		this.setAttributesForDelete(id);
 		BoundAsync.series(this, [
 			this.preDelete,				// prepare to delete the document
 			this.delete,				// delete the document
@@ -33,6 +29,15 @@ class ModelDeleter {
 		], (error) => {
 	 		callback(error, this.update);
 		});
+	}
+
+	// set the actual attributes indicating a model has been deleted ...
+	// override this for custom handling
+	setAttributesForDelete (id) {
+		this.attributes = {
+			[this.collection.idAttribute]: id,
+			deactivated: true
+		};
 	}
 
 	// called right before we delete
