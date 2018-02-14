@@ -89,6 +89,9 @@ else
 	export CS_API_PUBNUB_SECRET=sec-c-MmU3MmNlOGQtNjNhYS00NTk1LWI3NDItZDZlMjk3NmJkMDVh
 fi
 
+# =============== MixPanel Settings ==============
+export CS_API_MIXPANEL_TOKEN=4308967c7435e61d9697ce240bc68d02
+
 # ============ Testing Settings ==============
 # Location of the TestRepo repo used For maintaining test scripts
 export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo
