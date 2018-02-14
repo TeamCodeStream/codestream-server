@@ -56,51 +56,60 @@ class MongoCollection {
 
 	// run a generic query, processing arguments as needed, and logging the query
 	// for performance analysis
-	runQuery (mongoFunc, query, callback, options, ...args) {
+	async runQuery (mongoFunc, query, options, ...args) {
 		options = options || {};
 		const startTime = Date.now();
 		const requestId = options.requestId;
 		delete options.requestId;
-
-		// called when the query is complete, this is where we'll do our logging
-		let queryCallback = (error, results) => {
+		const mongoArgs = [query, ...args, options];
+		let results, error;
+		try {
+			results = await this.dbCollection[mongoFunc].apply(
+				this.dbCollection,
+				mongoArgs
+			);
+		}
+		catch (e) {
+			error = e;
+		}
+		finally {
 			const time = Date.now() - startTime;
 			let logOptions = { query, mongoFunc, time, requestId, error };
 			logOptions.queryOptions = options;
 			this._logMongoQuery(logOptions, args);
 			if (error) {
-				return callback(this.errorHandler.dataError(error));
+				throw this.errorHandler.dataError(error);
 			}
 			else {
-				callback(null, results);
+				return results;
 			}
-		};
-
-		let mongoArgs = [query, ...args, options, queryCallback];
-		this.dbCollection[mongoFunc].apply(
-			this.dbCollection,
-			mongoArgs
-		);
+		}
 	}
 
 	// get a document by its ID, we'll shield the caller from having to maintain
 	// a mongo ID; they can use a simple string instead
-	getById (id, callback, options) {
+	async getById (id, callback, options) {
 		let query = {};
 		query[this.idAttribute] = this.objectIdSafe(id); // convert to mongo ID
 		if (!query[this.idAttribute]) {
 			// no document if no ID!
 			return callback(null, null);
 		}
-		this.runQuery(
-			'findOne',
-			query,
-			(error, result) => {
-				// turn any IDs we see into strings
-				this._idStringifyResult(error, result, callback);
-			},
-			options
-		);
+		let result;
+		try {
+			result = await this.runQuery(
+				'findOne',
+				query,
+				options
+			);
+		}
+		catch (error) {
+			callback(error);
+		}
+
+		// turn any IDs we see into strings
+		result = await this._idStringify(result);
+		return callback(null, result);
 	}
 
 	// get several documents by their IDs, we'll shield the caller from having to maintain
@@ -108,6 +117,7 @@ class MongoCollection {
 	getByIds (ids, callback, options = {}) {
 		let query = {};
 		let objectIds = [];
+
 		// for each ID, convert it into a mongo ID
 		BoundAsync.forEachLimit(
 			this,
@@ -194,53 +204,62 @@ class MongoCollection {
 	}
 
 	// get a single document (first we find) according to the specified query
-	getOneByQuery (query, callback, options) {
+	async getOneByQuery (query, callback, options) {
 		if (this.options.hintsRequired && !options.hint && !options.overrideHintRequired) {
 			return callback(this.errorHandler.error('hintRequired', { query: query }));
 		}
-		this.runQuery(
-			'findOne',
-			query,
-			(error, result) => {
-				// turn any IDs we see into strings
-				this._idStringifyResult(error, result, callback);
-			},
-			options
-		);
+		let result;
+		try {
+			result = await this.runQuery(
+				'findOne',
+				query,
+				options
+			);
+		}
+		catch (error) {
+			callback(error);
+		}
+		// turn any IDs we see into strings
+		result = await this._idStringify(result);
+		return callback(null, result);
 	}
 
 	// create a document
-	create (document, callback, options) {
+	async create (document, callback, options) {
 		// get an ID in mongo ID form, or generate one
 		document._id = document._id ? this.objectIdSafe(document._id) : ObjectID();
 		// insert the document
-		this.runQuery(
-			'insertOne',
-			document,
-			(error) => {
-				if (error) {
-					return callback(this.errorHandler.dataError(error));
-				}
-				else {
-					// to return the document, turn any IDs we see into strings
-					this._idStringify(document, callback);
-				}
-			},
-			options
-		);
+		try {
+			await this.runQuery(
+				'insertOne',
+				document,
+				options
+			);
+		}
+		catch (error) {
+			callback(this.errorHandler.dataError(error));
+		}
+		// to return the document, turn any IDs we see into strings
+		document = await this._idStringify(document);
+		return callback(null, document);
 	}
 
 	// create many documents
-	createMany (documents, callback, options) {
-		this.runQuery(
-			'insertMany',
-			documents,
-			(error, result) => {
-				// to return the documents, turn any IDs we see into strings
-				this._idStringifyResult(error, result.ops, callback);
-			},
-			options
-		);
+	async createMany (documents, callback, options) {
+		let result;
+		try {
+			result = await this.runQuery(
+				'insertMany',
+				documents,
+				options
+			);
+		}
+		catch (error) {
+			callback(error);
+		}
+		// to return the documents, turn any IDs we see into strings
+		result = await this._idStringify(result.ops);
+		return callback(null, result);
 	}
 
 	// update a document
@@ -308,83 +327,102 @@ class MongoCollection {
 	}
 
 	// apply a mongo op to a document
-	_applyMongoOpById (id, op, callback, options) {
+	async _applyMongoOpById (id, op, callback, options) {
 		let query = {};
 		query[this.idAttribute] = this.objectIdSafe(id) || id;
-		this.runQuery(
-			'updateOne',
-			query,
-			callback,
-			options,
-			op
-		);
+		try {
+			const result = await this.runQuery(
+				'updateOne',
+				query,
+				options,
+				op
+			);
+			callback(null, result);
+		}
+		catch (error) {
+			callback(error);
+		}
 	}
 
 	// update documents directly, the caller can do whatever they want with the database
-	updateDirect (query, data, callback, options) {
-		this.runQuery(
-			'updateMany',
-			query,
-			callback,
-			options,
-			data
-		);
+	async updateDirect (query, data, callback, options) {
+		try {
+			const result = await this.runQuery(
+				'updateMany',
+				query,
+				options,
+				data
+			);
+			callback(null, result);
+		}
+		catch (error) {
+			callback(error);
+		}
 	}
 
 	// do a find-and-modify operation, a cheap atomic operation
-	findAndModify (query, data, callback, options = {}) {
-		this.runQuery(
-			'findAndModify',
-			query,
-			callback,
-			options,
-			{},
-			data,
-			options.databaseOptions
-		);
+	async findAndModify (query, data, callback, options = {}) {
+		try {
+			const result = await this.runQuery(
+				'findAndModify',
+				query,
+				options,
+				{},
+				data,
+				options.databaseOptions
+			);
+			callback(null, result);
+		}
+		catch (error) {
+			callback(error);
+		}
 	}
 
 	// delete a document by id
-	deleteById (id, callback, options) {
-		let query = {
+	async deleteById (id, callback, options) {
+		const query = {
 			[this.idAttribute]: this.objectIdSafe(id)
 		};
-		this.runQuery(
-			'deleteOne',
-			query,
-			callback,
-			options
-		);
+		try {
+			const result = this.runQuery(
+				'deleteOne',
+				query,
+				options
+			);
+			callback(null, result);
+		}
+		catch (error) {
+			callback(error);
+		}
 	}
 
 	// delete several documents by id
-	deleteByIds (ids, callback, options) {
+	async deleteByIds (ids, callback, options) {
+		// we'll make a query out of the IDs
 		let query = {};
 		let objectIds = [];
-		// we'll make a query out of the IDs
-		BoundAsync.forEachLimit(
-			this,
-			ids,
-			50,
-			(id, foreachCallback) => {
-				objectIds.push(this.objectIdSafe(id));
-				process.nextTick(foreachCallback);
-			},
-			() => {
-				query[this.idAttribute] = { $in: objectIds };
-				this.deleteByQuery(query, callback, options);
-			}
+		await Promise.all(
+			ids.map(async id => {
+				return objectIds.push(this.objectIdSafe(id));
+			})
 		);
+		query[this.idAttribute] = { $in: objectIds };
+		this.deleteByQuery(query, callback, options);
 	}
 
 	// delete documents by query ... VERY DANGEROUS!!!
 	deleteByQuery (query, callback, options) {
-		this.runQuery(
-			'deleteMany',
-			query,
-			callback,
-			options
-		);
+		try {
+			const result = this.runQuery(
+				'deleteMany',
+				query,
+				options
+			);
+			callback(null, result);
+		}
+		catch (error) {
+			callback(error);
+		}
 	}
 
 	// helper JSON.stringify to clean up whitespace
@@ -465,45 +503,34 @@ class MongoCollection {
 		return ObjectID();
 	}
 
-	// handle the result of a query by stringifying any IDs we find before
-	// returning the result to the caller
-	_idStringifyResult (error, result, callback) {
-		if (error) {
-			return callback(this.errorHandler.dataError(error));
-		}
-		this._idStringify(result, callback);
-	}
-
 	// look for IDs or arrays of IDs in an object and stringify them, so the application layer
 	// doesn't have to deal with mongo IDs
-	_idStringify (object, callback) {
+	async _idStringify (object) {
 		if (object instanceof Array) {
-			this._idStringifyAsync(object, callback);
+			return await this._idStringifyArray(object);
 		}
 		else if (object && typeof object === 'object') {
 			if (object[this.idAttribute]) {
 				object[this.idAttribute] = object[this.idAttribute].toString();
 			}
-			return process.nextTick(() => {
-				callback(null, object);
-			});
 		}
-		else {
-			return callback(null, object);
-		}
+		return object;
 	}
 
 	// handle sub-objects and stringify all IDs
-	_idStringifyAsync (objects, callback) {
-		BoundAsync.forEachLimit(
-			this,
-			objects,
-			100,
-			this._idStringify,
-			() => {
-				callback(null, objects);
-			}
+	async _idStringifyArray (objects) {
+		await Promise.all(
+			objects.map(async object => {
+				return await this._idStringify(object);
+			})
 		);
+		return objects;
+	}
+
+	async _idStringifyResult (error, result, callback) {
+		if (error) { return callback(error); }
+		result = await this._idStringify(result);
+		callback(null, result);
 	}
 }
 
