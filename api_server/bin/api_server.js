@@ -14,6 +14,7 @@ const ExpressConfig = require(ConfigDirectory + '/express.js');
 const MongoConfig = require(ConfigDirectory + '/mongo.js');
 const SecretsConfig = require(ConfigDirectory + '/secrets.js');
 const PubNubConfig = require(ConfigDirectory + '/pubnub.js');
+const MixPanelConfig = require(ConfigDirectory + '/mixpanel.js');
 const LoggerConfig = require(ConfigDirectory + '/logger.js');
 const EmailConfig = require(ConfigDirectory + '/email.js');
 const Limits = require(ConfigDirectory + '/limits.js');
@@ -57,6 +58,7 @@ var MyAPICluster = new ClusterWrapper(
 			logger: Logger
 		}),
 		pubnub: PubNubConfig,
+		mixpanel: MixPanelConfig,
 		email: EmailConfig,
 		limits: Limits,
 		allowConfigOverride: true,

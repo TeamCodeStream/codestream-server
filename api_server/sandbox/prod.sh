@@ -16,3 +16,5 @@ export CS_API_PORT=8443
 unset CS_API_LOG_CONSOLE_OK
 export CS_API_REPLY_TO_DOMAIN=prod.codestream.com
 export CS_API_EMAIL_TO=on
+
+export CS_API_MIXPANEL_TOKEN=2c92bfd963bfbaf680be2f1d10e48003
