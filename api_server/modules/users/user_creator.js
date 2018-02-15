@@ -37,7 +37,8 @@ class UserCreator extends ModelCreator {
 				string: ['password', 'username', 'firstName', 'lastName', 'confirmationCode'],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt'],
 				boolean: ['isRegistered'],
-				'array(string)': ['secondaryEmails']
+				'array(string)': ['secondaryEmails'],
+				object: ['preferences']
 			}
 		};
 	}
