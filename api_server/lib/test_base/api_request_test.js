@@ -59,10 +59,19 @@ class APIRequestTest extends GenericTest {
 			// since we're just doing testing, block actual messages from going out over the messager
 			requestOptions.headers['X-CS-Block-Message-Sends'] = true;
 		}
+		if (!options.reallyTrack) {
+			// since we're just doing testing, block analytics tracking
+			requestOptions.headers['X-CS-Block-Tracking'] = true;
+		}
 		if (options.testEmails) {
 			// we're doing email testing, block them from being sent but divert contents
 			// to a pubnub channel that we'll listen on
 			requestOptions.headers['X-CS-Test-Email-Sends'] = true;
+		}
+		if (options.testTracking) {
+			// we're doing analytics tracking testing, block the tracking from being sent
+			// but divert contents to a pubnub channel that we'll listen on
+			requestOptions.headers['X-CS-Test-Tracking'] = true;
 		}
 		requestOptions.headers['X-CS-For-Testing'] = true;	// makes it easy to wipe test data later on
 	}

@@ -20,6 +20,8 @@ var InvalidTeamIdTest = require('./invalid_team_id_test');
 var StreamNotFoundTest = require('./stream_not_found_test');
 var StreamNoMatchTeamTest = require('./stream_no_match_team_test');
 var OriginatorNotInTeamTest = require('./originator_not_in_team_test');
+var TrackingTest = require('./tracking_test');
+var NoTrackingTest = require('./no_tracking_test');
 
 describe('inbound emails', function() {
 
@@ -43,4 +45,6 @@ describe('inbound emails', function() {
 	new StreamNotFoundTest().test();
 	new StreamNoMatchTeamTest().test();
 	new OriginatorNotInTeamTest().test();
+	new TrackingTest().test();
+	new NoTrackingTest().test();
 });
