@@ -108,14 +108,12 @@ class LoginRequest extends RestfulRequest {
 	}
 
 	formResponse (callback) {
-		let meOnlyAttributes = this.user.getMeOnlyAttributes();
 		this.responseData = {
-			user: this.user.getSanitizedObject(),
+			user: this.user.getSanitizedObjectForMe(),
 			accessToken: this.user.get('accessToken'),
 			pubnubKey: this.api.config.pubnub.subscribeKey
 		};
 		Object.assign(this.responseData, this.initialData);
-		Object.assign(this.responseData.user, meOnlyAttributes);
 		return process.nextTick(callback);
 	}
 }

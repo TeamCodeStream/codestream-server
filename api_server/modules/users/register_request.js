@@ -33,7 +33,7 @@ class RegisterRequest extends RestfulRequest {
 			this.sendEmail
 		], (error) => {
 			if (error) { return callback(error); }
-			this.responseData = { user: this.user.getSanitizedObject() };
+			this.responseData = { user: this.user.getSanitizedObjectForMe() };
 			if (this.confirmationCheat === this.api.config.secrets.confirmationCheat) {
 				// this allows for testing without actually receiving the email
 				this.log('Confirmation cheat detected, hopefully this was called by test code');
@@ -62,7 +62,8 @@ class RegisterRequest extends RestfulRequest {
 				optional: {
 					string: ['firstName', 'lastName'],
 					number: ['timeout'],
-					'array(string)': ['secondaryEmails']
+					'array(string)': ['secondaryEmails'],
+					object: ['preferences']
 				}
 			},
 			callback
@@ -71,7 +72,7 @@ class RegisterRequest extends RestfulRequest {
 
 	checkBetaCode (callback) {
 		if (
-			this.request.body.betaCode !== this.api.config.api.testBetaCode && 
+			this.request.body.betaCode !== this.api.config.api.testBetaCode &&
 			!this.module.betaCodes.includes(this.request.body.betaCode)
 		) {
 			return callback(this.errorHandler.error('invalidBetaCode'));

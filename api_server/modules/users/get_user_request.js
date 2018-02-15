@@ -6,9 +6,7 @@ class GetUserRequest extends GetRequest {
 
 	process (callback) {
 		if (this.request.params.id.toLowerCase() === 'me') {
-			let meOnlyAttributes = this.user.getMeOnlyAttributes();
-			this.responseData = { user: this.user.getSanitizedObject() };
-			Object.assign(this.responseData.user, meOnlyAttributes);
+			this.responseData = { user: this.user.getSanitizedObjectForMe() };
 			return process.nextTick(callback);
 		}
 		super.process(callback);

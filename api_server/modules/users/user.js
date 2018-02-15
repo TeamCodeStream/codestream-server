@@ -282,6 +282,12 @@ class User extends CodeStreamModel {
 		// send a notification!
 		return true;
 	}
+
+	getSanitizedObjectForMe () {
+		let meOnlyAttributes = this.getMeOnlyAttributes();
+		let sanitizedAttributes = this.getSanitizedObject();
+		return Object.assign(sanitizedAttributes, meOnlyAttributes);
+	}
 }
 
 module.exports = User;
