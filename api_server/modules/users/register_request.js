@@ -26,7 +26,7 @@ class RegisterRequest extends RestfulRequest {
 	process (callback) {
 		BoundAsync.series(this, [
 			this.requireAndAllow,
-			this.checkBetaCode,
+//			this.checkBetaCode,
 			this.generateConfirmCode,
 			this.saveUser,
 			this.generateToken,
@@ -57,7 +57,7 @@ class RegisterRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['email', 'password', 'username', 'betaCode']
+					string: ['email', 'password', 'username']
 				},
 				optional: {
 					string: ['firstName', 'lastName'],
