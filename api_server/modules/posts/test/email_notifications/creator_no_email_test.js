@@ -20,8 +20,9 @@ class CreatorNoEmailTest extends EmailNotificationTest {
 	}
 
 	// called when a message has been received, in this case this is bad
-	messageReceived (error) {
+	messageReceived (error, message) {
 		if (error) { return this.messageCallback(error); }
+		if (message.message.user) { return false; }	// ignore totalPosts update
 		Assert.fail('message was received');
 	}
 
