@@ -23,7 +23,7 @@ class SetPersonAnalyticsTest extends PostCountTest {
 				path: '/posts',
 				data: data,
 				token: this.postCreatorData.accessToken,	// the "post creator" creates the post
-//				testTracking: true,
+				testTracking: true,
 				reallyTrack: true
 			},
 			callback
