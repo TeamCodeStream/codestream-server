@@ -84,5 +84,15 @@ module.exports = {
 	joinMethod: {
 		type: 'string',
 		maxLength: '20'
+	},
+	totalPosts: {
+		type: 'number',
+		serverOnly: true,
+		forMe: true
+	},
+	lastPostCreatedAt: {
+		type: 'timestamp',
+		serverOnly: true,
+		forMe: true
 	}
 };

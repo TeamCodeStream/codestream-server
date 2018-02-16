@@ -66,7 +66,7 @@ var _Ops = {
 	// we'll make it a number if it doesn't exist
 	'$inc': function(document, field, value) {
 		if (typeof document[field] === 'undefined') {
-			document[field] = 0;
+			document[field] = value;
 			return;
 		}
 		if (typeof document[field] === 'number') {

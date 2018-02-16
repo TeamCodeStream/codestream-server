@@ -100,6 +100,7 @@ class NewPostMessageToTeamTest extends CodeStreamMessageTest {
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
+		const postOptions = this.getPostOptions();
 		// create a post in the file stream, this should trigger a message to the
 		// team channel with the newly created post
 		this.postFactory.createRandomPost(
@@ -113,13 +114,17 @@ class NewPostMessageToTeamTest extends CodeStreamMessageTest {
 				};
 				callback();
 			},
-			{
-				token: this.postCreatorData.accessToken,	// the "post creator" creates the post
-				teamId: this.team._id,
-				streamId: this.stream._id,
-				wantCodeBlocks: 1
-			}
+			postOptions
 		);
+	}
+
+	getPostOptions () {
+		return {
+			token: this.postCreatorData.accessToken,	// the "post creator" creates the post
+			teamId: this.team._id,
+			streamId: this.stream._id,
+			wantCodeBlocks: 1
+		};
 	}
 }
 

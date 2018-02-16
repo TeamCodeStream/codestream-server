@@ -24,7 +24,9 @@ class PostPostRequest extends PostRequest {
 	postProcess (callback) {
 		BoundAsync.parallel(this, [
 			this.publishPost,
-			this.sendNotificationEmails
+			this.sendNotificationEmails,
+			this.publishPostCount,
+			this.sendPostCountToAnalytics
 		], callback);
 	}
 
@@ -48,6 +50,48 @@ class PostPostRequest extends PostRequest {
 			post: this.creator.model,
 			creator: this.user
 		}).sendEmailNotifications(callback);
+	}
+
+	// publish an increase in post count to the author's me-channel
+	publishPostCount (callback) {
+		if (!this.creator.updatePostCountOp) {
+			return callback();	// no joinMethod update to perform
+		}
+		let channel = 'user-' + this.user.id;
+		let message = {
+			requestId: this.request.id,
+			user: Object.assign({}, this.creator.updatePostCountOp, { _id: this.user.id })
+		};
+		this.api.services.messager.publish(
+			message,
+			channel,
+			error => {
+				if (error) {
+					this.warn(`Could not publish post count update message to user ${this.user._id}: ${JSON.stringify(error)}`);
+				}
+				// this doesn't break the chain, but it is unfortunate...
+				callback();
+			},
+			{
+				request: this
+			}
+		);
+	}
+
+	// send the post count update to our analytics service
+	sendPostCountToAnalytics (callback) {
+		this.api.services.analytics.setPerson(
+			this.user.id,
+			{
+				'Total Posts': this.user.get('totalPosts'),
+				'Date of Last Post': new Date(this.user.get('lastPostCreatedAt')).toISOString()
+			},
+			{
+				request: this,
+				user: this.user
+			}
+		);
+		process.nextTick(callback);
 	}
 }
 
