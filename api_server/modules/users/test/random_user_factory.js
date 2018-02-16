@@ -81,8 +81,9 @@ class RandomUserFactory {
 		Object.assign(this, options);
 	}
 
-	randomEmail () {
-		return `somebody.${RandomString.generate(12)}@${RandomString.generate(12)}.com`;
+	randomEmail (options = {}) {
+		const domain = options.wantWebmail ? 'gmail' : RandomString.generate(12);
+		return `somebody.${RandomString.generate(12)}@${domain}.com`;
 	}
 
 	randomNamedUser () {
@@ -92,9 +93,9 @@ class RandomUserFactory {
 			lastName: RandomString.generate(10)
 		};
 	}
-	
+
 	getRandomUserData (options = {}) {
-		let email = this.randomEmail();
+		let email = this.randomEmail(options);
 		let secondaryEmails = [
 			this.randomEmail(),
 			this.randomEmail()
