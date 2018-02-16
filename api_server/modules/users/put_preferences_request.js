@@ -37,7 +37,7 @@ class PutPreferencesRequest extends RestfulRequest {
 			channel,
 			error => {
 				if (error) {
-					this.warn(`Unable to publish lastReads message to channel ${channel}: ${JSON.stringify(error)}`);
+					this.warn(`Unable to publish preferences message to channel ${channel}: ${JSON.stringify(error)}`);
 				}
 				callback();
 			},

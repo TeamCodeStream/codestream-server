@@ -150,7 +150,8 @@ class PostCreator extends ModelCreator {
 			super.preSave,			// base-class preSave
 			this.updateStream,		// update the stream as needed
 			this.updateLastReads,	// update lastReads attributes for affected users
-			this.updateMarkersForReply	// update markers, if this is a reply to a parent with a code block
+			this.updateMarkersForReply,	// update markers, if this is a reply to a parent with a code block
+			this.updatePostCount	// update the post count for the author of the post
 		], callback);
 	}
 
@@ -448,6 +449,19 @@ class PostCreator extends ModelCreator {
 				this.attachToResponse.markers.push(messageOp);	// we'll send the increment in the response (and also the pubnub message)
 				callback();
 			}
+		);
+	}
+
+	// update the total post count for the author of the post, along with the date/time of last post
+	updatePostCount (callback) {
+		this.updatePostCountOp = {
+			$inc: { totalPosts: 1 },
+			$set: { lastPostCreatedAt: Date.now() }
+		};
+		this.request.data.users.applyOpById(
+			this.user.id,
+			this.updatePostCountOp,
+			callback
 		);
 	}
 }
