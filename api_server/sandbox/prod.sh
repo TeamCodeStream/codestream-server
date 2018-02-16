@@ -17,4 +17,6 @@ unset CS_API_LOG_CONSOLE_OK
 export CS_API_REPLY_TO_DOMAIN=prod.codestream.com
 export CS_API_EMAIL_TO=on
 
-export CS_API_MIXPANEL_TOKEN=2c92bfd963bfbaf680be2f1d10e48003
+# cmomented out till we are ready for tracking to go into Production
+# in the meantime, we are using the development key
+#export CS_API_MIXPANEL_TOKEN=2c92bfd963bfbaf680be2f1d10e48003
