@@ -26,7 +26,6 @@ class TrackingTest extends InboundEmailMessageTest {
 		// we'll be sending the data that we would otherwise send to the tracker
 		// service (mixpanel) on this channel, and then we'll validate the data
 		this.channelName = `user-${this.postOriginatorData.user._id}`;
-console.warn('WILL LISTEN ON ' + this.channelName);
 		callback();
 	}
 
@@ -54,7 +53,6 @@ console.warn('WILL LISTEN ON ' + this.channelName);
 	// validate the message received from pubnub
 	validateMessage (message) {
 		message = message.message;
-console.warn('MESSAGE', message);
 		let data = message.data;
 		let errors = [];
 		let result = (

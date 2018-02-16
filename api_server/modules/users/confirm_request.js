@@ -167,9 +167,12 @@ class ConfirmRequest extends RestfulRequest {
 	}
 
 	updateUser (callback) {
+		const now = Date.now();
 		let op = {
 			'$set': {
 				isRegistered: true,
+				modifiedAt: now,
+				registeredAt: now,
 				accessToken: this.accessToken
 			},
 			'$unset': {
@@ -179,10 +182,13 @@ class ConfirmRequest extends RestfulRequest {
 			}
 		};
 		if (this.passwordHash) {
-			op.set.passwordHash = this.passwordHash;
+			op.$set.passwordHash = this.passwordHash;
 		}
 		if (this.request.body.username) {
-			op.set.username = this.request.body.username;
+			op.$set.username = this.request.body.username;
+		}
+		if ((this.user.get('teamIds') || []).length > 0 && !this.user.get('joinMethod')) {
+			op.$set.joinMethod = 'Added to Team';
 		}
 		this.data.users.applyOpById(
 			this.user.id,

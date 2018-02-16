@@ -31,6 +31,11 @@ var UsersJoinExistingTeamMessageTest = require('./users_join_existing_team_messa
 var UsersJoinExistingRepoMessageTest = require('./users_join_existing_repo_message_test');
 var UsersAddedToTeamTest = require('./users_added_to_team_test');
 var SubscriptionTest = require('./subscription_test');
+var CreateTeamJoinMethodTest = require('./create_team_join_method_test');
+var JoinTeamJoinMethodTest = require('./join_team_join_method_test');
+var AlreadyOnTeamNoCreatedTeamJoinMethodTest = require('./already_on_team_no_created_team_join_method_test');
+var AlreadyOnTeamNoJoinedTeamJoinMethodTest = require('./already_on_team_no_joined_team_join_method_test');
+var AddedToTeamJoinMethodTest = require('./added_to_team_join_method_test');
 
 /* jshint -W071 */
 
@@ -78,6 +83,11 @@ class PostRepoRequestTester {
 		new SubscriptionTest({ which: 'repo', otherUserCreates: true, repoExists: false, teamExists: false }).test();
 		new SubscriptionTest({ which: 'repo', otherUserCreates: true, repoExists: false, teamExists: true }).test();
 		new SubscriptionTest({ which: 'repo', otherUserCreates: true, repoExists: true, teamExists: true }).test();
+		new CreateTeamJoinMethodTest().test();
+		new JoinTeamJoinMethodTest().test();
+		new AlreadyOnTeamNoCreatedTeamJoinMethodTest().test();
+		new AlreadyOnTeamNoJoinedTeamJoinMethodTest().test();
+		new AddedToTeamJoinMethodTest().test();
 	}
 }
 

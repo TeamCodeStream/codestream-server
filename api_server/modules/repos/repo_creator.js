@@ -84,8 +84,9 @@ class RepoCreator extends ModelCreator {
 			this.attributes._forTesting = true;
 		}
 		BoundAsync.series(this, [
-			this.createId,	// requisition an ID for the repo
+			this.createId,		// requisition an ID for the repo
 			this.joinToTeam,	// join the repo to a team, depending on whether it already exists and information in the request
+			this.updateUserJoinMethod,	// update the joinMethod attribute for the user, as needed
 			super.preSave		// proceed with the save...
 		], callback);
 	}
@@ -97,8 +98,8 @@ class RepoCreator extends ModelCreator {
 	}
 
 	// join the repo to a team, in one of the ways:
-	//  
-	// 1 - if the repo already existed, then we're just going to return that repo, 
+	//
+	// 1 - if the repo already existed, then we're just going to return that repo,
 	//    but if the user specified some users to add to the team, we'll do that
 	// 2 - otherwise maybe the user specified to join the repo to an existing team
 	// 3 - otherwise the user must have specified team parameters to also create a team on the fly
@@ -143,7 +144,7 @@ class RepoCreator extends ModelCreator {
 			users: [this.user],		// add the user issuing the request
 			addUsers: this.attributes.users,	// add any other users specified by attributes
 			emails: this.attributes.emails,		// add any other users specified by email
-			teamId: this.existingModel.get('teamId'),	
+			teamId: this.existingModel.get('teamId'),
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
 		adder.addTeamMembers(error => {
@@ -153,6 +154,7 @@ class RepoCreator extends ModelCreator {
 			this.attachToResponse.users = adder.membersAdded.map(member => member.getSanitizedObject());	// return users in the response
 			delete this.attributes.emails;
 			delete this.attributes.users;
+			this.joinMethod = 'Joined Team';
 			process.nextTick(callback);
 		});
 	}
@@ -228,8 +230,29 @@ class RepoCreator extends ModelCreator {
 				this.newUsers = this.teamCreator.members;
 				this.attachToResponse.users = this.teamCreator.members.map(member => member.getSanitizedObject());
 				delete this.attributes.team;
+				this.joinMethod = 'Created Team';	// becomes the user's joinMethod attribute
 				callback();
 			}
+		);
+	}
+
+	// update the joinMethod attribute for the user, if this is their first team
+	updateUserJoinMethod (callback) {
+		if (
+			!this.joinMethod ||
+			this.user.get('joinMethod') ||
+			(
+				this.user.get('teamIds').includes(this.attributes.teamId) &&
+				this.user.get('teamIds').length > 1
+			)
+		) {
+			return callback();	// already have a join method, or already were on team
+		}
+		this.joinMethodUpdate = { $set: { joinMethod: this.joinMethod } };
+		this.request.data.users.applyOpById(
+			this.user.id,
+			this.joinMethodUpdate,
+			callback
 		);
 	}
 

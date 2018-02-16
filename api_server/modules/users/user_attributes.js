@@ -77,5 +77,12 @@ module.exports = {
 		maxLength: 10000,
 		serverOnly: true,
 		forMe: true
+	},
+	registeredAt: {
+		type: 'timestamp'
+	},
+	joinMethod: {
+		type: 'string',
+		maxLength: '20'
 	}
 };

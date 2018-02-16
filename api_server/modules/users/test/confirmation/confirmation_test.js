@@ -37,6 +37,7 @@ class ConfirmationTest extends CodeStreamAPITest {
 				email: data.user.email,
 				confirmationCode: data.user.confirmationCode
 			};
+			this.beforeConfirmTime = Date.now();	// to confirm registeredAt set during the request
 			callback();
 		}, this.userOptions || {});
 	}
@@ -49,7 +50,8 @@ class ConfirmationTest extends CodeStreamAPITest {
 		let result = (
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
 			((user._id === this.data.userId) || errors.push('incorrect user id')) &&
-			((user.isRegistered) || errors.push('isRegistered not set'))
+			((user.isRegistered ) || errors.push('isRegistered not set')) &&
+			((typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime) || errors.push('registeredAt not properly set'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert(data.accessToken, 'no access token');
