@@ -7,6 +7,7 @@ var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestr
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var NormalizeURL = require('../../normalize_url');
 const RepoTestConstants = require('../repo_test_constants');
+const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 
 class PostRepoTest extends CodeStreamAPITest {
 
@@ -105,7 +106,7 @@ class PostRepoTest extends CodeStreamAPITest {
 		);
 	}
 
-	// create a few random emails representing users not yet known to the system, 
+	// create a few random emails representing users not yet known to the system,
 	// we'll try to add these when we create the repo
 	createRandomEmails (callback) {
 		for (let i = 0; i < 2; i++) {
@@ -123,7 +124,7 @@ class PostRepoTest extends CodeStreamAPITest {
 		callback();
 	}
 
-	// create a repo, this will precede the repo we try to create in the actual test, for testing adding a 
+	// create a repo, this will precede the repo we try to create in the actual test, for testing adding a
 	// repo to an existing team
 	createOtherRepo (callback) {
 		if (!this.testOptions.wantOtherRepo) {
@@ -244,9 +245,12 @@ class PostRepoTest extends CodeStreamAPITest {
 		let company = data.company;
 		let errors = [];
 		Assert(typeof company === 'object', 'company expected with response');
+		let companyName = this.userOptions && this.userOptions.wantWebmail ?
+			this.currentUser.email :
+			EmailUtilities.parseEmail(this.currentUser.email).domain;
 		let result = (
 			((company._id === repo.companyId) || errors.push('company id is not the same as repo companyId')) &&
-			((company.name === this.teamData.name) || errors.push('company name doesn\'t match')) &&
+			((company.name === companyName) || errors.push('company name doesn\'t match')) &&
 			((company.deactivated === false) || errors.push('company.deactivated not false')) &&
 			((typeof company.createdAt === 'number') || errors.push('company.createdAt not number')) &&
 			((company.modifiedAt >= company.createdAt) || errors.push('company.modifiedAt not greater than or equal to createdAt')) &&

@@ -11,6 +11,8 @@ var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/cod
 var TeamSubscriptionGranter = require('./team_subscription_granter');
 const TeamAttributes = require('./team_attributes');
 const Errors = require('./errors');
+const WebmailCompanies = require(process.env.CS_API_TOP + '/etc/webmail_companies');
+const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 
 class TeamCreator extends ModelCreator {
 
@@ -227,7 +229,7 @@ class TeamCreator extends ModelCreator {
 	// until we support the notion of multiple teams in a company
 	createCompanyForTeam (callback) {
 		let company = this.attributes.company || {};
-		company.name = company.name || this.attributes.name;	// company name is the same as the team name
+		company.name = this.determineCompanyName();	// company name is determined from the user's email
 		new CompanyCreator({
 			request: this.request
 		}).createCompany(
@@ -239,6 +241,19 @@ class TeamCreator extends ModelCreator {
 				process.nextTick(callback);
 			}
 		);
+	}
+
+	// determine a name for this company, based on the user's domain or email
+	determineCompanyName () {
+		// if it's a webmail user, we just name the company after the whole email,
+		// otherwise use the domain
+		const email = EmailUtilities.parseEmail(this.user.get('email'));
+		if (WebmailCompanies.includes(email.domain)) {
+			return this.user.get('email');
+		}
+		else {
+			return email.domain;
+		}
 	}
 
 	// after the team has been saved...
@@ -281,7 +296,7 @@ class TeamCreator extends ModelCreator {
 		);
 	}
 
-	// grant permission to the users on the team to subscribe to the team messager channel 
+	// grant permission to the users on the team to subscribe to the team messager channel
  	grantUserMessagingPermissions (callback) {
 		let granterOptions = {
 			data: this.data,

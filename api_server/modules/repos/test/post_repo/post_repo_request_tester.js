@@ -36,6 +36,7 @@ var JoinTeamJoinMethodTest = require('./join_team_join_method_test');
 var AlreadyOnTeamNoCreatedTeamJoinMethodTest = require('./already_on_team_no_created_team_join_method_test');
 var AlreadyOnTeamNoJoinedTeamJoinMethodTest = require('./already_on_team_no_joined_team_join_method_test');
 var AddedToTeamJoinMethodTest = require('./added_to_team_join_method_test');
+var WebmailCompanyNameTest = require('./webmail_company_name_test');
 
 /* jshint -W071 */
 
@@ -88,6 +89,7 @@ class PostRepoRequestTester {
 		new AlreadyOnTeamNoCreatedTeamJoinMethodTest().test();
 		new AlreadyOnTeamNoJoinedTeamJoinMethodTest().test();
 		new AddedToTeamJoinMethodTest().test();
+		new WebmailCompanyNameTest().test();
 	}
 }
 
