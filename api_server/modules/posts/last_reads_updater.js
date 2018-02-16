@@ -54,7 +54,7 @@ class LastReadsUpdater {
 		let memberIds = this.stream.get('type') === 'file' ?
 			this.team.get('memberIds') :	// file-type streams go to the whole team
 			this.stream.get('memberIds');	// other type streams have their own members
-		memberIds = memberIds || [];
+		memberIds = memberIds ? [...memberIds] : [];
 		let userIdIndex = memberIds.indexOf(this.user.id);
 		if (userIdIndex !== -1) {
 			memberIds.splice(userIdIndex, 1);

@@ -26,7 +26,6 @@ class TrackingTest extends InboundEmailMessageTest {
 		// we'll be sending the data that we would otherwise send to the tracker
 		// service (mixpanel) on this channel, and then we'll validate the data
 		this.channelName = `user-${this.postOriginatorData.user._id}`;
-console.warn('WILL LISTEN ON ' + this.channelName);
 		callback();
 	}
 
@@ -54,7 +53,6 @@ console.warn('WILL LISTEN ON ' + this.channelName);
 	// validate the message received from pubnub
 	validateMessage (message) {
 		message = message.message;
-console.warn('MESSAGE', message);
 		let data = message.data;
 		let errors = [];
 		let result = (
@@ -64,10 +62,13 @@ console.warn('MESSAGE', message);
 			((data.Thread === 'Parent') || errors.push('Thread not correct')) &&
 			((data.Category === 'Source File') || errors.push('Category not correct')) &&
 			((data['Email Address'] === this.postOriginatorData.user.email) || errors.push('Email Address does not match post originator')) &&
+			((data['Join Method'] === this.postOriginatorData.user.joinMethod) || errors.push('Join Method does not match post originator')) &&
 			((data['Team ID'] === this.team._id) || errors.push('Team ID does not match team')) &&
+			((data['Team Size'] === this.team.memberIds.length) || errors.push('Team Size does not match number of members in team')) &&
 			((data.Endpoint === 'Email') || errors.push('Endpoint not correct')) &&
 			((data.Plan === 'Free') || errors.push('Plan not correct')) &&
-			((data['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct'))
+			((data['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct')) &&
+			((data['Date Signed Up'] === new Date(this.postOriginatorData.user.registeredAt).toISOString()) || errors.push('Date Signed Up not correct'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;

@@ -4,6 +4,7 @@ var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var RandomString = require('randomstring');
 var User = require(process.env.CS_API_TOP + '/modules/users/user');
+var Assert = require('assert');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
 class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
@@ -31,7 +32,7 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				withRandomEmails: 2,	// add a couple unregistered users, one of them will be the user we register 
+				withRandomEmails: 2,	// add a couple unregistered users, one of them will be the user we register
 				token: this.token		// the "current" user is the repo and team creator
 			}
 		);
@@ -74,12 +75,26 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		let user = new User(this.registeringUser);
 		let userObject = user.getSanitizedObject();
 		userObject.isRegistered = true;
+		userObject.joinMethod = 'Added to Team';
 		this.message = {
 			users: [userObject]
 		};
+		this.beforeConfirmTime = Date.now();
 
 		// confirming the user should trigger the message
 		this.userFactory.confirmUser(this.registeringUser, callback);
+	}
+
+	// validate the message received
+	validateMessage (message) {
+		// we can't predict these in advance, just check that they were updated
+		// and then add them to our comparison message for validation
+		const user = message.message.users[0];
+		Assert(typeof user.modifiedAt === 'number' && user.modifiedAt > this.beforeConfirmTime, 'modifiedAt not updated properly');
+		Assert(typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime, 'registeredAt not updated properly');
+		this.message.users[0].modifiedAt = user.modifiedAt;
+		this.message.users[0].registeredAt = user.registeredAt;
+		return super.validateMessage(message);
 	}
 }
 
