@@ -37,6 +37,7 @@ class InboundEmailRequest extends RestfulRequest {
 			this.getStream,
 			this.validate,
 			this.handleAttachments,
+			this.getTeam,
 			this.createPost
 		], callback);
 	}
@@ -185,6 +186,18 @@ class InboundEmailRequest extends RestfulRequest {
 		callback();
 	}
 
+	// get the team, unfortunately we need this for tracking
+	getTeam (callback) {
+		this.data.teams.getById(
+			this.stream.get('teamId'),
+			(error, team) => {
+				if (error) { return callback(error); }
+				this.team = team;
+				callback();
+			}
+		);
+	}
+
 	// create a post for this email in the stream
 	createPost (callback) {
 		this.user = this.fromUser;
@@ -217,19 +230,16 @@ class InboundEmailRequest extends RestfulRequest {
 			Thread: 'Parent',
 			Category: 'Source File',
 			'Email Address': this.fromUser.get('email'),
-//			'Join Method': this.fromUser.get('joinMethod'), // TODO
+			'Join Method': this.fromUser.get('joinMethod'),
 			'Team ID': this.post.get('teamId'),
-// 			'Team Size': this.team.get('memberIds').length, // TODO ... get team
+ 			'Team Size': this.team.get('memberIds').length,
 			'Endpoint': 'Email',
 			'Plan': 'Free', // FIXME: update when we have payments
 			'Date of Last Post': new Date(this.post.get('createdAt')).toISOString()
 		};
-/*
-TODO
 		if (this.fromUser.get('registeredAt')) {
-			trackObject['Date Signed Up'] = this.fromUser.get('registeredAt');
+			trackObject['Date Signed Up'] = new Date(this.fromUser.get('registeredAt')).toISOString();
 		}
-*/
 		this.api.services.analytics.track(
 			'Post Created',
 			trackObject,
