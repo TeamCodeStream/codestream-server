@@ -198,9 +198,46 @@ class InboundEmailRequest extends RestfulRequest {
 			if (error) {
 				return callback(this.errorHandler.error('internal'), { reason: error });
 			}
-			this.responseData.post = this.postCreator.model.getSanitizedObject();
+			this.post = this.postCreator.model;
+			this.trackPost();
+			this.responseData.post = this.post.getSanitizedObject();
 			callback();
 		});
+	}
+
+	// track this post for analytics, with the possibility that the user may have opted out
+	trackPost () {
+		const preferences = this.fromUser.get('preferences') || {};
+		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
+			return;
+		}
+		const trackObject = {
+			distinct_id: this.fromUser.id,
+			Type: 'Chat',
+			Thread: 'Parent',
+			Category: 'Source File',
+			'Email Address': this.fromUser.get('email'),
+//			'Join Method': this.fromUser.get('joinMethod'), // TODO
+			'Team ID': this.post.get('teamId'),
+// 			'Team Size': this.team.get('memberIds').length, // TODO ... get team
+			'Endpoint': 'Email',
+			'Plan': 'Free', // FIXME: update when we have payments
+			'Date of Last Post': new Date(this.post.get('createdAt')).toISOString()
+		};
+/*
+TODO
+		if (this.fromUser.get('registeredAt')) {
+			trackObject['Date Signed Up'] = this.fromUser.get('registeredAt');
+		}
+*/
+		this.api.services.analytics.track(
+			'Post Created',
+			trackObject,
+			{
+				request: this,
+				user: this.user
+			}
+		);
 	}
 
 	// after the post is created...
