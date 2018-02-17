@@ -138,7 +138,7 @@ class CodeStreamEmails {
 			(!firstEmail && mentioned && 'mention_notification_unreg') ||
 			(!firstEmail && !mentioned && 'newmessage_notification_unreg')
 		);
-		return `http://codestream.com?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
+		return `http://codestream.com/setup?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
 	}
 
 	// determine the intro text of an email notification
@@ -163,7 +163,7 @@ class CodeStreamEmails {
 		}
 	}
 
-	// clean this text for email 
+	// clean this text for email
 	cleanForEmail (text) {
 		return HtmlEscape.escapeHtml(text)
 			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
