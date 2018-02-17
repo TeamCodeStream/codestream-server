@@ -438,7 +438,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 	// how to install CodeStream
 	getInstallLink () {
 		let campaign = this.getCampaign();
-		return `http://codestream.com?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
+		return `http://codestream.com/setup?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
 	}
 
 	// get the "campaign" field we expect to see in the email for analytics
