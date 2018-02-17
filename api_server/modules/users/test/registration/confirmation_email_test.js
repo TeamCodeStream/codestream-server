@@ -6,7 +6,7 @@ var Assert = require('assert');
 var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
+//const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
 
 class ConfirmationEmailTest extends CodeStreamMessageTest {
 
@@ -29,7 +29,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		this.data = this.userFactory.getRandomUserData();
 		this.data._subscriptionCheat = SecretsConfig.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
 		this.data._delayEmail = 10000;	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
-		this.data.betaCode = ApiConfig.testBetaCode;	// overrides needing a true beta code
+//		this.data.betaCode = ApiConfig.testBetaCode;	// overrides needing a true beta code
 		// register a random user
 		this.doApiRequest(
 			{

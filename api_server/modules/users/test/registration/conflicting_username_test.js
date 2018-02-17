@@ -2,7 +2,7 @@
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
+//const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
 
 class ConflictingUsernameTest extends CodeStreamAPITest {
 
@@ -54,8 +54,7 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 					email: email,
 					username: this.otherUserData.user.username,
 					password: 'blahblahblah',
-					betaCode: ApiConfig.testBetaCode	// overrides needing a true beta code
-
+//					betaCode: ApiConfig.testBetaCode	// overrides needing a true beta code
 				};
 				callback();
 			},

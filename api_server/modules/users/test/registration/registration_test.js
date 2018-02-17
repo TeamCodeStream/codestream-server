@@ -4,7 +4,7 @@ var Assert = require('assert');
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
+//const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
 
 class RegistrationTest extends CodeStreamAPITest {
 
@@ -31,7 +31,7 @@ class RegistrationTest extends CodeStreamAPITest {
 	before (callback) {
 		this.data = this.userFactory.getRandomUserData();
 		this.data._confirmationCheat = SecretsConfig.confirmationCheat;
-		this.data.betaCode = ApiConfig.testBetaCode;	// overrides needing a true beta code
+//		this.data.betaCode = ApiConfig.testBetaCode;	// overrides needing a true beta code
 		callback();
 	}
 
