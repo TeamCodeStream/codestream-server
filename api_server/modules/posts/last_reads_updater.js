@@ -29,10 +29,10 @@ class LastReadsUpdater {
 			_id: this.data.users.inQuerySafe(memberIds),
 			[lastReadsElem]: { $exists: false }
 		};
-		let previousPostId = this.previousPostId || '0';
+		let previousPostSeqNum = this.previousPostSeqNum || '0';
 		let update = {
 			$set: {
-				[lastReadsElem]: previousPostId
+				[lastReadsElem]: previousPostSeqNum
 			}
 		};
 		this.data.users.updateDirect(
