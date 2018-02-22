@@ -95,7 +95,7 @@ class APIServerModules {
 		}
 		this.api.log(`Accepted module ${moduleJS}`);
 		this.modules[name] = module;
-		this.modules[name].initialize(callback);
+		callback();
 	}
 
 	// instantiate a module, as given by the module.js file found in the module directory
@@ -363,6 +363,19 @@ class APIServerModules {
 	// wrapper to get all registered routes
 	getRouteObjects () {
 		return this.routes;
+	}
+
+	// give modules a post-load opportunity to initialize
+	initializeModules (callback) {
+		BoundAsync.forEachLimit(
+			this,
+			this.modules,
+			10,
+			(module, forEachCallback) => {
+				module.initialize(forEachCallback);
+			},
+			callback
+		);
 	}
 }
 

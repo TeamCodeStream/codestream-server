@@ -10,6 +10,8 @@ module.exports = {
 	},
 	senderEmail: process.env.CS_API_SENDER_EMAIL || 'alerts@codestream.com', // we'll send emails from this address
 	replyToDomain: process.env.CS_API_REPLY_TO_DOMAIN || 'dev.codestream.com',	// reply to will be like <streamId>@dev.codestream.com
+	notificationInterval: process.env.CS_API_EMAIL_NOTIFICATION_INTERVAL || 300000, // how often email notifications will be sent per stream
+	maxPostsPerEmail: 25,	// maximum number of posts to send in an email notification
 	confirmationEmailTemplateId: '300934c5-3a9c-46f8-a905-b801c23439ab', // template to use for confirmation emails
-	notificationEmailTemplateid: '0f2ef899-4774-4cbd-90f7-7de743d89f53', // template to use for email notifications
+	notificationEmailTemplateid: 'bf2b2528-08d3-43a0-a176-6f001d6e03ce', // template to use for email notifications
 };

@@ -7,6 +7,12 @@ var PostCreator = require('./post_creator');
 var PostUpdater = require('./post_updater');
 var PostDeleter = require('./post_deleter');
 var Post = require('./post');
+const UUID = require('uuid/v4');
+const EmailNotificationRequest = require('./email_notification_request');
+
+const DEPENDENCIES = [
+	'queueService'	// the posts module creates a queue
+];
 
 // expose these restful routes
 const POST_STANDARD_ROUTES = {
@@ -21,6 +27,10 @@ const POST_STANDARD_ROUTES = {
 };
 
 class Posts extends Restful {
+
+	getDependencies () {
+		return DEPENDENCIES; // other modules to be serviced first
+	}
 
 	get collectionName () {
 		return 'posts';	// name of the data collection
@@ -45,9 +55,31 @@ class Posts extends Restful {
 	get deleterClass () {
 		return PostDeleter;	// use this class to delete (deactivate) posts
 	}
-	
+
 	getRoutes () {
 		return super.getRoutes(POST_STANDARD_ROUTES);
+	}
+
+	initialize (callback) {
+		this.api.services.queueService.createQueue({
+			name: this.api.config.aws.sqs.outboundEmailQueueName,
+			handler: this.handleEmailNotificationMessage.bind(this),
+			logger: this.api
+		}, callback);
+	}
+
+	handleEmailNotificationMessage (message, callback) {
+		let request = { id: UUID() };
+		this.api.services.requestTracker.trackRequest(request);
+		callback(true);	// this releases the message from the queue
+console.warn('GOT MESSAGE', message);
+		new EmailNotificationRequest({
+			api: this.api,
+			request: request,
+			message: message
+		}).fulfill(() => {
+			this.api.services.requestTracker.untrackRequest(request);
+		});
 	}
 }
 
