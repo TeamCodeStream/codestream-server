@@ -5,7 +5,8 @@
 var PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
 var PostPublisher = require('./post_publisher');
 var PostAuthorizer = require('./post_authorizer');
-var EmailNotificationSender = require('./email_notification_sender');
+//var EmailNotificationSender = require('./email_notification_sender');
+const EmailNotificationQueue = require('./email_notification_queue');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class PostPostRequest extends PostRequest {
@@ -24,7 +25,7 @@ class PostPostRequest extends PostRequest {
 	postProcess (callback) {
 		BoundAsync.parallel(this, [
 			this.publishPost,
-			this.sendNotificationEmails,
+			this.triggerNotificationEmails,
 			this.publishPostCount,
 			this.sendPostCountToAnalytics
 		], callback);
@@ -41,15 +42,19 @@ class PostPostRequest extends PostRequest {
 	}
 
 	// send an email notification as needed to users who are offline
-	sendNotificationEmails (callback) {
-		new EmailNotificationSender({
+	triggerNotificationEmails (callback) {
+console.warn('QUEUEING FOR POST ' + this.creator.model.get('seqNum'));
+		const queue = new EmailNotificationQueue({
 			request: this,
-			team: this.creator.team,
-			repo: this.creator.repo,
-			stream: this.creator.stream,
 			post: this.creator.model,
-			creator: this.user
-		}).sendEmailNotifications(callback);
+			stream: this.creator.stream
+		});
+		queue.initiateEmailNotifications(error => {
+			if (error) {
+				this.api.warn(`Unable to queue email notifications for stream ${this.creator.stream.id} and post ${this.creator.model.id}: ${error.toString()}`);
+			}
+			callback();
+		});
 	}
 
 	// publish an increase in post count to the author's me-channel

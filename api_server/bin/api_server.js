@@ -17,6 +17,7 @@ const PubNubConfig = require(ConfigDirectory + '/pubnub.js');
 const MixPanelConfig = require(ConfigDirectory + '/mixpanel.js');
 const LoggerConfig = require(ConfigDirectory + '/logger.js');
 const EmailConfig = require(ConfigDirectory + '/email.js');
+const AWSConfig = require(ConfigDirectory + '/aws.js');
 const Limits = require(ConfigDirectory + '/limits.js');
 const Version = require(ConfigDirectory + '/version.js');
 const SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
@@ -60,6 +61,7 @@ var MyAPICluster = new ClusterWrapper(
 		pubnub: PubNubConfig,
 		mixpanel: MixPanelConfig,
 		email: EmailConfig,
+		aws: AWSConfig,
 		limits: Limits,
 		allowConfigOverride: true,
 		dataCollections: DataCollections,

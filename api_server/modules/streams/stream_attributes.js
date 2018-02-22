@@ -38,5 +38,9 @@ module.exports = {
 	nextSeqNum: {
 		type: 'number',
 		serverOnly: true
+	},
+	emailNotificationSeqNum: {
+		type: 'number',
+		serverOnly: true
 	}
 };

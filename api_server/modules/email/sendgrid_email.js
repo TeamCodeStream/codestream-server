@@ -27,7 +27,7 @@ class SendGridEmail {
 			request,
 			(error, response) => {
 				if (error) {
-					return callback(this.errorHandler.error('email', { reason: `error calling sendgrid API: ${error}` }));
+					return callback(this.errorHandler.error('email', { reason: `error calling sendgrid API: ${JSON.stringify(error)}` }));
 				}
 				else if (response.statusCode >= 300) {
 					return callback(this.errorHandler.error('email', { reason: `got status ${response.statusCode} calling sendgrid API` }));
