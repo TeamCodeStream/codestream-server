@@ -14,7 +14,7 @@ class UserUpdater extends ModelUpdater {
 		super(options);
 		this.errorHandler.add(TeamErrors);
 	}
-	
+
 	get modelClass () {
 		return User;	// class to use to create a user model
 	}
@@ -31,7 +31,7 @@ class UserUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-            string: ['username', 'firstName', 'lastName']
+            string: ['username', 'firstName', 'lastName', 'timeZone']
 		};
 	}
 

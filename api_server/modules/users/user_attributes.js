@@ -94,5 +94,9 @@ module.exports = {
 		type: 'timestamp',
 		serverOnly: true,
 		forMe: true
+	},
+	timeZone: {
+		type: 'string',
+		maxLength: 50
 	}
 };
