@@ -28,11 +28,8 @@ class EmailNotificationRenderer {
 		  font-family: "Courier";
 		  color: #888888;
 		}
-		.replyToText {
-		  font-weight: bold;
-		  color: #888888;
-		}
 		.replyto {
+		  color: #888888;
 		  height: 1.4em;
 		  overflow: hidden;
 		  text-overflow: ellipsis;
@@ -53,13 +50,15 @@ class EmailNotificationRenderer {
 		${pathToFile}
 	</div>
 	<br>
+	<br>
 	<div class="intro">
 		${intro}
 	</div>
 	<br>
 	<div class="address">
 		CodeStream, Inc.<br>
-		12 E. 49th St. - 11th Floor, New York, NY 10017
+		12 E. 49th St. - 11th Floor,<br>
+		New York, NY 10017
 	</div>
 	<br>
 	<div class="turnOffEmails">
@@ -92,17 +91,17 @@ class EmailNotificationRenderer {
 		const installLink = this.getInstallLink(options);
 		if (isRegistered) {
 			if (offlineForRepo) {
-				return `We noticed that you don’t currently have this repo open in your IDE and didn’t want you to miss this discussion. Add to the discussion by replying to this email.`;
+				return `You are receiving this notification because you don’t currently have this repo open in your IDE.<br><br>Reply to this email to add to the discussion.`;
 			}
 			else {
-				return `We noticed that you don’t currently have your IDE open and didn’t want you to miss this discussion. Add to the discussion by replying to this email.`;
+				return `You are receiving this notification because you don’t currently have your IDE open.<br>Reply to this email to add to the discussion.`;
 			}
 		}
 		else if (firstEmail) {
-			return `You’ve been added to ${teamName} on CodeStream, where your team is currently discussing code. Add to the discussion by replying to this email. <a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
+			return `You’ve been added to ${teamName} on CodeStream, where your team is currently discussing code.<br>Reply to this email to add to the discussion.<br><a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
 		}
 		else {
-			return `Add to the discussion by replying to this email. <a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
+			return `Reply to this email to add to the discussion.<br><a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
 		}
 	}
 }

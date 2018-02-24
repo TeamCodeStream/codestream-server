@@ -41,10 +41,10 @@ class CodeStreamEmails {
 
 	// send an email notification to the user specified
 	sendEmailNotification (options, callback) {
-		const { user, creator, posts, team, stream, content, request } = options;
+		const { user, creator, posts, team, stream, content, request, sameAuthor } = options;
 		const email = user.get('email');
 		let fromName;
-		if (posts.length === 1) {
+		if (sameAuthor) {
 			const authorName = EmailUtils.getUserName(creator);
 			fromName = `${authorName} (via CodeStream)`;
 		}

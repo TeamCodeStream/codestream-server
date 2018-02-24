@@ -11,7 +11,7 @@ const UUID = require('uuid/v4');
 const EmailNotificationRequest = require('./email_notification_request');
 
 const DEPENDENCIES = [
-	'queueService'	// the posts module creates a queue
+	'aws'	// the posts module creates a queue
 ];
 
 // expose these restful routes
