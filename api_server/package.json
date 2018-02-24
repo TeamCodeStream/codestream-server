@@ -15,6 +15,7 @@
     "mixpanel": "^0.9.0",
     "mocha": "3.2.0",
     "moment": "2.17.1",
+    "moment-timezone": "^0.5.14",
     "mongodb": "2.2.31",
     "nodegit": "0.20.3",
     "pubnub": "4.20.0",

@@ -7,6 +7,9 @@ const Indexes = require('./indexes');
 const PostRenderer = require('./post_renderer');
 const EmailNotificationRenderer = require('./email_notification_renderer');
 
+// make jshint happy
+/* globals Intl */
+
 class EmailNotificationSender {
 
 	constructor (options) {
@@ -32,6 +35,7 @@ class EmailNotificationSender {
 			this.getPostCreators,			// get the creators of all the posts
 			this.renderPosts,				// render the HTML for each post needed
 			this.determinePostsPerUser,		// determine which users get which posts
+			this.personalizePerUser,		// personalize the rendered posts as needed
 			this.renderPerUser,				// render each user's email
 			this.sendNotifications,			// send out the notifications`
 			this.updateFirstEmails			// update "firstEmail" flags, indicating who has received their first email notification
@@ -144,9 +148,12 @@ class EmailNotificationSender {
 		if (this.toReceiveEmails.length === 0) {
 			return callback(true);	// short-circuit the flow
 		}
-		else {
-			process.nextTick(callback);
-		}
+		// record whether all the users to receive emails are in the same timezone,
+		// if they are, then we don't need to personalize the rendering of each email,
+		// since we can make all the timestamps the same
+		const firstUser = this.toReceiveEmails[0];
+		this.hasMultipleTimeZones = this.toReceiveEmails.find(user => user.get('timeZone') !== firstUser.get('timeZone'));
+		process.nextTick(callback);
 	}
 
 	// determine whether the givenn user wants an email notification for the current post
@@ -194,7 +201,13 @@ class EmailNotificationSender {
 			(error, posts) => {
 				if (error) { return callback(error); }
 				this.posts = posts;
-				callback(this.posts.length === 0);	// short-circuits if there are no posts
+				if (this.posts.length === 0) {
+					return callback(true);	// short-circuits when there are no posts
+				}
+				const firstPost = posts[0];
+				// record whether we have multiple authors represented in the posts
+				this.hasMultipleAuthors = this.posts.find(post => post.get('creatorId') !== firstPost.get('creatorId'));
+				process.nextTick(callback);
 			},
 			{
 				databaseOptions: {
@@ -264,12 +277,20 @@ class EmailNotificationSender {
 		if (post.get('parentPostId')) {
 			parentPost = this.parentPosts.find(parentPost => parentPost.id === post.get('parentPostId'));
 		}
+		const firstUserTimeZone = this.toReceiveEmails[0].get('timeZone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
+		// if all users have the same timezone, use the first one
+		const timeZone = this.hasMultipleTimeZones ? null : firstUserTimeZone;
 		new PostRenderer().render({
 			post,
 			creator,
-			parentPost
+			parentPost,
+			sameAuthor: !this.hasMultipleAuthors,
+			timeZone
 		}, html => {
-			this.renderedPosts.push(html);
+			this.renderedPosts.push({
+				post: post,
+				html: html
+			});
 			process.nextTick(callback);
 		});
 	}
@@ -277,8 +298,8 @@ class EmailNotificationSender {
 	// determine which users get which posts, according to their last read message for the stream
 	determinePostsPerUser (callback) {
 		this.renderedPostsPerUser = {};
-		this.postsPerUser = {};
 		this.mentionsPerUser = {};
+		this.hasMultipleAuthorsPerUser = {};
 		BoundAsync.forEachSeries(
 			this,
 			this.toReceiveEmails,
@@ -294,15 +315,61 @@ class EmailNotificationSender {
 		const lastReadPostIndex = this.posts.findIndex(post => post.get('seqNum') <= lastReadSeqNum);
 		if (lastReadPostIndex === -1) {
 			this.renderedPostsPerUser[user.id] = [...this.renderedPosts];
-			this.postsPerUser[user.id] = [...this.posts];
 		}
 		else {
 			this.renderedPostsPerUser[user.id] = this.renderedPosts.slice(0, lastReadPostIndex);
-			this.postsPerUser[user.id] = this.posts.slice(0, lastReadPostIndex);
 		}
-		this.mentionsPerUser[user.id] = this.postsPerUser[user.id].find(post => {
-			return post.mentionsUser(user);
+		if (this.renderedPostsPerUser.length === 0) {
+			return process.nextTick(callback);
+		}
+		this.mentionsPerUser[user.id] = this.renderedPostsPerUser[user.id].find(renderedPost => {
+			return renderedPost.post.mentionsUser(user);
 		});
+		const firstPost = this.renderedPostsPerUser[user.id][0].post;
+		this.hasMultipleAuthorsPerUser[user.id] = this.renderedPostsPerUser[user.id].find(renderedPost => {
+			return renderedPost.post.get('creatorId') !== firstPost.get('creatorId');
+		});
+		process.nextTick(callback);
+	}
+
+	// personalize each user's rendered posts as needed ... the rendered posts need to be
+	// personalized if (1) they are not all from the same author (since we hide the author
+	// if all emails are from the same author, but this is dependent on each user's list
+	// of unread posts), OR (2) all the users receiving emails are not in the same time zone
+	// (because the timestamps for the posts are timezone-dependent)
+	personalizePerUser (callback) {
+		if (!this.hasMultipleAuthors && !this.hasMultipleTimeZones) {
+			return callback();
+		}
+		BoundAsync.forEachSeries(
+			this,
+			this.toReceiveEmails,
+			this.personalizeRenderedPostsPerUser,
+			callback
+		);
+	}
+
+	// personalize the rendered posts for the given user, by making a copy of the
+	// rendered html, and doing field substitution of author display and timestamp
+	// as needed
+	personalizeRenderedPostsPerUser (user, callback) {
+		let personalizedRenders = [];
+		this.renderedPostsPerUser[user.id].forEach(renderedPost => {
+			let { html, post } = renderedPost;
+
+			// if the user has multiple authors represented in the posts they are getting
+			// in their email, we show the author usernames, otherwise hide them
+			const hasMultipleAuthors = this.hasMultipleAuthors || this.hasMultipleAuthorsPerUser[user.id];
+			const authorDisplay = hasMultipleAuthors ? '' : 'display:none';
+			html = html.replace(/\{\{\{displayAuthor\}\}\}/g, authorDisplay);
+
+			// format the timestamp of this post with timezone dependency
+			const datetime = PostRenderer.formatTime(post.get('createdAt'), user.get('timeZone'));
+			html = html.replace(/\{\{\{datetime\}\}\}/g, datetime);
+
+			personalizedRenders.push({ html, post });
+		});
+		this.renderedPostsPerUser[user.id] = personalizedRenders;
 		process.nextTick(callback);
 	}
 
@@ -331,9 +398,10 @@ class EmailNotificationSender {
 			// on whether the user was mentioned ... now we can
 			return callback();
 		}
+		const postsHtml = renderedPosts.map(renderedPost => renderedPost.html);
 		new EmailNotificationRenderer().render({
 			user,
-			posts: renderedPosts,
+			posts: postsHtml,
 			team: this.team,
 			repo: this.repo,
 			stream: this.stream,
@@ -359,9 +427,9 @@ class EmailNotificationSender {
 	// send an email notification to the given user
 	sendNotificationToUser (userAndHtml, callback) {
 		const { user, html } = userAndHtml;
-		const posts = this.postsPerUser[user.id];
+		const posts = this.renderedPostsPerUser[user.id].map(renderedPost => renderedPost.post);
 		let creator;
-		if (posts.length === 1) {
+		if (!this.hasMultipleAuthors || !this.hasMultipleAuthorsPerUser[user.id]) {
 			creator = this.postCreators.find(creator => creator.id === posts[0].get('creatorId'));
 		}
 		let options = {
@@ -373,6 +441,7 @@ class EmailNotificationSender {
 			stream: this.stream,
 			team: this.team,
 			mentioned: this.mentionsPerUser[user.id],
+			sameAuthor: !this.hasMultipleAuthors
 		};
 		this.request.api.services.email.sendEmailNotification(
 			options,
