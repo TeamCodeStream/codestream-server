@@ -43,7 +43,6 @@ class PostPostRequest extends PostRequest {
 
 	// send an email notification as needed to users who are offline
 	triggerNotificationEmails (callback) {
-console.warn('QUEUEING FOR POST ' + this.creator.model.get('seqNum'));
 		const queue = new EmailNotificationQueue({
 			request: this,
 			post: this.creator.model,
