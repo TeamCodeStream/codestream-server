@@ -60,7 +60,10 @@ class Posts extends Restful {
 		return super.getRoutes(POST_STANDARD_ROUTES);
 	}
 
+	// initialize the module
 	initialize (callback) {
+		// create a queue for handling messages concerning triggering the interval
+		// timer for email notifications
 		this.api.services.queueService.createQueue({
 			name: this.api.config.aws.sqs.outboundEmailQueueName,
 			handler: this.handleEmailNotificationMessage.bind(this),
@@ -68,11 +71,13 @@ class Posts extends Restful {
 		}, callback);
 	}
 
+	// handle an incoming message on the email notifications interval timer queue
+	// we'll treat this like an incoming request for logging purposes, but it
+	// isn't a real request
 	handleEmailNotificationMessage (message, callback) {
 		let request = { id: UUID() };
 		this.api.services.requestTracker.trackRequest(request);
 		callback(true);	// this releases the message from the queue
-console.warn('GOT MESSAGE', message);
 		new EmailNotificationRequest({
 			api: this.api,
 			request: request,

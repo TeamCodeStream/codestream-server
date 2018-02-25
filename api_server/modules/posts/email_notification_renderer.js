@@ -6,6 +6,7 @@ const Path = require('path');
 
 class EmailNotificationRenderer {
 
+	// render an email notification for a given set of posts and a given user
 	render (options, callback) {
 		const { posts, repo, stream } = options;
 		const postsContent = posts.join('');
