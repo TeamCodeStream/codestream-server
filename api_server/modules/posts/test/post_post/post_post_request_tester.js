@@ -20,6 +20,7 @@ var LocationTooLongTest = require('./location_too_long_test');
 var LocationTooShortTest = require('./location_too_short_test');
 var LocationMustBeNumbersTest = require('./location_must_be_numbers_test');
 var InvalidCoordinateObjectTest = require('./invalid_coordinate_object_test');
+var NoLocationOkTest = require('./no_location_ok_test');
 var CodeBlockHasInvalidStreamIdTest = require('./code_block_has_invalid_stream_id_test');
 var CodeBlockHasImproperAttributesTest = require('./code_block_has_improper_attributes_test');
 var CodeBlockHasUnknownStreamIdTest = require('./code_block_has_unknown_stream_id_test');
@@ -92,6 +93,7 @@ class PostPostRequestTester {
 		new LocationTooLongTest().test();
 		new LocationMustBeNumbersTest().test();
 		new InvalidCoordinateObjectTest().test();
+		new NoLocationOkTest().test();
 		new CodeBlockHasInvalidStreamIdTest().test();
 		new CodeBlockHasImproperAttributesTest().test();
 		new CodeBlockHasUnknownStreamIdTest().test();

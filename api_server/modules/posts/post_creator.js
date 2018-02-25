@@ -90,7 +90,7 @@ class PostCreator extends ModelCreator {
 
 	// validate a single code block
 	validateCodeBlock (codeBlock, callback) {
-		let numKeys = 2;	// we are strict about which keys can be in the code block object
+		let numKeys = 1;	// we are strict about which keys can be in the code block object
 		// must have code with the code block
 		if (typeof codeBlock.code !== 'string') {
 			return callback('code must be a string');
@@ -108,10 +108,13 @@ class PostCreator extends ModelCreator {
 				return callback('postContext must be a string');
 			}
 		}
-		// the location coordinates must be valid
-		let result = MarkerCreator.validateLocation(codeBlock.location);
-		if (result) {
-			return callback(result);
+		if (typeof codeBlock.location !== 'undefined') {
+			numKeys++;
+			// the location coordinates must be valid
+			let result = MarkerCreator.validateLocation(codeBlock.location);
+			if (result) {
+				return callback(result);
+			}
 		}
 		// if the code block specifies a stream ID (which can be different from the
 		// stream ID for the post), it must be a valid ID
@@ -282,9 +285,11 @@ class PostCreator extends ModelCreator {
 			teamId: this.attributes.teamId,
 			streamId: codeBlock.streamId || this.attributes.streamId,
 			postId: this.attributes._id,
-			commitHash: this.attributes.commitHashWhenPosted,
-			location: codeBlock.location
+			commitHash: this.attributes.commitHashWhenPosted
 		};
+		if (codeBlock.location) { // not strictly required
+			markerInfo.location = codeBlock.location;
+		}
 		new MarkerCreator({
 			request: this.request
 		}).createMarker(
@@ -296,8 +301,10 @@ class PostCreator extends ModelCreator {
 				delete codeBlock.streamId; // gets put into the marker
 				let markerObject = marker.getSanitizedObject();
 				this.attachToResponse.markers.push(markerObject);
-				this.attachToResponse.markerLocations.locations[marker.id] = codeBlock.location;
-				delete codeBlock.location; // gets put into the marker locations object
+				if (codeBlock.location) {
+					this.attachToResponse.markerLocations.locations[marker.id] = codeBlock.location;
+					delete codeBlock.location; // gets put into the marker locations object
+				}
 				process.nextTick(callback);
 			}
 		);
