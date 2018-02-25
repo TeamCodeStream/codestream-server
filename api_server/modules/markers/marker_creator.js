@@ -25,7 +25,9 @@ class MarkerCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['teamId', 'streamId', 'postId', 'commitHash'],
+				string: ['teamId', 'streamId', 'postId', 'commitHash']
+			},
+			optional: {
 				'array': ['location']
 			}
 		};
@@ -33,7 +35,14 @@ class MarkerCreator extends ModelCreator {
 
 	// validate the input attributes
 	validateAttributes (callback) {
-		this.validateLocationAttribute(callback);
+		// location attribute is not strictly required, for instance, a marker that
+		// is associated with code that has not yet been committed will not have a location
+		if (typeof this.attributes.location !== 'undefined') {
+			this.validateLocationAttribute(callback);
+		}
+		else {
+			return callback();
+		}
 	}
 
 	// validate the passed location for the marker
@@ -93,6 +102,7 @@ class MarkerCreator extends ModelCreator {
 
 	// update the location of this marker in the marker locations structure for this stream and commit
 	updateMarkerLocations (callback) {
+		if (!this.location) { return callback(); }	// location is not strictly required, ignore if not provided
 		let id = `${this.attributes.streamId}|${this.attributes.commitHashWhenCreated}`.toLowerCase();
 		let op = {
 			$set: {
