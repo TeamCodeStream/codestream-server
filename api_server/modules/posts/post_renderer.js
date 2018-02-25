@@ -43,23 +43,16 @@ class PostRenderer {
 </div>
 <div style="${displayCodeBlock}" class="codeBlock">
 	<br>
-<!--
 	<div class="codeContext">
 		${preContext}
 	</div>
--->
 	<div class="code">
 		${code}
 	</div>
-<!--
 	<div class="codeContext">
 		${postContext}
 	</div>
--->
 </div>
-<br>
-<br>
-<br>
 `
 		);
 	}
