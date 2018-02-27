@@ -38,5 +38,8 @@ module.exports = {
 	nextSeqNum: {
 		type: 'number',
 		serverOnly: true
+	},
+	editingUsers: {
+		type: 'object'
 	}
 };
