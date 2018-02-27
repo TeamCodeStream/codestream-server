@@ -16,5 +16,5 @@ describe('stream requests', function() {
 	describe('GET /streams/:id', streamsRequestTester.getStreamTest);
 	describe('GET /streams', streamsRequestTester.getStreamsTest);
 	describe('POST /streams', streamsRequestTester.postStreamTest);
-
+	describe('PUT /editing', streamsRequestTester.editingTest);
 });
