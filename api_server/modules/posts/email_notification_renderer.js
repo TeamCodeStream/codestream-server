@@ -55,7 +55,7 @@ class EmailNotificationRenderer {
 	</div>
 	<br>
 	<div>
-		Reply to this email to add to the discussion.
+		Add to the discussion by replying to this email.
 		<br>
 		Control notifications by emailing <a href="mailto:support@codestream.com">support@codestream.com</a>.
 	</div>
@@ -92,10 +92,10 @@ class EmailNotificationRenderer {
 		const installLink = this.getInstallLink(options);
 		if (isRegistered) {
 			if (offlineForRepo) {
-				return `You are receiving this notification because you don’t currently have this repo open in your IDE.`;
+				return `We noticed that you don’t currently have this repo open in your IDE and didn’t want you to miss this discussion.`;
 			}
 			else {
-				return `You are receiving this notification because you don’t currently have your IDE open.`;
+				return `We noticed that you don’t currently have your IDE open and didn’t want you to miss this discussion.`;
 			}
 		}
 		else if (firstEmail) {
