@@ -95,7 +95,7 @@ class CommonInit {
 			repoId: this.repo._id,
 			streamId: this.stream ? this.stream._id : undefined,
 			file: this.stream ? undefined : this.streamFactory.randomFile(),
-			editing
+			editing: editing
         };
         this.editedAfter = Date.now();
         callback();

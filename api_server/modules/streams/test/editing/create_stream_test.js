@@ -34,8 +34,8 @@ class CreateStreamTest extends EditingTest {
 			((stream.modifiedAt >= stream.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((stream.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id')) &&
 			((Object.keys(editingUsers).length === 1) || errors.push('should only be a single key in editingUsers')) &&
-			((editing.startedAt > this.editedAfter, 'startedAt for edit is not greater than before the editing was indicated')) &&
-			((editing.commitHash === this.data.editing.commitHash, 'commitHash does not match'))
+			((editing.startedAt > this.editedAfter) || errors.push('startedAt for edit is not greater than before the editing was indicated')) &&
+			((editing.commitHash === this.data.editing.commitHash) || errors.push('commitHash does not match'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		this.validateSanitized(stream, StreamTestConstants.UNSANITIZED_ATTRIBUTES);
