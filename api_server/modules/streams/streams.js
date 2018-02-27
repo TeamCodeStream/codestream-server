@@ -17,6 +17,15 @@ const STREAM_STANDARD_ROUTES = {
 	}
 };
 
+// additional routes for this module
+const STREAM_ADDITIONAL_ROUTES = [
+	{
+		method: 'put',
+		path: 'editing',
+		requestClass: require('./editing_request')
+	}
+];
+
 class Streams extends Restful {
 
 	get collectionName () {
@@ -24,7 +33,7 @@ class Streams extends Restful {
 	}
 
 	get modelName () {
-		return 'stream'; // name of the data model	
+		return 'stream'; // name of the data model
 	}
 
 	get creatorClass () {
@@ -42,7 +51,8 @@ class Streams extends Restful {
 */
 
 	getRoutes () {
-		return super.getRoutes(STREAM_STANDARD_ROUTES);
+		let standardRoutes = super.getRoutes(STREAM_STANDARD_ROUTES);
+		return [...standardRoutes, ...STREAM_ADDITIONAL_ROUTES];
 	}
 }
 

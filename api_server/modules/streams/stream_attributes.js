@@ -39,6 +39,9 @@ module.exports = {
 		type: 'number',
 		serverOnly: true
 	},
+	editingUsers: {
+		type: 'object'
+	},
 	emailNotificationSeqNum: {
 		type: 'number',
 		serverOnly: true

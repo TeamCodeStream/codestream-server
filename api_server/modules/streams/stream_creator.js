@@ -140,6 +140,9 @@ class StreamCreator extends ModelCreator {
 		if (!this.existingModel) {
 			// for new streams, set next sequence number for posts to 1, unless provided from the outside
 			this.attributes.nextSeqNum = this.nextSeqNum || 1;
+			if (this.editingUsers) {
+				this.attributes.editingUsers = this.editingUsers;	// not user-definable, but the server can provide it
+			}
 		}
 		BoundAsync.series(this, [
 			this.createId,

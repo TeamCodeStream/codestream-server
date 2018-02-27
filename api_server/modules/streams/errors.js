@@ -22,6 +22,10 @@ const ERRORS = {
 	'messagingGrant': {
 		code: 'STRM-1004',
 		message: 'Unable to grant user messaging permissions'
+	},
+	'noEditingNonFile': {
+		code: 'STRM-1005',
+		message: 'Can\'t indicate editing a non-file stream'
 	}
 };
 
