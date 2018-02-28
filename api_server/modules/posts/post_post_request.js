@@ -5,7 +5,6 @@
 var PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
 var PostPublisher = require('./post_publisher');
 var PostAuthorizer = require('./post_authorizer');
-//var EmailNotificationSender = require('./email_notification_sender');
 const EmailNotificationQueue = require('./email_notification_queue');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
