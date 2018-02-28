@@ -99,7 +99,7 @@ class EmailNotificationRenderer {
 			}
 		}
 		else if (firstEmail) {
-			return `You’ve been added to ${teamName} on CodeStream, where your team is currently discussing code.<b><a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
+			return `You’ve been added to ${teamName} on CodeStream, where your team is currently discussing code.<br><a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
 		}
 		else {
 			return `<a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;

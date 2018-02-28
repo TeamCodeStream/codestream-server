@@ -159,7 +159,7 @@ class EmailNotificationSender {
 	// determine whether the givenn user wants an email notification for the current post
 	userWantsEmail (user) {
 		const lastReadSeqNum = user.get('lastReads') && user.get('lastReads')[this.stream.id];
-		if (!lastReadSeqNum) {
+		if (typeof lastReadSeqNum === 'undefined') {
 			// don't send an email if the user has read everything already
 			this.request.log(`User ${user.id} is already caught up on this stream`);
 			return false;
