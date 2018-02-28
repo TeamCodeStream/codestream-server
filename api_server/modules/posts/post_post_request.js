@@ -42,6 +42,11 @@ class PostPostRequest extends PostRequest {
 
 	// send an email notification as needed to users who are offline
 	triggerNotificationEmails (callback) {
+		if (this.requestSaysToBlockEmails()) {
+			// don't do email notifications for unit tests, unless asked
+			this.log('Would have triggered email notifications for stream ' + this.creator.stream.id);
+			return callback();
+		}
 		const queue = new EmailNotificationQueue({
 			request: this,
 			post: this.creator.model,
@@ -96,6 +101,15 @@ class PostPostRequest extends PostRequest {
 		);
 		process.nextTick(callback);
 	}
+
+	// determine if special header was sent with the request that says to block emails
+	requestSaysToBlockEmails () {
+		return (
+			this.request.headers &&
+			this.request.headers['x-cs-block-email-sends']
+		);
+	}
+
 }
 
 module.exports = PostPostRequest;
