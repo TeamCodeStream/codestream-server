@@ -7,9 +7,11 @@ var HTTPS = require('https');
 function _SimpleRequest (method, host, port, path, data, callback, options) { // jshint ignore:line
 
     options = Object.assign({}, options || {}, { method, host, port, path });
-    options.headers = Object.assign({}, options.headers || {}, {
-        'Content-Type': 'application/json'
-    });
+	if (!options.noJson) {
+	    	options.headers = Object.assign({}, options.headers || {}, {
+	        'Content-Type': 'application/json'
+	    });
+	}
 
     let request = HTTPS.request(
         options,
@@ -22,14 +24,19 @@ function _SimpleRequest (method, host, port, path, data, callback, options) { //
 
             response.on('end', () => {
                 let parsed;
-                try {
-                    parsed = JSON.parse(responseData);
-                }
-                catch(error) {
-                    return callback(`error parsing JSON data: ${error}`);
-                }
+				if (!options.noJson) {
+	                try {
+	                    parsed = JSON.parse(responseData);
+	                }
+	                catch(error) {
+	                    return callback(`error parsing JSON data: ${error}`);
+	                }
+				}
+				else {
+					parsed = responseData;
+				}
 				if (response.statusCode < 200 || response.statusCode >= 300) {
-                    return callback(`error response, status code was ${response.statusCode}`, parsed);
+                    return callback(`error response, status code was ${response.statusCode}: ${JSON.stringify(parsed)}`);
                 }
 				else {
                 	return callback(null, parsed);
