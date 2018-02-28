@@ -74,7 +74,7 @@ export CS_API_SETUP_MONGO=true
 
 # =============== PubNub Settings ==============
 # see README.pubnub for more details
-[ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset"
+[ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-Local_Keyset_1"
 if [ -f $PUBNUB_KEY_FILE ]; then
 	. $PUBNUB_KEY_FILE
 	export CS_API_PUBNUB_PUBLISH_KEY=$PUBNUB_PUBLISH
@@ -82,15 +82,20 @@ if [ -f $PUBNUB_KEY_FILE ]; then
 	export CS_API_PUBNUB_SECRET=$PUBNUB_SECRET
 else
 	echo "**************************************************************"
-	echo "WARNING: pubnub key files not found. Run dt-update-pubnub-keys"
+	echo "WARNING: pubnub key files not found. Run dt-update-secrets and"
+	echo "         reload your sandbox"
 	echo "**************************************************************"
-	export CS_API_PUBNUB_PUBLISH_KEY=pub-c-8603fed4-39da-4feb-a82e-cf5311ddb4d6
-	export CS_API_PUBNUB_SUBSCRIBE_KEY=sub-c-e830d7da-fb14-11e6-9f57-02ee2ddab7fe
-	export CS_API_PUBNUB_SECRET=sec-c-MmU3MmNlOGQtNjNhYS00NTk1LWI3NDItZDZlMjk3NmJkMDVh
 fi
 
 # =============== MixPanel Settings ==============
-export CS_API_MIXPANEL_TOKEN=4308967c7435e61d9697ce240bc68d02
+[ -z "$MIXPANEL_TOKEN_FILE" ] && MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/development
+[ -f $MIXPANEL_TOKEN_FILE ]; then
+	. $MIXPANEL_TOKEN_FILE
+	export CS_API_MIXPANEL_TOKEN=$MIXPANEL_TOKEN
+else
+	echo "Warning: using old mixpanel development token"
+	export CS_API_MIXPANEL_TOKEN=4308967c7435e61d9697ce240bc68d02
+fi
 
 # ============ Testing Settings ==============
 # Location of the TestRepo repo used For maintaining test scripts
@@ -98,6 +103,12 @@ export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo
 
 # Set if this sandbox is for test-only client (no api service)
 #export CS_API_TEST_ONLY=true
+
+
+# =================== SQS ====================
+export CS_API_OUTBOUND_EMAIL_SQS="dev_${DT_USER}_outboundEmail"
+# Set the interval (in ms) between emails being sent
+export CS_API_EMAIL_NOTIFICATION_INTERVAL=300000
 
 # ============ Email Settings ================
 # Emails by default are not sent ... set this to "on" to send emails normally

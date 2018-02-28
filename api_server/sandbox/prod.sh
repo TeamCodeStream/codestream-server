@@ -3,6 +3,10 @@ PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset"
 MONGO_ACCESS_FILE="$HOME/.codestream/mongo/prod-codestream-dbowner"
 SSL_CERT=codestream.com
 
+# cmomented out till we are ready for tracking to go into Production
+# in the meantime, we are using the development key
+MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
+
 . $CS_API_TOP/sandbox/defaults.sh
 
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/prod-api
@@ -16,7 +20,4 @@ export CS_API_PORT=8443
 unset CS_API_LOG_CONSOLE_OK
 export CS_API_REPLY_TO_DOMAIN=prod.codestream.com
 export CS_API_EMAIL_TO=on
-
-# cmomented out till we are ready for tracking to go into Production
-# in the meantime, we are using the development key
-#export CS_API_MIXPANEL_TOKEN=2c92bfd963bfbaf680be2f1d10e48003
+export CS_API_OUTBOUND_EMAIL_SQS="prod_outboundEmail"
