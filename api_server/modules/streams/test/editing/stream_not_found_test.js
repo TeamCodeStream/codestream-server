@@ -2,18 +2,12 @@
 
 var EditingTest = require('./editing_test');
 var ObjectID = require('mongodb').ObjectID;
+var Assert = require('assert');
 
 class StreamNotFoundTest extends EditingTest {
 
 	get description () {
-		return `should return an error when trying to set editing for a stream that doesn't exist`;
-	}
-
-	getExpectedError () {
-		return {
-			code: 'RAPI-1003',
-			info: 'stream'
-		};
+		return `should return an empty response when trying to set editing for a stream that doesn't exist`;
 	}
 
     // before the test runs...
@@ -24,6 +18,11 @@ class StreamNotFoundTest extends EditingTest {
             callback();
         });
     }
+
+	// validate the response to the test request
+	validateResponse (data) {
+		Assert.deepEqual(data, { streams: [] }, 'expected empty streams');
+	}
 }
 
 module.exports = StreamNotFoundTest;

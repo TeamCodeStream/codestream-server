@@ -20,6 +20,8 @@ const MessageToTeamCreateStreamTest = require('./message_to_team_create_stream_t
 const NoMessageOnNoOpTest = require('./no_message_on_no_op_test');
 const NoMessageOnAlreadyEditingTest = require('./no_message_on_already_editing_test');
 const StopEditingMessageTest = require('./stop_editing_message_test');
+const MultipleEditingTest = require('./multiple_editing_test');
+const MultipleMessageToTeamTest = require('./multiple_message_to_team_test');
 
 /* jshint -W071 */
 
@@ -48,6 +50,8 @@ class EditingRequestTester {
 		new NoMessageOnNoOpTest().test();
 		new NoMessageOnAlreadyEditingTest().test();
 		new StopEditingMessageTest().test();
+		new MultipleEditingTest().test();
+		new MultipleMessageToTeamTest().test();
 	}
 }
 
