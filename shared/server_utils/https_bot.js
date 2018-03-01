@@ -36,7 +36,7 @@ function _SimpleRequest (method, host, port, path, data, callback, options) { //
 					parsed = responseData;
 				}
 				if (response.statusCode < 200 || response.statusCode >= 300) {
-                    return callback(`error response, status code was ${response.statusCode}: ${JSON.stringify(parsed)}`);
+                    return callback(`error response, status code was ${response.statusCode}: ${JSON.stringify(parsed)}`, parsed);
                 }
 				else {
                 	return callback(null, parsed);
