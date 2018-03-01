@@ -231,6 +231,7 @@ class RepoCreator extends ModelCreator {
 				this.attachToResponse.users = this.teamCreator.members.map(member => member.getSanitizedObject());
 				delete this.attributes.team;
 				this.joinMethod = 'Created Team';	// becomes the user's joinMethod attribute
+				this.createdTeam = team;
 				callback();
 			}
 		);
@@ -260,6 +261,14 @@ class RepoCreator extends ModelCreator {
 	postSave (callback) {
 		// grant permission to any users on the team that owns this repo, to subscribe to the messager channel for this repo
 		this.grantUserMessagingPermissions(callback);
+		// send email to us that a new team has been created
+		if (this.createdTeam && this.api.config.email.replyToDomain === 'prod.codestream.com') {
+			this.api.services.email.sendTeamCreatedEmail({
+				team: this.createdTeam,
+				user: this.user,
+				request: this.request
+			});
+		}
 	}
 
 	// grant permission to any users on the team that owns this repo, to subscribe to the messager channel for this repo

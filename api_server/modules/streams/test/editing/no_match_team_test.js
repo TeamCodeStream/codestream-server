@@ -1,6 +1,7 @@
 'use strict';
 
 const EditingTest = require('./editing_test');
+const Assert = require('assert');
 
 class NoMatchTeamTest extends EditingTest {
 
@@ -10,13 +11,7 @@ class NoMatchTeamTest extends EditingTest {
 	}
 
 	get description () {
-		return `should return an error when user indicated editing a file for a stream but the teamId doesn\'t match the teamId of the stream`;
-	}
-
-	getExpectedError () {
-		return {
-			code: 'RAPI-1010'
-		};
+		return `should return an empty response when user indicated editing a file for a stream but the teamId doesn\'t match the teamId of the stream`;
 	}
 
 	// form the data to be used in the test request
@@ -26,6 +21,11 @@ class NoMatchTeamTest extends EditingTest {
 			this.data.teamId = this.otherTeam._id;
 			callback();
 		});
+	}
+
+	// validate the response to the test request
+	validateResponse (data) {
+		Assert.deepEqual(data, { streams: [] }, 'expected empty streams');
 	}
 }
 

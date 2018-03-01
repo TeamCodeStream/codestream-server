@@ -9,10 +9,6 @@ const CommonInit = require('./common_init');
 
 class EditingTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
-	constructor (options) {
-		super(options);
-	}
-
 	get description () {
 		return 'should return an op to update editingUsers when a user indicates they are editing the file for a stream';
 	}
@@ -33,22 +29,23 @@ class EditingTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify we got back the expected response
-		Assert(data.stream, 'no stream in response');
+		Assert(data.streams, 'no streams in response');
+		const stream = data.streams[0];
 		if (this.wantStopEditing) {
-			Assert(data.stream.$unset, 'no $unset in stream response');
+			Assert(stream.$unset, 'no $unset in stream response');
 			const unsetKey = `editingUsers.${this.currentUser._id}`;
-			Assert(data.stream.$unset[unsetKey], 'no editingUsers for current user in stream.$unset response');
-			Assert(data.stream.$unset[unsetKey] === true, 'unset key is not false');
+			Assert(stream.$unset[unsetKey], 'no editingUsers for current user in stream.$unset response');
+			Assert(stream.$unset[unsetKey] === true, 'unset key is not false');
 		}
 		else {
-			Assert(data.stream.$set, 'no $set in stream response');
+			Assert(stream.$set, 'no $set in stream response');
 			const setKey = `editingUsers.${this.currentUser._id}`;
-			Assert(data.stream.$set[setKey], 'no editingUsers for current user in stream.$set response');
-			const editing = data.stream.$set[setKey];
+			Assert(stream.$set[setKey], 'no editingUsers for current user in stream.$set response');
+			const editing = stream.$set[setKey];
 			Assert(editing.startedAt > this.editedAfter, 'startedAt for edit is not greater than before the editing was indicated');
 			Assert(editing.commitHash === this.data.editing.commitHash, 'commitHash does not match');
 		}
-		Assert(data.stream.$set.modifiedAt > this.editedAfter, 'modifiedAt is not greater than before the editing was indicated');
+		Assert(stream.$set.modifiedAt > this.editedAfter, 'modifiedAt is not greater than before the editing was indicated');
 	}
 }
 

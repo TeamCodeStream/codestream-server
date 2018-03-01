@@ -15,15 +15,11 @@ class CreateStreamTest extends EditingTest {
 		return 'should create and return the full stream when a user indicates they are editing a file, specified by path, and there is not yet a stream associated with the file';
 	}
 
-	getExpectedFields () {
-		return StreamTestConstants.EXPECTED_STREAM_RESPONSE;
-	}
-
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that we got a normal stream
-		let stream = data.stream;
-		let editingUsers = data.stream.editingUsers;
+		let stream = data.streams[0];
+		let editingUsers = stream.editingUsers;
 		let editing = editingUsers[this.currentUser._id];
 		let errors = [];
 		let result = (

@@ -5,7 +5,6 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const StreamPublisher = require('./stream_publisher');
 const StreamCreator = require('./stream_creator');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
@@ -15,6 +14,9 @@ class EditingRequest extends RestfulRequest {
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(Errors);
+		this.fetchedStreams = [];
+		this.foundStreams = [];
+		this.createdStreams = [];
 	}
 
 	// authorize the current user against the request
@@ -28,10 +30,14 @@ class EditingRequest extends RestfulRequest {
 		BoundAsync.series(this, [
 			this.requireAllow,
 			this.normalize,
-			this.getOrFindStream,
-			this.confirmTeamAndRepo,
-			this.createStream,
-			this.setEditing,
+			this.fetchStreams,
+			this.findStreams,
+			this.createStreams,
+			this.fetchStreamsBeingEdited,
+			this.setNewStreamsBeingEdited,
+			this.setStreamsNoLongerBeingEdited,
+			this.saveStreamsBeingEdited,
+			this.saveStreamsNoLongerBeingEdited,
 			this.setResponseData
 		], callback);
 	}
@@ -54,8 +60,8 @@ class EditingRequest extends RestfulRequest {
 					'object': ['editing']
 				},
 				optional: {
-					'object': ['all'],
-					'string': ['file', 'streamId']
+					'string': ['file', 'streamId'],
+					'array(string)': ['files', 'streamIds']
 				}
 			},
 			callback
@@ -66,60 +72,88 @@ class EditingRequest extends RestfulRequest {
 	normalize (callback) {
 		this.teamId = this.request.body.teamId.toLowerCase();
 		this.repoId = this.request.body.repoId.toLowerCase();
-		if (this.request.body.streamId) {
-			this.streamId = this.request.body.streamId.toLowerCase();
+		// user may specify a single file by stream ID or by filename, or
+		// multiple files by stream ID or filename ... if they specify
+		// multiple files, we assume they are providing a complete list of
+		// files being edited, and we will remove that they are editing
+		// any other files in the same repo
+		if (this.request.body.files || this.request.body.streamIds) {
+			// multiple files, but...
+			if (this.request.body.editing === false) {
+				// if editing is false, it means the user is editing nothing
+				this.files = [];
+				this.streamIds = [];
+			}
+			else {
+				// otherwise normalize the input files
+				this.files = this.request.body.files || [];
+				this.streamIds = (this.request.body.streamIds || []).map(streamId => streamId.toLowerCase());
+			}
+			this.isCompleteList = true;	// user is providing a complete list of files they are editing
+		}
+		else if (this.request.body.streamId) {
+			// user provided a single file by stream ID
+			this.streamIds = [this.request.body.streamId.toLowerCase()];
+			this.files = [];
+		}
+		else if (this.request.body.file) {
+			// user provided a single file by filename
+			this.files = [this.request.body.file];
+			this.streamIds = [];
+		}
+		else {
+			return callback(this.errorHandler.error('parameterRequired', { info: 'streamId or file or streamIds or files ' }));
+		}
+		// we won't allow this request to get too big, users with more than 100 files
+		// to delcare should spread it out over multiple requests
+		if (this.files.length + this.streamIds.length > 100) {
+			return callback(this.errorHandler.error('tooManyFiles'));
 		}
 		this.editing = this.request.body.editing;
-		this.file = this.request.body.file;
+		if (!this.editing.__remove) {
+			this.editing.startedAt = Date.now();
+		}
 		process.nextTick(callback);
 	}
 
-	// if streamId specified, get the stream, otherwise look for a stream matching the file
-	getOrFindStream (callback) {
-		if (this.streamId) {
-			this.getStream(callback);
+	// fetch the streams for which we have a stream ID
+	fetchStreams (callback) {
+		if (this.streamIds.length === 0) {
+			return callback();
 		}
-		else if (this.file) {
-			this.findStream(callback);
-		}
-		else {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'file or streamId'}));
-		}
-	}
-
-	// get the stream specified by streamId
-	getStream (callback) {
-		this.data.streams.getById(
-			this.streamId,
-			(error, stream) => {
+		this.data.streams.getByIds(
+			this.streamIds,
+			(error, streams) => {
 				if (error) { return callback(error); }
-				if (!stream) {
-					return callback(this.errorHandler.error('notFound', { info: 'stream' }));
-				}
-				if (stream.get('type') !== 'file') {
-					return callback(this.errorHandler.error('noEditingNonFile'));
-				}
-				this.stream = stream;
+				// only allow editing to be set for file-type streams in the same team and repo
+				this.fetchedStreams = streams.filter(stream => {
+					return (
+						stream.get('type') === 'file' &&
+						stream.get('repoId') === this.repoId &&
+						stream.get('teamId') === this.teamId
+					);
+				});
 				callback();
 			}
 		);
 	}
 
-	// find a stream matching the specified file
-	findStream (callback) {
+	// find any streams that are specified by filename, within the same team and repo
+	findStreams (callback) {
+		if (this.files.length === 0) {
+			return callback();
+		}
 		const query = {
 			teamId: this.teamId,
 			repoId: this.repoId,
-			type: 'file',
-			file: this.file
+			file: { $in: this.files }
 		};
 		this.data.streams.getByQuery(
 			query,
 			(error, streams) => {
 				if (error) { return callback(error); }
-				if (streams.length > 0) {
-					this.stream = streams[0];
-				}
+				this.foundStreams = streams;
+				this.foundFiles = this.foundStreams.map(stream => stream.get('file'));
 				callback();
 			},
 			{
@@ -130,31 +164,34 @@ class EditingRequest extends RestfulRequest {
 		);
 	}
 
-	// the stream we have must match the teamId and repoId specified in the request
-	confirmTeamAndRepo (callback) {
-		if (!this.stream) {
-			return callback();
-		}
-		else if (
-			this.stream.get('teamId') !== this.teamId ||
-			this.stream.get('repoId') !== this.repoId
+	// create any streams for filenames we didn't find streams for
+	createStreams (callback) {
+		if (
+			this.editing.__remove ||	 // we're removing that the user is editing these, so don't create any files
+			(
+				this.files.length > 0 &&
+				this.files.length === this.foundFiles.length	// a shortcut ... we found all the files we needed
+			)
 		) {
-			return callback(this.errorHandler.error('updateAuth'));
-		}
-		else {
 			return callback();
 		}
+		this.streamsToCreate = this.files.filter(file => {
+			return !this.foundFiles.includes(file);
+		});
+		if (this.streamsToCreate.length === 0) {
+			return callback();
+		}
+		BoundAsync.forEachLimit(
+			this,
+			this.streamsToCreate,
+			10,
+			this.createStream,
+			callback
+		);
 	}
 
-	// if we didn't find a stream matching the file, create one as needed
-	createStream (callback) {
-		if (this.stream || this.editing.__remove) {
-			// already have a stream, no need to create, or the user specified a file
-			// that they are no longer editing, but we don't have a stream for that file
-			// anyway, so it's really a no-op
-			return callback();
-		}
-		this.editing.startedAt = Date.now();
+	// create a stream for a file, and indicate that the user is editing this file
+	createStream (file, callback) {
 		const editingUsers = {
 			[this.user.id]: this.editing
 		};
@@ -162,7 +199,7 @@ class EditingRequest extends RestfulRequest {
 			teamId: this.teamId,
 			repoId: this.repoId,
 			type: 'file',
-			file: this.file
+			file: file
 		};
 		new StreamCreator({
 			request: this,
@@ -171,96 +208,178 @@ class EditingRequest extends RestfulRequest {
 			streamAttributes,
 			(error, stream) => {
 				if (error) { return callback(error); }
-				this.stream = stream;
-				this.createdStream = true;
+				this.createdStreams.push(stream);
 				callback();
 			}
 		);
 	}
 
-	// set editingUsers for the current user as needed, assuming an existing stream
-	setEditing (callback) {
-		// if we created a stream, we set the editingUsers attribute when we created it,
-		// or if we don't have a stream, that means there was no match to the file, and the user isn't
-		// really editing it, so it's a no-op
-		if (this.createdStream || !this.stream) {
+	// fetch the streams that are currently indicated as being edited by the user
+	fetchStreamsBeingEdited (callback) {
+		if (!this.isCompleteList) {
+			// since the user did not provide a complete list of files being edited,
+			// we'll simply check against those streams we already have, which should
+			// really just be one
+			this.streamsPreviouslyBeingEdited = [...this.fetchedStreams, ...this.foundStreams].filter(stream => {
+				return (stream.get('editingUsers') || {})[this.user.id];
+			});
 			return callback();
 		}
+		const query = {
+			teamId: this.teamId,
+			repoId: this.repoId,
+			[`editingUsers.${this.user.id}`]: { $exists: true }
+		};
+		this.data.streams.getByQuery(
+			query,
+			(error, streams) => {
+				if (error) { return callback(error); }
+				this.streamsPreviouslyBeingEdited = streams;
+				callback();
+			},
+			{
+				databaseOptions: {
+					hint: Indexes.byFile
+				}
+			}
+		);
+	}
 
-		// if we're setting that the user is editing the stream, and they've already
-		// set this, we don't override the existing setting
-		if (
-			!this.editing.__remove &&
-			(this.stream.get('editingUsers') || {})[this.user.id]
-		) {
-			this.alreadyEditing = true;
-			return callback();
-		}
-
-		// unset the user's entry in editingUsers if they are no longer editing the file
+	// find any streams that the user says they are editing, and which are not already
+	// being edited by this user
+	setNewStreamsBeingEdited (callback) {
 		if (this.editing.__remove) {
-			this.op = {
-				$unset: {
-					[`editingUsers.${this.user.id}`]: true
-				}
-			};
+			// really specifying to remove that the user is editing, so nothing to do here
+			this.newStreamsBeingEdited = [];
+			return callback();
 		}
+		// among fetched and found streams, look for any that are not indicated as
+		// already being edited by this user
+		const streamsBeingEdited = [...this.fetchedStreams, ...this.foundStreams];
+		this.newStreamsBeingEdited = streamsBeingEdited.reduce((streams, stream) => {
+			if (!this.streamsPreviouslyBeingEdited.find(editedStream => editedStream.id === stream.id)) {
+				streams.push(stream.id);
+			}
+			return streams;
+		}, []);
+		process.nextTick(callback);
+	}
 
-		// otherwise set the user's entry given the free-form parameters passed in
-		else {
-			this.editing.startedAt = Date.now();
-			this.op = {
-				$set: {
-					[`editingUsers.${this.user.id}`]: this.editing
-				}
-			};
+	// if the user is providing a complete list of files they are editing, then  among the
+	// streams the user is already known to be editing, find those that the user is not
+	// saying they are still editing, we'll make these as no longer being edited by the user
+	setStreamsNoLongerBeingEdited (callback) {
+		if (!this.isCompleteList) {
+			// user is not specifying a complete list of files being edited, so the ones
+			// no longer being edited are limited to the ones we already have, which should just be one
+			if (this.editing.__remove) {
+				this.streamsNoLongerBeingEdited = [...this.fetchedStreams, ...this.foundStreams].map(stream => stream.id);
+			}
+			else {
+				this.streamsNoLongerBeingEdited = [];
+			}
+			return callback();
 		}
+		// among fetched and found streams, look for any that are not indicated as
+		// being edited anymore, we'll set these as not being edited by the user
+		const streamsBeingEdited = [...this.fetchedStreams, ...this.foundStreams];
+		this.streamsNoLongerBeingEdited = this.streamsPreviouslyBeingEdited.reduce((streams, stream) => {
+			if (!streamsBeingEdited.find(editedStream => editedStream.id === stream.id)) {
+				streams.push(stream.id);
+			}
+			return streams;
+		}, []);
+		process.nextTick(callback);
+	}
 
-		// modifiedAt must be set
-		this.op.$set = this.op.$set || {};
-		this.op.$set.modifiedAt = Date.now();
+	// in a single update query, mark all the streams the user is editing that
+	// they weren't editing already
+	saveStreamsBeingEdited (callback) {
+		this.beingEditedOp = {
+			$set: {
+				[`editingUsers.${this.user.id}`]: this.editing,
+				modifiedAt: Date.now()
+			}
+		};
+		if (this.newStreamsBeingEdited.length === 0) {
+			return callback();
+		}
+		const query = {
+			_id: this.data.streams.inQuerySafe(this.newStreamsBeingEdited)
+		};
+		this.data.streams.updateDirect(
+			query,
+			this.beingEditedOp,
+			callback
+		);
+	}
 
-		// and apply...
-		this.data.streams.applyOpById(
-			this.stream.id,
-			this.op,
+	// in a single update query, mark all the streams that the user is no longer editing
+	saveStreamsNoLongerBeingEdited (callback) {
+		this.noLongerBeingEditedOp = {
+			$set: {
+				modifiedAt: Date.now()
+			},
+			$unset: {
+				[`editingUsers.${this.user.id}`]: true
+			}
+		};
+		if (this.streamsNoLongerBeingEdited.length === 0) {
+			return callback();
+		}
+		const query = {
+			_id: this.data.streams.inQuerySafe(this.streamsNoLongerBeingEdited)
+		};
+		this.data.streams.updateDirect(
+			query,
+			this.noLongerBeingEditedOp,
 			callback
 		);
 	}
 
 	// set the data to return in the request response
 	setResponseData (callback) {
-		if (this.createdStream) {
-			// we created a stream, return that
-			this.responseData = { stream: this.stream.getSanitizedObject() };
-		}
-		else if (this.op) {
-			// we modified an existing stream, return the op we used
-			this.responseData = {
-				stream: this.op
-			};
-		}
-		else {
-			// we neither created nor found a stream, this is a no-op
-			this.responseData = {};
-		}
-		callback();
+		this.responseData.streams = [];
+		// created streams are returned in full
+		this.createdStreams.forEach(stream => {
+			this.responseData.streams.push(stream.getSanitizedObject());
+		});
+		// new streams the user is editing, indicated as such
+		this.newStreamsBeingEdited.forEach(streamId => {
+			this.responseData.streams.push(Object.assign({}, {
+				_id: streamId
+			}, this.beingEditedOp));
+		});
+		// streams the user is no longer editing, indicated as such
+		this.streamsNoLongerBeingEdited.forEach(streamId => {
+			this.responseData.streams.push(Object.assign({}, {
+				_id: streamId
+			}, this.noLongerBeingEditedOp));
+		});
+		process.nextTick(callback);
 	}
 
 	// after the response is sent...
 	postProcess (callback) {
-		if (!this.stream || this.alreadyEditing) {
-			// we neither created nor found a stream, or the user is already editing,
-			// this is a no-op, so there is no message to send
+		if (this.responseData.streams.length === 0) {
 			return callback();
 		}
-		// publish the stream to the appropriate messager channel
-		new StreamPublisher({
-			data: this.responseData,
-			stream: this.stream.attributes,
-			request: this,
-			messager: this.api.services.messager
-		}).publishStream(callback);
+		// send a message to the team indicating the changed status of all the
+		// streams the user is now editing, or no longer editing, including
+		// any streams created
+		const channel = 'team-' + this.teamId;
+		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
+		this.api.services.messager.publish(
+			message,
+			channel,
+			error => {
+				if (error) {
+					this.request.warn(`Could not publish edited streams message to team ${this.teamId}: ${JSON.stringify(error)}`);
+				}
+				// this doesn't break the chain, but it is unfortunate...
+				callback();
+			}
+		);
 	}
 }
 
