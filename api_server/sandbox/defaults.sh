@@ -89,7 +89,7 @@ fi
 
 # =============== MixPanel Settings ==============
 [ -z "$MIXPANEL_TOKEN_FILE" ] && MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/development
-[ -f $MIXPANEL_TOKEN_FILE ]; then
+if [ -f $MIXPANEL_TOKEN_FILE ]; then
 	. $MIXPANEL_TOKEN_FILE
 	export CS_API_MIXPANEL_TOKEN=$MIXPANEL_TOKEN
 else
