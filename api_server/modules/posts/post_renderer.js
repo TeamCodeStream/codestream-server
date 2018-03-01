@@ -53,6 +53,7 @@ class PostRenderer {
 		${postContext}
 	</div>
 </div>
+<br>
 `
 		);
 	}
