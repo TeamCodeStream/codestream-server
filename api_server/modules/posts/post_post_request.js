@@ -109,7 +109,6 @@ class PostPostRequest extends PostRequest {
 			this.request.headers['x-cs-block-email-sends']
 		);
 	}
-
 }
 
 module.exports = PostPostRequest;

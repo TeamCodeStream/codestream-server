@@ -7,7 +7,7 @@ var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var PostCreator = require(process.env.CS_API_TOP + '/modules/posts/post_creator');
 var PostPublisher = require(process.env.CS_API_TOP + '/modules/posts/post_publisher');
-var EmailNotificationSender = require(process.env.CS_API_TOP + '/modules/posts/email_notification_sender');
+const EmailNotificationQueue = require(process.env.CS_API_TOP + '/modules/posts/email_notification_queue');
 const Errors = require('./errors');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 
@@ -254,7 +254,7 @@ class InboundEmailRequest extends RestfulRequest {
 	postProcess (callback) {
 		BoundAsync.parallel(this, [
 			this.publishPost,
-			this.sendNotificationEmails
+			this.triggerNotificationEmails,
 		], callback);
 	}
 
@@ -269,15 +269,31 @@ class InboundEmailRequest extends RestfulRequest {
 	}
 
 	// send an email notification as needed to users who are offline
-	sendNotificationEmails (callback) {
-		new EmailNotificationSender({
+	triggerNotificationEmails (callback) {
+		if (false/*this.requestSaysToBlockEmails()*/) {
+			// don't do email notifications for unit tests, unless asked
+			this.log('Would have triggered email notifications for stream ' + this.stream.id);
+			return callback();
+		}
+		const queue = new EmailNotificationQueue({
 			request: this,
-			team: this.postCreator.team,
-			repo: this.postCreator.repo,
-			stream: this.stream,
 			post: this.postCreator.model,
-			creator: this.fromUser
-		}).sendEmailNotifications(callback);
+			stream: this.stream
+		});
+		queue.initiateEmailNotifications(error => {
+			if (error) {
+				this.api.warn(`Unable to queue email notifications for stream ${this.stream.id} and post ${this.postCreator.model.id}: ${error.toString()}`);
+			}
+			callback();
+		});
+	}
+
+	// determine if special header was sent with the request that says to block emails
+	requestSaysToBlockEmails () {
+		return (
+			this.request.headers &&
+			this.request.headers['x-cs-block-email-sends']
+		);
 	}
 }
 
