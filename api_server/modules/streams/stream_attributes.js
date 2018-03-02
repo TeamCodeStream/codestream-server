@@ -41,5 +41,13 @@ module.exports = {
 	},
 	editingUsers: {
 		type: 'object'
+	},
+	emailNotificationSeqNum: {
+		type: 'number',
+		serverOnly: true
+	},
+	emailNotificationSeqNumSetAt: {
+		type: 'timestamp',
+		serverOnly: true
 	}
 };

@@ -153,7 +153,7 @@ class LastReadsPreviousPostTest extends CodeStreamAPITest {
 		// for the created stream set to the last post of the first batch we created,
 		// which we marked as read for the current user
 		let lastPost = this.firstPosts[this.firstPosts.length - 1];
-		Assert(data.user.lastReads[this.stream._id] === lastPost._id, 'lastReads for stream is not equal to the ID of the last post read');
+		Assert(data.user.lastReads[this.stream._id] === lastPost.seqNum, 'lastReads for stream is not equal to the seqNum of the last post read');
 	}
 }
 

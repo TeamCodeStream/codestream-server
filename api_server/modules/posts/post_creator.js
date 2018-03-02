@@ -171,7 +171,6 @@ class PostCreator extends ModelCreator {
 					return callback(this.errorHandler.error('notFound', { info: 'stream'}));
 				}
 				this.stream = stream;
-				this.previousPostId = stream.get('mostRecentPostId');	// we'll use this to update lastReads for the users
 				callback();
 			}
 		);
@@ -393,7 +392,7 @@ class PostCreator extends ModelCreator {
 			user: this.user,
 			stream: this.stream,
 			team: this.team,
-			previousPostId: this.previousPostId,
+			previousPostSeqNum: this.attributes.seqNum - 1,
 			logger: this
 		}).updateLastReads(callback);
 	}

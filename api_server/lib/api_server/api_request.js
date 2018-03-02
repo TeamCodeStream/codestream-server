@@ -114,11 +114,15 @@ class APIRequest {
 		if (error) {
 			this.close();
 		}
+		if (this.callback) {
+			this.callback();
+		}
 	}
 
 	// fulfill the request
-	fulfill () {
+	fulfill (callback = null) {
 		this.responseIssued = false;
+		this.callback = callback;
 		// execute each phase of the request, aborting at any time on error
 		BoundAsync.forEachSeries(
 			this,
@@ -184,9 +188,14 @@ class APIRequest {
 	}
 
 	// close out this request
-	close () {
-		this.response.emit('complete');
+	close (callback) {
+		if (this.response) {
+			this.response.emit('complete');
+		}
 		this.closed = true;
+		if (callback) {
+			callback();
+		}
 	}
 
 	// does this request have a "for testing" header?
@@ -197,7 +206,7 @@ class APIRequest {
 			this.request.headers['x-cs-for-testing']
 		);
 	}
-	
+
 	critical (text) {
 		this.api.logger.critical(text, this.request.id);
 	}

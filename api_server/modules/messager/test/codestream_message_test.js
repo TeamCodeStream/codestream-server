@@ -26,6 +26,17 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		], callback);
 	}
 
+	// after the test runs, unsubscribe from all channels
+	after (callback) {
+		Object.keys(this.pubnubClientsForUser).forEach(userId => {
+			this.pubnubClientsForUser[userId].unsubscribeAll();
+		});
+		if (this.pubnubForServer) {
+			this.pubnubForServer.unsubscribeAll();
+		}
+		callback();
+	}
+	
 	// during the test, we send a message and wait for it to arrive
 	run (callback) {
 		BoundAsync.series(this, [

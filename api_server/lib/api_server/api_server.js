@@ -32,6 +32,7 @@ class APIServer {
 			this.registerMiddleware,
 			this.registerRoutes,
 			this.registerDataSources,
+			this.initializeModules,
 			this.listen
 		], (error) => {
 			return callback && callback(error);
@@ -184,6 +185,10 @@ class APIServer {
 		let args = [ routeObject.path, ...middleware, routeObject.func];
 		this.express[routeObject.method].apply(this.express, args);
 		process.nextTick(callback);
+	}
+
+	initializeModules (callback) {
+		this.modules.initializeModules(callback);
 	}
 
 	// start listening for requests!
