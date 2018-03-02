@@ -8,9 +8,10 @@ class RepoExistsNotOnTeamTest extends RepoExistsTest {
 		super(options);
 		// don't include the current user in creating the repo and team the first time,
 		// but since the user has the correct first commit hash for the repo, they should
-		// be permitted to "create" the repo and as a consequence get added to the team 
+		// be permitted to "create" the repo and as a consequence get added to the team
 		// that already owns the repo
 		this.testOptions.dontIncludeCurrentUser = true;
+		this.testOptions.teamNotRequired = false;	// in this case we should see the full team object in the response
 	}
 
 	get description () {
