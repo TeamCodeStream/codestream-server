@@ -7,10 +7,13 @@ var Assert = require('assert');
 // make jshint happy
 /* globals before, after, it */
 
+var NumTests = 0;	// used to number tests in a single test run
+
 class GenericTest {
 
 	constructor (options) {
 		Object.assign(this, options);
+		this.testNum = ++NumTests;
 	}
 
 	// override me!
@@ -47,7 +50,7 @@ class GenericTest {
 		});
 
 		it(
-			this.description || '???',
+			this.testNum + ': ' + (this.description || '???'),
 			(callback) => {
 				this.run(callback);
 			}
@@ -156,6 +159,14 @@ class GenericTest {
 		Assert(this.error, 'test should return an error');
 		this.expect(this.error, expectError, '');
 	}
+
+	// for debugging
+	debug (message) {
+		const now = Date.now();
+		const ms = now % 1000;
+		console.warn(`${this.testNum}: ${new Date(now).toString()}.${ms}: ${message}`);
+	}
+
 }
 
 module.exports = GenericTest;

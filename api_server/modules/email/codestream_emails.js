@@ -85,7 +85,7 @@ class CodeStreamEmails {
 				content: `Created by ${userName}`,
 				request: options.request
 			},
-			(error) => { console.warn('error', error); }
+			() => { }
 		);
 	}
 
