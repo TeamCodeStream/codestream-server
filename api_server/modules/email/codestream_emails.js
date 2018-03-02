@@ -74,6 +74,21 @@ class CodeStreamEmails {
 		);
 	}
 
+	// send an email to us at team@codestream.com that a new team has been created
+	sendTeamCreatedEmail (options) {
+		const userName = EmailUtils.getUserName(options.user);
+		this.sendgridEmail.sendEmail(
+			{
+				from: { email: this.senderEmail, name: 'CodeStream' },
+				to: 'team@codestream.com',
+				subject: `Team ${options.team.get('name')} is now on CodeStream!`,
+				content: `Created by ${userName}`,
+				request: options.request
+			},
+			(error) => { console.warn('error', error); }
+		);
+	}
+
 	// determine the subject of an email notification
 	getNotificationSubject (options) {
 		const { stream, mentioned } = options;

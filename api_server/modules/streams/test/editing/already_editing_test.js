@@ -16,8 +16,7 @@ class AlreadyEditingTest extends EditingTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		// validate that we got an empty response
-		Assert.deepEqual(data, {}, 'response is not empty');
+		Assert.deepEqual(data, { streams: [] }, 'expected empty streams');
 	}
 }
 
