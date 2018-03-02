@@ -2,7 +2,7 @@
   "name": "CodeStream_Server",
   "dependencies": {
     "async": "2.1.2",
-    "aws-sdk": "^2.197.0",
+    "aws-sdk": "^2.205.0",
     "bcrypt": "1.0.2",
     "body-parser": "1.15.2",
     "commander": "2.9.0",
