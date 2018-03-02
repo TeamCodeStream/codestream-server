@@ -39,7 +39,7 @@ class PostRepoRequest extends PostRequest {
 		new RepoPublisher({
 			data: this.responseData,
 			team: team,
-			teamWasCreated: !!this.responseData.team,
+			teamWasCreated: !!this.creator.createdTeam,
 			repoExisted: this.creator.repoExisted,
 			request: this,
 			messager: this.api.services.messager

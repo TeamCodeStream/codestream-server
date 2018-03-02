@@ -34,6 +34,8 @@ class RepoExistsTest extends AlreadyHaveRepoTest {
 			};
 			this.teamEmails = [];
 			this.teamUsers = [];
+			this.teamData = this.existingTeam;
+			this.teamCreator = this.otherUserData.user;
 			callback();
 		});
 	}

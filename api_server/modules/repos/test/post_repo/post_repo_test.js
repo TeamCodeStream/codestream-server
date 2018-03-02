@@ -35,7 +35,7 @@ class PostRepoTest extends CodeStreamAPITest {
 	getExpectedFields () {
 		let expectedResponse = RepoTestConstants.EXPECTED_REPO_RESPONSE;
 		if (this.testOptions.teamNotRequired) {
-			// not creating a team on-the-fly, so don't expect a team and company in the response
+			// not expecting team and company in the response
 			delete expectedResponse.team;
 			delete expectedResponse.company;
 		}
@@ -134,6 +134,7 @@ class PostRepoTest extends CodeStreamAPITest {
 		this.repoFactory.createRandomRepo((error, response) => {
 			if (error) { return callback(error); }
 			this.existingRepo = response.repo;
+			this.existingTeam = response.team;
 			callback();
 		}, this.otherRepoOptions);
 	}
@@ -222,7 +223,11 @@ class PostRepoTest extends CodeStreamAPITest {
 		let repo = data.repo;
 		let errors = [];
 		let expectMemberIds = (this.teamData.memberIds || [this.currentUser._id]);
+		if (!expectMemberIds.includes(this.currentUser._id)) {
+			expectMemberIds.push(this.currentUser._id);
+		}
 		Assert(typeof team === 'object', 'team expected with response');
+		const teamCreator = this.teamCreator || this.currentUser;
 		let result = (
 			((team._id === repo.teamId) || errors.push('team id is not the same as repo teamId')) &&
 			((team.name === this.teamData.name) || errors.push('team name doesn\'t match')) &&
@@ -231,7 +236,7 @@ class PostRepoTest extends CodeStreamAPITest {
 			((team.deactivated === false) || errors.push('team.deactivated not false')) &&
 			((typeof team.createdAt === 'number') || errors.push('team.createdAt not number')) &&
 			((team.modifiedAt >= team.createdAt) || errors.push('team.modifiedAt not greater than or equal to createdAt')) &&
-			((team.creatorId === this.currentUser._id) || errors.push('team.creatorId not equal to current user id'))
+			((team.creatorId === teamCreator._id) || errors.push('team.creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		// make sure we didn't get any attributes not suitable to be sent to the client
@@ -245,16 +250,17 @@ class PostRepoTest extends CodeStreamAPITest {
 		let company = data.company;
 		let errors = [];
 		Assert(typeof company === 'object', 'company expected with response');
+		const teamCreator = this.teamCreator || this.currentUser;
 		let companyName = this.userOptions && this.userOptions.wantWebmail ?
-			this.currentUser.email :
-			EmailUtilities.parseEmail(this.currentUser.email).domain;
+			teamCreator.email :
+			EmailUtilities.parseEmail(teamCreator.email).domain;
 		let result = (
 			((company._id === repo.companyId) || errors.push('company id is not the same as repo companyId')) &&
 			((company.name === companyName) || errors.push('company name doesn\'t match')) &&
 			((company.deactivated === false) || errors.push('company.deactivated not false')) &&
 			((typeof company.createdAt === 'number') || errors.push('company.createdAt not number')) &&
 			((company.modifiedAt >= company.createdAt) || errors.push('company.modifiedAt not greater than or equal to createdAt')) &&
-			((company.creatorId === this.currentUser._id) || errors.push('company.creatorId not equal to current user id'))
+			((company.creatorId === teamCreator._id) || errors.push('company.creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		// make sure we didn't get any attributes not suitable to be sent to the client

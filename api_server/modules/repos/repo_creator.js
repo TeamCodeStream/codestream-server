@@ -86,6 +86,7 @@ class RepoCreator extends ModelCreator {
 		BoundAsync.series(this, [
 			this.createId,		// requisition an ID for the repo
 			this.joinToTeam,	// join the repo to a team, depending on whether it already exists and information in the request
+			this.getCompany,	// need the company object if we have an existing team that the user is joining
 			this.updateUserJoinMethod,	// update the joinMethod attribute for the user, as needed
 			super.preSave		// proceed with the save...
 		], callback);
@@ -152,9 +153,11 @@ class RepoCreator extends ModelCreator {
 			this.team = adder.team;
 			this.newUsers = adder.membersAdded;
 			this.attachToResponse.users = adder.membersAdded.map(member => member.getSanitizedObject());	// return users in the response
+			this.attachToResponse.team = this.team.getSanitizedObject();
 			delete this.attributes.emails;
 			delete this.attributes.users;
 			this.joinMethod = 'Joined Team';
+			this.userJoined = true;
 			process.nextTick(callback);
 		});
 	}
@@ -183,6 +186,21 @@ class RepoCreator extends ModelCreator {
 				this.team = team;
 				this.attributes.companyId = team.get('companyId');
 				this.repoAddedToTeam = true;
+				callback();
+			}
+		);
+	}
+
+	// get the company object for an existing team that the user is joining
+	getCompany (callback) {
+		if (!this.repoExisted || !this.userJoined) {
+			return callback();
+		}
+		this.data.companies.getById(
+			this.team.get('companyId'),
+			(error, company) => {
+				if (error) { return callback(error); }
+				this.attachToResponse.company = company.getSanitizedObject();
 				callback();
 			}
 		);

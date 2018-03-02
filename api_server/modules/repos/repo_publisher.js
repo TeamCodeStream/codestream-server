@@ -1,4 +1,4 @@
-// handle publishing a new repo to the messager channel appropriate for the request 
+// handle publishing a new repo to the messager channel appropriate for the request
 
 'use strict';
 
