@@ -25,6 +25,15 @@ class BasePubNubTest extends GenericTest {
 		], callback);
 	}
 
+	// after the test runs, unsubscribe from all channels
+	after (callback) {
+		this.pubnubForClients.forEach(pubnub => {
+			pubnub.unsubscribeAll();
+		});
+		this.pubnubForServer.unsubscribe();
+		callback();
+	}
+
 	// establish the PubNub clients we will use
 	setClients (callback) {
 		// set up the pubnub client as if we are the server, this give us the right to set permissions

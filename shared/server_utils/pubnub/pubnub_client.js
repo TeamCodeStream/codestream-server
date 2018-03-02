@@ -65,6 +65,12 @@ class PubNubClient {
 		this._stopListening(channel);
 	}
 
+	unsubscribeAll () {
+		Object.keys(this.messageListeners).forEach(channel => {
+			this.unsubscribe(channel);
+		});
+	}
+	
 	// remove a listener for messages from a particular channel
 	removeListener (channel) {
 		this._stopListening(channel);
