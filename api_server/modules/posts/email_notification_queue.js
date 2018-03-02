@@ -159,6 +159,7 @@ class EmailNotificationQueue {
 			seqNum: this.post.get('seqNum')
 		};
 		const delay = Math.floor(this.request.api.config.email.notificationInterval / 1000);
+		this.request.log(`Triggering email notifications for stream ${this.stream.id} in ${delay} seconds...`);
 		this.request.api.services.queueService.sendMessage(
 			this.request.api.config.aws.sqs.outboundEmailQueueName,
 			message,

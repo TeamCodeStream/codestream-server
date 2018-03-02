@@ -39,6 +39,9 @@ class EmailNotificationRequest extends RestfulRequest {
 			this.message.streamId,
 			(error, stream) => {
 				if (error) { return callback(error); }
+				if (!stream) {
+					return callback(this.errorHandler.error('notFound', { info: 'stream' }));
+				}
 				this.stream = stream;
 				callback();
 			}
