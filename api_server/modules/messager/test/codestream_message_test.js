@@ -36,7 +36,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		}
 		callback();
 	}
-	
+
 	// during the test, we send a message and wait for it to arrive
 	run (callback) {
 		BoundAsync.series(this, [

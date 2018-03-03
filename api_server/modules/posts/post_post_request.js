@@ -6,6 +6,7 @@ var PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_reque
 var PostPublisher = require('./post_publisher');
 var PostAuthorizer = require('./post_authorizer');
 const EmailNotificationQueue = require('./email_notification_queue');
+var IntegrationHandler = require('./integration_handler');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class PostPostRequest extends PostRequest {
@@ -25,6 +26,7 @@ class PostPostRequest extends PostRequest {
 		BoundAsync.parallel(this, [
 			this.publishPost,
 			this.triggerNotificationEmails,
+			this.doIntegrationHooks,
 			this.publishPostCount,
 			this.sendPostCountToAnalytics
 		], callback);
@@ -58,6 +60,21 @@ class PostPostRequest extends PostRequest {
 			}
 			callback();
 		});
+	}
+
+	// handle any integration hooks triggered by a new post
+	doIntegrationHooks (callback) {
+		new IntegrationHandler({
+			request: this
+		}).handleNewPost({
+			post: this.creator.model,
+			team: this.creator.team,
+			repo: this.creator.repo,
+			stream: this.creator.stream,
+			creator: this.user,
+			parentPost: this.creator.parentPost,
+			parentPostCreator: this.creator.parentPostAuthor
+		}, callback);
 	}
 
 	// publish an increase in post count to the author's me-channel

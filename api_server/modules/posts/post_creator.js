@@ -420,6 +420,7 @@ class PostCreator extends ModelCreator {
 					return callback();	// this really shouldn't happen, but it's not worth an error
 				}
 				// collect all marker IDs for code blocks referred to by the parent post
+				this.parentPost = parentPost;
 				let codeBlocks = parentPost.get('codeBlocks') || [];
 				this.parentPostMarkerIds = codeBlocks.map(codeBlock => codeBlock.markerId);
 				callback();
