@@ -41,19 +41,21 @@ class PostRenderer {
 <div class="text">
 	${text}
 </div>
-<div style="${displayCodeBlock}" class="codeBlock">
+<div style="${displayCodeBlock}">
 	<br>
-	<div class="codeContext">
-		${preContext}
-	</div>
-	<div class="code">
-		${code}
-	</div>
-	<div class="codeContext">
-		${postContext}
+	<div class="codeBlock">
+		<div class="codeContext">
+			${preContext}
+		</div>
+		<div class="code">
+			${code}
+		</div>
+		<div class="codeContext">
+			${postContext}
+		</div>
 	</div>
 </div>
-<br>
+<hr class=rule>
 `
 		);
 	}
