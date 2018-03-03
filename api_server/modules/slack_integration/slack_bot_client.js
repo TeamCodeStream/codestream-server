@@ -27,10 +27,10 @@ class SlackBotClient {
 	}
 
 	// called when there is a new post
-	postHook (info, callback) {
+	postHook (info, callback, options = {}) {
 		// package the message for slack-bot digestion and sent it over the wire
 		let message = this.packageMessage(info);
-		this.sendMessage(message, callback);
+		this.sendMessage(message, info, callback, options);
 	}
 
 	// package an info structure for a new post for slack-bot digestion
@@ -42,8 +42,8 @@ class SlackBotClient {
 			streamId: info.stream.id,
 			file: info.stream.get('file')
 		};
-		this.addMentionedUsers();
-		let postInfo = this.packagePost(info.post, info.creator);
+		this.addMentionedUsers(info, message);
+		let postInfo = this.packagePost(info.post, info.creator, info);
 		Object.assign(message, postInfo);
 		return message;
 	}
@@ -69,7 +69,7 @@ class SlackBotClient {
 		if (info && info.parentPost) {
 			message.parentPost = this.packagePost(info.parentPost, info.parentPostCreator, null);
 		}
-		this.addCodeBlocks(message);
+		this.addCodeBlocks(post, message);
 		return message;
 	}
 
@@ -98,7 +98,25 @@ class SlackBotClient {
 	}
 
 	// send a formatted message to the slack-bot
-	sendMessage (message, callback) {
+	sendMessage (message, info, callback, options = {}) {
+		if (this.requestSaysToTestSlackOut(options)) {
+			// we received a header in the request asking us to divert this message
+			// instead of actually sending it, for testing purposes ... we'll
+			// emit the request body to the callback provided
+			if (options.request) {
+				options.request.log(`Diverting slack-bot message for post ${message.postId} to test callback`);
+			}
+			this.testCallback(message, info.team, options.request);
+			return process.nextTick(callback);
+		}
+		else if (this.requestSaysToBlockSlackOut(options)) {
+			// we received a header in the request asking us not to send out slack-bot
+			// messages, for testing purposes
+			if (options.request) {
+				options.request.log(`Would have sent slack-bot message for post ${message.postId}`);
+			}
+			return process.nextTick(callback);
+		}
 		HTTPSBot.post(
 			this.config.host,
 			this.config.port,
@@ -112,6 +130,47 @@ class SlackBotClient {
 			}
 		);
 	}
+
+	// determine if special header was sent with the request that says to test slack output,
+	// meaning we'll not actually send a message out but send it through a pubnub channel
+	// to verify content instead
+	requestSaysToTestSlackOut (options) {
+		return (
+			options.request &&
+			options.request.request &&
+			options.request.request.headers &&
+			options.request.request.headers['x-cs-test-slack-out']
+		);
+	}
+
+	// when testing slack-bot messages, we'll get the message that would otherwise be sent to
+	// the slack-bot through this callback, we'll send it along through the team channel for
+	// the team that owns the stream, which the test client should be listening to
+	testCallback (message, team, request) {
+		if (!team || !request.api.services.messager) { return; }
+		let channel = `team-${team.id}`;
+		let requestCopy = Object.assign({}, request);	// override test setting indicating not to send pubnub messages
+		requestCopy.headers = Object.assign({}, request.headers);
+		delete requestCopy.headers['x-cs-block-message-sends'];
+		request.api.services.messager.publish(
+			message,
+			channel,
+			() => {},
+			request
+		);
+	}
+
+	// determine if special header was sent with the request that says to block slack-bot messages
+	requestSaysToBlockSlackOut (options) {
+		return (
+			options.request &&
+			options.request.request &&
+			options.request.request.headers &&
+			options.request.request.headers['x-cs-block-slack-out']
+		);
+	}
+
+
 }
 
 module.exports = SlackBotClient;

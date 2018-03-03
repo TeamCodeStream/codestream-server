@@ -13,7 +13,7 @@ class IntegrationHandler {
 	// handle any integrations related to new posts coming in
 	handleNewPost (info, callback) {
 		this.info = info;
-		BoundAsync.forEachSeries(this, [
+		BoundAsync.series(this, [
 			this.collectHooks,
 			this.getParentPostCreator,
 			this.getMentionedUsers,
@@ -60,7 +60,7 @@ class IntegrationHandler {
 	}
 
 	// get the creator of the parent post, as needed
-	getParentPostAuthor (callback) {
+	getParentPostCreator (callback) {
 		if (!this.info.parentPost) { return callback(); }
 		this.request.data.users.getById(
 			this.info.parentPost.get('creatorId'),
@@ -122,6 +122,9 @@ class IntegrationHandler {
 					this.request.warn(`Unable to perform integration hook for ${hook.name}: ${JSON.stringify(error)}`);
 				}
 				process.nextTick(callback);
+			},
+			{
+				request: this.request
 			}
 		);
 	}
