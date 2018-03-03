@@ -29,6 +29,10 @@ class EmailNotificationRenderer {
 		  font-family: "Courier";
 		  color: #888888;
 		}
+		.codeBlock {
+			margin-left: 20px;
+			background-color: #f4f4f4;
+		}
 		.replyto {
 		  color: #888888;
 		  height: 1.4em;
@@ -37,6 +41,9 @@ class EmailNotificationRenderer {
 		}
 		.address {
 		  color: #888888;
+		}
+		.rule {
+			border-color: #ffffff;
 		}
 	</style>
 </head>
