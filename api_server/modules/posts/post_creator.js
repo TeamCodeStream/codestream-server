@@ -587,6 +587,7 @@ class PostCreator extends ModelCreator {
 		if (!this.forInboundEmail && !this.forIntegration) {
 			return callback();
 		}
+		const endpoint = this.forInboundEmail ? 'Email' : this.forIntegration;
 
 		// check if user has opted out
 		const preferences = this.user.get('preferences') || {};
@@ -603,7 +604,7 @@ class PostCreator extends ModelCreator {
 			'Join Method': this.user.get('joinMethod'),
 			'Team ID': this.team ? this.team.id : undefined,
  			'Team Size': this.team ? this.team.get('memberIds').length : undefined,
-			'Endpoint': 'Email',
+			'Endpoint': endpoint,
 			'Plan': 'Free', // FIXME: update when we have payments
 			'Date of Last Post': new Date(this.model.get('createdAt')).toISOString()
 		};

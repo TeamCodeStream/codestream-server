@@ -48,7 +48,7 @@ class SlackPostRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['teamId', 'repoId', 'streamId', 'authorEmail', 'authorUsername', 'parentPostId', 'text'],
+					string: ['teamId', 'repoId', 'streamId', 'authorEmail', 'authorUsername', 'parentPostId', 'text', 'secret'],
 				},
 				optional: {
 					'array(string)': ['mentionedUsers']
@@ -101,8 +101,8 @@ class SlackPostRequest extends RestfulRequest {
 					return callback(this.errorHandler.error('notFound', { info: 'stream' }));
 				}
 				this.stream = stream;
-				if (stream.get('teamId') !== this.team.id) {
-					return callback(this.errorHandler.error('streamNoMatchTeam'));
+				if (stream.get('repoId') !== this.repo.id) {
+					return callback(this.errorHandler.error('streamNoMatchRepo'));
 				}
 				callback();
 			}
@@ -130,13 +130,12 @@ class SlackPostRequest extends RestfulRequest {
 	// if we can't find the author (by matching email), we'll create one as part of the team
 	getOrCreateAuthor (callback) {
 		const user = {
-			email: this.authorEmail,
+			email: this.request.body.authorEmail,
 			username: this.request.body.authorUsername
 		};
 		this.userCreator = new UserCreator({
 			request: this,
-			dontSaveIfExists: true,	// if the user exists, just return that user, no need to save
-			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock testing
+			dontSaveIfExists: true	// if the user exists, just return that user, no need to save
 		});
 		this.userCreator.createUser(
 			user,
@@ -164,8 +163,7 @@ class SlackPostRequest extends RestfulRequest {
 		let adder = new AddTeamMembers({
 			request: this,
 			users: [this.author],		// add the user issuing the request
-			teamId: this.team.id,
-			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			teamId: this.team.id
 		});
 		adder.addTeamMembers(callback);
 	}
@@ -175,7 +173,7 @@ class SlackPostRequest extends RestfulRequest {
 		this.user = this.author;
 		this.postCreator = new PostCreator({
 			request: this,
-			forIntegration: 'slack'
+			forIntegration: 'Slack'
 		});
 		this.postCreator.createPost({
 			streamId: this.stream.id,
@@ -185,6 +183,10 @@ class SlackPostRequest extends RestfulRequest {
 		}, error => {
 			if (error) { return callback(error); }
 			this.post = this.postCreator.model;
+			this.responseData.post = this.post.getSanitizedObject();
+			if (this.userCreator && !this.userCreator.existingModel) {
+				this.responseData.users = [this.userCreator.model.getSanitizedObject()];
+			}
 			callback();
 		});
 	}

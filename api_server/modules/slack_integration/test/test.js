@@ -7,8 +7,7 @@
 
 const SlackEnableRequestTester = require('./slack_enable/test.js');
 const SlackOutTester = require('./slack_out/test.js');
-
-//const SlackPostRequestTester = require('./slack_post/test.js');
+const SlackPostRequestTester = require('./slack_post/test.js');
 
 describe('slack integration requests', function() {
 
@@ -16,5 +15,5 @@ describe('slack integration requests', function() {
 
 	describe('PUT /slack-enable', SlackEnableRequestTester.test);
 	describe('slack out', SlackOutTester.test);
-//	describe('POST /slack-post', SlackPostRequestTester.test);
+	describe('POST /slack-post', SlackPostRequestTester.test);
 });

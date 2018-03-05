@@ -16,9 +16,9 @@ const ERRORS = {
 		code: 'SLIN-1002',
 		message: 'The repo is not owned by this team'
 	},
-	'streamNoMatchTeam': {
+	'streamNoMatchRepo': {
 		code: 'SLIN-1003',
-		message: 'The stream is not owned by this team'
+		message: 'The stream is not from this repo'
 	},
 	'parentPostNoMatchStream': {
 		code: 'SLIN-1004',

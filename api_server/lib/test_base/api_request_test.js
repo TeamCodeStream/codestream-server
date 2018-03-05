@@ -93,7 +93,7 @@ class APIRequestTest extends GenericTest {
 				path: this.path,
 				data: this.data,
 				requestOptions: this.apiRequestOptions || {},
-				token: this.token
+				token: this.ignoreTokenOnRequest ? null : this.token
 			}),
 			(error, response) => {
 				this.checkResponse(error, response, callback);

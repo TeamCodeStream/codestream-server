@@ -12,13 +12,11 @@ const SLACK_INTEGRATION_ROUTES = [
 		path: 'no-auth/slack-enable',
 		requestClass: require('./slack_enable_request')
 	},
-/*
 	{
 		method: 'post',
-		path: 'no-auth/slack-post'
+		path: 'no-auth/slack-post',
 		requestClass: require('./slack_post_request')
 	}
-*/
 ];
 
 class Messager extends APIServerModule {
