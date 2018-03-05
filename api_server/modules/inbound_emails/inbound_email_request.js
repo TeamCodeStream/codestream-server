@@ -6,8 +6,6 @@
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var PostCreator = require(process.env.CS_API_TOP + '/modules/posts/post_creator');
-var PostPublisher = require(process.env.CS_API_TOP + '/modules/posts/post_publisher');
-const EmailNotificationQueue = require(process.env.CS_API_TOP + '/modules/posts/email_notification_queue');
 const Errors = require('./errors');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 
@@ -202,98 +200,27 @@ class InboundEmailRequest extends RestfulRequest {
 	createPost (callback) {
 		this.user = this.fromUser;
 		this.postCreator = new PostCreator({
-			request: this
+			request: this,
+			team: this.team,
+			forInboundEmail: true
 		});
 		this.postCreator.createPost({
 			streamId: this.streamId,
-			text: this.request.body.text
+			text: this.request.body.text,
+			origin: 'email'
 		}, error => {
 			if (error) {
 				return callback(this.errorHandler.error('internal'), { reason: error });
 			}
 			this.post = this.postCreator.model;
-			this.trackPost();
 			this.responseData.post = this.post.getSanitizedObject();
 			callback();
 		});
 	}
 
-	// track this post for analytics, with the possibility that the user may have opted out
-	trackPost () {
-		const preferences = this.fromUser.get('preferences') || {};
-		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
-			return;
-		}
-		const trackObject = {
-			distinct_id: this.fromUser.id,
-			Type: 'Chat',
-			Thread: 'Parent',
-			Category: 'Source File',
-			'Email Address': this.fromUser.get('email'),
-			'Join Method': this.fromUser.get('joinMethod'),
-			'Team ID': this.post.get('teamId'),
- 			'Team Size': this.team.get('memberIds').length,
-			'Endpoint': 'Email',
-			'Plan': 'Free', // FIXME: update when we have payments
-			'Date of Last Post': new Date(this.post.get('createdAt')).toISOString()
-		};
-		if (this.fromUser.get('registeredAt')) {
-			trackObject['Date Signed Up'] = new Date(this.fromUser.get('registeredAt')).toISOString();
-		}
-		this.api.services.analytics.track(
-			'Post Created',
-			trackObject,
-			{
-				request: this,
-				user: this.user
-			}
-		);
-	}
-
 	// after the post is created...
 	postProcess (callback) {
-		BoundAsync.parallel(this, [
-			this.publishPost,
-			this.triggerNotificationEmails,
-		], callback);
-	}
-
-	// after the post is created, publish it to the team or stream
-	publishPost (callback) {
-		new PostPublisher({
-			data: this.responseData,
-			request: this,
-			messager: this.api.services.messager,
-			stream: this.stream.attributes
-		}).publishPost(callback);
-	}
-
-	// send an email notification as needed to users who are offline
-	triggerNotificationEmails (callback) {
-		if (false/*this.requestSaysToBlockEmails()*/) {
-			// don't do email notifications for unit tests, unless asked
-			this.log('Would have triggered email notifications for stream ' + this.stream.id);
-			return callback();
-		}
-		const queue = new EmailNotificationQueue({
-			request: this,
-			post: this.postCreator.model,
-			stream: this.stream
-		});
-		queue.initiateEmailNotifications(error => {
-			if (error) {
-				this.api.warn(`Unable to queue email notifications for stream ${this.stream.id} and post ${this.postCreator.model.id}: ${error.toString()}`);
-			}
-			callback();
-		});
-	}
-
-	// determine if special header was sent with the request that says to block emails
-	requestSaysToBlockEmails () {
-		return (
-			this.request.headers &&
-			this.request.headers['x-cs-block-email-sends']
-		);
+		this.postCreator.postCreate(callback);
 	}
 }
 

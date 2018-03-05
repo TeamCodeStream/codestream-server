@@ -55,7 +55,8 @@ class IntegrationHandler {
 		return (
 			typeof integration.isEnabled === 'function' &&
 			integration.isEnabled(this.info) &&
-			typeof integration.postHook === 'function'
+			typeof integration.postHook === 'function' &&
+			this.info.post.get('origin') !== integrationName	// don't send post back to origin
 		);
 	}
 

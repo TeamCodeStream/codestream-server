@@ -2,13 +2,16 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Post = require('./post');
-var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
-var StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');
-var MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
-var LastReadsUpdater = require('./last_reads_updater');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Post = require('./post');
+const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+const StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');
+const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
+const LastReadsUpdater = require('./last_reads_updater');
 const PostAttributes = require('./post_attributes');
+const PostPublisher = require('./post_publisher');
+const EmailNotificationQueue = require('./email_notification_queue');
+const IntegrationHandler = require('./integration_handler');
 
 class PostCreator extends ModelCreator {
 
@@ -41,7 +44,7 @@ class PostCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			optional: {
-				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId'],
+				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId', 'origin'],
 				object: ['stream'],
 				'array(object)': ['codeBlocks'],
 				'array(string)': ['mentionedUserIds']
@@ -465,12 +468,167 @@ class PostCreator extends ModelCreator {
 			$inc: { totalPosts: 1 },
 			$set: { lastPostCreatedAt: Date.now() }
 		};
-		this.request.data.users.applyOpById(
+		this.data.users.applyOpById(
 			this.user.id,
 			this.updatePostCountOp,
 			callback
 		);
 	}
+
+	// after the post was created...
+	postCreate (callback) {
+		BoundAsync.parallel(this, [
+			this.publishPost,
+			this.triggerNotificationEmails,
+			this.doIntegrationHooks,
+			this.publishPostCount,
+			this.sendPostCountToAnalytics,
+			this.trackPost
+		], callback);
+	}
+
+	// publish the post to the appropriate messager channel
+	publishPost (callback) {
+		new PostPublisher({
+			request: this.request,
+			data: this.request.responseData,
+			messager: this.api.services.messager,
+			stream: this.stream.attributes
+		}).publishPost(callback);
+	}
+
+	// send an email notification as needed to users who are offline
+	triggerNotificationEmails (callback) {
+		if (this.requestSaysToBlockEmails()) {
+			// don't do email notifications for unit tests, unless asked
+			this.request.log('Would have triggered email notifications for stream ' + this.stream.id);
+			return callback();
+		}
+		const queue = new EmailNotificationQueue({
+			request: this.request,
+			post: this.model,
+			stream: this.stream
+		});
+		queue.initiateEmailNotifications(error => {
+			if (error) {
+				this.request.warn(`Unable to queue email notifications for stream ${this.stream.id} and post ${this.model.id}: ${error.toString()}`);
+			}
+			callback();
+		});
+	}
+
+	// handle any integration hooks triggered by a new post
+	doIntegrationHooks (callback) {
+		new IntegrationHandler({
+			request: this.request
+		}).handleNewPost({
+			post: this.model,
+			team: this.team,
+			repo: this.repo,
+			stream: this.stream,
+			creator: this.user,
+			parentPost: this.parentPost,
+			parentPostCreator: this.parentPostAuthor
+		}, callback);
+	}
+
+	// publish an increase in post count to the author's me-channel
+	publishPostCount (callback) {
+		if (!this.updatePostCountOp) {
+			return callback();	// no joinMethod update to perform
+		}
+		let channel = 'user-' + this.user.id;
+		let message = {
+			requestId: this.request.request.id,
+			user: Object.assign({}, this.updatePostCountOp, { _id: this.user.id })
+		};
+		this.api.services.messager.publish(
+			message,
+			channel,
+			error => {
+				if (error) {
+					this.warn(`Could not publish post count update message to user ${this.user._id}: ${JSON.stringify(error)}`);
+				}
+				// this doesn't break the chain, but it is unfortunate...
+				callback();
+			},
+			{
+				request: this.request
+			}
+		);
+	}
+
+	// send the post count update to our analytics service
+	sendPostCountToAnalytics (callback) {
+		// check if user has opted out
+		const preferences = this.user.get('preferences') || {};
+		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
+			return callback();
+		}
+
+		this.api.services.analytics.setPerson(
+			this.user.id,
+			{
+				'Total Posts': this.user.get('totalPosts'),
+				'Date of Last Post': new Date(this.user.get('lastPostCreatedAt')).toISOString()
+			},
+			{
+				request: this.request,
+				user: this.user
+			}
+		);
+		process.nextTick(callback);
+	}
+
+	// track this post for analytics, with the possibility that the user may have opted out
+	trackPost (callback) {
+		// only track for inbound emails or integrations, client-originating posts are
+		// tracked by the client
+		if (!this.forInboundEmail && !this.forIntegration) {
+			return callback();
+		}
+
+		// check if user has opted out
+		const preferences = this.user.get('preferences') || {};
+		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
+			return callback();
+		}
+
+		const trackObject = {
+			distinct_id: this.user.id,
+			Type: 'Chat',
+			Thread: 'Parent',
+			Category: 'Source File',
+			'Email Address': this.user.get('email'),
+			'Join Method': this.user.get('joinMethod'),
+			'Team ID': this.team ? this.team.id : undefined,
+ 			'Team Size': this.team ? this.team.get('memberIds').length : undefined,
+			'Endpoint': 'Email',
+			'Plan': 'Free', // FIXME: update when we have payments
+			'Date of Last Post': new Date(this.model.get('createdAt')).toISOString()
+		};
+		if (this.user.get('registeredAt')) {
+			trackObject['Date Signed Up'] = new Date(this.user.get('registeredAt')).toISOString();
+		}
+		this.api.services.analytics.track(
+			'Post Created',
+			trackObject,
+			{
+				request: this.request,
+				user: this.user
+			}
+		);
+		process.nextTick(callback);
+	}
+
+	// determine if special header was sent with the request that says to block emails
+	requestSaysToBlockEmails () {
+		return (
+			this.request.request.headers &&
+			this.request.request.headers['x-cs-block-email-sends']
+		);
+	}
+
 }
 
 module.exports = PostCreator;

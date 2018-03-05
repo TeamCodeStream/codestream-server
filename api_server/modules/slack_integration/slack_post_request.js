@@ -6,8 +6,6 @@
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var PostCreator = require(process.env.CS_API_TOP + '/modules/posts/post_creator');
-var PostPublisher = require(process.env.CS_API_TOP + '/modules/posts/post_publisher');
-var EmailNotificationSender = require(process.env.CS_API_TOP + '/modules/posts/email_notification_sender');
 var UserCreator = require(process.env.CS_API_TOP + '/modules/users/user_creator');
 var AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
 const Errors = require('./errors');
@@ -176,80 +174,24 @@ class SlackPostRequest extends RestfulRequest {
 	createPost (callback) {
 		this.user = this.author;
 		this.postCreator = new PostCreator({
-			request: this
+			request: this,
+			forIntegration: 'slack'
 		});
 		this.postCreator.createPost({
 			streamId: this.stream.id,
 			text: this.request.body.text,
-			parentPostId: this.parentPost.id
+			parentPostId: this.parentPost.id,
+			origin: 'slack'
 		}, error => {
 			if (error) { return callback(error); }
 			this.post = this.postCreator.model;
-			this.trackPost();
 			callback();
 		});
 	}
 
-	// track this post for analytics, with the possibility that the user may have opted out
-	trackPost () {
-		const preferences = this.author.get('preferences') || {};
-		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
-			return;
-		}
-		const trackObject = {
-			distinct_id: this.author.id,
-			Type: 'Chat',
-			Thread: 'Parent',
-			Category: 'Source File',
-			'Email Address': this.author.get('email'),
-			'Join Method': this.author.get('joinMethod'),
-			'Team ID': this.team.id,
- 			'Team Size': this.team.get('memberIds').length,
-			'Endpoint': 'Slack',
-			'Plan': 'Free', // FIXME: update when we have payments
-			'Date of Last Post': new Date(this.post.get('createdAt')).toISOString()
-		};
-		if (this.author.get('registeredAt')) {
-			trackObject['Date Signed Up'] = new Date(this.author.get('registeredAt')).toISOString();
-		}
-		this.api.services.analytics.track(
-			'Post Created',
-			trackObject,
-			{
-				request: this,
-				user: this.user
-			}
-		);
-	}
-
 	// after the post is created...
 	postProcess (callback) {
-		BoundAsync.parallel(this, [
-			this.publishPost,
-			this.sendNotificationEmails
-		], callback);
-	}
-
-	// after the post is created, publish it to the team or stream
-	publishPost (callback) {
-		new PostPublisher({
-			data: this.responseData,
-			request: this,
-			messager: this.api.services.messager,
-			stream: this.stream.attributes
-		}).publishPost(callback);
-	}
-
-	// send an email notification as needed to users who are offline
-	sendNotificationEmails (callback) {
-		new EmailNotificationSender({
-			request: this,
-			team: this.postCreator.team,
-			repo: this.postCreator.repo,
-			stream: this.stream,
-			post: this.postCreator.model,
-			creator: this.fromUser
-		}).sendEmailNotifications(callback);
+		this.postCreator.postCreate(callback);
 	}
 }
 

@@ -37,9 +37,11 @@ class NoTrackingTest extends TrackingTest {
 	}
 
 	// called when a message has been received, in this case this is bad
-	messageReceived (error) {
+	messageReceived (error, message) {
 		if (error) { return this.messageCallback(error); }
-		Assert.fail('message was received');
+		if (message.message.type === 'track' || message.message.type === 'setPerson') {
+			Assert.fail('tracking message was received');
+		}
 	}
 }
 

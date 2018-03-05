@@ -53,10 +53,13 @@ class TrackingTest extends InboundEmailMessageTest {
 	// validate the message received from pubnub
 	validateMessage (message) {
 		message = message.message;
+		if (message.type !== 'track') {
+			return false;
+		}
 		let data = message.data;
 		let errors = [];
 		let result = (
-			((message.type === 'track') || errors.push('type not correct')) && 
+			((message.type === 'track') || errors.push('type not correct')) &&
 			((message.event === 'Post Created') || errors.push('event not correct')) &&
 			((data.distinct_id === this.postOriginatorData.user._id) || errors.push('distinct_id not set to post originator\'s ID')) &&
 			((data.Type === 'Chat') || errors.push('Type not correct')) &&

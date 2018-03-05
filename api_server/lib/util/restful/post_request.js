@@ -37,6 +37,11 @@ class PostRequest extends RestfulRequest {
 		);
 		process.nextTick(callback);
 	}
+
+	// after the request has been processed and response returned to the client....
+	postProcess (callback) {
+		this.creator.postCreate(callback);
+	}
 }
 
 module.exports = PostRequest;

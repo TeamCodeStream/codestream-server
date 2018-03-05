@@ -220,6 +220,11 @@ class ModelCreator {
 	postSave (callback) {
 		process.nextTick(callback);
 	}
+
+	// override to do stuff after a response has been returned to the client
+	postCreate (callback) {
+		process.nextTick(callback);
+	}
 }
 
 module.exports = ModelCreator;
