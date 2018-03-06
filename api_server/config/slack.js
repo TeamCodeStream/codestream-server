@@ -3,6 +3,6 @@
 'use strict';
 
 module.exports = {
-	host: 'codestream-slack.glitch.me',
+	host: 'howdy.ngrok.io',
 	port: 443
 };
