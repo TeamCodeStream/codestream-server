@@ -7,7 +7,7 @@ var HTTPS = require('https');
 function _SimpleRequest (method, host, port, path, data, callback, options) { // jshint ignore:line
 
     options = Object.assign({}, options || {}, { method, host, port, path });
-	if (!options.noJson) {
+	if (!options.noJsonInRequest) {
 	    	options.headers = Object.assign({}, options.headers || {}, {
 	        'Content-Type': 'application/json'
 	    });
@@ -24,7 +24,7 @@ function _SimpleRequest (method, host, port, path, data, callback, options) { //
 
             response.on('end', () => {
                 let parsed;
-				if (!options.noJson) {
+				if (!options.noJsonInResponse) {
 	                try {
 	                    parsed = JSON.parse(responseData);
 	                }
