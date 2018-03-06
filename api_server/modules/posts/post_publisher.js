@@ -64,6 +64,9 @@ class PostPublisher {
 		if (this.data.stream) {
 			message.stream = this.data.stream;
 		}
+		if (this.data.users) {
+			message.users = this.data.users;
+		}
 		this.messager.publish(
 			message,
 			channel,

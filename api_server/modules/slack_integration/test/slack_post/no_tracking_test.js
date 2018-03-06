@@ -6,7 +6,7 @@ const Assert = require('assert');
 class NoTrackingTest extends TrackingTest {
 
 	get description () {
-		return 'should not send a Post Created event when handling a post via email from a user who has telemetry consent turned off';
+		return 'should not send a Post Created event when handling a slack post from a user who has telemetry consent turned off';
 	}
 
 	init (callback) {

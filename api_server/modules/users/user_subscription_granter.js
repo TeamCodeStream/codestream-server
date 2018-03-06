@@ -40,6 +40,10 @@ class UserSubscriptionGranter  {
 	}
 
 	getRepos (callback) {
+		if ((this.user.get('teamIds') || []).length === 0) {
+			this.repos = [];
+			return callback();
+		}
 		let query = {
 			teamId: this.data.repos.inQuery(this.user.get('teamIds') || [])
 		};

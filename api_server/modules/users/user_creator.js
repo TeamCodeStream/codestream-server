@@ -102,7 +102,8 @@ class UserCreator extends ModelCreator {
 	checkUsernameUnique (callback) {
 		if (
 			!this.existingModel ||
-			(this.existingModel.get('teamIds') || []).length === 0
+			(this.existingModel.get('teamIds') || []).length === 0 ||
+			this.dontSaveIfExists
 		) {
 			return callback();
 		}

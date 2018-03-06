@@ -20,6 +20,7 @@ class APIServer {
 		}
 		this.express = Express();
 		this.services = {};
+		this.integrations = {};
 		this.data = {};
 	}
 
@@ -95,8 +96,17 @@ class APIServer {
 	// accept a single service
 	acceptService (service, callback) {
 		// accepting a service really means just making it available in our
-		// services object
-		Object.assign(this.services, service);
+		// services object ... or integrations object if specified
+		Object.keys(service).forEach(serviceName => {
+			if (typeof service[serviceName].isIntegration === 'function' &&
+				service[serviceName].isIntegration()
+			) {
+				this.integrations[serviceName] = service[serviceName];
+			}
+			else {
+				this.services[serviceName] = service[serviceName];
+			}
+		});
 		process.nextTick(callback);
 	}
 

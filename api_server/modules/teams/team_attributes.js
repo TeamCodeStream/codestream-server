@@ -15,5 +15,8 @@ module.exports = {
 		type: 'arrayOfIds',
 		maxLength: 256,
 		required: true
+	},
+	integrations: {
+		type: 'object'
 	}
 };

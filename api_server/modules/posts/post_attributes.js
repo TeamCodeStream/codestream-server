@@ -45,5 +45,9 @@ module.exports = {
 	mentionedUserIds: {
 		type: 'arrayOfIds',
 		maxLength: 100
+	},
+	origin: {
+		type: 'string',
+		maxLength: 20
 	}
 };

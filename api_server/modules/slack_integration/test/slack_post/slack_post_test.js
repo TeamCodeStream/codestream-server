@@ -6,7 +6,7 @@ var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestr
 var Assert = require('assert');
 const PostTestConstants = require(process.env.CS_API_TOP + '/modules/posts/test/post_test_constants');
 
-class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
+class SlackPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	constructor (options) {
 		super(options);
@@ -14,7 +14,7 @@ class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	get description () {
-		return 'should create and return a post when an inbound email call is made';
+		return 'should create and return a post when a slack post call is made';
 	}
 
 	get method () {
@@ -22,7 +22,7 @@ class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	get path () {
-		return '/no-auth/inbound-email';
+		return '/no-auth/slack-post';
 	}
 
 	getExpectedFields () {
@@ -39,15 +39,17 @@ class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		// verify we got back a post with the attributes we specified
 		let post = data.post;
 		let errors = [];
+		let author = this.createdAuthor || this.postOriginatorData.user;
 		let result = (
 			((post.text === this.data.text) || errors.push('text does not match')) &&
 			((post.teamId === this.team._id) || errors.push('teamId does not match the team')) &&
+			((post.repoId === this.repo._id) || errors.push('repoId does not match the repo')) &&
 			((post.streamId === this.stream._id) || errors.push('streamId does not match')) &&
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((post.modifiedAt >= post.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((post.creatorId === this.postOriginatorData.user._id) || errors.push('creatorId not equal to the post originator ID')) &&
-			((post.origin === 'email') || errors.push('origin is not email'))
+			((post.creatorId === author._id) || errors.push('creatorId not equal to the post originator ID')) &&
+			((post.origin === 'slack') || errors.push('origin is not slack'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		// verify the post in the response has no attributes that should not go to clients
@@ -55,4 +57,4 @@ class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 }
 
-module.exports = InboundEmailTest;
+module.exports = SlackPostTest;
