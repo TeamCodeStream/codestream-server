@@ -78,7 +78,8 @@ class EmailNotificationRenderer {
 	}
 
 	// link that user should click on to learn about CodeStream and install the plugin
-	getInstallLink (options) {
+	getInstallLink (/*options*/) {
+/*
 		const { user, mentioned } = options;
 		const firstEmail = !user.get('hasReceivedFirstEmail');
 		const campaign = (
@@ -87,7 +88,9 @@ class EmailNotificationRenderer {
 			(!firstEmail && mentioned && 'mention_notification_unreg') ||
 			(!firstEmail && !mentioned && 'newmessage_notification_unreg')
 		);
-		return `http://codestream.com/setup?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
+*/
+		return 'https://atom.io/packages/codestream';
+//		return `http://codestream.com/setup?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
 	}
 
 	// determine the intro text of an email notification
