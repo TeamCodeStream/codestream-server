@@ -3,7 +3,7 @@
 'use strict';
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const Secrets = require(process.env.CS_API_TOP + '/config/secrets');
+//const Secrets = require(process.env.CS_API_TOP + '/config/secrets');
 
 class CommonInit {
 
@@ -57,7 +57,7 @@ class CommonInit {
 			number: 1
 		};
 		this.data = {
-			secret: Secrets.integration,
+//			secret: Secrets.integration,
 			teamId: this.team._id,
 			enable: true,
 			info: this.integrationInfo

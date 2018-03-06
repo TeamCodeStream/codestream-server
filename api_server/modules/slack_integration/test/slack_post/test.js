@@ -5,9 +5,9 @@
 
 const SlackPostTest = require('./slack_post_test');
 const SlackPostMessageTest = require('./slack_post_message_test');
-const ACLTest = require('./acl_test');
+//const ACLTest = require('./acl_test');
 const MissingParameterTest = require('./missing_parameter_test');
-const IncorrectSecretTest = require('./incorrect_secret_test');
+//const IncorrectSecretTest = require('./incorrect_secret_test');
 const TeamNotFoundTest = require('./team_not_found_test');
 const RepoNotFoundTest = require('./repo_not_found_test');
 const StreamNotFoundTest = require('./stream_not_found_test');
@@ -27,7 +27,7 @@ class SlackPostRequestTester {
 	test () {
 		new SlackPostTest().test();
 		new SlackPostMessageTest().test();
-		new ACLTest().test();
+//		new ACLTest().test();
 		new MissingParameterTest({ parameter: 'teamId' }).test();
 		new MissingParameterTest({ parameter: 'repoId' }).test();
 		new MissingParameterTest({ parameter: 'streamId' }).test();
@@ -35,7 +35,7 @@ class SlackPostRequestTester {
 		new MissingParameterTest({ parameter: 'authorUsername' }).test();
 		new MissingParameterTest({ parameter: 'parentPostId' }).test();
 		new MissingParameterTest({ parameter: 'text' }).test();
-		new IncorrectSecretTest().test();
+//		new IncorrectSecretTest().test();
 		new TeamNotFoundTest().test();
 		new RepoNotFoundTest().test();
 		new StreamNotFoundTest().test();

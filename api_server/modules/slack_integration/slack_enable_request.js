@@ -15,12 +15,17 @@ class SlackEnableRequest extends RestfulRequest {
 
 	// authorize the client (slack-bot) to make this request
 	authorize (callback) {
+		// FIXME: we are wide open for now
+		return callback();
+
+/*
 		// we rely on a secret, known only to the slack-bot and the
 		// API server ... disallowing arbitrary clients to call this request
 		if (this.request.body.secret !== this.api.config.secrets.integration) {
 			return callback(this.errorHandler.error('unauthorized'));
 		}
 		callback();
+*/
 	}
 
 	// process the request...
@@ -37,7 +42,7 @@ class SlackEnableRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['teamId', 'secret'],
+					string: ['teamId'/*, 'secret'*/],
 					boolean: ['enable']
 				},
 				optional: {

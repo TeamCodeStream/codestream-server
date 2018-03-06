@@ -3,7 +3,7 @@
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const Secrets = require(process.env.CS_API_TOP + '/config/secrets');
+//const Secrets = require(process.env.CS_API_TOP + '/config/secrets');
 
 class CommonInit {
 
@@ -89,7 +89,7 @@ class CommonInit {
 			authorUsername: this.postOriginatorData.user.username,
 			parentPostId: this.parentPost._id,
 			text: this.postFactory.randomText(),
-			secret: Secrets.integration
+//			secret: Secrets.integration
 		};
 		callback();
 	}
