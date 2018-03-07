@@ -136,11 +136,14 @@ class SlackPostRequest extends RestfulRequest {
 	getOrCreateAuthor (callback) {
 		const user = {
 			email: this.request.body.authorEmail,
-			username: this.request.body.authorUsername
+			username: this.request.body.authorUsername,
 		};
 		this.userCreator = new UserCreator({
 			request: this,
-			dontSaveIfExists: true	// if the user exists, just return that user, no need to save
+			dontSaveIfExists: true,
+			ignoreUsernameOnConflict: true,	// if there is a username conflict, just ignore the username coming from slack
+			teamIds: [this.team.id]			// user will be added directly to the team if it is a new user
+		}, {
 		});
 		this.userCreator.createUser(
 			user,
@@ -155,21 +158,22 @@ class SlackPostRequest extends RestfulRequest {
 	// if we couldn't find a matching author, we created one, and now we need to
 	// add them to the team
 	addToTeam (callback) {
-		// first check if a user we found is a member of the team
-		if (this.userCreator.existingModel) {
-			if (!this.author.hasTeam(this.team.id)) {
-				return callback(this.errorHandler.error('userNotOnTeam'));
-			}
-			else {
-				return callback();
-			}
+		// check if a user we found is a member of the team already, if not, add them
+		if (
+			!this.userCreator.existingModel ||
+			this.userCreator.existingModel.hasTeam(this.team.id)
+		) {
+			return callback();
 		}
-		// add the users to the team
+		// add the author of the post to the team, this will only fail if there is
+		// a username conflict with an existing user on the team ... still not sure
+		// what to do about that case
 		let adder = new AddTeamMembers({
 			request: this,
-			users: [this.author],		// add the user issuing the request
+			users: [this.author],
 			teamId: this.team.id
 		});
+		this.addedToTeam = true;
 		adder.addTeamMembers(callback);
 	}
 
@@ -189,7 +193,7 @@ class SlackPostRequest extends RestfulRequest {
 			if (error) { return callback(error); }
 			this.post = this.postCreator.model;
 			this.responseData.post = this.post.getSanitizedObject();
-			if (this.userCreator && !this.userCreator.existingModel) {
+			if (!this.userCreator.existingModel || this.addedToTeam) {
 				this.responseData.users = [this.userCreator.model.getSanitizedObject()];
 			}
 			callback();

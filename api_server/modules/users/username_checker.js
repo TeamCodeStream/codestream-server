@@ -52,7 +52,11 @@ class UsernameChecker  {
 	}
 
 	arrangeUsernameByTeam (user, callback) {
-		if (user._id === this.userId || !user.username || user.deactivated) {
+		if (
+			(this.userId && user._id === this.userId) ||
+			!user.username ||
+			user.deactivated
+		) {
 			return callback();
 		}
 		user.teamIds.forEach(teamId => {
