@@ -149,6 +149,7 @@ class PostCreator extends ModelCreator {
 			this.getStream,			// get the stream for the post
 			this.getRepo,			// get the repo (for posts in file-type streams)
 			this.getTeam,			// get the team that owns the stream
+			this.getCompany,		// get the company that owns the team
 			this.createStream,		// create the stream, if requested to create on-the-fly
 			this.createId,			// create an ID for the post
 			this.createMarkers,		// create markers for any code blocks sent
@@ -225,6 +226,22 @@ class PostCreator extends ModelCreator {
 				}
 				this.team = team;
 				this.attributes.teamId = team.id;
+				callback();
+			}
+		);
+	}
+
+	// get the company that owns the team for which the post is being created
+	// only needed for analytics so we only do this for inbound emails or
+	getCompany (callback) {
+		if (!this.forInboundEmail && !this.forIntegration) {
+			return callback();
+		}
+		this.data.companies.getById(
+			this.team.get('companyId'),
+			(error, company) => {
+				if (error) { return callback(error); }
+				this.company = company;
 				callback();
 			}
 		);
@@ -604,12 +621,16 @@ class PostCreator extends ModelCreator {
 			'Join Method': this.user.get('joinMethod'),
 			'Team ID': this.team ? this.team.id : undefined,
  			'Team Size': this.team ? this.team.get('memberIds').length : undefined,
+			Company: this.company.get('name'),
 			'Endpoint': endpoint,
 			'Plan': 'Free', // FIXME: update when we have payments
 			'Date of Last Post': new Date(this.model.get('createdAt')).toISOString()
 		};
 		if (this.user.get('registeredAt')) {
 			trackObject['Date Signed Up'] = new Date(this.user.get('registeredAt')).toISOString();
+		}
+		if (this.user.get('totalPosts') === 1) {
+			trackObject['First Post?'] = new Date(this.model.get('createdAt')).toISOString();
 		}
 		this.api.services.analytics.track(
 			'Post Created',
