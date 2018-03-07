@@ -34,6 +34,7 @@ class CommonInit {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
+				this.company = response.company;
 				this.team = response.team;
 				this.repo = response.repo;
 				this.users = response.users;

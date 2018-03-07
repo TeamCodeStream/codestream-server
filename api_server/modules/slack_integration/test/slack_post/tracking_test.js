@@ -69,10 +69,12 @@ class TrackingTest extends SlackPostMessageTest {
 			((data['Join Method'] === this.postOriginatorData.user.joinMethod) || errors.push('Join Method does not match post originator')) &&
 			((data['Team ID'] === this.team._id) || errors.push('Team ID does not match team')) &&
 			((data['Team Size'] === this.team.memberIds.length) || errors.push('Team Size does not match number of members in team')) &&
+			((data.Company === this.company.name) || errors.push('Company does not match name of company')) &&
 			((data.Endpoint === 'Slack') || errors.push('Endpoint not correct')) &&
 			((data.Plan === 'Free') || errors.push('Plan not correct')) &&
 			((data['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct')) &&
-			((data['Date Signed Up'] === new Date(this.postOriginatorData.user.registeredAt).toISOString()) || errors.push('Date Signed Up not correct'))
+			((data['Date Signed Up'] === new Date(this.postOriginatorData.user.registeredAt).toISOString()) || errors.push('Date Signed Up not correct')) &&
+			((data['First Post?'] === new Date(this.post.createdAt).toISOString()) || errors.push('First Post not set to creation date of post'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;
