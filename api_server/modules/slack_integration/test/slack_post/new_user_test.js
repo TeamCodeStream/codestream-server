@@ -26,7 +26,9 @@ class NewUserTest extends SlackPostTest {
 		Assert(data.users, 'no users sent with response');
 		const user = data.users[0];
 		Assert.equal(user.email, this.data.authorEmail, 'returned user doesn\'t match author email');
-		Assert.equal(user.username, this.data.authorUsername, 'returned user doesn\t match author username');
+		if (!this.ignoreUsername) {
+			Assert.equal(user.username, this.data.authorUsername, 'returned user doesn\'t match author username');
+		}
 		Assert.deepEqual(user.teamIds, [this.team._id], 'teams in returned user are not correct');
 		this.createdAuthor = user;
 		super.validateResponse(data);

@@ -111,7 +111,10 @@ class RandomUserFactory {
 		if (!options.noPassword) {
 			data.password = RandomString.generate(12);
 		}
-		if (!options.noUsername) {
+		if (options.username) {
+			data.username = options.username;
+		}
+		else if (!options.noUsername) {
 			data.username = RandomString.generate(12);
 		}
 		Object.assign(data, options.with || {});

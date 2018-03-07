@@ -100,36 +100,37 @@ class UserCreator extends ModelCreator {
 	}
 
 	checkUsernameUnique (callback) {
-		if (
-			!this.existingModel ||
-			(this.existingModel.get('teamIds') || []).length === 0 ||
-			this.dontSaveIfExists
-		) {
+		if (this.existingModel && this.dontSaveIfExists) {
 			return callback();
 		}
-		let username = this.attributes.username || this.existingModel.get('username');
+		const teamIds = (this.existingModel ? this.existingModel.get('teamIds') : this.teamIds) || [];
+		const username = this.attributes.username || (this.existingModel ? this.existingModel.get('username') : null);
 		if (!username) {
 			return callback();
 		}
-		let teamIds = this.existingModel.get('teamIds');
+		const userId = this.existingModel ? this.existingModel.id : null;
 		let usernameChecker = new UsernameChecker({
 			data: this.data,
-			username: username,
-			userId: this.existingModel.id,
-			teamIds: teamIds
+			username,
+			userId,
+			teamIds
 		});
 		usernameChecker.checkUsernameUnique((error, isUnique) => {
 			if (error) { return callback(error); }
-			if (!isUnique) {
+			if (isUnique) {
+				return callback();
+			}
+			if (this.ignoreUsernameOnConflict && !this.existingModel) {
+				delete this.attributes.username;
+				return callback();
+			}
+			else {
 				return callback(this.errorHandler.error('usernameNotUnique', {
 					info: {
 						username: username,
 						teamIds: usernameChecker.notUniqueTeamIds
 					}
 				}));
-			}
-			else {
-				return callback();
 			}
 		});
 	}
@@ -154,6 +155,11 @@ class UserCreator extends ModelCreator {
 		}
 		else {
 			this.model.attributes.creatorId = this.model.attributes._id;
+		}
+		if (this.teamIds) {
+			// NOTE - we don't allow setting this in the original attributes,
+			// because we need to be able to trust it
+			this.model.attributes.teamIds = this.teamIds;
 		}
 		super.create(callback);
 	}
