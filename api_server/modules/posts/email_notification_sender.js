@@ -390,12 +390,14 @@ class EmailNotificationSender {
 		renderedPosts.reverse(); // display earliest to latest
 		if (
 			renderedPosts.length === 0 ||
+			!this.mentionsPerUser[user.id] || // per COD-436, only send email notifications to mentioned users
 			!user.wantsEmail(this.stream, this.mentionsPerUser[user.id])
 		) {
 			// renderedPosts.length should not be 0, but this can still happen because at the
 			// time we determined who preferred getting emails, we didn't have the posts, so
 			// we didn't know if the user was mentioned, so we couldn't base our determination
 			// on whether the user was mentioned ... now we can
+			this.request.log(`User ${user.id}:${user.get('email')} has no posts to render, or is not mentioned, or does not want email notifications`);
 			return callback();
 		}
 		const postsHtml = renderedPosts.map(renderedPost => renderedPost.html);
