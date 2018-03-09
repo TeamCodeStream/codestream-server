@@ -51,6 +51,16 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'grant/:channel',
 		requestClass: require('./grant_request')
+	},
+	{
+		method: 'put',
+		path: 'presence',
+		requestClass: require('./presence_request')
+	},
+	{
+		method: 'get',
+		path: 'sessions',
+		requestClass: require('./get_sessions_request')
 	}
 ];
 

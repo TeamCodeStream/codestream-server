@@ -64,6 +64,7 @@ class Posts extends Restful {
 	initialize (callback) {
 		// create a queue for handling messages concerning triggering the interval
 		// timer for email notifications
+		if (!this.api.services.queueService) { return callback(); }
 		this.api.services.queueService.createQueue({
 			name: this.api.config.aws.sqs.outboundEmailQueueName,
 			handler: this.handleEmailNotificationMessage.bind(this),
