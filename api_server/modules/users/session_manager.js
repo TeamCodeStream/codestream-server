@@ -14,8 +14,8 @@ class SessionManager {
 		this.currentSessions = this.user.get('sessions') || {};
 		this.op = {};
 		BoundAsync.series(this, [
+			this.updateSessions,		// update the sessions data by adding the presence data for this request
 			this.removeStaleSessions,	// remove any stale sessions we find, sessions older than the away timeout
-			this.updateSessions,		// update the sessions data, removing stale session data and adding the presence data for this request
 			this.saveSessions			// save the sessions data to the server
 		], callback);
 	}
