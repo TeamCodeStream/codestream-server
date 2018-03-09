@@ -47,6 +47,7 @@ class PutPresenceTest extends CodeStreamAPITest {
 		if (this.dontFetchToVerify) {
 			// the test will be setting the data itself, not fetching the sessions
 			// data afterwards, so don't do anything here
+			this.data = this.presenceData;
 			return callback();
 		}
 		this.updatedAfter = Date.now();

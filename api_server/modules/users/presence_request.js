@@ -36,6 +36,11 @@ class PresenceRequest extends RestfulRequest {
 
 	// update session per the given session ID and status
 	updateSessions (callback) {
+		this.responseData = {
+			// we return the away timeout to the client on every call, so the client
+			// can adjust their timer accordingly
+			awayTimeout: this.api.config.api.sessionAwayTimeout
+		};
 		new SessionManager({
 			user: this.user,
 			request: this,
