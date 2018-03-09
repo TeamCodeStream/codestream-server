@@ -6,6 +6,7 @@ SSL_CERT=codestream.com
 # cmomented out till we are ready for tracking to go into Production
 # in the meantime, we are using the development key
 MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
+SLACKBOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-production
 
 . $CS_API_TOP/sandbox/defaults.sh
 
@@ -21,3 +22,4 @@ unset CS_API_LOG_CONSOLE_OK
 export CS_API_REPLY_TO_DOMAIN=prod.codestream.com
 export CS_API_EMAIL_TO=on
 export CS_API_OUTBOUND_EMAIL_SQS="prod_outboundEmail"
+export CS_API_SLACKBOT_ORIGIN=http://slackbot.codestream.us:11079

@@ -16,3 +16,4 @@ unset CS_API_LOG_CONSOLE_OK
 export CS_API_REPLY_TO_DOMAIN=qa.codestream.com
 export CS_API_EMAIL_TO=on
 export CS_API_OUTBOUND_EMAIL_SQS="qa_outboundEmail"
+export CS_API_SLACKBOT_ORIGIN=http://qa-slackbot.codestream.us:11079
