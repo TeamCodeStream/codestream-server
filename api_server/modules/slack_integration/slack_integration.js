@@ -5,6 +5,7 @@
 
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
 const SlackBotClient = require('./slack_bot_client');
+const HttpProxy = require('express-http-proxy');
 
 const SLACK_INTEGRATION_ROUTES = [
 	{
@@ -16,21 +17,6 @@ const SLACK_INTEGRATION_ROUTES = [
 		method: 'post',
 		path: 'no-auth/slack-post',
 		requestClass: require('./slack_post_request')
-	},
-	{
-		method: 'get',
-		path: 'no-auth/slack/addtoslack',
-		requestClass: require('./slack_redirect_request')
-	},
-	{
-		method: 'get',
-		path: 'no-auth/slack/oauth',
-		requestClass: require('./slack_redirect_request')
-	},
-	{
-		method: 'get',
-		path: 'no-auth/slack/receive',
-		requestClass: require('./slack_redirect_request')
 	}
 ];
 
@@ -55,6 +41,19 @@ class Messager extends APIServerModule {
 		// provide a route for incoming posts from the slack-bot
 		return SLACK_INTEGRATION_ROUTES;
 	}
+
+	// initialize the module
+	initialize (callback) {
+		// proxying these requests to the slackbot for authorization flow
+		// and message reception
+		const slackOriginUrl = this.api.config.slack.slackBotOrigin;
+		this.api.express.use('/no-auth/slack/addtoslack', HttpProxy(`${slackOriginUrl}/addtoslack`));
+		this.api.express.use('/no-auth/slack/oauth', HttpProxy(`${slackOriginUrl}/oauth`));
+		this.api.express.use('/no-auth/slack/receive', HttpProxy(`${slackOriginUrl}/slack/receive`));
+		callback();
+	}
+
+
 }
 
 module.exports = Messager;
