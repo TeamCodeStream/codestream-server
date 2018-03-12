@@ -5,7 +5,7 @@
 const Assert = require('assert');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const Secrets = require(process.env.CS_API_TOP + '/config/secrets');
+const Slack = require(process.env.CS_API_TOP + '/config/slack');
 
 class SlackOutTest extends CodeStreamMessageTest {
 
@@ -87,7 +87,7 @@ class SlackOutTest extends CodeStreamMessageTest {
 				method: 'put',
 				path: '/no-auth/slack-enable',
 				data: {
-					secret: Secrets.integration,
+					secret: Slack.secret,
 					teamId: this.team._id,
 					enable: true
 				}

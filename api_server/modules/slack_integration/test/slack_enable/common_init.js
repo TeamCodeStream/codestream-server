@@ -3,7 +3,7 @@
 'use strict';
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-//const Secrets = require(process.env.CS_API_TOP + '/config/secrets');
+const Slack = require(process.env.CS_API_TOP + '/config/slack');
 
 class CommonInit {
 
@@ -57,7 +57,7 @@ class CommonInit {
 			number: 1
 		};
 		this.data = {
-//			secret: Secrets.integration,
+			secret: Slack.secret,
 			teamId: this.team._id,
 			enable: true,
 			info: this.integrationInfo

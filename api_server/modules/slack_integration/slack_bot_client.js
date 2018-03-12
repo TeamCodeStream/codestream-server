@@ -3,6 +3,7 @@
 'use strict';
 
 const HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
+const URL = require('url');
 
 class SlackBotClient {
 
@@ -117,9 +118,11 @@ class SlackBotClient {
 			}
 			return process.nextTick(callback);
 		}
+
+		const url = new URL(this.config.slackBotOrigin);
 		HTTPSBot.post(
-			this.config.host,
-			this.config.port,
+			url.host,
+			url.port,
 			'/codestream/receive',
 			message,
 			callback,

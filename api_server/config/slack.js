@@ -3,6 +3,6 @@
 'use strict';
 
 module.exports = {
-	host: 'howdy.ngrok.io',
-	port: 443
+	slackBotOrigin: process.env.CS_API_SLACKBOT_ORIGIN,
+	secret: process.env.CS_API_SLACKBOT_SHARED_SECRET
 };

@@ -1,5 +1,5 @@
-// fulfill an inbound-email request, called by the inbound email server to
-// ingest an inbound email and turn it into a post for the stream
+// fulfill a slack post request, called by the slack bot to
+// ingest a slack post and turn it into a post for the stream
 
 'use strict';
 
@@ -19,17 +19,12 @@ class SlackPostRequest extends RestfulRequest {
 
 	// authorize the client (slack-bot) to make this request
 	authorize (callback) {
-		// FIXME: we are wide open for now
-		return callback();
-
-/*
 		// we rely on a secret, known only to the slack-bot and the
 		// API server ... disallowing arbitrary clients to call this request
-		if (this.request.body.secret !== this.api.config.secrets.integration) {
+		if (this.request.body.secret !== this.api.config.slack.secret) {
 			return callback(this.errorHandler.error('unauthorized'));
 		}
 		callback();
-*/
 	}
 
 	// process the request...

@@ -16,6 +16,21 @@ const SLACK_INTEGRATION_ROUTES = [
 		method: 'post',
 		path: 'no-auth/slack-post',
 		requestClass: require('./slack_post_request')
+	},
+	{
+		method: 'get',
+		path: 'no-auth/slack/addtoslack',
+		requestClass: require('./slack_redirect_request')
+	},
+	{
+		method: 'get',
+		path: 'no-auth/slack/oauth',
+		requestClass: require('./slack_redirect_request')
+	},
+	{
+		method: 'get',
+		path: 'no-auth/slack/receive',
+		requestClass: require('./slack_redirect_request')
 	}
 ];
 
@@ -25,8 +40,8 @@ class Messager extends APIServerModule {
 		// return a function that, when invoked, returns a service structure with the pubnub client as
 		// the messager service
 		return (callback) => {
-			if (!this.api.config.slack) {
-				this.api.warn('Will not connect to Slack, no Slack configuration supplied');
+			if (!this.api.config.slack || !this.api.config.slack.slackBotOrigin) {
+				this.api.warn('Will not connect to Slack, no Slack configuration or origin supplied');
 				return process.nextTick(callback);
 			}
 
