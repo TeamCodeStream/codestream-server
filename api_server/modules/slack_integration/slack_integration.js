@@ -46,14 +46,28 @@ class Messager extends APIServerModule {
 	initialize (callback) {
 		// proxying these requests to the slackbot for authorization flow
 		// and message reception
+		const reconstructQuery = (request) => {
+			return Object.keys(request.query).map(param => `${param}=${request.query[param]}`).join('&');
+		};
 		const slackOriginUrl = this.api.config.slack.slackBotOrigin;
-		this.api.express.use('/no-auth/slack/addtoslack', HttpProxy(`${slackOriginUrl}/addtoslack`));
-		this.api.express.use('/no-auth/slack/oauth', HttpProxy(`${slackOriginUrl}/oauth`));
-		this.api.express.use('/no-auth/slack/receive', HttpProxy(`${slackOriginUrl}/slack/receive`));
+
+		this.api.express.use('/no-auth/slack/addtoslack', HttpProxy(slackOriginUrl, {
+			proxyReqPathResolver: (request) => {
+				return '/addtoslack?' + reconstructQuery(request);
+			}
+		}));
+		this.api.express.use('/no-auth/slack/oauth', HttpProxy(slackOriginUrl, {
+			proxyReqPathResolver: (request) => {
+				return '/oauth?' + reconstructQuery(request);
+			}
+		}));
+		this.api.express.use('/no-auth/slack/receive', HttpProxy(slackOriginUrl, {
+			proxyReqPathResolver: () => {
+				return '/slack/receive';
+			}
+		}));
 		callback();
 	}
-
-
 }
 
 module.exports = Messager;
