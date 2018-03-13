@@ -9,13 +9,7 @@ const MomentTimezone = require('moment-timezone');
 class PostRenderer {
 
 	render (options, callback) {
-		const { creator, post, sameAuthor, timeZone } = options;
-		const author = creator.get('username') || EmailUtilities.parseEmail(creator.get('email')).name;
-
-		// we don't display the author if all the emails are from the same author, but this can
-		// be user-dependent, so if we know all the posts are from the same author, we can hide
-		// the author, otherwise, we have to do field substitution when we send the email to each user
-		const displayAuthor = sameAuthor ? 'display:none' : '{{{displayAuthor}}}';
+		const { post, sameAuthor, timeZone } = options;
 
 		// the timestamp is dependent on the user's timezone, but if all users are from the same
 		// timezone, we can format the timestamp here and fully render the email; otherwise we
@@ -23,25 +17,36 @@ class PostRenderer {
 		const datetime = timeZone ? PostRenderer.formatTime(post.get('createdAt'), timeZone) : '{{{datetime}}}';
 
 		const replyText = this.getReplyText(options);
-		const displayReplyTo = replyText ? null : 'display:none';
 		const text = this.getNotificationText(options);
 		const codeBlock = this.getNotificationCodeBlock(options);
-		const displayCodeBlock = codeBlock ? null : 'display:none';
 		const code = this.cleanForEmail((codeBlock && codeBlock.code) || '');
 		const preContext = this.cleanForEmail((codeBlock && codeBlock.preContext) || '');
 		const postContext = this.cleanForEmail((codeBlock && codeBlock.postContext) || '');
-		return callback(`
-<div class="authorLine">
-	<span class="author" style=${displayAuthor}>${author}</span><span style=${displayAuthor}>&nbsp;&middot;&nbsp;</span><span class="datetime">${datetime}</span>
- </div>
- <div class="replyto" style="${displayReplyTo}">
- 	reply to ${replyText}
+
+		// we don't display the author if all the emails are from the same author, but this can
+		// be user-dependent, so if we know all the posts are from the same author, we can hide
+		// the author, otherwise, we have to do field substitution when we send the email to each user
+		let authorSpan = '';
+		if (!sameAuthor) {
+			authorSpan = '{{{authorSpan}}}';
+		}
+
+		// only display "reply to" if the post is a reply
+		let replyToDiv = '';
+		if (replyText) {
+			replyToDiv = `
+<div class="replyto">
+	reply to ${replyText}
 	<br>
 </div>
-<div class="text">
-	${text}
-</div>
-<div style="${displayCodeBlock}">
+`;
+		}
+
+		// possibly display code blocks
+		let codeBlockDiv = '';
+		if (codeBlock) {
+			codeBlockDiv = `
+<div>
 	<br>
 	<div class="codeBlock">
 		<div class="codeContext">
@@ -54,6 +59,18 @@ class PostRenderer {
 			${postContext}
 		</div>
 	</div>
+</div>
+`;
+		}
+
+		return callback(`
+<div class="authorLine">
+	${authorSpan}<span class="datetime">${datetime}</span>
+ </div>
+ ${replyToDiv}
+ ${codeBlockDiv}
+<div class="text">
+	${text}
 </div>
 <hr class=rule>
 `
@@ -88,6 +105,12 @@ class PostRenderer {
 			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
 			.replace(/^ +/gm, match => { return match.replace(/ /g, '&nbsp;'); })
 			.replace(/\n/g, '<br/>');
+	}
+
+	// render the author span portion of an email post
+	static renderAuthorSpan (creator) {
+		const author = creator.get('username') || EmailUtilities.parseEmail(creator.get('email')).name;
+		return `<span class="author">${author}&nbsp;&middot;&nbsp;</span>`;
 	}
 
 	// format date/time display for email render, taking into account the given time zone

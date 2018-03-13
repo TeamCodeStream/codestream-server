@@ -360,8 +360,14 @@ class EmailNotificationSender {
 			// if the user has multiple authors represented in the posts they are getting
 			// in their email, we show the author usernames, otherwise hide them
 			const hasMultipleAuthors = this.hasMultipleAuthors || this.hasMultipleAuthorsPerUser[user.id];
-			const authorDisplay = hasMultipleAuthors ? '' : 'display:none';
-			html = html.replace(/\{\{\{displayAuthor\}\}\}/g, authorDisplay);
+			let authorSpan = '';
+			if (hasMultipleAuthors) {
+				const creator = this.postCreators.find(creator => creator.id === post.get('creatorId'));
+				if (creator) {
+					authorSpan = PostRenderer.renderAuthorSpan(creator);
+				}
+			}
+			html = html.replace(/\{\{\{authorSpan\}\}\}/g, authorSpan);
 
 			// format the timestamp of this post with timezone dependency
 			const datetime = PostRenderer.formatTime(post.get('createdAt'), user.get('timeZone'));
