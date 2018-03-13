@@ -92,8 +92,8 @@ class PostRenderer {
 
 	// format date/time display for email render, taking into account the given time zone
 	static formatTime (timeStamp, timeZone) {
-		const asString = new Date(timeStamp).toISOString();
-		return MomentTimezone.tz(asString, timeZone).format('ddd, MMM d h:mm a');
+		timeZone = timeZone || 'America/New_York';
+		return MomentTimezone.tz(timeStamp, timeZone).format('ddd, MMM D h:mm a');
 	}
 }
 
