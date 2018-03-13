@@ -37,7 +37,7 @@ class SlackEnableRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['teamId'/*, 'secret'*/],
+					string: ['teamId', 'secret'],
 					boolean: ['enable']
 				},
 				optional: {

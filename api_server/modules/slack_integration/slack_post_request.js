@@ -48,7 +48,7 @@ class SlackPostRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['teamId', 'repoId', 'streamId', 'authorEmail', 'authorUsername', 'parentPostId', 'text'/*, 'secret'*/],
+					string: ['teamId', 'repoId', 'streamId', 'authorEmail', 'authorUsername', 'parentPostId', 'text', 'secret'],
 				},
 				optional: {
 					'array(string)': ['mentionedUsers']
