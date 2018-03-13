@@ -121,7 +121,7 @@ class SlackBotClient {
 
 		const url = new URL(this.config.slackBotOrigin);
 		HTTPSBot.post(
-			url.host,
+			url.hostname,
 			url.port,
 			'/codestream/receive',
 			message,
