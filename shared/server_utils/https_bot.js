@@ -2,7 +2,8 @@
 
 'use strict';
 
-var HTTPS = require('https');
+const HTTPS = require('https');
+const HTTP = require('http');
 
 function _SimpleRequest (method, host, port, path, data, callback, options) { // jshint ignore:line
 
@@ -13,7 +14,8 @@ function _SimpleRequest (method, host, port, path, data, callback, options) { //
 	    });
 	}
 
-    let request = HTTPS.request(
+    const protocol = options.useHttp ? 'HTTP' : 'HTTPS';
+    let request = protocol.request(
         options,
         (response) => {
             let responseData = '';
