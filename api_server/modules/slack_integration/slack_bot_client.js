@@ -3,7 +3,7 @@
 'use strict';
 
 const HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
-const URL = require('url');
+const { URL } = require('url');
 
 class SlackBotClient {
 
