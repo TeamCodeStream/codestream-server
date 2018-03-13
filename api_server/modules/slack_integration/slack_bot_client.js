@@ -52,7 +52,7 @@ class SlackBotClient {
 	// package post info, along with post creator info, for slack-bot digestion
 	packagePost (post, creator, info) {
 		let message = {
-			secret: this.secret,
+			secret: this.config.secret,
 			postId: post.id,
 			text: post.get('text'),
 			creatorId: post.get('creatorId'),
