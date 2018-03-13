@@ -128,7 +128,8 @@ class SlackBotClient {
 			callback,
 			{
 				// FIXME ... slack integration needs to use proper certificate
-				rejectUnauthorized: false
+				rejectUnauthorized: false,
+				useHttp: true
 			}
 		);
 	}
