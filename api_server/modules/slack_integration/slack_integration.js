@@ -64,7 +64,16 @@ class Messager extends APIServerModule {
 		this.api.express.use('/no-auth/slack/receive', HttpProxy(slackOriginUrl, {
 			proxyReqPathResolver: () => {
 				return '/slack/receive';
-			}
+			},
+			proxyReqBodyDecorator: (bodyContent, srcReq) => {
+				this.api.log('SLACK RECEIVE REQUEST BODY: ' + JSON.stringify(srcReq.body, undefined, 5));
+				return bodyContent;
+			},
+			userResDecorator: (proxyRes, proxyResData) => {
+				this.api.log('SLACK RECEIVE RESPONSE DATA: ' + proxyResData);
+		      	return proxyResData;
+		    }
+
 		}));
 		callback();
 	}
