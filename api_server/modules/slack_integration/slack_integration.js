@@ -61,13 +61,33 @@ class Messager extends APIServerModule {
 				return '/oauth?' + reconstructQuery(request);
 			}
 		}));
+
+		this.api.express.use(function(req, res, next) {
+			        var data = '';
+			        req.setEncoding('utf8');
+			        req.on('data', function(chunk) {
+			            data += chunk;
+			        });
+			        req.on('end', function() {
+			            req.rawBody = data;
+						this.api.log('SET RAW BODY TO: ' + req.rawBody);
+						next();
+			        });
+			    });
+
 		this.api.express.use('/no-auth/slack/receive', HttpProxy(slackOriginUrl, {
 			proxyReqPathResolver: () => {
 				return '/slack/receive';
 			},
 			proxyReqBodyDecorator: (bodyContent, srcReq) => {
 				this.api.log('SLACK RECEIVE REQUEST BODY: ' + JSON.stringify(srcReq.body, undefined, 5));
-				return bodyContent;
+				if (srcReq.headers['content-type'] === 'application/x-www-form-urlencoded') {
+					this.api.log('RETURNING RAW: ' + srcReq.rawBody);
+					return srcReq.rawBody;
+				}
+				else {
+					return bodyContent;
+				}
 			},
 			userResDecorator: (proxyRes, proxyResData) => {
 				this.api.log('SLACK RECEIVE RESPONSE DATA: ' + proxyResData);
