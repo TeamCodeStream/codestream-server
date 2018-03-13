@@ -14,7 +14,7 @@ function _SimpleRequest (method, host, port, path, data, callback, options) { //
 	    });
 	}
 
-    const protocol = options.useHttp ? 'HTTP' : 'HTTPS';
+    const protocol = options.useHttp ? HTTP : HTTPS;
     let request = protocol.request(
         options,
         (response) => {
