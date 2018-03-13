@@ -98,5 +98,9 @@ module.exports = {
 	timeZone: {
 		type: 'string',
 		maxLength: 50
+	},
+	sessions: {
+		type: 'object',
+		serverOnly: true
 	}
 };

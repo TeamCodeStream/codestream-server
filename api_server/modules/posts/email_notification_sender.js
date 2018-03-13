@@ -6,6 +6,7 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 const Indexes = require('./indexes');
 const PostRenderer = require('./post_renderer');
 const EmailNotificationRenderer = require('./email_notification_renderer');
+const SessionManager = require(process.env.CS_API_TOP + '/modules/users/session_manager');
 
 // make jshint happy
 /* globals Intl */
@@ -26,6 +27,7 @@ class EmailNotificationSender {
 		BoundAsync.series(this, [
 			this.getTeam,					// get the team that owns the stream that owns the post
 			this.getRepo,					// get the repo that owns the stream that owns the post
+			this.getAllMembers,				// get all members of the team
 			this.getRepoSubscribedMembers,	// get users who are subscribed to the repo channel
 			this.getTeamSubscribedMembers,	// get users who are subscribed to the team channel
 			this.getOfflineMembers,			// get offline members: those who are not subscribed to the repo channel
@@ -79,6 +81,21 @@ class EmailNotificationSender {
 		);
 	}
 
+	// get all members of the team
+	getAllMembers (callback) {
+		this.request.data.users.getByIds(
+			this.team.get('memberIds'),
+			(error, members) => {
+				if (error) { return callback(error); }
+				// we don't care about deactivated members
+				this.allMembers = members.filter(member => {
+					return !member.get('deactivated');
+				});
+				process.nextTick(callback);
+			}
+		);
+	}
+
 	// get the team members that are currently subscribed to the repo channel for the
 	// repo to which the stream belongs
 	getRepoSubscribedMembers (callback) {
@@ -119,26 +136,18 @@ class EmailNotificationSender {
 
 	// get the user objects for the offline members
 	getOfflineMembers (callback) {
-		// filter out members who are online for the repo
-		let offlineMemberIds = this.team.get('memberIds').filter(memberId => {
-			return this.onlineUserIdsForRepo.indexOf(memberId) === -1;
-		});
-		if (offlineMemberIds.length === 0) {
-			this.offlineMembers = [];
-			return callback();
-		}
-		this.request.data.users.getByIds(
-			offlineMemberIds,
-			(error, members) => {
-				if (error) { return callback(error); }
-				// don't send notifications to deactivated users, and don't send to the author
-				// of the post
-				this.offlineMembers = members.filter(member => {
-					return !member.get('deactivated');
-				});
-				process.nextTick(callback);
+		this.offlineMembers = this.allMembers.filter(member => {
+			// if they show as offline according to pubnub, they are truly offline
+			if (!this.onlineUserIdsForRepo.includes(member.id)) {
+				return true;
 			}
-		);
+			const isActive = new SessionManager({
+				user: member,
+				request: this.request
+			}).hasActiveSession();
+			return !isActive;
+		});
+		process.nextTick(callback);
 	}
 
 	// filter the offline members to those who haven't turned email notifications off

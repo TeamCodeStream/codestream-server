@@ -3,7 +3,9 @@
 // make jshint happy
 /* globals describe */
 
-var UserRequestTester = require('./user_request_tester');
+const UserRequestTester = require('./user_request_tester');
+const GetSessionsRequestTester = require('./get_sessions/test');
+const PresenceRequestTester = require('./presence/test');
 
 var userRequestTester = new UserRequestTester();
 
@@ -21,4 +23,6 @@ describe('user requests', function() {
 	describe('PUT /preferences', userRequestTester.putPreferencesTest);
 	describe('PUT /users/:id', userRequestTester.putUserTest);
 	describe('PUT /grant/:channel', userRequestTester.grantTest);
+	describe('GET /sessions', GetSessionsRequestTester.test);
+	describe('PUT /presence', PresenceRequestTester.test);
 });
