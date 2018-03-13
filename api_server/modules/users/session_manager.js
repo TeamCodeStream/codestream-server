@@ -60,6 +60,26 @@ class SessionManager {
 			callback
 		);
 	}
+
+	// determine if the given user has an active session, which means a session
+	// with status online, and updated since the awayTimeout
+	hasActiveSession () {
+		const sessions = this.user.get('sessions');
+		if (typeof sessions !== 'object') {
+			// until we start collection session status, we assume they are online
+			// this continues existing email notification behavior if the user has
+			// not updated their plugin to the version that tracks presence
+			return true;
+		}
+		return Object.values(sessions).find(session => {
+			const now = Date.now();
+			const awayTimeout = this.sessionAwayTimeout || this.request.api.config.api.sessionAwayTimeout;
+			return (
+				session.status === 'online' &&
+				session.updatedAt > now - awayTimeout
+			);
+		});
+	}
 }
 
 module.exports = SessionManager;

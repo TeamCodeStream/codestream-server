@@ -85,7 +85,10 @@ class EmailNotificationQueue {
 		};
 		const options = {
 			databaseOptions: {
-				fields: { emailNotificationSeqNum: 1 }
+				fields: {
+					emailNotificationSeqNum: 1,
+					emailNotificationSeqNumSetAt: 1
+				}
 			}
 		};
 		BoundAsync.whilst(
@@ -114,6 +117,7 @@ class EmailNotificationQueue {
 			(error, foundStream) => {
 				if (error) { return callback(error); }
 				this.foundSeqNum = foundStream.emailNotificationSeqNum;
+				this.foundSeqNumSetAt = foundStream.emailNotificationSeqNumSetAt;
 				callback();
 			},
 			options
@@ -127,7 +131,11 @@ class EmailNotificationQueue {
 	// the sequence number we set and restore it to the one we read, letting the
 	// timer that was presumably already set expire
 	backOffAsNeeded (callback) {
-		if (this.foundSeqNum && this.foundSeqNum < this.post.get('seqNum')) {
+		if (
+			this.foundSeqNum &&
+			this.foundSeqNum < this.post.get('seqNum') &&
+			this.foundSeqNumSetAt > Date.now() - 2 * this.request.api.config.email.notificationInterval
+		) {
 			this.backedOff = true;
 			this.restoreSeqNum(this.foundSeqNum, callback);
 		}
