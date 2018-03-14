@@ -1,3 +1,5 @@
+// this class should be used to create all user documents in the database
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -17,17 +19,20 @@ class UserCreator extends ModelCreator {
 	}
 
 	get modelClass () {
-		return User;
+		return User;	// class to use to create a user model
 	}
 
 	get collectionName () {
-		return 'users';
+		return 'users';	// data collection to use
 	}
 
+	// convenience wrapper
 	createUser (attributes, callback) {
 		return this.createModel(attributes, callback);
 	}
 
+	// get attributes that are required for user creation, and those that are optional,
+	// along with their types
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
@@ -43,6 +48,7 @@ class UserCreator extends ModelCreator {
 		};
 	}
 
+	// validate attributes for the user we are creating
 	validateAttributes (callback) {
 		this.userValidator = new UserValidator();
 		let error =
@@ -52,6 +58,7 @@ class UserCreator extends ModelCreator {
 		callback(error);
 	}
 
+	// validate the given email
 	validateEmail () {
 		let error = this.userValidator.validateEmail(this.attributes.email);
 		if (error) {
@@ -59,6 +66,7 @@ class UserCreator extends ModelCreator {
 	 	}
 	}
 
+	// validate the given password
 	validatePassword () {
 		if (!this.attributes.password) { return; }
 		let error = this.userValidator.validatePassword(this.attributes.password);
@@ -67,6 +75,7 @@ class UserCreator extends ModelCreator {
 		}
 	}
 
+	// validate the given username
 	validateUsername () {
 		if (!this.attributes.username) { return; }
 		let error = this.userValidator.validateUsername(this.attributes.username);
@@ -75,11 +84,16 @@ class UserCreator extends ModelCreator {
 	 	}
 	}
 
+	// return whether a matching user can exist or if an error should be returned
 	modelCanExist (model) {
+		// if the user is not registered, we'll just return that user, so this is ok,
+		// but if the user is registered, let the caller define the situation
 		return !model.get('isRegistered') || !this.notOkIfExistsAndRegistered;
 	}
 
+	// return database query to check if a matching user already exists
 	checkExistingQuery () {
+		// look for matching email (case-insensitive)
 		return {
 			query: {
 				searchableEmail: this.attributes.email.toLowerCase()
@@ -88,26 +102,31 @@ class UserCreator extends ModelCreator {
 		};
 	}
 
+	// called before the user is actually saved
 	preSave (callback) {
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
 		BoundAsync.series(this, [
-			this.hashPassword,
-			this.checkUsernameUnique,
+			this.hashPassword,			// hash the user's password, if given
+			this.checkUsernameUnique,	// check if the user's username will be unique for the teams they are on
 			super.preSave
 		], callback);
 	}
 
+	// check if the user's username will be unique for the teams they are on
 	checkUsernameUnique (callback) {
 		if (this.existingModel && this.dontSaveIfExists) {
+			// doesn't matter if we won't be saving anyway, meaning we're really ignoring the username
 			return callback();
 		}
 		const teamIds = (this.existingModel ? this.existingModel.get('teamIds') : this.teamIds) || [];
 		const username = this.attributes.username || (this.existingModel ? this.existingModel.get('username') : null);
 		if (!username) {
+			// username not provided, no worries
 			return callback();
 		}
+		// check against all teams ... the username must be unique for each
 		const userId = this.existingModel ? this.existingModel.id : null;
 		let usernameChecker = new UsernameChecker({
 			data: this.data,
@@ -121,6 +140,8 @@ class UserCreator extends ModelCreator {
 				return callback();
 			}
 			if (this.ignoreUsernameOnConflict && !this.existingModel) {
+				// in some circumstances, we tolerate a conflict by just throwing away
+				// the supplied username
 				delete this.attributes.username;
 				return callback();
 			}
@@ -135,6 +156,7 @@ class UserCreator extends ModelCreator {
 		});
 	}
 
+	// hash the given password, as needed
 	hashPassword (callback) {
 		if (!this.attributes.password) { return callback(); }
 		new PasswordHasher({
@@ -148,27 +170,37 @@ class UserCreator extends ModelCreator {
 		});
 	}
 
+	// create the user
 	create (callback) {
 		this.model.attributes._id = this.collection.createId();
 		if (this.user) {
+			// someone else is creating (inviting) this user
 			this.model.attributes.creatorId = this.user.id;
 		}
 		else {
+			// user creating themselves
 			this.model.attributes.creatorId = this.model.attributes._id;
 		}
 		if (this.teamIds) {
 			// NOTE - we don't allow setting this in the original attributes,
-			// because we need to be able to trust it
+			// because we need to be able to trust it ... so in this case it can
+			// only come from calling code, not from a request body
 			this.model.attributes.teamIds = this.teamIds;
 		}
 		super.create(callback);
 	}
 
+	// after the user object is saved...
 	postSave (callback) {
+		// grant the user access to their own me-channel, strictly for testing purposes
+		// (since they are not confirmed yet)
 		this.grantMeChannel(callback);
 	}
 
+	// grant the user access to their own me-channel, strictly for testing purposes
+	// (since they are not confirmed yet)
 	grantMeChannel (callback) {
+		// subscription cheat must be provided by test script
 		if (!this.subscriptionCheat) {
 			return callback();
 		}

@@ -1,3 +1,6 @@
+// handle the "PUT /presence" request to announce a particualar user session's
+// "presence" status, i.e., online, away, or offline
+
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
@@ -13,8 +16,8 @@ class PresenceRequest extends RestfulRequest {
 	// process the request...
 	process (callback) {
 		BoundAsync.series(this, [
-			this.requireAllow,
-			this.updateSessions
+			this.requireAllow,		// require certain parameters, discard any unknown parameters
+			this.updateSessions		// update the user's stored session data
 		], callback);
 	}
 

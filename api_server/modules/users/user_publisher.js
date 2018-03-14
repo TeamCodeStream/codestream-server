@@ -1,3 +1,4 @@
+// handle publishing a user object to the team channels for the teams the user belongs to
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -8,6 +9,7 @@ class UserPublisher {
 		Object.assign(this, options);
 	}
 
+	// publish the user object to each team channel for the teams the user belongs to
 	publishUserToTeams (callback) {
 		BoundAsync.forEachLimit(
 			this,
@@ -18,6 +20,7 @@ class UserPublisher {
 		);
 	}
 
+	// publish the user object to a particular team channel
 	publishUserToTeam (teamId, callback) {
 		let message = {
 			requestId: this.request.request.id,

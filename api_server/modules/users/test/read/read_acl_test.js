@@ -19,15 +19,17 @@ class ReadACLTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRepo,
-			this.createStream,
-			this.createPost
+			this.createOtherUser,	// create a second registered user
+			this.createRepo,		// have that user create a repo (and team)
+			this.createStream,		// have that user create a stream in the repo
+			this.createPost			// have that user create a post in the stream
 		], callback);
 	}
 
+	// create a second registered user
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -38,7 +40,10 @@ class ReadACLTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a repo (which creates a team)
 	createRepo (callback) {
+		// in creating the repo, we are omitting the "current" user, so they will
+		// have an ACL failure trying to set a "read" status for the stream
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -47,33 +52,35 @@ class ReadACLTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				token: this.otherUserData.accessToken
+				token: this.otherUserData.accessToken	// "other" user creates the repo/team
 			}
 		);
 	}
 
+	// create a file-type stream in the repo
 	createStream (callback) {
 		let streamOptions = {
 			type: 'file',
 			teamId: this.team._id,
 			repoId: this.repo._id,
-			token: this.otherUserData.accessToken
+			token: this.otherUserData.accessToken	// "other" user creates the stream
 		};
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
-				this.path = '/read/' + this.stream._id;
+				this.path = '/read/' + this.stream._id;	// we'll set this stream to "read" for the current user
 				callback();
 			},
 			streamOptions
 		);
 	}
 
+	// create a post in the stream we created
 	createPost (callback) {
 		let postOptions = {
 			streamId: this.stream._id,
-			token: this.otherUserData.accessToken
+			token: this.otherUserData.accessToken	// "other" user creates the post
 		};
 		this.postFactory.createRandomPost(
 			(error, response) => {

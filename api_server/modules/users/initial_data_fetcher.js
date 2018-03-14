@@ -1,3 +1,7 @@
+// handle fetching "initial data" for a given user ... the initial data is the data
+// we assume the client will need immediately upon login or confirmation, saving them
+// the trouble of fetching it immediately afterwards
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -9,18 +13,20 @@ class InitialDataFetcher  {
 		Object.assign(this, options);
 	}
 
+	// fetch the initial data needed
 	fetchInitialData (callback) {
 		this.initialData = {};
 		BoundAsync.series(this, [
-			this.getTeams,
-			this.sanitizeTeams,
-			this.getRepos,
-			this.sanitizeRepos
+			this.getTeams,			// get the teams they are a member of
+			this.sanitizeTeams,		// sanitize for return to the client
+			this.getRepos,			// get the repos owned by their teams
+			this.sanitizeRepos		// sanitize for return to the client
 		], error => {
 			callback(error, this.initialData);
 		});
 	}
 
+	// get the teams the user is a member of
 	getTeams (callback) {
 		let teamIds = this.request.user.get('teamIds') || [];
 		if (teamIds.length === 0) {
@@ -37,6 +43,7 @@ class InitialDataFetcher  {
 		);
 	}
 
+	// sanitize the teams for return to the client (no attributes clients shouldn't see)
 	sanitizeTeams (callback) {
 		this.request.sanitizeModels(
 			this.teams,
@@ -48,6 +55,7 @@ class InitialDataFetcher  {
 		);
 	}
 
+	// get the repos owned by the teams the user is a member of
 	getRepos (callback) {
 		let teamIds = this.request.user.get('teamIds') || [];
 		if (teamIds.length === 0) {
@@ -72,6 +80,7 @@ class InitialDataFetcher  {
 		);
 	}
 
+	// sanitize the repos for return to the client (no attributes clients shouldn't see)
 	sanitizeRepos (callback) {
 		this.request.sanitizeModels(
 			this.repos,

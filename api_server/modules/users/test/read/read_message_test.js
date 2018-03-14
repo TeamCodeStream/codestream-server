@@ -9,17 +9,19 @@ class ReadMessageTest extends CodeStreamMessageTest {
 		return 'the user should receive a message on their me-channel when they indicate they have read all messages in a stream';
 	}
 
+	// make the data we need to perform the test...
 	makeData (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRepo,
-			this.createStream,
-			this.createOtherStream,
-			this.createPost,
-			this.createOtherPost
+			this.createOtherUser,		// create a second registered user
+			this.createRepo,			// create a repo (and team)
+			this.createStream,			// create a stream in the repo
+			this.createOtherStream,		// create a second stream in the repo (control stream)
+			this.createPost,			// create a post in the first stream
+			this.createOtherPost		// create a post in the second stream
 		], callback);
 	}
 
+	// create a second registered user
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -30,6 +32,7 @@ class ReadMessageTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a repo and team
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -39,18 +42,19 @@ class ReadMessageTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				withEmails: [this.currentUser.email],
-				token: this.otherUserData.accessToken
+				withEmails: [this.currentUser.email],	// include the "current" user
+				token: this.otherUserData.accessToken	// "other" user creates the repo/team
 			}
 		);
 	}
 
+	// create a file-type stream in the repo
 	createStream (callback) {
 		let streamOptions = {
 			type: 'file',
 			teamId: this.team._id,
 			repoId: this.repo._id,
-			token: this.otherUserData.accessToken
+			token: this.otherUserData.accessToken	// "other" user creates the stream
 		};
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -62,12 +66,13 @@ class ReadMessageTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a second file-type stream in the repo
 	createOtherStream (callback) {
 		let streamOptions = {
 			type: 'file',
 			teamId: this.team._id,
 			repoId: this.repo._id,
-			token: this.otherUserData.accessToken
+			token: this.otherUserData.accessToken	// "other" user creates the stream
 		};
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -79,10 +84,11 @@ class ReadMessageTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a post in the stream
 	createPost (callback) {
 		let postOptions = {
 			streamId: this.stream._id,
-			token: this.otherUserData.accessToken
+			token: this.otherUserData.accessToken	// "other" user is the author of the post
 		};
 		this.postFactory.createRandomPost(
 			(error, response) => {
@@ -94,10 +100,11 @@ class ReadMessageTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a post in the second stream
 	createOtherPost (callback) {
 		let postOptions = {
-			streamId: this.otherStream._id,
-			token: this.otherUserData.accessToken
+			streamId: this.otherStream._id,			// "second" stream
+			token: this.otherUserData.accessToken	// "other" user is the author of the post
 		};
 		this.postFactory.createRandomPost(
 			(error, response) => {
@@ -109,12 +116,16 @@ class ReadMessageTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
+		// should come back through the user's me-channel
 		this.channelName = 'user-' + this.currentUser._id;
 		callback();
 	}
 
+	// issue the api request that triggers the message
 	generateMessage (callback) {
+		// indicate we have "read" the first stream
 		this.doApiRequest(
 			{
 				method: 'put',
@@ -123,6 +134,7 @@ class ReadMessageTest extends CodeStreamMessageTest {
 			},
 			error => {
 				if (error) { return callback(error); }
+				// we expect a message the unset the lastReads value for this stream
 				this.message = {
 					user: {
 						_id: this.currentUser._id,

@@ -22,7 +22,9 @@ class InvalidOpTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs
 	before (callback) {
+		// this op is invalid because it acts on the same preference
 		this.data = {
 			$set: { a: 1 },
 			$unset: { a: 1 }

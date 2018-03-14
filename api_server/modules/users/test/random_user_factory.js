@@ -1,3 +1,5 @@
+// provide a factory for creating random users, for testing purposes
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -5,12 +7,14 @@ var RandomString = require('randomstring');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 //const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
 
+// utility class to actually handle the registration and confirmation as needed
 class _UserCreator {
 
 	constructor (factory) {
 		this.factory = factory;
 	}
 
+	// create a registered and confirmed user
 	createUser (data, callback) {
 		this.data = data;
 		BoundAsync.series(this, [
@@ -27,6 +31,7 @@ class _UserCreator {
 		});
 	}
 
+	// register a user by issuing a POST /no-auth/register request
 	_registerUser (callback) {
 //		let dataWithBetaCode = Object.assign({}, this.data, { betaCode: ApiConfig.testBetaCode });
 		this.factory.apiRequester.doApiRequest(
@@ -43,11 +48,13 @@ class _UserCreator {
 		);
 	}
 
+	// register a user with the given data
 	registerUser (data, callback) {
 		this.data = data;
 		this._registerUser(callback);
 	}
 
+	// confirm a user registration by issuing a POST /no-auth/confirm request
 	_confirmUser (callback) {
 		let data = {
 			userId: this.user._id,
@@ -69,6 +76,7 @@ class _UserCreator {
 		);
 	}
 
+	// confirm registration for a given user
 	confirmUser (user, callback) {
 		this.user = user;
 		this._confirmUser(callback);
@@ -81,11 +89,13 @@ class RandomUserFactory {
 		Object.assign(this, options);
 	}
 
+	// generate a random email
 	randomEmail (options = {}) {
 		const domain = options.wantWebmail ? 'gmail' : RandomString.generate(12);
 		return `somebody.${RandomString.generate(12)}@${domain}.com`;
 	}
 
+	// generate random data for a user with a first and last name
 	randomNamedUser () {
 		return {
 			email: this.randomEmail(),
@@ -94,6 +104,7 @@ class RandomUserFactory {
 		};
 	}
 
+	// get some random data to use for creating a user, with options specified
 	getRandomUserData (options = {}) {
 		let email = this.randomEmail(options);
 		let secondaryEmails = [
@@ -102,8 +113,8 @@ class RandomUserFactory {
 		];
 		let firstName = RandomString.generate(10);
 		let lastName = RandomString.generate(10);
-		let _confirmationCheat = SecretsConfig.confirmationCheat;
-		let _forceConfirmation = 1;
+		let _confirmationCheat = SecretsConfig.confirmationCheat;	// have the server give us the confirmation code, avoiding email
+		let _forceConfirmation = 1;									// force confirmation, even if environment settings have it turned off
 		let data = { email, secondaryEmails, firstName, lastName, _confirmationCheat, _forceConfirmation };
 		if (options.timeout) {
 			data.timeout = options.timeout;
@@ -121,29 +132,36 @@ class RandomUserFactory {
 		return data;
 	}
 
+	// create a registered and confirmed user, given user data
 	createUser (data, callback) {
 		new _UserCreator(this).createUser(data, callback);
 	}
 
+	// create a random user, generating random data with options specified
 	createRandomUser (callback, options = {}) {
 		let data = this.getRandomUserData(options);
 		if (options.noConfirm) {
+			// only register, no confirm
 			new _UserCreator(this).registerUser(data, callback);
 		}
 		else {
+			// make them fully confirmed
 			new _UserCreator(this).createUser(data, callback);
 		}
 	}
 
+	// create a random user who is not yet confirmed
 	registerRandomUser (callback, options = {}) {
 		let data = this.getRandomUserData(options);
 		new _UserCreator(this).registerUser(data, callback);
 	}
 
+	// create a single random user in a series
 	createRandomNthUser (n, callback, options = {}) {
 		this.createRandomUser(callback, options);
 	}
 
+	// create several random users
 	createRandomUsers (howmany, callback, options = {}) {
 		BoundAsync.times(
 			this,
@@ -155,10 +173,12 @@ class RandomUserFactory {
 		);
 	}
 
+	// register the user given some user data
 	registerUser (user, callback) {
 		new _UserCreator(this).registerUser(user, callback);
 	}
 
+	// confirm registration of a user given some user data
 	confirmUser (user, callback) {
 		new _UserCreator(this).confirmUser(user, callback);
 	}

@@ -1,3 +1,6 @@
+// handles unit tests related to the "PUT /preferences" request for
+// setting user preferences
+
 'use strict';
 
 var PutPreferencesTest = require('./put_preferences_test');

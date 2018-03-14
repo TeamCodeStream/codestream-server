@@ -23,7 +23,9 @@ class InvalidParameterTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// the value of $set must be an object
 		this.data = {
 			$set: 'x'
 		};

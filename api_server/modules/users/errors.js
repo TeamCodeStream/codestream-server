@@ -1,3 +1,5 @@
+// Errors related to the users module
+
 'use strict';
 
 const ERRORS = {

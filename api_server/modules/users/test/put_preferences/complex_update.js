@@ -1,7 +1,13 @@
+// provide some "complex" data for "PUT /preferences" request testing
+
 'use strict';
 
 module.exports = {
 
+	// these constants are inter-dependent, consider the impact if you alter
+	// one of these constants on the others
+	
+	// set these preferences initially
 	INITIAL_PREFERENCES: {
 		A: 1,
 		B: {
@@ -29,6 +35,7 @@ module.exports = {
 		}
 	},
 
+	// apply this op to update the preferences
 	UPDATE_OP: {
 		$set: {
 			A: 2,
@@ -60,6 +67,7 @@ module.exports = {
 		I: 'i'
 	},
 
+	// after applying the update, we expect to see these preferences
 	EXPECTED_PREFERENCES: {
 		A: 2,
 		B: {
@@ -90,6 +98,8 @@ module.exports = {
 		I: 'i'
 	},
 
+	// after applying the op, we expect to see a pubnub message with this op to
+	// apply on the client
 	EXPECTED_OP: {
 		$set: {
 			'preferences.A': 2,
@@ -101,7 +111,7 @@ module.exports = {
 			'preferences.G.G2': 'g2',
 			'preferences.G.G3.G32': 'gthreetwo',
 			'preferences.G.G3.G33': 'G33',
-			'preferences.I': 'i' 
+			'preferences.I': 'i'
 		},
 		$unset: {
 			'preferences.D.D1.D12': true,

@@ -1,3 +1,5 @@
+// handle "POST /no-auth/confirm" request to confirm registration for a user
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -25,21 +27,23 @@ class ConfirmRequest extends RestfulRequest {
 		return callback(false);
 	}
 
+	// process the request...
 	process (callback) {
 		BoundAsync.series(this, [
-			this.requireAndAllow,
-			this.getUser,
-			this.checkAttributes,
-			this.verifyCode,
-			this.hashPassword,
-			this.checkUsernameUnique,
-			this.generateToken,
-			this.updateUser,
-			this.grantSubscriptionPermissions,
-			this.getInitialData,
-			this.formResponse
+			this.requireAndAllow,		// require parameters, and filter out unknown parameters
+			this.getUser,				// get the user indicated
+			this.checkAttributes,		// check the attributes provided in the request
+			this.verifyCode,			// verify the confirmation code is correct
+			this.hashPassword,			// hash the provided password, if given
+			this.checkUsernameUnique,	// check that the user's username will be unique for their team, as needed
+			this.generateToken,			// generate an access token for the user
+			this.updateUser,			// update the user's database record
+			this.grantSubscriptionPermissions,	// grant subscription permissions for the user to receive messages
+			this.getInitialData,		// get the "initial data" to return in the request response
+			this.formResponse			// form the request response to send back to the client
 		], error => {
 			if (error === true) {
+				// short-cut the series and return a failure response
 				this.failedConfirmation(callback);
 			}
 			else {
@@ -48,6 +52,7 @@ class ConfirmRequest extends RestfulRequest {
 		});
 	}
 
+	// require certain parameters, and discard unknown parameters
 	requireAndAllow (callback) {
 		this.requireAllowParameters(
 			'body',
@@ -63,6 +68,7 @@ class ConfirmRequest extends RestfulRequest {
 		);
 	}
 
+	// get the user, as given by the userId
 	getUser (callback) {
 		this.data.users.getById(
 			this.request.body.userId,
@@ -74,26 +80,35 @@ class ConfirmRequest extends RestfulRequest {
 		);
 	}
 
+	// check that the given attributes match the user
 	checkAttributes (callback) {
+		// can't confirm a deactivated account
 		if (!this.user || this.user.get('deactivated')) {
 			return callback(this.errorHandler.error('notFound', { info: 'userId' }));
 		}
+		// can't set a different email (though we tolerate case variance)
 		if (this.user.get('searchableEmail') !== this.request.body.email.toLowerCase()) {
 			return callback(this.errorHandler.error('emailMismatch'));
 		}
+		// can't confirm an already-confirmed user
 		if (this.user.get('isRegistered')) {
 			return callback(this.errorHandler.error('alreadyRegistered'));
 		}
+		// must provide a password for confirmation if we don't already have one
 		if (!this.user.get('passwordHash') && !this.request.body.password) {
 			return callback(this.errorHandler.error('parameterRequired', { info: 'password' }));
 		}
+		// must provide a username for confirmation if we don't already have one
 		if (!this.user.get('username') && !this.request.body.username) {
 			return callback(this.errorHandler.error('parameterRequired', { info: 'username' }));
 		}
 		process.nextTick(callback);
 	}
 
+	// verify the confirmation code given in the request against the one that was generated
 	verifyCode (callback) {
+		// we give the user 3 attempts to enter a confirmation code, after that, they'll
+		// have to get a new confirmation email sent to them
 		let confirmFailed = false;
 		if (this.request.body.confirmationCode !== this.user.get('confirmationCode')) {
 			confirmFailed = true;
@@ -108,6 +123,7 @@ class ConfirmRequest extends RestfulRequest {
 		callback(confirmFailed);	// if true, shortcuts and prepares for failure response
 	}
 
+	// hash the given password, as needed
 	hashPassword (callback) {
 		if (!this.request.body.password) { return callback(); }
 		new PasswordHasher({
@@ -121,6 +137,7 @@ class ConfirmRequest extends RestfulRequest {
 		});
 	}
 
+	// check that the user's username will be unique for the team(s) they are on
 	checkUsernameUnique (callback) {
 		if ((this.user.get('teamIds') || []).length === 0) {
 			return callback();
@@ -129,6 +146,7 @@ class ConfirmRequest extends RestfulRequest {
 		if (!username) {
 			return callback();
 		}
+		// we check against each team the user is on, it must be unique in all teams
 		let teamIds = this.user.get('teamIds');
 		let usernameChecker = new UsernameChecker({
 			data: this.data,
@@ -152,6 +170,8 @@ class ConfirmRequest extends RestfulRequest {
 		});
 	}
 
+	// confirmation successful, now generate an access token for the user to use
+	// for all future requests
 	generateToken (callback) {
 		Tokenizer(
 			this.user.attributes,
@@ -166,6 +186,7 @@ class ConfirmRequest extends RestfulRequest {
 		);
 	}
 
+	// update the user in the database, indicating they are confirmed
 	updateUser (callback) {
 		const now = Date.now();
 		let op = {
@@ -188,7 +209,7 @@ class ConfirmRequest extends RestfulRequest {
 			op.$set.username = this.request.body.username;
 		}
 		if ((this.user.get('teamIds') || []).length > 0 && !this.user.get('joinMethod')) {
-			op.$set.joinMethod = 'Added to Team';
+			op.$set.joinMethod = 'Added to Team';	// for tracking
 		}
 		this.data.users.applyOpById(
 			this.user.id,
@@ -201,6 +222,7 @@ class ConfirmRequest extends RestfulRequest {
 		);
 	}
 
+	// grant the user permission to subscribe to various messager channels
 	grantSubscriptionPermissions (callback) {
 		// note - it is tough to determine whether this should go before or after the response ... with users in a lot
 		// of streams, there could be a performance hit here, but do we want to take a performance hit or do we want
@@ -219,6 +241,8 @@ class ConfirmRequest extends RestfulRequest {
 		});
 	}
 
+	// get the initial data to return in the response, this is a time-saver for the client
+	// so it doesn't have to fetch this data with separate requests
 	getInitialData (callback) {
 		new InitialDataFetcher({
 			request: this
@@ -229,16 +253,19 @@ class ConfirmRequest extends RestfulRequest {
 		});
 	}
 
+	// form the response to the request
 	formResponse (callback) {
 		this.responseData = {
-			user: this.user.getSanitizedObjectForMe(),
-			accessToken: this.accessToken,
-			pubnubKey: this.api.config.pubnub.subscribeKey
+			user: this.user.getSanitizedObjectForMe(),	// include me-only attributes
+			accessToken: this.accessToken,				// access token to supply in future requests
+			pubnubKey: this.api.config.pubnub.subscribeKey	// give them the subscribe key for pubnub
 		};
 		Object.assign(this.responseData, this.initialData);
 		return process.nextTick(callback);
 	}
 
+	// user failed confirmation for whatever reason, we'll do a database update
+	// and return the appropriate error in the response
 	failedConfirmation (callback) {
 		this.updateUserConfirmationFailed(error => {
 			if (error) { return callback(error); }
@@ -254,6 +281,7 @@ class ConfirmRequest extends RestfulRequest {
 		});
 	}
 
+	// update the user's record in the database indicating a confirmation failure
 	updateUserConfirmationFailed (callback) {
 		let set = {};
 		if (this.maxConfirmationAttempts || this.confirmationExpired) {
@@ -271,10 +299,14 @@ class ConfirmRequest extends RestfulRequest {
 		);
 	}
 
+	// after the request returns a response....
 	postProcess (callback) {
+		// publish the now-registered-and-confirmed user to all the team members
 		this.publishUserToTeams(callback);
 	}
 
+	// publish the now-registered-and-confirmed user to all the team members,
+	// over the team channel
 	publishUserToTeams (callback) {
 		new UserPublisher({
 			user: this.user,

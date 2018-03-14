@@ -8,7 +8,10 @@ class SetTest extends PutPreferencesTest {
 		return 'should set several simple preferences when requested via $set';
 	}
 
+	// make the data to use in the preferences update, and the data we expect to
+	// see when we verify
 	makePreferencesData () {
+		// set some simple preferences values
 		let set = {
 			preferenceOne: 1,
 			preferenceTwo: 'two',
@@ -23,6 +26,7 @@ class SetTest extends PutPreferencesTest {
 				}
 			}
 		};
+		// we expect to see what we set
 		this.expectPreferences = set;
 		return { $set: set };
 	}

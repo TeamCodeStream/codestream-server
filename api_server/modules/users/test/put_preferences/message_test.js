@@ -9,7 +9,9 @@ class MessageTest extends CodeStreamMessageTest {
 		return 'the user should receive a message on their me-channel when they update their preferences';
 	}
 
+	// make some test data before running the test
 	makeData (callback) {
+		// set some complex preferences data
 		let data = ComplexUpdate.INITIAL_PREFERENCES;
 		this.doApiRequest(
 			{
@@ -22,12 +24,17 @@ class MessageTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// set the channel name to listen on
 	setChannelName (callback) {
+		// preference changes come back to the user on their own me-channel
 		this.channelName = 'user-' + this.currentUser._id;
 		callback();
 	}
 
+	// do the request that triggers the message being sent
 	generateMessage (callback) {
+		// apply a complex update operation to the already "complex" preferences
+		// data, and confirm the appropriate complex op to apply at the client
 		let data = ComplexUpdate.UPDATE_OP;
 		this.doApiRequest(
 			{

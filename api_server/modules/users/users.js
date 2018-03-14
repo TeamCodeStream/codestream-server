@@ -1,3 +1,5 @@
+// provide a module to handle requests associated with users
+
 'use strict';
 
 var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
@@ -6,6 +8,7 @@ var UserUpdater = require('./user_updater');
 var User = require('./user');
 var FS = require('fs');
 
+// expose these restful routes
 const USERS_STANDARD_ROUTES = {
 	want: ['get', 'getMany', 'put'],
 	baseRouteName: 'users',
@@ -16,6 +19,7 @@ const USERS_STANDARD_ROUTES = {
 	}
 };
 
+// additional routes for this module
 const USERS_ADDITIONAL_ROUTES = [
 	{
 		method: 'post',
@@ -67,31 +71,34 @@ const USERS_ADDITIONAL_ROUTES = [
 class Users extends Restful {
 
 	get collectionName () {
-		return 'users';
+		return 'users';	// name of the data collection
 	}
 
 	get modelName () {
-		return 'user';
+		return 'user';	// name of the data model
 	}
 
 	get creatorClass () {
-		return UserCreator;
+		return UserCreator;	// use this class to instantiate users
 	}
 
 	get modelClass () {
-		return User;
+		return User;	// use this class for the data model
 	}
 
 	get updaterClass () {
-		return UserUpdater;
+		return UserUpdater;	// use this class to update users
 	}
 
+	// get all routes exposed by this module
 	getRoutes () {
 		let standardRoutes = super.getRoutes(USERS_STANDARD_ROUTES);
 		return [...standardRoutes, ...USERS_ADDITIONAL_ROUTES];
 	}
 
+	// initialize this module (after loading)
 	initialize (callback) {
+		// read in the list of beta codes allowed (this is deprecated and should be removed at some point)
 		FS.readFile(process.env.CS_API_TOP + '/etc/beta_codes.txt', 'utf8', (error, data) => {
 			if (error) { return callback(error); }
 			this.betaCodes = data.split('\n');

@@ -1,10 +1,15 @@
+// handle the "PUT /read/:streamId" request to indicate the user is "caught up"
+// on reading the posts in a particular stream
+
 'use strict';
 
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 
 class ReadRequest extends RestfulRequest {
 
+	// authorize the request before processing....
 	authorize (callback) {
+		// they must have access to the stream, unless "all" is specified
 		let streamId = this.request.params.streamId.toLowerCase();
 		if (streamId === 'all') {
 			// all doesn't need authorization, it applies only to the current user
@@ -23,7 +28,10 @@ class ReadRequest extends RestfulRequest {
 		);
 	}
 
+	// process the request...
 	process (callback) {
+		// unset the lastReads value for the given stream, or simply remove the lastReads
+		// value completely if "all" specified
 		this.streamId = this.request.params.streamId.toLowerCase();
 		if (this.streamId === 'all') {
 			this.op = {
@@ -46,7 +54,10 @@ class ReadRequest extends RestfulRequest {
 		);
 	}
 
+	// after the response is returned....
 	postProcess (callback) {
+		// send the preferences update on the user's me-channel, so other active
+		// sessions get the message
 		let channel = 'user-' + this.user.id;
 		let message = {
 			user: {

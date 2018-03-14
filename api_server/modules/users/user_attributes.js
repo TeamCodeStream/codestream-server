@@ -1,3 +1,5 @@
+// attributes for user documents/models
+
 'use strict';
 
 module.exports = {

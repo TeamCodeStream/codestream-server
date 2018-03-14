@@ -1,3 +1,5 @@
+// handle unit tests for the "PUT /no-auth/login" request
+
 'use strict';
 
 var LoginTest = require('./login_test');

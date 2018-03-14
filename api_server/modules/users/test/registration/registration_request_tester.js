@@ -1,3 +1,4 @@
+// handle unit tests for the "POST /no-auth/register" request to register a user
 'use strict';
 
 var RegistrationTest = require('./registration_test');

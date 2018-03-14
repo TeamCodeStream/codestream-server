@@ -1,4 +1,4 @@
-// base class for many tests of the "PUT /posts" requests
+// base class for many tests of the "PUT /users" requests
 
 'use strict';
 

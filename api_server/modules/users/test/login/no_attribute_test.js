@@ -19,7 +19,9 @@ class NoAttributeTest extends LoginTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// remove the given attribute
 		super.before(() => {
 			delete this.data[this.attribute];
 			callback();

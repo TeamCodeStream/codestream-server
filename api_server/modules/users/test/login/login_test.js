@@ -1,3 +1,5 @@
+// provide basic test class for login request tests
+
 'use strict';
 
 var Assert = require('assert');
@@ -23,10 +25,13 @@ class LoginTest extends CodeStreamAPITest {
 	}
 
 	dontWantToken () {
-		return true;
+		return true;	// don't need an access token for this request
 	}
 
+	// before the test runs...
 	before (callback) {
+		// create a random registered user, then prepare to submit the login request
+		// with the user's email and password
 		this.userData = this.userFactory.getRandomUserData();
 		this.userFactory.createUser(this.userData, (error, userData) => {
 			if (error) { return callback(error); }
@@ -39,7 +44,9 @@ class LoginTest extends CodeStreamAPITest {
 		});
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// validate we get back the expected user, an access token, and a pubnub subscription key
 		Assert(data.user.email === this.data.email, 'email doesn\'t match');
 		Assert(data.accessToken, 'no access token');
 		Assert(data.pubnubKey, 'no pubnub key');

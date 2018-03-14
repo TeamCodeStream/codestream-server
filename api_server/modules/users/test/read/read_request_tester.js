@@ -1,3 +1,6 @@
+// handle unit tests for the "PUT /read/:streamId" request, indicating a user
+// is "caught up" reading the messages in a stream
+
 'use strict';
 
 var ReadTest = require('./read_test');
