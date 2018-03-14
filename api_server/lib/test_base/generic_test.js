@@ -164,9 +164,8 @@ class GenericTest {
 	debug (message) {
 		const now = Date.now();
 		const ms = now % 1000;
-		console.warn(`${this.testNum}: ${new Date(now).toString()}.${ms}: ${message}`);
+		console.log(`${this.testNum}: ${new Date(now).toString()}.${ms}: ${message}`);
 	}
-
 }
 
 module.exports = GenericTest;

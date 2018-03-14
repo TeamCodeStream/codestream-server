@@ -6,11 +6,6 @@ var CommonInit = require('./common_init');
 
 class InboundEmailMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
-	constructor (options) {
-		super(options);
-		this.dontNeedServer = true;	// we don't need a pubnub server since we're not sending any actual messages
-	}
-
 	get description () {
 		return 'should create and publish a post when an inbound email call is made';
 	}

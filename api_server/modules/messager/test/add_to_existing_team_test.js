@@ -5,6 +5,11 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class AddToExistingTeamTest extends CodeStreamMessageTest {
 
+	constructor (options) {
+		super(options);
+		this.wantServer = true;	// want a simulated server to send a message
+	}
+
 	get description () {
 		return 'should be able to subscribe to and receive a message from the team channel when i am added to an existing team';
 	}

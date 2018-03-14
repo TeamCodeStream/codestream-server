@@ -104,5 +104,9 @@ module.exports = {
 	sessions: {
 		type: 'object',
 		serverOnly: true
+	},
+	_pubnubUuid: {
+		type: 'string',
+		maxLength: 14
 	}
 };

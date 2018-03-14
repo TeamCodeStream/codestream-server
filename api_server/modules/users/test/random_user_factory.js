@@ -83,6 +83,12 @@ class _UserCreator {
 	}
 }
 
+// We use a pool of UUIDs for interacting with PubNub during unit testing ...
+// this is to avoid using the actual IDs of the users we are creating, which would
+// mean a new UUID for every created user, every time ... since we are billed per
+// user, that would be bad...
+let _NextPubnubUuid = 0;
+
 class RandomUserFactory {
 
 	constructor (options) {
@@ -129,6 +135,8 @@ class RandomUserFactory {
 			data.username = RandomString.generate(12);
 		}
 		Object.assign(data, options.with || {});
+		_NextPubnubUuid = (_NextPubnubUuid + 1) % 100;
+		data._pubnubUuid = `TEST-UUID-${_NextPubnubUuid}`;
 		return data;
 	}
 

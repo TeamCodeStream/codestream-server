@@ -9,11 +9,6 @@ const Slack = require(process.env.CS_API_TOP + '/config/slack');
 
 class SlackOutTest extends CodeStreamMessageTest {
 
-	constructor (options) {
-		super(options);
-		this.dontNeedServer = true;	// we don't need a pubnub server since we're not sending any actual messages
-	}
-
 	get description () {
 		return 'when a team has slack integration enabled, a new post in a stream owned by that team should send a message to the slack bot';
 	}

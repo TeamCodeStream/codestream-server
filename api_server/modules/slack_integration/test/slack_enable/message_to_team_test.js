@@ -7,11 +7,6 @@ const Assert = require('assert');
 
 class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
-	constructor (options) {
-		super(options);
-		this.dontNeedServer = true;
-	}
-
 	get description () {
 		return 'members of the team should receive a message when slack integration is enabled for the team';
 	}

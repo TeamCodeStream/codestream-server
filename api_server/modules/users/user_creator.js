@@ -39,7 +39,7 @@ class UserCreator extends ModelCreator {
 				string: ['email']
 			},
 			optional: {
-				string: ['password', 'username', 'firstName', 'lastName', 'confirmationCode'],
+				string: ['password', 'username', 'firstName', 'lastName', 'confirmationCode', '_pubnubUuid'],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt'],
 				boolean: ['isRegistered'],
 				'array(string)': ['secondaryEmails'],
@@ -106,6 +106,9 @@ class UserCreator extends ModelCreator {
 	preSave (callback) {
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
+		}
+		if (this.attributes._pubnubUuid) {
+			this.request.log(`Pubnub uuid of ${this.attributes._pubnubUuid} provided`);
 		}
 		BoundAsync.series(this, [
 			this.hashPassword,			// hash the user's password, if given
