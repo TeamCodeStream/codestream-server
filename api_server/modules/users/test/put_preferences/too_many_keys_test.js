@@ -23,7 +23,10 @@ class TooManyKeysTest extends CodeStreamAPITest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// establish preferences data that exceeds the limit of how many keys
+		// we can provide at one time in an update
 		this.data = {};
 		for (let i = 0; i < 10; i++) {
 			this.data[i] = {};

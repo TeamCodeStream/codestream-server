@@ -1,3 +1,5 @@
+// handle updating or retrieving session data for a particular user
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');

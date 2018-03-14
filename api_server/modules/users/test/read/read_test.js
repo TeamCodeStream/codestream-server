@@ -21,23 +21,26 @@ class ReadTest extends CodeStreamAPITest {
 	}
 
 	getExpectedFields () {
+		// we expect to see the usual fields for a user, plus fields only the user themselves should see
 		let userResponse = {};
 		userResponse.user = [...UserTestConstants.EXPECTED_USER_FIELDS, ...UserTestConstants.EXPECTED_ME_FIELDS];
 		return userResponse;
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRepo,
-			this.createStream,
-			this.createOtherStream,
-			this.createPost,
-			this.createOtherPost,
-			this.markRead
+			this.createOtherUser,		// create a second registered user
+			this.createRepo,			// create a repo and team
+			this.createStream,			// create a stream in the repo
+			this.createOtherStream,		// create a second stream (control stream) in the repo
+			this.createPost,			// create a post in the first stream
+			this.createOtherPost,		// create a post in the second stream
+			this.markRead				// mark the first stream as "read"
 		], callback);
 	}
 
+	// create a second registered user
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -48,6 +51,7 @@ class ReadTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a repo (and team)
 	createRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
@@ -57,18 +61,19 @@ class ReadTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				withEmails: [this.currentUser.email],
-				token: this.otherUserData.accessToken
+				withEmails: [this.currentUser.email],		// include the "current" user
+				token: this.otherUserData.accessToken		// "other" user creates the repo/team
 			}
 		);
 	}
 
+	// create a file-type stream in the repo
 	createStream (callback) {
 		let streamOptions = {
 			type: 'file',
 			teamId: this.team._id,
 			repoId: this.repo._id,
-			token: this.otherUserData.accessToken
+			token: this.otherUserData.accessToken	// "other" user creates the stream
 		};
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -80,12 +85,13 @@ class ReadTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a second file-type stream
 	createOtherStream (callback) {
 		let streamOptions = {
 			type: 'file',
 			teamId: this.team._id,
 			repoId: this.repo._id,
-			token: this.otherUserData.accessToken
+			token: this.otherUserData.accessToken	// "other" user creates the stream
 		};
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -97,10 +103,11 @@ class ReadTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a post in the first stream
 	createPost (callback) {
 		let postOptions = {
 			streamId: this.stream._id,
-			token: this.otherUserData.accessToken
+			token: this.otherUserData.accessToken	// "other" user is the author of the post
 		};
 		this.postFactory.createRandomPost(
 			(error, response) => {
@@ -112,10 +119,11 @@ class ReadTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a post in the second stream
 	createOtherPost (callback) {
 		let postOptions = {
 			streamId: this.otherStream._id,
-			token: this.otherUserData.accessToken
+			token: this.otherUserData.accessToken	// "other" user is the author of the post
 		};
 		this.postFactory.createRandomPost(
 			(error, response) => {
@@ -127,6 +135,7 @@ class ReadTest extends CodeStreamAPITest {
 		);
 	}
 
+	// mark the first stream as read
 	markRead (callback) {
 		this.doApiRequest(
 			{
@@ -138,7 +147,10 @@ class ReadTest extends CodeStreamAPITest {
 		);
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// we expect to see a 0 for the stream we haven't read, but nothing for the
+		// stream we have read
 		let expectedLastReads = {
 			[this.otherStream._id]: '0'
 		};
@@ -146,7 +158,10 @@ class ReadTest extends CodeStreamAPITest {
 		this.validateSanitized(data.user);
 	}
 
+	// validate that the response has no attributes that should not be sent to clients
 	validateSanitized (user, fields) {
+		// the base-clase validation doesn't know to avoid looking for me-only attributes,
+		// so remove those from the fields we'll be checking against
 		fields = fields || UserTestConstants.UNSANITIZED_ATTRIBUTES;
 		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
 		meAttributes.forEach(attribute => {

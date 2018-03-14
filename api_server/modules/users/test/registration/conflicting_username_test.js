@@ -25,16 +25,18 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 	}
 
 	dontWantToken () {
-		return true;
+		return true;	// we don't want a registered user for this test
 	}
 
+	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createRepo
+			this.createOtherUser,	// create a second registered user
+			this.createRepo			// create a repo (and team)
 		], callback);
 	}
 
+	// create a second registered user
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser(
 			(error, response) => {
@@ -45,14 +47,19 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 		);
 	}
 
+	// create a repo and team
 	createRepo (callback) {
+		// in creating the team, we'll add an (unregistered) user first, then
+		// try to register that user using the username of the user who created
+		// the team, leading to a conflict
 		let email = this.userFactory.randomEmail();
 		this.repoFactory.createRandomRepo(
 			error => {
 				if (error) { return callback(error); }
+				// establish
 				this.data = {
 					email: email,
-					username: this.otherUserData.user.username,
+					username: this.otherUserData.user.username,	// borrow the 'other' user's username
 					password: 'blahblahblah',
 //					betaCode: ApiConfig.testBetaCode	// overrides needing a true beta code
 				};

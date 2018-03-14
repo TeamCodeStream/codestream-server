@@ -1,3 +1,5 @@
+// handle the "PUT /preferences" request to update the user's preferences object
+
 'use strict';
 
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
@@ -7,10 +9,13 @@ const MAX_KEYS = 100;
 class PutPreferencesRequest extends RestfulRequest {
 
 	authorize (callback) {
+		// only applies to current user, no authorization required
 		return callback();
 	}
 
+	// process the request...
 	process (callback) {
+		// determine the update op based on the request body, and apply it if valid
 		this.totalKeys = 0;
 		this.op = this.opFromBody();
 		if (typeof this.op === 'string') {
@@ -23,7 +28,10 @@ class PutPreferencesRequest extends RestfulRequest {
 		);
 	}
 
+	// after the response is returned....
 	postProcess (callback) {
+		// send the message to the user's me-channel, so other sessions know that the
+		// preferences have been updated
 		let channel = 'user-' + this.user.id;
 		let message = {
 			user: {
@@ -48,7 +56,10 @@ class PutPreferencesRequest extends RestfulRequest {
 
 	}
 
+	// extract the database op to perform based on the passed body
 	opFromBody () {
+		// the body can be a multi-level json object, but we'll update the database
+		// using mongo's dot-notation
 		let op = {};
 		let root = 'preferences.';
 		for (let key in this.request.body) {
@@ -60,19 +71,26 @@ class PutPreferencesRequest extends RestfulRequest {
 		return op;
 	}
 
+	// handle the top-level key in the preferences object (request body)
 	_handleTopLevelKey (key, op, root) {
 		this.totalKeys++;
 		if (this.totalKeys === MAX_KEYS) {
+			// we have a limit on the number of keys that can be updated in one
+			// request, just as a safeguard
 			return 'too many keys';
 		}
 		if (key.startsWith('$')) {
+			// a command directive like $set or $unset
 			return this._handleDirective(key, op, root);
 		}
 		else {
+			// an ordinary "set"
 			return this._handleNonDirective(key, op, root);
 		}
 	}
 
+	// handle a directive encountered in the request body, translating it into
+	// the op to pass in the database update operation
 	_handleDirective (key, op, root) {
 		let value = this.request.body[key];
 		if (typeof value !== 'object') {
@@ -83,6 +101,8 @@ class PutPreferencesRequest extends RestfulRequest {
 		Object.assign(op[key], subOp);
 	}
 
+	// handle a normal field value encountered, and translate into the op
+	// to pass in the database update operation
 	_handleNonDirective (key, op, root) {
 		op.$set = op.$set || {};
 		let subRoot = `${root}${key}.`;
@@ -100,12 +120,16 @@ class PutPreferencesRequest extends RestfulRequest {
 		}
 	}
 
+	// given an update object with nested levels, translate into an update operation
+	// using mongo's dot notation to separate keys from sub-keys
 	_flattenOp (value, root) {
 		let op = {};
 		for (let key in value) {
 			if (value.hasOwnProperty(key)) {
 				this.totalKeys++;
 				if (this.totalKeys === MAX_KEYS) {
+					// we have a limit on the number of keys that can be updated in one
+					// request, just as a safeguard
 					return 'too many keys';
 				}
 				let subValue = value[key];
@@ -125,7 +149,11 @@ class PutPreferencesRequest extends RestfulRequest {
 		return op;
 	}
 
+	// handle returning the response
 	handleResponse (callback) {
+		// we have a special case for an error writing to the database ... rather
+		// than return some vague internal error that we normally would on a database
+		// error, inform the client that the provided parameter was invalid 
 		if (
 			this.gotError &&
 			this.gotError.code === 'MDTA-1000' &&

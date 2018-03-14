@@ -1,3 +1,5 @@
+// master unit test runner for all modules
+
 'use strict';
 
 // make jshint happy

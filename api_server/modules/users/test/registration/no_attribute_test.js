@@ -19,7 +19,9 @@ class NoAttributeTest extends RegistrationTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// delete the attribute in question
 		super.before(() => {
 			delete this.data[this.attribute];
 			callback();

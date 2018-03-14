@@ -9,7 +9,9 @@ class ComplexUpdateTest extends PutPreferencesTest {
 		return 'should set and unset the correct properties when a complex preferences update is requested';
 	}
 
+	// pre-set the user preferences, which we'll update for the test
 	preSetPreferences (callback) {
+		// pre-set with some "complex" data
 		this.preSetData = ComplexUpdate.INITIAL_PREFERENCES;
 		this.putPreferences(this.preSetData, callback);
 	}

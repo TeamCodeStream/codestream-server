@@ -1,3 +1,5 @@
+// provides the User model for handling users
+
 'use strict';
 
 var CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
@@ -13,15 +15,18 @@ class User extends CodeStreamModel {
 		return new UserValidator();
 	}
 
+	// right before a user is saved...
 	preSave (callback, options) {
-		if (this.attributes.email) {
+		if (this.attributes.email) {	// searchable email is a lowercase form for case-insensitive matching
 			this.attributes.searchableEmail = this.attributes.email.toLowerCase();
 		}
+		// ensure all stored IDs are lowercase
 		this.lowerCase('teamIds');
 		this.lowerCase('companyIds');
 		super.preSave(callback, options);
 	}
 
+	// is the user a member of all of these companies?
 	hasCompanies (ids) {
 		return ArrayUtilities.hasAllElements(
 			this.get('companyIds') || [],
@@ -29,10 +34,12 @@ class User extends CodeStreamModel {
 		);
 	}
 
+	// is the user a member of the given company?
 	hasCompany (id) {
 		return (this.get('companyIds') || []).indexOf(id) !== -1;
 	}
 
+	// is the user a member of all these teams?
 	hasTeams (ids) {
 		return ArrayUtilities.hasAllElements(
 			this.get('teamIds') || [],
@@ -40,10 +47,12 @@ class User extends CodeStreamModel {
 		);
 	}
 
+	// is the user a member of the given team?
 	hasTeam (id) {
 		return (this.get('teamIds') || []).indexOf(id) !== -1;
 	}
 
+	// authorize the user to "access" the given model, based on type
 	authorizeModel (modelName, id, request, callback) {
 		switch (modelName) {
 			case 'company':
@@ -65,15 +74,19 @@ class User extends CodeStreamModel {
 		}
 	}
 
+	// authorize the user to "access" a company model, based on ID
 	authorizeCompany (id, request, callback) {
 		return callback(null, this.hasCompany(id));
 	}
 
+	// authorize the user to "access" a team model, based on ID
 	authorizeTeam (id, request, callback) {
 		return callback(null, this.hasTeam(id));
 	}
 
+	// authorize the user to "access" a repo model, based on ID
 	authorizeRepo (id, request, callback) {
+		// a repo is authorized if the user is a member of the team that owns it
 		request.data.repos.getById(
 			id,
 			(error, repo) => {
@@ -92,7 +105,11 @@ class User extends CodeStreamModel {
 		);
 	}
 
+	// authorize the user to "access" a stream model, based on ID
 	authorizeStream (id, request, callback) {
+		// a stream is authorized depending on its type ... for file-type streams,
+		// the user must be a member of the team that owns it ... for channel and
+		// direct streams, the user must be an explicit member of the stream
 		request.data.streams.getById(
 			id,
 			(error, stream) => {
@@ -117,7 +134,10 @@ class User extends CodeStreamModel {
 		);
 	}
 
+	// authorize the user to "access" a post model, based on ID
 	authorizePost (id, request, callback) {
+		// to access a post, the user must have access to the stream it belongs to
+		// (this is for read access)
 		request.data.posts.getById(
 			id,
 			(error, post) => {
@@ -136,7 +156,10 @@ class User extends CodeStreamModel {
 		);
 	}
 
+	// authorize the user to "access" a marker model, based on ID
 	authorizeMarker (id, request, callback) {
+		// to access a marker, the user must have access to the stream it belongs to
+		// (this is for read access)
 		request.data.markers.getById(
 			id,
 			(error, marker) => {
@@ -155,13 +178,16 @@ class User extends CodeStreamModel {
 		);
 	}
 
+	// authorize the user to "access" a user model, based on ID
 	authorizeUser (id, request, callback) {
+		// user can always access their own me-object
 		if (
 			id === request.user.id ||
 			id.toLowerCase() === 'me'
 		) {
 			return callback(null, request.user);
 		}
+		// users are authorized to access only other users on their teams
 		request.data.users.getById(
 			id,
 			(error, otherUser) => {
@@ -169,6 +195,8 @@ class User extends CodeStreamModel {
 				if (!otherUser) {
 					return callback(request.errorHandler.error('notFound', { info: 'user' }));
 				}
+				// the current user and the user they are trying to access must have
+				// at least one team in common
 				let authorized = ArrayUtilities.hasCommonElement(
 					request.user.get('teamIds') || [],
 					otherUser.get('teamIds') || []
@@ -231,6 +259,9 @@ class User extends CodeStreamModel {
 		});
 	}
 
+	// get the me-only attributes present in this user's attributes ... me-only attributes
+	// are attributes only the user those attributes belongs to can see ... other users
+	// can never see them
 	getMeOnlyAttributes () {
 		let meOnlyAttributes = {};
 		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
@@ -242,6 +273,8 @@ class User extends CodeStreamModel {
 		return meOnlyAttributes;
 	}
 
+	// determine if this user wants an email notification for a post in the given
+	// stream, which may depend on whether they are mentioned in the post
 	wantsEmail (stream, mentioned) {
 		// first, look for a general email preference of 'off'
 		let preferences = this.get('preferences') || {};
@@ -283,6 +316,9 @@ class User extends CodeStreamModel {
 		return true;
 	}
 
+	// get a sanitized me-object ... we normally "sanitize" server-only attributes
+	// out of an object, but for the user's own me-object, there are attributes that
+	// they are allowed to see, but no others 
 	getSanitizedObjectForMe () {
 		let meOnlyAttributes = this.getMeOnlyAttributes();
 		let sanitizedAttributes = this.getSanitizedObject();

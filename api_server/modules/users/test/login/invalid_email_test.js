@@ -19,7 +19,9 @@ class InvalidEmailTest extends LoginTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// replace the test email with something random...
 		super.before((error) => {
 			if (error) { return callback(error); }
 			this.data.email = this.userFactory.randomEmail();

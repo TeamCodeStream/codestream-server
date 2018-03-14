@@ -8,6 +8,7 @@ class UnsetSubkeyTest extends PutPreferencesTest {
 		return 'should unset several simple preferences when requested via $unset';
 	}
 
+	// pre-set some preferences
 	preSetPreferences (callback) {
 		this.preSetData = {
 			topLevelPreference: {
@@ -24,11 +25,16 @@ class UnsetSubkeyTest extends PutPreferencesTest {
 		this.putPreferences(this.preSetData, callback);
 	}
 
+	// make the data to use in the preferences update, and the data we expect to
+	// see when we verify
 	makePreferencesData () {
+		// establish the preferences we expect to see when we verify, in this
+		// case, we're unsetting a few subkeys of a preference
 		this.expectPreferences = this.preSetData;
 		delete this.expectPreferences.topLevelPreference.preferenceOne;
 		delete this.expectPreferences.topLevelPreference.preferenceThree;
 		delete this.expectPreferences.topLevelPreference.preferenceFive;
+		// return the actual preferences op that will be performed
 		return {
 			$unset: {
 				topLevelPreference: {

@@ -8,7 +8,11 @@ class SimpleUpdateTest extends PutPreferencesTest {
 		return 'should set several simple preferences when requested';
 	}
 
+	// make the data to use in the preferences update, and the data we expect to
+	// see when we verify
 	makePreferencesData () {
+		// the base class specifies the default update, 
+		// we expect to see what we set
 		this.expectPreferences = {
 			preferenceOne: 1,
 			preferenceTwo: 'two',

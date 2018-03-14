@@ -18,7 +18,9 @@ class InvalidPasswordTest extends LoginTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// alter the password to force a mismatch
 		super.before((error) => {
 			if (error) { return callback(error); }
 			this.data.password += 'x';

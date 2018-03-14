@@ -14,7 +14,9 @@ class InvalidBetaCodeTest extends RegistrationTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// supply an invalid beta code
 		super.before(() => {
 			this.data.betaCode = 'XXXXXX';
 			callback();

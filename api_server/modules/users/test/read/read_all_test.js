@@ -10,6 +10,8 @@ class ReadAllTest extends ReadTest {
 	}
 
 	getExpectedFields () {
+		// when fetching our me-object, since we're doing /read/all, that wipes the
+		// lastReads object, so we don't expect to see that field
 		let meFields = [...UserTestConstants.EXPECTED_ME_FIELDS];
 		let index = meFields.indexOf('lastReads');
 		if (index !== -1) {
@@ -20,6 +22,7 @@ class ReadAllTest extends ReadTest {
 		return userResponse;
 	}
 
+	// mark all streams as read
 	markRead (callback) {
 		this.doApiRequest(
 			{
@@ -31,7 +34,9 @@ class ReadAllTest extends ReadTest {
 		);
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// validate we don't see any attributes a client shouldn't see
 		this.validateSanitized(data.user);
 	}
 }

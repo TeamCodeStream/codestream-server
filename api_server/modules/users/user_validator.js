@@ -1,3 +1,5 @@
+// provide a validator for stream attributes
+
 'use strict';
 
 var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
@@ -11,6 +13,7 @@ class UserValidator extends CodeStreamModelValidator {
 		super(totalAttributeDefinitions);
 	}
 
+	// set validation function specific to user attributes
 	setValidationFunctions () {
 		super.setValidationFunctions();
 		Object.assign(this.validationFunctions, {
@@ -20,6 +23,7 @@ class UserValidator extends CodeStreamModelValidator {
 		});
 	}
 
+	// validate a user's email
 	validateEmail (value, definition/*, options*/) {
 		definition = definition || this.attributeDefinitions.email;
 		let error = EmailUtilities.parseEmail(value);
@@ -34,6 +38,7 @@ class UserValidator extends CodeStreamModelValidator {
 		}
 	}
 
+	// validate an array of emails
 	validateArrayOfEmails (value, definition/*, options*/) {
 		definition = definition || this.attributeDefinitions.emails;
 		if (!(value instanceof Array)) {
@@ -55,6 +60,7 @@ class UserValidator extends CodeStreamModelValidator {
 		}
 	}
 
+	// validate a user's username
 	validateUsername (value, definition/*, options*/) {
 		definition = definition || this.attributeDefinitions.username;
 		if (typeof value !== 'string' || value.length === 0) {
@@ -67,6 +73,7 @@ class UserValidator extends CodeStreamModelValidator {
 		}
 	}
 
+	// validate a password
 	validatePassword (value) {
 		if (typeof value !== 'string' || value.length < 6) {
 			return 'must be at least six characters';

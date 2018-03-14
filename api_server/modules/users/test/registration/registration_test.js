@@ -25,17 +25,22 @@ class RegistrationTest extends CodeStreamAPITest {
 	}
 
 	dontWantToken () {
-		return true;
+		return true;	// we don't need a registered user for this test, since the test is actually registering a user!
 	}
 
+	// before the test runs...
 	before (callback) {
+		// establish random user data for the registration, we cheat and fetch the
+		// confirmation code in the test so we don't have to get it from an email
 		this.data = this.userFactory.getRandomUserData();
 		this.data._confirmationCheat = SecretsConfig.confirmationCheat;
 //		this.data.betaCode = ApiConfig.testBetaCode;	// overrides needing a true beta code
 		callback();
 	}
 
+	// validate the response to the test request
 	validateResponse (data) {
+		// verify we got a valid user object back, with the attributes epected
 		let user = data.user;
 		let errors = [];
 		(user.secondaryEmails || []).sort();
@@ -54,6 +59,7 @@ class RegistrationTest extends CodeStreamAPITest {
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		delete user.confirmationCode; // this is technically unsanitized, but we "cheat" during the test
+		// verify we got no attributes that clients shouldn't see
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

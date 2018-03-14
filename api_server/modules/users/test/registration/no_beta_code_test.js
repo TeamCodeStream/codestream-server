@@ -15,7 +15,9 @@ class NoBetaCodeTest extends RegistrationTest {
 		};
 	}
 
+	// before the test runs...
 	before (callback) {
+		// delete the beta code
 		super.before(() => {
 			delete this.data.betaCode;
 			callback();

@@ -1,3 +1,6 @@
+// handle unit tests for the "PUT /presence" request for a user to announce 
+// their online/away status
+
 'use strict';
 
 const PresenceTest = require('./presence_test');

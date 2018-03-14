@@ -1,3 +1,6 @@
+// handle the "PUT /no-auth/login" request to log a user in, verifying password
+// and giving them an access token to use for future requests
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -16,20 +19,23 @@ class LoginRequest extends RestfulRequest {
 	}
 
 	authorize (callback) {
+		// no pre-authorization needed, authorization is done according to email and password
 		return callback(false);
 	}
 
+	// process the request....
 	process (callback) {
 		BoundAsync.series(this, [
-			this.requireAndAllow,
-			this.getUser,
-			this.validatePassword,
-			this.getInitialData,
-			this.grantSubscriptionPermissions,
-			this.formResponse
+			this.requireAndAllow,			// require certain parameters, and discard unknown parameters
+			this.getUser,					// get the user indicated by email in the request
+			this.validatePassword,			// validate the given password matches their password hash
+			this.getInitialData,			// fetch the initial data to return in the response
+			this.grantSubscriptionPermissions,	// grant the user permission to subscribe to various messager channels
+			this.formResponse				// form the response to the request
 		], callback);
 	}
 
+	// require these parameters, and discard any unknown parameters
 	requireAndAllow (callback) {
 		this.requireAllowParameters(
 			'body',
@@ -42,6 +48,7 @@ class LoginRequest extends RestfulRequest {
 		);
 	}
 
+	// get the user indicated by the passed email
 	getUser (callback) {
 		this.data.users.getOneByQuery(
 			{
@@ -63,6 +70,7 @@ class LoginRequest extends RestfulRequest {
 		);
 	}
 
+	// validate that the given password matches the password hash stored for the user
 	validatePassword (callback) {
 	 	BCrypt.compare(
 	 		this.request.body.password,
@@ -79,6 +87,8 @@ class LoginRequest extends RestfulRequest {
 	 	);
 	}
 
+	// get the initial data to return in the response, this is a time-saver for the client
+	// so it doesn't have to fetch this data with separate requests
 	getInitialData (callback) {
 		new InitialDataFetcher({
 			request: this
@@ -89,6 +99,7 @@ class LoginRequest extends RestfulRequest {
 		});
 	}
 
+	// grant the user permission to subscribe to various messager channels
 	grantSubscriptionPermissions (callback) {
 		// note - it is tough to determine whether this should go before or after the response ... with users in a lot
 		// of streams, there could be a performance hit here, but do we want to take a performance hit or do we want
@@ -107,11 +118,12 @@ class LoginRequest extends RestfulRequest {
 		});
 	}
 
+	// form the response to the request
 	formResponse (callback) {
 		this.responseData = {
-			user: this.user.getSanitizedObjectForMe(),
-			accessToken: this.user.get('accessToken'),
-			pubnubKey: this.api.config.pubnub.subscribeKey
+			user: this.user.getSanitizedObjectForMe(),	// include me-only attributes
+			accessToken: this.user.get('accessToken'),	// access token to supply in future requests
+			pubnubKey: this.api.config.pubnub.subscribeKey	// give them the subscribe key for pubnub
 		};
 		Object.assign(this.responseData, this.initialData);
 		return process.nextTick(callback);

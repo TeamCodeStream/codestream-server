@@ -1,3 +1,5 @@
+// handles hashing a user's password
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');

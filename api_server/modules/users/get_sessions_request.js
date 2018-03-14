@@ -1,3 +1,5 @@
+// handle the "GET /sessions" request to get a user's sessions
+
 'use strict';
 
 var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');

@@ -1,3 +1,5 @@
+// handle granting permission to a given user to subscribe to various messager channels
+
 'use strict';
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -10,21 +12,25 @@ class UserSubscriptionGranter  {
 		Object.assign(this, options);
 	}
 
+	// grant all permissions necessary
 	grantAll (callback) {
 		BoundAsync.series(this, [
-			this.grantUserChannel,
-			this.grantTeamChannels,
-			this.getRepos,
-			this.grantRepoChannels,
-			this.getStreams,
-			this.grantStreamChannels
+			this.grantUserChannel,	// their own me-channel
+			this.grantTeamChannels,	// team channel for teams they are a member of
+			this.getRepos,			// get the repos owned by those teams
+			this.grantRepoChannels,	// repo channel for each repo owned by the teams they are a member of
+			this.getStreams,		// get the streams from those teams/repos
+			this.grantStreamChannels	// stream channel for direct/channel streams they are a member of
 		], callback);
 	}
 
+	// grant permission for the user to subscribe to their own me-channel
 	grantUserChannel (callback) {
 		this.grantChannel('user-' + this.user.id, callback);
 	}
 
+	// grant permission for the user to subscribe to the team channel for teams
+	// they are a member of
 	grantTeamChannels (callback) {
 		BoundAsync.forEachLimit(
 			this,
@@ -35,10 +41,13 @@ class UserSubscriptionGranter  {
 		);
 	}
 
+	// grant permission for the user to subscribe to a given team channel
 	grantTeamChannel (teamId, callback) {
+		// note - team channels are presence aware
 		this.grantChannel('team-' + teamId, callback, { includePresence: true });
 	}
 
+	// get the repos owned by the teams the user is a member of
 	getRepos (callback) {
 		if ((this.user.get('teamIds') || []).length === 0) {
 			this.repos = [];
@@ -64,6 +73,8 @@ class UserSubscriptionGranter  {
 		);
 	}
 
+	// grant permission for the user to subscribe to the repo channel for repos
+	// owned by teams they are a member of
 	grantRepoChannels (callback) {
 		BoundAsync.forEachLimit(
 			this,
@@ -74,10 +85,15 @@ class UserSubscriptionGranter  {
 		);
 	}
 
+	// grant permission for the user to subscribe to a given repo channel
 	grantRepoChannel (repo, callback) {
+		// note - repo channels are presence aware
 		this.grantChannel('repo-' + repo._id, callback, { includePresence: true });
 	}
 
+	// get the streams owned by each team the user is a member of ... this is
+	// restricted to direct and channel streams, since file-type streams are
+	// public to the whole team and do not have their own channel
 	getStreams (callback) {
 		this.streams = [];
 		BoundAsync.forEachLimit(
@@ -89,10 +105,13 @@ class UserSubscriptionGranter  {
 		);
 	}
 
+	// get the streams owned by a given team ... this is restricted to direct
+	// and channel streams, since file-type streams are public to the whole team
+	// and do not have their own channel
 	getStreamsForTeam (teamId, callback) {
 		let query = {
 			teamId: teamId,
-			memberIds: this.user.id
+			memberIds: this.user.id	// current user must be a member
 		};
 		this.data.streams.getByQuery(
 			query,
@@ -111,6 +130,8 @@ class UserSubscriptionGranter  {
 		);
 	}
 
+	// grant permission for the user to subscribe to the stream channel for streams
+	// they are a member of
 	grantStreamChannels (callback) {
 		BoundAsync.forEachLimit(
 			this,
@@ -121,10 +142,12 @@ class UserSubscriptionGranter  {
 		);
 	}
 
+	// grant permission for the user to subscribe to a given stream channel
 	grantStreamChannel (stream, callback) {
 		this.grantChannel('stream-' + stream._id, callback);
 	}
 
+	// grant permission for the user to subscribe to a given channel
 	grantChannel (channel, callback, options = {}) {
 		this.messager.grant(
 			this.user.get('accessToken'),
