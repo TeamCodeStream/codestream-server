@@ -1,3 +1,5 @@
+// provides basic html escaping functionality
+
 'use strict';
 
 const ENTITY_MAP = {
@@ -12,7 +14,7 @@ const ENTITY_MAP = {
 };
 
 module.exports = {
-	
+
 	escapeHtml: function(text) {
 		return String(text).replace(/[&<>"'`=\/]/g, function (s) {
 			return ENTITY_MAP[s];
@@ -20,4 +22,3 @@ module.exports = {
 	}
 
 };
-
