@@ -191,6 +191,9 @@ class SlackPostRequest extends RestfulRequest {
 			if (!this.userCreator.existingModel || this.addedToTeam) {
 				this.responseData.users = [this.userCreator.model.getSanitizedObject()];
 			}
+			this.responseData.parentPost = this.parentPost.getSanitizedObject();
+			this.responseData.repo = this.repo.getSanitizedObject();
+			this.responseData.stream = this.stream.getSanitizedObject();
 			callback();
 		});
 	}

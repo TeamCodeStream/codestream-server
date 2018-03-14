@@ -5,6 +5,8 @@ var CommonInit = require('./common_init');
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 var Assert = require('assert');
 const PostTestConstants = require(process.env.CS_API_TOP + '/modules/posts/test/post_test_constants');
+const StreamTestConstants = require(process.env.CS_API_TOP + '/modules/streams/test/stream_test_constants');
+const RepoTestConstants = require(process.env.CS_API_TOP + '/modules/repos/test/repo_test_constants');
 
 class SlackPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -26,7 +28,12 @@ class SlackPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	getExpectedFields () {
-		return { post: PostTestConstants.EXPECTED_POST_FIELDS };
+		return {
+			post: PostTestConstants.EXPECTED_POST_FIELDS,
+			parentPost: PostTestConstants.EXPECTED_POST_FIELDS,
+			repo: RepoTestConstants.EXPECTED_REPO_FIELDS,
+			stream: [...StreamTestConstants.EXPECTED_STREAM_FIELDS, ...StreamTestConstants.EXPECTED_FILE_STREAM_FIELDS]
+		};
 	}
 
 	// before the test runs...

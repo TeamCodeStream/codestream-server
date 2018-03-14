@@ -40,6 +40,9 @@ class SlackPostMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
+				// we don't expect these response elements in the received message
+				delete response.parentPost;
+				delete response.repo;
 				this.message = response;	// we expect the same info through pubnub
 				callback();
 			}
