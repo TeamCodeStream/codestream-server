@@ -98,7 +98,7 @@ class PresenceLeaveTest extends CodeStreamMessageTest {
 	// validate the received message against expectations
 	validateMessage (message) {
 		let otherUser = this.otherUserData.user;
-		if (message.action === 'leave' && message.uuid === otherUser._id) {
+		if (message.action === 'leave' && message.uuid === otherUser._pubnubUuid) {
 			return true;
 		}
 	}

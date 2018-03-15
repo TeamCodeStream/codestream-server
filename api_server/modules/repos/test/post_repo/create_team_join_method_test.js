@@ -5,7 +5,7 @@ var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/
 class CreateTeamJoinMethodTest extends CodeStreamMessageTest {
 
 	get description () {
-		return 'when a user creates their first team by posting a repo, they should get a method indicating their join method as "Created Team"';
+		return 'when a user creates their first team by posting a repo, they should get a message indicating their join method as "Created Team"';
 	}
 
 	// set the name of the channel on which to listen for messages

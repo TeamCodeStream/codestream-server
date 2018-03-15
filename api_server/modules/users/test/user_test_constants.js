@@ -9,7 +9,8 @@ const EXPECTED_UNREGISTERED_USER_FIELDS = [
 	'deactivated',
 	'createdAt',
 	'modifiedAt',
-	'creatorId'
+	'creatorId',
+	'_pubnubUuid'
 ];
 
 // we expect to see these fields for users who are confirmed

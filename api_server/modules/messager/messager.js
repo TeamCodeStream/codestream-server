@@ -5,6 +5,7 @@
 var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
 var PubNub = require('pubnub');
 var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client');
+var OS = require('os');
 
 class Messager extends APIServerModule {
 
@@ -18,7 +19,9 @@ class Messager extends APIServerModule {
 			}
 
 			this.api.log('Connecting to PubNub...');
-			this.pubnub = new PubNub(this.api.config.pubnub);
+			let config = Object.assign({}, this.api.config.pubnub);
+			config.uuid = 'API-' + OS.hostname();
+			this.pubnub = new PubNub(config);
 			this.pubnubClient = new PubNubClient({
 				pubnub: this.pubnub
 			});

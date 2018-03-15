@@ -60,6 +60,7 @@ class JoinMethodTest extends ConfirmationTest {
 			password: RandomString.generate(12),
 			firstName: RandomString.generate(8),
 			lastName: RandomString.generate(9),
+			_pubnubUuid: 'none',									// normally assigned by user factory
 			_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response
 			_forceConfirmation: true								// this forces confirmation even if not enforced in environment
 		};

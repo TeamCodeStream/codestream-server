@@ -11,11 +11,6 @@ const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_uti
 
 class EmailNotificationTest extends CodeStreamMessageTest {
 
-	constructor (options) {
-		super(options);
-		this.dontNeedServer = true;	// we don't need a pubnub server since we're not sending any actual messages
-	}
-
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [

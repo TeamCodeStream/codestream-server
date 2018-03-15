@@ -6,6 +6,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var PubNub = require('pubnub');
 var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
+var OS = require('os');
 
 class CodeStreamMessageACLTest extends CodeStreamAPITest {
 
@@ -41,7 +42,9 @@ class CodeStreamMessageACLTest extends CodeStreamAPITest {
 	setClients (callback) {
 		// set up the pubnub client as if we are the server
 		// all we have to do here is provide the full config, which includes the secretKey
-		let client = new PubNub(PubNubConfig);
+		let config = Object.assign({}, PubNubConfig);
+		config.uuid = `API-${OS.hostname()}-${this.testNum}`;
+		let client = new PubNub(config);
 		this.pubnubForServer = new PubNubClient({
 			pubnub: client
 		});
@@ -52,7 +55,7 @@ class CodeStreamMessageACLTest extends CodeStreamAPITest {
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.otherUserData.user._id;
+		clientConfig.uuid = this.otherUserData.user._pubnubUuid || this.otherUserData.user._id;
 		clientConfig.authKey = this.otherUserData.accessToken;
 		client = new PubNub(clientConfig);
 		this.pubnubForClient = new PubNubClient({

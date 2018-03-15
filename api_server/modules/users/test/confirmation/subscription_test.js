@@ -9,6 +9,11 @@ var Assert = require('assert');
 
 class SubscriptionTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
+	}
+
 	get description () {
 		return `user should be able to subscribe to the ${this.which} channel after they confirm registration`;
 	}
@@ -28,7 +33,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		], callback);
 	}
 
-	// register a user (but don't confirm) ... we'll confirm later 
+	// register a user (but don't confirm) ... we'll confirm later
 	registerUser (callback) {
 		this.userFactory.registerRandomUser((error, response) => {
 			if (error) { return callback(error); }
@@ -124,7 +129,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.user._id;
+		clientConfig.uuid = this.user._pubnubUuid || this.user._id;
 		clientConfig.authKey = this.token;	// the access token is the auth key for the subscription
 		let client = new PubNub(clientConfig);
 		return new PubNubClient({

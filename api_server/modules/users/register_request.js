@@ -66,7 +66,7 @@ class RegisterRequest extends RestfulRequest {
 					string: ['email', 'password', 'username']
 				},
 				optional: {
-					string: ['firstName', 'lastName'],
+					string: ['firstName', 'lastName', '_pubnubUuid'],
 					number: ['timeout'],
 					'array(string)': ['secondaryEmails'],
 					object: ['preferences']

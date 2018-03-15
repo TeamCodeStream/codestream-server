@@ -7,5 +7,6 @@ module.exports = {
 	subscribeKey: process.env.CS_API_PUBNUB_SUBSCRIBE_KEY,
 	secretKey: process.env.CS_API_PUBNUB_SECRET,
 	ssl: true,
-	keepAlive: true
+	keepAlive: true,
+	uuid: 'CodeStreamServer'
 };

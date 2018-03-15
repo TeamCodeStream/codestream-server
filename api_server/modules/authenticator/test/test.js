@@ -20,5 +20,4 @@ describe('authentication', function() {
 	new AuthenticationInvalidTokenTest().test();
 	new AuthenticationNoUserIDTest().test();
 	new AuthenticationUserNotFoundTest().test();
-
 });

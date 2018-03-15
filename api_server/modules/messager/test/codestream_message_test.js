@@ -7,6 +7,7 @@ var PubNub = require('pubnub');
 var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
 var RandomString = require('randomstring');
+var OS = require('os');
 
 class CodeStreamMessageTest extends CodeStreamAPITest {
 
@@ -50,7 +51,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// establish the PubNub clients we will use to send and receive a message
 	makePubnubClients (callback) {
 		// set up the pubnub client as if we are the server
-		if (!this.dontNeedServer) {
+		if (this.wantServer) {
 			this.makePubnubForServer();
 		}
 
@@ -63,7 +64,9 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// set up the pubnub client as if we are the server
 	makePubnubForServer () {
 		// all we have to do here is provide the full config, which includes the secretKey
-		let client = new PubNub(PubNubConfig);
+		let config = Object.assign({}, PubNubConfig);
+		config.uuid = `API-${OS.hostname()}-${this.testNum}`;
+		let client = new PubNub(config);
 		this.pubnubForServer = new PubNubClient({
 			pubnub: client
 		});
@@ -75,7 +78,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = user._id;
+		clientConfig.uuid = user._pubnubUuid || user._id;
 		clientConfig.authKey = token;
 		let client = new PubNub(clientConfig);
 		this.pubnubClientsForUser[user._id] = new PubNubClient({

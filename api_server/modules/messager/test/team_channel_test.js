@@ -4,6 +4,12 @@ var CodeStreamMessageTest = require('./codestream_message_test');
 
 class TeamChannelTest extends CodeStreamMessageTest {
 
+	constructor (options) {
+		super(options);
+		this.wantServer = true;	// want a simulated server to send a message
+	}
+
+
 	get description () {
 		return 'should be able to subscribe to and receive a message from the team channels for all my teams as a confirmed user';
 	}

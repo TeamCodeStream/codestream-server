@@ -83,7 +83,7 @@ class PresenceJoinTest extends CodeStreamMessageTest {
 	// validate the received message against expectations
 	validateMessage (message) {
 		let otherUser = this.otherUserData.user;
-		if (message.action === 'join' && message.uuid === otherUser._id) {
+		if (message.action === 'join' && message.uuid === otherUser._pubnubUuid) {
 			return true;
 		}
 	}

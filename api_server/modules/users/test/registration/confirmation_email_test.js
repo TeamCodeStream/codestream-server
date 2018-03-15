@@ -12,7 +12,6 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 
 	constructor (options) {
 		super(options);
-		this.dontNeedServer = true;	// we don't need a pubnub server since we're not sending any actual messages
 		this.timeout = 10000;	// wait 10 seconds for message
 	}
 

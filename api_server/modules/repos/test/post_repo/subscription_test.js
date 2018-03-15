@@ -7,9 +7,14 @@ var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 var Assert = require('assert');
 
-// a class to check if the user is gets subscribed to the team and repo channel when a repo is created
+// a class to check if the user gets subscribed to the team and repo channel when a repo is created
 // (or exists already) and they are added to the team that owns the repo
 class SubscriptionTest extends CodeStreamAPITest {
+
+	constructor (options) {
+		super(options);
+		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
+	}
 
 	get description () {
 		let action = this.otherUserCreates ? 'are added to' : 'create';
@@ -21,7 +26,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,			
+			super.before,
 			this.createOtherUser,	// create a second registered user
 			this.createOtherRepo,	// create a pre-existing repo as needed
 			this.createRepo 		// create the test repo
@@ -133,7 +138,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.currentUser._id;
+		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser._id;
 		clientConfig.authKey = this.token;
 		let client = new PubNub(clientConfig);
 		return new PubNubClient({

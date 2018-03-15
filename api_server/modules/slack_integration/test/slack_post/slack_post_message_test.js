@@ -6,11 +6,6 @@ var CommonInit = require('./common_init');
 
 class SlackPostMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
-	constructor (options) {
-		super(options);
-		this.dontNeedServer = true;	// we don't need a pubnub server since we're not sending any actual messages
-	}
-
 	get description () {
 		return 'should create and publish a post when a slack post call is made';
 	}

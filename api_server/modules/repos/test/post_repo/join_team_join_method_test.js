@@ -6,7 +6,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 class JoinTeamJoinMethodTest extends CodeStreamMessageTest {
 
 	get description () {
-		return 'when a user joins their first team by posting a repo, they should get a method indicating their join method as "Joined Team"';
+		return 'when a user joins their first team by posting a repo, they should get a message indicating their join method as "Joined Team"';
 	}
 
 	// make the data needed before triggering the actual test
