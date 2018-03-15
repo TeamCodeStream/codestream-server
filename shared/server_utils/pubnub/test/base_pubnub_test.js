@@ -141,7 +141,7 @@ class BasePubNubTest extends GenericTest {
 		if (this.messageTimer) {
 			clearTimeout(this.messageTimer);
 			delete this.messageTimer;
- 		}
+		}
 		callback();
 	}
 }

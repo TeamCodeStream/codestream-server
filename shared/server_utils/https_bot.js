@@ -5,13 +5,13 @@
 const HTTPS = require('https');
 const HTTP = require('http');
 
-function _SimpleRequest (method, host, port, path, data, callback, options) { 
+function _SimpleRequest (method, host, port, path, data, callback, options) {
 
 	options = Object.assign({}, options || {}, { method, host, port, path });
 	if (!options.noJsonInRequest) {
-	    	options.headers = Object.assign({}, options.headers || {}, {
-	        'Content-Type': 'application/json'
-	    });
+		options.headers = Object.assign({}, options.headers || {}, {
+			'Content-Type': 'application/json'
+		});
 	}
 
 	const protocol = options.useHttp ? HTTP : HTTPS;
@@ -27,12 +27,12 @@ function _SimpleRequest (method, host, port, path, data, callback, options) {
 			response.on('end', () => {
 				let parsed;
 				if (!options.noJsonInResponse) {
-	                try {
-	                    parsed = JSON.parse(responseData);
-	                }
-	                catch(error) {
-	                    return callback(`error parsing JSON data: ${error}`);
-	                }
+					try {
+						parsed = JSON.parse(responseData);
+					}
+					catch(error) {
+						return callback(`error parsing JSON data: ${error}`);
+					}
 				}
 				else {
 					parsed = responseData;
@@ -41,7 +41,7 @@ function _SimpleRequest (method, host, port, path, data, callback, options) {
 					return callback(`error response, status code was ${response.statusCode}: ${JSON.stringify(parsed)}`, parsed);
 				}
 				else {
-                	return callback(null, parsed);
+					return callback(null, parsed);
 				}
 			});
 

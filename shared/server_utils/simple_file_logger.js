@@ -136,7 +136,7 @@ class SimpleFileLogger {
 		}
 		if (this.consoleOk) {
 			// we can also output to the console
-			console.log(fullText);
+			console.log(fullText); // eslint-disable-line no-console
 		}
 		this.lastWritten = Date.now();
 	}
@@ -184,7 +184,7 @@ class SimpleFileLogger {
 	removeOldLink (callback) {
 		FS.unlink(this.linkName, (error) => {
 			if (error && error.code !== 'ENOENT') {
-				console.error(`unable to unlink ${this.linkName}: ${error}`);
+				console.error(`unable to unlink ${this.linkName}: ${error}`); // eslint-disable-line no-console
 			}
 			process.nextTick(callback);
 		});
@@ -197,7 +197,7 @@ class SimpleFileLogger {
 			this.linkName,
 			(error) => {
 				if (error) {
-					console.error(`unable to link ${this.linkName}: ${error}`);
+					console.error(`unable to link ${this.linkName}: ${error}`); // eslint-disable-line no-console
 				}
 				process.nextTick(callback);
 			}

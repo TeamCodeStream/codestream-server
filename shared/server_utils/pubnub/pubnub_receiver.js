@@ -4,6 +4,8 @@
 
 'use strict';
 
+/* eslint no-console: 0 */
+
 var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub.js');
 var PubNubClient = require('pubnub');
 
