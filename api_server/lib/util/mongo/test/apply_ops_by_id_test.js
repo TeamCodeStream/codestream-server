@@ -59,6 +59,11 @@ class ApplyOpsByIdTest extends UpdateTest {
 			}
 		);
 	}
+
+	validateDocumentResponse() {
+		this.response.newArray.sort(); // order not guaranteed
+		super.validateDocumentResponse();
+	}
 }
 
 module.exports = ApplyOpsByIdTest;
