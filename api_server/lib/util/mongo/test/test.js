@@ -72,5 +72,4 @@ describe('mongo', function() {
 	new UpsertTest().test();
 	new ApplyUpsertOpTest().test();
 	new FindAndModifyTest().test();
-
 });

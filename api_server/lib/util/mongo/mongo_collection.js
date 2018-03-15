@@ -63,7 +63,7 @@ class MongoCollection {
 		delete options.requestId;
 		const mongoArgs = [query, ...args, options];
 		let results, error;
-		const logQuery = function() {
+		const logQuery = () => {
 			const time = Date.now() - startTime;
 			let logOptions = { query, mongoFunc, time, requestId, error };
 			logOptions.queryOptions = options;
