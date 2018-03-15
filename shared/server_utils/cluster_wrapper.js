@@ -10,9 +10,9 @@ var Net = require('net');
 var Cluster = require('cluster');
 
 Program
-  .option('--one_worker [one_worker]', 'Use only one worker')	// force to use only worker, sometimes desirable for clarity when reading output
-  .option('--overrideConfig [config.key=value]', 'Override configuration value') // override an internal configuration value
-  .parse(process.argv);
+	.option('--one_worker [one_worker]', 'Use only one worker')	// force to use only worker, sometimes desirable for clarity when reading output
+	.option('--overrideConfig [config.key=value]', 'Override configuration value') // override an internal configuration value
+	.parse(process.argv);
 
 class ClusterWrapper {
 
@@ -179,7 +179,7 @@ class ClusterWrapper {
 		global.ServerObject = new this.serverClass(this.config);
 		global.ServerObject.start((error) => {
 			if (error) {
-				console.error('server worker failed to start: ' + error);
+				console.error('server worker failed to start: ' + error); // eslint-disable-line no-console
 				process.exit(3);	// 3 means to signal the master that we are not to be re-spawned
 			}
 		});
@@ -221,7 +221,7 @@ function GlobalErrorHandler (error, type) {
 	) {
 		global.ServerObject.critical(message);
 	}
-	console.error(message);
+	console.error(message); // eslint-disable-line no-console
 	process.exit(1);
 }
 

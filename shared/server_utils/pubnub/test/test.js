@@ -11,10 +11,8 @@ var HistoryTest = require('./history_test');
 var PresenceTest = require('./presence_test');
 var LeaveTest = require('./leave_test');
 
-// make jshint happy
+// make eslint happy
 /* globals describe */
-
-/* jshint -W071 */
 
 describe('pubnub', function() {
 
@@ -22,12 +20,10 @@ describe('pubnub', function() {
 
 	new PubNubTest().test();
 	new NoAccessTest().test();
-//	new RevokeAccessTest().test();	// Disabled pending resolution of COD-64
+	// new RevokeAccessTest().test();	// Disabled pending resolution of COD-64
 	new UnsubscribeTest().test();
 	new HistoryTest().test();
-//	new MultipleHistoryTest().test();	// Disabled pending resolution of COD-135
+	// new MultipleHistoryTest().test();	// Disabled pending resolution of COD-135
 	new PresenceTest().test();
 	new LeaveTest().test();
 });
-
-/* jshint +W071 */
