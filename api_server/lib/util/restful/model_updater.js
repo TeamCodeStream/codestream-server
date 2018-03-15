@@ -34,7 +34,7 @@ class ModelUpdater {
 			this.update,				// update the document
 			this.postSave				// give the derived class a chance to do stuff after we've saved
 		], (error) => {
-	 		callback(error, this.model);
+			callback(error, this.model);
 		});
 	}
 

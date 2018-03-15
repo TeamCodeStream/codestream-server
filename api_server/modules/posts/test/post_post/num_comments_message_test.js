@@ -6,7 +6,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 class NumCommentsMessageTest extends CodeStreamMessageTest {
 
 	get description () {
-		return `members of the team should receive a message when the numComments attribute of a marker is incremented due to a reply to a post with markers`;
+		return 'members of the team should receive a message when the numComments attribute of a marker is incremented due to a reply to a post with markers';
 	}
 
 	// make the data that triggers the message to be messageReceived

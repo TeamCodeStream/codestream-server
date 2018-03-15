@@ -11,8 +11,6 @@ const MissingParameterTest = require('./missing_parameter_test');
 const EnableThenDisableTest = require('./enable_then_disable_test');
 const MessageToTeamTest = require('./message_to_team_test');
 
-/* jshint -W071 */
-
 class SlackEnableRequestTester {
 
 	test () {
@@ -26,7 +24,5 @@ class SlackEnableRequestTester {
 		new MessageToTeamTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = new SlackEnableRequestTester();

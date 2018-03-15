@@ -63,26 +63,23 @@ class MongoCollection {
 		delete options.requestId;
 		const mongoArgs = [query, ...args, options];
 		let results, error;
+		const logQuery = function() {
+			const time = Date.now() - startTime;
+			let logOptions = { query, mongoFunc, time, requestId, error };
+			logOptions.queryOptions = options;
+			this._logMongoQuery(logOptions, args);
+		};
 		try {
 			results = await this.dbCollection[mongoFunc].apply(
 				this.dbCollection,
 				mongoArgs
 			);
+			logQuery();
+			return results;
 		}
-		catch (e) {
-			error = e;
-		}
-		finally {
-			const time = Date.now() - startTime;
-			let logOptions = { query, mongoFunc, time, requestId, error };
-			logOptions.queryOptions = options;
-			this._logMongoQuery(logOptions, args);
-			if (error) {
-				throw this.errorHandler.dataError(error);
-			}
-			else {
-				return results;
-			}
+		catch (error) {
+			logQuery();
+			throw this.errorHandler.dataError(error);
 		}
 	}
 
@@ -319,7 +316,7 @@ class MongoCollection {
 					dbOp[conversion.dbOp] = conversion.valueFunc(opValue);
 				}
 				else {
-					 dbOp[conversion] = opValue;
+					dbOp[conversion] = opValue;
 				}
 			}
 		});

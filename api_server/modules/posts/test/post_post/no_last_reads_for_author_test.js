@@ -7,7 +7,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 class NoLastReadsForAuthorTest extends CodeStreamAPITest {
 
 	get description () {
-		return `last read attribute for the post author should not be updated when a new post is created in a stream`;
+		return 'last read attribute for the post author should not be updated when a new post is created in a stream';
 	}
 
 	// before the test runs...

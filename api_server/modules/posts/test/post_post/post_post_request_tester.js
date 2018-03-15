@@ -70,8 +70,6 @@ var MentionTest = require('./mention_test');
 var PostCountTest = require('./post_count_test');
 var SetPersonAnalyticsTest = require('./set_person_analytics_test');
 
-/* jshint -W071 */
-
 class PostPostRequestTester {
 
 	postPostTest () {
@@ -156,7 +154,5 @@ class PostPostRequestTester {
 		new SetPersonAnalyticsTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = PostPostRequestTester;

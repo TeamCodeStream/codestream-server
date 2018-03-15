@@ -18,9 +18,9 @@ class Analytics extends APIServerModule {
 			}
 
 			this.api.log('Connecting to MixPanel...');
-            try {
+			try {
 				this.mixPanel = new MixPanel.init(this.api.config.mixpanel.token, { protocol: 'https' });
-            }
+			}
 			catch (error) {
 				return callback(error);
 			}

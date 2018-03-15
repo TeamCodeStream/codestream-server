@@ -28,8 +28,8 @@ class CommonInit {
 
 	// create a random repo to use for the test
 	createRandomRepo (callback) {
-        let withEmails = this.withoutOtherUserOnTeam ? [] : [this.currentUser.email];
-        let token = this.withoutOtherUserOnTeam ? this.token : this.otherUserData.accessToken;
+		let withEmails = this.withoutOtherUserOnTeam ? [] : [this.currentUser.email];
+		let token = this.withoutOtherUserOnTeam ? this.token : this.otherUserData.accessToken;
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -51,9 +51,9 @@ class CommonInit {
 		this.attributes.forEach(attribute => {
 			this.data[attribute] = RandomString.generate(10);
 		});
-        this.path = '/users/' + (this.id || this.currentUser._id);
-        this.modifiedAfter = Date.now();
-        callback();
+		this.path = '/users/' + (this.id || this.currentUser._id);
+		this.modifiedAfter = Date.now();
+		callback();
 	}
 }
 

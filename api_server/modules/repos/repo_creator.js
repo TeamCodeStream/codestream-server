@@ -177,7 +177,7 @@ class RepoCreator extends ModelCreator {
 		this.data.teams.getById(
 			this.attributes.teamId,
 			(error, team) => {
-			 	if (error) { return callback(error); }
+				if (error) { return callback(error); }
 				if (!team) {
 					return callback(this.errorHandler.error('notFound', { info: 'team' }));
 				}

@@ -194,7 +194,7 @@ class DataCollection {
 	// find-and-modify performs an operation on a document but also returns the document in
 	// its original state (before the operation) ... it is an atomic operation so can be used
 	// to protect against race conditions
- 	// there is no interaction with the cache at all, so should be used with caution to avoid sync problems
+	// there is no interaction with the cache at all, so should be used with caution to avoid sync problems
 	// between cache and database
 	findAndModify (query, data, callback, options = {}) {
 		this.databaseCollection.findAndModify(

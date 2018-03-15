@@ -135,7 +135,7 @@ class APIServer {
 				response.sendStatus(500);
 			}
 			request.connection.destroy();
-			return next; // this makes jshint happy but doesn't call next()
+			return next; 
 		});
 		callback();
 	}

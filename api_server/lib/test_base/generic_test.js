@@ -4,7 +4,7 @@
 
 var Assert = require('assert');
 
-// make jshint happy
+// make eslint happy
 /* globals before, after, it */
 
 var NumTests = 0;	// used to number tests in a single test run
@@ -122,8 +122,8 @@ class GenericTest {
 	isArrayOfStrings (value) {
 		return value instanceof Array &&
 			!value.find(elem => {
-				return typeof elem !== 'string';
-			});
+			return typeof elem !== 'string';
+		});
 	}
 
 	// for an array, we expect an object of certain fields, or an array of sub-objects
@@ -164,7 +164,7 @@ class GenericTest {
 	debug (message) {
 		const now = Date.now();
 		const ms = now % 1000;
-		console.log(`${this.testNum}: ${new Date(now).toString()}.${ms}: ${message}`);
+		console.log(`${this.testNum}: ${new Date(now).toString()}.${ms}: ${message}`); // eslint-disable-line no-console
 	}
 }
 

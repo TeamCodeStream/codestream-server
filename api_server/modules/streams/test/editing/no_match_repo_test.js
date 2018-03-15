@@ -12,7 +12,7 @@ class NoMatchRepoTest extends EditingTest {
 	}
 
 	get description () {
-		return `should return an empty response when user indicated editing a file for a stream but the repoId doesn\'t match the repoId of the stream`;
+		return 'should return an empty response when user indicated editing a file for a stream but the repoId doesn\'t match the repoId of the stream';
 	}
 
 	// form the data to be used in the test request

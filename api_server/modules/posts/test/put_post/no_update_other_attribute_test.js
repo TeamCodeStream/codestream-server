@@ -9,20 +9,20 @@ class NoUpdateOtherAttributeTest extends PutPostTest {
 		return `should not update ${this.attribute} even if sent in the request`;
 	}
 
-    // form the data for the post update
+	// form the data for the post update
 	makePostData (callback) {
-        super.makePostData(() => {
-            this.data[this.attribute] = 'x'; // set bogus value for the attribute, it shouldn't matter
-            callback();
-        });
+		super.makePostData(() => {
+			this.data[this.attribute] = 'x'; // set bogus value for the attribute, it shouldn't matter
+			callback();
+		});
 	}
 
-    // validate the response to the test request
+	// validate the response to the test request
 	validateResponse (data) {
-        let post = data.post;
-        Assert(post[this.attribute] === undefined, 'attribute appears in the response');
-        super.validateResponse(data);
-    }
+		let post = data.post;
+		Assert(post[this.attribute] === undefined, 'attribute appears in the response');
+		super.validateResponse(data);
+	}
 }
 
 module.exports = NoUpdateOtherAttributeTest;

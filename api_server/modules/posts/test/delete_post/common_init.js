@@ -12,7 +12,7 @@ class CommonInit {
 			this.createRandomRepo,	// create a random repo (and team) for the test
 			this.createRandomStream,	// create a stream in that repo
 			this.createParentPost,	// create a parent post, for replies, if needed
-            this.createPost        // create the post that will then be deactivated
+			this.createPost        // create the post that will then be deactivated
 		], callback);
 	}
 
@@ -29,8 +29,8 @@ class CommonInit {
 
 	// create a random repo to use for the test
 	createRandomRepo (callback) {
-        let withEmails = this.withoutOtherUserOnTeam ? [] : [this.currentUser.email];
-        let token = this.withoutOtherUserOnTeam ? this.token : this.otherUserData.accessToken;
+		let withEmails = this.withoutOtherUserOnTeam ? [] : [this.currentUser.email];
+		let token = this.withoutOtherUserOnTeam ? this.token : this.otherUserData.accessToken;
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -48,22 +48,22 @@ class CommonInit {
 
 	// create a random stream to use for the test
 	createRandomStream (callback) {
-        let token = this.withoutOtherUserOnTeam ? this.token : this.otherUserData.accessToken;
-        let type = this.streamType || 'file';
-        let memberIds = this.streamType !== 'file' ? [this.currentUser._id] : undefined;
+		let token = this.withoutOtherUserOnTeam ? this.token : this.otherUserData.accessToken;
+		let type = this.streamType || 'file';
+		let memberIds = this.streamType !== 'file' ? [this.currentUser._id] : undefined;
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-            {
-                type: type,
-    			teamId: this.team._id,	// create the stream in the team we already created
-                repoId: type === 'file' ? this.repo._id : undefined,  // file-type streams must have repoId
-                memberIds: memberIds, // include current user in stream if needed
-    			token: token	// the "other user" is the stream creator, unless otherwise specified
-            }
+			{
+				type: type,
+				teamId: this.team._id, // create the stream in the team we already created
+				repoId: type === 'file' ? this.repo._id : undefined, // file-type streams must have repoId
+				memberIds: memberIds, // include current user in stream if needed
+				token: token // the "other user" is the stream creator, unless otherwise specified
+			}
 		);
 	}
 
@@ -76,11 +76,11 @@ class CommonInit {
 				this.parentPost = response.post;
 				callback();
 			},
-            {
-                token: this.otherUserData.accessToken,   // we'll let the "other" user create the parent post
-                streamId: this.stream._id,	// create the post in the stream we created
-                wantCodeBlocks: 1			// create a code block when creating a parent post
-            }
+			{
+				token: this.otherUserData.accessToken,   // we'll let the "other" user create the parent post
+				streamId: this.stream._id,	// create the post in the stream we created
+				wantCodeBlocks: 1			// create a code block when creating a parent post
+			}
 		);
 	}
 

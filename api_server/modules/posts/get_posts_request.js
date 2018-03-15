@@ -103,7 +103,7 @@ class GetPostsRequest extends GetManyRequest {
 			}
 		}
 		if (Object.keys(query).length === 0) {
-			 return null;	// no query parameters, will assume fetch by ID
+			return null;	// no query parameters, will assume fetch by ID
 		}
 		return query;
 	}
@@ -119,7 +119,7 @@ class GetPostsRequest extends GetManyRequest {
 			let ids = value.split(',');
 			query._id = this.data.posts.inQuerySafe(ids);
 		}
-/*
+		/*
 // Not using these for now, since they will require an index, and I'm not sure of their utility
 		else if (parameter === 'newerThan') {
 			let newerThan = parseInt(value, 10);
@@ -130,7 +130,7 @@ class GetPostsRequest extends GetManyRequest {
 		else if (parameter === 'mine') {
 			query.creatorId = this.user.id;
 		}
-*/
+		*/
 		else if (parameter === 'seqnum') {
 			// fetch by single or range of sequence numbers
 			let error = this.processSeqNumParameter(value, query);
@@ -339,7 +339,7 @@ class GetPostsRequest extends GetManyRequest {
 		const streamId = decodeURIComponent(this.request.query.streamId || this.queryAndOptions.query.streamId).toLowerCase();
 		const commitHash = decodeURIComponent(this.request.query.commitHash).toLowerCase();
 		const query = {
-//			teamId: teamId,	 // will be needed for sharding, but for now, we'll avoiding an index here
+			// teamId: teamId, // will be needed for sharding, but for now, we'll avoiding an index here
 			_id: `${streamId}|${commitHash}`
 		};
 		this.data.markerLocations.getByQuery(

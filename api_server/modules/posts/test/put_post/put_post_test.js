@@ -30,14 +30,14 @@ class PutPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify we got back a post with the updated text
-        let post = data.post;
-        Assert(post._id === this.post._id, 'returned post ID is not the same');
-        Assert.equal(post.text, this.data.text, 'text does not match');
-        Assert(post.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was edited');
-        Assert(post.hasBeenEdited, 'hasBeenEdited flag not set');
-        if (this.wantMention) {
-        	Assert.deepEqual(post.mentionedUserIds, this.data.mentionedUserIds, 'mentionedUserIds is not correct');
-        }
+		let post = data.post;
+		Assert(post._id === this.post._id, 'returned post ID is not the same');
+		Assert.equal(post.text, this.data.text, 'text does not match');
+		Assert(post.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was edited');
+		Assert(post.hasBeenEdited, 'hasBeenEdited flag not set');
+		if (this.wantMention) {
+			Assert.deepEqual(post.mentionedUserIds, this.data.mentionedUserIds, 'mentionedUserIds is not correct');
+		}
 		// verify the post in the response has no attributes that should not go to clients
 		this.validateSanitized(post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

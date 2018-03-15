@@ -297,7 +297,7 @@ class TeamCreator extends ModelCreator {
 	}
 
 	// grant permission to the users on the team to subscribe to the team messager channel
- 	grantUserMessagingPermissions (callback) {
+	grantUserMessagingPermissions (callback) {
 		let granterOptions = {
 			data: this.data,
 			messager: this.api.services.messager,

@@ -10,7 +10,7 @@ class ACLTest extends EditingTest {
 	}
 
 	get description () {
-		return `should return an error when trying to set editing for a file in a team i am not a member of`;
+		return 'should return an error when trying to set editing for a file in a team i am not a member of';
 	}
 
 	getExpectedError () {

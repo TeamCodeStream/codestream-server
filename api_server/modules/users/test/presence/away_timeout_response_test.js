@@ -13,7 +13,7 @@ class AwayTimeoutResponseTest extends PresenceTest {
 	}
 
 	get description () {
-		return `should return the away timeout in the response`;
+		return 'should return the away timeout in the response';
 	}
 
 	// validate the response to the test request

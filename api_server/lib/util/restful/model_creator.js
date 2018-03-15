@@ -33,7 +33,7 @@ class ModelCreator {
 			this.createOrUpdate,		// create the document, or if already existed, we might want to update it
 			this.postSave				// give the derived class a chance to do stuff after we've saved
 		], (error) => {
-	 		callback(error, this.model);
+			callback(error, this.model);
 		});
 	}
 

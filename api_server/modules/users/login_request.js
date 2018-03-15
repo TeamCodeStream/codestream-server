@@ -72,19 +72,19 @@ class LoginRequest extends RestfulRequest {
 
 	// validate that the given password matches the password hash stored for the user
 	validatePassword (callback) {
-	 	BCrypt.compare(
-	 		this.request.body.password,
-	 		this.user.get('passwordHash'),
-	 		(error, result) => {
-	 			if (error) {
+		BCrypt.compare(
+			this.request.body.password,
+			this.user.get('passwordHash'),
+			(error, result) => {
+				if (error) {
 					return callback(this.errorHandler.error('token', { reason: error }));
 				}
-	 			if (!result) {
-	 				return callback(this.errorHandler.error('passwordMismatch'));
-	 			}
-	 			process.nextTick(callback);
-	 		}
-	 	);
+				if (!result) {
+					return callback(this.errorHandler.error('passwordMismatch'));
+				}
+				process.nextTick(callback);
+			}
+		);
 	}
 
 	// get the initial data to return in the response, this is a time-saver for the client

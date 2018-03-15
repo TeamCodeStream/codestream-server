@@ -11,7 +11,7 @@ class ACLStreamTest extends ACLTest {
 	}
 
 	get description () {
-		return `should return an error when trying to create a post in a stream that i\'m not a member of`;
+		return 'should return an error when trying to create a post in a stream that i\'m not a member of';
 	}
 
 	getExpectedError () {

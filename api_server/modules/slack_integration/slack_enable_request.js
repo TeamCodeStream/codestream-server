@@ -53,12 +53,12 @@ class SlackEnableRequest extends RestfulRequest {
 		this.teamId = this.request.body.teamId.toLowerCase();
 		this.op = {
 			$set: {
-				"integrations.slack.enabled": this.request.body.enable,
+				'integrations.slack.enabled': this.request.body.enable,
 				modifiedAt: Date.now()
 			}
 		};
 		if (this.request.body.info) {
-			this.op.$set["integrations.slack.info"] = this.request.body.info;
+			this.op.$set['integrations.slack.info'] = this.request.body.info;
 		}
 		this.data.teams.applyOpById(
 			this.teamId,

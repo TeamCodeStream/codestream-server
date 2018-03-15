@@ -2,7 +2,7 @@
 
 'use strict';
 
-// make jshint happy
+// make eslint happy
 /* globals describe */
 
 var GetByIdFromCacheTest = require('./get_by_id_from_cache_test');
@@ -52,8 +52,6 @@ var UpdateDirectTest = require('./update_direct_test');
 var DeleteFromCacheTest = require('./delete_from_cache_test');
 var DeleteFromDatabaseTest = require('./delete_from_database_test');
 var FindAndModifyTest = require('./find_and_modify_test');
-
-/* jshint -W071 */
 
 describe('dataCollection', function() {
 
@@ -106,5 +104,3 @@ describe('dataCollection', function() {
 	new FindAndModifyTest().test();
 
 });
-
-/* jshint +W071 */

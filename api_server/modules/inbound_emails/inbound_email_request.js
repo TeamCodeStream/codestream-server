@@ -150,19 +150,19 @@ class InboundEmailRequest extends RestfulRequest {
 		if (!this.streamId) {
 			return callback(this.errorHandler.error('noMatchFound', { info: this.request.body.to }));
 		}
-		 this.data.streams.getById(
-			 this.streamId,
-			 (error, stream) => {
-				 if (error) {
-					 return callback(this.errorHandler.error('internal', { reason: error }));
-				 }
-				 else if (!stream) {
-					 return callback(this.errorHandler.error('streamNotFound', { info: this.streamId }));
-				 }
-				 this.stream = stream;
-				 callback();
-			 }
-		 );
+		this.data.streams.getById(
+			this.streamId,
+			(error, stream) => {
+				if (error) {
+					return callback(this.errorHandler.error('internal', { reason: error }));
+				}
+				else if (!stream) {
+					return callback(this.errorHandler.error('streamNotFound', { info: this.streamId }));
+				}
+				this.stream = stream;
+				callback();
+			}
+		);
 	}
 
 	// validate the stream: the stream must be owned by the correct team, and the

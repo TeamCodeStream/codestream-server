@@ -13,7 +13,7 @@ var AddExistingRepoTest = require('./add_existing_repo_test');
 var PresenceJoinTest = require('./presence_join_test');
 //var PresenceLeaveTest = require('./presence_leave_test');
 
-// make jshint happy
+// make eslint happy
 /* globals describe */
 
 describe('messages', function() {
@@ -31,8 +31,8 @@ describe('messages', function() {
 	new AddToExistingTeamTest().test();
 	new AddExistingRepoTest().test();
 	new PresenceJoinTest({ which: 'team' }).test();
-//	new PresenceLeaveTest({ which: 'team' }).test(); // Disabled pending further need and investigation
+	// new PresenceLeaveTest({ which: 'team' }).test(); // Disabled pending further need and investigation
 	new PresenceJoinTest({ which: 'repo' }).test();
-//	new PresenceLeaveTest({ which: 'repo' }).test(); // Disabled pending further need and investigation
+	// new PresenceLeaveTest({ which: 'repo' }).test(); // Disabled pending further need and investigation
 
 });

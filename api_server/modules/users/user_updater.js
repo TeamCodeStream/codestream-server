@@ -31,7 +31,7 @@ class UserUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-            string: ['username', 'firstName', 'lastName', 'timeZone']
+			string: ['username', 'firstName', 'lastName', 'timeZone']
 		};
 	}
 
@@ -94,13 +94,13 @@ class UserUpdater extends ModelUpdater {
 		});
 	}
 
-    // after the post has been saved...
-    postSave (callback) {
-        // this.update is what we return to the client, since the modifiedAt
-        // has changed, add that
-        this.update.modifiedAt = this.model.get('modifiedAt');
-        callback();
-    }
+	// after the post has been saved...
+	postSave (callback) {
+		// this.update is what we return to the client, since the modifiedAt
+		// has changed, add that
+		this.update.modifiedAt = this.model.get('modifiedAt');
+		callback();
+	}
 }
 
 module.exports = UserUpdater;

@@ -22,8 +22,6 @@ var InvalidCoordinateObjectTest = require('./invalid_coordinate_object_test');
 var AdditionalMarkerLocationsTest = require('./additional_marker_locations_test');
 var MessageToTeamTest = require('./message_to_team_test');
 
-/* jshint -W071 */
-
 class PutMarkerLocationsRequestTester {
 
 	putMarkerLocationsTest () {
@@ -54,7 +52,5 @@ class PutMarkerLocationsRequestTester {
 		new MessageToTeamTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = PutMarkerLocationsRequestTester;

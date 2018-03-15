@@ -38,8 +38,6 @@ var AlreadyOnTeamNoJoinedTeamJoinMethodTest = require('./already_on_team_no_join
 var AddedToTeamJoinMethodTest = require('./added_to_team_join_method_test');
 var WebmailCompanyNameTest = require('./webmail_company_name_test');
 
-/* jshint -W071 */
-
 class PostRepoRequestTester {
 
 	postRepoTest () {
@@ -92,7 +90,5 @@ class PostRepoRequestTester {
 		new WebmailCompanyNameTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = PostRepoRequestTester;

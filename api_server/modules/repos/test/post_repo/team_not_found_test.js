@@ -6,7 +6,7 @@ var ObjectID = require('mongodb').ObjectID;
 class TeamNotFoundTest extends PostRepoTest {
 
 	get description () {
-		return `should return error when attempting to create a repo with a bad team id`;
+		return 'should return error when attempting to create a repo with a bad team id';
 	}
 
 	getExpectedError () {

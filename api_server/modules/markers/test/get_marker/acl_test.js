@@ -10,7 +10,7 @@ class ACLTest extends GetMarkerTest {
 	}
 
 	get description () {
-		return `should return an error when trying to fetch a marker from a stream owned by a team that i\'m not a member of`;
+		return 'should return an error when trying to fetch a marker from a stream owned by a team that i\'m not a member of';
 	}
 
 	getExpectedError () {

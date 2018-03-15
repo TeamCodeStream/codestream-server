@@ -178,9 +178,9 @@ class AddTeamMembers  {
 		// the joinMethod to "Added to Team" here
 		if (
 			user.get('isRegistered') &&
-			this.user && 
+			this.user &&
 			user.id !== this.user.id && 	// the current user will get Joined Team later
-		 	(
+			(
 				(user.get('teamIds') || []).length === 0 ||
 				!user.get('joinMethod')
 			)

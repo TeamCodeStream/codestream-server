@@ -24,20 +24,20 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
-        // do the delete, this should trigger a message to the
+		// do the delete, this should trigger a message to the
 		// team channel with the updated post
-        this.doApiRequest(
-            {
-                method: 'delete',
-                path: '/posts/' + this.post._id,
-                token: this.token
-            },
-            (error, response) => {
-                if (error) { return callback(error); }
-                this.message = response;
-                callback();
-            }
-        );
+		this.doApiRequest(
+			{
+				method: 'delete',
+				path: '/posts/' + this.post._id,
+				token: this.token
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.message = response;
+				callback();
+			}
+		);
 	}
 }
 

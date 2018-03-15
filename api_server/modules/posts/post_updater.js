@@ -24,80 +24,80 @@ class PostUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-            string: ['text'],
-            'array(string)': ['mentionedUserIds']
+			string: ['text'],
+			'array(string)': ['mentionedUserIds']
 		};
 	}
 
 	// called before the post is actually saved
 	preSave (callback) {
 		BoundAsync.series(this, [
-            this.getPost,           // get the post
-            this.getStream,         // get the stream the post is in
-            this.addEditToHistory,  // add this edit to the maintained history of edits
+			this.getPost,           // get the post
+			this.getStream,         // get the stream the post is in
+			this.addEditToHistory,  // add this edit to the maintained history of edits
 			super.preSave			// base-class preSave
 		], callback);
 	}
 
-    // get the post
-    getPost (callback) {
-        this.request.data.posts.getById(
-            this.attributes._id,
-            (error, post) => {
-                if (error) { return callback(error); }
-                if (!post) {
-                    return callback(this.errorHandler.error('notFound', { info: 'post' }));
-                }
-                this.post = post;
-                callback();
-            }
-        );
-    }
+	// get the post
+	getPost (callback) {
+		this.request.data.posts.getById(
+			this.attributes._id,
+			(error, post) => {
+				if (error) { return callback(error); }
+				if (!post) {
+					return callback(this.errorHandler.error('notFound', { info: 'post' }));
+				}
+				this.post = post;
+				callback();
+			}
+		);
+	}
 
-    // get the stream the post is in
-    getStream (callback) {
-        this.request.data.streams.getById(
-            this.post.get('streamId'),
-            (error, stream) => {
-                if (error) { return callback(error); }
-                if (!stream) {
-                    return callback(this.errorHandler.error('notFound', { info: 'stream' }));   // really shouldn't happen
-                }
-                this.stream = stream;
-                callback();
-            }
-        );
-    }
+	// get the stream the post is in
+	getStream (callback) {
+		this.request.data.streams.getById(
+			this.post.get('streamId'),
+			(error, stream) => {
+				if (error) { return callback(error); }
+				if (!stream) {
+					return callback(this.errorHandler.error('notFound', { info: 'stream' }));   // really shouldn't happen
+				}
+				this.stream = stream;
+				callback();
+			}
+		);
+	}
 
-    // add an edit to the maintained history of edits
-    addEditToHistory (callback) {
-        this.attributes.hasBeenEdited = true;
-        this.attributes.editHistory = this.post.get('editHistory') || [];
-        let edit = {
-            editorId: this.request.user.id,
-            editedAt: Date.now(),
-            previousAttributes: {
-                text: this.post.get('text')
-            },
-            setAttributes: {
-                text: this.attributes.text
-            }
-        };
-        if (this.attributes.mentionedUserIds) {
-            edit.previousAttributes.mentionedUserIds = this.post.get('mentionedUserIds');
-            edit.setAttributes.mentionedUserIds = this.attributes.mentionedUserIds;
-        }
-        this.attributes.editHistory.push(edit);
-        process.nextTick(callback);
-    }
+	// add an edit to the maintained history of edits
+	addEditToHistory (callback) {
+		this.attributes.hasBeenEdited = true;
+		this.attributes.editHistory = this.post.get('editHistory') || [];
+		let edit = {
+			editorId: this.request.user.id,
+			editedAt: Date.now(),
+			previousAttributes: {
+				text: this.post.get('text')
+			},
+			setAttributes: {
+				text: this.attributes.text
+			}
+		};
+		if (this.attributes.mentionedUserIds) {
+			edit.previousAttributes.mentionedUserIds = this.post.get('mentionedUserIds');
+			edit.setAttributes.mentionedUserIds = this.attributes.mentionedUserIds;
+		}
+		this.attributes.editHistory.push(edit);
+		process.nextTick(callback);
+	}
 
-    // after the post has been saved...
-    postSave (callback) {
-        // this.update is what we return to the client, since the modifiedAt
-        // has changed, add that
-        this.update.modifiedAt = this.model.get('modifiedAt');
-        callback();
-    }
+	// after the post has been saved...
+	postSave (callback) {
+		// this.update is what we return to the client, since the modifiedAt
+		// has changed, add that
+		this.update.modifiedAt = this.model.get('modifiedAt');
+		callback();
+	}
 }
 
 module.exports = PostUpdater;

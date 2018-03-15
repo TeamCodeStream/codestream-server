@@ -5,7 +5,7 @@
 var NormalizeURL = require('../../normalize_url');
 var Assert = require('assert');
 
-// make jshint happy
+// make eslint happy
 /* globals it */
 
 // for each test case, first url should normalize to the second url

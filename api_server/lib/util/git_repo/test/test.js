@@ -8,21 +8,25 @@ const Assert = require('assert');
 const Async = require('async');
 const TEST_REPO_PATH = process.env.CS_API_TEST_REPO_PATH;
 
-// make jshint happy
+// make eslint happy
 /* globals describe, before, beforeEach, it */
 
 // because promises and mocha together suck
 // when we can support node 8 with async/await, this should all be refactored
 var MyAssert = function(condition, message) {
+	/*
 	if (!condition) {
 		console.error(message);
 	}
+	*/
 	Assert(condition, message);
 };
 var MyAssertEqual = function(expect, actual, message) {
+	/*
 	if (expect !== actual) {
 		console.error(message);
 	}
+	*/
 	Assert.equal(expect, actual, message);
 };
 

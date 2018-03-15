@@ -44,11 +44,11 @@ class Streams extends Restful {
 		return Stream;	// use this class for the data model
 	}
 
-/*
+	/*
 	get updaterClass () {
 		return StreamUpdater;	// use this class to update streams (not supported yet)
 	}
-*/
+	*/
 
 	getRoutes () {
 		let standardRoutes = super.getRoutes(STREAM_STANDARD_ROUTES);

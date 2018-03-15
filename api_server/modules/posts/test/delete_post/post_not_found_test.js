@@ -6,7 +6,7 @@ var ObjectID = require('mongodb').ObjectID;
 class PostNotFoundTest extends DeletePostTest {
 
 	get description () {
-		return `should return an error when trying to delete a post that doesn't exist`;
+		return 'should return an error when trying to delete a post that doesn\'t exist';
 	}
 
 	getExpectedError () {
@@ -16,14 +16,14 @@ class PostNotFoundTest extends DeletePostTest {
 		};
 	}
 
-    // before the test runs...
-    before (callback) {
-        super.before(error => {
-            if (error) { return callback(error); }
-            this.path = '/posts/' + ObjectID(); // substitute an ID for a non-existent post
-            callback();
-        });
-    }
+	// before the test runs...
+	before (callback) {
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.path = '/posts/' + ObjectID(); // substitute an ID for a non-existent post
+			callback();
+		});
+	}
 }
 
 module.exports = PostNotFoundTest;

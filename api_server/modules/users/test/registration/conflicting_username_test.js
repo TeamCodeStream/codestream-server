@@ -61,7 +61,7 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 					email: email,
 					username: this.otherUserData.user.username,	// borrow the 'other' user's username
 					password: 'blahblahblah',
-//					betaCode: ApiConfig.testBetaCode	// overrides needing a true beta code
+					// betaCode: ApiConfig.testBetaCode	// overrides needing a true beta code
 				};
 				callback();
 			},

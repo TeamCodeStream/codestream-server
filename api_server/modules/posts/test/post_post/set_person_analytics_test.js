@@ -6,7 +6,7 @@ var Assert = require('assert');
 class SetPersonAnalyticsTest extends PostCountTest {
 
 	get description () {
-		return `when a new post is created, MixPanel should be updated with the total post count and last post created at for the author of the post`;
+		return 'when a new post is created, MixPanel should be updated with the total post count and last post created at for the author of the post';
 	}
 
 	// generate the message by issuing a request

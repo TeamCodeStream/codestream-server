@@ -10,7 +10,7 @@ class MarkerDeletedTest extends DeletePostTest {
 	}
 
 	get description () {
-		return `should delete associated markers when a post is deleted`;
+		return 'should delete associated markers when a post is deleted';
 	}
 }
 

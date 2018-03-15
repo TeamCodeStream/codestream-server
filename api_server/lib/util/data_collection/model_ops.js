@@ -75,8 +75,6 @@ var _Ops = {
 	}
 };
 
-var _documentOpsHelper; // make jshint happy
-
 // here we support that you can change a value that is within an object, like:
 // { $set: { "object.x", 1 } } ... to any level of nesting
 var _subOp = function(opType, document, op, field) {

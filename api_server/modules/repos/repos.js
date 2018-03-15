@@ -17,7 +17,7 @@ const REPOS_STANDARD_ROUTES = {
 	}
 };
 
-// expose additional routes 
+// expose additional routes
 const REPOS_ADDITIONAL_ROUTES = [
 	{
 		method: 'get',
@@ -44,11 +44,11 @@ class Repos extends Restful {
 		return Repo;	// use this class for the data model
 	}
 
-/*
+	/*
 	get updaterClass () {
 		return RepoUpdater;	// use this class to update repos
 	}
-*/
+	*/
 
 	// compile all the routes to expose
 	getRoutes () {

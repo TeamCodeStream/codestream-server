@@ -24,8 +24,6 @@ var NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_
 var NewStreamToMembersTest = require('./new_stream_to_members_test');
 var NewStreamNoMessageTest = require('./new_stream_no_message_test');
 
-/* jshint -W071 */
-
 class PostStreamRequestTester {
 
 	postStreamTest () {
@@ -57,7 +55,5 @@ class PostStreamRequestTester {
 		new NewStreamNoMessageTest({ type: 'channel' }).test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = PostStreamRequestTester;

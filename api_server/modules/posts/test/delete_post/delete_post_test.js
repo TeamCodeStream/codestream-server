@@ -30,10 +30,10 @@ class DeletePostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify we got back a post with the deactivated flag set, and also modifiedAt updated
-        let post = data.post;
-        Assert(post._id === this.post._id, 'returned post ID is not the same');
-        Assert(post.deactivated, 'deactivated flag was not set');
-        Assert(post.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was edited');
+		let post = data.post;
+		Assert(post._id === this.post._id, 'returned post ID is not the same');
+		Assert(post.deactivated, 'deactivated flag was not set');
+		Assert(post.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was edited');
 		Assert(post.text === 'this post has been deleted', 'text is not wiped and replaced');
 		// verify the post in the response has no attributes that should not go to clients
 		this.validateSanitized(post, PostTestConstants.UNSANITIZED_ATTRIBUTES);

@@ -7,8 +7,6 @@ const CodeBlockTest = require('./code_block_test');
 const MentionTest = require('./mention_test');
 const ReplyTest = require('./reply_test');
 
-/* jshint -W071 */
-
 class SlackOutTester {
 
 	test () {
@@ -18,7 +16,5 @@ class SlackOutTester {
 		new ReplyTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = new SlackOutTester();

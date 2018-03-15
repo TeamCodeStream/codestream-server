@@ -8,7 +8,7 @@ const PostRenderer = require('./post_renderer');
 const EmailNotificationRenderer = require('./email_notification_renderer');
 const SessionManager = require(process.env.CS_API_TOP + '/modules/users/session_manager');
 
-// make jshint happy
+// make eslint happy
 /* globals Intl */
 
 class EmailNotificationSender {

@@ -50,19 +50,19 @@ class CommonInit {
 	// create a random stream to use for the test
 	createRandomStream (callback) {
 		if (this.dontWantExistingStream) { return callback(); }
-        let type = this.type || 'file';
+		let type = this.type || 'file';
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
 				callback();
 			},
-            {
-                type: type,
-    			teamId: this.team._id,	// create the stream in the team we already created
-                repoId: type === 'file' ? this.repo._id : undefined,  // file-type streams must have repoId
-    			token: this.otherUserData.accessToken	// the "other user" is the stream creator
-            }
+			{
+				type: type,
+				teamId: this.team._id, // create the stream in the team we already created
+				repoId: type === 'file' ? this.repo._id : undefined, // file-type streams must have repoId
+				token: this.otherUserData.accessToken // the "other user" is the stream creator
+			}
 		);
 	}
 
@@ -90,15 +90,15 @@ class CommonInit {
 	// form the data to be used in the test request
 	makeEditingData (callback) {
 		const editing = this.stopEditing ? false : { commitHash: this.repoFactory.randomCommitHash() };
-        this.data = {
+		this.data = {
 			teamId: this.team._id,
 			repoId: this.repo._id,
 			streamId: this.stream ? this.stream._id : undefined,
 			file: this.stream ? undefined : this.streamFactory.randomFile(),
 			editing: editing
-        };
-        this.editedAfter = Date.now();
-        callback();
+		};
+		this.editedAfter = Date.now();
+		callback();
 	}
 
 	// indicate the user is already editing the file, as needed for the test

@@ -6,7 +6,7 @@ var Assert = require('assert');
 class PostCountTest extends NewPostMessageToTeamTest {
 
 	get description () {
-		return `the author of a post should receive a message indicating totalPosts incremented and lastPostCreatedAt set when creating a post`;
+		return 'the author of a post should receive a message indicating totalPosts incremented and lastPostCreatedAt set when creating a post';
 	}
 
 	// make the data the will be used when issuing the request that triggers the message

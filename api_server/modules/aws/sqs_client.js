@@ -119,7 +119,7 @@ class SQSClient {
 	// process data for a single message data from the given queue
 	_processMessage (queue, message, callback) {
 		this.log(`Received an SQS message on queue ${queue.name}: ${message.MessageId}:${message.ReceiptHandle}`);
-	 	if (message.Body) {
+		if (message.Body) {
 			let data;
 			try {
 				data = JSON.parse(message.Body);

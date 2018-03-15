@@ -29,8 +29,6 @@ var OneRelationalTest = require('./one_relational_test');
 var CorrectSortOrderTest = require('./correct_sort_order_test');
 var ACLTest = require('./acl_test');
 
-/* jshint -W071 */
-
 class GetStreamsRequestTester {
 
 	getStreamsTest () {
@@ -66,7 +64,5 @@ class GetStreamsRequestTester {
 		new ACLTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = GetStreamsRequestTester;

@@ -13,7 +13,7 @@ class ACLRepoOnTheFlyTest extends ACLTest {
 	}
 
 	get description () {
-		return `should return an error when trying to create a post in an on-the-fly file stream for a repo from a team that i\'m not a member of`;
+		return 'should return an error when trying to create a post in an on-the-fly file stream for a repo from a team that i\'m not a member of';
 	}
 
 	getExpectedError () {

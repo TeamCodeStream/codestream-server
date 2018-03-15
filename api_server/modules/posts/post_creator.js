@@ -364,7 +364,7 @@ class PostCreator extends ModelCreator {
 							gotError = null;
 							seqNum = foundStream.nextSeqNum;
 						}
-					 	process.nextTick(whilstCallback);
+						process.nextTick(whilstCallback);
 					},
 					{
 						databaseOptions: {
@@ -620,7 +620,7 @@ class PostCreator extends ModelCreator {
 			'Email Address': this.user.get('email'),
 			'Join Method': this.user.get('joinMethod'),
 			'Team ID': this.team ? this.team.id : undefined,
- 			'Team Size': this.team ? this.team.get('memberIds').length : undefined,
+			'Team Size': this.team ? this.team.get('memberIds').length : undefined,
 			Company: this.company.get('name'),
 			'Endpoint': endpoint,
 			'Plan': 'Free', // FIXME: update when we have payments

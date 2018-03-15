@@ -5,7 +5,7 @@ var PutPostTest = require('./put_post_test');
 class ACLTest extends PutPostTest {
 
 	get description () {
-		return `should return an error when trying to update a post authored by someone else`;
+		return 'should return an error when trying to update a post authored by someone else';
 	}
 
 	getExpectedError () {
@@ -15,15 +15,15 @@ class ACLTest extends PutPostTest {
 		};
 	}
 
-    // before the test runs...
-    before (callback) {
-        super.before(error => {
-            if (error) { return callback(error); }
-            // replace the current user's token with the other user's token
-            this.token = this.otherUserData.accessToken;
-            callback();
-        });
-    }
+	// before the test runs...
+	before (callback) {
+		super.before(error => {
+			if (error) { return callback(error); }
+			// replace the current user's token with the other user's token
+			this.token = this.otherUserData.accessToken;
+			callback();
+		});
+	}
 }
 
 module.exports = ACLTest;

@@ -6,7 +6,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 class ACLTest extends CodeStreamAPITest {
 
 	get description () {
-		return `should return an error when trying to create a ${this.type} stream in a team that i\'m not a member of`;
+		return `should return an error when trying to create a ${this.type} stream in a team that i'm not a member of`;
 	}
 
 	get method () {

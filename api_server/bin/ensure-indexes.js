@@ -11,6 +11,8 @@
 
 'use strict';
 
+/* eslint no-console: 0 */
+
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 var AllModuleIndexes = {
@@ -45,11 +47,11 @@ var DropIndexes = function(db, collection, callback) {
 	var collectionObj = db.collection(collection);
 	collectionObj.dropIndexes((err) => {
 		if(err) {
-			console.log("error dropping indexes on collection", collection, err);
+			console.log('error dropping indexes on collection', collection, err);
 		}
 		AllFinished.dropped++;
 	});
-	console.log("dropped indexes for collection", collection);
+	console.log('dropped indexes for collection', collection);
 	callback();
 };
 
@@ -60,14 +62,14 @@ var BuildIndexes = function(db, collection, callback) {
 	Object.keys(moduleIndexes).forEach(indexName => {
 		let index = moduleIndexes[indexName];
 		AllFinished.indexes++;
-		console.log("ensuring index on collection", collection, index);
+		console.log('ensuring index on collection', collection, index);
 		collectionObj.ensureIndex(index, (err) => {
 			AllFinished.indexed++;
 			if(err) {
-				console.log("error", err);
+				console.log('error', err);
 			}
 			else {
-				console.log("indexed collection, index", collection, index);
+				console.log('indexed collection, index', collection, index);
 			}
 		});
 	});
@@ -86,9 +88,9 @@ var DoCollection = function(db, collection, callback) {
 };
 
 function WaitUntilFinished() {
-	console.log("waiting to finish", AllFinished);
+	console.log('waiting to finish', AllFinished);
 	if( (AllFinished.drops === AllFinished.dropped) && (AllFinished.indexes === AllFinished.indexed)) {
-		console.log("we're done");
+		console.log('we\'re done');
 		process.exit(0);
 	}
 	setTimeout(WaitUntilFinished, 2000);
@@ -96,7 +98,7 @@ function WaitUntilFinished() {
 
 MongoClient.connect(MongoConfig.url, (err, db) => {
 	if(err) {
-		console.log("mongo connect error", err);
+		console.log('mongo connect error', err);
 		process.exit(1);
 	}
 	BoundAsync.forEachSeries(

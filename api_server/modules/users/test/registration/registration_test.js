@@ -34,10 +34,11 @@ class RegistrationTest extends CodeStreamAPITest {
 		// confirmation code in the test so we don't have to get it from an email
 		this.data = this.userFactory.getRandomUserData();
 		this.data._confirmationCheat = SecretsConfig.confirmationCheat;
-//		this.data.betaCode = ApiConfig.testBetaCode;	// overrides needing a true beta code
+		// this.data.betaCode = ApiConfig.testBetaCode; // overrides needing a true beta code
 		callback();
 	}
 
+	/* eslint complexity: 0 */
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify we got a valid user object back, with the attributes epected

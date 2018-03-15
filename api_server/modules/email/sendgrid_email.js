@@ -32,7 +32,7 @@ class SendGridEmail {
 				else if (response.statusCode >= 300) {
 					return callback(this.errorHandler.error('email', { reason: `got status ${response.statusCode} calling sendgrid API` }));
 				}
-		  		callback();
+				callback();
 			}
 		);
 	}
@@ -121,8 +121,8 @@ class SendGridEmail {
 		Object.keys(options.fields || {}).map(field => {
 			mail.personalizations[0].addSubstitution(
 				new helper.Substitution(
-			  		'{{' + field + '}}',
-			 		options.fields[field]
+					'{{' + field + '}}',
+					options.fields[field]
 				)
 			);
 		});

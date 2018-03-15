@@ -31,7 +31,7 @@ class RegisterRequest extends RestfulRequest {
 	process (callback) {
 		BoundAsync.series(this, [
 			this.requireAndAllow,		// require certain parameters, discard unknown parameters
-//			this.checkBetaCode,
+			// this.checkBetaCode,
 			this.generateConfirmCode,	// generate a confirmation code
 			this.saveUser,				// save user to database
 			this.generateToken,			// generate an access token, as needed (if confirmation not required)
