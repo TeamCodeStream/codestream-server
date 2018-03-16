@@ -1,6 +1,5 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var MongoTest = require('./mongo_test');
 
 class DeleteByQueryTest extends MongoTest {
@@ -9,33 +8,38 @@ class DeleteByQueryTest extends MongoTest {
 		return 'should not get documents after they have been deleted by query';
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,					// set up mongo client
-			this.createRandomDocuments,		// create a set of random documents
-			this.filterTestDocuments,		// filter down to our test documents
-			this.deleteDocuments			// delete the rest of the documents (not the test documents)
-		], callback);
+	async before (callback) {
+		try {
+			await super.before();					// set up mongo client
+			await this.createRandomDocuments();		// create a set of random documents
+			await this.filterTestDocuments();		// filter down to our test documents
+			await this.deleteDocuments();			// delete the rest of the documents (not the test documents)
+		}
+		catch (error) {
+			callback(error);
+		}
+		callback();
 	}
 
 	// with a query, delete the documents we don't want returned in the results
-	deleteDocuments (callback) {
-		this.data.test.deleteByQuery(
-			{ flag: this.randomizer + 'no' },
-			callback
+	async deleteDocuments () {
+		await this.data.test.deleteByQuery(
+			{ flag: this.randomizer + 'no' }
 		);
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// fetch all the test documents, but we should only get back the ones we didn't delete
-		let ids = this.documents.map(document => { return document._id; });
-		this.data.test.getByIds(
-			ids,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		const ids = this.documents.map(document => { return document._id; });
+		let response;
+		try {
+			response = await this.data.test.getByIds(ids);
+		}
+		catch (error) {
+			this.checkResponse(error, response, callback);
+		}
+		callback(null, response, callback);
 	}
 
 	validateResponse () {

@@ -8,7 +8,7 @@ class ApplyOpsByIdTest extends UpdateTest {
 		return 'should get the correctly updated document after applying several operations to a document';
 	}
 
-	updateDocument (callback) {
+	async updateDocument () {
 		// apply a series of ops to a document, verify the operations result in the correct document in the end
 		const ops = [
 			{
@@ -42,22 +42,18 @@ class ApplyOpsByIdTest extends UpdateTest {
 				}
 			}
 		];
-		this.data.test.applyOpsById(
+		await this.data.test.applyOpsById(
 			this.testDocument._id,
-			ops,
-			(error) => {
-				if (error) { return callback(error); }
-				Object.assign(this.testDocument, {
-					text: 'replaced!',
-					newText: 'new text replaced!',
-					newArray: [1, 2]
-				});
-				delete this.testDocument.flag;
-				this.testDocument.array.push(9);
-				this.testDocument.array.splice(0, 1);
-				callback();
-			}
+			ops
 		);
+		Object.assign(this.testDocument, {
+			text: 'replaced!',
+			newText: 'new text replaced!',
+			newArray: [1, 2]
+		});
+		delete this.testDocument.flag;
+		this.testDocument.array.push(9);
+		this.testDocument.array.splice(0, 1);
 	}
 
 	validateDocumentResponse() {

@@ -3,44 +3,52 @@
 
 'use strict';
 
-var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
-var MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
-var MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
-var RandomString = require('randomstring');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
+const GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
+const MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
+const  MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
+const  RandomString = require('randomstring');
+const  Assert = require('assert');
+const  PromiseCallback = require(process.env.CS_API_TOP + '/server_utils/promise_callback');
 
 class MongoTest extends GenericTest {
 
 	// before the test runs...
-	before (callback) {
+	async before (callback) {
 		// set up the mongo client, and open it against a test collection
 		this.mongoClientFactory = new MongoClient();
 		const mongoConfig = Object.assign({}, MongoConfig, { collections: ['test'] });
 		delete mongoConfig.queryLogging;
 		delete mongoConfig.hintsRequired;
-		this.mongoClientFactory.openMongoClient(
-			mongoConfig,
-			(error, mongoClient) => {
-				if (error) { return callback(error); }
-				this.mongoClient = mongoClient;
-				this.data = this.mongoClient.mongoCollections;
-				callback();
+
+		try {
+			this.mongoClient = await PromiseCallback(
+				this.mongoClientFactory.openMongoClient,
+				this.mongoClientFactory,
+				mongoConfig
+			);
+		}
+		catch (error) {
+			if (callback) {
+				callback(error);
 			}
-		);
+			else {
+				throw error;
+			}
+		}
+		this.data = this.mongoClient.mongoCollections;
+		if (callback) {
+			callback();
+		}
 	}
 
 	// create a test document which we'll manipulate and a control document which we won't touch
-	createTestAndControlDocument (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.createTestDocument,
-			this.createControlDocument
-		], callback);
+	async createTestAndControlDocument () {
+		await this.createTestDocument();
+		await this.createControlDocument();
 	}
 
 	// create a simple test document with a variety of attributes to be used in various derived tests
-	createTestDocument (callback) {
+	async createTestDocument () {
 		this.testDocument = {
 			text: 'hello',
 			number: 12345,
@@ -51,18 +59,12 @@ class MongoTest extends GenericTest {
 				z: 'three'
 			}
 		};
-		this.data.test.create(
-			this.testDocument,
-			(error, createdDocument) => {
-				if (error) { return callback(error); }
-				this.testDocument._id = createdDocument._id;
-				callback();
-			}
-		);
+		const createdDocument = await this.data.test.create(this.testDocument);
+		this.testDocument._id = createdDocument._id;
 	}
 
 	// create a simple control document, distinct from the test document, we should never see this document again
-	createControlDocument (callback) {
+	async createControlDocument () {
 		this.controlDocument = {
 			text: 'goodbye',
 			number: 54321,
@@ -73,27 +75,18 @@ class MongoTest extends GenericTest {
 				z: 'one'
 			}
 		};
-		this.data.test.create(
-			this.controlDocument,
-			(error, createdDocument) => {
-				if (error) { return callback(error); }
-				this.controlDocument._id = createdDocument._id;
-				callback();
-			}
-		);
+		const createdDocument = await this.data.test.create(this.controlDocument);
+		this.controlDocument._id = createdDocument._id;
 	}
 
 	// create a bunch of random documents
-	createRandomDocuments (callback) {
+	async createRandomDocuments () {
 		this.documents = new Array(10);
 		// the randomizer ensures we don't pick up data that has been put in the database by other tests
 		this.randomizer = RandomString.generate(20);
-		BoundAsync.times(
-			this,
-			10,
-			this.createOneRandomDocument,
-			callback
-		);
+		for (let n = 0; n < 10; n++) {
+			await this.createOneRandomDocument(n);
+		}
 	}
 
 	// with random documents, we'll establish that we only want certain ones when
@@ -104,25 +97,19 @@ class MongoTest extends GenericTest {
 	}
 
 	// create a single random document, varying depending upon which document we are creating in order
-	createOneRandomDocument (n, callback) {
+	async createOneRandomDocument (n) {
 		let flag = this.randomizer + (this.wantN(n) ? 'yes' : 'no');
 		this.documents[n] = {
 			text: 'hello' + n,
 			number: n,
 			flag: flag
 		};
-		this.data.test.create(
-			this.documents[n],
-			(error, createdDocument) => {
-				if (error) { return callback(error); }
-				this.documents[n]._id = createdDocument._id;
-				callback();
-			}
-		);
+		const createdDocument = await this.data.test.create(this.documents[n]);
+		this.documents[n]._id = createdDocument._id;
 	}
 
 	// filter the test documents down to only the ones we want in our test results
-	filterTestDocuments (callback) {
+	async filterTestDocuments () {
 		this.testDocuments = this.documents.filter(document => {
 			return this.wantN(document.number);
 		});
@@ -131,7 +118,6 @@ class MongoTest extends GenericTest {
 		this.testDocuments.sort((a, b) => {
 			return a.number - b.number;
 		});
-		callback();
 	}
 
 	// validate that we got back the document that exactly matches the test document

@@ -8,20 +8,16 @@ class ApplyAddByIdTest extends UpdateTest {
 		return 'should get the correctly updated document after applying an add operation to a document';
 	}
 
-	updateDocument (callback) {
+	async updateDocument () {
 		// add an element to the array, make sure it gets added
 		const update = {
 			array: 7
 		};
-		this.data.test.applyOpById(
+		await this.data.test.applyOpById(
 			this.testDocument._id,
-			{ '$addToSet': update },
-			(error) => {
-				if (error) { return callback(error); }
-				this.testDocument.array.push(7);
-				callback();
-			}
+			{ '$addToSet': update }
 		);
+		this.testDocument.array.push(7);
 	}
 }
 

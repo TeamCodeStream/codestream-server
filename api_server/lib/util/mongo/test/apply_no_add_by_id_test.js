@@ -8,15 +8,14 @@ class ApplyNoAddByIdTest extends UpdateTest {
 		return 'should get an unchanged document after applying a no-op add operation to a document';
 	}
 
-	updateDocument (callback) {
+	async updateDocument () {
 		// try to add an element to an array that is already in the array, the document should be unchanged
 		const update = {
 			array: 4
 		};
-		this.data.test.applyOpById(
+		await this.data.test.applyOpById(
 			this.testDocument._id,
-			{ '$addToSet': update },
-			callback
+			{ '$addToSet': update }
 		);
 	}
 }

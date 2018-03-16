@@ -1,6 +1,5 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var GetByIdTest = require('./get_by_id_test');
 var ObjectID = require('mongodb').ObjectID;
 
@@ -11,14 +10,18 @@ class UpsertTest extends GetByIdTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.updateDocument
-		], callback);
+	async before (callback) {
+		try {
+			await super.before();
+			await this.updateDocument();
+		}
+		catch (error) {
+			callback(error);
+		}
+		callback();
 	}
 
-	updateDocument (callback) {
+	async updateDocument () {
 		// do an update operation with the upsert option, this should create the document even though
 		// it did not exist before
 		const update = {
@@ -26,18 +29,14 @@ class UpsertTest extends GetByIdTest {
 			text: 'upserted!',
 			number: 123
 		};
-		this.data.test.update(
+		const result = await this.data.test.update(
 			update,
-			(error, result) => {
-				if (error) { return callback(error); }
-				this.testDocument = Object.assign({}, update);
-				this.testDocument._id = result.upsertedId._id.toString();
-				callback();
-			},
 			{
 				upsert: true
 			}
 		);
+		this.testDocument = Object.assign({}, update);
+		this.testDocument._id = result.upsertedId._id.toString();
 	}
 }
 

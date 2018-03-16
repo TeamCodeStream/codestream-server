@@ -1,6 +1,5 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var MongoTest = require('./mongo_test');
 var Assert = require('assert');
 
@@ -11,60 +10,50 @@ class CreateManyTest extends MongoTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,			// set up mongo client
-			this.prepareDocuments,	// prepare the document data
-			this.createDocuments	// create the documents
-		], callback);
-	}
-
-	// prepare a set of documents
-	prepareDocuments (callback) {
-		this.documents = new Array(5);
-		BoundAsync.times(
-			this,
-			5,
-			this.prepareOneDocument,
-			callback
-		);
-	}
-
-	// prepare a single document with some data to write
-	prepareOneDocument (n, callback) {
-		this.documents[n] = {
-			text: 'hello' + n,
-			number: 10000 + n
-		};
+	async before (callback) {
+		try {
+			await super.before();			// set up mongo client
+			this.prepareDocuments();	// prepare the document data
+			await this.createDocuments();	// create the documents
+		}
+		catch (error) {
+			callback(error);
+		}
 		callback();
 	}
 
+	// prepare a set of documents
+	prepareDocuments () {
+		this.documents = [];
+		for (let n = 0; n < 5; n++) {
+			this.documents.push({
+				text: 'hello' + n,
+				number: 10000 + n
+			});
+		}
+	}
+
 	// create our prepared documents in the database
-	createDocuments (callback) {
-		this.data.test.createMany(
-			this.documents,
-			(error, documents) => {
-				if (error) { return callback(error); }
-				this.testDocuments = documents;
-				callback();
-			}
-		);
+	async createDocuments () {
+		this.testDocuments = await this.data.test.createMany(this.documents);
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// sort the documents to avoid ambiguous order in the comparison
 		this.testDocuments.sort((a, b) => {
 			return a.number - b.number;
 		});
 		// get the documents that should have been created, by ID, and verify we got them
-		let ids = this.testDocuments.map(document => { return document._id; });
-		this.data.test.getByIds(
-			ids,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		const ids = this.testDocuments.map(document => { return document._id; });
+		let response;
+		try {
+			response = await this.data.test.getByIds(ids);
+		}
+		catch (error) {
+			this.checkResponse(error, response, callback);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	// validate we got the documents we expected

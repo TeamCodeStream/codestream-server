@@ -1,6 +1,5 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var GetByIdTest = require('./get_by_id_test');
 
 class UpdateTest extends GetByIdTest {
@@ -10,28 +9,33 @@ class UpdateTest extends GetByIdTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,		// set up mongo client and create a test document
-			this.updateDocument	// update the test document
-		], callback);
+	async before (callback) {
+		try {
+			await super.before();			// set up mongo client and create a test document
+			await this.updateDocument();	// update the test document
+		}
+		catch (error) {
+			if (callback) {
+				callback(error);
+			}
+			else {
+				throw error;
+			}
+		}
+		if (callback) {
+			callback();
+		}
 	}
 
-	updateDocument (callback) {
+	async updateDocument () {
 		// do the update and verify that it took
 		const update = {
 			_id: this.testDocument._id,
 			text: 'replaced!',
 			number: 123
 		};
-		this.data.test.update(
-			update,
-			(error) => {
-				if (error) { return callback(error); }
-				Object.assign(this.testDocument, update);
-				callback();
-			}
-		);
+		await this.data.test.update(update);
+		Object.assign(this.testDocument, update);
 	}
 }
 
