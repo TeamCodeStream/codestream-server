@@ -244,7 +244,7 @@ class MongoCollection {
 	async applyOpsById (id, ops, options) {
 		// just break these down and do them one by one, no better way
 		await Promise.all(ops.map(async op => {
-			return await this.applyOpById(id, op, null, options);
+			return await this.applyOpById(id, op, options);
 		}));
 	}
 
