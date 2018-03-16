@@ -242,10 +242,25 @@ class MongoCollection {
 	// apply a series of ops (directives) to modify the data associated with the specified
 	// document
 	async applyOpsById (id, ops, options) {
-		// just break these down and do them one by one, no better way
-		await Promise.all(ops.map(async op => {
-			return await this.applyOpById(id, op, options);
-		}));
+		const totalOp = this.collapseOps(ops);
+		await this.applyOpById(id, totalOp, options);
+	}
+
+	// collapse an array of ops into a single op
+	collapseOps (ops) {
+		let totalOp = {};
+		ops.forEach(givenOp => {
+			Object.values(OP_TO_DB_OP).forEach(op => {
+				if (typeof op === 'object') {
+					op = op.dbOp;
+				}
+				if (givenOp[op]) {
+					totalOp[op] = totalOp[op] || {};
+					Object.assign(totalOp[op], givenOp[op]);
+				}
+			});
+		});
+		return totalOp;
 	}
 
 	// apply a single op (directive) to modify the data associated with the specified document
