@@ -51,8 +51,8 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			team: {
 				_id: this.team._id,
 				$set: {
-					"integrations.slack.enabled": true,
-					"integrations.slack.info": this.integrationInfo,
+					'integrations.slack.enabled': true,
+					'integrations.slack.info': this.integrationInfo,
 					modifiedAt: team.$set.modifiedAt
 				}
 			}

@@ -62,8 +62,8 @@ class UserCreator extends ModelCreator {
 	validateEmail () {
 		let error = this.userValidator.validateEmail(this.attributes.email);
 		if (error) {
-		 	return { email: error };
-	 	}
+			return { email: error };
+		}
 	}
 
 	// validate the given password
@@ -80,8 +80,8 @@ class UserCreator extends ModelCreator {
 		if (!this.attributes.username) { return; }
 		let error = this.userValidator.validateUsername(this.attributes.username);
 		if (error) {
-		 	return { username: error };
-	 	}
+			return { username: error };
+		}
 	}
 
 	// return whether a matching user can exist or if an error should be returned

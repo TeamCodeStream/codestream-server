@@ -93,7 +93,7 @@ class NumMarkersTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		// verify that numMarkers is equal to the total number of code blocks 
+		// verify that numMarkers is equal to the total number of code blocks
 		let numMarkers = this.numPosts * this.numCodeBlocks;
 		Assert(numMarkers === data.stream.numMarkers, `numMarkers should be ${numMarkers}, but it is ${data.stream.numMarkers}`);
 	}

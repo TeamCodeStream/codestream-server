@@ -32,8 +32,8 @@ class RegistrationRequestTester {
 		new UserMessageToTeamTest().test();
 		new UserMessageToOtherUserTest().test();
 		new ConfirmationEmailTest().test();
-//		new NoBetaCodeTest().test();
-//		new InvalidBetaCodeTest().test();
+		// new NoBetaCodeTest().test();
+		// new InvalidBetaCodeTest().test();
 		new PreferencesTest().test();
 	}
 }

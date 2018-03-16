@@ -1,6 +1,5 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var MongoTest = require('./mongo_test');
 var Assert = require('assert');
 
@@ -11,28 +10,33 @@ class UpdateNoIdTest extends MongoTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,			// set up mongo client
-			this.createTestDocument // create a test document
-		], callback);
+	async before (callback) {
+		try {
+			await super.before();			// set up mongo client
+			await this.createTestDocument(); // create a test document
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
-	run (callback) {
+	async run (callback) {
 		// to do an update operation, the caller must supply an ID, either in the options,
 		// or in the update itself ... if there is no ID, we should get back an error
 		const update = {
 			text: 'replaced!',
 			number: 123
 		};
-		this.data.test.update(
-			update,
-			(error) => {
-				const errorCode = 'MDTA-1001';
-				Assert(typeof error === 'object' && error.code && error.code === errorCode, `error code ${errorCode} expected`);
-				callback();
-			}
-		);
+		try {
+			await this.data.test.update(update);
+		}
+		catch (error) {
+			const errorCode = 'MDTA-1001';
+			Assert(typeof error === 'object' && error.code && error.code === errorCode, `error code ${errorCode} expected`);
+			return callback();
+		}
+		callback('error not thrown');
 	}
 }
 

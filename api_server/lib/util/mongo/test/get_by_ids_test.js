@@ -1,6 +1,5 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var MongoTest = require('./mongo_test');
 
 class GetByIdsTest extends MongoTest {
@@ -10,24 +9,30 @@ class GetByIdsTest extends MongoTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,					// set up mongo client
-			this.createRandomDocuments,		// create a series of random documents
-			this.filterTestDocuments		// filter down to the ones we want`
-		], callback);
+	async before (callback) {
+		try {
+			await super.before();					// set up mongo client
+			await this.createRandomDocuments();		// create a series of random documents
+			await this.filterTestDocuments();		// filter down to the ones we want`
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// get the documents we want, and verify we didn't get any others
 		let ids = this.testDocuments.map(document => { return document._id; });
-		this.data.test.getByIds(
-			ids,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			response = await this.data.test.getByIds(ids);
+		}
+		catch (error) {
+			this.checkResponse(error, response, callback);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

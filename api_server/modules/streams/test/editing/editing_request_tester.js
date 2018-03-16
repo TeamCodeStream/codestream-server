@@ -23,8 +23,6 @@ const StopEditingMessageTest = require('./stop_editing_message_test');
 const MultipleEditingTest = require('./multiple_editing_test');
 const MultipleMessageToTeamTest = require('./multiple_message_to_team_test');
 
-/* jshint -W071 */
-
 class EditingRequestTester {
 
 	editingTest () {
@@ -54,7 +52,5 @@ class EditingRequestTester {
 		new MultipleMessageToTeamTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = EditingRequestTester;

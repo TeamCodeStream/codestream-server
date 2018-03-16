@@ -69,7 +69,7 @@ class TeamSubscriptionGranter  {
 			channel,
 			(error) => {
 				if (error) {
-					 return callback(`unable to grant permissions for subscription (${channel}): ${error}`);
+					return callback(`unable to grant permissions for subscription (${channel}): ${error}`);
 				}
 				else {
 					return callback();

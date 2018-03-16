@@ -18,7 +18,7 @@ class GetByIdFromDatabaseTest extends DataCollectionTest {
 		], callback);
 	}
 
-	createModelDirect (callback) {
+	async createModelDirect (callback) {
 		this.testModel = new DataModel({
 			text: 'hello',
 			number: 12345,
@@ -26,14 +26,15 @@ class GetByIdFromDatabaseTest extends DataCollectionTest {
 		});
 		// note that we're calling this.mongoData.test.create, not this.data.test.create
 		// this creates the document in the database directly, bypassing the cache
-		this.mongoData.test.create(
-			this.testModel.attributes,
-			(error, createdDocument) => {
-				if (error) { return callback(error); }
-				this.testModel.id = this.testModel.attributes._id = createdDocument._id;
-				callback();
-			}
-		);
+		let createdDocument;
+		try {
+			createdDocument = await this.mongoData.test.create(this.testModel.attributes);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.testModel.id = this.testModel.attributes._id = createdDocument._id;
+		callback();
 	}
 
 	run (callback) {

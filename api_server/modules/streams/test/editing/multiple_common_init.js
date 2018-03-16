@@ -131,13 +131,13 @@ class MultipleCommonInit {
 				this.classifyStream(response.stream);
 				callback();
 			},
-            {
-                type: type,
-    			teamId: teamInfo.team._id,
-                repoId: type === 'file' ? teamInfo.repo._id : undefined,  // file-type streams must have repoId
-				memberIds: type !== 'file' ? teamInfo.users.map(user => user._id) : undefined,	// channel/direct must have members
-    			token: this.otherUserData.accessToken	// the "other user" is the stream creator
-            }
+			{
+				type: type,
+				teamId: teamInfo.team._id,
+				repoId: type === 'file' ? teamInfo.repo._id : undefined, // file-type streams must have repoId
+				memberIds: type !== 'file' ? teamInfo.users.map(user => user._id) : undefined, // channel/direct must have members
+				token: this.otherUserData.accessToken // the "other user" is the stream creator
+			}
 		);
 	}
 
@@ -251,8 +251,8 @@ class MultipleCommonInit {
 			files,
 			editing: { commitHash: this.repoFactory.randomCommitHash() }
 		};
-        this.editedAfter = Date.now();
-        callback();
+		this.editedAfter = Date.now();
+		callback();
 	}
 
 	// confirm the response to the request or message generation

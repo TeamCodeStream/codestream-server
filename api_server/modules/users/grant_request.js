@@ -108,7 +108,7 @@ class GrantRequest extends RestfulRequest {
 			channel,
 			(error) => {
 				if (error) {
-					 return callback(this.errorHandler.error('messagingGrant'));
+					return callback(this.errorHandler.error('messagingGrant'));
 				}
 				else {
 					return callback();

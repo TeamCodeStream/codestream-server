@@ -11,10 +11,10 @@ class AuthenticationUserNotFoundTest extends AuthenticationTest {
 	}
 
 	getExpectedError () {
- 		return {
- 			code: 'AUTH-1004'
- 		};
- 	}
+		return {
+			code: 'AUTH-1004'
+		};
+	}
 
 	// before the test runs...
 	before (callback) {

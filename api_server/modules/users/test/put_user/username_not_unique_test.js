@@ -5,7 +5,7 @@ var PutUserTest = require('./put_user_test');
 class UsernameNotUniqueTest extends PutUserTest {
 
 	get description () {
-		return `should return an error when user is trying to update their username and it is not unique for the team`;
+		return 'should return an error when user is trying to update their username and it is not unique for the team';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class UsernameNotUniqueTest extends PutUserTest {
 		super.makeUserData(() => {
 			// use the username for the "other user"
 			this.data.username = this.otherUserData.user.username;
-			callback(); 
+			callback();
 		});
 	}
 }

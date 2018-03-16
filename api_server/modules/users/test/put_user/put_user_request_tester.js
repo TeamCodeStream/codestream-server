@@ -14,8 +14,6 @@ var UsernameNotUniqueForSecondTeamTest = require('./username_not_unique_for_seco
 const UserAttributes = require('../../user_attributes');
 const CAN_UPDATE_ATTRIBUTES = ['username', 'firstName', 'lastName', 'timeZone'];
 
-/* jshint -W071 */
-
 class PutUserRequestTester {
 
 	putUserTest () {
@@ -36,7 +34,5 @@ class PutUserRequestTester {
 		new UsernameNotUniqueForSecondTeamTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = PutUserRequestTester;

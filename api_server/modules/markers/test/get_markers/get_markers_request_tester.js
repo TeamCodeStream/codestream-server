@@ -12,8 +12,6 @@ var ACLTeamTest = require('./acl_team_test');
 var StreamNoMatchTeamTest = require('./stream_no_match_team_test');
 var TooManyIDsTest = require('./too_many_ids_test');
 
-/* jshint -W071 */
-
 class GetMarkersRequestTester {
 
 	getMarkersTest () {
@@ -29,7 +27,5 @@ class GetMarkersRequestTester {
 		new TooManyIDsTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = GetMarkersRequestTester;

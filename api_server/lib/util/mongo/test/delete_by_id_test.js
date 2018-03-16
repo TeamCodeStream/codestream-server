@@ -1,6 +1,5 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var MongoTest = require('./mongo_test');
 
 class DeleteByIdTest extends MongoTest {
@@ -10,33 +9,37 @@ class DeleteByIdTest extends MongoTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,						// set up mongo client
-			this.createTestAndControlDocument,	// create a test document and a control document
-			this.deleteDocument					// delete the test document
-		], callback);
+	async before (callback) {
+		try {
+			await super.before();						// set up mongo client
+			await this.createTestAndControlDocument();	// create a test document and a control document
+			await this.deleteDocument();				// delete the test document
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// delete the test document
-	deleteDocument (callback) {
-		this.data.test.deleteById(
-			this.testDocument._id,
-			callback
-		);
+	async deleteDocument () {
+		await this.data.test.deleteById(this.testDocument._id);
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// we'll fetch the test and control documents, but since we deleted the test document,
 		// we should only get the control document
 		this.testDocuments = [this.controlDocument];
-		this.data.test.getByIds(
-			[this.testDocument._id, this.controlDocument._id],
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			const ids = [this.testDocument._id, this.controlDocument._id];
+			response = await this.data.test.getByIds(ids);
+		}
+		catch (error) {
+			this.checkResponse(error, response, callback);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

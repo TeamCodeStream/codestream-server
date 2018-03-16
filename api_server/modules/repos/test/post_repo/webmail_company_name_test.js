@@ -10,7 +10,7 @@ class WebmailCompanyNameTest extends PostRepoTest {
 	}
 
 	get description () {
-		return `company name should be full email address of creator when the creator has a webmail address`;
+		return 'company name should be full email address of creator when the creator has a webmail address';
 	}
 }
 

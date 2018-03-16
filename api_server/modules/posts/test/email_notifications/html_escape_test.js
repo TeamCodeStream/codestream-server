@@ -2,7 +2,7 @@
 
 var EmailNotificationTest = require('./email_notification_test');
 
-const UNESCAPED_HTML = '&<>"\'`=\<b>bold</b><p>paragraph</p>';
+const UNESCAPED_HTML = '&<>"\'`=<b>bold</b><p>paragraph</p>';
 const ESCAPED_HTML = '&amp;&lt;&gt;&quot;&#39;&#x60;&#x3D;&lt;b&gt;bold&lt;&#x2F;b&gt;&lt;p&gt;paragraph&lt;&#x2F;p&gt;';
 
 class HtmlEscapeTest extends EmailNotificationTest {
@@ -39,7 +39,7 @@ class HtmlEscapeTest extends EmailNotificationTest {
 
 	// validate the message received from pubnub
 	validateMessage (data) {
-		// since we stored the original text and code, use those and add the escaped html we 
+		// since we stored the original text and code, use those and add the escaped html we
 		// expect to see in the email output
 		this.post.text = ESCAPED_HTML + this.originals.text;
 		let codeBlock = this.post.codeBlocks[0];

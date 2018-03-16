@@ -1,8 +1,8 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var UpdateTest = require('./update_test');
 var Assert = require('assert');
+var PromiseCallback = require(process.env.CS_API_TOP + '/server_utils/promise_callback');
 
 class FindAndModifyTest extends UpdateTest {
 
@@ -11,37 +11,43 @@ class FindAndModifyTest extends UpdateTest {
 	}
 
 	// run the test...
-	run (callback) {
-		BoundAsync.series(this, [
-			this.checkFetchedDocument,	// check that we got the unmodified document as a result of the operation
-			super.run					// do the normal check for UpdateTest, checking against the updated test document
-		], callback);
+	async run (callback) {
+		try {
+			this.checkFetchedDocument();	// check that we got the unmodified document as a result of the operation
+			await this.superRun();				// do the normal check for UpdateTest, checking against the updated test document
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
-	updateDocument (callback) {
+	async superRun () {
+		await PromiseCallback(
+			super.run,
+			this
+		);
+	}
+
+	async updateDocument () {
 		// run the findAndModify, which will update the document in the database, but return the document
 		// before the update
 		const update = {
 			number: 5
 		};
-		this.data.test.findAndModify(
+		const result = await this.data.test.findAndModify(
 			{ _id: this.data.test.objectIdSafe(this.testDocument._id) },
-			{ '$inc': update },
-			(error, result) => {
-				if (error) { return callback(error); }
-				this.fetchedDocument = result.value;
-				callback();
-			}
+			{ '$inc': update }
 		);
+		this.fetchedDocument = result.value;
 	}
 
-	checkFetchedDocument (callback) {
+	checkFetchedDocument () {
 		// check that the fetched document matches the document before the update, but then prepare for the
 		// document to be checked against the document after the update (in the base class's run method)
 		this.fetchedDocument._id = this.fetchedDocument._id.toString();
 		Assert.deepEqual(this.testDocument, this.fetchedDocument, 'fetched document not equal to test document');
 		this.testDocument.number += 5;
-		callback();
 	}
 }
 

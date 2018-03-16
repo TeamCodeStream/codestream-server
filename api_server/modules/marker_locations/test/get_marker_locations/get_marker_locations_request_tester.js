@@ -10,8 +10,6 @@ var ACLTeamTest = require('./acl_team_test');
 var StreamNoMatchTeamTest = require('./stream_no_match_team_test');
 var NoMarkerLocationsForCommitTest = require('./no_marker_locations_for_commit_test');
 
-/* jshint -W071 */
-
 class GetMarkerLocationsRequestTester {
 
 	getMarkerLocationsTest () {
@@ -26,7 +24,5 @@ class GetMarkerLocationsRequestTester {
 		new NoMarkerLocationsForCommitTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = GetMarkerLocationsRequestTester;

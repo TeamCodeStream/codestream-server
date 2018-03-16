@@ -411,11 +411,11 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		if (this.currentUser.isRegistered) {
 			if (this.onlineForTeam && !this.onlineForRepo) {
 				// registered user who is online only for the team, but doesn't have the repo open
-				expectIntro = `We noticed that you don’t currently have this repo open in your IDE and didn’t want you to miss this discussion. Add to the discussion by replying to this email.`;
+				expectIntro = 'We noticed that you don’t currently have this repo open in your IDE and didn’t want you to miss this discussion. Add to the discussion by replying to this email.';
 			}
 			else {
 				// registered user who is offline
-				expectIntro = `We noticed that you don’t currently have your IDE open and didn’t want you to miss this discussion. Add to the discussion by replying to this email.`;
+				expectIntro = 'We noticed that you don’t currently have your IDE open and didn’t want you to miss this discussion. Add to the discussion by replying to this email.';
 			}
 		}
 		else if (this.firstEmail) {

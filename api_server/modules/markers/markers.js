@@ -33,11 +33,11 @@ class Markers extends Restful {
 		return Marker;	// use this class for the data model
 	}
 
-/*
+	/*
 	get updaterClass () {
 		return MarkerUpdater;
 	}
-*/
+	*/
 
 	getRoutes () {
 		return  super.getRoutes(MARKER_STANDARD_ROUTES);

@@ -2,7 +2,7 @@
 
 'use strict';
 
-// make jshint happy
+// make eslint happy
 /* globals describe */
 
 var ReposRequestTester = require('./repos_request_tester');

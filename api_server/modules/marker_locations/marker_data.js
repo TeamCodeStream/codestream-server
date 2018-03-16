@@ -56,7 +56,7 @@ class MarkerData {
 
 	// was the start line of this marker unrecognizably deleted?
 	isLineStartDeleted () {
- 		return this.lineStartNew === DELETED;
+		return this.lineStartNew === DELETED;
 	}
 
 	// was the end line of this marker unrecognizably deleted?

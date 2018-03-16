@@ -11,10 +11,10 @@ class AuthenticationNoUserIDTest extends AuthenticationTest {
 	}
 
 	getExpectedError () {
- 		return {
- 			code: 'AUTH-1003'
- 		};
- 	}
+		return {
+			code: 'AUTH-1003'
+		};
+	}
 
 	// before the test runs...
 	before (callback) {

@@ -50,6 +50,7 @@ class TrackingTest extends SlackPostMessageTest {
 		);
 	}
 
+	/* eslint complexity: 0 */
 	// validate the message received from pubnub
 	validateMessage (message) {
 		message = message.message;

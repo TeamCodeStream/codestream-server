@@ -8,15 +8,14 @@ class ApplyNoPullByIdTest extends UpdateTest {
 		return 'should get an unchanged document after applying a no-op pull operation to a document';
 	}
 
-	updateDocument (callback) {
+	async updateDocument () {
 		// try to pull an element from an array that is not in the array, the document should be unchanged
 		const update = {
 			array: 8
 		};
-		this.data.test.applyOpById(
+		await this.data.test.applyOpById(
 			this.testDocument._id,
-			{ '$pull': update },
-			callback
+			{ '$pull': update }
 		);
 	}
 }

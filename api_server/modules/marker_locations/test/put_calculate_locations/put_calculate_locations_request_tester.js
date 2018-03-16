@@ -19,8 +19,6 @@ var NoNewCommitHashTest = require('./no_new_commit_hash_test');
 var NoNewCommitHashFetchTest = require('./no_new_commit_hash_fetch_test');
 var NoPublishOnNoNewCommitHashTest = require('./no_publish_on_no_new_commit_hash_test');
 
-/* jshint -W071 */
-
 class PutCalculateLocationsRequestTester {
 
 	putCalculateLocationsTest () {
@@ -49,7 +47,5 @@ class PutCalculateLocationsRequestTester {
 		new NoPublishOnNoNewCommitHashTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = PutCalculateLocationsRequestTester;

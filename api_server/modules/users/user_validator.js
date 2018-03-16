@@ -67,7 +67,7 @@ class UserValidator extends CodeStreamModelValidator {
 			return 'must be a string';
 		}
 		let upper = definition.lowercaseOnly ? '' : 'A-Z';
-		let regexp = new RegExp(`^[${upper}a-z0-9\-\._]+$`);
+		let regexp = new RegExp(`^[${upper}a-z0-9-._]+$`);
 		if (!regexp.test(value)) {
 			return 'can only contain alphanumerics, hyphen, period, and underscore';
 		}

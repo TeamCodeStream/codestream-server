@@ -9,26 +9,20 @@ class ApplyUpsertOpTest extends UpdateTest {
 		return 'should get the correct document after upserting a document by op that did not exist before';
 	}
 
-	updateDocument (callback) {
+	async updateDocument () {
 		// do an update with the upsert option, verify that the test document was created
 		const update = {
 			_id: ObjectID(),
 			text: 'upserted!',
 			number: 123
 		};
-		this.data.test.applyOpById(
+		const result = await this.data.test.applyOpById(
 			update._id,
 			{ '$set': update },
-			(error, result) => {
-				if (error) { return callback(error); }
-				this.testDocument = Object.assign({}, update);
-				this.testDocument._id = result.upsertedId._id.toString();
-				callback();
-			},
-			{
-				upsert: true
-			}
+			{ upsert: true }
 		);
+		this.testDocument = Object.assign({}, update);
+		this.testDocument._id = result.upsertedId._id.toString();
 	}
 }
 

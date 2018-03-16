@@ -32,7 +32,7 @@ class Companies extends Restful {
 		return Company;	// derived from DataModel, class to use for a company model
 	}
 
-/*
+	/*
 	get updaterClass () {
 		return CompanyUpdater;
 	}

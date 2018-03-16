@@ -79,7 +79,7 @@ class EmailNotificationRenderer {
 
 	// link that user should click on to learn about CodeStream and install the plugin
 	getInstallLink (/*options*/) {
-/*
+		/*
 		const { user, mentioned } = options;
 		const firstEmail = !user.get('hasReceivedFirstEmail');
 		const campaign = (
@@ -88,9 +88,9 @@ class EmailNotificationRenderer {
 			(!firstEmail && mentioned && 'mention_notification_unreg') ||
 			(!firstEmail && !mentioned && 'newmessage_notification_unreg')
 		);
-*/
+		*/
 		return 'https://atom.io/packages/codestream';
-//		return `http://codestream.com/setup?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
+		// return `http://codestream.com/setup?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
 	}
 
 	// determine the intro text of an email notification
@@ -102,10 +102,10 @@ class EmailNotificationRenderer {
 		const installLink = this.getInstallLink(options);
 		if (isRegistered) {
 			if (offlineForRepo) {
-				return `We noticed that you don’t currently have this repo open in your IDE and didn’t want you to miss this discussion.`;
+				return 'We noticed that you don’t currently have this repo open in your IDE and didn’t want you to miss this discussion.';
 			}
 			else {
-				return `We noticed that you don’t currently have your IDE open and didn’t want you to miss this discussion.`;
+				return 'We noticed that you don’t currently have your IDE open and didn’t want you to miss this discussion.';
 			}
 		}
 		else if (firstEmail) {

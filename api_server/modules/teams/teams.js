@@ -34,11 +34,11 @@ class Teams extends Restful {
 		return Team;	// use this class for the data model
 	}
 
-/*
+	/*
 	get updaterClass () {
 		return TeamUpdater;	// use this class to update teams (not supported yet)
 	}
-*/
+	*/
 
 	getRoutes () {
 		return super.getRoutes(TEAM_STANDARD_ROUTES);

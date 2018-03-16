@@ -13,7 +13,7 @@ class RepoSubscriptionGranter  {
 	// grant subscription permission to all indicated users to subscribe to the repo channel for this repo
 	grantToUsers (callback) {
 		BoundAsync.series(this, [
-			this.getTokens,		// get the access tokens for each registered user 
+			this.getTokens,		// get the access tokens for each registered user
 			this.grantRepoChannel	// grant subscription permissions for all of these user
 		], callback);
 	}
@@ -49,7 +49,7 @@ class RepoSubscriptionGranter  {
 			channel,
 			(error) => {
 				if (error) {
-					 return callback(`unable to grant permissions for subscription (${channel}): ${error}`);
+					return callback(`unable to grant permissions for subscription (${channel}): ${error}`);
 				}
 				else {
 					return callback();

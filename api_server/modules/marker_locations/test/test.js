@@ -2,7 +2,7 @@
 
 'use strict';
 
-// make jshint happy
+// make eslint happy
 /* globals describe */
 
 var MarkerLocationsRequestTester = require('./marker_locations_request_tester');

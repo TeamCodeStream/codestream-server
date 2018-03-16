@@ -4,8 +4,6 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-
 class DataCollectionFetcher {
 
 	constructor (options) {
@@ -14,128 +12,95 @@ class DataCollectionFetcher {
 	}
 
 	// get a document by ID
-	getById (id, callback, options) {
+	async getById (id, options) {
 		// we'll just call the getByIds method here, with one element
-		this.getByIds(
-			[id],
-			(error, models) => {
-				if (error) { return callback(error); }
-				let model = models.length > 0 ? models[0] : null;
-				callback(null, model);
-			},
-			options
-		);
+		const models = await this.getByIds([id], options);
+		return models.length > 0 ? models[0] : null;
 	}
 
 	// get several documents according to their IDs
-	getByIds (ids, callback, options) {
+	async getByIds (ids, options) {
 		this.databaseOptions = Object.assign({}, options || {}, { requestId: this.requestId });	// these options go to the database layer
 		this.ids = ids;
-		BoundAsync.series(this, [
-			this.getFromCache,		// first see what we can get from the cache
-			this.fetch,				// fetch from the database what we didn't get from the cache
-			this.modelize,			// turn the documents into models
-			this.add				// add the models to our cache
-		], (error) => {
-			if (error) { return callback(error); }
-			let models = (this.cachedModels || []).concat(this.fetchedModels || []);	// combine cached and fetched models to return
-			callback(null, models);
-		});
+		await this.getFromCache();
+		await this.fetch();
+		await this.modelize();
+		await this.add();
+		return (this.cachedModels || []).concat(this.fetchedModels || []);	// combine cached and fetched models to return
 	}
 
 	// get several models according to their IDs, only from the cache
-	getFromCache (callback) {
+	async getFromCache () {
 		this.cachedModels = [];
 		this.notFound = [];
-		if (this.ids.length === 0) {
-			return process.nextTick(callback);
-		}
-		BoundAsync.forEachLimit(
-			this,
-			this.ids,
-			50,
-			this.tryFindModel,
-			callback
-		);
+		await Promise.all(this.ids.map(async id => {
+			this.tryFindModel(id);
+		}));
 	}
 
 	// fetch from the database whatever models we could not get from the cache
-	fetch (callback) {
+	async fetch () {
 		if (this.notFound.length === 0) {
-			return callback();	// got 'em all from the cache ... yeehaw
+			return;	// got 'em all from the cache ... yeehaw
 		}
 		else if (this.notFound.length === 1) {
 			// single ID fetch is more efficient
-			return this.fetchOne(callback);
+			return await this.fetchOne();
 		}
 		else {
-			return this.fetchMany(callback);
+			return await this.fetchMany();
 		}
 	}
 
 	// fetch just one document from the database given its ID
-	fetchOne (callback) {
-		this.databaseCollection.getById(
+	async fetchOne () {
+		const document = await this.databaseCollection.getById(
 			this.notFound[0],
-			(error, document) => {
-				if (error) { return callback(error); }
-				if (document) {
-					this.fetchedDocuments = [document];
-				}
-				process.nextTick(callback);
-			},
 			this.databaseOptions
 		);
+		if (document) {
+			this.fetchedDocuments = [document];
+		}
 	}
 
 	// fetch several documents from the database, given their IDs
-	fetchMany (callback) {
-		this.databaseCollection.getByIds(
+	async fetchMany () {
+		const documents = await this.databaseCollection.getByIds(
 			this.notFound,
-			(error, documents) => {
-				if (error) { return callback(error); }
-				this.fetchedDocuments = documents;
-				process.nextTick(callback);
-			},
 			this.databaseOptions
 		);
+		this.fetchedDocuments = documents;
 	}
 
 	// try to find a model in the cache, given its ID
-	tryFindModel (id, callback) {
-		let model = this.collection._getFromCache(id);	// the DataCollection handles the cache
+	tryFindModel (id) {
+		const model = this.collection._getFromCache(id);	// the DataCollection handles the cache
 		if (model) {
 			this.cachedModels.push(model);
+			return true;
 		}
 		else {
 			this.notFound.push(id);
+			return false;
 		}
-		process.nextTick(callback);
 	}
 
 	// turn all of our fetched documents into the appropriate models for this collection
-	modelize (callback) {
+	async modelize () {
 		this.fetchedModels = [];
-		BoundAsync.forEachLimit(
-			this,
-			this.fetchedDocuments,
-			50,
-			this.modelizeDocument,
-			callback
-		);
-	}
-
-	// turn a single document into the appropriate model for this collection
-	modelizeDocument (document, callback) {
-		let model = new this.modelClass(document);
-		this.fetchedModels.push(model);
-		process.nextTick(callback);
+		if (!this.fetchedDocuments) { return; }
+		await Promise.all(this.fetchedDocuments.map(
+			async document => {
+				const model = new this.modelClass(document);
+				this.fetchedModels.push(model);
+			}
+		));
 	}
 
 	// add whatever models we fetched to our cache
-	add (callback) {
+	async add () {
 		// send this back to the collection class, it will handle caching
-		this.collection._addModelsToCache(this.fetchedModels, callback);
+		await this.collection._addModelsToCache(this.fetchedModels);
 	}
 }
 

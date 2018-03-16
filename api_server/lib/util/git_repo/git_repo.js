@@ -49,15 +49,15 @@ class GitRepo {
 		diff.findSimilar({
 			flags: Git.Diff.FIND.RENAMES
 		})
-		.then(() => {
-			return diff.patches();
-		})
-		.then((patches) => {
-			this._deltasFromPatches(patches, callback);
-		})
-		.catch(error => {
-			throw error;
-		});
+			.then(() => {
+				return diff.patches();
+			})
+			.then((patches) => {
+				this._deltasFromPatches(patches, callback);
+			})
+			.catch(error => {
+				throw error;
+			});
 	}
 
 	_deltasFromPatches (patches, callback) {

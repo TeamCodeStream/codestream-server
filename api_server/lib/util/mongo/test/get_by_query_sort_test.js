@@ -10,20 +10,24 @@ class GetByQuerySortTest extends GetByQueryTest {
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// sort our test models so we can compare properly with the fetched models, and then fetch and compare
 		this.testDocuments.sort((a, b) => {
 			return b.number - a.number;
 		});
-		this.data.test.getByQuery(
-			{ flag: this.randomizer + 'yes' },
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			},
-			{
-				sort: { number: -1 }
-			}
-		);
+		let response;
+		try {
+			response = await this.data.test.getByQuery(
+				{ flag: this.randomizer + 'yes' },
+				{
+					sort: { number: -1 }
+				}
+			);
+		}
+		catch (error) {
+			this.checkResponse(error, response, callback);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateArrayResponse () {

@@ -36,14 +36,17 @@ class GetByIdsFromQueryCacheTest extends DataCollectionTest {
 		);
 	}
 
-	deleteModels (callback) {
+	async deleteModels (callback) {
 		// delete the models from the underlying database (note use of this.mongoData, not this.data)
 		// this ensure that when we fetch them, we're fetching from the cache
-		let ids = this.testModels.map(model => { return model.id; });
-		this.mongoData.test.deleteByIds(
-			ids,
-			callback
-		);
+		const ids = this.testModels.map(model => { return model.id; });
+		try {
+			await this.mongoData.test.deleteByIds(ids);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// run the test...

@@ -28,13 +28,13 @@
     "uuid": "^3.2.1"
   },
   "scripts": {
-    "jshint": "jshint ."
+    "eslint": "eslint --fix ."
   },
   "pre-commit": [
-    "jshint"
+    "eslint"
   ],
   "devDependencies": {
-    "jshint": "2.9.5",
+    "eslint": "^4.18.2",
     "mocha-teamcity-reporter": "1.1.1",
     "pre-commit": "1.2.2"
   }

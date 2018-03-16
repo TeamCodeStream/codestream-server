@@ -15,17 +15,15 @@ var MarkersDeletedMessageTest = require('./markers_deleted_message_test');
 var DeleteReplyToCodeBlockTest = require('./delete_reply_to_code_block_test');
 var NumCommentsMessageTest = require('./num_comments_message_test');
 
-/* jshint -W071 */
-
 class DeletePostRequestTester {
 
 	deletePostTest () {
 		new DeletePostTest().test();
-        new ACLTest().test();
-        new ACLTeamTest().test();
-        new PostNotFoundTest().test();
-        new AlreadyDeletedTest().test();
-        new MessageToTeamTest().test();
+		new ACLTest().test();
+		new ACLTeamTest().test();
+		new PostNotFoundTest().test();
+		new AlreadyDeletedTest().test();
+		new MessageToTeamTest().test();
 		new MessageToStreamTest({ streamType: 'channel' }).test();
 		new MessageToStreamTest({ streamType: 'direct' }).test();
 		new MarkerDeletedTest().test();
@@ -35,7 +33,5 @@ class DeletePostRequestTester {
 		new NumCommentsMessageTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = DeletePostRequestTester;

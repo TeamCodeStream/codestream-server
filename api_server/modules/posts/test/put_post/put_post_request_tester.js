@@ -11,16 +11,14 @@ var MessageToStreamTest = require('./message_to_stream_test');
 var NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
 var MentionTest = require('./mention_test');
 
-/* jshint -W071 */
-
 class PutPostRequestTester {
 
 	putPostTest () {
 		new PutPostTest().test();
-        new ACLTest().test();
-        new ACLTeamTest().test();
-        new PostNotFoundTest().test();
-        new MessageToTeamTest().test();
+		new ACLTest().test();
+		new ACLTeamTest().test();
+		new PostNotFoundTest().test();
+		new MessageToTeamTest().test();
 		new MessageToStreamTest({ streamType: 'channel' }).test();
 		new MessageToStreamTest({ streamType: 'direct' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
@@ -29,7 +27,5 @@ class PutPostRequestTester {
 		new MentionTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = PutPostRequestTester;

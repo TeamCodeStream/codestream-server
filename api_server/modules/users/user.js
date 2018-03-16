@@ -55,22 +55,22 @@ class User extends CodeStreamModel {
 	// authorize the user to "access" the given model, based on type
 	authorizeModel (modelName, id, request, callback) {
 		switch (modelName) {
-			case 'company':
-				return this.authorizeCompany(id, request, callback);
-			case 'team':
-				return this.authorizeTeam(id, request, callback);
-			case 'repo':
-				return this.authorizeRepo(id, request, callback);
-			case 'stream':
-				return this.authorizeStream(id, request, callback);
-			case 'post':
-				return this.authorizePost(id, request, callback);
-			case 'marker':
-				return this.authorizeMarker(id, request, callback);
-			case 'user':
-				return this.authorizeUser(id, request, callback);
-			default:
-				return callback(null, false);
+		case 'company':
+			return this.authorizeCompany(id, request, callback);
+		case 'team':
+			return this.authorizeTeam(id, request, callback);
+		case 'repo':
+			return this.authorizeRepo(id, request, callback);
+		case 'stream':
+			return this.authorizeStream(id, request, callback);
+		case 'post':
+			return this.authorizePost(id, request, callback);
+		case 'marker':
+			return this.authorizeMarker(id, request, callback);
+		case 'user':
+			return this.authorizeUser(id, request, callback);
+		default:
+			return callback(null, false);
 		}
 	}
 

@@ -24,8 +24,6 @@ const NewUserMessageTest = require('./new_user_message_test');
 const ExistingUserUsernameConflictTest = require('./existing_user_username_conflict_test');
 const UserAddedMessageTest = require('./user_added_message_test');
 
-/* jshint -W071 */
-
 class SlackPostRequestTester {
 
 	test () {
@@ -57,7 +55,5 @@ class SlackPostRequestTester {
 		new UserAddedMessageTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = new SlackPostRequestTester();

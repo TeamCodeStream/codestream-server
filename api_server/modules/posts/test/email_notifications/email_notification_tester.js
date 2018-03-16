@@ -30,12 +30,10 @@ var PreferOnTest = require('./prefer_on_test');
 var PreferMentionsTest = require('./prefer_mentions_test');
 */
 
-/* jshint -W071 */
-
 class EmailNotificationTester {
 
 	emailNotificationTest () {
-/*
+		/*
 Removing all email notification tests until I have time to re-instrument them
 with respect to COD-256 ... will be a PITA
 
@@ -64,10 +62,8 @@ with respect to COD-256 ... will be a PITA
 		new PreferOffForRepoNoEmailTest().test();
 		new PreferOnTest().test();
 		new PreferMentionsTest().test();
-*/
+		*/
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = EmailNotificationTester;

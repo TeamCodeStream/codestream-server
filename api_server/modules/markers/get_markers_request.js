@@ -41,7 +41,7 @@ class GetMarkersRequest extends GetManyRequest {
 		}
 		this.commitHash = this.request.query.commitHash.toLowerCase();
 		let query = {
-//			teamId: this.teamId, // will be needed for sharding, but for now, we'll avoid an index here
+			// teamId: this.teamId, // will be needed for sharding, but for now, we'll avoid an index here
 			_id: `${this.streamId}|${this.commitHash}`
 		};
 		this.data.markerLocations.getByQuery(

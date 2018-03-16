@@ -2,7 +2,7 @@
 
 'use strict';
 
-// make jshint happy
+// make eslint happy
 /* globals describe */
 
 var StreamsRequestTester = require('./streams_request_tester');

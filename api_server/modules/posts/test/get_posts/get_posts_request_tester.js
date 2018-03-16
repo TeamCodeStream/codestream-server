@@ -38,8 +38,6 @@ var GetPostsBySingleSeqNumTest = require('./get_posts_by_single_seqnum_test');
 var NoSeqNumWithRelationalTest = require('./no_seqnum_with_relational_test');
 var GetMarkersWithPostsTest = require('./get_markers_with_posts_test');
 
-/* jshint -W071 */
-
 class GetPostsRequestTester {
 
 	getPostsTest () {
@@ -48,9 +46,9 @@ class GetPostsRequestTester {
 		new GetPostsTest({type: 'file'}).test();
 		// with indexing, the tests below are disabled pending the need for them, since
 		// they would require and index
-//		new GetPostsByMeTest().test();
-//		new GetPostsByOtherTest().test();
-//		new GetPostsNewerThanTest().test();
+		// new GetPostsByMeTest().test();
+		// new GetPostsByOtherTest().test();
+		// new GetPostsNewerThanTest().test();
 		new GetChildPostsTest().test();
 		new GetPostsByIdTest().test();
 		new GetPostsLimitTest().test();
@@ -88,7 +86,5 @@ class GetPostsRequestTester {
 		new GetMarkersWithPostsTest().test();
 	}
 }
-
-/* jshint +W071 */
 
 module.exports = GetPostsRequestTester;

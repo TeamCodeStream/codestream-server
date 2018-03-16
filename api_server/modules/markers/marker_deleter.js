@@ -7,9 +7,9 @@ var Marker = require('./marker');
 
 class MarkerDeleter extends ModelDeleter {
 
-    get modelClass () {
-        return Marker;    // class to use to create a post model
-    }
+	get modelClass () {
+		return Marker;    // class to use to create a post model
+	}
 
 	get collectionName () {
 		return 'markers';	// data collection to use

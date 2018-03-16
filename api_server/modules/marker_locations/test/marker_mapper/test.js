@@ -8,7 +8,7 @@ var Async = require('async');
 const TestConstants = require('./test_constants');
 const TEST_REPO_PATH = process.env.CS_API_TEST_REPO_PATH;
 
-// make jshint happy
+// make eslint happy
 /* globals describe, before, it */
 
 describe('MarkerMapper', () => {

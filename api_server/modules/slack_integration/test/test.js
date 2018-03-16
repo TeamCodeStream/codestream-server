@@ -2,7 +2,7 @@
 
 'use strict';
 
-// make jshint happy
+// make eslint happy
 /* globals describe */
 
 const SlackEnableRequestTester = require('./slack_enable/test.js');

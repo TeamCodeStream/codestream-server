@@ -27,7 +27,7 @@ class ModelDeleter {
 			this.delete,				// delete the document
 			this.postDelete				// give the derived class a chance to do stuff after we've deleted
 		], (error) => {
-	 		callback(error, this.update);
+			callback(error, this.update);
 		});
 	}
 

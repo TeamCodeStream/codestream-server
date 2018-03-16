@@ -203,9 +203,8 @@ class MarkerMapper {
 	 * line numbers after the last edit according to the "final balance"
 	 */
 	recalculateLinesUntilEnd (callback) {
-		let line;
 		const balance = this.finalBalance;
-		while ((line = this.getCurrentLine())) {
+		while (this.getCurrentLine()) {
 			this.moveCurrentLineBy(balance);
 			this.nextLine();
 		}
@@ -376,7 +375,8 @@ class MarkerMapper {
 		const mid = oldContent.substring(oldCol - 1, oldCol);
 		let pos = oldContent.substring(oldCol, oldCol + 3);
 
-		while (true) {
+		let done = false;
+		while (!done) {
 			const str = pre + mid + pos;
 
 			const oldContentPositions = this._positionsOfContent(str, oldContent, pre.length);
@@ -391,6 +391,7 @@ class MarkerMapper {
 			}
 
 			if (!pre.length && !pos.length) {
+				done = true;
 				break;
 			}
 

@@ -12,7 +12,7 @@ class PutUserRequest extends PutRequest {
 		// only the user themself can update themself
 		let userId = this.request.params.id.toLowerCase();
 		if (userId !== 'me' && userId !== this.user.id) {
-            return callback(this.errorHandler.error('updateAuth', { reason: 'only the user can update their own attributes' }));
+			return callback(this.errorHandler.error('updateAuth', { reason: 'only the user can update their own attributes' }));
 		}
 		if (this.request.params.id === 'me') {
 			// use current user's ID if me specified
@@ -23,7 +23,7 @@ class PutUserRequest extends PutRequest {
 
 	// after the user is updated...
 	postProcess (callback) {
-        this.publishUser(callback);
+		this.publishUser(callback);
 	}
 
 	// publish the user to the appropriate messager channel(s)

@@ -35,12 +35,12 @@ class PutUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify we got back a user with the updated attributes
-        let user = data.user;
-        Assert(user._id === this.currentUser._id, 'returned user ID is not the same');
-        this.attributes.forEach(attribute => {
-        	Assert.equal(user[attribute], this.data[attribute], `${attribute} does not match`);
-        });
-        Assert(user.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the user was updated');
+		let user = data.user;
+		Assert(user._id === this.currentUser._id, 'returned user ID is not the same');
+		this.attributes.forEach(attribute => {
+			Assert.equal(user[attribute], this.data[attribute], `${attribute} does not match`);
+		});
+		Assert(user.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the user was updated');
 		// verify the user in the response has no attributes that should not go to clients
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

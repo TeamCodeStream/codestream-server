@@ -29,12 +29,15 @@ class GetByIdFromCacheAfterDeletedTest extends DataCollectionTest {
 		);
 	}
 
-	deleteModel (callback) {
+	async deleteModel (callback) {
 		// we delete the model from the database (pulling the run out from under the cache)
-		this.mongoData.test.deleteById(
-			this.testModel.id,
-			callback
-		);
+		try {
+			await this.mongoData.test.deleteById(this.testModel.id);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// run the test...

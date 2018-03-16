@@ -105,7 +105,9 @@ class EmailNotificationQueue {
 					whilstCallback();
 				});
 			},
-			callback
+			() => {
+				callback(gotError);
+			}
 		);
 	}
 

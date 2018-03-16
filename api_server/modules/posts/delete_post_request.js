@@ -9,21 +9,21 @@ class DeletePostRequest extends DeleteRequest {
 
 	// authorize the request for the current user
 	authorize (callback) {
-        // get the post, only the author of the post can edit it
-        this.data.posts.getById(
-            this.request.params.id,
-            (error, post) => {
-                if (error) { return callback(error); }
-                if (!post) {
-                    return callback(this.errorHandler.error('notFound', { info: 'post' }));
-                }
-                if (post.get('creatorId') !== this.user.id) {
-                    return callback(this.errorHandler.error('deleteAuth', { reason: 'only the post author can delete the post' }));
-                }
-                this.post = post;
-                return callback();
-            }
-        );
+		// get the post, only the author of the post can edit it
+		this.data.posts.getById(
+			this.request.params.id,
+			(error, post) => {
+				if (error) { return callback(error); }
+				if (!post) {
+					return callback(this.errorHandler.error('notFound', { info: 'post' }));
+				}
+				if (post.get('creatorId') !== this.user.id) {
+					return callback(this.errorHandler.error('deleteAuth', { reason: 'only the post author can delete the post' }));
+				}
+				this.post = post;
+				return callback();
+			}
+		);
 	}
 
 	// after the post is deleted...

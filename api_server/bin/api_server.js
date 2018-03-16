@@ -75,7 +75,7 @@ var MyAPICluster = new ClusterWrapper(
 // start up the master, this will launch workers to really get down to work
 MyAPICluster.start((error) => {
 	if (error) {
-		console.error('Failed to start: ' + error);
+		console.error('Failed to start: ' + error); // eslint-disable-line no-console
 		process.exit(1);
 	}
 });

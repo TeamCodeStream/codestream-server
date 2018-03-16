@@ -6,7 +6,7 @@ var RandomString = require('randomstring');
 class NormalizeUrlTest extends PostRepoTest {
 
 	get description () {
-		return `should return valid repo when creating a new repo, and the URL should be appropriately normalized`;
+		return 'should return valid repo when creating a new repo, and the URL should be appropriately normalized';
 	}
 
 	// before the test runs...

@@ -38,11 +38,11 @@ class MarkerLocationsModule extends Restful {
 		return MarkerLocations;		// use this model to instantiate marker locations
 	}
 
-/*
+	/*
 	get updaterClass () {
 		return MarkerUpdater;
 	}
-*/
+	*/
 
 	getRoutes () {
 		return MARKER_LOCATIONS_ROUTES;

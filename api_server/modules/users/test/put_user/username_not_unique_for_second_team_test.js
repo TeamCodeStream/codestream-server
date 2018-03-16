@@ -6,7 +6,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 class UsernameNotUniqueForSecondTeamTest extends PutUserTest {
 
 	get description () {
-		return `should return an error when user is trying to update their username and it is not unique for a second team`;
+		return 'should return an error when user is trying to update their username and it is not unique for a second team';
 	}
 
 	getExpectedError () {
@@ -18,7 +18,7 @@ class UsernameNotUniqueForSecondTeamTest extends PutUserTest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,			// set up usual test conditions 
+			super.before,			// set up usual test conditions
 			this.createThirdUser,	// add another registered user
 			this.createSecondRepo	// create a second repo and a second team, with the third user on it
 		], callback);
@@ -38,7 +38,7 @@ class UsernameNotUniqueForSecondTeamTest extends PutUserTest {
 
 	// create a second repo to use for the test
 	createSecondRepo (callback) {
-		// this should put the current user on another team, and 
+		// this should put the current user on another team, and
 		this.repoFactory.createRandomRepo(
 			callback,
 			{

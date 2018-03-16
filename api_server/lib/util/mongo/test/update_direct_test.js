@@ -1,6 +1,5 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var MongoTest = require('./mongo_test');
 var Assert = require('assert');
 
@@ -11,35 +10,40 @@ class UpdateDirectTest extends MongoTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,				// set up mongo client
-			this.createRandomDocuments,	// create a series of random documents
-			this.updateDocuments		// update those documents using a direct update
-		], callback);
+	async before (callback) {
+		try {
+			await super.before();					// set up mongo client
+			await this.createRandomDocuments();	// create a series of random documents
+			await this.updateDocuments();			// update those documents using a direct update
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// update the test documents using a direct update operation
-	updateDocuments (callback) {
+	async updateDocuments () {
 		// do a direct update to change the text of our test documents
-		let regexp = new RegExp(`^${this.randomizer}yes$`);
-		this.data.test.updateDirect(
+		const regexp = new RegExp(`^${this.randomizer}yes$`);
+		await this.data.test.updateDirect(
 			{ flag: regexp },
-			{ $set: { text: 'goodbye'} },
-			callback
+			{ $set: { text: 'goodbye'} }
 		);
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// fetch our test documents
-		let ids = this.documents.map(document => { return document._id; });
-		this.data.test.getByIds(
-			ids,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		const ids = this.documents.map(document => { return document._id; });
+		let response;
+		try {
+			response = await this.data.test.getByIds(ids);
+		}
+		catch (error) {
+			this.checkResponse(error, response, callback);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	// validate the response

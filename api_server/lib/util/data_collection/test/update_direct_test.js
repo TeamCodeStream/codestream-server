@@ -33,15 +33,17 @@ class UpdateDirectTest extends DataCollectionTest {
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// query the database directly for our test models
-		let ids = this.models.map(model => { return model.id; });
-		this.mongoData.test.getByIds(
-			ids,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		const ids = this.models.map(model => { return model.id; });
+		let response;
+		try {
+			response = await this.mongoData.test.getByIds(ids);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	// validate the response

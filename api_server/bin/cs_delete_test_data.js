@@ -1,7 +1,7 @@
-// mongo script to remove all data created by API server unit tests, 
+// mongo script to remove all data created by API server unit tests,
 // which put a special flag into all data created called _forTesting
 
-// make jshint happy
+// make eslint happy
 /* globals db */
 
 const Collections = [

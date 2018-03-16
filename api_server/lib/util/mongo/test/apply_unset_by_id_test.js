@@ -8,20 +8,16 @@ class ApplyUnsetByIdTest extends UpdateTest {
 		return 'should get the correctly updated document after applying an unset operation to a document';
 	}
 
-	updateDocument (callback) {
+	async updateDocument () {
 		// unset (delete an attribute), verify that it took
 		const update = {
 			text: 1,
 		};
-		this.data.test.applyOpById(
+		await this.data.test.applyOpById(
 			this.testDocument._id,
-			{ '$unset': update },
-			(error) => {
-				if (error) { return callback(error); }
-				delete this.testDocument.text;
-				callback();
-			}
+			{ '$unset': update }
 		);
+		delete this.testDocument.text;
 	}
 }
 

@@ -2,7 +2,7 @@
 
 'use strict';
 
-// make jshint happy
+// make eslint happy
 /* globals describe */
 
 var GetByIdTest = require('./get_by_id_test');
@@ -36,8 +36,6 @@ var ApplyNewIncByIdTest = require('./apply_new_inc_by_id_test');
 var UpsertTest = require('./upsert_test');
 var ApplyUpsertOpTest = require('./apply_upsert_op_test');
 var FindAndModifyTest = require('./find_and_modify_test');
-
-/* jshint -W071 */
 
 describe('mongo', function() {
 
@@ -74,7 +72,4 @@ describe('mongo', function() {
 	new UpsertTest().test();
 	new ApplyUpsertOpTest().test();
 	new FindAndModifyTest().test();
-
 });
-
-/* jshint +W071 */

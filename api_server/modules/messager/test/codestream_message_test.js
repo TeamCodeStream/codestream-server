@@ -184,7 +184,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		if (this.messageTimer) {
 			clearTimeout(this.messageTimer);
 			delete this.messageTimer;
- 		}
+		}
 		callback();
 	}
 }
