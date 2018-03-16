@@ -93,17 +93,18 @@ class DataCollectionTest extends GenericTest {
 	// for tests that test the caching ability, we want to ensure that a document has not yet
 	// been persisted to the database, so try to fetch it from the database, which should
 	// return nothing
-	confirmNotPersisted (callback) {
-		this.mongoData.test.getById(
-			this.testModel.id,
-			(error, response) => {
-				if (error) { return callback(error); }
-				if (response !== null) {
-					return callback('model that should have gone to cache seems to have persisted');
-				}
-				callback();
-			}
-		);
+	async confirmNotPersisted (callback) {
+		let response;
+		try {
+			response = await this.mongoData.test.getById(this.testModel.id);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		if (response !== null) {
+			return callback('model that should have gone to cache seems to have persisted');
+		}
+		callback();
 	}
 
 	// create a bunch of random models

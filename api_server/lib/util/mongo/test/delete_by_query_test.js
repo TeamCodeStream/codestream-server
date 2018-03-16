@@ -16,7 +16,7 @@ class DeleteByQueryTest extends MongoTest {
 			await this.deleteDocuments();			// delete the rest of the documents (not the test documents)
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}

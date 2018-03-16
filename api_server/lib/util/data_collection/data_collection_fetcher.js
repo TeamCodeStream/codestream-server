@@ -65,7 +65,7 @@ class DataCollectionFetcher {
 
 	// fetch several documents from the database, given their IDs
 	async fetchMany () {
-		const documents = this.databaseCollection.getByIds(
+		const documents = await this.databaseCollection.getByIds(
 			this.notFound,
 			this.databaseOptions
 		);

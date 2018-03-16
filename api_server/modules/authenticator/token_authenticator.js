@@ -67,34 +67,35 @@ class TokenAuthenticator {
 	}
 
 	// get the user associated with this token payload
-	getUser (callback) {
+	async getUser (callback) {
 		let userId = this.payload.userId;
 		if (!userId) {
 			return callback(this.errorHandler.error('noUserId'));
 		}
-		this.api.data.users.getById(
-			userId,
-			(error, user) => {
-				if (error) {
-					return callback(this.errorHandler.error('internal', { reason: error }));
+		let user;
+		try {
+			user = await this.api.data.users.getById(
+				userId,
+				{
+					requestId: this.request.id
 				}
-				if (!user) {
-					return callback(this.errorHandler.error('userNotFound'));
-				}
-				if (this.userClass) {
-					// make a model out of the user attributes
-					this.request.user = new this.userClass(user);
-				}
-				else {
-					this.request.user = user;
-				}
-				this.request.authPayload = this.payload;
-				process.nextTick(callback);
-			},
-			{
-				requestId: this.request.id
-			}
-		);
+			);
+		}
+		catch (error) {
+			return callback(this.errorHandler.error('internal', { reason: error }));
+		}
+		if (!user) {
+			return callback(this.errorHandler.error('userNotFound'));
+		}
+		if (this.userClass) {
+			// make a model out of the user attributes
+			this.request.user = new this.userClass(user);
+		}
+		else {
+			this.request.user = user;
+		}
+		this.request.authPayload = this.payload;
+		process.nextTick(callback);
 	}
 
 	// certain paths signal that no authentication is required

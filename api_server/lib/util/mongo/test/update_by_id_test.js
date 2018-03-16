@@ -15,7 +15,7 @@ class UpdateByIdTest extends GetByIdTest {
 			await this.updateDocument();	// update the document
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}

@@ -17,7 +17,7 @@ class CreateManyTest extends MongoTest {
 			await this.createDocuments();	// create the documents
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}

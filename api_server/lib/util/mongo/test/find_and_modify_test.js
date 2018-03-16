@@ -17,7 +17,7 @@ class FindAndModifyTest extends UpdateTest {
 			await this.superRun();				// do the normal check for UpdateTest, checking against the updated test document
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}

@@ -16,7 +16,7 @@ class DeleteByIdsTest extends MongoTest {
 			await this.deleteDocuments();			// delete some of the documents
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}

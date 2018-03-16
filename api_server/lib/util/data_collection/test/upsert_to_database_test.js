@@ -43,14 +43,16 @@ class UpsertToDatabaseTest extends DataCollectionTest {
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// fetch the model directly from the database, if the upsert worked, we should just get it from the database
-		this.mongoData.test.getById(
-			this.testModel.id,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			response = await this.mongoData.test.getById(this.testModel.id);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

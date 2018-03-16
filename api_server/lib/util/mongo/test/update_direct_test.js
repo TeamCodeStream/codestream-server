@@ -17,7 +17,7 @@ class UpdateDirectTest extends MongoTest {
 			await this.updateDocuments();			// update those documents using a direct update
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}

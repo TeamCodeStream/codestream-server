@@ -16,7 +16,7 @@ class UpdateNoIdTest extends MongoTest {
 			await this.createTestDocument(); // create a test document
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}

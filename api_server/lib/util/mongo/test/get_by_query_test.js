@@ -16,7 +16,7 @@ class GetByQueryTest extends MongoTest {
 			await this.filterTestDocuments();	// filter down to the documents we want
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}

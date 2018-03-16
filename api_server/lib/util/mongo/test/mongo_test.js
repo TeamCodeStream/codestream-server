@@ -29,7 +29,7 @@ class MongoTest extends GenericTest {
 		}
 		catch (error) {
 			if (callback) {
-				callback(error);
+				return callback(error);
 			}
 			else {
 				throw error;

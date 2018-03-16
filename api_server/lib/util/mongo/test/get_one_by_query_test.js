@@ -15,7 +15,7 @@ class GetOneByQueryTest extends MongoTest {
 			await this.createRandomDocuments();	// create a series of random documents
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}

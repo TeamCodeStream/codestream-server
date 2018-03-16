@@ -16,7 +16,7 @@ class GetByIdTest extends MongoTest {
 		}
 		catch (error) {
 			if (callback) {
-				callback(error);
+				return callback(error);
 			}
 			else {
 				throw error;

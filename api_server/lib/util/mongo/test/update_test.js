@@ -16,7 +16,7 @@ class UpdateTest extends GetByIdTest {
 		}
 		catch (error) {
 			if (callback) {
-				callback(error);
+				return callback(error);
 			}
 			else {
 				throw error;

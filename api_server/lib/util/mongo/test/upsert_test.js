@@ -16,7 +16,7 @@ class UpsertTest extends GetByIdTest {
 			await this.updateDocument();
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}

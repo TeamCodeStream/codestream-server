@@ -19,20 +19,21 @@ class GetOneByQuerySkipsCacheTest extends DataCollectionTest {
 		], callback);
 	}
 
-	confirmModelsNotPersisted (callback) {
+	async confirmModelsNotPersisted (callback) {
 		// fetch our test models directly from the database (note this.mongoData below, not this.data)
 		// since we haven't told the DataCollection to persist them, this should return no results
 		let ids = this.models.map(model => { return model.id; });
-		this.mongoData.test.getByIds(
-			ids,
-			(error, response) => {
-				if (error) { return callback(error); }
-				if (!(response instanceof Array) || response.length !== 0) {
-					return callback('models that should have gone to cache seem to have persisted');
-				}
-				callback();
-			}
-		);
+		let response;
+		try {
+			response = await this.mongoData.test.getByIds(ids);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		if (!(response instanceof Array) || response.length !== 0) {
+			return callback('models that should have gone to cache seem to have persisted');
+		}
+		callback();
 	}
 
 	// run the test...

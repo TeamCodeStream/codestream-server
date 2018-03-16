@@ -242,7 +242,7 @@ class DataCollection {
 			await this._createDocuments();   // create any documents requested
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}
@@ -343,7 +343,7 @@ class DataCollection {
 
 	// persist document updates to the database
 	async _persistDocuments () {
-		Promise.all(Object.keys(this.dirtyModelIds).map(async id => {
+		await Promise.all(Object.keys(this.dirtyModelIds).map(async id => {
 			await this._persistDocument(id);
 		}));
 	}
@@ -390,7 +390,7 @@ class DataCollection {
 
 	// create a series of documents in the database
 	async _createDocuments () {
-		Promise.all(Object.keys(this.toCreateIds).map(async id => {
+		await Promise.all(Object.keys(this.toCreateIds).map(async id => {
 			await this._createDocument(id);
 		}));
 	}
@@ -414,7 +414,7 @@ class DataCollection {
 
 	// delete a series of documents in the database
 	async _deleteDocuments () {
-		Promise.all(Object.keys(this.toDeleteIds).map(async id => {
+		await Promise.all(Object.keys(this.toDeleteIds).map(async id => {
 			await this._deleteDocument(id);
 		}));
 	}

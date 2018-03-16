@@ -20,14 +20,16 @@ class CreateAndPersistTest extends DataCollectionTest {
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// fetch the document from the collection
-		this.mongoData.test.getById(
-			this.testModel.id,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			response = await this.mongoData.test.getById(this.testModel.id);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

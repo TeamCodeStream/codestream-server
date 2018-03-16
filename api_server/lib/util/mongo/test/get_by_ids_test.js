@@ -16,7 +16,7 @@ class GetByIdsTest extends MongoTest {
 			await this.filterTestDocuments();		// filter down to the ones we want`
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback();
 	}

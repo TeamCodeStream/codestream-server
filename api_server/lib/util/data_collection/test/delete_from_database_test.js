@@ -28,16 +28,18 @@ class DeleteFromDatabaseTest extends DataCollectionTest {
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// we'll fetch the test model and control model, but since the test model has been deleted,
 		// we should only get the control model
 		this.testModels = [this.controlModel];
-		this.mongoData.test.getByIds(
-			[this.testModel.id, this.controlModel.id],
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			response = await this.mongoData.test.getByIds([this.testModel.id, this.controlModel.id]);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	// validate the response
