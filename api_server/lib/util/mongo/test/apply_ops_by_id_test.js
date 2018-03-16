@@ -29,14 +29,8 @@ class ApplyOpsByIdTest extends UpdateTest {
 				'$push': {
 					newArray: 1
 				},
-				'$pull': {
-					array: 1
-				},
 			},
 			{
-				'$addToSet': {
-					newArray: 2
-				},
 				'$set': {
 					newText: 'new text replaced!'
 				}
@@ -49,11 +43,10 @@ class ApplyOpsByIdTest extends UpdateTest {
 		Object.assign(this.testDocument, {
 			text: 'replaced!',
 			newText: 'new text replaced!',
-			newArray: [1, 2]
+			newArray: [1]
 		});
 		delete this.testDocument.flag;
 		this.testDocument.array.push(9);
-		this.testDocument.array.splice(0, 1);
 	}
 
 	validateDocumentResponse() {
