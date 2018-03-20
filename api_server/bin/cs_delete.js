@@ -26,12 +26,13 @@ let options = {
 	deleteTeamlessUsers: Commander.deleteTeamlessUsers
 };
 
-new Deleter().go(
-	options,
-	error => {
-		if (error) {
-			console.error(error);
-		}
+(async function() {
+	try {
+		await new Deleter().go(options);
 		process.exit();
 	}
-);
+	catch (error) {
+		console.error(error);
+		process.exit();
+	}
+})();
