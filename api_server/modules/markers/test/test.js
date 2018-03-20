@@ -15,5 +15,6 @@ describe('marker requests', function() {
 
 	describe('GET /markers/:id', markersRequestTester.getMarkerTest);
 	describe('GET /markers', markersRequestTester.getMarkersTest);
+	describe('PUT /markers/:id', markersRequestTester.putMarkerTest);
 
 });
