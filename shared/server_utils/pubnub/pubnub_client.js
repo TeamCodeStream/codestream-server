@@ -101,7 +101,7 @@ class PubNubClient {
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
 			if (options.request) {
-				options.request.log(`******* Would have granted access for ${tokens} to ${channel}`);
+				options.request.log(`Would have granted access for ${tokens} to ${channel}`);
 				return callback();
 			}
 		}
