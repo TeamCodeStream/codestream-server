@@ -142,15 +142,10 @@ class CommonInit {
 			originalCommitHash: this.commitHash,
 			edits: this.edits
 		};
-		if (!this.noNewCommitHash) {
-			// give the calculated marker locations a new commit
-			this.newCommitHash = this.data.newCommitHash = this.postFactory.randomCommitHash();	
-		}
+		// give the calculated marker locations a new commit
+		this.newCommitHash = this.data.newCommitHash = this.postFactory.randomCommitHash();
 		callback();
 	}
 }
 
 module.exports = CommonInit;
-
-
-

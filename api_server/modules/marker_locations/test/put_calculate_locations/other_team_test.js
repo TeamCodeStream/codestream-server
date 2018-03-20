@@ -11,8 +11,7 @@ class OtherTeamTest extends PutCalculateLocationsTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1003',
-			info: 'stream'
+			code: 'RAPI-1010'
 		};
 	}
 
@@ -52,7 +51,7 @@ class OtherTeamTest extends PutCalculateLocationsTest {
 				type: 'file',
 				teamId: this.otherRepo.teamId,	// using the other team
 				repoId: this.otherRepo._id,		// using the other repo
-				token: this.teamCreatorData.accessToken	// team creator creates a stream 
+				token: this.teamCreatorData.accessToken	// team creator creates a stream
 			}
 		);
 	}

@@ -1,30 +1,35 @@
 'use strict';
 
 var PutCalculateLocationsTest = require('./put_calculate_locations_test');
+var ObjectID = require('mongodb').ObjectID;
 
 class ClientSendsLocationsTest extends PutCalculateLocationsTest {
 
-	get description () {
-		return 'should properly calculate and save marker locations when requested, when the client sends only a subset of the marker locations';
+	constructor (options) {
+		super(options);
+		this.numPosts = 0;
 	}
 
-	// set data to be used in the request
+	get description () {
+		return `should properly calculate and save marker locations when requested, even if ${this.omittedAttribute} is not provided, as long as the client sends locations`;
+	}
+
 	setData (callback) {
-		// we'll grab just a subset of the markers and pass those along in the request
 		super.setData(() => {
-			let allMarkerIds = Object.keys(this.locations);
-			let myMarkerIds = [
-				allMarkerIds[2],
-				allMarkerIds[7],
-				allMarkerIds[5]
-			];
-			let myLocations = {};
-			myMarkerIds.forEach(markerId => {
-				myLocations[markerId] = this.locations[markerId];
-			});
-			this.data.locations = this.locations = myLocations;
+			delete this.data.originalCommitHash;
+			delete this.data[this.omittedAttribute];
+			this.locations = this.data.locations = this.randomLocations();
 			callback();
 		});
+	}
+
+	randomLocations () {
+		let locations = {};
+		for (let i = 0; i < 20; i++) {
+			const markerId = ObjectID();
+			locations[markerId] = this.markerFactory.randomLocation();
+		}
+		return locations;
 	}
 }
 

@@ -1,13 +1,13 @@
 'use strict';
 
-var NoNewCommitHashTest = require('./no_new_commit_hash_test');
+var ClientSendsLocationsTest = require('./client_sends_locations_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Assert = require('assert');
 
-class NoNewCommitHashFetchTest extends NoNewCommitHashTest {
+class NoSaveWhenClientSendsLocationsTest extends ClientSendsLocationsTest {
 
 	get description () {
-		return 'should properly calculate marker locations when requested, but when no newCommitHash is provided, should not save';
+		return `should properly calculate marker locations when requested, but when no ${this.omittedAttribute} is provided, should not save`;
 	}
 
 	get method () {
@@ -24,7 +24,7 @@ class NoNewCommitHashFetchTest extends NoNewCommitHashTest {
 	}
 
 	// calculate marker locations for the markers by calling PUT /calculate-locations
-	// the actual test is trying to read these marker locations and verifying we get nothing, 
+	// the actual test is trying to read these marker locations and verifying we get nothing,
 	// demonstrating that the server didn't save them
 	setMarkerLocations (callback) {
 		this.doApiRequest(
@@ -57,4 +57,4 @@ class NoNewCommitHashFetchTest extends NoNewCommitHashTest {
 	}
 }
 
-module.exports = NoNewCommitHashFetchTest;
+module.exports = NoSaveWhenClientSendsLocationsTest;

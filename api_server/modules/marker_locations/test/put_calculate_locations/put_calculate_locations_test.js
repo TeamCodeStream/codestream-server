@@ -33,12 +33,14 @@ class PutCalculateLocationsTest extends Aggregation(CodeStreamAPITest, CommonIni
 		Assert(typeof data.markerLocations === 'object', 'did not get markerLocations in response');
 		const markerLocations = data.markerLocations;
 		Assert.equal(markerLocations.teamId, this.team._id, 'incorrect teamId');
-		Assert.equal(markerLocations.streamId, this.stream._id, 'incorrect streamId');
-		if (this.noNewCommitHash) {
+		if (this.data.streamId) {
+			Assert.equal(markerLocations.streamId, this.stream._id, 'incorrect streamId');
+		}
+		if (!this.data.newCommitHash || !this.data.streamId) {
 			Assert(markerLocations.commitHash === undefined, 'commitHash is defined');
 		}
 		else {
-			Assert.equal(markerLocations.commitHash, this.newCommitHash.toLowerCase(), 'incorrect commitHash');
+			Assert.equal(markerLocations.commitHash, this.data.newCommitHash.toLowerCase(), 'incorrect commitHash');
 		}
 		Assert(typeof markerLocations.locations === 'object', 'did not get locations in response');
 		let markerIds = Object.keys(markerLocations.locations);

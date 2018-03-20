@@ -5,13 +5,12 @@ var PutCalculateLocationsTest = require('./put_calculate_locations_test');
 class BadTypeTest extends PutCalculateLocationsTest {
 
 	get description () {
-		return `should return error when attempting to calculate marker locations with a bad type for ${this.attribute}`;
+		return `should return ${this.errorCode} error when attempting to calculate marker locations with a bad type for ${this.attribute}`;
 	}
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1012',
-			info: this.attribute
+			code: this.errorCode
 		};
 	}
 

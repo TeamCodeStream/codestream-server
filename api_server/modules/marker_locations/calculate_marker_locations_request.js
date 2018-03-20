@@ -12,17 +12,16 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 
 	// authorize the request
 	authorize (callback) {
-		// must have access to the stream, and the stream must belong to a team i'm in
-		this.user.authorizeFromTeamIdAndStreamId(
+		// must have access to the team the stream belongs to
+		this.user.authorizeFromTeamId(
 			this.request.body,
 			this,
-			(error, info) => {
+			error => {
 				if (error) { return callback(error); }
-				Object.assign(this, info);
+				this.teamId = this.request.body.teamId.toLowerCase();
 				process.nextTick(callback);
 			},
 			{
-				mustBeFileStream: true,
 				error: 'updateAuth'
 			}
 		);
@@ -34,6 +33,7 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 			this.require,					// check for required parameters
 			this.validate,					// validate input parameters
 			this.getOriginalCommitMarkers,	// get marker locations associated with the original commit
+			this.getStream,					// get the stream as needed
 			this.calculateNewCommitMarkers, // calculate new marker locations
 			this.prepareForUpdate,			// prepare the newly calculated marker locations for update
 			this.update						// save marker locations,
@@ -46,12 +46,12 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['teamId', 'streamId', 'originalCommitHash'],
+					string: ['teamId' ],
 					'array(object)': ['edits']
 				},
 				optional: {
 					'object': ['locations'],
-					'string': ['newCommitHash']
+					'string': ['streamId', 'originalCommitHash', 'newCommitHash']
 				}
 			},
 			callback
@@ -60,7 +60,15 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 
 	// validate the request's input parameters
 	validate (callback) {
-		this.originalCommitHash = this.request.body.originalCommitHash.toLowerCase();
+		if (this.request.body.streamId) {
+			this.streamId = this.request.body.streamId.toLowerCase();
+		}
+		if (!this.streamId) {
+			delete this.request.body.newCommitHash;	// newCommitHash is irrelevant if no stream ID is provided
+		}
+		if (this.request.body.originalCommitHash) {
+			this.originalCommitHash = this.request.body.originalCommitHash.toLowerCase();
+		}
 		if (this.request.body.newCommitHash) {
 			this.newCommitHash = this.request.body.newCommitHash.toLowerCase();
 		}
@@ -137,6 +145,9 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 			// to fetch from the database
 			return callback();
 		}
+		else if (!this.streamId || !this.originalCommitHash) {
+			return callback(this.errorHandler.error('parameterRequired', { info: 'locations, or streamId and originalCommitHash' }));
+		}
 		let id = `${this.streamId}|${this.originalCommitHash}`;
 		this.data.markerLocations.getByQuery(
 			{ _id: id },
@@ -149,6 +160,30 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 				databaseOptions: {
 					hint: { _id: 1 }
 				}
+			}
+		);
+	}
+
+	// get the stream, as needed
+	getStream (callback) {
+		if (!this.streamId) {
+			return callback();	// client does not need to provide a stream, but we won't be saving anything
+		}
+		this.data.streams.getById(
+			this.streamId,
+			(error, stream) => {
+				if (error) { return callback(error); }
+				if (!stream) {
+					return callback(this.errorHandler.error('notFound', { info: 'stream' }));
+				}
+				if (stream.get('type') !== 'file') {
+					return callback(this.errorHandler.error('updateAuth', { reason: 'must be file stream' }));
+				}
+				if (stream.get('teamId') !== this.teamId) {
+					return callback(this.errorHandler.error('updateAuth', { reason: 'stream must be from team' }));
+				}
+				this.stream = stream;
+				callback();
 			}
 		);
 	}
@@ -175,7 +210,8 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 	prepareForUpdate (callback) {
 		this.update = {};
 		this.publish = {};
-		if (this.newCommitHash) {	// client can request to calculate without saving, indicated by no newCommitHash
+		if (this.newCommitHash) {
+			// client can request to calculate without saving, indicated by no newCommitHash or no stream ID
 			Object.keys(this.calculatedMarkerLocations).forEach(markerId => {
 				let location = this.calculatedMarkerLocations[markerId];
 				this.update[`locations.${markerId}`] = location;	// for database update
@@ -184,7 +220,7 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 		}
 		let markerLocations = {
 			teamId: this.teamId,
-			streamId: this.streamId,
+			streamId: this.streamId, // note - this can be undefined and that's ok
 			locations: this.calculatedMarkerLocations
 		};
 		if (this.newCommitHash) {
@@ -223,7 +259,7 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 	postProcess (callback) {
 		if (!this.newCommitHash) {
 			// we assume that if the client doesn't want them saved (indicated by no newCommitHash), they don't want them published
-			return callback();	
+			return callback();
 		}
 		// publish the marker locations update to users in the team
 		this.publishMarkerLocations(callback);

@@ -11,7 +11,7 @@ class ACLStreamTest extends PutCalculateLocationsTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1010'	// updateAUth
+			code: 'RAPI-1010'	// updateAuth
 		};
 	}
 
