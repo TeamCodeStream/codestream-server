@@ -51,7 +51,8 @@ class SlackIntegration extends APIServerModule {
 			return Object.keys(request.query).map(param => `${param}=${request.query[param]}`).join('&');
 		};
 		const slackOriginUrl = this.api.config.slack.slackBotOrigin;
-
+		if (!slackOriginUrl) { return callback(); }
+		
 		// unfortunately, we can get messages from slack of x-www-form-urlencoded type,
 		// but really it's just json data in disguise ... we need to capture this data
 		// raw and pass it through
