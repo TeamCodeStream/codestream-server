@@ -145,6 +145,9 @@ class EmailNotificationSender {
 				user: member,
 				request: this.request
 			}).hasActiveSession();
+			if (isActive) {
+				this.request.log(`User ${member.get('email')} is active so is not eligible for an email notification`);
+			}
 			return !isActive;
 		});
 		process.nextTick(callback);
