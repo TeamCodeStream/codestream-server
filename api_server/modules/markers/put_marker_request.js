@@ -17,7 +17,7 @@ class PutMarkerRequest extends PutRequest {
 				if (!marker) {
 					return callback(this.errorHandler.error('notFound', { info: 'marker' }));
 				}
-                if (!this.user.hasTeam(marker.get('teamId'))) {
+				if (!this.user.hasTeam(marker.get('teamId'))) {
 					return callback(this.errorHandler.error('updateAuth'));
 				}
 				return callback();
@@ -37,7 +37,7 @@ class PutMarkerRequest extends PutRequest {
 			request: this,
 			messager: this.api.services.messager,
 			stream: this.updater.stream,
-            postStream: this.updater.postStream
+			postStream: this.updater.postStream
 		}).publishMarker(callback);
 	}
 }

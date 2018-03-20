@@ -4,13 +4,13 @@ var PutMarkerTest = require('./put_marker_test');
 
 class ACLTest extends PutMarkerTest {
 
-    constructor (options) {
+	constructor (options) {
 		super(options);
 		this.withoutOtherUserOnTeam = true;
 	}
 
 	get description () {
-        return 'should return an error when someone who is not on the team tries to update a marker';
+		return 'should return an error when someone who is not on the team tries to update a marker';
 	}
 
 	getExpectedError () {

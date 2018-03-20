@@ -31,10 +31,10 @@ class MarkerUpdater extends ModelUpdater {
 	// called before the marker is actually saved
 	preSave (callback) {
 		BoundAsync.series(this, [
-            this.getMarker,         // get the marker
-            this.getPost,           // get its associated post
+			this.getMarker,         // get the marker
+			this.getPost,           // get its associated post
 			this.getStream,         // get the stream the marker is from
-            this.getPostStream,     // get the stream for the post, if different
+			this.getPostStream,     // get the stream for the post, if different
 			super.preSave			// base-class preSave
 		], callback);
 	}
@@ -54,20 +54,20 @@ class MarkerUpdater extends ModelUpdater {
 		);
 	}
 
-    // get the post the marker is associated with
-    getPost (callback) {
-        this.request.data.posts.getById(
-            this.marker.get('postId'),
-            (error, post) => {
-                if (error) { return callback(error); }
-                if (!post) {
-                    return callback(this.errorHandler.error('notFound', { info: 'post' })); // really shouldn't happen
-                }
-                this.post = post;
-                callback();
-            }
-        );
-    }
+	// get the post the marker is associated with
+	getPost (callback) {
+		this.request.data.posts.getById(
+			this.marker.get('postId'),
+			(error, post) => {
+				if (error) { return callback(error); }
+				if (!post) {
+					return callback(this.errorHandler.error('notFound', { info: 'post' })); // really shouldn't happen
+				}
+				this.post = post;
+				callback();
+			}
+		);
+	}
 
 	// get the stream the marker is in
 	getStream (callback) {
@@ -84,23 +84,23 @@ class MarkerUpdater extends ModelUpdater {
 		);
 	}
 
-    // get the stream the post is from, if different from the stream the marker is from
-    getPostStream (callback) {
-        if (this.marker.get('streamId') === this.post.get('streamId')) {
-            return callback();
-        }
-        this.request.data.streams.getById(
-            this.post.get('streamId'),
-            (error, stream) => {
-                if (error) { return callback(error); }
-                if (!stream) {
-                    return callback(this.errorHandler.error('notFound', { info: 'post stream' }));   // really shouldn't happen
-                }
-                this.postStream = stream;
-                callback();
-            }
-        );
-    }
+	// get the stream the post is from, if different from the stream the marker is from
+	getPostStream (callback) {
+		if (this.marker.get('streamId') === this.post.get('streamId')) {
+			return callback();
+		}
+		this.request.data.streams.getById(
+			this.post.get('streamId'),
+			(error, stream) => {
+				if (error) { return callback(error); }
+				if (!stream) {
+					return callback(this.errorHandler.error('notFound', { info: 'post stream' }));   // really shouldn't happen
+				}
+				this.postStream = stream;
+				callback();
+			}
+		);
+	}
 }
 
 module.exports = MarkerUpdater;

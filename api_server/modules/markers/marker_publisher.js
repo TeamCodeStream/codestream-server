@@ -13,18 +13,18 @@ class MarkerPublisher {
 		Object.assign(this, options);
 	}
 
-    // publish the marker to the team that owns the file-stream the marker is
-    // associated with, and potentially to the stream channel for the stream that
-    // is referencing the marker, if needed
+	// publish the marker to the team that owns the file-stream the marker is
+	// associated with, and potentially to the stream channel for the stream that
+	// is referencing the marker, if needed
 	publishMarker (callback) {
-        BoundAsync.parallel(this, [
-            this.publishToTeam,
-            this.publishToStream
-        ], callback);
-    }
+		BoundAsync.parallel(this, [
+			this.publishToTeam,
+			this.publishToStream
+		], callback);
+	}
 
 	// publish an updated marker to the team channel for the file-stream the
-    // marker is associated with
+	// marker is associated with
 	publishToTeam (callback) {
 		const teamId = this.stream.get('teamId');
 		const channel = 'team-' + teamId;
@@ -48,13 +48,13 @@ class MarkerPublisher {
 		);
 	}
 
-    // publish the updated marker to the channel for the stream that actually
-    // references the marker, if it is not a file-type stream (for which only
-    // a team update would be necessary anyway)
+	// publish the updated marker to the channel for the stream that actually
+	// references the marker, if it is not a file-type stream (for which only
+	// a team update would be necessary anyway)
 	publishToStream (callback) {
-        if (!this.postStream || this.postStream.get('type') === 'file') {
-            return callback();
-        }
+		if (!this.postStream || this.postStream.get('type') === 'file') {
+			return callback();
+		}
 		const streamId = this.postStream.id;
 		const channel = 'stream-' + streamId;
 		const message = {

@@ -11,7 +11,7 @@ class CommonInit {
 			this.createOtherUser,	// create another registered user
 			this.createRandomRepo,	// create a random repo (and team) for the test
 			this.createRandomStream,// create a stream in that repo
-            this.createOtherStream, // create another stream, a channel or a direct stream, as needed
+			this.createOtherStream, // create another stream, a channel or a direct stream, as needed
 			this.createPost,        // create the post that will create the marker to be updated
 			this.makeMarkerData		// make the data to be used during the update
 		], callback);
@@ -68,12 +68,12 @@ class CommonInit {
 		);
 	}
 
-    // create a random channel or direct stream to use for the test
-    // if needed for the test, this is the stream that actually contains the post that
-    // references the marker, which can be different than the stream the marker is
-    // associated with
+	// create a random channel or direct stream to use for the test
+	// if needed for the test, this is the stream that actually contains the post that
+	// references the marker, which can be different than the stream the marker is
+	// associated with
 	createOtherStream (callback) {
-        if (!this.fromOtherStreamType) { return callback(); }
+		if (!this.fromOtherStreamType) { return callback(); }
 		let token = this.otherUserData.accessToken;
 		let type = this.fromOtherStreamType;
 		let memberIds = this.fromOtherStreamType !== 'file' ? [this.currentUser._id] : undefined;
@@ -94,19 +94,19 @@ class CommonInit {
 
 	// create the post that creates the marker to be updated
 	createPost (callback) {
-        const streamId = this.fromOtherStreamType ? this.otherStream._id : this.stream._id;
+		const streamId = this.fromOtherStreamType ? this.otherStream._id : this.stream._id;
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.post = response.post;
-                this.marker = response.markers[0];
+				this.marker = response.markers[0];
 				callback();
 			},
 			{
 				token: this.token,   // the "current" user is the creator of the post (and will be the updater)
 				streamId: streamId, // create the post in the stream we created, might be a different stream than the marker references
-                wantCodeBlocks: 1,  // must have code block to create a marker
-                codeBlockStreamId: this.fromOtherStreamType ? this.stream._id : undefined // maybe different stream
+				wantCodeBlocks: 1,  // must have code block to create a marker
+				codeBlockStreamId: this.fromOtherStreamType ? this.stream._id : undefined // maybe different stream
 			}
 		);
 	}
