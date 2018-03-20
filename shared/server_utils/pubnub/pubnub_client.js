@@ -70,7 +70,7 @@ class PubNubClient {
 			this.unsubscribe(channel);
 		});
 	}
-	
+
 	// remove a listener for messages from a particular channel
 	removeListener (channel) {
 		this._stopListening(channel);
@@ -98,7 +98,14 @@ class PubNubClient {
 		if (!(tokens instanceof Array)) {
 			tokens = [tokens];
 		}
-		if (options.request) {
+		if (this._requestSaysToBlockMessages(options)) {
+			// we are blocking PubNub messages, for testing purposes
+			if (options.request) {
+				options.request.log(`******* Would have granted access for ${tokens} to ${channel}`);
+				return callback();
+			}
+		}
+		else if (options.request) {
 			options.request.log(`Granting access for ${tokens} to ${channel}`);
 		}
 		this.pubnub.grant(

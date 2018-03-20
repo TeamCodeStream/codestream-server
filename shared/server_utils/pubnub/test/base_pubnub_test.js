@@ -7,6 +7,7 @@ var PubNub = require('pubnub');
 var RandomString = require('randomstring');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Assert = require('assert');
+var OS = require('os');
 
 class BasePubNubTest extends GenericTest {
 
@@ -38,7 +39,9 @@ class BasePubNubTest extends GenericTest {
 	setClients (callback) {
 		// set up the pubnub client as if we are the server, this give us the right to set permissions
 		// all we have to do here is provide the full config, which includes the secretKey
-		let client = new PubNub(Object.assign({}, PubNubConfig));
+		let config = Object.assign({}, PubNubConfig);
+		config.uuid = `API-${OS.hostname()}-${this.testNum}`;
+		let client = new PubNub(config);
 		this.pubnubForServer = new PubNubClient({
 			pubnub: client
 		});
@@ -50,7 +53,7 @@ class BasePubNubTest extends GenericTest {
 		for (let i = 0; i < this.numClients; i++) {
 			let clientConfig = Object.assign({}, PubNubConfig);
 			delete clientConfig.secretKey;
-			this.uuids[i] = clientConfig.uuid = RandomString.generate(12);
+			this.uuids[i] = clientConfig.uuid = `TESTUSER-${this.testNum}-${i}`;
 			this.authKeys[i] = clientConfig.authKey = RandomString.generate(12);
 			client = new PubNub(clientConfig);
 			this.pubnubForClients[i] = new PubNubClient({
