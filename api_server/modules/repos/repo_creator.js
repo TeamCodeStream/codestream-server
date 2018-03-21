@@ -160,6 +160,9 @@ class RepoCreator extends ModelCreator {
 			delete this.attributes.users;
 			this.joinMethod = 'Joined Team';
 			this.primaryReferral = 'internal';
+			if (adder.teamCreator && adder.teamCreator.get('originTeamId')) {
+				this.originTeamId = adder.teamCreator.get('originTeamId');
+			}
 			this.userJoined = true;
 			process.nextTick(callback);
 		});
@@ -294,6 +297,17 @@ class RepoCreator extends ModelCreator {
 		}
 		if (this.primaryReferral && !this.user.get('primaryReferral')) {
 			this.joinMethodUpdate.$set.primaryReferral = this.primaryReferral;
+		}
+		// if the user created this team, then their origin team is this one
+		// but if the user joined this team, then their origin team is the
+		// origin team of the creator of this team ... see COD-461
+		if (!this.user.get('originTeamId')) {
+			if (this.userJoined && this.originTeamId) {
+				this.joinMethodUpdate.$set.originTeamId = this.originTeamId;
+			}
+			else if (this.createdTeam) {
+				this.joinMethodUpdate.$set.originTeamId = this.attributes.teamId;
+			}
 		}
 		if (Object.keys(this.joinMethodUpdate.$set).length === 0) {
 			// nothing to update

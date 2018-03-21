@@ -16,20 +16,24 @@ class CreateTeamJoinMethodTest extends CodeStreamMessageTest {
 
 	// issue the request that will generate the message we want to listen for
 	generateMessage (callback) {
-		// this is the message we expect to see
-		this.message = {
-			user: {
-				_id: this.currentUser._id,
-				$set: {
-					joinMethod: 'Created Team',
-					primaryReferral: 'external'
-				}
-			}
-		};
 		// create a repo which will create a team, this should trigger a message
 		// to the user that their "joinMethod" attribute has been set
 		this.repoFactory.createRandomRepo(
-			callback,
+			(error, response) => {
+				if (error) { return callback(error); }
+				// this is the message we expect to see
+				this.message = {
+					user: {
+						_id: this.currentUser._id,
+						$set: {
+							joinMethod: 'Created Team',
+							primaryReferral: 'external',
+							originTeamId: response.team._id
+						}
+					}
+				};
+				callback();
+			},
 			{
 				token: this.token
 			}

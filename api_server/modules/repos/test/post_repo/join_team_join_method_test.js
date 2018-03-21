@@ -58,7 +58,8 @@ class JoinTeamJoinMethodTest extends CodeStreamMessageTest {
 				_id: this.currentUser._id,
 				$set: {
 					joinMethod: 'Joined Team',
-					primaryReferral: 'internal'
+					primaryReferral: 'internal',
+					originTeamId: this.originTeam ? this.originTeam._id : this.team._id
 				}
 			}
 		};
