@@ -185,7 +185,10 @@ class AddTeamMembers  {
 				!user.get('joinMethod')
 			)
 		) {
-			op.$set = { joinMethod: 'Added to Team' };
+			op.$set = {
+				joinMethod: 'Added to Team',
+				primaryReferral: 'internal'
+			};
 		}
 		this.data.users.applyOpById(
 			user.id,

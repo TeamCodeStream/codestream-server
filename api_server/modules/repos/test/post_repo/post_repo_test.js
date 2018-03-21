@@ -217,6 +217,7 @@ class PostRepoTest extends CodeStreamAPITest {
 		this.validateSanitized(repo, RepoTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 
+	/* eslint complexity: 0 */
 	// for requests that created a team on the fly, validate the team created
 	validateTeam (data) {
 		let team = data.team;
@@ -236,7 +237,8 @@ class PostRepoTest extends CodeStreamAPITest {
 			((team.deactivated === false) || errors.push('team.deactivated not false')) &&
 			((typeof team.createdAt === 'number') || errors.push('team.createdAt not number')) &&
 			((team.modifiedAt >= team.createdAt) || errors.push('team.modifiedAt not greater than or equal to createdAt')) &&
-			((team.creatorId === teamCreator._id) || errors.push('team.creatorId not equal to current user id'))
+			((team.creatorId === teamCreator._id) || errors.push('team.creatorId not equal to current user id')) &&
+			((team.primaryReferral === (this.teamReferral || 'external')) || errors.push('team.primaryReferral is incorrect'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		// make sure we didn't get any attributes not suitable to be sent to the client

@@ -30,6 +30,7 @@ var UsersJoinNewTeamMessageTest = require('./users_join_new_team_message_test');
 var UsersJoinExistingTeamMessageTest = require('./users_join_existing_team_message_test');
 var UsersJoinExistingRepoMessageTest = require('./users_join_existing_repo_message_test');
 var UsersAddedToTeamTest = require('./users_added_to_team_test');
+var CreateSecondTeamTest = require('./create_second_team_test');
 var SubscriptionTest = require('./subscription_test');
 var CreateTeamJoinMethodTest = require('./create_team_join_method_test');
 var JoinTeamJoinMethodTest = require('./join_team_join_method_test');
@@ -70,6 +71,7 @@ class PostRepoRequestTester {
 		new UsersJoinExistingTeamMessageTest().test();
 		new UsersJoinExistingRepoMessageTest().test();
 		new UsersAddedToTeamTest().test();
+		new CreateSecondTeamTest().test();
 		new SubscriptionTest({ which: 'team', otherUserCreates: false, repoExists: false, teamExists: false }).test();
 		new SubscriptionTest({ which: 'team', otherUserCreates: false, repoExists: false, teamExists: true }).test();
 		new SubscriptionTest({ which: 'team', otherUserCreates: false, repoExists: true, teamExists: true }).test();

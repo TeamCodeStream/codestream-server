@@ -18,5 +18,9 @@ module.exports = {
 	},
 	integrations: {
 		type: 'object'
+	},
+	primaryReferral: {
+		type: 'string',
+		maxLength: 12
 	}
 };

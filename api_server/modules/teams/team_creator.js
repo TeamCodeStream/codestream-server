@@ -43,6 +43,7 @@ class TeamCreator extends ModelCreator {
 				string: ['name']
 			},
 			optional: {
+				'string': ['primaryReferral'],
 				'array(string)': ['memberIds', 'emails'],
 				'array(object)': ['users']
 			}
