@@ -20,16 +20,16 @@ if (!Commander.from) {
 let fromTeamIds = Commander.from.split(',').map(id => id.toLowerCase());
 let toTeamId;
 if (Commander.to) {
-    toTeamId = Commander.to.toLowerCase();
+	toTeamId = Commander.to.toLowerCase();
 }
 else {
-    toTeamId = fromTeamIds[0];
-    fromTeamIds.splice(0, 1);
+	toTeamId = fromTeamIds[0];
+	fromTeamIds.splice(0, 1);
 }
 
 if (fromTeamIds.length === 0) {
-    console.warn('Provide at least two teams');
-    process.exit();
+	console.warn('Provide at least two teams');
+	process.exit();
 }
 
 const options = { fromTeamIds, toTeamId };
