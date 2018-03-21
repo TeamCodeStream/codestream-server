@@ -9,7 +9,6 @@ class MentionTest extends PostToFileStreamTest {
 		return 'should return mentioned user IDs in returned post when creating a post with mentions';
 	}
 
-
 	// form the data for the post we'll create in the test
 	makePostData (callback) {
 		super.makePostData(() => {

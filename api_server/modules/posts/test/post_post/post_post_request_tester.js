@@ -67,6 +67,7 @@ var StreamOnTheFlySeqNumTest = require('./stream_on_the_fly_seqnum_test');
 var NumCommentsTest = require('./num_comments_test');
 var NumCommentsMessageTest = require('./num_comments_message_test');
 var MentionTest = require('./mention_test');
+var UnregisteredMentionTest = require('./unregistered_mention_test');
 var PostCountTest = require('./post_count_test');
 var SetPersonAnalyticsTest = require('./set_person_analytics_test');
 
@@ -150,6 +151,7 @@ class PostPostRequestTester {
 		new NumCommentsTest().test();
 		new NumCommentsMessageTest().test();
 		new MentionTest().test();
+		new UnregisteredMentionTest().test();
 		new PostCountTest().test();
 		new SetPersonAnalyticsTest().test();
 	}
