@@ -10,18 +10,18 @@ class OriginTeamPropagatesTest extends JoinTeamJoinMethodTest {
 	}
 
 	// make the data needed before triggering the actual test,
-    // we're overriding the base class here to insert the other user creating
-    // another repo and team first
+	// we're overriding the base class here to insert the other user creating
+	// another repo and team first
 	makeData (callback) {
 		BoundAsync.series(this, [
 			this.createOtherUser,		// create a second registered user
-            this.createInitialRepo,     // create a repo (and team) before creating the test repo
+			this.createInitialRepo,     // create a repo (and team) before creating the test repo
 			this.createRepo 			// create a repo (and team)
 		], callback);
 	}
 
-    // create a repo before the repo we will use for the test,
-    // this should end up creating the team that is the "origin team"
+	// create a repo before the repo we will use for the test,
+	// this should end up creating the team that is the "origin team"
 	createInitialRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
