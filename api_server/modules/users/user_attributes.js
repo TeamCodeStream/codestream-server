@@ -87,6 +87,13 @@ module.exports = {
 		type: 'string',
 		maxLength: '20'
 	},
+	primaryReferral: {
+		type: 'string',
+		maxLength: 12
+	},
+	originTeamId: {
+		type: 'id'
+	},
 	totalPosts: {
 		type: 'number',
 		serverOnly: true,

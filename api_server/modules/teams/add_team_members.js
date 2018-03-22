@@ -20,6 +20,7 @@ class AddTeamMembers  {
 		BoundAsync.series(this, [
 			this.getTeam,					// get the team
 			this.getExistingMembers,		// get the team's existing members
+			this.getTeamCreator,			// get the team's creator
 			this.eliminateDuplicates,		// eliminate any duplicates (people we are asked to add who are in fact already on the team)
 			this.checkCreateUsers,			// check if we are being asked to create any users on the fly, and do so
 			this.checkUsernamesUnique,		// check that all the usernames for added users will be unique to the team
@@ -55,6 +56,26 @@ class AddTeamMembers  {
 			(error, members) => {
 				if (error) { return callback(error); }
 				this.existingMembers = members;
+				callback();
+			}
+		);
+	}
+
+	// get the team's creator, which probably is but might not be
+	// among the existing members
+	getTeamCreator (callback) {
+		const creatorId = this.team.get('creatorId');
+		this.teamCreator = this.existingMembers.find(member => {
+			return member.id === creatorId;
+		});
+		if (this.teamCreator) {
+			return callback();
+		}
+		this.data.users.getById(
+			creatorId,
+			(error, teamCreator) => {
+				if (error) { return callback(error); }
+				this.teamCreator = teamCreator;
 				callback();
 			}
 		);
@@ -185,7 +206,13 @@ class AddTeamMembers  {
 				!user.get('joinMethod')
 			)
 		) {
-			op.$set = { joinMethod: 'Added to Team' };
+			op.$set = {
+				joinMethod: 'Added to Team',
+				primaryReferral: 'internal'
+			};
+			if (this.teamCreator && this.teamCreator.get('originTeamId')) {
+				op.$set.originTeamId = this.teamCreator.get('originTeamId');
+			}
 		}
 		this.data.users.applyOpById(
 			user.id,

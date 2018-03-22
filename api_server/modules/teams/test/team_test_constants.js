@@ -13,7 +13,8 @@ const EXPECTED_TEAM_FIELDS = [
 	'deactivated',
 	'createdAt',
 	'modifiedAt',
-	'creatorId'
+	'creatorId',
+	'primaryReferral'
 ];
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(TeamAttributes).filter(attribute => {

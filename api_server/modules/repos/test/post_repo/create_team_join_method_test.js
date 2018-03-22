@@ -5,7 +5,7 @@ var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/
 class CreateTeamJoinMethodTest extends CodeStreamMessageTest {
 
 	get description () {
-		return 'when a user creates their first team by posting a repo, they should get a message indicating their join method as "Created Team"';
+		return 'when a user creates their first team by posting a repo, they should get a message indicating their join method as "Created Team", and primary referral as "external"';
 	}
 
 	// set the name of the channel on which to listen for messages
@@ -16,19 +16,24 @@ class CreateTeamJoinMethodTest extends CodeStreamMessageTest {
 
 	// issue the request that will generate the message we want to listen for
 	generateMessage (callback) {
-		// this is the message we expect to see
-		this.message = {
-			user: {
-				_id: this.currentUser._id,
-				$set: {
-					joinMethod: 'Created Team'
-				}
-			}
-		};
 		// create a repo which will create a team, this should trigger a message
 		// to the user that their "joinMethod" attribute has been set
 		this.repoFactory.createRandomRepo(
-			callback,
+			(error, response) => {
+				if (error) { return callback(error); }
+				// this is the message we expect to see
+				this.message = {
+					user: {
+						_id: this.currentUser._id,
+						$set: {
+							joinMethod: 'Created Team',
+							primaryReferral: 'external',
+							originTeamId: response.team._id
+						}
+					}
+				};
+				callback();
+			},
 			{
 				token: this.token
 			}

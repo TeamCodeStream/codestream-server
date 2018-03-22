@@ -140,6 +140,7 @@ class RepoCreator extends ModelCreator {
 			this.noNewUsers = true;
 			return callback();
 		}
+
 		// add the users to the team
 		let adder = new AddTeamMembers({
 			request: this.request,
@@ -158,6 +159,10 @@ class RepoCreator extends ModelCreator {
 			delete this.attributes.emails;
 			delete this.attributes.users;
 			this.joinMethod = 'Joined Team';
+			this.primaryReferral = 'internal';
+			if (adder.teamCreator && adder.teamCreator.get('originTeamId')) {
+				this.originTeamId = adder.teamCreator.get('originTeamId');
+			}
 			this.userJoined = true;
 			process.nextTick(callback);
 		});
@@ -248,6 +253,9 @@ class RepoCreator extends ModelCreator {
 
 	// create a new team to own this new repo
 	createTeamForRepo (callback) {
+		// first set some analytics, based on whether this is the user's first team
+		const firstTeamForUser = (this.user.get('teamIds') || []).length === 0;
+		this.attributes.team.primaryReferral = firstTeamForUser ? 'external' : 'internal';
 		this.teamCreator = new TeamCreator({
 			request: this.request,
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
@@ -265,6 +273,7 @@ class RepoCreator extends ModelCreator {
 				this.attachToResponse.users = this.teamCreator.members.map(member => member.getSanitizedObject());
 				delete this.attributes.team;
 				this.joinMethod = 'Created Team';	// becomes the user's joinMethod attribute
+				this.primaryReferral = 'external';	// becomes the user's primaryReferral attribute
 				this.createdTeam = team;
 				callback();
 			}
@@ -273,17 +282,38 @@ class RepoCreator extends ModelCreator {
 
 	// update the joinMethod attribute for the user, if this is their first team
 	updateUserJoinMethod (callback) {
+		// join method only applies if this is the user's first team
 		if (
-			!this.joinMethod ||
-			this.user.get('joinMethod') ||
-			(
-				this.user.get('teamIds').includes(this.attributes.teamId) &&
-				this.user.get('teamIds').length > 1
-			)
+			this.user.get('teamIds').includes(this.attributes.teamId) &&
+			this.user.get('teamIds').length > 1
 		) {
-			return callback();	// already have a join method, or already were on team
+			return callback();
 		}
-		this.joinMethodUpdate = { $set: { joinMethod: this.joinMethod } };
+
+		// we can set both joinMethod and primaryReferral here
+		this.joinMethodUpdate = { $set: { } };
+		if (this.joinMethod && !this.user.get('joinMethod')) {
+			this.joinMethodUpdate.$set.joinMethod = this.joinMethod;
+		}
+		if (this.primaryReferral && !this.user.get('primaryReferral')) {
+			this.joinMethodUpdate.$set.primaryReferral = this.primaryReferral;
+		}
+		// if the user created this team, then their origin team is this one
+		// but if the user joined this team, then their origin team is the
+		// origin team of the creator of this team ... see COD-461
+		if (!this.user.get('originTeamId')) {
+			if (this.userJoined && this.originTeamId) {
+				this.joinMethodUpdate.$set.originTeamId = this.originTeamId;
+			}
+			else if (this.createdTeam) {
+				this.joinMethodUpdate.$set.originTeamId = this.attributes.teamId;
+			}
+		}
+		if (Object.keys(this.joinMethodUpdate.$set).length === 0) {
+			// nothing to update
+			this.joinMethodUpdate = null;
+			return callback();
+		}
 		this.request.data.users.applyOpById(
 			this.user.id,
 			this.joinMethodUpdate,
