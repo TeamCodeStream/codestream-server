@@ -188,6 +188,49 @@ class ConfirmRequest extends RestfulRequest {
 
 	// update the user in the database, indicating they are confirmed
 	updateUser (callback) {
+		BoundAsync.series(this, [
+			this.getFirstTeam,		// get the first team the user is on, if needed, this becomes the "origin" team
+			this.getTeamCreator,	// get the creator of that team
+			this.doUserUpdate
+		], callback);
+	}
+
+	// get the first team the user is on, if needed
+	// this is need to determine the "origin team" for the user, for analytics
+	getFirstTeam (callback) {
+		if ((this.user.get('teamIds') || []).length === 0) {
+			return callback();
+		}
+		const teamId = this.user.get('teamIds')[0];
+		this.data.teams.getById(
+			teamId,
+			(error, team) => {
+				if (error) { return callback(error); }
+				this.firstTeam = team;
+				callback();
+			}
+		);
+	}
+
+	// get the creator of the first team the user was on, if needed
+	// this is need to determine the "origin team" for the user, for analytics
+	getTeamCreator (callback) {
+		if (!this.firstTeam) {
+			return callback();
+		}
+		this.data.users.getById(
+			this.firstTeam.get('creatorId'),
+			(error, creator) => {
+				if (error) { return callback(error); }
+				this.teamCreator = creator;
+				callback();
+			}
+		);
+	}
+
+	// update the user in the database, indicating they are confirmed,
+	// and add analytics data or other attributes as needed
+	doUserUpdate (callback) {
 		const now = Date.now();
 		let op = {
 			'$set': {
@@ -208,8 +251,20 @@ class ConfirmRequest extends RestfulRequest {
 		if (this.request.body.username) {
 			op.$set.username = this.request.body.username;
 		}
-		if ((this.user.get('teamIds') || []).length > 0 && !this.user.get('joinMethod')) {
-			op.$set.joinMethod = 'Added to Team';	// for tracking
+		if ((this.user.get('teamIds') || []).length > 0) {
+			if (!this.user.get('joinMethod')) {
+				op.$set.joinMethod = 'Added to Team';	// for tracking
+			}
+			if (!this.user.get('primaryReferral')) {
+				op.$set.primaryReferral = 'internal';
+			}
+			if (
+				!this.user.get('originTeamId') &&
+				this.teamCreator &&
+				this.teamCreator.get('originTeamId')
+			) {
+				op.$set.originTeamId = this.teamCreator.get('originTeamId');
+			}
 		}
 		this.data.users.applyOpById(
 			this.user.id,

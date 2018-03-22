@@ -17,6 +17,7 @@ var InitialDataTest = require('./initial_data_test');
 var MeAttributesTest = require('./me_attributes_test');
 var SubscriptionTest = require('./subscription_test');
 var JoinMethodTest = require('./join_method_test');
+var OriginTeamPropagates = require('./origin_team_propagates');
 
 class ConfirmationRequestTester {
 
@@ -41,6 +42,7 @@ class ConfirmationRequestTester {
 		new SubscriptionTest({ which: 'repo' }).test();
 		new SubscriptionTest({ which: 'stream' }).test();
 		new JoinMethodTest().test();
+		new OriginTeamPropagates().test();
 	}
 }
 

@@ -76,6 +76,8 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		let userObject = user.getSanitizedObject();
 		userObject.isRegistered = true;
 		userObject.joinMethod = 'Added to Team';
+		userObject.primaryReferral = 'internal';
+		userObject.originTeamId = this.team._id;
 		this.message = {
 			users: [userObject]
 		};

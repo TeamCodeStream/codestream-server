@@ -42,6 +42,7 @@ class JoinMethodTest extends ConfirmationTest {
 					userId: unregisteredUser._id,
 					email: unregisteredUser.email
 				};
+				this.team = response.team;
 				callback();
 			},
 			{
@@ -79,7 +80,10 @@ class JoinMethodTest extends ConfirmationTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that the joinMethod has been set to "Added to Team"
+		const originTeamId = this.originTeam ? this.originTeam._id : this.team._id;
 		Assert(data.user.joinMethod === 'Added to Team', 'joinMethod not properly set');
+		Assert(data.user.primaryReferral === 'internal', 'primaryReferral not set to internal');
+		Assert(data.user.originTeamId === originTeamId, 'originTeamId not set to correct team');
 		super.validateResponse(data);
 	}
 }
