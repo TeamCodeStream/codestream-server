@@ -42,6 +42,8 @@ class PostUserRequest extends PostRequest {
 
 	// require certain parameters, and discard unknown parameters
 	requireAndAllow (callback) {
+		this.delayEmail = this.request.body._delayEmail; // delay sending the invite email, for testing
+		delete this.request.body._delayEmail;
 		this.requireAllowParameters(
 			'body',
 			{
@@ -72,8 +74,15 @@ class PostUserRequest extends PostRequest {
 
 	// after the response has been sent...
 	postProcess (callback) {
-		// publish to the team that the user has been added,
-		// and publish to the user that they've been added to the team
+		BoundAsync.parallel(this, [
+			this.publishAddToTeam,
+			this.sendInviteEmail
+		], callback);
+	}
+
+	// publish to the team that the user has been added,
+	// and publish to the user that they've been added to the team
+	publishAddToTeam (callback) {
 		new AddTeamPublisher({
 			request: this,
 			messager: this.api.services.messager,
@@ -81,6 +90,24 @@ class PostUserRequest extends PostRequest {
 			team: this.adder.team,
 			existingMembers: this.adder.existingMembers,
 		}).publishAddedUser(callback);
+	}
+
+	// send an invite email to the added user
+	sendInviteEmail (callback) {
+		if (this.delayEmail) {
+			callback();	// respond, but delay sending the email
+		}
+		setTimeout(() => {	// allow client to delay the email send, for testing purposes
+			this.api.services.email.sendInviteEmail(
+				{
+					inviter: this.user,
+					user: this.createdUser,
+					request: this
+				},
+				this.delayEmail ? () => {} : callback
+			);
+		}, this.delayEmail || 0);
+
 	}
 }
 

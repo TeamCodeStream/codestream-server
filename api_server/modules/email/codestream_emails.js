@@ -39,6 +39,31 @@ class CodeStreamEmails {
 		);
 	}
 
+	// send an invite email to the user specified
+	sendInviteEmail (options, callback) {
+		const { inviter, user, request } = options;
+		const email = user.get('email');
+		if (request) {
+			request.log(`Sending invite email to ${email}`);
+		}
+		const name = EmailUtils.getUserName(user);	// glean a user name from attributes defined for the user
+		const inviterName = EmailUtils.getUserName(inviter);
+
+		// let SendGrid handle sending the email, they have an invite email template
+		this.sendgridEmail.sendEmail(
+			{
+				from: { email: this.senderEmail, name: 'CodeStream' },
+				to: { email, name },
+				subject: `${inviterName} has invited you to collaborate on code`,
+				templateId: this.inviteEmailTemplateId,
+				request: request,
+				testCallback: this.testCallback,
+				user: user
+			},
+			callback
+		);
+	}
+
 	// send an email notification to the user specified
 	sendEmailNotification (options, callback) {
 		const { user, creator, posts, team, stream, content, request, sameAuthor } = options;
