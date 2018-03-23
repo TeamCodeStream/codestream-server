@@ -14,6 +14,7 @@ class TrackingTest extends SlackPostMessageTest {
 		// perform a little trickery here ... set the current user to the originator of the post,
 		// since the mock tracking message will come back on the originator's me-channel
 		super.makeData(() => {
+			this.postOriginatorData.user.joinMethod = 'Added to Team';
 			this.currentUser = this.postOriginatorData.user;
 			this.token = this.postOriginatorData.accessToken;
 			callback();
