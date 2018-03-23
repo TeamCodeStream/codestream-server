@@ -281,14 +281,33 @@ class TeamCreator extends ModelCreator {
 	// update a user to indicate they have been added to a new team
 	updateUser (user, callback) {
 		// add the team's ID to the user's teamIds array, and the company ID to the companyIds array
+		let op = {
+			'$addToSet': {
+				companyIds: this.attributes.companyId,
+				teamIds: this.model.id
+			}
+		};
+		// handle the rare case where a registered user isn't on a team yet,
+		// and therefore they don't yet have a joinMethod ... we'll update
+		// the joinMethod to "Added to Team" here
+		if (
+			user.get('isRegistered') &&
+			this.user &&
+			user.id !== this.user.id && 	// the current user will get Joined Team later
+			(
+				(user.get('teamIds') || []).length === 0 ||
+				!user.get('joinMethod')
+			)
+		) {
+			op.$set = {
+				joinMethod: 'Added to Team',
+				primaryReferral: 'internal'
+			};
+			op.$set.originTeamId = this.user.get('originTeamId') || this.model.id;
+		}
 		this.data.users.applyOpById(
 			user.id,
-			{
-				'$addToSet': {
-					companyIds: this.attributes.companyId,
-					teamIds: this.model.id
-				}
-			},
+			op,
 			(error, updatedUser) => {
 				if (error) { return callback(error); }
 				this.members.push(updatedUser);

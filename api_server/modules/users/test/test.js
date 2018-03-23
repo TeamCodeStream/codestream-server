@@ -24,6 +24,7 @@ describe('user requests', function() {
 	describe('GET /preferences', userRequestTester.getPreferencesTest);
 	describe('PUT /preferences', userRequestTester.putPreferencesTest);
 	describe('PUT /users/:id', userRequestTester.putUserTest);
+	describe('POST /users', userRequestTester.postUserTest);
 	describe('PUT /grant/:channel', userRequestTester.grantTest);
 	describe('GET /sessions', GetSessionsRequestTester.test);
 	describe('PUT /presence', PresenceRequestTester.test);
