@@ -1,6 +1,7 @@
 
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Testing-QA_Keyset"
 MONGO_ACCESS_FILE="$HOME/.codestream/mongo/qa-codestream-dbowner"
+SLACKBOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-qa
 
 . $CS_API_TOP/sandbox/defaults.sh
 
