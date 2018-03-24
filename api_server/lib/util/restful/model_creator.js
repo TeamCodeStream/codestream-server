@@ -6,6 +6,7 @@
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
+const DeepEqual = require('deep-equal');
 
 class ModelCreator {
 
@@ -192,9 +193,45 @@ class ModelCreator {
 			this.model = this.existingModel;
 			return process.nextTick(callback);
 		}
+		BoundAsync.series(this, [
+			this.determineChanges,
+			this.doUpdate
+		], callback);
+	}
+
+	// determine what is actually changing, for a save
+	determineChanges (callback) {
+		this.changes = {};
+		Object.keys(this.model.attributes).forEach(attribute => {
+			if (!this.attributesAreEqual(
+				this.existingModel.get(attribute),
+				this.model.get(attribute))
+			) {
+				this.changes[attribute] = this.model.get(attribute);
+			}
+		});
+		process.nextTick(callback);
+	}
+
+	attributesAreEqual (attribute1, attribute2) {
+		if (typeof attribute1 === 'object' && typeof attribute2 === 'object') {
+			return DeepEqual(attribute1, attribute2, { strict: true });
+		}
+		else {
+			return attribute1 === attribute2;
+		}
+	}
+
+	// do the actual update, for a save, based on the determined changes
+	doUpdate (callback) {
+		if (Object.keys(this.changes).length === 0) {
+			// nothing to save
+			return callback();
+		}
 		// do the update
-		this.collection.update(
-			this.model.attributes,
+		this.collection.applyOpById(
+			this.model.id,
+			{ $set: this.changes },
 			(error, updatedModel) => {
 				if (error) { return callback(error); }
 				this.model = updatedModel;

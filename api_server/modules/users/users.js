@@ -10,12 +10,13 @@ var FS = require('fs');
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {
-	want: ['get', 'getMany', 'put'],
+	want: ['get', 'getMany', 'put', 'post'],
 	baseRouteName: 'users',
 	requestClasses: {
 		'get': require('./get_user_request'),
 		'getMany': require('./get_users_request'),
-		'put': require('./put_user_request')
+		'put': require('./put_user_request'),
+		'post': require('./post_user_request')
 	}
 };
 

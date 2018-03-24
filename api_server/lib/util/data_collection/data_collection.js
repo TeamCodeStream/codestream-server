@@ -54,7 +54,7 @@ class DataCollection {
 			);
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback(null, model);
 	}
@@ -70,7 +70,7 @@ class DataCollection {
 			);
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback(null, models);
 	}
@@ -90,7 +90,7 @@ class DataCollection {
 			);
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		let models;
 		if (!options.noCache) {
@@ -111,7 +111,7 @@ class DataCollection {
 			);
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		let model;
 		if (document && !options.noCache) {
@@ -151,6 +151,10 @@ class DataCollection {
 		if (!id) {
 			// we must have an ID for it, either in options or in the attributes
 			return callback(this.errorHandler.error('id', { info: this.idAttribute }));
+		}
+		if (this.modelOps[id]) {
+			// we already have ops for this, so we need to just add a $set
+			return this.applyOpById(id, { $set: data }, callback, options);
 		}
 		data[this.idAttribute] = id;
 		// update the data for this document in our cache
@@ -207,7 +211,7 @@ class DataCollection {
 			);
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		callback(null, result);
 	}
@@ -228,7 +232,7 @@ class DataCollection {
 			);
 		}
 		catch (error) {
-			callback(error);
+			return callback(error);
 		}
 		result.value._id = result.value._id.toString();
 		return callback(null, result.value);

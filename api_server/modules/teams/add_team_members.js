@@ -107,6 +107,7 @@ class AddTeamMembers  {
 			usersToCreate = usersToCreate.concat(usersToAdd);
 		}
 		this.usersCreated = [];
+		this.usersFound = [];
 		BoundAsync.forEachSeries(
 			this,
 			usersToCreate,
@@ -117,21 +118,29 @@ class AddTeamMembers  {
 
 	// create a single user who will be added to the team
 	createUser (user, callback) {
-		if (this.existingMembers.find(member => {
+		const existingUser = this.existingMembers.find(member => {
 			return member.get('searchableEmail') === user.email.toLowerCase();	// ensure no duplicates
-		})) {
+		});
+		if (existingUser && !this.saveUserIfExists) {
+			this.usersFound.push(existingUser);
 			return callback();
 		}
 		this.userCreator = new UserCreator({
 			request: this.request,
-			dontSaveIfExists: true,	// if the user already exists, don't bother saving
+			dontSaveIfExists: this.saveUserIfExists ? false : true,	// if the user already exists, don't bother saving, unless overridden
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
 		this.userCreator.createUser(
 			user,
 			(error, userCreated) => {
 				if (error) { return callback(error); }
-				this.usersCreated.push(userCreated);
+				if (existingUser) {
+					existingUser.attributes = userCreated.attributes;
+					this.usersFound.push(userCreated);
+				}
+				else {
+					this.usersCreated.push(userCreated);
+				}
 				process.nextTick(callback);
 			}
 		);
