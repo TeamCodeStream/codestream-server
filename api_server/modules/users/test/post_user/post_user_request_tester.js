@@ -17,7 +17,7 @@ const MessageToTeamTest = require('./message_to_team_test');
 const ExistingUnregisteredUserMessageToTeamTest = require('./existing_unregistered_user_message_to_team_test');
 const ExistingRegisteredUserMessageToTeamTest = require('./existing_registered_user_message_to_team_test');
 const UserAddedToTeamGetsMessageTest = require('./user_added_to_team_gets_message_test');
-// AND THEN: invite emails
+const UnregisteredInviteTest = require('./unregistered_invite_test');
 
 class PostUserRequestTester {
 
@@ -38,6 +38,7 @@ class PostUserRequestTester {
 		new ExistingUnregisteredUserMessageToTeamTest().test();
 		new ExistingRegisteredUserMessageToTeamTest().test();
 		new UserAddedToTeamGetsMessageTest().test();
+		new UnregisteredInviteTest().test();
 	}
 }
 
