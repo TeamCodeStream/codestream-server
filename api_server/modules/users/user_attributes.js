@@ -115,5 +115,26 @@ module.exports = {
 	_pubnubUuid: {
 		type: 'string',
 		maxLength: 14
+	},
+	internalMethod: {
+		type: 'string',
+		maxLength: 20,
+		serverOnly: true,
+		forMe: true
+	},
+	internalMethodDetail: {
+		type: 'id',
+		serverOnly: true,
+		forMe: true
+	},
+	numMentions: {
+		type: 'number',
+		serverOnly: true,
+		forMe: true
+	},
+	numInvites: {
+		type: 'number',
+		serverOnly: true,
+		forMe: true
 	}
 };

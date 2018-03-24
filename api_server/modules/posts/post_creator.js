@@ -500,7 +500,8 @@ class PostCreator extends ModelCreator {
 			this.doIntegrationHooks,
 			this.publishPostCount,
 			this.sendPostCountToAnalytics,
-			this.trackPost
+			this.trackPost,
+			this.updateMentions
 		], callback);
 	}
 
@@ -641,6 +642,68 @@ class PostCreator extends ModelCreator {
 			}
 		);
 		process.nextTick(callback);
+	}
+
+	// for unregistered users who are mentioned, we track that they've been mentioned
+	// and how many times for analytics purposes
+	updateMentions (callback) {
+		BoundAsync.series(this, [
+			this.getMentionedUsers,
+			this.updateMentionedUsers
+		], callback);
+	}
+
+	// get any mentioned users so we can tell who is unregistered
+	getMentionedUsers (callback) {
+		const userIds = this.attributes.mentionedUserIds || [];
+		if (userIds.length === 0) {
+			return callback();
+		}
+		this.data.users.getByIds(
+			userIds,
+			(error, users) => {
+				if (error) { return callback(error); }
+				this.mentionedUsers = users;
+				callback();
+			},
+			{
+				noCache: true,
+				fields: ['_id', 'isRegistered']
+			}
+		);
+	}
+
+	// for unregistered users who are mentioned, we track that they've been mentioned
+	// and how many times for analytics purposes
+	updateMentionedUsers (callback) {
+		BoundAsync.forEach(
+			this,
+			this.mentionedUsers || [],
+			this.updateMentionsForUser,
+			callback
+		);
+	}
+
+	// for an unregistered mentioned user, we track that they've been mentioned
+	// and how many times for analytics purposes
+	updateMentionsForUser (user, callback) {
+		if (user.get('isRegistered')) {
+			return callback();	// we only do this for unregistered users
+		}
+		let update = {
+			$set: {
+				internalMethod: 'mention_notification',
+				internalMethodDetail: this.user.id
+			},
+			$inc: {
+				numMentions: 1
+			}
+		};
+		this.data.users.updateDirect(
+			{ _id: this.data.users.objectIdSafe(user.id) },
+			update,
+			callback
+		);
 	}
 
 	// determine if special header was sent with the request that says to block emails

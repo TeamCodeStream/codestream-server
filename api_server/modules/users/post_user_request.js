@@ -76,7 +76,8 @@ class PostUserRequest extends PostRequest {
 	postProcess (callback) {
 		BoundAsync.parallel(this, [
 			this.publishAddToTeam,
-			this.sendInviteEmail
+			this.sendInviteEmail,
+			this.updateInvites,
 		], callback);
 	}
 
@@ -107,7 +108,28 @@ class PostUserRequest extends PostRequest {
 				this.delayEmail ? () => {} : callback
 			);
 		}, this.delayEmail || 0);
+	}
 
+	// for an unregistered user, we track that they've been invited
+	// and how many times for analytics purposes
+	updateInvites (callback) {
+		if (this.createdUser.get('isRegistered')) {
+			return callback();	// we only do this for unregistered users
+		}
+		let update = {
+			$set: {
+				internalMethod: 'invitation',
+				internalMethodDetail: this.user.id
+			},
+			$inc: {
+				numInvites: 1
+			}
+		};
+		this.data.users.updateDirect(
+			{ _id: this.data.users.objectIdSafe(this.createdUser.id) },
+			update,
+			callback
+		);
 	}
 }
 
