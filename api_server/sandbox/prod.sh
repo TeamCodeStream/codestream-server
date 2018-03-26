@@ -4,7 +4,7 @@ MONGO_ACCESS_FILE="$HOME/.codestream/mongo/prod-codestream-dbowner"
 SSL_CERT=codestream.com
 MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
 SLACKBOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-production
-#SENDGRID_CREDENTIALS_FILE=$HOME/.codestream/sendgrid/prod-api
+SENDGRID_CREDENTIALS_FILE=$HOME/.codestream/sendgrid/prod-api
 
 . $CS_API_TOP/sandbox/defaults.sh
 
