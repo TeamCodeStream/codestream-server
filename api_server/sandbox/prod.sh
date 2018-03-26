@@ -2,11 +2,9 @@
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset"
 MONGO_ACCESS_FILE="$HOME/.codestream/mongo/prod-codestream-dbowner"
 SSL_CERT=codestream.com
-
-# cmomented out till we are ready for tracking to go into Production
-# in the meantime, we are using the development key
 MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
 SLACKBOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-production
+#SENDGRID_CREDENTIALS_FILE=$HOME/.codestream/sendgrid/prod-api
 
 . $CS_API_TOP/sandbox/defaults.sh
 
