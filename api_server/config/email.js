@@ -5,7 +5,7 @@
 module.exports = {
 	sendgrid: {	// sendgrid credentials
 		url: '/v3/mail/send',
-		apiKey: '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',
+		apiKey: process.env.CS_API_SENDGRID_SECRET || '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',
 		emailTo: process.env.CS_API_EMAIL_TO // redirect emails to this address, for safe testing
 	},
 	senderEmail: process.env.CS_API_SENDER_EMAIL || 'alerts@codestream.com', // we'll send emails from this address

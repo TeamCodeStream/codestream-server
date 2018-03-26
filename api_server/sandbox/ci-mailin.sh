@@ -1,4 +1,6 @@
 
+# This is used to confiture an API sandbox for testing the CI inbound-email sandbox
+
 . $CS_API_TOP/sandbox/defaults.sh
 
 export CS_API_MONGO_PORT=$MDB_PORT
