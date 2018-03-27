@@ -3,11 +3,12 @@
 
 'use strict';
 
-var Async = require('async');
-var OS = require('os');
-var Program = require('commander');
-var Net = require('net');
-var Cluster = require('cluster');
+const Async = require('async');
+const OS = require('os');
+const Program = require('commander');
+const Net = require('net');
+const Cluster = require('cluster');
+const PromiseCallback = require(process.env.CS_API_TOP + '/server_utils/promise_callback');
 
 Program
 	.option('--one_worker [one_worker]', 'Use only one worker')	// force to use only worker, sometimes desirable for clarity when reading output
@@ -30,39 +31,35 @@ class ClusterWrapper {
 		this.serverClass = serverClass;
 	}
 
-	start (callback) {
+	async start () {
 		if (Cluster.isMaster) {
 			// start up this thread as the master, this thread tracks the workers and re-spawns them if they die
-			this.startMaster(callback);
+			await this.startMaster();
 		}
 		else {
 			// start up this thread as a worker
-			this.startWorker(callback);
+			await this.startWorker();
 		}
 	}
 
-	startMaster (callback) {
-		Async.series([
-			this.processArguments.bind(this),
-			this.testPorts.bind(this),
-			this.startWorkers.bind(this)
-		], callback);
+	async startMaster () {
+		this.processArguments();
+		await PromiseCallback(this.testPorts, this);
+		this.startWorkers();
 	}
 
-	processArguments (callback) {
+	processArguments () {
 		if (Program.one_worker || this.options.oneWorker) {
 			this.oneWorker = true;
 		}
-		process.nextTick(callback);
 	}
 
 	testPorts (callback) {
 		// here we test our listen port for availability, before we actually start spawning workers to listen
 		const port = this.config.express && this.config.express.port;
-		if (!port) {
-			return process.nextTick(callback);
-		}
-		let testSocket = Net.connect(port);
+		if (!port) { return; }
+		const testSocket = Net.connect(port);
+
 		// error means either there is nothing listening OR we can let the workers reliably trap the
 		// error, for example EACCES
 		testSocket.on('error', () => {
@@ -76,7 +73,7 @@ class ClusterWrapper {
 		});
 	}
 
-	startWorkers (callback) {
+	startWorkers () {
 		// spawn one worker for each available CPU, and set up some events to listen to
 		this.numCpus = this.oneWorker ? 1 : OS.cpus().length;
 		for (let i = 0; i < this.numCpus; i++) {
@@ -87,7 +84,6 @@ class ClusterWrapper {
 		Cluster.on('online', this.onOnline.bind(this));
 		process.on('SIGTERM', this.onSigterm.bind(this));
 		process.on('SIGINT', this.onSigint.bind(this));
-		process.nextTick(callback);
 	}
 
 	onExit (worker, code, signal) {
