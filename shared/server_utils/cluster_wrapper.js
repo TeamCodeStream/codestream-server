@@ -3,7 +3,6 @@
 
 'use strict';
 
-const Async = require('async');
 const OS = require('os');
 const Program = require('commander');
 const Net = require('net');
