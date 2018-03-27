@@ -51,7 +51,8 @@ class PostUserRequest extends PostRequest {
 					string: ['teamId', 'email']
 				},
 				optional: {
-					string: ['firstName', 'lastName']
+					string: ['firstName', 'lastName'],
+					boolean: ['dontSendEmail']
 				}
 			},
 			callback
@@ -62,6 +63,7 @@ class PostUserRequest extends PostRequest {
 	addToTeam (callback) {
 		const user = Object.assign({}, this.request.body);
 		delete user.teamId;
+		delete user.dontSendEmail;
 		this.adder = new AddTeamMembers({
 			request: this,
 			addUsers: [user],
@@ -95,6 +97,9 @@ class PostUserRequest extends PostRequest {
 
 	// send an invite email to the added user
 	sendInviteEmail (callback) {
+		if (this.request.body.dontSendEmail) {
+			return callback(); // don't send email if this flag is set
+		}
 		if (this.delayEmail) {
 			callback();	// respond, but delay sending the email
 		}
@@ -113,6 +118,9 @@ class PostUserRequest extends PostRequest {
 	// for an unregistered user, we track that they've been invited
 	// and how many times for analytics purposes
 	updateInvites (callback) {
+		if (this.request.body.dontSendEmail) {
+			return callback(); // don't update invites if this flag is set
+		}
 		if (this.createdUser.get('isRegistered')) {
 			return callback();	// we only do this for unregistered users
 		}
