@@ -132,7 +132,7 @@ export CS_API_EMAIL_NOTIFICATION_INTERVAL=300000
 
 
 # =============== Other Secrets ===============
-[ -n "$OTHER_SECRETS_FILE" ] && OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/dev-api
+[ -z "$OTHER_SECRETS_FILE" ] && OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/dev-api
 if [ -f $OTHER_SECRETS_FILE ]; then
 	. $OTHER_SECRETS_FILE
 	export CS_API_AUTH_SECRET="$AUTH_SECRET"
