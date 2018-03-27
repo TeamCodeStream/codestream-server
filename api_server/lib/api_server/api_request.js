@@ -4,9 +4,9 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var APIRequestData = require('./api_request_data');
-var ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const APIRequestData = require('./api_request_data');
+const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const PromiseCallback = require(process.env.CS_API_TOP + '/server_utils/promise_callback');
 
 class APIRequest {
 
@@ -54,48 +54,41 @@ class APIRequest {
 		this.RESPONSE_PHASE = 'handleResponse';
 	}
 
-
 	// execute a request phase
-	executePhase (phase, callback) {
+	async executePhase (phase) {
 		if (typeof this[phase] !== 'function') {
-			return process.nextTick(callback);
+			return;
 		}
-		this[phase]((error) => {
-			if (!error && phase === this.RESPONSE_PHASE) {
-				this.responseIssued = true;
-			}
-			process.nextTick(() => {
-				callback(error);
-			});
-		});
+		await PromiseCallback(this[phase], this);
+		if (phase === this.RESPONSE_PHASE) {
+			this.responseIssued = true;
+		}
 	}
 
 	// initialize the request
-	initialize (callback) {
+	async initialize (callback) {
 		if (this.request.abortWith) {
 			// middleware error
 			this.statusCode = this.request.abortWith.status;
 			return callback(this.request.abortWith.error);
 		}
 		this.request.keepOpen = true;
-		this.makeData(callback);
+		await this.makeData();
+		process.nextTick(callback);
 	}
 
 	// make the local data cache for this request
-	makeData (callback) {
-		this.data.makeData(error => {
-			if (error) { return callback(error); }
-			if (this.data.users && this.user) {
-				// if we've authenticated the request and matched to a user,
-				// we can add that user to the cache here
-				this.data.users.addModelToCache(this.user);
-			}
-			callback();
-		});
+	async makeData () {
+		await this.data.makeData();
+		if (this.data.users && this.user) {
+			// if we've authenticated the request and matched to a user,
+			// we can add that user to the cache here
+			this.data.users.addModelToCache(this.user);
+		}
 	}
 
 	// finish with this request
-	finish (error) {
+	async finish (error) {
 		// must execute the response phase, no matter what!
 		if (
 			error &&
@@ -103,13 +96,14 @@ class APIRequest {
 			typeof this[this.RESPONSE_PHASE] === 'function'
 		) {
 			this.gotError = error;
-			this[this.RESPONSE_PHASE](
-				(error) => {
-					if (error) {
-						this.error('Error handling response: ' + error);
-					}
+			try {
+				await this[this.RESPONSE_PHASE]();
+			}
+			catch (responsePhaseError) {
+				if (responsePhaseError) {
+					this.error('Error handling response: ' + responsePhaseError);
 				}
-			);
+			}
 		}
 		if (error) {
 			this.close();
@@ -120,17 +114,22 @@ class APIRequest {
 	}
 
 	// fulfill the request
-	fulfill (callback = null) {
+	async fulfill (callback = null) {
 		this.responseIssued = false;
 		this.callback = callback;
 		// execute each phase of the request, aborting at any time on error
-		BoundAsync.forEachSeries(
-			this,
-			this.REQUEST_PHASES,
-			this.executePhase,
-			this.finish,
-			true
-		);
+		let gotError;
+		for (let i in this.REQUEST_PHASES) {
+			const phase = this.REQUEST_PHASES[i];
+			try {
+				await this.executePhase(phase);
+			}
+			catch (error) {
+				gotError = error;
+				break;
+			}
+		}
+		this.finish(gotError);
 	}
 
 	// deauthorize this request by sending a 403 (or other status code explicitly set by the request)
@@ -140,26 +139,38 @@ class APIRequest {
 	}
 
 	// default authorize function, authorize the request (which by default means forbidding the request, this function should be overridden!)
-	authorize (callback) {
+	async authorize (callback) {
 		// don't authorize by default, this must be overridden for proper ACL
 		this.warn(`Default ACL check fails, override authorize() method for this request: ${this.request.method} ${this.request.url}`);
 		this.deauthorize();
-		return callback(true);
+		callback(true);
 	}
 
 	// persist all database changes to the database
-	persist (callback) {
-		this.data.persist(callback);
+	async persist (callback) {
+		let gotError;
+		try {
+			await this.data.persist();
+		}
+		catch (error) {
+			gotError = error;
+		}
+		if (callback) {
+			callback(gotError);
+		}
+		else if (gotError) {
+			throw gotError;
+		}
 	}
 
 	// persist all database changes to the database, after the request has been fully processed
-	postProcessPersist (callback) {
+	async postProcessPersist (callback) {
 		// nothing different to do here
-		this.persist(callback);
+		await this.persist(callback);
 	}
 
 	// handle the request response
-	handleResponse (callback) {
+	async handleResponse (callback) {
 		if (this.gotError) {
 			return this.handleErrorResponse(callback);
 		}
@@ -168,7 +179,9 @@ class APIRequest {
 			set('X-Request-Id', this.request.id).
 			status(this.statusCode).
 			send(this.responseData);
-		process.nextTick(callback);
+		if (callback) {
+			return callback();
+		}
 	}
 
 	// handle an error that occurred during the request processing
@@ -184,11 +197,13 @@ class APIRequest {
 		this.warn(ErrorHandler.log(this.gotError));
 		this.responseData = ErrorHandler.toClient(this.gotError);
 		this.response.status(this.statusCode).send(this.responseData);
-		process.nextTick(callback);
+		if (callback) {
+			process.nextTick(callback);
+		}
 	}
 
 	// close out this request
-	close (callback) {
+	async close (callback) {
 		if (this.response) {
 			this.response.emit('complete');
 		}

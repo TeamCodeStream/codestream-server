@@ -11,13 +11,11 @@ class AWSModule extends APIServerModule {
 
 	services () {
 		// return a function that, when invoked, returns a service structure with the desired AWS services
-		return (callback) => {
+		return async () => {
 			this.api.log('Initiating AWS services...');
 			this.aws = new AWS(this.api.config.aws);
 			this.initializeSQS();
-			return callback(null, [{
-				queueService: this.sqsClient
-			}]);
+			return { queueService: this.sqsClient };
 		};
 	}
 

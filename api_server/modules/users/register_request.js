@@ -31,7 +31,6 @@ class RegisterRequest extends RestfulRequest {
 	process (callback) {
 		BoundAsync.series(this, [
 			this.requireAndAllow,		// require certain parameters, discard unknown parameters
-			// this.checkBetaCode,
 			this.generateConfirmCode,	// generate a confirmation code
 			this.saveUser,				// save user to database
 			this.generateToken,			// generate an access token, as needed (if confirmation not required)
@@ -74,18 +73,6 @@ class RegisterRequest extends RestfulRequest {
 			},
 			callback
 		);
-	}
-
-	// check that the user has a valid "beta" code (deprecated)
-	checkBetaCode (callback) {
-		if (
-			this.request.body.betaCode !== this.api.config.api.testBetaCode &&
-			!this.module.betaCodes.includes(this.request.body.betaCode)
-		) {
-			return callback(this.errorHandler.error('invalidBetaCode'));
-		}
-		delete this.request.body.betaCode;
-		return callback();
 	}
 
 	// generate a confirmation code for the user, we'll send this out to them

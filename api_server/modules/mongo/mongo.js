@@ -24,10 +24,10 @@ class Mongo extends APIServerModule {
 	services () {
 		// return a function that, when invoked, will return a service structure with our
 		// mongo client as a service to the API server app
-		return (callback) => {
+		return async () => {
 			if (!this.api.config.mongo) {
 				this.api.warn('Will not connect to mongo, no mongo configuration supplied');
-				return process.nextTick(callback);
+				return;
 			}
 			const mongoOptions = Object.assign({}, this.api.config.mongo, {
 				logger: this.api
@@ -36,14 +36,8 @@ class Mongo extends APIServerModule {
 				mongoOptions.queryLogging.loggerId = this.api.loggerId;
 				mongoOptions.queryLogging.loggerHost = this.api.config.express.host || 'localhost';
 			}
-			this.mongoClientFactory.openMongoClient(
-				mongoOptions,
-				(error, mongoClient) => {
-					if (error) { return callback(error); }
-					this.mongoClient = mongoClient;
-					return callback(null, [{ mongoClient: mongoClient }]);
-				}
-			);
+			this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoOptions);
+			return { mongoClient: this.mongoClient };
 		};
 	}
 

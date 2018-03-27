@@ -11,17 +11,16 @@ class Email extends APIServerModule {
 		// this returns a factory function which will be called upon after all the modules
 		// have been read in and initialized ... the factory function will then return
 		// a service object that the app can use to send emails from wherever
-		return (callback) => {
+		return async () => {
 			if (!this.api.config.email) {
-				this.api.warn('Will not send emails, no email configuration supplied');
-				return process.nextTick(callback);
+				return this.api.warn('Will not send emails, no email configuration supplied');
 			}
 
 			this.api.log('Initiating email...');
 			let emailConfig = Object.assign({}, this.api.config.email);
 			emailConfig.testCallback = this.testCallback.bind(this);
 			this.codestreamEmails = new CodeStreamEmails(emailConfig);
-			return callback(null, [{ email: this.codestreamEmails }]);
+			return { email: this.codestreamEmails };
 		};
 	}
 

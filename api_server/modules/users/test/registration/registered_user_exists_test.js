@@ -26,7 +26,6 @@ class RegisteredUserExistsTest extends RegistrationTest {
 			if (error) { return callback(error); }
 			this.data = this.userFactory.getRandomUserData();
 			this.data.email = data.user.email;
-			// this.data.betaCode = ApiConfig.testBetaCode;	// overrides needing a true beta code
 			callback();
 		});
 	}

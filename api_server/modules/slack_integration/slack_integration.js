@@ -25,15 +25,14 @@ class SlackIntegration extends APIServerModule {
 	services () {
 		// return a function that, when invoked, returns a service structure with the pubnub client as
 		// the messager service
-		return (callback) => {
+		return async () => {
 			if (!this.api.config.slack || !this.api.config.slack.slackBotOrigin) {
-				this.api.warn('Will not connect to Slack, no Slack configuration or origin supplied');
-				return process.nextTick(callback);
+				return this.api.warn('Will not connect to Slack, no Slack configuration or origin supplied');
 			}
 
 			this.api.log('Connecting to Slack bot...');
 			this.slackBotClient = new SlackBotClient(this.api.config.slack);
-			return callback(null, [{ slack: this.slackBotClient }]);
+			return { slack: this.slackBotClient };
 		};
 	}
 
@@ -43,7 +42,7 @@ class SlackIntegration extends APIServerModule {
 	}
 
 	// initialize the module
-	initialize (callback) {
+	async initialize () {
 		// proxying these requests to the slackbot for authorization flow
 		// and message reception
 		const reconstructQuery = (request) => {
@@ -51,8 +50,8 @@ class SlackIntegration extends APIServerModule {
 			return Object.keys(request.query).map(param => `${param}=${request.query[param]}`).join('&');
 		};
 		const slackOriginUrl = this.api.config.slack.slackBotOrigin;
-		if (!slackOriginUrl) { return callback(); }
-		
+		if (!slackOriginUrl) { return; }
+
 		// unfortunately, we can get messages from slack of x-www-form-urlencoded type,
 		// but really it's just json data in disguise ... we need to capture this data
 		// raw and pass it through
@@ -90,8 +89,6 @@ class SlackIntegration extends APIServerModule {
 				}
 			}
 		}));
-
-		callback();
 	}
 
 	// for application/x-www-form-urlencoded content-type, capture the raw data

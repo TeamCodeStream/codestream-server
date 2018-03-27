@@ -12,8 +12,6 @@ var ConflictingUsernameTest = require('./conflicting_username_test');
 var UserMessageToTeamTest = require('./user_message_to_team_test');
 var UserMessageToOtherUserTest = require('./user_message_to_other_user_test');
 var ConfirmationEmailTest = require('./confirmation_email_test');
-//var NoBetaCodeTest = require('./no_beta_code_test');
-//var InvalidBetaCodeTest = require('./invalid_beta_code_test');
 var PreferencesTest = require('./preferences_test');
 
 class RegistrationRequestTester {
@@ -32,8 +30,6 @@ class RegistrationRequestTester {
 		new UserMessageToTeamTest().test();
 		new UserMessageToOtherUserTest().test();
 		new ConfirmationEmailTest().test();
-		// new NoBetaCodeTest().test();
-		// new InvalidBetaCodeTest().test();
 		new PreferencesTest().test();
 	}
 }

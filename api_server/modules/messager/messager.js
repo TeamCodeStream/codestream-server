@@ -12,10 +12,9 @@ class Messager extends APIServerModule {
 	services () {
 		// return a function that, when invoked, returns a service structure with the pubnub client as
 		// the messager service
-		return (callback) => {
+		return async () => {
 			if (!this.api.config.pubnub) {
-				this.api.warn('Will not connect to PubNub, no PubNub configuration supplied');
-				return process.nextTick(callback);
+				return this.api.warn('Will not connect to PubNub, no PubNub configuration supplied');
 			}
 
 			this.api.log('Connecting to PubNub...');
@@ -25,7 +24,7 @@ class Messager extends APIServerModule {
 			this.pubnubClient = new PubNubClient({
 				pubnub: this.pubnub
 			});
-			return callback(null, [{ messager: this.pubnubClient }]);
+			return { messager: this.pubnubClient };
 		};
 	}
 }

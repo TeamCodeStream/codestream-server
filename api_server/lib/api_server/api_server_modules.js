@@ -3,10 +3,9 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var TopoSort = require('toposort');
-var FS = require('fs');
-var Path = require('path');
+const TopoSort = require('toposort');
+const FS = require('fs');
+const Path = require('path');
 
 class APIServerModules {
 
@@ -26,64 +25,45 @@ class APIServerModules {
 	}
 
 	// load all modules we find in the modules directory, and process
-	loadModules (callback) {
-		BoundAsync.series(this, [
-			this.readModuleDirectory,
-			this.processModuleFiles,
-			this.collectDependencies,
-			this.resolveDependencies,
-			this.registerModules
-		], callback);
+	loadModules () {
+		this.readModuleDirectory();
+		this.processModuleFiles();
+		this.collectDependencies();
+		this.resolveDependencies();
+		this.registerModules();
 	}
 
 	// read the modules directory, see what we find...
-	readModuleDirectory (callback) {
+	readModuleDirectory () {
 		if (!this.config.moduleDirectory) {
-			return process.nextTick(callback);
+			return;
 		}
-		FS.readdir(
-			this.config.moduleDirectory,
-			(error, moduleFiles) => {
-				if (error) { return callback(error); }
-				this.moduleFiles = moduleFiles;
-				process.nextTick(callback);
-			}
-		);
+		this.moduleFiles = FS.readdirSync(this.config.moduleDirectory);
 	}
 
 	// process whatever directories we find in the modules directory
-	processModuleFiles (callback) {
-		BoundAsync.forEachLimit(
-			this,
-			this.moduleFiles,
-			10,
-			this.processModuleFile,
-			callback
-		);
+	processModuleFiles () {
+		this.moduleFiles.forEach(this.processModuleFile.bind(this));
 	}
 
 	// process a file or directory in the modules directory (but we're just looking for directories)
-	processModuleFile (moduleFile, callback) {
+	processModuleFile (moduleFile) {
 		const modulePath = Path.join(this.config.moduleDirectory, moduleFile);
-		FS.stat(
-			modulePath,
-			(error, stats) => {
-				if (error) {
-					this.api.warn(`Could not stat ${moduleFile}: ${error}`);
-					return process.nextTick(callback);
-				}
-				else {
-					this.processModuleDirectory(modulePath, stats, callback);
-				}
-			}
-		);
+		let stats;
+		try {
+			stats = FS.statSync(modulePath);
+		}
+		catch (error) {
+			return this.api.warn(`Could not stat ${moduleFile}: ${error}`);
+		}
+		this.processModuleDirectory(modulePath, stats);
 	}
 
 	// process a module directory found in the modules directory
-	processModuleDirectory (moduleDirectory, stats, callback) {
+	processModuleDirectory (moduleDirectory, stats) {
 		if (!stats.isDirectory()) {
 			// we're only interested in directories
-			return process.nextTick(callback);
+			return;
 		}
 		// we're looking for a module.js file, if we find it, we'll read in the module contents
 		const moduleJS = Path.join(moduleDirectory, 'module.js');
@@ -91,11 +71,10 @@ class APIServerModules {
 		let module = this.instantiateModule(moduleJS, name);
 		if (typeof module === 'string') {
 			// really an error
-			return callback(module);
+			throw module;
 		}
 		this.api.log(`Accepted module ${moduleJS}`);
 		this.modules[name] = module;
-		callback();
 	}
 
 	// instantiate a module, as given by the module.js file found in the module directory
@@ -128,19 +107,14 @@ class APIServerModules {
 
 	// figure out which modules may be dependent on which others ... this mainly concerns
 	// setting the correct order for middleware routines
-	collectDependencies (callback) {
+	collectDependencies () {
 		this.moduleNames = Object.keys(this.modules);
 		this.moduleDependencies = [];
-		BoundAsync.forEachSeries(
-			this,
-			this.moduleNames,
-			this.collectModuleDependencies,
-			callback
-		);
+		this.moduleNames.forEach(this.collectModuleDependencies.bind(this));
 	}
 
 	// collect the module dependencies for a specific module
-	collectModuleDependencies (moduleName, callback) {
+	collectModuleDependencies (moduleName) {
 		let module = this.modules[moduleName];
 		let dependencies = module.getDependencies();
 		if (dependencies instanceof Array) {
@@ -150,12 +124,11 @@ class APIServerModules {
 				);
 			});
 		}
-		process.nextTick(callback);
 	}
 
 	// resolve the dependencies by forming a dependency order, with the guarantee
 	// that modules dependent on other modules are registered later
-	resolveDependencies (callback) {
+	resolveDependencies () {
 		let sorted;
 		try {
 			// we use the toposort module to figure this out...
@@ -166,7 +139,7 @@ class APIServerModules {
 		}
 		catch(error) {
 			if (error) {
-				return callback(`Error resolving module dependencies: ${error}`);
+				throw `Error resolving module dependencies: ${error}`;
 			}
 		}
 		// the result of the TopoSort is an array of module names, where those
@@ -174,70 +147,51 @@ class APIServerModules {
 		// dependent on others are registered later
 		this.modules = sorted.map(moduleName => this.modules[moduleName]);
 		this.modules.reverse();
-		process.nextTick(callback);
 	}
 
 	// register all our modules ... this is where we see what they're really offering
-	registerModules (callback) {
-		BoundAsync.forEachSeries(
-			this,
-			this.modules,
-			this.registerModule,
-			callback
-		);
+	registerModules () {
+		this.modules.forEach(this.registerModule.bind(this));
 	}
 
 	// register a given module
-	registerModule (module, callback) {
+	registerModule (module) {
 		// first we look for middlewares, services, and dataSources...
 		// then we'll register whatever routes for express js
-		BoundAsync.forEachSeries(
-			this,
-			['middlewares', 'services', 'dataSources'],
-			(type, foreachCallback) => {
-				this.registerModuleFunctions(module, type, foreachCallback);
-			},
-			() => {
-				this.registerModuleRoutes(module, callback);
-			}
-		);
+		['middlewares', 'services', 'dataSources'].forEach(type => {
+			this.registerModuleFunctions(module, type);
+		});
+		this.registerModuleRoutes(module);
 	}
 
 	// register module functions, this can be middleware, services, or dataSources...
 	// they all follow the same pattern
-	registerModuleFunctions (module, type, callback) {
+	registerModuleFunctions (module, type) {
 		if (typeof module[type] !== 'function') {
-			return process.nextTick(callback);
+			return;
 		}
 		let functions = module[type]();
 		if (!functions) {
-			return process.nextTick(callback);
+			return;
 		}
 		functions = functions instanceof Array ? functions : [functions];
-		BoundAsync.forEachLimit(
-			this,
-			functions,
-			10,
-			(func, foreachCallback) => {
-				this.registerOneModuleFunction(module, type, func, foreachCallback);
-			},
-			callback
-		);
+		functions.forEach(func => {
+			this.registerOneModuleFunction(module, type, func);
+		});
 	}
 
 	// register a single module function, be it middleware, service, or DataSource
 	// the APIServer object will then execute these functions in order
-	registerOneModuleFunction (module, type, func, callback) {
+	registerOneModuleFunction (module, type, func) {
 		if (typeof func === 'string' && typeof module[func] === 'function') {
 			func = module[func];
 		}
 		else if (typeof func !== 'function') {
-			return callback(`Bad registered ${type} function for module ${module.name}: ${func.toString()}`);
+			throw `Bad registered ${type} function for module ${module.name}: ${func.toString()}`;
 		}
 		this[type].push((...args) => {
 			return func.apply(module, args);
 		});
-		process.nextTick(callback);
 	}
 
 	// wrapper to get all registered middleware functions
@@ -256,30 +210,23 @@ class APIServerModules {
 	}
 
 	// register module routes for this module
-	registerModuleRoutes (module, callback) {
-		let routes = module.getRoutes();
+	registerModuleRoutes (module) {
+		const routes = module.getRoutes();
 		if (!routes || !(routes instanceof Array)) {
-			return process.nextTick(callback);
+			return;
 		}
-		BoundAsync.forEachLimit(
-			this,
-			routes,
-			10,
-			(route, foreachCallback) => {
-				this.registerOneModuleRoute(module, route, foreachCallback);
-			},
-			callback
-		);
+		routes.forEach(route => {
+			this.registerOneModuleRoute(module, route);
+		});
 	}
 
 	// register a single module route for this module
-	registerOneModuleRoute (module, route, callback) {
-		let routeObject = this.normalizeRoute(route, module);
+	registerOneModuleRoute (module, route) {
+		const routeObject = this.normalizeRoute(route, module);
 		if (!routeObject) {
-			return process.nextTick(callback);
+			return;
 		}
 		this.routes.push(routeObject);
-		process.nextTick(callback);
 	}
 
 	// normalize the route before registration, making sure the path information
@@ -366,16 +313,10 @@ class APIServerModules {
 	}
 
 	// give modules a post-load opportunity to initialize
-	initializeModules (callback) {
-		BoundAsync.forEachLimit(
-			this,
-			this.modules,
-			10,
-			(module, forEachCallback) => {
-				module.initialize(forEachCallback);
-			},
-			callback
-		);
+	initializeModules () {
+		Object.keys(this.modules).forEach(moduleName => {
+			this.modules[moduleName].initialize.bind(module);
+		});
 	}
 }
 

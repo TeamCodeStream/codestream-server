@@ -27,7 +27,6 @@ class BadUsernameTest extends RegistrationTest {
 		// generate random user data, but a username with a bad character
 		this.data = this.userFactory.getRandomUserData();
 		this.data.username = RandomString.generate(12) + '%';
-		// this.data.betaCode = ApiConfig.testBetaCode;	// overrides needing a true beta code
 		callback();
 	}
 }
