@@ -52,9 +52,9 @@ class CodeStreamEmails {
 		// let SendGrid handle sending the email, they have an invite email template
 		this.sendgridEmail.sendEmail(
 			{
-				from: { email: this.senderEmail, name: 'CodeStream' },
+				from: { email: this.senderEmail, name: inviterName },
 				to: { email, name },
-				subject: `${inviterName} has invited you to collaborate on code`,
+				subject: 'Invitation to collaborate on CodeStream',
 				templateId: this.inviteEmailTemplateId,
 				request: request,
 				testCallback: this.testCallback,
