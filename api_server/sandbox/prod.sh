@@ -5,14 +5,9 @@ SSL_CERT=codestream.com
 MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
 SLACKBOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-production
 SENDGRID_CREDENTIALS_FILE=$HOME/.codestream/sendgrid/prod-api
+OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/prod-api
 
 . $CS_API_TOP/sandbox/defaults.sh
-
-OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/prod-api
-[ ! -f $OTHER_SECRETS_FILE ] && echo "secrets file ($OTHER_SECRETS_FILE) not found"
-. $OTHER_SECRETS_FILE
-export CS_API_AUTH_SECRET="$AUTH_SECRET"
-export CS_API_INBOUND_EMAIL_SECRET="$INBOUND_EMAIL_SECRET"
 
 unset CS_API_SETUP_MONGO
 export CS_API_PORT=8443

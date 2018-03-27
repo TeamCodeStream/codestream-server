@@ -21,7 +21,6 @@ export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$C
 export CS_API_TOP=$CS_API_TOP
 export CS_API_HOST=localhost
 export CS_API_PORT=12079
-export CS_API_AUTH_SECRET="A*y8lN^erPHf$"
 export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
 export CS_API_LOG_CONSOLE_OK=1
 
@@ -131,6 +130,22 @@ export CS_API_OUTBOUND_EMAIL_SQS="dev_${DT_USER}_outboundEmail"
 # Set the interval (in ms) between emails being sent
 export CS_API_EMAIL_NOTIFICATION_INTERVAL=300000
 
+
+# =============== Other Secrets ===============
+[ -z "$OTHER_SECRETS_FILE" ] && OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/dev-api
+if [ -f $OTHER_SECRETS_FILE ]; then
+	. $OTHER_SECRETS_FILE
+	export CS_API_AUTH_SECRET="$AUTH_SECRET"
+	export CS_API_INBOUND_EMAIL_SECRET="$INBOUND_EMAIL_SECRET"
+else
+	echo "secrets file ($OTHER_SECRETS_FILE) not found. Falling back to old defaults."
+	echo "Run 'dt-update-secrets' to fix this"
+	export CS_API_AUTH_SECRET="A*y8lN^erPHf$"
+	# Requests to the API server fromm the inbound email server provide this secret
+	# This prevents outside clients from simulating inbound emails
+	export CS_API_INBOUND_EMAIL_SECRET="X02^faO*Bx+lQ9Q"
+fi
+
 # ============ Email Settings ================
 # Emails by default are not sent ... set this to "on" to send emails normally
 # (as in production, and exercise extreme caution when testing) ...
@@ -151,7 +166,3 @@ export CS_API_REPLY_TO_DOMAIN=dev.codestream.com
 
 # Emails sent from CodeStream will be sent using this address
 export CS_API_SENDER_EMAIL=alerts@codestream.com
-
-# Requests to the API server fromm the inbound email server provide this secret
-# This prevents outside clients from simulating inbound emails
-export CS_API_INBOUND_EMAIL_SECRET="X02^faO*Bx+lQ9Q"
