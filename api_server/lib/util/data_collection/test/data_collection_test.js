@@ -15,26 +15,22 @@ var DataModel = require('../data_model');
 class DataCollectionTest extends GenericTest {
 
 	// before the test runs...
-	before (callback) {
+	async before (callback) {
 		// set up the mongo client, and open it against a test collection
 		this.mongoClientFactory = new MongoClient();
 		const mongoConfig = Object.assign({}, MongoConfig, { collections: ['test'] });
 		delete mongoConfig.queryLogging;
 		delete mongoConfig.hintsRequired;
-		this.mongoClientFactory.openMongoClient(
-			mongoConfig,
-			(error, mongoClient) => {
-				if (error) { return callback(error); }
-				this.mongoClient = mongoClient;
-				this.mongoData = this.mongoClient.mongoCollections;
-				this.dataCollection = new DataCollection({
-					databaseCollection: this.mongoData.test,
-					modelClass: DataModel
-				});
-				this.data = { test: this.dataCollection };
-				callback();
-			}
-		);
+		this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
+		this.mongoData = this.mongoClient.mongoCollections;
+		this.dataCollection = new DataCollection({
+			databaseCollection: this.mongoData.test,
+			modelClass: DataModel
+		});
+		this.data = { test: this.dataCollection };
+		if (callback) {
+			callback();
+		}
 	}
 
 	// create a test model which we'll manipulate and a control model which we won't touch

@@ -77,8 +77,7 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 					username: 'someuser',
 					password: 'blahblahblah',
 					_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response
-					_forceConfirmation: true, // overrides developer environment, where confirmation might be turned off
-					// betaCode: ApiConfig.testBetaCode // overrides needing a true beta code
+					_forceConfirmation: true // overrides developer environment, where confirmation might be turned off
 				}
 			},
 			(error, response) => {

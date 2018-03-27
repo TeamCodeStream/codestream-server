@@ -33,7 +33,6 @@ class _UserCreator {
 
 	// register a user by issuing a POST /no-auth/register request
 	_registerUser (callback) {
-		// let dataWithBetaCode = Object.assign({}, this.data, { betaCode: ApiConfig.testBetaCode });
 		this.factory.apiRequester.doApiRequest(
 			{
 				method: 'post',

@@ -40,10 +40,12 @@ const ERRORS = {
 		code: 'USRC-1008',
 		message: 'Invalid grant channel'
 	},
+	/* deprecated
 	'invalidBetaCode': {
 		code: 'USRC-1009',
 		message: 'Invalid beta code'
 	}
+	*/
 };
 
 module.exports = ERRORS;

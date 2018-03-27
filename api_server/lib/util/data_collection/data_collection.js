@@ -246,9 +246,16 @@ class DataCollection {
 			await this._createDocuments();   // create any documents requested
 		}
 		catch (error) {
-			return callback(error);
+			if (callback) {
+				return callback(error);
+			}
+			else {
+				throw error;
+			}
 		}
-		callback();
+		if (callback) {
+			callback();
+		}
 	}
 
 	// get a model from the cache by ID

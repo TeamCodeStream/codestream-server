@@ -5,7 +5,6 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var MongoDbClient = require('mongodb').MongoClient;
 var MongoCollection = require('./mongo_collection');
 var SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
@@ -18,30 +17,19 @@ class MongoClient {
 	}
 
 	// open and initialize the mongo client
-	openMongoClient (config, callback) {
+	async openMongoClient (config) {
 		this.config = config;
-		BoundAsync.series(this, [
-			this.establishQueryLoggerAsNeeded,	// establish query logging if requested
-			this.connectToMongo,				// connect to the mongo service
-			this.makeCollections				// make our collection mappings
-		], (error) => {
-			callback(error, this);
-		});
-	}
-
-	// establish our query logger as needed
-	establishQueryLoggerAsNeeded (callback) {
-		if (this.config.queryLogging) {
-			this.establishQueryLogger(callback);
+		if (this.config.queryLogging) {				// establish query logging if requested
+			this.establishQueryLogger();
 		}
-		else {
-			callback();
-		}
+		await this.connectToMongo();				// connect to the mongo service
+		await this.makeCollections();				// make our collection mappings
+		return this;
 	}
 
 	// establish the query logger ... in addition to logging all queries, we can also
 	// log slow queries and really slow queries according to threshold settings
-	establishQueryLogger (callback) {
+	establishQueryLogger () {
 		this.config.queryLogger = new SimpleFileLogger(this.config.queryLogging);
 		if (this.config.queryLogging.slowBasename) {
 			const slowConfig = Object.assign(this.config.queryLogging, {
@@ -57,19 +45,18 @@ class MongoClient {
 			});
 			this.config.reallySlowLogger = new SimpleFileLogger(reallySlowConfig);
 		}
-		callback();
 	}
 
 	// connect to the mongo service according to configuration
-	connectToMongo (callback) {
+	async connectToMongo () {
 		if (!this.config) {
-			return callback('mongo configuration required');
+			throw 'mongo configuration required';
 		}
 		if (!this.config.url) {
 			const host = this.config.host || '127.0.0.1';
 			const port = this.config.port || 27017;
 			if (!this.config.database) {
-				return callback('mongo configuration needs database');
+				throw 'mongo configuration needs database';
 			}
 			this.config.url = `mongodb://${host}:${port}/${this.config.database}`;
 		}
@@ -78,40 +65,29 @@ class MongoClient {
 			if (this.config.logger) {
 				this.config.logger.log(`Connecting to mongo: ${this.config.url}`);
 			}
-			MongoDbClient.connect(
+			this.db = await MongoDbClient.connect(
 				this.config.url,
-				this.config.settings || {},
-				(error, db) => {
-					if (error) {
-						return callback(`could not connect: ${error}`);
-					}
-					this.db = db;
-					process.nextTick(callback);
-				}
+				this.config.settings || {}
 			);
 		}
-		catch(error) {
-			callback('exception thrown connecting: ' + error);
+		catch (error) {
+			throw 'could not connect to mongo: ' + error;
 		}
 	}
 
 	// for each desired database collection, create a MongoCollection object as a bridge
-	makeCollections (callback) {
+	async makeCollections () {
 		if (!this.config.collections || !(this.config.collections instanceof Array)) {
-			return process.nextTick(callback);
+			return;
 		}
-		BoundAsync.forEachLimit(
-			this,
-			this.config.collections,
-			10,
-			this.makeCollection,
-			callback
-		);
+		await Promise.all(this.config.collections.map(async collection => {
+			await this.makeCollection(collection);
+		}));
 	}
 
 	// create a single MongoCollection object as a bridge to the mongo driver's Collection object
-	makeCollection (collection, callback) {
-		if (typeof collection !== 'string') { return process.nextTick(callback); }
+	async makeCollection (collection) {
+		if (typeof collection !== 'string') { return; }
 		this.dbCollections[collection] = this.db.collection(collection);
 		this.mongoCollections[collection] = new MongoCollection({
 			dbCollection: this.dbCollections[collection],
@@ -120,7 +96,6 @@ class MongoClient {
 			reallySlowLogger: this.config.reallySlowLogger,
 			hintsRequired: this.config.hintsRequired
 		});
-		process.nextTick(callback);
 	}
 }
 

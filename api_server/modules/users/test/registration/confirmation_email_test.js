@@ -28,7 +28,6 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		this.data = this.userFactory.getRandomUserData();
 		this.data._subscriptionCheat = SecretsConfig.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
 		this.data._delayEmail = 10000;	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
-		//		this.data.betaCode = ApiConfig.testBetaCode;	// overrides needing a true beta code
 		// register a random user
 		this.doApiRequest(
 			{

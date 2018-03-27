@@ -28,7 +28,6 @@ class BadPasswordTest extends RegistrationTest {
 		// generate random user data, but a password that is too short
 		this.data = this.userFactory.getRandomUserData();
 		this.data.password = RandomString.generate(5);
-		// this.data.betaCode = ApiConfig.testBetaCode; // overrides needing a true beta code
 		callback();
 	}
 }

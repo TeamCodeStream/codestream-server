@@ -11,24 +11,18 @@ class Analytics extends APIServerModule {
 	services () {
 		// return a function that, when invoked, returns a service structure with the mixpanel client as
 		// the analytics service
-		return (callback) => {
+		return async () => {
 			if (!this.api.config.mixpanel) {
-				this.api.warn('Will not connect to MixPanel, no MixPanel configuration supplied');
-				return process.nextTick(callback);
+				return this.api.warn('Will not connect to MixPanel, no MixPanel configuration supplied');
 			}
 
 			this.api.log('Connecting to MixPanel...');
-			try {
-				this.mixPanel = new MixPanel.init(this.api.config.mixpanel.token, { protocol: 'https' });
-			}
-			catch (error) {
-				return callback(error);
-			}
+			this.mixPanel = new MixPanel.init(this.api.config.mixpanel.token, { protocol: 'https' });
 			this.analyticsClient = new AnalyticsClient({
 				mixPanel: this.mixPanel,
 				testCallback: this.testCallback.bind(this)
 			});
-			return callback(null, [{ analytics: this.analyticsClient }]);
+			return { analytics: this.analyticsClient };
 		};
 	}
 

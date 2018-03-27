@@ -8,7 +8,6 @@ const MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_clie
 const  MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 const  RandomString = require('randomstring');
 const  Assert = require('assert');
-const  PromiseCallback = require(process.env.CS_API_TOP + '/server_utils/promise_callback');
 
 class MongoTest extends GenericTest {
 
@@ -21,11 +20,7 @@ class MongoTest extends GenericTest {
 		delete mongoConfig.hintsRequired;
 
 		try {
-			this.mongoClient = await PromiseCallback(
-				this.mongoClientFactory.openMongoClient,
-				this.mongoClientFactory,
-				mongoConfig
-			);
+			this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
 		}
 		catch (error) {
 			if (callback) {

@@ -13,9 +13,7 @@
 
 /* eslint no-console: 0 */
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-
-var AllModuleIndexes = {
+const AllModuleIndexes = {
 	repos: require(process.env.CS_API_TOP + '/modules/repos/indexes.js'),
 	streams: require(process.env.CS_API_TOP + '/modules/streams/indexes.js'),
 	posts: require(process.env.CS_API_TOP + '/modules/posts/indexes.js'),
@@ -23,7 +21,7 @@ var AllModuleIndexes = {
 	users: require(process.env.CS_API_TOP + '/modules/users/indexes.js')
 };
 
-let AllFinished = {
+const AllFinished = {
 	indexes: 0,
 	drops: 0,
 	indexed: 0,
@@ -33,58 +31,49 @@ let AllFinished = {
 const ConfigDirectory = process.env.CS_API_TOP + '/config';
 const MongoConfig = require(ConfigDirectory + '/mongo.js');
 
-let MongoClient = require('mongodb').MongoClient;
+const MongoClient = require('mongodb').MongoClient;
 
-let Drop = process.argv.find(arg => arg === 'drop');
+const Drop = process.argv.find(arg => arg === 'drop');
 let Build = process.argv.find(arg => arg === 'build');
 if(!Drop && !Build) {
 	Build = 'build';
 }
 
-var DropIndexes = function(db, collection, callback) {
-	if (!Drop) { return callback(); }
+const DropIndexes = async function(db, collection) {
+	if (!Drop) { return; }
 	AllFinished.drops++;
-	var collectionObj = db.collection(collection);
-	collectionObj.dropIndexes((err) => {
-		if(err) {
-			console.log('error dropping indexes on collection', collection, err);
-		}
-		AllFinished.dropped++;
-	});
-	console.log('dropped indexes for collection', collection);
-	callback();
+	const collectionObj = db.collection(collection);
+	try {
+		await collectionObj.dropIndexes();
+	}
+	catch (error) {
+		return console.log('error dropping indexes on collection', collection, error);
+	}
+	AllFinished.dropped++;
 };
 
-var BuildIndexes = function(db, collection, callback) {
-	if (!Build) { return callback(); }
-	let moduleIndexes = AllModuleIndexes[collection];
-	var collectionObj = db.collection(collection);
-	Object.keys(moduleIndexes).forEach(indexName => {
-		let index = moduleIndexes[indexName];
+const BuildIndexes = async function(db, collection) {
+	if (!Build) { return; }
+	const moduleIndexes = AllModuleIndexes[collection];
+	const collectionObj = db.collection(collection);
+	await Promise.all(Object.keys(moduleIndexes).map(async indexName => {
+		const index = moduleIndexes[indexName];
 		AllFinished.indexes++;
 		console.log('ensuring index on collection', collection, index);
-		collectionObj.ensureIndex(index, (err) => {
-			AllFinished.indexed++;
-			if(err) {
-				console.log('error', err);
-			}
-			else {
-				console.log('indexed collection, index', collection, index);
-			}
-		});
-	});
-	callback();
+		try {
+			await collectionObj.ensureIndex(index);
+		}
+		catch (error) {
+			return console.log('error', error);
+		}
+		AllFinished.indexed++;
+		console.log('indexed collection, index', collection, index);
+	}));
 };
 
-var DoCollection = function(db, collection, callback) {
-	BoundAsync.series(this, [
-		(seriesCallback) => {
-			DropIndexes(db, collection, seriesCallback);
-		},
-		(seriesCallback) => {
-			BuildIndexes(db, collection, seriesCallback);
-		}
-	], callback);
+const DoCollection = async function(db, collection) {
+	await DropIndexes(db, collection);
+	await BuildIndexes(db, collection);
 };
 
 function WaitUntilFinished() {
@@ -96,17 +85,17 @@ function WaitUntilFinished() {
 	setTimeout(WaitUntilFinished, 2000);
 }
 
-MongoClient.connect(MongoConfig.url, (err, db) => {
-	if(err) {
-		console.log('mongo connect error', err);
+(async function() {
+	let db;
+	try {
+		db = await MongoClient.connect(MongoConfig.url);
+	}
+	catch (error) {
+		console.log('mongo connect error', error);
 		process.exit(1);
 	}
-	BoundAsync.forEachSeries(
-		this,
-		Object.keys(AllModuleIndexes),
-		(collection, foreachCallback) => {
-			DoCollection(db, collection, foreachCallback);
-		},
-		WaitUntilFinished
-	);
-});
+	await Promise.all(Object.keys(AllModuleIndexes).map(async collection => {
+		await DoCollection(db, collection);
+	}));
+	WaitUntilFinished();
+})();

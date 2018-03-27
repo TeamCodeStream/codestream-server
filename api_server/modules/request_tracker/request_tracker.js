@@ -1,4 +1,4 @@
-// provide middleware and service to track requests, ensuring that when a node process is terminated, 
+// provide middleware and service to track requests, ensuring that when a node process is terminated,
 // the process is not immediately killed, but is given the chance to complete all requests first
 
 'use strict';
@@ -21,8 +21,8 @@ class RequestTracker extends APIServerModule {
 	}
 
 	services () {
-		return (callback) => {
-			return callback(null, [{ requestTracker: this }]);
+		return async () => {
+			return { requestTracker: this };
 		};
 	}
 

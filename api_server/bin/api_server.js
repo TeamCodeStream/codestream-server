@@ -22,10 +22,10 @@ const AWSConfig = require(ConfigDirectory + '/aws.js');
 const Limits = require(ConfigDirectory + '/limits.js');
 const Version = require(ConfigDirectory + '/version.js');
 const SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
-var ClusterWrapper = require(process.env.CS_API_TOP + '/server_utils/cluster_wrapper');
+const ClusterWrapper = require(process.env.CS_API_TOP + '/server_utils/cluster_wrapper');
 
 // establish our logger
-var Logger = new SimpleFileLogger(LoggerConfig);
+const Logger = new SimpleFileLogger(LoggerConfig);
 
 if (MongoConfig.queryLogging) {
 	// we maintain a separate log file for mongo queries
@@ -46,8 +46,8 @@ const DataCollections = {
 const MongoCollections = Object.keys(DataCollections);
 
 // invoke a node cluster master with our configurations provided
-var ServerClass = require(process.env.CS_API_TOP + '/lib/api_server/api_server');
-var MyAPICluster = new ClusterWrapper(
+const ServerClass = require(process.env.CS_API_TOP + '/lib/api_server/api_server');
+const MyAPICluster = new ClusterWrapper(
 	ServerClass,
 	{
 		moduleDirectory: ModuleDirectory,
@@ -72,10 +72,13 @@ var MyAPICluster = new ClusterWrapper(
 	Logger
 );
 
-// start up the master, this will launch workers to really get down to work
-MyAPICluster.start((error) => {
-	if (error) {
+
+(async function() {
+	try {
+		await MyAPICluster.start();
+	}
+	catch (error) {
 		console.error('Failed to start: ' + error); // eslint-disable-line no-console
 		process.exit(1);
 	}
-});
+})();

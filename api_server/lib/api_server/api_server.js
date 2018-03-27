@@ -4,12 +4,12 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var APIServerModules = require('./api_server_modules.js');
-var Express = require('express');
-var HTTPS = require('https');
-var HTTP = require('http');
-var FS = require('fs');
+const APIServerModules = require('./api_server_modules.js');
+const Express = require('express');
+const HTTPS = require('https');
+const HTTP = require('http');
+const FS = require('fs');
+const PromiseCallback = require(process.env.CS_API_TOP + '/server_utils/promise_callback');
 
 class APIServer {
 
@@ -25,119 +25,84 @@ class APIServer {
 	}
 
 	// start 'er up
-	start (callback) {
-		BoundAsync.series(this, [
-			this.setListeners,
-			this.loadModules,
-			this.startServices,
-			this.registerMiddleware,
-			this.registerRoutes,
-			this.registerDataSources,
-			this.initializeModules,
-			this.listen
-		], (error) => {
-			return callback && callback(error);
-		});
+	async start () {
+		this.setListeners();
+		this.loadModules();
+		await this.registerServices();
+		this.registerMiddleware();
+		this.registerRoutes();
+		this.registerDataSources();
+		this.modules.initializeModules();
+		await PromiseCallback(this.listen, this);
 	}
 
 	// set relevant event listeners
-	setListeners (callback) {
+	setListeners () {
 		process.on('message', this.handleMessage.bind(this));
 		process.on('SIGINT', this.onSigint.bind(this));
 		process.on('SIGTERM', this.onSigterm.bind(this));
-		process.nextTick(callback);
 	}
 
 	// load all the modules in the modules directory, we'll let APIServerModules handle all that
-	loadModules (callback) {
+	loadModules () {
 		this.log('Loading modules...');
 		this.modules = new APIServerModules({
 			api: this
 		});
-		this.modules.loadModules(callback);
+		this.modules.loadModules();
 	}
 
-	// start whatever services we need, the modules provide us with "service functions",
+	// register whatever services we need, the modules provide us with "service functions",
 	// these get executed and return to us the actual services that become available to the app
-	startServices (callback) {
-		this.log('Starting services...');
-		let serviceFunctions = this.modules.getServiceFunctions();
-		BoundAsync.forEachLimit(
-			this,
-			serviceFunctions,
-			10,
-			this.startService,
-			callback
-		);
+	async registerServices () {
+		this.log('Registering services...');
+		const serviceFunctions = this.modules.getServiceFunctions();
+		await Promise.all(serviceFunctions.map(async serviceFunction => {
+			await this.registerModuleServices(serviceFunction);
+		}));
 	}
 
 	// start the service indicated by the passed service function ... starting a service
 	// really means making it available to the app through the API Server's services object
-	startService (serviceFunction, callback) {
-		serviceFunction(
-			(error, servicesToAccept) => {
-				if (error) { return callback(error); }
-				this.acceptServices(servicesToAccept, callback);
-			}
-		);
-	}
-
-	// accept whatever services a module's service function wants us to accept
-	acceptServices (services, callback) {
-		BoundAsync.forEachLimit(
-			this,
-			services,
-			10,
-			this.acceptService,
-			callback
-		);
-	}
-
-	// accept a single service
-	acceptService (service, callback) {
-		// accepting a service really means just making it available in our
+	async registerModuleServices (serviceFunction) {
+		const services = await serviceFunction();
+		// registering a service really means just making it available in our
 		// services object ... or integrations object if specified
-		Object.keys(service).forEach(serviceName => {
-			if (typeof service[serviceName].isIntegration === 'function' &&
-				service[serviceName].isIntegration()
+		for (let serviceName in services) {
+			const service = services[serviceName];
+			if (typeof service.isIntegration === 'function' &&
+				service.isIntegration()
 			) {
-				this.integrations[serviceName] = service[serviceName];
+				this.integrations[serviceName] = service;
 			}
 			else {
-				this.services[serviceName] = service[serviceName];
+				this.services[serviceName] = service;
 			}
-		});
-		process.nextTick(callback);
+		}
 	}
 
 	// register all middleware functions
-	registerMiddleware (callback) {
+	registerMiddleware () {
 		this.log('Registering middleware...');
 		this.express.use(this.setupRequest.bind(this));	// this is always first in the middleware chain
-		let middlewareFunctions = this.modules.getMiddlewareFunctions();
-		BoundAsync.forEachLimit(
-			this,
-			middlewareFunctions,
-			10,
-			this.registerMiddlewareFunction,
-			() => {
-				this.registerErrorHandler(callback);
-			}
-		);
+		const middlewareFunctions = this.modules.getMiddlewareFunctions();
+		middlewareFunctions.forEach(middlewareFunction => {
+			this.express.use(middlewareFunction);
+		});
+		this.registerErrorHandler();
 	}
 
 	// register the master error handler, this happens if there is an express js error
 	// of some sort ... it goes last in the middleware chain
-	registerErrorHandler (callback) {
+	registerErrorHandler () {
 		this.express.use((error, request, response, next) => {
 			this.error('Express error: ' + error.message + '\n' + error.stack);
 			if (!response.headersSent) {
 				response.sendStatus(500);
 			}
 			request.connection.destroy();
-			return next; 
+			return next;
 		});
-		callback();
 	}
 
 	// first in the middleware chain, we'll set up the request so it's properly
@@ -148,57 +113,30 @@ class APIServer {
 		process.nextTick(next);
 	}
 
-	// register a single middleware function
-	registerMiddlewareFunction (middleware, callback) {
-		this.express.use(middleware);
-		process.nextTick(callback);
-	}
-
 	// register all  DataSources, which really means making collections available
 	// in our data object
-	registerDataSources (callback) {
+	registerDataSources () {
 		this.log('Registering data sources...');
-		let dataSourceFunctions = this.modules.getDataSourceFunctions();
-		BoundAsync.forEachLimit(
-			this,
-			dataSourceFunctions,
-			10,
-			this.registerDataSource,
-			callback
-		);
-	}
-
-	// register a single DataSource by making it available in our data object
-	registerDataSource (dataSourceFunction, callback) {
-		let dataSource = dataSourceFunction();
-		Object.assign(this.data, dataSource);
-		return process.nextTick(callback);
+		const dataSourceFunctions = this.modules.getDataSourceFunctions();
+		dataSourceFunctions.forEach(dataSourceFunction => {
+			const dataSource = dataSourceFunction();
+			Object.assign(this.data, dataSource);
+		});
 	}
 
 	// regiser all routes
-	registerRoutes (callback) {
+	registerRoutes () {
 		this.log('Registering routes...');
-		let routeObjects = this.modules.getRouteObjects();
-		BoundAsync.forEachLimit(
-			this,
-			routeObjects,
-			10,
-			this.registerRouteObject,
-			callback
-		);
+		const routeObjects = this.modules.getRouteObjects();
+		routeObjects.forEach(this.registerRouteObject.bind(this));
 	}
 
 	// register a single route object, the route object can itself have middleware
 	// functions, but ultimately calls the function as indicated by func
-	registerRouteObject (routeObject, callback) {
-		let middleware = routeObject.middleware || [];
-		let args = [ routeObject.path, ...middleware, routeObject.func];
+	registerRouteObject (routeObject) {
+		const middleware = routeObject.middleware || [];
+		const args = [ routeObject.path, ...middleware, routeObject.func];
 		this.express[routeObject.method].apply(this.express, args);
-		process.nextTick(callback);
-	}
-
-	initializeModules (callback) {
-		this.modules.initializeModules(callback);
 	}
 
 	// start listening for requests!
@@ -221,7 +159,7 @@ class APIServer {
 			).listen(this.config.express.port);
 		}
 		this.expressServer.on('error', (error) => {
-			callback(`Unable to start server on port ${this.config.express.port}: ${error}`);
+			return callback(`Unable to start server on port ${this.config.express.port}: ${error}`);
 		});
 		this.expressServer.on('listening', () => {
 			this.log(`Listening on port ${this.config.express.port}...`);

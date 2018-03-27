@@ -19,8 +19,7 @@ class APIServerModule {
 
 	getDependencies () { }
 
-	initialize (callback) {
-		process.nextTick(callback);
+	async initialize () {
 	}
 }
 
