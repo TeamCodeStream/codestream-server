@@ -1,3 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-mongo $MDB_HOST:$MDB_PORT/codestream $CS_API_TOP/bin/cs_delete_test_data.js 
+[ -n "$CS_API_MONGO_URL" ] && murl="$CS_API_MONGO_URL" || murl="mongodb://$CS_API_MONGO_HOST:$CS_API_MONGO_PORT/$CS_API_MONGO_DATABASE"
+
+echo mongo $murl $CS_API_TOP/bin/cs_delete_test_data.js
+mongo $murl $CS_API_TOP/bin/cs_delete_test_data.js
