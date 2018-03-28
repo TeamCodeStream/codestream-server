@@ -54,7 +54,6 @@ class CodeStreamEmails {
 			{
 				from: { email: this.senderEmail, name: inviterName },
 				to: { email, name },
-				subject: 'Invitation to collaborate on CodeStream',
 				templateId: this.inviteEmailTemplateId,
 				request: request,
 				testCallback: this.testCallback,

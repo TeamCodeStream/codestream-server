@@ -30,6 +30,9 @@ class PostUserRequest extends PostRequest {
 			}
 			else if (this.adder.usersFound && this.adder.usersFound.length > 0) {
 				this.createdUser = this.adder.usersFound[0];
+				if (this.createdUser.get('isRegistered')) {
+					this.dontSendEmail = true;	// don't send invite email to registered user already on the team
+				}
 			}
 			else {
 				// shouldn't really happen
@@ -44,6 +47,8 @@ class PostUserRequest extends PostRequest {
 	requireAndAllow (callback) {
 		this.delayEmail = this.request.body._delayEmail; // delay sending the invite email, for testing
 		delete this.request.body._delayEmail;
+		this.subscriptionCheat = this.request.body._subscriptionCheat; // cheat code for testing only, allow subscription to me-channel before confirmation
+		delete this.request.body._subscriptionCheat;
 		this.requireAllowParameters(
 			'body',
 			{
@@ -68,7 +73,7 @@ class PostUserRequest extends PostRequest {
 			request: this,
 			addUsers: [user],
 			teamId: this.request.body.teamId.toLowerCase(),
-			subscriptionCheat: this.request.body._subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
 			saveUserIfExists: true	// override provided attributes of the user as needed
 		});
 		this.adder.addTeamMembers(callback);
@@ -97,7 +102,7 @@ class PostUserRequest extends PostRequest {
 
 	// send an invite email to the added user
 	sendInviteEmail (callback) {
-		if (this.request.body.dontSendEmail) {
+		if (this.request.body.dontSendEmail || this.dontSendEmail) {
 			return callback(); // don't send email if this flag is set
 		}
 		if (this.delayEmail) {

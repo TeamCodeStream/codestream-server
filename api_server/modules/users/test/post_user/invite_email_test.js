@@ -1,52 +1,56 @@
-// serves as the base class for other email notification tests
+// serves as the base class for other invite email tests
 
 'use strict';
 
 var Assert = require('assert');
 var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+var CommonInit = require('./common_init');
 const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
-class ConfirmationEmailTest extends CodeStreamMessageTest {
+class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	constructor (options) {
 		super(options);
-		this.timeout = 10000;	// wait 10 seconds for message
+		this.timeout = 15000;	// wait 15 seconds for message
 	}
 
 	get description () {
-		return 'should send a confirmation email when a new user registers';
+		return 'should send an invite email when a new user is created by another user';
 	}
 
-	dontWantToken () {
-		return true;	// we don't want a registered user for this test
-	}
-
-	// make the data that will be used during the test
+	// make the data that triggers the message to be received
 	makeData (callback) {
-		this.data = this.userFactory.getRandomUserData();
-		this.data._subscriptionCheat = SecretsConfig.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
-		this.data._delayEmail = 10000;	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
-		// register a random user
-		this.doApiRequest(
-			{
-				method: 'post',
-				path: '/no-auth/register',
-				data: this.data,
-				testEmails: true	// this should get us email data back in the pubnub me-channel
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.currentUser = response.user;
-				this.token = this.currentUser._id;	// use this for the pubnub auth key
-				callback();
-			}
-		);
+		this.init(error => {
+			if (error) { return callback(error); }
+			this.data._subscriptionCheat = SecretsConfig.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
+			this.data._delayEmail = 10000;	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
+			// we'll do the triggering request here, but with a delay for when the
+			// email goes out ... this is because we need to know which pubnub channel
+			// to subscribe to in advance of running the test
+			this.doApiRequest(
+				{
+					method: 'post',
+					path: '/users',
+					data: this.data,
+					token: this.token,
+					testEmails: true
+				},
+				(error, response) => {
+					if (error) { return callback(error); }
+					this.userCreator = this.currentUser;
+					this.currentUser = response.user;
+					this.token = this.currentUser._id;	// use this for the pubnub auth key
+					callback();
+				}
+			);
+		});
 	}
 
 	// set the channel name to listen for the email message on
 	setChannelName (callback) {
-		// for the user we expect to receive the confirmation email, we use their me-channel
+		// for the user we expect to receive the invite email, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the outbound email
 		// service (sendgrid) on this channel, and then we'll validate the data
 		this.channelName = `user-${this.currentUser._id}`;
@@ -66,38 +70,29 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		if (!message.from && !message.to) { return false; }	// ignore anything not matching
 		this.validateFrom(message);
 		this.validateTo(message);
-		this.validateSubstitutions(message);
 		this.validateTemplateId(message);
 		return true;
 	}
 
 	// validate that the from field of the email data is correct
 	validateFrom (message) {
+		const userName = this.getUserName(this.userCreator);
 		Assert.equal(message.from.email, 'alerts@codestream.com', 'incorrect from address');
-		Assert.equal(message.from.name, 'CodeStream', 'incorrect from name');
+		Assert.equal(message.from.name, userName, 'incorrect from name');
 	}
 
 	// validate that the to field of the email data is correct
 	validateTo (message) {
-		let personalization = message.personalizations[0];
-		let to = personalization.to[0];
+		const personalization = message.personalizations[0];
+		const to = personalization.to[0];
 		const userName = this.getUserName(this.currentUser);
 		Assert.equal(to.email, this.currentUser.email, 'incorrect to address');
 		Assert.equal(to.name, userName, 'incorrect to name');
 	}
 
-	// validate that all the email "substitutions" are correct, these are the fields that
-	// are set dynamically by the email notification code, sendgrid then uses these
-	// field substitutions in the template
-	validateSubstitutions (message) {
-		let substitutions = message.personalizations[0].substitutions;
-		Assert.equal(substitutions['{{code}}'], this.currentUser.confirmationCode, 'incorrect confirmation code');
-		Assert.equal(substitutions['{{name}}'], this.getUserName(this.currentUser), 'incorrect user name');
-	}
-
 	// validate the template is correct for an email notification
 	validateTemplateId (message) {
-		Assert.equal(message.template_id, EmailConfig.confirmationEmailTemplateId, 'incorrect templateId');
+		Assert.equal(message.template_id, EmailConfig.inviteEmailTemplateId, 'incorrect templateId');
 	}
 
 	// get the expected username for the given user
@@ -116,4 +111,4 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 	}
 }
 
-module.exports = ConfirmationEmailTest;
+module.exports = InviteEmailTest;
