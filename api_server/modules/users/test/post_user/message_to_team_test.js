@@ -36,6 +36,11 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.message = response;
+				this.message.team = {
+					$addToSet: {
+						memberIds: response.user._id
+					}
+				};
 				callback();
 			}
 		);

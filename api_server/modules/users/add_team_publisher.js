@@ -29,7 +29,12 @@ class AddTeamPublisher {
 	publishUserToTeam (callback) {
 		const message = {
 			requestId: this.request.request.id,
-			user: this.user.getSanitizedObject()
+			user: this.user.getSanitizedObject(),
+			team: {
+				$addToSet: {
+					memberIds: this.user.id
+				}
+			}
 		};
 		this.messager.publish(
 			message,
