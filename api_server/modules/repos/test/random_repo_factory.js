@@ -22,8 +22,10 @@ class RandomRepoFactory {
 	}
 
 	// generate a random url, kind of like a github url but more random
-	randomUrl () {
-		return `https://user@${RandomString.generate(6)}.${RandomString.generate(6)}.com/${RandomString.generate(8)}/${RandomString.generate(4)}?x=1&y=2#xyz`;
+	randomUrl (options = {}) {
+		const domain = options.domain || `${RandomString.generate(6)}.${RandomString.generate(6)}.com`;
+		const org = options.org || RandomString.generate(8);
+		return `https://user@${domain}/${org}/${RandomString.generate(4)}?x=1&y=2#xyz`;
 	}
 
 	// generate a random commit hash, doesn't really look like the real thing but should be good enough
@@ -31,10 +33,10 @@ class RandomRepoFactory {
 		return RandomString.generate(40);
 	}
 
-	// get some random attributes to create a random repo 
+	// get some random attributes to create a random repo
 	getRandomRepoData (callback, options = {}) {
 		let data = {
-			url: this.randomUrl(),
+			url: this.randomUrl(options),
 			firstCommitHash: this.randomCommitHash()
 		};
 		let emails, users;
