@@ -31,6 +31,7 @@ class AddTeamPublisher {
 			requestId: this.request.request.id,
 			user: this.user.getSanitizedObject(),
 			team: {
+				_id: this.team.id,
 				$addToSet: {
 					memberIds: this.user.id
 				}
