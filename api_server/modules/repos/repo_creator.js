@@ -127,8 +127,8 @@ class RepoCreator extends ModelCreator {
 
 	// if users were specified in the request, join them to the team that owns the already-existing repo
 	joinUsersToRepoTeam (callback) {
-		// first verify that the SHA for the first commit is valid
-		if (this.attributes.firstCommitHash !== this.existingModel.get('firstCommitHash')) {
+		// first verify that we have a known commit for this repo
+		if (!this.existingModel.isKnownCommitHash(this.attributes.firstCommitHash)) {
 			return callback(this.errorHandler.error('shaMismatch'));
 		}
 		if (

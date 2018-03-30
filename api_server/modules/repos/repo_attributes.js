@@ -26,5 +26,8 @@ module.exports = {
 		minLength: 40,
 		maxLength: 40,
 		required: true
+	},
+	knownCommitHashes: {
+		type: 'arrayOfStrings'
 	}
 };

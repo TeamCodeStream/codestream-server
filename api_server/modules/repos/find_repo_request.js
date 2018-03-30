@@ -9,8 +9,14 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var NormalizeURL = require('./normalize_url');
 const Indexes = require('./indexes');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
+const Errors = require('./errors');
 
 class FindRepoRequest extends RestfulRequest {
+
+	constructor (options) {
+		super(options);
+		this.errorHandler.add(Errors);
+	}
 
 	authorize (callback) {
 		return callback(false);	// no ACL check needed, authorization is by whether you have the correct first commit hash for the repo
@@ -59,8 +65,8 @@ class FindRepoRequest extends RestfulRequest {
 				if (!this.repo) {
 					return callback();	// no matching (active) repos, we'll just send an empty response
 				}
-				if (this.repo.get('firstCommitHash') !== this.request.query.firstCommitHash) {
-					// oops, you have to have the correct hash for the first commit
+				if (!this.repo.isKnownCommitHash(this.request.query.firstCommitHash)) {
+					// oops, you have to have one of the known commit hashes
 					return callback(this.errorHandler.error('shaMismatch'));
 				}
 				this.responseData.repo = this.repo.getSanitizedObject();
@@ -76,9 +82,9 @@ class FindRepoRequest extends RestfulRequest {
 
 	// get the set of unique usernames represented by the users who are on the team that owns the repo
 	getUsernames (callback) {
-		if (!this.repo) { 
+		if (!this.repo) {
 			// did not find a matching repo
-			return callback(); 
+			return callback();
 		}
 		let teamId = this.repo.get('teamId');
 		let query = {

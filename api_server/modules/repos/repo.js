@@ -23,6 +23,13 @@ class Repo extends CodeStreamModel {
 		this.lowerCase('teamId');
 		super.preSave(callback, options);
 	}
+
+	// check if the passed commit hash is a known commit hash for this repo
+	isKnownCommitHash (commitHash) {
+		let knownCommitHashes = [...(this.get('knownCommitHashes') || [])];
+		knownCommitHashes.push(this.get('firstCommitHash'));
+		return knownCommitHashes.includes(commitHash);
+	}
 }
 
 module.exports = Repo;
