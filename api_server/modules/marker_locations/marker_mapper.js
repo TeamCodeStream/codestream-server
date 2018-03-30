@@ -367,8 +367,11 @@ class MarkerMapper {
 		if (!oldContent || !newContent || oldContent === newContent) {
 			return oldCol;
 		}
-		if (oldCol > oldContent.length) {
-			oldCol = oldContent.length;
+
+		if (oldCol === 1) {
+			return 1;
+		} else if (oldCol > oldContent.length) {
+			return newContent.length + 1;
 		}
 
 		let pre = oldContent.substring(oldCol - 4, oldCol - 1);
