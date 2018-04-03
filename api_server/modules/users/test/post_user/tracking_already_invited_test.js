@@ -20,7 +20,7 @@ class TrackingAlreadyInvitedTest extends TrackingTest {
 		super.makeData(error => {
 			if (error) { return callback(error); }
 			this.generateMessage(callback);
-		})
+		});
 	}
 }
 
