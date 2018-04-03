@@ -84,6 +84,7 @@ class PostUserRequest extends PostRequest {
 		BoundAsync.parallel(this, [
 			this.publishAddToTeam,
 			this.sendInviteEmail,
+			this.trackInvite,
 			this.updateInvites,
 		], callback);
 	}
@@ -118,6 +119,34 @@ class PostUserRequest extends PostRequest {
 				this.delayEmail ? () => {} : callback
 			);
 		}, this.delayEmail || 0);
+	}
+
+	// track this invite for analytics
+	trackInvite (callback) {
+		if (this.request.body.dontSendEmail || this.dontSendEmail) {
+			return callback(); // don't track invite email if we're not sending an email
+		}
+		// check if user has opted out
+		const preferences = this.user.get('preferences') || {};
+		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
+			return callback();
+		}
+
+		const trackObject = {
+			distinct_id: this.user.id,
+			'Email Address': this.createdUser.get('email'),
+			'First Invite': !this.createdUser.get('numInvites'),
+			Registered: !!this.createdUser.get('isRegistered')
+		};
+		this.api.services.analytics.track(
+			'Team Member Invited',
+			trackObject,
+			{
+				request: this,
+				user: this.user
+			}
+		);
+		process.nextTick(callback);
 	}
 
 	// for an unregistered user, we track that they've been invited

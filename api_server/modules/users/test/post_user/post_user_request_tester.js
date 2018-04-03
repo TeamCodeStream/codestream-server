@@ -26,6 +26,10 @@ const ExistingRegisteredOnTeamInviteEmailTest = require('./existing_registered_o
 const ExistingUnregisteredOnTeamInviteEmailTest = require('./existing_unregistered_on_team_invite_email_test');
 const ExistingUnregisteredAlreadyOnTeamInviteEmailTest = require('./existing_unregistered_already_on_team_invite_email_test');
 const ExistingRegisteredAlreadyOnTeamInviteEmailTest = require('./existing_registered_already_on_team_invite_email_test');
+const TrackingTest = require('./tracking_test');
+const TrackingRegisteredTest = require('./tracking_registered_test');
+const TrackingAlreadyInvitedTest = require('./tracking_already_invited_test');
+const NoTrackingTest = require('./no_tracking_test');
 
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
 
@@ -62,6 +66,10 @@ class PostUserRequestTester {
 			ExistingUnregisteredAlreadyOnTeamInviteEmailTest,
 			ExistingRegisteredAlreadyOnTeamInviteEmailTest
 		]);
+		new TrackingTest().test();
+		new TrackingRegisteredTest().test();
+		new TrackingAlreadyInvitedTest().test();
+		new NoTrackingTest().test();
 	}
 }
 
