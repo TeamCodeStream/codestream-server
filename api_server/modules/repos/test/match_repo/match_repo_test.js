@@ -6,6 +6,7 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
 const RandomString = require('randomstring');
+const KnownGitServices = require('../../known_git_services');
 
 class MatchRepoTest extends CodeStreamAPITest {
 
@@ -14,17 +15,15 @@ class MatchRepoTest extends CodeStreamAPITest {
 		this.numUsers = 3;
 		this.numTeams = 2;
 		this.numReposPerTeam = 2;
-		this.service = Math.random() < 0.5 ? 'github.com' : 'bitbucket.org';
+		const services = Object.keys(KnownGitServices);
+		const serviceIndex = Math.floor(Math.random() * services.length);
+		this.service = services[serviceIndex];
 		this.org = RandomString.generate(8) + '.com';
 		this.matches = [0];
 	}
 
 	get description () {
 		return 'should return the expected info when matching a repo';
-	}
-
-	getExpectedFields () {
-		return ['teams', 'teamCreators'];
 	}
 
 	dontWantToken () {
@@ -85,7 +84,7 @@ class MatchRepoTest extends CodeStreamAPITest {
 		const emails = this.userData.map(userData => userData.user.email);
 		emails.splice(creatorNum, 1);
 		let domain, org;
-		if (this.matches.includes(n)) {
+		if (this.matches.includes(n) && !this.wantExactMatch) {
 			domain = this.service || this.domain;
 			org = this.org;
 		}
@@ -96,6 +95,9 @@ class MatchRepoTest extends CodeStreamAPITest {
 				if (n % this.numReposPerTeam === 0) {
 					this.teamCreators[response.team._id] = creator;
 					this.lastTeam = response.team;
+				}
+				if (this.wantExactMatch && this.matches.includes(n)) {
+					this.url = response.repo.url;
 				}
 				this.teams.push(this.lastTeam);
 				callback();
@@ -110,19 +112,39 @@ class MatchRepoTest extends CodeStreamAPITest {
 		);
 	}
 
-	// make the path we'll use to run the test request
-	makePath (callback) {
+	// get query parameters used to make the path
+	getQueryParameters () {
 		const options = {
 			domain: this.service || this.domain,
 			org: this.org
 		};
-		const url = this.repoFactory.randomUrl(options);
-		this.path = '/no-auth/match-repo?url=' + encodeURIComponent(url);
+		const url = this.url || this.repoFactory.randomUrl(options);
+		const repo = this.matches.length > 0 ?
+			this.repos[this.matches[0]] :
+			this.repos[0];
+		const firstCommitHash = repo.firstCommitHash;
+		return { url, firstCommitHash };
+	}
+
+	// make the path we'll use to run the test request
+	makePath (callback) {
+		const queryParameters = this.getQueryParameters();
+		this.path = '/no-auth/match-repo?' + Object.keys(queryParameters).map(param => {
+			const value = encodeURIComponent(queryParameters[param]);
+			return `${param}=${value}`;
+		}).join('&');
 		callback();
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
+		if (this.service) {
+			Assert(data.knownService === KnownGitServices[this.service], 'service not correct');
+			Assert(data.org === this.org.toLowerCase(), 'org not correct');
+		}
+		if (this.domain) {
+			Assert(data.domain === this.domain.toLowerCase(), 'domain not correct');
+		}
 		this.validateTeams(data.teams);
 		//		this.validateUsernames(data.usernames);
 		this.validateTeamCreators(data);
