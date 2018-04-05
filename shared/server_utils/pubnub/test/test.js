@@ -22,7 +22,7 @@ describe('pubnub', function() {
 	new NoAccessTest().test();
 	// new RevokeAccessTest().test();	// Disabled pending resolution of COD-64
 	new UnsubscribeTest().test();
-	new HistoryTest().test();
+	// new HistoryTest().test();
 	// new MultipleHistoryTest().test();	// Disabled pending resolution of COD-135
 	new PresenceTest().test();
 	new LeaveTest().test();
