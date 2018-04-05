@@ -8,12 +8,15 @@ class MalformedPathTest extends MatchRepoTest {
 		return 'should return empty info when the path supplied is malformed';
 	}
 
-	// make the path we'll use to run the test request
-	makePath (callback) {
+	// get query parameters used to make the path
+	getQueryParameters () {
 		// use the path with a non-url-like url
-		this.path = '/no-auth/match-repo?url=x';
+		let queryParameters = super.getQueryParameters();
+		queryParameters.url = 'x';
 		this.matches = [];	// we expect no matches
-		callback();
+		delete this.service;	
+		delete this.org;
+		return queryParameters;
 	}
 }
 
