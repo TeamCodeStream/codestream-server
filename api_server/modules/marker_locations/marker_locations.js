@@ -5,8 +5,8 @@
 
 'use strict';
 
-var DataModel = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model');
-var DataModelValidator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
+const DataModel = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model');
+const DataModelValidator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
 const MarkerLocationsAttributes = require('./marker_locations_attributes');
 
 class MarkerLocations extends DataModel {
@@ -16,12 +16,12 @@ class MarkerLocations extends DataModel {
 	}
 
 	// called right before we save...
-	preSave (callback, options) {
+	async preSave (options) {
 		// ensure all IDs are lowercase
 		this.attributes.teamId = this.attributes.teamId.toLowerCase();
 		this.attributes.streamId = this.attributes.streamId.toLowerCase();
 		this.attributes.commitHash = this.attributes.commitHash.toLowerCase();
-		super.preSave(callback, options);
+		await super.preSave(options);
 	}
 
 	// get a sanitized object for return to the client (cleansed of attributes we don't want

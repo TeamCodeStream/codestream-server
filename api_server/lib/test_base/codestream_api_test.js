@@ -69,7 +69,7 @@ class CodeStreamAPITest extends APIRequestTest {
 		let present = [];
 		let objectAttributes = Object.keys(object);
 		unsanitizedAttributes.forEach(attribute => {
-			if (objectAttributes.indexOf(attribute) !== -1) {
+			if (objectAttributes.includes(attribute)) {
 				present.push(attribute);
 			}
 		});

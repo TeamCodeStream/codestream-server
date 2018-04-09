@@ -4,9 +4,8 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var JSONWebToken = require('jsonwebtoken');
-var ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const JSONWebToken = require('jsonwebtoken');
+const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const Errors = require('./errors');
 
 class TokenAuthenticator {
@@ -17,60 +16,49 @@ class TokenAuthenticator {
 	}
 
 	// authenticate the request, we'll look for the token in a variety of places
-	authenticate (callback) {
-		BoundAsync.series(this, [
-			this.getToken,
-			this.verifyToken,
-			this.getUser
-		], (error) => {
-			if (error === true) {
-				return callback(); // no authentication necessary
-			}
-			else {
-				return callback(error);
-			}
-		});
+	async authenticate () {
+		const noTokenNeeded = await this.getToken();
+		if (noTokenNeeded) {
+			return;
+		}
+		await this.verifyToken();
+		await this.getUser();
 	}
 
 	// get the authentication token from any number of places
-	getToken (callback) {
+	async getToken () {
 		if (this.pathIsNoAuth(this.request)) {
 			// e.g. '/no-auth/path' ... no authentication required
-			return callback(true);
+			return true;
 		}
 		// look for a token in this order: cookie, query, body, header
-		let token =
+		const token =
 			(this.request.signedCookies && this.request.signedCookies.t) ||
 			(this.request.query && this.request.query.t && decodeURIComponent(this.request.query.t)) ||
 			(this.request.body && this.request.body.t) ||
 			this.tokenFromHeader(this.request);
 		if (!token) {
-			return callback(this.errorHandler.error('missingAuthorization'));
+			throw this.errorHandler.error('missingAuthorization');
 		}
 		this.token = token;
-		process.nextTick(callback);
 	}
 
 	// verify the token is valid and extract its payload
-	verifyToken (callback) {
-		JSONWebToken.verify(
-			this.token,
-			this.api.config.secrets.auth,
-			(error, payload) => {
-				if (error) {
-					return callback(this.errorHandler.error('tokenInvalid', { reason: error }));
-				}
-				this.payload = payload;
-				process.nextTick(callback);
-			}
-		);
+	async verifyToken () {
+		try {
+			this.payload = JSONWebToken.verify(this.token, this.api.config.secrets.auth);
+		}
+		catch (error) {
+			const message = typeof error === 'object' ? error.message : error;
+			throw this.errorHandler.error('tokenInvalid', { reason: message });
+		}
 	}
 
 	// get the user associated with this token payload
-	async getUser (callback) {
-		let userId = this.payload.userId;
+	async getUser () {
+		const userId = this.payload.userId;
 		if (!userId) {
-			return callback(this.errorHandler.error('noUserId'));
+			throw this.errorHandler.error('noUserId');
 		}
 		let user;
 		try {
@@ -82,10 +70,10 @@ class TokenAuthenticator {
 			);
 		}
 		catch (error) {
-			return callback(this.errorHandler.error('internal', { reason: error }));
+			throw this.errorHandler.error('internal', { reason: error });
 		}
 		if (!user) {
-			return callback(this.errorHandler.error('userNotFound'));
+			throw this.errorHandler.error('userNotFound');
 		}
 		if (this.userClass) {
 			// make a model out of the user attributes
@@ -95,7 +83,6 @@ class TokenAuthenticator {
 			this.request.user = user;
 		}
 		this.request.authPayload = this.payload;
-		process.nextTick(callback);
 	}
 
 	// certain paths signal that no authentication is required

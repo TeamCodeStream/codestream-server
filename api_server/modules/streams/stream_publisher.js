@@ -2,8 +2,6 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-
 class StreamPublisher {
 
 	constructor (options) {
@@ -11,64 +9,57 @@ class StreamPublisher {
 	}
 
 	// publish a stream ... how we do it depends on its type
-	publishStream (callback) {
+	async publishStream () {
 		if (this.stream.type === 'file') {
 			// file-type streams are published to the team that owns the repo that owns the stream
-			this.publishStreamToTeam(callback);
+			await this.publishStreamToTeam();
 		}
 		else {
 			// channel and direct streams are published to the individual members of the stream
-			this.publishStreamToMembers(callback);
+			await this.publishStreamToMembers();
 		}
 	}
 
 	// publish a file-type stream to the team that owns it
-	publishStreamToTeam (callback) {
-		let teamId = this.stream.teamId;
-		let channel = 'team-' + teamId;
-		let message = Object.assign({}, this.data, { requestId: this.request.request.id });
-		this.messager.publish(
-			message,
-			channel,
-			error => {
-				if (error) {
-					this.request.warn(`Could not publish new stream message to team ${teamId}: ${JSON.stringify(error)}`);
-				}
-				// this doesn't break the chain, but it is unfortunate...
-				callback();
-			}
-		);
+	async publishStreamToTeam () {
+		const teamId = this.stream.teamId;
+		const channel = 'team-' + teamId;
+		const message = Object.assign({}, this.data, { requestId: this.request.request.id });
+		try {
+			await this.messager.publish(
+				message,
+				channel,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish new stream message to team ${teamId}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// publish a new channel or direct type stream to its members
-	publishStreamToMembers (callback) {
-		BoundAsync.forEachLimit(
-			this,
-			this.stream.memberIds,
-			10,
-			this.publishStreamToUser,
-			callback
-		);
+	async publishStreamToMembers () {
+		await Promise.all(this.stream.memberIds.map(async userId => {
+			await this.publishStreamToUser(userId);
+		}));
 	}
 
 	// publish a new channel or direct type stream to one of its members
-	publishStreamToUser (userId, callback) {
-		let channel = 'user-' + userId;
-		let message = Object.assign({}, this.data, { requestId: this.request.request.id });
-		this.messager.publish(
-			message,
-			channel,
-			error => {
-				if (error) {
-					this.request.warn(`Could not publish new stream message to user ${userId}: ${JSON.stringify(error)}`);
-				}
-				// this doesn't break the chain, but it is unfortunate...
-				callback();
-			},
-			{
-				request: this.request
-			}
-		);
+	async publishStreamToUser (userId) {
+		const channel = 'user-' + userId;
+		const message = Object.assign({}, this.data, { requestId: this.request.request.id });
+		try {
+			await this.messager.publish(
+				message,
+				channel,
+				{ request: this.request	}
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish new stream message to user ${userId}: ${JSON.stringify(error)}`);
+		}
 	}
 }
 

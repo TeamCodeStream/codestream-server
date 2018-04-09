@@ -2,22 +2,33 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var RestfulRequest = require('./restful_request');
+const RestfulRequest = require('./restful_request');
 
 class GetManyRequest extends RestfulRequest {
 
 	// process the request...
-	process (callback) {
-		BoundAsync.series(this, [
-			this.formQuery,		// let the derived class provide the details of the query based on the request parameters
-			this.preFetchHook,	// let the derived class do more stuff as needed
-			this.fetch,			// run the query and fetch the documents
-			this.postFetchHook,	// let the derived class do stuff after the data is retrieved
-			this.sanitize,		// sanitize the documents for returning to the client
-			this.respond		// respond to the client
-		], callback);
+	async process () {
+		// let the derived class provide the details of the query based on the request parameters
+		this.queryAndOptions = this.makeQueryAndOptions();
+		if (!this.queryAndOptions.fetchNothing && !this.queryAndOptions.query) {
+			throw this.queryAndOptions; // error
+		}
+
+		// do the fetch, with allowance for derived class to hook in both pre- and post-fetch
+		await this.preFetchHook();
+		await this.fetch();
+		await this.postFetchHook();
+
+		// sanitize the fetched models for return to the client
+		// (remove attributes we don't want the client to see)
+		const sanitizedObjects = await this.sanitizeModels(this.models);
+
+		// respond to the client
+		this.responseData = this.responseData || {};
+		const collectionName = this.module.collectionName || 'objects';
+		this.responseData[collectionName] = sanitizedObjects;
 	}
+
 
 	// form a query and query options based on information the client gleans from the request parameters
 	formQuery (callback) {
@@ -28,37 +39,29 @@ class GetManyRequest extends RestfulRequest {
 		process.nextTick(callback);
 	}
 
+
+
 	// override to do stuff right before we fetch
-	preFetchHook (callback) {
-		callback();
+	async preFetchHook () {
 	}
 
 	// fetch the documents, based on the query the derived class gleaned from request parameters
-	fetch (callback) {
-		let { func, query, queryOptions } = this.queryAndOptions;
-		if (this.queryAndOptions.fetchNothing) {
+	async fetch () {
+		const { func, query, queryOptions, fetchNothing } = this.queryAndOptions;
+		if (fetchNothing) {
 			// the derived class might "know" that we're not going to fetch anything, so
 			// don't bother running a query
 			this.models = [];
-			return callback();
+			return;
 		}
 		// run the query and get our models
-		this.data[this.module.collectionName][func](
-			query,
-			(error, models) => {
-				if (error) { return callback(error); }
-				this.models = models;
-				callback();
-			},
-			queryOptions
-		);
+		this.models = await this.data[this.module.collectionName][func](query, queryOptions);
 	}
 
 	// override to do stuff right after we fetch the documents of interest
-	postFetchHook (callback) {
-		callback();
+	async postFetchHook () {
 	}
-	
+
 	// make our fetch query and any associated query options
 	makeQueryAndOptions () {
 		// build the query (this is where the derived class does its work)
@@ -89,27 +92,6 @@ class GetManyRequest extends RestfulRequest {
 			}
 		}
 		return { func, query, queryOptions };
-	}
-
-	// sanitize the fetched models for return to the client
-	// (remove attributes we don't want the client to see)
-	sanitize (callback) {
-		this.sanitizeModels(
-			this.models,
-			(error, objects) => {
-				if (error) { return callback(error); }
-				this.sanitizedObjects = objects;
-				callback();
-			}
-		);
-	}
-
-	// respond to the client with our now-sanitized objects
-	respond (callback) {
-		this.responseData = this.responseData || {};
-		const collectionName = this.module.collectionName || 'objects';
-		this.responseData[collectionName] = this.sanitizedObjects;
-		process.nextTick(callback);
 	}
 
 	// derived class will usually override this

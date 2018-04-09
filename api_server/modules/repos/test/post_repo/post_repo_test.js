@@ -276,15 +276,15 @@ class PostRepoTest extends CodeStreamAPITest {
 		data.users.forEach(user => {
 			/*
 			let found = (
-				this.teamEmails.indexOf(user.email) !== -1 ||
+				this.teamEmails.includes(user.email) ||
 				this.teamUsers.find(teamUser => { return teamUser.email === user.email; })
 			);
 			Assert(found, `got unexpected email ${user.email}`);
 			*/
-			Assert(user.teamIds.indexOf(data.repo.teamId) !== -1, `user ${user.email} doesn't have the team for the repo`);
-			Assert(user.companyIds.indexOf(data.repo.companyId) !== -1, `user ${user.email} doesn't have the company for the repo`);
+			Assert(user.teamIds.includes(data.repo.teamId), `user ${user.email} doesn't have the team for the repo`);
+			Assert(user.companyIds.includes(data.repo.companyId), `user ${user.email} doesn't have the company for the repo`);
 			if (data.team) {
-				Assert(data.team.memberIds.indexOf(user._id) !== -1, `user ${user.email} not a member of the team for the repo`);
+				Assert(data.team.memberIds.includes(user._id), `user ${user.email} not a member of the team for the repo`);
 			}
 			// make sure we didn't get any attributes not suitable to be sent to the client
 			this.validateSanitized(user, RepoTestConstants.UNSANITIZED_USER_ATTRIBUTES);

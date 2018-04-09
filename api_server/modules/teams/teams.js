@@ -2,10 +2,10 @@
 
 'use strict';
 
-var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var TeamCreator = require('./team_creator');
-//var TeamUpdater = require('./team_updater');
-var Team = require('./team');
+const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
+const TeamCreator = require('./team_creator');
+//const TeamUpdater = require('./team_updater');
+const Team = require('./team');
 
 // expose these restful routes
 const TEAM_STANDARD_ROUTES = {

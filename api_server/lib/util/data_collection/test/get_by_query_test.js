@@ -20,14 +20,18 @@ class GetByQueryTest extends DataCollectionTest {
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// do the query
-		this.data.test.getByQuery(
-			{ flag: this.randomizer + 'yes' },
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			response = await this.data.test.getByQuery(
+				{ flag: this.randomizer + 'yes' }
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

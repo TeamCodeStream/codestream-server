@@ -18,24 +18,31 @@ class DeleteFromCacheTest extends DataCollectionTest {
 		], callback);
 	}
 
-	deleteModel (callback) {
-		this.data.test.deleteById(
-			this.testModel.id,
-			callback
-		);
+	async deleteModel (callback) {
+		try {
+			await this.data.test.deleteById(this.testModel.id);
+		}
+		catch (error) {
+			callback(error);
+		}
+		callback();
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// we'll fetch the test model and control model, but since the test model has been deleted,
 		// we should only get the control model
 		this.testModels = [this.controlModel];
-		this.data.test.getByIds(
-			[this.testModel.id, this.controlModel.id],
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			response = await this.data.test.getByIds(
+				[this.testModel.id, this.controlModel.id]
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

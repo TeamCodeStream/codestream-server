@@ -2,16 +2,11 @@
 
 'use strict';
 
-var JSONWebToken = require('jsonwebtoken');
+const JSONWebToken = require('jsonwebtoken');
 
-module.exports = (user, secret, callback) => {
-	let payload = {
+module.exports = (user, secret) => {
+	const payload = {
 		userId: user._id.toString()
 	};
-	JSONWebToken.sign(
-		payload,
-		secret,
-		{},
-		callback
-	);
+	return JSONWebToken.sign(payload, secret);
 };

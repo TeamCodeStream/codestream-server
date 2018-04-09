@@ -2,30 +2,20 @@
 
 'use strict';
 
-var ModelDeleter = require('./model_deleter');
-var RestfulRequest = require('./restful_request');
+const ModelDeleter = require('./model_deleter');
+const RestfulRequest = require('./restful_request');
 
 class DeleteRequest extends RestfulRequest {
 
 	// process the request...
-	process (callback) {
+	async process () {
 		// we have a standard model deleter class, but the derived module can
 		// change the behavior by deriving its own deleter class
-		let deleterClass = this.module.deleterClass || ModelDeleter;
+		const deleterClass = this.module.deleterClass || ModelDeleter;
 		this.deleter = new deleterClass({
 			request: this
 		});
-		this.deleter.deleteModel(
-			this.request.params.id,
-			(error, update) => {
-				this.modelDeleted(error, update, callback);
-			}
-		);
-	}
-
-	// once the model has been deleted...
-	modelDeleted (error, update, callback) {
-		if (error) { return callback(error); }
+		const update = await this.deleter.deleteModel(this.request.params.id);
 		const modelName = this.module.modelName || 'model';
 		// since we're not really deleting the model, it really looks like
 		// an update, and  the deleter tells us what the update was...
@@ -35,7 +25,6 @@ class DeleteRequest extends RestfulRequest {
 			this.responseData,
 			this.deleter.attachToResponse || {}
 		);
-		process.nextTick(callback);
 	}
 }
 

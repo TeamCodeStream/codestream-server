@@ -2,9 +2,9 @@
 
 'use strict';
 
-var DataModelValidator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
-var URL = require('url');
-var ObjectID = require('mongodb').ObjectID;
+const DataModelValidator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
+const URL = require('url');
+const ObjectID = require('mongodb').ObjectID;
 const CodeStreamModelAttributes = require('./codestream_model_attributes');
 
 class CodeStreamModelValidator extends DataModelValidator {

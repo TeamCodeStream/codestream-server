@@ -37,14 +37,16 @@ class GetByIdFromDatabaseTest extends DataCollectionTest {
 		callback();
 	}
 
-	run (callback) {
+	async run (callback) {
 		// this should fetch the document from the database, since it was never cached
-		this.data.test.getById(
-			this.testModel.id,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			response = await this.data.test.getById(this.testModel.id);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

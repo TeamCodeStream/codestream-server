@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ERRORS = {
+module.exports = {
 	'data': {
 		code: 'MDTA-1000',
 		description: 'Internal data error',
@@ -19,5 +19,3 @@ const ERRORS = {
 		internal: true
 	}
 };
-
-module.exports = ERRORS;

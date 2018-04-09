@@ -2,10 +2,10 @@
 
 'use strict';
 
-var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var StreamCreator = require('./stream_creator');
-//var StreamUpdater = require('./stream_updater');
-var Stream = require('./stream');
+const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
+const StreamCreator = require('./stream_creator');
+//const StreamUpdater = require('./stream_updater');
+const Stream = require('./stream');
 
 // expose these restful routes
 const STREAM_STANDARD_ROUTES = {

@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ERRORS = {
+module.exports = {
 	'internal': {
 		code: 'AUTH-1000',
 		message: 'Internal authentication error',
@@ -26,5 +26,3 @@ const ERRORS = {
 		message: 'Invalid identity'
 	}
 };
-
-module.exports = ERRORS;

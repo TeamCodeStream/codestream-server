@@ -2,8 +2,6 @@
 
 'use strict';
 
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-
 class IntegrationHandler {
 
 	constructor (options) {
@@ -11,24 +9,20 @@ class IntegrationHandler {
 	}
 
 	// handle any integrations related to new posts coming in
-	handleNewPost (info, callback) {
+	async handleNewPost (info) {
 		this.info = info;
-		BoundAsync.series(this, [
-			this.collectHooks,
-			this.getParentPostCreator,
-			this.getMentionedUsers,
-			this.getMentionedUsersForParentPost,
-			this.executeHooks
-		], () => {
-			// ignore errors, they are handled by each hook ... if we get an error, it is "true",
-			// meaning there were no hooks to call at all
-			callback();
-		});
+		if (!await this.collectHooks()) {
+			return;	// no hooks to call
+		}
+		await this.getParentPostCreator();
+		await this.getMentionedUsers();
+		await this.getMentionedUsersForParentPost();
+		await this.executeHooks();
 	}
 
 	// collect the integration hooks that are actually going to be called ...
 	// if there are hooks, there is no other work to be done
-	collectHooks (callback) {
+	async collectHooks () {
 		const integrationNames = Object.keys(this.request.api.integrations || {});
 		this.hooks = integrationNames.reduce(
 			(hooks, integrationName) => {
@@ -43,10 +37,7 @@ class IntegrationHandler {
 			},
 			[]
 		);
-		if (this.hooks.length === 0) {
-			return callback(true);	// short-circuit everything, get us out of here!
-		}
-		process.nextTick(callback);
+		return this.hooks.length !== 0;	// we'll short-circuit if there are no hooks
 	}
 
 	// is the post hook enabled for the given integration?
@@ -61,73 +52,49 @@ class IntegrationHandler {
 	}
 
 	// get the creator of the parent post, as needed
-	getParentPostCreator (callback) {
-		if (!this.info.parentPost) { return callback(); }
-		this.request.data.users.getById(
-			this.info.parentPost.get('creatorId'),
-			(error, parentPostCreator) => {
-				if (error) { return callback(error); }
-				if (!parentPostCreator) {
-					return callback();	// this really shouldn't happen, but it's not worth an error
-				}
-				this.info.parentPostCreator = parentPostCreator;
-				callback();
-			}
+	async getParentPostCreator () {
+		if (!this.info.parentPost) { return; }
+		this.info.parentPostCreator = await this.request.data.users.getById(
+			this.info.parentPost.get('creatorId')
 		);
 	}
 
 	// get all the users mentioned in the main post, as needed
-	getMentionedUsers (callback) {
-		this.getMentionedUsersForPost(this.info.post, 'mentionedUsers', callback);
+	async getMentionedUsers () {
+		await this.getMentionedUsersForPost(this.info.post, 'mentionedUsers');
 	}
 
 	// get all the users mentioned in the parent post, as needed
-	getMentionedUsersForParentPost (callback) {
+	async getMentionedUsersForParentPost () {
 		if (!this.info.parentPost) {
-			return callback();
+			return;
 		}
-		this.getMentionedUsersForPost(this.info.parentPost, 'mentionedUsersForParentPost', callback);
+		await this.getMentionedUsersForPost(this.info.parentPost, 'mentionedUsersForParentPost');
 	}
 
 	// get all the users mentioned in the given post, and store their usernames as needed
-	getMentionedUsersForPost (post, which, callback) {
+	async getMentionedUsersForPost (post, which) {
 		const mentionedUserIds = post.get('mentionedUserIds');
-		if (!mentionedUserIds) { return callback(); }
-		this.request.data.users.getByIds(
-			mentionedUserIds,
-			(error, users) => {
-				if (error) { return callback(error); }
-				this.info[which] = users.map(user => user.get('username'));
-				callback();
-			}
-		);
+		if (!mentionedUserIds) { return ; }
+		const users = await this.request.data.users.getByIds(mentionedUserIds);
+		this.info[which] = users.map(user => user.get('username'));
 	}
 
 	// handle all integrations for a new post coming in
-	executeHooks (callback) {
-		BoundAsync.forEachLimit(
-			this,
-			this.hooks,
-			10,
-			this.executeHook,
-			callback
-		);
+	async executeHooks () {
+		await Promise.all(this.hooks.map(async hook => {
+			await this.executeHook(hook);
+		}));
 	}
 
 	// handle a single integration hook for a new post coming in
-	executeHook (hook, callback) {
-		hook.hook(
-			this.info,
-			error => {
-				if (error) {
-					this.request.warn(`Unable to perform integration hook for ${hook.name}: ${JSON.stringify(error)}`);
-				}
-				process.nextTick(callback);
-			},
-			{
-				request: this.request
-			}
-		);
+	async executeHook (hook) {
+		try {
+			await hook.hook(this.info, { request: this.request });
+		}
+		catch (error) {
+			this.request.warn(`Unable to perform integration hook for ${hook.name}: ${JSON.stringify(error)}`);
+		}
 	}
 }
 

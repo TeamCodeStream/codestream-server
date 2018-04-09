@@ -2,7 +2,7 @@
 
 'use strict';
 
-var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
+const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
 
 const ROUTES = [
 	// inbound email route, to be called periodically by the inbound email server

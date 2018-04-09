@@ -21,16 +21,19 @@ class DataCollectionTest extends GenericTest {
 		const mongoConfig = Object.assign({}, MongoConfig, { collections: ['test'] });
 		delete mongoConfig.queryLogging;
 		delete mongoConfig.hintsRequired;
-		this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
+		try {
+			this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
+		}
+		catch (error) {
+			return callback(error);
+		}
 		this.mongoData = this.mongoClient.mongoCollections;
 		this.dataCollection = new DataCollection({
 			databaseCollection: this.mongoData.test,
 			modelClass: DataModel
 		});
 		this.data = { test: this.dataCollection };
-		if (callback) {
-			callback();
-		}
+		callback();
 	}
 
 	// create a test model which we'll manipulate and a control model which we won't touch
@@ -43,7 +46,7 @@ class DataCollectionTest extends GenericTest {
 	}
 
 	// create a simple test model with a variety of attributes to be used in various derived tests
-	createTestModel (callback) {
+	async createTestModel (callback) {
 		this.testModel = new DataModel({
 			text: 'hello',
 			number: 12345,
@@ -54,18 +57,19 @@ class DataCollectionTest extends GenericTest {
 				z: 'three'
 			}
 		});
-		this.data.test.create(
-			this.testModel.attributes,
-			(error, createdModel) => {
-				if (error) { return callback(error); }
-				this.testModel.id = this.testModel.attributes._id = createdModel.id;
-				callback();
-			}
-		);
+		let createdModel;
+		try {
+			createdModel = await this.data.test.create(this.testModel.attributes);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.testModel.id = this.testModel.attributes._id = createdModel.id;
+		callback();
 	}
 
 	// create a simple control model, distinct from the test model, we should never see this model again
-	createControlModel (callback) {
+	async createControlModel (callback) {
 		this.controlModel = new DataModel({
 			text: 'goodbye',
 			number: 54321,
@@ -76,14 +80,15 @@ class DataCollectionTest extends GenericTest {
 				z: 'one'
 			}
 		});
-		this.data.test.create(
-			this.controlModel.attributes,
-			(error, createdModel) => {
-				if (error) { return callback(error); }
-				this.controlModel.id = this.controlModel.attributes._id = createdModel.id;
-				callback();
-			}
-		);
+		let createdModel;
+		try {
+			createdModel = await this.data.test.create(this.controlModel.attributes);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.controlModel.id = this.controlModel.attributes._id = createdModel.id;
+		callback();
 	}
 
 	// for tests that test the caching ability, we want to ensure that a document has not yet
@@ -124,21 +129,22 @@ class DataCollectionTest extends GenericTest {
 	}
 
 	// create a single random model, varying depending upon which model we are creating in order
-	createOneRandomModel (n, callback) {
+	async createOneRandomModel (n, callback) {
 		let flag = this.randomizer + (this.wantN(n) ? 'yes' : 'no');	// tells us which ones we want in test results
 		this.models[n] = new DataModel({
 			text: 'hello' + n,
 			number: n,
 			flag: flag
 		});
-		this.data.test.create(
-			this.models[n].attributes,
-			(error, createdModel) => {
-				if (error) { return callback(error); }
-				this.models[n].id = this.models[n].attributes._id = createdModel.id;
-				callback();
-			}
-		);
+		let createdModel;
+		try {
+			createdModel = await this.data.test.create(this.models[n].attributes);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.models[n].id = this.models[n].attributes._id = createdModel.id;
+		callback();
 	}
 
 	// filter the test models down to only the ones we want in our test results
@@ -155,20 +161,20 @@ class DataCollectionTest extends GenericTest {
 	}
 
 	// do an established update of the test model
-	updateTestModel (callback) {
+	async updateTestModel (callback) {
 		const update = {
 			_id: this.testModel.id,
 			text: 'replaced!',
 			number: 123
 		};
-		this.data.test.update(
-			update,
-			(error) => {
-				if (error) { return callback(error); }
-				Object.assign(this.testModel.attributes, update);
-				callback();
-			}
-		);
+		try {
+			await this.data.test.update(update);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		Object.assign(this.testModel.attributes, update);
+		callback();
 	}
 
 	// validate that we got back the model that exactly matches the test model
@@ -198,8 +204,14 @@ class DataCollectionTest extends GenericTest {
 	}
 
 	// persist whatever is in the cache to the database
-	persist (callback) {
-		this.data.test.persist(callback);
+	async persist (callback) {
+		try {
+			await this.data.test.persist();
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// clear the collection cache

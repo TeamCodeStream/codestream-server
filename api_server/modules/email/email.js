@@ -2,8 +2,8 @@
 
 'use strict';
 
-var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
-var CodeStreamEmails = require('./codestream_emails');
+const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
+const CodeStreamEmails = require('./codestream_emails');
 
 class Email extends APIServerModule {
 
@@ -27,16 +27,15 @@ class Email extends APIServerModule {
 	// when testing emails, we'll get the body that would otherwise be sent to
 	// the email server through this callback, we'll send it along through the
 	// user's me-channel, which the test client should be listening to
-	testCallback (body, user, request) {
+	async testCallback (body, user, request) {
 		if (!user || !this.api.services.messager) { return; }
-		let channel = `user-${user.id}`;
+		const channel = `user-${user.id}`;
 		let requestCopy = Object.assign({}, request);	// override test setting indicating not to send pubnub messages
 		requestCopy.headers = Object.assign({}, request.headers);
 		delete requestCopy.headers['x-cs-block-message-sends'];
-		this.api.services.messager.publish(
+		await this.api.services.messager.publish(
 			body,
 			channel,
-			() => {},
 			request
 		);
 	}

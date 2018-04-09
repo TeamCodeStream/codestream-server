@@ -2,8 +2,8 @@
 
 'use strict';
 
-var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
-var BodyParser = require('body-parser');
+const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+const BodyParser = require('body-parser');
 
 class BodyParserModule extends APIServerModule {
 
@@ -19,7 +19,7 @@ class BodyParserModule extends APIServerModule {
 
 	jsonBodyReviver (key, value) {
 		if (typeof value === 'string') {
-			// remove some weird unicode characters 
+			// remove some weird unicode characters
 			value = value.replace(/[\u0000-\u0008\u200B-\u200F\u2028-\u202F\uFFFC\uFEFF]/g, '');
 		}
 		return value;

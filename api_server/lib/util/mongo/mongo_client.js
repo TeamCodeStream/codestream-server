@@ -5,9 +5,9 @@
 
 'use strict';
 
-var MongoDbClient = require('mongodb').MongoClient;
-var MongoCollection = require('./mongo_collection');
-var SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
+const MongoDbClient = require('mongodb').MongoClient;
+const MongoCollection = require('./mongo_collection');
+const SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
 
 class MongoClient {
 

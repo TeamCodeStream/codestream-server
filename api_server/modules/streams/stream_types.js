@@ -2,10 +2,8 @@
 
 'use strict';
 
-const STREAM_TYPES = [
+module.exports = [
 	'channel',
 	'direct',
 	'file'
 ];
-
-module.exports = STREAM_TYPES;

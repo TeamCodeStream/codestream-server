@@ -1,4 +1,4 @@
-// handle unit tests for the "GET /users" request 
+// handle unit tests for the "GET /users" request
 
 'use strict';
 

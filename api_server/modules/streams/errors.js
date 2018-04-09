@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ERRORS = {
+module.exports = {
 	'invalidStreamType': {
 		code: 'STRM-1000',
 		message: 'Invalid stream type',
@@ -28,5 +28,3 @@ const ERRORS = {
 		message: 'Too many files'
 	}
 };
-
-module.exports = ERRORS;

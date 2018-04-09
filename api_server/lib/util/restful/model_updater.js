@@ -4,9 +4,8 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
-var DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
+const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
 class ModelUpdater {
 
@@ -17,49 +16,44 @@ class ModelUpdater {
 	}
 
 	// update the model
-	updateModel (id, attributes, callback) {
+	async updateModel (id, attributes) {
 		this.collection = this.data[this.collectionName];
 		if (!this.collection) {
-			return callback(this.errorHandler.error('internal', { reason: `collection ${this.collectionName} is not a valid collection` }));
+			throw this.errorHandler.error('internal', { reason: `collection ${this.collectionName} is not a valid collection` });
 		}
 
 		this.attributes = attributes;
 		this.id = id;
-		BoundAsync.series(this, [
-			this.normalize,				// normalize the input attributes
-			this.allowAttributes,		// discard attributes to ignore
-			this.validate,				// validate the attributes
-			this.preSave,				// prepare to save the document
-			this.checkValidationWarnings,	// check for any validation warnings that came up in preSave
-			this.update,				// update the document
-			this.postSave				// give the derived class a chance to do stuff after we've saved
-		], (error) => {
-			callback(error, this.model);
-		});
+		await this.normalize();				// normalize the input attributes
+		await this.allowAttributes();		// discard attributes to ignore
+		await this.validate();				// validate the attributes
+		await this.preSave();				// prepare to save the document
+		this.checkValidationWarnings();		// check for any validation warnings that came up in preSave
+		await this.update();				// update the document
+		await this.postSave();				// give the derived class a chance to do stuff after we've saved
+		return this.model;
 	}
 
 	// normalize the input attributes ... override as needed
-	normalize (callback) {
-		process.nextTick(callback);
+	async normalize () {
 	}
 
 	// ignore any attributes except those that are allowed
-	allowAttributes (callback) {
-		let attributes = this.getAllowedAttributes();
+	async allowAttributes () {
+		const attributes = this.getAllowedAttributes();
 		if (attributes) {
-			let info = RequireAllow.requireAllow(this.attributes, { optional: attributes });
+			const info = RequireAllow.requireAllow(this.attributes, { optional: attributes });
 			if (!info) {
 				this.attributes[this.collection.idAttribute] = this.id;
 			}
 			else if (info.invalid) {
-				return callback(this.errorHandler.error('invalidParameter', { info: info.invalid.join(',') }));
+				throw this.errorHandler.error('invalidParameter', { info: info.invalid.join(',') });
 			}
 			else if (info.deleted && this.api) {
 				this.api.warn(`These attributes were deleted: ${info.deleted.join(',')}`);
 			}
 		}
 		this.attributes[this.collection.idAttribute] = this.id;
-		process.nextTick(callback);
 	}
 
 	// which attributes are allowed? override to specify
@@ -68,77 +62,58 @@ class ModelUpdater {
 	}
 
 	// validate the input attributes
-	validate (callback) {
-		this.validateAttributes((errors) => {
-			if (errors) {
-				if (!(errors instanceof Array)) {
-					errors = [errors];
-				}
-				return callback(this.errorHandler.error('validation', { info: errors }));
-			}
-			else {
-				return process.nextTick(callback);
-			}
-		});
+	async validate () {
+		let errors = await this.validateAttributes();
+		if (!errors) {
+			return;
+		}
+		if (!(errors instanceof Array)) {
+			errors = [errors];
+		}
+		throw this.errorHandler.error('validation', { info: errors });
 	}
 
 	// validate the input attributes ... override as needed
-	validateAttributes (callback) {
-		process.nextTick(callback);
+	async validateAttributes () {
 	}
 
-
 	// called right before we save
-	preSave (callback) {
+	async preSave () {
 		// create a model from the attributes and let it do its own pre-save, this is where
 		// validation happens ... note that since we're doing an update, we might not have
 		// (and actually probably don't) have a complete model here
 		this.model = new this.modelClass(this.attributes, { dontSetDefaults: true });
-		this.model.preSave(
-			(errors) => {
-				if (errors) {
-					if (!(errors instanceof Array)) {
-						errors = [errors];
-					}
-					return callback(this.errorHandler.error('validation', { info: errors }));
-				}
-				else {
-					return process.nextTick(callback);
-				}
-			}
-		);
+		let errors = await this.model.preSave();
+		if (!errors) {
+			return;
+		}
+		if (!(errors instanceof Array)) {
+			errors = [errors];
+		}
+		throw this.errorHandler.error('validation', { info: errors });
 	}
 
 	// check for any warnings during validation, these don't stop the document from
 	// getting saved but we'll want to log them anyway
-	checkValidationWarnings (callback) {
+	checkValidationWarnings () {
 		if (
 			this.model.validationWarnings instanceof Array &&
 			this.api
 		) {
 			this.api.warn(`Validation warnings: \n${this.model.validationWarnings.join('\n')}`);
 		}
-		process.nextTick(callback);
 	}
 
 	// do the actual update
-	update (callback) {
+	async update () {
 		// do the update
 		this.updatedAttributes = DeepClone(this.model.attributes);
-		this.collection.update(
-			this.updatedAttributes,
-			(error, updatedModel) => {
-				if (error) { return callback(error); }
-				this.model = updatedModel;
-				this.updatedAttributes = this.model.validator.sanitizeAttributes(this.updatedAttributes);
-				process.nextTick(callback);
-			}
-		);
+		this.model = await this.collection.update(this.updatedAttributes);
+		this.updatedAttributes = this.model.validator.sanitizeAttributes(this.updatedAttributes);
 	}
 
 	// override to do stuff after the document has been saved
-	postSave (callback) {
-		process.nextTick(callback);
+	async postSave () {
 	}
 }
 

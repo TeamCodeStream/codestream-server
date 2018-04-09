@@ -56,12 +56,17 @@ describe('MarkerMapper', () => {
 
 	// test marker relocations for a given set of marker locations and a given delta,
 	// against an expected result set
-	function testMarkerRelocationsForDelta (markerLocations, delta, expected, callback) {
+	async function testMarkerRelocationsForDelta (markerLocations, delta, expected, callback) {
 		let markerMapper = new MarkerMapper(markerLocations, delta.edits);
-		markerMapper.getUpdatedMarkerData((error, updatedMarkerLocations) => {
-			expectMarkers(updatedMarkerLocations, expected);
-			callback();
-		});
+		let updatedMarkerLocations;
+		try {
+			updatedMarkerLocations = await markerMapper.getUpdatedMarkerData();
+		}
+		catch (error) {
+			callback(error);
+		}
+		expectMarkers(updatedMarkerLocations, expected);
+		callback();
 	}
 
 	// test marker relocations for a given index into the commit history,
@@ -91,19 +96,24 @@ describe('MarkerMapper', () => {
 	}
 
 	// test multi-line marker relocations for a given description
-	function testMultiLineRelocations (description, callback) {
+	async function testMultiLineRelocations (description, callback) {
 		let test = TestConstants.MULTI_LINE_MARKER_TESTS[description];
 		let commit = TestConstants.COMMITS[test.commitIndex - 1];
-		getDeltas(commit, (error, deltas) => {
+		getDeltas(commit, async (error, deltas) => {
 			let markerMapper = new MarkerMapper(test.inputLocations, deltas[0].edits);
-			markerMapper.getUpdatedMarkerData((error, updatedMarkerLocations) => {
-				for (let markerId in test.inputLocations) {
-					if (test.inputLocations.hasOwnProperty(markerId)) {
-						Assert.deepEqual(test.outputLocations[markerId], updatedMarkerLocations[markerId]);
-					}
+			let updatedMarkerLocations;
+			try {
+				updatedMarkerLocations = await markerMapper.getUpdatedMarkerData();
+			}
+			catch (error) {
+				callback(error);
+			}
+			for (let markerId in test.inputLocations) {
+				if (test.inputLocations.hasOwnProperty(markerId)) {
+					Assert.deepEqual(test.outputLocations[markerId], updatedMarkerLocations[markerId]);
 				}
-				callback();
-			});
+			}
+			callback();
 		});
 	}
 

@@ -2,7 +2,7 @@
 
 'use strict';
 
-var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const STREAM_TYPES = require('./stream_types');
 const Indexes = require('./indexes');
 
@@ -30,9 +30,9 @@ const NON_FILTERING_PARAMETERS = [
 class GetStreamsRequest extends GetManyRequest {
 
 	// authorize the request for the current user
-	authorize (callback) {
+	async authorize () {
 		// team ID must be provided, and the user must be a member of the team
-		this.user.authorizeFromTeamId(this.request.query, this, callback);
+		await this.user.authorizeFromTeamId(this.request.query, this);
 	}
 
 	// build the query to use for fetching streams (used by the base class GetManyRequest)
@@ -124,7 +124,7 @@ class GetStreamsRequest extends GetManyRequest {
 		if (!query.teamId) {
 			return 'teamId required';
 		}
-		if (query.type && STREAM_TYPES.indexOf(query.type) === -1) {
+		if (query.type && !STREAM_TYPES.includes(query.type)) {
 			return `invalid stream type: ${query.type}`;
 		}
 		if (query.type && query.type === 'file') {
@@ -133,7 +133,7 @@ class GetStreamsRequest extends GetManyRequest {
 			}
 		}
 		else if (query.type) {
-			delete query.repoId;	// for non file-type, ignore the repo ID 
+			delete query.repoId;	// for non file-type, ignore the repo ID
 		}
 		if (!query.repoId) {
 			query.memberIds = this.user.id;	// for non file-type, only return streams which have the requesting user as a member
@@ -143,8 +143,8 @@ class GetStreamsRequest extends GetManyRequest {
 
 	// process a single incoming query parameter
 	processQueryParameter (parameter, value, query) {
-		if (BASIC_QUERY_PARAMETERS.indexOf(parameter) !== -1) {
-			// basic query parameters go directly into the query 
+		if (BASIC_QUERY_PARAMETERS.includes(parameter)) {
+			// basic query parameters go directly into the query
 			query[parameter] = value;
 		}
 		else if (parameter === 'ids') {
@@ -163,12 +163,12 @@ class GetStreamsRequest extends GetManyRequest {
 				query._id = this.data.streams.inQuerySafe(ids);
 			}
 		}
-		else if (RELATIONAL_PARAMETERS.indexOf(parameter) !== -1) {
+		else if (RELATIONAL_PARAMETERS.includes(parameter)) {
 			// lt, gt, lte, gte
 			let error = this.processRelationalParameter(parameter, value, query);
 			if (error) { return error; }
 		}
-		else if (NON_FILTERING_PARAMETERS.indexOf(parameter) === -1) {
+		else if (!NON_FILTERING_PARAMETERS.includes(parameter)) {
 			// sort, limit
 			return 'invalid query parameter: ' + parameter;
 		}
@@ -186,17 +186,14 @@ class GetStreamsRequest extends GetManyRequest {
 	}
 
 	// process the request (overrides base class)
-	process (callback) {
-		super.process((error) => {
-			if (error) { return callback(error); }
-			// add the "more" flag as needed, if there are more streams to fetch ...
-			// we always fetch one more than the page requested, so we can set that flag
-			if (this.responseData.streams.length === this.limit) {
-				this.responseData.streams.splice(-1);
-				this.responseData.more = true;
-			}
-			process.nextTick(callback);
-		});
+	async process () {
+		await super.process();
+		// add the "more" flag as needed, if there are more streams to fetch ...
+		// we always fetch one more than the page requested, so we can set that flag
+		if (this.responseData.streams.length === this.limit) {
+			this.responseData.streams.splice(-1);
+			this.responseData.more = true;
+		}
 	}
 }
 

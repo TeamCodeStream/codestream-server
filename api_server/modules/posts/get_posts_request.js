@@ -2,8 +2,7 @@
 
 'use strict';
 
-var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
 const PostErrors = require('./errors.js');
@@ -40,51 +39,44 @@ class GetPostsRequest extends GetManyRequest {
 	}
 
 	// authorize the request for the current user
-	authorize (callback) {
+	async authorize () {
 		if (!this.request.query.teamId) {
 			// must have teamId
-			return callback(this.errorHandler.error('parameterRequired', { info: 'teamId' }));
+			throw this.errorHandler.error('parameterRequired', { info: 'teamId' });
 		}
 		if (!this.request.query.streamId) {
 			// for GET /posts?path, can do without streamId, but must have repoId to locate the file
 			if (this.request.query.repoId) {
-				return this.authorizePath(callback);
+				return await this.authorizePath();
 			}
 			else {
-				return callback(this.errorHandler.error('parameterRequired', { info: 'repoId or streamId' }));
+				throw this.errorHandler.error('parameterRequired', { info: 'repoId or streamId' });
 			}
 		}
 		else {
-			this.user.authorizeFromTeamIdAndStreamId(
+			const info = await this.user.authorizeFromTeamIdAndStreamId(
 				this.request.query,
-				this,
-				(error, info) => {
-					if (error) { return callback(error); }
-					Object.assign(this, info);
-					process.nextTick(callback);
-				}
+				this
 			);
+			Object.assign(this, info);
 		}
 	}
 
 	// for a GET /posts with a path specified (no stream ID known), authorize for
 	// the given (required) repoId
-	authorizePath (callback) {
+	async authorizePath () {
 		if (!this.request.query.path) {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'path' }));
+			throw this.errorHandler.error('parameterRequired', { info: 'path' });
 		}
-		let repoId = decodeURIComponent(this.request.query.repoId);
-		return this.user.authorizeRepo(repoId, this, (error, repo) => {
-			if (error) { return callback(error); }
-			if (!repo) {
-				return callback(this.errorHandler.error('readAuth'));
-			}
-			let teamId = this.request.query.teamId.toLowerCase();
-			if (repo.get('teamId') !== teamId) { // specified teamId must match the team owning the repo!
-				return callback(this.errorHandler.error('notFound', { info: 'repo' }));
-			}
-			return callback();
-		});
+		const repoId = decodeURIComponent(this.request.query.repoId);
+		const repo = await this.user.authorizeRepo(repoId, this);
+		if (!repo) {
+			throw this.errorHandler.error('readAuth');
+		}
+		const teamId = this.request.query.teamId.toLowerCase();
+		if (repo.get('teamId') !== teamId) { // specified teamId must match the team owning the repo!
+			throw this.errorHandler.error('notFound', { info: 'repo' });
+		}
 	}
 
 	// build the query to use for fetching posts (used by the base class GetManyRequest)
@@ -110,7 +102,7 @@ class GetPostsRequest extends GetManyRequest {
 
 	// process a single incoming query parameter
 	processQueryParameter (parameter, value, query) {
-		if (BASIC_QUERY_PARAMETERS.indexOf(parameter) !== -1) {
+		if (BASIC_QUERY_PARAMETERS.includes(parameter)) {
 			// basic query parameters go directly into the query (but lowercase)
 			query[parameter] = value.toLowerCase();
 		}
@@ -144,12 +136,12 @@ class GetPostsRequest extends GetManyRequest {
 			// for GET /posts?path, we need to know the repoId
 			this.repoId = value.toLowerCase();
 		}
-		else if (RELATIONAL_PARAMETERS.indexOf(parameter) !== -1) {
+		else if (RELATIONAL_PARAMETERS.includes(parameter)) {
 			// lt, gt, lte, gte
 			let error = this.processRelationalParameter(parameter, value, query);
 			if (error) { return error; }
 		}
-		else if (NON_FILTERING_PARAMETERS.indexOf(parameter) === -1) {
+		else if (!NON_FILTERING_PARAMETERS.includes(parameter)) {
 			// sort, limit
 			return 'invalid query parameter: ' + parameter;
 		}
@@ -243,32 +235,23 @@ class GetPostsRequest extends GetManyRequest {
 	}
 
 	// called right before the fetch query is run
-	preFetchHook (callback) {
+	async preFetchHook () {
 		if (!this.path) {
-			return callback();
+			return;
 		}
 		// for GET /posts?path, we need to find a stream matching the path first
-		this.fetchStreamByPath(callback);
+		await this.fetchStreamByPath();
 	}
 
 	// fetch the stream indicated by the passed path, for GET /posts?path type queries
-	fetchStreamByPath (callback) {
-		let query = {
+	async fetchStreamByPath () {
+		const query = {
 			teamId: this.request.query.teamId.toLowerCase(),
 			repoId: this.repoId,
 			file: this.path
 		};
-		this.data.streams.getByQuery(
+		const streams = await this.data.streams.getByQuery(
 			query,
-			(error, streams) => {
-				if (error) { return callback(error); }
-				if (streams.length === 0) {
-					return callback(this.errorHandler.error('notFound', { info: 'stream' }));
-				}
-				this.fetchedStream = new Stream(streams[0]);
-				this.queryAndOptions.query.streamId = streams[0]._id;
-				callback();
-			},
 			{
 				databaseOptions: {
 					hint: StreamIndexes.byFile
@@ -276,65 +259,53 @@ class GetPostsRequest extends GetManyRequest {
 				noCache: true
 			}
 		);
+		if (streams.length === 0) {
+			throw this.errorHandler.error('notFound', { info: 'stream' });
+		}
+		this.fetchedStream = new Stream(streams[0]);
+		this.queryAndOptions.query.streamId = streams[0]._id;
 	}
 
 	// called right after the posts are fetched
-	postFetchHook (callback) {
+	async postFetchHook () {
 		if (typeof this.request.query.withMarkers === 'undefined') {
-			return callback();
+			return;
 		}
-		BoundAsync.series(this, [
-			this.extractMarkerIds,
-			this.fetchMarkers,
-			this.sanitizeMarkers,
-			this.fetchMarkerLocations
-		], callback);
+		await this.extractMarkerIds();
+		await this.fetchMarkers();
+		await this.sanitizeMarkers();
+		await this.fetchMarkerLocations();
 	}
 
 	// extract the marker IDs from any code blocks in the fetched posts
-	extractMarkerIds (callback) {
+	async extractMarkerIds () {
 		this.markerIds = this.models.reduce((markerIdsSoFar, post) => {
 			const codeBlockMarkerIds = (post.get('codeBlocks') || []).map(codeBlock => codeBlock.markerId);
 			markerIdsSoFar.push(...codeBlockMarkerIds);
 			return markerIdsSoFar;
 		}, []);
-		process.nextTick(callback);
 	}
 
 	// get the markers for any of the fetched posts, based on marker IDs already extracted
-	fetchMarkers (callback) {
+	async fetchMarkers () {
 		if (this.markerIds.length === 0) {
-			return callback();
+			return;
 		}
-		this.data.markers.getByIds(
-			this.markerIds,
-			(error, markers) => {
-				if (error) { return callback(error); }
-				this.markers = markers;
-				callback();
-			}
-		);
+		this.markers = await this.data.markers.getByIds(this.markerIds);
 	}
 
 	// sanitize the fetched markers for return to the client
-	sanitizeMarkers (callback) {
+	async sanitizeMarkers () {
 		if (this.markerIds.length === 0) {
-			return callback();
+			return;
 		}
-		this.sanitizeModels(
-			this.markers,
-			(error, objects) => {
-				if (error) { return callback(error); }
-				this.responseData.markers = objects;
-				callback();
-			}
-		);
+		this.responseData.markers = await this.sanitizeModels(this.markers);
 	}
 
 	// get the marker locations for any of the fetched markers, based on marker IDs already extracted
-	fetchMarkerLocations (callback) {
+	async fetchMarkerLocations () {
 		if (this.markerIds.length === 0 || !this.request.query.commitHash) {
-			return callback();
+			return;
 		}
 		const streamId = decodeURIComponent(this.request.query.streamId || this.queryAndOptions.query.streamId).toLowerCase();
 		const commitHash = decodeURIComponent(this.request.query.commitHash).toLowerCase();
@@ -342,41 +313,34 @@ class GetPostsRequest extends GetManyRequest {
 			// teamId: teamId, // will be needed for sharding, but for now, we'll avoiding an index here
 			_id: `${streamId}|${commitHash}`
 		};
-		this.data.markerLocations.getByQuery(
+		const markerLocations = await this.data.markerLocations.getByQuery(
 			query,
-			(error, markerLocations) => {
-				if (error) { return callback(error); }
-				if (markerLocations.length === 0) {
-					this.responseData.markerLocations = {};
-					return callback();	// no matching marker locations for this commit, we'll just send an empty response
-				}
-				this.markerLocations = markerLocations[0];
-				this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
-				callback();
-			},
 			{
 				databaseOptions: {
 					hint: { _id: 1 }
 				}
 			}
 		);
+		if (markerLocations.length === 0) {
+			this.responseData.markerLocations = {};
+			return;	// no matching marker locations for this commit, we'll just send an empty response
+		}
+		this.markerLocations = markerLocations[0];
+		this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
 	}
 
 	// process the request (overrides base class)
-	process (callback) {
-		super.process((error) => {
-			if (error) { return callback(error); }
-			// add the "more" flag as needed, if there are more posts to fetch ...
-			// we always fetch one more than the page requested, so we can set that flag
-			if (this.responseData.posts.length === this.limit) {
-				this.responseData.posts.splice(-1);
-				this.responseData.more = true;
-			}
-			if (this.fetchedStream) {
-				this.responseData.stream = this.fetchedStream.getSanitizedObject();
-			}
-			process.nextTick(callback);
-		});
+	async process () {
+		await super.process();
+		// add the "more" flag as needed, if there are more posts to fetch ...
+		// we always fetch one more than the page requested, so we can set that flag
+		if (this.responseData.posts.length === this.limit) {
+			this.responseData.posts.splice(-1);
+			this.responseData.more = true;
+		}
+		if (this.fetchedStream) {
+			this.responseData.stream = this.fetchedStream.getSanitizedObject();
+		}
 	}
 }
 

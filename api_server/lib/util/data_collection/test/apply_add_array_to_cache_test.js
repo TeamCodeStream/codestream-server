@@ -8,22 +8,24 @@ class ApplyAddArrayToCacheTest extends UpdateToCacheTest {
 		return 'should get the correct model after applying an add array update to a cached model';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel (callback) {
 		// add these elements to the array, some of which are already in it,
 		// make sure the 7 and 8 are added, but not the 5, since it's already there
 		const update = {
 			array: [5, 7, 8]
 		};
-		this.data.test.applyOpById(
-			this.testModel.id,
-			{ '$addToSet': update },
-			(error) => {
-				if (error) { return callback(error); }
-				this.testModel.attributes.array.push(7);
-				this.testModel.attributes.array.push(8);
-				callback();
-			}
-		);
+		try {
+			await this.data.test.applyOpById(
+				this.testModel.id,
+				{ '$addToSet': update },
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.testModel.attributes.array.push(7);
+		this.testModel.attributes.array.push(8);
+		callback();
 	}
 }
 

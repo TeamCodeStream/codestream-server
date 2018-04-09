@@ -7,12 +7,12 @@ const Path = require('path');
 class EmailNotificationRenderer {
 
 	// render an email notification for a given set of posts and a given user
-	render (options, callback) {
+	render (options) {
 		const { posts, repo, stream } = options;
 		const postsContent = posts.join('');
 		const pathToFile = 'https://' + Path.join(repo.get('normalizedUrl'), stream.get('file'));
 		const intro = this.getNotificationIntro(options);
-		return callback(`
+		return `
 <head>
 	<style>
 		.author {
@@ -73,8 +73,7 @@ class EmailNotificationRenderer {
 		New York, NY 10017
 	</div>
 </html>
-`
-		);
+`;
 	}
 
 	// link that user should click on to learn about CodeStream and install the plugin

@@ -2,38 +2,37 @@
 
 'use strict';
 
-var PutRequest = require(process.env.CS_API_TOP + '/lib/util/restful/put_request');
-var UserPublisher = require('./user_publisher');
+const PutRequest = require(process.env.CS_API_TOP + '/lib/util/restful/put_request');
+const UserPublisher = require('./user_publisher');
 
 class PutUserRequest extends PutRequest {
 
 	// authorize the request for the current user
-	authorize (callback) {
+	async authorize () {
 		// only the user themself can update themself
-		let userId = this.request.params.id.toLowerCase();
+		const userId = this.request.params.id.toLowerCase();
 		if (userId !== 'me' && userId !== this.user.id) {
-			return callback(this.errorHandler.error('updateAuth', { reason: 'only the user can update their own attributes' }));
+			throw this.errorHandler.error('updateAuth', { reason: 'only the user can update their own attributes' });
 		}
 		if (this.request.params.id === 'me') {
 			// use current user's ID if me specified
 			this.request.params.id = this.user.id;
 		}
-		return callback();
 	}
 
 	// after the user is updated...
-	postProcess (callback) {
-		this.publishUser(callback);
+	async postProcess () {
+		await this.publishUser();
 	}
 
 	// publish the user to the appropriate messager channel(s)
-	publishUser (callback) {
-		new UserPublisher({
+	async publishUser () {
+		await new UserPublisher({
 			user: this.user,
 			data: this.responseData.user,
 			request: this,
 			messager: this.api.services.messager
-		}).publishUserToTeams(callback);
+		}).publishUserToTeams();
 	}
 }
 

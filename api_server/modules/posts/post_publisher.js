@@ -3,7 +3,7 @@
 
 'use strict';
 
-var StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
+const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 
 class PostPublisher {
 
@@ -11,47 +11,47 @@ class PostPublisher {
 		Object.assign(this, options);
 	}
 
-	publishPost (callback) {
+	async publishPost () {
 		if (this.data.stream && this.data.stream.type !== 'file') {
 			// we created a non-file stream on-the-fly with this post, so publish the stream,
 			// it will then be up to the client to fetch the post? (because they are not yet subscribed to the stream channel)
-			this.publishNewStream(callback);
+			await this.publishNewStream();
 		}
 		else {
 			// publish the post to the members of the stream or the team if it is a file stream
-			this.publishPostToStreamOrTeam(callback);
+			await this.publishPostToStreamOrTeam();
 		}
 	}
 
 	// publish the creation of a new stream
-	publishNewStream (callback) {
+	async publishNewStream () {
 		// if a new stream was created, we publish the stream as needed, then leave it up to clients
 		// to fetch from the stream
-		new StreamPublisher({
+		await new StreamPublisher({
 			stream: this.data.stream,
 			data: { stream: this.data.stream },
 			request: this.request,
 			messager: this.messager
-		}).publishStream(callback);
+		}).publishStream();
 	}
 
 	// publish the creation of a new post to the stream it was created in
-	publishPostToStreamOrTeam (callback) {
+	async publishPostToStreamOrTeam () {
 		if (this.stream.type === 'file') {
 			// for file-type streams, we publish to the team that owns the stream
-			this.publishPostToTeam(callback);
+			await this.publishPostToTeam();
 		}
 		else {
 			// for channels and direct, we publish to the stream itself
-			this.publishPostToTeamStream(callback);
+			await this.publishPostToTeamStream();
 		}
 	}
 
 	// publish a post to a team channel
-	publishPostToTeam (callback) {
-		let teamId = this.stream.teamId;
-		let channel = 'team-' + teamId;
-		let message = {
+	async publishPostToTeam () {
+		const teamId = this.stream.teamId;
+		const channel = 'team-' + teamId;
+		const message = {
 			post: this.data.post,
 			requestId: this.request.request.id
 		};
@@ -67,43 +67,37 @@ class PostPublisher {
 		if (this.data.users) {
 			message.users = this.data.users;
 		}
-		this.messager.publish(
-			message,
-			channel,
-			error => {
-				if (error) {
-					this.request.warn(`Could not publish post message to team ${teamId}: ${JSON.stringify(error)}`);
-				}
-				// this doesn't break the chain, but it is unfortunate...
-				callback();
-			},
-			{
-				request: this.request
-			}
-		);
+		try {
+			await this.messager.publish(
+				message,
+				channel,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish post message to team ${teamId}: ${JSON.stringify(error)}`);
+		}
 	}
 
-	publishPostToTeamStream (callback) {
-		let streamId = this.stream._id;
-		let channel = 'stream-' + streamId;
-		let message = {
+	async publishPostToTeamStream () {
+		const streamId = this.stream._id;
+		const channel = 'stream-' + streamId;
+		const message = {
 			post: this.data.post,
 			requestId: this.request.request.id
 		};
-		this.messager.publish(
-			message,
-			channel,
-			error => {
-				if (error) {
-					this.request.warn(`Could not publish post message to stream ${streamId}: ${JSON.stringify(error)}`);
-				}
-				// this doesn't break the chain, but it is unfortunate...
-				callback();
-			},
-			{
-				request: this.request
-			}
-		);
+		try {
+			await this.messager.publish(
+				message,
+				channel,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish post message to stream ${streamId}: ${JSON.stringify(error)}`);
+		}
 	}
 }
 

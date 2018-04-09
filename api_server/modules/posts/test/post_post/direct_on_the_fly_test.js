@@ -48,7 +48,7 @@ class DirectOnTheFlyTest extends PostToDirectTest {
 			// only direct or channel streams have members, sort both arrays of
 			// member IDs for a valid deepEqual comparison
 			stream.memberIds.sort();
-			if (this.data.stream.memberIds.indexOf(this.currentUser._id) === -1) {
+			if (!this.data.stream.memberIds.includes(this.currentUser._id)) {
 				this.data.stream.memberIds.push(this.currentUser._id);
 			}
 			this.data.stream.memberIds.sort();

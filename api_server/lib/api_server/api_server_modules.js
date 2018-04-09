@@ -281,7 +281,7 @@ class APIServerModules {
 		// has to be one of these methods
 		const validMethods = ['get', 'post', 'put', 'delete', 'options'];
 		route.method = (route.method || 'get').toLowerCase();
-		if (validMethods.indexOf(route.method) === -1) {
+		if (!validMethods.includes(route.method)) {
 			this.api.warn(`Invalid route method "${route.method}" for module ${module.name}`, route);
 			return false;
 		}

@@ -5,8 +5,6 @@
 
 'use strict';
 
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-
 class MarkerPublisher {
 
 	constructor (options) {
@@ -16,44 +14,39 @@ class MarkerPublisher {
 	// publish the marker to the team that owns the file-stream the marker is
 	// associated with, and potentially to the stream channel for the stream that
 	// is referencing the marker, if needed
-	publishMarker (callback) {
-		BoundAsync.parallel(this, [
-			this.publishToTeam,
-			this.publishToStream
-		], callback);
+	async publishMarker () {
+		await this.publishToTeam();
+		await this.publishToStream();
 	}
 
 	// publish an updated marker to the team channel for the file-stream the
 	// marker is associated with
-	publishToTeam (callback) {
+	async publishToTeam () {
 		const teamId = this.stream.get('teamId');
 		const channel = 'team-' + teamId;
 		const message = {
 			marker: this.data.marker,
 			requestId: this.request.request.id
 		};
-		this.messager.publish(
-			message,
-			channel,
-			error => {
-				if (error) {
-					this.request.warn(`Could not publish marker message to team ${teamId}: ${JSON.stringify(error)}`);
-				}
-				// this doesn't break the chain, but it is unfortunate...
-				callback();
-			},
-			{
-				request: this.request
-			}
-		);
+		try {
+			await this.messager.publish(
+				message,
+				channel,
+				{ request: this.request	}
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish marker message to team ${teamId}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// publish the updated marker to the channel for the stream that actually
 	// references the marker, if it is not a file-type stream (for which only
 	// a team update would be necessary anyway)
-	publishToStream (callback) {
+	async publishToStream () {
 		if (!this.postStream || this.postStream.get('type') === 'file') {
-			return callback();
+			return;
 		}
 		const streamId = this.postStream.id;
 		const channel = 'stream-' + streamId;
@@ -61,20 +54,17 @@ class MarkerPublisher {
 			marker: this.data.marker,
 			requestId: this.request.request.id
 		};
-		this.messager.publish(
-			message,
-			channel,
-			error => {
-				if (error) {
-					this.request.warn(`Could not publish marker message to stream ${streamId}: ${JSON.stringify(error)}`);
-				}
-				// this doesn't break the chain, but it is unfortunate...
-				callback();
-			},
-			{
-				request: this.request
-			}
-		);
+		try {
+			await this.messager.publish(
+				message,
+				channel,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish marker message to stream ${streamId}: ${JSON.stringify(error)}`);
+		}
 	}
 }
 

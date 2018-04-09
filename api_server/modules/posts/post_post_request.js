@@ -8,13 +8,13 @@ const PostAuthorizer = require('./post_authorizer');
 class PostPostRequest extends PostRequest {
 
 	// authorize the request for the current user
-	authorize (callback) {
-		new PostAuthorizer({
+	async authorize () {
+		await new PostAuthorizer({
 			user: this.user,
 			post: this.request.body,
 			request: this,
 			errorHandler: this.errorHandler
-		}).authorizePost(callback);
+		}).authorizePost();
 	}
 }
 

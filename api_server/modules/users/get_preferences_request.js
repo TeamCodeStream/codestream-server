@@ -2,20 +2,18 @@
 
 'use strict';
 
-var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
+const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 
 class GetPreferencesRequest extends RestfulRequest {
 
-	authorize (callback) {
+	async authorize () {
 		// no authorization needed, the request always applies to the authenticated user
-		return callback();
 	}
 
 	// process the request...
-	process (callback) {
+	async process () {
 		// just return the preferences in the response
 		this.responseData.preferences = this.request.user.get('preferences') || {};
-		callback();
 	}
 }
 

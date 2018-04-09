@@ -15,8 +15,6 @@
 
 'use strict';
 
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-
 class EmailNotificationQueue {
 
 	constructor (options) {
@@ -24,7 +22,7 @@ class EmailNotificationQueue {
 	}
 
 	// initiate the email notification interval timer as needed
-	initiateEmailNotifications (callback) {
+	async initiateEmailNotifications () {
 		// emailNotificationSeqNum indicates the post that triggered the interval
 		// timer for email notifications ... if it is null, that means we are the
 		// first new post, so we should trigger the interval timer to start ...
@@ -47,27 +45,20 @@ class EmailNotificationQueue {
 			seqNum < this.post.get('seqNum') &&
 			seqNumSetAt > Date.now() - 2 * this.request.api.config.email.notificationInterval
 		) {
-			return callback();
+			return;
 		}
-		BoundAsync.series(this, [
-			this.setAndFetchSeqNum,		// set and fetch the sequence number representing the oldest post for an email notification
-			this.backOffAsNeeded,		// if another timer is already in progress, back off setting a new timer
-			this.queueEmailNotifications,	// really set the interval timer to queue email notifications after the interval has elapsed
-			this.setWhenSet				// if we really queued, set when we set the sequence number that queued it, to prevent stale timers
-		], error => {
-			if (!error || error === true) {	// error === true is a "normal" short-circuit of the series
-				return callback();
-			}
-			else {
-				return callback(error);
-			}
-		});
+		await this.setAndFetchSeqNum();		// set and fetch the sequence number representing the oldest post for an email notification
+		if (await this.backOffAsNeeded()) {
+			return; // if another timer is already in progress, back off setting a new timer
+		}
+		await this.queueEmailNotifications();	// really set the interval timer to queue email notifications after the interval has elapsed
+		await this.setWhenSet();				// if we really queued, set when we set the sequence number that queued it, to prevent stale timers
 	}
 
 	// set the sequence number of the post that is triggering email notifications after
 	// the interval ... and fetch the sequence number that was already set, using
 	// a findAndModify operation that is atomic and thus not subject to race conditions
-	setAndFetchSeqNum (callback) {
+	async setAndFetchSeqNum () {
 		// here we perform an atomic find-and-modify of the emailNotificationSeqNum
 		// attribute for the stream ... we'll get back the value of the attribute
 		// before we did the set ... this tells us whether another worker thread,
@@ -91,39 +82,29 @@ class EmailNotificationQueue {
 				}
 			}
 		};
-		BoundAsync.whilst(
-			this,
-			() => {
-				return !this.foundSeqNum && numRetries < 10;
-			},
-			whilstCallback => {
-				this.setAndFetch(query, update, options, error => {
-					if (error) {
-						numRetries++;
-						gotError = error;
-					}
-					whilstCallback();
-				});
-			},
-			() => {
-				callback(gotError);
+		while (!this.foundSeqNum && numRetries < 10) {
+			try {
+				await this.setAndFetch(query, update, options);
 			}
-		);
+			catch (error) {
+				numRetries++;
+				gotError = error;
+			}
+		}
+		if (gotError) {
+			throw gotError;
+		}
 	}
 
 	// do the actual atomic find-and-modify operation to set emailNotificationSeqNum
-	setAndFetch (query, update, options, callback) {
-		this.request.data.streams.findAndModify(
+	async setAndFetch (query, update, options) {
+		const foundStream = await this.request.data.streams.findAndModify(
 			query,
 			update,
-			(error, foundStream) => {
-				if (error) { return callback(error); }
-				this.foundSeqNum = foundStream.emailNotificationSeqNum;
-				this.foundSeqNumSetAt = foundStream.emailNotificationSeqNumSetAt;
-				callback();
-			},
 			options
 		);
+		this.foundSeqNum = foundStream.emailNotificationSeqNum;
+		this.foundSeqNumSetAt = foundStream.emailNotificationSeqNumSetAt;
 	}
 
 	// if when we performed the set-and-fetch, we found a sequence number lower
@@ -132,37 +113,31 @@ class EmailNotificationQueue {
 	// a subtle race condition situation ... in this case, we'll want to back off
 	// the sequence number we set and restore it to the one we read, letting the
 	// timer that was presumably already set expire
-	backOffAsNeeded (callback) {
+	async backOffAsNeeded () {
 		if (
 			this.foundSeqNum &&
 			this.foundSeqNum < this.post.get('seqNum') &&
 			this.foundSeqNumSetAt > Date.now() - 2 * this.request.api.config.email.notificationInterval
 		) {
 			this.backedOff = true;
-			this.restoreSeqNum(this.foundSeqNum, callback);
-		}
-		else {
-			callback();
+			await this.restoreSeqNum(this.foundSeqNum);
+			return true;
 		}
 	}
 
 	// restore the emailNotificationSeqNum value to its original value before
 	// we modified it ... see backOffAsNeeded() above
-	restoreSeqNum (seqNum, callback) {
-		this.request.data.streams.updateDirect(
+	async restoreSeqNum (seqNum) {
+		await this.request.data.streams.updateDirect(
 			{ _id: this.request.data.streams.objectIdSafe(this.stream.id) },
-			{ $set: { emailNotificationSeqNum: seqNum } },
-			error => {
-				if (error) { return callback(error); }
-				callback(true);	// this will harmlessly short-circuit the series
-			}
+			{ $set: { emailNotificationSeqNum: seqNum } }
 		);
 	}
 
 	// so yep, we really are going to queue email notifications based on this
 	// post's sequence number ... set up a message to put into queue, with a delay
 	// equal to the configured interval
-	queueEmailNotifications (callback) {
+	async queueEmailNotifications () {
 		const message = {
 			postId: this.post.id,
 			streamId: this.stream.id,
@@ -170,11 +145,10 @@ class EmailNotificationQueue {
 		};
 		const delay = Math.floor(this.request.api.config.email.notificationInterval / 1000);
 		this.request.log(`Triggering email notifications for stream ${this.stream.id} in ${delay} seconds...`);
-		this.request.api.services.queueService.sendMessage(
+		await this.request.api.services.queueService.sendMessage(
 			this.request.api.config.aws.sqs.outboundEmailQueueName,
 			message,
-			{ delay: delay },
-			callback
+			{ delay: delay }
 		);
 	}
 
@@ -184,11 +158,10 @@ class EmailNotificationQueue {
 	// went wrong and the interval timer never went off as expected, or it didn't do
 	// what was expected, or it crashed ... but we don't want that to prevent emails
 	// from being sent indefinitely....
-	setWhenSet (callback) {
-		this.request.data.streams.updateDirect(
+	async setWhenSet () {
+		await this.request.data.streams.updateDirect(
 			{ _id: this.request.data.streams.objectIdSafe(this.stream.id) },
-			{ $set: { emailNotificationSeqNumSetAt: Date.now() } },
-			callback
+			{ $set: { emailNotificationSeqNumSetAt: Date.now() } }
 		);
 	}
 }

@@ -3,8 +3,8 @@
 
 'use strict';
 
-var DataModelValidator = require('./data_model_validator');
-var DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const DataModelValidator = require('./data_model_validator');
+const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
 class DataModel {
 
@@ -28,32 +28,28 @@ class DataModel {
 	setDefaults (/*attributes*/) { }
 
 	// called right before the model is saved
-	preSave (callback, options) {
+	async preSave (options) {
 		// validate myself
-		this.validate(callback, this.attributes, options);
+		await this.validate(this.attributes, options);
 	}
 
 	// validate this model or a set of attributes passed in
-	validate (callback, attributes, options) {
+	async validate (attributes, options) {
 		attributes = attributes || this.attributes;
 		// pass this on to the validator engine, which does the dirty work
-		this.validator.validate(
-			attributes,
-			(errors, warnings) => {
-				this.handleValidation(errors, warnings, options, callback);
-			},
-			options
-		);
+		const info = await this.validator.validate(attributes, options);
+		await this.handleValidation(info, options);
 	}
 
 	// handle the response from a validation call
-	handleValidation (errors, warnings, options, callback) {
+	async handleValidation (info/*, options*/) {
+		let { errors, warnings } = info;
 		// for errors, these generate an error up the chain
 		if (errors) {
 			if (!(errors instanceof Array)) {
 				errors = [errors];
 			}
-			return callback(errors);
+			throw errors;
 		}
 		// for warnings, we'll be quiet about it, but the caller should probably log them,
 		// or do SOMETHING anyway ... cause warnings are important, right?
@@ -63,7 +59,6 @@ class DataModel {
 			}
 			this.validationWarnings = warnings;
 		}
-		process.nextTick(callback);
 	}
 
 	// getter for an attribute

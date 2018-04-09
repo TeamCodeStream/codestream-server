@@ -2,8 +2,8 @@
 
 'use strict';
 
-var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
-var Company = require('./company');
+const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+const Company = require('./company');
 
 class CompanyCreator extends ModelCreator {
 
@@ -16,8 +16,8 @@ class CompanyCreator extends ModelCreator {
 	}
 
 	// convenience wrapper
-	createCompany (attributes, callback) {
-		return this.createModel(attributes, callback);
+	async createCompany (attributes) {
+		return await this.createModel(attributes);
 	}
 
 	// these attributes are required or optional to create a company document,
@@ -31,12 +31,12 @@ class CompanyCreator extends ModelCreator {
 	}
 
 	// right before saving...
-	preSave (callback) {
+	async preSave () {
 		this.attributes.creatorId = this.user.id;	// creator is the user making the request
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
-		super.preSave(callback);
+		await super.preSave();
 	}
 }
 

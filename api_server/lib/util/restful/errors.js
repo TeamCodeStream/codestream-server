@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ERRORS = {
+module.exports = {
 	'internal': {
 		code: 'RAPI-1000',
 		message: 'Internal API error',
@@ -70,5 +70,3 @@ const ERRORS = {
 		message: 'This object is already deleted'
 	}
 };
-
-module.exports = ERRORS;

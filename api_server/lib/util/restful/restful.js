@@ -3,7 +3,7 @@
 
 'use strict';
 
-var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 
 // These standard routes provide the basic CRUD operations for a restful server,
 // each route can be turned on or off as needed by the overriding module
@@ -59,7 +59,7 @@ class Restful extends APIServerModule {
 	// make a route object describing a particular route
 	makeRoute (route, options) {
 		route = Object.assign({}, route); // we don't want to alter the defined constants, so make a copy
-		if (options.want.indexOf(route.id) !== -1) {
+		if (options.want.includes(route.id)) {
 			// module wants this route
 			route.requestClass = options.requestClasses[route.id] || route.requestClass;
 			route.path = route.path.replace('$BASE', options.baseRouteName);	// baseRouteName provided by the derived class

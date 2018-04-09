@@ -2,12 +2,11 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
-var UserValidator = require('./user_validator');
-var User = require('./user');
-var PasswordHasher = require('./password_hasher');
-var UsernameChecker = require('./username_checker');
+const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+const UserValidator = require('./user_validator');
+const User = require('./user');
+const PasswordHasher = require('./password_hasher');
+const UsernameChecker = require('./username_checker');
 const Indexes = require('./indexes');
 const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors.js');
 
@@ -27,8 +26,8 @@ class UserCreator extends ModelCreator {
 	}
 
 	// convenience wrapper
-	createUser (attributes, callback) {
-		return this.createModel(attributes, callback);
+	async createUser (attributes) {
+		return await this.createModel(attributes);
 	}
 
 	// get attributes that are required for user creation, and those that are optional,
@@ -49,13 +48,11 @@ class UserCreator extends ModelCreator {
 	}
 
 	// validate attributes for the user we are creating
-	validateAttributes (callback) {
+	async validateAttributes () {
 		this.userValidator = new UserValidator();
-		let error =
-			this.validateEmail() ||
+		return this.validateEmail() ||
 			this.validatePassword() ||
 			this.validateUsername();
-		callback(error);
 	}
 
 	// validate the given email
@@ -103,78 +100,70 @@ class UserCreator extends ModelCreator {
 	}
 
 	// called before the user is actually saved
-	preSave (callback) {
+	async preSave () {
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
 		if (this.attributes._pubnubUuid) {
 			this.request.log(`Pubnub uuid of ${this.attributes._pubnubUuid} provided`);
 		}
-		BoundAsync.series(this, [
-			this.hashPassword,			// hash the user's password, if given
-			this.checkUsernameUnique,	// check if the user's username will be unique for the teams they are on
-			super.preSave
-		], callback);
+		await this.hashPassword();			// hash the user's password, if given
+		await this.checkUsernameUnique();	// check if the user's username will be unique for the teams they are on
+		await super.preSave();
 	}
 
 	// check if the user's username will be unique for the teams they are on
-	checkUsernameUnique (callback) {
+	async checkUsernameUnique () {
 		if (this.existingModel && this.dontSaveIfExists) {
 			// doesn't matter if we won't be saving anyway, meaning we're really ignoring the username
-			return callback();
+			return;
 		}
 		const teamIds = (this.existingModel ? this.existingModel.get('teamIds') : this.teamIds) || [];
 		const username = this.attributes.username || (this.existingModel ? this.existingModel.get('username') : null);
 		if (!username || teamIds.length === 0) {
 			// username not provided, or no teams === no worries
-			return callback();
+			return ;
 		}
 		// check against all teams ... the username must be unique for each
 		const userId = this.existingModel ? this.existingModel.id : null;
-		let usernameChecker = new UsernameChecker({
+		const usernameChecker = new UsernameChecker({
 			data: this.data,
 			username,
 			userId,
 			teamIds
 		});
-		usernameChecker.checkUsernameUnique((error, isUnique) => {
-			if (error) { return callback(error); }
-			if (isUnique) {
-				return callback();
-			}
-			if (this.ignoreUsernameOnConflict && !this.existingModel) {
-				// in some circumstances, we tolerate a conflict by just throwing away
-				// the supplied username
-				delete this.attributes.username;
-				return callback();
-			}
-			else {
-				return callback(this.errorHandler.error('usernameNotUnique', {
-					info: {
-						username: username,
-						teamIds: usernameChecker.notUniqueTeamIds
-					}
-				}));
-			}
-		});
+		const isUnique = await usernameChecker.checkUsernameUnique();
+		if (isUnique) {
+			return;
+		}
+		if (this.ignoreUsernameOnConflict && !this.existingModel) {
+			// in some circumstances, we tolerate a conflict by just throwing away
+			// the supplied username
+			delete this.attributes.username;
+			return;
+		}
+		else {
+			throw this.errorHandler.error('usernameNotUnique', {
+				info: {
+					username: username,
+					teamIds: usernameChecker.notUniqueTeamIds
+				}
+			});
+		}
 	}
 
 	// hash the given password, as needed
-	hashPassword (callback) {
-		if (!this.attributes.password) { return callback(); }
-		new PasswordHasher({
+	async hashPassword () {
+		if (!this.attributes.password) { return; }
+		this.attributes.passwordHash = await new PasswordHasher({
 			errorHandler: this.errorHandler,
 			password: this.attributes.password
-		}).hashPassword((error, passwordHash) => {
-			if (error) { return callback(error); }
-			this.attributes.passwordHash = passwordHash;
-			delete this.attributes.password;
-			process.nextTick(callback);
-		});
+		}).hashPassword();
+		delete this.attributes.password;
 	}
 
 	// create the user
-	create (callback) {
+	async create () {
 		this.model.attributes._id = this.collection.createId();
 		if (this.user) {
 			// someone else is creating (inviting) this user
@@ -190,34 +179,31 @@ class UserCreator extends ModelCreator {
 			// only come from calling code, not from a request body
 			this.model.attributes.teamIds = this.teamIds;
 		}
-		super.create(callback);
+		await super.create();
 	}
 
 	// after the user object is saved...
-	postSave (callback) {
+	async postSave () {
 		// grant the user access to their own me-channel, strictly for testing purposes
 		// (since they are not confirmed yet)
-		this.grantMeChannel(callback);
+		await this.grantMeChannel();
 	}
 
 	// grant the user access to their own me-channel, strictly for testing purposes
 	// (since they are not confirmed yet)
-	grantMeChannel (callback) {
+	async grantMeChannel () {
 		// subscription cheat must be provided by test script
 		if (!this.subscriptionCheat) {
-			return callback();
+			return;
 		}
 		// allow unregistered users to subscribe to me-channel, needed for mock email testing
 		this.api.warn(`NOTE - granting subscription permission to me channel for unregistered user ${this.model.id}, this had better be a test!`);
-		this.api.services.messager.grant(
+		await this.api.services.messager.grant(
 			[this.model.id],
 			`user-${this.model.id}`,
 			() => {},
-			{
-				request: this.request
-			}
+			{ request: this.request	}
 		);
-		callback();
 	}
 }
 

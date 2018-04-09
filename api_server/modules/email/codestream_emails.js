@@ -2,8 +2,8 @@
 
 'use strict';
 
-var SendGridEmail = require('./sendgrid_email');
-var EmailUtils = require('./utils');
+const SendGridEmail = require('./sendgrid_email');
+const EmailUtils = require('./utils');
 
 class CodeStreamEmails {
 
@@ -13,16 +13,16 @@ class CodeStreamEmails {
 	}
 
 	// send a confirmation email to the user specified
-	sendConfirmationEmail (options, callback) {
-		let { user, request } = options;
-		let email = user.get('email');
+	async sendConfirmationEmail (options) {
+		const { user, request } = options;
+		const email = user.get('email');
 		if (request) {
 			request.log(`Sending confirmation email to ${email}`);
 		}
 		const name = EmailUtils.getUserName(user);	// glean a user name from attributes defined for the user
 
 		// let SendGrid handle sending the email, they have a confirmation email template
-		this.sendgridEmail.sendEmail(
+		await this.sendgridEmail.sendEmail(
 			{
 				from: { email: this.senderEmail, name: 'CodeStream' },
 				to: { email: user.get('email'), name: name },
@@ -34,13 +34,12 @@ class CodeStreamEmails {
 				request: request,
 				testCallback: this.testCallback,
 				user: user
-			},
-			callback
+			}
 		);
 	}
 
 	// send an invite email to the user specified
-	sendInviteEmail (options, callback) {
+	async sendInviteEmail (options) {
 		const { inviter, user, request } = options;
 		const email = user.get('email');
 		if (request) {
@@ -50,7 +49,7 @@ class CodeStreamEmails {
 		const inviterName = EmailUtils.getUserName(inviter);
 
 		// let SendGrid handle sending the email, they have an invite email template
-		this.sendgridEmail.sendEmail(
+		await this.sendgridEmail.sendEmail(
 			{
 				from: { email: this.senderEmail, name: inviterName },
 				to: { email, name },
@@ -58,13 +57,12 @@ class CodeStreamEmails {
 				request: request,
 				testCallback: this.testCallback,
 				user: user
-			},
-			callback
+			}
 		);
 	}
 
 	// send an email notification to the user specified
-	sendEmailNotification (options, callback) {
+	async sendEmailNotification (options) {
 		const { user, creator, posts, team, stream, content, request, sameAuthor } = options;
 		const email = user.get('email');
 		let fromName;
@@ -83,7 +81,7 @@ class CodeStreamEmails {
 		const replyTo = `${stream.id}.${team.id}@${this.replyToDomain}`;
 
 		// let SendGrid handle sending the email, they have an email notification template
-		this.sendgridEmail.sendEmail(
+		await this.sendgridEmail.sendEmail(
 			{
 				from: { email: this.senderEmail, name: fromName },
 				to: { email: email, name: userName },
@@ -93,8 +91,7 @@ class CodeStreamEmails {
 				request,
 				testCallback: this.testCallback,
 				user
-			},
-			callback
+			}
 		);
 	}
 

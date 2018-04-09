@@ -17,21 +17,22 @@ class UpdateNoIdTest extends DataCollectionTest {
 		], callback);
 	}
 
-	run (callback) {
+	async run (callback) {
 		// to do an update operation, the caller must supply an ID, either in the options,
 		// or in the update itself ... if there is no ID, we should get back an error
 		const update = {
 			text: 'replaced!',
 			number: 123
 		};
-		this.data.test.update(
-			update,
-			(error) => {
-				const errorCode = 'DTCL-1000';
-				Assert(typeof error === 'object' && error.code && error.code === errorCode, `error code ${errorCode} expected`);
-				callback();
-			}
-		);
+		try {
+			await this.data.test.update(update);
+		}
+		catch (error) {
+			const errorCode = 'DTCL-1000';
+			Assert(typeof error === 'object' && error.code && error.code === errorCode, `error code ${errorCode} expected`);
+			return callback();
+		}
+		Assert.fail('error expected');
 	}
 }
 

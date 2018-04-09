@@ -1,9 +1,9 @@
 'use strict';
 
-var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var CompanyCreator = require('./company_creator');
-//var CompanyUpdater = require('./company_updater');
-var Company = require('./company');
+const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
+const CompanyCreator = require('./company_creator');
+//const CompanyUpdater = require('./company_updater');
+const Company = require('./company');
 
 // we'll expose only these routes
 const COMPANY_STANDARD_ROUTES = {

@@ -1,7 +1,6 @@
 const MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client');
 const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
-const PromiseCallback = require(process.env.CS_API_TOP + '/server_utils/promise_callback');
 
 const COLLECTIONS = ['companies', 'teams', 'repos', 'users', 'streams', 'posts', 'markers', 'markerLocations'];
 
@@ -32,11 +31,7 @@ class TeamMerger {
 		let mongoConfig = Object.assign({}, MongoConfig, { collections: COLLECTIONS });
 		delete mongoConfig.queryLogging;
 		try {
-			await PromiseCallback(
-				this.mongoClient.openMongoClient,
-				this.mongoClient,
-				mongoConfig
-			);
+			await this.mongoClient.openMongoClient(mongoConfig);
 		}
 		catch (error) {
 			throw `unable to open mongo client: ${JSON.stringify(error)}`;

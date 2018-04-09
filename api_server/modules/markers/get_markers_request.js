@@ -2,67 +2,54 @@
 
 'use strict';
 
-var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 
 class GetMarkersRequest extends GetManyRequest {
 
 	// authorize the request
-	authorize (callback) {
-		this.user.authorizeFromTeamIdAndStreamId(
+	async authorize () {
+		const info = await this.user.authorizeFromTeamIdAndStreamId(
 			this.request.query,
 			this,
-			(error, info) => {
-				if (error) { return callback(error); }
-				Object.assign(this, info);
-				process.nextTick(callback);
-			},
-			{
-				mustBeFileStream: true
-			}
+			{ mustBeFileStream: true }
 		);
+		Object.assign(this, info);
 	}
 
 	// process the request...
-	process (callback) {
-		BoundAsync.series(this, [
-			this.fetchMarkerLocations, // if the user passes a commit hash, we give them whatever marker locations we have for that commit
-			super.process	// do the usual "get-many" processing
-		], callback);
+	async process () {
+		await this.fetchMarkerLocations();	// if the user passes a commit hash, we give them whatever marker locations we have for that commit
+		await super.process();				// do the usual "get-many" processing
 	}
 
 	// if the user provides a commit hash, we'll fetch marker locations associated with the markers for the stream,
 	// if we can find any
-	fetchMarkerLocations (callback) {
+	async fetchMarkerLocations () {
 		if (!this.request.query.commitHash) {
 			// no commit hash, so we're just returning markers with no location info
-			return callback();
+			return;
 		}
 		this.commitHash = this.request.query.commitHash.toLowerCase();
-		let query = {
+		const query = {
 			// teamId: this.teamId, // will be needed for sharding, but for now, we'll avoid an index here
 			_id: `${this.streamId}|${this.commitHash}`
 		};
-		this.data.markerLocations.getByQuery(
+		const markerLocations = await this.data.markerLocations.getByQuery(
 			query,
-			(error, markerLocations) => {
-				if (error) { return callback(error); }
-				if (markerLocations.length === 0) {
-					// no marker locations for this commit, oh well
-					this.responseData.markerLocations = {};
-					return callback();
-				}
-				this.markerLocations = markerLocations[0];
-				this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
-				callback();
-			},
 			{
 				databaseOptions: {
 					hint: { _id: 1 }
 				}
 			}
 		);
+		if (markerLocations.length === 0) {
+			// no marker locations for this commit, oh well
+			this.responseData.markerLocations = {};
+			return;
+		}
+		this.markerLocations = markerLocations[0];
+		this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
 	}
 
 	// build the database query to use to fetch the markers

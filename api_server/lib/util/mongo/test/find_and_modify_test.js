@@ -2,7 +2,7 @@
 
 var UpdateTest = require('./update_test');
 var Assert = require('assert');
-var PromiseCallback = require(process.env.CS_API_TOP + '/server_utils/promise_callback');
+var AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
 class FindAndModifyTest extends UpdateTest {
 
@@ -23,10 +23,7 @@ class FindAndModifyTest extends UpdateTest {
 	}
 
 	async superRun () {
-		await PromiseCallback(
-			super.run,
-			this
-		);
+		await AwaitUtils.callbackWrap(super.run.bind(this));
 	}
 
 	async updateDocument () {

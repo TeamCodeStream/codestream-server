@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ERRORS = {
+module.exports = {
 	'internal': {
 		code: 'SLIN-1000',
 		message: 'Internal slack integration post error',
@@ -29,5 +29,3 @@ const ERRORS = {
 		message: 'User originating the post is not on the team in CodeStream'
 	}
 };
-
-module.exports = ERRORS;

@@ -2,8 +2,8 @@
 
 'use strict';
 
-var ModelDeleter = require(process.env.CS_API_TOP + '/lib/util/restful/model_deleter');
-var Marker = require('./marker');
+const ModelDeleter = require(process.env.CS_API_TOP + '/lib/util/restful/model_deleter');
+const Marker = require('./marker');
 
 class MarkerDeleter extends ModelDeleter {
 
@@ -16,8 +16,8 @@ class MarkerDeleter extends ModelDeleter {
 	}
 
 	// convenience wrapper
-	deleteMarker (id, callback) {
-		return this.deleteModel(id, callback);
+	async deleteMarker (id) {
+		return await this.deleteModel(id);
 	}
 }
 

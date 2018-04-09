@@ -102,5 +102,4 @@ describe('dataCollection', function() {
 	new DeleteFromCacheTest().test();
 	new DeleteFromDatabaseTest().test();
 	new FindAndModifyTest().test();
-
 });

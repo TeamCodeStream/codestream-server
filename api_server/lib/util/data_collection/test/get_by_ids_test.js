@@ -21,32 +21,37 @@ class GetByIdsTest extends DataCollectionTest {
 		], callback);
 	}
 
-	getSomeTestModels (callback) {
+	async getSomeTestModels (callback) {
 		// fetch some of our test models, this will put some of them in the cache; when we go to fetch,
 		// we will fetch these plus others, ensuring the data collection can handle fetching from cache
 		// and database as needed
-		let ids = this.testModels.map(model => { return model.id; });
-		let someIds = [...ids].splice(Math.trunc(ids.length / 2));
+		const ids = this.testModels.map(model => { return model.id; });
+		const someIds = [...ids].splice(Math.trunc(ids.length / 2));
 		if (someIds.length >= ids.length) {
 			return callback('not enough models to run this test');
 		}
-		this.data.test.getByIds(
-			someIds,
-			callback
-		);
+		try {
+			await this.data.test.getByIds(someIds);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// get our test models, this will include those that are in the cache and those that must
 		// be fetched from the database
-		let ids = this.testModels.map(model => { return model.id; });
-		this.data.test.getByIds(
-			ids,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		const ids = this.testModels.map(model => { return model.id; });
+		let response;
+		try {
+			response = await this.data.test.getByIds(ids);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

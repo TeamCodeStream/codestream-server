@@ -26,22 +26,25 @@ class FindAndModifyTest extends GetByIdFromDatabaseTest {
 		], callback);
 	}
 
-	updateDocument (callback) {
+	async updateDocument (callback) {
 		// here we're incrementing the number field in the document, but the document we get back
 		// from the operation should NOT show the increment ... note that this is a direct-to-database
 		// operation, the operation is immediately persisted
 		const update = {
 			number: 5
 		};
-		this.data.test.findAndModify(
-			{ _id: this.data.test.objectIdSafe(this.testModel.id) },
-			{ '$inc': update },
-			(error, document) => {
-				if (error) { return callback(error); }
-				this.fetchedDocument = document;	 // this is our fetched document, without the increment
-				callback();
-			}
-		);
+		let document;
+		try {
+			document = await this.data.test.findAndModify(
+				{ _id: this.data.test.objectIdSafe(this.testModel.id) },
+				{ '$inc': update }
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.fetchedDocument = document;	 // this is our fetched document, without the increment
+		callback();
 	}
 
 	checkFetchedDocument (callback) {

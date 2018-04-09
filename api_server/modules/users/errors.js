@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ERRORS = {
+module.exports = {
 	'token': {
 		code: 'USRC-1000',
 		message: 'Token error',
@@ -47,5 +47,3 @@ const ERRORS = {
 	}
 	*/
 };
-
-module.exports = ERRORS;

@@ -21,12 +21,15 @@ class GetByIdFromCacheAfterDeletedTest extends DataCollectionTest {
 		], callback);
 	}
 
-	getModel (callback) {
+	async getModel (callback) {
 		// we get the model from the cache
-		this.data.test.getById(
-			this.testModel.id,
-			callback
-		);
+		try {
+			await this.data.test.getById(this.testModel.id);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	async deleteModel (callback) {
@@ -41,14 +44,16 @@ class GetByIdFromCacheAfterDeletedTest extends DataCollectionTest {
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// this should fetch the model from the cache, even though we've deleted it in the database
-		this.data.test.getById(
-			this.testModel.id,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			response = await this.data.test.getById(this.testModel.id);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

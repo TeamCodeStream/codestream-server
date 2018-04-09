@@ -16,7 +16,7 @@ class GetDirectStreamsByTeamTest extends GetStreamsTest {
 		let teamStreams = this.streamsByTeam[teamId];
 		let userId = this.currentUser._id;
 		this.myStreams = teamStreams.filter(
-			stream => stream.type === 'direct' && stream.memberIds.indexOf(userId) !== -1
+			stream => stream.type === 'direct' && stream.memberIds.includes(userId)
 		);
 		this.path = '/streams?type=direct&teamId=' + teamId;
 		callback();

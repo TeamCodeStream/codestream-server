@@ -8,20 +8,22 @@ class ApplyIncToDatabaseTest extends UpdateToDatabaseTest {
 		return 'should get the correct model after applying an increment update and persisting';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel (callback) {
 		// increment a numeric field, make sure it gets incremented
 		const update = {
 			number: 5
 		};
-		this.data.test.applyOpById(
-			this.testModel.id,
-			{ '$inc': update },
-			(error) => {
-				if (error) { return callback(error); }
-				this.testModel.attributes.number += 5;
-				callback();
-			}
-		);
+		try {
+			await this.data.test.applyOpById(
+				this.testModel.id,
+				{ '$inc': update }
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.testModel.attributes.number += 5;
+		callback();
 	}
 }
 

@@ -2,9 +2,9 @@
 
 'use strict';
 
-var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
-var TokenAuthenticator = require('./token_authenticator');
-var User = require(process.env.CS_API_TOP + '/modules/users/user');
+const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+const TokenAuthenticator = require('./token_authenticator');
+const User = require(process.env.CS_API_TOP + '/modules/users/user');
 
 const DEPENDENCIES = [
 	'body_parser',	// have to be able to parse the request payload
@@ -18,23 +18,24 @@ class Authenticator extends APIServerModule {
 	}
 
 	middlewares () {
-		return (request, response, next) => {
-			new TokenAuthenticator({
-				request: request,
-				response: response,
-				api: this.api,
-				userClass: User
-			}).authenticate((error) => {
-				if (error) {
-					// fail with a 401, signalling no authentication at all
-					response.set('WWW-Authenticate', 'Bearer');
-					request.abortWith = {
-						status: 401,
-						error: error
-					};
-				}
-				next();
-			});
+		return async (request, response, next) => {
+			try {
+				await new TokenAuthenticator({
+					request: request,
+					response: response,
+					api: this.api,
+					userClass: User
+				}).authenticate();
+			}
+			catch (error) {
+				// fail with a 401, signalling no authentication at all
+				response.set('WWW-Authenticate', 'Bearer');
+				request.abortWith = {
+					status: 401,
+					error: error
+				};
+			}
+			next();
 		};
 	}
 }

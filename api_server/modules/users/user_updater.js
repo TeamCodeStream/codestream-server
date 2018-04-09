@@ -2,10 +2,9 @@
 
 'use strict';
 
-var ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
-var User = require('./user');
-var UsernameChecker = require('./username_checker');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
+const User = require('./user');
+const UsernameChecker = require('./username_checker');
 const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors');
 
 class UserUpdater extends ModelUpdater {
@@ -24,8 +23,8 @@ class UserUpdater extends ModelUpdater {
 	}
 
 	// convenience wrapper
-	updateUser (id, attributes, callback) {
-		return this.updateModel(id, attributes, callback);
+	async updateUser (id, attributes) {
+		return await this.updateModel(id, attributes);
 	}
 
 	// get attributes that are allowed, we will ignore all others
@@ -36,70 +35,55 @@ class UserUpdater extends ModelUpdater {
 	}
 
 	// before the user info gets saved...
-	preSave (callback) {
-		BoundAsync.series(this, [
-			this.getUser,
-			this.checkUsernameUnique,
-			super.preSave
-		], callback);
+	async preSave () {
+		await this.getUser();
+		await this.checkUsernameUnique();
+		await super.preSave();
 	}
 
 	// get the user needed for save
-	getUser (callback) {
+	async getUser () {
 		if (!this.attributes.username) {
 			// only necessary for username checks
-			return callback();
+			return;
 		}
-		this.request.data.users.getById(
-			this.id,
-			(error, user) => {
-				if (error) { return callback(error); }
-				if (!user) {
-					return callback(this.errorHandler.error('notFound', { info: user }));
-				}
-				this.user = user;
-				callback();
-			}
-		);
+		this.user = await this.request.data.users.getById(this.id);
+		if (!this.user) {
+			throw this.errorHandler.error('notFound', { info: 'user' });
+		}
 	}
 
 	// if the user is changing their username, we need to check if the name is unique
 	// for all teams the user is in
-	checkUsernameUnique (callback) {
+	async checkUsernameUnique () {
 		if (!this.attributes.username) {
-			return callback();
+			return;
 		}
 		if ((this.user.get('teamIds') || []).length === 0) {
-			return callback();
+			return;
 		}
-		let usernameChecker = new UsernameChecker({
+		const usernameChecker = new UsernameChecker({
 			data: this.request.data,
 			username: this.attributes.username,
 			userId: this.user.id,
 			teamIds: this.user.get('teamIds')
 		});
-		usernameChecker.checkUsernameUnique((error, isUnique) => {
-			if (error) { return callback(error); }
-			if (!isUnique) {
-				return callback(this.errorHandler.error('usernameNotUnique', {
-					info: {
-						username: this.attributes.username,
-						teamIds: usernameChecker.notUniqueTeamIds
-					}
-				}));
-			}
-			else {
-				return callback();
-			}
-		});
+		const isUnique = await usernameChecker.checkUsernameUnique();
+		if (!isUnique) {
+			throw this.errorHandler.error('usernameNotUnique', {
+				info: {
+					username: this.attributes.username,
+					teamIds: usernameChecker.notUniqueTeamIds
+				}
+			});
+		}
 	}
 
 	// after the post has been saved...
-	postSave (callback) {
+	async postSave () {
 		// this.update is what we return to the client, since the modifiedAt
 		// has changed, add that
 		this.update.modifiedAt = this.model.get('modifiedAt');
-		callback();
 	}
 }
 
