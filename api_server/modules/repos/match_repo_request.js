@@ -68,7 +68,7 @@ class MatchRepoRequest extends RestfulRequest {
 			query,
 			{
 				databaseOptions: {
-					hint: Indexes.byNormalizedUrl
+					hint: Indexes.byCompanyIdentifier
 				}
 			}
 		);
