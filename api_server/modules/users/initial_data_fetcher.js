@@ -4,7 +4,6 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 
 class InitialDataFetcher  {
@@ -14,81 +13,43 @@ class InitialDataFetcher  {
 	}
 
 	// fetch the initial data needed
-	fetchInitialData (callback) {
+	async fetchInitialData () {
 		this.initialData = {};
-		BoundAsync.series(this, [
-			this.getTeams,			// get the teams they are a member of
-			this.sanitizeTeams,		// sanitize for return to the client
-			this.getRepos,			// get the repos owned by their teams
-			this.sanitizeRepos		// sanitize for return to the client
-		], error => {
-			callback(error, this.initialData);
-		});
+		await this.getTeams();			// get the teams they are a member of
+		await this.getRepos();			// get the repos owned by their teams
+		return this.initialData;
 	}
 
 	// get the teams the user is a member of
-	getTeams (callback) {
-		let teamIds = this.request.user.get('teamIds') || [];
+	async getTeams () {
+		const teamIds = this.request.user.get('teamIds') || [];
 		if (teamIds.length === 0) {
-			this.teams = [];
-			return callback();
+			this.initialData.teams = [];
+			return;
 		}
-		this.request.data.teams.getByIds(
-			teamIds,
-			(error, teams) => {
-				if (error) { return callback(error); }
-				this.teams = teams;
-				callback();
-			}
-		);
-	}
-
-	// sanitize the teams for return to the client (no attributes clients shouldn't see)
-	sanitizeTeams (callback) {
-		this.request.sanitizeModels(
-			this.teams,
-			(error, objects) => {
-				if (error) { return callback(error); }
-				this.initialData.teams = objects;
-				callback();
-			}
-		);
+		const teams = await this.request.data.teams.getByIds(teamIds);
+		this.initialData.teams = await this.request.sanitizeModels(teams);
 	}
 
 	// get the repos owned by the teams the user is a member of
-	getRepos (callback) {
-		let teamIds = this.request.user.get('teamIds') || [];
+	async getRepos () {
+		const teamIds = this.request.user.get('teamIds') || [];
 		if (teamIds.length === 0) {
-			this.repos = [];
-			return callback();
+			this.initialData.repos = [];
+			return;
 		}
-		let query = {
+		const query = {
 			teamId: this.request.data.repos.inQuery(teamIds)
 		};
-		this.request.data.repos.getByQuery(
+		const repos = await this.request.data.repos.getByQuery(
 			query,
-			(error, repos) => {
-				if (error) { return callback(error); }
-				this.repos = repos;
-				callback();
-			},
 			{
 				databaseOptions: {
 					hint: RepoIndexes.byTeamId
 				}
 			}
 		);
-	}
-
-	// sanitize the repos for return to the client (no attributes clients shouldn't see)
-	sanitizeRepos (callback) {
-		this.request.sanitizeModels(
-			this.repos,
-			(error, objects) => {
-				this.initialData.repos = objects;
-				callback();
-			}
-		);
+		this.initialData.repos = await this.request.sanitizeModels(repos);
 	}
 }
 

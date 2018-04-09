@@ -2,37 +2,35 @@
 
 'use strict';
 
-var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
+const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 
 const MAX_KEYS = 100;
 
 class PutPreferencesRequest extends RestfulRequest {
 
-	authorize (callback) {
+	async authorize () {
 		// only applies to current user, no authorization required
-		return callback();
 	}
 
 	// process the request...
-	process (callback) {
+	async process () {
 		// determine the update op based on the request body, and apply it if valid
 		this.totalKeys = 0;
 		this.op = this.opFromBody();
 		if (typeof this.op === 'string') {
-			return callback(this.errorHandler.error('invalidParameter', { info: this.op }));
+			throw this.errorHandler.error('invalidParameter', { info: this.op });
 		}
-		this.data.users.applyOpById(
+		await this.data.users.applyOpById(
 			this.request.user.id,
-			this.op,
-			callback
+			this.op
 		);
 	}
 
 	// after the response is returned....
-	postProcess (callback) {
+	async postProcess () {
 		// send the message to the user's me-channel, so other sessions know that the
 		// preferences have been updated
-		let channel = 'user-' + this.user.id;
+		const channel = 'user-' + this.user.id;
 		let message = {
 			user: {
 				_id: this.user.id
@@ -40,20 +38,17 @@ class PutPreferencesRequest extends RestfulRequest {
 			requestId: this.request.id
 		};
 		Object.assign(message.user, this.op);
-		this.api.services.messager.publish(
-			message,
-			channel,
-			error => {
-				if (error) {
-					this.warn(`Unable to publish preferences message to channel ${channel}: ${JSON.stringify(error)}`);
-				}
-				callback();
-			},
-			{
-				request: this
-			}
-		);
-
+		try {
+			await this.api.services.messager.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate
+			this.warn(`Unable to publish preferences message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// extract the database op to perform based on the passed body
@@ -150,10 +145,10 @@ class PutPreferencesRequest extends RestfulRequest {
 	}
 
 	// handle returning the response
-	handleResponse (callback) {
+	async handleResponse () {
 		// we have a special case for an error writing to the database ... rather
 		// than return some vague internal error that we normally would on a database
-		// error, inform the client that the provided parameter was invalid 
+		// error, inform the client that the provided parameter was invalid
 		if (
 			this.gotError &&
 			this.gotError.code === 'MDTA-1000' &&
@@ -163,7 +158,7 @@ class PutPreferencesRequest extends RestfulRequest {
 			this.warn(JSON.stringify(this.gotError));
 			this.gotError = this.errorHandler.error('invalidParameter');
 		}
-		super.handleResponse(callback);
+		await super.handleResponse();
 	}
 }
 

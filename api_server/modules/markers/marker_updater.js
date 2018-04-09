@@ -2,9 +2,8 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
-var Marker = require('./marker');
+const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
+const Marker = require('./marker');
 
 class MarkerUpdater extends ModelUpdater {
 
@@ -17,8 +16,8 @@ class MarkerUpdater extends ModelUpdater {
 	}
 
 	// convenience wrapper
-	updateMarker (id, attributes, callback) {
-		return this.updateModel(id, attributes, callback);
+	async updateMarker (id, attributes) {
+		return await this.updateModel(id, attributes);
 	}
 
 	// get attributes that are allowed, we will ignore all others
@@ -29,77 +28,47 @@ class MarkerUpdater extends ModelUpdater {
 	}
 
 	// called before the marker is actually saved
-	preSave (callback) {
-		BoundAsync.series(this, [
-			this.getMarker,         // get the marker
-			this.getPost,           // get its associated post
-			this.getStream,         // get the stream the marker is from
-			this.getPostStream,     // get the stream for the post, if different
-			super.preSave			// base-class preSave
-		], callback);
+	async preSave () {
+		await this.getMarker();		// get the marker
+		await this.getPost();			// get its associated post
+		await this.getStream();		// get the stream the marker is from
+		await this.getPostStream();	// get the stream for the post, if different
+		await super.preSave();		// base-class preSave
 	}
 
 	// get the marker
-	getMarker (callback) {
-		this.request.data.markers.getById(
-			this.attributes._id,
-			(error, marker) => {
-				if (error) { return callback(error); }
-				if (!marker) {
-					return callback(this.errorHandler.error('notFound', { info: 'marker' }));
-				}
-				this.marker = marker;
-				callback();
-			}
-		);
+	async getMarker () {
+		this.marker = await this.request.data.markers.getById(this.attributes._id);
+		if (!this.marker) {
+			throw this.errorHandler.error('notFound', { info: 'marker' });
+		}
 	}
 
 	// get the post the marker is associated with
-	getPost (callback) {
-		this.request.data.posts.getById(
-			this.marker.get('postId'),
-			(error, post) => {
-				if (error) { return callback(error); }
-				if (!post) {
-					return callback(this.errorHandler.error('notFound', { info: 'post' })); // really shouldn't happen
-				}
-				this.post = post;
-				callback();
-			}
-		);
+	async getPost () {
+		this.post = await this.request.data.posts.getById(this.marker.get('postId'));
+		if (!this.post) {
+			throw this.errorHandler.error('notFound', { info: 'post' }); // really shouldn't happen
+		}
 	}
 
 	// get the stream the marker is in
-	getStream (callback) {
-		this.request.data.streams.getById(
-			this.marker.get('streamId'),
-			(error, stream) => {
-				if (error) { return callback(error); }
-				if (!stream) {
-					return callback(this.errorHandler.error('notFound', { info: 'stream' }));   // really shouldn't happen
-				}
-				this.stream = stream;
-				callback();
-			}
-		);
+	async getStream () {
+		this.stream = await this.request.data.streams.getById(this.marker.get('streamId'));
+		if (!this.stream) {
+			throw this.errorHandler.error('notFound', { info: 'stream' });   // really shouldn't happen
+		}
 	}
 
 	// get the stream the post is from, if different from the stream the marker is from
-	getPostStream (callback) {
+	async getPostStream () {
 		if (this.marker.get('streamId') === this.post.get('streamId')) {
-			return callback();
+			return;
 		}
-		this.request.data.streams.getById(
-			this.post.get('streamId'),
-			(error, stream) => {
-				if (error) { return callback(error); }
-				if (!stream) {
-					return callback(this.errorHandler.error('notFound', { info: 'post stream' }));   // really shouldn't happen
-				}
-				this.postStream = stream;
-				callback();
-			}
-		);
+		this.postStream = await this.request.data.streams.getById(this.post.get('streamId'));
+		if (!this.postStream) {
+			throw this.errorHandler.error('notFound', { info: 'post stream' });   // really shouldn't happen
+		}
 	}
 }
 

@@ -5,8 +5,8 @@
 
 'use strict';
 
-var DataModel = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model');
-var DataModelValidator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
+const DataModel = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model');
+const DataModelValidator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
 const MarkerAttributes = require('./marker_attributes');
 
 class Marker extends DataModel {
@@ -22,13 +22,13 @@ class Marker extends DataModel {
 	}
 
 	// called right before we save...
-	preSave (callback, options) {
+	async preSave (options) {
 		// ensure all IDs are lowercase
 		this.lowerCase(this.attributes.teamId);
 		this.lowerCase(this.attributes.streamId);
 		this.lowerCase(this.attributes.postId);
 		this.lowerCase(this.attributes.commitHashWhenCreated);
-		super.preSave(callback, options);
+		await super.preSave(options);
 	}
 
 	// cheater function to force an attribute to be lowercase

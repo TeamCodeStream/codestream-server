@@ -34,7 +34,7 @@ class PostChannelStreamTest extends PostStreamTest {
 	validateResponse (data) {
 		// the current user will be automatically added as a member, make sure we have a sorted
 		// array so we can compare arrays
-		if (this.data.memberIds.indexOf(this.currentUser._id) === -1) {
+		if (!this.data.memberIds.includes(this.currentUser._id)) {
 			this.data.memberIds.push(this.currentUser._id);
 			this.data.memberIds.sort();
 		}

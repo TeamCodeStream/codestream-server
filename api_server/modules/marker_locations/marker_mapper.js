@@ -2,7 +2,6 @@
 
 const MarkerData = require('./marker_data');
 const StringSimilarity = require('string-similarity');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 const LINE_SIMILARITY_THRESHOLD = 0.6;
 const EDIT_SIMILARITY_THRESHOLD = 0.5;
@@ -34,18 +33,15 @@ class MarkerMapper {
 	 * Returns the new position information (lines and columns) of
 	 * all marker locatins based on the list of edits
 	 */
-	getUpdatedMarkerData (callback) {
-		BoundAsync.series(this, [
-			this.setMarkersData,
-			this.applyEdits,
-			this.recalculateLinesUntilEnd,
-			this.assignNewLines,
-			this.recalculateMissingMarkers,
-			this.recalculateColumns,
-			this.generateOutputMarkers
-		], error => {
-			callback(error, this.outputMarkerLocations);
-		});
+	async getUpdatedMarkerData () {
+		await this.setMarkersData();
+		await this.applyEdits();
+		await this.recalculateLinesUntilEnd();
+		await this.assignNewLines();
+		await this.recalculateMissingMarkers();
+		await this.recalculateColumns();
+		await this.generateOutputMarkers();
+		return this.outputMarkerLocations;
 	}
 
 	/**
@@ -53,7 +49,7 @@ class MarkerMapper {
 	 * convenience objects (MarkerData) and making note of the lines we are
 	 * going to be interested in
 	 */
-	setMarkersData (callback) {
+	async setMarkersData () {
 		// marker locations look like this:
 		// {
 		//    <markerId>: <location>,
@@ -67,7 +63,7 @@ class MarkerMapper {
 		const markerIds = Object.keys(this.inputMarkerLocations);
 		markerIds.forEach(markerId => {
 			const location = this.inputMarkerLocations[markerId];
-			let markerData = new MarkerData(markerId, location, this);
+			const markerData = new MarkerData(markerId, location, this);
 			this.markersData.push(markerData);
 			// make a note of the lines we are interested in, these will get
 			// "mapped" to new line numbers by the calculation
@@ -76,7 +72,6 @@ class MarkerMapper {
 		});
 		// the lines must be sorted for the calculation to work properly
 		this.lines.sort(sortNumber);
-		process.nextTick(callback);
 	}
 
 	/**
@@ -96,25 +91,21 @@ class MarkerMapper {
 	 * Apply our series of edits to the marker location data, calculating
 	 * new line number locations along the way
 	 */
-	applyEdits (callback) {
+	async applyEdits () {
 		// keep this async, we allow the node process to serve other requests
 		// while this calculation is going on ... in other words, don't
 		// block for too long! (this is expensive)
-		BoundAsync.forEachSeries(
-			this,
-			this.edits,
-			this.applyEdit,
-			callback
-		);
+		for (let edit of this.edits) {
+			await this.applyEdit(edit);
+		}
 	}
 
 	/**
 	 * Apply a single edit to determine what line numbers are changed by it
 	 */
-	applyEdit (edit, callback) {
+	async applyEdit (edit) {
 		this.recalculateLinesUntil(edit);	// recalculate all the lines "leading up to" this edit
 		this.recalculateLinesIn(edit);		// recalculate all the lines directly touched by this edit
-		process.nextTick(callback);
 	}
 
 	/**
@@ -202,13 +193,12 @@ class MarkerMapper {
 	 * When we are done recalculating line numbers based on the edits, adjust the
 	 * line numbers after the last edit according to the "final balance"
 	 */
-	recalculateLinesUntilEnd (callback) {
+	async recalculateLinesUntilEnd () {
 		const balance = this.finalBalance;
 		while (this.getCurrentLine()) {
 			this.moveCurrentLineBy(balance);
 			this.nextLine();
 		}
-		process.nextTick(callback);
 	}
 
 	/**
@@ -216,7 +206,7 @@ class MarkerMapper {
 	 * in the old file to the line number in the new file, so we assign those
 	 * new line numbers to the actual marker data here
 	 */
-	assignNewLines (callback) {
+	async assignNewLines () {
 		const lineMap = this.lineMap;
 
 		// for each marker (which has a start line and an end line),
@@ -237,7 +227,6 @@ class MarkerMapper {
 				markerData.lineEndNewContent = endLineData.addContent;
 			}
 		}
-		process.nextTick(callback);
 	}
 
 	/**
@@ -245,23 +234,20 @@ class MarkerMapper {
 	 * as to how the column positions may have changed given the contents between
 	 * the old and new line ... this is fuzzy
 	 */
-	recalculateColumns (callback) {
+	async recalculateColumns () {
 		// keep this async, we allow the node process to serve other requests
 		// while this calculation is going on ... in other words, don't
 		// block for too long! (this is expensive)
-		BoundAsync.forEachSeries(
-			this,
-			this.markersData,
-			this.recalculateColumnPair,
-			callback
-		);
+		for (let markerData of this.markersData) {
+			await this.recalculateColumnPair(markerData);
+		}
 	}
 
 	/**
 	 * Attempt to figure out new positions for column numbers of a marker
 	 * by comparing the content that has changed in a given line
 	 */
-	recalculateColumnPair (markerData, callback) {
+	async recalculateColumnPair (markerData) {
 		let colStartNew = markerData.colStartNew;
 		let colEndNew = markerData.colEndNew;
 
@@ -308,8 +294,6 @@ class MarkerMapper {
 			markerData.colStartNew = colStartNew;
 			markerData.colEndNew = colEndNew;
 		}
-
-		process.nextTick(callback);
 	}
 
 	/**
@@ -425,23 +409,20 @@ class MarkerMapper {
 	 * TODO room for improvement here: we could also look at edits in other files
 	 * to try to find blocks of code moved from one file to another
 	 */
-	recalculateMissingMarkers (callback) {
+	async recalculateMissingMarkers () {
 		// keep this async, we allow the node process to serve other requests
 		// while this calculation is going on ... in other words, don't
 		// block for too long! (this is expensive)
-		BoundAsync.forEachSeries(
-			this,
-			this.markersData,
-			this.recalculateMissingMarker,
-			callback
-		);
+		for (let markerData of this.markersData) {
+			await this.recalculateMissingMarker(markerData);
+		}
 	}
 
 	/**
 	 * For a single marker, attempt to fix a deletion in its starting and/or ending
 	 * line number ... see recalculateMissingMarkers() above
 	 */
-	recalculateMissingMarker (marker, callback) {
+	async recalculateMissingMarker (marker) {
 		if (marker.isEntirelyDeleted()) {
 			// maybe it was moved somewhere else?
 			if (!this.findMovedMarker(marker)) {
@@ -456,7 +437,6 @@ class MarkerMapper {
 			// move to the first line before the edit
 			marker.trimLineEndEdit();
 		}
-		process.nextTick(callback);
 	}
 
 	/**
@@ -592,10 +572,10 @@ class MarkerMapper {
 	 *
 	 * This is what gets stored to the database and returned to the client.
 	 */
-	generateOutputMarkers (callback) {
+	async generateOutputMarkers () {
 		this.outputMarkerLocations = {};
 		for (let i = 0; i < this.markersData.length; i++) {
-			let markerData = this.markersData[i];
+			const markerData = this.markersData[i];
 			this.outputMarkerLocations[markerData.markerId] = [
 				markerData.lineStartNew,
 				markerData.colStartNew,
@@ -606,7 +586,6 @@ class MarkerMapper {
 				this.outputMarkerLocations[markerData.markerId].push(markerData.info);
 			}
 		}
-		process.nextTick(callback);
 	}
 }
 

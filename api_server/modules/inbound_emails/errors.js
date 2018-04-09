@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ERRORS = {
+module.exports = {
 	'internal': {
 		code: 'INBE-1000',
 		message: 'Internal inbound email error',
@@ -34,5 +34,3 @@ const ERRORS = {
 		message: 'The stream is not owned by this team'
 	}
 };
-
-module.exports = ERRORS;

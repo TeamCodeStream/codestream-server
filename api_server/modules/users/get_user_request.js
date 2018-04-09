@@ -2,19 +2,19 @@
 
 'use strict';
 
-var GetRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_request');
+const GetRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_request');
 
 class GetUserRequest extends GetRequest {
 
 	// process the request...
-	process (callback) {
+	async process () {
 		// allow for specifying "me" as the user to fetch
 		if (this.request.params.id.toLowerCase() === 'me') {
 			// allow certain "me-attributes" that only this user can see
 			this.responseData = { user: this.user.getSanitizedObjectForMe() };
-			return process.nextTick(callback);
+			return;
 		}
-		super.process(callback);
+		await super.process();
 	}
 }
 

@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ERRORS = {
+module.exports = {
 	'shaMismatch': {
 		code: 'REPO-1000',
 		message: 'SHA of first commit doesn\'t match'
@@ -12,5 +12,3 @@ const ERRORS = {
 		message: 'Unable to grant user messaging permissions'
 	}
 };
-
-module.exports = ERRORS;

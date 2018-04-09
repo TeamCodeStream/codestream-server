@@ -8,7 +8,7 @@ const MomentTimezone = require('moment-timezone');
 
 class PostRenderer {
 
-	render (options, callback) {
+	render (options) {
 		const { post, sameAuthor, timeZone } = options;
 
 		// the timestamp is dependent on the user's timezone, but if all users are from the same
@@ -63,7 +63,7 @@ class PostRenderer {
 `;
 		}
 
-		return callback(`
+		return `
 <div class="authorLine">
 	${authorSpan}<span class="datetime">${datetime}</span>
  </div>
@@ -73,8 +73,7 @@ class PostRenderer {
 	${text}
 </div>
 <hr class=rule>
-`
-		);
+`;
 	}
 
 	// get the text to display for the parent post, if this is a reply
@@ -92,7 +91,7 @@ class PostRenderer {
 	// get any code block associated iwth the post
 	getNotificationCodeBlock (options) {
 		const { post } = options;
-		let codeBlocks = post.get('codeBlocks');
+		const codeBlocks = post.get('codeBlocks');
 		if (!codeBlocks || codeBlocks.length === 0) {
 			return null;
 		}

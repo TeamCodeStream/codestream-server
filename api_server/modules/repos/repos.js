@@ -2,10 +2,10 @@
 
 'use strict';
 
-var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var RepoCreator = require('./repo_creator');
-//var RepoUpdater = require('./repo_updater');
-var Repo = require('./repo');
+const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
+const RepoCreator = require('./repo_creator');
+//const RepoUpdater = require('./repo_updater');
+const Repo = require('./repo');
 
 // expose these restful routes
 const REPOS_STANDARD_ROUTES = {

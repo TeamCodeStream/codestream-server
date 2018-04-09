@@ -4,6 +4,7 @@
 
 const HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
 const { URL } = require('url');
+const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
 class SlackBotClient {
 
@@ -28,10 +29,10 @@ class SlackBotClient {
 	}
 
 	// called when there is a new post
-	postHook (info, callback, options = {}) {
+	async postHook (info, options = {}) {
 		// package the message for slack-bot digestion and sent it over the wire
-		let message = this.packageMessage(info);
-		this.sendMessage(message, info, callback, options);
+		const message = this.packageMessage(info);
+		await this.sendMessage(message, info, options);
 	}
 
 	// package an info structure for a new post for slack-bot digestion
@@ -100,7 +101,7 @@ class SlackBotClient {
 	}
 
 	// send a formatted message to the slack-bot
-	sendMessage (message, info, callback, options = {}) {
+	async sendMessage (message, info, options = {}) {
 		if (this.requestSaysToTestSlackOut(options)) {
 			// we received a header in the request asking us to divert this message
 			// instead of actually sending it, for testing purposes ... we'll
@@ -109,7 +110,7 @@ class SlackBotClient {
 				options.request.log(`Diverting slack-bot message for post ${message.postId} to test callback`);
 			}
 			this.testCallback(message, info.team, options.request);
-			return process.nextTick(callback);
+			return;
 		}
 		else if (this.requestSaysToBlockSlackOut(options)) {
 			// we received a header in the request asking us not to send out slack-bot
@@ -117,18 +118,17 @@ class SlackBotClient {
 			if (options.request) {
 				options.request.log(`Would have sent slack-bot message for post ${message.postId}`);
 			}
-			return process.nextTick(callback);
+			return;
 		}
 
 		const url = new URL(this.config.slackBotOrigin);
-		HTTPSBot.post(
+		await AwaitUtils.callbackWrap(
+			HTTPSBot.post,
 			url.hostname,
 			url.port,
 			'/codestream/receive',
 			message,
-			callback,
 			{
-				// FIXME ... slack integration needs to use proper certificate
 				rejectUnauthorized: false,
 				useHttp: true
 			}
@@ -150,16 +150,15 @@ class SlackBotClient {
 	// when testing slack-bot messages, we'll get the message that would otherwise be sent to
 	// the slack-bot through this callback, we'll send it along through the team channel for
 	// the team that owns the stream, which the test client should be listening to
-	testCallback (message, team, request) {
+	async testCallback (message, team, request) {
 		if (!team || !request.api.services.messager) { return; }
-		let channel = `team-${team.id}`;
+		const channel = `team-${team.id}`;
 		let requestCopy = Object.assign({}, request);	// override test setting indicating not to send pubnub messages
 		requestCopy.headers = Object.assign({}, request.headers);
 		delete requestCopy.headers['x-cs-block-message-sends'];
-		request.api.services.messager.publish(
+		await request.api.services.messager.publish(
 			message,
 			channel,
-			() => {},
 			request
 		);
 	}

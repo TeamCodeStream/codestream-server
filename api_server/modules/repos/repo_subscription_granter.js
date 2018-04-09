@@ -2,8 +2,6 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-
 class RepoSubscriptionGranter  {
 
 	constructor (options) {
@@ -11,55 +9,40 @@ class RepoSubscriptionGranter  {
 	}
 
 	// grant subscription permission to all indicated users to subscribe to the repo channel for this repo
-	grantToUsers (callback) {
-		BoundAsync.series(this, [
-			this.getTokens,		// get the access tokens for each registered user
-			this.grantRepoChannel	// grant subscription permissions for all of these user
-		], callback);
+	async grantToUsers () {
+		await this.getTokens();			// get the access tokens for each registered user
+		await this.grantRepoChannel();	// grant subscription permissions for all of these user
 	}
 
 	// get access tokens for each registered user
-	getTokens (callback) {
-		this.tokens = [];
-		BoundAsync.forEachLimit(
-			this,
-			this.users,
-			10,
-			this.getTokenForRegisteredUser,
-			callback
-		);
-	}
-
-	// get an access token for a single user, only registered users can have access tokens
-	getTokenForRegisteredUser (user, callback) {
-		if (user.get('isRegistered')) {
-			this.tokens.push(user.get('accessToken'));
-		}
-		process.nextTick(callback);
+	async getTokens () {
+		this.tokens = this.users.reduce((tokens, user) => {
+			if (user.get('isRegistered')) {
+				tokens.push(user.get('accessToken'));
+			}
+			return tokens;
+		}, []);
 	}
 
 	// grant permission to all the indicated users to subscribe to the repo channel
-	grantRepoChannel (callback) {
+	async grantRepoChannel () {
 		if (this.tokens.length === 0) {
-			return callback();
+			return;
 		}
-		let channel = 'repo-' + this.repo.id;
-		this.messager.grant(
-			this.tokens,
-			channel,
-			(error) => {
-				if (error) {
-					return callback(`unable to grant permissions for subscription (${channel}): ${error}`);
+		const channel = 'repo-' + this.repo.id;
+		try {
+			await this.messager.grant(
+				this.tokens,
+				channel,
+				{
+					includePresence: true,	// we listen to "per-repo" presence
+					request: this.request
 				}
-				else {
-					return callback();
-				}
-			},
-			{
-				includePresence: true,	// we listen to "per-repo" presence
-				request: this.request
-			}
-		);
+			);
+		}
+		catch (error) {
+			throw `unable to grant permissions for subscription (${channel}): ${error}`;
+		}
 	}
 }
 

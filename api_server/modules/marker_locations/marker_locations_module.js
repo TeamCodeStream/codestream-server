@@ -2,8 +2,8 @@
 
 'use strict';
 
-var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var MarkerLocations = require('./marker_locations');
+const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
+const MarkerLocations = require('./marker_locations');
 
 // expose these restful routes
 const MARKER_LOCATIONS_ROUTES = [

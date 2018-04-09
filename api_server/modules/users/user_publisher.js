@@ -1,8 +1,6 @@
 // handle publishing a user object to the team channels for the teams the user belongs to
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-
 class UserPublisher {
 
 	constructor (options) {
@@ -10,36 +8,30 @@ class UserPublisher {
 	}
 
 	// publish the user object to each team channel for the teams the user belongs to
-	publishUserToTeams (callback) {
-		BoundAsync.forEachLimit(
-			this,
-			this.user.get('teamIds') || [],
-			10,
-			this.publishUserToTeam,
-			callback
-		);
+	async publishUserToTeams () {
+		const teamIds = this.user.get('teamIds') || [];
+		await Promise.all(teamIds.map(async teamId => {
+			await this.publishUserToTeam(teamId);
+		}));
 	}
 
 	// publish the user object to a particular team channel
-	publishUserToTeam (teamId, callback) {
-		let message = {
+	async publishUserToTeam (teamId) {
+		const message = {
 			requestId: this.request.request.id,
 			users: [this.data]
 		};
-		this.messager.publish(
-			message,
-			'team-' + teamId,
-			error => {
-				if (error) {
-					this.request.warn(`Could not publish user message to team ${teamId}: ${JSON.stringify(error)}`);
-				}
-				// this doesn't break the chain, but it is unfortunate...
-				callback();
-			},
-			{
-				request: this.request
-			}
-		);
+		try {
+			await this.messager.publish(
+				message,
+				'team-' + teamId,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish user message to team ${teamId}: ${JSON.stringify(error)}`);
+		}
 	}
 }
 

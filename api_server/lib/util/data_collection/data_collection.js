@@ -3,9 +3,9 @@
 
 'use strict';
 
-var DataCollectionFetcher = require('./data_collection_fetcher');
-var ModelOps = require('./model_ops');
-var ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const DataCollectionFetcher = require('./data_collection_fetcher');
+const ModelOps = require('./model_ops');
+const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const Errors = require('./errors');
 
 class DataCollection {
@@ -44,35 +44,15 @@ class DataCollection {
 	}
 
 	// get a single model by ID
-	async getById (id, callback, options) {
+	async getById (id, options) {
 		// dole this out to the DataCollectionFetcher, which handles the details of checking cache and/or database
-		let model;
-		try {
-			model = await new DataCollectionFetcher(this.fetchOptions).getById(
-				id,
-				options
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback(null, model);
+		return await new DataCollectionFetcher(this.fetchOptions).getById(id, options);
 	}
 
 	// get several models by ID
-	async getByIds (ids, callback, options) {
+	async getByIds (ids, options) {
 		// dole this out to the DataCollectionFetcher, which handles the details of checking cache and/or database
-		let models;
-		try {
-			models = await new DataCollectionFetcher(this.fetchOptions).getByIds(
-				ids,
-				options
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback(null, models);
+		return await new DataCollectionFetcher(this.fetchOptions).getByIds(ids, options);
 	}
 
 	// get models by a direct database query (which is specific to the underlying database)
@@ -80,48 +60,36 @@ class DataCollection {
 	// query and fetch documents from the cache ... this creates the potential for a conflict between
 	// models that are cached and documents in the database ... care should be taken to recognize this
 	// caveat
-	async getByQuery (conditions, callback, options = {}) {
+	async getByQuery (conditions, options = {}) {
 		// query the database collection directly, but we'll still add the documents to our local cache as needed
-		let documents;
-		try {
-			documents = await this.databaseCollection.getByQuery(
-				conditions,
-				Object.assign({}, options.databaseOptions, { requestId: this.requestId })
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
+		const documents = await this.databaseCollection.getByQuery(
+			conditions,
+			Object.assign({}, options.databaseOptions, { requestId: this.requestId })
+		);
 		let models;
 		if (!options.noCache) {
 			models = await this._addDocumentsToCache(documents);
 		}
-		callback(null, models || documents);
+		return models || documents;
 	}
 
 	// get the first single model we find matching a direct database query ... see the note from
 	// getByQuery above ... the same caveat applies here
-	async getOneByQuery (conditions, callback, options = {}) {
+	async getOneByQuery (conditions, options = {}) {
 		// query the database collection directly, but we'll still add the documents to our local cache as needed
-		let document;
-		try {
-			document = await this.databaseCollection.getOneByQuery(
-				conditions,
-				Object.assign({}, options.databaseOptions, { requestId: this.requestId })
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
+		const document = await this.databaseCollection.getOneByQuery(
+			conditions,
+			Object.assign({}, options.databaseOptions, { requestId: this.requestId })
+		);
 		let model;
 		if (document && !options.noCache) {
 			model = this._addDataToCache(document);
 		}
-		callback(null, model || document);
+		return model || document;
 	}
 
 	// create a model using the data passed in
-	async create (data, callback, options = {}) {
+	async create (data, options = {}) {
 		// the ID can be provided or we'll generate one
 		const id = (data[this.idAttribute] || this.createId()).toString();
 		data[this.idAttribute] = id;
@@ -136,7 +104,7 @@ class DataCollection {
 			// we'll save these up until we actually persist to the database
 			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options.databaseOptions);
 		}
-		return callback(null, model);
+		return model;
 	}
 
 	// generate an ID for a new model
@@ -146,15 +114,15 @@ class DataCollection {
 	}
 
 	// update a model
-	async update (data, callback, options = {}) {
+	async update (data, options = {}) {
 		const id = data[this.idAttribute] || options.id;
 		if (!id) {
 			// we must have an ID for it, either in options or in the attributes
-			return callback(this.errorHandler.error('id', { info: this.idAttribute }));
+			throw this.errorHandler.error('id', { info: this.idAttribute });
 		}
 		if (this.modelOps[id]) {
 			// we already have ops for this, so we need to just add a $set
-			return this.applyOpById(id, { $set: data }, callback, options);
+			return await this.applyOpById(id, { $set: data }, options);
 		}
 		data[this.idAttribute] = id;
 		// update the data for this document in our cache
@@ -169,13 +137,11 @@ class DataCollection {
 			// we'll save these up until we actually persist to the database
 			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options.databaseOptions);
 		}
-		process.nextTick(() => {
-			callback(null, model);
-		});
+		return model;
 	}
 
 	// apply an op (directive) to a model
-	async applyOpById (id, op, callback, options = {}) {
+	async applyOpById (id, op, options = {}) {
 		// ops just get added to an ordered array of them, to be executed in order at persist time
 		this._addModelOp(id, op);
 		// get the model from the cache so we have something to return to the caller
@@ -184,36 +150,26 @@ class DataCollection {
 			// we'll save these up until we actually persist to the database
 			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options.databaseOptions);
 		}
-		process.nextTick(() => {
-			callback(null, model);
-		});
+		return model;
 	}
 
 	// delete a model by ID
-	async deleteById (id, callback) {
+	async deleteById (id) {
 		// remove it from our cache
 		this._removeModelFromCache(id);
 		// mark it for actual deletion when we persist
 		this.toDeleteIds[id] = true;
-		process.nextTick(callback);
 	}
 
 	// perform a direct update operation, this essentially passes through to the database layer,
 	// no interaction with the cache at all, so should be used with caution to avoid sync problems
 	// between cache and database
-	async updateDirect (query, data, callback, options = {}) {
-		let result;
-		try {
-			result = await this.databaseCollection.updateDirect(
-				query,
-				data,
-				Object.assign({}, options, { requestId: this.requestId })
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback(null, result);
+	async updateDirect (query, data, options = {}) {
+		return await this.databaseCollection.updateDirect(
+			query,
+			data,
+			Object.assign({}, options, { requestId: this.requestId })
+		);
 	}
 
 	// perform a direct find-and-modify operation against the database
@@ -222,40 +178,21 @@ class DataCollection {
 	// to protect against race conditions
 	// there is no interaction with the cache at all, so should be used with caution to avoid sync problems
 	// between cache and database
-	async findAndModify (query, data, callback, options = {}) {
-		let result;
-		try {
-			result = await this.databaseCollection.findAndModify(
-				query,
-				data,
-				Object.assign({}, options, { requestId: this.requestId })
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
+	async findAndModify (query, data, options = {}) {
+		const result = await this.databaseCollection.findAndModify(
+			query,
+			data,
+			Object.assign({}, options, { requestId: this.requestId })
+		);
 		result.value._id = result.value._id.toString();
-		return callback(null, result.value);
+		return result.value;
 	}
 
 	// persist all our recorded changes to the database ... a momentous occasion!
-	async persist (callback) {
-		try {
-			await this._persistDocuments(), // persist document updates
-			await this._deleteDocuments(),  // delete any documents requested
-			await this._createDocuments();   // create any documents requested
-		}
-		catch (error) {
-			if (callback) {
-				return callback(error);
-			}
-			else {
-				throw error;
-			}
-		}
-		if (callback) {
-			callback();
-		}
+	async persist () {
+		await this._persistDocuments(), // persist document updates
+		await this._deleteDocuments(),  // delete any documents requested
+		await this._createDocuments();   // create any documents requested
 	}
 
 	// get a model from the cache by ID

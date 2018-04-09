@@ -16,9 +16,9 @@ class GetAllStreamsByTeamTest extends GetStreamsTest {
 		let teamStreams = this.streamsByTeam[teamId];
 		let userId = this.currentUser._id;
 		this.myStreams = teamStreams.filter(
-			stream => stream.memberIds.indexOf(userId) !== -1
+			stream => stream.memberIds.includes(userId)
 		);
-		this.path = '/streams?teamId=' + teamId;	
+		this.path = '/streams?teamId=' + teamId;
 		callback();
 	}
 }

@@ -2,14 +2,14 @@
 
 'use strict';
 
-var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 
 class GetUsersRequest extends GetManyRequest {
 
-	authorize (callback) {
+	async authorize () {
 		// members of the same team can fetch each other
-		this.user.authorizeFromTeamId(this.request.query, this, callback);
+		await this.user.authorizeFromTeamId(this.request.query, this);
 	}
 
 	// build the query for fetching the users, based on input parameters

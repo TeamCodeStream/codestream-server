@@ -2,96 +2,82 @@
 
 'use strict';
 
-var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
+const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
+const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 
 class PutMarkerLocationsRequest extends RestfulRequest {
 
 	// authorize the request
-	authorize (callback) {
-		this.user.authorizeFromTeamIdAndStreamId(
+	async authorize () {
+		const info = await this.user.authorizeFromTeamIdAndStreamId(
 			this.request.body,
 			this,
-			(error, info) => {
-				if (error) { return callback(error); }
-				Object.assign(this, info);
-				process.nextTick(callback);
-			},
 			{
 				mustBeFileStream: true,
 				error: 'updateAuth'
 			}
 		);
+		Object.assign(this, info);
 	}
 
 	// process the request...
-	process (callback) {
-		BoundAsync.series(this, [
-			this.require,	// check for required parameters
-			this.validate,	// validate input parameters
-			this.handleLocations,	// handle the locations set (validate and prepare for save and broadcast)
-			this.update		// do the actual update
-		], callback);
+	async process () {
+		await this.require();			// check for required parameters
+		await this.validate();			// validate input parameters
+		await this.handleLocations();	// handle the locations set (validate and prepare for save and broadcast)
+		await this.updateLocations();	// do the actual update
 	}
 
 	// these parameters are required for the request
-	require (callback) {
-		this.requireAllowParameters(
+	async require () {
+		await this.requireAllowParameters(
 			'body',
 			{
 				required: {
 					string: ['teamId', 'streamId', 'commitHash'],
 					object: ['locations']
 				}
-			},
-			callback
+			}
 		);
 	}
 
 	// validate the request's input parameters
-	validate (callback) {
+	async validate () {
 		this.commitHash = this.request.body.commitHash.toLowerCase();
 		if (Object.keys(this.request.body.locations).length > 1000) {
-			return callback(this.errorHandler.error('validation', { info: 'locations object is too large, please break into pieces of less than 1000 elements'}));
+			throw this.errorHandler.error('validation', { info: 'locations object is too large, please break into pieces of less than 1000 elements'});
 		}
-		process.nextTick(callback);
 	}
 
 	// handle the locations set (validate and prepare for save and broadcast)
-	handleLocations (callback) {
+	async handleLocations () {
 		this.update = {};
 		this.publish = {};
-		BoundAsync.forEachLimit(
-			this,
-			Object.keys(this.request.body.locations),
-			20,
-			this.handleLocation,
-			callback
-		);
+		for (let markerId of Object.keys(this.request.body.locations)) {
+			await this.handleLocation(markerId);
+		}
 	}
 
 	// handle a single location array
-	handleLocation (markerId, callback) {
+	async handleLocation (markerId) {
 		// validate the marker ID
 		if (!this.data.markerLocations.objectIdSafe(markerId)) {
-			return callback(this.errorHandler.error('validation', { info: `${markerId} is not a valid marker ID` }));
+			throw this.errorHandler.error('validation', { info: `${markerId} is not a valid marker ID` });
 		}
 		// validate the location array, which must conform to a strict format
-		let location = this.request.body.locations[markerId];
-		let result = MarkerCreator.validateLocation(location);
+		const location = this.request.body.locations[markerId];
+		const result = MarkerCreator.validateLocation(location);
 		if (result) {
-			return callback(this.errorHandler.error('validation', { info: `not a valid location for marker ${markerId}: ${result}` }));
+			throw this.errorHandler.error('validation', { info: `not a valid location for marker ${markerId}: ${result}` });
 		}
 		// prepare the data update and the broadcast
 		this.update[`locations.${markerId}`] = location;	// for database update
 		this.publish[markerId] = location;					// for publishing
-		process.nextTick(callback);
 	}
 
 	// do the actual update
-	update (callback) {
-		let id = `${this.streamId}|${this.commitHash}`;
+	async updateLocations () {
+		const id = `${this.streamId}|${this.commitHash}`;
 		let update = {
 			$set: this.update
 		};
@@ -99,10 +85,9 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 		if (this.isForTesting()) { // special for-testing header for easy wiping of test data
 			update.$set._forTesting = true;
 		}
-		this.data.markerLocations.applyOpById(
+		await this.data.markerLocations.applyOpById(
 			id,
 			update,
-			callback,
 			{
 				databaseOptions: {
 					upsert: true
@@ -112,15 +97,15 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 	}
 
 	// after processing the request...
-	postProcess (callback) {
+	async postProcess () {
 		// publish the marker locations update to users in the team
-		this.publishMarkerLocations(callback);
+		await this.publishMarkerLocations();
 	}
 
 	// publish the marker locations update to users in the team
-	publishMarkerLocations (callback) {
-		let channel = 'team-' + this.teamId;
-		let message = {
+	async publishMarkerLocations () {
+		const channel = 'team-' + this.teamId;
+		const message = {
 			markerLocations: {
 				teamId: this.teamId,
 				streamId: this.streamId,
@@ -129,20 +114,17 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 			},
 			requestId: this.request.id
 		};
-		this.api.services.messager.publish(
-			message,
-			channel,
-			error => {
-				if (error) {
-					// this doesn't break the chain, but it is unfortunate...
-					this.warn(`Could not publish marker locations update message to team ${this.teamId}: ${JSON.stringify(error)}`);
-				}
-				callback();
-			},
-			{
-				request: this
-			}
-		);
+		try {
+			await this.api.services.messager.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.warn(`Could not publish marker locations update message to team ${this.teamId}: ${JSON.stringify(error)}`);
+		}
 	}
 }
 

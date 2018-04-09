@@ -8,20 +8,22 @@ class ApplyUnsetSubObjectToCacheTest extends UpdateToCacheTest {
 		return 'should get the correct model after applying a sub-object unset to a cached model';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel (callback) {
 		// selectively unset some values in the object, and verify they are unset
 		const unset = {
 			'object.y': true
 		};
-		this.data.test.applyOpById(
-			this.testModel.id,
-			{ '$unset': unset },
-			(error) => {
-				if (error) { return callback(error); }
-				delete this.testModel.attributes.object.y;
-				callback();
-			}
-		);
+		try {
+			await this.data.test.applyOpById(
+				this.testModel.id,
+				{ '$unset': unset }
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		delete this.testModel.attributes.object.y;
+		callback();
 	}
 }
 

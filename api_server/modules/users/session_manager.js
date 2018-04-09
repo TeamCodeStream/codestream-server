@@ -2,8 +2,6 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-
 class SessionManager {
 
 	constructor (options) {
@@ -11,20 +9,18 @@ class SessionManager {
 	}
 
 	// set status for a particular client session
-	setSessionStatus (sessions, callback) {
+	async setSessionStatus (sessions) {
 		this.sessionsToUpdate = sessions;
 		this.currentSessions = this.user.get('sessions') || {};
 		this.op = {};
-		BoundAsync.series(this, [
-			this.updateSessions,		// update the sessions data by adding the presence data for this request
-			this.removeStaleSessions,	// remove any stale sessions we find, sessions older than the away timeout
-			this.saveSessions			// save the sessions data to the server
-		], callback);
+		await this.updateSessions();		// update the sessions data by adding the presence data for this request
+		await this.removeStaleSessions();	// remove any stale sessions we find, sessions older than the away timeout
+		await this.saveSessions();			// save the sessions data to the server
 	}
 
 	// remove any stale sessions we see in the user's session data ... this is any
 	// session data with an updatedAt attribute older than the away timeout, as configured
-	removeStaleSessions (callback) {
+	async removeStaleSessions () {
 		const now = Date.now();
 		const awayTimeout = this.sessionAwayTimeout || this.request.api.config.api.sessionAwayTimeout;
 		Object.keys(this.currentSessions).forEach(sessionId => {
@@ -37,11 +33,10 @@ class SessionManager {
 				delete this.currentSessions[sessionId];
 			}
 		});
-		process.nextTick(callback);
 	}
 
 	// update sessions data with the session info passed in
-	updateSessions (callback) {
+	async updateSessions () {
 		const now = Date.now();
 		Object.keys(this.sessionsToUpdate).forEach(sessionId => {
 			this.op.$set = this.op.$set || {};
@@ -51,15 +46,13 @@ class SessionManager {
 				{ updatedAt: now }
 			);
 		});
-		process.nextTick(callback);
 	}
 
 	// save the modified sessions data to the database
-	saveSessions (callback) {
-		this.request.data.users.updateDirect(
+	async saveSessions () {
+		await this.request.data.users.updateDirect(
 			{ _id: this.request.data.users.objectIdSafe(this.user.id) },
-			this.op,
-			callback
+			this.op
 		);
 	}
 

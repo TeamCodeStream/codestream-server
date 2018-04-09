@@ -3,33 +3,26 @@
 
 'use strict';
 
-var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
+const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 
 class ReadRequest extends RestfulRequest {
 
 	// authorize the request before processing....
-	authorize (callback) {
+	async authorize () {
 		// they must have access to the stream, unless "all" is specified
-		let streamId = this.request.params.streamId.toLowerCase();
+		const streamId = this.request.params.streamId.toLowerCase();
 		if (streamId === 'all') {
 			// all doesn't need authorization, it applies only to the current user
-			return callback();
+			return;
 		}
-		return this.user.authorizeStream(
-			streamId,
-			this,
-			(error, authorized) => {
-				if (error) { return callback(error); }
-				if (!authorized) {
-					return callback(this.errorHandler.error('updateAuth', { reason: 'user not in stream' }));
-				}
-				process.nextTick(callback);
-			}
-		);
+		const authorized = await this.user.authorizeStream(streamId, this);
+		if (!authorized) {
+			throw this.errorHandler.error('updateAuth', { reason: 'user not in stream' });
+		}
 	}
 
 	// process the request...
-	process (callback) {
+	async process () {
 		// unset the lastReads value for the given stream, or simply remove the lastReads
 		// value completely if "all" specified
 		this.streamId = this.request.params.streamId.toLowerCase();
@@ -47,38 +40,35 @@ class ReadRequest extends RestfulRequest {
 				}
 			};
 		}
-		this.data.users.applyOpById(
+		await this.data.users.applyOpById(
 			this.user.id,
-			this.op,
-			callback
+			this.op
 		);
 	}
 
 	// after the response is returned....
-	postProcess (callback) {
+	async postProcess () {
 		// send the preferences update on the user's me-channel, so other active
 		// sessions get the message
-		let channel = 'user-' + this.user.id;
-		let message = {
+		const channel = 'user-' + this.user.id;
+		const message = {
 			user: {
 				_id: this.user.id
 			},
 			requestId: this.request.id
 		};
 		Object.assign(message.user, this.op);
-		this.api.services.messager.publish(
-			message,
-			channel,
-			error => {
-				if (error) {
-					this.warn(`Unable to publish lastReads message to channel ${channel}: ${JSON.stringify(error)}`);
-				}
-				callback();
-			},
-			{
-				request: this
-			}
-		);
+		try {
+			await this.api.services.messager.publish(
+				message,
+				channel,
+				{ request: this	}
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate
+			this.warn(`Unable to publish lastReads message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
 	}
 }
 

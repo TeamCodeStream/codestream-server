@@ -2,9 +2,8 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var UserCreator = require(process.env.CS_API_TOP + '/modules/users/user_creator');
-var TeamSubscriptionGranter = require('./team_subscription_granter');
+const UserCreator = require(process.env.CS_API_TOP + '/modules/users/user_creator');
+const TeamSubscriptionGranter = require('./team_subscription_granter');
 const Errors = require('./errors');
 
 class AddTeamMembers  {
@@ -16,89 +15,65 @@ class AddTeamMembers  {
 	}
 
 	// main function ... add the indicated members to the team
-	addTeamMembers (callback) {
-		BoundAsync.series(this, [
-			this.getTeam,					// get the team
-			this.getExistingMembers,		// get the team's existing members
-			this.getTeamCreator,			// get the team's creator
-			this.eliminateDuplicates,		// eliminate any duplicates (people we are asked to add who are in fact already on the team)
-			this.checkCreateUsers,			// check if we are being asked to create any users on the fly, and do so
-			this.checkUsernamesUnique,		// check that all the usernames for added users will be unique to the team
-			this.addToTeam,					// add the users to the team
-			this.updateUsers,				// update the user objects indicating they have been added to the team
-			this.grantUserMessagingPermissions	// grant permissions for all added users to subscribe to the team channel
-		], callback);
+	async addTeamMembers () {
+		await this.getTeam();					// get the team
+		await this.getExistingMembers();		// get the team's existing members
+		await this.getTeamCreator();			// get the team's creator
+		await this.eliminateDuplicates();		// eliminate any duplicates (people we are asked to add who are in fact already on the team)
+		await this.checkCreateUsers();			// check if we are being asked to create any users on the fly, and do so
+		await this.checkUsernamesUnique();		// check that all the usernames for added users will be unique to the team
+		await this.addToTeam();					// add the users to the team
+		await this.updateUsers();				// update the user objects indicating they have been added to the team
+		await this.grantUserMessagingPermissions();	// grant permissions for all added users to subscribe to the team channel
 	}
 
 	// get the team
-	getTeam (callback) {
-		if (this.team) { return callback(); }	// already provided by the caller
+	async getTeam () {
+		if (this.team) { return; }	// already provided by the caller
 		if (!this.teamId) {
-			return callback(this.errorHandler.error('missingArgument', { info: 'teamId'}));
+			throw this.errorHandler.error('missingArgument', { info: 'teamId'});
 		}
-		this.data.teams.getById(
-			this.teamId,
-			(error, team) => {
-				if (error) { return callback(error); }
-				if (!team) {
-					return callback(this.errorHandler.error('notFound', { info: 'team'}));
-				}
-				this.team = team;
-				callback();
-			}
-		);
+		this.team = await this.data.teams.getById(this.teamId);
+		if (!this.team) {
+			throw this.errorHandler.error('notFound', { info: 'team'});
+		}
 	}
 
 	// get the users already on the team
-	getExistingMembers (callback) {
-		this.data.users.getByIds(
-			this.team.get('memberIds'),
-			(error, members) => {
-				if (error) { return callback(error); }
-				this.existingMembers = members;
-				callback();
-			}
-		);
+	async getExistingMembers () {
+		this.existingMembers = await this.data.users.getByIds(this.team.get('memberIds'));
 	}
 
 	// get the team's creator, which probably is but might not be
 	// among the existing members
-	getTeamCreator (callback) {
+	async getTeamCreator () {
 		const creatorId = this.team.get('creatorId');
 		this.teamCreator = this.existingMembers.find(member => {
 			return member.id === creatorId;
 		});
 		if (this.teamCreator) {
-			return callback();
+			return;
 		}
-		this.data.users.getById(
-			creatorId,
-			(error, teamCreator) => {
-				if (error) { return callback(error); }
-				this.teamCreator = teamCreator;
-				callback();
-			}
-		);
+		this.teamCreator = await this.data.users.getById(creatorId);
 	}
 
 	// eliminate any duplicates (people we are asked to add who are in fact already on the team)
-	eliminateDuplicates (callback) {
+	async eliminateDuplicates () {
 		if (!this.users) {
-			return callback(); // no existing users to add to the team
+			return; // no existing users to add to the team
 		}
-		let existingIds = this.existingMembers.map(member => member.id);
+		const existingIds = this.existingMembers.map(member => member.id);
 		this.usersToAdd = [];
 		this.users.forEach(user => {
-			if (existingIds.indexOf(user.id) === -1) {
+			if (!existingIds.includes(user.id)) {
 				this.usersToAdd.push(user);
 			}
 		});
-		process.nextTick(callback);
 	}
 
 	// if emails are provided by the caller, then we are asked to create new users on-the-fly
 	// and add them to the team as we go
-	checkCreateUsers (callback) {
+	async checkCreateUsers () {
 		let usersToCreate = (this.emails || []).map(email => {
 			return { email: email };
 		});
@@ -108,58 +83,49 @@ class AddTeamMembers  {
 		}
 		this.usersCreated = [];
 		this.usersFound = [];
-		BoundAsync.forEachSeries(
-			this,
-			usersToCreate,
-			this.createUser,
-			callback
-		);
+		await Promise.all(usersToCreate.map(async user => {
+			await this.createUser(user);
+		}));
 	}
 
 	// create a single user who will be added to the team
-	createUser (user, callback) {
+	async createUser (user) {
 		const existingUser = this.existingMembers.find(member => {
 			return member.get('searchableEmail') === user.email.toLowerCase();	// ensure no duplicates
 		});
 		if (existingUser && !this.saveUserIfExists) {
 			this.usersFound.push(existingUser);
-			return callback();
+			return;
 		}
 		this.userCreator = new UserCreator({
 			request: this.request,
 			dontSaveIfExists: this.saveUserIfExists ? false : true,	// if the user already exists, don't bother saving, unless overridden
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
-		this.userCreator.createUser(
-			user,
-			(error, userCreated) => {
-				if (error) { return callback(error); }
-				if (existingUser) {
-					existingUser.attributes = userCreated.attributes;
-					this.usersFound.push(userCreated);
-				}
-				else {
-					this.usersCreated.push(userCreated);
-				}
-				process.nextTick(callback);
-			}
-		);
+		const userCreated = await this.userCreator.createUser(user);
+		if (existingUser) {
+			existingUser.attributes = userCreated.attributes;
+			this.usersFound.push(userCreated);
+		}
+		else {
+			this.usersCreated.push(userCreated);
+		}
 	}
 
 	// check that among all the users being added, none have usernames that will conflict with the usernames of
 	// users already on the team
-	checkUsernamesUnique (callback) {
+	async checkUsernamesUnique () {
 		// the team membership will be the union of users we are asked to add, the users we created, and the
 		// existing members ... for each one, check that the username is unique compared to all the others (case-insensitive)
 		this.usersToAdd = [...(this.usersToAdd || []), ...(this.usersCreated || [])];
-		let allUsers = [...this.usersToAdd, ...this.existingMembers];
-		let usernames = [];
+		const allUsers = [...this.usersToAdd, ...this.existingMembers];
+		const usernames = [];
 		let conflictingUsername = null;
-		let conflict = allUsers.find(user => {
-			let username = user.get('username');
+		const conflict = allUsers.find(user => {
+			const username = user.get('username');
 			if (username) {
-				let usernameLowercase = username.toLowerCase();
-				if (usernames.indexOf(usernameLowercase) !== -1) {
+				const usernameLowercase = username.toLowerCase();
+				if (usernames.includes(usernameLowercase)) {
 					conflictingUsername = username;
 					return true;
 				}
@@ -167,36 +133,29 @@ class AddTeamMembers  {
 			}
 		});
 		if (conflict) {
-			return callback(this.errorHandler.error('usernameNotUnique', { info: conflictingUsername }));
-		}
-		else {
-			return process.nextTick(callback);
+			throw this.errorHandler.error('usernameNotUnique', { info: conflictingUsername });
 		}
 	}
 
 	// add users to the team by adding IDs to the memberIds array
-	addToTeam (callback) {
-		let ids = this.usersToAdd.map(user => user.id);
-		this.data.teams.applyOpById(
+	async addToTeam () {
+		const ids = this.usersToAdd.map(user => user.id);
+		await this.data.teams.applyOpById(
 			this.team.id,
-			{ '$addToSet': { memberIds: ids } },
-			callback
+			{ '$addToSet': { memberIds: ids } }
 		);
 	}
 
 	// update the users who were added, indicating that they are on a new team
-	updateUsers (callback) {
+	async updateUsers () {
 		this.membersAdded = [];
-		BoundAsync.forEach(
-			this,
-			this.usersToAdd,
-			this.updateUser,
-			callback
-		);
+		await Promise.all(this.usersToAdd.map(async user => {
+			await this.updateUser(user);
+		}));
 	}
 
 	// update a user who was added, indicating they are now on a team
-	updateUser (user, callback) {
+	async updateUser (user) {
 		let op = {
 			'$addToSet': {
 				companyIds: this.team.get('companyId'),
@@ -223,32 +182,25 @@ class AddTeamMembers  {
 				op.$set.originTeamId = this.teamCreator.get('originTeamId');
 			}
 		}
-		this.data.users.applyOpById(
-			user.id,
-			op,
-			(error, updatedUser) => {
-				if (error) { return callback(error); }
-				this.membersAdded.push(updatedUser);
-				callback();
-			}
-		);
+		const updatedUser = await this.data.users.applyOpById(user.id, op);
+		this.membersAdded.push(updatedUser);
 	}
 
 	// grant permission to the new members to subscribe to the team channel
-	grantUserMessagingPermissions (callback) {
-		let granterOptions = {
+	async grantUserMessagingPermissions () {
+		const granterOptions = {
 			data: this.data,
 			messager: this.api.services.messager,
 			team: this.team,
 			members: this.usersToAdd,
 			request: this.request
 		};
-		new TeamSubscriptionGranter(granterOptions).grantToMembers(error => {
-			if (error) {
-				return callback(this.errorHandler.error('messagingGrant', { reason: error }));
-			}
-			callback();
-		});
+		try {
+			await new TeamSubscriptionGranter(granterOptions).grantToMembers();
+		}
+		catch (error) {
+			throw this.errorHandler.error('messagingGrant', { reason: error });
+		}
 	}
 }
 

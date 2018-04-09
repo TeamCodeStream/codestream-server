@@ -4,7 +4,7 @@
 
 'use strict';
 
-var DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
 var _Ops = {
 	// set the value of a field, using a deep copy
@@ -31,7 +31,7 @@ var _Ops = {
 		value.forEach(elem => {
 			if (
 				document[field] instanceof Array &&
-				document[field].indexOf(elem) === -1
+				!document[field].includes(elem)
 			) {
 				document[field].push(elem);
 			}

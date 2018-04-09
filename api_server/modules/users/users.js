@@ -2,10 +2,10 @@
 
 'use strict';
 
-var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var UserCreator = require('./user_creator');
-var UserUpdater = require('./user_updater');
-var User = require('./user');
+const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
+const UserCreator = require('./user_creator');
+const UserUpdater = require('./user_updater');
+const User = require('./user');
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {

@@ -22,14 +22,19 @@ class UpdateDirectTest extends DataCollectionTest {
 	}
 
 	// update our test models using a direct update query, which bypasses the cache
-	updateModels (callback) {
+	async updateModels (callback) {
 		// do a direct update to change the text of our test models
-		let regexp = new RegExp(`^${this.randomizer}yes$`);
-		this.data.test.updateDirect(
-			{ flag: regexp },
-			{ $set: { text: 'goodbye'} },
-			callback
-		);
+		const regexp = new RegExp(`^${this.randomizer}yes$`);
+		try {
+			await this.data.test.updateDirect(
+				{ flag: regexp },
+				{ $set: { text: 'goodbye'} }
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// run the test...

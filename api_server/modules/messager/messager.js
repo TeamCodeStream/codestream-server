@@ -2,10 +2,10 @@
 // from server to client (and possibly received from client to server) through pubnub
 'use strict';
 
-var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
-var PubNub = require('pubnub');
-var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client');
-var OS = require('os');
+const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
+const PubNub = require('pubnub');
+const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
+const OS = require('os');
 
 class Messager extends APIServerModule {
 

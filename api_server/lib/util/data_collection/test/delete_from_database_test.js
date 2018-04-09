@@ -20,11 +20,14 @@ class DeleteFromDatabaseTest extends DataCollectionTest {
 		], callback);
 	}
 
-	deleteModel (callback) {
-		this.data.test.deleteById(
-			this.testModel.id,
-			callback
-		);
+	async deleteModel (callback) {
+		try {
+			await this.data.test.deleteById(this.testModel.id);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// run the test...

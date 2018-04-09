@@ -2,13 +2,12 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
-var Repo = require('./repo');
-var NormalizeURL = require('./normalize_url');
-var RepoSubscriptionGranter = require('./repo_subscription_granter');
-var AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
-var TeamCreator = require(process.env.CS_API_TOP + '/modules/teams/team_creator');
+const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+const Repo = require('./repo');
+const NormalizeURL = require('./normalize_url');
+const RepoSubscriptionGranter = require('./repo_subscription_granter');
+const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
+const TeamCreator = require(process.env.CS_API_TOP + '/modules/teams/team_creator');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
 
@@ -29,8 +28,8 @@ class RepoCreator extends ModelCreator {
 	}
 
 	// convenience wrapper
-	createRepo (attributes, callback) {
-		return this.createModel(attributes, callback);
+	async createRepo (attributes) {
+		return await this.createModel(attributes);
 	}
 
 	// get attributes that are required for repo creation, and those that are optional,
@@ -50,14 +49,13 @@ class RepoCreator extends ModelCreator {
 	}
 
 	// validate attributes for the repo we are creating
-	validateAttributes (callback) {
+	async validateAttributes () {
 		// enforce URL normalization and lowercase on the first commit hash
 		this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
 		this.attributes.firstCommitHash = this.attributes.firstCommitHash.toLowerCase();
 		// the subscription cheat allows unregistered users to subscribe to me-channel, needed for mock email testing
 		this.subscriptionCheat = this.attributes._subscriptionCheat === this.request.api.config.secrets.subscriptionCheat;
 		delete this.attributes._subscriptionCheat;
-		process.nextTick(callback);
 	}
 
 	// do we allow the request to proceed if the document already exists in the database?
@@ -78,25 +76,22 @@ class RepoCreator extends ModelCreator {
 	}
 
 	// right before we save the model...
-	preSave (callback) {
+	async preSave () {
 		this.attributes.creatorId = this.user.id;	// establish creator of the repo as originator of the request
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
-		BoundAsync.series(this, [
-			this.createId,		// requisition an ID for the repo
-			this.joinToTeam,	// join the repo to a team, depending on whether it already exists and information in the request
-			this.getCompany,	// need the company object if we have an existing team that the user is joining
-			this.getAllUsers,	// need all the users on the team, if we have an existing team that the user is joining
-			this.updateUserJoinMethod,	// update the joinMethod attribute for the user, as needed
-			super.preSave		// proceed with the save...
-		], callback);
+		this.createId();			// requisition an ID for the repo
+		await this.joinToTeam();	// join the repo to a team, depending on whether it already exists and information in the request
+		await this.getCompany();	// need the company object if we have an existing team that the user is joining
+		await this.getAllUsers();	// need all the users on the team, if we have an existing team that the user is joining
+		await this.updateUserJoinMethod();	// update the joinMethod attribute for the user, as needed
+		await super.preSave();		// proceed with the save...
 	}
 
 	// requisition an ID for the repo we are about to create
-	createId (callback) {
+	createId () {
 		this.attributes._id = this.data.repos.createId();
-		callback();
 	}
 
 	// join the repo to a team, in one of the ways:
@@ -106,43 +101,43 @@ class RepoCreator extends ModelCreator {
 	// 2 - otherwise maybe the user specified to join the repo to an existing team
 	// 3 - otherwise the user must have specified team parameters to also create a team on the fly
 	//
-	joinToTeam (callback) {
+	async joinToTeam () {
 		if (this.existingModel) {
 			this.repoExisted = true;
 			// join any users specified in the request to the team that already owns the existing repo
-			this.joinUsersToRepoTeam(callback);
+			await this.joinUsersToRepoTeam();
 		}
 		else if (this.attributes.teamId) {
 			// join the repo to an existing team, as specified in the request
-			this.joinRepoToExistingTeam(callback);
+			await this.joinRepoToExistingTeam();
 		}
 		else if (this.attributes.team) {
 			// create a team for this repo, and join the repo to it
-			this.createTeamForRepo(callback);
+			await this.createTeamForRepo();
 		}
 		else {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'team' }));
+			throw this.errorHandler.error('parameterRequired', { info: 'team' });
 		}
 	}
 
 	// if users were specified in the request, join them to the team that owns the already-existing repo
-	joinUsersToRepoTeam (callback) {
+	async joinUsersToRepoTeam () {
 		// first verify that we have a known commit for this repo
 		if (!this.existingModel.isKnownCommitHash(this.attributes.firstCommitHash)) {
-			return callback(this.errorHandler.error('shaMismatch'));
+			throw this.errorHandler.error('shaMismatch');
 		}
 		if (
 			!this.attributes.emails &&
 			!this.attributes.users &&
-			(this.user.get('teamIds') || []).indexOf(this.existingModel.get('teamId')) !== -1
+			(this.user.get('teamIds') || []).includes(this.existingModel.get('teamId'))
 		) {
 			// nothing to do
 			this.noNewUsers = true;
-			return callback();
+			return;
 		}
 
 		// add the users to the team
-		let adder = new AddTeamMembers({
+		const adder = new AddTeamMembers({
 			request: this.request,
 			users: [this.user],		// add the user issuing the request
 			addUsers: this.attributes.users,	// add any other users specified by attributes
@@ -150,109 +145,82 @@ class RepoCreator extends ModelCreator {
 			teamId: this.existingModel.get('teamId'),
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
-		adder.addTeamMembers(error => {
-			if (error) { return callback(error); }
-			this.team = adder.team;
-			this.newUsers = adder.membersAdded;
-			this.attachToResponse.users = adder.membersAdded.map(member => member.getSanitizedObject());	// return users in the response
-			this.attachToResponse.team = this.team.getSanitizedObject();
-			delete this.attributes.emails;
-			delete this.attributes.users;
-			this.joinMethod = 'Joined Team';
-			this.primaryReferral = 'internal';
-			if (adder.teamCreator && adder.teamCreator.get('originTeamId')) {
-				this.originTeamId = adder.teamCreator.get('originTeamId');
-			}
-			this.userJoined = true;
-			process.nextTick(callback);
-		});
+		await adder.addTeamMembers();
+		this.team = adder.team;
+		this.newUsers = adder.membersAdded;
+		this.attachToResponse.users = adder.membersAdded.map(member => member.getSanitizedObject());	// return users in the response
+		this.attachToResponse.team = this.team.getSanitizedObject();
+		delete this.attributes.emails;
+		delete this.attributes.users;
+		this.joinMethod = 'Joined Team';
+		this.primaryReferral = 'internal';
+		if (adder.teamCreator && adder.teamCreator.get('originTeamId')) {
+			this.originTeamId = adder.teamCreator.get('originTeamId');
+		}
+		this.userJoined = true;
 	}
 
 	// join the repo we are going to create to an existing team, as specified in the request
-	joinRepoToExistingTeam (callback) {
-		BoundAsync.series(this, [
-			this.getTeam,		// get the team we are joining to
-			this.addUsersToTeam	// add any users specified in the request to the team
-		], callback);
+	async joinRepoToExistingTeam () {
+		await this.getTeam();			// get the team we are joining to
+		await this.addUsersToTeam();	// add any users specified in the request to the team
 	}
 
 	// get the team that a repo is going to be joined to
-	getTeam (callback) {
+	async getTeam () {
 		// join this repo to the team already specified by the caller
-		this.data.teams.getById(
-			this.attributes.teamId,
-			(error, team) => {
-				if (error) { return callback(error); }
-				if (!team) {
-					return callback(this.errorHandler.error('notFound', { info: 'team' }));
-				}
-				if ((team.get('memberIds') || []).indexOf(this.user.id) === -1) {
-					return callback(this.errorHandler.error('createAuth', { reason: 'user not on team' }));
-				}
-				this.team = team;
-				this.attributes.companyId = team.get('companyId');
-				this.repoAddedToTeam = true;
-				callback();
-			}
-		);
+		this.team = await this.data.teams.getById(this.attributes.teamId);
+		if (!this.team) {
+			throw this.errorHandler.error('notFound', { info: 'team' });
+		}
+		if (!(this.team.get('memberIds') || []).includes(this.user.id)) {
+			throw this.errorHandler.error('createAuth', { reason: 'user not on team' });
+		}
+		this.attributes.companyId = this.team.get('companyId');
+		this.repoAddedToTeam = true;
 	}
 
 	// get the company object for an existing team that the user is joining
-	getCompany (callback) {
+	async getCompany () {
 		if (!this.repoExisted || !this.userJoined) {
-			return callback();
+			return;
 		}
-		this.data.companies.getById(
-			this.team.get('companyId'),
-			(error, company) => {
-				if (error) { return callback(error); }
-				this.attachToResponse.company = company.getSanitizedObject();
-				callback();
-			}
-		);
+		const company = await this.data.companies.getById(this.team.get('companyId'));
+		this.attachToResponse.company = company.getSanitizedObject();
 	}
 
 	// get all users on the team, for an existing team that the user is joining
-	getAllUsers (callback) {
+	async getAllUsers () {
 		if (!this.repoExisted || !this.userJoined) {
-			return callback();
+			return;
 		}
-		this.data.users.getByIds(
-			this.team.get('memberIds'),
-			(error, users) => {
-				if (error) { return callback(error); }
-				this.attachToResponse.users = users.map(user => user.getSanitizedObject());
-				process.nextTick(callback);
-			}
-		);
+		const users = await this.data.users.getByIds(this.team.get('memberIds'));
+		this.attachToResponse.users = users.map(user => user.getSanitizedObject());
 	}
 
 	// for any users specified in the request, add them to the team that will own the repo
-	addUsersToTeam (callback) {
+	async addUsersToTeam () {
 		if (!(this.attributes.emails instanceof Array) &&
 			!(this.attributes.users instanceof Array)) {
-			return callback();
+			return;
 		}
-		let adder = new AddTeamMembers({
+		const adder = new AddTeamMembers({
 			request: this.request,
 			emails: this.attributes.emails,
 			addUsers: this.attributes.users,
 			team: this.team,
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
-		adder.addTeamMembers(error => {
-			if (error) { return callback(error); }
-			this.newUsers = adder.membersAdded;
-			this.existingUsers = adder.existingMembers;
-			this.attachToResponse.users = adder.membersAdded.map(member => member.getSanitizedObject());	// return the added users in the request response
-			delete this.attributes.emails;
-			delete this.attributes.users;
-			process.nextTick(callback);
-		});
+		await adder.addTeamMembers();
+		this.newUsers = adder.membersAdded;
+		this.existingUsers = adder.existingMembers;
+		this.attachToResponse.users = adder.membersAdded.map(member => member.getSanitizedObject());	// return the added users in the request response
+		delete this.attributes.emails;
+		delete this.attributes.users;
 	}
 
 	// create a new team to own this new repo
-	createTeamForRepo (callback) {
+	async createTeamForRepo () {
 		// first set some analytics, based on whether this is the user's first team
 		const firstTeamForUser = (this.user.get('teamIds') || []).length === 0;
 		this.attributes.team.primaryReferral = firstTeamForUser ? 'external' : 'internal';
@@ -260,34 +228,28 @@ class RepoCreator extends ModelCreator {
 			request: this.request,
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
-		this.teamCreator.createTeam(
-			this.attributes.team,
-			(error, team) => {
-				if (error) { return callback(error); }
-				this.attributes.teamId = team.id;
-				this.attributes.companyId = team.get('companyId');
-				// attach the team and company created, along with any users added to the team, to the request response
-				this.attachToResponse.team = team.getSanitizedObject();
-				this.attachToResponse.company = this.teamCreator.company.getSanitizedObject();
-				this.newUsers = this.teamCreator.members;
-				this.attachToResponse.users = this.teamCreator.members.map(member => member.getSanitizedObject());
-				delete this.attributes.team;
-				this.joinMethod = 'Created Team';	// becomes the user's joinMethod attribute
-				this.primaryReferral = 'external';	// becomes the user's primaryReferral attribute
-				this.createdTeam = team;
-				callback();
-			}
-		);
+		const team = await this.teamCreator.createTeam(this.attributes.team);
+		this.attributes.teamId = team.id;
+		this.attributes.companyId = team.get('companyId');
+		// attach the team and company created, along with any users added to the team, to the request response
+		this.attachToResponse.team = team.getSanitizedObject();
+		this.attachToResponse.company = this.teamCreator.company.getSanitizedObject();
+		this.newUsers = this.teamCreator.members;
+		this.attachToResponse.users = this.teamCreator.members.map(member => member.getSanitizedObject());
+		delete this.attributes.team;
+		this.joinMethod = 'Created Team';	// becomes the user's joinMethod attribute
+		this.primaryReferral = 'external';	// becomes the user's primaryReferral attribute
+		this.createdTeam = team;
 	}
 
 	// update the joinMethod attribute for the user, if this is their first team
-	updateUserJoinMethod (callback) {
+	async updateUserJoinMethod () {
 		// join method only applies if this is the user's first team
 		if (
 			this.user.get('teamIds').includes(this.attributes.teamId) &&
 			this.user.get('teamIds').length > 1
 		) {
-			return callback();
+			return;
 		}
 
 		// we can set both joinMethod and primaryReferral here
@@ -312,19 +274,18 @@ class RepoCreator extends ModelCreator {
 		if (Object.keys(this.joinMethodUpdate.$set).length === 0) {
 			// nothing to update
 			this.joinMethodUpdate = null;
-			return callback();
+			return;
 		}
-		this.request.data.users.applyOpById(
+		await this.request.data.users.applyOpById(
 			this.user.id,
-			this.joinMethodUpdate,
-			callback
+			this.joinMethodUpdate
 		);
 	}
 
 	// after the repo has been saved...
-	postSave (callback) {
+	async postSave () {
 		// grant permission to any users on the team that owns this repo, to subscribe to the messager channel for this repo
-		this.grantUserMessagingPermissions(callback);
+		await this.grantUserMessagingPermissions();
 		// send email to us that a new team has been created
 		if (this.createdTeam && this.api.config.email.replyToDomain === 'prod.codestream.com') {
 			this.api.services.email.sendTeamCreatedEmail({
@@ -336,8 +297,8 @@ class RepoCreator extends ModelCreator {
 	}
 
 	// grant permission to any users on the team that owns this repo, to subscribe to the messager channel for this repo
-	grantUserMessagingPermissions (callback) {
-		let granterOptions = {
+	async grantUserMessagingPermissions () {
+		const granterOptions = {
 			data: this.data,
 			messager: this.api.services.messager,
 			repo: this.model,
@@ -349,14 +310,13 @@ class RepoCreator extends ModelCreator {
 			// make sure they have permission to subscribe to the repo channel
 			granterOptions.users = granterOptions.users.concat(this.existingUsers || []);
 		}
-		new RepoSubscriptionGranter(granterOptions).grantToUsers(error => {
-			if (error) {
-				return callback(this.errorHandler.error('messagingGrant', { reason: error }));
-			}
-			callback();
-		});
+		try {
+			await new RepoSubscriptionGranter(granterOptions).grantToUsers();
+		}
+		catch (error) {
+			throw this.errorHandler.error('messagingGrant', { reason: error });
+		}
 	}
-
 }
 
 module.exports = RepoCreator;

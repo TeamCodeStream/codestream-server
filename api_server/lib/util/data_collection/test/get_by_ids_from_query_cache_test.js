@@ -22,18 +22,21 @@ class GetByIdsFromQueryCacheTest extends DataCollectionTest {
 		], callback);
 	}
 
-	queryModels (callback) {
+	async queryModels (callback) {
 		// query for the models we want, this should put them in the cache for us to retrieve later
-		this.data.test.getByQuery(
-			{ flag: this.randomizer + 'yes' },
-			(error, response) => {
-				if (error) { return callback(error); }
-				if (!(response instanceof Array || response.length !== this.testModels.length)) {
-					return callback('models that should have been fetched were not');
-				}
-				callback();
-			}
-		);
+		let response;
+		try {
+			response = await this.data.test.getByQuery(
+				{ flag: this.randomizer + 'yes' }
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		if (!(response instanceof Array || response.length !== this.testModels.length)) {
+			return callback('models that should have been fetched were not');
+		}
+		callback();
 	}
 
 	async deleteModels (callback) {
@@ -50,17 +53,19 @@ class GetByIdsFromQueryCacheTest extends DataCollectionTest {
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// now that we've decided on the models we want, since we queried for them using a query,
 		// this should have put them in the cache ... so even though they've been deleted from the
 		// database, we should still be able to fetch them
-		let ids = this.testModels.map(model => { return model.id; });
-		this.data.test.getByIds(
-			ids,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		const ids = this.testModels.map(model => { return model.id; });
+		let response;
+		try {
+			response = await this.data.test.getByIds(ids);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

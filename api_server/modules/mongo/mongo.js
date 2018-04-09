@@ -3,8 +3,8 @@
 
 'use strict';
 
-var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
-var MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
+const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+const MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
 
 const DEPENDENCIES = [
 	'access_logger'	// since we do query logging, we need the access logger module

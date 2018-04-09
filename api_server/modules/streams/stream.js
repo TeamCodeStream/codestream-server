@@ -2,8 +2,8 @@
 
 'use strict';
 
-var CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
-var StreamValidator = require('./stream_validator');
+const CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
+const StreamValidator = require('./stream_validator');
 
 class Stream extends CodeStreamModel {
 
@@ -12,7 +12,7 @@ class Stream extends CodeStreamModel {
 	}
 
 	// right before the stream is saved...
-	preSave (callback, options) {
+	async preSave (options) {
 		// ensure referencing IDs are lower-cased
 		this.lowerCase('memberIds');
 		this.lowerCase('teamId');
@@ -22,7 +22,7 @@ class Stream extends CodeStreamModel {
 		if (this.attributes.memberIds instanceof Array) {
 			this.attributes.memberIds.sort();
 		}
-		super.preSave(callback, options);
+		await super.preSave(options);
 	}
 }
 

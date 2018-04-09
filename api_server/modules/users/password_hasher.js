@@ -2,8 +2,8 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var BCrypt = require('bcrypt');
+const BCrypt = require('bcrypt');
+const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
 class PasswordHasher  {
 
@@ -11,40 +11,34 @@ class PasswordHasher  {
 		Object.assign(this, options);
 	}
 
-	hashPassword (callback) {
-		BoundAsync.series(this, [
-			this.generateSalt,
-			this.encryptPassword
-		], (error) => {
-			callback(error, this.passwordHash);
-		});
+	async hashPassword () {
+		await this.generateSalt();
+		await this.encryptPassword();
+		return this.passwordHash;
 	}
 
-	generateSalt (callback) {
-		BCrypt.genSalt(
-			10,
-			(error, salt) => {
-				if (error) {
-					return callback(this.errorHandler.error('token', { reason: error }));
-				}
-				this.salt = salt;
-				process.nextTick(callback);
-			}
-		);
+	async generateSalt () {
+		try {
+			this.salt = await callbackWrap(BCrypt.genSalt, 10);
+		}
+		catch (error) {
+			const message = typeof error === 'object' ? error.message : JSON.stringify(error);
+			throw this.errorHandler.error('token', { reason: message });
+		}
 	}
 
-	encryptPassword (callback) {
-		BCrypt.hash(
-			this.password,
-			this.salt,
-			(error, passwordHash) => {
-				if (error) {
-					return callback(this.errorHandler.error('token', { reason: error }));
-				}
-				this.passwordHash = passwordHash;
-				process.nextTick(callback);
-			}
-		);
+	async encryptPassword () {
+		try {
+			this.passwordHash = await callbackWrap(
+				BCrypt.hash,
+				this.password,
+				this.salt
+			);
+		}
+		catch (error) {
+			const message = typeof error === 'object' ? error.message : JSON.stringify(error);
+			throw this.errorHandler.error('token', { reason: message });
+		}
 	}
 }
 

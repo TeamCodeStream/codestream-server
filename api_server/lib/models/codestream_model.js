@@ -2,8 +2,8 @@
 
 'use strict';
 
-var DataModel = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model');
-var CodeStreamModelValidator = require('./codestream_model_validator');
+const DataModel = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model');
+const CodeStreamModelValidator = require('./codestream_model_validator');
 
 class CodeStreamModel extends DataModel {
 
@@ -27,9 +27,9 @@ class CodeStreamModel extends DataModel {
 	}
 
 	// called just before a model is saved
-	preSave (callback, options) {
+	async preSave (options) {
 		this.attributes.modifiedAt = new Date().getTime();
-		super.preSave(callback, options);
+		await super.preSave(options);
 	}
 
 	// cheater function to force an attribute to be lowercase

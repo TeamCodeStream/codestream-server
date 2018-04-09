@@ -5,7 +5,6 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const NormalizeURL = require('./normalize_url');
 const Indexes = require('./indexes');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
@@ -19,38 +18,35 @@ class MatchRepoRequest extends RestfulRequest {
 		this.errorHandler.add(Errors);
 	}
 
-	authorize (callback) {
-		return callback(false);	// no ACL check needed, authorization is by whether you have the correct first commit hash for the repo
+	async authorize () {
+		// no ACL check needed, authorization is by whether you have the correct first commit hash for the repo
 	}
 
-	process (callback) {
-		BoundAsync.series(this, [
-			this.require,			// handle required request parameters
-			this.parseUrl,			// parse the input url for relevant details
-			this.findRepo,			// attempt to find the repo
-			this.getUsernames,		// get usernames for the teams matching a repo, if a matching repo is found
-			this.getTeams,			// get the teams owning the repo(s) we found
-			this.fetchTeamCreators,	// fetch the creators of the teams
-			this.classifyTeamCreators,	// classify team creators by team ID
-			this.formResponse		// form the request response
-		], callback);
+	async process () {
+		await this.require();			// handle required request parameters
+		await this.parseUrl();			// parse the input url for relevant details
+		await this.findRepo();			// attempt to find the repo
+		await this.getUsernames();		// get usernames for the teams matching a repo, if a matching repo is found
+		await this.getTeams();			// get the teams owning the repo(s) we found
+		await this.fetchTeamCreators();	// fetch the creators of the teams
+		await this.classifyTeamCreators();	// classify team creators by team ID
+		await this.formResponse();		// form the request response
 	}
 
 	// these parameters are required for the request
-	require (callback) {
-		this.requireAllowParameters(
+	async require () {
+		await this.requireAllowParameters(
 			'query',
 			{
 				required: {
 					string: ['url', 'firstCommitHash']
 				}
-			},
-			callback
+			}
 		);
 	}
 
 	// parse the incoming url for relevant details
-	parseUrl (callback) {
+	async parseUrl () {
 		this.request.query.firstCommitHash = this.request.query.firstCommitHash.toLowerCase();
 		this.normalizedUrl = NormalizeURL(decodeURIComponent(this.request.query.url));
 		if (
@@ -60,7 +56,6 @@ class MatchRepoRequest extends RestfulRequest {
 			// short-circuit the request, we're not going to find a match
 			this.noMatches = true;
 		}
-		process.nextTick(callback);
 	}
 
 	// check if the url is associated with a known service, like github, and if
@@ -88,11 +83,11 @@ class MatchRepoRequest extends RestfulRequest {
 	}
 
 	// attempt to find any matching repos
-	findRepo (callback) {
+	async findRepo () {
 		if (this.noMatches) {
 			// we already know there will be no matches
 			this.repos = [];
-			return callback();
+			return;
 		}
 		let regExp;
 		if (this.service) {
@@ -107,39 +102,35 @@ class MatchRepoRequest extends RestfulRequest {
 		const query = {
 			normalizedUrl: regExp
 		};
-		this.data.repos.getByQuery(
+		const repos = await this.data.repos.getByQuery(
 			query,
-			(error, repos) => {
-				if (error) { return callback(error); }
-				this.repos = repos.filter(repo => !repo.get('deactivated'));
-				// do we have an exact match? if so, we can act like find-repo
-				// was called
-				this.matchingRepo = this.repos.find(repo => {
-					return repo.get('normalizedUrl') === this.normalizedUrl;
-				});
-				if (
-					this.matchingRepo &&
-					!this.matchingRepo.isKnownCommitHash(this.request.query.firstCommitHash)
-				) {
-					// oops, you have to have one of the known commit hashes
-					return callback(this.errorHandler.error('shaMismatch'));
-				}
-				process.nextTick(callback);
-			},
 			{
 				databaseOptions: {
 					hint: Indexes.byNormalizedUrl
 				}
 			}
 		);
+		this.repos = repos.filter(repo => !repo.get('deactivated'));
+		// do we have an exact match? if so, we can act like find-repo
+		// was called
+		this.matchingRepo = this.repos.find(repo => {
+			return repo.get('normalizedUrl') === this.normalizedUrl;
+		});
+		if (
+			this.matchingRepo &&
+			!this.matchingRepo.isKnownCommitHash(this.request.query.firstCommitHash)
+		) {
+			// oops, you have to have one of the known commit hashes
+			throw this.errorHandler.error('shaMismatch');
+		}
 	}
 
 	// in the case of an exact match for a repo, get the set of unique usernames
 	// represented by the users who are on the team that owns the repo
-	getUsernames (callback) {
+	async getUsernames () {
 		if (!this.matchingRepo) {
 			// did not find a matching repo
-			return callback();
+			return;
 		}
 		const teamId = this.matchingRepo.get('teamId');
 		const query = {
@@ -147,18 +138,8 @@ class MatchRepoRequest extends RestfulRequest {
 		};
 		// query for all users in the team that owns the repo, but only send back the usernames
 		// for users who have a username, and users who aren't deactivated
-		this.data.users.getByQuery(
+		const users = await this.data.users.getByQuery(
 			query,
-			(error, users) => {
-				if (error) { return callback(error); }
-				this.usernames = [];
-				users.forEach(user => {
-					if (!user.deactivated && user.username) {
-						this.usernames.push(user.username);
-					}
-				});
-				process.nextTick(callback);
-			},
 			{
 				databaseOptions: {
 					fields: ['username'],
@@ -167,51 +148,44 @@ class MatchRepoRequest extends RestfulRequest {
 				noCache: true
 			}
 		);
+		this.usernames = [];
+		users.forEach(user => {
+			if (!user.deactivated && user.username) {
+				this.usernames.push(user.username);
+			}
+		});
 	}
 
 	// get the teams that own the repos we found
-	getTeams (callback) {
+	async getTeams () {
 		if (this.matchingRepo) {
 			// no need for this if we found an exact match for the repo
-			return callback();
+			return;
 		}
 		this.teamIds = this.repos.map(repo => repo.get('teamId'));
 		if (this.teamIds.length === 0) {
 			this.teams = [];
-			return callback();
+			return;
 		}
-		this.data.teams.getByIds(
-			this.teamIds,
-			(error, teams) => {
-				if (error) { return callback(error); }
-				this.teams = teams.filter(team => !team.get('deactivated'));
-				callback();
-			}
-		);
+		const teams = await this.data.teams.getByIds(this.teamIds);
+		this.teams = teams.filter(team => !team.get('deactivated'));
 	}
 
 	// fetch the creators of each team we found, for first and last name
-	fetchTeamCreators (callback) {
+	async fetchTeamCreators () {
 		if (this.matchingRepo) {
 			// no need for this if we found an exact match for the repo
-			return callback();
+			return;
 		}
 		const teamCreatorIds = this.teams.map(team => team.get('creatorId'));
-		this.data.users.getByIds(
-			teamCreatorIds,
-			(error, users) => {
-				if (error) { return callback(error); }
-				this.teamCreators = users;
-				callback();
-			}
-		);
+		this.teamCreators = await this.data.users.getByIds(teamCreatorIds);
 	}
 
 	// classify the team creators by team ID
-	classifyTeamCreators (callback) {
+	async classifyTeamCreators () {
 		if (this.matchingRepo) {
 			// no need for this if we found an exact match for the repo
-			return callback();
+			return;
 		}
 		this.creatorsByTeamId = {};
 		this.teams.forEach(team => {
@@ -223,11 +197,10 @@ class MatchRepoRequest extends RestfulRequest {
 				};
 			}
 		});
-		process.nextTick(callback);
 	}
 
 	// form the response to the request
-	formResponse (callback) {
+	async formResponse () {
 		if (this.matchingRepo) {
 			// if we found an exact match, return that and the associated usernames,
 			// like find-repo
@@ -235,7 +208,7 @@ class MatchRepoRequest extends RestfulRequest {
 				repo: this.matchingRepo.getSanitizedObject(),
 				usernames: this.usernames
 			};
-			return process.nextTick(callback);
+			return;
 		}
 		// we return only the team names and IDs
 		const teams = (this.teams || []).map(team => {
@@ -255,7 +228,6 @@ class MatchRepoRequest extends RestfulRequest {
 		else {
 			this.responseData.domain = this.domain;
 		}
-		process.nextTick(callback);
 	}
 }
 

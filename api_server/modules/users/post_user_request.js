@@ -6,50 +6,32 @@
 const PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
 const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
 const AddTeamPublisher = require('./add_team_publisher');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
 class PostUserRequest extends PostRequest {
 
-	authorize (callback) {
+	async authorize () {
 		// must be on the team to invite a user to it!
-		this.user.authorizeFromTeamId(this.request.body, this, callback, { error: 'createAuth' });
+		await this.user.authorizeFromTeamId(this.request.body, this, { error: 'createAuth' });
 	}
 
 	// process the request...
-	process (callback) {
+	async process () {
 		// totally pre-empt the restful creation of a model out of the box ... instead
 		// what we're doing here is adding them to a team, and that flow will actually
 		// create the user as needed
-		BoundAsync.series(this, [
-			this.requireAndAllow,
-			this.addToTeam
-		], error => {
-			if (error) { return callback(error); }
-			if (this.adder.membersAdded && this.adder.membersAdded.length > 0) {
-				this.createdUser = this.adder.membersAdded[0];
-			}
-			else if (this.adder.usersFound && this.adder.usersFound.length > 0) {
-				this.createdUser = this.adder.usersFound[0];
-				if (this.createdUser.get('isRegistered')) {
-					this.dontSendEmail = true;	// don't send invite email to registered user already on the team
-				}
-			}
-			else {
-				// shouldn't really happen
-				return callback(this.errorHandler.error('notFound', { info: 'user' }));
-			}
-			this.responseData = { user: this.createdUser.getSanitizedObject() };
-			callback();
-		});
+		await this.requireAndAllow();
+		await this.addToTeam();
+		await this.formResponse();
 	}
 
 	// require certain parameters, and discard unknown parameters
-	requireAndAllow (callback) {
+	async requireAndAllow () {
 		this.delayEmail = this.request.body._delayEmail; // delay sending the invite email, for testing
 		delete this.request.body._delayEmail;
 		this.subscriptionCheat = this.request.body._subscriptionCheat; // cheat code for testing only, allow subscription to me-channel before confirmation
 		delete this.request.body._subscriptionCheat;
-		this.requireAllowParameters(
+		await this.requireAllowParameters(
 			'body',
 			{
 				required: {
@@ -59,13 +41,12 @@ class PostUserRequest extends PostRequest {
 					string: ['firstName', 'lastName'],
 					boolean: ['dontSendEmail']
 				}
-			},
-			callback
+			}
 		);
 	}
 
 	// add the passed user to the team indicated, this will create the user as needed
-	addToTeam (callback) {
+	async addToTeam () {
 		const user = Object.assign({}, this.request.body);
 		delete user.teamId;
 		delete user.dontSendEmail;
@@ -76,60 +57,59 @@ class PostUserRequest extends PostRequest {
 			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
 			saveUserIfExists: true	// override provided attributes of the user as needed
 		});
-		this.adder.addTeamMembers(callback);
+		await this.adder.addTeamMembers();
 	}
 
 	// after the response has been sent...
-	postProcess (callback) {
-		BoundAsync.parallel(this, [
+	async postProcess () {
+		await awaitParallel([
 			this.publishAddToTeam,
 			this.sendInviteEmail,
 			this.trackInvite,
 			this.updateInvites,
-		], callback);
+		], this);
 	}
 
 	// publish to the team that the user has been added,
 	// and publish to the user that they've been added to the team
-	publishAddToTeam (callback) {
-		new AddTeamPublisher({
+	async publishAddToTeam () {
+		await new AddTeamPublisher({
 			request: this,
 			messager: this.api.services.messager,
 			user: this.createdUser,
 			team: this.adder.team,
 			existingMembers: this.adder.existingMembers,
-		}).publishAddedUser(callback);
+		}).publishAddedUser();
 	}
 
 	// send an invite email to the added user
-	sendInviteEmail (callback) {
+	async sendInviteEmail () {
 		if (this.request.body.dontSendEmail || this.dontSendEmail) {
-			return callback(); // don't send email if this flag is set
+			return; // don't send email if this flag is set
 		}
-		if (this.delayEmail) {
-			callback();	// respond, but delay sending the email
+		if (this.delayEmail) {	// allow client to delay the email send, for testing purposes
+			setTimeout(this.sendInviteEmail.bind(this), this.delayEmail);
+			delete this.delayEmail;
+			return;
 		}
-		setTimeout(() => {	// allow client to delay the email send, for testing purposes
-			this.api.services.email.sendInviteEmail(
-				{
-					inviter: this.user,
-					user: this.createdUser,
-					request: this
-				},
-				this.delayEmail ? () => {} : callback
-			);
-		}, this.delayEmail || 0);
+		await this.api.services.email.sendInviteEmail(
+			{
+				inviter: this.user,
+				user: this.createdUser,
+				request: this
+			}
+		);
 	}
 
 	// track this invite for analytics
-	trackInvite (callback) {
+	async trackInvite () {
 		if (this.request.body.dontSendEmail || this.dontSendEmail) {
-			return callback(); // don't track invite email if we're not sending an email
+			return; // don't track invite email if we're not sending an email
 		}
 		// check if user has opted out
 		const preferences = this.user.get('preferences') || {};
 		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
-			return callback();
+			return;
 		}
 
 		const trackObject = {
@@ -146,19 +126,18 @@ class PostUserRequest extends PostRequest {
 				user: this.user
 			}
 		);
-		process.nextTick(callback);
 	}
 
 	// for an unregistered user, we track that they've been invited
 	// and how many times for analytics purposes
-	updateInvites (callback) {
+	async updateInvites () {
 		if (this.request.body.dontSendEmail) {
-			return callback(); // don't update invites if this flag is set
+			return; // don't update invites if this flag is set
 		}
 		if (this.createdUser.get('isRegistered')) {
-			return callback();	// we only do this for unregistered users
+			return;	// we only do this for unregistered users
 		}
-		let update = {
+		const update = {
 			$set: {
 				internalMethod: 'invitation',
 				internalMethodDetail: this.user.id
@@ -167,11 +146,28 @@ class PostUserRequest extends PostRequest {
 				numInvites: 1
 			}
 		};
-		this.data.users.updateDirect(
+		await this.data.users.updateDirect(
 			{ _id: this.data.users.objectIdSafe(this.createdUser.id) },
-			update,
-			callback
+			update
 		);
+	}
+
+	// form the response to the request
+	async formResponse () {
+		if (this.adder.membersAdded && this.adder.membersAdded.length > 0) {
+			this.createdUser = this.adder.membersAdded[0];
+		}
+		else if (this.adder.usersFound && this.adder.usersFound.length > 0) {
+			this.createdUser = this.adder.usersFound[0];
+			if (this.createdUser.get('isRegistered')) {
+				this.dontSendEmail = true;	// don't send invite email to registered user already on the team
+			}
+		}
+		else {
+			// shouldn't really happen
+			throw this.errorHandler.error('notFound', { info: 'user' });
+		}
+		this.responseData = { user: this.createdUser.getSanitizedObject() };
 	}
 }
 

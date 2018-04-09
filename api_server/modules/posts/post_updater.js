@@ -2,9 +2,8 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
-var Post = require('./post');
+const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
+const Post = require('./post');
 
 class PostUpdater extends ModelUpdater {
 
@@ -17,8 +16,8 @@ class PostUpdater extends ModelUpdater {
 	}
 
 	// convenience wrapper
-	updatePost (id, attributes, callback) {
-		return this.updateModel(id, attributes, callback);
+	async updatePost (id, attributes) {
+		return await this.updateModel(id, attributes);
 	}
 
 	// get attributes that are allowed, we will ignore all others
@@ -30,47 +29,31 @@ class PostUpdater extends ModelUpdater {
 	}
 
 	// called before the post is actually saved
-	preSave (callback) {
-		BoundAsync.series(this, [
-			this.getPost,           // get the post
-			this.getStream,         // get the stream the post is in
-			this.addEditToHistory,  // add this edit to the maintained history of edits
-			super.preSave			// base-class preSave
-		], callback);
+	async preSave () {
+		await this.getPost();           // get the post
+		await this.getStream();       	// get the stream the post is in
+		await this.addEditToHistory();  // add this edit to the maintained history of edits
+		await super.preSave();			// base-class preSave
 	}
 
 	// get the post
-	getPost (callback) {
-		this.request.data.posts.getById(
-			this.attributes._id,
-			(error, post) => {
-				if (error) { return callback(error); }
-				if (!post) {
-					return callback(this.errorHandler.error('notFound', { info: 'post' }));
-				}
-				this.post = post;
-				callback();
-			}
-		);
+	async getPost () {
+		this.post = await this.request.data.posts.getById(this.attributes._id);
+		if (!this.post) {
+			throw this.errorHandler.error('notFound', { info: 'post' });
+		}
 	}
 
 	// get the stream the post is in
-	getStream (callback) {
-		this.request.data.streams.getById(
-			this.post.get('streamId'),
-			(error, stream) => {
-				if (error) { return callback(error); }
-				if (!stream) {
-					return callback(this.errorHandler.error('notFound', { info: 'stream' }));   // really shouldn't happen
-				}
-				this.stream = stream;
-				callback();
-			}
-		);
+	async getStream () {
+		this.stream = await this.request.data.streams.getById(this.post.get('streamId'));
+		if (!this.stream) {
+			throw this.errorHandler.error('notFound', { info: 'stream' });   // really shouldn't happen
+		}
 	}
 
 	// add an edit to the maintained history of edits
-	addEditToHistory (callback) {
+	async addEditToHistory () {
 		this.attributes.hasBeenEdited = true;
 		this.attributes.editHistory = this.post.get('editHistory') || [];
 		let edit = {
@@ -88,15 +71,13 @@ class PostUpdater extends ModelUpdater {
 			edit.setAttributes.mentionedUserIds = this.attributes.mentionedUserIds;
 		}
 		this.attributes.editHistory.push(edit);
-		process.nextTick(callback);
 	}
 
 	// after the post has been saved...
-	postSave (callback) {
+	async postSave () {
 		// this.update is what we return to the client, since the modifiedAt
 		// has changed, add that
 		this.update.modifiedAt = this.model.get('modifiedAt');
-		callback();
 	}
 }
 

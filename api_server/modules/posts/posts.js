@@ -2,13 +2,14 @@
 
 'use strict';
 
-var Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-var PostCreator = require('./post_creator');
-var PostUpdater = require('./post_updater');
-var PostDeleter = require('./post_deleter');
-var Post = require('./post');
+const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
+const PostCreator = require('./post_creator');
+const PostUpdater = require('./post_updater');
+const PostDeleter = require('./post_deleter');
+const Post = require('./post');
 const UUID = require('uuid/v4');
 const EmailNotificationRequest = require('./email_notification_request');
+const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
 const DEPENDENCIES = [
 	'aws'	// the posts module creates a queue
@@ -65,27 +66,29 @@ class Posts extends Restful {
 		// create a queue for handling messages concerning triggering the interval
 		// timer for email notifications
 		if (!this.api.services.queueService) { return; }
-		await this.api.services.queueService.createQueue({
-			name: this.api.config.aws.sqs.outboundEmailQueueName,
-			handler: this.handleEmailNotificationMessage.bind(this),
-			logger: this.api
-		});
+		await callbackWrap(
+			this.api.services.queueService.createQueue.bind(this.api.services.queueService),
+			{
+				name: this.api.config.aws.sqs.outboundEmailQueueName,
+				handler: this.handleEmailNotificationMessage.bind(this),
+				logger: this.api
+			}
+		);
 	}
 
 	// handle an incoming message on the email notifications interval timer queue
 	// we'll treat this like an incoming request for logging purposes, but it
 	// isn't a real request
-	handleEmailNotificationMessage (message, callback) {
-		let request = { id: UUID() };
+	async handleEmailNotificationMessage (message, releaseCallback) {
+		const request = { id: UUID() };
 		this.api.services.requestTracker.trackRequest(request);
-		callback(true);	// this releases the message from the queue
-		new EmailNotificationRequest({
+		releaseCallback(true); // this releases the message from the queue
+		await new EmailNotificationRequest({
 			api: this.api,
 			request: request,
 			message: message
-		}).fulfill(() => {
-			this.api.services.requestTracker.untrackRequest(request);
-		});
+		}).fulfill();
+		this.api.services.requestTracker.untrackRequest(request);
 	}
 }
 

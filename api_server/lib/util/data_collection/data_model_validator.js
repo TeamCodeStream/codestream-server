@@ -2,8 +2,7 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
 class DataModelValidator {
 
@@ -38,24 +37,20 @@ class DataModelValidator {
 	}
 
 	// validate a set of attributes
-	validate (attributes = {}, callback = null, options = {}) {
+	async validate (attributes = {}, options = {}) {
 		this.attributes = attributes;
 		this.options = options;
-		BoundAsync.series(this, [
-			this.checkRequired,
-			this.validateAttributes
-		], () => {
-			let errors = this.errors && this.errors.length ? this.errors : null;
-			return callback && callback(errors, this.warnings);
-		});
+		await this.checkRequired();
+		await this.validateAttributes();
+		return { errors: this.errors, warnings: this.warnings };
 	}
 
 	// check that we have all the required attributes
-	checkRequired (callback) {
+	async checkRequired () {
 		if (!this.options.new) {
 			// we only require attributes for models being created, since for models that have already existed
 			// we can't assume we have their complete set of attributes
-			return process.nextTick(callback);
+			return;
 		}
 		let missingAttributes = [];
 		this.requiredAttributes.forEach(requiredAttribute => {
@@ -66,22 +61,17 @@ class DataModelValidator {
 		if (missingAttributes.length) {
 			this.errors = ['these required attributes are missing: ' + missingAttributes.join(',')];
 		}
-		process.nextTick(callback);
 	}
 
 	// validate each individual attribute according to its own validation rule
-	validateAttributes (callback) {
-		BoundAsync.forEachLimit(
-			this,
-			Object.keys(this.attributes),
-			10,
-			this.validateAttribute,
-			callback
-		);
+	async validateAttributes () {
+		await Promise.all(Object.keys(this.attributes).map(async attribute => {
+			await this.validateAttribute(attribute);
+		}));
 	}
 
 	// validate an individual attribute according to its own validation rule
-	validateAttribute (attribute, callback) {
+	validateAttribute (attribute) {
 		const attributeDefinition = this.attributeDefinitions[attribute];
 		if (!attributeDefinition) {
 			// we delete (with a warning) any attributes we don't recognize,
@@ -91,7 +81,6 @@ class DataModelValidator {
 				this.warnings.push(`Deleting attribute ${attribute}, attribute not found in attribute definitions`);
 				delete this.attributes[attribute];
 			}
-			return process.nextTick(callback);
 		}
 
 		// lookup the attribute type, we must have a validation function for this attribute type or we'll delete
@@ -102,7 +91,6 @@ class DataModelValidator {
 			this.warnings = this.warnings || [];
 			this.warnings.push(`Deleting attribute ${attribute}, type ${type} is not recognized`);
 			delete this.attributes[attribute];
-			return process.nextTick(callback);
 		}
 
 		// now run the actual validation function, if the attribute exists
@@ -113,8 +101,6 @@ class DataModelValidator {
 				this.errors.push({ [attribute]: validationResult });
 			}
 		}
-
-		process.nextTick(callback);
 	}
 
 	// validate a timestamp value, must be a number

@@ -3,10 +3,9 @@
 
 'use strict';
 
-var APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
-var ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
-var RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
+const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
 const Errors = require('./errors');
 
 class RestfulRequest extends APIRequest {
@@ -17,48 +16,38 @@ class RestfulRequest extends APIRequest {
 	}
 
 	// allow certain parameters and require certain parameters, in the request query or body
-	requireAllowParameters (where, requiredAndOptionalParameters, callback) {
-		let info = RequireAllow.requireAllow(this.request[where], requiredAndOptionalParameters);
+	async requireAllowParameters (where, requiredAndOptionalParameters) {
+		const info = RequireAllow.requireAllow(this.request[where], requiredAndOptionalParameters);
 		if (!info) {
 			// all good
-			return callback();
+			return;
 		}
 		if (info.missing && info.missing.length > 0) {
 			// required
-			return callback(this.errorHandler.error('parameterRequired', { info: info.missing.join(',') }));
+			throw this.errorHandler.error('parameterRequired', { info: info.missing.join(',') });
 		}
 		else if (info.invalid && info.invalid.length > 0) {
 			// invalid type
-			return callback(this.errorHandler.error('invalidParameter', { info: info.invalid.join(',') }));
+			throw this.errorHandler.error('invalidParameter', { info: info.invalid.join(',') });
 		}
 		else if (info.deleted && info.deleted.length > 0) {
 			// not allowed
 			this.warn(`These attributes were deleted: ${info.deleted.join(',')}`);
 		}
-		process.nextTick(callback);
 	}
 
 	// sanitize these models (eliminate attributes we don't want the client to see)
-	sanitizeModels (models, callback) {
-		let sanitizedObjects = [];
-		BoundAsync.forEachLimit(
-			this,
-			models,
-			20,
-			(model, foreachCallback) => {
-				sanitizedObjects.push(model.getSanitizedObject());
-				process.nextTick(foreachCallback);
-			},
-			() => {
-				callback(null, sanitizedObjects);
-			}
-		);
+	async sanitizeModels (models) {
+		const sanitizedObjects = [];
+		for (var model of models) {
+			sanitizedObjects.push(model.getSanitizedObject());
+		}
+		return sanitizedObjects;
 	}
 
 	// sanitize a single model (eliminate attributes we don't want the client to see)
-	sanitizeModel (model, callback) {
+	sanitizeModel (model) {
 		this.sanitizedObjects.push(model.getSanitizedObject());
-		process.nextTick(callback);
 	}
 }
 

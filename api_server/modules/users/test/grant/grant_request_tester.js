@@ -1,4 +1,4 @@
-// handle unit tests for the "PUT /grant/:channel" request 
+// handle unit tests for the "PUT /grant/:channel" request
 
 'use strict';
 

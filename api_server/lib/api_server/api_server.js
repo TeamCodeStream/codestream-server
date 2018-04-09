@@ -9,7 +9,7 @@ const Express = require('express');
 const HTTPS = require('https');
 const HTTP = require('http');
 const FS = require('fs');
-const PromiseCallback = require(process.env.CS_API_TOP + '/server_utils/promise_callback');
+const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
 class APIServer {
 
@@ -33,7 +33,7 @@ class APIServer {
 		this.registerRoutes();
 		this.registerDataSources();
 		this.modules.initializeModules();
-		await PromiseCallback(this.listen, this);
+		await AwaitUtils.callbackWrap(this.listen.bind(this));
 	}
 
 	// set relevant event listeners

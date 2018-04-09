@@ -39,8 +39,8 @@ class APIRequestTest extends GenericTest {
 			ExpressConfig.port,
 			path,
 			data,
-			callback,
-			requestOptions
+			requestOptions,
+			callback
 		);
 	}
 

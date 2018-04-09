@@ -6,7 +6,6 @@
 
 const APIRequestData = require('./api_request_data');
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
-const PromiseCallback = require(process.env.CS_API_TOP + '/server_utils/promise_callback');
 
 class APIRequest {
 
@@ -59,22 +58,21 @@ class APIRequest {
 		if (typeof this[phase] !== 'function') {
 			return;
 		}
-		await PromiseCallback(this[phase], this);
+		await this[phase]();
 		if (phase === this.RESPONSE_PHASE) {
 			this.responseIssued = true;
 		}
 	}
 
 	// initialize the request
-	async initialize (callback) {
+	async initialize () {
 		if (this.request.abortWith) {
 			// middleware error
 			this.statusCode = this.request.abortWith.status;
-			return callback(this.request.abortWith.error);
+			throw this.request.abortWith.error;
 		}
 		this.request.keepOpen = true;
 		await this.makeData();
-		process.nextTick(callback);
 	}
 
 	// make the local data cache for this request
@@ -108,15 +106,11 @@ class APIRequest {
 		if (error) {
 			this.close();
 		}
-		if (this.callback) {
-			this.callback();
-		}
 	}
 
 	// fulfill the request
-	async fulfill (callback = null) {
+	async fulfill () {
 		this.responseIssued = false;
-		this.callback = callback;
 		// execute each phase of the request, aborting at any time on error
 		let gotError;
 		for (let i in this.REQUEST_PHASES) {
@@ -129,7 +123,7 @@ class APIRequest {
 				break;
 			}
 		}
-		this.finish(gotError);
+		await this.finish(gotError);
 	}
 
 	// deauthorize this request by sending a 403 (or other status code explicitly set by the request)
@@ -139,55 +133,43 @@ class APIRequest {
 	}
 
 	// default authorize function, authorize the request (which by default means forbidding the request, this function should be overridden!)
-	async authorize (callback) {
+	async authorize () {
 		// don't authorize by default, this must be overridden for proper ACL
 		this.warn(`Default ACL check fails, override authorize() method for this request: ${this.request.method} ${this.request.url}`);
 		this.deauthorize();
-		callback(true);
+		throw true;
 	}
 
 	// persist all database changes to the database
-	async persist (callback) {
-		let gotError;
-		try {
-			await this.data.persist();
-		}
-		catch (error) {
-			gotError = error;
-		}
-		if (callback) {
-			callback(gotError);
-		}
-		else if (gotError) {
-			throw gotError;
-		}
+	async persist () {
+		await this.data.persist();
 	}
 
 	// persist all database changes to the database, after the request has been fully processed
-	async postProcessPersist (callback) {
+	async postProcessPersist () {
 		// nothing different to do here
-		await this.persist(callback);
+		await this.persist();
 	}
 
 	// handle the request response
-	async handleResponse (callback) {
+	async handleResponse () {
 		if (this.gotError) {
-			return this.handleErrorResponse(callback);
+			return await this.handleErrorResponse();
 		}
 		this.statusCode = this.statusCode || 200;
 		this.response.
 			set('X-Request-Id', this.request.id).
 			status(this.statusCode).
 			send(this.responseData);
-		if (callback) {
-			return callback();
-		}
 	}
 
 	// handle an error that occurred during the request processing
-	handleErrorResponse (callback) {
+	async handleErrorResponse () {
 		if (!this.statusCode) {
-			if (typeof this.gotError === 'object' && this.gotError.internal) {
+			if (
+				(this.gotError && !this.gotError.code) ||
+				(typeof this.gotError === 'object' && this.gotError.internal)
+			) {
 				this.statusCode = 500; // internal errors get a 500
 			}
 			else {
@@ -197,20 +179,14 @@ class APIRequest {
 		this.warn(ErrorHandler.log(this.gotError));
 		this.responseData = ErrorHandler.toClient(this.gotError);
 		this.response.status(this.statusCode).send(this.responseData);
-		if (callback) {
-			process.nextTick(callback);
-		}
 	}
 
 	// close out this request
-	async close (callback) {
+	async close () {
 		if (this.response) {
 			this.response.emit('complete');
 		}
 		this.closed = true;
-		if (callback) {
-			callback();
-		}
 	}
 
 	// does this request have a "for testing" header?

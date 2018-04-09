@@ -1,15 +1,15 @@
-// handle the 'GET /repos' request, to fetch one or more repos 
+// handle the 'GET /repos' request, to fetch one or more repos
 
 'use strict';
 
-var GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 
 class GetReposRequest extends GetManyRequest {
 
-	authorize (callback) {
+	async authorize () {
 		// you have access to the repos if you have access to the team ... teamId is required
-		this.user.authorizeFromTeamId(this.request.query, this, callback);
+		await this.user.authorizeFromTeamId(this.request.query, this);
 	}
 
 	// build the query to fetch multiple objects from the database

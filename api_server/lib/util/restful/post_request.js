@@ -2,30 +2,20 @@
 
 'use strict';
 
-var RestfulRequest = require('./restful_request');
-var ModelCreator = require('./model_creator');
+const RestfulRequest = require('./restful_request');
+const ModelCreator = require('./model_creator');
 
 class PostRequest extends RestfulRequest {
 
 	// process the request...
-	process (callback) {
+	async process () {
 		// we have a standard model creator class, but the derived module can
 		// change the behavior by deriving its own creator class
-		let creatorClass = this.module.creatorClass || ModelCreator;
+		const creatorClass = this.module.creatorClass || ModelCreator;
 		this.creator = new creatorClass({
 			request: this
 		});
-		this.creator.createModel(
-			this.request.body,
-			(error, model) => {
-				this.modelCreated(error, model, callback);
-			}
-		);
-	}
-
-	// once the model has been created...
-	modelCreated (error, model, callback) {
-		if (error) { return callback(error); }
+		const model = await this.creator.createModel(this.request.body);
 		const modelName = this.module.modelName || 'model';
 		// sanitize the model (eliminate attributes we don't want the client to see),
 		// and set up the response to the client ... the creator class might have
@@ -35,12 +25,11 @@ class PostRequest extends RestfulRequest {
 			this.responseData,
 			this.creator.attachToResponse || {}
 		);
-		process.nextTick(callback);
 	}
 
 	// after the request has been processed and response returned to the client....
-	postProcess (callback) {
-		this.creator.postCreate(callback);
+	async postProcess () {
+		await this.creator.postCreate();
 	}
 }
 

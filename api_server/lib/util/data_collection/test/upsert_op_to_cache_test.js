@@ -13,7 +13,7 @@ class UpsertOpToCacheTest extends UpsertToCacheTest {
 	}
 
 	// run a $set op on the model, but provide the upsert option, this should create the model
-	upsertTestModel (callback) {
+	async upsertTestModel (callback) {
 		this.testModel = new DataModel({
 			_id: ObjectID(),
 			text: 'hello',
@@ -25,12 +25,17 @@ class UpsertOpToCacheTest extends UpsertToCacheTest {
 				z: 'three'
 			}
 		});
-		this.data.test.applyOpById(
-			this.testModel.id,
-			{ $set: this.testModel.attributes },
-			callback,
-			{ upsert: true }
-		);
+		try {
+			await this.data.test.applyOpById(
+				this.testModel.id,
+				{ $set: this.testModel.attributes },
+				{ upsert: true }
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 }
 

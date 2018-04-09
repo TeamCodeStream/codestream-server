@@ -10,7 +10,7 @@ class GetByQueryLimitTest extends GetByQueryTest {
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// make sure our test models are sorted by number, so we can be consistent about which ones we're
 		// limiting ourselves to
 		this.testModels.sort((a, b) => {
@@ -19,18 +19,22 @@ class GetByQueryLimitTest extends GetByQueryTest {
 		// we're counting on how the test models are set up here (see data_collection_test.js), knowing
 		// which models are expected to come back with this query
 		this.testModels.splice(3);
-		this.data.test.getByQuery(
-			{ flag: this.randomizer + 'yes' },
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			},
-			{
-				databaseOptions: {
-					sort: { number: -1 },
-					limit: 3
+		let response;
+		try {
+			response = await this.data.test.getByQuery(
+				{ flag: this.randomizer + 'yes' },
+				{
+					databaseOptions: {
+						sort: { number: -1 },
+						limit: 3
+					}
 				}
-			}
-		);
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateArrayResponse () {

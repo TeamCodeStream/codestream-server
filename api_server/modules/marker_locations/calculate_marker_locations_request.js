@@ -3,46 +3,37 @@
 
 'use strict';
 
-var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var MarkerMapper = require('./marker_mapper');
-var MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
+const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
+const MarkerMapper = require('./marker_mapper');
+const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 
 class CalculateMarkerLocationsRequest extends RestfulRequest {
 
 	// authorize the request
-	authorize (callback) {
+	async authorize () {
 		// must have access to the team the stream belongs to
-		this.user.authorizeFromTeamId(
+		await this.user.authorizeFromTeamId(
 			this.request.body,
 			this,
-			error => {
-				if (error) { return callback(error); }
-				this.teamId = this.request.body.teamId.toLowerCase();
-				process.nextTick(callback);
-			},
-			{
-				error: 'updateAuth'
-			}
+			{ error: 'updateAuth' }
 		);
+		this.teamId = this.request.body.teamId.toLowerCase();
 	}
 
 	// process the request...
-	process (callback) {
-		BoundAsync.series(this, [
-			this.require,					// check for required parameters
-			this.validate,					// validate input parameters
-			this.getOriginalCommitMarkers,	// get marker locations associated with the original commit
-			this.getStream,					// get the stream as needed
-			this.calculateNewCommitMarkers, // calculate new marker locations
-			this.prepareForUpdate,			// prepare the newly calculated marker locations for update
-			this.update						// save marker locations,
-		], callback);
+	async process () {
+		await this.require();					// check for required parameters
+		await this.validate();					// validate input parameters
+		await this.getOriginalCommitMarkers();	// get marker locations associated with the original commit
+		await this.getStream();					// get the stream as needed
+		await this.calculateNewCommitMarkers(); // calculate new marker locations
+		await this.prepareForUpdate();			// prepare the newly calculated marker locations for update
+		await this.updateLocations();			// save marker locations,
 	}
 
 	// these parameters are required for the request
-	require (callback) {
-		this.requireAllowParameters(
+	async require () {
+		await this.requireAllowParameters(
 			'body',
 			{
 				required: {
@@ -53,13 +44,12 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 					'object': ['locations'],
 					'string': ['streamId', 'originalCommitHash', 'newCommitHash']
 				}
-			},
-			callback
+			}
 		);
 	}
 
 	// validate the request's input parameters
-	validate (callback) {
+	async validate () {
 		if (this.request.body.streamId) {
 			this.streamId = this.request.body.streamId.toLowerCase();
 		}
@@ -72,22 +62,19 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 		if (this.request.body.newCommitHash) {
 			this.newCommitHash = this.request.body.newCommitHash.toLowerCase();
 		}
-		BoundAsync.series(this, [
-			this.validateEdits,
-			this.validateLocations
-		], callback);
+		await this.validateEdits();
+		await this.validateLocations();
 	}
 
 	// validate the edits array
-	validateEdits (callback) {
+	async validateEdits () {
 		for (let i = 0, length = this.request.body.edits.length; i < length; i++) {
-			let edit = this.request.body.edits[i];
-			let error = this.validateEdit(edit);
+			const edit = this.request.body.edits[i];
+			const error = this.validateEdit(edit);
 			if (error) {
-				return callback(this.errorHandler.error('invalidParameter', { info: `edits (#${i}): ${error}` }));
+				throw this.errorHandler.error('invalidParameter', { info: `edits (#${i}): ${error}` });
 			}
 		}
-		process.nextTick(callback);
 	}
 
 	// validate a single edit Object
@@ -115,99 +102,81 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 	}
 
 	// validate the input locations
-	validateLocations (callback) {
+	async validateLocations () {
 		if (!this.request.body.locations) {
 			// no locations provided, we'll fetch them from the database and calculate
 			// for all of them
-			return callback();
+			return;
 		}
-		let markerIds = Object.keys(this.request.body.locations);
+		const markerIds = Object.keys(this.request.body.locations);
 		for (let i = 0, length = markerIds; i < length; i++) {
-			let markerId = markerIds[i];
+			const markerId = markerIds[i];
 			// validate the marker ID
 			if (!this.objectIdSafe(markerId)) {
-				return callback(this.errorHandler.error('validation', { info: `${markerId} is not a valid marker ID` }));
+				throw this.errorHandler.error('validation', { info: `${markerId} is not a valid marker ID` });
 			}
 			// validate the location array, which must conform to a strict format
-			let location = this.request.body.locations[markerId];
-			let result = MarkerCreator.validateLocation(location);
+			const location = this.request.body.locations[markerId];
+			const result = MarkerCreator.validateLocation(location);
 			if (result) {
-				return callback(this.errorHandler.error('validation', { info: `not a valid location for marker ${markerId}: ${result}` }));
+				throw this.errorHandler.error('validation', { info: `not a valid location for marker ${markerId}: ${result}` });
 			}
 		}
-		process.nextTick(callback);
 	}
 
 	// get any markers associated with the original commit, if any
-	getOriginalCommitMarkers (callback) {
+	async getOriginalCommitMarkers () {
 		if (this.request.body.locations) {
 			// the client provided some locations to calculate for, so no need
 			// to fetch from the database
-			return callback();
+			return;
 		}
 		else if (!this.streamId || !this.originalCommitHash) {
-			return callback(this.errorHandler.error('parameterRequired', { info: 'locations, or streamId and originalCommitHash' }));
+			throw this.errorHandler.error('parameterRequired', { info: 'locations, or streamId and originalCommitHash' });
 		}
-		let id = `${this.streamId}|${this.originalCommitHash}`;
-		this.data.markerLocations.getByQuery(
+		const id = `${this.streamId}|${this.originalCommitHash}`;
+		const markerLocations = await this.data.markerLocations.getByQuery(
 			{ _id: id },
-			(error, markerLocations) => {
-				if (error) { return callback(error); }
-				this.originalMarkerLocations = (markerLocations && markerLocations[0]) || {};
-				callback();
-			},
 			{
 				databaseOptions: {
 					hint: { _id: 1 }
 				}
 			}
 		);
+		this.originalMarkerLocations = (markerLocations && markerLocations[0]) || {};
 	}
 
 	// get the stream, as needed
-	getStream (callback) {
+	async getStream () {
 		if (!this.streamId) {
-			return callback();	// client does not need to provide a stream, but we won't be saving anything
+			return;	// client does not need to provide a stream, but we won't be saving anything
 		}
-		this.data.streams.getById(
-			this.streamId,
-			(error, stream) => {
-				if (error) { return callback(error); }
-				if (!stream) {
-					return callback(this.errorHandler.error('notFound', { info: 'stream' }));
-				}
-				if (stream.get('type') !== 'file') {
-					return callback(this.errorHandler.error('updateAuth', { reason: 'must be file stream' }));
-				}
-				if (stream.get('teamId') !== this.teamId) {
-					return callback(this.errorHandler.error('updateAuth', { reason: 'stream must be from team' }));
-				}
-				this.stream = stream;
-				callback();
-			}
-		);
+		this.stream = await this.data.streams.getById(this.streamId);
+		if (!this.stream) {
+			throw this.errorHandler.error('notFound', { info: 'stream' });
+		}
+		if (this.stream.get('type') !== 'file') {
+			throw this.errorHandler.error('updateAuth', { reason: 'must be file stream' });
+		}
+		if (this.stream.get('teamId') !== this.teamId) {
+			throw this.errorHandler.error('updateAuth', { reason: 'stream must be from team' });
+		}
 	}
 
 	// calculate the locations of any markers we can given the input data
-	calculateNewCommitMarkers (callback) {
+	async calculateNewCommitMarkers () {
 		// either the client provided us with locations, or we got them from the database
-		let locations = this.request.body.locations || this.originalMarkerLocations.get('locations');
+		const locations = this.request.body.locations || this.originalMarkerLocations.get('locations');
 		// now calculate new marker locations given the edits passed in
-		let markerMapper = new MarkerMapper(
+		const markerMapper = new MarkerMapper(
 			locations,
 			this.request.body.edits
 		);
-		markerMapper.getUpdatedMarkerData(
-			(error, calculatedMarkerLocations) => {
-				if (error) { return callback(error); }
-				this.calculatedMarkerLocations = calculatedMarkerLocations;
-				process.nextTick(callback);
-			}
-		);
+		this.calculatedMarkerLocations = await markerMapper.getUpdatedMarkerData();
 	}
 
 	// prepare the newly calculate marker locations for update
-	prepareForUpdate (callback) {
+	async prepareForUpdate () {
 		this.update = {};
 		this.publish = {};
 		if (this.newCommitHash) {
@@ -227,15 +196,14 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 			markerLocations.commitHash = this.newCommitHash;
 		}
 		Object.assign(this.responseData, { markerLocations });
-		process.nextTick(callback);
 	}
 
 	// update marker locations for the new commit
-	update (callback) {
+	async updateLocations () {
 		if (!this.newCommitHash) {
-			return callback();	// client can request not to save, indicated by no newCommitHash
+			return;	// client can request not to save, indicated by no newCommitHash
 		}
-		let id = `${this.streamId}|${this.newCommitHash}`;
+		const id = `${this.streamId}|${this.newCommitHash}`;
 		let update = {
 			$set: this.update
 		};
@@ -243,10 +211,9 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 		if (this.isForTesting()) { // special for-testing header for easy wiping of test data
 			update.$set._forTesting = true;
 		}
-		this.data.markerLocations.applyOpById(
+		await this.data.markerLocations.applyOpById(
 			id,
 			update,
-			callback,
 			{
 				databaseOptions: {
 					upsert: true
@@ -256,19 +223,19 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 	}
 
 	// after processing the request...
-	postProcess (callback) {
+	async postProcess () {
 		if (!this.newCommitHash) {
 			// we assume that if the client doesn't want them saved (indicated by no newCommitHash), they don't want them published
-			return callback();
+			return;
 		}
 		// publish the marker locations update to users in the team
-		this.publishMarkerLocations(callback);
+		await this.publishMarkerLocations();
 	}
 
 	// publish the marker locations update to users in the team
-	publishMarkerLocations (callback) {
-		let channel = 'team-' + this.teamId;
-		let message = {
+	async publishMarkerLocations () {
+		const channel = 'team-' + this.teamId;
+		const message = {
 			markerLocations: {
 				teamId: this.teamId,
 				streamId: this.streamId,
@@ -277,20 +244,17 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 			},
 			requestId: this.request.id
 		};
-		this.api.services.messager.publish(
-			message,
-			channel,
-			error => {
-				if (error) {
-					// this doesn't break the chain, but it is unfortunate...
-					this.warn(`Could not publish marker location calculations update to team ${this.teamId}: ${JSON.stringify(error)}`);
-				}
-				callback();
-			},
-			{
-				request: this
-			}
-		);
+		try {
+			await this.api.services.messager.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.warn(`Could not publish marker location calculations update to team ${this.teamId}: ${JSON.stringify(error)}`);
+		}
 	}
 }
 

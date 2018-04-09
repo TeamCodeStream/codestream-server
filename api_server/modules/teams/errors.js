@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ERRORS = {
+module.exports = {
 	'usernameNotUnique': {
 		code: 'TEAM-1000',
 		message: 'Username is not unique for this team',
@@ -12,5 +12,3 @@ const ERRORS = {
 		message: 'Unable to grant user messaging permissions'
 	}
 };
-
-module.exports = ERRORS;

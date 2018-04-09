@@ -9,22 +9,26 @@ class GetByQuerySortTest extends GetByQueryTest {
 		return 'should get the correct models in sorted order when getting several models by query with a sort option';
 	}
 
-	run (callback) {
+	async run (callback) {
 		// sort our test models so we can compare properly with the fetched models
 		this.testModels.sort((a, b) => {
 			return b.get('number') - a.get('number');
 		});
-		this.data.test.getByQuery(
-			{ flag: this.randomizer + 'yes' },
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			},
-			{
-				databaseOptions: {
-					sort: { number: -1 }
+		let response;
+		try {
+			response = await this.data.test.getByQuery(
+				{ flag: this.randomizer + 'yes' },
+				{
+					databaseOptions: {
+						sort: { number: -1 }
+					}
 				}
-			}
-		);
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateArrayResponse () {

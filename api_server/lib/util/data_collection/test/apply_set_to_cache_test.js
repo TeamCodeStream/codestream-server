@@ -8,21 +8,23 @@ class ApplySetToCacheTest extends UpdateToCacheTest {
 		return 'should get the correct model after applying a set update to a cached model';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel (callback) {
 		// set some values and verify they are set
 		const set = {
 			text: 'replaced!',
 			number: 123
 		};
-		this.data.test.applyOpById(
-			this.testModel.id,
-			{ '$set': set },
-			(error) => {
-				if (error) { return callback(error); }
-				Object.assign(this.testModel.attributes, set);
-				callback();
-			}
-		);
+		try {
+			await this.data.test.applyOpById(
+				this.testModel.id,
+				{ '$set': set }
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		Object.assign(this.testModel.attributes, set);
+		callback();
 	}
 }
 

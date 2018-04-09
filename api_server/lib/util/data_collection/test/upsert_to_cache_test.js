@@ -21,7 +21,7 @@ class UpsertToCacheTest extends DataCollectionTest {
 	}
 
 	// "upsert" a test model (update with an insert options)
-	upsertTestModel (callback) {
+	async upsertTestModel (callback) {
 		// do an update operation with the upsert option, this should create the document even though
 		// it did not exist before (but only in the cache, because we're not persisting)
 		this.testModel = new DataModel({
@@ -35,22 +35,29 @@ class UpsertToCacheTest extends DataCollectionTest {
 				z: 'three'
 			}
 		});
-		this.data.test.update(
-			this.testModel.attributes,
-			callback,
-			{ upsert: true }
-		);
+		try {
+			await this.data.test.update(
+				this.testModel.attributes,
+				{ upsert: true }
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// fetch the model, if the upsert worked, we should just get it from the cache
-		this.data.test.getById(
-			this.testModel.id,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			response = await this.data.test.getById(this.testModel.id);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

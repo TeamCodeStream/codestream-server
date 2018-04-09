@@ -2,9 +2,8 @@
 
 'use strict';
 
-var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
-var Marker = require('./marker');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+const Marker = require('./marker');
 
 class MarkerCreator extends ModelCreator {
 
@@ -17,8 +16,8 @@ class MarkerCreator extends ModelCreator {
 	}
 
 	// convenience wrapper
-	createMarker (attributes, callback) {
-		return this.createModel(attributes, callback);
+	async createMarker (attributes) {
+		return await this.createModel(attributes);
 	}
 
 	// these attributes are required or optional to create a marker document
@@ -34,26 +33,22 @@ class MarkerCreator extends ModelCreator {
 	}
 
 	// validate the input attributes
-	validateAttributes (callback) {
+	async validateAttributes () {
 		// location attribute is not strictly required, for instance, a marker that
 		// is associated with code that has not yet been committed will not have a location
 		if (typeof this.attributes.location !== 'undefined') {
-			this.validateLocationAttribute(callback);
-		}
-		else {
-			return callback();
+			return this.validateLocationAttribute();
 		}
 	}
 
 	// validate the passed location for the marker
-	validateLocationAttribute (callback) {
-		let error = MarkerCreator.validateLocation(this.attributes.location);
+	async validateLocationAttribute () {
+		const error = MarkerCreator.validateLocation(this.attributes.location);
 		if (error) {
-			return callback(error);
+			return error;
 		}
 		this.location = this.attributes.location;
 		delete this.attributes.location; // this actually goes into the markerLocations structure, stored separately
-		callback();
 	}
 
 	// validate a marker location, must be in the strict format:
@@ -80,30 +75,27 @@ class MarkerCreator extends ModelCreator {
 	}
 
 	// right before the document is saved...
-	preSave (callback) {
+	async preSave () {
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
-		BoundAsync.series(this, [
-			this.normalizeMarkerAttributes,	// normalize the attributes for the marker
-			this.updateMarkerLocations,		// update the marker's location for the particular commit
-			super.preSave					// proceed with the save...
-		], callback);
+		this.normalizeMarkerAttributes();	// normalize the attributes for the marker
+		await this.updateMarkerLocations();		// update the marker's location for the particular commit
+		await super.preSave();					// proceed with the save...
 	}
 
 	// create an ID for this marker
-	normalizeMarkerAttributes (callback) {
+	normalizeMarkerAttributes () {
 		this.attributes._id = this.data.markers.createId();	 // pre-allocate an ID
 		this.attributes.commitHashWhenCreated = this.attributes.commitHash; // save commitHash as commitHashWhenCreated
 		delete this.attributes.commitHash;
 		this.attributes.numComments = 1; // the original post for this marker, so there is 1 comment so far
-		callback();
 	}
 
 	// update the location of this marker in the marker locations structure for this stream and commit
-	updateMarkerLocations (callback) {
-		if (!this.location) { return callback(); }	// location is not strictly required, ignore if not provided
-		let id = `${this.attributes.streamId}|${this.attributes.commitHashWhenCreated}`.toLowerCase();
+	async updateMarkerLocations () {
+		if (!this.location) { return; }	// location is not strictly required, ignore if not provided
+		const id = `${this.attributes.streamId}|${this.attributes.commitHashWhenCreated}`.toLowerCase();
 		let op = {
 			$set: {
 				teamId: this.attributes.teamId,
@@ -113,7 +105,7 @@ class MarkerCreator extends ModelCreator {
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			op.$set._forTesting = true;
 		}
-		this.data.markerLocations.applyOpById(id, op, callback, { databaseOptions: { upsert: true }});
+		await this.data.markerLocations.applyOpById(id, op, { databaseOptions: { upsert: true } });
 	}
 }
 

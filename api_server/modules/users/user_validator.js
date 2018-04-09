@@ -2,8 +2,8 @@
 
 'use strict';
 
-var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
-var EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities.js');
+const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
+const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities.js');
 const UserAttributes = require('./user_attributes');
 
 class UserValidator extends CodeStreamModelValidator {

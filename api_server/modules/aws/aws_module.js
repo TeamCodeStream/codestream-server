@@ -3,9 +3,9 @@
 
 'use strict';
 
-var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
-var AWS = require(process.env.CS_API_TOP + '/server_utils/aws/aws');
-var SQSClient = require('./sqs_client');
+const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
+const AWS = require(process.env.CS_API_TOP + '/server_utils/aws/aws');
+const SQSClient = require('./sqs_client');
 
 class AWSModule extends APIServerModule {
 
@@ -20,7 +20,7 @@ class AWSModule extends APIServerModule {
 	}
 
 	initializeSQS () {
-		this.sqsClient = new SQSClient({ aws: this.aws });
+		this.sqsClient = new SQSClient({ aws: this.aws, logger: this.api });
 	}
 }
 

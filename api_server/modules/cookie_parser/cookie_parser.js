@@ -2,8 +2,8 @@
 
 'use strict';
 
-var APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
-var CookieParser = require('cookie-parser');
+const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+const CookieParser = require('cookie-parser');
 
 class CookieParserModule extends APIServerModule {
 

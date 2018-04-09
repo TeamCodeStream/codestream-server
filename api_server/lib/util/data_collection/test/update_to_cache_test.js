@@ -20,15 +20,17 @@ class UpdateToCacheTest extends DataCollectionTest {
 	}
 
 	// run test test...
-	run (callback) {
+	async run (callback) {
 		// ensure we can get our test model, even though it has not been persisted to the database
 		// this tests that caching is working properly
-		this.data.test.getById(
-			this.testModel.id,
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			response = await this.data.test.getById(this.testModel.id);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {

@@ -4,8 +4,7 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
+const RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
 const DeepEqual = require('deep-equal');
 
 class ModelCreator {
@@ -17,51 +16,43 @@ class ModelCreator {
 	}
 
 	// create the model
-	createModel (attributes, callback) {
+	async createModel (attributes) {
 		this.collection = this.data[this.collectionName];
 		if (!this.collection) {
-			return callback(this.errorHandler.error('internal', { reason: `collection ${this.collectionName} is not a valid collection` }));
+			throw this.errorHandler.error('internal', { reason: `collection ${this.collectionName} is not a valid collection` });
 		}
 
 		this.attributes = attributes;
-		BoundAsync.series(this, [
-			this.normalize,				// normalize the input attributes
-			this.requireAllowAttributes,	// check for required attributes and attributes to ignore
-			this.validate,				// validate the attributes
-			this.checkExisting,			// check if there is already a matching document, according to the derived class
-			this.preSave,				// prepare to save the document
-			this.checkValidationWarnings,	// check for any validation warnings that came up in preSave
-			this.createOrUpdate,		// create the document, or if already existed, we might want to update it
-			this.postSave				// give the derived class a chance to do stuff after we've saved
-		], (error) => {
-			callback(error, this.model);
-		});
+		await this.normalize();					// normalize the input attributes
+		await this.requireAllowAttributes();	// check for required attributes and attributes to ignore
+		await this.validate();					// validate the attributes
+		await this.checkExisting();				// check if there is already a matching document, according to the derived class
+		await this.preSave();					// prepare to save the document
+		this.checkValidationWarnings();			// check for any validation warnings that came up in preSave
+		await this.createOrUpdate();			// create the document, or if already existed, we might want to update it
+		await this.postSave();					// give the derived class a chance to do stuff after we've saved
+		return this.model;
 	}
 
 	// normalize the input attributes ... override as needed
-	normalize (callback) {
-		process.nextTick(callback);
+	async normalize () {
 	}
 
 	// check that we have all the required attributes, and ignore any attributes except those that are allowed
-	requireAllowAttributes (callback) {
-		let attributes = this.getRequiredAndOptionalAttributes();
-		if (attributes) {
-			let info = RequireAllow.requireAllow(this.attributes, attributes);
-			if (!info) {
-				return callback();
-			}
-			if (info.missing) {
-				return callback(this.errorHandler.error('parameterRequired', { info: info.missing.join(',') }));
-			}
-			else if (info.invalid) {
-				return callback(this.errorHandler.error('invalidParameter', { info: info.invalid.join(',') }));
-			}
-			else if (info.deleted && this.api) {
-				this.api.warn(`These attributes were deleted: ${info.deleted.join(',')}`);
-			}
+	async requireAllowAttributes () {
+		const attributes = this.getRequiredAndOptionalAttributes();
+		if (!attributes) { return; }
+		const info = RequireAllow.requireAllow(this.attributes, attributes);
+		if (!info) { return; }
+		if (info.missing) {
+			throw this.errorHandler.error('parameterRequired', { info: info.missing.join(',') });
 		}
-		process.nextTick(callback);
+		else if (info.invalid) {
+			throw this.errorHandler.error('invalidParameter', { info: info.invalid.join(',') });
+		}
+		else if (info.deleted && this.api) {
+			this.api.warn(`These attributes were deleted: ${info.deleted.join(',')}`);
+		}
 	}
 
 	// which attributes are required? override to specify
@@ -70,54 +61,44 @@ class ModelCreator {
 	}
 
 	// validate the input attributes
-	validate (callback) {
-		this.validateAttributes((errors) => {
-			if (errors) {
-				if (!(errors instanceof Array)) {
-					errors = [errors];
-				}
-				return callback(this.errorHandler.error('validation', { info: errors }));
-			}
-			else {
-				return process.nextTick(callback);
-			}
-		});
+	async validate () {
+		let errors = await this.validateAttributes();
+		if (!errors) {
+			return;
+		}
+		if (!(errors instanceof Array)) {
+			errors = [errors];
+		}
+		throw this.errorHandler.error('validation', { info: errors });
 	}
 
 	// validate the input attributes ... override as needed
-	validateAttributes (callback) {
-		process.nextTick(callback);
+	async validateAttributes () {
 	}
 
 	// check if there is a matching document already, according to a query specified
 	// by the derived class, which can also decide whether this is allowed or not
-	checkExisting (callback) {
-		let queryData = this.checkExistingQuery();
+	async checkExisting () {
+		const queryData = this.checkExistingQuery();
 		if (!queryData) {
 			// derived class doesn't care
-			return process.nextTick(callback);
+			return;
 		}
 		// look for a matching document, according to the query
-		this.collection.getOneByQuery(
-			queryData.query,
-			(error, model) => {
-				if (error) { return callback(error); }
-				if (model) {
-					// got a matching document, is this ok?
-					if (!this.modelCanExist(model)) {	// derived class tells us whether this is allowed
-						return callback(this.errorHandler.error('exists'));
-					}
-					// ok, it's allowed
-					this.existingModel = model;
-				}
-				return process.nextTick(callback);
-			},
-			{
-				databaseOptions: {
-					hint: queryData.hint
-				}
+		const options = {
+			databaseOptions: {
+				hint: queryData.hint
 			}
-		);
+		};
+		const model = await this.collection.getOneByQuery(queryData.query, options);
+		if (model) {
+			// got a matching document, is this ok?
+			if (!this.modelCanExist(model)) {	// derived class tells us whether this is allowed
+				throw this.errorHandler.error('exists');
+			}
+			// ok, it's allowed
+			this.existingModel = model;
+		}
 	}
 
 	// override to provide a query to check for a document matching the input attributes
@@ -132,13 +113,13 @@ class ModelCreator {
 	}
 
 	// right before the document gets saved....
-	preSave (callback) {
+	async preSave () {
 		if (this.existingModel) {
 			if (this.dontSaveIfExists) {
 				// we have a document that matches the input attributes, and there's no need
 				// to make any changes, just pass it back to the client as-is
 				this.model = this.existingModel;
-				return callback();
+				return;
 			}
 			// override with the attributes passed in, we'll save these
 			this.attributes = Object.assign({}, this.existingModel.attributes, this.attributes);
@@ -146,61 +127,50 @@ class ModelCreator {
 		// create a new model with the passed attributes, and let the model pre-save itself ...
 		// this is where pre-save validation of the attributes happens
 		this.model = new this.modelClass(this.attributes);
-		this.model.preSave(
-			(errors) => {
-				if (errors) {
-					if (!(errors instanceof Array)) {
-						errors = [errors];
-					}
-					return callback(this.errorHandler.error('validation', { info: errors }));
-				}
-				else {
-					return process.nextTick(callback);
-				}
-			},
-			{
-				new: !this.existingModel
-			}
-		);
+		let errors = await this.model.preSave({ new: !this.existingModel });
+		if (!errors) {
+			return;
+		}
+		if (!(errors instanceof Array)) {
+			errors = [errors];
+		}
+		throw this.errorHandler.error('validation', { info: errors });
 	}
 
 	// check for any warnings during validation, these don't stop the document from
 	// getting saved but we'll want to log them anyway
-	checkValidationWarnings (callback) {
+	checkValidationWarnings () {
 		if (
 			this.model.validationWarnings instanceof Array &&
 			this.api
 		) {
 			this.api.warn(`Validation warnings: \n${this.model.validationWarnings.join('\n')}`);
 		}
-		process.nextTick(callback);
 	}
 
 	// create the document, or update it if we found an existing matching document
-	createOrUpdate (callback) {
+	async createOrUpdate () {
 		if (this.existingModel) {
-			this.update(callback);
+			await this.update();
 		}
 		else {
-			this.create(callback);
+			await this.create();
 		}
 	}
 
 	// update an existing document that matches the input attributes
-	update (callback) {
+	async update () {
 		if (this.dontSaveIfExists) {
 			// or don't bother if the derived class says so
 			this.model = this.existingModel;
-			return process.nextTick(callback);
+			return;
 		}
-		BoundAsync.series(this, [
-			this.determineChanges,
-			this.doUpdate
-		], callback);
+		await this.determineChanges();
+		await this.doUpdate();
 	}
 
 	// determine what is actually changing, for a save
-	determineChanges (callback) {
+	async determineChanges () {
 		this.changes = {};
 		Object.keys(this.model.attributes).forEach(attribute => {
 			if (!this.attributesAreEqual(
@@ -210,7 +180,6 @@ class ModelCreator {
 				this.changes[attribute] = this.model.get(attribute);
 			}
 		});
-		process.nextTick(callback);
 	}
 
 	attributesAreEqual (attribute1, attribute2) {
@@ -223,44 +192,30 @@ class ModelCreator {
 	}
 
 	// do the actual update, for a save, based on the determined changes
-	doUpdate (callback) {
+	async doUpdate () {
 		if (Object.keys(this.changes).length === 0) {
 			// nothing to save
-			return callback();
+			return;
 		}
 		// do the update
-		this.collection.applyOpById(
+		this.model = await this.collection.applyOpById(
 			this.model.id,
-			{ $set: this.changes },
-			(error, updatedModel) => {
-				if (error) { return callback(error); }
-				this.model = updatedModel;
-				this.didExist = true;	// caller might want to know whether we really created a document or not
-				process.nextTick(callback);
-			}
+			{ $set: this.changes }
 		);
+		this.didExist = true;	// caller might want to know whether we really created a document or not
 	}
 
 	// truly create a new document
-	create (callback) {
-		this.collection.create(
-			this.model.attributes,
-			(error, createdModel) => {
-				if (error) { return callback(error); }
-				this.model = createdModel;
-				process.nextTick(callback);
-			}
-		);
+	async create () {
+		this.model = await this.collection.create(this.model.attributes);
 	}
 
 	// override to do stuff after the document has been saved
-	postSave (callback) {
-		process.nextTick(callback);
+	async postSave () {
 	}
 
 	// override to do stuff after a response has been returned to the client
-	postCreate (callback) {
-		process.nextTick(callback);
+	async postCreate () {
 	}
 }
 

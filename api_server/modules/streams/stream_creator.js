@@ -2,10 +2,9 @@
 
 'use strict';
 
-var ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
-var Stream = require('./stream');
-var StreamSubscriptionGranter = require('./stream_subscription_granter');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+const Stream = require('./stream');
+const StreamSubscriptionGranter = require('./stream_subscription_granter');
 const StreamTypes = require('./stream_types');
 const Errors = require('./errors');
 const Indexes = require('./indexes');
@@ -27,8 +26,8 @@ class StreamCreator extends ModelCreator {
 	}
 
 	// convenience wrapper
-	createStream (attributes, callback) {
-		return this.createModel(attributes, callback);
+	async createStream (attributes) {
+		return await this.createModel(attributes);
 	}
 
 	// get attributes that are required for stream creation, and those that are optional,
@@ -46,17 +45,17 @@ class StreamCreator extends ModelCreator {
 	}
 
 	// validate attributes for the stream we are creating
-	validateAttributes (callback) {
+	async validateAttributes () {
 		this.ensureUserIsMember();	// user must be a member of a direct or channel stream
 		this.attributes.type = this.attributes.type.toLowerCase();	// enforce lower-case on the stream type
-		if (StreamTypes.indexOf(this.attributes.type) === -1) {
+		if (!StreamTypes.includes(this.attributes.type)) {
 			// only allow recognized stream types
-			return callback(this.errorHandler.error('invalidStreamType', { info: this.attributes.type }));
+			return this.errorHandler.error('invalidStreamType', { info: this.attributes.type });
 		}
 		if (this.attributes.type === 'channel') {
 			// channel streams must have a name
 			if (!this.attributes.name) {
-				return callback(this.errorHandler.error('nameRequired'));
+				return this.errorHandler.error('nameRequired');
 			}
 			// channel streams ingore file and repo ID
 			delete this.attributes.file;
@@ -65,10 +64,10 @@ class StreamCreator extends ModelCreator {
 		else if (this.attributes.type === 'file') {
 			// file-type streams must have a repo ID and file
 			if (!this.attributes.repoId) {
-				return callback(this.errorHandler.error('repoIdRequired'));
+				return this.errorHandler.error('repoIdRequired');
 			}
 			else if (!this.attributes.file) {
-				return callback(this.errorHandler.error('fileRequired'));
+				return this.errorHandler.error('fileRequired');
 			}
 			// file-type stream ignore name and members
 			delete this.attributes.name;
@@ -80,7 +79,6 @@ class StreamCreator extends ModelCreator {
 			delete this.attributes.repoId;
 			delete this.attributes.name;
 		}
-		process.nextTick(callback);
 	}
 
 	// ensure the user making the request is a member of channel or direct streams
@@ -93,7 +91,7 @@ class StreamCreator extends ModelCreator {
 			// this will get caught later
 			return;
 		}
-		if (this.attributes.memberIds.indexOf(this.user.id) === -1) {
+		if (!this.attributes.memberIds.includes(this.user.id)) {
 			this.attributes.memberIds.push(this.user.id);
 		}
 		this.attributes.memberIds.sort();
@@ -132,7 +130,7 @@ class StreamCreator extends ModelCreator {
 	}
 
 	// called before the stream is actually saved
-	preSave (callback) {
+	async preSave () {
 		this.attributes.creatorId = this.user.id;	// user making the request is the stream creator
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
@@ -144,42 +142,38 @@ class StreamCreator extends ModelCreator {
 				this.attributes.editingUsers = this.editingUsers;	// not user-definable, but the server can provide it
 			}
 		}
-		BoundAsync.series(this, [
-			this.createId,
-			super.preSave
-		], callback);
+		this.createId();
+		await super.preSave();
 	}
 
 	// requisition an ID for the post
-	createId (callback) {
+	createId () {
 		this.attributes._id = this.attributes.sortId = this.data.streams.createId();
-		callback();
 	}
 
 	// after the stream has been saved
-	postSave (callback) {
+	async postSave () {
 		// grant permission to the members of the stream to subscribe to the stream's messager channel
-		this.grantUserMessagingPermissions(callback);
+		await this.grantUserMessagingPermissions();
 	}
 
 	// grant permission to the members of the stream to subscribe to the stream's messager channel
-	grantUserMessagingPermissions (callback) {
+	async grantUserMessagingPermissions () {
 		if (!this.model.get('memberIds')) {
-			return callback();	// no need to grant permissions for file-type stream, these get team-level messages
+			return;	// no need to grant permissions for file-type stream, these get team-level messages
 		}
-		new StreamSubscriptionGranter({
-			data: this.data,
-			messager: this.api.services.messager,
-			stream: this.model,
-			request: this.request
-		}).grantToMembers(error => {
-			if (error) {
-				return callback(this.errorHandler.error('messagingGrant', { reason: error }));
-			}
-			callback();
-		});
+		try {
+			await new StreamSubscriptionGranter({
+				data: this.data,
+				messager: this.api.services.messager,
+				stream: this.model,
+				request: this.request
+			}).grantToMembers();
+		}
+		catch (error) {
+			throw this.errorHandler.error('messagingGrant', { reason: error });
+		}
 	}
-
 }
 
 module.exports = StreamCreator;

@@ -3,9 +3,8 @@
 
 'use strict';
 
-var RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var PostCreator = require(process.env.CS_API_TOP + '/modules/posts/post_creator');
+const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
+const PostCreator = require(process.env.CS_API_TOP + '/modules/posts/post_creator');
 const Errors = require('./errors');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 
@@ -17,32 +16,29 @@ class InboundEmailRequest extends RestfulRequest {
 	}
 
 	// authorize the client (the inbound email server) to make this request
-	authorize (callback) {
+	async authorize () {
 		// we rely on a secret, known only to the inbound email server and the
 		// API server ... disallowing arbitrary clients to call this request
 		if (this.request.body.secret !== this.api.config.secrets.mail) {
-			return callback(this.errorHandler.error('unauthorized'));
+			throw this.errorHandler.error('unauthorized');
 		}
-		callback();
 	}
 
 	// process the request...
-	process(callback) {
-		BoundAsync.series(this, [
-			this.requireAllow,
-			this.getCreator,
-			this.parseToAddresses,
-			this.getStream,
-			this.validate,
-			this.handleAttachments,
-			this.getTeam,
-			this.createPost
-		], callback);
+	async process () {
+		await this.requireAllow();
+		await this.getCreator();
+		await this.parseToAddresses();
+		await this.getStream();
+		await this.validate();
+		await this.handleAttachments();
+		await this.getTeam();
+		await this.createPost();
 	}
 
 	// these parameters are required and/or optional for the request
-	requireAllow (callback) {
-		this.requireAllowParameters(
+	async requireAllow () {
+		await this.requireAllowParameters(
 			'body',
 			{
 				required: {
@@ -53,174 +49,149 @@ class InboundEmailRequest extends RestfulRequest {
 				optional: {
 					'array(object)': ['attachments']
 				}
-			},
-			callback
-		);
-	}
-
-	// get the person from whom the email originated, if we can find them...
-	getCreator (callback) {
-		let from = this.request.body.from;
-		if (!from.address) {
-			return callback(this.errorHandler.error('noFromAddress', { info: this.fromEmail }));
-		}
-		this.fromEmail = from.address.toLowerCase();
-		this.log(`Processing an inbound email (${this.request.body.mailFile}) from ${this.fromEmail}`);
-		this.data.users.getByQuery(
-			{ searchableEmail: this.fromEmail },
-			(error, users) => {
-				if (error) {
-					return callback(this.errorHandler.error('internal', { reason: error }));
-				}
-				if (users.length === 0) {
-					return callback(this.errorHandler.error('creatorNotFound', { info: this.fromEmail }));
-				}
-				this.fromUser = users[0];
-				callback();
-			},
-			{
-				databaseOptions: {
-					hint: UserIndexes.bySearchableEmail
-				}
 			}
 		);
 	}
 
+	// get the person from whom the email originated, if we can find them...
+	async getCreator () {
+		let from = this.request.body.from;
+		if (!from.address) {
+			throw this.errorHandler.error('noFromAddress', { info: this.fromEmail });
+		}
+		this.fromEmail = from.address.toLowerCase();
+		this.log(`Processing an inbound email (${this.request.body.mailFile}) from ${this.fromEmail}`);
+		let users;
+		try {
+			users = await this.data.users.getByQuery(
+				{
+					searchableEmail: this.fromEmail
+				},
+				{
+					databaseOptions: {
+						hint: UserIndexes.bySearchableEmail
+					}
+				}
+			);
+		}
+		catch (error) {
+			throw this.errorHandler.error('internal', { reason: error });
+		}
+		if (users.length === 0) {
+			throw this.errorHandler.error('creatorNotFound', { info: this.fromEmail });
+		}
+		this.fromUser = users[0];
+	}
+
 	// get the stream ID represented by one of the email addresses in the to-field
-	parseToAddresses (callback) {
+	async parseToAddresses () {
 		this.streamId = null;
 		let i = 0;
 		// stop when we find the first valid stream ID
-		BoundAsync.whilst(
-			this,
-			() => {
-				return !this.streamId && i < this.request.body.to.length;
-			},
-			(whilstCallback) => {
-				this.parseToAddress(this.request.body.to[i++], whilstCallback);
-			},
-			callback
-		);
+		while (!this.streamId && i < this.request.body.to.length) {
+			await this.parseToAddress(this.request.body.to[i++]);
+		}
 	}
 
 	// parse a single email object in the to-field, looking for a valid stream ID
-	parseToAddress (toObject, callback) {
-		let email = toObject.address.toLowerCase();
+	async parseToAddress (toObject) {
+		const email = toObject.address.toLowerCase();
 
 		// make sure it has our reply-to domain, otherwise we are just plain
 		// not interested!
-		let regexp = new RegExp(this.api.config.email.replyToDomain + '$', 'i');
+		const regexp = new RegExp(this.api.config.email.replyToDomain + '$', 'i');
 		if (!regexp.test(email)) {
-			this.log(`Email ${email} does not match the reply-to domain`);
-			return callback();
+			return this.log(`Email ${email} does not match the reply-to domain`);
 		}
 
 		// extract the first part of the email, this should be our stream ID
-		let addressParts = email.trim().split('@');
+		const addressParts = email.trim().split('@');
 		if (addressParts.length !== 2) {
-			this.log(`Email ${email} is not a valid email`);
-			return callback();
+			return this.log(`Email ${email} is not a valid email`);
 		}
 
 		// split the first part by '.', this separates the team ID and the stream ID
-		let idParts = addressParts[0].split('.');
+		const idParts = addressParts[0].split('.');
 		if (idParts.length !== 2) {
-			this.log(`Email ${email} does not conform to the correct format for ingestion`);
-			return callback();
+			return this.log(`Email ${email} does not conform to the correct format for ingestion`);
 		}
 
 		// check that the IDs are valid
 		if (!this.data.streams.objectIdSafe(idParts[0])) {
-			this.log(`Email ${email} does not reference a valid stream ID`);
-			return callback();
+			return this.log(`Email ${email} does not reference a valid stream ID`);
 		}
 		if (!this.data.teams.objectIdSafe(idParts[1])) {
-			this.log(`Email ${email} does not reference a valid team ID`);
-			return callback();
+			return this.log(`Email ${email} does not reference a valid team ID`);
 		}
 
 		// good to go
 		this.streamId = idParts[0];
 		this.teamId = idParts[1];
-		process.nextTick(callback);
 	}
 
 	// get the stream associated with the IDs we found
-	getStream (callback) {
+	async getStream () {
 		if (!this.streamId) {
-			return callback(this.errorHandler.error('noMatchFound', { info: this.request.body.to }));
+			throw this.errorHandler.error('noMatchFound', { info: this.request.body.to });
 		}
-		this.data.streams.getById(
-			this.streamId,
-			(error, stream) => {
-				if (error) {
-					return callback(this.errorHandler.error('internal', { reason: error }));
-				}
-				else if (!stream) {
-					return callback(this.errorHandler.error('streamNotFound', { info: this.streamId }));
-				}
-				this.stream = stream;
-				callback();
-			}
-		);
+		try {
+			this.stream = await this.data.streams.getById(this.streamId);
+		}
+		catch (error) {
+			throw this.errorHandler.error('internal', { reason: error });
+		}
+		if (!this.stream) {
+			throw this.errorHandler.error('streamNotFound', { info: this.streamId });
+		}
 	}
 
 	// validate the stream: the stream must be owned by the correct team, and the
 	// user originating the email must be on the team
-	validate (callback) {
+	async validate () {
 		if (this.stream.get('teamId') !== this.teamId) {
-			return callback(this.errorHandler.error('streamNoMatchTeam', { info: this.streamId }));
+			throw this.errorHandler.error('streamNoMatchTeam', { info: this.streamId });
 		}
 		if (!this.fromUser.hasTeam(this.teamId)) {
 			this.log(`User ${this.fromUser.id} is not on team ${this.teamId}`);
-			return callback(this.errorHandler.error('unauthorized'));
+			throw this.errorHandler.error('unauthorized');
 		}
-		process.nextTick(callback);
 	}
 
 	// handle any attachments in the email
-	handleAttachments (callback) {
+	async handleAttachments () {
 		// not yet supported
-		callback();
 	}
 
 	// get the team, unfortunately we need this for tracking
-	getTeam (callback) {
-		this.data.teams.getById(
-			this.stream.get('teamId'),
-			(error, team) => {
-				if (error) { return callback(error); }
-				this.team = team;
-				callback();
-			}
-		);
+	async getTeam () {
+		this.team = await this.data.teams.getById(this.stream.get('teamId'));
 	}
 
 	// create a post for this email in the stream
-	createPost (callback) {
+	async createPost () {
 		this.user = this.fromUser;
 		this.postCreator = new PostCreator({
 			request: this,
 			team: this.team,
 			forInboundEmail: true
 		});
-		this.postCreator.createPost({
-			streamId: this.streamId,
-			text: this.request.body.text,
-			origin: 'email'
-		}, error => {
-			if (error) {
-				return callback(this.errorHandler.error('internal'), { reason: error });
-			}
-			this.post = this.postCreator.model;
-			this.responseData.post = this.post.getSanitizedObject();
-			callback();
-		});
+		try {
+			await this.postCreator.createPost({
+				streamId: this.streamId,
+				text: this.request.body.text,
+				origin: 'email'
+			});
+		}
+		catch (error) {
+			throw this.errorHandler.error('internal', { reason: error });
+		}
+		this.post = this.postCreator.model;
+		this.responseData.post = this.post.getSanitizedObject();
 	}
 
 	// after the post is created...
-	postProcess (callback) {
-		this.postCreator.postCreate(callback);
+	async postProcess () {
+		await this.postCreator.postCreate();
 	}
 }
 

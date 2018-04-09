@@ -2,7 +2,7 @@
 
 'use strict';
 
-var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
+const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
 const StreamAttributes = require('./stream_attributes');
 const StreamTypes = require('./stream_types');
 
@@ -22,7 +22,7 @@ class StreamValidator extends CodeStreamModelValidator {
 
 	// validate that the stream type is one of the accepted types
 	validateStreamType (value/*, definition, options*/) {
-		if (StreamTypes.indexOf(value.toLowerCase()) === -1) {
+		if (!StreamTypes.includes(value.toLowerCase())) {
 			return `invalid stream type: ${value}`;
 		}
 	}

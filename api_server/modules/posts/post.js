@@ -2,8 +2,8 @@
 
 'use strict';
 
-var CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
-var CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
+const CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
+const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
 const PostAttributes = require('./post_attributes');
 
 class Post extends CodeStreamModel {
@@ -13,7 +13,7 @@ class Post extends CodeStreamModel {
 	}
 
 	// right before the post is saved...
-	preSave (callback, options) {
+	async preSave (options) {
 		// ensure referencing IDs are lower-cased
 		this.lowerCase('teamId');
 		this.lowerCase('repoId');
@@ -25,12 +25,12 @@ class Post extends CodeStreamModel {
 		if (this.attributes.mentionedUserIds instanceof Array) {
 			this.attributes.mentionedUserIds.sort();
 		}
-		super.preSave(callback, options);
+		await super.preSave(options);
 	}
 
 	// does this post mention the current user?
 	mentionsUser (user) {
-		let mentionedUserIds = this.get('mentionedUserIds') || [];
+		const mentionedUserIds = this.get('mentionedUserIds') || [];
 		return mentionedUserIds.includes(user.id);
 	}
 }

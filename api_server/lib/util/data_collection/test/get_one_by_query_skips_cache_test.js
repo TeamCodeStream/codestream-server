@@ -37,21 +37,25 @@ class GetOneByQuerySkipsCacheTest extends DataCollectionTest {
 	}
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// we'll look for this one model by query ... since the DataCollection does not support
 		// querying the cache, and since these models have not yet been persisted, a query here
 		// should not return any results
 		let testModel = this.models[4];
 		this.testModels = [];
-		this.data.test.getOneByQuery(
-			{
-				text: testModel.get('text'),
-				flag: testModel.get('flag')
-			},
-			(error, response) => {
-				this.checkResponse(error, response, callback);
-			}
-		);
+		let response;
+		try {
+			response = await this.data.test.getOneByQuery(
+				{
+					text: testModel.get('text'),
+					flag: testModel.get('flag')
+				}
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		this.checkResponse(null, response, callback);
 	}
 
 	validateResponse () {
