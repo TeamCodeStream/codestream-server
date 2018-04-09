@@ -17,7 +17,8 @@ class APIServerModules {
 		}
 		this.config = this.api.config;
 		this.logger = options.logger || this.api;
-		this.modules = {};
+		this.modulesByName = {};
+		this.modules = [];
 		this.middlewares = [];
 		this.services = [];
 		this.routes = [];
@@ -74,7 +75,8 @@ class APIServerModules {
 			throw module;
 		}
 		this.api.log(`Accepted module ${moduleJS}`);
-		this.modules[name] = module;
+		this.modules.push(module);
+		this.modulesByName[name] = module;
 	}
 
 	// instantiate a module, as given by the module.js file found in the module directory
@@ -108,14 +110,14 @@ class APIServerModules {
 	// figure out which modules may be dependent on which others ... this mainly concerns
 	// setting the correct order for middleware routines
 	collectDependencies () {
-		this.moduleNames = Object.keys(this.modules);
+		this.moduleNames = Object.keys(this.modulesByName);
 		this.moduleDependencies = [];
 		this.moduleNames.forEach(this.collectModuleDependencies.bind(this));
 	}
 
 	// collect the module dependencies for a specific module
 	collectModuleDependencies (moduleName) {
-		let module = this.modules[moduleName];
+		let module = this.modulesByName[moduleName];
 		let dependencies = module.getDependencies();
 		if (dependencies instanceof Array) {
 			dependencies.forEach(dep => {
@@ -145,7 +147,7 @@ class APIServerModules {
 		// the result of the TopoSort is an array of module names, where those
 		// dependent on others come first ... we need to reverse this so those
 		// dependent on others are registered later
-		this.modules = sorted.map(moduleName => this.modules[moduleName]);
+		this.modules = sorted.map(moduleName => this.modulesByName[moduleName]);
 		this.modules.reverse();
 	}
 
@@ -314,8 +316,8 @@ class APIServerModules {
 
 	// give modules a post-load opportunity to initialize
 	initializeModules () {
-		Object.keys(this.modules).forEach(moduleName => {
-			this.modules[moduleName].initialize.bind(module);
+		this.modules.forEach(module => {
+			module.initialize.bind(module)();
 		});
 	}
 }

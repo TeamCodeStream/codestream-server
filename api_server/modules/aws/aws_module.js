@@ -20,7 +20,7 @@ class AWSModule extends APIServerModule {
 	}
 
 	initializeSQS () {
-		this.sqsClient = new SQSClient({ aws: this.aws });
+		this.sqsClient = new SQSClient({ aws: this.aws, logger: this.api });
 	}
 }
 
