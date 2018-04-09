@@ -54,7 +54,6 @@ class SendGridEmail {
 			return true;
 		}
 		else if (!this.emailTo || this.requestSaysToBlockEmails(options)) {
-/*
 			if (
 				options.request &&
 				!this.emailTo &&
@@ -66,15 +65,12 @@ class SendGridEmail {
 				throw 'Attempt to block emails while confirmation is required: turn on emails or turn off the confirmation requirement';
 			}
 			else {
-*/
 				// we are configured not to actually send out emails, just drop it to the floor
 				if (options.request) {
 					options.request.log(`Would have sent to ${JSON.stringify(options.to)}: ${options.subject}`);
 				}
 				return true;
-/*
 			}
-*/
 		}
 	}
 
