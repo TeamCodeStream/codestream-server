@@ -6,7 +6,7 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
 const RandomString = require('randomstring');
-const KnownGitServices = require('../../known_git_services');
+const { KNOWN_GIT_SERVICES } = require('../../extract_company_identifier');
 
 class MatchRepoTest extends CodeStreamAPITest {
 
@@ -15,10 +15,10 @@ class MatchRepoTest extends CodeStreamAPITest {
 		this.numUsers = 3;
 		this.numTeams = 2;
 		this.numReposPerTeam = 2;
-		const services = Object.keys(KnownGitServices);
+		const services = Object.keys(KNOWN_GIT_SERVICES);
 		const serviceIndex = Math.floor(Math.random() * services.length);
 		this.service = services[serviceIndex];
-		this.org = RandomString.generate(8) + '.com';
+		this.org = RandomString.generate(12);
 		this.matches = [0];
 	}
 
@@ -85,7 +85,7 @@ class MatchRepoTest extends CodeStreamAPITest {
 		emails.splice(creatorNum, 1);
 		let domain, org;
 		if (this.matches.includes(n) && !this.wantExactMatch) {
-			domain = this.service || this.domain;
+			domain = this.service || `${RandomString.generate(4)}.${this.domain}`;
 			org = this.org;
 		}
 		this.repoFactory.createRandomRepo(
@@ -115,7 +115,7 @@ class MatchRepoTest extends CodeStreamAPITest {
 	// get query parameters used to make the path
 	getQueryParameters () {
 		const options = {
-			domain: this.service || this.domain,
+			domain: this.service || `${RandomString.generate(4)}.${this.domain}`,
 			org: this.org
 		};
 		const url = this.url || this.repoFactory.randomUrl(options);
@@ -139,7 +139,7 @@ class MatchRepoTest extends CodeStreamAPITest {
 	// validate the response to the test request
 	validateResponse (data) {
 		if (this.service) {
-			Assert(data.knownService === KnownGitServices[this.service], 'service not correct');
+			Assert(data.knownService === KNOWN_GIT_SERVICES[this.service], 'service not correct');
 			Assert(data.org === this.org.toLowerCase(), 'org not correct');
 		}
 		if (this.domain) {

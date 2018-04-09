@@ -21,6 +21,11 @@ module.exports = {
 		maxLength: 1024,
 		required: true
 	},
+	companyIdentifier: {
+		type: 'string',
+		maxLength: 256,
+		required: true
+	},
 	firstCommitHash: {
 		type: 'string',
 		minLength: 40,

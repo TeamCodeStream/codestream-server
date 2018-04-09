@@ -6,10 +6,10 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const NormalizeURL = require('./normalize_url');
+const ExtractCompanyIdentifier = require('./extract_company_identifier');
 const Indexes = require('./indexes');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 const Errors = require('./errors');
-const KnownGitServices = require('./known_git_services');
 
 class MatchRepoRequest extends RestfulRequest {
 
@@ -49,58 +49,20 @@ class MatchRepoRequest extends RestfulRequest {
 	async parseUrl () {
 		this.request.query.firstCommitHash = this.request.query.firstCommitHash.toLowerCase();
 		this.normalizedUrl = NormalizeURL(decodeURIComponent(this.request.query.url));
-		if (
-			!this.checkKnownService() &&
-			!this.extractDomain()
-		) {
-			// short-circuit the request, we're not going to find a match
-			this.noMatches = true;
-		}
-	}
-
-	// check if the url is associated with a known service, like github, and if
-	// so, parse and extract contents
-	checkKnownService () {
-		return Object.keys(KnownGitServices).find(service => {
-			const escapedService = service.replace('.', '\\.');
-			const regExp = new RegExp(`^${escapedService}/(.+?)/`);
-			const match = this.normalizedUrl.match(regExp);
-			if (match && match.length > 1) {
-				this.service = service;
-				this.org = match[1];
-				return true;
-			}
-		});
-	}
-
-	// extract the domain part of the url
-	extractDomain () {
-		const match = this.normalizedUrl.match(/^(.+?)\//);
-		if (match && match.length > 1) {
-			this.domain = match[1];
-			return true;
-		}
+		this.companyIdentifier = ExtractCompanyIdentifier.extractCompanyIdentifier(this.normalizedUrl);
 	}
 
 	// attempt to find any matching repos
 	async findRepo () {
-		if (this.noMatches) {
+		if (!this.companyIdentifier) {
 			// we already know there will be no matches
 			this.repos = [];
 			return;
 		}
-		let regExp;
-		if (this.service) {
-			const escapedService = this.service.replace('.', '\\.');
-			const escapedOrg = this.org.replace('.', '\\.');
-			regExp = new RegExp(`^${escapedService}/${escapedOrg}/`);
-		}
-		else {
-			const escapedDomain = this.domain.replace('.', '\\.');
-			regExp = new RegExp(`^${escapedDomain}/`);
-		}
+
+		const companyIdentifierString = ExtractCompanyIdentifier.formCompanyIdentifier(this.companyIdentifier);
 		const query = {
-			normalizedUrl: regExp
+			companyIdentifier: companyIdentifierString
 		};
 		const repos = await this.data.repos.getByQuery(
 			query,
@@ -221,12 +183,13 @@ class MatchRepoRequest extends RestfulRequest {
 			teams: teams,
 			teamCreators: this.creatorsByTeamId || {}
 		};
-		if (this.service) {
-			this.responseData.knownService = KnownGitServices[this.service];
-			this.responseData.org = this.org;
+		if (this.companyIdentifier && this.companyIdentifier.service) {
+			this.responseData.knownService =
+				ExtractCompanyIdentifier.KNOWN_GIT_SERVICES[this.companyIdentifier.service];
+			this.responseData.org = this.companyIdentifier.org;
 		}
-		else {
-			this.responseData.domain = this.domain;
+		else if (this.companyIdentifier.domain) {
+			this.responseData.domain = this.companyIdentifier.domain;
 		}
 	}
 }
