@@ -8,6 +8,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var NormalizeURL = require('../../normalize_url');
 const RepoTestConstants = require('../repo_test_constants');
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
+const ExtractCompanyIdentifier = require('../../extract_company_identifier');
 
 class PostRepoTest extends CodeStreamAPITest {
 
@@ -195,9 +196,11 @@ class PostRepoTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		let repo = data.repo;
 		let errors = [];
+		const companyIdentifier = ExtractCompanyIdentifier.getCompanyIdentifier(NormalizeURL(this.data.url));
 		let result = (
 			((repo.url ===this.data.url) || errors.push('incorrect url')) &&
 			((repo.normalizedUrl === NormalizeURL(this.data.url)) || errors.push('incorrect url')) &&
+			((repo.companyIdentifier === companyIdentifier) || errors.push('incorrect companyIdentifier')) &&
 			((repo.firstCommitHash === this.data.firstCommitHash.toLowerCase()) || errors.push('incorrect firstCommitHash')) &&
 			((repo.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof repo.createdAt === 'number') || errors.push('createdAt not number')) &&
