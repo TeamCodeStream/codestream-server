@@ -9,7 +9,7 @@
 var _findAttribute = function(checkAttributes, attribute) {
 	if (checkAttributes instanceof Array) {
 		// simple array of attribute names, meaning we don't really care what their type is
-		return checkAttributes.indexOf(attribute) !== -1;
+		return checkAttributes.includes(attribute);
 	}
 	else if (typeof checkAttributes === 'object') {
 		// each key of the checked attributes is a type, and refers to an array of attributes that
@@ -29,7 +29,7 @@ var _findAttribute = function(checkAttributes, attribute) {
 
 // does the type of a provided attribute match the expected type?
 var _typeMatches = function(value, type) {
-	if (['object', 'string', 'number', 'boolean'].indexOf(type) !== -1) {
+	if (['object', 'string', 'number', 'boolean'].includes(type)) {
 		// basic types
 		return typeof value === type;
 	}
@@ -52,7 +52,7 @@ var _typeMatches = function(value, type) {
 
 // check that every required attribute exists in the passed object and
 // (optionally) if it matches the type expected
-var _require = function(object, requiredAttributes) {
+const _require = function(object, requiredAttributes) {
 	if (typeof object !== 'object') { return; }
 	if (typeof requiredAttributes !== 'object') { return; }
 	let missing = [];

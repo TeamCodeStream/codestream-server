@@ -7,7 +7,7 @@ const OS = require('os');
 const Program = require('commander');
 const Net = require('net');
 const Cluster = require('cluster');
-const PromiseCallback = require(process.env.CS_API_TOP + '/server_utils/promise_callback');
+const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
 Program
 	.option('--one_worker [one_worker]', 'Use only one worker')	// force to use only worker, sometimes desirable for clarity when reading output
@@ -43,7 +43,7 @@ class ClusterWrapper {
 
 	async startMaster () {
 		this.processArguments();
-		await PromiseCallback(this.testPorts, this);
+		await AwaitUtils.callbackWrap(this.testPorts.bind(this));
 		this.startWorkers();
 	}
 

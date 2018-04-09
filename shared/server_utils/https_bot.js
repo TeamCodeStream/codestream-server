@@ -5,7 +5,7 @@
 const HTTPS = require('https');
 const HTTP = require('http');
 
-function _SimpleRequest (method, host, port, path, data, callback, options) {
+function _SimpleRequest (method, host, port, path, data, options, callback) {
 
 	options = Object.assign({}, options || {}, { method, host, port, path });
 	if (!options.noJsonInRequest) {
@@ -61,19 +61,19 @@ function _SimpleRequest (method, host, port, path, data, callback, options) {
 
 module.exports = {
 
-	get: (host, port, path, data, callback, options) => {
-		_SimpleRequest('get', host, port, path, data, callback, options);
+	get: (host, port, path, data, options, callback) => {
+		_SimpleRequest('get', host, port, path, data, options, callback);
 	},
 
-	post: (host, port, path, data, callback, options) => {
-		_SimpleRequest('post', host, port, path, data, callback, options);
+	post: (host, port, path, data, options, callback) => {
+		_SimpleRequest('post', host, port, path, data, options, callback);
 	},
 
-	put: (host, port, path, data, callback, options) => {
-		_SimpleRequest('put', host, port, path, data, callback, options);
+	put: (host, port, path, data, options, callback) => {
+		_SimpleRequest('put', host, port, path, data, options, callback);
 	},
 
-	delete: (host, port, path, data, callback, options) => {
-		_SimpleRequest('delete', host, port, path, data, callback, options);
+	delete: (host, port, path, data, options, callback) => {
+		_SimpleRequest('delete', host, port, path, data, options, callback);
 	}
 };

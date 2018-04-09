@@ -6,10 +6,10 @@
 
 /* eslint no-console: 0 */
 
-var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub.js');
-var PubNubClient = require('pubnub');
+const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub.js');
+const PubNubClient = require('pubnub');
 
-var pubnub = new PubNubClient(PubNubConfig);
+const pubnub = new PubNubClient(PubNubConfig);
 
 var channels;
 if (process.argv[2]) {

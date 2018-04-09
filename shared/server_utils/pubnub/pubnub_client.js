@@ -215,7 +215,7 @@ class PubNubClient {
 		for (let channel in this.statusCallbacks) {
 			if (
 				status.subscribedChannels instanceof Array &&
-				status.subscribedChannels.indexOf(channel) !== -1
+				status.subscribedChannels.includes(channel)
 			) {
 				// successfully subscribed to this channel
 				this.statusCallbacks[channel]();

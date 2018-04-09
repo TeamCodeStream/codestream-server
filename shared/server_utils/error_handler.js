@@ -41,7 +41,11 @@ class ErrorHandler {
 
 	// log this error, safely turning it into a string
 	static log (error) {
-		return typeof error === 'string' ? error : JSON.stringify(error);
+		let message = typeof error === 'string' ? error : JSON.stringify(error);
+		if (error.stack) {
+			message += `\n${error.stack}`;
+		}
+		return message;
 	}
 
 	// prepare this error object for return to the client ... we recognize an

@@ -3,10 +3,10 @@
 
 'use strict';
 
-var Strftime = require('strftime');
-var Path = require('path');
-var FS = require('fs');
-var Async = require('async');
+const Strftime = require('strftime');
+const Path = require('path');
+const FS = require('fs');
+const { callbackWrap } = require('./await_utils');
 
 class SimpleFileLogger {
 
@@ -31,23 +31,22 @@ class SimpleFileLogger {
 	}
 
 	// initialize logging
-	initialize (callback) {
+	async initialize () {
 		this.startedOn = Date.now();
-		this.rotate(callback);
+		await this.rotate();
 	}
 
 	// open the next log file in the rotation (it must be midnight)
-	openNextLogFile (callback) {
+	async openNextLogFile () {
 		const now = Date.now();
 		this.currentFilename = this.getLogFileName(now);
 		try {
 			this.fd = FS.createWriteStream(this.currentFilename, { flags: 'a' });
 		}
 		catch (error) {
-			return callback && callback(`unable to open log file ${this.currentFilename}: ${error}`);
+			throw `unable to open log file ${this.currentFilename}: ${error}`;
 		}
 		this.lastWritten = now;
-		return callback && process.nextTick(callback);
 	}
 
 	// get a log file name associated with the passed date
@@ -78,12 +77,11 @@ class SimpleFileLogger {
 	}
 
 	// log something, with an optional request ID
-	log (text, requestId) {
+	async log (text, requestId) {
 		// the first logged message triggers initialization
 		if (!this.startedOn) {
-			this.initialize(() => {
-				this.logAfterInitialized(text, requestId);
-			});
+			await this.initialize();
+			this.logAfterInitialized(text, requestId);
 		}
 		else {
 			this.logAfterInitialized(text, requestId);
@@ -109,12 +107,11 @@ class SimpleFileLogger {
 	}
 
 	// after initialization, we're assured of a log file to write to
-	logAfterInitialized (text, requestId) {
+	async logAfterInitialized (text, requestId) {
 		// check if we've reached the threshold time (midnight) and rotate as needed
-		this.maybeRotate(() => {
-			// and now finally, we can output our text
-			this.out(text, requestId);
-		});
+		await this.maybeRotate();
+		// and now finally, we can output our text
+		this.out(text, requestId);
 	}
 
 	// output text to the current log file
@@ -142,16 +139,13 @@ class SimpleFileLogger {
 	}
 
 	// rotate the log file to the next date, as needed
-	maybeRotate (callback) {
+	async maybeRotate () {
 		const now = Date.now();
 		const nowMidnight = this.midnight(now);
 		const lastWrittenMidnight = this.midnight(this.lastWritten);
 		if (nowMidnight > lastWrittenMidnight) {
 			// yep, time to rotate, we've passed midnight
-			this.rotate(callback);
-		}
-		else {
-			callback();
+			await this.rotate();
 		}
 	}
 
@@ -167,70 +161,73 @@ class SimpleFileLogger {
 	}
 
 	// rotate to the next log file
-	rotate (callback) {
+	async rotate () {
 		if (this.fd) {
 			this.fd.end();
 		}
 		this.fd = null;
-		Async.series([
-			this.openNextLogFile.bind(this),	// open the next one
-			this.removeOldLink.bind(this),		// remove the link to the last one
-			this.makeNewLink.bind(this),		// make a link to the new one
-			this.cleanupOld.bind(this)			// clean up and old log files
-		], callback);
+		await this.openNextLogFile(); 	// open the next one
+		await this.removeOldLink();		// remove the link to the last one
+		await this.makeNewLink();		// make a link to the new one
+		await this.cleanupOld();		// clean up and old log files
 	}
 
 	// remove the link from the last master log file to its date-stamped instance
-	removeOldLink (callback) {
-		FS.unlink(this.linkName, (error) => {
-			if (error && error.code !== 'ENOENT') {
+	async removeOldLink () {
+		try {
+			await callbackWrap(
+				FS.unlink,
+				this.linkName
+			);
+		}
+		catch (error) {
+			if (error.code !== 'ENOENT') {
 				console.error(`unable to unlink ${this.linkName}: ${error}`); // eslint-disable-line no-console
 			}
-			process.nextTick(callback);
-		});
+		}
 	}
 
 	// make a symbolic link from the master (unstamped) log file to the next (stamped) log file
-	makeNewLink (callback) {
-		FS.link(
-			this.currentFilename,
-			this.linkName,
-			(error) => {
-				if (error) {
-					console.error(`unable to link ${this.linkName}: ${error}`); // eslint-disable-line no-console
-				}
-				process.nextTick(callback);
+	async makeNewLink () {
+		try {
+			await callbackWrap(
+				FS.link,
+				this.currentFilename,
+				this.linkName
+			);
+		}
+		catch (error) {
+			if (error.code !== 'EEXIST') {
+				console.error(`unable to link ${this.linkName}: ${error}`); // eslint-disable-line no-console
 			}
-		);
+		}
 	}
 
 	// clean up any log files older than the retention period
-	cleanupOld (callback) {
+	async cleanupOld () {
 		const now = Date.now();
 		const nowMidnight = this.midnight(now);
 		const deleteThrough = nowMidnight - this.retentionPeriod;
 		const oneDay = 24 * 60 * 60 * 1000;
 		const deleteFrom = deleteThrough - 30 * oneDay;
 		let day = deleteFrom;
-		let self = this;
-		Async.whilst(
-			() => {
-				return day <= deleteThrough;
-			},
-			(whilstCallback) => {
-				self.deleteDay(day, () => {
-					day += oneDay;
-					process.nextTick(whilstCallback);
-				});
-			},
-			callback
-		);
+		while (day <= deleteThrough) {
+			await this.deleteDay(day);
+			day += oneDay;
+		}
 	}
 
 	// delete the log file associated with the given day
-	deleteDay (day, callback) {
+	async deleteDay (day) {
 		const filename = this.getLogFileName(day);
-		FS.unlink(filename, callback);
+		try {
+			await callbackWrap(FS.unlink, filename);
+		}
+		catch (error) {
+			if (error.code !== 'ENOENT') {
+				console.error(`unable to unlink ${this.linkName}: ${error}`); // eslint-disable-line no-console
+			}
+		}
 	}
 }
 
