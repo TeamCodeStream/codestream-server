@@ -6,6 +6,8 @@
 
 'use strict';
 
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+
 class SQSClient {
 
 	constructor (options = {}) {
@@ -15,37 +17,39 @@ class SQSClient {
 	}
 
 	// create a queue given the name provided, messages will be returned in the handler callback provided
-	async createQueue (options) {
+	createQueue (options, callback) {
 		if (!options.name) {
-			throw 'must provide a queue name';
+			return callback('must provide a queue name');
 		}
-		let data;
-		try {
-			data = await this.sqs.createQueue({ QueueName: options.name });
-		}
-		catch (error) {
-			throw `unable to create queue ${options.name}: ${error}`;
-		}
-		this.queues[options.name] = {
-			name: options.name,
-			options: options,
-			url: data.QueueUrl,
-			handler: options.handler
+		const params = {
+			QueueName: options.name
 		};
-		if (!options.dontListen) {
-			this._initiatePolling(options.name);
-		}
+		this.sqs.createQueue(params, (error, data) => {
+			if (error) {
+				return callback(`unable to create queue ${options.name}: ${error}`);
+			}
+			this.queues[options.name] = {
+				name: options.name,
+				options: options,
+				url: data.QueueUrl,
+				handler: options.handler
+			};
+			if (!options.dontListen) {
+				this._initiatePolling(options.name);
+			}
+			callback();
+		});
 	}
 
 	// send a message to the given message queue
-	async sendMessage (queueName, data, options) {
+	sendMessage (queueName, data, options, callback) {
 		options = options || {};
 		if (typeof queueName !== 'string') {
-			throw 'must provide a valid queue name';
+			return callback('must provide a valid queue name');
 		}
 		const queue = this.queues[queueName];
 		if (!queue) {
-			throw `no queue found matching ${queueName}`;
+			return callback(`no queue found matching ${queueName}`);
 		}
 		const params = {
 			MessageBody: JSON.stringify(data),
@@ -57,80 +61,97 @@ class SQSClient {
 		if (typeof options.attributes === 'object') {
 			params.MessageAttributes = options.attributes;
 		}
-		try {
-			await this.sqs.sendMessage(params);
-		}
-		catch (error) {
-			throw `failed to send message to queue ${queueName}: ${error}`;
-		}
+		this.sqs.sendMessage(params, error => {
+			if (error) {
+				return callback(`failed to send message to queue ${queueName}: ${error}`);
+			}
+			callback();
+		});
 	}
 
 	// initiate a continuous polling for messages received in the given queue
-	async _initiatePolling (queueName) {
+	_initiatePolling (queueName) {
 		const queue = this.queues[queueName];
 		if (!queue) { return; }
-		while (!queue.stopPolling) {
-			await this._pollOnce(queueName);
-		}
+		BoundAsync.whilst(
+			this,
+			() => {
+				return !queue.stopPolling;
+			},
+			whilstCallback => {
+				this._pollOnce(queueName, whilstCallback);
+			}
+		);
 	}
 
 	// long-poll a given message queue once for messages
-	async _pollOnce (queueName) {
+	_pollOnce (queueName, callback) {
 		const queue = this.queues[queueName];
 		if (!queue) { return; }
 		const params = {
 			QueueUrl: queue.url,
 			WaitTimeSeconds: 20 // maximum allowed
 		};
-		let data;
-		try {
-			data = await this.sqs.receiveMessage(params);
-		}
-		catch (error) {
-			return this.warn(`Error receiving message on queue ${queueName}: ${error}`);
-		}
-		if (data && (data.Messages instanceof Array)) {
-			await this._processMessages(queue, data.Messages);
-		}
+		this.sqs.receiveMessage(params, (error, data) => {
+			if (error) {
+				this.logger.warn(`Error receiving message on queue ${queueName}: ${error}`);
+				return callback();
+			}
+			if (!data || !(data.Messages instanceof Array)) {
+				return callback();
+			}
+			return this._processMessages(queue, data.Messages, callback);
+		});
 	}
 
 	// process messages received from the queue
-	async _processMessages (queue, messages) {
-		for (let message of messages) {
-			await this._processMessage(queue, message);
-		}
+	_processMessages (queue, messages, callback) {
+		BoundAsync.forEachSeries(
+			this,
+			messages,
+			(message, forEachCallback) => {
+				this._processMessage(queue, message, forEachCallback);
+			},
+			callback
+		);
 	}
 
 	// process data for a single message data from the given queue
-	async _processMessage (queue, message) {
+	_processMessage (queue, message, callback) {
 		this.log(`Received an SQS message on queue ${queue.name}: ${message.MessageId}:${message.ReceiptHandle}`);
-		if (!message.Body) { return; }
-		let data;
-		try {
-			data = JSON.parse(message.Body);
-		}
-		catch (error) {
-			this.warn(`Unable to process message ${message.MessageId} on queue ${queue.name}: bad JSON data: ${error}`);
-		}
-		if (queue.handler) {
-			await queue.handler(data, async () => {
-				await this._releaseMessage(queue, message);
-			});
+		if (message.Body) {
+			let data;
+			try {
+				data = JSON.parse(message.Body);
+			}
+			catch (error) {
+				this.warn(`Unable to process message ${message.MessageId} on queue ${queue.name}: bad JSON data: ${error}`);
+			}
+			if (queue.handler) {
+				queue.handler(data, done => {
+					if (done) {
+						this._releaseMessage(queue, message, callback);
+					}
+				});
+			}
+			else {
+				callback();
+			}
 		}
 	}
 
 	// release an already processed message from the queue
-	async _releaseMessage (queue, message) {
+	_releaseMessage (queue, message, callback) {
 		const params = {
 			QueueUrl: queue.url,
 			ReceiptHandle: message.ReceiptHandle
 		};
-		try {
-			await this.sqs.deleteMessage(params);
-		}
-		catch (error) {
-			this.warn(`Unable to delete message ${message.MessageId} from queue: ${error}`);
-		}
+		this.sqs.deleteMessage(params, error => {
+			if (error) {
+				this.warn(`Unable to delete message ${message.MessageId} from queue: ${error}`);
+			}
+			process.nextTick(callback);
+		});
 	}
 
 	log (message) {

@@ -9,6 +9,7 @@ const PostDeleter = require('./post_deleter');
 const Post = require('./post');
 const UUID = require('uuid/v4');
 const EmailNotificationRequest = require('./email_notification_request');
+const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
 const DEPENDENCIES = [
 	'aws'	// the posts module creates a queue
@@ -65,11 +66,14 @@ class Posts extends Restful {
 		// create a queue for handling messages concerning triggering the interval
 		// timer for email notifications
 		if (!this.api.services.queueService) { return; }
-		await this.api.services.queueService.createQueue({
-			name: this.api.config.aws.sqs.outboundEmailQueueName,
-			handler: this.handleEmailNotificationMessage.bind(this),
-			logger: this.api
-		});
+		await callbackWrap(
+			this.api.services.queueService.createQueue.bind(this.api.services.queueService),
+			{
+				name: this.api.config.aws.sqs.outboundEmailQueueName,
+				handler: this.handleEmailNotificationMessage.bind(this),
+				logger: this.api
+			}
+		);
 	}
 
 	// handle an incoming message on the email notifications interval timer queue

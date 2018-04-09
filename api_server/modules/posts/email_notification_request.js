@@ -34,7 +34,7 @@ class EmailNotificationRequest extends RestfulRequest {
 
 	// get the stream associated with these notifications
 	async getStream () {
-		this.stream = this.data.streams.getById(this.message.streamId);
+		this.stream = await this.data.streams.getById(this.message.streamId);
 		if (!this.stream) {
 			throw this.errorHandler.error('notFound', { info: 'stream' });
 		}

@@ -15,6 +15,8 @@
 
 'use strict';
 
+const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+
 class EmailNotificationQueue {
 
 	constructor (options) {
@@ -145,7 +147,8 @@ class EmailNotificationQueue {
 		};
 		const delay = Math.floor(this.request.api.config.email.notificationInterval / 1000);
 		this.request.log(`Triggering email notifications for stream ${this.stream.id} in ${delay} seconds...`);
-		await this.request.api.services.queueService.sendMessage(
+		await callbackWrap(
+			this.request.api.services.queueService.sendMessage.bind(this.request.api.services.queueService),
 			this.request.api.config.aws.sqs.outboundEmailQueueName,
 			message,
 			{ delay: delay }
