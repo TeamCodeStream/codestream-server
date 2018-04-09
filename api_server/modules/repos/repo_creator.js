@@ -5,6 +5,7 @@
 const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 const Repo = require('./repo');
 const NormalizeURL = require('./normalize_url');
+const ExtractCompanyIdentifier = require('./extract_company_identifier');
 const RepoSubscriptionGranter = require('./repo_subscription_granter');
 const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
 const TeamCreator = require(process.env.CS_API_TOP + '/modules/teams/team_creator');
@@ -52,6 +53,7 @@ class RepoCreator extends ModelCreator {
 	async validateAttributes () {
 		// enforce URL normalization and lowercase on the first commit hash
 		this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
+		this.attributes.companyIdentifier = ExtractCompanyIdentifier.getCompanyIdentifier(this.attributes.normalizedUrl);
 		this.attributes.firstCommitHash = this.attributes.firstCommitHash.toLowerCase();
 		// the subscription cheat allows unregistered users to subscribe to me-channel, needed for mock email testing
 		this.subscriptionCheat = this.attributes._subscriptionCheat === this.request.api.config.secrets.subscriptionCheat;

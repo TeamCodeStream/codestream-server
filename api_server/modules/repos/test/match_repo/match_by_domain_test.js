@@ -13,7 +13,7 @@ class MatchByDomainTest extends MatchRepoTest {
 		this.numReposPerTeam = 3;
 		delete this.service;
 		delete this.org;
-		this.domain = RandomString.generate(8) + '.com';
+		this.domain = `${RandomString.generate(8)}.com`;
 		this.matches = [0, 1, 5];
 	}
 
