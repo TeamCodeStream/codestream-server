@@ -43,7 +43,9 @@ var _typeMatches = function(value, type) {
 			return false;
 		}
 		return value instanceof Array &&
-			!value.find(elem => { return typeof elem !== match[1]; });
+			value.findIndex(elem => {
+				return typeof elem !== match[1];
+			}) === -1;
 	}
 	else {
 		return false;
