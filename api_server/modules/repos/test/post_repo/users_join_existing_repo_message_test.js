@@ -58,7 +58,7 @@ class UsersJoinExistingRepoMessageTest extends CodeStreamMessageTest {
 		let repoData = {
 			teamId: this.team._id,
 			url: this.repo.url,
-			firstCommitHash: this.repo.firstCommitHash,
+			knownCommitHashes: [this.repo.knownCommitHashes[0]],
 			emails: [this.currentUser.email]	// current user added to team while "creating" the (pre-existing) repo
 		};
 		this.repoFactory.createRepo(

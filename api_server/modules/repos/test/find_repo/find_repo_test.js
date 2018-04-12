@@ -63,14 +63,15 @@ class FindRepoTest extends CodeStreamAPITest {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
 				let url = encodeURIComponent(this.repo.url);
-				let firstCommitHash = encodeURIComponent(this.repo.firstCommitHash);
-				this.queryData = { url, firstCommitHash };	// we'll query for this repo using this data
+				let knownCommitHashes = encodeURIComponent(this.repo.knownCommitHashes[0]);
+				this.queryData = { url, knownCommitHashes };	// we'll query for this repo using this data
 				callback();
 			},
 			{
 				withEmails: this.userData.slice(1).map(userData => userData.user.email),	// include the other users in the team
 				withRandomEmails: 2,	// create a couple more users for good measure
-				token: this.userData[0].accessToken	// the first user will be the creator of the repo
+				token: this.userData[0].accessToken,	// the first user will be the creator of the repo
+				numKnownCommitHashes: this.numKnownCommitHashes	// can have multiple known commit hashes, as needed
 			}
 		);
 	}

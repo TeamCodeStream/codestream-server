@@ -39,7 +39,10 @@ class MatchRepoRequest extends RestfulRequest {
 			'query',
 			{
 				required: {
-					string: ['url', 'firstCommitHash']
+					string: ['url']
+				},
+				optional: {
+					'string': ['firstCommitHash', 'knownCommitHashes']
 				}
 			}
 		);
@@ -47,9 +50,22 @@ class MatchRepoRequest extends RestfulRequest {
 
 	// parse the incoming url for relevant details
 	async parseUrl () {
-		this.request.query.firstCommitHash = this.request.query.firstCommitHash.toLowerCase();
 		this.normalizedUrl = NormalizeURL(decodeURIComponent(this.request.query.url));
 		this.companyIdentifier = ExtractCompanyIdentifier.extractCompanyIdentifier(this.normalizedUrl);
+
+		// establish array of known commit hashes for the repo, this can be either through
+		// 'firstCommitHash' (old way), or 'knownCommitHashes' (new way)
+		this.knownCommitHashes = [];
+		if (this.request.query.knownCommitHashes) {
+			this.knownCommitHashes = this.request.query.knownCommitHashes.split(',');
+		}
+		if (this.request.query.firstCommitHash) {
+			this.knownCommitHashes.push(this.request.query.firstCommitHash);
+		}
+		this.knownCommitHashes = this.knownCommitHashes.map(hash => hash.toLowerCase());
+		if (this.knownCommitHashes.length === 0) {
+			throw this.errorHandler.error('parameterRequired', { info: 'firstCommitHash or knownCommitHashes' });
+		}
 	}
 
 	// attempt to find any matching repos
@@ -80,7 +96,7 @@ class MatchRepoRequest extends RestfulRequest {
 		});
 		if (
 			this.matchingRepo &&
-			!this.matchingRepo.isKnownCommitHash(this.request.query.firstCommitHash)
+			!this.matchingRepo.haveKnownCommitHash(this.knownCommitHashes)
 		) {
 			// oops, you have to have one of the known commit hashes
 			throw this.errorHandler.error('shaMismatch');

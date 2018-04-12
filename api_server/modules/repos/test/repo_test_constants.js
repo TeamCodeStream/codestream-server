@@ -19,7 +19,7 @@ const EXPECTED_REPO_FIELDS = [
 	'url',
 	'normalizedUrl',
 	'companyIdentifier',
-	'firstCommitHash'
+	'knownCommitHashes'
 ];
 
 // fields expected in the team returned, if team created on the fly

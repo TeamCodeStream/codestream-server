@@ -41,13 +41,14 @@ var AlreadyOnTeamNoJoinedTeamJoinMethodTest = require('./already_on_team_no_join
 var AddedToTeamJoinMethodTest = require('./added_to_team_join_method_test');
 var AddedToCreatedTeamJoinMethodTest = require('./added_to_created_team_join_method_test');
 var WebmailCompanyNameTest = require('./webmail_company_name_test');
+var MultipleCommitHashTest = require('./multiple_commit_hash_test');
 
 class PostRepoRequestTester {
 
 	postRepoTest () {
 		new PostRepoTest().test();
 		new NoAttributeTest({ attribute: 'url' }).test();
-		new NoAttributeTest({ attribute: 'firstCommitHash' }).test();
+		new NoAttributeTest({ attribute: 'knownCommitHashes' }).test();
 		new NormalizeUrlTest().test();
 		new ShaMismatchTest().test();
 		new AlreadyHaveRepoTest().test();
@@ -96,6 +97,7 @@ class PostRepoRequestTester {
 		new AddedToTeamJoinMethodTest().test();
 		new AddedToCreatedTeamJoinMethodTest().test();
 		new WebmailCompanyNameTest().test();
+		new MultipleCommitHashTest().test();
 	}
 }
 

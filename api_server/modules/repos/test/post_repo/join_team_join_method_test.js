@@ -67,7 +67,7 @@ class JoinTeamJoinMethodTest extends CodeStreamMessageTest {
 		// this should trigger a message to the current user that their joinMethod has been set
 		const data = {
 			url: this.repo.url,
-			firstCommitHash: this.repo.firstCommitHash
+			knownCommitHashes: [this.repo.knownCommitHashes[0]]
 		};
 		this.doApiRequest(
 			{

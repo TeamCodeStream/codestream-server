@@ -38,12 +38,12 @@ class RepoCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['url', 'firstCommitHash']
+				string: ['url']
 			},
 			optional: {
-				string: ['firstCommitHash', 'teamId', '_subscriptionCheat'],
+				string: ['teamId', '_subscriptionCheat', 'firstCommitHash'],
 				object: ['team'],
-				'array(string)': ['emails'],
+				'array(string)': ['emails', 'knownCommitHashes'],
 				'array(object)': ['users']
 			}
 		};
@@ -54,10 +54,23 @@ class RepoCreator extends ModelCreator {
 		// enforce URL normalization and lowercase on the first commit hash
 		this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
 		this.attributes.companyIdentifier = ExtractCompanyIdentifier.getCompanyIdentifier(this.attributes.normalizedUrl);
-		this.attributes.firstCommitHash = this.attributes.firstCommitHash.toLowerCase();
+
 		// the subscription cheat allows unregistered users to subscribe to me-channel, needed for mock email testing
 		this.subscriptionCheat = this.attributes._subscriptionCheat === this.request.api.config.secrets.subscriptionCheat;
 		delete this.attributes._subscriptionCheat;
+
+		// establish array of known commit hashes for the repo, this can be either through
+		// 'firstCommitHash' (old way), or 'knownCommitHashes' (new way)
+		this.attributes.knownCommitHashes = this.attributes.knownCommitHashes || [];
+		if (this.attributes.firstCommitHash) {
+			this.attributes.knownCommitHashes.push(this.attributes.firstCommitHash);
+		}
+		this.attributes.knownCommitHashes = this.attributes.knownCommitHashes.map(
+			hash => hash.toLowerCase()
+		);
+		if (this.attributes.knownCommitHashes.length === 0) {
+			throw this.errorHandler.error('parameterRequired', { info: 'firstCommitHash or knownCommitHashes' });
+		}
 	}
 
 	// do we allow the request to proceed if the document already exists in the database?
@@ -125,7 +138,7 @@ class RepoCreator extends ModelCreator {
 	// if users were specified in the request, join them to the team that owns the already-existing repo
 	async joinUsersToRepoTeam () {
 		// first verify that we have a known commit for this repo
-		if (!this.existingModel.isKnownCommitHash(this.attributes.firstCommitHash)) {
+		if (!this.existingModel.haveKnownCommitHash(this.attributes.knownCommitHashes)) {
 			throw this.errorHandler.error('shaMismatch');
 		}
 		if (

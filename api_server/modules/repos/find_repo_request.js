@@ -34,7 +34,10 @@ class FindRepoRequest extends RestfulRequest {
 			'query',
 			{
 				required: {
-					string: ['url', 'firstCommitHash']
+					string: ['url']
+				},
+				optional: {
+					'string': ['firstCommitHash', 'knownCommitHashes']
 				}
 			}
 		);
@@ -44,7 +47,20 @@ class FindRepoRequest extends RestfulRequest {
 	async normalize () {
 		// normalize the incoming URL and enforce lowercase on the first commit hash
 		this.normalizedUrl = NormalizeURL(decodeURIComponent(this.request.query.url));
-		this.request.query.firstCommitHash = this.request.query.firstCommitHash.toLowerCase();
+
+		// establish array of known commit hashes for the repo, this can be either through
+		// 'firstCommitHash' (old way), or 'knownCommitHashes' (new way)
+		this.knownCommitHashes = [];
+		if (this.request.query.knownCommitHashes) {
+			this.knownCommitHashes = this.request.query.knownCommitHashes.split(',');
+		}
+		if (this.request.query.firstCommitHash) {
+			this.knownCommitHashes.push(this.request.query.firstCommitHash);
+		}
+		this.knownCommitHashes = this.knownCommitHashes.map(hash => hash.toLowerCase());
+		if (this.knownCommitHashes.length === 0) {
+			throw this.errorHandler.error('parameterRequired', { info: 'firstCommitHash or knownCommitHashes' });
+		}
 	}
 
 	// attempt to find the repo by (normalized) URL
@@ -64,7 +80,7 @@ class FindRepoRequest extends RestfulRequest {
 		if (!this.repo) {
 			return;	// no matching (active) repos, we'll just send an empty response
 		}
-		if (!this.repo.isKnownCommitHash(this.request.query.firstCommitHash)) {
+		if (!this.repo.haveKnownCommitHash(this.knownCommitHashes)) {
 			// oops, you have to have one of the known commit hashes
 			throw this.errorHandler.error('shaMismatch');
 		}

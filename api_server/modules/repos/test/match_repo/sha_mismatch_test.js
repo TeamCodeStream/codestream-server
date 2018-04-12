@@ -18,7 +18,7 @@ class ShaMismatchTest extends ExactMatchTest {
 	getQueryParameters () {
 		// substitute a different commit hash in the request
 		const queryParameters = super.getQueryParameters();
-		queryParameters.firstCommitHash = this.repoFactory.randomCommitHash();
+		queryParameters.knownCommitHashes = this.repoFactory.randomCommitHash();
 		return queryParameters;
 	}
 }

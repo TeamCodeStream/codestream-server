@@ -30,7 +30,7 @@ class RepoExistsTest extends AlreadyHaveRepoTest {
 			if (error) { return callback(error); }
 			this.data = {
 				url: this.existingRepo.url,
-				firstCommitHash: this.existingRepo.firstCommitHash
+				knownCommitHashes: [this.existingRepo.knownCommitHashes[0]]
 			};
 			this.teamEmails = [];
 			this.teamUsers = [];
