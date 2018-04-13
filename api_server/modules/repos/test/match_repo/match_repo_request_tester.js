@@ -11,6 +11,7 @@ const NoAttributeTest = require('./no_attribute_test');
 const MalformedPathTest = require('./malformed_path_test');
 const ExactMatchTest = require('./exact_match_test');
 const ShaMismatchTest = require('./sha_mismatch_test');
+const MultipleCommitHashTest = require('./multiple_commit_hash_test');
 
 class MatchRepoRequestTester {
 
@@ -21,10 +22,11 @@ class MatchRepoRequestTester {
 		new MatchByDomainTest().test();
 		new NoMatchTest().test();
 		new NoAttributeTest({ attribute: 'url' }).test();
-		new NoAttributeTest({ attribute: 'firstCommitHash' }).test();
+		new NoAttributeTest({ attribute: 'knownCommitHashes' }).test();
 		new MalformedPathTest().test();
 		new ExactMatchTest().test();
 		new ShaMismatchTest().test();
+		new MultipleCommitHashTest().test();
 	}
 }
 

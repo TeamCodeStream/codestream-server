@@ -37,8 +37,13 @@ class RandomRepoFactory {
 	getRandomRepoData (callback, options = {}) {
 		let data = {
 			url: this.randomUrl(options),
-			firstCommitHash: this.randomCommitHash()
+			knownCommitHashes: [this.randomCommitHash()]
 		};
+		if (options.numKnownCommitHashes && options.numKnownCommitHashes > 1) {
+			for (let i = 1; i < options.numKnownCommitHashes; i++) {
+				data.knownCommitHashes.push(this.randomCommitHash());
+			}
+		}
 		let emails, users;
 		if (options.withEmails) {
 			// add some emails, these become on-the-fly users who are added to the team along with the repo

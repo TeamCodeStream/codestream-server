@@ -24,7 +24,7 @@ class ShaMismatchTest extends PostRepoTest {
 		// use the url for the repo that we already created, but with an incorrect commit hash
 		this.data = {
 			url: this.existingRepo.url,
-			firstCommitHash: this.repoFactory.randomCommitHash()
+			knownCommitHashes: [this.repoFactory.randomCommitHash()]
 		};
 		callback();
 	}

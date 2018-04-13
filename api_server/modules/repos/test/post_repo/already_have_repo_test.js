@@ -20,7 +20,7 @@ class AlreadyHaveRepoTest extends PostRepoTest {
 		// use attributes of the repo we already created
 		this.data = {
 			url: this.existingRepo.url,
-			firstCommitHash: this.existingRepo.firstCommitHash
+			knownCommitHashes: [this.existingRepo.knownCommitHashes[0]]
 		};
 		// if we set up some users to add, add those to the request here
 		if (this.teamEmails.length > 0) {

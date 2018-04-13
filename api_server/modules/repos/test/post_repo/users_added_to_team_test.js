@@ -58,7 +58,7 @@ class UsersAddedToTeamTest extends CodeStreamMessageTest {
 		this.repoFactory.createRepo(
 			{
 				url: this.repo.url,
-				firstCommitHash: this.repo.firstCommitHash,
+				knownCommitHashes: [this.repo.knownCommitHashes[0]],
 				emails: [
 					this.userFactory.randomEmail(),
 					this.userFactory.randomEmail()
@@ -68,7 +68,7 @@ class UsersAddedToTeamTest extends CodeStreamMessageTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				// we expect to get both the users that were added, and a message for the team adding them as members
-				let addedMemberIds = response.users.map(user => user._id);	
+				let addedMemberIds = response.users.map(user => user._id);
 				this.message = {
 					users: response.users,
 					team: {

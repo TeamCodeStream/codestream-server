@@ -55,7 +55,7 @@ class AddExistingRepoTest extends CodeStreamMessageTest {
 	createSameRepo (callback) {
 		let repoData = {
 			url: this.repo.url,
-			firstCommitHash: this.repo.firstCommitHash,
+			knownCommitHashes: [this.repo.knownCommitHashes[0]],
 			teamId: this.team._id,
 			emails: [this.currentUser.email]	// include me
 		};

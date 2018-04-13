@@ -29,10 +29,11 @@ module.exports = {
 	firstCommitHash: {
 		type: 'string',
 		minLength: 40,
-		maxLength: 40,
-		required: true
+		maxLength: 40
 	},
 	knownCommitHashes: {
-		type: 'arrayOfStrings'
+		type: 'arrayOfStrings',
+		maxLength: 100,
+		required: true
 	}
 };

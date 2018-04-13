@@ -107,7 +107,8 @@ class MatchRepoTest extends CodeStreamAPITest {
 				token: creator.accessToken,		// a random user will be the creator of the repo
 				teamId: teamId,					// use this team ID, as needed
 				domain: domain,					// use this domain in the url
-				org: org						// use this org in the url, as in github.com/org
+				org: org,						// use this org in the url, as in github.com/org
+				numKnownCommitHashes: this.numKnownCommitHashes	// can have multiple known commit hashes, as needed
 			}
 		);
 	}
@@ -122,8 +123,8 @@ class MatchRepoTest extends CodeStreamAPITest {
 		const repo = this.matches.length > 0 ?
 			this.repos[this.matches[0]] :
 			this.repos[0];
-		const firstCommitHash = repo.firstCommitHash;
-		return { url, firstCommitHash };
+		const knownCommitHashes = [repo.knownCommitHashes[0]];
+		return { url, knownCommitHashes };
 	}
 
 	// make the path we'll use to run the test request

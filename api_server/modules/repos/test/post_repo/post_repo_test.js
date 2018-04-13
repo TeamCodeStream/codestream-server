@@ -131,7 +131,10 @@ class PostRepoTest extends CodeStreamAPITest {
 		if (!this.testOptions.wantOtherRepo) {
 			return callback();
 		}
-		this.otherRepoOptions = this.otherRepoOptions || { token: this.token };
+		this.otherRepoOptions = this.otherRepoOptions || {};
+		if (this.otherRepoOptions && !this.otherRepoOptions.token) {
+			this.otherRepoOptions.token = this.token;
+		}
 		this.repoFactory.createRandomRepo((error, response) => {
 			if (error) { return callback(error); }
 			this.existingRepo = response.repo;
@@ -197,11 +200,13 @@ class PostRepoTest extends CodeStreamAPITest {
 		let repo = data.repo;
 		let errors = [];
 		const companyIdentifier = ExtractCompanyIdentifier.getCompanyIdentifier(NormalizeURL(this.data.url));
+		const knownCommitHashes = this.expectedKnownCommitHashes ||
+			this.data.knownCommitHashes.map(hash => hash.toLowerCase());
 		let result = (
 			((repo.url ===this.data.url) || errors.push('incorrect url')) &&
 			((repo.normalizedUrl === NormalizeURL(this.data.url)) || errors.push('incorrect url')) &&
 			((repo.companyIdentifier === companyIdentifier) || errors.push('incorrect companyIdentifier')) &&
-			((repo.firstCommitHash === this.data.firstCommitHash.toLowerCase()) || errors.push('incorrect firstCommitHash')) &&
+			((JSON.stringify(repo.knownCommitHashes) === JSON.stringify(knownCommitHashes)) || errors.push('incorrect knownCommitHashes')) &&
 			((repo.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof repo.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((repo.modifiedAt >= repo.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&

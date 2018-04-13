@@ -6,6 +6,7 @@ const CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream
 const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
 const NormalizeURL = require('./normalize_url');
 const RepoAttributes = require('./repo_attributes');
+const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
 class Repo extends CodeStreamModel {
 
@@ -19,16 +20,17 @@ class Repo extends CodeStreamModel {
 		this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
 		// enforce lowercase on all IDs and the first commit hash
 		this.lowerCase('firstCommitHash');
+		this.lowerCase('knownCommitHashes');
 		this.lowerCase('companyId');
 		this.lowerCase('teamId');
 		await super.preSave(options);
 	}
 
 	// check if the passed commit hash is a known commit hash for this repo
-	isKnownCommitHash (commitHash) {
+	haveKnownCommitHash (commitHashes) {
 		let knownCommitHashes = [...(this.get('knownCommitHashes') || [])];
 		knownCommitHashes.push(this.get('firstCommitHash'));
-		return knownCommitHashes.includes(commitHash);
+		return ArrayUtilities.intersection(knownCommitHashes, commitHashes).length > 0;
 	}
 }
 

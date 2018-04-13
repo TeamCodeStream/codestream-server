@@ -82,7 +82,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		let repoData = {
 			teamId: this.otherRepo.teamId,
 			url: this.otherRepo.url,
-			firstCommitHash: this.otherRepo.firstCommitHash,
+			knownCommitHashes: [this.otherRepo.knownCommitHashes[0]],
 			emails: this.otherUserCreates ? [this.currentUser.email] : [this.otherUserData.user.email]	// always include both users
 		};
 		this.repoFactory.createRepo(

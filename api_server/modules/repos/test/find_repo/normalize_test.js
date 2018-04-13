@@ -14,7 +14,7 @@ class NormalizeTest extends FindRepoTest {
 		let url = decodeURIComponent(this.queryData.url);
 		let match = url.match(/^https:\/\/(.+)@(.+)\?(.*)/);
 		this.queryData.url = encodeURIComponent(`https://${match[2]}?x=a&y=b#def`).toUpperCase();
-		this.queryData.firstCommitHash = this.queryData.firstCommitHash.toUpperCase();
+		this.queryData.knownCommitHashes = this.queryData.knownCommitHashes.toUpperCase();
 		super.makePath(callback);
 	}
 }
