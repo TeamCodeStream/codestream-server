@@ -70,6 +70,7 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		if (!message.from && !message.to) { return false; }	// ignore anything not matching
 		this.validateFrom(message);
 		this.validateTo(message);
+		this.validateSubstitutions(message);
 		this.validateTemplateId(message);
 		return true;
 	}
@@ -90,9 +91,22 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		Assert.equal(to.name, userName, 'incorrect to name');
 	}
 
+	// validate that all the email "substitutions" are correct, these are the fields that
+	// are set dynamically by the email notification code, sendgrid then uses these
+	// field substitutions in the template
+	validateSubstitutions (message) {
+		let substitutions = message.personalizations[0].substitutions;
+		Assert.equal(substitutions['{{teamName}}'], this.team.name, 'incorrect team name');
+		const expectedLink = 'https://get.codestream.com/invited?utm_medium=email&utm_source=product&utm_campaign=invitation_email';
+		Assert.equal(substitutions['{{checkOutLink}}'], expectedLink, 'incorrect check-out link');
+	}
+
 	// validate the template is correct for an email notification
 	validateTemplateId (message) {
-		Assert.equal(message.template_id, EmailConfig.inviteEmailTemplateId, 'incorrect templateId');
+		const templateId = this.existingUserIsRegistered ?
+			EmailConfig.registeredUserInviteEmailTemplateId :
+			EmailConfig.newUserInviteEmailTemplateId;
+		Assert.equal(message.template_id, templateId, 'incorrect templateId');
 	}
 
 	// get the expected username for the given user
