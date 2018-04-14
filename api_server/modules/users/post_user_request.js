@@ -96,6 +96,7 @@ class PostUserRequest extends PostRequest {
 			{
 				inviter: this.user,
 				user: this.createdUser,
+				team: this.adder.team,
 				request: this
 			}
 		);

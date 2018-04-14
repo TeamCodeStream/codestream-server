@@ -40,23 +40,31 @@ class CodeStreamEmails {
 
 	// send an invite email to the user specified
 	async sendInviteEmail (options) {
-		const { inviter, user, request } = options;
+		const { inviter, user, team, request } = options;
 		const email = user.get('email');
 		if (request) {
 			request.log(`Sending invite email to ${email}`);
 		}
 		const name = EmailUtils.getUserName(user);	// glean a user name from attributes defined for the user
 		const inviterName = EmailUtils.getUserName(inviter);
+		const templateId = user.get('isRegistered') ? this.registeredUserInviteEmailTemplateId : this.newUserInviteEmailTemplateId;
+		const numInvites = user.get('numInvites') || 0;
+		const campaign = numInvites > 0 ? 'reinvite_email' : 'invitation_email';
+		const checkOutLink = `http://get.codestream.com/invited?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
 
 		// let SendGrid handle sending the email, they have an invite email template
 		await this.sendgridEmail.sendEmail(
 			{
 				from: { email: this.senderEmail, name: inviterName },
 				to: { email, name },
-				templateId: this.inviteEmailTemplateId,
-				request: request,
+				fields: {
+					teamName: team.get('name'),
+					checkOutLink
+				},
+				templateId,
+				request,
 				testCallback: this.testCallback,
-				user: user
+				user
 			}
 		);
 	}

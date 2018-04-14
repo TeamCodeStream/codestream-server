@@ -13,5 +13,6 @@ module.exports = {
 	notificationInterval: process.env.CS_API_EMAIL_NOTIFICATION_INTERVAL || 300000, // how often email notifications will be sent per stream
 	maxPostsPerEmail: 25,	// maximum number of posts to send in an email notification
 	confirmationEmailTemplateId: '300934c5-3a9c-46f8-a905-b801c23439ab', // template to use for confirmation emails
-	inviteEmailTemplateId: '288e638c-c9f2-4cc3-adcb-d74333cfe190' // template to use for invite emails
+	newUserInviteEmailTemplateId: '288e638c-c9f2-4cc3-adcb-d74333cfe190', // template to use for invite emails to new users
+	registeredUserInviteEmailTemplateId: '54dfad87-c9fb-42ba-8036-5a789ce30d89'	// template to use for invite emails to already registered users
 };
