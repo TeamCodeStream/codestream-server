@@ -20,7 +20,11 @@ class SubscriptionTest extends CodeStreamAPITest {
 		let action = this.otherUserCreates ? 'are added to' : 'create';
 		let repoStatus = this.repoExists ? 'an existing repo' : 'a new repo';
 		let teamStatus = this.teamExists ? 'an existing team' : 'a new team';
-		return `user should be able to subscribe to the ${this.which} channel when they ${action} ${repoStatus} in ${teamStatus}`;
+		let desc = `user should be able to subscribe to the ${this.which} channel when they ${action} ${repoStatus} in ${teamStatus}`;
+		if (this.noOtherUserOnTeam) {
+			desc += ', and they are the only one on the team';
+		}
+		return desc;
 	}
 
 	// before the test runs...
@@ -100,6 +104,9 @@ class SubscriptionTest extends CodeStreamAPITest {
 	// truly create a new repo
 	postNewRepo (callback) {
 		let token = this.otherUserCreates ? this.otherUserData.accessToken : this.token;	// "other" user or "current" user creates the repo
+		let emails = this.otherUserCreates ?
+			[this.currentUser.email] :
+			this.noOtherUserOnTeam ? null : [this.otherUserData.user.email];
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -109,7 +116,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 			},
 			{
 				teamId: this.teamExists ? this.otherTeam._id : null,
-				withEmails: this.otherUserCreates ? [this.currentUser.email] : [this.otherUserData.user.email],	// always include both users
+				withEmails: emails,
 				token: token
 			}
 		);

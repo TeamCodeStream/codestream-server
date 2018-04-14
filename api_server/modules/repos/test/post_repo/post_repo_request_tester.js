@@ -86,6 +86,7 @@ class PostRepoRequestTester {
 		new SubscriptionTest({ which: 'team', otherUserCreates: true, repoExists: true, teamExists: true }).test();
 		new SubscriptionTest({ which: 'repo', otherUserCreates: false, repoExists: false, teamExists: false }).test();
 		new SubscriptionTest({ which: 'repo', otherUserCreates: false, repoExists: false, teamExists: true }).test();
+		new SubscriptionTest({ which: 'repo', otherUserCreates: false, repoExists: false, teamExists: true, noOtherUserOnTeam: true }).test();
 		new SubscriptionTest({ which: 'repo', otherUserCreates: false, repoExists: true, teamExists: true }).test();
 		new SubscriptionTest({ which: 'repo', otherUserCreates: true, repoExists: false, teamExists: false }).test();
 		new SubscriptionTest({ which: 'repo', otherUserCreates: true, repoExists: false, teamExists: true }).test();

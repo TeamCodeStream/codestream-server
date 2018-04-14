@@ -178,6 +178,7 @@ class RepoCreator extends ModelCreator {
 	// join the repo we are going to create to an existing team, as specified in the request
 	async joinRepoToExistingTeam () {
 		await this.getTeam();			// get the team we are joining to
+		await this.getExistingMembers();	// get the existing members of the team
 		await this.addUsersToTeam();	// add any users specified in the request to the team
 	}
 
@@ -211,6 +212,11 @@ class RepoCreator extends ModelCreator {
 		}
 		const users = await this.data.users.getByIds(this.team.get('memberIds'));
 		this.attachToResponse.users = users.map(user => user.getSanitizedObject());
+	}
+
+	// get the existing members of a team
+	async getExistingMembers () {
+		this.existingUsers = await this.data.users.getByIds(this.team.get('memberIds'));
 	}
 
 	// for any users specified in the request, add them to the team that will own the repo
