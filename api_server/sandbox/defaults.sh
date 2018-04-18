@@ -72,14 +72,15 @@ export CS_API_SETUP_MONGO=true
 
 
 # ================== SlackBot ==================
-[ -z "$SLACKBOT_SECRETS_FILE" ] && SLACKBOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-development
-if [ -f $SLACKBOT_SECRETS_FILE ]; then
-	. $SLACKBOT_SECRETS_FILE
-	export CS_API_SLACKBOT_SHARED_SECRET=$SHARED_SECRET
+[ -z "$BOT_SECRETS_FILE" ] && BOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-development
+if [ -f $BOT_SECRETS_FILE ]; then
+	. $BOT_SECRETS_FILE
+	export CS_API_INTEGRATION_BOT_SHARED_SECRET=$SHARED_SECRET
 else
-	echo "*** ERROR: slackbot secrets file ($SLACKBOT_SECRETS_FILE) not found"
+	echo "*** ERROR: slackbot secrets file ($BOT_SECRETS_FILE) not found"
 fi
 [ -z "$CS_API_SLACKBOT_ORIGIN" ] && export CS_API_SLACKBOT_ORIGIN=http://localhost:11079
+[ -z "$CS_API_TEAMSBOT_ORIGIN" ] && export CS_API_TEAMSBOT_ORIGIN=http://localhost:10079
 
 
 # =============== PubNub Settings ==============
