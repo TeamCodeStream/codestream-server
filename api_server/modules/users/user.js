@@ -109,6 +109,7 @@ class User extends CodeStreamModel {
 		}
 		if (
 			stream.get('type') !== 'file' &&
+			!stream.get('isTeamStream') && 
 			!stream.get('memberIds').includes(this.id)
 		) {
 			return false;

@@ -6,6 +6,7 @@ const RepoAttributes = require(process.env.CS_API_TOP + '/modules/repos/repo_att
 const TeamAttributes = require(process.env.CS_API_TOP + '/modules/teams/team_attributes');
 const CompanyAttributes = require(process.env.CS_API_TOP + '/modules/companies/company_attributes');
 const UserAttributes = require(process.env.CS_API_TOP + '/modules/users/user_attributes');
+const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stream_attributes');
 
 // fields expected in all posts
 const EXPECTED_REPO_FIELDS = [
@@ -66,10 +67,15 @@ const UNSANITIZED_USER_ATTRIBUTES = Object.keys(UserAttributes).filter(attribute
 	return UserAttributes[attribute].serverOnly;
 });
 
+const UNSANITIZED_STREAM_ATTRIBUTES = Object.keys(StreamAttributes).filter(attribute => {
+	return StreamAttributes[attribute].serverOnly;
+});
+
 module.exports = {
 	EXPECTED_REPO_RESPONSE,
 	UNSANITIZED_ATTRIBUTES,
 	UNSANITIZED_TEAM_ATTRIBUTES,
 	UNSANITIZED_COMPANY_ATTRIBUTES,
-	UNSANITIZED_USER_ATTRIBUTES
+	UNSANITIZED_USER_ATTRIBUTES,
+	UNSANITIZED_STREAM_ATTRIBUTES
 };

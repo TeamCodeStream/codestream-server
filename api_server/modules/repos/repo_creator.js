@@ -11,6 +11,7 @@ const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team
 const TeamCreator = require(process.env.CS_API_TOP + '/modules/teams/team_creator');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
+const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
 
 class RepoCreator extends ModelCreator {
 
@@ -99,6 +100,7 @@ class RepoCreator extends ModelCreator {
 		this.createId();			// requisition an ID for the repo
 		await this.joinToTeam();	// join the repo to a team, depending on whether it already exists and information in the request
 		await this.getCompany();	// need the company object if we have an existing team that the user is joining
+		await this.getTeamStreams();	// need any team streams if we have an existing team that the user is joining
 		await this.getAllUsers();	// need all the users on the team, if we have an existing team that the user is joining
 		await this.updateUserJoinMethod();	// update the joinMethod attribute for the user, as needed
 		await super.preSave();		// proceed with the save...
@@ -205,6 +207,31 @@ class RepoCreator extends ModelCreator {
 		this.attachToResponse.company = company.getSanitizedObject();
 	}
 
+	// get any team streams for an existing team that the user is joining
+	async getTeamStreams () {
+		if (!this.repoExisted || !this.userJoined) {
+			return;
+		}
+		const streams = await this.data.streams.getByQuery(
+			{
+				teamId: this.team.id,
+				type: 'channel',
+				isTeamStream: true
+			},
+			{
+				databaseOptions: {
+					hint: StreamIndexes.byType 
+				}
+			}
+		);
+		this.attachToResponse.streams = streams.reduce((currentStreams, stream) => {
+			if (!stream.get('deactivated')) {
+				currentStreams.push(stream.getSanitizedObject());
+			}
+			return currentStreams;
+		}, []);
+	}
+
 	// get all users on the team, for an existing team that the user is joining
 	async getAllUsers () {
 		if (!this.repoExisted || !this.userJoined) {
@@ -255,6 +282,7 @@ class RepoCreator extends ModelCreator {
 		// attach the team and company created, along with any users added to the team, to the request response
 		this.attachToResponse.team = team.getSanitizedObject();
 		this.attachToResponse.company = this.teamCreator.company.getSanitizedObject();
+		this.attachToResponse.streams = [this.teamCreator.teamStream.getSanitizedObject()];
 		this.newUsers = this.teamCreator.members;
 		this.attachToResponse.users = this.teamCreator.members.map(member => member.getSanitizedObject());
 		delete this.attributes.team;

@@ -10,8 +10,9 @@ class StreamPublisher {
 
 	// publish a stream ... how we do it depends on its type
 	async publishStream () {
-		if (this.stream.type === 'file') {
-			// file-type streams are published to the team that owns the repo that owns the stream
+		if (this.stream.type === 'file' || this.stream.isTeamStream) {
+			// file-type streams, or team-streams (streams for which everyone on the team is automatically a member),
+			//  are published to the team that owns the repo that owns the stream
 			await this.publishStreamToTeam();
 		}
 		else {
