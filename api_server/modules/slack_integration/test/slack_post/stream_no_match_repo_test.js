@@ -11,7 +11,7 @@ class StreamNoMatchRepoTest extends SlackPostTest {
 
 	getExpectedError () {
 		return {
-			code: 'SLIN-1003',
+			code: 'INTG-1003',
 		};
 	}
 

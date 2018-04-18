@@ -1,5 +1,5 @@
-// fulfill a slack post request, called by the slack bot to
-// ingest a slack post and turn it into a post for the stream
+// fulfill an integration post request, called by the integration bot to
+// ingest an integration post and turn it into a post for the stream
 
 'use strict';
 
@@ -9,25 +9,34 @@ const UserCreator = require(process.env.CS_API_TOP + '/modules/users/user_creato
 const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
 const Errors = require('./errors');
 
-class SlackPostRequest extends RestfulRequest {
+class IntegrationPostRequest extends RestfulRequest {
 
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(Errors);
+		if (!this.module.integrationConfig) {
+			throw 'integration module must have an integration config';
+		}
+		Object.assign(this, this.module.integrationConfig);
+		['integrationName', 'secret', 'botOrigin', 'botReceivePath'].forEach(configOption => {
+			if (!this[configOption]) {
+				throw `must provide ${configOption} to the integration-enable request`;
+			}
+		});
 	}
 
-	// authorize the client (slack-bot) to make this request
+	// authorize the client (the integration bot) to make this request
 	async authorize () {
-		// we rely on a secret, known only to the slack-bot and the
+		// we rely on a secret, known only to the integration bot and the
 		// API server ... disallowing arbitrary clients to call this request
-		if (this.request.body.secret !== this.api.config.slack.secret) {
+		if (this.request.body.secret !== this.secret) {
 			throw this.errorHandler.error('unauthorized');
 		}
 	}
 
 	// process the request...
 	async process() {
-		this.log(`Processing an inbound slack post from ${this.request.body.authorEmail}`);
+		this.log(`Processing an inbound ${this.integrationName} post from ${this.request.body.authorEmail}`);
 		await this.requireAllow();
 		await this.getTeam();
 		await this.getRepo();
@@ -111,7 +120,7 @@ class SlackPostRequest extends RestfulRequest {
 		this.userCreator = new UserCreator({
 			request: this,
 			dontSaveIfExists: true,
-			ignoreUsernameOnConflict: true,	// if there is a username conflict, just ignore the username coming from slack
+			ignoreUsernameOnConflict: true,	// if there is a username conflict, just ignore the username coming from the bot
 			teamIds: [this.team.id]			// user will be added directly to the team if it is a new user
 		});
 		this.author = await this.userCreator.createUser(user);
@@ -139,18 +148,18 @@ class SlackPostRequest extends RestfulRequest {
 		await adder.addTeamMembers();
 	}
 
-	// create a post for this slack-post in our stream
+	// create a post for this integration post in our stream
 	async createPost () {
 		this.user = this.author;
 		this.postCreator = new PostCreator({
 			request: this,
-			forIntegration: 'Slack'
+			forIntegration: this.integrationName
 		});
 		await this.postCreator.createPost({
 			streamId: this.stream.id,
 			text: this.request.body.text,
 			parentPostId: this.parentPost.id,
-			origin: 'slack'
+			origin: this.integrationName
 		});
 		this.post = this.postCreator.model;
 		this.responseData.post = this.post.getSanitizedObject();
@@ -168,4 +177,4 @@ class SlackPostRequest extends RestfulRequest {
 	}
 }
 
-module.exports = SlackPostRequest;
+module.exports = IntegrationPostRequest;
