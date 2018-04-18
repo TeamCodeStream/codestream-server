@@ -1,4 +1,5 @@
-// This file provides a simple interface to the slack bot, for posts going out and coming in
+// This file provides a simple interface to the integration bot for a given integration,
+// for posts going out and coming in
 
 'use strict';
 
@@ -6,10 +7,15 @@ const HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
 const { URL } = require('url');
 const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
-class SlackBotClient {
+class IntegrationBotClient {
 
 	constructor (config = {}) {
 		this.config = config;
+		['integrationName', 'secret', 'botOrigin', 'botReceivePath'].forEach(configOption => {
+			if (!this.config[configOption]) {
+				throw `must provide ${configOption} to the integration bot client`;
+			}
+		});
 	}
 
 	// returns true to indicate this api service is actually an integration
@@ -19,23 +25,23 @@ class SlackBotClient {
 
 	// whether this integration is enabled for the given info structure
 	isEnabled (info) {
-		// slack integrations are enabled on a per-team basis
+		// integrations are enabled on a per-team basis
 		const teamIntegrations = info.team && info.team.get('integrations');
 		return (
 			teamIntegrations &&
-			teamIntegrations.slack &&
-			teamIntegrations.slack.enabled
+			teamIntegrations[this.config.integrationName] &&
+			teamIntegrations[this.config.integrationName].enabled
 		);
 	}
 
 	// called when there is a new post
 	async postHook (info, options = {}) {
-		// package the message for slack-bot digestion and sent it over the wire
+		// package the message for bot digestion and sent it over the wire
 		const message = this.packageMessage(info);
 		await this.sendMessage(message, info, options);
 	}
 
-	// package an info structure for a new post for slack-bot digestion
+	// package an info structure for a new post for bot digestion
 	packageMessage (info) {
 		let message = {
 			teamId: info.post.get('teamId'),
@@ -50,7 +56,7 @@ class SlackBotClient {
 		return message;
 	}
 
-	// package post info, along with post creator info, for slack-bot digestion
+	// package post info, along with post creator info, for bot digestion
 	packagePost (post, creator, info) {
 		let message = {
 			secret: this.config.secret,
@@ -100,33 +106,33 @@ class SlackBotClient {
 		}
 	}
 
-	// send a formatted message to the slack-bot
+	// send a formatted message to the bot
 	async sendMessage (message, info, options = {}) {
-		if (this.requestSaysToTestSlackOut(options)) {
+		if (this.requestSaysToTestBotOut(options)) {
 			// we received a header in the request asking us to divert this message
 			// instead of actually sending it, for testing purposes ... we'll
 			// emit the request body to the callback provided
 			if (options.request) {
-				options.request.log(`Diverting slack-bot message for post ${message.postId} to test callback`);
+				options.request.log(`Diverting ${this.config.integrationName} bot message for post ${message.postId} to test callback`);
 			}
 			this.testCallback(message, info.team, options.request);
 			return;
 		}
-		else if (this.requestSaysToBlockSlackOut(options)) {
-			// we received a header in the request asking us not to send out slack-bot
+		else if (this.requestSaysToBlockBotOut(options)) {
+			// we received a header in the request asking us not to send out bot
 			// messages, for testing purposes
 			if (options.request) {
-				options.request.log(`Would have sent slack-bot message for post ${message.postId}`);
+				options.request.log(`Would have sent ${this.config.integrationName} bot message for post ${message.postId}`);
 			}
 			return;
 		}
 
-		const url = new URL(this.config.slackBotOrigin);
+		const url = new URL(this.config.botOrigin);
 		await AwaitUtils.callbackWrap(
 			HTTPSBot.post,
 			url.hostname,
 			url.port,
-			'/codestream/receive',
+			this.config.botReceivePath,
 			message,
 			{
 				rejectUnauthorized: false,
@@ -135,20 +141,20 @@ class SlackBotClient {
 		);
 	}
 
-	// determine if special header was sent with the request that says to test slack output,
+	// determine if special header was sent with the request that says to test bot output,
 	// meaning we'll not actually send a message out but send it through a pubnub channel
 	// to verify content instead
-	requestSaysToTestSlackOut (options) {
+	requestSaysToTestBotOut (options) {
 		return (
 			options.request &&
 			options.request.request &&
 			options.request.request.headers &&
-			options.request.request.headers['x-cs-test-slack-out']
+			options.request.request.headers['x-cs-test-bot-out']
 		);
 	}
 
-	// when testing slack-bot messages, we'll get the message that would otherwise be sent to
-	// the slack-bot through this callback, we'll send it along through the team channel for
+	// when testing bot messages, we'll get the message that would otherwise be sent to
+	// the bot through this callback, we'll send it along through the team channel for
 	// the team that owns the stream, which the test client should be listening to
 	async testCallback (message, team, request) {
 		if (!team || !request.api.services.messager) { return; }
@@ -163,17 +169,17 @@ class SlackBotClient {
 		);
 	}
 
-	// determine if special header was sent with the request that says to block slack-bot messages
-	requestSaysToBlockSlackOut (options) {
+	// determine if special header was sent with the request that says to block bot messages
+	requestSaysToBlockBotOut (options) {
 		return (
 			options.request &&
 			options.request.request &&
 			options.request.request.headers &&
-			options.request.request.headers['x-cs-block-slack-out']
+			options.request.request.headers['x-cs-block-bot-out']
 		);
 	}
 
 
 }
 
-module.exports = SlackBotClient;
+module.exports = IntegrationBotClient;

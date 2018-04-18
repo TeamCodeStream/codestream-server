@@ -1,12 +1,12 @@
 'use strict';
 
-var SlackPostTest = require('./slack_post_test');
+var TeamsPostTest = require('./teams_post_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
-class ParentPostNoMatchStreamTest extends SlackPostTest {
+class ParentPostNoMatchStreamTest extends TeamsPostTest {
 
 	get description () {
-		return 'should return an error when trying to send a slack post request with a parent post ID and a stream ID that are not related';
+		return 'should return an error when trying to send a teams post request with a parent post ID and a stream ID that are not related';
 	}
 
 	getExpectedError () {
@@ -24,7 +24,7 @@ class ParentPostNoMatchStreamTest extends SlackPostTest {
 		], callback);
 	}
 
-	// create a second stream ... we'll use this stream for the slack post's parent,
+	// create a second stream ... we'll use this stream for the teams post's parent,
 	// even though we specifiy the original stream ... this is not allowed!
 	createOtherStream (callback) {
 		this.streamFactory.createRandomStream(

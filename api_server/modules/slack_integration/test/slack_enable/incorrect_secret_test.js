@@ -10,7 +10,7 @@ class ACLTest extends SlackEnableTest {
 
 	getExpectedError () {
 		return {
-			code: 'SLIN-1001',
+			code: 'INTG-1001',
 		};
 	}
 
