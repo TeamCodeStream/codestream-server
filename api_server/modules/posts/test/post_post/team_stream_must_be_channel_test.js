@@ -19,10 +19,10 @@ class TeamStreamMustBeChannelTest extends DirectOnTheFlyTest {
 
 	// before the test runs...
 	before (callback) {
-        // add isTeamStream flag
+		// add isTeamStream flag
 		super.before(error => {
-            if (error) { return callback(error); }
-            this.data.stream.isTeamStream = true;
+			if (error) { return callback(error); }
+			this.data.stream.isTeamStream = true;
 			callback();
 		});
 	}

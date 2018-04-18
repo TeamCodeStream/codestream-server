@@ -76,8 +76,8 @@ class NewTeamStreamMessageToTeamTest extends CodeStreamMessageTest {
 			{
 				token: this.streamCreatorData.accessToken,	// stream creator creates the stream
 				teamId: this.team._id,
-                type: 'channel',
-                isTeamStream: true
+				type: 'channel',
+				isTeamStream: true
 			}
 		);
 	}

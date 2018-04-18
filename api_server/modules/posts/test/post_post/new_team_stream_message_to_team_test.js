@@ -69,19 +69,19 @@ class NewTeamStreamMessageToTeamTest extends CodeStreamMessageTest {
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
-        // we'll create a post and a channel stream "on-the-fly",
-        // with isTeamStream set ...
+		// we'll create a post and a channel stream "on-the-fly",
+		// with isTeamStream set ...
 		// this should trigger a message to the team channel that
 		// indicates the stream was created
 		let streamOptions = {
-            type: 'channel',
-            isTeamStream: true,
-            name: this.teamFactory.randomName(),
+			type: 'channel',
+			isTeamStream: true,
+			name: this.teamFactory.randomName(),
 			teamId: this.team._id
 		};
 		this.postFactory.createRandomPost(
 			(error, response) => {
-                if (error) { return callback(error); }
+				if (error) { return callback(error); }
 				this.message = response; // the message should look just like the response
 				callback();
 			},
@@ -92,14 +92,14 @@ class NewTeamStreamMessageToTeamTest extends CodeStreamMessageTest {
 				stream: streamOptions
 			}
 		);
-    }
+	}
     
-    validateMessage (message) {
-        if (!message.message.post) {
-            return false;
-        }
-        return super.validateMessage(message);
-    }
+	validateMessage (message) {
+		if (!message.message.post) {
+			return false;
+		}
+		return super.validateMessage(message);
+	}
 }
 
 module.exports = NewTeamStreamMessageToTeamTest;

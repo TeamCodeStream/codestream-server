@@ -46,8 +46,8 @@ class NewPostMessageToTeamStreamTest extends CodeStreamMessageTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
-                this.repo = response.repo;
-                this.teamStream = response.streams[0];
+				this.repo = response.repo;
+				this.teamStream = response.streams[0];
 				callback();
 			},
 			{

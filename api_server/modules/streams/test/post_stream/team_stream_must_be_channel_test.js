@@ -21,8 +21,8 @@ class TeamStreamMustBeChannelTest extends PostDirectStreamTest {
 	before (callback) {
 		// set up standard test conditions for creating a direct stream, but add isTeamStream flag
 		super.before(error => {
-            if (error) { return callback(error); }
-            this.data.isTeamStream = true;
+			if (error) { return callback(error); }
+			this.data.isTeamStream = true;
 			callback();
 		});
 	}
