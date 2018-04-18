@@ -18,5 +18,6 @@ describe ('modules', () => {
 	require('./markers/test/test.js');
 	require('./inbound_emails/test/test.js');
 	require('./slack_integration/test/test.js');
+	require('./teams_integration/test/test.js');
 	require('./marker_locations/test/test.js');
 });
