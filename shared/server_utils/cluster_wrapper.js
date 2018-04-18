@@ -7,7 +7,7 @@ const OS = require('os');
 const Program = require('commander');
 const Net = require('net');
 const Cluster = require('cluster');
-const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const AwaitUtils = require('./await_utils');
 
 Program
 	.option('--one_worker [one_worker]', 'Use only one worker')	// force to use only worker, sometimes desirable for clarity when reading output
