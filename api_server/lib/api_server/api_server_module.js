@@ -11,10 +11,6 @@ class APIServerModule {
 		this.logger = config.logger || this.api;
 	}
 
-	setConfig (config) {
-		Object.assign(this, config);
-	}
-
 	getRoutes () { }
 
 	getDependencies () { }
