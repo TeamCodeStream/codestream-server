@@ -26,5 +26,9 @@ module.exports = {
 	'tooManyFiles': {
 		code: 'STRM-1005',
 		message: 'Too many files'
+	},
+	'teamStreamMustBeChannel': {
+		code: 'STRM-1006',
+		message: 'Team streams must be of type channel'
 	}
 };

@@ -26,6 +26,9 @@ module.exports = {
 		type: 'arrayOfIds',
 		maxLength: 256
 	},
+	isTeamStream: {
+		type: 'boolean'
+	},
 	mostRecentPostId: {
 		type: 'id'
 	},

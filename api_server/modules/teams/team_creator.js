@@ -12,6 +12,7 @@ const TeamAttributes = require('./team_attributes');
 const Errors = require('./errors');
 const WebmailCompanies = require(process.env.CS_API_TOP + '/etc/webmail_companies');
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
+const StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');
 
 class TeamCreator extends ModelCreator {
 
@@ -136,6 +137,7 @@ class TeamCreator extends ModelCreator {
 
 	// called before the team is actually saved
 	async preSave () {
+		this.createId();
 		this.attributes.creatorId = this.user.id;	// user making the request is the team creator
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
@@ -143,9 +145,15 @@ class TeamCreator extends ModelCreator {
 		await this.checkCreateUsers();		// check if we are being asked to create users on-the-fly with the team creation
 		await this.checkUsernamesUnique();	// check that for all users being added, that all the usernames will be unique
 		await this.createCompany();			// create a company along with the team, as needed
+		await this.createTeamStream();		// create a stream for the entire team
 		await super.preSave();
 	}
 
+	// requisition an ID for the team
+	createId () {
+		this.attributes._id = this.data.teams.createId();
+	}
+	
 	// check if we are being asked to create users on-the-fly with the team creation, and do so if needed
 	async checkCreateUsers () {
 		// users can be specified by email, or by user object, which might also contain other user attributes
@@ -208,6 +216,19 @@ class TeamCreator extends ModelCreator {
 			request: this.request
 		}).createCompany(company);
 		this.attributes.companyId = this.company.id;
+	}
+
+	// create a stream for the entire team, everyone on the team is always a member of this stream
+	async createTeamStream () {
+		let stream = {
+			teamId: this.attributes._id,
+			type: 'channel',
+			name: 'general',
+			isTeamStream: true
+		};
+		this.teamStream = await new StreamCreator({
+			request: this.request
+		}).createStream(stream);
 	}
 
 	// determine a name for this company, based on the user's domain or email

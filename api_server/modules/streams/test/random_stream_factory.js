@@ -60,6 +60,9 @@ class RandomStreamFactory {
 			data.memberIds = options.memberIds;
 		}
 		data.name = options.name || this.randomName();
+		if (options.isTeamStream) {
+			data.isTeamStream = true;
+		}
 		callback(null, data);
 	}
 

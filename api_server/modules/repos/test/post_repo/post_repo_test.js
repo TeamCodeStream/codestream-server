@@ -220,6 +220,7 @@ class PostRepoTest extends CodeStreamAPITest {
 			// validate the team (and company) created on the fly with the repo
 			this.validateTeam(data);
 			this.validateCompany(data);
+			this.validateTeamStream(data);
 		}
 		// make sure we didn't get any attributes not suitable to be sent to the client
 		this.validateSanitized(repo, RepoTestConstants.UNSANITIZED_ATTRIBUTES);
@@ -275,6 +276,27 @@ class PostRepoTest extends CodeStreamAPITest {
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		// make sure we didn't get any attributes not suitable to be sent to the client
 		this.validateSanitized(team, RepoTestConstants.UNSANITIZED_COMPANY_ATTRIBUTES);
+	}
+
+	// for requests that created a team on the fly, validate the team-stream created
+	validateTeamStream (data) {
+		let stream = data.streams[0];
+		let errors = [];
+		const teamCreator = this.teamCreator || this.currentUser;
+		Assert(typeof stream === 'object', 'team stream expected with response');
+		let result = (
+			((stream.type === 'channel') || errors.push('team stream type should be a channel')) &&
+			((stream.isTeamStream === true) || errors.push('team stream isTeamStream flag should be true')) &&
+			((stream.teamId === data.team._id) || errors.push('teamId does not match')) &&
+			((stream.name === 'general') || errors.push('team stream name should be general')) &&
+			((stream.deactivated === false) || errors.push('team stream deactivated flag is not false')) &&
+			((typeof stream.createdAt === 'number') || errors.push('team stream createdAt is not a number')) &&
+			((stream.modifiedAt >= stream.createdAt) || errors.push('team stream modifiedAt not greater than or equal to createdAt')) &&
+			((stream.creatorId === teamCreator._id) || errors.push('team stream creatorId not equal to current user id'))
+		);
+		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		// make sure we didn't get any attributes not suitable to be sent to the client
+		this.validateSanitized(stream, RepoTestConstants.UNSANITIZED_STREAM_ATTRIBUTES);
 	}
 
 	// for requests that created users on the fly, validate the users created

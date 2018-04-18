@@ -10,6 +10,7 @@ var InvalidTypeTest = require('./invalid_type_test');
 var NameRequiredTest = require('./name_required_test');
 var NoRepoIdTest = require('./no_repo_id_test');
 var NoFileTest = require('./no_file_test');
+var TeamStreamMustBeChannelTest = require('./team_stream_must_be_channel_test');
 var ChannelIgnoresFileTest = require('./channel_ignores_file_test');
 var FileIgnoresChannelTest = require('./file_ignores_channel_test');
 var DirectIgnoresFileTest = require('./direct_ignores_file_test');
@@ -21,6 +22,7 @@ var DuplicateDirectTest = require('./duplicate_direct_test');
 var DuplicateFileTest = require('./duplicate_file_test');
 var ACLTest = require('./acl_test');
 var NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_test');
+var NewTeamStreamMessageToTeamTest = require('./new_team_stream_message_to_team_test');
 var NewStreamToMembersTest = require('./new_stream_to_members_test');
 var NewStreamNoMessageTest = require('./new_stream_no_message_test');
 
@@ -36,6 +38,7 @@ class PostStreamRequestTester {
 		new NameRequiredTest().test();
 		new NoRepoIdTest().test();
 		new NoFileTest().test();
+		new TeamStreamMustBeChannelTest().test();
 		new ChannelIgnoresFileTest().test();
 		new FileIgnoresChannelTest().test();
 		new DirectIgnoresFileTest().test();
@@ -49,6 +52,7 @@ class PostStreamRequestTester {
 		new ACLTest({ type: 'direct' }).test();
 		new ACLTest({ type: 'file' }).test();
 		new NewFileStreamMessageToTeamTest().test();
+		new NewTeamStreamMessageToTeamTest().test();
 		new NewStreamToMembersTest({ type: 'direct' }).test();
 		new NewStreamToMembersTest({ type: 'channel' }).test();
 		new NewStreamNoMessageTest({ type: 'direct' }).test();

@@ -38,6 +38,7 @@ class StreamCreator extends ModelCreator {
 				string: ['teamId', 'type']
 			},
 			optional: {
+				boolean: ['isTeamStream'],
 				string: ['repoId', 'type', 'file', 'name'],
 				'array(string)': ['memberIds']
 			}
@@ -51,6 +52,15 @@ class StreamCreator extends ModelCreator {
 		if (!StreamTypes.includes(this.attributes.type)) {
 			// only allow recognized stream types
 			return this.errorHandler.error('invalidStreamType', { info: this.attributes.type });
+		}
+		if (this.attributes.isTeamStream) {
+			// team-streams must be channels
+			if (this.attributes.type !== 'channel') {
+				return this.errorHandler.error('teamStreamMustBeChannel');
+			}
+			// team-streams act like they have everyone in the team as members,
+			// so we don't keep track of members at all
+			delete this.attributes.memberIds;	
 		}
 		if (this.attributes.type === 'channel') {
 			// channel streams must have a name
@@ -85,6 +95,9 @@ class StreamCreator extends ModelCreator {
 	ensureUserIsMember () {
 		if (this.attributes.type === 'file') {
 			return; // not required for files
+		}
+		if (this.attributes.isTeamStream) {
+			return;	// a team-stream acts like a stream in which everyone is a member
 		}
 		this.attributes.memberIds = this.attributes.memberIds || [this.user.id];
 		if (!(this.attributes.memberIds instanceof Array)) {
@@ -159,8 +172,10 @@ class StreamCreator extends ModelCreator {
 
 	// grant permission to the members of the stream to subscribe to the stream's messager channel
 	async grantUserMessagingPermissions () {
-		if (!this.model.get('memberIds')) {
-			return;	// no need to grant permissions for file-type stream, these get team-level messages
+		if (!this.model.get('memberIds') || this.model.get('isTeamStream')) {
+			// no need to grant permissions for file-type stream, or for team-streams,
+			// these always get team-level messages
+			return;	
 		}
 		try {
 			await new StreamSubscriptionGranter({

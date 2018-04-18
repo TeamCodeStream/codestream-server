@@ -19,5 +19,9 @@ module.exports = {
 		repoId: 1,
 		file: 1,
 		sortId: -1
+	},
+	byType: {
+		teamId: 1,
+		type: 1
 	}
 };

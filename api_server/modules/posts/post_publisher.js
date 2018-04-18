@@ -12,7 +12,7 @@ class PostPublisher {
 	}
 
 	async publishPost () {
-		if (this.data.stream && this.data.stream.type !== 'file') {
+		if (this.data.stream && this.data.stream.type !== 'file' && !this.data.stream.isTeamStream) {
 			// we created a non-file stream on-the-fly with this post, so publish the stream,
 			// it will then be up to the client to fetch the post? (because they are not yet subscribed to the stream channel)
 			await this.publishNewStream();
@@ -37,8 +37,9 @@ class PostPublisher {
 
 	// publish the creation of a new post to the stream it was created in
 	async publishPostToStreamOrTeam () {
-		if (this.stream.type === 'file') {
-			// for file-type streams, we publish to the team that owns the stream
+		if (this.stream.type === 'file' || this.stream.isTeamStream) {
+			// for file-type streams, or team-streams (streams for which everyone on the team is a member),
+			// we publish to the team that owns the stream
 			await this.publishPostToTeam();
 		}
 		else {
