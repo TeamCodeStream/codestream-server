@@ -8,13 +8,13 @@
 
 'use strict';
 
-var FS = require('fs');
-var BoundAsync = require(process.env.CS_MAILIN_TOP + '/server_utils/bound_async');
-var Watchr = require('watchr');
-var Path = require('path');
-var ChildProcess = require('child_process');
-var FileHandler = require('./file_handler');
-var OS = require('os');
+const FS = require('fs');
+const Watchr = require('watchr');
+const Path = require('path');
+const ChildProcess = require('child_process');
+const FileHandler = require('./file_handler');
+const OS = require('os');
+const { callbackWrap } = require(process.env.CS_MAILIN_TOP + '/server_utils/await_utils');
 
 class InboundEmailServer {
 
@@ -26,42 +26,39 @@ class InboundEmailServer {
 	}
 
 	// start 'er up
-	start (callback) {
+	async start () {
 		this.numOpenTasks = 0;
-		BoundAsync.series(this, [
-			this.setListeners,	// set process listeners
-			this.startWatching,	// start watching for files in the watched directory, representing inbound emails
-			this.touchPreExistingFiles	// touch any pre-existing files, forcing them to trigger a change
-		], (error) => {
-			return callback && callback(error);
-		});
+		this.setListeners();	// set process listeners
+		await this.startWatching();	// start watching for files in the watched directory, representing inbound emails
+		await this.touchPreExistingFiles();	// touch any pre-existing files, forcing them to trigger a change
 	}
 
 	// set relevant event listeners
-	setListeners (callback) {
+	setListeners () {
 		process.on('message', this.handleMessage.bind(this));
 		process.on('SIGINT', this.onSigint.bind(this));
 		process.on('SIGTERM', this.onSigterm.bind(this));
-		process.nextTick(callback);
 	}
 
 	// start watching for changes to the inbound email directory
-	startWatching (callback) {
-		this.watcher = Watchr.open(
-			this.config.inboundEmail.inboundEmailDirectory,
-			this.onFileChange.bind(this),
-			error => {
-				if (error) {
-					return callback('Setting up watcher failed: ' + error);
+	async startWatching () {
+		return new Promise((resolve, reject) => {
+			this.watcher = Watchr.open(
+				this.config.inboundEmail.inboundEmailDirectory,
+				this.onFileChange.bind(this),
+				error => {
+					if (error) {
+						return reject('Setting up watcher failed: ' + error);
+					}
+					this.log('Watching...');
+					resolve();
 				}
-				this.log('Watching...');
-				callback();
-			}
-		);
-		this.watcher.on('error', error => {
-			this.warn('Watcher emitted an error: ' + error);
+			);
+			this.watcher.on('error', error => {
+				this.warn(`Watcher emitted an error: ${error}`);
+			});
 		});
-	};
+	}
 
 	// called upon a change of file in the inbound email directory
 	onFileChange (changeType, filePath) {
@@ -72,57 +69,53 @@ class InboundEmailServer {
 			// was incomplete
 			this.handleEmail(filePath);
 		}
-	};
+	}
 
 	// handle an email file, determine whether it is "ours" to process, and then process as needed
-	handleEmail (filePath) {
+	async handleEmail (filePath) {
 		this.numOpenTasks++;
-		new FileHandler({
+		await new FileHandler({
 			inboundEmailServer: this,
 			filePath: filePath
-		}).handle(() => {
-			this.numOpenTasks--;
-			if (this.numOpenTasks === 0) {
-				this.noMoreTasks();	// in case shutdown is pending
-			}
-		});
+		}).handle();
+		this.numOpenTasks--;
+		if (this.numOpenTasks === 0) {
+			this.noMoreTasks();	// in case shutdown is pending
+		}
 	}
 
 	// touch files that are already in the new directory ... this is in case of
 	// a crash of the inbound email server, where we might miss a new file ... this
 	// way we recover by triggering a change event on whatever files are there
 	// upon startup
-	touchPreExistingFiles (callback) {
-		FS.readdir(
-			this.config.inboundEmail.inboundEmailDirectory,
-			(error, files) => {
-				if (error) {
-					this.warn(`Unable to read contents of inbound email directory: ${error}`);
-					return callback();
-				}
-				BoundAsync.forEachLimit(
-					this,
-					files,
-					10,
-					this.touchFile,
-					callback
-				);
-			}
-		);
+	async touchPreExistingFiles () {
+		let files;
+		try {
+			files = await callbackWrap(
+				FS.readdir,
+				this.config.inboundEmail.inboundEmailDirectory
+			);
+		}
+		catch (error) {
+			return this.warn(`Unable to read contents of inbound email directory: ${error}`);
+		}
+		await Promise.all(files.map(async file => {
+			await this.touchFile(file);
+		}));
 	}
 
 	// touch a single file in the inbound email directory, see above
-	touchFile (file, callback) {
+	async touchFile (file) {
 		file = Path.join(this.config.inboundEmail.inboundEmailDirectory, file);
-		ChildProcess.exec(
-			`touch ${file}`,
-			error => {
-				if (error) {
-					this.warn(`Error touching file ${file}: ${error}`);
-				}
-				process.nextTick(callback);
-			}
-		);
+		try {
+			await callbackWrap(
+				ChildProcess.exec,
+				`touch ${file}`
+			);
+		}
+		catch (error) {
+			this.warn(`Error touching file ${file}: ${error}`);
+		}
 	}
 
 	// handle a message from the master

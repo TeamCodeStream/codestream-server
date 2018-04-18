@@ -3,13 +3,13 @@
 
 'use strict';
 
-var FS = require('fs');
-var URL = require('url');
-var BoundAsync = require(process.env.CS_MAILIN_TOP + '/server_utils/bound_async');
-var MailParser = require('mailparser').MailParser;
-var Path = require('path');
-var HTTPS = require('https');
-var HtmlEntities = require('html-entities').AllHtmlEntities;
+const FS = require('fs');
+const URL = require('url');
+const MailParser = require('mailparser').MailParser;
+const Path = require('path');
+const HTTPS = require('https');
+const HtmlEntities = require('html-entities').AllHtmlEntities;
+const { callbackWrap } = require(process.env.CS_MAILIN_TOP + '/server_utils/await_utils');
 
 class FileHandler {
 
@@ -20,99 +20,93 @@ class FileHandler {
 	}
 
 	// handle a single inbound email file
-	handle (callback) {
-		this.finalCallback = callback;
-		BoundAsync.series(this, [
-			this.moveToProcessDirectory,	// move the email file to the "processing" directory
-			this.createTempDirectoryForAttachments, // create a temporary directory to hold attachment files
-			this.initiateReadStream,		// create a read stream to read the email file from, and start reading
-			this.establishTos,				// establish the true to-addresses that the email was sent to that are recognized for CodeStream
-			this.handleAttachments,			// handle any attachments we found
-			this.deleteAttachmentFiles,		// delete the temporary files for attachments
-			this.extractText,				// extract the actual text from the email, rejecting what we don't want (like original text for replies, and html)
-			this.sendToApiServer			// send the info along to the API server for posting
-		], this.finish, true);
+	async handle () {
+		let gotError;
+		try {
+			await this.moveToProcessDirectory();	// move the email file to the "processing" directory
+			await this.createTempDirectoryForAttachments(); // create a temporary directory to hold attachment files
+			await this.initiateReadStream();		// create a read stream to read the email file from, and start reading
+			await this.establishTos();				// establish the true to-addresses that the email was sent to that are recognized for CodeStream
+			await this.handleAttachments();			// handle any attachments we found
+			await this.deleteAttachmentFiles();		// delete the temporary files for attachments
+			await this.extractText();				// extract the actual text from the email, rejecting what we don't want (like original text for replies, and html)
+			await this.sendToApiServer();			// send the info along to the API server for posting
+		}
+		catch (error) {
+			gotError = error;
+		}
+		this.finish(gotError);
 	}
 
 	// move the email file to the "processing" directory,
 	// this is what we'll actually work with
-	moveToProcessDirectory (callback) {
+	async moveToProcessDirectory () {
 		this.baseName = Path.basename(this.filePath);
 		this.log(`Processing file: ${this.baseName}`);
-		let processDirectory = this.inboundEmailServer.config.inboundEmail.processDirectory;
+		const processDirectory = this.inboundEmailServer.config.inboundEmail.processDirectory;
 		this.fileToProcess = Path.join(processDirectory, this.baseName);
-		FS.rename(
-			this.filePath,
-			this.fileToProcess,
-			error => {
-				if (error) {
-					delete this.fileToProcess;
-					return callback(`unable to move email file to process directory: ${error}`);
-				}
-				else {
-					return callback();
-				}
-			}
-		);
+		try {
+			await callbackWrap(
+				FS.rename,
+				this.filePath,
+				this.fileToProcess
+			);
+		}
+		catch (error) {
+			delete this.fileToProcess;
+			throw `unable to move email file to process directory: ${error}`;
+		}
 	}
 
 	// create temp directory for any attachment files
-	createTempDirectoryForAttachments (callback) {
+	async createTempDirectoryForAttachments () {
 		this.attachmentPath = Path.join(this.inboundEmailServer.config.inboundEmail.tempAttachmentDirectory, this.baseName);
-		this.ensureDirectory(
-			this.attachmentPath,
-			error => {
-				if (error) {
-					delete this.attachmentPath;
-					return callback(`unable to create attachment directory: ${error}`);
-				}
-				else {
-					return callback();
-				}
-			}
-		);
+		try {
+			await this.ensureDirectory(this.attachmentPath);
+		}
+		catch (error) {
+			delete this.attachmentPath;
+			throw `unable to create attachment directory: ${error}`;
+		}
 	}
 
 	// ensure directory exists
-	ensureDirectory (directory, callback) {
-	    FS.mkdir(
-			directory,
-			error => {
-				if (
-					!error ||
-					(error && error.code === 'EEXIST')
-				) {
-					return callback();
-				}
-				else {
-					return callback(error);
-				}
+	async ensureDirectory (directory) {
+		try {
+			await callbackWrap(FS.mkdir, directory);
+		}
+		catch (error) {
+			if (error.code !== 'EEXIST') {
+				throw error;
 			}
-		);
+		}
 	}
 
 	// create a read stream on the email file and start reading
-	initiateReadStream (callback) {
-		// we'll callback only when (1) we've parsed the email file and (2)
-		// we've processed and saved any attachments
-		this.fullyReadCallback = callback;
+	async initiateReadStream () {
+		return new Promise((resolve, reject) => {
+			// we'll callback only when (1) we've parsed the email file and (2)
+			// we've processed and saved any attachments
+			this.fullyReadResolve = resolve;
+			this.fullyReadReject = reject;
 
-		// create the read stream
-		let readStream = FS.createReadStream(this.fileToProcess);
-		readStream.on('error', error => {
-			return callback(`error reading email file ${this.fileToProcess}: ${error}`);
-		});
+			// create the read stream
+			const readStream = FS.createReadStream(this.fileToProcess);
+			readStream.on('error', error => {
+				reject(`error reading email file ${this.fileToProcess}: ${error}`);
+			});
 
-		// pipe the output of the read stream into the mail parser
-		let mailParser = new MailParser({ streamAttachments: true });
-		mailParser.on('error', error => {
-			return callback(`error parsing email file ${this.fileToProcess}: ${error}`);
+			// pipe the output of the read stream into the mail parser
+			const mailParser = new MailParser({ streamAttachments: true });
+			mailParser.on('error', error => {
+				reject(`error parsing email file ${this.fileToProcess}: ${error}`);
+			});
+			mailParser.on('headers', this.handleHeaders.bind(this));
+			mailParser.on('data', this.handleMailData.bind(this));
+			mailParser.on('end', this.parseFinished.bind(this));
+			readStream.pipe(mailParser);
 		});
-		mailParser.on('headers', this.handleHeaders.bind(this));
-		mailParser.on('data', this.handleMailData.bind(this));
-		mailParser.on('end', this.parseFinished.bind(this));
-		readStream.pipe(mailParser);
-	}
+s	}
 
 	// handle headers received from the mail parser
 	handleHeaders (headers) {
@@ -192,7 +186,7 @@ class FileHandler {
 			this.headers &&
 			!this.attachments.find(attachment => !attachment.done)
 		) {
-			this.fullyReadCallback();
+			this.fullyReadResolve();
 		}
 	}
 
@@ -207,7 +201,7 @@ class FileHandler {
 			!this.headers.get('from')
 		) {
 			// could not read an email from this file
-			this.fullyReadCallback('email rejected because it does not conform to expected format');
+			this.fullyReadReject('email rejected because it does not conform to expected format');
 		}
 		else {
 			// we may or may not be done, depending on whether attachments are
@@ -219,7 +213,7 @@ class FileHandler {
 	// filter any "to" addresses we can find in the email to those addresses we
 	// recognize as bound for our domain ... we only want these and reject all
 	// others ... this could include CC's or BCC's, plus X-Original-To (for replies)
-	establishTos (callback) {
+	async establishTos () {
 		// get all possible "to" address we find in the email header
 		const candidateTos = this.getCandidateTos();
 
@@ -227,10 +221,9 @@ class FileHandler {
 		// ignoring all others
 		const approvedTos = this.getApprovedTos(candidateTos);
 		if (!approvedTos.length) {
-			return callback('email rejected because no CodeStream recipients found');
+			throw 'email rejected because no CodeStream recipients found';
 		}
 		this.to = approvedTos;
-		process.nextTick(callback);
 	}
 
 	// look in the parsed mail object for any possible "to" addresses, these Include
@@ -289,35 +282,30 @@ class FileHandler {
 	}
 
 	// handle any attachments we found in the email
-	handleAttachments (callback) {
+	async handleAttachments () {
 		this.attachmentData = [];
-		BoundAsync.forEachLimit(
-			this,
-			this.attachments,
-			10,
-			this.handleAttachmentFile,
-			callback
-		);
+		await Promise.all(this.attachments.map(async attachment => {
+			await this.handleAttachmentFile(attachment);
+		}));
 	}
 
 	// handle a single attachment file ... this is a file that was streamed from the
 	// mail parser and saved as a temp file ... we'll put that into S3 storage for
 	// use by the API server
-	handleAttachmentFile (attachment, callback) {
+	async handleAttachmentFile (attachment) {
 		// prepare to store on S3
-		let size = attachment.parseAttachment.size;
-		let basename = Path.basename(attachment.path);
-		let filename = FileStorageService.preEncodeFilename(basename);
-		let storageTopPath = ''; // When we deal with attachments: this.inboundEmailServer.config.s3.topPath ? (this.inboundEmailServer.config.s3.topPath + '/') : '';
-		let timestamp = Date.now();
-		let storagePath = `${storageTopPath}/email_files/${timestamp}_${basename}/${filename}`;
-		let options = {
+		const size = attachment.parseAttachment.size;
+		const basename = Path.basename(attachment.path);
+		const filename = FileStorageService.preEncodeFilename(basename);
+		const storageTopPath = ''; // When we deal with attachments: this.inboundEmailServer.config.s3.topPath ? (this.inboundEmailServer.config.s3.topPath + '/') : '';
+		const timestamp = Date.now();
+		const storagePath = `${storageTopPath}/email_files/${timestamp}_${basename}/${filename}`;
+		const options = {
 			path: attachment.path,
 			filename: storagePath
 		};
 
 		this.log('Would have handled attachment: ' + JSON.stringify(options));
-		process.nextTick(callback);
 		// store on S3
 		/*
 		WHEN WE'RE READY TO DEAL WITH ATTACHMENTS
@@ -340,35 +328,28 @@ class FileHandler {
 	}
 
 	// delete the temporary files we created to store attachments, it's all on S3 now
-	deleteAttachmentFiles (callback) {
-		let files = this.attachments.map(attachment => attachment.path);
-		BoundAsync.forEachLimit(
-			this,
-			files,
-			10,
-			(file, forEachCallback) => {
-				FS.unlink(file, error => {
-					if (error) {
-						this.warn(`Unable to delete temp file ${file}: ${error}`);
-					}
-					forEachCallback();
-				});
-			},
-			() => {
-				FS.rmdir(this.attachmentPath, error => {
-					if (error) {
-						this.warn(`Unable to delete temporary directory ${dirname}: ${error}`);
-					}
-					callback();
-				});
+	async deleteAttachmentFiles () {
+		const files = this.attachments.map(attachment => attachment.path);
+		await Promise.all(files.map(async file => {
+			try {
+				await callbackWrap(FS.unlink, file);
 			}
-		);
+			catch (error) {
+				this.warn(`Unable to delete temp file ${file}: ${error}`);
+			}
+		}));
+		try {
+			await callbackWrap(FS.rmdir, this.attachmentPath);
+		}
+		catch (error) {
+			this.warn(`Unable to delete temporary directory ${dirname}: ${error}`);
+		}
 	}
 
 	// extract the text we want from the parsed email text,
 	// discarding anything that looks like a quote of the original text for replies,
 	// and discarding as much html as we can
-	extractText (callback) {
+	async extractText () {
 		let text = '';
 		if (typeof this.text === 'string') {
 			text = this.text;
@@ -380,7 +361,6 @@ class FileHandler {
 			text = this.extractReply(text);
 		}
 		this.text = text;
-		process.nextTick(callback);
 	}
 
 	// for mail containing html, attempt to extract some useful text from it
@@ -402,11 +382,11 @@ class FileHandler {
 	extractReply (text) {
 		// we'll use a series of regular expressions to look for common reply
 		// scenarios ... we'll cut the text off at the nearest match we get in the text
-		let productName = 'CodeStream';
-		let senderEmail = this.inboundEmailServer.config.inboundEmail.senderEmail;
-		var qualifiedEmailRegex = `${senderEmail}\\s*(\\(via ${productName}\\))?\\s*(\\[mailto:.*\\])?`;
-		var escapedEmailRegex = qualifiedEmailRegex.replace(/\./, '\\.');
-		var regExpArray = [
+		const productName = 'CodeStream';
+		const senderEmail = this.inboundEmailServer.config.inboundEmail.senderEmail;
+		const qualifiedEmailRegex = `${senderEmail}\\s*(\\(via ${productName}\\))?\\s*(\\[mailto:.*\\])?`;
+		const escapedEmailRegex = qualifiedEmailRegex.replace(/\./, '\\.');
+		const regExpArray = [
 			new RegExp(`(^_*$)(\n)?From:.*${qualifiedEmailRegex}`, 'im'),
 			new RegExp(`(.*)\\(via ${productName}\\)( <${escapedEmailRegex}>)? wrote:\n`),
 			new RegExp(`(.*)\\(via ${productName}\\) <(.+)@(.+)>\n`),
@@ -419,7 +399,7 @@ class FileHandler {
 
 		// for each regex, look for a match, our final matching index is the
 		// nearest of the matches to the beginning of the text
-		let index = regExpArray.reduce(
+		const index = regExpArray.reduce(
 			(currentIndex, regExp) => {
 				let matchIndex = text.search(regExp);
 				if (matchIndex !== -1 && matchIndex < currentIndex) {
@@ -439,12 +419,12 @@ class FileHandler {
 	// we've boiled the email down to the crucial pieces of information the
 	// API server will need to construct a post out of it ... send the crucial
 	// pieces on to the API server and be done with it
-	sendToApiServer (callback) {
+	async sendToApiServer () {
 		if (!this.text && this.attachmentData.length === 0) {
 			// nothing to post, ignore
-			return callback('email rejected because no text and no attachments');
+			throw 'email rejected because no text and no attachments';
 		}
-		let data = {
+		const data = {
 			to: this.to,
 			from: this.headers.get('from').value[0],
 			text: this.text,
@@ -452,45 +432,47 @@ class FileHandler {
 			secret: this.inboundEmailServer.config.secrets.mailSecret,
 			attachments: this.attachmentData
 		};
-		this.sendDataToApiServer(data, callback);
+		await this.sendDataToApiServer(data);
 	}
 
 	// send data regarding an inbound email along to the API server for posting
 	// to the stream for which it is intended
-	sendDataToApiServer (data, callback) {
+	async sendDataToApiServer (data) {
 		this.log(`Sending email (${data.mailFile}) from ${JSON.stringify(data.from)} to ${JSON.stringify(data.to)} to API server...`);
-		let host = this.inboundEmailServer.config.api.host;
-		let port = this.inboundEmailServer.config.api.port;
-		let url = `https://${host}:${port}`;
-		let urlObject = URL.parse(url);
-		let payload = JSON.stringify(data);
-		let headers = {
+		const host = this.inboundEmailServer.config.api.host;
+		const port = this.inboundEmailServer.config.api.port;
+		const url = `https://${host}:${port}`;
+		const urlObject = URL.parse(url);
+		const payload = JSON.stringify(data);
+		const headers = {
 			'Content-Type': 'application/json',
 			'Content-Length': Buffer.byteLength(payload)
 		};
-		let requestOptions = {
+		const requestOptions = {
 			host: urlObject.hostname,
 			port: urlObject.port,
 			path: '/no-auth/inbound-email',
 			method: 'POST',
 			headers: headers
 		};
-		let request = HTTPS.request(
-			requestOptions,
-			response => {
-				if (response.statusCode < 200 || response.statusCode >= 300) {
-					return callback(`https request to API server failed with status code: ${response.statusCode}`);
+		return new Promise((resolve, reject) => {
+			let request = HTTPS.request(
+				requestOptions,
+				response => {
+					if (response.statusCode < 200 || response.statusCode >= 300) {
+						return reject(`https request to API server failed with status code: ${response.statusCode}`);
+					}
+					else {
+						resolve();
+					}
 				}
-				else {
-					return process.nextTick(callback);
-				}
-			}
-		);
-		request.on('error', function(error) {
-			return callback(`https request to ${urlObject.hostname}:${urlObject.port} failed: ${error}`);
+			);
+			request.on('error', function(error) {
+				return reject(`https request to ${urlObject.hostname}:${urlObject.port} failed: ${error}`);
+			});
+			request.write(payload);
+			request.end();
 		});
-		request.write(payload);
-		request.end();
 	}
 
 	// finished processing this file, error or not
@@ -501,9 +483,6 @@ class FileHandler {
 		if (error) {
 			this.handleFailure(error);
 		}
-		else {
-			this.finalCallback();
-		}
 	}
 
 	// handle a failure to process
@@ -511,7 +490,7 @@ class FileHandler {
 		this.gotError = true;
 		if (this.fileToProcess) {
 			// write the error out to an error file, this makes it easy to spot
-			let errorFile = this.fileToProcess + '.ERROR';
+			const errorFile = this.fileToProcess + '.ERROR';
 			FS.writeFile(
 				errorFile,
 				error,
@@ -523,7 +502,6 @@ class FileHandler {
 			);
 		}
 		this.warn(`Processing of ${this.baseName} failed: ${error}`);
-		this.finalCallback();
 	}
 
 	// warn, adding the basename of the file we are processing

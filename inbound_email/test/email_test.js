@@ -13,6 +13,12 @@ const FS = require('fs');
 const Assert = require('assert');
 const Path = require('path');
 
+// We use a pool of UUIDs for interacting with PubNub during unit testing ...
+// this is to avoid using the actual IDs of the users we are creating, which would
+// mean a new UUID for every created user, every time ... since we are billed per
+// user, that would be bad...
+let _NextPubnubUuid = 0;
+
 class EmailTest {
 
 	constructor (options) {
@@ -27,6 +33,7 @@ class EmailTest {
 			return `should create a post originating from ${this.description}`
 		}
 	}
+
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
@@ -85,6 +92,8 @@ class EmailTest {
 			username: RandomString.generate(8),
 			_confirmationCheat: Secrets.confirmationCheat
 		};
+		_NextPubnubUuid = (_NextPubnubUuid + 1) % 100;
+		data._pubnubUuid = `TEST-UUID-${_NextPubnubUuid}`;
 		this.apiRequest(
 			{
 				method: 'post',
@@ -177,7 +186,8 @@ class EmailTest {
 		// the "second" user will listen for the post that should result from
 		// processing the inbound email
 		let clientConfig = Object.assign({}, PubNubConfig);
-		clientConfig.uuid = this.userData[1].user._id;
+		let user = this.userData[1].user;
+		clientConfig.uuid = user._pubnubUuid || user._id;
 		clientConfig.authKey = this.userData[1].accessToken;
 		let client = new PubNub(clientConfig);
 		this.pubNubClient = new PubNubClient({
@@ -334,8 +344,8 @@ class EmailTest {
 			APIConfig.port,
 			path,
 			data,
-			callback,
-			options
+			options,
+			callback
 		);
 	}
 };

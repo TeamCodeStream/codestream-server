@@ -11,7 +11,7 @@ const LoggerConfig = require(ConfigDirectory + '/logger');
 const SecretsConfig = require(ConfigDirectory + '/secrets');
 const ApiConfig = require(ConfigDirectory + '/api');
 const SimpleFileLogger = require(process.env.CS_MAILIN_TOP + '/server_utils/simple_file_logger');
-var ClusterWrapper = require(process.env.CS_MAILIN_TOP + '/server_utils/cluster_wrapper');
+const ClusterWrapper = require(process.env.CS_MAILIN_TOP + '/server_utils/cluster_wrapper');
 
 // establish our logger
 var Logger = new SimpleFileLogger(LoggerConfig);
@@ -33,9 +33,12 @@ var MyClusterWrapper = new ClusterWrapper(
 );
 
 // start up the master, this will launch workers to really get down to work
-MyClusterWrapper.start((error) => {
-	if (error) {
-		console.error('Failed to start: ' + error);
+(async function() {
+	try {
+		await MyClusterWrapper.start();
+	}
+	catch (error) {
+		console.error('Failed to start: ' + error); // eslint-disable-line no-console
 		process.exit(1);
 	}
-});
+})();
