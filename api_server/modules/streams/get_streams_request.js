@@ -145,7 +145,7 @@ class GetStreamsRequest extends GetManyRequest {
 				{
 					isTeamStream: true
 				}
-			]
+			];
 		}
 		return query;
 	}
