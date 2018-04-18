@@ -1,22 +1,31 @@
-// fulfill the PUT /slack-enable request, to enable slack integration for a given team
+// fulfill the integration enable request, to enable integration for a given team
 
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const Errors = require('./errors');
 
-class SlackEnableRequest extends RestfulRequest {
+class IntegrationEnableRequest extends RestfulRequest {
 
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(Errors);
+		if (!this.module.integrationConfig) {
+			throw 'integration module must have an integration config';
+		}
+		Object.assign(this, this.module.integrationConfig);
+		['integrationName', 'secret', 'botOrigin', 'botReceivePath'].forEach(configOption => {
+			if (!this[configOption]) {
+				throw `must provide ${configOption} to the integration-enable request`;
+			}
+		});
 	}
 
-	// authorize the client (slack-bot) to make this request
+	// authorize the client (the integration bot) to make this request
 	async authorize () {
-		// we rely on a secret, known only to the slack-bot and the
+		// we rely on a secret, known only to the bot and the
 		// API server ... disallowing arbitrary clients to call this request
-		if (this.request.body.secret !== this.api.config.slack.secret) {
+		if (this.request.body.secret !== this.secret) {
 			throw this.errorHandler.error('unauthorized');
 		}
 	}
@@ -46,14 +55,16 @@ class SlackEnableRequest extends RestfulRequest {
 	// set the integration as enabled (or disabled) for the given team
 	async setEnabled () {
 		this.teamId = this.request.body.teamId.toLowerCase();
+		const attribute = `integrations.${this.integrationName}.enabled`;
 		this.op = {
 			$set: {
-				'integrations.slack.enabled': this.request.body.enable,
+				[attribute]: this.request.body.enable,
 				modifiedAt: Date.now()
 			}
 		};
+		const infoAttribute = `integrations.${this.integrationName}.info`;
 		if (this.request.body.info) {
-			this.op.$set['integrations.slack.info'] = this.request.body.info;
+			this.op.$set[infoAttribute] = this.request.body.info;
 		}
 		await this.data.teams.applyOpById(
 			this.teamId,
@@ -78,9 +89,9 @@ class SlackEnableRequest extends RestfulRequest {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish team integration enable message to team ${this.teamId}: ${JSON.stringify(error)}`);
+			this.warn(`Could not publish team ${this.integrationName} integration enable message to team ${this.teamId}: ${JSON.stringify(error)}`);
 		}
 	}
 }
 
-module.exports = SlackEnableRequest;
+module.exports = IntegrationEnableRequest;

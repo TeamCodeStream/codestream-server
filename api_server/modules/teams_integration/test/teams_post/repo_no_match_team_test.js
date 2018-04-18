@@ -1,12 +1,12 @@
 'use strict';
 
-var SlackPostTest = require('./slack_post_test');
+var TeamsPostTest = require('./teams_post_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
-class RepoNoMatchTeamTest extends SlackPostTest {
+class RepoNoMatchTeamTest extends TeamsPostTest {
 
 	get description () {
-		return 'should return an error when trying to send a slack post request with a repo ID and a team ID that are not related';
+		return 'should return an error when trying to send a teams post request with a repo ID and a team ID that are not related';
 	}
 
 	getExpectedError () {

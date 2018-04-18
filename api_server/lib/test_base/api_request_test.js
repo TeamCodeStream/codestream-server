@@ -63,9 +63,9 @@ class APIRequestTest extends GenericTest {
 			// since we're just doing testing, block analytics tracking
 			requestOptions.headers['X-CS-Block-Tracking'] = true;
 		}
-		if (!options.reallySendSlackOut) {
-			// since we're just doing testing, block sending slack-bot messages
-			requestOptions.headers['X-CS-Block-Slack-Out'] = true;
+		if (!options.reallySendBotOut) {
+			// since we're just doing testing, block sending bot messages
+			requestOptions.headers['X-CS-Block-Bot-Out'] = true;
 		}
 		if (options.testEmails) {
 			// we're doing email testing, block them from being sent but divert contents
@@ -77,10 +77,10 @@ class APIRequestTest extends GenericTest {
 			// but divert contents to a pubnub channel that we'll listen on
 			requestOptions.headers['X-CS-Test-Tracking'] = true;
 		}
-		if (options.testSlackOut) {
-			// we're doing testing of slack messages going out, divert messages to the
-			// slack-bot to a pubnub channel that we'll listen on
-			requestOptions.headers['X-CS-Test-Slack-Out'] = true;
+		if (options.testBotOut) {
+			// we're doing testing of bot messages going out, divert messages to the
+			// bot to a pubnub channel that we'll listen on
+			requestOptions.headers['X-CS-Test-Bot-Out'] = true;
 		}
 		requestOptions.headers['X-CS-For-Testing'] = true;	// makes it easy to wipe test data later on
 	}
