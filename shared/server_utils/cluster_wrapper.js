@@ -56,7 +56,7 @@ class ClusterWrapper {
 	testPorts (callback) {
 		// here we test our listen port for availability, before we actually start spawning workers to listen
 		const port = this.config.express && this.config.express.port;
-		if (!port) { return; }
+		if (!port) { return callback(); }
 		const testSocket = Net.connect(port);
 
 		// error means either there is nothing listening OR we can let the workers reliably trap the
