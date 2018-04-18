@@ -100,7 +100,7 @@ class UserSubscriptionGranter  {
 			{
 				databaseOptions: {
 					fields: ['_id'],
-					hint: StreamIndexes.byMemberIds
+					hint: StreamIndexes.byMembers
 				},
 				noCache: true
 			}

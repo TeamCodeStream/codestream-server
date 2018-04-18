@@ -18,6 +18,7 @@ class GetAllStreamsByTeamTest extends GetStreamsTest {
 		this.myStreams = teamStreams.filter(
 			stream => stream.memberIds.includes(userId)
 		);
+		this.myStreams.push(this.myTeamStream);
 		this.path = '/streams?teamId=' + teamId;
 		callback();
 	}

@@ -49,6 +49,7 @@ class GetStreamsTest extends CodeStreamAPITest {
 				if (error) { return callback(error); }
 				this.myRepo = response.repo;
 				this.myTeam = response.team;
+				this.myTeamStream = response.streams[0];
 				// keep track of the additional users in this team, and put them in the other team as well
 				this.usersByTeam[this.myTeam._id] = response.users.filter(user => {
 					return user._id !== this.currentUser._id && user._id !== this.otherUserData.user._id;

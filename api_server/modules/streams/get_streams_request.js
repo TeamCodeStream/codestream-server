@@ -115,7 +115,7 @@ class GetStreamsRequest extends GetManyRequest {
 			return Indexes.byFile;
 		}
 		else {
-			return Indexes.byMemberIds;
+			return Indexes.byMembers;
 		}
 	}
 
@@ -136,7 +136,16 @@ class GetStreamsRequest extends GetManyRequest {
 			delete query.repoId;	// for non file-type, ignore the repo ID
 		}
 		if (!query.repoId) {
-			query.memberIds = this.user.id;	// for non file-type, only return streams which have the requesting user as a member
+			// for non file-type, only return streams which have the requesting user as a member,
+			// or team-streams, which are considered to have all users on the team as members
+			query.$or = [
+				{
+					memberIds: this.user.id
+				},
+				{
+					isTeamStream: true
+				}
+			]
 		}
 		return query;
 	}

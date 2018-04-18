@@ -18,6 +18,7 @@ class GetChannelStreamsByTeamTest extends GetStreamsTest {
 		this.myStreams = teamStreams.filter(
 			stream => stream.type === 'channel' && stream.memberIds.includes(userId)
 		);
+		this.myStreams.push(this.myTeamStream);
 		this.path = '/streams?type=channel&teamId=' + teamId;
 		callback();
 	}
