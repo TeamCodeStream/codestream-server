@@ -1,11 +1,11 @@
 'use strict';
 
-var SlackPostTest = require('./slack_post_test');
+var TeamsPostTest = require('./teams_post_test');
 
-class IncorrectSecretTest extends SlackPostTest {
+class IncorrectSecretTest extends TeamsPostTest {
 
 	get description () {
-		return 'should return an error when trying to send a slack post request with an incorrect secret';
+		return 'should return an error when trying to send a teams post request with an incorrect secret';
 	}
 
 	getExpectedError () {

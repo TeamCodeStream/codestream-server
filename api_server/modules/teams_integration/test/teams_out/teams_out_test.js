@@ -1,32 +1,32 @@
-// serves as the base class for other slack integration output tests
+// serves as the base class for other MS Teams integration output tests
 
 'use strict';
 
 const Assert = require('assert');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const Slack = require(process.env.CS_API_TOP + '/config/slack');
+const MSTeams = require(process.env.CS_API_TOP + '/config/msteams');
 
-class SlackOutTest extends CodeStreamMessageTest {
+class TeamsOutTest extends CodeStreamMessageTest {
 
 	get description () {
-		return 'when a team has slack integration enabled, a new post in a stream owned by that team should send a message to the slack bot';
+		return 'when a team has MS Teams integration enabled, a new post in a stream owned by that team should send a message to the MS Teams bot';
 	}
 
 	// make the data we'll use for the test
 	makeData (callback) {
 		// establish the creator of the post that triggers the email, and their token
 		// the current user and token will be usurped later to be the client that is set to
-		// receive the simulated slack message via pubnub
+		// receive the simulated teams message via pubnub
 		this.postCreator = this.currentUser;
 		this.creatorToken = this.token;
 		BoundAsync.series(this, [
 			this.createOtherUser,	// create another registered user, as needed
 			this.createRepo,		// create the repo to be used in the test
-			this.enableSlack,		// enable the slack integration as needed
+			this.enableTeams,		// enable the teams integration as needed
 			this.createStream,		// create a file stream in that repo
 			this.createParentPost,	// create a parent post, if needed
-			this.setCurrentUser,	// set the current user, the one who will be listening for the pubnub message that represents the slack message that would otherwise go out
+			this.setCurrentUser,	// set the current user, the one who will be listening for the pubnub message that represents the teams message that would otherwise go out
 			this.makePostData,		// make the data for the post what will trigger the message
 		], callback);
 	}
@@ -75,14 +75,14 @@ class SlackOutTest extends CodeStreamMessageTest {
 		);
 	}
 
-	// enable slack integration for the team
-	enableSlack (callback) {
+	// enable teams integration for the team
+	enableTeams (callback) {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/no-auth/slack-enable',
+				path: '/no-auth/teams-enable',
 				data: {
-					secret: Slack.secret,
+					secret: MSTeams.secret,
 					teamId: this.team._id,
 					enable: true
 				}
@@ -110,7 +110,7 @@ class SlackOutTest extends CodeStreamMessageTest {
 	}
 
 	// set the current user, i.e., the user who will be looking for the pubnub message that represents
-	// the email data that would otherwise be going out to the slack-bot
+	// the email data that would otherwise be going out to the MS Teams bot
 	setCurrentUser (callback) {
 		// we want the "other" user to get the message
 		this.currentUser = this.otherUserData.user;
@@ -118,7 +118,7 @@ class SlackOutTest extends CodeStreamMessageTest {
 		callback();
 	}
 
-	// make the data that will be used for the post that triggers the slack message
+	// make the data that will be used for the post that triggers the teams message
 	makePostData (callback) {
 		this.postFactory.getRandomPostData(
 			(error, data) => {
@@ -144,14 +144,14 @@ class SlackOutTest extends CodeStreamMessageTest {
 	// set the channel name to listen for the email message on
 	setChannelName (callback) {
 		// we use the team channel to send the mock message, this is the message that would
-		// normally go to the slack-bot but we preempt it for testing
+		// normally go to the MS Teams bot but we preempt it for testing
 		this.channelName = `team-${this.team._id}`;
 		callback();
 	}
 
 	// generate the message that triggers the test
 	generateMessage (callback) {
-		// create a post that will trigger the slack message
+		// create a post that will trigger the teams message
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -226,4 +226,4 @@ class SlackOutTest extends CodeStreamMessageTest {
 	}
 }
 
-module.exports = SlackOutTest;
+module.exports = TeamsOutTest;

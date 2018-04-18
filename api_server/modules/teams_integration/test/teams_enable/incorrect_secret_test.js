@@ -1,11 +1,11 @@
 'use strict';
 
-var SlackEnableTest = require('./slack_enable_test');
+var TeamsEnableTest = require('./teams_enable_test');
 
-class ACLTest extends SlackEnableTest {
+class ACLTest extends TeamsEnableTest {
 
 	get description () {
-		return 'should return an error when trying to send a slack enable request without providing the secret';
+		return 'should return an error when trying to send a teams enable request with an incorrect secret';
 	}
 
 	getExpectedError () {

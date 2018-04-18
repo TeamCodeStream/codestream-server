@@ -3,53 +3,27 @@
 
 'use strict';
 
-const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
-const SlackBotClient = require('./slack_bot_client');
+const IntegrationModule = require(process.env.CS_API_TOP + '/lib/util/integrations/integration_module');
 const HttpProxy = require('express-http-proxy');
 
-const SLACK_INTEGRATION_ROUTES = [
-	{
-		method: 'put',
-		path: 'no-auth/slack-enable',
-		requestClass: require('./slack_enable_request')
-	},
-	{
-		method: 'post',
-		path: 'no-auth/slack-post',
-		requestClass: require('./slack_post_request')
-	}
-];
+class SlackIntegration extends IntegrationModule {
 
-class SlackIntegration extends APIServerModule {
-
-	services () {
-		// return a function that, when invoked, returns a service structure with the pubnub client as
-		// the messager service
-		return async () => {
-			if (!this.api.config.slack || !this.api.config.slack.slackBotOrigin) {
-				return this.api.warn('Will not connect to Slack, no Slack configuration or origin supplied');
-			}
-
-			this.api.log('Connecting to Slack bot...');
-			this.slackBotClient = new SlackBotClient(this.api.config.slack);
-			return { slack: this.slackBotClient };
-		};
-	}
-
-	getRoutes () {
-		// provide a route for incoming posts from the slack-bot
-		return SLACK_INTEGRATION_ROUTES;
+	constructor(options) {
+		super(options);
+		this.integrationName = 'slack';
 	}
 
 	// initialize the module
 	async initialize () {
+		await super.initialize();
+		
 		// proxying these requests to the slackbot for authorization flow
 		// and message reception
 		const reconstructQuery = (request) => {
 			// yeah, B.S. ... the npm proxy module doesn't pass through ordinary query parameters
 			return Object.keys(request.query).map(param => `${param}=${request.query[param]}`).join('&');
 		};
-		const slackOriginUrl = this.api.config.slack.slackBotOrigin;
+		const slackOriginUrl = this.api.config.slack.botOrigin;
 		if (!slackOriginUrl) { return; }
 
 		// unfortunately, we can get messages from slack of x-www-form-urlencoded type,

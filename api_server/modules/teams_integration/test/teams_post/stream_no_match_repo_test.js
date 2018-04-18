@@ -1,17 +1,17 @@
 'use strict';
 
-var SlackPostTest = require('./slack_post_test');
+var TeamsPostTest = require('./teams_post_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
-class RepoNoMatchTeamTest extends SlackPostTest {
+class StreamNoMatchRepoTest extends TeamsPostTest {
 
 	get description () {
-		return 'should return an error when trying to send a slack post request with a repo ID and a team ID that are not related';
+		return 'should return an error when trying to send a teams post request with a stream ID and a repo ID that are not related';
 	}
 
 	getExpectedError () {
 		return {
-			code: 'INTG-1002',
+			code: 'INTG-1003',
 		};
 	}
 
@@ -23,13 +23,13 @@ class RepoNoMatchTeamTest extends SlackPostTest {
 		], callback);
 	}
 
-	// create a second repo (and team) ... we'll use this team's ID but the normal
-	// repo ID ... this is not allowed!
+	// create a second repo (and team) ... we'll use this team and repo's ID ... this is not allowed!
 	createOtherRepo (callback) {
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherTeam = response.team;
+				this.otherRepo = response.repo;
 				callback();
 			},
 			{
@@ -41,11 +41,12 @@ class RepoNoMatchTeamTest extends SlackPostTest {
 	// make the data to be used in the request that triggers the message
 	makePostData (callback) {
 		super.makePostData(() => {
-			// inject the other team ID
+			// inject the other team and repo ID
 			this.data.teamId = this.otherTeam._id;
+			this.data.repoId = this.otherRepo._id;
 			callback();
 		});
 	}
 }
 
-module.exports = RepoNoMatchTeamTest;
+module.exports = StreamNoMatchRepoTest;
