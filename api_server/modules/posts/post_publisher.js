@@ -26,10 +26,7 @@ class PostPublisher {
 	// publish any streams created on-the-fly when creating this post,
 	// this is only for private streams not visible to the whole team
 	async publishNewStreams () {
-		let streams = this.data.streams || [];
-		if (this.data.stream) {
-			streams.push(this.data.streams);
-		}
+		const streams = this.data.streams || [];
 		await Promise.all(streams.map(async stream => {
 			if (stream.type !== 'file' && !stream.isTeamStream) {
 				// we created a non-file stream on-the-fly with this post, so publish the stream,
