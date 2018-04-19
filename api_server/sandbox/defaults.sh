@@ -80,8 +80,7 @@ else
 	echo "*** ERROR: slackbot secrets file ($BOT_SECRETS_FILE) not found"
 fi
 [ -z "$CS_API_SLACKBOT_ORIGIN" ] && export CS_API_SLACKBOT_ORIGIN=http://localhost:11079
-#[ -z "$CS_API_TEAMSBOT_ORIGIN" ] && export CS_API_TEAMSBOT_ORIGIN=http://localhost:10079
-[ -z "$CS_API_TEAMSBOT_ORIGIN" ] && export CS_API_TEAMSBOT_ORIGIN=https://howdy.ngrok.io
+[ -z "$CS_API_TEAMSBOT_ORIGIN" ] && export CS_API_TEAMSBOT_ORIGIN=http://localhost:10079
 
 
 # =============== PubNub Settings ==============
