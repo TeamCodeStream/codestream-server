@@ -112,7 +112,7 @@ class CommonInit {
 				this.posts.push(response.post);
 				let marker = response.markers[0];
 				this.markers.push(marker);
-				this.locations[marker._id] = response.markerLocations.locations[marker._id];
+				this.locations[marker._id] = response.markerLocations[0].locations[marker._id];
 				callback();
 			},
 			{

@@ -119,6 +119,19 @@ class PostCreator extends ModelCreator {
 				throw 'streamId is not a valid ID';
 			}
 		}
+		// if the code block specifies a file, then we are being asked to create
+		// (or find) a stream for that file, and use that for the code block
+		if (codeBlock.file) {
+			if (!codeBlock.repoId) {
+				throw 'repoId required for codeBlock with file';
+			}
+			const result = new Post().validator.validateId(codeBlock.repoId);
+			if (result) {
+				throw `code block repoId is not valid: ${result}`;
+			}
+			numKeys += 2;
+		}
+
 		if (Object.keys(codeBlock).length > numKeys) {
 			// there can't be any additional attributes in the code block
 			throw 'improper attributes';
@@ -136,10 +149,12 @@ class PostCreator extends ModelCreator {
 			this.attributes._forTesting = true;
 		}
 		await this.getStream();			// get the stream for the post
+		await this.getCodeBlockStreams();	// get streams for any code blocks outside of this stream
 		await this.getRepo();			// get the repo (for posts in file-type streams)
 		await this.getTeam();			// get the team that owns the stream
 		await this.getCompany();		// get the company that owns the team
 		await this.createStream();		// create the stream, if requested to create on-the-fly
+		await this.createCodeBlockStreams();	// create streams for any code blocks outside of this stream
 		this.createId();				// create an ID for the post
 		await this.createMarkers();		// create markers for any code blocks sent
 		await this.getSeqNum();			// requisition a sequence number for the post
@@ -159,6 +174,25 @@ class PostCreator extends ModelCreator {
 		if (!this.stream) {
 			throw this.errorHandler.error('notFound', { info: 'stream'});
 		}
+	}
+
+	// get streams for any code blocks outside of this stream
+	async getCodeBlockStreams () {
+		if (!this.attributes.codeBlocks) {
+			return;
+		}
+		// extract the stream IDs for all code blocks that aren't from the same 
+		// stream as the post itself
+		const streamIds = this.attributes.codeBlocks.reduce((current, codeBlock) => {
+			if (codeBlock.streamId && codeBlock.streamId !== this.attributes.streamId) {
+				current.push(codeBlock.streamId);
+			}
+			return current;
+		}, []);
+		if (streamIds.length === 0) {
+			return;
+		}
+		this.codeBlockStreams = await this.data.streams.getByIds(streamIds);
 	}
 
 	// get the repo to which the stream belongs, if it is a file-type stream
@@ -219,9 +253,43 @@ class PostCreator extends ModelCreator {
 			nextSeqNum: 2
 		}).createStream(this.attributes.stream);
 		this.attributes.streamId = this.stream.id;
-		this.attachToResponse.stream = this.stream.getSanitizedObject(); // put the stream object in the request response
+		// put the stream object in the request response
+		this.attachToResponse.streams = this.attachToResponse.streams || [];
+		this.attachToResponse.streams.push(this.stream.getSanitizedObject()); 
 		delete this.attributes.stream;
 		this.createdStream = true;
+	}
+
+	// create streams for any code blocks outside of this stream
+	async createCodeBlockStreams () {
+		if (!this.attributes.codeBlocks) {
+			return;
+		}
+		this.codeBlockStreams = this.codeBlockStreams || [];
+		await Promise.all(this.attributes.codeBlocks.map(async codeBlock => {
+			await this.createCodeBlockStream(codeBlock);
+		}));
+	}
+
+	// create a stream for any code block that specifies stream characteristics
+	async createCodeBlockStream (codeBlock) {
+		if (codeBlock.streamId || !codeBlock.file) {
+			return;
+		}
+		const streamInfo = {
+			teamId: this.team.id,
+			repoId: codeBlock.repoId,
+			type: 'file',
+			file: codeBlock.file
+		};
+		const createdStream = await new StreamCreator({
+			request: this.request,
+			nextSeqNum: 2
+		}).createStream(streamInfo);
+		codeBlock.streamId = createdStream.id;
+		this.attachToResponse.streams = this.attachToResponse.streams || [];
+		this.attachToResponse.streams.push(createdStream.getSanitizedObject()); 
+		this.codeBlockStreams.push(createdStream);
 	}
 
 	// requisition an ID for the post
@@ -236,12 +304,7 @@ class PostCreator extends ModelCreator {
 		}
 		this.markers = [];	// unsanitized
 		this.attachToResponse.markers = [];	// sanitized, to be sent in the response
-		this.attachToResponse.markerLocations = {	// marker locations, to be sent in the response
-			teamId: this.attributes.teamId,
-			streamId: this.attributes.streamId,
-			commitHash: this.attributes.commitHashWhenPosted,
-			locations: {}
-		};
+		this.attachToResponse.markerLocations = [];
 		for (let codeBlock of this.attributes.codeBlocks) {
 			await this.createMarker(codeBlock);
 		}
@@ -249,9 +312,10 @@ class PostCreator extends ModelCreator {
 
 	// create a marker, associated with a given code block
 	async createMarker (codeBlock) {
+		const streamId = codeBlock.streamId || this.attributes.streamId;
 		let markerInfo = {
 			teamId: this.attributes.teamId,
-			streamId: codeBlock.streamId || this.attributes.streamId,
+			streamId: streamId,
 			postId: this.attributes._id,
 			commitHash: this.attributes.commitHashWhenPosted
 		};
@@ -265,13 +329,38 @@ class PostCreator extends ModelCreator {
 
 		this.markers.push(marker);
 		codeBlock.markerId = marker.id;
+		// the code block gets the file path of the source file
+		const codeBlockStream = markerInfo.streamId === this.attributes.streamId ? this.stream : 
+			(this.codeBlockStreams || []).find(stream => stream.id === markerInfo.streamId);
+		if (codeBlockStream) {
+			codeBlock.file = codeBlockStream.get('file');
+			codeBlock.repoId = codeBlockStream.get('repoId');
+		}
 		delete codeBlock.streamId; // gets put into the marker
 		const markerObject = marker.getSanitizedObject();
 		this.attachToResponse.markers.push(markerObject);
 		if (codeBlock.location) {
-			this.attachToResponse.markerLocations.locations[marker.id] = codeBlock.location;
-			delete codeBlock.location; // gets put into the marker locations object
+			this.addLocation(streamId, marker.id, codeBlock.location);
+			delete codeBlock.location;
 		}
+	}
+
+	// add a marker location to the appropriate marker locations structure, to be returned
+	// to the client
+	addLocation (streamId, markerId, location) {
+		let markerLocations = this.attachToResponse.markerLocations.find(ml => {
+			return ml.streamId === streamId;
+		});
+		if (!markerLocations) {
+			this.attachToResponse.markerLocations.push({
+				teamId: this.attributes.teamId,
+				streamId,
+				commitHash: this.attributes.commitHashWhenPosted,
+				locations: {}
+			});
+			markerLocations = this.attachToResponse.markerLocations[this.attachToResponse.markerLocations.length - 1];
+		}
+		markerLocations.locations[markerId] = location;
 	}
 
 	// requisition a sequence number for this post

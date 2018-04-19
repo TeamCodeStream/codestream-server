@@ -37,7 +37,7 @@ class DuplicateDirectTest extends DirectOnTheFlyTest {
 	// validate the response to the post request
 	validateResponse (data) {
 		// validate that we get back the stream that was already created, instead of a new stream
-		Assert(data.stream._id === this.duplicateStream._id, 'returned stream should be the same as the existing stream');
+		Assert(data.streams[0]._id === this.duplicateStream._id, 'returned stream should be the same as the existing stream');
 		super.validateResponse(data);
 	}
 }

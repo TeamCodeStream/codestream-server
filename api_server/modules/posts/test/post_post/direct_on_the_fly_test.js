@@ -33,16 +33,16 @@ class DirectOnTheFlyTest extends PostToDirectTest {
 	validateResponse (data) {
 		// validate that we got back a stream object, and that it matches the
 		// options we went for the stream
-		Assert(typeof data.stream === 'object', 'no stream returned');
-		Assert(data.post.streamId === data.stream._id, 'the post\'s streamId does not match the id of the returned stream');
+		Assert(typeof data.streams[0] === 'object', 'no stream returned');
+		Assert(data.post.streamId === data.streams[0]._id, 'the post\'s streamId does not match the id of the returned stream');
 		this.validateStream(data);
-		this.data.streamId = data.stream._id;
+		this.data.streamId = data.streams[0]._id;
 		super.validateResponse(data);
 	}
 
 	// validate the stream object we received to the request response
 	validateStream (data) {
-		let stream = data.stream;
+		let stream = data.streams[0];
 		let errors = [];
 		if (stream.type !== 'file') {
 			// only direct or channel streams have members, sort both arrays of

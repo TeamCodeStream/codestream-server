@@ -65,6 +65,12 @@ class RandomPostFactory {
 					// for code blocks that come from a different stream than the one the post will go into
 					codeBlockInfo.streamId = options.codeBlockStreamId;
 				}
+				else if (options.codeBlockStream) {
+					// for code blocks that come from a different stream than the one the post will go into,
+					// and the stream will be created on the fly
+					codeBlockInfo.file = options.codeBlockStream.file;
+					codeBlockInfo.repoId = options.codeBlockStream.repoId;
+				}
 				data.commitHashWhenPosted = data.commitHashWhenPosted || this.randomCommitHash();
 				data.codeBlocks.push(codeBlockInfo);
 			}

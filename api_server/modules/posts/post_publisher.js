@@ -12,9 +12,9 @@ class PostPublisher {
 	}
 
 	async publishPost () {
+		// first publish any new streams, this is only for private streams not visible to the whole team
+		await this.publishNewStreams();
 		if (this.data.stream && this.data.stream.type !== 'file' && !this.data.stream.isTeamStream) {
-			// we created a non-file stream on-the-fly with this post, so publish the stream,
-			// it will then be up to the client to fetch the post? (because they are not yet subscribed to the stream channel)
 			await this.publishNewStream();
 		}
 		else {
@@ -23,13 +23,26 @@ class PostPublisher {
 		}
 	}
 
+	// publish any streams created on-the-fly when creating this post,
+	// this is only for private streams not visible to the whole team
+	async publishNewStreams () {
+		const streams = this.data.streams || [];
+		await Promise.all(streams.map(async stream => {
+			if (stream.type !== 'file' && !stream.isTeamStream) {
+				// we created a non-file stream on-the-fly with this post, so publish the stream,
+				// it will then be up to the client to fetch the post? (because they are not yet subscribed to the stream channel)
+				await this.publishNewStream(stream);
+			}
+		}));
+	}
+
 	// publish the creation of a new stream
-	async publishNewStream () {
+	async publishNewStream (stream) {
 		// if a new stream was created, we publish the stream as needed, then leave it up to clients
 		// to fetch from the stream
 		await new StreamPublisher({
-			stream: this.data.stream,
-			data: { stream: this.data.stream },
+			stream: stream,
+			data: { stream },
 			request: this.request,
 			messager: this.messager
 		}).publishStream();
@@ -56,18 +69,11 @@ class PostPublisher {
 			post: this.data.post,
 			requestId: this.request.request.id
 		};
-		if (this.data.markers) {
-			message.markers = this.data.markers;
-		}
-		if (this.data.markerLocations) {
-			message.markerLocations = this.data.markerLocations;
-		}
-		if (this.data.stream) {
-			message.stream = this.data.stream;
-		}
-		if (this.data.users) {
-			message.users = this.data.users;
-		}
+		['markers', 'markerLocations', 'streams', 'users'].forEach(type => {
+			if (this.data[type]) {
+				message[type] = this.data[type];
+			}
+		});
 		try {
 			await this.messager.publish(
 				message,

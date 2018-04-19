@@ -78,7 +78,7 @@ class GetPostsTest extends CodeStreamAPITest {
 	createPosts (callback) {
 		this.myPosts = [];
 		this.myMarkers = [];
-		this.myMarkerLocations = {};
+		this.myMarkerLocations = [];
 		BoundAsync.timesSeries(
 			this,
 			this.numPosts,
@@ -98,9 +98,10 @@ class GetPostsTest extends CodeStreamAPITest {
 					this.myMarkers.push(...response.markers);
 				}
 				if (response.markerLocations) {
-					let locations = response.markerLocations.locations;
-					delete response.markerLocations.locations;
-					Object.assign(this.myMarkerLocations, response.markerLocations);
+					let markerLocations = response.markerLocations[0];
+					let locations = markerLocations.locations;
+					delete markerLocations.locations;
+					Object.assign(this.myMarkerLocations, markerLocations);
 					this.myMarkerLocations.locations = this.myMarkerLocations.locations || {};
 					Object.assign(this.myMarkerLocations.locations, locations);
 				}

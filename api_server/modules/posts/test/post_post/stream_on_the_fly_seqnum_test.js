@@ -45,7 +45,7 @@ class StreamOnTheFlySeqNumTest extends PostPostTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.postOptions = {
-					streamId: response.stream._id
+					streamId: response.streams[0]._id
 				};
 				callback();
 			},
