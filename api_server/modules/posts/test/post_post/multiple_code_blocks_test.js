@@ -49,8 +49,8 @@ class MultipleCodeBlocksTest extends PostCodeToFileStreamTest {
 	validateMarkerLocations (data, post) {
 		// validate we got the expected marker locations, according to the code blocks we sent
 		// in the request to create a post
-		Assert(typeof data.markerLocations === 'object', 'missing or invalid markerLocations object');
-		let markerLocations = data.markerLocations;
+		Assert(typeof data.markerLocations[0] === 'object', 'missing or invalid markerLocations object');
+		let markerLocations = data.markerLocations[0];
 		Assert(markerLocations.teamId === post.teamId, 'markerLocations teamId does not match');
 		Assert(markerLocations.streamId === post.streamId, 'markerLocations streamId does not match');
 		Assert(markerLocations.commitHash === post.commitHashWhenPosted, 'markerLocations commitHash does not match commit hash for post');

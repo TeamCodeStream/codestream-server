@@ -26,6 +26,7 @@ var CodeBlockHasImproperAttributesTest = require('./code_block_has_improper_attr
 var CodeBlockHasUnknownStreamIdTest = require('./code_block_has_unknown_stream_id_test');
 var CodeBlockForBadStreamTypeTest = require('./code_block_for_bad_stream_type_test');
 var CodeBlockFromDifferentTeamTest = require('./code_block_from_different_team_test');
+var CodeBlockStreamOnTheFly = require('./code_block_stream_on_the_fly_test');
 var NumMarkersTest = require('./num_markers_test');
 var MultipleCodeBlocksTest = require('./multiple_code_blocks_test');
 var CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
@@ -57,6 +58,7 @@ var NewPostMessageToTeamStreamTest = require('./new_post_message_to_team_stream_
 var NewPostMessageToStreamTest = require('./new_post_message_to_stream_test');
 var NewPostNoMessageTest = require('./new_post_no_message_test');
 var NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_test');
+var NewCodeBlockStreamMessageToTeamTest = require('./new_code_block_stream_message_to_team_test');
 var NewTeamStreamMessageToTeamTest = require('./new_team_stream_message_to_team_test');
 var NewStreamMessageToMembersTest = require('./new_stream_message_to_members_test');
 var NewStreamNoMessageTest = require('./new_stream_no_message_test');
@@ -73,6 +75,11 @@ var MentionTest = require('./mention_test');
 var UnregisteredMentionTest = require('./unregistered_mention_test');
 var PostCountTest = require('./post_count_test');
 var SetPersonAnalyticsTest = require('./set_person_analytics_test');
+var OnTheFlyCodeBlockStreamFromDifferentTeamTest = require('./on_the_fly_code_block_stream_from_different_team_test');
+var OnTheFlyCodeBlockStreamRepoNotFoundTest = require('./on_the_fly_code_block_stream_repo_not_found_test');
+var ACLRepoOnTheFlyCodeBlockStreamTest = require('./acl_repo_on_the_fly_code_block_stream_test');
+var OnTheFlyCodeBlockStreamNoRepoIdTest = require('./on_the_fly_code_block_stream_no_repo_id_test');
+var OnTheFlyCodeBlockStreamInvalidRepoIdTest = require('./on_the_fly_code_block_stream_invalid_repo_id_test');
 
 class PostPostRequestTester {
 
@@ -107,6 +114,9 @@ class PostPostRequestTester {
 		new CodeBlockFromDifferentStreamTest({ streamType: 'direct' }).test();
 		new CodeBlockFromDifferentStreamTest({ streamType: 'channel' }).test();
 		new CodeBlockFromDifferentStreamTest({ streamType: 'file' }).test();
+		new CodeBlockStreamOnTheFly({ streamType: 'direct' }).test();
+		new CodeBlockStreamOnTheFly({ streamType: 'channel' }).test();
+		new CodeBlockStreamOnTheFly({ streamType: 'file' }).test();
 		new PostReplyTest().test();
 		new NoStreamIdTest().test();
 		new InvalidStreamIdTest().test();
@@ -138,6 +148,7 @@ class PostPostRequestTester {
 		new NewPostNoMessageTest({ type: 'channel' }).test();
 		new NewPostNoMessageTest({ type: 'direct' }).test();
 		new NewFileStreamMessageToTeamTest().test();
+		new NewCodeBlockStreamMessageToTeamTest().test();
 		new NewTeamStreamMessageToTeamTest().test();
 		new NewStreamMessageToMembersTest({ type: 'channel' }).test();
 		new NewStreamMessageToMembersTest({ type: 'direct' }).test();
@@ -160,6 +171,11 @@ class PostPostRequestTester {
 		new UnregisteredMentionTest().test();
 		new PostCountTest().test();
 		new SetPersonAnalyticsTest().test();
+		new OnTheFlyCodeBlockStreamFromDifferentTeamTest().test();
+		new OnTheFlyCodeBlockStreamRepoNotFoundTest().test();
+		new ACLRepoOnTheFlyCodeBlockStreamTest().test();
+		new OnTheFlyCodeBlockStreamNoRepoIdTest().test();
+		new OnTheFlyCodeBlockStreamInvalidRepoIdTest().test();
 	}
 }
 

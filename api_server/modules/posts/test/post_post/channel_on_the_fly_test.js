@@ -17,7 +17,7 @@ class ChannelOnTheFlyTest extends DirectOnTheFlyTest {
 	// validate the request results
 	validateStream (data) {
 		// validate that the stream name matches the one requested
-		let stream = data.stream;
+		let stream = data.streams[0];
 		Assert(stream.name === this.data.stream.name, 'name does not match');
 		// validate we got the right stream info
 		super.validateStream(data);

@@ -51,6 +51,14 @@ class PostAuthorizer {
 
 	// authorize the current user against the passed repo (by ID)
 	async authorizeRepo (repoId) {
+		const teamId = this.post.stream ? this.post.stream.teamId : this.stream.get('teamId');
+		const repo = await this.request.data.repos.getById(repoId);
+		if (!repo) {
+			throw this.errorHandler.error('notFound', { info: 'repo' });
+		}
+		if (repo.get('teamId') !== teamId) {
+			throw this.errorHandler.error('createAuth', { reason: 'repo not owned by this team '});
+		}
 		const authorized = await this.user.authorizeRepo(repoId, this.request);
 		if (!authorized) {
 			throw this.errorHandler.error('createAuth', { reason: 'not authorized for repo' });
@@ -70,7 +78,7 @@ class PostAuthorizer {
 	// has access to the streams for the code blocks
 	async authorizeCodeBlocks () {
 		if (!(this.post.codeBlocks instanceof Array)) {
-			return ;	// no code blocks, no problemo
+			return;	// no code blocks, no problemo
 		}
 		for (let codeBlock of this.post.codeBlocks) {
 			await this.authorizeCodeBlock(codeBlock);
@@ -81,6 +89,14 @@ class PostAuthorizer {
 	async authorizeCodeBlock (codeBlock) {
 		if (typeof codeBlock !== 'object') {
 			return;	// failsafe
+		}
+		if (!codeBlock.streamId && codeBlock.file) {
+			// stream to be created on the fly, and the code comes from a different repo,
+			// authorize the current user has access to this repo
+			if (!codeBlock.repoId) {
+				throw this.errorHandler.error('parameterRequired', { info: 'codeBlock.repoId' });
+			}
+			return await this.authorizeRepo(codeBlock.repoId);
 		}
 		if (!codeBlock.streamId && !this.post.streamId) {
 			return;	// failsafe

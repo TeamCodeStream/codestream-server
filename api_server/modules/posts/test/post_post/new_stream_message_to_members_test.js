@@ -83,7 +83,7 @@ class NewStreamMessageToMembersTest extends CodeStreamMessageTest {
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = { stream: response.stream };
+				this.message = { stream: response.streams[0] };
 				callback();
 			},
 			{
