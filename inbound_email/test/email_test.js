@@ -329,12 +329,18 @@ class EmailTest {
 	apiRequest (options, callback) {
 		options = Object.assign({}, options || {});
 		options.headers = options.headers || {};
-		options.headers['X-CS-Block-Email-Sends'] = true; // block email sends from the server
 		if (options.token) {
 			// use this token in the request
 			options.headers.Authorization = 'Bearer ' + options.token;
 		}
 		options.rejectUnauthorized = false;	// avoid complaints about security
+
+		// set several headers suppressing certain actions that we don't want triggered
+		// during testing 
+		options.headers['X-CS-Block-Email-Sends'] = true;
+		options.headers['X-CS-Block-Tracking'] = true;
+		options.headers['X-CS-Block-Bot-Out'] = true;
+		options.headers['X-CS-For-Testing'] = true;	
 
 		const method = options.method || 'get';
 		const path = options.path || '/';

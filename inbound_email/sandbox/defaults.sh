@@ -51,10 +51,18 @@ export CS_MAILIN_SECRET="X02^faO*Bx+lQ9Q"
 export CS_MAILIN_API_HOST=localhost.codestream.us
 export CS_MAILIN_API_PORT=12079
 
-# Use Colin's Demo Pubnub Keyset
-[ -z "$PUBNUB_KEYSET" ] && PUBNUB_KEYSET=$HOME/.codestream/pubnub/Colin-CodeStream-Demo_Keyset
-. $PUBNUB_KEYSET || echo "***** ERROR could not find pubnub keyset $PUBNUB_KEYSET. Did you run dt-update-pubnub-keys ?"
-export CS_MAILIN_PUBNUB_SUBSCRIBE_KEY=$PUBNUB_SUBSCRIBE
+# =============== PubNub Settings ==============
+# see README.pubnub for more details
+[ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-Local_Keyset_1"
+if [ -f $PUBNUB_KEY_FILE ]; then
+	. $PUBNUB_KEY_FILE
+    export CS_MAILIN_PUBNUB_SUBSCRIBE_KEY=$PUBNUB_SUBSCRIBE
+else
+	echo "**************************************************************"
+	echo "WARNING: pubnub key files not found. Run dt-update-secrets and"
+	echo "         reload your sandbox"
+	echo "**************************************************************"
+fi
 
 # domain we use in the reply-to field of outbound emails_sent (match CS_API_REPLY_TO_DOMAIN)
 export CS_MAILIN_REPLY_TO_DOMAIN=dev.codestream.com
