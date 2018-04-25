@@ -37,7 +37,18 @@ class IntegrationBotClient {
 	// called when there is a new post
 	async postHook (info, options = {}) {
 		// package the message for bot digestion and sent it over the wire
-		const message = this.packageMessage(info);
+this.logger = this.logger || options.request || console;
+this.logger.log('packaging message', JSON.stringify(info, undefined, 5));
+
+		let message;
+		try {
+			message = this.packageMessage(info);
+		}
+		catch (error) {
+this.logger.log('error packaging message:', error);
+			throw error;
+		}
+this.logger.log('packaged message', JSON.stringify(message, undefined, 5));
 		await this.sendMessage(message, info, options);
 	}
 
@@ -127,18 +138,26 @@ class IntegrationBotClient {
 			return;
 		}
 
+this.logger.log('sending message to ' + this.config.botOrigin);
 		const url = new URL(this.config.botOrigin);
-		await AwaitUtils.callbackWrap(
-			HTTPSBot.post,
-			url.hostname,
-			url.port,
-			this.config.botReceivePath,
-			message,
-			{
-				rejectUnauthorized: false,
-				useHttp: true
-			}
-		);
+this.logger.log('will send to ' + url.hostname + ':' + url.port);
+		try {
+			await AwaitUtils.callbackWrap(
+				HTTPSBot.post,
+				url.hostname,
+				url.port,
+				this.config.botReceivePath,
+				message,
+				{
+					rejectUnauthorized: false,
+					useHttp: true
+				}
+			);
+		}
+		catch (error) {
+this.logger.log('error sending message', error);
+			throw error;
+		}
 	}
 
 	// determine if special header was sent with the request that says to test bot output,
