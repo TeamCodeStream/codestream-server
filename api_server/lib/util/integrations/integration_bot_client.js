@@ -37,18 +37,18 @@ class IntegrationBotClient {
 	// called when there is a new post
 	async postHook (info, options = {}) {
 		// package the message for bot digestion and sent it over the wire
-this.logger = this.logger || options.request || console;
-this.logger.log('packaging message', JSON.stringify(info, undefined, 5));
+		this.logger = this.logger || options.request || console;
+		this.logger.log('packaging message: ' + JSON.stringify(info, undefined, 5));
 
 		let message;
 		try {
 			message = this.packageMessage(info);
 		}
 		catch (error) {
-this.logger.log('error packaging message:', error);
+			this.logger.log('error packaging message: ' + JSON.stringify(error));
 			throw error;
 		}
-this.logger.log('packaged message', JSON.stringify(message, undefined, 5));
+		this.logger.log('packaged message: ' + JSON.stringify(message, undefined, 5));
 		await this.sendMessage(message, info, options);
 	}
 
@@ -61,8 +61,11 @@ this.logger.log('packaged message', JSON.stringify(message, undefined, 5));
 			streamId: info.stream.id,
 			file: info.stream.get('file')
 		};
+this.logger.log('initial message: ' + JSON.stringify(message, undefined, 5));
 		this.addMentionedUsers(info, message);
+this.logger.log('packaging post: ' + JSON.stringify(info.post) + '\n\n', JSON.stringify(info.creator));
 		let postInfo = this.packagePost(info.post, info.creator, info);
+this.logger.log('postInfo: ' + JSON.stringify(postInfo, undefined, 5));
 		Object.assign(message, postInfo);
 		return message;
 	}
@@ -80,6 +83,7 @@ this.logger.log('packaged message', JSON.stringify(message, undefined, 5));
 			creatorLastName: creator.get('lastName'),
 			creatorEmail: creator.get('email')
 		};
+this.logger.log('init message: ' + JSON.stringify(message, undefined, 5));
 		if (post.get('commitHashWhenPosted')) {
 			message.commitHashWhenPosted = post.get('commitHashWhenPosted');
 		}
@@ -138,9 +142,9 @@ this.logger.log('packaged message', JSON.stringify(message, undefined, 5));
 			return;
 		}
 
-this.logger.log('sending message to ' + this.config.botOrigin);
+		this.logger.log('sending message to ' + this.config.botOrigin);
 		const url = new URL(this.config.botOrigin);
-this.logger.log('will send to ' + url.hostname + ':' + url.port);
+		this.logger.log('will send to ' + url.hostname + ':' + url.port);
 		try {
 			await AwaitUtils.callbackWrap(
 				HTTPSBot.post,
@@ -155,7 +159,7 @@ this.logger.log('will send to ' + url.hostname + ':' + url.port);
 			);
 		}
 		catch (error) {
-this.logger.log('error sending message', error);
+			this.logger.log('error sending message', error);
 			throw error;
 		}
 	}
