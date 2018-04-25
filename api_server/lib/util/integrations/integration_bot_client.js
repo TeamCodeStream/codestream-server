@@ -37,18 +37,7 @@ class IntegrationBotClient {
 	// called when there is a new post
 	async postHook (info, options = {}) {
 		// package the message for bot digestion and sent it over the wire
-		this.logger = this.logger || options.request || console;
-		this.logger.log('packaging message: ' + JSON.stringify(info, undefined, 5));
-
-		let message;
-		try {
-			message = this.packageMessage(info);
-		}
-		catch (error) {
-			this.logger.log('error packaging message: ' + JSON.stringify(error));
-			throw error;
-		}
-		this.logger.log('packaged message: ' + JSON.stringify(message, undefined, 5));
+		const message = this.packageMessage(info);
 		await this.sendMessage(message, info, options);
 	}
 
@@ -63,11 +52,8 @@ class IntegrationBotClient {
 			message.repoId = info.repo.id;
 			message.repoUrl = 'https://' + info.repo.get('normalizedUrl');
 		}
-		this.logger.log('initial message: ' + JSON.stringify(message, undefined, 5));
 		this.addMentionedUsers(info, message);
-		this.logger.log('packaging post: ' + JSON.stringify(info.post) + '\n\n', JSON.stringify(info.creator));
 		let postInfo = this.packagePost(info.post, info.creator, info);
-		this.logger.log('postInfo: ' + JSON.stringify(postInfo, undefined, 5));
 		Object.assign(message, postInfo);
 		return message;
 	}
@@ -85,7 +71,6 @@ class IntegrationBotClient {
 			creatorLastName: creator.get('lastName'),
 			creatorEmail: creator.get('email')
 		};
-		this.logger.log('init message: ' + JSON.stringify(message, undefined, 5));
 		if (post.get('commitHashWhenPosted')) {
 			message.commitHashWhenPosted = post.get('commitHashWhenPosted');
 		}
@@ -144,26 +129,18 @@ class IntegrationBotClient {
 			return;
 		}
 
-		this.logger.log('sending message to ' + this.config.botOrigin);
 		const url = new URL(this.config.botOrigin);
-		this.logger.log('will send to ' + url.hostname + ':' + url.port);
-		try {
-			await AwaitUtils.callbackWrap(
-				HTTPSBot.post,
-				url.hostname,
-				url.port,
-				this.config.botReceivePath,
-				message,
-				{
-					rejectUnauthorized: false,
-					useHttp: true
-				}
-			);
-		}
-		catch (error) {
-			this.logger.log('error sending message', error);
-			throw error;
-		}
+		await AwaitUtils.callbackWrap(
+			HTTPSBot.post,
+			url.hostname,
+			url.port,
+			this.config.botReceivePath,
+			message,
+			{
+				rejectUnauthorized: false,
+				useHttp: true
+			}
+		);
 	}
 
 	// determine if special header was sent with the request that says to test bot output,
