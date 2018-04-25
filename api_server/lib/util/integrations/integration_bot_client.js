@@ -61,11 +61,11 @@ class IntegrationBotClient {
 			streamId: info.stream.id,
 			file: info.stream.get('file')
 		};
-this.logger.log('initial message: ' + JSON.stringify(message, undefined, 5));
+		this.logger.log('initial message: ' + JSON.stringify(message, undefined, 5));
 		this.addMentionedUsers(info, message);
-this.logger.log('packaging post: ' + JSON.stringify(info.post) + '\n\n', JSON.stringify(info.creator));
+		this.logger.log('packaging post: ' + JSON.stringify(info.post) + '\n\n', JSON.stringify(info.creator));
 		let postInfo = this.packagePost(info.post, info.creator, info);
-this.logger.log('postInfo: ' + JSON.stringify(postInfo, undefined, 5));
+		this.logger.log('postInfo: ' + JSON.stringify(postInfo, undefined, 5));
 		Object.assign(message, postInfo);
 		return message;
 	}
@@ -83,7 +83,7 @@ this.logger.log('postInfo: ' + JSON.stringify(postInfo, undefined, 5));
 			creatorLastName: creator.get('lastName'),
 			creatorEmail: creator.get('email')
 		};
-this.logger.log('init message: ' + JSON.stringify(message, undefined, 5));
+		this.logger.log('init message: ' + JSON.stringify(message, undefined, 5));
 		if (post.get('commitHashWhenPosted')) {
 			message.commitHashWhenPosted = post.get('commitHashWhenPosted');
 		}
