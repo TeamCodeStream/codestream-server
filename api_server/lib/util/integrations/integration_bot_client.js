@@ -56,11 +56,13 @@ class IntegrationBotClient {
 	packageMessage (info) {
 		let message = {
 			teamId: info.post.get('teamId'),
-			repoId: info.repo.id,
-			repoUrl: 'https://' + info.repo.get('normalizedUrl'),
 			streamId: info.stream.id,
 			file: info.stream.get('file')
 		};
+		if (info.repo) {
+			message.repoId = info.repo.id;
+			message.repoUrl = 'https://' + info.repo.get('normalizedUrl');
+		}
 		this.logger.log('initial message: ' + JSON.stringify(message, undefined, 5));
 		this.addMentionedUsers(info, message);
 		this.logger.log('packaging post: ' + JSON.stringify(info.post) + '\n\n', JSON.stringify(info.creator));
