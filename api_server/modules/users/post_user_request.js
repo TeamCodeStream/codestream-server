@@ -113,12 +113,26 @@ class PostUserRequest extends PostRequest {
 			return;
 		}
 
+		const company = await this.data.companies.getById(this.adder.team.get('companyId'));
 		const trackObject = {
-			distinct_id: this.user.id,
+			'distinct_id': this.user.id,
 			'Email Address': this.createdUser.get('email'),
 			'First Invite': !this.createdUser.get('numInvites'),
-			Registered: !!this.createdUser.get('isRegistered')
+			'Registered': !!this.createdUser.get('isRegistered'),
+			'Join Method': this.user.get('joinMethod'),
+			'Team ID': this.adder.team.id,
+			'Team Size': this.adder.team.get('memberIds').length,
+			'Company': company.get('name'),
+			'Endpoint': this.request.headers['x-cs-plugin-ide'] || 'Unknown IDE',
+			'Plan': 'Free' // FIXME: update when we have payments
 		};
+		if (this.user.get('registeredAt')) {
+			trackObject['Date Signed Up'] = new Date(this.user.get('registeredAt')).toISOString();
+		}
+		if (this.user.get('lastPostCreatedAt')) {
+			trackObject['Date of Last Post'] = new Date(this.user.get('lastPostCreatedAt')).toISOString();
+		}
+
 		this.api.services.analytics.track(
 			'Team Member Invited',
 			trackObject,

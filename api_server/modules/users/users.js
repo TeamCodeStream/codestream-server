@@ -25,7 +25,12 @@ const USERS_STANDARD_ROUTES = {
 const _CorsForTeamsIntegration = api => {
 	const corsOptions = {
 		origin: (origin, callback) => {
-			if (!origin || origin === api.config.teams.botOrigin) {
+			if (
+				!origin ||
+				origin === 'null' ||
+				origin === 'undefined' ||
+				origin === api.config.teams.botOrigin
+			) {
 				return callback(null, true);
 			}
 			else {
