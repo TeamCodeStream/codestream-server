@@ -134,7 +134,13 @@ class APIServer {
 	// register a single route object, the route object can itself have middleware
 	// functions, but ultimately calls the function as indicated by func
 	registerRouteObject (routeObject) {
-		const middleware = routeObject.middleware || [];
+		let middleware = routeObject.middleware || [];
+		if (typeof middleware === 'function') {
+			middleware = middleware(this);
+		}
+		if (!(middleware instanceof Array)) {
+			middleware = [middleware];
+		}
 		const args = [ routeObject.path, ...middleware, routeObject.func];
 		this.express[routeObject.method].apply(this.express, args);
 	}

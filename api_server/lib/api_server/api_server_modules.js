@@ -242,6 +242,7 @@ class APIServerModules {
 		if (path.substring(0, 1) !== '/') {
 			path = '/' + path;
 		}
+		let middleware = route.middleware;
 		let func;
 		if (route.func && typeof route.func === 'string') {
 			// the execution function can be the name of a method of the module
@@ -265,7 +266,7 @@ class APIServerModules {
 			this.api.warn(`Invalid callback function for module ${module.name}`, route);
 			return false;
 		}
-		return { method, path, func };
+		return { method, path, func, middleware };
 	}
 
 	// validate a module route

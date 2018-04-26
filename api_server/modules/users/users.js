@@ -6,6 +6,7 @@ const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const UserCreator = require('./user_creator');
 const UserUpdater = require('./user_updater');
 const User = require('./user');
+const CORS = require('cors');
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {
@@ -17,6 +18,22 @@ const USERS_STANDARD_ROUTES = {
 		'put': require('./put_user_request'),
 		'post': require('./post_user_request')
 	}
+};
+
+// return a middleware function that checks if the origin
+// matches the home of the MS Teams bot
+const _CorsForTeamsIntegration = api => {
+    const corsOptions = {
+        origin: (origin, callback) => {
+            if (!origin || origin === api.config.teams.botOrigin) {
+                return callback(null, true);
+            }
+            else {
+                return callback(`unrecognized origin ${origin}`);
+            }
+        }
+    };
+    return CORS(corsOptions);
 };
 
 // additional routes for this module
@@ -34,7 +51,13 @@ const USERS_ADDITIONAL_ROUTES = [
 	{
 		method: 'put',
 		path: 'no-auth/login',
-		requestClass: require('./login_request')
+		requestClass: require('./login_request'),
+		middleware: _CorsForTeamsIntegration
+	},
+	{
+		method: 'options',
+		path: 'no-auth/login',
+		func: CORS()	// enable pre-flight CORS requests to this route
 	},
 	{
 		method: 'put',
