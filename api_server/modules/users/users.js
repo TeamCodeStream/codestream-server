@@ -23,17 +23,17 @@ const USERS_STANDARD_ROUTES = {
 // return a middleware function that checks if the origin
 // matches the home of the MS Teams bot
 const _CorsForTeamsIntegration = api => {
-    const corsOptions = {
-        origin: (origin, callback) => {
-            if (!origin || origin === api.config.teams.botOrigin) {
-                return callback(null, true);
-            }
-            else {
-                return callback(`unrecognized origin ${origin}`);
-            }
-        }
-    };
-    return CORS(corsOptions);
+	const corsOptions = {
+		origin: (origin, callback) => {
+			if (!origin || origin === api.config.teams.botOrigin) {
+				return callback(null, true);
+			}
+			else {
+				return callback(`unrecognized origin ${origin}`);
+			}
+		}
+	};
+	return CORS(corsOptions);
 };
 
 // additional routes for this module
