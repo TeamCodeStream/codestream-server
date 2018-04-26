@@ -338,7 +338,9 @@ class EmailNotificationSender {
 		renderedPosts.reverse(); // display earliest to latest
 		if (
 			renderedPosts.length === 0 ||
+			/* Disabling per COD-525, countermanding COD-436 ... oh the joy
 			!this.mentionsPerUser[user.id] || // per COD-436, only send email notifications to mentioned users
+			*/
 			!user.wantsEmail(this.stream, this.mentionsPerUser[user.id])
 		) {
 			// renderedPosts.length should not be 0, but this can still happen because at the
