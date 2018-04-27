@@ -98,6 +98,12 @@ class IntegrationPostRequest extends RestfulRequest {
 			throw this.errorHandler.error('notFound', { info: 'stream' });
 		}
 		if (
+			this.stream.get('type') === 'file' &&
+			!this.repo
+		) {
+			throw this.errorHandler.error('parameterRequired', { info: 'repoId' });
+		}
+		else if (
 			this.stream.get('type') === 'file' && 
 			this.stream.get('repoId') !== this.repo.id
 		) {
