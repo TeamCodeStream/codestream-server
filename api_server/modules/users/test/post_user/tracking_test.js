@@ -59,14 +59,16 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const result = (
 			((message.event === 'Team Member Invited') || errors.push('event not correct')) &&
 			((data.distinct_id === this.currentUser._id) || errors.push('distinct_id not set to request originator\'s ID')) &&
-			((data['Email Address'] === this.createdUser.email) || errors.push('Email Address does not match request originator')) &&
+			((data['Invitee Email Address'] === this.createdUser.email) || errors.push('Email Address does not match request originator')) &&
 			((data['First Invite'] === firstInvite) || errors.push('First Invite not correct')) &&
+			((data['Email Address'] === this.currentUser.email) || errors.push('Email Address not correct')) && 
 			((data['Registered'] === registered) || errors.push('Registered not correct')) &&
 			((data['Join Method'] === 'Added to Team') || errors.push('Join Method not correct')) && 
 			((data['Team ID'] === this.team._id) || errors.push('Team ID not correct')) &&
 			((data['Team Size'] === this.team.memberIds.length + 1) || errors.push('Team Size not correct')) &&
 			((data['Company'] === this.company.name) || errors.push('incorrect company name')) &&
 			((data['Endpoint'] === 'Unknown IDE') || errors.push('IDE should be unknown')) &&
+			((data['Plugin Version'] === '') || errors.push('Plugin Version should be blank')) &&
 			((data['Plan'] === 'Free') || errors.push('Plan should be Free')) &&
 			((data['Date Signed Up'] === new Date(this.currentUser.registeredAt).toISOString()) || errors.push('Date Signed Up not correct'))
 		);

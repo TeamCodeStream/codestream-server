@@ -116,7 +116,8 @@ class PostUserRequest extends PostRequest {
 		const company = await this.data.companies.getById(this.adder.team.get('companyId'));
 		const trackObject = {
 			'distinct_id': this.user.id,
-			'Email Address': this.createdUser.get('email'),
+			'Email Address': this.user.get('email'),
+			'Invitee Email Address': this.createdUser.get('email'),
 			'First Invite': !this.createdUser.get('numInvites'),
 			'Registered': !!this.createdUser.get('isRegistered'),
 			'Join Method': this.user.get('joinMethod'),
@@ -124,6 +125,7 @@ class PostUserRequest extends PostRequest {
 			'Team Size': this.adder.team.get('memberIds').length,
 			'Company': company.get('name'),
 			'Endpoint': this.request.headers['x-cs-plugin-ide'] || 'Unknown IDE',
+			'Plugin Version': this.request.headers['x-cs-plugin-version'] || '',
 			'Plan': 'Free' // FIXME: update when we have payments
 		};
 		if (this.user.get('registeredAt')) {
