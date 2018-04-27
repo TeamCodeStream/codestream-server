@@ -19,11 +19,6 @@ class EmailNotificationSender {
 	// send email notifications for a new post to all members that are not
 	// currently online for the repo and the team
 	async sendEmailNotifications () {
-		if (!this.stream || this.stream.get('type') !== 'file') {
-			// for now, not sending notifications for non-file type streams
-			return;
-		}
-
 		await this.getTeam();					// get the team that owns the stream that owns the post
 		await this.getRepo();					// get the repo that owns the stream that owns the post
 		await this.getAllMembers();				// get all members of the team
@@ -57,7 +52,9 @@ class EmailNotificationSender {
 
 	// get the repo that owns the stream that owns the post
 	async getRepo () {
-		this.repo = await this.request.data.repos.getById(this.stream.get('repoId'));
+		if (this.stream.get('repoId')) {
+			this.repo = await this.request.data.repos.getById(this.stream.get('repoId'));
+		}
 	}
 
 	// get all members of the team
@@ -72,6 +69,9 @@ class EmailNotificationSender {
 	// get the team members that are currently subscribed to the repo channel for the
 	// repo to which the stream belongs
 	async getRepoSubscribedMembers () {
+		if (!this.repo) {	// not applicable to non file-type streams
+			return;
+		}
 		// query the messager service (pubnub) for who is subscribed to the team channel
 		const channel = 'repo-' + this.repo.id;
 		try {
