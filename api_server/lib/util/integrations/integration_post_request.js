@@ -53,10 +53,11 @@ class IntegrationPostRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['teamId', 'repoId', 'streamId', 'authorEmail', 'authorUsername', 'parentPostId', 'text', 'secret'],
+					string: ['teamId', 'streamId', 'authorEmail', 'authorUsername', 'parentPostId', 'text', 'secret'],
 				},
 				optional: {
-					'array(string)': ['mentionedUsers']
+					'array(string)': ['mentionedUsers'],
+					string: ['repoId']
 				}
 			}
 		);
@@ -74,6 +75,9 @@ class IntegrationPostRequest extends RestfulRequest {
 
 	// get the repo
 	async getRepo () {
+		if (!this.request.body.repoId) {
+			return;
+		}
 		this.repo = await this.data.repos.getById(
 			this.request.body.repoId.toLowerCase()
 		);
@@ -93,8 +97,17 @@ class IntegrationPostRequest extends RestfulRequest {
 		if (!this.stream) {
 			throw this.errorHandler.error('notFound', { info: 'stream' });
 		}
-		if (this.stream.get('repoId') !== this.repo.id) {
+		if (
+			this.stream.get('type') === 'file' && 
+			this.stream.get('repoId') !== this.repo.id
+		) {
 			throw this.errorHandler.error('streamNoMatchRepo');
+		}
+		else if (
+			this.stream.get('type') !== 'file' &&
+			this.stream.get('teamId') !== this.team.id
+		) {
+			throw this.errorHandler.error('streamNoMatchTeam');
 		}
 	}
 
@@ -167,12 +180,15 @@ class IntegrationPostRequest extends RestfulRequest {
 			this.responseData.users = [this.userCreator.model.getSanitizedObject()];
 		}
 		this.responseData.parentPost = this.parentPost.getSanitizedObject();
-		this.responseData.repo = this.repo.getSanitizedObject();
+		if (this.repo) {
+			this.responseData.repo = this.repo.getSanitizedObject();
+		}
 		this.responseData.stream = this.stream.getSanitizedObject();
 	}
 
 	// after the post is created...
 	async postProcess () {
+		delete this.responseData.stream; // avoid interpreting this as a new stream, kind of hacky
 		await this.postCreator.postCreate();
 	}
 }

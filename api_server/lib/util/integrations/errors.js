@@ -27,5 +27,9 @@ module.exports = {
 	'userNotOnTeam': {
 		code: 'INTG-1005',
 		message: 'User originating the post is not on the team in CodeStream'
+	},
+	'streamNoMatchTeam': {
+		code: 'INTG-1006',
+		message: 'The stream does not belong to this team'
 	}
 };

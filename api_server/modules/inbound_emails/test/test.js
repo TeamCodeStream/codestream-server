@@ -27,8 +27,13 @@ describe('inbound emails', function() {
 
 	this.timeout(10000);
 
-	new InboundEmailTest().test();
-	new InboundEmailMessageTest().test();
+	new InboundEmailTest({ type: 'file' }).test();
+	new InboundEmailTest({ type: 'channel' }).test();
+	new InboundEmailTest({ type: 'direct' }).test();
+	new InboundEmailMessageTest({ type: 'file' }).test();
+	new InboundEmailMessageTest({ type: 'channel' }).test();
+	new InboundEmailMessageTest({ type: 'direct' }).test();
+	new InboundEmailMessageTest({ type: 'channel', isTeamStream: true }).test();
 	new ACLTest().test();
 	new MissingParameterTest({ parameter: 'to' }).test();
 	new MissingParameterTest({ parameter: 'from' }).test();
@@ -45,6 +50,8 @@ describe('inbound emails', function() {
 	new StreamNotFoundTest().test();
 	new StreamNoMatchTeamTest().test();
 	new OriginatorNotInTeamTest().test();
-	new TrackingTest().test();
+	new TrackingTest({ type: 'file' }).test();
+	new TrackingTest({ type: 'channel' }).test();
+	new TrackingTest({ type: 'direct' }).test();
 	new NoTrackingTest().test();
 });

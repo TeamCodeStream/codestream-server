@@ -601,20 +601,25 @@ class PostCreator extends ModelCreator {
 		if (!this.forInboundEmail && !this.forIntegration) {
 			return;
 		}
-		const endpoint = this.forInboundEmail ? 'Email' :
-			this.forIntegration.charAt(0).toUpperCase() + this.forIntegration.slice(1);
-
 		// check if user has opted out
 		const preferences = this.user.get('preferences') || {};
 		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
 			return ;
 		}
 
+		const endpoint = this.forInboundEmail ? 'Email' :
+			this.forIntegration.charAt(0).toUpperCase() + this.forIntegration.slice(1);
+		const categories = { 
+			'channel': 'Channel',
+			'direct': 'DM',
+			'file': 'Source File'
+		};
+		const category = categories[this.stream.get('type')] || '???';
 		const trackObject = {
 			distinct_id: this.user.id,
 			Type: 'Chat',
 			Thread: 'Parent',
-			Category: 'Source File',
+			Category: category,
 			'Email Address': this.user.get('email'),
 			'Join Method': this.user.get('joinMethod'),
 			'Team ID': this.team ? this.team.id : undefined,

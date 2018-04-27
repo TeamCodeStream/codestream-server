@@ -8,6 +8,7 @@ const MSTeams = require(process.env.CS_API_TOP + '/config/msteams');
 class CommonInit {
 
 	init (callback) {
+		this.type = this.type || 'file';
 		BoundAsync.series(this, [
 			this.createPostOriginator,	// create a user who will simulate being the sender of the email
 			this.createRepo,			// create the repo (and team) to be used in the test
@@ -48,7 +49,7 @@ class CommonInit {
 		);
 	}
 
-	// create a file-type stream in the repo
+	// create a stream of the given type in the repo
 	createStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
@@ -57,9 +58,10 @@ class CommonInit {
 				callback();
 			},
 			{
-				type: 'file',
+				type: this.type,
 				teamId: this.team._id,
-				repoId: this.repo._id,
+				repoId: this.type === 'file' ? this.repo._id : undefined,
+				isTeamStream: this.isTeamStream,
 				token: this.token // "current user" will create the stream
 			}
 		);
@@ -84,7 +86,7 @@ class CommonInit {
 	makePostData (callback) {
 		this.data = {
 			teamId: this.team._id,
-			repoId: this.repo._id,
+			repoId: this.type === 'file' ? this.repo._id : undefined,
 			streamId: this.stream._id,
 			authorEmail: this.postOriginatorData.user.email,
 			authorUsername: this.postOriginatorData.user.username,

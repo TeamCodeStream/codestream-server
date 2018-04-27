@@ -7,7 +7,11 @@ var CommonInit = require('./common_init');
 class SlackPostMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return 'should create and publish a post when a slack post call is made';
+		let desc = `should create and publish a post when a slack post call is made in a ${this.type} stream`;
+		if (this.isTeamStream) {
+			desc += ' and the stream is a team stream';
+		}
+		return desc;
 	}
 
 	// make the data that triggers the message to be received
@@ -17,8 +21,13 @@ class SlackPostMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		// it is the team channel
-		this.channelName = 'team-' + this.team._id;
+		// team channel for file-type streams, or team-streams, otherwise the stream channel
+		if (this.type === 'file' || this.isTeamStream) {
+			this.channelName = 'team-' + this.team._id;
+		}
+		else {
+			this.channelName = 'stream-' + this.stream._id;
+		}
 		callback();
 	}
 
