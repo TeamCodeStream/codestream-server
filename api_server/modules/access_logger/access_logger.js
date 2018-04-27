@@ -42,18 +42,24 @@ class AccessLogger extends APIServerModule {
 	logRequest (request, response, status, startTimer) {
 		const elapsedTime = Date.now() - startTimer;
 		const userId = (request.user && request.user.id) || '???';
+		const ide = request.headers['x-cs-plugin-ide'] || '???';
+		const pluginVersion = request.headers['x-cs-plugin-version'] || '???';
+		const ideVersion = request.headers['x-cs-ide-version'] || '???';
 		this.logger.log(
 			request.id                     + ' '   +
 			status                         + ' '   +
 			request.method                 + ' '   +
 			request.url                    + ' '   +
-			userId                        + ' '   +
+			userId                         + ' '   +
 			response.statusCode            + ' '   +
 			response.get('content-length') + ' '   +
-			elapsedTime                   + ' '   +
+			elapsedTime                    + ' '   +
 			request.headers.host           + ' "'  +
 			request.headers.referer        + '" "' +
-			request.headers['user-agent']  + '"'
+			request.headers['user-agent']  + '" "' + 
+			ide                            + '" "' +
+			pluginVersion                  + '" "' + 
+			ideVersion                     + '"' 						
 		);
 	}
 }
