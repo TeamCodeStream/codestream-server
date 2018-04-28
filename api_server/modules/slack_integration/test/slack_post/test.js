@@ -14,6 +14,7 @@ const StreamNotFoundTest = require('./stream_not_found_test');
 const ParentPostNotFoundTest = require('./parent_post_not_found_test');
 const RepoNoMatchTeamTest = require('./repo_no_match_team_test');
 const StreamNoMatchRepoTest = require('./stream_no_match_repo_test');
+const StreamNoMatchTeamTest = require('./stream_no_match_team_test');
 const ParentPostNoMatchStreamTest = require('./parent_post_no_match_stream_test');
 const UsernameConflictTest = require('./username_conflict_test');
 const NewUserTest = require('./new_user_test');
@@ -27,8 +28,13 @@ const UserAddedMessageTest = require('./user_added_message_test');
 class SlackPostRequestTester {
 
 	test () {
-		new SlackPostTest().test();
-		new SlackPostMessageTest().test();
+		new SlackPostTest({ type: 'file' }).test();
+		new SlackPostTest({ type: 'channel' }).test();
+		new SlackPostTest({ type: 'direct' }).test();
+		new SlackPostMessageTest({ type: 'file' }).test();
+		new SlackPostMessageTest({ type: 'channel' }).test();
+		new SlackPostMessageTest({ type: 'direct' }).test();
+		new SlackPostMessageTest({ type: 'channel', isTeamStream: true }).test();
 		new ACLTest().test();
 		new MissingParameterTest({ parameter: 'teamId' }).test();
 		new MissingParameterTest({ parameter: 'repoId' }).test();
@@ -44,12 +50,15 @@ class SlackPostRequestTester {
 		new ParentPostNotFoundTest().test();
 		new RepoNoMatchTeamTest().test();
 		new StreamNoMatchRepoTest().test();
+		new StreamNoMatchTeamTest().test();
 		new ParentPostNoMatchStreamTest().test();
 		new UsernameConflictTest().test();
 		new NewUserTest().test();
 		new UserAddedTest().test();
 		new ExistingUserUsernameConflictTest().test();
-		new TrackingTest().test();
+		new TrackingTest({ type: 'file' }).test();
+		new TrackingTest({ type: 'channel' }).test();
+		new TrackingTest({ type: 'direct' }).test();
 		new NoTrackingTest().test();
 		new NewUserMessageTest().test();
 		new UserAddedMessageTest().test();

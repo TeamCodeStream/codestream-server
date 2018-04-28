@@ -16,7 +16,7 @@ class TeamsPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	get description () {
-		return 'should create and return a post when a teams post call is made';
+		return `should create and return a post when a teams post call is made for a ${this.type} stream`;
 	}
 
 	get method () {
@@ -28,12 +28,16 @@ class TeamsPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	getExpectedFields () {
-		return {
+		let fields = {
 			post: PostTestConstants.EXPECTED_POST_FIELDS,
 			parentPost: PostTestConstants.EXPECTED_POST_FIELDS,
-			repo: RepoTestConstants.EXPECTED_REPO_FIELDS,
-			stream: [...StreamTestConstants.EXPECTED_STREAM_FIELDS, ...StreamTestConstants.EXPECTED_FILE_STREAM_FIELDS]
+			stream: StreamTestConstants.EXPECTED_STREAM_FIELDS
 		};
+		if (this.type === 'file') {
+			fields.repo = RepoTestConstants.EXPECTED_REPO_FIELDS;
+			fields.stream = [...fields.stream, ...StreamTestConstants.EXPECTED_FILE_STREAM_FIELDS];
+		}
+		return fields;
 	}
 
 	// before the test runs...
@@ -50,7 +54,6 @@ class TeamsPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		let result = (
 			((post.text === this.data.text) || errors.push('text does not match')) &&
 			((post.teamId === this.team._id) || errors.push('teamId does not match the team')) &&
-			((post.repoId === this.repo._id) || errors.push('repoId does not match the repo')) &&
 			((post.streamId === this.stream._id) || errors.push('streamId does not match')) &&
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
@@ -59,6 +62,9 @@ class TeamsPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((post.origin === 'teams') || errors.push('origin is not teams'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		if (this.type === 'file') {
+			Assert(post.repoId === this.repo._id, 'post repoId does not match repo');
+		}
 		// verify the post in the response has no attributes that should not go to clients
 		this.validateSanitized(post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

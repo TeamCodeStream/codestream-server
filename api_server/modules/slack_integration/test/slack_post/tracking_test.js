@@ -6,7 +6,7 @@ const Assert = require('assert');
 class TrackingTest extends SlackPostMessageTest {
 
 	get description () {
-		return 'should send a Post Created event for tracking purposes when handling a post via slack';
+		return `should send a Post Created event for tracking purposes when handling a post via slack for a ${this.type} stream`;
 	}
 
 	// make the data the will be used when issuing the request that triggers the message
@@ -60,13 +60,19 @@ class TrackingTest extends SlackPostMessageTest {
 		}
 		let data = message.data;
 		let errors = [];
+		const categories = {
+			'channel': 'Channel',
+			'direct': 'DM',
+			'file': 'Source File'
+		};
+		const category = categories[this.stream.type];
 		let result = (
 			((message.type === 'track') || errors.push('type not correct')) &&
 			((message.event === 'Post Created') || errors.push('event not correct')) &&
 			((data.distinct_id === this.postOriginatorData.user._id) || errors.push('distinct_id not set to post originator\'s ID')) &&
 			((data.Type === 'Chat') || errors.push('Type not correct')) &&
 			((data.Thread === 'Parent') || errors.push('Thread not correct')) &&
-			((data.Category === 'Source File') || errors.push('Category not correct')) &&
+			((data.Category === category) || errors.push('Category not correct')) &&
 			((data['Email Address'] === this.postOriginatorData.user.email) || errors.push('Email Address does not match post originator')) &&
 			((data['Join Method'] === this.postOriginatorData.user.joinMethod) || errors.push('Join Method does not match post originator')) &&
 			((data['Team ID'] === this.team._id) || errors.push('Team ID does not match team')) &&
