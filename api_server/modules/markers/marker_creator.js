@@ -90,6 +90,7 @@ class MarkerCreator extends ModelCreator {
 		this.attributes.commitHashWhenCreated = this.attributes.commitHash; // save commitHash as commitHashWhenCreated
 		delete this.attributes.commitHash;
 		this.attributes.numComments = 1; // the original post for this marker, so there is 1 comment so far
+		this.attributes.creatorId = this.request.user.id;
 	}
 
 	// update the location of this marker in the marker locations structure for this stream and commit
