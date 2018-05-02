@@ -23,11 +23,14 @@ const PushBecomesAddToSetTest = require('./push_becomes_addtoset_test');
 const PushMergesToAddToSetTest = require('./push_merges_to_addtoset_test');
 const NoPushPullTest = require('./no_push_pull_test');
 const NoChangeMembersOfTeamStreamTest = require('./no_change_members_of_team_stream_test');
+const MessageToStreamTest = require('./message_to_stream_test');
+const AddUserMessageToStreamTest = require('./add_user_message_to_stream_test');
+const RemoveUserMessageToStreamTest = require('./remove_user_message_to_stream_test');
 const MessageToTeamTest = require('./message_to_team_test');
-//const MessageToStreamTest = require('./message_to_stream_test');
 const AddUserMessageToTeamTest = require('./add_user_message_to_team_test');
 const RemoveUserMessageToTeamTest = require('./remove_user_message_to_team_test');
 const SubscriptionTest = require('./subscription_test');
+const UserGetsStreamMessageTest = require('./user_gets_stream_message_test');
 
 class PutStreamRequestTester {
 
@@ -63,13 +66,15 @@ class PutStreamRequestTester {
 		new PushMergesToAddToSetTest().test();
 		new NoPushPullTest().test();
 		new NoChangeMembersOfTeamStreamTest().test();
+		new MessageToStreamTest().test();
+		new AddUserMessageToStreamTest().test();
+		new RemoveUserMessageToStreamTest().test();
 		new MessageToTeamTest().test();
-		//new MessageToStreamTest().test();	// Putting this off till we support private channels
 		new AddUserMessageToTeamTest().test();
 		new RemoveUserMessageToTeamTest().test();
 		new SubscriptionTest().test();
 		//new SubscriptionRevokedTest().test();	// Putting this off till we support removing members
-		//new UserGetsStreamMessage().test();	// Putting this off till we support private channels
+		new UserGetsStreamMessageTest().test();
 	}
 }
 

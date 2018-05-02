@@ -100,12 +100,13 @@ class PutStreamRequest extends PutRequest {
 		) {
 			return;	
 		}
+		const userIds = this.updater.addedUsers.map(user => user.id);
 		await new StreamPublisher({
-			data: this.updater.stream.getSanitizedObject(),
+			data: { stream: this.updater.stream.getSanitizedObject() },
 			request: this,
 			messager: this.api.services.messager,
 			stream: this.updater.stream.attributes
-		}).publishStreamToUsers();
+		}).publishStreamToUsers(userIds);
 	}
 }
 

@@ -70,7 +70,7 @@ class CommonInit {
 				repoId: type === 'file' ? this.repo._id : undefined, // file-type streams must have repoId
 				token: this.otherUserData.accessToken, // the "other user" is the stream creator
 				isTeamStream: this.isTeamStream,	// create a "team-stream" as needed,
-				privacy: this.streamPrivacy	
+				privacy: this.streamPrivacy	|| 'public'
 			}
 		);
 	}

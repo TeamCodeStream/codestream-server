@@ -30,5 +30,9 @@ module.exports = {
 	'teamStreamMustBeChannel': {
 		code: 'STRM-1006',
 		message: 'Team streams must be of type channel'
+	},
+	'invalidPrivacyType': {
+		code: 'STRM-1007',
+		message: 'Invalid privacy type'
 	}
 };

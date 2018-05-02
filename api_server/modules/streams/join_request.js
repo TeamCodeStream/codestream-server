@@ -18,11 +18,11 @@ class JoinRequest extends RestfulRequest {
 		}
         
 		// user can only join a public channel
-		if (stream.get('privacy') !== 'public') {
-			throw this.errorHandler.error('updateAuth', { reason: 'not allowed to join this channel' });
-		}
 		if (stream.get('type') !== 'channel') {
 			throw this.errorHandler.error('updateAuth', { reason: 'only channel streams can be joined' });
+		}
+		if (stream.get('privacy') !== 'public') {
+			throw this.errorHandler.error('updateAuth', { reason: 'not allowed to join this channel' });
 		}
 		if (stream.get('isTeamStream')) {
 			throw this.errorHandler.error('updateAuth', { reason: 'can not join a team stream' });

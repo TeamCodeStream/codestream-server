@@ -54,6 +54,8 @@ class PutStreamFetchTest extends PutStreamTest {
 	// validate that the response is correct
 	validateResponse (data) {
 		// verify what we fetch is what we got back in the response
+		data.stream.memberIds.sort();
+		this.expectedStream.memberIds.sort();
 		Assert.deepEqual(data.stream, this.expectedStream, 'fetched stream does not match');
 	}
 }

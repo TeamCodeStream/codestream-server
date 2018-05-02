@@ -1,13 +1,23 @@
 'use strict';
 
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-const MessageToTeamTest = require('./message_to_team_test');
-const AddUserTest = require('./add_user_test');
+const AddUserMessageToStreamTest = require('./add_user_message_to_stream_test');
 
-class AddUserMessageToTeamTest extends Aggregation(MessageToTeamTest, AddUserTest) {
+class AddUserMessageToTeamTest extends AddUserMessageToStreamTest {
 
+	constructor (options) {
+		super(options);
+		this.streamPrivacy = 'public';
+	}
+	
 	get description () {
-		return 'members of the team should receive a message with the stream when a user is added to a public stream';
+		return 'members of the team should receive a message with the stream when a user is added to a public channel stream';
+	}
+
+	// set the name of the channel we expect to receive a message on
+	setChannelName (callback) {
+		// since it is a public stream, the channel will be the team channel
+		this.channelName = 'team-' + this.team._id;
+		callback();
 	}
 }
 

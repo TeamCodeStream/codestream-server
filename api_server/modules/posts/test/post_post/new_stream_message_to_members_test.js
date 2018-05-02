@@ -76,7 +76,7 @@ class NewStreamMessageToMembersTest extends CodeStreamMessageTest {
 		// added to a stream
 		let streamOptions = {
 			type: this.type,
-			name: this.type === 'channel' ? this.teamFactory.randomName() : null,
+			name: this.type === 'channel' ? this.teamFactory.randomName() : undefined,
 			teamId: this.team._id,
 			memberIds: [this.currentUser._id]	// include the current user in the stream
 		};

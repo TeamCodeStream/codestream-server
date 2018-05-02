@@ -11,11 +11,6 @@ class Stream extends CodeStreamModel {
 		return new StreamValidator();
 	}
 
-	setDefaults () {
-		this.attributes.privacy = 'public';	// streams are public unless explicitly set otherwise
-		super.setDefaults();
-	}
-
 	// right before the stream is saved...
 	async preSave (options = {}) {
 		// ensure referencing IDs are lower-cased
@@ -28,19 +23,35 @@ class Stream extends CodeStreamModel {
 			this.attributes.memberIds.sort();
 		}
 
-		// files always have public privacy,
-		// direct streams always have private
-		if (this.type === 'file') {
-			this.privacy = 'public';
-		}
-		else if (this.type === 'direct') {
-			this.privacy = 'private';
-		}
-		else if (options.new && this.type === 'channel' && !this.privacy) {
-			this.privacy = 'public';
-		}
+		// make sure we have an appropriate privacy attribute
+		this.setDefaultPrivacy(options);
 
 		await super.preSave(options);
+	}
+
+	// make sure we have an appropriate privacy attribute
+	setDefaultPrivacy (options) {
+		// files always have public privacy,
+		// direct streams always have private,
+		// channels default to private but can be public
+		if (this.attributes.type === 'file') {
+			this.attributes.privacy = 'public';
+		}
+		else if (this.attributes.type === 'direct') {
+			this.attributes.privacy = 'private';
+		}
+		else if (
+			options.new &&
+			this.attributes.type === 'channel' &&
+			!this.attributes.privacy
+		) {
+			if (this.attributes.isTeamStream) {
+				this.attributes.privacy = 'public';
+			}
+			else {
+				this.attributes.privacy = 'private';
+			}
+		}
 	}
 }
 
