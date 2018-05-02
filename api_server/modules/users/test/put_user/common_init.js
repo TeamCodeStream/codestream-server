@@ -4,6 +4,7 @@
 
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var RandomString = require('randomstring');
+const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
 class CommonInit {
 
@@ -35,6 +36,7 @@ class CommonInit {
 				if (error) { return callback(error); }
 				this.repo = response.repo;
 				this.team = response.team;
+				this.currentUser = response.users.find(user => user._id === this.currentUser._id);
 				callback();
 			},
 			{
@@ -51,6 +53,8 @@ class CommonInit {
 		this.attributes.forEach(attribute => {
 			this.data[attribute] = RandomString.generate(10);
 		});
+		this.expectedUser = DeepClone(this.currentUser);
+		Object.assign(this.expectedUser, this.data);
 		this.path = '/users/' + (this.id || this.currentUser._id);
 		this.modifiedAfter = Date.now();
 		callback();

@@ -25,6 +25,13 @@ var NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_
 var NewTeamStreamMessageToTeamTest = require('./new_team_stream_message_to_team_test');
 var NewStreamToMembersTest = require('./new_stream_to_members_test');
 var NewStreamNoMessageTest = require('./new_stream_no_message_test');
+var PostTeamStreamTest = require('./post_team_stream_test');
+var TeamStreamIgnoresPrivacyTest = require('./team_stream_ignores_privacy_test');
+var TeamStreamIgnoresMembersTest = require('./team_stream_ignores_members_test');
+var ChannelCanBePublicTest = require('./channel_can_be_public_test');
+var InvalidPrivacyTest = require('./invalid_privacy_test');
+var DirectStreamIgnoresPrivacyTest = require('./direct_stream_ignores_privacy_test');
+var FileStreamIgnoresPrivacyTest = require('./file_stream_ignores_privacy_test');
 
 class PostStreamRequestTester {
 
@@ -57,6 +64,13 @@ class PostStreamRequestTester {
 		new NewStreamToMembersTest({ type: 'channel' }).test();
 		new NewStreamNoMessageTest({ type: 'direct' }).test();
 		new NewStreamNoMessageTest({ type: 'channel' }).test();
+		new PostTeamStreamTest().test();
+		new TeamStreamIgnoresPrivacyTest().test();
+		new TeamStreamIgnoresMembersTest().test();
+		new ChannelCanBePublicTest().test();
+		new InvalidPrivacyTest().test();
+		new DirectStreamIgnoresPrivacyTest().test();
+		new FileStreamIgnoresPrivacyTest().test();
 	}
 }
 

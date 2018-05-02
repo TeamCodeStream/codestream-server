@@ -113,9 +113,11 @@ class GetStreamsTest extends CodeStreamAPITest {
 
 	// create some streams of the given type in the given team
 	createStreamsForTeam (team, type, callback) {
+		// for channels, we'll create twice as many, because we have more to test (public, team-stream)
+		const numStreams = type === 'channel' ? this.numStreams * 2 : this.numStreams;
 		BoundAsync.timesSeries(
 			this,
-			this.numStreams,
+			numStreams,
 			(n, timesCallback) => {
 				this.createStreamForTeam(team, type, n, timesCallback);
 			},
@@ -127,13 +129,17 @@ class GetStreamsTest extends CodeStreamAPITest {
 	createStreamForTeam (team, type, n, callback) {
 		// we'll include some of the random unregistered users in the stream on a rotating basis
 		let user = this.usersByTeam[team._id][n % this.usersByTeam[team._id].length];
+		let isTeamStream = type === 'channel' && n === this.whichIsTeamStream;
+		let isPublic = type === 'channel' && n === this.whichIsPublic;
 		let options = {
 			teamId: team._id,
 			type: type,
-			memberIds: [user._id],
-			token: this.otherUserData.accessToken	// the "other" user creates this stream
+			memberIds: isTeamStream || isPublic ? undefined : [user._id],
+			token: this.otherUserData.accessToken,	// the "other" user creates this stream
+			isTeamStream: isTeamStream,
+			privacy: isPublic ? 'public' : undefined
 		};
-		if (n % 2 === 1) {
+		if (n % 2 === 1 && !isTeamStream && !isPublic) {
 			// every other stream has the current user as a member
 			options.memberIds.push(this.currentUser._id);
 		}

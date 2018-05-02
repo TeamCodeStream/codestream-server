@@ -11,6 +11,8 @@ var GetChannelStreamsByTeamTest = require('./get_channel_streams_by_team_test');
 var GetDirectStreamsByTeamTest = require('./get_direct_streams_by_team_test');
 var GetAllStreamsByTeamTest = require('./get_all_streams_by_team_test');
 var GetAllStreamsByRepoTest = require('./get_all_streams_by_repo_test');
+var GetPublicStreamsTest = require('./get_public_streams_test');
+var GetTeamStreamsTest = require('./get_team_streams_test');
 var InvalidTypeTest = require('./invalid_type_test');
 var NoRepo_IDTest = require('./no_repo_id_test');
 var TeamIDRequiredTest = require('./team_id_required_test');
@@ -41,6 +43,8 @@ class GetStreamsRequestTester {
 		new GetDirectStreamsByTeamTest().test();
 		new GetAllStreamsByTeamTest().test();
 		new GetAllStreamsByRepoTest().test();
+		new GetPublicStreamsTest().test();
+		new GetTeamStreamsTest().test();
 		new InvalidTypeTest().test();
 		new NoRepo_IDTest().test();
 		new TeamIDRequiredTest().test();

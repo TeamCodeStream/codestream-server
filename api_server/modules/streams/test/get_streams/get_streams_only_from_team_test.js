@@ -16,7 +16,8 @@ class GetStreamsOnlyFromTeamTest extends GetStreamsTest {
 		let foreignTeamId = this.foreignTeam._id;
 		this.myStreams = [
 			this.streamsByTeam[teamId][1],
-			this.streamsByTeam[teamId][4]
+			this.streamsByTeam[teamId][5],
+			this.streamsByTeam[teamId][7]
 		];
 		let otherStreams = [
 			this.streamsByTeam[teamId][0],
