@@ -6,6 +6,7 @@ const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_c
 const Stream = require('./stream');
 const StreamSubscriptionGranter = require('./stream_subscription_granter');
 const StreamTypes = require('./stream_types');
+const PrivacyTypes = require('./privacy_types');
 const Errors = require('./errors');
 const Indexes = require('./indexes');
 
@@ -39,7 +40,7 @@ class StreamCreator extends ModelCreator {
 			},
 			optional: {
 				boolean: ['isTeamStream'],
-				string: ['repoId', 'type', 'file', 'name'],
+				string: ['repoId', 'type', 'file', 'name', 'privacy'],
 				'array(string)': ['memberIds']
 			}
 		};
@@ -58,6 +59,8 @@ class StreamCreator extends ModelCreator {
 			if (this.attributes.type !== 'channel') {
 				return this.errorHandler.error('teamStreamMustBeChannel');
 			}
+			// team-streams are always public
+			this.attributes.privacy = 'public';	
 			// team-streams act like they have everyone in the team as members,
 			// so we don't keep track of members at all
 			delete this.attributes.memberIds;	
@@ -66,6 +69,11 @@ class StreamCreator extends ModelCreator {
 			// channel streams must have a name
 			if (!this.attributes.name) {
 				return this.errorHandler.error('nameRequired');
+			}
+			// channels are private by default
+			this.attributes.privacy = this.attributes.privacy || 'private';
+			if (!PrivacyTypes.includes(this.attributes.privacy)) {
+				return this.errorHandler.error('invalidPrivacyType', { info: this.attributes.privacy });
 			}
 			// channel streams ingore file and repo ID
 			delete this.attributes.file;
@@ -79,11 +87,15 @@ class StreamCreator extends ModelCreator {
 			else if (!this.attributes.file) {
 				return this.errorHandler.error('fileRequired');
 			}
+			// file streams are always public
+			this.attributes.privacy = 'public';
 			// file-type stream ignore name and members
 			delete this.attributes.name;
 			delete this.attributes.memberIds;
 		}
 		else if (this.attributes.type === 'direct') {
+			// direct streams are always private
+			this.attributes.privacy = 'private';
 			// direct streams ignore file, repo ID, and name
 			delete this.attributes.file;
 			delete this.attributes.repoId;

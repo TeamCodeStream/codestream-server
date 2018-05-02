@@ -59,6 +59,9 @@ class RandomStreamFactory {
 		if (options.memberIds) {	// member IDs must be provided (we can't just generate these randomly)
 			data.memberIds = options.memberIds;
 		}
+		if (options.privacy) {
+			data.privacy = options.privacy;
+		}
 		data.name = options.name || this.randomName();
 		if (options.isTeamStream) {
 			data.isTeamStream = true;

@@ -20,7 +20,8 @@ class PostStreamRequest extends PostRequest {
 			data: this.responseData,
 			stream: this.responseData.stream,
 			request: this,
-			messager: this.api.services.messager
+			messager: this.api.services.messager,
+			isNew: true
 		}).publishStream();
 	}
 }

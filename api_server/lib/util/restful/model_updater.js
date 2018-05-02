@@ -82,6 +82,7 @@ class ModelUpdater {
 		// create a model from the attributes and let it do its own pre-save, this is where
 		// validation happens ... note that since we're doing an update, we might not have
 		// (and actually probably don't) have a complete model here
+		this.extractOps();
 		this.model = new this.modelClass(this.attributes, { dontSetDefaults: true });
 		let errors = await this.model.preSave();
 		if (!errors) {
@@ -91,6 +92,25 @@ class ModelUpdater {
 			errors = [errors];
 		}
 		throw this.errorHandler.error('validation', { info: errors });
+	}
+
+	// extract any op-directives from the attributes, these are treated separately
+	extractOps () {
+		const opKeys = Object.keys(this.attributes).filter(attribute => attribute.startsWith('$'));
+		if (opKeys.length === 0) {
+			return;
+		}
+		this.ops = { };
+		Object.keys(this.attributes).forEach(attribute => {
+			if (attribute.startsWith('$')) {
+				this.ops[attribute] = Object.assign(this.ops[attribute] || {}, this.attributes[attribute]);
+				delete this.attributes[attribute];
+			}
+			else if (attribute !== this.collection.idAttribute) {
+				this.ops.$set = this.ops.$set || {};
+				this.ops.$set[attribute] = DeepClone(this.attributes[attribute]);
+			}
+		});
 	}
 
 	// check for any warnings during validation, these don't stop the document from
@@ -107,9 +127,18 @@ class ModelUpdater {
 	// do the actual update
 	async update () {
 		// do the update
-		this.updatedAttributes = DeepClone(this.model.attributes);
-		this.model = await this.collection.update(this.updatedAttributes);
-		this.updatedAttributes = this.model.validator.sanitizeAttributes(this.updatedAttributes);
+		if (this.ops) {
+			this.updatedAttributes = Object.assign({}, this.ops, { _id: this.id });
+			await this.collection.applyOpById(this.id, this.ops);
+			this.updatedAttributes.$set = this.model.validator.sanitizeAttributes(this.updatedAttributes.$set);
+		}
+		else {
+			this.updatedAttributes = DeepClone(this.model.attributes);
+			const set = DeepClone(this.updatedAttributes);
+			delete set._id;
+			await this.collection.applyOpById(this.id, { $set: set });
+			this.updatedAttributes = this.model.validator.sanitizeAttributes(this.updatedAttributes);
+		}
 	}
 
 	// override to do stuff after the document has been saved

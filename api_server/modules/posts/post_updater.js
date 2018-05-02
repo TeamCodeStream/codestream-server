@@ -33,6 +33,7 @@ class PostUpdater extends ModelUpdater {
 		await this.getPost();           // get the post
 		await this.getStream();       	// get the stream the post is in
 		await this.addEditToHistory();  // add this edit to the maintained history of edits
+		this.attributes.modifiedAt = Date.now();
 		await super.preSave();			// base-class preSave
 	}
 
@@ -71,13 +72,6 @@ class PostUpdater extends ModelUpdater {
 			edit.setAttributes.mentionedUserIds = this.attributes.mentionedUserIds;
 		}
 		this.attributes.editHistory.push(edit);
-	}
-
-	// after the post has been saved...
-	async postSave () {
-		// this.update is what we return to the client, since the modifiedAt
-		// has changed, add that
-		this.update.modifiedAt = this.model.get('modifiedAt');
 	}
 }
 

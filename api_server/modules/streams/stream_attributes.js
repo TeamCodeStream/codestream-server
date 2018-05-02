@@ -52,5 +52,10 @@ module.exports = {
 	emailNotificationSeqNumSetAt: {
 		type: 'timestamp',
 		serverOnly: true
+	},
+	privacy: {
+		type: 'string',
+		maxLength: 20,
+		required: true
 	}
 };
