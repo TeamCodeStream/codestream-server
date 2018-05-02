@@ -5,20 +5,14 @@
 
 'use strict';
 
-const DataModel = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model');
-const DataModelValidator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
+const CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
+const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
 const MarkerAttributes = require('./marker_attributes');
 
-class Marker extends DataModel {
+class Marker extends CodeStreamModel {
 
 	getValidator () {
-		return new DataModelValidator(MarkerAttributes);
-	}
-
-	// set defaults for a new marker
-	setDefaults () {
-		this.attributes.deactivated = false;
-		super.setDefaults();
+		return new CodeStreamModelValidator(MarkerAttributes);
 	}
 
 	// called right before we save...
@@ -29,16 +23,6 @@ class Marker extends DataModel {
 		this.lowerCase(this.attributes.postId);
 		this.lowerCase(this.attributes.commitHashWhenCreated);
 		await super.preSave(options);
-	}
-
-	// cheater function to force an attribute to be lowercase
-	lowerCase (attribute) {
-		if (typeof this.attributes[attribute] === 'string') {
-			this.attributes[attribute] = this.attributes[attribute].toLowerCase();
-		}
-		else if (this.attributes[attribute] instanceof Array) {
-			this.attributes[attribute] = this.attributes[attribute].map(elem => elem.toLowerCase());
-		}
 	}
 }
 

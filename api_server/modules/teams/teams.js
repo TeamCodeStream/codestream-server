@@ -16,6 +16,15 @@ const TEAM_STANDARD_ROUTES = {
 	}
 };
 
+// expose additional routes
+const TEAM_ADDITIONAL_ROUTES = [
+	{
+		method: 'put',
+		path: '/delete-content',
+		requestClass: require('./delete_content_request')
+	}
+];
+
 class Teams extends Restful {
 
 	get collectionName () {
@@ -40,8 +49,10 @@ class Teams extends Restful {
 	}
 	*/
 
+	// compile all the routes to expose
 	getRoutes () {
-		return super.getRoutes(TEAM_STANDARD_ROUTES);
+		let standardRoutes = super.getRoutes(TEAM_STANDARD_ROUTES);
+		return [...standardRoutes, ...TEAM_ADDITIONAL_ROUTES];
 	}
 }
 

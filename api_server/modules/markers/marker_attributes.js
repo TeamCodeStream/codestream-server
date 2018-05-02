@@ -5,11 +5,6 @@
 'use strict';
 
 module.exports = {
-	_id: {
-		type: 'string',
-		maxLength: 30,
-		required: true
-	},
 	teamId: {
 		type: 'string',
 		maxLength: 30,
@@ -23,10 +18,6 @@ module.exports = {
 	postId: {
 		type: 'string',
 		maxLength: 30,
-		required: true
-	},
-	deactivated: {
-		type: 'boolean',
 		required: true
 	},
 	numComments: {

@@ -8,6 +8,9 @@ const MarkerLocationsAttributes = require(process.env.CS_API_TOP + '/modules/mar
 const EXPECTED_MARKER_FIELDS = [
 	'_id',
 	'deactivated',
+	'createdAt',
+	'modifiedAt',
+	'creatorId',
 	'teamId',
 	'streamId',
 	'postId',
