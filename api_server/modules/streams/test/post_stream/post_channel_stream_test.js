@@ -34,15 +34,19 @@ class PostChannelStreamTest extends PostStreamTest {
 	validateResponse (data) {
 		// the current user will be automatically added as a member, make sure we have a sorted
 		// array so we can compare arrays
-		if (!this.data.memberIds.includes(this.currentUser._id)) {
-			this.data.memberIds.push(this.currentUser._id);
-			this.data.memberIds.sort();
+		if (!this.data.isTeamStream) {
+			if (!this.data.memberIds.includes(this.currentUser._id)) {
+				this.data.memberIds.push(this.currentUser._id);
+				this.data.memberIds.sort();
+			}
 		}
 		let stream = data.stream;
 		let errors = [];
 		let result = (
 			((stream.name === this.data.name) || errors.push('name does not match')) &&
-			((JSON.stringify(stream.memberIds) === JSON.stringify(this.data.memberIds)) || errors.push('memberIds array does not match'))
+			(this.data.isTeamStream ||
+				((JSON.stringify(stream.memberIds) === JSON.stringify(this.data.memberIds)) || errors.push('memberIds array does not match'))
+			)
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		super.validateResponse(data);

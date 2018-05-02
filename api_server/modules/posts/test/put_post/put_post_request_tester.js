@@ -3,6 +3,7 @@
 'use strict';
 
 var PutPostTest = require('./put_post_test');
+var PutPostFetchTest = require('./put_post_fetch_test');
 var ACLTest = require('./acl_test');
 var ACLTeamTest = require('./acl_team_test');
 var PostNotFoundTest = require('./post_not_found_test');
@@ -15,6 +16,7 @@ class PutPostRequestTester {
 
 	putPostTest () {
 		new PutPostTest().test();
+		new PutPostFetchTest().test();
 		new ACLTest().test();
 		new ACLTeamTest().test();
 		new PostNotFoundTest().test();

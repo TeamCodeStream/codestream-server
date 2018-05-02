@@ -90,6 +90,7 @@ class CommonInit {
 		if (this.wantMention) {
 			this.data.mentionedUserIds = [this.otherUserData.user._id];
 		}
+		this.expectedPost = Object.assign({}, this.post, this.data);
 		this.path = '/posts/' + this.post._id;
 		this.modifiedAfter = Date.now();
 		callback();

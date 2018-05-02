@@ -3,6 +3,7 @@
 'use strict';
 
 var PutUserTest = require('./put_user_test');
+var PutUserFetchTest = require('./put_user_fetch_test');
 var UpdateMeTest = require('./update_me_test');
 var ACLTest = require('./acl_test');
 var ACLTeamTest = require('./acl_team_test');
@@ -18,6 +19,7 @@ class PutUserRequestTester {
 
 	putUserTest () {
 		new PutUserTest().test();
+		new PutUserFetchTest().test();
 		new UpdateMeTest().test();
 		CAN_UPDATE_ATTRIBUTES.forEach(attribute => {
 			new PutUserTest({ attributes: [attribute] }).test();

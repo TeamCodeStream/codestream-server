@@ -137,13 +137,15 @@ class GetStreamsRequest extends GetManyRequest {
 		}
 		if (!query.repoId) {
 			// for non file-type, only return streams which have the requesting user as a member,
-			// or team-streams, which are considered to have all users on the team as members
+			// or public streams, which the user can see, even if they can't see content
+			// (this will include any "team streams")
 			query.$or = [
 				{
 					memberIds: this.user.id
 				},
 				{
-					isTeamStream: true
+					type: 'channel',
+					privacy: 'public'
 				}
 			];
 		}

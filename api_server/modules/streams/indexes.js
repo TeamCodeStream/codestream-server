@@ -27,7 +27,7 @@ module.exports = {
 	byMembers: {
 		teamId: 1,
 		memberIds: 1,
-		isTeamStream: 1,
+		privacy: 1,
 		sortId: -1
 	}
 };
