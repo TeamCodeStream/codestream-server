@@ -25,7 +25,7 @@ class JoinRequestTester {
 		new ACLTeamTest().test();
 		new MessageToTeamTest().test();
 		new SubscriptionTest().test();
-    }
+	}
 }
 
 module.exports = JoinRequestTester;
