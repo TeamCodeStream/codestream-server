@@ -125,9 +125,19 @@ class PubNubClient {
 
 	// revoke read and/or write permission for the specified channel for the specified
 	// set of tokens (keys)
-	async revoke (tokens, channel) {
+	async revoke (tokens, channel, options = {}) {
 		if (!(tokens instanceof Array)) {
 			tokens = [tokens];
+		}
+		if (this._requestSaysToBlockMessages(options)) {
+			// we are blocking PubNub messages, for testing purposes
+			if (options.request) {
+				options.request.log(`Would have revoked access for ${tokens} to ${channel}`);
+				return;
+			}
+		}
+		else if (options.request) {
+			options.request.log(`Revoking access for ${tokens} to ${channel}`);
 		}
 		const result = await this.pubnub.grant(
 			{
@@ -139,7 +149,17 @@ class PubNubClient {
 			}
 		);
 		if (result.error) {
+			if (options.request) {
+				options.request.warn(`Unable to revoke access for ${tokens} to ${channel}: ${JSON.stringify(result.errorData)}`);
+			}
 			throw result.errorData;
+		}
+		if (options.request) {
+			options.request.log(`Successfully revoked access for ${tokens} to ${channel}`);
+		}
+		if (options.includePresence) {
+			// doing presence requires revoking access to this channel as well
+			await this.revoke(tokens, channel + '-pnpres', { request: options.request });
 		}
 	}
 
