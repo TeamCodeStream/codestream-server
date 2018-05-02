@@ -4,7 +4,7 @@ var GetStreamsTest = require('./get_streams_test');
 
 class GetTeamStreamsTest extends GetStreamsTest {
 
-    constructor (options) {
+	constructor (options) {
 		super(options);
 		this.whichIsTeamStream = 4;
 	}
