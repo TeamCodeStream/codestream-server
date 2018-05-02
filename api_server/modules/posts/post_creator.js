@@ -495,7 +495,7 @@ class PostCreator extends ModelCreator {
 
 	// after the post was created...
 	async postCreate () {
-		awaitParallel([
+		await awaitParallel([
 			this.publishPost,
 			this.triggerNotificationEmails,
 			this.doIntegrationHooks,

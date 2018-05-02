@@ -46,8 +46,9 @@ class StreamSubscriptionGranter  {
 			return;
 		}
 		const channel = 'stream-' + this.stream.id;
+		const func = this.revoke ? 'revoke' : 'grant';
 		try {
-			await this.messager.grant(
+			await this.messager[func](
 				this.tokens,
 				channel,
 				{ request: this.request }

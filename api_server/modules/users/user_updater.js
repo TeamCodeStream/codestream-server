@@ -38,6 +38,7 @@ class UserUpdater extends ModelUpdater {
 	async preSave () {
 		await this.getUser();
 		await this.checkUsernameUnique();
+		this.attributes.modifiedAt = Date.now();
 		await super.preSave();
 	}
 
@@ -77,13 +78,6 @@ class UserUpdater extends ModelUpdater {
 				}
 			});
 		}
-	}
-
-	// after the post has been saved...
-	async postSave () {
-		// this.update is what we return to the client, since the modifiedAt
-		// has changed, add that
-		this.update.modifiedAt = this.model.get('modifiedAt');
 	}
 }
 

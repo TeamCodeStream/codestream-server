@@ -44,7 +44,8 @@ class PostPublisher {
 			stream: stream,
 			data: { stream },
 			request: this.request,
-			messager: this.messager
+			messager: this.messager,
+			isNew: true
 		}).publishStream();
 	}
 

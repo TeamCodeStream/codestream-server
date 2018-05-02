@@ -7,23 +7,31 @@ const ObjectID = require('mongodb').ObjectID;
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const Errors = require('./errors');
 
-// bridges an $addToSet operation to mongo by allowing the caller to specify an
-// array of elements to add without having to use the $each directive ... otherwise
-// the array of elements is interpreted as a single element to add
+// bridges an array operation to mongo by allowing the caller to specify an
+// array of elements to add or remove without having to use the $each directive ... 
+// otherwise the array of elements itself is interpreted as the element to add or remove,
 // we're trying to shield the caller from the mongo implementation detail as much
 // as possible for the most common use case
-let _mongoAddToSetValue = function(value) {
+let _mongoArrayFunc = function(value, op) {
 	let mongoValue = {};
 	Object.keys(value).forEach(fieldName => {
 		let fieldValue = value[fieldName];
 		if (fieldValue instanceof Array) {
-			mongoValue[fieldName] = { $each: fieldValue };
+			mongoValue[fieldName] = { [op]: fieldValue };
 		}
 		else {
 			mongoValue[fieldName] = fieldValue;
 		}
 	});
 	return mongoValue;
+};
+
+let _mongoArrayEachFunc = function(value) {
+	return _mongoArrayFunc(value, '$each');
+};
+
+let _mongoArrayInFunc = function(value) {
+	return _mongoArrayFunc(value, '$in');
 };
 
 // these ops are intended to shield the caller from mongo's implementation details,
@@ -34,10 +42,16 @@ const OP_TO_DB_OP = {
 	'$unset': '$unset',
 	'$addToSet': {
 		dbOp: '$addToSet',
-		valueFunc: _mongoAddToSetValue
+		valueFunc: _mongoArrayEachFunc
 	},
-	'$push': '$push',
-	'$pull': '$pull',
+	'$push': {
+		dbOp: '$push',
+		valueFunc: _mongoArrayEachFunc
+	},
+	'$pull': {
+		dbOp: '$pull',
+		valueFunc: _mongoArrayInFunc
+	},
 	'$inc': '$inc'
 };
 
