@@ -75,6 +75,7 @@ export CS_API_SETUP_MONGO=true
 [ -z "$BOT_SECRETS_FILE" ] && BOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-development
 if [ -f $BOT_SECRETS_FILE ]; then
 	. $BOT_SECRETS_FILE
+	# All bots use the same shared secret
 	export CS_API_INTEGRATION_BOT_SHARED_SECRET=$SHARED_SECRET
 else
 	echo "*** ERROR: slackbot secrets file ($BOT_SECRETS_FILE) not found"
