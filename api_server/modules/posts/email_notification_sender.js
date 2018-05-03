@@ -31,6 +31,9 @@ class EmailNotificationSender {
 		if (await this.getPosts())  {			// get the most recent posts in the stream
 			return;	// indicates no emails will be sent, so just abort
 		}
+		await this.getMarkers();				// get the markers representing the codeblocks of the posts
+		await this.getStreams();				// get the streams representing the codeblocks of the posts
+		await this.getRepos();					// get the repos representing the codeblocks of the posts
 		await this.getParentPosts();			// get the parent post if this is a reply
 		await this.getPostCreators();			// get the creators of all the posts
 		await this.renderPosts();				// render the HTML for each post needed
@@ -104,9 +107,19 @@ class EmailNotificationSender {
 	// get the user objects for the offline members
 	async getOfflineMembers () {
 		this.offlineMembers = this.allMembers.filter(member => {
-			// if they show as offline according to pubnub, they are truly offline
-			if (!this.onlineUserIdsForRepo.includes(member.id)) {
-				return true;
+			// if this is a non-file type stream, then if the user is offline for the team,
+			// then they are truly offline ... there is no sense of whether they have the repo open or not
+			if (this.stream.type !== 'file') {
+				if (!this.onlineUserIdsForTeam.includes(member.id)) {
+					return true;
+				}
+			}
+			else {
+				// for file-type streams, if they show as offline according to pubnub,
+				// they are truly offline
+				if (!this.onlineUserIdsForRepo.includes(member.id)) {
+					return true;
+				}
 			}
 			const isActive = new SessionManager({
 				user: member,
@@ -191,6 +204,40 @@ class EmailNotificationSender {
 		this.hasMultipleAuthors = this.posts.find(post => post.get('creatorId') !== firstPost.get('creatorId'));
 	}
 
+	// get the markers representing the code blocks of the posts
+	async getMarkers () {
+		this.codeBlocks = this.posts.reduce((codeBlocks, post) => {
+			if (post.get('codeBlocks')) {
+				codeBlocks = [...codeBlocks, ...post.get('codeBlocks')];
+			}
+			return codeBlocks;
+		}, []);
+		this.markerIds = this.codeBlocks.map(codeBlock => codeBlock.markerId);
+		this.markers = await this.request.data.markers.getByIds(this.markerIds);
+	}
+
+	// get the streams representing the code blocks of the posts
+	async getStreams () {
+		this.streamIds = this.markers.reduce((streamIds, marker) => {
+			if (!streamIds.includes(marker.get('streamId'))) {
+				streamIds.push(marker.get('streamId'));
+			}
+			return streamIds;
+		}, []);
+		this.streams = await this.request.data.streams.getByIds(this.streamIds);
+	}
+
+	// get the repos representing the code blocks of the posts
+	async getRepos () {
+		this.repoIds = this.streams.reduce((repoIds, stream) => {
+			if (!repoIds.includes(stream.get('repoId'))) {
+				repoIds.push(stream.get('repoId'));
+			}
+			return repoIds;
+		}, []);
+		this.repos = await this.request.data.repos.getByIds(this.repoIds);
+	}
+
 	// get the parent post to any post in the array of posts to go in the email notification,
 	// for those posts that are replies
 	async getParentPosts () {
@@ -240,7 +287,10 @@ class EmailNotificationSender {
 			creator,
 			parentPost,
 			sameAuthor: !this.hasMultipleAuthors,
-			timeZone
+			timeZone,
+			markers: this.markers,
+			streams: this.streams,
+			repos: this.repos
 		});
 		this.renderedPosts.push({
 			post: post,
@@ -351,6 +401,10 @@ class EmailNotificationSender {
 			return;
 		}
 		const postsHtml = renderedPosts.map(renderedPost => renderedPost.html);
+		const offlineForRepo = (
+			this.stream.get('type') === 'file' &&
+			this.onlineUserIdsForTeam.includes(user.id)
+		); // online for team, but offline for repo
 		let html = new EmailNotificationRenderer().render({
 			user,
 			posts: postsHtml,
@@ -358,7 +412,7 @@ class EmailNotificationSender {
 			repo: this.repo,
 			stream: this.stream,
 			mentioned: this.mentionsPerUser[user.id],
-			offlineForRepo: this.onlineUserIdsForTeam.includes(user.id) // online for team, but offline for repo
+			offlineForRepo 
 		});
 		html = html.replace(/[\t\n]/g, '');
 		this.renderedEmails.push({ user, html });

@@ -49,9 +49,16 @@ class LastReadsUpdater {
 	// since the current user (the one creating a post) is assumed to be
 	// "caught up" for that stream, they should not have their lastReads updated
 	memberIdsWithoutCurrentUser () {
-		let memberIds = this.stream.get('type') === 'file' ?
-			this.team.get('memberIds') :	// file-type streams go to the whole team
-			this.stream.get('memberIds');	// other type streams have their own members
+		let memberIds;
+		const type = this.stream.get('type');
+		if (type === 'file' || this.stream.get('isTeamStream')) {
+			// file-type streams - or team-streams - go to the whole team
+			memberIds = this.team.get('memberIds');
+		}
+		else {
+			// otherwise we go to the members of the stream
+			memberIds = this.stream.get('memberIds');
+		}
 		memberIds = memberIds ? [...memberIds] : [];
 		const userIdIndex = memberIds.indexOf(this.user.id);
 		if (userIdIndex !== -1) {
