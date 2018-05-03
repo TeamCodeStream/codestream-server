@@ -5,11 +5,12 @@
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 const HtmlEscape = require(process.env.CS_API_TOP + '/server_utils/html_escape');
 const MomentTimezone = require('moment-timezone');
+const Path = require('path');
 
 class PostRenderer {
 
 	render (options) {
-		const { post, sameAuthor, timeZone } = options;
+		const { post, sameAuthor, timeZone, repos, streams, markers } = options;
 
 		// the timestamp is dependent on the user's timezone, but if all users are from the same
 		// timezone, we can format the timestamp here and fully render the email; otherwise we
@@ -19,6 +20,15 @@ class PostRenderer {
 		const replyText = this.getReplyText(options);
 		const text = this.getNotificationText(options);
 		const codeBlock = this.getNotificationCodeBlock(options);
+		let pathToFile = '';
+		if (codeBlock) {
+			const marker = markers.find(marker => marker.id === codeBlock.markerId);
+			const stream = streams.find(stream => marker && stream.id === marker.get('streamId'));
+			const repo = repos.find(repo => stream && repo.id === stream.get('repoId'));
+			if (repo) {
+				pathToFile = 'https://' + Path.join(repo.get('normalizedUrl'), stream.get('file'));
+			}
+		}
 		const code = this.cleanForEmail((codeBlock && codeBlock.code) || '');
 		const preContext = this.cleanForEmail((codeBlock && codeBlock.preContext) || '');
 		const postContext = this.cleanForEmail((codeBlock && codeBlock.postContext) || '');
@@ -48,6 +58,9 @@ class PostRenderer {
 			codeBlockDiv = `
 <div>
 	<br>
+	<div class="pathToFile">
+		${pathToFile}
+	</div>
 	<div class="codeBlock">
 		<div class="codeContext">
 			${preContext}

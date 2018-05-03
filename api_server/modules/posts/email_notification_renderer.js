@@ -2,15 +2,12 @@
 
 'use strict';
 
-const Path = require('path');
-
 class EmailNotificationRenderer {
 
 	// render an email notification for a given set of posts and a given user
 	render (options) {
-		const { posts, repo, stream } = options;
+		const { posts } = options;
 		const postsContent = posts.join('');
-		const pathToFile = 'https://' + Path.join(repo.get('normalizedUrl'), stream.get('file'));
 		const intro = this.getNotificationIntro(options);
 		return `
 <head>
@@ -21,6 +18,11 @@ class EmailNotificationRenderer {
 		}
 		.datetime {
 		  color: #888888;
+		}
+		.pathToFile {
+			text-decoration: underline;
+			line-height: 1.2em;
+			margin-bottom: 3px;
 		}
 		.code {
 		  font-family: "Courier";
@@ -50,11 +52,6 @@ class EmailNotificationRenderer {
 <html>
 	<div>
 		${postsContent}
-	</div>
-	<br>
-	<br>
-	<div class="pathToFile">
-		${pathToFile}
 	</div>
 	<br>
 	<div class="intro">
