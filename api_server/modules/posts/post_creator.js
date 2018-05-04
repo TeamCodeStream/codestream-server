@@ -122,7 +122,7 @@ class PostCreator extends ModelCreator {
 		// if the code block specifies a file, then we are being asked to create
 		// (or find) a stream for that file, and use that for the code block
 		if (codeBlock.file) {
-			if (!codeBlock.repoId) {
+			if (!codeBlock.streamId && !codeBlock.repoId) {
 				throw 'repoId required for codeBlock with file';
 			}
 			const result = new Post().validator.validateId(codeBlock.repoId);
