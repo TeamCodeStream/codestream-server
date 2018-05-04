@@ -1,6 +1,5 @@
 
-
-PUBNUB_KEYSET=$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset
+PUBNUB_KEY_FILE=$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset
 
 . $CS_MAILIN_TOP/sandbox/defaults.sh
 

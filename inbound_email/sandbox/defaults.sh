@@ -52,7 +52,7 @@ export CS_MAILIN_API_HOST=localhost.codestream.us
 export CS_MAILIN_API_PORT=12079
 
 # =============== PubNub Settings ==============
-# see README.pubnub for more details
+# see README.pubnub for more details - Pubnub needed for unit tests only
 [ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-Local_Keyset_1"
 if [ -f $PUBNUB_KEY_FILE ]; then
 	. $PUBNUB_KEY_FILE
