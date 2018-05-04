@@ -23,30 +23,42 @@ const USERS_STANDARD_ROUTES = {
 
 // parse domain out of url
 const _parseDomain = url => {
-	const parsed = URL.parse(url);
+	let parsed;
+	try {
+		parsed = URL.parse(url);
+	}
+	catch (error) {
+		return url;
+	}
+	if (!parsed || !parsed.hostname) {
+		return url;
+	}
 	const parts = parsed.hostname.split('.').reverse();
 	return `${parts[1]}.${parts[0]}`;
-}
+};
 
 // return a middleware function that checks if the origin
 // matches the home of the MS Teams bot
 const _CorsForTeamsIntegration = api => {
 	const corsOptions = {
 		origin: (origin, callback) => {
-			const originDomain = _parseDomain(origin);
-			const botOriginDomain = _parseDomain(api.config.teams.botOrigin);
-			const botOriginRegex = new RegExp(botOriginDomain);
 			if (
 				!origin ||
 				origin === 'null' ||
 				origin === 'undefined' ||
-				origin === api.config.teams.botOrigin ||
-				originDomain.match(botOriginRegex)
+				origin === api.config.teams.botOrigin
 			) {
 				return callback(null, true);
 			}
+			const originDomain = _parseDomain(origin);
+			const botOriginDomain = _parseDomain(api.config.teams.botOrigin);
+			if (originDomain.toLowerCase() === botOriginDomain.toLowerCase()) {
+				return callback(null, true);
+			}
 			else {
-				return callback(`unrecognized origin ${origin}`);
+				const error = `unrecognized origin ${origin}`;
+				api.warn(error);
+				return callback(error);
 			}
 		}
 	};
