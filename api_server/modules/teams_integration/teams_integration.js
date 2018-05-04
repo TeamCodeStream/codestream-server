@@ -33,7 +33,7 @@ class TeamsIntegration extends IntegrationModule {
 
 		// proxy these paths to the MSTeams bot
 		[
-			'/no-auth/msteams/receive/teams',
+			'/no-auth/msteams/receive',
 			'/no-auth/msteams/login',
 			'/no-auth/msteams/approve',
 			'/no-auth/msteams/login/connect'

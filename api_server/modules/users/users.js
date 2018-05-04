@@ -7,6 +7,7 @@ const UserCreator = require('./user_creator');
 const UserUpdater = require('./user_updater');
 const User = require('./user');
 const CORS = require('cors');
+const URL = require('url');
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {
@@ -20,16 +21,27 @@ const USERS_STANDARD_ROUTES = {
 	}
 };
 
+// parse domain out of url
+const _parseDomain = url => {
+	const parsed = URL.parse(url);
+	const parts = parsed.hostname.split('.').reverse();
+	return `${parts[1]}.${parts[0]}`;
+}
+
 // return a middleware function that checks if the origin
 // matches the home of the MS Teams bot
 const _CorsForTeamsIntegration = api => {
 	const corsOptions = {
 		origin: (origin, callback) => {
+			const originDomain = _parseDomain(origin);
+			const botOriginDomain = _parseDomain(api.config.teams.botOrigin);
+			const botOriginRegex = new RegExp(botOriginDomain);
 			if (
 				!origin ||
 				origin === 'null' ||
 				origin === 'undefined' ||
-				origin === api.config.teams.botOrigin
+				origin === api.config.teams.botOrigin ||
+				originDomain.match(botOriginRegex)
 			) {
 				return callback(null, true);
 			}
