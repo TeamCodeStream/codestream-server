@@ -137,7 +137,7 @@ class StreamCreator extends ModelCreator {
 		else if (this.attributes.type === 'direct') {
 			// direct stream match by membership
 			query.memberIds = this.attributes.memberIds;
-			hint = Indexes.byMemberIds;
+			hint = Indexes.byMembers;
 		}
 		else if (this.attributes.type === 'file') {
 			// file stream match by repo and file
