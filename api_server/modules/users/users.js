@@ -150,3 +150,4 @@ class Users extends Restful {
 }
 
 module.exports = Users;
+
