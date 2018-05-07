@@ -52,7 +52,9 @@ const _CorsForTeamsIntegration = api => {
 			}
 			const originDomain = _parseDomain(origin);
 			const botOriginDomain = _parseDomain(api.config.teams.botOrigin);
-			if (originDomain.toLowerCase() === botOriginDomain.toLowerCase()) {
+			if (originDomain.toLowerCase() === botOriginDomain.toLowerCase() ||
+				originDomain.toLowerCase() === 'codestream.com'
+			) {
 				return callback(null, true);
 			}
 			else {
