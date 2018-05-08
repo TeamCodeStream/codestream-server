@@ -160,6 +160,7 @@ class APIRequest {
 		this.response.
 			set('X-Request-Id', this.request.id).
 			status(this.statusCode).
+			set('access-control-allow-origin', '*').
 			send(this.responseData);
 	}
 
