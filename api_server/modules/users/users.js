@@ -7,7 +7,7 @@ const UserCreator = require('./user_creator');
 const UserUpdater = require('./user_updater');
 const User = require('./user');
 const CORS = require('cors');
-const URL = require('url');
+//const URL = require('url');
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {
@@ -21,6 +21,7 @@ const USERS_STANDARD_ROUTES = {
 	}
 };
 
+/*
 // parse domain out of url
 const _parseDomain = url => {
 	let parsed;
@@ -66,6 +67,7 @@ const _CorsForTeamsIntegration = api => {
 	};
 	return CORS(corsOptions);
 };
+*/
 
 // additional routes for this module
 const USERS_ADDITIONAL_ROUTES = [
@@ -82,8 +84,8 @@ const USERS_ADDITIONAL_ROUTES = [
 	{
 		method: 'put',
 		path: 'no-auth/login',
-		requestClass: require('./login_request'),
-		middleware: _CorsForTeamsIntegration
+		requestClass: require('./login_request')
+		//		middleware: _CorsForTeamsIntegration
 	},
 	{
 		method: 'options',
