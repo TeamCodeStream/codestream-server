@@ -44,8 +44,10 @@ class TeamsIntegration extends IntegrationModule {
 					return `${path}?${query}`;
 				},
 				proxyReqBodyDecorator: (bodyContent, srcReq) => {
-					if (srcReq.headers.hasOwnProperty('content-type') &&
-						srcReq.headers['content-type'].match(/application\/x-www-form-urlencoded/)) {
+					if (
+						srcReq.headers.hasOwnProperty('content-type') &&
+						srcReq.headers['content-type'].match(/application\/x-www-form-urlencoded/)
+					) {
 						// for form encoded data, pass the raw data we captured earlier,
 						return srcReq.rawBody;
 					}

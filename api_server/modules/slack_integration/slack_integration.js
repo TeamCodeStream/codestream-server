@@ -53,8 +53,11 @@ class SlackIntegration extends IntegrationModule {
 				return '/slack/receive';
 			},
 			proxyReqBodyDecorator: (bodyContent, srcReq) => {
-				if (srcReq.headers['content-type'].match(/application\/x-www-form-urlencoded/)) {
-					// for form encoded data, pass the raw data we captured earlier,
+				if (
+					srcReq.headers.hasOwnProperty('content-type') &&
+					srcReq.headers['content-type'].match(/application\/x-www-form-urlencoded/)
+				) {
+			// for form encoded data, pass the raw data we captured earlier,
 					return srcReq.rawBody;
 				}
 				else {
@@ -68,6 +71,9 @@ class SlackIntegration extends IntegrationModule {
 	// for application/x-www-form-urlencoded content-type, capture the raw data
 	// since we'll be passing this on as is in the request proxy
 	formEncodingToRaw (request, response, next) {
+		if (!request.headers.hasOwnProperty('content-type')) {
+			return next();
+		}
 		if (!request.headers['content-type'].match(/application\/x-www-form-urlencoded/)) {
 			return next();
 		}
