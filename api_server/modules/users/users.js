@@ -6,8 +6,6 @@ const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const UserCreator = require('./user_creator');
 const UserUpdater = require('./user_updater');
 const User = require('./user');
-const CORS = require('cors');
-//const URL = require('url');
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {
@@ -20,54 +18,6 @@ const USERS_STANDARD_ROUTES = {
 		'post': require('./post_user_request')
 	}
 };
-
-/*
-// parse domain out of url
-const _parseDomain = url => {
-	let parsed;
-	try {
-		parsed = URL.parse(url);
-	}
-	catch (error) {
-		return url;
-	}
-	if (!parsed || !parsed.hostname) {
-		return url;
-	}
-	const parts = parsed.hostname.split('.').reverse();
-	return `${parts[1]}.${parts[0]}`;
-};
-
-// return a middleware function that checks if the origin
-// matches the home of the MS Teams bot
-const _CorsForTeamsIntegration = api => {
-	const corsOptions = {
-		origin: (origin, callback) => {
-			if (
-				!origin ||
-				origin === 'null' ||
-				origin === 'undefined' ||
-				origin === api.config.teams.botOrigin
-			) {
-				return callback(null, true);
-			}
-			const originDomain = _parseDomain(origin);
-			const botOriginDomain = _parseDomain(api.config.teams.botOrigin);
-			if (originDomain.toLowerCase() === botOriginDomain.toLowerCase() ||
-				originDomain.toLowerCase() === 'codestream.com'
-			) {
-				return callback(null, true);
-			}
-			else {
-				const error = `unrecognized origin ${origin}`;
-				api.warn(error);
-				return callback(error);
-			}
-		}
-	};
-	return CORS(corsOptions);
-};
-*/
 
 // additional routes for this module
 const USERS_ADDITIONAL_ROUTES = [
@@ -85,12 +35,6 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'no-auth/login',
 		requestClass: require('./login_request')
-		//		middleware: _CorsForTeamsIntegration
-	},
-	{
-		method: 'options',
-		path: 'no-auth/login',
-		func: CORS()	// enable pre-flight CORS requests to this route
 	},
 	{
 		method: 'put',

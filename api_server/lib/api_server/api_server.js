@@ -292,6 +292,11 @@ class APIServer {
 		}
 	}
 
+	// is this apii server running in a dev environment?
+	isDevEnvironment () {
+        return ['dev', 'pd'].includes(this.config.api.environment);
+    }
+
 	onSigint () {
 	}
 

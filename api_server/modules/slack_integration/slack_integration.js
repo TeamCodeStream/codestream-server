@@ -57,7 +57,7 @@ class SlackIntegration extends IntegrationModule {
 					srcReq.headers.hasOwnProperty('content-type') &&
 					srcReq.headers['content-type'].match(/application\/x-www-form-urlencoded/)
 				) {
-			// for form encoded data, pass the raw data we captured earlier,
+					// for form encoded data, pass the raw data we captured earlier,
 					return srcReq.rawBody;
 				}
 				else {
