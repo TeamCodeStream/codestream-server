@@ -336,7 +336,7 @@ class RepoCreator extends ModelCreator {
 		// grant permission to any users on the team that owns this repo, to subscribe to the messager channel for this repo
 		await this.grantUserMessagingPermissions();
 		// send email to us that a new team has been created
-		if (this.createdTeam && this.api.config.api.environment === 'prod') {
+		if (this.createdTeam && this.api.config.email.replyToDomain === 'prod.codestream.com') {
 			this.api.services.email.sendTeamCreatedEmail({
 				team: this.createdTeam,
 				user: this.user,

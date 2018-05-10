@@ -57,11 +57,6 @@ class CorsModule extends APIServerModule {
 					return callback(null, true);
 				}
 
-				// allow locahost in dev environments
-				if (this.api.isDevEnvironment() && originDomain === 'localhost') {
-					return callback(null, true);
-				}
-                
 				// allow other codestream services to have their own origins
 				const serviceOrigins = this.getServiceOrigins();
 				serviceOrigins.forEach(serviceOrigin => {
