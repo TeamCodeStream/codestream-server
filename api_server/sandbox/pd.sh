@@ -15,4 +15,3 @@ export CS_API_REPLY_TO_DOMAIN=pd.codestream.com
 export CS_API_OUTBOUND_EMAIL_SQS="dev_pd_outboundEmail"
 export CS_API_SLACKBOT_ORIGIN=http://pd-bot.codestream.us:11079
 export CS_API_TEAMSBOT_ORIGIN=http://pd-bot.codestream.us:10079
-export CS_ENV=pd
