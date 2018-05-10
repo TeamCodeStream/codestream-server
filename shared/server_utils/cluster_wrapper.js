@@ -3,11 +3,11 @@
 
 'use strict';
 
-var OS = require('os');
-var Program = require('commander');
-var Net = require('net');
-var Cluster = require('cluster');
-var AwaitUtils = require('./await_utils');
+const OS = require('os');
+const Program = require('commander');
+const Net = require('net');
+const Cluster = require('cluster');
+const AwaitUtils = require('./await_utils');
 
 Program
 	.option('--one_worker [one_worker]', 'Use only one worker')	// force to use only worker, sometimes desirable for clarity when reading output
