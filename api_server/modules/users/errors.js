@@ -44,6 +44,10 @@ module.exports = {
 	'invalidBetaCode': {
 		code: 'USRC-1009',
 		message: 'Invalid beta code'
-	}
+	},
 	*/
+	'noLoginUnregistered': {
+		code: 'USRC-1010',
+		message: 'User has not yet confirmed registration'
+	}
 };

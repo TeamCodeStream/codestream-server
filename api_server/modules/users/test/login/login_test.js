@@ -32,8 +32,9 @@ class LoginTest extends CodeStreamAPITest {
 	before (callback) {
 		// create a random registered user, then prepare to submit the login request
 		// with the user's email and password
+		const func = this.noConfirm ? 'registerUser' : 'createUser';
 		this.userData = this.userFactory.getRandomUserData();
-		this.userFactory.createUser(this.userData, (error, userData) => {
+		this.userFactory[func](this.userData, (error, userData) => {
 			if (error) { return callback(error); }
 			this.user = userData.user;
 			this.data = {
