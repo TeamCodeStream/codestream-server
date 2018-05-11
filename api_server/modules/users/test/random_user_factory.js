@@ -25,7 +25,8 @@ class _UserCreator {
 				error,
 				{
 					user: this.user,
-					accessToken: this.token
+					accessToken: this.token,
+					password: this.data.password
 				}
 			);
 		});

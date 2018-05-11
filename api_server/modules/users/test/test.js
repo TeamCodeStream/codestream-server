@@ -8,6 +8,7 @@
 const UserRequestTester = require('./user_request_tester');
 const GetSessionsRequestTester = require('./get_sessions/test');
 const PresenceRequestTester = require('./presence/test');
+const ChangePasswordRequestTester = require('./change_password/test');
 
 var userRequestTester = new UserRequestTester();
 
@@ -28,4 +29,5 @@ describe('user requests', function() {
 	describe('PUT /grant/:channel', userRequestTester.grantTest);
 	describe('GET /sessions', GetSessionsRequestTester.test);
 	describe('PUT /presence', PresenceRequestTester.test);
+	describe('PUT /password', ChangePasswordRequestTester.test);
 });
