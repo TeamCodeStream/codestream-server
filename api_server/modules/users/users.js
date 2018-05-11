@@ -65,6 +65,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'get',
 		path: 'sessions',
 		requestClass: require('./get_sessions_request')
+	},
+	{
+		method: 'put',
+		path: 'password',
+		requestClass: require('./change_password_request')
 	}
 ];
 
