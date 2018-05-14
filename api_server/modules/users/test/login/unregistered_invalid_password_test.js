@@ -4,7 +4,7 @@ var InvalidPasswordTest = require('./invalid_password_test');
 
 class UnregisteredInvalidPasswordTest extends InvalidPasswordTest {
 
-    constructor (options) {
+	constructor (options) {
 		super(options);
 		this.noConfirm = true;
 	}
