@@ -8,10 +8,6 @@ class InvalidPasswordTest extends LoginTest {
 		return 'should return error when invalid password provided';
 	}
 
-	getExpectedFields () {
-		return null;
-	}
-
 	getExpectedError () {
 		return {
 			code: 'USRC-1001'

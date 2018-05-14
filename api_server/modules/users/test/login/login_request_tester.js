@@ -9,6 +9,7 @@ var NoAttributeTest = require('./no_attribute_test');
 var InitialDataTest = require('./initial_data_test');
 var MeAttributesTest = require('./me_attributes_test');
 var NoLoginUnregisteredTest = require('./no_login_unregistered_test');
+var UnregisteredInvalidPasswordTest = require('./unregistered_invalid_password_test');
 
 class LoginRequestTester {
 
@@ -21,6 +22,7 @@ class LoginRequestTester {
 		new InitialDataTest().test();
 		new MeAttributesTest().test();
 		new NoLoginUnregisteredTest().test();
+		new UnregisteredInvalidPasswordTest().test();
 	}
 }
 

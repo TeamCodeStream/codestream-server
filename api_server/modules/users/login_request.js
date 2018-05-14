@@ -59,9 +59,6 @@ class LoginRequest extends RestfulRequest {
 		if (!this.user || this.user.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'email' });
 		}
-		if (!this.user.get('isRegistered')) {
-			throw this.errorHandler.error('noLoginUnregistered');
-		}
 	}
 
 	// validate that the given password matches the password hash stored for the user
@@ -79,6 +76,9 @@ class LoginRequest extends RestfulRequest {
 		}
 		if (!result) {
 			throw this.errorHandler.error('passwordMismatch');
+		}
+		if (!this.user.get('isRegistered')) {
+			throw this.errorHandler.error('noLoginUnregistered');
 		}
 	}
 
