@@ -49,7 +49,7 @@ class ConfirmationTest extends CodeStreamAPITest {
 		let errors = [];
 		let result = (
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
-			((user._id === this.data.userId) || errors.push('incorrect user id')) &&
+			((user._id === (this.data.userId || this.userId)) || errors.push('incorrect user id')) &&
 			((user.isRegistered ) || errors.push('isRegistered not set')) &&
 			((typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime) || errors.push('registeredAt not properly set'))
 		);
