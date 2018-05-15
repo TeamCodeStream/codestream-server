@@ -10,11 +10,11 @@ class NoUserIdTest extends ConfirmationTest {
 
 	// before the test runs...
 	before (callback) {
-        // delete the userId from the test request, should still match by email
+		// delete the userId from the test request, should still match by email
 		super.before(error => {
-            if (error) { return callback(error); }
-            this.userId = this.data.userId;
-            delete this.data.userId;
+			if (error) { return callback(error); }
+			this.userId = this.data.userId;
+			delete this.data.userId;
 			callback();
 		});
 	}

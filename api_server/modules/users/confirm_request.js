@@ -68,7 +68,7 @@ class ConfirmRequest extends RestfulRequest {
 		else {
 			const query = {
 				searchableEmail: this.request.body.email.toLowerCase()
-			}
+			};
 			const users = await this.data.users.getByQuery(
 				query,
 				{

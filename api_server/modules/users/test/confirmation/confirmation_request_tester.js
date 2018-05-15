@@ -24,7 +24,7 @@ class ConfirmationRequestTester {
 
 	confirmationTest () {
 		new ConfirmationTest().test();
-//		new NoAttributeTest({ attribute: 'userId' }).test();
+		//		new NoAttributeTest({ attribute: 'userId' }).test();
 		new NoAttributeTest({ attribute: 'email' }).test();
 		new NoAttributeTest({ attribute: 'confirmationCode' }).test();
 		new InvalidUserIdTest().test();
