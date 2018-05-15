@@ -18,12 +18,13 @@ var MeAttributesTest = require('./me_attributes_test');
 var SubscriptionTest = require('./subscription_test');
 var JoinMethodTest = require('./join_method_test');
 var OriginTeamPropagates = require('./origin_team_propagates');
+var NoUserIdTest = require('./no_user_id_test');
 
 class ConfirmationRequestTester {
 
 	confirmationTest () {
 		new ConfirmationTest().test();
-		new NoAttributeTest({ attribute: 'userId' }).test();
+//		new NoAttributeTest({ attribute: 'userId' }).test();
 		new NoAttributeTest({ attribute: 'email' }).test();
 		new NoAttributeTest({ attribute: 'confirmationCode' }).test();
 		new InvalidUserIdTest().test();
@@ -43,6 +44,7 @@ class ConfirmationRequestTester {
 		new SubscriptionTest({ which: 'stream' }).test();
 		new JoinMethodTest().test();
 		new OriginTeamPropagates().test();
+		new NoUserIdTest().test();
 	}
 }
 

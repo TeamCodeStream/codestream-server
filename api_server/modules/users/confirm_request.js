@@ -2,15 +2,16 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
+const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const Tokenizer = require('./tokenizer');
 const PasswordHasher = require('./password_hasher');
 const UsernameChecker = require('./username_checker');
 const UserSubscriptionGranter = require('./user_subscription_granter');
 const UserPublisher = require('./user_publisher');
 const InitialDataFetcher = require('./initial_data_fetcher');
-const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors.js');
+const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors');
 const Errors = require('./errors');
+const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 
 const MAX_CONFIRMATION_ATTEMPTS = 3;
 
@@ -49,10 +50,10 @@ class ConfirmRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['userId', 'email', 'confirmationCode']
+					string: ['email', 'confirmationCode']
 				},
 				optional: {
-					string: ['password', 'username']
+					string: ['userId', 'password', 'username']
 				}
 			}
 		);
@@ -60,15 +61,31 @@ class ConfirmRequest extends RestfulRequest {
 
 	// get the user, as given by the userId
 	async getUser () {
-		const userId = this.request.body.userId.toLowerCase();
-		this.user = await this.data.users.getById(userId);
+		if (this.request.body.userId) {
+			const userId = this.request.body.userId.toLowerCase();
+			this.user = await this.data.users.getById(userId);
+		}
+		else {
+			const query = {
+				searchableEmail: this.request.body.email.toLowerCase()
+			}
+			const users = await this.data.users.getByQuery(
+				query,
+				{
+					databaseOptions: {
+						hint: UserIndexes.bySearchableEmail 
+					}
+				}
+			);
+			this.user = users[0];
+		}
 	}
 
 	// check that the given attributes match the user
 	async checkAttributes () {
 		// can't confirm a deactivated account
 		if (!this.user || this.user.get('deactivated')) {
-			throw this.errorHandler.error('notFound', { info: 'userId' });
+			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
 		// can't set a different email (though we tolerate case variance)
 		if (this.user.get('searchableEmail') !== this.request.body.email.toLowerCase()) {
@@ -292,7 +309,7 @@ class ConfirmRequest extends RestfulRequest {
 			set.confirmationAttempts = this.user.get('confirmationAttempts') + 1;
 		}
 		await this.data.users.updateDirect(
-			{ _id: this.data.users.objectIdSafe(this.request.body.userId) },
+			{ _id: this.data.users.objectIdSafe(this.user.id) },
 			{ $set: set }
 		);
 	}
