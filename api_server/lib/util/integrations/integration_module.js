@@ -5,6 +5,7 @@
 
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
 const IntegrationBotClient = require('./integration_bot_client');
+const HttpProxy = require('express-http-proxy');
 
 class IntegrationModule extends APIServerModule {
 
@@ -40,6 +41,61 @@ class IntegrationModule extends APIServerModule {
 		];
 	}
 
+	// provide middleware to accept application/x-www-form-urlencoded content-type,
+	// and pass it through proxy to the integration bot
+	formEncodingToRaw (request, response, next) {
+		if (!request.headers.hasOwnProperty('content-type')) {
+			return next();
+		}
+		if (!request.headers['content-type'].match(/application\/x-www-form-urlencoded/)) {
+			return next();
+		}
+		let data = '';
+		request.setEncoding('utf8');
+		request.on('data', chunk => {
+			data += chunk;
+		});
+		request.on('end', () => {
+			request.rawBody = data;
+			next();
+		});
+		request.on('error', error => {
+			this.api.warn('Error processing integration data: ' + JSON.stringify(error));
+			next();
+		});
+	}
+
+	// yeah, B.S. ... the npm proxy module doesn't pass through ordinary query parameters
+	reconstructQuery (request) {
+		return Object.keys(request.query).map(param => `${param}=${request.query[param]}`).join('&');
+	}
+
+	// provide a proxying function to handle proxying outside requests that are bound for
+	// the integration bot
+	integrationProxy (originUrl, path) {
+		return HttpProxy(
+			originUrl,
+			{
+				proxyReqPathResolver: (request) => {
+					const query = this.reconstructQuery(request);
+					return `${path}?${query}`;
+				},
+				proxyReqBodyDecorator: (bodyContent, request) => {
+					if (
+						request.headers.hasOwnProperty('content-type') &&
+						request.headers['content-type'].match(/application\/x-www-form-urlencoded/)
+					) {
+						// for form encoded data, pass the raw data we captured earlier
+						return request.rawBody;
+					}
+					else {
+						// otherwise, normal json...
+						return bodyContent;
+					}
+				}
+			}
+		);
+	}
 }
 
 module.exports = IntegrationModule;
