@@ -72,7 +72,13 @@ export CS_API_SETUP_MONGO=true
 
 
 # ================== SlackBot ==================
-[ -z "$BOT_SECRETS_FILE" ] && BOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-development
+if [ -z "$BOT_SECRETS_FILE" ]; then
+	if [ -f $HOME/.codestream/slackbot/codestream-local ]; then
+		BOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-local
+	else
+		BOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-development
+	fi
+fi
 if [ -f $BOT_SECRETS_FILE ]; then
 	. $BOT_SECRETS_FILE
 	# All bots use the same shared secret
@@ -153,7 +159,7 @@ fi
 # (as in production, and exercise extreme caution when testing) ...
 # or set to a valid email to have all emails diverted to the specified address,
 # this is good and risk-free for developer testing
-#export CS_API_EMAIL_TO=
+[ -n "$DT_USER" ] && export CS_API_EMAIL_TO=$DT_USER@codestream.com
 
 # By default we require email confirmation, but for developer convenience
 # during testing, the requirement of email confirmation can be turned off
