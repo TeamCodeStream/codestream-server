@@ -69,7 +69,8 @@ class IntegrationBotClient {
 			creatorUsername: creator.get('username'),
 			creatorFirstName: creator.get('firstName'),
 			creatorLastName: creator.get('lastName'),
-			creatorEmail: creator.get('email')
+			creatorEmail: creator.get('email'),
+			stream: info ? this.getStreamName(info) : null
 		};
 		if (post.get('commitHashWhenPosted')) {
 			message.commitHashWhenPosted = post.get('commitHashWhenPosted');
@@ -84,6 +85,20 @@ class IntegrationBotClient {
 		return message;
 	}
 
+	// get the name of the stream, which depends on its type
+	getStreamName (info) {
+		const type = info.stream.get('type');
+		if (type === 'file') {
+			return `https://${info.repo.get('normalizedUrl')}/${info.stream.get('file')}`;
+		}
+		else if (type === 'channel') {
+			return info.stream.get('name');
+		}
+		else if (type === 'direct') {
+			return ''; // for now
+		}
+	}
+
 	// add any code blocks in the post to the outgoing message
 	addCodeBlocks (post, message) {
 		const codeBlocks = post.get('codeBlocks');
@@ -93,7 +108,9 @@ class IntegrationBotClient {
 			message.codeBlocks.push({
 				code: codeBlock.code,
 				preContext: codeBlock.preContext,
-				postContext: codeBlock.postContext
+				postContext: codeBlock.postContext,
+				file: codeBlock.file,
+				repo: codeBlock.repo
 			});
 		});
 	}

@@ -181,7 +181,7 @@ class PostCreator extends ModelCreator {
 		if (!this.attributes.codeBlocks) {
 			return;
 		}
-		// extract the stream IDs for all code blocks that aren't from the same 
+		// extract the stream IDs for all code blocks that aren't from the same
 		// stream as the post itself
 		const streamIds = this.attributes.codeBlocks.reduce((current, codeBlock) => {
 			if (codeBlock.streamId && codeBlock.streamId !== this.attributes.streamId) {
@@ -255,7 +255,7 @@ class PostCreator extends ModelCreator {
 		this.attributes.streamId = this.stream.id;
 		// put the stream object in the request response
 		this.attachToResponse.streams = this.attachToResponse.streams || [];
-		this.attachToResponse.streams.push(this.stream.getSanitizedObject()); 
+		this.attachToResponse.streams.push(this.stream.getSanitizedObject());
 		delete this.attributes.stream;
 		this.createdStream = true;
 	}
@@ -288,7 +288,7 @@ class PostCreator extends ModelCreator {
 		}).createStream(streamInfo);
 		codeBlock.streamId = createdStream.id;
 		this.attachToResponse.streams = this.attachToResponse.streams || [];
-		this.attachToResponse.streams.push(createdStream.getSanitizedObject()); 
+		this.attachToResponse.streams.push(createdStream.getSanitizedObject());
 		this.codeBlockStreams.push(createdStream);
 	}
 
@@ -329,19 +329,34 @@ class PostCreator extends ModelCreator {
 
 		this.markers.push(marker);
 		codeBlock.markerId = marker.id;
-		// the code block gets the file path of the source file
-		const codeBlockStream = markerInfo.streamId === this.attributes.streamId ? this.stream : 
-			(this.codeBlockStreams || []).find(stream => stream.id === markerInfo.streamId);
-		if (codeBlockStream) {
-			codeBlock.file = codeBlockStream.get('file');
-			codeBlock.repoId = codeBlockStream.get('repoId');
-		}
+		await this.assignFileAndRepoInfo(codeBlock, markerInfo);
 		delete codeBlock.streamId; // gets put into the marker
 		const markerObject = marker.getSanitizedObject();
 		this.attachToResponse.markers.push(markerObject);
 		if (codeBlock.location) {
 			this.addLocation(streamId, marker.id, codeBlock.location);
 			delete codeBlock.location;
+		}
+	}
+
+	// assign a file and repo to a code block, we store these with the code block itself,
+	// for informational purposes
+	async assignFileAndRepoInfo (codeBlock, markerInfo) {
+		// the code block gets the file path of the source file, and the url of the repo
+		const codeBlockStream = markerInfo.streamId === this.attributes.streamId ? this.stream :
+			(this.codeBlockStreams || []).find(stream => stream.id === markerInfo.streamId);
+		if (!codeBlockStream) { return; }
+		codeBlock.file = codeBlockStream.get('file');
+		codeBlock.repoId = codeBlockStream.get('repoId');
+		let repo;
+		if (this.repo && codeBlock.repoId === this.repo.id) {
+			repo = this.repo;
+		}
+		else {
+			repo = await this.data.repos.getById(codeBlock.repoId);
+		}
+		if (repo) {
+			codeBlock.repo = repo.get('normalizedUrl');
 		}
 	}
 
@@ -609,7 +624,7 @@ class PostCreator extends ModelCreator {
 
 		const endpoint = this.forInboundEmail ? 'Email' :
 			this.forIntegration.charAt(0).toUpperCase() + this.forIntegration.slice(1);
-		const categories = { 
+		const categories = {
 			'channel': 'Channel',
 			'direct': 'DM',
 			'file': 'Source File'
@@ -635,7 +650,7 @@ class PostCreator extends ModelCreator {
 		if (this.user.get('totalPosts') === 1) {
 			trackObject['First Post?'] = new Date(this.model.get('createdAt')).toISOString();
 		}
-		
+
 		this.api.services.analytics.track(
 			'Post Created',
 			trackObject,
