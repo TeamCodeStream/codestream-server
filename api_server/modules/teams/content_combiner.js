@@ -17,10 +17,19 @@ class TeamContentCombiner {
 	// for that team, creating the team-stream as needed
 	async go (options) {
 		Object.assign(this, options);
+		await this.getTeam();
 		await this.getOrCreateTeamStream();
 		await this.moveContent();
 		await this.getPosts();
 		await this.setSeqNums();
+	}
+
+	// get the team, just to verify it exists
+	async getTeam () {
+		this.team = await this.data.teams.getById(this.teamId);
+		if (!this.team) {
+			throw 'ERROR: could not find team ' + this.teamId;
+		}
 	}
 
 	// get the team's team-stream, or create it if needed
