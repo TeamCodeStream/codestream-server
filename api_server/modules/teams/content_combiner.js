@@ -71,9 +71,7 @@ class TeamContentCombiner {
 	async getPosts () {
 		this.posts = await this.data.posts.getByQuery(
 			{ 
-				teamId: this.teamId,
-				streamId: { $ne: this.teamStream._id },
-				repoId: { $exists: true }
+				teamId: this.teamId
 			},
 			{ 
 				hint: PostIndexes.byId,
@@ -88,7 +86,6 @@ class TeamContentCombiner {
 		this.posts.sort((a, b) => {
 			return a.createdAt - b.createdAt;
 		});
-		this.nextSeqNum = this.teamStream.nextSeqNum || 1;
 		for (let i = 0; i < this.posts.length; i++) {
 			const post = this.posts[i];
 			await this.data.posts.updateDirect(
@@ -97,13 +94,12 @@ class TeamContentCombiner {
 				},
 				{
 					$set: { 
-						seqNum: this.nextSeqNum + i,
+						seqNum: i + 1,
 						streamId: this.teamStream._id.toString()
 					}
 				}
 			);
 		}
-		this.nextSeqNum += this.posts.length;
 	}
 
 	// update the nextSeqNum attribute for the team-stream, to reflect the 
@@ -111,7 +107,7 @@ class TeamContentCombiner {
 	async updateStreamNextSeqNum () {
 		await this.data.streams.updateDirect(
 			{ _id: this.data.streams.objectIdSafe(this.teamStream._id) },
-			{ $set: { nextSeqNum: this.nextSeqNum } }
+			{ $set: { nextSeqNum: this.posts.length + 1 } }
 		);
 	}
 
