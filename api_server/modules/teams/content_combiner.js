@@ -19,9 +19,10 @@ class TeamContentCombiner {
 		Object.assign(this, options);
 		await this.getTeam();
 		await this.getOrCreateTeamStream();
-		await this.moveContent();
 		await this.getPosts();
-		await this.setSeqNums();
+		await this.updatePosts();
+		await this.updateStreamNextSeqNum();
+		await this.updateFileStreamsNextSeqNum();
 	}
 
 	// get the team, just to verify it exists
@@ -66,42 +67,61 @@ class TeamContentCombiner {
 		return stream;
 	}
 
-	// move the content for all the team's streams (all posts) to the one team-stream
-	async moveContent () {
-		await this.data.posts.updateDirect(
-			{ teamId: this.teamId },
-			{ $set: { streamId: this.teamStream._id } }
-		);
-	}
-
-	// get all the posts that have now been moved to the team-stream, we need to 
-	// update their sequence numbers, otherwise they will be all out of whack
+	// get all the posts in the team that are not already in the team-stream
 	async getPosts () {
 		this.posts = await this.data.posts.getByQuery(
 			{ 
 				teamId: this.teamId,
-				streamId: this.teamStream._id
+				streamId: { $ne: this.teamStream._id },
+				repoId: { $exists: true }
 			},
 			{ 
 				hint: PostIndexes.byId,
-				fields: ['_id', 'createdAt']
+				fields: ['_id', 'createdAt', 'streamId']
 			}
 		);
 	}
 
-	// set the sequence numbers for each post in the team-stream, according to their
-	// creation time
-	async setSeqNums () {
+	// move these posts to the team stream and set the sequence numbers,
+	// according to their creation time
+	async updatePosts () {
 		this.posts.sort((a, b) => {
 			return a.createdAt - b.createdAt;
 		});
+		this.nextSeqNum = this.teamStream.nextSeqNum || 1;
 		for (let i = 0; i < this.posts.length; i++) {
 			const post = this.posts[i];
 			await this.data.posts.updateDirect(
-				{ _id: this.data.posts.objectIdSafe(post._id) },
-				{ $set: { seqNum: i + 1 } }
+				{ 
+					_id: this.data.posts.objectIdSafe(post._id) 
+				},
+				{
+					$set: { 
+						seqNum: this.nextSeqNum + i,
+						streamId: this.teamStream._id.toString()
+					}
+				}
 			);
 		}
+		this.nextSeqNum += this.posts.length;
+	}
+
+	// update the nextSeqNum attribute for the team-stream, to reflect the 
+	// next sequence number for new posts after all the other posts have been added
+	async updateStreamNextSeqNum () {
+		await this.data.streams.updateDirect(
+			{ _id: this.data.streams.objectIdSafe(this.teamStream._id) },
+			{ $set: { nextSeqNum: this.nextSeqNum } }
+		);
+	}
+
+	// update the file-streams that we copied from to reset their sequence numbers to 1
+	async updateFileStreamsNextSeqNum () {
+		await this.data.streams.updateDirect(
+			{ teamId: this.teamId, type: 'file' },
+			{ $set: { nextSeqNum: 1 } },
+			{ multi: true }
+		);
 	}
 }
 
