@@ -120,13 +120,61 @@ class CodeStreamEmails {
 
 	// determine the subject of an email notification
 	getNotificationSubject (options) {
-		const { stream, mentioned } = options;
-		const filename = stream.get('file');
+		const { mentioned, team } = options;
 		if (mentioned) {
-			return `You've been mentioned in ${filename}`;
+			const fileForCodeBlock = this.getFileForCodeBlock(options);
+			if (fileForCodeBlock) {
+				return `re: ${fileForCodeBlock}`;
+			}
+			else {
+				return 'You\'ve been mentioned on CodeStream'; 
+			}
 		}
 		else {
-			return filename;
+			return `New messages for ${team.get('name')}`;
+		}
+	}
+
+	// get the file for the most recent code block in the list of posts
+	getFileForCodeBlock (options) {
+		const { posts, markers, streams, repos, user } = options;
+		// posts are ordered earliest to latest
+		let numPosts = posts.length;
+		for (let i = numPosts - 1; i >= 0; i--) {
+			const post = posts[i];
+			if (
+				post.mentionsUser(user) &&
+				post.get('codeBlocks') instanceof Array &&
+				post.get('codeBlocks').length > 0
+			) {
+				const markerId = post.get('codeBlocks')[0].markerId;
+				const marker = markers.find(marker => marker.id === markerId);
+				const stream = streams.find(stream => marker && stream.id === marker.get('streamId'));
+				const repo = repos.find(repo => stream && repo.id === stream.get('repoId'));
+				if (repo) {
+					const path = this.truncatePath(`${repo.get('normalizedUrl')}/${stream.get('file')}`);
+					return `https://${path}`;
+				}
+			}
+		}
+	}
+
+	// truncate a path to fewer than 60 characters, as needed
+	truncatePath (path) {
+		if (path.length < 20) { return path; }
+		// this is not really that sophisticated, and can still result in long paths if their 
+		// components are long, but we're not really caring too much
+		const parts = path.split('/');
+		const numParts = parts.length;
+		if (numParts < 4) { 
+			// total fallback
+			return `${parts[0]}/.../${parts[2]}`;
+		}
+		else if (numParts === 4) {
+			return `${parts[0]}/${parts[1]}/.../${parts[numParts - 1]}`;
+		}
+		else {
+			return `${parts[0]}/${parts[1]}/.../${parts[numParts - 2]}/${parts[numParts - 1]}`;
 		}
 	}
 }

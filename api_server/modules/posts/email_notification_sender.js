@@ -412,6 +412,7 @@ class EmailNotificationSender {
 			repo: this.repo,
 			stream: this.stream,
 			mentioned: this.mentionsPerUser[user.id],
+			streams: this.streams,
 			offlineForRepo 
 		});
 		html = html.replace(/[\t\n]/g, '');
@@ -442,7 +443,10 @@ class EmailNotificationSender {
 			stream: this.stream,
 			team: this.team,
 			mentioned: this.mentionsPerUser[user.id],
-			sameAuthor: !this.hasMultipleAuthors
+			sameAuthor: !this.hasMultipleAuthors,
+			streams: this.streams,
+			repos: this.repos,
+			markers: this.markers
 		};
 		try {
 			await this.request.api.services.email.sendEmailNotification(options);
