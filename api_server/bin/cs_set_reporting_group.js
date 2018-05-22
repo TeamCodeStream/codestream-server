@@ -51,8 +51,8 @@ const queryCollection = async function(csDb, collection, query) {
 	return teams;
 };
 
-let db;
 (async function() {
+	let db;
 	// connect to mongo
 	// console.log('connecting...');
 	try {
