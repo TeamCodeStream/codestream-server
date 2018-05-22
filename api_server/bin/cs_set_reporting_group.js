@@ -8,8 +8,8 @@
 /* eslint no-console: 0 */
 const ConfigDirectory = process.env.CS_API_TOP + '/config';
 const MongoConfig = require(ConfigDirectory + '/mongo.js');
-const mongodb = require('mongodb');
-const MongoClient = mongodb.MongoClient;
+const Mongodb = require('mongodb');
+const MongoClient = Mongodb.MongoClient;
 const Commander = require('commander');
 Commander
 	.option('-n, --dryrun', 'dry run only')
@@ -39,16 +39,13 @@ if (Commander.dryrun) {
 
 const queryCollection = async function(csDb, collection, query) {
 	// console.log('finding', collection, query);
-	let teams;
 	try {
-		teams = await csDb.collection(collection).find(query).toArray();
+		return await csDb.collection(collection).find(query).toArray();
 	}
 	catch(error) {
 		console.log('error', error);
 		process.exit(1);
 	}
-	// console.log('done', teams);
-	return teams;
 };
 
 (async function() {
@@ -66,8 +63,8 @@ const queryCollection = async function(csDb, collection, query) {
 
 	// find matching teams
 	let query = Commander.teamId ?
-		{_id : new mongodb.ObjectID(Commander.teamId)} :
-		{ name : Commander.team};
+		{ _id : new Mongodb.ObjectID(Commander.teamId) } :
+		{ name : Commander.team };
 	let teams = await queryCollection(csDb, 'teams', query);
 
 	// no teams found
@@ -78,11 +75,12 @@ const queryCollection = async function(csDb, collection, query) {
 
 	// multiple teams found - give useful feedback
 	if(teams.length > 1 || Commander.report) {
-		console.log('multiple teams found');
+		if(teams.length > 1)
+			console.log('multiple teams found');
 		for (let teamIdx in teams) {
 			let thisTeam = teams[teamIdx];
 
-			let memberOIDs = thisTeam.memberIds.map(function(id) { return mongodb.ObjectID(id);});
+			let memberOIDs = thisTeam.memberIds.map(function(id) { return Mongodb.ObjectID(id);});
 			let members = await queryCollection(csDb, 'users', {_id: {$in: memberOIDs}});
 
 			let membersToDisplay = [];
@@ -113,7 +111,7 @@ const queryCollection = async function(csDb, collection, query) {
 	}
 	try {
 		await csDb.collection('teams').updateOne(
-			{_id: mongodb.ObjectID(teams[0]._id)},
+			{_id: Mongodb.ObjectID(teams[0]._id)},
 			operation);
 	}
 	catch(error) {
