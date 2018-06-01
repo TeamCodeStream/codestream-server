@@ -1,0 +1,22 @@
+<div id="{{tag}}" class="error">
+    <table>
+        <tr class="clickable" onclick='toggleHide("{{tag}}");'>
+            <td style="min-width:120px;">
+                <span class=triangle id="triangle-{{tag}}">{{html!triangle}}</span> <span class=errorCode>{{code}}</span>
+            </td>
+            <td style="min-width:250px">
+                <span class=errorMessage>{{message}}</span>
+            </td>
+        </tr>
+    </table>
+    <table>
+        <tr class="hideable hideable-{{tag}}" style="{{showDescription}}">
+            <td style="min-width:16px;">
+            </td>
+            <td>
+                <span class="errorDescription">{{description}}</span>
+            </td>
+        </tr>
+    </table>
+</div>
+    

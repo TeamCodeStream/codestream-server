@@ -1,0 +1,31 @@
+<h2>Input/Output</h2>
+<p>
+All requests take JSON as input, and return JSON in the response.
+</p>
+<p>
+All requests return a status code of 200 on success. On most errors, the server will return a 403, with an error structure in the response body. The error structure looks like:
+</p>
+<p class=overviewData>
+{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;code:&nbsp;&lt;&nbsp;@@#error code#errors@@&nbsp;&gt;,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;message:&nbsp;&lt;&nbsp;brief informative message&nbsp;&gt;<br/>
+}    
+</p>
+<p>
+An additional info or reason attribute might provide more context. None of this information is intended for direct display to the user.
+</p>
+If authentication (see below) is required, but missing or invalid, the server returns a 401. In rare cases, a 500 might be returned for an internal server error of some sort.
+</p>
+<h2>Authentication</h2>
+<p>
+All requests require authentication unless the path starts with /no-auth. Authentication is performed by providing an "Authorization" header with the request. The value of the header should be "Bearer &ltaccessToken&gt", where accessToken is an access token returned by either a response to the @@#confirm#confirm@@ request or the @@#login#login@@ request.
+</p>
+<h2>Headers</h2>
+<p>
+In addition to the Authorization header for requests requiring authentication, all requests should provide the following custom headers on every request:
+</p>
+<p class=overviewData>
+X-CS-Plugin-IDE: &lt;&nbsp;the IDE issuing the request (eg. "atom", "vscode", etc.)&nbsp;&gt;<br/>
+X-CS-Plugin-Version: &lt;&nbsp;the version of the plugin&nbsp;&gt;<br/>
+X-CS-IDE-Version: &lt;&nbsp;the version of the IDE&nbsp;&gt;<br/>
+</p>

@@ -1,0 +1,20 @@
+<div id="{{tag}}" class="modelDescription">
+    <table>
+        <tr class="clickable" onclick='toggleHide("{{tag}}");'>
+            <td style="min-width:175px">
+                <span class=triangle id="triangle-{{tag}}">{{html!triangle}}</span> <span class=modelName>{{name}}</span>
+            </td>
+            <td style="min-width:750px" colspan=2>
+                <span class=summary>{{summary}}</span>
+            </td>
+        </tr>
+    </table>
+    <table class="attributesList hideable hideable-{{tag}}" style="{{showAttributes}}">
+            {{html!attributes}}
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+    </table>
+</div>
+
+
