@@ -62,6 +62,7 @@ class ErrorHandler {
 			delete clientError.internal;
 			delete clientError.reason;
 		}
+		delete clientError.description;
 		return clientError;
 	}
 }
