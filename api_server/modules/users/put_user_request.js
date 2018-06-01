@@ -34,6 +34,29 @@ class PutUserRequest extends PutRequest {
 			messager: this.api.services.messager
 		}).publishUserToTeams();
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const description = PutRequest.describe(module);
+		description.access = 'The current user can only update their own user object',
+		description.input = {
+			summary: description.input + '; the ID in the path can also be \'me\'',
+			looksLike: {
+				'username': '<Updated username for the user, must be unique for any teams the user is on>',
+				'firstName': '<User\'s first name>',
+				'lastName': '<User\'s last name>',
+				'timeZone': '<User\'s time zone (eg. America/New_York)>'
+			}
+		};
+		description.publishes = {
+			summary: 'Publishes the update on the team channel for all teams the user is on',
+			looksLike: {
+				user: '<@@#user object#stream@@>',
+			}
+		};
+		description.errors.push('usernameNotUnique');
+		return description;
+	}
 }
 
 module.exports = PutUserRequest;

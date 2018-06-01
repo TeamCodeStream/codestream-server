@@ -208,6 +208,39 @@ class MatchRepoRequest extends RestfulRequest {
 			this.responseData.domain = this.companyIdentifier.domain;
 		}
 	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'match-repo',
+			summary: 'Finds a probable team that may own a given repo',
+			access: 'No authorization is required, though the knownCommitHashes provided must contain a match to any known commit hashes for the repo if an exact match is found',
+			description: 'Given a URL, will try to find a match based on domain or org name (for github or bitbucket) within known repos; if an exact match is found, returns the matching repo; if a team is found that owns similar repos, return the team names and the creators of those teams.',
+			input: {
+				summary: 'Specify parameters in the query',
+				looksLike: {
+					'url*': '<URL of the repo to match>',
+					'knownCommitHashes*': '<Comma-separated array of commit SHAs representing the earliest commits in the repo, to verify the user has true access to the repo if an exact match is found>'
+				}
+			},
+			returns: {
+				summary: 'If an exact match is found to the repo, returns the repo along with the usernames of all users on the team that owns the repo (like @@#/no-auth/find-repo#find-repo@@); otherwise if one or more probable owning teams are found, returns the team names and the names of their creators.',
+				looksLike: {
+					repo: '<@@#repo object#repo@@ > (if an exact match was found)',
+					usernames: '<If an exact match was found, array of usernames, representing all the users on the team that owns the repo>',
+					teams: '<If matching owning teams are found, array of team names>',
+					teamCreators: '<If matching owning teams are found, object of team creators, keys are team IDs>',
+					knownService: '<If matching owning teams are found, contains the service provider associated with the URL (github, bitbucket)>',
+					org: '<If matching owning teams are found, contains the org name as parsed from the URL>',
+					domain: '<If matching owning teams are found, contains the domain name as parsed from the URL, if no service provider was parsed>'
+				}
+			},
+			errors: [
+				'parameterRequired',
+				'shaMismatch'
+			]
+		};
+	}
 }
 
 module.exports = MatchRepoRequest;

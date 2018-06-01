@@ -4,6 +4,7 @@
 'use strict';
 
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+const Errors = require('./errors');
 
 // These standard routes provide the basic CRUD operations for a restful server,
 // each route can be turned on or off as needed by the overriding module
@@ -65,6 +66,26 @@ class Restful extends APIServerModule {
 			route.path = route.path.replace('$BASE', options.baseRouteName);	// baseRouteName provided by the derived class
 			this.routes.push(route);
 		}
+	}
+	
+	// describe any models associated with this module, for help
+	describeModels () {
+		if (this.modelName && this.modelClass) {
+			const attributeDefinitions = new this.modelClass().getValidator().attributeDefinitions;
+			return [{
+				name: this.modelName,
+				attributes: attributeDefinitions,
+				description: this.modelDescription || 'model'
+			}];
+		}
+		return [];
+	}
+
+	// describe any errors associated with this module, for help
+	describeErrors () {
+		return {
+			['Restful API']: Errors 
+		};
 	}
 }
 

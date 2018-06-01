@@ -73,6 +73,29 @@ class ChangePasswordRequest extends RestfulRequest {
 		};
 		this.user = await this.data.users.applyOpById(this.user.id, op);
 	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'password',
+			summary: 'Change a user\'s password',
+			access: 'Current user can only change their own password',
+			description: 'Change a user\'s password, providing the current password for security',
+			input: {
+				summary: 'Specify existing password and new password in the request body',
+				looksLike: {
+					'existingPassword*': '<User\'s existing password>',
+					'newPassword*': '<User\'s new password>'
+				}
+			},
+			returns: 'Empty object',
+			errors: [
+				'parameterRequired',
+				'passwordMismatch',
+				'validation'
+			]
+		};
+	}
 }
 
 module.exports = ChangePasswordRequest;

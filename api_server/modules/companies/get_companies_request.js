@@ -31,6 +31,14 @@ class GetCompaniesRequest extends GetManyRequest {
 		}
 		await super.process();
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const description = GetManyRequest.describe(module);
+		description.access = 'User must be a member of the companies requested';
+		description.input.looksLike.mine = '<when present, return all the companies the current user is in>';
+		return description;
+	}
 }
 
 module.exports = GetCompaniesRequest;

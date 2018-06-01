@@ -256,6 +256,46 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 			this.warn(`Could not publish marker location calculations update to team ${this.teamId}: ${JSON.stringify(error)}`);
 		}
 	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'calculate-marker-locations',
+			summary: 'Calculate marker locations based on a set of edits for a given file',
+			access: 'User must be in the specified team',
+			description: 'Given a set of edits, as calculated by running git diff on the client, calculate new marker locations based on either the marker locations provided, or the marker locations associated with the given file (given by stream ID) and commit SHA (given in originalCommitHash). The calculated marker locations are saved for the commit hash given in newCommitHash, if provided.',
+			input: {
+				summary: 'Specify marker location data in the body',
+				looksLike: {
+					'teamId*': '<ID of the team owning the file stream>',
+					'edits*': '<A set of edits, calculated from a git diff on the client>',
+					'locations': '<A hash of location coordinates, where the keys are marker IDs>',
+					'streamId': '<ID of the stream, if sent, originalCommitHash must also be sent>',
+					'originalCommitHash': '<Commit SHA from which marker locations are to be calculated, given the passed edits>',
+					'newCommitHash': '<Commit SHA for which markers are being calculated; if provided, marker locations will be saved for that commit>' 
+				}
+			},
+			returns: {
+				summary: 'The result of the calculation, as a marker-locations object',
+				looksLike: {
+					markerLocations: '<@@#marker locations object#markerLocations@@>'
+				}
+			},
+			publishes: {
+				summary: 'If newCommitHash was provided, publishes the result of the calculation on the team channel for the team that owns the file stream',
+				looksLike: {
+					markerLocations: '<@@#marker locations object#markerLocations@@>'
+				}
+			},
+			errors: [
+				'updateAuth',
+				'parameterRequired',
+				'validation',
+				'invalidParameter',
+				'notFound'
+			]
+		};
+	}
 }
 
 module.exports = CalculateMarkerLocationsRequest;

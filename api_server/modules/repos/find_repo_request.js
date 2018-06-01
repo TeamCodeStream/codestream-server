@@ -116,6 +116,34 @@ class FindRepoRequest extends RestfulRequest {
 			}
 		});
 	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'find-repo',
+			summary: 'Finds a matching repo according to URL',
+			access: 'No authorization is required, though the knownCommitHashes provided must contain a match to any known commit hashes for the repo if it is found',
+			description: 'Given a URL, will try to find a matching repo by normalizing the URL and comparing with the normalized URLs of other known repos. If a repo is found, also returns the usernames of all users in the team that owns the repo.',
+			input: {
+				summary: 'Specify parameters in the query',
+				looksLike: {
+					'url*': '<URL of the repo to find>',
+					'knownCommitHashes*': '<Comma-separated array of commit SHAs representing the earliest commits in the repo, to verify the user has true access to the repo>'
+				}
+			},
+			returns: {
+				summary: 'Returns a matching repo object, if found, or an empty object if not found',
+				looksLike: {
+					repo: '<@@#repo object#repo@@>',
+					usernames: '<Array of usernames, representing all the users on the team that owns the repo>'
+				}
+			},
+			errors: [
+				'parameterRequired',
+				'shaMismatch'
+			]
+		};
+	}
 }
 
 module.exports = FindRepoRequest;

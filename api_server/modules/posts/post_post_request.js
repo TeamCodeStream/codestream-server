@@ -16,6 +16,55 @@ class PostPostRequest extends PostRequest {
 			errorHandler: this.errorHandler
 		}).authorizePost();
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const description = PostRequest.describe(module);
+		description.description = 'Creates a post, along with markers for associated code blocks. Streams can also be created on-the-fly, either for the post, or for any code blocks it quotes.';
+		description.access = 'For posts in a file stream, the current user must be a member of the team to which the file stream belongs. For posts in a channel stream or a direct stream, the current user must be a member of the stream.';
+		description.input = {
+			summary: description.input,
+			looksLike: {
+				'streamId': '<ID of the stream in which the post is being created, required unless a stream object is specified>',
+				'text': '<Text of the post>',
+				'commitHashWhenPosted': '<For file streams, if code blocks are given, the commit hash the file is on>',
+				'parentPostId': '<For replies, the ID of the parent post>',
+				'codeBlocks': '<Array of code blocks, specifying code quoted by this post>',
+				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>',
+				'stream': '<Minimal attributes of a @@#stream object#stream@@, for creating a stream for the post on-the-fly, required if no streamId is given>'
+			}
+		};
+		description.returns.summary = 'A post object, plus a stream object if a stream was created on-the-fly, marker objects and marker locations for any code blocks';
+		Object.assign(description.returns.looksLike, {
+			stream: '<@@#stream object#stream@@ > (if stream created on-the fly for the post)>',
+			streams: [
+				'<@@#stream object#stream@@ > (additional streams created on-the-fly for code blocks)>',
+				'...'
+			],
+			markers: [
+				'<@@#marker object#marker@@ > (marker objects associated with quoted code blocks)',
+				'...'
+			],
+			markerLocations: '<@@#marker locations object#markerLocations@@ > (marker locations for markers associated with quoted code blocks)'
+		});
+		description.publishes = {
+			summary: 'If the post was created in a file stream or a team stream (a channel with all members of the team), then the post object will be published to the team channel; otherwise it will be published to the stream channel for the stream in which it was created.',
+			looksLike: {
+				post: '<@@#post object#post@@>',
+				stream: '<@@#stream object#stream@@ > (if stream created on-the fly for the post)>',
+				streams: [
+					'<@@#stream object#stream@@ > (additional streams created on-the-fly for code blocks)>',
+					'...'
+				],
+				markers: [
+					'<@@#marker object#marker@@ > (marker objects associated with quoted code blocks)',
+					'...'
+				],
+				markerLocations: '<@@#marker locations object#markerLocations@@ > (marker locations for markers associated with quoted code blocks)'
+			}
+		};
+		return description;
+	}
 }
 
 module.exports = PostPostRequest;

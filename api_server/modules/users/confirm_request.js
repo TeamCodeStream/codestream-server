@@ -260,7 +260,7 @@ class ConfirmRequest extends RestfulRequest {
 			}).grantAll();
 		}
 		catch (error) {
-			throw this.errorHandler.error('messagingGrant', { reason: error });
+			throw this.errorHandler.error('userMessagingGrant', { reason: error });
 		}
 	}
 
@@ -329,6 +329,57 @@ class ConfirmRequest extends RestfulRequest {
 			request: this,
 			messager: this.api.services.messager
 		}).publishUserToTeams();
+	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'confirm',
+			summary: 'Confirms a user\'s registration',
+			access: 'No authorization needed, though the correct confirmation code must be provided',
+			description: 'Confirms a user\'s registration with confirmation code',
+			input: {
+				summary: 'Specify attributes in the body',
+				looksLike: {
+					'email*': '<User\'s email>',
+					'confirmationCode*': '<Confirmation code (sent via email to the user\'s email after initial registration)>',
+					'password': '<Can optionally set the user\'s password here>',
+					'username': '<Can optionally set the user\'s username here>'
+				}
+			},
+			returns: {
+				summary: 'Returns an updated user object, plus access token and PubNub subscription key, and teams the user is on as well as repos owned by those teams',
+				looksLike: {
+					user: '<@@#user object#user@@>',
+					accessToken: '<user\'s access token, to be used in future requests>',
+					pubnubKey: '<key to use for subscribing to PubNub channels>',
+					teams: [
+						'<@@#team object#team@@>',
+						'...'
+					],
+					repos: [
+						'<@@#repo object#repo@@>',
+						'...'
+					]
+				}
+			},
+			publishes: {
+				summary: 'Publishes the updated user object on the team channel for each team the user is on.',
+				looksLike: {
+					user: '<@@#user object#user@@>'
+				}
+			},
+			errors: [
+				'parameterRequired',
+				'notFound',
+				'alreadyRegistered',
+				'emailMismatch',
+				'usernameNotUnique',
+				'tooManyConfirmAttempts',
+				'confirmCodeExpired',
+				'confirmCodeMismatch'
+			]
+		};
 	}
 }
 

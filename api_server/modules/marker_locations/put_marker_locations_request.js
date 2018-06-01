@@ -126,6 +126,38 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 			this.warn(`Could not publish marker locations update message to team ${this.teamId}: ${JSON.stringify(error)}`);
 		}
 	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'put-marker-locations',
+			summary: 'Set some marker locations for a given stream ID and commit hash',
+			access: 'User must be in the specified team',
+			description: 'When marker locations for a given set of markers, a given file (given by stream ID), and a given commit hash are calculated by the client, the client calls this request to set the marker locations',
+			input: {
+				summary: 'Specify marker location data in the body',
+				looksLike: {
+					'teamId*': '<ID of the team owning the file stream>',
+					'streamId*': '<ID of the stream>',
+					'commitHash*': '<Commit SHA for which marker locations are being set>',
+					'locations*': '<A set of locations, given as an object whose keys are marker IDs and whose values are locations coordinates>' 
+				}
+			},
+			returns: 'An empty object',
+			publishes: {
+				summary: 'Publishes a marker locations object with the updated marker locations to the team channel for the team that owns the file stream',
+				looksLike: {
+					'markerLocations': '<@@#marker locations object#markerLocations@@>'
+				}
+			},
+			errors: [
+				'updateAuth',
+				'parameterRequired',
+				'validation',
+				'invalidParameter'
+			]
+		};
+	}
 }
 
 module.exports = PutMarkerLocationsRequest;

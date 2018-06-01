@@ -38,6 +38,15 @@ class GetUsersRequest extends GetManyRequest {
 			}
 		};
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const description = GetManyRequest.describe(module);
+		description.access = 'User must be a member of the team for which users are being fetched';
+		description.description = 'Fetch the users for a team',
+		description.input.looksLike['teamId*'] = '<ID of the team for which users are being fetched>';
+		return description;
+	}
 }
 
 module.exports = GetUsersRequest;

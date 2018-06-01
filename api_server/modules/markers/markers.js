@@ -12,6 +12,7 @@ const MARKER_STANDARD_ROUTES = {
 	want: ['get', 'getMany', 'put'],
 	baseRouteName: 'markers',
 	requestClasses: {
+		'get': require('./get_marker_request'),
 		'getMany': require('./get_markers_request'),
 		'put': require('./put_marker_request')
 	}
@@ -33,6 +34,10 @@ class Markers extends Restful {
 
 	get modelClass () {
 		return Marker;	// use this class for the data model
+	}
+
+	get modelDescription () {
+		return 'A single marker, pointing to a code block quoted in a post';
 	}
 
 	get updaterClass () {

@@ -10,6 +10,7 @@ const Post = require('./post');
 const UUID = require('uuid/v4');
 const EmailNotificationRequest = require('./email_notification_request');
 const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const Errors = require('./errors');
 
 const DEPENDENCIES = [
 	'aws'	// the posts module creates a queue
@@ -20,6 +21,7 @@ const POST_STANDARD_ROUTES = {
 	want: ['get', 'getMany', 'post', 'put', 'delete'],
 	baseRouteName: 'posts',
 	requestClasses: {
+		'get': require('./get_post_request'),
 		'getMany': require('./get_posts_request'),
 		'post': require('./post_post_request'),
 		'put': require('./put_post_request'),
@@ -49,6 +51,10 @@ class Posts extends Restful {
 		return Post;	// use this class for the data model
 	}
 
+	get modelDescription () {
+		return 'A single post in a stream';
+	}
+
 	get updaterClass () {
 		return PostUpdater;	// use this class to update posts
 	}
@@ -66,6 +72,7 @@ class Posts extends Restful {
 		// create a queue for handling messages concerning triggering the interval
 		// timer for email notifications
 		if (!this.api.services.queueService) { return; }
+		if (!this.api.config.aws.sqs.outboundEmailQueueName) { return; }
 		await callbackWrap(
 			this.api.services.queueService.createQueue.bind(this.api.services.queueService),
 			{
@@ -89,6 +96,12 @@ class Posts extends Restful {
 			message: message
 		}).fulfill();
 		this.api.services.requestTracker.untrackRequest(request);
+	}
+
+	describeErrors () {
+		return {
+			'Posts': Errors
+		};
 	}
 }
 

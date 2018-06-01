@@ -69,6 +69,43 @@ class PostRepoRequest extends PostRequest {
 			this.warn(`Could not publish joinMethod update message to user ${this.user._id}: ${JSON.stringify(error)}`);
 		}
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const description = PostRequest.describe(module);
+		description.description = 'Creates a repo record associated with a repo given by URL, or finds the matching repo to the given URL. Can also create a team on-the-fly to own the repo.';
+		description.access = 'If associating the repo with an existing team, the user must be a member of the team.';
+		description.input = {
+			summary: description.input,
+			looksLike: {
+				'url*': '<The URL of the repo>',
+				'teamId': '<ID of the team to own the repo created, if not provided, then a team object must be provided>',
+				'firstCommitHash': '<First commit SHA in the repo\'s commit history (deprecated in favor of knownCommitHashes)>',
+				'knownCommitHashes': '<Multiple commit SHAs in the repo\'s commit history, used to validate access to the repo by other users>',
+				'team': '<Minimal @@#team object#team@@, for creating a team on-the-fly with the repo>',
+				'emails': '<Array of emails representing users to be added to the team that will own the repo>',
+				'users': '<Array of @@#user objects#user@@, representing users to be added to the team that will own the repo>'
+			}
+		};
+		description.returns.summary = 'A repo object, plus a team object if a team was created on-the-fly, and user objects if any users were added to the team created on-the-fly';
+		Object.assign(description.returns.looksLike, {
+			team: '<@@#team object#team@@ > (if team created on-the-fly for the repo)>',
+			company: '<@@#company object#company@@ > (if team created on-the-fly for the repo, company is also created)>',
+			streams: '<array of @@#stream objects#stream@@, representing the team-streams associated with the team that owns the repo, only if the user is joining the team that owns the repo>',
+			users: [
+				'<@@#user object#user@@ > (if users added to the team created on-the-fly, or if the user is joining a team, all users on the team)>',
+				'...'
+			]
+		});
+		description.publishes = {
+			summary: 'If the repo was added to an existing team, will publish the repo object to the team channel',
+			looksLike: {
+				repo: '<@@#repo object#repo@@>'
+			}
+		};
+		description.errors.push('shaMismatch');
+		return description;
+	}
 }
 
 module.exports = PostRepoRequest;

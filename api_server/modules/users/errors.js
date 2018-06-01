@@ -10,35 +10,43 @@ module.exports = {
 	},
 	'passwordMismatch': {
 		code: 'USRC-1001',
-		message: 'Password doesn\'t match'
+		message: 'Password doesn\'t match',
+		description: 'The provided password doesn\'t match the password for the user'
 	},
 	'confirmCodeMismatch': {
 		code: 'USRC-1002',
-		message: 'Confirmation code doesn\'t match'
+		message: 'Confirmation code doesn\'t match',
+		description: 'The provided confirmation code doesn\'t match the expected confirmation code for the user'
 	},
 	'confirmCodeExpired': {
 		code: 'USRC-1003',
-		message: 'Confirmation code is expired'
+		message: 'Confirmation code is expired',
+		description: 'The provided confirmation code is expired; the user must obtain another confirmation code'
 	},
 	'tooManyConfirmAttempts': {
 		code: 'USRC-1004',
-		message: 'Confirmation code doesn\'t match; too many attempts'
+		message: 'Confirmation code doesn\'t match; too many attempts',
+		description: 'Too many attempts have been made to confirm registration; a new confirmation code must be obtained for the user'
 	},
 	'emailMismatch': {
 		code: 'USRC-1005',
-		message: 'Email doesn\'t match'
+		message: 'Email doesn\'t match',
+		description: 'The provided email doesn\'t match the expected email for this request'
 	},
 	'alreadyRegistered': {
 		code: 'USRC-1006',
-		message: 'This user is already registered and confirmed'
+		message: 'This user is already registered and confirmed',
+		description: 'An attempt was made to confirm a user who is already confirmed'
 	},
-	'messagingGrant': {
+	'userMessagingGrant': {
 		code: 'USRC-1007',
-		message: 'Unable to grant user messaging permissions'
+		message: 'Unable to grant user messaging permissions',
+		description: 'The server was unable to grant permission to subscribe to the given user channel'
 	},
 	'invalidGrantChannel': {
 		code: 'USRC-1008',
-		message: 'Invalid grant channel'
+		message: 'Invalid grant channel',
+		description: 'A request was made to grant access to a subscription channel that is invalid or unrecognized'
 	},
 	/* deprecated
 	'invalidBetaCode': {
@@ -48,6 +56,12 @@ module.exports = {
 	*/
 	'noLoginUnregistered': {
 		code: 'USRC-1010',
-		message: 'User has not yet confirmed registration'
-	}
+		message: 'User has not yet confirmed registration',
+		description: 'An attempt was made to login to an account for which the user has not yet confirmed registration'
+	},
+	'generalMessagingGrant': {
+		code: 'USRC-1011',
+		message: 'Unable to grant user messaging permissions',
+		description: 'The server was unable to grant permission to subscribe to the given channel'
+	},
 };

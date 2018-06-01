@@ -33,6 +33,7 @@ class APIServer {
 		this.registerRoutes();
 		this.registerDataSources();
 		this.modules.initializeModules();
+		this.makeHelp();
 		await AwaitUtils.callbackWrap(this.listen.bind(this));
 	}
 
@@ -289,6 +290,28 @@ class APIServer {
 		if (this.shutdownPending) {
 			this.critical(`Worker ${this.workerId} has no more open requests, shutting down...`);
 			this.shutdown();
+		}
+	}
+
+	// based on information collected from the modules, form data related to help on api server routines
+	makeHelp () {
+		this.log('Generating documentation for routes...');
+		this.documentedRoutes = [];
+		const routeObjects = this.modules.getRouteObjects();
+		routeObjects.forEach(this.documentRouteObject.bind(this));
+		this.documentedModels = this.modules.describeModels();
+		this.documentedErrors = this.modules.describeErrors();
+	}
+
+	// given a route object, form description information for help
+	documentRouteObject (routeObject) {
+		if (!routeObject.describe) { return; }
+		const description = routeObject.describe();
+		if (description) {
+			description.method = routeObject.method;
+			description.path = routeObject.path;
+			description.route = `${routeObject.method.toUpperCase()} ${routeObject.path}`;
+			this.documentedRoutes.push(description);
 		}
 	}
 

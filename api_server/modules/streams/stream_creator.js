@@ -40,7 +40,7 @@ class StreamCreator extends ModelCreator {
 			},
 			optional: {
 				boolean: ['isTeamStream'],
-				string: ['repoId', 'type', 'file', 'name', 'privacy'],
+				string: ['repoId', 'file', 'name', 'privacy'],
 				'array(string)': ['memberIds']
 			}
 		};
@@ -198,7 +198,7 @@ class StreamCreator extends ModelCreator {
 			}).grantToMembers();
 		}
 		catch (error) {
-			throw this.errorHandler.error('messagingGrant', { reason: error });
+			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
 		}
 	}
 }

@@ -15,6 +15,23 @@ class GetPreferencesRequest extends RestfulRequest {
 		// just return the preferences in the response
 		this.responseData.preferences = this.request.user.get('preferences') || {};
 	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'preferences',
+			summary: 'Gets a user\'s preferences',
+			access: 'A user can only access their own preferences',
+			description: 'Fetches a user\'s preferences object',
+			input: 'No input required or expected',
+			returns: {
+				summary: 'Returns a preferences object, a more-or-less free-form hash of preference values',
+				looksLike: {
+					preferences: '<preferences object>'
+				}
+			}
+		};
+	}
 }
 
 module.exports = GetPreferencesRequest;

@@ -342,6 +342,44 @@ class GetPostsRequest extends GetManyRequest {
 			this.responseData.stream = this.fetchedStream.getSanitizedObject();
 		}
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const description = GetManyRequest.describe(module);
+		description.description = 'Returns an array of posts for a given stream (given by stream ID), governed by the query parameters. Posts are fetched in pages of no more than 100 at a time. Posts are fetched in descending order unless otherwise specified by the sort parameter. To fetch in pages, continue to fetch until the "more" flag is not seen in the response, using the lowest ID fetched by the previous operation (or highest, if fetching in ascending order) along with the "lt" operator (or "gt" for ascending order).';
+		description.access = 'For posts in a file stream, user must be a member of the team that owns the file stream; for other streams, user must be a member of the stream';
+		Object.assign(description.input.looksLike, {
+			'teamId*': '<ID of the team that owns the stream for which posts are being fetched>',
+			'streamId': '<ID of the stream for which posts are being fetched, required if path is not provided>',
+			'repoId': '<ID of the repo to which the file belongs, if path is specified instead of streamId>',
+			'path': '<If specified instead of stream ID, look for a file stream for the path and fetch posts for that stream>',
+			'parentPostId': '<Fetch only posts that are replies to the post given by this ID>',
+			'lt': '<Fetch posts with ID less than the given value>',
+			'gt': '<Fetch posts with ID greater than the given value>',
+			'lte': '<Fetch posts with ID less than or equal to the given value>',
+			'gte': '<Fetch posts with ID greater than or equal to the given value>',
+			'sort': '<Posts are sorted in descending order, unless this parameter is given as \'asc\'>',
+			'limit': '<Limit the number of posts fetched to this number>',
+			'withMarkers': '<If specified, the markers associated with all fetched posts will also be fetched>',
+			'commitHash': '<If specified along with withMarkers, the known locations of the markers fetched, for the given commit hash, will also be fetched>',
+			'seqnum': '<Fetch the posts in a range of sequence numbers, like: seqnum=3-7 (fetches posts with sequence numbers 3 thru 7, inclusive)>'
+		});
+		description.returns.summary = 'An array of post objects, plus possible marker objects and markerLocations object, and more flag';
+		Object.assign(description.returns.looksLike, {
+			markers: [
+				'<@@#marker object#markers@@ > (if withMarkers specified)',
+				'...'
+			],
+			markerLocations: '<@@#marker locations object#markerLocations@@ > (if withMarkers and commitHash specified)',
+			stream: '<@@#stream object#stream@@ > (stream associated with the path, if specified)',
+			more: '<will be set to true if more posts are available, see the description, above>'
+		});
+		description.errors = description.errors.concat([
+			'invalidParameter',
+			'notFound'
+		]);
+		return description;
+	}
 }
 
 module.exports = GetPostsRequest;

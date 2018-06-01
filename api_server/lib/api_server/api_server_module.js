@@ -17,6 +17,14 @@ class APIServerModule {
 
 	async initialize () {
 	}
+
+	describeModels () {
+		return [];
+	}
+
+	describeErrors () {
+		return {};
+	}
 }
 
 module.exports = APIServerModule;

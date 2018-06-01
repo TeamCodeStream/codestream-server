@@ -75,7 +75,7 @@ class PutStreamRequest extends PutRequest {
 			await new StreamSubscriptionGranter(granterOptions).grantToMembers();
 		}
 		catch (error) {
-			throw this.errorHandler.error('messagingGrant', { reason: error });
+			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
 		}
 	}
 	
@@ -107,6 +107,31 @@ class PutStreamRequest extends PutRequest {
 			messager: this.api.services.messager,
 			stream: this.updater.stream.attributes
 		}).publishStreamToUsers(userIds);
+	}
+
+	// describe this route for help
+	static describe (module) {
+		const description = PutRequest.describe(module);
+		description.access = 'Currently, only channel streams can be updated, and the user must be a member of the channel stream';
+		description.input = {
+			summary: description.input,
+			looksLike: {
+				'name': '<Updated name of the channel stream>',
+				'$push': {
+					memberIds: '<Array of IDs representing users to add to the channel stream>'
+				},
+				'$pull': {
+					memberIds: '<Array of IDs representing users to remove from the channel stream>'
+				}
+			}
+		};
+		description.publishes = {
+			summary: 'If the stream is public to the team, the updated stream object (with possible directives) will be published to the team channel. If the stream is private, the updated stream object will be published to the stream channel for the stream. If users are added, the stream object will also be published to the user channel for all added users.',
+			looksLike: {
+				stream: '<@@#stream object#stream@@>',
+			}
+		};
+		return description;
 	}
 }
 

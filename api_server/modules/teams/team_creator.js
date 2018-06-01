@@ -304,7 +304,7 @@ class TeamCreator extends ModelCreator {
 			await new TeamSubscriptionGranter(granterOptions).grantToMembers();
 		}
 		catch (error) {
-			throw this.errorHandler.error('messagingGrant', { reason: error });
+			throw this.errorHandler.error('teamMessagingGrant', { reason: error });
 		}
 	}
 }

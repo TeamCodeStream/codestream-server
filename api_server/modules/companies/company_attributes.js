@@ -5,6 +5,7 @@
 module.exports = {
 	name: {
 		type: 'string',
-		maxLength: 256
+		maxLength: 256,
+		description: 'Name of the company'
 	}
 };

@@ -103,6 +103,37 @@ class GetManyRequest extends RestfulRequest {
 	getQueryOptions () {
 		return {};
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const { collectionName, modelName } = module;
+		return {
+			tag: `get-${collectionName}`,
+			summary: `Gets several ${collectionName}`,
+			description: `Returns an array of ${collectionName}, governed by the query parameters.`,
+			input: {
+				summary: 'Specify options in the query',
+				looksLike: {
+					ids: `<comma-separated list of IDs, will return the identified ${collectionName}>`
+				}
+			},
+			returns: {
+				summary: `An array of ${modelName} objects`,
+				looksLike: {
+					[collectionName]: [
+						`<@@#${modelName} object#${modelName}@@>`,
+						'...'
+					]
+				}
+			},
+			access: '(rule unknown)',
+			errors: [
+				'readAuth',
+				'badQuery',
+				'parameterRequired'
+			]
+		};
+	}
 }
 
 module.exports = GetManyRequest;

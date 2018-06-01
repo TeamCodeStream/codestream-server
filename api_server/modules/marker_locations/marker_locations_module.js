@@ -38,6 +38,10 @@ class MarkerLocationsModule extends Restful {
 		return MarkerLocations;		// use this model to instantiate marker locations
 	}
 
+	get modelDescription () {
+		return 'Manages the locations of a set of markers associated with a particular stream at a particular commit hash';
+	}
+
 	/*
 	get updaterClass () {
 		return MarkerUpdater;

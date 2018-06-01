@@ -160,6 +160,33 @@ class PutPreferencesRequest extends RestfulRequest {
 		}
 		await super.handleResponse();
 	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'put-preferences',
+			summary: 'Update a user\'s preferences',
+			access: 'The current user can only update their own preferences',
+			description: 'Updates a user\'s preferences object, which is a free-form object, with arbitrary levels of nesting. Only the values specified in the request body will be updated; other values in the preferences object will remain unchanged. $set and $unset directives can be used at any nesting level to set or unset a value, respectively.',
+			input: 'Specify values to set, up to an arbitrary level of nesting, in the request body.',
+			returns: 'Empty object',
+			publishes: {
+				summary: 'Publishes a user object, with directives corresponding to the request body passed in, to the user\'s user channel, indicating how the preferences object for the user object should be updated.',
+				looksLike: {
+					user: {
+						_id: '<ID of the user>',
+						preferences: {
+							'<some preferences value>': '<some directive>',
+							'...': '...'
+						}
+					}
+				}
+			},
+			errors: [
+				'invalidParameter'
+			]
+		};
+	}
 }
 
 module.exports = PutPreferencesRequest;

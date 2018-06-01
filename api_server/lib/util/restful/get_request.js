@@ -31,6 +31,30 @@ class GetRequest extends RestfulRequest {
 		// sanitize it for returning to client (eliminate any attributes we don't want the client to see)
 		this.responseData[modelName] = model.getSanitizedObject();
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const { modelName } = module;
+		return {
+			tag: `get-${modelName}`,
+			summary: `Gets a single ${modelName}`,
+			description: `Returns a single ${modelName} as specified by ID`,
+			input: `Specify the ${modelName} ID in the path`,
+			returns: {
+				summary: `A ${modelName} object`,
+				looksLike: {
+					[modelName]: `<@@#${modelName} object#${modelName}@@>`
+				}
+			},
+			access: '(rule unknown)',
+			errors: [
+				'readAuth',
+				'notFound'
+			]
+		};
+	}
+
+
 }
 
 module.exports = GetRequest;

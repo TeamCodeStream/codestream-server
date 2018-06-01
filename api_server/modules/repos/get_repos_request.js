@@ -36,6 +36,14 @@ class GetReposRequest extends GetManyRequest {
 			}
 		};
 	}
+
+	// describe this route for help
+	static describe () {
+		const description = GetManyRequest.describe(module);
+		description.access = 'User must be a member of the team for which repos are being fetched';
+		description.input.looksLike['teamId*'] = '<ID of the team for which repos are being fetched>';
+		return description;
+	}
 }
 
 module.exports = GetReposRequest;

@@ -76,7 +76,7 @@ class JoinRequest extends RestfulRequest {
 			await new StreamSubscriptionGranter(granterOptions).grantToMembers();
 		}
 		catch (error) {
-			throw this.errorHandler.error('messagingGrant', { reason: error });
+			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
 		}
 	}
 
@@ -88,6 +88,43 @@ class JoinRequest extends RestfulRequest {
 			messager: this.api.services.messager,
 			stream: this.updater.stream.attributes
 		}).publishStream();
+	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'join',
+			summary: 'Current user joining a public channel stream',
+			access: 'User must be a member of the team that owns the stream; only public channel streams that are not team-streams (where everyone on the team is automatically a member) can be joined.',
+			description: 'Current user joining a public channel stream.',
+			input: 'Specify the ID of the stream in the path',
+			returns: {
+				summary: 'A stream object, with a directive that the user has joined the stream',
+				looksLike: {
+					stream: {
+						_id: '<ID of the stream>',
+						$addToSet: {
+							memberIds: ['<ID of the current user>']
+						}
+					}
+				}
+			},
+			publishes: {
+				summary: 'The response data will be published on the team channel for the team that owns the stream',
+				looksLike: {
+					stream: {
+						_id: '<ID of the stream>',
+						$addToSet: {
+							memberIds: ['<ID of the current user>']
+						}
+					}
+				}
+			},
+			errors: [
+				'updateAuth',
+				'notFound'
+			]
+		};
 	}
 }
 

@@ -10,7 +10,8 @@ module.exports = {
 	},
 	'unauthorized': {
 		code: 'INBE-1001',
-		message: 'Unauthorized'
+		message: 'Unauthorized',
+		internal: true
 	},
 	'noFromAddress': {
 		code: 'INBE-1002',
@@ -19,18 +20,22 @@ module.exports = {
 	},
 	'creatorNotFound': {
 		code: 'INBE-1003',
-		message: 'Originator of email not found'
+		message: 'Originator of email not found',
+		internal: true
 	},
 	'noMatchFound': {
 		code: 'INBE-1004',
-		message: 'No matching stream ID found'
+		message: 'No matching stream ID found',
+		internal: true
 	},
 	'streamNotFound': {
 		code: 'INBE-1005',
-		message: 'Stream not found'
+		message: 'Stream not found',
+		internal: true
 	},
 	'streamNoMatchTeam': {
 		code: 'INBE-1006',
-		message: 'The stream is not owned by this team'
+		message: 'The stream is not owned by this team',
+		internal: true
 	}
 };

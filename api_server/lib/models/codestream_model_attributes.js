@@ -4,22 +4,27 @@
 
 module.exports = {
 	_id: {
-		type: 'id'
+		type: 'id',
+		description: 'ID of the model'
 	},
 	createdAt: {
 		type: 'timestamp',
-		required: true
+		required: true,
+		description: 'Integer UNIX timestamp representing date/time this model was created'
 	},
 	deactivated: {
 		type: 'boolean',
-		required: true
+		required: true,
+		description: 'Indicates whether this model has been deactivated (deleted)'
 	},
 	modifiedAt: {
 		type: 'timestamp',
-		required: true
+		required: true,
+		description: 'Integer UNIX timestamp representing date/time this model was last modified'
 	},
 	creatorId: {
-		type: 'id'
+		type: 'id',
+		description: 'ID of the @@#user#user@@ who created the object'
 	},
 	_forTesting: {
 		type: 'boolean',

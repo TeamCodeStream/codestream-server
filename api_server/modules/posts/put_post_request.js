@@ -33,6 +33,26 @@ class PutPostRequest extends PutRequest {
 			stream: this.updater.stream.attributes
 		}).publishPost();
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const description = PutRequest.describe(module);
+		description.access = 'Must be the author of the post';
+		description.input = {
+			summary: description.input,
+			looksLike: {
+				'text': '<Updated text of the post>',
+				'mentionedUserIds': '<Updated array of IDs, representing users mentioned in the post>'
+			}
+		};
+		description.publishes = {
+			summary: 'If the post belongs to a file stream or a team stream (a channel with all members of the team), then the post object will be published to the team channel; otherwise it will be published to the stream channel for the stream to which it belongs.',
+			looksLike: {
+				post: '<@@#post object#post@@>',
+			}
+		};
+		return description;
+	}
 }
 
 module.exports = PutPostRequest;

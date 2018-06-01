@@ -48,6 +48,29 @@ class PresenceRequest extends RestfulRequest {
 			[this.request.body.sessionId]: { status: this.request.body.status }
 		});
 	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'presence',
+			summary: 'Set user\'s presence',
+			access: 'Current user can only set presence for themselves.',
+			description: 'Set the user\'s presence for a given session to one of: online, away, offline.',
+			input: {
+				summary: 'Specify parameters in the request body',
+				looksLike: {
+					'status*': '<The presence status, one of: online, away, offline>',
+					'sessionId*': '<The ID of the session, established as a UUID by the client>'
+				}
+			},
+			returns: {
+				summary: 'The current configured \'away timeout\', which is how long, in milliseconds, before the user is considered \'away\' for email notification purposes, if there is no activity in a given session.',
+				looksLike: {
+					awayTimeout: '<Away timeout in ms>'
+				}
+			}
+		};
+	}
 }
 
 module.exports = PresenceRequest;
