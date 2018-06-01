@@ -10,6 +10,7 @@ const COMPANY_STANDARD_ROUTES = {
 	want: ['get', 'getMany'],
 	baseRouteName: 'companies',
 	requestClasses: {
+		'get': require('./get_company_request'),
 		'getMany': require('./get_companies_request')
 	}
 };
@@ -22,6 +23,10 @@ class Companies extends Restful {
 
 	get modelName () {
 		return 'company'; // name of the data model
+	}
+
+	get modelDescription () {
+		return 'A single company, owning one or more teams';
 	}
 
 	get creatorClass () {

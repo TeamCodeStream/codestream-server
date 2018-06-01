@@ -363,7 +363,7 @@ class RepoCreator extends ModelCreator {
 			await new RepoSubscriptionGranter(granterOptions).grantToUsers();
 		}
 		catch (error) {
-			throw this.errorHandler.error('messagingGrant', { reason: error });
+			throw this.errorHandler.error('repoMessagingGrant', { reason: error });
 		}
 	}
 }

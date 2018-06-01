@@ -206,6 +206,30 @@ class GetStreamsRequest extends GetManyRequest {
 			this.responseData.more = true;
 		}
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const description = GetManyRequest.describe(module);
+		description.description = 'Returns an array of streams for a given team (given by team ID), governed by the query parameters. Streams are fetched in pages of no more than 100 at a time. Streams are fetched in descending order by their sortId attribute unless otherwise specified by the sort parameter. To fetch in pages, continue to fetch until the "more" flag is not seen in the response, using the lowest ID fetched by the previous operation (or highest, if fetching in ascending order) along with the "lt" operator (or "gt" for ascending order). Streams should be fetched by type, but if no type is specified, all channel and direct streams that are public, or that the user is a member of, wil be fetched.';
+		description.access = 'User must be a member of the team for which streams are being fetched';
+		Object.assign(description.input.looksLike, {
+			'teamId*': '<ID of the team for which streams are being fetched>',
+			'type': '<Fetch streams of this type; if no type is specified, all channel and direct streams that are public, or that the user is a member of, will be fetched>',
+			'repoId': '<For fetching file streams, the ID of the repo to fetch file streams for>',
+			'unread': '<If specified, fetch only streams for which there are unread messages for the user>',
+			'lt': '<Fetch streams with sortId less than the given value>',
+			'gt': '<Fetch streams with sortId greater than the given value>',
+			'lte': '<Fetch streams with sortId less than or equal to the given value>',
+			'gte': '<Fetch streams with sortId greater than or equal to the given value>',
+			'sort': '<Streams are sorted in descending order, unless this parameter is given as \'asc\'>',
+			'limit': '<Limit the number of streams fetched to this number>'
+		});
+		description.returns.summary = 'An array of stream objects, and more flag';
+		Object.assign(description.returns.looksLike, {
+			more: '<will be set to true if more streams are available, see the description, above>'
+		});
+		return description;
+	}
 }
 
 module.exports = GetStreamsRequest;

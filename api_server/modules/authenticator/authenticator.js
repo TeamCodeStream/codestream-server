@@ -5,6 +5,7 @@
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 const TokenAuthenticator = require('./token_authenticator');
 const User = require(process.env.CS_API_TOP + '/modules/users/user');
+const Errors = require('./errors');
 
 const DEPENDENCIES = [
 	'body_parser',	// have to be able to parse the request payload
@@ -36,6 +37,13 @@ class Authenticator extends APIServerModule {
 				};
 			}
 			next();
+		};
+	}
+
+	// describe any errors associated with this module, for help
+	describeErrors () {
+		return {
+			'Authentication': Errors
 		};
 	}
 }

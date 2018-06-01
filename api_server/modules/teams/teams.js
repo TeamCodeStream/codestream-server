@@ -6,12 +6,14 @@ const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const TeamCreator = require('./team_creator');
 //const TeamUpdater = require('./team_updater');
 const Team = require('./team');
+const Errors = require('./errors');
 
 // expose these restful routes
 const TEAM_STANDARD_ROUTES = {
 	want: ['get', 'getMany'],
 	baseRouteName: 'teams',
 	requestClasses: {
+		'get': require('./get_team_request'),
 		'getMany': require('./get_teams_request')
 	}
 };
@@ -35,6 +37,10 @@ class Teams extends Restful {
 		return 'team';	// name of the data model
 	}
 
+	get modelDescription () {
+		return 'A single team of users';
+	}
+
 	get creatorClass () {
 		return TeamCreator;	// use this class to instantiate teams
 	}
@@ -53,6 +59,12 @@ class Teams extends Restful {
 	getRoutes () {
 		let standardRoutes = super.getRoutes(TEAM_STANDARD_ROUTES);
 		return [...standardRoutes, ...TEAM_ADDITIONAL_ROUTES];
+	}
+
+	describeErrors () {
+		return {
+			'Teams': Errors
+		};
 	}
 }
 

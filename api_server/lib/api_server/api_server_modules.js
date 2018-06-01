@@ -228,6 +228,7 @@ class APIServerModules {
 		if (!routeObject) {
 			return;
 		}
+		routeObject.describe = this.describeRoute(route, module);
 		this.routes.push(routeObject);
 	}
 
@@ -296,6 +297,31 @@ class APIServerModules {
 		return true;
 	}
 
+	// describe this route with a description structure, for help
+	describeRoute (route, module) {
+		let func;
+		if (route.describe && typeof route.describe === 'string') {
+			if (typeof module[route.describe] === 'function') {
+				func = module[route.describe]();
+			}
+		}
+		else if (route.describe && typeof route.describe === 'function') {
+			func = route.describe;
+		}
+		else if (route.requestClass && typeof route.requestClass.describe === 'function') {
+			func = route.requestClass.describe;
+		}
+		if (typeof func === 'function') {
+			return () => { 
+				const description = func(module);
+				if (description) {
+					description.module = module.name;
+				}
+				return description;
+			};
+		}
+	}
+
 	// fulfill a request by instantiating the request class for a request
 	// and calling its fulfill() function, see api_request.js
 	requestClassFulfiller (requestClass, route, module) {
@@ -320,6 +346,30 @@ class APIServerModules {
 		this.modules.forEach(module => {
 			module.initialize.bind(module)();
 		});
+	}
+
+	// describe all models declared by all modules, for help
+	describeModels () {
+		return this.modules.reduce((models, module) => {
+			return [...models, ...module.describeModels()];
+		}, []);
+	}
+
+	// describe all errors declared by all modules, for help
+	describeErrors () {
+		const errors = {};
+		this.modules.forEach(module => {
+			const moduleErrors = module.describeErrors();
+			if (moduleErrors) {
+				Object.keys(moduleErrors).forEach(errorSet => {
+					moduleErrors[errorSet] = Object.keys(moduleErrors[errorSet]).map(name => {
+						return Object.assign({}, moduleErrors[errorSet][name], { name });
+					});
+				});
+				Object.assign(errors, moduleErrors);
+			}
+		});
+		return errors;
 	}
 }
 

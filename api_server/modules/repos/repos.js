@@ -6,12 +6,14 @@ const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const RepoCreator = require('./repo_creator');
 //const RepoUpdater = require('./repo_updater');
 const Repo = require('./repo');
+const Errors = require('./errors');
 
 // expose these restful routes
 const REPOS_STANDARD_ROUTES = {
 	want: ['get', 'getMany', 'post'],
 	baseRouteName: 'repos',
 	requestClasses: {
+		'get': require('./get_repo_request'),
 		'getMany': require('./get_repos_request'),
 		'post': require('./post_repo_request')
 	}
@@ -49,6 +51,10 @@ class Repos extends Restful {
 		return Repo;	// use this class for the data model
 	}
 
+	get modelDescription () {
+		return 'A single repo, identified by normalized URL';
+	}
+
 	/*
 	get updaterClass () {
 		return RepoUpdater;	// use this class to update repos
@@ -59,6 +65,12 @@ class Repos extends Restful {
 	getRoutes () {
 		let standardRoutes = super.getRoutes(REPOS_STANDARD_ROUTES);
 		return [...standardRoutes, ...REPOS_ADDITIONAL_ROUTES];
+	}
+
+	describeErrors () {
+		return {
+			'Repos': Errors
+		};
 	}
 }
 

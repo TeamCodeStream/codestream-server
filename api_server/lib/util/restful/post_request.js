@@ -31,6 +31,30 @@ class PostRequest extends RestfulRequest {
 	async postProcess () {
 		await this.creator.postCreate();
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const { modelName } = module;
+		return {
+			tag: `post-${modelName}`,
+			summary: `Creates a ${modelName}`,
+			description: `Creates a ${modelName} from attributes given`,
+			input: 'Specify attributes in the body',
+			returns: {
+				summary: `A ${modelName} object`,
+				looksLike: {
+					[modelName]: `<@@#${modelName} object#${modelName}@@>`
+				}
+			},
+			errors: [
+				'createAuth',
+				'parameterRequired',
+				'invalidParameter',
+				'validation',
+				'exists',
+			]
+		};
+	}
 }
 
 module.exports = PostRequest;

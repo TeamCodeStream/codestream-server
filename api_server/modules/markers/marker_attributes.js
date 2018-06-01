@@ -8,26 +8,31 @@ module.exports = {
 	teamId: {
 		type: 'string',
 		maxLength: 30,
-		required: true
+		required: true,
+		description: 'ID of the @@#team#team@@ that owns the file @@#stream#stream@@ this marker references'
 	},
 	streamId: {
 		type: 'string',
 		maxLength: 30,
-		required: true
+		required: true,
+		description: 'ID of the file @@#stream#stream@@ references by this marker\'s code block'
 	},
 	postId: {
 		type: 'string',
 		maxLength: 30,
-		required: true
+		required: true,
+		description: 'ID of the @@#post#post@@ that references this marker\'s code block'
 	},
 	numComments: {
 		type: 'number',
-		required: true
+		required: true,
+		description: 'Number of @@#posts#post@@ created as a reply to the original post containing this marker\'s code block'
 	},
 	commitHashWhenCreated: {
 		type: 'string',
 		minLength: 40,
-		maxLength: 40
+		maxLength: 40,
+		description: 'The commit SHA the @@#user#user@@ was on in their repo when this marker\'s code block was first created in a @@#post#post@@'
 	},
 	_forTesting: {
 		type: 'boolean',

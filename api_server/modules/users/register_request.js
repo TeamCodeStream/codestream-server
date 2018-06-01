@@ -153,6 +153,46 @@ class RegisterRequest extends RestfulRequest {
 			messager: this.api.services.messager
 		}).publishUserToTeams();
 	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'register',
+			summary: 'Registers a user',
+			access: 'No authorization needed',
+			description: 'Registers a user and sends out a confirmation email (user is not fully registered until they have confirmed); this will create a new user record if a user with that email doesn\'t already exist, or it will return the user record for a user if a user with that email does exist and is not yet confirmed.',
+			input: {
+				summary: 'Specify attributes in the body',
+				looksLike: {
+					'email*': '<User\'s email>',
+					'password*': '<User\'s password>',
+					'username*': '<User\'s username, must be unique for any team they are on>',
+					'firstName': '<User\'s first name>',
+					'lastName': '<User\'s last name>',
+					'secondaryEmails': '<Array of other emails the user wants to associate with their account>',
+					'preferences': '<Object representing any preferences the user wants to set as they register>'
+				}
+			},
+			returns: {
+				summary: 'Returns a user object',
+				looksLike: {
+					user: '<@@#user object#user@@>'
+				}
+			},
+			publishes: {
+				summary: 'If the user is already on any teams, an updated user object will be published to the team channel for each team the user is on, in case some user attributes are changed by the register call.',
+				looksLike: {
+					user: '<@@#user object#user@@>'
+				}
+			},
+			errors: [
+				'parameterRequired',
+				'usernameNotUnique',
+				'exists',
+				'validation'
+			]
+		};
+	}
 }
 
 module.exports = RegisterRequest;

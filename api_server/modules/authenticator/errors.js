@@ -10,7 +10,8 @@ module.exports = {
 	},
 	'missingAuthorization': {
 		code: 'AUTH-1001',
-		message: 'Authorization missing'
+		message: 'Authorization missing',
+		description: 'Authorization credentials are required for this request'
 	},
 	'tokenInvalid': {
 		code: 'AUTH-1002',
@@ -19,10 +20,12 @@ module.exports = {
 	},
 	'noUserId': {
 		code: 'AUTH-1003',
-		message: 'Credentials invalid'
+		message: 'Credentials invalid',
+		description: 'The passed credentials are invalid'
 	},
 	'userNotFound': {
 		code: 'AUTH-1004',
-		message: 'Invalid identity'
+		message: 'Invalid identity',
+		description: 'The credentials passed are valid, but the associated identity is not'
 	}
 };

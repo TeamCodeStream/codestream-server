@@ -16,6 +16,14 @@ class GetUserRequest extends GetRequest {
 		}
 		await super.process();
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const description = GetRequest.describe(module);
+		description.access = 'Current user can access the user object for all users across all the teams they are on';
+		description.input = 'Specify the ID of the user in the path; the ID can also be \'me\', to fetch the current user\'s own user object';
+		return description;
+	}
 }
 
 module.exports = GetUserRequest;

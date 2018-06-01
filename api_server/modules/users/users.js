@@ -6,6 +6,7 @@ const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const UserCreator = require('./user_creator');
 const UserUpdater = require('./user_updater');
 const User = require('./user');
+const Errors = require('./errors');
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {
@@ -91,6 +92,10 @@ class Users extends Restful {
 		return User;	// use this class for the data model
 	}
 
+	get modelDescription () {
+		return 'A single user';
+	}
+
 	get updaterClass () {
 		return UserUpdater;	// use this class to update users
 	}
@@ -99,6 +104,12 @@ class Users extends Restful {
 	getRoutes () {
 		let standardRoutes = super.getRoutes(USERS_STANDARD_ROUTES);
 		return [...standardRoutes, ...USERS_ADDITIONAL_ROUTES];
+	}
+
+	describeErrors () {
+		return {
+			'Users': Errors
+		};
 	}
 }
 

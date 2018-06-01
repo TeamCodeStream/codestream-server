@@ -19,7 +19,6 @@ class InboundEmails extends APIServerModule {
 	getRoutes () {
 		return ROUTES;
 	}
-
 }
 
 module.exports = InboundEmails;

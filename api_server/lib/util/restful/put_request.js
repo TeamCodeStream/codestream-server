@@ -28,6 +28,29 @@ class PutRequest extends RestfulRequest {
 			this.updater.attachToResponse || {}
 		);
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const { modelName } = module;
+		return {
+			tag: `put-${modelName}`,
+			summary: `Updates an existing ${modelName}`,
+			description: `Updates an existing ${modelName} with attributes given`,
+			input: `Specify the ID of the ${modelName} to update in the path, and specify attributes to update in the body`,
+			returns: {
+				summary: `Updated attributes plus possible directives within a ${modelName} object`,
+				looksLike: {
+					[modelName]: `<@@#${modelName} object#${modelName}@@>`
+				}
+			},
+			errors: [
+				'updateAuth',
+				'notFound',
+				'invalidParameter',
+				'validation'
+			]
+		};
+	}
 }
 
 module.exports = PutRequest;

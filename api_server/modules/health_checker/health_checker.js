@@ -10,7 +10,8 @@ const ROUTES = [
 	{
 		method: 'get',
 		path: 'no-auth/status',
-		func: 'handleStatus'
+		func: 'handleStatus',
+		describe: 'describe'
 	}
 ];
 
@@ -30,6 +31,15 @@ class HealthChecker extends APIServerModule {
 		else {
 			response.status(200).send('OK');
 		}
+	}
+
+	describe () {
+		return {
+			summary: 'Check health status of server',
+			description: 'Check health status of server',
+			input: '(none)',
+			returns: 'OK'
+		};
 	}
 }
 

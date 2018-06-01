@@ -38,13 +38,16 @@ class TokenAuthenticator {
 			(this.request.body && this.request.body.t) ||
 			this.tokenFromHeader(this.request);
 		if (!token) {
-			throw this.errorHandler.error('missingAuthorization');
+			if (!this.pathIsOptionalAuth(this.request)) {
+				throw this.errorHandler.error('missingAuthorization');
+			}
 		}
 		this.token = token;
 	}
 
 	// verify the token is valid and extract its payload
 	async verifyToken () {
+		if (!this.token) { return; }
 		try {
 			this.payload = JSONWebToken.verify(this.token, this.api.config.secrets.auth);
 		}
@@ -56,6 +59,7 @@ class TokenAuthenticator {
 
 	// get the user associated with this token payload
 	async getUser () {
+		if (!this.payload) { return; }
 		const userId = this.payload.userId;
 		if (!userId) {
 			throw this.errorHandler.error('noUserId');
@@ -85,10 +89,24 @@ class TokenAuthenticator {
 		this.request.authPayload = this.payload;
 	}
 
-	// certain paths signal that no authentication is required
+	// certain paths signal that no authentication is required,
+	// according to config
 	pathIsNoAuth (request) {
-		// we'll use anything starting with /no-auth
-		return request.path.match(/^\/no-auth\//);
+		const paths = this.api.config.api.unauthenticatedPaths || [];
+		return paths.find(path => {
+			const regExp = new RegExp(path);
+			return request.path.match(regExp);
+		});
+	}
+
+	// for certain paths, authentication is optional,
+	// according to config
+	pathIsOptionalAuth (request) {
+		const paths = this.api.config.api.optionalAuthenticatedPaths || [];
+		return paths.find(path => {
+			const regExp = new RegExp(path);
+			return request.path.match(regExp);
+		});
 	}
 
 	// look for the token in the http request headers

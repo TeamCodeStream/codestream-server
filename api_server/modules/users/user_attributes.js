@@ -5,16 +5,19 @@
 module.exports = {
 	companyIds: {
 		type: 'arrayOfIds',
-		maxLength: 256
+		maxLength: 256,
+		description: 'Array of IDs representing the @@#companies#company@@ this user belongs to'
 	},
 	teamIds: {
 		type: 'arrayOfIds',
-		maxLength: 256
+		maxLength: 256,
+		description: 'Array of IDs representing the @@#teams#team@@ this user belongs to'
 	},
 	email: {
 		type: 'email',
 		maxLength: 256,
-		required: true
+		required: true,
+		description: 'The user\'s email'
 	},
 	searchableEmail: {
 		type: 'email',
@@ -25,22 +28,27 @@ module.exports = {
 	secondaryEmails: {
 		type: 'arrayOfEmails',
 		maxLength: 20,
-		maxEmailLength: 256
+		maxEmailLength: 256,
+		description: 'Array of additional emails the user uses'
 	},
 	username: {
 		type: 'username',
-		maxLength: 21
+		maxLength: 21,
+		description: 'The user\'s username, unique to all @@#teams#team@@ the user is on'
 	},
 	isRegistered: {
-		type: 'boolean'
+		type: 'boolean',
+		description: 'If true, the user has registered and confirmed their email'
 	},
 	firstName: {
 		type: 'string',
-		maxLength: 128
+		maxLength: 128,
+		description: 'The user\'s first name'
 	},
 	lastName: {
 		type: 'string',
-		maxLength: 128
+		maxLength: 128,
+		description: 'The user\'s last name'
 	},
 	passwordHash: {
 		type: 'string',
@@ -64,7 +72,8 @@ module.exports = {
 		type: 'object',
 		maxLength: 10000,
 		serverOnly: true,
-		forMe: true
+		forMe: true,
+		description: 'Hash of last read @@#posts#post@@ in a given @@#stream#stream@@; the keys of the hash are stream IDs, the values are the sequence number of the last @@#post#post@@ the user has read in that stream; if there is no key for a given stream, the user is assumed to have read all posts in the stream; this attribute is only available to the user that owns it'
 	},
 	accessToken: {
 		type: 'string',
@@ -78,35 +87,43 @@ module.exports = {
 		type: 'object',
 		maxLength: 10000,
 		serverOnly: true,
-		forMe: true
+		forMe: true,
+		description: 'Free-form object representing the user\'s preferences; this attribute is only visible to the user that owns it'
 	},
 	registeredAt: {
-		type: 'timestamp'
+		type: 'timestamp',
+		description: 'UNIX timestamp representing the date/time the user confirmed their registration'
 	},
 	joinMethod: {
 		type: 'string',
-		maxLength: '20'
+		maxLength: '20',
+		ignoreDescribe: true
 	},
 	primaryReferral: {
 		type: 'string',
-		maxLength: 12
+		maxLength: 12,
+		ignoreDescribe: true
 	},
 	originTeamId: {
-		type: 'id'
+		type: 'id',
+		ignoreDescribe: true
 	},
 	totalPosts: {
 		type: 'number',
 		serverOnly: true,
-		forMe: true
+		forMe: true,
+		description: 'Total number of posts this user has authored'
 	},
 	lastPostCreatedAt: {
 		type: 'timestamp',
 		serverOnly: true,
-		forMe: true
+		forMe: true,
+		description: 'UNIX timestamp of the last post this user authored'
 	},
 	timeZone: {
 		type: 'string',
-		maxLength: 50
+		maxLength: 50,
+		description: 'The user\'s time zone'
 	},
 	sessions: {
 		type: 'object',
@@ -114,27 +131,32 @@ module.exports = {
 	},
 	_pubnubUuid: {
 		type: 'string',
-		maxLength: 14
+		maxLength: 14,
+		ignoreDescribe: true
 	},
 	internalMethod: {
 		type: 'string',
 		maxLength: 20,
 		serverOnly: true,
-		forMe: true
+		forMe: true,
+		ignoreDescribe: true
 	},
 	internalMethodDetail: {
 		type: 'id',
 		serverOnly: true,
-		forMe: true
+		forMe: true,
+		ignoreDescribe: true
 	},
 	numMentions: {
 		type: 'number',
 		serverOnly: true,
-		forMe: true
+		forMe: true,
+		description: 'Number of times this user has been mentioned in a post'
 	},
 	numInvites: {
 		type: 'number',
 		serverOnly: true,
-		forMe: true
+		forMe: true,
+		description: 'Number of times this user has been invited'
 	}
 };

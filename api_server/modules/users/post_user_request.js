@@ -186,6 +186,35 @@ class PostUserRequest extends PostRequest {
 		}
 		this.responseData = { user: this.createdUser.getSanitizedObject() };
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const description = PostRequest.describe(module);
+		description.description = 'Creates a user with the given email, or finds the existing user with that email, and puts that user on the team specified. Also sends the user an invite email, unless the dontSendEmail flag is set.';
+		description.access = 'Current user must be a member of the team they are putting the created or found user on';
+		description.input = {
+			summary: description.input,
+			looksLike: {
+				'teamId*': '<ID of the team onto which the user should be put>',
+				'email*': '<Email of the user to be created or found>',
+				'firstName': '<First name of the user, this is only set if the user is created>',
+				'lastName': '<Last name of the user, this is only set if the user is created>',
+				'dontSendEmail': '<If set to true, an invite email will not be sent to the user>'
+			}
+		};
+		description.returns.summary = 'The user object for the created or found user';
+		Object.assign(description.returns.looksLike, {
+			user: '<@@#user object#user@@>'
+		});
+		description.publishes = {
+			summary: 'The user object will be published on the team channel for the team that the user was added to.',
+			looksLike: {
+				user: '<@@#user object#user@@>'
+			}
+		};
+		description.errors.push('usernameNotUnique');
+		return description;
+	}
 }
 
 module.exports = PostUserRequest;

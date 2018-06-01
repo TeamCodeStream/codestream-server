@@ -122,8 +122,25 @@ class GrantRequest extends RestfulRequest {
 			);
 		}
 		catch (error) {
-			throw this.errorHandler.error('messagingGrant');
+			throw this.errorHandler.error('generalMessagingGrant');
 		}
+	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'grant',
+			summary: 'Explicitly ask the server to grant subscription access to a particular PubNub channel',
+			access: 'Current user must have permission to subscribe to the requested channel. For team channels, the user must be on the team. For repo channels, the user must be on the team that owns the repo. For stream channels, the user must be in the stream. For user channels, the channel must match the current user.',
+			description: 'In cases where a PubNub subscription has failed, call this function to explicitly make sure the user can subscribe to this channel. If the call succeeds, the client can assume the user has been granted access.',
+			input: 'Specify the channel to grant access to in the path',
+			returns: 'Empty object',
+			errors: [
+				'invalidGrantChannel',
+				'readAuth',
+				'generalMessagingGrant'
+			]
+		};
 	}
 }
 

@@ -26,6 +26,29 @@ class DeleteRequest extends RestfulRequest {
 			this.deleter.attachToResponse || {}
 		);
 	}
+
+	// describe this route for help
+	static describe (module) {
+		const { modelName } = module;
+		return {
+			tag: `delete-${modelName}`,
+			summary: `Deletes (deactivates) an existing ${modelName}`,
+			description: `Deletes (deactivates) an existing ${modelName}`,
+			input: `Specify the ${modelName} ID in the path`,
+			returns: {
+				[modelName]: {
+					_id: `<${modelName} ID>`,
+					$set: {
+						deactivated: true
+					}
+				}
+			},
+			errors: [
+				'deleteAuth',
+				'notFound'
+			]
+		};
+	}
 }
 
 module.exports = DeleteRequest;

@@ -105,7 +105,7 @@ class LoginRequest extends RestfulRequest {
 			}).grantAll();
 		}
 		catch (error) {
-			throw this.errorHandler.error('messagingGrant', { reason: error });
+			throw this.errorHandler.error('userMessagingGrant', { reason: error });
 		}
 	}
 
@@ -117,6 +117,45 @@ class LoginRequest extends RestfulRequest {
 			pubnubKey: this.api.config.pubnub.subscribeKey	// give them the subscribe key for pubnub
 		};
 		Object.assign(this.responseData, this.initialData);
+	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'login',
+			summary: 'Performs login',
+			access: 'No authorization needed, though email and password check are obviously performed',
+			description: 'Performs a login for a given user and returns an access token for use with future requests',
+			input: {
+				summary: 'Specify attributes in the body',
+				looksLike: {
+					'email*': '<User\'s email>',
+					'password*': '<Password to verify>'
+				}
+			},
+			returns: {
+				summary: 'Returns an updated user object, plus access token and PubNub subscription key, and teams the user is on as well as repos owned by those teams',
+				looksLike: {
+					user: '<@@#user object#user@@>',
+					accessToken: '<user\'s access token, to be used in future requests>',
+					pubnubKey: '<key to use for subscribing to PubNub channels>',
+					teams: [
+						'<@@#team object#team@@>',
+						'...'
+					],
+					repos: [
+						'<@@#repo object#repo@@>',
+						'...'
+					]
+				}
+			},
+			errors: [
+				'parameterRequired',
+				'notFound',
+				'passwordMismatch',
+				'noLoginUnregistered'
+			]
+		};
 	}
 }
 

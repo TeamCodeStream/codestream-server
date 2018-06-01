@@ -59,6 +59,35 @@ class GetMarkerLocationsRequest extends RestfulRequest {
 		this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
 		this.responseData.numMarkers = this.stream.get('numMarkers');
 	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'get-marker-locations',
+			summary: 'Get marker locations given a stream ID and a commit hash',
+			access: 'User must be in the specified team',
+			description: 'Get all known marker locations associated a given stream and commit hash (no calculations are performed)',
+			input: {
+				summary: 'Specify options in the query',
+				looksLike: {
+					'teamId*': '<ID of the team owning the file stream>',
+					'streamId*': '<ID of the stream>',
+					'commitHash*': '<Commit SHA for which marker locations are to be retrieved>'
+				}
+			},
+			returns: {
+				summary: 'Returns a marker locations object',
+				looksLike: {
+					markerLocations: '<@@#marker locations object#markerLocations@@>'
+				}
+			},
+			errors: [
+				'readAuth',
+				'parameterRequired',
+				'invalidParameter'
+			]
+		};
+	}
 }
 
 module.exports = GetMarkerLocationsRequest;

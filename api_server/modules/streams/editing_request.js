@@ -345,6 +345,51 @@ class EditingRequest extends RestfulRequest {
 			this.request.warn(`Could not publish edited streams message to team ${this.teamId}: ${JSON.stringify(error)}`);
 		}
 	}
+
+	// describe this route for help
+	static describe () {
+		return {
+			tag: 'editing',
+			summary: 'Declares that the user is editing, or not editing, a set of files belonging to a repo',
+			access: 'User must be a member of the team that owns the given repo',
+			description: 'The server maintains a list of files that each user is actively editing within a given repo. Updating this list can be done on a per-file basis, by calling this route with a single file specified, and whether it is being edited or not; this will update the editing status for the given file. All files that the user is editing can also be declared by sending an array of files; in this case, the editing status for any files not on the list will be cleared.',
+			input: {
+				summary: 'Specify parameters in the body',
+				looksLike: {
+					'teamId*': '<ID of the team that owns the repo for which files are being declared>',
+					'repoId*': '<ID of the repo for which files are being declared>',
+					'editing': '<Can be a boolean indicating the given file(s) is being edited or not being edited, or can be an info structure providing additional data>',
+					'file': '<If specified, user is declaring that they are editing or not editing the given file>',
+					'streamId': '<If specified, user is declaring that they are editing or not editing the file associated with the given stream>',
+					'files': '<Array of files the user is editing; the editing status for all other files in the repo will be cleared for that user>',
+					'streamIds': '<Array of files, associated with the given streams, that the user is editing; the editing status for all other files in the repo will be cleared for that user>'
+				}
+			},
+			returns: {
+				summary: 'An array of stream objects, with directives indicating how to adjust the editingUsers object for each stream affected',
+				looksLike: {
+					streams: [
+						'<@@#stream object#stream@@ > (will have directives indicating adjustments to the editingUsers attribute of the stream)',
+						'...'
+					]
+				}
+			},
+			publishes: {
+				summary: 'Will publish the response data on the team channel for the team that owns the repo',
+				looksLike: {
+					streams: [
+						'<@@#stream object#stream@@ > (will have directives indicating adjustments to the editingUsers attribute of the stream)',
+						'...'
+					]
+				}
+			},
+			errors: [
+				'updateAuth',
+				'parameterRequired',
+				'tooManyFiles'
+			]
+		};
+	}
 }
 
 module.exports = EditingRequest;
