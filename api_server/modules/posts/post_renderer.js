@@ -62,7 +62,7 @@ class PostRenderer {
 		if (replyText) {
 			replyToDiv = `
 <div class="replyto">
-	reply to: ${replyText}
+	reply to &quot;${replyText}&quot;
 	<br>
 </div>
 `;
