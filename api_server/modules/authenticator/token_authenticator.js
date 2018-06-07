@@ -4,7 +4,6 @@
 
 'use strict';
 
-const JSONWebToken = require('jsonwebtoken');
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const Errors = require('./errors');
 
@@ -49,7 +48,7 @@ class TokenAuthenticator {
 	async verifyToken () {
 		if (!this.token) { return; }
 		try {
-			this.payload = JSONWebToken.verify(this.token, this.api.config.secrets.auth);
+			this.payload = this.tokenHandler.verify(this.token);
 		}
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;

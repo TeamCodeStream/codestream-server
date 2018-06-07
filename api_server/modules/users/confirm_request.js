@@ -3,7 +3,6 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const Tokenizer = require('./tokenizer');
 const PasswordHasher = require('./password_hasher');
 const UsernameChecker = require('./username_checker');
 const UserSubscriptionGranter = require('./user_subscription_granter');
@@ -165,10 +164,7 @@ class ConfirmRequest extends RestfulRequest {
 	// for all future requests
 	async generateToken () {
 		try {
-			this.accessToken = Tokenizer(
-				this.user.attributes,
-				this.api.config.secrets.auth
-			);
+			this.accessToken = this.api.services.tokenHandler.generate(this.user.attributes);
 		}
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;

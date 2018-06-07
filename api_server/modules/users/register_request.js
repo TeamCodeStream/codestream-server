@@ -5,7 +5,6 @@
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 const UserCreator = require('./user_creator');
 const ConfirmCode = require('./confirm_code');
-const Tokenizer = require('./tokenizer');
 const UserPublisher = require('./user_publisher');
 const Errors = require('./errors');
 
@@ -95,10 +94,7 @@ class RegisterRequest extends RestfulRequest {
 		}
 		let token;
 		try {
-			token = Tokenizer(
-				this.user.attributes,
-				this.api.config.secrets.auth
-			);
+			token = this.api.services.tokenHandler.generate(this.user.attributes);
 		}
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;
