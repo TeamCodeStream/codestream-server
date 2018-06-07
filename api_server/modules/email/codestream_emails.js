@@ -3,7 +3,7 @@
 'use strict';
 
 const SendGridEmail = require('./sendgrid_email');
-const EmailUtils = require('./utils');
+const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 
 class CodeStreamEmails {
 
@@ -19,7 +19,7 @@ class CodeStreamEmails {
 		if (request) {
 			request.log(`Sending confirmation email to ${email}`);
 		}
-		const name = EmailUtils.getUserName(user);	// glean a user name from attributes defined for the user
+		const name = this.getUserDisplayName(user);	// glean a user name from attributes defined for the user
 
 		// let SendGrid handle sending the email, they have a confirmation email template
 		await this.sendgridEmail.sendEmail(
@@ -45,8 +45,8 @@ class CodeStreamEmails {
 		if (request) {
 			request.log(`Sending invite email to ${email}`);
 		}
-		const name = EmailUtils.getUserName(user);	// glean a user name from attributes defined for the user
-		const inviterName = EmailUtils.getUserName(inviter);
+		const name = this.getUserDisplayName(user);	// glean a user name from attributes defined for the user
+		const inviterName = this.getUserDisplayName(inviter);
 		const templateId = user.get('isRegistered') ? this.registeredUserInviteEmailTemplateId : this.newUserInviteEmailTemplateId;
 		const numInvites = user.get('numInvites') || 0;
 		const campaign = numInvites > 0 ? 'reinvite_email' : 'invitation_email';
@@ -71,17 +71,11 @@ class CodeStreamEmails {
 
 	// send an email notification to the user specified
 	async sendEmailNotification (options) {
-		const { user, creator, posts, team, stream, content, request, sameAuthor } = options;
+		const { user, creator, posts, team, stream, content, request, mentioningAuthor } = options;
 		const email = user.get('email');
-		let fromName;
-		if (sameAuthor) {
-			const authorName = EmailUtils.getUserName(creator);
-			fromName = `${authorName} (via CodeStream)`;
-		}
-		else {
-			fromName = 'CodeStream';
-		}
-		const userName = EmailUtils.getUserName(user);
+		const author = mentioningAuthor || creator;
+		const fromName = author ? `${this.getUserDisplayName(author)} (via CodeStream)` : 'CodeStream';
+		const userName = this.getUserDisplayName(user);
 		if (request) {
 			request.log(`Sending email notification to ${email}, posts from ${posts[0].id} to ${posts[posts.length-1].id}`);
 		}
@@ -105,7 +99,7 @@ class CodeStreamEmails {
 
 	// send an email to us at team@codestream.com that a new team has been created
 	sendTeamCreatedEmail (options) {
-		const userName = EmailUtils.getUserName(options.user);
+		const userName = this.getUserDisplayName(options.user);
 		this.sendgridEmail.sendEmail(
 			{
 				from: { email: this.senderEmail, name: 'CodeStream' },
@@ -120,18 +114,123 @@ class CodeStreamEmails {
 
 	// determine the subject of an email notification
 	getNotificationSubject (options) {
-		const { mentioned, team } = options;
-		if (mentioned) {
-			const fileForCodeBlock = this.getFileForCodeBlock(options);
-			if (fileForCodeBlock) {
-				return `re: ${fileForCodeBlock}`;
+		const { stream, mentioningAuthor } = options;
+		const type = stream.get('type');
+		switch (type) {
+		case 'file':
+			return this.getNotificationSubjectForFileStream(options);
+		case 'channel':
+			return this.getNotificationSubjectForChannelStream(options);
+		case 'direct':
+			return this.getNotificationSubjectForDirectStream(options);
+		default:
+			// total fallback
+			if (mentioningAuthor) {
+				return 'You were mentioned on CodeStream';
 			}
 			else {
-				return 'You\'ve been mentioned on CodeStream'; 
+				return 'New message from CodeStream';
 			}
+		}
+	}
+
+	// get the subject for a post in a file-stream ... we're not really using these at this time,
+	// so this is a total fallback, just in case
+	getNotificationSubjectForFileStream (options) {
+		const { mentioningAuthor, team } = options;
+		if (mentioningAuthor) {
+			return 'You\'ve been mentioned on CodeStream';
 		}
 		else {
 			return `New messages for ${team.get('name')}`;
+		}
+	}
+
+	// get the subject for a post in a channel stream
+	getNotificationSubjectForChannelStream (options) {
+		const { stream, mentioningAuthor } = options;
+		if (mentioningAuthor) {
+			return `You were mentioned in ${stream.get('name')}`;
+		}
+		else {
+			return `New messages in ${stream.get('name')}`;
+		}
+	}
+
+	// get the subject for a post in a direct stream
+	getNotificationSubjectForDirectStream (options) {
+		const { mentioningAuthor, stream } = options;
+		const oneOnOne = stream.get('memberIds').length === 2;
+		if (oneOnOne) {
+			if (mentioningAuthor) {
+				const authorName = this.getUsername(mentioningAuthor);
+				return `You were mentioned by ${authorName}`;
+			}
+			else {
+				const streamName = this.getStreamName(options);
+				if (!streamName) {
+					return 'New messages from CodeStream';
+				}
+				else {
+					return `New messages from ${streamName}`;
+				}
+			}
+		}
+		else if (mentioningAuthor) {
+			const streamName = this.getStreamName(options);
+			if (!streamName) {
+				return 'You were mentioned in a post from CodeStream';
+			}
+			else {
+				return `You were mentioned in a post for ${streamName}`;
+			}
+		}
+		else {
+			const streamName = this.getStreamName(options, true);
+			if (!streamName) {
+				return 'New messages from CodeStream';
+			}
+			else {
+				return `New messages in a post for ${streamName}`;
+			}
+		}
+	}
+
+	// get the name of a direct stream, based on membership and current user
+	getStreamName (options, includeYou) {
+		const { user, members } = options;
+		let { postCreators } = options;
+
+		// in naming the stream, we prioritize active participants in the conversation
+		// (i.e., authors of posts the user will be seeing in the email)
+		postCreators = postCreators.filter(postCreator => postCreator.id !== user.id);
+		const nonPostCreators = members.filter(member => {
+			return (
+				member.id !== user.id &&
+				!postCreators.find(postCreator => postCreator.id === member.id)
+			);
+		});
+		const streamMembers = [...postCreators, ...nonPostCreators];
+		if (streamMembers.length === 0) {
+			return null; // shouldn't really happen
+		}
+		const usernames = streamMembers.map(member => {
+			return this.getUsername(member);
+		});
+		if (includeYou) {
+			usernames.unshift('you');
+		}
+		if (usernames.length === 1) {
+			return usernames[0];
+		}
+		else if (usernames.length === 2) {
+			return usernames.join(' and ');
+		}
+		else if (usernames.length === 3) {
+			return `${usernames[0]}, ${usernames[1]} and ${usernames[2]}`;
+		}
+		else {
+			return `${usernames[0]}, ${usernames[1]} and others`;
 		}
 	}
 
@@ -175,6 +274,35 @@ class CodeStreamEmails {
 		}
 		else {
 			return `${parts[0]}/${parts[1]}/.../${parts[numParts - 2]}/${parts[numParts - 1]}`;
+		}
+	}
+
+	// given a user, figure out a full display name to use in the subject
+	getUserDisplayName (user) {
+		const firstName = user.get('firstName');
+		const lastName = user.get('lastName');
+		if (firstName && lastName) {
+			return firstName + ' ' + lastName;
+		}
+		else if (firstName) {
+			return firstName;
+		}
+		else {
+			return user.get('email');
+		}
+	}
+
+	// given a user, figure out a username to use in the subject
+	getUsername (user) {
+		if (user.get('username')) {
+			return user.get('username');
+		}
+		const parsed = EmailUtilities.parseEmail(user.get('email'));
+		if (typeof parsed === 'object') {
+			return parsed.name;
+		}
+		else {
+			return user.get('email');
 		}
 	}
 }
