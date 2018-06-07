@@ -19,6 +19,7 @@ const EXPECTED_STREAM_FIELDS = [
 // fields expected for channel streams
 const EXPECTED_CHANNEL_STREAM_FIELDS = [
 	'name',
+	'purpose',
 	'memberIds'
 ];
 

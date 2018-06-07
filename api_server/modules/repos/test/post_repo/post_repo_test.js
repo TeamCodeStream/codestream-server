@@ -241,6 +241,7 @@ class PostRepoTest extends CodeStreamAPITest {
 		let result = (
 			((team._id === repo.teamId) || errors.push('team id is not the same as repo teamId')) &&
 			((team.name === this.teamData.name) || errors.push('team name doesn\'t match')) &&
+			((team.purpose === this.teamData.purpose) || errors.push('team purpose doesn\'t match')) &&
 			((JSON.stringify(team.memberIds.sort()) === JSON.stringify(expectMemberIds.sort())) || errors.push('team membership doesn\'t match')) &&
 			((team.companyId === repo.companyId) || errors.push('team companyId is not the same as repo companyId')) &&
 			((team.deactivated === false) || errors.push('team.deactivated not false')) &&

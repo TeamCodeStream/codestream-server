@@ -39,6 +39,7 @@ class PostStreamRequest extends PostRequest {
 				'repoId': '<For file streams, the repo that owns the file>',
 				'file': '<For file streams, the path to the file relative to the repo, required if type is file>',
 				'name': '<For channel streams, the name of the stream to be created, must not conflict with existing channel streams>',
+				'purpose': '<For channel streams, the purpose of the stream to be created>',
 				'privacy': '<For channel streams, public means other users can see the stream (even if they aren\'t members); direct streams are always private; file streams are always public>',
 				'memberIds': '<For channel or direct streams, array of IDs representing the members of the stream>'
 			}

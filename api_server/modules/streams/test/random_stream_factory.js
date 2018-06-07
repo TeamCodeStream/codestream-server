@@ -30,6 +30,11 @@ class RandomStreamFactory {
 		return `/path/to/${RandomString.generate(12)}.${RandomString.generate(2)}`;
 	}
 
+	// generate a random purpose (for a channel stream)
+	randomPurpose () {
+		return 'the purpose of this stream is ' + RandomString.generate(100);
+	}
+
 	// get some data to use for a random stream, given various options
 	getRandomStreamData (callback, options = {}) {
 		let type = options.type || 'file';
@@ -63,6 +68,7 @@ class RandomStreamFactory {
 			data.privacy = options.privacy;
 		}
 		data.name = options.name || this.randomName();
+		data.purpose = options.purpose || this.randomPurpose();
 		if (options.isTeamStream) {
 			data.isTeamStream = true;
 		}

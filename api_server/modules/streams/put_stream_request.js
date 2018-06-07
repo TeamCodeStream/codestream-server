@@ -117,6 +117,7 @@ class PutStreamRequest extends PutRequest {
 			summary: description.input,
 			looksLike: {
 				'name': '<Updated name of the channel stream>',
+				'purpose': '<Updated purpose of the channel stream>',
 				'$push': {
 					memberIds: '<Array of IDs representing users to add to the channel stream>'
 				},
