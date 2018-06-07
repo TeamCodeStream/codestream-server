@@ -44,6 +44,7 @@ class PostChannelStreamTest extends PostStreamTest {
 		let errors = [];
 		let result = (
 			((stream.name === this.data.name) || errors.push('name does not match')) &&
+			((stream.purpose === this.data.purpose) || errors.push('purpose does not match')) &&
 			(this.data.isTeamStream ||
 				((JSON.stringify(stream.memberIds) === JSON.stringify(this.data.memberIds)) || errors.push('memberIds array does not match'))
 			)

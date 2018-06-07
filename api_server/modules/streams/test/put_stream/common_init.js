@@ -95,7 +95,8 @@ class CommonInit {
 	// form the data for the stream update
 	makeStreamData (callback) {
 		this.data = {
-			name: this.streamFactory.randomName()
+			name: this.streamFactory.randomName(),
+			purpose: this.streamFactory.randomPurpose()
 		};
 		this.expectedStream = DeepClone(this.stream);
 		Object.assign(this.expectedStream, this.data);

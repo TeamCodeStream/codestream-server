@@ -23,7 +23,7 @@ class StreamUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['name'],
+			string: ['name', 'purpose'],
 			object: ['$addToSet', '$push', '$pull']
 		};
 	}
