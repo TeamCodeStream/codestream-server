@@ -51,7 +51,7 @@ class EmailNotificationRenderer {
 			line-height: 1.1em;
 		}
 		.mention {
-			color: #329ae8;
+			color: #009aef;
 			font-weight: bold;
 		}
 		.codeBlock {
