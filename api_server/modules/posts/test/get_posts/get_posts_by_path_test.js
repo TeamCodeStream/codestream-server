@@ -25,6 +25,7 @@ class GetPostsByPathTest extends GetPostsTest {
 	validateResponse (data) {
 		Object.assign(this.stream, { 
 			mostRecentPostId: data.stream.mostRecentPostId,
+			mostRecentPostCreatedAt: data.stream.mostRecentPostCreatedAt,
 			sortId: data.stream.sortId,
 			numMarkers: data.stream.numMarkers
 		});

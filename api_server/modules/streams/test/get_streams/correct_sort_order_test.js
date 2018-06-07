@@ -65,6 +65,7 @@ class CorrectSortOrderTest extends GetStreamsTest {
 				if (error) { return callback(error); }
 				// we expect the mostRecentPostId field to be updated by this
 				stream.mostRecentPostId = stream.sortId = response.post._id;	
+				stream.mostRecentPostCreatedAt = response.post.createdAt;
 				setTimeout(() => { callback(); }, this.waitTime);	// wait for the update to take, since we get the response before it persists
 			},
 			{

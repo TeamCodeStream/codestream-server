@@ -22,7 +22,7 @@ class MostRecentPostTest extends CodeStreamAPITest {
 	}
 
 	getExpectedFields () {
-		return { stream: ['mostRecentPostId', 'sortId'] };
+		return { stream: ['mostRecentPostId', 'mostRecentPostCreatedAt', 'sortId'] };
 	}
 
 	// before the test runs...
@@ -115,6 +115,7 @@ class MostRecentPostTest extends CodeStreamAPITest {
 		// validate that mostRecentPostId and sortId were both set to the ID of the
 		// last post created in the stream
 		Assert(data.stream.mostRecentPostId === this.posts[this.posts.length - 1]._id, 'mostRecentPostId for stream does not match post');
+		Assert(data.stream.mostRecentPostCreatedAt = this.posts[this.posts.length - 1].createdAt, 'mostRecentPostCreatedAt for stream does not match post');
 		Assert(data.stream.sortId === this.posts[this.posts.length - 1]._id, 'sortId for stream does not match post');
 	}
 }

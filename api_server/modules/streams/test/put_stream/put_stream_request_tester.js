@@ -49,6 +49,7 @@ class PutStreamRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'memberIds' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'isTeamStream' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'mostRecentPostId' }).test();
+		new NoUpdateOtherAttributeTest({ attribute: 'mostRecentPostCreatedAt' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'sortId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'numMarkers' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'editingUsers' }).test();

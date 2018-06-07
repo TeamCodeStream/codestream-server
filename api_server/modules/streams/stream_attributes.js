@@ -40,6 +40,10 @@ module.exports = {
 		type: 'id',
 		description: 'ID of the most recent @@#post#post@@ that was posted to the stream'
 	},
+	mostRecentPostCreatedAt: {
+		type: 'timestamp',
+		description: 'Timestamp representing when the most recent @@#post#post@@ was posted to the stream'
+	},
 	sortId: {
 		type: 'id',
 		description: 'Consistent sort value for pagination; if the stream has @@#posts#post@@, this will be equal to mostRecentPostId; if the stream has no posts, will be equal to the ID of the stream (which is time-ordered)'
