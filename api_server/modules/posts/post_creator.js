@@ -295,6 +295,7 @@ class PostCreator extends ModelCreator {
 	// requisition an ID for the post
 	createId () {
 		this.attributes._id = this.data.posts.createId();
+		this.attributes.createdAt = Date.now();
 	}
 
 	// create markers associated with code blocks for the post
@@ -430,6 +431,7 @@ class PostCreator extends ModelCreator {
 		let op = {
 			$set: {
 				mostRecentPostId: this.attributes._id,
+				mostRecentPostCreatedAt: this.attributes.createdAt,
 				sortId: this.attributes._id
 			}
 		};
@@ -500,7 +502,7 @@ class PostCreator extends ModelCreator {
 	async updatePostCount () {
 		this.updatePostCountOp = {
 			$inc: { totalPosts: 1 },
-			$set: { lastPostCreatedAt: Date.now() }
+			$set: { lastPostCreatedAt: this.attributes.createdAt }
 		};
 		await this.data.users.applyOpById(
 			this.user.id,
