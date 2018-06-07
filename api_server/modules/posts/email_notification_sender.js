@@ -62,11 +62,14 @@ class EmailNotificationSender {
 
 	// get all members of the team
 	async getAllMembers () {
-		const members = await this.request.data.users.getByIds(this.team.get('memberIds'));
-		// we don't care about deactivated members
-		this.allMembers = members.filter(member => {
-			return !member.get('deactivated');
-		});
+		let memberIds;
+		if (this.stream.get('type') === 'file' || this.stream.get('isTeamStream')) {
+			memberIds = this.team.get('memberIds');
+		}
+		else {
+			memberIds = this.stream.get('memberIds');
+		}
+		this.allMembers = await this.request.data.users.getByIds(memberIds);
 	}
 
 	// get the team members that are currently subscribed to the repo channel for the
@@ -148,12 +151,18 @@ class EmailNotificationSender {
 
 	// determine whether the givenn user wants an email notification for the current post
 	userWantsEmail (user) {
+		// deactivated users never get emails
+		if (user.get('deactivated')) {
+			return false;
+		}
+
+		// don't send an email if the user has read everything already
 		const lastReadSeqNum = user.get('lastReads') && user.get('lastReads')[this.stream.id];
 		if (typeof lastReadSeqNum === 'undefined') {
-			// don't send an email if the user has read everything already
 			this.request.log(`User ${user.id} is already caught up on this stream`);
 			return false;
 		}
+
 		// note that we assume the user is mentioned in the posts ... we don't have the posts yet
 		// (and we don't know which ones to get until we know which users want emails), so we are
 		// optimistic that the user will want a notification ... then, after we get the posts, we
@@ -253,7 +262,7 @@ class EmailNotificationSender {
 		this.parentPosts = await this.request.data.posts.getByIds(parentPostIds);
 	}
 
-	// get the creator of the post, if it is a single post
+	// get the creators of all the posts, gleaned from the members
 	async getPostCreators () {
 		const creatorIds = this.posts.reduce((ids, post) => {
 			if (!ids.includes(post.get('creatorId'))) {
@@ -261,7 +270,13 @@ class EmailNotificationSender {
 			}
 			return ids;
 		}, []);
-		this.postCreators = await this.request.data.users.getByIds(creatorIds);
+		this.postCreators = creatorIds.reduce((creators, creatorId) => {
+			const creator = this.allMembers.find(member => member.id === creatorId);
+			if (creator) {
+				creators.push(creator);
+			}
+			return creators;
+		}, []); 
 	}
 
 	// render the HTML needed for each post needed
@@ -290,7 +305,8 @@ class EmailNotificationSender {
 			timeZone,
 			markers: this.markers,
 			streams: this.streams,
-			repos: this.repos
+			repos: this.repos,
+			members: this.allMembers
 		});
 		this.renderedPosts.push({
 			post: post,
@@ -312,18 +328,28 @@ class EmailNotificationSender {
 	// read message for the stream
 	async determinePostsForUser (user) {
 		const lastReadSeqNum = user.get('lastReads')[this.stream.id];
-		const lastReadPostIndex = this.posts.findIndex(post => post.get('seqNum') <= lastReadSeqNum);
+		const lastReadPostIndex = this.posts.findIndex(post => {
+			// look back for the last read post by this user, but as a failsafe, also look back
+			// to any posts authored by this user
+			return (
+				post.get('creatorId') === user.id || 
+				post.get('seqNum') <= lastReadSeqNum
+			);
+		});
 		if (lastReadPostIndex === -1) {
 			this.renderedPostsPerUser[user.id] = [...this.renderedPosts];
 		}
 		else {
 			this.renderedPostsPerUser[user.id] = this.renderedPosts.slice(0, lastReadPostIndex);
 		}
-		if (this.renderedPostsPerUser.length === 0) {
+		if (this.renderedPostsPerUser[user.id].length === 0) {
 			return;
 		}
-		this.mentionsPerUser[user.id] = this.renderedPostsPerUser[user.id].find(renderedPost => {
-			return renderedPost.post.mentionsUser(user);
+		this.renderedPostsPerUser[user.id].find(renderedPost => {
+			if (renderedPost.post.mentionsUser(user)) {
+				this.mentionsPerUser[user.id] = renderedPost.post.get('creatorId');
+				return true;
+			}
 		});
 		const firstPost = this.renderedPostsPerUser[user.id][0].post;
 		this.hasMultipleAuthorsPerUser[user.id] = this.renderedPostsPerUser[user.id].find(renderedPost => {
@@ -391,7 +417,7 @@ class EmailNotificationSender {
 			/* Disabling per COD-525, countermanding COD-436 ... oh the joy
 			!this.mentionsPerUser[user.id] || // per COD-436, only send email notifications to mentioned users
 			*/
-			!user.wantsEmail(this.stream, this.mentionsPerUser[user.id])
+			!user.wantsEmail(this.stream, !!this.mentionsPerUser[user.id])
 		) {
 			// renderedPosts.length should not be 0, but this can still happen because at the
 			// time we determined who preferred getting emails, we didn't have the posts, so
@@ -411,7 +437,7 @@ class EmailNotificationSender {
 			team: this.team,
 			repo: this.repo,
 			stream: this.stream,
-			mentioned: this.mentionsPerUser[user.id],
+			mentioned: !!this.mentionsPerUser[user.id],
 			streams: this.streams,
 			offlineForRepo 
 		});
@@ -434,19 +460,23 @@ class EmailNotificationSender {
 		if (!this.hasMultipleAuthors || !this.hasMultipleAuthorsPerUser[user.id]) {
 			creator = this.postCreators.find(creator => creator.id === posts[0].get('creatorId'));
 		}
+		const mentioningAuthor = this.mentionsPerUser[user.id] ?
+			this.postCreators.find(creator => creator.id === this.mentionsPerUser[user.id]) :
+			null;
 		let options = {
 			request: this.request,
 			content: html,
 			user,
 			posts,
 			creator,
+			mentioningAuthor,
 			stream: this.stream,
 			team: this.team,
-			mentioned: this.mentionsPerUser[user.id],
-			sameAuthor: !this.hasMultipleAuthors,
 			streams: this.streams,
 			repos: this.repos,
-			markers: this.markers
+			markers: this.markers,
+			members: this.allMembers,
+			postCreators: this.postCreators
 		};
 		try {
 			await this.request.api.services.email.sendEmailNotification(options);

@@ -14,6 +14,7 @@
     "express-http-proxy": "^1.1.0",
     "express-request-id": "1.4.0",
     "git-url-parse": "7.0.1",
+    "highlight.js": "^9.12.0",
     "jsonwebtoken": "7.1.9",
     "lodash": "4.16.4",
     "mixpanel": "^0.9.0",
