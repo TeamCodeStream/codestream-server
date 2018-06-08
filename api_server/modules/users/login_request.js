@@ -58,20 +58,26 @@ class LoginRequest extends RestfulRequest {
 				}
 			}
 		);
+		/*
+		// Killing this check to avoid email harvesting vulnerability, instead we'll drop through
+		// and return a password mismatch error even if the user doesn't exist
 		if (!this.user || this.user.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'email' });
 		}
+		*/
 	}
 
 	// validate that the given password matches the password hash stored for the user
 	async validatePassword () {
 		let result;
 		try {
-			result = await callbackWrap(
-				BCrypt.compare,
-				this.request.body.password,
-				this.user.get('passwordHash')
-			);
+			if (this.user && !this.user.get('deactivated')) {
+				result = await callbackWrap(
+					BCrypt.compare,
+					this.request.body.password,
+					this.user.get('passwordHash')
+				);
+			}
 		}
 		catch (error) {
 			throw this.errorHandler.error('token', { reason: error });
@@ -181,7 +187,6 @@ class LoginRequest extends RestfulRequest {
 			},
 			errors: [
 				'parameterRequired',
-				'notFound',
 				'passwordMismatch',
 				'noLoginUnregistered'
 			]

@@ -14,8 +14,7 @@ class InvalidEmailTest extends LoginTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1003',
-			info: 'email'
+			code: 'USRC-1001'
 		};
 	}
 
