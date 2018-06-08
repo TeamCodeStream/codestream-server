@@ -38,6 +38,28 @@ class CodeStreamEmails {
 		);
 	}
 
+	// send email to a user trying to register that they are already registered
+	async sendAlreadyRegisteredEmail (options) {
+		const { user, request } = options;
+		const email = user.get('email');
+		if (request) {
+			request.log(`Sending already-registered email to ${email}`);
+		}
+		const name = this.getUserDisplayName(user);	// glean a user name from attributes defined for the user
+
+		// let SendGrid handle sending the email, they have a confirmation email template
+		await this.sendgridEmail.sendEmail(
+			{
+				from: { email: this.senderEmail, name: 'CodeStream' },
+				to: { email: user.get('email'), name: name },
+				templateId: this.alreadyRegisteredEmailTemplateId,
+				request: request,
+				testCallback: this.testCallback,
+				user: user
+			}
+		);
+	}
+
 	// send an invite email to the user specified
 	async sendInviteEmail (options) {
 		const { inviter, user, team, request } = options;

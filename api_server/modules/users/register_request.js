@@ -77,9 +77,11 @@ class RegisterRequest extends RestfulRequest {
 
 	// save the user to the database, given the attributes in the request body
 	async saveUser () {
+		// from the web client, don't return an error if the user is already registered, to avoid email harvesting
+		const notOkIfExistsAndRegistered = (this.request.headers['x-cs-plugin-ide'] || '').toLowerCase() !== 'webclient';
 		this.userCreator = new UserCreator({
 			request: this,
-			notOkIfExistsAndRegistered: true,	// if user exists and is already registered, this is an error
+			notOkIfExistsAndRegistered,	
 			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
 			subscriptionCheat: this.subscriptionCheat === this.api.config.secrets.subscriptionCheat
 		});
@@ -89,7 +91,7 @@ class RegisterRequest extends RestfulRequest {
 	// generate an access token for the user, but only if confirmation is not required
 	// (otherwise they don't get an access token yet!)
 	async generateToken () {
-		if (this.confirmationRequired) {
+		if (this.confirmationRequired || (this.userCreator.didExist && this.user.get('isRegistered'))) {
 			return;
 		}
 		let token, minIssuance;
@@ -120,21 +122,37 @@ class RegisterRequest extends RestfulRequest {
 			delete this.delayEmail;
 			return;
 		}
-		await this.api.services.email.sendConfirmationEmail(
-			{
-				user: this.user,
-				request: this
-			}
-		);
+		// if the user is already registered, we send an email to this effect, rather
+		// than sending the confirmation code
+		if (this.userCreator.didExist && this.user.get('isRegistered')) {
+			await this.api.services.email.sendAlreadyRegisteredEmail(
+				{
+					user: this.user,
+					request: this
+				}
+			);
+		}
+		else {
+			await this.api.services.email.sendConfirmationEmail(
+				{
+					user: this.user,
+					request: this
+				}
+			);
+		}
 	}
 
 	// form the response to the request
 	async formResponse () {
-		this.responseData = { user: this.user.getSanitizedObjectForMe() };
-		if (this.confirmationCheat === this.api.config.secrets.confirmationCheat) {
-			// this allows for testing without actually receiving the email
-			this.log('Confirmation cheat detected, hopefully this was called by test code');
-			this.responseData.user.confirmationCode = this.user.get('confirmationCode');
+		// FIXME - we eventually need to deprecate serving the user object completely,
+		// this is a security vulnerability
+		if (!this.user.get('isRegistered') || this.user.get('_forTesting')) {
+			this.responseData = { user: this.user.getSanitizedObjectForMe() };
+			if (this.confirmationCheat === this.api.config.secrets.confirmationCheat) {
+				// this allows for testing without actually receiving the email
+				this.log('Confirmation cheat detected, hopefully this was called by test code');
+				this.responseData.user.confirmationCode = this.user.get('confirmationCode');
+			}
 		}
 		if (this.accessToken) {
 			this.responseData.accessToken = this.accessToken;
