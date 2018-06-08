@@ -21,6 +21,15 @@ class ChangePasswordTest extends CodeStreamAPITest {
 		return this.dontLoginToVerify ? '/password' : '/no-auth/login';
 	}
 
+	getExpectedFields () {
+		// when dontLoginToVerify is specified, we're not doing a login to verify
+		// the password hash was correctly written; instead, verify that we get an 
+		// access token in the response
+		if (this.dontLoginToVerify) {
+			return ['accessToken'];
+		}
+	}
+	
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [

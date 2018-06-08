@@ -92,15 +92,22 @@ class RegisterRequest extends RestfulRequest {
 		if (this.confirmationRequired) {
 			return;
 		}
-		let token;
+		let token, minIssuance;
 		try {
 			token = this.api.services.tokenHandler.generate(this.user.attributes);
+			minIssuance = this.api.services.tokenHandler.decode(token).iat * 1000;
 		}
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;
 			throw this.errorHandler.error('token', { reason: message });
 		}
-		this.request.body.accessToken = this.accessToken = token;
+		this.accessToken = token;
+		this.request.body.accessTokens = { 
+			web: {
+				token,
+				minIssuance: minIssuance
+			}
+		};
 	}
 
 	// send out the confirmation email with the confirmation code

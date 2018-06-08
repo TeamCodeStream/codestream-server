@@ -22,6 +22,7 @@ class TokenAuthenticator {
 		}
 		await this.verifyToken();
 		await this.getUser();
+		await this.validateToken();
 	}
 
 	// get the authentication token from any number of places
@@ -32,9 +33,11 @@ class TokenAuthenticator {
 		}
 		// look for a token in this order: cookie, query, body, header
 		const token =
+			/*
 			(this.request.signedCookies && this.request.signedCookies.t) ||
 			(this.request.query && this.request.query.t && decodeURIComponent(this.request.query.t)) ||
 			(this.request.body && this.request.body.t) ||
+*/
 			this.tokenFromHeader(this.request);
 		if (!token) {
 			if (!this.pathIsOptionalAuth(this.request)) {
@@ -86,6 +89,19 @@ class TokenAuthenticator {
 			this.request.user = user;
 		}
 		this.request.authPayload = this.payload;
+	}
+
+	// now that we have the user, validate the token against issuance data for the user
+	async validateToken () {
+		if (
+			this.userClass &&
+			typeof this.request.user.validateTokenPayload === 'function'
+		) {
+			const reason = this.request.user.validateTokenPayload(this.payload);
+			if (reason) {
+				throw this.errorHandler.error('tokenExpired', { reason });
+			}
+		}
 	}
 
 	// certain paths signal that no authentication is required,

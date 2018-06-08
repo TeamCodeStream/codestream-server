@@ -9,33 +9,42 @@ const JWT_ISSUER = 'CodeStream';
 
 class TokenHandler {
 
-    constructor (secret) {
-        if (!secret) {
-            throw 'must provide secret for Tokens';
-        }
-        this.secret = secret;
-    }
+	constructor (secret) {
+		if (!secret) {
+			throw 'must provide secret for Tokens';
+		}
+		this.secret = secret;
+	}
 
-    generate (user, type='client') {
-        const payload = {
-            userId: user._id.toString(),
-            iss: JWT_ISSUER,
-            alg: JWT_ALGORITHM,
-            type: type
-        };
-        return JWT.sign(payload, this.secret);
-    }
+	generate (user, type = 'web') {
+		const payload = {
+			userId: user._id.toString(),
+			iss: JWT_ISSUER,
+			alg: JWT_ALGORITHM,
+			type: type
+		};
+		return JWT.sign(payload, this.secret);
+	}
 
-    verify (token) {
-        const payload = JWT.verify(
-            token,
-            this.secret,
-            {
-                algorithms: [JWT_ALGORITHM]
-            }
-        );
-        return payload;
-    }
+	verify (token) {
+		return JWT.verify(
+			token,
+			this.secret,
+			{
+				algorithms: [JWT_ALGORITHM]
+			}
+		);
+	}
+
+	decode (token) {
+		return JWT.decode(
+			token,
+			this.secret,
+			{
+				algorithms: [JWT_ALGORITHM]
+			}
+		);
+	}
 }
 
 module.exports = TokenHandler;

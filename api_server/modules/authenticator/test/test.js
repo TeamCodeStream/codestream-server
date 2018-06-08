@@ -10,6 +10,7 @@ var AuthenticationMissingAuthorizationTest = require('./authentication_missing_a
 var AuthenticationInvalidTokenTest = require('./authentication_invalid_token_test');
 var AuthenticationNoUserIDTest = require('./authentication_no_user_id_test');
 var AuthenticationUserNotFoundTest = require('./authentication_user_not_found_test');
+var MinIssuanceTest = require('./min_issuance_test');
 
 describe('authentication', function() {
 
@@ -20,4 +21,5 @@ describe('authentication', function() {
 	new AuthenticationInvalidTokenTest().test();
 	new AuthenticationNoUserIDTest().test();
 	new AuthenticationUserNotFoundTest().test();
+	new MinIssuanceTest().test();
 });

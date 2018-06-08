@@ -165,6 +165,7 @@ class ConfirmRequest extends RestfulRequest {
 	async generateToken () {
 		try {
 			this.accessToken = this.api.services.tokenHandler.generate(this.user.attributes);
+			this.minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
 		}
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;
@@ -209,7 +210,10 @@ class ConfirmRequest extends RestfulRequest {
 				isRegistered: true,
 				modifiedAt: now,
 				registeredAt: now,
-				accessToken: this.accessToken
+				'accessTokens.web': {
+					token: this.accessToken,
+					minIssuance: this.minIssuance
+				}
 			},
 			'$unset': {
 				confirmationCode: true,
