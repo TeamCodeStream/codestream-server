@@ -58,9 +58,10 @@ class ErrorHandler {
 		// make a copy ... we don't want to alter the original!
 		let clientError = Object.assign({}, error);
 		if (clientError.internal) {
-			// delete any internal errors (they should have been logged server-side already)
-			delete clientError.internal;
-			delete clientError.reason;
+			// for internal errors, all we return is the code
+			clientError = {
+				code: clientError.code
+			}
 		}
 		delete clientError.description;
 		return clientError;
