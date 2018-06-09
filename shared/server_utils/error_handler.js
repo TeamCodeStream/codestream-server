@@ -61,7 +61,7 @@ class ErrorHandler {
 			// for internal errors, all we return is the code
 			clientError = {
 				code: clientError.code
-			}
+			};
 		}
 		delete clientError.description;
 		return clientError;
