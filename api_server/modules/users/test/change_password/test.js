@@ -1,4 +1,4 @@
-// handle unit tests for the "PUT /change-password" request for a user to change their password 
+// handle unit tests for the "PUT /password" request for a user to change their password 
 
 'use strict';
 

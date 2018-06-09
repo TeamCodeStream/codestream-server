@@ -6,7 +6,7 @@ class EmailNotificationRenderer {
 
 	// render an email notification for a given set of posts and a given user
 	render (options) {
-		const { posts } = options;
+		const { posts, supportEmail } = options;
 		const postsContent = posts.join('');
 		const intro = this.getNotificationIntro(options) || '';
 		return `
@@ -96,7 +96,7 @@ class EmailNotificationRenderer {
 		<div class=footnote>
 			Add to the discussion by replying to this email.<br/>
 			<br/>
-			Control notifications by emailing <a href="mailto:support@codestream.com">support@codestream.com</a>.
+			Control notifications by emailing <a href="mailto:${supportEmail}">${supportEmail}</a>.
 		</div>
 <!--
 		<br>

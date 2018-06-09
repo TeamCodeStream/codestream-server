@@ -439,7 +439,8 @@ class EmailNotificationSender {
 			stream: this.stream,
 			mentioned: !!this.mentionsPerUser[user.id],
 			streams: this.streams,
-			offlineForRepo 
+			offlineForRepo,
+			supportEmail: this.request.api.config.email.supportEmail
 		});
 		html = html.replace(/[\t\n]/g, '');
 		this.renderedEmails.push({ user, html });

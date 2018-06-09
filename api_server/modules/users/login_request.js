@@ -129,7 +129,7 @@ class LoginRequest extends RestfulRequest {
 			!minIssuance ||
 			minIssuance > (tokenPayload.iat * 1000)
 		) {
-			this.accessToken = this.api.services.tokenHandler.generate(this.user.attributes);
+			this.accessToken = this.api.services.tokenHandler.generate({ uid: this.user.id });
 			const minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat;
 			await this.data.users.applyOpById(
 				this.user.id,

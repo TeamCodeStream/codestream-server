@@ -96,7 +96,7 @@ class RegisterRequest extends RestfulRequest {
 		}
 		let token, minIssuance;
 		try {
-			token = this.api.services.tokenHandler.generate(this.user.attributes);
+			token = this.api.services.tokenHandler.generate({ uid: this.user.id });
 			minIssuance = this.api.services.tokenHandler.decode(token).iat * 1000;
 		}
 		catch (error) {

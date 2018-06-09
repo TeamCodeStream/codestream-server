@@ -16,13 +16,15 @@ class TokenHandler {
 		this.secret = secret;
 	}
 
-	generate (user, type = 'web') {
-		const payload = {
-			userId: user._id.toString(),
+	generate (payload, type = 'web', options = {}) {
+		payload = Object.assign({}, payload, {
 			iss: JWT_ISSUER,
 			alg: JWT_ALGORITHM,
 			type: type
-		};
+		});
+		if (options.expiresAt) {
+			payload.exp = Math.floor(options.expiresAt / 1000);
+		}
 		return JWT.sign(payload, this.secret);
 	}
 

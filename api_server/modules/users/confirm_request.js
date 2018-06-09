@@ -164,7 +164,7 @@ class ConfirmRequest extends RestfulRequest {
 	// for all future requests
 	async generateToken () {
 		try {
-			this.accessToken = this.api.services.tokenHandler.generate(this.user.attributes);
+			this.accessToken = this.api.services.tokenHandler.generate({ uid: this.user.id });
 			this.minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
 		}
 		catch (error) {

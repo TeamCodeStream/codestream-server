@@ -67,7 +67,7 @@ class ChangePasswordRequest extends RestfulRequest {
 
 	// generate a new access token for the user, all other access tokens will be invalidated by this
 	async generateToken () {
-		this.accessToken = this.api.services.tokenHandler.generate(this.request.user.attributes);
+		this.accessToken = this.api.services.tokenHandler.generate({ uid: this.request.user.id });
 		this.minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
 		this.responseData.accessToken = this.accessToken;
 	}

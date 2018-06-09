@@ -62,7 +62,7 @@ class TokenAuthenticator {
 	// get the user associated with this token payload
 	async getUser () {
 		if (!this.payload) { return; }
-		const userId = this.payload.userId;
+		const userId = this.payload.uid;
 		if (!userId) {
 			throw this.errorHandler.error('noUserId');
 		}
@@ -93,6 +93,7 @@ class TokenAuthenticator {
 
 	// now that we have the user, validate the token against issuance data for the user
 	async validateToken () {
+		if (!this.request.user) { return; }
 		if (
 			this.userClass &&
 			typeof this.request.user.validateTokenPayload === 'function'

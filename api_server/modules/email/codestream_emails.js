@@ -91,6 +91,29 @@ class CodeStreamEmails {
 		);
 	}
 
+	// send email to a user to help them reset their password, contains a link to the web
+	async sendResetPasswordEmail (options) {
+		const { user, request, url, supportEmail } = options;
+		const email = user.get('email');
+		if (request) {
+			request.log(`Sending reset password email to ${email}`);
+		}
+		const name = this.getUserDisplayName(user);	// glean a user name from attributes defined for the user
+
+		// let SendGrid handle sending the email, they have a confirmation email template
+		await this.sendgridEmail.sendEmail(
+			{
+				from: { email: supportEmail, name: 'CodeStream' },
+				to: { email: user.get('email'), name: name },
+				templateId: this.resetPasswordEmailTemplateId,
+				request: request,
+				testCallback: this.testCallback,
+				user: user,
+				fields: { url }
+			}
+		);
+	}
+	
 	// send an email notification to the user specified
 	async sendEmailNotification (options) {
 		const { user, creator, posts, team, stream, content, request, mentioningAuthor } = options;
