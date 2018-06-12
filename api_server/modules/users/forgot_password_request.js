@@ -26,11 +26,16 @@ class ForgotPasswordRequest extends RestfulRequest {
 	async requireAndAllow () {
 		this.delayEmail = this.request.body._delayEmail; // delay sending the reset password email, for testing
 		delete this.request.body._delayEmail;
+		this.confirmationCheat = this.request.body._confirmationCheat;	// send the token back in the response, for testing
+		delete this.request.body._confirmationCheat;
 		await this.requireAllowParameters(
 			'body',
 			{
 				required: {
 					string: ['email']
+				},
+				optional: {
+					number: ['expiresIn']
 				}
 			}
 		);
@@ -62,7 +67,14 @@ class ForgotPasswordRequest extends RestfulRequest {
 	// generate a new access token for the user, all other access tokens will be invalidated by this
 	async generateToken () {
 		if (!this.user) { return; }
-		const expiresAt = Date.now() + (24 * 60 * 60 * 1000);	// expires one day from now
+		// time till expiration can be provided (normally for testing purposes),
+		// or default to configuration
+		let expiresIn = this.api.config.api.forgotPasswordExpiration;
+		if (this.request.body.expiresIn && this.request.body.expiresIn < expiresIn) {
+			this.warn('Overriding configured reset password expiration to ' + this.request.body.expiresIn);
+			expiresIn = this.request.body.expiresIn;
+		}
+		const expiresAt = Date.now() + expiresIn;
 		this.token = this.api.services.tokenHandler.generate(
 			{ email: this.request.body.email },
 			'rst',
@@ -114,6 +126,13 @@ class ForgotPasswordRequest extends RestfulRequest {
 				supportEmail: this.api.config.email.supportEmail
 			}
 		);
+
+		// send the token back in the response, if we're testing
+		if (this.confirmationCheat === this.api.config.secrets.confirmationCheat) {
+			// this allows for testing without actually receiving the email
+			this.log('Confirmation cheat detected for forgot-password, hopefully this was called by test code');
+			this.responseData.token = this.token;
+		}
 	}
 
 	// describe this route for help

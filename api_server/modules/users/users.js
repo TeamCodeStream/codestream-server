@@ -76,6 +76,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'no-auth/forgot-password',
 		requestClass: require('./forgot_password_request')
+	},
+	{
+		method: 'get',
+		path: 'no-auth/check-reset',
+		requestClass: require('./check_reset_request')
 	}
 ];
 

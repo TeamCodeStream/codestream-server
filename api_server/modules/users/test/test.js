@@ -10,6 +10,7 @@ const GetSessionsRequestTester = require('./get_sessions/test');
 const PresenceRequestTester = require('./presence/test');
 const ChangePasswordRequestTester = require('./change_password/test');
 const ForgotPasswordRequestTester = require('./forgot_password/test');
+const CheckResetRequestTester = require('./check_reset/test');
 
 var userRequestTester = new UserRequestTester();
 
@@ -32,4 +33,5 @@ describe('user requests', function() {
 	describe('PUT /presence', PresenceRequestTester.test);
 	describe('PUT /password', ChangePasswordRequestTester.test);
 	describe('PUT /no-auth/forgot-password', ForgotPasswordRequestTester.test);
+	describe('GET /no-auth/check-reset', CheckResetRequestTester.test);
 });
