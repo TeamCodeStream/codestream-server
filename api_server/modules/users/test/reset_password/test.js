@@ -19,7 +19,7 @@ class ResetPasswordRequestTester {
 
 	test () {
 		new ResetPasswordTest().test();
-		new RequiredParameterTest({ parameter: 't' }).test();
+		new RequiredParameterTest({ parameter: 'token' }).test();
 		new RequiredParameterTest({ parameter: 'password' }).test();
 		new InvalidTokenTest().test();
 		new TokenExpiredTest().test();

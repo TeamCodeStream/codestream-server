@@ -3,6 +3,5 @@
 'use strict';
 
 module.exports = {
-	host: process.env.CS_WEB_CLIENT_HOST || 'localhost',
-	port: process.env.CS_WEB_CLIENT_PORT || 12099
+	host: process.env.CS_WEB_CLIENT_ORIGIN || 'localhost:12099'
 };

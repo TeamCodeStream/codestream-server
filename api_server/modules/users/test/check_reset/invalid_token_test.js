@@ -18,7 +18,7 @@ class InvalidTokenTest extends CheckResetTest {
 	makeQueryData () {
 		// replace the token with a garbage token
 		const queryData = super.makeQueryData();
-		queryData.t = 'abcxyz';
+		queryData.token = 'abcxyz';
 		return queryData;
 	}
 }

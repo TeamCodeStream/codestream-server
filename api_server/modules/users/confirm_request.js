@@ -8,8 +8,9 @@ const UsernameChecker = require('./username_checker');
 const UserSubscriptionGranter = require('./user_subscription_granter');
 const UserPublisher = require('./user_publisher');
 const InitialDataFetcher = require('./initial_data_fetcher');
-const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors');
 const Errors = require('./errors');
+const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors');
+const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 
 const MAX_CONFIRMATION_ATTEMPTS = 3;
@@ -20,6 +21,7 @@ class ConfirmRequest extends RestfulRequest {
 		super(options);
 		this.errorHandler.add(Errors);
 		this.errorHandler.add(TeamErrors);
+		this.errorHandler.add(AuthErrors);
 	}
 
 	async authorize () {
@@ -29,7 +31,9 @@ class ConfirmRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		await this.requireAndAllow();		// require parameters, and filter out unknown parameters
+		await this.verifyToken();			// verify the confirmation token, if passed
 		await this.getUser();				// get the user indicated
+		await this.validateToken();			// verify the confirmation token is not expired, per the most recently issued token, if passed
 		await this.checkAttributes();		// check the attributes provided in the request
 		if (await this.verifyCode()) {		// verify the confirmation code is correct
 			return await this.failedConfirmation();
@@ -48,35 +52,79 @@ class ConfirmRequest extends RestfulRequest {
 		await this.requireAllowParameters(
 			'body',
 			{
-				required: {
-					string: ['email', 'confirmationCode']
-				},
 				optional: {
-					string: ['userId', 'password', 'username']
+					string: ['email', 'password', 'username', 'confirmationCode', 'token']
 				}
 			}
 		);
+		if (!this.request.body.token && !this.request.body.confirmationCode) {
+			// confirmation code or token must be provided
+			throw this.errorHandler.error('parameterRequired', { info: 'confirmationCode or token' });
+		}
+		if (!this.request.body.token && !this.request.body.email) {
+			// email or confirmation token must be provided
+			throw this.errorHandler.error('parameterRequired', { info: 'email or token' });
+		}
 	}
 
-	// get the user, as given by the userId
-	async getUser () {
-		if (this.request.body.userId) {
-			const userId = this.request.body.userId.toLowerCase();
-			this.user = await this.data.users.getById(userId);
+	// parse and verify the passed token
+	async verifyToken () {
+		if (!this.request.body.token) {
+			return;	// expect old-fashioned confirmation code instead
 		}
-		else {
-			const query = {
-				searchableEmail: this.request.body.email.toLowerCase()
-			};
-			const users = await this.data.users.getByQuery(
-				query,
-				{
-					databaseOptions: {
-						hint: UserIndexes.bySearchableEmail 
-					}
+		try {
+			this.payload = this.api.services.tokenHandler.verify(this.request.body.token);
+		}
+		catch (error) {
+			const message = typeof error === 'object' ? error.message : error;
+			if (message === 'jwt expired') {
+				throw this.errorHandler.error('tokenExpired');
+			}
+			else {
+				throw this.errorHandler.error('tokenInvalid', { reason: message });
+			}
+		}
+		if (this.payload.type !== 'conf') {
+			throw this.errorHandler.error('tokenInvalid', { reason: 'not a conf token' });
+		}
+		if (!this.payload.uid) {
+			throw this.errorHandler.error('tokenInvalid', { reason: 'no uid in payload' });
+		}
+	}
+
+	// get the user associated with the email in the token payload
+	async getUser () {
+		if (this.payload) {
+			// user ID was provided in the confirmation token, just fetch that user
+			this.user = await this.data.users.getById(this.payload.uid);
+			return;
+		}
+		const query = {
+			searchableEmail: this.request.body.email.toLowerCase()
+		};
+		const users = await this.data.users.getByQuery(
+			query,
+			{
+				databaseOptions: {
+					hint: UserIndexes.bySearchableEmail 
 				}
-			);
-			this.user = users[0];
+			}
+		);
+		this.user = users[0];
+	}
+
+	// verify the token is not expired, per the most recently issued token
+	async validateToken () {
+		if (!this.payload || !this.user) {
+			return;	// no confirmation token (old-style code instead)
+		}
+		const accessTokens = this.user.get('accessTokens') || {};
+		const confirmationTokens = accessTokens.conf || {};
+		if (!confirmationTokens || !confirmationTokens.minIssuance) {
+			throw this.errorHandler.error('tokenInvalid', { reason: 'no issuance for conf token found' });
+		}
+		if (confirmationTokens.minIssuance > this.payload.iat * 1000) {
+			throw this.errorHandler.error('tokenInvalid', { reason: 'a more recent conf token has been issued' });
 		}
 	}
 
@@ -85,10 +133,6 @@ class ConfirmRequest extends RestfulRequest {
 		// can't confirm a deactivated account
 		if (!this.user || this.user.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
-		}
-		// can't set a different email (though we tolerate case variance)
-		if (this.user.get('searchableEmail') !== this.request.body.email.toLowerCase()) {
-			throw this.errorHandler.error('emailMismatch');
 		}
 		// can't confirm an already-confirmed user
 		if (this.user.get('isRegistered')) {
@@ -106,6 +150,10 @@ class ConfirmRequest extends RestfulRequest {
 
 	// verify the confirmation code given in the request against the one that was generated
 	async verifyCode () {
+		if (!this.request.body.confirmationCode) {
+			// confirmation token was provided, no code check at all
+			return;
+		}
 		// we give the user 3 attempts to enter a confirmation code, after that, they'll
 		// have to get a new confirmation email sent to them
 		let confirmFailed = false;
@@ -218,7 +266,8 @@ class ConfirmRequest extends RestfulRequest {
 			'$unset': {
 				confirmationCode: true,
 				confirmationAttempts: true,
-				confirmationCodeExpiresAt: true
+				confirmationCodeExpiresAt: true,
+				'accessTokens.conf': true
 			}
 		};
 		if (this.passwordHash) {
@@ -336,13 +385,14 @@ class ConfirmRequest extends RestfulRequest {
 		return {
 			tag: 'confirm',
 			summary: 'Confirms a user\'s registration',
-			access: 'No authorization needed, though the correct confirmation code must be provided',
-			description: 'Confirms a user\'s registration with confirmation code',
+			access: 'No authorization needed, though the correct confirmation code or the confirmation token must be correct',
+			description: 'Confirms a user\'s registration with confirmation code, or confirmation token',
 			input: {
-				summary: 'Specify attributes in the body',
+				summary: 'Specify attributes in the body; either token must be provided, or email and confirmation code must be provided',
 				looksLike: {
-					'email*': '<User\'s email>',
-					'confirmationCode*': '<Confirmation code (sent via email to the user\'s email after initial registration)>',
+					'email': '<User\'s email>',
+					'confirmationCode': '<Confirmation code (sent via email to the user\'s email after initial registration)>',
+					'token': '<Confirmation token>',
 					'password': '<Can optionally set the user\'s password here>',
 					'username': '<Can optionally set the user\'s username here>'
 				}
@@ -377,7 +427,9 @@ class ConfirmRequest extends RestfulRequest {
 				'usernameNotUnique',
 				'tooManyConfirmAttempts',
 				'confirmCodeExpired',
-				'confirmCodeMismatch'
+				'confirmCodeMismatch',
+				'tokenInvalid',
+				'tokenExpired'
 			]
 		};
 	}

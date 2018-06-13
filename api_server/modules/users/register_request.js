@@ -108,9 +108,9 @@ class RegisterRequest extends RestfulRequest {
 		// time till expiration can be provided (normally for testing purposes),
 		// or default to configuration
 		let expiresIn = this.api.config.api.confirmationExpiration;
-		if (this.request.body.expiresIn && this.request.body.expiresIn < expiresIn) {
-			this.warn('Overriding configured confirmation expiration to ' + this.request.body.expiresIn);
-			expiresIn = this.request.body.expiresIn;
+		if (this.expiresIn && this.expiresIn < expiresIn) {
+			this.warn('Overriding configured confirmation expiration to ' + this.expiresIn);
+			expiresIn = this.expiresIn;
 		}
 		const expiresAt = Date.now() + expiresIn;
 		this.token = this.api.services.tokenHandler.generate(
@@ -189,8 +189,7 @@ class RegisterRequest extends RestfulRequest {
 
 			// generate the url
 			const host = this.api.config.webclient.host;
-			const port = this.api.config.webclient.port;
-			const url = `https://${host}:${port}/signup?t=${encodeURIComponent(this.token)}`;
+			const url = `https://${host}/signup?token=${encodeURIComponent(this.token)}`;
 
 			await this.api.services.email.sendConfirmationEmailWithLink(
 				{
@@ -223,6 +222,7 @@ class RegisterRequest extends RestfulRequest {
 				// this allows for testing without actually receiving the email
 				this.log('Confirmation cheat detected, hopefully this was called by test code');
 				this.responseData.user.confirmationCode = this.user.get('confirmationCode');
+				this.responseData.user.confirmationToken = this.token;
 			}
 		}
 		if (this.accessToken) {

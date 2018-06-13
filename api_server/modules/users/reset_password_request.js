@@ -21,11 +21,11 @@ class ResetPasswordRequest extends Aggregation(CheckResetRequest, ChangePassword
 			'body',
 			{
 				required: {
-					string: ['t', 'password']
+					string: ['token', 'password']
 				}
 			}
 		);
-		this.token = this.request.body.t;
+		this.token = this.request.body.token;
 		this.password = this.request.body.password;
 	}
 

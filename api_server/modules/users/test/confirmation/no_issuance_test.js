@@ -1,14 +1,14 @@
 'use strict';
 
-const CheckResetTest = require('./check_reset_test');
+const ConfirmationWithLinkTest = require('./confirmation_with_link_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
-class NoIssuanceTest extends CheckResetTest {
+class NoIssuanceTest extends ConfirmationWithLinkTest {
 
 	get description () {
-		return 'should return an error when sending a check reset request with a token for a user that was not actually issued a reset token';
+		return 'should return an error when confirming with a token for a user that was not actually issued a confirmation token';
 	}
 
 	getExpectedError () {
@@ -21,11 +21,12 @@ class NoIssuanceTest extends CheckResetTest {
 	before (callback) {
 		BoundAsync.series(this, [
 			this.createOtherUser,
-			super.before
+			super.before,
+			this.changeToken
 		], callback);
 	}
 
-	// make a second registered user, we'll use their email for the token
+	// make a second registered user, we'll use their user ID for the token
 	createOtherUser (callback) {
 		this.userFactory.createRandomUser((error, response) => {
 			if (error) { return callback(error); }
@@ -34,12 +35,13 @@ class NoIssuanceTest extends CheckResetTest {
 		});
 	}
 
-	// make the query data for the path part of the test request
-	makeQueryData () {
-		// replace the token with a reset token that has the other user's email in it
-		const queryData = super.makeQueryData();
-		queryData.token = new TokenHandler(SecretsConfig.auth).generate({ email: this.otherUser.email }, 'rst');
-		return queryData;
+	// change the token to reference the other user
+	changeToken (callback) {
+		const tokenHandler = new TokenHandler(SecretsConfig.auth);
+		const payload = tokenHandler.decode(this.data.token);
+		payload.uid = this.otherUser._id;
+		this.data.token = tokenHandler.generate(payload, 'conf');
+		callback();
 	}
 }
 

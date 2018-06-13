@@ -31,11 +31,11 @@ class CheckResetRequest extends RestfulRequest {
 			'query',
 			{
 				required: {
-					string: ['t']
+					string: ['token']
 				}
 			}
 		);
-		this.token = this.request.query.t;
+		this.token = this.request.query.token;
 	}
 
 	// parse and verify the passed token
@@ -77,6 +77,7 @@ class CheckResetRequest extends RestfulRequest {
 		}
 		this.user = users[0];
 	}
+
 	// verify the token is not expired, per the most recently issued token
 	async validateToken () {
 		const accessTokens = this.user.get('accessTokens') || {};

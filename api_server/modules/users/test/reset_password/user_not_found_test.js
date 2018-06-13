@@ -26,7 +26,7 @@ class UserNotFoundTest extends ResetPasswordTest {
 		super.setData(() => {
 			// replace the token with a reset token for a non-existent user
 			const email = this.userFactory.randomEmail();
-			this.passwordData.t = new TokenHandler(SecretsConfig.auth).generate({ email }, 'rst');
+			this.passwordData.token = new TokenHandler(SecretsConfig.auth).generate({ email }, 'rst');
 			callback();
 		});
 	}

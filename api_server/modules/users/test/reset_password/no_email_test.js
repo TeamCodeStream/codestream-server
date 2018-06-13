@@ -25,7 +25,7 @@ class NoEmailTest extends ResetPasswordTest {
 	setData (callback) {
 		// replace the token with a reset token that has no email in it
 		super.setData(() => {
-			this.passwordData.t = new TokenHandler(SecretsConfig.auth).generate({}, 'rst');
+			this.passwordData.token = new TokenHandler(SecretsConfig.auth).generate({}, 'rst');
 			callback();
 		});
 	}

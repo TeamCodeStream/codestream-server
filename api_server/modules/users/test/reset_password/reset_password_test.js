@@ -66,7 +66,7 @@ class ResetPasswordTest extends CodeStreamAPITest {
 	// set the data to use when resetting password
 	setData (callback) {
 		this.passwordData = { 
-			t: this.rstToken,
+			token: this.rstToken,
 			password: RandomString.generate(12)
 		};
 		callback();

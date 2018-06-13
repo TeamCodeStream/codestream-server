@@ -80,7 +80,12 @@ class ChangePasswordRequest extends RestfulRequest {
 	async updateUser () {
 		const accessTokens = this.user.get('accessTokens') || {};
 		Object.keys(accessTokens).forEach(type => {
-			accessTokens[type].invalidated = true;
+			if (type === 'rst' || type === 'conf') {
+				delete accessTokens[type];
+			}
+			else {
+				accessTokens[type].invalidated = true;
+			}
 		});
 		accessTokens.web = {
 			token: this.accessToken,
@@ -90,7 +95,7 @@ class ChangePasswordRequest extends RestfulRequest {
 			'$set': {
 				passwordHash: this.passwordHash,
 				accessTokens: accessTokens
-			},
+			}
 		};
 		this.user = await this.data.users.applyOpById(this.user.id, op);
 	}

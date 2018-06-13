@@ -45,7 +45,7 @@ class CheckResetTest extends CodeStreamAPITest {
 	// make the query data for the path part of the test request
 	makeQueryData () {
 		return { 
-			t: this.token
+			token: this.token
 		};
 	}
 

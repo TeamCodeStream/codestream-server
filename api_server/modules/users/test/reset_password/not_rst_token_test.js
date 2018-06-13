@@ -25,7 +25,7 @@ class NotRstTokenTest extends ResetPasswordTest {
 	setData (callback) {
 		// replace the token with a non-reset token
 		super.setData(() => {
-			this.passwordData.t = new TokenHandler(SecretsConfig.auth).generate({email: this.currentUser.email}, 'xyz');
+			this.passwordData.token = new TokenHandler(SecretsConfig.auth).generate({email: this.currentUser.email}, 'xyz');
 			callback();
 		});
 	}

@@ -21,7 +21,7 @@ class UserNotFoundTest extends CheckResetTest {
 		// replace the token with a reset token for a non-existent user
 		const queryData = super.makeQueryData();
 		const email = this.userFactory.randomEmail();
-		queryData.t = new TokenHandler(SecretsConfig.auth).generate({ email }, 'rst');
+		queryData.token = new TokenHandler(SecretsConfig.auth).generate({ email }, 'rst');
 		return queryData;
 	}
 }

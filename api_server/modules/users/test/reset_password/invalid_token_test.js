@@ -23,7 +23,7 @@ class InvalidTokenTest extends ResetPasswordTest {
 	setData (callback) {
 		super.setData(() => {
 			// replace the token with a garbage token
-			this.passwordData.t = 'abcxyz';
+			this.passwordData.token = 'abcxyz';
 			callback();
 		});
 	}

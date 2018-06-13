@@ -20,7 +20,7 @@ class NotRstTokenTest extends CheckResetTest {
 	makeQueryData () {
 		// replace the token with a non-reset token
 		const queryData = super.makeQueryData();
-		queryData.t = new TokenHandler(SecretsConfig.auth).generate({email: this.currentUser.email}, 'xyz');
+		queryData.token = new TokenHandler(SecretsConfig.auth).generate({email: this.currentUser.email}, 'xyz');
 		return queryData;
 	}
 }

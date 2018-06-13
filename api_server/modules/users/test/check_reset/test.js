@@ -16,7 +16,7 @@ class CheckResetRequestTester {
 
 	test () {
 		new CheckResetTest().test();
-		new RequiredParameterTest({ parameter: 't' }).test();
+		new RequiredParameterTest({ parameter: 'token' }).test();
 		new InvalidTokenTest().test();
 		new TokenExpiredTest().test();
 		new NoEmailTest().test();

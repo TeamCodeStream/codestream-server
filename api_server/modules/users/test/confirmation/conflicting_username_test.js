@@ -83,7 +83,6 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.data = {
-					userId: response.user._id,
 					email: this.email,
 					username: this.otherUserData.user.username,	// same username as the registered user, which triggers the conflict
 					password: 'blahblahblah',	// required, whatever

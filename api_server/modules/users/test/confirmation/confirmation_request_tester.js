@@ -2,33 +2,37 @@
 
 'use strict';
 
-var ConfirmationTest = require('./confirmation_test');
-var NoAttributeTest = require('./no_attribute_test');
-var InvalidUserIdTest = require('./invalid_user_id_test');
-var EmailMismatchTest = require('./email_mismatch_test');
-var AlreadyRegisteredTest = require('./already_registered_test');
-var IncorrectCodeTest = require('./incorrect_code_test');
-var MaxAttemptsTest = require('./max_attempts_test');
-var ExpirationTest = require('./expiration_test');
-var ConfirmationMessageToTeamTest = require('./confirmation_message_to_team_test');
-var ConfirmationMessageToOtherUserTest = require('./confirmation_message_to_other_user_test');
-var ConflictingUsernameTest = require('./conflicting_username_test');
-var InitialDataTest = require('./initial_data_test');
-var MeAttributesTest = require('./me_attributes_test');
-var SubscriptionTest = require('./subscription_test');
-var JoinMethodTest = require('./join_method_test');
-var OriginTeamPropagates = require('./origin_team_propagates');
-var NoUserIdTest = require('./no_user_id_test');
+const ConfirmationTest = require('./confirmation_test');
+const ConfirmationWithLinkTest = require('./confirmation_with_link_test');
+const NoAttributeTest = require('./no_attribute_test');
+const AlreadyRegisteredTest = require('./already_registered_test');
+const IncorrectCodeTest = require('./incorrect_code_test');
+const MaxAttemptsTest = require('./max_attempts_test');
+const ExpirationTest = require('./expiration_test');
+const ConfirmationMessageToTeamTest = require('./confirmation_message_to_team_test');
+const ConfirmationMessageToOtherUserTest = require('./confirmation_message_to_other_user_test');
+const ConflictingUsernameTest = require('./conflicting_username_test');
+const InitialDataTest = require('./initial_data_test');
+const MeAttributesTest = require('./me_attributes_test');
+const SubscriptionTest = require('./subscription_test');
+const JoinMethodTest = require('./join_method_test');
+const OriginTeamPropagates = require('./origin_team_propagates');
+const InvalidTokenTest = require('./invalid_token_test');
+const TokenExpiredTest = require('./token_expired_test');
+const NotConfTokenTest = require('./not_conf_token_test');
+const NoUidTest = require('./no_uid_test');
+const UserNotFound = require('./user_not_found_test');
+const NoIssuanceTest = require('./no_issuance_test');
+const TokenDeprecatedTest = require('./token_deprecated_test');
 
 class ConfirmationRequestTester {
 
 	confirmationTest () {
+
 		new ConfirmationTest().test();
-		//		new NoAttributeTest({ attribute: 'userId' }).test();
+		new ConfirmationWithLinkTest().test();
 		new NoAttributeTest({ attribute: 'email' }).test();
 		new NoAttributeTest({ attribute: 'confirmationCode' }).test();
-		new InvalidUserIdTest().test();
-		new EmailMismatchTest().test();
 		new AlreadyRegisteredTest().test();
 		new IncorrectCodeTest().test();
 		new MaxAttemptsTest().test();
@@ -44,7 +48,13 @@ class ConfirmationRequestTester {
 		new SubscriptionTest({ which: 'stream' }).test();
 		new JoinMethodTest().test();
 		new OriginTeamPropagates().test();
-		new NoUserIdTest().test();
+		new InvalidTokenTest().test();
+		new TokenExpiredTest().test();
+		new NotConfTokenTest().test();
+		new NoUidTest().test();
+		new UserNotFound().test();
+		new NoIssuanceTest().test();
+		new TokenDeprecatedTest().test();
 	}
 }
 

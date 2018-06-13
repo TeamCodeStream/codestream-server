@@ -39,7 +39,6 @@ class JoinMethodTest extends ConfirmationTest {
 				if (error) { return callback(error); }
 				const unregisteredUser = response.users.find(user => !user.isRegistered);
 				this.data = {
-					userId: unregisteredUser._id,
 					email: unregisteredUser.email
 				};
 				this.team = response.team;
@@ -70,6 +69,7 @@ class JoinMethodTest extends ConfirmationTest {
 			register,
 			(error, response) => {
 				if (error) { return callback(error); }
+				this.userId = response.user._id;
 				this.data.confirmationCode = response.user.confirmationCode;
 				this.beforeConfirmTime = Date.now();	// to confirm registeredAt set during the request
 				callback();

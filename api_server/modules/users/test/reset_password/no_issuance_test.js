@@ -43,7 +43,7 @@ class NoIssuanceTest extends ResetPasswordTest {
 	setData (callback) {
 		// replace the token with a reset token that has the other user's email in it
 		super.setData(() => {
-			this.passwordData.t = new TokenHandler(SecretsConfig.auth).generate({ email: this.otherUser.email }, 'rst');
+			this.passwordData.token = new TokenHandler(SecretsConfig.auth).generate({ email: this.otherUser.email }, 'rst');
 			callback();
 		});
 	}
