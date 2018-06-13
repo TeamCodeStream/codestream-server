@@ -10,7 +10,7 @@ const DOWN_TRIANGLE = '&#x25BC;';
 class HelpRequest extends APIRequest {
 
 	async authorize () {
-		return true;
+		// help is always available!
 	}
 
 	async process () {
@@ -32,7 +32,7 @@ class HelpRequest extends APIRequest {
 			if (tag === 'modules') {
 				await this.serveModules();
 			}
-			if (tag === 'models') {
+			else if (tag === 'models') {
 				await this.serveModels();
 			}
 			else if (tag === 'errors') {

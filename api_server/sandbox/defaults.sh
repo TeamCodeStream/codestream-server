@@ -23,6 +23,7 @@ export CS_API_HOST=localhost
 export CS_API_PORT=12079
 export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
 export CS_API_LOG_CONSOLE_OK=1
+export CS_API_HELP_AVAILABLE=1
 
 # =============== SSL Certificate ==================
 [ -z "$SSL_CERT" ] && SSL_CERT=wildcard.codestream.us

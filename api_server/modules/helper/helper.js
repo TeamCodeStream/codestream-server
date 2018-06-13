@@ -21,10 +21,16 @@ const ROUTES = [
 class Helper extends APIServerModule {
 
 	getRoutes () {
+		if (!this.api.config.api.helpIsAvailable) { 
+			return [];
+		}
 		return ROUTES;
 	}
 
 	initialize () {
+		if (!this.api.config.api.helpIsAvailable) { 
+			return;
+		}
 		const root = process.env.CS_API_TOP + '/modules/helper';
 		[
 			'request',
