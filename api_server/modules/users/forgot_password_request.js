@@ -84,7 +84,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 	}
 
 	// save the token info in the database, note that we don't save the actual token, just the notion
-	// that all tokens issued previous to this one are no longer valid
+	// that all reset tokens issued previous to this one are no longer valid
 	async saveTokenInfo () {
 		if (!this.user) { return; }
 		const op = {
@@ -122,8 +122,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 			{
 				user: this.user,
 				request: this,
-				url,
-				supportEmail: this.api.config.email.supportEmail
+				url
 			}
 		);
 

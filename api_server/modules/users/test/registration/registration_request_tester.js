@@ -12,6 +12,7 @@ const ConflictingUsernameTest = require('./conflicting_username_test');
 const UserMessageToTeamTest = require('./user_message_to_team_test');
 const UserMessageToOtherUserTest = require('./user_message_to_other_user_test');
 const ConfirmationEmailTest = require('./confirmation_email_test');
+const ConfirmationEmailWithLinkTest = require('./confirmation_email_with_link_test');
 const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
 const PreferencesTest = require('./preferences_test');
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
@@ -36,6 +37,7 @@ class RegistrationRequestTester {
 		// if they are run in parallel
 		SerializeTests([
 			ConfirmationEmailTest,
+			ConfirmationEmailWithLinkTest,
 			AlreadyRegisteredEmailTest
 		]);
 		new PreferencesTest().test();

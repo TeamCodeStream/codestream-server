@@ -12,7 +12,31 @@ class CodeStreamEmails {
 		this.sendgridEmail = new SendGridEmail(this.sendgrid);
 	}
 
-	// send a confirmation email to the user specified
+	// send a confirmation email to the user specified, with a link rather than a confirmation code
+	async sendConfirmationEmailWithLink (options) {
+		const { user, request, url } = options;
+		const email = user.get('email');
+		if (request) {
+			request.log(`Sending confirmation email with link to ${email}`);
+		}
+		const name = this.getUserDisplayName(user);	// glean a user name from attributes defined for the user
+
+		// let SendGrid handle sending the email, they have a confirmation email template
+		await this.sendgridEmail.sendEmail(
+			{
+				from: { email: this.supportEmail, name: 'CodeStream' },
+				to: { email: user.get('email'), name: name },
+				templateId: this.confirmationLinkEmailTemplateId,
+				request: request,
+				testCallback: this.testCallback,
+				user: user,
+				fields: { url }
+			}
+		);
+	}
+
+	// send a confirmation email to the user specified, for backward compatibility, but to be 
+	// deprecated once sign-up is fully moved out of the IDE
 	async sendConfirmationEmail (options) {
 		const { user, request } = options;
 		const email = user.get('email');
@@ -24,7 +48,7 @@ class CodeStreamEmails {
 		// let SendGrid handle sending the email, they have a confirmation email template
 		await this.sendgridEmail.sendEmail(
 			{
-				from: { email: this.senderEmail, name: 'CodeStream' },
+				from: { email: this.supportEmail, name: 'CodeStream' },
 				to: { email: user.get('email'), name: name },
 				fields: {
 					code: user.get('confirmationCode'),
@@ -50,7 +74,7 @@ class CodeStreamEmails {
 		// let SendGrid handle sending the email, they have a confirmation email template
 		await this.sendgridEmail.sendEmail(
 			{
-				from: { email: this.senderEmail, name: 'CodeStream' },
+				from: { email: this.supportEmail, name: 'CodeStream' },
 				to: { email: user.get('email'), name: name },
 				templateId: this.alreadyRegisteredEmailTemplateId,
 				request: request,
@@ -93,7 +117,7 @@ class CodeStreamEmails {
 
 	// send email to a user to help them reset their password, contains a link to the web
 	async sendResetPasswordEmail (options) {
-		const { user, request, url, supportEmail } = options;
+		const { user, request, url } = options;
 		const email = user.get('email');
 		if (request) {
 			request.log(`Sending reset password email to ${email}`);
@@ -103,7 +127,7 @@ class CodeStreamEmails {
 		// let SendGrid handle sending the email, they have a confirmation email template
 		await this.sendgridEmail.sendEmail(
 			{
-				from: { email: supportEmail, name: 'CodeStream' },
+				from: { email: this.supportEmail, name: 'CodeStream' },
 				to: { email: user.get('email'), name: name },
 				templateId: this.resetPasswordEmailTemplateId,
 				request: request,

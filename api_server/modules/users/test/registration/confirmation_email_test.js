@@ -28,6 +28,9 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		this.data.email = this.useEmail || this.data.email; // allow sub-class override
 		this.data._subscriptionCheat = SecretsConfig.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
 		this.data._delayEmail = 10000;	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
+		if (this.wantLink) {
+			this.data.wantLink = true;
+		}
 		// register a random user
 		this.doApiRequest(
 			{
@@ -77,7 +80,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 
 	// validate that the from field of the email data is correct
 	validateFrom (message) {
-		Assert.equal(message.from.email, 'alerts@codestream.com', 'incorrect from address');
+		Assert.equal(message.from.email, 'support@codestream.com', 'incorrect from address');
 		Assert.equal(message.from.name, 'CodeStream', 'incorrect from name');
 	}
 

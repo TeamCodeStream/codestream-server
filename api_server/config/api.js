@@ -9,4 +9,5 @@ module.exports = {
 	optionalAuthenticatedPaths: ['^\\/help(\\/|$)'],	// matching these paths means Authorization header is optional, behavior may vary
 	helpIsAvailable: process.env.CS_API_HELP_AVAILABLE,	// if this is set, API server /help is available
 	forgotPasswordExpiration: process.env.CS_API_FORGOT_PASSWORD_EXPIRATION || 24 * 60 * 60 * 1000	// how long a token for forgot-password remains valid
+	confirmationExpiration: process.env.CS_API_CONFIRMATION_EXPIRATION || 24 * 60 * 60 * 1000	// how long a token for email confirmation remains valid
 };
