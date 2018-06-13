@@ -40,7 +40,7 @@ class ResetPasswordTest extends CodeStreamAPITest {
 		], callback);
 	}
     
-    // issue the forgot-password test to get the token
+	// issue the forgot-password test to get the token
 	forgotPassword (callback) {
 		const data = {
 			email: this.useEmail || this.currentUser.email,
