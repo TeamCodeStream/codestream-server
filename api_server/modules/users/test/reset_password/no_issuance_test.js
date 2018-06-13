@@ -1,14 +1,19 @@
 'use strict';
 
-const CheckResetTest = require('./check_reset_test');
+const ResetPasswordTest = require('./reset_password_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
-class NoIssuanceTest extends CheckResetTest {
+class NoIssuanceTest extends ResetPasswordTest {
+
+	constructor (options) {
+		super(options);
+		this.dontLoginToVerify = true;
+	}
 
 	get description () {
-		return 'should return an error when sending a check reset request with a token for a user that was not actually issued a reset token';
+		return 'should return an error when sending a reset password request with a token for a user that was not actually issued a reset token';
 	}
 
 	getExpectedError () {
@@ -34,12 +39,13 @@ class NoIssuanceTest extends CheckResetTest {
 		});
 	}
 
-	// make the query data for the path part of the test request
-	makeQueryData () {
+	// set the data to use when resetting password
+	setData (callback) {
 		// replace the token with a reset token that has the other user's email in it
-		const queryData = super.makeQueryData();
-		queryData.t = new TokenHandler(SecretsConfig.auth).generate({ email: this.otherUser.email }, 'rst');
-		return queryData;
+		super.setData(() => {
+			this.passwordData.t = new TokenHandler(SecretsConfig.auth).generate({ email: this.otherUser.email }, 'rst');
+			callback();
+		});
 	}
 }
 

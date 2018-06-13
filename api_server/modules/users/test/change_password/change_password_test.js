@@ -7,7 +7,7 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 class ChangePasswordTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'should set a new password hash when the user changes their password';
+		return 'should set a new password hash when the user changes their password, and return a new access token';
 	}
 
 	get method () {

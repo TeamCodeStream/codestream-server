@@ -4,10 +4,10 @@ const CheckResetTest = require('./check_reset_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
-class NoEmailTest extends CheckResetTest {
+class UserNotFoundTest extends CheckResetTest {
 
 	get description () {
-		return 'should return an error when sending a check reset request with a token that has an unknown';
+		return 'should return an error when sending a check reset request with a token that has an unknown email';
 	}
 
 	getExpectedError () {
@@ -26,4 +26,4 @@ class NoEmailTest extends CheckResetTest {
 	}
 }
 
-module.exports = NoEmailTest;
+module.exports = UserNotFoundTest;

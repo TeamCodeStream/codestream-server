@@ -11,7 +11,7 @@ class BadPasswordTest extends ChangePasswordTest {
 	}
 
 	get description () {
-		return 'should return an error when changing password to a zero-length password';
+		return 'should return an error when changing password to an invalid password';
 	}
 
 	getExpectedError () {

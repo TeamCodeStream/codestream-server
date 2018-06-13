@@ -35,12 +35,13 @@ class CheckResetRequest extends RestfulRequest {
 				}
 			}
 		);
+		this.token = this.request.query.t;
 	}
 
 	// parse and verify the passed token
 	async verifyToken () {
 		try {
-			this.payload = this.api.services.tokenHandler.verify(this.request.query.t);
+			this.payload = this.api.services.tokenHandler.verify(this.token);
 		}
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;
@@ -112,7 +113,8 @@ class CheckResetRequest extends RestfulRequest {
 			},
 			errors: [
 				'parameterRequired',
-				'tokenInvalid'
+				'tokenInvalid',
+				'tokenExpired'
 			]
 		};
 	}

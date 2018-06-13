@@ -33,6 +33,8 @@ class ChangePasswordRequest extends RestfulRequest {
 				}
 			}
 		);
+		this.password = this.request.body.newPassword;
+		this.user = this.request.user;
 	}
 
 	// validate that the existing password matches the password hash stored for the user
@@ -55,26 +57,28 @@ class ChangePasswordRequest extends RestfulRequest {
 
 	// hash the given password, as needed
 	async hashPassword () {
-		const error = new UserValidator().validatePassword(this.request.body.newPassword);
+		const error = new UserValidator().validatePassword(this.password);
 		if (error) {
 			throw this.errorHandler.error('validation', { info: `password ${error}` });
 		}
 		this.passwordHash = await new PasswordHasher({
 			errorHandler: this.errorHandler,
-			password: this.request.body.newPassword
+			password: this.password
 		}).hashPassword();
 	}
 
 	// generate a new access token for the user, all other access tokens will be invalidated by this
 	async generateToken () {
-		this.accessToken = this.api.services.tokenHandler.generate({ uid: this.request.user.id });
+		this.accessToken = this.api.services.tokenHandler.generate({ uid: this.user.id });
 		this.minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
-		this.responseData.accessToken = this.accessToken;
+		this.responseData = {
+			accessToken: this.accessToken
+		};
 	}
 
 	// update the user in the database, with their new password hash and access tokens
 	async updateUser () {
-		const accessTokens = this.request.user.get('accessTokens') || {};
+		const accessTokens = this.user.get('accessTokens') || {};
 		Object.keys(accessTokens).forEach(type => {
 			accessTokens[type].invalidated = true;
 		});
