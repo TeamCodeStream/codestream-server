@@ -16,6 +16,7 @@ class LoginRequest extends RestfulRequest {
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(Errors);
+		this.loginType = this.loginType || 'web';
 	}
 
 	async authorize () {
@@ -29,6 +30,7 @@ class LoginRequest extends RestfulRequest {
 		await this.validatePassword();			// validate the given password matches their password hash
 		await this.getInitialData();			// fetch the initial data to return in the response
 		await this.grantSubscriptionPermissions();	// grant the user permission to subscribe to various messager channels
+		await this.generateToken();				// generate an access token if needed
 		await this.formResponse();				// form the response to the request
 	}
 
@@ -56,20 +58,26 @@ class LoginRequest extends RestfulRequest {
 				}
 			}
 		);
+		/*
+		// Killing this check to avoid email harvesting vulnerability, instead we'll drop through
+		// and return a password mismatch error even if the user doesn't exist
 		if (!this.user || this.user.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'email' });
 		}
+		*/
 	}
 
 	// validate that the given password matches the password hash stored for the user
 	async validatePassword () {
 		let result;
 		try {
-			result = await callbackWrap(
-				BCrypt.compare,
-				this.request.body.password,
-				this.user.get('passwordHash')
-			);
+			if (this.user && !this.user.get('deactivated')) {
+				result = await callbackWrap(
+					BCrypt.compare,
+					this.request.body.password,
+					this.user.get('passwordHash')
+				);
+			}
 		}
 		catch (error) {
 			throw this.errorHandler.error('token', { reason: error });
@@ -109,11 +117,39 @@ class LoginRequest extends RestfulRequest {
 		}
 	}
 
+	// generate an access token for this login if needed
+	async generateToken () {
+		// look for a new-style token (with min issuance), if it doesn't exist, or our current token
+		// was issued before the min issuance, then we need to generate a new token for this login type
+		const currentTokenInfo = this.user.getTokenInfoByType(this.loginType);
+		const minIssuance = typeof currentTokenInfo === 'object' ? (currentTokenInfo.minIssuance || null) : null;
+		this.accessToken = typeof currentTokenInfo === 'object' ? currentTokenInfo.token : this.user.get('accessToken');
+		const tokenPayload = this.accessToken ? this.api.services.tokenHandler.verify(this.accessToken) : null;
+		if (
+			!minIssuance ||
+			minIssuance > (tokenPayload.iat * 1000)
+		) {
+			this.accessToken = this.api.services.tokenHandler.generate({ uid: this.user.id });
+			const minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat;
+			await this.data.users.applyOpById(
+				this.user.id,
+				{
+					$set: {
+						[`accessTokens.${this.loginType}`]: {
+							token: this.accessToken,
+							minIssuance: minIssuance
+						} 
+					}
+				}
+			);
+		}
+	}
+
 	// form the response to the request
 	async formResponse () {
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe(),	// include me-only attributes
-			accessToken: this.user.get('accessToken'),	// access token to supply in future requests
+			accessToken: this.accessToken,	// access token to supply in future requests
 			pubnubKey: this.api.config.pubnub.subscribeKey	// give them the subscribe key for pubnub
 		};
 		Object.assign(this.responseData, this.initialData);
@@ -151,7 +187,6 @@ class LoginRequest extends RestfulRequest {
 			},
 			errors: [
 				'parameterRequired',
-				'notFound',
 				'passwordMismatch',
 				'noLoginUnregistered'
 			]

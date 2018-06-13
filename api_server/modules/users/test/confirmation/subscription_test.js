@@ -90,7 +90,6 @@ class SubscriptionTest extends CodeStreamAPITest {
 	confirm (callback) {
 		// make the confirmation request to get the access token
 		let data = {
-			userId: this.user._id,
 			email: this.user.email,
 			confirmationCode: this.user.confirmationCode
 		};

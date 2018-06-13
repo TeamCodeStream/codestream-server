@@ -25,15 +25,22 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 	// make the data that will be used during the test
 	makeData (callback) {
 		this.data = this.userFactory.getRandomUserData();
+		this.data.email = this.useEmail || this.data.email; // allow sub-class override
 		this.data._subscriptionCheat = SecretsConfig.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
 		this.data._delayEmail = 10000;	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
+		if (this.wantLink) {
+			this.data.wantLink = true;
+		}
 		// register a random user
 		this.doApiRequest(
 			{
 				method: 'post',
 				path: '/no-auth/register',
 				data: this.data,
-				testEmails: true	// this should get us email data back in the pubnub me-channel
+				testEmails: true,	// this should get us email data back in the pubnub me-channel
+				requestOptions: {
+					headers: this.useHeaders
+				}
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -73,7 +80,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 
 	// validate that the from field of the email data is correct
 	validateFrom (message) {
-		Assert.equal(message.from.email, 'alerts@codestream.com', 'incorrect from address');
+		Assert.equal(message.from.email, 'support@codestream.com', 'incorrect from address');
 		Assert.equal(message.from.name, 'CodeStream', 'incorrect from name');
 	}
 

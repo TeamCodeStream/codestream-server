@@ -4,6 +4,7 @@
 
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 const TokenAuthenticator = require('./token_authenticator');
+const TokenHandler = require('./token_handler');
 const User = require(process.env.CS_API_TOP + '/modules/users/user');
 const Errors = require('./errors');
 
@@ -13,6 +14,11 @@ const DEPENDENCIES = [
 ];
 
 class Authenticator extends APIServerModule {
+
+	constructor (config) {
+		super(config);
+		this.tokenHandler = new TokenHandler(this.api.config.secrets.auth);
+	}
 
 	getDependencies () {
 		return DEPENDENCIES;
@@ -25,7 +31,8 @@ class Authenticator extends APIServerModule {
 					request: request,
 					response: response,
 					api: this.api,
-					userClass: User
+					userClass: User,
+					tokenHandler: this.tokenHandler
 				}).authenticate();
 			}
 			catch (error) {
@@ -37,6 +44,13 @@ class Authenticator extends APIServerModule {
 				};
 			}
 			next();
+		};
+	}
+
+	services () {
+		// return a function that, when invoked, returns a service structure with the token handler as a service
+		return async () => {
+			return { tokenHandler: this.tokenHandler };
 		};
 	}
 

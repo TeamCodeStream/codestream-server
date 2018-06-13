@@ -331,6 +331,7 @@ class HelpRequest extends APIRequest {
 
 	async prepareRoute (route, expanded) {
 		let preparedRoute = DeepClone(route);
+		preparedRoute['html!description'] = this.handleLinks(preparedRoute.description);
 		await this.prepareRouteStructure(preparedRoute, 'input', expanded);
 		await this.prepareRouteStructure(preparedRoute, 'returns', expanded);
 		await this.prepareRouteStructure(preparedRoute, 'publishes', expanded);

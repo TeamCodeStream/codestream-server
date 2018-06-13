@@ -11,7 +11,7 @@ class InvalidPasswordTest extends ChangePasswordTest {
 	}
 
 	get description () {
-		return 'should return an error when changing password and specifying and invalid existing password';
+		return 'should return an error when changing password and specifying an invalid existing password';
 	}
 
 	getExpectedError () {

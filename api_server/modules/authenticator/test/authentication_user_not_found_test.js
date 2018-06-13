@@ -34,7 +34,7 @@ class AuthenticationUserNotFoundTest extends AuthenticationTest {
 			return callback('invalid token: ' + error);
 		}
 		// change the user ID and regenerate the token
-		payload.userId = 'xxx';
+		payload.uid = 'xxx';
 		this.token = JSONWebToken.sign(payload, secret);
 		callback();
 	}

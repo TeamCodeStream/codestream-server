@@ -1,4 +1,4 @@
-// handle unit tests for the "PUT /change-password" request for a user to change their password 
+// handle unit tests for the "PUT /password" request for a user to change their password 
 
 'use strict';
 
@@ -7,6 +7,8 @@ const OldPasswordFailsTest = require('./old_password_fails_test');
 const RequiredParameterTest = require('./required_parameter_test');
 const InvalidPasswordTest = require('./invalid_password_test');
 const BadPasswordTest = require('./bad_password_test');
+const AccessTokenTest = require('./access_token_test');
+const OldTokenInvalidTest = require('./old_token_invalid_test');
 
 class ChangePasswordRequestTester {
 
@@ -17,6 +19,8 @@ class ChangePasswordRequestTester {
 		new RequiredParameterTest({ parameter: 'existingPassword' }).test();
 		new InvalidPasswordTest().test();
 		new BadPasswordTest().test();
+		new AccessTokenTest().test();
+		new OldTokenInvalidTest().test();
 	}
 }
 

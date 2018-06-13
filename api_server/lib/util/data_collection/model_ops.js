@@ -81,6 +81,9 @@ var _subOp = function(opType, document, op, field) {
 	let match = field.match(/^(.+)\.(.+)$/);
 	if (match) {
 		let [ , topField, subField ] = match;
+		if (typeof document[topField] === 'undefined') {
+			document[topField] = {};
+		}
 		if (typeof document[topField] === 'object') {
 			_documentOpsHelper(opType, document[topField], { [subField]: op[field] });
 		}

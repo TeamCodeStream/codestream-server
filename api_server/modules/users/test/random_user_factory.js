@@ -57,7 +57,6 @@ class _UserCreator {
 	// confirm a user registration by issuing a POST /no-auth/confirm request
 	_confirmUser (callback) {
 		let data = {
-			userId: this.user._id,
 			email: this.user.email,
 			confirmationCode: this.user.confirmationCode
 		};
@@ -133,6 +132,12 @@ class RandomUserFactory {
 		}
 		else if (!options.noUsername) {
 			data.username = RandomString.generate(12);
+		}
+		if (options.wantLink) {
+			data.wantLink = true;
+			if (options.expiresIn) {
+				data.expiresIn = options.expiresIn;
+			}
 		}
 		Object.assign(data, options.with || {});
 		_NextPubnubUuid = (_NextPubnubUuid + 1) % 100;

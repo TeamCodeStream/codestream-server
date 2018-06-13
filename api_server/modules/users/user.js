@@ -283,6 +283,44 @@ class User extends CodeStreamModel {
 		const sanitizedAttributes = this.getSanitizedObject();
 		return Object.assign(sanitizedAttributes, meOnlyAttributes);
 	}
+
+	// get a user's access token info by type
+	getTokenInfoByType (type) {
+		if (typeof this.get('accessTokens') === 'object') {
+			return this.get('accessTokens')[type];
+		}
+	}
+
+	// determine if this user has a token with a min issuance, and if so, return it
+	getMinTokenIssuanceByType (type) {
+		const tokenInfo = this.getTokenInfoByType(type);
+		if (
+			tokenInfo &&
+			typeof tokenInfo === 'object'
+		) {
+			return tokenInfo.minIssuance;
+		}
+	}
+
+	// validate token payload for this user
+	validateTokenPayload (payload) {
+		// if the payload has a type, then we expect a new-style token, with minimum issuance,
+		// if this token was issued before the minimum issuance, the token is no longer valid
+		// (this happens when the user changes their password, for instance)
+		if (payload.type) {
+			const tokenInfo = this.getTokenInfoByType(payload.type);
+			if (!tokenInfo) {
+				return;
+			}
+			if (tokenInfo.invalidated) {
+				return 'token has been invalidated';
+			}
+			const minIssuance = tokenInfo.minIssuance;
+			if (minIssuance && minIssuance > (payload.iat * 1000)) {
+				return 'token has been deprecated by a more recent issuance';
+			}
+		}
+	}
 }
 
 module.exports = User;

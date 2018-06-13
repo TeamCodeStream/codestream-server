@@ -6,6 +6,11 @@ const UserTestConstants = require('../user_test_constants');
 
 class ConfirmationTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.userOptions = this.userOptions || {};
+	}
+	
 	get description () {
 		return 'should return valid user data and an access token when confirming a registration';
 	}
@@ -32,11 +37,16 @@ class ConfirmationTest extends CodeStreamAPITest {
 		this.userFactory.registerRandomUser((error, data) => {
 			if (error) { return callback(error); }
 			// form the data to send with the confirmation request
+			this.userId = data.user._id;
 			this.data = {
-				userId: data.user._id,
-				email: data.user.email,
-				confirmationCode: data.user.confirmationCode
+				email: data.user.email
 			};
+			if (this.userOptions.wantLink) {
+				this.data.token = data.user.confirmationToken;
+			}
+			else {
+				this.data.confirmationCode = data.user.confirmationCode;
+			}
 			this.beforeConfirmTime = Date.now();	// to confirm registeredAt set during the request
 			callback();
 		}, this.userOptions || {});
@@ -49,7 +59,7 @@ class ConfirmationTest extends CodeStreamAPITest {
 		let errors = [];
 		let result = (
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
-			((user._id === (this.data.userId || this.userId)) || errors.push('incorrect user id')) &&
+			((user._id === this.userId) || errors.push('incorrect user id')) &&
 			((user.isRegistered ) || errors.push('isRegistered not set')) &&
 			((typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime) || errors.push('registeredAt not properly set'))
 		);

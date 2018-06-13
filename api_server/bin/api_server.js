@@ -20,6 +20,7 @@ const MSTeamsConfig = require(ConfigDirectory + '/msteams.js');
 const LoggerConfig = require(ConfigDirectory + '/logger.js');
 const EmailConfig = require(ConfigDirectory + '/email.js');
 const AWSConfig = require(ConfigDirectory + '/aws.js');
+const WebClientConfig = require(ConfigDirectory + '/webclient.js');
 const Limits = require(ConfigDirectory + '/limits.js');
 const Version = require(ConfigDirectory + '/version.js');
 const SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
@@ -66,6 +67,7 @@ const MyAPICluster = new ClusterWrapper(
 		teams: MSTeamsConfig,
 		email: EmailConfig,
 		aws: AWSConfig,
+		webclient: WebClientConfig,
 		limits: Limits,
 		allowConfigOverride: true,
 		dataCollections: DataCollections,

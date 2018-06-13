@@ -4,7 +4,6 @@
 
 'use strict';
 
-const JSONWebToken = require('jsonwebtoken');
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const Errors = require('./errors');
 
@@ -23,6 +22,7 @@ class TokenAuthenticator {
 		}
 		await this.verifyToken();
 		await this.getUser();
+		await this.validateToken();
 	}
 
 	// get the authentication token from any number of places
@@ -33,9 +33,11 @@ class TokenAuthenticator {
 		}
 		// look for a token in this order: cookie, query, body, header
 		const token =
+			/*
 			(this.request.signedCookies && this.request.signedCookies.t) ||
 			(this.request.query && this.request.query.t && decodeURIComponent(this.request.query.t)) ||
 			(this.request.body && this.request.body.t) ||
+*/
 			this.tokenFromHeader(this.request);
 		if (!token) {
 			if (!this.pathIsOptionalAuth(this.request)) {
@@ -49,7 +51,7 @@ class TokenAuthenticator {
 	async verifyToken () {
 		if (!this.token) { return; }
 		try {
-			this.payload = JSONWebToken.verify(this.token, this.api.config.secrets.auth);
+			this.payload = this.tokenHandler.verify(this.token);
 		}
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;
@@ -60,7 +62,7 @@ class TokenAuthenticator {
 	// get the user associated with this token payload
 	async getUser () {
 		if (!this.payload) { return; }
-		const userId = this.payload.userId;
+		const userId = this.payload.uid;
 		if (!userId) {
 			throw this.errorHandler.error('noUserId');
 		}
@@ -87,6 +89,20 @@ class TokenAuthenticator {
 			this.request.user = user;
 		}
 		this.request.authPayload = this.payload;
+	}
+
+	// now that we have the user, validate the token against issuance data for the user
+	async validateToken () {
+		if (!this.request.user) { return; }
+		if (
+			this.userClass &&
+			typeof this.request.user.validateTokenPayload === 'function'
+		) {
+			const reason = this.request.user.validateTokenPayload(this.payload);
+			if (reason) {
+				throw this.errorHandler.error('tokenExpired', { reason });
+			}
+		}
 	}
 
 	// certain paths signal that no authentication is required,

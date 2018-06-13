@@ -20,6 +20,9 @@ If authentication (see below) is required, but missing or invalid, the server re
 <p>
 All requests require authentication unless the path starts with /no-auth. Authentication is performed by providing an "Authorization" header with the request. The value of the header should be "Bearer &ltaccessToken&gt", where accessToken is an access token returned by either a response to the @@#confirm#confirm@@ request or the @@#login#login@@ request.
 </p>
+<p>
+If a 401 is returned with a request, then the credentials provided are invalid and will never work. A new access token must be obtained by performing a @@#login#login@@ request.
+</p>
 <h2>Headers</h2>
 <p>
 In addition to the Authorization header for requests requiring authentication, all requests should provide the following custom headers on every request:

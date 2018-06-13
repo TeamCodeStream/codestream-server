@@ -41,6 +41,7 @@ class LoginTest extends CodeStreamAPITest {
 				email: this.user.email,
 				password: this.userData.password
 			};
+			this.accessToken = userData.accessToken;
 			callback();
 		});
 	}
