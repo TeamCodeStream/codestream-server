@@ -6,10 +6,10 @@ const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
 
 class ConfirmationEmailWithLinkTest extends ConfirmationEmailTest {
 
-    constructor (options) {
-        super(options);
-        this.wantLink = true;
-    }
+	constructor (options) {
+		super(options);
+		this.wantLink = true;
+	}
 
 	get description () {
 		return 'should send a confirmation email with a confirmation link when a new user registers with the wantLink flag';
