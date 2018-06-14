@@ -86,11 +86,8 @@ class RegisterRequest extends RestfulRequest {
 
 	// save the user to the database, given the attributes in the request body
 	async saveUser () {
-		// from the web client, don't return an error if the user is already registered, to avoid email harvesting
-		const notOkIfExistsAndRegistered = (this.request.headers['x-cs-plugin-ide'] || '').toLowerCase() !== 'webclient';
 		this.userCreator = new UserCreator({
 			request: this,
-			notOkIfExistsAndRegistered,	
 			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
 			subscriptionCheat: this.subscriptionCheat === this.api.config.secrets.subscriptionCheat
 		});

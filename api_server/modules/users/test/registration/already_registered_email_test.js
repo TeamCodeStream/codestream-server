@@ -6,15 +6,8 @@ const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
 
 class AlreadyRegisteredEmailTest extends ConfirmationEmailTest {
 
-	constructor (options) {
-		super(options);
-		this.useHeaders = {
-			'x-cs-plugin-ide': 'webclient'  // simulates a request from the web client
-		};
-	}
-
 	get description () {
-		return 'should send an already-registered email when a user registers and that user is already registered, and the request comes from the web client';
+		return 'should send an already-registered email when a user registers and that user is already registered';
 	}
 
 	// make the data that will be used during the test
