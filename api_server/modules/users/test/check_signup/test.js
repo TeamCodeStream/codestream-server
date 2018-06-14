@@ -20,17 +20,17 @@ class CheckSignupRequestTester {
 		// these tests must be serialized because for technical reasons the tests
 		// are actually run in their "before" stage, and they will fail due to timeouts
 		// if they are run in parallel
-        SerializeTests([
-            CheckSignupTest,
-            TokenIsValidTest,
-            TokenRequiredTest,
-            InvalidTokenTest,
-            BadTokenTest,
-            TokenExpiredTest,
-            NoTeamsTest,
-            NoReuseTokenTest
-        ]);
-    }
+		SerializeTests([
+			CheckSignupTest,
+			TokenIsValidTest,
+			TokenRequiredTest,
+			InvalidTokenTest,
+			BadTokenTest,
+			TokenExpiredTest,
+			NoTeamsTest,
+			NoReuseTokenTest
+		]);
+	}
 }
 
 module.exports = new CheckSignupRequestTester();

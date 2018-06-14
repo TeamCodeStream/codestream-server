@@ -15,15 +15,15 @@ class TokenRequiredTest extends CheckSignupTest {
 		};
 	}
 
-    // before the test runs...
-    before (callback) {
-        // delete the token from the input data to the test request
-        super.before(error => {
-            if (error) { return callback(error); }
-            delete this.data.token;
-            callback();
-        });
-    }
+	// before the test runs...
+	before (callback) {
+		// delete the token from the input data to the test request
+		super.before(error => {
+			if (error) { return callback(error); }
+			delete this.data.token;
+			callback();
+		});
+	}
 }
 
 module.exports = TokenRequiredTest;
