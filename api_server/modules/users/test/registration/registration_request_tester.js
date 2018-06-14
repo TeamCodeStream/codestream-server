@@ -4,7 +4,6 @@
 const RegistrationTest = require('./registration_test');
 const NoAttributeTest = require('./no_attribute_test');
 const UserExistsTest = require('./user_exists_test');
-const RegisteredUserExistsTest = require('./registered_user_exists_test');
 const BadEmailTest = require('./bad_email_test');
 const BadUsernameTest = require('./bad_username_test');
 const BadPasswordTest = require('./bad_password_test');
@@ -28,7 +27,6 @@ class RegistrationRequestTester {
 		new BadUsernameTest().test();
 		new BadPasswordTest().test();
 		new UserExistsTest().test();
-		new RegisteredUserExistsTest().test();
 		new ConflictingUsernameTest().test();
 		new UserMessageToTeamTest().test();
 		new UserMessageToOtherUserTest().test();
