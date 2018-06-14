@@ -64,4 +64,9 @@ module.exports = {
 		message: 'Unable to grant user messaging permissions',
 		description: 'The server was unable to grant permission to subscribe to the given channel'
 	},
+	'userNotOnTeam': {
+		code: 'USRC-1012',
+		message: 'This user is not yet on a team',
+		description: 'The user indicated by the passed signup token is not yet on any teams, so they are not cleared yet for sign-in'
+	}
 };

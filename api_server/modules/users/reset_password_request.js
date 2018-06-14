@@ -43,7 +43,7 @@ class ResetPasswordRequest extends Aggregation(CheckResetRequest, ChangePassword
 			input: {
 				summary: 'Specify the token and the new password in the request body',
 				looksLike: {
-					't*': '<Reset password token>',
+					'token*': '<Reset password token>',
 					'password*': '<New password>'
 				}
 			},

@@ -22,7 +22,7 @@ class InitialDataFetcher  {
 
 	// get the teams the user is a member of
 	async getTeams () {
-		const teamIds = this.request.user.get('teamIds') || [];
+		const teamIds = this.user.get('teamIds') || [];
 		if (teamIds.length === 0) {
 			this.initialData.teams = [];
 			return;
@@ -33,7 +33,7 @@ class InitialDataFetcher  {
 
 	// get the repos owned by the teams the user is a member of
 	async getRepos () {
-		const teamIds = this.request.user.get('teamIds') || [];
+		const teamIds = this.user.get('teamIds') || [];
 		if (teamIds.length === 0) {
 			this.initialData.repos = [];
 			return;
