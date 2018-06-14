@@ -8,8 +8,6 @@ const ConfirmCode = require('./confirm_code');
 const UserPublisher = require('./user_publisher');
 const Errors = require('./errors');
 
-const CONFIRMATION_CODE_TIMEOUT = 7 * 24 * 60 * 60 * 1000;	// confirmation code expires after a week
-
 class RegisterRequest extends RestfulRequest {
 
 	constructor (options) {
@@ -58,13 +56,12 @@ class RegisterRequest extends RestfulRequest {
 				},
 				optional: {
 					string: ['firstName', 'lastName', '_pubnubUuid'],
-					number: ['timeout', 'expiresIn'],
+					number: ['timeout'],
 					'array(string)': ['secondaryEmails'],
 					object: ['preferences']
 				}
 			}
 		);
-		
 	}
 
 	// generate a confirmation code for the user, we'll send this out to them
@@ -81,8 +78,8 @@ class RegisterRequest extends RestfulRequest {
 		// add confirmation related attributes to be saved when we save the user
 		this.request.body.confirmationCode = ConfirmCode();
 		this.request.body.confirmationAttempts = 0;
-		let timeout = this.request.body.timeout || CONFIRMATION_CODE_TIMEOUT;
-		timeout = Math.min(timeout, CONFIRMATION_CODE_TIMEOUT);
+		let timeout = this.request.body.timeout || this.api.config.api.confirmCodeExpiration;
+		timeout = Math.min(timeout, this.api.config.api.confirmCodeExpiration);
 		this.request.body.confirmationCodeExpiresAt = Date.now() + timeout;
 		delete this.request.body.timeout;
 	}
