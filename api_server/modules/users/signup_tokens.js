@@ -7,7 +7,7 @@ class SignupTokens {
 		if (!this.api) {
 			throw 'API object required for SignupTokens';
 		}
-		this.expirationTime = this.api.config.api.signupTokenExpiration;
+		this.expirationTime = parseInt(this.api.config.api.signupTokenExpiration, 10);
 		if (!this.expirationTime) {
 			throw 'no expiration time found for SignupTokens';
 		}
@@ -20,37 +20,38 @@ class SignupTokens {
 		}
 	}
 
-	async insert (token, userId) {
+	async insert (token, userId, options) {
 		const expiresAt = Date.now() + this.expirationTime;
 		const tokenData = {
 			token,
 			userId,
 			expiresAt
 		};
-		await this.removeOldTokens();
-		return await this._insert(tokenData);
+		await this.removeOldTokens(options);
+		return await this._insert(tokenData, options);
 	}
 
-	async find (token) {
-		await this.removeOldTokens();
-		return await this._find(token);
+	async find (token, options) {
+		await this.removeOldTokens(options);
+		return await this._find(token, options);
 	}
 
-	async removeOldTokens () {
+	async removeOldTokens (options) {
 		const cutoff = Date.now() - this.expirationTime;
 		await this.collection.deleteByQuery(
 			{
 				expiresAt: { $lt: cutoff }
-			}
+			},
+			options
 		);
 	}
 
-	async _insert (tokenData) {
-		return await this.collection.create(tokenData);
+	async _insert (tokenData, options) {
+		return await this.collection.create(tokenData, options);
 	}
 
-	async _find (token) {
-		const tokens = await this.collection.getByQuery({ token });
+	async _find (token, options) {
+		const tokens = await this.collection.getByQuery({ token }, options);
 		const tokenData = tokens[0];
 		if (!tokenData || tokenData.expiresAt < Date.now()) {
 			return;

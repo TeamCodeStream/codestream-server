@@ -235,7 +235,10 @@ class ConfirmRequest extends RestfulRequest {
 		if (!this.request.body.signupToken) {
 			return;
 		}
-		await this.api.services.signupTokens.insert(this.request.body.signupToken, this.user.id);
+		await this.api.services.signupTokens.insert(
+			this.request.body.signupToken,
+			this.user.id,
+			{ requestId: this.request.id });
 	}
 
 	// get the first team the user is on, if needed
