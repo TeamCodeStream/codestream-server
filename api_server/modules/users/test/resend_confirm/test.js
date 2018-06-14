@@ -27,7 +27,7 @@ class ResendConfirmRequestTester {
 			ResendConfirmEmailTest,
 			AlreadyRegisteredEmailTest
 		]);
-    }
+	}
 }
 
 module.exports = new ResendConfirmRequestTester();
