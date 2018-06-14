@@ -25,7 +25,7 @@ var NoTrackingTest = require('./no_tracking_test');
 
 describe('inbound emails', function() {
 
-	this.timeout(10000);
+	this.timeout(20000);
 
 	new InboundEmailTest({ type: 'file' }).test();
 	new InboundEmailTest({ type: 'channel' }).test();
