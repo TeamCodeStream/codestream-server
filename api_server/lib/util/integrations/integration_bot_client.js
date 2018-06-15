@@ -36,6 +36,11 @@ class IntegrationBotClient {
 
 	// called when there is a new post
 	async postHook (info, options = {}) {
+		// don't send integration messages for private streams
+		// (direct messages or private channels)
+		if (info.stream.get('privacy') === 'private') {
+			return;
+		}
 		// package the message for bot digestion and sent it over the wire
 		const message = this.packageMessage(info);
 		await this.sendMessage(message, info, options);

@@ -9,8 +9,22 @@ const MSTeams = require(process.env.CS_API_TOP + '/config/msteams');
 
 class TeamsOutTest extends CodeStreamMessageTest {
 
+	constructor (options = {}) {
+		super(options);
+		this.streamType = this.streamType || 'channel';
+		if (!options.privacy && this.streamType === 'channel') {
+			this.privacy = 'public';
+		}
+	}
+		
 	get description () {
-		return 'when a team has MS Teams integration enabled, a new post in a stream owned by that team should send a message to the MS Teams bot';
+		let streamType = this.streamType === 'channel' ? 
+			(this.isTeamStream ? 'team' : 'channel') :
+			this.streamType;
+		if (this.privacy) {
+			streamType = `${this.privacy} ${streamType}`;
+		}
+		return `when a team has MS Teams integration enabled, a new post in a ${streamType} stream owned by that team should send a message to the MS Teams bot`;
 	}
 
 	// make the data we'll use for the test
@@ -25,6 +39,7 @@ class TeamsOutTest extends CodeStreamMessageTest {
 			this.createRepo,		// create the repo to be used in the test
 			this.enableTeams,		// enable the teams integration as needed
 			this.createStream,		// create a file stream in that repo
+			this.createFileStream,  // create a file stream, for code block, as needed
 			this.createParentPost,	// create a parent post, if needed
 			this.setCurrentUser,	// set the current user, the one who will be listening for the pubnub message that represents the teams message that would otherwise go out
 			this.makePostData,		// make the data for the post what will trigger the message
@@ -58,12 +73,35 @@ class TeamsOutTest extends CodeStreamMessageTest {
 		);
 	}
 
-	// create a file-type stream to be used during the tests
+	// create a stream of the given type to be used during the tests
 	createStream (callback) {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.stream = response.stream;
+				callback();
+			},
+			{
+				token: this.creatorToken,	// first user creates the stream
+				type: this.streamType,
+				repoId: this.streamType === 'file' ? this.repo._id : undefined,
+				teamId: this.team._id,
+				privacy: this.streamType === 'channel' ? this.privacy || 'private' : undefined,
+				memberIds: this.streamType !== 'file' ? [this.otherUserData.user._id] : undefined,
+				isTeamStream: this.isTeamStream
+			}
+		);
+	}
+
+	// create a file stream to be used during the tests, for any code blocks
+	createFileStream (callback) {
+		if (!this.wantCodeBlock) {
+			return callback();
+		}
+		this.streamFactory.createRandomStream(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.fileStream = response.stream;
 				callback();
 			},
 			{
@@ -136,7 +174,8 @@ class TeamsOutTest extends CodeStreamMessageTest {
 			},
 			{
 				streamId: this.stream._id,
-				wantCodeBlocks: this.wantCodeBlock ? 1 : 0	// for testing code in the message
+				wantCodeBlocks: this.wantCodeBlock ? 1 : 0,	// for testing code in the message
+				codeBlockStreamId: this.wantCodeBlock ? this.fileStream._id : undefined
 			}
 		);
 	}
@@ -173,8 +212,13 @@ class TeamsOutTest extends CodeStreamMessageTest {
 		message = message.message;
 		if (!message.postId) { return false; }	// not the message we want
 		Assert(message.teamId === this.team._id, 'incorrect team ID');
-		Assert(message.repoId === this.repo._id, 'incorrect repo ID');
-		Assert(message.repoUrl === 'https://' + this.repo.normalizedUrl, 'incorrect repo url');
+		if (this.streamType === 'file') {
+			Assert(message.repoId === this.repo._id, 'incorrect repo ID');
+			Assert(message.repoUrl === 'https://' + this.repo.normalizedUrl, 'incorrect repo url');
+		}
+		else if (this.streamType === 'channel') {
+			Assert(message.stream === this.stream.name, 'incorrect stream name');
+		}
 		Assert(message.streamId === this.stream._id, 'incorrect stream ID');
 		Assert(message.file === this.stream.file, 'incorrect file');
 		Assert(message.postId === this.post._id, 'incorrect postId');
