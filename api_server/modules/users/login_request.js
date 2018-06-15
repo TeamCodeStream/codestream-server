@@ -5,8 +5,7 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 const BCrypt = require('bcrypt');
-const InitialDataFetcher = require('./initial_data_fetcher');
-const UserSubscriptionGranter = require('./user_subscription_granter');
+const LoginHelper = require('./login_helper');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
 const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
@@ -28,10 +27,7 @@ class LoginRequest extends RestfulRequest {
 		await this.requireAndAllow();			// require certain parameters, and discard unknown parameters
 		await this.getUser();					// get the user indicated by email in the request
 		await this.validatePassword();			// validate the given password matches their password hash
-		await this.getInitialData();			// fetch the initial data to return in the response
-		await this.grantSubscriptionPermissions();	// grant the user permission to subscribe to various messager channels
-		await this.generateToken();				// generate an access token if needed
-		await this.formResponse();				// form the response to the request
+		await this.doLogin();					// proceed with actual login
 	}
 
 	// require these parameters, and discard any unknown parameters
@@ -90,69 +86,13 @@ class LoginRequest extends RestfulRequest {
 		}
 	}
 
-	// get the initial data to return in the response, this is a time-saver for the client
-	// so it doesn't have to fetch this data with separate requests
-	async getInitialData () {
-		this.initialData = await new InitialDataFetcher({
-			request: this
-		}).fetchInitialData();
-	}
-
-	// grant the user permission to subscribe to various messager channels
-	async grantSubscriptionPermissions () {
-		// note - it is tough to determine whether this should go before or after the response ... with users in a lot
-		// of streams, there could be a performance hit here, but do we want to take a performance hit or do we want
-		// to risk the client subscribing to channels for which they don't yet have permissions? i've opted for the
-		// performance hit, and i suspect it won't ever be a problem, but be aware...
-		try {
-			await new UserSubscriptionGranter({
-				data: this.data,
-				messager: this.api.services.messager,
-				user: this.user,
-				request: this
-			}).grantAll();
-		}
-		catch (error) {
-			throw this.errorHandler.error('userMessagingGrant', { reason: error });
-		}
-	}
-
-	// generate an access token for this login if needed
-	async generateToken () {
-		// look for a new-style token (with min issuance), if it doesn't exist, or our current token
-		// was issued before the min issuance, then we need to generate a new token for this login type
-		const currentTokenInfo = this.user.getTokenInfoByType(this.loginType);
-		const minIssuance = typeof currentTokenInfo === 'object' ? (currentTokenInfo.minIssuance || null) : null;
-		this.accessToken = typeof currentTokenInfo === 'object' ? currentTokenInfo.token : this.user.get('accessToken');
-		const tokenPayload = this.accessToken ? this.api.services.tokenHandler.verify(this.accessToken) : null;
-		if (
-			!minIssuance ||
-			minIssuance > (tokenPayload.iat * 1000)
-		) {
-			this.accessToken = this.api.services.tokenHandler.generate({ uid: this.user.id });
-			const minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat;
-			await this.data.users.applyOpById(
-				this.user.id,
-				{
-					$set: {
-						[`accessTokens.${this.loginType}`]: {
-							token: this.accessToken,
-							minIssuance: minIssuance
-						} 
-					}
-				}
-			);
-		}
-	}
-
-	// form the response to the request
-	async formResponse () {
-		this.responseData = {
-			user: this.user.getSanitizedObjectForMe(),	// include me-only attributes
-			accessToken: this.accessToken,	// access token to supply in future requests
-			pubnubKey: this.api.config.pubnub.subscribeKey	// give them the subscribe key for pubnub
-		};
-		Object.assign(this.responseData, this.initialData);
+	// proceed with the actual login, calling into a login helper 
+	async doLogin () {
+		this.responseData = await new LoginHelper({
+			request: this,
+			user: this.user,
+			loginType: this.loginType
+		}).login();
 	}
 
 	// describe this route for help

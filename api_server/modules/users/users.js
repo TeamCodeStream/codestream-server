@@ -5,6 +5,7 @@
 const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const UserCreator = require('./user_creator');
 const UserUpdater = require('./user_updater');
+const SignupTokens = require('./signup_tokens');
 const User = require('./user');
 const Errors = require('./errors');
 
@@ -91,6 +92,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'no-auth/resend-confirm',
 		requestClass: require('./resend_confirm_request')
+	},
+	{
+		method: 'put',
+		path: 'no-auth/check-signup',
+		requestClass: require('./check_signup_request')
 	}
 ];
 
@@ -124,6 +130,19 @@ class Users extends Restful {
 	getRoutes () {
 		let standardRoutes = super.getRoutes(USERS_STANDARD_ROUTES);
 		return [...standardRoutes, ...USERS_ADDITIONAL_ROUTES];
+	}
+
+	services () {
+		// return a function that, when invoked, returns a service to handle signup tokens
+		return async () => {
+			this.api.log('Initializing signup token service...');
+			this.signupTokens = new SignupTokens({ api: this.api });
+			return { signupTokens: this.signupTokens };
+		};
+	}
+
+	initialize () {
+		this.signupTokens.initialize();
 	}
 
 	describeErrors () {

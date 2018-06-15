@@ -5,9 +5,8 @@
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const PasswordHasher = require('./password_hasher');
 const UsernameChecker = require('./username_checker');
-const UserSubscriptionGranter = require('./user_subscription_granter');
 const UserPublisher = require('./user_publisher');
-const InitialDataFetcher = require('./initial_data_fetcher');
+const LoginHelper = require('./login_helper');
 const Errors = require('./errors');
 const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors');
 const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
@@ -22,6 +21,7 @@ class ConfirmRequest extends RestfulRequest {
 		this.errorHandler.add(Errors);
 		this.errorHandler.add(TeamErrors);
 		this.errorHandler.add(AuthErrors);
+		this.loginType = this.loginType || 'web';
 	}
 
 	async authorize () {
@@ -40,11 +40,9 @@ class ConfirmRequest extends RestfulRequest {
 		}
 		await this.hashPassword();			// hash the provided password, if given
 		await this.checkUsernameUnique();	// check that the user's username will be unique for their team, as needed
-		await this.generateToken();			// generate an access token for the user
 		await this.updateUser();			// update the user's database record
-		await this.grantSubscriptionPermissions();	// grant subscription permissions for the user to receive messages
-		await this.getInitialData();		// get the "initial data" to return in the request response
-		await this.formResponse();		// form the request response to send back to the client
+		await this.saveSignupToken();		// save the signup token so we can identify this user with an IDE session
+		await this.doLogin();				// proceed with the actual login
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -53,7 +51,8 @@ class ConfirmRequest extends RestfulRequest {
 			'body',
 			{
 				optional: {
-					string: ['email', 'password', 'username', 'confirmationCode', 'token']
+					string: ['email', 'password', 'username', 'confirmationCode', 'token', 'signupToken'],
+					number: ['expiresIn']
 				}
 			}
 		);
@@ -208,17 +207,13 @@ class ConfirmRequest extends RestfulRequest {
 		}
 	}
 
-	// confirmation successful, now generate an access token for the user to use
-	// for all future requests
-	async generateToken () {
-		try {
-			this.accessToken = this.api.services.tokenHandler.generate({ uid: this.user.id });
-			this.minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
-		}
-		catch (error) {
-			const message = typeof error === 'object' ? error.message : error;
-			throw this.errorHandler.error('token', { reason: message });
-		}
+	// proceed with the actual login, calling into a login helper 
+	async doLogin () {
+		this.responseData = await new LoginHelper({
+			request: this,
+			user: this.user,
+			loginType: this.loginType
+		}).login();
 	}
 
 	// update the user in the database, indicating they are confirmed
@@ -226,6 +221,22 @@ class ConfirmRequest extends RestfulRequest {
 		await this.getFirstTeam();		// get the first team the user is on, if needed, this becomes the "origin" team
 		await this.getTeamCreator();	// get the creator of that team
 		await this.doUserUpdate();		// do the actual update
+	}
+
+	// if a signup token is provided, this allows a client IDE session to identify the user ID that was eventually
+	// signed up as it originated from the IDE
+	async saveSignupToken () {
+		if (!this.request.body.signupToken) {
+			return;
+		}
+		await this.api.services.signupTokens.insert(
+			this.request.body.signupToken,
+			this.user.id,
+			{ 
+				requestId: this.request.id,
+				expiresIn: this.request.body.expiresIn
+			}
+		);
 	}
 
 	// get the first team the user is on, if needed
@@ -257,11 +268,7 @@ class ConfirmRequest extends RestfulRequest {
 			'$set': {
 				isRegistered: true,
 				modifiedAt: now,
-				registeredAt: now,
-				'accessTokens.web': {
-					token: this.accessToken,
-					minIssuance: this.minIssuance
-				}
+				registeredAt: now
 			},
 			'$unset': {
 				confirmationCode: true,
@@ -292,43 +299,6 @@ class ConfirmRequest extends RestfulRequest {
 			}
 		}
 		this.user = await this.data.users.applyOpById(this.user.id, op);
-	}
-
-	// grant the user permission to subscribe to various messager channels
-	async grantSubscriptionPermissions () {
-		// note - it is tough to determine whether this should go before or after the response ... with users in a lot
-		// of streams, there could be a performance hit here, but do we want to take a performance hit or do we want
-		// to risk the client subscribing to channels for which they don't yet have permissions? i've opted for the
-		// performance hit, and i suspect it won't ever be a problem, but be aware...
-		try {
-			await new UserSubscriptionGranter({
-				data: this.data,
-				messager: this.api.services.messager,
-				user: this.user,
-				request: this
-			}).grantAll();
-		}
-		catch (error) {
-			throw this.errorHandler.error('userMessagingGrant', { reason: error });
-		}
-	}
-
-	// get the initial data to return in the response, this is a time-saver for the client
-	// so it doesn't have to fetch this data with separate requests
-	async getInitialData () {
-		this.initialData = await new InitialDataFetcher({
-			request: this
-		}).fetchInitialData();
-	}
-
-	// form the response to the request
-	async formResponse () {
-		this.responseData = {
-			user: this.user.getSanitizedObjectForMe(),	// include me-only attributes
-			accessToken: this.accessToken,				// access token to supply in future requests
-			pubnubKey: this.api.config.pubnub.subscribeKey	// give them the subscribe key for pubnub
-		};
-		Object.assign(this.responseData, this.initialData);
 	}
 
 	// user failed confirmation for whatever reason, we'll do a database update

@@ -103,7 +103,7 @@ class CheckResetRequest extends RestfulRequest {
 			input: {
 				summary: 'Specify the token as a query parameter',
 				looksLike: {
-					't*': '<Reset password token>'
+					'token*': '<Reset password token>'
 				}
 			},
 			returns: {
