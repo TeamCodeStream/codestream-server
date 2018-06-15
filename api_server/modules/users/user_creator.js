@@ -120,8 +120,8 @@ class UserCreator extends ModelCreator {
 		}
 		const teamIds = (this.existingModel ? this.existingModel.get('teamIds') : this.teamIds) || [];
 		const username = this.attributes.username || (this.existingModel ? this.existingModel.get('username') : null);
-		if (!username || teamIds.length === 0) {
-			// username not provided, or no teams === no worries
+		if (!username) {
+			// username not provided === no worries
 			return ;
 		}
 		// check against all teams ... the username must be unique for each

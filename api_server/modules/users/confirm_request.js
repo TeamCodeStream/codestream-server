@@ -181,15 +181,12 @@ class ConfirmRequest extends RestfulRequest {
 
 	// check that the user's username will be unique for the team(s) they are on
 	async checkUsernameUnique () {
-		if ((this.user.get('teamIds') || []).length === 0) {
-			return;
-		}
 		const username = this.request.body.username || this.user.get('username');
 		if (!username) {
 			return;
 		}
 		// we check against each team the user is on, it must be unique in all teams
-		const teamIds = this.user.get('teamIds');
+		const teamIds = this.user.get('teamIds') || [];
 		const usernameChecker = new UsernameChecker({
 			data: this.data,
 			username: username,
