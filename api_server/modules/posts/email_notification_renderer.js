@@ -23,7 +23,6 @@ class EmailNotificationRenderer {
 
 		.master {
 			margin-top: 10px;
-			font-family: Roboto, Arial;
 			font-size: 16px;
 			color: #000;
 		}
