@@ -16,12 +16,12 @@ class NoCodestreamUsernameTest extends PutUserTest {
 
 	// before the test runs...
 	before (callback) {
-        // substitute "codestream" username, which is not allowed
-        super.before(error => {
-            if (error) { return callback(error); }
-            this.data.username = 'codestream';
-            callback();
-        });
+		// substitute "codestream" username, which is not allowed
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.data.username = 'codestream';
+			callback();
+		});
 	}
 }
 
