@@ -236,6 +236,23 @@ class User extends CodeStreamModel {
 	// stream, which may depend on whether they are mentioned in the post
 	wantsEmail (stream, mentioned) {
 		// first, look for a general email preference of 'off'
+		if (this.noEmailNotificationsByPreference(mentioned)) {
+			return false;
+		}
+
+		// now - for file-type streams - look for individual stream treatments for the repo,
+		// paths can be muted
+		const wantEmail = this.wantEmailNotificationsByTreatment(stream);
+		if (typeof wantEmail === 'boolean') {
+			return wantEmail;
+		}
+
+		// for non-file streams, look for individual muted setting
+		return this.wantEmailNotificationsByMuted(stream);
+	}
+
+	// determine if the user has email notifications turned off by preference
+	noEmailNotificationsByPreference (mentioned) {
 		const preferences = this.get('preferences') || {};
 		if (
 			preferences &&
@@ -247,11 +264,17 @@ class User extends CodeStreamModel {
 				)
 			)
 		) {
-			return false;
+			return true;
 		}
+	}
 
-		// now look for individual stream treatments for the repo,
-		// paths can be muted
+	// determine if the user has a preference for email notifications according to 
+	// specific stream treatment (for file streams, to be deprecated)
+	wantEmailNotificationsByTreatment (stream) {
+		if (stream.get('type') !== 'file') {
+			return;	// only applicable for file streams
+		}
+		const preferences = this.get('preferences') || {};
 		const streamTreatments = typeof preferences.streamTreatments === 'object' &&
 			preferences.streamTreatments[stream.get('repoId')];
 		if (!streamTreatments) {
@@ -273,6 +296,14 @@ class User extends CodeStreamModel {
 		// no muted directories that are parents to this file, we are free to
 		// send a notification!
 		return true;
+	}
+
+	// determine if the user has a preference for email notifications according to
+	// whether a stream is muted, this is for non-file streams only
+	wantEmailNotificationsByMuted (stream) {
+		const preferences = this.get('preferences') || {};
+		const mutedStreams = preferences.mutedStreams || {};
+		return !mutedStreams[stream.id];
 	}
 
 	// get a sanitized me-object ... we normally "sanitize" server-only attributes
