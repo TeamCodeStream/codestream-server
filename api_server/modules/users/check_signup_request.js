@@ -14,6 +14,7 @@ class CheckSignupRequest extends RestfulRequest {
 		super(options);
 		this.errorHandler.add(UserErrors);
 		this.errorHandler.add(AuthenticatorErrors);
+		this.loginType = this.loginType || 'web';
 	}
 
 	async authorize () {
@@ -73,7 +74,7 @@ class CheckSignupRequest extends RestfulRequest {
 		this.responseData = await new LoginHelper({
 			request: this,
 			user: this.user,
-			loginType: 'web'
+			loginType: this.loginType
 		}).login();
 	}
 

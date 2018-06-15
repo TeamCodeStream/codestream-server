@@ -61,7 +61,7 @@ class LoginHelper {
                 minIssuance > (tokenPayload.iat * 1000)
 			) {
 				this.accessToken = this.request.api.services.tokenHandler.generate({ uid: this.user.id });
-				const minIssuance = this.request.api.services.tokenHandler.decode(this.accessToken).iat;
+				const minIssuance = this.request.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
 				await this.request.data.users.applyOpById(
 					this.user.id,
 					{

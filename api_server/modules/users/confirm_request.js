@@ -21,6 +21,7 @@ class ConfirmRequest extends RestfulRequest {
 		this.errorHandler.add(Errors);
 		this.errorHandler.add(TeamErrors);
 		this.errorHandler.add(AuthErrors);
+		this.loginType = this.loginType || 'web';
 	}
 
 	async authorize () {
