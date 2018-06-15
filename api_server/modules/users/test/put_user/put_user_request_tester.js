@@ -10,6 +10,7 @@ var ACLTeamTest = require('./acl_team_test');
 var MessageToTeamTest = require('./message_to_team_test');
 var NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
 var UsernameNotUniqueTest = require('./username_not_unique_test');
+var NoCodestreamUsernameTest = require('./no_codestream_username_test');
 var UsernameNotUniqueForSecondTeamTest = require('./username_not_unique_for_second_team_test');
 
 const UserAttributes = require('../../user_attributes');
@@ -33,6 +34,7 @@ class PutUserRequestTester {
 			}
 		});
 		new UsernameNotUniqueTest().test();
+		new NoCodestreamUsernameTest().test();
 		new UsernameNotUniqueForSecondTeamTest().test();
 	}
 }

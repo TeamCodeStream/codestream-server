@@ -15,6 +15,16 @@ class UsernameChecker  {
 	// check that the user's (proposed) username will be unique across all teams
 	// they are a member of
 	async checkUsernameUnique () {
+		if (this.username === 'codestream') {
+			// don't allow 'codestream' at all, this is "reserved"
+			return false;
+		}
+		this.teamIds = this.teamIds || [];
+		if (this.teamIds.length === 0) {
+			// no conflict if the user is not on any teams
+			return true;
+		}
+
 		await this.getUsers();					// get all users on the teams (just usernames)
 		await this.arrangeUsernamesByTeam();	// arrange the usernames according to the team (for error reporting if there is a conflict)
 		await this.checkUniqueness();			// check for the uniqueness of the username across all teams

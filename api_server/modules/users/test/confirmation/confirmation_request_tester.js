@@ -12,6 +12,7 @@ const ExpirationTest = require('./expiration_test');
 const ConfirmationMessageToTeamTest = require('./confirmation_message_to_team_test');
 const ConfirmationMessageToOtherUserTest = require('./confirmation_message_to_other_user_test');
 const ConflictingUsernameTest = require('./conflicting_username_test');
+const NoCodestreamUsernameTest = require('./no_codestream_username_test');
 const InitialDataTest = require('./initial_data_test');
 const MeAttributesTest = require('./me_attributes_test');
 const SubscriptionTest = require('./subscription_test');
@@ -40,6 +41,7 @@ class ConfirmationRequestTester {
 		new ConfirmationMessageToTeamTest().test();
 		new ConfirmationMessageToOtherUserTest().test();
 		new ConflictingUsernameTest().test();
+		new NoCodestreamUsernameTest().test();
 		new InitialDataTest().test();
 		new MeAttributesTest().test();
 		new SubscriptionTest({ which: 'user' }).test();

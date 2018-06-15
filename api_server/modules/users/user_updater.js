@@ -60,14 +60,12 @@ class UserUpdater extends ModelUpdater {
 		if (!this.attributes.username) {
 			return;
 		}
-		if ((this.user.get('teamIds') || []).length === 0) {
-			return;
-		}
+		const teamIds = this.user.get('teamIds') || [];
 		const usernameChecker = new UsernameChecker({
 			data: this.request.data,
 			username: this.attributes.username,
 			userId: this.user.id,
-			teamIds: this.user.get('teamIds')
+			teamIds
 		});
 		const isUnique = await usernameChecker.checkUsernameUnique();
 		if (!isUnique) {
