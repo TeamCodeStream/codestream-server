@@ -17,12 +17,12 @@ describe('versioner', function() {
 
 	this.timeout(5000);
 
-    new VersionerTest().test();
-    new UnknownDispositionTest().test();
-    new UnknownIDETest().test();
-    new UnknownVersionTest().test();
-    new IncompatibleVersionTest().test();
-    new DeprecatedVersionTest().test();
-    new OutdatedVersionTest().test();
+	new VersionerTest().test();
+	new UnknownDispositionTest().test();
+	new UnknownIDETest().test();
+	new UnknownVersionTest().test();
+	new IncompatibleVersionTest().test();
+	new DeprecatedVersionTest().test();
+	new OutdatedVersionTest().test();
 
 });

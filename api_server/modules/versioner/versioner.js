@@ -127,30 +127,30 @@ class Versioner extends APIServerModule {
 		const [version, pre] = versionString.split('-');
 		const [major, minor, patch] = version.split('.');
 		return {
-            major: typeof major === 'string' ? parseInt(major, 10) : major,
-            minor: typeof minor === 'string' ? parseInt(minor, 10) : minor,
-            patch: typeof patch === 'string' ? parseInt(patch, 10) : patch,
-            pre: pre
-        };
+			major: typeof major === 'string' ? parseInt(major, 10) : major,
+			minor: typeof minor === 'string' ? parseInt(minor, 10) : minor,
+			patch: typeof patch === 'string' ? parseInt(patch, 10) : patch,
+			pre: pre
+		};
 	}
 
 	// compare two version structures, return -1, 0, 1
 	compareVersions (v1, v2) {
-        if (v1.major > v2.major) return 1;
-        if (v1.major < v2.major) return -1;
+		if (v1.major > v2.major) return 1;
+		if (v1.major < v2.major) return -1;
 
 		if (v1.minor > v2.minor) return 1;
-        if (v1.minor < v2.minor) return -1;
+		if (v1.minor < v2.minor) return -1;
 
-        if (v1.patch > v2.patch) return 1;
-        if (v1.patch < v2.patch) return -1;
+		if (v1.patch > v2.patch) return 1;
+		if (v1.patch < v2.patch) return -1;
 
-        if (v1.pre === undefined && v2.pre !== undefined) return 1;
-        if (v1.pre !== undefined && v2.pre === undefined) return -1;
+		if (v1.pre === undefined && v2.pre !== undefined) return 1;
+		if (v1.pre !== undefined && v2.pre === undefined) return -1;
 
-        if (v1.pre !== undefined && v2.pre !== undefined) return v1.pre.localeCompare(v2.pre);
+		if (v1.pre !== undefined && v2.pre !== undefined) return v1.pre.localeCompare(v2.pre);
 
-        return 0;
+		return 0;
 	}
 
 	// describe any errors associated with this module, for help
