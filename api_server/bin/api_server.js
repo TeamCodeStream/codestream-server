@@ -45,7 +45,14 @@ const DataCollections = {
 	markers: require(ModuleDirectory + '/markers/marker'),
 	markerLocations: require(ModuleDirectory + '/marker_locations/marker_locations')
 };
-const MongoCollections = Object.keys(DataCollections).concat(['signupTokens']);
+
+// establish our mongo collections, these include our DataCollections, but 
+// may also include other collections that we speak to directly
+// through mongo, we don't abstract them out into DataCollections
+const MongoCollections = Object.keys(DataCollections).concat([
+	'signupTokens',
+	'versionMatrix'
+]);
 
 // invoke a node cluster master with our configurations provided
 const ServerClass = require(process.env.CS_API_TOP + '/lib/api_server/api_server');
