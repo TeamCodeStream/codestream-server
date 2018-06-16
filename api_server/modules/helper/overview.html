@@ -23,12 +23,35 @@ All requests require authentication unless the path starts with /no-auth. Authen
 <p>
 If a 401 is returned with a request, then the credentials provided are invalid and will never work. A new access token must be obtained by performing a @@#login#login@@ request.
 </p>
-<h2>Headers</h2>
+<h2>Headers and Versioning</h2>
 <p>
 In addition to the Authorization header for requests requiring authentication, all requests should provide the following custom headers on every request:
 </p>
 <p class=overviewData>
-X-CS-Plugin-IDE: &lt;&nbsp;the IDE issuing the request (eg. "atom", "vscode", etc.)&nbsp;&gt;<br/>
-X-CS-Plugin-Version: &lt;&nbsp;the version of the plugin&nbsp;&gt;<br/>
-X-CS-IDE-Version: &lt;&nbsp;the version of the IDE&nbsp;&gt;<br/>
+<span class=headerValue>X-CS-Plugin-IDE</span>: &lt;&nbsp;the IDE issuing the request (eg. "atom", "vscode", etc.)&nbsp;&gt;<br/>
+<span class=headerValue>X-CS-Plugin-Version</span>: &lt;&nbsp;the version of the plugin&nbsp;&gt;<br/>
+<span class=headerValue>X-CS-IDE-Version</span>: &lt;&nbsp;the version of the IDE&nbsp;&gt;<br/>
+</p>
+<p>
+The server will use these values to determine if the plugin version is out-of-date, deprecated, or no longer supported. It will return the following headers in the response:
+</p>
+<p class=overviewData>
+<span class=headerValue>X-CS-Version-Disposition</span>: &lt;&nbsp;a disposition value, see below&nbsp;&gt;<br/>
+<span class=headerValue>X-CS-Current-Version</span>: &lt;&nbsp;the current release version for the IDE plugin&nbsp;&gt;<br/>
+<span class=headerValue>X-CS-Supported-Version</span>: &lt;&nbsp;the earliest supported release version for the IDE plugin; requests from versions earlier than this will not be honored&nbsp;&gt;<br/>
+<span class=headerValue>X-CS-Preferred-Version</span>: &lt;&nbsp;the minimum preferred release version for the IDE plugin; versions earlier than this are likely to be deprecated in the future&nbsp;&gt;<br/>
+<span class=headerValue>X-CS-Supported-Agent</span>: &lt;&nbsp;the minimum supported release version of the agent; if the installation has an agent earlier than this, it MUST download an upgrade&nbsp;&gt;<br/>
+<span class=headerValue>X-CS-Preferred-Agent</span>: &lt;&nbsp;the preferred release version of the agent; if the installation has an agent earlier than this, it SHOULD download an upgrade as soon as possible&nbsp;&gt;<br/>
+</p>
+<p>
+The value of X-CS-Version-Disposition can be one of the following:
+</p>
+<p class=overviewData>
+<span class=headerValue>unknown</span> - no IDE plugin header was sent with the request, so version information can be determined<br/>
+<span class=headerValue>unknownIDE</span> - the IDE plugin is not recognized, so no version information is available<br/>
+<span class=headerValue>unknownVersion</span> - the IDE plugin is recognized, but no version information was found, so no agent compatibility information can be returned<br/>
+<span class=headerValue>incompatible</span> - if the IDE plugin version is older than X-CS-Supported-Version, requests can not be served until the plugin is upgraded<br/>
+<span class=headerValue>deprecated</span> - if the IDE plugin version is older than X-CS-Preferred-Version but newer than X-CS-Supported-Version, the plugin version is expected to be deprecated in the future and should be upgraded as soon as possible<br/>
+<span class=headerValue>outdated</span> - if the IDE plugin version is older than X-CS-Current-Versionn but newer than X-CS-Preferred-Version, the plugin version is not the most recent, but is fully supported<br/>
+<span class=headerValue>ok</span> - the IDE plugin version matches X-CS-Current-Version, so the plugin is up-to-date<br/>
 </p>

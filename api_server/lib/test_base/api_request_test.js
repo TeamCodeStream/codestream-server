@@ -95,7 +95,8 @@ class APIRequestTest extends GenericTest {
 				requestOptions: this.apiRequestOptions || {},
 				token: this.ignoreTokenOnRequest ? null : this.token
 			}),
-			(error, response) => {
+			(error, response, httpResponse) => {
+				this.httpResponse = httpResponse;
 				this.checkResponse(error, response, callback);
 			}
 		);

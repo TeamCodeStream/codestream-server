@@ -19,7 +19,8 @@ const AllModuleIndexes = {
 	posts: require(process.env.CS_API_TOP + '/modules/posts/indexes.js'),
 	markers: require(process.env.CS_API_TOP + '/modules/markers/indexes.js'),
 	users: require(process.env.CS_API_TOP + '/modules/users/indexes.js'),
-	signupTokens: require(process.env.CS_API_TOP + '/modules/users/signup_token_indexes.js')
+	signupTokens: require(process.env.CS_API_TOP + '/modules/users/signup_token_indexes.js'),
+	versionMatrix: require(process.env.CS_API_TOP + '/modules/versioner/indexes.js')
 };
 
 const AllFinished = {
