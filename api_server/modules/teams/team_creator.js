@@ -19,7 +19,6 @@ class TeamCreator extends ModelCreator {
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(Errors);
-		this.dontSaveIfExists = true;	// if a matching team exists, don't save, but just return the existing team
 	}
 
 	get modelClass () {
@@ -38,24 +37,29 @@ class TeamCreator extends ModelCreator {
 	// get attributes that are required for team creation, and those that are optional,
 	// along with their types
 	getRequiredAndOptionalAttributes () {
-		return {
+		const requiredAndOptional = {
 			required: {
 				string: ['name']
-			},
-			optional: {
-				'string': ['primaryReferral'],
-				'array(string)': ['memberIds', 'emails'],
-				'array(object)': ['users']
 			}
 		};
+		if (this.fromRepoCreator) {
+			// we are deprecating the ability to create users or add them to a team directly ...
+			// the preferred behavior will be to "invite" them to a team using POST /users ...
+			// in the meantime, we need to continue to support the atom client and the old
+			// onboarding, which allows invite of users to a team as part of the onboarding
+			// process ... but we won't allow it for POST /teams directly
+			requiredAndOptional.optional = {
+				'array(string)': ['emails'],
+				'array(object)': ['users']
+			};
+		}
+		return requiredAndOptional;
 	}
 
 	// validate attributes for the team we are creating
 	async validateAttributes () {
 		this.validator = new CodeStreamModelValidator(TeamAttributes);
-		this.setDefaults();
 		return this.validateName() ||
-			this.validateMemberIds() ||
 			this.validateEmails() ||
 			this.validateUsers();
 	}
@@ -65,14 +69,6 @@ class TeamCreator extends ModelCreator {
 		let error = this.validator.validateString(this.attributes.name);
 		if (error) {
 			return { name: error };
-		}
-	}
-
-	// validate the array of member IDs
-	validateMemberIds () {
-		let error = this.validator.validateArrayOfIds(this.attributes.memberIds);
-		if (error) {
-			return { memberIds: error };
 		}
 	}
 
@@ -94,54 +90,21 @@ class TeamCreator extends ModelCreator {
 		}
 	}
 
-	// set the default attributes (in advance of validation)
-	setDefaults () {
-		this.ensureUserIsMember();	// ensure the current user is in the array of member IDs
-	}
-
-	// ensure the current user (user making the request) is in the array of member IDs for the team
-	ensureUserIsMember () {
-		this.attributes.memberIds = this.attributes.memberIds || [this.user.id];
-		if (!(this.attributes.memberIds instanceof Array)) {
-			return; // this will get caught later
-		}
-		if (!this.attributes.memberIds.includes(this.user.id)) {
-			this.attributes.memberIds.push(this.user.id);
-		}
-		this.attributes.memberIds.sort();
-	}
-
-	// return database query to check if a matching team already exists
-	checkExistingQuery () {
-		// note: this isn't really relevant right now, because we don't allow to specify companyId yet (if ever?)
-		if (!this.attributes.companyId) {
-			return; // no need if no company yet, this will be the first team for this company
-		}
-		let query = {
-			companyId: this.attributes.companyId
-		};
-		if (this.attributes.name) {
-			query.name = this.attributes.name;
-		}
-		else {
-			query.memberIds = this.attributes.memberIds;
-		}
-		return query;
-	}
-
-	// return whether a matching team can exist or if an error should be returned
-	modelCanExist () {
-		// we won't allow two teams in the same company with the same name, but not a concern right now (or ever?)
-		return !this.attributes.name;
-	}
-
 	// called before the team is actually saved
 	async preSave () {
 		this.createId();
 		this.attributes.creatorId = this.user.id;	// user making the request is the team creator
+		this.attributes.memberIds = [this.user.id];	// user creating the team should always be a member
+
+		// set some analytics, based on whether this is the user's first team
+		const firstTeamForUser = (this.user.get('teamIds') || []).length === 0;
+		this.attributes.primaryReferral = firstTeamForUser ? 'external' : 'internal';
+
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
+
+		// TODO: deprecate all user adding/creation once we are fully migrated to sign-up on the web
 		await this.checkCreateUsers();		// check if we are being asked to create users on-the-fly with the team creation
 		await this.checkUsernamesUnique();	// check that for all users being added, that all the usernames will be unique
 		await this.createCompany();			// create a company along with the team, as needed
@@ -188,7 +151,7 @@ class TeamCreator extends ModelCreator {
 
 	// check that among all the users being added, none of the usernames conflict with each other or with the team creator
 	async checkUsernamesUnique () {
-		if (!this.usersCreated) { return; }
+		if (!this.usersCreated || this.usersCreated.length === 0) { return; }
 		let usernames = this.usersCreated.map(user => user.get('username') ? user.get('username').toLowerCase() : null);
 		usernames.push(this.user.get('username') ? this.user.get('username').toLowerCase() : null);
 		usernames = usernames.filter(username => !!username);
@@ -216,6 +179,7 @@ class TeamCreator extends ModelCreator {
 			request: this.request
 		}).createCompany(company);
 		this.attributes.companyId = this.company.id;
+		this.attachToResponse.company = this.company.getSanitizedObject();
 	}
 
 	// create a stream for the entire team, everyone on the team is always a member of this stream
@@ -229,6 +193,9 @@ class TeamCreator extends ModelCreator {
 		this.teamStream = await new StreamCreator({
 			request: this.request
 		}).createStream(stream);
+		this.attachToResponse.streams = [
+			this.teamStream.getSanitizedObject()
+		];
 	}
 
 	// determine a name for this company, based on the user's domain or email
@@ -248,6 +215,7 @@ class TeamCreator extends ModelCreator {
 	async postSave () {
 		await super.postSave();
 		await this.updateUsers();	// update the users who have been added to the team to indicate they are now indeed members
+		await this.updateUserJoinMethod();	// update the joinMethod attribute for the user, as needed
 		await this.grantUserMessagingPermissions();	// grant permission to each user on the team to subscribe to the team messager channel
 	}
 
@@ -289,6 +257,39 @@ class TeamCreator extends ModelCreator {
 		}
 		const updatedUser = await this.data.users.applyOpById(user.id, op);
 		this.members.push(updatedUser);
+	}
+
+	// update the joinMethod attribute for the user, if this is their first team
+	async updateUserJoinMethod () {
+		// join method only applies if this is the user's first team
+		if (
+			this.user.get('teamIds').length !== 1 ||
+			this.user.get('teamIds')[0] !== this.model.id
+		) {
+			return;
+		}
+
+		// we can set both joinMethod and primaryReferral here
+		this.joinMethodUpdate = { $set: { } };
+		if (!this.user.get('joinMethod')) {
+			this.joinMethodUpdate.$set.joinMethod = 'Created Team';
+		}
+		if (!this.user.get('primaryReferral')) {
+			this.joinMethodUpdate.$set.primaryReferral = 'external';
+		}
+		// user created this team, so their origin team is this one if one isn't defined already
+		if (!this.user.get('originTeamId')) {
+			this.joinMethodUpdate.$set.originTeamId = this.model.id;
+		}
+		if (Object.keys(this.joinMethodUpdate.$set).length === 0) {
+			// nothing to update
+			this.joinMethodUpdate = null;
+			return;
+		}
+		await this.request.data.users.applyOpById(
+			this.user.id,
+			this.joinMethodUpdate
+		);
 	}
 
 	// grant permission to the users on the team to subscribe to the team messager channel

@@ -7,14 +7,15 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 class AlreadyOnTeamNoCreatedTeamJoinMethodTest extends CreateTeamJoinMethodTest {
 
 	get description () {
-		return 'when a user creates a team by posting a repo, but they are already on a team, they should not get a message indicating their join method has changed';
+		return 'when a user creates a team, but they are already on a team, they should not get a message indicating their join method has changed';
 	}
 
 	// make the data needed before triggering the actual test
 	makeData (callback) {
 		BoundAsync.series(this, [
 			this.createOtherUser,		// create a second registered user
-			this.createRepo 			// create a repo (and team), and include the current user
+			this.createTeam, 			// second user creates a team 
+			this.addCurrentUser         // add the current user to the team created
 		], callback);
 	}
 
@@ -29,20 +30,33 @@ class AlreadyOnTeamNoCreatedTeamJoinMethodTest extends CreateTeamJoinMethodTest 
 		);
 	}
 
-	// create the pre-existing repo to use for the test
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
+	// create the pre-existing team to use for the test
+	createTeam (callback) {
+		this.teamFactory.createRandomTeam(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
-				this.repo = response.repo;
 				callback();
 			},
 			{
-				withEmails: [this.currentUser.email],	// include current user, this should block any update to joinMethod when they create another team
-				withRandomEmails: 1,	// add an unregisterd user for good measure
-				token: this.otherUserData.accessToken	// "other" user creates the repo
+				token: this.otherUserData.accessToken	// "other" user creates the team
 			}
+		);
+	}
+
+	// add the current user to the first team created
+	addCurrentUser (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/users',
+				data: {
+					teamId: this.team._id,
+					email: this.currentUser.email
+				},
+				token: this.otherUserData.accessToken
+			},
+			callback
 		);
 	}
 

@@ -10,11 +10,12 @@ const Errors = require('./errors');
 
 // expose these restful routes
 const TEAM_STANDARD_ROUTES = {
-	want: ['get', 'getMany'],
+	want: ['get', 'getMany', 'post'/*, 'put', 'delete'*/],
 	baseRouteName: 'teams',
 	requestClasses: {
 		'get': require('./get_team_request'),
-		'getMany': require('./get_teams_request')
+		'getMany': require('./get_teams_request'),
+		'post': require('./post_team_request')
 	}
 };
 

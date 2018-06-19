@@ -269,12 +269,10 @@ class RepoCreator extends ModelCreator {
 
 	// create a new team to own this new repo
 	async createTeamForRepo () {
-		// first set some analytics, based on whether this is the user's first team
-		const firstTeamForUser = (this.user.get('teamIds') || []).length === 0;
-		this.attributes.team.primaryReferral = firstTeamForUser ? 'external' : 'internal';
 		this.teamCreator = new TeamCreator({
 			request: this.request,
-			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			fromRepoCreator: true	// only allow user creation/addition when creating a team from the POST /repos call
 		});
 		const team = await this.teamCreator.createTeam(this.attributes.team);
 		this.attributes.teamId = team.id;
@@ -286,13 +284,16 @@ class RepoCreator extends ModelCreator {
 		this.newUsers = this.teamCreator.members;
 		this.attachToResponse.users = this.teamCreator.members.map(member => member.getSanitizedObject());
 		delete this.attributes.team;
-		this.joinMethod = 'Created Team';	// becomes the user's joinMethod attribute
-		this.primaryReferral = 'external';	// becomes the user's primaryReferral attribute
+		this.joinMethodUpdate = this.teamCreator.joinMethodUpdate;
 		this.createdTeam = team;
 	}
 
 	// update the joinMethod attribute for the user, if this is their first team
 	async updateUserJoinMethod () {
+		// might already have a join method update, if we created a team
+		if (this.joinMethodUpdate) {
+			return;
+		}
 		// join method only applies if this is the user's first team
 		if (
 			this.user.get('teamIds').includes(this.attributes.teamId) &&

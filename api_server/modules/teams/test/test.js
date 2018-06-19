@@ -7,7 +7,7 @@
 
 var TeamsRequestTester = require('./teams_request_tester');
 
-var teamsRequestTester = new TeamsRequestTester();
+const teamsRequestTester = new TeamsRequestTester();
 
 describe('team requests', function() {
 
@@ -15,5 +15,5 @@ describe('team requests', function() {
 
 	describe('GET /teams/:id', teamsRequestTester.getTeamTest);
 	describe('GET /teams', teamsRequestTester.getTeamsTest);
-
+	describe('POST /teams', teamsRequestTester.postTeamTest);
 });
