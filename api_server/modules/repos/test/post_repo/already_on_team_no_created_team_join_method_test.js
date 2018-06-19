@@ -7,7 +7,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 class AlreadyOnTeamNoCreatedTeamJoinMethodTest extends CreateTeamJoinMethodTest {
 
 	get description () {
-		return 'when a user creates a team by posting a repo, but they are already on a team, they not should get a method indicating their join method has changed';
+		return 'when a user creates a team by posting a repo, but they are already on a team, they should not get a message indicating their join method has changed';
 	}
 
 	// make the data needed before triggering the actual test

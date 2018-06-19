@@ -4,17 +4,19 @@
 
 const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const TeamCreator = require('./team_creator');
-//const TeamUpdater = require('./team_updater');
+const TeamUpdater = require('./team_updater');
 const Team = require('./team');
 const Errors = require('./errors');
 
 // expose these restful routes
 const TEAM_STANDARD_ROUTES = {
-	want: ['get', 'getMany'],
+	want: ['get', 'getMany', 'post', 'put'],
 	baseRouteName: 'teams',
 	requestClasses: {
 		'get': require('./get_team_request'),
-		'getMany': require('./get_teams_request')
+		'getMany': require('./get_teams_request'),
+		'post': require('./post_team_request'),
+		'put': require('./put_team_request')
 	}
 };
 
@@ -49,11 +51,9 @@ class Teams extends Restful {
 		return Team;	// use this class for the data model
 	}
 
-	/*
 	get updaterClass () {
-		return TeamUpdater;	// use this class to update teams (not supported yet)
+		return TeamUpdater;	// use this class to update teams
 	}
-	*/
 
 	// compile all the routes to expose
 	getRoutes () {

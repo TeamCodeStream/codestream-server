@@ -61,7 +61,6 @@ class PostStreamRequest extends PostRequest {
 		]);
 		return description;
 	}
-
 }
 
 module.exports = PostStreamRequest;
