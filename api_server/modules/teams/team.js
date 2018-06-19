@@ -18,7 +18,9 @@ class Team extends CodeStreamModel {
 		this.lowerCase('memberIds');
 		this.lowerCase('companyId');
 		// ensure the array of member IDs is sorted
-		this.attributes.memberIds.sort();
+		if (this.attributes.memberIds instanceof Array) {
+			this.attributes.memberIds.sort();
+		}
 		await super.preSave(options);
 	}
 }
