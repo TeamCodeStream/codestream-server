@@ -113,7 +113,7 @@ class GrantRequest extends RestfulRequest {
 		const includePresence = channel.startsWith('team-') || channel.startsWith('repo-');
 		try {
 			await this.api.services.messager.grant(
-				this.user.get('accessToken'),
+				this.user.getAccessToken(),
 				channel,
 				{
 					request: this,

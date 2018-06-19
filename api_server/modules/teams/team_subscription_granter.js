@@ -24,7 +24,7 @@ class TeamSubscriptionGranter  {
 			this.team.get('memberIds') || [],
 			{
 				// only need these fields
-				fields: ['isRegistered', 'accessToken']
+				fields: ['isRegistered', 'accessToken', 'accessTokens']
 			}
 		);
 	}
@@ -33,7 +33,7 @@ class TeamSubscriptionGranter  {
 	async getTokens () {
 		this.tokens = this.members.reduce((tokens, user) => {
 			if (user.get('isRegistered')) {
-				tokens.push(user.get('accessToken'));
+				tokens.push(user.getAccessToken());
 			}
 			return tokens;
 		}, []);

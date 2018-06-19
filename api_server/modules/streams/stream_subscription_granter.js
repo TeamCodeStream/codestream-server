@@ -25,7 +25,7 @@ class StreamSubscriptionGranter  {
 			this.stream.get('memberIds') || [],
 			{
 				// only need these fields
-				fields: ['isRegistered', 'accessToken']
+				fields: ['isRegistered', 'accessToken', 'accessTokens']
 			}
 		);
 	}
@@ -34,7 +34,7 @@ class StreamSubscriptionGranter  {
 	async getTokens () {
 		this.tokens = this.members.reduce((tokens, user) => {
 			if (user.get('isRegistered')) {
-				tokens.push(user.get('accessToken'));
+				tokens.push(user.getAccessToken());
 			}
 			return tokens;
 		}, []);

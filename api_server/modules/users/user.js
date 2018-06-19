@@ -352,6 +352,19 @@ class User extends CodeStreamModel {
 			}
 		}
 	}
+
+	// get the access token for a particular user by type
+	getAccessToken (type = 'web') {
+		if (
+			typeof this.get('accessTokens') === 'object' &&
+			this.get('accessTokens')[type]
+		) {
+			return this.get('accessTokens')[type].token;
+		}
+		else if (this.get('accessToken')) {
+			return this.get('accessToken');
+		}
+	}
 }
 
 module.exports = User;

@@ -18,7 +18,7 @@ class RepoSubscriptionGranter  {
 	async getTokens () {
 		this.tokens = this.users.reduce((tokens, user) => {
 			if (user.get('isRegistered')) {
-				tokens.push(user.get('accessToken'));
+				tokens.push(user.getAccessToken());
 			}
 			return tokens;
 		}, []);

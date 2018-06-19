@@ -125,7 +125,7 @@ class UserSubscriptionGranter  {
 	async grantChannel (channel, options = {}) {
 		try {
 			await this.messager.grant(
-				this.user.get('accessToken'),
+				this.user.getAccessToken(),
 				channel,
 				{
 					request: this.request,

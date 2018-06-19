@@ -13,8 +13,8 @@ class LoginHelper {
 
 	async login () {
 		await this.getInitialData();
-		await this.grantSubscriptionPermissions();
 		await this.generateToken();
+		await this.grantSubscriptionPermissions();
 		await this.formResponse();
 		return this.responseData;
 	}
