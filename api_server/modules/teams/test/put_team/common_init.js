@@ -9,8 +9,8 @@ class CommonInit {
 	init (callback) {
 		BoundAsync.series(this, [
 			this.createOtherUser,	// create another registered user
-            this.createRandomTeam,	// create a random team for the test
-            this.addCurrentUser,    // add the current user to the team
+			this.createRandomTeam,	// create a random team for the test
+			this.addCurrentUser,    // add the current user to the team
 			this.makeTeamData		// make the data to be used during the update
 		], callback);
 	}
@@ -41,24 +41,24 @@ class CommonInit {
 		);
 	}
 
-    // add the current user to the team created (the "other" user created it)
-    addCurrentUser (callback) {
-        if (this.currentUserNotOnTeam) {
-            return callback();
-        }
-        this.doApiRequest(
-            {
-                method: 'post',
-                path: '/users',
-                data: {
-                    teamId: this.team._id,
-                    email: this.currentUser.email
-                },
-                token: this.otherUserData.accessToken
+	// add the current user to the team created (the "other" user created it)
+	addCurrentUser (callback) {
+		if (this.currentUserNotOnTeam) {
+			return callback();
+		}
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/users',
+				data: {
+					teamId: this.team._id,
+					email: this.currentUser.email
+				},
+				token: this.otherUserData.accessToken
 			},
 			callback
-        );
-    }
+		);
+	}
 
 	// form the data for the team update
 	makeTeamData (callback) {

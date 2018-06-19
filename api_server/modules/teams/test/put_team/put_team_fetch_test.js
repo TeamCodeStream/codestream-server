@@ -38,7 +38,7 @@ class PutTeamFetchTest extends PutTeamTest {
 				token: this.token
 			},
 			(error, response) => {
-                if (error) { return callback(error); }
+				if (error) { return callback(error); }
 				Object.assign(this.expectedTeam, response.team, this.data);
 				delete this.data;	// don't need this anymore
 				callback();
@@ -48,9 +48,9 @@ class PutTeamFetchTest extends PutTeamTest {
 
 	// validate that the response is correct
 	validateResponse (data) {
-        // verify what we fetch is what we got back in the response
-        data.team.memberIds.sort();
-        this.expectedTeam.memberIds.sort();
+		// verify what we fetch is what we got back in the response
+		data.team.memberIds.sort();
+		this.expectedTeam.memberIds.sort();
 		Assert.deepEqual(data.team, this.expectedTeam, 'fetched team does not match');
 	}
 }

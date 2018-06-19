@@ -16,8 +16,8 @@ class PutTeamRequest extends PutRequest {
 
 	// after the stream is updated...
 	async postProcess () {
-        // publish the team update to all members
-        await this.publishTeam();
+		// publish the team update to all members
+		await this.publishTeam();
 	}
 	
 	// publish the team update to the team channel
@@ -52,7 +52,7 @@ class PutTeamRequest extends PutRequest {
 			}
 		};
 		description.publishes = {
-            summary: 'Publishes the updated attributes of the team object to the team channel for the team',
+			summary: 'Publishes the updated attributes of the team object to the team channel for the team',
 			looksLike: {
 				team: '<@@#team object#team@@>',
 			}
