@@ -88,6 +88,7 @@ class PubNubClient {
 		if (!(tokens instanceof Array)) {
 			tokens = [tokens];
 		}
+		tokens = tokens.filter(token => typeof token === 'string' && token.length > 0);
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
 			if (options.request) {
