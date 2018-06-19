@@ -2,10 +2,10 @@
 
 var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 
-class CreateTeamJoinMethodTest extends CodeStreamMessageTest {
+class MessageToUserTest extends CodeStreamMessageTest {
 
 	get description () {
-		return 'when a user creates their first team, they should get a message indicating their join method as "Created Team", and primary referral as "external"';
+		return 'when a user creates a team, they should get a message that they have been added to this team, as well as analytics updates';
 	}
 
 	// set the name of the channel on which to listen for messages
@@ -29,6 +29,9 @@ class CreateTeamJoinMethodTest extends CodeStreamMessageTest {
 							joinMethod: 'Created Team',
 							primaryReferral: 'external',
 							originTeamId: response.team._id
+						},
+						$addToSet: {
+							teamIds: response.team._id
 						}
 					}
 				};
@@ -51,4 +54,4 @@ class CreateTeamJoinMethodTest extends CodeStreamMessageTest {
 	}
 }
 
-module.exports = CreateTeamJoinMethodTest;
+module.exports = MessageToUserTest;

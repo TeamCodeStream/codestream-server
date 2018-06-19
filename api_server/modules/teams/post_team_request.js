@@ -12,20 +12,25 @@ class PostTeamRequest extends PostRequest {
 
 	// after we've processed the request....
 	async postProcess () {
-		await this.publishJoinMethodUpdate();
+		await this.publishUserUpdate();
 	}
 
 	// publish a joinMethod update if the joinMethod attribute was changed for the user as
 	// a result of fulfilling this request
-	async publishJoinMethodUpdate () {
-		if (!this.creator.joinMethodUpdate) {
-			return;	// no joinMethod update to perform
-		}
-		const channel = 'user-' + this.user.id;
+	async publishUserUpdate () {
 		const message = {
 			requestId: this.request.id,
-			user: Object.assign({}, this.creator.joinMethodUpdate, { _id: this.user.id })
+			user: {
+				_id: this.user.id,
+				$addToSet: {
+					teamIds: this.creator.model.id
+				}
+			}
 		};
+		if (this.creator.joinMethodUpdate) {
+			Object.assign(message.user, this.creator.joinMethodUpdate);
+		}
+		const channel = 'user-' + this.user.id;
 		try {
 			await this.api.services.messager.publish(
 				message,

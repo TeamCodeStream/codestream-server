@@ -1,13 +1,12 @@
 'use strict';
 
-var CreateTeamJoinMethodTest = require('./create_team_join_method_test');
-var Assert = require('assert');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const MessageToUserTest = require('./message_to_user_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
-class AlreadyOnTeamNoCreatedTeamJoinMethodTest extends CreateTeamJoinMethodTest {
+class AlreadyOnTeamNoCreatedTeamJoinMethodTest extends MessageToUserTest {
 
 	get description () {
-		return 'when a user creates a team, but they are already on a team, they should not get a message indicating their join method has changed';
+		return 'when a user creates a team, but they are already on a team, they should not see join method changes in the message received about having beed added to a team';
 	}
 
 	// make the data needed before triggering the actual test
@@ -15,7 +14,7 @@ class AlreadyOnTeamNoCreatedTeamJoinMethodTest extends CreateTeamJoinMethodTest 
 		BoundAsync.series(this, [
 			this.createOtherUser,		// create a second registered user
 			this.createTeam, 			// second user creates a team 
-			this.addCurrentUser         // add the current user to the team created
+			this.addCurrentUser			// add the current user to the team created
 		], callback);
 	}
 
@@ -60,19 +59,15 @@ class AlreadyOnTeamNoCreatedTeamJoinMethodTest extends CreateTeamJoinMethodTest 
 		);
 	}
 
-	// called if message doesn't arrive after timeout, in this case, this is what we want
-	messageTimeout () {
-		this.messageCallback();
-	}
-
-	// called when a message has been received, in this case this is bad
-	messageReceived (error, message) {
-		if (error) { return this.messageCallback(error); }
-		if (message.message.user) {
-			// ignore anything else, but if it has a user object, we'll assume it's
-			// the message we *shouldn't* receive
-			Assert.fail('message was received');
-		}
+	// issue the request that will generate the message we want to listen for
+	generateMessage (callback) {
+		// issue the usual message, but remove the $set part from the expected message,
+		// this is the analytics related stuff that we shouldn't see 
+		super.generateMessage(error => {
+			if (error) { return callback(error); }
+			delete this.message.user.$set;
+			callback();
+		});
 	}
 }
 
