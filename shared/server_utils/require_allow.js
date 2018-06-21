@@ -81,9 +81,10 @@ const _require = function(object, requiredAttributes) {
 
 // check every attribute of the passed object and see if it is "allowed"
 // according to specification ... if it's not allowed, it's (quietly) deleted
-var _allow = function(object, allowedAttributes) {
+var _allow = function(object, allowedAttributes, options = {}) {
 	if (typeof object !== 'object') { return; }
 	let deleted = [];
+	let invalid = [];
 	Object.keys(object).forEach(attribute => {
 		let type = _findAttribute(allowedAttributes, attribute);
 		if (
@@ -93,11 +94,19 @@ var _allow = function(object, allowedAttributes) {
 				!_typeMatches(object[attribute], type)
 			)
 		) {
-			delete object[attribute];
-			deleted.push(attribute);
+			if (options.strict) {
+				invalid.push(attribute);
+			}
+			else {
+				delete object[attribute];
+				deleted.push(attribute);
+			}
 		}
 	});
-	if (deleted.length !== 0) {
+	if (invalid.length !== 0) {
+		return { invalid };
+	}
+	else if (deleted.length !== 0) {
 		return { deleted };
 	}
 	else {
@@ -114,7 +123,7 @@ module.exports = {
 	allow: _allow,
 
 	// allow and require certain attributes
-	requireAllow: function(object, requiredAndOptionalAttributes) {
+	requireAllow: function(object, requiredAndOptionalAttributes, options = {}) {
 		// required attributes are allowed, so they automatically become part
 		// of the allowed attributes we check
 		let allowed = {};
@@ -124,12 +133,12 @@ module.exports = {
 		Object.keys(requiredAndOptionalAttributes.optional || {}).forEach(type => {
 			allowed[type] = (allowed[type] || []).concat(requiredAndOptionalAttributes.optional[type]);
 		});
-		let info = _require(object, requiredAndOptionalAttributes.required);
+		let info = _require(object, requiredAndOptionalAttributes.required, options);
 		if (info) {
 			return info;
 		}
 		else {
-			return _allow(object, allowed);
+			return _allow(object, allowed, options);
 		}
 	}
 };

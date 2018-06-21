@@ -27,5 +27,11 @@ module.exports = {
 	// get all the elements in array1 that are also in array2
 	intersection: function(array1, array2) {
 		return array1.filter(elem => array2.includes(elem));
+	},
+	
+	// get all the elements in array1 and all the elements in array2, 
+	// but avoid redundancies
+	union: function(array1, array2) {
+		return array1.concat(array2.filter(elem => !array1.includes(elem)));
 	}
 };
