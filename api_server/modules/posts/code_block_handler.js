@@ -125,7 +125,7 @@ class CodeBlockHandler {
 					this.codeBlock.repoId ||
 					this.codeBlock.remotes
 				)
-            )
+			)
 		) {
 			if (!this.codeBlock.commitHash) {
 				return 'commitHash must be provided for codeBlocks attached to a stream';
