@@ -70,6 +70,7 @@ class RandomPostFactory {
 					// and the stream will be created on the fly
 					codeBlockInfo.file = options.codeBlockStream.file;
 					codeBlockInfo.repoId = options.codeBlockStream.repoId;
+					codeBlockInfo.remotes = options.codeBlockStream.remotes;
 				}
 				data.commitHashWhenPosted = data.commitHashWhenPosted || this.randomCommitHash();
 				data.codeBlocks.push(codeBlockInfo);

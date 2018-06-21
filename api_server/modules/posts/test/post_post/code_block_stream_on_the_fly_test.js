@@ -28,7 +28,8 @@ class CodeBlockStreamOnTheFly extends CodeBlockTest {
 			wantCodeBlocks: 1,
 			codeBlockStream: {
 				file: this.otherFile,
-				repoId: this.streamOptions.repoId
+				remotes: this.useRemotes,
+				repoId: this.useRemotes ? undefined : this.streamOptions.repoId
 			}
 		});
 		super.makePostData(callback);
@@ -36,14 +37,17 @@ class CodeBlockStreamOnTheFly extends CodeBlockTest {
     
 	// validate the response to the post request
 	validateResponse (data) {
-		Assert(data.streams, 'expected streams array');
-		Assert(data.streams.length === 1, 'expected one stream in streams array');
-		let stream = data.streams[0];
-		Assert(stream.teamId === this.team._id, 'stream teamId is incorrect');
-		Assert(stream.repoId === this.stream.repoId, 'stream repoId is incorrect');
-		Assert(stream.type === 'file', 'stream type should be file');
-		Assert(stream.file === this.otherFile, 'stream file is incorrect');
-		this.otherStream = stream;
+		if (!this.dontExpectStreams) {
+			const repo = this.createdRepo || this.repo;
+			Assert(data.streams, 'expected streams array');
+			Assert(data.streams.length === 1, 'expected one stream in streams array');
+			let stream = data.streams[0];
+			Assert(stream.teamId === this.team._id, 'stream teamId is incorrect');
+			Assert(stream.repoId === repo._id, 'stream repoId is incorrect');
+			Assert(stream.type === 'file', 'stream type should be file');
+			Assert(stream.file === this.otherFile, 'stream file is incorrect');
+			this.otherStream = stream;
+		}
 		super.validateResponse(data);
 	}
 }

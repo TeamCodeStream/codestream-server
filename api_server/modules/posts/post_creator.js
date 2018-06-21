@@ -5,13 +5,14 @@
 const Post = require('./post');
 const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 const StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');
-const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const LastReadsUpdater = require('./last_reads_updater');
 const PostAttributes = require('./post_attributes');
 const PostPublisher = require('./post_publisher');
+const CodeBlockHandler = require('./code_block_handler');
 const EmailNotificationQueue = require('./email_notification_queue');
 const IntegrationHandler = require('./integration_handler');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 
 class PostCreator extends ModelCreator {
 
@@ -30,9 +31,23 @@ class PostCreator extends ModelCreator {
 
 	// normalize post creation operation (pre-save)
 	async normalize () {
-		// if we have code blocks, make sure they are valid
+		// if we have code blocks, preemptively make sure they are valid, 
+		// we are strict about code blocks, and don't let them just get dropped if
+		// they aren't correct
 		if (this.attributes.codeBlocks) {
 			await this.validateCodeBlocks();
+		}
+	}
+
+	// validate the code blocks sent with the post creation
+	async validateCodeBlocks () {
+		// must be an array of objects
+		const result = new Post().validator.validateArrayOfObjects(
+			this.attributes.codeBlocks,
+			PostAttributes.codeBlocks
+		);
+		if (result) {	// really an error
+			throw this.errorHandler.error('validation', { info: `codeBlocks: ${result}` });
 		}
 	}
 
@@ -55,87 +70,6 @@ class PostCreator extends ModelCreator {
 			// must have a stream ID or a stream object (for creating streams on the fly)
 			return this.errorHandler.error('parameterRequired', { info: 'streamId or stream' });
 		}
-		if (this.attributes.codeBlocks && !this.attributes.commitHashWhenPosted) {
-			// if we have code blocks, must have a commit hash
-			return this.errorHandler.error('parameterRequired', { info: 'commitHashWhenPosted' });
-		}
-	}
-
-	// validate the code blocks sent with the post creation
-	async validateCodeBlocks () {
-		// must be an array of objects
-		const result = new Post().validator.validateArrayOfObjects(
-			this.attributes.codeBlocks,
-			PostAttributes.codeBlocks
-		);
-		if (result) {	// really an error
-			throw this.errorHandler.error('validation', { info: `codeBlocks: ${result}` });
-		}
-		// validate each code block in turn
-		try {
-			for (let codeBlock of this.attributes.codeBlocks) {
-				await this.validateCodeBlock(codeBlock);
-			}
-		}
-		catch (error) {
-			throw this.errorHandler.error('validation', { info: `codeBlocks: ${error}` });
-		}
-	}
-
-	// validate a single code block
-	async validateCodeBlock (codeBlock) {
-		let numKeys = 1;	// we are strict about which keys can be in the code block object
-		// must have code with the code block
-		if (typeof codeBlock.code !== 'string') {
-			throw 'code must be a string';
-		}
-		// can have pre- and post- context, must be a string
-		if (typeof codeBlock.preContext !== 'undefined') {
-			numKeys++;
-			if (typeof codeBlock.preContext !== 'string') {
-				throw 'preContext must be a string';
-			}
-		}
-		if (typeof codeBlock.postContext !== 'undefined') {
-			numKeys++;
-			if (typeof codeBlock.postContext !== 'string') {
-				throw 'postContext must be a string';
-			}
-		}
-		if (typeof codeBlock.location !== 'undefined') {
-			numKeys++;
-			// the location coordinates must be valid
-			const result = MarkerCreator.validateLocation(codeBlock.location);
-			if (result) {
-				throw result;
-			}
-		}
-		// if the code block specifies a stream ID (which can be different from the
-		// stream ID for the post), it must be a valid ID
-		if (codeBlock.streamId) {
-			numKeys++;
-			const result = new Post().validator.validateId(codeBlock.streamId);
-			if (result) {
-				throw 'streamId is not a valid ID';
-			}
-		}
-		// if the code block specifies a file, then we are being asked to create
-		// (or find) a stream for that file, and use that for the code block
-		if (codeBlock.file) {
-			if (!codeBlock.streamId && !codeBlock.repoId) {
-				throw 'repoId required for codeBlock with file';
-			}
-			const result = new Post().validator.validateId(codeBlock.repoId);
-			if (result) {
-				throw `code block repoId is not valid: ${result}`;
-			}
-			numKeys += 2;
-		}
-
-		if (Object.keys(codeBlock).length > numKeys) {
-			// there can't be any additional attributes in the code block
-			throw 'improper attributes';
-		}
 	}
 
 	// called before the post is actually saved
@@ -145,26 +79,27 @@ class PostCreator extends ModelCreator {
 			this.attributes.commitHashWhenPosted = this.attributes.commitHashWhenPosted.toLowerCase();
 		}
 		this.attributes.creatorId = this.user.id;
+		this.attributes.createdAt = Date.now();
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
 		await this.getStream();			// get the stream for the post
-		await this.getCodeBlockStreams();	// get streams for any code blocks outside of this stream
 		await this.getRepo();			// get the repo (for posts in file-type streams)
 		await this.getTeam();			// get the team that owns the stream
 		await this.getCompany();		// get the company that owns the team
 		await this.createStream();		// create the stream, if requested to create on-the-fly
-		await this.createCodeBlockStreams();	// create streams for any code blocks outside of this stream
+		await this.getTeamRepos();		// get all the repos known by this team
 		this.createId();				// create an ID for the post
-		await this.createMarkers();		// create markers for any code blocks sent
+		await this.handleCodeBlocks();	// handle any code blocks tied to the post
 		await this.getSeqNum();			// requisition a sequence number for the post
 		await super.preSave();			// base-class preSave
 		await this.updateStream();		// update the stream as needed
 		await this.updateLastReads();	// update lastReads attributes for affected users
 		await this.getParentPost();		// get parent post, if this is a reply
 		await this.updateMarkersForReply();	// update markers, if this is a reply to a parent with a code block
-		await this.updateParentPost();	// update the parent post with numReplies, if this is a reply to a parent
+		await this.updateParentPost();	// update the parent post with hasReplies, if this is a reply to a parent
 		await this.updatePostCount();	// update the post count for the author of the post
+		await this.prepareResponseData(); // prepare "side-effect" data to be sent with the request response
 	}
 
 	// get the stream we're trying to create the post in
@@ -176,25 +111,6 @@ class PostCreator extends ModelCreator {
 		if (!this.stream) {
 			throw this.errorHandler.error('notFound', { info: 'stream'});
 		}
-	}
-
-	// get streams for any code blocks outside of this stream
-	async getCodeBlockStreams () {
-		if (!this.attributes.codeBlocks) {
-			return;
-		}
-		// extract the stream IDs for all code blocks that aren't from the same
-		// stream as the post itself
-		const streamIds = this.attributes.codeBlocks.reduce((current, codeBlock) => {
-			if (codeBlock.streamId && codeBlock.streamId !== this.attributes.streamId) {
-				current.push(codeBlock.streamId);
-			}
-			return current;
-		}, []);
-		if (streamIds.length === 0) {
-			return;
-		}
-		this.codeBlockStreams = await this.data.streams.getByIds(streamIds);
 	}
 
 	// get the repo to which the stream belongs, if it is a file-type stream
@@ -235,7 +151,7 @@ class PostCreator extends ModelCreator {
 	}
 
 	// get the company that owns the team for which the post is being created
-	// only needed for analytics so we only do this for inbound emails or
+	// only needed for analytics so we only do this for inbound emails or integrations
 	async getCompany () {
 		if (!this.forInboundEmail && !this.forIntegration) {
 			// only needed for inbound email or integration posts, for tracking
@@ -250,136 +166,94 @@ class PostCreator extends ModelCreator {
 			return; // not an on-the-fly stream creation
 		}
 		this.attributes.stream.teamId = this.team.id;
-		this.stream = await new StreamCreator({
+		this.createdStream = await new StreamCreator({
 			request: this.request,
 			nextSeqNum: 2
 		}).createStream(this.attributes.stream);
+		this.stream = this.createdStream;
 		this.attributes.streamId = this.stream.id;
-		// put the stream object in the request response
-		this.attachToResponse.streams = this.attachToResponse.streams || [];
-		this.attachToResponse.streams.push(this.stream.getSanitizedObject());
 		delete this.attributes.stream;
-		this.createdStream = true;
 	}
 
-	// create streams for any code blocks outside of this stream
-	async createCodeBlockStreams () {
+	// get all the repos known to this team, we'll try to match the repo that any
+	// code blocks are associated with with one of these repos
+	async getTeamRepos () {
+		if (!this.attributes.codeBlocks) {
+			// not necessary if we don't have any code blocks
+			return;
+		}
+		this.teamRepos = await this.request.data.repos.getByQuery(
+			{ 
+				teamId: this.team.id
+			},
+			{ 
+				databaseOptions: {
+					hint: RepoIndexes.byTeamId 
+				}
+			}
+		);
+	}
+
+	// handle any code blocks tied to the post
+	async handleCodeBlocks () {
 		if (!this.attributes.codeBlocks) {
 			return;
 		}
-		this.codeBlockStreams = this.codeBlockStreams || [];
+		this.createdRepos = [];
+		this.repoUpdates = [];
+		this.createdStreams = [];
+		this.createdMarkers = [];
+		this.markerLocations = [];
 		await Promise.all(this.attributes.codeBlocks.map(async codeBlock => {
-			await this.createCodeBlockStream(codeBlock);
+			await this.handleCodeBlock(codeBlock);
 		}));
 	}
 
-	// create a stream for any code block that specifies stream characteristics
-	async createCodeBlockStream (codeBlock) {
-		if (codeBlock.streamId || !codeBlock.file) {
-			return;
-		}
-		const streamInfo = {
-			teamId: this.team.id,
-			repoId: codeBlock.repoId,
-			type: 'file',
-			file: codeBlock.file
-		};
-		const createdStream = await new StreamCreator({
+	// handle a single code block attached to the post
+	async handleCodeBlock (codeBlock) {
+		// handle the code block itself separately
+		const codeBlockInfo = await new CodeBlockHandler({
+			codeBlock,
 			request: this.request,
-			nextSeqNum: 2
-		}).createStream(streamInfo);
-		codeBlock.streamId = createdStream.id;
-		this.attachToResponse.streams = this.attachToResponse.streams || [];
-		this.attachToResponse.streams.push(createdStream.getSanitizedObject());
-		this.codeBlockStreams.push(createdStream);
-	}
-
-	// requisition an ID for the post
-	createId () {
-		this.attributes._id = this.data.posts.createId();
-		this.attributes.createdAt = Date.now();
-	}
-
-	// create markers associated with code blocks for the post
-	async createMarkers () {
-		if (!this.attributes.codeBlocks) {
-			return;	// no code blocks
-		}
-		this.markers = [];	// unsanitized
-		this.attachToResponse.markers = [];	// sanitized, to be sent in the response
-		this.attachToResponse.markerLocations = [];
-		for (let codeBlock of this.attributes.codeBlocks) {
-			await this.createMarker(codeBlock);
-		}
-	}
-
-	// create a marker, associated with a given code block
-	async createMarker (codeBlock) {
-		const streamId = codeBlock.streamId || this.attributes.streamId;
-		let markerInfo = {
-			teamId: this.attributes.teamId,
-			streamId: streamId,
+			teamRepos: this.teamRepos,
+			team: this.team,
+			postRepo: this.repo,
+			postStream: this.stream,
 			postId: this.attributes._id,
-			postStreamId: this.attributes.streamId,
-			commitHash: this.attributes.commitHashWhenPosted
-		};
-		if (codeBlock.location) { // not strictly required
-			markerInfo.location = codeBlock.location;
-		}
+			postCommitHash: this.attributes.commitHashWhenPosted
+		}).handleCodeBlock();
 
-		const marker = await new MarkerCreator({
-			request: this.request
-		}).createMarker(markerInfo);
-
-		this.markers.push(marker);
-		codeBlock.markerId = marker.id;
-		await this.assignFileAndRepoInfo(codeBlock, markerInfo);
-		delete codeBlock.streamId; // gets put into the marker
-		const markerObject = marker.getSanitizedObject();
-		this.attachToResponse.markers.push(markerObject);
-		if (codeBlock.location) {
-			this.addLocation(streamId, marker.id, codeBlock.location);
-			delete codeBlock.location;
+		// as a "side effect", this may have created any number of things, like a new repo, new stream, etc.
+		// we'll track these things and attach them to the request response later, and also possibly publish
+		// them on pubnub channels
+		if (codeBlockInfo.createdRepo) {
+			this.createdRepos.push(codeBlockInfo.createdRepo);
 		}
-	}
-
-	// assign a file and repo to a code block, we store these with the code block itself,
-	// for informational purposes
-	async assignFileAndRepoInfo (codeBlock, markerInfo) {
-		// the code block gets the file path of the source file, and the url of the repo
-		const codeBlockStream = markerInfo.streamId === this.attributes.streamId ? this.stream :
-			(this.codeBlockStreams || []).find(stream => stream.id === markerInfo.streamId);
-		if (!codeBlockStream) { return; }
-		codeBlock.file = codeBlockStream.get('file');
-		codeBlock.repoId = codeBlockStream.get('repoId');
-		let repo;
-		if (this.repo && codeBlock.repoId === this.repo.id) {
-			repo = this.repo;
+		if (codeBlockInfo.repoUpdate) {
+			this.repoUpdates.push(codeBlockInfo.repoUpdate);
 		}
-		else {
-			repo = await this.data.repos.getById(codeBlock.repoId);
+		if (codeBlockInfo.createdStream) {
+			this.createdStreams.push(codeBlockInfo.createdStream);
 		}
-		if (repo) {
-			codeBlock.repo = repo.get('normalizedUrl');
+		if (codeBlockInfo.createdMarker) {
+			this.createdMarkers.push(codeBlockInfo.createdMarker);
 		}
-	}
-
-	// add a marker location to the appropriate marker locations structure, to be returned
-	// to the client
-	addLocation (streamId, markerId, location) {
-		let markerLocations = this.attachToResponse.markerLocations.find(ml => {
-			return ml.streamId === streamId;
-		});
-		if (!markerLocations) {
-			this.attachToResponse.markerLocations.push({
-				teamId: this.attributes.teamId,
-				streamId,
-				commitHash: this.attributes.commitHashWhenPosted,
-				locations: {}
+		if (codeBlockInfo.markerLocation) {
+			// marker locations are special, they can be collapsed as long as the marker locations
+			// structure refers to the same stream and commit hash
+			const markerLocations = this.markerLocations.find(markerLocations => {
+				return (
+					markerLocations.streamId === codeBlockInfo.markerLocation.streamId &&
+					markerLocations.commitHash === codeBlockInfo.markerLocation.commitHash
+				);
 			});
-			markerLocations = this.attachToResponse.markerLocations[this.attachToResponse.markerLocations.length - 1];
+			if (markerLocations) {
+				Object.assign(markerLocations.locations, codeBlockInfo.markerLocation.locations);
+			}
+			else {
+				this.markerLocations.push(codeBlockInfo.markerLocation);
+			}
 		}
-		markerLocations.locations[markerId] = location;
 	}
 
 	// requisition a sequence number for this post
@@ -439,8 +313,8 @@ class PostCreator extends ModelCreator {
 			}
 		};
 		// increment the number of markers in this stream
-		if (this.markers && this.markers.length) {
-			op.$inc = { numMarkers: this.markers.length };
+		if (this.createdMarkers && this.createdMarkers.length) {
+			op.$inc = { numMarkers: this.createdMarkers.length };
 		}
 		await this.data.streams.applyOpById(
 			this.model.get('streamId'),
@@ -480,8 +354,8 @@ class PostCreator extends ModelCreator {
 		if (parentPostMarkerIds.length === 0) {
 			return;
 		}
-		this.attachToResponse.markers = this.attachToResponse.markers || [];
-		for (let markerId of parentPostMarkerIds) {
+		this.markerUpdates = [];
+		for (let markerId of this.parentPostMarkerIds) {
 			await this.updateMarkerForParentPost(markerId);
 		}
 	}
@@ -491,8 +365,9 @@ class PostCreator extends ModelCreator {
 	async updateMarkerForParentPost (markerId) {
 		const op = { $inc: { numComments: 1 } };
 		await this.data.markers.applyOpById(markerId, op);
-		const messageOp = Object.assign({}, op, { _id: markerId });
-		this.attachToResponse.markers.push(messageOp);	// we'll send the increment in the response (and also the pubnub message)
+		this.markerUpdates.push(
+			Object.assign({}, op, { _id: markerId })
+		);
 	}
 
 	// if this is the first reply to a post, mark that the parent post now has replies
@@ -518,6 +393,39 @@ class PostCreator extends ModelCreator {
 			this.user.id,
 			this.updatePostCountOp
 		);
+	}
+
+	// prepare the "side-effect" data (created streams, markers, etc.) to be packaged into the 
+	// request response
+	async prepareResponseData () {
+		this.attachToResponse = {};
+		if (this.createdRepos && this.createdRepos.length > 0) {
+			this.attachToResponse.repos = this.createdRepos.map(repo => repo.getSanitizedObject());
+		}
+		if (this.repoUpdates && this.repoUpdates.length > 0) {
+			this.attachToResponse.repos = this.attachToResponse.repos || [];
+			this.attachToResponse.repos = [...this.attachToResponse.repos, ...this.repoUpdates];
+		}
+		if (this.createdStreams && this.createdStreams.length > 0) {
+			this.attachToResponse.streams = this.createdStreams.map(stream => stream.getSanitizedObject());
+		}
+		if (this.createdStream) {
+			this.attachToResponse.streams = this.attachToResponse.streams || [];
+			this.attachToResponse.streams.push(this.createdStream.getSanitizedObject());
+		}
+		if (this.markerUpdates) {
+			this.attachToResponse.markers = this.markerUpdates;
+		}
+		if (this.createdMarkers && this.createdMarkers.length > 0) {
+			this.attachToResponse.markers = this.attachToResponse.markers || [];
+			this.attachToResponse.markers = [
+				...this.attachToResponse.markers,
+				...this.createdMarkers.map(marker => marker.getSanitizedObject())
+			];
+		}
+		if (this.markerLocations && this.markerLocations.length > 0) {
+			this.attachToResponse.markerLocations = this.markerLocations;
+		}
 	}
 
 	// after the post was created...
@@ -663,6 +571,7 @@ class PostCreator extends ModelCreator {
 		if (this.stream.get('type') === 'channel' && this.stream.get('privacy') === 'public') {
 			category = 'Public Channel';
 		}
+		const companyName = this.company ? this.company.get('name') : '???';
 		const trackObject = {
 			distinct_id: this.user.id,
 			Type: 'Chat',
@@ -672,7 +581,7 @@ class PostCreator extends ModelCreator {
 			'Join Method': this.user.get('joinMethod'),
 			'Team ID': this.team ? this.team.id : undefined,
 			'Team Size': this.team ? this.team.get('memberIds').length : undefined,
-			Company: this.company.get('name'),
+			Company: companyName,
 			'Endpoint': endpoint,
 			'Plan': 'Free', // FIXME: update when we have payments
 			'Date of Last Post': new Date(this.model.get('createdAt')).toISOString()

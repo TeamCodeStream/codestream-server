@@ -1,28 +1,26 @@
 'use strict';
 
-var PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
+var CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
 
-class NoCommitHashTest extends PostCodeToFileStreamTest {
+class NoCommitHashTest extends CodeBlockFromDifferentStreamTest {
 
-	get description () {
-		return 'should return an error when attempting to create a post with a code block but not providing a commit hash';
+	constructor (options) {
+		super(options);
+		this.streamType = 'channel';
+		this.noMarkerExpected = true;
 	}
 
-	getExpectedError () {
-		return {
-			code: 'RAPI-1005',
-			info: [{
-				code: 'RAPI-1001',
-				info: 'commitHashWhenPosted'
-			}]
-		};
+	get description () {
+		return 'should be ok to create a post with a code block but not providing a commit hash as long as there is also no stream';
 	}
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
 		// remove the commit hash from the data to use in creating the post
+		// also remove the stream ID, making the statement that we are not associating the code block with a stream at all
 		super.makePostData(() => {
 			delete this.data.commitHashWhenPosted;
+			delete this.data.codeBlocks[0].streamId;	
 			callback();
 		});
 	}

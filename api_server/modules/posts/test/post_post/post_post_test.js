@@ -72,6 +72,29 @@ class PostPostTest extends CodeStreamAPITest {
 		);
 	}
 
+	// introduce additional remotes to the repo we created by
+	// submitting a post and creating a stream on the fly as we do it,
+	// with remotes specified in the code block for the post
+	addRemotesToRepo (callback) {
+		if (!this.wantRemotes) {
+			return callback();
+		}
+		this.postFactory.createRandomPost(
+			callback,
+			{
+				wantCodeBlocks: 1,
+				stream: {
+					type: 'channel',
+					name: this.streamFactory.randomName()
+				},
+				codeBlockStream: {
+					file: this.repoFactory.randomFile(),
+					remotes: this.wantRemotes
+				}
+			}
+		);
+	}
+	
 	// form options to use in creating the stream that will be used for the test
 	makeStreamOptions (callback) {
 		this.streamOptions = {

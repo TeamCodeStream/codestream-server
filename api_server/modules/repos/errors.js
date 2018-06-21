@@ -12,5 +12,10 @@ module.exports = {
 		code: 'REPO-1001',
 		message: 'Unable to grant user messaging permissions',
 		description: 'The server was unable to grant permission to subscribe to the given repo channel'
+	},
+	'oneRemoteRequired': {
+		code: 'REPO-1002',
+		message: 'At least one remote URL is required',
+		description: 'At least one remote URL must be provided when a repo record is created'
 	}
 };

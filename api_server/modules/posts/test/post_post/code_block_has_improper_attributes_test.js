@@ -11,7 +11,7 @@ class CodeBlockHasImproperAttributesTest extends PostCodeToFileStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'codeBlocks: improper attributes'
+			info: 'invalid someAttribute'
 		};
 	}
 

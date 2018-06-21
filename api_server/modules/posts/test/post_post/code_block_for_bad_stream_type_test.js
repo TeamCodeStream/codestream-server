@@ -22,6 +22,17 @@ class CodeBlockForBadStreamTypeTest extends PostPostTest {
 			callback();
 		});
 	}
+
+	// form the data to use in trying to create the post
+	makePostData (callback) {
+		// explicitly set the stream ID of the code block to the post stream, 
+		// otherwise, the server tries to create a code block not connected to any stream
+		super.makePostData(() => {
+			this.data.codeBlocks[0].streamId = this.stream._id;
+			callback();
+		});
+	}
+
 }
 
 module.exports = CodeBlockForBadStreamTypeTest;

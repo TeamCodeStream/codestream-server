@@ -14,11 +14,15 @@ class PostPublisher {
 	async publishPost () {
 		// first publish any new streams, this is only for private streams not visible to the whole team
 		await this.publishNewStreams();
+
 		if (this.data.stream && this.data.stream.type !== 'file' && !this.data.stream.isTeamStream) {
+			// we create a new stream on-the-fly, and it's not visible to the team, so we publish
+			// to the individual members
 			await this.publishNewStream();
 		}
 		else {
-			// publish the post to the members of the stream or the team if it is a file stream
+			// publish the post to the members of the stream or the team, depending on whether the 
+			// stream is accessible to the whole team (a file-type stream or a team stream)
 			await this.publishPostToStreamOrTeam();
 		}
 	}
@@ -58,7 +62,11 @@ class PostPublisher {
 		}
 		else {
 			// for channels and direct, we publish to the stream itself
-			await this.publishPostToTeamStream();
+			await this.publishPostToStream();
+
+			// since the post went to a private stream, if there are any repos affected,
+			// we need to publish that info to the whole team
+			await this.publishReposToTeam();
 		}
 	}
 
@@ -70,7 +78,7 @@ class PostPublisher {
 			post: this.data.post,
 			requestId: this.request.request.id
 		};
-		['markers', 'markerLocations', 'streams', 'users'].forEach(type => {
+		['markers', 'markerLocations', 'streams', 'users', 'repos'].forEach(type => {
 			if (this.data[type]) {
 				message[type] = this.data[type];
 			}
@@ -88,7 +96,8 @@ class PostPublisher {
 		}
 	}
 
-	async publishPostToTeamStream () {
+	// publish a post to a stream channel
+	async publishPostToStream () {
 		const streamId = this.stream._id;
 		const channel = 'stream-' + streamId;
 		const message = {
@@ -105,6 +114,30 @@ class PostPublisher {
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
 			this.request.warn(`Could not publish post message to stream ${streamId}: ${JSON.stringify(error)}`);
+		}
+	}
+
+	// publish any affected repo info to the team
+	async publishReposToTeam () {
+		if (!this.data.repos) {
+			return;
+		}
+		const teamId = this.stream.teamId;
+		const channel = 'team-' + teamId;
+		const message = {
+			repos: this.data.repos,
+			requestId: this.request.request.id
+		};
+		try {
+			await this.messager.publish(
+				message,
+				channel,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish repos message to team ${teamId}: ${JSON.stringify(error)}`);
 		}
 	}
 }

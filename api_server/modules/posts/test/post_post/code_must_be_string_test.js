@@ -11,7 +11,7 @@ class CodeMustBeStringTest extends PostCodeToFileStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'codeBlocks: code must be a string'
+			info: 'invalid code'
 		};
 	}
 

@@ -90,34 +90,35 @@ class PostAuthorizer {
 		if (typeof codeBlock !== 'object') {
 			return;	// failsafe
 		}
-		if (!codeBlock.streamId && codeBlock.file) {
-			// stream to be created on the fly, and the code comes from a different repo,
-			// authorize the current user has access to this repo
-			if (!codeBlock.repoId) {
-				throw this.errorHandler.error('parameterRequired', { info: 'codeBlock.repoId' });
+
+		// if the code block doesn't refer to a stream ID, then either it will not be 
+		// attached to any stream (ok), or it will be attached to a stream created on-the-fly,
+		// that belongs to a repo ... in the latter case, the user must have access to the repo
+		if (!codeBlock.streamId) {
+			if (codeBlock.file) {
+				if (codeBlock.repoId) {
+					await this.authorizeRepo(codeBlock.repoId);
+				}
 			}
-			return await this.authorizeRepo(codeBlock.repoId);
+			return;
 		}
-		if (!codeBlock.streamId && !this.post.streamId) {
-			return;	// failsafe
-		}
+
 		// verify we have access to the stream the code block comes from, which might be
-		// different than the stream we are posting to
-		const teamId = this.post.stream ? this.post.stream.teamId : this.stream.get('teamId');
-		const stream = await this.user.authorizeStream(
-			codeBlock.streamId || this.post.streamId,
-			this.request
-		);
+		// different than the stream we are posting to 
+		const stream = await this.user.authorizeStream(codeBlock.streamId, this.request);
 		if (!stream) {
-			throw this.errorHandler.error('notFound', { info: 'stream' });
+			throw this.errorHandler.error('notFound', { info: 'codeBlock stream' });
 		}
-		else if (stream.get('type') !== 'file') {
-			// can't pull a code block from a stream that is not a file stream
+
+		// can't pull a code block from a stream that is not a file stream
+		if (stream.get('type') !== 'file') {
 			throw this.errorHandler.error('invalidParameter', { reason: 'only file type streams can have code blocks' });
 		}
-		else if (stream.get('teamId') !== teamId) {
-			// the team that owns the stream must be the same as the team the owns the stream the post
-			// is being created in
+
+		// the team that owns the stream must be the same as the team the owns the stream the post
+		// is being created in
+		const teamId = this.post.stream ? this.post.stream.teamId : this.stream.get('teamId');
+		if (stream.get('teamId') !== teamId) {
 			throw this.errorHandler.error('createAuth', { reason: 'codeBlock not authorized for stream' });
 		}
 	}

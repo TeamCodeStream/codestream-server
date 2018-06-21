@@ -57,10 +57,12 @@ class CodeBlockFromDifferentStreamTest extends PostPostTest {
 		// validate that the marker for the code block points to the other stream,
 		// but that the post points to the original stream created for the test
 		let post = data.post;
-		let marker = data.markers[0];
-		Assert(marker.streamId === this.otherFileStream._id, 'streamId of marker does not match the other file stream ID');
-		Assert(post.streamId !== marker.streamId, 'the streamId of the post and the streamId of the marker are the same');
-		Assert(post.codeBlocks[0].file === this.otherFileStream.file, 'file of returned code block does not match other stream');
+		if (!this.noMarkerExpected) {
+			let marker = data.markers[0];
+			Assert(marker.streamId === this.otherFileStream._id, 'streamId of marker does not match the other file stream ID');
+			Assert(post.streamId !== marker.streamId, 'the streamId of the post and the streamId of the marker are the same');
+			Assert(post.codeBlocks[0].file === this.otherFileStream.file, 'file of returned code block does not match other stream');
+		}
 		super.validateResponse(data);
 	}
 }

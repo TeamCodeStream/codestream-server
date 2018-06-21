@@ -6,7 +6,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 class StreamNoMatchTeamTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'should return an error when trying to fetch posts from a stream where the team doesn\'t match';
+		return 'should return an error when trying to create a posts in a stream where the team doesn\'t match';
 	}
 
 	getExpectedError () {
