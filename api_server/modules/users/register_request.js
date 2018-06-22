@@ -55,7 +55,7 @@ class RegisterRequest extends RestfulRequest {
 					string: ['email', 'password', 'username']
 				},
 				optional: {
-					string: ['firstName', 'lastName', '_pubnubUuid'],
+					string: ['firstName', 'lastName', 'timeZone', '_pubnubUuid'],
 					number: ['timeout'],
 					'array(string)': ['secondaryEmails'],
 					object: ['preferences']
@@ -255,6 +255,7 @@ class RegisterRequest extends RestfulRequest {
 					'username*': '<User\'s username, must be unique for any team they are on>',
 					'firstName': '<User\'s first name>',
 					'lastName': '<User\'s last name>',
+					'timeZone': '<User\'s time zone, per the Time Zone Database>',
 					'secondaryEmails': '<Array of other emails the user wants to associate with their account>',
 					'preferences': '<Object representing any preferences the user wants to set as they register>',
 					'wantLink': '<Set this to send a confirmation email with a link instead of a code>'

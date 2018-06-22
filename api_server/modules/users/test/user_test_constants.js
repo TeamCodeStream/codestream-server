@@ -17,7 +17,8 @@ const EXPECTED_UNREGISTERED_USER_FIELDS = [
 const EXPECTED_USER_FIELDS = EXPECTED_UNREGISTERED_USER_FIELDS.concat([
 	'username',
 	'firstName',
-	'lastName'
+	'lastName',
+	'timeZone'
 ]);
 
 // we expect to see these fields upon a registration

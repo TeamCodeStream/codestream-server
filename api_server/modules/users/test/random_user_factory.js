@@ -118,9 +118,10 @@ class RandomUserFactory {
 		];
 		let firstName = RandomString.generate(10);
 		let lastName = RandomString.generate(10);
+		let timeZone = 'America/New_York';
 		let _confirmationCheat = SecretsConfig.confirmationCheat;	// have the server give us the confirmation code, avoiding email
 		let _forceConfirmation = 1;									// force confirmation, even if environment settings have it turned off
-		let data = { email, secondaryEmails, firstName, lastName, _confirmationCheat, _forceConfirmation };
+		let data = { email, secondaryEmails, firstName, lastName, timeZone, _confirmationCheat, _forceConfirmation };
 		if (options.timeout) {
 			data.timeout = options.timeout;
 		}
