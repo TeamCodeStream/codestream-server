@@ -6,22 +6,24 @@
 
 module.exports = {
 	teamId: {
-		type: 'string',
-		maxLength: 30,
+		type: 'id',
 		required: true,
 		description: 'ID of the @@#team#team@@ that owns the file @@#stream#stream@@ this marker references'
 	},
 	streamId: {
-		type: 'string',
-		maxLength: 30,
+		type: 'id',
 		required: true,
 		description: 'ID of the file @@#stream#stream@@ references by this marker\'s code block'
 	},
 	postId: {
-		type: 'string',
-		maxLength: 30,
+		type: 'id',
 		required: true,
 		description: 'ID of the @@#post#post@@ that references this marker\'s code block'
+	},
+	postStreamId: {
+		type: 'id',
+		required: true,
+		description: 'ID of the @@#stream#stream@@ the @@#post#post@@ that references this marker\'s code block belongs to'
 	},
 	numComments: {
 		type: 'number',
