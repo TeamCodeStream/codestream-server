@@ -318,6 +318,7 @@ class PostCreator extends ModelCreator {
 			teamId: this.attributes.teamId,
 			streamId: streamId,
 			postId: this.attributes._id,
+			postStreamId: this.attributes.streamId,
 			commitHash: this.attributes.commitHashWhenPosted
 		};
 		if (codeBlock.location) { // not strictly required

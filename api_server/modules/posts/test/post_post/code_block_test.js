@@ -30,6 +30,7 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 		Assert(marker.teamId === post.teamId, 'teamId does not match');
 		Assert(marker.streamId === markerStreamId, 'streamId does not match');
 		Assert(marker.postId === post._id, 'postId does not match');
+		Assert(marker.postStreamId === this.stream._id, 'postStreamId of marker does not match the stream');
 		Assert(marker.deactivated === false, 'deactivated is not false');
 		Assert(marker.numComments === 1, 'marker should have 1 comment');
 		Assert(marker.commitHashWhenCreated === this.data.commitHashWhenPosted.toLowerCase(), 'commitHashWhenCreated does not match');
