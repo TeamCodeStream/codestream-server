@@ -51,6 +51,7 @@ class RegistrationTest extends CodeStreamAPITest {
 			((user.username === this.data.username) || errors.push('incorrect username')) &&
 			((user.firstName === this.data.firstName) || errors.push('incorrect first name')) &&
 			((user.lastName === this.data.lastName) || errors.push('incorrect last name')) &&
+			((user.timeZone === this.data.timeZone) || errors.push('incorrect time zone')) &&
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
