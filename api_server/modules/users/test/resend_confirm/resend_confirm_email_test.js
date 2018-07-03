@@ -7,6 +7,8 @@ var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/
 const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
+const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
 
 class ResendConfirmEmailTest extends CodeStreamMessageTest {
 
@@ -119,8 +121,20 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 	// field substitutions in the template
 	validateSubstitutions (message) {
 		let substitutions = message.personalizations[0].substitutions;
-		// we won't verify the actual url, but we'll just check that it's there
-		Assert(substitutions['{{url}}'], 'no url in field substitutions');
+		// verify a match to the url
+		const host = WebClientConfig.host;
+		const shouldMatch = new RegExp(`^https:\\/\\/${host}\\/confirm-email\\/(.*)$`);
+		const match = substitutions['{{url}}'].match(shouldMatch);
+		Assert(match && match.length === 2, 'confirmation link url is not correct');
+		// verify correct payload
+		const token = match[1];
+		const payload = new TokenHandler(SecretsConfig.auth).verify(token);
+		Assert.equal(payload.iss, 'CodeStream', 'token payload issuer is not CodeStream');
+		Assert.equal(payload.alg, 'HS256', 'token payload algortihm is not HS256');
+		Assert.equal(payload.type, 'conf', 'token payload type should be conf');
+		Assert.equal(payload.uid, this.currentUser._id, 'uid in token payload is incorrect');
+		Assert(payload.iat <= Math.floor(Date.now() / 1000), 'iat in token payload is not earlier than now');
+		Assert.equal(payload.exp, payload.iat + 86400, 'token payload expiration is not one day out');
 	}
 
 	// validate the template is correct for an email notification

@@ -120,7 +120,7 @@ class ResendConfirmRequest extends RestfulRequest {
 		else {
 			// generate the url
 			const host = this.api.config.webclient.host;
-			const url = `https://${host}/signup?token=${encodeURIComponent(this.token)}`;
+			const url = `https://${host}/confirm-email/${encodeURIComponent(this.token)}`;
 
 			await this.api.services.email.sendConfirmationEmailWithLink(
 				{
