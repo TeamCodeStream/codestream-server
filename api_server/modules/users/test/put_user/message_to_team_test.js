@@ -8,7 +8,7 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	constructor (options) {
 		super(options);
-		this.attributes = this.attributes || ['username', 'firstName', 'lastName'];
+		this.attributes = this.attributes || ['username', 'fullName'];
 	}
 
 	get description () {

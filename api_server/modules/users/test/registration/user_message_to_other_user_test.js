@@ -65,8 +65,7 @@ class UserMessageToOtherUserTest extends CodeStreamMessageTest {
 		// give this user some random attributes
 		let data = {
 			username: RandomString.generate(12),
-			firstName: RandomString.generate(12),
-			lastName: RandomString.generate(12)
+			fullName: this.userFactory.randomFullName()
 		};
 		Object.assign(this.registeringUser, data);
 		let user = new User(this.registeringUser);

@@ -448,17 +448,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 
 	// get the expected username for the given user
 	getUserName (user) {
-		const firstName = user.firstName;
-		const lastName = user.lastName;
-		if (firstName && lastName) {
-			return firstName + ' ' + lastName;
-		}
-		else if (firstName) {
-			return firstName;
-		}
-		else {
-			return user.email;
-		}
+		return user.fullName || user.email;
 	}
 }
 

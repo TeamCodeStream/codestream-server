@@ -86,7 +86,7 @@ const queryCollection = async function(csDb, collection, query) {
 			let membersToDisplay = [];
 			for (let membersIdx in members) {
 				let thisMember = members[membersIdx];
-				let displayString = thisMember.firstName + ' ' + thisMember.lastName + ' (' + thisMember.searchableEmail + ')';
+				let displayString = thisMember.fullName + ' (' + thisMember.searchableEmail + ')';
 				membersToDisplay.push(displayString);
 			}
 			let teamDisplayObject = {

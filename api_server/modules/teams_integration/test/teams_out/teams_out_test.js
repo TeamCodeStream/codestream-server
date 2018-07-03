@@ -226,8 +226,7 @@ class TeamsOutTest extends CodeStreamMessageTest {
 		Assert(message.creatorId === this.post.creatorId, 'incorrect creator ID');
 		Assert(message.createdAt === this.post.createdAt, 'incorrect createdAt');
 		Assert(message.creatorUsername === this.postCreator.username, 'incorrect creator username');
-		Assert(message.creatorFirstName === this.postCreator.firstName, 'incorrect creator first name');
-		Assert(message.creatorLastName === this.postCreator.lastName, 'incorrect creator last name');
+		Assert(message.creatorFullName === this.postCreator.fullName, 'incorrect creator full name');
 		Assert(message.creatorEmail === this.postCreator.email, 'incorrect creator email');
 		this.validateCodeBlock(message);
 		this.validateMention(message);
@@ -264,8 +263,7 @@ class TeamsOutTest extends CodeStreamMessageTest {
 		Assert(parentPost.creatorId === this.parentPost.creatorId, 'incorrect creator ID');
 		Assert(parentPost.createdAt === this.parentPost.createdAt, 'incorrect createdAt');
 		Assert(parentPost.creatorUsername === this.otherUserData.user.username, 'incorrect creator username');
-		Assert(parentPost.creatorFirstName === this.otherUserData.user.firstName, 'incorrect creator first name');
-		Assert(parentPost.creatorLastName === this.otherUserData.user.lastName, 'incorrect creator last name');
+		Assert(parentPost.creatorFullName === this.otherUserData.user.fullName, 'incorrect creator full name');
 		Assert(parentPost.creatorEmail === this.otherUserData.user.email, 'incorrect creator email');
 	}
 }

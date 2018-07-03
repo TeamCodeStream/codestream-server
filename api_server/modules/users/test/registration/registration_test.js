@@ -49,8 +49,7 @@ class RegistrationTest extends CodeStreamAPITest {
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
 			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&
 			((user.username === this.data.username) || errors.push('incorrect username')) &&
-			((user.firstName === this.data.firstName) || errors.push('incorrect first name')) &&
-			((user.lastName === this.data.lastName) || errors.push('incorrect last name')) &&
+			((user.fullName === this.data.fullName) || errors.push('incorrect full name')) &&
 			((user.timeZone === this.data.timeZone) || errors.push('incorrect time zone')) &&
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&

@@ -60,8 +60,7 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const result = (
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
 			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&
-			((user.firstName === this.data.firstName) || errors.push('incorrect first name')) &&
-			((user.lastName === this.data.lastName) || errors.push('incorrect last name')) &&
+			((user.fullName === this.data.fullName) || errors.push('incorrect full name')) &&
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&

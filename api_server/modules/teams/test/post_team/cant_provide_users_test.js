@@ -18,8 +18,7 @@ class CantProvideUsersTest extends PostTeamTest {
 			// ...add a random email
 			const user = {
 				username: RandomString.generate(8),
-				firstName: RandomString.generate(8),
-				lastName: RandomString.generate(8)
+				fullName: this.userFactory.randomFullName()
 			};
 			this.data.users = [user];
 			callback();

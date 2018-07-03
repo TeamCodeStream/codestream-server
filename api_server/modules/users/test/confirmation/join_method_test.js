@@ -58,8 +58,7 @@ class JoinMethodTest extends ConfirmationTest {
 			email: this.data.email,
 			username: RandomString.generate(12),
 			password: RandomString.generate(12),
-			firstName: RandomString.generate(8),
-			lastName: RandomString.generate(9),
+			fullName: this.userFactory.randomFullName(),
 			timeZone: 'America/New_York',
 			_pubnubUuid: 'none',									// normally assigned by user factory
 			_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response

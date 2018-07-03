@@ -348,17 +348,7 @@ class CodeStreamEmails {
 
 	// given a user, figure out a full display name to use in the subject
 	getUserDisplayName (user) {
-		const firstName = user.get('firstName');
-		const lastName = user.get('lastName');
-		if (firstName && lastName) {
-			return firstName + ' ' + lastName;
-		}
-		else if (firstName) {
-			return firstName;
-		}
-		else {
-			return user.get('email');
-		}
+		return user.get('fullName') || user.get('email');
 	}
 
 	// given a user, figure out a username to use in the subject

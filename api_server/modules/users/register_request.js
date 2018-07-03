@@ -48,6 +48,11 @@ class RegisterRequest extends RestfulRequest {
 		this.expiresIn = this.request.body.expiresIn;					// confirmation link should expire in this number of milliseconds, rather than the default
 		delete this.request.body.expiresIn;
 
+		// backward compatibility with first/last name, turn it into a full name
+		if (!this.request.body.fullName && (this.request.body.firstName || this.request.body.lastName)) {
+			this.request.body.fullName = `${this.request.body.firstName || ''} ${this.request.body.lastName || ''}`.trim();
+		}
+
 		await this.requireAllowParameters(
 			'body',
 			{
@@ -55,7 +60,7 @@ class RegisterRequest extends RestfulRequest {
 					string: ['email', 'password', 'username']
 				},
 				optional: {
-					string: ['firstName', 'lastName', 'timeZone', '_pubnubUuid'],
+					string: ['fullName', 'timeZone', '_pubnubUuid'],
 					number: ['timeout'],
 					'array(string)': ['secondaryEmails'],
 					object: ['preferences']
@@ -253,8 +258,7 @@ class RegisterRequest extends RestfulRequest {
 					'email*': '<User\'s email>',
 					'password*': '<User\'s password>',
 					'username*': '<User\'s username, must be unique for any team they are on>',
-					'firstName': '<User\'s first name>',
-					'lastName': '<User\'s last name>',
+					'fullName': '<User\'s full name>',
 					'timeZone': '<User\'s time zone, per the Time Zone Database>',
 					'secondaryEmails': '<Array of other emails the user wants to associate with their account>',
 					'preferences': '<Object representing any preferences the user wants to set as they register>',

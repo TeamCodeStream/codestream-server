@@ -43,8 +43,7 @@ class UserMessageToTeamTest extends CodeStreamMessageTest {
 		// give this user some random attributes
 		Object.assign(this.registeringUser, {
 			username: RandomString.generate(12),
-			firstName: RandomString.generate(12),
-			lastName: RandomString.generate(12)
+			fullName: this.userFactory.randomFullName()
 		});
 		let user = new User(this.registeringUser);
 		// we expect a "sanitized" version of this user in the response

@@ -12,7 +12,7 @@ class PutUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	constructor (options) {
 		super(options);
-		this.attributes = this.attributes || ['username', 'firstName', 'lastName'];
+		this.attributes = this.attributes || ['username', 'fullName'];
 	}
 
 	get description () {

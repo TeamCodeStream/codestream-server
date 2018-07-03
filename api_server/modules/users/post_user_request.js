@@ -31,6 +31,10 @@ class PostUserRequest extends PostRequest {
 		delete this.request.body._delayEmail;
 		this.subscriptionCheat = this.request.body._subscriptionCheat; // cheat code for testing only, allow subscription to me-channel before confirmation
 		delete this.request.body._subscriptionCheat;
+		// backward compatibility with first/last name, turn it into a full name
+		if (!this.request.body.fullName && (this.request.body.firstName || this.request.body.lastName)) {
+			this.request.body.fullName = `${this.request.body.firstName || ''} ${this.request.body.lastName || ''}`.trim();
+		}
 		await this.requireAllowParameters(
 			'body',
 			{
@@ -38,7 +42,7 @@ class PostUserRequest extends PostRequest {
 					string: ['teamId', 'email']
 				},
 				optional: {
-					string: ['firstName', 'lastName'],
+					string: ['fullName'],
 					boolean: ['dontSendEmail']
 				}
 			}
@@ -197,8 +201,7 @@ class PostUserRequest extends PostRequest {
 			looksLike: {
 				'teamId*': '<ID of the team onto which the user should be put>',
 				'email*': '<Email of the user to be created or found>',
-				'firstName': '<First name of the user, this is only set if the user is created>',
-				'lastName': '<Last name of the user, this is only set if the user is created>',
+				'fullName': '<Full name of the user, this is only set if the user is created>',
 				'dontSendEmail': '<If set to true, an invite email will not be sent to the user>'
 			}
 		};

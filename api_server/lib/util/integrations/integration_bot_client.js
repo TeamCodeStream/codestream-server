@@ -72,8 +72,7 @@ class IntegrationBotClient {
 			creatorId: post.get('creatorId'),
 			createdAt: post.get('createdAt'),
 			creatorUsername: creator.get('username'),
-			creatorFirstName: creator.get('firstName'),
-			creatorLastName: creator.get('lastName'),
+			creatorFullName: creator.get('fullName'),
 			creatorEmail: creator.get('email'),
 			stream: info ? this.getStreamName(info) : null
 		};

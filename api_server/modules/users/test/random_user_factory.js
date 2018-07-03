@@ -104,9 +104,13 @@ class RandomUserFactory {
 	randomNamedUser () {
 		return {
 			email: this.randomEmail(),
-			firstName: RandomString.generate(10),
-			lastName: RandomString.generate(10)
+			fullName: this.randomFullName()
 		};
+	}
+
+	// generate a random full name
+	randomFullName () {
+		return `${RandomString.generate(8)} ${RandomString.generate(10)}`;
 	}
 
 	// get some random data to use for creating a user, with options specified
@@ -116,12 +120,11 @@ class RandomUserFactory {
 			this.randomEmail(),
 			this.randomEmail()
 		];
-		let firstName = RandomString.generate(10);
-		let lastName = RandomString.generate(10);
+		let fullName = this.randomFullName();
 		let timeZone = 'America/New_York';
 		let _confirmationCheat = SecretsConfig.confirmationCheat;	// have the server give us the confirmation code, avoiding email
 		let _forceConfirmation = 1;									// force confirmation, even if environment settings have it turned off
-		let data = { email, secondaryEmails, firstName, lastName, timeZone, _confirmationCheat, _forceConfirmation };
+		let data = { email, secondaryEmails, fullName, timeZone, _confirmationCheat, _forceConfirmation };
 		if (options.timeout) {
 			data.timeout = options.timeout;
 		}

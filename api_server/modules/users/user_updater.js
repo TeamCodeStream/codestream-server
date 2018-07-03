@@ -30,7 +30,7 @@ class UserUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['username', 'firstName', 'lastName', 'timeZone']
+			string: ['username', 'fullName', 'timeZone']
 		};
 	}
 

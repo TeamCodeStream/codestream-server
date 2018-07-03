@@ -43,8 +43,7 @@ class PutUserRequest extends PutRequest {
 			summary: description.input + '; the ID in the path can also be \'me\'',
 			looksLike: {
 				'username': '<Updated username for the user, must be unique for any teams the user is on>',
-				'firstName': '<User\'s first name>',
-				'lastName': '<User\'s last name>',
+				'fullName': '<User\'s full name>',
 				'timeZone': '<User\'s time zone (eg. America/New_York)>'
 			}
 		};
