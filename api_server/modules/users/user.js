@@ -248,7 +248,7 @@ class User extends CodeStreamModel {
 		}
 
 		// for non-file streams, look for individual muted setting
-		return this.wantEmailNotificationsByMuted(stream);
+		return this.wantEmailNotificationsByMuted(stream, mentioned);
 	}
 
 	// determine if the user has email notifications turned off by preference
@@ -300,7 +300,10 @@ class User extends CodeStreamModel {
 
 	// determine if the user has a preference for email notifications according to
 	// whether a stream is muted, this is for non-file streams only
-	wantEmailNotificationsByMuted (stream) {
+	wantEmailNotificationsByMuted (stream, mentioned) {
+		if (mentioned) {
+			return true; // muting a stream doesn't turn off email notifications when the user is mentioned
+		}
 		const preferences = this.get('preferences') || {};
 		const mutedStreams = preferences.mutedStreams || {};
 		return !mutedStreams[stream.id];
