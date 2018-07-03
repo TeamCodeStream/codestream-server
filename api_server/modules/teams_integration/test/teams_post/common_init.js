@@ -62,6 +62,7 @@ class CommonInit {
 				teamId: this.team._id,
 				repoId: this.type === 'file' ? this.repo._id : undefined,
 				isTeamStream: this.isTeamStream,
+				privacy: this.makePublic ? 'public' : undefined,
 				token: this.token // "current user" will create the stream
 			}
 		);

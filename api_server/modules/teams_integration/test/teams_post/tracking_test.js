@@ -6,7 +6,8 @@ const Assert = require('assert');
 class TrackingTest extends TeamsPostMessageTest {
 
 	get description () {
-		return `should send a Post Created event for tracking purposes when handling a post via MS Teams for a ${this.type} stream`;
+		const privacy = this.makePublic ? 'public ' : '';
+		return `should send a Post Created event for tracking purposes when handling a post via MS Teams for a ${privacy}${this.type} stream`;
 	}
 
 	// make the data the will be used when issuing the request that triggers the message
@@ -61,11 +62,14 @@ class TrackingTest extends TeamsPostMessageTest {
 		let data = message.data;
 		let errors = [];
 		const categories = {
-			'channel': 'Channel',
-			'direct': 'DM',
+			'channel': 'Private Channel',
+			'direct': 'Direct Message',
 			'file': 'Source File'
 		};
-		const category = categories[this.stream.type];
+		let category = categories[this.stream.type];
+		if (this.makePublic) {
+			category = 'Public Channel';
+		}
 		let result = (
 			((message.type === 'track') || errors.push('type not correct')) &&
 			((message.event === 'Post Created') || errors.push('event not correct')) &&

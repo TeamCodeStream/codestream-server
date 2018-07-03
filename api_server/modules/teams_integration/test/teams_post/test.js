@@ -58,6 +58,7 @@ class TeamsPostRequestTester {
 		new ExistingUserUsernameConflictTest().test();
 		new TrackingTest({ type: 'file' }).test();
 		new TrackingTest({ type: 'channel' }).test();
+		new TrackingTest({ type: 'channel', makePublic: true }).test();
 		new TrackingTest({ type: 'direct' }).test();
 		new NoTrackingTest().test();
 		new NewUserMessageTest().test();
