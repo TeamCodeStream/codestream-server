@@ -34,8 +34,6 @@ class PostUserRequest extends PostRequest {
 		// backward compatibility with first/last name, turn it into a full name
 		if (!this.request.body.fullName && (this.request.body.firstName || this.request.body.lastName)) {
 			this.request.body.fullName = `${this.request.body.firstName || ''} ${this.request.body.lastName || ''}`.trim();
-			delete this.request.body.firstName;
-			delete this.request.body.lastName;
 		}
 		await this.requireAllowParameters(
 			'body',
@@ -44,7 +42,7 @@ class PostUserRequest extends PostRequest {
 					string: ['teamId', 'email']
 				},
 				optional: {
-					string: ['fullName'],
+					string: ['fullName', 'firstName', 'lastName'],	// first/last name should be deprecated once original atom client is deprecated
 					boolean: ['dontSendEmail']
 				}
 			}
