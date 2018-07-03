@@ -42,7 +42,7 @@ class PostUserRequest extends PostRequest {
 					string: ['teamId', 'email']
 				},
 				optional: {
-					string: ['fullName'],
+					string: ['fullName', 'firstName', 'lastName'],	// first/last name should be deprecated once original atom client is deprecated
 					boolean: ['dontSendEmail']
 				}
 			}

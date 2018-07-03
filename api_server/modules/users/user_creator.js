@@ -38,7 +38,8 @@ class UserCreator extends ModelCreator {
 				string: ['email']
 			},
 			optional: {
-				string: ['password', 'username', 'fullName', 'timeZone', 'confirmationCode', '_pubnubUuid'],
+				// NOTE first/last name should be deprecated once original atom client is deprecated
+				string: ['password', 'username', 'fullName', 'firstName', 'lastName', 'timeZone', 'confirmationCode', '_pubnubUuid'], 
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt'],
 				boolean: ['isRegistered'],
 				'array(string)': ['secondaryEmails'],

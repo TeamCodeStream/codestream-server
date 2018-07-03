@@ -60,7 +60,7 @@ class RegisterRequest extends RestfulRequest {
 					string: ['email', 'password', 'username']
 				},
 				optional: {
-					string: ['fullName', 'timeZone', '_pubnubUuid'],
+					string: ['fullName', 'firstName', 'lastName', 'timeZone', '_pubnubUuid'],	// first/last name should be deprecated once original atom client is deprecated
 					number: ['timeout'],
 					'array(string)': ['secondaryEmails'],
 					object: ['preferences']
