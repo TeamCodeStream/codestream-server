@@ -628,11 +628,14 @@ class PostCreator extends ModelCreator {
 		const endpoint = this.forInboundEmail ? 'Email' :
 			this.forIntegration.charAt(0).toUpperCase() + this.forIntegration.slice(1);
 		const categories = {
-			'channel': 'Channel',
-			'direct': 'DM',
+			'channel': 'Private Channel',
+			'direct': 'Direct Message',
 			'file': 'Source File'
 		};
-		const category = categories[this.stream.get('type')] || '???';
+		let category = categories[this.stream.get('type')] || '???';
+		if (this.stream.get('type') === 'channel' && this.stream.get('privacy') === 'public') {
+			category = 'Public Channel';
+		}
 		const trackObject = {
 			distinct_id: this.user.id,
 			Type: 'Chat',
