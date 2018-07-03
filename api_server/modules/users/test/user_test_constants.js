@@ -16,8 +16,7 @@ const EXPECTED_UNREGISTERED_USER_FIELDS = [
 // we expect to see these fields for users who are confirmed
 const EXPECTED_USER_FIELDS = EXPECTED_UNREGISTERED_USER_FIELDS.concat([
 	'username',
-	'firstName',
-	'lastName',
+	'fullName',
 	'timeZone'
 ]);
 

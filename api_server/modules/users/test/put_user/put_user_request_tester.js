@@ -14,7 +14,7 @@ var NoCodestreamUsernameTest = require('./no_codestream_username_test');
 var UsernameNotUniqueForSecondTeamTest = require('./username_not_unique_for_second_team_test');
 
 const UserAttributes = require('../../user_attributes');
-const CAN_UPDATE_ATTRIBUTES = ['username', 'firstName', 'lastName', 'timeZone'];
+const CAN_UPDATE_ATTRIBUTES = ['username', 'fullName', 'timeZone'];
 
 class PutUserRequestTester {
 

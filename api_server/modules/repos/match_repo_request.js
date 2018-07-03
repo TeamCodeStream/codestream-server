@@ -170,8 +170,7 @@ class MatchRepoRequest extends RestfulRequest {
 			const user = this.teamCreators.find(creator => creator.id === team.get('creatorId'));
 			if (user) {
 				this.creatorsByTeamId[team.id] = {
-					firstName: user.get('firstName'),
-					lastName: user.get('lastName')
+					fullName: user.get('fullName')
 				};
 			}
 		});

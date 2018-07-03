@@ -3,7 +3,6 @@
 'use strict';
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const RandomString = require('randomstring');
 
 class CommonInit {
 
@@ -108,8 +107,7 @@ class CommonInit {
 		else {
 			this.data.email = this.userFactory.randomEmail();
 		}
-		this.data.firstName = RandomString.generate(8);
-		this.data.lastName = RandomString.generate(8);
+		this.data.fullName = this.userFactory.randomFullName();
 		callback();
 	}
 }

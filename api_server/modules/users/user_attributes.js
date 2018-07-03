@@ -40,15 +40,20 @@ module.exports = {
 		type: 'boolean',
 		description: 'If true, the user has registered and confirmed their email'
 	},
-	firstName: {
+	firstName: {	// deprecated in favor of full name
 		type: 'string',
 		maxLength: 128,
 		description: 'The user\'s first name'
 	},
-	lastName: {
+	lastName: {		// deprecated in favor of full name
 		type: 'string',
 		maxLength: 128,
 		description: 'The user\'s last name'
+	},
+	fullName: {
+		type: 'string',
+		maxLength: 256,
+		description: 'The user\'s full name'
 	},
 	passwordHash: {
 		type: 'string',

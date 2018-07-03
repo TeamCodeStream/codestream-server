@@ -174,8 +174,7 @@ class MatchRepoTest extends CodeStreamAPITest {
 		teams.forEach(team => {
 			const expectedCreator = this.teamCreators[team._id].user;
 			const creator = creators[team._id];
-			Assert(creator.firstName === expectedCreator.firstName, 'returned team creator first name not correct');
-			Assert(creator.lastName === expectedCreator.lastName, 'returned team creator last name not correct');
+			Assert(creator.fullName === expectedCreator.fullName, 'returned team creator full name not correct');
 		});
 		Assert(Object.keys(data.teamCreators).length === teams.length, 'number of team creators not the same as the number of team');
 	}

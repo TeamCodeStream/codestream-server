@@ -113,8 +113,7 @@ class RandomRepoFactory {
 		for (let i = 0; i < n; i++) {
 			users.push({
 				email: this.userFactory.randomEmail(),
-				firstName: RandomString.generate(8),
-				lastName: RandomString.generate(8)
+				fullName: this.userFactory.randomFullName()
 			});
 		}
 	}
