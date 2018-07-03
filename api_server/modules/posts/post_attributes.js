@@ -31,7 +31,11 @@ module.exports = {
 	},
 	parentPostId: {
 		type: 'id',
-		description: 'For posts that replies to other posts, the ID of the post to which this post is a reply'
+		description: 'For posts that are replies to other posts, the ID of the post to which this post is a reply'
+	},
+	hasReplies: {
+		type: 'boolean',
+		description: 'Will be true for posts that have replies'
 	},
 	text: {
 		type: 'string',
