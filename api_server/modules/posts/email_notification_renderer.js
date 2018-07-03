@@ -23,7 +23,6 @@ class EmailNotificationRenderer {
 
 		.master {
 			margin-top: 10px;
-			font-size: 16px;
 			color: #000;
 		}
 		.postWrapper {
@@ -37,7 +36,6 @@ class EmailNotificationRenderer {
 		}
 		.datetime {
 			color: #888888;
-			font-size: 14px;
 		}
 		.replyto {
 		  color: #888888;
