@@ -161,7 +161,9 @@ class PostCreator extends ModelCreator {
 		await super.preSave();			// base-class preSave
 		await this.updateStream();		// update the stream as needed
 		await this.updateLastReads();	// update lastReads attributes for affected users
+		await this.getParentPost();		// get parent post, if this is a reply
 		await this.updateMarkersForReply();	// update markers, if this is a reply to a parent with a code block
+		await this.updateParentPost();	// update the parent post with numReplies, if this is a reply to a parent
 		await this.updatePostCount();	// update the post count for the author of the post
 	}
 
@@ -459,33 +461,27 @@ class PostCreator extends ModelCreator {
 		}).updateLastReads();
 	}
 
-	// if the created post is a reply to a parent with code blocks, then the
-	// markers for those code blocks get their numComments attribute incremented
-	async updateMarkersForReply () {
+	// get the parent post, for replies
+	async getParentPost () {
 		// this only applies to replies
 		if (!this.model.get('parentPostId')) {
 			return;
 		}
-		await this.getParentPost();
-		await this.updateMarkersForParentPost();
+		this.parentPost = await this.data.posts.getById(this.model.get('parentPostId'));
 	}
 
-	// get the parent post, for replies
-	async getParentPost () {
-		this.parentPost = await this.data.posts.getById(this.model.get('parentPostId'));
-		if (!this.parentPost) { return; }	// this really shouldn't happen, but it's not worth an error
+	// if the created post is a reply to a parent with code blocks, then the
+	// markers for those code blocks get their numComments attribute incremented
+	async updateMarkersForReply () {
+		if (!this.parentPost) { return; }	
 		// collect all marker IDs for code blocks referred to by the parent post
 		const codeBlocks = this.parentPost.get('codeBlocks') || [];
-		this.parentPostMarkerIds = codeBlocks.map(codeBlock => codeBlock.markerId);
-	}
-
-	// update all markers for code blocks referred to by a parent post, increment numComments attribute
-	async updateMarkersForParentPost () {
-		if (!this.parentPostMarkerIds || !this.parentPostMarkerIds.length) {
+		const parentPostMarkerIds = codeBlocks.map(codeBlock => codeBlock.markerId);
+		if (parentPostMarkerIds.length === 0) {
 			return;
 		}
 		this.attachToResponse.markers = this.attachToResponse.markers || [];
-		for (let markerId of this.parentPostMarkerIds) {
+		for (let markerId of parentPostMarkerIds) {
 			await this.updateMarkerForParentPost(markerId);
 		}
 	}
@@ -499,6 +495,19 @@ class PostCreator extends ModelCreator {
 		this.attachToResponse.markers.push(messageOp);	// we'll send the increment in the response (and also the pubnub message)
 	}
 
+	// if this is the first reply to a post, mark that the parent post now has replies
+	async updateParentPost () {
+		if (!this.parentPost || this.parentPost.get('hasReplies')) {
+			// no need for this update if there is no parent post, or if this parent post
+			// is already marked as having replies
+			return; 
+		}
+		const op = { $set: { hasReplies: true } };
+		await this.data.posts.applyOpById(this.parentPost.id, op);
+		const messageOp = Object.assign({}, op, { _id: this.parentPost.id });
+		this.attachToResponse.posts = [messageOp];	// we'll send the update in the response (and also the pubnub message)
+	}
+	
 	// update the total post count for the author of the post, along with the date/time of last post
 	async updatePostCount () {
 		this.updatePostCountOp = {
@@ -515,6 +524,7 @@ class PostCreator extends ModelCreator {
 	async postCreate () {
 		await awaitParallel([
 			this.publishPost,
+			this.publishParentPost,
 			this.triggerNotificationEmails,
 			this.doIntegrationHooks,
 			this.publishPostCount,
@@ -531,6 +541,23 @@ class PostCreator extends ModelCreator {
 			data: this.request.responseData,
 			messager: this.api.services.messager,
 			stream: this.stream.attributes
+		}).publishPost();
+	}
+
+	// if the parent post was updated, publish the parent post
+	async publishParentPost () {
+		// the parent post will show up as the first element of the posts array
+		// in the response
+		if (!this.request.responseData.posts || this.request.responseData.posts.length === 0) {
+			return;
+		}
+		await new PostPublisher({
+			request: this.request,
+			data: {
+				post: this.request.responseData.posts[0]
+			},
+			messager: this.api.services.messager,
+			stream: this.stream.attributes	// assuming stream for the parent post is the same as for the reply
 		}).publishPost();
 	}
 
