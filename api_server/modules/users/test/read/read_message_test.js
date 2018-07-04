@@ -51,9 +51,9 @@ class ReadMessageTest extends CodeStreamMessageTest {
 	// create a file-type stream in the repo
 	createStream (callback) {
 		let streamOptions = {
-			type: 'file',
+			type: 'channel',
 			teamId: this.team._id,
-			repoId: this.repo._id,
+			memberIds: [this.currentUser._id],	// include the "current" user in the stream
 			token: this.otherUserData.accessToken	// "other" user creates the stream
 		};
 		this.streamFactory.createRandomStream(
@@ -69,9 +69,9 @@ class ReadMessageTest extends CodeStreamMessageTest {
 	// create a second file-type stream in the repo
 	createOtherStream (callback) {
 		let streamOptions = {
-			type: 'file',
+			type: 'channel',
 			teamId: this.team._id,
-			repoId: this.repo._id,
+			memberIds: [this.currentUser._id],	// include the "current" user in the stream
 			token: this.otherUserData.accessToken	// "other" user creates the stream
 		};
 		this.streamFactory.createRandomStream(

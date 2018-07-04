@@ -8,6 +8,7 @@ var ReadAllTest = require('./read_all_test');
 var ReadACLTest = require('./read_acl_test');
 var ReadMessageTest = require('./read_message_test');
 var ReadAllMessageTest = require('./read_all_message_test');
+var StreamNotFoundTest = require('./stream_not_found_test');
 
 class ReadRequestTester {
 
@@ -17,6 +18,7 @@ class ReadRequestTester {
 		new ReadACLTest().test();
 		new ReadMessageTest().test();
 		new ReadAllMessageTest().test();
+		new StreamNotFoundTest().test();
 	}
 }
 

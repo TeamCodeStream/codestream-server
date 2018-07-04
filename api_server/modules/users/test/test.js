@@ -27,6 +27,7 @@ describe('user requests', function() {
 	describe('GET /users/:id', userRequestTester.getUserTest);
 	describe('GET /users', userRequestTester.getUsersTest);
 	describe('PUT /read/:streamId', userRequestTester.readTest);
+	describe('PUT /unread/:postId', userRequestTester.unreadTest);
 	describe('GET /preferences', userRequestTester.getPreferencesTest);
 	describe('PUT /preferences', userRequestTester.putPreferencesTest);
 	describe('PUT /users/:id', userRequestTester.putUserTest);

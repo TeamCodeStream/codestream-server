@@ -44,6 +44,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		requestClass: require('./read_request')
 	},
 	{
+		method: 'put',
+		path: 'unread/:postId',
+		requestClass: require('./unread_request')
+	},
+	{
 		method: 'get',
 		path: 'preferences',
 		requestClass: require('./get_preferences_request')
