@@ -16,10 +16,6 @@ class ReadTest extends CodeStreamAPITest {
 		return 'get';
 	}
 
-	get path () {
-		return '/users/me';
-	}
-
 	getExpectedFields () {
 		// we expect to see the usual fields for a user, plus fields only the user themselves should see
 		let userResponse = {};
@@ -29,6 +25,7 @@ class ReadTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
+		this.path = '/users/me';
 		BoundAsync.series(this, [
 			this.createOtherUser,		// create a second registered user
 			this.createRepo,			// create a repo and team
@@ -70,9 +67,9 @@ class ReadTest extends CodeStreamAPITest {
 	// create a file-type stream in the repo
 	createStream (callback) {
 		let streamOptions = {
-			type: 'file',
+			type: 'channel',
 			teamId: this.team._id,
-			repoId: this.repo._id,
+			memberIds: [this.currentUser._id],	// include the "current" user in the stream
 			token: this.otherUserData.accessToken	// "other" user creates the stream
 		};
 		this.streamFactory.createRandomStream(

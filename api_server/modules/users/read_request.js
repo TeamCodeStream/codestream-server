@@ -48,7 +48,7 @@ class ReadRequest extends RestfulRequest {
 
 	// after the response is returned....
 	async postProcess () {
-		// send the preferences update on the user's me-channel, so other active
+		// send the lastReads update on the user's me-channel, so other active
 		// sessions get the message
 		const channel = 'user-' + this.user.id;
 		const message = {
@@ -94,7 +94,6 @@ class ReadRequest extends RestfulRequest {
 				}
 			},
 			errors: [
-				'parameterRequired',
 				'notFound',
 				'updateAuth'
 			]

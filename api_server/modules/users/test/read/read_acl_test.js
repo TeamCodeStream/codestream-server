@@ -42,8 +42,6 @@ class ReadACLTest extends CodeStreamAPITest {
 
 	// create a repo (which creates a team)
 	createRepo (callback) {
-		// in creating the repo, we are omitting the "current" user, so they will
-		// have an ACL failure trying to set a "read" status for the stream
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -52,6 +50,7 @@ class ReadACLTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
+				withEmails: [this.currentUser.email],	// include the "current" user (but they won't be in the stream)
 				token: this.otherUserData.accessToken	// "other" user creates the repo/team
 			}
 		);
@@ -59,10 +58,11 @@ class ReadACLTest extends CodeStreamAPITest {
 
 	// create a file-type stream in the repo
 	createStream (callback) {
+		// in creating the stream, we are omitting the "current" user, so they will
+		// have an ACL failure trying to set a "read" status for the stream
 		let streamOptions = {
-			type: 'file',
+			type: 'channel',
 			teamId: this.team._id,
-			repoId: this.repo._id,
 			token: this.otherUserData.accessToken	// "other" user creates the stream
 		};
 		this.streamFactory.createRandomStream(

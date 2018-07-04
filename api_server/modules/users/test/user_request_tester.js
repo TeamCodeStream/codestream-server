@@ -9,6 +9,7 @@ var LoginRequestTester = require('./login/login_request_tester');
 var GetUserRequestTester = require('./get_user/get_user_request_tester');
 var GetUsersRequestTester = require('./get_users/get_users_request_tester');
 var ReadRequestTester = require('./read/read_request_tester');
+var UnreadRequestTester = require('./unread/unread_request_tester');
 var PutPreferencesRequestTester = require('./put_preferences/put_preferences_request_tester');
 var GetPreferencesRequestTester = require('./get_preferences/get_preferences_request_tester');
 var PutUserRequestTester = require('./put_user/put_user_request_tester');
@@ -22,6 +23,7 @@ class UserRequestTester extends Aggregation(
 	GetUserRequestTester,
 	GetUsersRequestTester,
 	ReadRequestTester,
+	UnreadRequestTester,
 	PutPreferencesRequestTester,
 	GetPreferencesRequestTester,
 	PutUserRequestTester,
