@@ -29,7 +29,7 @@ class EmailNotificationRenderer {
 			margin-bottom: 35px;
 		}
 		.authorLine {
-			margin-bottom: 10px;
+			margin-bottom: 3px;
 		}
 		.author {
 		  font-weight: bold;
