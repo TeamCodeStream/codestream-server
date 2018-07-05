@@ -97,7 +97,7 @@ class CommonInit {
 		return {
 			name: this.streamFactory.randomName(),
 			purpose: this.streamFactory.randomPurpose()
-		}
+		};
 	}
 
 	// form the data for the stream update

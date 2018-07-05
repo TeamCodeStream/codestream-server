@@ -80,9 +80,9 @@ class StreamUpdater extends ModelUpdater {
 			this.attributes.$addToSet && 
 			this.attributes.$addToSet.memberIds
 		) || (
-			this.attributes.$pull &&
+				this.attributes.$pull &&
 			this.attributes.$pull.memberIds
-		) || [];
+			) || [];
 		if (memberIds.length === 0) {
 			return;
 		}
