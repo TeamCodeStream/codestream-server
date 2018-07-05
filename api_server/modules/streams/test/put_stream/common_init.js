@@ -92,12 +92,17 @@ class CommonInit {
 		);
 	}
 
-	// form the data for the stream update
-	makeStreamData (callback) {
-		this.data = {
+	// get the data for the stream update
+	getUpdateData () {
+		return {
 			name: this.streamFactory.randomName(),
 			purpose: this.streamFactory.randomPurpose()
 		};
+	}
+
+	// form the data for the stream update
+	makeStreamData (callback) {
+		this.data = this.getUpdateData();
 		this.expectedStream = DeepClone(this.stream);
 		Object.assign(this.expectedStream, this.data);
 		this.path = '/streams/' + this.stream._id;

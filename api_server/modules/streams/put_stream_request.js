@@ -118,6 +118,7 @@ class PutStreamRequest extends PutRequest {
 			looksLike: {
 				'name': '<Updated name of the channel stream>',
 				'purpose': '<Updated purpose of the channel stream>',
+				'isArchived': '<If the channel stream is archived>',
 				'$push': {
 					memberIds: '<Array of IDs representing users to add to the channel stream>'
 				},
