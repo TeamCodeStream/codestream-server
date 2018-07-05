@@ -78,5 +78,9 @@ module.exports = {
 		type: 'string',
 		maxLength: 250,
 		description: 'The purpose of this stream (usually for channels)'
+	},
+	isArchived: {
+		type: 'boolean',
+		description: 'Whether the stream (usually for channels) is archived'
 	}
 };

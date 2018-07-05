@@ -24,7 +24,8 @@ class StreamUpdater extends ModelUpdater {
 	getAllowedAttributes () {
 		return {
 			string: ['name', 'purpose'],
-			object: ['$addToSet', '$push', '$pull']
+			object: ['$addToSet', '$push', '$pull'],
+			boolean: ['isArchived']
 		};
 	}
 
@@ -77,11 +78,11 @@ class StreamUpdater extends ModelUpdater {
 	async getUsers () {
 		let memberIds = (
 			this.attributes.$addToSet && 
-            this.attributes.$addToSet.memberIds
+			this.attributes.$addToSet.memberIds
 		) || (
-				this.attributes.$pull &&
-            this.attributes.$pull.memberIds
-			) || [];
+			this.attributes.$pull &&
+			this.attributes.$pull.memberIds
+		) || [];
 		if (memberIds.length === 0) {
 			return;
 		}

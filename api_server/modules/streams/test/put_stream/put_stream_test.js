@@ -36,7 +36,7 @@ class PutStreamTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert.equal(stream.name, this.data.name, 'name does not match');
 		Assert.equal(stream.purpose, this.data.purpose, 'purpose does not match');
 		Assert(stream.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the stream was updated');
-		// verify the post in the response has no attributes that should not go to clients
+		// verify the stream in the response has no attributes that should not go to clients
 		this.validateSanitized(stream, StreamTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
