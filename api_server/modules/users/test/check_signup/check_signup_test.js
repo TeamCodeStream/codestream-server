@@ -105,6 +105,7 @@ class CheckSignupTest extends CodeStreamAPITest {
 		Assert(data.user.email === this.userData.user.email, 'email doesn\'t match');
 		Assert(data.accessToken, 'no access token');
 		Assert(data.pubnubKey, 'no pubnub key');
+		Assert(data.pubnubToken, 'no pubnub token');
 		Assert(data.teams.length === 1, 'no team in response');
 		this.validateMatchingObject(this.team._id, data.teams[0], 'team');
 		Assert(data.repos.length === 1, 'no repo in response');

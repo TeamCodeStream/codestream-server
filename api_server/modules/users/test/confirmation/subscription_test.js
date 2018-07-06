@@ -101,7 +101,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.token = response.accessToken;
+				this.pubNubToken = response.accessToken;
 				callback();
 			}
 		);
@@ -129,7 +129,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.user._pubnubUuid || this.user._id;
-		clientConfig.authKey = this.token;	// the access token is the auth key for the subscription
+		clientConfig.authKey = this.pubNubToken;	// the PubNub token is the auth key for the subscription
 		let client = new PubNub(clientConfig);
 		return new PubNubClient({
 			pubnub: client

@@ -185,13 +185,13 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		if (this.wantRegisteredUser) {
 			// we want a registered user to get the email
 			this.currentUser = this.otherUserData.user;
-			this.token = this.otherUserData.accessToken;
+			this.pubNubToken = this.otherUserData.pubNubToken;
 		}
 		else if (!this.creatorIsListener) {
 			// we want an unregistered user to the get the email,
 			// otherwise the current user will stay the same, meaning the user that will create the post
 			this.currentUser = this.unregisteredUser;
-			this.token = this.unregisteredUser._id;
+			this.pubNubToken = this.unregisteredUser._id;
 		}
 		callback();
 	}

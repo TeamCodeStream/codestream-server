@@ -58,7 +58,7 @@ class PresenceLeaveTest extends CodeStreamMessageTest {
 	subscribe (callback) {
 		this.channelName = this.myChannelName();
 		let otherUser = this.otherUserData.user;
-		let token = this.otherUserData.accessToken;
+		let token = this.otherUserData.pubNubToken;
 		this.makePubnubForClient(token, otherUser);
 		this.pubnubClientsForUser[otherUser._id].subscribe(
 			this.channelName,

@@ -15,7 +15,7 @@ class PostCountTest extends NewPostMessageToTeamTest {
 		// since the update message will come back on the creator's me-channel
 		super.makeData(() => {
 			this.currentUser = this.postCreatorData.user;
-			this.token = this.postCreatorData.accessToken;
+			this.pubNubToken = this.postCreatorData.pubNubToken;
 			callback();
 		});
 	}

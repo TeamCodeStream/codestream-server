@@ -52,6 +52,7 @@ class LoginTest extends CodeStreamAPITest {
 		Assert(data.user.email === this.data.email, 'email doesn\'t match');
 		Assert(data.accessToken, 'no access token');
 		Assert(data.pubnubKey, 'no pubnub key');
+		Assert(data.pubnubToken, 'no pubnub token');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

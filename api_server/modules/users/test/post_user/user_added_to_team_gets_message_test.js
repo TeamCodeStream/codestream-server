@@ -25,7 +25,7 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 	makePubnubClients (callback) {
 		// need the right token to subscribe to the existing user's me-channel
 		this.currentUserToken = this.token;
-		this.token = this.existingUserData.accessToken;
+		this.pubNubToken = this.existingUserData.pubNubToken;
 		super.makePubnubClients(callback);
 	}
 
