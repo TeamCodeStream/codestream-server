@@ -5,6 +5,7 @@
 const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities.js');
 const UserAttributes = require('./user_attributes');
+const UsernameValidator = require('./username_validator');
 
 class UserValidator extends CodeStreamModelValidator {
 
@@ -66,9 +67,7 @@ class UserValidator extends CodeStreamModelValidator {
 		if (typeof value !== 'string' || value.length === 0) {
 			return 'must be a string';
 		}
-		let upper = definition.lowercaseOnly ? '' : 'A-Z';
-		let regexp = new RegExp(`^[${upper}a-z0-9-._]+$`);
-		if (!regexp.test(value)) {
+		if (!UsernameValidator.validate(value, definition.lowercaseOnly)) {
 			return 'can only contain alphanumerics, hyphen, period, and underscore';
 		}
 	}

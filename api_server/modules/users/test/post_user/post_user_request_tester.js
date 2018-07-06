@@ -32,6 +32,7 @@ const TrackingAlreadyInvitedTest = require('./tracking_already_invited_test');
 const NoTrackingTest = require('./no_tracking_test');
 const UsernameResolutionTest = require('./username_resolution_test');
 const ExtendedUsernameResolutionTest = require('./extended_username_resolution_test');
+const UsernameResolutionWithIllegalCharactersTest = require('./username_resolution_with_illegal_characters_test');
 
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
 
@@ -74,6 +75,7 @@ class PostUserRequestTester {
 		new NoTrackingTest().test();
 		new UsernameResolutionTest().test();
 		new ExtendedUsernameResolutionTest().test();
+		new UsernameResolutionWithIllegalCharactersTest().test();
 	}
 }
 

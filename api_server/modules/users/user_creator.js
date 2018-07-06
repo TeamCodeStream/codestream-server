@@ -10,6 +10,7 @@ const UsernameChecker = require('./username_checker');
 const Indexes = require('./indexes');
 const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors.js');
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
+const UsernameValidator = require('./username_validator');
 
 class UserCreator extends ModelCreator {
 
@@ -110,7 +111,9 @@ class UserCreator extends ModelCreator {
 			this.request.log(`Pubnub uuid of ${this.attributes._pubnubUuid} provided`);
 		}
 		if (!this.attributes.username) { 
-			this.attributes.username = EmailUtilities.parseEmail(this.attributes.email).name;
+			this.attributes.username = UsernameValidator.normalize(
+				EmailUtilities.parseEmail(this.attributes.email).name
+			);
 			this.usernameCameFromEmail = true;	// this will force a resolution of uniqueness conflict, rather than an error
 		}
 
@@ -152,7 +155,9 @@ class UserCreator extends ModelCreator {
 			if (!this.existingModel || !this.existingModel.get('isRegistered')) {
 				// in some circumstances, we tolerate a conflict for unregistered users by just throwing away
 				// the supplied username and going with the first part of the email, but we still need to resolve it
-				this.attributes.username = EmailUtilities.parseEmail(this.attributes.email).name;
+				this.attributes.username = UsernameValidator.normalize(
+					EmailUtilities.parseEmail(this.attributes.email).name
+				);
 				this.usernameCameFromEmail = true;	// this will force a resolution of uniqueness conflict, rather than an error
 				return await this.checkUsernameUnique();
 			}
