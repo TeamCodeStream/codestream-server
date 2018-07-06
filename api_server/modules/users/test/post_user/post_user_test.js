@@ -7,6 +7,7 @@ const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const CommonInit = require('./common_init');
 const UserTestConstants = require('../user_test_constants');
+const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 
 class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -57,8 +58,10 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			companyIds.push(this.existingUserCompany._id);
 			companyIds.sort();
 		}
+		const username = this.expectedUsername || EmailUtilities.parseEmail(this.data.email).name;
 		const result = (
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
+			((user.username === username) || errors.push('username is not the first part of the email')) &&
 			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&
 			((user.fullName === this.data.fullName) || errors.push('incorrect full name')) &&
 			((user.deactivated === false) || errors.push('deactivated not false')) &&

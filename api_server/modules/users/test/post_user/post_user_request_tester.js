@@ -30,6 +30,8 @@ const TrackingTest = require('./tracking_test');
 const TrackingRegisteredTest = require('./tracking_registered_test');
 const TrackingAlreadyInvitedTest = require('./tracking_already_invited_test');
 const NoTrackingTest = require('./no_tracking_test');
+const UsernameResolutionTest = require('./username_resolution_test');
+const ExtendedUsernameResolutionTest = require('./extended_username_resolution_test');
 
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
 
@@ -70,6 +72,8 @@ class PostUserRequestTester {
 		new TrackingRegisteredTest().test();
 		new TrackingAlreadyInvitedTest().test();
 		new NoTrackingTest().test();
+		new UsernameResolutionTest().test();
+		new ExtendedUsernameResolutionTest().test();
 	}
 }
 

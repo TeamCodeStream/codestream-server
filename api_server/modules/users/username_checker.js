@@ -9,13 +9,12 @@ class UsernameChecker  {
 
 	constructor (options) {
 		Object.assign(this, options);
-		this.username = this.username.toLowerCase();
 	}
 
 	// check that the user's (proposed) username will be unique across all teams
 	// they are a member of
 	async checkUsernameUnique () {
-		if (this.username === 'codestream') {
+		if (this.username.toLowerCase() === 'codestream' && !this.resolveTillUnique) {
 			// don't allow 'codestream' at all, this is "reserved"
 			return false;
 		}
@@ -27,12 +26,22 @@ class UsernameChecker  {
 
 		await this.getUsers();					// get all users on the teams (just usernames)
 		await this.arrangeUsernamesByTeam();	// arrange the usernames according to the team (for error reporting if there is a conflict)
-		await this.checkUniqueness();			// check for the uniqueness of the username across all teams
+		if (this.resolveTillUnique) {
+			// instead of reporting a conflict, resolve the conflict by adding an increment numeral until there is no conflict
+			await this.resolveUniqueness();	
+		}
+		else {
+			// check for the uniqueness of the username across all teams
+			await this.checkUniqueness();
+		}
 		return this.isUnique;
 	}
 
 	// get the users across all teams the user is a member of
 	async getUsers () {
+		if (this.users) {
+			return;	// already have the users
+		}
 		const query = {
 			teamIds: this.data.users.inQuery(this.teamIds)
 		};
@@ -70,7 +79,7 @@ class UsernameChecker  {
 			return;
 		}
 		// for each team this user is a member of, put its username in with that team
-		user.teamIds.forEach(teamId => {
+		(user.teamIds || []).forEach(teamId => {
 			this.usernamesByTeam[teamId] = this.usernamesByTeam[teamId] || [];
 			this.usernamesByTeam[teamId].push(user.username.toLowerCase());
 		});
@@ -80,11 +89,24 @@ class UsernameChecker  {
 	async checkUniqueness () {
 		this.notUniqueTeamIds = [];
 		Object.keys(this.usernamesByTeam).forEach(teamId => {
-			if (this.usernamesByTeam[teamId].includes(this.username)) {
+			if (this.usernamesByTeam[teamId].includes(this.username.toLowerCase())) {
 				this.notUniqueTeamIds.push(teamId);
 			}
 		});
 		this.isUnique = this.notUniqueTeamIds.length === 0;
+	}
+
+	// resolve a uniqueness conflict by adding a numeral to the username until it is unique
+	async resolveUniqueness () {
+		// loop until we find a free username
+		this.isUnique = false;
+		const baseUsername = this.username;
+		for (let i = 0; i < 1000 && !this.isUnique; i++) {	// try up to 100 just for sanity
+			if (i > 0) {
+				this.username = `${baseUsername}${i}`;
+			}
+			await this.checkUniqueness();
+		}
 	}
 }
 

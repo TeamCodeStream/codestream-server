@@ -21,7 +21,6 @@ class AddTeamMembers  {
 		await this.getTeamCreator();			// get the team's creator
 		await this.eliminateDuplicates();		// eliminate any duplicates (people we are asked to add who are in fact already on the team)
 		await this.checkCreateUsers();			// check if we are being asked to create any users on the fly, and do so
-		await this.checkUsernamesUnique();		// check that all the usernames for added users will be unique to the team
 		await this.addToTeam();					// add the users to the team
 		await this.updateUsers();				// update the user objects indicating they have been added to the team
 		await this.grantUserMessagingPermissions();	// grant permissions for all added users to subscribe to the team channel
@@ -99,6 +98,7 @@ class AddTeamMembers  {
 		}
 		this.userCreator = new UserCreator({
 			request: this.request,
+			teamIds: [this.teamId],
 			dontSaveIfExists: this.saveUserIfExists ? false : true,	// if the user already exists, don't bother saving, unless overridden
 			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		});
@@ -112,33 +112,10 @@ class AddTeamMembers  {
 		}
 	}
 
-	// check that among all the users being added, none have usernames that will conflict with the usernames of
-	// users already on the team
-	async checkUsernamesUnique () {
-		// the team membership will be the union of users we are asked to add, the users we created, and the
-		// existing members ... for each one, check that the username is unique compared to all the others (case-insensitive)
-		this.usersToAdd = [...(this.usersToAdd || []), ...(this.usersCreated || [])];
-		const allUsers = [...this.usersToAdd, ...this.existingMembers];
-		const usernames = [];
-		let conflictingUsername = null;
-		const conflict = allUsers.find(user => {
-			const username = user.get('username');
-			if (username) {
-				const usernameLowercase = username.toLowerCase();
-				if (usernames.includes(usernameLowercase)) {
-					conflictingUsername = username;
-					return true;
-				}
-				usernames.push(usernameLowercase);
-			}
-		});
-		if (conflict) {
-			throw this.errorHandler.error('usernameNotUnique', { info: conflictingUsername });
-		}
-	}
-
 	// add users to the team by adding IDs to the memberIds array
 	async addToTeam () {
+		// the team membership will be the union of users we are asked to add, the users we created
+		this.usersToAdd = [...(this.usersToAdd || []), ...(this.usersCreated || [])];
 		const ids = this.usersToAdd.map(user => user.id);
 		await this.data.teams.applyOpById(
 			this.team.id,

@@ -65,6 +65,13 @@ class FindRepoTest extends CodeStreamAPITest {
 				let url = encodeURIComponent(this.repo.url);
 				let knownCommitHashes = encodeURIComponent(this.repo.knownCommitHashes[0]);
 				this.queryData = { url, knownCommitHashes };	// we'll query for this repo using this data
+				response.users.forEach(user => {
+					if (!this.userData.find(userData => {
+						return userData.user.email === user.email;
+					})) {
+						this.userData.push({ user });
+					}
+				});
 				callback();
 			},
 			{
