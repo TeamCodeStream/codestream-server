@@ -62,7 +62,7 @@ class TokenAuthenticator {
 	// get the user associated with this token payload
 	async getUser () {
 		if (!this.payload) { return; }
-		const userId = this.payload.uid;
+		const userId = this.payload.uid || this.payload.userId;
 		if (!userId) {
 			throw this.errorHandler.error('noUserId');
 		}
