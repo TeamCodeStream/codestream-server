@@ -68,7 +68,7 @@ class SubscriptionTest extends AddUserTest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.addedUserData.user._pubnubUuid || this.addedUserData.user._id;
-		clientConfig.authKey = this.addedUserData.accessToken;
+		clientConfig.authKey = this.addedUserData.pubNubToken;
 		let client = new PubNub(clientConfig);
 		return new PubNubClient({
 			pubnub: client

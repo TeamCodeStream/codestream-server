@@ -45,7 +45,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.currentUser = response.user;
-				this.token = this.currentUser._id;	// use this for the pubnub auth key
+				this.pubNubToken = this.currentUser._id;	// use this for the pubnub auth key
 				callback();
 			}
 		);

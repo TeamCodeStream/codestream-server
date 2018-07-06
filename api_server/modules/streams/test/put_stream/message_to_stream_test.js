@@ -25,7 +25,7 @@ class MessageToStreamTest extends Aggregation(CodeStreamMessageTest, CommonInit)
 	// generate the message by issuing a request
 	generateMessage (callback) {
 		// do the update, this should trigger a message to the
-		// team channel with the updated post
+		// stream channel with the updated stream
 		this.doApiRequest(
 			{
 				method: this.method,
