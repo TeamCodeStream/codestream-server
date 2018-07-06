@@ -123,9 +123,17 @@ class UserSubscriptionGranter  {
 
 	// grant permission for the user to subscribe to a given channel
 	async grantChannel (channel, options = {}) {
+		const tokens = [];
+		// using the access token for PubNub subscription is to be DEPRECATED
+		if (this.user.get('isRegistered')) {
+			tokens.push(this.user.getAccessToken());
+		}
+		if (this.user.get('pubNubToken')) {
+			tokens.push(this.user.get('pubNubToken'));
+		}
 		try {
 			await this.messager.grant(
-				this.user.getAccessToken(),
+				tokens,
 				channel,
 				{
 					request: this.request,
