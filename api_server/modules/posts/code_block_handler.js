@@ -259,6 +259,7 @@ class CodeBlockHandler {
 			teamId: this.team.id,
 			streamId: this.stream.id,
 			postId: this.postId,
+			postStreamId: this.postStream.id,
 			commitHash: this.codeBlock.commitHash,
 			location: this.codeBlock.location || undefined
 		};
