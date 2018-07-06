@@ -76,10 +76,7 @@ class UserCreator extends ModelCreator {
 
 	// validate the given username
 	validateUsername () {
-		if (!this.attributes.username && !this.ignoreUsernameOnConflict) { 
-			this.attributes.username = EmailUtilities.parseEmail(this.attributes.email).name;
-			this.usernameCameFromEmail = true;	// this will force a resolution of uniqueness conflict, rather than an error
-		}
+		if (!this.attributes.username) { return; }
 		let error = this.userValidator.validateUsername(this.attributes.username);
 		if (error) {
 			return { username: error };
@@ -112,6 +109,11 @@ class UserCreator extends ModelCreator {
 		if (this.attributes._pubnubUuid) {
 			this.request.log(`Pubnub uuid of ${this.attributes._pubnubUuid} provided`);
 		}
+		if (!this.attributes.username) { 
+			this.attributes.username = EmailUtilities.parseEmail(this.attributes.email).name;
+			this.usernameCameFromEmail = true;	// this will force a resolution of uniqueness conflict, rather than an error
+		}
+
 		await this.hashPassword();			// hash the user's password, if given
 		await this.checkUsernameUnique();	// check if the user's username will be unique for the teams they are on
 		await super.preSave();
@@ -123,7 +125,10 @@ class UserCreator extends ModelCreator {
 			// doesn't matter if we won't be saving anyway, meaning we're really ignoring the username
 			return;
 		}
-		const teamIds = (this.existingModel ? this.existingModel.get('teamIds') : this.teamIds) || this.teamIds;
+		let teamIds = this.teamIds || [];
+		if (this.existingModel) {
+			teamIds = [...teamIds, ...this.existingModel.get('teamIds') || []];
+		}
 		const username = this.attributes.username || (this.existingModel ? this.existingModel.get('username') : null);
 		if (!username) {
 			// username not provided === no worries
@@ -143,20 +148,21 @@ class UserCreator extends ModelCreator {
 			this.attributes.username = usernameChecker.username;	// in case we forced it to resolve to a non-conflicting username
 			return;
 		}
-		if (this.ignoreUsernameOnConflict && !this.existingModel) {
-			// in some circumstances, we tolerate a conflict by just throwing away
-			// the supplied username
-			delete this.attributes.username;
-			return;
+		if (this.ignoreUsernameOnConflict) {
+			if (!this.existingModel || !this.existingModel.get('isRegistered')) {
+				// in some circumstances, we tolerate a conflict for unregistered users by just throwing away
+				// the supplied username and going with the first part of the email, but we still need to resolve it
+				this.attributes.username = EmailUtilities.parseEmail(this.attributes.email).name;
+				this.usernameCameFromEmail = true;	// this will force a resolution of uniqueness conflict, rather than an error
+				return await this.checkUsernameUnique();
+			}
 		}
-		else {
-			throw this.errorHandler.error('usernameNotUnique', {
-				info: {
-					username: username,
-					teamIds: usernameChecker.notUniqueTeamIds
-				}
-			});
-		}
+		throw this.errorHandler.error('usernameNotUnique', {
+			info: {
+				username: username,
+				teamIds: usernameChecker.notUniqueTeamIds
+			}
+		});
 	}
 
 	// hash the given password, as needed

@@ -2,6 +2,7 @@
 
 const NewUserTest = require('./new_user_test');
 const Assert = require('assert');
+const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 
 class UsernameConflictTest extends NewUserTest {
 
@@ -19,7 +20,8 @@ class UsernameConflictTest extends NewUserTest {
 	}
 
 	validateResponse (data) {
-		Assert(typeof data.users[0].username === 'undefined', 'user was created with username');
+		const firstPartOfEmail = EmailUtilities.parseEmail(data.users[0].email).name;
+		Assert.equal(data.users[0].username, firstPartOfEmail, 'user was created with username that is not the first part of their email');
 		this.ignoreUsername = true;	// ignore comparing the username
 		super.validateResponse(data);
 	}

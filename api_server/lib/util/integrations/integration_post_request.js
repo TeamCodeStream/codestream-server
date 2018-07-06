@@ -134,11 +134,10 @@ class IntegrationPostRequest extends RestfulRequest {
 	async getOrCreateAuthor () {
 		const user = {
 			email: this.request.body.authorEmail,
-			username: this.request.body.authorUsername,
+			username: this.request.body.authorUsername
 		};
 		this.userCreator = new UserCreator({
 			request: this,
-			dontSaveIfExists: true,
 			ignoreUsernameOnConflict: true,	// if there is a username conflict, just ignore the username coming from the bot
 			teamIds: [this.team.id]			// user will be added directly to the team if it is a new user
 		});
