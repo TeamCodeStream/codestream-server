@@ -355,7 +355,7 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 		this.markerUpdates = [];
-		for (let markerId of this.parentPostMarkerIds) {
+		for (let markerId of parentPostMarkerIds) {
 			await this.updateMarkerForParentPost(markerId);
 		}
 	}
@@ -380,7 +380,7 @@ class PostCreator extends ModelCreator {
 		const op = { $set: { hasReplies: true } };
 		await this.data.posts.applyOpById(this.parentPost.id, op);
 		const messageOp = Object.assign({}, op, { _id: this.parentPost.id });
-		this.attachToResponse.posts = [messageOp];	// we'll send the update in the response (and also the pubnub message)
+		this.updatedPosts = [messageOp]; // we'll send the update in the response (and also the pubnub message)
 	}
 	
 	// update the total post count for the author of the post, along with the date/time of last post
@@ -425,6 +425,9 @@ class PostCreator extends ModelCreator {
 		}
 		if (this.markerLocations && this.markerLocations.length > 0) {
 			this.attachToResponse.markerLocations = this.markerLocations;
+		}
+		if (this.updatedPosts && this.updatedPosts.length > 0) {
+			this.attachToResponse.posts = this.updatedPosts;
 		}
 	}
 
