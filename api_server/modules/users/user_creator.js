@@ -9,6 +9,7 @@ const PasswordHasher = require('./password_hasher');
 const UsernameChecker = require('./username_checker');
 const Indexes = require('./indexes');
 const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors.js');
+const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 
 class UserCreator extends ModelCreator {
 
@@ -75,7 +76,10 @@ class UserCreator extends ModelCreator {
 
 	// validate the given username
 	validateUsername () {
-		if (!this.attributes.username) { return; }
+		if (!this.attributes.username && !this.ignoreUsernameOnConflict) { 
+			this.attributes.username = EmailUtilities.parseEmail(this.attributes.email).name;
+			this.usernameCameFromEmail = true;	// this will force a resolution of uniqueness conflict, rather than an error
+		}
 		let error = this.userValidator.validateUsername(this.attributes.username);
 		if (error) {
 			return { username: error };
@@ -119,7 +123,7 @@ class UserCreator extends ModelCreator {
 			// doesn't matter if we won't be saving anyway, meaning we're really ignoring the username
 			return;
 		}
-		const teamIds = (this.existingModel ? this.existingModel.get('teamIds') : this.teamIds) || [];
+		const teamIds = (this.existingModel ? this.existingModel.get('teamIds') : this.teamIds) || this.teamIds;
 		const username = this.attributes.username || (this.existingModel ? this.existingModel.get('username') : null);
 		if (!username) {
 			// username not provided === no worries
@@ -131,10 +135,12 @@ class UserCreator extends ModelCreator {
 			data: this.data,
 			username,
 			userId,
-			teamIds
+			teamIds,
+			resolveTillUnique: this.usernameCameFromEmail 	// don't do an error on conflict, instead append a number to the username till it's unique
 		});
 		const isUnique = await usernameChecker.checkUsernameUnique();
 		if (isUnique) {
+			this.attributes.username = usernameChecker.username;	// in case we forced it to resolve to a non-conflicting username
 			return;
 		}
 		if (this.ignoreUsernameOnConflict && !this.existingModel) {

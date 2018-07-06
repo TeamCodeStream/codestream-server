@@ -32,7 +32,7 @@ class CommonInit {
 
 	// create another registered user (in addition to the "current" user)
 	createOtherUser (callback) {
-		if (!this.existingUserOnTeam) {
+		if (!this.existingUserOnTeam && !this.wantOtherUser) {
 			return callback();
 		}
 		this.userFactory.createRandomUser(
@@ -80,6 +80,9 @@ class CommonInit {
 		const emails = this.dontIncludeCurrentUser ? [] : [this.currentUser.email];
 		if (this.existingUserAlreadyOnTeam) {
 			emails.push(this.existingUserData.user.email);
+		}
+		if (this.wantOtherUser) {
+			emails.push(this.otherUserData.user.email);
 		}
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
