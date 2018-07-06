@@ -4,6 +4,7 @@
 
 const InitialDataFetcher = require('./initial_data_fetcher');
 const UserSubscriptionGranter = require('./user_subscription_granter');
+const UUID = require('uuid/v4');
 
 class LoginHelper {
 
@@ -13,7 +14,7 @@ class LoginHelper {
 
 	async login () {
 		await this.getInitialData();
-		await this.generateToken();
+		await this.generateAccessToken();
 		await this.grantSubscriptionPermissions();
 		await this.formResponse();
 		return this.responseData;
@@ -48,7 +49,12 @@ class LoginHelper {
 	}
 
 	// generate an access token for this login if needed
-	async generateToken () {
+	async generateAccessToken () {
+		// generate a unique PubNub token, to be stored with the user object, the one and only way a 
+		// user can subscribe to PubNub (though for now, they can also subscribe with their access token,
+		// but we will deprecate this ability once the old atom client is deprecated)
+		this.pubNubToken = (UUID() + '-' + UUID()).split('-').join(''); 
+
 		// look for a new-style token (with min issuance), if it doesn't exist, or our current token
 		// was issued before the min issuance, then we need to generate a new token for this login type
 		try {
@@ -69,7 +75,8 @@ class LoginHelper {
 							[`accessTokens.${this.loginType}`]: {
 								token: this.accessToken,
 								minIssuance: minIssuance
-							} 
+							},
+							pubNubToken: this.pubNubToken
 						}
 					}
 				);
@@ -80,13 +87,14 @@ class LoginHelper {
 			throw this.errorHandler.error('token', { reason: message });
 		}
 	}
-    
+	
 	// form the response to the request
 	async formResponse () {
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe(),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
-			pubnubKey: this.request.api.config.pubnub.subscribeKey	// give them the subscribe key for pubnub
+			pubnubKey: this.request.api.config.pubnub.subscribeKey,	// give them the subscribe key for pubnub
+			pubnubToken: this.pubNubToken	// token used to subscribe to PubNub channels
 		};
 		Object.assign(this.responseData, this.initialData);
 	}

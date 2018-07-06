@@ -34,7 +34,6 @@ module.exports = {
 	username: {
 		type: 'username',
 		maxLength: 21,
-		required: true,
 		description: 'The user\'s username, unique to all @@#teams#team@@ the user is on'
 	},
 	isRegistered: {
@@ -88,6 +87,10 @@ module.exports = {
 	accessTokens: {
 		type: 'object',
 		serverOnly: true,
+	},
+	pubNubToken: {
+		type: 'string',
+		serverOnly: true
 	},
 	hasReceivedFirstEmail: {
 		type: 'boolean',

@@ -111,9 +111,17 @@ class GrantRequest extends RestfulRequest {
 	async grantChannel (channel) {
 		// team and repo channels have presence awareness
 		const includePresence = channel.startsWith('team-') || channel.startsWith('repo-');
+		const tokens = [];
+		// using the access token for PubNub subscription is to be DEPRECATED
+		if (this.user.get('isRegistered')) {
+			tokens.push(this.user.getAccessToken());
+		}
+		if (this.user.get('pubNubToken')) {
+			tokens.push(this.user.get('pubNubToken'));
+		}
 		try {
 			await this.api.services.messager.grant(
-				this.user.getAccessToken(),
+				tokens,
 				channel,
 				{
 					request: this,

@@ -24,7 +24,7 @@ class TeamSubscriptionGranter  {
 			this.team.get('memberIds') || [],
 			{
 				// only need these fields
-				fields: ['isRegistered', 'accessToken', 'accessTokens']
+				fields: ['isRegistered', 'accessToken', 'accessTokens', 'pubNubToken']
 			}
 		);
 	}
@@ -32,8 +32,12 @@ class TeamSubscriptionGranter  {
 	// get the access tokens for each user in the team that is registered
 	async getTokens () {
 		this.tokens = this.members.reduce((tokens, user) => {
+			// using the access token for PubNub subscription is to be DEPRECATED
 			if (user.get('isRegistered')) {
 				tokens.push(user.getAccessToken());
+			}
+			if (user.get('pubNubToken')) {
+				tokens.push(user.get('pubNubToken'));
 			}
 			return tokens;
 		}, []);

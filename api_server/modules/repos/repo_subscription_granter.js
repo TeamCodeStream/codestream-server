@@ -17,8 +17,12 @@ class RepoSubscriptionGranter  {
 	// get access tokens for each registered user
 	async getTokens () {
 		this.tokens = this.users.reduce((tokens, user) => {
+			// using the access token for PubNub subscription is to be DEPRECATED
 			if (user.get('isRegistered')) {
 				tokens.push(user.getAccessToken());
+			}
+			if (user.get('pubNubToken')) {
+				tokens.push(user.get('pubNubToken'));
 			}
 			return tokens;
 		}, []);
