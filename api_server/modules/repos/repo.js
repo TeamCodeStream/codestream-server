@@ -17,7 +17,9 @@ class Repo extends CodeStreamModel {
 	// right before the repo is saved...
 	async preSave (options) {
 		// enforce normalization of the URL
-		this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
+		if (this.attributes.url) {
+			this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
+		}
 		// enforce lowercase on all IDs and the first commit hash
 		this.lowerCase('firstCommitHash');
 		this.lowerCase('knownCommitHashes');
@@ -31,6 +33,23 @@ class Repo extends CodeStreamModel {
 		let knownCommitHashes = [...(this.get('knownCommitHashes') || [])];
 		knownCommitHashes.push(this.get('firstCommitHash'));
 		return ArrayUtilities.intersection(knownCommitHashes, commitHashes).length > 0;
+	}
+
+	// check if this repo matches any of the passed remote urls,
+	// according to one of the remote urls known to identify this repo
+	matchesRemotes (remotes) {
+		// match on either the old single url, or on the new-style multiple remotes
+		const myRemotes = this.getRemotes();
+		// we match if any of our remotes match any of the passed remotes
+		return ArrayUtilities.intersection(myRemotes, remotes).length > 0;
+	}
+
+	getRemotes () {
+		const remotes = (this.get('remotes') || []).map(remote => remote.normalizedUrl);
+		if (this.get('normalizedUrl') && !remotes.includes(this.get('normalizedUrl'))) {
+			remotes.push(this.get('normalizedUrl'));
+		}
+		return remotes;
 	}
 }
 

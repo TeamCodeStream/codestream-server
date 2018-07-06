@@ -14,9 +14,11 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 	validateResponse (data) {
 		// validate that we got a marker in the response that corresponds to the
 		// code block we sent
-		this.validateMarkers(data);
+		if (!this.dontExpectMarkers) {
+			this.validateMarkers(data);
+			this.validateMarkerLocations(data);
+		}
 		this.validateCodeBlocks(data);
-		this.validateMarkerLocations(data);
 		super.validateResponse(data);
 	}
 

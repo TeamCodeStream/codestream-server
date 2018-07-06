@@ -11,7 +11,7 @@ class PostContextMustBeStringTest extends PostCodeToFileStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'codeBlocks: postContext must be a string'
+			info: 'invalid postContext'
 		};
 	}
 

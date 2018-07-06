@@ -205,6 +205,12 @@ class ModelCreator {
 		this.didExist = true;	// caller might want to know whether we really created a document or not
 	}
 
+	// requisition an ID for the model we are about to create ... use this if you need
+	// to know the ID ahead of time
+	createId () {
+		this.attributes._id = this.collection.createId();
+	}
+
 	// truly create a new document
 	async create () {
 		this.model = await this.collection.create(this.model.attributes);

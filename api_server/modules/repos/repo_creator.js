@@ -12,6 +12,7 @@ const TeamCreator = require(process.env.CS_API_TOP + '/modules/teams/team_creato
 const Indexes = require('./indexes');
 const Errors = require('./errors');
 const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
+const Path = require('path');
 
 class RepoCreator extends ModelCreator {
 
@@ -55,6 +56,14 @@ class RepoCreator extends ModelCreator {
 		// enforce URL normalization and lowercase on the first commit hash
 		this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
 		this.attributes.companyIdentifier = ExtractCompanyIdentifier.getCompanyIdentifier(this.attributes.normalizedUrl);
+
+		// create a "remotes" array, this is where remote URL information will be stored
+		// as we move to multiple remotes per repo
+		this.attributes.remotes = [{
+			url: this.attributes.url,
+			normalizedUrl: this.attributes.normalizedUrl,
+			companyIdentifier: this.attributes.companyIdentifier
+		}];
 
 		// the subscription cheat allows unregistered users to subscribe to me-channel, needed for mock email testing
 		this.subscriptionCheat = this.attributes._subscriptionCheat === this.request.api.config.secrets.subscriptionCheat;
@@ -103,12 +112,8 @@ class RepoCreator extends ModelCreator {
 		await this.getTeamStreams();	// need any team streams if we have an existing team that the user is joining
 		await this.getAllUsers();	// need all the users on the team, if we have an existing team that the user is joining
 		await this.updateUserJoinMethod();	// update the joinMethod attribute for the user, as needed
+		await this.extractName();	// extract a default name for this repo
 		await super.preSave();		// proceed with the save...
-	}
-
-	// requisition an ID for the repo we are about to create
-	createId () {
-		this.attributes._id = this.data.repos.createId();
 	}
 
 	// join the repo to a team, in one of the ways:
@@ -330,6 +335,12 @@ class RepoCreator extends ModelCreator {
 			this.user.id,
 			this.joinMethodUpdate
 		);
+	}
+
+	// extract the name from the URL passed in
+	async extractName () {
+		const parsedPath = Path.parse(this.attributes.normalizedUrl);
+		this.attributes.name = parsedPath.name;
 	}
 
 	// after the repo has been saved...

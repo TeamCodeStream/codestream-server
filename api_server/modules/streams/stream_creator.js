@@ -168,12 +168,8 @@ class StreamCreator extends ModelCreator {
 			}
 		}
 		this.createId();
+		this.attributes.sortId = this.attributes._id;
 		await super.preSave();
-	}
-
-	// requisition an ID for the post
-	createId () {
-		this.attributes._id = this.attributes.sortId = this.data.streams.createId();
 	}
 
 	// after the stream has been saved

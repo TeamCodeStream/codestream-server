@@ -112,11 +112,6 @@ class TeamCreator extends ModelCreator {
 		await super.preSave();
 	}
 
-	// requisition an ID for the team
-	createId () {
-		this.attributes._id = this.data.teams.createId();
-	}
-	
 	// check if we are being asked to create users on-the-fly with the team creation, and do so if needed
 	async checkCreateUsers () {
 		// users can be specified by email, or by user object, which might also contain other user attributes
