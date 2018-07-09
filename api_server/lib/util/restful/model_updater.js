@@ -84,14 +84,16 @@ class ModelUpdater {
 		// (and actually probably don't) have a complete model here
 		this.extractOps();
 		this.model = new this.modelClass(this.attributes, { dontSetDefaults: true });
-		let errors = await this.model.preSave();
-		if (!errors) {
-			return;
+		try {
+			await this.model.preSave();
 		}
-		if (!(errors instanceof Array)) {
-			errors = [errors];
+		catch (error) {
+			let errors = error;
+			if (!(errors instanceof Array)) {
+				errors = [errors];
+			}
+			throw this.errorHandler.error('validation', { info: errors });
 		}
-		throw this.errorHandler.error('validation', { info: errors });
 	}
 
 	// extract any op-directives from the attributes, these are treated separately

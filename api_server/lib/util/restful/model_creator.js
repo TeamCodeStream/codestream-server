@@ -127,14 +127,16 @@ class ModelCreator {
 		// create a new model with the passed attributes, and let the model pre-save itself ...
 		// this is where pre-save validation of the attributes happens
 		this.model = new this.modelClass(this.attributes);
-		let errors = await this.model.preSave({ new: !this.existingModel });
-		if (!errors) {
-			return;
+		try {
+			await this.model.preSave({ new: !this.existingModel });
 		}
-		if (!(errors instanceof Array)) {
-			errors = [errors];
+		catch (error) {
+			let errors = error;
+			if (!(errors instanceof Array)) {
+				errors = [errors];
+			}
+			throw this.errorHandler.error('validation', { info: errors });
 		}
-		throw this.errorHandler.error('validation', { info: errors });
 	}
 
 	// check for any warnings during validation, these don't stop the document from

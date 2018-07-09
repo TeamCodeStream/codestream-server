@@ -2,36 +2,39 @@
 
 'use strict';
 
-var PostFileStreamTest = require('./post_file_stream_test');
-var PostChannelStreamTest = require('./post_channel_stream_test');
-var PostDirectStreamTest = require('./post_direct_stream_test');
-var NoAttributeTest = require('./no_attribute_test');
-var InvalidTypeTest = require('./invalid_type_test');
-var NameRequiredTest = require('./name_required_test');
-var NoRepoIdTest = require('./no_repo_id_test');
-var NoFileTest = require('./no_file_test');
-var TeamStreamMustBeChannelTest = require('./team_stream_must_be_channel_test');
-var ChannelIgnoresFileTest = require('./channel_ignores_file_test');
-var FileIgnoresChannelTest = require('./file_ignores_channel_test');
-var DirectIgnoresFileTest = require('./direct_ignores_file_test');
-var DirectIgnoresChannelTest = require('./direct_ignores_channel_test');
-var MeDirectTest = require('./me_direct_test');
-var MeChannelTest = require('./me_channel_test');
-var DuplicateChannelTest = require('./duplicate_channel_test');
-var DuplicateDirectTest = require('./duplicate_direct_test');
-var DuplicateFileTest = require('./duplicate_file_test');
-var ACLTest = require('./acl_test');
-var NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_test');
-var NewTeamStreamMessageToTeamTest = require('./new_team_stream_message_to_team_test');
-var NewStreamToMembersTest = require('./new_stream_to_members_test');
-var NewStreamNoMessageTest = require('./new_stream_no_message_test');
-var PostTeamStreamTest = require('./post_team_stream_test');
-var TeamStreamIgnoresPrivacyTest = require('./team_stream_ignores_privacy_test');
-var TeamStreamIgnoresMembersTest = require('./team_stream_ignores_members_test');
-var ChannelCanBePublicTest = require('./channel_can_be_public_test');
-var InvalidPrivacyTest = require('./invalid_privacy_test');
-var DirectStreamIgnoresPrivacyTest = require('./direct_stream_ignores_privacy_test');
-var FileStreamIgnoresPrivacyTest = require('./file_stream_ignores_privacy_test');
+const PostFileStreamTest = require('./post_file_stream_test');
+const PostChannelStreamTest = require('./post_channel_stream_test');
+const PostDirectStreamTest = require('./post_direct_stream_test');
+const NoAttributeTest = require('./no_attribute_test');
+const InvalidTypeTest = require('./invalid_type_test');
+const NameRequiredTest = require('./name_required_test');
+const NoRepoIdTest = require('./no_repo_id_test');
+const NoFileTest = require('./no_file_test');
+const TeamStreamMustBeChannelTest = require('./team_stream_must_be_channel_test');
+const ChannelIgnoresFileTest = require('./channel_ignores_file_test');
+const FileIgnoresChannelTest = require('./file_ignores_channel_test');
+const DirectIgnoresFileTest = require('./direct_ignores_file_test');
+const DirectIgnoresChannelTest = require('./direct_ignores_channel_test');
+const MeDirectTest = require('./me_direct_test');
+const MeChannelTest = require('./me_channel_test');
+const DuplicateChannelTest = require('./duplicate_channel_test');
+const DuplicateDirectTest = require('./duplicate_direct_test');
+const DuplicateFileTest = require('./duplicate_file_test');
+const ACLTest = require('./acl_test');
+const NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_test');
+const NewTeamStreamMessageToTeamTest = require('./new_team_stream_message_to_team_test');
+const NewStreamToMembersTest = require('./new_stream_to_members_test');
+const NewStreamNoMessageTest = require('./new_stream_no_message_test');
+const PostTeamStreamTest = require('./post_team_stream_test');
+const TeamStreamIgnoresPrivacyTest = require('./team_stream_ignores_privacy_test');
+const TeamStreamIgnoresMembersTest = require('./team_stream_ignores_members_test');
+const ChannelCanBePublicTest = require('./channel_can_be_public_test');
+const InvalidPrivacyTest = require('./invalid_privacy_test');
+const DirectStreamIgnoresPrivacyTest = require('./direct_stream_ignores_privacy_test');
+const FileStreamIgnoresPrivacyTest = require('./file_stream_ignores_privacy_test');
+const InvalidChannelNameTest = require('./invalid_channel_name_test');
+
+const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/:<>?|\'".,';
 
 class PostStreamRequestTester {
 
@@ -71,6 +74,9 @@ class PostStreamRequestTester {
 		new InvalidPrivacyTest().test();
 		new DirectStreamIgnoresPrivacyTest().test();
 		new FileStreamIgnoresPrivacyTest().test();
+		for (let char of ILLEGAL_CHANNEL_NAME_CHARACTERS) {
+			new InvalidChannelNameTest({ illegalCharacter: char }).test();
+		}
 	}
 }
 

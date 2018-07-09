@@ -33,6 +33,9 @@ const SubscriptionTest = require('./subscription_test');
 const UserGetsStreamMessageTest = require('./user_gets_stream_message_test');
 const ArchiveStreamTest = require('./archive_stream_test');
 const RestoreStreamTest = require('./restore_stream_test');
+const InvalidChannelNameTest = require('./invalid_channel_name_test');
+
+const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/:<>?|\'".,';
 
 class PutStreamRequestTester {
 
@@ -80,6 +83,9 @@ class PutStreamRequestTester {
 		new UserGetsStreamMessageTest().test();
 		new ArchiveStreamTest().test();
 		new RestoreStreamTest().test();
+		for (let char of ILLEGAL_CHANNEL_NAME_CHARACTERS) {
+			new InvalidChannelNameTest({ illegalCharacter: char }).test();
+		}
 	}
 }
 
