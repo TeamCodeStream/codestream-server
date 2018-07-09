@@ -12,7 +12,7 @@ class StreamPublisher {
 	async publishStream () {
 		if (this.stream.privacy === 'public') {
 			// public streams - which include file-type streams, team-streams (streams for which everyone
-			// on the team is automatically a member), and explicity public channels - 
+			// on the team is automatically a member), and explicitly public channels - 
 			// are published to the team that owns the repo that owns the stream
 			await this.publishStreamToTeam();
 		}

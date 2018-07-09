@@ -13,6 +13,7 @@ const EmailNotificationQueue = require('./email_notification_queue');
 const IntegrationHandler = require('./integration_handler');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
+const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 
 class PostCreator extends ModelCreator {
 
@@ -166,11 +167,11 @@ class PostCreator extends ModelCreator {
 			return; // not an on-the-fly stream creation
 		}
 		this.attributes.stream.teamId = this.team.id;
-		this.createdStream = await new StreamCreator({
+		this.createdStreamForPost = await new StreamCreator({
 			request: this.request,
 			nextSeqNum: 2
 		}).createStream(this.attributes.stream);
-		this.stream = this.createdStream;
+		this.stream = this.createdStreamForPost;
 		this.attributes.streamId = this.stream.id;
 		delete this.attributes.stream;
 	}
@@ -201,7 +202,7 @@ class PostCreator extends ModelCreator {
 		}
 		this.createdRepos = [];
 		this.repoUpdates = [];
-		this.createdStreams = [];
+		this.createdStreamsForCodeBlocks = [];
 		this.createdMarkers = [];
 		this.markerLocations = [];
 		await Promise.all(this.attributes.codeBlocks.map(async codeBlock => {
@@ -233,7 +234,7 @@ class PostCreator extends ModelCreator {
 			this.repoUpdates.push(codeBlockInfo.repoUpdate);
 		}
 		if (codeBlockInfo.createdStream) {
-			this.createdStreams.push(codeBlockInfo.createdStream);
+			this.createdStreamsForCodeBlocks.push(codeBlockInfo.createdStream);
 		}
 		if (codeBlockInfo.createdMarker) {
 			this.createdMarkers.push(codeBlockInfo.createdMarker);
@@ -258,7 +259,7 @@ class PostCreator extends ModelCreator {
 
 	// requisition a sequence number for this post
 	async getSeqNum () {
-		if (this.createdStream) {
+		if (this.createdStreamForPost) {
 			// if we created the stream, start out with seqNum of 1
 			this.attributes.seqNum = 1;
 			return;
@@ -316,10 +317,8 @@ class PostCreator extends ModelCreator {
 		if (this.createdMarkers && this.createdMarkers.length) {
 			op.$inc = { numMarkers: this.createdMarkers.length };
 		}
-		await this.data.streams.applyOpById(
-			this.model.get('streamId'),
-			op
-		);
+		await this.data.streams.applyOpById(this.stream.id, op);
+		this.updatedStreamForPost = Object.assign({}, { _id: this.stream.id }, op);
 	}
 
 	// update the lastReads attribute for each user in the stream or team,
@@ -406,12 +405,16 @@ class PostCreator extends ModelCreator {
 			this.attachToResponse.repos = this.attachToResponse.repos || [];
 			this.attachToResponse.repos = [...this.attachToResponse.repos, ...this.repoUpdates];
 		}
-		if (this.createdStreams && this.createdStreams.length > 0) {
-			this.attachToResponse.streams = this.createdStreams.map(stream => stream.getSanitizedObject());
+		if (this.createdStreamsForCodeBlocks && this.createdStreamsForCodeBlocks.length > 0) {
+			this.attachToResponse.streams = this.createdStreamsForCodeBlocks.map(stream => stream.getSanitizedObject());
 		}
-		if (this.createdStream) {
+		if (this.createdStreamForPost) {
 			this.attachToResponse.streams = this.attachToResponse.streams || [];
-			this.attachToResponse.streams.push(this.createdStream.getSanitizedObject());
+			this.attachToResponse.streams.push(this.createdStreamForPost.getSanitizedObject());
+		}
+		else if (this.updatedStreamForPost) {
+			this.attachToResponse.streams = this.attachToResponse.streams || [];
+			this.attachToResponse.streams.push(this.updatedStreamForPost);
 		}
 		if (this.markerUpdates) {
 			this.attachToResponse.markers = this.markerUpdates;
@@ -433,18 +436,55 @@ class PostCreator extends ModelCreator {
 
 	// after the post was created...
 	async postCreate () {
+		// all these operations are independent and can happen in parallel
 		await awaitParallel([
-			this.publishPost,
-			this.publishParentPost,
-			this.triggerNotificationEmails,
-			this.doIntegrationHooks,
-			this.publishPostCount,
-			this.sendPostCountToAnalytics,
-			this.trackPost,
-			this.updateMentions
+			this.publishCreatedStreamForPost,	// publish any stream created on-the-fly for the post, as needed
+			this.publishCreatedStreamsForCodeBlocks,	// publish any streams created on-the-fly for the code blocks, as needed
+			this.publishPost,					// publish the actual post to members of the team or stream
+			this.publishParentPost,				// if this post was a reply and we updated the parent post, publish that
+			this.triggerNotificationEmails,		// trigger email notifications to members who should receive them
+			this.doIntegrationHooks,			// trigger any integration hooks from this post
+			this.publishPostCount,				// publish the the user's post count to the user
+			this.sendPostCountToAnalytics,		// update analytics post count for the post's author
+			this.trackPost,						// for server-generated posts, send analytics info
+			this.updateMentions					// for mentioned users, update their mentions count for analytics 
 		], this);
 	}
 
+	// if we created a stream on-the-fly for the post, publish it as needed
+	async publishCreatedStreamForPost () {
+		if (this.createdStreamForPost) {
+			await this.publishStream(this.createdStreamForPost, true);
+		}
+	}
+
+	// if we created any streams on-the-fly for the code blocks, publish them as needed
+	async publishCreatedStreamsForCodeBlocks () {
+		// streams created on-the-fly for code blocks are necessarily going to be file streams,
+		// these should automatically get published to the whole team
+		await Promise.all((this.createdStreamsForCodeBlocks || []).map(async stream => {
+			await this.publishStream(stream, true);
+		}));
+	}
+
+	// publish a given stream
+	async publishStream (stream, isNew) {
+		// the stream only needs to be published if the stream for the post (this.stream, 
+		// which is possibly different from the stream to be published) is a private stream ... 
+		// otherwise the stream will be published along with the post anyway, to the entire team
+		if (!this.stream.hasPrivateContent()) {
+			return;
+		}
+		const sanitizedStream = stream.getSanitizedObject();
+		await new StreamPublisher({
+			stream: sanitizedStream,
+			data: { stream: sanitizedStream },
+			request: this.request,
+			messager: this.api.services.messager,
+			isNew
+		}).publishStream();
+	}
+	
 	// publish the post to the appropriate messager channel
 	async publishPost () {
 		await new PostPublisher({

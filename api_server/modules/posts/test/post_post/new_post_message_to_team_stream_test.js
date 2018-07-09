@@ -78,7 +78,8 @@ class NewPostMessageToTeamStreamTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				// the message should look like this
 				this.message = {
-					post: response.post
+					post: response.post,
+					streams: response.streams
 				};
 				callback();
 			},

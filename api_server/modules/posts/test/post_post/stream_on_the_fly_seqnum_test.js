@@ -47,6 +47,7 @@ class StreamOnTheFlySeqNumTest extends PostPostTest {
 				this.postOptions = {
 					streamId: response.streams[0]._id
 				};
+				this.streamCreatedOnTheFly = response.streams[0];
 				callback();
 			},
 			{
@@ -54,6 +55,16 @@ class StreamOnTheFlySeqNumTest extends PostPostTest {
 				token: this.otherUserData.accessToken	// let's have the other user create the first post
 			}
 		);
+	}
+
+	// verify we got the expected stream update in the response
+	validateStreamUpdate (data) {
+		// for purposes of this validatation, we created a stream on the fly earlier, 
+		// this is the stream against which the stream update should be validated
+		const tempStream = this.stream;
+		this.stream = this.streamCreatedOnTheFly;
+		super.validateStreamUpdate(data);
+		this.stream = tempStream;
 	}
 }
 

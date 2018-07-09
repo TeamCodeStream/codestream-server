@@ -40,8 +40,7 @@ class CodeBlockStreamOnTheFly extends CodeBlockTest {
 		if (!this.dontExpectStreams) {
 			const repo = this.createdRepo || this.repo;
 			Assert(data.streams, 'expected streams array');
-			Assert(data.streams.length === 1, 'expected one stream in streams array');
-			let stream = data.streams[0];
+			const stream = data.streams.find(stream => stream._id !== this.stream._id);
 			Assert(stream.teamId === this.team._id, 'stream teamId is incorrect');
 			Assert(stream.repoId === repo._id, 'stream repoId is incorrect');
 			Assert(stream.type === 'file', 'stream type should be file');

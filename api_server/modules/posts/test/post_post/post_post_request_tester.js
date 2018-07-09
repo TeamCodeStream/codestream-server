@@ -222,13 +222,6 @@ class PostPostRequestTester {
 		new ACLRepoOnTheFlyCodeBlockStreamTest().test();
 		new OnTheFlyCodeBlockStreamNoRepoIdTest().test();
 		new OnTheFlyCodeBlockStreamInvalidRepoIdTest().test();
-		new HasRepliesTest().test();
-		new HasRepliesMessageToStreamTest({ type: 'direct' }).test();
-		new HasRepliesMessageToStreamTest({ type: 'channel' }).test();
-		new HasRepliesMessageToTeamStreamTest().test();
-		new HasRepliesMessageToTeamTest().test();
-		new NoHasRepliesOnSecondReplyTest({ type: 'direct' }).test();
-		new NoHasRepliesOnSecondReplyTest({ type: 'channel' }).test();
 	}
 }
 

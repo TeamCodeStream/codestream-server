@@ -42,6 +42,7 @@ class MultipleCodeBlocksTest extends PostCodeToFileStreamTest {
 			this.validateSanitized(marker, PostTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
 		}
 		this.validateMarkerLocations(data, post);
+		this.validateMultipleCodeBlockStreamUpdate(data);
 		super.validateResponse(data);
 	}
 
@@ -60,6 +61,12 @@ class MultipleCodeBlocksTest extends PostCodeToFileStreamTest {
 			let marker = data.markers[i];
 			Assert.deepEqual(locations[marker._id], this.data.codeBlocks[i].location, 'location for marker does not match');
 		}
+	}
+
+	// validate that there was a stream update which increments the number of markers by the number of code blocks
+	validateMultipleCodeBlockStreamUpdate (data) {
+		const streamUpdate = data.streams.find(stream => stream._id === this.stream._id);
+		Assert.equal(streamUpdate.$inc.numMarkers, this.numCodeBlocks, 'numMarkers not incremented by number of code blocks for stream update');
 	}
 }
 

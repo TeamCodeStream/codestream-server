@@ -128,6 +128,13 @@ class UpdatedMatchedRepoMessageTest extends CodeStreamMessageTest {
 			}
 		);
 	}
+
+	// validate the incoming message
+	validateMessage (message) {
+		// ignore the message publishing the new file-stream, we only want the repo message
+		if (message.message.stream) { return false; }
+		return true;
+	}
 }
 
 module.exports = UpdatedMatchedRepoMessageTest;
