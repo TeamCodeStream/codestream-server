@@ -18,7 +18,8 @@ class StreamValidator extends CodeStreamModelValidator {
 		super.setValidationFunctions();
 		Object.assign(this.validationFunctions, {
 			streamType: this.validateStreamType.bind(this),
-			privacyType: this.validatePrivacyType.bind(this)
+			privacyType: this.validatePrivacyType.bind(this),
+			channelName: this.validateChannelName.bind(this)
 		});
 	}
 
@@ -33,6 +34,13 @@ class StreamValidator extends CodeStreamModelValidator {
 	validatePrivacyType (value/*, definition, options*/) {
 		if (!PrivacyTypes.includes(value.toLowerCase())) {
 			return `invalid privacy type: ${value}`;
+		}
+	}
+
+	// validate that a channel stream's name has acceptable characters
+	validateChannelName (value) {
+		if (value.match(/[~#%&*{}+/:<>?|'".,]/)) {
+			return `invalid channel name: ${value}`;
 		}
 	}
 }

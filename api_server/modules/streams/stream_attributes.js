@@ -23,8 +23,8 @@ module.exports = {
 		description: 'For file streams, the path of the file, assumed to be from the root of the @@#repo#repo@@'
 	},
 	name: {
-		type: 'string',
-		maxLength: 64,
+		type: 'channelName',
+		maxLength: 100,
 		description: 'For channel streams, the name of the stream'
 	},
 	memberIds: {
@@ -69,7 +69,7 @@ module.exports = {
 		serverOnly: true
 	},
 	privacy: {
-		type: 'string',
+		type: 'privacyType', // public, private
 		maxLength: 20,
 		required: true,
 		description: 'Can be "public" or "private", if "public", all @@#users#user@@ can see that this stream exists, even if they are not members; if "private", only users who are members can see the stream; file streams are always public, direct messages are always private, but channels can be either'
