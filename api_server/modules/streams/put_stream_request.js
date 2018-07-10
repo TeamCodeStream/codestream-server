@@ -133,6 +133,9 @@ class PutStreamRequest extends PutRequest {
 				stream: '<@@#stream object#stream@@>',
 			}
 		};
+		description.errors = description.errors.concat([
+			'duplicateName'
+		]);
 		return description;
 	}
 }

@@ -4,8 +4,15 @@
 
 const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
 const Stream = require('./stream');
+const Indexes = require('./indexes');
+const Errors = require('./errors');
 
 class StreamUpdater extends ModelUpdater {
+
+	constructor (options) {
+		super(options);
+		this.errorHandler.add(Errors);
+	}
 
 	get modelClass () {
 		return Stream;	// class to use to create a stream model
@@ -61,6 +68,7 @@ class StreamUpdater extends ModelUpdater {
 	// before the user info gets saved...
 	async preSave () {
 		await this.getStream();
+		await this.checkNameUnique();
 		await this.getUsers();
 		this.attributes.modifiedAt = Date.now();
 		await super.preSave();
@@ -71,6 +79,28 @@ class StreamUpdater extends ModelUpdater {
 		this.stream = await this.request.data.streams.getById(this.id);
 		if (!this.stream) {
 			throw this.errorHandler.error('notFound', { info: 'stream' });
+		}
+	}
+
+	// if changing the name of the stream, make sure the name will be unique
+	async checkNameUnique () {
+		if (!this.attributes.name) {
+			return;
+		}
+		const matchingStreams = await this.data.streams.getByQuery(
+			{
+				name: this.attributes.name
+			},
+			{
+				databaseOptions: {
+					hint: Indexes.byName,
+					fields: ['_id', 'name']
+				},
+				noCache: true
+			}
+		);
+		if (matchingStreams.find(stream => stream._id !== this.stream.id)) {
+			throw this.errorHandler.error('duplicateName');
 		}
 	}
 
