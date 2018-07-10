@@ -139,7 +139,7 @@ class RegisterRequest extends RestfulRequest {
 	// generate an access token for the user, but only if confirmation is not required
 	// (otherwise they don't get an access token yet!)
 	async generateAccessToken () {
-		if (this.confirmationRequired || (this.userCreator.didExist && this.user.get('isRegistered'))) {
+		if (this.confirmationRequired || (this.userCreator.existingModel && this.user.get('isRegistered'))) {
 			return;
 		}
 		let token, minIssuance;
@@ -173,7 +173,7 @@ class RegisterRequest extends RestfulRequest {
 
 		// if the user is already registered, we send an email to this effect, rather
 		// than sending the confirmation code
-		if (this.userCreator.didExist && this.user.get('isRegistered')) {
+		if (this.userCreator.existingModel && this.user.get('isRegistered')) {
 			await this.api.services.email.sendAlreadyRegisteredEmail(
 				{
 					user: this.user,
