@@ -145,7 +145,7 @@ class UserCreator extends ModelCreator {
 	
 	// check if the user's username will be unique for the teams they are on
 	async checkUsernameUnique () {
-		if (this.notSaving) {
+		if (this.notSaving && !this.teamIds) {
 			// doesn't matter if we won't be saving anyway, meaning we're really ignoring the username
 			return;
 		}
