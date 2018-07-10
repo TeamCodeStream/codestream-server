@@ -110,7 +110,8 @@ class NewPostMessageToTeamTest extends CodeStreamMessageTest {
 				this.message = {
 					post: response.post,
 					markers: response.markers,
-					markerLocations: response.markerLocations
+					markerLocations: response.markerLocations,
+					streams: response.streams
 				};
 				callback();
 			},

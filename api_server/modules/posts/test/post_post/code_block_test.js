@@ -19,6 +19,7 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 			this.validateMarkerLocations(data);
 		}
 		this.validateCodeBlocks(data);
+		this.validateCodeBlockStreamUpdate(data);
 		super.validateResponse(data);
 	}
 
@@ -64,6 +65,12 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 		Assert(typeof markerLocations.locations === 'object', 'missing or invalid locations object in markerLocations object');
 		let locations = markerLocations.locations;
 		Assert.deepEqual(locations[marker._id], this.data.codeBlocks[0].location, 'location does not match');
+	}
+
+	// validate that there was a stream update which increments the number of markers 
+	validateCodeBlockStreamUpdate (data) {
+		const streamUpdate = data.streams.find(stream => stream._id === this.stream._id);
+		Assert.equal(streamUpdate.$inc.numMarkers, 1, 'numMarkers not incremented by one for stream update');
 	}
 }
 

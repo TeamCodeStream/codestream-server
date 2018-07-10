@@ -53,6 +53,19 @@ class Stream extends CodeStreamModel {
 			}
 		}
 	}
+
+	// return whether the content for this stream is private (which is different
+	// from whether the stream is private, since a public channel's content is still
+	// private, if it's not a team stream)
+	hasPrivateContent () {
+		return (
+			this.get('privacy') === 'private' ||
+			(
+				this.get('type') === 'channel' &&
+				!this.get('isTeamStream')
+			)
+		);
+	}
 }
 
 module.exports = Stream;

@@ -23,6 +23,11 @@ class OnTheFlyCodeBlockStreamNoRepoIdTest extends CodeBlockStreamOnTheFlyTest {
 			callback();
 		});
 	}
+
+	// validate that there was a stream update which increments the number of markers...
+	validateCodeBlockStreamUpdate () {
+		// ... but since no repo ID was supplied, there are no markers, so no increment
+	}	
 }
 
 module.exports = OnTheFlyCodeBlockStreamNoRepoIdTest;

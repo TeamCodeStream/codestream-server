@@ -123,7 +123,8 @@ class NumCommentsMessageTest extends CodeStreamMessageTest {
 					markers: [{
 						_id: this.parentPost.codeBlocks[0].markerId,
 						$inc: { numComments: 1 }
-					}]
+					}],
+					streams: response.streams
 				};
 				callback();
 			},

@@ -143,6 +143,7 @@ class PostPostTest extends CodeStreamAPITest {
 
 	// form the data for the post we'll create in the test
 	makePostData (callback) {
+		this.postCreatedAfter = Date.now();
 		this.postFactory.getRandomPostData(
 			(error, data) => {
 				if (error) { return callback(error); }
@@ -170,8 +171,21 @@ class PostPostTest extends CodeStreamAPITest {
 			((post.seqNum === expectedSeqNum) || errors.push('seqNum not equal to expected seqNum'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+
+		// verify we also got a stream update
+		this.validateStreamUpdate(data);
+
 		// verify the post in the response has no attributes that should not go to clients
 		this.validateSanitized(post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
+	}
+
+	// verify we got the expected stream update in the response
+	validateStreamUpdate (data) {
+		if (!this.stream) { return; }
+		const streamUpdate = data.streams.find(stream => stream._id === this.stream._id);
+		Assert.equal(streamUpdate.$set.mostRecentPostId, data.post._id, 'mostRecentPostID of stream update is not set to the ID of the most recent post');
+		Assert.equal(streamUpdate.$set.sortId, data.post._id, 'sortId of stream update is not set to the ID of the most recent post');
+		Assert(streamUpdate.$set.mostRecentPostCreatedAt > this.postCreatedAfter, 'mostRecentPostCreatedAt of stream update is not set to after the post was created');
 	}
 }
 

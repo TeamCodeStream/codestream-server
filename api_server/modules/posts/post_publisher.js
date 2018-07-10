@@ -3,8 +3,6 @@
 
 'use strict';
 
-const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
-
 class PostPublisher {
 
 	constructor (options) {
@@ -12,49 +10,6 @@ class PostPublisher {
 	}
 
 	async publishPost () {
-		// first publish any new streams, this is only for private streams not visible to the whole team
-		await this.publishNewStreams();
-
-		if (this.data.stream && this.data.stream.type !== 'file' && !this.data.stream.isTeamStream) {
-			// we create a new stream on-the-fly, and it's not visible to the team, so we publish
-			// to the individual members
-			await this.publishNewStream();
-		}
-		else {
-			// publish the post to the members of the stream or the team, depending on whether the 
-			// stream is accessible to the whole team (a file-type stream or a team stream)
-			await this.publishPostToStreamOrTeam();
-		}
-	}
-
-	// publish any streams created on-the-fly when creating this post,
-	// this is only for private streams not visible to the whole team
-	async publishNewStreams () {
-		const streams = this.data.streams || [];
-		await Promise.all(streams.map(async stream => {
-			if (stream.type !== 'file' && !stream.isTeamStream) {
-				// we created a non-file stream on-the-fly with this post, so publish the stream,
-				// it will then be up to the client to fetch the post? (because they are not yet subscribed to the stream channel)
-				await this.publishNewStream(stream);
-			}
-		}));
-	}
-
-	// publish the creation of a new stream
-	async publishNewStream (stream) {
-		// if a new stream was created, we publish the stream as needed, then leave it up to clients
-		// to fetch from the stream
-		await new StreamPublisher({
-			stream: stream,
-			data: { stream },
-			request: this.request,
-			messager: this.messager,
-			isNew: true
-		}).publishStream();
-	}
-
-	// publish the creation of a new post to the stream it was created in
-	async publishPostToStreamOrTeam () {
 		if (this.stream.type === 'file' || this.stream.isTeamStream) {
 			// for file-type streams, or team-streams (streams for which everyone on the team is a member),
 			// we publish to the team that owns the stream
