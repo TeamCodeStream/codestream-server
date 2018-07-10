@@ -42,5 +42,10 @@ module.exports = {
 		code: 'STRM-1007',
 		message: 'Invalid privacy type',
 		description: 'An invalid privacy type was sent with the request'
+	},
+	'duplicateName': {
+		code: 'STRM-1008',
+		message: 'Duplicate stream name',
+		description: 'A channel stream already exists with this name for this team'
 	}
 };
