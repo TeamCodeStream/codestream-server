@@ -85,10 +85,10 @@ class UserCreator extends ModelCreator {
 	}
 
 	// return whether a matching user can exist or if an error should be returned
-	modelCanExist (model) {
+	modelCanExist () {
 		// if the user is not registered, we'll just return that user, so this is ok,
 		// but if the user is registered, let the caller define the situation
-		return !model.get('isRegistered') || !this.notOkIfExistsAndRegistered;
+		return true;
 	}
 
 	// return database query to check if a matching user already exists
@@ -110,7 +110,18 @@ class UserCreator extends ModelCreator {
 		if (this.attributes._pubnubUuid) {
 			this.request.log(`Pubnub uuid of ${this.attributes._pubnubUuid} provided`);
 		}
-		if (!this.attributes.username) { 
+
+		// never save attributes for an existing registered user
+		if (
+			this.existingModel &&
+			this.existingModel.get('isRegistered')
+		) {
+			this.dontSaveIfExists = true;
+			this.notSaving = true;
+		}
+
+		// if username not provided, generate it from email
+		if (!this.notSaving && !this.attributes.username) { 
 			this.attributes.username = UsernameValidator.normalize(
 				EmailUtilities.parseEmail(this.attributes.email).name
 			);
@@ -122,9 +133,19 @@ class UserCreator extends ModelCreator {
 		await super.preSave();
 	}
 
+	// hash the given password, as needed
+	async hashPassword () {
+		if (!this.attributes.password || this.notSaving) { return; }
+		this.attributes.passwordHash = await new PasswordHasher({
+			errorHandler: this.errorHandler,
+			password: this.attributes.password
+		}).hashPassword();
+		delete this.attributes.password;
+	}
+	
 	// check if the user's username will be unique for the teams they are on
 	async checkUsernameUnique () {
-		if (this.existingModel && this.dontSaveIfExists) {
+		if (this.notSaving) {
 			// doesn't matter if we won't be saving anyway, meaning we're really ignoring the username
 			return;
 		}
@@ -168,16 +189,6 @@ class UserCreator extends ModelCreator {
 				teamIds: usernameChecker.notUniqueTeamIds
 			}
 		});
-	}
-
-	// hash the given password, as needed
-	async hashPassword () {
-		if (!this.attributes.password) { return; }
-		this.attributes.passwordHash = await new PasswordHasher({
-			errorHandler: this.errorHandler,
-			password: this.attributes.password
-		}).hashPassword();
-		delete this.attributes.password;
 	}
 
 	// create the user

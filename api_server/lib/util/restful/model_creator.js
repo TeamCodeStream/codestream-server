@@ -202,7 +202,6 @@ class ModelCreator {
 			this.model.id,
 			{ $set: this.changes }
 		);
-		this.didExist = true;	// caller might want to know whether we really created a document or not
 	}
 
 	// requisition an ID for the model we are about to create ... use this if you need

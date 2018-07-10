@@ -58,12 +58,20 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			companyIds.push(this.existingUserCompany._id);
 			companyIds.sort();
 		}
-		const username = this.expectedUsername || EmailUtilities.parseEmail(this.data.email).name;
+		let expectedUsername, expectedFullName;
+		if (this.existingUserIsRegistered) {
+			expectedUsername = this.existingUserData.user.username;
+			expectedFullName = this.existingUserData.user.fullName;
+		}
+		else {
+			expectedUsername = this.expectedUsername || EmailUtilities.parseEmail(this.data.email).name;
+			expectedFullName = this.data.fullName;
+		}
 		const result = (
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
-			((user.username === username) || errors.push('username is not the first part of the email')) &&
+			((user.username === expectedUsername) || errors.push('username is not the first part of the email')) &&
 			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&
-			((user.fullName === this.data.fullName) || errors.push('incorrect full name')) &&
+			((user.fullName === expectedFullName) || errors.push('incorrect full name')) &&
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
