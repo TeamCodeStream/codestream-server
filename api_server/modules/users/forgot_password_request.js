@@ -114,7 +114,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 
 		// generate the url
 		const host = this.api.config.webclient.host;
-		const url = `https://${host}/reset-password?token=${encodeURIComponent(this.token)}`;
+		const url = `${host}/reset-password/${encodeURIComponent(this.token)}`;
 
 		// send the email
 		await this.api.services.email.sendResetPasswordEmail(

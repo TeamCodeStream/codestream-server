@@ -6,6 +6,7 @@
 var Assert = require('assert');
 var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
+const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
 
 class ResetPasswordEmailTest extends CodeStreamMessageTest {
 
@@ -88,8 +89,11 @@ class ResetPasswordEmailTest extends CodeStreamMessageTest {
 	// field substitutions in the template
 	validateSubstitutions (message) {
 		let substitutions = message.personalizations[0].substitutions;
-		// we won't verify the actual url, but we'll just check that it's there
-		Assert(substitutions['{{url}}'], 'no url in field substitutions');
+		// verify a match to the url
+		const host = WebClientConfig.host.replace(/\//g, '\\/');
+		const shouldMatch = new RegExp(`${host}\\/reset-password\\/(.*)$`);
+		const match = substitutions['{{url}}'].match(shouldMatch);
+		Assert(match && match.length === 2, 'reset password link url is not correct');
 	}
 
 	// validate the template is correct for an email notification

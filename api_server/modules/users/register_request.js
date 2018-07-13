@@ -188,7 +188,7 @@ class RegisterRequest extends RestfulRequest {
 
 			// generate the url
 			const host = this.api.config.webclient.host;
-			const url = `https://${host}/confirm-email/${encodeURIComponent(this.token)}`;
+			const url = `${host}/confirm-email/${encodeURIComponent(this.token)}`;
 
 			await this.api.services.email.sendConfirmationEmailWithLink(
 				{
