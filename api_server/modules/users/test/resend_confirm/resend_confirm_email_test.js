@@ -122,8 +122,8 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 	validateSubstitutions (message) {
 		let substitutions = message.personalizations[0].substitutions;
 		// verify a match to the url
-		const host = WebClientConfig.host;
-		const shouldMatch = new RegExp(`^https:\\/\\/${host}\\/confirm-email\\/(.*)$`);
+		const host = WebClientConfig.host.replace(/\//g, '\\/');
+		const shouldMatch = new RegExp(`${host}\\/confirm-email\\/(.*)$`);
 		const match = substitutions['{{url}}'].match(shouldMatch);
 		Assert(match && match.length === 2, 'confirmation link url is not correct');
 		// verify correct payload

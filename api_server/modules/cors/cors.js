@@ -38,7 +38,9 @@ class CorsModule extends APIServerModule {
 
 	getServiceOrigins () {
 		return [
-			this.api.config.teams.botOrigin    // origin for MS Teams bot
+			this.api.config.slack.botOrigin,	// origin for Slack bot
+			this.api.config.teams.botOrigin,    // origin for MS Teams bot
+			this.api.config.webclient.host 		// origin for web app
 		];
 	}
 
@@ -59,12 +61,12 @@ class CorsModule extends APIServerModule {
 
 				// allow other codestream services to have their own origins
 				const serviceOrigins = this.getServiceOrigins();
-				serviceOrigins.forEach(serviceOrigin => {
+				for (let serviceOrigin of serviceOrigins) {
 					const serviceOriginDomain = _parseDomain(serviceOrigin).toLowerCase();
 					if (originDomain === serviceOriginDomain) {
 						return callback(null, true);
 					}
-				});
+				}
 
 				const error = `unrecognized origin ${origin}`;
 				this.api.warn(error);
