@@ -11,9 +11,9 @@ class InvalidTypeTest extends DirectOnTheFlyTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
+			info: {
 				code: 'STRM-1000'
-			}]
+			}
 		};
 	}
 

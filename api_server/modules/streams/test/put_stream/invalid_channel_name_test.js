@@ -11,9 +11,9 @@ class InvalidChannelNameTest extends PutStreamTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
+			info: {
 				name: 'invalid channel name'
-			}]
+			}
 		};
 	}
 

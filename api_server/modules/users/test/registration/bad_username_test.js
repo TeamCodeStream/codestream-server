@@ -17,9 +17,9 @@ class BadUsernameTest extends RegistrationTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
+			info: {
 				username: 'can only contain .*'
-			}]
+			}
 		};
 	}
 
