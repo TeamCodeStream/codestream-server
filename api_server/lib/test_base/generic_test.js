@@ -131,7 +131,7 @@ class GenericTest {
 		Object.keys(expectFields).forEach(key => {
 			const expect = expectFields[key];
 			if (typeof expect === 'string') {
-				Assert(typeof responseData[expect] !== 'undefined', `response requires ${chain}.${expect}`);
+				Assert(typeof responseData[expect] !== 'undefined', `response requires ${chain}.${expect} ... ${JSON.stringify(responseData, undefined, 5)}`);
 			}
 			else if (typeof expect === 'object') {
 				Assert(typeof responseData[key] === 'object', `response expects ${chain}.${key} to be an object`);
@@ -143,7 +143,7 @@ class GenericTest {
 	// expect a matching object, matching key for key
 	expectObject (responseData, expectData, chain) {
 		Object.keys(expectData).forEach(key => {
-			Assert(typeof responseData[key] !== 'undefined', `response requires ${chain}.${key}`);
+			Assert(typeof responseData[key] !== 'undefined', `response requires ${chain}.${key} ... ${JSON.stringify(responseData, undefined, 5)}`);
 			this.expect(responseData[key], expectData[key], `${chain}.${key}`);
 		});
 	}
