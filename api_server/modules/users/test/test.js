@@ -6,6 +6,7 @@
 /* globals describe */
 
 const UserRequestTester = require('./user_request_tester');
+/*
 const GetSessionsRequestTester = require('./get_sessions/test');
 const PresenceRequestTester = require('./presence/test');
 const ChangePasswordRequestTester = require('./change_password/test');
@@ -14,6 +15,7 @@ const CheckResetRequestTester = require('./check_reset/test');
 const ResetPasswordRequestTester = require('./reset_password/test');
 const ResendConfirmRequestTester = require('./resend_confirm/test');
 const CheckSignupRequestTester = require('./check_signup/test');
+*/
 
 const userRequestTester = new UserRequestTester();
 
@@ -22,6 +24,7 @@ describe('user requests', function() {
 	this.timeout(20000);
 
 	describe('POST /no-auth/register', userRequestTester.registrationTest);
+/*
 	describe('POST /no-auth/confirm', userRequestTester.confirmationTest);
 	describe('PUT /login', userRequestTester.loginTest);
 	describe('GET /users/:id', userRequestTester.getUserTest);
@@ -41,4 +44,5 @@ describe('user requests', function() {
 	describe('PUT /no-auth/reset-password', ResetPasswordRequestTester.test);
 	describe('PUT /no-auth/resend-confirm', ResendConfirmRequestTester.test);
 	describe('PUT /no-auth/check-signup', CheckSignupRequestTester.test);
+*/
 });

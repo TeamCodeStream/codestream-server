@@ -7,6 +7,8 @@ var Assert = require('assert');
 // make eslint happy
 /* globals before, after, it */
 
+/* eslint no-console: 0 */
+
 var NumTests = 0;	// used to number tests in a single test run
 
 class GenericTest {
@@ -69,8 +71,10 @@ class GenericTest {
 
 	// check the response to this test, there might be an error and a real response
 	checkResponse (error, response, callback) {
+		console.warn('RESPONSE', response);
 		this.error = error ? response : null;
 		const expectError = this.getExpectedError();
+		console.warn('EXPECT ERROR', expectError);
 		if (expectError) {
 			this.expectError(expectError);
 		}
