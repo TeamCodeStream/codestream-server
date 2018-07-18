@@ -65,7 +65,7 @@ class DataModelValidator {
 
 	// validate each individual attribute according to its own validation rule
 	async validateAttributes () {
-		for (let i = 0, length = Object.keys(this.attributes); i < length; i++) {
+		for (let i = 0, length = Object.keys(this.attributes).length; i < length; i++) {
 			const attribute = Object.keys(this.attributes)[i];
 			if (!await this.validateAttribute(attribute)) {
 				break;
@@ -74,7 +74,7 @@ class DataModelValidator {
 	}
 
 	// validate an individual attribute according to its own validation rule
-	validateAttribute (attribute) {
+	async validateAttribute (attribute) {
 		const attributeDefinition = this.attributeDefinitions[attribute];
 		if (!attributeDefinition) {
 			// we delete (with a warning) any attributes we don't recognize,
