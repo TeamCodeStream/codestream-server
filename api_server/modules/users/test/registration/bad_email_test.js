@@ -17,9 +17,9 @@ class BadEmailTest extends RegistrationTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
+			info: {
 				email: 'invalid email'
-			}]
+			}
 		};
 	}
 

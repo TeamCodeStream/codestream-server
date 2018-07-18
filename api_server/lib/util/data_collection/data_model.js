@@ -43,13 +43,10 @@ class DataModel {
 
 	// handle the response from a validation call
 	async handleValidation (info/*, options*/) {
-		let { errors, warnings } = info;
+		let { error, warnings } = info;
 		// for errors, these generate an error up the chain
-		if (errors) {
-			if (!(errors instanceof Array)) {
-				errors = [errors];
-			}
-			throw errors;
+		if (error) {
+			throw error;
 		}
 		// for warnings, we'll be quiet about it, but the caller should probably log them,
 		// or do SOMETHING anyway ... cause warnings are important, right?

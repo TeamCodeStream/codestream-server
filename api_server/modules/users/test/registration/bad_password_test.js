@@ -17,9 +17,9 @@ class BadPasswordTest extends RegistrationTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
+			info: {
 				password: 'must be at least six characters'
-			}]
+			}
 		};
 	}
 

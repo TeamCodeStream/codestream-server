@@ -11,9 +11,9 @@ class NoFileTest extends FileStreamOnTheFlyTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: [{
+			info: {
 				code: 'STRM-1003'
-			}]
+			}
 		};
 	}
 

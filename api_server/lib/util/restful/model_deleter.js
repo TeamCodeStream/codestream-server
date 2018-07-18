@@ -42,16 +42,11 @@ class ModelDeleter {
 		// validation happens ... note that since we're doing a deactivation, we do not have
 		// a complete model here
 		this.model = new this.modelClass(this.attributes, { dontSetDefaults: true });
-		let errors = await this.model.preSave();
-		if (!errors) {
-			return;
+		const error = await this.model.preSave();
+		if (error) {
+			throw this.errorHandler.error('validation', { info: error });
 		}
-		if (!(errors instanceof Array)) {
-			errors = [errors];
-		}
-		throw this.errorHandler.error('validation', { info: errors });
 	}
-
 
 	// do the actual deletion
 	async delete () {

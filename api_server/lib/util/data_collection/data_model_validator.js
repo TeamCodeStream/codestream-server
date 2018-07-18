@@ -42,7 +42,7 @@ class DataModelValidator {
 		this.options = options;
 		await this.checkRequired();
 		await this.validateAttributes();
-		return { errors: this.errors, warnings: this.warnings };
+		return { error: this.error, warnings: this.warnings };
 	}
 
 	// check that we have all the required attributes
@@ -59,15 +59,18 @@ class DataModelValidator {
 			}
 		});
 		if (missingAttributes.length) {
-			this.errors = ['these required attributes are missing: ' + missingAttributes.join(',')];
+			this.error = 'these required attributes are missing: ' + missingAttributes.join(',');
 		}
 	}
 
 	// validate each individual attribute according to its own validation rule
 	async validateAttributes () {
-		await Promise.all(Object.keys(this.attributes).map(async attribute => {
-			await this.validateAttribute(attribute);
-		}));
+		for (let i = 0, length = Object.keys(this.attributes); i < length; i++) {
+			const attribute = Object.keys(this.attributes)[i];
+			if (!await this.validateAttribute(attribute)) {
+				break;
+			}
+		}
 	}
 
 	// validate an individual attribute according to its own validation rule
@@ -97,10 +100,12 @@ class DataModelValidator {
 		if (typeof this.attributes[attribute] !== 'undefined') {
 			let validationResult = validationFunction(this.attributes[attribute], attributeDefinition);
 			if (validationResult) {
-				this.errors = this.errors || [];
-				this.errors.push({ [attribute]: validationResult });
+				this.error = { [attribute]: validationResult };
+				return false;
 			}
 		}
+
+		return true;
 	}
 
 	// validate a timestamp value, must be a number

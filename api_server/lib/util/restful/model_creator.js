@@ -62,14 +62,10 @@ class ModelCreator {
 
 	// validate the input attributes
 	async validate () {
-		let errors = await this.validateAttributes();
-		if (!errors) {
-			return;
+		const error = await this.validateAttributes();
+		if (error) {
+			throw this.errorHandler.error('validation', { info: error });
 		}
-		if (!(errors instanceof Array)) {
-			errors = [errors];
-		}
-		throw this.errorHandler.error('validation', { info: errors });
 	}
 
 	// validate the input attributes ... override as needed
@@ -131,11 +127,7 @@ class ModelCreator {
 			await this.model.preSave({ new: !this.existingModel });
 		}
 		catch (error) {
-			let errors = error;
-			if (!(errors instanceof Array)) {
-				errors = [errors];
-			}
-			throw this.errorHandler.error('validation', { info: errors });
+			throw this.errorHandler.error('validation', { info: error });
 		}
 	}
 
