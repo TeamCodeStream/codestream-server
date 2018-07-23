@@ -53,7 +53,7 @@ class LoginHelper {
 		// generate a unique PubNub token, to be stored with the user object, the one and only way a 
 		// user can subscribe to PubNub (though for now, they can also subscribe with their access token,
 		// but we will deprecate this ability once the old atom client is deprecated)
-		this.pubNubToken = (UUID() + '-' + UUID()).split('-').join(''); 
+		this.pubNubToken = this.user.get('pubNubToken') || ((UUID() + '-' + UUID()).split('-').join('')); 
 
 		// look for a new-style token (with min issuance), if it doesn't exist, or our current token
 		// was issued before the min issuance, then we need to generate a new token for this login type
