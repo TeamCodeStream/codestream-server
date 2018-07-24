@@ -3,5 +3,5 @@
 'use strict';
 
 module.exports = {
-	host: process.env.CS_WEB_CLIENT_ORIGIN || 'localhost:12099'
+	host: process.env.CS_API_WEB_CLIENT_ORIGIN || 'localhost:1380'
 };
