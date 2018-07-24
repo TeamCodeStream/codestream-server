@@ -321,7 +321,12 @@ class CodeStreamEmails {
 				const repo = repos.find(repo => stream && repo.id === stream.get('repoId'));
 				if (repo) {
 					const path = this.truncatePath(`${repo.get('normalizedUrl')}/${stream.get('file')}`);
-					return `https://${path}`;
+					if (path.search(/^https?:/) >= 0) {
+						return path;
+					}
+					else {
+						return `https://${path}`;
+					}
 				}
 			}
 		}
