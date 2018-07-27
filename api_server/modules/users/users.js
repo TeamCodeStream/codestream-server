@@ -40,6 +40,11 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'put',
+		path: 'login',
+		requestClass: require('./raw_login_request')
+	},
+	{
+		method: 'put',
 		path: 'read/:streamId',
 		requestClass: require('./read_request')
 	},
