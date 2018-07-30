@@ -24,7 +24,10 @@ export CS_API_PORT=12079
 export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
 export CS_API_LOG_CONSOLE_OK=1
 export CS_API_HELP_AVAILABLE=1
-export CS_WEB_CLIENT_ORIGIN=http://localhost:1380
+
+
+# This is used for constructing links in email notifications.
+export CS_API_WEB_CLIENT_ORIGIN=http://localhost:1380
 
 # =============== SSL Certificate ==================
 [ -z "$SSL_CERT" ] && SSL_CERT=wildcard.codestream.us
