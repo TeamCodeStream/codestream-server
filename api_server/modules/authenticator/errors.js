@@ -15,8 +15,7 @@ module.exports = {
 	},
 	'tokenInvalid': {
 		code: 'AUTH-1002',
-		message: 'Token invalid',
-		internal: true
+		message: 'Token invalid'
 	},
 	'noUserId': {
 		code: 'AUTH-1003',
