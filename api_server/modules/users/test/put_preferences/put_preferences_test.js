@@ -2,71 +2,68 @@
 
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Assert = require('assert');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class PutPreferencesTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'should set a simple preference when requested';
+		return 'should set a simple preference when requested, and return appropriate directives in the response';
 	}
 
 	get method () {
-		return 'get';
+		return 'put';
 	}
 
 	get path () {
-		return '/users/me';	// we'll actually validate by retrieving the me object
+		return '/preferences';	
 	}
 
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.preSetPreferences,	// pre-set some preferences...
-			this.setPreferences		// ...and then establish the preferences change that will constitute the test
+			this.preSetPreferences,
+			this.makePreferencesData
 		], callback);
 	}
 
-	// preset preferences ... override for specific tests
+	// preset the user's preferences with any preferences we want in place 
+	// before the actual test ... derived test class should override and
+	// fill this.preSetData as appropriate
 	preSetPreferences (callback) {
-		return callback();
-	}
-
-	// set the preferences for the test ... the actual running of the test consists
-	// of reading these preferences back and verifying they are what we expect
-	setPreferences (callback) {
-		let data = this.makePreferencesData();
-		this.putPreferences(data, callback);
-	}
-
-	// do the server request to write out the user's preferences
-	putPreferences (data, callback) {
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: '/preferences',
-				data: data,
-				token: this.token
-			},
-			callback
-		);
+		if (!this.preSetData) {
+			return callback();
+		}
+		this.doApiRequest({
+			method: 'put',
+			path: '/preferences',
+			data: this.preSetData,
+			token: this.token
+		}, callback);
 	}
 
 	// make the preferences data that will be used to match when the preferences
 	// are retrieved to verify the preferences change was successful
-	makePreferencesData () {
-		// doing a simple preference update
-		this.expectPreferences = {
+	makePreferencesData (callback) {
+		this.expectPreferences = this.data = {
 			simplePreference: true
 		};
-		return this.expectPreferences;
+		this.expectResponse = {
+			user: {
+				_id: this.currentUser._id,
+				$set: {
+					'preferences.simplePreference': true
+				}
+			}
+		};
+		callback();
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
-		// verify we got back the expected preferences with the user's user object
-		Assert.deepEqual(data.user.preferences, this.expectPreferences);
+		// verify we got back the expected preferences update directive
+		Assert.deepEqual(data, this.expectResponse);
 	}
 }
 

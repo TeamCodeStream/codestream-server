@@ -1,19 +1,11 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const PutPreferencesTest = require('./put_preferences_test');
 
-class InvalidParameterTest extends CodeStreamAPITest {
+class InvalidParameterTest extends PutPreferencesTest {
 
 	get description () {
 		return 'should return an error when the value of a directive in a preferences request is not set to the value of an object';
-	}
-
-	get method () {
-		return 'put';
-	}
-
-	get path () {
-		return '/preferences';
 	}
 
 	getExpectedError () {
@@ -23,13 +15,16 @@ class InvalidParameterTest extends CodeStreamAPITest {
 		};
 	}
 
-	// before the test runs...
-	before (callback) {
-		// the value of $set must be an object
-		this.data = {
-			$set: 'x'
-		};
-		callback();
+	// make the preferences data that will be used to match when the preferences
+	// are retrieved to verify the preferences change was successful
+	makePreferencesData (callback) {
+		super.makePreferencesData(() => {
+			// the value of $set must be an object
+			this.data = {
+				$set: 'x'
+			};
+			callback();
+		});
 	}
 }
 

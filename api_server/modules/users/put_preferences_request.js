@@ -24,6 +24,13 @@ class PutPreferencesRequest extends RestfulRequest {
 			this.request.user.id,
 			this.op
 		);
+		this.responseOp = {
+			user: {
+				_id: this.user.id
+			}
+		};
+		Object.assign(this.responseOp.user, this.op);
+
 	}
 
 	// after the response is returned....
@@ -31,16 +38,10 @@ class PutPreferencesRequest extends RestfulRequest {
 		// send the message to the user's me-channel, so other sessions know that the
 		// preferences have been updated
 		const channel = 'user-' + this.user.id;
-		let message = {
-			user: {
-				_id: this.user.id
-			},
-			requestId: this.request.id
-		};
-		Object.assign(message.user, this.op);
+		const publishOp = Object.assign({}, this.responseOp, { requestId: this.request.id });
 		try {
 			await this.api.services.messager.publish(
-				message,
+				publishOp,
 				channel,
 				{ request: this }
 			);
@@ -157,6 +158,9 @@ class PutPreferencesRequest extends RestfulRequest {
 		) {
 			this.warn(JSON.stringify(this.gotError));
 			this.gotError = this.errorHandler.error('invalidParameter');
+		}
+		else if (!this.gotError) {
+			this.responseData = this.responseOp;
 		}
 		await super.handleResponse();
 	}

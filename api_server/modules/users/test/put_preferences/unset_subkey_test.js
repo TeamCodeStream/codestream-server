@@ -1,8 +1,8 @@
 'use strict';
 
-var PutPreferencesTest = require('./put_preferences_test');
+var PutPreferencesFetchTest = require('./put_preferences_fetch_test');
 
-class UnsetSubkeyTest extends PutPreferencesTest {
+class UnsetSubkeyTest extends PutPreferencesFetchTest {
 
 	get description () {
 		return 'should unset several simple preferences when requested via $unset';
@@ -22,28 +22,38 @@ class UnsetSubkeyTest extends PutPreferencesTest {
 				}
 			}
 		};
-		this.putPreferences(this.preSetData, callback);
+		super.preSetPreferences(callback);
 	}
 
 	// make the data to use in the preferences update, and the data we expect to
 	// see when we verify
-	makePreferencesData () {
+	makePreferencesData (callback) {
 		// establish the preferences we expect to see when we verify, in this
 		// case, we're unsetting a few subkeys of a preference
-		this.expectPreferences = this.preSetData;
-		delete this.expectPreferences.topLevelPreference.preferenceOne;
-		delete this.expectPreferences.topLevelPreference.preferenceThree;
-		delete this.expectPreferences.topLevelPreference.preferenceFive;
-		// return the actual preferences op that will be performed
-		return {
+		this.data = {
 			$unset: {
 				topLevelPreference: {
 					preferenceOne: 1,
 					preferenceThree: true,
-					preferenceFive: 1
+					preferenceFive: 2
 				}
 			}
 		};
+		this.expectResponse = {
+			user: {
+				_id: this.currentUser._id,
+				$unset: {
+					'preferences.topLevelPreference.preferenceOne': 1,
+					'preferences.topLevelPreference.preferenceThree': true,
+					'preferences.topLevelPreference.preferenceFive': 2
+				}
+			}
+		};
+		this.expectPreferences = this.preSetData;
+		delete this.expectPreferences.topLevelPreference.preferenceOne;
+		delete this.expectPreferences.topLevelPreference.preferenceThree;
+		delete this.expectPreferences.topLevelPreference.preferenceFive;
+		callback();
 	}
 }
 

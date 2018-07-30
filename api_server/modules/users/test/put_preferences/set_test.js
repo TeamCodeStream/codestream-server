@@ -1,8 +1,8 @@
 'use strict';
 
-var PutPreferencesTest = require('./put_preferences_test');
+var PutPreferencesFetchTest = require('./put_preferences_fetch_test');
 
-class SetTest extends PutPreferencesTest {
+class SetTest extends PutPreferencesFetchTest {
 
 	get description () {
 		return 'should set several simple preferences when requested via $set';
@@ -10,9 +10,9 @@ class SetTest extends PutPreferencesTest {
 
 	// make the data to use in the preferences update, and the data we expect to
 	// see when we verify
-	makePreferencesData () {
+	makePreferencesData (callback) {
 		// set some simple preferences values
-		let set = {
+		const set = {
 			preferenceOne: 1,
 			preferenceTwo: 'two',
 			preferenceThree: {
@@ -26,9 +26,22 @@ class SetTest extends PutPreferencesTest {
 				}
 			}
 		};
-		// we expect to see what we set
+		this.data = { $set: set };
 		this.expectPreferences = set;
-		return { $set: set };
+		this.expectResponse = {
+			user: {
+				_id: this.currentUser._id,
+				$set: {
+					'preferences.preferenceOne': 1,
+					'preferences.preferenceTwo': 'two',
+					'preferences.preferenceThree.threeA': 'A',
+					'preferences.preferenceThree.threeB': 'Bee',
+					'preferences.preferenceFour.level.one': 1,
+					'preferences.preferenceFour.level.two': 'two'
+				}
+			}
+		};
+		callback();
 	}
 }
 

@@ -1,19 +1,11 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const PutPreferencesTest = require('./put_preferences_test');
 
-class TooManyKeysTest extends CodeStreamAPITest {
+class TooManyKeysTest extends PutPreferencesTest {
 
 	get description () {
 		return 'should return an error when the there are too many keys provided in a preferences update request';
-	}
-
-	get method () {
-		return 'put';
-	}
-
-	get path () {
-		return '/preferences';
 	}
 
 	getExpectedError () {
@@ -23,8 +15,9 @@ class TooManyKeysTest extends CodeStreamAPITest {
 		};
 	}
 
-	// before the test runs...
-	before (callback) {
+	// make the data to use in the preferences update, and the data we expect to
+	// see when we verify
+	makePreferencesData (callback) {
 		// establish preferences data that exceeds the limit of how many keys
 		// we can provide at one time in an update
 		this.data = {};
