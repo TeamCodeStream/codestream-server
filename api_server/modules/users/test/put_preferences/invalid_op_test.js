@@ -1,19 +1,11 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const PutPreferencesTest = require('./put_preferences_test');
 
-class InvalidOpTest extends CodeStreamAPITest {
+class InvalidOpTest extends PutPreferencesTest {
 
 	get description () {
 		return 'should return an error when an invalid update is sent with an update preferences request';
-	}
-
-	get method () {
-		return 'put';
-	}
-
-	get path () {
-		return '/preferences';
 	}
 
 	getExpectedError () {
@@ -22,8 +14,9 @@ class InvalidOpTest extends CodeStreamAPITest {
 		};
 	}
 
-	// before the test runs
-	before (callback) {
+	// make the preferences data that will be used to match when the preferences
+	// are retrieved to verify the preferences change was successful
+	makePreferencesData (callback) {
 		// this op is invalid because it acts on the same preference
 		this.data = {
 			$set: { a: 1 },

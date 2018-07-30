@@ -1,8 +1,8 @@
 'use strict';
 
-var PutPreferencesTest = require('./put_preferences_test');
+var PutPreferencesFetchTest = require('./put_preferences_test');
 
-class UnsetTest extends PutPreferencesTest {
+class UnsetTest extends PutPreferencesFetchTest {
 
 	get description () {
 		return 'should unset a preference value when requested';
@@ -14,16 +14,29 @@ class UnsetTest extends PutPreferencesTest {
 			preferenceOne: true,
 			preferenceTwo: false
 		};
-		this.putPreferences(this.preSetData, callback);
+		super.preSetPreferences(callback);
 	}
 
 	// make the data to use in the preferences update, and the data we expect to
 	// see when we verify
-	makePreferencesData () {
-		// we expect to see the data we initiall set, minute the key we're deleting
-		this.expectPreferences = this.preSetData;
+	makePreferencesData (callback) {
+		// we expect to see the data we initial set, minus the key we're deleting
+		this.data = {
+			$unset: {
+				preferenceTwo: 1
+			}
+		};
+		this.expectResponse = {
+			user: {
+				_id: this.currentUser._id,
+				$unset: {
+					'preferences.preferenceTwo': true
+				}
+			}
+		};
+		this.expectPreferences = Object.assign({}, this.preSetData);
 		delete this.expectPreferences.preferenceTwo;
-		return { $unset: { preferenceTwo: 1 } };
+		callback();
 	}
 }
 
