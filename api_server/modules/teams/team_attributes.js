@@ -27,5 +27,10 @@ module.exports = {
 		type: 'string',
 		maxLength: 12,
 		ignoreDescribe: true
+	},
+	adminIds: {
+		type: 'arrayOfIds',
+		maxLength: 256,
+		description: 'IDs of the administrators for this team'
 	}
 };
