@@ -47,7 +47,8 @@ class PostTeamTest extends CodeStreamAPITest {
 			((typeof team.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((team.modifiedAt >= team.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
             ((team.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id')) &&
-            ((team.memberIds.length === 1 && team.memberIds[0] === this.currentUser._id) || errors.push('current user is not the only member')) &&
+			((team.memberIds.length === 1 && team.memberIds[0] === this.currentUser._id) || errors.push('current user is not the only member')) &&
+			((team.adminIds.length === 1 && team.adminIds[0] === this.currentUser._id) || errors.push('current user was not made an admin')) &&
 			((team.primaryReferral === (this.teamReferral || 'external')) || errors.push('primaryReferral is incorrect'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));

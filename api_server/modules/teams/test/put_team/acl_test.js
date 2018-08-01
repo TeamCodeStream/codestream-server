@@ -1,13 +1,15 @@
 'use strict';
 
-var PutTeamTest = require('./put_team_test');
+const PutTeamTest = require('./put_team_test');
 
 class ACLTest extends PutTeamTest {
 
 	constructor (options) {
 		super(options);
 		this.currentUserNotOnTeam = true;
+		this.dontMakeCurrentUserAdmin = true;
 	}
+
 
 	get description () {
 		return 'should return an error when trying to update a team the current user is not a member of';

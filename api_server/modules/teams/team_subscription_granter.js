@@ -49,8 +49,9 @@ class TeamSubscriptionGranter  {
 			return;
 		}
 		const channel = 'team-' + this.team.id;
+		const func = this.revoke ? 'revoke' : 'grant';
 		try {
-			await this.messager.grant(
+			await this.messager[func](
 				this.tokens,
 				channel,
 				{

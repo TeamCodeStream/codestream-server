@@ -1,7 +1,7 @@
 'use strict';
 
-var PutTeamTest = require('./put_team_test');
-var Assert = require('assert');
+const PutTeamTest = require('./put_team_test');
+const Assert = require('assert');
 
 class NoUpdateOtherAttributeTest extends PutTeamTest {
 

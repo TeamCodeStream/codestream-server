@@ -31,7 +31,7 @@ class PutStreamRequest extends PutRequest {
 	// after the stream is updated...
 	async postProcess () {
 		// grant permissions for all added users to subscribe to the stream channel,
-		// remoke permissions for all removed users to subscribe to the stream channel
+		// revoke permissions for all removed users to subscribe to the stream channel
 		await awaitParallel([
 			this.grantUserMessagingPermissions,
 			this.revokeUserMessagingPermissions

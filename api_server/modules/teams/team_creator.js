@@ -95,7 +95,8 @@ class TeamCreator extends ModelCreator {
 		this.createId();
 		this.attributes.creatorId = this.user.id;	// user making the request is the team creator
 		this.attributes.memberIds = [this.user.id];	// user creating the team should always be a member
-
+		this.attributes.adminIds = [this.user.id];	// user creating the team becomes its administrator
+		
 		// set some analytics, based on whether this is the user's first team
 		const firstTeamForUser = (this.user.get('teamIds') || []).length === 0;
 		this.attributes.primaryReferral = firstTeamForUser ? 'external' : 'internal';

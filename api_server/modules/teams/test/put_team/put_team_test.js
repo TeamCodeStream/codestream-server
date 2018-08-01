@@ -2,10 +2,10 @@
 
 'use strict';
 
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-var Assert = require('assert');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var CommonInit = require('./common_init');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const CommonInit = require('./common_init');
 const TeamTestConstants = require('../team_test_constants');
 
 class PutTeamTest extends Aggregation(CodeStreamAPITest, CommonInit) {
@@ -28,10 +28,13 @@ class PutTeamTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	// validate the response to the test request
-	validateResponse (data) {
+	validateResponse (data, useSet = false) {
 		// verify we got back a team with the updated name
-		const team = data.team;
+		let team = data.team;
 		Assert.equal(team._id, this.team._id, 'returned team ID is not the same');
+		if (useSet) {
+			team = team.$set;
+		}
 		Assert.equal(team.name, this.data.name, 'name does not match');
 		Assert(team.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the team was updated');
 		// verify the team in the response has no attributes that should not go to clients

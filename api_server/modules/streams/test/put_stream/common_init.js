@@ -46,7 +46,9 @@ class CommonInit {
 	// create a random repo to use for the test
 	createRandomRepo (callback) {
 		let withEmails = this.withoutUserOnTeam ? [] : [this.currentUser.email];
-		withEmails.push(this.addedUserData.user.email);
+		if (!this.addedUserNotOnTeam) {
+			withEmails.push(this.addedUserData.user.email);
+		}
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -57,7 +59,7 @@ class CommonInit {
 			},
 			{
 				withEmails: withEmails,	// include current user as needed
-				withRandomEmails: 3,	// another user for good measure
+				withRandomEmails: 3,	// another few users for good measure
 				token: this.otherUserData.accessToken	// the "other user" is the repo and team creator
 			}
 		);

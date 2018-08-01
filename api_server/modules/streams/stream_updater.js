@@ -6,6 +6,7 @@ const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_u
 const Stream = require('./stream');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
+const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
 class StreamUpdater extends ModelUpdater {
 
@@ -74,7 +75,7 @@ class StreamUpdater extends ModelUpdater {
 		await super.preSave();
 	}
 
-	// get the user needed for save
+	// get the stream needed for update
 	async getStream () {
 		this.stream = await this.request.data.streams.getById(this.id);
 		if (!this.stream) {
@@ -89,6 +90,7 @@ class StreamUpdater extends ModelUpdater {
 		}
 		const matchingStreams = await this.data.streams.getByQuery(
 			{
+				teamId: this.stream.get('teamId'),
 				name: this.attributes.name
 			},
 			{
@@ -116,14 +118,25 @@ class StreamUpdater extends ModelUpdater {
 		if (memberIds.length === 0) {
 			return;
 		}
-		const users = await this.request.data.users.getByIds(memberIds);
-		memberIds = users.map(user => user.id);
         
 		// can't change the membership of team-streams
-		if (this.stream.get('isTeamStream') && memberIds.length > 0) {
+		if (this.stream.get('isTeamStream')) {
 			throw this.errorHandler.error('updateAuth', { reason: 'can not change membership of a team stream' });
 		} 
-        
+		
+		// all users must actually exist
+		const users = await this.request.data.users.getByIds(memberIds);
+		const foundMemberIds = users.map(user => user.id);
+		const notFoundMemberIds = ArrayUtilities.difference(memberIds, foundMemberIds);
+		if (notFoundMemberIds.length > 0) {
+			throw this.errorHandler.error('notFound', { info: 'one or more users' });
+		}
+
+		// all users must be a member of the team that owns the stream
+		if (users.find(user => !user.hasTeam(this.stream.get('teamId')))) {
+			throw this.errorHandler.error('updateAuth', { reason: 'one or more users are not a member of the team that owns the stream' });
+		}
+
 		// only add or remove genuine members
 		if (this.attributes.$addToSet) {
 			this.attributes.$addToSet.memberIds = memberIds;

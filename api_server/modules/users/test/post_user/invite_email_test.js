@@ -13,7 +13,7 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	constructor (options) {
 		super(options);
-		this.timeout = 15000;	// wait 15 seconds for message
+		this.messageReceiveTimeout = 15000;	// wait 15 seconds for message
 	}
 
 	get description () {

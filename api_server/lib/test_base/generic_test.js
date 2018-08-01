@@ -49,12 +49,15 @@ class GenericTest {
 			this.after(callback);
 		});
 
-		it(
+		const out = it(
 			this.testNum + ': ' + (this.description || '???'),
 			(callback) => {
 				this.run(callback);
 			}
 		);
+		if (this.testTimeout) {
+			out.timeout(this.testTimeout);
+		}
 	}
 
 	// override to indicate an error response is expected for this test
@@ -165,6 +168,10 @@ class GenericTest {
 		const now = Date.now();
 		const ms = now % 1000;
 		console.log(`${this.testNum}: ${new Date(now).toString()}.${ms}: ${message}`); // eslint-disable-line no-console
+	}
+
+	timeout () {
+		return null;
 	}
 }
 

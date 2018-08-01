@@ -12,7 +12,7 @@ class ResetPasswordEmailTest extends CodeStreamMessageTest {
 
 	constructor (options) {
 		super(options);
-		this.timeout = 10000;	// wait 10 seconds for message
+		this.messageReceiveTimeout = 10000;	// wait 10 seconds for message
 	}
 
 	get description () {
