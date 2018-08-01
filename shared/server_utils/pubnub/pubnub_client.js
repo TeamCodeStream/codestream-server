@@ -9,6 +9,8 @@ class PubNubClient {
 		this.messageListeners = {};		// callbacks for each channel when message is received
 		this.statusCallbacks = {};		// callbacks for each channel indicating subscibe success or failure
 		this.statusTimeouts = {};		// timeouts for attempts to subscribe
+		this.failureCallbacks = {};		// callbacks for each channel when subscription fails after subscribing
+		this.subscribed = {};			// channels have been subscribed to
 		this.pubnub.addListener({
 			message: this._handleMessage.bind(this),
 			presence: this._handleMessage.bind(this),
@@ -51,6 +53,9 @@ class PubNubClient {
 		this.statusTimeouts[channel] = setTimeout(() => {
 			this._handleSubscribeTimeout(channel);
 		}, 5000);
+		if (options.onFail) {
+			this.failureCallbacks[channel] = options.onFail;
+		}
 		this._lastChannelSubscribed = channel;
 		this.pubnub.subscribe(Object.assign({}, options, {
 			channels: [channel]
@@ -219,8 +224,17 @@ class PubNubClient {
 				status.subscribedChannels.includes(channel)
 			) {
 				// successfully subscribed to this channel
+				this.subscribed[channel] = true;
 				this.statusCallbacks[channel]();
-				return this._stopStatusListening(channel);
+				if (!this.failureCallbacks[channel]) {
+					this._stopStatusListening(channel);
+				}
+				else {
+					if (this.statusTimeouts[channel]) {
+						clearTimeout(this.statusTimeouts[channel]);
+					}
+				}
+				return;
 			}
 		}
 	}
@@ -244,15 +258,23 @@ class PubNubClient {
 			// Like I said ... that REALLY SUCKS.
 			if (
 				this._lastChannelSubscribed &&
-				this.statusCallbacks[this._lastChannelSubscribed]
+				this.statusCallbacks[this._lastChannelSubscribed] &&
+				!this.subscribed[this._lastChannelSubscribed]
 			) {
 				let channel = this._lastChannelSubscribed;
 				this.statusCallbacks[channel](status);
 				this._stopListening(channel);
 			}
+			else if (
+				this._lastChannelSubscribed &&
+				this.failureCallbacks[this._lastChannelSubscribed]
+			) {
+				let channel = this._lastChannelSubscribed;
+				this.failureCallbacks[channel](status);
+			}
 		}
-
 	}
+
 	// handle a channel that has not been successfully subscribed to after
 	// a timeout period ... return a timeout error to the caller
 	_handleSubscribeTimeout (channel) {

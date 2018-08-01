@@ -9,7 +9,7 @@ class PresenceTest extends BasePubNubTest {
 		super(options);
 		this.numClients = 2;
 		this.withPresence = true;
-		this.timeout = 10000;
+		this.messageReceiveTimeout = 10000;
 	}
 
 	get description () {
