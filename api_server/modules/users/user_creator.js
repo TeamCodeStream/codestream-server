@@ -84,10 +84,8 @@ class UserCreator extends ModelCreator {
 		}
 	}
 
-	// return whether a matching user can exist or if an error should be returned
+	// return whether a matching user can exist 
 	modelCanExist () {
-		// if the user is not registered, we'll just return that user, so this is ok,
-		// but if the user is registered, let the caller define the situation
 		return true;
 	}
 

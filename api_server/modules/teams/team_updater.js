@@ -116,7 +116,7 @@ class TeamUpdater extends ModelUpdater {
 		}
 
 		// only admins can perform these operations
-		if (!this.team.get('adminIds').includes(this.user.id)) {
+		if (!(this.team.get('adminIds') || []).includes(this.user.id)) {
 			throw this.errorHandler.error('adminsOnly');
 		}
 
