@@ -1,7 +1,7 @@
 'use strict';
 
-var PutTeamTest = require('./put_team_test');
-var ObjectID = require('mongodb').ObjectID;
+const PutTeamTest = require('./put_team_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class TeamNotFoundTest extends PutTeamTest {
 

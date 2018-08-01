@@ -1,8 +1,8 @@
 'use strict';
 
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-var CommonInit = require('./common_init');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CommonInit = require('./common_init');
 
 class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -25,9 +25,6 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	generateMessage (callback) {
 		// do the update, this should trigger a message to the
 		// team channel with the updated team
-		this.data = {
-			name: this.teamFactory.randomName()
-		};
 		this.doApiRequest(
 			{
 				method: 'put',

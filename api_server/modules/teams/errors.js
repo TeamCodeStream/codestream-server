@@ -12,5 +12,10 @@ module.exports = {
 		code: 'TEAM-1001',
 		message: 'Unable to grant user messaging permissions',
 		description: 'The server was unable to grant permission to subscribe to the given team channel'
+	},
+	'adminsOnly': {
+		code: 'TEAM-1002',
+		message: 'Only admins can perform this operation',
+		description: 'The user performed an operation that is only allowed for administrators, and the user is not an administrator'
 	}
 };

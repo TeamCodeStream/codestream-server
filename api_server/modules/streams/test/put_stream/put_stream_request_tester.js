@@ -35,6 +35,8 @@ const ArchiveStreamTest = require('./archive_stream_test');
 const RestoreStreamTest = require('./restore_stream_test');
 const InvalidChannelNameTest = require('./invalid_channel_name_test');
 const NoDuplicateNameTest = require('./no_duplicate_name_test');
+const UsersNotFound = require('./users_not_found_test');
+const UsersNotOnTeamTest = require('./users_not_on_team_test');
 
 const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/:<>?|\'".,';
 
@@ -88,6 +90,8 @@ class PutStreamRequestTester {
 			new InvalidChannelNameTest({ illegalCharacter: char }).test();
 		}
 		new NoDuplicateNameTest().test();
+		new UsersNotFound().test();
+		new UsersNotOnTeamTest().test();
 	}
 }
 

@@ -42,6 +42,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	run (callback) {
 		BoundAsync.series(this, [
 			this.listenOnClient,	// start listening first
+			this.waitForSubscribe,	// after listening, wait a bit till we generate the message
 			this.generateMessage,	// now trigger whatever request will cause the message to be sent
 			this.waitForMessage,	// wait for the message to arrive
 			this.clearTimer			// once the message arrives, stop waiting
@@ -106,7 +107,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		// we'll time out after 5 seconds
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this, this.channelName),
-			this.timeout || 5000
+			this.messageReceiveTimeout || 5000
 		);
 		// subscribe to the channel of interest
 		this.pubnubClientsForUser[this.currentUser._id].subscribe(
@@ -114,9 +115,16 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			this.messageReceived.bind(this),
 			callback,
 			{
-				withPresence: this.withPresence
+				withPresence: this.withPresence,
+				onFail: this.onSubscribeFail ? this.onSubscribeFail.bind(this) : undefined
 			}
 		);
+	}
+
+	// wait some period after we subscribe before generating the test message
+	// in most cases, we don't need to wait, override this to wait longer
+	waitForSubscribe (callback) {
+		setTimeout(callback, 0);
 	}
 
 	// called if message doesn't arrive after timeout
