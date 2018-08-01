@@ -86,7 +86,7 @@ class BasePubNubTest extends GenericTest {
 	listenOnClient (callback) {
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this),
-			this.timeout || 5000
+			this.messageReceiveTimeout || 5000
 		);
 		this.pubnubForClients[0].subscribe(
 			this.channelName,
