@@ -9,13 +9,13 @@
 # Uncomment and setup if yarn is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/yarn-$DT_OS_TYPE-*
-export CS_API_YARN=true
-export CS_API_YARN_VER=1.3.2
+#export CS_API_YARN=true
+#export CS_API_YARN_VER=1.3.2
 
 # Uncomment and setup if node is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/node-$DT_OS_TYPE-*
-export CS_API_NODE_VER=8.9.4
+export CS_API_NODE_VER=8.11.3
 
 export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$CS_API_TOP/node_modules/.bin:$PATH
 export CS_API_TOP=$CS_API_TOP
