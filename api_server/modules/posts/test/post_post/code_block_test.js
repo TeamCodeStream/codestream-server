@@ -1,7 +1,7 @@
 'use strict';
 
-var PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
-var Assert = require('assert');
+const PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
+const Assert = require('assert');
 const PostTestConstants = require('../post_test_constants');
 
 class CodeBlockTest extends PostCodeToFileStreamTest {
@@ -47,9 +47,30 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 		Assert(post.codeBlocks instanceof Array, 'no codeBlocks array');
 		Assert(post.codeBlocks.length === 1, 'length of codeBlocks array is ' + post.codeBlocks.length);
 		let codeBlock = post.codeBlocks[0];
-		let expectedCodeBlock = Object.assign({}, post.codeBlocks[0]);
-		delete expectedCodeBlock.streamId;
-		Assert.deepEqual(codeBlock, expectedCodeBlock, 'returned code block does not match');
+		if (!this.dontExpectMarkers) {
+			const marker = data.markers[0];
+			Assert(codeBlock.markerId === marker._id, 'codeBlock markerId not equal to marker ID');
+		}
+		const codeBlockStream = this.otherStream || this.stream;
+		if (!this.dontExpectStreams) {
+			Assert(codeBlock.streamId === codeBlockStream._id, 'codeBlock streamId not equal to proper stream ID');
+		}
+		const codeBlockFile = this.dontExpectStreams ? this.data.codeBlocks[0].file : codeBlockStream.file;
+		Assert(codeBlock.file === codeBlockFile, 'codeBlock file not equal to proper file for stream');
+		const codeBlockRepo = this.createdRepo || this.repo;
+		if (!this.dontExpectStreams) {
+			Assert(codeBlock.repoId === codeBlockRepo._id, 'codeBlock repoId not equal to ID of expected repo');
+			const codeBlockUrl = this.createdRepo ? this.createdRepo.remotes[0].normalizedUrl : this.repo.normalizedUrl;
+			Assert(codeBlock.repo === codeBlockUrl, 'codeBlock repo not equal to the expected repo url');
+		}
+		Assert(codeBlock.commitHash === this.data.commitHashWhenPosted.toLowerCase(), 'codeBlock commitHash not equal to commitHash of post');
+		const inputCodeBlock = this.data.codeBlocks[0];
+		Assert(codeBlock.code === inputCodeBlock.code, 'code not correct');
+		Assert(codeBlock.preContext === inputCodeBlock.preContext, 'code not correct');
+		Assert(codeBlock.postContext === inputCodeBlock.postContext, 'code not correct');
+		if (!inputCodeBlock.remotes && !this.dontExpectStreams) {
+			Assert.deepEqual(codeBlock.remotes, [codeBlockRepo.normalizedUrl], 'codeBlock remotes not equal to repo remotes');
+		}
 	}
 
 	// validate that the marker locations structure matches expectations for a created code block

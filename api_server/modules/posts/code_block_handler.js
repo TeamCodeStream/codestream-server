@@ -49,6 +49,9 @@ class CodeBlockHandler {
             this.codeBlock.file
 		) {
 			await this.createStream();
+			if (this.stream) {
+				this.codeBlock.streamId = this.stream.id;
+			}
 		}
 
 		// if we have a commit hash and a stream ID, we can create a marker to the code
@@ -83,7 +86,7 @@ class CodeBlockHandler {
 				string: ['code']
 			},
 			optional: {
-				string: ['preContext', 'postContext', 'repoId', 'file', 'streamId'],
+				string: ['preContext', 'postContext', 'repoId', 'file', 'streamId', 'commitHash'],
 				array: ['location'],
 				'array(string)': ['remotes']
 			}
@@ -146,9 +149,10 @@ class CodeBlockHandler {
 		if (this.stream.get('type') !== 'file') {
 			throw this.request.errorHandler.error('invalidParameter', { reason: 'codeBlock stream must be a file-type stream' });
 		}
+
+		// added to code block for informational purposes
 		this.codeBlock.repoId = this.stream.get('repoId');
-		this.codeBlock.file = this.stream.get('file');  // added to code block for informational purposes
-		delete this.codeBlock.streamId; // gets put into the marker
+		this.codeBlock.file = this.stream.get('file');  
 	}
 
 	async getOrCreateRepo () {
@@ -157,6 +161,9 @@ class CodeBlockHandler {
 		}
 		else if (this.codeBlock.remotes) {
 			await this.findMatchingRepoOrCreate();
+			if (this.repo) {
+				this.codeBlock.repoId = this.repo.id;
+			}
 		}
 
 		// add repo information directly to the code block
@@ -184,7 +191,6 @@ class CodeBlockHandler {
 				throw this.request.errorHandler.error('notFound', { info: 'codeBlock repo' });
 			}
 		}
-		delete this.codeBlock.repoId;   // gets put into the marker
 		if (this.codeBlock.remotes) {
 			await this.updateRepoWithNewRemotes(this.repo, this.codeBlock.remotes);
 		}
@@ -267,7 +273,6 @@ class CodeBlockHandler {
 			request: this.request
 		}).createMarker(markerInfo);
 		this.codeBlock.markerId = this.createdMarker.id;
-		delete this.codeBlock.commitHash;   // gets put into the marker
 	}
 
 	async setMarkerLocation () {
