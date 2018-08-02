@@ -1,4 +1,3 @@
-CodeStream_Server@ /Users/jj/sandboxes/api-noauth/api_server
 ├─┬ async@2.1.2
 │ └── lodash@4.16.4 deduped
 ├─┬ aws-sdk@2.285.1

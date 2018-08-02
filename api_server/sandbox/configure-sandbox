@@ -27,7 +27,7 @@ fi
 # package integrity check
 if [ -f sandbox/package-versions.txt ]; then
 	tmpfile=/tmp/junk$$
-	npm ls >$tmpfile
+	npm ls |grep -v ^CodeStream_Server@ >$tmpfile
 	x=`diff sandbox/package-versions.txt $tmpfile|wc -l`
 	if [ $x -gt 0 ]; then
 		echo "********************************************"
