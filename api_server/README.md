@@ -16,7 +16,7 @@ The CodeStream API Service is lovely.
 1. Load your dev_tools mongo sandbox if you're using one (`dt-load $my_mongo_sandbox_name`) or make sure mongo is running.
 1. Install the api sandbox with the command (only specify `-I` if you are *not* using a dev_tools mongo sandbox).
 	```
-	dt-new-sandbox -y -C -A -t cs_api -n $my_api_sandbox_name -D [-I]
+	dt-new-sandbox -y -C -t cs_api -n $my_api_sandbox_name -D [-I]
 	```
 1. Optionally, create a playground file as **~/playgrounds/$my_api_playground_name**. Here's a template you might want to use. Make sure you replace the **$my_mongo_sandbox_name**
 and **$my_api_sandbox_name** variables with their real vales
