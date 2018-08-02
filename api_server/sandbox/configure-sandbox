@@ -20,8 +20,20 @@ if [ "$CS_API_YARN" == true ]; then
     echo "yarn install (from `pwd`)"
     yarn install --frozen-lockfile
 else
-    echo "npm install (from `pwd`)"
-    npm install
+    echo "npm install --no-save (from `pwd`)"
+    npm install --no-save
+fi
+
+# package integrity check
+if [ -f sandbox/package-versions.txt ]; then
+	tmpfile=/tmp/junk$$
+	npm ls >$tmpfile
+	x=`diff sandbox/package-versions.txt $tmpfile|wc -l`
+	if [ $x -gt 0 ]; then
+		echo "********************************************"
+		echo "   WARNING: package tree looks different than sandbox/package-versions.txt"
+		echo "********************************************"
+	fi
 fi
 
 echo -n "Installing git hooks as sym links"
