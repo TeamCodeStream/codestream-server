@@ -19,6 +19,8 @@ githook_reconfigure_sandbox() {
     githook_file_has_changed package.json; [ $? -eq 1 ] && update_modules=1
     if [[ "$CS_API_YARN" == true ]]; then
         githook_file_has_changed yarn.lock; [ $? -eq 1 ] && update_modules=1
+	elif [ -f package-lock.json ]; then
+		githook_file_has_changed package-lock.json; [ $? -eq 1 ] && update_modules=1
     fi
     if [[ $update_modules -eq 1 ]]; then
         echo "Rebuilding node_modules"

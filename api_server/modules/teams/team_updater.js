@@ -105,12 +105,12 @@ class TeamUpdater extends ModelUpdater {
 			this.attributes.$addToSet && 
 			this.attributes.$addToSet.adminIds
 		) || (
-				this.attributes.$pull && 
+			this.attributes.$pull && 
 			this.attributes.$pull.adminIds
-			) || (
-				this.attributes.$pull &&
+		) || (
+			this.attributes.$pull &&
 			this.attributes.$pull.memberIds
-			) || [];
+		) || [];
 		if (memberIds.length === 0) {
 			return;
 		}
