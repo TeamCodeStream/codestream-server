@@ -33,7 +33,10 @@ if [ -f sandbox/package-versions.txt ]; then
 		echo "********************************************"
 		echo "   WARNING: package tree looks different than sandbox/package-versions.txt"
 		echo "********************************************"
+	else
+		echo "Package integrtity check looks good"
 	fi
+	/bin/rm $tmpfile
 fi
 
 echo -n "Installing git hooks as sym links"
