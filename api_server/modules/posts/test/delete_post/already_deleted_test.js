@@ -1,6 +1,6 @@
 'use strict';
 
-var DeletePostTest = require('./delete_post_test');
+const DeletePostTest = require('./delete_post_test');
 
 class AlreadyDeletedTest extends DeletePostTest {
 

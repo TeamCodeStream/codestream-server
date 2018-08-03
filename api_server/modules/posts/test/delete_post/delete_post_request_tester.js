@@ -2,18 +2,19 @@
 
 'use strict';
 
-var DeletePostTest = require('./delete_post_test');
-var ACLTest = require('./acl_test');
-var ACLTeamTest = require('./acl_team_test');
-var PostNotFoundTest = require('./post_not_found_test');
-var AlreadyDeletedTest = require('./already_deleted_test');
-var MessageToTeamTest = require('./message_to_team_test');
-var MessageToStreamTest = require('./message_to_stream_test');
-var MarkerDeletedTest = require('./marker_deleted_test');
-var MultipleMarkersDeletedTest = require('./multiple_markers_deleted_test');
-var MarkersDeletedMessageTest = require('./markers_deleted_message_test');
-var DeleteReplyToCodeBlockTest = require('./delete_reply_to_code_block_test');
-var NumCommentsMessageTest = require('./num_comments_message_test');
+const DeletePostTest = require('./delete_post_test');
+const ACLTest = require('./acl_test');
+const ACLTeamTest = require('./acl_team_test');
+const PostNotFoundTest = require('./post_not_found_test');
+const AlreadyDeletedTest = require('./already_deleted_test');
+const MessageToTeamTest = require('./message_to_team_test');
+const MessageToStreamTest = require('./message_to_stream_test');
+const MarkerDeletedTest = require('./marker_deleted_test');
+const MultipleMarkersDeletedTest = require('./multiple_markers_deleted_test');
+const MarkersDeletedMessageTest = require('./markers_deleted_message_test');
+const DeleteReplyToCodeBlockTest = require('./delete_reply_to_code_block_test');
+const NumCommentsMessageTest = require('./num_comments_message_test');
+const AdminCanDeleteTest = require('./admin_can_delete_test');
 
 class DeletePostRequestTester {
 
@@ -31,6 +32,7 @@ class DeletePostRequestTester {
 		new MarkersDeletedMessageTest().test();
 		new DeleteReplyToCodeBlockTest().test();
 		new NumCommentsMessageTest().test();
+		new AdminCanDeleteTest().test();
 	}
 }
 

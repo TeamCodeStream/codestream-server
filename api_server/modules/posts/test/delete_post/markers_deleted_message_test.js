@@ -1,6 +1,6 @@
 'use strict';
 
-var MessageToTeamTest = require('./message_to_team_test');
+const MessageToTeamTest = require('./message_to_team_test');
 
 class MarkersDeletedMessageTest extends MessageToTeamTest {
 
