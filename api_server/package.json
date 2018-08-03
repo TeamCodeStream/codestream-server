@@ -32,7 +32,7 @@
     "uuid": "^3.2.1"
   },
   "scripts": {
-    "eslint": "eslint --fix ."
+    "eslint": "eslint ."
   },
   "pre-commit": [
     "eslint"

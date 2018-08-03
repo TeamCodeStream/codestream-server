@@ -1,6 +1,6 @@
 'use strict';
 
-var PutPreferencesFetchTest = require('./put_preferences_test');
+var PutPreferencesFetchTest = require('./put_preferences_fetch_test');
 
 class UnsetTest extends PutPreferencesFetchTest {
 

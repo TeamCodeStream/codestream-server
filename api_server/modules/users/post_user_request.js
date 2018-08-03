@@ -11,8 +11,21 @@ const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_
 class PostUserRequest extends PostRequest {
 
 	async authorize () {
-		// must be on the team to invite a user to it!
+		// first, inviting user must be on the team
 		await this.user.authorizeFromTeamId(this.request.body, this, { error: 'createAuth' });
+
+		// then, if the onlyAdminsCanInvite team setting is set, then the user must be an admin for the team
+		const teamId = decodeURIComponent(this.request.body.teamId).toLowerCase();
+		const team = await this.data.teams.getById(teamId);
+		if (!team) {
+			throw this.errorHandler.error('notFound', { info: 'team' });
+		}
+		if (
+			(team.get('settings') || {}).onlyAdminsCanInvite &&
+			!(team.get('adminIds') || []).includes(this.user.id)
+		) {
+			throw this.errorHandler.error('createAuth', { reason: 'only admins can invite users to this team' });
+		}
 	}
 
 	// process the request...

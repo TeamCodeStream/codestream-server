@@ -2,18 +2,30 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class CommonInit {
 
 	init (callback) {
 		BoundAsync.series(this, [
+			this.createTeamCreator,	// create another register user who will create the repo and team for the test
 			this.createOtherUser,	// create another registered user
 			this.createRandomRepo,	// create a random repo (and team) for the test
 			this.createRandomStream,	// create a stream in that repo
 			this.createParentPost,	// create a parent post, for replies, if needed
 			this.createPost        // create the post that will then be deactivated
 		], callback);
+	}
+
+	// create another register user who will create the repo and team for the test
+	createTeamCreator (callback) {
+		this.userFactory.createRandomUser(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.teamCreatorData = response;
+				callback();
+			}
+		);
 	}
 
 	// create another registered user (in addition to the "current" user)
@@ -29,8 +41,13 @@ class CommonInit {
 
 	// create a random repo to use for the test
 	createRandomRepo (callback) {
-		let withEmails = this.withoutOtherUserOnTeam ? [] : [this.currentUser.email];
-		let token = this.withoutOtherUserOnTeam ? this.token : this.otherUserData.accessToken;
+		const withEmails = [
+			this.otherUserData.user.email
+		];
+		if (!this.withoutCurrentUserOnTeam) {
+			withEmails.push(this.currentUser.email);
+		}
+		const token = this.teamCreatorData.accessToken; 
 		this.repoFactory.createRandomRepo(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -41,16 +58,16 @@ class CommonInit {
 			{
 				withEmails: withEmails,	// include current user, unless we're not including the other user, in which case the current user is the repo creator
 				withRandomEmails: 1,	// another user for good measure
-				token: token	// the "other user" is the repo and team creator, unless otherwise specified
+				token			
 			}
 		);
 	}
 
 	// create a random stream to use for the test
 	createRandomStream (callback) {
-		let token = this.withoutOtherUserOnTeam ? this.token : this.otherUserData.accessToken;
-		let type = this.streamType || 'file';
-		let memberIds = this.streamType !== 'file' ? [this.currentUser._id] : undefined;
+		const token = this.teamCreatorData.accessToken;
+		const type = this.streamType || 'file';
+		const memberIds = this.streamType !== 'file' ? [this.currentUser._id] : undefined;
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -62,7 +79,7 @@ class CommonInit {
 				teamId: this.team._id, // create the stream in the team we already created
 				repoId: type === 'file' ? this.repo._id : undefined, // file-type streams must have repoId
 				memberIds: memberIds, // include current user in stream if needed
-				token: token // the "other user" is the stream creator, unless otherwise specified
+				token
 			}
 		);
 	}
@@ -86,8 +103,9 @@ class CommonInit {
 
 	// create the post to be updated
 	createPost (callback) {
+		const token = this.otherUserCreatesPost ? this.otherUserData.accessToken : this.token;
 		let postOptions = {
-			token: this.token,   // the "current" user is the creator of the post (and will be the deleter)
+			token,   // the "current" user is the creator of the post, unless otherwise specified
 			streamId: this.stream._id, // create the post in the stream we created
 			wantCodeBlocks: this.wantCodeBlocks	// with code blocks, to create markers
 		};

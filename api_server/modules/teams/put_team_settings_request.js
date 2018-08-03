@@ -1,4 +1,4 @@
-// handle the "PUT /preferences" request to update the user's preferences object
+// handle the "PUT /team-settings" request to update a team's settings
 
 'use strict';
 
@@ -7,38 +7,45 @@ const { opFromHash } = require(process.env.CS_API_TOP + '/lib/util/data_collecti
 
 const MAX_KEYS = 100;
 
-class PutPreferencesRequest extends RestfulRequest {
+class PutTeamSettingsRequest extends RestfulRequest {
 
 	async authorize () {
-		// only applies to current user, no authorization required
+		// user must be an administrator for the team
+		const teamId = this.request.params.id.toLowerCase();
+		this.team = await this.data.teams.getById(teamId);
+		if (!this.team) {
+			throw this.errorHandler.error('notFound', { info: 'team' });
+		}
+		if (!(this.team.get('adminIds') || []).includes(this.user.id)) {
+			throw this.errorHandler.error('updateAuth', { reason: 'user must be an adminstrator of the team to update its settings' });
+		}
 	}
 
 	// process the request...
 	async process () {
 		// determine the update op based on the request body, and apply it if valid
 		this.totalKeys = 0;
-		this.op = opFromHash(this.request.body, 'preferences', MAX_KEYS);
+		this.op = opFromHash(this.request.body, 'settings', MAX_KEYS);
 		if (typeof this.op === 'string') {
 			throw this.errorHandler.error('invalidParameter', { info: this.op });
 		}
-		await this.data.users.applyOpById(
-			this.request.user.id,
+		await this.data.teams.applyOpById(
+			this.team.id,
 			this.op
 		);
 		this.responseOp = {
-			user: {
-				_id: this.user.id
+			team: {
+				_id: this.team.id
 			}
 		};
-		Object.assign(this.responseOp.user, this.op);
+		Object.assign(this.responseOp.team, this.op);
 
 	}
 
 	// after the response is returned....
 	async postProcess () {
-		// send the message to the user's me-channel, so other sessions know that the
-		// preferences have been updated
-		const channel = 'user-' + this.user.id;
+		// send the message to the team channel
+		const channel = 'team-' + this.team.id;
 		const publishOp = Object.assign({}, this.responseOp, { requestId: this.request.id });
 		try {
 			await this.api.services.messager.publish(
@@ -49,7 +56,7 @@ class PutPreferencesRequest extends RestfulRequest {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate
-			this.warn(`Unable to publish preferences message to channel ${channel}: ${JSON.stringify(error)}`);
+			this.warn(`Unable to publish settings message to channel ${channel}: ${JSON.stringify(error)}`);
 		}
 	}
 
@@ -76,30 +83,30 @@ class PutPreferencesRequest extends RestfulRequest {
 	// describe this route for help
 	static describe () {
 		return {
-			tag: 'put-preferences',
-			summary: 'Update a user\'s preferences',
-			access: 'The current user can only update their own preferences',
-			description: 'Updates a user\'s preferences object, which is a free-form object, with arbitrary levels of nesting. Only the values specified in the request body will be updated; other values in the preferences object will remain unchanged. $set and $unset directives can be used at any nesting level to set or unset a value, respectively.',
+			tag: 'team-settings',
+			summary: 'Update a team\'s settings',
+			access: 'Only an administrator for the team can update the team\'s settings',
+			description: 'Updates a team\'s settings object, which is a free-form object, with arbitrary levels of nesting. Only the values specified in the request body will be updated; other values in the settings object will remain unchanged. $set and $unset directives can be used at any nesting level to set or unset a value, respectively.',
 			input: 'Specify values to set, up to an arbitrary level of nesting, in the request body.',
 			returns: {
-				summary: 'A user object with directives appropriate for updating the user\'s preferences',
+				summary: 'A team object, with directives appropriate for updating the team\'s settings',
 				looksLike: {
-					user: {
-						_id: '<ID of the user>',
-						preferences: {
-							'<some preferences value>': '<some directive>',
+					team: {
+						_id: '<ID of the team>',
+						settings: {
+							'<some settings value>': '<some directive>',
 							'...': '...'
 						}
 					}
 				}
 			},
 			publishes: {
-				summary: 'Publishes a user object, with directives corresponding to the request body passed in, to the user\'s user channel, indicating how the preferences object for the user object should be updated.',
+				summary: 'Publishes a team object, with directives corresponding to the request body passed in, to the team channel, indicating how the settings object for the team object should be updated.',
 				looksLike: {
 					user: {
-						_id: '<ID of the user>',
+						_id: '<ID of the team>',
 						preferences: {
-							'<some preferences value>': '<some directive>',
+							'<some settings value>': '<some directive>',
 							'...': '...'
 						}
 					}
@@ -112,4 +119,4 @@ class PutPreferencesRequest extends RestfulRequest {
 	}
 }
 
-module.exports = PutPreferencesRequest;
+module.exports = PutTeamSettingsRequest;

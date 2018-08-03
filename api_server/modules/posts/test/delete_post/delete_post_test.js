@@ -2,10 +2,10 @@
 
 'use strict';
 
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-var Assert = require('assert');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var CommonInit = require('./common_init');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const CommonInit = require('./common_init');
 const PostTestConstants = require('../post_test_constants');
 
 class DeletePostTest extends Aggregation(CodeStreamAPITest, CommonInit) {

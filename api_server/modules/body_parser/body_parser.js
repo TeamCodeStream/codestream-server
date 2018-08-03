@@ -20,7 +20,7 @@ class BodyParserModule extends APIServerModule {
 	jsonBodyReviver (key, value) {
 		if (typeof value === 'string') {
 			// remove some weird unicode characters
-			/* eslint  no-control-regex: warn */
+			/* eslint no-control-regex:0 */
 			value = value.replace(/[\u0000-\u0008\u200B-\u200F\u2028-\u202F\uFFFC\uFEFF]/g, '');
 		}
 		return value;

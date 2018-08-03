@@ -1,8 +1,13 @@
 'use strict';
 
-var DeletePostTest = require('./delete_post_test');
+const DeletePostTest = require('./delete_post_test');
 
 class ACLTest extends DeletePostTest {
+
+	constructor (options) {
+		super(options);
+		this.otherUserCreatesPost = true;
+	}
 
 	get description () {
 		return 'should return an error when trying to delete a post authored by someone else';
@@ -11,18 +16,8 @@ class ACLTest extends DeletePostTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1013',
-			reason: 'only the post author can delete the post'
+			reason: 'only the post author or a team admin can delete the post'
 		};
-	}
-
-	// before the test runs...
-	before (callback) {
-		super.before(error => {
-			if (error) { return callback(error); }
-			// replace the current user's token with the other user's token
-			this.token = this.otherUserData.accessToken;
-			callback();
-		});
 	}
 }
 

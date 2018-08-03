@@ -1,7 +1,7 @@
 'use strict';
 
-var DeletePostTest = require('./delete_post_test');
-var ObjectID = require('mongodb').ObjectID;
+const DeletePostTest = require('./delete_post_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class PostNotFoundTest extends DeletePostTest {
 

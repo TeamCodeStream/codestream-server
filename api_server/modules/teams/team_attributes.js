@@ -32,5 +32,10 @@ module.exports = {
 		type: 'arrayOfIds',
 		maxLength: 256,
 		description: 'IDs of the administrators for this team'
-	}
+	},
+	settings: {
+		type: 'object',
+		maxLength: 10000,
+		description: 'Free-form object representing the team\'s settings'
+	},
 };
