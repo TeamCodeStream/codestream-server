@@ -26,6 +26,11 @@ const TEAM_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: '/delete-content',
 		requestClass: require('./delete_content_request')
+	},
+	{
+		method: 'put',
+		path: 'team-settings/:id',
+		requestClass: require('./put_team_settings_request')
 	}
 ];
 

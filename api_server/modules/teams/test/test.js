@@ -17,4 +17,5 @@ describe('team requests', function() {
 	describe('GET /teams', teamsRequestTester.getTeamsTest);
 	describe('POST /teams', teamsRequestTester.postTeamTest);
 	describe('PUT /teams/:id', teamsRequestTester.putTeamTest);
+	describe('PUT /team-settings/:id', teamsRequestTester.putTeamSettingsTest);
 });

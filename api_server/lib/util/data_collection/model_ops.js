@@ -102,6 +102,83 @@ var _documentOpsHelper = function(opType, document, op) {
 	});
 };
 
+// given an update object with nested levels, translate into an update operation
+// using mongo's dot notation to separate keys from sub-keys
+var _flattenOp = function(opData, value, rootKey) {
+	let op = {};
+	for (let key in value) {
+		if (value.hasOwnProperty(key)) {
+			opData.totalKeys++;
+			if (opData.totalKeys === opData.maxKeys) {
+				// we have a limit on the number of keys that can be updated in one
+				// request, just as a safeguard
+				return 'too many keys';
+			}
+			const subValue = value[key];
+			if (typeof subValue === 'object') {
+				const subRoot = `${rootKey}${key}.`;
+				const subOp = _flattenOp(opData, subValue, subRoot);
+				if (typeof subOp === 'string') {
+					return subOp;	// error
+				}
+				Object.assign(op, subOp);
+			}
+			else {
+				op[rootKey + key] = subValue;
+			}
+		}
+	}
+	return op;
+}
+
+// handle a directive encountered in the hash, translating it into
+// the op to pass in the database update operation
+var _handleDirective = function(opData, key) {
+	const value = opData.hash[key];
+	if (typeof value !== 'object') {
+		return key;
+	}
+	const subOp = _flattenOp(opData, value, opData.root);
+	opData.op[key] = opData.op[key] || {};
+	Object.assign(opData.op[key], subOp);
+}
+
+// handle a normal field value encountered, and translate into the op
+// to pass in the database update operation
+var _handleNonDirective = function(opData, key) {
+	opData.op.$set = opData.op.$set || {};
+	const subRoot = `${opData.root}${key}.`;
+	const value = opData.hash[key];
+	if (typeof value === 'object') {
+		const subOp = _flattenOp(opData, value, subRoot);
+		if (typeof subOp === 'string') {
+			return subOp;	// error
+		}
+		Object.assign(opData.op.$set, subOp);
+
+	}
+	else {
+		opData.op.$set[opData.root + key] = value;
+	}
+}
+
+// handle the top-level key in a hash, turning it into an op
+var _handleTopLevelKey = function(opData, key) {
+	opData.totalKeys++;
+	if (opData.totalKeys === opData.maxKeys) {
+		// we have a limit on the number of keys that can be updated in one
+		// request, just as a safeguard
+		return 'too many keys';
+	}
+	if (key.startsWith('$')) {
+		// a command directive like $set or $unset
+		return _handleDirective(opData, key);
+	}
+	else {
+		// an ordinary "set"
+		return _handleNonDirective(opData, key);
+	}
+}
 
 module.exports = {
 
@@ -115,5 +192,24 @@ module.exports = {
 				_documentOpsHelper(opType, model.attributes, op[opType]);
 			}
 		});
+	},
+
+	opFromHash: function(hash, rootKey, maxKeys) {
+		// the hash can be a multi-level json object, but we'll update the database
+		// using mongo's dot-notation
+		const opData = {
+			op: {},
+			hash,
+			root: `${rootKey}.`,
+			maxKeys,
+			totalKeys: 0
+		};
+		for (let key in hash) {
+			if (hash.hasOwnProperty(key)) {
+				const error = _handleTopLevelKey(opData, key);
+				if (error) { return error; }
+			}
+		}
+		return opData.op;
 	}
 };
