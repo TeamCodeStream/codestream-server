@@ -129,7 +129,7 @@ var _flattenOp = function(opData, value, rootKey) {
 		}
 	}
 	return op;
-}
+};
 
 // handle a directive encountered in the hash, translating it into
 // the op to pass in the database update operation
@@ -141,7 +141,7 @@ var _handleDirective = function(opData, key) {
 	const subOp = _flattenOp(opData, value, opData.root);
 	opData.op[key] = opData.op[key] || {};
 	Object.assign(opData.op[key], subOp);
-}
+};
 
 // handle a normal field value encountered, and translate into the op
 // to pass in the database update operation
@@ -160,7 +160,7 @@ var _handleNonDirective = function(opData, key) {
 	else {
 		opData.op.$set[opData.root + key] = value;
 	}
-}
+};
 
 // handle the top-level key in a hash, turning it into an op
 var _handleTopLevelKey = function(opData, key) {
@@ -178,7 +178,7 @@ var _handleTopLevelKey = function(opData, key) {
 		// an ordinary "set"
 		return _handleNonDirective(opData, key);
 	}
-}
+};
 
 module.exports = {
 
