@@ -4,7 +4,7 @@
 The CodeStream API Service is lovely.
 
 
-## Installation for local development as a dev_tools sandbox
+## Installation (or major upgrade) for local development as a dev_tools sandbox
 
 ### Prerequisites
 1. Install the dev_tools tookkit [here](https://github.com/teamcodestream/dev_tools).
@@ -12,6 +12,11 @@ The CodeStream API Service is lovely.
 1. Access to the CodeStream network via the VPN
 
 ### Commands
+1. If your intention is to do a major upgrade of your existing sandbox (because you cannot afford to loose your
+local repository), in a clean shell (no sandboxes loaded), run this command:
+	```
+	mv ~/sandboxes/$my_api_sandbox_name ~/sandboxes/$my_api_sandbox_name.ORIG
+	```
 1. Open a new terminal window
 1. Load your dev_tools mongo sandbox if you're using one (`dt-load $my_mongo_sandbox_name`) or make sure mongo is running.
 1. Install the api sandbox with the command (only specify `-I` if you are *not* using a dev_tools mongo sandbox).
@@ -36,4 +41,11 @@ and **$my_api_sandbox_name** variables with their real vales
 1. To load your playground, type the following ( (make sure you replace $my_api_playground_name with the real name).
 	```
 	dt-load-playground $my_api_playground_name
+	```
+1. If you were upgrading an existing sandbox and ran the command in the first step, finish up with these commands:
+	```
+	cd $CS_API_TOP
+	/bin/rm -rf .git
+	mv ~/sandboxes/$my_api_sandbox_name.ORIG/api_server/.git .
+	/bin/rm -rf ~/sandboxes/$my_api_sandbox_name.ORIG
 	```
