@@ -181,12 +181,16 @@ class UserCreator extends ModelCreator {
 				return await this.checkUsernameUnique();
 			}
 		}
-		throw this.errorHandler.error('usernameNotUnique', {
-			info: {
-				username: username,
-				teamIds: usernameChecker.notUniqueTeamIds
-			}
-		});
+
+		// on registration, we throw the error, but if user is being invited to the team, we tolerate it
+		if (!this.userBeingAddedToTeam) {
+			throw this.errorHandler.error('usernameNotUnique', {
+				info: {
+					username: username,
+					teamIds: usernameChecker.notUniqueTeamIds
+				}
+			});
+		}
 	}
 
 	// create the user
