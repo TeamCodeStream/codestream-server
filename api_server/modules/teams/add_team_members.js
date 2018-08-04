@@ -100,7 +100,8 @@ class AddTeamMembers  {
 			request: this.request,
 			teamIds: [this.teamId],
 			dontSaveIfExists: this.saveUserIfExists ? false : true,	// if the user already exists, don't bother saving, unless overridden
-			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			userBeingAddedToTeam: true
 		});
 		const userCreated = await this.userCreator.createUser(user);
 		if (existingUser) {

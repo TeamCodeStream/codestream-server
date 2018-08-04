@@ -22,12 +22,16 @@ class CommonInit {
 		if (!this.wantExistingUser) {
 			return callback();
 		}
+		const userOptions = {};
+		if (this.existingUserUsername) {
+			userOptions.username = this.existingUserUsername;
+		}
 		const createFunc = this.existingUserIsRegistered ? 'createRandomUser' : 'registerRandomUser';
 		this.userFactory[createFunc]((error, response) => {
 			if (error) { return callback(error); }
 			this.existingUserData = response;
 			callback();
-		});
+		}, userOptions);
 	}
 
 	// create another registered user (in addition to the "current" user)
@@ -66,12 +70,17 @@ class CommonInit {
 	// create a registered user who will be the one that creates the team
 	// that the test user will be invited onto
 	createTeamCreator (callback) {
+		const userOptions = {};
+		if (this.teamCreatorUsername) {
+			userOptions.username = this.teamCreatorUsername;
+		}
 		this.userFactory.createRandomUser(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.teamCreatorData = response;
 				callback();
-			}
+			},
+			userOptions
 		);
 	}
 

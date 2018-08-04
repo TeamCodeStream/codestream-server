@@ -35,6 +35,8 @@ const ExtendedUsernameResolutionTest = require('./extended_username_resolution_t
 const UsernameResolutionWithIllegalCharactersTest = require('./username_resolution_with_illegal_characters_test');
 const OnlyAdminsTest = require('./only_admins_test');
 const AdminsCanInviteTest = require('./admins_can_invite_test');
+//const UniqueUsernameTest = require('./unique_username_test');
+const DuplicateUsernameOkTest = require('./duplicate_username_ok_test');
 
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
 
@@ -80,6 +82,8 @@ class PostUserRequestTester {
 		new UsernameResolutionWithIllegalCharactersTest().test();
 		new OnlyAdminsTest().test();
 		new AdminsCanInviteTest().test();
+		// new UniqueUsernameTest().test();	// not an error anymore
+		new DuplicateUsernameOkTest().test();
 	}
 }
 
