@@ -44,7 +44,10 @@ var _Ops = {
 			document[field] = [];
 		}
 		if (document[field] instanceof Array) {
-			document[field].push(value);
+			if (!(value instanceof Array)) {
+				value = [value];
+			}
+			document[field].push(...value);
 		}
 	},
 
