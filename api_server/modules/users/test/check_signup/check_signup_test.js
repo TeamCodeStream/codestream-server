@@ -34,16 +34,20 @@ class CheckSignupTest extends CodeStreamAPITest {
 		BoundAsync.series(this, [
 			this.registerUser,  // create an unregistered user with a random signup token
 			this.confirmUser,   // confirm the user
-			this.createRepo,     // create a repo (and a team) for the user to be on, this is required before the signup token can be used
+			this.createRepo,    // create a repo (and a team) for the user to be on, this is required before the signup token can be used
 			this.wait
 		], callback);
 	}
 
 	// register (but don't confirm) a user, 
 	registerUser (callback) {
+		this.signupToken = UUID();
 		const userData = this.userFactory.getRandomUserData();
 		userData.wantLink = true;   // we'll get back a confirmation link 
 		userData._confirmationCheat = SecretsConfig.confirmationCheat;  // cheat code to get back the confirmation link 
+		userData.signupToken = this.signupToken;
+		userData.expiresIn = this.expiresIn;
+		this.data = { token: this.signupToken };
 		this.userFactory.registerUser(
 			userData,
 			(error, response) => {
@@ -58,12 +62,9 @@ class CheckSignupTest extends CodeStreamAPITest {
 	// when the IDE generates a signup token and passes it on to the web client for signup and the
 	// user goes through the signup process
 	confirmUser (callback) {
-		this.signupToken = UUID();
-		this.data = { token: this.signupToken };
+		if (this.dontConfirm) { return callback(); }
 		const data = {
-			token: this.userData.user.confirmationToken,
-			signupToken: this.signupToken,
-			expiresIn: this.expiresIn
+			token: this.userData.user.confirmationToken
 		};
 		this.doApiRequest(
 			{

@@ -30,6 +30,7 @@ class RegisterRequest extends RestfulRequest {
 		await this.generateLinkToken();		// generate a token for the confirm link, as requested
 		await this.saveTokenInfo();			// save the token info to the user object, if we're doing a confirm link
 		await this.generateAccessToken();	// generate an access token, as needed (if confirmation not required)
+		await this.saveSignupToken();		// save the signup token so we can identify this user with an IDE session
 		await this.sendEmail();				// send the confirmation email with the confirmation code
 		await this.formResponse();			// form the response to the request
 	}
@@ -37,16 +38,10 @@ class RegisterRequest extends RestfulRequest {
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
 		// many attributes that are allowed but don't become attributes of the created user
-		this.confirmationCheat = this.request.body._confirmationCheat;	// cheat code for testing only, return confirmation code in response
-		delete this.request.body._confirmationCheat;
-		this.subscriptionCheat = this.request.body._subscriptionCheat; // cheat code for testing only, allow subscription to me-channel before confirmation
-		delete this.request.body._subscriptionCheat;
-		this.delayEmail = this.request.body._delayEmail;				// delay sending the confirmation email, for testing
-		delete this.request.body._delayEmail;
-		this.wantLink = this.request.body.wantLink;						// want a confirmation email with a link instead of a confirmation code
-		delete this.request.body.wantLink;
-		this.expiresIn = this.request.body.expiresIn;					// confirmation link should expire in this number of milliseconds, rather than the default
-		delete this.request.body.expiresIn;
+		['_confirmationCheat', '_subscriptionCheat', '_delayEmail', 'wantLink', 'expiresIn', 'signupToken'].forEach(parameter => {
+			this[parameter] = this.request.body[parameter];
+			delete this.request.body[parameter];
+		});
 
 		// backward compatibility with first/last name, turn it into a full name
 		if (!this.request.body.fullName && (this.request.body.firstName || this.request.body.lastName)) {
@@ -91,10 +86,15 @@ class RegisterRequest extends RestfulRequest {
 
 	// save the user to the database, given the attributes in the request body
 	async saveUser () {
+		if (this.request.body.signupToken) {
+			// this doesn't get saved with the user
+			this.signupToken = this.request.body.signupToken;
+			delete this.request.body.signupToken;	
+		}
 		this.userCreator = new UserCreator({
 			request: this,
 			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
-			subscriptionCheat: this.subscriptionCheat === this.api.config.secrets.subscriptionCheat
+			subscriptionCheat: this._subscriptionCheat === this.api.config.secrets.subscriptionCheat
 		});
 		this.user = await this.userCreator.createUser(this.request.body);
 	}
@@ -160,14 +160,30 @@ class RegisterRequest extends RestfulRequest {
 		};
 	}
 
+	// if a signup token is provided, this allows a client IDE session to identify the user ID that was eventually
+	// signed up as it originated from the IDE
+	async saveSignupToken () {
+		if (!this.signupToken) {
+			return;
+		}
+		await this.api.services.signupTokens.insert(
+			this.signupToken,
+			this.user.id,
+			{ 
+				requestId: this.request.id,
+				expiresIn: this.expiresIn
+			}
+		);
+	}
+
 	// send out the confirmation email with the confirmation code
 	async sendEmail () {
 		if (!this.confirmationRequired) {
 			return;
 		}
-		if (this.delayEmail) {
-			setTimeout(this.sendEmail.bind(this), this.delayEmail);
-			delete this.delayEmail;
+		if (this._delayEmail) {
+			setTimeout(this.sendEmail.bind(this), this._delayEmail);
+			delete this._delayEmail;
 			return;
 		}
 
@@ -217,7 +233,7 @@ class RegisterRequest extends RestfulRequest {
 		// this is a security vulnerability
 		if (!this.user.get('isRegistered') || this.user.get('_forTesting')) {
 			this.responseData = { user: this.user.getSanitizedObjectForMe() };
-			if (this.confirmationCheat === this.api.config.secrets.confirmationCheat) {
+			if (this._confirmationCheat === this.api.config.secrets.confirmationCheat) {
 				// this allows for testing without actually receiving the email
 				this.log('Confirmation cheat detected, hopefully this was called by test code');
 				this.responseData.user.confirmationCode = this.user.get('confirmationCode');
@@ -262,7 +278,8 @@ class RegisterRequest extends RestfulRequest {
 					'timeZone': '<User\'s time zone, per the Time Zone Database>',
 					'secondaryEmails': '<Array of other emails the user wants to associate with their account>',
 					'preferences': '<Object representing any preferences the user wants to set as they register>',
-					'wantLink': '<Set this to send a confirmation email with a link instead of a code>'
+					'wantLink': '<Set this to send a confirmation email with a link instead of a code>',
+					'signupToken': '<Client-generated signup token, passed to signup on the web, to associate an IDE session with the new user>'
 				}
 			},
 			returns: {

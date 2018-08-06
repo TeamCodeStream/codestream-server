@@ -31,7 +31,10 @@ class SignupTokens {
 
 	// insert a single signup token, and associate it with the given user ID
 	async insert (token, userId, options = {}) {
-		const expiresIn = options.expiresIn || this.expirationTime;
+		let expiresIn = this.expirationTime;
+		if (typeof options.expiresIn === 'number' && options.expiresIn < this.expirationTime) {
+			expiresIn = options.expiresIn;
+		}
 		const expiresAt = Date.now() + expiresIn;
 		const tokenData = {
 			token,
