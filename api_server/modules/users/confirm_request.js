@@ -41,7 +41,6 @@ class ConfirmRequest extends RestfulRequest {
 		await this.hashPassword();			// hash the provided password, if given
 		await this.checkUsernameUnique();	// check that the user's username will be unique for their team, as needed
 		await this.updateUser();			// update the user's database record
-		await this.saveSignupToken();		// save the signup token so we can identify this user with an IDE session
 		await this.doLogin();				// proceed with the actual login
 	}
 
@@ -51,7 +50,7 @@ class ConfirmRequest extends RestfulRequest {
 			'body',
 			{
 				optional: {
-					string: ['email', 'password', 'username', 'confirmationCode', 'token', 'signupToken'],
+					string: ['email', 'password', 'username', 'confirmationCode', 'token'],
 					number: ['expiresIn']
 				}
 			}
@@ -218,22 +217,6 @@ class ConfirmRequest extends RestfulRequest {
 		await this.getFirstTeam();		// get the first team the user is on, if needed, this becomes the "origin" team
 		await this.getTeamCreator();	// get the creator of that team
 		await this.doUserUpdate();		// do the actual update
-	}
-
-	// if a signup token is provided, this allows a client IDE session to identify the user ID that was eventually
-	// signed up as it originated from the IDE
-	async saveSignupToken () {
-		if (!this.request.body.signupToken) {
-			return;
-		}
-		await this.api.services.signupTokens.insert(
-			this.request.body.signupToken,
-			this.user.id,
-			{ 
-				requestId: this.request.id,
-				expiresIn: this.request.body.expiresIn
-			}
-		);
 	}
 
 	// get the first team the user is on, if needed

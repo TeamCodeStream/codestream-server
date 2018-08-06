@@ -4,7 +4,6 @@ var Assert = require('assert');
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
-//const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
 
 class RegistrationTest extends CodeStreamAPITest {
 
@@ -33,6 +32,7 @@ class RegistrationTest extends CodeStreamAPITest {
 		// establish random user data for the registration, we cheat and fetch the
 		// confirmation code in the test so we don't have to get it from an email
 		this.data = this.userFactory.getRandomUserData();
+		this.data.signupToken = require('uuid/v4');	// more accurately simulates signup from the web
 		this.data._confirmationCheat = SecretsConfig.confirmationCheat;
 		callback();
 	}
