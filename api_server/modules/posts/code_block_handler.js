@@ -172,13 +172,14 @@ class CodeBlockHandler {
 			if (this.repo.get('remotes')) {
 				const remotes = this.repo.get('remotes').map(remote => remote.normalizedUrl);
 				this.codeBlock.repo = remotes[0];
-				this.codeBlock.remotes = remotes;
 			}
 			else if (this.repo.get('normalizedUrl')) {
 				this.codeBlock.repo = this.repo.get('normalizedUrl');
-				this.codeBlock.remotes = [this.codeBlock.repo];
 			}
 		}
+
+		// now that we have a repo, remove any reference in the code block to the remotes
+		delete this.codeBlock.remotes;
 	}
 
 	async getRepo () {
