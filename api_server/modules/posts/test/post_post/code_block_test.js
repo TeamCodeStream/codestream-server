@@ -68,9 +68,6 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 		Assert(codeBlock.code === inputCodeBlock.code, 'code not correct');
 		Assert(codeBlock.preContext === inputCodeBlock.preContext, 'code not correct');
 		Assert(codeBlock.postContext === inputCodeBlock.postContext, 'code not correct');
-		if (!inputCodeBlock.remotes && !this.dontExpectStreams) {
-			Assert.deepEqual(codeBlock.remotes, [codeBlockRepo.normalizedUrl], 'codeBlock remotes not equal to repo remotes');
-		}
 	}
 
 	// validate that the marker locations structure matches expectations for a created code block
