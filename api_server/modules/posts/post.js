@@ -33,6 +33,13 @@ class Post extends CodeStreamModel {
 		const mentionedUserIds = this.get('mentionedUserIds') || [];
 		return mentionedUserIds.includes(user.id);
 	}
+
+	// get the emote for this post, if it starts with /me (basically the rest of the post)
+	getEmote () {
+		const text = this.get('text') || '';
+		const match = text.match(/^\/me\s+(.*)/);
+		return match && match.length > 1 && match[1];
+	}
 }
 
 module.exports = Post;

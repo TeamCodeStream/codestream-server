@@ -208,9 +208,14 @@ class EmailNotificationSender {
 		if (this.posts.length === 0) {
 			return true; // short-circuits when there are no posts
 		}
-		const firstPost = this.posts[0];
+
 		// record whether we have multiple authors represented in the posts
+		const firstPost = this.posts[0];
 		this.hasMultipleAuthors = this.posts.find(post => post.get('creatorId') !== firstPost.get('creatorId'));
+		
+		// record whether we have any emotes represented in the posts 
+		// (which must be displayed even if we would otherwise suppress the author line)
+		this.hasEmotes = this.posts.find(post => post.getEmote());
 	}
 
 	// get the markers representing the code blocks of the posts
@@ -301,7 +306,7 @@ class EmailNotificationSender {
 			post,
 			creator,
 			parentPost,
-			sameAuthor: !this.hasMultipleAuthors,
+			suppressAuthors: !this.hasMultipleAuthors && !this.hasEmotes,
 			timeZone,
 			markers: this.markers,
 			streams: this.streams,
@@ -319,6 +324,7 @@ class EmailNotificationSender {
 		this.renderedPostsPerUser = {};
 		this.mentionsPerUser = {};
 		this.hasMultipleAuthorsPerUser = {};
+		this.hasEmotesPerUser = {};
 		for (let user of this.toReceiveEmails) {
 			await this.determinePostsForUser(user);
 		}
@@ -355,6 +361,9 @@ class EmailNotificationSender {
 		this.hasMultipleAuthorsPerUser[user.id] = this.renderedPostsPerUser[user.id].find(renderedPost => {
 			return renderedPost.post.get('creatorId') !== firstPost.get('creatorId');
 		});
+		this.hasEmotesPerUser[user.id] = this.renderedPostsPerUser[user.id].find(renderedPost => {
+			return renderedPost.post.getEmote();
+		});
 	}
 
 	// personalize each user's rendered posts as needed ... the rendered posts need to be
@@ -363,7 +372,7 @@ class EmailNotificationSender {
 	// of unread posts), OR (2) all the users receiving emails are not in the same time zone
 	// (because the timestamps for the posts are timezone-dependent)
 	async personalizePerUser () {
-		if (!this.hasMultipleAuthors && !this.hasMultipleTimeZones) {
+		if (!this.hasMultipleAuthors && !this.hasEmotes && !this.hasMultipleTimeZones) {
 			return;
 		}
 		for (let user of this.toReceiveEmails) {
@@ -381,12 +390,12 @@ class EmailNotificationSender {
 
 			// if the user has multiple authors represented in the posts they are getting
 			// in their email, we show the author usernames, otherwise hide them
-			const hasMultipleAuthors = this.hasMultipleAuthors || this.hasMultipleAuthorsPerUser[user.id];
+			const suppressAuthor = !this.hasMultipleAuthorsPerUser[user.id] && !this.hasEmotesPerUser[user.id];
 			let authorSpan = '';
-			if (hasMultipleAuthors) {
+			if (!suppressAuthor) {
 				const creator = this.postCreators.find(creator => creator.id === post.get('creatorId'));
 				if (creator) {
-					authorSpan = PostRenderer.renderAuthorSpan(creator);
+					authorSpan = PostRenderer.renderAuthorSpan(creator, post.getEmote());
 				}
 			}
 			html = html.replace(/\{\{\{authorSpan\}\}\}/g, authorSpan);

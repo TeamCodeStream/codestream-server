@@ -11,7 +11,7 @@ const HLJS = require('highlight.js');
 class PostRenderer {
 
 	render (options) {
-		const { post, sameAuthor, timeZone, streams, markers } = options;
+		const { post, suppressAuthors, timeZone, streams, markers } = options;
 
 		// the timestamp is dependent on the user's timezone, but if all users are from the same
 		// timezone, we can format the timestamp here and fully render the email; otherwise we
@@ -53,7 +53,7 @@ class PostRenderer {
 		// be user-dependent, so if we know all the posts are from the same author, we can hide
 		// the author, otherwise, we have to do field substitution when we send the email to each user
 		let authorSpan = '';
-		if (!sameAuthor) {
+		if (!suppressAuthors) {
 			authorSpan = '{{{authorSpan}}}';
 		}
 
@@ -96,15 +96,23 @@ class PostRenderer {
 `;
 		}
 
+		// don't display text if this is an "emote" (starting with /me)
+		let textDiv = '';
+		if (post.get('text') && !post.getEmote()) {
+			textDiv =	`
+<div class="text">
+	${text}
+</div>
+`;
+		}
+
 		return `
 <div class="postWrapper">
 	<div class="authorLine">
 		${authorSpan}<span class="datetime">${datetime}</span>
 	</div>
 	${replyToDiv}
-	<div class="text">
- 		${text}
-	</div>
+	${textDiv}
 	${codeBlockDiv}
 </div>
 `;
@@ -173,9 +181,16 @@ class PostRenderer {
 	}
 
 	// render the author span portion of an email post
-	static renderAuthorSpan (creator) {
+	static renderAuthorSpan (creator, emote) {
 		const author = creator.get('username') || EmailUtilities.parseEmail(creator.get('email')).name;
-		return `<span class="author">${author}&nbsp;</span>`;
+		let text = `<span class="author">${author}&nbsp;</span>`;
+		if (emote) {
+			text += `${emote}&nbsp;&nbsp;`;
+		}
+		else {
+			text += '&nbsp;';
+		}
+		return text;
 	}
 
 	// format date/time display for email render, taking into account the given time zone
