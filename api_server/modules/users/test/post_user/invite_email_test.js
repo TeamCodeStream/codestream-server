@@ -7,7 +7,8 @@ var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/
 var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 var CommonInit = require('./common_init');
 const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
 
 class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -97,7 +98,7 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	validateSubstitutions (message) {
 		let substitutions = message.personalizations[0].substitutions;
 		Assert.equal(substitutions['{{teamName}}'], this.team.name, 'incorrect team name');
-		const expectedLink = 'https://get.codestream.com/invited?utm_medium=email&utm_source=product&utm_campaign=invitation_email';
+		const expectedLink = `${WebClientConfig.host}/signup?utm_medium=email&utm_source=product&utm_campaign=invitation_email`;
 		Assert.equal(substitutions['{{checkOutLink}}'], expectedLink, 'incorrect check-out link');
 	}
 
