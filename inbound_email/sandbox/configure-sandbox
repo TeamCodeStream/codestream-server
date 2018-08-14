@@ -1,7 +1,17 @@
 #!/bin/bash
 
 [ -z "$1" ] && echo "Do not run this script directly. Run dt-configure-sandbox instead." && exit 1
-[ "$1" == "git-hook" ] && sb_git_hook=1 || sb_git_hook=0
+
+# argument:
+#   configure         normal configuration mode. Run on a clean install or reconfigure (mode = configure)
+#   git_hook          run from within a git hook (mode = git_hook)
+#   configureNoAbort  configuration mode but don't abort early if there's a build failure (mode = configure)
+mode=""
+abort_on_fail=1
+[ "$1" == "git-hook" ] && mode=git_hook
+[ "$1" == "configure" ] && mode=configure
+[ "$1" == "configureNoAbort" ] && mode=configure && abort_on_fail=0
+[ -z "$mode" ] && echo "Error: bad configure mode" && exit 1
 
 # This script is called from dt-configure-sandbox. Do not call it directly.
 #
@@ -24,8 +34,8 @@ if [ -n "$CS_MAILIN_NODE_VER" ]; then
     	yarn install --frozen-lockfile
 		[ $? -ne 0 ] && echo "yarn install failed" && exit 1
 	else
-    	echo "npm install (from `pwd`)"
-    	npm install
+    	echo "npm install --no-save (from `pwd`)"
+    	npm install --no-save
 		[ $? -ne 0 ] && echo "npm install failed" && exit 1
 	fi
 fi
