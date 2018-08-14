@@ -149,14 +149,19 @@ export CS_API_EMAIL_NOTIFICATION_INTERVAL=300000
 if [ -f $OTHER_SECRETS_FILE ]; then
 	. $OTHER_SECRETS_FILE
 	export CS_API_AUTH_SECRET="$AUTH_SECRET"
-	export CS_API_INBOUND_EMAIL_SECRET="$INBOUND_EMAIL_SECRET"
-else
-	echo "secrets file ($OTHER_SECRETS_FILE) not found. Falling back to old defaults."
-	echo "Run 'dt-update-secrets' to fix this"
-	export CS_API_AUTH_SECRET="A*y8lN^erPHf$"
 	# Requests to the API server fromm the inbound email server provide this secret
 	# This prevents outside clients from simulating inbound emails
-	export CS_API_INBOUND_EMAIL_SECRET="X02^faO*Bx+lQ9Q"
+	export CS_API_INBOUND_EMAIL_SECRET="$INBOUND_EMAIL_SECRET"
+	# for bypassing email confirmation, used for unit testing
+	export CS_API_CONFIRMATION_CHEAT_CODE="$CONFIRMATION_CHEAT_CODE"
+	# for allowing unregistered users to subscribe to their me-channel, for testing emails
+	export CS_API_SUBSCRIPTION_CHEAT_CODE="$SUBSCRIPTION_CHEAT_CODE"
+else
+	echo "****"
+	echo "**** FATAL ERROR ****"
+	echo "**** secrets file ($OTHER_SECRETS_FILE) not found. Run 'dt-update-secrets' to fix this then"
+	echo "**** reload your playground / sandbox"
+	echo "****"
 fi
 
 # ============ Email Settings ================
