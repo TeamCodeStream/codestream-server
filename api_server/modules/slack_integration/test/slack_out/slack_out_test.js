@@ -152,7 +152,7 @@ class SlackOutTest extends CodeStreamMessageTest {
 	setCurrentUser (callback) {
 		// we want the "other" user to get the message
 		this.currentUser = this.otherUserData.user;
-		this.token = this.otherUserData.accessToken;
+		this.pubNubToken = this.otherUserData.pubNubToken;
 		callback();
 	}
 

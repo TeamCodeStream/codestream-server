@@ -57,7 +57,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		}
 
 		// set up a pubnub client as if we are a client for the current user
-		this.makePubnubForClient(this.token, this.currentUser);
+		this.makePubnubForClient(this.pubNubToken, this.currentUser);
 
 		callback();
 	}

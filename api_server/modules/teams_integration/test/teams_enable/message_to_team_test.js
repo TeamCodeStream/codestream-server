@@ -16,7 +16,7 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		this.init(error => {
 			if (error) { return callback(error); }
 			this.currentUser = this.currentUserData.user;
-			this.token = this.currentUserData.accessToken;
+			this.pubNubToken = this.currentUserData.pubNubToken;
 			callback();
 		});
 	}

@@ -52,6 +52,7 @@ class CodeStreamAPITest extends APIRequestTest {
 				if (error) { return callback(error); }
 				this.currentUser = data.user;
 				this.token = data.accessToken;
+				this.pubNubToken = data.pubNubToken;
 				this.currentUserPassword = data.password;
 				callback();
 			},

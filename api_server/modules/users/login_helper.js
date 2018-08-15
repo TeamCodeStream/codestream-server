@@ -50,10 +50,18 @@ class LoginHelper {
 
 	// generate an access token for this login if needed
 	async generateAccessToken () {
+		let set = null;
+
 		// generate a unique PubNub token, to be stored with the user object, the one and only way a 
 		// user can subscribe to PubNub (though for now, they can also subscribe with their access token,
 		// but we will deprecate this ability once the old atom client is deprecated)
-		this.pubNubToken = this.user.get('pubNubToken') || ((UUID() + '-' + UUID()).split('-').join('')); 
+		this.pubNubToken = this.user.get('pubNubToken');
+		if (!this.pubNubtoken) {
+			this.pubNubToken = (UUID() + '-' + UUID()).split('-').join('');
+			set = {
+				pubNubToken: this.pubNubToken
+			};
+		}
 
 		// look for a new-style token (with min issuance), if it doesn't exist, or our current token
 		// was issued before the min issuance, then we need to generate a new token for this login type
@@ -68,18 +76,15 @@ class LoginHelper {
 			) {
 				this.accessToken = this.request.api.services.tokenHandler.generate({ uid: this.user.id });
 				const minIssuance = this.request.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
-				await this.request.data.users.applyOpById(
-					this.user.id,
-					{
-						$set: {
-							[`accessTokens.${this.loginType}`]: {
-								token: this.accessToken,
-								minIssuance: minIssuance
-							},
-							pubNubToken: this.pubNubToken
-						}
-					}
-				);
+				set = set || {};
+				set[`accessTokens.${this.loginType}`] = {
+					token: this.accessToken,
+					minIssuance: minIssuance
+				};
+			}
+
+			if (set) {
+				await this.request.data.users.applyOpById(this.user.id, { $set: set });
 			}
 		}
 		catch (error) {

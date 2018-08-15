@@ -17,7 +17,7 @@ class TrackingTest extends TeamsPostMessageTest {
 		super.makeData(() => {
 			this.postOriginatorData.user.joinMethod = 'Added to Team';
 			this.currentUser = this.postOriginatorData.user;
-			this.token = this.postOriginatorData.accessToken;
+			this.pubNubToken = this.postOriginatorData.pubNubToken;
 			callback();
 		});
 	}

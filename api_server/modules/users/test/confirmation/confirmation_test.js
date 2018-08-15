@@ -66,6 +66,7 @@ class ConfirmationTest extends CodeStreamAPITest {
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert(data.accessToken, 'no access token');
 		Assert(data.pubnubKey, 'no pubnub key');
+		Assert(data.pubnubToken, 'no pubnub token');
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
