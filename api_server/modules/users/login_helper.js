@@ -49,7 +49,7 @@ class LoginHelper {
 	}
 
 	// generate an access token for this login if needed
-	async generateAccessToken () {
+	async generateAccessToken (force) {
 		let set = null;
 
 		// generate a unique PubNub token, to be stored with the user object, the one and only way a 
@@ -69,10 +69,13 @@ class LoginHelper {
 			const currentTokenInfo = this.user.getTokenInfoByType(this.loginType);
 			const minIssuance = typeof currentTokenInfo === 'object' ? (currentTokenInfo.minIssuance || null) : null;
 			this.accessToken = typeof currentTokenInfo === 'object' ? currentTokenInfo.token : this.user.get('accessToken');
-			const tokenPayload = this.accessToken ? this.request.api.services.tokenHandler.verify(this.accessToken) : null;
+			const tokenPayload = (!force && this.accessToken) ? 
+				this.request.api.services.tokenHandler.verify(this.accessToken) : 
+				null;
 			if (
+				force ||
 				!minIssuance ||
-                minIssuance > (tokenPayload.iat * 1000)
+				minIssuance > (tokenPayload.iat * 1000)
 			) {
 				this.accessToken = this.request.api.services.tokenHandler.generate({ uid: this.user.id });
 				const minIssuance = this.request.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
@@ -88,8 +91,14 @@ class LoginHelper {
 			}
 		}
 		catch (error) {
-			const message = typeof error === 'object' ? error.message : error;
-			throw this.errorHandler.error('token', { reason: message });
+			if (!force) {
+				// if token seems invalid, try again but force a new token to be created
+				this.generateAccessToken(true);
+			}
+			else {
+				const message = typeof error === 'object' ? error.message : error;
+				throw this.request.errorHandler.error('token', { reason: message });
+			}
 		}
 	}
 	
