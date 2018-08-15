@@ -17,6 +17,12 @@ class AWS {
 		this._sqs = this._sqs || new AWS_SDK.SQS();
 		return this._sqs;
 	}
+
+	// get the S3 part of the module
+	get s3 () {
+		this._s3 = this._s3 || new AWS_SDK.S3();
+		return this._s3;
+	}
 }
 
 module.exports = AWS;
