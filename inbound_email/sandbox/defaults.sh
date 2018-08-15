@@ -14,14 +14,14 @@
 # Uncomment and setup if yarn is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/yarn-$DT_OS_TYPE-*
-export CS_MAILIN_YARN=true
-export CS_MAILIN_YARN_VER=1.3.2
-export PATH=$CS_MAILIN_SANDBOX/yarn/bin:$PATH
+#export CS_MAILIN_YARN=true
+#export CS_MAILIN_YARN_VER=1.3.2
+#export PATH=$CS_MAILIN_SANDBOX/yarn/bin:$PATH
 
 # Uncomment and setup if node is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/node-$DT_OS_TYPE-*
-export CS_MAILIN_NODE_VER=8.9.4
+export CS_MAILIN_NODE_VER=8.11.3
 export PATH=$CS_MAILIN_SANDBOX/node/bin:$CS_MAILIN_TOP/node_modules/.bin:$PATH
 
 # Add sandbox utilities to the search path
