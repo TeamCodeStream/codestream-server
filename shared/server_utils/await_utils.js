@@ -21,10 +21,14 @@ module.exports = {
 	},
 
 	awaitParallel: async function(fns, context) {
+		let n = 0;
+		const results = [];
 		await Promise.all(fns.map(async f => {
+			const myIndex = n++;
 			if (context) { f = f.bind(context); }
-			await f();
+			results[myIndex] = await f();
 		}));
+		return results;
 	},
 
 	awaitSerial: async function(fns, context) {
