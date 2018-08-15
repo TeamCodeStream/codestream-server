@@ -123,10 +123,9 @@ class GenericTest {
 
 	// is this value an array of (exclusively) strings?
 	isArrayOfStrings (value) {
-		return value instanceof Array &&
-			!value.find(elem => {
-				return typeof elem !== 'string';
-			});
+		return value instanceof Array && !value.find(elem => {
+			return typeof elem !== 'string';
+		});
 	}
 
 	// for an array, we expect an object of certain fields, or an array of sub-objects

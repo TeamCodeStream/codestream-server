@@ -101,16 +101,20 @@ class TeamUpdater extends ModelUpdater {
 
 	// confirm that the IDs for the users being added or removed are valid
 	async getUsers () {
-		let memberIds = (
+		let memberIds = 
+		(
 			this.attributes.$addToSet && 
 			this.attributes.$addToSet.adminIds
-		) || (
+		) || 
+		(
 			this.attributes.$pull && 
 			this.attributes.$pull.adminIds
-		) || (
+		) || 
+		(
 			this.attributes.$pull &&
 			this.attributes.$pull.memberIds
-		) || [];
+		) || 
+		[];
 		if (memberIds.length === 0) {
 			return;
 		}

@@ -11,6 +11,7 @@ const Indexes = require('./indexes');
 const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors.js');
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 const UsernameValidator = require('./username_validator');
+const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
 class UserCreator extends ModelCreator {
 
@@ -149,6 +150,10 @@ class UserCreator extends ModelCreator {
 		}
 		let teamIds = this.teamIds || [];
 		if (this.existingModel) {
+			const existingUserTeams = this.existingModel.get('teamIds') || [];
+			if (ArrayUtilities.difference(existingUserTeams, teamIds).length === 0) { 
+				return;
+			}
 			teamIds = [...teamIds, ...this.existingModel.get('teamIds') || []];
 		}
 		const username = this.attributes.username || (this.existingModel ? this.existingModel.get('username') : null);
