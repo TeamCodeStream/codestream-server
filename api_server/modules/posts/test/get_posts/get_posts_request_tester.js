@@ -61,9 +61,12 @@ class GetPostsRequestTester {
 		new GetPostsByPathTest().test();
 		new PaginationTest().test();
 		new PaginationTest({ascending: true}).test();
+		/*
+		Disabling these for now, till we go back to 100 posts/page
 		new PaginationTest({defaultPagination: true}).test();
 		new PaginationTest({defaultPagination: true, ascending: true}).test();
 		new PaginationTest({defaultPagination: true, tryOverLimit: true}).test();
+		*/
 		new InvalidSeqNumTest().test();
 		new InvalidSeqNumRangeTest().test();
 		new NoSeqNumWithRelationalTest().test();
