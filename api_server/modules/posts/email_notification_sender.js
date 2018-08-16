@@ -184,7 +184,7 @@ class EmailNotificationSender {
 			}
 		}
 		else {
-			this.request.log(`User ${user.id} has email notifications turned off for this stream`);
+			this.request.log(`User ${user.id}:${user.get('email')} has email notifications turned off for this stream`);
 		}
 		return wantsEmail;
 	}
@@ -351,12 +351,21 @@ class EmailNotificationSender {
 		if (this.renderedPostsPerUser[user.id].length === 0) {
 			return;
 		}
-		this.renderedPostsPerUser[user.id].find(renderedPost => {
-			if (renderedPost.post.mentionsUser(user)) {
-				this.mentionsPerUser[user.id] = renderedPost.post.get('creatorId');
-				return true;
-			}
-		});
+
+		if (this.stream.get('type') === 'direct') {
+			// direct messages are treated like mentions
+			this.mentionsPerUser[user.id] = true;
+		}
+		else {
+			// otherwise, need to look through the posts per user
+			this.renderedPostsPerUser[user.id].find(renderedPost => {
+				if (renderedPost.post.mentionsUser(user)) {
+					this.mentionsPerUser[user.id] = renderedPost.post.get('creatorId');
+					return true;
+				}
+			});
+		}
+
 		const firstPost = this.renderedPostsPerUser[user.id][0].post;
 		this.hasMultipleAuthorsPerUser[user.id] = this.renderedPostsPerUser[user.id].find(renderedPost => {
 			return renderedPost.post.get('creatorId') !== firstPost.get('creatorId');
