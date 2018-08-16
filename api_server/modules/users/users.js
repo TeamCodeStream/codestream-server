@@ -107,6 +107,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'no-auth/check-signup',
 		requestClass: require('./check_signup_request')
+	},
+	{
+		method: 'put',
+		path: 'change-email',
+		requestClass: require('./change_email_request')
 	}
 ];
 

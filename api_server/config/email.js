@@ -18,5 +18,6 @@ module.exports = {
 	newUserInviteEmailTemplateId: '288e638c-c9f2-4cc3-adcb-d74333cfe190', // template to use for invite emails to new users
 	registeredUserInviteEmailTemplateId: '54dfad87-c9fb-42ba-8036-5a789ce30d89',	// template to use for invite emails to already registered users
 	alreadyRegisteredEmailTemplateId: '7f9366c5-bb71-4acc-816e-f57ed23c08d6',	// template to use when a user is attempting to register but they are already registered
-	resetPasswordEmailTemplateId: 'f8a4d6a5-e0ba-4af4-bf57-7535d725d899'	// template to use when a user is getting an email to reset their password
+	resetPasswordEmailTemplateId: 'f8a4d6a5-e0ba-4af4-bf57-7535d725d899',	// template to use when a user is getting an email to reset their password
+	changeEmailTemplateId: 'df665404-f3c2-4046-9b46-36d5628329ac'	// template to use for user confirming an email change
 };

@@ -41,7 +41,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 		);
 	}
 
-	// validate that the existing password matches the password hash stored for the user
+	// validate the passed email
 	async validateEmail () {
 		const error = new UserValidator().validateEmail(this.request.body.email);
 		if (error) {
