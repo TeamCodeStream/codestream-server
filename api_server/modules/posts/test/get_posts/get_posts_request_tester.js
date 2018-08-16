@@ -19,7 +19,7 @@ var GetPostsByPathTest = require('./get_posts_by_path_test');
 //var PaginationTest = require('./pagination_test');
 var InvalidSeqNumTest = require('./invalid_seqnum_test');
 var InvalidSeqNumRangeTest = require('./invalid_seqnum_range_test');
-var SeqNumLimitTest = require('./seqnum_limit_test');
+//var SeqNumLimitTest = require('./seqnum_limit_test');
 var InvalidParameterTest = require('./invalid_parameter_test');
 var OneRelationalTest = require('./one_relational_test');
 var InvalidIDTest = require('./invalid_id_test');
@@ -70,7 +70,7 @@ class GetPostsRequestTester {
 		new InvalidSeqNumTest().test();
 		new InvalidSeqNumRangeTest().test();
 		new NoSeqNumWithRelationalTest().test();
-		new SeqNumLimitTest().test();
+		//new SeqNumLimitTest().test();
 		new InvalidParameterTest().test();
 		new OneRelationalTest().test();
 		new InvalidIDTest().test();
