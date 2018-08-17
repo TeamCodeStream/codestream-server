@@ -30,7 +30,8 @@ class ChangeEmailRequest extends RestfulRequest {
 					string: ['email']
 				},
 				optional: {
-					number: ['_delayEmail']
+					string: ['_confirmationCheat'],
+					number: ['_delayEmail', 'expiresIn']
 				}
 			}
 		);
@@ -49,9 +50,9 @@ class ChangeEmailRequest extends RestfulRequest {
 		// time till expiration can be provided (normally for testing purposes),
 		// or default to configuration
 		let expiresIn = this.api.config.api.confirmationExpiration;
-		if (this.expiresIn && this.expiresIn < expiresIn) {
-			this.warn('Overriding configured confirmation expiration to ' + this.expiresIn);
-			expiresIn = this.expiresIn;
+		if (this.request.body.expiresIn && this.request.body.expiresIn < expiresIn) {
+			this.warn('Overriding configured confirmation expiration to ' + this.request.body.expiresIn);
+			expiresIn = this.request.body.expiresIn;
 		}
 		const expiresAt = Date.now() + expiresIn;
 		this.token = this.api.services.tokenHandler.generate(
@@ -63,6 +64,14 @@ class ChangeEmailRequest extends RestfulRequest {
 			{ expiresAt }
 		);
 		this.minIssuance = this.api.services.tokenHandler.decode(this.token).iat * 1000;
+
+		if (this.request.body._confirmationCheat === this.api.config.secrets.confirmationCheat) {
+			// this allows for testing without actually receiving the email
+			this.log('Confirmation cheat detected, hopefully this was called by test code');
+			this.responseData = {
+				confirmationToken: this.token
+			};
+		}
 	}
 
 	// save the token info in the database, note that we don't save the actual token, just the notion

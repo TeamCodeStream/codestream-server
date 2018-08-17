@@ -15,6 +15,7 @@ const ResetPasswordRequestTester = require('./reset_password/test');
 const ResendConfirmRequestTester = require('./resend_confirm/test');
 const CheckSignupRequestTester = require('./check_signup/test');
 const ChangeEmailRequestTester = require('./change_email/test');
+const ChangeEmailConfirmRequestTester = require('./change_email_confirm/test');
 
 const userRequestTester = new UserRequestTester();
 
@@ -44,4 +45,5 @@ describe('user requests', function() {
 	describe('PUT /no-auth/resend-confirm', ResendConfirmRequestTester.test);
 	describe('PUT /no-auth/check-signup', CheckSignupRequestTester.test);
 	describe('PUT /change-email', ChangeEmailRequestTester.test);
+	describe('PUT /no-auth/change-email-confirm', ChangeEmailConfirmRequestTester.test);
 });
