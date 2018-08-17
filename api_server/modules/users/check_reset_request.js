@@ -22,7 +22,7 @@ class CheckResetRequest extends RestfulRequest {
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
 		await this.verifyToken();       // make sure the token is valid, and parse the payload
 		await this.getUser();           // get the user associated with the email in the token
-		await this.validateToken();     // verify the token is not expired, per th\e most recently issued token
+		await this.validateToken();     // verify the token is not expired, per the most recently issued token
 	}
 
 	// require these parameters, and discard any unknown parameters
