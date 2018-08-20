@@ -108,7 +108,19 @@ class NewPostMessageToStreamTest extends CodeStreamMessageTest {
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = { post: response.post };	// the message should look like this
+				this.message = { 
+					post: response.post,
+					streams: [
+						{
+							_id: response.post.streamId,
+							$set: {
+								mostRecentPostCreatedAt: response.post.createdAt,
+								mostRecentPostId: response.post._id,
+								sortId: response.post._id
+							}
+						}
+					]
+				};	// the message should look like this
 				callback();
 			},
 			{
