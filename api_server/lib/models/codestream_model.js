@@ -14,11 +14,11 @@ class CodeStreamModel extends DataModel {
 
 	// set default attributes
 	setDefaults () {
+		super.setDefaults();
 		const now = new Date().getTime();
 		Object.assign(
 			this.attributes,
 			{
-				deactivated: false,
 				createdAt: now,
 				modifiedAt: now
 			}

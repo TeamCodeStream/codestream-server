@@ -55,7 +55,9 @@ class RegistrationTest extends CodeStreamAPITest {
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((user.creatorId === user._id.toString()) || errors.push('creatorId not equal to _id')) &&
-			((typeof user.confirmationCode === 'string') || errors.push('confirmationCode is not a string'))
+			((typeof user.confirmationCode === 'string') || errors.push('confirmationCode is not a string')) &&
+			((user.phoneNumber === '') || errors.push('phoneNumber not set to default of empty string')) &&
+			((user.iWorkOn === '') || errors.push('iWorkOn not set to default value of empty string'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		delete user.confirmationCode; // this is technically unsanitized, but we "cheat" during the test
