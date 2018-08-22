@@ -119,7 +119,7 @@ class CodeStreamEmails {
 		const templateId = user.get('isRegistered') ? this.registeredUserInviteEmailTemplateId : this.newUserInviteEmailTemplateId;
 		const numInvites = user.get('numInvites') || 0;
 		const campaign = numInvites > 0 ? 'reinvite_email' : 'invitation_email';
-		const checkOutLink = `${request.api.config.webclient.host}/signup?email=${encodeURIComponent(email)}&utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
+		const checkOutLink = `${request.api.config.webclient.host}/signup?email=${encodeURIComponent(email)}&utm_medium=email&utm_source=product&utm_campaign=${campaign}&force_auth=true`;
 
 		// let SendGrid handle sending the email, they have an invite email template
 		await this.sendgridEmail.sendEmail(
