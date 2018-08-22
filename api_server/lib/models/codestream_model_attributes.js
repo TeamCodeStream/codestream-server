@@ -15,6 +15,7 @@ module.exports = {
 	deactivated: {
 		type: 'boolean',
 		required: true,
+		default: false,
 		description: 'Indicates whether this model has been deactivated (deleted)'
 	},
 	modifiedAt: {

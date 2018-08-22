@@ -207,6 +207,21 @@ class DataModelValidator {
 		let object = DeepClone(model.attributes);
 		return this.sanitizeAttributes(object);
 	}
+
+	// set default attributes for an object, according to the attribute definitions
+	setDefaultAttributes (object) {
+		Object.keys(this.attributeDefinitions).forEach(attribute => {
+			if (typeof this.attributeDefinitions[attribute].default !== 'undefined') {
+				object[attribute] = this.attributeDefinitions[attribute].default;
+			}
+		});
+	}
+
+	// set defaults for a model, for any attributes that have defined defaults
+	setDefaults (model) {
+		this.setDefaultAttributes(model.attributes);
+		return model;
+	}
 }
 
 module.exports = DataModelValidator;

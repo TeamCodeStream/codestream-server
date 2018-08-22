@@ -77,7 +77,9 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((user.creatorId === expectedCreatorId) || errors.push('creatorId not correct')) &&
 			((JSON.stringify(user.teamIds) === JSON.stringify(teamIds)) || errors.push('incorrect teamIds')) &&
-			((JSON.stringify(user.companyIds) === JSON.stringify(companyIds)) || errors.push('incorrect companyIds'))
+			((JSON.stringify(user.companyIds) === JSON.stringify(companyIds)) || errors.push('incorrect companyIds')) &&
+			((user.phoneNumber === '') || errors.push('incorrect phoneNumber')) &&
+			((user.iWorkOn === '') || errors.push('incorrect iWorkOn'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		// verify the user in the response has no attributes that should not go to clients
