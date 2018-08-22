@@ -99,7 +99,7 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		let substitutions = message.personalizations[0].substitutions;
 		Assert.equal(substitutions['{{teamName}}'], this.team.name, 'incorrect team name');
 		const email = encodeURIComponent(this.currentUser.email);
-		const expectedLink = `${WebClientConfig.host}/signup?email=${email}&utm_medium=email&utm_source=product&utm_campaign=invitation_email`;
+		const expectedLink = `${WebClientConfig.host}/signup?email=${email}&utm_medium=email&utm_source=product&utm_campaign=invitation_email&force_auth=true`;
 		Assert.equal(substitutions['{{checkOutLink}}'], expectedLink, 'incorrect check-out link');
 	}
 
