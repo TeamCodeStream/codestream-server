@@ -82,5 +82,20 @@ module.exports = {
 	isArchived: {
 		type: 'boolean',
 		description: 'Whether the stream (usually for channels) is archived'
+	},
+	serviceType: {
+		type: 'string',
+		maxLength: 25,
+		description: 'For channel streams created for a particular service (eg. LiveShare), indicates the service type'
+	},
+	serviceKey: {
+		type: 'string',
+		maxLength: 100,
+		description: 'For channel streams created for a particular service (eg. LiveShare), uniquely identifies the service session'
+	},
+	serviceInfo: {
+		type: 'object',
+		maxLength: 10000,
+		description: 'For channel streams created for a particular service (eg. LiveShare), holds any meta-data associated with the service session'
 	}
 };

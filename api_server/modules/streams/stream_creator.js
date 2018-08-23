@@ -40,8 +40,9 @@ class StreamCreator extends ModelCreator {
 			},
 			optional: {
 				boolean: ['isTeamStream'],
-				string: ['repoId', 'file', 'name', 'privacy', 'purpose'],
-				'array(string)': ['memberIds']
+				string: ['repoId', 'file', 'name', 'privacy', 'purpose', 'serviceType', 'serviceKey'],
+				'array(string)': ['memberIds'],
+				'object': ['serviceInfo']
 			}
 		};
 	}
