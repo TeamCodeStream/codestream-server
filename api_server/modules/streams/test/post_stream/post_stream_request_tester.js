@@ -34,7 +34,7 @@ const DirectStreamIgnoresPrivacyTest = require('./direct_stream_ignores_privacy_
 const FileStreamIgnoresPrivacyTest = require('./file_stream_ignores_privacy_test');
 const InvalidChannelNameTest = require('./invalid_channel_name_test');
 
-const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/:<>?|\'".,';
+const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/<>?|\'".,';
 
 class PostStreamRequestTester {
 

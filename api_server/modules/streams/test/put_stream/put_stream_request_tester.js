@@ -38,7 +38,7 @@ const NoDuplicateNameTest = require('./no_duplicate_name_test');
 const UsersNotFound = require('./users_not_found_test');
 const UsersNotOnTeamTest = require('./users_not_on_team_test');
 
-const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/:<>?|\'".,';
+const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/<>?|\'".,';
 
 class PutStreamRequestTester {
 

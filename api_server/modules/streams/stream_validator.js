@@ -39,7 +39,7 @@ class StreamValidator extends CodeStreamModelValidator {
 
 	// validate that a channel stream's name has acceptable characters
 	validateChannelName (value) {
-		if (value.match(/[~#%&*{}+/:<>?|'".,]/)) {
+		if (value.match(/[~#%&*{}+/<>?|'".,]/)) {
 			return `invalid channel name: ${value}`;
 		}
 	}
