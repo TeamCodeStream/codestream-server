@@ -22,15 +22,15 @@ class VersionerTest extends CodeStreamAPITest {
 		
 		// these constants will be used in setting up the fake version info, and also
 		// for which value we use for the headers sent in the test request
-		this.CURRENT_RELEASE = 'v2.3.5';
-		this.EARLIEST_SUPPORTED_RELEASE = 'v2.0';
-		this.MINUMUM_PREFERRED_RELEASE = 'v2.3';
-		this.OUT_OF_DATE_RELEASE = 'v2.3.4';
-		this.DEPRECATED_RELEASE = 'v2.2.1';
-		this.INCOMPATIBLE_RELEASE = 'v1.7.9';
-		this.UNKNOWN_RELEASE = 'v2.3.6';
-		this.EARLIEST_SUPPORTED_AGENT = 'v3.3.0';
-		this.PREFERRED_AGENT = 'v3.4.1';
+		this.CURRENT_RELEASE = '2.3.5-379';
+		this.EARLIEST_SUPPORTED_RELEASE = '2.0.1-254';
+		this.MINUMUM_PREFERRED_RELEASE = '2.3.0-303';
+		this.OUT_OF_DATE_RELEASE = '2.3.4-352';
+		this.DEPRECATED_RELEASE = '2.2.1-289';
+		this.INCOMPATIBLE_RELEASE = '1.7.9-212';
+		this.UNKNOWN_RELEASE = '2.3.6-401';
+		this.EARLIEST_SUPPORTED_AGENT = '3.3.0-152';
+		this.PREFERRED_AGENT = '3.4.1-269';
 
 		// the disposition we expect in the returned disposition header, override for various tests
 		this.expectedDisposition = 'ok';
