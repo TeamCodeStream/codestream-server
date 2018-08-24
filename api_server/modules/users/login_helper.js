@@ -56,7 +56,7 @@ class LoginHelper {
 		// user can subscribe to PubNub (though for now, they can also subscribe with their access token,
 		// but we will deprecate this ability once the old atom client is deprecated)
 		this.pubNubToken = this.user.get('pubNubToken');
-		if (!this.pubNubtoken) {
+		if (!this.pubNubToken) {
 			this.pubNubToken = (UUID() + '-' + UUID()).split('-').join('');
 			set = {
 				pubNubToken: this.pubNubToken
