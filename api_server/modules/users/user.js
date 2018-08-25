@@ -235,7 +235,12 @@ class User extends CodeStreamModel {
 	// determine if this user wants an email notification for a post in the given
 	// stream, which may depend on whether they are mentioned in the post
 	wantsEmail (stream, mentioned) {
-		// first, look for a general email preference of 'off'
+		// first, if this user is not yet registered, we only send emails if they are mentioned
+		if (!this.get('isRegistered') && !mentioned) {
+			return false;
+		}
+
+		// then, look for a general email preference of 'off'
 		if (this.noEmailNotificationsByPreference(mentioned)) {
 			return false;
 		}
