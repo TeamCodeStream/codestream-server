@@ -124,26 +124,18 @@ class Versioner extends APIServerModule {
 		if (versionString.startsWith('v')) {
 			versionString = versionString.substring(1);
 		}
-		const [version, build] = versionString.split('-');
+		const [version, pre] = versionString.split('-');
 		const [major, minor, patch] = version.split('.');
 		return {
 			major: typeof major === 'string' ? parseInt(major, 10) : major,
 			minor: typeof minor === 'string' ? parseInt(minor, 10) : minor,
 			patch: typeof patch === 'string' ? parseInt(patch, 10) : patch,
-			build
+			pre: pre
 		};
 	}
 
 	// compare two version structures, return -1, 0, 1
 	compareVersions (v1, v2) {
-		// for version comparison, we're just going to compare the ever-increasing build number
-		if (v1.build === undefined && v2.build !== undefined) return 1;
-		if (v1.build !== undefined && v2.build === undefined) return -1;
-		if (v1.build > v2.build) return 1;
-		if (v1.build < v2.build) return -1;
-		return 0;
-		
-		/*
 		if (v1.major > v2.major) return 1;
 		if (v1.major < v2.major) return -1;
 
@@ -159,7 +151,6 @@ class Versioner extends APIServerModule {
 		if (v1.pre !== undefined && v2.pre !== undefined) return v1.pre.localeCompare(v2.pre);
 
 		return 0;
-		*/
 	}
 
 	// describe any errors associated with this module, for help
