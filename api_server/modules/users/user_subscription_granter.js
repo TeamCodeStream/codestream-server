@@ -13,36 +13,22 @@ class UserSubscriptionGranter  {
 
 	// grant all permissions necessary
 	async grantAll () {
-		await this.grantUserChannel();	// their own me-channel
-		await this.grantTeamChannels();	// team channel for teams they are a member of
-		await this.getRepos();			// get the repos owned by those teams
-		await this.grantRepoChannels();	// repo channel for each repo owned by the teams they are a member of
-		await this.getStreams();		// get the streams from those teams/repos
-		await this.grantStreamChannels();	// stream channel for direct/channel streams they are a member of
-	}
-
-	// grant permission for the user to subscribe to their own me-channel
-	async grantUserChannel () {
-		await this.grantChannel('user-' + this.user.id);
-	}
-
-	// grant permission for the user to subscribe to the team channel for teams
-	// they are a member of
-	async grantTeamChannels () {
-		const teamIds = this.user.get('teamIds') || [];
-		await Promise.all(teamIds.map(async teamId => {
-			await this.grantTeamChannel(teamId);
-		}));
-	}
-
-	// grant permission for the user to subscribe to a given team channel
-	async grantTeamChannel (teamId) {
-		// note - team channels are presence aware
-		await this.grantChannel('team-' + teamId, { includePresence: true });
+		this.channels = [
+			`user-${this.user.id}`
+		];
+		for (let teamId of this.user.get('teamIds') || []) {
+			this.channels.push({
+				name: `team-${teamId}`,
+				includePresence: true
+			});
+		}
+		await this.getRepoChannels();			
+		await this.getStreamChannels();		
+		await this.grantAllChannels();
 	}
 
 	// get the repos owned by the teams the user is a member of
-	async getRepos () {
+	async getRepoChannels () {
 		if ((this.user.get('teamIds') || []).length === 0) {
 			this.repos = [];
 			return;
@@ -50,7 +36,7 @@ class UserSubscriptionGranter  {
 		const query = {
 			teamId: this.data.repos.inQuery(this.user.get('teamIds') || [])
 		};
-		this.repos = await this.data.repos.getByQuery(
+		const repos = await this.data.repos.getByQuery(
 			query,
 			{
 				databaseOptions: {
@@ -60,31 +46,28 @@ class UserSubscriptionGranter  {
 				noCache: true
 			}
 		);
-	}
-
-	// grant permission for the user to subscribe to the repo channel for repos
-	// owned by teams they are a member of
-	async grantRepoChannels () {
-		await Promise.all(this.repos.map(async repo => {
-			await this.grantRepoChannel(repo);
-		}));
-	}
-
-	// grant permission for the user to subscribe to a given repo channel
-	async grantRepoChannel (repo) {
-		// note - repo channels are presence aware
-		await this.grantChannel('repo-' + repo._id, { includePresence: true });
+		for (let repo of repos) {
+			this.channels.push({
+				name: `repo-${repo._id}`,
+				includePresence: true
+			});
+		}
 	}
 
 	// get the streams owned by each team the user is a member of ... this is
 	// restricted to direct and channel streams, since file-type streams are
 	// public to the whole team and do not have their own channel
-	async getStreams () {
-		this.streams = [];
+	async getStreamChannels () {
+		let streams = [];
 		const teamIds = this.user.get('teamIds') || [];
 		await Promise.all(teamIds.map(async teamId => {
-			await this.getStreamsForTeam(teamId);
+			const streamsForTeam = await this.getStreamsForTeam(teamId);
+			streams = [...streams, ...streamsForTeam];
 		}));
+
+		for (let stream of streams) {
+			this.channels.push(`stream-${stream._id}`);
+		}
 	}
 
 	// get the streams owned by a given team ... this is restricted to direct
@@ -95,7 +78,7 @@ class UserSubscriptionGranter  {
 			teamId: teamId,
 			memberIds: this.user.id	// current user must be a member
 		};
-		const streams = await this.data.streams.getByQuery(
+		return await this.data.streams.getByQuery(
 			query,
 			{
 				databaseOptions: {
@@ -105,24 +88,10 @@ class UserSubscriptionGranter  {
 				noCache: true
 			}
 		);
-		this.streams = [...this.streams, ...streams];
-	}
-
-	// grant permission for the user to subscribe to the stream channel for streams
-	// they are a member of
-	async grantStreamChannels () {
-		await Promise.all(this.streams.map(async stream => {
-			await this.grantStreamChannel(stream);
-		}));
-	}
-
-	// grant permission for the user to subscribe to a given stream channel
-	async grantStreamChannel (stream) {
-		await this.grantChannel('stream-' + stream._id);
 	}
 
 	// grant permission for the user to subscribe to a given channel
-	async grantChannel (channel, options = {}) {
+	async grantAllChannels () {
 		const tokens = [];
 		// using the access token for PubNub subscription is to be DEPRECATED
 		if (this.user.get('isRegistered')) {
@@ -132,17 +101,16 @@ class UserSubscriptionGranter  {
 			tokens.push(this.user.get('pubNubToken'));
 		}
 		try {
-			await this.messager.grant(
-				tokens,
-				channel,
-				{
-					request: this.request,
-					includePresence: options.includePresence
-				}
-			);
+			await Promise.all(tokens.map(async token => {
+				await this.messager.grantMultiple(
+					token,
+					this.channels,
+					{ request: this.request }
+				);
+			}));
 		}
 		catch (error) {
-			throw `unable to grant permissions for subscription (${channel}): ${error}`;
+			throw `unable to grant user permissions for subscriptions, userId ${this.user.id}: ${error}`;
 		}
 	}
 }

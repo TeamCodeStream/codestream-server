@@ -15,8 +15,8 @@ class LoginHelper {
 	async login () {
 		await this.getInitialData();
 		await this.generateAccessToken();
-		await this.grantSubscriptionPermissions();
 		await this.formResponse();
+		await this.grantSubscriptionPermissions();
 		return this.responseData;
 	}
 
