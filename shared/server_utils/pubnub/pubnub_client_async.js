@@ -124,6 +124,55 @@ class PubNubClient {
 		}
 	}
 
+	// grant read and/or write permission to multiple channels for the specified token
+	async grantMultiple (token, channels, options = {}) {
+		const channelNames = channels.reduce((currentChannels, channel) => {
+			if (typeof channel === 'object' && typeof channel.name === 'string') {
+				currentChannels.push(channel.name);
+				if (channel.includePresence) {
+					currentChannels.push(`${channel.name}-pnpres`);
+				}
+			}
+			else if (typeof channel === 'string') {
+				currentChannels.push(channel);
+			}
+			return currentChannels;
+		}, []);
+
+		// Pubnub imposes a maximum on the number of channels per grant call,
+		// so just in case we get more than this, we'll split the requests
+		const SET_SIZE = 180;
+		let numSets = Math.floor(channelNames.length / SET_SIZE) + 1;
+		for (let set = 0; set < numSets; set++) {
+			const channelSlice = channelNames.slice(set * SET_SIZE, (set + 1) * SET_SIZE);
+			if (channelSlice.length > 0) {
+				await this._grantMultipleHelper(token, channelSlice, options);
+			}
+		}
+	}
+
+	async _grantMultipleHelper (token, channels, options) { 
+		const result = await this.pubnub.grant(
+			{
+				channels,
+				authKeys: [token],
+				read: options.read === false ? false : true,
+				write: options.write === true ? true : false,
+				ttl: options.ttl || 0
+			}
+		);
+
+		if (result.error) {
+			if (options.request) {
+				options.request.warn(`Unable to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}: ${JSON.stringify(result.errorData)}`);
+			}
+			throw result.errorData;
+		}
+		if (options.request) {
+			options.request.log(`Successfully granted access for ${token} to ${JSON.stringify(channels, undefined, 3)}`);
+		}
+	}
+
 	// revoke read and/or write permission for the specified channel for the specified
 	// set of tokens (keys)
 	async revoke (tokens, channel, options = {}) {
