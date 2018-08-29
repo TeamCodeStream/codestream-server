@@ -2,16 +2,17 @@
 
 'use strict';
 
-var LoginTest = require('./login_test');
-var InvalidPasswordTest = require('./invalid_password_test');
-var InvalidEmailTest = require('./invalid_email_test');
-var NoAttributeTest = require('./no_attribute_test');
-var InitialDataTest = require('./initial_data_test');
-var MeAttributesTest = require('./me_attributes_test');
-var NoLoginUnregisteredTest = require('./no_login_unregistered_test');
-var UnregisteredInvalidPasswordTest = require('./unregistered_invalid_password_test');
-var NewTokenTest = require('./new_token_test');
-var TokenIsValidTest = require('./token_is_valid_test');
+const LoginTest = require('./login_test');
+const InvalidPasswordTest = require('./invalid_password_test');
+const InvalidEmailTest = require('./invalid_email_test');
+const NoAttributeTest = require('./no_attribute_test');
+const InitialDataTest = require('./initial_data_test');
+const MeAttributesTest = require('./me_attributes_test');
+const NoLoginUnregisteredTest = require('./no_login_unregistered_test');
+const UnregisteredInvalidPasswordTest = require('./unregistered_invalid_password_test');
+const NewTokenTest = require('./new_token_test');
+const TokenIsValidTest = require('./token_is_valid_test');
+const SubscriptionTest = require('./subscription_test');
 
 class LoginRequestTester {
 
@@ -27,6 +28,9 @@ class LoginRequestTester {
 		new UnregisteredInvalidPasswordTest().test();
 		new NewTokenTest().test();
 		new TokenIsValidTest().test();
+		new SubscriptionTest({ which: 'user' }).test();
+		new SubscriptionTest({ which: 'team' }).test();
+		new SubscriptionTest({ which: 'stream' }).test();
 	}
 }
 
