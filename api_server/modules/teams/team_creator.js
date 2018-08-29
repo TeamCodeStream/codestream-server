@@ -213,6 +213,7 @@ class TeamCreator extends ModelCreator {
 		await this.updateUsers();	// update the users who have been added to the team to indicate they are now indeed members
 		await this.updateUserJoinMethod();	// update the joinMethod attribute for the user, as needed
 		await this.grantUserMessagingPermissions();	// grant permission to each user on the team to subscribe to the team messager channel
+		await this.sendTeamCreatedEmail();	// send email to us that a new team has been created
 	}
 
 	// update the users who have been added to the team to indicate they are now indeed members
@@ -302,6 +303,17 @@ class TeamCreator extends ModelCreator {
 		}
 		catch (error) {
 			throw this.errorHandler.error('teamMessagingGrant', { reason: error });
+		}
+	}
+
+	// send email to us that a new team has been created
+	async sendTeamCreatedEmail () {
+		if (this.model/* && this.api.config.email.replyToDomain === 'prod.codestream.com'*/) {
+			this.api.services.email.sendTeamCreatedEmail({
+				team: this.model,
+				user: this.user,
+				request: this.request
+			});
 		}
 	}
 }
