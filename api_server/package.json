@@ -6,6 +6,7 @@
     "bcrypt": "1.0.2",
     "body-parser": "1.15.2",
     "commander": "2.9.0",
+    "compare-versions": "3.3.1",
     "cookie-parser": "1.4.3",
     "cors": "^2.8.4",
     "deep-equal": "^1.0.1",

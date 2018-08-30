@@ -8,6 +8,7 @@ const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 const RandomString = require('randomstring');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 
 /*
 CodeStreamAPITest handles setting up a user with a valid access token, and by default sends
@@ -22,15 +23,15 @@ class VersionerTest extends CodeStreamAPITest {
 		
 		// these constants will be used in setting up the fake version info, and also
 		// for which value we use for the headers sent in the test request
-		this.CURRENT_RELEASE = 'v2.3.5';
-		this.EARLIEST_SUPPORTED_RELEASE = 'v2.0';
-		this.MINUMUM_PREFERRED_RELEASE = 'v2.3';
-		this.OUT_OF_DATE_RELEASE = 'v2.3.4';
-		this.DEPRECATED_RELEASE = 'v2.2.1';
-		this.INCOMPATIBLE_RELEASE = 'v1.7.9';
-		this.UNKNOWN_RELEASE = 'v2.3.6';
-		this.EARLIEST_SUPPORTED_AGENT = 'v3.3.0';
-		this.PREFERRED_AGENT = 'v3.4.1';
+		this.CURRENT_RELEASE = '2.3.5';
+		this.EARLIEST_SUPPORTED_RELEASE = '2.0';
+		this.MINUMUM_PREFERRED_RELEASE = '2.3';
+		this.OUT_OF_DATE_RELEASE = '2.3.4';
+		this.DEPRECATED_RELEASE = '2.2.1';
+		this.INCOMPATIBLE_RELEASE = '1.7.9';
+		this.UNKNOWN_RELEASE = '2.3.6';
+		this.EARLIEST_SUPPORTED_AGENT = '3.3.0';
+		this.PREFERRED_AGENT = '3.4.1';
 
 		// the disposition we expect in the returned disposition header, override for various tests
 		this.expectedDisposition = 'ok';
@@ -82,12 +83,12 @@ class VersionerTest extends CodeStreamAPITest {
 	async createVersionInfo (callback) {
 		// create a fake plugin name, and set up headers to be sent with the request
 		const pluginName = `plugin-${RandomString.generate(12)}`;
-		this.apiRequestOptions = {
+		this.apiRequestOptions = Object.assign({}, this.apiRequestOptions || {}, {
 			headers: {
 				'x-cs-plugin-ide': pluginName,
 				'x-cs-plugin-version': this.pluginVersion
 			}
-		};
+		});
 
 		// set up version info to be associated with the plugin, we'll expect this info in
 		// the response
@@ -111,6 +112,7 @@ class VersionerTest extends CodeStreamAPITest {
 		this.validateDisposition();
 		this.validateVersionHeaders();
 		this.validateAgentHeaders();
+		this.validateAssetUrl();
 	}
 
 	// validate the disposition header returned with the response to the test request
@@ -130,6 +132,17 @@ class VersionerTest extends CodeStreamAPITest {
 	validateAgentHeaders () {
 		Assert.equal(this.httpResponse.headers['x-cs-preferred-agent'], this.PREFERRED_AGENT, 'preferred agent header is not correct');
 		Assert.equal(this.httpResponse.headers['x-cs-supported-agent'], this.EARLIEST_SUPPORTED_AGENT, 'supported agent header is not correct');
+	}
+
+	// validate the asset URL, which tells us where the latest extension lives
+	// (this needs to be updated when we support multiple IDEs)
+	validateAssetUrl () {
+		const assetEnv = ApiConfig.assetEnvironment;
+		Assert.equal(
+			this.httpResponse.headers['x-cs-latest-asset-url'], 
+			`https://assets.codestream.com/${assetEnv}/vscode/codestream-latest.vsix`,
+			'asset URL is not correct'
+		);
 	}
 }
 

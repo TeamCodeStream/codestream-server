@@ -7,6 +7,7 @@ const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_se
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const Errors = require('./errors');
 const Indexes = require('./indexes');
+const CompareVersions = require('compare-versions');
 
 class Versioner extends APIServerModule {
 
@@ -25,7 +26,7 @@ class Versioner extends APIServerModule {
 			catch (error) {
 				// can not honor the request at all, abort ASAP with 403
 				request.abortWith = {
-					status: 403,
+					status: this.abortWithStatusCode || 403,
 					error
 				};
 			}
@@ -69,17 +70,25 @@ class Versioner extends APIServerModule {
 	// for the plugin in our internal matrix, determine how out of date the plugin is and
 	// whether we can honor the request at all
 	async matchVersions (response, pluginVersion, versionInfo) {
-		// set informative headers
-		response.set('X-CS-Current-Version', versionInfo.currentRelease);
-		response.set('X-CS-Supported-Version', versionInfo.earliestSupportedRelease);
-		response.set('X-CS-Preferred-Version', versionInfo.minimumPreferredRelease);
-
-		// parse and extract version info
-		const currentRelease = this.parseVersion(versionInfo.currentRelease);
-		const earliestSupportedRelease = this.parseVersion(versionInfo.earliestSupportedRelease);
-		const minimumPreferredRelease = this.parseVersion(versionInfo.minimumPreferredRelease);
-		const pluginRelease = this.parseVersion(pluginVersion);
+		const { currentRelease, earliestSupportedRelease, minimumPreferredRelease } = versionInfo;
 		const releaseInfo = versionInfo[pluginVersion.replace(/\./g, '*')];
+
+		// if the plugin is too old, we can not honor this request at all
+		if (CompareVersions(pluginVersion, earliestSupportedRelease) < 0) {
+			response.set('X-CS-Version-Disposition', 'incompatible');
+			this.abortWithStatusCode = 204;
+			throw this.errorHandler.error('versionNotSupported');
+		}
+
+		// set informative headers
+		const assetEnv = this.api.config.api.assetEnvironment;
+		response.set('X-CS-Current-Version', currentRelease);
+		response.set('X-CS-Supported-Version', earliestSupportedRelease);
+		response.set('X-CS-Preferred-Version', minimumPreferredRelease);
+		// yeah, this part about vscode being hard-coded sucks, we're going to have to revisit this
+		// when we support another IDE
+		response.set('X-CS-Latest-Asset-Url', 
+			`https://assets.codestream.com/${assetEnv}/vscode/codestream-latest.vsix`);
 
 		// set informative headers regarding the agent
 		if (releaseInfo) {
@@ -88,21 +97,15 @@ class Versioner extends APIServerModule {
 		}
 		let disposition;
 
-		// if the plugin is too old, we can not honor this request at all
-		if (this.compareVersions(pluginRelease, earliestSupportedRelease) < 0) {
-			response.set('X-CS-Version-Disposition', 'incompatible');
-			throw this.errorHandler.error('versionNotSupported');
-		}
-
 		// if the plugin is behind the minimum preferred release, that means the release in
 		// question is soon to be deprecated, and upgrade is strongly recommended
-		else if (this.compareVersions(pluginRelease, minimumPreferredRelease) < 0) {
+		if (CompareVersions(pluginVersion, minimumPreferredRelease) < 0) {
 			disposition = 'deprecated';
 		}
 
 		// if the plugin is behind the current release, all is ok, but upgrade is 
 		// still recommended at some point
-		else if (this.compareVersions(pluginRelease, currentRelease) < 0) {
+		else if (CompareVersions(pluginVersion, currentRelease) < 0) {
 			disposition = 'outdated';
 		}
 
@@ -117,40 +120,6 @@ class Versioner extends APIServerModule {
 		}
 
 		response.set('X-CS-Version-Disposition', disposition);
-	}
-
-	// parse a version string into a version object which can be compared
-	parseVersion (versionString) {
-		if (versionString.startsWith('v')) {
-			versionString = versionString.substring(1);
-		}
-		const [version, pre] = versionString.split('-');
-		const [major, minor, patch] = version.split('.');
-		return {
-			major: typeof major === 'string' ? parseInt(major, 10) : major,
-			minor: typeof minor === 'string' ? parseInt(minor, 10) : minor,
-			patch: typeof patch === 'string' ? parseInt(patch, 10) : patch,
-			pre: pre
-		};
-	}
-
-	// compare two version structures, return -1, 0, 1
-	compareVersions (v1, v2) {
-		if (v1.major > v2.major) return 1;
-		if (v1.major < v2.major) return -1;
-
-		if (v1.minor > v2.minor) return 1;
-		if (v1.minor < v2.minor) return -1;
-
-		if (v1.patch > v2.patch) return 1;
-		if (v1.patch < v2.patch) return -1;
-
-		if (v1.pre === undefined && v2.pre !== undefined) return 1;
-		if (v1.pre !== undefined && v2.pre === undefined) return -1;
-
-		if (v1.pre !== undefined && v2.pre !== undefined) return v1.pre.localeCompare(v2.pre);
-
-		return 0;
 	}
 
 	// describe any errors associated with this module, for help
