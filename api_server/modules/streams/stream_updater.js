@@ -64,6 +64,11 @@ class StreamUpdater extends ModelUpdater {
 		if (this.attributes.$addToSet && this.attributes.$pull) {
 			return 'can not $addToSet and $pull memberIds at the same time';
 		}
+
+		// specifically mark whether a stream will be archived
+		if (this.attributes.isArchived) {
+			this.wasArchived = true;
+		}
 	}
 
 	// before the user info gets saved...

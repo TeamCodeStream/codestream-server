@@ -34,7 +34,8 @@ class PutStreamRequest extends PutRequest {
 		// revoke permissions for all removed users to subscribe to the stream channel
 		await awaitParallel([
 			this.grantUserMessagingPermissions,
-			this.revokeUserMessagingPermissions
+			this.revokeUserMessagingPermissions,
+			this.clearUnreads
 		], this);
 
 		// publish the update as needed, and 
@@ -109,6 +110,74 @@ class PutStreamRequest extends PutRequest {
 		}).publishStreamToUsers(userIds);
 	}
 
+	// clear the unreads for all relevant users - users removed from the stream, or if the stream
+	// was archived, all users in the stream
+	async clearUnreads () {
+		if (this.updater.wasArchived) {
+			// the stream was archived, remove lastUnreads for all users in the stream
+			await this.clearUnreadsForAllUsers();
+		}
+		else if (this.updater.removedUsers && this.updater.removedUsers.length > 0) {
+			// certain users were removed, remove lastUnreads for those users only
+			const userIds = this.updater.removedUsers.map(user => user.id);
+			await this.clearUnreadsForUsers(userIds);
+		}
+	}
+	
+	// clear the unreads for all users in the stream, since it was archived
+	async clearUnreadsForAllUsers () {
+		const stream = this.updater.stream;
+		const teamId = stream.get('teamId');
+		let memberIds;
+		let query = null;
+		if (stream.get('isTeamStream')) {
+			const team = await this.data.teams.getById(teamId);
+			if (!team) {
+				return;	// should never happen
+			}
+			memberIds = team.get('memberIds') || [];
+			query = { teamIds: teamId };
+		}
+		else {
+			memberIds = stream.get('memberIds') || [];
+		}
+		this.clearUnreadsForUsers(memberIds, query);
+	}
+
+	// clear the unreads for the given users, and publish a message to each users on their channel
+	// the query to be used in the update option can be passed, otherwise it is just all the given users 
+	async clearUnreadsForUsers (userIds, query) {
+		// update the lastReads for all users, or as given by the query
+		const stream = this.updater.stream;
+		const op = {
+			$unset: {
+				[`lastReads.${stream.id}`]: true
+			}
+		};
+		query = query || { _id: this.data.users.inQuerySafe(userIds) };
+		await this.data.users.updateDirect(query, op);
+
+		// now publish the message to all users
+		await Promise.all(userIds.map(async userId => {
+			const message = {
+				user: Object.assign({}, op, { _id: userId }),
+				requestId: this.request.id
+			};
+			const channel = `user-${userId}`;
+			try {
+				await this.api.services.messager.publish(
+					message,
+					channel,
+					{ request: this }
+				);
+			}
+			catch (error) {
+				// this doesn't break the chain, but it is unfortunate...
+				this.warn(`Could not publish unreads message to user ${userId}: ${JSON.stringify(error)}`);
+			}
+		}));
+	}
+
 	// describe this route for help
 	static describe (module) {
 		const description = PutRequest.describe(module);
@@ -128,9 +197,9 @@ class PutStreamRequest extends PutRequest {
 			}
 		};
 		description.publishes = {
-			summary: 'If the stream is public to the team, the updated stream object (with possible directives) will be published to the team channel. If the stream is private, the updated stream object will be published to the stream channel for the stream. If users are added, the stream object will also be published to the user channel for all added users.',
+			summary: 'If the stream is public to the team, the updated stream object (with possible directives) will be published to the team channel. If the stream is private, the updated stream object will be published to the stream channel for the stream. If users are added, the stream object will also be published to the user channel for all added users. If users are removed, an update to the lastReads for each removed user will be published to the user channel for each removed user. If the stream is archived, an update to the lastReads for each users in the stream will be published to the user channel for each user in the stream.',
 			looksLike: {
-				stream: '<@@#stream object#stream@@>',
+				stream: '<@@#stream object#stream@@>'
 			}
 		};
 		description.errors = description.errors.concat([

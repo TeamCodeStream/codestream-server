@@ -37,6 +37,12 @@ const InvalidChannelNameTest = require('./invalid_channel_name_test');
 const NoDuplicateNameTest = require('./no_duplicate_name_test');
 const UsersNotFound = require('./users_not_found_test');
 const UsersNotOnTeamTest = require('./users_not_on_team_test');
+const RemoveUserClearUnreadsTest = require('./remove_user_clear_unreads_test');
+const RemoveUserUnreadsMessageTest = require('./remove_user_unreads_message_test');
+const ArchiveClearUnreadsTest = require('./archive_clear_unreads_test');
+const ArchiveClearUnreadsForTeamStreamTest = require('./archive_clear_unreads_for_team_stream_test');
+const ArchiveClearUnreadsMessageTest = require('./archive_clear_unreads_message_test');
+const ArchiveClearUnreadsForTeamStreamMessageTest = require('./archive_clear_unreads_for_team_stream_message_test');
 
 const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/<>?|\'".,';
 
@@ -92,6 +98,12 @@ class PutStreamRequestTester {
 		new NoDuplicateNameTest().test();
 		new UsersNotFound().test();
 		new UsersNotOnTeamTest().test();
+		new RemoveUserClearUnreadsTest().test();
+		new RemoveUserUnreadsMessageTest().test();
+		new ArchiveClearUnreadsTest().test();
+		new ArchiveClearUnreadsForTeamStreamTest().test();
+		new ArchiveClearUnreadsMessageTest().test();
+		new ArchiveClearUnreadsForTeamStreamMessageTest().test();
 	}
 }
 
