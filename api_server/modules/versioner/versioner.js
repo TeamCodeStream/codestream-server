@@ -63,6 +63,12 @@ class Versioner extends APIServerModule {
 			return;
 		}
 
+		// kind of a hack here, go from "VS Code" to "vscode", will this be a hard and fast rule?
+		const ideDir = pluginIDE.replace(/ /g, '').toLowerCase();
+		const assetEnv = this.api.config.api.assetEnvironment;
+		response.set('X-CS-Latest-Asset-Url', 
+			`https://assets.codestream.com/${assetEnv}/${ideDir}/codestream-latest.vsix`);
+
 		return await this.matchVersions(response, pluginVersion, versionInfo[0]);
 	}
 
@@ -76,19 +82,14 @@ class Versioner extends APIServerModule {
 		// if the plugin is too old, we can not honor this request at all
 		if (CompareVersions(pluginVersion, earliestSupportedRelease) < 0) {
 			response.set('X-CS-Version-Disposition', 'incompatible');
-			this.abortWithStatusCode = 204;
+			this.abortWithStatusCode = 400;
 			throw this.errorHandler.error('versionNotSupported');
 		}
 
 		// set informative headers
-		const assetEnv = this.api.config.api.assetEnvironment;
 		response.set('X-CS-Current-Version', currentRelease);
 		response.set('X-CS-Supported-Version', earliestSupportedRelease);
 		response.set('X-CS-Preferred-Version', minimumPreferredRelease);
-		// yeah, this part about vscode being hard-coded sucks, we're going to have to revisit this
-		// when we support another IDE
-		response.set('X-CS-Latest-Asset-Url', 
-			`https://assets.codestream.com/${assetEnv}/vscode/codestream-latest.vsix`);
 
 		// set informative headers regarding the agent
 		if (releaseInfo) {

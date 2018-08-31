@@ -82,10 +82,10 @@ class VersionerTest extends CodeStreamAPITest {
 	// request with the appropriate header info for the test
 	async createVersionInfo (callback) {
 		// create a fake plugin name, and set up headers to be sent with the request
-		const pluginName = `plugin-${RandomString.generate(12)}`;
+		this.pluginName = `plugin-${RandomString.generate(12)}`;
 		this.apiRequestOptions = Object.assign({}, this.apiRequestOptions || {}, {
 			headers: {
-				'x-cs-plugin-ide': pluginName,
+				'x-cs-plugin-ide': this.pluginName,
 				'x-cs-plugin-version': this.pluginVersion
 			}
 		});
@@ -93,7 +93,7 @@ class VersionerTest extends CodeStreamAPITest {
 		// set up version info to be associated with the plugin, we'll expect this info in
 		// the response
 		const versionData = {
-			clientType: pluginName,
+			clientType: this.pluginName,
 			currentRelease: this.CURRENT_RELEASE,
 			earliestSupportedRelease: this.EARLIEST_SUPPORTED_RELEASE,
 			minimumPreferredRelease: this.MINUMUM_PREFERRED_RELEASE,
@@ -138,9 +138,10 @@ class VersionerTest extends CodeStreamAPITest {
 	// (this needs to be updated when we support multiple IDEs)
 	validateAssetUrl () {
 		const assetEnv = ApiConfig.assetEnvironment;
+		const pluginName = this.pluginName.replace(/ /g, '').toLowerCase();
 		Assert.equal(
 			this.httpResponse.headers['x-cs-latest-asset-url'], 
-			`https://assets.codestream.com/${assetEnv}/vscode/codestream-latest.vsix`,
+			`https://assets.codestream.com/${assetEnv}/${pluginName}/codestream-latest.vsix`,
 			'asset URL is not correct'
 		);
 	}

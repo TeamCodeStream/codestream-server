@@ -9,20 +9,33 @@ class IncompatibleVersionTest extends VersionerTest {
 		super(options);
 		this.expectedDisposition = 'incompatible';
 		this.pluginVersion = this.INCOMPATIBLE_RELEASE;
-		this.apiRequestOptions = {
-			noJsonInResponse: true
-		};
 	}
 
 	get description () {
 		return 'should return an error and set X-CS-Version-Disposition to "incompatible" when an expired version of the IDE plugin is indicated with the request';
 	}
 
+	getExpectedError () {
+		return {
+			code: 'VERS-1001'
+		};
+	}
+
+	// run the actual test...
+	run (callback) {
+		// even though we're expecting an error, we'll still validate the returned headers
+		super.run(error => {
+			if (error) { return callback(error); }
+			this.validateResponse();
+			callback();
+		});
+	}
+
 	// validate the response to the test request
-	validateResponse (data) {
-		Assert.deepEqual(data, '', 'empty response should be returned');
-		Assert.equal(this.httpResponse.statusCode, 204, 'status code should be 204');
+	validateResponse () {
+		Assert.equal(this.httpResponse.statusCode, 400, 'status code should be 400');
 		this.validateDisposition();
+		this.validateAssetUrl();
 		[
 			'x-cs-current-version',
 			'x-cs-supported-version',
