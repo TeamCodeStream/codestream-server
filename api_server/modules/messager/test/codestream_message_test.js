@@ -156,6 +156,8 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		if (typeof message.message === 'object') {
 			Assert(message.message.requestId, 'received message has no requestId');
 			this.message.requestId = message.message.requestId;	// don't care what it is
+			Assert(message.message.messageId, 'received message has no messageId');
+			this.message.messageId = message.message.messageId;	// don't care what it is
 		}
 		Assert.deepEqual(message.message, this.message, 'received message doesn\'t match');
 		return true;
