@@ -520,7 +520,7 @@ class HelpRequest extends APIRequest {
 
 	handleLinks (value) {
 		if (typeof value === 'string') {
-			return value.replace(/@@#(.+?)#(.+?)@@/g, function(match, text, link) {
+			return value.replace(/@@#(.+?)#(.*?)@@/g, function(match, text, link) {
 				return `<a href="/help/${link}">${text}</a>`;
 			});
 		}

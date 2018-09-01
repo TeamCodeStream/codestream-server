@@ -33,6 +33,12 @@ class UnknownDispositionTest extends VersionerTest {
 	validateAgentHeaders () {
 		// we don't expect any version headers concerning the agent
 	}
+
+	// validate the asset URL, which tells us where the latest extension lives
+	// (this needs to be updated when we support multiple IDEs)
+	validateAssetUrl () {
+		// we don't expect the asset URL 
+	}
 }
 
 module.exports = UnknownDispositionTest;

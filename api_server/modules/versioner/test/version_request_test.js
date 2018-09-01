@@ -1,4 +1,4 @@
-// base class for all versioner tests
+// base class for all version request tests
 
 'use strict';
 
@@ -10,13 +10,7 @@ const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 
-/*
-CodeStreamAPITest handles setting up a user with a valid access token, and by default sends
-the access token with the request ... we'll set up a fake IDE plugin along with version info
-appropriate for the test, then each derived test class will test a possible outcome
-*/
-
-class VersionerTest extends CodeStreamAPITest {
+class VersionRequestTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
@@ -40,16 +34,17 @@ class VersionerTest extends CodeStreamAPITest {
 		this.pluginVersion = this.CURRENT_RELEASE;
 	}
 
+	// don't need an access token for the version request
+	dontWantToken () {
+		return true;
+	}
+
 	get description () {
-		return 'should set X-CS-Version-Disposition to "ok" when the indicated version is current';
+		return 'should return version disposition of "ok" when the indicated version is current';
 	}
 
 	get method () {
 		return 'get';
-	}
-
-	get path () {
-		return '/users/me';
 	}
 
 	// before the test runs...
@@ -83,15 +78,13 @@ class VersionerTest extends CodeStreamAPITest {
 	async createVersionInfo (callback) {
 		// create a fake plugin name, and set up headers to be sent with the request
 		this.pluginName = `plugin-${RandomString.generate(12)}`;
-		this.apiRequestOptions = Object.assign({}, this.apiRequestOptions || {}, {
-			headers: {
-				'x-cs-plugin-ide': this.pluginName,
-				'x-cs-plugin-version': this.pluginVersion
-			}
-		});
+		const queryData = this.makeQueryData();
+		this.path = '/no-auth/version?' + Object.keys(queryData).map(key => {
+			return `${key}=${encodeURIComponent(queryData[key])}`;
+		}).join('&');
 
-		// set up version info to be associated with the plugin, we'll expect this info in
-		// the response
+		// set up version info to be associated with the plugin, 
+		// we'll expect this info in the response
 		const versionData = {
 			clientType: this.pluginName,
 			currentRelease: this.CURRENT_RELEASE,
@@ -107,44 +100,52 @@ class VersionerTest extends CodeStreamAPITest {
 		callback();
 	}
 
+	// make the query data to be sent in the path
+	makeQueryData () {
+		return {
+			pluginIDE: this.pluginName,
+			pluginVersion: this.pluginVersion
+		};
+	}
+
 	// validate the response to the test request
-	validateResponse () {
-		this.validateDisposition();
-		this.validateVersionHeaders();
-		this.validateAgentHeaders();
-		this.validateAssetUrl();
+	validateResponse (data) {
+		this.validateDisposition(data);
+		this.validateVersionInfo(data);
+		this.validateAgentInfo(data);
+		this.validateAssetUrl(data);
 	}
 
-	// validate the disposition header returned with the response to the test request
-	validateDisposition () {
-		Assert.equal(this.httpResponse.headers['x-cs-version-disposition'], this.expectedDisposition, 'version disposition is not correct');
+	// validate the version disposition returned with the response to the test request
+	validateDisposition (data) {
+		Assert.equal(data.versionDisposition, this.expectedDisposition, 'version disposition is not correct');
 	}
 
-	// validate the version headers returned with the response to the test request
-	validateVersionHeaders () {
-		Assert.equal(this.httpResponse.headers['x-cs-current-version'], this.CURRENT_RELEASE, 'current version header is not correct');
-		Assert.equal(this.httpResponse.headers['x-cs-supported-version'], this.EARLIEST_SUPPORTED_RELEASE, 'earliest supported version header is not correct');
-		Assert.equal(this.httpResponse.headers['x-cs-preferred-version'], this.MINUMUM_PREFERRED_RELEASE, 'preferred version header is not correct');
+	// validate the version info returned with the response to the test request
+	validateVersionInfo (data) {
+		Assert.equal(data.currentVersion, this.CURRENT_RELEASE, 'current version is not correct');
+		Assert.equal(data.supportedVersion, this.EARLIEST_SUPPORTED_RELEASE, 'earliest supported version is not correct');
+		Assert.equal(data.preferredVersion, this.MINUMUM_PREFERRED_RELEASE, 'preferred version is not correct');
 	}
 
-	// validate the version headers concerning the agent that are returned with the response
+	// validate the version info concerning the agent that is returned with the response
 	// to the test request
-	validateAgentHeaders () {
-		Assert.equal(this.httpResponse.headers['x-cs-preferred-agent'], this.PREFERRED_AGENT, 'preferred agent header is not correct');
-		Assert.equal(this.httpResponse.headers['x-cs-supported-agent'], this.EARLIEST_SUPPORTED_AGENT, 'supported agent header is not correct');
+	validateAgentInfo (data) {
+		Assert.equal(data.preferredAgent, this.PREFERRED_AGENT, 'preferred agent is not correct');
+		Assert.equal(data.supportedAgent, this.EARLIEST_SUPPORTED_AGENT, 'supported agent is not correct');
 	}
 
 	// validate the asset URL, which tells us where the latest extension lives
 	// (this needs to be updated when we support multiple IDEs)
-	validateAssetUrl () {
+	validateAssetUrl (data) {
 		const assetEnv = ApiConfig.assetEnvironment;
 		const pluginName = this.pluginName.replace(/ /g, '').toLowerCase();
 		Assert.equal(
-			this.httpResponse.headers['x-cs-latest-asset-url'], 
+			data.latestAssetUrl, 
 			`https://assets.codestream.com/${assetEnv}/${pluginName}/codestream-latest.vsix`,
 			'asset URL is not correct'
 		);
 	}
 }
 
-module.exports = VersionerTest;
+module.exports = VersionRequestTest;
