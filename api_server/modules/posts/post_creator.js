@@ -57,7 +57,7 @@ class PostCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			optional: {
-				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId', 'origin'],
+				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId'],
 				object: ['stream'],
 				'array(object)': ['codeBlocks'],
 				'array(string)': ['mentionedUserIds']
@@ -71,6 +71,7 @@ class PostCreator extends ModelCreator {
 			// must have a stream ID or a stream object (for creating streams on the fly)
 			return this.errorHandler.error('parameterRequired', { info: 'streamId or stream' });
 		}
+		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 	}
 
 	// called before the post is actually saved

@@ -173,13 +173,13 @@ class InboundEmailRequest extends RestfulRequest {
 		this.postCreator = new PostCreator({
 			request: this,
 			team: this.team,
-			forInboundEmail: true
+			forInboundEmail: true,
+			origin: 'email'
 		});
 		try {
 			await this.postCreator.createPost({
 				streamId: this.streamId,
-				text: this.request.body.text,
-				origin: 'email'
+				text: this.request.body.text
 			});
 		}
 		catch (error) {

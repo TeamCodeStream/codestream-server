@@ -171,13 +171,13 @@ class IntegrationPostRequest extends RestfulRequest {
 		this.user = this.author;
 		this.postCreator = new PostCreator({
 			request: this,
-			forIntegration: this.integrationName
+			forIntegration: this.integrationName,
+			origin: this.integrationName
 		});
 		await this.postCreator.createPost({
 			streamId: this.stream.id,
 			text: this.request.body.text,
-			parentPostId: this.parentPost.id,
-			origin: this.integrationName
+			parentPostId: this.parentPost.id
 		});
 		this.post = this.postCreator.model;
 		this.responseData.post = this.post.getSanitizedObject();
