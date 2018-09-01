@@ -2,6 +2,8 @@
 
 'use strict';
 
+const UUID = require('uuid/v4');
+
 class PubNubClient {
 
 	constructor (options) {
@@ -25,6 +27,7 @@ class PubNubClient {
 				return;
 			}
 		}
+		message.messageId = message.messageId || UUID();
 		const result = await this.pubnub.publish(
 			{
 				message: message,
