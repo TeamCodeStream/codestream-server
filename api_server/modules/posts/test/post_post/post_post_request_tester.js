@@ -102,6 +102,7 @@ const HasRepliesMessageToStreamTest = require('./has_replies_message_to_stream_t
 const HasRepliesMessageToTeamStreamTest = require('./has_replies_message_to_team_stream_test');
 const HasRepliesMessageToTeamTest = require('./has_replies_message_to_team_test');
 const NoHasRepliesOnSecondReplyTest = require('./no_has_replies_on_second_reply_test');
+const OriginFromPluginTest = require('./origin_from_plugin_test');
 
 class PostPostRequestTester {
 
@@ -222,6 +223,7 @@ class PostPostRequestTester {
 		new ACLRepoOnTheFlyCodeBlockStreamTest().test();
 		new OnTheFlyCodeBlockStreamNoRepoIdTest().test();
 		new OnTheFlyCodeBlockStreamInvalidRepoIdTest().test();
+		new OriginFromPluginTest().test();
 	}
 }
 
