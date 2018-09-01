@@ -154,12 +154,14 @@ class PostPostTest extends CodeStreamAPITest {
 		);
 	}
 
+	/* eslint complexity: 0 */
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify we got back a post with the attributes we specified
 		let post = data.post;
 		let errors = [];
 		let expectedSeqNum = this.testOptions.expectedSeqNum || 1;
+		let expectedOrigin = this.testOptions.expectedOrigin || '';
 		let result = (
 			((post.text === this.data.text) || errors.push('text does not match')) &&
 			((post.teamId === this.team._id) || errors.push('teamId does not match the team')) &&
@@ -168,7 +170,8 @@ class PostPostTest extends CodeStreamAPITest {
 			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((post.modifiedAt >= post.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((post.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id')) &&
-			((post.seqNum === expectedSeqNum) || errors.push('seqNum not equal to expected seqNum'))
+			((post.seqNum === expectedSeqNum) || errors.push('seqNum not equal to expected seqNum')) &&
+			((post.origin === expectedOrigin) || errors.push('origin not equal to expected origin'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 

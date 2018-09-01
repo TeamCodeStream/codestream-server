@@ -16,7 +16,8 @@ const EXPECTED_POST_FIELDS = [
 	'teamId',
 	'streamId',
 	'text',
-	'seqNum'
+	'seqNum',
+	'origin'
 ];
 
 // fields expected for posts in file-type streams
