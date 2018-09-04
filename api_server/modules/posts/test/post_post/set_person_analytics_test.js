@@ -1,9 +1,9 @@
 'use strict';
 
-var PostCountTest = require('./post_count_test');
+var MessageToAuthorTest = require('./message_to_author_test');
 var Assert = require('assert');
 
-class SetPersonAnalyticsTest extends PostCountTest {
+class SetPersonAnalyticsTest extends MessageToAuthorTest {
 
 	get description () {
 		return 'when a new post is created, MixPanel should be updated with the total post count and last post created at for the author of the post';

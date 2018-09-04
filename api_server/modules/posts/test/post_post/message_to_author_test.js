@@ -3,10 +3,10 @@
 var NewPostMessageToTeamTest = require('./new_post_message_to_team_test');
 var Assert = require('assert');
 
-class PostCountTest extends NewPostMessageToTeamTest {
+class MessageToAuthorTest extends NewPostMessageToTeamTest {
 
 	get description () {
-		return 'the author of a post should receive a message indicating totalPosts incremented and lastPostCreatedAt set when creating a post';
+		return 'the author of a post should receive a message indicating totalPosts incremented and lastPostCreatedAt set and lastReads for the stream unset when creating a post';
 	}
 
 	// make the data the will be used when issuing the request that triggers the message
@@ -34,7 +34,8 @@ class PostCountTest extends NewPostMessageToTeamTest {
 			user: {
 				_id: this.postCreatorData.user._id,
 				$inc: { totalPosts: 1 },
-				$set: { lastPostCreatedAt: this.timeBeforePost }	// this is a placeholder, it should be some time greater than this
+				$set: { lastPostCreatedAt: this.timeBeforePost },	// this is a placeholder, it should be some time greater than this
+				$unset: { [`lastReads.${this.stream._id}`]: true }
 			}
 		};
 		const lastPostCreatedAt = message.message.user.$set.lastPostCreatedAt;
@@ -44,4 +45,4 @@ class PostCountTest extends NewPostMessageToTeamTest {
 	}
 }
 
-module.exports = PostCountTest;
+module.exports = MessageToAuthorTest;

@@ -41,6 +41,7 @@ class DataCollection {
 		this.toDeleteIds = {};			// models that should be deleted when we persist
 		this.toCreateIds = {};			// models that should be created when we persist
 		this.documentOptions = {};		// database options associated with documents being persisted
+		this.directQueries = [];		// direct queries still queued for when other documents get persisted
 	}
 
 	// get a single model by ID
@@ -172,6 +173,20 @@ class DataCollection {
 		);
 	}
 
+	// perform a direct update operation, but do it when other changes persist, not right now
+	// this allows the caller to specify a direct pass-through operation to the database, but
+	// one that won't go through immediately, but instead will go through when all the other
+	// changes that have been queued for persistence go through
+	// NOTE that there is no guarantee of order here, operations should be independent
+	// of any other operations being performed in this transaction
+	async updateDirectWhenPersist (query, data, options = {}) {
+		this.directQueries.push({
+			query,
+			data,
+			options
+		});
+	}
+
 	// perform a direct find-and-modify operation against the database
 	// find-and-modify performs an operation on a document but also returns the document in
 	// its original state (before the operation) ... it is an atomic operation so can be used
@@ -190,9 +205,18 @@ class DataCollection {
 
 	// persist all our recorded changes to the database ... a momentous occasion!
 	async persist () {
-		await this._persistDocuments(), // persist document updates
-		await this._deleteDocuments(),  // delete any documents requested
+		await this._persistDocuments(); // persist document updates
+		await this._deleteDocuments();  // delete any documents requested
 		await this._createDocuments();   // create any documents requested
+		await this._persistDirectQueries(); // persists any direct operations
+	}
+
+	// persist any direct updates established through updateDirectWhenPersist()
+	async _persistDirectQueries () {
+		await Promise.all(this.directQueries.map(async queryInfo => {
+			const { query, data, options } = queryInfo;
+			await this.updateDirect(query, data, options);
+		}));
 	}
 
 	// get a model from the cache by ID
