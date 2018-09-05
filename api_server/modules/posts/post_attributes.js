@@ -64,5 +64,11 @@ module.exports = {
 		type: 'string',
 		maxLength: 20,
 		description: 'Origin of the post: "email" for an email reply, "slack" for a reply from Slack, "teams" for a reply from MSTeams'
+	},
+	reactions: {
+		type: 'object',
+		maxLength: 5000,
+		description: 'Keys are the reaction (eg. \'smiley\', \'frown\', etc), and values are an array of user IDs, representing the users who picked that reaction',
+		default: {}
 	}
 };

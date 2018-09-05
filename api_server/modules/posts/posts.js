@@ -29,6 +29,15 @@ const POST_STANDARD_ROUTES = {
 	}
 };
 
+// additional routes for this module
+const POST_ADDITIONAL_ROUTES = [
+	{
+		method: 'put',
+		path: 'react/:id',
+		requestClass: require('./react_request')
+	}
+];
+
 class Posts extends Restful {
 
 	getDependencies () {
@@ -63,9 +72,12 @@ class Posts extends Restful {
 		return PostDeleter;	// use this class to delete (deactivate) posts
 	}
 
+	// get all routes exposed by this module
 	getRoutes () {
-		return super.getRoutes(POST_STANDARD_ROUTES);
+		let standardRoutes = super.getRoutes(POST_STANDARD_ROUTES);
+		return [...standardRoutes, ...POST_ADDITIONAL_ROUTES];
 	}
+
 
 	// initialize the module
 	async initialize () {
