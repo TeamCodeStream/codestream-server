@@ -445,7 +445,7 @@ class PostCreator extends ModelCreator {
 			this.publishParentPost,				// if this post was a reply and we updated the parent post, publish that
 			this.triggerNotificationEmails,		// trigger email notifications to members who should receive them
 			this.doIntegrationHooks,			// trigger any integration hooks from this post
-			this.publishPostCount,				// publish the the user's post count to the user
+			this.publishToAuthor,				// publish directives to the author's me-channel
 			this.sendPostCountToAnalytics,		// update analytics post count for the post's author
 			this.trackPost,						// for server-generated posts, send analytics info
 			this.updateMentions					// for mentioned users, update their mentions count for analytics 
@@ -548,15 +548,20 @@ class PostCreator extends ModelCreator {
 		});
 	}
 
+	// publish a message reflecting this post to the post's author
+	// this includes an increase in the post count, and a clearing of the 
+	// author's lastReads for the stream
 	// publish an increase in post count to the author's me-channel
-	async publishPostCount () {
-		if (!this.updatePostCountOp) {
-			return;	// no joinMethod update to perform
-		}
+	async publishToAuthor () {
+		// we may already have a direct to update the post count for the author,
+		// add to this a directive to clear lastReads for the author
+		const op = this.updatePostCountOp || {};
+		op.$unset = op.$unset || {};
+		op.$unset[`lastReads.${this.stream.id}`] = true;
 		const channel = 'user-' + this.user.id;
 		const message = {
 			requestId: this.request.request.id,
-			user: Object.assign({}, this.updatePostCountOp, { _id: this.user.id })
+			user: Object.assign({}, op, { _id: this.user.id })
 		};
 		try {
 			await this.api.services.messager.publish(
@@ -567,7 +572,7 @@ class PostCreator extends ModelCreator {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish post count update message to user ${this.user._id}: ${JSON.stringify(error)}`);
+			this.request.warn(`Could not publish author update message to user ${this.user._id}: ${JSON.stringify(error)}`);
 		}
 	}
 
@@ -705,7 +710,6 @@ class PostCreator extends ModelCreator {
 			this.request.request.headers['x-cs-block-email-sends']
 		);
 	}
-
 }
 
 module.exports = PostCreator;
