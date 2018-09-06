@@ -212,7 +212,12 @@ class DataModelValidator {
 	setDefaultAttributes (object) {
 		Object.keys(this.attributeDefinitions).forEach(attribute => {
 			if (typeof this.attributeDefinitions[attribute].default !== 'undefined') {
-				object[attribute] = this.attributeDefinitions[attribute].default;
+				if (typeof this.attributeDefinitions[attribute].default === 'object') {
+					object[attribute] = DeepClone(this.attributeDefinitions[attribute].default);
+				}
+				else {
+					object[attribute] = this.attributeDefinitions[attribute].default;
+				}
 			}
 		});
 	}
