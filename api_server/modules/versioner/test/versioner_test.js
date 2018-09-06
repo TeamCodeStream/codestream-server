@@ -32,6 +32,8 @@ class VersionerTest extends CodeStreamAPITest {
 		this.UNKNOWN_RELEASE = '2.3.6';
 		this.EARLIEST_SUPPORTED_AGENT = '3.3.0';
 		this.PREFERRED_AGENT = '3.4.1';
+		this.BAD_VERSION = '1@2@3';
+		this.IMPROPER_VERSION = '2.3.5-';
 
 		// the disposition we expect in the returned disposition header, override for various tests
 		this.expectedDisposition = 'ok';

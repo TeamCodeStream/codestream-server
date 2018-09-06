@@ -69,36 +69,65 @@ class VersionInfo {
 		}
 
 		let disposition;
+		pluginVersion = this.normalizePluginVersion(pluginVersion);
+		try {
+			// if the plugin is too old, we can not honor this request at all
+			if (CompareVersions(pluginVersion, earliestSupportedRelease) < 0) {
+				disposition = 'incompatible';
+			}
 
-		// if the plugin is too old, we can not honor this request at all
-		if (CompareVersions(pluginVersion, earliestSupportedRelease) < 0) {
-			disposition = 'incompatible';
+			// if the plugin is behind the minimum preferred release, that means the release in
+			// question is soon to be deprecated, and upgrade is strongly recommended
+			else if (CompareVersions(pluginVersion, minimumPreferredRelease) < 0) {
+				disposition = 'deprecated';
+			}
+
+			// if the plugin is behind the current release, all is ok, but upgrade is 
+			// still recommended at some point
+			else if (CompareVersions(pluginVersion, currentRelease) < 0) {
+				disposition = 'outdated';
+			}
+
+			// all is ok, unless we didn't recognize the plugin version
+			else if (releaseInfo) {
+				disposition = 'ok';
+			}
+
+			// didn't recognize the plugin version, but otherwise all is ok
+			else {
+				disposition = 'unknownVersion';
+			}
 		}
-
-		// if the plugin is behind the minimum preferred release, that means the release in
-		// question is soon to be deprecated, and upgrade is strongly recommended
-		else if (CompareVersions(pluginVersion, minimumPreferredRelease) < 0) {
-			disposition = 'deprecated';
-		}
-
-		// if the plugin is behind the current release, all is ok, but upgrade is 
-		// still recommended at some point
-		else if (CompareVersions(pluginVersion, currentRelease) < 0) {
-			disposition = 'outdated';
-		}
-
-		// all is ok, unless we didn't recognize the plugin version
-		else if (releaseInfo) {
-			disposition = 'ok';
-		}
-
-		// didn't recognize the plugin version, but otherwise all is ok
-		else {
+		catch (error) {
+			this.api.warn(`Invalid version info: ${pluginVersion}`);
 			disposition = 'unknownVersion';
 		}
 
 		versionCompatibility.versionDisposition = disposition;
 		return versionCompatibility;
+	}
+
+	normalizePluginVersion (version) {
+		const [realVersion, build] = version.split('+');
+		const [nonPre, pre] = realVersion.split('-');
+		const [major, minor, patch] = nonPre.split('.');
+		if (!major) {
+			return '';
+		}
+		let normalizedVersion = major;
+		if (minor) {
+			normalizedVersion += '.' + minor;
+		}
+		if (patch) {
+			normalizedVersion += '.' + patch;
+		}
+		if (pre) {
+			normalizedVersion += '-' + pre;
+		}
+		if (build) {
+			normalizedVersion += '+' + build;
+		}
+		return normalizedVersion;
 	}
 }
 

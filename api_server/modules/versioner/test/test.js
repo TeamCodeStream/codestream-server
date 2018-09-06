@@ -19,6 +19,10 @@ const UnknownVersionRequestTest = require('./unknown_version_request_test');
 const IncompatibleVersionRequestTest = require('./incompatible_version_request_test');
 const DeprecatedVersionRequestTest = require('./deprecated_version_request_test');
 const OutdatedVersionRequestTest = require('./outdated_version_request_test');
+const BadVersionTest = require('./bad_version_test');
+const BadVersionRequestTest = require('./bad_version_request_test');
+const ImproperVersionTest = require('./improper_version_test');
+const ImproperVersionRequestTest = require('./improper_version_request_test');
 
 describe('versioner', function() {
 
@@ -38,4 +42,8 @@ describe('versioner', function() {
 	new IncompatibleVersionRequestTest().test();
 	new DeprecatedVersionRequestTest().test();
 	new OutdatedVersionRequestTest().test();
+	new BadVersionTest().test();
+	new BadVersionRequestTest().test();
+	new ImproperVersionTest().test();
+	new ImproperVersionRequestTest().test();
 });
