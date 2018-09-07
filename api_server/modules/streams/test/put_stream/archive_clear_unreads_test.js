@@ -2,6 +2,7 @@
 
 const Assert = require('assert');
 const PutStreamTest = require('./put_stream_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class ArchiveClearUnreadsTest extends PutStreamTest {
 
@@ -52,12 +53,16 @@ class ArchiveClearUnreadsTest extends PutStreamTest {
 
 	// run the actual test...
 	run (callback) {
-		// run the usual test, but then fetch the user object for the current user,
-		// we should see no lastReads for this stream
-		super.run(error => {
-			if (error) { return callback(error); }
-			this.fetchCurrentUser(callback);
-		});
+		BoundAsync.series(this, [
+			super.run,
+			this.wait,	// need to wait a bit since clearing lastReads happens after the response
+			this.fetchCurrentUser
+		], callback);
+	}
+
+	// wait a few seconds since clearing lastReads happens after the response
+	wait (callback) {
+		setTimeout(callback, 5000);
 	}
 
 	// fetch the current user, and validate that the lastReads
