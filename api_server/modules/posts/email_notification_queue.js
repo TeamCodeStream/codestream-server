@@ -42,10 +42,14 @@ class EmailNotificationQueue {
 		// blocking email sends forever
 		const seqNum = this.stream.get('emailNotificationSeqNum');
 		const seqNumSetAt = this.stream.get('emailNotificationSeqNumSetAt') || 0;
+		const staleInterval = 2 * Math.max(
+			this.request.api.config.email.notificationInterval, 
+			this.request.api.config.api.sessionAwayTimeout
+		);
 		if (
 			seqNum &&
-			seqNum < this.post.get('seqNum') &&
-			seqNumSetAt > Date.now() - 2 * this.request.api.config.email.notificationInterval
+			seqNum < this.fromSeqNum &&
+			seqNumSetAt > Date.now() - staleInterval
 		) {
 			return;
 		}
@@ -73,7 +77,7 @@ class EmailNotificationQueue {
 		};
 		const update = {
 			$set: {
-				emailNotificationSeqNum: this.post.get('seqNum')
+				emailNotificationSeqNum: this.fromSeqNum
 			}
 		};
 		const options = {
@@ -116,10 +120,14 @@ class EmailNotificationQueue {
 	// the sequence number we set and restore it to the one we read, letting the
 	// timer that was presumably already set expire
 	async backOffAsNeeded () {
+		const staleInterval = 2 * Math.max(
+			this.request.api.config.email.notificationInterval, 
+			this.request.api.config.api.sessionAwayTimeout
+		);
 		if (
 			this.foundSeqNum &&
-			this.foundSeqNum < this.post.get('seqNum') &&
-			this.foundSeqNumSetAt > Date.now() - 2 * this.request.api.config.email.notificationInterval
+			this.foundSeqNum < this.fromSeqNum &&
+			this.foundSeqNumSetAt > Date.now() - staleInterval
 		) {
 			this.backedOff = true;
 			await this.restoreSeqNum(this.foundSeqNum);
@@ -140,13 +148,24 @@ class EmailNotificationQueue {
 	// post's sequence number ... set up a message to put into queue, with a delay
 	// equal to the configured interval
 	async queueEmailNotifications () {
+		const notificationInterval = this.request.api.config.email.notificationInterval;
+		const awayTimeout = this.request.api.config.api.sessionAwayTimeout;
+
+		// mopping up offline users doesn't apply if the away timeout is less than
+		// the notification interval, since all relevant users would have already gone offline
+		if (this.moppingUpOfflineUsers && awayTimeout < notificationInterval) {
+			return;
+		}
+
 		const message = {
-			postId: this.post.id,
 			streamId: this.stream.id,
-			seqNum: this.post.get('seqNum')
+			seqNum: this.fromSeqNum,
+			moppingUpOfflineUsers: !!this.moppingUpOfflineUsers
 		};
-		const delay = Math.floor(this.request.api.config.email.notificationInterval / 1000);
-		this.request.log(`Triggering email notifications for stream ${this.stream.id} in ${delay} seconds...`);
+		let delay = this.moppingUpOfflineUsers ? awayTimeout - notificationInterval : notificationInterval;
+		delay = Math.floor(delay / 1000);
+		const moppingUp = this.moppingUpOfflineUsers ? 'mopping up offline users in ' : '';
+		this.request.log(`Triggering email notifications for ${moppingUp}stream ${this.stream.id} in ${delay} seconds...`);
 		await callbackWrap(
 			this.request.api.services.queueService.sendMessage.bind(this.request.api.services.queueService),
 			this.request.api.config.aws.sqs.outboundEmailQueueName,

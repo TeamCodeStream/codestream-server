@@ -522,7 +522,7 @@ class PostCreator extends ModelCreator {
 		}
 		const queue = new EmailNotificationQueue({
 			request: this.request,
-			post: this.model,
+			fromSeqNum: this.model.get('seqNum'),
 			stream: this.stream
 		});
 		try {

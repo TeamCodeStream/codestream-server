@@ -41,7 +41,11 @@ class LastReadsUpdater {
 		// stream in question ... if they do, we don't set it, since they are
 		// already "not caught up" ... only users who are "caught up" get the
 		// lastReads attribute set
+		// we also update lastEmailsSent for this stream, since the user is seeing
+		// new messages for the first time, we can assume they have been sent 
+		// whatever emails were going to be sent for this stream
 		const lastReadsElem = 'lastReads.' + this.stream.id;
+		const lastEmailsSentElem = 'lastEmailsSent.' + this.stream.id;
 		const query = {
 			_id: this.data.users.inQuerySafe(memberIds),
 			[lastReadsElem]: { $exists: false }
@@ -50,6 +54,9 @@ class LastReadsUpdater {
 		const update = {
 			$set: {
 				[lastReadsElem]: previousPostSeqNum
+			},
+			$unset: {
+				[lastEmailsSentElem]: true
 			}
 		};
 		try {

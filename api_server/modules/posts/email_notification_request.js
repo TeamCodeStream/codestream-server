@@ -84,16 +84,31 @@ class EmailNotificationRequest extends RestfulRequest {
 		this.nextPost = posts[0] || null;
 	}
 
-	// if a new post came in while we were processing these notifications, we need
-	// to trigger a new interval timer
+	// trigger next interval timer, as needed
 	async triggerNextTimer () {
-		if (!this.nextPost) {
-			return;	// no new posts came in, we are good
+		// so if a new post came in since we sent notifications for our last set of posts, then
+		// we need to trigger a new timer for that post, because notification timers have
+		// been suppressed since setting emailNotificationSeqNum for the stream ...
+		// but otherwise, we also try to take care of users that go were online for this
+		// notification check but may go offline within the next few minutes ... for those
+		// users, we want to ensure they get a notification too, so we "mop up" those users
+		// by triggering another timer
+		const moppingUpOfflineUsers = this.nextPost ? false : !this.message.moppingUpOfflineUsers;
+		this.fromSeqNum = null;
+		if (this.nextPost) {
+			this.fromSeqNum = this.nextPost.get('seqNum');
+		}
+		else if (moppingUpOfflineUsers) {
+			this.fromSeqNum = this.message.seqNum;
+		}
+		if (!this.fromSeqNum) {
+			return;
 		}
 		const queue = new EmailNotificationQueue({
 			request: this,
-			post: this.nextPost,
-			stream: this.stream
+			fromSeqNum: this.fromSeqNum,
+			stream: this.stream,
+			moppingUpOfflineUsers
 		});
 		try {
 			await queue.queueEmailNotifications();
@@ -116,13 +131,16 @@ class EmailNotificationRequest extends RestfulRequest {
 				}
 			};
 		}
-		else {
+		else if (!this.fromSeqNum) {
 			update = {
 				$unset: {
 					emailNotificationSeqNum: true,
 					emailNotificationSeqNumSetAt: true
 				}
 			};
+		}
+		else {
+			return;
 		}
 		try {
 			await this.data.streams.updateDirect(
