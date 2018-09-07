@@ -55,9 +55,12 @@ class GetStreamTest extends CodeStreamAPITest {
 			type: this.type,
 			token: this.mine ? this.token : this.otherUserData.accessToken,	// i or the other user creates the stream, depending on the test
 			teamId: this.repo.teamId,
-			repoId: this.type === 'file' ? this.repo._id : null,	// file-type streams must have repo ID
+			repoId: this.type === 'file' ? this.repo._id : null	// file-type streams must have repo ID
 		};
-		if (this.type !== 'file' && !this.mine && !this.withoutMe) {	
+		if (this.privacy) {
+			streamOptions.privacy = this.privacy;
+		}
+		if (this.type !== 'file' && !this.mine && !this.withoutMe && !this.withoutMeInStream) {	
 			// add me to the stream if it is not a file-type stream (which don't have members),
 			// if i am not creating it (in which case i'm added anyway), and if the test wants me
 			streamOptions.memberIds = [this.currentUser._id];

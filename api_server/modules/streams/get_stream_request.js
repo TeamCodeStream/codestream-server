@@ -6,6 +6,20 @@ const GetRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_reque
 
 class GetStreamRequest extends GetRequest {
 
+	// authorize this request
+	async authorize () {
+		// for public streams, users who are on the team but are not members of the stream
+		// can still fetch the stream
+		const stream = await this.data.streams.getById(this.request.params.id.toLowerCase());
+		if (!stream) {
+			throw this.errorHandler.error('notFound', { info: 'stream' });
+		}
+		if (stream.get('privacy') === 'public' && this.user.hasTeam(stream.get('teamId'))) {
+			return true;
+		}
+		return await super.authorize();
+	}
+
 	// describe this route for help
 	static describe (module) {
 		const description = GetRequest.describe(module);
