@@ -20,7 +20,7 @@ class LastReadsUpdater {
 		// everything in the stream if they're composing a post) ... two,
 		// update lastReads for every other user in the stream who does not 
 		// already have a lastReads
-		awaitParallel([
+		await awaitParallel([
 			this.updateLastReadsForMembers,
 			this.clearLastReadsForAuthor
 		], this);

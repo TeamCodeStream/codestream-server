@@ -7,7 +7,7 @@ var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 class LastReadsClearedForAuthorTest extends CodeStreamAPITest {
 
 	get description () {
-		return `last read attribute for members of the stream should get updated to the previous post when a new post is created in a ${this.type} stream, for members who are not caught up on the conversation`;
+		return 'last read attribute for the author of a post should get cleared';
 	}
 
 	// before the test runs...
