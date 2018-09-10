@@ -149,23 +149,13 @@ class EmailNotificationQueue {
 	// equal to the configured interval
 	async queueEmailNotifications () {
 		const notificationInterval = this.request.api.config.email.notificationInterval;
-		const awayTimeout = this.request.api.config.api.sessionAwayTimeout;
-
-		// mopping up offline users doesn't apply if the away timeout is less than
-		// the notification interval, since all relevant users would have already gone offline
-		if (this.moppingUpOfflineUsers && awayTimeout < notificationInterval) {
-			return;
-		}
-
 		const message = {
 			streamId: this.stream.id,
 			seqNum: this.fromSeqNum,
-			moppingUpOfflineUsers: !!this.moppingUpOfflineUsers
+			initialTriggerTime: this.initialTriggerTime
 		};
-		let delay = this.moppingUpOfflineUsers ? awayTimeout - notificationInterval : notificationInterval;
-		delay = Math.floor(delay / 1000);
-		const moppingUp = this.moppingUpOfflineUsers ? 'mopping up offline users in ' : '';
-		this.request.log(`Triggering email notifications for ${moppingUp}stream ${this.stream.id} in ${delay} seconds...`);
+		const delay = Math.floor(notificationInterval / 1000);
+		this.request.log(`Triggering email notifications for stream ${this.stream.id} in ${delay} seconds...`);
 		await callbackWrap(
 			this.request.api.services.queueService.sendMessage.bind(this.request.api.services.queueService),
 			this.request.api.config.aws.sqs.outboundEmailQueueName,

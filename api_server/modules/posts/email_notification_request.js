@@ -17,6 +17,7 @@ class EmailNotificationRequest extends RestfulRequest {
 	// after the timer interval
 	async process () {
 		this.log(`Processing an email notification request: ${JSON.stringify(this.message)}`);
+		this.processingStartedAt = Date.now();
 		try {
 			await this.getStream();				// get the stream associated with these notifications
 			if (await this.sendEmails()) {
@@ -86,20 +87,28 @@ class EmailNotificationRequest extends RestfulRequest {
 
 	// trigger next interval timer, as needed
 	async triggerNextTimer () {
+		let initialTriggerTime;
+
 		// so if a new post came in since we sent notifications for our last set of posts, then
 		// we need to trigger a new timer for that post, because notification timers have
-		// been suppressed since setting emailNotificationSeqNum for the stream ...
-		// but otherwise, we also try to take care of users that go were online for this
-		// notification check but may go offline within the next few minutes ... for those
-		// users, we want to ensure they get a notification too, so we "mop up" those users
-		// by triggering another timer
-		const moppingUpOfflineUsers = this.nextPost ? false : !this.message.moppingUpOfflineUsers;
-		this.fromSeqNum = null;
+		// been suppressed since setting emailNotificationSeqNum for the stream 
 		if (this.nextPost) {
 			this.fromSeqNum = this.nextPost.get('seqNum');
+			initialTriggerTime = this.nextPost.get('createdAt');
 		}
-		else if (moppingUpOfflineUsers) {
-			this.fromSeqNum = this.message.seqNum;
+
+		// but otherwise, we also try to take care of users that were online for this
+		// notification check but may go offline within the next few minutes ... for those
+		// users, we want to ensure they get a notification too, so we "mop up" those users
+		// by triggering another timer, we do this over and over until the full "away timeout"
+		// interval has passed since the post's creation
+		else {
+			const timeSinceTriggerTime = this.processingStartedAt - this.message.initialTriggerTime;
+			if (timeSinceTriggerTime <= this.api.config.api.sessionAwayTimeout) {
+				this.log(`Mopping up offline users for stream ${this.stream.id}...`);
+				this.fromSeqNum = this.message.seqNum;
+				initialTriggerTime = this.message.initialTriggerTime;
+			}
 		}
 		if (!this.fromSeqNum) {
 			return;
@@ -108,13 +117,13 @@ class EmailNotificationRequest extends RestfulRequest {
 			request: this,
 			fromSeqNum: this.fromSeqNum,
 			stream: this.stream,
-			moppingUpOfflineUsers
+			initialTriggerTime
 		});
 		try {
 			await queue.queueEmailNotifications();
 		}
 		catch (error) {
-			this.api.warn(`Unable to queue next email notifications for stream ${this.stream.id} and post ${this.nextPost.id}: ${error.toString()}`);
+			this.warn(`Unable to queue next email notifications for stream ${this.stream.id} and post ${this.nextPost.id}: ${error.toString()}`);
 		}
 	}
 
@@ -149,7 +158,7 @@ class EmailNotificationRequest extends RestfulRequest {
 			);
 		}
 		catch (error) {
-			this.api.warn(`Unable to update seqNum for stream ${this.stream.id} (${JSON.stringify(update)}): ${error.toString()}`);
+			this.warn(`Unable to update seqNum for stream ${this.stream.id} (${JSON.stringify(update)}): ${error.toString()}`);
 		}
 	}
 
