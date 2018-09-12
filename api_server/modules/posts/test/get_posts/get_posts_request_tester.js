@@ -2,41 +2,45 @@
 
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
-//var GetPostsByMeTest = require('./get_posts_by_me_test');
-//var GetPostsByOtherTest = require('./get_posts_by_other_test');
-//var GetPostsNewerThanTest = require('./get_posts_newer_than_test');
-var GetChildPostsTest = require('./get_child_posts_test');
-var GetPostsByIdTest = require('./get_posts_by_id_test');
-var GetPostsLimitTest = require('./get_posts_limit_test');
-var GetPostsSortTest = require('./get_posts_sort_test');
-var GetPostsDefaultSortTest = require('./get_posts_default_sort_test');
-var GetPostsGreaterThanTest = require('./get_posts_greater_than_test');
-var GetPostsGreaterThanEqualTest = require('./get_posts_greater_than_equal_test');
-var GetPostsLessThanTest = require('./get_posts_less_than_test');
-var GetPostsLessThanEqualTest = require('./get_posts_less_than_equal_test');
-var GetPostsByPathTest = require('./get_posts_by_path_test');
-//var PaginationTest = require('./pagination_test');
-var InvalidSeqNumTest = require('./invalid_seqnum_test');
-var InvalidSeqNumRangeTest = require('./invalid_seqnum_range_test');
-//var SeqNumLimitTest = require('./seqnum_limit_test');
-var InvalidParameterTest = require('./invalid_parameter_test');
-var OneRelationalTest = require('./one_relational_test');
-var InvalidIDTest = require('./invalid_id_test');
-var TeamIDRequiredTest = require('./team_id_required_test');
-var StreamIDRequiredTest = require('./stream_id_required_test');
-var PathRequiredTest = require('./path_required_test');
-var ACLTeamTest = require('./acl_team_test');
-var ACLStreamTest = require('./acl_stream_test');
-var ACLTeamFileTest = require('./acl_team_file_test');
-var ACLRepoTest = require('./acl_repo_test');
-var StreamNotFoundTest = require('./stream_not_found_test');
-var StreamNoMatchTeamTest = require('./stream_no_match_team_test');
-var RepoNoMatchTeamTest = require('./repo_no_match_team_test');
-var GetPostsBySeqNumTest = require('./get_posts_by_seqnum_test');
-var GetPostsBySingleSeqNumTest = require('./get_posts_by_single_seqnum_test');
-var NoSeqNumWithRelationalTest = require('./no_seqnum_with_relational_test');
-var GetMarkersWithPostsTest = require('./get_markers_with_posts_test');
+const GetPostsTest = require('./get_posts_test');
+//const GetPostsByMeTest = require('./get_posts_by_me_test');
+//const GetPostsByOtherTest = require('./get_posts_by_other_test');
+//const GetPostsNewerThanTest = require('./get_posts_newer_than_test');
+const GetChildPostsTest = require('./get_child_posts_test');
+const GetPostsByIdTest = require('./get_posts_by_id_test');
+const GetPostsLimitTest = require('./get_posts_limit_test');
+const GetPostsSortTest = require('./get_posts_sort_test');
+const GetPostsDefaultSortTest = require('./get_posts_default_sort_test');
+const GetPostsGreaterThanTest = require('./get_posts_greater_than_test');
+const GetPostsGreaterThanEqualTest = require('./get_posts_greater_than_equal_test');
+const GetPostsLessThanTest = require('./get_posts_less_than_test');
+const GetPostsLessThanEqualTest = require('./get_posts_less_than_equal_test');
+const GetPostsByPathTest = require('./get_posts_by_path_test');
+//const PaginationTest = require('./pagination_test');
+const InvalidSeqNumTest = require('./invalid_seqnum_test');
+const InvalidSeqNumRangeTest = require('./invalid_seqnum_range_test');
+//const SeqNumLimitTest = require('./seqnum_limit_test');
+const InvalidParameterTest = require('./invalid_parameter_test');
+const OneRelationalTest = require('./one_relational_test');
+const InvalidIDTest = require('./invalid_id_test');
+const TeamIDRequiredTest = require('./team_id_required_test');
+const StreamIDRequiredTest = require('./stream_id_required_test');
+const PathRequiredTest = require('./path_required_test');
+const ACLTeamTest = require('./acl_team_test');
+const ACLStreamTest = require('./acl_stream_test');
+const ACLTeamFileTest = require('./acl_team_file_test');
+const ACLRepoTest = require('./acl_repo_test');
+const StreamNotFoundTest = require('./stream_not_found_test');
+const StreamNoMatchTeamTest = require('./stream_no_match_team_test');
+const RepoNoMatchTeamTest = require('./repo_no_match_team_test');
+const GetPostsBySeqNumTest = require('./get_posts_by_seqnum_test');
+const GetPostsBySeqNumsTest = require('./get_posts_by_seqnums_test');
+const NoRangeAndSeqNumsTest = require('./no_range_and_seqnums_test');
+const TooManySeqNumsTest = require('./too_many_seqnums_test');
+const InvalidSeqNumsTest = require('./invalid_seqnums_test');
+const GetPostsBySingleSeqNumTest = require('./get_posts_by_single_seqnum_test');
+const NoSeqNumWithRelationalTest = require('./no_seqnum_with_relational_test');
+const GetMarkersWithPostsTest = require('./get_markers_with_posts_test');
 
 class GetPostsRequestTester {
 
@@ -45,7 +49,7 @@ class GetPostsRequestTester {
 		new GetPostsTest({type: 'direct'}).test();
 		new GetPostsTest({type: 'file'}).test();
 		// with indexing, the tests below are disabled pending the need for them, since
-		// they would require and index
+		// they would require an index
 		// new GetPostsByMeTest().test();
 		// new GetPostsByOtherTest().test();
 		// new GetPostsNewerThanTest().test();
@@ -85,6 +89,10 @@ class GetPostsRequestTester {
 		new StreamNoMatchTeamTest().test();
 		new RepoNoMatchTeamTest().test();
 		new GetPostsBySeqNumTest().test();
+		new GetPostsBySeqNumsTest().test();
+		new NoRangeAndSeqNumsTest().test();
+		new TooManySeqNumsTest().test();
+		new InvalidSeqNumsTest().test();
 		new GetPostsBySingleSeqNumTest().test();
 		new GetMarkersWithPostsTest().test();
 	}

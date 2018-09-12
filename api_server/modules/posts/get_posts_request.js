@@ -153,17 +153,51 @@ class GetPostsRequest extends GetManyRequest {
 			// relationals are for fetching by ID
 			return 'can not query sequence numbers with a relational';
 		}
-		let range = value.split('-');
-		let start = parseInt(range[0] || '', 10);
+		const range = value.split('-');
+		const seqNums = value.split(',');
+		if (range.length > 1 && seqNums.length > 1) {
+			return 'can not query for range and individual sequence numbers at the same time';
+		}
+		this.bySeqNum = true;
+		if (range.length > 1) {
+			return this.processSeqNumRange(range, query);
+		}
+		else {
+			return this.processSeqNums (seqNums, query);
+		}
+	}
+
+	// process a parameter specifying fetching by a range of sequence numbers
+	processSeqNumRange (range, query) {
+		const start = parseInt(range[0] || '', 10);
 		if (isNaN(start)) {
 			return 'invalid sequence number: ' + (range[0] || '');
 		}
-		let end = parseInt(range[1] || range[0], 10);
+		const end = parseInt(range[1] || range[0], 10);
 		if (isNaN(end)) {
 			return 'invalid sequence number: ' + (range[1] || range[0]);
 		}
-		this.bySeqNum = true;
 		query.seqNum = { $gte: start, $lte: end };
+	}
+
+	// process a parameter specifying fetching individual posts by sequence number
+	processSeqNums (seqNums, query) {
+		let error;
+		if (seqNums.length > 100) {
+			return 'too many sequence numbers';
+		}
+		const properSeqNums = [];
+		if (seqNums.find(seqNum => {
+			const properSeqNum = parseInt(seqNum, 10);
+			if (isNaN(properSeqNum)) {
+				error = 'invalid sequence number: ' + (seqNum || '');
+				return true;
+			}
+			properSeqNums.push(properSeqNum);
+		})) {
+			return error;
+		}
+		query.seqNum = this.data.posts.inQuery(properSeqNums);
 	}
 
 	// process a relational parameter (lt, gt, lte, gte) ... for fetching in pages
@@ -362,7 +396,7 @@ class GetPostsRequest extends GetManyRequest {
 			'limit': '<Limit the number of posts fetched to this number>',
 			'withMarkers': '<If specified, the markers associated with all fetched posts will also be fetched>',
 			'commitHash': '<If specified along with withMarkers, the known locations of the markers fetched, for the given commit hash, will also be fetched>',
-			'seqnum': '<Fetch the posts in a range of sequence numbers, like: seqnum=3-7 (fetches posts with sequence numbers 3 thru 7, inclusive)>'
+			'seqnum': '<Fetch the posts in a range of sequence numbers, like: seqnum=3-7 (fetches posts with sequence numbers 3 thru 7, inclusive), or individual sequence numbers like: seqnum=4,6,9>'
 		});
 		description.returns.summary = 'An array of post objects, plus possible marker objects and markerLocations object, and more flag';
 		Object.assign(description.returns.looksLike, {
