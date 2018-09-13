@@ -34,7 +34,7 @@ class SQSClient {
 				url: data.QueueUrl,
 				handler: options.handler
 			};
-			if (!options.dontListen) {
+			if (options.handler) {
 				this._initiatePolling(options.name);
 			}
 			callback();

@@ -28,9 +28,11 @@ class EmailNotificationSender {
 		if (await this.filterByPreference()) { 	// filter to those who haven't turned email notifications off
 			return;	// indicates no emails will be sent, so just abort
 		}
-		if (await this.getPosts())  {			// get the most recent posts in the stream
+		await this.getPosts(); 					// get the most recent posts in the stream
+		await this.getEarlierPosts();			// get any posts created before the current post, if there are away timeouts
+		if (await this.characterizePosts()) {	// characterize the posts for summary conditions
 			return;	// indicates no emails will be sent, so just abort
-		}
+		}			
 		await this.getMarkers();				// get the markers representing the codeblocks of the posts
 		await this.getStreams();				// get the streams representing the codeblocks of the posts
 		await this.getRepos();					// get the repos representing the codeblocks of the posts
@@ -40,8 +42,8 @@ class EmailNotificationSender {
 		await this.determinePostsPerUser();		// determine which users get which posts
 		await this.personalizePerUser();		// personalize the rendered posts as needed
 		await this.renderPerUser();				// render each user's email
-		await this.sendNotifications();			// send out the notifications`
-		await this.updateFirstEmails();			// update "firstEmail" flags, indicating who has received their first email notification
+		await this.sendNotifications();			// send out the notifications
+		await this.updateUsers();				// update user info concerning email notifications
 
 		// return the last post in sequence for which an email was sent
 		// (which is the first post in this array)
@@ -63,6 +65,9 @@ class EmailNotificationSender {
 	// get all members of the team
 	async getAllMembers () {
 		let memberIds;
+		if (this.userId) {
+			memberIds = [this.userId];	// this is for the case where a user goes away
+		}
 		if (this.stream.get('type') === 'file' || this.stream.get('isTeamStream')) {
 			memberIds = this.team.get('memberIds');
 		}
@@ -156,31 +161,27 @@ class EmailNotificationSender {
 			return false;
 		}
 
-		// don't send an email if the user has read everything already
-		const lastReadSeqNum = user.get('lastReads') && user.get('lastReads')[this.stream.id];
-		if (typeof lastReadSeqNum === 'undefined') {
-			this.request.log(`User ${user.id} is already caught up on this stream`);
-			return false;
-		}
-
 		// note that we assume the user is mentioned in the posts ... we don't have the posts yet
 		// (and we don't know which ones to get until we know which users want emails), so we are
 		// optimistic that the user will want a notification ... then, after we get the posts, we
 		// can filter down to those users who really want an email based on mentions
 		let wantsEmail = user.wantsEmail(this.stream, true);
 		if (wantsEmail) {
-			// we'll keep track of the earliest post we need, so we only need fetch from that post forward
-			if (
-				(
-					this.needPostsFromSeqNum === -1 ||
-					lastReadSeqNum < this.needPostsFromSeqNum
-				) &&
-				lastReadSeqNum >= this.seqNum
-			) {
-				this.needPostsFromSeqNum = lastReadSeqNum;
-			}
-			else if (lastReadSeqNum < this.seqNum) {
-				this.needPostsFromSeqNum = this.seqNum;
+			const lastReadSeqNum = user.get('lastReads') && user.get('lastReads')[this.stream.id];
+			if (typeof lastReadSeqNum !== 'undefined') {
+				// we'll keep track of the earliest post we need, so we only need fetch from that post forward
+				if (
+					(
+						this.needPostsFromSeqNum === -1 ||
+						lastReadSeqNum < this.needPostsFromSeqNum
+					) &&
+					lastReadSeqNum >= this.seqNum
+				) {
+					this.needPostsFromSeqNum = lastReadSeqNum;
+				}
+				else if (lastReadSeqNum < this.seqNum) {
+					this.needPostsFromSeqNum = this.seqNum;
+				}
 			}
 		}
 		else {
@@ -205,8 +206,74 @@ class EmailNotificationSender {
 				}
 			}
 		);
+		this.request.log(`Fetched ${this.posts.length} posts for email notifications`);
+	}
+
+	// get any posts earlier than the triggering post, that may be representative of the user
+	// having gone "away" between the triggering post and their last read post
+	async getEarlierPosts () {
+		// no need to get earlier posts if we've already reached maximum
+		const maxPosts = this.request.api.config.email.maxPostsPerEmail;
+		if (this.posts.length === maxPosts) {
+			return;
+		}
+
+		// look for any users who have their last activity prior to the creation time 
+		// of the earliest post, and who have not yet been sent an email up to and including
+		// the most recent sequence number to that one ... this means that there may be
+		// posts that users would otherwise miss emails for because they went away in the
+		// time between their last activity and this earlier post
+		// NOTE that if the triggering post to this email was deactivated, then there may in
+		// fact be no post, but we still need to look for earlier posts
+		const earliestPost = this.posts.length > 0 ? this.posts[this.posts.length - 1] : null;
+		const needActivityBefore = earliestPost ? earliestPost.get('createdAt') : Date.now();
+		if (!this.offlineMembers.find(user => {
+			const lastEmailsSent = user.get('lastEmailsSent') || {};
+			const lastSeqNumSent = lastEmailsSent[this.stream.id] || 0;
+			return (
+				user.get('lastActivityAt') && 
+				user.get('lastActivityAt') < needActivityBefore &&
+				(
+					!earliestPost ||
+					lastSeqNumSent < earliestPost.get('seqNum') - 1
+				)
+			);
+		})) {
+			// no need to get any earlier posts
+			return;
+		}
+
+		// fetch up to the limit of posts
+		const query = {
+			streamId: this.stream.id
+		};
+		if (earliestPost) {
+			query.seqNum = {
+				$lt: earliestPost.get('seqNum')
+			};
+		}
+		const earlierPosts = await this.request.data.posts.getByQuery(
+			query,
+			{
+				databaseOptions: {
+					sort: { seqNum: -1 },
+					limit: maxPosts - this.posts.length,
+					hint: Indexes.bySeqNum
+				}
+			}
+		);
+		this.request.log(`Fetched additional ${earlierPosts.length} posts due to away timers`);
+		this.posts = [...this.posts, ...earlierPosts];
+	}
+
+	// characterize the posts we have by filtering out any deactivated ones, determining whether we have
+	// multiple authors represented, and whether we have emojis present, all of which affect later treatment
+	async characterizePosts () {
+		// filter out any deactivated posts, and short-circuit if we don't have any left
+		this.posts = this.posts.filter(post => !post.get('deactivated'));
 		if (this.posts.length === 0) {
-			return true; // short-circuits when there are no posts
+			this.request.log('Aborting email notifications, all posts are deactivated');
+			return true;
 		}
 
 		// record whether we have multiple authors represented in the posts
@@ -333,14 +400,33 @@ class EmailNotificationSender {
 	// determine which posts a given user will receive in the email, according to their last
 	// read message for the stream
 	async determinePostsForUser (user) {
-		const lastReadSeqNum = user.get('lastReads')[this.stream.id];
+		const lastReadSeqNum = user.get('lastReads')[this.stream.id] || 0;
+		const lastActivityAt = user.get('lastActivityAt') || null;
+		const lastEmailsSent = user.get('lastEmailsSent') || {};
+		const lastEmailSent = lastEmailsSent[this.stream.id] || 0;
+
 		const lastReadPostIndex = this.posts.findIndex(post => {
-			// look back for the last read post by this user, but as a failsafe, also look back
-			// to any posts authored by this user
-			return (
-				post.get('creatorId') === user.id || 
-				post.get('seqNum') <= lastReadSeqNum
-			);
+			// look back for any posts authored by this user, as a failsafe
+			if (post.get('creatorId') === user.id) {
+				return true;
+			}
+
+			// otherwise look for posts already sent in an email notification
+			else if (post.get('seqNum') <= lastEmailSent) {
+				return true;
+			}
+
+			// otherwise, if the user has no activity, it's either because they've never logged on,
+			// or because they haven't logged on since we started saving activity ... in either case,
+			// send posts through the last sequence number they've read
+			else if (lastActivityAt === null) {
+				return post.get('seqNum') <= lastReadSeqNum;
+			}
+
+			// otherwise, send any posts since the user's last activity
+			else {
+				return post.get('createdAt') < lastActivityAt;
+			}
 		});
 		if (lastReadPostIndex === -1) {
 			this.renderedPostsPerUser[user.id] = [...this.renderedPosts];
@@ -505,23 +591,35 @@ class EmailNotificationSender {
 		}
 	}
 
-	// update each user as needed to indicate they have now received their first
-	// email notification
-	async updateFirstEmails () {
-		const usersWhoReceivedEmails = this.renderedEmails.map(userAndHtml => userAndHtml.user);
-		const usersToUpdate = usersWhoReceivedEmails.filter(user => !user.get('hasReceivedFirstEmail'));
-		if (usersToUpdate.length === 0) {
-			return;
+	// update each user as needed to indicate:
+	//  (1) they have now received their first email notification
+	//  (2) the last email sent to them for this stream
+	async updateUsers () {
+		const usersToUpdate = this.renderedEmails.map(userAndHtml => userAndHtml.user);
+		await Promise.all(usersToUpdate.map(async user => {
+			await this.updateUser(user);
+		}));
+	}
+
+	async updateUser (user) {
+		const posts = this.renderedPostsPerUser[user.id];
+		const lastPost = posts[posts.length - 1].post;
+		const op = { 
+			$set: {
+				[`lastEmailsSent.${this.stream.id}`]: lastPost.get('seqNum')
+			} 
+		};
+		if (!user.get('hasReceivedFirstEmail')) {
+			op.$set.hasReceivedFirstEmail = true; 
 		}
-		const ids = usersToUpdate.map(user => user.id);
 		try {
 			await this.request.data.users.updateDirect(
-				{ _id: this.request.data.users.inQuerySafe(ids) },
-				{ $set: { hasReceivedFirstEmail: true } }
+				{ _id: this.request.data.users.objectIdSafe(user.id) },
+				op
 			);
 		}
 		catch (error) {
-			this.request.warn(`Unable to update hasReceivedFirstEmail flags for users ${ids}: ${JSON.stringify(error)}`);
+			this.request.warn(`Unable to update user ${user.id} after email notification: ${JSON.stringify(error)}`);
 		}
 	}
 }

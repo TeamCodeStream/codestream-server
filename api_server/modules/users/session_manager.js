@@ -36,8 +36,15 @@ class SessionManager {
 	}
 
 	// update sessions data with the session info passed in
+	// also update the user's lastActivityAt attribute, which indicates the last
+	// known activity 
 	async updateSessions () {
 		const now = Date.now();
+		const currentLastActivityAt = this.user.get('lastActivityAt') || 0;
+		let lastActivityAt = 0;
+		const awayTimeout = this.sessionAwayTimeout || this.request.api.config.api.sessionAwayTimeout;
+		const activityAt = now - awayTimeout;
+
 		Object.keys(this.sessionsToUpdate).forEach(sessionId => {
 			this.op.$set = this.op.$set || {};
 			this.op.$set[`sessions.${sessionId}`] = Object.assign(
@@ -45,7 +52,30 @@ class SessionManager {
 				this.sessionsToUpdate[sessionId],
 				{ updatedAt: now }
 			);
+
+			// update user's lastActivityAt
+			// if the user is going online, it is now ...
+			// if the user is going away, it is now minus the away timeout, 
+			// as long as it is more recent than the last known activity
+			const status = this.sessionsToUpdate[sessionId];
+			if (status === 'online') {
+				lastActivityAt = now;
+				// also clear lastEmailsSent, since user is now assumed to be caught up
+				this.op.$unset.lastEmailsSent = true;
+			}
+			else if (
+				status === 'away' &&
+				activityAt > currentLastActivityAt &&
+				activityAt > lastActivityAt
+			) {
+				lastActivityAt = activityAt;
+			}
 		});
+
+		// update user's lastActivityAt, as needed
+		if (lastActivityAt) {
+			this.op.$set.lastActivityAt = lastActivityAt;
+		}
 	}
 
 	// save the modified sessions data to the database

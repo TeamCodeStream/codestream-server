@@ -183,5 +183,13 @@ module.exports = {
 		maxLength: 200,
 		default: '',
 		description: 'Whatever the user works on'
+	},
+	lastActivityAt: {
+		type: 'timestamp',
+		serverOnly: true
+	},
+	lastEmailsSent: {
+		type: 'object',
+		serverOnly: true
 	}
 };
