@@ -89,7 +89,7 @@ class Posts extends Restful {
 			this.api.services.queueService.createQueue.bind(this.api.services.queueService),
 			{
 				name: this.api.config.aws.sqs.outboundEmailQueueName,
-				handler: this.handleEmailNotificationMessage.bind(this),
+				//handler: this.handleEmailNotificationMessage.bind(this),
 				logger: this.api
 			}
 		);
