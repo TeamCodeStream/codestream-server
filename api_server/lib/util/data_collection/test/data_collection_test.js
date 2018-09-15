@@ -4,7 +4,7 @@
 'use strict';
 
 var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
-var MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
+var MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client.js');
 var MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 var RandomString = require('randomstring');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');

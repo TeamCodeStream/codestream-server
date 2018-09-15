@@ -1,11 +1,14 @@
 'use strict';
 
 const ResendConfirmEmailTest = require('./resend_confirm_email_test');
-const Assert = require('assert');
-const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class AlreadyRegisteredEmailTest extends ResendConfirmEmailTest {
+
+	constructor (options) {
+		super(options);
+		this.noToken = true;
+	}
 
 	get description () {
 		return 'should send an already-registered email when a user sends a resend confirm request and the user is already registered';
@@ -35,16 +38,13 @@ class AlreadyRegisteredEmailTest extends ResendConfirmEmailTest {
 		);
 	}
 
-	// validate that all the email "substitutions" are correct, these are the fields that
-	// are set dynamically by the email notification code, sendgrid then uses these
-	// field substitutions in the template
-	validateSubstitutions () {
-		// for this email there are no substitions, so we're overriding ResendConfirmEmailTest
-	}
-
-	// validate the template is correct for an already registered email
-	validateTemplateId (message) {
-		Assert.equal(message.template_id, EmailConfig.alreadyRegisteredEmailTemplateId, 'incorrect templateId');
+	// generate the message that starts the test
+	generateMessage (callback) {
+		// in this case the email type should be for an already-registered user
+		super.generateMessage(() => {
+			this.message.type = 'alreadyRegistered';
+			callback();
+		});
 	}
 }
 

@@ -99,11 +99,16 @@ class ChangeEmailRequest extends RestfulRequest {
 		// generate the url and send the email
 		const host = this.api.config.webclient.host;
 		const url = `${host}/a/settings?confirm_email_token=${encodeURIComponent(this.token)}`;
-		await this.api.services.email.sendChangeEmailConfirmationEmail(
+		this.log(`Triggering change-email confirmation email to ${this.user.get('email')}...`);
+		await this.api.services.email.queueEmailSend(
 			{
-				user: this.user,
-				request: this,
+				type: 'changeEmail',
+				userId: this.user.id,
 				url
+			},
+			{
+				request: this,
+				user: this.user
 			}
 		);
 	}

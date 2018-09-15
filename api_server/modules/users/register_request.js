@@ -190,10 +190,15 @@ class RegisterRequest extends RestfulRequest {
 		// if the user is already registered, we send an email to this effect, rather
 		// than sending the confirmation code
 		if (this.userCreator.existingModel && this.user.get('isRegistered')) {
-			await this.api.services.email.sendAlreadyRegisteredEmail(
+			this.log(`Triggering already-registered email to ${this.user.get('email')}...`);
+			await this.api.services.email.queueEmailSend(
 				{
-					user: this.user,
-					request: this
+					type: 'alreadyRegistered',
+					userId: this.user.id
+				},
+				{
+					request: this,
+					user: this.user
 				}
 			);
 		}
@@ -202,15 +207,19 @@ class RegisterRequest extends RestfulRequest {
 		// (soon to be the only way we'll do it), send that...
 		else if (this.wantLink) {
 
-			// generate the url
+			// generate the url and queue the email send with the outbound email service
 			const host = this.api.config.webclient.host;
 			const url = `${host}/confirm-email/${encodeURIComponent(this.token)}`;
-
-			await this.api.services.email.sendConfirmationEmailWithLink(
+			this.log(`Triggering confirmation email to ${this.user.get('email')}...`);
+			await this.api.services.email.queueEmailSend(
 				{
-					user: this.user,
-					request: this,
+					type: 'confirm',
+					userId: this.user.id,
 					url
+				},
+				{
+					request: this,
+					user: this.user
 				}
 			);
 		}
@@ -218,10 +227,15 @@ class RegisterRequest extends RestfulRequest {
 		// othwerwise we're sending an old-style confirmation email with a 
 		// confirmation code (soon to be deprecated)
 		else {
-			await this.api.services.email.sendConfirmationEmail(
+			this.log(`Triggering confirmation email with confirmation code to ${this.user.get('email')}...`);
+			await this.api.services.email.queueEmailSend(
 				{
-					user: this.user,
-					request: this
+					type: 'confirm',
+					userId: this.user.id
+				},
+				{
+					request: this,
+					user: this.user
 				}
 			);
 		}

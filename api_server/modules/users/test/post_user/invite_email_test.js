@@ -2,11 +2,9 @@
 
 'use strict';
 
-var Assert = require('assert');
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-var CommonInit = require('./common_init');
-const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const CommonInit = require('./common_init');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
 
@@ -60,60 +58,22 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// generate the message that starts the test
 	generateMessage (callback) {
+		// generate the expected "check-out" link
+		const email = encodeURIComponent(this.currentUser.email);
+		const expectedLink = `${WebClientConfig.host}/signup?email=${email}&utm_medium=email&utm_source=product&utm_campaign=invitation_email&force_auth=true`;
+
+		// this is the message we expect to see
+		this.message = {
+			type: 'invite',
+			userId: this.currentUser._id,
+			inviterId: this.userCreator._id,
+			teamName: this.team.name,
+			checkOutLink: expectedLink
+		};
+
 		// in this case, we've already started the test in makeData, which created the user ...
 		// but the email was delayed, so we can just start listening for it now...
 		callback();
-	}
-
-	// validate the message received from pubnub
-	validateMessage (message) {
-		message = message.message;
-		if (!message.from && !message.to) { return false; }	// ignore anything not matching
-		this.validateFrom(message);
-		this.validateTo(message);
-		this.validateSubstitutions(message);
-		this.validateTemplateId(message);
-		return true;
-	}
-
-	// validate that the from field of the email data is correct
-	validateFrom (message) {
-		const userName = this.getUserName(this.userCreator);
-		Assert.equal(message.from.email, 'alerts@codestream.com', 'incorrect from address');
-		Assert.equal(message.from.name, userName, 'incorrect from name');
-	}
-
-	// validate that the to field of the email data is correct
-	validateTo (message) {
-		const personalization = message.personalizations[0];
-		const to = personalization.to[0];
-		const userName = this.getUserName(this.currentUser);
-		Assert.equal(to.email, this.currentUser.email, 'incorrect to address');
-		Assert.equal(to.name, userName, 'incorrect to name');
-	}
-
-	// validate that all the email "substitutions" are correct, these are the fields that
-	// are set dynamically by the email notification code, sendgrid then uses these
-	// field substitutions in the template
-	validateSubstitutions (message) {
-		let substitutions = message.personalizations[0].substitutions;
-		Assert.equal(substitutions['{{teamName}}'], this.team.name, 'incorrect team name');
-		const email = encodeURIComponent(this.currentUser.email);
-		const expectedLink = `${WebClientConfig.host}/signup?email=${email}&utm_medium=email&utm_source=product&utm_campaign=invitation_email&force_auth=true`;
-		Assert.equal(substitutions['{{checkOutLink}}'], expectedLink, 'incorrect check-out link');
-	}
-
-	// validate the template is correct for an email notification
-	validateTemplateId (message) {
-		const templateId = this.existingUserIsRegistered ?
-			EmailConfig.registeredUserInviteEmailTemplateId :
-			EmailConfig.newUserInviteEmailTemplateId;
-		Assert.equal(message.template_id, templateId, 'incorrect templateId');
-	}
-
-	// get the expected username for the given user
-	getUserName (user) {
-		return user.fullName || user.email;
 	}
 }
 

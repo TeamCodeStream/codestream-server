@@ -3,7 +3,7 @@
 
 'use strict';
 
-const MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client');
+const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
 const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 const PostIndexes = require(process.env.CS_API_TOP + '/modules/posts/indexes');
 const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');

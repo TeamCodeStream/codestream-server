@@ -109,12 +109,24 @@ class PostUserRequest extends PostRequest {
 			delete this.delayEmail;
 			return;
 		}
-		await this.api.services.email.sendInviteEmail(
+
+		// queue invite email for send by outbound email service
+		const email = this.createdUser.get('email');
+		const numInvites = this.createdUser.get('numInvites') || 0;
+		const campaign = numInvites > 0 ? 'reinvite_email' : 'invitation_email';
+		const checkOutLink = `${this.api.config.webclient.host}/signup?email=${encodeURIComponent(email)}&utm_medium=email&utm_source=product&utm_campaign=${campaign}&force_auth=true`;
+		this.log(`Triggering invite email to ${this.createdUser.get('email')}...`);
+		await this.api.services.email.queueEmailSend(
 			{
-				inviter: this.user,
-				user: this.createdUser,
-				team: this.adder.team,
-				request: this
+				type: 'invite',
+				userId: this.createdUser.id,
+				inviterId: this.user.id,
+				teamName: this.adder.team.get('name'),
+				checkOutLink
+			},
+			{
+				request: this,
+				user: this.createdUser
 			}
 		);
 	}

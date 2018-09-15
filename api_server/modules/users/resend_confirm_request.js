@@ -108,10 +108,15 @@ class ResendConfirmRequest extends RestfulRequest {
 		// if the user is already registered, we send an email to this effect, rather
 		// than sending the confirmation link
 		if (this.user.get('isRegistered')) {
-			await this.api.services.email.sendAlreadyRegisteredEmail(
+			this.log(`Triggering already-registered email to ${this.user.get('email')}...`);
+			await this.api.services.email.queueEmailSend(
 				{
-					user: this.user,
-					request: this
+					type: 'alreadyRegistered',
+					userId: this.user.id
+				},
+				{
+					request: this,
+					user: this.user
 				}
 			);
 		}
@@ -121,12 +126,16 @@ class ResendConfirmRequest extends RestfulRequest {
 			// generate the url
 			const host = this.api.config.webclient.host;
 			const url = `${host}/confirm-email/${encodeURIComponent(this.token)}`;
-
-			await this.api.services.email.sendConfirmationEmailWithLink(
+			this.log(`Triggering confirmation email to ${this.user.get('email')}...`);
+			await this.api.services.email.queueEmailSend(
 				{
-					user: this.user,
-					request: this,
+					type: 'confirm',
+					userId: this.user.id,
 					url
+				},
+				{
+					request: this,
+					user: this.user
 				}
 			);
 		}

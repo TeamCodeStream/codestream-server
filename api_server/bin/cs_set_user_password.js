@@ -9,7 +9,7 @@
 const PasswordHasher = require(process.env.CS_API_TOP + '/modules/users/password_hasher');
 const Email = process.argv[2];
 const Password = process.argv[3];
-const MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client');
+const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
 const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 

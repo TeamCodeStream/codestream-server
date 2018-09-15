@@ -5,7 +5,7 @@
 
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
 const AWS = require(process.env.CS_API_TOP + '/server_utils/aws/aws');
-const SQSClient = require('./sqs_client');
+const SQSClient = require(process.env.CS_API_TOP +'/server_utils/aws/sqs_client');
 
 class AWSModule extends APIServerModule {
 

@@ -3,7 +3,7 @@
 'use strict';
 
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const MongoClient = require(process.env.CS_API_TOP + '/lib/util/mongo/mongo_client.js');
+const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client.js');
 const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 const RandomString = require('randomstring');
 const Assert = require('assert');

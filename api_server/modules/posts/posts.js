@@ -7,13 +7,11 @@ const PostCreator = require('./post_creator');
 const PostUpdater = require('./post_updater');
 const PostDeleter = require('./post_deleter');
 const Post = require('./post');
-const UUID = require('uuid/v4');
-const EmailNotificationRequest = require('./email_notification_request');
 const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const Errors = require('./errors');
 
 const DEPENDENCIES = [
-	'aws'	// the posts module creates a queue
+	'aws'
 ];
 
 // expose these restful routes
@@ -41,9 +39,9 @@ const POST_ADDITIONAL_ROUTES = [
 class Posts extends Restful {
 
 	getDependencies () {
-		return DEPENDENCIES; // other modules to be serviced first
+		return DEPENDENCIES;
 	}
-
+	
 	get collectionName () {
 		return 'posts';	// name of the data collection
 	}
@@ -89,25 +87,9 @@ class Posts extends Restful {
 			this.api.services.queueService.createQueue.bind(this.api.services.queueService),
 			{
 				name: this.api.config.aws.sqs.outboundEmailQueueName,
-				//handler: this.handleEmailNotificationMessage.bind(this),
 				logger: this.api
 			}
 		);
-	}
-
-	// handle an incoming message on the email notifications interval timer queue
-	// we'll treat this like an incoming request for logging purposes, but it
-	// isn't a real request
-	async handleEmailNotificationMessage (message, releaseCallback) {
-		const request = { id: UUID() };
-		this.api.services.requestTracker.trackRequest(request);
-		releaseCallback(true); // this releases the message from the queue
-		await new EmailNotificationRequest({
-			api: this.api,
-			request: request,
-			message: message
-		}).fulfill();
-		this.api.services.requestTracker.untrackRequest(request);
 	}
 
 	describeErrors () {

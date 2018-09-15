@@ -349,11 +349,16 @@ class RepoCreator extends ModelCreator {
 		await this.grantUserMessagingPermissions();
 		// send email to us that a new team has been created
 		if (this.createdTeam && this.api.config.email.replyToDomain === 'prod.codestream.com') {
-			this.api.services.email.sendTeamCreatedEmail({
-				team: this.createdTeam,
-				user: this.user,
-				request: this.request
-			});
+			this.api.services.email.queueEmailSend(
+				{
+					type: 'teamCreated',
+					userId: this.user.id,
+					teamName: this.createdTeam.get('name')
+				},
+				{
+					request: this.request
+				}
+			);
 		}
 	}
 
