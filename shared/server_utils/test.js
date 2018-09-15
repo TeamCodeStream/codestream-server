@@ -7,4 +7,5 @@
 
 describe('server utils', () => {
 	require('./pubnub/test/test.js');
+	require('./mongo/test/test.js');
 });

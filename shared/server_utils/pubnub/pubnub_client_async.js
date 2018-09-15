@@ -22,10 +22,8 @@ class PubNubClient {
 	async publish (message, channel, options = {}) {
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
-			if (options.request) {
-				options.request.log('Would have sent PubNub message to ' + channel);
-				return;
-			}
+			this._log('Would have sent PubNub message to ' + channel, options);
+			return;
 		}
 		message.messageId = message.messageId || UUID();
 		const result = await this.pubnub.publish(
@@ -94,13 +92,11 @@ class PubNubClient {
 		tokens = tokens.filter(token => typeof token === 'string' && token.length > 0);
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
-			if (options.request) {
-				options.request.log(`Would have granted access for ${tokens} to ${channel}`);
-				return;
-			}
+			this._log(`Would have granted access for ${tokens} to ${channel}`, options);
+			return;
 		}
-		else if (options.request) {
-			options.request.log(`Granting access for ${tokens} to ${channel}`);
+		else {
+			this._log(`Granting access for ${tokens} to ${channel}`, options);
 		}
 		const result = await this.pubnub.grant(
 			{
@@ -113,14 +109,10 @@ class PubNubClient {
 		);
 
 		if (result.error) {
-			if (options.request) {
-				options.request.warn(`Unable to grant access for ${tokens} to ${channel}: ${JSON.stringify(result.errorData)}`);
-			}
+			this._warn(`Unable to grant access for ${tokens} to ${channel}: ${JSON.stringify(result.errorData)}`, options);
 			throw result.errorData;
 		}
-		if (options.request) {
-			options.request.log(`Successfully granted access for ${tokens} to ${channel}`);
-		}
+		this._log(`Successfully granted access for ${tokens} to ${channel}`, options);
 		if (options.includePresence) {
 			// doing presence requires granting access to this channel as well
 			await this.grant(tokens, channel + '-pnpres', { request: options.request });
@@ -166,14 +158,10 @@ class PubNubClient {
 		);
 
 		if (result.error) {
-			if (options.request) {
-				options.request.warn(`Unable to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}: ${JSON.stringify(result.errorData)}`);
-			}
+			this._warn(`Unable to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}: ${JSON.stringify(result.errorData)}`, options);
 			throw result.errorData;
 		}
-		if (options.request) {
-			options.request.log(`Successfully granted access for ${token} to ${JSON.stringify(channels, undefined, 3)}`);
-		}
+		this._log(`Successfully granted access for ${token} to ${JSON.stringify(channels, undefined, 3)}`, options);
 	}
 
 	// revoke read and/or write permission for the specified channel for the specified
@@ -184,14 +172,10 @@ class PubNubClient {
 		}
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
-			if (options.request) {
-				options.request.log(`Would have revoked access for ${tokens} to ${channel}`);
-				return;
-			}
+			this._log(`Would have revoked access for ${tokens} to ${channel}`, options);
+			return;
 		}
-		else if (options.request) {
-			options.request.log(`Revoking access for ${tokens} to ${channel}`);
-		}
+		this._log(`Revoking access for ${tokens} to ${channel}`, options);
 		const result = await this.pubnub.grant(
 			{
 				channels: [channel],
@@ -202,14 +186,10 @@ class PubNubClient {
 			}
 		);
 		if (result.error) {
-			if (options.request) {
-				options.request.warn(`Unable to revoke access for ${tokens} to ${channel}: ${JSON.stringify(result.errorData)}`);
-			}
+			this._warn(`Unable to revoke access for ${tokens} to ${channel}: ${JSON.stringify(result.errorData)}`, options);
 			throw result.errorData;
 		}
-		if (options.request) {
-			options.request.log(`Successfully revoked access for ${tokens} to ${channel}`);
-		}
+		this._log(`Successfully revoked access for ${tokens} to ${channel}`, options);
 		if (options.includePresence) {
 			// doing presence requires revoking access to this channel as well
 			await this.revoke(tokens, channel + '-pnpres', { request: options.request });
@@ -234,9 +214,7 @@ class PubNubClient {
 		const userIds = response.channels[channel].occupants.map(occupant => {
 			return occupant.uuid.split('/')[0];
 		});
-		if (options.request) {
-			options.request.log(`Here now for ${channel}: ${userIds}`);
-		}
+		this._log(`Here now for ${channel}: ${userIds}`, options);
 		return userIds;
 	}
 
@@ -334,6 +312,39 @@ class PubNubClient {
 		);
 	}
 
+	_log (message, options) {
+		if (
+			options &&
+			typeof options.request === 'object' &&
+			typeof options.request.log === 'function'
+		) {
+			options.request.log(message);
+		}
+		else if (
+			options &&
+			typeof options.logger === 'object' &&
+			typeof options.logger.log === 'function'
+		) {
+			options.logger.log(message);
+		}
+	}
+
+	_warn (message, options) {
+		if (
+			options &&
+			typeof options.request === 'object' &&
+			typeof options.request.warn === 'function'
+		) {
+			options.request.warn(message);
+		}
+		else if (
+			options &&
+			typeof options.logger === 'object' &&
+			typeof options.logger.warn === 'function'
+		) {
+			options.logger.warn(message);
+		}
+	}
 }
 
 module.exports = PubNubClient;
