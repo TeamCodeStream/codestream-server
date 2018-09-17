@@ -67,7 +67,11 @@ class LoginRequest extends RestfulRequest {
 	async validatePassword () {
 		let result;
 		try {
-			if (this.user && !this.user.get('deactivated')) {
+			if (
+				this.user &&
+				!this.user.get('deactivated') &&
+				this.user.get('passwordHash')
+			) {
 				result = await callbackWrap(
 					BCrypt.compare,
 					this.request.body.password,
