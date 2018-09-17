@@ -9,6 +9,7 @@ const NoAttributeTest = require('./no_attribute_test');
 const InitialDataTest = require('./initial_data_test');
 const MeAttributesTest = require('./me_attributes_test');
 const NoLoginUnregisteredTest = require('./no_login_unregistered_test');
+const NoPasswordTest = require('./no_password_test');
 const UnregisteredInvalidPasswordTest = require('./unregistered_invalid_password_test');
 const NewTokenTest = require('./new_token_test');
 const TokenIsValidTest = require('./token_is_valid_test');
@@ -25,6 +26,7 @@ class LoginRequestTester {
 		new InitialDataTest().test();
 		new MeAttributesTest().test();
 		new NoLoginUnregisteredTest().test();
+		new NoPasswordTest().test();
 		new UnregisteredInvalidPasswordTest().test();
 		new NewTokenTest().test();
 		new TokenIsValidTest().test();
