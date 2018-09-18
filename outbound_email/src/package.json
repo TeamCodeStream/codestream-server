@@ -1,0 +1,26 @@
+{
+	"name": "CodeStream_Outbound_Email_Server",
+	"dependencies": {
+		"highlight.js": "^9.12.0",
+		"moment-timezone": "^0.5.21",
+		"mongodb": "2.2.31",
+		"pubnub": "^4.21.5",
+		"sendgrid": "^5.2.3",
+		"strftime": "^0.10.0"
+	},
+	"scripts": {
+		"eslint": "eslint .",
+		"zip": "zip -r ../out/outboundEmail.zip *",
+		"update": "aws lambda update-function-code --function-name outboundEmail --zip-file fileb://../out/outboundEmail.zip",
+		"reupdate": "npm run zip && npm run update"
+	},
+	"pre-commit": [
+		"eslint"
+	],
+	"devDependencies": {
+		"eslint": "^4.18.2",
+		"lambda-local": "^1.5.1",
+		"mocha-teamcity-reporter": "1.1.1",
+		"pre-commit": "1.2.2"
+	}
+}
