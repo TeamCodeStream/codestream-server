@@ -5,18 +5,19 @@
 'use strict';
 
 const LambdaLocal = require('lambda-local');
-const AWSFactory = require('../src/server_utils/aws/aws');
-const SQSClientFactory = require('../src/server_utils/aws/sqs_client');
-const { callbackWrap } = require('../src/server_utils/await_utils');
-const Config = require('../src/config');
+const AWSFactory = require('./server_utils/aws/aws');
+const SQSClientFactory = require('./server_utils/aws/sqs_client');
+const { callbackWrap } = require('./server_utils/await_utils');
+const Config = require('./config');
 
 (async function() {
-	const sqsClient = await OpenSQSClient();
+	await OpenSQSClient();
 })();
 
 async function OpenSQSClient () {
 	const aws = new AWSFactory(Config.aws);
 	const sqsClient = new SQSClientFactory({ aws });
+	console.log(`Listening to ${Config.outboundEmailQueueName}...`);
 	await callbackWrap(
 		sqsClient.createQueue.bind(sqsClient),
 		{
@@ -27,14 +28,11 @@ async function OpenSQSClient () {
 }
 
 async function HandleMessage (message, releaseCallback) {
-console.warn('HANDLING MESSAGE', message);
 	releaseCallback(true); // this releases the message from the queue
-	let result;
 	try {
-console.warn('EXECUTING LAMBDA...');
-		result = await LambdaLocal.execute({
+		await LambdaLocal.execute({
 			event: message,
-			lambdaPath: '../src/lambdaHandler',
+			lambdaPath: './lambdaHandler',
 			lambdaHandler: 'handler',
 			profilePath: '~/.aws/credentials',
 			timeoutMs: 10000,
@@ -55,6 +53,5 @@ console.warn('EXECUTING LAMBDA...');
 	catch (error) {
 		console.error('ERROR EXECUTING LAMBDA:', error);
 	}
-	console.log('RESULT: ', result);
 }
 

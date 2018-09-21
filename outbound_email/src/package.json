@@ -1,12 +1,12 @@
 {
 	"name": "CodeStream_Outbound_Email_Server",
 	"dependencies": {
-		"highlight.js": "^9.12.0",
-		"moment-timezone": "^0.5.21",
+		"highlight.js": "9.12.0",
+		"moment-timezone": "0.5.21",
 		"mongodb": "2.2.31",
-		"pubnub": "^4.21.5",
-		"sendgrid": "^5.2.3",
-		"strftime": "^0.10.0"
+		"pubnub": "4.21.5",
+		"sendgrid": "5.2.3",
+		"strftime": "0.10.0"
 	},
 	"scripts": {
 		"eslint": "eslint .",
@@ -18,9 +18,8 @@
 		"eslint"
 	],
 	"devDependencies": {
-		"eslint": "^4.18.2",
-		"lambda-local": "^1.5.1",
-		"mocha-teamcity-reporter": "1.1.1",
+		"eslint": "4.18.2",
+		"lambda-local": "1.5.1",
 		"pre-commit": "1.2.2"
 	}
 }

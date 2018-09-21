@@ -49,7 +49,6 @@ class EmailNotificationProcessor {
 
 		// return the last post in sequence for which an email was sent
 		// (which is the first post in this array)
-console.warn('DONE');
 		return this.posts[0];
 	}
 
@@ -586,7 +585,6 @@ console.warn('DONE');
 			await new EmailNotificationSender().sendEmailNotification(options);
 		}
 		catch (error) {
-console.warn('ERROR', error);
 			this.logger.warn(`Unable to send email notification to ${user.email}: ${JSON.stringify(error)}`);
 		}
 	}
@@ -599,7 +597,6 @@ console.warn('ERROR', error);
 		await Promise.all(usersToUpdate.map(async user => {
 			await this.updateUser(user);
 		}));
-console.warn('ALL USERS UPDATED');
 	}
 
 	async updateUser (user) {

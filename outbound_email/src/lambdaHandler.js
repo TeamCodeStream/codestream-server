@@ -29,9 +29,7 @@ var Handlers;
 
 exports.handler = async function(event) {
 	try {
-console.warn('EVENT', event);
 		if (event.Records instanceof Array) {
-console.warn('processing ' + event.Records.length + ' records...');
 			await Promise.all(event.Records.map(async record => {
 				let body;
 				try {
@@ -47,35 +45,20 @@ console.warn('processing ' + event.Records.length + ' records...');
 		else {
 			await ProcessMessage(event);
 		}
-console.warn('calling back!!!');
-//		callback(null, true);
 	}
 	catch (error) {
 		console.warn('Error processing lambda event:', error);
-		callback(error);
+		throw error;
 	}
 }
  
 async function ProcessMessage (message) {
-console.warn('HANDLE...', message);
 	await InitAsNeeded();
-console.warn('INITED!');
-console.warn('handler types are', Object.keys(Handlers || {}));
-console.warn('the message is ', message);
-console.warn('the message object type is' + typeof message);
-console.warn('message.type=' + message.type);
-console.warn('Handlers.confirm? ' + (Handlers.confirm ? 'y' : 'n'));
 	if (!Handlers[message.type]) {
 		console.warn(`No email handler for type ${message.type}`);
 		return;
 	}
 	await Handlers[message.type].handleMessage(message);
-/*
-	Mongo.close();
-	Mongo = null;
-	MongoData = null;
-*/
-console.warn('HANDLED!!!');
 }
 
 async function InitAsNeeded () {
@@ -83,12 +66,10 @@ async function InitAsNeeded () {
 	Pubnub || await OpenPubnubClient();
 	SQSClient || await OpenSQSClient();
 	EmailSender || await MakeEmailSender();
-console.warn('Handlers?', Object.keys(Handlers || {}));
 	Handlers || await MakeHandlers();
 }
 
 async function OpenMongoClient () {
-console.warn('***** HAVE TO OPEN A MONGO CLIENT ****');
 	const mongoClient = new MongoClient();
 	const mongoOptions = Object.assign({}, Config.mongo);
 	mongoOptions.collections = MONGO_COLLECTIONS;
@@ -121,7 +102,6 @@ async function MakeEmailSender () {
 }
 
 async function MakeHandlers () {
-console.warn('*** MAKING HANDLERS...****');
 	const handlerOptions = {
 		logger: console,
 		data: MongoData,
@@ -138,5 +118,4 @@ console.warn('*** MAKING HANDLERS...****');
 		teamCreated: new TeamCreatedEmailHandler(handlerOptions),
 		notification: new EmailNotificationHandler(handlerOptions)
 	};
-console.warn('HANDLERS ARE', Object.keys(Handlers));
 }

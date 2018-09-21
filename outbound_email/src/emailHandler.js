@@ -15,7 +15,6 @@ class EmailHandler {
 			await this.sendEmail();
 		}
 		catch (error) {
-console.warn('ERROR', error);
 			return this.logger.warn(`Email handling for ${this.message.type} email failed: ${JSON.stringify(error)}`);
 		}
 		this.logger.log(`Successfully processed a ${this.message.type} email request: ${JSON.stringify(this.message)}`);
@@ -25,7 +24,7 @@ console.warn('ERROR', error);
 	async getUser () {
 		this.user = await this.data.users.getById(this.message.userId);
 		if (!this.user) {
-			throw this.errorHandler.error('notFound', { info: 'user' });
+			throw 'user not found:' + this.message.userId;
 		}
 	}
 
@@ -54,7 +53,6 @@ console.warn('ERROR', error);
 			await this.sender.sendEmail(options);
 		}
 		catch (error) {
-console.warn('ERROR', error);
 			this.logger.warn(`Unable to send ${this.message.type} email to ${this.user.email}: ${JSON.stringify(error)}`);
 		}
 	}
@@ -65,7 +63,6 @@ console.warn('ERROR', error);
 	async testCallback (body, options) {
 		if (!options || !options.user || !this.messager) { return; }
 		const channel = `user-${options.user._id}`;
-console.warn('PUBLISHING TO ' + channel, body);
 		await this.messager.publish(
 			body,
 			channel,

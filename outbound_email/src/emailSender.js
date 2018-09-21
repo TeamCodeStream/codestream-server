@@ -14,7 +14,6 @@ class EmailSender {
 	}
 
 	async sendEmail (options) {
-console.warn('options', options);
 		const { user, to, from, sender, replyTo, subject, content, type, testCallback } = options;
 		const email = to ? to.email : user.email;
 		const name = to ? to.name : this.getUserDisplayName(user);

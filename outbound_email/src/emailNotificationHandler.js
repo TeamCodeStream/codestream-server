@@ -25,7 +25,6 @@ class EmailNotificationHandler {
 			await this.updateStreamSeqNum();	// update the emailNotificationSeqNum value to reflect the timer being set again
 		}
 		catch (error) {
-console.warn('ERROR', error);
 			return this.warn('Email notification handling failed: ' + JSON.stringify(error));
 		}
 		this.log(`Successfully processed an email notification request: ${JSON.stringify(this.message)}`);
@@ -35,7 +34,7 @@ console.warn('ERROR', error);
 	async getStream () {
 		this.stream = await this.data.streams.getById(this.message.streamId);
 		if (!this.stream) {
-			throw this.errorHandler.error('notFound', { info: 'stream' });
+			throw 'stream not found: ' + this.message.streamId;
 		}
 	}
 
@@ -46,7 +45,6 @@ console.warn('ERROR', error);
 			// that triggered the interval timer and ultimately this call) matches the one
 			// stored with the stream ... if it doesn't match, we assume another interval
 			// timer has been set up with the proper seqNum (fingers crossed)
-console.warn('SEQNUM DOES NOT MATCH');
 			return true;	// short-circuit the flow
 		}
 		// this is the last post we know about in sending the email notifications, there may yet have been a post since that one...
@@ -59,7 +57,6 @@ console.warn('SEQNUM DOES NOT MATCH');
 			messager: this.messager,
 			sender: this.sender
 		}).sendEmailNotifications();
-console.warn('SENT');
 	}
 
 	// given the last post that we knew about when sending email notifications, account
@@ -85,7 +82,6 @@ console.warn('SENT');
 			}
 		);
 		this.nextPost = posts[0] || null;
-console.warn('NEXT POST? ' + this.nextPost);
 	}
 
 	// trigger next interval timer, as needed
@@ -107,19 +103,14 @@ console.warn('NEXT POST? ' + this.nextPost);
 		// by triggering another timer, we do this over and over until the full "away timeout"
 		// interval has passed since the post's creation
 		else {
-console.warn('startedAt=' + this.processingStartedAt);
-console.warn('initialTriggerTime=' + this.message.initialTriggerTime);
-console.warn('awayTimeout=' + Config.sessionAwayTimeout);
 			const timeSinceTriggerTime = this.processingStartedAt - this.message.initialTriggerTime;
 			if (timeSinceTriggerTime <= Config.sessionAwayTimeout) {
-console.warn('MUST MOP');
 				this.log(`Mopping up offline users for stream ${this.stream.id}...`);
 				this.fromSeqNum = this.message.seqNum;
 				initialTriggerTime = this.message.initialTriggerTime;
 			}
 		}
 		if (!this.fromSeqNum) {
-console.warn('NOTHIGN TO TRIGGER');
 			return;
 		}
 
@@ -130,7 +121,6 @@ console.warn('NOTHIGN TO TRIGGER');
 			initialTriggerTime
 		};
 		const delay = Math.floor(Config.notificationInterval / 1000);
-console.warn('TRIGGERING...');
 		this.log(`Triggering email notifications for stream ${this.stream._id} in ${delay} seconds...`);
 		try {
 			await callbackWrap(
