@@ -486,7 +486,7 @@ class EmailNotificationProcessor {
 			if (!suppressAuthor) {
 				const creator = this.postCreators.find(creator => creator._id === post.creatorId);
 				if (creator) {
-					authorSpan = PostRenderer.renderAuthorSpan(creator, post.getEmote());
+					authorSpan = PostRenderer.renderAuthorSpan(creator, this.getPostEmote(post));
 				}
 			}
 			html = html.replace(/\{\{\{authorSpan\}\}\}/g, authorSpan);
