@@ -17,4 +17,10 @@ npm run reupdate
 cd src
 npm install --no-save
 
+# The execution of the lambda function can be tested locally, using a node module called
+# lambda-local to simulate the lambda execution environment. To test locally, you must
+# have the correct environment variables defined for your local environment, then run...
+src/lambdaTest.js
+
+
 
