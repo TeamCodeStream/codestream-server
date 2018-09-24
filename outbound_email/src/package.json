@@ -1,5 +1,6 @@
 {
-	"name": "CodeStream_Outbound_Email_Server",
+	"name" : "outbound-email",
+	"version" : "0.1.0",
 	"dependencies": {
 		"highlight.js": "9.12.0",
 		"moment-timezone": "0.5.21",
@@ -10,7 +11,8 @@
 	},
 	"scripts": {
 		"eslint": "eslint .",
-		"zip": "zip -r ../out/outboundEmail.zip *",
+		"clean": "([ -d ../out ] && /bin/rm -rf ../out) && (cd .. && git clean -Xdf)",
+		"zip": "([ ! -d ../out ] && mkdir ../out || /bin/echo -n) && zip -r ../out/outbound-email.zip *",
 		"update": "aws lambda update-function-code --function-name outboundEmail --zip-file fileb://../out/outboundEmail.zip",
 		"reupdate": "npm run zip && npm run update"
 	},
