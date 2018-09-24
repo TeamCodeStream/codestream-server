@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#desc# Display sandbox environment variables
+
+# Find the root of the sandbox in a generic way (normally $XYZ_SANDBOX)
+# This is horrible but will work if the repo is a top level directory of the sandbox root.
+
+# If not, replace these 3 lines of code and set sb_root to $XTZ_SANDBOX
+
+sb_bin=`dirname $0`
+sb_top=`dirname $sb_bin`
+sb_root=`dirname $sb_top`
+dt-vars --sandbox_dir=$sb_root $*

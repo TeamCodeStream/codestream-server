@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#desc# brief command summary
+
+dt-help $CS_OUTBOUND_EMAIL_TOP/bin

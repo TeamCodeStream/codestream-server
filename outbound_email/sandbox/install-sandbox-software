@@ -1,0 +1,34 @@
+#!/bin/bash
+
+[ -z "$2" ] && echo "Run dt-install-sandbox-software to call this script" && exit 1
+
+# This script is called via the dt-install-sandbox-software command.
+# Do not run it directly.  Further, this is called prior to the
+# sandbox environment being loaded into the shell so any variables
+# needed from the defaults.sh (or other env file) must be setup
+# manually.
+
+export CS_OUTBOUND_EMAIL_SANDBOX=$1  # root of the sandbox
+export CS_OUTBOUND_EMAIL_TOP=$2      # root of the primary git project
+SB_ENV_FILE=$3            # name of the environment file to use
+export CS_OUTBOUND_EMAIL_NAME=`dirname $CS_OUTBOUND_EMAIL_SANDBOX`
+[ -z "$SB_ENV_FILE" ] && SB_ENV_FILE=defaults.sh
+
+
+. $CS_OUTBOUND_EMAIL_TOP/sandbox/$SB_ENV_FILE
+
+# Install node if specified with CS_OUTBOUND_EMAIL_NODE_VER
+[ -n "$CS_OUTBOUND_EMAIL_NODE_VER" -a ! -L $CS_OUTBOUND_EMAIL_SANDBOX/node ] && dt-get-software -V $CS_OUTBOUND_EMAIL_NODE_VER node $CS_OUTBOUND_EMAIL_SANDBOX
+
+# Install yarn if specified with CS_OUTBOUND_EMAIL_YARN_VER
+[ -n "$CS_OUTBOUND_EMAIL_YARN_VER" -a ! -L $CS_OUTBOUND_EMAIL_SANDBOX/yarn ] && dt-get-software -V $CS_OUTBOUND_EMAIL_YARN_VER yarn $CS_OUTBOUND_EMAIL_SANDBOX
+
+
+
+# Put custom one-time only software installations here (such as git clones of additional repos,
+# other software packages that will live in the sandbox, etc...).
+#
+# Note that there is no sandbox process, other than a first time install, that exeutes this hook.
+
+
+exit 0
