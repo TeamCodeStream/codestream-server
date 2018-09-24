@@ -1,26 +1,33 @@
-# This project builds the AWS lambda package used to send outbound emails, along with the 
-# associated processing logic
 
-# To build the package (into the out directory of this project):
-cd src
-npm run zip
+# Outbound Email Service
 
-# To upload the package to the AWS function (assuming outboundEmail function name)
-cd src
-npm run update
+This service generation and sending of outbound emails. It is meant to be run using
+the AWS Lambda service. This service is triggered by SQS events.
 
-# To do both
-cd src
-npm run reupdate
+## Installation
+### With dev_tools
+If you are using the dev_tools toolkit, install the sandbox with this command. Once
+you do, it's recommended that you copy the playground template file to your **$DT_PLAYGROUNDS**
+directory (and edit it accordingly).
+```
+dt-new-sandbox -yCD -t cs_mailout -n $sandbox_name
+```
+### Without dev_tools
+1. Clone the project
+1. `(cd src && npm install --no-save)`
 
-# The above steps assume node modules have already been installed, like:
-cd src
-npm install --no-save
-
-# The execution of the lambda function can be tested locally, using a node module called
-# lambda-local to simulate the lambda execution environment. To test locally, you must
-# have the correct environment variables defined for your local environment, then run...
+## Test
+The execution of the lambda function can be tested locally, using a node module called
+lambda-local to simulate the lambda execution environment. To test locally, you must
+have the correct environment variables defined for your local environment, then run:
+```
 src/lambdaTest.js
+```
 
+## NPM scripts
+Build the package into the out directory with `(cd src && npm run zip)`  
 
+Upload the package to the AWS Lambda service (assuming outboundEmail function name) with:
+`(cd src && npm run update)`
 
+To perform both abovementioned tasks at once: `(cd src && npm run reupdate)`

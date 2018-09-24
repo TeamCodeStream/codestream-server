@@ -1,0 +1,13 @@
+
+## This is a template. Replace "{{ SANDBOX_NAME }}" with your chosen name
+
+#desc# Outbound Email sandbox
+#sandboxes# {{ SANDBOX_NAME }}
+
+dt_load {{ SANDBOX_NAME }}
+
+# Uncomment these lines if you use iTerm2 and want your tabs colored
+#. $DT_TOP/lib/iterm2-utils.sh
+#it2_tab_rgb `basename ${BASH_SOURCE[0]}` 22 200 130
+
+cd $CS_OUTBOUND_EMAIL_TOP
