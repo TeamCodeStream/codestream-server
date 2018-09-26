@@ -1,6 +1,6 @@
 'use strict';
 
-var MongoTest = require('./mongo_test');
+const MongoTest = require('./mongo_test');
 
 class GetByIdsTest extends MongoTest {
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var GetByIdTest = require('./get_by_id_test');
+const GetByIdTest = require('./get_by_id_test');
 
 class UpdateTest extends GetByIdTest {
 
@@ -34,7 +34,11 @@ class UpdateTest extends GetByIdTest {
 			text: 'replaced!',
 			number: 123
 		};
-		await this.data.test.update(update);
+		this.expectedOp = {
+			$set: Object.assign({}, update)
+		};
+		delete this.expectedOp.$set._id;
+		this.actualOp = await this.data.test.update(update);
 		Object.assign(this.testDocument, update);
 	}
 }

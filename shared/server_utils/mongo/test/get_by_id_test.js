@@ -1,6 +1,7 @@
 'use strict';
 
-var MongoTest = require('./mongo_test');
+const MongoTest = require('./mongo_test');
+const Assert = require('assert');
 
 class GetByIdTest extends MongoTest {
 
@@ -41,6 +42,9 @@ class GetByIdTest extends MongoTest {
 	}
 
 	validateResponse () {
+		if (this.expectedOp) {
+			Assert.deepEqual(this.actualOp, this.expectedOp, 'output op not correct');
+		}
 		this.validateDocumentResponse();
 	}
 }

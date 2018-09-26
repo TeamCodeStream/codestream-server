@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateTest = require('./update_test');
+const UpdateTest = require('./update_test');
 
 class ApplyUnsetByIdTest extends UpdateTest {
 
@@ -13,9 +13,12 @@ class ApplyUnsetByIdTest extends UpdateTest {
 		const update = {
 			text: 1,
 		};
-		await this.data.test.applyOpById(
+		this.expectedOp = {
+			'$unset': update
+		};
+		this.actualOp = await this.data.test.applyOpById(
 			this.testDocument._id,
-			{ '$unset': update }
+			this.expectedOp
 		);
 		delete this.testDocument.text;
 	}

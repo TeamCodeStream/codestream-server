@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateTest = require('./update_test');
+const UpdateTest = require('./update_test');
 
 class ApplyPullByIdTest extends UpdateTest {
 
@@ -13,9 +13,12 @@ class ApplyPullByIdTest extends UpdateTest {
 		const update = {
 			array: 4
 		};
-		await this.data.test.applyOpById(
+		this.expectedOp = {
+			'$pull': update
+		};
+		this.actualOp = await this.data.test.applyOpById(
 			this.testDocument._id,
-			{ '$pull': update }
+			this.expectedOp
 		);
 		const index = this.testDocument.array.indexOf(4);
 		this.testDocument.array.splice(index, 1);

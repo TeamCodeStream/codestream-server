@@ -6,6 +6,7 @@
 const ObjectID = require('mongodb').ObjectID;
 const ErrorHandler = require('../error_handler');
 const Errors = require('./errors');
+const DeepClone = require('../deep_clone');
 
 // bridges an array operation to mongo by allowing the caller to specify an
 // array of elements to add or remove without having to use the $each directive ... 
@@ -59,7 +60,6 @@ class MongoCollection {
 
 	constructor (options) {
 		this.options = options;
-		this.idAttribute = options.idAttribute || '_id';
 		this.dbCollection = options.dbCollection;
 		if (!this.dbCollection) {
 			throw 'no dbCollection in constructing MongoCollection';
@@ -99,16 +99,14 @@ class MongoCollection {
 	// get a document by its ID, we'll shield the caller from having to maintain
 	// a mongo ID; they can use a simple string instead
 	async getById (id, options) {
-		const query = {
-			[this.idAttribute]: this.objectIdSafe(id) // convert to mongo ID
-		};
-		if (!query[this.idAttribute]) {
+		id = this.objectIdSafe(id);	// convert to mongo ID
+		if (!id) {
 			// no document if no ID!
 			return null;
 		}
 		let result = await this._runQuery(
 			'findOne',
-			query,
+			{ _id: id },
 			options
 		);
 
@@ -121,7 +119,7 @@ class MongoCollection {
 	async getByIds (ids, options = {}) {
 		// make an $in query out of the IDs
 		const query = {
-			[this.idAttribute]: this.inQuerySafe(ids)
+			_id: this.inQuerySafe(ids)
 		};
 		if (this.options.hintsRequired) {
 			options = Object.assign({}, options, { hint: { _id: 1 } });
@@ -204,7 +202,16 @@ class MongoCollection {
 	// create a document
 	async create (document, options) {
 		// get an ID in mongo ID form, or generate one
-		document._id = document._id ? this.objectIdSafe(document._id) : ObjectID();
+		if (document._id) {
+			document._id = options.overrideId ? document._id : this.objectIdSafe(document._id);
+		}
+		else {
+			document._id = ObjectID();
+		}
+		if (document.version === undefined) {
+			document.version = 1;
+		}
+
 		// insert the document
 		try {
 			await this._runQuery(
@@ -232,18 +239,18 @@ class MongoCollection {
 	}
 
 	// update a document
-	async update (document, options) {
-		const id = document[this.idAttribute];
+	async update (document, options = {}) {
+		const id = document._id;
 		if (!id) {
 			// must have an ID to update!
-			throw this.errorHandler.error('id', { info: this.idAttribute });
+			throw this.errorHandler.error('id', { info: '_id' });
 		}
 		return await this.updateById(id, document, options);
 	}
 
 	// update a document with an explicitly provided ID
 	async updateById (id, data, options) {
-		let set = Object.assign({}, data);
+		const set = Object.assign({}, data);
 		delete set._id; // since we're using the explicit ID, we'll ignore the one in the data
 		// apply a $set to the data
 		return await this._applyMongoOpById(
@@ -253,34 +260,18 @@ class MongoCollection {
 		);
 	}
 
-	// apply a series of ops (directives) to modify the data associated with the specified
-	// document
-	async applyOpsById (id, ops, options) {
-		const totalOp = this.collapseOps(ops);
-		await this.applyOpById(id, totalOp, options);
-	}
-
-	// collapse an array of ops into a single op
-	collapseOps (ops) {
-		let totalOp = {};
-		ops.forEach(givenOp => {
-			Object.values(OP_TO_DB_OP).forEach(op => {
-				if (typeof op === 'object') {
-					op = op.dbOp;
-				}
-				if (givenOp[op]) {
-					totalOp[op] = totalOp[op] || {};
-					Object.assign(totalOp[op], givenOp[op]);
-				}
-			});
-		});
-		return totalOp;
-	}
-
-	// apply a single op (directive) to modify the data associated with the specified document
+	// apply a single set of ops (directives) to modify the data associated with the specified document
 	async applyOpById (id, op, options) {
 		const mongoOp = this.opToDbOp(op); // convert into mongo language
-		return await this._applyMongoOpById(id, mongoOp, options);
+		const updateOp = await this._applyMongoOpById(id, mongoOp, options);
+		if (updateOp.$version) {
+			op.$version = updateOp.$version;
+			if (updateOp.$version.after) {
+				op.$set = op.$set || {};
+				op.$set.version = updateOp.$version.after;
+			}
+		}
+		return op;
 	}
 
 	// convert ops from the more generic form into mongo language ... for now, the generic form
@@ -296,6 +287,9 @@ class MongoCollection {
 					// by invoking a function to convert the value, rather than just taking it literally
 					dbOp[conversion.dbOp] = conversion.valueFunc(opValue);
 				}
+				else if (typeof opValue === 'object') {
+					dbOp[conversion] = DeepClone(opValue);
+				}
 				else {
 					dbOp[conversion] = opValue;
 				}
@@ -305,15 +299,63 @@ class MongoCollection {
 	}
 
 	// apply a mongo op to a document
-	async _applyMongoOpById (id, op, options) {
+	async _applyMongoOpById (id, op, options = {}) {
+		if (op._id) {
+			op = Object.assign({}, op);
+			delete op._id;
+		}
+		if (options.version) {
+			return await this._applyMongoOpByIdAndVersion(id, options.version, op, options);
+		}
 		let query = {};
-		query[this.idAttribute] = this.objectIdSafe(id) || id;
-		return await this._runQuery(
+		query._id = this.objectIdSafe(id) || id;
+		await this._runQuery(
 			'updateOne',
 			query,
 			options,
 			op
 		);
+		return op;
+	}
+
+	async _applyMongoOpByIdAndVersion (id, version, op, options) {
+		let i;
+		for (i = 0; i < 10; i++) {
+			if (await this._tryApplyMongoOpByIdAndVersion(id, version, op, options)) {
+				break;
+			}
+			const refetchedDocument = await this.getById(id, { fields: ['version'] });
+			if (refetchedDocument.version === version) {
+				throw this.errorHandler.error('updateFailureNoVersion');
+			}
+			version = refetchedDocument.version;
+		}
+		if (i === 10) {
+			throw this.errorHandler.error('updateFailureVersion');
+		}
+		const newVersion = version + 1;
+		op.$set = op.$set || {};
+		op.$set.version = newVersion;
+		op.$version = {
+			before: version,
+			after: newVersion
+		};
+		return op;
+	}
+
+	async _tryApplyMongoOpByIdAndVersion (id, version, op, options) {
+		const query = {
+			_id: this.objectIdSafe(id),
+			version
+		};
+		op.$inc = op.$inc || {};
+		op.$inc.version = 1;
+		const result = await this.updateDirect(
+			query,
+			op,
+			options
+		);
+		return result && result.modifiedCount > 0;
 	}
 
 	// update documents directly, the caller can do whatever they want with the database
@@ -334,14 +376,14 @@ class MongoCollection {
 			options,
 			{},
 			data,
-			options.databaseOptions
+			options
 		);
 	}
 
 	// delete a document by id
 	async deleteById (id, options) {
 		const query = {
-			[this.idAttribute]: this.objectIdSafe(id)
+			_id: this.objectIdSafe(id)
 		};
 		return await this._runQuery(
 			'deleteOne',
@@ -354,7 +396,7 @@ class MongoCollection {
 	async deleteByIds (ids, options) {
 		// make an $in query out of the IDs
 		const query = {
-			[this.idAttribute]: this.inQuerySafe(ids)
+			_id: this.inQuerySafe(ids)
 		};
 		return await this.deleteByQuery(query, options);
 	}
@@ -453,8 +495,8 @@ class MongoCollection {
 			return await this._idStringifyArray(object);
 		}
 		else if (object && typeof object === 'object') {
-			if (object[this.idAttribute]) {
-				object[this.idAttribute] = object[this.idAttribute].toString();
+			if (object._id) {
+				object._id = object._id.toString();
 			}
 		}
 		return object;

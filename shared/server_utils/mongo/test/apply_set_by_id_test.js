@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateTest = require('./update_test');
+const UpdateTest = require('./update_test');
 
 class ApplySetByIdTest extends UpdateTest {
 
@@ -14,9 +14,12 @@ class ApplySetByIdTest extends UpdateTest {
 			text: 'replaced!',
 			number: 123
 		};
-		await this.data.test.applyOpById(
+		this.expectedOp = {
+			'$set': update
+		};
+		this.actualOp = await this.data.test.applyOpById(
 			this.testDocument._id,
-			{ '$set': update }
+			this.expectedOp
 		);
 		Object.assign(this.testDocument, update);
 	}

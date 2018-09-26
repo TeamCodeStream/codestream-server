@@ -1,7 +1,7 @@
 'use strict';
 
-var GetByQueryTest = require('./get_by_query_test');
-var Assert = require('assert');
+const GetByQueryTest = require('./get_by_query_test');
+const Assert = require('assert');
 
 class GetByQueryLimitTest extends GetByQueryTest {
 

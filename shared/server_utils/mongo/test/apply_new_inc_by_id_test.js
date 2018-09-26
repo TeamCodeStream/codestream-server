@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateTest = require('./update_test');
+const UpdateTest = require('./update_test');
 
 class ApplyNewIncByIdTest extends UpdateTest {
 
@@ -14,9 +14,12 @@ class ApplyNewIncByIdTest extends UpdateTest {
 		const update = {
 			newNumber: 5
 		};
-		await this.data.test.applyOpById(
+		this.expectedOp = {
+			'$inc': update 
+		};
+		this.actualOp = await this.data.test.applyOpById(
 			this.testDocument._id,
-			{ '$inc': update }
+			this.expectedOp
 		);
 		this.testDocument.newNumber = 5;
 	}

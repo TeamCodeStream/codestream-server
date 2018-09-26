@@ -1,7 +1,7 @@
 'use strict';
 
-var MongoTest = require('./mongo_test');
-var Assert = require('assert');
+const MongoTest = require('./mongo_test');
+const Assert = require('assert');
 
 class GetByIdNotFoundTest extends MongoTest {
 

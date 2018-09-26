@@ -11,6 +11,11 @@ const  Assert = require('assert');
 
 class MongoTest extends GenericTest {
 
+	constructor (options) {
+		super(options);
+		this.expectedVersion = 1;
+	}
+
 	// before the test runs...
 	async before (callback) {
 		// set up the mongo client, and open it against a test collection
@@ -117,6 +122,9 @@ class MongoTest extends GenericTest {
 
 	// validate that we got back the document that exactly matches the test document
 	validateDocumentResponse () {
+		if (this.expectedVersion) {
+			Assert.equal(this.testDocument.version, this.expectedVersion, 'version not correct');
+		}
 		Assert.deepEqual(this.testDocument, this.response, 'fetched document doesn\'t match');
 	}
 

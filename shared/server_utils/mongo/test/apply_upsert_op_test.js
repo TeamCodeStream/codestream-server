@@ -1,7 +1,6 @@
 'use strict';
 
-var UpdateTest = require('./update_test');
-var ObjectID = require('mongodb').ObjectID;
+const UpdateTest = require('./update_test');
 
 class ApplyUpsertOpTest extends UpdateTest {
 
@@ -12,17 +11,18 @@ class ApplyUpsertOpTest extends UpdateTest {
 	async updateDocument () {
 		// do an update with the upsert option, verify that the test document was created
 		const update = {
-			_id: ObjectID(),
 			text: 'upserted!',
 			number: 123
 		};
-		const result = await this.data.test.applyOpById(
-			update._id,
-			{ '$set': update },
+		this.expectedOp = {
+			'$set': update
+		};
+		this.actualOp = await this.data.test.applyOpById(
+			this.testDocument._id,
+			this.expectedOp,
 			{ upsert: true }
 		);
-		this.testDocument = Object.assign({}, update);
-		this.testDocument._id = result.upsertedId._id.toString();
+		Object.assign(this.testDocument, update);
 	}
 }
 

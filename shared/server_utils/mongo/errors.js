@@ -17,5 +17,15 @@ module.exports = {
 		code: 'MDTA-1002',
 		description: 'Hint required',
 		internal: true
+	},
+	'updateFailureNoVersion': {
+		code: 'MDTA-1003',
+		description: 'Failed to update document with version, but version is not conflicting',
+		internal: true
+	},
+	'updateFailureVersion': {
+		code: 'MDTA-1004',
+		description: 'Failed to update document after refetching for version and several retries',
+		internal: true
 	}
 };

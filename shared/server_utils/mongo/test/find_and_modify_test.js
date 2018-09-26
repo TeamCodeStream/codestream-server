@@ -1,8 +1,8 @@
 'use strict';
 
-var UpdateTest = require('./update_test');
-var Assert = require('assert');
-var AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const UpdateTest = require('./update_test');
+const Assert = require('assert');
+const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
 class FindAndModifyTest extends UpdateTest {
 
