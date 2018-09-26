@@ -1,0 +1,18 @@
+#!/bin/bash
+
+echo "This script will register a user via the API server - that should trigger an"
+echo "entry in the outbound SQS queue and lambda func."
+echo
+
+[ -z "$1" ] && echo "usage: $0 {email-addy} [user-name]" && exit 1
+email=$1
+[ -n "$2" ] && userName=$2 || userName=`echo $email|sed -e 's/\+//'|cut -f1 -d@`
+url="https://localhost.codestream.us:12079/no-auth/register"
+payload="{\"email\": \"$1\", \"username\": \"$userName\", \"password\": \"password\"}"
+echo "Calling /no-auth/register wth payload:"
+echo $payload
+echo
+echo curl --header "Content-Type: application/json" --request POST --data \"$payload\" $url
+echo -n "Press ENTER to confirm, CTRL-C to abort..."; read
+curl --header "Content-Type: application/json" --request POST --data "$payload" $url
+echo

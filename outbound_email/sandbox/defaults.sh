@@ -32,26 +32,68 @@ export PATH=$CS_OUTBOUND_EMAIL_SANDBOX/node/bin:$CS_OUTBOUND_EMAIL_TOP/node_modu
 export PATH=$CS_OUTBOUND_EMAIL_TOP/bin:$PATH
 
 # Standard variables to consider using
-export CS_OUTBOUND_EMAIL_LOGS=$CS_OUTBOUND_EMAIL_SANDBOX/log    # Log directory
-export CS_OUTBOUND_EMAIL_TMP=$CS_OUTBOUND_EMAIL_SANDBOX/tmp     # temp directory
-export CS_OUTBOUND_EMAIL_CONFS=$CS_OUTBOUND_EMAIL_SANDBOX/conf  # config files directory
-export CS_OUTBOUND_EMAIL_DATA=$CS_OUTBOUND_EMAIL_SANDBOX/data   # data directory
-export CS_OUTBOUND_EMAIL_PIDS=$CS_OUTBOUND_EMAIL_SANDBOX/pid    # pid files directory
+#export CS_OUTBOUND_EMAIL_LOGS=$CS_OUTBOUND_EMAIL_SANDBOX/log    # Log directory
+#export CS_OUTBOUND_EMAIL_TMP=$CS_OUTBOUND_EMAIL_SANDBOX/tmp     # temp directory
+#export CS_OUTBOUND_EMAIL_CONFS=$CS_OUTBOUND_EMAIL_SANDBOX/conf  # config files directory
+#export CS_OUTBOUND_EMAIL_DATA=$CS_OUTBOUND_EMAIL_SANDBOX/data   # data directory
+#export CS_OUTBOUND_EMAIL_PIDS=$CS_OUTBOUND_EMAIL_SANDBOX/pid    # pid files directory
 [ -z "$CS_OUTBOUND_EMAIL_ASSET_ENV"] && export CS_OUTBOUND_EMAIL_ASSET_ENV=local
 
-export CS_OUTBOUND_EMAIL_LAMBDA_NODE_VER=8.10
+#[ -z "$MONGO_ACCESS_FILE" ] && MONGO_ACCESS_FILE="$HOME/.codestream/mongo/mongo-access"
+if [ -n "$MONGO_ACCESS_FILE" -a -f "$MONGO_ACCESS_FILE" ]; then
+	. $MONGO_ACCESS_FILE
+	[ -n "$MONGO_HOST" ] && export CS_OUTBOUND_EMAIL_MONGO_HOST=$MONGO_HOST
+	[ -n "$MONGO_PORT" ] && export CS_OUTBOUND_EMAIL_MONGO_PORT=$MONGO_PORT
+	[ -n "$MONGO_URL" ] && export CS_OUTBOUND_EMAIL_MONGO_URL=$MONGO_URL
+	[ -n "$MONGO_APP_USER" ] && export CS_OUTBOUND_EMAIL_MONGO_USER=$MONGO_APP_USER
+	[ -n "$MONGO_APP_PASS" ] && export CS_OUTBOUND_EMAIL_MONGO_PASS=$MONGO_APP_PASS
+	[ -n "$MONGO_DB" ] && export CS_OUTBOUND_EMAIL_MONGO_DATABASE=$MONGO_DB
+else
+	# Take the values from the mongo sandbox in the playground
+	TUNNEL_IP=`netstat -rn|grep '^10\.99'|grep -v '/'|awk '{print $1}'`
+	export CS_OUTBOUND_EMAIL_MONGO_HOST=$TUNNEL_IP
+	export CS_OUTBOUND_EMAIL_MONGO_PORT=27017
+	export CS_OUTBOUND_EMAIL_MONGO_DATABASE=codestream
+	# Define these to tell the API service to use mongo authentication
+	#export CS_OUTBOUND_EMAIL_MONGO_USER=api
+	#export CS_OUTBOUND_EMAIL_MONGO_PASS=api
+fi
 
-export CS_OUTBOUND_EMAIL_MONGO_DATABASE=codestream
-export CS_OUTBOUND_EMAIL_MONGO_HOST=pdapi1.codestream.com
-export CS_OUTBOUND_EMAIL_MONGO_PORT=47017
+[ -z "$SENDGRID_CREDENTIALS_FILE" ] && SENDGRID_CREDENTIALS_FILE=$HOME/.codestream/sendgrid/development
+if [ -f $SENDGRID_CREDENTIALS_FILE ]; then
+	. $SENDGRID_CREDENTIALS_FILE
+	export CS_OUTBOUND_EMAIL_SENDGRID_SECRET="$SENDGRID_SECRET"
+else
+	echo "******************************************************************"
+	echo "WARNING: SendGrid token file not found. Run dt-update-secrets and"
+	echo "         reload your sandbox"
+	echo "******************************************************************"
+fi
+
+[ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-Local_Keyset_1"
+if [ -f $PUBNUB_KEY_FILE ]; then
+	. $PUBNUB_KEY_FILE
+	export CS_OUTBOUND_EMAIL_PUBNUB_PUBLISH_KEY=$PUBNUB_PUBLISH
+	export CS_OUTBOUND_EMAIL_PUBNUB_SUBSCRIBE_KEY=$PUBNUB_SUBSCRIBE
+	export CS_OUTBOUND_EMAIL_PUBNUB_SECRET=$PUBNUB_SECRET
+else
+	echo "**************************************************************"
+	echo "WARNING: pubnub key files not found. Run dt-update-secrets and"
+	echo "         reload your sandbox"
+	echo "**************************************************************"
+fi
+
 export CS_OUTBOUND_EMAIL_NOTIFICATION_INTERVAL=300000
-export CS_OUTBOUND_EMAIL_PUBNUB_PUBLISH_KEY=pub-c-61c9ce67-e1fb-4a3d-87a2-3a30a2e8d8e9
-export CS_OUTBOUND_EMAIL_PUBNUB_SECRET=sec-c-NmY4ODFkNjgtMzY1MC00NmNmLThkYmItZmJlYWUwOTY3MmEx
-export CS_OUTBOUND_EMAIL_PUBNUB_SUBSCRIBE_KEY=sub-c-976e9836-f4a7-11e7-b8a6-46d99af2bb8c
-export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=pd.codestream.com
-export CS_OUTBOUND_EMAIL_SENDER_EMAIL=alerts@codestream.com
-export CS_OUTBOUND_EMAIL_SENDGRID_SECRET=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
 export CS_OUTBOUND_EMAIL_SESSION_AWAY_TIMEOUT=600000
-export CS_OUTBOUND_EMAIL_SQS=dev_pd_outboundEmail
+export CS_OUTBOUND_EMAIL_SQS=dev_${DT_USER}_outboundEmail
+
+export CS_OUTBOUND_EMAIL_SENDER_EMAIL=alerts@codestream.com
 export CS_OUTBOUND_EMAIL_SUPPORT_EMAIL=support@codestream.com
-export CS_OUTBOUND_EMAIL_TO=""
+export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=dev.codestream.com
+export CS_OUTBOUND_EMAIL_TO="${DT_USER}@codestream.com"
+
+export CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME=nodejs8.10
+export CS_OUTBOUND_EMAIL_AWS_ACCOUNT=564564469595
+export CS_OUTBOUND_EMAIL_LAMBDA_IAM_ROLE=lambda_basic_execution_with_sqs
+export CS_OUTBOUND_EMAIL_SQS_ARN="arn:aws:sqs:us-east-1:$CS_OUTBOUND_EMAIL_AWS_ACCOUNT:$CS_OUTBOUND_EMAIL_SQS"
+export CS_OUTBOUND_EMAIL_SNS_TOPIC_ARN="arn:aws:sns:us-east-1:$CS_OUTBOUND_EMAIL_AWS_ACCOUNT:dev_UnprocessedOutboundEmailEvents"
