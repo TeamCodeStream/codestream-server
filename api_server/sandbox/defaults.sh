@@ -110,16 +110,6 @@ else
 	echo "**************************************************************"
 fi
 
-# =============== SendGrid Settings ==============
-[ -z "$SENDGRID_CREDENTIALS_FILE" ] && SENDGRID_CREDENTIALS_FILE=$HOME/.codestream/sendgrid/development
-if [ -f $SENDGRID_CREDENTIALS_FILE ]; then
-	. $SENDGRID_CREDENTIALS_FILE
-	export CS_API_SENDGRID_SECRET="$SENDGRID_SECRET"
-else
-	echo "Warning: using old default sendgrid pkt4 secret"
-	export CS_API_SENDGRID_SECRET="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"
-fi
-
 # =============== MixPanel Settings ==============
 [ -z "$MIXPANEL_TOKEN_FILE" ] && MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/development
 if [ -f $MIXPANEL_TOKEN_FILE ]; then
@@ -142,7 +132,8 @@ export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo
 export CS_API_OUTBOUND_EMAIL_SQS="dev_${DT_USER}_outboundEmail"
 # Set the interval (in ms) between emails being sent
 export CS_API_EMAIL_NOTIFICATION_INTERVAL=300000
-
+# Suppress all email sends
+export CS_API_SUPPRESS_EMAILS=1
 
 # =============== Other Secrets ===============
 [ -z "$OTHER_SECRETS_FILE" ] && OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/dev-api

@@ -4,7 +4,6 @@ MONGO_ACCESS_FILE="$HOME/.codestream/mongo/prod-codestream-dbowner"
 SSL_CERT=codestream.com
 MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
 BOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-production
-SENDGRID_CREDENTIALS_FILE=$HOME/.codestream/sendgrid/prod-api
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/prod-api
 
 . $CS_API_TOP/sandbox/defaults.sh
@@ -21,3 +20,4 @@ export CS_API_TEAMSBOT_ORIGIN=http://bot.codestream.us:10079
 export CS_API_WEB_CLIENT_ORIGIN=https://app.codestream.com
 
 unset CS_API_HELP_AVAILABLE
+unset CS_API_SUPPRESS_EMAILS

@@ -707,8 +707,14 @@ class PostCreator extends ModelCreator {
 	// determine if special header was sent with the request that says to block emails
 	requestSaysToBlockEmails () {
 		return (
-			this.request.request.headers &&
-			this.request.request.headers['x-cs-block-email-sends']
+			(
+				this.request.api.config.email.suppressEmails &&
+				!this.request.request.headers['x-cs-test-email-sends']
+			) ||
+			(
+				this.request.request.headers &&
+				this.request.request.headers['x-cs-block-email-sends']
+			)
 		);
 	}
 }

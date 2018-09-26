@@ -8,3 +8,4 @@ export CS_API_PORT=9443
 export CS_API_LOG_CONSOLE_OK=
 export CS_API_REPLY_TO_DOMAIN=staging.codestream.com
 export CS_API_WEB_CLIENT_ORIGIN=https://stage-app.codestream.us
+unset CS_API_SUPPRESS_EMAILS

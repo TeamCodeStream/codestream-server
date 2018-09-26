@@ -4,7 +4,6 @@ MONGO_ACCESS_FILE="$HOME/.codestream/mongo/qa-codestream-dbowner"
 #SSL_CERT=
 #MIXPANEL_TOKEN_FILE
 BOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-qa
-SENDGRID_CREDENTIALS_FILE=$HOME/.codestream/sendgrid/qa-api
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/qa-api
 
 . $CS_API_TOP/sandbox/defaults.sh
@@ -18,3 +17,4 @@ export CS_API_OUTBOUND_EMAIL_SQS="qa_outboundEmail"
 export CS_API_SLACKBOT_ORIGIN=http://qa-bot.codestream.us:11079
 export CS_API_TEAMSBOT_ORIGIN=http://qa-bot.codestream.us:10079
 export CS_API_WEB_CLIENT_ORIGIN=https://qa-app.codestream.us
+unset CS_API_SUPPRESS_EMAILS

@@ -52,11 +52,20 @@ class Email extends APIServerModule {
 
 	// determine if special header was sent with the request that says to block emails
 	requestSaysToBlockEmails (options) {
-		return (
+		const headers = (
 			options.request &&
 			options.request.request &&
-			options.request.request.headers &&
-			options.request.request.headers['x-cs-block-email-sends']
+			options.request.request.headers
+		);
+		return (
+			(
+				headers &&
+				headers['x-cs-block-email-sends']
+			) ||
+			(
+				this.api.config.email.suppressEmails &&
+				(!headers || headers['x-cs-test-email-sends'])
+			)
 		);
 	}
 

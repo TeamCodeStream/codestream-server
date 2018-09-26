@@ -76,7 +76,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 	setChannelName (callback) {
 		// for the user we expect to receive the confirmation email, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the outbound email
-		// service (sendgrid) on this channel, and then we'll validate the data
+		// service on this channel, and then we'll validate the data
 		this.channelName = `user-${this.currentUser._id}`;
 		callback();
 	}
