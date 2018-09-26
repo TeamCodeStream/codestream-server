@@ -35,7 +35,7 @@ API service will create the outbound SQS mail queue so you must run it before yo
 install the lambda function and trigger.
 1. Build and bundle the outgoing mail service and install the lambda function and trigger.
 ```
-cd src && npm run build && npm run lambda:install
+cd src && npm run build && npm run lambda:config && npm run lambda:install
 ```
 
 ## NPM scripts
