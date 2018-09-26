@@ -1,10 +1,18 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class GetPreferencesTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
+		delete this.teamOptions.inviterIndex;
+	}
+	
 	get description () {
 		return 'should return my preferences when requesting them';
 	}
@@ -19,9 +27,16 @@ class GetPreferencesTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
+		BoundAsync.series(this, [
+			super.before,
+			this.setPreferences
+		], callback);
+	}
+
+	setPreferences (callback) {
 		// make the preferences data, and write it to the server,
 		// we'll then read it back for the test
-		let data = this.makePreferencesData();
+		const data = this.makePreferencesData();
 		this.doApiRequest(
 			{
 				method: 'put',

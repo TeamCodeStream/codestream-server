@@ -8,6 +8,7 @@ class ExistingUnregisteredAlreadyOnTeamInviteEmailTest extends InviteEmailTest {
 		super(options);
 		this.wantExistingUser = true;
 		this.existingUserAlreadyOnTeam = true;
+		this.expectedCampaign = 'reinvite_email';
 	}
 
 	get description () {

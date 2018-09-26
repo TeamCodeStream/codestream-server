@@ -3,6 +3,7 @@
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const CommonInit = require('./common_init');
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Assert = require('assert');
 
 class UnreadTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -18,10 +19,14 @@ class UnreadTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	before (callback) {
 		this.init(error => {
 			if (error) { return callback(error); }
-			const post = this.posts[this.unreadPost];
-			this.path = '/unread/' + post._id;
+			const unreadPost = this.postData[this.unreadPost].post;
+			this.path = '/unread/' + unreadPost._id;
 			callback();
 		});
+	}
+
+	validateResponse (data) {
+		Assert.deepEqual(data, this.expectedData, 'response not correct');
 	}
 }
 

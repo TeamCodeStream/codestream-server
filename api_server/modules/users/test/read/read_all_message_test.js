@@ -1,6 +1,8 @@
 'use strict';
 
-var ReadMessageTest = require('./read_message_test');
+const ReadMessageTest = require('./read_message_test');
+const ReadAllTest = require('./read_all_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class ReadAllMessageTest extends ReadMessageTest {
 
@@ -10,6 +12,14 @@ class ReadAllMessageTest extends ReadMessageTest {
 
 	// trigger the api request that generates the message
 	generateMessage (callback) {
+		BoundAsync.series(this, [
+			ReadAllTest.prototype.setExpectedData.bind(this),
+			this.markReadAll
+		], callback);
+	}
+
+	markReadAll (callback) {
+		this.message = this.expectedData;
 		// do the read/all request
 		this.doApiRequest(
 			{
@@ -17,19 +27,7 @@ class ReadAllMessageTest extends ReadMessageTest {
 				path: '/read/all',
 				token: this.token
 			},
-			error => {
-				if (error) { return callback(error); }
-				// we expect to get a message to unset the entire lastReads object
-				this.message = {
-					user: {
-						_id: this.currentUser._id,
-						'$unset': {
-							lastReads: true
-						}
-					}
-				};
-				callback();
-			}
+			callback
 		);
 	}
 }

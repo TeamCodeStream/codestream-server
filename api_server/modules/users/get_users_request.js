@@ -32,11 +32,7 @@ class GetUsersRequest extends GetManyRequest {
 	// get options to use in the query to fetch users
 	getQueryOptions () {
 		// provide appropriate index, by team
-		return {
-			databaseOptions: {
-				hint: Indexes.byTeamIds
-			}
-		};
+		return { hint: Indexes.byTeamIds };
 	}
 
 	// describe this route for help

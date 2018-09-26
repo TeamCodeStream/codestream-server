@@ -4,29 +4,21 @@
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class CommonInit {
 
 	init (callback) {
+		this.setOptions();
 		BoundAsync.series(this, [
-			this.createTeam,	// user creates a team to be on
+			CodeStreamAPITest.prototype.before.bind(this),
 			this.changeEmail,	// issue the change-email request to get the token
 			this.setData		// set the data to use when confirming
 		], callback);
 	}
 	
-	// current user creates a team for them to be on
-	createTeam (callback) {
-		this.teamFactory.createRandomTeam(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				callback();
-			},
-			{
-				token: this.token
-			}
-		);
+	setOptions () {
+		this.userOptions.numRegistered = 1;
 	}
 
 	// issue the change-email test to get the token

@@ -37,11 +37,7 @@ class GetMarkersRequest extends GetManyRequest {
 		};
 		const markerLocations = await this.data.markerLocations.getByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: { _id: 1 }
-				}
-			}
+			{ hint: { _id: 1 } }
 		);
 		if (markerLocations.length === 0) {
 			// no marker locations for this commit, oh well
@@ -71,11 +67,7 @@ class GetMarkersRequest extends GetManyRequest {
 
 	// get database options to associate with the database fetch request
 	getQueryOptions () {
-		return {
-			databaseOptions: {
-				hint: Indexes.byStreamId
-			}
-		};
+		return { hint: Indexes.byStreamId };
 	}
 
 	// describe this route for help

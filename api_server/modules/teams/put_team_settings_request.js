@@ -4,6 +4,7 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const { opFromHash } = require(process.env.CS_API_TOP + '/lib/util/data_collection/model_ops');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 const MAX_KEYS = 100;
 
@@ -25,39 +26,15 @@ class PutTeamSettingsRequest extends RestfulRequest {
 	async process () {
 		// determine the update op based on the request body, and apply it if valid
 		this.totalKeys = 0;
-		this.op = opFromHash(this.request.body, 'settings', MAX_KEYS);
-		if (typeof this.op === 'string') {
-			throw this.errorHandler.error('invalidParameter', { info: this.op });
+		const op = opFromHash(this.request.body, 'settings', MAX_KEYS);
+		if (typeof op === 'string') {
+			throw this.errorHandler.error('invalidParameter', { info: op });
 		}
-		await this.data.teams.applyOpById(
-			this.team.id,
-			this.op
-		);
-		this.responseOp = {
-			team: {
-				_id: this.team.id
-			}
-		};
-		Object.assign(this.responseOp.team, this.op);
-
-	}
-
-	// after the response is returned....
-	async postProcess () {
-		// send the message to the team channel
-		const channel = 'team-' + this.team.id;
-		const publishOp = Object.assign({}, this.responseOp, { requestId: this.request.id });
-		try {
-			await this.api.services.messager.publish(
-				publishOp,
-				channel,
-				{ request: this }
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate
-			this.warn(`Unable to publish settings message to channel ${channel}: ${JSON.stringify(error)}`);
-		}
+		this.updateOp = await new ModelSaver({
+			request: this,
+			collection: this.data.teams,
+			id: this.team.id
+		}).save(op);
 	}
 
 	// handle returning the response
@@ -74,10 +51,29 @@ class PutTeamSettingsRequest extends RestfulRequest {
 			this.warn(JSON.stringify(this.gotError));
 			this.gotError = this.errorHandler.error('invalidParameter');
 		}
-		else if (!this.gotError) {
-			this.responseData = this.responseOp;
+		if (this.gotError) {
+			return await super.handleResponse();
 		}
+		this.responseData = { team: this.updateOp };
 		await super.handleResponse();
+	}
+
+	// after the response is returned....
+	async postProcess () {
+		// send the message to the team channel
+		const channel = 'team-' + this.team.id;
+		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
+		try {
+			await this.api.services.messager.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate
+			this.warn(`Unable to publish settings message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// describe this route for help

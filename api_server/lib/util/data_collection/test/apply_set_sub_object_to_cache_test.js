@@ -14,10 +14,13 @@ class ApplySetSubObjectToCacheTest extends UpdateToCacheTest {
 			'object.x': 'replaced!',
 			'object.z': 3
 		};
+		this.expectedOp = {
+			'$set': set
+		};
 		try {
-			await this.data.test.applyOpById(
+			this.actualOp = await this.data.test.applyOpById(
 				this.testModel.id,
-				{ '$set': set }
+				this.expectedOp
 			);
 		}
 		catch (error) {

@@ -1,7 +1,7 @@
 'use strict';
 
-var Assert = require('assert');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
@@ -23,10 +23,6 @@ class RegistrationTest extends CodeStreamAPITest {
 		return UserTestConstants.EXPECTED_REGISTRATION_RESPONSE;
 	}
 
-	dontWantToken () {
-		return true;	// we don't need a registered user for this test, since the test is actually registering a user!
-	}
-
 	// before the test runs...
 	before (callback) {
 		// establish random user data for the registration, we cheat and fetch the
@@ -34,6 +30,7 @@ class RegistrationTest extends CodeStreamAPITest {
 		this.data = this.userFactory.getRandomUserData();
 		this.data.signupToken = require('uuid/v4');	// more accurately simulates signup from the web
 		this.data._confirmationCheat = SecretsConfig.confirmationCheat;
+		this.expectedVersion = 1;
 		callback();
 	}
 
@@ -57,7 +54,8 @@ class RegistrationTest extends CodeStreamAPITest {
 			((user.creatorId === user._id.toString()) || errors.push('creatorId not equal to _id')) &&
 			((typeof user.confirmationCode === 'string') || errors.push('confirmationCode is not a string')) &&
 			((user.phoneNumber === '') || errors.push('phoneNumber not set to default of empty string')) &&
-			((user.iWorkOn === '') || errors.push('iWorkOn not set to default value of empty string'))
+			((user.iWorkOn === '') || errors.push('iWorkOn not set to default value of empty string')) &&
+			((user.version === this.expectedVersion) || errors.push('version is not correct'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');

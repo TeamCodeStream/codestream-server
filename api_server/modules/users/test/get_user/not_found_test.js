@@ -1,7 +1,7 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var ObjectID = require('mongodb').ObjectID;
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class NotFoundTest extends CodeStreamAPITest {
 
@@ -18,8 +18,11 @@ class NotFoundTest extends CodeStreamAPITest {
 	// before the test runs...
 	before (callback) {
 		// we'll try to fetch a non-existent user, with a random ID
-		this.path = '/users/' + ObjectID();
-		callback();
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.path = '/users/' + ObjectID();
+			callback();
+		});
 	}
 }
 

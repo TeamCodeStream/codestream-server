@@ -18,23 +18,16 @@ class UneadMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// should come back through the user's me-channel
-		this.channelName = 'user-' + this.currentUser._id;
+		this.channelName = 'user-' + this.currentUser.user._id;
 		callback();
 	}
 
 	// issue the api request that triggers the message
 	generateMessage (callback) {
-		// we expect to see the sequence number set to the sequence number of the previous post
-		// to the post that was marked unread ... the sequence numbers are 1-based so this is 
-		// just the same as the ordinal number of the post in the array of posts created
-		this.message = {
-			user: {
-				_id: this.currentUser._id,
-				$set: {
-					[`lastReads.${this.stream._id}`]: this.unreadPost
-				}
-			}
-		};
+		// we expect a message the unset the lastReads value for this stream
+		this.message = this.expectedData;
+
+		// indicate marking the stream unread
 		this.markUnread(callback);
 	}
 }

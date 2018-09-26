@@ -137,11 +137,7 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 		const id = `${this.streamId}|${this.originalCommitHash}`;
 		const markerLocations = await this.data.markerLocations.getByQuery(
 			{ _id: id },
-			{
-				databaseOptions: {
-					hint: { _id: 1 }
-				}
-			}
+			{ hint: { _id: 1 } }
 		);
 		this.originalMarkerLocations = (markerLocations && markerLocations[0]) || {};
 	}
@@ -211,14 +207,10 @@ class CalculateMarkerLocationsRequest extends RestfulRequest {
 		if (this.isForTesting()) { // special for-testing header for easy wiping of test data
 			update.$set._forTesting = true;
 		}
-		await this.data.markerLocations.applyOpById(
-			id,
+		await this.data.markerLocations.updateDirectWhenPersist(
+			{ _id: id },
 			update,
-			{
-				databaseOptions: {
-					upsert: true
-				}
-			}
+			{ upsert: true }
 		);
 	}
 

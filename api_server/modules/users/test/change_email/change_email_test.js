@@ -4,6 +4,13 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 
 class ChangeEmailTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
+		delete this.teamOptions.inviterIndex;
+	}
+
 	get description () {
 		return 'should succeed when a user initiates changing their email';
 	}
@@ -18,11 +25,14 @@ class ChangeEmailTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
-		// set the new email
-		this.data = {
-			email: this.userFactory.randomEmail()
-		};
-		callback();
+		super.before(error => {
+			if (error) { return callback(error); }
+			// set the new email
+			this.data = {
+				email: this.userFactory.randomEmail()
+			};
+			callback();
+		});
 	}
 }
 

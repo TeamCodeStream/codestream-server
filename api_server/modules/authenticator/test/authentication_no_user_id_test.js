@@ -19,9 +19,9 @@ class AuthenticationNoUserIDTest extends AuthenticationTest {
 	// before the test runs...
 	before (callback) {
 		// remove the user ID fromt he token, then try
-		this.removeUserIdFromToken(error => {
+		super.before(error => {
 			if (error) { return callback(error); }
-			super.before(callback);
+			this.removeUserIdFromToken(callback);
 		});
 	}
 

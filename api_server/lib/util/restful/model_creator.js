@@ -6,13 +6,13 @@
 
 const RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
 const DeepEqual = require('deep-equal');
+const ModelSaver = require('./model_saver');
 
 class ModelCreator {
 
 	constructor (options) {
 		Object.assign(this, options);
-		['data', 'api', 'errorHandler', 'user'].forEach(x => this[x] = this.request[x]);
-		this.attachToResponse = {};	// additional material we want to get returned to the client
+		['data', 'api', 'errorHandler', 'user', 'transforms'].forEach(x => this[x] = this.request[x]);
 	}
 
 	// create the model
@@ -82,9 +82,7 @@ class ModelCreator {
 		}
 		// look for a matching document, according to the query
 		const options = {
-			databaseOptions: {
-				hint: queryData.hint
-			}
+			hint: queryData.hint
 		};
 		const model = await this.collection.getOneByQuery(queryData.query, options);
 		if (model) {
@@ -192,10 +190,12 @@ class ModelCreator {
 			return;
 		}
 		// do the update
-		this.model = await this.collection.applyOpById(
-			this.model.id,
-			{ $set: this.changes }
-		);
+		const op = { $set: this.changes };
+		this.updateOp = await new ModelSaver({
+			request: this.request,
+			collection: this.collection,
+			id: this.model.id
+		}).save(op);
 	}
 
 	// requisition an ID for the model we are about to create ... use this if you need

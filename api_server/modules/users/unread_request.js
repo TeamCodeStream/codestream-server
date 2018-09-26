@@ -4,6 +4,7 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class UnreadRequest extends RestfulRequest {
 
@@ -23,15 +24,24 @@ class UnreadRequest extends RestfulRequest {
 		// the sequence number for this post
 		const streamId = this.post.get('streamId');
 		const seqNum = this.post.get('seqNum') - 1;
-		this.op = {
+		const op = {
 			'$set': {
 				['lastReads.' + streamId]: seqNum
 			}
 		};
-		await this.data.users.applyOpById(
-			this.user.id,
-			this.op
-		);
+		this.updateOp = await new ModelSaver({
+			request: this,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
+	}
+
+	async handleResponse () {
+		if (this.gotError) {
+			return await super.handleResponse();
+		}
+		this.responseData = { user: this.updateOp };
+		super.handleResponse();
 	}
 
 	// after the response is returned....
@@ -39,13 +49,7 @@ class UnreadRequest extends RestfulRequest {
 		// send the lastReads update on the user's me-channel, so other active
 		// sessions get the message
 		const channel = 'user-' + this.user.id;
-		const message = {
-			user: {
-				_id: this.user.id
-			},
-			requestId: this.request.id
-		};
-		Object.assign(message.user, this.op);
+		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
 		try {
 			await this.api.services.messager.publish(
 				message,

@@ -6,7 +6,7 @@
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const PostCreator = require(process.env.CS_API_TOP + '/modules/posts/post_creator');
 const UserCreator = require(process.env.CS_API_TOP + '/modules/users/user_creator');
-const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
+const AddTeamMember = require(process.env.CS_API_TOP + '/modules/teams/add_team_member');
 const Errors = require('./errors');
 
 class IntegrationPostRequest extends RestfulRequest {
@@ -157,13 +157,12 @@ class IntegrationPostRequest extends RestfulRequest {
 		// add the author of the post to the team, this will only fail if there is
 		// a username conflict with an existing user on the team ... still not sure
 		// what to do about that case
-		const adder = new AddTeamMembers({
+		await new AddTeamMember({
 			request: this,
-			users: [this.author],
-			teamId: this.team.id
-		});
+			addUser: this.author,
+			team: this.team
+		}).addTeamMember();
 		this.addedToTeam = true;
-		await adder.addTeamMembers();
 	}
 
 	// create a post for this integration post in our stream

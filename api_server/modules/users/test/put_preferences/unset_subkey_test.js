@@ -39,15 +39,11 @@ class UnsetSubkeyTest extends PutPreferencesFetchTest {
 				}
 			}
 		};
-		this.expectResponse = {
-			user: {
-				_id: this.currentUser._id,
-				$unset: {
-					'preferences.topLevelPreference.preferenceOne': 1,
-					'preferences.topLevelPreference.preferenceThree': true,
-					'preferences.topLevelPreference.preferenceFive': 2
-				}
-			}
+		this.expectResponse = this.getBaseExpectedResponse();
+		this.expectResponse.user.$unset = {
+			'preferences.topLevelPreference.preferenceOne': 1,
+			'preferences.topLevelPreference.preferenceThree': true,
+			'preferences.topLevelPreference.preferenceFive': 2
 		};
 		this.expectPreferences = this.preSetData;
 		delete this.expectPreferences.topLevelPreference.preferenceOne;

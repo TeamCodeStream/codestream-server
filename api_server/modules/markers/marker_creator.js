@@ -108,7 +108,11 @@ class MarkerCreator extends ModelCreator {
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			op.$set._forTesting = true;
 		}
-		await this.data.markerLocations.applyOpById(id, op, { databaseOptions: { upsert: true } });
+		await this.data.markerLocations.updateDirectWhenPersist(
+			{ _id: id },
+			op,
+			{ upsert: true }
+		);
 	}
 }
 

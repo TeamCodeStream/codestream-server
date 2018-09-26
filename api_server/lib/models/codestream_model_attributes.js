@@ -7,6 +7,12 @@ module.exports = {
 		type: 'id',
 		description: 'ID of the model'
 	},
+	version: {
+		type: 'number',
+		required: true,
+		default: 1,
+		description: 'Incrementing version of the model'
+	},
 	createdAt: {
 		type: 'timestamp',
 		required: true,

@@ -35,15 +35,11 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	/* eslint complexity: 0 */
 	// validate the response to the test request
 	validateResponse (data) {
+		const user = data.user;
 		if (this.existingUserData) {
 			this.data = Object.assign({}, this.existingUserData.user, this.data);
 		}
-		const expectedCreatorId = this.wantExistingUser ?
-			this.existingUserData.user.creatorId :
-			this.currentUser._id;
-		// verify we got a valid user object back, with the attributes epected
-		const user = data.user;
-		let errors = [];
+		const errors = [];
 		(user.secondaryEmails || []).sort();
 		(this.data.secondaryEmails || []).sort();
 		(user.teamIds || []).sort();
@@ -58,15 +54,9 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			companyIds.push(this.existingUserCompany._id);
 			companyIds.sort();
 		}
-		let expectedUsername, expectedFullName;
-		if (this.existingUserIsRegistered) {
-			expectedUsername = this.existingUserData.user.username;
-			expectedFullName = this.existingUserData.user.fullName;
-		}
-		else {
-			expectedUsername = this.expectedUsername || EmailUtilities.parseEmail(this.data.email).name;
-			expectedFullName = this.data.fullName;
-		}
+		const expectedUsername = this.getExpectedUsername();
+		const expectedFullName = this.getExpectedFullName();
+		const expectedCreatorId = this.getExpectedCreatorId();
 		const result = (
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
 			((user.username === expectedUsername) || errors.push('username is not the first part of the email')) &&
@@ -85,6 +75,30 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');
 		// verify the user in the response has no attributes that should not go to clients
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
+	}
+
+	getExpectedUsername () {
+		if (this.existingUserIsRegistered) {
+			return this.existingUserData.user.username;
+		}
+		else {
+			return this.expectedUsername || EmailUtilities.parseEmail(this.data.email).name;
+		}
+	}
+
+	getExpectedFullName () {
+		if (this.wantExistingUser) {
+			return this.existingUserData.user.fullName;
+		}
+		else {
+			return undefined;
+		}
+	}
+
+	getExpectedCreatorId () {
+		return this.wantExistingUser ?
+			this.existingUserData.user.creatorId :
+			this.currentUser.user._id;
 	}
 }
 

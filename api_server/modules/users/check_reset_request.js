@@ -67,9 +67,7 @@ class CheckResetRequest extends RestfulRequest {
 				searchableEmail: this.payload.email.toLowerCase() 
 			},
 			{
-				databaseOptions: {
-					hint: Indexes.bySearchableEmail
-				}
+				hint: Indexes.bySearchableEmail
 			}
 		);
 		if (users.length < 1) {

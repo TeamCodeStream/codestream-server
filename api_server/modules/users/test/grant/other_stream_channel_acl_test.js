@@ -1,13 +1,13 @@
 'use strict';
 
-var GrantTest = require('./grant_test');
+const GrantTest = require('./grant_test');
 
 class OtherStreamChannelACLTest extends GrantTest {
 
 	constructor (options) {
 		super(options);
 		this.wantOtherUser = true;		// we want a second registered user
-		this.wantRepo = true;			// we want a repo for the test
+		this.wantTeam = true;			// we want a team for the test
 		this.wantOtherStream = true;	// we want a stream in the team that the current user will not be a member of
 	}
 

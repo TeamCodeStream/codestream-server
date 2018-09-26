@@ -19,9 +19,7 @@ class GetByQuerySortTest extends GetByQueryTest {
 			response = await this.data.test.getByQuery(
 				{ flag: this.randomizer + 'yes' },
 				{
-					databaseOptions: {
-						sort: { number: -1 }
-					}
+					sort: { number: -1 }
 				}
 			);
 		}

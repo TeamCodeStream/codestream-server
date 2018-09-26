@@ -2,16 +2,16 @@
 
 'use strict';
 
-var PutUserTest = require('./put_user_test');
-var PutUserFetchTest = require('./put_user_fetch_test');
-var UpdateMeTest = require('./update_me_test');
-var ACLTest = require('./acl_test');
-var ACLTeamTest = require('./acl_team_test');
-var MessageToTeamTest = require('./message_to_team_test');
-var NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
-var UsernameNotUniqueTest = require('./username_not_unique_test');
-var NoCodestreamUsernameTest = require('./no_codestream_username_test');
-var UsernameNotUniqueForSecondTeamTest = require('./username_not_unique_for_second_team_test');
+const PutUserTest = require('./put_user_test');
+const PutUserFetchTest = require('./put_user_fetch_test');
+const UpdateMeTest = require('./update_me_test');
+const ACLTest = require('./acl_test');
+const ACLTeamTest = require('./acl_team_test');
+const MessageToTeamTest = require('./message_to_team_test');
+const NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
+const UsernameNotUniqueTest = require('./username_not_unique_test');
+const NoCodestreamUsernameTest = require('./no_codestream_username_test');
+const UsernameNotUniqueForSecondTeamTest = require('./username_not_unique_for_second_team_test');
 
 const UserAttributes = require('../../user_attributes');
 const CAN_UPDATE_ATTRIBUTES = ['username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn'];

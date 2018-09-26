@@ -20,17 +20,9 @@ class PostTeamRequest extends PostRequest {
 	async publishUserUpdate () {
 		const message = {
 			requestId: this.request.id,
-			user: {
-				_id: this.user.id,
-				$addToSet: {
-					teamIds: this.creator.model.id
-				}
-			}
+			user: this.transforms.userUpdate
 		};
-		if (this.creator.joinMethodUpdate) {
-			Object.assign(message.user, this.creator.joinMethodUpdate);
-		}
-		const channel = 'user-' + this.user.id;
+		const channel = `user-${this.user.id}`;
 		try {
 			await this.api.services.messager.publish(
 				message,
@@ -42,6 +34,17 @@ class PostTeamRequest extends PostRequest {
 			// this doesn't break the chain, but it is unfortunate...
 			this.warn(`Could not publish joinMethod update message to user ${this.user._id}: ${JSON.stringify(error)}`);
 		}
+	}
+
+	async handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
+		this.responseData.company = this.transforms.createdCompany.getSanitizedObject();
+		this.responseData.streams = [
+			this.transforms.createdTeamStream.getSanitizedObject()
+		];
+		super.handleResponse();
 	}
 
 	// describe this route for help

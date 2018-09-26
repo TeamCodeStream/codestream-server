@@ -1,12 +1,11 @@
 'use strict';
 
-var ConfirmationTest = require('./confirmation_test');
+const ConfirmationTest = require('./confirmation_test');
 
 class ConfirmationWithLinkTest extends ConfirmationTest {
 
 	constructor (options) {
 		super(options);
-		this.userOptions = this.userOptions || {};
 		this.userOptions.wantLink = true;
 	}
 

@@ -30,11 +30,7 @@ class GetReposRequest extends GetManyRequest {
 
 	// get options associated with the database query to fetch multiple repos
 	getQueryOptions () {
-		return {
-			databaseOptions: {
-				hint: Indexes.byTeamId
-			}
-		};
+		return { hint: Indexes.byTeamId };
 	}
 
 	// describe this route for help

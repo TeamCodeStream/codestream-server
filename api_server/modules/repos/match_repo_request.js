@@ -82,11 +82,7 @@ class MatchRepoRequest extends RestfulRequest {
 		};
 		const repos = await this.data.repos.getByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: Indexes.byCompanyIdentifier
-				}
-			}
+			{ hint: Indexes.byCompanyIdentifier }
 		);
 		this.repos = repos.filter(repo => !repo.get('deactivated'));
 		// do we have an exact match? if so, we can act like find-repo
@@ -119,10 +115,8 @@ class MatchRepoRequest extends RestfulRequest {
 		const users = await this.data.users.getByQuery(
 			query,
 			{
-				databaseOptions: {
-					fields: ['username'],
-					hint: UserIndexes.byTeamIds
-				},
+				fields: ['username'],
+				hint: UserIndexes.byTeamIds,
 				noCache: true
 			}
 		);

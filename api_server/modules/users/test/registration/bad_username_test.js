@@ -1,8 +1,7 @@
 'use strict';
 
-var RegistrationTest = require('./registration_test');
-var RandomString = require('randomstring');
-//const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
+const RegistrationTest = require('./registration_test');
+const RandomString = require('randomstring');
 
 class BadUsernameTest extends RegistrationTest {
 
@@ -24,10 +23,12 @@ class BadUsernameTest extends RegistrationTest {
 	}
 
 	before (callback) {
-		// generate random user data, but a username with a bad character
-		this.data = this.userFactory.getRandomUserData();
-		this.data.username = RandomString.generate(12) + '%';
-		callback();
+		super.before(error => {
+			// generate random user data, but a username with a bad character
+			if (error) { return callback(error); }
+			this.data.username = RandomString.generate(12) + '%';
+			callback();
+		});
 	}
 }
 

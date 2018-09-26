@@ -1,8 +1,9 @@
 'use strict';
 
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-var CommonInit = require('./common_init');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CommonInit = require('./common_init');
+const Assert = require('assert');
 
 class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -24,8 +25,8 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 	// establish the PubNub clients we will use to send and receive a message
 	makePubnubClients (callback) {
 		// need the right token to subscribe to the existing user's me-channel
+		this.currentUser = this.existingUserData;
 		this.currentUserToken = this.token;
-		this.pubNubToken = this.existingUserData.pubNubToken;
 		super.makePubnubClients(callback);
 	}
 
@@ -56,32 +57,27 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 	setExpectedMessage () {
 		this.team.memberIds.push(this.existingUserData.user._id);
 		this.team.memberIds.sort();
-		Object.assign(this.teamCreatorData.user, {
+		const teamCreatorData = this.users[this.teamOptions.creatorIndex];
+		Object.assign({}, teamCreatorData.user, {
 			teamIds: [this.team._id],
 			companyIds: [this.company._id],
 			joinMethod: 'Created Team',
 			primaryReferral: 'external',
 			originTeamId: this.team._id
 		});
-		Object.assign(this.currentUser, {
+		Object.assign({}, this.currentUser, {
 			teamIds: [this.team._id],
 			companyIds: [this.company._id],
 			joinMethod: 'Added to Team',
 			primaryReferral: 'internal',
 			originTeamId: this.team._id
 		});
+
 		this.message = {
-			user: {
-				_id: this.existingUserData.user._id,
-				$addToSet: {
-					teamIds: this.team._id,
-					companyIds: this.company._id
-				}
-			},
 			company: this.company,
 			team: this.team,
-			repos: [this.repo],
-			users: [this.teamCreatorData.user, this.currentUser]
+			repos: [],
+			users: [teamCreatorData.user, this.currentUser]
 		};
 		this.message.users.sort((a, b) => {
 			return a._id.localeCompare(b._id);
@@ -89,12 +85,34 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 	}
 
 	// validate the received message
-	validateMessage (message) {
-		message.message.team.memberIds.sort();
-		message.message.users.sort((a, b) => {
-			return a._id.localeCompare(b._id);
-		});
-		return super.validateMessage(message);
+	validateMessage (inMessage) {
+		const message = inMessage.message;
+		const expectedUserOp = {
+			_id: this.existingUserData.user._id,
+			$addToSet: {
+				teamIds: this.team._id,
+				companyIds: this.company._id
+			},
+			$set: {
+				joinMethod: 'Added to Team',
+				primaryReferral: 'internal',
+				originTeamId: this.team._id,
+				version: 3
+			},
+			$version: {
+				before: 2,
+				after: 3
+			}
+		};
+		Assert.deepEqual(message.user, expectedUserOp, 'user op not correct');
+		Assert.equal(message.company._id, this.company._id, 'company ID not correct');
+		Assert.equal(message.team._id, this.team._id, 'team ID not correct');
+		const expectedUserIds = this.team.memberIds;
+		expectedUserIds.sort();
+		const userIds = message.users.map(u => u._id);
+		userIds.sort();
+		Assert.deepEqual(userIds, expectedUserIds, 'user IDs not correct');
+		return true;
 	}
 }
 

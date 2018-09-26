@@ -21,10 +21,6 @@ class PostRequest extends RestfulRequest {
 		// and set up the response to the client ... the creator class might have
 		// additional information to put in the response, so handle that here as well
 		this.responseData[modelName] = model.getSanitizedObject();
-		Object.assign(
-			this.responseData,
-			this.creator.attachToResponse || {}
-		);
 	}
 
 	// after the request has been processed and response returned to the client....

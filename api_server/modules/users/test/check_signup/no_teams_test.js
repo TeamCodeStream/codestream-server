@@ -6,7 +6,7 @@ class NoTeamsTest extends CheckSignupTest {
 
 	constructor (options) {
 		super(options);
-		this.dontCreateRepo = true; // suppress creating the repo and team for the test, putting the user on no teams
+		this.dontCreateTeam = true; // suppress creating the team for the test, putting the user on no teams
 	}
 
 	get description () {

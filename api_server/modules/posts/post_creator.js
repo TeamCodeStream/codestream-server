@@ -13,6 +13,7 @@ const EmailNotificationQueue = require('./email_notification_queue');
 const IntegrationHandler = require('./integration_handler');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class PostCreator extends ModelCreator {
 
@@ -99,7 +100,6 @@ class PostCreator extends ModelCreator {
 		await this.updateMarkersForReply();	// update markers, if this is a reply to a parent with a code block
 		await this.updateParentPost();	// update the parent post with hasReplies, if this is a reply to a parent
 		await this.updatePostCount();	// update the post count for the author of the post
-		await this.prepareResponseData(); // prepare "side-effect" data to be sent with the request response
 	}
 
 	// get the stream we're trying to create the post in
@@ -166,11 +166,11 @@ class PostCreator extends ModelCreator {
 			return; // not an on-the-fly stream creation
 		}
 		this.attributes.stream.teamId = this.team.id;
-		this.createdStreamForPost = await new StreamCreator({
+		this.transforms.createdStreamForPost = await new StreamCreator({
 			request: this.request,
 			nextSeqNum: 2
 		}).createStream(this.attributes.stream);
-		this.stream = this.createdStreamForPost;
+		this.stream = this.transforms.createdStreamForPost;
 		this.attributes.streamId = this.stream.id;
 		delete this.attributes.stream;
 	}
@@ -180,11 +180,11 @@ class PostCreator extends ModelCreator {
 		if (!this.attributes.codeBlocks) {
 			return;
 		}
-		this.createdRepos = [];
-		this.repoUpdates = [];
-		this.createdStreamsForCodeBlocks = [];
-		this.createdMarkers = [];
-		this.markerLocations = [];
+		this.transforms.createdRepos = [];
+		this.transforms.repoUpdates = [];
+		this.transforms.createdStreamsForCodeBlocks = [];
+		this.transforms.createdMarkers = [];
+		this.transforms.markerLocations = [];
 		await Promise.all(this.attributes.codeBlocks.map(async codeBlock => {
 			await this.handleCodeBlock(codeBlock);
 		}));
@@ -214,21 +214,21 @@ class PostCreator extends ModelCreator {
 		// we'll track these things and attach them to the request response later, and also possibly publish
 		// them on pubnub channels
 		if (codeBlockInfo.createdRepo) {
-			this.createdRepos.push(codeBlockInfo.createdRepo);
+			this.transforms.createdRepos.push(codeBlockInfo.createdRepo);
 		}
 		if (codeBlockInfo.repoUpdate) {
-			this.repoUpdates.push(codeBlockInfo.repoUpdate);
+			this.transforms.repoUpdates.push(codeBlockInfo.repoUpdate);
 		}
 		if (codeBlockInfo.createdStream) {
-			this.createdStreamsForCodeBlocks.push(codeBlockInfo.createdStream);
+			this.transforms.createdStreamsForCodeBlocks.push(codeBlockInfo.createdStream);
 		}
 		if (codeBlockInfo.createdMarker) {
-			this.createdMarkers.push(codeBlockInfo.createdMarker);
+			this.transforms.createdMarkers.push(codeBlockInfo.createdMarker);
 		}
 		if (codeBlockInfo.markerLocation) {
 			// marker locations are special, they can be collapsed as long as the marker locations
 			// structure refers to the same stream and commit hash
-			const markerLocations = this.markerLocations.find(markerLocations => {
+			const markerLocations = this.transforms.markerLocations.find(markerLocations => {
 				return (
 					markerLocations.streamId === codeBlockInfo.markerLocation.streamId &&
 					markerLocations.commitHash === codeBlockInfo.markerLocation.commitHash
@@ -238,14 +238,14 @@ class PostCreator extends ModelCreator {
 				Object.assign(markerLocations.locations, codeBlockInfo.markerLocation.locations);
 			}
 			else {
-				this.markerLocations.push(codeBlockInfo.markerLocation);
+				this.transforms.markerLocations.push(codeBlockInfo.markerLocation);
 			}
 		}
 	}
 
 	// requisition a sequence number for this post
 	async getSeqNum () {
-		if (this.createdStreamForPost) {
+		if (this.transforms.createdStreamForPost) {
 			// if we created the stream, start out with seqNum of 1
 			this.attributes.seqNum = 1;
 			return;
@@ -266,11 +266,7 @@ class PostCreator extends ModelCreator {
 				foundStream = await this.data.streams.findAndModify(
 					{ _id: this.data.streams.objectIdSafe(this.attributes.streamId) },
 					{ $inc: { nextSeqNum: 1 } },
-					{
-						databaseOptions: {
-							fields: { nextSeqNum: 1 }
-						}
-					}
+					{ fields: { nextSeqNum: 1 } }
 				);
 			}
 			catch (error) {
@@ -292,7 +288,7 @@ class PostCreator extends ModelCreator {
 		// update the mostRecentPostId attribute, and the sortId attribute
 		// (which is the same if there is a post in the stream) to the ID of
 		// the created post
-		let op = {
+		const op = {
 			$set: {
 				mostRecentPostId: this.attributes._id,
 				mostRecentPostCreatedAt: this.attributes.createdAt,
@@ -300,11 +296,14 @@ class PostCreator extends ModelCreator {
 			}
 		};
 		// increment the number of markers in this stream
-		if (this.createdMarkers && this.createdMarkers.length) {
-			op.$inc = { numMarkers: this.createdMarkers.length };
+		if (this.transforms.createdMarkers && this.transforms.createdMarkers.length) {
+			op.$inc = { numMarkers: this.transforms.createdMarkers.length };
 		}
-		await this.data.streams.applyOpById(this.stream.id, op);
-		this.updatedStreamForPost = Object.assign({}, { _id: this.stream.id }, op);
+		this.transforms.streamUpdateForPost = await new ModelSaver({
+			request: this.request,
+			collection: this.data.streams,
+			id: this.stream.id
+		}).save(op);
 	}
 
 	// update the lastReads attribute for each user in the stream or team,
@@ -335,11 +334,13 @@ class PostCreator extends ModelCreator {
 		if (!this.parentPost) { return; }	
 		// collect all marker IDs for code blocks referred to by the parent post
 		const codeBlocks = this.parentPost.get('codeBlocks') || [];
-		const parentPostMarkerIds = codeBlocks.map(codeBlock => codeBlock.markerId);
+		const parentPostMarkerIds = codeBlocks
+			.map(codeBlock => codeBlock.markerId)
+			.filter(markerId => markerId);
 		if (parentPostMarkerIds.length === 0) {
 			return;
 		}
-		this.markerUpdates = [];
+		this.transforms.markerUpdates = [];
 		for (let markerId of parentPostMarkerIds) {
 			await this.updateMarkerForParentPost(markerId);
 		}
@@ -349,10 +350,12 @@ class PostCreator extends ModelCreator {
 	// increment its numComments attribute
 	async updateMarkerForParentPost (markerId) {
 		const op = { $inc: { numComments: 1 } };
-		await this.data.markers.applyOpById(markerId, op);
-		this.markerUpdates.push(
-			Object.assign({}, op, { _id: markerId })
-		);
+		const markerUpdate = await new ModelSaver({
+			request: this.request,
+			collection: this.data.markers,
+			id: markerId
+		}).save(op);
+		this.transforms.markerUpdates.push(markerUpdate);
 	}
 
 	// if this is the first reply to a post, mark that the parent post now has replies
@@ -362,66 +365,32 @@ class PostCreator extends ModelCreator {
 			return; 
 		}
 		const op = { 
-			$set: { 
+			$set: {
 				hasReplies: true,
 				numReplies: (this.parentPost.get('numReplies') || 0) + 1
-			}
+			} 
 		};
-		await this.data.posts.applyOpById(this.parentPost.id, op);
-		const messageOp = Object.assign({}, op, { _id: this.parentPost.id });
-		this.updatedPosts = [messageOp]; // we'll send the update in the response (and also the pubnub message)
+		const postUpdate = await new ModelSaver({
+			request: this.request,
+			collection: this.data.posts,
+			id: this.parentPost.id
+		}).save(op);
+		this.transforms.postUpdates = [postUpdate];
 	}
 	
-	// update the total post count for the author of the post, along with the date/time of last post
+	// update the total post count for the author of the post, along with the date/time of last post,
+	// also clear lastReads for the stream 
 	async updatePostCount () {
-		this.updatePostCountOp = {
+		const op = {
 			$inc: { totalPosts: 1 },
-			$set: { lastPostCreatedAt: this.attributes.createdAt }
+			$set: { lastPostCreatedAt: this.attributes.createdAt },
+			$unset: { [`lastReads.${this.stream.id}`]: true }
 		};
-		await this.data.users.applyOpById(
-			this.user.id,
-			this.updatePostCountOp
-		);
-	}
-
-	// prepare the "side-effect" data (created streams, markers, etc.) to be packaged into the 
-	// request response
-	async prepareResponseData () {
-		this.attachToResponse = {};
-		if (this.createdRepos && this.createdRepos.length > 0) {
-			this.attachToResponse.repos = this.createdRepos.map(repo => repo.getSanitizedObject());
-		}
-		if (this.repoUpdates && this.repoUpdates.length > 0) {
-			this.attachToResponse.repos = this.attachToResponse.repos || [];
-			this.attachToResponse.repos = [...this.attachToResponse.repos, ...this.repoUpdates];
-		}
-		if (this.createdStreamsForCodeBlocks && this.createdStreamsForCodeBlocks.length > 0) {
-			this.attachToResponse.streams = this.createdStreamsForCodeBlocks.map(stream => stream.getSanitizedObject());
-		}
-		if (this.createdStreamForPost) {
-			this.attachToResponse.streams = this.attachToResponse.streams || [];
-			this.attachToResponse.streams.push(this.createdStreamForPost.getSanitizedObject());
-		}
-		else if (this.updatedStreamForPost) {
-			this.attachToResponse.streams = this.attachToResponse.streams || [];
-			this.attachToResponse.streams.push(this.updatedStreamForPost);
-		}
-		if (this.markerUpdates) {
-			this.attachToResponse.markers = this.markerUpdates;
-		}
-		if (this.createdMarkers && this.createdMarkers.length > 0) {
-			this.attachToResponse.markers = this.attachToResponse.markers || [];
-			this.attachToResponse.markers = [
-				...this.attachToResponse.markers,
-				...this.createdMarkers.map(marker => marker.getSanitizedObject())
-			];
-		}
-		if (this.markerLocations && this.markerLocations.length > 0) {
-			this.attachToResponse.markerLocations = this.markerLocations;
-		}
-		if (this.updatedPosts && this.updatedPosts.length > 0) {
-			this.attachToResponse.posts = this.updatedPosts;
-		}
+		this.transforms.updatePostCountOp = await new ModelSaver({
+			request: this.request,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
 	}
 
 	// after the post was created...
@@ -443,8 +412,8 @@ class PostCreator extends ModelCreator {
 
 	// if we created a stream on-the-fly for the post, publish it as needed
 	async publishCreatedStreamForPost () {
-		if (this.createdStreamForPost) {
-			await this.publishStream(this.createdStreamForPost, true);
+		if (this.transforms.createdStreamForPost) {
+			await this.publishStream(this.transforms.createdStreamForPost, true);
 		}
 	}
 
@@ -452,7 +421,7 @@ class PostCreator extends ModelCreator {
 	async publishCreatedStreamsForCodeBlocks () {
 		// streams created on-the-fly for code blocks are necessarily going to be file streams,
 		// these should automatically get published to the whole team
-		await Promise.all((this.createdStreamsForCodeBlocks || []).map(async stream => {
+		await Promise.all((this.transforms.createdStreamsForCodeBlocks || []).map(async stream => {
 			await this.publishStream(stream, true);
 		}));
 	}
@@ -489,13 +458,13 @@ class PostCreator extends ModelCreator {
 	async publishParentPost () {
 		// the parent post will show up as the first element of the posts array
 		// in the response
-		if (!this.request.responseData.posts || this.request.responseData.posts.length === 0) {
+		if (!this.transforms.postUpdates || this.transforms.postUpdates.length === 0) {
 			return;
 		}
 		await new PostPublisher({
 			request: this.request,
 			data: {
-				post: this.request.responseData.posts[0]
+				post: this.transforms.postUpdates[0]
 			},
 			messager: this.api.services.messager,
 			stream: this.stream.attributes	// assuming stream for the parent post is the same as for the reply
@@ -546,17 +515,11 @@ class PostCreator extends ModelCreator {
 	// publish a message reflecting this post to the post's author
 	// this includes an increase in the post count, and a clearing of the 
 	// author's lastReads for the stream
-	// publish an increase in post count to the author's me-channel
 	async publishToAuthor () {
-		// we may already have a direct to update the post count for the author,
-		// add to this a directive to clear lastReads for the author
-		const op = this.updatePostCountOp || {};
-		op.$unset = op.$unset || {};
-		op.$unset[`lastReads.${this.stream.id}`] = true;
-		const channel = 'user-' + this.user.id;
+		const channel = `user-${this.user.id}`;
 		const message = {
 			requestId: this.request.request.id,
-			user: Object.assign({}, op, { _id: this.user.id })
+			user: this.transforms.updatePostCountOp
 		};
 		try {
 			await this.api.services.messager.publish(

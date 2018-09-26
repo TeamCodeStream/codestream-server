@@ -1,6 +1,6 @@
 'use strict';
 
-var InvalidPasswordTest = require('./invalid_password_test');
+const InvalidPasswordTest = require('./invalid_password_test');
 
 class UnregisteredInvalidPasswordTest extends InvalidPasswordTest {
 

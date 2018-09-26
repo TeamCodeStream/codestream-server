@@ -3,14 +3,17 @@
 
 'use strict';
 
-var APIRequestTest = require('./api_request_test');
-var RandomUserFactory = require(process.env.CS_API_TOP + '/modules/users/test/random_user_factory');
-var RandomTeamFactory = require(process.env.CS_API_TOP + '/modules/teams/test/random_team_factory');
-var RandomRepoFactory = require(process.env.CS_API_TOP + '/modules/repos/test/random_repo_factory');
-var RandomStreamFactory = require(process.env.CS_API_TOP + '/modules/streams/test/random_stream_factory');
-var RandomPostFactory = require(process.env.CS_API_TOP + '/modules/posts/test/random_post_factory');
-var RandomMarkerFactory = require(process.env.CS_API_TOP + '/modules/markers/test/random_marker_factory');
-var Assert = require('assert');
+const APIRequestTest = require('./api_request_test');
+const RandomUserFactory = require(process.env.CS_API_TOP + '/modules/users/test/random_user_factory');
+const RandomTeamFactory = require(process.env.CS_API_TOP + '/modules/teams/test/random_team_factory');
+const RandomRepoFactory = require(process.env.CS_API_TOP + '/modules/repos/test/random_repo_factory');
+const RandomStreamFactory = require(process.env.CS_API_TOP + '/modules/streams/test/random_stream_factory');
+const RandomPostFactory = require(process.env.CS_API_TOP + '/modules/posts/test/random_post_factory');
+const RandomMarkerFactory = require(process.env.CS_API_TOP + '/modules/markers/test/random_marker_factory');
+const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const TestTeamCreator = require('./test_team_creator');
+const TestStreamCreator = require('./test_stream_creator');
 
 class CodeStreamAPITest extends APIRequestTest {
 
@@ -39,30 +42,30 @@ class CodeStreamAPITest extends APIRequestTest {
 			apiRequester: this,
 			markerFactory: this.markerFactory
 		});
-	}
 
-	// for requests that require authentication, set up a user and use their
-	// token for the request
-	authenticate (callback) {
-		if (this.dontWantToken()) {
-			return callback();
-		}
-		this.userFactory.createRandomUser(
-			(error, data) => {
-				if (error) { return callback(error); }
-				this.currentUser = data.user;
-				this.token = data.accessToken;
-				this.pubNubToken = data.pubNubToken;
-				this.currentUserPassword = data.password;
-				callback();
-			},
-			this.userOptions || {}
-		);
-	}
-
-	// override for requests that don't require authentication
-	dontWantToken () {
-		return false;
+		this.userOptions = {
+			numRegistered: 2,
+			numUnregistered: 0,
+			currentUserIndex: 0,
+			userData: []
+		};
+		this.teamOptions = {
+			creatorIndex: 0,
+			members: 'all',
+			numAdditionalInvites: 1,
+			inviterIndex: 0
+		};
+		this.streamOptions = {
+			creatorIndex: undefined,
+			type: 'channel',
+			members: 'all'
+		};
+		this.postOptions = {
+			creatorIndex: undefined,
+			numPosts: 1,
+			wantCodeBlock: false
+		};
+		this.users = [];
 	}
 
 	// validate that the object passed is sanitized of server-only attributes,
@@ -83,6 +86,39 @@ class CodeStreamAPITest extends APIRequestTest {
 	validateSanitizedObjects (objects, unsanitizedAttributes) {
 		objects.forEach(object => {
 			this.validateSanitized(object, unsanitizedAttributes);
+		});
+	}
+
+	before (callback) {
+		BoundAsync.series(this, [
+			this.createUsersAndTeam,
+			this.createStreamAndPosts
+		], callback);
+	}
+
+	createUsersAndTeam (callback) {
+		new TestTeamCreator({
+			test: this,
+			userOptions: this.userOptions,
+			teamOptions: this.teamOptions
+		}).create((error, data) => {
+			if (error) { return callback(error); }
+			Object.assign(this, data);
+			callback();
+		});
+	}
+
+	createStreamAndPosts (callback) {
+		new TestStreamCreator({
+			test: this,
+			streamOptions: this.streamOptions,
+			postOptions: this.postOptions,
+			team: this.team,
+			users: this.users
+		}).create((error, data) => {
+			if (error) { return callback(error); }
+			Object.assign(this, data);
+			callback();
 		});
 	}
 }

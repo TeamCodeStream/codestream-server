@@ -32,7 +32,6 @@ class RegisterRequest extends RestfulRequest {
 		await this.generateAccessToken();	// generate an access token, as needed (if confirmation not required)
 		await this.saveSignupToken();		// save the signup token so we can identify this user with an IDE session
 		await this.sendEmail();				// send the confirmation email with the confirmation code
-		await this.formResponse();			// form the response to the request
 	}
 
 	// require certain parameters, discard unknown parameters
@@ -241,8 +240,13 @@ class RegisterRequest extends RestfulRequest {
 		}
 	}
 
-	// form the response to the request
-	async formResponse () {
+	// handle the response to the request
+	async handleResponse () {
+		if (this.gotError) {
+			return await super.handleResponse();
+		}
+		// need to refetch the user, since it may have changed, this should fetch from cache, not database
+		this.user = await this.data.users.getById(this.user.id);
 		// FIXME - we eventually need to deprecate serving the user object completely,
 		// this is a security vulnerability
 		if (!this.user.get('isRegistered') || this.user.get('_forTesting')) {
@@ -257,6 +261,7 @@ class RegisterRequest extends RestfulRequest {
 		if (this.accessToken) {
 			this.responseData.accessToken = this.accessToken;
 		}
+		await super.handleResponse();
 	}
 
 	// after a response is returned....

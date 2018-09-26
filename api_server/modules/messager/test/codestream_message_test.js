@@ -22,6 +22,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	before (callback) {
 		this.pubnubClientsForUser = {};
 		BoundAsync.series(this, [
+			super.before,
 			this.makeData,	// make whatever data we need to be in the database to proceed
 			this.makePubnubClients,	// make pubnub client simulating server to send and client to receive
 			this.setChannelName,	// set the channel name that we'll listen for
@@ -59,8 +60,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		}
 
 		// set up a pubnub client as if we are a client for the current user
-		this.makePubnubForClient(this.pubNubToken, this.currentUser);
-
+		this.makePubnubForClient(this.currentUser.pubNubToken, this.currentUser.user);
 		callback();
 	}
 
@@ -113,8 +113,8 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			this.messageReceiveTimeout || 5000
 		);
 		// subscribe to the channel of interest
-		console.log(this.testNum + ': USER ' + this.currentUser._id + ' LISTENING TO ' + this.channelName);
-		this.pubnubClientsForUser[this.currentUser._id].subscribe(
+		console.log(this.testNum + ': USER ' + this.currentUser.user._id + ' LISTENING TO ' + this.channelName);
+		this.pubnubClientsForUser[this.currentUser.user._id].subscribe(
 			this.channelName,
 			this.messageReceived.bind(this),
 			callback,

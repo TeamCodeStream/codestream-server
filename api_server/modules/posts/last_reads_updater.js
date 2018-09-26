@@ -4,8 +4,6 @@
 
 'use strict';
 
-const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
-
 class LastReadsUpdater {
 
 	constructor (options) {
@@ -15,20 +13,6 @@ class LastReadsUpdater {
 	// update the lastReads attribute for each of the specified members
 	// of a team or stream
 	async updateLastReads () {
-		// two jobs to do here ... for the post author, we clear the lastReads
-		// attribute for the stream (the assumption being that they have read
-		// everything in the stream if they're composing a post) ... two,
-		// update lastReads for every other user in the stream who does not 
-		// already have a lastReads
-		await awaitParallel([
-			this.updateLastReadsForMembers,
-			this.clearLastReadsForAuthor
-		], this);
-	}
-
-	// update the lastReads attribute for each member of the team or
-	// stream, other than the author (and for whom it is not already set)
-	async updateLastReadsForMembers () {
 		// the current user is assumed to be "caught up" in a stream if they are
 		// posting to that stream, so we don't update their lastReads when there
 		// is a new post
@@ -65,27 +49,6 @@ class LastReadsUpdater {
 		catch (error) {
 			if (this.logger) {
 				this.logger.warn(`Unable to update last reads for new post, streamId=${this.stream.id}: ${JSON.stringify(error)}`);
-			}
-		}
-	}
-
-	// for the post author, clear their lastReads for the stream, with the assumption
-	// that if they are posting to the stream, they are caught up on posts
-	async clearLastReadsForAuthor () {
-		const query = { 
-			_id: this.data.users.objectIdSafe(this.user.id)
-		};
-		const update = {
-			$unset: {
-				[`lastReads.${this.stream.id}`]: true
-			} 
-		};
-		try {
-			await this.data.users.updateDirectWhenPersist(query, update);
-		}
-		catch (error) {
-			if (this.logger) {
-				this.logger.warn(`Unable to update last reads for new post author, streamId=${this.stream.id}: ${JSON.stringify(error)}`);
 			}
 		}
 	}

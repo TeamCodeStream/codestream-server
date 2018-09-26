@@ -36,7 +36,7 @@ class TokenDeprecatedTest extends ResetPasswordTest {
 			{
 				method: 'put',
 				path: '/no-auth/forgot-password',
-				data: { email: this.currentUser.email }
+				data: { email: this.currentUser.user.email }
 			},
 			callback
 		);

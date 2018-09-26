@@ -40,6 +40,11 @@ class VersionerTest extends CodeStreamAPITest {
 
 		// use this plugin version for the test, override for various tests
 		this.pluginVersion = this.CURRENT_RELEASE;
+
+		// minimal test setup ... just a registered user
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
+		delete this.teamOptions.inviterIndex;
 	}
 
 	get description () {
@@ -57,6 +62,7 @@ class VersionerTest extends CodeStreamAPITest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
+			super.before,
 			this.connectToMongo,
 			this.createVersionInfo
 		], callback);

@@ -28,19 +28,15 @@ class SetTest extends PutPreferencesFetchTest {
 		};
 		this.data = { $set: set };
 		this.expectPreferences = set;
-		this.expectResponse = {
-			user: {
-				_id: this.currentUser._id,
-				$set: {
-					'preferences.preferenceOne': 1,
-					'preferences.preferenceTwo': 'two',
-					'preferences.preferenceThree.threeA': 'A',
-					'preferences.preferenceThree.threeB': 'Bee',
-					'preferences.preferenceFour.level.one': 1,
-					'preferences.preferenceFour.level.two': 'two'
-				}
-			}
-		};
+		this.expectResponse = this.getBaseExpectedResponse();
+		Object.assign(this.expectResponse.user.$set, {
+			'preferences.preferenceOne': 1,
+			'preferences.preferenceTwo': 'two',
+			'preferences.preferenceThree.threeA': 'A',
+			'preferences.preferenceThree.threeB': 'Bee',
+			'preferences.preferenceFour.level.one': 1,
+			'preferences.preferenceFour.level.two': 'two'
+		});
 		callback();
 	}
 }

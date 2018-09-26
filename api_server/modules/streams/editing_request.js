@@ -139,11 +139,7 @@ class EditingRequest extends RestfulRequest {
 		};
 		this.foundStreams = await this.data.streams.getByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: Indexes.byFile
-				}
-			}
+			{ hint: Indexes.byFile }
 		);
 		this.foundFiles = this.foundStreams.map(stream => stream.get('file'));
 	}
@@ -206,11 +202,7 @@ class EditingRequest extends RestfulRequest {
 		};
 		this.streamsPreviouslyBeingEdited = await this.data.streams.getByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: Indexes.byFile
-				}
-			}
+			{ hint: Indexes.byFile }
 		);
 	}
 

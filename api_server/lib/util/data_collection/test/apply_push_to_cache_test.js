@@ -13,10 +13,13 @@ class ApplyPushToCacheTest extends UpdateToCacheTest {
 		const update = {
 			array: 7
 		};
+		this.expectedOp = {
+			'$push': update
+		};
 		try {
-			await this.data.test.applyOpById(
+			this.actualOp = await this.data.test.applyOpById(
 				this.testModel.id,
-				{ '$push': update }
+				this.expectedOp
 			);
 		}
 		catch (error) {

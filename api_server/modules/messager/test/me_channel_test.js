@@ -1,6 +1,6 @@
 'use strict';
 
-var CodeStreamMessageTest = require('./codestream_message_test');
+const CodeStreamMessageTest = require('./codestream_message_test');
 
 class MeChannelTest extends CodeStreamMessageTest {
 
@@ -15,7 +15,8 @@ class MeChannelTest extends CodeStreamMessageTest {
 
 	// set the channel to try to subscribe to
 	setChannelName (callback) {
-		this.channelName = 'user-' + this.currentUser._id;
+		const currentUser = this.users[0].user;
+		this.channelName = 'user-' + currentUser._id;
 		callback();
 	}
 }

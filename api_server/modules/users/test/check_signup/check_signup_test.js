@@ -25,17 +25,13 @@ class CheckSignupTest extends CodeStreamAPITest {
 		return UserTestConstants.EXPECTED_LOGIN_RESPONSE;
 	}
 
-	dontWantToken () {
-		return true;	// don't need an access token for this request
-	}
-
 	// before the test runs...
 	before (callback) {
 		this.beforeLogin = Date.now();
 		BoundAsync.series(this, [
 			this.registerUser,  // create an unregistered user with a random signup token
 			this.confirmUser,   // confirm the user
-			this.createRepo,    // create a repo (and a team) for the user to be on, this is required before the signup token can be used
+			this.createTeam,    // create a team for the user to be on, this is required before the signup token can be used
 			this.wait
 		], callback);
 	}
@@ -81,13 +77,12 @@ class CheckSignupTest extends CodeStreamAPITest {
 		);
 	}
 
-	// create a random repo and team for the user to be on, this is required for proper use of the signup token
-	createRepo (callback) {
-		if (this.dontCreateRepo) { return callback(); }
-		this.repoFactory.createRandomRepo(
+	// create a random team for the user to be on, this is required for proper use of the signup token
+	createTeam (callback) {
+		if (this.dontCreateTeam) { return callback(); }
+		this.teamFactory.createRandomTeam(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.repo = response.repo;
 				this.team = response.team;
 				callback();
 			},
@@ -110,8 +105,6 @@ class CheckSignupTest extends CodeStreamAPITest {
 		Assert(data.pubnubToken, 'no pubnub token');
 		Assert(data.teams.length === 1, 'no team in response');
 		this.validateMatchingObject(this.team._id, data.teams[0], 'team');
-		Assert(data.repos.length === 1, 'no repo in response');
-		this.validateMatchingObject(this.repo._id, data.repos[0], 'repo');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }

@@ -1,27 +1,21 @@
 'use strict';
 
-var CodeStreamMessageACLTest = require('./codestream_message_acl_test');
+const CodeStreamMessageACLTest = require('./codestream_message_acl_test');
 
 class TeamChannelACLTest extends CodeStreamMessageACLTest {
 
-	get description () {
-		return 'should get an error when trying to subscribe to a team channel for a team i am not a member of';
+	constructor (options) {
+		super(options);
+		Object.assign(this.teamOptions, {
+			members: [1],
+			creatorIndex: 1,
+			inviterIndex: 1
+		});
+		delete this.streamOptions.creatorIndex;
 	}
 
-	// make the data needed to prepare for the request that triggers the message
-	makeData (callback) {
-		// create a random repo, without the "other" user
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				callback();
-			},
-			{
-				withRandomEmails: 2,	// add a few random users
-				token: this.token		// i am the creator
-			}
-		);
+	get description () {
+		return 'should get an error when trying to subscribe to a team channel for a team i am not a member of';
 	}
 
 	// set the channel name to listen on

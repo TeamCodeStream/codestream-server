@@ -109,10 +109,8 @@ class StreamUpdater extends ModelUpdater {
 				name: this.attributes.name
 			},
 			{
-				databaseOptions: {
-					hint: Indexes.byName,
-					fields: ['_id', 'name']
-				},
+				hint: Indexes.byName,
+				fields: ['_id', 'name'],
 				noCache: true
 			}
 		);
@@ -179,11 +177,11 @@ class StreamUpdater extends ModelUpdater {
 		// only add or remove genuine members
 		if (this.attributes.$addToSet) {
 			this.attributes.$addToSet.memberIds = memberIds;
-			this.addedUsers = users;
+			this.transforms.addedUsers = users;
 		}
 		else if (this.attributes.$pull) {
 			this.attributes.$pull.memberIds = memberIds;
-			this.removedUsers = users;
+			this.transforms.removedUsers = users;
 		}
 	}
 }

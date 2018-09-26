@@ -1,12 +1,23 @@
 'use strict';
 
-var LoginTest = require('./login_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
+const LoginTest = require('./login_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Assert = require('assert');
 const UserTestConstants = require('../user_test_constants');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class MeAttributesTest extends LoginTest {
 
+	constructor (options) {
+		super(options);
+		this.teamOptions.creatorIndex = 1;
+		this.teamOptions.inviterIndex = 1;
+		this.teamOptions.numAdditionalInvites = 2;
+		this.streamOptions.creatorIndex = 1;
+		this.postOptions.creatorIndex = 1;
+		this.postOptions.wantCodeBlock = true;
+	}
+	
 	get description () {
 		return 'user should receive me-only attributes with response to login';
 	}
@@ -19,78 +30,19 @@ class MeAttributesTest extends LoginTest {
 		return response;
 	}
 
-	// before the test runs...
 	before (callback) {
-		// among the attributes that only the user themselves should see are lastReads,
-		// indicating conversations that have unread messages ... so we'll set up
-		// an unread message in a stream and then verify we see the lastReads for that stream
 		BoundAsync.series(this, [
-			super.before,			// setup standard login test
-			this.createOtherUser,	// create a second registered user
-			this.createRepo,		// create a repo and team
-			this.createStream,		// create a stream in the repo
-			this.createPost			// create a post in the stream
+			CodeStreamAPITest.prototype.before.bind(this),
+			super.before
 		], callback);
 	}
-
-	// create a second registered user
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error);}
-				this.otherUserData = response;
-				callback();
-			}
-		);
+	
+	getUserData () {
+		const data = this.userFactory.getRandomUserData();
+		data.email = this.users[3].user.email;
+		return data;
 	}
-
-	// have the other user create a repo (which creates a team)
-	createRepo (callback) {
-		this.email = this.userFactory.randomEmail();
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				this.repo = response.repo;
-				this.users = response.users;
-				callback();
-			},
-			{
-				withEmails: [this.data.email],			// include the "current" user...
-				token: this.otherUserData.accessToken	// but the "other" user creates the repo and team
-			}
-		);
-	}
-
-	// create a file-type stream in the repo
-	createStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				callback();
-			},
-			{
-				type: 'file',
-				teamId: this.team._id,
-				repoId: this.repo._id,
-				token: this.otherUserData.accessToken	 // "other" user creates the stream
-			}
-		);
-	}
-
-	// create a post in the stream, this will be unread by the "current" user
-	createPost (callback) {
-		this.postFactory.createRandomPost(
-			callback,
-			{
-				teamId: this.team._id,
-				streamId: this.stream._id,
-				token: this.otherUserData.accessToken	// "other" user is the author of the post
-			}
-		);
-	}
-
+			
 	// validate the response to the test request
 	validateResponse (data) {
 		// verfiy we got a lastReads object, with an entry for the stream

@@ -3,7 +3,7 @@
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const CommonInit = require('./common_init');
 const Assert = require('assert');
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 
 class ChangeEmailConfirmTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -29,9 +29,14 @@ class ChangeEmailConfirmTest extends Aggregation(CodeStreamAPITest, CommonInit) 
 	validateResponse (data) {
 		const expectData = {
 			user: {
-				_id: this.currentUser._id,
+				_id: this.currentUser.user._id,
 				$set: {
-					email: this.newEmail
+					email: this.newEmail,
+					version: 4
+				},
+				$version: {
+					before: 3,
+					after: 4
 				}
 			}
 		};

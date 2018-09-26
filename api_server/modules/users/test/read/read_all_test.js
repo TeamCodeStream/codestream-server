@@ -1,7 +1,6 @@
 'use strict';
 
-var ReadTest = require('./read_test');
-const UserTestConstants = require('../user_test_constants');
+const ReadTest = require('./read_test');
 
 class ReadAllTest extends ReadTest {
 
@@ -9,35 +8,31 @@ class ReadAllTest extends ReadTest {
 		return 'should clear all of lastReads for the current user when requested';
 	}
 
-	getExpectedFields () {
-		// when fetching our me-object, since we're doing /read/all, that wipes the
-		// lastReads object, so we don't expect to see that field
-		let meFields = [...UserTestConstants.EXPECTED_ME_FIELDS];
-		let index = meFields.indexOf('lastReads');
-		if (index !== -1) {
-			meFields.splice(index);
-		}
-		let userResponse = {};
-		userResponse.user = [...UserTestConstants.EXPECTED_USER_FIELDS, ...meFields];
-		return userResponse;
+	before (callback) {
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.path = '/read/all';
+			callback();
+		});
 	}
 
-	// mark all streams as read
-	markRead (callback) {
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: '/read/all',
-				token: this.token
-			},
-			callback
-		);
-	}
-
-	// validate the response to the test request
-	validateResponse (data) {
-		// validate we don't see any attributes a client shouldn't see
-		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
+	setExpectedData (callback) {
+		this.expectedData = {
+			user: {
+				_id: this.currentUser.user._id,
+				$set: {
+					version: 4
+				},
+				$unset: {
+					lastReads: true,
+				},
+				$version: {
+					before: 3,
+					after: 4
+				}
+			}
+		};
+		callback();
 	}
 }
 

@@ -3,8 +3,16 @@
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class CheckResetTest extends CodeStreamAPITest {
+
+	constructor (options) {
+		super(options);
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
+		delete this.teamOptions.inviterIndex;
+	}
 
 	get description () {
 		return 'should return an email when called with a valid reset password request token';
@@ -16,8 +24,15 @@ class CheckResetTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
+		BoundAsync.series(this, [
+			super.before,
+			this.sendForgotPassword
+		], callback);
+	}
+
+	sendForgotPassword (callback) {
 		const data = {
-			email: this.useEmail || this.currentUser.email,
+			email: this.useEmail || this.currentUser.user.email,
 			expiresIn: this.expiresIn,
 			_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the token in the response
 		};
@@ -51,7 +66,7 @@ class CheckResetTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert.equal(this.currentUser.email, data.email, 'email not correct');
+		Assert.equal(this.currentUser.user.email, data.email, 'email not correct');
 	}
 }
 

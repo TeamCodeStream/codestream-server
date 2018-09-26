@@ -13,10 +13,13 @@ class ApplyUnsetToCacheTest extends UpdateToCacheTest {
 		const unset = {
 			text: 1,
 		};
+		this.expectedOp = {
+			'$unset': unset
+		};
 		try {
-			await this.data.test.applyOpById(
+			this.actualOp = await this.data.test.applyOpById(
 				this.testModel.id,
-				{ '$unset': unset }
+				this.expectedOp
 			);
 		}
 		catch (error) {

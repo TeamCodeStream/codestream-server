@@ -10,14 +10,13 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 	constructor (options) {
 		super(options);
 		this.messageReceiveTimeout = 10000;	// wait 10 seconds for message
+		this.userOptions.numRegistered = 0;
+		delete this.teamOptions.creatorIndex;
+		delete this.teamOptions.inviterIndex;
 	}
 
 	get description () {
 		return 'should send a confirmation email when a new user registers';
-	}
-
-	dontWantToken () {
-		return true;	// we don't want a registered user for this test
 	}
 
 	// make the data that will be used during the test
@@ -42,8 +41,9 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.currentUser = response.user;
-				this.pubNubToken = this.currentUser._id;	// use this for the pubnub auth key
+				this.users.push(response);
+				this.currentUser = response;
+				this.currentUser.pubNubToken = this.currentUser.user._id;
 				callback();
 			}
 		);
@@ -54,7 +54,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		// for the user we expect to receive the confirmation email, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the outbound email
 		// service on this channel, and then we'll validate the data
-		this.channelName = `user-${this.currentUser._id}`;
+		this.channelName = `user-${this.currentUser.user._id}`;
 		callback();
 	}
 
@@ -63,7 +63,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		// expect to receive this message
 		this.message = {
 			type: 'confirm',
-			userId: this.currentUser._id
+			userId: this.currentUser.user._id
 		};
 		// in this case, we've already started the test in makeData, which created the user ...
 		// but the email was delayed, so we can just start listening for it now...

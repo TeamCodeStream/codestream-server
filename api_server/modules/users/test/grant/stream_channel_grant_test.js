@@ -1,13 +1,13 @@
 'use strict';
 
-var GrantTest = require('./grant_test');
+const GrantTest = require('./grant_test');
 
 class StreamChannelGrantTest extends GrantTest {
 
 	constructor (options) {
 		super(options);
 		this.wantOtherUser = true;	// we want a second registered user
-		this.wantRepo = true;		// we want a repo and team
+		this.wantTeam = true;		// we want a team for the test
 		this.wantStream = true;		// we want a stream in that team
 	}
 

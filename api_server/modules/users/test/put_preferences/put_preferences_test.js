@@ -8,6 +8,14 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 
 class PutPreferencesTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
+		delete this.teamOptions.inviterIndex;
+		this.expectVersion = 3;
+	}
+	
 	get description () {
 		return 'should set a simple preference when requested, and return appropriate directives in the response';
 	}
@@ -23,6 +31,7 @@ class PutPreferencesTest extends CodeStreamAPITest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
+			super.before,
 			this.preSetPreferences,
 			this.makePreferencesData
 		], callback);
@@ -35,6 +44,7 @@ class PutPreferencesTest extends CodeStreamAPITest {
 		if (!this.preSetData) {
 			return callback();
 		}
+		this.expectVersion++;
 		this.doApiRequest({
 			method: 'put',
 			path: '/preferences',
@@ -49,15 +59,24 @@ class PutPreferencesTest extends CodeStreamAPITest {
 		this.expectPreferences = this.data = {
 			simplePreference: true
 		};
-		this.expectResponse = {
+		this.expectResponse = this.getBaseExpectedResponse();
+		this.expectResponse.user.$set['preferences.simplePreference'] = true;
+		callback();
+	}
+
+	getBaseExpectedResponse () {
+		return {
 			user: {
-				_id: this.currentUser._id,
+				_id: this.currentUser.user._id,
 				$set: {
-					'preferences.simplePreference': true
+					version: this.expectVersion
+				},
+				$version: {
+					before: this.expectVersion - 1,
+					after: this.expectVersion
 				}
 			}
 		};
-		callback();
 	}
 
 	// validate the response to the test request

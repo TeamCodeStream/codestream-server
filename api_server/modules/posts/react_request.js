@@ -4,6 +4,7 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const PostPublisher = require('./post_publisher');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class ReactRequest extends RestfulRequest {
 
@@ -41,24 +42,30 @@ class ReactRequest extends RestfulRequest {
 		if (reactions.length === 0) {
 			return;
 		}
-		this.op = {};
+		const op = {};
 		reactions.forEach(reaction => {
 			if (this.request.body[reaction]) {
-				this.op.$addToSet = this.op.$addToSet || {};
-				this.op.$addToSet[`reactions.${reaction}`] = this.user.id;
+				op.$addToSet = op.$addToSet || {};
+				op.$addToSet[`reactions.${reaction}`] = this.user.id;
 			}
 			else {
-				this.op.$pull = this.op.$pull || {};
-				this.op.$pull[`reactions.${reaction}`] = this.user.id;
+				op.$pull = op.$pull || {};
+				op.$pull[`reactions.${reaction}`] = this.user.id;
 			}
 		});
-		await this.data.posts.applyOpById(
-			this.post.id,
-			this.op
-		);
-		this.responseData = {
-			post: Object.assign({}, this.op, { _id: this.post.id })
-		};
+		this.updateOp = await new ModelSaver({
+			request: this,
+			collection: this.data.posts,
+			id: this.post.id
+		}).save(op);
+	}
+
+	async handleResponse () {
+		if (this.gotError) {
+			return await super.handleResponse();
+		}
+		this.responseData = { post: this.updateOp };
+		await super.handleResponse();
 	}
 
 	// after the post is updated...

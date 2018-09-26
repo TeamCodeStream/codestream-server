@@ -1,8 +1,7 @@
 'use strict';
 
-var RegistrationTest = require('./registration_test');
-var RandomString = require('randomstring');
-//const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
+const RegistrationTest = require('./registration_test');
+const RandomString = require('randomstring');
 
 class BadEmailTest extends RegistrationTest {
 
@@ -25,10 +24,12 @@ class BadEmailTest extends RegistrationTest {
 
 	// before the test runs...
 	before (callback) {
-		// generate random user data, but a bad email (no '@')
-		this.data = this.userFactory.getRandomUserData();
-		this.data.email = RandomString.generate(12);
-		callback();
+		super.before(error => {
+			if (error) { return callback(error); }
+			// generate random user data, but a bad email (no '@')
+			this.data.email = RandomString.generate(12);
+			callback();
+		});
 	}
 }
 

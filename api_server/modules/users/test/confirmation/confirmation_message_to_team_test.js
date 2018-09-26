@@ -1,59 +1,43 @@
 'use strict';
 
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var RandomString = require('randomstring');
-var User = require(process.env.CS_API_TOP + '/modules/users/user');
-var Assert = require('assert');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const RandomString = require('randomstring');
+const User = require(process.env.CS_API_TOP + '/modules/users/user');
+const Assert = require('assert');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
 class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 
+	constructor (options) {
+		super(options);
+		this.teamOptions.numAdditionalInvites = 2;
+	}
+
 	get description () {
-		return 'the team creator should receive a message indicating a user is registered when a user on the team confirms registration';
+		return 'team members should receive a message indicating a user is registered when a user on the team confirms registration';
 	}
 
 	// make the data we need to trigger the test message
 	makeData (callback) {
-		BoundAsync.series(this, [
-			this.createRepo,		// create a repo to use for the test
-			this.registerUser 		// register a user (without confirming), this is the user we will now confirm for the test...
-		], callback);
-	}
-
-	// create a repo to use for the test
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.repo = response.repo;
-				this.team = response.team;
-				this.users = response.users;
-				callback();
-			},
-			{
-				withRandomEmails: 2,	// add a couple unregistered users, one of them will be the user we register
-				token: this.token		// the "current" user is the repo and team creator
-			}
-		);
+		this.registerUser(callback); // register a user (without confirming), this is the user we will now confirm for the test...
 	}
 
 	// register a user (without confirmation)
 	registerUser (callback) {
-		// get one of the users we created who is yet unregistered
-		this.registeringUser = this.users[1];
+		// get the user we created who is yet unregistered
+		this.registeringUser = this.users[3].user;
+
 		// form the data for the registration
-		let register = {
+		const data = {
 			email: this.registeringUser.email,
 			username: RandomString.generate(12),
 			password: RandomString.generate(12),
 			_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response
 			_forceConfirmation: true								// this forces confirmation even if not enforced in environment
 		};
-		Object.assign(this.registeringUser, register);
 		// register this user (without confirmation)
 		this.userFactory.registerUser(
-			register,
+			data,
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.registeringUser = response.user;
@@ -74,10 +58,16 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		// the message we expect to receive is the registered user, with isRegistered flag set
 		let user = new User(this.registeringUser);
 		let userObject = user.getSanitizedObject();
-		userObject.isRegistered = true;
-		userObject.joinMethod = 'Added to Team';
-		userObject.primaryReferral = 'internal';
-		userObject.originTeamId = this.team._id;
+		Object.assign(userObject, {
+			isRegistered: true,
+			joinMethod: 'Added to Team',
+			primaryReferral: 'internal',
+			originTeamId: this.team._id,
+			internalMethod: 'invitation',
+			internalMethodDetail: this.currentUser.user._id,
+			numInvites: 1,
+			version: 3
+		});
 		this.message = {
 			users: [userObject]
 		};

@@ -8,12 +8,12 @@ class ExistingUnregisteredOnTeamInviteEmailTest extends InviteEmailTest {
 		super(options);
 		this.wantExistingUser = true;
 		this.existingUserOnTeam = true;
+		this.expectedCampaign = 'reinvite_email';
 	}
 
 	get description () {
 		return 'should send an invite email when inviting a user that already exists but is not registered, and is already on another team';
 	}
-
 }
 
 module.exports = ExistingUnregisteredOnTeamInviteEmailTest;

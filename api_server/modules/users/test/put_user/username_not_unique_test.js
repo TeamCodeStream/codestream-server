@@ -1,6 +1,6 @@
 'use strict';
 
-var PutUserTest = require('./put_user_test');
+const PutUserTest = require('./put_user_test');
 
 class UsernameNotUniqueTest extends PutUserTest {
 
@@ -18,7 +18,7 @@ class UsernameNotUniqueTest extends PutUserTest {
 	makeUserData (callback) {
 		super.makeUserData(() => {
 			// use the username for the "other user"
-			this.data.username = this.otherUserData.user.username;
+			this.data.username = this.users[1].user.username;
 			callback();
 		});
 	}

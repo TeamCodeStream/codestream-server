@@ -286,9 +286,7 @@ class GetPostsRequest extends GetManyRequest {
 		const limit = this.limit = this.setLimit();
 		const sort = this.setSort();
 		const hint = this.setHint();
-		return {
-			databaseOptions: { limit, sort, hint }
-		};
+		return { limit, sort, hint };
 	}
 
 	// set the limit to use in the fetch query, according to options passed in
@@ -351,9 +349,7 @@ class GetPostsRequest extends GetManyRequest {
 		const streams = await this.data.streams.getByQuery(
 			query,
 			{
-				databaseOptions: {
-					hint: StreamIndexes.byFile
-				},
+				hint: StreamIndexes.byFile,
 				noCache: true
 			}
 		);
@@ -413,11 +409,7 @@ class GetPostsRequest extends GetManyRequest {
 		};
 		const markerLocations = await this.data.markerLocations.getByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: { _id: 1 }
-				}
-			}
+			{ hint: { _id: 1 } }
 		);
 		if (markerLocations.length === 0) {
 			this.responseData.markerLocations = {};

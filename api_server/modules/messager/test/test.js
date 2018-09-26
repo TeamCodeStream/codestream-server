@@ -1,17 +1,17 @@
 'use strict';
 
-var MeChannelTest = require('./me_channel_test');
-var TeamChannelTest = require('./team_channel_test');
-var StreamChannelTest = require('./stream_channel_test');
-var MeChannelACLTest = require('./me_channel_acl_test');
-var TeamChannelACLTest = require('./team_channel_acl_test');
-var StreamChannelACLTest = require('./stream_channel_acl_test');
-var StreamChannelTeamACLTest = require('./stream_channel_team_acl_test');
-var AddToCreatedTeamTest = require('./add_to_created_team_test');
-var AddToExistingTeamTest = require('./add_to_existing_team_test');
-var AddExistingRepoTest = require('./add_existing_repo_test');
-var PresenceJoinTest = require('./presence_join_test');
-//var PresenceLeaveTest = require('./presence_leave_test');
+const MeChannelTest = require('./me_channel_test');
+const TeamChannelTest = require('./team_channel_test');
+const StreamChannelTest = require('./stream_channel_test');
+const MeChannelACLTest = require('./me_channel_acl_test');
+const TeamChannelACLTest = require('./team_channel_acl_test');
+const StreamChannelACLTest = require('./stream_channel_acl_test');
+const StreamDirectTest = require('./stream_direct_test');
+const StreamDirectACLTest = require('./stream_direct_acl_test');
+const StreamChannelTeamACLTest = require('./stream_channel_team_acl_test');
+const AddToExistingStreamTest = require('./add_to_existing_stream_test');
+const PresenceJoinTest = require('./presence_join_test');
+//const PresenceLeaveTest = require('./presence_leave_test');
 
 // make eslint happy
 /* globals describe */
@@ -26,13 +26,11 @@ describe('messages', function() {
 	new MeChannelACLTest().test();
 	new TeamChannelACLTest().test();
 	new StreamChannelACLTest().test();
+	new StreamDirectTest().test();
+	new StreamDirectACLTest().test();
 	new StreamChannelTeamACLTest().test();
-	new AddToCreatedTeamTest().test();
-	new AddToExistingTeamTest().test();
-	new AddExistingRepoTest().test();
-	new PresenceJoinTest({ which: 'team' }).test();
-	// new PresenceLeaveTest({ which: 'team' }).test(); // Disabled pending further need and investigation
-	new PresenceJoinTest({ which: 'repo' }).test();
-	// new PresenceLeaveTest({ which: 'repo' }).test(); // Disabled pending further need and investigation
+	new AddToExistingStreamTest().test();
+	new PresenceJoinTest().test();
+//	new PresenceLeaveTest().test(); // Disabled pending further need and investigation
 
 });

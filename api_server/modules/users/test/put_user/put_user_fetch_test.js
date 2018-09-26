@@ -27,25 +27,6 @@ class PutUserFetchTest extends PutUserTest {
 		], callback);
 	}
 
-	// perform the actual user update 
-	// the actual test is reading the user and verifying it is correct
-	updateUser (callback) {
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: '/users/me',
-				data: this.data,
-				token: this.token
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				Object.assign(this.expectedUser, response.user, this.data);
-				delete this.data;	// don't need this anymore
-				callback();
-			}
-		);
-	}
-
 	// validate that the response is correct
 	validateResponse (data) {
 		// verify what we fetch is what we got back in the response

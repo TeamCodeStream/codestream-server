@@ -6,11 +6,6 @@ const UserTestConstants = require('../user_test_constants');
 
 class UnreadFetchTest extends UnreadTest {
 
-	constructor (options) {
-		super(options);
-		this.withoutMeOnTeam = true;
-	}
-	
 	get description () {
 		return 'should set lastReads for the stream of a post when post is marked as unread, as checked by fetching the me object';
 	}
@@ -42,8 +37,8 @@ class UnreadFetchTest extends UnreadTest {
 		// we expect to see the sequence number set to the sequence number of the previous post
 		// to the post that was marked unread ... the sequence numbers are 1-based so this is 
 		// just the same as the ordinal number of the post in the array of posts created
-		let expectedLastReads = {
-			[this.stream._id]: this.unreadPost.toString()
+		const expectedLastReads = {
+			[this.stream._id]: this.lastReadPost.seqNum
 		};
 		Assert.deepEqual(expectedLastReads, data.user.lastReads, 'lastReads doesn\'t match');
 		super.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);

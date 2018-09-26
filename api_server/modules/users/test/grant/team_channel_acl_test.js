@@ -1,13 +1,13 @@
 'use strict';
 
-var GrantTest = require('./grant_test');
+const GrantTest = require('./grant_test');
 
 class TeamChannelACLTest extends GrantTest {
 
 	constructor (options) {
 		super(options);
 		this.wantOtherUser = true;		// we want a second registered user
-		this.wantForeignRepo = true;	// we want a repo and team that the current user is not a member of
+		this.wantForeignTeam = true;	// we want a repo and team that the current user is not a member of
 	}
 
 	getExpectedError () {

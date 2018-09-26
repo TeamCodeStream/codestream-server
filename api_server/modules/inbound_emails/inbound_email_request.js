@@ -68,9 +68,7 @@ class InboundEmailRequest extends RestfulRequest {
 					searchableEmail: this.fromEmail
 				},
 				{
-					databaseOptions: {
-						hint: UserIndexes.bySearchableEmail
-					}
+					hint: UserIndexes.bySearchableEmail
 				}
 			);
 		}

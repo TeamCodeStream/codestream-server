@@ -65,6 +65,7 @@ class DataCollectionTest extends GenericTest {
 			return callback(error);
 		}
 		this.testModel.id = this.testModel.attributes._id = createdModel.id;
+		this.testModel.attributes.version = 1;
 		callback();
 	}
 
@@ -144,6 +145,7 @@ class DataCollectionTest extends GenericTest {
 			return callback(error);
 		}
 		this.models[n].id = this.models[n].attributes._id = createdModel.id;
+		this.models[n].attributes.version = 1;
 		callback();
 	}
 
@@ -167,8 +169,11 @@ class DataCollectionTest extends GenericTest {
 			text: 'replaced!',
 			number: 123
 		};
+		this.expectedOp = {
+			$set: update
+		};
 		try {
-			await this.data.test.update(update);
+			this.actualOp = await this.data.test.update(update);
 		}
 		catch (error) {
 			return callback(error);
@@ -182,6 +187,9 @@ class DataCollectionTest extends GenericTest {
 		Assert(typeof this.response === 'object', 'improper response');
 		Assert(typeof this.response.attributes === 'object', 'improper fetched model');
 		Assert.deepEqual(this.testModel.attributes, this.response.attributes, 'fetched model doesn\'t match');
+		if (this.expectedOp) {
+			Assert.deepEqual(this.actualOp, this.expectedOp, 'returned op is not correct');
+		}
 	}
 
 	// validate that we got back an object (attributes of a model) that exactly matches the test model

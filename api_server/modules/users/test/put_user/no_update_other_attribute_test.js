@@ -1,7 +1,7 @@
 'use strict';
 
-var PutUserTest = require('./put_user_test');
-var Assert = require('assert');
+const PutUserTest = require('./put_user_test');
+const Assert = require('assert');
 
 class NoUpdateOtherAttributeTest extends PutUserTest {
 
@@ -19,8 +19,8 @@ class NoUpdateOtherAttributeTest extends PutUserTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		let user = data.user;
-		Assert(user[this.otherAttribute] === undefined, 'attribute appears in the response');
+		const setData = data.user.$set;
+		Assert(setData[this.otherAttribute] === undefined, 'attribute appears in the response');
 		super.validateResponse(data);
 	}
 }

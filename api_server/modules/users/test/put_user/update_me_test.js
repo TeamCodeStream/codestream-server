@@ -1,6 +1,6 @@
 'use strict';
 
-var PutUserTest = require('./put_user_test');
+const PutUserTest = require('./put_user_test');
 
 class UpdateMeTest extends PutUserTest {
 

@@ -22,18 +22,15 @@ class AccessTokenTest extends ResetPasswordTest {
 		return UserTestConstants.EXPECTED_USER_RESPONSE;
 	}
 
-	// before the test runs...
-	before (callback) {
+	resetPassword (callback) {
 		// a delay is needed, since the IAT field of the JSON web token (when the token
 		// gets issued) is only accurate to within a second, and we want to ensure the
 		// token will be different
-		setTimeout(() => {
-			super.before(callback);
-		}, 2000);
+		setTimeout(this.reallyResetPassword.bind(this), 2000, callback);
 	}
 
 	// do the actual rest of password
-	resetPassword (callback) {
+	reallyResetPassword (callback) {
 		// capture the access token given in the response, we'll use this for the 
 		// actual test request, which is fetch the me-object for the user with the
 		// new token
@@ -48,7 +45,7 @@ class AccessTokenTest extends ResetPasswordTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that we got back "ourselves", and that there are no attributes a client shouldn't see
-		this.validateMatchingObject(this.currentUser._id, data.user, 'user');
+		this.validateMatchingObject(this.currentUser.user._id, data.user, 'user');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

@@ -2,11 +2,11 @@
 
 'use strict';
 
-var GetUsersByIdTest = require('./get_users_by_id_test');
-var TeamIDRequiredTest = require('./team_id_required_test');
-var GetUsersByTeamIdTest = require('./get_users_by_team_id_test');
-var ACLTest = require('./acl_test');
-var GetUsersOnlyFromTeamTest = require('./get_users_only_from_team_test');
+const GetUsersByIdTest = require('./get_users_by_id_test');
+const TeamIDRequiredTest = require('./team_id_required_test');
+const GetUsersByTeamIdTest = require('./get_users_by_team_id_test');
+const ACLTest = require('./acl_test');
+const GetUsersOnlyFromTeamTest = require('./get_users_only_from_team_test');
 
 class GetUsersRequestTester {
 

@@ -9,6 +9,7 @@ const Errors = require('./errors');
 const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors');
 const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 const MAX_CONFIRMATION_ATTEMPTS = 3;
 
@@ -97,11 +98,7 @@ class ConfirmRequest extends RestfulRequest {
 		};
 		const users = await this.data.users.getByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: UserIndexes.bySearchableEmail 
-				}
-			}
+			{ hint: UserIndexes.bySearchableEmail }
 		);
 		this.user = users[0];
 	}
@@ -204,6 +201,16 @@ class ConfirmRequest extends RestfulRequest {
 		);
 	}
 
+	async handleResponse () {
+		if (this.gotError) {
+			return await super.handleResponse();
+		}
+		// get the user again since it was changed, this should fetch from cache and not from database
+		this.user = await this.data.users.getById(this.user.id);
+		this.responseData.user = this.user.getSanitizedObjectForMe();
+		await super.handleResponse();
+	}
+
 	// after the request returns a response....
 	async postProcess () {
 		// publish the now-registered-and-confirmed user to all the team members
@@ -215,7 +222,7 @@ class ConfirmRequest extends RestfulRequest {
 	async publishUserToTeams () {
 		await new UserPublisher({
 			user: this.user,
-			data: this.user.getSanitizedObject(),
+			data: this.responseData.user,
 			request: this,
 			messager: this.api.services.messager
 		}).publishUserToTeams();

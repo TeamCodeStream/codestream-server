@@ -26,6 +26,16 @@ class DeletePostRequest extends DeleteRequest {
 		}
 	}
 
+	async handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
+		if (this.transforms.markerUpdates && this.transforms.markerUpdates.length > 0) {
+			this.responseData.markers = this.transforms.markerUpdates;
+		}
+		await super.handleResponse();
+	}
+
 	// after the post is deleted...
 	async postProcess () {
 		await this.publishPost();

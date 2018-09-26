@@ -10,7 +10,6 @@ const BadPasswordTest = require('./bad_password_test');
 const ConflictingUsernameTest = require('./conflicting_username_test');
 const NoCodestreamUsernameTest = require('./no_codestream_username_test');
 const UserMessageToTeamTest = require('./user_message_to_team_test');
-const UserMessageToOtherUserTest = require('./user_message_to_other_user_test');
 const ConfirmationEmailTest = require('./confirmation_email_test');
 const ConfirmationEmailWithLinkTest = require('./confirmation_email_with_link_test');
 const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
@@ -31,7 +30,6 @@ class RegistrationRequestTester {
 		new ConflictingUsernameTest().test();
 		new NoCodestreamUsernameTest().test();
 		new UserMessageToTeamTest().test();
-		new UserMessageToOtherUserTest().test();
 		// these tests must be serialized because for technical reasons the tests
 		// are actually run in their "before" stage, and they will fail due to timeouts
 		// if they are run in parallel

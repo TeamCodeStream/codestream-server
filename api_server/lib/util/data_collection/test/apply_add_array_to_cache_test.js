@@ -14,10 +14,13 @@ class ApplyAddArrayToCacheTest extends UpdateToCacheTest {
 		const update = {
 			array: [5, 7, 8]
 		};
+		this.expectedOp = {
+			'$addToSet': update
+		};
 		try {
-			await this.data.test.applyOpById(
+			this.actualOp = await this.data.test.applyOpById(
 				this.testModel.id,
-				{ '$addToSet': update },
+				this.expectedOp,
 			);
 		}
 		catch (error) {

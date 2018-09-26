@@ -5,6 +5,7 @@
 const ModelDeleter = require(process.env.CS_API_TOP + '/lib/util/restful/model_deleter');
 const MarkerDeleter = require(process.env.CS_API_TOP + '/modules/markers/marker_deleter');
 const Post = require('./post');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class PostDeleter extends ModelDeleter {
 
@@ -21,11 +22,11 @@ class PostDeleter extends ModelDeleter {
 		return await this.deleteModel(id);
 	}
 
-	// set the actual attributes for deletion
-	setAttributesForDelete (id) {
+	// set the actual op to execute to delete an op 
+	setOpForDelete () {
 		// wipe out the text and replace with something generic
-		super.setAttributesForDelete(id);
-		this.attributes.text = 'this post has been deleted';
+		super.setOpForDelete();
+		this.deleteOp.$set.text = 'this post has been deleted';
 	}
 
 	// called before the delete is actually deleted
@@ -40,7 +41,7 @@ class PostDeleter extends ModelDeleter {
 
 	// get the post
 	async getPost () {
-		this.post = await this.request.data.posts.getById(this.attributes._id);
+		this.post = await this.request.data.posts.getById(this.id);
 		if (!this.post) {
 			throw this.errorHandler.error('notFound', { info: 'post' });
 		}
@@ -52,7 +53,10 @@ class PostDeleter extends ModelDeleter {
 	// delete any associated markers
 	async deleteMarkers () {
 		const codeBlocks = this.post.get('codeBlocks') || [];
-		const markerIds = codeBlocks.map(codeBlock => codeBlock.markerId);
+		const markerIds = codeBlocks
+			.map(codeBlock => codeBlock.markerId)
+			.filter(markerId => markerId);
+		this.transforms.markerUpdates = [];
 		await Promise.all(markerIds.map(async markerId => {
 			await this.deleteMarker(markerId);
 		}));
@@ -60,12 +64,10 @@ class PostDeleter extends ModelDeleter {
 
 	// delete a single associated marker
 	async deleteMarker (markerId) {
-		this.markerDeleter = new MarkerDeleter({
+		const markerUpdate = await new MarkerDeleter({
 			request: this.request
-		});
-		const markerUpdate = await this.markerDeleter.deleteMarker(markerId);
-		this.attachToResponse.markers = this.attachToResponse.markers || [];
-		this.attachToResponse.markers.push(markerUpdate);
+		}).deleteMarker(markerId);
+		this.transforms.markerUpdates.push(markerUpdate);
 	}
 
 	// get the parent post, if the deleted post is a reply
@@ -84,8 +86,10 @@ class PostDeleter extends ModelDeleter {
 		if (!this.parentPost || !(this.parentPost.get('codeBlocks') instanceof Array)) {
 			return;
 		}
-		const markerIds = this.parentPost.get('codeBlocks').map(codeBlock => codeBlock.markerId);
-		this.attachToResponse.markers = [];
+		const markerIds = this.parentPost.get('codeBlocks')
+			.map(codeBlock => codeBlock.markerId)
+			.filter(markerId => markerId);
+		this.transforms.markerUpdates = this.transforms.markerUpdates || [];
 		await Promise.all(markerIds.map(async markerId => {
 			await this.updateNumCommentsForMarker(markerId);
 		}));
@@ -96,22 +100,36 @@ class PostDeleter extends ModelDeleter {
 	async updateNumCommentsForMarker (markerId) {
 		if (!markerId) { return; }
 		// update the database, and also save the marker op for publishing to clients
-		const op = { $inc: { numComments: -1 } };
-		const marker = Object.assign({}, { _id: markerId }, op);
-		this.attachToResponse.markers.push(marker);
-		await this.request.data.markers.applyOpById(markerId, op);
+		const op = { 
+			$inc: { 
+				numComments: -1 
+			} 
+		};
+		const markerUpdate = await new ModelSaver({
+			request: this.request,
+			collection: this.request.data.markers,
+			id: markerId
+		}).save(op);
+		this.transforms.markerUpdates.push(markerUpdate);
 	}
 
 	// add an edit to the maintained history of edits
 	addEditToHistory () {
-		this.attributes.editHistory = this.post.get('editHistory') || [];
-		this.attributes.editHistory.push({
-			editorId: this.request.user.id,
-			editedAt: Date.now(),
-			previousAttributes: {
-				deactivated: false
+		this.deleteOp.$push = this.deleteOp.$push || {};
+		this.deleteOp.$push = {
+			editHistory: {
+				editorId: this.user.id,
+				editedAt: Date.now(),
+				previousAttributes: {
+					deactivated: false,
+					text: this.post.get('text')
+				},
+				setAttributes: {
+					deactivated: true,
+					text: this.deleteOp.$set.text
+				}
 			}
-		});
+		};
 	}
 }
 

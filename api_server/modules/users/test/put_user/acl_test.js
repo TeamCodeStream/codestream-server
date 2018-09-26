@@ -1,6 +1,6 @@
 'use strict';
 
-var PutUserTest = require('./put_user_test');
+const PutUserTest = require('./put_user_test');
 
 class ACLTest extends PutUserTest {
 
@@ -20,7 +20,7 @@ class ACLTest extends PutUserTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// replace the current user's token with the other user's token
-			this.token = this.otherUserData.accessToken;
+			this.token = this.users[1].accessToken;
 			callback();
 		});
 	}

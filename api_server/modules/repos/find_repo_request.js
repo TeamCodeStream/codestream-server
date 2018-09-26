@@ -70,11 +70,7 @@ class FindRepoRequest extends RestfulRequest {
 		};
 		const repos = await this.data.repos.getByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: Indexes.byNormalizedUrl
-				}
-			}
+			{ hint: Indexes.byNormalizedUrl }
 		);
 		this.repo = repos.find(repo => !repo.get('deactivated'));
 		if (!this.repo) {
@@ -102,10 +98,8 @@ class FindRepoRequest extends RestfulRequest {
 		const users = await this.data.users.getByQuery(
 			query,
 			{
-				databaseOptions: {
-					fields: ['username'],
-					hint: UserIndexes.byTeamIds
-				},
+				fields: ['username'],
+				hint: UserIndexes.byTeamIds,
 				noCache: true
 			}
 		);

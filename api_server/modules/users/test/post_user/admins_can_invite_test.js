@@ -31,10 +31,10 @@ class AdminsCanInviteTest extends OnlyAdminsTest {
 				path: '/teams/' + this.team._id,
 				data: {
 					$push: { 
-						adminIds: this.currentUser._id 
+						adminIds: this.currentUser.user._id 
 					}
 				},
-				token: this.teamCreatorData.accessToken
+				token: this.users[1].accessToken
 			},
 			callback
 		);

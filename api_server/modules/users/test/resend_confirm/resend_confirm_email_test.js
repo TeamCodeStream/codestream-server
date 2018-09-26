@@ -13,15 +13,14 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 
 	constructor (options) {
 		super(options);
+		this.userOptions.numRegistered = 0;
+		delete this.teamOptions.creatorIndex;
+		delete this.teamOptions.inviterIndex;
 		this.messageReceiveTimeout = 10000;	// wait 10 seconds for message
 	}
 
 	get description () {
 		return 'should send a confirmation email when a resend confirmation request is made';
-	}
-
-	dontWantToken () {
-		return true;	// we don't want a registered user for this test
 	}
 
 	// make the data that will be used during the test
@@ -48,8 +47,10 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.currentUser = response.user;
-				this.pubNubToken = this.currentUser._id;	// use this for the pubnub auth key
+				this.currentUser = {
+					user: response.user,
+					pubNubToken: response.user._id
+				};
 				this.originalToken = response.user.confirmationToken;
 				callback();
 			}
@@ -77,7 +78,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 		// for the user we expect to receive the confirmation email, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the outbound email
 		// service on this channel, and then we'll validate the data
-		this.channelName = `user-${this.currentUser._id}`;
+		this.channelName = `user-${this.currentUser.user._id}`;
 		callback();
 	}
 
@@ -86,7 +87,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 		// this is the message we expect to see
 		this.message = {
 			type: 'confirm',
-			userId: this.currentUser._id
+			userId: this.currentUser.user._id
 		};
 		// in this case, we've already started the test in makeData, which created the user 
 		// and then made the resend request...
@@ -114,7 +115,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 		Assert.equal(payload.iss, 'CodeStream', 'token payload issuer is not CodeStream');
 		Assert.equal(payload.alg, 'HS256', 'token payload algortihm is not HS256');
 		Assert.equal(payload.type, 'conf', 'token payload type should be conf');
-		Assert.equal(payload.uid, this.currentUser._id, 'uid in token payload is incorrect');
+		Assert.equal(payload.uid, this.currentUser.user._id, 'uid in token payload is incorrect');
 		Assert(payload.iat <= Math.floor(Date.now() / 1000), 'iat in token payload is not earlier than now');
 		Assert.equal(payload.exp, payload.iat + 86400, 'token payload expiration is not one day out');
 

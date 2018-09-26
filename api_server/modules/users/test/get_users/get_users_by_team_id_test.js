@@ -1,6 +1,6 @@
 'use strict';
 
-var GetUsersTest = require('./get_users_test');
+const GetUsersTest = require('./get_users_test');
 
 class GetUsersByTeamIdTest extends GetUsersTest {
 
@@ -11,8 +11,8 @@ class GetUsersByTeamIdTest extends GetUsersTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// fetch all users on the team by specifying the team ID
-		let teamId = this.team._id;
-		this.myUsers = this.users;
+		const teamId = this.team._id;
+		this.myUsers = this.users.map(user => user.user);
 		this.path = `/users?teamId=${teamId}`;
 		callback();
 	}

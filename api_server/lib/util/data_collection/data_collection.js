@@ -12,7 +12,6 @@ class DataCollection {
 
 	constructor (options) {
 		this.options = options;
-		this.idAttribute = this.options.idAttribute || '_id';		// our ID attribute
 		this.databaseCollection = this.options.databaseCollection;	// our database collection
 		this.modelClass = this.options.modelClass;					// class to use when turning documents into models
 		if (!this.databaseCollection) {
@@ -27,7 +26,6 @@ class DataCollection {
 			collection: this,
 			databaseCollection: this.databaseCollection,
 			modelClass: this.modelClass,
-			idAttribute: this.idAttribute,
 			requestId: this.requestId
 		};
 		this.clear();	// initialize our cache and other things
@@ -37,7 +35,6 @@ class DataCollection {
 	clear () {
 		this.models = {};				// cached models
 		this.modelOps = {};				// cached operations to perform on models
-		this.dirtyModelIds = {};		// models that have been updated
 		this.toDeleteIds = {};			// models that should be deleted when we persist
 		this.toCreateIds = {};			// models that should be created when we persist
 		this.documentOptions = {};		// database options associated with documents being persisted
@@ -65,7 +62,7 @@ class DataCollection {
 		// query the database collection directly, but we'll still add the documents to our local cache as needed
 		const documents = await this.databaseCollection.getByQuery(
 			conditions,
-			Object.assign({}, options.databaseOptions, { requestId: this.requestId })
+			Object.assign({}, options, { requestId: this.requestId })
 		);
 		let models;
 		if (!options.noCache) {
@@ -80,7 +77,7 @@ class DataCollection {
 		// query the database collection directly, but we'll still add the documents to our local cache as needed
 		const document = await this.databaseCollection.getOneByQuery(
 			conditions,
-			Object.assign({}, options.databaseOptions, { requestId: this.requestId })
+			Object.assign({}, options, { requestId: this.requestId })
 		);
 		let model;
 		if (document && !options.noCache) {
@@ -92,18 +89,18 @@ class DataCollection {
 	// create a model using the data passed in
 	async create (data, options = {}) {
 		// the ID can be provided or we'll generate one
-		const id = (data[this.idAttribute] || this.createId()).toString();
-		data[this.idAttribute] = id;
+		const id = (data._id || this.createId()).toString();
+		data._id = id;
+		data.version = 1;
 		const model = new this.modelClass(data);
 		this.addModelToCache(model);
 		// if we're creating a model, it pretty much obviates anything else we've done to it
-		delete this.dirtyModelIds[id];
 		delete this.toDeleteIds[id];
 		delete this.modelOps[id];
 		this.toCreateIds[id] = true;
-		if (options.databaseOptions) {
+		if (options) {
 			// we'll save these up until we actually persist to the database
-			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options.databaseOptions);
+			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options);
 		}
 		return model;
 	}
@@ -116,42 +113,25 @@ class DataCollection {
 
 	// update a model
 	async update (data, options = {}) {
-		const id = data[this.idAttribute] || options.id;
+		const id = data._id || options.id;
+		delete data._id;
 		if (!id) {
 			// we must have an ID for it, either in options or in the attributes
-			throw this.errorHandler.error('id', { info: this.idAttribute });
+			throw this.errorHandler.error('id', { info: '_id' });
 		}
-		if (this.modelOps[id]) {
-			// we already have ops for this, so we need to just add a $set
-			return await this.applyOpById(id, { $set: data }, options);
-		}
-		data[this.idAttribute] = id;
-		// update the data for this document in our cache
-		this._addDataToCache(data);
-		if (!this.toCreateIds[id]) {
-			// only mark it as dirty (needs persisting) if we didn't create it, since the create will happen in a single go anyway
-			this.dirtyModelIds[id] = true;
-		}
-		// fetch it whole from our cache, so we can return something to the caller
-		const model = this._getFromCache(id);
-		if (options.databaseOptions) {
-			// we'll save these up until we actually persist to the database
-			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options.databaseOptions);
-		}
-		return model;
+		// applying an update is always a $set operation
+		return await this.applyOpById(id, { $set: data}, options);
 	}
 
 	// apply an op (directive) to a model
 	async applyOpById (id, op, options = {}) {
 		// ops just get added to an ordered array of them, to be executed in order at persist time
-		this._addModelOp(id, op);
-		// get the model from the cache so we have something to return to the caller
-		let model = this._getFromCache(id);
-		if (options.databaseOptions) {
+		const modelOp = this._addModelOp(id, op);
+		if (options) {
 			// we'll save these up until we actually persist to the database
-			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options.databaseOptions);
+			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options);
 		}
-		return model;
+		return modelOp;
 	}
 
 	// delete a model by ID
@@ -205,7 +185,7 @@ class DataCollection {
 
 	// persist all our recorded changes to the database ... a momentous occasion!
 	async persist () {
-		await this._persistDocuments(); // persist document updates
+		await this._persistDocumentOps(); // persist document updates
 		await this._deleteDocuments();  // delete any documents requested
 		await this._createDocuments();   // create any documents requested
 		await this._persistDirectQueries(); // persists any direct operations
@@ -224,9 +204,9 @@ class DataCollection {
 		return this.models[id];
 	}
 
-	// add data a single model in the cache, which many be new data or it may overwrite existing data
+	// add data a single model in the cache, which may be new data or it may overwrite existing data
 	_addDataToCache (data) {
-		const id = data[this.idAttribute];
+		const id = data._id;
 		let model = this.models[id];
 		if (model) {
 			// have a model already, assign attributes as needed
@@ -252,23 +232,12 @@ class DataCollection {
 
 	// add a single model to the cache, which may or may not yet exist
 	addModelToCache (model) {
-		const id = model.id;
-		const modelOps = this.modelOps[id];	// ops (directives) associated with this model
-		const cachedModel = this.models[id];	// the cached model, if any
+		const cachedModel = this.models[model.id];
 		if (cachedModel) {
-			if (modelOps) {
-				// since we have ops for this model, we have to make the "existence" of this model
-				// a $set op, which will be first in the chain of ops
-				modelOps.push({ '$set': model.attributes });
-			}
-			else {
-				// have a cached model with no ops, we can just assign attributes
-				Object.assign(cachedModel.attributes, model.attributes);
-			}
+			Object.assign(cachedModel.attributes, model.attributes);
 		}
 		else {
-			// a new model, truly add it to our cache
-			this.models[id] = model;
+			this.models[model.id] = model;
 		}
 		return model;
 	}
@@ -284,80 +253,62 @@ class DataCollection {
 	_removeModelFromCache (id) {
 		delete this.models[id];			// really remove it
 		delete this.modelOps[id];		// remove any associated ops
-		delete this.dirtyModelIds[id];	// can't be dirty if it doesn't exist!
 		delete this.toCreateIds[id];	// can't be created and also deleted!
 	}
 
 	// add an op (directive) for a given model by ID
 	_addModelOp (id, op) {
-		const isDirty = this.dirtyModelIds[id] || this.toCreateIds[id];	// dirty if updated or created
-		// get the cached model, or create it if it doesn't exist
-		const cachedModel = this.models[id];
-		if (!cachedModel) {
-			this.models[id] = new this.modelClass({ [this.idAttribute]: id });
-		}
-		// start an ordered ops array as needed
-		this.modelOps[id] = this.modelOps[id] || [];
-		if (cachedModel && isDirty && this.modelOps[id].length === 0) {
-			// if we don't have any ops already, then create a $set op to capture the existing model
-			// (but this isn't necessary if it's not dirty, since we can just apply the ops to the database)
-			this.modelOps[id].push({ '$set': cachedModel.attributes });
-		}
-		// add the new op
-		this.modelOps[id].push(op);
-		// if it hasn't been created, then the op necessarily makes it dirty (in need of persistence)
+		// if we're creating the model anyway, we can just apply the op to the attributes
 		if (!this.toCreateIds[id]) {
-			this.dirtyModelIds[id] = true;
+			// merge the new op with any existing op for the model
+			this.modelOps[id] = this.mergeOps(this.modelOps[id], op);
+			this.modelOps[id]._id = id.toString();
 		}
-		// apply the op to our model, so its attributes change accordingly
-		ModelOps.applyOp(this.models[id], op);
+		if (this.models[id]) {
+			// apply the op to our model, so its attributes change accordingly
+			ModelOps.applyOp(this.models[id], op);
+		}
+		return this.modelOps[id] || op;
 	}
 
+	// merge one op into another
+	mergeOps (op1, op2) {
+		op1 = op1 || {};
+		const possibleOps = ModelOps.possibleOps();
+		possibleOps.forEach(op => {
+			if (op2[op]) {
+				op1[op] = op1[op] || {};
+				Object.assign(op1[op], op2[op]);
+			}
+		});
+		return op1;
+	}
+	
 	// persist document updates to the database
-	async _persistDocuments () {
-		await Promise.all(Object.keys(this.dirtyModelIds).map(async id => {
-			await this._persistDocument(id);
+	async _persistDocumentOps () {
+		await Promise.all(Object.keys(this.modelOps).map(async id => {
+			await this._persistDocumentByOps(id, this.modelOps[id]);
 		}));
-	}
-
-	// persist a single document update to the database
-	async _persistDocument (id) {
-		const modelOps = this.modelOps[id];
-		if (modelOps && modelOps.length > 0) {
-			// if we have ops (directives), then we need to apply those in order, can't just write the data
-			return await this._persistDocumentByOps(id, modelOps);
-		}
-		// do the database update
-		const model = this._getFromCache(id);
-		if (!model) { return; }
-		model.attributes[this.idAttribute] = id;
-		await this.databaseCollection.update(
-			model.attributes,
-			Object.assign(
-				{},
-				this.options.databaseOptions || {},
-				this.documentOptions[id] || {},
-				{ requestId: this.requestId }
-			)
-		);
-		delete this.modelOps[id];
-		delete this.dirtyModelIds[id];
 	}
 
 	// apply the ops (directives) we have for a model by letting the database layer perform the operations
 	async _persistDocumentByOps (id, ops) {
-		await this.databaseCollection.applyOpsById(
+		const updateOp = await this.databaseCollection.applyOpById(
 			id,
 			ops,
 			Object.assign(
 				{},
-				this.options.databaseOptions || {},
 				this.documentOptions[id] || {},
-				{ requestId: this.requestId }
+				{ 
+					requestId: this.requestId
+				}
 			)
 		);
+		const model = this.models[id];
+		if (model) {
+			ModelOps.applyOp(model, updateOp);		
+		}
 		delete this.modelOps[id];	// we've applied the ops, no longer needed
-		delete this.dirtyModelIds[id]; // the model is no longer dirty
 	}
 
 	// create a series of documents in the database
@@ -375,7 +326,6 @@ class DataCollection {
 			model.attributes,
 			Object.assign(
 				{},
-				this.options.databaseOptions || {},
 				this.documentOptions[id] || {},
 				{ requestId: this.requestId }
 			)
@@ -395,7 +345,7 @@ class DataCollection {
 	async _deleteDocument (id) {
 		await this.databaseCollection.deleteById(
 			id,
-			Object.assign({}, this.options.databaseOptions, { requestId: this.requestId })
+			Object.assign({}, { requestId: this.requestId })
 		);
 		this._removeModelFromCache(id);	// it's gone now!
 		delete this.toDeleteIds[id];	// no longer needs to be deleted!

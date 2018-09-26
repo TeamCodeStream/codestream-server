@@ -18,7 +18,7 @@ class OldPasswordFailsTest extends ChangePasswordTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.password = this.currentUserPassword;  // replace new password with old
+			this.data.password = this.users[0].password;  // replace new password with old
 			callback();
 		});
 	}

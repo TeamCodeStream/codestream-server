@@ -10,6 +10,13 @@ own user object (/users/me) and confirm it works
 
 class AuthenticationTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
+		delete this.teamOptions.inviterIndex;
+	}
+
 	get description () {
 		return 'should allow access to resources when a valid access token is supplied';
 	}
