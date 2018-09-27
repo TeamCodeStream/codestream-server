@@ -9,6 +9,7 @@
 	"Description": "Development outbound email service for {{ DT_USER }}",
 	"Environment": {
 		"Variables": {
+			"CS_FUNCTION_VERSION" : "{{ CS_FUNCTION_VERSION }}",
 			{{ ALL_ENV_VARS_PAIRS_STRING }}
 		}
 	},

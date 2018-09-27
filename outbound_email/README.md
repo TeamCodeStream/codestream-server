@@ -17,7 +17,7 @@ If you are using the dev_tools toolkit, install the sandbox with this command. O
 you do, it's recommended that you copy the playground template file to your **$DT_PLAYGROUNDS**
 directory and edit it accordingly.
 ```
-dt-new-sandbox -yCD -t cs_mailout -n $sandbox_name -b develop
+dt-new-sandbox -yCD -t cs_mailout -n $sandbox_name
 dt-load $sandbox_name
 cp $CS_OUTBOUND_EMAIL_TOP/sandbox/playground.template $DT_PLAYGROUNDS/$playground_name
 ```
@@ -64,7 +64,9 @@ Install the lambda function and a trigger on the SQS queue
 cd src && npm run lambda:install
 ```
 
-Uninstall the lambda function and trigger (do this when you're done developing)
+Uninstall the lambda function and trigger (do this when you're done developing). Note
+that uninstalling a lambda function and its triggers takes time to completely flush
+in AWS so you should wait a little bit before you re-install it.
 ```
 cd src && npm run lambda:uninstall
 ```
@@ -75,18 +77,27 @@ cd src && npm run clean
 ```
 
 
-## Test
-### Direct from SQS queue
-This client app will read the queue directly and process the message.
-```
-src/LambdaTest.js
-```
+## Testing
+Note that the default behavior for your api server is to disable
+adding email events to the SQS queue so you need to enable that. In your api
+sandbox run `unset CS_API_SUPPRESS_EMAIL` and restart the service.  
 
-### Lambda Function
-From inside your sandbox do a ping test. This script will register a new email
-with your API server (so it must be a unique address each time you run it). If
-the lambda function works, you should get an email to your codestream gmail
-account ($CS_OUTBOUND_EMAIL_TO).
+### Have the api service add an outbound email event to the SQS queue
+This command will drop a registration email event in the SQS queue for your
+outbound email service to process (the email address must be unique each time
+your run it).
 ```
 cs_outbound_email-ping jj+lambda2@codestream.com
 ```
+
+### Process the event directly in your sandbox
+This client app will poll your SQS queue and process the event (no lambda
+function used)
+```
+cd src && ./LambdaTest.js
+```
+
+### Test your Lambda Function
+Once your lambda function and trigger are installed, they will process the 
+registration email event your api service queued above from the ping.
+

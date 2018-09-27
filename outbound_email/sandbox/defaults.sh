@@ -97,3 +97,12 @@ export CS_OUTBOUND_EMAIL_AWS_ACCOUNT=564564469595
 export CS_OUTBOUND_EMAIL_LAMBDA_IAM_ROLE=lambda_basic_execution_with_sqs
 export CS_OUTBOUND_EMAIL_SQS_ARN="arn:aws:sqs:us-east-1:$CS_OUTBOUND_EMAIL_AWS_ACCOUNT:$CS_OUTBOUND_EMAIL_SQS"
 export CS_OUTBOUND_EMAIL_SNS_TOPIC_ARN="arn:aws:sns:us-east-1:$CS_OUTBOUND_EMAIL_AWS_ACCOUNT:dev_UnprocessedOutboundEmailEvents"
+
+# Standard variable name for lambda functions
+if [ -z "$CS_FUNCTION_VERSION" ]; then
+	if [ -n "$BUILD_NUMBER" ]; then
+		export CS_FUNCTION_VERSION=$BUILD_NUMBER
+	else
+		export CS_FUNCTION_VERSION=`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p version`
+	fi
+fi
