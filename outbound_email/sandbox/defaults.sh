@@ -85,18 +85,21 @@ fi
 
 export CS_OUTBOUND_EMAIL_NOTIFICATION_INTERVAL=300000
 export CS_OUTBOUND_EMAIL_SESSION_AWAY_TIMEOUT=600000
-export CS_OUTBOUND_EMAIL_SQS=dev_${DT_USER}_outboundEmail
+[ -z "$CS_OUTBOUND_EMAIL_SQS" ] && export CS_OUTBOUND_EMAIL_SQS=dev_${DT_USER}_outboundEmail
 
 export CS_OUTBOUND_EMAIL_SENDER_EMAIL=alerts@codestream.com
 export CS_OUTBOUND_EMAIL_SUPPORT_EMAIL=support@codestream.com
 export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=dev.codestream.com
 export CS_OUTBOUND_EMAIL_TO="${DT_USER}@codestream.com"
 
+export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.local.template.json
 export CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME=nodejs8.10
 export CS_OUTBOUND_EMAIL_AWS_ACCOUNT=564564469595
 export CS_OUTBOUND_EMAIL_LAMBDA_IAM_ROLE=lambda_basic_execution_with_sqs
 export CS_OUTBOUND_EMAIL_SQS_ARN="arn:aws:sqs:us-east-1:$CS_OUTBOUND_EMAIL_AWS_ACCOUNT:$CS_OUTBOUND_EMAIL_SQS"
 export CS_OUTBOUND_EMAIL_SNS_TOPIC_ARN="arn:aws:sns:us-east-1:$CS_OUTBOUND_EMAIL_AWS_ACCOUNT:dev_UnprocessedOutboundEmailEvents"
+#export CS_OUTBOUND_EMAIL_LAMBDA_SUBNETS=
+#export CS_OUTBOUND_EMAIL_LAMBDA_SECURITY_GROUPS=
 
 # Standard variable name for lambda functions
 if [ -z "$CS_FUNCTION_VERSION" ]; then

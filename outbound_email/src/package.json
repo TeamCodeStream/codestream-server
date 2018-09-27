@@ -13,7 +13,7 @@
 		"eslint": "eslint .",
 		"clean": "([ -d ../out ] && /bin/rm -rf ../out) && (cd .. && git clean -Xdf)",
 		"build": "([ ! -d ../out ] && mkdir ../out || /bin/echo -n) && zip -r ../out/outbound-email.zip *",
-		"lambda:config": "create-file-from-template.py -t ../sandbox/lambda-func.local.template.json -o ../out/lambda.json -j --kvpair ALL_ENV_VARS_PAIRS_STRING:CS_OUTBOUND_EMAIL_",
+		"lambda:config": "create-file-from-template.py -t ../sandbox/$CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE -o ../out/lambda.json -j --kvpair ALL_ENV_VARS_PAIRS_STRING:CS_OUTBOUND_EMAIL_",
 		"lambda:install_func": "aws lambda create-function --cli-input-json file://../out/lambda.json --zip-file fileb://../out/outbound-email.zip",
 		"lambda:install_trigger": "aws lambda create-event-source-mapping --function-name $CS_OUTBOUND_EMAIL_SQS --enabled --event-source-arn $CS_OUTBOUND_EMAIL_SQS_ARN",
 		"lambda:install": "npm run lambda:install_func && npm run lambda:install_trigger",
