@@ -11,7 +11,7 @@
 	},
 	"scripts": {
 		"eslint": "eslint .",
-		"clean": "([ -d ../out ] && /bin/rm -rf ../out) && (cd .. && git clean -Xdf)",
+		"clean": "([ -d ../out ] && /bin/rm -rf ../out || /bin/echo -n) && (cd .. && git clean -Xdf)",
 		"_make_out_dir": "[ ! -d ../out ] && mkdir ../out || /bin/echo -n",
 		"build": "npm run _make_out_dir && zip --quiet -r ../out/outbound-email.zip *",
 		"lambda:config": "npm run _make_out_dir && create-file-from-template.py -t ../sandbox/$CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE -o ../out/outbound-email.lambda.json -j --kvpair ALL_ENV_VARS_PAIRS_STRING:CS_OUTBOUND_EMAIL_",
