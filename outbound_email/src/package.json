@@ -12,12 +12,17 @@
 	"scripts": {
 		"eslint": "eslint .",
 		"clean": "([ -d ../out ] && /bin/rm -rf ../out) && (cd .. && git clean -Xdf)",
-		"build": "([ ! -d ../out ] && mkdir ../out || /bin/echo -n) && zip -r ../out/outbound-email.zip *",
-		"lambda:config": "create-file-from-template.py -t ../sandbox/$CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE -o ../out/lambda.json -j --kvpair ALL_ENV_VARS_PAIRS_STRING:CS_OUTBOUND_EMAIL_",
-		"lambda:install_func": "aws lambda create-function --cli-input-json file://../out/lambda.json --zip-file fileb://../out/outbound-email.zip",
+		"_make_out_dir": "[ ! -d ../out ] && mkdir ../out || /bin/echo -n",
+		"build": "npm run _make_out_dir && zip --quiet -r ../out/outbound-email.zip *",
+		"lambda:config": "npm run _make_out_dir && create-file-from-template.py -t ../sandbox/$CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE -o ../out/outbound-email.lambda.json -j --kvpair ALL_ENV_VARS_PAIRS_STRING:CS_OUTBOUND_EMAIL_",
+		"lambda:install_func": "aws lambda create-function --cli-input-json file://../out/outbound-email.lambda.json --zip-file fileb://../out/outbound-email.zip",
 		"lambda:install_trigger": "aws lambda create-event-source-mapping --function-name $CS_OUTBOUND_EMAIL_SQS --enabled --event-source-arn $CS_OUTBOUND_EMAIL_SQS_ARN",
+		"lambda:update_code": "aws lambda update-function-code --function-name $CS_OUTBOUND_EMAIL_SQS --zip-file fileb://../out/outbound-email.zip",
+		"lambda:config_env": "get-json-property -j ../out/outbound-email.lambda.json -p Environment >../out/outbound-email.lambda-environment.json",
+		"lambda:update_env": "npm run lambda:config_env && aws lambda update-function-configuration --function-name $CS_OUTBOUND_EMAIL_SQS --environment file://../out/outbound-email.lambda-environment.json",
 		"lambda:install": "npm run lambda:install_func && npm run lambda:install_trigger",
-		"lambda:uninstall": "dt-aws-lambda -a delete-triggers --func-name $CS_OUTBOUND_EMAIL_SQS && aws lambda delete-function --function $CS_OUTBOUND_EMAIL_SQS"
+		"lambda:uninstall": "dt-aws-lambda -a delete-triggers --func-name $CS_OUTBOUND_EMAIL_SQS && aws lambda delete-function --function-name $CS_OUTBOUND_EMAIL_SQS",
+		"reupdate": "npm run build && npm run lambda:update_code"
 	},
 	"pre-commit": [
 		"eslint"

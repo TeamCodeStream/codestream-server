@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+
+#desc# Standard interface to CodeStream's TeamCity build process
+
+import os
+import sys
+
+sys.path.append(os.environ['DT_TOP'] + "/lib")
+import devTools
+from sysUtils import dumpDict, shellExecNoBuffer, someValueOrNone, readJsonFileIgnoreComments
+from buildUtils import *
+
+assetExtensionList = ['info', 'zip', 'json']
+
+args = parseStandardBuildArgs()
+dt = devTools.devTools()
+buildData = buildInit(__file__, dt, args)
+buildDir = buildData['sandboxTop'] + "/src"
+os.chdir(buildDir)
+if args.verbose: print("current directory is", buildDir)
+
+if args.action == 'prep':
+	buildstepPrep(args)
+	exit(0)
+
+if args.action == 'clean' or args.action == 'destroy':
+	buildstepGeneric(args, cmd = "npm run clean", workingDir = buildDir)
+
+if args.action == 'destroy':
+	buildstepDestroy(args, buildData)
+
+if args.action == 'build':
+	pkgInfo = getPackageInfo(buildData = buildData, getRepoCommitDir = buildDir)
+	buildstepGeneric(args, cmd = "npm run build", workingDir = buildDir)
+	buildstepGeneric(args, cmd = "npm run lambda:config", workingDir = buildDir)
+	os.rename("../out/outbound-email.zip", "../out/" + pkgInfo['localAssetFilePrefix'] + ".zip")
+	os.rename("../out/outbound-email.lambda.json", "../out/" + pkgInfo['localAssetFilePrefix'] + ".lambda.json")
+	md5zip = dt.md5Hash("../out/" + pkgInfo['localAssetFilePrefix'] + ".zip")
+	md5json = dt.md5Hash("../out/" + pkgInfo['localAssetFilePrefix'] + ".lambda.json")
+	pkgInfo['assetsMD5'][pkgInfo['localAssetFilePrefix'] + ".zip"] = md5zip
+	pkgInfo['assetsMD5'][pkgInfo['localAssetFilePrefix'] + ".lambda.json"] = md5json
+	dumpDict(pkgInfo, "../out/" + pkgInfo['localAssetFilePrefix'] + ".info")
+	if args.verbose: dumpDict(pkgInfo, None, "Package Info:")
+	shellExecNoBuffer("ls -l " + pkgInfo['localAssetFilePrefix'] + ".*", workingDir = "../out", printCmd = True)
+
+if args.action == 'citest':
+	buildstepGeneric(args, cmd = "echo Testing not configured", workingDir = buildDir)
+
+if args.action == 'update':
+	# fetch assets from args.build_env build (usually ci) and modify them for this build environment
+	if not os.path.isdir("../out"): os.mkdir("../out")
+	if not os.path.isdir("../out/" + args.build_env): os.mkdir("../out/" + args.build_env)
+	fetchArtifacts(args, buildData, assetExtensionList, destDir = "../out/" + args.build_env, sourceAssetEnv = args.build_env)
+	buildstepGeneric(args, cmd = "cp -p ../out/" + args.build_env + "/*.zip ../out/outbound-email.zip", workingDir = buildDir)
+	buildstepGeneric(args, cmd = "npm run lambda:config", workingDir = buildDir)
+
+	# Update Lambda
+	print("updating lambda function code an environment")
+	buildstepGeneric(args, cmd = "npm run lambda:update_env", workingDir = buildDir)
+	buildstepGeneric(args, cmd = "npm run lambda:update_code", workingDir = buildDir)
+
+	# Prepare the new assets for publication
+	os.unlink("../out/outbound-email.lambda-environment.json")
+	os.rename("../out/outbound-email.lambda.json", "../out/" + buildData['givenBuildNumber'] + ".lambda.json")
+	os.rename("../out/outbound-email.zip ../out/" + buildData['givenBuildNumber'] + ".zip")
+	pkgInfo = readJsonFileIgnoreComments("../out/" + args.build_env + "/" + buildData['givenBuildNumber'] + ".info")
+	pkgInfo['assetEnvironment'] = os.environ['CS_OUTBOUND_EMAIL_ASSET_ENV']
+	dumpDict(pkgInfo, "../out/" + buildData['givenBuildNumber'] + ".info")
+	if args.verbose: dumpDict(pkgInfo, None, "New package info:")
+
+if args.action == 'publish':
+	publishArtifacts(args, buildData, assetExtensionList, sourceDir = "../out")

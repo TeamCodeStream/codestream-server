@@ -54,7 +54,7 @@ Perform both abovemented tasks at once
 cd src && npm run reupdate
 ```
 
-Create the Lamda function definition (../out/lambda.json)
+Create the Lamda function definition (../out/outbound-email.lambda.json)
 ```
 cd src && npm run lambda:config
 ```
@@ -69,6 +69,11 @@ that uninstalling a lambda function and its triggers takes time to completely fl
 in AWS so you should wait a little bit before you re-install it.
 ```
 cd src && npm run lambda:uninstall
+```
+
+Update the Lambda function environment variables (prerequisite - lamda:config)
+```
+cd src && npm run lambda:update_env
 ```
 
 Clean the repo
