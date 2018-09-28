@@ -48,15 +48,25 @@ if args.action == 'citest':
 
 if args.action == 'promote':
 	# fetch assets from args.build_env build (usually ci) and modify them for this build environment
-	fetchArtifacts(args, buildData, assetExtensionList, destDir = "../out/" + args.build_env, sourceAssetEnv = args.build_env)
+	sourceAssetEnv = None
+	if args.build_env:
+		sourceAssetEnv = args.build_env
+	elif buildData['assetEnv'] == 'pd':
+		sourceAssetEnv = 'ci'
+	elif buildData['assetEnv'] == 'prod':
+		sourceAssetEnv = 'qa'
+	else:
+		print("you must specify --build-env")
+		exit(1)
+	fetchArtifacts(args, buildData, assetExtensionList, destDir = "../out/" + sourceAssetEnv, sourceAssetEnv = sourceAssetEnv, publishDir = "outbound-email")
 	buildstepGeneric(args, cmd = "npm run lambda:config", workingDir = buildDir)
 	os.rename("../out/outbound-email.lambda.json", "../out/" + buildData['givenBuildNumber'] + ".lambda.json")
-	os.rename("../out/" + args.build_env + "/" + buildData['givenBuildNumber'] + ".zip", "../out/" + buildData['givenBuildNumber'] + ".zip")
-	pkgInfo = readJsonFileIgnoreComments("../out/" + args.build_env + "/" + buildData['givenBuildNumber'] + ".info")
+	os.rename("../out/" + sourceAssetEnv + "/" + buildData['givenBuildNumber'] + ".zip", "../out/" + buildData['givenBuildNumber'] + ".zip")
+	pkgInfo = readJsonFileIgnoreComments("../out/" + sourceAssetEnv + "/" + buildData['givenBuildNumber'] + ".info")
 	pkgInfo['assetEnvironment'] = os.environ['CS_OUTBOUND_EMAIL_ASSET_ENV']
 	dumpDict(pkgInfo, "../out/" + buildData['givenBuildNumber'] + ".info")
 	if args.verbose: dumpDict(pkgInfo, None, "New package info:")
-	buildstepGeneric(args, cmd = "/bin/rm -rf " + "../out/" + args.build_env)
+	buildstepGeneric(args, cmd = "/bin/rm -rf " + "../out/" + sourceAssetEnv, workingDir = buildDir)
 
 if args.action == 'update':
 	# install the artifiacts (update the lambda code and environment)

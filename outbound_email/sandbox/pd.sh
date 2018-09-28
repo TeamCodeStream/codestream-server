@@ -1,5 +1,5 @@
 
-export CS_OUTBOUND_EMAIL_ASSET_ENV=ci
+export CS_OUTBOUND_EMAIL_ASSET_ENV=pd
 #SENDGRID_CREDENTIALS_FILE=$HOME/.codestream/sendgrid/development
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-PD_Keyset"
 MONGO_ACCESS_FILE="$HOME/.codestream/mongo/pd-codestream-api"
