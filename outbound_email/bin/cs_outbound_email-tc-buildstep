@@ -46,27 +46,28 @@ if args.action == 'build':
 if args.action == 'citest':
 	buildstepGeneric(args, cmd = "echo Testing not configured", workingDir = buildDir)
 
-if args.action == 'update':
+if args.action == 'promote':
 	# fetch assets from args.build_env build (usually ci) and modify them for this build environment
-	if not os.path.isdir("../out"): os.mkdir("../out")
-	if not os.path.isdir("../out/" + args.build_env): os.mkdir("../out/" + args.build_env)
 	fetchArtifacts(args, buildData, assetExtensionList, destDir = "../out/" + args.build_env, sourceAssetEnv = args.build_env)
-	buildstepGeneric(args, cmd = "cp -p ../out/" + args.build_env + "/*.zip ../out/outbound-email.zip", workingDir = buildDir)
 	buildstepGeneric(args, cmd = "npm run lambda:config", workingDir = buildDir)
-
-	# Update Lambda
-	print("updating lambda function code an environment")
-	buildstepGeneric(args, cmd = "npm run lambda:update_env", workingDir = buildDir)
-	buildstepGeneric(args, cmd = "npm run lambda:update_code", workingDir = buildDir)
-
-	# Prepare the new assets for publication
-	os.unlink("../out/outbound-email.lambda-environment.json")
 	os.rename("../out/outbound-email.lambda.json", "../out/" + buildData['givenBuildNumber'] + ".lambda.json")
-	os.rename("../out/outbound-email.zip ../out/" + buildData['givenBuildNumber'] + ".zip")
+	os.rename("../out/" + args.build_env + "/" + buildData['givenBuildNumber'] + ".zip", "../out/" + builddData['givenBuildNumber'] + ".zip")
 	pkgInfo = readJsonFileIgnoreComments("../out/" + args.build_env + "/" + buildData['givenBuildNumber'] + ".info")
 	pkgInfo['assetEnvironment'] = os.environ['CS_OUTBOUND_EMAIL_ASSET_ENV']
 	dumpDict(pkgInfo, "../out/" + buildData['givenBuildNumber'] + ".info")
 	if args.verbose: dumpDict(pkgInfo, None, "New package info:")
+	buildstepGeneric(args, cmd = "/bin/rm -rf " + "../out/" + args.build_env)
+
+if args.action == 'update':
+	# install the artifiacts (update the lambda code and environment)
+	os.rename("../out/" + buildData['givenBuildNumber'] + ".zip", "../out/outbound-email.zip")
+	os.rename("../out/" + buildData['givenBuildNumber'] + ".lambda.json", "../out/outbound-email.lambda.json")
+	buildstepGeneric(args, cmd = "cp -p ../out/" + buildData['givenBuildNumber'] + ".lambda.json ../out/outbound-email.lambda.json", workingDir = buildDir)
+	print("updating lambda function code an environment")
+	buildstepGeneric(args, cmd = "npm run lambda:update_env", workingDir = buildDir)
+	buildstepGeneric(args, cmd = "npm run lambda:update_code", workingDir = buildDir)
+	os.rename("../out/outbound-email.zip", "../out/" + buildData['givenBuildNumber'] + ".zip")
+	os.rename("../out/outbound-email.lambda.json", "../out/" + buildData['givenBuildNumber'] + ".lambda.json")
 
 if args.action == 'publish':
 	publishArtifacts(args, buildData, assetExtensionList, sourceDir = "../out")
