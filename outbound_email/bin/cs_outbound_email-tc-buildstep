@@ -51,7 +51,7 @@ if args.action == 'promote':
 	fetchArtifacts(args, buildData, assetExtensionList, destDir = "../out/" + args.build_env, sourceAssetEnv = args.build_env)
 	buildstepGeneric(args, cmd = "npm run lambda:config", workingDir = buildDir)
 	os.rename("../out/outbound-email.lambda.json", "../out/" + buildData['givenBuildNumber'] + ".lambda.json")
-	os.rename("../out/" + args.build_env + "/" + buildData['givenBuildNumber'] + ".zip", "../out/" + builddData['givenBuildNumber'] + ".zip")
+	os.rename("../out/" + args.build_env + "/" + buildData['givenBuildNumber'] + ".zip", "../out/" + buildData['givenBuildNumber'] + ".zip")
 	pkgInfo = readJsonFileIgnoreComments("../out/" + args.build_env + "/" + buildData['givenBuildNumber'] + ".info")
 	pkgInfo['assetEnvironment'] = os.environ['CS_OUTBOUND_EMAIL_ASSET_ENV']
 	dumpDict(pkgInfo, "../out/" + buildData['givenBuildNumber'] + ".info")
