@@ -10,7 +10,7 @@ import devTools
 from sysUtils import dumpDict, shellExecNoBuffer, someValueOrNone, readJsonFileIgnoreComments
 from buildUtils import *
 
-assetExtensionList = ['info', 'zip', 'json']
+assetExtensionList = ['info', 'zip', 'lambda.json']
 
 args = parseStandardBuildArgs()
 dt = devTools.devTools()
@@ -70,4 +70,4 @@ if args.action == 'update':
 	os.rename("../out/outbound-email.lambda.json", "../out/" + buildData['givenBuildNumber'] + ".lambda.json")
 
 if args.action == 'publish':
-	publishArtifacts(args, buildData, assetExtensionList, sourceDir = "../out")
+	publishArtifacts(args, buildData, assetExtensionList, sourceDir = "../out", publishDir = "outbound-email")
