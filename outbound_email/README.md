@@ -38,6 +38,29 @@ install the lambda function and trigger.
 cd src && npm run build && npm run lambda:config && npm run lambda:install
 ```
 
+## Development Lifecycle
+As the outbound_email sandbox will change over time, as may your VPN connection, it is not
+wise to keep your lambda development function up and running indefinitely. It will eventually
+stop working properly and costs money. So when you're done doing your scope of work,
+uninstall your lambda function.  
+
+You can see the lambda functions with:
+```
+dt-aws-lamnda -a list-funcs
+```
+In a nutshell, the development lifecycle looks like this:
+1. Modify your API server so it queues outbound email events
+1. update your outbound_email sandbox and install your lambda function
+1. during development, update your function's code or environment
+variable as often as is needed.
+1. Push your changes. TeamCity will handle publishing them across the various environments.
+1. When you're done, modifued your API server so it no longer puts outbound
+email events on the queue.
+1. Uninstall your lambda function.
+
+Use the npm scripts below to do the work of installing, uninstalling, updating, etc..  
+
+
 ## NPM scripts
 Build / Create asset (../out/outbound-email.zip)
 ```
@@ -81,7 +104,6 @@ Clean the repo
 cd src && npm run clean
 ```
 
-
 ## Testing
 Note that the default behavior for your api server is to disable
 adding email events to the SQS queue so you need to enable that. In your api
@@ -105,4 +127,3 @@ cd src && ./LambdaTest.js
 ### Test your Lambda Function
 Once your lambda function and trigger are installed, they will process the 
 registration email event your api service queued above from the ping.
-
