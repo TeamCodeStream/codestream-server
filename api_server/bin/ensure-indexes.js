@@ -14,6 +14,7 @@
 /* eslint no-console: 0 */
 
 const AllModuleIndexes = {
+	teams: require(process.env.CS_API_TOP + '/modules/teams/indexes.js'),
 	repos: require(process.env.CS_API_TOP + '/modules/repos/indexes.js'),
 	streams: require(process.env.CS_API_TOP + '/modules/streams/indexes.js'),
 	posts: require(process.env.CS_API_TOP + '/modules/posts/indexes.js'),

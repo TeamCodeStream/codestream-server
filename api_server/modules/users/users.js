@@ -117,6 +117,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: '/no-auth/change-email-confirm',
 		requestClass: require('./change_email_confirm_request')
+	},
+	{
+		method: 'put',
+		path: '/no-auth/provider-connect/:provider',
+		requestClass: require('./provider_connect_request')
 	}
 ];
 

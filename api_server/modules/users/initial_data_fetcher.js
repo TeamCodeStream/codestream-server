@@ -16,6 +16,7 @@ class InitialDataFetcher  {
 	async fetchInitialData () {
 		this.initialData = {};
 		await this.getTeams();			// get the teams they are a member of
+		await this.getCompanies();		// get the companies associated with these teams
 		await this.getRepos();			// get the repos owned by their teams
 		return this.initialData;
 	}
@@ -31,6 +32,17 @@ class InitialDataFetcher  {
 		this.initialData.teams = await this.request.sanitizeModels(teams);
 	}
 
+	// get the companies that own the teams
+	async getCompanies () {
+		const companyIds = this.initialData.teams.map(team => team.companyId);
+		if (companyIds.length === 0) {
+			this.initialData.companies = [];
+			return;
+		}
+		const companies = await this.request.data.companies.getByIds(companyIds);
+		this.initialData.companies = await this.request.sanitizeModels(companies);
+	}
+	
 	// get the repos owned by the teams the user is a member of
 	async getRepos () {
 		const teamIds = this.user.get('teamIds') || [];

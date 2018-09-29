@@ -38,4 +38,12 @@ module.exports = {
 		maxLength: 10000,
 		description: 'Free-form object representing the team\'s settings'
 	},
+	providerInfo: {
+		type: 'object',
+		description: 'Object containing credentials info for third-party providers'
+	},
+	providerIdentities: {
+		type: 'arrayOfStrings',
+		serverOnly: true
+	}
 };

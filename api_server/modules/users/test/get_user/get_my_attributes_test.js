@@ -3,7 +3,6 @@
 var GetMyselfTest = require('./get_myself_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const UserTestConstants = require('../user_test_constants');
-const UserAttributes = require('../../user_attributes');
 
 class GetMyAttributesTest extends GetMyselfTest {
 
@@ -94,18 +93,9 @@ class GetMyAttributesTest extends GetMyselfTest {
 	}
 
 	// validate that the received user data does not have any attributes a client shouldn't see
-	validateSanitized (user, fields) {
-		// because me-attributes are usually sanitized out (for other users), but not for the fetching user,
-		// we'll need to filter these out before calling the "base" validateSanitized, which would otherwise
-		// fail when it sees these attributes
-		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
-		meAttributes.forEach(attribute => {
-			let index = fields.indexOf(attribute);
-			if (index !== -1) {
-				fields.splice(index, 1);
-			}
-		});
-		super.validateSanitized(user, fields);
+	validateSanitized (user) {
+		// user can see attributes others can't
+		super.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }
 

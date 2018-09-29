@@ -146,9 +146,13 @@ class RandomUserFactory {
 			}
 		}
 		Object.assign(data, options.with || {});
-		_NextPubnubUuid = (_NextPubnubUuid + 1) % 100;
-		data._pubnubUuid = `TEST-UUID-${_NextPubnubUuid}`;
+		data._pubnubUuid = this.getNextPubnubUuid();
 		return data;
+	}
+
+	getNextPubnubUuid () {
+		_NextPubnubUuid = (_NextPubnubUuid + 1) % 100;
+		return `TEST-UUID-${_NextPubnubUuid}`;
 	}
 
 	// create a registered and confirmed user, given user data

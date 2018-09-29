@@ -3,10 +3,8 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const PasswordHasher = require('./password_hasher');
-const UsernameChecker = require('./username_checker');
 const UserPublisher = require('./user_publisher');
-const LoginHelper = require('./login_helper');
+const ConfirmHelper = require('./confirm_helper');
 const Errors = require('./errors');
 const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors');
 const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
@@ -38,10 +36,7 @@ class ConfirmRequest extends RestfulRequest {
 		if (await this.verifyCode()) {		// verify the confirmation code is correct
 			return await this.failedConfirmation();
 		}
-		await this.hashPassword();			// hash the provided password, if given
-		await this.checkUsernameUnique();	// check that the user's username will be unique for their team, as needed
-		await this.updateUser();			// update the user's database record
-		await this.doLogin();				// proceed with the actual login
+		await this.doConfirm();				// call out to confirm helper to finish the confirmation
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -168,117 +163,13 @@ class ConfirmRequest extends RestfulRequest {
 		return confirmFailed; // if true, shortcuts and prepares for failure response
 	}
 
-	// hash the given password, as needed
-	async hashPassword () {
-		if (!this.request.body.password) { return; }
-		this.request.body.passwordHash = await new PasswordHasher({
-			errorHandler: this.errorHandler,
-			password: this.request.body.password
-		}).hashPassword();
-		delete this.request.body.password;
-	}
-
-	// check that the user's username will be unique for the team(s) they are on
-	async checkUsernameUnique () {
-		const username = this.request.body.username || this.user.get('username');
-		if (!username) {
-			return;
-		}
-		// we check against each team the user is on, it must be unique in all teams
-		const teamIds = this.user.get('teamIds') || [];
-		const usernameChecker = new UsernameChecker({
-			data: this.data,
-			username: username,
-			userId: this.user.id,
-			teamIds: teamIds
-		});
-		const isUnique = await usernameChecker.checkUsernameUnique();
-		if (!isUnique) {
-			throw this.errorHandler.error('usernameNotUnique', {
-				info: {
-					username: username,
-					teamIds: usernameChecker.notUniqueTeamIds
-				}
-			});
-		}
-	}
-
-	// proceed with the actual login, calling into a login helper 
-	async doLogin () {
-		this.responseData = await new LoginHelper({
+	// call out to a confirmation helper, to finish the confirmation
+	async doConfirm () {
+		this.responseData = await new ConfirmHelper({
 			request: this,
 			user: this.user,
 			loginType: this.loginType
-		}).login();
-	}
-
-	// update the user in the database, indicating they are confirmed
-	async updateUser () {
-		await this.getFirstTeam();		// get the first team the user is on, if needed, this becomes the "origin" team
-		await this.getTeamCreator();	// get the creator of that team
-		await this.doUserUpdate();		// do the actual update
-	}
-
-	// get the first team the user is on, if needed
-	// this is need to determine the "origin team" for the user, for analytics
-	async getFirstTeam () {
-		if ((this.user.get('teamIds') || []).length === 0) {
-			return;
-		}
-		const teamId = this.user.get('teamIds')[0];
-		this.firstTeam = await this.data.teams.getById(teamId);
-	}
-
-	// get the creator of the first team the user was on, if needed
-	// this is need to determine the "origin team" for the user, for analytics
-	async getTeamCreator () {
-		if (!this.firstTeam) {
-			return;
-		}
-		this.teamCreator = await this.data.users.getById(
-			this.firstTeam.get('creatorId')
-		);
-	}
-
-	// update the user in the database, indicating they are confirmed,
-	// and add analytics data or other attributes as needed
-	async doUserUpdate () {
-		const now = Date.now();
-		let op = {
-			'$set': {
-				isRegistered: true,
-				modifiedAt: now,
-				registeredAt: now
-			},
-			'$unset': {
-				confirmationCode: true,
-				confirmationAttempts: true,
-				confirmationCodeExpiresAt: true,
-				'accessTokens.conf': true
-			}
-		};
-		if (this.passwordHash) {
-			op.$set.passwordHash = this.passwordHash;
-		}
-		if (this.request.body.username) {
-			op.$set.username = this.request.body.username;
-		}
-		if ((this.user.get('teamIds') || []).length > 0) {
-			if (!this.user.get('joinMethod')) {
-				op.$set.joinMethod = 'Added to Team';	// for tracking
-			}
-			if (!this.user.get('primaryReferral')) {
-				op.$set.primaryReferral = 'internal';
-			}
-			if (
-				!this.user.get('originTeamId') &&
-				this.teamCreator &&
-				this.teamCreator.get('originTeamId')
-			) {
-				op.$set.originTeamId = this.teamCreator.get('originTeamId');
-			}
-		}
-		this.user = await this.data.users.applyOpById(this.user.id, op);
+		}).confirm(this.request.body);
 	}
 
 	// user failed confirmation for whatever reason, we'll do a database update

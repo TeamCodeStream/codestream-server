@@ -68,5 +68,20 @@ module.exports = {
 		code: 'USRC-1012',
 		message: 'This user is not yet on a team',
 		description: 'The user indicated by the passed signup token is not yet on any teams, so they are not cleared yet for sign-in'
+	},
+	'unknownProvider': {
+		code: 'USRC-1013',
+		message: 'Provider unknown',
+		description: 'The provider info passed in has an unknown type'
+	},
+	'invalidProviderCredentials': {
+		code: 'USRC-1014',
+		message: 'Supplied provider credentials were found to be invalid',
+		description: 'The provider info passed contained credentials that the server tried to validate, but the validation failed'
+	},
+	'duplicateProviderAuth': {
+		code: 'USRC-1015',
+		message: 'The user already has credentials for this provider',
+		description: 'The provider info passed contained credentials for a third-party provider that did not match the credentials the user already has for the provider'
 	}
 };

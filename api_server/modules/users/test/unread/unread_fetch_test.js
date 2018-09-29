@@ -3,7 +3,6 @@
 const UnreadTest = require('./unread_test');
 const Assert = require('assert');
 const UserTestConstants = require('../user_test_constants');
-const UserAttributes = require('../../user_attributes');
 
 class UnreadFetchTest extends UnreadTest {
 
@@ -47,22 +46,7 @@ class UnreadFetchTest extends UnreadTest {
 			[this.stream._id]: this.unreadPost.toString()
 		};
 		Assert.deepEqual(expectedLastReads, data.user.lastReads, 'lastReads doesn\'t match');
-		this.validateSanitized(data.user);
-	}
-
-	// validate that the response has no attributes that should not be sent to clients
-	validateSanitized (user, fields) {
-		// the base-clase validation doesn't know to avoid looking for me-only attributes,
-		// so remove those from the fields we'll be checking against
-		fields = fields || UserTestConstants.UNSANITIZED_ATTRIBUTES;
-		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
-		meAttributes.forEach(attribute => {
-			let index = fields.indexOf(attribute);
-			if (index !== -1) {
-				fields.splice(index, 1);
-			}
-		});
-		super.validateSanitized(user, fields);
+		super.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }
 
