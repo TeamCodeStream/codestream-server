@@ -41,7 +41,6 @@ export PATH=$CS_OUTBOUND_EMAIL_TOP/bin:$PATH
 
 #[ -z "$MONGO_ACCESS_FILE" ] && MONGO_ACCESS_FILE="$HOME/.codestream/mongo/mongo-access"
 if [ -n "$MONGO_ACCESS_FILE" -a -f "$MONGO_ACCESS_FILE" ]; then
-	. $MONGO_ACCESS_FILE
 	[ -n "$MONGO_HOST" ] && export CS_OUTBOUND_EMAIL_MONGO_HOST=$MONGO_HOST
 	[ -n "$MONGO_PORT" ] && export CS_OUTBOUND_EMAIL_MONGO_PORT=$MONGO_PORT
 	[ -n "$MONGO_URL" ] && export CS_OUTBOUND_EMAIL_MONGO_URL=$MONGO_URL
@@ -54,6 +53,8 @@ else
 	export CS_OUTBOUND_EMAIL_MONGO_HOST=$TUNNEL_IP
 	export CS_OUTBOUND_EMAIL_MONGO_PORT=27017
 	export CS_OUTBOUND_EMAIL_MONGO_DATABASE=codestream
+	echo "Setting mongo database to point to local development"
+	echo "Mongo Host = $CS_OUTBOUND_EMAIL_MONGO_HOST"
 	# Define these to tell the API service to use mongo authentication
 	#export CS_OUTBOUND_EMAIL_MONGO_USER=api
 	#export CS_OUTBOUND_EMAIL_MONGO_PASS=api

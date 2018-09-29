@@ -50,9 +50,9 @@ dt-aws-lamnda -a list-funcs
 ```
 In a nutshell, the development lifecycle looks like this:
 1. Modify your API server so it queues outbound email events
-1. update your outbound_email sandbox and install your lambda function
-1. during development, update your function's code or environment
-variable as often as is needed.
+1. Update your outbound_email sandbox and install your lambda function
+1. During development, update your function's code or environment
+variables as often as is needed.
 1. Push your changes. TeamCity will handle publishing them across the various environments.
 1. When you're done, modifued your API server so it no longer puts outbound
 email events on the queue.

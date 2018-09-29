@@ -72,12 +72,12 @@ if args.action == 'update':
 	# install the artifiacts (update the lambda code and environment)
 	os.rename("../out/" + buildData['givenBuildNumber'] + ".zip", "../out/outbound-email.zip")
 	os.rename("../out/" + buildData['givenBuildNumber'] + ".lambda.json", "../out/outbound-email.lambda.json")
-	buildstepGeneric(args, cmd = "cp -p ../out/" + buildData['givenBuildNumber'] + ".lambda.json ../out/outbound-email.lambda.json", workingDir = buildDir)
 	print("updating lambda function code an environment")
 	buildstepGeneric(args, cmd = "npm run lambda:update_env", workingDir = buildDir)
 	buildstepGeneric(args, cmd = "npm run lambda:update_code", workingDir = buildDir)
 	os.rename("../out/outbound-email.zip", "../out/" + buildData['givenBuildNumber'] + ".zip")
 	os.rename("../out/outbound-email.lambda.json", "../out/" + buildData['givenBuildNumber'] + ".lambda.json")
+	os.unlink("../out/outbound-email.lambda-environment.json")
 
 if args.action == 'publish':
 	publishArtifacts(args, buildData, assetExtensionList, sourceDir = "../out", publishDir = "outbound-email")
