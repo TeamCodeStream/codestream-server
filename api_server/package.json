@@ -1,6 +1,7 @@
 {
   "name": "CodeStream_Server",
   "dependencies": {
+    "@slack/client": "^4.6.0",
     "async": "2.1.2",
     "aws-sdk": "^2.205.0",
     "bcrypt": "1.0.2",

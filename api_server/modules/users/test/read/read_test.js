@@ -1,10 +1,9 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Assert = require('assert');
 const UserTestConstants = require('../user_test_constants');
-const UserAttributes = require('../../user_attributes');
 
 class ReadTest extends CodeStreamAPITest {
 
@@ -152,22 +151,7 @@ class ReadTest extends CodeStreamAPITest {
 			[this.otherStream._id]: '0'
 		};
 		Assert.deepEqual(expectedLastReads, data.user.lastReads, 'lastReads doesn\'t match');
-		this.validateSanitized(data.user);
-	}
-
-	// validate that the response has no attributes that should not be sent to clients
-	validateSanitized (user, fields) {
-		// the base-clase validation doesn't know to avoid looking for me-only attributes,
-		// so remove those from the fields we'll be checking against
-		fields = fields || UserTestConstants.UNSANITIZED_ATTRIBUTES;
-		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
-		meAttributes.forEach(attribute => {
-			let index = fields.indexOf(attribute);
-			if (index !== -1) {
-				fields.splice(index, 1);
-			}
-		});
-		super.validateSanitized(user, fields);
+		super.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }
 

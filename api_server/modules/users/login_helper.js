@@ -10,6 +10,7 @@ class LoginHelper {
 
 	constructor (options) {
 		Object.assign(this, options);
+		this.loginType = this.loginType || 'web';
 	}
 
 	async login () {

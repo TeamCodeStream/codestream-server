@@ -57,11 +57,16 @@ const UNSANITIZED_ATTRIBUTES = Object.keys(UserAttributes).filter(attribute => {
 	return UserAttributes[attribute].serverOnly;
 });
 
+const UNSANITIZED_ATTRIBUTES_FOR_ME = Object.keys(UserAttributes).filter(attribute => {
+	return UserAttributes[attribute].serverOnly && !UserAttributes[attribute].forMe;
+});
+
 module.exports = {
 	EXPECTED_USER_RESPONSE,
 	EXPECTED_REGISTRATION_RESPONSE,
 	EXPECTED_LOGIN_RESPONSE,
 	EXPECTED_USER_FIELDS,
 	EXPECTED_ME_FIELDS,
-	UNSANITIZED_ATTRIBUTES
+	UNSANITIZED_ATTRIBUTES,
+	UNSANITIZED_ATTRIBUTES_FOR_ME
 };

@@ -37,7 +37,7 @@ class ReadAllTest extends ReadTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate we don't see any attributes a client shouldn't see
-		this.validateSanitized(data.user);
+		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }
 

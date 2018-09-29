@@ -45,8 +45,8 @@ class UserCreator extends ModelCreator {
 				string: ['password', 'username', 'fullName', 'firstName', 'lastName', 'timeZone', 'confirmationCode', '_pubnubUuid'], 
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt'],
 				boolean: ['isRegistered'],
-				'array(string)': ['secondaryEmails'],
-				object: ['preferences']
+				'array(string)': ['secondaryEmails', 'providerIdentities'],
+				object: ['preferences', 'providerInfo']
 			}
 		};
 	}

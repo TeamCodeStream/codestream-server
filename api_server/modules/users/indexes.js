@@ -9,5 +9,8 @@ module.exports = {
 	},
 	bySearchableEmail: {
 		searchableEmail: 1
+	},
+	byProviderIdentities: {
+		providerIdentities: 1
 	}
 };

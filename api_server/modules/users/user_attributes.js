@@ -191,5 +191,15 @@ module.exports = {
 	lastEmailsSent: {
 		type: 'object',
 		serverOnly: true
+	},
+	providerIdentities: {
+		type: 'arrayOfStrings',
+		serverOnly: true
+	},
+	providerInfo: {
+		type: 'object',
+		serverOnly: true,
+		forMe: true,
+		description: 'Object containing credentials info for third-party providers'
 	}
 };
