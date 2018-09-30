@@ -57,8 +57,8 @@ class PostCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			optional: {
-				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId'],
-				object: ['stream'],
+				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId', 'providerType', 'providerPostId', 'providerConversationId'],
+				object: ['stream', 'providerInfo'],
 				'array(object)': ['codeBlocks'],
 				'array(string)': ['mentionedUserIds']
 			}

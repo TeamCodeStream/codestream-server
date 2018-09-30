@@ -31,7 +31,11 @@ class PostPostRequest extends PostRequest {
 				'parentPostId': '<For replies, the ID of the parent post>',
 				'codeBlocks': '<Array of code blocks, specifying code quoted by this post>',
 				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>',
-				'stream': '<Minimal attributes of a @@#stream object#stream@@, for creating a stream for the post on-the-fly, required if no streamId is given>'
+				'stream': '<Minimal attributes of a @@#stream object#stream@@, for creating a stream for the post on-the-fly, required if no streamId is given>',
+				'providerType': '<For third-party integrations, type of provider (slack, msteams, etc.) the post is associated with>',
+				'providerPostId': '<For third-party integrations, ID of the post that this post references in the third-party integration provider>',
+				'providerConversationId': '<For third-party integrations, ID of the conversation (team, group, DM) to which this post belongs in the the third-party integration provider>',
+				'providerInfo': '<For third-party integrations, free-form object for additional info relevant to the third-party post>'
 			}
 		};
 		description.returns.summary = 'A post object, plus a stream object if a stream was created on-the-fly, marker objects and marker locations for any code blocks';

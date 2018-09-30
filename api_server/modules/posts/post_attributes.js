@@ -70,5 +70,25 @@ module.exports = {
 		maxLength: 5000,
 		description: 'Keys are the reaction (eg. \'smiley\', \'frown\', etc), and values are an array of user IDs, representing the users who picked that reaction',
 		default: {}
+	},
+	providerType: {
+		type: 'string',
+		maxLength: 20,
+		description: 'For third-party integrations, type of provider (slack, msteams, etc.) the post is associated with'
+	},
+	providerPostId: {
+		type: 'string',
+		maxLength: 40,
+		description: 'For third-party integrations, ID of the post that this post references in the third-party integration provider'
+	},
+	providerConversationId: {
+		type: 'string',
+		maxLength: 40,
+		description: 'For third-party integrations, ID of the conversation (team, group, DM) to which this post belongs in the the third-party integration provider'
+	},
+	providerInfo: {
+		type: 'object',
+		maxLength: 1000,
+		description: 'For third-party integrations, free-form object for additional info relevant to the third-party post'
 	}
 };
