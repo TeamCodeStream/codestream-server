@@ -156,12 +156,6 @@ else
 fi
 
 # ============ Email Settings ================
-# Emails by default are not sent ... set this to "on" to send emails normally
-# (as in production, and exercise extreme caution when testing) ...
-# or set to a valid email to have all emails diverted to the specified address,
-# this is good and risk-free for developer testing
-[ -n "$DT_USER" ] && export CS_API_EMAIL_TO=$DT_USER@codestream.com
-
 # By default we require email confirmation, but for developer convenience
 # during testing, the requirement of email confirmation can be turned off
 # To turn off the email confirmation requrement, set the below to "1"
