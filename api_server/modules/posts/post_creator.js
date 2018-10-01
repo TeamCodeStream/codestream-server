@@ -520,6 +520,11 @@ class PostCreator extends ModelCreator {
 			this.request.log('Would have triggered email notifications for stream ' + this.stream.id);
 			return;
 		}
+		if (this.model.get('providerType')) {
+			this.request.log(`Post associated with provider ${this.model.get('providerType')} will not trigger notifications`);
+			return;
+		}
+
 		const queue = new EmailNotificationQueue({
 			request: this.request,
 			fromSeqNum: this.model.get('seqNum'),
