@@ -42,7 +42,7 @@ class UserCreator extends ModelCreator {
 			},
 			optional: {
 				// NOTE first/last name should be deprecated once original atom client is deprecated
-				string: ['password', 'username', 'fullName', 'firstName', 'lastName', 'timeZone', 'confirmationCode', '_pubnubUuid'], 
+				string: ['password', 'username', 'fullName', 'firstName', 'lastName', 'timeZone', 'confirmationCode', '_pubnubUuid', 'phoneNumber', 'iWorkOn'], 
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt'],
 				boolean: ['isRegistered'],
 				'array(string)': ['secondaryEmails', 'providerIdentities'],

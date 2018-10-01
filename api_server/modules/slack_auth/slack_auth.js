@@ -14,7 +14,7 @@ class SlackAuth extends APIServerModule {
 	}
 
 	async authorizeProviderInfo (providerInfo, options) {
-		return await new ProviderInfoAuthorizer({ providerInfo, options }).authorize();
+		return await new ProviderInfoAuthorizer({ providerInfo, options }).exchangeAndAuthorize();
 	}
 }
 

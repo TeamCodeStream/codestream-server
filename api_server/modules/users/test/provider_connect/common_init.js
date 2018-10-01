@@ -34,8 +34,8 @@ class CommonInit {
 		const mockTeamId = teamId || `MOCK${RandomString.generate(8)}`;
 		return {
 			providerInfo: {
-				authToken: `mock-${mockUserId}-${mockTeamId}`,
-				userId: mockUserId
+				code: `mock-${mockUserId}-${mockTeamId}`,
+				redirectUri: 'https://mock'
 			},
 			signupToken: UUID(),
 			_pubnubUuid: this.userFactory.getNextPubnubUuid()
@@ -64,8 +64,11 @@ class CommonInit {
 		if (this.wantPreExistingConnectedUser) {
 			this.preCreateConnectedUser(callback);
 		}
-		else {
+		else if (this.wantPreExistingUnconnectedUser) {
 			this.preCreateUnconnectedUser(callback);
+		}
+		else {
+			callback();
 		}
 	}
 

@@ -8,6 +8,7 @@ const UserUpdater = require('./user_updater');
 const SignupTokens = require('./signup_tokens');
 const User = require('./user');
 const Errors = require('./errors');
+//const HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {
@@ -122,7 +123,42 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: '/no-auth/provider-connect/:provider',
 		requestClass: require('./provider_connect_request')
+	},
+/*
+	{
+		method: 'get',
+		path: 'no-auth/slack-auth',
+		func: (request, response) => {
+			const clientId = encodeURIComponent('251469054195.443134779744');
+			const scope = encodeURIComponent('read');
+			const state = require('randomstring').generate(16);
+			const redirectUri = encodeURIComponent('https://localhost.codestream.us:12079/no-auth/slack-redirect');
+			const uri = `https://slack.com/oauth/authorize?client_id=${clientId}&scope=${scope}&state=${state}&redirect_uri=${redirectUri}`;
+			response.redirect(uri);
+		}
+	},
+	{
+		method: 'get',
+		path: 'no-auth/slack-redirect',
+		func: (request, response) => {
+			HTTPSBot.put(
+				'localhost.codestream.us',
+				12079,
+				'/no-auth/provider-connect/slack',
+				{ 
+					providerInfo: { 
+						code: decodeURIComponent(request.query.code),
+						redirectUri: 'https://localhost.codestream.us:12079/no-auth/slack-redirect'
+					}
+				},
+				{ headers: { 'content-type': 'application/json' } },
+				() => {
+					response.send();
+				}
+			);
+		}
 	}
+*/
 ];
 
 class Users extends Restful {
