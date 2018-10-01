@@ -95,6 +95,20 @@ fi
 [ -z "$CS_API_TEAMSBOT_ORIGIN" ] && export CS_API_TEAMSBOT_ORIGIN=http://localhost:10079
 
 
+# ================= Slack API ==================
+[ -z "$SLACK_API_ACCESS_FILE" ] && SLACK_API_ACCESS_FILE=$HOME/.codestream/slack-api/development
+if [ -f $SLACK_API_ACCESS_FILE ]; then
+	. $SLACK_API_ACCESS_FILE
+	export CS_API_SLACK_CLIENT_ID="$SLACK_CLIENT_ID"
+	export CS_API_SLACK_CLIENT_SECRET="$SLACK_CLIENT_SECRET"
+else
+	echo "********************************************************************"
+	echo "WARNING: slack api access file not found. Run dt-update-secrets and"
+	echo "         reload your sandbox"
+	echo "********************************************************************"
+fi
+
+
 # =============== PubNub Settings ==============
 # see README.pubnub for more details
 [ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-Local_Keyset_1"
