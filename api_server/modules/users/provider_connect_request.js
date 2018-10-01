@@ -61,7 +61,6 @@ class ProviderConnectRequest extends RestfulRequest {
 					this.request.body.providerInfo,
 					{ request: this, mockEmail: this.request.body._mockEmail }
 				);
-				return;
 			}
 			break;
 		}
@@ -172,12 +171,12 @@ class ProviderConnectRequest extends RestfulRequest {
 	async updateUser () {
 		let mustUpdate = false;
 
-		// if the key provider info (userId or authToken) has changed, we need to update
+		// if the key provider info (userId or accessToken) has changed, we need to update
 		const existingProviderInfo = (this.user.get('providerInfo') || {})[this.provider];
 		if (
 			!existingProviderInfo || 
 			existingProviderInfo.userId !== this.providerInfo.userId ||
-			existingProviderInfo.authToken !== this.providerInfo.authToken
+			existingProviderInfo.accessToken !== this.providerInfo.accessToken
 		) {
 			mustUpdate = true;
 		}
@@ -208,7 +207,7 @@ class ProviderConnectRequest extends RestfulRequest {
 				[`providerInfo.${this.provider}`]: {
 					userId: this.providerInfo.userId,
 					teamId: this.providerInfo.teamId,
-					authToken: this.providerInfo.authToken
+					accessToken: this.providerInfo.accessToken
 				}
 			}
 		};
@@ -224,21 +223,23 @@ class ProviderConnectRequest extends RestfulRequest {
 			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
 			subscriptionCheat: this.request.body._subscriptionCheat === this.api.config.secrets.subscriptionCheat
 		});
+
 		const userData = {
-			email: this.providerInfo.email,
-			username: this.providerInfo.username,
-			fullName: this.providerInfo.fullName,
-			timeZone: this.providerInfo.timeZone,
 			_pubnubUuid: this.request.body._pubnubUuid,
 			providerInfo: {
 				[this.provider]: {
 					userId: this.providerInfo.userId,
 					teamId: this.providerInfo.teamId,
-					authToken: this.providerInfo.authToken
+					accessToken: this.providerInfo.accessToken
 				}
 			},
 			providerIdentities: [`${this.provider}::${this.providerInfo.userId}`]
 		};
+		['email', 'username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn'].forEach(attribute => {
+			if (this.providerInfo[attribute]) {
+				userData[attribute] = this.providerInfo[attribute];
+			}
+		});
 		this.user = await this.userCreator.createUser(userData);
 	}
 

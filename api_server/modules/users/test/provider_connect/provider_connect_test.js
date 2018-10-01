@@ -51,15 +51,13 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const primaryReferral = this.wantPreExistingTeam ? 'internal' : 'external';
 		const result = (
 			(user.email || errors.push('no email')) &&
-			(user.username || errors.push('incorrect username')) &&
-			(user.fullName || errors.push('incorrect full name')) &&
-			(user.timeZone || errors.push('incorrect time zone')) &&
+			(user.username || errors.push('username not set')) &&
+			(user.fullName || errors.push('full name not set')) &&
+			(user.timeZone || errors.push('time zone not set')) &&
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((user.creatorId === user._id) || errors.push('creatorId not equal to _id')) &&
-			((user.phoneNumber === '') || errors.push('phoneNumber not set to default of empty string')) &&
-			((user.iWorkOn === '') || errors.push('iWorkOn not set to default value of empty string')) &&
 			((user.joinMethod === joinMethod) || errors.push('joinMethod not set to "Created Team"')) &&
 			((user.primaryReferral === primaryReferral) || errors.push('primaryReferral not set to "internal"')) &&
 			((user.originTeamId === team._id) || errors.push('originTeamId not set to ID of created team')) &&
@@ -67,11 +65,19 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((user.registeredAt >= user.createdAt) || errors.push('registeredAt not greater than or equal to createAt')) &&
 			(providerInfo[this.provider].userId || errors.push('providerInfo.userId not set for provider')) &&
 			(providerInfo[this.provider].teamId || errors.push('providerInfo.teamId not set for provider')) &&
-			((providerInfo[this.provider].authToken === this.data.providerInfo.authToken) || errors.push('providerInfo.authToken not set to passed token'))
+			(!!providerInfo[this.provider].accessToken || errors.push('providerInfo.accessToken not set for provider'))
 		);
 		Assert(result === true && errors.length === 0, 'user in response not valid: ' + errors.join(', '));
 		Assert.deepEqual(user.teamIds, [team._id], 'teamIds not set to team created');
 		Assert.deepEqual(user.companyIds, [company._id], 'companyIds not set to company created');
+		if (this.preExistingUnconnectedUser) {
+			Assert(!user.phoneNumber, 'phone number is set');
+			Assert(!user.iWorkOn, 'iWorkOn is set');
+		}
+		else {
+			Assert(user.phoneNumber, 'phone number is not set');
+			Assert(user.iWorkOn, 'iWorkOn is not set');
+		}
 		// verify we got no attributes that clients shouldn't see
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}

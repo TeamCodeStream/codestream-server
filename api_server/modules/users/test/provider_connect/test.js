@@ -5,8 +5,8 @@
 
 const ProviderConnectTest = require('./provider_connect_test');
 const NoAttributeTest = require('./no_attribute_test');
-const NoAuthTokenTest = require('./no_auth_token_test');
-const InvalidAuthTokenTest = require('./invalid_auth_token_test');
+const NoCodeTest = require('./no_code_test');
+const InvalidCodeTest = require('./invalid_code_test');
 const UnknownProviderTest = require('./unknown_provider_test');
 const NewUserJoiningConnectedTeamTest = require('./new_user_joining_connected_team_test');
 const UserAlreadyConnectedOnTeamTest = require('./user_already_connected_on_team_test');
@@ -28,8 +28,8 @@ class ProviderConnectRequestTester {
 		PROVIDERS.forEach(provider => {
 			new ProviderConnectTest({ provider }).test();
 			new NoAttributeTest({ provider, attribute: 'providerInfo' }).test();
-			new NoAuthTokenTest({ provider }).test();
-			new InvalidAuthTokenTest({ provider }).test();
+			new NoCodeTest({ provider }).test();
+			new InvalidCodeTest({ provider }).test();
 			new NewUserJoiningConnectedTeamTest({ provider }).test();
 			new UserAlreadyConnectedOnTeamTest({ provider }).test();
 			new TokenReplacementTest({ provider }).test();

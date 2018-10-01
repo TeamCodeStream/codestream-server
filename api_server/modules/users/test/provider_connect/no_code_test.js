@@ -2,7 +2,7 @@
 
 const ProviderConnectTest = require('./provider_connect_test');
 
-class NoAuthTokenTest extends ProviderConnectTest {
+class NoCodeTest extends ProviderConnectTest {
 
 	get description () {
 		return `should return error when connecting to ${this.provider} with no auth token`;
@@ -11,7 +11,7 @@ class NoAuthTokenTest extends ProviderConnectTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1001',
-			info: 'providerInfo.authToken'
+			info: 'providerInfo.code'
 		};
 	}
 
@@ -19,10 +19,10 @@ class NoAuthTokenTest extends ProviderConnectTest {
 	before (callback) {
 		// delete the attribute in question
 		super.before(() => {
-			delete this.data.providerInfo.authToken;
+			delete this.data.providerInfo.code;
 			callback();
 		});
 	}
 }
 
-module.exports = NoAuthTokenTest;
+module.exports = NoCodeTest;

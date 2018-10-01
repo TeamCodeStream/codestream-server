@@ -11,11 +11,11 @@ class TokenReplacementTest extends UserAlreadyConnectedOnTeamTest {
 
 	setData (callback) {
 		super.setData(() => {
-			// change the mock auth-token in a way that doesn't affect the info that
+			// change the mock code in a way that doesn't affect the info that
 			// needs to be extracted from it
-			const tokenPart = this.data.providerInfo.authToken.slice(5);
-			this.newAuthToken = `mockx-${tokenPart}`;
-			this.data.providerInfo.authToken = this.newAuthToken;
+			const tokenPart = this.data.providerInfo.code.slice(5);
+			this.newCode = `mockx-${tokenPart}`;
+			this.data.providerInfo.code = this.newCode;
 			callback();
 		});
 	}
@@ -23,8 +23,11 @@ class TokenReplacementTest extends UserAlreadyConnectedOnTeamTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// ensure we got the new auth token back in the response
-		Assert.equal(data.user.providerInfo[this.provider].authToken, this.newAuthToken,
-			'returned auth token does not match the changed auth token');
+		Assert.notEqual(
+			data.user.providerInfo[this.provider].accessToken,
+			this.preExistingConnectedUser.providerInfo[this.provider].accessToken,
+			'returned auth token does not match the changed auth token'
+		);
 		super.validateResponse(data);
 	} 
 }

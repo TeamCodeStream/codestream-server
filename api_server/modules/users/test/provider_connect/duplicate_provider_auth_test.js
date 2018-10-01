@@ -26,8 +26,8 @@ class DuplicateProviderAuthTest extends ProviderConnectTest {
 			// change the auth token to mock them being on a different team
 			const mockUserId = this.preExistingConnectedUser.providerInfo[this.provider].userId;
 			const mockTeamId = `MOCK${RandomString.generate(8)}`;
-			const authToken = `mock-${mockUserId}-${mockTeamId}`;
-			this.data.providerInfo.authToken = authToken;
+			const code = `mock-${mockUserId}-${mockTeamId}`;
+			this.data.providerInfo.code = code;
 			callback();
 		});
 
