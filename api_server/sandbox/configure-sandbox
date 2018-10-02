@@ -10,9 +10,9 @@
 # environment variables have been set.
 
 cd $CS_API_TOP
+[ ! -d .git ] && echo "nothing to configure for a pre-built asset sandbox" && exit 0
 
-git submodule init
-git submodule update
+[ -f .gitmodules ] && git submodule update --init --recursive
 
 [ -d $CS_API_TOP/node_modules ] && /bin/rm -rf $CS_API_TOP/node_modules
 if [ "$CS_API_YARN" == true ]; then

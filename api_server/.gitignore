@@ -1,3 +1,7 @@
 node_modules/
 .DS_Store
 .vscode
+api-server.tgz
+api-server-*.tgz
+api-server.info
+api-server-*.info
