@@ -26,8 +26,8 @@ class CodeBlockHandler {
 		// a stream at all, we'll inherit from the post stream
 		if (
 			!this.codeBlock.streamId &&
-            !this.codeBlock.file &&
-            this.postStream.get('type') === 'file'
+			!this.codeBlock.file &&
+			this.postStream.get('type') === 'file'
 		) {
 			this.codeBlock.streamId = this.postStream.id;
 		}
@@ -45,8 +45,8 @@ class CodeBlockHandler {
 		// then create a stream for the marker
 		if (
 			!this.stream &&
-            this.repo && 
-            this.codeBlock.file
+			this.repo && 
+			this.codeBlock.file
 		) {
 			await this.createStream();
 			if (this.stream) {
@@ -57,7 +57,7 @@ class CodeBlockHandler {
 		// if we have a commit hash and a stream ID, we can create a marker to the code
 		if (
 			this.codeBlock.commitHash &&
-            this.stream 
+			this.stream 
 		) {
 			await this.createMarker();
 		}
@@ -65,7 +65,7 @@ class CodeBlockHandler {
 		// if we have a location and a marker, set the marker location
 		if (
 			this.codeBlock.location &&
-            this.createdMarker
+			this.createdMarker
 		) {
 			await this.setMarkerLocation();
 		}
@@ -106,7 +106,7 @@ class CodeBlockHandler {
 				return result;
 			}
 		}
-        
+
 		// don't allow more than 100 remotes, just general protection against resource hogging
 		if (this.codeBlock.remotes && this.codeBlock.remotes.length > 100) {
 			return 'too many remotes';
@@ -268,7 +268,8 @@ class CodeBlockHandler {
 			postId: this.postId,
 			postStreamId: this.postStream.id,
 			commitHash: this.codeBlock.commitHash,
-			location: this.codeBlock.location || undefined
+			location: this.codeBlock.location || undefined,
+			codeBlock: this.codeBlock
 		};
 		this.createdMarker = await new MarkerCreator({
 			request: this.request

@@ -36,6 +36,11 @@ module.exports = {
 		maxLength: 40,
 		description: 'The commit SHA the @@#user#user@@ was on in their repo when this marker\'s code block was first created in a @@#post#post@@'
 	},
+	codeBlock: {
+		type: 'object',
+		maxLength: 1000,
+		description: 'Code block referenced by this marker'
+	},
 	_forTesting: {
 		type: 'boolean',
 		serverOnly: true

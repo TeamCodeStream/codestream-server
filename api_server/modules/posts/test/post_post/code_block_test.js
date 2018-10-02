@@ -38,6 +38,10 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 		Assert(marker.numComments === 1, 'marker should have 1 comment');
 		Assert(marker.commitHashWhenCreated === this.data.commitHashWhenPosted.toLowerCase(), 'commitHashWhenCreated does not match');
 		Assert(marker._id === post.codeBlocks[0].markerId, 'markerId in code block does not match marker created');
+		const expectedCodeBlock = Object.assign({}, post.codeBlocks[0]);
+		delete expectedCodeBlock.markerId;
+		expectedCodeBlock.location = this.data.codeBlocks[0].location;
+		Assert.deepEqual(marker.codeBlock, expectedCodeBlock, 'code block of marker not equal to code block of post');
 		this.validateSanitized(marker, PostTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
 	}
 

@@ -24,7 +24,8 @@ class MarkerCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['teamId', 'streamId', 'postId', 'postStreamId', 'commitHash']
+				string: ['teamId', 'streamId', 'postId', 'postStreamId', 'commitHash'],
+				object: ['codeBlock']
 			},
 			optional: {
 				'array': ['location']
