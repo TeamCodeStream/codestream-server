@@ -16,6 +16,15 @@ class SlackAuth extends APIServerModule {
 	async authorizeProviderInfo (providerInfo, options) {
 		return await new ProviderInfoAuthorizer({ providerInfo, options }).exchangeAndAuthorize();
 	}
+
+	validateChannelName (name) {
+		if (name.match(/[^a-z0-9-_[\]{}\\/]/)) {
+			return 'illegal characters in channel name';
+		}
+		if (name.length > 21) {
+			return 'name must be no longer than 21 characters';
+		}
+	}
 }
 
 module.exports = SlackAuth;
