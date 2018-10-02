@@ -33,8 +33,11 @@ const InvalidPrivacyTest = require('./invalid_privacy_test');
 const DirectStreamIgnoresPrivacyTest = require('./direct_stream_ignores_privacy_test');
 const FileStreamIgnoresPrivacyTest = require('./file_stream_ignores_privacy_test');
 const InvalidChannelNameTest = require('./invalid_channel_name_test');
+const IllegalSlackChannelNameTest = require('./illegal_slack_channel_name_test');
+const SlackChannelNameTooLongTest = require('./slack_channel_name_too_long_test');
 
 const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/<>?|\'".,';
+const ILLEGAL_SLACK_CHANNEL_NAME_CHARACTERS = 'A@%*Z';
 
 class PostStreamRequestTester {
 
@@ -77,6 +80,10 @@ class PostStreamRequestTester {
 		for (let char of ILLEGAL_CHANNEL_NAME_CHARACTERS) {
 			new InvalidChannelNameTest({ illegalCharacter: char }).test();
 		}
+		for (let char of ILLEGAL_SLACK_CHANNEL_NAME_CHARACTERS) {
+			new IllegalSlackChannelNameTest({ illegalCharacter: char }).test();
+		}
+		new SlackChannelNameTooLongTest().test();
 	}
 }
 

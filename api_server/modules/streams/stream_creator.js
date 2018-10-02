@@ -157,6 +157,10 @@ class StreamCreator extends ModelCreator {
 
 	// called before the stream is actually saved
 	async preSave () {
+		// if owned by a team connected to a third-party provider, check validation rules
+		// for the provider
+		await this.checkNameForProvider();
+			
 		this.attributes.creatorId = this.user.id;	// user making the request is the stream creator
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
@@ -171,6 +175,29 @@ class StreamCreator extends ModelCreator {
 		this.createId();
 		this.attributes.sortId = this.attributes._id;
 		await super.preSave();
+	}
+
+	// if the name of a channel is being changed, and the team that owns the stream is
+	// connected to a third-party provider, check that the name of the channel is valid
+	// for the provider
+	async checkNameForProvider () {
+		if (this.attributes.type !== 'channel') {
+			return; 
+		}
+		this.team = await this.request.data.teams.getById(this.attributes.teamId);
+		if (!this.team) { return; }
+		const providerInfo = this.team.get('providerInfo') || {};
+		Object.keys(providerInfo).forEach(provider => {
+			let error;
+			switch (provider) {
+			case 'slack': 
+				error = this.request.api.services.slackAuth.validateChannelName(this.attributes.name);
+			}
+
+			if (error) {
+				throw this.errorHandler.error('validation', { info: { name: error } });
+			}
+		});
 	}
 
 	// after the stream has been saved

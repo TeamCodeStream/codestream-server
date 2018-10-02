@@ -74,7 +74,9 @@ class StreamUpdater extends ModelUpdater {
 	// before the user info gets saved...
 	async preSave () {
 		await this.getStream();
+		await this.getTeam();
 		await this.checkNameUnique();
+		await this.checkNameForProvider();
 		await this.getUsers();
 		this.attributes.modifiedAt = Date.now();
 		await super.preSave();
@@ -85,6 +87,14 @@ class StreamUpdater extends ModelUpdater {
 		this.stream = await this.request.data.streams.getById(this.id);
 		if (!this.stream) {
 			throw this.errorHandler.error('notFound', { info: 'stream' });
+		}
+	}
+
+	// get the team that owns the stream
+	async getTeam () {
+		this.team = await this.request.data.teams.getById(this.stream.get('teamId'));
+		if (!this.team) {
+			throw this.errorHandler.error('notFound', { info: 'team' }); // shouldn't happen, of course
 		}
 	}
 
@@ -109,6 +119,27 @@ class StreamUpdater extends ModelUpdater {
 		if (matchingStreams.find(stream => stream._id !== this.stream.id)) {
 			throw this.errorHandler.error('duplicateName');
 		}
+	}
+
+	// if the name of a channel is being changed, and the team that owns the stream is
+	// connected to a third-party provider, check that the name of the channel is valid
+	// for the provider
+	async checkNameForProvider () {
+		if (this.stream.get('type') !== 'channel' || !this.attributes.name) {
+			return; 
+		}
+		const providerInfo = this.team.get('providerInfo') || {};
+		Object.keys(providerInfo).forEach(provider => {
+			let error;
+			switch (provider) {
+			case 'slack': 
+				error = this.request.api.services.slackAuth.validateChannelName(this.attributes.name);
+			}
+
+			if (error) {
+				throw this.errorHandler.error('validation', { info: { name: error } });
+			}
+		});
 	}
 
 	// confirm that the IDs for the users being added or removed are valid
