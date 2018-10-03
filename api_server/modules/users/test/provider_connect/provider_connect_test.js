@@ -30,6 +30,12 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// before the test runs...
 	before (callback) {
+		this.beforeLogin = Date.now();
+		this.apiRequestOptions = {
+			headers: {
+				'X-CS-Plugin-IDE': 'webclient'
+			}
+		};
 		this.init(callback);
 	}
 
@@ -54,6 +60,7 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			(user.username || errors.push('username not set')) &&
 			(user.fullName || errors.push('full name not set')) &&
 			(user.timeZone || errors.push('time zone not set')) &&
+			((user.lastLogin || 0) < this.beforeLogin || errors.push('last login time was set but should not have been')) && 
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&

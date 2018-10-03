@@ -94,8 +94,10 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		const user = message.message.users[0];
 		Assert(typeof user.modifiedAt === 'number' && user.modifiedAt > this.beforeConfirmTime, 'modifiedAt not updated properly');
 		Assert(typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime, 'registeredAt not updated properly');
+		Assert(typeof user.lastLogin === 'number' && user.lastLogin > this.beforeConfirmTime, 'lastLogin not updated properly');
 		this.message.users[0].modifiedAt = user.modifiedAt;
 		this.message.users[0].registeredAt = user.registeredAt;
+		this.message.users[0].lastLogin = user.lastLogin;
 		return super.validateMessage(message);
 	}
 }

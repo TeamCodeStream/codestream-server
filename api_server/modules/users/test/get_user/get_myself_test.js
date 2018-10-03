@@ -24,7 +24,8 @@ class GetMyselfTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		// validate that we got back "ourselves", and that there are no attributes a client shouldn't see
 		this.validateMatchingObject(this.currentUser._id, data.user, 'user');
-		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
+		const attributes = this.id === 'me' ? UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME : UserTestConstants.UNSANITIZED_ATTRIBUTES;
+		this.validateSanitized(data.user, attributes);
 	}
 }
 

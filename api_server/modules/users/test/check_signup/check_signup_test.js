@@ -31,6 +31,7 @@ class CheckSignupTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
+		this.beforeLogin = Date.now();
 		BoundAsync.series(this, [
 			this.registerUser,  // create an unregistered user with a random signup token
 			this.confirmUser,   // confirm the user
@@ -103,6 +104,7 @@ class CheckSignupTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		// validate we get back the expected user, an access token, and a pubnub subscription key
 		Assert(data.user.email === this.userData.user.email, 'email doesn\'t match');
+		Assert(data.user.lastLogin > this.beforeLogin, 'lastLogin not set to most recent login time');
 		Assert(data.accessToken, 'no access token');
 		Assert(data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
@@ -110,7 +112,7 @@ class CheckSignupTest extends CodeStreamAPITest {
 		this.validateMatchingObject(this.team._id, data.teams[0], 'team');
 		Assert(data.repos.length === 1, 'no repo in response');
 		this.validateMatchingObject(this.repo._id, data.repos[0], 'repo');
-		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }
 
