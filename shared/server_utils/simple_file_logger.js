@@ -117,9 +117,6 @@ class SimpleFileLogger {
 	// output text to the current log file
 	out (text, requestId) {
 		let fullText = Strftime('%Y-%m-%d %H:%M:%S.%L');
-		if (this.loggerHost) {
-			fullText += ' ' + this.loggerHost;
-		}
 		if (this.loggerId) {
 			fullText += ' ' + this.loggerId;
 		}
