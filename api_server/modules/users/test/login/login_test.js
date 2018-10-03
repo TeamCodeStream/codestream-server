@@ -42,6 +42,7 @@ class LoginTest extends CodeStreamAPITest {
 				password: this.userData.password
 			};
 			this.accessToken = userData.accessToken;
+			this.beforeLogin = Date.now();
 			callback();
 		});
 	}
@@ -50,10 +51,11 @@ class LoginTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		// validate we get back the expected user, an access token, and a pubnub subscription key
 		Assert(data.user.email === this.data.email, 'email doesn\'t match');
+		Assert(data.user.lastLogin > this.beforeLogin, 'lastLogin not set to most recent login time');
 		Assert(data.accessToken, 'no access token');
 		Assert(data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
-		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }
 

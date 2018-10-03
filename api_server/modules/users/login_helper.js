@@ -16,6 +16,7 @@ class LoginHelper {
 	async login () {
 		await this.getInitialData();
 		await this.generateAccessToken();
+		await this.updateLastLogin();
 		await this.formResponse();
 		await this.grantSubscriptionPermissions();
 		return this.responseData;
@@ -103,6 +104,14 @@ class LoginHelper {
 		}
 	}
 	
+	// update the time the user last logged in, except if logging in via the web app
+	async updateLastLogin () {
+		if (this.request.request.headers['x-cs-plugin-ide'] === 'webclient') {
+			return;
+		}
+		await this.request.data.users.applyOpById(this.user.id, { $set: { lastLogin: Date.now() } });
+	}
+
 	// form the response to the request
 	async formResponse () {
 		this.responseData = {

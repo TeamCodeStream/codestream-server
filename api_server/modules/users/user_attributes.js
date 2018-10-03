@@ -201,5 +201,9 @@ module.exports = {
 		serverOnly: true,
 		forMe: true,
 		description: 'Object containing credentials info for third-party providers'
+	},
+	lastLogin: {
+		type: 'timestamp',
+		description: 'Time the user last logged in (not including logging in from the web clienapp)'
 	}
 };

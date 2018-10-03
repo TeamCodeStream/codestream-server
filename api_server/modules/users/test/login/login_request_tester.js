@@ -14,6 +14,7 @@ const UnregisteredInvalidPasswordTest = require('./unregistered_invalid_password
 const NewTokenTest = require('./new_token_test');
 const TokenIsValidTest = require('./token_is_valid_test');
 const SubscriptionTest = require('./subscription_test');
+const DontUpdateLastLoginFromWebTest = require('./dont_update_last_login_from_web_test');
 
 class LoginRequestTester {
 
@@ -33,6 +34,7 @@ class LoginRequestTester {
 		new SubscriptionTest({ which: 'user' }).test();
 		new SubscriptionTest({ which: 'team' }).test();
 		new SubscriptionTest({ which: 'stream' }).test();
+		new DontUpdateLastLoginFromWebTest().test();
 	}
 }
 
