@@ -25,6 +25,7 @@ class CommonInit {
 			this.preExistingTeam.providerInfo[this.provider].teamId : 
 			null;
 		this.data = this.getMockData(mockUserId, mockTeamId);
+		this.beforeLogin = Date.now();
 		callback();
 	}
 

@@ -30,7 +30,6 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// before the test runs...
 	before (callback) {
-		this.beforeLogin = Date.now();
 		this.apiRequestOptions = {
 			headers: {
 				'X-CS-Plugin-IDE': 'webclient'
