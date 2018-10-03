@@ -3,7 +3,6 @@
 'use strict';
 
 module.exports = {
-	host: process.env.CS_API_HOST,
 	port: process.env.CS_API_PORT,
 	https: { // https key/cert
 		keyfile: process.env.CS_API_SSL_KEYFILE,

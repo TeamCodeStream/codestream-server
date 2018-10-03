@@ -234,7 +234,6 @@ class APIServer {
 			if (this.config.logger) {
 				this.loggerId = 'W' + this.workerId;
 				this.config.logger.loggerId = this.loggerId;
-				this.config.logger.loggerHost = this.config.express.host;
 			}
 		}
 	}

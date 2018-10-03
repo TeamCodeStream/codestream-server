@@ -34,7 +34,6 @@ class Mongo extends APIServerModule {
 			});
 			if (mongoOptions.queryLogging && this.api.loggerId) {
 				mongoOptions.queryLogging.loggerId = this.api.loggerId;
-				mongoOptions.queryLogging.loggerHost = this.api.config.express.host || 'localhost';
 			}
 			this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoOptions);
 			return { mongoClient: this.mongoClient };
