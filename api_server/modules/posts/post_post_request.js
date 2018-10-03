@@ -35,7 +35,12 @@ class PostPostRequest extends PostRequest {
 				'providerType': '<For third-party integrations, type of provider (slack, msteams, etc.) the post is associated with>',
 				'providerPostId': '<For third-party integrations, ID of the post that this post references in the third-party integration provider>',
 				'providerConversationId': '<For third-party integrations, ID of the conversation (team, group, DM) to which this post belongs in the the third-party integration provider>',
-				'providerInfo': '<For third-party integrations, free-form object for additional info relevant to the third-party post>'
+				'providerInfo': '<For third-party integrations, free-form object for additional info relevant to the third-party post>',
+				'type': '<Assign a type to this post ("question", "comment", etc.)>',
+				'color': '<Display color of the post>',
+				'status': '<Status of the post, for things like tasks>',
+				'title': '<Title of the post>',
+				'assignees': '<Array of IDs representing users assigned to the post, for tasks>'
 			}
 		};
 		description.returns.summary = 'A post object, plus a stream object if a stream was created on-the-fly, marker objects and marker locations for any code blocks';

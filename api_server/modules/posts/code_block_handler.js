@@ -268,8 +268,11 @@ class CodeBlockHandler {
 			postId: this.postId,
 			postStreamId: this.postStream.id,
 			commitHash: this.codeBlock.commitHash,
-			location: this.codeBlock.location || undefined,
-			codeBlock: this.codeBlock
+			location: this.codeBlock.location,
+			codeBlock: this.codeBlock,
+			type: this.postAttributes.type,
+			status: this.postAttributes.status,
+			color: this.postAttributes.color
 		};
 		this.createdMarker = await new MarkerCreator({
 			request: this.request

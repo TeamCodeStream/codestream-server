@@ -57,10 +57,10 @@ class PostCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			optional: {
-				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId', 'providerType', 'providerPostId', 'providerConversationId'],
+				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId', 'providerType', 'providerPostId', 'providerConversationId', 'type', 'color', 'status', 'title'],
 				object: ['stream', 'providerInfo'],
 				'array(object)': ['codeBlocks'],
-				'array(string)': ['mentionedUserIds']
+				'array(string)': ['mentionedUserIds', 'assignees']
 			}
 		};
 	}
@@ -222,6 +222,7 @@ class PostCreator extends ModelCreator {
 			postRepo: this.repo,
 			postStream: this.stream,
 			postId: this.attributes._id,
+			postAttributes: this.attributes,
 			postCommitHash: this.attributes.commitHashWhenPosted
 		}).handleCodeBlock();
 

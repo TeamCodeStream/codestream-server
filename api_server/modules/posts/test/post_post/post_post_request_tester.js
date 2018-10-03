@@ -105,6 +105,7 @@ const HasRepliesMessageToTeamTest = require('./has_replies_message_to_team_test'
 const NoHasRepliesOnSecondReplyTest = require('./no_has_replies_on_second_reply_test');
 const OriginFromPluginTest = require('./origin_from_plugin_test');
 const ProviderPostTest = require('./provider_post_test');
+const ExtendedAttributesTest = require('./extended_attributes_test');
 
 class PostPostRequestTester {
 
@@ -228,6 +229,7 @@ class PostPostRequestTester {
 		new OnTheFlyCodeBlockStreamInvalidRepoIdTest().test();
 		new OriginFromPluginTest().test();
 		new ProviderPostTest().test();
+		new ExtendedAttributesTest().test();
 	}
 }
 
