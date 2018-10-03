@@ -19,7 +19,6 @@ export CS_API_NODE_VER=8.11.3
 
 export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$CS_API_TOP/node_modules/.bin:$PATH
 export CS_API_TOP=$CS_API_TOP
-export CS_API_HOST=localhost
 export CS_API_PORT=12079
 export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
 export CS_API_LOG_CONSOLE_OK=1
