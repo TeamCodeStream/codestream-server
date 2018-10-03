@@ -90,5 +90,30 @@ module.exports = {
 		type: 'object',
 		maxLength: 1000,
 		description: 'For third-party integrations, free-form object for additional info relevant to the third-party post'
+	},
+	type: {
+		type: 'string',
+		maxLength: 25,
+		description: 'Type of the post, like "comment", "question", "code trap", etc.'
+	},
+	color: {
+		type: 'string',
+		maxLength: 20,
+		description: 'Display color, for highlighting'
+	},
+	status: {
+		type: 'string',
+		maxLength: 25,
+		description: 'Status of certain types of posts, like "Open" or "Closed"'
+	},
+	title: {
+		type: 'string',
+		maxLength: 1000,
+		description: 'Title of the post'
+	},
+	assignees: {
+		type: 'arrayOfIds',
+		maxLength: 200,
+		description: 'Array of user IDs to whom a task is assigned'
 	}
 };

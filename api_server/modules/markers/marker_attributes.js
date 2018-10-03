@@ -41,8 +41,19 @@ module.exports = {
 		maxLength: 1000,
 		description: 'Code block referenced by this marker'
 	},
-	_forTesting: {
-		type: 'boolean',
-		serverOnly: true
+	type: {
+		type: 'string',
+		maxLength: 25,
+		description: 'Type of the associated post, like "comment", "question", "code trap", etc.'
+	},
+	color: {
+		type: 'string',
+		maxLength: 20,
+		description: 'Display color, for highlighting'
+	},
+	status: {
+		type: 'string',
+		maxLength: 25,
+		description: 'Status of certain types of posts, like "Open" or "Closed"'
 	}
 };

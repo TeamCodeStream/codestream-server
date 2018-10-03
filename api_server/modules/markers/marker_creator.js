@@ -28,6 +28,7 @@ class MarkerCreator extends ModelCreator {
 				object: ['codeBlock']
 			},
 			optional: {
+				string: ['type', 'status', 'color'],
 				'array': ['location']
 			}
 		};
