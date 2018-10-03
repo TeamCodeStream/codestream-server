@@ -39,7 +39,7 @@
 	"test:ci": "npm run test -- --reporter mocha-teamcity-reporter",
     "clean": "git clean -fXd -e !node_modules -e !node_modules/**/*",
     "eslint": "eslint .",
-    "tarball": "tar -czpf api-server.tgz --exclude api-server.tgz --exclude .git/ ."
+    "tarball": "touch api-server.tgz && tar -czpf api-server.tgz --exclude api-server.tgz --exclude .git/ ."
   },
   "pre-commit": [
     "eslint"
