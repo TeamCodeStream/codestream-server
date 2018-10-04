@@ -47,6 +47,7 @@ export CS_API_NAME=`dirname $CS_API_SANDBOX`
 # Install yarn if specified with CS_API_YARN_VER
 [ -n "$CS_API_YARN_VER" -a ! -L $CS_API_SANDBOX/yarn ] && dt-get-software -V $CS_API_YARN_VER yarn $CS_API_SANDBOX
 
+[ ! -d $CS_API_TOP/.git ] && echo "This is a runtime environment installation" && exit 0
 
 # Install secondary git repos
 echo "Cloning TestRepo"

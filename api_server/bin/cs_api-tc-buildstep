@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+
+#desc# Standard interface to CodeStream's TeamCity build process for the VS Code Extension
+
+import os
+import sys
+
+sys.path.append(os.environ['DT_TOP'] + "/lib")
+import devTools
+from sysUtils import dumpDict, shellExecNoBuffer, someValueOrNone
+from buildUtils import *
+
+assetExtensionList = ['info', 'tgz']
+
+args = parseStandardBuildArgs()
+dt = devTools.devTools()
+buildData = buildInit(__file__, dt, args)
+os.chdir(buildData['sandboxTop'])
+if args.verbose: print("current directory is", buildData['sandboxTop'])
+
+if args.action == 'prep':
+	buildstepPrep(args)
+	exit(0)
+
+if args.action in ['clean','destroy']:
+	buildstepGeneric(args, cmd = "npm run clean")
+
+if args.action == 'destroy':
+	buildstepDestroy(args, buildData)
+
+if args.action == 'build':
+	print("there's nothing to build")
+
+pkgInfo = None
+tarballAssetName = None
+infoFileName = None
+if args.action in ['pack','info']:
+	# create asset info file (w/o md5sum)
+	pkgInfo = getPackageInfo(buildData = buildData, getRepoCommitDir = buildData['sandboxTop'])
+	tarballAssetName = pkgInfo['localAssetFilePrefix'] + ".tgz"
+	infoFileName = pkgInfo['localAssetFilePrefix'] + ".info"
+	pkgInfo['assetsMD5'][tarballAssetName] = "0"
+	pkgInfo['sandboxType'] = buildData['sbInfo']['sb_type']
+	dumpDict(pkgInfo, "api-server.info")
+
+if args.action == 'pack':
+	buildstepGeneric(args, cmd = "npm run tarball")
+	pkgInfo['assetsMD5'][tarballAssetName] = dt.md5Hash("api-server.tgz")
+	dumpDict(pkgInfo, "api-server.info")
+	os.rename("api-server.info", infoFileName)
+	os.rename("api-server.tgz", tarballAssetName)
+	if args.verbose:
+		dumpDict(pkgInfo, None, "packageInfo:")
+		shellExecNoBuffer("ls -l " + pkgInfo['localAssetFilePrefix'] + ".*", printCmd = True)
+
+if args.action == 'citest':
+	buildstepGeneric(args, cmd = "npm run test:ci")
+
+if args.action == 'publish':
+	publishArtifacts(args, buildData, assetExtensionList)

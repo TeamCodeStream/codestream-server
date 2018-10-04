@@ -1,5 +1,6 @@
 {
-  "name": "CodeStream_Server",
+  "name": "api-server",
+  "version": "1.15.0",
   "dependencies": {
     "@slack/client": "^4.6.0",
     "async": "2.1.2",
@@ -33,7 +34,12 @@
     "uuid": "^3.2.1"
   },
   "scripts": {
-    "eslint": "eslint ."
+	"veryclean": "git clean -fXd",
+	"test": "mocha",
+	"test:ci": "npm run test -- --reporter mocha-teamcity-reporter",
+    "clean": "git clean -fXd -e !node_modules -e !node_modules/**/*",
+    "eslint": "eslint .",
+    "tarball": "touch api-server.tgz && tar -czpf api-server.tgz --exclude api-server.tgz --exclude .git/ ."
   },
   "pre-commit": [
     "eslint"
