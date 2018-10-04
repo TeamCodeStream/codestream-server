@@ -26,6 +26,7 @@ class ProviderConnectRequest extends RestfulRequest {
 
 	// process the request...
 	async process () {
+		this.log(`Request body: ${JSON.stringify(this.request.body, undefined, 5)}`);
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
 		await this.authorizeByProvider();	// authorize the credentials passed for the particular provider of interest
 		await this.findTeam();
