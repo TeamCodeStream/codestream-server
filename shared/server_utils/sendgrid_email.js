@@ -48,7 +48,7 @@ class SendGridEmail {
 			options.testCallback(request.body, options.testOptions);
 			return true;
 		}
-		else if (!this.emailTo || this.requestSaysToBlockEmails(options)) {
+		else if (this.requestSaysToBlockEmails(options)) {
 			// we are configured not to actually send out emails, just drop it to the floor
 			if (options.logger) {
 				options.logger.log(`Would have sent to ${JSON.stringify(options.to)}: ${options.subject}`);
@@ -77,7 +77,7 @@ class SendGridEmail {
 		let to = typeof options.to === 'object' ? options.to.email : options.to;
 		let toName = typeof options.to === 'object' ? options.to.name : null;
 
-		if (this.emailTo && this.emailTo !== 'on' && !options.testCallback) {
+		if (this.emailTo && !options.testCallback) {
 			// we're going to divert this email to a particular address (usually for developer testing)
 			// we'll put the real email address in the subject for debugging
 			subject = `{{{${to}}}} ${subject}`;
