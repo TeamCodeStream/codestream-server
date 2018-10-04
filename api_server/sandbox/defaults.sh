@@ -10,7 +10,7 @@
 if [ -f "$CS_API_SANDBOX/sb.options" ]; then
 	echo "Loading extra params from sb.options"
 	. $CS_API_SANDBOX/sb.options
-	export `grep ^MDB_ $CS_API_SANDBOX/sb.options|cut -f1 -d=`
+	export `grep ^CS_API_ $CS_API_SANDBOX/sb.options|cut -f1 -d=`
 fi
 
 # =============== Core Settings =================
