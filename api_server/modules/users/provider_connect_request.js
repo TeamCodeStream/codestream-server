@@ -67,6 +67,7 @@ class ProviderConnectRequest extends RestfulRequest {
 		if (!this.providerInfo) {
 			throw this.errorHandler.error('unknownProvider', { info: this.provider });
 		}
+		this.log(`Authorized for ${this.provider}: ${JSON.stringify(this.providerInfo, undefined, 5)}`);
 
 		// must have these attributes from the provider
 		['email', 'username'].forEach(attribute => {
@@ -90,6 +91,12 @@ class ProviderConnectRequest extends RestfulRequest {
 				}
 			}
 		);
+		if (this.team) {
+			this.log('Matched team ' + this.team.id);
+		}
+		else {
+			this.log('No match for team');
+		}
 	}
 
 	// find the user associated with the passed credentials, first by matching against the 
@@ -129,6 +136,9 @@ class ProviderConnectRequest extends RestfulRequest {
 			}
 		}
 
+		if (user) {
+			this.log('Matched user ' + user.id + ' by provider identity');
+		}
 		return user;
 	}
 
@@ -151,6 +161,7 @@ class ProviderConnectRequest extends RestfulRequest {
 			if (userProviderInfo[this.provider]) {
 				throw this.errorHandler.error('duplicateProviderAuth');
 			}
+			this.log('Matched user ' + user.id + ' by email');
 		}
 
 		return user;
@@ -163,6 +174,7 @@ class ProviderConnectRequest extends RestfulRequest {
 			await this.updateUser();
 		}
 		else {
+			this.log('No match to user, will create...');
 			await this.createUser();
 		}
 	}
