@@ -36,7 +36,7 @@ class ProviderInfoAuthorizer {
 			teamId: identityInfo.team_id,
 			teamName: identityInfo.team,
 			accessToken: this.accessToken,
-			username: identityInfo.user,
+			username: userInfo.user.profile.display_name,
 			fullName: userInfo.user.profile.real_name,
 			email: userInfo.user.profile.email,
 			phoneNumber: userInfo.user.profile.phone,

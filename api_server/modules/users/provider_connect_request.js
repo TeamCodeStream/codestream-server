@@ -12,6 +12,7 @@ const ConfirmHelper = require('./confirm_helper');
 const LoginHelper = require('./login_helper');
 const TeamCreator = require(process.env.CS_API_TOP + '/modules/teams/team_creator');
 const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
+const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 
 class ProviderConnectRequest extends RestfulRequest {
 
@@ -70,12 +71,16 @@ class ProviderConnectRequest extends RestfulRequest {
 		}
 		this.log(`Authorized for ${this.provider}: ${JSON.stringify(this.providerInfo, undefined, 5)}`);
 
-		// must have these attributes from the provider
-		['email', 'username'].forEach(attribute => {
-			if (!this.providerInfo[attribute]) {
-				throw this.errorHandler.error('parameterRequired', { info: attribute });
-			}
-		});
+		// must have an email or we can't proceed
+		if (!this.providerInfo.email) {
+			throw this.errorHandler.error('parameterRequired', { info: 'email' });
+		}
+
+		// for usernames, if we couldn't get one, take the first part of the email
+		if (!this.providerInfo.username) {
+			this.providerInfo.username = EmailUtilities.parseEmail(this.providerInfo.email).name;
+		}
+		this.providerInfo.username = this.providerInfo.username.replace(/ /g, '_');
 	}
 
 	// find the team corresponding to the provider identity, if any
