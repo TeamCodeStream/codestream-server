@@ -92,6 +92,8 @@ export CS_OUTBOUND_EMAIL_SESSION_AWAY_TIMEOUT=600000
 export CS_OUTBOUND_EMAIL_SENDER_EMAIL=alerts@codestream.com
 export CS_OUTBOUND_EMAIL_SUPPORT_EMAIL=support@codestream.com
 export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=dev.codestream.com
+# set to a valid email to have all emails diverted to the specified address,
+# this is good and risk-free for developer testing
 export CS_OUTBOUND_EMAIL_TO="${DT_USER}@codestream.com"
 
 export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.local.template.json
