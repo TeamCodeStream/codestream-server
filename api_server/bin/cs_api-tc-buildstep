@@ -11,6 +11,7 @@ from sysUtils import dumpDict, shellExecNoBuffer, someValueOrNone
 from buildUtils import *
 
 assetExtensionList = ['info', 'tgz']
+publishDir = "api-server"
 
 args = parseStandardBuildArgs()
 dt = devTools.devTools()
@@ -57,4 +58,4 @@ if args.action == 'citest':
 	buildstepGeneric(args, cmd = "npm run test:ci")
 
 if args.action == 'publish':
-	publishArtifacts(args, buildData, assetExtensionList)
+	publishArtifacts(args, buildData, assetExtensionList, publishDir = publishDir)
