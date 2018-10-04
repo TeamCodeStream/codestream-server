@@ -11,8 +11,9 @@ const TeamIndexes = require(process.env.CS_API_TOP + '/modules/teams/indexes');
 const ConfirmHelper = require('./confirm_helper');
 const LoginHelper = require('./login_helper');
 const TeamCreator = require(process.env.CS_API_TOP + '/modules/teams/team_creator');
-const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
+const AddTeamMember = require(process.env.CS_API_TOP + '/modules/teams/add_team_member');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class ProviderConnectRequest extends RestfulRequest {
 
@@ -237,7 +238,11 @@ class ProviderConnectRequest extends RestfulRequest {
 			}
 		};
 
-		await this.data.users.applyOpById(this.user.id, op);
+		this.transforms.userUpdate = await new ModelSaver({
+			request: this,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
 		this.identityUpdated = true;
 	}
 
@@ -296,13 +301,13 @@ class ProviderConnectRequest extends RestfulRequest {
 				userData[attribute] = this.request.body[attribute];
 			}
 		});
-		this.userWasConfirmed = true;
 		this.responseData = await new ConfirmHelper({
 			request: this,
 			user: this.user,
 			loginType: this.loginType,
 			dontCheckUsername: true
 		}).confirm(userData);
+		this.userWasConfirmed = true;
 	}
 
 	// one way or the other the user will be added to a team ... if there was no team identified
@@ -338,12 +343,11 @@ class ProviderConnectRequest extends RestfulRequest {
 		if (!this.team || this.team.get('memberIds').includes(this.user.id)) {
 			return;
 		}
-		this.adder = new AddTeamMembers({
+		await new AddTeamMember({
 			request: this,
-			users: [this.user],
+			addUser: this.user,
 			team: this.team
-		});
-		await this.adder.addTeamMembers();
+		}).addTeamMember();
 		this.userWasAddedToTeam = true;
 	}
 
@@ -375,9 +379,25 @@ class ProviderConnectRequest extends RestfulRequest {
 
 	// publish the new user to the team channel
 	async publishUserToTeams () {
+		let data;
+		if (this.userWasAddedToTeam) {
+			data = {
+				user: this.user.getSanitizedObject()
+			};
+		}
+		else {
+			data = {
+				user: Object.assign(
+					{
+						_id: this.user.id
+					}, 
+					this.transforms.userUpdate
+				)
+			};
+		}
 		await new UserPublisher({
 			user: this.user,
-			data: this.user.getSanitizedObject(),
+			data,
 			request: this,
 			messager: this.api.services.messager
 		}).publishUserToTeams();
@@ -385,14 +405,19 @@ class ProviderConnectRequest extends RestfulRequest {
 
 	// publish updated user to themselves, because their identity token has changed
 	async publishUserToSelf () {
-		const message = {
-			user: this.user.getSanitizedObjectForMe(),
+		const data = {
+			user: Object.assign(
+				{
+					_id: this.user.id
+				},
+				this.transforms.userUpdate
+			),
 			requestId: this.request.id
 		};
 		const channel = `user-${this.user.id}`;
 		try {
 			await this.api.services.messager.publish(
-				message,
+				data,
 				channel,
 				{ request: this }
 			);

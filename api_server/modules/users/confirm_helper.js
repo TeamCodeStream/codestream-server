@@ -137,7 +137,7 @@ class ConfirmHelper {
 				op.$set.originTeamId = this.teamCreator.get('originTeamId');
 			}
 		}
-		await new ModelSaver({
+		this.request.transforms.userUpdate = await new ModelSaver({
 			request: this.request,
 			collection: this.request.data.users,
 			id: this.user.id

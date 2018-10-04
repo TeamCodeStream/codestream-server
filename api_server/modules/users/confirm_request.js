@@ -9,7 +9,6 @@ const Errors = require('./errors');
 const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors');
 const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 const MAX_CONFIRMATION_ATTEMPTS = 3;
 
@@ -222,7 +221,7 @@ class ConfirmRequest extends RestfulRequest {
 	async publishUserToTeams () {
 		await new UserPublisher({
 			user: this.user,
-			data: this.responseData.user,
+			data: this.transforms.userUpdate,
 			request: this,
 			messager: this.api.services.messager
 		}).publishUserToTeams();
