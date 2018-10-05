@@ -460,7 +460,10 @@ class GetPostsRequest extends GetManyRequest {
 			'limit': '<Limit the number of posts fetched to this number>',
 			'withMarkers': '<If specified, the markers associated with all fetched posts will also be fetched>',
 			'commitHash': '<If specified along with withMarkers, the known locations of the markers fetched, for the given commit hash, will also be fetched>',
-			'seqnum': '<Fetch the posts in a range of sequence numbers, like: seqnum=3-7 (fetches posts with sequence numbers 3 thru 7, inclusive), or individual sequence numbers like: seqnum=4,6,9>'
+			'seqnum': '<Fetch the posts in a range of sequence numbers, like: seqnum=3-7 (fetches posts with sequence numbers 3 thru 7, inclusive), or individual sequence numbers like: seqnum=4,6,9>',
+			'before': '<Fetch posts before this sequence number, including the post with that sequence number if "inclusive" set>',
+			'after': '<Fetch posts after this sequence number, including the post with that sequence number if "inclusive" is set>',
+			'inclusive': '<If before or after or both are set, indicated to include the reference post in the returned posts>'
 		});
 		description.returns.summary = 'An array of post objects, plus possible marker objects and markerLocations object, and more flag';
 		Object.assign(description.returns.looksLike, {
