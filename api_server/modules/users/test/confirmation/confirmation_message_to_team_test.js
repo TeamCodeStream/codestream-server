@@ -63,9 +63,6 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 			joinMethod: 'Added to Team',
 			primaryReferral: 'internal',
 			originTeamId: this.team._id,
-			internalMethod: 'invitation',
-			internalMethodDetail: this.currentUser.user._id,
-			numInvites: 1,
 			version: 3
 		});
 		this.message = {

@@ -92,11 +92,7 @@ class ProviderConnectRequest extends RestfulRequest {
 		};
 		this.team = await this.data.teams.getOneByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: TeamIndexes.byProviderIdentities
-				}
-			}
+			{ hint: TeamIndexes.byProviderIdentities }
 		);
 		const teamId = (this.request.body.teamId || '').toLowerCase();
 		if (this.team) {
@@ -131,11 +127,7 @@ class ProviderConnectRequest extends RestfulRequest {
 		};
 		const user = await this.data.users.getOneByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: Indexes.byProviderIdentities
-				}
-			}
+			{ hint: Indexes.byProviderIdentities }
 		);
 
 		// if we found a user, but the user is on a different team, throw an error,
@@ -161,11 +153,7 @@ class ProviderConnectRequest extends RestfulRequest {
 		const query = { searchableEmail: this.providerInfo.email.toLowerCase() };
 		const user = await this.data.users.getOneByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: Indexes.bySearchableEmail
-				}
-			}
+			{ hint: Indexes.bySearchableEmail }
 		);
 
 		// if we found a user, but we see that the user already has credentials for this provider,

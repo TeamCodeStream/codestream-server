@@ -221,7 +221,7 @@ class ConfirmRequest extends RestfulRequest {
 	async publishUserToTeams () {
 		await new UserPublisher({
 			user: this.user,
-			data: this.transforms.userUpdate,
+			data: this.user.getSanitizedObject(),
 			request: this,
 			messager: this.api.services.messager
 		}).publishUserToTeams();

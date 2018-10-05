@@ -17,7 +17,7 @@ class UserExistsTest extends RegistrationTest {
 				this.data = this.userFactory.getRandomUserData();
 				this.data.email = data.user.email;
 				this.expectedVersion = 2;	// version will be bumped
-				callback();
+				super.before(callback);
 			},
 			{
 				noConfirm: true
