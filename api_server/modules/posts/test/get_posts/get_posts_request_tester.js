@@ -41,6 +41,15 @@ const InvalidSeqNumsTest = require('./invalid_seqnums_test');
 const GetPostsBySingleSeqNumTest = require('./get_posts_by_single_seqnum_test');
 const NoSeqNumWithRelationalTest = require('./no_seqnum_with_relational_test');
 const GetMarkersWithPostsTest = require('./get_markers_with_posts_test');
+const GetPostsBeforeTest = require('./get_posts_before_test');
+const GetPostsAfterTest = require('./get_posts_after_test');
+const GetPostsBeforeInclusiveTest = require('./get_posts_before_inclusive_test');
+const GetPostsAfterInclusiveTest = require('./get_posts_after_inclusive_test');
+const GetPostsBeforeAfterTest = require('./get_posts_before_after_test');
+const GetPostsBeforeAfterInclusiveTest = require('./get_posts_before_after_inclusive_test');
+const NoSeqNumRelationalTest = require('./no_seqnum_relational_test');
+const NoSeqNumAndRelationalTest = require('./no_seqnum_and_relational_test');
+const InvalidSeqNumRelationalTest = require('./invalid_seqnum_relational_test');
 
 class GetPostsRequestTester {
 
@@ -63,14 +72,12 @@ class GetPostsRequestTester {
 		new GetPostsLessThanTest().test();
 		new GetPostsLessThanEqualTest().test();
 		new GetPostsByPathTest().test();
-		/*
-		Disabling these for now, till we go back to 100 posts/page
-		new PaginationTest().test();
-		new PaginationTest({ascending: true}).test();
-		new PaginationTest({defaultPagination: true}).test();
-		new PaginationTest({defaultPagination: true, ascending: true}).test();
-		new PaginationTest({defaultPagination: true, tryOverLimit: true}).test();
-		*/
+		//Disabling these for now, till we go back to 100 posts/page
+		//new PaginationTest().test();
+		//new PaginationTest({ascending: true}).test();
+		//new PaginationTest({defaultPagination: true}).test();
+		//new PaginationTest({defaultPagination: true, ascending: true}).test();
+		//new PaginationTest({defaultPagination: true, tryOverLimit: true}).test();
 		new InvalidSeqNumTest().test();
 		new InvalidSeqNumRangeTest().test();
 		new NoSeqNumWithRelationalTest().test();
@@ -95,6 +102,15 @@ class GetPostsRequestTester {
 		new InvalidSeqNumsTest().test();
 		new GetPostsBySingleSeqNumTest().test();
 		new GetMarkersWithPostsTest().test();
+		new GetPostsBeforeTest().test();
+		new GetPostsAfterTest().test();
+		new GetPostsBeforeInclusiveTest().test();
+		new GetPostsAfterInclusiveTest().test();
+		new GetPostsBeforeAfterTest().test();
+		new GetPostsBeforeAfterInclusiveTest().test();
+		new NoSeqNumRelationalTest().test();
+		new NoSeqNumAndRelationalTest().test();
+		new InvalidSeqNumRelationalTest().test();
 	}
 }
 
