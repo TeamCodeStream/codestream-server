@@ -31,6 +31,12 @@ const NON_FILTERING_PARAMETERS = [
 	'commitHash'
 ];
 
+const SEQNUM_RELATIONAL_PARAMETERS = [
+	'before',
+	'after',
+	'inclusive'
+];
+
 class GetPostsRequest extends GetManyRequest {
 
 	constructor (options) {
@@ -81,19 +87,20 @@ class GetPostsRequest extends GetManyRequest {
 
 	// build the query to use for fetching posts (used by the base class GetManyRequest)
 	buildQuery () {
-		let query = {};
+		const query = {};
 		this.relational = null;
 		// process each parameter in turn
 		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
-				let value = decodeURIComponent(this.request.query[parameter]);
+				const value = decodeURIComponent(this.request.query[parameter]);
 				parameter = decodeURIComponent(parameter);
-				let error = this.processQueryParameter(parameter, value, query);
+				const error = this.processQueryParameter(parameter, value, query);
 				if (error) {
 					return error;
 				}
 			}
 		}
+		this.handleSeqNumRelationals(query);
 		if (Object.keys(query).length === 0) {
 			return null;	// no query parameters, will assume fetch by ID
 		}
@@ -108,13 +115,13 @@ class GetPostsRequest extends GetManyRequest {
 		}
 		else if (parameter === 'ids') {
 			// fetch by array of IDs
-			let ids = value.split(',');
+			const ids = value.split(',');
 			query._id = this.data.posts.inQuerySafe(ids);
 		}
 		/*
 // Not using these for now, since they will require an index, and I'm not sure of their utility
 		else if (parameter === 'newerThan') {
-			let newerThan = parseInt(value, 10);
+			const newerThan = parseInt(value, 10);
 			if (newerThan) {
 				query.modifiedAt = { $gt: newerThan };
 			}
@@ -125,7 +132,7 @@ class GetPostsRequest extends GetManyRequest {
 		*/
 		else if (parameter === 'seqnum') {
 			// fetch by single or range of sequence numbers
-			let error = this.processSeqNumParameter(value, query);
+			const error = this.processSeqNumParameter(value, query);
 			if (error) { return error; }
 		}
 		else if (parameter === 'path') {
@@ -138,7 +145,12 @@ class GetPostsRequest extends GetManyRequest {
 		}
 		else if (RELATIONAL_PARAMETERS.includes(parameter)) {
 			// lt, gt, lte, gte
-			let error = this.processRelationalParameter(parameter, value, query);
+			const error = this.processRelationalParameter(parameter, value, query);
+			if (error) { return error; }
+		}
+		else if (SEQNUM_RELATIONAL_PARAMETERS.includes(parameter)) {
+			// before, after, inclusive
+			const error = this.processSeqNumRelationalParameter(parameter, value, query);
 			if (error) { return error; }
 		}
 		else if (!NON_FILTERING_PARAMETERS.includes(parameter)) {
@@ -153,11 +165,15 @@ class GetPostsRequest extends GetManyRequest {
 			// relationals are for fetching by ID
 			return 'can not query sequence numbers with a relational';
 		}
+		else if (this.seqNumRelationals) {
+			return 'seqNum queries must use seqNum ranges or seqNum relationals but not both';
+		}
 		const range = value.split('-');
 		const seqNums = value.split(',');
 		if (range.length > 1 && seqNums.length > 1) {
 			return 'can not query for range and individual sequence numbers at the same time';
 		}
+		this.haveSeqNum = true;
 		this.bySeqNum = true;
 		if (range.length > 1) {
 			return this.processSeqNumRange(range, query);
@@ -205,23 +221,71 @@ class GetPostsRequest extends GetManyRequest {
 		if (this.relational) {
 			return 'only one relational parameter allowed';
 		}
-		else if (this.bySeqNum) {
+		else if (this.haveSeqNum) {
 			return 'can not query sequence numbers with a relational';
+		}
+		else if (this.seqNumRelationals) {
+			return 'cannot use relational parameter with seqNum relationals';
 		}
 		this.relational = parameter;
 		query._id = {};
-		let id = this.data.posts.objectIdSafe(value);
+		const id = this.data.posts.objectIdSafe(value);
 		if (!id) {
 			return 'invalid id: ' + value;
 		}
 		query._id['$' + parameter] = id;
 	}
 
+	// process a relational parameter for seqnums (before, after, inclusive) ... for fetching in pages by seqnum
+	processSeqNumRelationalParameter (parameter, value) {
+		if (this.relational) {
+			return 'can not use seqnum relationals with other relationals';
+		}	
+		else if (this.haveSeqNum) {
+			return 'seqNum queries must use seqNum ranges or seqNum relationals but not both';
+		}
+		this.bySeqNum = true;
+		this.seqNumRelationals = this.seqNumRelationals || {};
+		if (parameter === 'inclusive') {
+			this.seqNumRelationals.inclusive = true;
+		}
+		else {
+			const seqNum = parseInt(value, 10);
+			if (isNaN(seqNum) || seqNum.toString() !== value) {
+				return 'invalid seqnum: ' + value;
+			}
+			this.seqNumRelationals[parameter] = seqNum;
+		}
+	}
+
+	// from the collected seqNum relationals, for the final query
+	handleSeqNumRelationals (query) {
+		if (!this.seqNumRelationals) { return; }
+		const { before, after, inclusive } = this.seqNumRelationals;
+		query.seqNum = {};
+		if (before !== undefined) {
+			if (inclusive) {
+				query.seqNum.$lte = before;
+			}
+			else {
+				query.seqNum.$lt = before;
+			}
+		}
+		if (after !== undefined) {
+			if (inclusive) {
+				query.seqNum.$gte = after;
+			}
+			else {
+				query.seqNum.$gt = after;
+			}
+		}
+	}
+
 	// get database options to use in the query
 	getQueryOptions () {
-		let limit = this.limit = this.setLimit();
-		let sort = this.setSort();
-		let hint = this.setHint();
+		const limit = this.limit = this.setLimit();
+		const sort = this.setSort();
+		const hint = this.setHint();
 		return {
 			databaseOptions: { limit, sort, hint }
 		};
@@ -260,7 +324,7 @@ class GetPostsRequest extends GetManyRequest {
 		if (this.request.query.parentPostId) {
 			return Indexes.byParentPostId;
 		}
-		else if (this.request.query.seqnum) {
+		else if (this.bySeqNum) {
 			return Indexes.bySeqNum;
 		}
 		else {
