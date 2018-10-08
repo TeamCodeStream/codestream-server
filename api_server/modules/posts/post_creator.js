@@ -12,7 +12,6 @@ const CodeBlockHandler = require('./code_block_handler');
 const EmailNotificationQueue = require('./email_notification_queue');
 const IntegrationHandler = require('./integration_handler');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
-const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 
 class PostCreator extends ModelCreator {
@@ -90,7 +89,6 @@ class PostCreator extends ModelCreator {
 		await this.getTeam();			// get the team that owns the stream
 		await this.getCompany();		// get the company that owns the team
 		await this.createStream();		// create the stream, if requested to create on-the-fly
-		await this.getTeamRepos();		// get all the repos known by this team
 		this.createId();				// create an ID for the post
 		await this.handleCodeBlocks();	// handle any code blocks tied to the post
 		await this.getSeqNum();			// requisition a sequence number for the post
@@ -177,25 +175,6 @@ class PostCreator extends ModelCreator {
 		delete this.attributes.stream;
 	}
 
-	// get all the repos known to this team, we'll try to match the repo that any
-	// code blocks are associated with with one of these repos
-	async getTeamRepos () {
-		if (!this.attributes.codeBlocks) {
-			// not necessary if we don't have any code blocks
-			return;
-		}
-		this.teamRepos = await this.request.data.repos.getByQuery(
-			{ 
-				teamId: this.team.id
-			},
-			{ 
-				databaseOptions: {
-					hint: RepoIndexes.byTeamId 
-				}
-			}
-		);
-	}
-
 	// handle any code blocks tied to the post
 	async handleCodeBlocks () {
 		if (!this.attributes.codeBlocks) {
@@ -213,16 +192,21 @@ class PostCreator extends ModelCreator {
 
 	// handle a single code block attached to the post
 	async handleCodeBlock (codeBlock) {
+		const postAttributes = {};
+		['type', 'status', 'color'].forEach(attribute => {
+			if (this.attributes[attribute]) {
+				postAttributes[attribute] = this.attributes[attribute];
+			}
+		});
 		// handle the code block itself separately
 		const codeBlockInfo = await new CodeBlockHandler({
 			codeBlock,
 			request: this.request,
-			teamRepos: this.teamRepos,
 			team: this.team,
 			postRepo: this.repo,
 			postStream: this.stream,
 			postId: this.attributes._id,
-			postAttributes: this.attributes,
+			postAttributes,
 			postCommitHash: this.attributes.commitHashWhenPosted
 		}).handleCodeBlock();
 

@@ -9,11 +9,12 @@ const Marker = require('./marker');
 
 // expose these restful routes
 const MARKER_STANDARD_ROUTES = {
-	want: ['get', 'getMany', 'put'],
+	want: ['get', 'getMany', 'post', 'put'],
 	baseRouteName: 'markers',
 	requestClasses: {
 		'get': require('./get_marker_request'),
 		'getMany': require('./get_markers_request'),
+		'post': require('./post_marker_request'),
 		'put': require('./put_marker_request')
 	}
 };
