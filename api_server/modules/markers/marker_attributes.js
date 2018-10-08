@@ -16,14 +16,14 @@ module.exports = {
 		description: 'ID of the file @@#stream#stream@@ references by this marker\'s code block'
 	},
 	postId: {
-		type: 'id',
+		type: 'string',
 		required: true,
-		description: 'ID of the @@#post#post@@ that references this marker\'s code block'
+		description: 'ID of the @@#post#post@@ that references this marker\'s code block, or can be a third-party post ID'
 	},
 	postStreamId: {
-		type: 'id',
+		type: 'string',
 		required: true,
-		description: 'ID of the @@#stream#stream@@ the @@#post#post@@ that references this marker\'s code block belongs to'
+		description: 'ID of the @@#stream#stream@@ the @@#post#post@@ that references this marker\'s code block belongs to, or can be a third-party post ID'
 	},
 	numComments: {
 		type: 'number',
@@ -55,5 +55,10 @@ module.exports = {
 		type: 'string',
 		maxLength: 25,
 		description: 'Status of certain types of posts, like "Open" or "Closed"'
+	},
+	providerType: {
+		type: 'string',
+		maxLength: 25,
+		description: 'Third-party provider, as needed (eg. slack)'
 	}
 };

@@ -7,6 +7,7 @@ const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 
 class CodeBlockHandler {
 
@@ -27,6 +28,7 @@ class CodeBlockHandler {
 		if (
 			!this.codeBlock.streamId &&
 			!this.codeBlock.file &&
+			this.postStream && 
 			this.postStream.get('type') === 'file'
 		) {
 			this.codeBlock.streamId = this.postStream.id;
@@ -137,7 +139,7 @@ class CodeBlockHandler {
 	}
  
 	async getStream () {
-		if (this.codeBlock.streamId === this.postStream.id) {
+		if (this.postStream && this.codeBlock.streamId === this.postStream.id) {
 			this.stream = this.postStream;
 		}
 		else {
@@ -156,6 +158,7 @@ class CodeBlockHandler {
 	}
 
 	async getOrCreateRepo () {
+		await this.getTeamRepos();
 		if (this.codeBlock.repoId) {
 			await this.getRepo();
 		}
@@ -180,6 +183,21 @@ class CodeBlockHandler {
 
 		// now that we have a repo, remove any reference in the code block to the remotes
 		delete this.codeBlock.remotes;
+	}
+
+	// get all the repos known to this team, we'll try to match the repo that any
+	// code blocks are associated with with one of these repos
+	async getTeamRepos () {
+		this.teamRepos = await this.request.data.repos.getByQuery(
+			{ 
+				teamId: this.team.id
+			},
+			{ 
+				databaseOptions: {
+					hint: RepoIndexes.byTeamId 
+				}
+			}
+		);
 	}
 
 	async getRepo () {
@@ -266,14 +284,14 @@ class CodeBlockHandler {
 			teamId: this.team.id,
 			streamId: this.stream.id,
 			postId: this.postId,
-			postStreamId: this.postStream.id,
+			postStreamId: this.postStreamId || this.postStream.id,
 			commitHash: this.codeBlock.commitHash,
 			location: this.codeBlock.location,
-			codeBlock: this.codeBlock,
-			type: this.postAttributes.type,
-			status: this.postAttributes.status,
-			color: this.postAttributes.color
+			codeBlock: this.codeBlock
 		};
+		if (this.postAttributes) {
+			Object.assign(markerInfo, this.postAttributes);
+		}
 		this.createdMarker = await new MarkerCreator({
 			request: this.request
 		}).createMarker(markerInfo);
