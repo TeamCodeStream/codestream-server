@@ -12,6 +12,7 @@ class CommonInit {
 			this.createOtherUser,	// create another registered user
 			this.createRandomRepo,	// create a random repo (and team) for the test
 			this.createFileStream,	// create a file stream for the marker to reference
+			this.addRemotesToRepo,	// add some remotes to the repo by creating a post
 			this.makeMarkerData		// make the data associated with the test marker to be created
 		], callback);
 	}
@@ -52,18 +53,24 @@ class CommonInit {
 		if (!this.wantRemotes) {
 			return callback();
 		}
+		const remotes = [
+			...this.repo.remotes.map(repo => repo.url), 
+			...this.wantRemotes
+		];
 		this.postFactory.createRandomPost(
 			callback,
 			{
 				wantCodeBlocks: 1,
 				stream: {
+					teamId: this.team._id,
 					type: 'channel',
 					name: this.streamFactory.randomName()
 				},
 				codeBlockStream: {
-					file: this.repoFactory.randomFile(),
-					remotes: this.wantRemotes
-				}
+					file: this.streamFactory.randomFile(),
+					remotes
+				},
+				token: this.otherUserData.accessToken
 			}
 		);
 	}

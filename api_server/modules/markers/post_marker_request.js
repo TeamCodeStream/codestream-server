@@ -4,6 +4,7 @@
 
 const PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
 const CodeBlockHandler = require(process.env.CS_API_TOP + '/modules/posts/code_block_handler');
+const MarkerCreator = require('./marker_creator');
 
 class PostMarkerRequest extends PostRequest {
 
@@ -24,6 +25,9 @@ class PostMarkerRequest extends PostRequest {
 		}
 		const streamId = this.request.body.streamId.toLowerCase();
 		this.stream = await this.data.streams.getById(streamId);
+		if (!this.stream) {
+			throw this.errorHandler.error('notFound', { info: 'stream' });
+		}
 		if (this.stream.get('teamId') !== teamId) {
 			throw this.errorHandler.error('createAuth', { reason: 'stream does not belong to team' });
 		}
@@ -41,6 +45,15 @@ class PostMarkerRequest extends PostRequest {
 
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
+		// the location coordinates must be valid, we don't just discard location attributes that are
+		// not of the correct type
+		if (typeof this.request.body.location !== 'undefined') {
+			const result = MarkerCreator.validateLocation(this.request.body.location);
+			if (result) {
+				throw this.errorHandler.error('validation', { info: 'invalid location: ' + result });
+			}
+		}
+
 		await this.requireAllowParameters(
 			'body',
 			{
@@ -68,12 +81,12 @@ class PostMarkerRequest extends PostRequest {
 		const codeBlockAttributes = {
 			code: this.request.body.code
 		};
-		['streamId', 'file', 'commitHash', 'repoId'].forEach(attribute => {
+		['streamId', 'commitHash', 'repoId'].forEach(attribute => {
 			if (this.request.body[attribute]) {
 				codeBlockAttributes[attribute] = this.request.body[attribute].toLowerCase();
 			}
 		});
-		['location', 'preContext', 'postContext', 'remotes'].forEach(attribute => {
+		['location', 'file', 'preContext', 'postContext', 'remotes'].forEach(attribute => {
 			if (this.request.body[attribute]) {
 				codeBlockAttributes[attribute] = this.request.body[attribute];
 			}
@@ -99,12 +112,10 @@ class PostMarkerRequest extends PostRequest {
 		// we'll track these things and attach them to the request response later, and also possibly publish
 		// them on pubnub channels
 		if (codeBlockInfo.createdRepo) {
-			this.responseData.repos = this.responseData.repos || [];
-			this.responseData.repos.push(codeBlockInfo.createdRepo.getSanitizedObject());
+			this.responseData.repo = codeBlockInfo.createdRepo.getSanitizedObject();
 		}
-		if (codeBlockInfo.repoUpdate) {
-			this.responseData.repos = this.responseData.repos || [];
-			this.responseData.repos.push(codeBlockInfo.repoUpdate);
+		else if (codeBlockInfo.repoUpdate) {
+			this.responseData.repo = codeBlockInfo.repoUpdate;
 		}
 		if (codeBlockInfo.createdStream) {
 			this.responseData.stream = codeBlockInfo.createdStream.getSanitizedObject();
@@ -170,31 +181,16 @@ class PostMarkerRequest extends PostRequest {
 		};
 		description.returns.summary = 'A marker object, plus a stream object if a stream was created on-the-fly, marker objects and marker locations for any code blocks';
 		Object.assign(description.returns.looksLike, {
-			stream: '<@@#stream object#stream@@ > (if stream created on-the fly for the post)>',
-			streams: [
-				'<@@#stream object#stream@@ > (additional streams created on-the-fly for code blocks)>',
-				'...'
-			],
-			markers: [
-				'<@@#marker object#marker@@ > (marker objects associated with quoted code blocks)',
-				'...'
-			],
-			markerLocations: '<@@#marker locations object#markerLocations@@ > (marker locations for markers associated with quoted code blocks)'
+			marker: '<@@#marker object#marker@@ > (marker object created)',
+			stream: '<@@#stream object#stream@@ > (if a file stream created on-the fly for the marker)>',
+			markerLocations: '<@@#marker locations object#markerLocations@@ > (marker location associated with the marker object created)'
 		});
 		description.publishes = {
-			summary: 'If the post was created in a file stream or a team stream (a channel with all members of the team), then the post object will be published to the team channel; otherwise it will be published to the stream channel for the stream in which it was created.',
+			summary: 'Marker object and other associated objects (a message identical to the request response) will be be published to the team channel.',
 			looksLike: {
-				post: '<@@#post object#post@@>',
-				stream: '<@@#stream object#stream@@ > (if stream created on-the fly for the post)>',
-				streams: [
-					'<@@#stream object#stream@@ > (additional streams created on-the-fly for code blocks)>',
-					'...'
-				],
-				markers: [
-					'<@@#marker object#marker@@ > (marker objects associated with quoted code blocks)',
-					'...'
-				],
-				markerLocations: '<@@#marker locations object#markerLocations@@ > (marker locations for markers associated with quoted code blocks)'
+				marker: '<@@#marker object#marker@@ > (marker object created)',
+				stream: '<@@#stream object#stream@@ > (if a file stream created on-the fly for the marker)>',
+				markerLocations: '<@@#marker locations object#markerLocations@@ > (marker location associated with the marker object created)'
 			}
 		};
 		return description;
