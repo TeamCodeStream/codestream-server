@@ -22,16 +22,22 @@ class SendGridEmail {
 
 		// clear to send...
 		let response;
-		for (let i = 0; i < 3; i++) {
+		let i;
+		const email = request.body.personalizations[0].to[0].email;
+		for (i = 0; i < 3; i++) {
 			try {
-				console.log('Calling SendGrid API to send email to ', request.to)
+				if (options.logger) {
+					options.logger.log(`Calling SendGrid API to send email to: ${email}`);
+				}
 				response = await AwaitUtils.callbackWrap(
 					this.sendgrid.API.bind(this.sendgrid),
 					request
 				);
 			}
 			catch (error) {
-				console.error(`Error calling sendgrid API: ${JSON.stringify(error)}`);
+				if (options.logger) {
+					options.logger.error(`Error calling sendgrid API: ${JSON.stringify(error)}`);
+				}
 				continue;
 			}
 			if (response.statusCode >= 300) {
@@ -42,7 +48,9 @@ class SendGridEmail {
 			}
 		}
 		if (i < 3) {
-			console.log('Successfully sent email to ', request.to);
+			if (options.logger) {
+				options.logger.log(`Successfully sent email to ${email}`);
+			}
 		}
 	}
 
