@@ -17,6 +17,7 @@ const CheckSignupRequestTester = require('./check_signup/test');
 const ChangeEmailRequestTester = require('./change_email/test');
 const ChangeEmailConfirmRequestTester = require('./change_email_confirm/test');
 const ProviderConnectRequestTester = require('./provider_connect/test');
+const BumpPostsRequestTester = require('./bump_posts/test');
 
 const userRequestTester = new UserRequestTester();
 
@@ -48,4 +49,5 @@ describe('user requests', function() {
 	describe('PUT /change-email', ChangeEmailRequestTester.test);
 	describe('PUT /no-auth/change-email-confirm', ChangeEmailConfirmRequestTester.test);
 	describe('PUT /no-auth/provider-connect/:provider', ProviderConnectRequestTester.test);
+	describe('PUT /bump-posts', BumpPostsRequestTester.test);
 });
