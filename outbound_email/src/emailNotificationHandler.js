@@ -105,7 +105,7 @@ class EmailNotificationHandler {
 		else {
 			const timeSinceTriggerTime = this.processingStartedAt - this.message.initialTriggerTime;
 			if (timeSinceTriggerTime <= Config.sessionAwayTimeout) {
-				this.log(`Mopping up offline users for stream ${this.stream.id}...`);
+				this.log(`Mopping up offline users for stream ${this.stream._id}...`);
 				this.fromSeqNum = this.message.seqNum;
 				initialTriggerTime = this.message.initialTriggerTime;
 			}
