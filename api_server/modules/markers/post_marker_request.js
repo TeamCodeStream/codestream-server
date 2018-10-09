@@ -173,7 +173,7 @@ class PostMarkerRequest extends PostRequest {
 				'code*': '<The associated code>',
 				'preContext': '<Code to display before the code of interest (deprecated?)>',
 				'postContext': '<Code to display after the code of interest (deprecated?)>',
-				'location': '<Location coordinates (startLine, endLine, startColumn, endColumn) for the marker>',
+				'location': '<Location coordinates (startLine, startColumn, endLine, endColumn) for the marker>',
 				'type': '<Assign a type to this marker ("question", "comment", etc.)>',
 				'color': '<Display color of the marker>',
 				'status': '<Status of the marker, for things like tasks>'
