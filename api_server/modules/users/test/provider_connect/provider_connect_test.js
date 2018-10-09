@@ -76,6 +76,7 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(result === true && errors.length === 0, 'user in response not valid: ' + errors.join(', '));
 		Assert.deepEqual(user.teamIds, [team._id], 'teamIds not set to team created');
 		Assert.deepEqual(user.companyIds, [company._id], 'companyIds not set to company created');
+		Assert.deepEqual(user.providerIdentities, [`${this.provider}::${providerInfo[this.provider].userId}`], 'providerIdentities is not correct');
 		if (this.preExistingUnconnectedUser) {
 			Assert(!user.phoneNumber, 'phone number is set');
 			Assert(!user.iWorkOn, 'iWorkOn is set');

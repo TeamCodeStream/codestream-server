@@ -60,6 +60,7 @@ class RegistrationTest extends CodeStreamAPITest {
 			((user.iWorkOn === '') || errors.push('iWorkOn not set to default value of empty string'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');
 		delete user.confirmationCode; // this is technically unsanitized, but we "cheat" during the test
 		// verify we got no attributes that clients shouldn't see
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES);

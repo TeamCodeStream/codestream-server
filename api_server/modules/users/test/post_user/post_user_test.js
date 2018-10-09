@@ -82,6 +82,7 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((user.iWorkOn === '') || errors.push('incorrect iWorkOn'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');
 		// verify the user in the response has no attributes that should not go to clients
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

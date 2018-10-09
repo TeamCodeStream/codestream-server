@@ -194,7 +194,7 @@ module.exports = {
 	},
 	providerIdentities: {
 		type: 'arrayOfStrings',
-		serverOnly: true
+		default: []
 	},
 	providerInfo: {
 		type: 'object',
