@@ -39,7 +39,7 @@ const UpdateMatchedRepoWithRemotesTest = require('./update_matched_repo_with_rem
 const UpdateSetRepoWithRemotesTest = require('./update_set_repo_with_remotes_test');
 const CreateRepoOnTheFlyTest = require('./create_repo_on_the_fly_test');
 const NumMarkersTest = require('./num_markers_test');
-const MultipleCodeBlocksTest = require('./multiple_code_blocks_test');
+//const MultipleCodeBlocksTest = require('./multiple_code_blocks_test');
 const CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
 const PostReplyTest = require('./post_reply_test');
 const NoStreamIdTest = require('./no_stream_id_test');
@@ -143,7 +143,7 @@ class PostPostRequestTester {
 		new CodeBlockForBadStreamTypeTest({ streamType: 'channel' }).test();
 		new CodeBlockFromDifferentTeamTest().test();
 		new NumMarkersTest().test();
-		new MultipleCodeBlocksTest().test();
+		//new MultipleCodeBlocksTest().test();
 		new CodeBlockFromDifferentStreamTest({ streamType: 'direct' }).test();
 		new CodeBlockFromDifferentStreamTest({ streamType: 'channel' }).test();
 		new CodeBlockFromDifferentStreamTest({ streamType: 'file' }).test();
