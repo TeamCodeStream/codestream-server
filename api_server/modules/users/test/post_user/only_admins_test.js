@@ -7,7 +7,7 @@ class OnlyAdminsTest extends PostUserTest {
 
 	setOptions () {
 		super.setOptions();
-		this.teamOptions.creatorIndex = this.teamOptions.inviterIndex = 1;
+		this.teamOptions.creatorIndex = 1;
 	}
 
 	get description () {

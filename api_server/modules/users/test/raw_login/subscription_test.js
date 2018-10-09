@@ -13,7 +13,6 @@ class SubscriptionTest extends LoginTest {
 		super(options);
 		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
 		this.teamOptions.creatorIndex = 1;
-		this.teamOptions.inviterIndex = 1;
 		this.streamOptions.creatorIndex = 1;
 	}
 

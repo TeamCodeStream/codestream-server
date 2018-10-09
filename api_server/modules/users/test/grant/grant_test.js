@@ -35,10 +35,9 @@ class GrantTest extends CodeStreamAPITest {
 		}
 		if (!this.wantTeam) {
 			delete this.teamOptions.creatorIndex;
-			delete this.teamOptions.inviterIndex;
 		}
 		else {
-			this.teamOptions.creatorIndex = this.teamOptions.inviterIndex = 1;
+			this.teamOptions.creatorIndex = 1;
 		}
 		if (this.wantStream) {
 			this.streamOptions.creatorIndex = 1;

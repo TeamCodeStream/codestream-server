@@ -12,7 +12,6 @@ class PutPreferencesTest extends CodeStreamAPITest {
 		super(options);
 		this.userOptions.numRegistered = 1;
 		delete this.teamOptions.creatorIndex;
-		delete this.teamOptions.inviterIndex;
 		this.expectVersion = 3;
 	}
 	

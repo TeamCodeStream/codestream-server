@@ -15,7 +15,6 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 		super(options);
 		this.userOptions.numRegistered = 0;
 		delete this.teamOptions.creatorIndex;
-		delete this.teamOptions.inviterIndex;
 		this.messageReceiveTimeout = 10000;	// wait 10 seconds for message
 	}
 

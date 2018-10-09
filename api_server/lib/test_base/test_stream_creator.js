@@ -65,7 +65,10 @@ class TestStreamCreator {
 
 	createPosts (callback) {
 		this.postData = [];
-		if (typeof this.postOptions.creatorIndex !== 'number') {
+		if (
+			typeof this.postOptions.creatorIndex !== 'number' && 
+			!(this.postOptions.creatorIndex instanceof Array)
+		) {
 			return callback();
 		}
 		BoundAsync.timesSeries(
@@ -87,7 +90,10 @@ class TestStreamCreator {
 				remotes: [this.test.repoFactory.randomUrl()]
 			};
 		}
-		postOptions.token = this.users[this.postOptions.creatorIndex].accessToken;
+		const creatorIndex = this.postOptions.creatorIndex instanceof Array ? 
+			this.postOptions.creatorIndex[n] :
+			this.postOptions.creatorIndex;
+		postOptions.token = this.users[creatorIndex || 0].accessToken;
 		this.test.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }

@@ -40,7 +40,6 @@ class CommonInit {
 			},
 			teamOptions: {
 				creatorToken: this.users[1].accessToken,
-				inviterToken: this.users[1].accessToken,
 				numAdditionalInvites: this.existingUserIsRegistered ? 0 : 1,
 				members: 'all'
 			}

@@ -10,7 +10,6 @@ class GetTeamMember extends CodeStreamAPITest {
 		this.userOptions.numRegistered = 3;
 		Object.assign(this.teamOptions, {
 			creatorIndex: 2,
-			inviterIndex: 2,
 			numAdditionalInvites: 2
 		});
 	}

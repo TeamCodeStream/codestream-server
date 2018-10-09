@@ -9,7 +9,6 @@ class GetInvitingUserTest extends CodeStreamAPITest {
 		super(options);
 		Object.assign(this.teamOptions, {
 			creatorIndex: 1,
-			inviterIndex: 1,
 			numAdditionalInvites: 1
 		});
 	}

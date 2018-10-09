@@ -36,7 +36,7 @@ class BumpPostsFetchTest extends BumpPostsTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// totalPosts should be numPosts + 1
-		Assert.equal(data.user.totalPosts, this.numPosts + 1, 'totalPosts not correct');
+		Assert.equal(data.user.totalPosts, this.numAuthoredPosts + 1, 'totalPosts not correct');
 		super.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }

@@ -12,7 +12,7 @@ class ACLTest extends PostUserTest {
 		super.setOptions();
 		const index = this.teamOptions.members.indexOf(0);
 		this.teamOptions.members.splice(index, 1);
-		this.teamOptions.creatorIndex = this.teamOptions.inviterIndex = 1;
+		this.teamOptions.creatorIndex = 1;
 	}
 
 	getExpectedError () {

@@ -12,7 +12,6 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		this.messageReceiveTimeout = 10000;	// wait 10 seconds for message
 		this.userOptions.numRegistered = 0;
 		delete this.teamOptions.creatorIndex;
-		delete this.teamOptions.inviterIndex;
 	}
 
 	get description () {

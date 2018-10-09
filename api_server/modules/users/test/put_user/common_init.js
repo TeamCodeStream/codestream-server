@@ -10,7 +10,7 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 class CommonInit {
 
 	init (callback) {
-		this.teamOptions.creatorIndex = this.teamOptions.inviterIndex = 1;
+		this.teamOptions.creatorIndex = 1;
 		BoundAsync.series(this, [
 			CodeStreamAPITest.prototype.before.bind(this),
 			this.makeUserData		// make the data to be used during the update

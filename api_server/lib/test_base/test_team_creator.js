@@ -108,7 +108,7 @@ class TestTeamCreator {
 	}
 
 	inviteUsers (callback) {
-		if (!this.teamOptions.inviterToken && typeof this.teamOptions.inviterIndex !== 'number') {
+		if (!this.teamOptions.creatorToken && typeof this.teamOptions.creatorIndex !== 'number') {
 			return callback();
 		}
 		let numUsers = 0;
@@ -139,10 +139,10 @@ class TestTeamCreator {
 				userIndex = this.teamOptions.members[n];
 			}
 		}
-		if (n === this.teamOptions.inviterIndex) {
+		if (n === this.teamOptions.creatorIndex) {
 			return callback();
 		}
-		const token = this.teamOptions.inviterToken || this.users[this.teamOptions.inviterIndex].accessToken;
+		const token = this.teamOptions.creatorToken || this.users[this.teamOptions.creatorIndex].accessToken;
 		const email = userIndex !== null ? this.users[userIndex].user.email : this.test.userFactory.randomEmail();
 		this.test.doApiRequest(
 			{

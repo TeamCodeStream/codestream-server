@@ -29,8 +29,7 @@ class GetUsersOnlyFromTeamTest extends GetUsersTest {
 			test: this,
 			teamOptions: this.teamOptions,
 			userOptions: this.userOptions,
-			creatorToken: this.users[1].accessToken,
-			inviterToken: this.users[1].accessToken
+			creatorToken: this.users[1].accessToken
 		}).create((error, data) => {
 			if (error) { return callback(error); }
 			this.foreignTeam = data.team;

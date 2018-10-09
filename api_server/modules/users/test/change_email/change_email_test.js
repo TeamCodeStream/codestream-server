@@ -8,7 +8,6 @@ class ChangeEmailTest extends CodeStreamAPITest {
 		super(options);
 		this.userOptions.numRegistered = 1;
 		delete this.teamOptions.creatorIndex;
-		delete this.teamOptions.inviterIndex;
 	}
 
 	get description () {

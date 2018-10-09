@@ -9,7 +9,6 @@ class NoPasswordTest extends LoginTest {
 	constructor (options) {
 		super(options);
 		this.teamOptions.creatorIndex = 1;
-		this.teamOptions.inviterIndex = 1;
 		this.teamOptions.numAdditionalInvites = 2;
 	}
 

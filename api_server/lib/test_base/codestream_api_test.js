@@ -52,8 +52,7 @@ class CodeStreamAPITest extends APIRequestTest {
 		this.teamOptions = {
 			creatorIndex: 0,
 			members: 'all',
-			numAdditionalInvites: 1,
-			inviterIndex: 0
+			numAdditionalInvites: 1
 		};
 		this.streamOptions = {
 			creatorIndex: undefined,

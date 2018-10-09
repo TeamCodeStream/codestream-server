@@ -8,7 +8,6 @@ class ACLTest extends GetUsersByTeamIdTest {
 		super(options);
 		Object.assign(this.teamOptions, {
 			creatorIndex: 1,
-			inviterIndex: 1,
 			members: [2]
 		});
 	}

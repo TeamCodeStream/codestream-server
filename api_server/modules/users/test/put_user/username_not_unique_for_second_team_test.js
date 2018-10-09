@@ -36,8 +36,7 @@ class UsernameNotUniqueForSecondTeamTest extends PutUserTest {
 			test: this,
 			userOptions: this.userOptions,
 			teamOptions: Object.assign({}, this.teamOptions, {
-				creatorToken: this.users[2].accessToken,
-				inviterToken: this.users[2].accessToken
+				creatorToken: this.users[2].accessToken
 			})
 		}).create((error, response) => {
 			if (error) { return callback(error); }

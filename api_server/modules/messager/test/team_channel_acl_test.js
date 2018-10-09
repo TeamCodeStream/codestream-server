@@ -8,8 +8,7 @@ class TeamChannelACLTest extends CodeStreamMessageACLTest {
 		super(options);
 		Object.assign(this.teamOptions, {
 			members: [1],
-			creatorIndex: 1,
-			inviterIndex: 1
+			creatorIndex: 1
 		});
 		delete this.streamOptions.creatorIndex;
 	}

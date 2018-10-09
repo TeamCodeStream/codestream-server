@@ -4,6 +4,7 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const Errors = require('./errors');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class IntegrationEnableRequest extends RestfulRequest {
 
@@ -56,7 +57,7 @@ class IntegrationEnableRequest extends RestfulRequest {
 	async setEnabled () {
 		this.teamId = this.request.body.teamId.toLowerCase();
 		const attribute = `integrations.${this.integrationName}.enabled`;
-		this.op = {
+		const op = {
 			$set: {
 				[attribute]: this.request.body.enable,
 				modifiedAt: Date.now()
@@ -64,12 +65,13 @@ class IntegrationEnableRequest extends RestfulRequest {
 		};
 		const infoAttribute = `integrations.${this.integrationName}.info`;
 		if (this.request.body.info) {
-			this.op.$set[infoAttribute] = this.request.body.info;
+			op.$set[infoAttribute] = this.request.body.info;
 		}
-		await this.data.teams.applyOpById(
-			this.teamId,
-			this.op
-		);
+		this.updateOp = await new ModelSaver({
+			request: this,
+			collection: this.data.teams,
+			id: this.teamId
+		}).save(op);
 	}
 
 	// after the request is complete, publish the integration enable/disable message
@@ -77,7 +79,7 @@ class IntegrationEnableRequest extends RestfulRequest {
 	async postProcess () {
 		const channel = 'team-' + this.teamId;
 		const message = {
-			team: Object.assign({}, this.op, { _id: this.teamId }),
+			team: Object.assign({}, this.updateOp, { _id: this.teamId }),
 			requestId: this.request.id
 		};
 		try {

@@ -12,7 +12,6 @@ class LoginTest extends CodeStreamAPITest {
 	constructor (options) {
 		super(options);
 		delete this.teamOptions.creatorIndex;
-		delete this.teamOptions.inviterIndex;
 	}
 
 	get description () {

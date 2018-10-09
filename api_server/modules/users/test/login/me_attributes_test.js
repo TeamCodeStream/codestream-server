@@ -11,7 +11,6 @@ class MeAttributesTest extends LoginTest {
 	constructor (options) {
 		super(options);
 		this.teamOptions.creatorIndex = 1;
-		this.teamOptions.inviterIndex = 1;
 		this.teamOptions.numAdditionalInvites = 2;
 		this.streamOptions.creatorIndex = 1;
 		this.postOptions.creatorIndex = 1;

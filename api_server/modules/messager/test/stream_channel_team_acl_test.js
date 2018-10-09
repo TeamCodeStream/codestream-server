@@ -9,7 +9,6 @@ class StreamChannelTeamACLTest extends CodeStreamMessageACLTest {
 		this.userOptions.numRegistered = 3;
 		Object.assign(this.teamOptions, {
 			creatorIndex: 1,
-			inviterIndex: 1,
 			members: [2]
 		});
 		Object.assign(this.streamOptions, {

@@ -10,7 +10,6 @@ class CommonInit {
 
 	init (callback) {
 		this.teamOptions.creatorIndex = 1;
-		this.teamOptions.inviterIndex = 1;
 		this.streamOptions.creatorIndex = 1;
 		this.postOptions.creatorIndex = 1;
 		BoundAsync.series(this, [

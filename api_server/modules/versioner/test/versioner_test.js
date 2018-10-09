@@ -44,7 +44,6 @@ class VersionerTest extends CodeStreamAPITest {
 		// minimal test setup ... just a registered user
 		this.userOptions.numRegistered = 1;
 		delete this.teamOptions.creatorIndex;
-		delete this.teamOptions.inviterIndex;
 	}
 
 	get description () {
