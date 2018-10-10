@@ -1,11 +1,14 @@
 # Outbound Email Build & Deployment Information
 
+The outbound email project is a node service that runs as an AWS Lambda function.  
+
 TeamCity Project: [outbound_email](http://tc.codestream.us/project.html?projectId=OutboundEmail&tab=projectOverview)
 
 ## Assets
-The outbound email project (a node service) runs as an AWS Lambda function. There are 3 assets; the
-javascript code which is uploaded as a zip file, a JSON file definiing the lambda function which is specific
-to the operating environment and a json info file, also specific to the asset environment.
+There are 3 assets.
+* The javascript code which packaged as a zip file.
+* The lambda function definition; A json file created from a template and the sandbox environment.
+* The info json file describing the assets and build information.
 
 Assets: **outbound-email-$VERSION+$BUILD.{zip,info,lambda.json}**  
 Internal Asset Location: **http:<i></i>//assets.codestream.us/artifacts/$ASSET_ENV/outbound-email/**  
@@ -29,15 +32,16 @@ Prod build promotes the code asset created in the QA build.
 | --- | --- |
 | [CI](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Ci) | Triggered by updates to the **develop** branch and PR's<br>Builds the zip file and CI lambda function json file on TC agent.<br>Assets are [here](http://assets.codestream.us/artifacts/ci/outbound-email/) |
 | [PD](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Pd) | Triggered by successful CI build<br>Copies the code asset from CI, modifies the info file and lambda function json file to represent PD's operating environment and republishes all assets under PD.<br>Deploys the build by updating the PD lambda functions code and environment.<br>Assets are [here](http://assets.codestream.us/artifacts/pd/outbound-email/) |
-| [QA](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Qa) | Triggered by updates to the **master** branch<br>Builds the zip file and QA lambda function json definition on TC agent.<br>Assets are [here](http://assets.codestream.us/artifacts/qa/outbound-email/) |
-| [Prod](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Prod) | Must be manually executed (uses **master** branch)<br>Copies qa zip file, creates production lamda function json file and publishes the assets as prod and updates the production lambda function code and environment.<br>Assets are [here](http://assets.codestream.us/artifacts/prod/outbound-email/) |
+| [QA](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Qa) | Triggered by updates to the **master** branch<br>Builds the zip file and QA lambda function json definition on TC agent.<br>Updates the lambda function code and environment variables on AWS<br>Assets are [here](http://assets.codestream.us/artifacts/qa/outbound-email/) |
+| [Prod](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Prod) | Must be invoked manually<br>Promotes the latest QA build's assets by copying them and modifying the info and lambda function definition and republishing them under Prod.<br>Updates the Prod lambda function's code and environment on AWS<br>Assets are [here](http://assets.codestream.us/artifacts/prod/outbound-email/) |
+
 
 ## Production Release Checklist
-1. Run the Prod build to create the prod assets and install the lambda function.
+1. Run the [Prod build](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Prod) to create the prod assets and install the lambda function (note this promotes the *most recent* QA build to Prod).
 Confirm with `dt-aws-lambda -a list-funcs`
-1. Tag the outbound_email repo with the released version number (vX.Y.Z)
-1. Update the version number src/package.json on the **develop** branch for the
-next release.
+1. Tag the **outbound_email** repo's Prod build commit ID with the released version number (vX.Y.Z) and push.
+1. Update the version number in **src/package.json** on the **develop** branch for the
+next minor or major release.
 
 
 ## Hotfixing (untested)
