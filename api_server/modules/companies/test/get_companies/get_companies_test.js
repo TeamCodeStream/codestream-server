@@ -1,96 +1,66 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const CompanyTestConstants = require('../company_test_constants');
+const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
 
 class GetCompaniesTest extends CodeStreamAPITest {
+
+	get description () {
+		return 'should return companies i am a member of when requesting my companies';
+	}
 
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createRandomRepoByMe,		// create a random repo, as me
-			this.createOtherUser,			// create another user
-			this.createRandomReposWithMe,	// create some random repos as the other user, but with me included
-			this.createRandomRepoWithoutMe,	// create a random repo as the other user, and i'm not included
-			this.setPath					// set the path for the request test run
+			super.before,
+			this.createTeamWithMe,
+			this.createTeamWithoutMe,
+			this.setPath					
 		], callback);
 	}
 
-	// create a random repo, as the current user, this also creates a company
-	createRandomRepoByMe (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.myRepo = response.repo;
-				this.myCompany = response.company;
-				callback();
+	createTeamWithMe (callback) {
+		new TestTeamCreator({
+			test: this,
+			teamOptions: {
+				creatorToken: this.users[1].accessToken,
+				members: [this.users[0].user.email]
 			},
-			{
-				withRandomEmails: 2, // two other users will be in it
-				token: this.token	 // my token
-			}
-		);
+			userOptions: this.userOptions
+		}).create((error, data) => {
+			if (error) { return callback(error); }
+			this.companyWithMe = data.company;
+			callback();
+		});
 	}
 
-	// create another (registered) user
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a few repos with me as part of the team, therefore company
-	createRandomReposWithMe (callback) {
-		this.otherRepos = [];
-		this.otherCompanies = [];
-		BoundAsync.timesSeries(
-			this,
-			2,
-			this.createRandomRepoWithMe,
-			callback
-		);
-	}
-
-	// create a random repo with me as part of the team, therfore company
-	createRandomRepoWithMe (n, callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherRepos.push(response.repo);
-				this.otherCompanies.push(response.company);
-				callback();
+	createTeamWithoutMe (callback) {
+		new TestTeamCreator({
+			test: this,
+			teamOptions: {
+				creatorToken: this.users[1].accessToken
 			},
-			{
-				withRandomEmails: 2,	// two other users will be in it
-				withEmails: [this.currentUser.email],	// and me
-				token: this.otherUserData.accessToken	// the other user is the creator
-			}
-		);
+			userOptions: this.userOptions
+		}).create((error, data) => {
+			if (error) { return callback(error); }
+			this.companyWithoutMe = data.company;
+			callback();
+		});
 	}
 
-	// create a random repo where i am not part of the team, therefore not part of the company
-	createRandomRepoWithoutMe (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.foreignRepo = response.repo;
-				this.foreignCompany = response.company;
-				callback();
-			},
-			{
-				withRandomEmails: 2,	// two other users will be in it
-				token: this.otherUserData.accessToken	// the other user is the creator
-			}
-		);
+	// set the path for the test
+	setPath (callback) {
+		this.path = '/companies?mine';
+		callback();
 	}
 
-	// validate we got the right companies
+	// validate we got only companies i am in, meaning the company from the repo i created,
+	// and the other companies that were created with me as part of the team
 	validateResponse (data) {
+		let myCompanies = [this.company, this.companyWithMe];
+		this.validateMatchingObjects(myCompanies, data.companies, 'companies');
 		this.validateSanitizedObjects(data.companies, CompanyTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

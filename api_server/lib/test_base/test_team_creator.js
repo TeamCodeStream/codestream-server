@@ -129,21 +129,30 @@ class TestTeamCreator {
 
 	inviteUser (n, callback) {
 		let userIndex = null;
+		let email;
+		if (n === this.teamOptions.creatorIndex) {
+			return callback();
+		}
 		if (this.teamOptions.members === 'all') {
 			if (n < (this.userOptions.numRegistered || 0) + (this.userOptions.numUnregistered || 0)) {
 				userIndex = n;
 			}
 		}
 		else if (this.teamOptions.members instanceof Array) {
-			if (n < this.teamOptions.members.length) {
-				userIndex = this.teamOptions.members[n];
+			const member = this.teamOptions.members[n];
+			if (typeof member === 'number') {
+				if (n < this.teamOptions.members.length) {
+					userIndex = this.teamOptions.members[n];
+				}
+			}
+			else {
+				email = member;
 			}
 		}
-		if (n === this.teamOptions.creatorIndex) {
-			return callback();
-		}
 		const token = this.teamOptions.creatorToken || this.users[this.teamOptions.creatorIndex].accessToken;
-		const email = userIndex !== null ? this.users[userIndex].user.email : this.test.userFactory.randomEmail();
+		if (!email) {
+			email = userIndex !== null ? this.users[userIndex].user.email : this.test.userFactory.randomEmail();
+		}
 		this.test.doApiRequest(
 			{
 				method: 'post',
