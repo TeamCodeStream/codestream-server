@@ -2,6 +2,7 @@
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset"
 MONGO_ACCESS_FILE="$HOME/.codestream/mongo/prod-codestream-dbowner"
 SSL_CERT=codestream.com
+SLACK_API_ACCESS_FILE=$HOME/.codestream/slack-api/production
 MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
 BOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-production
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/prod-api
