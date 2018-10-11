@@ -6,7 +6,7 @@ const Config = require('./config');
 class TeamCreatedEmailHandler extends EmailHandler {
 
 	async getSendOptions () {
-		const options = super.getSendOptions();
+		const options = await super.getSendOptions();
 		options.to = { email: 'team@codestream.com', name: 'CodeStream' };
 		options.from = { email: Config.senderEmail, name: 'CodeStream' };
 		return options;
