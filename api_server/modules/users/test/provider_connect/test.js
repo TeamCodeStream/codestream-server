@@ -17,6 +17,9 @@ const ExistingRegisteredUserTest = require('./existing_registered_user_test');
 const ExistingUnregisterdUserOnTeamTest = require('./existing_unregistered_user_on_team_test');
 const ExistingRegisterdUserOnTeamTest = require('./existing_registered_user_on_team_test');
 const SignupTokenTest = require('./signup_token_test');
+const InviteTest = require('./invite_test');
+const TeamMismatchTest = require('./team_mismatch_test');
+const TeamNoMatchTest = require('./team_no_match_test');
 
 const PROVIDERS = [
 	'slack'
@@ -39,6 +42,9 @@ class ProviderConnectRequestTester {
 			new ExistingUnregisterdUserOnTeamTest({ provider }).test();
 			new ExistingRegisterdUserOnTeamTest({ provider }).test();
 			new SignupTokenTest({ provider }).test();
+			new InviteTest({ provider }).test();
+			new TeamMismatchTest({ provider }).test();
+			new TeamNoMatchTest({ provider }).test();
 		});
 		new UnknownProviderTest({ provider: 'blahblah' }).test();
 	}
