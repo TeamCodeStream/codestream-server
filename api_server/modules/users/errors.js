@@ -83,5 +83,10 @@ module.exports = {
 		code: 'USRC-1015',
 		message: 'The user already has credentials for this provider',
 		description: 'The provider info passed contained credentials for a third-party provider that did not match the credentials the user already has for the provider'
+	},
+	'inviteTeamMismatch': {
+		code: 'USRC-1016',
+		message: 'The team the user was invited to does not match the CodeStream team associated with their third-party provider account',
+		description: 'The user was invited to a team, but the ID of the team they were invited to does not match the ID of the team that matches the third-party team associated with their third-party credentials'
 	}
 };

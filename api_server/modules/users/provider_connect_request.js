@@ -47,7 +47,7 @@ class ProviderConnectRequest extends RestfulRequest {
 					object: ['providerInfo']
 				},
 				optional: {
-					string: ['signupToken', '_pubnubUuid', '_subscriptionCheat', '_mockEmail']
+					string: ['signupToken', 'teamId', '_pubnubUuid', '_subscriptionCheat', '_mockEmail']
 				}
 			}
 		);
@@ -97,11 +97,18 @@ class ProviderConnectRequest extends RestfulRequest {
 				}
 			}
 		);
+		const teamId = (this.request.body.teamId || '').toLowerCase();
 		if (this.team) {
 			this.log('Matched team ' + this.team.id);
+			if (teamId && teamId !== this.team.id) {
+				throw this.errorHandler.error('inviteTeamMismatch', { reason: 'incorrect match to third-party team' });
+			}
 		}
 		else {
 			this.log('No match for team');
+			if (teamId) {
+				throw this.errorHandler.error('inviteTeamMismatch', { reason: 'no match to third-party team' });
+			}
 		}
 	}
 
@@ -429,7 +436,8 @@ class ProviderConnectRequest extends RestfulRequest {
 				'validation',
 				'unknownProvider',
 				'invalidProviderCredentials',
-				'duplicateProviderAuth'
+				'duplicateProviderAuth',
+				'inviteTeamMismatch'
 			]
 		};
 	}
