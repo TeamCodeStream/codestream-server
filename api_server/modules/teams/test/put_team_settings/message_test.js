@@ -13,24 +13,9 @@ class MessageTest extends CodeStreamMessageTest {
 	// make some test data before running the test
 	makeData (callback) {
 		BoundAsync.series(this, [
-			this.createTeam,
+			super.makeData,
 			this.preSetSettings
 		], callback);
-	}
-
-	// create a random team
-	createTeam (callback) {
-		this.teamFactory.createRandomTeam(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				this.path = '/team-settings/' + this.team._id;
-				callback();
-			},
-			{
-				token: this.token
-			}
-		);
 	}
 
 	// preset the team's settings with initial data
@@ -75,6 +60,11 @@ class MessageTest extends CodeStreamMessageTest {
 					}
 				};
 				Object.assign(this.message.team, ComplexUpdate.EXPECTED_OP);
+				this.message.team.$set.version = 5;
+				this.message.team.$version = {
+					before: 4,
+					after: 5
+				};
 				callback();
 			}
 		);

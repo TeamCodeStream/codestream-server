@@ -167,7 +167,7 @@ class TeamUpdater extends ModelUpdater {
 		};
 		const updateOp = await new ModelSaver({
 			request: this.request,
-			collection: this.collection,
+			collection: this.request.data.users,
 			id: user.id
 		}).save(op);
 		this.transforms.userUpdates.push(updateOp);

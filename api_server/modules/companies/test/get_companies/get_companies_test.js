@@ -56,7 +56,7 @@ class GetCompaniesTest extends CodeStreamAPITest {
 		callback();
 	}
 
-	// validate we got only companies i am in, meaning the company from the repo i created,
+	// validate we got only companies i am in, meaning the company from the team i created,
 	// and the other companies that were created with me as part of the team
 	validateResponse (data) {
 		let myCompanies = [this.company, this.companyWithMe];

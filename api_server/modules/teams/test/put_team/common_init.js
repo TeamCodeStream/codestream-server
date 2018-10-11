@@ -3,102 +3,29 @@
 'use strict';
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class CommonInit {
 
 	init (callback) {
+		this.teamOptions.creatorIndex = 1;
+		this.userOptions.numRegistered = 4;
 		BoundAsync.series(this, [
-			this.createOtherUsers,	// create a few registered users
-			this.createRandomTeam,	// create a random team for the test
-			this.addOtherUsers,     // add the other users to the team
-			this.makeAdmins,		// make other users into admins, as needed
-			this.makeTeamData		// make the data to be used during the update
+			CodeStreamAPITest.prototype.before.bind(this),
+			this.makeAdmins,	// make other users into admins, as needed
+			this.makeTeamData	// make the data to be used during the update
 		], callback);
 	}
-
-	// create a few other registered users (in addition to the "current" user)
-	createOtherUsers (callback) {
-		this.otherUserData = [];
-		BoundAsync.timesSeries(
-			this,
-			3,
-			this.createOtherUser,
-			callback
-		);
-	}
-
-	// create another registered user (in addition to the "current" user)
-	createOtherUser (n, callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData.push(response);
-				callback();
-			}
-		);
-	}
-
-	// create a random team to use for the test
-	createRandomTeam (callback) {
-		let token = this.withoutOtherUserOnTeam ? this.token : this.otherUserData[0].accessToken;
-		this.teamFactory.createRandomTeam(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				callback();
-			},
-			{
-				token: token	// the "other user" is the team creator, unless otherwise specified
-			}
-		);
-	}
-
-	// add the other users to the team created (the "other" user created it)
-	addOtherUsers (callback) {
-		let users = [];
-		if (!this.currentUserNotOnTeam) {
-			users.push(this.currentUser);
-		}
-		if (!this.dontAddOtherUsers) {
-			users.push(...this.otherUserData.map(data => data.user).slice(1));
-		}
-		BoundAsync.forEachSeries(
-			this,
-			users,
-			this.addOtherUser,
-			callback
-		);
-	}
-
-	// add another user to the team created
-	addOtherUser (user, callback) {
-		this.doApiRequest(
-			{
-				method: 'post',
-				path: '/users',
-				data: {
-					teamId: this.team._id,
-					email: user.email
-				},
-				token: this.otherUserData[0].accessToken
-			},
-			error => {
-				if (error) { return callback(error); }
-				this.team.memberIds.push(user._id);
-				callback();
-			}
-		);
-	}
-
+	
 	// make other users into admins for the team, if desired for the test
 	makeAdmins (callback) {
 		const adminIds = [];
 		if (!this.dontMakeCurrentUserAdmin) {
-			adminIds.push(this.currentUser._id);
+			adminIds.push(this.currentUser.user._id);
 		}
 		if (this.whichAdmins) {
 			for (let i = 0; i < this.whichAdmins.length; i++) {
-				adminIds.push(this.otherUserData[this.whichAdmins[i]].user._id);
+				adminIds.push(this.users[this.whichAdmins[i]].user._id);
 			}
 		}
 		this.doApiRequest(
@@ -106,7 +33,7 @@ class CommonInit {
 				method: 'put',
 				path: '/teams/' + this.team._id,
 				data: { $push: { adminIds } },
-				token: this.otherUserData[0].accessToken
+				token: this.users[1].accessToken
 			},
 			error => {
 				if (error) { return callback(error); }
@@ -124,7 +51,40 @@ class CommonInit {
 		this.expectedTeam = Object.assign({}, this.team, this.data);
 		this.path = '/teams/' + this.team._id;
 		this.modifiedAfter = Date.now();
+		this.expectedData = {
+			team: {
+				_id: this.team._id,
+				$set: {
+					name: this.data.name,
+					modifiedAt: this.modifiedAfter,
+					version: 7
+				},
+				$version: {
+					before: 6,
+					after: 7
+				}
+			}
+		};
 		callback();
+	}
+
+	// perform the actual team update 
+	updateTeam (callback) {
+		const token = this.otherUserUpdatesTeam ? this.users[1].accessToken : this.token;
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/teams/' + this.team._id,
+				data: this.data,
+				token
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.updateTeamResponse = response;
+				delete this.data;	// don't need this anymore
+				callback();
+			}
+		);
 	}
 }
 

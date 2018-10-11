@@ -6,7 +6,7 @@ class AdminsOkTest extends PutTeamSettingsFetchTest {
 
 	constructor (options) {
 		super(options);
-		this.wantOtherUser = true;
+		this.teamOptions.creatorIndex = 1;
 	}
 
 	get description () {
@@ -18,6 +18,7 @@ class AdminsOkTest extends PutTeamSettingsFetchTest {
 		// run through normal test setup, but then make the current user an admin
 		super.before(error => {
 			if (error) { return callback(error); }
+			this.expectVersion++;
 			this.makeCurrentUserAdmin(callback);
 		});
 	}
@@ -29,9 +30,9 @@ class AdminsOkTest extends PutTeamSettingsFetchTest {
 				method: 'put',
 				path: '/teams/' + this.team._id,
 				data: {
-					$push: { adminIds: this.currentUser._id }
+					$push: { adminIds: this.currentUser.user._id }
 				},
-				token: this.otherUserData.accessToken
+				token: this.users[1].accessToken
 			},
 			callback
 		);

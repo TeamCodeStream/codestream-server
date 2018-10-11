@@ -19,16 +19,6 @@ const REPOS_STANDARD_ROUTES = {
 
 // expose additional routes
 const REPOS_ADDITIONAL_ROUTES = [
-	{
-		method: 'get',
-		path: 'no-auth/find-repo',
-		requestClass: require('./find_repo_request')
-	},
-	{
-		method: 'get',
-		path: 'no-auth/match-repo',
-		requestClass: require('./match_repo_request')
-	}
 ];
 
 class Repos extends Restful {

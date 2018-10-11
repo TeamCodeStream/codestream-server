@@ -16,7 +16,7 @@ class NoRemoveSelfTest extends RemoveUserTest {
 
 	// get the users we want to remove from the team
 	getRemovedUsers () {
-		return [this.currentUser, ...this.otherUserData.slice(1).map(data => data.user)];
+		return [this.currentUser.user, ...this.users.slice(1).map(data => data.user)];
 	}
 }
 

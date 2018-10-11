@@ -13,16 +13,6 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		return 'users removed from a team should no longer be able to subscribe to the team channel for that team';
 	}
 
-	getExpectedFields () {
-		let fields = super.getExpectedFields();
-		return {
-			team: {
-				$set: fields.team,
-				$pull: ['memberIds']
-			}
-		};
-	}
-
 	// run the actual test...
 	run (callback) {
 		// do the normal test, removing the current user, but afterwards try to
@@ -38,7 +28,11 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		// remove another user from the team, that user will then try to subscribe
 		super.makeTeamData(() => {
 			this.data.$pull = {
-				memberIds: this.otherUserData[0].user._id
+				memberIds: this.users[1].user._id
+			};
+			this.expectedData.team.$pull = {
+				memberIds: [this.users[1].user._id],
+				adminIds: [this.users[1].user._id]
 			};
 			callback();
 		});
@@ -49,8 +43,8 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		const clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser._id;
-		clientConfig.authKey = this.otherUserData[0].accessToken;
+		clientConfig.uuid = this.users[1].user._pubnubUuid || this.users[1].user._id;
+		clientConfig.authKey = this.users[1].pubNubToken;
 		const client = new PubNub(clientConfig);
 		const pubnubClient = new PubNubClient({
 			pubnub: client
@@ -65,10 +59,6 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 				callback();
 			}
 		);
-	}
-
-	validateResponse (data) {
-		super.validateResponse(data, true);
 	}
 }
 

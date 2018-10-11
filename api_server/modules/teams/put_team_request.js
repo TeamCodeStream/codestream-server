@@ -83,7 +83,7 @@ class PutTeamRequest extends PutRequest {
 	// publish the removal to the messager channel for any user that has been removed from the team
 	async publishRemovalToUser (userUpdate) {
 		const channel = 'user-' + userUpdate._id;
-		const message = Object.assign({}, userUpdate, { requestId: this.request.id });
+		const message = Object.assign({}, { user: userUpdate }, { requestId: this.request.id });
 		try {
 			await this.api.services.messager.publish(
 				message,

@@ -1,7 +1,7 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const RepoTestConstants = require('../repo_test_constants');
 
 class GetReposTest extends CodeStreamAPITest {
@@ -9,6 +9,7 @@ class GetReposTest extends CodeStreamAPITest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
+			super.before,
 			this.createOtherUser,				// create a second registered user
 			this.createRandomRepoByMe,			// current user creates a repo and team
 			this.createRandomReposInTeam,		// second user creates a few more repos in the team

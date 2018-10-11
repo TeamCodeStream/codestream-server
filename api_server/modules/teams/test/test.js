@@ -5,7 +5,7 @@
 // make eslint happy
 /* globals describe */
 
-var TeamsRequestTester = require('./teams_request_tester');
+const TeamsRequestTester = require('./teams_request_tester');
 
 const teamsRequestTester = new TeamsRequestTester();
 

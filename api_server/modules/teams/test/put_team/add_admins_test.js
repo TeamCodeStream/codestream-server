@@ -10,7 +10,7 @@ class AddAdminsTest extends AddAdminTest {
    
 	// get the users we want to add to the team as admins
 	getAddedAdmins () {
-		return this.otherUserData.splice(1).map(data => data.user);
+		return this.users.splice(1).map(data => data.user);
 	}
 }
 

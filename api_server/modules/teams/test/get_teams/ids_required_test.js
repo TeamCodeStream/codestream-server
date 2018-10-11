@@ -1,15 +1,11 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const GetTeamsTest = require('./get_teams_test');
 
-class IDsRequiredTest extends CodeStreamAPITest {
+class IDsRequiredTest extends GetTeamsTest {
 
 	get description () {
 		return 'should return error if IDs are not provided to teams query';
-	}
-
-	get path () {
-		return '/teams';	// no IDs or any other parameters
 	}
 
 	getExpectedError () {
@@ -17,6 +13,12 @@ class IDsRequiredTest extends CodeStreamAPITest {
 			code: 'RAPI-1001',
 			info: 'ids'
 		};
+	}
+
+	// can't just GET /teams, need to specify IDs or "mine"
+	setPath (callback) {
+		this.path = '/teams';
+		callback();
 	}
 }
 

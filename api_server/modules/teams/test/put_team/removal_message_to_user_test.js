@@ -17,10 +17,10 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 
 	// form the data for the team update
 	makeTeamData (callback) {
-		// remove another user from the team, that user will then try to subscribe
+		// remove current user from the team, that user will then try to subscribe
 		super.makeTeamData(() => {
 			this.data.$pull = {
-				memberIds: this.currentUser._id
+				memberIds: this.currentUser.user._id
 			};
 			callback();
 		});
@@ -28,7 +28,7 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		this.channelName = 'user-' + this.currentUser._id;
+		this.channelName = `user-${this.currentUser.user._id}`;
 		callback();
 	}
 
@@ -36,24 +36,26 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 	generateMessage (callback) {
 		// do the update, this should trigger a message to the
 		// user with the team removed from their teamIds
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: '/teams/' + this.team._id,
-				data: this.data,
-				token: this.otherUserData[0].accessToken 
-			},
-			error => {
-				if (error) { return callback(error); }
-				this.message = {
-					user: {
-						_id: this.currentUser._id,
-						$pull: { teamIds: this.team._id }
+		this.otherUserUpdatesTeam = true;
+		this.updateTeam(error => {
+			if (error) { return callback(error); }
+			this.message = {
+				user: {
+					_id: this.currentUser.user._id,
+					$pull: {
+						teamIds: this.team._id
+					},
+					$set: {
+						version: 4
+					},
+					$version: {
+						before: 3,
+						after: 4
 					}
-				};
-				callback();
-			}
-		);
+				}
+			};
+			callback();
+		});
 	}
 }
 

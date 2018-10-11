@@ -18,68 +18,23 @@ class PutTeamSettingsTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
+		this.expectVersion = 4;
 		BoundAsync.series(this, [
-			this.createOtherUser,
-			this.createTeam,
-			this.inviteCurrentUser,
+			super.before,
 			this.preSetSettings,
 			this.makeSettingsData
 		], callback);
-	}
-
-	// create another registered user on the team, if needed (in addition to the "current" user)
-	createOtherUser (callback) {
-		if (!this.wantOtherUser) { return callback(); }
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a random team
-	createTeam (callback) {
-		const token = this.otherUserData ? this.otherUserData.accessToken : this.token;
-		this.teamFactory.createRandomTeam(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				this.path = '/team-settings/' + this.team._id;
-				callback();
-			},
-			{
-				token: token
-			}
-		);
-	}
-
-	// if we created another user, then they created the team, so we need to invite
-	// the current user to the team
-	inviteCurrentUser (callback) {
-		if (!this.otherUserData) { return callback(); }
-		this.doApiRequest(
-			{
-				method: 'post',
-				path: '/users',
-				data: {
-					teamId: this.team._id,
-					email: this.currentUser.email
-				},
-				token: this.otherUserData.accessToken
-			},
-			callback
-		);
 	}
 
 	// preset the team's settings with any settings we want in place 
 	// before the actual test ... derived test class should override and
 	// fill this.preSetData as appropriate
 	preSetSettings (callback) {
+		this.path = '/team-settings/' + this.team._id;
 		if (!this.preSetData) {
 			return callback();
 		}
+		this.expectVersion++;
 		this.doApiRequest({
 			method: 'put',
 			path: this.path,
@@ -107,6 +62,12 @@ class PutTeamSettingsTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
+		this.expectResponse.team.$set = this.expectResponse.team.$set || {};
+		this.expectResponse.team.$set.version = this.expectVersion;
+		this.expectResponse.team.$version = {
+			before: this.expectVersion - 1,
+			after: this.expectVersion
+		};
 		// verify we got back the expected settings update directive
 		Assert.deepEqual(data, this.expectResponse);
 	}

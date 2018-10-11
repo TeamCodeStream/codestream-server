@@ -17,7 +17,7 @@ class NoPushUsersTest extends PutTeamTest {
 	// before the test runs...
 	makeTeamData (callback) {
 		super.makeTeamData(() => {
-			this.data.$push = { memberIds: this.otherUserData[0].user._id };
+			this.data.$push = { memberIds: this.users[0].user._id };
 			callback();
 		});
 	}

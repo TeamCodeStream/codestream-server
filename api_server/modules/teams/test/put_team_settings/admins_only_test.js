@@ -6,7 +6,7 @@ class AdminsOnlyTest extends PutTeamSettingsTest {
 
 	constructor (options) {
 		super(options);
-		this.wantOtherUser = true;
+		this.teamOptions.creatorIndex = 1;
 	}
 
 	get description () {

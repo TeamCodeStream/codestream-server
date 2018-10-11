@@ -27,31 +27,13 @@ class PutTeamFetchTest extends PutTeamTest {
 		], callback);
 	}
 
-	// perform the actual team update 
-	// the actual test is reading the team and verifying it is correct
-	updateTeam (callback) {
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: '/teams/' + this.team._id,
-				data: this.data,
-				token: this.token
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				Object.assign(this.expectedTeam, response.team, this.data);
-				delete this.data;	// don't need this anymore
-				callback();
-			}
-		);
-	}
-
 	// validate that the response is correct
 	validateResponse (data) {
 		// verify what we fetch is what we got back in the response
+		const expectedTeam = Object.assign({}, this.team, this.updateTeamResponse.team.$set);
 		data.team.memberIds.sort();
-		this.expectedTeam.memberIds.sort();
-		Assert.deepEqual(data.team, this.expectedTeam, 'fetched team does not match');
+		expectedTeam.memberIds.sort();
+		Assert.deepEqual(data.team, expectedTeam, 'fetched team does not match');
 	}
 }
 

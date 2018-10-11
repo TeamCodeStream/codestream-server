@@ -1,6 +1,6 @@
 'use strict';
 
-var GetTeamsTest = require('./get_teams_test');
+const GetTeamsTest = require('./get_teams_test');
 
 class ACLTest extends GetTeamsTest {
 
@@ -10,17 +10,16 @@ class ACLTest extends GetTeamsTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1009'
+			code: 'RAPI-1009'	 // readAuth
 		};
 	}
 
-	// set the path to use when issuing the test request
 	setPath (callback) {
-		// try to fetch some teams, including the "foregin" one which i am not a member of, this should trigger an error
+		// include the "foreign" team in the IDs, this should fail
 		let ids = [
-			this.myTeam._id,
-			this.otherTeams[0]._id,
-			this.foreignTeam._id
+			this.team._id,
+			this.teamWithMe._id,
+			this.teamWithoutMe._id
 		];
 		this.path = '/teams?ids=' + ids.join(',');
 		callback();
