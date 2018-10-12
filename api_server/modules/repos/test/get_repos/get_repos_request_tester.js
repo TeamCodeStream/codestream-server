@@ -2,11 +2,11 @@
 
 'use strict';
 
-var GetReposByTeamTest = require('./get_repos_by_team_test');
-var GetReposByIdTest = require('./get_repos_by_id_test');
-var TeamIDRequiredTest = require('./team_id_required_test');
-var GetReposOnlyFromTeamTest = require('./get_repos_only_from_team_test');
-var ACLTest = require('./acl_test');
+const GetReposByTeamTest = require('./get_repos_by_team_test');
+const GetReposByIdTest = require('./get_repos_by_id_test');
+const TeamIDRequiredTest = require('./team_id_required_test');
+const GetReposOnlyFromTeamTest = require('./get_repos_only_from_team_test');
+const ACLTest = require('./acl_test');
 
 class GetReposRequestTester {
 

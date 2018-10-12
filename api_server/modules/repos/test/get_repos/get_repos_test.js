@@ -3,97 +3,71 @@
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const RepoTestConstants = require('../repo_test_constants');
+const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
 
 class GetReposTest extends CodeStreamAPITest {
+
+	constructor (options) {
+		super(options);
+		this.streamOptions.creatorIndex = 0;
+		Object.assign(this.postOptions, {
+			creatorIndex: [0, 1, 1],
+			numPosts: 3,
+			wantCodeBlock: true
+		});
+	}
 
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.createOtherUser,				// create a second registered user
-			this.createRandomRepoByMe,			// current user creates a repo and team
-			this.createRandomReposInTeam,		// second user creates a few more repos in the team
-			this.createRandomRepoInOtherTeam,	// second user creates a repo in another team (and i'm not included)
-			this.setPath						// set the path for the test request
+			this.createForeignTeam,
+			this.createForeignRepo,
+			this.setPath
 		], callback);
 	}
 
-	// create a second registered user
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
+	// create a "foreign" team, for which the current user is not a member
+	createForeignTeam (callback) {
+		new TestTeamCreator({
+			test: this,
+			teamOptions: Object.assign({}, this.teamOptions, {
+				creatorToken: this.users[1].accessToken
+			}),
+			userOptions: this.userOptions
+		}).create((error, response) => {
+			if (error) { return callback(error); }
+			this.foreignTeam = response.team;
+			this.foreignTeamStream = response.teamStream;
+			callback();
+		});
+	}
+	
+	// create a repo in the foreign team (by creating a post with a code block)
+	createForeignRepo (callback) {
+		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// current user creates a repo (and team)
-	createRandomRepoByMe (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.myRepo = response.repo;
-				this.myTeam = response.team;
-				callback();
-			},
-			{
-				withRandomEmails: 2,	// add a few other users for good measure
-				withEmails: [this.otherUserData.user.email],	// include the "second" registered user
-				token: this.token 		// current user creates the repo
-			}
-		);
-	}
-
-	// create a few other repos in the same team
-	createRandomReposInTeam (callback) {
-		this.otherRepos = [];
-		BoundAsync.timesSeries(
-			this,
-			2,
-			this.createRandomRepoInTeam,
-			callback
-		);
-	}
-
-	// create a single repo in the same team
-	createRandomRepoInTeam (n, callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherRepos.push(response.repo);
+				this.foreignRepo = response.repos[0];
 				callback();
 			},
 			{
-				withRandomEmails: 2,	// include a few other unregistered users
-				withEmails: [this.currentUser.email],	// include the "current" user
-				teamId: this.myTeam._id,				// same team as the first repo
-				token: this.otherUserData.accessToken	// "second" user creates the repo
+				token: this.users[1].accessToken,
+				teamId: this.foreignTeam._id,
+				streamId: this.foreignTeamStream._id,
+				wantCodeBlocks: 1,
+				codeBlockStream: {
+					file: this.streamFactory.randomFile(),
+					remotes: [this.repoFactory.randomUrl()]
+				}
 			}
 		);
 	}
-
-	// create a repo in a different team, current user will not be included in this team
-	createRandomRepoInOtherTeam (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.foreignRepo = response.repo;
-				this.foreignTeam = response.team;
-				callback();
-			},
-			{
-				withRandomEmails: 2,	// include a few other unregistered users
-				token: this.otherUserData.accessToken	// "second" user creates the repo and team, current user is not included
-			}
-		);
-	}
-
+	
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate we got all the expected repos, and that no attributes were returned not suitable for clients
-		this.validateMatchingObjects(this.myRepos, data.repos, 'repos');
+		this.validateMatchingObjects(this.expectedRepos, data.repos, 'repos');
 		this.validateSanitizedObjects(data.repos, RepoTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

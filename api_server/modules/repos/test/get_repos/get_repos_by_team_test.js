@@ -1,6 +1,6 @@
 'use strict';
 
-var GetReposTest = require('./get_repos_test');
+const GetReposTest = require('./get_repos_test');
 
 class GetReposByTeamTest extends GetReposTest {
 
@@ -12,8 +12,8 @@ class GetReposByTeamTest extends GetReposTest {
 	setPath (callback) {
 		// i expect to fetch all repos owned by the team i'm on, including the one i created
 		// and those created by others
-		this.myRepos = [this.myRepo, ...this.otherRepos];
-		this.path = '/repos?teamId=' + this.myTeam._id;
+		this.expectedRepos = this.postData.map(postData => postData.repos[0]);
+		this.path = '/repos?teamId=' + this.team._id;
 		callback();
 	}
 }
