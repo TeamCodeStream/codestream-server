@@ -357,12 +357,16 @@ class PostCreator extends ModelCreator {
 
 	// if this is the first reply to a post, mark that the parent post now has replies
 	async updateParentPost () {
-		if (!this.parentPost || this.parentPost.get('hasReplies')) {
-			// no need for this update if there is no parent post, or if this parent post
-			// is already marked as having replies
+		if (!this.parentPost) {
+			// no need for this update if there is no parent post
 			return; 
 		}
-		const op = { $set: { hasReplies: true } };
+		const op = { 
+			$set: { 
+				hasReplies: true,
+				numReplies: (this.parentPost.get('numReplies') || 0) + 1
+			}
+		};
 		await this.data.posts.applyOpById(this.parentPost.id, op);
 		const messageOp = Object.assign({}, op, { _id: this.parentPost.id });
 		this.updatedPosts = [messageOp]; // we'll send the update in the response (and also the pubnub message)

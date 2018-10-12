@@ -128,7 +128,10 @@ class HasRepliesMessageToTeamTest extends CodeStreamMessageTest {
 				this.message = {
 					post: {
 						_id: this.parentPost._id,
-						$set: { hasReplies: true }
+						$set: { 
+							hasReplies: true,
+							numReplies: 1
+						}
 					}
 				};
 				callback();

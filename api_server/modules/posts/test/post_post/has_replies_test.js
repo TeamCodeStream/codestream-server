@@ -31,6 +31,7 @@ class HasRepliesTest extends PostReplyTest {
 				if (error) { return callback(error); }
 				// confirm the hasReplies attribute has been set
 				Assert.equal(response.post.hasReplies, true, 'hasReplies is not set to true');
+				Assert.equal(response.post.numReplies, 1, 'numReplies is not set to 1');
 				callback();
 			}
 		);

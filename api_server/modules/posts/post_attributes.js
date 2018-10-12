@@ -37,6 +37,10 @@ module.exports = {
 		type: 'boolean',
 		description: 'Will be true for posts that have replies'
 	},
+	numReplies: {
+		type: 'number',
+		description: 'Number of replies to this post'
+	},
 	text: {
 		type: 'string',
 		maxLength: 10000,
