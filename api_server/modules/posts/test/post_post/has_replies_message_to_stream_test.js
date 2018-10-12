@@ -17,7 +17,8 @@ class HasRepliesMessageToStreamTest extends CodeStreamMessageTest {
 			this.createPostCreator,	// create a user who will create a post in the stream
 			this.createRepo,	// create the repo for the stream
 			this.createStream,	// create the stream in the repo
-			this.createParentPost	// create the parent post, used when we create the test post as a reply to this one
+			this.createParentPost,	// create the parent post, used when we create the test post as a reply to this one
+			this.createFirstReply	// create a first reply to the parent post, as needed
 		], callback);
 	}
 
@@ -110,6 +111,21 @@ class HasRepliesMessageToStreamTest extends CodeStreamMessageTest {
 		);
 	}
 
+	// create a first reply to the parent post, as needed
+	createFirstReply (callback) {
+		if (!this.wantFirstReply) {
+			return callback();
+		}
+		this.postFactory.createRandomPost(
+			callback,
+			{
+				token: this.streamCreatorData.accessToken,
+				streamId: this.stream._id,
+				parentPostId: this.parentPost._id
+			}
+		);
+	}
+
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// it is the team channel
@@ -128,6 +144,7 @@ class HasRepliesMessageToStreamTest extends CodeStreamMessageTest {
 			streamId: this.stream._id,
 			parentPostId: this.parentPost._id
 		};
+		const numRepliesExpected = this.wantFirstReply ? 2 : 1;
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -139,7 +156,7 @@ class HasRepliesMessageToStreamTest extends CodeStreamMessageTest {
 						_id: this.parentPost._id,
 						$set: { 
 							hasReplies: true,
-							numReplies: 1
+							numReplies: numRepliesExpected
 						}
 					}
 				};
