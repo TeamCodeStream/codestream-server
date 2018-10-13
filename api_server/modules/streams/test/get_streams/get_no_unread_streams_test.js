@@ -1,7 +1,7 @@
 'use strict';
 
-var GetUnreadStreamsTest = require('./get_unread_streams_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const GetUnreadStreamsTest = require('./get_unread_streams_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class GetNoUnreadStreamsTest extends GetUnreadStreamsTest {
 
@@ -24,7 +24,7 @@ class GetNoUnreadStreamsTest extends GetUnreadStreamsTest {
 			token: this.token
 		}, error => {
 			if (error) { return callback(error); }
-			this.myStreams = [];	// since we're up to date in all streams, we expect no streams in the response
+			this.expectedStreams = [];	// since we're up to date in all streams, we expect no streams in the response
 			callback();
 		});
 	}

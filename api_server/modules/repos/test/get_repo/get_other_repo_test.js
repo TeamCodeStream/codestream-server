@@ -6,7 +6,7 @@ class GetOtherRepoTest extends GetRepoTest {
 
 	constructor (options) {
 		super(options);
-		this.postOptions.creatorIndex = 1;
+		this.repoOptions.creatorIndex = 1;
 	}
 
 	get description () {

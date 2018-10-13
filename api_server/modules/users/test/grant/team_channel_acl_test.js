@@ -7,7 +7,7 @@ class TeamChannelACLTest extends GrantTest {
 	constructor (options) {
 		super(options);
 		this.wantOtherUser = true;		// we want a second registered user
-		this.wantForeignTeam = true;	// we want a repo and team that the current user is not a member of
+		this.wantForeignTeam = true;	// we want a team that the current user is not a member of
 	}
 
 	getExpectedError () {

@@ -54,6 +54,9 @@ class CodeStreamAPITest extends APIRequestTest {
 			members: 'all',
 			numAdditionalInvites: 1
 		};
+		this.repoOptions = {
+			creatorIndex: undefined
+		};
 		this.streamOptions = {
 			creatorIndex: undefined,
 			type: 'channel',
@@ -99,7 +102,8 @@ class CodeStreamAPITest extends APIRequestTest {
 		new TestTeamCreator({
 			test: this,
 			userOptions: this.userOptions,
-			teamOptions: this.teamOptions
+			teamOptions: this.teamOptions,
+			repoOptions: this.repoOptions
 		}).create((error, data) => {
 			if (error) { return callback(error); }
 			Object.assign(this, data);
@@ -113,6 +117,7 @@ class CodeStreamAPITest extends APIRequestTest {
 			streamOptions: this.streamOptions,
 			postOptions: this.postOptions,
 			team: this.team,
+			repo: this.repo,
 			users: this.users
 		}).create((error, data) => {
 			if (error) { return callback(error); }

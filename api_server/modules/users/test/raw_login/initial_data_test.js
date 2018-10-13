@@ -11,8 +11,7 @@ class InitialDataTest extends LoginTest {
 		this.teamOptions.creatorIndex = 1;
 		this.teamOptions.numAdditionalInvites = 2;
 		this.streamOptions.creatorIndex = 1;
-		this.postOptions.creatorIndex = 1;
-		this.postOptions.wantCodeBlock = true;
+		this.repoOptions.creatorIndex = 1;
 	}
 
 	get description () {
@@ -33,7 +32,7 @@ class InitialDataTest extends LoginTest {
 		Assert(data.teams.length === 1, 'no team in response');
 		this.validateMatchingObject(this.team._id, data.teams[0], 'team');
 		Assert(data.repos.length === 1, 'no repo in response');
-		this.validateMatchingObject(this.postData[0].repos[0]._id, data.repos[0], 'repo');
+		this.validateMatchingObject(this.repo._id, data.repos[0], 'repo');
 		super.validateResponse(data);
 	}
 }

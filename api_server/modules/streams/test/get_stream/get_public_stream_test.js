@@ -1,14 +1,18 @@
 'use strict';
 
-const GetOtherChannelStreamTest = require('./get_other_channel_stream_test');
+const GetOtherStreamTest = require('./get_other_stream_test');
 
-class GetPublicStreamTest extends GetOtherChannelStreamTest {
+class GetPublicStreamTest extends GetOtherStreamTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMeInStream = true;
-		this.privacy = 'public';
+		Object.assign(this.streamOptions, {
+			type: 'channel',
+			privacy: 'public',
+			members: []
+		});
 	}
+
 	get description () {
 		return 'should return a valid stream when requesting a public channel stream that i am not a member of';
 	}

@@ -22,7 +22,7 @@ class TestStreamCreator {
 	}
 
 	createStream (callback) {
-		if (typeof this.streamOptions.creatorIndex !== 'number') {
+		if (typeof this.streamOptions.creatorIndex !== 'number' || !this.streamOptions.type) {
 			return callback();
 		}
 		const streamOptions = {
@@ -31,8 +31,8 @@ class TestStreamCreator {
 			isTeamStream: this.streamOptions.isTeamStream,
 			teamId: this.team._id
 		};
-		if (!streamOptions.type) {
-			return callback();
+		if (this.streamOptions.type === 'file' && this.repo) {
+			streamOptions.repoId = this.repo._id;
 		}
 		streamOptions.token = this.users[this.streamOptions.creatorIndex].accessToken;
 		const hasMembers = (

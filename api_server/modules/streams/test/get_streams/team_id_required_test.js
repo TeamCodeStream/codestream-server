@@ -1,15 +1,11 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const GetStreamsTest = require('./get_streams_test');
 
-class TeamIDRequiredTest extends CodeStreamAPITest {
+class TeamIDRequiredTest extends GetStreamsTest {
 
 	get description () {
 		return 'should return error if teamId is not provided to streams query';
-	}
-
-	get path () {
-		return '/streams';
 	}
 
 	getExpectedError () {
@@ -17,6 +13,11 @@ class TeamIDRequiredTest extends CodeStreamAPITest {
 			code: 'RAPI-1001',
 			info: 'teamId'
 		};
+	}
+
+	setPath (callback) {
+		this.path = '/streams';
+		callback();
 	}
 }
 

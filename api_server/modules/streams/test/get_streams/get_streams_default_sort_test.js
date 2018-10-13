@@ -1,13 +1,15 @@
 'use strict';
 
-var GetStreamsTest = require('./get_streams_test');
+const GetStreamsTest = require('./get_streams_test');
 
 class GetStreamsDefaultSortTest extends GetStreamsTest {
 
 	constructor (options) {
 		super(options);
 		this.dontDoForeign = true;
-		this.dontDoTeamStreams = true;
+		this.dontDoFileStreams = true;
+		this.dontDoDirectStreams = true;
+		delete this.repoOptions.creatorIndex;
 	}
 
 	get description () {
@@ -17,17 +19,20 @@ class GetStreamsDefaultSortTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// default sort order for streams without posts is by their ID, in descending order
-		this.myStreams = this.streamsByRepo[this.myRepo._id];
-		this.myStreams.sort((a, b) => {
+		this.expectedStreams = this.streamsByTeam[this.team._id].filter(stream => {
+			return stream.memberIds.includes(this.currentUser.user._id);
+		});
+		this.expectedStreams.push(this.teamStream);
+		this.expectedStreams.sort((a, b) => {
 			return a._id.localeCompare(b._id);
 		});
-		this.myStreams.reverse();
-		this.path = `/streams/?teamId=${this.myTeam._id}&repoId=${this.myRepo._id}`;
+		this.expectedStreams.reverse();
+		this.path = `/streams/?teamId=${this.team._id}`;
 		callback();
 	}
 
 	validateResponse (data) {
-		this.validateSortedMatchingObjects(data.streams, this.myStreams, 'streams');
+		this.validateSortedMatchingObjects(data.streams, this.expectedStreams, 'streams');
 		super.validateResponse(data);
 	}
 }

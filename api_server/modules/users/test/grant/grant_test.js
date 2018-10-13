@@ -55,7 +55,7 @@ class GrantTest extends CodeStreamAPITest {
 				callback();
 			},
 			{
-				token: this.users[1].accessToken	// "other" user creates the repo and team
+				token: this.users[1].accessToken	// "other" user creates the team
 			}
 		);
 	}

@@ -16,12 +16,15 @@ class TestTeamCreator {
 			this.preCreateTeam,
 			this.createTeam,
 			this.inviteUsers,
+			this.createRepo
 		], error => {
 			if (error) { return callback(error); }
 			callback(null, {
 				team: this.team,
 				company: this.company,
 				teamStream: this.teamStream,
+				repo: this.repo,
+				repoStreams: this.repoStreams,
 				users: this.users,
 				currentUser: this.currentUser,
 				token: this.token
@@ -174,6 +177,29 @@ class TestTeamCreator {
 				}
 				this.team.memberIds.push(response.user._id);
 				callback();
+			}
+		);
+	}
+
+	createRepo (callback) {
+		if (!this.repoOptions || typeof this.repoOptions.creatorIndex !== 'number') {
+			return callback();
+		}	
+		this.test.postFactory.createRandomPost(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.repo = response.repos[0];
+				this.repoStreams = response.streams;
+				callback();
+			},
+			{
+				token: this.users[this.repoOptions.creatorIndex].accessToken,
+				streamId: this.teamStream._id,
+				wantCodeBlocks: 1,
+				codeBlockStream: {
+					file: this.test.streamFactory.randomFile(),
+					remotes: [this.test.repoFactory.randomUrl()]
+				}
 			}
 		);
 	}

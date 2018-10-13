@@ -10,10 +10,7 @@ class GetRepoTest extends CodeStreamAPITest {
 		super(options);
 		this.teamOptions.creatorIndex = 1;
 		this.streamOptions.creatorIndex = 1;
-		Object.assign(this.postOptions, {
-			creatorIndex: 0,
-			wantCodeBlock: true
-		});
+		this.repoOptions.creatorIndex = 0;
 	}
 
 	get description () {
@@ -34,7 +31,6 @@ class GetRepoTest extends CodeStreamAPITest {
 
 	// set the path for the test request
 	setPath (callback) {
-		this.repo = this.postData[0].repos[0];
 		// fetch the repo (created by submitting a post with a code block and remotes)
 		this.path = '/repos/' + this.repo._id;
 		callback();
