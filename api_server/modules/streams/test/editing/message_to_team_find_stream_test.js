@@ -1,6 +1,6 @@
 'use strict';
 
-var MessageToTeamTest = require('./message_to_team_test');
+const MessageToTeamTest = require('./message_to_team_test');
 
 class MessageToTeamFindStreamTest extends MessageToTeamTest {
 
@@ -13,7 +13,7 @@ class MessageToTeamFindStreamTest extends MessageToTeamTest {
 		// run standard set up for the test but delete the streamId and provide matching file instead
 		super.init(() => {
 			delete this.data.streamId;
-			this.data.file = this.stream.file;
+			this.data.file = this.repoStreams[0].file;
 			callback();
 		});
 	}

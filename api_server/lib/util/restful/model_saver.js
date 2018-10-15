@@ -71,7 +71,7 @@ class ModelSaver {
 			await this.tempModel.preSave();
 		}
 		catch (error) {
-			throw this.errorHandler.error('validation', { info: error });
+			throw this.request.errorHandler.error('validation', { info: error });
 		}
 		if (this.tempModel.validationWarnings instanceof Array) {
 			this.request.warn(`Validation warnings: \n${this.tempModel.validationWarnings.join('\n')}`);

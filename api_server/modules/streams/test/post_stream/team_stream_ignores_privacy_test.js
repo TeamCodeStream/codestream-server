@@ -1,7 +1,7 @@
 'use strict';
 
-var PostTeamStreamTest = require('./post_team_stream_test');
-var Assert = require('assert');
+const PostTeamStreamTest = require('./post_team_stream_test');
+const Assert = require('assert');
 
 class TeamStreamIgnoresPrivacyTest extends PostTeamStreamTest {
 
@@ -23,7 +23,7 @@ class TeamStreamIgnoresPrivacyTest extends PostTeamStreamTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// we should still see that privacy is public
-		let stream = data.stream;
+		const stream = data.stream;
 		Assert(stream.privacy === 'public', 'privacy should be public');
 		super.validateResponse(data);
 	}

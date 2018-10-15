@@ -1,6 +1,6 @@
 'use strict';
 
-var EditingTest = require('./editing_test');
+const EditingTest = require('./editing_test');
 
 class NoParameterTest extends EditingTest {
 

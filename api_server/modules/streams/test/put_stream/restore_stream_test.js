@@ -21,6 +21,7 @@ class RestoreStreamTest extends PutStreamFetchTest {
 			},
 			error => {
 				if (error) { return callback(error); }
+				this.expectedVersion = 3;
 				super.updateStream(callback);
 			}
 		);

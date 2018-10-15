@@ -1,8 +1,8 @@
 'use strict';
 
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-var MultipleCommonInit = require('./multiple_common_init');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const MultipleCommonInit = require('./multiple_common_init');
 
 class MultipleMessageToTeamTest extends Aggregation(CodeStreamMessageTest, MultipleCommonInit) {
 
@@ -18,7 +18,7 @@ class MultipleMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Multi
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// it is the team channel
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = `team-${this.team._id}`;
 		callback();
 	}
 

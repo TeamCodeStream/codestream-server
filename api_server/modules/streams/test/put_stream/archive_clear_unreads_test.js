@@ -10,19 +10,11 @@ class ArchiveClearUnreadsTest extends PutStreamTest {
 		return 'when a channel stream is archived, should clear lastReads for the stream for all members of the stream';
 	}
 
-	getExpectedFields () {
-		return { 
-			stream: ['isArchived', 'modifiedAt']
-		};
-	}
-
-	// before the test runs...
-	before (callback) {
-		// do the usual test initialization, and create a post in the stream,
-		// which should set a lastReads value for this stream for the current user
-		super.before(error => {
-			if (error) { return callback(error); }
-			this.createPost(callback);
+	setTestOptions (callback) {
+		this.expectedVersion = 3;
+		super.setTestOptions(() => {
+			this.postOptions.creatorIndex = 1;
+			callback();
 		});
 	}
 
@@ -31,24 +23,6 @@ class ArchiveClearUnreadsTest extends PutStreamTest {
 		return {
 			isArchived: true
 		};
-	}
-
-	// create a post in the test stream, which should set a lastReads value for this stream
-	// for the current user
-	createPost (callback) {
-		this.postFactory.createRandomPost(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.expectedStream.mostRecentPostId = response.post._id;
-				this.expectedStream.mostRecentPostCreatedAt = response.post.createdAt;
-				this.expectedStream.sortId = response.post._id;
-				callback();
-			},
-			{
-				streamId: this.stream._id,
-				token: this.otherUserData.accessToken
-			}
-		);
 	}
 
 	// run the actual test...

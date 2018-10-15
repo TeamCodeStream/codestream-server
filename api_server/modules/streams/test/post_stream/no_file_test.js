@@ -1,15 +1,11 @@
 'use strict';
 
-var PostFileStreamTest = require('./post_file_stream_test');
+const PostFileStreamTest = require('./post_file_stream_test');
 
 class NoFileTest extends PostFileStreamTest {
 
 	get description () {
 		return 'should return an error when attempting to create a file stream with no file';
-	}
-
-	getExpectedFields () {
-		return null;
 	}
 
 	getExpectedError () {

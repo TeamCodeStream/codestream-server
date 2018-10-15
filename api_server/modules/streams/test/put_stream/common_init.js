@@ -4,94 +4,24 @@
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class CommonInit {
 
 	init (callback) {
+		this.expectedVersion = 2;
 		BoundAsync.series(this, [
-			this.createOtherUser,	// create another registered user
-			this.createAddedUser,	// create another user, this user will be added to the stream as needed
-			this.createRandomRepo,	// create a random repo (and team) for the test
-			this.createRandomStream,	// create the stream that will then be updated
+			this.setTestOptions,
+			CodeStreamAPITest.prototype.before.bind(this),
 			this.makeStreamData		// make the data to be used during the update
 		], callback);
 	}
 
-	get method () {
-		return 'put';
-	}
-
-	// create another registered user (in addition to the "current" user)
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create another registered user, who will be added to the stream as needed
-	createAddedUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.addedUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a random repo to use for the test
-	createRandomRepo (callback) {
-		let withEmails = this.withoutUserOnTeam ? [] : [this.currentUser.email];
-		if (!this.addedUserNotOnTeam) {
-			withEmails.push(this.addedUserData.user.email);
-		}
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.repo = response.repo;
-				this.team = response.team;
-				this.users = response.users;
-				callback();
-			},
-			{
-				withEmails: withEmails,	// include current user as needed
-				withRandomEmails: 3,	// another few users for good measure
-				token: this.otherUserData.accessToken	// the "other user" is the repo and team creator
-			}
-		);
-	}
-
-	// create the stream to be updated
-	createRandomStream (callback) {
-		let type = this.type || 'channel';
-		let memberIds = (this.type === 'file' || this.isTeamStream) ? undefined : 
-			(this.withoutUserInStream || this.withoutUserOnTeam) ? undefined : [this.currentUser._id];
-		if (this.everyoneInStream) {
-			const otherMemberIds = this.users.filter(user => {
-				return user._id !== this.currentUser._id && user._id !== this.otherUserData.user._id;
-			}).map(user => user._id);
-			memberIds = [...memberIds, ...otherMemberIds];
-		}
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				callback();
-			},
-			{
-				type: type,
-				teamId: this.team._id, // create the stream in the team we already created
-				repoId: type === 'file' ? this.repo._id : undefined, // file-type streams must have repoId
-				memberIds: memberIds, // include current user in stream if needed
-				token: this.otherUserData.accessToken, // the "other user" is the stream creator
-				isTeamStream: this.isTeamStream,	// create a "team-stream" as needed,
-				privacy: this.streamPrivacy	
-			}
-		);
+	setTestOptions (callback) {
+		this.userOptions.numRegistered = 3;
+		this.streamOptions.creatorIndex = 1;
+		this.streamOptions.members = [0, 1];
+		callback();
 	}
 
 	// get the data for the stream update
@@ -105,11 +35,41 @@ class CommonInit {
 	// form the data for the stream update
 	makeStreamData (callback) {
 		this.data = this.getUpdateData();
-		this.expectedStream = DeepClone(this.stream);
-		Object.assign(this.expectedStream, this.data);
+		this.expectedData = {
+			stream: {
+				_id: this.stream._id,
+				$set: Object.assign(DeepClone(this.data), { version: this.expectedVersion }),
+				$version: {
+					before: this.expectedVersion - 1,
+					after: this.expectedVersion
+				}
+			}
+		};
 		this.path = '/streams/' + this.stream._id;
 		this.modifiedAfter = Date.now();
 		callback();
+	}
+
+	// perform the actual stream update 
+	// the actual test is reading the stream and verifying it is correct
+	updateStream (callback) {
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: `/streams/${this.stream._id}`,
+				data: this.data,
+				token: this.token
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.expectedData.stream.$set.modifiedAt = response.stream.$set.modifiedAt;
+				this.expectedStream = Object.assign({}, this.stream, this.data, { version: this.expectedVersion });
+				this.requestData = this.data;
+				this.message = response;
+				delete this.data;	// don't need this anymore
+				callback();
+			}
+		);
 	}
 }
 

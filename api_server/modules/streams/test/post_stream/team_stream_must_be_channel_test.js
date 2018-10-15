@@ -1,6 +1,6 @@
 'use strict';
 
-var PostDirectStreamTest = require('./post_direct_stream_test');
+const PostDirectStreamTest = require('./post_direct_stream_test');
 
 class TeamStreamMustBeChannelTest extends PostDirectStreamTest {
 

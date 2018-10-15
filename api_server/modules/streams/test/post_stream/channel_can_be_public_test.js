@@ -1,12 +1,12 @@
 'use strict';
 
-var PostChannelStreamTest = require('./post_channel_stream_test');
-var Assert = require('assert');
+const PostChannelStreamTest = require('./post_channel_stream_test');
+const Assert = require('assert');
 
 class ChannelCanBePublicTest extends PostChannelStreamTest {
 
 	get description () {
-		return 'should return a valid stream and ignore the memberIds attribute when creating a team stream';
+		return 'should return a valid stream and allow it to be public when public attribute is set';
 	}
 
 	// before the test runs...
@@ -21,7 +21,7 @@ class ChannelCanBePublicTest extends PostChannelStreamTest {
 	}
 
 	// validate the response to the test request
-	validateResponse (data) {
+	validaconstteResponse (data) {
 		// verify the privacy is public
 		let stream = data.stream;
 		Assert(stream.privacy === 'public', 'privacy is not public');

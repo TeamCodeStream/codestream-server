@@ -1,7 +1,7 @@
 'use strict';
 
-var PostFileStreamTest = require('./post_file_stream_test');
-var Assert = require('assert');
+const PostFileStreamTest = require('./post_file_stream_test');
+const Assert = require('assert');
 
 class FileStreamIgnoresPrivacyTest extends PostFileStreamTest {
 
@@ -23,7 +23,7 @@ class FileStreamIgnoresPrivacyTest extends PostFileStreamTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// we should still see that privacy is public
-		let stream = data.stream;
+		const stream = data.stream;
 		Assert(stream.privacy === 'public', 'privacy should be public');
 		super.validateResponse(data);
 	}

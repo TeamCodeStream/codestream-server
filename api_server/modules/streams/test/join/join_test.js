@@ -14,15 +14,10 @@ class JoinTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		return 'should return the updated stream when joining a public channel stream';
 	}
 
-	getExpectedFields () {
-		return { 
-			stream: {
-				$set: ['modifiedAt'],
-				$addToSet: ['memberIds']
-			} 
-		};
+	get method () {
+		return 'put';
 	}
-
+	
 	// before the test runs...
 	before (callback) {
 		this.init(callback);
@@ -30,14 +25,13 @@ class JoinTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		// verify we got a directive in the update to add the user
-		const stream = data.stream;
-		Assert(stream._id === this.stream._id, 'returned stream ID is not the same');
-		const set = stream.$set;
-		Assert(set.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the stream was updated');
-		Assert.deepEqual(stream.$addToSet.memberIds, [this.currentUser._id], 'added membership array not equal to the current user');
-		// verify the post in the response has no attributes that should not go to clients
-		this.validateSanitized(set, StreamTestConstants.UNSANITIZED_ATTRIBUTES);
+		// verify modifiedAt was updated, and then set it so the deepEqual works
+		Assert(data.stream.$set.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the stream was updated');
+		this.expectedData.stream.$set.modifiedAt = data.stream.$set.modifiedAt;
+		// verify we got back the proper response
+		Assert.deepEqual(data, this.expectedData, 'response data is not correct');
+		// verify the stream in the response has no attributes that should not go to clients
+		this.validateSanitized(data.stream.$set, StreamTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 

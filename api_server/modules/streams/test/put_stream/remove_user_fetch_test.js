@@ -1,13 +1,16 @@
 'use strict';
 
-const PutStreamFetchTest = require('./put_stream_fetch_test');
-const RemoveUserTest = require('./remove_user_test');
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const RemoveUsersFetchTest = require('./remove_users_fetch_test');
 
-class RemoveUserFetchTest extends Aggregation(RemoveUserTest, PutStreamFetchTest) {
+class RemoveUserFetchTest extends RemoveUsersFetchTest {
 
 	get description () {
 		return 'should properly update a stream when requested, when a user is removed from the stream, checked by fetching the stream';
+	}
+
+	// get the users we want to remove from the stream
+	getRemovedUsers () {
+		return [this.users[2].user];
 	}
 }
 

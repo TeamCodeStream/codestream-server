@@ -14,6 +14,16 @@ class NoUpdateNonChannelStreamTest extends PutStreamTest {
 			reason: 'only channel streams can be updated'
 		};
 	}
+
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.streamOptions.type = this.type;
+			this.repoOptions.creatorIndex = 1;
+			callback();
+		});
+	}
+
+	
 }
 
 module.exports = NoUpdateNonChannelStreamTest;

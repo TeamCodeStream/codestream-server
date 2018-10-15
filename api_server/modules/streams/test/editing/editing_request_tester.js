@@ -9,7 +9,7 @@ const StreamNotFoundTest = require('./stream_not_found_test');
 const NoEditingNonFileTest = require('./no_editing_non_file_test');
 const FindStreamTest = require('./find_stream_test');
 const NoMatchTeamTest = require('./no_match_team_test');
-const NoMatchRepoTest = require('./no_match_repo_test');
+//const NoMatchRepoTest = require('./no_match_repo_test');
 const CreateStreamTest = require('./create_stream_test');
 const NoOpTest = require('./no_op_test');
 const AlreadyEditingTest = require('./already_editing_test');
@@ -37,7 +37,7 @@ class EditingRequestTester {
 		new NoEditingNonFileTest({ type: 'direct' }).test();
 		new FindStreamTest().test();
 		new NoMatchTeamTest().test();
-		new NoMatchRepoTest().test();
+		//new NoMatchRepoTest().test();
 		new CreateStreamTest().test();
 		new NoOpTest().test();
 		new AlreadyEditingTest().test();

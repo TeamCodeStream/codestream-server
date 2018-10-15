@@ -1,13 +1,16 @@
 'use strict';
 
-const PutStreamFetchTest = require('./put_stream_fetch_test');
-const AddUserTest = require('./add_user_test');
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const AddUsersFetchTest = require('./add_users_fetch_test');
 
-class AddUserFetchTest extends Aggregation(AddUserTest, PutStreamFetchTest) {
+class AddUserFetchTest extends AddUsersFetchTest {
 
 	get description () {
 		return 'should properly update a stream when requested, when a user is added to the stream, checked by fetching the stream';
+	}
+
+	// get the users we want to add to the stream
+	getAddedUsers () {
+		return [this.users[2].user];
 	}
 }
 

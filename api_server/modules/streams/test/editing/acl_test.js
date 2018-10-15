@@ -1,6 +1,6 @@
 'use strict';
 
-var EditingTest = require('./editing_test');
+const EditingTest = require('./editing_test');
 
 class ACLTest extends EditingTest {
 
@@ -17,6 +17,16 @@ class ACLTest extends EditingTest {
 		return {
 			code: 'RAPI-1010'
 		};
+	}
+
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			Object.assign(this.teamOptions, {
+				creatorIndex: 1,
+				members: []
+			});
+			callback();
+		});
 	}
 }
 

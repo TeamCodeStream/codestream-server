@@ -27,20 +27,6 @@ class SubscriptionTest extends AddUserTest {
 		], callback);
 	}
 
-	// update the stream as per the usual test, but this time we're waiting to make sure we can subscribe to the channel
-	updateStream (callback) {
-		// do the update, this should grant the added user access to the stream channel
-		this.doApiRequest(
-			{
-				method: this.method,
-				path: this.path,
-				data: this.data,
-				token: this.token
-			},
-			callback
-		);
-	}
-
 	// wait a bit for the subscription access to be granted
 	wait (callback) {
 		setTimeout(callback, 5000);
@@ -67,8 +53,8 @@ class SubscriptionTest extends AddUserTest {
 		const clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.addedUserData.user._pubnubUuid || this.addedUserData.user._id;
-		clientConfig.authKey = this.addedUserData.pubNubToken;
+		clientConfig.uuid = this.users[2].user._pubnubUuid || this.users[2].user._id;
+		clientConfig.authKey = this.users[2].pubNubToken;
 		let client = new PubNub(clientConfig);
 		return new PubNubClient({
 			pubnub: client

@@ -71,7 +71,6 @@ class PutStreamRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'numMarkers' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'editingUsers' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'privacy' }).test();
-		new MemberIdsNotArrayTest().test();
 		new AddUserTest().test();
 		new AddUserFetchTest().test();
 		new AddUsersTest().test();
@@ -83,6 +82,7 @@ class PutStreamRequestTester {
 		new PushBecomesAddToSetTest().test();
 		new PushMergesToAddToSetTest().test();
 		new NoPushPullTest().test();
+		new MemberIdsNotArrayTest().test();
 		new NoChangeMembersOfTeamStreamTest().test();
 		new MessageToStreamTest().test();
 		new AddUserMessageToStreamTest().test();

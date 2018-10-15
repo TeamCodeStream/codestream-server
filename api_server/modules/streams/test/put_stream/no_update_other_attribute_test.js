@@ -19,7 +19,7 @@ class NoUpdateOtherAttributeTest extends PutStreamTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		let stream = data.stream;
+		const stream = data.stream.$set;
 		Assert(stream[this.attribute] === undefined, 'attribute appears in the response');
 		super.validateResponse(data);
 	}

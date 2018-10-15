@@ -1,10 +1,12 @@
 'use strict';
 
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const Assert = require('assert');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const PostStreamTest = require('./post_channel_stream_test');
+const CommonInit = require('./common_init');
 
-class NewStreamNoMessageTest extends CodeStreamMessageTest {
+class NewStreamNoMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostStreamTest) {
 
 	get description () {
 		return `members of the team who are not members of the stream should not receive a message with the stream when a ${this.type} stream is added to a team`;
@@ -12,56 +14,13 @@ class NewStreamNoMessageTest extends CodeStreamMessageTest {
 
 	// make the data to use for the test
 	makeData (callback) {
-		BoundAsync.series(this, [
-			this.createTeamCreator,		// create a user who will create a team and repo
-			this.createStreamCreator,	// create a user who will create a stream
-			this.createRepo 			// create a repo to use for the test
-		], callback);
-	}
-
-	// create a user who will create a team and repo
-	createTeamCreator (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error);}
-				this.teamCreatorData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a user who will create a stream
-	createStreamCreator (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error);}
-				this.streamCreatorData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a repo to use for the test
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				this.repo = response.repo;
-				callback();
-			},
-			{
-				withEmails: [this.currentUser.email, this.streamCreatorData.user.email],	// current user and stream creator are included
-				withRandomEmails: 1,	// add another user for good measure
-				token: this.teamCreatorData.accessToken	// team creator creates the team
-			}
-		);
+		this.init(callback);
 	}
 
 	// set the name of the channel to listen for the message on
 	setChannelName (callback) {
 		// we'll listen on our me-channel, but no message should be received since we're not a member of the stream
-		this.channelName = 'user-' + this.currentUser._id;
+		this.channelName = `user-${this.currentUser.user._id}`;
 		callback();
 	}
 
@@ -77,9 +36,9 @@ class NewStreamNoMessageTest extends CodeStreamMessageTest {
 			},
 			{
 				type: this.type,
-				token: this.streamCreatorData.accessToken,	// stream creator creates the stream, but...
+				token: this.users[1].accessToken,	
 				teamId: this.team._id,
-				memberIds: [this.teamCreatorData.user._id]	// ... the current user is not added
+				memberIds: [this.users[2].user._id]	
 			}
 		);
 	}

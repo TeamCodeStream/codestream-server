@@ -18,27 +18,13 @@ class MessageToStreamTest extends Aggregation(CodeStreamMessageTest, CommonInit)
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// since it is a private stream, the channel will be the stream channel
-		this.channelName = 'stream-' + this.stream._id;
+		this.channelName = `stream-${this.stream._id}`;
 		callback();
 	}
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
-		// do the update, this should trigger a message to the
-		// stream channel with the updated stream
-		this.doApiRequest(
-			{
-				method: this.method,
-				path: this.path,
-				data: this.data,
-				token: this.token
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.message = response;
-				callback();
-			}
-		);
+		this.updateStream(callback);
 	}
 }
 
