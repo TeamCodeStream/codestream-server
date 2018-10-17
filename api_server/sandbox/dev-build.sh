@@ -11,10 +11,11 @@ PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-CI_Keyset"
 OTHER_SECRETS_FILE="$HOME/.codestream/codestream-services/ci-api"
 export CS_API_ASSET_ENV=dev
 
+# This variable can be overridden when the sandbox is installed
+export CS_API_PORT=37101
+
 . $CS_API_TOP/sandbox/defaults.sh
 
-# This variable can be overridden when the sandbox is installed
-[ -z "$CS_API_PORT" ] && export CS_API_PORT=37101
 export CS_API_REPLY_TO_DOMAIN=ci.codestream.com
 export CS_API_OUTBOUND_EMAIL_SQS="ci_outboundEmail"
 export CS_API_SENDER_EMAIL=ci-alerts@codestream.com
