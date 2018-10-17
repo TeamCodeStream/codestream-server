@@ -1,17 +1,26 @@
 {
-  "dependencies": {
-    "async": "^2.6.0",
-    "cluster": "^0.7.7",
-    "commander": "^2.12.2",
-    "html-entities": "^1.2.1",
-    "mailparser": "^2.1.0",
-    "mocha": "^4.1.0",
-    "pubnub": "^4.20.0",
-    "randomstring": "^1.1.5",
-    "strftime": "^0.10.0",
-    "watchr": "^3.0.1"
-  },
-  "devDependencies": {
-    "mocha-teamcity-reporter": "^1.1.1"
-  }
+	"name" : "inbound-email",
+	"version" : "1.3.0",
+	"dependencies": {
+		"async": "^2.6.0",
+		"cluster": "^0.7.7",
+		"commander": "^2.12.2",
+		"html-entities": "^1.2.1",
+		"mailparser": "^2.1.0",
+		"mocha": "^4.1.0",
+		"pubnub": "^4.20.0",
+		"randomstring": "^1.1.5",
+		"strftime": "^0.10.0",
+		"watchr": "^3.0.1"
+	},
+	"devDependencies": {
+		"mocha-teamcity-reporter": "^1.1.1"
+	},
+	"scripts": {
+		"veryclean": "git clean -fXd",
+		"clean": "git clean -fXd -e !node_modules -e !node_modules/**/*",
+		"test": "mocha",
+		"test:ci": "mocha --reporter mocha-teamcity-reporter",
+		"tarball": "touch inbound-email.tgz && tar -czpf inbound-email.tgz --exclude inbound-email.tgz --exclude .git ."
+	}
 }

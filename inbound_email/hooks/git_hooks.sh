@@ -25,3 +25,7 @@ githook_reconfigure_sandbox() {
         $CS_MAILIN_TOP/sandbox/configure-sandbox git-hook
     fi
 }
+
+[ "$CS_MAILIN_DISABLE_GIT_HOOKS" == 1 ] && echo "hooks disabled (CS_MAILIN_DISABLE_GIT_HOOKS=1)" && exit 0
+[ "$DT_DISABLE_SB_GIT_HOOKS" == 1 ] && echo "hooks disabled (DT_DISABLE_SB_GIT_HOOKS=1)" && exit 0
+return 0

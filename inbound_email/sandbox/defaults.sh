@@ -10,6 +10,12 @@
 #         (eg. this file is CS_MAILIN_TOP/sandbox/defaults.sh)
 #  CS_MAILIN_SANDBOX  Path to the root directory of the sandbox tree
 
+# Installation options
+if [ -f "$CS_MAILIN_SANDBOX/sb.options" ]; then
+	echo "Loading extra params from sb.options"
+	. $CS_MAILIN_SANDBOX/sb.options
+	export `grep ^CS_MAILIN_ $CS_MAILIN_SANDBOX/sb.options|cut -f1 -d=`
+fi
 
 # Uncomment and setup if yarn is required. Available versions can be seen
 # with the command:
@@ -34,6 +40,8 @@ export CS_MAILIN_CONFS=$CS_MAILIN_SANDBOX/conf  # config files directory
 export CS_MAILIN_DATA=$CS_MAILIN_SANDBOX/data   # data directory
 export CS_MAILIN_PIDS=$CS_MAILIN_SANDBOX/pid    # pid files directory
 
+[ -z "$CS_MAILIN_ASSET_ENV" ] && export CS_MAILIN_ASSET_ENV=local
+
 # Inbound mail queue directories
 export CS_MAILIN_MAILQ_TOP=$CS_MAILIN_SANDBOX/mailq
 # new email files will be delivered to this directory
@@ -44,12 +52,24 @@ export CS_MAILIN_PROCESS_DIRECTORY=$CS_MAILIN_MAILQ_TOP/process
 export CS_MAILIN_TEMP_ATTACHMENT_DIRECTORY=$CS_MAILIN_MAILQ_TOP/attachments
 
 
-# Secret code needed to communicate with API server (match CS_API_INBOUND_EMAIL_SECRET)
-export CS_MAILIN_SECRET="X02^faO*Bx+lQ9Q"
-
 # host and port of the API server (a fully qualified name is required for HTTPS)
-export CS_MAILIN_API_HOST=localhost.codestream.us
-export CS_MAILIN_API_PORT=12079
+[ -z "$CS_MAILIN_API_HOST" ] && export CS_MAILIN_API_HOST=localhost.codestream.us
+[ -z "$CS_MAILIN_API_PORT" ] && export CS_MAILIN_API_PORT=12079
+
+
+# Secret code needed to communicate with API server (match CS_API_INBOUND_EMAIL_SECRET)
+[ -z "$MAIL_SECRETS_FILE" ] && MAIL_SECRETS_FILE=$HOME/.codestream/codestream-services/dev-api
+if [ -f "$MAIL_SECRETS_FILE" ]; then
+	. $MAIL_SECRETS_FILE
+	export CS_MAILIN_SECRET=$INBOUND_EMAIL_SECRET
+	export CS_MAILIN_CONFIRMATION_CHEAT_CODE="$CONFIRMATION_CHEAT_CODE"
+else
+	echo "*************************************************************"
+	echo "$MAIL_SECRETS_FILE not found."
+	echo "Please run dt-update-secrets to get the latest values."
+	echo "*************************************************************"
+fi
+
 
 # =============== PubNub Settings ==============
 # see README.pubnub for more details - Pubnub needed for unit tests only
@@ -63,6 +83,7 @@ else
 	echo "         reload your sandbox"
 	echo "**************************************************************"
 fi
+
 
 # domain we use in the reply-to field of outbound emails_sent (match CS_API_REPLY_TO_DOMAIN)
 export CS_MAILIN_REPLY_TO_DOMAIN=dev.codestream.com

@@ -20,8 +20,10 @@ abort_on_fail=1
 
 cd $CS_MAILIN_TOP
 
+[ ! -d .git ] && echo "nothing to configure for a pre-built asset sandbox" && exit 0
+
 # Install git submodules
-[ -f .gitmodules ] && git submodule update --init --recursive
+[ -f .gitmodules ] && echo "updating git submodules" && git submodule update --init --recursive
 
 # $DT_TOP/bin/create-file-from-template.py -t $XYZ_SANDBOX/git_project/etc/httpd.conf.template -o $XYZ_SANDBOX/conf/httpd.conf
 
