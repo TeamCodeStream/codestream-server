@@ -5,9 +5,9 @@
 // make eslint happy
 /* globals describe */
 
-var ReposRequestTester = require('./repos_request_tester');
+const ReposRequestTester = require('./repos_request_tester');
 
-var reposRequestTester = new ReposRequestTester();
+const reposRequestTester = new ReposRequestTester();
 
 describe('repo requests', function() {
 
@@ -15,8 +15,5 @@ describe('repo requests', function() {
 
 	describe('GET /repos/:id', reposRequestTester.getRepoTest);
 	describe('GET /repos', reposRequestTester.getReposTest);
-	describe('POST /repos', reposRequestTester.postRepoTest);
-	describe('GET /no-auth/find-repo', reposRequestTester.findRepoTest);
-	describe('GET /no-auth/match-repo', reposRequestTester.matchRepoTest);
 	describe('url normalizer', require('./normalize_url/test'));
 });

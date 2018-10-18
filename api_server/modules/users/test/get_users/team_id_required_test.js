@@ -1,6 +1,6 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class TeamIDRequiredTest extends CodeStreamAPITest {
 

@@ -1,8 +1,9 @@
 'use strict';
 
-var PostPostTest = require('./post_post_test');
+const CodeBlockTest = require('./code_block_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
-class CodeBlockForBadStreamTypeTest extends PostPostTest {
+class CodeBlockForBadStreamTypeTest extends CodeBlockTest {
 
 	get description () {
 		return `should return an error when attempting to create a post with a code block element where the stream is of type ${this.streamType}`;
@@ -15,24 +16,27 @@ class CodeBlockForBadStreamTypeTest extends PostPostTest {
 		};
 	}
 
-	// form options to use in trying to create the post
-	makePostOptions (callback) {
-		super.makePostOptions(() => {
-			this.postOptions.wantCodeBlocks = 1;	// want code blocks, but this will be a channel or direct stream (not allowed)
-			callback();
-		});
+	before (callback) {
+		BoundAsync.series(this, [
+			super.before,
+			this.createOtherStream
+		], callback);
 	}
 
-	// form the data to use in trying to create the post
-	makePostData (callback) {
-		// explicitly set the stream ID of the code block to the post stream, 
-		// otherwise, the server tries to create a code block not connected to any stream
-		super.makePostData(() => {
-			this.data.codeBlocks[0].streamId = this.stream._id;
-			callback();
-		});
+	createOtherStream (callback) {
+		this.streamFactory.createRandomStream(
+			(error, response) => {
+				if (error) return callback(error);
+				this.data.codeBlocks[0].streamId = response.stream._id;
+				callback();
+			},
+			{
+				teamId: this.team._id,
+				type: this.streamType,
+				token: this.token
+			}
+		);
 	}
-
 }
 
 module.exports = CodeBlockForBadStreamTypeTest;

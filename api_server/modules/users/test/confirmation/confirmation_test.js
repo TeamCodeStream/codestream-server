@@ -3,14 +3,11 @@
 const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
+const UserAttributes = require('../../user_attributes');
 
 class ConfirmationTest extends CodeStreamAPITest {
 
-	constructor (options) {
-		super(options);
-		this.userOptions = this.userOptions || {};
-	}
-	
 	get description () {
 		return 'should return valid user data and an access token when confirming a registration';
 	}
@@ -27,29 +24,49 @@ class ConfirmationTest extends CodeStreamAPITest {
 		return UserTestConstants.EXPECTED_LOGIN_RESPONSE;
 	}
 
-	dontWantToken () {
-		return true;	// don't need a registered user with a token for this test
-	}
-
 	// before the test runs...
 	before (callback) {
-		// register a random user, they will be unconfirmed and we will confirm for the test
-		this.userFactory.registerRandomUser((error, data) => {
-			if (error) { return callback(error); }
-			// form the data to send with the confirmation request
-			this.userId = data.user._id;
-			this.data = {
-				email: data.user.email
-			};
-			if (this.userOptions.wantLink) {
-				this.data.token = data.user.confirmationToken;
+		const data = this.getUserData();
+		Object.assign(data, {
+			_confirmationCheat: SecretsConfig.confirmationCheat, // gives us the confirmation code in the response
+			_forceConfirmation: true // overrides developer environment, where confirmation might be turned off
+		});
+		if (this.userOptions.wantLink) {
+			data.wantLink = true;
+		}
+		if (this.userOptions.expiresIn) {
+			data.expiresIn = this.userOptions.expiresIn;
+		}
+		if (this.userOptions.timeout) {
+			data.timeout = this.userOptions.timeout;
+		}
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/no-auth/register',
+				data: data
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				const user = response.user;
+				this.userId = user._id;
+				this.data = { 
+					email: user.email
+				};
+				if (this.userOptions.wantLink) {
+					this.data.token = user.confirmationToken;
+				}
+				else {
+					this.data.confirmationCode = user.confirmationCode;
+				}
+				this.beforeConfirmTime = Date.now();	// to confirm registeredAt set during the request
+				callback();
 			}
-			else {
-				this.data.confirmationCode = data.user.confirmationCode;
-			}
-			this.beforeConfirmTime = Date.now();	// to confirm registeredAt set during the request
-			callback();
-		}, this.userOptions || {});
+		);
+	}
+
+	getUserData () {
+		return this.userFactory.getRandomUserData();
 	}
 
 	// validate the response to the test request
@@ -68,6 +85,21 @@ class ConfirmationTest extends CodeStreamAPITest {
 		Assert(data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
+	}
+
+	// validate that the received user data does not have any attributes a client shouldn't see
+	validateSanitized (user, fields) {
+		// because me-attributes are usually sanitized out (for other users), but not for the fetching user,
+		// we'll need to filter these out before calling the "base" validateSanitized, which would otherwise
+		// fail when it sees these attributes
+		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
+		meAttributes.forEach(attribute => {
+			let index = fields.indexOf(attribute);
+			if (index !== -1) {
+				fields.splice(index, 1);
+			}
+		});
+		super.validateSanitized(user, fields);
 	}
 }
 

@@ -1,9 +1,9 @@
 'use strict';
 
-var PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
-var ObjectID = require('mongodb').ObjectID;
+const CodeBlockTest = require('./code_block_test');
+const ObjectID = require('mongodb').ObjectID;
 
-class CodeBlockHasUnknownStreamIdTest extends PostCodeToFileStreamTest {
+class CodeBlockHasUnknownStreamIdTest extends CodeBlockTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post with a code block element where the stream ID is unknown';

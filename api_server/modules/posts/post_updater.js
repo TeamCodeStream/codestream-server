@@ -56,8 +56,7 @@ class PostUpdater extends ModelUpdater {
 	// add an edit to the maintained history of edits
 	async addEditToHistory () {
 		this.attributes.hasBeenEdited = true;
-		this.attributes.editHistory = this.post.get('editHistory') || [];
-		let edit = {
+		const edit = {
 			editorId: this.request.user.id,
 			editedAt: Date.now(),
 			previousAttributes: {
@@ -71,7 +70,20 @@ class PostUpdater extends ModelUpdater {
 			edit.previousAttributes.mentionedUserIds = this.post.get('mentionedUserIds');
 			edit.setAttributes.mentionedUserIds = this.attributes.mentionedUserIds;
 		}
-		this.attributes.editHistory.push(edit);
+		this.attributes.$push = this.attributes.$push || {};
+		this.attributes.$push.editHistory = edit;
+	}
+
+	async postSave () {
+		// have to clean the editHistory part of the update op out, this does not 
+		// get sent back in the response to clients
+		if (this.updateOp.$push && this.updateOp.$push.editHistory) {
+			delete this.updateOp.$push.editHistory;
+			if (Object.keys(this.updateOp.$push).length === 0) {
+				delete this.updateOp.$push;
+			}
+		}
+		await super.postSave();
 	}
 }
 

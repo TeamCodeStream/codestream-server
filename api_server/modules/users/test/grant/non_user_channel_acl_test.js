@@ -1,7 +1,7 @@
 'use strict';
 
-var GrantTest = require('./grant_test');
-var ObjectID = require('mongodb').ObjectID;
+const GrantTest = require('./grant_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class NonUserChannelACLTest extends GrantTest {
 

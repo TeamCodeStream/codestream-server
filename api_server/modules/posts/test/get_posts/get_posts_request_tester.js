@@ -40,7 +40,7 @@ const TooManySeqNumsTest = require('./too_many_seqnums_test');
 const InvalidSeqNumsTest = require('./invalid_seqnums_test');
 const GetPostsBySingleSeqNumTest = require('./get_posts_by_single_seqnum_test');
 const NoSeqNumWithRelationalTest = require('./no_seqnum_with_relational_test');
-const GetMarkersWithPostsTest = require('./get_markers_with_posts_test');
+//const GetMarkersWithPostsTest = require('./get_markers_with_posts_test');
 const GetPostsBeforeTest = require('./get_posts_before_test');
 const GetPostsAfterTest = require('./get_posts_after_test');
 const GetPostsBeforeInclusiveTest = require('./get_posts_before_inclusive_test');
@@ -101,7 +101,7 @@ class GetPostsRequestTester {
 		new TooManySeqNumsTest().test();
 		new InvalidSeqNumsTest().test();
 		new GetPostsBySingleSeqNumTest().test();
-		new GetMarkersWithPostsTest().test();
+		//new GetMarkersWithPostsTest().test();
 		new GetPostsBeforeTest().test();
 		new GetPostsAfterTest().test();
 		new GetPostsBeforeInclusiveTest().test();

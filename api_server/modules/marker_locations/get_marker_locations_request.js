@@ -45,11 +45,7 @@ class GetMarkerLocationsRequest extends RestfulRequest {
 		};
 		const markerLocations = await this.data.markerLocations.getByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: { _id: 1 }
-				}
-			}
+			{ hint: { _id: 1 } }
 		);
 		if (markerLocations.length === 0) {
 			this.responseData.markerLocations = {};

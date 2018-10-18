@@ -1,13 +1,13 @@
 'use strict';
 
-var PostDirectStreamTest = require('./post_direct_stream_test');
-var Assert = require('assert');
+const PostDirectStreamTest = require('./post_direct_stream_test');
+const Assert = require('assert');
 
 class DuplicateDirectTest extends PostDirectStreamTest {
 
 	constructor (options) {
 		super(options);
-		this.testOptions.wantDuplicateStream = true;	// indicates to create a duplicate stream before the actual test runs
+		this.wantDuplicateStream = true;	// indicates to create a duplicate stream before the actual test runs
 	}
 
 	get description () {

@@ -1,66 +1,30 @@
 'use strict';
 
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CommonInit = require('./common_init');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const PostFileStreamTest = require('./post_file_stream_test');
 
-class NewFileStreamMessageToTeamTest extends CodeStreamMessageTest {
+class NewFileStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostFileStreamTest) {
 
+	constructor (options) {
+		super(options);
+		this.type = 'file';
+	}
+	
 	get description () {
 		return 'members of the team should receive a message with the stream when a file stream is added to a repo';
 	}
 
 	// make the data to use for the test
 	makeData (callback) {
-		BoundAsync.series(this, [
-			this.createTeamCreator,		// create a user who will create a team and repo
-			this.createStreamCreator,	// create a user who will create a stream
-			this.createRepo 			// create a repo to use for the test
-		], callback);
-	}
-
-	// create a user who will create a team and repo
-	createTeamCreator (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error);}
-				this.teamCreatorData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a user who will create a stream
-	createStreamCreator (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error);}
-				this.streamCreatorData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a repo to use for the test
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				this.repo = response.repo;
-				callback();
-			},
-			{
-				withEmails: [this.currentUser.email, this.streamCreatorData.user.email],	// current user and stream creator are included
-				withRandomEmails: 1,	// add another user for good measure
-				token: this.teamCreatorData.accessToken	// team creator creates the team
-			}
-		);
+		this.init(callback);
 	}
 
 	// set the name of the channel to listen for the message on
 	setChannelName (callback) {
 		// when a file-type stream is created, we should get a message on the team channel
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = `team-${this.team._id}`;
 		callback();
 	}
 
@@ -74,7 +38,7 @@ class NewFileStreamMessageToTeamTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				token: this.streamCreatorData.accessToken,	// stream creator creates the stream
+				token: this.users[1].accessToken,
 				teamId: this.team._id,
 				repoId: this.repo._id
 			}

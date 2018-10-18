@@ -1,104 +1,34 @@
 'use strict';
 
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const PostReplyTest = require('./post_reply_test');
+const CommonInit = require('./common_init');
 
-class NumCommentsMessageTest extends CodeStreamMessageTest {
+class NumCommentsMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostReplyTest) {
 
 	get description () {
 		return 'members of the team should receive a message when the numComments attribute of a marker is incremented due to a reply to a post with markers';
 	}
 
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.postOptions.wantCodeBlock = true;
+			this.streamOptions.type = 'file';
+			this.repoOptions.creatorIndex = 1;
+			callback();
+		});
+	}
+
 	// make the data that triggers the message to be messageReceived
 	makeData (callback) {
-		BoundAsync.series(this, [
-			this.createTeamCreator,	// create a user who will create the team (and repo)
-			this.createPostCreator,	// create a user who will create a post in the stream
-			this.createRepo,	// create the repo for the stream
-			this.createStream,	// create the stream in the repo
-			this.createParentPost	// create the parent post, used when we create the test post as a reply to this one
-		], callback);
-	}
-
-	// create a user who will then create a team and repo
-	createTeamCreator (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error);}
-				this.teamCreatorData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a user who will then create a post
-	createPostCreator (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error);}
-				this.postCreatorData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a repo
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				this.repo = response.repo;
-				callback();
-			},
-			{
-				withEmails: [
-					this.currentUser.email,
-					this.postCreatorData.user.email
-				],	// include me, and the user who will create the post
-				withRandomEmails: 1,	// include another random user, for good measure
-				token: this.teamCreatorData.accessToken	// the "team creator" creates the repo (and team)
-			}
-		);
-	}
-
-	// create a file-type stream in the repo
-	createStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				callback();
-			},
-			{
-				type: 'file',
-				token: this.teamCreatorData.accessToken,	// the "team creator" creates the stream, too
-				teamId: this.team._id,
-				repoId: this.repo._id
-			}
-		);
-	}
-
-	// create the parent post, the test post will be a reply to this post
-	createParentPost (callback) {
-		this.postFactory.createRandomPost(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.parentPost = response.post;
-				callback();
-			},
-			{
-				token: this.teamCreatorData.accessToken,	// the "team creator" also creates the parent post
-				streamId: this.stream._id,
-				wantCodeBlocks: true	// send code block which will create a marker
-			}
-		);
+		this.init(callback);
 	}
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		// it is the team channel
-		this.channelName = 'team-' + this.team._id;
+		// since this is in a file stream, we'll see it on the team channel
+		this.channelName = `team-${this.team._id}`;
 		callback();
 	}
 
@@ -108,12 +38,13 @@ class NumCommentsMessageTest extends CodeStreamMessageTest {
 		// since the parent post had a code block, this should cause a message to
 		// be sent on the the team channel indicating the numComments field for
 		// the marker to the code block has been incremented
-		let postOptions = {
-			token: this.postCreatorData.accessToken,
-			streamId: this.stream._id,
-			parentPostId: this.parentPost._id
-		};
-		this.postFactory.createRandomPost(
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/posts',
+				data: this.data,
+				token: this.users[1].accessToken
+			},
 			(error, response) => {
 				if (error) { return callback(error); }
 				// the message should look like this, indicating the numComments
@@ -121,21 +52,29 @@ class NumCommentsMessageTest extends CodeStreamMessageTest {
 				this.message = {
 					post: response.post,
 					markers: [{
-						_id: this.parentPost.codeBlocks[0].markerId,
-						$inc: { numComments: 1 }
+						_id: this.postData[0].post.codeBlocks[0].markerId,
+						$inc: { 
+							numComments: 1 
+						},
+						$version: {
+							before: 1,
+							after: 2
+						},
+						$set: {
+							version: 2
+						}
 					}],
 					streams: response.streams
 				};
 				callback();
-			},
-			postOptions
+			}
 		);
 	}
 
 	// validate the message received against expectations
 	validateMessage (message) {
 		// ignore any message having to do with the parent post
-		if (message.message.post && message.message.post._id === this.parentPost._id) {
+		if (message.message.post && message.message.post._id === this.postData[0].post._id) {
 			return false;
 		}
 		return super.validateMessage(message);

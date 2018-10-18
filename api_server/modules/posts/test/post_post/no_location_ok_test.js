@@ -1,8 +1,8 @@
 'use strict';
 
-var PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
+const CodeBlockTest = require('./code_block_test');
 
-class NoLocationOkTest extends PostCodeToFileStreamTest {
+class NoLocationOkTest extends CodeBlockTest {
 
 	get description () {
 		return 'should accept the post and return it when no location is given with a code block';

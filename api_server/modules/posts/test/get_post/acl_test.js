@@ -1,12 +1,17 @@
 'use strict';
 
-var GetPostTest = require('./get_post_test');
+const GetPostTest = require('./get_post_test');
 
 class ACLTest extends GetPostTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;	// don't include me in the stream or team
+		if (this.type === 'file') {
+			this.teamOptions.members = [];
+		}
+		else {
+			this.streamOptions.members = [];
+		}
 	}
 
 	get description () {
@@ -17,12 +22,6 @@ class ACLTest extends GetPostTest {
 		return {
 			code: 'RAPI-1009'	// readAuth
 		};
-	}
-
-	// set the path to use in the request
-	setPath (callback) {
-		this.path = '/posts/' + this.post._id;
-		callback();
 	}
 }
 

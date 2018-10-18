@@ -10,16 +10,17 @@ class StalePresenceRemovalTest extends PresenceTest {
 	constructor (options) {
 		super(options);
 		this.awayTimeout = 6000;	// we'll rush the away timeout for testing purposes
+		this.teamOptions.preCreateTeam = this.setOtherPresenceData;
 	}
 
 	// before the test runs...
-	before (callback) {
+	setOtherPresenceData (testCreator, callback) {
+		this.testCreator = testCreator;
 		BoundAsync.series(this, [
 			this.setStalePresenceData,	// write some presence data which will be found to be stale during the test
 			this.wait,					// wait a bit for the stale presence data to start getting stale...
 			this.setFreshPresenceData,	// set some more presence data that will still be fresh for the test
-			this.wait,					// wait some more for the stale presence data to truly become stale
-			super.before				// run standard test, setting more presence data ... during this, the stale data should be removed
+			this.wait					// wait some more for the stale presence data to truly become stale
 		], callback);
 	}
 
@@ -54,7 +55,7 @@ class StalePresenceRemovalTest extends PresenceTest {
 				method: 'put',
 				path: '/presence',
 				data: data,
-				token: this.token
+				token: this.testCreator.token
 			},
 			callback
 		);

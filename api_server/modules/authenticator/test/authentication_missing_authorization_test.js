@@ -16,8 +16,11 @@ class AuthenticationMissingAuthorizationTest extends AuthenticationTest {
 
 	// before the test runs...
 	before (callback) {
-		delete this.token;
-		super.before(callback);
+		super.before(error => {
+			if (error) { return callback(error); }
+			delete this.token;
+			callback();
+		});
 	}
 }
 

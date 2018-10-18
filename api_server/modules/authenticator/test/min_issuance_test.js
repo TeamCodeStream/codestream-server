@@ -18,8 +18,9 @@ class MinIssuanceTest extends AuthenticationTest {
 
 	// before the test runs...
 	before (callback) {
-		this.alterIssuanceTimeInToken(() => {
-			super.before(callback);
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.alterIssuanceTimeInToken(callback);
 		});
 	}
 

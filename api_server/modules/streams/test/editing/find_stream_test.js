@@ -1,6 +1,6 @@
 'use strict';
 
-var EditingTest = require('./editing_test');
+const EditingTest = require('./editing_test');
 
 class FindStreamTest extends EditingTest {
 
@@ -13,7 +13,7 @@ class FindStreamTest extends EditingTest {
 		// run standard set up for the test but delete the streamId and provide matching file instead
 		super.before(() => {
 			delete this.data.streamId;
-			this.data.file = this.stream.file;
+			this.data.file = this.repoStreams[0].file;
 			callback();
 		});
 	}

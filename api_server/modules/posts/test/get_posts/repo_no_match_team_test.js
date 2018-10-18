@@ -1,9 +1,10 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const GetPostsTest = require('./get_posts_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
 
-class RepoNoMatchTeamTest extends CodeStreamAPITest {
+class RepoNoMatchTeamTest extends GetPostsTest {
 
 	get description () {
 		return 'should return an error when trying to fetch posts for a file where the team doesn\'t match the repo';
@@ -19,78 +20,25 @@ class RepoNoMatchTeamTest extends CodeStreamAPITest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createReposAndStreams,	// create two series of team/repo/stream
-			this.setPath				// set the path for the post fetch request
+			super.before,
+			this.createForeignTeam
 		], callback);
 	}
 
-	// create two sets of repos and streams (and teams), we'll try to fetch from
-	// one with a teamId matching the other
-	createReposAndStreams (callback) {
-		this.teams = [];
-		this.repos = [];
-		this.streams = [];
-		BoundAsync.timesSeries(
-			this,
-			2,
-			this.createRepoAndStream,
-			callback
-		);
-	}
-
-	// create a repo and a stream in that repo
-	createRepoAndStream (n, callback) {
-		BoundAsync.series(this, [
-			this.createRepo,
-			this.createStream
-		], callback);
-	}
-
-	// create a single repo
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.teams.push(response.team);
-				this.lastTeamId = response.team._id;
-				this.lastRepoId = response.repo._id;
-				this.lastUsers = response.users;
-				this.repos.push(response.repo);
-				callback();
-			},
-			{
-				withRandomEmails: 2,
-				token: this.token
-			}
-		);
-	}
-
-	// create a single stream in the last repo we created
-	createStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.streams.push(response.stream);
-				callback();
-			},
-			{
-				type: 'file',
-				teamId: this.lastTeamId,
-				repoId: this.lastRepoId,
-				memberIds: [this.lastUsers[0]._id],	// put one of the users on the team in the stream
-				token: this.token
-			}
-		);
-	}
-
-	// set the path to use in the fetch request
-	setPath (callback) {
-		// here the teamId won't match the team that owns the repo 
-		let teamId = this.teams[0]._id;
-		let repoId = this.repos[1]._id;
-		let path = encodeURIComponent(this.streams[1].path);
-		this.path = `/posts?teamId=${teamId}&repoId=${repoId}&path=${path}`;
-		callback();
+	// create a "foreign" team, for which the current user is not a member
+	createForeignTeam (callback) {
+		new TestTeamCreator({
+			test: this,
+			teamOptions: Object.assign({}, this.teamOptions, {
+				creatorToken: this.users[1].accessToken
+			}),
+			userOptions: this.userOptions
+		}).create((error, response) => {
+			if (error) { return callback(error); }
+			const path = encodeURIComponent(this.stream.path);
+			this.path = `/posts?teamId=${response.team._id}&repoId=${this.repo._id}&path=${path}`;
+			callback();
+		});
 	}
 }
 

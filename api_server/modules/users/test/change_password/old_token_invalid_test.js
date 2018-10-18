@@ -23,18 +23,15 @@ class OldTokenInvalidTest extends ChangePasswordTest {
 		};
 	}
 
-	// before the test runs...
-	before (callback) {
+	// do the actual change of password
+	changePassword (callback) {
 		// a delay is needed, since the IAT field of the JSON web token (when the token
 		// gets issued) is only accurate to within a second, and we want to ensure the
 		// token will be different
-		setTimeout(() => {
-			super.before(callback);
-		}, 2000);
+		setTimeout(this.reallyChangePassword.bind(this), 2000, callback);
 	}
 
-	// do the actual change of password
-	changePassword (callback) {
+	reallyChangePassword (callback) {
 		// do the change of password, but we're ignoring the returned access token
 		// and will attempt to fetch the user's me-object with the old token,
 		// this should fail

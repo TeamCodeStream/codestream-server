@@ -6,7 +6,7 @@ class UnreadACLTest extends UnreadTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMeInStream = true;
+		this.streamOptions.members = [];
 	}
 
 	get description () {

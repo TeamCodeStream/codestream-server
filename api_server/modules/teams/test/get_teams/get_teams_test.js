@@ -1,102 +1,66 @@
-// provide a base class for most tests of the "GET /teams" request
-
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const TeamTestConstants = require('../team_test_constants');
+const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
 
 class GetTeamsTest extends CodeStreamAPITest {
+
+	get description () {
+		return 'should return teams i am a member of when requesting my teams';
+	}
 
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createRandomRepoByMe,	// have the current user create a repo (which creates a team)
-			this.createOtherUser,		// create a second registered user
-			this.createRandomReposWithMe,	// have the other user create a few repos (and therefore teams) with the current user included in the team
-			this.createRandomRepoWithoutMe,	// have the other user create a repo (and therefore team) without the current user included in the team
-			this.setPath					// set the path to use when issuing the test request
+			super.before,
+			this.createTeamWithMe,
+			this.createTeamWithoutMe,
+			this.setPath					
 		], callback);
 	}
 
-	// have the current user create a repo (which creates a team)
-	createRandomRepoByMe (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.myRepo = response.repo;
-				this.myTeam = response.team;
-				this.myUsers = response.users;
-				callback();
+	createTeamWithMe (callback) {
+		new TestTeamCreator({
+			test: this,
+			teamOptions: {
+				creatorToken: this.users[1].accessToken,
+				members: [this.users[0].user.email]
 			},
-			{
-				withRandomEmails: 2,	// add a few unregistered users for good meausre
-				token: this.token 		// current user creates the repo and team
-			}
-		);
+			userOptions: this.userOptions
+		}).create((error, data) => {
+			if (error) { return callback(error); }
+			this.teamWithMe = data.team;
+			callback();
+		});
 	}
 
-	// create a second registered user
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// have the "other" user create a few repos (and teams) with the current user included in the teams
-	createRandomReposWithMe (callback) {
-		this.otherRepos = [];
-		this.otherTeams = [];
-		BoundAsync.timesSeries(
-			this,
-			2,
-			this.createRandomRepoWithMe,
-			callback
-		);
-	}
-
-	// have the "other" user create a repo (and team) with the current user included in the team
-	createRandomRepoWithMe (n, callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherRepos.push(response.repo);
-				this.otherTeams.push(response.team);
-				callback();
+	createTeamWithoutMe (callback) {
+		new TestTeamCreator({
+			test: this,
+			teamOptions: {
+				creatorToken: this.users[1].accessToken
 			},
-			{
-				withRandomEmails: 2,	// include a few unregistered users for good measure
-				withEmails: [this.currentUser.email],	// include current user in the team
-				token: this.otherUserData.accessToken	// "other" user creates the repo and team
-			}
-		);
+			userOptions: this.userOptions
+		}).create((error, data) => {
+			if (error) { return callback(error); }
+			this.teamWithoutMe = data.team;
+			callback();
+		});
 	}
 
-	// have the "other" user create a repo (and team) without the current user included in the team,
-	// call this a "foreign" repo and team
-	createRandomRepoWithoutMe (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.foreignRepo = response.repo;
-				this.foreignTeam = response.team;
-				this.foreignUsers = response.users;
-				callback();
-			},
-			{
-				withRandomEmails: 2,	// include a few unregistered users for good measure
-				token: this.otherUserData.accessToken	// "other" user creates the repo and team
-			}
-		);
+	// set the path for the test
+	setPath (callback) {
+		this.path = '/teams?mine';
+		callback();
 	}
 
-	// validate the response to the test request
+	// validate we got only teams i am in, meaning the team i created,
+	// and the other teams that were created with me as part of the team
 	validateResponse (data) {
-		// validate that the teams we get back do not have attributes that clients shouldn't see
+		let myTeams = [this.team, this.teamWithMe];
+		this.validateMatchingObjects(myTeams, data.teams, 'teams');
 		this.validateSanitizedObjects(data.teams, TeamTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

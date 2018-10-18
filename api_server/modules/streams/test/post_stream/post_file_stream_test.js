@@ -1,7 +1,7 @@
 'use strict';
 
-var Assert = require('assert');
-var PostStreamTest = require('./post_stream_test');
+const Assert = require('assert');
+const PostStreamTest = require('./post_stream_test');
 const StreamTestConstants = require('../stream_test_constants');
 
 class PostFileStreamTest extends PostStreamTest {
@@ -11,9 +11,16 @@ class PostFileStreamTest extends PostStreamTest {
 		this.type = 'file';
 	}
 
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.repoOptions.creatorIndex = 0;
+			callback();
+		});
+	}
+
 	getExpectedFields () {
 		// expect standard stream fields, plus stream fields for a file-type stream
-		let fields = Object.assign({}, super.getExpectedFields());
+		const fields = Object.assign({}, super.getExpectedFields());
 		fields.stream = [
 			...fields.stream,
 			...StreamTestConstants.EXPECTED_FILE_STREAM_FIELDS
@@ -25,16 +32,16 @@ class PostFileStreamTest extends PostStreamTest {
 	makeStreamOptions (callback) {
 		// get the standard stream options, and add the repo ID, required for file-type stream
 		super.makeStreamOptions(() => {
-			this.streamOptions.repoId = this.repo._id;
+			this.postStreamOptions.repoId = this.repo._id;
 			callback();
 		});
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
-		let stream = data.stream;
-		let errors = [];
-		let result = (
+		const stream = data.stream;
+		const errors = [];
+		const result = (
 			((stream.repoId === this.data.repoId) || errors.push('repoId does not match')) &&
 			((stream.file === this.data.file) || errors.push('file does not match'))
 		);

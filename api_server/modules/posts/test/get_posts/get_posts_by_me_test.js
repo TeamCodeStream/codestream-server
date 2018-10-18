@@ -11,6 +11,7 @@ class GetPostsByMeTest extends GetPostsTest {
 	// set the path to use for the request
 	setPath (callback) {
 		// we'll restrict the posts we expect to those authored by me, then fetch "mine"
+		this.expectedPosts = this.postData.map(postData => postData.post);
 		this.myPosts = this.myPosts.filter(post => post.creatorId === this.currentUser._id);
 		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&mine`;
 		callback();

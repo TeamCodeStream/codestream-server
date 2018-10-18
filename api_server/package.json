@@ -25,7 +25,6 @@
     "moment": "2.17.1",
     "moment-timezone": "^0.5.14",
     "mongodb": "2.2.31",
-    "nodegit": "0.20.3",
     "pubnub": "4.20.0",
     "randomstring": "1.1.5",
     "strftime": "0.9.2",
@@ -34,9 +33,9 @@
     "uuid": "^3.2.1"
   },
   "scripts": {
-	"veryclean": "git clean -fXd",
-	"test": "mocha",
-	"test:ci": "npm run test -- --reporter mocha-teamcity-reporter",
+    "veryclean": "git clean -fXd",
+    "test": "mocha",
+    "test:ci": "npm run test -- --reporter mocha-teamcity-reporter",
     "clean": "git clean -fXd -e !node_modules -e !node_modules/**/*",
     "eslint": "eslint .",
     "tarball": "touch api-server.tgz && tar -czpf api-server.tgz --exclude api-server.tgz --exclude .git ."

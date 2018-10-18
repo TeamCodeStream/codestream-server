@@ -1,10 +1,19 @@
 'use strict';
 
-var Assert = require('assert');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class MostRecentPostTest extends CodeStreamAPITest {
+
+	constructor (options) {
+		super(options);
+		this.streamOptions.creatorIndex = 1;
+		Object.assign(this.postOptions, {
+			creatorIndex: 0,
+			numPosts: 3,
+			wantCodeBlock: true
+		});
+	}
 
 	get description () {
 		// mostRecentPostId tracks the most recent post to a stream ... for lastReads to work
@@ -25,98 +34,23 @@ class MostRecentPostTest extends CodeStreamAPITest {
 		return { stream: ['mostRecentPostId', 'mostRecentPostCreatedAt', 'sortId'] };
 	}
 
-	// before the test runs...
 	before (callback) {
-		BoundAsync.series(this, [
-			this.createOtherUser,	// create a second user
-			this.createRepo,		// create a repo (and a team)
-			this.createStream,		// create a file-type stream in that repo
-			this.createPosts		// create some posts in that stream
-		], callback);
-	}
-
-	// create another registered user
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a repo (which will also create a team)
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.repo = response.repo;
-				this.team = response.team;
-				callback();
-			},
-			{
-				withEmails: [this.currentUser.email],	// include "me"
-				withRandomEmails: 1, // include another random user for good measure
-				token: this.otherUserData.accessToken	// the "other user" is the repo/team creator
-			}
-		);
-	}
-
-	// create a file-type stream in the repo we created
-	createStream (callback) {
-		let streamOptions = {
-			type: 'file',
-			teamId: this.team._id,
-			repoId: this.repo._id,
-			token: this.otherUserData.accessToken	// the "other user" creates the stream
-		};
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				// set the path for fetching the stream object in the test
-				this.path = '/streams/' + this.stream._id;
-				callback();
-			},
-			streamOptions
-		);
-	}
-
-	// create some posts in the stream
-	createPosts (callback) {
-		this.posts = [];
-		BoundAsync.timesSeries(
-			this,
-			3,
-			this.createPost,
-			callback
-		);
-	}
-
-	// create a single post in the stream
-	createPost (n, callback) {
-		let postOptions = {
-			streamId: this.stream._id,
-			token: this.otherUserData.accessToken	// the "other user" creates the posts
-		};
-		this.postFactory.createRandomPost(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.posts.push(response.post);
-				callback();
-			},
-			postOptions
-		);
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.path = '/streams/' + this.stream._id;
+			callback();
+		});
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that mostRecentPostId and sortId were both set to the ID of the
 		// last post created in the stream
-		Assert(data.stream.mostRecentPostId === this.posts[this.posts.length - 1]._id, 'mostRecentPostId for stream does not match post');
-		Assert(data.stream.mostRecentPostCreatedAt = this.posts[this.posts.length - 1].createdAt, 'mostRecentPostCreatedAt for stream does not match post');
-		Assert(data.stream.sortId === this.posts[this.posts.length - 1]._id, 'sortId for stream does not match post');
+		const posts = this.postData.map(postData => postData.post);
+		const lastPost = posts[posts.length - 1];
+		Assert(data.stream.mostRecentPostId === lastPost._id, 'mostRecentPostId for stream does not match post');
+		Assert(data.stream.mostRecentPostCreatedAt = lastPost.createdAt, 'mostRecentPostCreatedAt for stream does not match post');
+		Assert(data.stream.sortId === lastPost._id, 'sortId for stream does not match post');
 	}
 }
 

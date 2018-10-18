@@ -1,6 +1,6 @@
 'use strict';
 
-var GetReposTest = require('./get_repos_test');
+const GetReposTest = require('./get_repos_test');
 
 class ACLTest extends GetReposTest {
 
@@ -17,8 +17,8 @@ class ACLTest extends GetReposTest {
 	// set the path for the test request
 	setPath (callback) {
 		// try to fetch the "foreign repo", i'm not a member so i should not be able to fetch it
-		let teamId = this.foreignTeam._id;
-		let ids = this.foreignRepo._id;
+		const teamId = this.foreignTeam._id;
+		const ids = this.foreignRepo._id;
 		this.path = `/repos?teamId=${teamId}&ids=${ids}`;
 		callback();
 	}

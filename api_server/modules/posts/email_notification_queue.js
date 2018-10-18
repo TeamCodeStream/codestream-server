@@ -79,11 +79,9 @@ class EmailNotificationQueue {
 			}
 		};
 		const options = {
-			databaseOptions: {
-				fields: {
-					emailNotificationSeqNum: 1,
-					emailNotificationSeqNumSetAt: 1
-				}
+			fields: {
+				emailNotificationSeqNum: 1,
+				emailNotificationSeqNumSetAt: 1
 			}
 		};
 		while (!this.foundSeqNum && numRetries < 10) {

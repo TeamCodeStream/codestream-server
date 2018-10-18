@@ -26,15 +26,7 @@ class BumpPostsTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		const expectedData = {
-			user: {
-				_id: this.currentUser._id,
-				$set: {
-					totalPosts: this.numPosts + 1
-				}
-			}
-		};
-		Assert.deepEqual(data, expectedData, 'response is incorrect');
+		Assert.deepEqual(data, this.expectedData, 'response is incorrect');
 	}
 }
 

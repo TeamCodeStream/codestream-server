@@ -51,9 +51,7 @@ class ResendConfirmRequest extends RestfulRequest {
 				searchableEmail: this.request.body.email.toLowerCase(),
 			},
 			{
-				databaseOptions: {
-					hint: Indexes.bySearchableEmail
-				}
+				hint: Indexes.bySearchableEmail
 			}
 		);
 		if (!users[0]) {

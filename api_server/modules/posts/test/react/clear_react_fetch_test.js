@@ -32,7 +32,7 @@ class ClearReactFetchTest extends ThirdReactFetchTest {
 			},
 			error => {
 				if (error) { return callback(error); }
-				const index = this.expectedReactions[this.reaction].indexOf(this.currentUser._id);
+				const index = this.expectedReactions[this.reaction].indexOf(this.currentUser.user._id);
 				this.expectedReactions[this.reaction].splice(index, 1);
 				callback();
 			}

@@ -1,8 +1,8 @@
 'use strict';
 
-var PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
+const CodeBlockTest = require('./code_block_test');
 
-class InvalidCoordinateObjectTest extends PostCodeToFileStreamTest {
+class InvalidCoordinateObjectTest extends CodeBlockTest {
 
 	get description () {
 		return 'should return error when attempting to create a post with a code block element where the fifth location coordinate is not an object';

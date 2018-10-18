@@ -1,6 +1,6 @@
 'use strict';
 
-var TrackingTest = require('./tracking_test');
+const TrackingTest = require('./tracking_test');
 const Assert = require('assert');
 
 class NoTrackingTest extends TrackingTest {
@@ -25,7 +25,7 @@ class NoTrackingTest extends TrackingTest {
 				method: 'put',
 				path: '/preferences',
 				data: { telemetryConsent: false },
-				token: this.postOriginatorData.accessToken
+				token: this.users[1].accessToken
 			},
 			callback
 		);

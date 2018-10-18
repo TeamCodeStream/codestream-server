@@ -14,7 +14,5 @@ export CS_API_PORT=8443
 unset CS_API_LOG_CONSOLE_OK
 export CS_API_REPLY_TO_DOMAIN=qa.codestream.com
 export CS_API_OUTBOUND_EMAIL_SQS="qa_outboundEmail"
-export CS_API_SLACKBOT_ORIGIN=http://qa-bot.codestream.us:11079
-export CS_API_TEAMSBOT_ORIGIN=http://qa-bot.codestream.us:10079
 export CS_API_WEB_CLIENT_ORIGIN=https://qa-app.codestream.us
 unset CS_API_SUPPRESS_EMAILS

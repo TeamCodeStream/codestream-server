@@ -19,7 +19,7 @@ class UsernameResolutionTest extends PostUserTest {
 		// substitute an email matching an existing user's username
 		super.makeUserData(() => {
 			const domain = EmailUtilities.parseEmail(this.data.email).domain;
-			const existingUsername = this.otherUserData.user.username;
+			const existingUsername = this.users[1].user.username;
 			this.data.email = `${existingUsername}@${domain}`;
 			const appendedNumber = (this.numConflictingUsers || 0) + 1;
 			this.expectedUsername = `${existingUsername}${appendedNumber}`;

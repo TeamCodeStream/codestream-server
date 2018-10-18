@@ -1,6 +1,6 @@
 'use strict';
 
-var ChangePasswordTest = require('./change_password_test');
+const ChangePasswordTest = require('./change_password_test');
 
 class RequiredParameterTest extends ChangePasswordTest {
 

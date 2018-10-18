@@ -14,6 +14,14 @@ class NoJoinNonChannelStreamTest extends JoinTest {
 			reason: 'only channel streams can be joined'
 		};
 	}
+
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.repoOptions.creatorIndex = 1;
+			this.streamOptions.type = this.type;
+			callback();
+		});
+	}
 }
 
 module.exports = NoJoinNonChannelStreamTest;

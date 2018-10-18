@@ -22,10 +22,6 @@ const CreateWithoutPersistTest = require('./create_without_persist_test');
 const UpdateNoIdTest = require('./update_no_id_test');
 const UpdateToCacheTest = require('./update_to_cache_test');
 const UpdateToDatabaseTest = require('./update_to_database_test');
-const UpsertToCacheTest = require('./upsert_to_cache_test');
-const UpsertToDatabaseTest = require('./upsert_to_database_test');
-const UpsertOpToCacheTest = require('./upsert_op_to_cache_test');
-const UpsertOpToDatabaseTest = require('./upsert_op_to_database_test');
 const ApplySetToCacheTest = require('./apply_set_to_cache_test');
 const ApplySetToDatabaseTest = require('./apply_set_to_database_test');
 const ApplySetSubObjectToCacheTest = require('./apply_set_sub_object_to_cache_test');
@@ -53,6 +49,8 @@ const UpdateWhenPersistTest = require('./update_when_persist_test');
 const DeleteFromCacheTest = require('./delete_from_cache_test');
 const DeleteFromDatabaseTest = require('./delete_from_database_test');
 const FindAndModifyTest = require('./find_and_modify_test');
+const VersionUpdateTest = require('./version_update_test');
+const VersionMismatchTest = require('./version_mismatch_test');
 
 describe('dataCollection', function() {
 
@@ -73,10 +71,6 @@ describe('dataCollection', function() {
 	new UpdateNoIdTest().test();
 	new UpdateToCacheTest().test();
 	new UpdateToDatabaseTest().test();
-	new UpsertToCacheTest().test();
-	new UpsertToDatabaseTest().test();
-	new UpsertOpToCacheTest().test();
-	new UpsertOpToDatabaseTest().test();
 	new ApplySetToCacheTest().test();
 	new ApplySetToDatabaseTest().test();
 	new ApplySetSubObjectToCacheTest().test();
@@ -104,4 +98,6 @@ describe('dataCollection', function() {
 	new DeleteFromCacheTest().test();
 	new DeleteFromDatabaseTest().test();
 	new FindAndModifyTest().test();
+	new VersionUpdateTest().test();
+	new VersionMismatchTest().test();
 });

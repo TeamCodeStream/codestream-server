@@ -26,13 +26,9 @@ class UnsetTest extends PutPreferencesFetchTest {
 				preferenceTwo: 1
 			}
 		};
-		this.expectResponse = {
-			user: {
-				_id: this.currentUser._id,
-				$unset: {
-					'preferences.preferenceTwo': true
-				}
-			}
+		this.expectResponse = this.getBaseExpectedResponse();
+		this.expectResponse.user.$unset = {
+			'preferences.preferenceTwo': true
 		};
 		this.expectPreferences = Object.assign({}, this.preSetData);
 		delete this.expectPreferences.preferenceTwo;

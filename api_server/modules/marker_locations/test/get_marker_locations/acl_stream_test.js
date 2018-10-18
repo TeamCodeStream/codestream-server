@@ -1,7 +1,7 @@
 'use strict';
 
-var GetMarkerLocationsTest = require('./get_marker_locations_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const GetMarkerLocationsTest = require('./get_marker_locations_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class ACLStreamTest extends GetMarkerLocationsTest {
 
@@ -29,13 +29,13 @@ class ACLStreamTest extends GetMarkerLocationsTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				// fetch marker locations for this stream
-				this.path = `/marker-locations?teamId=${this.team._id}&streamId=${response.stream._id}&commitHash=${this.commitHash}`;
+				this.path = `/marker-locations?teamId=${this.team._id}&streamId=${response.stream._id}&commitHash=${this.postOptions.commitHash}`;
 				callback();
 			},
 			{
 				type: 'channel',
-				token: this.otherUserData.accessToken,	 // the other user creates it
-				teamId: this.repo.teamId
+				token: this.users[1].accessToken,	 // the other user creates it
+				teamId: this.team._id
 			}
 		);
 	}

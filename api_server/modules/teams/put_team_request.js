@@ -30,14 +30,14 @@ class PutTeamRequest extends PutRequest {
 
 	// revoke permission to any members removed from the stream to subscribe to the stream channel
 	async revokeUserMessagingPermissions () {
-		if (!this.updater.removedUsers || this.updater.removedUsers.length === 0) {
+		if (!this.transforms.removedUsers || this.transforms.removedUsers.length === 0) {
 			return;
 		}
 		const granterOptions = {
 			data: this.data,
 			messager: this.api.services.messager,
 			team: this.updater.team,
-			members: this.updater.removedUsers,
+			members: this.transforms.removedUsers,
 			request: this,
 			revoke: true
 		};
@@ -51,10 +51,10 @@ class PutTeamRequest extends PutRequest {
 		
 	// publish the team update to the team channel
 	async publishTeam () {
-		const teamId = this.updater.model.id;
+		const teamId = this.updater.team.id;
 		const channel = 'team-' + teamId;
 		const message = {
-			team: Object.assign({}, this.updater.updatedAttributes),
+			team: this.updateOp,
 			requestId: this.request.id
 		};
 		try {
@@ -72,26 +72,18 @@ class PutTeamRequest extends PutRequest {
 
 	// publish the removal to the messager channel for any users that have been removed from the team
 	async publishRemovalToUsers () {
-		if (!this.updater.removedUsers) {
+		if (!this.transforms.userUpdates) {
 			return;
 		}
-		await Promise.all(this.updater.removedUsers.map(async user => {
-			await this.publishRemovalToUser(user);
+		await Promise.all(this.transforms.userUpdates.map(async userUpdate => {
+			await this.publishRemovalToUser(userUpdate);
 		}));
 	}
 
 	// publish the removal to the messager channel for any user that has been removed from the team
-	async publishRemovalToUser (user) {
-		const channel = 'user-' + user.id;
-		const message = {
-			user: {
-				_id: user.id,
-				$pull: {
-					teamIds: this.updater.team.id
-				}
-			},
-			requestId: this.request.id
-		};
+	async publishRemovalToUser (userUpdate) {
+		const channel = 'user-' + userUpdate._id;
+		const message = Object.assign({}, { user: userUpdate }, { requestId: this.request.id });
 		try {
 			await this.api.services.messager.publish(
 				message,
@@ -101,7 +93,7 @@ class PutTeamRequest extends PutRequest {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish team removal message to user ${user.id}: ${JSON.stringify(error)}`);
+			this.warn(`Could not publish team removal message to user ${userUpdate._id}: ${JSON.stringify(error)}`);
 		}
 
 	}

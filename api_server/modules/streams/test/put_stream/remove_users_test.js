@@ -8,12 +8,17 @@ class RemoveUsersTest extends RemoveUserTest {
 		return 'should return the updated stream and correct directive when removing multiple users from a stream';
 	}
    
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.teamOptions.numAdditionalInvites = 2;
+			this.userOptions.numRegistered = 4;
+			callback();
+		});
+	}
+
 	// get the users we want to remove from the stream
 	getRemovedUsers () {
-		const removedUsers = this.users.filter(user => {
-			return user._id !== this.currentUser._id && user._id !== this.otherUserData.user._id;
-		});
-		return removedUsers.slice(1);
+		return this.users.slice(3).map(user => user.user);
 	}
 }
 

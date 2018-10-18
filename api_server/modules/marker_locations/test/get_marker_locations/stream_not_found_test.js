@@ -1,7 +1,7 @@
 'use strict';
 
-var GetMarkerLocationsTest = require('./get_marker_locations_test');
-var ObjectID = require('mongodb').ObjectID;
+const GetMarkerLocationsTest = require('./get_marker_locations_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class StreamNotFoundTest extends GetMarkerLocationsTest {
 
@@ -18,7 +18,7 @@ class StreamNotFoundTest extends GetMarkerLocationsTest {
 
 	// get query parameters for the request
 	getQueryParameters () {
-		let queryParameters = super.getQueryParameters();
+		const queryParameters = super.getQueryParameters();
 		queryParameters.streamId = ObjectID();	// set the stream ID to some random ID that doesn't exist
 		return queryParameters;
 	}

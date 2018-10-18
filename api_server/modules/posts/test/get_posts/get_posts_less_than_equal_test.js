@@ -13,8 +13,9 @@ class GetPostsLessThanEqualTest extends GetPostsTest {
 	setPath (callback) {
 		// pick a pivot point, then filter our expected posts based on that pivot,
 		// and specify the lte parameter to fetch based on the pivot
-		let pivot = this.myPosts[2]._id;
-		this.myPosts = this.myPosts.filter(post => ObjectID(post._id) <= ObjectID(pivot));
+		this.expectedPosts = this.postData.map(postData => postData.post);
+		const pivot = this.expectedPosts[2]._id;
+		this.expectedPosts = this.expectedPosts.filter(post => ObjectID(post._id) <= ObjectID(pivot));
 		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&lte=${pivot}`;
 		callback();
 	}

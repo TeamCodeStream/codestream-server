@@ -1,7 +1,7 @@
 'use strict';
 
-var PostTeamStreamTest = require('./post_team_stream_test');
-var Assert = require('assert');
+const PostTeamStreamTest = require('./post_team_stream_test');
+const Assert = require('assert');
 
 class TeamStreamIgnoresMembersTest extends PostTeamStreamTest {
 
@@ -11,8 +11,8 @@ class TeamStreamIgnoresMembersTest extends PostTeamStreamTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		// we should still see that privacy is public
-		let stream = data.stream;
+		// memberIds is added to channel streams, but this should be ignored for team streams
+		const stream = data.stream;
 		Assert(typeof stream.memberIds === 'undefined', 'memberIds is defined');
 		super.validateResponse(data);
 	}

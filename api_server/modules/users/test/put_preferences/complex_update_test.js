@@ -20,11 +20,9 @@ class ComplexUpdateTest extends PutPreferencesFetchTest {
 	// are retrieved to verify the preferences change was successful
 	makePreferencesData (callback) {
 		this.data = ComplexUpdate.UPDATE_OP;
-		this.expectResponse = {
-			user: Object.assign({}, {
-				_id: this.currentUser._id
-			}, ComplexUpdate.EXPECTED_OP)
-		};
+		this.expectResponse = this.getBaseExpectedResponse();
+		Object.assign(this.expectResponse.user.$set, ComplexUpdate.EXPECTED_OP.$set);
+		this.expectResponse.user.$unset = Object.assign({}, ComplexUpdate.EXPECTED_OP.$unset);
 		this.expectPreferences = ComplexUpdate.EXPECTED_PREFERENCES;
 		callback();
 	}

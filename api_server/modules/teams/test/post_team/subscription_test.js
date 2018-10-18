@@ -18,26 +18,6 @@ class SubscriptionTest extends CodeStreamAPITest {
 		return 'user should be able to subscribe to the team channel when they create a new team';
 	}
 
-	// before the test runs...
-	before (callback) {
-		// create the team, the test is trying to subscribe to the team channel
-		this.createTeam(callback);
-	}
-
-	// create a new team
-	createTeam (callback) {
-		this.teamFactory.createRandomTeam(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				callback();
-			},
-			{
-				token: this.token
-			}
-		);
-	}
-
 	// run the test
 	run (callback) {
 		// create a pubnub client and attempt to subscribe to the team channel
@@ -56,12 +36,12 @@ class SubscriptionTest extends CodeStreamAPITest {
 	// create a pubnub client for the test
 	createPubNubClient () {
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
-		let clientConfig = Object.assign({}, PubNubConfig);
+		const clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser._id;
-		clientConfig.authKey = this.pubNubToken;
-		let client = new PubNub(clientConfig);
+		clientConfig.uuid = this.currentUser.user._pubnubUuid || this.currentUser.user._id;
+		clientConfig.authKey = this.currentUser.pubNubToken;
+		const client = new PubNub(clientConfig);
 		return new PubNubClient({
 			pubnub: client
 		});

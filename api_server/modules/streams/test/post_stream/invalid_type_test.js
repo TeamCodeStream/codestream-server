@@ -1,15 +1,11 @@
 'use strict';
 
-var PostFileStreamTest = require('./post_file_stream_test');
+const PostChannelStreamTest = require('./post_channel_stream_test');
 
-class InvalidTypeTest extends PostFileStreamTest {
+class InvalidTypeTest extends PostChannelStreamTest {
 
 	get description () {
 		return 'should return an error when attempting to create a stream of an invalid type';
-	}
-
-	getExpectedFields () {
-		return null;
 	}
 
 	getExpectedError () {
@@ -23,7 +19,7 @@ class InvalidTypeTest extends PostFileStreamTest {
 
 	// before the test runs...
 	before (callback) {
-		// set up standard test conditions for creating a file-type stream, 
+		// set up standard test conditions for creating a channel stream, 
 		// but set the type to a bogus type
 		super.before(error => {
 			if (error) { return callback(error); }

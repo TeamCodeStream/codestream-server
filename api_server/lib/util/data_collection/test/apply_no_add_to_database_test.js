@@ -13,10 +13,13 @@ class ApplyNoAddToDatabaseTest extends UpdateToDatabaseTest {
 		const update = {
 			array: 4
 		};
+		this.expectedOp = {
+			'$addToSet': update
+		};
 		try {
-			await this.data.test.applyOpById(
+			this.actualOp = await this.data.test.applyOpById(
 				this.testModel.id,
-				{ '$addToSet': update }
+				this.expectedOp
 			);
 		}
 		catch (error) {

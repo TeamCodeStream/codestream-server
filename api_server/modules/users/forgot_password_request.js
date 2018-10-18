@@ -56,9 +56,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 				searchableEmail: this.request.body.email.toLowerCase()
 			},
 			{
-				databaseOptions: {
-					hint: Indexes.bySearchableEmail
-				}
+				hint: Indexes.bySearchableEmail
 			}
 		);
 		this.user = users.length > 0 ? users[0] : null;

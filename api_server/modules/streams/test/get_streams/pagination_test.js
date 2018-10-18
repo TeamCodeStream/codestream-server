@@ -1,8 +1,8 @@
 'use strict';
 
-var GetStreamsTest = require('./get_streams_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
+const GetStreamsTest = require('./get_streams_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Assert = require('assert');
 const Limits = require(process.env.CS_API_TOP + '/config/limits');
 
 class PaginationTest extends GetStreamsTest {
@@ -13,13 +13,14 @@ class PaginationTest extends GetStreamsTest {
 		this.numStreams = this.defaultPagination ? Math.floor(Limits.maxStreamsPerRequest * 2.5) : 17;
 		this.streamsPerPage = this.defaultPagination ? Limits.maxStreamsPerRequest : 5;
 		this.dontDoForeign = true;
-		this.dontDoTeamStreams = true;
+		this.dontDoFileStreams = true;
+		this.dontDoDirectStreams = true;
 		this.streamCreateThrottle = 100;	// slow things down, pubnub gets overwhelmed
 	}
 
 	get description () {
-		let order = this.ascending ? 'ascending' : 'descending';
-		let type = this.defaultPagination ? 'default' : 'custom';
+		const order = this.ascending ? 'ascending' : 'descending';
+		const type = this.defaultPagination ? 'default' : 'custom';
 		let description = `should return the correct streams in correct ${order} order when requesting streams in ${type} pages`;
 		if (this.tryOverLimit) {
 			description += `, and should limit page size to ${Limits.maxStreamsPerRequest}`;
@@ -36,8 +37,11 @@ class PaginationTest extends GetStreamsTest {
 	run (callback) {
 		// make sure our expected streams our sorted, since they will come back to us (and are paginated)
 		// in sorted order
-		this.myStreams = this.streamsByRepo[this.myRepo._id];
-		this.myStreams.sort((a, b) => {
+		this.expectedStreams = this.streamsByTeam[this.team._id].filter(stream => {
+			return stream.memberIds.includes(this.currentUser.user._id);
+		});
+		this.expectedStreams.push(this.teamStream);
+		this.expectedStreams.sort((a, b) => {
 			return a._id.localeCompare(b._id);
 		});
 		// divide into pages
@@ -45,7 +49,7 @@ class PaginationTest extends GetStreamsTest {
 		if (this.numStreams % this.streamsPerPage !== 0) {
 			this.numPages++;
 		}
-		this.allStreams = this.myStreams;
+		this.allStreams = this.expectedStreams;
 		if (!this.ascending) {	// reverse order for "asc" sort option
 			this.allStreams.reverse();
 		}
@@ -61,11 +65,11 @@ class PaginationTest extends GetStreamsTest {
 
 	// fetch a single page of streams and validate the response
 	fetchPage (pageNum, callback) {
-		this.path = `/streams/?teamId=${this.myTeam._id}&repoId=${this.myRepo._id}`;
+		this.path = `/streams/?teamId=${this.team._id}`;
 		if (this.tryOverLimit) {
 			// we'll try to fetch more than the server's limit, we should still get back
 			// the maximum number of streams allowed in a page
-			let limit = Limits.maxStreamsPerRequest * 2;
+			const limit = Limits.maxStreamsPerRequest * 2;
 			this.path += `&limit=${limit}`;
 		}
 		else if (!this.defaultPagination) {
@@ -78,7 +82,7 @@ class PaginationTest extends GetStreamsTest {
 		}
 		if (pageNum > 0) {
 			// after the first page, use the last ID we fetched to fetch the next page
-			let op = this.ascending ? 'gt' : 'lt';
+			const op = this.ascending ? 'gt' : 'lt';
 			this.path += `&${op}=${this.lastId}`;
 		}
 		this.doApiRequest(
@@ -102,15 +106,15 @@ class PaginationTest extends GetStreamsTest {
 		if (pageNum + 1 < this.numPages) {	// more flag should be set except for the last page
 			Assert(response.more === true, `more expected for page ${pageNum}`);
 		}
-		let begin = pageNum * this.streamsPerPage;
-		let end = begin + this.streamsPerPage;
+		const begin = pageNum * this.streamsPerPage;
+		const end = begin + this.streamsPerPage;
 
 		// prepare the expected streams to be the given page, and call the base class validation
-		this.myStreams = this.allStreams.slice(begin, end);	
+		this.expectedStreams = this.allStreams.slice(begin, end);	
 		this.validateResponse(response);
 
 		// record the last ID, we'll fetch the next page using this ID as our page divider
-		this.lastId = this.myStreams[this.myStreams.length - 1].sortId;
+		this.lastId = this.expectedStreams[this.expectedStreams.length - 1].sortId;
 	}
 }
 

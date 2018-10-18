@@ -214,5 +214,9 @@ module.exports = {
 			}
 		}
 		return opData.op;
+	},
+
+	possibleOps: function() {
+		return Object.keys(_Ops);
 	}
 };

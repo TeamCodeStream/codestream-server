@@ -1,51 +1,29 @@
 'use strict';
 
-var LoginTest = require('./login_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
+const LoginTest = require('./login_test');
+const Assert = require('assert');
+const UserTestConstants = require('../user_test_constants');
 
 class InitialDataTest extends LoginTest {
+
+	constructor (options) {
+		super(options);
+		this.teamOptions.creatorIndex = 1;
+		this.teamOptions.numAdditionalInvites = 2;
+		this.streamOptions.creatorIndex = 1;
+		this.repoOptions.creatorIndex = 1;
+	}
 
 	get description () {
 		return 'user should receive teams and repos with response to a raw login';
 	}
 
-	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,			// standard setup for login request test
-			this.createOtherUser,	// create a second registered user
-			this.createRepo			// create a repo and team (we want to see these returned with the login response)
-		], callback);
-	}
-
-	// create a second registered user, who will create a repo and team
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error);}
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a repo (and team)
-	createRepo (callback) {
-		this.email = this.userFactory.randomEmail();
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				this.repo = response.repo;
-				this.users = response.users;
-				callback();
-			},
-			{
-				withEmails: [this.currentUser.email],	// include current user
-				token: this.otherUserData.accessToken	// "other" user creates the repo
-			}
-		);
+	getExpectedFields () {
+		// with the login request, we should get back a user object with attributes
+		// only the user should see
+		let response = Object.assign({}, super.getExpectedFields());
+		response.user = [...response.user, ...UserTestConstants.EXPECTED_ME_FIELDS];
+		return response;
 	}
 
 	// validate the response to the test request

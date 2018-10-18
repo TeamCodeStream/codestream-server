@@ -1,6 +1,6 @@
 'use strict';
 
-var InboundEmailTest = require('./inbound_email_test');
+const InboundEmailTest = require('./inbound_email_test');
 
 class InvalidEmailTest extends InboundEmailTest {
 

@@ -2,34 +2,34 @@
 
 'use strict';
 
-var GetStreamsByTeamIdAndIdsTest = require('./get_streams_by_team_id_and_ids_test');
-var GetStreamsByRepoIdAndIdsTest = require('./get_streams_by_repo_id_and_ids_test');
-var GetStreamsOnlyFromTeamTest = require('./get_streams_only_from_team_test');
-var GetStreamsOnlyFromRepoTest = require('./get_streams_only_from_repo_test');
-var GetFileStreamsByRepoTest = require('./get_file_streams_by_repo_test');
-var GetChannelStreamsByTeamTest = require('./get_channel_streams_by_team_test');
-var GetDirectStreamsByTeamTest = require('./get_direct_streams_by_team_test');
-var GetAllStreamsByTeamTest = require('./get_all_streams_by_team_test');
-var GetAllStreamsByRepoTest = require('./get_all_streams_by_repo_test');
-var GetPublicStreamsTest = require('./get_public_streams_test');
-var GetTeamStreamsTest = require('./get_team_streams_test');
-var InvalidTypeTest = require('./invalid_type_test');
-var NoRepo_IDTest = require('./no_repo_id_test');
-var TeamIDRequiredTest = require('./team_id_required_test');
-var GetUnreadStreamsTest = require('./get_unread_streams_test');
-var GetNoUnreadStreamsTest = require('./get_no_unread_streams_test');
-var PaginationTest = require('./pagination_test');
-var GetStreamsDefaultSortTest = require('./get_streams_default_sort_test');
-var GetStreamsGreaterThanEqualTest = require('./get_streams_greater_than_equal_test');
-var GetStreamsGreaterThanTest = require('./get_streams_greater_than_test');
-var GetStreamsLessThanEqualTest = require('./get_streams_less_than_equal_test');
-var GetStreamsLessThanTest = require('./get_streams_less_than_test');
-var GetStreamsLimitTest = require('./get_streams_limit_test');
-var GetStreamsSortTest = require('./get_streams_sort_test');
-var InvalidParameterTest = require('./invalid_parameter_test');
-var OneRelationalTest = require('./one_relational_test');
-var CorrectSortOrderTest = require('./correct_sort_order_test');
-var ACLTest = require('./acl_test');
+const GetStreamsByTeamIdAndIdsTest = require('./get_streams_by_team_id_and_ids_test');
+const GetStreamsByRepoIdAndIdsTest = require('./get_streams_by_repo_id_and_ids_test');
+const GetStreamsOnlyFromTeamTest = require('./get_streams_only_from_team_test');
+const GetStreamsOnlyFromRepoTest = require('./get_streams_only_from_repo_test');
+const GetFileStreamsByRepoTest = require('./get_file_streams_by_repo_test');
+const GetChannelStreamsByTeamTest = require('./get_channel_streams_by_team_test');
+const GetDirectStreamsByTeamTest = require('./get_direct_streams_by_team_test');
+const GetAllStreamsByTeamTest = require('./get_all_streams_by_team_test');
+const GetAllStreamsByRepoTest = require('./get_all_streams_by_repo_test');
+const GetPublicStreamsTest = require('./get_public_streams_test');
+const GetTeamStreamsTest = require('./get_team_streams_test');
+const InvalidTypeTest = require('./invalid_type_test');
+const NoRepoIDTest = require('./no_repo_id_test');
+const TeamIDRequiredTest = require('./team_id_required_test');
+const GetUnreadStreamsTest = require('./get_unread_streams_test');
+const GetNoUnreadStreamsTest = require('./get_no_unread_streams_test');
+const PaginationTest = require('./pagination_test');
+const GetStreamsDefaultSortTest = require('./get_streams_default_sort_test');
+const GetStreamsGreaterThanEqualTest = require('./get_streams_greater_than_equal_test');
+const GetStreamsGreaterThanTest = require('./get_streams_greater_than_test');
+const GetStreamsLessThanEqualTest = require('./get_streams_less_than_equal_test');
+const GetStreamsLessThanTest = require('./get_streams_less_than_test');
+const GetStreamsLimitTest = require('./get_streams_limit_test');
+const GetStreamsSortTest = require('./get_streams_sort_test');
+const InvalidParameterTest = require('./invalid_parameter_test');
+const OneRelationalTest = require('./one_relational_test');
+const CorrectSortOrderTest = require('./correct_sort_order_test');
+const ACLTest = require('./acl_test');
 
 class GetStreamsRequestTester {
 
@@ -46,7 +46,7 @@ class GetStreamsRequestTester {
 		new GetPublicStreamsTest().test();
 		new GetTeamStreamsTest().test();
 		new InvalidTypeTest().test();
-		new NoRepo_IDTest().test();
+		new NoRepoIDTest().test();
 		new TeamIDRequiredTest().test();
 		new GetUnreadStreamsTest().test();
 		new GetNoUnreadStreamsTest().test();

@@ -1,7 +1,7 @@
 'use strict';
 
-var PostFileStreamTest = require('./post_file_stream_test');
-var Assert = require('assert');
+const PostFileStreamTest = require('./post_file_stream_test');
+const Assert = require('assert');
 
 class FileIgnoresChannelTest extends PostFileStreamTest {
 
@@ -25,7 +25,7 @@ class FileIgnoresChannelTest extends PostFileStreamTest {
 	validateResponse (data) {
 		// even though we added a name and member IDs, we should not see these in the response, since we created
 		// a file-type stream
-		let stream = data.stream;
+		const stream = data.stream;
 		Assert(typeof stream.name === 'undefined', 'name should be undefined');
 		Assert(typeof stream.memberIds === 'undefined', 'memberIds should be undefined');
 		super.validateResponse(data);

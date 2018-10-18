@@ -1,97 +1,47 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var PubNub = require('pubnub');
-var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
-var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const PubNub = require('pubnub');
+const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
+const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const Assert = require('assert');
+const ConfirmationTest = require('./confirmation_test');
 
 class SubscriptionTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
 		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
+		this.teamOptions.creatorIndex = 1;
+		this.teamOptions.numAdditionalInvites = 2;
+		this.streamOptions.creatorIndex = 1;
 	}
 
 	get description () {
 		return `user should be able to subscribe to the ${this.which} channel after they confirm registration`;
 	}
 
-	dontWantToken () {
-		return true;	// don't need a registered user with an access token for this test
-	}
-
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,		// run standard test setup
-			this.registerUser,	// register a user (but don't confirm)
-			this.createOtherUser,	// create a registered user
-			this.createRepo,		// have the registered user create a repo (and team)
-			this.createStream,		// have the registered user create a stream in the team
-			this.confirm 			// the registered user (but not confirmed) now confirms
+			super.before,
+			ConfirmationTest.prototype.before.bind(this),
+			this.confirm
 		], callback);
 	}
 
-	// register a user (but don't confirm) ... we'll confirm later
-	registerUser (callback) {
-		this.userFactory.registerRandomUser((error, response) => {
-			if (error) { return callback(error); }
-			this.user = response.user;
-			callback();
-		});
+	getUserData () {
+		const data = this.userFactory.getRandomUserData();
+		data.email = this.users[3].user.email;
+		return data;
 	}
-
-	// create a registred user
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// have the registered user create a repo and team
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.repo = response.repo;
-				this.team = response.team;
-				callback();
-			},
-			{
-				token: this.otherUserData.accessToken,	// registered user is the repo and team creator
-				withEmails: [this.user.email]			// include the still-unconfirmed user in the team
-			}
-		);
-	}
-
-	// have the registered user create a stream in the team
-	createStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				callback();
-			},
-			{
-				token: this.otherUserData.accessToken,	// registered user creates the stream
-				type: 'direct',							// direct stream...
-				memberIds: [this.user._id],				// ...with the still-unconfirmed user in the stream
-				teamId: this.team._id
-			}
-		);
-	}
-
+			
 	// confirm the user, this gives us an access token and allows us to subscribe to the channel of interest
 	confirm (callback) {
 		// make the confirmation request to get the access token
-		let data = {
-			email: this.user.email,
-			confirmationCode: this.user.confirmationCode
+		const data = {
+			email: this.data.email,
+			confirmationCode: this.data.confirmationCode
 		};
 		this.doApiRequest(
 			{
@@ -101,7 +51,8 @@ class SubscriptionTest extends CodeStreamAPITest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.pubNubToken = response.accessToken;
+				this.user = response.user;
+				this.pubnubToken = response.pubnubToken;
 				callback();
 			}
 		);
@@ -129,7 +80,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.user._pubnubUuid || this.user._id;
-		clientConfig.authKey = this.pubNubToken;	// the PubNub token is the auth key for the subscription
+		clientConfig.authKey = this.pubnubToken;	// the PubNub token is the auth key for the subscription
 		let client = new PubNub(clientConfig);
 		return new PubNubClient({
 			pubnub: client

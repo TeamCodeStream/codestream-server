@@ -20,7 +20,7 @@ class DataCollectionFetcher {
 
 	// get several documents according to their IDs
 	async getByIds (ids, options) {
-		this.databaseOptions = Object.assign({}, options || {}, { requestId: this.requestId });	// these options go to the database layer
+		this.options = Object.assign({}, options || {}, { requestId: this.requestId });	// these options go to the database layer
 		this.ids = ids;
 		await this.getFromCache();
 		await this.fetch();
@@ -56,7 +56,7 @@ class DataCollectionFetcher {
 	async fetchOne () {
 		const document = await this.databaseCollection.getById(
 			this.notFound[0],
-			this.databaseOptions
+			this.options
 		);
 		if (document) {
 			this.fetchedDocuments = [document];
@@ -67,7 +67,7 @@ class DataCollectionFetcher {
 	async fetchMany () {
 		const documents = await this.databaseCollection.getByIds(
 			this.notFound,
-			this.databaseOptions
+			this.options
 		);
 		this.fetchedDocuments = documents;
 	}

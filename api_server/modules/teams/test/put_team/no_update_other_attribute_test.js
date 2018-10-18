@@ -19,8 +19,8 @@ class NoUpdateOtherAttributeTest extends PutTeamTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		let team = data.team;
-		Assert(team[this.attribute] === undefined, 'attribute appears in the response');
+		const team = data.team;
+		Assert(team.$set[this.attribute] === undefined, 'attribute appears in the response');
 		super.validateResponse(data);
 	}
 }

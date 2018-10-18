@@ -1,7 +1,7 @@
 'use strict';
 
-var PutPostTest = require('./put_post_test');
-var Assert = require('assert');
+const PutPostTest = require('./put_post_test');
+const Assert = require('assert');
 
 class NoUpdateOtherAttributeTest extends PutPostTest {
 
@@ -19,8 +19,8 @@ class NoUpdateOtherAttributeTest extends PutPostTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		let post = data.post;
-		Assert(post[this.attribute] === undefined, 'attribute appears in the response');
+		const set = data.post.$set;
+		Assert(set[this.attribute] === undefined, 'attribute appears in the response');
 		super.validateResponse(data);
 	}
 }

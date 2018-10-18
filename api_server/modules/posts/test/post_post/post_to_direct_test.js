@@ -1,6 +1,6 @@
 'use strict';
 
-var PostPostTest = require('./post_post_test');
+const PostPostTest = require('./post_post_test');
 
 class PostToDirectTest extends PostPostTest {
 
@@ -8,9 +8,9 @@ class PostToDirectTest extends PostPostTest {
 		return 'should return a valid post when creating a post in a direct stream';
 	}
 
-	makeStreamOptions (callback) {
-		super.makeStreamOptions(() => {
-			this.streamOptions.memberIds = [this.users[1]._id];	 // add a randomly created user for good measure
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.streamOptions.type = 'direct';
 			callback();
 		});
 	}

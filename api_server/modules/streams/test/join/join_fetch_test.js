@@ -23,30 +23,19 @@ class JoinFetchTest extends JoinTest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,	// do the usual test prep
-			this.updateStream	// perform the actual join
+			this.updateStream,	// perform the actual join
+			this.setFetchPath
 		], callback);
 	}
 
-	// perform the actual joining of the stream
-	// the actual test is reading the stream and verifying the user is a member
-	updateStream (callback) {
-		this.path = `/streams/${this.stream._id}`;
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: `/join/${this.stream._id}`,
-				token: this.token
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.expectedStream.modifiedAt = response.stream.$set.modifiedAt;
-				callback();
-			}
-		);
+	setFetchPath (callback) {
+		this.path = '/streams/' + this.stream._id;
+		callback();
 	}
 
 	// validate that the response is correct
 	validateResponse (data) {
+		data.stream.memberIds.sort();
 		// verify what we fetch is what we got back in the response
 		Assert.deepEqual(data.stream, this.expectedStream, 'fetched stream does not match');
 	}

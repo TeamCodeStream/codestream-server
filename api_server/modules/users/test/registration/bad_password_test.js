@@ -1,8 +1,7 @@
 'use strict';
 
-var RegistrationTest = require('./registration_test');
-var RandomString = require('randomstring');
-//const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
+const RegistrationTest = require('./registration_test');
+const RandomString = require('randomstring');
 
 class BadPasswordTest extends RegistrationTest {
 
@@ -25,10 +24,12 @@ class BadPasswordTest extends RegistrationTest {
 
 	// before the test runs...
 	before (callback) {
-		// generate random user data, but a password that is too short
-		this.data = this.userFactory.getRandomUserData();
-		this.data.password = RandomString.generate(5);
-		callback();
+		super.before(error => {
+			if (error) { return callback(error); }
+			// generate random user data, but a password that is too short
+			this.data.password = RandomString.generate(5);
+			callback();
+		});
 	}
 }
 

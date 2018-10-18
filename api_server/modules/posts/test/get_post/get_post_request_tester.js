@@ -2,9 +2,9 @@
 
 'use strict';
 
-var GetPostTest = require('./get_post_test');
-var NotFoundTest = require('./not_found_test');
-var ACLTest = require('./acl_test');
+const GetPostTest = require('./get_post_test');
+const NotFoundTest = require('./not_found_test');
+const ACLTest = require('./acl_test');
 
 class GetPostRequestTester {
 

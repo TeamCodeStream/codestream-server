@@ -14,10 +14,13 @@ class ApplySetToDatabaseTest extends UpdateToDatabaseTest {
 			text: 'replaced!',
 			number: 123
 		};
+		this.expectedOp = {
+			'$set': set
+		};
 		try {
-			await this.data.test.applyOpById(
+			this.actualOp = await this.data.test.applyOpById(
 				this.testModel.id,
-				{ '$set': set }
+				this.expectedOp
 			);
 		}
 		catch (error) {

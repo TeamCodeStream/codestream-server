@@ -31,15 +31,11 @@ class SetSubkeyTest extends PutPreferencesFetchTest {
 			}
 		};
 		this.data = { $set: set };
-		this.expectResponse = {
-			user: {
-				_id: this.currentUser._id,
-				$set: {
-					'preferences.topLevelPreference.preferenceThree': 'three',
-					'preferences.topLevelPreference.preferenceFour': 4
-				}
-			}
-		};
+		this.expectResponse = this.getBaseExpectedResponse();
+		Object.assign(this.expectResponse.user.$set, {
+			'preferences.topLevelPreference.preferenceThree': 'three',
+			'preferences.topLevelPreference.preferenceFour': 4
+		});
 		this.expectPreferences = this.preSetData;
 		Object.assign(this.expectPreferences.topLevelPreference, set.topLevelPreference);
 		callback();

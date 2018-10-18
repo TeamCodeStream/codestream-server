@@ -1,6 +1,6 @@
 'use strict';
 
-var PostTeamTest = require('./post_team_test');
+const PostTeamTest = require('./post_team_test');
 
 class NoAttributeTest extends PostTeamTest {
 

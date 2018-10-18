@@ -1,7 +1,7 @@
 'use strict';
 
-var PostDirectStreamTest = require('./post_direct_stream_test');
-var Assert = require('assert');
+const PostDirectStreamTest = require('./post_direct_stream_test');
+const Assert = require('assert');
 
 class DirectIgnoresChannelTest extends PostDirectStreamTest {
 
@@ -24,7 +24,7 @@ class DirectIgnoresChannelTest extends PostDirectStreamTest {
 	validateResponse (data) {
 		// even though we added a name, we should not see these in the response, since we created
 		// a direct-type stream
-		let stream = data.stream;
+		const stream = data.stream;
 		Assert(typeof stream.name === 'undefined', 'name should be undefined');
 		super.validateResponse(data);
 	}

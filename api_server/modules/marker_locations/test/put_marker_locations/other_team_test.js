@@ -1,7 +1,8 @@
 'use strict';
 
-var PutMarkerLocationsTest = require('./put_marker_locations_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const PutMarkerLocationsTest = require('./put_marker_locations_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
 
 class OtherTeamTest extends PutMarkerLocationsTest {
 
@@ -19,25 +20,31 @@ class OtherTeamTest extends PutMarkerLocationsTest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,	// set up the standard test conditions
-			this.createOtherRepo,	// create another repo (and another team)
-			this.createOtherStream	// create a stream in this other repo
+			super.before,
+			this.createOtherTeam,
+			this.createOtherStream
 		], callback);
 	}
 
-	// create another repo
-	createOtherRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherRepo = response.repo;
-				callback();
-			},
-			{
-				token: this.otherUserData.accessToken, // other user is the creator
-				withEmails: [this.currentUser.email]	// but current user is included
+	createOtherTeam (callback) {
+		new TestTeamCreator({
+			test: this,
+			teamOptions: Object.assign({}, this.teamOptions, {
+				creatorIndex: null,
+				creatorToken: this.users[1].accessToken,
+				members: [this.currentUser.user.email],
+				numAdditionalInvites: 0
+			}),
+			userOptions: this.userOptions,
+			repoOptions: {
+				creatorToken: this.users[1].accessToken
 			}
-		);
+		}).create((error, response) => {
+			if (error) { return callback(error); }
+			this.otherTeam = response.team;
+			this.otherRepo = response.repo;
+			callback();
+		});
 	}
 
 	// create another stream to try to put marker locations to
@@ -50,9 +57,9 @@ class OtherTeamTest extends PutMarkerLocationsTest {
 			},
 			{
 				type: 'file',
-				teamId: this.otherRepo.teamId,	// using the other team
-				repoId: this.otherRepo._id,		// using the other repo
-				token: this.otherUserData.accessToken	// other user is the creator
+				teamId: this.otherTeam._id,	// using the other team
+				repoId: this.otherRepo._id,	// using the other repo
+				token: this.users[1].accessToken	// other user is the creator
 			}
 		);
 	}

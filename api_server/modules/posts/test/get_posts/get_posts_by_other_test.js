@@ -11,6 +11,7 @@ class GetPostsByOtherTest extends GetPostsTest {
 	// set the path to use for the request
 	setPath (callback) {
 		// we'll restrict the posts we expect to those authored by the "other" user, then fetch those by specifying creatorId
+		this.expectedPosts = this.postData.map(postData => postData.post);
 		let userId = this.otherUserData.user._id;
 		this.myPosts = this.myPosts.filter(post => post.creatorId === userId);
 		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&creatorId=${userId}`;

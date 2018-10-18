@@ -13,6 +13,7 @@ class GetPostsNewerThanTest extends GetPostsTest {
 		// pick a pivot point based on modifiedAt (the modification time of the post),
 		// then filter our expected posts based on that pivot,
 		// and specify the newer_than parameter to fetch based on the pivot
+		this.expectedPosts = this.postData.map(postData => postData.post);
 		let pivot = this.myPosts[2].modifiedAt;
 		this.myPosts = this.myPosts.filter(post => post.modifiedAt > pivot);
 		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&newerThan=${pivot}`;

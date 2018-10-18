@@ -1,8 +1,8 @@
 'use strict';
 
-var PostPostTest = require('./post_post_test');
-var Assert = require('assert');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const PostPostTest = require('./post_post_test');
+const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class SeqNumTest extends PostPostTest {
 
@@ -50,7 +50,8 @@ class SeqNumTest extends PostPostTest {
 		for (let i = 0; i < this.additionalPosts.length; i++) {
 			Assert(this.additionalPosts[i].seqNum === i + 1, 'additional post ' + i + ' does not have correct sequence number');
 		}
-		this.testOptions.expectedSeqNum = this.additionalPosts.length + 1;
+		this.expectedSeqNum = this.additionalPosts.length + 1;
+		this.expectedVersion += 5;
 		super.validateResponse(data);
 	}
 }

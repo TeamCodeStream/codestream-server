@@ -1,6 +1,6 @@
 'use strict';
 
-var CodeStreamMessageTest = require('./codestream_message_test');
+const CodeStreamMessageTest = require('./codestream_message_test');
 
 class TeamChannelTest extends CodeStreamMessageTest {
 
@@ -9,25 +9,8 @@ class TeamChannelTest extends CodeStreamMessageTest {
 		this.wantServer = true;	// want a simulated server to send a message
 	}
 
-
 	get description () {
 		return 'should be able to subscribe to and receive a message from the team channels for all my teams as a confirmed user';
-	}
-
-	// make the data needed to prepare for the request that triggers the message
-	makeData (callback) {
-		// create a random repo, which creates a team ... i should be able to receive a message on the team channel
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				callback();
-			},
-			{
-				withRandomEmails: 2,	// add a few random users
-				token: this.token		// i am the creator
-			}
-		);
 	}
 
 	// set the channel name to listen on

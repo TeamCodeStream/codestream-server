@@ -1,38 +1,27 @@
 'use strict';
 
-var CodeBlockTest = require('./code_block_test');
-var Assert = require('assert');
+const CodeBlockTest = require('./code_block_test');
+const Assert = require('assert');
 
 class CodeBlockStreamOnTheFly extends CodeBlockTest {
 
 	get description () {
 		return `should return the post with marker info when creating a post in a ${this.streamType} stream with a code block for a file for which the stream will be created on the fly`;
 	}
-    
-	// make options to use in creating the stream for this post
-	makeStreamOptions (callback) {
-		super.makeStreamOptions(() => {
-			// for file-type streams, we need the repo ID
-			if (this.streamType === 'file') {
-				this.streamOptions.repoId = this.repo._id;
-			}
-			callback();
-		});
-	}
-
+	
 	// form the data we'll use in creating the post
 	makePostData (callback) {
-		this.otherFile = this.streamFactory.randomFile();
 		// specify to create a file-stream for the marker
-		Object.assign(this.postOptions, {
-			wantCodeBlocks: 1,
-			codeBlockStream: {
+		this.otherFile = this.streamFactory.randomFile();
+		super.makePostData(() => {
+			delete this.data.codeBlocks[0].streamId;
+			Object.assign(this.data.codeBlocks[0], {
 				file: this.otherFile,
 				remotes: this.useRemotes,
-				repoId: this.useRemotes ? undefined : this.streamOptions.repoId
-			}
+				repoId: this.useRemotes ? undefined : this.repo._id
+			});
+			callback();
 		});
-		super.makePostData(callback);
 	}
     
 	// validate the response to the post request

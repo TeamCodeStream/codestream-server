@@ -18,8 +18,9 @@ class AuthenticationUserNotFoundTest extends AuthenticationTest {
 
 	// before the test runs...
 	before (callback) {
-		this.alterUserIdInToken(() => {
-			super.before(callback);
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.alterUserIdInToken(callback);
 		});
 	}
 

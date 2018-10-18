@@ -48,10 +48,8 @@ class UsernameChecker  {
 		this.users = await this.data.users.getByQuery(
 			query,
 			{
-				databaseOptions: {
-					fields: ['username', 'teamIds'],	// only fetch these fields, to minimize database output size
-					hint: Indexes.byTeamIds
-				},
+				fields: ['username', 'teamIds'],	// only fetch these fields, to minimize database output size
+				hint: Indexes.byTeamIds,
 				noCache: true
 			}
 		);

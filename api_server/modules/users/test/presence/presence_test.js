@@ -7,6 +7,12 @@ const UUID = require('uuid/v4');
 
 class PutPresenceTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
+	}
+
 	get description () {
 		return 'should set session data for the session when presence is updated';
 	}
@@ -28,6 +34,7 @@ class PutPresenceTest extends CodeStreamAPITest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
+			super.before,
 			this.setPresenceData,	// set the data to use when setting presence data
 			this.setPresence		// save presence data to the server
 		], callback);

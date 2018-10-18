@@ -4,11 +4,6 @@ const ReactTest = require('./react_test');
 
 class ACLTest extends ReactTest {
 
-	constructor (options) {
-		super(options);
-		this.withoutUserInStream = true;
-	}
-
 	get description () {
 		return 'should return an error when trying to react to a post in a stream i am not a member of';
 	}
@@ -17,6 +12,14 @@ class ACLTest extends ReactTest {
 		return {
 			code: 'RAPI-1010'
 		};
+	}
+
+	setTestOptions (callback) { 
+		super.setTestOptions(() => {
+			this.postOptions.creatorIndex = 1;
+			this.streamOptions.members = [];
+			callback();
+		});
 	}
 }
 

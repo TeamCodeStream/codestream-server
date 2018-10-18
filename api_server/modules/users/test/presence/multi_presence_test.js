@@ -6,21 +6,18 @@ const UUID = require('uuid/v4');
 
 class MultiPresenceTest extends PresenceTest {
 
+	constructor (options) {
+		super(options);
+		this.teamOptions.preCreateTeam = this.setOtherPresenceData;
+	}
+
 	get description () {
 		return 'should set session data for the session when presence is updated, even if other presence information has already been set';
 	}
 
-	// before the test runs...
-	before (callback) {
-		// set some additional presence data before the standard setup
-		BoundAsync.series(this, [
-			this.setOtherPresenceData,
-			super.before
-		], callback);
-	}
-
 	// set other presence data to precede the presence data for the test
-	setOtherPresenceData (callback) {
+	setOtherPresenceData (teamCreator, callback) {
+		this.teamCreator = teamCreator;
 		BoundAsync.times(
 			this,
 			3,
@@ -40,7 +37,7 @@ class MultiPresenceTest extends PresenceTest {
 				method: 'put',
 				path: '/presence',
 				data: data,
-				token: this.token
+				token: this.teamCreator.token
 			},
 			callback
 		);

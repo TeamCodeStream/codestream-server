@@ -13,6 +13,7 @@ const EXPECTED_UNREGISTERED_USER_FIELDS = [
 	'phoneNumber',
 	'iWorkOn',
 	'providerIdentities',
+	'version',
 	'_pubnubUuid'
 ];
 

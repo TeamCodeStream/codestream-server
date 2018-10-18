@@ -6,6 +6,7 @@
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const UserPublisher = require('./user_publisher');
 const AuthenticatorErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class ChangeEmailConfirmRequest extends RestfulRequest {
 
@@ -93,11 +94,19 @@ class ChangeEmailConfirmRequest extends RestfulRequest {
 				modifiedAt: Date.now()
 			}
 		};
-		this.user = await this.data.users.applyOpById(this.user.id, op);
-		this.responseOp = Object.assign({}, op, { _id: this.user.id });
-		this.responseData = { 
-			user: this.responseOp
-		};
+		this.updateOp = await new ModelSaver({
+			request: this,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
+	}
+
+	async handleResponse () {
+		if (this.gotError) {
+			return await super.handleResponse();
+		}
+		this.responseData = { user: this.updateOp };
+		super.handleResponse();
 	}
 
 	// after the request returns a response....
@@ -111,7 +120,7 @@ class ChangeEmailConfirmRequest extends RestfulRequest {
 	async publishUserToTeams () {
 		await new UserPublisher({
 			user: this.user,
-			data: this.responseOp,
+			data: this.responseData.user,
 			request: this,
 			messager: this.api.services.messager
 		}).publishUserToTeams();

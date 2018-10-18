@@ -1,8 +1,8 @@
 'use strict';
 
-var FileStreamOnTheFlyTest = require('./file_stream_on_the_fly_test');
-var Assert = require('assert');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const FileStreamOnTheFlyTest = require('./file_stream_on_the_fly_test');
+const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class DuplicateFileStreamTest extends FileStreamOnTheFlyTest {
 
@@ -10,11 +10,10 @@ class DuplicateFileStreamTest extends FileStreamOnTheFlyTest {
 		return 'should find and use the existing stream when creating a post and creating a file stream on the fly with matching path';
 	}
 
-	// before the test runs...
-	before (callback) {
+	makePostData (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createDuplicateStream	// pre-create a file stream with the same path as we'll use in the test
+			this.createDuplicateStream,	// pre-create a file stream with the same path as we'll use in the test
+			super.makePostData
 		], callback);
 	}
 
@@ -26,11 +25,12 @@ class DuplicateFileStreamTest extends FileStreamOnTheFlyTest {
 				this.duplicateStream = response.stream;
 				callback();
 			},
-			// use the path of the pre-created file stream when we try to run the test
-			Object.assign({}, this.streamOptions, {
-				file: this.data.stream.file,
+			{
+				teamId: this.team._id,
+				repoId: this.repo._id,
+				type: 'file',
 				token: this.token
-			})
+			}
 		);
 	}
 

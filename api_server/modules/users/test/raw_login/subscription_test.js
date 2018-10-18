@@ -1,17 +1,19 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var PubNub = require('pubnub');
-var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
-var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const PubNub = require('pubnub');
+const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
+const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
+const Assert = require('assert');
+const LoginTest = require('./login_test');
 
-class SubscriptionTest extends CodeStreamAPITest {
+class SubscriptionTest extends LoginTest {
 
 	constructor (options) {
 		super(options);
 		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
+		this.teamOptions.creatorIndex = 1;
+		this.streamOptions.creatorIndex = 1;
 	}
 
 	get description () {
@@ -20,72 +22,10 @@ class SubscriptionTest extends CodeStreamAPITest {
 
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,	// create a second registered user
-			this.createTeam,		// have the second registered user create a team
-			this.inviteCurrentUser,	// have the second registered user invite the "current user" to the team
-			this.createStream,		// have the second registered user create a stream in the team
+			super.before,
 			this.login,	 			// the "current" user now logs in
 			this.wait				// wait a bit for the permissions to be granted
 		], callback);
-	}
-
-	// create a registred user
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// have the second registered user create a team
-	createTeam (callback) {
-		this.teamFactory.createRandomTeam(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				callback();
-			},
-			{
-				token: this.otherUserData.accessToken	// second registered user is the team creator
-			}
-		);
-	}
-
-	// have the second registered user invite the "current user" to the team
-	inviteCurrentUser (callback) {
-		this.doApiRequest(
-			{
-				method: 'post',
-				path: '/users',
-				data: {
-					teamId: this.team._id,
-					email: this.currentUser.email
-				},
-				token: this.otherUserData.accessToken
-			},
-			callback
-		);
-	}
-
-
-	// have the second registered user create a stream in the team, with the current user 
-	createStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				callback();
-			},
-			{
-				token: this.otherUserData.accessToken,	// second registered user creates the stream
-				type: 'channel',						// channel stream...
-				memberIds: [this.currentUser._id],		// ...with the "current" user as a member
-				teamId: this.team._id
-			}
-		);
 	}
 
 	// the "current" user now logs in, this should grant access to the expected channel
@@ -100,7 +40,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.user = this.currentUser;
+				this.user = response.user;
 				this.pubnubToken = response.pubnubToken;
 				callback();
 			}
@@ -133,7 +73,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser._id;
+		clientConfig.uuid = this.currentUser.user._pubnubUuid || this.currentUser.user._id;
 		clientConfig.authKey = this.pubnubToken;	// the PubNub token is the auth key for the subscription
 		let client = new PubNub(clientConfig);
 		return new PubNubClient({

@@ -18,27 +18,20 @@ class PutTeamTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		return 'put';
 	}
 
-	getExpectedFields () {
-		return { team: ['name', 'modifiedAt'] };
-	}
-
 	// before the test runs...
 	before (callback) {
 		this.init(callback);
 	}
 
 	// validate the response to the test request
-	validateResponse (data, useSet = false) {
-		// verify we got back a team with the updated name
-		let team = data.team;
-		Assert.equal(team._id, this.team._id, 'returned team ID is not the same');
-		if (useSet) {
-			team = team.$set;
-		}
-		Assert.equal(team.name, this.data.name, 'name does not match');
-		Assert(team.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the team was updated');
+	validateResponse (data) {
+		// verify modifiedAt was updated, and then set it so the deepEqual works
+		Assert(data.team.$set.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the team was updated');
+		this.expectedData.team.$set.modifiedAt = data.team.$set.modifiedAt;
+		// verify we got back the proper response
+		Assert.deepEqual(data, this.expectedData, 'response data is not correct');
 		// verify the team in the response has no attributes that should not go to clients
-		this.validateSanitized(team, TeamTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(data.team, TeamTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 

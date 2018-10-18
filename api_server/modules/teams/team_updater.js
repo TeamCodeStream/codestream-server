@@ -5,6 +5,7 @@
 const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
 const Team = require('./team');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class TeamUpdater extends ModelUpdater {
 
@@ -142,26 +143,34 @@ class TeamUpdater extends ModelUpdater {
 			this.attributes.$pull &&
 			this.attributes.$pull.memberIds
 		) {
-			this.removedUsers = users;
+			this.transforms.removedUsers = users;
 		}
 	}
 
 	// for any users being removed from the team, update their teamIds array
 	async removeUsersFromTeam () {
-		if (!this.removedUsers) {
+		if (!this.transforms.removedUsers) {
 			return;
 		}
-		await Promise.all(this.removedUsers.map(async user => {
+		this.transforms.userUpdates = [];
+		await Promise.all(this.transforms.removedUsers.map(async user => {
 			await this.removeUserFromTeam(user);
 		}));
 	}
 
 	// for a user being removed from the team, update their teamIds array
 	async removeUserFromTeam (user) {
-		await this.data.users.applyOpById(
-			user.id,
-			{ $pull: { teamIds: this.team.id } }
-		);
+		const op = {
+			$pull: {
+				teamIds: this.team.id 
+			}
+		};
+		const updateOp = await new ModelSaver({
+			request: this.request,
+			collection: this.request.data.users,
+			id: user.id
+		}).save(op);
+		this.transforms.userUpdates.push(updateOp);
 	}
 }
 

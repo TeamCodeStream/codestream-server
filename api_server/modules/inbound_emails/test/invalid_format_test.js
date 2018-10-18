@@ -1,6 +1,6 @@
 'use strict';
 
-var InboundEmailTest = require('./inbound_email_test');
+const InboundEmailTest = require('./inbound_email_test');
 
 class InvalidFormatTest extends InboundEmailTest {
 
@@ -19,7 +19,7 @@ class InvalidFormatTest extends InboundEmailTest {
 		super.makePostData(() => {
 			// change the first to address by eliminating the dot separation,
 			// and eliminate all other to-addresses
-			let index = this.data.to[0].address.indexOf('.');
+			const index = this.data.to[0].address.indexOf('.');
 			this.data.to[0].address = this.data.to[0].address.slice(0, index) +
 				this.data.to[0].address.slice(index + 1);
 			this.data.to.splice(1);

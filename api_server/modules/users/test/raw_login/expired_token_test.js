@@ -36,7 +36,7 @@ class ExpiredTokenTest extends LoginTest {
 	// change the user's password, which should force a new access token when we do the login
 	changeUserPassword (callback) {
 		const passwordData = {
-			existingPassword: this.currentUserPassword,
+			existingPassword: this.currentUser.password,
 			newPassword: RandomString.generate(12)
 		};
 		this.doApiRequest(

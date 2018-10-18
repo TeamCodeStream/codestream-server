@@ -5,8 +5,14 @@ const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const TeamTestConstants = require('../team_test_constants');
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class PostTeamTest extends CodeStreamAPITest {
+
+	constructor (options) {
+		super(options);
+		delete this.teamOptions.creatorIndex;
+	}
 
 	get method () {
 		return 'post';
@@ -26,7 +32,10 @@ class PostTeamTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
-		this.makeTeamData(callback);
+		BoundAsync.series(this, [
+			super.before,
+			this.makeTeamData
+		], callback);
 	}
 
 	// make the data to use when issuing the request
@@ -46,9 +55,9 @@ class PostTeamTest extends CodeStreamAPITest {
 			((team.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof team.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((team.modifiedAt >= team.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-            ((team.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id')) &&
-			((team.memberIds.length === 1 && team.memberIds[0] === this.currentUser._id) || errors.push('current user is not the only member')) &&
-			((team.adminIds.length === 1 && team.adminIds[0] === this.currentUser._id) || errors.push('current user was not made an admin')) &&
+            ((team.creatorId === this.currentUser.user._id) || errors.push('creatorId not equal to current user id')) &&
+			((team.memberIds.length === 1 && team.memberIds[0] === this.currentUser.user._id) || errors.push('current user is not the only member')) &&
+			((team.adminIds.length === 1 && team.adminIds[0] === this.currentUser.user._id) || errors.push('current user was not made an admin')) &&
 			((team.primaryReferral === (this.teamReferral || 'external')) || errors.push('primaryReferral is incorrect'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
@@ -62,8 +71,8 @@ class PostTeamTest extends CodeStreamAPITest {
 		const team = data.team;
 		const company = data.company;
 		const companyName = this.userOptions && this.userOptions.wantWebmail ?
-			this.currentUser.email :
-			EmailUtilities.parseEmail(this.currentUser.email).domain;
+			this.currentUser.user.email :
+			EmailUtilities.parseEmail(this.currentUser.user.email).domain;
 		const errors = [];
 		const result = (
 			((company.name === companyName) || errors.push('company name not correct')) &&
@@ -71,7 +80,7 @@ class PostTeamTest extends CodeStreamAPITest {
 			((company.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof company.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((company.modifiedAt >= company.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-            ((company.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id'))
+            ((company.creatorId === this.currentUser.user._id) || errors.push('creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		this.validateSanitized(company, TeamTestConstants.UNSANITIZED_COMPANY_ATTRIBUTES);
@@ -86,7 +95,7 @@ class PostTeamTest extends CodeStreamAPITest {
 			((stream.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof stream.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((stream.modifiedAt >= stream.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-            ((stream.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id')) &&
+            ((stream.creatorId === this.currentUser.user._id) || errors.push('creatorId not equal to current user id')) &&
             ((stream.type === 'channel') || errors.push('team stream type should be channel')) &&
             ((stream.privacy === 'public') || errors.push('team stream should be public')) &&
             ((stream.isTeamStream === true) || errors.push('isTeamStream should be true'))

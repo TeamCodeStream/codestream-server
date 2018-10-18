@@ -1,6 +1,6 @@
 'use strict';
 
-var InboundEmailTest = require('./inbound_email_test');
+const InboundEmailTest = require('./inbound_email_test');
 
 class InvalidTeamIdTest extends InboundEmailTest {
 
@@ -18,9 +18,9 @@ class InvalidTeamIdTest extends InboundEmailTest {
 	makePostData (callback) {
 		super.makePostData(() => {
 			// inject a bogus team ID
-			let toAddress = this.data.to[0].address;
-			let atIndex = toAddress.indexOf('@');
-			let dotIndex = toAddress.indexOf('.');
+			const toAddress = this.data.to[0].address;
+			const atIndex = toAddress.indexOf('@');
+			const dotIndex = toAddress.indexOf('.');
 			this.data.to[0].address = toAddress.slice(0, dotIndex + 1) + 'abcdefg' +
 				toAddress.slice(atIndex);
 			this.data.to.splice(1);

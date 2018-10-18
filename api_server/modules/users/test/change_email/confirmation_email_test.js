@@ -11,6 +11,8 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 	constructor (options) {
 		super(options);
 		this.messageReceiveTimeout = 10000;	// wait 10 seconds for message
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
 	}
 
 	get description () {
@@ -31,7 +33,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		// for the user we expect to receive the confirmation email, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the outbound email
 		// service on this channel, and then we'll validate the data
-		this.channelName = `user-${this.currentUser._id}`;
+		this.channelName = `user-${this.currentUser.user._id}`;
 		callback();
 	}
 
@@ -40,7 +42,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		// this is the message we expect to see
 		this.message = {
 			type: 'changeEmail',
-			userId: this.currentUser._id
+			userId: this.currentUser.user._id
 		};
 		// send the request to initiate chaning email
 		this.doApiRequest(
@@ -71,7 +73,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		Assert.equal(payload.iss, 'CodeStream', 'token payload issuer is not CodeStream');
 		Assert.equal(payload.alg, 'HS256', 'token payload algortihm is not HS256');
 		Assert.equal(payload.type, 'email', 'token payload type should be conf');
-		Assert.equal(payload.uid, this.currentUser._id, 'uid in token payload is incorrect');
+		Assert.equal(payload.uid, this.currentUser.user._id, 'uid in token payload is incorrect');
 		Assert(payload.iat <= Math.floor(Date.now() / 1000), 'iat in token payload is not earlier than now');
 		Assert.equal(payload.exp, payload.iat + 86400, 'token payload expiration is not one day out');
 

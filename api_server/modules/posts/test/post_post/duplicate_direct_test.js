@@ -1,8 +1,8 @@
 'use strict';
 
-var DirectOnTheFlyTest = require('./direct_on_the_fly_test');
-var Assert = require('assert');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const DirectOnTheFlyTest = require('./direct_on_the_fly_test');
+const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class DuplicateDirectTest extends DirectOnTheFlyTest {
 
@@ -10,11 +10,10 @@ class DuplicateDirectTest extends DirectOnTheFlyTest {
 		return 'should find and use the existing stream when creating a post and creating a direct stream on the fly with matching members';
 	}
 
-	// before the test runs...
-	before (callback) {
+	makePostData (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createDuplicateStream	// pre-create a channel stream with the same membership as we'll use in the test
+			this.createDuplicateStream,	// pre-create a channel stream with the same membership as we'll use in the test
+			super.makePostData
 		], callback);
 	}
 
@@ -26,11 +25,12 @@ class DuplicateDirectTest extends DirectOnTheFlyTest {
 				this.duplicateStream = response.stream;
 				callback();
 			},
-			// use the members of the pre-created direct stream when we try to run the test
-			Object.assign({}, this.streamOptions, {
-				memberIds: this.data.stream.memberIds,
+			{
+				teamId: this.team._id,
+				type: 'direct',
+				memberIds: [this.users[1].user._id],
 				token: this.token
-			})
+			}
 		);
 	}
 

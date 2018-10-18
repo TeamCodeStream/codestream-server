@@ -15,18 +15,14 @@ class PutRequest extends RestfulRequest {
 		this.updater = new updaterClass({
 			request: this
 		});
-		await this.updater.updateModel(
+		this.updateOp = await this.updater.updateModel(
 			this.request.params.id,
 			this.request.body
 		);
 		const modelName = this.module.modelName || 'model';
 		// the updater tells us what the update was, this is exactly what we
 		// send to the client
-		this.responseData[modelName] = this.updater.updatedAttributes;
-		Object.assign(
-			this.responseData,
-			this.updater.attachToResponse || {}
-		);
+		this.responseData[modelName] = this.updateOp;
 	}
 
 	// describe this route for help

@@ -7,6 +7,12 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 
 class GetSessionsTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
+	}
+
 	get description () {
 		return 'should return my sessions when requesting them';
 	}
@@ -21,6 +27,13 @@ class GetSessionsTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
+		BoundAsync.series(this, [
+			super.before,
+			this.sendPresenceUpdates
+		], callback);
+	}
+
+	sendPresenceUpdates (callback) {
 		// make the sessions data, and write it to the server,
 		// we'll then read it back for the test
 		this.makeSessionsData();

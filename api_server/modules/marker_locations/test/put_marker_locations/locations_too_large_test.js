@@ -1,6 +1,6 @@
 'use strict';
 
-var PutMarkerLocationsTest = require('./put_marker_locations_test');
+const PutMarkerLocationsTest = require('./put_marker_locations_test');
 
 class LocationsTooLargeTest extends PutMarkerLocationsTest {
 

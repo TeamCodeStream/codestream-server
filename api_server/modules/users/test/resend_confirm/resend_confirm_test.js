@@ -17,10 +17,6 @@ class ResendConfirmTest extends CodeStreamAPITest {
 		return '/no-auth/resend-confirm';
 	}
 
-	dontWantToken () {
-		return true;	// don't need a registered user with a token for this test
-	}
-
 	// before the test runs...
 	before (callback) {
 		const options = {

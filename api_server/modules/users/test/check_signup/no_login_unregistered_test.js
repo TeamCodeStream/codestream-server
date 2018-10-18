@@ -7,7 +7,7 @@ class NoLoginUnregisteredTest extends CheckSignupTest {
 	constructor (options) {
 		super(options);
 		this.dontConfirm = true;	// don't confirm registration
-		this.dontCreateRepo = true; // suppress creating the repo and team for the test
+		this.dontCreateTeam = true; // suppress creating the team for the test
 	}
 
 	get description () {

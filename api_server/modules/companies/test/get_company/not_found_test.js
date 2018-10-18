@@ -1,9 +1,9 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var ObjectID = require('mongodb').ObjectID;
+const GetCompanyTest = require('./get_company_test');
+const ObjectID = require('mongodb').ObjectID;
 
-class NotFoundTest extends CodeStreamAPITest {
+class NotFoundTest extends GetCompanyTest {
 
 	get description () {
 		return 'should return an error when trying to fetch a company that doesn\'t exist';
@@ -15,11 +15,12 @@ class NotFoundTest extends CodeStreamAPITest {
 		};
 	}
 
-	// before the test runs...
-	before (callback) {
+	// set the path for the request to test
+	setPath (callback) {
 		// try to fetch some company that doesn't exist
 		this.path = '/companies/' + ObjectID();
 		callback();
+
 	}
 }
 

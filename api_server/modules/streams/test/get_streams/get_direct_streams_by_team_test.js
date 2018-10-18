@@ -12,10 +12,10 @@ class GetDirectStreamsByTeamTest extends GetStreamsTest {
 	setPath (callback) {
 		// we'll fetch all the direct streams from the team,
 		// but note that only the streams we are a member of will be fetched
-		let teamId = this.myTeam._id;
-		let teamStreams = this.streamsByTeam[teamId];
-		let userId = this.currentUser._id;
-		this.myStreams = teamStreams.filter(
+		const teamId = this.team._id;
+		const teamStreams = this.streamsByTeam[teamId];
+		const userId = this.currentUser.user._id;
+		this.expectedStreams = teamStreams.filter(
 			stream => stream.type === 'direct' && stream.memberIds.includes(userId)
 		);
 		this.path = '/streams?type=direct&teamId=' + teamId;

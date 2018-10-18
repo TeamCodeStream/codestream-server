@@ -55,11 +55,7 @@ class InitialDataFetcher  {
 		};
 		const repos = await this.request.data.repos.getByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: RepoIndexes.byTeamId
-				}
-			}
+			{ hint: RepoIndexes.byTeamId }
 		);
 		this.initialData.repos = await this.request.sanitizeModels(repos);
 	}

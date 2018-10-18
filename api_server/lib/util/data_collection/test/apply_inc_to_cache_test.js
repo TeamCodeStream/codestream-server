@@ -13,10 +13,13 @@ class ApplyIncToCacheTest extends UpdateToCacheTest {
 		const update = {
 			number: 5
 		};
+		this.expectedOp = {
+			'$inc': update
+		};
 		try {
-			await this.data.test.applyOpById(
+			this.actualOp = await this.data.test.applyOpById(
 				this.testModel.id,
-				{ '$inc': update }
+				this.expectedOp
 			);
 		}
 		catch (error) {

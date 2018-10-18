@@ -2,7 +2,7 @@
 
 'use strict';
 
-var GetSessionsTest = require('./get_sessions_test');
+const GetSessionsTest = require('./get_sessions_test');
 
 class GetSessionsRequestTester {
 

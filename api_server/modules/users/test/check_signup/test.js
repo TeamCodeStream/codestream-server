@@ -14,7 +14,6 @@ const NoReuseTokenTest = require('./no_reuse_token_test');
 const NoLoginUnregisteredTest = require('./no_login_unregistered_test');
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
 
-
 class CheckSignupRequestTester {
 
 	test () {

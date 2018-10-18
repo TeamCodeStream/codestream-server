@@ -1,7 +1,7 @@
 'use strict';
 
-var GetStreamsTest = require('./get_streams_test');
-var ObjectID = require('mongodb').ObjectID;
+const GetStreamsTest = require('./get_streams_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class OneRelationalTest extends GetStreamsTest {
 
@@ -12,9 +12,9 @@ class OneRelationalTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// try to fetch with both a "lt" and "gt" operator, which is forbidden 
-		let id1 = ObjectID();
-		let id2 = ObjectID();
-		this.path = `/streams?teamId=${this.myTeam._id}&repoId=${this.myRepo._id}&lt=${id1}&gt=${id2}`;
+		const id1 = ObjectID();
+		const id2 = ObjectID();
+		this.path = `/streams?teamId=${this.team._id}&&lt=${id1}&gt=${id2}`;
 		callback();
 	}
 

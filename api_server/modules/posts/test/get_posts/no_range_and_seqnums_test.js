@@ -1,6 +1,6 @@
 'use strict';
 
-var GetPostsBySeqNumsTest = require('./get_posts_by_seqnums_test');
+const GetPostsBySeqNumsTest = require('./get_posts_by_seqnums_test');
 
 class NoRangeAndSeqNumsTest extends GetPostsBySeqNumsTest {
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var GrantTest = require('./grant_test');
+const GrantTest = require('./grant_test');
 
 class InvalidChannelTest extends GrantTest {
 

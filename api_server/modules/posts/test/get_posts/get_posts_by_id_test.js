@@ -1,6 +1,6 @@
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
+const GetPostsTest = require('./get_posts_test');
 
 class GetPostsByIdTest extends GetPostsTest {
 
@@ -11,12 +11,13 @@ class GetPostsByIdTest extends GetPostsTest {
 	// set the path to use for the request
 	setPath (callback) {
 		// we'll restrict our fetch to a few of the posts we created
-		this.myPosts = [
-			this.myPosts[0],
-			this.myPosts[2],
-			this.myPosts[3]
+		const posts = this.postData.map(postData => postData.post);
+		this.expectedPosts = [
+			posts[0],
+			posts[2],
+			posts[3]
 		];
-		let ids = this.myPosts.map(post => post._id);
+		const ids = this.expectedPosts.map(post => post._id);
 		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&ids=${ids}`;
 		callback();
 	}

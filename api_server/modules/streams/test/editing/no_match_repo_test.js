@@ -7,7 +7,7 @@ class NoMatchRepoTest extends EditingTest {
 
 	constructor (options) {
 		super(options);
-		this.wantSecondRepo = true;
+		this.wantForeignTeam = true;
 		this.secondRepoHasSameTeamId = true;
 	}
 

@@ -13,10 +13,13 @@ class ApplyPullToDatabaseTest extends UpdateToDatabaseTest {
 		const update = {
 			array: 4
 		};
+		this.expectedOp = {
+			'$pull': update
+		};
 		try {
-			await this.data.test.applyOpById(
+			this.actualOp = await this.data.test.applyOpById(
 				this.testModel.id,
-				{ '$pull': update }
+				this.expectedOp
 			);
 		}
 		catch (error) {

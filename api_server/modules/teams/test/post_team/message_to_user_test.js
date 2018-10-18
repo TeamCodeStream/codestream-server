@@ -1,8 +1,13 @@
 'use strict';
 
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 
 class MessageToUserTest extends CodeStreamMessageTest {
+
+	constructor (options) {
+		super(options);
+		delete this.teamOptions.creatorIndex;
+	}
 
 	get description () {
 		return 'when a user creates a team, they should get a message that they have been added to this team, as well as analytics updates';
@@ -10,7 +15,7 @@ class MessageToUserTest extends CodeStreamMessageTest {
 
 	// set the name of the channel on which to listen for messages
 	setChannelName (callback) {
-		this.channelName = 'user-' + this.currentUser._id;
+		this.channelName = `user-${this.currentUser.user._id}`;
 		callback();
 	}
 
@@ -24,14 +29,20 @@ class MessageToUserTest extends CodeStreamMessageTest {
 				// this is the message we expect to see
 				this.message = {
 					user: {
-						_id: this.currentUser._id,
+						_id: this.currentUser.user._id,
 						$set: {
 							joinMethod: 'Created Team',
 							primaryReferral: 'external',
-							originTeamId: response.team._id
+							originTeamId: response.team._id,
+							version: 3
 						},
 						$addToSet: {
-							teamIds: response.team._id
+							teamIds: response.team._id,
+							companyIds: response.company._id
+						},
+						$version: {
+							before: 2,
+							after: 3
 						}
 					}
 				};
@@ -45,7 +56,7 @@ class MessageToUserTest extends CodeStreamMessageTest {
 
 	// validate the incoming message
 	validateMessage (message) {
-		let subMessage = message.message;
+		const subMessage = message.message;
 		// ignore any other message, we're looking for an update to our own user object
 		if (!subMessage.user) {
 			return false;

@@ -97,11 +97,7 @@ class ConfirmRequest extends RestfulRequest {
 		};
 		const users = await this.data.users.getByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: UserIndexes.bySearchableEmail 
-				}
-			}
+			{ hint: UserIndexes.bySearchableEmail }
 		);
 		this.user = users[0];
 	}
@@ -202,6 +198,16 @@ class ConfirmRequest extends RestfulRequest {
 			{ _id: this.data.users.objectIdSafe(this.user.id) },
 			{ $set: set }
 		);
+	}
+
+	async handleResponse () {
+		if (this.gotError) {
+			return await super.handleResponse();
+		}
+		// get the user again since it was changed, this should fetch from cache and not from database
+		this.user = await this.data.users.getById(this.user.id);
+		this.responseData.user = this.user.getSanitizedObjectForMe();
+		await super.handleResponse();
 	}
 
 	// after the request returns a response....

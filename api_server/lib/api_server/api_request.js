@@ -13,6 +13,7 @@ class APIRequest {
 		Object.assign(this, options);
 		this.responseIssued = false;			// this gets set when once the response has been issued
 		this.responseData = {};					// prepare for any response data to be put in here
+		this.transforms = {};					// prepare for any transforms by the request to be put in here
 		this.data = new APIRequestData({		// wrapper for all collections relevant to this request
 			api: this.api,
 			request: this.request

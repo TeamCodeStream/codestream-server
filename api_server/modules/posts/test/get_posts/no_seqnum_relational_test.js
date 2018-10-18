@@ -10,7 +10,8 @@ class NoSeqNumRelationalTest extends GetPostsTest {
 
 	// set the path to use in the fetch request
 	setPath (callback) {
-		const pivotPost = this.myPosts[2];
+		this.expectedPosts = this.postData.map(postData => postData.post);
+		const pivotPost = this.expectedPosts[2];
 		// provide both "before" (a seqnum relational) and "lt" (and ID relational)
 		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&before=3&lt=${pivotPost._id}`;
 		callback();

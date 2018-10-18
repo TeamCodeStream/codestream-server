@@ -40,7 +40,7 @@ class ExtendedUsernameResolutionTest extends UsernameResolutionTest {
 	// make a single user whose email will make their default username conflict with the
 	// existing user on the team, forcing their username to get an appended numeral
 	makeOtherUser (n, callback) {
-		const conflictingUsername = this.otherUserData.user.username;
+		const conflictingUsername = this.users[1].user.username;
 		const domain = `${RandomString.generate(12)}.com`;
 		this.doApiRequest(
 			{

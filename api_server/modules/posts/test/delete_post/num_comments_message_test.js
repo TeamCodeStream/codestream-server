@@ -1,12 +1,21 @@
 'use strict';
 
-const MessageToTeamTest = require('./message_to_team_test');
+const MessageTest = require('./message_test');
 
-class NumCommentsMessageTest extends MessageToTeamTest {
+class NumCommentsMessageTest extends MessageTest {
 
-	constructor (options) {
-		super(options);
-		this.wantParentPost = true;
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			Object.assign(this.postOptions, {
+				numPosts: 2,
+				postData: [
+					{ wantCodeBlock: 1 },
+					{ replyTo: 0 }
+				]
+			});
+			this.testPost = 1;
+			callback();
+		});
 	}
 
 	get description () {

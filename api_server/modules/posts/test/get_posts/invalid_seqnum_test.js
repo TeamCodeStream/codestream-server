@@ -1,6 +1,6 @@
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
+const GetPostsTest = require('./get_posts_test');
 
 class InvalidSeqNumTest extends GetPostsTest {
 

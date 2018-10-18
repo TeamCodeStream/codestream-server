@@ -1,7 +1,7 @@
 'use strict';
 
-var UnregisteredInviteTest = require('./unregistered_invite_test');
-var Assert = require('assert');
+const UnregisteredInviteTest = require('./unregistered_invite_test');
+const Assert = require('assert');
 
 class DontSendEmailTest extends UnregisteredInviteTest {
 

@@ -5,9 +5,9 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 
 class OnlyAdminsTest extends PostUserTest {
 
-	constructor (options) {
-		super(options);
-		this.wantOtherUser = true;
+	setOptions () {
+		super.setOptions();
+		this.teamOptions.creatorIndex = 1;
 	}
 
 	get description () {
@@ -38,7 +38,7 @@ class OnlyAdminsTest extends PostUserTest {
 				data: {
 					onlyAdminsCanInvite: true
 				},
-				token: this.teamCreatorData.accessToken
+				token: this.users[1].accessToken
 			},
 			callback
 		);

@@ -29,21 +29,17 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
-		// do the update, this should trigger a message to the
-		// team channel with the updated post
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: '/users/' + this.currentUser._id,
-				data: this.data,
-				token: this.token
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.message = { users: [response.user] };
-				callback();
-			}
-		);
+		this.message = {
+			users: [
+				this.expectedData.user
+			]
+		};
+		Object.assign(this.message.users[0].$set, this.data);
+		this.updateUser(error => {
+			if (error) { return callback(error); }
+			this.message.users[0].$set.modifiedAt = this.expectedUser.modifiedAt;
+			callback();
+		});
 	}
 }
 

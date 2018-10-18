@@ -9,6 +9,23 @@ class AddUsersFetchTest extends Aggregation(AddUsersTest, PutStreamFetchTest) {
 	get description () {
 		return 'should properly update a stream when requested, when several users are added to the stream, checked by fetching the stream';
 	}
+
+	updateStream (callback) {
+		super.updateStream(error => {
+			if (error) { return callback(error); }
+			delete this.expectedStream.$addToSet;
+			let memberIds = this.requestData.$addToSet.memberIds;
+			if (!(memberIds instanceof Array)) {
+				memberIds = [memberIds];
+			}
+			this.expectedStream.memberIds = [
+				...this.stream.memberIds,
+				...memberIds
+			];
+			this.expectedStream.memberIds.sort();
+			callback();
+		});
+	}
 }
 
 module.exports = AddUsersFetchTest;

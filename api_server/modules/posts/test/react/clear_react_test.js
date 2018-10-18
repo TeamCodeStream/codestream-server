@@ -21,6 +21,8 @@ class ClearReactTest extends ReactTest {
 	// form the data for the reaction
 	makePostData (callback) {
 		// make data to clear the user's reaction
+		this.expectedVersion = 3;
+		this.post = this.postData[0].post;
 		this.reaction = RandomString.generate(8);
 		this.data = {
 			[this.reaction]: false
@@ -29,7 +31,14 @@ class ClearReactTest extends ReactTest {
 			post: {
 				_id: this.post._id,
 				$pull: {
-					[`reactions.${this.reaction}`]: this.currentUser._id
+					[`reactions.${this.reaction}`]: this.currentUser.user._id
+				},
+				$set: {
+					version: this.expectedVersion
+				},
+				$version: {
+					before: this.expectedVersion - 1,
+					after: this.expectedVersion
 				}
 			}
 		};

@@ -1,8 +1,8 @@
 'use strict';
 
-var PostReplyTest = require('./post_reply_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
+const PostReplyTest = require('./post_reply_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Assert = require('assert');
 
 class HasRepliesTest extends PostReplyTest {
 
@@ -24,7 +24,7 @@ class HasRepliesTest extends PostReplyTest {
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: '/posts/' + this.otherPostData.post._id,
+				path: '/posts/' + this.postData[0].post._id,
 				token: this.token
 			},
 			(error, response) => {

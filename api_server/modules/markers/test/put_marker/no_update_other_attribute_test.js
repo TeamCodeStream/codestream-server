@@ -1,7 +1,7 @@
 'use strict';
 
-var PutMarkerTest = require('./put_marker_test');
-var Assert = require('assert');
+const PutMarkerTest = require('./put_marker_test');
+const Assert = require('assert');
 
 class NoUpdateOtherAttributeTest extends PutMarkerTest {
 

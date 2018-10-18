@@ -21,10 +21,6 @@ class DeleteRequest extends RestfulRequest {
 		// an update, and  the deleter tells us what the update was...
 		// this is exactly what we send to the client
 		this.responseData[modelName] = update;
-		Object.assign(
-			this.responseData,
-			this.deleter.attachToResponse || {}
-		);
 	}
 
 	// describe this route for help

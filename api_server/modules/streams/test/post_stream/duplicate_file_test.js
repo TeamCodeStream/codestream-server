@@ -1,13 +1,13 @@
 'use strict';
 
-var PostFileStreamTest = require('./post_file_stream_test');
-var Assert = require('assert');
+const PostFileStreamTest = require('./post_file_stream_test');
+const Assert = require('assert');
 
 class DuplicateFileTest extends PostFileStreamTest {
 
 	constructor (options) {
 		super(options);
-		this.testOptions.wantDuplicateStream = true;
+		this.wantDuplicateStream = true;
 	}
 
 	get description () {

@@ -3,74 +3,70 @@
 'use strict';
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class CommonInit {
 
 	init (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,	// create another registered user
-			this.createRandomRepo,	// create a random repo (and team) for the test
-			this.createRandomStream	// create the stream that the current user will then join
+			this.setTestOptions,
+			CodeStreamAPITest.prototype.before.bind(this),
+			this.setExpectedData
 		], callback);
 	}
 
-	get method () {
-		return 'put';
+	setTestOptions (callback) {
+		this.userOptions.numRegistered = 3;
+		this.teamOptions.creatorIndex = 1;
+		Object.assign(this.streamOptions, {
+			creatorIndex: 1,
+			members: [1, 2],
+			privacy: 'public'
+		});
+		callback();
 	}
 
-	// create another registered user (in addition to the "current" user)
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a random repo to use for the test
-	createRandomRepo (callback) {
-		let withEmails = this.withoutUserOnTeam ? [] : [this.currentUser.email];
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.repo = response.repo;
-				this.team = response.team;
-				this.users = response.users;
-				callback();
-			},
-			{
-				withEmails: withEmails,	// include current user as needed
-				withRandomEmails: 1,	// another user for good measure
-				token: this.otherUserData.accessToken	// the "other user" is the repo and team creator
-			}
-		);
-	}
-
-	// create the stream to be updated
-	createRandomStream (callback) {
-		let type = this.type || 'channel';
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				this.expectedStream = DeepClone(this.stream);
-				if (this.expectedStream.memberIds) {
-					this.expectedStream.memberIds.push(this.currentUser._id);
+	setExpectedData (callback) {
+		this.path = '/join/' + this.stream._id;
+		this.expectedData = {
+			stream: {
+				_id: this.stream._id,
+				$addToSet: {
+					memberIds: [ this.currentUser.user._id ]
+				},
+				$set: {
+					version: 2
+				},
+				$version: {
+					before: 1,
+					after: 2
 				}
-				this.path = '/join/' + this.stream._id;
-				this.modifiedAfter = Date.now();
-				callback();
-			},
+			}
+		};
+		this.expectedStream = Object.assign({}, this.stream);
+		if (this.stream.memberIds) {
+			this.expectedStream.memberIds = [...this.stream.memberIds, this.currentUser.user._id];
+			this.expectedStream.memberIds.sort();
+		}
+		this.expectedStream.version = 2;
+		this.modifiedAfter = Date.now();
+		callback();
+	}
+
+	// perform the actual joining of the stream
+	// the actual test is reading the stream and verifying the user is a member
+	updateStream (callback) {
+		this.doApiRequest(
 			{
-				type: type,
-				teamId: this.team._id, // create the stream in the team we already created
-				repoId: type === 'file' ? this.repo._id : undefined, // file-type streams must have repoId
-				token: this.otherUserData.accessToken, // the "other user" is the stream creator
-				isTeamStream: this.isTeamStream,	// create a "team-stream" as needed,
-				privacy: this.streamPrivacy	|| 'public'
+				method: 'put',
+				path: `/join/${this.stream._id}`,
+				token: this.token
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.expectedStream.modifiedAt = response.stream.$set.modifiedAt;
+				this.message = response;
+				callback();
 			}
 		);
 	}

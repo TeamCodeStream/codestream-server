@@ -1,7 +1,7 @@
 'use strict';
 
-var CodeBlockStreamOnTheFlyTest = require('./code_block_stream_on_the_fly_test');
-var ObjectID = require('mongodb').ObjectID;
+const CodeBlockStreamOnTheFlyTest = require('./code_block_stream_on_the_fly_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class OnTheFlyCodeBlockStreamRepoNotFoundTest extends CodeBlockStreamOnTheFlyTest {
 

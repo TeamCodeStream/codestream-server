@@ -3,34 +3,22 @@
 'use strict';
 
 const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-const RepoCreator = require('./repo_creator');
-//const RepoUpdater = require('./repo_updater');
 const Repo = require('./repo');
 const Errors = require('./errors');
+const RepoCreator = require('./repo_creator');
 
 // expose these restful routes
 const REPOS_STANDARD_ROUTES = {
-	want: ['get', 'getMany', 'post'],
+	want: ['get', 'getMany'],
 	baseRouteName: 'repos',
 	requestClasses: {
 		'get': require('./get_repo_request'),
-		'getMany': require('./get_repos_request'),
-		'post': require('./post_repo_request')
+		'getMany': require('./get_repos_request')
 	}
 };
 
 // expose additional routes
 const REPOS_ADDITIONAL_ROUTES = [
-	{
-		method: 'get',
-		path: 'no-auth/find-repo',
-		requestClass: require('./find_repo_request')
-	},
-	{
-		method: 'get',
-		path: 'no-auth/match-repo',
-		requestClass: require('./match_repo_request')
-	}
 ];
 
 class Repos extends Restful {

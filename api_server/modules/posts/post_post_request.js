@@ -17,6 +17,55 @@ class PostPostRequest extends PostRequest {
 		}).authorizePost();
 	}
 
+	/* eslint complexity: 0 */
+	async handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
+		const { transforms, responseData } = this;
+		if (transforms.createdRepos && transforms.createdRepos.length > 0) {
+			responseData.repos = transforms.createdRepos.map(repo => repo.getSanitizedObject());
+		}
+		if (transforms.repoUpdates && transforms.repoUpdates.length > 0) {
+			responseData.repos = [
+				...(responseData.repos || []),
+				...transforms.repoUpdates
+			];
+		}
+		if (transforms.createdStreamsForCodeBlocks && transforms.createdStreamsForCodeBlocks.length > 0) {
+			responseData.streams = transforms.createdStreamsForCodeBlocks.map(stream => stream.getSanitizedObject());
+		}
+
+		if (transforms.createdStreamForPost) {
+			responseData.streams = [
+				...(responseData.streams || []),
+				transforms.createdStreamForPost.getSanitizedObject()
+			];
+		}
+		else if (transforms.streamUpdateForPost) {
+			responseData.streams = [
+				...(responseData.streams || []),
+				transforms.streamUpdateForPost
+			];
+		}
+		if (transforms.markerUpdates) {
+			responseData.markers = transforms.markerUpdates;
+		}
+		if (transforms.createdMarkers && transforms.createdMarkers.length > 0) {
+			responseData.markers = [
+				...(responseData.markers || []),
+				...transforms.createdMarkers.map(marker => marker.getSanitizedObject())
+			];
+		}
+		if (transforms.markerLocations && transforms.markerLocations.length > 0) {
+			responseData.markerLocations = transforms.markerLocations;
+		}
+		if (transforms.postUpdates && transforms.postUpdates.length > 0) {
+			responseData.posts = transforms.postUpdates;
+		}
+		await super.handleResponse();
+	}
+
 	// describe this route for help
 	static describe (module) {
 		const description = PostRequest.describe(module);

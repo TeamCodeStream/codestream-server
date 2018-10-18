@@ -85,14 +85,10 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 		if (this.isForTesting()) { // special for-testing header for easy wiping of test data
 			update.$set._forTesting = true;
 		}
-		await this.data.markerLocations.applyOpById(
-			id,
+		await this.data.markerLocations.updateDirectWhenPersist(
+			{ _id: id },
 			update,
-			{
-				databaseOptions: {
-					upsert: true
-				}
-			}
+			{ upsert: true }
 		);
 	}
 

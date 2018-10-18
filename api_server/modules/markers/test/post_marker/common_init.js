@@ -4,46 +4,24 @@
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const RandomString = require('randomstring');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class CommonInit {
 
 	init (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,	// create another registered user
-			this.createRandomRepo,	// create a random repo (and team) for the test
-			this.createFileStream,	// create a file stream for the marker to reference
+			this.setTestOptions,
+			CodeStreamAPITest.prototype.before.bind(this),
 			this.addRemotesToRepo,	// add some remotes to the repo by creating a post
 			this.makeMarkerData		// make the data associated with the test marker to be created
 		], callback);
 	}
-
-	// create another registered user (in addition to the "current" user)
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a random repo to use for the test
-	createRandomRepo (callback) {
-		const withEmails = this.userNotOnTeam ? [] : [this.currentUser.email];
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.repo = response.repo;
-				this.team = response.team;
-				this.users = response.users;
-				callback();
-			},
-			{
-				withEmails,
-				token: this.otherUserData.accessToken	// the "other user" is the repo and team creator
-			}
-		);
+	
+	setTestOptions (callback) {
+		this.teamOptions.creatorIndex = 1;
+		this.streamOptions.creatorIndex = 1;
+		this.repoOptions.creatorIndex = 1;
+		callback();
 	}
 
 	// introduce additional remotes to the repo we created by
@@ -70,28 +48,11 @@ class CommonInit {
 					file: this.streamFactory.randomFile(),
 					remotes
 				},
-				token: this.otherUserData.accessToken
+				token: this.users[1].accessToken
 			}
 		);
 	}
 	
-	// create a random file stream for the marker to reference
-	createFileStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				callback();
-			},
-			{
-				teamId: this.team._id,
-				repoId: this.repo._id,
-				type: 'file',
-				token: this.otherUserData.accessToken
-			}
-		);
-	}
-
 	// form the data for the marker we'll create in the test
 	makeMarkerData (callback) {
 		this.markerCreatedAfter = Date.now();
@@ -100,7 +61,7 @@ class CommonInit {
 				if (error) { return callback(error); }
 				this.data = Object.assign(data, {
 					teamId: this.team._id,
-					streamId: this.stream._id,
+					streamId: this.repoStreams[0]._id,
 					providerType: 'slack',
 					code: RandomString.generate(1000),
 					postId: RandomString.generate(10),

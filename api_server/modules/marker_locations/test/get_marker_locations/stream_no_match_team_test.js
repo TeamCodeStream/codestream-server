@@ -1,7 +1,8 @@
 'use strict';
 
-var GetMarkerLocationsTest = require('./get_marker_locations_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const GetMarkerLocationsTest = require('./get_marker_locations_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
 
 class StreamNoMatchTeamTest extends GetMarkerLocationsTest {
 
@@ -19,31 +20,36 @@ class StreamNoMatchTeamTest extends GetMarkerLocationsTest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherRepo,	// create another repo, which will create another team
-			super.before	// try to run the usual test, which should fail
+			super.before,
+			this.createOtherTeam,	// create a different team and put this in the path
+			this.setPath
 		], callback);
 	}
 
-	// create another repo, which will create another team
-	createOtherRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherRepo = response.repo;
-				callback();
-			},
-			{
-				token: this.token
-			}
-		);
+	createOtherTeam (callback) {
+		new TestTeamCreator({
+			test: this,
+			teamOptions: Object.assign({}, this.teamOptions, {
+				creatorIndex: null,
+				creatorToken: this.users[1].accessToken,
+				members: [this.currentUser.user.email],
+				numAdditionalInvites: 0
+			}),
+			userOptions: this.userOptions
+		}).create((error, response) => {
+			if (error) { return callback(error); }
+			this.otherTeam = response.team;
+			callback();
+		});
 	}
 
-	// get query parameters for the request
+	// get query parameters to use for this test
 	getQueryParameters () {
-		// change the team ID in the request, this should cause a failure since the team ID must match
-		// the team ID for the stream
-		let queryParameters = super.getQueryParameters();
-		queryParameters.teamId = this.otherRepo.teamId;
+		const queryParameters = super.getQueryParameters();
+		// set team ID to the other team
+		if (this.otherTeam) {
+			queryParameters.teamId = this.otherTeam.teamId;
+		}
 		return queryParameters;
 	}
 }

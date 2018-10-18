@@ -6,7 +6,7 @@ class UsersNotOnTeamTest extends AddAdminsTest {
 
 	constructor (options) {
 		super(options);
-		this.dontAddOtherUsers = true;
+		this.teamOptions.members = [0];
 	}
 
 	get description () {

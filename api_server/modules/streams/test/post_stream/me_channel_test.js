@@ -1,6 +1,6 @@
 'use strict';
 
-var PostChannelStreamTest = require('./post_channel_stream_test');
+const PostChannelStreamTest = require('./post_channel_stream_test');
 
 class MeChannelTest extends PostChannelStreamTest {
 

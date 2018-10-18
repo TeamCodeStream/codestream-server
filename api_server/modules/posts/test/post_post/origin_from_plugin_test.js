@@ -6,9 +6,7 @@ class OriginFromPluginTest extends PostPostTest {
 
 	constructor (options) {
 		super(options);
-		this.testOptions = {
-			expectedOrigin: 'VS Code'
-		};
+		this.expectedOrigin = 'VS Code';
 		this.apiRequestOptions = {
 			headers: {
 				'X-CS-Plugin-IDE': 'VS Code'

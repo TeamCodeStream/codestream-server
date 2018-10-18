@@ -1,6 +1,6 @@
 'use strict';
 
-var GetMarkersTest = require('./get_markers_test');
+const GetMarkersTest = require('./get_markers_test');
 
 class GetMarkersByIdTest extends GetMarkersTest {
 
@@ -11,13 +11,13 @@ class GetMarkersByIdTest extends GetMarkersTest {
 	// get query parameters to use for the test
 	getQueryParameters () {
 		// we'll restrict to a few of the IDs
-		let queryParameters = super.getQueryParameters();
+		const queryParameters = super.getQueryParameters();
 		this.markers = [
 			this.markers[0],
 			this.markers[2],
 			this.markers[3]
 		];
-		queryParameters.ids = this.markers.map(post => post._id);
+		queryParameters.ids = this.markers.map(marker => marker._id);
 		return queryParameters;
 	}
 }

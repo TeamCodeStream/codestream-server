@@ -12,24 +12,24 @@ class JoinRequest extends RestfulRequest {
 	// authorize the request for the current user
 	async authorize () {
 		// get the stream
-		const stream = await this.data.streams.getById(this.request.params.id);
-		if (!stream) {
+		this.stream = await this.data.streams.getById(this.request.params.id);
+		if (!this.stream) {
 			throw this.errorHandler.error('notFound', { info: 'stream' });
 		}
         
 		// user can only join a public channel
-		if (stream.get('type') !== 'channel') {
+		if (this.stream.get('type') !== 'channel') {
 			throw this.errorHandler.error('updateAuth', { reason: 'only channel streams can be joined' });
 		}
-		if (stream.get('privacy') !== 'public') {
+		if (this.stream.get('privacy') !== 'public') {
 			throw this.errorHandler.error('updateAuth', { reason: 'not allowed to join this channel' });
 		}
-		if (stream.get('isTeamStream')) {
+		if (this.stream.get('isTeamStream')) {
 			throw this.errorHandler.error('updateAuth', { reason: 'can not join a team stream' });
 		}
 
 		// can't join a stream in a team i'm not a member of
-		const authorized = await this.user.authorizeTeam(stream.get('teamId'));
+		const authorized = await this.user.authorizeTeam(this.stream.get('teamId'));
 		if (!authorized) {
 			throw this.errorHandler.error('updateAuth', { reason: 'can not join this stream' });
 		}
@@ -38,11 +38,11 @@ class JoinRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		// use the stream updater, and add current user to the stream
-		this.updater = new StreamUpdater({
+		const updater = new StreamUpdater({
 			request: this
 		});
-		await this.updater.updateModel(
-			this.request.params.id,
+		this.updateOp = await updater.updateModel(
+			this.request.params.id.toLowerCase(),
 			{
 				$addToSet: { memberIds: this.user.id }
 			}
@@ -50,11 +50,7 @@ class JoinRequest extends RestfulRequest {
         
 		// the updater tells us what the update was, this is exactly what we
 		// send to the client
-		this.responseData.stream = this.updater.updatedAttributes;
-		Object.assign(
-			this.responseData,
-			this.updater.attachToResponse || {}
-		);
+		this.responseData.stream = this.updateOp;
 	}
 
 	// after the stream is joined...
@@ -68,7 +64,7 @@ class JoinRequest extends RestfulRequest {
 		const granterOptions = {
 			data: this.data,
 			messager: this.api.services.messager,
-			stream: this.updater.stream,
+			stream: this.stream,
 			members: [this.user],
 			request: this
 		};
@@ -86,7 +82,7 @@ class JoinRequest extends RestfulRequest {
 			data: this.responseData,
 			request: this,
 			messager: this.api.services.messager,
-			stream: this.updater.stream.attributes
+			stream: this.stream.attributes
 		}).publishStream();
 	}
 

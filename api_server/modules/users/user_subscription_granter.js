@@ -39,10 +39,8 @@ class UserSubscriptionGranter  {
 		const repos = await this.data.repos.getByQuery(
 			query,
 			{
-				databaseOptions: {
-					fields: ['_id'],
-					hint: RepoIndexes.byTeamId
-				},
+				fields: ['_id'],
+				hint: RepoIndexes.byTeamId,
 				noCache: true
 			}
 		);
@@ -81,10 +79,8 @@ class UserSubscriptionGranter  {
 		return await this.data.streams.getByQuery(
 			query,
 			{
-				databaseOptions: {
-					fields: ['_id'],
-					hint: StreamIndexes.byMembers
-				},
+				fields: ['_id'],
+				hint: StreamIndexes.byMembers,
 				noCache: true
 			}
 		);

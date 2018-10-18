@@ -5,6 +5,7 @@
 const LoginHelper = require('./login_helper');
 const PasswordHasher = require('./password_hasher');
 const UsernameChecker = require('./username_checker');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class ConfirmHelper {
 
@@ -136,7 +137,11 @@ class ConfirmHelper {
 				op.$set.originTeamId = this.teamCreator.get('originTeamId');
 			}
 		}
-		this.user = await this.request.data.users.applyOpById(this.user.id, op);
+		this.request.transforms.userUpdate = await new ModelSaver({
+			request: this.request,
+			collection: this.request.data.users,
+			id: this.user.id
+		}).save(op);
 	}
 }
 

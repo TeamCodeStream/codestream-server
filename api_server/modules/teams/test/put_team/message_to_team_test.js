@@ -17,27 +17,17 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = `team-${this.team._id}`;
 		callback();
 	}
 
-	// generate the message by issuing a request
+	// generate the message by issuing a request to update the team
 	generateMessage (callback) {
-		// do the update, this should trigger a message to the
-		// team channel with the updated team
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: '/teams/' + this.team._id,
-				data: this.data,
-				token: this.token
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.message = response;
-				callback();
-			}
-		);
+		this.updateTeam(error => {
+			if (error) { return callback(error); }
+			this.message = this.updateTeamResponse;
+			callback();
+		});
 	}
 }
 

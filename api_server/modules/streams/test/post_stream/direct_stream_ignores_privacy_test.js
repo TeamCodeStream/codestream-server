@@ -1,7 +1,7 @@
 'use strict';
 
-var PostDirectStreamTest = require('./post_direct_stream_test');
-var Assert = require('assert');
+const PostDirectStreamTest = require('./post_direct_stream_test');
+const Assert = require('assert');
 
 class DirectStreamIgnoresPrivacyTest extends PostDirectStreamTest {
 
@@ -23,7 +23,7 @@ class DirectStreamIgnoresPrivacyTest extends PostDirectStreamTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// we should still see that privacy is private
-		let stream = data.stream;
+		const stream = data.stream;
 		Assert(stream.privacy === 'private', 'privacy should be private');
 		super.validateResponse(data);
 	}

@@ -1,91 +1,47 @@
 'use strict';
 
-var ConfirmationTest = require('./confirmation_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
+const ConfirmationTest = require('./confirmation_test');
+const Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const UserTestConstants = require('../user_test_constants');
 
 class MeAttributesTest extends ConfirmationTest {
 
+	constructor (options) {
+		super(options);
+		this.teamOptions.creatorIndex = 1;
+		this.teamOptions.numAdditionalInvites = 2;
+		this.streamOptions.creatorIndex = 1;
+		this.postOptions.creatorIndex = 1;
+		this.postOptions.wantCodeBlock = true;
+	}
+	
 	get description () {
 		return 'user should receive me-only attributes with response to email confirmation';
 	}
 
 	getExpectedFields () {
-		// when confirming, the user should receive additional attributes in the response that only they can see
+		// with the login request, we should get back a user object with attributes
+		// only the user should see
 		let response = Object.assign({}, super.getExpectedFields());
 		response.user = [...response.user, ...UserTestConstants.EXPECTED_ME_FIELDS];
 		return response;
 	}
 
-	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			super.before,			// standard set up for confirmation test
-			this.createOtherUser,	// create a registered user
-			this.createRepo,		// have the registered user create a repo (which creates a team)
-			this.createStream,		// have the registered user create a file-type stream in the repo
-			this.createPost 		// have the registered user create a post in the stream, which creates a lastReads attribute for the user
+			CodeStreamAPITest.prototype.before.bind(this),
+			super.before
 		], callback);
 	}
-
-	// create a registered user
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error);}
-				this.otherUserData = response;
-				callback();
-			}
-		);
+	
+	getUserData () {
+		const data = this.userFactory.getRandomUserData();
+		data.email = this.users[3].user.email;
+		return data;
 	}
-
-	// create a repo to use for the test
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.team = response.team;
-				this.repo = response.repo;
-				callback();
-			},
-			{
-				withEmails: [this.data.email],	// include the user-to-confirm on the team
-				token: this.otherUserData.accessToken	// the registered user creates the repo and team
-			}
-		);
-	}
-
-	// create a file-type stream to use for the test
-	createStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				callback();
-			},
-			{
-				type: 'file',
-				teamId: this.team._id,
-				repoId: this.repo._id,
-				token: this.otherUserData.accessToken	// the registered user creates the stream
-			}
-		);
-	}
-
-	// create a post in the stream ... this triggers the user-to-confirm to have a lastReads attribute,
-	// which only they should see and it should be included in the response when they confirm
-	createPost (callback) {
-		this.postFactory.createRandomPost(
-			callback,
-			{
-				teamId: this.team._id,
-				streamId: this.stream._id,
-				token: this.otherUserData.accessToken
-			}
-		);
-	}
-
+			
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that the user got a correct lastReads attribute when confirming

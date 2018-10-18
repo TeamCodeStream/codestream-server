@@ -1,7 +1,7 @@
 'use strict';
 
-var GetStreamsTest = require('./get_streams_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const GetStreamsTest = require('./get_streams_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class GetUnreadStreamsTest extends GetStreamsTest {
 
@@ -20,7 +20,7 @@ class GetUnreadStreamsTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// set for fetching streams with "unread" messages
-		this.path = `/streams?teamId=${this.myTeam._id}&repoId=${this.myRepo._id}&unread`;
+		this.path = `/streams?teamId=${this.team._id}&unread`;
 		callback();
 	}
 
@@ -28,11 +28,13 @@ class GetUnreadStreamsTest extends GetStreamsTest {
 	createPosts (callback) {
 		// we'll select a subset of the stream we created, then create posts there ... 
 		// we then expect only those streams
-		let streams = this.streamsByRepo[this.myRepo._id];
-		this.myStreams = streams.slice(0, 2);
+		const myStreams = this.streamsByTeam[this.team._id].filter(stream => {
+			return stream.memberIds.includes(this.currentUser.user._id);
+		});
+		this.expectedStreams = myStreams.slice(1, 3);
 		BoundAsync.forEach(
 			this,
-			this.myStreams,
+			this.expectedStreams,
 			this.createPostInStream,
 			callback
 		);
@@ -43,9 +45,9 @@ class GetUnreadStreamsTest extends GetStreamsTest {
 		this.postFactory.createRandomPost(
 			callback,
 			{
-				teamId: this.myTeam._id,
+				teamId: this.team._id,
 				streamId: stream._id,
-				token: this.otherUserData.accessToken	// have the "other" user create the post
+				token: this.users[1].accessToken	// have the "other" user create the post
 			}
 		);
 	}

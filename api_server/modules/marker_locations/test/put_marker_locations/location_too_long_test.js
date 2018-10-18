@@ -1,6 +1,6 @@
 'use strict';
 
-var PutMarkerLocationsTest = require('./put_marker_locations_test');
+const PutMarkerLocationsTest = require('./put_marker_locations_test');
 
 class LocationTooLongTest extends PutMarkerLocationsTest {
 
@@ -18,7 +18,7 @@ class LocationTooLongTest extends PutMarkerLocationsTest {
 	// set the data to be used in the PUT request
 	setData (callback) {
 		super.setData(() => {
-			let markerId = Object.keys(this.data.locations)[0];
+			const markerId = Object.keys(this.data.locations)[0];
 			this.data.locations[markerId] = [1, 2, 3, 4, {}, 6];	// can only have 5 elements
 			callback();
 		});

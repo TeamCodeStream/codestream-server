@@ -6,6 +6,12 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 
 class ChangePasswordTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
+	}
+
 	get description () {
 		return 'should set a new password hash when the user changes their password, and return a new access token';
 	}
@@ -33,6 +39,7 @@ class ChangePasswordTest extends CodeStreamAPITest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
+			super.before,
 			this.setData,	    // set the data to use when changing password
 			this.changePassword	// change the password using previously set data
 		], callback);
@@ -41,7 +48,7 @@ class ChangePasswordTest extends CodeStreamAPITest {
 	// set the data to use when changing password
 	setData (callback) {
 		this.passwordData = { 
-			existingPassword: this.currentUserPassword,
+			existingPassword: this.currentUser.password,
 			newPassword: RandomString.generate(12)
 		};
 		callback();
@@ -59,7 +66,7 @@ class ChangePasswordTest extends CodeStreamAPITest {
 			// this is the data we'll use for the /no-auth/login request, to confirm the
 			// password took
 			this.data = {
-				email: this.currentUser.email,
+				email: this.currentUser.user.email,
 				password: this.passwordData.newPassword
 			};
 		}

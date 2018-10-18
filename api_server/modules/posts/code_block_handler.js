@@ -1,6 +1,6 @@
 'use strict';
 
-const SimpleRepoCreator = require(process.env.CS_API_TOP + '/modules/repos/simple_repo_creator');
+const RepoCreator = require(process.env.CS_API_TOP + '/modules/repos/repo_creator');
 const StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');
 const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');
 const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
@@ -8,6 +8,7 @@ const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_
 const RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class CodeBlockHandler {
 
@@ -193,9 +194,7 @@ class CodeBlockHandler {
 				teamId: this.team.id
 			},
 			{ 
-				databaseOptions: {
-					hint: RepoIndexes.byTeamId 
-				}
+				hint: RepoIndexes.byTeamId 
 			}
 		);
 	}
@@ -244,13 +243,16 @@ class CodeBlockHandler {
 				companyIdentifier: ExtractCompanyIdentifier.getCompanyIdentifier(remote)
 			};
 		});
-		this.updateRepoOp = {
-			_id: repo.id,
+		const op = {
 			$push: {
 				remotes: remotesToPush
 			}
 		};
-		await this.request.data.repos.applyOpById(repo.id, this.updateRepoOp);
+		this.updateRepoOp = await new ModelSaver({
+			request: this.request,
+			collection: this.request.data.repos,
+			id: repo.id
+		}).save(op);
 	}
 
 	async createRepo () {
@@ -258,7 +260,7 @@ class CodeBlockHandler {
 			teamId: this.team.id,
 			remotes: this.codeBlock.remotes
 		};
-		this.createdRepo = await new SimpleRepoCreator({
+		this.createdRepo = await new RepoCreator({
 			request: this.request
 		}).createRepo(repoInfo);
 		this.repo = this.createdRepo;

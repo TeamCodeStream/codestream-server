@@ -3,18 +3,22 @@
 
 'use strict';
 
-var ReadTest = require('./read_test');
-var ReadAllTest = require('./read_all_test');
-var ReadACLTest = require('./read_acl_test');
-var ReadMessageTest = require('./read_message_test');
-var ReadAllMessageTest = require('./read_all_message_test');
-var StreamNotFoundTest = require('./stream_not_found_test');
+const ReadTest = require('./read_test');
+const ReadFetchTest = require('./read_fetch_test');
+const ReadAllTest = require('./read_all_test');
+const ReadAllFetchTest = require('./read_all_fetch_test');
+const ReadACLTest = require('./read_acl_test');
+const ReadMessageTest = require('./read_message_test');
+const ReadAllMessageTest = require('./read_all_message_test');
+const StreamNotFoundTest = require('./stream_not_found_test');
 
 class ReadRequestTester {
 
 	readTest () {
 		new ReadTest().test();
+		new ReadFetchTest().test();
 		new ReadAllTest().test();
+		new ReadAllFetchTest().test();
 		new ReadACLTest().test();
 		new ReadMessageTest().test();
 		new ReadAllMessageTest().test();

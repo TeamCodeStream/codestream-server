@@ -15,6 +15,4 @@ describe('marker locations requests', function() {
 
 	describe('GET /marker-locations', markerLocationsRequestTester.getMarkerLocationsTest);
 	describe('PUT /marker-locations', markerLocationsRequestTester.putMarkerLocationsTest);
-	describe('PUT /calculate-locations', markerLocationsRequestTester.putCalculateLocationsTest);
-	describe('marker mapper', require('./marker_mapper/test'));
 });

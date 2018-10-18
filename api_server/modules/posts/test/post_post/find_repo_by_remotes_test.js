@@ -1,7 +1,7 @@
 'use strict';
 
-var CodeBlockStreamOnTheFlyTest = require('./code_block_stream_on_the_fly_test');
-var Assert = require('assert');
+const CodeBlockStreamOnTheFlyTest = require('./code_block_stream_on_the_fly_test');
+const Assert = require('assert');
 
 class FindRepoByRemotesTest extends CodeBlockStreamOnTheFlyTest {
 
@@ -52,7 +52,7 @@ class FindRepoByRemotesTest extends CodeBlockStreamOnTheFlyTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		let stream = data.streams[0];
+		const stream = data.streams[0];
 		Assert.equal(stream.repoId, this.repo._id, 'created stream\'s repo ID does not match the created repo');
 		super.validateResponse(data);
 	}

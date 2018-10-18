@@ -1,8 +1,8 @@
 'use strict';
 
-var PostReplyTest = require('./post_reply_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
+const PostReplyTest = require('./post_reply_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Assert = require('assert');
 
 class NumCommentsTest extends PostReplyTest {
 
@@ -10,10 +10,11 @@ class NumCommentsTest extends PostReplyTest {
 		return 'parent post\'s marker should get its numComments attribute incremented when a reply is created for a post';
 	}
 
-	// make options to use when creating the test post
-	makePostOptions (callback) {
-		super.makePostOptions(() => {
-			this.postOptions.wantCodeBlocks = true;	// want a code block, then we'll check the marker
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.postOptions.wantCodeBlock = true;
+			this.streamOptions.type = 'file';
+			this.repoOptions.creatorIndex = 1;
 			callback();
 		});
 	}
@@ -32,7 +33,7 @@ class NumCommentsTest extends PostReplyTest {
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: '/markers/' + this.otherPostData.post.codeBlocks[0].markerId,
+				path: '/markers/' + this.postData[0].post.codeBlocks[0].markerId,
 				token: this.token
 			},
 			(error, response) => {

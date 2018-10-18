@@ -2,15 +2,14 @@
 
 'use strict';
 
-var PutPostTest = require('./put_post_test');
-var PutPostFetchTest = require('./put_post_fetch_test');
-var ACLTest = require('./acl_test');
-var ACLTeamTest = require('./acl_team_test');
-var PostNotFoundTest = require('./post_not_found_test');
-var MessageToTeamTest = require('./message_to_team_test');
-var MessageToStreamTest = require('./message_to_stream_test');
-var NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
-var MentionTest = require('./mention_test');
+const PutPostTest = require('./put_post_test');
+const PutPostFetchTest = require('./put_post_fetch_test');
+const ACLTest = require('./acl_test');
+const ACLTeamTest = require('./acl_team_test');
+const PostNotFoundTest = require('./post_not_found_test');
+const MessageTest = require('./message_test');
+const NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
+const MentionTest = require('./mention_test');
 
 class PutPostRequestTester {
 
@@ -20,9 +19,9 @@ class PutPostRequestTester {
 		new ACLTest().test();
 		new ACLTeamTest().test();
 		new PostNotFoundTest().test();
-		new MessageToTeamTest().test();
-		new MessageToStreamTest({ streamType: 'channel' }).test();
-		new MessageToStreamTest({ streamType: 'direct' }).test();
+		new MessageTest({ streamType: 'file' }).test();
+		new MessageTest({ streamType: 'channel' }).test();
+		new MessageTest({ streamType: 'direct' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'streamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'repoId' }).test();

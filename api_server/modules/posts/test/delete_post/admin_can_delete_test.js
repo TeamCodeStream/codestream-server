@@ -5,13 +5,15 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 
 class AdminCanDeleteTest extends DeletePostTest {
 
-	constructor (options) {
-		super(options);
-		this.otherUserCreatesPost = true;
-	}
-
 	get description () {
 		return 'admins can delete posts by others on the team';
+	}
+
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.postOptions.creatorIndex = 1;
+			callback();
+		});
 	}
 
 	// before the test runs...
@@ -31,10 +33,10 @@ class AdminCanDeleteTest extends DeletePostTest {
 				path: '/teams/' + this.team._id,
 				data: {
 					$push: { 
-						adminIds: this.currentUser._id 
+						adminIds: this.currentUser.user._id 
 					}
 				},
-				token: this.teamCreatorData.accessToken
+				token: this.users[1].accessToken
 			},
 			callback
 		);

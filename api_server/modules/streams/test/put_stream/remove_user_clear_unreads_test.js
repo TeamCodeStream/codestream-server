@@ -9,31 +9,17 @@ class RemoveUserClearUnreadsTest extends RemoveUserTest {
 		return 'when a user is removed from a stream, should clear that user\'s lastReads for the stream';
 	}
 
-	// before the test runs...
-	before (callback) {
-		// do the usual test initialization, and create a post in the stream,
-		// which should set a lastReads value for this stream for the current user
-		super.before(error => {
-			if (error) { return callback(error); }
-			this.createPost(callback);
+	setTestOptions (callback) {
+		this.expectedVersion = 3;
+		super.setTestOptions(() => {
+			this.postOptions.creatorIndex = 1;
+			callback();
 		});
-	}
-
-	// create a post in the test stream, which should set a lastReads value for this stream
-	// for the current user
-	createPost (callback) {
-		this.postFactory.createRandomPost(
-			callback,
-			{
-				streamId: this.stream._id,
-				token: this.otherUserData.accessToken
-			}
-		);
 	}
 
 	// get array of users to remove from the stream
 	getRemovedUsers () {
-		return [this.currentUser];
+		return [this.currentUser.user];
 	}
 
 	// run the actual test...

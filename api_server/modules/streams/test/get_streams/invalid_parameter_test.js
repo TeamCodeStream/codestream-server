@@ -1,6 +1,6 @@
 'use strict';
 
-var GetStreamsTest = require('./get_streams_test');
+const GetStreamsTest = require('./get_streams_test');
 
 class InvalidParameterTest extends GetStreamsTest {
 
@@ -11,7 +11,7 @@ class InvalidParameterTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// add a bogus query parameter
-		this.path = `/streams?teamId=${this.myTeam._id}&repoId=${this.myRepo._id}&thisparam=1`;
+		this.path = `/streams?teamId=${this.team._id}&thisparam=1`;
 		callback();
 	}
 

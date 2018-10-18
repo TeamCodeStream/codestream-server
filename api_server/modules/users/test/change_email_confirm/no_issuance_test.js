@@ -3,7 +3,6 @@
 const ChangeEmailConfirmTest = require('./change_email_confirm_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class NoIssuanceTest extends ChangeEmailConfirmTest {
 
@@ -17,21 +16,9 @@ class NoIssuanceTest extends ChangeEmailConfirmTest {
 		};
 	}
 
-	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			this.createOtherUser,
-			super.before
-		], callback);
-	}
-
-	// make a second registered user, we'll use their email for the token
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser((error, response) => {
-			if (error) { return callback(error); }
-			this.otherUser = response.user;
-			callback();
-		});
+	setOptions () {
+		super.setOptions();
+		this.userOptions.numRegistered = 2;
 	}
 
 	// set the data to use when submitting the request
@@ -40,7 +27,7 @@ class NoIssuanceTest extends ChangeEmailConfirmTest {
 		super.setData(() => {
 			const tokenHandler = new TokenHandler(SecretsConfig.auth);
 			const payload = tokenHandler.decode(this.data.token);
-			payload.uid = this.otherUser._id;
+			payload.uid = this.users[1].user._id;
 			this.data.token = tokenHandler.generate(payload, 'email');
 			callback();
 		});

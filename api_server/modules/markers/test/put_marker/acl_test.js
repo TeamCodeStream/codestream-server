@@ -1,13 +1,8 @@
 'use strict';
 
-var PutMarkerTest = require('./put_marker_test');
+const PutMarkerTest = require('./put_marker_test');
 
 class ACLTest extends PutMarkerTest {
-
-	constructor (options) {
-		super(options);
-		this.withoutOtherUserOnTeam = true;
-	}
 
 	get description () {
 		return 'should return an error when someone who is not on the team tries to update a marker';
@@ -19,12 +14,9 @@ class ACLTest extends PutMarkerTest {
 		};
 	}
 
-	// before the test runs...
-	before (callback) {
-		super.before(error => {
-			if (error) { return callback(error); }
-			// replace the current user's token with the other user's token
-			this.token = this.otherUserData.accessToken;
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.teamOptions.members = [];
 			callback();
 		});
 	}

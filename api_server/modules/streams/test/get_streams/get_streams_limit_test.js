@@ -1,13 +1,15 @@
 'use strict';
 
-var GetStreamsTest = require('./get_streams_test');
+const GetStreamsTest = require('./get_streams_test');
 
 class GetStreamsLimitTest extends GetStreamsTest {
 
 	constructor (options) {
 		super(options);
 		this.dontDoForeign = true;
-		this.dontDoTeamStreams = true;
+		this.dontDoDirectStreams = true;
+		this.dontDoFileStreams = true;
+		delete this.repoOptions.creatorIndex;
 		this.numStreams = 10;
 	}
 
@@ -18,12 +20,15 @@ class GetStreamsLimitTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// set up our expected streams to be in sorted order, and then limit to the first 3
-		this.myStreams = this.streamsByRepo[this.myRepo._id];
-		this.myStreams.sort((a, b) => {
+		this.expectedStreams = this.streamsByTeam[this.team._id].filter(stream => {
+			return stream.memberIds.includes(this.currentUser.user._id);
+		});
+		this.expectedStreams.push(this.teamStream);
+		this.expectedStreams.sort((a, b) => {
 			return a._id.localeCompare(b._id);
 		});
-		this.myStreams.splice(0, this.numStreams - 3);
-		this.path = `/streams/?teamId=${this.myTeam._id}&repoId=${this.myRepo._id}&limit=3`;
+		this.expectedStreams.splice(0, this.numStreams + 1 - 3);
+		this.path = `/streams/?teamId=${this.team._id}&&limit=3`;
 		callback();
 	}
 }

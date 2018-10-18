@@ -1,6 +1,6 @@
 'use strict';
 
-var GetStreamsTest = require('./get_streams_test');
+const GetStreamsTest = require('./get_streams_test');
 
 class GetAllStreamsByRepoTest extends GetStreamsTest {
 
@@ -10,9 +10,10 @@ class GetAllStreamsByRepoTest extends GetStreamsTest {
 
 	// set the path to use when issuing the test request
 	setPath (callback) {
-		let repoId = this.myRepo._id;
-		let teamId = this.myTeam._id;
-		this.myStreams = this.streamsByRepo[repoId];	// these are the streams we expect to see in the response
+		const repoId = this.repo._id;
+		const teamId = this.team._id;
+		this.expectedStreams = this.streamsByRepo[repoId];	// these are the streams we expect to see in the response
+		this.expectedStreams.push(this.repoStreams[0]);	// stream created as a side-effect of creating the repo
 		this.path = `/streams?teamId=${teamId}&repoId=${repoId}`;	// get all the streams for this repo
 		callback();
 	}

@@ -1,6 +1,6 @@
 'use strict';
 
-var GetCompaniesTest = require('./get_companies_test');
+const GetCompaniesTest = require('./get_companies_test');
 
 class GetCompaniesByIdTest extends GetCompaniesTest {
 
@@ -10,14 +10,8 @@ class GetCompaniesByIdTest extends GetCompaniesTest {
 
 	setPath (callback) {
 		// i'm in both of these companies, so i should be able to fetch them
-		this.path = `/companies?ids=${this.myCompany._id},${this.otherCompanies[0]._id}`;
+		this.path = `/companies?ids=${this.company._id},${this.companyWithMe._id}`;
 		callback();
-	}
-
-	validateResponse (data) {
-		let myCompanies = [this.myCompany, this.otherCompanies[0]];
-		this.validateMatchingObjects(myCompanies, data.companies, 'companies');
-		super.validateResponse(data);
 	}
 }
 

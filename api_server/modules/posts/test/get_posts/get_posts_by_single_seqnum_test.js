@@ -1,6 +1,6 @@
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
+const GetPostsTest = require('./get_posts_test');
 
 class GetPostsBySingleSeqNumTest extends GetPostsTest {
 
@@ -12,8 +12,9 @@ class GetPostsBySingleSeqNumTest extends GetPostsTest {
 	setPath (callback) {
 		// sort by sequence number so we're consistent, then take a single post,
 		// and fetch that one as specified by the seqnum parameter
-		this.myPosts.sort((a, b) => { return a.seqNum - b.seqNum; });
-		this.myPosts = [this.myPosts[3]];
+		this.expectedPosts = this.postData.map(postData => postData.post);
+		this.expectedPosts.sort((a, b) => { return a.seqNum - b.seqNum; });
+		this.expectedPosts = [this.expectedPosts[3]];
 		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&seqnum=4`;
 		callback();
 	}

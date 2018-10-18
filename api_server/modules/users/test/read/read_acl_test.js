@@ -1,14 +1,18 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const ReadTest = require('./read_test');
 
-class ReadACLTest extends CodeStreamAPITest {
+class ReadACLTest extends ReadTest {
+
+	constructor (options) {
+		super(options);
+		this.streamOptions.members = [];
+	}
 
 	get description () {
 		return 'should return error when user attempts to mark a stream read when that user is not a member of the stream';
 	}
-
+	
 	get method () {
 		return 'put';
 	}
@@ -19,77 +23,9 @@ class ReadACLTest extends CodeStreamAPITest {
 		};
 	}
 
-	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			this.createOtherUser,	// create a second registered user
-			this.createRepo,		// have that user create a repo (and team)
-			this.createStream,		// have that user create a stream in the repo
-			this.createPost			// have that user create a post in the stream
-		], callback);
-	}
-
-	// create a second registered user
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a repo (which creates a team)
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.repo = response.repo;
-				this.team = response.team;
-				callback();
-			},
-			{
-				withEmails: [this.currentUser.email],	// include the "current" user (but they won't be in the stream)
-				token: this.otherUserData.accessToken	// "other" user creates the repo/team
-			}
-		);
-	}
-
-	// create a file-type stream in the repo
-	createStream (callback) {
-		// in creating the stream, we are omitting the "current" user, so they will
-		// have an ACL failure trying to set a "read" status for the stream
-		let streamOptions = {
-			type: 'channel',
-			teamId: this.team._id,
-			token: this.otherUserData.accessToken	// "other" user creates the stream
-		};
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				this.path = '/read/' + this.stream._id;	// we'll set this stream to "read" for the current user
-				callback();
-			},
-			streamOptions
-		);
-	}
-
-	// create a post in the stream we created
-	createPost (callback) {
-		let postOptions = {
-			streamId: this.stream._id,
-			token: this.otherUserData.accessToken	// "other" user creates the post
-		};
-		this.postFactory.createRandomPost(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.post = response.post;
-				callback();
-			},
-			postOptions
-		);
+	markRead (callback) {
+		this.path = '/read/' + this.stream._id,
+		callback();
 	}
 }
 

@@ -24,10 +24,8 @@ class GetByQueryLimitTest extends GetByQueryTest {
 			response = await this.data.test.getByQuery(
 				{ flag: this.randomizer + 'yes' },
 				{
-					databaseOptions: {
-						sort: { number: -1 },
-						limit: 3
-					}
+					sort: { number: -1 },
+					limit: 3
 				}
 			);
 		}

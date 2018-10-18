@@ -1,6 +1,6 @@
 'use strict';
 
-var PutMarkerLocationsTest = require('./put_marker_locations_test');
+const PutMarkerLocationsTest = require('./put_marker_locations_test');
 
 class BadLocationTest extends PutMarkerLocationsTest {
 
@@ -18,7 +18,7 @@ class BadLocationTest extends PutMarkerLocationsTest {
 	// set the data to be used in the PUT request
 	setData (callback) {
 		super.setData(() => {
-			let markerId = Object.keys(this.data.locations)[0];
+			const markerId = Object.keys(this.data.locations)[0];
 			this.data.locations[markerId] = 1; // the location object needs to be an array
 			callback();
 		});

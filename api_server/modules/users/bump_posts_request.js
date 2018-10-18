@@ -3,6 +3,7 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class BumpPostsRequest extends RestfulRequest {
 
@@ -15,14 +16,22 @@ class BumpPostsRequest extends RestfulRequest {
 	async process () {
 		let totalPosts = this.user.get('totalPosts') || 0;
 		totalPosts++;
-		this.op = { $set: { totalPosts } };
-		await this.data.users.applyOpById(
-			this.user.id,
-			this.op
-		);
+		const op = { $set: { totalPosts } };
+		this.updateOp = await new ModelSaver({
+			request: this,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
+	}
+
+	async handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
 		this.responseData = {
-			user: Object.assign({_id: this.user.id}, this.op)
+			user: Object.assign({_id: this.user.id}, this.updateOp)
 		};
+		super.handleResponse();
 	}
 
 	// after the response is returned....

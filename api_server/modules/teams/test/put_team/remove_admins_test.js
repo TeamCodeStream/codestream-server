@@ -15,7 +15,7 @@ class RemoveAdminsTest extends RemoveAdminTest {
    
 	// get the users we want to remove as admins from the team
 	getRemovedAdmins () {
-		return this.otherUserData.slice(1).map(data => data.user);
+		return this.users.slice(1).map(data => data.user);
 	}
 }
 

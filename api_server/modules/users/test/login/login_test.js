@@ -2,9 +2,10 @@
 
 'use strict';
 
-var Assert = require('assert');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
+const UserAttributes = require('../../user_attributes');
 
 class LoginTest extends CodeStreamAPITest {
 
@@ -24,16 +25,12 @@ class LoginTest extends CodeStreamAPITest {
 		return UserTestConstants.EXPECTED_LOGIN_RESPONSE;
 	}
 
-	dontWantToken () {
-		return true;	// don't need an access token for this request
-	}
-
 	// before the test runs...
 	before (callback) {
 		// create a random registered user, then prepare to submit the login request
 		// with the user's email and password
 		const func = this.noConfirm ? 'registerUser' : 'createUser';
-		this.userData = this.userFactory.getRandomUserData();
+		this.userData = this.getUserData();
 		this.userFactory[func](this.userData, (error, userData) => {
 			if (error) { return callback(error); }
 			this.user = userData.user;
@@ -47,6 +44,10 @@ class LoginTest extends CodeStreamAPITest {
 		});
 	}
 
+	getUserData () {
+		return this.userFactory.getRandomUserData();
+	}
+
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate we get back the expected user, an access token, and a pubnub subscription key
@@ -56,6 +57,21 @@ class LoginTest extends CodeStreamAPITest {
 		Assert(data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
+	}
+
+	// validate that the received user data does not have any attributes a client shouldn't see
+	validateSanitized (user, fields) {
+		// because me-attributes are usually sanitized out (for other users), but not for the fetching user,
+		// we'll need to filter these out before calling the "base" validateSanitized, which would otherwise
+		// fail when it sees these attributes
+		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
+		meAttributes.forEach(attribute => {
+			let index = fields.indexOf(attribute);
+			if (index !== -1) {
+				fields.splice(index, 1);
+			}
+		});
+		super.validateSanitized(user, fields);
 	}
 }
 

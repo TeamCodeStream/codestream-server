@@ -1,6 +1,6 @@
 'use strict';
 
-var ResendConfirmTest = require('./resend_confirm_test');
+const ResendConfirmTest = require('./resend_confirm_test');
 
 class UnknownEmailTest extends ResendConfirmTest {
 

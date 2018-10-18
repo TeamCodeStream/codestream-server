@@ -38,9 +38,11 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				},
 				(error, response) => {
 					if (error) { return callback(error); }
-					this.userCreator = this.currentUser;
-					this.currentUser = response.user;
-					this.pubNubToken = this.currentUser._id;	// use this for the pubnub auth key
+					this.userCreator = this.currentUser.user;
+					this.currentUser = {
+						pubNubToken: response.user._id,
+						user: response.user
+					};
 					callback();
 				}
 			);
@@ -52,20 +54,21 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		// for the user we expect to receive the invite email, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the outbound email
 		// service on this channel, and then we'll validate the data
-		this.channelName = `user-${this.currentUser._id}`;
+		this.channelName = `user-${this.currentUser.user._id}`;
 		callback();
 	}
 
 	// generate the message that starts the test
 	generateMessage (callback) {
 		// generate the expected "check-out" link
-		const email = encodeURIComponent(this.currentUser.email);
-		const expectedLink = `${WebClientConfig.host}/signup?email=${email}&utm_medium=email&utm_source=product&utm_campaign=invitation_email&force_auth=true`;
+		const email = encodeURIComponent(this.currentUser.user.email);
+		const expectedCampaign = this.expectedCampaign || 'invitation_email';
+		const expectedLink = `${WebClientConfig.host}/signup?email=${email}&utm_medium=email&utm_source=product&utm_campaign=${expectedCampaign}&force_auth=true`;
 
 		// this is the message we expect to see
 		this.message = {
 			type: 'invite',
-			userId: this.currentUser._id,
+			userId: this.currentUser.user._id,
 			inviterId: this.userCreator._id,
 			teamName: this.team.name,
 			checkOutLink: expectedLink

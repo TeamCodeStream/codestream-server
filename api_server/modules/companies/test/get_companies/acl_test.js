@@ -1,6 +1,6 @@
 'use strict';
 
-var GetCompaniesTest = require('./get_companies_test');
+const GetCompaniesTest = require('./get_companies_test');
 
 class ACLTest extends GetCompaniesTest {
 
@@ -17,9 +17,9 @@ class ACLTest extends GetCompaniesTest {
 	setPath (callback) {
 		// include the "foreign" company in the IDs, this should fail
 		let ids = [
-			this.myCompany._id,
-			this.otherCompanies[0]._id,
-			this.foreignCompany._id
+			this.company._id,
+			this.companyWithMe._id,
+			this.companyWithoutMe._id
 		];
 		this.path = '/companies?ids=' + ids.join(',');
 		callback();

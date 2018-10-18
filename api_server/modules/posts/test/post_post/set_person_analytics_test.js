@@ -1,7 +1,7 @@
 'use strict';
 
-var MessageToAuthorTest = require('./message_to_author_test');
-var Assert = require('assert');
+const MessageToAuthorTest = require('./message_to_author_test');
+const Assert = require('assert');
 
 class SetPersonAnalyticsTest extends MessageToAuthorTest {
 
@@ -13,7 +13,7 @@ class SetPersonAnalyticsTest extends MessageToAuthorTest {
 	generateMessage (callback) {
 		// create the post with testing of tracking on, to receive the mock message back that
 		// would otherwise go to MixPanel
-		let data = {
+		const data = {
 			streamId: this.stream._id,
 			text: this.postFactory.randomText()
 		};
@@ -22,7 +22,7 @@ class SetPersonAnalyticsTest extends MessageToAuthorTest {
 				method: 'post',
 				path: '/posts',
 				data: data,
-				token: this.postCreatorData.accessToken,	// the "post creator" creates the post
+				token: this.users[1].accessToken,	// the "post creator" creates the post
 				testTracking: true,
 				reallyTrack: true
 			},
@@ -37,15 +37,15 @@ class SetPersonAnalyticsTest extends MessageToAuthorTest {
 		if (!message.event) {
 			return false;
 		}
-		let data = message.data;
-		let errors = [];
-		let result = (
+		const data = message.data;
+		const errors = [];
+		const result = (
 			((message.type === 'setPerson') || errors.push('type not correct')) &&
-			((message.event === this.postCreatorData.user._id) || errors.push('event should be the user ID')) &&
+			((message.event === this.users[1].user._id) || errors.push('event should be the user ID')) &&
 			((data['Total Posts'] === 1) || errors.push('Total Posts should be 1'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-		let lastPostCreatedAt = Date.parse(data['Date of Last Post']);
+		const lastPostCreatedAt = Date.parse(data['Date of Last Post']);
 		Assert(typeof lastPostCreatedAt === 'number' && lastPostCreatedAt > this.timeBeforePost, 'lastPostCreatedAt is not set or not greater than the time before the post');
 		return true;
 	}

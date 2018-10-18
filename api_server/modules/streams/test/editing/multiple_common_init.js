@@ -4,6 +4,8 @@
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
 
 class MultipleCommonInit {
 
@@ -19,61 +21,38 @@ class MultipleCommonInit {
 
 		// set up test data
 		BoundAsync.series(this, [
-			this.createOtherUser,		// create another registered user
-			this.createRandomRepo,		// create a random repo (and team) for the test
-			this.createForeignRepo,		// create another random repo excluding the current user
+			this.setTestOptions,
+			CodeStreamAPITest.prototype.before.bind(this),
+			this.createForeignTeam,		// create another team, as needed
 			this.createStreams,			// create several streams in each repo
 			this.setAlreadyEditing, 	// set that the users are already editing some files
 			this.makeEditingData		// make the data to be used during the update
 		], callback);
 	}
 
-	// create another registered user (in addition to the "current" user)
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
+	setTestOptions (callback) {
+		this.repoOptions.creatorIndex = 1;
+		callback();
 	}
 
-	// create a random repo to use for the test
-	createRandomRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.repo = response.repo;
-				this.team = response.team;
-				this.users = response.users;
-				callback();
-			},
-			{
-				withRandomEmails: 2,					// a few extra users for good measure
-				withEmails: [this.currentUser.email],	// include "current" user
-				token: this.otherUserData.accessToken	// the "other user" is the repo and team creator
-			}
-		);
+	// create a "foreign" team, for which the current user is not a member
+	createForeignTeam (callback) {
+		new TestTeamCreator({
+			test: this,
+			teamOptions: Object.assign({}, this.teamOptions, {
+				creatorToken: this.users[1].accessToken
+			}),
+			userOptions: this.userOptions,
+			repoOptions: this.repoOptions
+		}).create((error, response) => {
+			if (error) { return callback(error); }
+			this.foreignTeam = response.team;
+			this.foreignRepo = response.repo;
+			this.foreignUsers = response.users;
+			callback();
+		});
 	}
-
-	// create a second repo to use for the test, which does not include the current user
-	createForeignRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.foreignRepo = response.repo;
-				this.foreignTeam = response.team;
-				this.foreignUsers = response.users;
-				callback();
-			},
-			{
-				withRandomEmails: 2,					// a few extra users for good measure
-				token: this.otherUserData.accessToken	// the "other user" is the repo and team creator
-			}
-		);
-	}
-
+	
 	// create several streams in each team/repo
 	createStreams (callback) {
 		this.myFileStreams = [];
@@ -136,7 +115,7 @@ class MultipleCommonInit {
 				teamId: teamInfo.team._id,
 				repoId: type === 'file' ? teamInfo.repo._id : undefined, // file-type streams must have repoId
 				memberIds: type !== 'file' ? teamInfo.users.map(user => user._id) : undefined, // channel/direct must have members
-				token: this.otherUserData.accessToken // the "other user" is the stream creator
+				token: this.users[1].accessToken // the "other user" is the stream creator
 			}
 		);
 	}
@@ -171,7 +150,7 @@ class MultipleCommonInit {
 	setAlreadyEditing (callback) {
 		const alreadyEditingInfo = [
 			{ token: this.token, which: this.userHasBeenEditing },
-			{ token: this.otherUserData.accessToken, which: this.otherUserHasBeenEditing }
+			{ token: this.users[1].accessToken, which: this.otherUserHasBeenEditing }
 		];
 		BoundAsync.forEachSeries(
 			this,
@@ -283,7 +262,7 @@ class MultipleCommonInit {
 			) {
 				Assert(responseStream, `stream ${stream._id} not found in response`);
 				Assert(responseStream.$set.modifiedAt > this.editedAfter, `modifiedAt for ${stream._id} not properly set`);
-				Assert.equal(responseStream.$unset[`editingUsers.${this.currentUser._id}`], true, `editingUsers for ${stream._id} not unset`);
+				Assert.equal(responseStream.$unset[`editingUsers.${this.currentUser.user._id}`], true, `editingUsers for ${stream._id} not unset`);
 			}
 			else if (responseStream) {
 				Assert.fail(`stream ${responseStream._id} not expected in response`);
@@ -295,7 +274,7 @@ class MultipleCommonInit {
 		) {
 			Assert(responseStream, `stream ${stream._id} not found in response`);
 			Assert(responseStream.$set.modifiedAt > this.editedAfter, `modifiedAt for ${stream._id} not properly set`);
-			const set = responseStream.$set[`editingUsers.${this.currentUser._id}`];
+			const set = responseStream.$set[`editingUsers.${this.currentUser.user._id}`];
 			Assert.equal(set.commitHash, this.data.editing.commitHash, `editingUsers for ${stream._id} has incorrect commitHash`);
 			Assert(set.startedAt > this.editedAfter, `startedAt for ${stream._id} not properly set`);
 		}
@@ -315,7 +294,7 @@ class MultipleCommonInit {
 		Assert(responseStream.createdAt > this.editedAfter, `incorrect createdAt in stream created for ${file}`);
 		Assert(responseStream.modifiedAt > this.editedAfter, `incorrect modifiedAt in stream created for ${file}`);
 		Assert(responseStream.type === 'file', `incorrect type in stream created for ${file}`);
-		const entry = responseStream.editingUsers[`editingUsers.${this.currentUser._id}`];
+		const entry = responseStream.editingUsers[`editingUsers.${this.currentUser.user._id}`];
 		Assert(entry, `no entry for editing user in stream created for ${file}`);
 		Assert(entry.commitHash === this.data.editing.commitHash, `commitHash is not correct for stream created for ${file}`);
 		Assert(entry.startedAt > this.editedAfter, `startedAt is not correct for stream created for ${file}`);

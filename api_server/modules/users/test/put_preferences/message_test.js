@@ -1,9 +1,16 @@
 'use strict';
 
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-var ComplexUpdate = require('./complex_update');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const ComplexUpdate = require('./complex_update');
 
 class MessageTest extends CodeStreamMessageTest {
+
+	constructor (options) {
+		super(options);
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
+		this.expectVersion = 2;
+	}
 
 	get description () {
 		return 'the user should receive a message on their me-channel when they update their preferences';
@@ -12,7 +19,8 @@ class MessageTest extends CodeStreamMessageTest {
 	// make some test data before running the test
 	makeData (callback) {
 		// set some complex preferences data
-		let data = ComplexUpdate.INITIAL_PREFERENCES;
+		const data = ComplexUpdate.INITIAL_PREFERENCES;
+		this.expectVersion++;
 		this.doApiRequest(
 			{
 				method: 'put',
@@ -27,7 +35,7 @@ class MessageTest extends CodeStreamMessageTest {
 	// set the channel name to listen on
 	setChannelName (callback) {
 		// preference changes come back to the user on their own me-channel
-		this.channelName = 'user-' + this.currentUser._id;
+		this.channelName = 'user-' + this.currentUser.user._id;
 		callback();
 	}
 
@@ -35,7 +43,8 @@ class MessageTest extends CodeStreamMessageTest {
 	generateMessage (callback) {
 		// apply a complex update operation to the already "complex" preferences
 		// data, and confirm the appropriate complex op to apply at the client
-		let data = ComplexUpdate.UPDATE_OP;
+		const data = ComplexUpdate.UPDATE_OP;
+		this.expectVersion++;
 		this.doApiRequest(
 			{
 				method: 'put',
@@ -47,13 +56,30 @@ class MessageTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				this.message = {
 					user: {
-						_id: this.currentUser._id
+						_id: this.currentUser.user._id
 					}
 				};
-				Object.assign(this.message.user, ComplexUpdate.EXPECTED_OP);
+				this.message = this.getBaseExpectedResponse();
+				Object.assign(this.message.user.$set, ComplexUpdate.EXPECTED_OP.$set);
+				this.message.user.$unset = Object.assign({}, ComplexUpdate.EXPECTED_OP.$unset);
 				callback();
 			}
 		);
+	}
+
+	getBaseExpectedResponse () {
+		return {
+			user: {
+				_id: this.currentUser.user._id,
+				$set: {
+					version: this.expectVersion
+				},
+				$version: {
+					before: this.expectVersion - 1,
+					after: this.expectVersion
+				}
+			}
+		};
 	}
 }
 

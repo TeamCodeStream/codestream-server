@@ -1,13 +1,13 @@
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
+const GetPostsTest = require('./get_posts_test');
 
 class ACLTeamFileTest extends GetPostsTest {
 
 	constructor (options) {
+		options = Object.assign(options || {}, { type: 'file' });
 		super(options);
-		this.withoutMeOnTeam = true;	// without me on the team, i won't be able to fetch a post in a file-type stream
-		this.type = 'file';	// make it a file-type stream, which have team-level ACL
+		this.teamOptions.members = [];
 	}
 
 	get description () {

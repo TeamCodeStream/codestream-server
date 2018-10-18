@@ -78,9 +78,7 @@ class GetStreamsRequest extends GetManyRequest {
 		let limit = this.limit = this.setLimit();
 		let sort = this.setSort();
 		let hint = this.setHint();
-		return {
-			databaseOptions: { limit, sort, hint }
-		};
+		return { limit, sort, hint };
 	}
 
 	// set the limit to use in the fetch query, according to options passed in

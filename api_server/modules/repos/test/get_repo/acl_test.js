@@ -1,12 +1,13 @@
 'use strict';
 
-var GetRepoTest = require('./get_repo_test');
+const GetRepoTest = require('./get_repo_test');
 
 class ACLTest extends GetRepoTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;	// create the repo but don't include current user in the team
+		this.repoOptions.creatorIndex = 1;
+		this.teamOptions.members = [];
 	}
 
 	get description () {
@@ -17,13 +18,6 @@ class ACLTest extends GetRepoTest {
 		return {
 			code: 'RAPI-1009'
 		};
-	}
-
-	// set the path to use in the test request
-	setPath (callback) {
-		// try to fetch the other repo
-		this.path = '/repos/' + this.otherRepo._id;
-		callback();
 	}
 }
 

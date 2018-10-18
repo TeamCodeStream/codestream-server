@@ -1,6 +1,6 @@
 'use strict';
 
-var GetStreamsTest = require('./get_streams_test');
+const GetStreamsTest = require('./get_streams_test');
 
 class GetAllStreamsByTeamTest extends GetStreamsTest {
 
@@ -18,13 +18,13 @@ class GetAllStreamsByTeamTest extends GetStreamsTest {
 	setPath (callback) {
 		// we'll fetch all the streams from the team (without repo, it's all the channel and direct streams),
 		// but note that only the streams we are a member of will be fetched
-		let teamId = this.myTeam._id;
-		let teamStreams = this.streamsByTeam[teamId];
-		let userId = this.currentUser._id;
-		this.myStreams = teamStreams.filter(
+		const teamId = this.team._id;
+		const teamStreams = this.streamsByTeam[teamId];
+		const userId = this.currentUser.user._id;
+		this.expectedStreams = teamStreams.filter(
 			stream => stream.isTeamStream || stream.privacy === 'public' || stream.memberIds.includes(userId)
 		);
-		this.myStreams.push(this.myTeamStream);
+		this.expectedStreams.push(this.teamStream);
 		this.path = '/streams?teamId=' + teamId;
 		callback();
 	}

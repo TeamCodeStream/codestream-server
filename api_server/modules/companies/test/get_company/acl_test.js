@@ -1,12 +1,15 @@
 'use strict';
 
-var GetCompanyTest = require('./get_company_test');
+const GetCompanyTest = require('./get_company_test');
 
 class ACLTest extends GetCompanyTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;	// create the repo without me as a member of the team, therefore company
+		this.teamOptions = {
+			creatorIndex: 1,
+			members: []
+		};
 	}
 
 	get description () {
@@ -17,11 +20,6 @@ class ACLTest extends GetCompanyTest {
 		return {
 			code: 'RAPI-1009'	// readAuth
 		};
-	}
-
-	setPath (callback) {
-		this.path = '/companies/' + this.otherCompany._id;
-		callback();
 	}
 }
 

@@ -1,12 +1,12 @@
 'use strict';
 
-var ACLTest = require('./acl_test');
+const ACLTest = require('./acl_test');
 
 class ACLTeamTest extends ACLTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutOtherUserOnTeam = true;
+		this.teamOptions.members = [];
 	}
 
 	get description () {

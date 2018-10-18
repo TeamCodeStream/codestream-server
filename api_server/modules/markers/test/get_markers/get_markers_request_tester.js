@@ -2,15 +2,15 @@
 
 'use strict';
 
-var GetMarkersTest = require('./get_markers_test');
-var GetMarkersByIdTest = require('./get_markers_by_id_test');
-var MarkerLocationsTest = require('./marker_locations_test');
-var NoParameterTest = require('./no_parameter_test');
-var StreamNotFoundTest = require('./stream_not_found_test');
-var ACLStreamTest = require('./acl_stream_test');
-var ACLTeamTest = require('./acl_team_test');
-var StreamNoMatchTeamTest = require('./stream_no_match_team_test');
-var TooManyIDsTest = require('./too_many_ids_test');
+const GetMarkersTest = require('./get_markers_test');
+const GetMarkersByIdTest = require('./get_markers_by_id_test');
+const MarkerLocationsTest = require('./marker_locations_test');
+const NoParameterTest = require('./no_parameter_test');
+const StreamNotFoundTest = require('./stream_not_found_test');
+const ACLStreamTest = require('./acl_stream_test');
+const ACLTeamTest = require('./acl_team_test');
+const StreamNoMatchTeamTest = require('./stream_no_match_team_test');
+const TooManyIDsTest = require('./too_many_ids_test');
 
 class GetMarkersRequestTester {
 

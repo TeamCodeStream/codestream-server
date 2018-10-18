@@ -1,8 +1,13 @@
 'use strict';
 
-var CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
+const CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
 
 class NoCommitHashWithStreamTest extends CodeBlockFromDifferentStreamTest {
+
+	constructor (options) {
+		options = Object.assign(options || {}, { streamType: 'channel' });
+		super(options);
+	}
 
 	get description () {
 		return 'should return an error when attempting to create a post with a code block but not providing a commit hash, when a stream is also specified';

@@ -27,7 +27,7 @@ const RELATIONAL_PARAMETERS = [
 const NON_FILTERING_PARAMETERS = [
 	'limit',
 	'sort',
-	'withMarkers',
+	//'withMarkers',
 	'commitHash'
 ];
 
@@ -286,9 +286,7 @@ class GetPostsRequest extends GetManyRequest {
 		const limit = this.limit = this.setLimit();
 		const sort = this.setSort();
 		const hint = this.setHint();
-		return {
-			databaseOptions: { limit, sort, hint }
-		};
+		return { limit, sort, hint };
 	}
 
 	// set the limit to use in the fetch query, according to options passed in
@@ -351,9 +349,7 @@ class GetPostsRequest extends GetManyRequest {
 		const streams = await this.data.streams.getByQuery(
 			query,
 			{
-				databaseOptions: {
-					hint: StreamIndexes.byFile
-				},
+				hint: StreamIndexes.byFile,
 				noCache: true
 			}
 		);
@@ -366,6 +362,9 @@ class GetPostsRequest extends GetManyRequest {
 
 	// called right after the posts are fetched
 	async postFetchHook () {
+		/*
+		withMarkers options is deprecated
+
 		if (typeof this.request.query.withMarkers === 'undefined') {
 			return;
 		}
@@ -373,6 +372,7 @@ class GetPostsRequest extends GetManyRequest {
 		await this.fetchMarkers();
 		await this.sanitizeMarkers();
 		await this.fetchMarkerLocations();
+		*/
 	}
 
 	// extract the marker IDs from any code blocks in the fetched posts
@@ -413,11 +413,7 @@ class GetPostsRequest extends GetManyRequest {
 		};
 		const markerLocations = await this.data.markerLocations.getByQuery(
 			query,
-			{
-				databaseOptions: {
-					hint: { _id: 1 }
-				}
-			}
+			{ hint: { _id: 1 } }
 		);
 		if (markerLocations.length === 0) {
 			this.responseData.markerLocations = {};
@@ -458,8 +454,8 @@ class GetPostsRequest extends GetManyRequest {
 			'gte': '<Fetch posts with ID greater than or equal to the given value>',
 			'sort': '<Posts are sorted in descending order, unless this parameter is given as \'asc\'>',
 			'limit': '<Limit the number of posts fetched to this number>',
-			'withMarkers': '<If specified, the markers associated with all fetched posts will also be fetched>',
-			'commitHash': '<If specified along with withMarkers, the known locations of the markers fetched, for the given commit hash, will also be fetched>',
+			//'withMarkers': '<If specified, the markers associated with all fetched posts will also be fetched>',
+			//'commitHash': '<If specified along with withMarkers, the known locations of the markers fetched, for the given commit hash, will also be fetched>',
 			'seqnum': '<Fetch the posts in a range of sequence numbers, like: seqnum=3-7 (fetches posts with sequence numbers 3 thru 7, inclusive), or individual sequence numbers like: seqnum=4,6,9>',
 			'before': '<Fetch posts before this sequence number, including the post with that sequence number if "inclusive" set>',
 			'after': '<Fetch posts after this sequence number, including the post with that sequence number if "inclusive" is set>',
@@ -467,11 +463,13 @@ class GetPostsRequest extends GetManyRequest {
 		});
 		description.returns.summary = 'An array of post objects, plus possible marker objects and markerLocations object, and more flag';
 		Object.assign(description.returns.looksLike, {
+			/*
 			markers: [
 				'<@@#marker object#markers@@ > (if withMarkers specified)',
 				'...'
 			],
 			markerLocations: '<@@#marker locations object#markerLocations@@ > (if withMarkers and commitHash specified)',
+			*/
 			stream: '<@@#stream object#stream@@ > (stream associated with the path, if specified)',
 			more: '<will be set to true if more posts are available, see the description, above>'
 		});

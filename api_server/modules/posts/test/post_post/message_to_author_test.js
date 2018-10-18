@@ -1,12 +1,21 @@
 'use strict';
 
-var NewPostMessageToTeamTest = require('./new_post_message_to_team_test');
-var Assert = require('assert');
+const NewPostMessageToStreamTest = require('./new_post_message_to_team_test');
+const Assert = require('assert');
 
-class MessageToAuthorTest extends NewPostMessageToTeamTest {
+class MessageToAuthorTest extends NewPostMessageToStreamTest {
 
 	get description () {
 		return 'the author of a post should receive a message indicating totalPosts incremented and lastPostCreatedAt set and lastReads for the stream unset when creating a post';
+	}
+
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			delete this.repoOptions.creatorIndex;
+			this.streamOptions.type = 'channel';
+			this.postOptions.wantCodeBlock = false;
+			callback();
+		});
 	}
 
 	// make the data the will be used when issuing the request that triggers the message
@@ -14,8 +23,9 @@ class MessageToAuthorTest extends NewPostMessageToTeamTest {
 		// perform a little trickery here ... set the current user to the creator of the post,
 		// since the update message will come back on the creator's me-channel
 		super.makeData(() => {
-			this.currentUser = this.postCreatorData.user;
-			this.pubNubToken = this.postCreatorData.pubNubToken;
+			this.currentUser = this.users[1];
+			this.pubNubToken = this.users[1].pubNubToken;
+			this.useToken = this.users[1].accessToken;
 			callback();
 		});
 	}
@@ -23,7 +33,7 @@ class MessageToAuthorTest extends NewPostMessageToTeamTest {
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// the message comes on the author's me-channel
-		this.channelName = 'user-' + this.postCreatorData.user._id;
+		this.channelName = `user-${this.users[1].user._id}`;
 		// also set the message we expect to receive
 		this.timeBeforePost = Date.now();
 		callback();
@@ -32,10 +42,19 @@ class MessageToAuthorTest extends NewPostMessageToTeamTest {
 	validateMessage (message) {
 		this.message = {
 			user: {
-				_id: this.postCreatorData.user._id,
-				$inc: { totalPosts: 1 },
-				$set: { lastPostCreatedAt: this.timeBeforePost },	// this is a placeholder, it should be some time greater than this
-				$unset: { [`lastReads.${this.stream._id}`]: true }
+				_id: this.users[1].user._id,
+				$set: {
+					version: 4,
+					totalPosts: 1,
+					lastPostCreatedAt: this.timeBeforePost
+				},	// this is a placeholder, it should be some time greater than this
+				$unset: {
+					[`lastReads.${this.stream._id}`]: true 
+				},
+				$version: {
+					before: 3,
+					after: 4
+				}
 			}
 		};
 		const lastPostCreatedAt = message.message.user.$set.lastPostCreatedAt;

@@ -22,7 +22,7 @@ class SecondReactFetchTest extends ReactFetchTest {
 	// the actual test is reading the post and verifying it has both reactions
 	doSecondReaction (callback) {
 		const secondReaction = RandomString.generate(8);
-		const secondReactor = this.otherUserData[0];
+		const secondReactor = this.users[0];
 		const data = {
 			[secondReaction]: true
 		};

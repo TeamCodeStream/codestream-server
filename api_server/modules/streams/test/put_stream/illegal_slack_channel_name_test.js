@@ -6,6 +6,12 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 
 class IllegalSlackChannelNameTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.userOptions.numRegistered = 0;
+		delete this.teamOptions.creatorIndex;
+	}
+
 	get method () {
 		return 'put';
 	}
@@ -21,10 +27,6 @@ class IllegalSlackChannelNameTest extends CodeStreamAPITest {
 				name: 'illegal characters in channel name'
 			}
 		};
-	}
-
-	dontWantToken () {
-		return true;
 	}
 
 	// before the test runs...

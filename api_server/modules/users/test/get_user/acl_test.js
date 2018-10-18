@@ -1,8 +1,13 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class ACLTest extends CodeStreamAPITest {
+
+	constructor (options) {
+		super(options);
+		this.teamOptions.members = [];
+	}
 
 	get description () {
 		return 'should return an error when trying to fetch a user not on a team that i\'m not a member of';
@@ -16,11 +21,10 @@ class ACLTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
-		// create a user, then we'll try to fetch it ... but because we're not on a team together,
-		// it should fail
-		this.userFactory.createRandomUser((error, data) => {
+		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/users/' + data.user._id;
+			this.otherUser = this.users[1].user;
+			this.path = '/users/' + this.otherUser._id;
 			callback();
 		});
 	}

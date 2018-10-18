@@ -1,6 +1,6 @@
 'use strict';
 
-var RegistrationTest = require('./registration_test');
+const RegistrationTest = require('./registration_test');
 const Assert = require('assert');
 
 class PreferencesTest extends RegistrationTest {

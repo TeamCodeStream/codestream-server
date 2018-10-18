@@ -57,9 +57,7 @@ class RandomPostFactory {
 			for (let i = 0; i < options.wantCodeBlocks; i++) {
 				let codeBlockInfo = {
 					code: this.randomText(),
-					location: this.markerFactory.randomLocation(),
-					preContext: this.randomText(),
-					postContext: this.randomText()
+					location: this.markerFactory.randomLocation()
 				};
 				if (options.codeBlockStreamId) {
 					// for code blocks that come from a different stream than the one the post will go into
@@ -68,9 +66,7 @@ class RandomPostFactory {
 				else if (options.codeBlockStream) {
 					// for code blocks that come from a different stream than the one the post will go into,
 					// and the stream will be created on the fly
-					codeBlockInfo.file = options.codeBlockStream.file;
-					codeBlockInfo.repoId = options.codeBlockStream.repoId;
-					codeBlockInfo.remotes = options.codeBlockStream.remotes;
+					Object.assign(codeBlockInfo, options.codeBlockStream);
 				}
 				data.commitHashWhenPosted = data.commitHashWhenPosted || this.randomCommitHash();
 				data.codeBlocks.push(codeBlockInfo);

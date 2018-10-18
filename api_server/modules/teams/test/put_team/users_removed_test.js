@@ -6,16 +6,17 @@ const Assert = require('assert');
 
 class UsersRemovedTest extends PutTeamTest {
 
+	constructor (options) {
+		super(options);
+		this.otherUserUpdatesTeam = true;
+	}
+
 	get description () {
 		return 'users removed from a team should have the team removed from their teamIds';
 	}
 
 	get method () {
 		return 'get';
-	}
-
-	getExpectedFields () {
-		return null;
 	}
 
 	// before the test runs...
@@ -31,29 +32,11 @@ class UsersRemovedTest extends PutTeamTest {
 		// remove the current user from the team, this will be done by the "other" user
 		super.makeTeamData(() => {
 			this.data.$pull = {
-				memberIds: this.currentUser._id
+				memberIds: this.currentUser.user._id
 			};
+			this.path = '/users/me';
 			callback();
 		});
-	}
-
-	// perform the actual team update 
-	// the actual test is reading the team and verifying it is correct
-	updateTeam (callback) {
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: '/teams/' + this.team._id,
-				data: this.data,
-				token: this.otherUserData[0].accessToken
-			},
-			error => {
-				if (error) { return callback(error); }
-				delete this.data;	// don't need this anymore
-				this.path = '/users/me';
-				callback();
-			}
-		);
 	}
 
 	// validate that the response is correct

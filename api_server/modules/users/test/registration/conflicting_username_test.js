@@ -1,8 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-//const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class ConflictingUsernameTest extends CodeStreamAPITest {
 
@@ -24,51 +22,15 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 		};
 	}
 
-	dontWantToken () {
-		return true;	// we don't want a registered user for this test
-	}
-
 	// before the test runs...
 	before (callback) {
-		BoundAsync.series(this, [
-			this.createOtherUser,	// create a second registered user
-			this.createRepo			// create a repo (and team)
-		], callback);
-	}
-
-	// create a second registered user
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error);}
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a repo and team
-	createRepo (callback) {
-		// in creating the team, we'll add an (unregistered) user first, then
-		// try to register that user using the username of the user who created
-		// the team, leading to a conflict
-		let email = this.userFactory.randomEmail();
-		this.repoFactory.createRandomRepo(
-			error => {
-				if (error) { return callback(error); }
-				// establish
-				this.data = {
-					email: email,
-					username: this.otherUserData.user.username,	// borrow the 'other' user's username
-					password: 'blahblahblah'
-				};
-				callback();
-			},
-			{
-				withEmails: [email],
-				token: this.otherUserData.accessToken
-			}
-		);
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.data = this.userFactory.getRandomUserData();
+			this.data.email = this.users[2].user.email;
+			this.data.username = this.users[1].user.username;
+			callback();
+		});
 	}
 }
 

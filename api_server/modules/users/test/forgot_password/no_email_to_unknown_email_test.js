@@ -1,6 +1,6 @@
 'use strict';
 
-var ResetPasswordEmailTest = require('./reset_password_email_test');
+const ResetPasswordEmailTest = require('./reset_password_email_test');
 const Assert = require('assert');
 
 class NoEmailToUnknownEmailTest extends ResetPasswordEmailTest {

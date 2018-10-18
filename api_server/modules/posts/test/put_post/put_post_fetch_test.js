@@ -27,27 +27,10 @@ class PutPostFetchTest extends PutPostTest {
 		], callback);
 	}
 
-	// perform the actual post update 
-	// the actual test is reading the post and verifying it is correct
-	updatePost (callback) {
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: '/posts/' + this.post._id,
-				data: this.data,
-				token: this.token
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				Object.assign(this.expectedPost, response.post, this.data);
-				delete this.data;	// don't need this anymore
-				callback();
-			}
-		);
-	}
-
 	// validate that the response is correct
 	validateResponse (data) {
+		Assert(data.post.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was updated');
+		this.expectedPost.modifiedAt = data.post.modifiedAt;
 		// verify what we fetch is what we got back in the response
 		Assert.deepEqual(data.post, this.expectedPost, 'fetched post does not match');
 	}

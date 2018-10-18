@@ -1,7 +1,7 @@
 'use strict';
 
-var PutMarkerLocationsFetchTest = require('./put_marker_locations_fetch_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const PutMarkerLocationsFetchTest = require('./put_marker_locations_fetch_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class AdditionalMarkerLocationsTest extends PutMarkerLocationsFetchTest {
 
@@ -23,12 +23,36 @@ class AdditionalMarkerLocationsTest extends PutMarkerLocationsFetchTest {
 
 	// create more posts with code blocks that will give us more markers
 	createMorePosts (callback) {
-		this.newPostsIndex = this.posts.length;	// remember where the initial markers end and the new markers start
+		this.newPostsIndex = this.postData.length;	// remember where the initial markers end and the new markers start
 		BoundAsync.timesSeries(
 			this,
 			3,
 			this.createPost,
 			callback
+		);
+	}
+
+	// create a single post in the stream (with code blocks, so we have markers)
+	createPost (n, callback) {
+		let token = n % 2 === 1 ? this.token : this.users[1].accessToken;	// we'll alternate who creates the posts
+		this.postFactory.createRandomPost(
+			(error, response) => {
+				if (error) { return callback(error); }
+				// store post, marker, and marker location info
+				this.postData.push(response);
+				const marker = response.markers[0];
+				this.markers.push(marker);
+				this.locations[marker._id] = response.markerLocations[0].locations[marker._id];
+				callback();
+			},
+			{
+				teamId: this.team._id,
+				streamId: this.stream._id,
+				wantCodeBlocks: 1,
+				codeBlockStreamId: this.repoStreams[0]._id,
+				token: token,
+				commitHash: this.postOptions.commitHash	// they will all have the same commit hash
+			}
 		);
 	}
 
@@ -43,14 +67,14 @@ class AdditionalMarkerLocationsTest extends PutMarkerLocationsFetchTest {
 
 	// save the marker locations we calculated for the new markers
 	setMoreMarkerLocations (callback) {
-		let newMarkerIds = this.newMarkers.map(marker => marker._id);
-		let newAdjustedMarkerLocations = {};
+		const newMarkerIds = this.newMarkers.map(marker => marker._id);
+		const newAdjustedMarkerLocations = {};
 		newMarkerIds.forEach(markerId => {
 			newAdjustedMarkerLocations[markerId] = this.adjustedMarkerLocations[markerId];
 		});
-		let data = {
+		const data = {
 			teamId: this.team._id,
-			streamId: this.stream._id,
+			streamId: this.repoStreams[0]._id,
 			commitHash: this.newCommitHash,
 			locations: newAdjustedMarkerLocations
 		};

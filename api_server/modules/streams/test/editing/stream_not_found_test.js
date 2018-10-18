@@ -1,8 +1,8 @@
 'use strict';
 
-var EditingTest = require('./editing_test');
-var ObjectID = require('mongodb').ObjectID;
-var Assert = require('assert');
+const EditingTest = require('./editing_test');
+const ObjectID = require('mongodb').ObjectID;
+const Assert = require('assert');
 
 class StreamNotFoundTest extends EditingTest {
 
