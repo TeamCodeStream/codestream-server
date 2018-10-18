@@ -2,10 +2,10 @@
 
 'use strict';
 
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-var Assert = require('assert');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var CommonInit = require('./common_init');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const CommonInit = require('./common_init');
 const PostTestConstants = require('../post_test_constants');
 
 class PutPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
@@ -18,10 +18,6 @@ class PutPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		return 'put';
 	}
 
-	getExpectedFields () {
-		return { post: ['text', 'modifiedAt', 'hasBeenEdited'] };
-	}
-
 	// before the test runs...
 	before (callback) {
 		this.init(callback);
@@ -29,17 +25,13 @@ class PutPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		// verify we got back a post with the updated text
-		let post = data.post;
-		Assert(post._id === this.post._id, 'returned post ID is not the same');
-		Assert.equal(post.text, this.data.text, 'text does not match');
-		Assert(post.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was edited');
-		Assert(post.hasBeenEdited, 'hasBeenEdited flag not set');
-		if (this.wantMention) {
-			Assert.deepEqual(post.mentionedUserIds, this.data.mentionedUserIds, 'mentionedUserIds is not correct');
-		}
+		// verify modifiedAt was updated, and then set it so the deepEqual works
+		Assert(data.post.$set.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the before was updated');
+		this.expectedData.post.$set.modifiedAt = data.post.$set.modifiedAt;
+		// verify we got back the proper response
+		Assert.deepEqual(data, this.expectedData, 'response data is not correct');
 		// verify the post in the response has no attributes that should not go to clients
-		this.validateSanitized(post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(data.post.$set, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 

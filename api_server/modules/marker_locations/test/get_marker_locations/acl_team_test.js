@@ -1,12 +1,12 @@
 'use strict';
 
-var GetMarkerLocationsTest = require('./get_marker_locations_test');
+const GetMarkerLocationsTest = require('./get_marker_locations_test');
 
 class ACLTeamTest extends GetMarkerLocationsTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;	// i won't be part of the team to which the stream belongs
+		this.teamOptions.members = []; // we'll create the setup team without the current user
 	}
 
 	get description () {

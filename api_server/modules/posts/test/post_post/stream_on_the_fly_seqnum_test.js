@@ -1,17 +1,24 @@
 'use strict';
 
-var PostPostTest = require('./post_post_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const PostPostTest = require('./post_post_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class StreamOnTheFlySeqNumTest extends PostPostTest {
 
 	constructor (options) {
 		super(options);
-		this.testOptions.expectedSeqNum = 2;	// the test will be to create the second post, it should have a seqNum of 2
+		this.expectedSeqNum = 2;	// the test will be to create the second post, it should have a seqNum of 2
 	}
 
 	get description () {
 		return 'the second post created in a stream that was created on-the-fly with the first post should get a seqNum of 2';
+	}
+
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.repoOptions.creatorIndex = 1;
+			callback();
+		});
 	}
 
 	// form the data for the post we'll create in the test
@@ -19,7 +26,8 @@ class StreamOnTheFlySeqNumTest extends PostPostTest {
 		BoundAsync.series(this, [
 			this.getStreamData,		// get some random stream data to use when creating a stream on the fly
 			this.createPostAndStream,	// create a post with a stream on the fly
-			super.makePostData		// now form the actual post data
+			super.makePostData,		// now form the actual post data
+			this.setStreamId		// update the stream ID for the post to be created
 		], callback);
 	}
 
@@ -33,8 +41,8 @@ class StreamOnTheFlySeqNumTest extends PostPostTest {
 			},
 			{
 				teamId: this.team._id,
-				repoId: this.repo._id,
-				type: 'file'
+				type: 'channel',
+				memberIds: [this.currentUser.user._id]
 			}
 		);
 	}
@@ -44,17 +52,19 @@ class StreamOnTheFlySeqNumTest extends PostPostTest {
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.postOptions = {
-					streamId: response.streams[0]._id
-				};
 				this.streamCreatedOnTheFly = response.streams[0];
 				callback();
 			},
 			{
 				stream: this.streamData,	// the stream data for an on-the-fly stream
-				token: this.otherUserData.accessToken	// let's have the other user create the first post
+				token: this.users[1].accessToken	// let's have the other user create the first post
 			}
 		);
+	}
+
+	setStreamId (callback) {
+		this.data.streamId = this.streamCreatedOnTheFly._id;
+		callback();
 	}
 
 	// verify we got the expected stream update in the response

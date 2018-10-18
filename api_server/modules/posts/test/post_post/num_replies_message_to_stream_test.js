@@ -1,6 +1,6 @@
 'use strict';
 
-const HasRepliesMessageToStreamTest = require('./has_replies_message_to_team_test');
+const HasRepliesMessageToStreamTest = require('./has_replies_message_to_stream_test');
 
 class NumRepliesMessageToStreamTest extends HasRepliesMessageToStreamTest {
 	

@@ -1,7 +1,7 @@
 'use strict';
 
-var GetMarkerLocationsTest = require('./get_marker_locations_test');
-var Assert = require('assert');
+const GetMarkerLocationsTest = require('./get_marker_locations_test');
+const Assert = require('assert');
 
 class NoMarkerLocationsForCommitTest extends GetMarkerLocationsTest {
 
@@ -10,7 +10,7 @@ class NoMarkerLocationsForCommitTest extends GetMarkerLocationsTest {
 	}
 
 	getQueryParameters () {
-		let queryParameters = super.getQueryParameters();
+		const queryParameters = super.getQueryParameters();
 		queryParameters.commitHash = this.postFactory.randomCommitHash();	// change the commit hash
 		return queryParameters;
 	}

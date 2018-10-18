@@ -1,6 +1,6 @@
 'use strict';
 
-var DirectOnTheFlyTest = require('./direct_on_the_fly_test');
+const DirectOnTheFlyTest = require('./direct_on_the_fly_test');
 
 class NoTypeTest extends DirectOnTheFlyTest {
 

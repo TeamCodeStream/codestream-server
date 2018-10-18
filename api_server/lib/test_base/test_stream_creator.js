@@ -53,6 +53,7 @@ class TestStreamCreator {
 				});
 			}
 		}
+
 		this.test.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -83,12 +84,37 @@ class TestStreamCreator {
 		const postOptions = {
 			streamId: this.stream._id,
 		};
-		if (this.postOptions.wantCodeBlock) {
+		if (this.postOptions.wantCodeBlock || 
+			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantCodeBlock)) {
 			postOptions.wantCodeBlocks = 1;
-			postOptions.codeBlockStream = {
-				file: this.test.streamFactory.randomFile(),
-				remotes: [this.test.repoFactory.randomUrl()]
-			};
+			if (typeof this.postOptions.codeBlockStreamId !== 'undefined') {
+				if (
+					typeof this.postOptions.codeBlockStreamId === 'number' &&
+					this.repoStreams
+				) {
+					postOptions.codeBlockStreamId = this.repoStreams[this.postOptions.codeBlockStreamId]._id;
+				}
+				else {
+					postOptions.codeBlockStreamId = this.postOptions.codeBlockStreamId;
+				}
+			}
+			else {
+				postOptions.codeBlockStream = {
+					file: this.test.streamFactory.randomFile(),
+					remotes: [this.test.repoFactory.randomUrl()]
+				};
+			}
+			if (this.postOptions.commitHash) {
+				postOptions.commitHash = this.postOptions.commitHash;
+			}
+		}
+		if (this.postOptions.postData && this.postOptions.postData[n]) {
+			const postData = this.postOptions.postData[n];
+			if (typeof postData.replyTo !== 'undefined') {
+				postOptions.parentPostId = this.postData[postData.replyTo].post._id;
+				delete postData.replyTo;
+			}
+			Object.assign(postOptions, this.postOptions.postData[n]);
 		}
 		const creatorIndex = this.postOptions.creatorIndex instanceof Array ? 
 			this.postOptions.creatorIndex[n] :

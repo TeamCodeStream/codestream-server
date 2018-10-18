@@ -65,7 +65,8 @@ class CodeStreamAPITest extends APIRequestTest {
 		this.postOptions = {
 			creatorIndex: undefined,
 			numPosts: 1,
-			wantCodeBlock: false
+			wantCodeBlock: false,
+			postData: []
 		};
 		this.users = [];
 	}
@@ -118,6 +119,7 @@ class CodeStreamAPITest extends APIRequestTest {
 			postOptions: this.postOptions,
 			team: this.team,
 			repo: this.repo,
+			repoStreams: this.repoStreams,
 			users: this.users
 		}).create((error, data) => {
 			if (error) { return callback(error); }

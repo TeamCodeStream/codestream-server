@@ -1,8 +1,8 @@
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
+const GetPostsTest = require('./get_posts_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Assert = require('assert');
 const Limits = require(process.env.CS_API_TOP + '/config/limits');
 
 class PaginationTest extends GetPostsTest {

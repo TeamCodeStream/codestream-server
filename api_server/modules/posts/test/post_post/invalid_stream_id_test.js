@@ -1,7 +1,7 @@
 'use strict';
 
-var PostPostTest = require('./post_post_test');
-var ObjectID = require('mongodb').ObjectID;
+const PostPostTest = require('./post_post_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class InvalidStreamIdTest extends PostPostTest {
 

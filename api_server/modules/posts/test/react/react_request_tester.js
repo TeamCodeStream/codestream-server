@@ -15,8 +15,7 @@ const TooManyReactionsTest = require('./too_many_reactions_test');
 const IllegalCharacterTest = require('./illegal_character_test');
 const NonBooleanTest = require('./non_boolean_test');
 const EmptyReactionsTest = require('./empty_reactions_test');
-const MessageToStreamTest = require('./message_to_stream_test');
-const MessageToTeamTest = require('./message_to_team_test');
+const MessageTest = require('./message_test');
 
 class ReactRequestTester {
 
@@ -35,9 +34,8 @@ class ReactRequestTester {
 		new IllegalCharacterTest({ character: '.' }).test();
 		new NonBooleanTest().test();
 		new EmptyReactionsTest().test();
-		new MessageToStreamTest({ streamType: 'direct' }).test();
-		new MessageToStreamTest({ streamType: 'channel' }).test();
-		new MessageToTeamTest().test();
+		new MessageTest({ streamType: 'channel' }).test();
+		new MessageTest({ streamType: 'direct' }).test();
 	}
 }
 

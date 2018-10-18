@@ -1,8 +1,8 @@
 'use strict';
 
-var PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
+const CodeBlockTest = require('./code_block_test');
 
-class CodeBlocksTooLongTest extends PostCodeToFileStreamTest {
+class CodeBlocksTooLongTest extends CodeBlockTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post with a code blocks array that is too long';
@@ -19,7 +19,7 @@ class CodeBlocksTooLongTest extends PostCodeToFileStreamTest {
 	makePostData (callback) {
 		// create an array of code blocks that is over the limit in size
 		super.makePostData(() => {
-			let moreStuff = 'x,'.repeat(10).split(',');
+			const moreStuff = 'x,'.repeat(10).split(',');
 			this.data.codeBlocks = [...this.data.codeBlocks, ...moreStuff];
 			callback();
 		});

@@ -1,7 +1,7 @@
 'use strict';
 
-var ChannelOnTheFlyTest = require('./channel_on_the_fly_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const ChannelOnTheFlyTest = require('./channel_on_the_fly_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class DuplicateChannelTest extends ChannelOnTheFlyTest {
 
@@ -20,23 +20,26 @@ class DuplicateChannelTest extends ChannelOnTheFlyTest {
 	}
 
 	// before the test runs...
-	before (callback) {
+	makePostData (callback) {
 		BoundAsync.series(this, [
-			super.before,
-			this.createDuplicateStream	// pre-create a channel stream with the same name as we'll use in the test
+			this.createDuplicateStream,	// pre-create a channel stream with the same name as we'll use in the test
+			super.makePostData
 		], callback);
 	}
 
 	// create a channel stream which will look like a duplicate when we run the test
 	createDuplicateStream (callback) {
 		this.streamFactory.createRandomStream(
-			(error, stream) => {
+			(error, response) => {
 				if (error) { return callback(error); }
-				this.duplicateStream = stream;
+				this.duplicateStream = response.stream;
 				callback();
 			},
-			// use the name of the pre-created channel stream when we try to run the test
-			Object.assign({}, this.streamOptions, { name: this.data.stream.name })
+			{
+				teamId: this.team._id,
+				type: 'channel',
+				token: this.token
+			}
 		);
 	}
 }

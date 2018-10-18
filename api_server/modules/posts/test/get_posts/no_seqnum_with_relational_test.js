@@ -1,7 +1,7 @@
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
-var ObjectID = require('mongodb').ObjectID;
+const GetPostsTest = require('./get_posts_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class NoSeqNumWithRelationalTest extends GetPostsTest {
 
@@ -12,7 +12,7 @@ class NoSeqNumWithRelationalTest extends GetPostsTest {
 	// set the path to use in the fetch request
 	setPath (callback) {
 		// provide a "gt" parameter, which is not allowed in conjunction with a seqnum parameter
-		let id = ObjectID();
+		const id = ObjectID();
 		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&seqnum=1&gt=${id}`;
 		callback();
 	}

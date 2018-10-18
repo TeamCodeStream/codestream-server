@@ -1,9 +1,9 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var ObjectID = require('mongodb').ObjectID;
+const GetPostTest = require('./get_post_test');
+const ObjectID = require('mongodb').ObjectID;
 
-class NotFoundTest extends CodeStreamAPITest {
+class NotFoundTest extends GetPostTest {
 
 	get description () {
 		return 'should return an error when trying to fetch a post that doesn\'t exist';
@@ -17,9 +17,12 @@ class NotFoundTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
-		// set the path to fetch some random post that doesn't exist
-		this.path = '/posts/' + ObjectID();
-		callback();
+		super.before(error => {
+			if (error) { return callback(error); }
+			// set the path to fetch some random post that doesn't exist
+			this.path = '/posts/' + ObjectID();
+			callback();
+		});
 	}
 }
 

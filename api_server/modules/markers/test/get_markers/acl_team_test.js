@@ -1,12 +1,12 @@
 'use strict';
 
-var GetMarkersTest = require('./get_markers_test');
+const GetMarkersTest = require('./get_markers_test');
 
 class ACLTeamTest extends GetMarkersTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;	// we'll create the setup team without the current user
+		this.teamOptions.members = []; // we'll create the setup team without the current user
 	}
 
 	get description () {

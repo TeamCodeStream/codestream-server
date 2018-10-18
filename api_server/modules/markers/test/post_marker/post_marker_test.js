@@ -38,7 +38,7 @@ class PostMarkerTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const marker = data.marker;
 		const codeBlock = marker.codeBlock;
 		const markerLocations = data.markerLocations[0];
-		const expectedMarkerStream = this.onTheFlyStream || this.stream;
+		const expectedMarkerStream = this.onTheFlyStream || this.repoStreams[0];
 		const expectedRepo = this.onTheFlyRepo || this.repo;
 		let errors = [];
 		let result = (
@@ -49,7 +49,7 @@ class PostMarkerTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((marker.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof marker.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((marker.modifiedAt >= marker.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((marker.creatorId === this.currentUser._id) || errors.push('creatorId not equal to current user id')) &&
+			((marker.creatorId === this.currentUser.user._id) || errors.push('creatorId not equal to current user id')) &&
 			((codeBlock.code === this.data.code) || errors.push('codeBlock code does not match the given code')) &&
 			((codeBlock.streamId === expectedMarkerStream._id) || errors.push('codeBlock streamId does not match the stream')) &&
 			((codeBlock.commitHash === this.data.commitHash.toLowerCase()) || errors.push('codeBlock commitHash does not match the given commit hash')) &&

@@ -1,12 +1,12 @@
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
+const GetPostsTest = require('./get_posts_test');
 
 class ACLStreamTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMeInStream = true;	// without me in the stream, i won't be able to fetch a post
+		this.streamOptions.members = [];
 	}
 
 	get description () {

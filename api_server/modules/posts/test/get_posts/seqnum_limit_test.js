@@ -15,6 +15,7 @@ class SeqNumLimitTest extends GetPostsTest {
 
 	// set the path to use in the fetch request
 	setPath (callback) {
+		this.expectedPosts = this.postData.map(postData => postData.post);
 		// the results (in myPosts) should be the first 100 posts, even if we ask for more
 		this.myPosts.sort((a, b) => { return a.seqNum - b.seqNum; });
 		this.myPosts.splice(100);

@@ -2,10 +2,10 @@
 
 'use strict';
 
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-var Assert = require('assert');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var CommonInit = require('./common_init');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const CommonInit = require('./common_init');
 const MarkerTestConstants = require('../marker_test_constants');
 
 class PutMarkerTest extends Aggregation(CodeStreamAPITest, CommonInit) {
@@ -18,10 +18,6 @@ class PutMarkerTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		return 'put';
 	}
 
-	getExpectedFields () {
-		return { marker: ['commitHashWhenCreated'] };
-	}
-
 	// before the test runs...
 	before (callback) {
 		this.init(callback);
@@ -29,12 +25,13 @@ class PutMarkerTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		// verify we got back a marker with the updated commit hash
-		let marker = data.marker;
-		Assert(marker._id === this.marker._id, 'returned marker` ID is not the same');
-		Assert.equal(marker.commitHashWhenCreated, this.data.commitHashWhenCreated, 'commitHashWhenCreated does not match');
-		// verify the post in the response has no attributes that should not go to clients
-		this.validateSanitized(marker, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
+		// verify modifiedAt was updated, and then set it so the deepEqual works
+		Assert(data.marker.$set.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the before was updated');
+		this.expectedData.marker.$set.modifiedAt = data.marker.$set.modifiedAt;
+		// verify we got back the proper response
+		Assert.deepEqual(data, this.expectedData, 'response data is not correct');
+		// verify the marker in the response has no attributes that should not go to clients
+		this.validateSanitized(data.marker.$set, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 

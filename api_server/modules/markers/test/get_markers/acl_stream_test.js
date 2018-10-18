@@ -1,7 +1,7 @@
 'use strict';
 
-var GetMarkersTest = require('./get_markers_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const GetMarkersTest = require('./get_markers_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class ACLStreamTest extends GetMarkersTest {
 
@@ -34,8 +34,8 @@ class ACLStreamTest extends GetMarkersTest {
 			},
 			{
 				type: 'channel',	// not even a file stream!
-				token: this.otherUserData.accessToken,	// other user is the creator
-				teamId: this.repo.teamId
+				token: this.users[1].accessToken,	// other user is the creator
+				teamId: this.team._id
 			}
 		);
 	}

@@ -2,25 +2,25 @@
 
 'use strict';
 
-var PutMarkerLocationsTest = require('./put_marker_locations_test');
-var PutMarkerLocationsFetchTest = require('./put_marker_locations_fetch_test');
-var NoAttributeTest = require('./no_attribute_test');
-var BadTypeTest = require('./bad_type_test');
-var BadTypeLocationTest = require('./bad_type_location_test');
-var LocationsTooLargeTest = require('./locations_too_large_test');
-var StreamNotFoundTest = require('./stream_not_found_test');
-var ACLStreamTest = require('./acl_stream_test');
-var ACLTeamTest = require('./acl_team_test');
-var NonFileStreamTest = require('./non_file_stream_test');
-var OtherTeamTest = require('./other_team_test');
-var BadMarkerIdTest = require('./bad_marker_id_test');
-var BadLocationTest = require('./bad_location_test');
-var LocationTooLongTest = require('./location_too_long_test');
-var LocationTooShortTest = require('./location_too_short_test');
-var BadLocationCoordinateTest = require('./bad_location_coordinate_test');
-var InvalidCoordinateObjectTest = require('./invalid_coordinate_object_test');
-var AdditionalMarkerLocationsTest = require('./additional_marker_locations_test');
-var MessageToTeamTest = require('./message_to_team_test');
+const PutMarkerLocationsTest = require('./put_marker_locations_test');
+const PutMarkerLocationsFetchTest = require('./put_marker_locations_fetch_test');
+const NoAttributeTest = require('./no_attribute_test');
+const BadTypeTest = require('./bad_type_test');
+const BadTypeLocationTest = require('./bad_type_location_test');
+const LocationsTooLargeTest = require('./locations_too_large_test');
+const StreamNotFoundTest = require('./stream_not_found_test');
+const ACLStreamTest = require('./acl_stream_test');
+const ACLTeamTest = require('./acl_team_test');
+const NonFileStreamTest = require('./non_file_stream_test');
+const OtherTeamTest = require('./other_team_test');
+const BadMarkerIdTest = require('./bad_marker_id_test');
+const BadLocationTest = require('./bad_location_test');
+const LocationTooLongTest = require('./location_too_long_test');
+const LocationTooShortTest = require('./location_too_short_test');
+const BadLocationCoordinateTest = require('./bad_location_coordinate_test');
+const InvalidCoordinateObjectTest = require('./invalid_coordinate_object_test');
+const AdditionalMarkerLocationsTest = require('./additional_marker_locations_test');
+const MessageToTeamTest = require('./message_to_team_test');
 
 class PutMarkerLocationsRequestTester {
 

@@ -1,7 +1,7 @@
 'use strict';
 
-var InboundEmailTest = require('./inbound_email_test');
-var ObjectID = require('mongodb').ObjectID;
+const InboundEmailTest = require('./inbound_email_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class StreamNotFoundTest extends InboundEmailTest {
 
@@ -19,8 +19,8 @@ class StreamNotFoundTest extends InboundEmailTest {
 	makePostData (callback) {
 		super.makePostData(() => {
 			// inject a valid but non-existent stream ID
-			let index = this.data.to[0].address.indexOf('.');
-			let fakeStreamId = ObjectID();
+			const index = this.data.to[0].address.indexOf('.');
+			const fakeStreamId = ObjectID();
 			this.data.to[0].address = fakeStreamId + this.data.to[0].address.slice(index);
 			this.data.to.splice(1);
 			callback();

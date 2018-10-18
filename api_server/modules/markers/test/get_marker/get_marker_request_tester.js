@@ -2,9 +2,9 @@
 
 'use strict';
 
-var GetMarkerTest = require('./get_marker_test');
-var NotFoundTest = require('./not_found_test');
-var ACLTest = require('./acl_test');
+const GetMarkerTest = require('./get_marker_test');
+const NotFoundTest = require('./not_found_test');
+const ACLTest = require('./acl_test');
 
 class GetRepoRequestTester {
 

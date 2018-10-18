@@ -1,12 +1,12 @@
 'use strict';
 
-var PostToFileStreamTest = require('./post_to_file_stream_test');
-var Assert = require('assert');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var RandomString = require('randomstring');
+const PostToChannelTest = require('./post_to_channel_test');
+const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const RandomString = require('randomstring');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
-class UnregisteredMentionTest extends PostToFileStreamTest {
+class UnregisteredMentionTest extends PostToChannelTest {
 
 	get description () {
 		return 'a mentioned unregistered user should get analytics related updates';
@@ -16,7 +16,7 @@ class UnregisteredMentionTest extends PostToFileStreamTest {
 	makePostData (callback) {
 		super.makePostData(() => {
 			// add users to the mentionedUserIds array
-			this.mentionedUser = this.users.find(user => !user.isRegistered);
+			this.mentionedUser = this.users.find(user => !user.user.isRegistered).user;
 			this.data.mentionedUserIds = [this.mentionedUser._id];
 			callback();
 		});
@@ -61,7 +61,6 @@ class UnregisteredMentionTest extends PostToFileStreamTest {
 			path: '/no-auth/confirm',
 			data: {
 				email: this.registeredUser.email,
-				userId: this.registeredUser._id,
 				confirmationCode: this.registeredUser.confirmationCode
 			}
 		}, (error, response) => {
@@ -75,7 +74,7 @@ class UnregisteredMentionTest extends PostToFileStreamTest {
 	verifyUserUpdate (callback) {
 		const user = this.confirmedUser;
 		Assert(user.internalMethod === 'mention_notification', 'internalMethod not correct');
-		Assert(user.internalMethodDetail === this.currentUser._id, 'internalMethodDetail not set to post author');
+		Assert(user.internalMethodDetail === this.currentUser.user._id, 'internalMethodDetail not set to post author');
 		Assert(user.numMentions === 1, 'numMentions not set to 1');
 		callback();
 	}

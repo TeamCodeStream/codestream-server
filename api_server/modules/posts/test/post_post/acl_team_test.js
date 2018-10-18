@@ -1,13 +1,15 @@
 'use strict';
 
-var ACLTest = require('./acl_test');
+const PostPostTest = require('./post_post_test');
 
-class ACLTeamTest extends ACLTest {
+class ACLTeamTest extends PostPostTest {
 
-	constructor (options) {
-		// modify the base ACLTest...
-		super(options);
-		this.withoutMeOnTeam = true;	// i won't be on the team that owns the stream in whcih i'm trying to create a post
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.teamOptions.members = [];
+			this.streamOptions.members = [];
+			callback();
+		});
 	}
 
 	getExpectedError () {

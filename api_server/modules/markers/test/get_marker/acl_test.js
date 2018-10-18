@@ -1,12 +1,12 @@
 'use strict';
 
-var GetMarkerTest = require('./get_marker_test');
+const GetMarkerTest = require('./get_marker_test');
 
 class ACLTest extends GetMarkerTest {
 
 	constructor (options) {
 		super(options);
-		this.withoutMe = true;	 // create a team without me
+		this.teamOptions.members = [];
 	}
 
 	get description () {
@@ -17,13 +17,6 @@ class ACLTest extends GetMarkerTest {
 		return {
 			code: 'RAPI-1009'	 // readAuth
 		};
-	}
-
-	// set path to use for the request
-	setPath (callback) {
-		// this should fail since i'm not a member of the team
-		this.path = '/markers/' + this.marker._id;
-		callback();
 	}
 }
 

@@ -1,13 +1,13 @@
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
+const GetPostsTest = require('./get_posts_test');
 
 class ACLRepoTest extends GetPostsTest {
 
 	constructor (options) {
+		options = Object.assign(options || {}, { type: 'file' });
 		super(options);
-		this.withoutMeOnTeam = true;	// without me on the team, i won't be able to fetch the post, no matter what type the stream is
-		this.type = 'file';
+		this.teamOptions.members = [];
 	}
 
 	get description () {
@@ -22,7 +22,7 @@ class ACLRepoTest extends GetPostsTest {
 
 	// set the path to use for the request
 	setPath (callback) {
-		let streamPath = encodeURIComponent(this.stream.file);
+		const streamPath = encodeURIComponent(this.stream.file);
 		this.path = `/posts/?teamId=${this.team._id}&repoId=${this.repo._id}&path=${streamPath}`;
 		callback();
 	}

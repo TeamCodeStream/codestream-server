@@ -27,7 +27,7 @@ class ReactTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	validateResponse (data) {
 		Assert.deepEqual(data, this.expectedData, 'incorrect response data');
 		// verify the post in the response has no attributes that should not go to clients
-		this.validateSanitized(data.post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(data.post.$set, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 

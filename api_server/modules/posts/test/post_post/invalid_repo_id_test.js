@@ -1,7 +1,7 @@
 'use strict';
 
-var FileStreamOnTheFlyTest = require('./file_stream_on_the_fly_test');
-var ObjectID = require('mongodb').ObjectID;
+const FileStreamOnTheFlyTest = require('./file_stream_on_the_fly_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class InvalidRepoIdTest extends FileStreamOnTheFlyTest {
 

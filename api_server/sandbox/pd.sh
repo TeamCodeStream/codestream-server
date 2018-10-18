@@ -12,7 +12,5 @@ export CS_API_ASSET_ENV=dev
 export CS_API_PORT=9443
 export CS_API_REPLY_TO_DOMAIN=pd.codestream.com
 export CS_API_OUTBOUND_EMAIL_SQS="pd_outboundEmail"
-export CS_API_SLACKBOT_ORIGIN=http://pd-bot.codestream.us:11079
-export CS_API_TEAMSBOT_ORIGIN=http://pd-bot.codestream.us:10079
 export CS_API_WEB_CLIENT_ORIGIN=http://pd-app.codestream.us:1380
 unset CS_API_SUPPRESS_EMAILS

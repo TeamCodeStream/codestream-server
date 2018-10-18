@@ -1,18 +1,19 @@
 'use strict';
 
-const MessageToTeamTest = require('./message_to_team_test');
+const MessageTest = require('./message_test');
 
-class MarkersDeletedMessageTest extends MessageToTeamTest {
-
-	constructor (options) {
-		super(options);
-		this.wantCodeBlocks = 5;
-	}
+class MarkersDeletedMessageTest extends MessageTest {
 
 	get description () {
 		return 'members of the team should receive a message with the deactivated post and deactivated markers when a post with code blocks is deleted';
 	}
 
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.postOptions.wantCodeBlock = true;
+			callback();
+		});
+	}
 }
 
 module.exports = MarkersDeletedMessageTest;

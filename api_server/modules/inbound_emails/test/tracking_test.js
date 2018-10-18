@@ -1,6 +1,6 @@
 'use strict';
 
-var InboundEmailMessageTest = require('./inbound_email_message_test');
+const InboundEmailMessageTest = require('./inbound_email_message_test');
 const Assert = require('assert');
 
 class TrackingTest extends InboundEmailMessageTest {
@@ -10,14 +10,22 @@ class TrackingTest extends InboundEmailMessageTest {
 		return `should send a Post Created event for tracking purposes when handling a post via email for a ${privacy}${this.type} stream`;
 	}
 
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.teamOptions.creatorIndex = 0;
+			this.repoOptions.creatorIndex = 0;
+			callback();
+		});
+	}
+
 	// make the data the will be used when issuing the request that triggers the message
 	makeData (callback) {
 		// perform a little trickery here ... set the current user to the originator of the post,
 		// since the mock tracking message will come back on the originator's me-channel
 		super.makeData(() => {
-			this.postOriginatorData.user.joinMethod = 'Added to Team';
-			this.currentUser = this.postOriginatorData.user;
-			this.pubNubToken = this.postOriginatorData.pubNubToken;
+			this.users[1].user.joinMethod = 'Added to Team';
+			this.currentUser = this.users[1];
+			this.pubNubToken = this.users[1].pubNubToken;
 			callback();
 		});
 	}
@@ -27,7 +35,7 @@ class TrackingTest extends InboundEmailMessageTest {
 		// for the user that is being tracked as the post creator, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the tracker
 		// service (mixpanel) on this channel, and then we'll validate the data
-		this.channelName = `user-${this.postOriginatorData.user._id}`;
+		this.channelName = `user-${this.users[1].user._id}`;
 		callback();
 	}
 
@@ -59,8 +67,8 @@ class TrackingTest extends InboundEmailMessageTest {
 		if (message.type !== 'track') {
 			return false;
 		}
-		let data = message.data;
-		let errors = [];
+		const data = message.data;
+		const errors = [];
 		const categories = {
 			'channel': 'Private Channel',
 			'direct': 'Direct Message',
@@ -70,22 +78,22 @@ class TrackingTest extends InboundEmailMessageTest {
 		if (this.makePublic) {
 			category = 'Public Channel';
 		}
-		let result = (
+		const result = (
 			((message.type === 'track') || errors.push('type not correct')) &&
 			((message.event === 'Post Created') || errors.push('event not correct')) &&
-			((data.distinct_id === this.postOriginatorData.user._id) || errors.push('distinct_id not set to post originator\'s ID')) &&
+			((data.distinct_id === this.users[1].user._id) || errors.push('distinct_id not set to post originator\'s ID')) &&
 			((data.Type === 'Chat') || errors.push('Type not correct')) &&
 			((data.Thread === 'Parent') || errors.push('Thread not correct')) &&
 			((data.Category === category) || errors.push('Category not correct')) &&
-			((data['Email Address'] === this.postOriginatorData.user.email) || errors.push('Email Address does not match post originator')) &&
-			((data['Join Method'] === this.postOriginatorData.user.joinMethod) || errors.push('Join Method does not match post originator')) &&
+			((data['Email Address'] === this.users[1].user.email) || errors.push('Email Address does not match post originator')) &&
+			((data['Join Method'] === this.users[1].user.joinMethod) || errors.push('Join Method does not match post originator')) &&
 			((data['Team ID'] === this.team._id) || errors.push('Team ID does not match team')) &&
 			((data['Team Size'] === this.team.memberIds.length) || errors.push('Team Size does not match number of members in team')) &&
 			((data.Company === this.company.name) || errors.push('Company does not match name of company')) &&
 			((data.Endpoint === 'Email') || errors.push('Endpoint not correct')) &&
 			((data.Plan === 'Free') || errors.push('Plan not correct')) &&
 			((data['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct')) &&
-			((data['Date Signed Up'] === new Date(this.postOriginatorData.user.registeredAt).toISOString()) || errors.push('Date Signed Up not correct')) &&
+			((data['Date Signed Up'] === new Date(this.users[1].user.registeredAt).toISOString()) || errors.push('Date Signed Up not correct')) &&
 			((data['First Post?'] === new Date(this.post.createdAt).toISOString()) || errors.push('First Post not set to creation date of post'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));

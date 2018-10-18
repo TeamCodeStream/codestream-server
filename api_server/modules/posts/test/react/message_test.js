@@ -4,10 +4,10 @@ const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation'
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const CommonInit = require('./common_init');
 
-class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
+class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return 'members of the team should receive a message with the deactivated post when a post is deleted';
+		return `members of a ${this.streamType} stream should receive a message with the proper directive when a post is reacted to`;
 	}
 
 	// make the data that triggers the message to be received
@@ -17,19 +17,19 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		// it is the team channel
-		this.channelName = 'team-' + this.team._id;
+		// it is the stream channel
+		this.channelName = `stream-${this.stream._id}`;
 		callback();
 	}
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
-		// do the delete, this should trigger a message to the
-		// team channel with the updated post
+		// execute the reaction, this should trigger a message to the stream channel
 		this.doApiRequest(
 			{
-				method: 'delete',
-				path: '/posts/' + this.post._id,
+				method: 'put',
+				path: '/react/' + this.post._id,
+				data: this.data,
 				token: this.token
 			},
 			(error, response) => {
@@ -41,4 +41,4 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 }
 
-module.exports = MessageToTeamTest;
+module.exports = MessageTest;

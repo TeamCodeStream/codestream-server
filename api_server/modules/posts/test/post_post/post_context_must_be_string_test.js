@@ -1,8 +1,8 @@
 'use strict';
 
-var PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
+const CodeBlockTest = require('./code_block_test');
 
-class PostContextMustBeStringTest extends PostCodeToFileStreamTest {
+class PostContextMustBeStringTest extends CodeBlockTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post with a code block element where the postContext is not a string';

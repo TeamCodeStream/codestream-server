@@ -1,7 +1,7 @@
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
-var ObjectID = require('mongodb').ObjectID;
+const GetPostsTest = require('./get_posts_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class StreamNotFoundTest extends GetPostsTest {
 
@@ -19,7 +19,7 @@ class StreamNotFoundTest extends GetPostsTest {
 	// set the path to use in the fetch request
 	setPath (callback) {
 		// provide some random non-existent stream ID
-		let streamId = ObjectID();
+		const streamId = ObjectID();
 		this.path = `/posts?teamId=${this.team._id}&streamId=${streamId}`;
 		callback();
 	}

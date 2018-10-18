@@ -20,7 +20,7 @@ class ThirdReactFetchTest extends SecondReactFetchTest {
 	// do a third reaction to the post, using the same reaction as the first
 	// the actual test is reading the post and verifying it has all three reactions
 	doThirdReaction (callback) {
-		const thirdReactor = this.otherUserData[1];
+		const thirdReactor = this.users[2];
 		const data = {
 			[this.reaction]: true
 		};

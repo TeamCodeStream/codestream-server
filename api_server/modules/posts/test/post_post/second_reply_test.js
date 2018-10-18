@@ -23,10 +23,11 @@ class SecondReplyTest extends PostReplyTest {
 	createSecondReply (callback) {
 		this.postFactory.createRandomPost(
 			callback,
-			Object.assign({}, this.postOptions, { 
-				token: this.otherUserData.accessToken,
-				parentPostId: this.otherPostData.post._id
-			})
+			{
+				streamId: this.stream._id,
+				token: this.users[1].accessToken,
+				parentPostId: this.postData[0].post._id
+			}
 		);
 	}
 
@@ -36,7 +37,7 @@ class SecondReplyTest extends PostReplyTest {
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: '/posts/' + this.otherPostData.post._id,
+				path: '/posts/' + this.postData[0].post._id,
 				token: this.token
 			},
 			(error, response) => {

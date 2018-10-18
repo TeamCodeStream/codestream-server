@@ -1,6 +1,6 @@
 'use strict';
 
-var GetMarkerLocationsTest = require('./get_marker_locations_test');
+const GetMarkerLocationsTest = require('./get_marker_locations_test');
 
 class NoParameterTest extends GetMarkerLocationsTest {
 
@@ -18,7 +18,7 @@ class NoParameterTest extends GetMarkerLocationsTest {
 	// get query parameters for the request
 	getQueryParameters () {
 		// eliminate the given required  parameter from the request
-		let queryParameters = super.getQueryParameters();
+		const queryParameters = super.getQueryParameters();
 		delete queryParameters[this.parameter];
 		return queryParameters;
 	}

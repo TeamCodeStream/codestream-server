@@ -1,6 +1,6 @@
 'use strict';
 
-var ChannelOnTheFlyTest = require('./channel_on_the_fly_test');
+const ChannelOnTheFlyTest = require('./channel_on_the_fly_test');
 
 class NameRequiredTest extends ChannelOnTheFlyTest {
 

@@ -1,14 +1,15 @@
 'use strict';
 
-var ACLTest = require('./acl_test');
+const ChannelOnTheFlyTest = require('./channel_on_the_fly_test');
 
-class ACLTeamOnTheFlyTest extends ACLTest {
+class ACLTeamOnTheFlyTest extends ChannelOnTheFlyTest {
 
-	constructor (options) {
-		// modify the base ACLTest...
-		super(options);
-		this.withoutMeOnTeam = true;	// i won't be on the team for which i'm trying to create a post in an on-the-fly stream
-		this.onTheFly = true;			// the stream will be created on-the-fly with the post
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.teamOptions.members = [];
+			this.streamOptions.members = [];
+			callback();
+		});
 	}
 
 	get description () {

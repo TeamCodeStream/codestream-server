@@ -1,12 +1,12 @@
 'use strict';
 
-var GetPostsTest = require('./get_posts_test');
+const GetPostsTest = require('./get_posts_test');
 
 class GetPostsBySeqNumsTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
-		this.numPosts = 10;
+		this.postOptions.numPosts = 10;
 	}
 
 	get description () {
@@ -17,10 +17,16 @@ class GetPostsBySeqNumsTest extends GetPostsTest {
 	setPath (callback) {
 		// sort by sequence number so we're consistent, then take a slice of our posts,
 		// and fetch those as specified by the seqnum parameter
-		this.myPosts.sort((a, b) => { return a.seqNum - b.seqNum; });
-		this.myPosts = [this.myPosts[2], this.myPosts[7], this.myPosts[1], this.myPosts[8]];
-		const seqNums = this.myPosts.map(post => post.seqNum).join(',');
-		this.myPosts.sort((a, b) => { return a.seqNum - b.seqNum; });
+		this.expectedPosts = this.postData.map(postData => postData.post);
+		this.expectedPosts.sort((a, b) => { return a.seqNum - b.seqNum; });
+		this.expectedPosts = [
+			this.expectedPosts[2],
+			this.expectedPosts[7],
+			this.expectedPosts[1],
+			this.expectedPosts[8]
+		];
+		const seqNums = this.expectedPosts.map(post => post.seqNum).join(',');
+		this.expectedPosts.sort((a, b) => { return a.seqNum - b.seqNum; });
 		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&seqnum=${seqNums}`;
 		callback();
 	}

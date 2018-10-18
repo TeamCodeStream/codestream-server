@@ -1,7 +1,7 @@
 'use strict';
 
-var InboundEmailTest = require('./inbound_email_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const InboundEmailTest = require('./inbound_email_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class StreamNoMatchTeamTest extends InboundEmailTest {
 
@@ -18,15 +18,16 @@ class StreamNoMatchTeamTest extends InboundEmailTest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherRepo,	// create another repo (and team)
-			super.before			// normal test setup
+			super.before,			// normal test setup
+			this.createOtherTeam,	// create another team
+			this.makePostData
 		], callback);
 	}
 
 	// create a second repo (and team) ... we'll use this team's ID but the normal
 	// stream ID ... this is not allowed!
-	createOtherRepo (callback) {
-		this.repoFactory.createRandomRepo(
+	createOtherTeam (callback) {
+		this.teamFactory.createRandomTeam(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherTeam = response.team;
@@ -40,6 +41,7 @@ class StreamNoMatchTeamTest extends InboundEmailTest {
 
 	// make the data to be used in the request that triggers the message
 	makePostData (callback) {
+		if (!this.otherTeam) { return callback(); }
 		super.makePostData(() => {
 			// inject the other team ID
 			let toAddress = this.data.to[0].address;

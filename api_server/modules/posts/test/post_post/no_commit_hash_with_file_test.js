@@ -1,13 +1,13 @@
 'use strict';
 
-var CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
+const CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
 
 class NoCommitHashWithFileTest extends CodeBlockFromDifferentStreamTest {
 
 	constructor (options) {
+		options = Object.assign(options || {}, { streamType: 'channel' });
 		super(options);
-		this.streamType = 'channel';
-		this.noMarkerExpected = true;
+		this.dontExpectMarkers = true;
 	}
 
 	get description () {

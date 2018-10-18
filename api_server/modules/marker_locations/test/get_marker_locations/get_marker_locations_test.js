@@ -1,15 +1,25 @@
 'use strict';
 
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Assert = require('assert');
 const MarkerLocationsTestConstants = require('../marker_locations_test_constants');
 
 class GetMarkerLocationsTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.numPosts = 5;
+		this.teamOptions.creatorIndex = 1;
+		this.streamOptions.creatorIndex = 1;
+		this.streamOptions.type = 'channel';
+		this.repoOptions.creatorIndex = 1;
+		Object.assign(this.postOptions, {
+			numPosts: 5,
+			creatorIndex: 1,
+			wantCodeBlock: true,
+			codeBlockStreamId: 0,	// will use the existing file stream created for the repo
+			commitHash: this.repoFactory.randomCommitHash()
+		});
 	}
 
 	get description () {
@@ -18,111 +28,29 @@ class GetMarkerLocationsTest extends CodeStreamAPITest {
 
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,	// create another registered user
-			this.createRepo,		// create a repo as the other user
-			this.createStream,		// create a stream in the repo as the other user
-			this.createPosts,		// create several posts in the stream as the other user
+			super.before,
 			this.setPath			// set the path to fetch marker locations
 		], callback);
-	}
-
-	// create another registered user
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a random repo, i'll be a member of the team that owns the repo or not, depending on the test
-	createRepo (callback) {
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.repo = response.repo;
-				this.team = response.team;
-				callback();
-			},
-			{
-				withEmails: this.withoutMe ? null : [this.currentUser.email],	// include me or not, depending on the test
-				token: this.otherUserData.accessToken	// the other user is the creator
-			}
-		);
-	}
-
-	// create a file stream in the repo
-	createStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				callback();
-			},
-			{
-				type: 'file',
-				token: this.otherUserData.accessToken,	// the other user is the creator
-				teamId: this.repo.teamId,
-				repoId: this.repo._id
-			}
-		);
-	}
-
-	// create several posts in the stream
-	createPosts (callback) {
-		this.markers = [];
-		this.locations = {};
-		this.commitHash = this.postFactory.randomCommitHash();	// they should all have the same commit hash
-		BoundAsync.timesSeries(
-			this,
-			this.numPosts,
-			this.createPost,
-			callback
-		);
-	}
-
-	// create a single post in the stream, making a note of the marker information
-	createPost (n, callback) {
-		let postOptions = this.setPostOptions(n);
-		this.postFactory.createRandomPost(
-			(error, response) => {
-				if (error) { return callback(error); }
-				let marker = response.markers[0];
-				this.markers.push(marker);
-				this.locations[marker._id] = response.markerLocations[0].locations[marker._id];
-				callback();
-			},
-			postOptions
-		);
-	}
-
-	// set post options for creating a post
-	setPostOptions (n) {
-		let iAmInStream = !this.withoutMe;	// if i'm not in the team, i can't create posts
-		let mine = iAmInStream && n % 2 === 1;	// but if i am in the team, we'll make some of the posts come from me
-		let postOptions = {
-			token: mine ? this.token : this.otherUserData.accessToken,
-			streamId: this.stream._id,
-			wantCodeBlocks: 1,	// this gives us markers in the response
-			commitHash: this.commitHash	// all posts have the same commit hash
-		};
-		return postOptions;
 	}
 
 	// these are the query parameters for the "GET /marker-locations" request
 	getQueryParameters () {
 		return {
 			teamId: this.team._id,
-			streamId: this.stream._id,
-			commitHash: this.commitHash
+			streamId: this.repoStreams[0]._id,
+			commitHash: this.postOptions.commitHash
 		};
 	}
 
 	// set the path for the "GET /marker-locations" request
 	setPath (callback) {
-		let queryParameters = this.getQueryParameters();
+		this.markers = this.postData.map(postData => postData.markers[0]);
+		this.locations = this.postData.reduce((locations, postData) => {
+			const markerId = postData.markers[0]._id;
+			locations[markerId] = postData.markerLocations[0].locations[markerId];
+			return locations;
+		}, {});
+		const queryParameters = this.getQueryParameters();
 		this.path = '/marker-locations?' + Object.keys(queryParameters).map(parameter => {
 			let value = queryParameters[parameter];
 			return `${parameter}=${value}`;
@@ -133,14 +61,14 @@ class GetMarkerLocationsTest extends CodeStreamAPITest {
 	// vdlidate we got the correct marker locations
 	validateResponse (data) {
 		Assert(data.numMarkers === this.numPosts, 'number of markers indicated does not match the number of posts created');
-		let markerLocations = data.markerLocations;
-		Assert(markerLocations.teamId === this.team._id, 'teamId does not match');
-		Assert(markerLocations.streamId === this.stream._id, 'teamId does not match');
-		Assert(markerLocations.commitHash === this.commitHash.toLowerCase(), 'commitHash does not match');
-		let locations = markerLocations.locations;
-		Assert(Object.keys(locations).length === this.numPosts, 'number of locations does not match the number of posts created');
+		const markerLocations = data.markerLocations;
+		Assert.equal(markerLocations.teamId, this.team._id, 'teamId does not match');
+		Assert.equal(markerLocations.streamId, this.repoStreams[0]._id, 'streamId does not match');
+		Assert.equal(markerLocations.commitHash, this.postOptions.commitHash.toLowerCase(), 'commitHash does not match');
+		const locations = markerLocations.locations;
+		Assert.equal(Object.keys(locations).length, this.postOptions.numPosts, 'number of locations does not match the number of posts created');
 		Object.keys(locations).forEach(markerId => {
-			let marker = this.markers.find(marker => marker._id === markerId);
+			const marker = this.markers.find(marker => marker._id === markerId);
 			Assert(marker, 'did not find a match for received marker location');
 			Assert.deepEqual(locations[markerId], this.locations[markerId], 'location of received marker does not match that of the created marker');
 		});

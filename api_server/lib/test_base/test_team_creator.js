@@ -25,6 +25,8 @@ class TestTeamCreator {
 				teamStream: this.teamStream,
 				repo: this.repo,
 				repoStreams: this.repoStreams,
+				repoPost: this.repoPost,
+				repoMarker: this.repoMarker,
 				users: this.users,
 				currentUser: this.currentUser,
 				token: this.token
@@ -182,18 +184,27 @@ class TestTeamCreator {
 	}
 
 	createRepo (callback) {
-		if (!this.repoOptions || typeof this.repoOptions.creatorIndex !== 'number') {
+		if (
+			!this.repoOptions || 
+			(
+				typeof this.repoOptions.creatorIndex !== 'number' && 
+				!this.repoOptions.creatorToken
+			)
+		) {
 			return callback();
 		}	
+		const token = this.repoOptions.creatorToken || this.users[this.repoOptions.creatorIndex].accessToken;
 		this.test.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.repo = response.repos[0];
 				this.repoStreams = response.streams;
+				this.repoPost = response.post;
+				this.repoMarker = response.markers[0];
 				callback();
 			},
 			{
-				token: this.users[this.repoOptions.creatorIndex].accessToken,
+				token,
 				streamId: this.teamStream._id,
 				wantCodeBlocks: 1,
 				codeBlockStream: {

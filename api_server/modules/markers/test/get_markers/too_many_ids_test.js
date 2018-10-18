@@ -1,6 +1,6 @@
 'use strict';
 
-var GetMarkersTest = require('./get_markers_test');
+const GetMarkersTest = require('./get_markers_test');
 
 class TooManyIDsTest extends GetMarkersTest {
 
@@ -17,7 +17,7 @@ class TooManyIDsTest extends GetMarkersTest {
 
 	// get query parameters to use for the test
 	getQueryParameters () {
-		let queryParameters = super.getQueryParameters();
+		const queryParameters = super.getQueryParameters();
 		// try to fetch more than 100 IDs (whether valid or not)... can't do it!
 		queryParameters.ids = 'x,'.repeat(101).split(',');
 		return queryParameters;

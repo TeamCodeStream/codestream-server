@@ -1,6 +1,6 @@
 'use strict';
 
-var PostPostTest = require('./post_post_test');
+const PostPostTest = require('./post_post_test');
 
 class NoStreamIdTest extends PostPostTest {
 

@@ -1,7 +1,7 @@
 'use strict';
 
-var PutMarkerTest = require('./put_marker_test');
-var ObjectID = require('mongodb').ObjectID;
+const PutMarkerTest = require('./put_marker_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class MarkerNotFoundTest extends PutMarkerTest {
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var FileStreamOnTheFlyTest = require('./file_stream_on_the_fly_test');
+const FileStreamOnTheFlyTest = require('./file_stream_on_the_fly_test');
 
 class NoTeamIdTest extends FileStreamOnTheFlyTest {
 

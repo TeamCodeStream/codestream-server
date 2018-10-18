@@ -1,7 +1,7 @@
 'use strict';
 
-var PutPostTest = require('./put_post_test');
-var ObjectID = require('mongodb').ObjectID;
+const PutPostTest = require('./put_post_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class PostNotFoundTest extends PutPostTest {
 

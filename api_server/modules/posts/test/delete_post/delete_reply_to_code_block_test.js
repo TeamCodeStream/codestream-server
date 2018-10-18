@@ -5,19 +5,41 @@ const Assert = require('assert');
 
 class DeleteReplyToCodeBlockTest extends DeletePostTest {
 
-	constructor (options) {
-		super(options);
-		this.wantParentPost = true;
-	}
-
 	get description () {
 		return 'should decrement numComments for the marker when a reply to a code block post is deleted';
 	}
 
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			Object.assign(this.postOptions, {
+				numPosts: 2,
+				postData: [
+					{ wantCodeBlock: 1 },
+					{ replyTo: 0 }
+				]
+			});
+			this.testPost = 1;
+			callback();
+		});
+	}
+
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert(data.markers[0]._id === this.parentPost.codeBlocks[0].markerId, 'did not get expected marker');
-		Assert(data.markers[0].$inc.numComments === -1, 'numComments for marker not set to 0');
+		const expectedMarker = {
+			_id: this.postData[0].post.codeBlocks[0].markerId,
+			$set: {
+				version: 3
+			},
+			$version: {
+				before: 2,
+				after: 3
+			},
+			$inc: {
+				numComments: -1
+			}
+		};
+		Assert.deepEqual(data.markers[0], expectedMarker, 'expected marker op is not correct');
+		delete data.markers;
 		super.validateResponse(data);
 	}
 }

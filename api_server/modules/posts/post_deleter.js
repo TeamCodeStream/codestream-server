@@ -27,6 +27,7 @@ class PostDeleter extends ModelDeleter {
 		// wipe out the text and replace with something generic
 		super.setOpForDelete();
 		this.deleteOp.$set.text = 'this post has been deleted';
+		this.deleteOp.$set.modifiedAt = Date.now();
 	}
 
 	// called before the delete is actually deleted
@@ -130,6 +131,18 @@ class PostDeleter extends ModelDeleter {
 				}
 			}
 		};
+	}
+
+	async postDelete () {
+		// have to clean the editHistory part of the update op out, this does not 
+		// get sent back in the response to clients
+		if (this.updateOp.$push && this.updateOp.$push.editHistory) {
+			delete this.updateOp.$push.editHistory;
+			if (Object.keys(this.updateOp.$push).length === 0) {
+				delete this.updateOp.$push;
+			}
+		}
+		await super.postDelete();
 	}
 }
 

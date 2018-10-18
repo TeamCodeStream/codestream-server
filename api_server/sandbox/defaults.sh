@@ -167,8 +167,6 @@ fi
 # =============== Other Services ==============
 # The web-app service (for constructing links in email notifications)
 [ -z "$CS_API_WEB_CLIENT_ORIGIN" ] && export CS_API_WEB_CLIENT_ORIGIN=http://localhost:1380
-[ -z "$CS_API_SLACKBOT_ORIGIN" ] && export CS_API_SLACKBOT_ORIGIN=http://localhost:11079
-[ -z "$CS_API_TEAMSBOT_ORIGIN" ] && export CS_API_TEAMSBOT_ORIGIN=http://localhost:10079
 
 
 # ============ Testing Settings ==============

@@ -73,6 +73,18 @@ class PostUpdater extends ModelUpdater {
 		this.attributes.$push = this.attributes.$push || {};
 		this.attributes.$push.editHistory = edit;
 	}
+
+	async postSave () {
+		// have to clean the editHistory part of the update op out, this does not 
+		// get sent back in the response to clients
+		if (this.updateOp.$push && this.updateOp.$push.editHistory) {
+			delete this.updateOp.$push.editHistory;
+			if (Object.keys(this.updateOp.$push).length === 0) {
+				delete this.updateOp.$push;
+			}
+		}
+		await super.postSave();
+	}
 }
 
 module.exports = PostUpdater;

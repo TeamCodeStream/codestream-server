@@ -17,6 +17,7 @@ class PostPostRequest extends PostRequest {
 		}).authorizePost();
 	}
 
+	/* eslint complexity: 0 */
 	async handleResponse () {
 		if (this.gotError) {
 			return super.handleResponse();
@@ -37,7 +38,7 @@ class PostPostRequest extends PostRequest {
 
 		if (transforms.createdStreamForPost) {
 			responseData.streams = [
-				...(responseData.streams),
+				...(responseData.streams || []),
 				transforms.createdStreamForPost.getSanitizedObject()
 			];
 		}

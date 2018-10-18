@@ -1,7 +1,7 @@
 'use strict';
 
-var DirectOnTheFlyTest = require('./direct_on_the_fly_test');
-var ObjectID = require('mongodb').ObjectID;
+const DirectOnTheFlyTest = require('./direct_on_the_fly_test');
+const ObjectID = require('mongodb').ObjectID;
 
 class InvalidTeamIdTest extends DirectOnTheFlyTest {
 

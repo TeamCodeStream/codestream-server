@@ -17,7 +17,7 @@ class ExtendedAttributesTest extends CodeBlockTest {
 				status: 'open',
 				color: 'red',
 				title: 'This is a comment!',
-				assignees: [this.currentUser._id]
+				assignees: [this.currentUser.user._id]
 			};
 			Object.assign(this.data, this.extendedData);
 			callback();

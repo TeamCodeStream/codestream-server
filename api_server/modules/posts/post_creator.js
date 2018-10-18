@@ -382,8 +382,10 @@ class PostCreator extends ModelCreator {
 	// also clear lastReads for the stream 
 	async updatePostCount () {
 		const op = {
-			$inc: { totalPosts: 1 },
-			$set: { lastPostCreatedAt: this.attributes.createdAt },
+			$set: { 
+				lastPostCreatedAt: this.attributes.createdAt,
+				totalPosts: (this.user.get('totalPosts') || 0) + 1
+			},
 			$unset: { [`lastReads.${this.stream.id}`]: true }
 		};
 		this.transforms.updatePostCountOp = await new ModelSaver({

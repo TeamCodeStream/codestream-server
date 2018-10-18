@@ -1,7 +1,7 @@
 'use strict';
 
-var GetMarkersTest = require('./get_markers_test');
-var Assert = require('assert');
+const GetMarkersTest = require('./get_markers_test');
+const Assert = require('assert');
 const MarkerTestConstants = require('../marker_test_constants');
 
 class MarkerLocationsTest extends GetMarkersTest {
@@ -12,22 +12,22 @@ class MarkerLocationsTest extends GetMarkersTest {
 
 	// get query parameters to use for the request
 	getQueryParameters () {
-		let queryParameters = super.getQueryParameters();
-		queryParameters.commitHash = this.commitHash.toLowerCase();	// include the commit hash so we get the locations
+		const queryParameters = super.getQueryParameters();
+		queryParameters.commitHash = this.postOptions.commitHash;	// include the commit hash so we get the locations
 		return queryParameters;
 	}
 
 	// validate that we got the marker locations, not just the markers
 	validateResponse (data) {
 		Assert(typeof data.markerLocations === 'object', 'markerLocations is not an object');
-		let markerLocations = data.markerLocations;
+		const markerLocations = data.markerLocations;
 		Assert(markerLocations.teamId === this.team._id, 'teamId does not match');
-		Assert(markerLocations.streamId === this.stream._id, 'teamId does not match');
-		Assert(markerLocations.commitHash === this.commitHash.toLowerCase(), 'commitHash does not match');
-		let locations = markerLocations.locations;
-		Assert(Object.keys(locations).length === this.numPosts, 'number of locations does not match the number of posts created');
+		Assert(markerLocations.streamId === this.repoStreams[0]._id, 'teamId does not match');
+		Assert(markerLocations.commitHash === this.postOptions.commitHash.toLowerCase(), 'commitHash does not match');
+		const locations = markerLocations.locations;
+		Assert.equal(Object.keys(locations).length, this.postOptions.numPosts, 'number of locations does not match the number of posts created');
 		Object.keys(locations).forEach(markerId => {
-			let marker = this.markers.find(marker => marker._id === markerId);
+			const marker = this.markers.find(marker => marker._id === markerId);
 			Assert(marker, 'did not find a match for received marker location');
 			Assert.deepEqual(locations[markerId], this.locations[markerId], 'location of received marker does not match that of the created marker');
 		});

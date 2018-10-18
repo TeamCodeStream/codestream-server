@@ -2,98 +2,83 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class CommonInit {
 
 	init (callback) {
+		this.expectedVersion = 2;
 		BoundAsync.series(this, [
-			this.createOtherUser,	// create another registered user
-			this.createRandomRepo,	// create a random repo (and team) for the test
-			this.createRandomStream,	// create a stream in that repo
-			this.createPost,        // create the post that will then be updated
+			this.setTestOptions,
+			CodeStreamAPITest.prototype.before.bind(this),
 			this.makePostData		// make the data to be used during the update
 		], callback);
 	}
 
-	// create another registered user (in addition to the "current" user)
-	createOtherUser (callback) {
-		this.userFactory.createRandomUser(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherUserData = response;
-				callback();
-			}
-		);
-	}
-
-	// create a random repo to use for the test
-	createRandomRepo (callback) {
-		let withEmails = this.withoutOtherUserOnTeam ? [] : [this.currentUser.email];
-		let token = this.withoutOtherUserOnTeam ? this.token : this.otherUserData.accessToken;
-		this.repoFactory.createRandomRepo(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.repo = response.repo;
-				this.team = response.team;
-				callback();
-			},
-			{
-				withEmails: withEmails,	// include current user, unless we're not including the other user, in which case the current user is the repo creator
-				withRandomEmails: 1,	// another user for good measure
-				token: token	// the "other user" is the repo and team creator, unless otherwise specified
-			}
-		);
-	}
-
-	// create a random stream to use for the test
-	createRandomStream (callback) {
-		let token = this.withoutOtherUserOnTeam ? this.token : this.otherUserData.accessToken;
-		let type = this.streamType || 'file';
-		let memberIds = this.streamType !== 'file' ? [this.currentUser._id] : undefined;
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.stream = response.stream;
-				callback();
-			},
-			{
-				type: type,
-				teamId: this.team._id, // create the stream in the team we already created
-				repoId: type === 'file' ? this.repo._id : undefined, // file-type streams must have repoId
-				memberIds: memberIds, // include current user in stream if needed
-				token: token // the "other user" is the stream creator, unless otherwise specified
-			}
-		);
-	}
-
-	// create the post to be updated
-	createPost (callback) {
-		this.postFactory.createRandomPost(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.post = response.post;
-				callback();
-			},
-			{
-				token: this.token,   // the "current" user is the creator of the post (and will be the updater)
-				streamId: this.stream._id // create the post in the stream we created
-			}
-		);
+	setTestOptions (callback) {
+		this.userOptions.numRegistered = 2;
+		this.streamOptions.creatorIndex = 1;
+		this.streamOptions.type = this.streamType || 'channel';
+		this.postOptions.creatorIndex = 0;
+		if (this.streamType === 'file') {
+			this.repoOptions.creatorIndex = 1;
+		}
+		callback();
 	}
 
 	// form the data for the post update
 	makePostData (callback) {
+		this.post = this.postData[0].post;
 		this.data = {
 			text: this.postFactory.randomText()
 		};
 		if (this.wantMention) {
-			this.data.mentionedUserIds = [this.otherUserData.user._id];
+			this.data.mentionedUserIds = [this.users[1].user._id];
 		}
-		this.expectedPost = Object.assign({}, this.post, this.data);
+		this.expectedData = {
+			post: {
+				_id: this.post._id,
+				$set: Object.assign(DeepClone(this.data), { 
+					version: this.expectedVersion,
+					hasBeenEdited: true,
+					modifiedAt: Date.now()	// placeholder
+				}),
+				$version: {
+					before: this.expectedVersion - 1,
+					after: this.expectedVersion
+				}
+			}
+		};
+		if (this.wantMention) {
+			this.expectedData.post.$set.mentionedUserIds = [...this.data.mentionedUserIds];
+			this.expectedData.post.$set.mentionedUserIds.sort();
+		}
+		this.expectedPost = DeepClone(this.post);
+		Object.assign(this.expectedPost, this.expectedData.post.$set);
 		this.path = '/posts/' + this.post._id;
 		this.modifiedAfter = Date.now();
 		callback();
+	}
+
+	// perform the actual post update 
+	// the actual test is reading the post and verifying it is correct
+	updatePost (callback) {
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/posts/' + this.post._id,
+				data: this.data,
+				token: this.token
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.message = response;
+				delete this.data;	// don't need this anymore
+				callback();
+			}
+		);
 	}
 }
 

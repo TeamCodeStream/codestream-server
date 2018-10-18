@@ -1,6 +1,6 @@
 'use strict';
 
-var PutPostTest = require('./put_post_test');
+const PutPostTest = require('./put_post_test');
 
 class MentionTest extends PutPostTest {
 

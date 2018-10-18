@@ -1,15 +1,24 @@
 'use strict';
 
-const PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
+const PostPostTest = require('./post_post_test');
 const Assert = require('assert');
 const PostTestConstants = require('../post_test_constants');
 
-class CodeBlockTest extends PostCodeToFileStreamTest {
+class CodeBlockTest extends PostPostTest {
 
 	get description () {
 		return 'should return the post with marker info when creating a post with code block info in a file stream';
 	}
 
+	setTestOptions (callback) {
+		this.wantCodeBlock = true;
+		super.setTestOptions(() => {
+			this.repoOptions.creatorIndex = 1;
+			this.streamOptions.type = this.streamType || 'file';
+			callback();
+		});
+	}
+	
 	// validate the response to the post request
 	validateResponse (data) {
 		// validate that we got a marker in the response that corresponds to the
@@ -19,16 +28,15 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 			this.validateMarkerLocations(data);
 		}
 		this.validateCodeBlocks(data);
-		this.validateCodeBlockStreamUpdate(data);
 		super.validateResponse(data);
 	}
 
 	// validate the markers created as a result of the post containing code blocks
 	validateMarkers (data) {
-		let post = data.post;
+		const post = data.post;
 		Assert(data.markers instanceof Array, 'no markers array');
 		Assert(data.markers.length === 1, 'length of markers array is ' + data.markers.length);
-		let marker = data.markers[0];
+		const marker = data.markers[0];
 		const markerStreamId = this.otherStream ? this.otherStream._id : post.streamId;
 		Assert(marker.teamId === post.teamId, 'teamId does not match');
 		Assert(marker.streamId === markerStreamId, 'streamId does not match');
@@ -40,17 +48,19 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 		Assert(marker._id === post.codeBlocks[0].markerId, 'markerId in code block does not match marker created');
 		const expectedCodeBlock = Object.assign({}, post.codeBlocks[0]);
 		delete expectedCodeBlock.markerId;
-		expectedCodeBlock.location = this.data.codeBlocks[0].location;
+		if (this.data.codeBlocks[0].location) {
+			expectedCodeBlock.location = this.data.codeBlocks[0].location;
+		}
 		Assert.deepEqual(marker.codeBlock, expectedCodeBlock, 'code block of marker not equal to code block of post');
 		this.validateSanitized(marker, PostTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
 	}
 
 	// validate the code blocks that came back in the response
 	validateCodeBlocks (data) {
-		let post = data.post;
+		const post = data.post;
 		Assert(post.codeBlocks instanceof Array, 'no codeBlocks array');
 		Assert(post.codeBlocks.length === 1, 'length of codeBlocks array is ' + post.codeBlocks.length);
-		let codeBlock = post.codeBlocks[0];
+		const codeBlock = post.codeBlocks[0];
 		if (!this.dontExpectMarkers) {
 			const marker = data.markers[0];
 			Assert(codeBlock.markerId === marker._id, 'codeBlock markerId not equal to marker ID');
@@ -64,7 +74,7 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 		const codeBlockRepo = this.createdRepo || this.repo;
 		if (!this.dontExpectStreams) {
 			Assert(codeBlock.repoId === codeBlockRepo._id, 'codeBlock repoId not equal to ID of expected repo');
-			const codeBlockUrl = this.createdRepo ? this.createdRepo.remotes[0].normalizedUrl : this.repo.normalizedUrl;
+			const codeBlockUrl = codeBlockRepo.remotes[0].normalizedUrl;
 			Assert(codeBlock.repo === codeBlockUrl, 'codeBlock repo not equal to the expected repo url');
 		}
 		Assert(codeBlock.commitHash === this.data.commitHashWhenPosted.toLowerCase(), 'codeBlock commitHash not equal to commitHash of post');
@@ -76,23 +86,18 @@ class CodeBlockTest extends PostCodeToFileStreamTest {
 
 	// validate that the marker locations structure matches expectations for a created code block
 	validateMarkerLocations (data) {
-		let post = data.post;
-		let marker = data.markers[0];
-		let markerLocations = data.markerLocations[0];
+		if (!this.data.codeBlocks[0].location) { return; }
+		const post = data.post;
+		const marker = data.markers[0];
+		const markerLocations = data.markerLocations[0];
 		Assert(typeof markerLocations === 'object', 'missing or invalid markerLocations object');
 		Assert(markerLocations.teamId === post.teamId, 'markerLocations teamId does not match');
 		const markerStreamId = this.otherStream ? this.otherStream._id : post.streamId;
 		Assert(markerLocations.streamId === markerStreamId, 'markerLocations streamId does not match');
 		Assert(markerLocations.commitHash === post.commitHashWhenPosted, 'markerLocations commitHash does not match commit hash for post');
 		Assert(typeof markerLocations.locations === 'object', 'missing or invalid locations object in markerLocations object');
-		let locations = markerLocations.locations;
+		const locations = markerLocations.locations;
 		Assert.deepEqual(locations[marker._id], this.data.codeBlocks[0].location, 'location does not match');
-	}
-
-	// validate that there was a stream update which increments the number of markers 
-	validateCodeBlockStreamUpdate (data) {
-		const streamUpdate = data.streams.find(stream => stream._id === this.stream._id);
-		Assert.equal(streamUpdate.$inc.numMarkers, 1, 'numMarkers not incremented by one for stream update');
 	}
 }
 

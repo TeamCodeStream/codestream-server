@@ -1,7 +1,7 @@
 'use strict';
 
-var PutMarkerLocationsTest = require('./put_marker_locations_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const PutMarkerLocationsTest = require('./put_marker_locations_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class ACLStreamTest extends PutMarkerLocationsTest {
 
@@ -34,7 +34,7 @@ class ACLStreamTest extends PutMarkerLocationsTest {
 			{
 				type: 'channel',
 				teamId: this.team._id,
-				token: this.otherUserData.accessToken	// other user is the creator, and it doesn't include me
+				token: this.users[1].accessToken	// other user is the creator, and it doesn't include me
 			}
 		);
 	}

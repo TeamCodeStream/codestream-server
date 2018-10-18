@@ -1,8 +1,8 @@
 'use strict';
 
-var PostCodeToFileStreamTest = require('./post_code_to_file_stream_test');
+const CodeBlockTest = require('./code_block_test');
 
-class LocationMustBeNumbersTest extends PostCodeToFileStreamTest {
+class LocationMustBeNumbersTest extends CodeBlockTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post with a code block element where the location array does not contain all numbers';

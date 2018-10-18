@@ -42,7 +42,7 @@ class ReactFetchTest extends ReactTest {
 				delete this.data;	// don't need this anymore
 				this.path = '/posts/' + this.post._id;
 				this.expectedReactions = {
-					[this.reaction]: [this.currentUser._id]
+					[this.reaction]: [this.currentUser.user._id]
 				};
 				callback();
 			}

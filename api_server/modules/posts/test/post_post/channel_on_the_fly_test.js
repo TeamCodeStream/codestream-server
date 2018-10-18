@@ -1,7 +1,7 @@
 'use strict';
 
-var DirectOnTheFlyTest = require('./direct_on_the_fly_test');
-var Assert = require('assert');
+const DirectOnTheFlyTest = require('./direct_on_the_fly_test');
+const Assert = require('assert');
 
 class ChannelOnTheFlyTest extends DirectOnTheFlyTest {
 
@@ -17,7 +17,7 @@ class ChannelOnTheFlyTest extends DirectOnTheFlyTest {
 	// validate the request results
 	validateStream (data) {
 		// validate that the stream name matches the one requested
-		let stream = data.streams[0];
+		const stream = data.streams[0];
 		Assert(stream.name === this.data.stream.name, 'name does not match');
 		// validate we got the right stream info
 		super.validateStream(data);

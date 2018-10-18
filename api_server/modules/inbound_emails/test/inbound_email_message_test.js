@@ -1,8 +1,8 @@
 'use strict';
 
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-var CommonInit = require('./common_init');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CommonInit = require('./common_init');
 
 class InboundEmailMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -23,10 +23,10 @@ class InboundEmailMessageTest extends Aggregation(CodeStreamMessageTest, CommonI
 	setChannelName (callback) {
 		// team channel for file-type streams, or team-streams, otherwise the stream channel
 		if (this.type === 'file' || this.isTeamStream) {
-			this.channelName = 'team-' + this.team._id;
+			this.channelName = `team-${this.team._id}`;
 		}
 		else {
-			this.channelName = 'stream-' + this.stream._id;
+			this.channelName = `stream-${this.stream._id}`;
 		}
 		callback();
 	}

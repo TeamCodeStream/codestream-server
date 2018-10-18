@@ -1,9 +1,9 @@
 'use strict';
 
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-var CommonInit = require('./common_init');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var Assert = require('assert');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const CommonInit = require('./common_init');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const Assert = require('assert');
 const PostTestConstants = require(process.env.CS_API_TOP + '/modules/posts/test/post_test_constants');
 
 class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
@@ -37,16 +37,16 @@ class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify we got back a post with the attributes we specified
-		let post = data.post;
-		let errors = [];
-		let result = (
+		const post = data.post;
+		const errors = [];
+		const result = (
 			((post.text === this.data.text) || errors.push('text does not match')) &&
 			((post.teamId === this.team._id) || errors.push('teamId does not match the team')) &&
 			((post.streamId === this.stream._id) || errors.push('streamId does not match')) &&
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((post.modifiedAt >= post.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((post.creatorId === this.postOriginatorData.user._id) || errors.push('creatorId not equal to the post originator ID')) &&
+			((post.creatorId === this.users[1].user._id) || errors.push('creatorId not equal to the post originator ID')) &&
 			((post.origin === 'email') || errors.push('origin is not email'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));

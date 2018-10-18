@@ -12,8 +12,9 @@ class GetPostsBeforeTest extends GetPostsTest {
 	setPath (callback) {
 		// pick a pivot point, then filter our expected posts based on that pivot,
 		// and specify the before parameter to fetch based on the pivot
-		const pivot = this.myPosts[2].seqNum;
-		this.myPosts = this.myPosts.filter(post => post.seqNum < pivot);
+		this.expectedPosts = this.postData.map(postData => postData.post);
+		const pivot = this.expectedPosts[2].seqNum;
+		this.expectedPosts = this.expectedPosts.filter(post => post.seqNum < pivot);
 		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&before=${pivot}`;
 		callback();
 	}
