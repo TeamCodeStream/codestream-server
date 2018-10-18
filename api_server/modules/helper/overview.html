@@ -55,3 +55,50 @@ The value of X-CS-Version-Disposition can be one of the following:
 <span class=headerValue>outdated</span> - if the IDE plugin version is older than X-CS-Current-Versionn but newer than X-CS-Preferred-Version, the plugin version is not the most recent, but is fully supported<br/>
 <span class=headerValue>ok</span> - the IDE plugin version matches X-CS-Current-Version, so the plugin is up-to-date<br/>
 </p>
+<h2>Directives</h2>
+<p>
+When receiving real-time messages through PubNub, or responses to requests, client applications should be prepared to process either full data models, or directives. Directives are transformations to be applied to existing models, rather than a full model. A client application will never see a full model and a transformation to be applied in the same object.<br/>
+<br/>
+The directives to apply are:<br/>
+<br/>
+// Set the indicated attributes to the indicated values<br/>
+<b>$set:</b> {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;attribute1&gt;: &lt;value1&gt;,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;attribute2&gt;: &lt;value2&gt;,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;...<br/>
+}<br/>
+<br/>
+// Unset (delete) the indicated attributes<br/>
+<b>$unset:</b> {<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;&lt;attribute1&gt;: true,<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;&lt;attribute2&gt;: true,<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;...<br/>
+}<br/>
+<br/>
+// Assuming an attribute is of array type, push the indicated values onto the array; create the array if it doesn't exist; don't add the element if it is already present in the array<br/>
+<b>$addToSet:</b> {<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;&lt;arrayAttribute&gt;: [ elem1, elem2, ... ],<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;&lt;arrayAttribute&gt;: [ elem1, elem2, ... ],<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;...<br/>
+}<br/>
+<br/>
+// Assuming an attribute is of array type, pull the indicated values from the array<br/>
+<b>$pull:</b> {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;arrayAttribute&gt;: [ elem1, elem2, ... ],<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;arrayAttribute&gt;: [ elem1, elem2, ... ],<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;...<br/>
+}<br/>
+<br/>
+Note that all models have a <b>version</b> attribute, which is a numeric value that increments every time there is a transformation on that model. All transformations will have a least a directive to set the model's version number to some value, as indicated by a <b>$set</b> directive. In addition, all transformations will have a <b>$version</b> directive, which looks like:<br/>
+<br/>
+// Indicates the version of the model before the transformation, and the version of the model after the transformation<br>
+<b>$version</b>: {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>before</b>: &lt;version before transformation&gt;,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>after</b>: &lt;version after transformation&gt;<br/>
+}<br/>
+<br/>
+If the version value indicated in <b>$version.before</b> does not match the model the client application currently has, the client application should fetch the model from the server rather than apply the transformation, to ensure transformations are not applied to models mistakenly. Ideally, the fetched version will match the value in <b>$version.after</b>, but might be greater if another transformation has taken place.<br/>
+<br/>
+Generally, <b>after</b> should usually be greater than <b>before</b> by 1, but in rare cases where two different client applications have modified a model at the same time, this might not be the case.<br/>
+</p>
+
