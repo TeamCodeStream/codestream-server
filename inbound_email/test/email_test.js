@@ -59,8 +59,9 @@ class EmailTest {
 	makeData (callback) {
 		BoundAsync.series(this, [
 			this.createUsers,	// create a couple users, one will originate the post (the email is "from" that user), the other will listen
-			this.createRepo,	// create a repo and a team with both users
-			this.createStream	// create a file-type stream in the repo
+			this.createTeam,	// create a team 
+			this.inviteOtherUser,	// invite the second user to the team
+			this.createStream	// create a channel stream in the team
 		], callback);
 	}
 
@@ -130,48 +131,57 @@ class EmailTest {
 		);
 	}
 
-	// create a repo to use for the test
-	createRepo (callback) {
-		let domain = RandomString.generate(8);
-		let repoName = RandomString.generate(8);
+	// create a team to use for the test
+	createTeam (callback) {
 		let data = {
-			url: `git@github.com:${domain}/${repoName}.git`,
-			firstCommitHash: RandomString.generate(40),
-			team: {
-				name: RandomString.generate(10),
-				emails: [this.userData[1].user.email]	// include the second user
-			}
+			name: RandomString.generate(10)
 		};
 		this.apiRequest(
 			{
 				method: 'post',
-				path: '/repos',
+				path: '/teams',
 				data: data,
 				token: this.userData[0].accessToken	// first user creates it
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.repo = response.repo;
 				this.team = response.team;
 				callback();
 			}
 		);
 	}
 
-	// create a file-type stream in the repo
+	// invite the second user to the team
+	inviteOtherUser (callback) {
+		let data = {
+			teamId: this.team._id,
+			email: this.userData[1].user.email
+		};
+		this.apiRequest(
+			{
+				method: 'post',
+				path: '/users',
+				data,
+				token: this.userData[0].accessToken
+			},
+			callback
+		);
+	}
+
+	// create a channel stream in the team
 	createStream (callback) {
 		let data = {
-			type: 'file',
+			type: 'channel',
+			name: RandomString.generate(10),
 			teamId: this.team._id,
-			repoId: this.repo._id,
-			file: RandomString.generate(12)
+			memberIds: [this.userData[1].user._id]
 		};
 		this.apiRequest(
 			{
 				method: 'post',
 				path: '/streams',
 				data: data,
-				token: this.userData[0].accessToken	// first user creates the repo
+				token: this.userData[0].accessToken	// first user creates the team
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -188,7 +198,7 @@ class EmailTest {
 		let clientConfig = Object.assign({}, PubNubConfig);
 		let user = this.userData[1].user;
 		clientConfig.uuid = user._pubnubUuid || user._id;
-		clientConfig.authKey = this.userData[1].accessToken;
+		clientConfig.authKey = this.userData[1].pubnubToken;
 		let client = new PubNub(clientConfig);
 		this.pubNubClient = new PubNubClient({
 			pubnub: client
@@ -232,7 +242,7 @@ class EmailTest {
 	// begin listening on the simulated client
 	listenOnClient (callback) {
 		// we'll time out after 10 seconds
-		this.channelName = `team-${this.team._id}`;
+		this.channelName = `stream-${this.stream._id}`;
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this, this.channelName),
 			10000
@@ -283,7 +293,6 @@ class EmailTest {
 		Assert(message.requestId, 'received message has no requestId');
 		let post = message.post;
 		Assert.equal(post.teamId, this.team._id, 'incorrect team ID');
-		Assert.equal(post.repoId, this.repo._id, 'incorrect repo ID');
 		Assert.equal(post.streamId, this.stream._id, 'incorrect stream ID');
 		Assert.equal(post.text, this.expectedText, 'text does not match');
 		Assert.equal(post.creatorId, this.userData[0].user._id, 'creatorId is not the expected user');
