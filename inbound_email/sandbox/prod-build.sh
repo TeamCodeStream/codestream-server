@@ -1,6 +1,7 @@
 
 export CS_MAILIN_ASSET_ENV=dev
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-CI_Keyset"
+MAIL_SECRETS_FILE=$HOME/.codestream/codestream-services/ci-api
 
 export CS_MAILIN_API_PORT=38201
 
