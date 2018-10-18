@@ -9,8 +9,6 @@ var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub
 var RandomString = require('randomstring');
 var OS = require('os');
 
-/* eslint no-console: 0 */
-
 class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	constructor (options) {
@@ -84,7 +82,6 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		clientConfig.uuid = user._pubnubUuid || user._id;
 		clientConfig.authKey = token;
 		let client = new PubNub(clientConfig);
-		console.log(this.testNum + ': MAKING PUBNUB CLIENT FOR ' + clientConfig.uuid + ' - ' + clientConfig.authKey);
 		this.pubnubClientsForUser[user._id] = new PubNubClient({
 			pubnub: client
 		});
@@ -113,7 +110,6 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			this.messageReceiveTimeout || 5000
 		);
 		// subscribe to the channel of interest
-		console.log(this.testNum + ': USER ' + this.currentUser._id + ' LISTENING TO ' + this.channelName);
 		this.pubnubClientsForUser[this.currentUser._id].subscribe(
 			this.channelName,
 			this.messageReceived.bind(this),
@@ -139,12 +135,10 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// called when a message has been received, assert that it matches expectations
 	messageReceived (error, message) {
 		if (error) { return this.messageCallback(error); }
-		console.log(this.testNum + ': RECEIVED', JSON.stringify(message, undefined, 5));
 		if (message.channel !== this.channelName) {
 			return;	// ignore
 		}
 		else if (!this.validateMessage(message)) {
-			console.log(this.testNum + ': MESSAGE IGNORED');
 			return; // ignore
 		}
 
