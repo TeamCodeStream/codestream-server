@@ -7,5 +7,4 @@
 
 describe ('utils', () => {
 	require('./data_collection/test/test.js');
-	require('./git_repo/test/test.js');
 });
