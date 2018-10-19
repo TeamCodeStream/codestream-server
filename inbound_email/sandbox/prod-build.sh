@@ -1,5 +1,5 @@
 
-export CS_MAILIN_ASSET_ENV=dev
+export CS_MAILIN_ASSET_ENV=prod
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-CI_Keyset"
 MAIL_SECRETS_FILE=$HOME/.codestream/codestream-services/ci-api
 
