@@ -1,4 +1,6 @@
 
+# This provides the runtime environment for QA
+
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Testing-QA_Keyset"
 MONGO_ACCESS_FILE="$HOME/.codestream/mongo/qa-codestream-dbowner"
 #SSL_CERT=

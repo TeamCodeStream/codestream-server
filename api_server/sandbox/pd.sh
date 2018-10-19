@@ -1,4 +1,6 @@
 
+# This provdes the runtime environment for PD
+
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-PD_Keyset"
 #MONGO_ACCESS_FILE=
 #SSL_CERT=

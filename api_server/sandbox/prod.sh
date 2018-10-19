@@ -1,4 +1,6 @@
 
+# This provides the runtime environment for prod
+
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset"
 MONGO_ACCESS_FILE="$HOME/.codestream/mongo/prod-codestream-dbowner"
 SSL_CERT=codestream.com
