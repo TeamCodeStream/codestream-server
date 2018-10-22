@@ -180,6 +180,8 @@ class PostUserRequest extends PostRequest {
 		const company = await this.data.companies.getById(this.team.get('companyId'));
 		const invitingUser = this.user;
 		const invitedUser = this.transforms.createdUser;
+		const providerInfo = (this.team && this.team.get('providerInfo')) || {};
+		const provider = providerInfo.slack ? 'Slack' : 'CodeStream';
 		const trackObject = {
 			'distinct_id': invitingUser.id,
 			'Email Address': invitingUser.get('email'),
@@ -189,6 +191,8 @@ class PostUserRequest extends PostRequest {
 			'Join Method': invitingUser.get('joinMethod'),
 			'Team ID': this.team.id,
 			'Team Size': this.team.get('memberIds').length,
+			'Team Name': this.team.get('name'),
+			'Provider': provider,
 			'Company': company.get('name'),
 			'Endpoint': this.request.headers['x-cs-plugin-ide'] || 'Unknown IDE',
 			'Plugin Version': this.request.headers['x-cs-plugin-version'] || '',

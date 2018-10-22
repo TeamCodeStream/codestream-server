@@ -55,6 +55,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const data = message.data;
 		const registered = !!this.existingUserIsRegistered;
 		const firstInvite = !this.subsequentInvite;
+		const provider = this.expectedProvider || 'CodeStream';
 		const errors = [];
 		const result = (
 			((message.event === 'Team Member Invited') || errors.push('event not correct')) &&
@@ -66,6 +67,8 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((data['Join Method'] === 'Created Team') || errors.push('Join Method not correct')) && 
 			((data['Team ID'] === this.team._id) || errors.push('Team ID not correct')) &&
 			((data['Team Size'] === this.team.memberIds.length + 1) || errors.push('Team Size not correct')) &&
+			((data['Team Name'] === this.team.name) || errors.push('Team Name not correct')) &&
+			((data['Provider'] === provider) || errors.push(`Provider not set to ${provider}`)) && 
 			((data['Company'] === this.company.name) || errors.push('incorrect company name')) &&
 			((data['Endpoint'] === 'Unknown IDE') || errors.push('IDE should be unknown')) &&
 			((data['Plugin Version'] === '') || errors.push('Plugin Version should be blank')) &&
