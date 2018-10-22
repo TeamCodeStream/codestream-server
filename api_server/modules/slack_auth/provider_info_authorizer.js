@@ -29,8 +29,8 @@ class ProviderInfoAuthorizer {
 		this.webClient = new WebClient(this.accessToken);
 		const identityInfo = await this.slackApiRequest('auth.test');
 		const userInfo = await this.slackApiRequest('users.info', { user: identityInfo.user_id });
-		this.request.log('identityInfo', JSON.stringify(identityInfo, undefined, 5));
-		this.request.log('userInfo', JSON.stringify(userInfo, undefined, 5));
+		this.request.log('identityInfo: ' + JSON.stringify(identityInfo, undefined, 5));
+		this.request.log('userInfo: ' + JSON.stringify(userInfo, undefined, 5));
 		return {
 			userId: identityInfo.user_id,
 			teamId: identityInfo.team_id,
