@@ -88,6 +88,8 @@ class TrackingTest extends InboundEmailMessageTest {
 			((data['Email Address'] === this.users[1].user.email) || errors.push('Email Address does not match post originator')) &&
 			((data['Join Method'] === this.users[1].user.joinMethod) || errors.push('Join Method does not match post originator')) &&
 			((data['Team ID'] === this.team._id) || errors.push('Team ID does not match team')) &&
+			((data['Team Name'] === this.team.name) || errors.push('Team Name does not match team')) &&
+			((data['Provider'] === 'CodeStream') || errors.push('Provider not set to CodeStream')) &&
 			((data['Team Size'] === this.team.memberIds.length) || errors.push('Team Size does not match number of members in team')) &&
 			((data.Company === this.company.name) || errors.push('Company does not match name of company')) &&
 			((data.Endpoint === 'Email') || errors.push('Endpoint not correct')) &&

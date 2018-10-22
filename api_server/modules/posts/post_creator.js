@@ -581,6 +581,8 @@ class PostCreator extends ModelCreator {
 			category = 'Public Channel';
 		}
 		const companyName = this.company ? this.company.get('name') : '???';
+		const providerInfo = (this.team && this.team.get('providerInfo')) || {};
+		const provider = providerInfo.slack ? 'Slack' : 'CodeStream';
 		const trackObject = {
 			distinct_id: this.user.id,
 			Type: 'Chat',
@@ -589,7 +591,9 @@ class PostCreator extends ModelCreator {
 			'Email Address': this.user.get('email'),
 			'Join Method': this.user.get('joinMethod'),
 			'Team ID': this.team ? this.team.id : undefined,
+			'Team Name': this.team ? this.team.get('name') : undefined,
 			'Team Size': this.team ? this.team.get('memberIds').length : undefined,
+			'Provider': provider,
 			Company: companyName,
 			'Endpoint': endpoint,
 			'Plan': 'Free', // FIXME: update when we have payments
