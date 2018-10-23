@@ -37,7 +37,7 @@ tarballAssetName = None
 infoFileName = None
 if args.action in ['pack','info']:
 	# create asset info file (w/o md5sum)
-	pkgInfo = getPackageInfo(buildData = buildData, getRepoCommitDir = buildData['sandboxTop'])
+	pkgInfo = getPackageInfo(buildData = buildData, gitRepoCommitDir = buildData['sandboxTop'])
 	tarballAssetName = pkgInfo['localAssetFilePrefix'] + ".tgz"
 	infoFileName = pkgInfo['localAssetFilePrefix'] + ".info"
 	pkgInfo['assetsMD5'][tarballAssetName] = "0"
@@ -59,3 +59,13 @@ if args.action == 'citest':
 
 if args.action == 'publish':
 	publishArtifacts(args, buildData, assetExtensionList, publishDir = publishDir)
+
+if args.action == 'release':
+	if os.environ['CS_MAILIN_ASSET_ENV'] != "prod":
+		print("release can only be run in a sandbox configured for production")
+		exit(1)
+	infoFileName = args.build_number + ".info"
+	pkgInfo = readJsonFileIgnoreComments(infoFileName)
+	applyTagToRepos(os.environ['CS_MAILIN_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
+	updatePackageVersion(buildData['sandboxTop'] + "/package.json", "development", pkgInfo['version'], bumpLevel = 'patch')
+	buildstepGeneric(args, cmd = "dt-set-asset-version -D prod/inbound-email --tag current --build " + args.build_number)
