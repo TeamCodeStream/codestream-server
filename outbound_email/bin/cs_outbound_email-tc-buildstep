@@ -30,7 +30,7 @@ if args.action == 'destroy':
 	buildstepDestroy(args, buildData)
 
 if args.action == 'build':
-	pkgInfo = getPackageInfo(buildData = buildData, getRepoCommitDir = buildDir)
+	pkgInfo = getPackageInfo(buildData = buildData, gitRepoCommitDir = buildDir)
 	buildstepGeneric(args, cmd = "npm run build", workingDir = buildDir)
 	buildstepGeneric(args, cmd = "npm run lambda:config", workingDir = buildDir)
 	os.rename("../out/outbound-email.zip", "../out/" + pkgInfo['localAssetFilePrefix'] + ".zip")
@@ -81,3 +81,12 @@ if args.action == 'update':
 
 if args.action == 'publish':
 	publishArtifacts(args, buildData, assetExtensionList, sourceDir = "../out", publishDir = "outbound-email")
+
+if args.action == 'release':
+	if os.environ['CS_OUTBOUND_EMAIL_ASSET_ENV'] != "prod":
+		print("release can only be run in a sandbox configured for production")
+		exit(1)
+	infoFileName = "out/" + args.build_number + ".info"
+	pkgInfo = readJsonFileIgnoreComments(infoFileName)
+	applyTagToRepos(os.environ['CS_OUTBOUND_EMAIL_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
+	updatePackageVersion(buildData['sandboxTop'] + "/src/package.json", "develop", pkgInfo['version'], bumpLevel = 'patch')

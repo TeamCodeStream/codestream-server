@@ -33,15 +33,7 @@ Prod build promotes the code asset created in the QA build.
 | [CI](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Ci) | Triggered by updates to the **develop** branch and PR's<br>Builds the zip file and CI lambda function json file on TC agent.<br>Assets are [here](http://assets.codestream.us/artifacts/ci/outbound-email/) |
 | [PD](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Pd) | Triggered by successful CI build<br>Copies the code asset from CI, modifies the info file and lambda function json file to represent PD's operating environment and republishes all assets under PD.<br>Deploys the build by updating the PD lambda functions code and environment.<br>Assets are [here](http://assets.codestream.us/artifacts/pd/outbound-email/) |
 | [QA](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Qa) | Triggered by updates to the **master** branch<br>Builds the zip file and QA lambda function json definition on TC agent.<br>Updates the lambda function code and environment variables on AWS<br>Assets are [here](http://assets.codestream.us/artifacts/qa/outbound-email/) |
-| [Prod](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Prod) | Must be invoked manually<br>Promotes the latest QA build's assets by copying them and modifying the info and lambda function definition and republishing them under Prod.<br>Updates the Prod lambda function's code and environment on AWS<br>Assets are [here](http://assets.codestream.us/artifacts/prod/outbound-email/) |
-
-
-## Production Release Checklist
-1. Run the [Prod build](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Prod) to create the prod assets and install the lambda function (note this promotes the *most recent* QA build to Prod).
-Confirm with `dt-aws-lambda -a list-funcs`
-1. Tag the **outbound_email** repo's Prod build commit ID with the released version number (vX.Y.Z) and push.
-1. Update the version number in **src/package.json** on the **develop** branch for the
-next minor or major release.
+| [Prod](http://tc.codestream.us/viewType.html?buildTypeId=OutboundEmail_Prod) | Must be invoked manually<br>Promotes the latest QA build's assets by copying them and modifying the info and lambda function definition and republishing them under Prod.<br>Updates the Prod lambda function's code and environment on AWS.<br>Tags repo with latest version.<br>Use `dt-aws-lambda -a list-funcs` to verify installation.<br>Assets are [here](http://assets.codestream.us/artifacts/prod/outbound-email/) |
 
 
 ## Hotfixing (untested)
