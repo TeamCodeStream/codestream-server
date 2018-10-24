@@ -27,14 +27,7 @@ There are 2 builds; one for the develop branch (Continuous Integration) and one 
 | --- | --- | --- |
 | [CI](http://tc.codestream.us/viewType.html?buildTypeId=InboundEmail_Ci) | dev | Triggered by updates to the **develop** branch and PR's.<br>Runs unit tests.<br>Create the dev asset and deploy it to PD. |
 | [Prod](http://tc.codestream.us/viewType.html?buildTypeId=InboundEmail_Prod) | prod | Triggered by updates to the **master** branch.<br>Runs unit tests.<br>Create the prod asset and deploy it to QA. |
-
-
-## Production Release
-1. Tag the repo with the lightweight tag **vX.Y.Z**.
-1. Set the _current_ label on the asset with `dt-set-asset-version -D prod/inbound-email --tag current --build inbound-email-1.3.0+4`
-1. Deploy to prod with `dt-deploy2 -p mailin -e prod`
-1. Bump to the next minor (or major) version number in package.json in the **develop** branch
-
+| [Prod Release](http://tc.codestream.us/viewType.html?buildTypeId=InboundEmail_ProductionRelease) | | Triggered manually.<br>Tags the repo and sets the asset _current_ reference for the latest asset.<br>Deploys the asset to production. |
 
 ## Hotfixing (untested / unconfirmed, more thought needed)
 
