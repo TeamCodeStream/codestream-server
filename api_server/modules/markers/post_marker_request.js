@@ -54,14 +54,25 @@ class PostMarkerRequest extends PostRequest {
 			}
 		}
 
+		// if no postId is sent, ignore postStreamId 
+		if (!this.request.body.postId) {
+			delete this.request.body.postStreamId;
+		}
+		else if (!this.request.body.postStreamId) {
+			throw this.errorHandler.error('parameterRequired', { info: 'postStreamId if postId is present' });
+		}
+		else if (!this.request.body.providerType) {
+			throw this.errorHandler.error('parameterRequired', { info: 'providerType if postId is present' });
+		}
+		
 		await this.requireAllowParameters(
 			'body',
 			{
 				required: {
-					string: ['teamId', 'providerType', 'postStreamId', 'postId', 'code']
+					string: ['teamId', 'code']
 				},
 				optional: {
-					string: ['streamId', 'file', 'repoId', 'commitHash', 'preContext', 'postContext', 'type', 'color', 'status'],	
+					string: ['streamId', 'file', 'repoId', 'commitHash', 'preContext', 'postContext', 'type', 'color', 'status', 'providerType', 'postStreamId', 'postId' ],	
 					array: ['location'],
 					'array(string)': ['remotes']
 				}
@@ -105,6 +116,7 @@ class PostMarkerRequest extends PostRequest {
 			team: this.team,
 			postStreamId: this.request.body.postStreamId,
 			postId: this.request.body.postId,
+			providerType: this.request.body.providerType,
 			postAttributes: additionalAttributes
 		}).handleCodeBlock();
 
@@ -162,9 +174,9 @@ class PostMarkerRequest extends PostRequest {
 			summary: description.input,
 			looksLike: {
 				'teamId*': '<ID of the team for which the marker is being created>',
-				'providerType*': '<Third-party provider type (eg. slack)>',
-				'postStreamId*': '<ID of the third-party stream the post the marker is associated with belongs to, assumed to be reference to a third-party stream or conversation>',
-				'postId*': '<ID of the post the marker is associated with, assumed to be a reference to a third-party post>',
+				'providerType': '<Third-party provider type (eg. slack)>',
+				'postStreamId': '<ID of the third-party stream the post the marker is associated with belongs to, assumed to be reference to a third-party stream or conversation>',
+				'postId': '<ID of the post the marker is associated with, assumed to be a reference to a third-party post>',
 				'streamId': '<ID of the file stream the marker references>',
 				'file': '<Path to the file the marker is associated with, if no streamId is available>',
 				'repoId': '<ID of the repo to which the file the marker is associated with belongs>',

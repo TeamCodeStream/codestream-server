@@ -25,6 +25,8 @@ const UpdateMatchedRepoWithRemotesTest = require('./update_matched_repo_with_rem
 const UpdateSetRepoWithRemotesTest = require('./update_set_repo_with_remotes_test');
 const MessageToTeamTest = require('./message_to_team_test');
 const MessageToTeamOnTheFlyTest = require('./message_to_team_on_the_fly_test');
+const NoPostIdTest = require('./no_post_id_test');
+const ExtendedAttributesTest = require('./extended_attributes_test');
 
 class PostMarkerRequestTester {
 
@@ -35,10 +37,10 @@ class PostMarkerRequestTester {
 		new StreamNoMatchTeamTest().test();
 		new NotFileStreamTest({ streamType: 'channel' }).test();
 		new NotFileStreamTest({ streamType: 'direct' }).test();
-		new NoAttributeTest({ attribute: 'providerType' }).test();
-		new NoAttributeTest({ attribute: 'postStreamId' }).test();
-		new NoAttributeTest({ attribute: 'postId' }).test();
+		new NoAttributeTest({ attribute: 'teamId' }).test();
 		new NoAttributeTest({ attribute: 'code' }).test();
+		new NoAttributeTest({ attribute: 'postStreamId' }).test();
+		new NoAttributeTest({ attribute: 'providerType' }).test();
 		new StreamOnTheFlyTest().test();
 		new LocationMustBeArrayTest().test();
 		new LocationTooShortTest().test();
@@ -56,6 +58,8 @@ class PostMarkerRequestTester {
 		new UpdateSetRepoWithRemotesTest().test();
 		new MessageToTeamTest().test();
 		new MessageToTeamOnTheFlyTest().test();
+		new NoPostIdTest().test();
+		new ExtendedAttributesTest().test();
 	}
 }
 

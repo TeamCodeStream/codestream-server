@@ -36,7 +36,7 @@ class CommonInit {
 		this.data = {
 			commitHashWhenCreated: this.repoFactory.randomCommitHash()
 		};
-		this.marker = this.postData[0].markers[0];
+		this.marker = this.marker || this.postData[0].markers[0];
 		this.expectedData = {
 			marker: {
 				_id: this.marker._id,
