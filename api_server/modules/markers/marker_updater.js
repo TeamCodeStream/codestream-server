@@ -23,16 +23,23 @@ class MarkerUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['commitHashWhenCreated']
+			string: ['commitHashWhenCreated', 'postId', 'postStreamId', 'providerType']
 		};
 	}
 
 	// called before the marker is actually saved
 	async preSave () {
 		await this.getMarker();		// get the marker
-		await this.getPost();			// get its associated post
-		await this.getStream();		// get the stream the marker is from
-		await this.getPostStream();	// get the stream for the post, if different
+		if (this.attributes.postId) {
+			// if providing post ID, we assume it is a pre-created marker for third-party
+			// integration, which requires special treatment
+			await this.validatePostId();
+		}
+		else {
+			await this.getPost();			// get its associated post
+			await this.getStream();		// get the stream the marker is from
+			await this.getPostStream();	// get the stream for the post, if different
+		}
 		await super.preSave();		// base-class preSave
 	}
 
@@ -42,6 +49,18 @@ class MarkerUpdater extends ModelUpdater {
 		if (!this.marker) {
 			throw this.errorHandler.error('notFound', { info: 'marker' });
 		}
+	}
+
+	// validate the operation
+	async validatePostId () {
+		if (this.marker.get('postId')) {
+			throw this.errorHandler.error('validation', { info: 'marker already has a post ID' });
+		}
+		['postStreamId', 'providerType'].forEach(attribute => {
+			if (!this.attributes[attribute]) {
+				throw this.errorHandler.error('parameterRequired', { info: attribute });
+			}
+		});
 	}
 
 	// get the post the marker is associated with
