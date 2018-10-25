@@ -84,23 +84,10 @@ class CodeBlockHandler {
 	}
 
 	async validate () {
-		const codeBlockAttributes = {
-			required: {
-				string: ['code']
-			},
-			optional: {
-				string: ['preContext', 'postContext', 'repoId', 'file', 'streamId', 'commitHash'],
-				array: ['location'],
-				'array(string)': ['remotes']
-			}
-		};
-		const info = RequireAllow.requireAllow(this.codeBlock, codeBlockAttributes, { strict: true });
-		if (info && info.missing && info.missing.length) {
-			return 'missing ' + info.missing.join(',');
+		const error = this.requireAllow();
+		if (error) { 
+			return error;
 		}
-		else if (info && info.invalid && info.invalid.length) {
-			return 'invalid ' + info.invalid.join(',');
-		} 
 	
 		// the location coordinates must be valid
 		if (typeof this.codeBlock.location !== 'undefined') {
@@ -108,6 +95,11 @@ class CodeBlockHandler {
 			if (result) {
 				return result;
 			}
+		}
+
+		// if there is a postId, there must be a postStreamId
+		if (this.postId && !this.postStreamId && !this.postStream) {
+			return 'no postStreamId with postId';
 		}
 
 		// don't allow more than 100 remotes, just general protection against resource hogging
@@ -139,6 +131,26 @@ class CodeBlockHandler {
 		}
 	}
  
+	requireAllow () {
+		const codeBlockAttributes = {
+			required: {
+				string: ['code']
+			},
+			optional: {
+				string: ['preContext', 'postContext', 'repoId', 'file', 'streamId', 'commitHash'],
+				array: ['location'],
+				'array(string)': ['remotes']
+			}
+		};
+		const info = RequireAllow.requireAllow(this.codeBlock, codeBlockAttributes, { strict: true });
+		if (info && info.missing && info.missing.length) {
+			return 'missing ' + info.missing.join(',');
+		}
+		else if (info && info.invalid && info.invalid.length) {
+			return 'invalid ' + info.invalid.join(',');
+		} 
+	}
+	
 	async getStream () {
 		if (this.postStream && this.codeBlock.streamId === this.postStream.id) {
 			this.stream = this.postStream;
@@ -285,14 +297,19 @@ class CodeBlockHandler {
 		let markerInfo = {
 			teamId: this.team.id,
 			streamId: this.stream.id,
-			postId: this.postId,
-			postStreamId: this.postStreamId || this.postStream.id,
 			commitHash: this.codeBlock.commitHash,
 			location: this.codeBlock.location,
 			codeBlock: this.codeBlock
 		};
 		if (this.postAttributes) {
 			Object.assign(markerInfo, this.postAttributes);
+		}
+		if (this.postId) {
+			markerInfo.postId = this.postId;
+			markerInfo.postStreamId = this.postStreamId || this.postStream.id;
+			if (this.providerType) {
+				markerInfo.providerType = this.providerType;
+			}
 		}
 		this.createdMarker = await new MarkerCreator({
 			request: this.request

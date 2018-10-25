@@ -17,12 +17,10 @@ module.exports = {
 	},
 	postId: {
 		type: 'string',
-		required: true,
 		description: 'ID of the @@#post#post@@ that references this marker\'s code block, or can be a third-party post ID'
 	},
 	postStreamId: {
 		type: 'string',
-		required: true,
 		description: 'ID of the @@#stream#stream@@ the @@#post#post@@ that references this marker\'s code block belongs to, or can be a third-party post ID'
 	},
 	numComments: {

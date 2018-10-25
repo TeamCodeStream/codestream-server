@@ -23,7 +23,13 @@ class PostMarkerTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	getExpectedFields () {
-		return { marker: MarkerTestConstants.EXPECTED_MARKER_FIELDS };
+		const expectedFields = MarkerTestConstants.EXPECTED_MARKER_FIELDS;
+		if (this.noPostId) {
+			expectedFields.splice(expectedFields.indexOf('postId'), 1);
+			expectedFields.splice(expectedFields.indexOf('postStreamId'), 1);
+			expectedFields.splice(expectedFields.indexOf('providerType'), 1);
+		}
+		return { marker: expectedFields };
 	}
 
 	// before the test runs...
@@ -44,8 +50,6 @@ class PostMarkerTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		let result = (
 			((marker.teamId === this.team._id) || errors.push('teamId does not match the team')) &&
 			((marker.streamId === expectedMarkerStream._id) || errors.push('streamId does not match the file stream')) &&
-			((marker.postId === this.data.postId) || errors.push('postId does not match the given post ID')) &&
-			((marker.postStreamId === this.data.postStreamId) || errors.push('postStreamId does not match the given stream ID')) &&
 			((marker.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof marker.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((marker.modifiedAt >= marker.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
@@ -62,7 +66,13 @@ class PostMarkerTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((markerLocations.streamId === expectedMarkerStream._id) || errors.push('markerLocations streamId does not match the file stream')) &&
 			((markerLocations.commitHash === this.data.commitHash.toLowerCase()) || errors.push('markerLocations commitHash does not match the given commit hash'))
 		);
-
+		if (!this.noPostId) {
+			result = result && (
+				((marker.postId === this.data.postId) || errors.push('postId does not match the given post ID')) &&
+				((marker.postStreamId === this.data.postStreamId) || errors.push('postStreamId does not match the given stream ID')) &&
+				((marker.providerType === this.data.providerType) || errors.push('providerType does not match the given provider type'))
+			);
+		}
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(codeBlock.location, this.data.location, 'codeBlock location does not match the given location');
 		Assert.deepEqual(markerLocations.locations[marker._id], this.data.location, 'markerLocations location for marker does not match the given location');
