@@ -54,6 +54,17 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const errors = [];
 		const joinMethod = this.wantPreExistingTeam ? 'Added to Team' : 'Created Team';
 		const primaryReferral = this.wantPreExistingTeam ? 'internal' : 'external';
+		let signupStatus;
+		if (!this.wantPreExistingTeam) {
+			signupStatus = 'teamCreated';
+		}
+		else if (!this.wantPreExistingConnectedUser && !this.wantPreExistingUnconnectedUser) {
+			signupStatus = 'userCreated';
+		}
+		else {
+			signupStatus = 'signedIn';
+		}
+		Assert.equal(data.signupStatus, signupStatus, 'signupStatus is not correct, should be ' + signupStatus);
 		const result = (
 			(user.email || errors.push('no email')) &&
 			(user.username || errors.push('username not set')) &&
