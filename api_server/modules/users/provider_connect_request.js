@@ -258,7 +258,7 @@ class ProviderConnectRequest extends RestfulRequest {
 				userData[attribute] = this.providerInfo[attribute];
 			}
 		});
-		this.user = await this.userCreator.createUser(userData);
+		this.user = this.createdUser = await this.userCreator.createUser(userData);
 	}
 
 	// check if the CodeStream user (maybe newly) associated with the slack identity is registered,
@@ -269,6 +269,17 @@ class ProviderConnectRequest extends RestfulRequest {
 		}
 		else {
 			await this.confirmUser();
+		}
+
+		// set signup status
+		if (this.createdTeam) {
+			this.responseData.signupStatus = 'teamCreated';
+		}
+		else if (this.createdUser) {
+			this.responseData.signupStatus = 'userCreated';
+		}
+		else {
+			this.responseData.signupStatus = 'signedIn';
 		}
 	}
 
