@@ -294,9 +294,11 @@ class CodeBlockHandler {
 
 	// create a marker, associated with a given code block
 	async createMarker () {
-		let markerInfo = {
+		const markerInfo = {
 			teamId: this.team.id,
 			streamId: this.stream.id,
+			fileStreamId: this.codeBlock.streamId,
+			postStreamId: this.postStreamId,
 			commitHash: this.codeBlock.commitHash,
 			location: this.codeBlock.location,
 			codeBlock: this.codeBlock
@@ -304,6 +306,11 @@ class CodeBlockHandler {
 		if (this.postAttributes) {
 			Object.assign(markerInfo, this.postAttributes);
 		}
+		['code', 'file', 'repo', 'repoId', 'location'].forEach(attribute => {
+			if (this.codeBlock[attribute]) {
+				markerInfo[attribute] = this.codeBlock[attribute];
+			}
+		});
 		if (this.postId) {
 			markerInfo.postId = this.postId;
 			markerInfo.postStreamId = this.postStreamId || this.postStream.id;
@@ -311,6 +318,7 @@ class CodeBlockHandler {
 				markerInfo.providerType = this.providerType;
 			}
 		}
+
 		this.createdMarker = await new MarkerCreator({
 			request: this.request
 		}).createMarker(markerInfo);

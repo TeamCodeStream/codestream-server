@@ -24,11 +24,11 @@ class MarkerCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['teamId', 'streamId', 'commitHash'],
+				string: ['teamId', 'commitHash'],
 				object: ['codeBlock']
 			},
 			optional: {
-				string: ['postId', 'postStreamId', 'providerType', 'type', 'status', 'color'],
+				string: ['streamId', 'fileStreamId', 'postId', 'postStreamId', 'providerType', 'code', 'file', 'repo', 'repoId'],
 				'array': ['location']
 			}
 		};
@@ -49,8 +49,8 @@ class MarkerCreator extends ModelCreator {
 		if (error) {
 			return error;
 		}
-		this.location = this.attributes.location;
-		delete this.attributes.location; // this actually goes into the markerLocations structure, stored separately
+		this.attributes.locationWhenCreated = this.attributes.location;
+		delete this.attributes.location;
 	}
 
 	// validate a marker location, must be in the strict format:
@@ -97,12 +97,12 @@ class MarkerCreator extends ModelCreator {
 
 	// update the location of this marker in the marker locations structure for this stream and commit
 	async updateMarkerLocations () {
-		if (!this.location) { return; }	// location is not strictly required, ignore if not provided
-		const id = `${this.attributes.streamId}|${this.attributes.commitHashWhenCreated}`.toLowerCase();
+		if (!this.attributes.locationWhenCreated) { return; }	// location is not strictly required, ignore if not provided
+		const id = `${this.attributes.streamId}|${this.attributes.commitHash}`.toLowerCase();
 		let op = {
 			$set: {
 				teamId: this.attributes.teamId,
-				[`locations.${this.attributes._id}`]: this.location
+				[`locations.${this.attributes._id}`]: this.attributes.locationWhenCreated
 			}
 		};
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data

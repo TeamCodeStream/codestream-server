@@ -10,10 +10,15 @@ module.exports = {
 		required: true,
 		description: 'ID of the @@#team#team@@ that owns the file @@#stream#stream@@ this marker references'
 	},
-	streamId: {
+	streamId: {	// to be deprecated in favor of fileStreamId
 		type: 'id',
 		required: true,
-		description: 'ID of the file @@#stream#stream@@ references by this marker\'s code block'
+		description: 'ID of the file @@#stream#stream@@ referenced by this marker\'s code block'
+	},
+	fileStreamId: {
+		type: 'id',
+		required: true,
+		description: 'ID of the file @@#stream#stream@@ referenced by this marker\'s code block'
 	},
 	postId: {
 		type: 'string',
@@ -21,7 +26,7 @@ module.exports = {
 	},
 	postStreamId: {
 		type: 'string',
-		description: 'ID of the @@#stream#stream@@ the @@#post#post@@ that references this marker\'s code block belongs to, or can be a third-party post ID'
+		description: 'ID of the @@#stream#stream@@ the @@#post#post@@ that references this marker\'s code block belongs to, or can be a third-party stream ID'
 	},
 	numComments: {
 		type: 'number',
@@ -32,31 +37,39 @@ module.exports = {
 		type: 'string',
 		minLength: 40,
 		maxLength: 40,
-		description: 'The commit SHA the @@#user#user@@ was on in their repo when this marker\'s code block was first created in a @@#post#post@@'
+		description: 'The commit SHA the @@#user#user@@ was on in their repo when this marker\'s code block was first created'
 	},
-	codeBlock: {
+	codeBlock: {	// to be deprecated in favor of individual attributes at the top-level
 		type: 'object',
 		maxLength: 1000,
 		description: 'Code block referenced by this marker'
-	},
-	type: {
-		type: 'string',
-		maxLength: 25,
-		description: 'Type of the associated post, like "comment", "question", "code trap", etc.'
-	},
-	color: {
-		type: 'string',
-		maxLength: 20,
-		description: 'Display color, for highlighting'
-	},
-	status: {
-		type: 'string',
-		maxLength: 25,
-		description: 'Status of certain types of posts, like "Open" or "Closed"'
 	},
 	providerType: {
 		type: 'string',
 		maxLength: 25,
 		description: 'Third-party provider, as needed (eg. slack)'
+	},
+	code: {
+		type: 'string',
+		maxLength: 10000,
+		description: 'The code associated with this marker'
+	},
+	file: {
+		type: 'string',
+		maxLength: 1024,
+		description: 'The path of the file the code comes from, assumed to be from the root of the @@#repo#repo@@'
+	},
+	repo: {
+		type: 'string',
+		maxLength: 1024,
+		description: 'URL of the @@#repo#repo@@ the file comes from'
+	},
+	repoId: {
+		type: 'id',
+		description: 'ID of the repo the file containing this code comes from'
+	},
+	locationWhenCreated: {
+		type: 'array',
+		description: 'Location coordinates of the code when the marker was first created'
 	}
 };
