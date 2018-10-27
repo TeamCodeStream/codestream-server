@@ -33,6 +33,7 @@ class CodeBlockTest extends PostPostTest {
 
 	// validate the markers created as a result of the post containing code blocks
 	validateMarkers (data) {
+		const commitHash = this.data.commitHashWhenPosted || this.data.codeBlocks[0].commitHash;
 		const post = data.post;
 		Assert(data.markers instanceof Array, 'no markers array');
 		Assert(data.markers.length === 1, 'length of markers array is ' + data.markers.length);
@@ -44,7 +45,7 @@ class CodeBlockTest extends PostPostTest {
 		Assert(marker.postStreamId === this.stream._id, 'postStreamId of marker does not match the stream');
 		Assert(marker.deactivated === false, 'deactivated is not false');
 		Assert(marker.numComments === 1, 'marker should have 1 comment');
-		Assert(marker.commitHashWhenCreated === this.data.commitHashWhenPosted.toLowerCase(), 'commitHashWhenCreated does not match');
+		Assert(marker.commitHashWhenCreated === commitHash.toLowerCase(), 'commitHashWhenCreated does not match');
 		Assert(marker._id === post.codeBlocks[0].markerId, 'markerId in code block does not match marker created');
 		const expectedCodeBlock = Object.assign({}, post.codeBlocks[0]);
 		delete expectedCodeBlock.markerId;
@@ -52,12 +53,14 @@ class CodeBlockTest extends PostPostTest {
 			expectedCodeBlock.location = this.data.codeBlocks[0].location;
 		}
 		Assert.deepEqual(marker.codeBlock, expectedCodeBlock, 'code block of marker not equal to code block of post');
+		Assert.deepEqual(post.markerIds, [ marker._id ], 'marker ID not found in post markerIds');
 		this.validateSanitized(marker, PostTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
 	}
 
 	// validate the code blocks that came back in the response
 	validateCodeBlocks (data) {
 		const post = data.post;
+		const commitHash = this.data.commitHashWhenPosted || this.data.codeBlocks[0].commitHash;
 		Assert(post.codeBlocks instanceof Array, 'no codeBlocks array');
 		Assert(post.codeBlocks.length === 1, 'length of codeBlocks array is ' + post.codeBlocks.length);
 		const codeBlock = post.codeBlocks[0];
@@ -77,7 +80,7 @@ class CodeBlockTest extends PostPostTest {
 			const codeBlockUrl = codeBlockRepo.remotes[0].normalizedUrl;
 			Assert(codeBlock.repo === codeBlockUrl, 'codeBlock repo not equal to the expected repo url');
 		}
-		Assert(codeBlock.commitHash === this.data.commitHashWhenPosted.toLowerCase(), 'codeBlock commitHash not equal to commitHash of post');
+		Assert(codeBlock.commitHash === commitHash.toLowerCase(), 'codeBlock commitHash not equal to commitHash of post');
 		const inputCodeBlock = this.data.codeBlocks[0];
 		Assert(codeBlock.code === inputCodeBlock.code, 'code not correct');
 		Assert(codeBlock.preContext === inputCodeBlock.preContext, 'code not correct');
@@ -90,11 +93,12 @@ class CodeBlockTest extends PostPostTest {
 		const post = data.post;
 		const marker = data.markers[0];
 		const markerLocations = data.markerLocations[0];
-		Assert(typeof markerLocations === 'object', 'missing or invalid markerLocations object');
+		const commitHash = this.data.commitHashWhenPosted || this.data.codeBlocks[0].commitHash;
+		Assert(typeof markerLocations === 'object', 'mssing or invalid markerLocations object');
 		Assert(markerLocations.teamId === post.teamId, 'markerLocations teamId does not match');
 		const markerStreamId = this.otherStream ? this.otherStream._id : post.streamId;
 		Assert(markerLocations.streamId === markerStreamId, 'markerLocations streamId does not match');
-		Assert(markerLocations.commitHash === post.commitHashWhenPosted, 'markerLocations commitHash does not match commit hash for post');
+		Assert(markerLocations.commitHash === commitHash.toLowerCase(), 'markerLocations commitHash does not match commit hash for post');
 		Assert(typeof markerLocations.locations === 'object', 'missing or invalid locations object in markerLocations object');
 		const locations = markerLocations.locations;
 		Assert.deepEqual(locations[marker._id], this.data.codeBlocks[0].location, 'location does not match');

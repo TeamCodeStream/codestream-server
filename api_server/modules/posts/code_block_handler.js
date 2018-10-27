@@ -41,6 +41,7 @@ class CodeBlockHandler {
 		// if the code block specifies a commit hash, then we need the repo information,
 		// so either get the repo specified, or create one 
 		if (this.codeBlock.commitHash) {
+			this.codeBlock.commitHash = this.codeBlock.commitHash.toLowerCase();
 			await this.getOrCreateRepo();
 		}
 

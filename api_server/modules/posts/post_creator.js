@@ -14,6 +14,7 @@ const IntegrationHandler = require('./integration_handler');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const ItemCreator = require(process.env.CS_API_TOP + '/modules/items/item_creator');
 
 class PostCreator extends ModelCreator {
 
@@ -59,7 +60,7 @@ class PostCreator extends ModelCreator {
 			optional: {
 				string: ['streamId', 'text', 'commitHashWhenPosted', 'parentPostId', 'providerType', 'providerPostId', 'providerConversationId', 'type', 'color', 'status', 'title'],
 				object: ['stream', 'providerInfo'],
-				'array(object)': ['codeBlocks'],
+				'array(object)': ['codeBlocks', 'items'],
 				'array(string)': ['mentionedUserIds', 'assignees']
 			}
 		};
@@ -92,6 +93,7 @@ class PostCreator extends ModelCreator {
 		await this.createStream();		// create the stream, if requested to create on-the-fly
 		this.createId();				// create an ID for the post
 		await this.handleCodeBlocks();	// handle any code blocks tied to the post
+		await this.createItems();		// create any associated knowledge-base items
 		await this.getSeqNum();			// requisition a sequence number for the post
 		await super.preSave();			// base-class preSave
 		await this.updateStream();		// update the stream as needed
@@ -188,6 +190,7 @@ class PostCreator extends ModelCreator {
 		await Promise.all(this.attributes.codeBlocks.map(async codeBlock => {
 			await this.handleCodeBlock(codeBlock);
 		}));
+		this.attributes.markerIds = this.transforms.createdMarkers.map(marker => marker.id);
 	}
 
 	// handle a single code block attached to the post
@@ -241,6 +244,33 @@ class PostCreator extends ModelCreator {
 				this.transforms.markerLocations.push(codeBlockInfo.markerLocation);
 			}
 		}
+	}
+
+	// create any knowledge base items to be associated with the post
+	async createItems () {
+		if (!this.attributes.items) {
+			return;
+		}
+		this.transforms.createdItems = [];
+		await Promise.all(this.attributes.items.map(async item => {
+			await this.createItem(item);
+		}));
+		this.attributes.itemIds = this.transforms.createdItems.map(item => item.id);
+		delete this.attributes.items;
+	}
+
+	// handle a single knowledge-base item attached to the post
+	async createItem (item) {
+		delete item.codeBlocks;	// can't do this, must come through the post itself!
+		const itemAttributes = Object.assign({}, item, {
+			teamId: this.team.id,
+			streamId: this.stream.id,
+			postId: this.attributes._id
+		});
+		const createdItem = await new ItemCreator({
+			request: this.request
+		}).createItem(itemAttributes);
+		this.transforms.createdItems.push(createdItem);
 	}
 
 	// requisition a sequence number for this post

@@ -23,7 +23,7 @@ module.exports = {
 		maxLength: 40,
 		description: 'For file @@#streams#stream@@, the commit SHA that the user was on in their repo, when they created the post'
 	},
-	codeBlocks: {
+	codeBlocks: {	// to be deprecated
 		type: 'arrayOfObjects',
 		maxLength: 10,
 		maxObjectLength: 10000,
@@ -95,29 +95,14 @@ module.exports = {
 		maxLength: 1000,
 		description: 'For third-party integrations, free-form object for additional info relevant to the third-party post'
 	},
-	type: {
-		type: 'string',
-		maxLength: 25,
-		description: 'Type of the post, like "comment", "question", "code trap", etc.'
-	},
-	color: {
-		type: 'string',
-		maxLength: 20,
-		description: 'Display color, for highlighting'
-	},
-	status: {
-		type: 'string',
-		maxLength: 25,
-		description: 'Status of certain types of posts, like "Open" or "Closed"'
-	},
-	title: {
-		type: 'string',
-		maxLength: 1000,
-		description: 'Title of the post'
-	},
-	assignees: {
+	itemIds: {
 		type: 'arrayOfIds',
-		maxLength: 200,
-		description: 'Array of user IDs to whom a task is assigned'
+		maxLength: 10,
+		description: 'IDs representing knowledge base items attached to this post'
+	},
+	markerIds: {
+		type: 'arrayOfIds',
+		maxLength: 10,
+		description: 'IDs representing code blocks attached to this post'
 	}
 };

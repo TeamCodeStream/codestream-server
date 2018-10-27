@@ -60,6 +60,9 @@ class PostPostRequest extends PostRequest {
 		if (transforms.markerLocations && transforms.markerLocations.length > 0) {
 			responseData.markerLocations = transforms.markerLocations;
 		}
+		if (transforms.createdItems && transforms.createdItems.length > 0) {
+			responseData.items = transforms.createdItems.map(item => item.getSanitizedObject());
+		}
 		if (transforms.postUpdates && transforms.postUpdates.length > 0) {
 			responseData.posts = transforms.postUpdates;
 		}
@@ -69,7 +72,7 @@ class PostPostRequest extends PostRequest {
 	// describe this route for help
 	static describe (module) {
 		const description = PostRequest.describe(module);
-		description.description = 'Creates a post, along with markers for associated code blocks. Streams can also be created on-the-fly, either for the post, or for any code blocks it quotes.';
+		description.description = 'Creates a post, along with markers for associated code blocks, and associated knowledge base items. Streams can also be created on-the-fly, either for the post, or for any code blocks it quotes.';
 		description.access = 'For posts in a file stream, the current user must be a member of the team to which the file stream belongs. For posts in a channel stream or a direct stream, the current user must be a member of the stream.';
 		description.input = {
 			summary: description.input,
@@ -79,17 +82,13 @@ class PostPostRequest extends PostRequest {
 				'commitHashWhenPosted': '<For file streams, if code blocks are given, the commit hash the file is on>',
 				'parentPostId': '<For replies, the ID of the parent post>',
 				'codeBlocks': '<Array of code blocks, specifying code quoted by this post>',
+				'items': '<Array of @@#items#item@@, for creating knowledge-base item referenced by the post>',
 				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>',
 				'stream': '<Minimal attributes of a @@#stream object#stream@@, for creating a stream for the post on-the-fly, required if no streamId is given>',
 				'providerType': '<For third-party integrations, type of provider (slack, msteams, etc.) the post is associated with>',
 				'providerPostId': '<For third-party integrations, ID of the post that this post references in the third-party integration provider>',
 				'providerConversationId': '<For third-party integrations, ID of the conversation (team, group, DM) to which this post belongs in the the third-party integration provider>',
-				'providerInfo': '<For third-party integrations, free-form object for additional info relevant to the third-party post>',
-				'type': '<Assign a type to this post ("question", "comment", etc.)>',
-				'color': '<Display color of the post>',
-				'status': '<Status of the post, for things like tasks>',
-				'title': '<Title of the post>',
-				'assignees': '<Array of IDs representing users assigned to the post, for tasks>'
+				'providerInfo': '<For third-party integrations, free-form object for additional info relevant to the third-party post>'
 			}
 		};
 		description.returns.summary = 'A post object, plus a stream object if a stream was created on-the-fly, marker objects and marker locations for any code blocks';
@@ -97,6 +96,10 @@ class PostPostRequest extends PostRequest {
 			stream: '<@@#stream object#stream@@ > (if stream created on-the fly for the post)>',
 			streams: [
 				'<@@#stream object#stream@@ > (additional streams created on-the-fly for code blocks)>',
+				'...'
+			],
+			items: [
+				'<@@#item object#item@@ > (knowledge base items referenced by this post)>',
 				'...'
 			],
 			markers: [
@@ -112,6 +115,10 @@ class PostPostRequest extends PostRequest {
 				stream: '<@@#stream object#stream@@ > (if stream created on-the fly for the post)>',
 				streams: [
 					'<@@#stream object#stream@@ > (additional streams created on-the-fly for code blocks)>',
+					'...'
+				],
+				items: [
+					'<@@#item object#item@@ > (knowledge base items referenced by the post)',
 					'...'
 				],
 				markers: [

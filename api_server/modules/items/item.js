@@ -15,12 +15,12 @@ class Item extends CodeStreamModel {
 	// called right before we save...
 	async preSave (options) {
 		// ensure all native IDs are lowercase
-		this.lowerCase(this.attributes.teamId);
+		this.lowerCase('teamId');
 		if (!this.attributes.providerType) {
-			this.lowerCase(this.attributes.streamId);
-			this.lowerCase(this.attributes.postId);
+			this.lowerCase('streamId');
+			this.lowerCase('postId');
 		}
-		this.lowerCase(this.attributes.markerIds);
+		this.lowerCase('markerIds');
 		await super.preSave(options);
 	}
 }

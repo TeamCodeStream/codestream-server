@@ -5,6 +5,7 @@
 const PostAttributes = require(process.env.CS_API_TOP + '/modules/posts/post_attributes');
 const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stream_attributes');
 const MarkerAttributes = require(process.env.CS_API_TOP + '/modules/markers/marker_attributes');
+const ItemAttributes = require(process.env.CS_API_TOP + '/modules/items/item_attributes');
 
 // fields expected in all posts
 const EXPECTED_POST_FIELDS = [
@@ -44,11 +45,16 @@ const UNSANITIZED_MARKER_ATTRIBUTES = Object.keys(MarkerAttributes).filter(attri
 	return MarkerAttributes[attribute].serverOnly;
 });
 
+const UNSANITIZED_ITEM_ATTRIBUTES = Object.keys(ItemAttributes).filter(attribute => {
+	return ItemAttributes[attribute].serverOnly;
+});
+
 module.exports = {
 	EXPECTED_POST_FIELDS,
 	EXPECTED_FILE_POST_FIELDS,
 	EXPECTED_REPLY_POST_FIELDS,
 	UNSANITIZED_ATTRIBUTES,
 	UNSANITIZED_STREAM_ATTRIBUTES,
-	UNSANITIZED_MARKER_ATTRIBUTES
+	UNSANITIZED_MARKER_ATTRIBUTES,
+	UNSANITIZED_ITEM_ATTRIBUTES
 };
