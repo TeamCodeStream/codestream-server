@@ -53,6 +53,9 @@ class RandomPostFactory {
 		if (options.wantCodeBlocks) {
 			this.createRandomCodeBlocks(data, options.wantCodeBlocks, options);
 		}
+		if (options.wantItems) {
+			this.createRandomItems(data, options.wantItems, options);
+		}
 		if (options.parentPostId) {
 			// for replies
 			data.parentPostId = options.parentPostId;
@@ -83,8 +86,16 @@ class RandomPostFactory {
 				codeBlockInfo.file = this.streamFactory.randomFile();
 				codeBlockInfo.remotes = [this.repoFactory.randomUrl()];
 			}
-			codeBlockInfo.commitHash = this.randomCommitHash();
+			codeBlockInfo.commitHash = options.commitHash || this.randomCommitHash();
 			data.codeBlocks.push(codeBlockInfo);
+		}
+	}
+
+	createRandomItems (data, n, options = {}) {
+		data.items = [];
+		for (let i = 0; i < n; i++) {
+			const itemData = this.itemFactory.getRandomItemData({ type: options.itemType });
+			data.items.push(itemData);
 		}
 	}
 

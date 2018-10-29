@@ -3,6 +3,7 @@
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const MarkerTestConstants = require('../marker_test_constants');
+const Assert = require('assert');
 
 class GetMarkersTest extends CodeStreamAPITest {
 
@@ -63,6 +64,16 @@ class GetMarkersTest extends CodeStreamAPITest {
 		// validate we got the correct markers, and that they are sanitized (free of attributes we don't want the client to see)
 		this.validateMatchingObjects(data.markers, this.markers, 'markers');
 		this.validateSanitizedObjects(data.markers, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
+
+		// make sure we got a post with each marker that matches the post that references the marker
+		data.markers.forEach(marker => {
+			if (marker.post) {
+				Assert.equal(marker.post._id, marker.postId, 'ID of child post to marker does not match the marker\'s postId');
+			}
+			else {
+				Assert(marker.providerType, 'no post for a non-third-party marker');
+			}
+		});
 	}
 }
 

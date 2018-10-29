@@ -19,6 +19,15 @@ class PostItemRequest extends PostRequest {
 		}
 	}
 
+	async process () {
+		// providerType is required for incoming requests, other attribute requirements
+		// will be enforced by ItemCreator
+		if (!this.request.body.providerType) {
+			throw this.errorHandler.error('parameterRequired', { info: 'providerType' });
+		}
+		await super.process();
+	}
+
 	/* eslint complexity: 0 */
 	async handleResponse () {
 		if (this.gotError) {

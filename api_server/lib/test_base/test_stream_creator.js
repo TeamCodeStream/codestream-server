@@ -108,6 +108,7 @@ class TestStreamCreator {
 				postOptions.commitHash = this.postOptions.commitHash;
 			}
 		}
+
 		if (this.postOptions.postData && this.postOptions.postData[n]) {
 			const postData = this.postOptions.postData[n];
 			if (typeof postData.replyTo !== 'undefined') {
@@ -116,6 +117,20 @@ class TestStreamCreator {
 			}
 			Object.assign(postOptions, this.postOptions.postData[n]);
 		}
+
+		if (this.postOptions.wantItem) {
+			postOptions.wantItems = 1;
+			if (this.postOptions.itemTypes) {
+				if (this.postOptions.assignedTypes) {
+					postOptions.itemType = this.postOptions.itemTypes[this.postOptions.assignedTypes[n]];
+				}
+				else {
+					const typeIndex = Math.floor(Math.random() * this.postOptions.itemTypes.length);
+					postOptions.itemType = this.postOptions.itemTypes[typeIndex];
+				}
+			}
+		}
+
 		const creatorIndex = this.postOptions.creatorIndex instanceof Array ? 
 			this.postOptions.creatorIndex[n] :
 			this.postOptions.creatorIndex;

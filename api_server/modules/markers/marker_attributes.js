@@ -71,5 +71,10 @@ module.exports = {
 	locationWhenCreated: {
 		type: 'array',
 		description: 'Location coordinates of the code when the marker was first created'
+	},
+	itemIds: {
+		type: 'arrayOfIds',
+		maxLength: 10,
+		description: 'IDs representing the knowledge-base items attached to this marker'
 	}
 };

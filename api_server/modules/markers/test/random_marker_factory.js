@@ -90,11 +90,21 @@ class RandomMarkerFactory {
 	}
 
 	// get some random marker data
-	getRandomMarkerData (callback) {
-		let data = {
+	getRandomMarkerData () {
+		return {
 			location: this.randomLocation(),
 		};
-		callback(null, data);
+	}
+
+	// get some random code block data
+	getRandomCodeBlockData () {
+		return {
+			code: RandomString.generate(1000),
+			commitHash: this.repoFactory.randomCommitHash(),
+			location: this.randomLocation(),
+			file: this.streamFactory.randomFile(),
+			remotes: [ this.repoFactory.randomUrl() ]
+		};
 	}
 }
 

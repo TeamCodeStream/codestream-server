@@ -49,13 +49,13 @@ class SetPostIdTest extends PutMarkerTest {
 			remotes: [ this.repoFactory.randomUrl() ],
 			file: this.streamFactory.randomFile(),
 			commitHash: this.repoFactory.randomCommitHash(),
-			code: RandomString.generate(100)
+			code: RandomString.generate(100),
+			providerType: 'slack'
 		};
 	}
 
 	adjustMarkerData (callback) {
 		const postData = {
-			providerType: 'slack',
 			postId: RandomString.generate(10),
 			postStreamId: RandomString.generate(10)
 		};

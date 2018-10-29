@@ -268,7 +268,8 @@ class PostCreator extends ModelCreator {
 			postId: this.attributes._id
 		});
 		const createdItem = await new ItemCreator({
-			request: this.request
+			request: this.request,
+			markerIds: this.attributes.markerIds
 		}).createItem(itemAttributes);
 		this.transforms.createdItems.push(createdItem);
 	}

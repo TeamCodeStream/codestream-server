@@ -210,7 +210,8 @@ class TestTeamCreator {
 				codeBlockStream: {
 					file: this.test.streamFactory.randomFile(),
 					remotes: [this.test.repoFactory.randomUrl()]
-				}
+				},
+				commitHash: this.repoOptions.commitHash
 			}
 		);
 	}

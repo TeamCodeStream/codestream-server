@@ -11,15 +11,14 @@ class RandomItemFactory {
 	}
 
 	// get some random item data
-	getRandomItemData (callback) {
-		const data = {
+	getRandomItemData (options = {}) {
+		return {
 			title: RandomString.generate(50),
-			type: RandomString.generate(10),
+			type: options.type || RandomString.generate(10),
 			status: RandomString.generate(10),
 			color: RandomString.generate(10),
 			text: RandomString.generate(100)
 		};
-		callback(null, data);
 	}
 }
 

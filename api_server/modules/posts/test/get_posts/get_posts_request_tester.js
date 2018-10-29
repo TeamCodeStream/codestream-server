@@ -50,6 +50,8 @@ const GetPostsBeforeAfterInclusiveTest = require('./get_posts_before_after_inclu
 const NoSeqNumRelationalTest = require('./no_seqnum_relational_test');
 const NoSeqNumAndRelationalTest = require('./no_seqnum_and_relational_test');
 const InvalidSeqNumRelationalTest = require('./invalid_seqnum_relational_test');
+const GetPostsWithMarkersTest = require('./get_posts_with_markers_test');
+const GetPostsWithItemsTest = require('./get_posts_with_items_test');
 
 class GetPostsRequestTester {
 
@@ -111,6 +113,8 @@ class GetPostsRequestTester {
 		new NoSeqNumRelationalTest().test();
 		new NoSeqNumAndRelationalTest().test();
 		new InvalidSeqNumRelationalTest().test();
+		new GetPostsWithMarkersTest().test();
+		new GetPostsWithItemsTest().test();
 	}
 }
 

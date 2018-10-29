@@ -24,18 +24,14 @@ class CommonInit {
 	// form the data for the item we'll create in the test
 	makeItemData (callback) {
 		this.itemCreatedAfter = Date.now();
-		this.itemFactory.getRandomItemData(
-			(error, data) => {
-				if (error) { return callback(error); }
-				this.data = Object.assign(data, {
-					teamId: this.team._id,
-					providerType: 'slack',
-					streamId: RandomString.generate(10),
-					postId: RandomString.generate(10)
-				});
-				callback();
-			}
-		);
+		this.data = this.itemFactory.getRandomItemData();
+		Object.assign(this.data, {
+			teamId: this.team._id,
+			providerType: 'slack',
+			streamId: RandomString.generate(10),
+			postId: RandomString.generate(10)
+		});
+		callback();
 	}
 }
 

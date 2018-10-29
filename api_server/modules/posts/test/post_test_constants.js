@@ -24,7 +24,6 @@ const EXPECTED_POST_FIELDS = [
 // fields expected for posts in file-type streams
 const EXPECTED_FILE_POST_FIELDS = [
 	'repoId',
-	'commitHashWhenPosted',
 	'codeBlocks'
 ];
 

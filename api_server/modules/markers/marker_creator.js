@@ -81,6 +81,9 @@ class MarkerCreator extends ModelCreator {
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
+		if (this.itemIds) {
+			this.attributes.itemIds = this.itemIds;
+		}
 		this.normalizeMarkerAttributes();	// normalize the attributes for the marker
 		await this.updateMarkerLocations();		// update the marker's location for the particular commit
 		await super.preSave();					// proceed with the save...
@@ -98,7 +101,7 @@ class MarkerCreator extends ModelCreator {
 	// update the location of this marker in the marker locations structure for this stream and commit
 	async updateMarkerLocations () {
 		if (!this.attributes.locationWhenCreated) { return; }	// location is not strictly required, ignore if not provided
-		const id = `${this.attributes.streamId}|${this.attributes.commitHash}`.toLowerCase();
+		const id = `${this.attributes.streamId}|${this.attributes.commitHashWhenCreated}`.toLowerCase();
 		let op = {
 			$set: {
 				teamId: this.attributes.teamId,

@@ -5,6 +5,8 @@
 const GetPostTest = require('./get_post_test');
 const NotFoundTest = require('./not_found_test');
 const ACLTest = require('./acl_test');
+const GetPostWithMarkerTest = require('./get_post_with_marker_test');
+const GetPostWithItemTest = require('./get_post_with_item_test');
 
 class GetPostRequestTester {
 
@@ -19,6 +21,8 @@ class GetPostRequestTester {
 		new ACLTest({ type: 'direct' }).test();
 		new ACLTest({ type: 'channel' }).test();
 		new ACLTest({ type: 'file' }).test();
+		new GetPostWithMarkerTest().test();
+		new GetPostWithItemTest().test();
 	}
 }
 

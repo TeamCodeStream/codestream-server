@@ -19,13 +19,9 @@ class ItemTest extends PostPostTest {
 	}
 
 	addItemData (callback) {
-		this.itemFactory.getRandomItemData(
-			(error, itemData) => {
-				if (error) { return callback(error); }
-				this.data.items = [ itemData ];
-				callback();
-			}
-		);
+		const itemData = this.itemFactory.getRandomItemData();
+		this.data.items = [ itemData ];
+		callback();
 	}
 
 	/* eslint complexity: 0 */

@@ -37,7 +37,9 @@ class CodeStreamAPITest extends APIRequestTest {
 			apiRequester: this
 		});
 		this.markerFactory = new RandomMarkerFactory({
-			apiRequester: this
+			apiRequester: this,
+			repoFactory: this.repoFactory,
+			streamFactory: this.streamFactory
 		});
 		this.itemFactory = new RandomItemFactory({
 			apiRequester: this
@@ -46,7 +48,8 @@ class CodeStreamAPITest extends APIRequestTest {
 			apiRequester: this,
 			markerFactory: this.markerFactory,
 			streamFactory: this.streamFactory,
-			repoFactory: this.repoFactory
+			repoFactory: this.repoFactory,
+			itemFactory: this.itemFactory
 		});
 
 		this.userOptions = {

@@ -48,7 +48,7 @@ class CodeBlockTest extends PostItemTest {
 			((marker.creatorId === this.currentUser.user._id) || errors.push('creatorId not equal to current user id')) &&
 			((marker.postStreamId === this.data.streamId) || errors.push('postStreamId does not match the item stream')) &&
 			((marker.numComments === 1) || errors.push('marker should have 1 comment')) &&
-			((marker.commitHashWhenCreated === codeBlock.commitHash) || errors.push('marker commit hash does not match the given commit hash')) &&
+			((marker.commitHashWhenCreated === codeBlock.commitHash.toLowerCase()) || errors.push('marker commit hash does not match the given commit hash')) &&
 			((marker.file === codeBlock.file) || errors.push('marker file does not match the given file')) &&
 			((marker.repo === NormalizeURL(codeBlock.remotes[0])) || errors.push('marker repo does not match the given remote')) &&
 			((marker.repoId) || errors.push('no repoId for created marker')) &&
@@ -58,6 +58,7 @@ class CodeBlockTest extends PostItemTest {
 
 		Assert.deepEqual(marker.locationWhenCreated, codeBlock.location, 'marker location does not match the given location');
 		Assert.deepEqual(item.markerIds, [marker._id], 'item markerIds does not match the created marker');
+		Assert.deepEqual(marker.itemIds, [item._id], 'marker g does not match the created item');
 
 		// verify the marker has no attributes that should not go to clients
 		this.validateSanitized(marker, ItemTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);

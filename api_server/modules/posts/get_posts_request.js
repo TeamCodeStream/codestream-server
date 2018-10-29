@@ -425,7 +425,10 @@ class GetPostsRequest extends GetManyRequest {
 
 	// process the request (overrides base class)
 	async process () {
-		await super.process();
+		await super.process();	// do the usual "get-many" processing
+		await this.getMarkers();	// get associated markers, as needed
+		await this.getItems();	// get associated items, as needed
+
 		// add the "more" flag as needed, if there are more posts to fetch ...
 		// we always fetch one more than the page requested, so we can set that flag
 		if (this.responseData.posts.length === this.limit) {
@@ -435,6 +438,44 @@ class GetPostsRequest extends GetManyRequest {
 		if (this.fetchedStream) {
 			this.responseData.stream = this.fetchedStream.getSanitizedObject();
 		}
+	}
+
+	// get the markers associated with the fetched posts, as needed
+	async getMarkers () {
+		const markerIds = this.models.reduce((markerIds, post) => {
+			markerIds.push(...(post.get('markerIds') || []));
+			return markerIds;
+		}, []);
+		if (markerIds.length === 0) {
+			return;
+		}
+		const markers = await this.data.markers.getByIds(markerIds);
+		markers.forEach(marker => {
+			const post = this.responseData.posts.find(post => (post.markerIds || []).includes(marker.id));
+			if (post) {
+				post.markers = post.markers || [];
+				post.markers.push(marker.getSanitizedObject());
+			}
+		});
+	}
+
+	// get the items associated with the fetched posts, as needed
+	async getItems () {
+		const itemIds = this.models.reduce((itemIds, post) => {
+			itemIds.push(...(post.get('itemIds') || []));
+			return itemIds;
+		}, []);
+		if (itemIds.length === 0) {
+			return;
+		}
+		const items = await this.data.items.getByIds(itemIds);
+		items.forEach(item => {
+			const post = this.responseData.posts.find(post => (post.itemIds || []).includes(item.id));
+			if (post) {
+				post.items = post.items || [];
+				post.items.push(item.getSanitizedObject());
+			}
+		});
 	}
 
 	// describe this route for help

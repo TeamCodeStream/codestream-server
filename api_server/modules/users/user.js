@@ -67,6 +67,8 @@ class User extends CodeStreamModel {
 			return await this.authorizePost(id, request);
 		case 'marker':
 			return await this.authorizeMarker(id, request);
+		case 'item': 
+			return await this.authorizeItem(id, request);
 		case 'user':
 			return await this.authorizeUser(id, request);
 		default:
@@ -149,6 +151,30 @@ class User extends CodeStreamModel {
 			request
 		);
 		return authorized ? marker : false;
+	}
+
+	// authorize the user to "access" an item model, based on ID
+	async authorizeItem (id, request) {
+		// to access an item, the user must have access to the stream it belongs to
+		// (for read access)
+		const item = await request.data.items.getById(id);
+		if (!item) {
+			throw request.errorHandler.error('notFound', { info: 'item' });
+		}
+		let authorized;
+		if (item.get('providerType')) {
+			authorized = await this.authorizeTeam(
+				item.get('teamId'),
+				request
+			);
+		}
+		else {
+			authorized = await this.authorizeStream(
+				item.get('streamId'),
+				request
+			);
+		}
+		return authorized ? item : false;
 	}
 
 	// authorize the user to "access" a user model, based on ID

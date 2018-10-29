@@ -11,6 +11,8 @@ const ACLStreamTest = require('./acl_stream_test');
 const ACLTeamTest = require('./acl_team_test');
 const StreamNoMatchTeamTest = require('./stream_no_match_team_test');
 const TooManyIDsTest = require('./too_many_ids_test');
+const GetPostlessMarkersTest = require('./get_postless_markers_test');
+const GetPostlessMarkersWithItemsTest = require('./get_postless_markers_with_items_test');
 
 class GetMarkersRequestTester {
 
@@ -25,6 +27,8 @@ class GetMarkersRequestTester {
 		new ACLTeamTest().test();
 		new StreamNoMatchTeamTest().test();
 		new TooManyIDsTest().test();
+		new GetPostlessMarkersTest().test();
+		new GetPostlessMarkersWithItemsTest().test();
 	}
 }
 

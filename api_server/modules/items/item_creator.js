@@ -52,7 +52,7 @@ class ItemCreator extends ModelCreator {
 				string: ['teamId', 'type']
 			},
 			optional: {
-				string: ['postId', 'streamId', 'providerType', 'type', 'status', 'color', 'title', 'text'],
+				string: ['postId', 'streamId', 'providerType', 'status', 'color', 'title', 'text'],
 				'array(object)': ['codeBlocks'],
 				'array(string)': ['assignees']
 			}
@@ -65,6 +65,10 @@ class ItemCreator extends ModelCreator {
 			this.attributes._forTesting = true;
 		}
 		this.attributes.creatorId = this.request.user.id;
+		if (this.markerIds) {
+			this.attributes.markerIds = this.markerIds;
+		}
+		this.createId();	 // pre-allocate an ID
 		await this.getTeam();
 		await this.handleCodeBlocks();
 		await super.preSave();					// proceed with the save...
@@ -104,7 +108,9 @@ class ItemCreator extends ModelCreator {
 			request: this.request,
 			team: this.team,
 			postStreamId: this.attributes.streamId,
-			itemId: this.attributes._id,
+			itemIds: [this.attributes._id],
+			providerType: this.attributes.providerType,
+			postId: this.attributes.postId
 		}).handleCodeBlock();
 		// as a "side effect", this may have created any number of things, like a new repo, new stream, etc.
 		// we'll track these things and attach them to the request response later, and also possibly publish

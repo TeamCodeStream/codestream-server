@@ -21,6 +21,8 @@ class GetMarkersRequest extends GetManyRequest {
 	async process () {
 		await this.fetchMarkerLocations();	// if the user passes a commit hash, we give them whatever marker locations we have for that commit
 		await super.process();				// do the usual "get-many" processing
+		await this.getPosts();	// get associated posts, as needed
+		await this.getItems();	// get associated items, as needed
 	}
 
 	// if the user provides a commit hash, we'll fetch marker locations associated with the markers for the stream,
@@ -68,6 +70,42 @@ class GetMarkersRequest extends GetManyRequest {
 	// get database options to associate with the database fetch request
 	getQueryOptions () {
 		return { hint: Indexes.byStreamId };
+	}
+
+	// get the posts pointing to the fetched markers, as needed
+	async getPosts () {
+		const postIds = this.models
+			.filter(marker => !marker.get('providerType'))
+			.map(marker => marker.get('postId'));
+		if (postIds.length === 0) {
+			return;
+		}
+		const posts = await this.data.posts.getByIds(postIds);
+		posts.forEach(post => {
+			const marker = this.responseData.markers.find(marker => marker.postId === post.id);
+			if (marker) {
+				marker.post = post.getSanitizedObject();
+			}
+		});
+	}
+
+	// get the items associated with the fetched markers, as needed
+	async getItems () {
+		const itemIds = this.models.reduce((itemIds, marker) => {
+			itemIds.push(...(marker.get('itemIds') || []));
+			return itemIds;
+		}, []);
+		if (itemIds.length === 0) {
+			return;
+		}
+		const items = await this.data.items.getByIds(itemIds);
+		items.forEach(item => {
+			const marker = this.responseData.markers.find(marker => (marker.itemIds || []).includes(item.id));
+			if (marker) {
+				marker.items = marker.items || [];
+				marker.items.push(item.getSanitizedObject());
+			}
+		});
 	}
 
 	// describe this route for help

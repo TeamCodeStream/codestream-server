@@ -315,13 +315,14 @@ class CodeBlockHandler {
 		if (this.postId) {
 			markerInfo.postId = this.postId;
 			markerInfo.postStreamId = this.postStreamId || this.postStream.id;
-			if (this.providerType) {
-				markerInfo.providerType = this.providerType;
-			}
+		}
+		if (this.providerType) {
+			markerInfo.providerType = this.providerType;
 		}
 
 		this.createdMarker = await new MarkerCreator({
-			request: this.request
+			request: this.request,
+			itemIds: this.itemIds
 		}).createMarker(markerInfo);
 		this.codeBlock.markerId = this.createdMarker.id;
 	}

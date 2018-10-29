@@ -56,21 +56,15 @@ class CommonInit {
 	// form the data for the marker we'll create in the test
 	makeMarkerData (callback) {
 		this.markerCreatedAfter = Date.now();
-		this.markerFactory.getRandomMarkerData(
-			(error, data) => {
-				if (error) { return callback(error); }
-				this.data = Object.assign(data, {
-					teamId: this.team._id,
-					streamId: this.repoStreams[0]._id,
-					providerType: 'slack',
-					code: RandomString.generate(1000),
-					postId: RandomString.generate(10),
-					postStreamId: RandomString.generate(10),
-					commitHash: this.repoFactory.randomCommitHash()
-				});
-				callback();
-			}
-		);
+		const data = this.markerFactory.getRandomCodeBlockData();
+		this.data = Object.assign(data, {
+			teamId: this.team._id,
+			streamId: this.repoStreams[0]._id,
+			providerType: 'slack',
+			postId: RandomString.generate(10),
+			postStreamId: RandomString.generate(10)
+		});
+		callback();
 	}
 }
 

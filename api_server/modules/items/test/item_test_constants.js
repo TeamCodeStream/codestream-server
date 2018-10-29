@@ -6,6 +6,7 @@ const ItemAttributes = require(process.env.CS_API_TOP + '/modules/items/item_att
 const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stream_attributes');
 const RepoAttributes = require(process.env.CS_API_TOP + '/modules/repos/repo_attributes');
 const MarkerAttributes = require(process.env.CS_API_TOP + '/modules/markers/marker_attributes');
+const PostAttributes = require(process.env.CS_API_TOP + '/modules/posts/post_attributes');
 
 const EXPECTED_ITEM_FIELDS = [
 	'_id',
@@ -39,10 +40,15 @@ const UNSANITIZED_MARKER_ATTRIBUTES = Object.keys(MarkerAttributes).filter(attri
 	return MarkerAttributes[attribute].serverOnly;
 });
 
+const UNSANITIZED_POST_ATTRIBUTES = Object.keys(PostAttributes).filter(attribute => {
+	return PostAttributes[attribute].serverOnly;
+});
+
 module.exports = {
 	EXPECTED_ITEM_FIELDS,
 	UNSANITIZED_ATTRIBUTES,
 	UNSANITIZED_STREAM_ATTRIBUTES,
 	UNSANITIZED_REPO_ATTRIBUTES,
-	UNSANITIZED_MARKER_ATTRIBUTES
+	UNSANITIZED_MARKER_ATTRIBUTES,
+	UNSANITIZED_POST_ATTRIBUTES
 };

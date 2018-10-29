@@ -23,7 +23,7 @@ class MarkerUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['commitHashWhenCreated', 'postId', 'postStreamId', 'providerType']
+			string: ['commitHashWhenCreated', 'postId', 'postStreamId']
 		};
 	}
 
@@ -56,11 +56,12 @@ class MarkerUpdater extends ModelUpdater {
 		if (this.marker.get('postId')) {
 			throw this.errorHandler.error('validation', { info: 'marker already has a post ID' });
 		}
-		['postStreamId', 'providerType'].forEach(attribute => {
-			if (!this.attributes[attribute]) {
-				throw this.errorHandler.error('parameterRequired', { info: attribute });
-			}
-		});
+		if (!this.marker.get('providerType')) {
+			throw this.errorHandler.error('validation', { info: 'can not set postId if marker is has no providerType' });
+		}
+		if (!this.attributes.postStreamId) {
+			throw this.errorHandler.error('parameterRequired', { info: 'postStreamId' });
+		}
 	}
 
 	// get the post the marker is associated with
