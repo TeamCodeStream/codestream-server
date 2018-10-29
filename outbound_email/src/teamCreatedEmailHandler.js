@@ -13,8 +13,7 @@ class TeamCreatedEmailHandler extends EmailHandler {
 	}
 	
 	async renderEmail () {
-		const userName = this.sender.getUserDisplayName(this.user);
-		this.content = `Created by ${userName}`;
+		this.content = `Created by ${this.user.email}`;
 		this.subject = `Team ${this.message.teamName} is now on CodeStream!`
 	}
 }
