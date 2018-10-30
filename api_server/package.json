@@ -1,6 +1,6 @@
 {
   "name": "api-server",
-  "version": "1.18.0",
+  "version": "1.18.1",
   "dependencies": {
     "@slack/client": "^4.6.0",
     "async": "2.1.2",
