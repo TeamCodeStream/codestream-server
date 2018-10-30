@@ -86,7 +86,7 @@ if args.action == 'release':
 	if os.environ['CS_OUTBOUND_EMAIL_ASSET_ENV'] != "prod":
 		print("release can only be run in a sandbox configured for production")
 		exit(1)
-	infoFileName = "out/" + args.build_number + ".info"
+	infoFileName = "../out/" + args.build_number + ".info"
 	pkgInfo = readJsonFileIgnoreComments(infoFileName)
 	applyTagToRepos(os.environ['CS_OUTBOUND_EMAIL_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
 	updatePackageVersion(buildData['sandboxTop'] + "/src/package.json", "develop", pkgInfo['version'], bumpLevel = 'patch')
