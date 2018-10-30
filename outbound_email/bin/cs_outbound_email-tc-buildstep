@@ -30,7 +30,7 @@ if args.action == 'destroy':
 	buildstepDestroy(args, buildData)
 
 if args.action == 'build':
-	pkgInfo = getPackageInfo(buildData = buildData, gitRepoCommitDir = buildDir)
+	pkgInfo = getPackageInfo(buildData = buildData, gitRepoCommitDir = buildData['sandboxTop'])
 	buildstepGeneric(args, cmd = "npm run build", workingDir = buildDir)
 	buildstepGeneric(args, cmd = "npm run lambda:config", workingDir = buildDir)
 	os.rename("../out/outbound-email.zip", "../out/" + pkgInfo['localAssetFilePrefix'] + ".zip")
