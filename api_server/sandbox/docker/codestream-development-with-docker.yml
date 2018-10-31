@@ -1,0 +1,31 @@
+version: "3"
+services:
+  mongo:
+    image: mongo:3.4.9
+    container_name: mongo
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 27017:27017
+    volumes:
+      - cs-mongo-data:/data
+
+  api:
+    depends_on:
+      - mongo
+    image: teamcodestream/local-api
+    container_name: api
+    env_file:
+      - runtime.env
+    ports:
+      - 12079:12079
+
+  webapp:
+    image: teamcodestream/local-web-app:1.6.3-175
+    container_name: web-app
+    ports:
+      - 1380:1380
+
+volumes:
+  cs-mongo-data:
+    driver: local
