@@ -83,6 +83,10 @@ module.exports = {
 		type: 'boolean',
 		description: 'Whether the stream (usually for channels) is archived'
 	},
+	isClosed: {
+		type: 'boolean',
+		description: 'If true, the stream will not appear in the client\'s list of streams'
+	},
 	serviceType: {
 		type: 'string',
 		maxLength: 25,
