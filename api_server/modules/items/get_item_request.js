@@ -24,7 +24,7 @@ class GetItemRequest extends GetRequest {
 		if (!post) {
 			throw this.errorHandler.error('notFound', { info: 'post' });
 		}
-		this.responseData.item.post = post.getSanitizedObject();
+		this.responseData.post = post.getSanitizedObject();
 	}
 
 	// get the markers referenced by this item, if any
@@ -32,7 +32,7 @@ class GetItemRequest extends GetRequest {
 		const markerIds = this.model.get('markerIds') || [];
 		if (markerIds.length === 0) { return; }
 		const markers = await this.data.markers.getByIds(markerIds);
-		this.responseData.item.markers = markers.map(marker => marker.getSanitizedObject());
+		this.responseData.markers = markers.map(marker => marker.getSanitizedObject());
 	}
 
 	// describe this route for help

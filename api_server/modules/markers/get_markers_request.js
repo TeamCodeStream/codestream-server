@@ -19,10 +19,77 @@ class GetMarkersRequest extends GetManyRequest {
 
 	// process the request...
 	async process () {
-		await this.fetchMarkerLocations();	// if the user passes a commit hash, we give them whatever marker locations we have for that commit
 		await super.process();				// do the usual "get-many" processing
-		await this.getPosts();	// get associated posts, as needed
 		await this.getItems();	// get associated items, as needed
+		await this.getPosts();	// get associated posts, as needed
+		await this.fetchMarkerLocations();	// if the user passes a commit hash, we give them whatever marker locations we have for that commit
+	}
+
+	// build the database query to use to fetch the markers
+	buildQuery () {
+		const query = {
+			teamId: this.teamId,
+			fileStreamId: this.streamId
+		};
+		let { before, after, inclusive } = this.request.query;
+		if (before !== undefined) {
+			before = parseInt(before, 10);
+			if (!before) {
+				return 'before must be a number';
+			}
+			query.createdAt = query.createdAt || {};
+			if (inclusive) {
+				query.createdAt.$lte = before;
+			}
+			else {
+				query.createdAt.$lt = before;
+			}
+		}
+		if (after !== undefined) {
+			after = parseInt(after, 10);
+			if (!after) {
+				return 'after must be a number';
+			}
+			query.createdAt = query.createdAt || {};
+			if (inclusive) {
+				query.createdAt.$gte = after;
+			}
+			else {
+				query.createdAt.$gt = after;
+			}
+		}
+		return query;
+	}
+
+	// get database options to associate with the database fetch request
+	getQueryOptions () {
+		return { 
+			hint: Indexes.byFileStreamId,
+			sort: { createdAt: -1 } 
+		};
+	}
+
+	// get the items associated with the fetched markers, as needed
+	async getItems () {
+		const itemIds = this.models.map(marker => marker.get('itemId'));
+		if (itemIds.length === 0) {
+			return;
+		}
+		this.items = await this.data.items.getByIds(itemIds);
+		this.responseData.items = this.items.map(item => item.getSanitizedObject());
+	}
+
+	// get the posts pointing to the fetched markers, as needed
+	async getPosts () {
+		if (!this.items) { return; }
+		const postIds = this.items
+			.filter(item => !item.get('providerType'))
+			.map(item => item.get('postId'));
+		if (postIds.length === 0) {
+			return;
+		}
+		this.posts = await this.data.posts.getByIds(postIds);
+		this.responseData.posts = this.posts.map(post => post.getSanitizedObject());
 	}
 
 	// if the user provides a commit hash, we'll fetch marker locations associated with the markers for the stream,
@@ -48,64 +115,6 @@ class GetMarkersRequest extends GetManyRequest {
 		}
 		this.markerLocations = markerLocations[0];
 		this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
-	}
-
-	// build the database query to use to fetch the markers
-	buildQuery () {
-		let query = {
-			teamId: this.teamId,
-			streamId: this.streamId
-		};
-		if (this.request.query.ids) {
-			// user specified some IDs, so restrict to those IDs
-			let ids = decodeURIComponent(this.request.query.ids).toLowerCase().split(',');
-			if (ids.length > 100) {
-				return 'too many IDs';
-			}
-			query._id = this.data.markers.inQuerySafe(ids);
-		}
-		return query;
-	}
-
-	// get database options to associate with the database fetch request
-	getQueryOptions () {
-		return { hint: Indexes.byStreamId };
-	}
-
-	// get the posts pointing to the fetched markers, as needed
-	async getPosts () {
-		const postIds = this.models
-			.filter(marker => !marker.get('providerType'))
-			.map(marker => marker.get('postId'));
-		if (postIds.length === 0) {
-			return;
-		}
-		const posts = await this.data.posts.getByIds(postIds);
-		posts.forEach(post => {
-			const marker = this.responseData.markers.find(marker => marker.postId === post.id);
-			if (marker) {
-				marker.post = post.getSanitizedObject();
-			}
-		});
-	}
-
-	// get the items associated with the fetched markers, as needed
-	async getItems () {
-		const itemIds = this.models.reduce((itemIds, marker) => {
-			itemIds.push(...(marker.get('itemIds') || []));
-			return itemIds;
-		}, []);
-		if (itemIds.length === 0) {
-			return;
-		}
-		const items = await this.data.items.getByIds(itemIds);
-		items.forEach(item => {
-			const marker = this.responseData.markers.find(marker => (marker.itemIds || []).includes(item.id));
-			if (marker) {
-				marker.items = marker.items || [];
-				marker.items.push(item.getSanitizedObject());
-			}
-		});
 	}
 
 	// describe this route for help

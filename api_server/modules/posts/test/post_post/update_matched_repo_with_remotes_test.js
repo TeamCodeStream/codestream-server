@@ -19,7 +19,7 @@ class UpdateMatchedRepoWithRemotesTest extends FindRepoByRemotesTest {
 	}
 
 	get description () {
-		return 'when a code block has remotes that match an existing repo, but has new remotes as well, those new remotes should be added to the known remotes for the repo';
+		return 'when a marker has remotes that match an existing repo, but has new remotes as well, those new remotes should be added to the known remotes for the repo';
 	}
 
 	// validate the response to the test request

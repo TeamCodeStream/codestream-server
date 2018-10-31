@@ -12,7 +12,7 @@ class GetMyAttributesTest extends GetMyselfTest {
 		this.teamOptions.numAdditionalInvites = 2;
 		this.streamOptions.creatorIndex = 1;
 		this.postOptions.creatorIndex = 1;
-		this.postOptions.wantCodeBlock = true;
+		this.postOptions.wantMarker = true;
 		this.id = 'me';	// this will be the "ID" of the user to fetch
 	}
 

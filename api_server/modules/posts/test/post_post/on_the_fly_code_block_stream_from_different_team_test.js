@@ -1,13 +1,13 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
 
-class OnTheFlyCodeBlockStreamFromDifferentTeamTest extends CodeBlockTest {
+class OnTheFlyMarkerStreamFromDifferentTeamTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block for an on-the-fly stream where the stream is from a different team';
+		return 'should return an error when attempting to create a post with a marker for an on-the-fly stream where the stream is from a different team';
 	}
 
 	getExpectedError () {
@@ -20,7 +20,7 @@ class OnTheFlyCodeBlockStreamFromDifferentTeamTest extends CodeBlockTest {
 	// form the data we'll use in creating the post
 	makePostData (callback) {
 		// before forming the post data, we'll create a second repo and file-type
-		// stream, we'll use this for the code block
+		// stream, we'll use this for the marker
 		BoundAsync.series(this, [
 			super.makePostData,
 			this.createForeignTeam
@@ -41,8 +41,8 @@ class OnTheFlyCodeBlockStreamFromDifferentTeamTest extends CodeBlockTest {
 			}
 		}).create((error, response) => {
 			if (error) { return callback(error); }
-			delete this.data.codeBlocks[0].streamId;
-			Object.assign(this.data.codeBlocks[0], {
+			delete this.data.markers[0].streamId;
+			Object.assign(this.data.markers[0], {
 				repoId: response.repo._id,
 				file: this.streamFactory.randomFile()
 			});
@@ -51,4 +51,4 @@ class OnTheFlyCodeBlockStreamFromDifferentTeamTest extends CodeBlockTest {
 	}
 }
 
-module.exports = OnTheFlyCodeBlockStreamFromDifferentTeamTest;
+module.exports = OnTheFlyMarkerStreamFromDifferentTeamTest;

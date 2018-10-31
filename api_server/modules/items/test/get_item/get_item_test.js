@@ -35,7 +35,7 @@ class GetItemTest extends CodeStreamAPITest {
 	// set the path to use for the request
 	setPath (callback) {
 		// try to fetch the item
-		this.item = this.postData[0].items[0];
+		this.item = this.postData[0].item;
 		this.path = '/items/' + this.item._id;
 		callback();
 	}
@@ -47,8 +47,8 @@ class GetItemTest extends CodeStreamAPITest {
 		this.validateSanitized(data.item, ItemTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// validate we also got the parent post, with only sanitized attributes
-		this.validateMatchingObject(this.postData[0].post._id, data.item.post, 'post');
-		this.validateSanitized(data.item.post, ItemTestConstants.UNSANITIZED_POST_ATTRIBUTES);
+		this.validateMatchingObject(this.postData[0].post._id, data.post, 'post');
+		this.validateSanitized(data.post, ItemTestConstants.UNSANITIZED_POST_ATTRIBUTES);
 	}
 }
 

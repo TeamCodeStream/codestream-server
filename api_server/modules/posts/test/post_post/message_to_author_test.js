@@ -13,7 +13,7 @@ class MessageToAuthorTest extends NewPostMessageToStreamTest {
 		super.setTestOptions(() => {
 			delete this.repoOptions.creatorIndex;
 			this.streamOptions.type = 'channel';
-			this.postOptions.wantCodeBlock = false;
+			this.postOptions.wantMarker = false;
 			callback();
 		});
 	}

@@ -21,17 +21,6 @@ const EXPECTED_POST_FIELDS = [
 	'origin'
 ];
 
-// fields expected for posts in file-type streams
-const EXPECTED_FILE_POST_FIELDS = [
-	'repoId',
-	'codeBlocks'
-];
-
-// fields expected in posts that are replies to other posts
-const EXPECTED_REPLY_POST_FIELDS = [
-	'parentPostId'
-];
-
 const UNSANITIZED_ATTRIBUTES = Object.keys(PostAttributes).filter(attribute => {
 	return PostAttributes[attribute].serverOnly;
 });
@@ -50,8 +39,6 @@ const UNSANITIZED_ITEM_ATTRIBUTES = Object.keys(ItemAttributes).filter(attribute
 
 module.exports = {
 	EXPECTED_POST_FIELDS,
-	EXPECTED_FILE_POST_FIELDS,
-	EXPECTED_REPLY_POST_FIELDS,
 	UNSANITIZED_ATTRIBUTES,
 	UNSANITIZED_STREAM_ATTRIBUTES,
 	UNSANITIZED_MARKER_ATTRIBUTES,

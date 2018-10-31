@@ -12,7 +12,7 @@ var MentionOngoingEmailTest = require('./mention_ongoing_email_test');
 var MentionUnregisteredFirstEmailTest = require('./mention_unregistered_first_email_test');
 var MentionUnregisteredOngoingEmailTest = require('./mention_unregistered_ongoing_email_test');
 var OfflineForRepoTest = require('./offline_for_repo_test');
-var CodeBlockTest = require('./code_block_test');
+var MarkerTest = require('./marker_test');
 var MultiLineTest = require('./multi_line_test');
 var HtmlEscapeTest = require('./html_escape_test');
 var TabTest = require('./tab_test');
@@ -46,7 +46,7 @@ with respect to COD-256 ... will be a PITA
 		new MentionUnregisteredFirstEmailTest().test();
 		new MentionUnregisteredOngoingEmailTest().test();
 		new OfflineForRepoTest().test();
-		new CodeBlockTest().test();
+		new MarkerTest().test();
 		new HtmlEscapeTest().test();
 		new MultiLineTest().test();
 		new TabTest().test();

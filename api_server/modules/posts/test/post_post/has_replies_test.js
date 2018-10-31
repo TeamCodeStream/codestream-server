@@ -20,7 +20,7 @@ class HasRepliesTest extends PostReplyTest {
 
 	// check the parent post for hasReplies being set
 	checkParentPost (callback) {
-		// get the marker for the code block
+		// get the marker 
 		this.doApiRequest(
 			{
 				method: 'get',

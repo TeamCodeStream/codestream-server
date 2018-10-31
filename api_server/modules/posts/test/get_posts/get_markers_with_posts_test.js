@@ -8,12 +8,12 @@ class GetMarkersWithPostsTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
-		this.postOptions.wantCodeBlock = 1;
+		this.postOptions.wantMarker = 1;
 		this.postOptions.commitHash = this.postFactory.randomCommitHash();
 	}
 
 	get description () {
-		return 'should return markers and marker locations when requesting posts in a file stream that have code blocks';
+		return 'should return markers and marker locations when requesting posts in a file stream that have markers';
 	}
 
 	// set the path to use for the request
@@ -30,7 +30,7 @@ class GetMarkersWithPostsTest extends GetPostsTest {
 	}
 
 	createStreamAndPosts (callback) {
-		this.postOptions.codeBlockStreamId = this.repoStreams[0]._id;
+		this.postOptions.markerStreamId = this.repoStreams[0]._id;
 		super.createStreamAndPosts(callback);
 	}
 

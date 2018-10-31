@@ -1,17 +1,17 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class CodeBlockNotObjectTest extends CodeBlockTest {
+class MarkerNotObjectTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element that is not an object';
+		return 'should return an error when attempting to create a post with a marker element that is not an object';
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'codeBlocks: element at [0-9]+ is not an object'
+			info: 'markers: element at [0-9]+ is not an object'
 		};
 	}
 
@@ -19,10 +19,10 @@ class CodeBlockNotObjectTest extends CodeBlockTest {
 	makePostData (callback) {
 		// we'll add a "numeric" code-block ... not allowed!
 		super.makePostData(() => {
-			this.data.codeBlocks.push(1);
+			this.data.markers.push(1);
 			callback();
 		});
 	}
 }
 
-module.exports = CodeBlockNotObjectTest;
+module.exports = MarkerNotObjectTest;

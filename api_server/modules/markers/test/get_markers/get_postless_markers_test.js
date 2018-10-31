@@ -21,7 +21,8 @@ class GetPostlessMarkersTest extends GetMarkersTest {
 		BoundAsync.series(this, [
 			super.before,
 			this.createMarkers,
-			this.setPath			// set the path to use for the request
+			this.setMarkers,
+			this.setPath
 		], callback);
 	}
 
@@ -36,25 +37,25 @@ class GetPostlessMarkersTest extends GetMarkersTest {
 	}
 
 	createMarker (n, callback) {
-		const data = this.markerFactory.getRandomCodeBlockData();
+		const data = this.itemFactory.getRandomItemData();
 		Object.assign(data, {
 			teamId: this.team._id,
 			providerType: 'slack',
-			postStreamId: RandomString.generate(10),
-			postId: RandomString.generate(10),
-			streamId: this.repoStreams[0]._id
+			streamId: RandomString.generate(10),
+			postId: RandomString.generate(10)
 		});
+		data.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0]._id });
 		this.doApiRequest(
 			{
 				method: 'post',
-				path: '/markers',
+				path: '/items',
 				data,
 				token: this.users[1].accessToken
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.postData.push({ 
-					markers: [ response.marker ],
+					markers: [ response.markers[0] ],
 					markerLocations: response.markerLocations
 				});
 				callback();

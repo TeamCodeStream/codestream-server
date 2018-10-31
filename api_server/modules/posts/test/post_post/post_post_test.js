@@ -83,8 +83,8 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 				after: this.expectedVersion
 			}
 		};
-		if (this.wantCodeBlock && !this.dontExpectMarkers) {
-			expectedStreamUpdate.$inc = { numMarkers: 1 };
+		if (this.expectMarker) {
+			expectedStreamUpdate.$set.numMarkers = 1;
 		}
 		Assert.deepEqual(streamUpdate, expectedStreamUpdate, 'stream update not correct');		
 	}

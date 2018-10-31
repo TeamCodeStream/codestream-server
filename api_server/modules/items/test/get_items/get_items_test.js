@@ -28,41 +28,44 @@ class GetItemsTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.setPath			// set the path to use for the request
+			this.setItems,
+			this.setPath
 		], callback);
 	}
 
-	// get the query parameters to use for the request
-	getQueryParameters () {
-		return {
-			teamId: this.team._id
-		};
+	// set the items established for the test
+	setItems (callback) {
+		this.items = this.postData.map(postData => postData.item);
+		if (this.repoItem) {
+			this.items.push(this.repoItem);
+		}
+		callback();
 	}
 
 	// set the path to use for the request
 	setPath (callback) {
-		this.items = this.postData.map(postData => postData.items[0]);
-		const queryParameters = this.getQueryParameters();
-		this.path = '/items?' + Object.keys(queryParameters).map(parameter => {
-			const value = queryParameters[parameter];
-			return `${parameter}=${value}`;
-		}).join('&');
+		this.expectedItems = this.items;
+		this.path = `/items?teamId=${this.team._id}`;
 		callback();
 	}
 
 	// validate correct response
 	validateResponse (data) {
 		// validate we got the correct items, and that they are sanitized (free of attributes we don't want the client to see)
-		this.validateMatchingObjects(data.items, this.items, 'items');
+		this.validateMatchingObjects(data.items, this.expectedItems, 'items');
 		this.validateSanitizedObjects(data.items, ItemTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// make sure we got a post with each item that matches the post to which the item belongs
 		data.items.forEach(item => {
-			if (item.post) {
-				Assert.equal(item.post._id, item.postId, 'ID of child post to item does not match the item\'s postId');
+			if (!item.providerType) {
+				const post = data.posts.find(post => post._id === item.postId);
+				Assert(post, 'no post found for marker\'s item');
 			}
-			else {
-				Assert(item.providerType, 'no post for a non-third-party item');
+			if (this.postOptions.wantMarker) {
+				item.markerIds.forEach(markerId => {
+					const marker = data.markers.find(marker => marker._id === markerId);
+					Assert(marker, 'no marker found for item\'s marker');
+				});
 			}
 		});
 	}

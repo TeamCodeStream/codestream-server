@@ -31,32 +31,35 @@ class GetPostlessMarkerTest extends CodeStreamAPITest {
 
 	// create the marker to fetch
 	createMarker (callback) {
-		const data = this.makeMarkerData();
+		// to create a marker associated with an item, we actually have to create the item
+		const data = this.makeItemData();
 		this.doApiRequest(
 			{
 				method: 'post',
-				path: '/markers',
+				path: '/items',
 				data,
 				token: this.users[1].accessToken
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.marker = response.marker;
+				this.marker = response.markers[0];
+				this.item = response.item;
 				this.path = '/markers/' + this.marker._id;
 				callback();
 			}
 		);
 	}
 
-	// make the data for the marker to be created for the test
-	makeMarkerData () {
-		const data = this.markerFactory.getRandomCodeBlockData();
+	// make the data for the item to be created for the test
+	makeItemData () {
+		const data = this.itemFactory.getRandomItemData();
 		Object.assign(data, {
 			teamId: this.team._id,
 			providerType: 'slack',
-			postStreamId: RandomString.generate(10),
+			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)
 		});
+		data.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
 		return data;
 	}
 
@@ -64,9 +67,16 @@ class GetPostlessMarkerTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		// validate we got the correct marker, and that we only got sanitized attributes
 		this.validateMatchingObject(this.marker._id, data.marker, 'marker');
-		Assert.equal(this.marker.post, undefined, 'post in fetched marker is not undefined');
 		this.validateSanitized(data.marker, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
+
+		// validate we also got the parent item, with only sanitized attributes
+		this.validateMatchingObject(this.item._id, data.item, 'item');
+		this.validateSanitized(data.item, MarkerTestConstants.UNSANITIZED_ITEM_ATTRIBUTES);
+
+		// we should NOT get a post, since we're using third-party posts
+		Assert.equal(typeof data.post, 'undefined', 'post is not undefined');
 	}
 }
 
 module.exports = GetPostlessMarkerTest;
+

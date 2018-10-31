@@ -44,7 +44,7 @@ class NewTeamStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, 
 			{
 				token: this.users[1].accessToken,	// the "post creator"
 				teamId: this.team._id,
-				wantCodeBlocks: 1,		// let's do a code block for good measure
+				wantMarkers: 1,		// let's do a marker for good measure
 				stream: streamOptions
 			}
 		);

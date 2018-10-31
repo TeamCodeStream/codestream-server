@@ -1,11 +1,11 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class LocationMustBeArrayTest extends CodeBlockTest {
+class LocationMustBeArrayTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element where the location is not an array';
+		return 'should return an error when attempting to create a post with a marker element where the location is not an array';
 	}
 
 	getExpectedError () {
@@ -17,9 +17,9 @@ class LocationMustBeArrayTest extends CodeBlockTest {
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
-		// set the location for the code block to a "numeric" ... not allowed!
+		// set the location for the marker to a "numeric" ... not allowed!
 		super.makePostData(() => {
-			this.data.codeBlocks[0].location = 1;
+			this.data.markers[0].location = 1;
 			callback();
 		});
 	}

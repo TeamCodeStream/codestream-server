@@ -1,11 +1,11 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class PostContextMustBeStringTest extends CodeBlockTest {
+class PostContextMustBeStringTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element where the postContext is not a string';
+		return 'should return an error when attempting to create a post with a marker element where the postContext is not a string';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class PostContextMustBeStringTest extends CodeBlockTest {
 	makePostData (callback) {
 		// use "numeric" for the post-context code ... not allowed!
 		super.makePostData(() => {
-			this.data.codeBlocks[0].postContext = 1;
+			this.data.markers[0].postContext = 1;
 			callback();
 		});
 	}

@@ -84,29 +84,9 @@ class TestStreamCreator {
 		const postOptions = {
 			streamId: this.stream._id,
 		};
-		if (this.postOptions.wantCodeBlock || 
-			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantCodeBlock)) {
-			postOptions.wantCodeBlocks = 1;
-			if (typeof this.postOptions.codeBlockStreamId !== 'undefined') {
-				if (
-					typeof this.postOptions.codeBlockStreamId === 'number' &&
-					this.repoStreams
-				) {
-					postOptions.codeBlockStreamId = this.repoStreams[this.postOptions.codeBlockStreamId]._id;
-				}
-				else {
-					postOptions.codeBlockStreamId = this.postOptions.codeBlockStreamId;
-				}
-			}
-			else {
-				postOptions.codeBlockStream = {
-					file: this.test.streamFactory.randomFile(),
-					remotes: [this.test.repoFactory.randomUrl()]
-				};
-			}
-			if (this.postOptions.commitHash) {
-				postOptions.commitHash = this.postOptions.commitHash;
-			}
+
+		if (this.postOptions.wantItem) {
+			this.setItemOptions(postOptions, n);	
 		}
 
 		if (this.postOptions.postData && this.postOptions.postData[n]) {
@@ -116,19 +96,6 @@ class TestStreamCreator {
 				delete postData.replyTo;
 			}
 			Object.assign(postOptions, this.postOptions.postData[n]);
-		}
-
-		if (this.postOptions.wantItem) {
-			postOptions.wantItems = 1;
-			if (this.postOptions.itemTypes) {
-				if (this.postOptions.assignedTypes) {
-					postOptions.itemType = this.postOptions.itemTypes[this.postOptions.assignedTypes[n]];
-				}
-				else {
-					const typeIndex = Math.floor(Math.random() * this.postOptions.itemTypes.length);
-					postOptions.itemType = this.postOptions.itemTypes[typeIndex];
-				}
-			}
 		}
 
 		const creatorIndex = this.postOptions.creatorIndex instanceof Array ? 
@@ -145,6 +112,45 @@ class TestStreamCreator {
 		);
 	}
 
+	setItemOptions (options, n) {
+		options.wantItem = true;
+
+		if (this.postOptions.wantMarker || 
+			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantMarker)) {
+			this.setMarkerOptions(options);
+		}
+
+		if (this.postOptions.itemTypes) {
+			if (this.postOptions.assignedTypes) {
+				options.itemType = this.postOptions.itemTypes[this.postOptions.assignedTypes[n]];
+			}
+			else {
+				const typeIndex = Math.floor(Math.random() * this.postOptions.itemTypes.length);
+				options.itemType = this.postOptions.itemTypes[typeIndex];
+			}
+		}
+	}
+
+	setMarkerOptions (options) {
+		options.wantMarkers = 1;
+		if (typeof this.postOptions.markerStreamId !== 'undefined') {
+			if (
+				typeof this.postOptions.markerStreamId === 'number' &&
+				this.repoStreams
+			) {
+				options.fileStreamId = this.repoStreams[this.postOptions.markerStreamId]._id;
+			}
+			else {
+				options.fileStreamId = this.postOptions.markerStreamId;
+			}
+		}
+		else {
+			options.withRandomStream = true;
+		}
+		if (this.postOptions.commitHash) {
+			options.commitHash = this.postOptions.commitHash;
+		}
+	}
 }
 
 module.exports = TestStreamCreator;

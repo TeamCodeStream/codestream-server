@@ -12,7 +12,7 @@ class NumCommentsTest extends PostReplyTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.postOptions.wantCodeBlock = true;
+			this.postOptions.wantMarker = true;
 			this.streamOptions.type = 'file';
 			this.repoOptions.creatorIndex = 1;
 			callback();
@@ -27,13 +27,13 @@ class NumCommentsTest extends PostReplyTest {
 		], callback);
 	}
 
-	// check the marker associated with the code block sent with the post reply
+	// check the marker associated with the marker sent with the post reply
 	checkMarker (callback) {
-		// get the marker for the code block
+		// get the marker for the marker
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: '/markers/' + this.postData[0].post.codeBlocks[0].markerId,
+				path: '/markers/' + this.postData[0].post.markers[0].markerId,
 				token: this.token
 			},
 			(error, response) => {

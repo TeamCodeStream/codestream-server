@@ -9,7 +9,7 @@ class HtmlEscapeTest extends EmailNotificationTest {
 
 	constructor (options) {
 		super(options);
-		this.wantCodeBlock = true;
+		this.wantMarker = true;
 	}
 
 	get description () {
@@ -22,17 +22,17 @@ class HtmlEscapeTest extends EmailNotificationTest {
 		super.makePostData(() => {
 			// store the original text and code so we can construct the proper escaped text and code we
 			// want to see in the email output ... then put some html into each of these fields
-			let codeBlock = this.data.codeBlocks[0];
+			let marker = this.data.markers[0];
 			this.originals = {
 				text: this.data.text,
-				code: codeBlock.code,
-				preContext: codeBlock.preContext,
-				postContext: codeBlock.postContext
+				code: marker.code,
+				preContext: marker.preContext,
+				postContext: marker.postContext
 			};
 			this.data.text = UNESCAPED_HTML + this.data.text;
-			codeBlock.code = UNESCAPED_HTML + codeBlock.code;
-			codeBlock.preContext = UNESCAPED_HTML + codeBlock.preContext;
-			codeBlock.postContext = UNESCAPED_HTML + codeBlock.postContext;
+			marker.code = UNESCAPED_HTML + marker.code;
+			marker.preContext = UNESCAPED_HTML + marker.preContext;
+			marker.postContext = UNESCAPED_HTML + marker.postContext;
 			callback();
 		});
 	}
@@ -42,10 +42,10 @@ class HtmlEscapeTest extends EmailNotificationTest {
 		// since we stored the original text and code, use those and add the escaped html we
 		// expect to see in the email output
 		this.post.text = ESCAPED_HTML + this.originals.text;
-		let codeBlock = this.post.codeBlocks[0];
-		codeBlock.code = ESCAPED_HTML + this.originals.code;
-		codeBlock.preContext = ESCAPED_HTML + this.originals.preContext;
-		codeBlock.postContext = ESCAPED_HTML + this.originals.postContext;
+		let marker = this.post.markers[0];
+		marker.code = ESCAPED_HTML + this.originals.code;
+		marker.preContext = ESCAPED_HTML + this.originals.preContext;
+		marker.postContext = ESCAPED_HTML + this.originals.postContext;
 		return super.validateMessage(data);
 	}
 }

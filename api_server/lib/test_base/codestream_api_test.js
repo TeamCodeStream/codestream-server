@@ -42,11 +42,11 @@ class CodeStreamAPITest extends APIRequestTest {
 			streamFactory: this.streamFactory
 		});
 		this.itemFactory = new RandomItemFactory({
-			apiRequester: this
+			apiRequester: this,
+			markerFactory: this.markerFactory
 		});
 		this.postFactory = new RandomPostFactory({
 			apiRequester: this,
-			markerFactory: this.markerFactory,
 			streamFactory: this.streamFactory,
 			repoFactory: this.repoFactory,
 			itemFactory: this.itemFactory
@@ -74,7 +74,7 @@ class CodeStreamAPITest extends APIRequestTest {
 		this.postOptions = {
 			creatorIndex: undefined,
 			numPosts: 1,
-			wantCodeBlock: false,
+			wantMarker: false,
 			postData: []
 		};
 		this.users = [];

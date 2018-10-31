@@ -3,8 +3,9 @@
 'use strict';
 
 module.exports = {
-	byStreamId: {
+	byFileStreamId: {
 		teamId: 1,
-		streamId: 1
+		fileStreamId: 1,
+		createdAt: -1
 	}
 };

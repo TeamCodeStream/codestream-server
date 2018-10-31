@@ -14,11 +14,15 @@ const EXPECTED_MARKER_FIELDS = [
 	'modifiedAt',
 	'creatorId',
 	'teamId',
-	'streamId',
-	'postId',
+	'fileStreamId',
 	'postStreamId',
 	'numComments',
-	'commitHashWhenCreated'
+	'commitHashWhenCreated',
+	'locationWhenCreated',
+	'code',
+	'file',
+	'repo',
+	'repoId'
 ];
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(MarkerAttributes).filter(attribute => {

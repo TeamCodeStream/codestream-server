@@ -15,13 +15,13 @@ class AdditionalMarkerLocationsTest extends PutMarkerLocationsFetchTest {
 		// then create some more markers, set their locations, and verify that all the marker locations are retrieved
 		BoundAsync.series(this, [
 			super.before,				// set up the initial set of marker locations
-			this.createMorePosts,		// create some more posts with code blocks
+			this.createMorePosts,		// create some more posts with markers
 			this.adjustMoreMarkers,		// adjust the location of the markers for a different commit
 			this.setMoreMarkerLocations	// save those marker locations
 		], callback);
 	}
 
-	// create more posts with code blocks that will give us more markers
+	// create more posts with markers that will give us more markers
 	createMorePosts (callback) {
 		this.newPostsIndex = this.postData.length;	// remember where the initial markers end and the new markers start
 		BoundAsync.timesSeries(
@@ -32,7 +32,7 @@ class AdditionalMarkerLocationsTest extends PutMarkerLocationsFetchTest {
 		);
 	}
 
-	// create a single post in the stream (with code blocks, so we have markers)
+	// create a single post in the stream (with markers, so we have markers)
 	createPost (n, callback) {
 		let token = n % 2 === 1 ? this.token : this.users[1].accessToken;	// we'll alternate who creates the posts
 		this.postFactory.createRandomPost(
@@ -48,8 +48,8 @@ class AdditionalMarkerLocationsTest extends PutMarkerLocationsFetchTest {
 			{
 				teamId: this.team._id,
 				streamId: this.stream._id,
-				wantCodeBlocks: 1,
-				codeBlockStreamId: this.repoStreams[0]._id,
+				wantMarkers: 1,
+				markerStreamId: this.repoStreams[0]._id,
 				token: token,
 				commitHash: this.postOptions.commitHash	// they will all have the same commit hash
 			}

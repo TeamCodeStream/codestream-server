@@ -13,7 +13,7 @@ class NumCommentsMessageTest extends Aggregation(CodeStreamMessageTest, CommonIn
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.postOptions.wantCodeBlock = true;
+			this.postOptions.wantMarker = true;
 			this.streamOptions.type = 'file';
 			this.repoOptions.creatorIndex = 1;
 			callback();
@@ -35,9 +35,9 @@ class NumCommentsMessageTest extends Aggregation(CodeStreamMessageTest, CommonIn
 	// generate the message by issuing a request
 	generateMessage (callback) {
 		// we'll create a post as a reply to the parent post we already created ...
-		// since the parent post had a code block, this should cause a message to
+		// since the parent post had a marker, this should cause a message to
 		// be sent on the the team channel indicating the numComments field for
-		// the marker to the code block has been incremented
+		// the marker to the marker has been incremented
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -52,7 +52,7 @@ class NumCommentsMessageTest extends Aggregation(CodeStreamMessageTest, CommonIn
 				this.message = {
 					post: response.post,
 					markers: [{
-						_id: this.postData[0].post.codeBlocks[0].markerId,
+						_id: this.postData[0].post.markers[0].markerId,
 						$inc: { 
 							numComments: 1 
 						},

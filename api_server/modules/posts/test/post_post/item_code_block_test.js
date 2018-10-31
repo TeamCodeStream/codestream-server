@@ -1,13 +1,13 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 const ItemTest = require('./item_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
-class ItemCodeBlockTest extends CodeBlockTest {
+class ItemMarkerTest extends MarkerTest {
 
 	get description () {
-		return 'should return the post with item info and marker info when creating a post with item info and a code block';
+		return 'should return the post with item info and marker info when creating a post with item info and a marker';
 	}
 
 	makePostData (callback) {
@@ -25,4 +25,4 @@ class ItemCodeBlockTest extends CodeBlockTest {
 	}
 }
 
-module.exports = ItemCodeBlockTest;
+module.exports = ItemMarkerTest;

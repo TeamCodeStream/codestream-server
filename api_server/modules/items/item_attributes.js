@@ -19,7 +19,12 @@ module.exports = {
 	markerIds: {
 		type: 'arrayOfIds',
 		maxLength: 10,
-		description: 'The IDs of any @@#markers#marker@@ for code blocks associated with this item'
+		description: 'The IDs of any @@#markers#marker@@ associated with this item'
+	},
+	fileStreamIds: {
+		type: 'arrayOfIds',
+		maxLength: 10,
+		description: 'The Ids of the @@#file streams#stream@@ from which the @@#markers#marker@@ originate'
 	},
 	providerType: {
 		type: 'string',
@@ -56,5 +61,9 @@ module.exports = {
 		type: 'string',
 		maxLength: 1000,
 		description: 'The text of this item'
+	},
+	numReplies: {
+		type: 'number',
+		description: 'The number of replies to this item'
 	}
 };

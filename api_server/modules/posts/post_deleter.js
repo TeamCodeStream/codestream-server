@@ -53,9 +53,9 @@ class PostDeleter extends ModelDeleter {
 
 	// delete any associated markers
 	async deleteMarkers () {
-		const codeBlocks = this.post.get('codeBlocks') || [];
-		const markerIds = codeBlocks
-			.map(codeBlock => codeBlock.markerId)
+		const markers = this.post.get('markers') || [];
+		const markerIds = markers
+			.map(marker => marker.markerId)
 			.filter(markerId => markerId);
 		this.transforms.markerUpdates = [];
 		await Promise.all(markerIds.map(async markerId => {
@@ -81,14 +81,14 @@ class PostDeleter extends ModelDeleter {
 		);
 	}
 
-	// if the deleted post is a reply to a post with code block(s),
+	// if the deleted post is a reply to a post with marker(s),
 	// update the numComments attribute of the associated marker(s)
 	async updateNumComments () {
-		if (!this.parentPost || !(this.parentPost.get('codeBlocks') instanceof Array)) {
+		if (!this.parentPost || !(this.parentPost.get('markers') instanceof Array)) {
 			return;
 		}
-		const markerIds = this.parentPost.get('codeBlocks')
-			.map(codeBlock => codeBlock.markerId)
+		const markerIds = this.parentPost.get('markers')
+			.map(marker => marker.markerId)
 			.filter(markerId => markerId);
 		this.transforms.markerUpdates = this.transforms.markerUpdates || [];
 		await Promise.all(markerIds.map(async markerId => {
@@ -96,7 +96,7 @@ class PostDeleter extends ModelDeleter {
 		}));
 	}
 
-	// if the deleted post is a reply to a post with code block(s),
+	// if the deleted post is a reply to a post with marker(s),
 	// update the numComments attribute of the given marker
 	async updateNumCommentsForMarker (markerId) {
 		if (!markerId) { return; }

@@ -1,11 +1,11 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class CodeBlockHasInvalidStreamIdTest extends CodeBlockTest {
+class MarkerHasInvalidStreamIdTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element where the stream ID is not a valid ID';
+		return 'should return an error when attempting to create a post with a marker element where the stream ID is not a valid ID';
 	}
 
 	getExpectedError () {
@@ -17,12 +17,12 @@ class CodeBlockHasInvalidStreamIdTest extends CodeBlockTest {
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
-		// we'll add a code block from a bogus stream ID
+		// we'll add a marker from a bogus stream ID
 		super.makePostData(() => {
-			this.data.codeBlocks[0].streamId = 'x';
+			this.data.markers[0].streamId = 'x';
 			callback();
 		});
 	}
 }
 
-module.exports = CodeBlockHasInvalidStreamIdTest;
+module.exports = MarkerHasInvalidStreamIdTest;

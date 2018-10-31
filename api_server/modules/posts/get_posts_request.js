@@ -4,9 +4,7 @@
 
 const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
-const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
 const PostErrors = require('./errors.js');
-const Stream = require(process.env.CS_API_TOP + '/modules/streams/stream');
 
 // these parameters essentially get passed verbatim to the query
 const BASIC_QUERY_PARAMETERS = [
@@ -27,7 +25,6 @@ const RELATIONAL_PARAMETERS = [
 const NON_FILTERING_PARAMETERS = [
 	'limit',
 	'sort',
-	//'withMarkers',
 	'commitHash'
 ];
 
@@ -46,43 +43,11 @@ class GetPostsRequest extends GetManyRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		if (!this.request.query.teamId) {
-			// must have teamId
-			throw this.errorHandler.error('parameterRequired', { info: 'teamId' });
-		}
-		if (!this.request.query.streamId) {
-			// for GET /posts?path, can do without streamId, but must have repoId to locate the file
-			if (this.request.query.repoId) {
-				return await this.authorizePath();
-			}
-			else {
-				throw this.errorHandler.error('parameterRequired', { info: 'repoId or streamId' });
-			}
-		}
-		else {
-			const info = await this.user.authorizeFromTeamIdAndStreamId(
-				this.request.query,
-				this
-			);
-			Object.assign(this, info);
-		}
-	}
-
-	// for a GET /posts with a path specified (no stream ID known), authorize for
-	// the given (required) repoId
-	async authorizePath () {
-		if (!this.request.query.path) {
-			throw this.errorHandler.error('parameterRequired', { info: 'path' });
-		}
-		const repoId = decodeURIComponent(this.request.query.repoId);
-		const repo = await this.user.authorizeRepo(repoId, this);
-		if (!repo) {
-			throw this.errorHandler.error('readAuth');
-		}
-		const teamId = this.request.query.teamId.toLowerCase();
-		if (repo.get('teamId') !== teamId) { // specified teamId must match the team owning the repo!
-			throw this.errorHandler.error('notFound', { info: 'repo' });
-		}
+		const info = await this.user.authorizeFromTeamIdAndStreamId(
+			this.request.query,
+			this
+		);
+		Object.assign(this, info);
 	}
 
 	// build the query to use for fetching posts (used by the base class GetManyRequest)
@@ -118,30 +83,10 @@ class GetPostsRequest extends GetManyRequest {
 			const ids = value.split(',');
 			query._id = this.data.posts.inQuerySafe(ids);
 		}
-		/*
-// Not using these for now, since they will require an index, and I'm not sure of their utility
-		else if (parameter === 'newerThan') {
-			const newerThan = parseInt(value, 10);
-			if (newerThan) {
-				query.modifiedAt = { $gt: newerThan };
-			}
-		}
-		else if (parameter === 'mine') {
-			query.creatorId = this.user.id;
-		}
-		*/
 		else if (parameter === 'seqnum') {
 			// fetch by single or range of sequence numbers
 			const error = this.processSeqNumParameter(value, query);
 			if (error) { return error; }
-		}
-		else if (parameter === 'path') {
-			// for GET /posts?path, we'll have to find the stream first
-			this.path = value;
-		}
-		else if (parameter === 'repoId') {
-			// for GET /posts?path, we need to know the repoId
-			this.repoId = value.toLowerCase();
 		}
 		else if (RELATIONAL_PARAMETERS.includes(parameter)) {
 			// lt, gt, lte, gte
@@ -330,104 +275,11 @@ class GetPostsRequest extends GetManyRequest {
 		}
 	}
 
-	// called right before the fetch query is run
-	async preFetchHook () {
-		if (!this.path) {
-			return;
-		}
-		// for GET /posts?path, we need to find a stream matching the path first
-		await this.fetchStreamByPath();
-	}
-
-	// fetch the stream indicated by the passed path, for GET /posts?path type queries
-	async fetchStreamByPath () {
-		const query = {
-			teamId: this.request.query.teamId.toLowerCase(),
-			repoId: this.repoId,
-			file: this.path
-		};
-		const streams = await this.data.streams.getByQuery(
-			query,
-			{
-				hint: StreamIndexes.byFile,
-				noCache: true
-			}
-		);
-		if (streams.length === 0) {
-			throw this.errorHandler.error('notFound', { info: 'stream' });
-		}
-		this.fetchedStream = new Stream(streams[0]);
-		this.queryAndOptions.query.streamId = streams[0]._id;
-	}
-
-	// called right after the posts are fetched
-	async postFetchHook () {
-		/*
-		withMarkers options is deprecated
-
-		if (typeof this.request.query.withMarkers === 'undefined') {
-			return;
-		}
-		await this.extractMarkerIds();
-		await this.fetchMarkers();
-		await this.sanitizeMarkers();
-		await this.fetchMarkerLocations();
-		*/
-	}
-
-	// extract the marker IDs from any code blocks in the fetched posts
-	async extractMarkerIds () {
-		this.markerIds = this.models.reduce((markerIdsSoFar, post) => {
-			const codeBlockMarkerIds = (post.get('codeBlocks') || []).map(codeBlock => codeBlock.markerId);
-			markerIdsSoFar.push(...codeBlockMarkerIds);
-			return markerIdsSoFar;
-		}, []);
-	}
-
-	// get the markers for any of the fetched posts, based on marker IDs already extracted
-	async fetchMarkers () {
-		if (this.markerIds.length === 0) {
-			return;
-		}
-		this.markers = await this.data.markers.getByIds(this.markerIds);
-	}
-
-	// sanitize the fetched markers for return to the client
-	async sanitizeMarkers () {
-		if (this.markerIds.length === 0) {
-			return;
-		}
-		this.responseData.markers = await this.sanitizeModels(this.markers);
-	}
-
-	// get the marker locations for any of the fetched markers, based on marker IDs already extracted
-	async fetchMarkerLocations () {
-		if (this.markerIds.length === 0 || !this.request.query.commitHash) {
-			return;
-		}
-		const streamId = decodeURIComponent(this.request.query.streamId || this.queryAndOptions.query.streamId).toLowerCase();
-		const commitHash = decodeURIComponent(this.request.query.commitHash).toLowerCase();
-		const query = {
-			// teamId: teamId, // will be needed for sharding, but for now, we'll avoiding an index here
-			_id: `${streamId}|${commitHash}`
-		};
-		const markerLocations = await this.data.markerLocations.getByQuery(
-			query,
-			{ hint: { _id: 1 } }
-		);
-		if (markerLocations.length === 0) {
-			this.responseData.markerLocations = {};
-			return;	// no matching marker locations for this commit, we'll just send an empty response
-		}
-		this.markerLocations = markerLocations[0];
-		this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
-	}
-
 	// process the request (overrides base class)
 	async process () {
 		await super.process();	// do the usual "get-many" processing
-		await this.getMarkers();	// get associated markers, as needed
 		await this.getItems();	// get associated items, as needed
+		await this.getMarkers();	// get associated markers, as needed
 
 		// add the "more" flag as needed, if there are more posts to fetch ...
 		// we always fetch one more than the page requested, so we can set that flag
@@ -435,14 +287,27 @@ class GetPostsRequest extends GetManyRequest {
 			this.responseData.posts.splice(-1);
 			this.responseData.more = true;
 		}
-		if (this.fetchedStream) {
-			this.responseData.stream = this.fetchedStream.getSanitizedObject();
+	}
+
+	// get the items associated with the fetched posts, as needed
+	async getItems () {
+		const itemIds = this.models.reduce((itemIds, post) => {
+			if (post.get('itemId')) {
+				itemIds.push(post.get('itemId'));
+			}
+			return itemIds;
+		}, []);
+		if (itemIds.length === 0) {
+			return;
 		}
+		this.items = await this.data.items.getByIds(itemIds);
+		this.responseData.items = this.items.map(item => item.getSanitizedObject());
 	}
 
 	// get the markers associated with the fetched posts, as needed
 	async getMarkers () {
-		const markerIds = this.models.reduce((markerIds, post) => {
+		if (!this.items) { return; }
+		const markerIds = this.items.reduce((markerIds, post) => {
 			markerIds.push(...(post.get('markerIds') || []));
 			return markerIds;
 		}, []);
@@ -450,32 +315,7 @@ class GetPostsRequest extends GetManyRequest {
 			return;
 		}
 		const markers = await this.data.markers.getByIds(markerIds);
-		markers.forEach(marker => {
-			const post = this.responseData.posts.find(post => (post.markerIds || []).includes(marker.id));
-			if (post) {
-				post.markers = post.markers || [];
-				post.markers.push(marker.getSanitizedObject());
-			}
-		});
-	}
-
-	// get the items associated with the fetched posts, as needed
-	async getItems () {
-		const itemIds = this.models.reduce((itemIds, post) => {
-			itemIds.push(...(post.get('itemIds') || []));
-			return itemIds;
-		}, []);
-		if (itemIds.length === 0) {
-			return;
-		}
-		const items = await this.data.items.getByIds(itemIds);
-		items.forEach(item => {
-			const post = this.responseData.posts.find(post => (post.itemIds || []).includes(item.id));
-			if (post) {
-				post.items = post.items || [];
-				post.items.push(item.getSanitizedObject());
-			}
-		});
+		this.responseData.markers = markers.map(marker => marker.getSanitizedObject());
 	}
 
 	// describe this route for help
@@ -495,8 +335,6 @@ class GetPostsRequest extends GetManyRequest {
 			'gte': '<Fetch posts with ID greater than or equal to the given value>',
 			'sort': '<Posts are sorted in descending order, unless this parameter is given as \'asc\'>',
 			'limit': '<Limit the number of posts fetched to this number>',
-			//'withMarkers': '<If specified, the markers associated with all fetched posts will also be fetched>',
-			//'commitHash': '<If specified along with withMarkers, the known locations of the markers fetched, for the given commit hash, will also be fetched>',
 			'seqnum': '<Fetch the posts in a range of sequence numbers, like: seqnum=3-7 (fetches posts with sequence numbers 3 thru 7, inclusive), or individual sequence numbers like: seqnum=4,6,9>',
 			'before': '<Fetch posts before this sequence number, including the post with that sequence number if "inclusive" set>',
 			'after': '<Fetch posts after this sequence number, including the post with that sequence number if "inclusive" is set>',
@@ -504,13 +342,6 @@ class GetPostsRequest extends GetManyRequest {
 		});
 		description.returns.summary = 'An array of post objects, plus possible marker objects and markerLocations object, and more flag';
 		Object.assign(description.returns.looksLike, {
-			/*
-			markers: [
-				'<@@#marker object#markers@@ > (if withMarkers specified)',
-				'...'
-			],
-			markerLocations: '<@@#marker locations object#markerLocations@@ > (if withMarkers and commitHash specified)',
-			*/
 			stream: '<@@#stream object#stream@@ > (stream associated with the path, if specified)',
 			more: '<will be set to true if more posts are available, see the description, above>'
 		});

@@ -4,6 +4,13 @@
 
 const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 const Marker = require('./marker');
+const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
+const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
+const RepoCreator = require(process.env.CS_API_TOP + '/modules/repos/repo_creator');
+const StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');
+const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class MarkerCreator extends ModelCreator {
 
@@ -24,40 +31,74 @@ class MarkerCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['teamId', 'commitHash'],
-				object: ['codeBlock']
+				string: ['teamId', 'code']
 			},
 			optional: {
-				string: ['streamId', 'fileStreamId', 'postId', 'postStreamId', 'providerType', 'code', 'file', 'repo', 'repoId'],
-				'array': ['location']
+				string: ['fileStreamId', 'postId', 'postStreamId', 'providerType', 'code', 'file', 'repo', 'repoId', 'commitHash', 'commitHashWhenCreated'],
+				'array': ['location', 'locationWhenCreated'],
+				'array(string)': ['remotes']
 			}
 		};
 	}
 
-	// validate the input attributes
 	async validateAttributes () {
-		// location attribute is not strictly required, for instance, a marker that
-		// is associated with code that has not yet been committed will not have a location
-		if (typeof this.attributes.location !== 'undefined') {
-			return this.validateLocationAttribute();
+		this.attributes._id = this.collection.createId();	 // pre-allocate an ID
+		this.attributes.commitHashWhenCreated = this.attributes.commitHashWhenCreated || this.attributes.commitHash; // client can provide either
+		delete this.attributes.commitHash;
+		if (this.attributes.commitHashWhenCreated) {
+			this.attributes.commitHashWhenCreated = this.attributes.commitHashWhenCreated.toLowerCase();
 		}
-	}
-
-	// validate the passed location for the marker
-	async validateLocationAttribute () {
-		const error = MarkerCreator.validateLocation(this.attributes.location);
-		if (error) {
-			return error;
-		}
-		this.attributes.locationWhenCreated = this.attributes.location;
+		this.attributes.locationWhenCreated = this.attributes.locationWhenCreated || this.attributes.location;	// client can provider either
 		delete this.attributes.location;
-	}
+		this.attributes.numComments = 1; // the original post for this marker, so there is 1 comment so far
+		this.attributes.creatorId = this.request.user.id;
 
+		// the location coordinates must be valid
+		if (typeof this.attributes.locationWhenCreated !== 'undefined') {
+			const result = this.validateLocation(this.attributes.locationWhenCreated);
+			if (result) {
+				return result;
+			}
+		}
+
+		// if there is a postId, there must be a postStreamId
+		if (this.attributes.postId && !this.attributes.postStreamId) {
+			return 'no postStreamId with postId';
+		}
+
+		// don't allow more than 100 remotes, just general protection against resource hogging
+		if (this.attributes.remotes && this.attributes.remotes.length > 100) {
+			return 'too many remotes';
+		}
+
+		// normalize the remotes
+		if (this.attributes.remotes) {
+			this.attributes.remotes = this.attributes.remotes.map(remote => NormalizeUrl(remote));
+		}
+
+		// markers that are to be tied to a stream (so they have a stream ID, or they
+		// have a file and repo info) must have a commit hash
+		if (
+			this.attributes.fileStreamId || 
+			(
+				this.attributes.file &&
+				(
+					this.attributes.repoId ||
+					this.attributes.remotes
+				)
+			)
+		) {
+			if (!this.attributes.commitHashWhenCreated) {
+				return 'commitHash must be provided for markers attached to a stream with a repo';
+			}
+		}
+	}
+ 
 	// validate a marker location, must be in the strict format:
 	// [lineStart, columnStart, lineEnd, columnEnd, fifthElement]
 	// the first four elements are coordinates and are required
 	// the fifth element must be an object and can contain additional information about the marker location
-	static validateLocation (location) {
+	validateLocation (location) {
 		if (!(location instanceof Array)) {
 			return 'location must be an array';
 		}
@@ -81,27 +122,184 @@ class MarkerCreator extends ModelCreator {
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
-		if (this.itemIds) {
-			this.attributes.itemIds = this.itemIds;
+		if (this.itemId) {
+			this.attributes.itemId = this.itemId;
 		}
-		this.normalizeMarkerAttributes();	// normalize the attributes for the marker
+		await this.getTeam();					// get the team that will own the marker
+		await this.getStream();					// get the file-stream for the marker, if provided
+		await this.getOrCreateRepo();			// get or create a repo to which the marker will belong, if applicable
+		await this.createFileStream();			// create a file-stream for the marker, as needed
 		await this.updateMarkerLocations();		// update the marker's location for the particular commit
 		await super.preSave();					// proceed with the save...
 	}
 
-	// create an ID for this marker
-	normalizeMarkerAttributes () {
-		this.attributes._id = this.data.markers.createId();	 // pre-allocate an ID
-		this.attributes.commitHashWhenCreated = this.attributes.commitHash; // save commitHash as commitHashWhenCreated
-		delete this.attributes.commitHash;
-		this.attributes.numComments = 1; // the original post for this marker, so there is 1 comment so far
-		this.attributes.creatorId = this.request.user.id;
+	// get the team that will own the marker
+	async getTeam () {
+		this.team = await this.request.data.teams.getById(this.attributes.teamId);
+		if (!this.team) {
+			throw this.request.errorHandler.error('notFound', { info: 'team' });
+		}
+	}
+
+	// get or create a repo to which the marker will belong, if applicable
+	async getOrCreateRepo () {
+		if (!this.attributes.commitHashWhenCreated) {
+			// can't associate with a repo if no commit hash is given
+			return;
+		}
+
+		// first, get all the repos owned by the team, then fetch the given repo or try to find a match 
+		// to the remotes that are given
+		await this.getTeamRepos();
+		if (this.attributes.repoId) {
+			await this.getRepo();
+		}
+		else if (this.attributes.remotes) {
+			await this.findMatchingRepoOrCreate();
+			if (this.repo) {
+				this.attributes.repoId = this.repo.id;
+			}
+		}
+
+		// add repo information directly to the marker
+		if (this.repo) {
+			if (this.repo.get('remotes')) {
+				const remotes = this.repo.get('remotes').map(remote => remote.normalizedUrl);
+				this.attributes.repo = remotes[0];
+			}
+			else if (this.repo.get('normalizedUrl')) {
+				this.attributes.repo = this.repo.get('normalizedUrl');
+			}
+		}
+
+		// now that we have a repo, remove any reference in the marker to the remotes
+		delete this.attributes.remotes;
+	}
+
+	// get all the repos known to this team, we'll try to match the repo that any
+	// markers are associated with with one of these repos
+	async getTeamRepos () {
+		this.teamRepos = await this.request.data.repos.getByQuery(
+			{ 
+				teamId: this.team.id
+			},
+			{ 
+				hint: RepoIndexes.byTeamId 
+			}
+		);
+	}
+
+	// get the repo as given by a repo ID in the marker attibutes
+	async getRepo () {
+		this.repo = this.teamRepos.find(repo => repo.id === this.attributes.repoId);
+		if (!this.repo) {
+			throw this.request.errorHandler.error('notFound', { info: 'marker repo' });
+		}
+		if (this.attributes.remotes) {
+			await this.updateRepoWithNewRemotes(this.repo, this.attributes.remotes);
+		}
+	}
+
+	// given a set of remotes in the given marker attributes, try to find a repo owned by the
+	// team that matches one of the remotes, if no match is found, create a new repo
+	async findMatchingRepoOrCreate () {
+		const matchingRepos = this.teamRepos.filter(repo => repo.matchesRemotes(this.attributes.remotes));
+		if (matchingRepos.length === 0) {
+			await this.createRepo();
+		}
+		else {
+			this.repo = matchingRepos[0];
+			if (matchingRepos.length === 1) {
+				await this.updateRepoWithNewRemotes(this.repo, this.attributes.remotes);
+			}
+		}
+	}
+
+	// if we found a matching repo for the remotes passed in, check to see if all
+	// the remotes passed in are known for this repo; if not, update the repo with
+	// any unknown remotes
+	async updateRepoWithNewRemotes (repo, remotes) {
+		const repoRemotes = repo.getRemotes() || [];
+		const newRemotes = ArrayUtilities.difference(remotes, repoRemotes);
+		if (newRemotes.length === 0) {
+			return;
+		}
+		const remotesToPush = newRemotes.map(remote => {
+			return {
+				url: remote,
+				normalizedUrl: remote,
+				companyIdentifier: ExtractCompanyIdentifier.getCompanyIdentifier(remote)
+			};
+		});
+		const op = {
+			$push: {
+				remotes: remotesToPush
+			}
+		};
+		const repoUpdateOp = await new ModelSaver({
+			request: this.request,
+			collection: this.request.data.repos,
+			id: repo.id
+		}).save(op);
+		this.transforms.repoUpdates = this.transforms.repoUpdates || [];
+		this.transforms.repoUpdates.push(repoUpdateOp);
+	}
+
+	// create a new repo with the given remotes
+	async createRepo () {
+		const repoInfo = {
+			teamId: this.team.id,
+			remotes: this.attributes.remotes
+		};
+		this.repo = await new RepoCreator({
+			request: this.request
+		}).createRepo(repoInfo);
+		this.transforms.createdRepos = this.transforms.createdRepos || [];
+		this.transforms.createdRepos.push(this.repo);
+	}
+
+	// get the file stream for which the marker is being created
+	async getStream () {
+		if (!this.attributes.fileStreamId) {
+			return;
+		}
+		this.stream = await this.request.data.streams.getById(this.attributes.fileStreamId);
+		if (!this.stream) {
+			throw this.request.errorHandler.error('notFound', { info: 'marker stream' });
+		}
+		if (this.stream.get('type') !== 'file') {
+			throw this.request.errorHandler.error('invalidParameter', { reason: 'marker stream must be a file-type stream' });
+		}
+
+		// added to marker for informational purposes
+		this.attributes.repoId = this.stream.get('repoId');
+		this.attributes.file = this.stream.get('file');  
+	}
+
+	// create a file stream for this marker to reference
+	async createFileStream () {
+		if (this.stream || !this.repo || !this.attributes.file) {
+			return;
+		}
+		const streamInfo = {
+			teamId: this.team.id,
+			repoId: this.repo.id,
+			type: 'file',
+			file: this.attributes.file
+		};
+		this.stream = await new StreamCreator({
+			request: this.request,
+			nextSeqNum: 2
+		}).createStream(streamInfo);
+		this.attributes.fileStreamId = this.stream.id;
+		this.transforms.createdStreamsForMarkers = this.transforms.createdStreamsForMarkers || [];
+		this.transforms.createdStreamsForMarkers.push(this.stream);
 	}
 
 	// update the location of this marker in the marker locations structure for this stream and commit
 	async updateMarkerLocations () {
-		if (!this.attributes.locationWhenCreated) { return; }	// location is not strictly required, ignore if not provided
-		const id = `${this.attributes.streamId}|${this.attributes.commitHashWhenCreated}`.toLowerCase();
+		if (!this.attributes.locationWhenCreated || !this.stream) { return; }	// location is not strictly required, ignore if not provided
+		const id = `${this.attributes.fileStreamId}|${this.attributes.commitHashWhenCreated}`.toLowerCase();
 		let op = {
 			$set: {
 				teamId: this.attributes.teamId,
@@ -116,6 +314,30 @@ class MarkerCreator extends ModelCreator {
 			op,
 			{ upsert: true }
 		);
+
+		// marker locations are special, they can be collapsed as long as the marker locations
+		// structure refers to the same stream and commit hash
+		const newMarkerLocation = {
+			teamId: this.team.id,
+			streamId: this.stream.id,
+			commitHash: this.attributes.commitHashWhenCreated,
+			locations: {
+				[this.attributes._id]: this.attributes.locationWhenCreated
+			}
+		};
+		this.transforms.markerLocations = this.transforms.markerLocations || [];
+		const markerLocations = this.transforms.markerLocations.find(markerLocations => {
+			return (
+				markerLocations.streamId === newMarkerLocation.streamId &&
+				markerLocations.commitHash === newMarkerLocation.commitHash
+			);
+		});
+		if (markerLocations) {
+			Object.assign(this.transforms.markerLocations.locations, newMarkerLocation.locations);
+		}
+		else {
+			this.transforms.markerLocations.push(newMarkerLocation);
+		}
 	}
 }
 

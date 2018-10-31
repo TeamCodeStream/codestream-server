@@ -1,11 +1,11 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class RemotesMustBeArrayOfStringsTest extends CodeBlockTest {
+class RemotesMustBeArrayOfStringsTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element where the remotes is not an array of strings';
+		return 'should return an error when attempting to create a post with a marker element where the remotes is not an array of strings';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class RemotesMustBeArrayOfStringsTest extends CodeBlockTest {
 	makePostData (callback) {
 		// set the "remotes" field to an array with mixed elements
 		super.makePostData(() => {
-			this.data.codeBlocks[0].remotes = [1, 'hello', 2];
+			this.data.markers[0].remotes = [1, 'hello', 2];
 			callback();
 		});
 	}

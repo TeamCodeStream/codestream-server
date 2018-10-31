@@ -12,7 +12,8 @@ class GetMarkerTest extends CodeStreamAPITest {
 		this.streamOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			creatorIndex: 1,
-			wantCodeBlock: true
+			wantItem: true,
+			wantMarker: true
 		});
 	}
 
@@ -46,9 +47,13 @@ class GetMarkerTest extends CodeStreamAPITest {
 		this.validateMatchingObject(this.marker._id, data.marker, 'marker');
 		this.validateSanitized(data.marker, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
 
-		// validate we also got the parent post, with only sanitized attributes
-		this.validateMatchingObject(this.postData[0].post._id, data.marker.post, 'post');
-		this.validateSanitized(data.marker.post, MarkerTestConstants.UNSANITIZED_POST_ATTRIBUTES);
+		// validate we also got the parent item, with only sanitized attributes
+		this.validateMatchingObject(this.postData[0].item._id, data.item, 'item');
+		this.validateSanitized(data.item, MarkerTestConstants.UNSANITIZED_ITEM_ATTRIBUTES);
+
+		// if using CodeStream posts, validate that we got the referencing post, with only sanitized attributes
+		this.validateMatchingObject(this.postData[0].post._id, data.post, 'post');
+		this.validateSanitized(data.post, MarkerTestConstants.UNSANITIZED_POST_ATTRIBUTES);
 	}
 }
 

@@ -15,8 +15,8 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			numPosts: 5,
 			creatorIndex: 1,
-			wantCodeBlock: true,
-			codeBlockStreamId: 0,	// will use the existing file stream created for the repo
+			wantMarker: true,
+			markerStreamId: 0,	// will use the existing file stream created for the repo
 			commitHash: this.repoFactory.randomCommitHash()
 		});
 		this.path = '/marker-locations';

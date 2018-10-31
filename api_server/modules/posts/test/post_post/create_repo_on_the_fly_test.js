@@ -1,11 +1,11 @@
 'use strict';
 
-const CodeBlockStreamOnTheFlyTest = require('./code_block_stream_on_the_fly_test');
+const MarkerStreamOnTheFlyTest = require('./marker_stream_on_the_fly_test');
 const Assert = require('assert');
 const NormalizeURL = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
 const Path = require('path');
 
-class CreateRepoOnTheFlyTest extends CodeBlockStreamOnTheFlyTest {
+class CreateRepoOnTheFlyTest extends MarkerStreamOnTheFlyTest {
 
 	constructor (options) {
 		super(options);
@@ -18,7 +18,7 @@ class CreateRepoOnTheFlyTest extends CodeBlockStreamOnTheFlyTest {
 	}
 
 	get description () {
-		return 'should return a valid post and create a repo on the fly when creating a post referencing a code block from another stream and specifying remotes that do not match an existing repo';
+		return 'should return a valid post and create a repo on the fly when creating a post referencing a marker from another stream and specifying remotes that do not match an existing repo';
 	}
 
 	// validate the response to the test request

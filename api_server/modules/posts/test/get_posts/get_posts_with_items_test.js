@@ -1,9 +1,9 @@
 'use strict';
 
-const GetPostsWithMarkersTest = require('./get_posts_with_markers_test');
+const GetPostsTest = require('./get_posts_test');
 const Assert = require('assert');
 
-class GetPostsWithItemsTest extends GetPostsWithMarkersTest {
+class GetPostsWithItemsTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
@@ -17,7 +17,8 @@ class GetPostsWithItemsTest extends GetPostsWithMarkersTest {
 	// validate the response to the fetch request
 	validateResponse (data) {
 		data.posts.forEach(post => {
-			Assert.equal(post.items[0].postId, post._id, 'item attached to post does not have the post\'s ID');
+			const item = data.items.find(item => item._id === post.itemId);
+			Assert(item, 'item not returned with post');
 		});
 		super.validateResponse(data);
 	}

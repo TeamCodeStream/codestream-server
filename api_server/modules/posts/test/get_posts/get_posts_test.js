@@ -10,15 +10,13 @@ class GetPostsTest extends CodeStreamAPITest {
 		super(options);
 		this.type = this.type || 'channel';
 		this.teamOptions.creatorIndex = 1;
-		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.streamOptions, {
 			creatorIndex: 1,
-			type: this.type || 'channel'
+			type: this.type
 		});
 		Object.assign(this.postOptions, {
 			creatorIndex: 1,
-			numPosts: 5,
-			type: this.type || 'channel'
+			numPosts: 5
 		});
 	}
 

@@ -21,7 +21,8 @@ class GetPostlessItemsTest extends GetItemsTest {
 		BoundAsync.series(this, [
 			super.before,
 			this.createItems,
-			this.setPath			// set the path to use for the request
+			this.setItems,
+			this.setPath
 		], callback);
 	}
 
@@ -37,15 +38,15 @@ class GetPostlessItemsTest extends GetItemsTest {
 
 	createItem (n, callback) {
 		const type = this.postOptions.itemTypes[this.postOptions.assignedTypes[n]];
-		const itemData = this.itemFactory.getRandomItemData({ type });
+		const itemData = this.itemFactory.getRandomItemData({ itemType: type });
 		Object.assign(itemData, {
 			teamId: this.team._id,
 			providerType: 'slack',
 			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)
 		});
-		if (this.wantCodeBlock) {
-			this.postFactory.createRandomCodeBlocks(itemData, 1, { withRandomStream: true, randomCommitHash: true });
+		if (this.wantMarker) {
+			itemData.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0]._id });
 		}
 		this.doApiRequest(
 			{
@@ -56,7 +57,7 @@ class GetPostlessItemsTest extends GetItemsTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.postData.push({ items: [ response.item ] });
+				this.postData.push({ item: response.item });
 				callback();
 			}
 		);

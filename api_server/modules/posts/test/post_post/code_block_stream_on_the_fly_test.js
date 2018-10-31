@@ -1,12 +1,12 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 const Assert = require('assert');
 
-class CodeBlockStreamOnTheFly extends CodeBlockTest {
+class MarkerStreamOnTheFly extends MarkerTest {
 
 	get description () {
-		return `should return the post with marker info when creating a post in a ${this.streamType} stream with a code block for a file for which the stream will be created on the fly`;
+		return `should return the post with marker info when creating a post in a ${this.streamType} stream with a marker for a file for which the stream will be created on the fly`;
 	}
 	
 	// form the data we'll use in creating the post
@@ -14,8 +14,8 @@ class CodeBlockStreamOnTheFly extends CodeBlockTest {
 		// specify to create a file-stream for the marker
 		this.otherFile = this.streamFactory.randomFile();
 		super.makePostData(() => {
-			delete this.data.codeBlocks[0].streamId;
-			Object.assign(this.data.codeBlocks[0], {
+			delete this.data.markers[0].streamId;
+			Object.assign(this.data.markers[0], {
 				file: this.otherFile,
 				remotes: this.useRemotes,
 				repoId: this.useRemotes ? undefined : this.repo._id
@@ -40,4 +40,4 @@ class CodeBlockStreamOnTheFly extends CodeBlockTest {
 	}
 }
 
-module.exports = CodeBlockStreamOnTheFly;
+module.exports = MarkerStreamOnTheFly;

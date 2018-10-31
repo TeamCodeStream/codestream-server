@@ -10,44 +10,43 @@ module.exports = {
 		required: true,
 		description: 'ID of the @@#team#team@@ that owns the file @@#stream#stream@@ this marker references'
 	},
-	streamId: {	// to be deprecated in favor of fileStreamId
-		type: 'id',
-		required: true,
-		description: 'ID of the file @@#stream#stream@@ referenced by this marker\'s code block'
-	},
 	fileStreamId: {
 		type: 'id',
 		required: true,
-		description: 'ID of the file @@#stream#stream@@ referenced by this marker\'s code block'
-	},
-	postId: {
-		type: 'string',
-		description: 'ID of the @@#post#post@@ that references this marker\'s code block, or can be a third-party post ID'
+		description: 'ID of the file @@#stream#stream@@ referenced by this marker'
 	},
 	postStreamId: {
 		type: 'string',
-		description: 'ID of the @@#stream#stream@@ the @@#post#post@@ that references this marker\'s code block belongs to, or can be a third-party stream ID'
+		description: 'ID of the @@#stream#stream@@ of the @@#post#post@@ that references this marker, or can be a third-party stream ID'
+	},
+	postId: {
+		type: 'string',
+		description: 'ID of the @@#post#post@@ that references this marker, or can be a third-party post ID'
+	},
+	itemId: {
+		type: 'id',
+		required: true,
+		description: 'ID of the @@#item#item@@ that references this marker'
 	},
 	numComments: {
 		type: 'number',
 		required: true,
-		description: 'Number of @@#posts#post@@ created as a reply to the original post containing this marker\'s code block'
-	},
-	commitHashWhenCreated: {
-		type: 'string',
-		minLength: 40,
-		maxLength: 40,
-		description: 'The commit SHA the @@#user#user@@ was on in their repo when this marker\'s code block was first created'
-	},
-	codeBlock: {	// to be deprecated in favor of individual attributes at the top-level
-		type: 'object',
-		maxLength: 1000,
-		description: 'Code block referenced by this marker'
+		description: 'Number of @@#posts#post@@ created as a reply to the original post containing this marker'
 	},
 	providerType: {
 		type: 'string',
 		maxLength: 25,
 		description: 'Third-party provider, as needed (eg. slack)'
+	},
+	commitHashWhenCreated: {
+		type: 'string',
+		minLength: 40,
+		maxLength: 40,
+		description: 'The commit SHA the @@#user#user@@ was on in their repo when this marker was first created'
+	},
+	locationWhenCreated: {
+		type: 'array',
+		description: 'Location coordinates of the code when the marker was first created'
 	},
 	code: {
 		type: 'string',
@@ -67,14 +66,5 @@ module.exports = {
 	repoId: {
 		type: 'id',
 		description: 'ID of the repo the file containing this code comes from'
-	},
-	locationWhenCreated: {
-		type: 'array',
-		description: 'Location coordinates of the code when the marker was first created'
-	},
-	itemIds: {
-		type: 'arrayOfIds',
-		maxLength: 10,
-		description: 'IDs representing the knowledge-base items attached to this marker'
 	}
 };

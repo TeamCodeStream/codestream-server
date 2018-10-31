@@ -36,7 +36,7 @@ class MarkerUpdater extends ModelUpdater {
 			await this.validatePostId();
 		}
 		else {
-			await this.getPost();			// get its associated post
+			await this.getPost();		// get its associated post
 			await this.getStream();		// get the stream the marker is from
 			await this.getPostStream();	// get the stream for the post, if different
 		}
@@ -74,7 +74,7 @@ class MarkerUpdater extends ModelUpdater {
 
 	// get the stream the marker is in
 	async getStream () {
-		this.stream = await this.request.data.streams.getById(this.marker.get('streamId'));
+		this.stream = await this.request.data.streams.getById(this.marker.get('fileStreamId'));
 		if (!this.stream) {
 			throw this.errorHandler.error('notFound', { info: 'stream' });   // really shouldn't happen
 		}

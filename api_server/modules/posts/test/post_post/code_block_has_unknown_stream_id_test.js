@@ -1,12 +1,12 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 const ObjectID = require('mongodb').ObjectID;
 
-class CodeBlockHasUnknownStreamIdTest extends CodeBlockTest {
+class MarkerHasUnknownStreamIdTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element where the stream ID is unknown';
+		return 'should return an error when attempting to create a post with a marker element where the stream ID is unknown';
 	}
 
 	getExpectedError () {
@@ -18,12 +18,12 @@ class CodeBlockHasUnknownStreamIdTest extends CodeBlockTest {
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
-		// we'll add a code block from a non-existent stream 
+		// we'll add a marker from a non-existent stream 
 		super.makePostData(() => {
-			this.data.codeBlocks[0].streamId = ObjectID();
+			this.data.markers[0].streamId = ObjectID();
 			callback();
 		});
 	}
 }
 
-module.exports = CodeBlockHasUnknownStreamIdTest;
+module.exports = MarkerHasUnknownStreamIdTest;

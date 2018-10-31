@@ -8,31 +8,27 @@ class GetMarkerRequest extends GetRequest {
 
 	async process () {
 		await super.process();
-		await this.getPost();	// get the post referencing this marker, if any
-		await this.getItems();	// get the associated items, if any
+		await this.getItem();	// get the parent item
+		await this.getPost();	// get the referencing post, if any
 	}
 
-	// get the post referencing this marker, if any
+	// get the parent item to this marker
+	async getItem () {
+		const itemId = this.model.get('itemId');
+		this.item = await this.data.items.getById(itemId);
+		if (!this.item) { return; } // shouldn't happen
+		this.responseData.item = this.item.getSanitizedObject();
+	}
+
+	// get the post referencing the item that is the parent to this marker, if any
 	async getPost () {
-		// don't retrieve posts for third-party markers
-		if (this.model.get('providerType')) { 
-			return;
+		if (this.model.get('providerType')) {
+			return;	// only applies to CodeStream posts
 		}
-		const postId = this.model.get('postId');
-		if (!postId) { return; }
-		const post = await this.data.posts.getById(postId);
-		if (!post) {
-			throw this.errorHandler.error('notFound', { info: 'post' });
-		}
-		this.responseData.marker.post = post.getSanitizedObject();
-	}
-
-	// get the items associated with this marker, if any
-	async getItems () {
-		const itemIds = this.model.get('itemIds') || [];
-		if (itemIds.length === 0) { return; }
-		const items = await this.data.items.getByIds(itemIds);
-		this.responseData.marker.items = items.map(item => item.getSanitizedObject());
+		const postId = this.item.get('postId');
+		this.post = await this.data.posts.getById(postId);
+		if (!this.post) { return; } // shouldn't happen
+		this.responseData.post = this.post.getSanitizedObject();
 	}
 
 	// describe this route for help

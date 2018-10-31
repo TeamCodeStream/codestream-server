@@ -1,13 +1,13 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
 
-class CodeBlockFromDifferentTeamTest extends CodeBlockTest {
+class MarkerFromDifferentTeamTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element where the stream is from a different team';
+		return 'should return an error when attempting to create a post with a marker element where the stream is from a different team';
 	}
 
 	getExpectedError () {
@@ -49,7 +49,7 @@ class CodeBlockFromDifferentTeamTest extends CodeBlockTest {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) return callback(error);
-				this.data.codeBlocks[0].streamId = response.stream._id;
+				this.data.markers[0].streamId = response.stream._id;
 				callback();
 			},
 			{
@@ -62,4 +62,4 @@ class CodeBlockFromDifferentTeamTest extends CodeBlockTest {
 	}
 }
 
-module.exports = CodeBlockFromDifferentTeamTest;
+module.exports = MarkerFromDifferentTeamTest;

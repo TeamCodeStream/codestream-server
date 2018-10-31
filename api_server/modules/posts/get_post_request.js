@@ -8,24 +8,26 @@ class GetPostRequest extends GetRequest {
 
 	async process () {
 		await super.process();
-		await this.getMarkers();	// get any markers referenced by this post, if any
-		await this.getItems();		// get any knowledge base items referenced by this post
+		await this.getItem();		// get the knowledge base item referenced by this post, if any
+		await this.getMarkers();	// get the markers referenced by this post, if any
+	}
+
+	// get the item referenced by this post, if any
+	async getItem () {
+		const itemId = this.model.get('itemId');
+		if (!itemId) { return; }
+		this.item = await this.data.items.getById(itemId);
+		if (!this.item) { return; }
+		this.responseData.item = this.item.getSanitizedObject();
 	}
 
 	// get the markers referenced by this post, if any
 	async getMarkers () {
-		const markerIds = this.model.get('markerIds') || [];
+		if (!this.item) { return; }
+		const markerIds = this.item.get('markerIds') || [];
 		if (markerIds.length === 0) { return; }
 		const markers = await this.data.markers.getByIds(markerIds);
-		this.responseData.post.markers = markers.map(marker => marker.getSanitizedObject());
-	}
-
-	// get the items referenced by this post, if any
-	async getItems () {
-		const itemIds = this.model.get('itemIds') || [];
-		if (itemIds.length === 0) { return; }
-		const items = await this.data.items.getByIds(itemIds);
-		this.responseData.post.items = items.map(item => item.getSanitizedObject());
+		this.responseData.markers = markers.map(marker => marker.getSanitizedObject());
 	}
 
 	// describe this route for help

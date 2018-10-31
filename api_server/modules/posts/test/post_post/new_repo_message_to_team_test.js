@@ -8,7 +8,7 @@ const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/message
 class NewRepoMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostToChannelTest) {
 
 	get description () {
-		return 'members of the team should receive a message with the repo when a post is posted with a code block from a file stream created on the fly where the repo is also created on the fly';
+		return 'members of the team should receive a message with the repo when a post is posted with a marker from a file stream created on the fly where the repo is also created on the fly';
 	}
 
 	// make the data that triggers the message to be received
@@ -25,7 +25,7 @@ class NewRepoMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Common
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
-		// we'll create a post and a code block from a stream to be created "on-the-fly" ...
+		// we'll create a post and a marker from a stream to be created "on-the-fly" ...
 		// this should trigger a message to the team channel that indicates the stream was created
 		this.postFactory.createRandomPost(
 			(error, response) => {
@@ -37,8 +37,8 @@ class NewRepoMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Common
 				token: this.users[1].accessToken,	// the "post creator"
 				teamId: this.team._id,
 				streamId: this.stream._id,
-				wantCodeBlocks: 1,
-				codeBlockStream: {
+				wantMarkers: 1,
+				markerStream: {
 					remotes: [this.repoFactory.randomUrl()],
 					file: this.streamFactory.randomFile()
 				}

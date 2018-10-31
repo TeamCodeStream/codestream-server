@@ -1,11 +1,11 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class InvalidFileTest extends CodeBlockTest {
+class InvalidFileTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element with a file that is not a string';
+		return 'should return an error when attempting to create a post with a marker element with a file that is not a string';
 	}
 
 	getExpectedError () {
@@ -17,9 +17,9 @@ class InvalidFileTest extends CodeBlockTest {
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
-		// set a file part of the code block that is numeric instead of the required string
+		// set a file part of the marker that is numeric instead of the required string
 		super.makePostData(() => {
-			this.data.codeBlocks[0].file = 1;
+			this.data.markers[0].file = 1;
 			callback();
 		});
 	}

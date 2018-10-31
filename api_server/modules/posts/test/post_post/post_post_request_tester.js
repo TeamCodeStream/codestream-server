@@ -2,17 +2,22 @@
 
 'use strict';
 
-const PostPostTest = require('./post_post_test');
+const PostToChannelTest = require('./post_to_channel_test');
 const PostToDirectTest = require('./post_to_direct_test');
+const ItemTest = require('./item_test');
+const ItemMarkerTest = require('./item_marker_test');
+const ExistingFileStreamTest = require('./existing_file_stream_test');
+
+/*
 const PostToFileStreamTest = require('./post_to_file_stream_test');
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 const NoCommitHashTest = require('./no_commit_hash_test');
 const NoCommitHashWithFileTest = require('./no_commit_hash_with_file_test');
 const NoCommitHashWithStreamTest = require('./no_commit_hash_with_stream_test');
-const CodeBlocksNotArrayTest = require('./code_blocks_not_array_test');
-const CodeBlocksTooLongTest = require('./code_blocks_too_long_test');
-const CodeBlockNotObjectTest = require('./code_block_not_object_test');
-const CodeBlockTooBigTest = require('./code_block_too_big_test');
+const MarkersNotArrayTest = require('./markers_not_array_test');
+const MarkersTooLongTest = require('./markers_too_long_test');
+const MarkerNotObjectTest = require('./marker_not_object_test');
+const MarkerTooBigTest = require('./marker_too_big_test');
 const CodeMustBeStringTest = require('./code_must_be_string_test');
 const NoCodeTest = require('./no_code_test');
 const PreContextMustBeStringTest = require('./pre_context_must_be_string_test');
@@ -27,18 +32,18 @@ const RemotesMustBeArrayOfStringsTest = require('./remotes_must_be_array_of_stri
 const TooManyRemotesTest = require('./too_many_remotes_test');
 const InvalidCoordinateObjectTest = require('./invalid_coordinate_object_test');
 const NoLocationOkTest = require('./no_location_ok_test');
-const CodeBlockHasInvalidStreamIdTest = require('./code_block_has_invalid_stream_id_test');
-const CodeBlockHasImproperAttributesTest = require('./code_block_has_improper_attributes_test');
-const CodeBlockHasUnknownStreamIdTest = require('./code_block_has_unknown_stream_id_test');
-const CodeBlockForBadStreamTypeTest = require('./code_block_for_bad_stream_type_test');
-const CodeBlockFromDifferentTeamTest = require('./code_block_from_different_team_test');
-const CodeBlockStreamOnTheFly = require('./code_block_stream_on_the_fly_test');
+const MarkerHasInvalidStreamIdTest = require('./marker_has_invalid_stream_id_test');
+const MarkerHasImproperAttributesTest = require('./marker_has_improper_attributes_test');
+const MarkerHasUnknownStreamIdTest = require('./marker_has_unknown_stream_id_test');
+const MarkerForBadStreamTypeTest = require('./marker_for_bad_stream_type_test');
+const MarkerFromDifferentTeamTest = require('./marker_from_different_team_test');
+const MarkerStreamOnTheFly = require('./marker_stream_on_the_fly_test');
 const FindRepoByRemotesTest = require('./find_repo_by_remotes_test');
 const UpdateMatchedRepoWithRemotesTest = require('./update_matched_repo_with_remotes_test');
 const UpdateSetRepoWithRemotesTest = require('./update_set_repo_with_remotes_test');
 const CreateRepoOnTheFlyTest = require('./create_repo_on_the_fly_test');
 const NumMarkersTest = require('./num_markers_test');
-const CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
+const MarkerFromDifferentStreamTest = require('./marker_from_different_stream_test');
 const PostReplyTest = require('./post_reply_test');
 const NoStreamIdTest = require('./no_stream_id_test');
 const InvalidStreamIdTest = require('./invalid_stream_id_test');
@@ -71,7 +76,7 @@ const NewPostMessageToDirectTest = require('./new_post_message_to_direct_test');
 const NewPostNoMessageToChannelTest = require('./new_post_no_message_to_channel_test');
 const NewPostNoMessageToDirectTest = require('./new_post_no_message_to_direct_test');
 const NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_test');
-const NewCodeBlockStreamMessageToTeamTest = require('./new_code_block_stream_message_to_team_test');
+const NewMarkerStreamMessageToTeamTest = require('./new_marker_stream_message_to_team_test');
 const NewTeamStreamMessageToTeamTest = require('./new_team_stream_message_to_team_test');
 const NewChannelMessageToMembersTest = require('./new_channel_message_to_members_test');
 const NewDirectMessageToMembersTest = require('./new_direct_message_to_members_test');
@@ -91,37 +96,43 @@ const MentionTest = require('./mention_test');
 const UnregisteredMentionTest = require('./unregistered_mention_test');
 const MessageToAuthor = require('./message_to_author_test');
 const SetPersonAnalyticsTest = require('./set_person_analytics_test');
-const OnTheFlyCodeBlockStreamFromDifferentTeamTest = require('./on_the_fly_code_block_stream_from_different_team_test');
-const OnTheFlyCodeBlockStreamRepoNotFoundTest = require('./on_the_fly_code_block_stream_repo_not_found_test');
-const OnTheFlyCodeBlockStreamNoRepoIdTest = require('./on_the_fly_code_block_stream_no_repo_id_test');
-const OnTheFlyCodeBlockStreamInvalidRepoIdTest = require('./on_the_fly_code_block_stream_invalid_repo_id_test');
+const OnTheFlyMarkerStreamFromDifferentTeamTest = require('./on_the_fly_marker_stream_from_different_team_test');
+const OnTheFlyMarkerStreamRepoNotFoundTest = require('./on_the_fly_marker_stream_repo_not_found_test');
+const OnTheFlyMarkerStreamNoRepoIdTest = require('./on_the_fly_marker_stream_no_repo_id_test');
+const OnTheFlyMarkerStreamInvalidRepoIdTest = require('./on_the_fly_marker_stream_invalid_repo_id_test');
 const HasRepliesTest = require('./has_replies_test');
 const SecondReplyTest = require('./second_reply_test');
 const HasRepliesMessageToStreamTest = require('./has_replies_message_to_stream_test');
 const NumRepliesMessageToStreamTest = require('./num_replies_message_to_stream_test');
 const OriginFromPluginTest = require('./origin_from_plugin_test');
 const ProviderPostTest = require('./provider_post_test');
-const ItemTest = require('./item_test');
-const ItemCodeBlockTest = require('./item_code_block_test');
+*/
 
 class PostPostRequestTester {
 
 	postPostTest () {
-		new PostPostTest().test();
+		new PostToChannelTest().test();
 		new PostToDirectTest().test();
-		new PostToFileStreamTest().test();
-		new CodeBlockTest().test();
-		new CodeBlockFromDifferentStreamTest({ streamType: 'direct' }).test();
-		new CodeBlockFromDifferentStreamTest({ streamType: 'channel' }).test();
-		new CodeBlockFromDifferentStreamTest({ streamType: 'file' }).test();
+		new ItemTest().test();
+		new ItemMarkerTest().test();
+		new ExistingFileStreamTest().test();
+		/*
+		//new PostToFileStreamTest().test();	// TODO: test this being prevented
+		new MarkerTest().test();
+		new MarkerFromDifferentStreamTest({ streamType: 'direct' }).test();
+		new MarkerFromDifferentStreamTest({ streamType: 'channel' }).test();
+		new MarkerFromDifferentStreamTest({ streamType: 'file' }).test();
+
+
+
 		new NoCommitHashTest().test();
 		new NoCommitHashWithFileTest().test();
 		new NoCommitHashWithStreamTest().test();
-		new CodeBlocksNotArrayTest().test();
-		new CodeBlocksTooLongTest().test();
+		new MarkersNotArrayTest().test();
+		new MarkersTooLongTest().test();
 		new LocationTooShortTest().test();
-		new CodeBlockNotObjectTest().test();
-		new CodeBlockTooBigTest().test();
+		new MarkerNotObjectTest().test();
+		new MarkerTooBigTest().test();
 		new CodeMustBeStringTest().test();
 		new NoCodeTest().test();
 		new PreContextMustBeStringTest().test();
@@ -135,16 +146,16 @@ class PostPostRequestTester {
 		new TooManyRemotesTest().test();
 		new InvalidCoordinateObjectTest().test();
 		new NoLocationOkTest().test();
-		new CodeBlockHasInvalidStreamIdTest().test();
-		new CodeBlockHasImproperAttributesTest().test();
-		new CodeBlockHasUnknownStreamIdTest().test();
-		new CodeBlockForBadStreamTypeTest({ streamType: 'direct' }).test();
-		new CodeBlockForBadStreamTypeTest({ streamType: 'channel' }).test();
-		new CodeBlockFromDifferentTeamTest().test();
+		new MarkerHasInvalidStreamIdTest().test();
+		new MarkerHasImproperAttributesTest().test();
+		new MarkerHasUnknownStreamIdTest().test();
+		new MarkerForBadStreamTypeTest({ streamType: 'direct' }).test();
+		new MarkerForBadStreamTypeTest({ streamType: 'channel' }).test();
+		new MarkerFromDifferentTeamTest().test();
 		new NumMarkersTest().test();
-		new CodeBlockStreamOnTheFly({ streamType: 'direct' }).test();
-		new CodeBlockStreamOnTheFly({ streamType: 'channel' }).test();
-		new CodeBlockStreamOnTheFly({ streamType: 'file' }).test();
+		new MarkerStreamOnTheFly({ streamType: 'direct' }).test();
+		new MarkerStreamOnTheFly({ streamType: 'channel' }).test();
+		new MarkerStreamOnTheFly({ streamType: 'file' }).test();
 		new FindRepoByRemotesTest().test();
 		new UpdateMatchedRepoWithRemotesTest().test();
 		new UpdateSetRepoWithRemotesTest().test();
@@ -182,7 +193,7 @@ class PostPostRequestTester {
 		new NewPostNoMessageToChannelTest().test();
 		new NewPostNoMessageToDirectTest().test();
 		new NewFileStreamMessageToTeamTest().test();
-		new NewCodeBlockStreamMessageToTeamTest().test();
+		new NewMarkerStreamMessageToTeamTest().test();
 		new NewTeamStreamMessageToTeamTest().test();
 		new NewChannelMessageToMembersTest().test();
 		new NewDirectMessageToMembersTest().test();
@@ -212,14 +223,15 @@ class PostPostRequestTester {
 		new UnregisteredMentionTest().test();
 		new MessageToAuthor().test();
 		new SetPersonAnalyticsTest().test();
-		new OnTheFlyCodeBlockStreamFromDifferentTeamTest().test();
-		new OnTheFlyCodeBlockStreamRepoNotFoundTest().test();
-		new OnTheFlyCodeBlockStreamNoRepoIdTest().test();
-		new OnTheFlyCodeBlockStreamInvalidRepoIdTest().test();
+		new OnTheFlyMarkerStreamFromDifferentTeamTest().test();
+		new OnTheFlyMarkerStreamRepoNotFoundTest().test();
+		new OnTheFlyMarkerStreamNoRepoIdTest().test();
+		new OnTheFlyMarkerStreamInvalidRepoIdTest().test();
 		new OriginFromPluginTest().test();
 		new ProviderPostTest().test();
 		new ItemTest().test();
-		new ItemCodeBlockTest().test();
+		new ItemMarkerTest().test();
+		*/
 	}
 }
 

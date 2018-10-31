@@ -1,29 +1,29 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class CodeBlocksTooLongTest extends CodeBlockTest {
+class MarkersTooLongTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code blocks array that is too long';
+		return 'should return an error when attempting to create a post with a markers array that is too long';
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'codeBlocks: array is too long'
+			info: 'markers: array is too long'
 		};
 	}
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
-		// create an array of code blocks that is over the limit in size
+		// create an array of markers that is over the limit in size
 		super.makePostData(() => {
 			const moreStuff = 'x,'.repeat(10).split(',');
-			this.data.codeBlocks = [...this.data.codeBlocks, ...moreStuff];
+			this.data.markers = [...this.data.markers, ...moreStuff];
 			callback();
 		});
 	}
 }
 
-module.exports = CodeBlocksTooLongTest;
+module.exports = MarkersTooLongTest;

@@ -7,18 +7,18 @@ class GetItemWithMarkerTest extends GetItemTest {
 
 	constructor (options) {
 		super(options);
-		this.postOptions.wantCodeBlock = true;
+		this.postOptions.wantMarker = true;
 	}
 
 	get description () {
-		return 'should return the item with markers when requesting an item with code blocks';
+		return 'should return the item with markers when requesting an item with markers';
 	}
 
 	// validate the request response
 	validateResponse (data) {
 		// validate we got a marker, and that we only got sanitized attributes
 		const item = data.item;
-		const marker = item.markers[0];
+		const marker = data.markers[0];
 		this.validateMatchingObject(item.markerIds[0], marker, 'marker');
 		this.validateSanitized(marker, ItemTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
 		super.validateResponse(data);

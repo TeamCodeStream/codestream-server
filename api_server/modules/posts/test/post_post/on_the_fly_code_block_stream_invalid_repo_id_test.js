@@ -1,11 +1,11 @@
 'use strict';
 
-const CodeBlockStreamOnTheFlyTest = require('./code_block_stream_on_the_fly_test');
+const MarkerStreamOnTheFlyTest = require('./marker_stream_on_the_fly_test');
 
-class OnTheFlyCodeBlockStreamInvalidRepoIdTest extends CodeBlockStreamOnTheFlyTest {
+class OnTheFlyMarkerStreamInvalidRepoIdTest extends MarkerStreamOnTheFlyTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block with an on-the-fly stream with a bogus repo id';
+		return 'should return an error when attempting to create a post with a marker with an on-the-fly stream with a bogus repo id';
 	}
 
 	getExpectedError () {
@@ -20,10 +20,10 @@ class OnTheFlyCodeBlockStreamInvalidRepoIdTest extends CodeBlockStreamOnTheFlyTe
 		// for the stream we want to create on-the-fly, substitute a bogus ID for the repo
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.codeBlocks[0].repoId = 'x';
+			this.data.markers[0].repoId = 'x';
 			callback();
 		});
 	}
 }
 
-module.exports = OnTheFlyCodeBlockStreamInvalidRepoIdTest;
+module.exports = OnTheFlyMarkerStreamInvalidRepoIdTest;

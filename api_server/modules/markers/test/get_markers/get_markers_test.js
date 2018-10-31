@@ -16,8 +16,9 @@ class GetMarkersTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			numPosts: 5,
 			creatorIndex: 1,
-			wantCodeBlock: true,
-			codeBlockStreamId: 0,	// will use the existing file stream created for the repo
+			wantItem: true,
+			wantMarker: true,
+			markerStreamId: 0,	// will use the existing file stream created for the repo
 			commitHash: this.repoFactory.randomCommitHash()
 		});
 	}
@@ -30,12 +31,13 @@ class GetMarkersTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.setPath			// set the path to use for the request
+			this.setMarkers,
+			this.setPath
 		], callback);
 	}
 
-	// get the query parameters to use for the request
-	getQueryParameters () {
+	// set the markers established for the test
+	setMarkers (callback) {
 		this.markers = this.postData.map(postData => postData.markers[0]);
 		this.locations = this.postData.reduce((locations, postData) => {
 			const markerId = postData.markers[0]._id;
@@ -43,35 +45,29 @@ class GetMarkersTest extends CodeStreamAPITest {
 			return locations;
 		}, {});
 		this.markers.push(this.repoMarker);
-		return {
-			teamId: this.team._id,
-			streamId: this.repoStreams[0]._id
-		};
+		callback();
 	}
 
 	// set the path to use for the request
 	setPath (callback) {
-		const queryParameters = this.getQueryParameters();
-		this.path = '/markers?' + Object.keys(queryParameters).map(parameter => {
-			const value = queryParameters[parameter];
-			return `${parameter}=${value}`;
-		}).join('&');
+		this.expectedMarkers = this.markers;
+		this.path = `/markers?teamId=${this.team._id}&streamId=${this.repoStreams[0]._id}`;
 		callback();
 	}
 
 	// validate correct response
 	validateResponse (data) {
 		// validate we got the correct markers, and that they are sanitized (free of attributes we don't want the client to see)
-		this.validateMatchingObjects(data.markers, this.markers, 'markers');
+		this.validateMatchingObjects(data.markers, this.expectedMarkers, 'markers');
 		this.validateSanitizedObjects(data.markers, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
 
-		// make sure we got a post with each marker that matches the post that references the marker
+		// make sure that for each marker, we also got a post and an item that reference the marker
 		data.markers.forEach(marker => {
-			if (marker.post) {
-				Assert.equal(marker.post._id, marker.postId, 'ID of child post to marker does not match the marker\'s postId');
-			}
-			else {
-				Assert(marker.providerType, 'no post for a non-third-party marker');
+			const item = data.items.find(item => item._id === marker.itemId);
+			Assert(item, 'no item found for marker');
+			if (!marker.providerType) {
+				const post = data.posts.find(post => post._id === item.postId);
+				Assert(post, 'no post found for marker\'s item');
 			}
 		});
 	}

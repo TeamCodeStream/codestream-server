@@ -147,7 +147,7 @@ class User extends CodeStreamModel {
 			throw request.errorHandler.error('notFound', { info: 'marker' });
 		}
 		const authorized = await this.authorizeStream(
-			marker.get('streamId'),
+			marker.get('fileStreamId'),
 			request
 		);
 		return authorized ? marker : false;

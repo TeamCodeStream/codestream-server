@@ -30,23 +30,64 @@ class GetItemsRequest extends GetManyRequest {
 
 	// build the database query to use to fetch the markers
 	buildQuery () {
+		if (this.request.query.streamId && this.request.query.type) {
+			return 'can not query on streamId and type at the same time';
+		}
 		const query = {
 			teamId: this.teamId
 		};
+		if (this.request.query.streamId) {
+			query.fileStreamId = this.request.query.streamId.toLowerCase();
+		}
 		if (this.request.query.type) {
 			query.type = this.request.query.type;
+		}
+		let { before, after, inclusive } = this.request.query;
+		if (before !== undefined) {
+			before = parseInt(before, 10);
+			if (!before) {
+				return 'before must be a number';
+			}
+			query.createdAt = query.createdAt || {};
+			if (inclusive) {
+				query.createdAt.$lte = before;
+			}
+			else {
+				query.createdAt.$lt = before;
+			}
+		}
+		if (after !== undefined) {
+			after = parseInt(after, 10);
+			if (!after) {
+				return 'after must be a number';
+			}
+			query.createdAt = query.createdAt || {};
+			if (inclusive) {
+				query.createdAt.$gte = after;
+			}
+			else {
+				query.createdAt.$gt = after;
+			}
 		}
 		return query;
 	}
 
 	// get database options to associate with the database fetch request
 	getQueryOptions () {
+		let hint;
 		if (this.request.query.type) {
-			return { hint: Indexes.byType };
+			hint = Indexes.byType;
+		}
+		else if (this.request.query.streamId) {
+			hint = Indexes.byFileStreamId;
 		}
 		else {
-			return { hint: Indexes.byTeamId };
+			hint = Indexes.byTeamId;
 		}
+		return {
+			hint,
+			sort: { createdAt: -1 }
+		};
 	}
 
 	// get the posts pointing to the fetched items, as needed
@@ -57,13 +98,8 @@ class GetItemsRequest extends GetManyRequest {
 		if (postIds.length === 0) {
 			return;
 		}
-		const posts = await this.data.posts.getByIds(postIds);
-		posts.forEach(post => {
-			const item = this.responseData.items.find(item => item.postId === post.id);
-			if (item) {
-				item.post = post.getSanitizedObject();
-			}
-		});
+		this.posts = await this.data.posts.getByIds(postIds);
+		this.responseData.posts = this.posts.map(post => post.getSanitizedObject());
 	}
 
 	// get the markers associated with the fetched items, as needed
@@ -75,14 +111,8 @@ class GetItemsRequest extends GetManyRequest {
 		if (markerIds.length === 0) {
 			return;
 		}
-		const markers = await this.data.markers.getByIds(markerIds);
-		markers.forEach(marker => {
-			const item = this.responseData.items.find(item => (item.markerIds || []).includes(marker.id));
-			if (item) {
-				item.markers = item.markers || [];
-				item.markers.push(marker.getSanitizedObject());
-			}
-		});
+		this.markers = await this.data.markers.getByIds(markerIds);
+		this.responseData.markers = this.markers.map(marker => marker.getSanitizedObject());
 	}
 
 	// describe this route for help

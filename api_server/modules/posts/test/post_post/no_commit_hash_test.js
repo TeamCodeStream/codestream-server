@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
+const MarkerFromDifferentStreamTest = require('./marker_from_different_stream_test');
 
-class NoCommitHashTest extends CodeBlockFromDifferentStreamTest {
+class NoCommitHashTest extends MarkerFromDifferentStreamTest {
 
 	constructor (options) {
 		options = Object.assign(options || {}, { streamType: 'channel' });
@@ -11,16 +11,16 @@ class NoCommitHashTest extends CodeBlockFromDifferentStreamTest {
 	}
 
 	get description () {
-		return 'should be ok to create a post with a code block but not providing a commit hash as long as there is also no stream';
+		return 'should be ok to create a post with a marker but not providing a commit hash as long as there is also no stream';
 	}
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
 		// remove the commit hash from the data to use in creating the post
-		// also remove the stream ID, making the statement that we are not associating the code block with a stream at all
+		// also remove the stream ID, making the statement that we are not associating the marker with a stream at all
 		super.makePostData(() => {
 			delete this.data.commitHashWhenPosted;
-			delete this.data.codeBlocks[0].streamId;	
+			delete this.data.markers[0].streamId;	
 			callback();
 		});
 	}

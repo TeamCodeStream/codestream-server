@@ -6,7 +6,7 @@ const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_c
 const Item = require('./item');
 const Post = require(process.env.CS_API_TOP + '/modules/posts/post');
 const PostAttributes = require(process.env.CS_API_TOP + '/modules/posts/post_attributes');
-const CodeBlockHandler = require(process.env.CS_API_TOP + '/modules/posts/code_block_handler');
+const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 
 class ItemCreator extends ModelCreator {
 
@@ -25,23 +25,24 @@ class ItemCreator extends ModelCreator {
 
 	// normalize post creation operation (pre-save)
 	async normalize () {
-		// if we have code blocks, preemptively make sure they are valid, 
-		// we are strict about code blocks, and don't let them just get dropped if
+		// if we have markers, preemptively make sure they are valid, 
+		// we are strict about markers, and don't let them just get dropped if
 		// they aren't correct
-		if (this.attributes.codeBlocks) {
-			await this.validateCodeBlocks();
+		if (this.attributes.markers) {
+			await this.validateMarkers();
 		}
 	}
 
-	// validate the code blocks sent with the post creation
-	async validateCodeBlocks () {
+	// validate the markers sent with the post creation, this is too important to just drop,
+	// so we return an error instead
+	async validateMarkers () {
 		// must be an array of objects
 		const result = new Post().validator.validateArrayOfObjects(
-			this.attributes.codeBlocks,
-			PostAttributes.codeBlocks
+			this.attributes.markers,
+			PostAttributes.markers
 		);
 		if (result) {	// really an error
-			throw this.errorHandler.error('validation', { info: `codeBlocks: ${result}` });
+			throw this.errorHandler.error('validation', { info: `markers: ${result}` });
 		}
 	}
 
@@ -53,7 +54,7 @@ class ItemCreator extends ModelCreator {
 			},
 			optional: {
 				string: ['postId', 'streamId', 'providerType', 'status', 'color', 'title', 'text'],
-				'array(object)': ['codeBlocks'],
+				'array(object)': ['markers'],
 				'array(string)': ['assignees']
 			}
 		};
@@ -65,16 +66,13 @@ class ItemCreator extends ModelCreator {
 			this.attributes._forTesting = true;
 		}
 		this.attributes.creatorId = this.request.user.id;
-		if (this.markerIds) {
-			this.attributes.markerIds = this.markerIds;
-		}
-		this.createId();	 // pre-allocate an ID
-		await this.getTeam();
-		await this.handleCodeBlocks();
-		await super.preSave();					// proceed with the save...
+		this.createId();	 		// pre-allocate an ID
+		await this.getTeam();		// get the team that will own this item
+		await this.handleMarkers();	// handle any associated markers
+		await super.preSave();		// proceed with the save...
 	}
 
-	// get the team 
+	// get the team that will own this item
 	async getTeam () {
 		this.team = await this.data.teams.getById(this.attributes.teamId);
 		if (!this.team) {
@@ -83,66 +81,36 @@ class ItemCreator extends ModelCreator {
 		this.attributes.teamId = this.team.id;	
 	}
 
-	// handle any code blocks tied to the post
-	async handleCodeBlocks () {
-		if (!this.attributes.codeBlocks) {
+	// handle any markers tied to the item
+	async handleMarkers () {
+		if (!this.attributes.markers) {
 			return;
 		}
-		this.transforms.createdRepos = [];
-		this.transforms.repoUpdates = [];
-		this.transforms.createdStreamsForCodeBlocks = [];
-		this.transforms.createdMarkers = [];
-		this.transforms.markerLocations = [];
-		await Promise.all(this.attributes.codeBlocks.map(async codeBlock => {
-			await this.handleCodeBlock(codeBlock);
+		await Promise.all(this.attributes.markers.map(async marker => {
+			await this.handleMarker(marker);
 		}));
 		this.attributes.markerIds = this.transforms.createdMarkers.map(marker => marker.id);
-		delete this.attributes.codeBlocks;
+		this.attributes.fileStreamIds = this.transforms.createdMarkers.map(marker => (marker.get('fileStreamId') || null));
+		delete this.attributes.markers;
 	}
 
-	// handle a single code block attached to the post
-	async handleCodeBlock (codeBlock) {
-		// handle the code block itself separately
-		const codeBlockInfo = await new CodeBlockHandler({
-			codeBlock,
-			request: this.request,
-			team: this.team,
+	// handle a single marker attached to the item
+	async handleMarker (markerInfo) {
+		// handle the marker itself separately
+		Object.assign(markerInfo, {
+			teamId: this.team.id,
 			postStreamId: this.attributes.streamId,
-			itemIds: [this.attributes._id],
-			providerType: this.attributes.providerType,
 			postId: this.attributes.postId
-		}).handleCodeBlock();
-		// as a "side effect", this may have created any number of things, like a new repo, new stream, etc.
-		// we'll track these things and attach them to the request response later, and also possibly publish
-		// them on pubnub channels
-		if (codeBlockInfo.createdRepo) {
-			this.transforms.createdRepos.push(codeBlockInfo.createdRepo);
+		});
+		if (this.attributes.providerType) {
+			markerInfo.providerType = this.attributes.providerType;
 		}
-		if (codeBlockInfo.repoUpdate) {
-			this.transforms.repoUpdates.push(codeBlockInfo.repoUpdate);
-		}
-		if (codeBlockInfo.createdStream) {
-			this.transforms.createdStreamsForCodeBlocks.push(codeBlockInfo.createdStream);
-		}
-		if (codeBlockInfo.createdMarker) {
-			this.transforms.createdMarkers.push(codeBlockInfo.createdMarker);
-		}
-		if (codeBlockInfo.markerLocation) {
-			// marker locations are special, they can be collapsed as long as the marker locations
-			// structure refers to the same stream and commit hash
-			const markerLocations = this.transforms.markerLocations.find(markerLocations => {
-				return (
-					markerLocations.streamId === codeBlockInfo.markerLocation.streamId &&
-					markerLocations.commitHash === codeBlockInfo.markerLocation.commitHash
-				);
-			});
-			if (markerLocations) {
-				Object.assign(markerLocations.locations, codeBlockInfo.markerLocation.locations);
-			}
-			else {
-				this.transforms.markerLocations.push(codeBlockInfo.markerLocation);
-			}
-		}
+		const marker = await new MarkerCreator({
+			request: this.request,
+			itemId: this.attributes._id
+		}).createMarker(markerInfo);
+		this.transforms.createdMarkers = this.transforms.createdMarkers || [];
+		this.transforms.createdMarkers.push(marker);
 	}
 }
 

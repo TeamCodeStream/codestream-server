@@ -1,11 +1,11 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class CodeBlockHasImproperAttributesTest extends CodeBlockTest {
+class MarkerHasImproperAttributesTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element where an improper attribute is provided';
+		return 'should return an error when attempting to create a post with a marker element where an improper attribute is provided';
 	}
 
 	getExpectedError () {
@@ -17,12 +17,12 @@ class CodeBlockHasImproperAttributesTest extends CodeBlockTest {
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
-		// we'll add a code block and add some invalid attribute to it
+		// we'll add a marker and add some invalid attribute to it
 		super.makePostData(() => {
-			this.data.codeBlocks[0].someAttribute = 1;
+			this.data.markers[0].someAttribute = 1;
 			callback();
 		});
 	}
 }
 
-module.exports = CodeBlockHasImproperAttributesTest;
+module.exports = MarkerHasImproperAttributesTest;

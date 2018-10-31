@@ -1,17 +1,17 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class LocationTooLongTest extends CodeBlockTest {
+class LocationTooLongTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element where the location array is too long';
+		return 'should return an error when attempting to create a post with a marker element where the location array is too long';
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'codeBlocks: location array is too long'
+			info: 'markers: location array is too long'
 		};
 	}
 
@@ -19,7 +19,7 @@ class LocationTooLongTest extends CodeBlockTest {
 	makePostData (callback) {
 		// 6 elements in the location array ... not allowed!
 		super.makePostData(() => {
-			this.data.codeBlocks[0].location = [1, 2, 3, 4, 5, 6];
+			this.data.markers[0].location = [1, 2, 3, 4, 5, 6];
 			callback();
 		});
 	}

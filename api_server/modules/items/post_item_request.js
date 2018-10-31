@@ -43,8 +43,8 @@ class PostItemRequest extends PostRequest {
 				...transforms.repoUpdates
 			];
 		}
-		if (transforms.createdStreamsForCodeBlocks && transforms.createdStreamsForCodeBlocks.length > 0) {
-			responseData.streams = transforms.createdStreamsForCodeBlocks.map(stream => stream.getSanitizedObject());
+		if (transforms.createdStreamsForMarkers && transforms.createdStreamsForMarkers.length > 0) {
+			responseData.streams = transforms.createdStreamsForMarkers.map(stream => stream.getSanitizedObject());
 		}
 		if (transforms.createdMarkers && transforms.createdMarkers.length > 0) {
 			responseData.markers = [
@@ -58,36 +58,6 @@ class PostItemRequest extends PostRequest {
 		await super.handleResponse();
 	}
 
-
-	async postProcess () {
-		// if any markers were created, then we need to publish those to the team
-		if (this.responseData.markers && this.responseData.markers.length > 0) {
-			await this.publishToTeam();
-		}
-	}
-
-	async publishToTeam () {
-		const channel = `team-${this.team.id}`;
-		const message = Object.assign(
-			{
-				requestId: this.request.id
-			},
-			this.responseData
-		);
-		delete message.item;	// don't publish the item itself, this is private to the conversation
-		try {
-			await this.api.services.messager.publish(
-				message,
-				channel,
-				{ request: this.request }
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish item creation message to team ${this.team.id}: ${JSON.stringify(error)}`);
-		}
-	}
-
 	// describe this route for help
 	static describe (module) {
 		const description = PostRequest.describe(module);
@@ -97,7 +67,7 @@ class PostItemRequest extends PostRequest {
 			summary: description.input,
 			looksLike: {
 				'teamId*': '<ID of the team for which the item is being created>',
-				'providerType': '<Third-party provider type (eg. slack)>',
+				'providerType*': '<Third-party provider type (eg. slack)>',
 				'streamId': '<ID of the stream the item will belong to, assumed to be reference to a third-party stream or conversation>',
 				'postId': '<ID of the post the item will be associated with, assumed to be a reference to a third-party post>',
 				'type*': '<Type of this item ("question", "comment", etc.)>',
@@ -111,14 +81,6 @@ class PostItemRequest extends PostRequest {
 		Object.assign(description.returns.looksLike, {
 			item: '<@@#item object#item@@ > (item object created)'
 		});
-		description.publishes = {
-			summary: 'Item object will be be published to the team channel if created in a team-stream.',
-			looksLike: {
-				marker: '<@@#marker object#marker@@ > (marker object created)',
-				stream: '<@@#stream object#stream@@ > (if a file stream created on-the fly for the marker)>',
-				markerLocations: '<@@#marker locations object#markerLocations@@ > (marker location associated with the marker object created)'
-			}
-		};
 		return description;
 	}
 }

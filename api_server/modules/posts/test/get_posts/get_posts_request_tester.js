@@ -3,9 +3,13 @@
 'use strict';
 
 const GetPostsTest = require('./get_posts_test');
+const GetPostsWithItemsTest = require('./get_posts_with_items_test');
+const GetPostsWithMarkersTest = require('./get_posts_with_markers_test');
+
 //const GetPostsByMeTest = require('./get_posts_by_me_test');
 //const GetPostsByOtherTest = require('./get_posts_by_other_test');
 //const GetPostsNewerThanTest = require('./get_posts_newer_than_test');
+/*
 const GetChildPostsTest = require('./get_child_posts_test');
 const GetPostsByIdTest = require('./get_posts_by_id_test');
 const GetPostsLimitTest = require('./get_posts_limit_test');
@@ -40,6 +44,7 @@ const TooManySeqNumsTest = require('./too_many_seqnums_test');
 const InvalidSeqNumsTest = require('./invalid_seqnums_test');
 const GetPostsBySingleSeqNumTest = require('./get_posts_by_single_seqnum_test');
 const NoSeqNumWithRelationalTest = require('./no_seqnum_with_relational_test');
+*/
 //const GetMarkersWithPostsTest = require('./get_markers_with_posts_test');
 const GetPostsBeforeTest = require('./get_posts_before_test');
 const GetPostsAfterTest = require('./get_posts_after_test');
@@ -47,18 +52,21 @@ const GetPostsBeforeInclusiveTest = require('./get_posts_before_inclusive_test')
 const GetPostsAfterInclusiveTest = require('./get_posts_after_inclusive_test');
 const GetPostsBeforeAfterTest = require('./get_posts_before_after_test');
 const GetPostsBeforeAfterInclusiveTest = require('./get_posts_before_after_inclusive_test');
+/*
 const NoSeqNumRelationalTest = require('./no_seqnum_relational_test');
 const NoSeqNumAndRelationalTest = require('./no_seqnum_and_relational_test');
 const InvalidSeqNumRelationalTest = require('./invalid_seqnum_relational_test');
-const GetPostsWithMarkersTest = require('./get_posts_with_markers_test');
-const GetPostsWithItemsTest = require('./get_posts_with_items_test');
+*/
 
 class GetPostsRequestTester {
 
 	getPostsTest () {
 		new GetPostsTest({type: 'channel'}).test();
 		new GetPostsTest({type: 'direct'}).test();
-		new GetPostsTest({type: 'file'}).test();
+		//new GetPostsTest({type: 'file'}).test();
+		new GetPostsWithItemsTest().test();
+		new GetPostsWithMarkersTest().test();
+		/*
 		// with indexing, the tests below are disabled pending the need for them, since
 		// they would require an index
 		// new GetPostsByMeTest().test();
@@ -104,17 +112,18 @@ class GetPostsRequestTester {
 		new InvalidSeqNumsTest().test();
 		new GetPostsBySingleSeqNumTest().test();
 		//new GetMarkersWithPostsTest().test();
+		*/
 		new GetPostsBeforeTest().test();
 		new GetPostsAfterTest().test();
 		new GetPostsBeforeInclusiveTest().test();
 		new GetPostsAfterInclusiveTest().test();
 		new GetPostsBeforeAfterTest().test();
 		new GetPostsBeforeAfterInclusiveTest().test();
+		/*
 		new NoSeqNumRelationalTest().test();
 		new NoSeqNumAndRelationalTest().test();
 		new InvalidSeqNumRelationalTest().test();
-		new GetPostsWithMarkersTest().test();
-		new GetPostsWithItemsTest().test();
+		*/
 	}
 }
 

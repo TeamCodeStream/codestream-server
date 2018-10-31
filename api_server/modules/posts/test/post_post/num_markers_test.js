@@ -11,15 +11,15 @@ class NumMarkersTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			creatorIndex: 0,
 			numPosts: 3,
-			wantCodeBlock: true
+			wantMarker: true
 		});
 	}
 
 	get description () {
-		// each time a post with code blocks is created in a stream, we increment an attribute
+		// each time a post with markers is created in a stream, we increment an attribute
 		// of the stream called numMarkers ... this is important for the client to know when
 		// it has all the marker locations for a given stream
-		return 'numMarkers for the stream should get incremented when a post is created in the stream with code blocks';
+		return 'numMarkers for the stream should get incremented when a post is created in the stream with markers';
 	}
 
 	get method () {

@@ -10,7 +10,7 @@ const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repo
 class UpdatedMatchedRepoMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return 'members of the team should receive a message with a repo update when a post is posted with a code block and remotes are specified that match known remotes for the repo but there are new remotes as well';
+		return 'members of the team should receive a message with a repo update when a post is posted with a marker and remotes are specified that match known remotes for the repo but there are new remotes as well';
 	}
 
 	setTestOptions (callback) {
@@ -34,7 +34,7 @@ class UpdatedMatchedRepoMessageTest extends Aggregation(CodeStreamMessageTest, C
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
-		// we'll create a post and a code block from a stream to be created "on-the-fly" ...
+		// we'll create a post and a marker from a stream to be created "on-the-fly" ...
 		// this should trigger a message to the team channel that indicates the stream was created
 		const addRemote = this.repoFactory.randomUrl();
 		const normalizedRemote = NormalizeUrl(addRemote);
@@ -64,8 +64,8 @@ class UpdatedMatchedRepoMessageTest extends Aggregation(CodeStreamMessageTest, C
 				token: this.users[1].accessToken,	// the "post creator"
 				teamId: this.team._id,
 				streamId: this.stream._id,
-				wantCodeBlocks: 1,
-				codeBlockStream: {
+				wantMarkers: 1,
+				markerStream: {
 					remotes,
 					file: this.streamFactory.randomFile()
 				}

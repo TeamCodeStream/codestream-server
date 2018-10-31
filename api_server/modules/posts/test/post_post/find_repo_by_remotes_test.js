@@ -1,9 +1,9 @@
 'use strict';
 
-const CodeBlockStreamOnTheFlyTest = require('./code_block_stream_on_the_fly_test');
+const MarkerStreamOnTheFlyTest = require('./marker_stream_on_the_fly_test');
 const Assert = require('assert');
 
-class FindRepoByRemotesTest extends CodeBlockStreamOnTheFlyTest {
+class FindRepoByRemotesTest extends MarkerStreamOnTheFlyTest {
 
 	constructor (options) {
 		super(options);
@@ -20,7 +20,7 @@ class FindRepoByRemotesTest extends CodeBlockStreamOnTheFlyTest {
 	}
 
 	get description () {
-		return 'should return a valid post and match with the appropriate repo when creating a post referencing a code block from another stream and specifying remotes';
+		return 'should return a valid post and match with the appropriate repo when creating a post referencing a marker from another stream and specifying remotes';
 	}
 
 	// make the data to use when creating the post for the test request
@@ -39,8 +39,8 @@ class FindRepoByRemotesTest extends CodeBlockStreamOnTheFlyTest {
 					type: 'channel',
 					name: this.streamFactory.randomName()
 				},
-				wantCodeBlocks: 1,
-				codeBlockStream: {  // this creates a new stream and adds the remotes specified to the repo
+				wantMarkers: 1,
+				markerStream: {  // this creates a new stream and adds the remotes specified to the repo
 					file: this.streamFactory.randomFile(),
 					repoId: this.repo._id,
 					remotes: this.wantRemotes

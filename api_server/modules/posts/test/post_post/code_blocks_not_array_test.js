@@ -1,28 +1,28 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class CodeBlocksNotArrayTest extends CodeBlockTest {
+class MarkersNotArrayTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with code blocks attribute that is not an array';
+		return 'should return an error when attempting to create a post with markers attribute that is not an array';
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'codeBlocks: must be an array of objects'
+			info: 'markers: must be an array of objects'
 		};
 	}
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
-		// use a "numeric" code block structure ... not allowed!
+		// use a "numeric" marker structure ... not allowed!
 		super.makePostData(() => {
-			this.data.codeBlocks = 1;
+			this.data.markers = 1;
 			callback();
 		});
 	}
 }
 
-module.exports = CodeBlocksNotArrayTest;
+module.exports = MarkersNotArrayTest;

@@ -47,7 +47,7 @@ class CommonInit {
 				}
 			}
 		};
-		if (this.postOptions.wantCodeBlock) {
+		if (this.postOptions.wantMarker) {
 			this.expectedData.markers = [{
 				_id: this.postData[0].markers[0]._id,
 				$set: {

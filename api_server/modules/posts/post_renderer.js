@@ -20,13 +20,13 @@ class PostRenderer {
 
 		const replyText = this.getReplyText(options);
 		const text = this.getNotificationText(options);
-		const codeBlock = this.getNotificationCodeBlock(options);
+		const marker = this.getNotificationMarker(options);
 		let pathToFile = '';
 		let code = ''; 
 		let preContext = '';
 		let postContext = '';
-		if (codeBlock && codeBlock.code) {
-			const marker = markers.find(marker => marker.id === codeBlock.markerId);
+		if (marker && marker.code) {
+			const marker = markers.find(marker => marker.id === marker.markerId);
 			const stream = streams.find(stream => marker && stream.id === marker.get('streamId'));
 			// try to prevent the email client from linkifying this url
 			let path = stream.get('file');
@@ -35,17 +35,17 @@ class PostRenderer {
 				.replace(/\//g, '<span>/</span>')
 				.replace(/\./g, '<span>.</span>');
 
-			// do syntax highlighting for the code block, based on the file extension
+			// do syntax highlighting for the marker, based on the file extension
 			let extension = Path.extname(path).toLowerCase();
 			if (extension.startsWith('.')) {
 				extension = extension.substring(1);
 			}
-			code = this.highlightCode(codeBlock.code, extension);
-			if (codeBlock.preContext) {
-				preContext = this.highlightCode(codeBlock.preContext, extension);
+			code = this.highlightCode(marker.code, extension);
+			if (marker.preContext) {
+				preContext = this.highlightCode(marker.preContext, extension);
 			}
-			if (codeBlock.postContext) {
-				postContext = this.highlightCode(codeBlock.postContext, extension);
+			if (marker.postContext) {
+				postContext = this.highlightCode(marker.postContext, extension);
 			}
 		}
 
@@ -68,13 +68,13 @@ class PostRenderer {
 `;
 		}
 
-		// possibly display code blocks
-		let codeBlockDiv = '';
-		if (codeBlock) {
-			codeBlockDiv = `
+		// possibly display markers
+		let markerDiv = '';
+		if (marker) {
+			markerDiv = `
 <div>
 	<br>
-	<div class="codeBlock">
+	<div class="marker">
 		<div class="pathToFile">
 			${pathToFile}
 		</div>
@@ -113,7 +113,7 @@ class PostRenderer {
 	</div>
 	${replyToDiv}
 	${textDiv}
-	${codeBlockDiv}
+	${markerDiv}
 </div>
 `;
 	}
@@ -152,17 +152,17 @@ class PostRenderer {
 		return text;
 	}
 
-	// get any code block associated iwth the post
-	getNotificationCodeBlock (options) {
+	// get any marker associated iwth the post
+	getNotificationMarker (options) {
 		const { post } = options;
-		const codeBlocks = post.get('codeBlocks');
-		if (!codeBlocks || codeBlocks.length === 0) {
+		const markers = post.get('markers');
+		if (!markers || markers.length === 0) {
 			return null;
 		}
-		return codeBlocks[0];
+		return markers[0];
 	}
 
-	// do syntax highlighting on a code block
+	// do syntax highlighting on a marker
 	highlightCode (code, extension) {
 		return this.whiteSpaceToHtml(HLJS.highlight(extension, code).value);
 	}

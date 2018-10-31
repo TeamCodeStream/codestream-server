@@ -64,7 +64,7 @@ class GetPostlessItemTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		// validate we got the correct item, and that we only got sanitized attributes
 		this.validateMatchingObject(this.item._id, data.item, 'item');
-		Assert.equal(this.item.post, undefined, 'post in fetched item is not undefined');
+		Assert.equal(data.post, undefined, 'post is not undefined');
 		this.validateSanitized(data.item, ItemTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

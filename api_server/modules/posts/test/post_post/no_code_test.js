@@ -1,11 +1,11 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class NoCodeTest extends CodeBlockTest {
+class NoCodeTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element with no code';
+		return 'should return an error when attempting to create a post with a marker element with no code';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class NoCodeTest extends CodeBlockTest {
 	makePostData (callback) {
 		// delete the code text
 		super.makePostData(() => {
-			delete this.data.codeBlocks[0].code;
+			delete this.data.markers[0].code;
 			callback();
 		});
 	}

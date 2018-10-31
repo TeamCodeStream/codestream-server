@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
+const MarkerFromDifferentStreamTest = require('./marker_from_different_stream_test');
 
-class NoCommitHashWithStreamTest extends CodeBlockFromDifferentStreamTest {
+class NoCommitHashWithStreamTest extends MarkerFromDifferentStreamTest {
 
 	constructor (options) {
 		options = Object.assign(options || {}, { streamType: 'channel' });
@@ -10,13 +10,13 @@ class NoCommitHashWithStreamTest extends CodeBlockFromDifferentStreamTest {
 	}
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block but not providing a commit hash, when a stream is also specified';
+		return 'should return an error when attempting to create a post with a marker but not providing a commit hash, when a stream is also specified';
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'commitHash must be provided for codeBlocks attached to a stream'
+			info: 'commitHash must be provided for markers attached to a stream'
 		};
 	}
 

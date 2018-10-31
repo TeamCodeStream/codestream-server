@@ -3,13 +3,15 @@
 'use strict';
 
 const PostItemTest = require('./post_item_test');
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
+const ExistingStreamTest = require('./existing_stream_test');
 
 class PostItemRequestTester {
 
 	test () {
 		new PostItemTest().test();
-		new CodeBlockTest().test();
+		new MarkerTest().test();
+		new ExistingStreamTest().test();
 	}
 }
 

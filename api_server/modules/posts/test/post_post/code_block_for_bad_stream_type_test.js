@@ -1,18 +1,18 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
-class CodeBlockForBadStreamTypeTest extends CodeBlockTest {
+class MarkerForBadStreamTypeTest extends MarkerTest {
 
 	get description () {
-		return `should return an error when attempting to create a post with a code block element where the stream is of type ${this.streamType}`;
+		return `should return an error when attempting to create a post with a marker element where the stream is of type ${this.streamType}`;
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1012',
-			reason: 'only file type streams can have code blocks'
+			reason: 'only file type streams can have markers'
 		};
 	}
 
@@ -27,7 +27,7 @@ class CodeBlockForBadStreamTypeTest extends CodeBlockTest {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) return callback(error);
-				this.data.codeBlocks[0].streamId = response.stream._id;
+				this.data.markers[0].streamId = response.stream._id;
 				callback();
 			},
 			{
@@ -39,4 +39,4 @@ class CodeBlockForBadStreamTypeTest extends CodeBlockTest {
 	}
 }
 
-module.exports = CodeBlockForBadStreamTypeTest;
+module.exports = MarkerForBadStreamTypeTest;

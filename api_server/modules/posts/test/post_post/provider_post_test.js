@@ -1,13 +1,13 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 const Assert = require('assert');
 const RandomString = require('randomstring');
 
-class ProviderPostTest extends CodeBlockTest {
+class ProviderPostTest extends MarkerTest {
 
 	get description () {
-		return 'should return the post with marker info when creating a post with code block info in a file stream, and allow provider attributes to be passed';
+		return 'should return the post with marker info when creating a post with marker info in a file stream, and allow provider attributes to be passed';
 	}
 
 	makePostData (callback) {

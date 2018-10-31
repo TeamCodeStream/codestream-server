@@ -1,17 +1,17 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const MarkerTest = require('./marker_test');
 
-class LocationTooShortTest extends CodeBlockTest {
+class LocationTooShortTest extends MarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element where the location array is too short';
+		return 'should return an error when attempting to create a post with a marker element where the location array is too short';
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'codeBlocks: location array must have at least 4 elements'
+			info: 'markers: location array must have at least 4 elements'
 		};
 	}
 
@@ -19,7 +19,7 @@ class LocationTooShortTest extends CodeBlockTest {
 	makePostData (callback) {
 		// 3 elements in the location array ... not allowed!
 		super.makePostData(() => {
-			this.data.codeBlocks[0].location = [1, 2, 3];
+			this.data.markers[0].location = [1, 2, 3];
 			callback();
 		});
 	}

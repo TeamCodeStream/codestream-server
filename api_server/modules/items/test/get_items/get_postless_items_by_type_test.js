@@ -9,14 +9,11 @@ class GetPostlessItemsByTypeTest extends GetPostlessItemsTest {
 		return 'should return the correct items when requesting items for a team and by type and the items are for third-party provider';
 	}
 
-	// get the query parameters to use for the request
-	getQueryParameters () {
+	setPath (callback) {
 		this.type = this.postOptions.itemTypes[1];
-		this.items = this.items.filter(item => item.type === this.type);
-		return {
-			teamId: this.team._id,
-			type: this.type
-		};
+		this.expectedItems = this.items.filter(item => item.type === this.type);
+		this.path = `/items?teamId=${this.team._id}&type=${this.type}`;
+		callback();
 	}
 
 	// validate correct response
