@@ -11,7 +11,7 @@ class NoMarkerLocationsForCommitTest extends GetMarkerLocationsTest {
 
 	getQueryParameters () {
 		const queryParameters = super.getQueryParameters();
-		queryParameters.commitHash = this.postFactory.randomCommitHash();	// change the commit hash
+		queryParameters.commitHash = this.repoFactory.randomCommitHash();	// change the commit hash
 		return queryParameters;
 	}
 

@@ -15,6 +15,7 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			numPosts: 5,
 			creatorIndex: 1,
+			wantItem: true,
 			wantMarker: true,
 			markerStreamId: 0,	// will use the existing file stream created for the repo
 			commitHash: this.repoFactory.randomCommitHash()
@@ -69,7 +70,7 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 
 	// set data to be used in the request
 	setData (callback) {
-		this.newCommitHash = this.postFactory.randomCommitHash();	// adjusted marker locations have a new commit
+		this.newCommitHash = this.repoFactory.randomCommitHash();	// adjusted marker locations have a new commit
 		this.data = {
 			teamId: this.team._id,
 			streamId: this.repoStreams[0]._id,

@@ -55,7 +55,7 @@ class MarkerCreator extends ModelCreator {
 
 		// the location coordinates must be valid
 		if (typeof this.attributes.locationWhenCreated !== 'undefined') {
-			const result = this.validateLocation(this.attributes.locationWhenCreated);
+			const result = MarkerCreator.validateLocation(this.attributes.locationWhenCreated);
 			if (result) {
 				return result;
 			}
@@ -98,7 +98,7 @@ class MarkerCreator extends ModelCreator {
 	// [lineStart, columnStart, lineEnd, columnEnd, fifthElement]
 	// the first four elements are coordinates and are required
 	// the fifth element must be an object and can contain additional information about the marker location
-	validateLocation (location) {
+	static validateLocation (location) {
 		if (!(location instanceof Array)) {
 			return 'location must be an array';
 		}

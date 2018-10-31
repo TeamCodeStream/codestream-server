@@ -48,8 +48,9 @@ class AdditionalMarkerLocationsTest extends PutMarkerLocationsFetchTest {
 			{
 				teamId: this.team._id,
 				streamId: this.stream._id,
+				wantItem: 1,
 				wantMarkers: 1,
-				markerStreamId: this.repoStreams[0]._id,
+				fileStreamId: this.repoStreams[0]._id,
 				token: token,
 				commitHash: this.postOptions.commitHash	// they will all have the same commit hash
 			}
