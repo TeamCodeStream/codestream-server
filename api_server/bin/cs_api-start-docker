@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#desc# Start script for inside a docker container
+
+cd $CS_API_TOP
+echo "API docker start script is running"
+bin/ensure-indexes.js build
+bin/api_server.js --one_worker
