@@ -18,6 +18,7 @@ do
 	esac
 done
 
+echo dt-docker-util -a rmi --image-name $dockerImage$dockerVer || exit 1
 dt-docker-util -a rmi --image-name $dockerImage$dockerVer || exit 1
 
 cd $CS_API_TOP
