@@ -6,5 +6,5 @@ api-server-*.tgz
 api-server.info
 api-server-*.info
 sandbox/docker/extras/
-sandbox/docker/runtime.env
 sandbox/docker/Dockerfile
+sandbox/docker/runtime.env
