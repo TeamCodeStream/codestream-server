@@ -59,3 +59,11 @@ if args.action == 'citest':
 
 if args.action == 'publish':
 	publishArtifacts(args, buildData, assetExtensionList, publishDir = publishDir)
+
+if args.action == 'docker':
+	infoFileName = args.build_number + ".info"
+	pkgInfo = readJsonFileIgnoreComments(infoFileName)
+	dockerVersion = pkgInfo['version'] + "-" + pkgInfo['buildNumber']
+	buildstepGeneric(args, cmd = os.environ['CS_API_TOP'] + "/sandbox/docker/make-inage.sh -V " + dockerVersion)
+	if args.push:
+		buildstepGeneric(args, cmd = "dt-docker-util -a push --image-name teamcodestream/local-api:" + dockerImageName)
