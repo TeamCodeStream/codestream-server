@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  api:
+    image: teamcodestream/local-api
+    container_name: api
+    env_file:
+      - runtime.env
+    ports:
+      - 12079:12079

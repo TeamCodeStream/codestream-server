@@ -59,3 +59,10 @@ if args.action == 'citest':
 
 if args.action == 'publish':
 	publishArtifacts(args, buildData, assetExtensionList, publishDir = publishDir)
+
+if args.action == 'docker':
+	verInfo = parseBuildNumber(args.build_number)
+	dockerVersion = verInfo['version'] + "-" + verInfo['counter']
+	buildstepGeneric(args, cmd = os.environ['CS_API_TOP'] + "/sandbox/docker/make-image.sh -V " + dockerVersion)
+	if args.push:
+		buildstepGeneric(args, cmd = "dt-docker-util -a push --image-name teamcodestream/local-api:" + dockerVersion)
