@@ -211,6 +211,7 @@ class TestTeamCreator {
 				wantItem: true,
 				wantMarkers: 1,
 				withRandomStream: true,
+				withRemotes: this.repoOptions.withRemotes,
 				commitHash: this.repoOptions.commitHash
 			}
 		);

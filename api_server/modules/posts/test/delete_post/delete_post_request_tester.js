@@ -28,7 +28,6 @@ class DeletePostRequestTester {
 		new AlreadyDeletedTest().test();
 		new MessageTest({ streamType: 'channel' }).test();
 		new MessageTest({ streamType: 'direct' }).test();
-		//new MessageTest({ streamType: 'file' }).test();
 		//new MarkerDeletedTest().test();
 		//new MarkersDeletedMessageTest().test();
 		//new DeleteReplyToMarkerTest().test();

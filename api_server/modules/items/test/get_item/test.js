@@ -6,6 +6,9 @@ const GetItemTest = require('./get_item_test');
 const GetItemWithMarkerTest = require('./get_item_with_marker_test');
 const GetPostlessItemTest = require('./get_postless_item_test');
 const GetPostlessItemWithMarkerTest = require('./get_postless_item_with_marker_test');
+const ACLTest = require('./acl_test');
+const PostlessACLTest = require('./postless_acl_test');
+const ACLTeamTest = require('./acl_team_test');
 
 class GetItemRequestTester {
 
@@ -14,6 +17,11 @@ class GetItemRequestTester {
 		new GetItemWithMarkerTest().test();
 		new GetPostlessItemTest().test();
 		new GetPostlessItemWithMarkerTest().test();
+		new ACLTest({ type: 'direct' }).test();
+		new ACLTest({ type: 'channel' }).test();
+		new PostlessACLTest().test();
+		new ACLTeamTest({ type: 'direct' }).test();
+		new ACLTeamTest({ type: 'channel' }).test();
 	}
 }
 

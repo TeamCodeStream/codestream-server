@@ -4,8 +4,6 @@
 
 const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 const Item = require('./item');
-const Post = require(process.env.CS_API_TOP + '/modules/posts/post');
-const PostAttributes = require(process.env.CS_API_TOP + '/modules/posts/post_attributes');
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 
 class ItemCreator extends ModelCreator {
@@ -36,10 +34,13 @@ class ItemCreator extends ModelCreator {
 	// validate the markers sent with the post creation, this is too important to just drop,
 	// so we return an error instead
 	async validateMarkers () {
-		// must be an array of objects
-		const result = new Post().validator.validateArrayOfObjects(
+		const result = new Item().validator.validateArrayOfObjects(
 			this.attributes.markers,
-			PostAttributes.markers
+			{
+				type: 'array(object)',
+				maxLength: 10,
+				maxObjectLength: 10000
+			}
 		);
 		if (result) {	// really an error
 			throw this.errorHandler.error('validation', { info: `markers: ${result}` });

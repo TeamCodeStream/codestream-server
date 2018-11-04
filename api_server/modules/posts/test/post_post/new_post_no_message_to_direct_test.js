@@ -6,7 +6,7 @@ const Assert = require('assert');
 class NewPostNoMessageToDirectTest extends NewPostMessageToDirectTest {
 
 	get description () {
-		return 'members of the team who are not members of the stream should not receive a message with the post when a post is posted to a channel stream';
+		return 'members of the team who are not members of the stream should not receive a message with the post when a post is posted to a direct stream';
 	}
 
 	setTestOptions (callback) {

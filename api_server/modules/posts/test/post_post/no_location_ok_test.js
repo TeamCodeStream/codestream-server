@@ -1,18 +1,18 @@
 'use strict';
 
-const MarkerTest = require('./marker_test');
+const ItemMarkerTest = require('./item_marker_test');
 
-class NoLocationOkTest extends MarkerTest {
+class NoLocationOkTest extends ItemMarkerTest {
 
 	get description () {
-		return 'should accept the post and return it when no location is given with a marker';
+		return 'should accept the post and item and return them when no location is given with a marker';
 	}
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
 		// completely remove the location, this is permitted
 		super.makePostData(() => {
-			delete this.data.markers[0].location;
+			delete this.data.item.markers[0].location;
 			callback();
 		});
 	}

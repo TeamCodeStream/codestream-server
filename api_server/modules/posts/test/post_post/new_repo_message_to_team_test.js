@@ -1,19 +1,28 @@
 'use strict';
 
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-const PostToChannelTest = require('./post_to_file_stream_test');
+const PostToChannelTest = require('./post_to_channel_test');
 const CommonInit = require('./common_init');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 
 class NewRepoMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostToChannelTest) {
 
 	get description () {
-		return 'members of the team should receive a message with the repo when a post is posted with a marker from a file stream created on the fly where the repo is also created on the fly';
+		return 'members of the team should receive a message with the repo when a post and item are posted to a private stream with a marker from a file stream created on the fly where the repo is also created on the fly';
 	}
 
 	// make the data that triggers the message to be received
 	makeData (callback) {
 		this.init(callback);
+	}
+
+	makePostData (callback) {
+		super.makePostData (() => {
+			// add item and marker data to the post
+			this.data.item = this.itemFactory.getRandomItemData();
+			this.data.item.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
+			callback();
+		});
 	}
 
 	// set the name of the channel we expect to receive a message on
@@ -25,32 +34,25 @@ class NewRepoMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Common
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
-		// we'll create a post and a marker from a stream to be created "on-the-fly" ...
-		// this should trigger a message to the team channel that indicates the stream was created
-		this.postFactory.createRandomPost(
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/posts',
+				data: this.data,
+				token: this.token
+			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = { repos: response.repos }; // the message should be the repo
+				const repo = response.repos.find(repo => repo.createdAt);
+				this.message = { repos: [repo] };
 				callback();
-			},
-			{
-				token: this.users[1].accessToken,	// the "post creator"
-				teamId: this.team._id,
-				streamId: this.stream._id,
-				wantMarkers: 1,
-				markerStream: {
-					remotes: [this.repoFactory.randomUrl()],
-					file: this.streamFactory.randomFile()
-				}
 			}
 		);
 	}
 
-	// validate the incoming message
 	validateMessage (message) {
-		// ignore the message publishing the new file-stream, we only want the repo message
-		if (message.message.stream) { return false; }
-		return true;
+		if (message.message.stream) { return; }
+		return super.validateMessage(message);
 	}
 }
 

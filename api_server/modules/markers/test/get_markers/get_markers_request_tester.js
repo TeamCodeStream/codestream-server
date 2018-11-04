@@ -6,7 +6,6 @@ const GetMarkersTest = require('./get_markers_test');
 const GetMarkersBeforeTest = require('./get_markers_before_test');
 const GetMarkersAfterTest = require('./get_markers_after_test');
 const GetPostlessMarkersTest = require('./get_postless_markers_test');
-/*
 const GetMarkersByIdTest = require('./get_markers_by_id_test');
 const MarkerLocationsTest = require('./marker_locations_test');
 const NoParameterTest = require('./no_parameter_test');
@@ -15,7 +14,6 @@ const ACLStreamTest = require('./acl_stream_test');
 const ACLTeamTest = require('./acl_team_test');
 const StreamNoMatchTeamTest = require('./stream_no_match_team_test');
 const TooManyIDsTest = require('./too_many_ids_test');
-*/
 
 class GetMarkersRequestTester {
 
@@ -24,7 +22,6 @@ class GetMarkersRequestTester {
 		new GetMarkersBeforeTest().test();
 		new GetMarkersAfterTest().test();
 		new GetPostlessMarkersTest().test();
-		/*
 		new GetMarkersByIdTest().test();
 		new MarkerLocationsTest().test();
 		new NoParameterTest({ parameter: 'teamId' }).test();
@@ -34,7 +31,6 @@ class GetMarkersRequestTester {
 		new ACLTeamTest().test();
 		new StreamNoMatchTeamTest().test();
 		new TooManyIDsTest().test();
-		*/
 	}
 }
 

@@ -1,28 +1,32 @@
 'use strict';
 
-const MarkerFromDifferentStreamTest = require('./marker_from_different_stream_test');
+const ItemMarkerTest = require('./item_marker_test');
 
-class NoCommitHashWithFileTest extends MarkerFromDifferentStreamTest {
+class NoCommitHashWithFileTest extends ItemMarkerTest {
 
 	constructor (options) {
-		options = Object.assign(options || {}, { streamType: 'channel' });
 		super(options);
-		this.dontExpectMarkers = true;
+		this.dontExpectCommitHash = true;
+		this.dontExpectRepo = true;
+		this.dontExpectRepoId = true;
+		this.dontExpectFileStreamId = true;
 	}
 
 	get description () {
-		return 'should be ok to create a post with a marker but not providing a commit hash even if there is a file';
+		return 'should be ok to create a post and item with a marker but not providing a commit hash even if there is a file';
 	}
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
 		// remove the commit hash from the data to use in creating the post
-		// also remove the stream ID, making the statement that we are not associating the marker with a stream at all...
-		// also add a file ... with to stream, this file still shows up with the marker, but is not associate with a stream
+		// also remove the stream ID but supply a file, making the statement 
+		// that we are not associating the marker with a stream at all...
+		// but we still have a file name
 		super.makePostData(() => {
-			delete this.data.commitHashWhenPosted;
-			delete this.data.markers[0].streamId;	
-			this.data.markers[0].file = this.streamFactory.randomFile();
+			const marker = this.data.item.markers[0];
+			delete marker.commitHash;
+			delete marker.fileStreamId;
+			this.expectedFile = marker.file = this.streamFactory.randomFile();
 			callback();
 		});
 	}

@@ -10,10 +10,12 @@ module.exports = {
 	},
 	streamId: {
 		type: 'string',
+		default: '',
 		description: 'The @@#stream#stream@@ this item belongs to'
 	},
 	postId: {
 		type: 'string',
+		default: '',
 		description: 'The @@#post#post@@ that points to this item'
 	},
 	markerIds: {
@@ -64,6 +66,7 @@ module.exports = {
 	},
 	numReplies: {
 		type: 'number',
+		default: 0,
 		description: 'The number of replies to this item'
 	}
 };

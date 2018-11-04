@@ -1,17 +1,17 @@
 'use strict';
 
-const MarkerTest = require('./marker_test');
+const ItemMarkerTest = require('./item_marker_test');
 
-class LocationTooShortTest extends MarkerTest {
+class LocationTooShortTest extends ItemMarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a marker element where the location array is too short';
+		return 'should return an error when attempting to create a post and item with a marker element where the location array is too short';
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'markers: location array must have at least 4 elements'
+			info: 'location array must have at least 4 elements'
 		};
 	}
 
@@ -19,7 +19,7 @@ class LocationTooShortTest extends MarkerTest {
 	makePostData (callback) {
 		// 3 elements in the location array ... not allowed!
 		super.makePostData(() => {
-			this.data.markers[0].location = [1, 2, 3];
+			this.data.item.markers[0].location = [1, 2, 3];
 			callback();
 		});
 	}

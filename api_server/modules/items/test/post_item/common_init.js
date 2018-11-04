@@ -27,7 +27,7 @@ class CommonInit {
 		this.data = this.itemFactory.getRandomItemData();
 		Object.assign(this.data, {
 			teamId: this.team._id,
-			providerType: 'slack',
+			providerType: RandomString.generate(8),
 			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)
 		});

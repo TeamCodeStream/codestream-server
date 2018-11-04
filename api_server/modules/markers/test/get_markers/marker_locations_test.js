@@ -10,10 +10,11 @@ class MarkerLocationsTest extends GetMarkersTest {
 		return 'should return the marker locations if commit hash is provided in the request';
 	}
 
-	// get query parameters to use for the request
+	// get query parameters to use in the test query
 	getQueryParameters () {
+		// include the commit hash so we get the locations
 		const queryParameters = super.getQueryParameters();
-		queryParameters.commitHash = this.postOptions.commitHash;	// include the commit hash so we get the locations
+		queryParameters.commitHash = this.postOptions.commitHash;
 		return queryParameters;
 	}
 
@@ -32,6 +33,7 @@ class MarkerLocationsTest extends GetMarkersTest {
 			Assert.deepEqual(locations[markerId], this.locations[markerId], 'location of received marker does not match that of the created marker');
 		});
 		this.validateSanitized(markerLocations, MarkerTestConstants.UNSANITIZED_MARKER_LOCATIONS_ATTRIBUTES);
+		super.validateResponse(data);
 	}
 }
 

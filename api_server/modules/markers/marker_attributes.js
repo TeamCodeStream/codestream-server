@@ -12,7 +12,6 @@ module.exports = {
 	},
 	fileStreamId: {
 		type: 'id',
-		required: true,
 		description: 'ID of the file @@#stream#stream@@ referenced by this marker'
 	},
 	postStreamId: {
@@ -27,11 +26,6 @@ module.exports = {
 		type: 'id',
 		required: true,
 		description: 'ID of the @@#item#item@@ that references this marker'
-	},
-	numComments: {
-		type: 'number',
-		required: true,
-		description: 'Number of @@#posts#post@@ created as a reply to the original post containing this marker'
 	},
 	providerType: {
 		type: 'string',

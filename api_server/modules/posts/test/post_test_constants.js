@@ -18,7 +18,8 @@ const EXPECTED_POST_FIELDS = [
 	'streamId',
 	'text',
 	'seqNum',
-	'origin'
+	'origin',
+	'numReplies'
 ];
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(PostAttributes).filter(attribute => {

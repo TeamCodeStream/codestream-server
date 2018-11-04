@@ -107,7 +107,7 @@ class RandomMarkerFactory {
 		else if (options.withRandomStream) {
 			// create random stream info for a file stream to be created on the fly
 			data.file = this.streamFactory.randomFile();
-			data.remotes = [this.repoFactory.randomUrl()];
+			data.remotes = options.withRemotes || [this.repoFactory.randomUrl()];
 		}
 		data.commitHash = options.commitHash || this.randomCommitHash();
 		return data;

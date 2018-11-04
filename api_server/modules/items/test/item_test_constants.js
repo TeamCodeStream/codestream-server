@@ -21,7 +21,8 @@ const EXPECTED_ITEM_FIELDS = [
 	'status',
 	'color',
 	'title',
-	'text'
+	'text',
+	'numReplies'
 ];
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(ItemAttributes).filter(attribute => {

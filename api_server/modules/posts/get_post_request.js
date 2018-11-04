@@ -34,6 +34,14 @@ class GetPostRequest extends GetRequest {
 	static describe (module) {
 		const description = GetRequest.describe(module);
 		description.access = 'For posts in a file stream, user must be a member of the team that owns the file stream; for other streams, user must be a member of the stream';
+		description.description = 'Returns the post; also returns the knowledge-base item referenced by this post, if any, as well as any markers referenced by the item';
+		description.access = 'User must be a member of the stream that owns the item';
+		description.returns.summary = 'A post object, along with any referenced item and markers',
+		Object.assign(description.returns.looksLike, {
+			post: '<the fetched @@#post object#post@@>',
+			item: '<the @@#item object#item@@ referenced by this post, if any>',
+			markers: '<any code @@#markers#markers@@ referenced by the item>'
+		});
 		return description;
 	}
 }

@@ -13,14 +13,11 @@ class GetPostRequestTester {
 	getPostTest () {
 		new GetPostTest({type: 'channel', mine: true}).test();
 		new GetPostTest({type: 'direct', mine: true}).test();
-		//new GetPostTest({type: 'file', mine: true}).test();
 		new GetPostTest({type: 'channel'}).test();
 		new GetPostTest({type: 'direct'}).test();
-		//new GetPostTest({type: 'file'}).test();
 		new NotFoundTest().test();
 		new ACLTest({ type: 'direct' }).test();
 		new ACLTest({ type: 'channel' }).test();
-		//new ACLTest({ type: 'file' }).test();
 		new GetPostWithItemTest().test();
 		new GetPostWithMarkerTest().test();
 	}

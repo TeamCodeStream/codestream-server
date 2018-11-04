@@ -50,7 +50,6 @@ class MarkerCreator extends ModelCreator {
 		}
 		this.attributes.locationWhenCreated = this.attributes.locationWhenCreated || this.attributes.location;	// client can provider either
 		delete this.attributes.location;
-		this.attributes.numComments = 1; // the original post for this marker, so there is 1 comment so far
 		this.attributes.creatorId = this.request.user.id;
 
 		// the location coordinates must be valid
@@ -268,7 +267,10 @@ class MarkerCreator extends ModelCreator {
 			throw this.request.errorHandler.error('notFound', { info: 'marker stream' });
 		}
 		if (this.stream.get('type') !== 'file') {
-			throw this.request.errorHandler.error('invalidParameter', { reason: 'marker stream must be a file-type stream' });
+			throw this.request.errorHandler.error('createAuth', { reason: 'marker stream must be a file-type stream' });
+		}
+		if (this.stream.get('teamId') !== this.team.id) {
+			throw this.request.errorHandler.error('createAuth', { reason: 'marker stream must be from the same team' });
 		}
 
 		// added to marker for informational purposes

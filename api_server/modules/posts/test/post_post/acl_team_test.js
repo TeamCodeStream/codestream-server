@@ -11,16 +11,15 @@ class ACLTeamTest extends PostPostTest {
 			callback();
 		});
 	}
+	
+	get description () {
+		return 'should return an error when trying to create a post in a stream from a team that i\'m not a member of';
+	}
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1011',
-			reason: 'not authorized for stream'
+			code: 'RAPI-1011'
 		};
-	}
-
-	get description () {
-		return 'should return an error when trying to create a post in a stream for a team that i\'m not a member of';
 	}
 }
 

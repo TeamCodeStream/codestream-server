@@ -19,6 +19,7 @@ module.exports = {
 	},
 	numReplies: {
 		type: 'number',
+		default: 0,
 		description: 'Number of replies to this post'
 	},
 	text: {

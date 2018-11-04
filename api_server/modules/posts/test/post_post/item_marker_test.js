@@ -1,14 +1,13 @@
 'use strict';
 
 const ItemTest = require('./item_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class ItemMarkerTest extends ItemTest {
 
 	constructor (options) {
 		super(options);
 		this.expectMarker = true;
-		this.expectStream = true;
+		this.repoOptions.creatorIndex = 1;
 	}
 
 	get description () {
@@ -16,15 +15,10 @@ class ItemMarkerTest extends ItemTest {
 	}
 
 	makePostData (callback) {
-		BoundAsync.series(this, [
-			super.makePostData,
-			this.addMarkerData
-		], callback);
-	}
-
-	addMarkerData (callback) {
-		this.data.item.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
-		callback();
+		super.makePostData(() => {
+			this.data.item.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0]._id });
+			callback();
+		});
 	}
 }
 

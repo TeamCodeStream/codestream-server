@@ -35,6 +35,13 @@ class GetMarkerRequest extends GetRequest {
 	static describe (module) {
 		const description = GetRequest.describe(module);
 		description.access = 'User must be a member of the team that owns the file stream to which the marker belongs';
+		description.description = 'Returns the marker; also returns the referencing item as well as the referencing post, if any';
+		description.returns.summary = 'An marker object, along with the referencing post, if any, and referencing item',
+		Object.assign(description.returns.looksLike, {
+			marker: '<the fetched @@#marker object#marker@@>',
+			item: '<the @@#item object#item@@ that references this marker>',
+			post: '<the @@#post object#post@@ that references this marker, if any>'
+		});
 		return description;
 	}
 }

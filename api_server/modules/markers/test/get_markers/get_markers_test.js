@@ -48,10 +48,21 @@ class GetMarkersTest extends CodeStreamAPITest {
 		callback();
 	}
 
+	// get query parameters to use in the test query
+	getQueryParameters () {
+		return {
+			teamId: this.team._id,
+			streamId: this.repoStreams[0]._id
+		};
+	}
+
 	// set the path to use for the request
 	setPath (callback) {
 		this.expectedMarkers = this.markers;
-		this.path = `/markers?teamId=${this.team._id}&streamId=${this.repoStreams[0]._id}`;
+		const queryParameters = this.getQueryParameters();
+		this.path = '/markers?' + Object.keys(queryParameters).map(parameter => {
+			return `${parameter}=${queryParameters[parameter]}`;
+		}).join('&');
 		callback();
 	}
 

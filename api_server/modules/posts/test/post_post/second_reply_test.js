@@ -42,8 +42,7 @@ class SecondReplyTest extends PostReplyTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				// confirm the hasReplies attribute has been set
-				Assert.equal(response.post.hasReplies, true, 'hasReplies is not set to true');
+				// confirm the numReplies attribute has been increments ... again
 				Assert.equal(response.post.numReplies, 2, 'numReplies is not set to 2');
 				callback();
 			}

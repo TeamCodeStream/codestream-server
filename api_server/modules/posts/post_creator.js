@@ -217,7 +217,7 @@ class PostCreator extends ModelCreator {
 
 		const op = { 
 			$set: {
-				numReplies: item.get('numReplies') + 1
+				numReplies: (item.get('numReplies') || 0) + 1
 			}
 		};
 		this.transforms.itemUpdate = await new ModelSaver({
@@ -248,8 +248,8 @@ class PostCreator extends ModelCreator {
 	async postCreate () {
 		// all these operations are independent and can happen in parallel
 		await awaitParallel([
-			this.publishCreatedStreamForPost,	// publish any stream created on-the-fly for the post, as needed
 			this.publishCreatedStreamsForMarkers,	// publish any streams created on-the-fly for the markers, as needed
+			this.publishRepos,					// publish any created or updated repos to the team
 			this.publishPost,					// publish the actual post to members of the team or stream
 			this.publishParentPost,				// if this post was a reply and we updated the parent post, publish that
 			this.triggerNotificationEmails,		// trigger email notifications to members who should receive them
@@ -260,24 +260,51 @@ class PostCreator extends ModelCreator {
 		], this);
 	}
 
-	// if we created a stream on-the-fly for the post, publish it as needed
-	async publishCreatedStreamForPost () {
-		if (this.transforms.createdStreamForPost) {
-			await this.publishStream(this.transforms.createdStreamForPost, true);
-		}
-	}
-
 	// if we created any streams on-the-fly for the markers, publish them as needed
 	async publishCreatedStreamsForMarkers () {
 		// streams created on-the-fly for markers are necessarily going to be file streams,
 		// these should automatically get published to the whole team
 		await Promise.all((this.transforms.createdStreamsForMarkers || []).map(async stream => {
-			await this.publishStream(stream, true);
+			await this.publishStream(stream);
 		}));
 	}
 
+	// publish any created or updated repos to the team
+	async publishRepos () {
+		// the repos only need to be published if the stream for the post (this.stream, 
+		// which is possibly different from the stream to be published) is a private stream ... 
+		// otherwise the repos will be published along with the post anyway, to the entire team
+		if (!this.stream.hasPrivateContent()) {
+			return;
+		}
+
+		const repos = (this.transforms.createdRepos || []).map(repo => repo.getSanitizedObject())
+			.concat(this.transforms.repoUpdates || []);
+		if (repos.length === 0) {
+			return;
+		}
+
+		const teamId = this.team.id;
+		const channel = 'team-' + teamId;
+		const message = {
+			repos: repos,
+			requestId: this.request.request.id
+		};
+		try {
+			await this.request.api.services.messager.publish(
+				message,
+				channel,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish repos message to team ${teamId}: ${JSON.stringify(error)}`);
+		}
+	}
+
 	// publish a given stream
-	async publishStream (stream, isNew) {
+	async publishStream (stream) {
 		// the stream only needs to be published if the stream for the post (this.stream, 
 		// which is possibly different from the stream to be published) is a private stream ... 
 		// otherwise the stream will be published along with the post anyway, to the entire team
@@ -290,7 +317,7 @@ class PostCreator extends ModelCreator {
 			data: { stream: sanitizedStream },
 			request: this.request,
 			messager: this.api.services.messager,
-			isNew
+			isNew: true
 		}).publishStream();
 	}
 	
@@ -306,16 +333,18 @@ class PostCreator extends ModelCreator {
 
 	// if the parent post was updated, publish the parent post
 	async publishParentPost () {
-		// the parent post will show up as the first element of the posts array
-		// in the response
-		if (!this.transforms.postUpdates || this.transforms.postUpdates.length === 0) {
+		if (!this.transforms.postUpdate) {
 			return;
+		}
+		const data = {
+			post: this.transforms.postUpdate
+		};
+		if (this.transforms.itemUpdate) {
+			data.item = this.transforms.itemUpdate;
 		}
 		await new PostPublisher({
 			request: this.request,
-			data: {
-				post: this.transforms.postUpdates[0]
-			},
+			data,
 			messager: this.api.services.messager,
 			stream: this.stream.attributes	// assuming stream for the parent post is the same as for the reply
 		}).publishPost();

@@ -1,39 +1,59 @@
 'use strict';
 
-const NewPostMessageToTeamTest = require('./new_post_message_to_team_test');
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const PostToChannelTest = require('./post_to_channel_test');
+const CommonInit = require('./common_init');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 
-class NewFileStreamMessageToTeamTest extends NewPostMessageToTeamTest {
+class NewFileStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostToChannelTest) {
 
 	get description () {
-		return 'members of the team should receive a message with the stream and the post when a post is posted to a file stream created on the fly';
+		return 'members of the team should receive a message with the post when a post is posted to a team stream';
 	}
-	
+
+	// make the data that triggers the message to be received
+	makeData (callback) {
+		this.init(callback);
+	}
+
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.repoOptions.creatorIndex = 1;
-			this.streamOptions.type = 'file';
+			this.streamOptions.isTeamStream = true;
 			callback();
 		});
 	}
 
 	makePostData (callback) {
-		super.makePostData(() => {
-			// get some data for a random stream and add that to the post options,
-			// this is an attempt to create a stream "on-the-fly"
-			this.streamFactory.getRandomStreamData(
-				(error, data) => {
-					if (error) { return callback(error); }
-					delete this.data.streamId;
-					this.data.stream = data;
-					callback();
-				},
-				{
-					teamId: this.team._id,
-					repoId: this.repo._id,
-					type: 'file'
-				}
-			);
+		super.makePostData (() => {
+			// add item and marker data to the post
+			this.data.item = this.itemFactory.getRandomItemData();
+			this.data.item.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
+			callback();
 		});
+	}
+
+	// set the name of the channel we expect to receive a message on
+	setChannelName (callback) {
+		// when posted to a team stream, it is the team channel
+		this.channelName = `team-${this.team._id}`;
+		callback();
+	}
+
+	// generate the message by issuing a request
+	generateMessage (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/posts',
+				data: this.data,
+				token: this.token
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.message = response;
+				callback();
+			}
+		);
 	}
 }
 

@@ -3,18 +3,17 @@
 'use strict';
 
 const PutRequest = require(process.env.CS_API_TOP + '/lib/util/restful/put_request');
-const MarkerPublisher = require('./marker_publisher');
 
 class PutMarkerRequest extends PutRequest {
 
 	// authorize the request for the current user
 	async authorize () {
 		// get the marker, only someone on the team can update it
-		const marker = await this.data.markers.getById(this.request.params.id);
-		if (!marker) {
+		this.marker = await this.data.markers.getById(this.request.params.id);
+		if (!this.marker) {
 			throw this.errorHandler.error('notFound', { info: 'marker' });
 		}
-		if (!this.user.hasTeam(marker.get('teamId'))) {
+		if (!this.user.hasTeam(this.marker.get('teamId'))) {
 			throw this.errorHandler.error('updateAuth');
 		}
 	}
@@ -26,13 +25,23 @@ class PutMarkerRequest extends PutRequest {
 
 	// publish the marker to the appropriate messager channel(s)
 	async publishMarker () {
-		await new MarkerPublisher({
-			data: this.responseData,
-			request: this,
-			messager: this.api.services.messager,
-			stream: this.updater.stream,
-			postStream: this.updater.postStream
-		}).publishMarker();
+		const teamId = this.marker.get('teamId');
+		const channel = 'team-' + teamId;
+		const message = {
+			marker: this.responseData.marker,
+			requestId: this.request.id
+		};
+		try {
+			await this.api.services.messager.publish(
+				message,
+				channel,
+				{ request: this.request	}
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.warn(`Could not publish marker message to team ${teamId}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// describe this route for help

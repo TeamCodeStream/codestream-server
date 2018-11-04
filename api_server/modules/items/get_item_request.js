@@ -38,7 +38,14 @@ class GetItemRequest extends GetRequest {
 	// describe this route for help
 	static describe (module) {
 		const description = GetRequest.describe(module);
+		description.description = 'Returns the item; also returns the referencing post, if any, as well as any markers referenced by the item';
 		description.access = 'User must be a member of the stream that owns the item';
+		description.returns.summary = 'An item object, along with any referencing post and referenced markers',
+		Object.assign(description.returns.looksLike, {
+			item: '<the fetched @@#item object#item@@>',
+			post: '<the @@#post object#post@@ that references this item, if any>',
+			markers: '<any code @@#markers#marker@@ referenced by this item>'
+		});
 		return description;
 	}
 }

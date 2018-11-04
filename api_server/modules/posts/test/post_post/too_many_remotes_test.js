@@ -1,11 +1,11 @@
 'use strict';
 
-const MarkerTest = require('./marker_test');
+const ItemMarkerTest = require('./item_marker_test');
 
-class TooManyRemotesTest extends MarkerTest {
+class TooManyRemotesTest extends ItemMarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a marker element where the remotes array has too many elements';
+		return 'should return an error when attempting to create a post and item with a marker element where the remotes array has too many elements';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class TooManyRemotesTest extends MarkerTest {
 	makePostData (callback) {
 		// set the "remotes" field to an array of 101 elements
 		super.makePostData(() => {
-			this.data.markers[0].remotes = new Array(101).fill('x');
+			this.data.item.markers[0].remotes = new Array(101).fill('x');
 			callback();
 		});
 	}

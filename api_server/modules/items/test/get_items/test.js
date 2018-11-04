@@ -10,6 +10,7 @@ const GetPostlessItemsByTypeTest = require('./get_postless_items_by_type_test');
 const GetPostlessItemsWithMarkersTest = require('./get_postless_items_with_markers_test');
 const GetItemsBeforeTest = require('./get_items_before_test');
 const GetItemsAfterTest = require('./get_items_after_test');
+//const ACLTest = require('./acl_test');
 
 class GetItemsRequestTester {
 
@@ -22,6 +23,7 @@ class GetItemsRequestTester {
 		new GetPostlessItemsWithMarkersTest().test();
 		new GetItemsBeforeTest().test();
 		new GetItemsAfterTest().test();
+		//new ACLTest().test();
 	}
 }
 

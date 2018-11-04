@@ -6,12 +6,7 @@ class ACLTest extends GetPostTest {
 
 	constructor (options) {
 		super(options);
-		if (this.type === 'file') {
-			this.teamOptions.members = [];
-		}
-		else {
-			this.streamOptions.members = [];
-		}
+		this.streamOptions.members = [];
 	}
 
 	get description () {

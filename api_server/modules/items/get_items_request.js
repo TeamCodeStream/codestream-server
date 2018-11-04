@@ -17,7 +17,7 @@ class GetItemsRequest extends GetManyRequest {
 		this.teamId = this.teamId.toLowerCase();
 		const authorized = await this.user.authorizeTeam(this.teamId, this);
 		if (!authorized) {
-			throw this.errorHandler.error('createAuth', { reason: 'user not on team' });
+			throw this.errorHandler.error('readAuth', { reason: 'user not on team' });
 		}
 	}
 
@@ -118,14 +118,21 @@ class GetItemsRequest extends GetManyRequest {
 	// describe this route for help
 	static describe (module) {
 		const description = GetManyRequest.describe(module);
-		description.description = 'Returns an array of items owned by a team, optionally providing the item type';
-		description.access = 'User must be a member of the team';
+		description.description = 'Returns an array of items owned by a team, optionally providing the item type, a stream ID, or timestamp brackets; always returns any associated posts and markers as well';
+		description.access = 'User must be a member of the team specified';
 		Object.assign(description.input.looksLike, {
 			'teamId*': '<ID of the team for which items are being fetched>',
-			'type': '<Type of items to fetch>'
+			'type': '<Type of items to fetch>',
+			'streamId': '<ID of the file stream for which knowledge base items with attached markers should be fetched>',
+			'before': '<Fetch items created before this timestamp, inclusive if "inclusive" is set>',
+			'after': '<Fetch items created after this timestamp, inclusive if "inclusive" is set>',
+			'inclusive': '<If before or after or both are set, indicates to include any items with a timestamp exactly matching the before or after vaue (or both)>'
 		});
+		description.returns.summary = 'An array of item objects, plus possible post and marker objects';
 		Object.assign(description.returns.looksLike, {
-			items: '<@@#item objects#item@@ fetched>'
+			items: '<@@#item objects#item@@ fetched>',
+			posts: '<associated @@#post objects#post@@>',
+			markers: '<associated @@#markers#markers@@>'
 		});
 		description.errors = description.errors.concat([
 			'invalidParameter',

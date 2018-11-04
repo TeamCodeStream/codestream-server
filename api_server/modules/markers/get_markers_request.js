@@ -31,6 +31,14 @@ class GetMarkersRequest extends GetManyRequest {
 			teamId: this.teamId,
 			fileStreamId: this.streamId
 		};
+		if (this.request.query.ids) {
+			// user specified some IDs, so restrict to those IDs
+			let ids = decodeURIComponent(this.request.query.ids).toLowerCase().split(',');
+			if (ids.length > 100) {
+				return 'too many IDs';
+			}
+			query._id = this.data.markers.inQuerySafe(ids);
+		}
 		let { before, after, inclusive } = this.request.query;
 		if (before !== undefined) {
 			before = parseInt(before, 10);
@@ -120,14 +128,18 @@ class GetMarkersRequest extends GetManyRequest {
 	// describe this route for help
 	static describe (module) {
 		const description = GetManyRequest.describe(module);
-		description.description = 'Returns an array of markers for a given file (given by stream ID), governed by the query parameters; if a commit hash is specified, will also return marker locations for the fetched markers, for the given commit hash';
+		description.description = 'Returns an array of markers for a given file (given by stream ID), governed by the query parameters; if a commit hash is specified, will also return marker locations for the fetched markers, for the given commit hash. Also returns any associated knowledge-base items, as well as any referencing posts.';
 		description.access = 'User must be a member of the team that owns the file stream to which the markers belong';
 		Object.assign(description.input.looksLike, {
 			'teamId*': '<ID of the team that owns the file stream for which markers are being fetched>',
 			'streamId*': '<ID of the file stream for which markers are being fetched>',
 			'commitHash': '<Commit hash for which marker locations should be returned, along with the fetched markers>'
 		});
+		description.returns.summary = 'An array of marker objects, plus possible post and item objects, and markerLocations object as requested';
 		Object.assign(description.returns.looksLike, {
+			markers: '<@@#marker objects#item@@ fetched>',
+			items: '<associated @@#item objects#item@@>',
+			posts: '<referencing @@#post objects#post@@>',
 			markerLocations: '<@@#marker locations object#markerLocations@@>'
 		});
 		description.errors = description.errors.concat([

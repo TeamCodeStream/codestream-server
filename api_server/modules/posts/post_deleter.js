@@ -35,7 +35,7 @@ class PostDeleter extends ModelDeleter {
 		await this.getPost();			// get the post
 		await this.deleteMarkers();		// delete any associated markers
 		await this.getParentPost();		// get the parent post (if this is a reply)
-		await this.updateNumComments();	// update numComments field in a parent marker, if needed
+		await this.updateNumReplies();	// update numReplies field in a parent item, if needed
 		this.addEditToHistory();		// add this deactivation to the maintained history of edits
 		await super.preDelete();		// base-class preDelete
 	}
@@ -81,37 +81,27 @@ class PostDeleter extends ModelDeleter {
 		);
 	}
 
-	// if the deleted post is a reply to a post with marker(s),
-	// update the numComments attribute of the associated marker(s)
-	async updateNumComments () {
-		if (!this.parentPost || !(this.parentPost.get('markers') instanceof Array)) {
+	// if the deleted post is a reply to a post with an item,
+	// update the numReplies attribute of the associated item
+	async updateNumReplies () {
+		if (!this.parentPost || !this.parentPost.get('itemId')) {
 			return;
 		}
-		const markerIds = this.parentPost.get('markers')
-			.map(marker => marker.markerId)
-			.filter(markerId => markerId);
-		this.transforms.markerUpdates = this.transforms.markerUpdates || [];
-		await Promise.all(markerIds.map(async markerId => {
-			await this.updateNumCommentsForMarker(markerId);
-		}));
-	}
-
-	// if the deleted post is a reply to a post with marker(s),
-	// update the numComments attribute of the given marker
-	async updateNumCommentsForMarker (markerId) {
-		if (!markerId) { return; }
-		// update the database, and also save the marker op for publishing to clients
+		const item = await this.request.data.items.getById(this.parentPost.get('itemId'));
+		if (!item || !item.get('numReplies')) { 
+			return; 
+		}
 		const op = { 
-			$inc: { 
-				numComments: -1 
-			} 
+			$set: {
+				numReplies: item.get('numReplies') - 1
+			}
 		};
-		const markerUpdate = await new ModelSaver({
+		const itemUpdate = await new ModelSaver({
 			request: this.request,
-			collection: this.request.data.markers,
-			id: markerId
+			collection: this.request.data.items,
+			id: item.id
 		}).save(op);
-		this.transforms.markerUpdates.push(markerUpdate);
+		this.transforms.itemUpdates.push(itemUpdate);
 	}
 
 	// add an edit to the maintained history of edits
