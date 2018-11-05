@@ -3,18 +3,19 @@
 'use strict';
 
 const PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
-const PostAuthorizer = require('./post_authorizer');
 
 class PostPostRequest extends PostRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		await new PostAuthorizer({
-			user: this.user,
-			post: this.request.body,
-			request: this,
-			errorHandler: this.errorHandler
-		}).authorizePost();
+		const streamId = this.request.body.streamId;
+		if (!streamId) {
+			return this.errorHandler.error('parameterRequired', { info: 'streamId' });
+		}
+		const authorized = await this.user.authorizeStream(streamId.toLowerCase(), this);
+		if (!authorized) {
+			throw this.errorHandler.error('createAuth');
+		}
 	}
 
 	/* eslint complexity: 0 */
@@ -22,104 +23,107 @@ class PostPostRequest extends PostRequest {
 		if (this.gotError) {
 			return super.handleResponse();
 		}
+
+		// handle various data transforms that may have occurred as a result of creating the post,
+		// adding objects to the response returned
 		const { transforms, responseData } = this;
+
+		// add any repos created for posts with codemarks and markers
 		if (transforms.createdRepos && transforms.createdRepos.length > 0) {
 			responseData.repos = transforms.createdRepos.map(repo => repo.getSanitizedObject());
 		}
+
+		// add any repos updated for posts with codemarks and markers, which may have brought 
+		// new remotes into the fold for the repo
 		if (transforms.repoUpdates && transforms.repoUpdates.length > 0) {
 			responseData.repos = [
 				...(responseData.repos || []),
 				...transforms.repoUpdates
 			];
 		}
-		if (transforms.createdStreamsForCodeBlocks && transforms.createdStreamsForCodeBlocks.length > 0) {
-			responseData.streams = transforms.createdStreamsForCodeBlocks.map(stream => stream.getSanitizedObject());
+
+		// add any file streams created for markers
+		if (transforms.createdStreamsForMarkers && transforms.createdStreamsForMarkers.length > 0) {
+			responseData.streams = transforms.createdStreamsForMarkers.map(stream => stream.getSanitizedObject());
 		}
 
-		if (transforms.createdStreamForPost) {
-			responseData.streams = [
-				...(responseData.streams || []),
-				transforms.createdStreamForPost.getSanitizedObject()
-			];
-		}
-		else if (transforms.streamUpdateForPost) {
+		// the stream gets updated as a result of the new post, so add that
+		if (transforms.streamUpdateForPost) {
 			responseData.streams = [
 				...(responseData.streams || []),
 				transforms.streamUpdateForPost
 			];
 		}
-		if (transforms.markerUpdates) {
-			responseData.markers = transforms.markerUpdates;
-		}
+
+		// add any markers created 
 		if (transforms.createdMarkers && transforms.createdMarkers.length > 0) {
 			responseData.markers = [
 				...(responseData.markers || []),
 				...transforms.createdMarkers.map(marker => marker.getSanitizedObject())
 			];
 		}
+
+		// markers with locations will have a separate markerLocations object
 		if (transforms.markerLocations && transforms.markerLocations.length > 0) {
 			responseData.markerLocations = transforms.markerLocations;
 		}
-		if (transforms.postUpdates && transforms.postUpdates.length > 0) {
-			responseData.posts = transforms.postUpdates;
+
+		// a knowledge base codemark might have been created with the post, add it
+		if (transforms.createdCodemark) {
+			responseData.codemark = transforms.createdCodemark.getSanitizedObject();
 		}
+
+		// if there is a parent post update, add it
+		if (transforms.postUpdate) {
+			responseData.posts = [transforms.postUpdate];
+		}
+
+		// if there is a parent codemark update, add it
+		if (transforms.codemarkUpdate) {
+			responseData.codemarks = [transforms.codemarkUpdate];
+		}
+		
 		await super.handleResponse();
 	}
 
 	// describe this route for help
 	static describe (module) {
 		const description = PostRequest.describe(module);
-		description.description = 'Creates a post, along with markers for associated code blocks. Streams can also be created on-the-fly, either for the post, or for any code blocks it quotes.';
-		description.access = 'For posts in a file stream, the current user must be a member of the team to which the file stream belongs. For posts in a channel stream or a direct stream, the current user must be a member of the stream.';
+		description.description = 'Creates a post, along with associated markers, and associated knowledge base codemarks and markers. File streams and repos can also be created on-the-fly for the markers.';
+		description.access = 'The current user must be a member of the stream.';
 		description.input = {
 			summary: description.input,
 			looksLike: {
-				'streamId': '<ID of the stream in which the post is being created, required unless a stream object is specified>',
+				'streamId*': '<ID of the stream in which the post is being created, required unless a stream object is specified>',
 				'text': '<Text of the post>',
-				'commitHashWhenPosted': '<For file streams, if code blocks are given, the commit hash the file is on>',
 				'parentPostId': '<For replies, the ID of the parent post>',
-				'codeBlocks': '<Array of code blocks, specifying code quoted by this post>',
-				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>',
-				'stream': '<Minimal attributes of a @@#stream object#stream@@, for creating a stream for the post on-the-fly, required if no streamId is given>',
-				'providerType': '<For third-party integrations, type of provider (slack, msteams, etc.) the post is associated with>',
-				'providerPostId': '<For third-party integrations, ID of the post that this post references in the third-party integration provider>',
-				'providerConversationId': '<For third-party integrations, ID of the conversation (team, group, DM) to which this post belongs in the the third-party integration provider>',
-				'providerInfo': '<For third-party integrations, free-form object for additional info relevant to the third-party post>',
-				'type': '<Assign a type to this post ("question", "comment", etc.)>',
-				'color': '<Display color of the post>',
-				'status': '<Status of the post, for things like tasks>',
-				'title': '<Title of the post>',
-				'assignees': '<Array of IDs representing users assigned to the post, for tasks>'
+				'codemarks': '<Array of @@#codemarks#codemark@@, for creating knowledge-base codemark referenced by the post>',
+				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>'
 			}
 		};
-		description.returns.summary = 'A post object, plus a stream object if a stream was created on-the-fly, marker objects and marker locations for any code blocks';
+		description.returns.summary = 'A post object, plus additional objects that may have been created on-the-fly, marker objects and marker locations for any markers';
 		Object.assign(description.returns.looksLike, {
-			stream: '<@@#stream object#stream@@ > (if stream created on-the fly for the post)>',
-			streams: [
-				'<@@#stream object#stream@@ > (additional streams created on-the-fly for code blocks)>',
+			codemarks: [
+				'<@@#codemark object#codemark@@ > (knowledge base codemarks referenced by this post)>',
 				'...'
 			],
 			markers: [
-				'<@@#marker object#marker@@ > (marker objects associated with quoted code blocks)',
+				'<@@#marker object#marker@@ > (marker objects associated with quoted markers)',
 				'...'
 			],
-			markerLocations: '<@@#marker locations object#markerLocations@@ > (marker locations for markers associated with quoted code blocks)'
+			markerLocations: '<@@#marker locations object#markerLocations@@ > (marker locations for markers associated with quoted markers)',
+			streams: [
+				'<@@#stream object#stream@@ > (additional streams created on-the-fly for markers)>',
+				'...'
+			],
+			repos: [
+				'<@@#repo object#repo@@ > (additional repos created on-the-fly for markers)>',
+				'...'
+			]
 		});
 		description.publishes = {
-			summary: 'If the post was created in a file stream or a team stream (a channel with all members of the team), then the post object will be published to the team channel; otherwise it will be published to the stream channel for the stream in which it was created.',
-			looksLike: {
-				post: '<@@#post object#post@@>',
-				stream: '<@@#stream object#stream@@ > (if stream created on-the fly for the post)>',
-				streams: [
-					'<@@#stream object#stream@@ > (additional streams created on-the-fly for code blocks)>',
-					'...'
-				],
-				markers: [
-					'<@@#marker object#marker@@ > (marker objects associated with quoted code blocks)',
-					'...'
-				],
-				markerLocations: '<@@#marker locations object#markerLocations@@ > (marker locations for markers associated with quoted code blocks)'
-			}
+			summary: 'If the post was created in a team stream (a channel with all members of the team), then the post object will be published to the team channel; otherwise it will be published to the stream channel for the stream in which it was created.',
+			looksLike: '(same as response)'
 		};
 		return description;
 	}

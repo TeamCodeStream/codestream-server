@@ -1,18 +1,18 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 
-class NoLocationOkTest extends CodeBlockTest {
+class NoLocationOkTest extends CodemarkMarkerTest {
 
 	get description () {
-		return 'should accept the post and return it when no location is given with a code block';
+		return 'should accept the post and codemark and return them when no location is given with a marker';
 	}
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
 		// completely remove the location, this is permitted
 		super.makePostData(() => {
-			delete this.data.codeBlocks[0].location;
+			delete this.data.codemark.markers[0].location;
 			callback();
 		});
 	}

@@ -31,9 +31,7 @@ class CommonInit {
 				callback();
 			},
 			{
-				streamId: this.stream._id,
-				wantCodeBlocks: this.wantCodeBlock ? 1 : 0,
-				codeBlockStreamId: this.wantCodeBlock ? (this.codeBlockStreamId || this.stream._id) : null
+				streamId: this.stream._id
 			}
 		);
 	}

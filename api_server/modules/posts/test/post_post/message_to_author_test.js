@@ -1,21 +1,12 @@
 'use strict';
 
-const NewPostMessageToStreamTest = require('./new_post_message_to_team_test');
+const NewPostMessageToChannelTest = require('./new_post_message_to_channel_test');
 const Assert = require('assert');
 
-class MessageToAuthorTest extends NewPostMessageToStreamTest {
+class MessageToAuthorTest extends NewPostMessageToChannelTest {
 
 	get description () {
 		return 'the author of a post should receive a message indicating totalPosts incremented and lastPostCreatedAt set and lastReads for the stream unset when creating a post';
-	}
-
-	setTestOptions (callback) {
-		super.setTestOptions(() => {
-			delete this.repoOptions.creatorIndex;
-			this.streamOptions.type = 'channel';
-			this.postOptions.wantCodeBlock = false;
-			callback();
-		});
 	}
 
 	// make the data the will be used when issuing the request that triggers the message

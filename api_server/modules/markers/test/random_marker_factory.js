@@ -90,12 +90,42 @@ class RandomMarkerFactory {
 	}
 
 	// get some random marker data
-	getRandomMarkerData (callback) {
-		let data = {
-			location: this.randomLocation(),
+	getRandomMarkerData (options = {}) {
+		const data = {
+			code: RandomString.generate(1000),
+			location: this.randomLocation()
 		};
-		callback(null, data);
+		if (options.fileStreamId) {
+			// for markers that come from a different stream than the one the post will go into
+			data.fileStreamId = options.fileStreamId;
+		}
+		else if (options.fileStream) {
+			// for markers that come from a different stream than the one the post will go into,
+			// and the stream will be created on the fly
+			Object.assign(data, options.fileStream);
+		}
+		else if (options.withRandomStream) {
+			// create random stream info for a file stream to be created on the fly
+			data.file = this.streamFactory.randomFile();
+			data.remotes = options.withRemotes || [this.repoFactory.randomUrl()];
+		}
+		data.commitHash = options.commitHash || this.randomCommitHash();
+		return data;
 	}
+
+	// create a given number of random markers, with options provided
+	createRandomMarkers (n, options = {}) {
+		// for markers, we'll generate some random text for the code and a random
+		// location structure, not a very accurate representation of real code
+		const markers = [];
+		for (let i = 0; i < n; i++) {
+			const markerInfo = this.getRandomMarkerData(options);
+			markers.push(markerInfo);
+		}
+		return markers;
+	}
+
+
 }
 
 module.exports = RandomMarkerFactory;

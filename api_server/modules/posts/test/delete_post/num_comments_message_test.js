@@ -9,7 +9,7 @@ class NumCommentsMessageTest extends MessageTest {
 			Object.assign(this.postOptions, {
 				numPosts: 2,
 				postData: [
-					{ wantCodeBlock: 1 },
+					{ wantMarker: 1 },
 					{ replyTo: 0 }
 				]
 			});
@@ -19,7 +19,7 @@ class NumCommentsMessageTest extends MessageTest {
 	}
 
 	get description () {
-		return 'members of the team should receive a message with the numComments field decremented for the deletion of a reply to a post with a code block';
+		return 'members of the team should receive a message with the numComments field decremented for the deletion of a reply to a post with a marker';
 	}
 
 }

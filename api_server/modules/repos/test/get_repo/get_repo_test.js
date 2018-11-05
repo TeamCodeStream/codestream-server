@@ -31,7 +31,7 @@ class GetRepoTest extends CodeStreamAPITest {
 
 	// set the path for the test request
 	setPath (callback) {
-		// fetch the repo (created by submitting a post with a code block and remotes)
+		// fetch the repo (created by submitting a post with a marker and remotes)
 		this.path = '/repos/' + this.repo._id;
 		callback();
 	}

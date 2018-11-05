@@ -1,7 +1,6 @@
 'use strict';
 
 const PostPostTest = require('./post_post_test');
-const Assert = require('assert');
 
 class PostToFileStreamTest extends PostPostTest {
 
@@ -14,17 +13,14 @@ class PostToFileStreamTest extends PostPostTest {
 	}
 
 	get description () {
-		return 'should return a valid post when creating a post in a file stream';
+		return 'should return an error when attempting to create a post in a file stream (this is no longer supported)';
 	}
 
-	// validate the response to the test request
-	validateResponse (data) {
-		const post = data.post;
-		Assert(post.repoId === this.repo._id, 'repoId does not match the ID of the repo');
-		if (post.commitHashWhenPosted) {
-			Assert(post.commitHashWhenPosted === this.data.commitHashWhenPosted.toLowerCase(), 'commitHashWhenPosted does not match');
-		}
-		super.validateResponse(data);
+	getExpectedError () {
+		return {
+			code: 'RAPI-1011',
+			reason: 'can not post to a file stream'
+		};
 	}
 }
 

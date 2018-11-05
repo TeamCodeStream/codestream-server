@@ -226,7 +226,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			},
 			{
 				streamId: this.stream._id,
-				wantCodeBlocks: this.wantCodeBlock ? 1 : 0	// for testing code in the email
+				wantMarkers: this.wantMarker ? 1 : 0	// for testing code in the email
 			}
 		);
 	}
@@ -234,10 +234,10 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 	// add random stuff to the text data in the post
 	randomDataTextAdd (data, stuff) {
 		data.text = this.randomTextAdd(data.text, stuff);
-		(data.codeBlocks || []).forEach(codeBlock => {
-			codeBlock.preContext = this.randomTextAdd(codeBlock.preContext, stuff);
-			codeBlock.code = this.randomTextAdd(codeBlock.code, stuff);
-			codeBlock.postContext = this.randomTextAdd(codeBlock.postContext, stuff);
+		(data.markers || []).forEach(marker => {
+			marker.preContext = this.randomTextAdd(marker.preContext, stuff);
+			marker.code = this.randomTextAdd(marker.code, stuff);
+			marker.postContext = this.randomTextAdd(marker.postContext, stuff);
 		});
 	}
 
@@ -332,13 +332,13 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		}
 		this.validateReplyToDisplay(substitutions['{{displayReplyTo}}']);
 		this.validateTextField(substitutions['{{text}}'], this.post.text);
-		if (this.wantCodeBlock) {
-			let codeBlock = this.post.codeBlocks[0];
-			this.validateTextField(substitutions['{{code}}'], codeBlock.code);
-			this.validateTextField(substitutions['{{preContext}}'], codeBlock.preContext);
-			this.validateTextField(substitutions['{{postContext}}'], codeBlock.postContext);
+		if (this.wantMarker) {
+			let marker = this.post.markers[0];
+			this.validateTextField(substitutions['{{code}}'], marker.code);
+			this.validateTextField(substitutions['{{preContext}}'], marker.preContext);
+			this.validateTextField(substitutions['{{postContext}}'], marker.postContext);
 		}
-		this.validateCodeBlockDisplay(substitutions['{{displayCodeBlock}}']);
+		this.validateMarkerDisplay(substitutions['{{displayMarker}}']);
 		this.validatePathToFile(substitutions['{{pathToFile}}']);
 		this.validateIntro(substitutions['{{intro}}']);
 	}
@@ -385,14 +385,14 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		Assert.equal(actual, expect);
 	}
 
-	// validate that the style for display is correct for displaying a code block
-	// (so if there is a code block, the style is not set to display:none, otherwise it is
-	validateCodeBlockDisplay (display) {
-		if (this.wantCodeBlock) {
-			Assert(!display, 'displayCodeBlock is set');
+	// validate that the style for display is correct for displaying a marker
+	// (so if there is a marker, the style is not set to display:none, otherwise it is
+	validateMarkerDisplay (display) {
+		if (this.wantMarker) {
+			Assert(!display, 'displayMarker is set');
 		}
 		else {
-			Assert.equal(display, 'display:none', 'displayCodeBlock is not set to display:none');
+			Assert.equal(display, 'display:none', 'displayMarker is not set to display:none');
 		}
 	}
 

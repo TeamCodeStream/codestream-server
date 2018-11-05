@@ -31,14 +31,6 @@ class RandomPostFactory {
 		return RandomString.generate(length);
 	}
 
-	// generate a random commit hash
-	randomCommitHash () {
-		// we're pretty lax here, just create a random 40-character string,
-		// won't really look too much like an actual git commit hash, but it
-		// shouldn't matter
-		return RandomString.generate(40);
-	}
-
 	// get some data to use for a random post, given various options
 	getRandomPostData (callback, options = {}) {
 		let data = {};
@@ -47,30 +39,8 @@ class RandomPostFactory {
 		}
 		data.streamId = options.streamId;
 		data.stream = options.stream;
-		if (options.commitHash) {
-			data.commitHashWhenPosted = options.commitHash;
-		}
-		if (options.wantCodeBlocks) {
-			// for code blocks, we'll generate some random text for the code and a random
-			// location structure, not a very accurate representation of real code
-			data.codeBlocks = [];
-			for (let i = 0; i < options.wantCodeBlocks; i++) {
-				let codeBlockInfo = {
-					code: this.randomText(),
-					location: this.markerFactory.randomLocation()
-				};
-				if (options.codeBlockStreamId) {
-					// for code blocks that come from a different stream than the one the post will go into
-					codeBlockInfo.streamId = options.codeBlockStreamId;
-				}
-				else if (options.codeBlockStream) {
-					// for code blocks that come from a different stream than the one the post will go into,
-					// and the stream will be created on the fly
-					Object.assign(codeBlockInfo, options.codeBlockStream);
-				}
-				data.commitHashWhenPosted = data.commitHashWhenPosted || this.randomCommitHash();
-				data.codeBlocks.push(codeBlockInfo);
-			}
+		if (options.wantCodemark) {
+			data.codemark = this.codemarkFactory.getRandomCodemarkData(options);
 		}
 		if (options.parentPostId) {
 			// for replies

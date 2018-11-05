@@ -35,7 +35,7 @@ class PostDeleter extends ModelDeleter {
 		await this.getPost();			// get the post
 		await this.deleteMarkers();		// delete any associated markers
 		await this.getParentPost();		// get the parent post (if this is a reply)
-		await this.updateNumComments();	// update numComments field in a parent marker, if needed
+		await this.updateNumReplies();	// update numReplies field in a parent codemark, if needed
 		this.addEditToHistory();		// add this deactivation to the maintained history of edits
 		await super.preDelete();		// base-class preDelete
 	}
@@ -53,9 +53,9 @@ class PostDeleter extends ModelDeleter {
 
 	// delete any associated markers
 	async deleteMarkers () {
-		const codeBlocks = this.post.get('codeBlocks') || [];
-		const markerIds = codeBlocks
-			.map(codeBlock => codeBlock.markerId)
+		const markers = this.post.get('markers') || [];
+		const markerIds = markers
+			.map(marker => marker.markerId)
 			.filter(markerId => markerId);
 		this.transforms.markerUpdates = [];
 		await Promise.all(markerIds.map(async markerId => {
@@ -81,37 +81,27 @@ class PostDeleter extends ModelDeleter {
 		);
 	}
 
-	// if the deleted post is a reply to a post with code block(s),
-	// update the numComments attribute of the associated marker(s)
-	async updateNumComments () {
-		if (!this.parentPost || !(this.parentPost.get('codeBlocks') instanceof Array)) {
+	// if the deleted post is a reply to a post with an codemark,
+	// update the numReplies attribute of the associated codemark
+	async updateNumReplies () {
+		if (!this.parentPost || !this.parentPost.get('codemarkId')) {
 			return;
 		}
-		const markerIds = this.parentPost.get('codeBlocks')
-			.map(codeBlock => codeBlock.markerId)
-			.filter(markerId => markerId);
-		this.transforms.markerUpdates = this.transforms.markerUpdates || [];
-		await Promise.all(markerIds.map(async markerId => {
-			await this.updateNumCommentsForMarker(markerId);
-		}));
-	}
-
-	// if the deleted post is a reply to a post with code block(s),
-	// update the numComments attribute of the given marker
-	async updateNumCommentsForMarker (markerId) {
-		if (!markerId) { return; }
-		// update the database, and also save the marker op for publishing to clients
+		const codemark = await this.request.data.codemarks.getById(this.parentPost.get('codemarkId'));
+		if (!codemark || !codemark.get('numReplies')) { 
+			return; 
+		}
 		const op = { 
-			$inc: { 
-				numComments: -1 
-			} 
+			$set: {
+				numReplies: codemark.get('numReplies') - 1
+			}
 		};
-		const markerUpdate = await new ModelSaver({
+		const codemarkUpdate = await new ModelSaver({
 			request: this.request,
-			collection: this.request.data.markers,
-			id: markerId
+			collection: this.request.data.codemarks,
+			id: codemark.id
 		}).save(op);
-		this.transforms.markerUpdates.push(markerUpdate);
+		this.transforms.codemarkUpdates.push(codemarkUpdate);
 	}
 
 	// add an edit to the maintained history of edits

@@ -19,7 +19,6 @@ class PutPostRequestTester {
 		new ACLTest().test();
 		new ACLTeamTest().test();
 		new PostNotFoundTest().test();
-		new MessageTest({ streamType: 'file' }).test();
 		new MessageTest({ streamType: 'channel' }).test();
 		new MessageTest({ streamType: 'direct' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();

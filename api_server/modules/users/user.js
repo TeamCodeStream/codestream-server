@@ -67,6 +67,8 @@ class User extends CodeStreamModel {
 			return await this.authorizePost(id, request);
 		case 'marker':
 			return await this.authorizeMarker(id, request);
+		case 'codemark': 
+			return await this.authorizeCodemark(id, request);
 		case 'user':
 			return await this.authorizeUser(id, request);
 		default:
@@ -145,10 +147,34 @@ class User extends CodeStreamModel {
 			throw request.errorHandler.error('notFound', { info: 'marker' });
 		}
 		const authorized = await this.authorizeStream(
-			marker.get('streamId'),
+			marker.get('fileStreamId'),
 			request
 		);
 		return authorized ? marker : false;
+	}
+
+	// authorize the user to "access" an codemark model, based on ID
+	async authorizeCodemark (id, request) {
+		// to access an codemark, the user must have access to the stream it belongs to
+		// (for read access)
+		const codemark = await request.data.codemarks.getById(id);
+		if (!codemark) {
+			throw request.errorHandler.error('notFound', { info: 'codemark' });
+		}
+		let authorized;
+		if (codemark.get('providerType')) {
+			authorized = await this.authorizeTeam(
+				codemark.get('teamId'),
+				request
+			);
+		}
+		else {
+			authorized = await this.authorizeStream(
+				codemark.get('streamId'),
+				request
+			);
+		}
+		return authorized ? codemark : false;
 	}
 
 	// authorize the user to "access" a user model, based on ID

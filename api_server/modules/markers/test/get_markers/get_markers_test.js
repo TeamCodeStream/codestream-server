@@ -3,6 +3,7 @@
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const MarkerTestConstants = require('../marker_test_constants');
+const Assert = require('assert');
 
 class GetMarkersTest extends CodeStreamAPITest {
 
@@ -15,8 +16,9 @@ class GetMarkersTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			numPosts: 5,
 			creatorIndex: 1,
-			wantCodeBlock: true,
-			codeBlockStreamId: 0,	// will use the existing file stream created for the repo
+			wantCodemark: true,
+			wantMarker: true,
+			markerStreamId: 0,	// will use the existing file stream created for the repo
 			commitHash: this.repoFactory.randomCommitHash()
 		});
 	}
@@ -29,12 +31,13 @@ class GetMarkersTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.setPath			// set the path to use for the request
+			this.setMarkers,
+			this.setPath
 		], callback);
 	}
 
-	// get the query parameters to use for the request
-	getQueryParameters () {
+	// set the markers established for the test
+	setMarkers (callback) {
 		this.markers = this.postData.map(postData => postData.markers[0]);
 		this.locations = this.postData.reduce((locations, postData) => {
 			const markerId = postData.markers[0]._id;
@@ -42,6 +45,11 @@ class GetMarkersTest extends CodeStreamAPITest {
 			return locations;
 		}, {});
 		this.markers.push(this.repoMarker);
+		callback();
+	}
+
+	// get query parameters to use in the test query
+	getQueryParameters () {
 		return {
 			teamId: this.team._id,
 			streamId: this.repoStreams[0]._id
@@ -50,10 +58,10 @@ class GetMarkersTest extends CodeStreamAPITest {
 
 	// set the path to use for the request
 	setPath (callback) {
+		this.expectedMarkers = this.markers;
 		const queryParameters = this.getQueryParameters();
 		this.path = '/markers?' + Object.keys(queryParameters).map(parameter => {
-			const value = queryParameters[parameter];
-			return `${parameter}=${value}`;
+			return `${parameter}=${queryParameters[parameter]}`;
 		}).join('&');
 		callback();
 	}
@@ -61,8 +69,18 @@ class GetMarkersTest extends CodeStreamAPITest {
 	// validate correct response
 	validateResponse (data) {
 		// validate we got the correct markers, and that they are sanitized (free of attributes we don't want the client to see)
-		this.validateMatchingObjects(data.markers, this.markers, 'markers');
+		this.validateMatchingObjects(data.markers, this.expectedMarkers, 'markers');
 		this.validateSanitizedObjects(data.markers, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
+
+		// make sure that for each marker, we also got a post and an codemark that reference the marker
+		data.markers.forEach(marker => {
+			const codemark = data.codemarks.find(codemark => codemark._id === marker.codemarkId);
+			Assert(codemark, 'no codemark found for marker');
+			if (!marker.providerType) {
+				const post = data.posts.find(post => post._id === codemark.postId);
+				Assert(post, 'no post found for marker\'s codemark');
+			}
+		});
 	}
 }
 

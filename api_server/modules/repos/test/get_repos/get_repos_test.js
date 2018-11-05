@@ -13,7 +13,8 @@ class GetReposTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			creatorIndex: [0, 1, 1],
 			numPosts: 3,
-			wantCodeBlock: true
+			wantCodemark: true,
+			wantMarker: true
 		});
 	}
 
@@ -43,7 +44,7 @@ class GetReposTest extends CodeStreamAPITest {
 		});
 	}
 	
-	// create a repo in the foreign team (by creating a post with a code block)
+	// create a repo in the foreign team (by creating a post with a marker)
 	createForeignRepo (callback) {
 		this.postFactory.createRandomPost(
 			(error, response) => {
@@ -55,11 +56,9 @@ class GetReposTest extends CodeStreamAPITest {
 				token: this.users[1].accessToken,
 				teamId: this.foreignTeam._id,
 				streamId: this.foreignTeamStream._id,
-				wantCodeBlocks: 1,
-				codeBlockStream: {
-					file: this.streamFactory.randomFile(),
-					remotes: [this.repoFactory.randomUrl()]
-				}
+				wantCodemark: true,
+				wantMarkers: 1,
+				withRandomStream: true
 			}
 		);
 	}

@@ -27,10 +27,8 @@ describe('inbound emails', function() {
 
 	this.timeout(20000);
 
-	new InboundEmailTest({ type: 'file' }).test();
 	new InboundEmailTest({ type: 'channel' }).test();
 	new InboundEmailTest({ type: 'direct' }).test();
-	new InboundEmailMessageTest({ type: 'file' }).test();
 	new InboundEmailMessageTest({ type: 'channel' }).test();
 	new InboundEmailMessageTest({ type: 'direct' }).test();
 	new InboundEmailMessageTest({ type: 'channel', isTeamStream: true }).test();
@@ -50,9 +48,8 @@ describe('inbound emails', function() {
 	new StreamNotFoundTest().test();
 	new StreamNoMatchTeamTest().test();
 	new OriginatorNotInTeamTest().test();
-	new TrackingTest({ type: 'file' }).test();
 	new TrackingTest({ type: 'channel' }).test();
 	new TrackingTest({ type: 'channel', makePublic: true }).test();
 	new TrackingTest({ type: 'direct' }).test();
-	new NoTrackingTest().test();
+	new NoTrackingTest().test(); 
 });

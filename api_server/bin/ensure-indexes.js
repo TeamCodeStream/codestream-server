@@ -19,6 +19,7 @@ const AllModuleIndexes = {
 	streams: require(process.env.CS_API_TOP + '/modules/streams/indexes.js'),
 	posts: require(process.env.CS_API_TOP + '/modules/posts/indexes.js'),
 	markers: require(process.env.CS_API_TOP + '/modules/markers/indexes.js'),
+	codemarks: require(process.env.CS_API_TOP + '/modules/codemarks/indexes.js'),
 	users: require(process.env.CS_API_TOP + '/modules/users/indexes.js'),
 	signupTokens: require(process.env.CS_API_TOP + '/modules/users/signup_token_indexes.js'),
 	versionMatrix: require(process.env.CS_API_TOP + '/modules/versioner/indexes.js')

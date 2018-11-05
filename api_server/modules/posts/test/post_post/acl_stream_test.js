@@ -17,8 +17,7 @@ class ACLStreamTest extends PostPostTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1011',
-			reason: 'not authorized for stream'
+			code: 'RAPI-1011'
 		};
 	}
 }

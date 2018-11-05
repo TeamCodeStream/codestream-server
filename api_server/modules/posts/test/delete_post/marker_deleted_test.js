@@ -10,7 +10,7 @@ class MarkerDeletedTest extends DeletePostTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.postOptions.wantCodeBlock = true;
+			this.postOptions.wantMarker = true;
 			callback();
 		});
 	}

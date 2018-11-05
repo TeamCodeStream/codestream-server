@@ -18,10 +18,15 @@ class Marker extends CodeStreamModel {
 	// called right before we save...
 	async preSave (options) {
 		// ensure all IDs are lowercase
-		this.lowerCase(this.attributes.teamId);
-		this.lowerCase(this.attributes.streamId);
-		this.lowerCase(this.attributes.postId);
-		this.lowerCase(this.attributes.commitHashWhenCreated);
+		this.lowerCase('teamId');
+		this.lowerCase('repoId');
+		this.lowerCase('fileStreamId');
+		if (!this.attributes.providerType) {
+			this.lowerCase('postId');
+			this.lowerCase('streamId');
+			this.lowerCase('postStreamId');
+		}
+		this.lowerCase('commitHashWhenCreated');
 		await super.preSave(options);
 	}
 }

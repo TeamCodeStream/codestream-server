@@ -1,28 +1,32 @@
 'use strict';
 
-const CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 
-class NoCommitHashWithFileTest extends CodeBlockFromDifferentStreamTest {
+class NoCommitHashWithFileTest extends CodemarkMarkerTest {
 
 	constructor (options) {
-		options = Object.assign(options || {}, { streamType: 'channel' });
 		super(options);
-		this.dontExpectMarkers = true;
+		this.dontExpectCommitHash = true;
+		this.dontExpectRepo = true;
+		this.dontExpectRepoId = true;
+		this.dontExpectFileStreamId = true;
 	}
 
 	get description () {
-		return 'should be ok to create a post with a code block but not providing a commit hash even if there is a file';
+		return 'should be ok to create a post and codemark with a marker but not providing a commit hash even if there is a file';
 	}
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
 		// remove the commit hash from the data to use in creating the post
-		// also remove the stream ID, making the statement that we are not associating the code block with a stream at all...
-		// also add a file ... with to stream, this file still shows up with the code block, but is not associate with a stream
+		// also remove the stream ID but supply a file, making the statement 
+		// that we are not associating the marker with a stream at all...
+		// but we still have a file name
 		super.makePostData(() => {
-			delete this.data.commitHashWhenPosted;
-			delete this.data.codeBlocks[0].streamId;	
-			this.data.codeBlocks[0].file = this.streamFactory.randomFile();
+			const marker = this.data.codemark.markers[0];
+			delete marker.commitHash;
+			delete marker.fileStreamId;
+			this.expectedFile = marker.file = this.streamFactory.randomFile();
 			callback();
 		});
 	}

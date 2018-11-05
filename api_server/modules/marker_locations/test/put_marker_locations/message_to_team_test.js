@@ -14,8 +14,9 @@ class MessageToTeamTest extends CodeStreamMessageTest {
 		Object.assign(this.postOptions, {
 			numPosts: 5,
 			creatorIndex: 1,
-			wantCodeBlock: true,
-			codeBlockStreamId: 0,	// will use the existing file stream created for the repo
+			wantCodemark: true,
+			wantMarker: true,
+			markerStreamId: 0,	// will use the existing file stream created for the repo
 			commitHash: this.repoFactory.randomCommitHash()
 		});
 	}
@@ -62,7 +63,7 @@ class MessageToTeamTest extends CodeStreamMessageTest {
 
 	// set the data to be used in the request that triggers the message
 	setData (callback) {
-		this.newCommitHash = this.postFactory.randomCommitHash();	// a new commit hash for the adjusted locations
+		this.newCommitHash = this.repoFactory.randomCommitHash();	// a new commit hash for the adjusted locations
 		this.data = {
 			teamId: this.team._id,
 			streamId: this.repoStreams[0]._id,

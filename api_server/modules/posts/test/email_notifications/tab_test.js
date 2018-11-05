@@ -7,7 +7,7 @@ class MultiLineTest extends EmailNotificationTest {
 	constructor (options) {
 		super(options);
 		this.wantTabs = true;
-		this.wantCodeBlock = true;
+		this.wantMarker = true;
 	}
 
 	get description () {

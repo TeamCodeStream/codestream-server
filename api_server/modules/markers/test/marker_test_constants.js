@@ -4,6 +4,8 @@
 
 const MarkerAttributes = require(process.env.CS_API_TOP + '/modules/markers/marker_attributes');
 const MarkerLocationsAttributes = require(process.env.CS_API_TOP + '/modules/marker_locations/marker_locations_attributes');
+const CodemarkAttributes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_attributes');
+const PostAttributes = require(process.env.CS_API_TOP + '/modules/posts/post_attributes');
 
 const EXPECTED_MARKER_FIELDS = [
 	'_id',
@@ -12,11 +14,14 @@ const EXPECTED_MARKER_FIELDS = [
 	'modifiedAt',
 	'creatorId',
 	'teamId',
-	'streamId',
-	'postId',
+	'fileStreamId',
 	'postStreamId',
-	'numComments',
-	'commitHashWhenCreated'
+	'commitHashWhenCreated',
+	'locationWhenCreated',
+	'code',
+	'file',
+	'repo',
+	'repoId'
 ];
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(MarkerAttributes).filter(attribute => {
@@ -27,8 +32,18 @@ const UNSANITIZED_MARKER_LOCATIONS_ATTRIBUTES = Object.keys(MarkerLocationsAttri
 	return MarkerLocationsAttributes[attribute].serverOnly;
 });
 
+const UNSANITIZED_CODEMARK_ATTRIBUTES = Object.keys(CodemarkAttributes).filter(attribute => {
+	return CodemarkAttributes[attribute].serverOnly;
+});
+
+const UNSANITIZED_POST_ATTRIBUTES = Object.keys(PostAttributes).filter(attribute => {
+	return PostAttributes[attribute].serverOnly;
+});
+
 module.exports = {
 	EXPECTED_MARKER_FIELDS,
 	UNSANITIZED_ATTRIBUTES,
-	UNSANITIZED_MARKER_LOCATIONS_ATTRIBUTES
+	UNSANITIZED_MARKER_LOCATIONS_ATTRIBUTES,
+	UNSANITIZED_CODEMARK_ATTRIBUTES,
+	UNSANITIZED_POST_ATTRIBUTES
 };

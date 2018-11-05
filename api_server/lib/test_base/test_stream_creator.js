@@ -84,30 +84,11 @@ class TestStreamCreator {
 		const postOptions = {
 			streamId: this.stream._id,
 		};
-		if (this.postOptions.wantCodeBlock || 
-			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantCodeBlock)) {
-			postOptions.wantCodeBlocks = 1;
-			if (typeof this.postOptions.codeBlockStreamId !== 'undefined') {
-				if (
-					typeof this.postOptions.codeBlockStreamId === 'number' &&
-					this.repoStreams
-				) {
-					postOptions.codeBlockStreamId = this.repoStreams[this.postOptions.codeBlockStreamId]._id;
-				}
-				else {
-					postOptions.codeBlockStreamId = this.postOptions.codeBlockStreamId;
-				}
-			}
-			else {
-				postOptions.codeBlockStream = {
-					file: this.test.streamFactory.randomFile(),
-					remotes: [this.test.repoFactory.randomUrl()]
-				};
-			}
-			if (this.postOptions.commitHash) {
-				postOptions.commitHash = this.postOptions.commitHash;
-			}
+
+		if (this.postOptions.wantCodemark) {
+			this.setCodemarkOptions(postOptions, n);	
 		}
+
 		if (this.postOptions.postData && this.postOptions.postData[n]) {
 			const postData = this.postOptions.postData[n];
 			if (typeof postData.replyTo !== 'undefined') {
@@ -116,6 +97,7 @@ class TestStreamCreator {
 			}
 			Object.assign(postOptions, this.postOptions.postData[n]);
 		}
+
 		const creatorIndex = this.postOptions.creatorIndex instanceof Array ? 
 			this.postOptions.creatorIndex[n] :
 			this.postOptions.creatorIndex;
@@ -130,6 +112,45 @@ class TestStreamCreator {
 		);
 	}
 
+	setCodemarkOptions (options, n) {
+		options.wantCodemark = true;
+
+		if (this.postOptions.wantMarker || 
+			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantMarker)) {
+			this.setMarkerOptions(options);
+		}
+
+		if (this.postOptions.codemarkTypes) {
+			if (this.postOptions.assignedTypes) {
+				options.codemarkType = this.postOptions.codemarkTypes[this.postOptions.assignedTypes[n]];
+			}
+			else {
+				const typeIndex = Math.floor(Math.random() * this.postOptions.codemarkTypes.length);
+				options.codemarkType = this.postOptions.codemarkTypes[typeIndex];
+			}
+		}
+	}
+
+	setMarkerOptions (options) {
+		options.wantMarkers = 1;
+		if (typeof this.postOptions.markerStreamId !== 'undefined') {
+			if (
+				typeof this.postOptions.markerStreamId === 'number' &&
+				this.repoStreams
+			) {
+				options.fileStreamId = this.repoStreams[this.postOptions.markerStreamId]._id;
+			}
+			else {
+				options.fileStreamId = this.postOptions.markerStreamId;
+			}
+		}
+		else {
+			options.withRandomStream = true;
+		}
+		if (this.postOptions.commitHash) {
+			options.commitHash = this.postOptions.commitHash;
+		}
+	}
 }
 
 module.exports = TestStreamCreator;

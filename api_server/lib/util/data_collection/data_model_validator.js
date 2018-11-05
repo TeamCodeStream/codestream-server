@@ -84,6 +84,7 @@ class DataModelValidator {
 				this.warnings.push(`Deleting attribute ${attribute}, attribute not found in attribute definitions`);
 				delete this.attributes[attribute];
 			}
+			return;
 		}
 
 		// lookup the attribute type, we must have a validation function for this attribute type or we'll delete

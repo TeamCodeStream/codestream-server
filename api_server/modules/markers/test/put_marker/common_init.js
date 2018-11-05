@@ -24,8 +24,9 @@ class CommonInit {
 		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			creatorIndex: 1,
-			wantCodeBlock: true,
-			codeBlockStreamId: 0,	// will use the existing file stream created for the repo
+			wantCodemark: true,
+			wantMarker: true,
+			markerStreamId: 0,	// will use the existing file stream created for the repo
 			commitHash: this.repoFactory.randomCommitHash()
 		});
 		callback();
@@ -50,6 +51,7 @@ class CommonInit {
 				}
 			}
 		};
+		this.expectedData.marker.$set.commitHashWhenCreated = this.expectedData.marker.$set.commitHashWhenCreated.toLowerCase();
 		this.expectedMarker = DeepClone(this.marker);
 		Object.assign(this.expectedMarker, this.expectedData.marker.$set);
 		this.modifiedAfter = Date.now();

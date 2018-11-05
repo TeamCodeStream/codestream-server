@@ -2,16 +2,16 @@
 
 var EmailNotificationTest = require('./email_notification_test');
 
-class CodeBlockTest extends EmailNotificationTest {
+class MarkerTest extends EmailNotificationTest {
 
 	constructor (options) {
 		super(options);
-		this.wantCodeBlock = true;
+		this.wantMarker = true;
 	}
 
 	get description () {
-		return 'email notification for post with code block should display the code block';
+		return 'email notification for post with marker should display the marker';
 	}
 }
 
-module.exports = CodeBlockTest;
+module.exports = MarkerTest;

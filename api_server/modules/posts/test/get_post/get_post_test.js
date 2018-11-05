@@ -12,11 +12,7 @@ class GetPostTest extends CodeStreamAPITest {
 		this.teamOptions.creatorIndex = 1;
 		this.streamOptions.creatorIndex = 1;
 		this.streamOptions.type = this.type;
-		this.repoOptions.creatorIndex = 1;
 		this.postOptions.creatorIndex = this.mine ? 0 : 1;
-		if (this.type === 'file') {
-			this.postOptions.wantCodeBlock = true;
-		}
 	}
 
 	get description () {
@@ -26,11 +22,7 @@ class GetPostTest extends CodeStreamAPITest {
 
 	// get the fields expected to be returned by the request being tested
 	getExpectedFields () {
-		let response = { post: PostTestConstants.EXPECTED_POST_FIELDS };
-		if (this.type === 'file') {	// posts in a file stream have additional fields
-			response.post = [...response.post, ...PostTestConstants.EXPECTED_FILE_POST_FIELDS];
-		}
-		return response;
+		return { post: PostTestConstants.EXPECTED_POST_FIELDS };
 	}
 
 	// before the test runs...

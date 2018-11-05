@@ -22,14 +22,14 @@ class GetRequest extends RestfulRequest {
 	async process() {
 		// fetch the document by ID
 		let id = this.request.params.id;
-		const model = await this.data[this.module.collectionName].getById(id);
+		this.model = await this.data[this.module.collectionName].getById(id);
 		const modelName = this.module.modelName || 'model';
-		if (!model) {
+		if (!this.model) {
 			throw this.errorHandler.error('notFound', { info: modelName });
 		}
 		this.responseData = this.responseData || {};
 		// sanitize it for returning to client (eliminate any attributes we don't want the client to see)
-		this.responseData[modelName] = model.getSanitizedObject();
+		this.responseData[modelName] = this.model.getSanitizedObject();
 	}
 
 	// describe this route for help

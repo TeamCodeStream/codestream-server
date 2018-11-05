@@ -7,7 +7,7 @@ class LeadingSpacesTest extends EmailNotificationTest {
 	constructor (options) {
 		super(options);
 		this.wantLeadingSpaces = true;
-		this.wantCodeBlock = true;
+		this.wantMarker = true;
 	}
 
 	get description () {

@@ -1,17 +1,17 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 
-class InvalidCoordinateObjectTest extends CodeBlockTest {
+class InvalidCoordinateObjectTest extends CodemarkMarkerTest {
 
 	get description () {
-		return 'should return error when attempting to create a post with a code block element where the fifth location coordinate is not an object';
+		return 'should return error when attempting to create a post and codemark with a marker element where the fifth location coordinate is not an object';
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'codeBlocks: fifth element of location must be an object'
+			info: 'fifth element of location must be an object'
 		};
 	}
 
@@ -19,7 +19,7 @@ class InvalidCoordinateObjectTest extends CodeBlockTest {
 	makePostData (callback) {
 		// add a fifth coordinate element that is not an object ... not allowed!
 		super.makePostData(() => {
-			this.data.codeBlocks[0].location = [1, 2, 3, 4, 5];
+			this.data.codemark.markers[0].location = [1, 2, 3, 4, 5];
 			callback();
 		});
 	}

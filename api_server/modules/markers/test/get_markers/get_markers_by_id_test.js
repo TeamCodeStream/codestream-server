@@ -12,12 +12,12 @@ class GetMarkersByIdTest extends GetMarkersTest {
 	getQueryParameters () {
 		// we'll restrict to a few of the IDs
 		const queryParameters = super.getQueryParameters();
-		this.markers = [
+		this.expectedMarkers = [
 			this.markers[0],
 			this.markers[2],
 			this.markers[3]
 		];
-		queryParameters.ids = this.markers.map(marker => marker._id);
+		queryParameters.ids = this.expectedMarkers.map(marker => marker._id);
 		return queryParameters;
 	}
 }

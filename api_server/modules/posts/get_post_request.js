@@ -6,10 +6,42 @@ const GetRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_reque
 
 class GetPostRequest extends GetRequest {
 
+	async process () {
+		await super.process();
+		await this.getCodemark();		// get the knowledge base codemark referenced by this post, if any
+		await this.getMarkers();	// get the markers referenced by this post, if any
+	}
+
+	// get the codemark referenced by this post, if any
+	async getCodemark () {
+		const codemarkId = this.model.get('codemarkId');
+		if (!codemarkId) { return; }
+		this.codemark = await this.data.codemarks.getById(codemarkId);
+		if (!this.codemark) { return; }
+		this.responseData.codemark = this.codemark.getSanitizedObject();
+	}
+
+	// get the markers referenced by this post, if any
+	async getMarkers () {
+		if (!this.codemark) { return; }
+		const markerIds = this.codemark.get('markerIds') || [];
+		if (markerIds.length === 0) { return; }
+		const markers = await this.data.markers.getByIds(markerIds);
+		this.responseData.markers = markers.map(marker => marker.getSanitizedObject());
+	}
+
 	// describe this route for help
 	static describe (module) {
 		const description = GetRequest.describe(module);
 		description.access = 'For posts in a file stream, user must be a member of the team that owns the file stream; for other streams, user must be a member of the stream';
+		description.description = 'Returns the post; also returns the knowledge-base codemark referenced by this post, if any, as well as any markers referenced by the codemark';
+		description.access = 'User must be a member of the stream that owns the codemark';
+		description.returns.summary = 'A post object, along with any referenced codemark and markers',
+		Object.assign(description.returns.looksLike, {
+			post: '<the fetched @@#post object#post@@>',
+			codemark: '<the @@#codemark object#codemark@@ referenced by this post, if any>',
+			markers: '<any code @@#markers#markers@@ referenced by the codemark>'
+		});
 		return description;
 	}
 }

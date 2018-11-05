@@ -53,7 +53,8 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((post.modifiedAt >= post.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((post.creatorId === this.currentUser.user._id) || errors.push('creatorId not equal to current user id')) &&
 			((post.seqNum === expectedSeqNum) || errors.push('seqNum not equal to expected seqNum')) &&
-			((post.origin === expectedOrigin) || errors.push('origin not equal to expected origin'))
+			((post.origin === expectedOrigin) || errors.push('origin not equal to expected origin')) &&
+			((post.numReplies === 0) || errors.push('numReplies should be 0'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 
@@ -83,8 +84,8 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 				after: this.expectedVersion
 			}
 		};
-		if (this.wantCodeBlock && !this.dontExpectMarkers) {
-			expectedStreamUpdate.$inc = { numMarkers: 1 };
+		if (this.expectMarker) {
+			expectedStreamUpdate.$set.numMarkers = 1;
 		}
 		Assert.deepEqual(streamUpdate, expectedStreamUpdate, 'stream update not correct');		
 	}

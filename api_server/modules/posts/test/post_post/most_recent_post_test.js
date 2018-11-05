@@ -11,7 +11,7 @@ class MostRecentPostTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			creatorIndex: 0,
 			numPosts: 3,
-			wantCodeBlock: true
+			wantMarker: true
 		});
 	}
 

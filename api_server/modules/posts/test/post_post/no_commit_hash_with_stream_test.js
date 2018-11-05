@@ -1,30 +1,29 @@
 'use strict';
 
-const CodeBlockFromDifferentStreamTest = require('./code_block_from_different_stream_test');
+const CodemarkMarkertest = require('./codemark_marker_test');
 
-class NoCommitHashWithStreamTest extends CodeBlockFromDifferentStreamTest {
-
-	constructor (options) {
-		options = Object.assign(options || {}, { streamType: 'channel' });
-		super(options);
-	}
+class NoCommitHashWithStreamTest extends CodemarkMarkertest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block but not providing a commit hash, when a stream is also specified';
+		return 'should return an error when attempting to create a post and codemark with a marker but not providing a commit hash, when a stream is also specified';
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'commitHash must be provided for codeBlocks attached to a stream'
+			info: 'commitHash must be provided for markers attached to a stream'
 		};
 	}
 
 	// form the data to use in trying to create the post
 	makePostData (callback) {
-		// remove the commit hash from the data to use in creating the post
+		// remove the commit hash from the data to use in creating the post, but supply a file and remotes,
+		// meaning to create the stream on the fly
 		super.makePostData(() => {
-			delete this.data.commitHashWhenPosted;
+			const marker = this.data.codemark.markers[0];
+			delete marker.commitHash;
+			marker.file = this.streamFactory.randomFile();
+			marker.remotes = [this.repoFactory.randomUrl()];
 			callback();
 		});
 	}

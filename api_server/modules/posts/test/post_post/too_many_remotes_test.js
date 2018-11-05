@@ -1,11 +1,11 @@
 'use strict';
 
-const CodeBlockTest = require('./code_block_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 
-class TooManyRemotesTest extends CodeBlockTest {
+class TooManyRemotesTest extends CodemarkMarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a code block element where the remotes array has too many elements';
+		return 'should return an error when attempting to create a post and codemark with a marker element where the remotes array has too many elements';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class TooManyRemotesTest extends CodeBlockTest {
 	makePostData (callback) {
 		// set the "remotes" field to an array of 101 elements
 		super.makePostData(() => {
-			this.data.codeBlocks[0].remotes = new Array(101).fill('x');
+			this.data.codemark.markers[0].remotes = new Array(101).fill('x');
 			callback();
 		});
 	}

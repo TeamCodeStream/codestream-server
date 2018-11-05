@@ -8,9 +8,6 @@ const MarkerNotFoundTest = require('./marker_not_found_test');
 const MessageToTeamTest = require('./message_to_team_test');
 const MessageToStreamTest = require('./message_to_stream_test');
 const NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
-const SetPostIdTest = require('./set_post_id_test');
-const MarkerAlreadyHasPostIdTest = require('./marker_already_has_post_id_test');
-const NoAttributeTest = require('./no_attribute_test');
 
 class PutMarkerRequestTester {
 
@@ -23,10 +20,6 @@ class PutMarkerRequestTester {
 		new MessageToStreamTest({ streamType: 'direct' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'streamId' }).test();
-		new SetPostIdTest().test();
-		new MarkerAlreadyHasPostIdTest().test();
-		new NoAttributeTest({ attribute: 'postStreamId' }).test();
-		new NoAttributeTest({ attribute: 'providerType' }).test();
 	}
 }
 

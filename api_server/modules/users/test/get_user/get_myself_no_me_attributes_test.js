@@ -12,7 +12,7 @@ class GetMyselfNoMeAttributesTest extends GetMyselfTest {
 		this.teamOptions.numAdditionalInvites = 2;
 		this.streamOptions.creatorIndex = 1;
 		this.postOptions.creatorIndex = 1;
-		this.postOptions.wantCodeBlock = true;
+		this.postOptions.wantMarker = true;
 	}
 
 	get description () {
