@@ -16,7 +16,6 @@ const EXPECTED_MARKER_FIELDS = [
 	'teamId',
 	'fileStreamId',
 	'postStreamId',
-	'numReplies',
 	'commitHashWhenCreated',
 	'locationWhenCreated',
 	'code',
