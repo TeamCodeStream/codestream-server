@@ -1,8 +1,8 @@
 'use strict';
 
-const GetCodeMarksTest = require('./get_codemarks_test');
+const GetCodemarksTest = require('./get_codemarks_test');
 
-class GetCodeMarksWithMarkersTest extends GetCodeMarksTest {
+class GetCodemarksWithMarkersTest extends GetCodemarksTest {
 
 	constructor (options) {
 		super(options);
@@ -14,4 +14,4 @@ class GetCodeMarksWithMarkersTest extends GetCodeMarksTest {
 	}
 }
 
-module.exports = GetCodeMarksWithMarkersTest;
+module.exports = GetCodemarksWithMarkersTest;

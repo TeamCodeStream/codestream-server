@@ -68,7 +68,7 @@ class User extends CodeStreamModel {
 		case 'marker':
 			return await this.authorizeMarker(id, request);
 		case 'codemark': 
-			return await this.authorizeCodeMark(id, request);
+			return await this.authorizeCodemark(id, request);
 		case 'user':
 			return await this.authorizeUser(id, request);
 		default:
@@ -154,7 +154,7 @@ class User extends CodeStreamModel {
 	}
 
 	// authorize the user to "access" an codemark model, based on ID
-	async authorizeCodeMark (id, request) {
+	async authorizeCodemark (id, request) {
 		// to access an codemark, the user must have access to the stream it belongs to
 		// (for read access)
 		const codemark = await request.data.codemarks.getById(id);

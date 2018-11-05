@@ -1,8 +1,8 @@
 'use strict';
 
-const PostCodeMarkTest = require('./post_codemark_test');
+const PostCodemarkTest = require('./post_codemark_test');
 
-class EmptyPostIdTest extends PostCodeMarkTest {
+class EmptyPostIdTest extends PostCodemarkTest {
 
 	get description () {
 		return 'should be ok to create an codemark without a post ID if there is also no stream ID';

@@ -2,11 +2,11 @@
 
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const CodeMarkTestConstants = require('../codemark_test_constants');
+const CodemarkTestConstants = require('../codemark_test_constants');
 const RandomString = require('randomstring');
 const Assert = require('assert');
 
-class GetPostlessCodeMarkTest extends CodeStreamAPITest {
+class GetPostlessCodemarkTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
@@ -18,20 +18,20 @@ class GetPostlessCodeMarkTest extends CodeStreamAPITest {
 	}
 
 	getExpectedFields () {
-		return { codemark: CodeMarkTestConstants.EXPECTED_CODEMARK_FIELDS };
+		return { codemark: CodemarkTestConstants.EXPECTED_CODEMARK_FIELDS };
 	}
 
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.createCodeMark
+			this.createCodemark
 		], callback);
 	}
 
 	// create the codemark to fetch
-	createCodeMark (callback) {
-		const data = this.makeCodeMarkData();
+	createCodemark (callback) {
+		const data = this.makeCodemarkData();
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -49,8 +49,8 @@ class GetPostlessCodeMarkTest extends CodeStreamAPITest {
 	}
 
 	// make the data for the codemark to be created for the test
-	makeCodeMarkData () {
-		const data = this.codemarkFactory.getRandomCodeMarkData();
+	makeCodemarkData () {
+		const data = this.codemarkFactory.getRandomCodemarkData();
 		Object.assign(data, {
 			teamId: this.team._id,
 			providerType: RandomString.generate(8),
@@ -65,8 +65,8 @@ class GetPostlessCodeMarkTest extends CodeStreamAPITest {
 		// validate we got the correct codemark, and that we only got sanitized attributes
 		this.validateMatchingObject(this.codemark._id, data.codemark, 'codemark');
 		Assert.equal(data.post, undefined, 'post is not undefined');
-		this.validateSanitized(data.codemark, CodeMarkTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(data.codemark, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = GetPostlessCodeMarkTest;
+module.exports = GetPostlessCodemarkTest;

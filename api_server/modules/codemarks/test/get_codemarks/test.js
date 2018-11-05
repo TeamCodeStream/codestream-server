@@ -2,29 +2,29 @@
 
 'use strict';
 
-const GetCodeMarksTest = require('./get_codemarks_test');
-const GetCodeMarksWithMarkersTest = require('./get_codemarks_with_markers_test');
-const GetCodeMarksByTypeTest = require('./get_codemarks_by_type_test');
-const GetPostlessCodeMarksTest = require('./get_postless_codemarks_test');
-const GetPostlessCodeMarksByTypeTest = require('./get_postless_codemarks_by_type_test');
-const GetPostlessCodeMarksWithMarkersTest = require('./get_postless_codemarks_with_markers_test');
-const GetCodeMarksBeforeTest = require('./get_codemarks_before_test');
-const GetCodeMarksAfterTest = require('./get_codemarks_after_test');
+const GetCodemarksTest = require('./get_codemarks_test');
+const GetCodemarksWithMarkersTest = require('./get_codemarks_with_markers_test');
+const GetCodemarksByTypeTest = require('./get_codemarks_by_type_test');
+const GetPostlessCodemarksTest = require('./get_postless_codemarks_test');
+const GetPostlessCodemarksByTypeTest = require('./get_postless_codemarks_by_type_test');
+const GetPostlessCodemarksWithMarkersTest = require('./get_postless_codemarks_with_markers_test');
+const GetCodemarksBeforeTest = require('./get_codemarks_before_test');
+const GetCodemarksAfterTest = require('./get_codemarks_after_test');
 //const ACLTest = require('./acl_test');
 
-class GetCodeMarksRequestTester {
+class GetCodemarksRequestTester {
 
 	test () {
-		new GetCodeMarksTest().test();
-		new GetCodeMarksWithMarkersTest().test();
-		new GetCodeMarksByTypeTest().test();
-		new GetPostlessCodeMarksTest().test();
-		new GetPostlessCodeMarksByTypeTest().test();
-		new GetPostlessCodeMarksWithMarkersTest().test();
-		new GetCodeMarksBeforeTest().test();
-		new GetCodeMarksAfterTest().test();
+		new GetCodemarksTest().test();
+		new GetCodemarksWithMarkersTest().test();
+		new GetCodemarksByTypeTest().test();
+		new GetPostlessCodemarksTest().test();
+		new GetPostlessCodemarksByTypeTest().test();
+		new GetPostlessCodemarksWithMarkersTest().test();
+		new GetCodemarksBeforeTest().test();
+		new GetCodemarksAfterTest().test();
 		//new ACLTest().test();
 	}
 }
 
-module.exports = new GetCodeMarksRequestTester();
+module.exports = new GetCodemarksRequestTester();

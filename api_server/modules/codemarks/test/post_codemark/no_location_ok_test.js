@@ -9,9 +9,9 @@ class NoLocationOkTest extends MarkerTest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// completely remove the location, this is permitted
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			delete this.data.markers[0].location;
 			callback();
 		});

@@ -1,15 +1,15 @@
-// provides the CodeMark model for handling codemarks
+// provides the Codemark model for handling codemarks
 
 'use strict';
 
 const CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
 const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
-const CodeMarkAttributes = require('./codemark_attributes');
+const CodemarkAttributes = require('./codemark_attributes');
 
-class CodeMark extends CodeStreamModel {
+class Codemark extends CodeStreamModel {
 
 	getValidator () {
-		return new CodeStreamModelValidator(CodeMarkAttributes);
+		return new CodeStreamModelValidator(CodemarkAttributes);
 	}
 
 	// called right before we save...
@@ -25,4 +25,4 @@ class CodeMark extends CodeStreamModel {
 	}
 }
 
-module.exports = CodeMark;
+module.exports = Codemark;

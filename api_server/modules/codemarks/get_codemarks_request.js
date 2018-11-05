@@ -5,7 +5,7 @@
 const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 
-class GetCodeMarksRequest extends GetManyRequest {
+class GetCodemarksRequest extends GetManyRequest {
 
 	// authorize the request
 	async authorize () {
@@ -142,4 +142,4 @@ class GetCodeMarksRequest extends GetManyRequest {
 	}
 }
 
-module.exports = GetCodeMarksRequest;
+module.exports = GetCodemarksRequest;

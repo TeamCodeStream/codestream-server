@@ -2,10 +2,10 @@
 
 const Assert = require('assert');
 const NormalizeURL = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
-const CodeMarkTestConstants = require('../codemark_test_constants');
+const CodemarkTestConstants = require('../codemark_test_constants');
 const Path = require('path');
 
-class CodeMarkValidator {
+class CodemarkValidator {
 
 	constructor (options) {
 		Object.assign(this, options);
@@ -13,33 +13,33 @@ class CodeMarkValidator {
 
 	/* eslint complexity: 0 */
 	// validate the response to the test request
-	validateCodeMark (data) {
+	validateCodemark (data) {
 		// verify we got back an codemark with the attributes we specified
 		const codemark = data.codemark;
 		let errors = [];
 		let result = (
 			((codemark.teamId === this.test.team._id) || errors.push('teamId does not match the team')) &&
-			((codemark.streamId === (this.inputCodeMark.streamId || '')) || errors.push('streamId does not match the stream')) &&
-			((codemark.postId === (this.inputCodeMark.postId || '')) || errors.push('postId does not match the post')) &&
+			((codemark.streamId === (this.inputCodemark.streamId || '')) || errors.push('streamId does not match the stream')) &&
+			((codemark.postId === (this.inputCodemark.postId || '')) || errors.push('postId does not match the post')) &&
 			((codemark.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof codemark.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((codemark.modifiedAt >= codemark.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((codemark.creatorId === this.test.currentUser.user._id) || errors.push('creatorId not equal to current user id')) &&
-			((codemark.type === this.inputCodeMark.type) || errors.push('type does not match')) &&
-			((codemark.status === this.inputCodeMark.status) || errors.push('status does not match')) &&
-			((codemark.color === this.inputCodeMark.color) || errors.push('color does not match')) &&
-			((codemark.text === this.inputCodeMark.text) || errors.push('text does not match')) &&
-			((codemark.title === this.inputCodeMark.title) || errors.push('title does not match')) &&
+			((codemark.type === this.inputCodemark.type) || errors.push('type does not match')) &&
+			((codemark.status === this.inputCodemark.status) || errors.push('status does not match')) &&
+			((codemark.color === this.inputCodemark.color) || errors.push('color does not match')) &&
+			((codemark.text === this.inputCodemark.text) || errors.push('text does not match')) &&
+			((codemark.title === this.inputCodemark.title) || errors.push('title does not match')) &&
 			((codemark.numReplies === 0) || errors.push('codemark should have 0 replies'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 
 		// verify the codemark in the response has no attributes that should not go to clients
-		this.test.validateSanitized(codemark, CodeMarkTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.test.validateSanitized(codemark, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// if we are expecting a provider type, check it now
 		if (this.test.expectProviderType) {
-			Assert.equal(codemark.providerType, this.inputCodeMark.providerType, 'providerType is not equal to the given providerType');
+			Assert.equal(codemark.providerType, this.inputCodemark.providerType, 'providerType is not equal to the given providerType');
 		}
 		else {
 			Assert.equal(typeof codemark.providerType, 'undefined', 'codemark providerType should be undefined');
@@ -78,7 +78,7 @@ class CodeMarkValidator {
 		Assert(data.markers instanceof Array, 'markers is not an array');
 		Assert.equal(data.markers.length, 1, 'length of markers array should be 1');
 		const marker = data.markers[0];
-		const inputMarker = this.inputCodeMark.markers[0];
+		const inputMarker = this.inputCodemark.markers[0];
 		const repoUrl = this.getExpectedRepoUrl(inputMarker);
 		const file = this.getExpectedFile(inputMarker);
 		const repoId = this.getExpectedRepoId(data);
@@ -114,7 +114,7 @@ class CodeMarkValidator {
 		Assert.deepEqual(codemark.fileStreamIds, [marker.fileStreamId || null], 'codemark fileStreamIds does not match the file streams of the created markers');
 
 		// verify the marker has no attributes that should not go to clients
-		this.test.validateSanitized(marker, CodeMarkTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
+		this.test.validateSanitized(marker, CodemarkTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
 	}
 
 	// get the URL of the repo we expect to see in the marker
@@ -184,7 +184,7 @@ class CodeMarkValidator {
 
 	// validate that the marker locations structure matches expectations for a created marker
 	validateMarkerLocations (data) {
-		const inputMarker = this.inputCodeMark.markers[0];
+		const inputMarker = this.inputCodemark.markers[0];
 		if (this.test.dontExpectMarkerLocations || !inputMarker.commitHash || !inputMarker.location) { 
 			Assert.equal(typeof data.markerLocations, 'undefined', 'markerLocations should be undefined');
 			return;
@@ -209,7 +209,7 @@ class CodeMarkValidator {
 		const stream = data.streams.find(stream => stream.createdAt);
 		const repo = this.test.repoOnTheFly ? data.repos[0] : this.test.repo;
 		const marker = data.markers[0];
-		const inputMarker = this.inputCodeMark.markers[0];
+		const inputMarker = this.inputCodemark.markers[0];
 		const file = this.test.streamOnTheFly ? inputMarker.file : this.test.repoStreams[0].file;
 		let result = (
 			((stream.teamId === this.test.team._id) || errors.push('stream teamId does not match')) &&
@@ -221,7 +221,7 @@ class CodeMarkValidator {
 		Assert(result === true && errors.length === 0, 'returned stream not valid: ' + errors.join(', '));
 
 		// verify the stream has no attributes that should not go to clients
-		this.test.validateSanitized(stream, CodeMarkTestConstants.UNSANITIZED_STREAM_ATTRIBUTES);
+		this.test.validateSanitized(stream, CodemarkTestConstants.UNSANITIZED_STREAM_ATTRIBUTES);
 	}
 
 	// validate that the created repo matches expectations
@@ -230,7 +230,7 @@ class CodeMarkValidator {
 		const repo = data.repos[0];
 		const stream = this.test.streamOnTheFly ? data.streams[0] : this.repoStreams[0];
 		const marker = data.markers[0];
-		const inputMarker = this.inputCodeMark.markers[0];
+		const inputMarker = this.inputCodemark.markers[0];
 		let result = (
 			((repo.teamId === this.test.team._id) || errors.push('repo teamId does not match')) &&
 			((repo._id === marker.repoId) || errors.push('marker repoId does not match the created repo')) &&
@@ -251,8 +251,8 @@ class CodeMarkValidator {
 		}
 
 		// verify the repo has no attributes that should not go to clients
-		this.test.validateSanitized(repo, CodeMarkTestConstants.UNSANITIZED_REPO_ATTRIBUTES);
+		this.test.validateSanitized(repo, CodemarkTestConstants.UNSANITIZED_REPO_ATTRIBUTES);
 	}
 }
 
-module.exports = CodeMarkValidator;
+module.exports = CodemarkValidator;

@@ -5,7 +5,7 @@
 const PostAttributes = require(process.env.CS_API_TOP + '/modules/posts/post_attributes');
 const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stream_attributes');
 const MarkerAttributes = require(process.env.CS_API_TOP + '/modules/markers/marker_attributes');
-const CodeMarkAttributes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_attributes');
+const CodemarkAttributes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_attributes');
 
 // fields expected in all posts
 const EXPECTED_POST_FIELDS = [
@@ -34,8 +34,8 @@ const UNSANITIZED_MARKER_ATTRIBUTES = Object.keys(MarkerAttributes).filter(attri
 	return MarkerAttributes[attribute].serverOnly;
 });
 
-const UNSANITIZED_CODEMARK_ATTRIBUTES = Object.keys(CodeMarkAttributes).filter(attribute => {
-	return CodeMarkAttributes[attribute].serverOnly;
+const UNSANITIZED_CODEMARK_ATTRIBUTES = Object.keys(CodemarkAttributes).filter(attribute => {
+	return CodemarkAttributes[attribute].serverOnly;
 });
 
 module.exports = {

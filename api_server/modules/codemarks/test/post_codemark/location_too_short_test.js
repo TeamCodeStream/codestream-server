@@ -16,9 +16,9 @@ class LocationTooShortTest extends MarkerTest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// 3 elements in the location array ... not allowed!
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			this.data.markers[0].location = [1, 2, 3];
 			callback();
 		});

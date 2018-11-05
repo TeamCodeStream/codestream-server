@@ -1,8 +1,8 @@
 'use strict';
 
-const PostCodeMarkTest = require('./post_codemark_test');
+const PostCodemarkTest = require('./post_codemark_test');
 
-class ACLTeamTest extends PostCodeMarkTest {
+class ACLTeamTest extends PostCodemarkTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {

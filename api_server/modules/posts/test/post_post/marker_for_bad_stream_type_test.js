@@ -1,9 +1,9 @@
 'use strict';
 
-const CodeMarkMarkerTest = require('./codemark_marker_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
-class MarkerForBadStreamTypeTest extends CodeMarkMarkerTest {
+class MarkerForBadStreamTypeTest extends CodemarkMarkerTest {
 
 	get description () {
 		return `should return an error when attempting to create a post and codemark with a marker element where the stream is of type ${this.streamType}`;

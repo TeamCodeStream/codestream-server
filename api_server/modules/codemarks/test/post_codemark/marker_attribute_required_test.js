@@ -16,9 +16,9 @@ class MarkerAttributeRequiredTest extends MarkerTest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// delete the marker attribute
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			delete this.data.markers[0][this.attribute];
 			callback();
 		});

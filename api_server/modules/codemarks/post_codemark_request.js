@@ -6,7 +6,7 @@ const PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_req
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 
-class PostCodeMarkRequest extends PostRequest {
+class PostCodemarkRequest extends PostRequest {
 
 	// authorize the request for the current user
 	async authorize () {
@@ -23,7 +23,7 @@ class PostCodeMarkRequest extends PostRequest {
 
 	async process () {
 		// providerType is required for incoming requests, other attribute requirements
-		// will be enforced by CodeMarkCreator
+		// will be enforced by CodemarkCreator
 		if (!this.request.body.providerType) {
 			throw this.errorHandler.error('parameterRequired', { info: 'providerType' });
 		}
@@ -175,4 +175,4 @@ class PostCodeMarkRequest extends PostRequest {
 	}
 }
 
-module.exports = PostCodeMarkRequest;
+module.exports = PostCodemarkRequest;

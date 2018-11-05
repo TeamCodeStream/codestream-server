@@ -26,7 +26,7 @@ class TestTeamCreator {
 				repo: this.repo,
 				repoStreams: this.repoStreams,
 				repoPost: this.repoPost,
-				repoCodeMark: this.repoCodeMark,
+				repoCodemark: this.repoCodemark,
 				repoMarker: this.repoMarker,
 				users: this.users,
 				currentUser: this.currentUser,
@@ -201,14 +201,14 @@ class TestTeamCreator {
 				this.repo = response.repos[0];
 				this.repoStreams = response.streams;
 				this.repoPost = response.post;
-				this.repoCodeMark = response.codemark;
+				this.repoCodemark = response.codemark;
 				this.repoMarker = response.markers[0];
 				callback();
 			},
 			{
 				token,
 				streamId: this.teamStream._id,
-				wantCodeMark: true,
+				wantCodemark: true,
 				wantMarkers: 1,
 				withRandomStream: true,
 				withRemotes: this.repoOptions.withRemotes,

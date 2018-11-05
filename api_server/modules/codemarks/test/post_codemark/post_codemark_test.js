@@ -4,11 +4,11 @@
 
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const CodeMarkTestConstants = require('../codemark_test_constants');
+const CodemarkTestConstants = require('../codemark_test_constants');
 const CommonInit = require('./common_init');
-const CodeMarkValidator = require('./codemark_validator');
+const CodemarkValidator = require('./codemark_validator');
 
-class PostCodeMarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
+class PostCodemarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	constructor (options) {
 		super(options);
@@ -28,7 +28,7 @@ class PostCodeMarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	getExpectedFields () {
-		const expectedFields = CodeMarkTestConstants.EXPECTED_CODEMARK_FIELDS;
+		const expectedFields = CodemarkTestConstants.EXPECTED_CODEMARK_FIELDS;
 		return { codemark: expectedFields };
 	}
 
@@ -41,11 +41,11 @@ class PostCodeMarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify we got back an codemark with the attributes we specified
-		new CodeMarkValidator({
+		new CodemarkValidator({
 			test: this,
-			inputCodeMark: this.data
-		}).validateCodeMark(data);
+			inputCodemark: this.data
+		}).validateCodemark(data);
 	}
 }
 
-module.exports = PostCodeMarkTest;
+module.exports = PostCodemarkTest;

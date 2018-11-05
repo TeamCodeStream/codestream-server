@@ -2,7 +2,7 @@
 
 const NumRepliesMessageToStreamTest = require('./num_replies_message_to_stream_test');
 
-class NumRepliesToCodeMarkMessageTest extends NumRepliesMessageToStreamTest {
+class NumRepliesToCodemarkMessageTest extends NumRepliesMessageToStreamTest {
 
 	get description () {
 		return `members of a ${this.type} stream should receive the updated codemark with numReplies incremented along with the updated parent post when a reply is created to a post with an codemark`;
@@ -10,7 +10,7 @@ class NumRepliesToCodeMarkMessageTest extends NumRepliesMessageToStreamTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.postOptions.wantCodeMark = true;
+			this.postOptions.wantCodemark = true;
 			callback();
 		});
 	}
@@ -36,4 +36,4 @@ class NumRepliesToCodeMarkMessageTest extends NumRepliesMessageToStreamTest {
 	}
 }
 
-module.exports = NumRepliesToCodeMarkMessageTest;
+module.exports = NumRepliesToCodemarkMessageTest;

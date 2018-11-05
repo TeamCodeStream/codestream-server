@@ -2,7 +2,7 @@
 
 'use strict';
 
-const CodeMarkAttributes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_attributes');
+const CodemarkAttributes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_attributes');
 const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stream_attributes');
 const RepoAttributes = require(process.env.CS_API_TOP + '/modules/repos/repo_attributes');
 const MarkerAttributes = require(process.env.CS_API_TOP + '/modules/markers/marker_attributes');
@@ -25,8 +25,8 @@ const EXPECTED_CODEMARK_FIELDS = [
 	'numReplies'
 ];
 
-const UNSANITIZED_ATTRIBUTES = Object.keys(CodeMarkAttributes).filter(attribute => {
-	return CodeMarkAttributes[attribute].serverOnly;
+const UNSANITIZED_ATTRIBUTES = Object.keys(CodemarkAttributes).filter(attribute => {
+	return CodemarkAttributes[attribute].serverOnly;
 });
 
 const UNSANITIZED_STREAM_ATTRIBUTES = Object.keys(StreamAttributes).filter(attribute => {

@@ -14,8 +14,8 @@ class CommonInit {
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
-			this.makePostlessCodeMark,
-			this.makeCodeMarkData
+			this.makePostlessCodemark,
+			this.makeCodemarkData
 		], callback);
 	}
 
@@ -24,8 +24,8 @@ class CommonInit {
 		callback();
 	}
 
-	makePostlessCodeMark (callback) {
-		const codemarkData = this.codemarkFactory.getRandomCodeMarkData();
+	makePostlessCodemark (callback) {
+		const codemarkData = this.codemarkFactory.getRandomCodemarkData();
 		Object.assign(codemarkData, {
 			teamId: this.team._id,
 			providerType: RandomString.generate(8)
@@ -46,7 +46,7 @@ class CommonInit {
 	}
 
 	// form the data for the codemark update
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		this.data = {
 			postId: RandomString.generate(10),
 			streamId: RandomString.generate(10)
@@ -65,8 +65,8 @@ class CommonInit {
 				}
 			}
 		};
-		this.expectedCodeMark = DeepClone(this.codemark);
-		Object.assign(this.expectedCodeMark, this.expectedData.codemark.$set);
+		this.expectedCodemark = DeepClone(this.codemark);
+		Object.assign(this.expectedCodemark, this.expectedData.codemark.$set);
 		this.modifiedAfter = Date.now();
 		this.path = '/codemarks/' + this.codemark._id;
 		callback();

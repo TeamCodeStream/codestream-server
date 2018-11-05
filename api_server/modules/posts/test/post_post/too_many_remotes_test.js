@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeMarkMarkerTest = require('./codemark_marker_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 
-class TooManyRemotesTest extends CodeMarkMarkerTest {
+class TooManyRemotesTest extends CodemarkMarkerTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post and codemark with a marker element where the remotes array has too many elements';

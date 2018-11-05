@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeMarkMarkerTest = require('./codemark_marker_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 
-class NoLocationOkTest extends CodeMarkMarkerTest {
+class NoLocationOkTest extends CodemarkMarkerTest {
 
 	get description () {
 		return 'should accept the post and codemark and return them when no location is given with a marker';

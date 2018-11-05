@@ -12,7 +12,7 @@ class GetMarkerTest extends CodeStreamAPITest {
 		this.streamOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			creatorIndex: 1,
-			wantCodeMark: true,
+			wantCodemark: true,
 			wantMarker: true
 		});
 	}

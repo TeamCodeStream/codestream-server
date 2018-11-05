@@ -176,7 +176,7 @@ class GetPostsRequest extends GetManyRequest {
 	// process the request (overrides base class)
 	async process () {
 		await super.process();	// do the usual "get-many" processing
-		await this.getCodeMarks();	// get associated codemarks, as needed
+		await this.getCodemarks();	// get associated codemarks, as needed
 		await this.getMarkers();	// get associated markers, as needed
 
 		// add the "more" flag as needed, if there are more posts to fetch ...
@@ -188,7 +188,7 @@ class GetPostsRequest extends GetManyRequest {
 	}
 
 	// get the codemarks associated with the fetched posts, as needed
-	async getCodeMarks () {
+	async getCodemarks () {
 		const codemarkIds = this.models.reduce((codemarkIds, post) => {
 			if (post.get('codemarkId')) {
 				codemarkIds.push(post.get('codemarkId'));

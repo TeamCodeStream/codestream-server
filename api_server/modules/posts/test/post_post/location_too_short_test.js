@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeMarkMarkerTest = require('./codemark_marker_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 
-class LocationTooShortTest extends CodeMarkMarkerTest {
+class LocationTooShortTest extends CodemarkMarkerTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post and codemark with a marker element where the location array is too short';

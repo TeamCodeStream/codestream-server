@@ -16,9 +16,9 @@ class InvalidCoordinateObjectTest extends MarkerTest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// add a fifth coordinate element that is not an object ... not allowed!
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			this.data.markers[0].location = [1, 2, 3, 4, 5];
 			callback();
 		});

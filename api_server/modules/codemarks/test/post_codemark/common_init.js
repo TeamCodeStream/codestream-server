@@ -12,7 +12,7 @@ class CommonInit {
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
-			this.makeCodeMarkData		// make the data associated with the test codemark to be created
+			this.makeCodemarkData		// make the data associated with the test codemark to be created
 		], callback);
 	}
 	
@@ -22,9 +22,9 @@ class CommonInit {
 	}
 
 	// form the data for the codemark we'll create in the test
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		this.codemarkCreatedAfter = Date.now();
-		this.data = this.codemarkFactory.getRandomCodeMarkData();
+		this.data = this.codemarkFactory.getRandomCodemarkData();
 		Object.assign(this.data, {
 			teamId: this.team._id,
 			providerType: RandomString.generate(8),

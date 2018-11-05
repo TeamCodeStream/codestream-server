@@ -1,9 +1,9 @@
 'use strict';
 
-const GetPostlessCodeMarksTest = require('./get_postless_codemarks_test');
+const GetPostlessCodemarksTest = require('./get_postless_codemarks_test');
 const Assert = require('assert');
 
-class GetPostlessCodeMarksByTypeTest extends GetPostlessCodeMarksTest {
+class GetPostlessCodemarksByTypeTest extends GetPostlessCodemarksTest {
 
 	get description () {
 		return 'should return the correct codemarks when requesting codemarks for a team and by type and the codemarks are for third-party provider';
@@ -11,7 +11,7 @@ class GetPostlessCodeMarksByTypeTest extends GetPostlessCodeMarksTest {
 
 	setPath (callback) {
 		this.type = this.postOptions.codemarkTypes[1];
-		this.expectedCodeMarks = this.codemarks.filter(codemark => codemark.type === this.type);
+		this.expectedCodemarks = this.codemarks.filter(codemark => codemark.type === this.type);
 		this.path = `/codemarks?teamId=${this.team._id}&type=${this.type}`;
 		callback();
 	}
@@ -25,4 +25,4 @@ class GetPostlessCodeMarksByTypeTest extends GetPostlessCodeMarksTest {
 	}
 }
 
-module.exports = GetPostlessCodeMarksByTypeTest;
+module.exports = GetPostlessCodemarksByTypeTest;

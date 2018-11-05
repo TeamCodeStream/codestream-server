@@ -16,9 +16,9 @@ class MarkerNotObjectTest extends MarkerTest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// we'll add a "numeric" code-block ... not allowed!
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			this.data.markers.push(1);
 			callback();
 		});

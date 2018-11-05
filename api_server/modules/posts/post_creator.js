@@ -10,7 +10,7 @@ const EmailNotificationQueue = require('./email_notification_queue');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const CodeMarkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_creator');
+const CodemarkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_creator');
 
 class PostCreator extends ModelCreator {
 
@@ -54,7 +54,7 @@ class PostCreator extends ModelCreator {
 		await this.getStream();			// get the stream for the post
 		await this.getTeam();			// get the team that owns the stream
 		await this.getCompany();		// get the company that owns the team
-		await this.createCodeMark();		// create the associated knowledge-base codemarks, if any
+		await this.createCodemark();		// create the associated knowledge-base codemarks, if any
 		await this.getSeqNum();			// requisition a sequence number for the post
 		await super.preSave();			// base-class preSave
 		await this.updateStream();		// update the stream as needed
@@ -95,7 +95,7 @@ class PostCreator extends ModelCreator {
 	}
 
 	// create an associated knowledge base codemark, if applicable
-	async createCodeMark () {
+	async createCodemark () {
 		if (!this.attributes.codemark) {
 			return;
 		}
@@ -104,11 +104,11 @@ class PostCreator extends ModelCreator {
 			streamId: this.stream.id,
 			postId: this.attributes._id
 		});
-		this.transforms.createdCodeMark = await new CodeMarkCreator({
+		this.transforms.createdCodemark = await new CodemarkCreator({
 			request: this.request
-		}).createCodeMark(codemarkAttributes);
+		}).createCodemark(codemarkAttributes);
 		delete this.attributes.codemark;
-		this.attributes.codemarkId = this.transforms.createdCodeMark.id;
+		this.attributes.codemarkId = this.transforms.createdCodemark.id;
 	}
 
 	// requisition a sequence number for this post
@@ -190,7 +190,7 @@ class PostCreator extends ModelCreator {
 		}
 		this.parentPost = await this.data.posts.getById(this.model.get('parentPostId'));
 		await this.updateParentPost();
-		await this.updateParentCodeMark();
+		await this.updateParentCodemark();
 	}
 
 	// update numReplies for a parent post to this post
@@ -208,7 +208,7 @@ class PostCreator extends ModelCreator {
 	}
 	
 	// update numReplies for the parent post's codemark, if any
-	async updateParentCodeMark () {
+	async updateParentCodemark () {
 		if (!this.parentPost.get('codemarkId')) {
 			return;
 		}

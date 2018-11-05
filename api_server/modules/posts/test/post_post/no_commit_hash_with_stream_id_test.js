@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeMarkMarkertest = require('./codemark_marker_test');
+const CodemarkMarkertest = require('./codemark_marker_test');
 
-class NoCommitHashWithStreamIdTest extends CodeMarkMarkertest {
+class NoCommitHashWithStreamIdTest extends CodemarkMarkertest {
 
 	constructor (options) {
 		super(options);

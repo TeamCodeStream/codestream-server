@@ -11,7 +11,7 @@ class NumMarkersTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			creatorIndex: 0,
 			numPosts: 3,
-			wantCodeMark: true,
+			wantCodemark: true,
 			wantMarker: true
 		});
 	}

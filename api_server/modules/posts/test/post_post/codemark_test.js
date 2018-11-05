@@ -2,9 +2,9 @@
 
 const PostPostTest = require('./post_post_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const CodeMarkValidator = require(process.env.CS_API_TOP + '/modules/codemarks/test/post_codemark/codemark_validator');
+const CodemarkValidator = require(process.env.CS_API_TOP + '/modules/codemarks/test/post_codemark/codemark_validator');
 
-class CodeMarkTest extends PostPostTest {
+class CodemarkTest extends PostPostTest {
 
 	constructor (options) {
 		super(options);
@@ -19,12 +19,12 @@ class CodeMarkTest extends PostPostTest {
 	makePostData (callback) {
 		BoundAsync.series(this, [
 			super.makePostData,
-			this.addCodeMarkData
+			this.addCodemarkData
 		], callback);
 	}
 
-	addCodeMarkData (callback) {
-		this.data.codemark = this.codemarkFactory.getRandomCodeMarkData();
+	addCodemarkData (callback) {
+		this.data.codemark = this.codemarkFactory.getRandomCodemarkData();
 		callback();
 	}
 
@@ -33,16 +33,16 @@ class CodeMarkTest extends PostPostTest {
 	validateResponse (data) {
 		// validate that we got an codemark in the response
 		// verify we got back an codemark with the attributes we specified
-		const inputCodeMark = Object.assign(this.data.codemark, {
+		const inputCodemark = Object.assign(this.data.codemark, {
 			streamId: this.stream._id,
 			postId: data.post._id
 		});
-		new CodeMarkValidator({
+		new CodemarkValidator({
 			test: this,
-			inputCodeMark
-		}).validateCodeMark(data);
+			inputCodemark
+		}).validateCodemark(data);
 		super.validateResponse(data);
 	}
 }
 
-module.exports = CodeMarkTest;
+module.exports = CodemarkTest;

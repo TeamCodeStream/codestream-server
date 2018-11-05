@@ -39,8 +39,8 @@ class RandomPostFactory {
 		}
 		data.streamId = options.streamId;
 		data.stream = options.stream;
-		if (options.wantCodeMark) {
-			data.codemark = this.codemarkFactory.getRandomCodeMarkData(options);
+		if (options.wantCodemark) {
+			data.codemark = this.codemarkFactory.getRandomCodemarkData(options);
 		}
 		if (options.parentPostId) {
 			// for replies

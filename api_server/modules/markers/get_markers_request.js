@@ -20,7 +20,7 @@ class GetMarkersRequest extends GetManyRequest {
 	// process the request...
 	async process () {
 		await super.process();				// do the usual "get-many" processing
-		await this.getCodeMarks();	// get associated codemarks, as needed
+		await this.getCodemarks();	// get associated codemarks, as needed
 		await this.getPosts();	// get associated posts, as needed
 		await this.fetchMarkerLocations();	// if the user passes a commit hash, we give them whatever marker locations we have for that commit
 	}
@@ -78,7 +78,7 @@ class GetMarkersRequest extends GetManyRequest {
 	}
 
 	// get the codemarks associated with the fetched markers, as needed
-	async getCodeMarks () {
+	async getCodemarks () {
 		const codemarkIds = this.models.map(marker => marker.get('codemarkId'));
 		if (codemarkIds.length === 0) {
 			return;

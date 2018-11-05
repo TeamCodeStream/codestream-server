@@ -14,7 +14,7 @@ class MessageToTeamTest extends CodeStreamMessageTest {
 		Object.assign(this.postOptions, {
 			numPosts: 5,
 			creatorIndex: 1,
-			wantCodeMark: true,
+			wantCodemark: true,
 			wantMarker: true,
 			markerStreamId: 0,	// will use the existing file stream created for the repo
 			commitHash: this.repoFactory.randomCommitHash()

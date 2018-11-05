@@ -3,11 +3,11 @@
 const GetPostTest = require('./get_post_test');
 const PostTestConstants = require('../post_test_constants');
 
-class GetPostWithCodeMarkTest extends GetPostTest {
+class GetPostWithCodemarkTest extends GetPostTest {
 
 	constructor (options) {
 		super(options);
-		this.postOptions.wantCodeMark = true;
+		this.postOptions.wantCodemark = true;
 	}
 
 	get description () {
@@ -24,4 +24,4 @@ class GetPostWithCodeMarkTest extends GetPostTest {
 	}
 }
 
-module.exports = GetPostWithCodeMarkTest;
+module.exports = GetPostWithCodemarkTest;

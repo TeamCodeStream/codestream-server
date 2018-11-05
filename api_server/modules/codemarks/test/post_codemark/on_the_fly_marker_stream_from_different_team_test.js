@@ -18,11 +18,11 @@ class OnTheFlyMarkerStreamFromDifferentTeamTest extends MarkerStreamOnTheFlyTest
 	}
 
 	// form the data we'll use in creating the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// before forming the codemark data, we'll create a second repo and file-type
 		// stream, we'll use this for the marker
 		BoundAsync.series(this, [
-			super.makeCodeMarkData,
+			super.makeCodemarkData,
 			this.createForeignTeam
 		], callback);
 	}

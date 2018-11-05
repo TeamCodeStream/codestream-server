@@ -3,11 +3,11 @@
 const GetPostsTest = require('./get_posts_test');
 const Assert = require('assert');
 
-class GetPostsWithCodeMarksTest extends GetPostsTest {
+class GetPostsWithCodemarksTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
-		this.postOptions.wantCodeMark = true;
+		this.postOptions.wantCodemark = true;
 	}
 
 	get description () {
@@ -24,4 +24,4 @@ class GetPostsWithCodeMarksTest extends GetPostsTest {
 	}
 }
 
-module.exports = GetPostsWithCodeMarksTest;
+module.exports = GetPostsWithCodemarksTest;

@@ -2,9 +2,9 @@
 
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const CodeMarkTestConstants = require('../codemark_test_constants');
+const CodemarkTestConstants = require('../codemark_test_constants');
 
-class GetCodeMarkTest extends CodeStreamAPITest {
+class GetCodemarkTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
@@ -12,7 +12,7 @@ class GetCodeMarkTest extends CodeStreamAPITest {
 		this.streamOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			creatorIndex: 1,
-			wantCodeMark: true
+			wantCodemark: true
 		});
 	}
 
@@ -21,7 +21,7 @@ class GetCodeMarkTest extends CodeStreamAPITest {
 	}
 
 	getExpectedFields () {
-		return { codemark: CodeMarkTestConstants.EXPECTED_CODEMARK_FIELDS };
+		return { codemark: CodemarkTestConstants.EXPECTED_CODEMARK_FIELDS };
 	}
 
 	// before the test runs...
@@ -44,12 +44,12 @@ class GetCodeMarkTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		// validate we got the correct codemark, and that we only got sanitized attributes
 		this.validateMatchingObject(this.codemark._id, data.codemark, 'codemark');
-		this.validateSanitized(data.codemark, CodeMarkTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(data.codemark, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// validate we also got the parent post, with only sanitized attributes
 		this.validateMatchingObject(this.postData[0].post._id, data.post, 'post');
-		this.validateSanitized(data.post, CodeMarkTestConstants.UNSANITIZED_POST_ATTRIBUTES);
+		this.validateSanitized(data.post, CodemarkTestConstants.UNSANITIZED_POST_ATTRIBUTES);
 	}
 }
 
-module.exports = GetCodeMarkTest;
+module.exports = GetCodemarkTest;

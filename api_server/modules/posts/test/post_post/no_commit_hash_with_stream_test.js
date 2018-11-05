@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeMarkMarkertest = require('./codemark_marker_test');
+const CodemarkMarkertest = require('./codemark_marker_test');
 
-class NoCommitHashWithStreamTest extends CodeMarkMarkertest {
+class NoCommitHashWithStreamTest extends CodemarkMarkertest {
 
 	get description () {
 		return 'should return an error when attempting to create a post and codemark with a marker but not providing a commit hash, when a stream is also specified';

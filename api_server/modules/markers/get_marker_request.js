@@ -8,12 +8,12 @@ class GetMarkerRequest extends GetRequest {
 
 	async process () {
 		await super.process();
-		await this.getCodeMark();	// get the parent codemark
+		await this.getCodemark();	// get the parent codemark
 		await this.getPost();	// get the referencing post, if any
 	}
 
 	// get the parent codemark to this marker
-	async getCodeMark () {
+	async getCodemark () {
 		const codemarkId = this.model.get('codemarkId');
 		this.codemark = await this.data.codemarks.getById(codemarkId);
 		if (!this.codemark) { return; } // shouldn't happen

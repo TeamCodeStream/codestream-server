@@ -1,10 +1,10 @@
 'use strict';
 
-const GetCodeMarksTest = require('./get_codemarks_test');
+const GetCodemarksTest = require('./get_codemarks_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const RandomString = require('randomstring');
 
-class GetPostlessCodeMarksTest extends GetCodeMarksTest {
+class GetPostlessCodemarksTest extends GetCodemarksTest {
 
 	constructor (options) {
 		super(options);
@@ -20,25 +20,25 @@ class GetPostlessCodeMarksTest extends GetCodeMarksTest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.createCodeMarks,
-			this.setCodeMarks,
+			this.createCodemarks,
+			this.setCodemarks,
 			this.setPath
 		], callback);
 	}
 
-	createCodeMarks (callback) {
+	createCodemarks (callback) {
 		this.postData = [];
 		BoundAsync.timesSeries(
 			this,
 			10,
-			this.createCodeMark,
+			this.createCodemark,
 			callback
 		);
 	}
 
-	createCodeMark (n, callback) {
+	createCodemark (n, callback) {
 		const type = this.postOptions.codemarkTypes[this.postOptions.assignedTypes[n]];
-		const codemarkData = this.codemarkFactory.getRandomCodeMarkData({ codemarkType: type });
+		const codemarkData = this.codemarkFactory.getRandomCodemarkData({ codemarkType: type });
 		Object.assign(codemarkData, {
 			teamId: this.team._id,
 			providerType: RandomString.generate(8),
@@ -64,4 +64,4 @@ class GetPostlessCodeMarksTest extends GetCodeMarksTest {
 	}
 }
 
-module.exports = GetPostlessCodeMarksTest;
+module.exports = GetPostlessCodemarksTest;

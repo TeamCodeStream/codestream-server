@@ -4,7 +4,7 @@ const PostReplyTest = require('./post_reply_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
 
-class CodeMarkNumRepliesTest extends PostReplyTest {
+class CodemarkNumRepliesTest extends PostReplyTest {
 
 	get description () {
 		return 'parent post\'s codemark should get its numReplies attribute incremented when a reply is created for a post with an codemark';
@@ -12,7 +12,7 @@ class CodeMarkNumRepliesTest extends PostReplyTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.postOptions.wantCodeMark = true;
+			this.postOptions.wantCodemark = true;
 			callback();
 		});
 	}
@@ -21,12 +21,12 @@ class CodeMarkNumRepliesTest extends PostReplyTest {
 	run (callback) {
 		BoundAsync.series(this, [
 			super.run,	// this posts the reply and checks the result, but then...
-			this.checkCodeMark	// ...we'll check the codemark
+			this.checkCodemark	// ...we'll check the codemark
 		], callback);
 	}
 
 	// check the codemark associated with the parent post
-	checkCodeMark (callback) {
+	checkCodemark (callback) {
 		// get the codemark
 		this.doApiRequest(
 			{
@@ -44,4 +44,4 @@ class CodeMarkNumRepliesTest extends PostReplyTest {
 	}
 }
 
-module.exports = CodeMarkNumRepliesTest;
+module.exports = CodemarkNumRepliesTest;

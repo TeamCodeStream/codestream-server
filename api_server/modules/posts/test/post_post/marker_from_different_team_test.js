@@ -1,10 +1,10 @@
 'use strict';
 
-const CodeMarkMarkerTest = require('./codemark_marker_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
 
-class MarkerFromDifferentTeamTest extends CodeMarkMarkerTest {
+class MarkerFromDifferentTeamTest extends CodemarkMarkerTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post and codemark with a marker element where the stream is from a different team';

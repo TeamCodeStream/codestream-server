@@ -4,7 +4,7 @@
 
 const PutRequest = require(process.env.CS_API_TOP + '/lib/util/restful/put_request');
 
-class PutCodeMarkRequest extends PutRequest {
+class PutCodemarkRequest extends PutRequest {
 
 	// authorize the request for the current user
 	async authorize () {
@@ -20,11 +20,11 @@ class PutCodeMarkRequest extends PutRequest {
 
 	// after the codemark is updated...
 	async postProcess () {
-		await this.publishCodeMark();
+		await this.publishCodemark();
 	}
 
 	// publish the codemark to the appropriate messager channel(s)
-	async publishCodeMark () {
+	async publishCodemark () {
 		const teamId = this.request.params.id.toLowerCase();
 		const channel = 'team-' + teamId;
 		const message = {
@@ -65,4 +65,4 @@ class PutCodeMarkRequest extends PutRequest {
 	}
 }
 
-module.exports = PutCodeMarkRequest;
+module.exports = PutCodemarkRequest;

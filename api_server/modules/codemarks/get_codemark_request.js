@@ -4,7 +4,7 @@
 
 const GetRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_request');
 
-class GetCodeMarkRequest extends GetRequest {
+class GetCodemarkRequest extends GetRequest {
 
 	async process () {
 		await super.process();
@@ -50,4 +50,4 @@ class GetCodeMarkRequest extends GetRequest {
 	}
 }
 
-module.exports = GetCodeMarkRequest;
+module.exports = GetCodemarkRequest;

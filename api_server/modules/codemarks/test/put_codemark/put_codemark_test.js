@@ -6,9 +6,9 @@ const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation'
 const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const CommonInit = require('./common_init');
-const CodeMarkTestConstants = require('../codemark_test_constants');
+const CodemarkTestConstants = require('../codemark_test_constants');
 
-class PutCodeMarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
+class PutCodemarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
 		return 'should return the updated codemark when updating an codemark';
@@ -31,8 +31,8 @@ class PutCodeMarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		// verify we got back the proper response
 		Assert.deepEqual(data, this.expectedData, 'response data is not correct');
 		// verify the codemark in the response has no attributes that should not go to clients
-		this.validateSanitized(data.codemark.$set, CodeMarkTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(data.codemark.$set, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = PutCodeMarkTest;
+module.exports = PutCodemarkTest;

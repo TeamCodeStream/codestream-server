@@ -2,21 +2,21 @@
 
 'use strict';
 
-const GetCodeMarkTest = require('./get_codemark_test');
-const GetCodeMarkWithMarkerTest = require('./get_codemark_with_marker_test');
-const GetPostlessCodeMarkTest = require('./get_postless_codemark_test');
-const GetPostlessCodeMarkWithMarkerTest = require('./get_postless_codemark_with_marker_test');
+const GetCodemarkTest = require('./get_codemark_test');
+const GetCodemarkWithMarkerTest = require('./get_codemark_with_marker_test');
+const GetPostlessCodemarkTest = require('./get_postless_codemark_test');
+const GetPostlessCodemarkWithMarkerTest = require('./get_postless_codemark_with_marker_test');
 const ACLTest = require('./acl_test');
 const PostlessACLTest = require('./postless_acl_test');
 const ACLTeamTest = require('./acl_team_test');
 
-class GetCodeMarkRequestTester {
+class GetCodemarkRequestTester {
 
 	test () {
-		new GetCodeMarkTest().test();
-		new GetCodeMarkWithMarkerTest().test();
-		new GetPostlessCodeMarkTest().test();
-		new GetPostlessCodeMarkWithMarkerTest().test();
+		new GetCodemarkTest().test();
+		new GetCodemarkWithMarkerTest().test();
+		new GetPostlessCodemarkTest().test();
+		new GetPostlessCodemarkWithMarkerTest().test();
 		new ACLTest({ type: 'direct' }).test();
 		new ACLTest({ type: 'channel' }).test();
 		new PostlessACLTest().test();
@@ -25,4 +25,4 @@ class GetCodeMarkRequestTester {
 	}
 }
 
-module.exports = new GetCodeMarkRequestTester();
+module.exports = new GetCodemarkRequestTester();

@@ -21,9 +21,9 @@ class NoCommitHashWithStreamIdTest extends Markertest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// remove the commit hash from the data to use in creating the codemark, but keep the stream ID
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			const marker = this.data.markers[0];
 			delete marker.commitHash;
 			callback();

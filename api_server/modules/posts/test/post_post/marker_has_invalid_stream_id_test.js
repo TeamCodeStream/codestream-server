@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeMarkMarkerTest = require('./codemark_marker_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 
-class MarkerHasInvalidStreamIdTest extends CodeMarkMarkerTest {
+class MarkerHasInvalidStreamIdTest extends CodemarkMarkerTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post and codemark with a marker element where the stream ID is not a valid ID';

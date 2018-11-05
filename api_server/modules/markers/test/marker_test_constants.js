@@ -4,7 +4,7 @@
 
 const MarkerAttributes = require(process.env.CS_API_TOP + '/modules/markers/marker_attributes');
 const MarkerLocationsAttributes = require(process.env.CS_API_TOP + '/modules/marker_locations/marker_locations_attributes');
-const CodeMarkAttributes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_attributes');
+const CodemarkAttributes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_attributes');
 const PostAttributes = require(process.env.CS_API_TOP + '/modules/posts/post_attributes');
 
 const EXPECTED_MARKER_FIELDS = [
@@ -32,8 +32,8 @@ const UNSANITIZED_MARKER_LOCATIONS_ATTRIBUTES = Object.keys(MarkerLocationsAttri
 	return MarkerLocationsAttributes[attribute].serverOnly;
 });
 
-const UNSANITIZED_CODEMARK_ATTRIBUTES = Object.keys(CodeMarkAttributes).filter(attribute => {
-	return CodeMarkAttributes[attribute].serverOnly;
+const UNSANITIZED_CODEMARK_ATTRIBUTES = Object.keys(CodemarkAttributes).filter(attribute => {
+	return CodemarkAttributes[attribute].serverOnly;
 });
 
 const UNSANITIZED_POST_ATTRIBUTES = Object.keys(PostAttributes).filter(attribute => {

@@ -16,10 +16,10 @@ class NoCommitHashWithStreamTest extends MarkerTest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// remove the commit hash from the data to use in creating the codemark, but supply a file and remotes,
 		// meaning to create the stream on the fly
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			const marker = this.data.markers[0];
 			delete marker.commitHash;
 			marker.file = this.streamFactory.randomFile();

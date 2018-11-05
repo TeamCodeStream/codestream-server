@@ -3,9 +3,9 @@
 'use strict';
 
 const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
-const CodeMarkCreator = require('./codemark_creator');
-const CodeMarkUpdater = require('./codemark_updater');
-const CodeMark = require('./codemark');
+const CodemarkCreator = require('./codemark_creator');
+const CodemarkUpdater = require('./codemark_updater');
+const Codemark = require('./codemark');
 
 // expose these restful routes
 const CODEMARK_STANDARD_ROUTES = {
@@ -19,7 +19,7 @@ const CODEMARK_STANDARD_ROUTES = {
 	}
 };
 
-class CodeMarks extends Restful {
+class Codemarks extends Restful {
 
 	get collectionName () {
 		return 'codemarks';	// name of the data collection
@@ -30,11 +30,11 @@ class CodeMarks extends Restful {
 	}
 
 	get creatorClass () {
-		return CodeMarkCreator;	// use this class to instantiate codemarks
+		return CodemarkCreator;	// use this class to instantiate codemarks
 	}
 
 	get modelClass () {
-		return CodeMark;	// use this class for the data model
+		return Codemark;	// use this class for the data model
 	}
 
 	get modelDescription () {
@@ -42,7 +42,7 @@ class CodeMarks extends Restful {
 	}
 
 	get updaterClass () {
-		return CodeMarkUpdater;
+		return CodemarkUpdater;
 	}
 
 	getRoutes () {
@@ -50,4 +50,4 @@ class CodeMarks extends Restful {
 	}
 }
 
-module.exports = CodeMarks;
+module.exports = Codemarks;

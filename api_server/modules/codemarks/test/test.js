@@ -5,17 +5,17 @@
 // make eslint happy
 /* globals describe */
 
-const GetCodeMarkRequestTester = require('./get_codemark/test');
-const GetCodeMarksRequestTester = require('./get_codemarks/test');
-const PostCodeMarkRequestTester = require('./post_codemark/test');
-//const PutCodeMarkRequestTester = require('./put_codemark/test');
+const GetCodemarkRequestTester = require('./get_codemark/test');
+const GetCodemarksRequestTester = require('./get_codemarks/test');
+const PostCodemarkRequestTester = require('./post_codemark/test');
+//const PutCodemarkRequestTester = require('./put_codemark/test');
 
 describe('codemark requests', function() {
 
 	this.timeout(20000);
 
-	describe('GET /codemarks/:id', GetCodeMarkRequestTester.test);
-	describe('GET /codemarks', GetCodeMarksRequestTester.test);
-	describe('POST /codemarks', PostCodeMarkRequestTester.test);
-	//describe('PUT /codemarks/:id', PutCodeMarkRequestTester.test);
+	describe('GET /codemarks/:id', GetCodemarkRequestTester.test);
+	describe('GET /codemarks', GetCodemarksRequestTester.test);
+	describe('POST /codemarks', PostCodemarkRequestTester.test);
+	//describe('PUT /codemarks/:id', PutCodemarkRequestTester.test);
 });

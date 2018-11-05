@@ -32,7 +32,7 @@ class GetPostlessMarkerTest extends CodeStreamAPITest {
 	// create the marker to fetch
 	createMarker (callback) {
 		// to create a marker associated with an codemark, we actually have to create the codemark
-		const data = this.makeCodeMarkData();
+		const data = this.makeCodemarkData();
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -51,8 +51,8 @@ class GetPostlessMarkerTest extends CodeStreamAPITest {
 	}
 
 	// make the data for the codemark to be created for the test
-	makeCodeMarkData () {
-		const data = this.codemarkFactory.getRandomCodeMarkData();
+	makeCodemarkData () {
+		const data = this.codemarkFactory.getRandomCodemarkData();
 		Object.assign(data, {
 			teamId: this.team._id,
 			providerType: RandomString.generate(8),

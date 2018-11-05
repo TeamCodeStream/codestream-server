@@ -1,8 +1,8 @@
 'use strict';
 
-const GetPostlessCodeMarksTest = require('./get_postless_codemarks_test');
+const GetPostlessCodemarksTest = require('./get_postless_codemarks_test');
 
-class GetPostlessCodeMarksWithMarkersTest extends GetPostlessCodeMarksTest {
+class GetPostlessCodemarksWithMarkersTest extends GetPostlessCodemarksTest {
 
 	constructor (options) {
 		super(options);
@@ -15,4 +15,4 @@ class GetPostlessCodeMarksWithMarkersTest extends GetPostlessCodeMarksTest {
 	}
 }
 
-module.exports = GetPostlessCodeMarksWithMarkersTest;
+module.exports = GetPostlessCodemarksWithMarkersTest;

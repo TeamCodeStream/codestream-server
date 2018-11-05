@@ -16,9 +16,9 @@ class MarkerStreamOnTheFly extends MarkerTest {
 	}
 	
 	// form the data we'll use in creating the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// specify to create a file-stream for the marker on the fly, instead of the file stream already created
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			const marker = this.data.markers[0];
 			delete marker.fileStreamId;
 			Object.assign(marker, {

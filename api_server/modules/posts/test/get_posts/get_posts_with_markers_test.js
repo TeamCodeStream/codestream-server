@@ -1,9 +1,9 @@
 'use strict';
 
-const GetPostsWithCodeMarksTest = require('./get_posts_with_codemarks_test');
+const GetPostsWithCodemarksTest = require('./get_posts_with_codemarks_test');
 const Assert = require('assert');
 
-class GetPostsWithMarkersTest extends GetPostsWithCodeMarksTest {
+class GetPostsWithMarkersTest extends GetPostsWithCodemarksTest {
 
 	constructor (options) {
 		super(options);

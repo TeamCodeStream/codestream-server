@@ -3,12 +3,12 @@
 'use strict';
 
 const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
-const CodeMark = require('./codemark');
+const Codemark = require('./codemark');
 
-class CodeMarkUpdater extends ModelUpdater {
+class CodemarkUpdater extends ModelUpdater {
 
 	get modelClass () {
-		return CodeMark;	// class to use to create a codemark model
+		return Codemark;	// class to use to create a codemark model
 	}
 
 	get collectionName () {
@@ -16,7 +16,7 @@ class CodeMarkUpdater extends ModelUpdater {
 	}
 
 	// convenience wrapper
-	async updateCodeMark (id, attributes) {
+	async updateCodemark (id, attributes) {
 		return await this.updateModel(id, attributes);
 	}
 
@@ -29,7 +29,7 @@ class CodeMarkUpdater extends ModelUpdater {
 
 	// called before the codemark is actually saved
 	async preSave () {
-		await this.getCodeMark();		// get the codemark
+		await this.getCodemark();		// get the codemark
 		if (this.attributes.postId) {
 			// if providing post ID, we assume it is a pre-created codemark for third-party
 			// integration, which requires special treatment
@@ -39,7 +39,7 @@ class CodeMarkUpdater extends ModelUpdater {
 	}
 
 	// get the codemark
-	async getCodeMark () {
+	async getCodemark () {
 		this.codemark = await this.request.data.codemarks.getById(this.attributes._id);
 		if (!this.codemark) {
 			throw this.errorHandler.error('notFound', { info: 'codemark' });
@@ -61,4 +61,4 @@ class CodeMarkUpdater extends ModelUpdater {
 	}
 }
 
-module.exports = CodeMarkUpdater;
+module.exports = CodemarkUpdater;

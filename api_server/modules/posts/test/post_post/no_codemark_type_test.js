@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeMarkTest = require('./codemark_test');
+const CodemarkTest = require('./codemark_test');
 
-class NoCodeMarkTypeTest extends CodeMarkTest {
+class NoCodemarkTypeTest extends CodemarkTest {
 
 	get description () {
 		return 'should return error when attempting to create a post with an codemark with no type';
@@ -26,4 +26,4 @@ class NoCodeMarkTypeTest extends CodeMarkTest {
 	}
 }
 
-module.exports = NoCodeMarkTypeTest;
+module.exports = NoCodemarkTypeTest;

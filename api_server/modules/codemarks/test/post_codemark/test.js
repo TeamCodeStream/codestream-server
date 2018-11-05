@@ -2,7 +2,7 @@
 
 'use strict';
 
-const PostCodeMarkTest = require('./post_codemark_test');
+const PostCodemarkTest = require('./post_codemark_test');
 const MarkerTest = require('./marker_test');
 const NoAttributeTest = require('./no_attribute_test');
 const NoCommitHashTest = require('./no_commit_hash_test');
@@ -42,10 +42,10 @@ const ACLTeamTest = require('./acl_team_test');
 const TeamNotFoundTest = require('./team_not_found_test');
 const EmptyPostIdTest = require('./empty_post_id_test');
 
-class PostCodeMarkRequestTester {
+class PostCodemarkRequestTester {
 
 	test () {
-		new PostCodeMarkTest().test();
+		new PostCodemarkTest().test();
 		new MarkerTest().test();
 		new NoAttributeTest({ attribute: 'type' }).test();
 		new NoAttributeTest({ attribute: 'teamId' }).test();
@@ -92,4 +92,4 @@ class PostCodeMarkRequestTester {
 	}
 }
 
-module.exports = new PostCodeMarkRequestTester();
+module.exports = new PostCodemarkRequestTester();

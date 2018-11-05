@@ -1,9 +1,9 @@
 'use strict';
 
-const GetCodeMarksTest = require('./get_codemarks_test');
+const GetCodemarksTest = require('./get_codemarks_test');
 const Assert = require('assert');
 
-class GetCodeMarksByTypeTest extends GetCodeMarksTest {
+class GetCodemarksByTypeTest extends GetCodemarksTest {
 
 	get description () {
 		return 'should return the correct codemarks when requesting codemarks for a team and by type';
@@ -11,7 +11,7 @@ class GetCodeMarksByTypeTest extends GetCodeMarksTest {
 
 	setPath (callback) {
 		this.type = this.postOptions.codemarkTypes[1];
-		this.expectedCodeMarks = this.codemarks.filter(codemark => codemark.type === this.type);
+		this.expectedCodemarks = this.codemarks.filter(codemark => codemark.type === this.type);
 		this.path = `/codemarks?teamId=${this.team._id}&type=${this.type}`;
 		callback();
 	}
@@ -25,4 +25,4 @@ class GetCodeMarksByTypeTest extends GetCodeMarksTest {
 	}
 }
 
-module.exports = GetCodeMarksByTypeTest;
+module.exports = GetCodemarksByTypeTest;

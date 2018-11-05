@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeMarkMarkerTest = require('./codemark_marker_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 
-class MarkerStreamOnTheFly extends CodeMarkMarkerTest {
+class MarkerStreamOnTheFly extends CodemarkMarkerTest {
 
 	constructor (options) {
 		super(options);

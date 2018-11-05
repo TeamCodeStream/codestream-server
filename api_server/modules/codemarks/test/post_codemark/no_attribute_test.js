@@ -1,8 +1,8 @@
 'use strict';
 
-const PostCodeMarkTest = require('./post_codemark_test');
+const PostCodemarkTest = require('./post_codemark_test');
 
-class NoAttributeTest extends PostCodeMarkTest {
+class NoAttributeTest extends PostCodemarkTest {
 
 	get description () {
 		return `should return an error when attempting to create an codemark with no ${this.attribute}`;

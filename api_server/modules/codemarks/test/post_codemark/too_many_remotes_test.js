@@ -16,9 +16,9 @@ class TooManyRemotesTest extends MarkerTest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// set the "remotes" field to an array of 101 elements
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			this.data.markers[0].remotes = new Array(101).fill('x');
 			callback();
 		});

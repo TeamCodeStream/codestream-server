@@ -1,9 +1,9 @@
 'use strict';
 
-const PostCodeMarkTest = require('./post_codemark_test');
+const PostCodemarkTest = require('./post_codemark_test');
 const ObjectID = require('mongodb').ObjectID;
 
-class TeamNotFoundTest extends PostCodeMarkTest {
+class TeamNotFoundTest extends PostCodemarkTest {
 
 	get description () {
 		return 'should return error when attempting to create an codemark with an invalid team id';

@@ -85,8 +85,8 @@ class TestStreamCreator {
 			streamId: this.stream._id,
 		};
 
-		if (this.postOptions.wantCodeMark) {
-			this.setCodeMarkOptions(postOptions, n);	
+		if (this.postOptions.wantCodemark) {
+			this.setCodemarkOptions(postOptions, n);	
 		}
 
 		if (this.postOptions.postData && this.postOptions.postData[n]) {
@@ -112,8 +112,8 @@ class TestStreamCreator {
 		);
 	}
 
-	setCodeMarkOptions (options, n) {
-		options.wantCodeMark = true;
+	setCodemarkOptions (options, n) {
+		options.wantCodemark = true;
 
 		if (this.postOptions.wantMarker || 
 			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantMarker)) {

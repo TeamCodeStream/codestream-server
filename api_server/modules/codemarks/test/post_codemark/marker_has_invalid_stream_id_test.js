@@ -16,9 +16,9 @@ class MarkerHasInvalidStreamIdTest extends MarkerTest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// we'll add a marker from a bogus stream ID
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			this.data.markers[0].fileStreamId = 'x';
 			callback();
 		});

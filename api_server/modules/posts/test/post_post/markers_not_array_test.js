@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeMarkMarkerTest = require('./codemark_marker_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 
-class MarkersNotArrayTest extends CodeMarkMarkerTest {
+class MarkersNotArrayTest extends CodemarkMarkerTest {
 
 	get description () {
 		return 'should return an error when attempting to create a post and codemark with markers attribute that is not an array';

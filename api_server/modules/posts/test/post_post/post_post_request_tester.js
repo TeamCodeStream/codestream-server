@@ -4,10 +4,10 @@
 
 const PostToChannelTest = require('./post_to_channel_test');
 const PostToDirectTest = require('./post_to_direct_test');
-const CodeMarkTest = require('./codemark_test');
-const CodeMarkMarkerTest = require('./codemark_marker_test');
+const CodemarkTest = require('./codemark_test');
+const CodemarkMarkerTest = require('./codemark_marker_test');
 const PostToFileStreamTest = require('./post_to_file_stream_test');
-const NoCodeMarkTypeTest = require('./no_codemark_type_test');
+const NoCodemarkTypeTest = require('./no_codemark_type_test');
 const NoCommitHashTest = require('./no_commit_hash_test');
 const NoCommitHashWithFileTest = require('./no_commit_hash_with_file_test');
 const NoCommitHashWithStreamTest = require('./no_commit_hash_with_stream_test');
@@ -59,10 +59,10 @@ const NoLastReadsUpdateTest = require('./no_last_reads_update_test');
 const SeqNumTest = require('./seqnum_test');
 const NumRepliesTest = require('./num_replies_test');
 const SecondReplyTest = require('./second_reply_test');
-const CodeMarkNumRepliesTest = require('./codemark_num_replies_test');
-const CodeMarkSecondReplyTest = require('./codemark_second_reply_test');
+const CodemarkNumRepliesTest = require('./codemark_num_replies_test');
+const CodemarkSecondReplyTest = require('./codemark_second_reply_test');
 const NumRepliesMessageToStreamTest = require('./num_replies_message_to_stream_test');
-const NumRepliesToCodeMarkMessageTest = require('./num_replies_to_codemark_message_test');
+const NumRepliesToCodemarkMessageTest = require('./num_replies_to_codemark_message_test');
 const MentionTest = require('./mention_test');
 const UnregisteredMentionTest = require('./unregistered_mention_test');
 const MessageToAuthor = require('./message_to_author_test');
@@ -78,10 +78,10 @@ class PostPostRequestTester {
 	postPostTest () {
 		new PostToChannelTest().test();
 		new PostToDirectTest().test();
-		new CodeMarkTest().test();
-		new CodeMarkMarkerTest().test();
+		new CodemarkTest().test();
+		new CodemarkMarkerTest().test();
 		new PostToFileStreamTest().test();	
-		new NoCodeMarkTypeTest().test();
+		new NoCodemarkTypeTest().test();
 		new NoCommitHashTest().test();
 		new NoCommitHashWithFileTest().test();
 		new NoCommitHashWithStreamTest().test();
@@ -137,12 +137,12 @@ class PostPostRequestTester {
 		new SeqNumTest().test();
 		new NumRepliesTest().test();
 		new SecondReplyTest().test();
-		new CodeMarkNumRepliesTest().test();
-		new CodeMarkSecondReplyTest().test();
+		new CodemarkNumRepliesTest().test();
+		new CodemarkSecondReplyTest().test();
 		new NumRepliesMessageToStreamTest({ type: 'direct' }).test();
 		new NumRepliesMessageToStreamTest({ type: 'channel' }).test();
-		new NumRepliesToCodeMarkMessageTest({ type: 'direct' }).test();
-		new NumRepliesToCodeMarkMessageTest({ type: 'channel' }).test();
+		new NumRepliesToCodemarkMessageTest({ type: 'direct' }).test();
+		new NumRepliesToCodemarkMessageTest({ type: 'channel' }).test();
 		new MentionTest().test();
 		new UnregisteredMentionTest().test();
 		new MessageToAuthor().test();

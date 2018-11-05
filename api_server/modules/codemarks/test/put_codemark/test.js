@@ -2,13 +2,13 @@
 
 'use strict';
 
-const PutCodeMarkTest = require('./put_codemark_test');
+const PutCodemarkTest = require('./put_codemark_test');
 
-class PutCodeMarkRequestTester {
+class PutCodemarkRequestTester {
 
 	test () {
-		new PutCodeMarkTest().test();
+		new PutCodemarkTest().test();
 	}
 }
 
-module.exports = new PutCodeMarkRequestTester();
+module.exports = new PutCodemarkRequestTester();

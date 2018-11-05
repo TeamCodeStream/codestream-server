@@ -17,9 +17,9 @@ class MarkersTooLongTest extends MarkerTest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// create an array of markers that is over the limit in size, by duplicating the marker
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			const marker = this.data.markers[0];
 			for (let i = 0; i < 10; i++) {
 				this.data.markers.push(DeepClone(marker));

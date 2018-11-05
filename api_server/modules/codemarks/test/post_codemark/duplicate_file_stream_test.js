@@ -14,8 +14,8 @@ class DuplicateFileStreamTest extends MarkerStreamOnTheFlyTest {
 		return 'should find and use the existing stream when creating an codemark and creating a file stream on the fly with matching path';
 	}
 
-	makeCodeMarkData (callback) {
-		super.makeCodeMarkData(() => {
+	makeCodemarkData (callback) {
+		super.makeCodemarkData(() => {
 			// substitute the path for the existing file-stream, without providing its ID
 			const marker = this.data.markers[0];
 			delete marker.fileStreamId;

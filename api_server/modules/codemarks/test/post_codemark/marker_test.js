@@ -1,9 +1,9 @@
 'use strict';
 
-const PostCodeMarkTest = require('./post_codemark_test');
+const PostCodemarkTest = require('./post_codemark_test');
 const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
-class MarkerTest extends PostCodeMarkTest {
+class MarkerTest extends PostCodemarkTest {
 
 	get description () {
 		return 'should return a valid codemark with marker data when creating an codemark tied to a third-party post, and including a marker';
@@ -23,8 +23,8 @@ class MarkerTest extends PostCodeMarkTest {
 		return expectedFields;
 	}
 
-	makeCodeMarkData (callback) {
-		super.makeCodeMarkData(() => {
+	makeCodemarkData (callback) {
+		super.makeCodemarkData(() => {
 			this.data.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0]._id });
 			callback();
 		});

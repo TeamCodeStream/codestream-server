@@ -3,13 +3,13 @@
 'use strict';
 
 const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
-const CodeMark = require('./codemark');
+const Codemark = require('./codemark');
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 
-class CodeMarkCreator extends ModelCreator {
+class CodemarkCreator extends ModelCreator {
 
 	get modelClass () {
-		return CodeMark;	// class to use to create an codemark model
+		return Codemark;	// class to use to create an codemark model
 	}
 
 	get collectionName () {
@@ -17,7 +17,7 @@ class CodeMarkCreator extends ModelCreator {
 	}
 
 	// convenience wrapper
-	async createCodeMark (attributes) {
+	async createCodemark (attributes) {
 		return await this.createModel(attributes);
 	}
 
@@ -34,7 +34,7 @@ class CodeMarkCreator extends ModelCreator {
 	// validate the markers sent with the post creation, this is too important to just drop,
 	// so we return an error instead
 	async validateMarkers () {
-		const result = new CodeMark().validator.validateArrayOfObjects(
+		const result = new Codemark().validator.validateArrayOfObjects(
 			this.attributes.markers,
 			{
 				type: 'array(object)',
@@ -115,4 +115,4 @@ class CodeMarkCreator extends ModelCreator {
 	}
 }
 
-module.exports = CodeMarkCreator;
+module.exports = CodemarkCreator;

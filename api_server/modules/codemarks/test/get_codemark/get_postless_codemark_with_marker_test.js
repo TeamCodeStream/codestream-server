@@ -1,17 +1,17 @@
 'use strict';
 
-const GetPostlessCodeMarkTest = require('./get_postless_codemark_test');
-const CodeMarkTestConstants = require('../codemark_test_constants');
+const GetPostlessCodemarkTest = require('./get_postless_codemark_test');
+const CodemarkTestConstants = require('../codemark_test_constants');
 
-class GetPostlessCodeMarkWithMarkerTest extends GetPostlessCodeMarkTest {
+class GetPostlessCodemarkWithMarkerTest extends GetPostlessCodemarkTest {
 
 	get description () {
 		return 'should return the codemark with markers when requesting a postless codemark with markers created for a third-party provider';
 	}
 
 	// make the data for the codemark to be created for the test
-	makeCodeMarkData () {
-		const data = super.makeCodeMarkData();
+	makeCodemarkData () {
+		const data = super.makeCodemarkData();
 		data.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
 		return data;
 	}
@@ -22,9 +22,9 @@ class GetPostlessCodeMarkWithMarkerTest extends GetPostlessCodeMarkTest {
 		const codemark = data.codemark;
 		const marker = data.markers[0];
 		this.validateMatchingObject(codemark.markerIds[0], marker, 'marker');
-		this.validateSanitized(marker, CodeMarkTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
+		this.validateSanitized(marker, CodemarkTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
 		super.validateResponse(data);
 	}
 }
 
-module.exports = GetPostlessCodeMarkWithMarkerTest;
+module.exports = GetPostlessCodemarkWithMarkerTest;

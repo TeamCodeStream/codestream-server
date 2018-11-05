@@ -69,8 +69,8 @@ class PostPostRequest extends PostRequest {
 		}
 
 		// a knowledge base codemark might have been created with the post, add it
-		if (transforms.createdCodeMark) {
-			responseData.codemark = transforms.createdCodeMark.getSanitizedObject();
+		if (transforms.createdCodemark) {
+			responseData.codemark = transforms.createdCodemark.getSanitizedObject();
 		}
 
 		// if there is a parent post update, add it

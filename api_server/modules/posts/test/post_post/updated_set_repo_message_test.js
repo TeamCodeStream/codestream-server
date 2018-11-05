@@ -3,11 +3,11 @@
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CommonInit = require('./common_init');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-const CodeMarkTest = require('./codemark_test');
+const CodemarkTest = require('./codemark_test');
 const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
 const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');
 
-class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit, CodeMarkTest) {
+class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit, CodemarkTest) {
 
 	get description () {
 		return 'members of the team should receive a message with a repo update when a post and codemark are posted with a marker and remotes are specified that were not known for the repo';

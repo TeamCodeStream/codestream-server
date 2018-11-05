@@ -19,7 +19,7 @@ class NewRepoMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Common
 	makePostData (callback) {
 		super.makePostData (() => {
 			// add codemark and marker data to the post
-			this.data.codemark = this.codemarkFactory.getRandomCodeMarkData();
+			this.data.codemark = this.codemarkFactory.getRandomCodemarkData();
 			this.data.codemark.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
 			callback();
 		});

@@ -18,8 +18,8 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 		this.init(callback);
 	}
 
-	makeCodeMarkData (callback) {
-		super.makeCodeMarkData(() => {
+	makeCodemarkData (callback) {
+		super.makeCodemarkData(() => {
 			// use existing repo but new remote, this should get added to the existing repo
 			const marker = this.data.markers[0];
 			marker.repoId = this.repo._id;

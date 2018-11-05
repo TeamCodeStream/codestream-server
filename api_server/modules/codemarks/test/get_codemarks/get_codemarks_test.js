@@ -2,10 +2,10 @@
 
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const CodeMarkTestConstants = require('../codemark_test_constants');
+const CodemarkTestConstants = require('../codemark_test_constants');
 const Assert = require('assert');
 
-class GetCodeMarksTest extends CodeStreamAPITest {
+class GetCodemarksTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
@@ -14,7 +14,7 @@ class GetCodeMarksTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			numPosts: 10,
 			creatorIndex: 1,
-			wantCodeMark: true,
+			wantCodemark: true,
 			codemarkTypes: ['question', 'issue', 'codetrap'],
 			assignedTypes: [0, 1, 2, 1, 2, 0, 2, 1, 1, 0]
 		});
@@ -28,23 +28,23 @@ class GetCodeMarksTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.setCodeMarks,
+			this.setCodemarks,
 			this.setPath
 		], callback);
 	}
 
 	// set the codemarks established for the test
-	setCodeMarks (callback) {
+	setCodemarks (callback) {
 		this.codemarks = this.postData.map(postData => postData.codemark);
-		if (this.repoCodeMark) {
-			this.codemarks.push(this.repoCodeMark);
+		if (this.repoCodemark) {
+			this.codemarks.push(this.repoCodemark);
 		}
 		callback();
 	}
 
 	// set the path to use for the request
 	setPath (callback) {
-		this.expectedCodeMarks = this.codemarks;
+		this.expectedCodemarks = this.codemarks;
 		this.path = `/codemarks?teamId=${this.team._id}`;
 		callback();
 	}
@@ -52,8 +52,8 @@ class GetCodeMarksTest extends CodeStreamAPITest {
 	// validate correct response
 	validateResponse (data) {
 		// validate we got the correct codemarks, and that they are sanitized (free of attributes we don't want the client to see)
-		this.validateMatchingObjects(data.codemarks, this.expectedCodeMarks, 'codemarks');
-		this.validateSanitizedObjects(data.codemarks, CodeMarkTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateMatchingObjects(data.codemarks, this.expectedCodemarks, 'codemarks');
+		this.validateSanitizedObjects(data.codemarks, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// make sure we got a post with each codemark that matches the post to which the codemark belongs
 		data.codemarks.forEach(codemark => {
@@ -71,4 +71,4 @@ class GetCodeMarksTest extends CodeStreamAPITest {
 	}
 }
 
-module.exports = GetCodeMarksTest;
+module.exports = GetCodemarksTest;

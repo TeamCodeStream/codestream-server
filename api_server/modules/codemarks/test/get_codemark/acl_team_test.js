@@ -1,8 +1,8 @@
 'use strict';
 
-const GetCodeMarkTest = require('./get_codemark_test');
+const GetCodemarkTest = require('./get_codemark_test');
 
-class ACLTeamTest extends GetCodeMarkTest {
+class ACLTeamTest extends GetCodemarkTest {
 
 	constructor (options) {
 		super(options);

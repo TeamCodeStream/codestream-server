@@ -1,9 +1,9 @@
 'use strict';
 
-const GetCodeMarkTest = require('./get_codemark_test');
-const CodeMarkTestConstants = require('../codemark_test_constants');
+const GetCodemarkTest = require('./get_codemark_test');
+const CodemarkTestConstants = require('../codemark_test_constants');
 
-class GetCodeMarkWithMarkerTest extends GetCodeMarkTest {
+class GetCodemarkWithMarkerTest extends GetCodemarkTest {
 
 	constructor (options) {
 		super(options);
@@ -20,9 +20,9 @@ class GetCodeMarkWithMarkerTest extends GetCodeMarkTest {
 		const codemark = data.codemark;
 		const marker = data.markers[0];
 		this.validateMatchingObject(codemark.markerIds[0], marker, 'marker');
-		this.validateSanitized(marker, CodeMarkTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
+		this.validateSanitized(marker, CodemarkTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
 		super.validateResponse(data);
 	}
 }
 
-module.exports = GetCodeMarkWithMarkerTest;
+module.exports = GetCodemarkWithMarkerTest;

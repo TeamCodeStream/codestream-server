@@ -37,7 +37,7 @@ class GetPostlessMarkersTest extends GetMarkersTest {
 	}
 
 	createMarker (n, callback) {
-		const data = this.codemarkFactory.getRandomCodeMarkData();
+		const data = this.codemarkFactory.getRandomCodemarkData();
 		Object.assign(data, {
 			teamId: this.team._id,
 			providerType: RandomString.generate(8),

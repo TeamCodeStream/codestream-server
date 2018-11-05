@@ -4,14 +4,14 @@
 
 const RandomString = require('randomstring');
 
-class RandomCodeMarkFactory {
+class RandomCodemarkFactory {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
 	// get some random codemark data
-	getRandomCodeMarkData (options = {}) {
+	getRandomCodemarkData (options = {}) {
 		const data = {
 			title: RandomString.generate(50),
 			type: options.codemarkType || RandomString.generate(10),
@@ -26,4 +26,4 @@ class RandomCodeMarkFactory {
 	}
 }
 
-module.exports = RandomCodeMarkFactory;
+module.exports = RandomCodemarkFactory;

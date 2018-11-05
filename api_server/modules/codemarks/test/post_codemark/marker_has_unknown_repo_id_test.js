@@ -17,9 +17,9 @@ class MarkerHasUnknownRepoIdTest extends MarkerTest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// we'll add a marker from a non-existent stream 
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			const marker = this.data.markers[0];
 			delete marker.fileStreamId;
 			marker.repoId = ObjectID();

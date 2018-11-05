@@ -16,9 +16,9 @@ class MarkersNotArrayTest extends MarkerTest {
 	}
 
 	// form the data to use in trying to create the codemark
-	makeCodeMarkData (callback) {
+	makeCodemarkData (callback) {
 		// use a "numeric" markers structure ... not allowed!
-		super.makeCodeMarkData(() => {
+		super.makeCodemarkData(() => {
 			this.data.markers = 1;
 			callback();
 		});

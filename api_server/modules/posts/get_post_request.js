@@ -8,12 +8,12 @@ class GetPostRequest extends GetRequest {
 
 	async process () {
 		await super.process();
-		await this.getCodeMark();		// get the knowledge base codemark referenced by this post, if any
+		await this.getCodemark();		// get the knowledge base codemark referenced by this post, if any
 		await this.getMarkers();	// get the markers referenced by this post, if any
 	}
 
 	// get the codemark referenced by this post, if any
-	async getCodeMark () {
+	async getCodemark () {
 		const codemarkId = this.model.get('codemarkId');
 		if (!codemarkId) { return; }
 		this.codemark = await this.data.codemarks.getById(codemarkId);
