@@ -29,7 +29,7 @@ class PostPublisher {
 			post: this.data.post,
 			requestId: this.request.request.id
 		};
-		['markers', 'markerLocations', 'streams', 'users', 'repos', 'item'].forEach(type => {
+		['markers', 'markerLocations', 'streams', 'users', 'repos', 'codemark'].forEach(type => {
 			if (this.data[type]) {
 				message[type] = this.data[type];
 			}

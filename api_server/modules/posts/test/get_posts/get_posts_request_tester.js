@@ -3,7 +3,7 @@
 'use strict';
 
 const GetPostsTest = require('./get_posts_test');
-const GetPostsWithItemsTest = require('./get_posts_with_items_test');
+const GetPostsWithCodeMarksTest = require('./get_posts_with_codemarks_test');
 const GetPostsWithMarkersTest = require('./get_posts_with_markers_test');
 
 //const GetPostsByMeTest = require('./get_posts_by_me_test');
@@ -64,7 +64,7 @@ class GetPostsRequestTester {
 		new GetPostsTest({type: 'channel'}).test();
 		new GetPostsTest({type: 'direct'}).test();
 		//new GetPostsTest({type: 'file'}).test();
-		new GetPostsWithItemsTest().test();
+		new GetPostsWithCodeMarksTest().test();
 		new GetPostsWithMarkersTest().test();
 		/*
 		// with indexing, the tests below are disabled pending the need for them, since

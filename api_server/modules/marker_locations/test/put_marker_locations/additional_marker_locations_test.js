@@ -48,7 +48,7 @@ class AdditionalMarkerLocationsTest extends PutMarkerLocationsFetchTest {
 			{
 				teamId: this.team._id,
 				streamId: this.stream._id,
-				wantItem: 1,
+				wantCodeMark: 1,
 				wantMarkers: 1,
 				fileStreamId: this.repoStreams[0]._id,
 				token: token,

@@ -15,7 +15,7 @@ class OnTheFlyMarkerStreamNoRemotesTest extends MarkerStreamOnTheFlyTest {
 	}
 
 	get description () {
-		return 'should be ok when creating a post and item with a marker with an on-the-fly stream without providing a repo ID';
+		return 'should be ok when creating a post and codemark with a marker with an on-the-fly stream without providing a repo ID';
 	}
 
 	// before the test runs...
@@ -23,7 +23,7 @@ class OnTheFlyMarkerStreamNoRemotesTest extends MarkerStreamOnTheFlyTest {
 		// for the stream we want to create on-the-fly, remove the repo ID
 		super.before(error => {
 			if (error) { return callback(error); }
-			const marker = this.data.item.markers[0];
+			const marker = this.data.codemark.markers[0];
 			this.expectedFile = marker.file;
 			delete marker.remotes;
 			callback();

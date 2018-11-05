@@ -1,11 +1,11 @@
 'use strict';
 
-const ItemMarkertest = require('./item_marker_test');
+const CodeMarkMarkertest = require('./codemark_marker_test');
 
-class NoCommitHashWithStreamTest extends ItemMarkertest {
+class NoCommitHashWithStreamTest extends CodeMarkMarkertest {
 
 	get description () {
-		return 'should return an error when attempting to create a post and item with a marker but not providing a commit hash, when a stream is also specified';
+		return 'should return an error when attempting to create a post and codemark with a marker but not providing a commit hash, when a stream is also specified';
 	}
 
 	getExpectedError () {
@@ -20,7 +20,7 @@ class NoCommitHashWithStreamTest extends ItemMarkertest {
 		// remove the commit hash from the data to use in creating the post, but supply a file and remotes,
 		// meaning to create the stream on the fly
 		super.makePostData(() => {
-			const marker = this.data.item.markers[0];
+			const marker = this.data.codemark.markers[0];
 			delete marker.commitHash;
 			marker.file = this.streamFactory.randomFile();
 			marker.remotes = [this.repoFactory.randomUrl()];

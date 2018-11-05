@@ -1,12 +1,12 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
-class MarkersTooLongTest extends ItemMarkerTest {
+class MarkersTooLongTest extends CodeMarkMarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post and item with a markers array that is too long';
+		return 'should return an error when attempting to create a post and codemark with a markers array that is too long';
 	}
 
 	getExpectedError () {
@@ -20,9 +20,9 @@ class MarkersTooLongTest extends ItemMarkerTest {
 	makePostData (callback) {
 		// create an array of markers that is over the limit in size, by duplicating the marker
 		super.makePostData(() => {
-			const marker = this.data.item.markers[0];
+			const marker = this.data.codemark.markers[0];
 			for (let i = 0; i < 10; i++) {
-				this.data.item.markers.push(DeepClone(marker));
+				this.data.codemark.markers.push(DeepClone(marker));
 			}
 			callback();
 		});

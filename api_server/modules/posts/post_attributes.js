@@ -56,8 +56,8 @@ module.exports = {
 		description: 'Keys are the reaction (eg. \'smiley\', \'frown\', etc), and values are an array of user IDs, representing the users who picked that reaction',
 		default: {}
 	},
-	itemId: {
+	codemarkId: {
 		type: 'id',
-		description: 'ID of the knowledge base item attached to this post, if any'
+		description: 'ID of the knowledge base codemark attached to this post, if any'
 	},
 };

@@ -1,13 +1,13 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
 
-class MarkerFromDifferentTeamTest extends ItemMarkerTest {
+class MarkerFromDifferentTeamTest extends CodeMarkMarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post and item with a marker element where the stream is from a different team';
+		return 'should return an error when attempting to create a post and codemark with a marker element where the stream is from a different team';
 	}
 
 	getExpectedError () {
@@ -50,7 +50,7 @@ class MarkerFromDifferentTeamTest extends ItemMarkerTest {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) return callback(error);
-				this.data.item.markers[0].fileStreamId = response.stream._id;
+				this.data.codemark.markers[0].fileStreamId = response.stream._id;
 				callback();
 			},
 			{

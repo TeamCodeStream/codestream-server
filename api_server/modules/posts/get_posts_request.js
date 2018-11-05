@@ -176,7 +176,7 @@ class GetPostsRequest extends GetManyRequest {
 	// process the request (overrides base class)
 	async process () {
 		await super.process();	// do the usual "get-many" processing
-		await this.getItems();	// get associated items, as needed
+		await this.getCodeMarks();	// get associated codemarks, as needed
 		await this.getMarkers();	// get associated markers, as needed
 
 		// add the "more" flag as needed, if there are more posts to fetch ...
@@ -187,25 +187,25 @@ class GetPostsRequest extends GetManyRequest {
 		}
 	}
 
-	// get the items associated with the fetched posts, as needed
-	async getItems () {
-		const itemIds = this.models.reduce((itemIds, post) => {
-			if (post.get('itemId')) {
-				itemIds.push(post.get('itemId'));
+	// get the codemarks associated with the fetched posts, as needed
+	async getCodeMarks () {
+		const codemarkIds = this.models.reduce((codemarkIds, post) => {
+			if (post.get('codemarkId')) {
+				codemarkIds.push(post.get('codemarkId'));
 			}
-			return itemIds;
+			return codemarkIds;
 		}, []);
-		if (itemIds.length === 0) {
+		if (codemarkIds.length === 0) {
 			return;
 		}
-		this.items = await this.data.items.getByIds(itemIds);
-		this.responseData.items = this.items.map(item => item.getSanitizedObject());
+		this.codemarks = await this.data.codemarks.getByIds(codemarkIds);
+		this.responseData.codemarks = this.codemarks.map(codemark => codemark.getSanitizedObject());
 	}
 
 	// get the markers associated with the fetched posts, as needed
 	async getMarkers () {
-		if (!this.items) { return; }
-		const markerIds = this.items.reduce((markerIds, post) => {
+		if (!this.codemarks) { return; }
+		const markerIds = this.codemarks.reduce((markerIds, post) => {
 			markerIds.push(...(post.get('markerIds') || []));
 			return markerIds;
 		}, []);
@@ -231,10 +231,10 @@ class GetPostsRequest extends GetManyRequest {
 			'after': '<Fetch posts after this sequence number, including the post with that sequence number if "inclusive" is set>',
 			'inclusive': '<If before or after or both are set, indicated to include the reference post in the returned posts>'
 		});
-		description.returns.summary = 'An array of post objects, plus possible item, marker and markerLocations object, and more flag';
+		description.returns.summary = 'An array of post objects, plus possible codemark, marker and markerLocations object, and more flag';
 		Object.assign(description.returns.looksLike, {
-			posts: '<@@#post objects#item@@ fetched>',
-			items: '<associated @@#item objects#item@@>',
+			posts: '<@@#post objects#codemark@@ fetched>',
+			codemarks: '<associated @@#codemark objects#codemark@@>',
 			markers: '<associated @@#markers#markers@@>',
 			more: '<will be set to true if more posts are available, see the description, above>'
 		});

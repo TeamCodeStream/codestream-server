@@ -20,7 +20,7 @@ class GetMarkersRequest extends GetManyRequest {
 	// process the request...
 	async process () {
 		await super.process();				// do the usual "get-many" processing
-		await this.getItems();	// get associated items, as needed
+		await this.getCodeMarks();	// get associated codemarks, as needed
 		await this.getPosts();	// get associated posts, as needed
 		await this.fetchMarkerLocations();	// if the user passes a commit hash, we give them whatever marker locations we have for that commit
 	}
@@ -77,22 +77,22 @@ class GetMarkersRequest extends GetManyRequest {
 		};
 	}
 
-	// get the items associated with the fetched markers, as needed
-	async getItems () {
-		const itemIds = this.models.map(marker => marker.get('itemId'));
-		if (itemIds.length === 0) {
+	// get the codemarks associated with the fetched markers, as needed
+	async getCodeMarks () {
+		const codemarkIds = this.models.map(marker => marker.get('codemarkId'));
+		if (codemarkIds.length === 0) {
 			return;
 		}
-		this.items = await this.data.items.getByIds(itemIds);
-		this.responseData.items = this.items.map(item => item.getSanitizedObject());
+		this.codemarks = await this.data.codemarks.getByIds(codemarkIds);
+		this.responseData.codemarks = this.codemarks.map(codemark => codemark.getSanitizedObject());
 	}
 
 	// get the posts pointing to the fetched markers, as needed
 	async getPosts () {
-		if (!this.items) { return; }
-		const postIds = this.items
-			.filter(item => !item.get('providerType'))
-			.map(item => item.get('postId'));
+		if (!this.codemarks) { return; }
+		const postIds = this.codemarks
+			.filter(codemark => !codemark.get('providerType'))
+			.map(codemark => codemark.get('postId'));
 		if (postIds.length === 0) {
 			return;
 		}
@@ -128,17 +128,17 @@ class GetMarkersRequest extends GetManyRequest {
 	// describe this route for help
 	static describe (module) {
 		const description = GetManyRequest.describe(module);
-		description.description = 'Returns an array of markers for a given file (given by stream ID), governed by the query parameters; if a commit hash is specified, will also return marker locations for the fetched markers, for the given commit hash. Also returns any associated knowledge-base items, as well as any referencing posts.';
+		description.description = 'Returns an array of markers for a given file (given by stream ID), governed by the query parameters; if a commit hash is specified, will also return marker locations for the fetched markers, for the given commit hash. Also returns any associated knowledge-base codemarks, as well as any referencing posts.';
 		description.access = 'User must be a member of the team that owns the file stream to which the markers belong';
 		Object.assign(description.input.looksLike, {
 			'teamId*': '<ID of the team that owns the file stream for which markers are being fetched>',
 			'streamId*': '<ID of the file stream for which markers are being fetched>',
 			'commitHash': '<Commit hash for which marker locations should be returned, along with the fetched markers>'
 		});
-		description.returns.summary = 'An array of marker objects, plus possible post and item objects, and markerLocations object as requested';
+		description.returns.summary = 'An array of marker objects, plus possible post and codemark objects, and markerLocations object as requested';
 		Object.assign(description.returns.looksLike, {
-			markers: '<@@#marker objects#item@@ fetched>',
-			items: '<associated @@#item objects#item@@>',
+			markers: '<@@#marker objects#codemark@@ fetched>',
+			codemarks: '<associated @@#codemark objects#codemark@@>',
 			posts: '<referencing @@#post objects#post@@>',
 			markerLocations: '<@@#marker locations object#markerLocations@@>'
 		});

@@ -1,11 +1,11 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 
-class MarkersNotArrayTest extends ItemMarkerTest {
+class MarkersNotArrayTest extends CodeMarkMarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post and item with markers attribute that is not an array';
+		return 'should return an error when attempting to create a post and codemark with markers attribute that is not an array';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class MarkersNotArrayTest extends ItemMarkerTest {
 	makePostData (callback) {
 		// use a "numeric" markers structure ... not allowed!
 		super.makePostData(() => {
-			this.data.item.markers = 1;
+			this.data.codemark.markers = 1;
 			callback();
 		});
 	}

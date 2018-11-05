@@ -13,7 +13,7 @@ class GetReposTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			creatorIndex: [0, 1, 1],
 			numPosts: 3,
-			wantItem: true,
+			wantCodeMark: true,
 			wantMarker: true
 		});
 	}
@@ -56,7 +56,7 @@ class GetReposTest extends CodeStreamAPITest {
 				token: this.users[1].accessToken,
 				teamId: this.foreignTeam._id,
 				streamId: this.foreignTeamStream._id,
-				wantItem: true,
+				wantCodeMark: true,
 				wantMarkers: 1,
 				withRandomStream: true
 			}

@@ -28,12 +28,12 @@ class PostPostRequest extends PostRequest {
 		// adding objects to the response returned
 		const { transforms, responseData } = this;
 
-		// add any repos created for posts with items and markers
+		// add any repos created for posts with codemarks and markers
 		if (transforms.createdRepos && transforms.createdRepos.length > 0) {
 			responseData.repos = transforms.createdRepos.map(repo => repo.getSanitizedObject());
 		}
 
-		// add any repos updated for posts with items and markers, which may have brought 
+		// add any repos updated for posts with codemarks and markers, which may have brought 
 		// new remotes into the fold for the repo
 		if (transforms.repoUpdates && transforms.repoUpdates.length > 0) {
 			responseData.repos = [
@@ -68,9 +68,9 @@ class PostPostRequest extends PostRequest {
 			responseData.markerLocations = transforms.markerLocations;
 		}
 
-		// a knowledge base item might have been created with the post, add it
-		if (transforms.createdItem) {
-			responseData.item = transforms.createdItem.getSanitizedObject();
+		// a knowledge base codemark might have been created with the post, add it
+		if (transforms.createdCodeMark) {
+			responseData.codemark = transforms.createdCodeMark.getSanitizedObject();
 		}
 
 		// if there is a parent post update, add it
@@ -78,9 +78,9 @@ class PostPostRequest extends PostRequest {
 			responseData.posts = [transforms.postUpdate];
 		}
 
-		// if there is a parent item update, add it
-		if (transforms.itemUpdate) {
-			responseData.items = [transforms.itemUpdate];
+		// if there is a parent codemark update, add it
+		if (transforms.codemarkUpdate) {
+			responseData.codemarks = [transforms.codemarkUpdate];
 		}
 		
 		await super.handleResponse();
@@ -89,7 +89,7 @@ class PostPostRequest extends PostRequest {
 	// describe this route for help
 	static describe (module) {
 		const description = PostRequest.describe(module);
-		description.description = 'Creates a post, along with associated markers, and associated knowledge base items and markers. File streams and repos can also be created on-the-fly for the markers.';
+		description.description = 'Creates a post, along with associated markers, and associated knowledge base codemarks and markers. File streams and repos can also be created on-the-fly for the markers.';
 		description.access = 'The current user must be a member of the stream.';
 		description.input = {
 			summary: description.input,
@@ -97,14 +97,14 @@ class PostPostRequest extends PostRequest {
 				'streamId*': '<ID of the stream in which the post is being created, required unless a stream object is specified>',
 				'text': '<Text of the post>',
 				'parentPostId': '<For replies, the ID of the parent post>',
-				'items': '<Array of @@#items#item@@, for creating knowledge-base item referenced by the post>',
+				'codemarks': '<Array of @@#codemarks#codemark@@, for creating knowledge-base codemark referenced by the post>',
 				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>'
 			}
 		};
 		description.returns.summary = 'A post object, plus additional objects that may have been created on-the-fly, marker objects and marker locations for any markers';
 		Object.assign(description.returns.looksLike, {
-			items: [
-				'<@@#item object#item@@ > (knowledge base items referenced by this post)>',
+			codemarks: [
+				'<@@#codemark object#codemark@@ > (knowledge base codemarks referenced by this post)>',
 				'...'
 			],
 			markers: [

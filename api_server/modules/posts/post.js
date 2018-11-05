@@ -21,7 +21,7 @@ class Post extends CodeStreamModel {
 		this.lowerCase('parentPostId');
 		this.lowerCase('commitHashWhenPosted');
 		this.lowerCase('markerIds');
-		this.lowerCase('itemIds');
+		this.lowerCase('codemarkIds');
 		// ensure mentionedUserIds array is sorted
 		if (this.attributes.mentionedUserIds instanceof Array) {
 			this.attributes.mentionedUserIds.sort();

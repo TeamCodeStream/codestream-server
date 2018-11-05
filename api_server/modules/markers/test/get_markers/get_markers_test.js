@@ -16,7 +16,7 @@ class GetMarkersTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			numPosts: 5,
 			creatorIndex: 1,
-			wantItem: true,
+			wantCodeMark: true,
 			wantMarker: true,
 			markerStreamId: 0,	// will use the existing file stream created for the repo
 			commitHash: this.repoFactory.randomCommitHash()
@@ -72,13 +72,13 @@ class GetMarkersTest extends CodeStreamAPITest {
 		this.validateMatchingObjects(data.markers, this.expectedMarkers, 'markers');
 		this.validateSanitizedObjects(data.markers, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
 
-		// make sure that for each marker, we also got a post and an item that reference the marker
+		// make sure that for each marker, we also got a post and an codemark that reference the marker
 		data.markers.forEach(marker => {
-			const item = data.items.find(item => item._id === marker.itemId);
-			Assert(item, 'no item found for marker');
+			const codemark = data.codemarks.find(codemark => codemark._id === marker.codemarkId);
+			Assert(codemark, 'no codemark found for marker');
 			if (!marker.providerType) {
-				const post = data.posts.find(post => post._id === item.postId);
-				Assert(post, 'no post found for marker\'s item');
+				const post = data.posts.find(post => post._id === codemark.postId);
+				Assert(post, 'no post found for marker\'s codemark');
 			}
 		});
 	}

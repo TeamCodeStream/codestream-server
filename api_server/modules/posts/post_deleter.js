@@ -35,7 +35,7 @@ class PostDeleter extends ModelDeleter {
 		await this.getPost();			// get the post
 		await this.deleteMarkers();		// delete any associated markers
 		await this.getParentPost();		// get the parent post (if this is a reply)
-		await this.updateNumReplies();	// update numReplies field in a parent item, if needed
+		await this.updateNumReplies();	// update numReplies field in a parent codemark, if needed
 		this.addEditToHistory();		// add this deactivation to the maintained history of edits
 		await super.preDelete();		// base-class preDelete
 	}
@@ -81,27 +81,27 @@ class PostDeleter extends ModelDeleter {
 		);
 	}
 
-	// if the deleted post is a reply to a post with an item,
-	// update the numReplies attribute of the associated item
+	// if the deleted post is a reply to a post with an codemark,
+	// update the numReplies attribute of the associated codemark
 	async updateNumReplies () {
-		if (!this.parentPost || !this.parentPost.get('itemId')) {
+		if (!this.parentPost || !this.parentPost.get('codemarkId')) {
 			return;
 		}
-		const item = await this.request.data.items.getById(this.parentPost.get('itemId'));
-		if (!item || !item.get('numReplies')) { 
+		const codemark = await this.request.data.codemarks.getById(this.parentPost.get('codemarkId'));
+		if (!codemark || !codemark.get('numReplies')) { 
 			return; 
 		}
 		const op = { 
 			$set: {
-				numReplies: item.get('numReplies') - 1
+				numReplies: codemark.get('numReplies') - 1
 			}
 		};
-		const itemUpdate = await new ModelSaver({
+		const codemarkUpdate = await new ModelSaver({
 			request: this.request,
-			collection: this.request.data.items,
-			id: item.id
+			collection: this.request.data.codemarks,
+			id: codemark.id
 		}).save(op);
-		this.transforms.itemUpdates.push(itemUpdate);
+		this.transforms.codemarkUpdates.push(codemarkUpdate);
 	}
 
 	// add an edit to the maintained history of edits

@@ -8,7 +8,7 @@ const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/message
 class NewMarkerStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostToChannelTest) {
 
 	get description () {
-		return 'members of the team should receive a message with the stream when a post and item are posted to a private stream with a marker from a file stream created on the fly';
+		return 'members of the team should receive a message with the stream when a post and codemark are posted to a private stream with a marker from a file stream created on the fly';
 	}
 
 	// make the data that triggers the message to be received
@@ -25,9 +25,9 @@ class NewMarkerStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest
 
 	makePostData (callback) {
 		super.makePostData (() => {
-			// add item and marker data to the post
-			this.data.item = this.itemFactory.getRandomItemData();
-			this.data.item.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
+			// add codemark and marker data to the post
+			this.data.codemark = this.codemarkFactory.getRandomCodeMarkData();
+			this.data.codemark.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
 			callback();
 		});
 	}

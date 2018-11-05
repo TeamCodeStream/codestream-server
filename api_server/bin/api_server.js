@@ -42,7 +42,7 @@ const DataCollections = {
 	streams: require(ModuleDirectory + '/streams/stream'),
 	posts: require(ModuleDirectory + '/posts/post'),
 	markers: require(ModuleDirectory + '/markers/marker'),
-	items: require(ModuleDirectory + '/items/item'),
+	codemarks: require(ModuleDirectory + '/codemarks/codemark'),
 	markerLocations: require(ModuleDirectory + '/marker_locations/marker_locations')
 };
 

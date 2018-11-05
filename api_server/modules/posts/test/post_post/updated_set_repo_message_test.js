@@ -3,14 +3,14 @@
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CommonInit = require('./common_init');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
-const ItemTest = require('./item_test');
+const CodeMarkTest = require('./codemark_test');
 const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
 const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');
 
-class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit, ItemTest) {
+class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit, CodeMarkTest) {
 
 	get description () {
-		return 'members of the team should receive a message with a repo update when a post and item are posted with a marker and remotes are specified that were not known for the repo';
+		return 'members of the team should receive a message with a repo update when a post and codemark are posted with a marker and remotes are specified that were not known for the repo';
 	}
 
 	setTestOptions (callback) {
@@ -28,8 +28,8 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 	makePostData (callback) {
 		super.makePostData(() => {
 			// use existing repo but new remote, this should get added to the existing repo
-			this.data.item.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
-			const marker = this.data.item.markers[0];
+			this.data.codemark.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
+			const marker = this.data.codemark.markers[0];
 			marker.repoId = this.repo._id;
 			this.addedRemote = marker.remotes[0];
 			callback();

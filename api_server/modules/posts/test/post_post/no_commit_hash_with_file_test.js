@@ -1,8 +1,8 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 
-class NoCommitHashWithFileTest extends ItemMarkerTest {
+class NoCommitHashWithFileTest extends CodeMarkMarkerTest {
 
 	constructor (options) {
 		super(options);
@@ -13,7 +13,7 @@ class NoCommitHashWithFileTest extends ItemMarkerTest {
 	}
 
 	get description () {
-		return 'should be ok to create a post and item with a marker but not providing a commit hash even if there is a file';
+		return 'should be ok to create a post and codemark with a marker but not providing a commit hash even if there is a file';
 	}
 
 	// form the data to use in trying to create the post
@@ -23,7 +23,7 @@ class NoCommitHashWithFileTest extends ItemMarkerTest {
 		// that we are not associating the marker with a stream at all...
 		// but we still have a file name
 		super.makePostData(() => {
-			const marker = this.data.item.markers[0];
+			const marker = this.data.codemark.markers[0];
 			delete marker.commitHash;
 			delete marker.fileStreamId;
 			this.expectedFile = marker.file = this.streamFactory.randomFile();

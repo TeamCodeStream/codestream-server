@@ -1,11 +1,11 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 
-class MarkerNotObjectTest extends ItemMarkerTest {
+class MarkerNotObjectTest extends CodeMarkMarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post and item with a marker element that is not an object';
+		return 'should return an error when attempting to create a post and codemark with a marker element that is not an object';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class MarkerNotObjectTest extends ItemMarkerTest {
 	makePostData (callback) {
 		// we'll add a "numeric" code-block ... not allowed!
 		super.makePostData(() => {
-			this.data.item.markers.push(1);
+			this.data.codemark.markers.push(1);
 			callback();
 		});
 	}

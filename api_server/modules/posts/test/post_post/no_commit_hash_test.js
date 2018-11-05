@@ -1,8 +1,8 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 
-class NoCommitHashTest extends ItemMarkerTest {
+class NoCommitHashTest extends CodeMarkMarkerTest {
 
 	constructor (options) {
 		super(options);
@@ -14,7 +14,7 @@ class NoCommitHashTest extends ItemMarkerTest {
 	}
 
 	get description () {
-		return 'should be ok to create a post with an item and a marker but not providing a commit hash as long as there is also no stream';
+		return 'should be ok to create a post with an codemark and a marker but not providing a commit hash as long as there is also no stream';
 	}
 
 	// form the data to use in trying to create the post
@@ -22,7 +22,7 @@ class NoCommitHashTest extends ItemMarkerTest {
 		// remove the commit hash from the data to use in creating the post
 		// also remove the stream ID, making the statement that we are not associating the marker with a stream at all
 		super.makePostData(() => {
-			const marker = this.data.item.markers[0];
+			const marker = this.data.codemark.markers[0];
 			delete marker.commitHash;
 			delete marker.fileStreamId;	
 			callback();

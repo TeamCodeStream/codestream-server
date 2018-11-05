@@ -1,11 +1,11 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 
-class MarkerHasInvalidRepoIdTest extends ItemMarkerTest {
+class MarkerHasInvalidRepoIdTest extends CodeMarkMarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post and item with a marker element where the repo ID is not a valid ID';
+		return 'should return an error when attempting to create a post and codemark with a marker element where the repo ID is not a valid ID';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class MarkerHasInvalidRepoIdTest extends ItemMarkerTest {
 	makePostData (callback) {
 		// we'll add a marker from a bogus stream ID
 		super.makePostData(() => {
-			const marker = this.data.item.markers[0];
+			const marker = this.data.codemark.markers[0];
 			delete marker.fileStreamId;
 			marker.repoId = 'x';
 			callback();

@@ -1,8 +1,8 @@
 'use strict';
 
-const ItemMarkertest = require('./item_marker_test');
+const CodeMarkMarkertest = require('./codemark_marker_test');
 
-class NoCommitHashWithStreamIdTest extends ItemMarkertest {
+class NoCommitHashWithStreamIdTest extends CodeMarkMarkertest {
 
 	constructor (options) {
 		super(options);
@@ -10,7 +10,7 @@ class NoCommitHashWithStreamIdTest extends ItemMarkertest {
 	}
 
 	get description () {
-		return 'should return an error when attempting to create a post and item with a marker but not providing a commit hash, when a stream ID is also specified';
+		return 'should return an error when attempting to create a post and codemark with a marker but not providing a commit hash, when a stream ID is also specified';
 	}
 
 	getExpectedError () {
@@ -24,7 +24,7 @@ class NoCommitHashWithStreamIdTest extends ItemMarkertest {
 	makePostData (callback) {
 		// remove the commit hash from the data to use in creating the post, but keep the stream ID
 		super.makePostData(() => {
-			const marker = this.data.item.markers[0];
+			const marker = this.data.codemark.markers[0];
 			delete marker.commitHash;
 			callback();
 		});

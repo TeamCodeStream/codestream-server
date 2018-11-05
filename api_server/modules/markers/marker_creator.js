@@ -121,8 +121,8 @@ class MarkerCreator extends ModelCreator {
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
-		if (this.itemId) {
-			this.attributes.itemId = this.itemId;
+		if (this.codemarkId) {
+			this.attributes.codemarkId = this.codemarkId;
 		}
 		await this.getTeam();					// get the team that will own the marker
 		await this.getStream();					// get the file-stream for the marker, if provided

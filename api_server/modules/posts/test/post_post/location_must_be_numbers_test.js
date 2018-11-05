@@ -1,11 +1,11 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 
-class LocationMustBeNumbersTest extends ItemMarkerTest {
+class LocationMustBeNumbersTest extends CodeMarkMarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post and item with a marker element where the location array does not contain all numbers';
+		return 'should return an error when attempting to create a post and codemark with a marker element where the location array does not contain all numbers';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class LocationMustBeNumbersTest extends ItemMarkerTest {
 	makePostData (callback) {
 		// set an element in the location array to a non-numeric ... not allowed!
 		super.makePostData(() => {
-			this.data.item.markers[0].location = [1, 2, 'x', 4];
+			this.data.codemark.markers[0].location = [1, 2, 'x', 4];
 			callback();
 		});
 	}

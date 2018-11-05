@@ -1,11 +1,11 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 
-class MarkerAttributeRequiredTest extends ItemMarkerTest {
+class MarkerAttributeRequiredTest extends CodeMarkMarkerTest {
 
 	get description () {
-		return `should return an error when attempting to create a post and item with a marker element with no ${this.attribute} parameter`;
+		return `should return an error when attempting to create a post and codemark with a marker element with no ${this.attribute} parameter`;
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class MarkerAttributeRequiredTest extends ItemMarkerTest {
 	makePostData (callback) {
 		// delete the marker attribute
 		super.makePostData(() => {
-			delete this.data.item.markers[0][this.attribute];
+			delete this.data.codemark.markers[0][this.attribute];
 			callback();
 		});
 	}

@@ -85,8 +85,8 @@ class TestStreamCreator {
 			streamId: this.stream._id,
 		};
 
-		if (this.postOptions.wantItem) {
-			this.setItemOptions(postOptions, n);	
+		if (this.postOptions.wantCodeMark) {
+			this.setCodeMarkOptions(postOptions, n);	
 		}
 
 		if (this.postOptions.postData && this.postOptions.postData[n]) {
@@ -112,21 +112,21 @@ class TestStreamCreator {
 		);
 	}
 
-	setItemOptions (options, n) {
-		options.wantItem = true;
+	setCodeMarkOptions (options, n) {
+		options.wantCodeMark = true;
 
 		if (this.postOptions.wantMarker || 
 			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantMarker)) {
 			this.setMarkerOptions(options);
 		}
 
-		if (this.postOptions.itemTypes) {
+		if (this.postOptions.codemarkTypes) {
 			if (this.postOptions.assignedTypes) {
-				options.itemType = this.postOptions.itemTypes[this.postOptions.assignedTypes[n]];
+				options.codemarkType = this.postOptions.codemarkTypes[this.postOptions.assignedTypes[n]];
 			}
 			else {
-				const typeIndex = Math.floor(Math.random() * this.postOptions.itemTypes.length);
-				options.itemType = this.postOptions.itemTypes[typeIndex];
+				const typeIndex = Math.floor(Math.random() * this.postOptions.codemarkTypes.length);
+				options.codemarkType = this.postOptions.codemarkTypes[typeIndex];
 			}
 		}
 	}

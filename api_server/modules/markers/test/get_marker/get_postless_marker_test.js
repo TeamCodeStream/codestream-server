@@ -31,28 +31,28 @@ class GetPostlessMarkerTest extends CodeStreamAPITest {
 
 	// create the marker to fetch
 	createMarker (callback) {
-		// to create a marker associated with an item, we actually have to create the item
-		const data = this.makeItemData();
+		// to create a marker associated with an codemark, we actually have to create the codemark
+		const data = this.makeCodeMarkData();
 		this.doApiRequest(
 			{
 				method: 'post',
-				path: '/items',
+				path: '/codemarks',
 				data,
 				token: this.users[1].accessToken
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.marker = response.markers[0];
-				this.item = response.item;
+				this.codemark = response.codemark;
 				this.path = '/markers/' + this.marker._id;
 				callback();
 			}
 		);
 	}
 
-	// make the data for the item to be created for the test
-	makeItemData () {
-		const data = this.itemFactory.getRandomItemData();
+	// make the data for the codemark to be created for the test
+	makeCodeMarkData () {
+		const data = this.codemarkFactory.getRandomCodeMarkData();
 		Object.assign(data, {
 			teamId: this.team._id,
 			providerType: RandomString.generate(8),
@@ -69,9 +69,9 @@ class GetPostlessMarkerTest extends CodeStreamAPITest {
 		this.validateMatchingObject(this.marker._id, data.marker, 'marker');
 		this.validateSanitized(data.marker, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
 
-		// validate we also got the parent item, with only sanitized attributes
-		this.validateMatchingObject(this.item._id, data.item, 'item');
-		this.validateSanitized(data.item, MarkerTestConstants.UNSANITIZED_ITEM_ATTRIBUTES);
+		// validate we also got the parent codemark, with only sanitized attributes
+		this.validateMatchingObject(this.codemark._id, data.codemark, 'codemark');
+		this.validateSanitized(data.codemark, MarkerTestConstants.UNSANITIZED_CODEMARK_ATTRIBUTES);
 
 		// we should NOT get a post, since we're using third-party posts
 		Assert.equal(typeof data.post, 'undefined', 'post is not undefined');

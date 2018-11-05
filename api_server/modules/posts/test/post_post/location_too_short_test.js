@@ -1,11 +1,11 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 
-class LocationTooShortTest extends ItemMarkerTest {
+class LocationTooShortTest extends CodeMarkMarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post and item with a marker element where the location array is too short';
+		return 'should return an error when attempting to create a post and codemark with a marker element where the location array is too short';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class LocationTooShortTest extends ItemMarkerTest {
 	makePostData (callback) {
 		// 3 elements in the location array ... not allowed!
 		super.makePostData(() => {
-			this.data.item.markers[0].location = [1, 2, 3];
+			this.data.codemark.markers[0].location = [1, 2, 3];
 			callback();
 		});
 	}

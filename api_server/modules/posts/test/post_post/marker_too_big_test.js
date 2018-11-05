@@ -1,11 +1,11 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 
-class MarkerTooBigTest extends ItemMarkerTest {
+class MarkerTooBigTest extends CodeMarkMarkerTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post and item with a marker element that is too big';
+		return 'should return an error when attempting to create a post and codemark with a marker element that is too big';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class MarkerTooBigTest extends ItemMarkerTest {
 	makePostData (callback) {
 		// put a whole bunch of code in the marker, greater than the limit
 		super.makePostData(() => {
-			this.data.item.markers[0].code = 'x'.repeat(10001);
+			this.data.codemark.markers[0].code = 'x'.repeat(10001);
 			callback();
 		});
 	}

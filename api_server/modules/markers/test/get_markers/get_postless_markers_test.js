@@ -37,7 +37,7 @@ class GetPostlessMarkersTest extends GetMarkersTest {
 	}
 
 	createMarker (n, callback) {
-		const data = this.itemFactory.getRandomItemData();
+		const data = this.codemarkFactory.getRandomCodeMarkData();
 		Object.assign(data, {
 			teamId: this.team._id,
 			providerType: RandomString.generate(8),
@@ -48,7 +48,7 @@ class GetPostlessMarkersTest extends GetMarkersTest {
 		this.doApiRequest(
 			{
 				method: 'post',
-				path: '/items',
+				path: '/codemarks',
 				data,
 				token: this.users[1].accessToken
 			},

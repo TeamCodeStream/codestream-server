@@ -1,9 +1,9 @@
 'use strict';
 
-const GetPostsWithItemsTest = require('./get_posts_with_items_test');
+const GetPostsWithCodeMarksTest = require('./get_posts_with_codemarks_test');
 const Assert = require('assert');
 
-class GetPostsWithMarkersTest extends GetPostsWithItemsTest {
+class GetPostsWithMarkersTest extends GetPostsWithCodeMarksTest {
 
 	constructor (options) {
 		super(options);
@@ -17,8 +17,8 @@ class GetPostsWithMarkersTest extends GetPostsWithItemsTest {
 	// validate the response to the fetch request
 	validateResponse (data) {
 		data.posts.forEach(post => {
-			const item = data.items.find(item => item._id === post.itemId);
-			item.markerIds.forEach(markerId => {
+			const codemark = data.codemarks.find(codemark => codemark._id === post.codemarkId);
+			codemark.markerIds.forEach(markerId => {
 				const marker = data.markers.find(marker => marker._id === markerId);
 				Assert(marker, 'marker not returned with post');
 			});

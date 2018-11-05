@@ -7,7 +7,7 @@ const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_te
 class OnTheFlyMarkerStreamFromDifferentTeamTest extends MarkerStreamOnTheFlyTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post and item with a marker for an on-the-fly stream where the stream is from a different team';
+		return 'should return an error when attempting to create a post and codemark with a marker for an on-the-fly stream where the stream is from a different team';
 	}
 
 	getExpectedError () {
@@ -41,7 +41,7 @@ class OnTheFlyMarkerStreamFromDifferentTeamTest extends MarkerStreamOnTheFlyTest
 			}
 		}).create((error, response) => {
 			if (error) { return callback(error); }
-			const marker = this.data.item.markers[0];
+			const marker = this.data.codemark.markers[0];
 			Object.assign(marker, {
 				repoId: response.repo._id,
 				file: this.streamFactory.randomFile()

@@ -1,11 +1,11 @@
 'use strict';
 
-const ItemMarkerTest = require('./item_marker_test');
+const CodeMarkMarkerTest = require('./codemark_marker_test');
 
-class InvalidCoordinateObjectTest extends ItemMarkerTest {
+class InvalidCoordinateObjectTest extends CodeMarkMarkerTest {
 
 	get description () {
-		return 'should return error when attempting to create a post and item with a marker element where the fifth location coordinate is not an object';
+		return 'should return error when attempting to create a post and codemark with a marker element where the fifth location coordinate is not an object';
 	}
 
 	getExpectedError () {
@@ -19,7 +19,7 @@ class InvalidCoordinateObjectTest extends ItemMarkerTest {
 	makePostData (callback) {
 		// add a fifth coordinate element that is not an object ... not allowed!
 		super.makePostData(() => {
-			this.data.item.markers[0].location = [1, 2, 3, 4, 5];
+			this.data.codemark.markers[0].location = [1, 2, 3, 4, 5];
 			callback();
 		});
 	}

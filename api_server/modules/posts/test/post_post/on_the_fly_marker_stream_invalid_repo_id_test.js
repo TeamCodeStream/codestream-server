@@ -20,7 +20,7 @@ class OnTheFlyMarkerStreamInvalidRepoIdTest extends MarkerStreamOnTheFlyTest {
 		// for the stream we want to create on-the-fly, substitute a bogus ID for the repo
 		super.before(error => {
 			if (error) { return callback(error); }
-			const marker = this.data.item.markers[0];
+			const marker = this.data.codemark.markers[0];
 			delete marker.remotes;
 			marker.repoId = 'x';
 			callback();

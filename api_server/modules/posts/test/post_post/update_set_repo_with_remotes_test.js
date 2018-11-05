@@ -16,7 +16,7 @@ class UpdateSetRepoWithRemotesTest extends UpdateMatchedRepoWithRemotesTest {
 		// be added to the repo
 		super.makePostData(error => {
 			if (error) { return callback(error); }
-			this.data.item.markers[0].repoId = this.repo._id;
+			this.data.codemark.markers[0].repoId = this.repo._id;
 			callback();
 		});
 	}

@@ -10,7 +10,7 @@ const RandomRepoFactory = require(process.env.CS_API_TOP + '/modules/repos/test/
 const RandomStreamFactory = require(process.env.CS_API_TOP + '/modules/streams/test/random_stream_factory');
 const RandomPostFactory = require(process.env.CS_API_TOP + '/modules/posts/test/random_post_factory');
 const RandomMarkerFactory = require(process.env.CS_API_TOP + '/modules/markers/test/random_marker_factory');
-const RandomItemFactory = require(process.env.CS_API_TOP + '/modules/items/test/random_item_factory');
+const RandomCodeMarkFactory = require(process.env.CS_API_TOP + '/modules/codemarks/test/random_codemark_factory');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const TestTeamCreator = require('./test_team_creator');
@@ -41,7 +41,7 @@ class CodeStreamAPITest extends APIRequestTest {
 			repoFactory: this.repoFactory,
 			streamFactory: this.streamFactory
 		});
-		this.itemFactory = new RandomItemFactory({
+		this.codemarkFactory = new RandomCodeMarkFactory({
 			apiRequester: this,
 			markerFactory: this.markerFactory
 		});
@@ -49,7 +49,7 @@ class CodeStreamAPITest extends APIRequestTest {
 			apiRequester: this,
 			streamFactory: this.streamFactory,
 			repoFactory: this.repoFactory,
-			itemFactory: this.itemFactory
+			codemarkFactory: this.codemarkFactory
 		});
 
 		this.userOptions = {

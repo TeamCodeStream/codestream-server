@@ -11,13 +11,13 @@ class DuplicateFileStreamTest extends MarkerStreamOnTheFlyTest {
 	}
 
 	get description () {
-		return 'should find and use the existing stream when creating a post and item and creating a file stream on the fly with matching path';
+		return 'should find and use the existing stream when creating a post and codemark and creating a file stream on the fly with matching path';
 	}
 
 	makePostData (callback) {
 		super.makePostData(() => {
 			// substitute the path for the existing file-stream, without providing its ID
-			const marker = this.data.item.markers[0];
+			const marker = this.data.codemark.markers[0];
 			delete marker.fileStreamId;
 			delete marker.remotes;
 			marker.repoId = this.repo._id;

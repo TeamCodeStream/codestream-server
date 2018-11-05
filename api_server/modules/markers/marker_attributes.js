@@ -22,10 +22,10 @@ module.exports = {
 		type: 'string',
 		description: 'ID of the @@#post#post@@ that references this marker, or can be a third-party post ID'
 	},
-	itemId: {
+	codemarkId: {
 		type: 'id',
 		required: true,
-		description: 'ID of the @@#item#item@@ that references this marker'
+		description: 'ID of the @@#codemark#codemark@@ that references this marker'
 	},
 	providerType: {
 		type: 'string',

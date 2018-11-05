@@ -10,7 +10,7 @@ const EmailNotificationQueue = require('./email_notification_queue');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const ItemCreator = require(process.env.CS_API_TOP + '/modules/items/item_creator');
+const CodeMarkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_creator');
 
 class PostCreator extends ModelCreator {
 
@@ -36,7 +36,7 @@ class PostCreator extends ModelCreator {
 			},
 			optional: {
 				string: ['text', 'parentPostId'],
-				object: ['item'],
+				object: ['codemark'],
 				'array(string)': ['mentionedUserIds']
 			}
 		};
@@ -54,12 +54,12 @@ class PostCreator extends ModelCreator {
 		await this.getStream();			// get the stream for the post
 		await this.getTeam();			// get the team that owns the stream
 		await this.getCompany();		// get the company that owns the team
-		await this.createItem();		// create the associated knowledge-base items, if any
+		await this.createCodeMark();		// create the associated knowledge-base codemarks, if any
 		await this.getSeqNum();			// requisition a sequence number for the post
 		await super.preSave();			// base-class preSave
 		await this.updateStream();		// update the stream as needed
 		await this.updateLastReads();	// update lastReads attributes for affected users
-		await this.updateNumReplies();	// update numReplies for the parent post, and item if applicable
+		await this.updateNumReplies();	// update numReplies for the parent post, and codemark if applicable
 		await this.updatePostCount();	// update the post count for the author of the post
 	}
 
@@ -94,21 +94,21 @@ class PostCreator extends ModelCreator {
 		this.company = await this.data.companies.getById(this.team.get('companyId'));
 	}
 
-	// create an associated knowledge base item, if applicable
-	async createItem () {
-		if (!this.attributes.item) {
+	// create an associated knowledge base codemark, if applicable
+	async createCodeMark () {
+		if (!this.attributes.codemark) {
 			return;
 		}
-		const itemAttributes = Object.assign({}, this.attributes.item, {
+		const codemarkAttributes = Object.assign({}, this.attributes.codemark, {
 			teamId: this.team.id,
 			streamId: this.stream.id,
 			postId: this.attributes._id
 		});
-		this.transforms.createdItem = await new ItemCreator({
+		this.transforms.createdCodeMark = await new CodeMarkCreator({
 			request: this.request
-		}).createItem(itemAttributes);
-		delete this.attributes.item;
-		this.attributes.itemId = this.transforms.createdItem.id;
+		}).createCodeMark(codemarkAttributes);
+		delete this.attributes.codemark;
+		this.attributes.codemarkId = this.transforms.createdCodeMark.id;
 	}
 
 	// requisition a sequence number for this post
@@ -183,14 +183,14 @@ class PostCreator extends ModelCreator {
 		}).updateLastReads();
 	}
 
-	// if this is a reply, update the numReplies attribute for the parent post and/or parent item
+	// if this is a reply, update the numReplies attribute for the parent post and/or parent codemark
 	async updateNumReplies () {
 		if (!this.model.get('parentPostId')) {
 			return;
 		}
 		this.parentPost = await this.data.posts.getById(this.model.get('parentPostId'));
 		await this.updateParentPost();
-		await this.updateParentItem();
+		await this.updateParentCodeMark();
 	}
 
 	// update numReplies for a parent post to this post
@@ -207,23 +207,23 @@ class PostCreator extends ModelCreator {
 		}).save(op);
 	}
 	
-	// update numReplies for the parent post's item, if any
-	async updateParentItem () {
-		if (!this.parentPost.get('itemId')) {
+	// update numReplies for the parent post's codemark, if any
+	async updateParentCodeMark () {
+		if (!this.parentPost.get('codemarkId')) {
 			return;
 		}
-		const item = await this.request.data.items.getById(this.parentPost.get('itemId'));
-		if (!item) { return; }
+		const codemark = await this.request.data.codemarks.getById(this.parentPost.get('codemarkId'));
+		if (!codemark) { return; }
 
 		const op = { 
 			$set: {
-				numReplies: (item.get('numReplies') || 0) + 1
+				numReplies: (codemark.get('numReplies') || 0) + 1
 			}
 		};
-		this.transforms.itemUpdate = await new ModelSaver({
+		this.transforms.codemarkUpdate = await new ModelSaver({
 			request: this.request,
-			collection: this.data.items,
-			id: item.id
+			collection: this.data.codemarks,
+			id: codemark.id
 		}).save(op);
 	}
 
@@ -339,8 +339,8 @@ class PostCreator extends ModelCreator {
 		const data = {
 			post: this.transforms.postUpdate
 		};
-		if (this.transforms.itemUpdate) {
-			data.item = this.transforms.itemUpdate;
+		if (this.transforms.codemarkUpdate) {
+			data.codemark = this.transforms.codemarkUpdate;
 		}
 		await new PostPublisher({
 			request: this.request,

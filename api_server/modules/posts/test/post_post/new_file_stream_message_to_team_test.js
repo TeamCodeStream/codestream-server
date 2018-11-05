@@ -25,9 +25,9 @@ class NewFileStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, 
 
 	makePostData (callback) {
 		super.makePostData (() => {
-			// add item and marker data to the post
-			this.data.item = this.itemFactory.getRandomItemData();
-			this.data.item.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
+			// add codemark and marker data to the post
+			this.data.codemark = this.codemarkFactory.getRandomCodeMarkData();
+			this.data.codemark.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
 			callback();
 		});
 	}
