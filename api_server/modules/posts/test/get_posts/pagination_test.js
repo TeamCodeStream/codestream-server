@@ -11,10 +11,10 @@ class PaginationTest extends GetPostsTest {
 		super(options);
 		// for default pagination, we'll create "2.5 times the page size" posts,
 		// otherwise we'll do 17 posts in pages of 5
-		this.numPosts = this.defaultPagination ? Math.floor(Limits.maxPostsPerRequest * 2.5) : 17;
+		this.postOptions.numPosts = this.defaultPagination ? Math.floor(Limits.maxPostsPerRequest * 2.5) : 17;
 		this.postsPerPage = this.defaultPagination ? Limits.maxPostsPerRequest : 5;
-		this.postCreateThrottle = 200;	// slow things down, pubnub gets overwhelmed
-		this.testTimeout = this.numPosts * 500 + 20000;
+		this.postOptions.postCreateThrottle = 200;	// slow things down, pubnub gets overwhelmed
+		this.testTimeout = this.postOptions.numPosts * 500 + 20000;
 	}
 
 	get description () {
@@ -29,19 +29,19 @@ class PaginationTest extends GetPostsTest {
 
 	// run the test, this overrides the normal run of GetPostsTest
 	run (callback) {
-		// we need them sorted for pagination to make sense, myPosts is what we'll
+		// we need them sorted for pagination to make sense, expectedPosts is what we'll
 		// be comparing the results to
-		this.myPosts.sort((a, b) => {
-			return a._id.localeCompare(b._id);
+		this.expectedPosts.sort((a, b) => {
+			return a.seqNum - b.seqNum;
 		});
 		// figure out the number of pages we expect
-		this.numPages = Math.floor(this.numPosts / this.postsPerPage);
-		if (this.numPosts % this.postsPerPage !== 0) {
+		this.numPages = Math.floor(this.postOptions.numPosts / this.postsPerPage);
+		if (this.postOptions.numPosts % this.postsPerPage !== 0) {
 			this.numPages++;
 		}
-		// establish allPosts as the posts across all pages, and myPosts as the
+		// establish allPosts as the posts across all pages, and expectedPosts as the
 		// posts we expect per page
-		this.allPosts = this.myPosts;
+		this.allPosts = this.expectedPosts;
 		if (!this.ascending) {
 			this.allPosts.reverse();
 		}
@@ -73,8 +73,8 @@ class PaginationTest extends GetPostsTest {
 		if (pageNum > 0) {
 			// after the first page, we use the last ID fetches and get the next
 			// page in sequence
-			let op = this.ascending ? 'gt' : 'lt';
-			this.path += `&${op}=${this.lastId}`;
+			let op = this.ascending ? 'after' : 'before';
+			this.path += `&${op}=${this.lastSeqNum}`;
 		}
 		// fetch the page and validate the response
 		this.doApiRequest(
@@ -102,11 +102,11 @@ class PaginationTest extends GetPostsTest {
 		// check that our response matched the expected "slice", or page
 		let begin = pageNum * this.postsPerPage;
 		let end = begin + this.postsPerPage;
-		this.myPosts = this.allPosts.slice(begin, end);
+		this.expectedPosts = this.allPosts.slice(begin, end);
 		this.validateResponse(response);
 		// prepare for the next page fetch by establishing the ID of the last post fetched
-		let lastPost = this.myPosts[this.myPosts.length - 1];
-		this.lastId = lastPost._id;
+		let lastPost = this.expectedPosts[this.expectedPosts.length - 1];
+		this.lastSeqNum = lastPost.seqNum;
 	}
 }
 

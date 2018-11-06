@@ -10,7 +10,7 @@ const GetPostlessCodemarksByTypeTest = require('./get_postless_codemarks_by_type
 const GetPostlessCodemarksWithMarkersTest = require('./get_postless_codemarks_with_markers_test');
 const GetCodemarksBeforeTest = require('./get_codemarks_before_test');
 const GetCodemarksAfterTest = require('./get_codemarks_after_test');
-//const ACLTest = require('./acl_test');
+const ACLTest = require('./acl_test');
 
 class GetCodemarksRequestTester {
 
@@ -23,7 +23,7 @@ class GetCodemarksRequestTester {
 		new GetPostlessCodemarksWithMarkersTest().test();
 		new GetCodemarksBeforeTest().test();
 		new GetCodemarksAfterTest().test();
-		//new ACLTest().test();
+		new ACLTest().test();
 	}
 }
 

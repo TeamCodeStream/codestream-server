@@ -15,7 +15,7 @@ class ACLTest extends GetCodemarksTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1011'	// readAuth
+			code: 'RAPI-1009'	// readAuth
 		};
 	}
 }

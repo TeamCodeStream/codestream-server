@@ -12,7 +12,8 @@ module.exports = {
 	byParentPostId: {
 		teamId: 1,
 		streamId: 1,
-		parentPostId: 1
+		parentPostId: 1,
+		seqNum: -1
 	},
 	bySeqNum: {
 		teamId: 1,

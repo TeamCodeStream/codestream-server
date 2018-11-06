@@ -13,7 +13,7 @@ class GetPostsSortTest extends GetPostsTest {
 		// sort the posts by ID, then specify an ascending sort order in the request
 		this.expectedPosts = this.postData.map(postData => postData.post);
 		this.expectedPosts.sort((a, b) => {
-			return a._id.localeCompare(b._id);
+			return a.seqNum - b.seqNum;
 		});
 		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&sort=asc`;
 		callback();

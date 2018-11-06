@@ -106,7 +106,8 @@ class TestStreamCreator {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.postData.push(response);
-				callback();
+				const wait = this.postOptions.postCreateThrottle || 0;
+				setTimeout(callback, wait);
 			},
 			postOptions
 		);

@@ -16,7 +16,7 @@ class StreamIDRequiredTest extends GetPostsTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1001',
-			info: 'repoId or streamId'
+			info: 'streamId'
 		};
 	}
 }

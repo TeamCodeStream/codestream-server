@@ -16,8 +16,7 @@ const BASIC_QUERY_PARAMETERS = [
 // additional options for post fetches
 const NON_FILTERING_PARAMETERS = [
 	'limit',
-	'sort',
-	'commitHash'
+	'sort'
 ];
 
 const RELATIONAL_PARAMETERS = [
@@ -58,7 +57,7 @@ class GetPostsRequest extends GetManyRequest {
 		}
 		this.handleRelationals(query);
 		if (Object.keys(query).length === 0) {
-			return null;	// no query parameters, will assume fetch by ID
+			return null;
 		}
 		return query;
 	}
@@ -150,12 +149,12 @@ class GetPostsRequest extends GetManyRequest {
 	// set the sort order for the fetch query
 	setSort () {
 		// posts are sorted in descending order by ID unless otherwise specified
-		let sort = { _id: -1 };
+		let sort;
 		if (this.request.query.sort && this.request.query.sort.toLowerCase() === 'asc') {
-			sort = { _id: 1 };
-		}
-		else if (this.bySeqNum) {
 			sort = { seqNum: 1 };
+		}
+		else {
+			sort = { seqNum: -1 };
 		}
 		return sort;
 	}
@@ -165,11 +164,8 @@ class GetPostsRequest extends GetManyRequest {
 		if (this.request.query.parentPostId) {
 			return Indexes.byParentPostId;
 		}
-		else if (this.bySeqNum) {
-			return Indexes.bySeqNum;
-		}
 		else {
-			return Indexes.byId;
+			return Indexes.bySeqNum;
 		}
 	}
 
@@ -231,7 +227,7 @@ class GetPostsRequest extends GetManyRequest {
 			'after': '<Fetch posts after this sequence number, including the post with that sequence number if "inclusive" is set>',
 			'inclusive': '<If before or after or both are set, indicated to include the reference post in the returned posts>'
 		});
-		description.returns.summary = 'An array of post objects, plus possible codemark, marker and markerLocations object, and more flag';
+		description.returns.summary = 'An array of post objects, plus possible codemark and marker objects, and more flag';
 		Object.assign(description.returns.looksLike, {
 			posts: '<@@#post objects#codemark@@ fetched>',
 			codemarks: '<associated @@#codemark objects#codemark@@>',
