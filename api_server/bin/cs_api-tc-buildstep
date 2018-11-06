@@ -60,6 +60,15 @@ if args.action == 'citest':
 if args.action == 'publish':
 	publishArtifacts(args, buildData, assetExtensionList, publishDir = publishDir)
 
+if args.action == 'release':
+	if os.environ['CS_API_ASSET_ENV'] != "prod":
+		print("release can only be run in a sandbox configured for production")
+		exit(1)
+	infoFileName = args.build_number + ".info"
+	pkgInfo = readJsonFileIgnoreComments(infoFileName)
+	applyTagToRepos(os.environ['CS_API_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
+	updatePackageVersion(buildData['sandboxTop'] + "/package.json", "develop", pkgInfo['version'], bumpLevel = 'patch')
+
 if args.action == 'docker':
 	verInfo = parseBuildNumber(args.build_number)
 	dockerVersion = verInfo['version'] + "-" + verInfo['counter']
