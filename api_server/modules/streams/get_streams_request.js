@@ -197,12 +197,27 @@ class GetStreamsRequest extends GetManyRequest {
 	// process the request (overrides base class)
 	async process () {
 		await super.process();
-		// add the "more" flag as needed, if there are more streams to fetch ...
-		// we always fetch one more than the page requested, so we can set that flag
+		this.addMoreFlag();
+		await this.setIsClosed();
+	}
+
+	// add the "more" flag as needed, if there are more streams to fetch ...
+	// we always fetch one more than the page requested, so we can set that flag
+	addMoreFlag () {
 		if (this.responseData.streams.length === this.limit) {
 			this.responseData.streams.splice(-1);
 			this.responseData.more = true;
 		}
+	}
+
+	// set isClosed flag for any streams that are closed per the user's preferences
+	async setIsClosed () {
+		const closedStreams = (this.user.get('preferences') || {}).closedStreams || {};
+		this.responseData.streams.forEach(stream => {
+			if (closedStreams[stream._id]) {
+				stream.isClosed = true;
+			}
+		});
 	}
 
 	// describe this route for help

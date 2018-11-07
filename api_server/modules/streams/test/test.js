@@ -19,4 +19,6 @@ describe('stream requests', function() {
 	describe('PUT /editing', streamsRequestTester.editingTest);
 	describe('PUT /streams/:id', streamsRequestTester.putStreamTest);
 	describe('PUT /join/:id', streamsRequestTester.joinTest);
+	describe('PUT /close/:id', streamsRequestTester.closeTest);
+	describe('PUT /open/:id', streamsRequestTester.openTest);
 });

@@ -20,6 +20,20 @@ class GetStreamRequest extends GetRequest {
 		return await super.authorize();
 	}
 
+	// handle the response to the request
+	async handleResponse () {
+		if (this.gotError) {
+			return await super.handleResponse();
+		}
+
+		// if the user preferences indicate the stream is closed for them, then add an isClosed flag
+		const closedStreams = (this.user.get('preferences') || {}).closedStreams || {};
+		if (closedStreams[this.model.id]) {
+			this.responseData.stream.isClosed = true;
+		}
+		super.handleResponse();
+	}
+
 	// describe this route for help
 	static describe (module) {
 		const description = GetRequest.describe(module);
