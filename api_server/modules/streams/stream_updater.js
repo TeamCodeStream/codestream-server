@@ -33,7 +33,7 @@ class StreamUpdater extends ModelUpdater {
 		return {
 			string: ['name', 'purpose'],
 			object: ['$addToSet', '$push', '$pull'],
-			boolean: ['isArchived', 'isClosed']
+			boolean: ['isArchived']
 		};
 	}
 
