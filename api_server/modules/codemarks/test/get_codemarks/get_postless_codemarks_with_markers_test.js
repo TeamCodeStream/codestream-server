@@ -6,7 +6,7 @@ class GetPostlessCodemarksWithMarkersTest extends GetPostlessCodemarksTest {
 
 	constructor (options) {
 		super(options);
-		this.wantMarker = true;
+		this.postOptions.wantMarker = true;
 		this.repoOptions.creatorIndex = 1;
 	}
 

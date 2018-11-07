@@ -12,9 +12,14 @@ module.exports = {
 		type: 1,
 		createdAt: -1
 	},
-	byFileStreamId: {
+	byStreamId: {
 		teamId: 1,
-		fileStreamId: 1,
+		streamId: 1,
+		createdAt: -1
+	},
+	byFileStreamIds: {
+		teamId: 1,
+		fileStreamIds: 1,
 		createdAt: -1
 	}
 };

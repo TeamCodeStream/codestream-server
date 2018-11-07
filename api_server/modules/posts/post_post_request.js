@@ -89,7 +89,7 @@ class PostPostRequest extends PostRequest {
 	// describe this route for help
 	static describe (module) {
 		const description = PostRequest.describe(module);
-		description.description = 'Creates a post, along with associated markers, and associated knowledge base codemarks and markers. File streams and repos can also be created on-the-fly for the markers.';
+		description.description = 'Creates a post, along with associated codemark and markers. File streams and repos can also be created on-the-fly for the markers.';
 		description.access = 'The current user must be a member of the stream.';
 		description.input = {
 			summary: description.input,
@@ -97,7 +97,7 @@ class PostPostRequest extends PostRequest {
 				'streamId*': '<ID of the stream in which the post is being created, required unless a stream object is specified>',
 				'text': '<Text of the post>',
 				'parentPostId': '<For replies, the ID of the parent post>',
-				'codemarks': '<Array of @@#codemarks#codemark@@, for creating knowledge-base codemark referenced by the post>',
+				'codemark': '<Single @@#codemark#codemark@@ object, for creating a codemark referenced by the post>',
 				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>'
 			}
 		};

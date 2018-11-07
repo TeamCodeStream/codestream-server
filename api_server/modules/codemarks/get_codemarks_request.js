@@ -30,19 +30,26 @@ class GetCodemarksRequest extends GetManyRequest {
 
 	// build the database query to use to fetch the markers
 	buildQuery () {
-		if (this.request.query.streamId && this.request.query.type) {
-			return 'can not query on streamId and type at the same time';
+		let numParameters = ['type', 'fileStreamId', 'streamId'].reduce((numParameters, parameter) => {
+			return numParameters + (this.request.query[parameter] ? 1 : 0);
+		}, 0);
+		if (numParameters > 1) {
+			return 'can not query on more than one of: type, fileStreamId, and streamId';
 		}
 		const query = {
 			teamId: this.teamId
 		};
-		if (this.request.query.streamId) {
-			query.fileStreamId = this.request.query.streamId.toLowerCase();
+		if (this.request.query.fileStreamId) {
+			query.fileStreamIds = this.request.query.fileStreamId.toLowerCase();
 		}
-		if (this.request.query.type) {
+		else if (this.request.query.streamId) {
+			query.streamId = this.request.query.streamId.toLowerCase();
+		}
+		else if (this.request.query.type) {
 			query.type = this.request.query.type;
 		}
 		let { before, after, inclusive } = this.request.query;
+		inclusive = inclusive !== undefined;
 		if (before !== undefined) {
 			before = parseInt(before, 10);
 			if (!before) {
@@ -78,8 +85,11 @@ class GetCodemarksRequest extends GetManyRequest {
 		if (this.request.query.type) {
 			hint = Indexes.byType;
 		}
+		else if (this.request.query.fileStreamIds) {
+			hint = Indexes.byFileStreamIds;
+		}
 		else if (this.request.query.streamId) {
-			hint = Indexes.byFileStreamId;
+			hint = Indexes.byStreamId;
 		}
 		else {
 			hint = Indexes.byTeamId;
@@ -123,7 +133,8 @@ class GetCodemarksRequest extends GetManyRequest {
 		Object.assign(description.input.looksLike, {
 			'teamId*': '<ID of the team for which codemarks are being fetched>',
 			'type': '<Type of codemarks to fetch>',
-			'streamId': '<ID of the file stream for which knowledge base codemarks with attached markers should be fetched>',
+			'fileStreamId': '<ID of the file stream for which knowledge base codemarks with attached markers should be fetched>',
+			'streamId': '<ID of the stream for which codemarks should be fetched>',
 			'before': '<Fetch codemarks created before this timestamp, inclusive if "inclusive" is set>',
 			'after': '<Fetch codemarks created after this timestamp, inclusive if "inclusive" is set>',
 			'inclusive': '<If before or after or both are set, indicates to include any codemarks with a timestamp exactly matching the before or after vaue (or both)>'

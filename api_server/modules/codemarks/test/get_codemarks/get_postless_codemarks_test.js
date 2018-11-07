@@ -45,7 +45,7 @@ class GetPostlessCodemarksTest extends GetCodemarksTest {
 			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)
 		});
-		if (this.wantMarker) {
+		if (this.postOptions.wantMarker) {
 			codemarkData.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0]._id });
 		}
 		this.doApiRequest(

@@ -19,7 +19,7 @@ class GetCodemarksByTypeTest extends GetCodemarksTest {
 	// validate correct response
 	validateResponse (data) {
 		data.codemarks.forEach(codemark => {
-			Assert.equal(codemark.type, this.type, 'got an codemark with non-matching type');
+			Assert.equal(codemark.type, this.type, 'got a codemark with non-matching type');
 		});
 		super.validateResponse(data);
 	}
