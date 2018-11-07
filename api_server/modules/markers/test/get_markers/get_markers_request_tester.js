@@ -5,6 +5,10 @@
 const GetMarkersTest = require('./get_markers_test');
 const GetMarkersBeforeTest = require('./get_markers_before_test');
 const GetMarkersAfterTest = require('./get_markers_after_test');
+const GetMarkersBeforeInclusiveTest = require('./get_markers_before_inclusive_test');
+const GetMarkersAfterInclusiveTest = require('./get_markers_after_inclusive_test');
+const GetMarkersBeforeAfterTest = require('./get_markers_before_after_test');
+const GetMarkersBeforeAfterInclusiveTest = require('./get_markers_before_after_inclusive_test');
 const GetPostlessMarkersTest = require('./get_postless_markers_test');
 const GetMarkersByIdTest = require('./get_markers_by_id_test');
 const MarkerLocationsTest = require('./marker_locations_test');
@@ -21,6 +25,10 @@ class GetMarkersRequestTester {
 		new GetMarkersTest().test();
 		new GetMarkersBeforeTest().test();
 		new GetMarkersAfterTest().test();
+		new GetMarkersBeforeInclusiveTest().test();
+		new GetMarkersAfterInclusiveTest().test();
+		new GetMarkersBeforeAfterTest().test();
+		new GetMarkersBeforeAfterInclusiveTest().test();
 		new GetPostlessMarkersTest().test();
 		new GetMarkersByIdTest().test();
 		new MarkerLocationsTest().test();

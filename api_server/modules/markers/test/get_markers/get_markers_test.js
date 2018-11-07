@@ -14,7 +14,7 @@ class GetMarkersTest extends CodeStreamAPITest {
 		this.streamOptions.type = 'channel';
 		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
-			numPosts: 5,
+			numPosts: 10,
 			creatorIndex: 1,
 			wantCodemark: true,
 			wantMarker: true,
