@@ -73,7 +73,8 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((data['Endpoint'] === 'Unknown IDE') || errors.push('IDE should be unknown')) &&
 			((data['Plugin Version'] === '') || errors.push('Plugin Version should be blank')) &&
 			((data['Plan'] === 'Free') || errors.push('Plan should be Free')) &&
-			((data['Date Signed Up'] === new Date(this.currentUser.user.registeredAt).toISOString()) || errors.push('Date Signed Up not correct'))
+			((data['Date Signed Up'] === new Date(this.currentUser.user.registeredAt).toISOString()) || errors.push('Date Signed Up not correct')) &&
+			((data['Reporting Group'] === '') || errors.push('Reporting Group should be empty string'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;
