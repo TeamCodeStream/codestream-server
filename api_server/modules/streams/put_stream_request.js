@@ -195,7 +195,6 @@ class PutStreamRequest extends PutRequest {
 				'name': '<Updated name of the channel stream>',
 				'purpose': '<Updated purpose of the channel stream>',
 				'isArchived': '<If the channel stream is archived>',
-				'isClosed': '<If the stream does not appear in the client display>',
 				'$push': {
 					memberIds: '<Array of IDs representing users to add to the channel stream>'
 				},

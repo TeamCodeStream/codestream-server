@@ -9,6 +9,8 @@ const PostStreamRequestTester = require('./post_stream/post_stream_request_teste
 const EditingRequestTester = require('./editing/editing_request_tester');
 const PutStreamRequestTester = require('./put_stream/put_stream_request_tester');
 const JoinRequestTester = require('./join/join_request_tester');
+const CloseRequestTester = require('./close/close_request_tester');
+const OpenRequestTester = require('./open/open_request_tester');
 
 class StreamsRequestTester extends Aggregation(
 	GetStreamRequestTester,
@@ -16,7 +18,9 @@ class StreamsRequestTester extends Aggregation(
 	PostStreamRequestTester,
 	EditingRequestTester,
 	PutStreamRequestTester,
-	JoinRequestTester
+	JoinRequestTester,
+	CloseRequestTester,
+	OpenRequestTester
 ) {
 }
 

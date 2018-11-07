@@ -32,7 +32,6 @@ const RemoveUserMessageToTeamTest = require('./remove_user_message_to_team_test'
 const SubscriptionTest = require('./subscription_test');
 const UserGetsStreamMessageTest = require('./user_gets_stream_message_test');
 const ArchiveStreamTest = require('./archive_stream_test');
-const CloseStreamTest = require('./close_stream_test');
 const RestoreStreamTest = require('./restore_stream_test');
 const InvalidChannelNameTest = require('./invalid_channel_name_test');
 const NoDuplicateNameTest = require('./no_duplicate_name_test');
@@ -96,7 +95,6 @@ class PutStreamRequestTester {
 		new UserGetsStreamMessageTest().test();
 		new ArchiveStreamTest().test();
 		new RestoreStreamTest().test();
-		new CloseStreamTest().test();
 		for (let char of ILLEGAL_CHANNEL_NAME_CHARACTERS) {
 			new InvalidChannelNameTest({ illegalCharacter: char }).test();
 		}

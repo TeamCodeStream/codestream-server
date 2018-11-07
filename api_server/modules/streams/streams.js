@@ -31,6 +31,16 @@ const STREAM_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'join/:id',
 		requestClass: require('./join_request')
+	},
+	{
+		method: 'put',
+		path: 'close/:id',
+		requestClass: require('./close_request')
+	},
+	{
+		method: 'put',
+		path: 'open/:id',
+		requestClass: require('./open_request')
 	}
 ];
 

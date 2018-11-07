@@ -67,8 +67,11 @@ class TestStreamCreator {
 	createPosts (callback) {
 		this.postData = [];
 		if (
-			typeof this.postOptions.creatorIndex !== 'number' && 
-			!(this.postOptions.creatorIndex instanceof Array)
+			!this.postOptions || 
+			(
+				typeof this.postOptions.creatorIndex !== 'number' && 
+				!(this.postOptions.creatorIndex instanceof Array)
+			)
 		) {
 			return callback();
 		}
