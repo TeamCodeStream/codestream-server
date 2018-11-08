@@ -192,6 +192,7 @@ class PostUserRequest extends PostRequest {
 			'Team ID': this.team.id,
 			'Team Size': this.team.get('memberIds').length,
 			'Team Name': this.team.get('name'),
+			'Reporting Group': this.team.get('reportingGroup') || '',
 			'Provider': provider,
 			'Company': company.get('name'),
 			'Endpoint': this.request.headers['x-cs-plugin-ide'] || 'Unknown IDE',

@@ -45,5 +45,10 @@ module.exports = {
 	providerIdentities: {
 		type: 'arrayOfStrings',
 		serverOnly: true
+	},
+	reportingGroup: {
+		type: 'string',
+		maxLength: 20,
+		serverOnly: true
 	}
 };

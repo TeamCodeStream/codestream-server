@@ -96,7 +96,8 @@ class TrackingTest extends InboundEmailMessageTest {
 			((data.Plan === 'Free') || errors.push('Plan not correct')) &&
 			((data['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct')) &&
 			((data['Date Signed Up'] === new Date(this.users[1].user.registeredAt).toISOString()) || errors.push('Date Signed Up not correct')) &&
-			((data['First Post?'] === new Date(this.post.createdAt).toISOString()) || errors.push('First Post not set to creation date of post'))
+			((data['First Post?'] === new Date(this.post.createdAt).toISOString()) || errors.push('First Post not set to creation date of post')) &&
+			((data['Reporting Group'] === '') || errors.push('Reporting Group should be empty string'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;

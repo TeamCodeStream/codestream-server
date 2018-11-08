@@ -449,6 +449,7 @@ class PostCreator extends ModelCreator {
 			'Team ID': this.team ? this.team.id : undefined,
 			'Team Name': this.team ? this.team.get('name') : undefined,
 			'Team Size': this.team ? this.team.get('memberIds').length : undefined,
+			'Reporting Group': this.team ? (this.team.get('reportingGroup') || '') : undefined,
 			'Provider': provider,
 			Company: companyName,
 			'Endpoint': endpoint,
