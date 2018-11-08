@@ -254,7 +254,7 @@ class PostCreator extends ModelCreator {
 			this.publishParentPost,				// if this post was a reply and we updated the parent post, publish that
 			this.triggerNotificationEmails,		// trigger email notifications to members who should receive them
 			this.publishToAuthor,				// publish directives to the author's me-channel
-			this.sendPostCountToAnalytics,		// update analytics post count for the post's author
+			//this.sendPostCountToAnalytics,		// update analytics post count for the post's author
 			this.trackPost,						// for server-generated posts, send analytics info
 			this.updateMentions					// for mentioned users, update their mentions count for analytics 
 		], this);
