@@ -31,10 +31,7 @@ class Analytics extends APIServerModule {
 	// user's me-channel, which the test client should be listening to
 	async testCallback (type, event, data, user, request) {
 		if (!user || !this.api.services.messager) { return; }
-		const channel = `user-${user.id}`;
-		let requestCopy = Object.assign({}, request);	// override test setting indicating not to send pubnub messages
-		requestCopy.headers = Object.assign({}, request.headers);
-		delete requestCopy.headers['x-cs-block-message-sends'];
+		const channel = request.request.headers['x-cs-track-channel'] || `user-${user.id}`;
 		const message = { type, event, data };
 		await this.api.services.messager.publish(
 			message,

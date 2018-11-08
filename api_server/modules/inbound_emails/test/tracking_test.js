@@ -93,7 +93,6 @@ class TrackingTest extends InboundEmailMessageTest {
 			((data['Team Size'] === this.team.memberIds.length) || errors.push('Team Size does not match number of members in team')) &&
 			((data.Company === this.company.name) || errors.push('Company does not match name of company')) &&
 			((data.Endpoint === 'Email') || errors.push('Endpoint not correct')) &&
-			((data.Plan === 'Free') || errors.push('Plan not correct')) &&
 			((data['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct')) &&
 			((data['Date Signed Up'] === new Date(this.users[1].user.registeredAt).toISOString()) || errors.push('Date Signed Up not correct')) &&
 			((data['First Post?'] === new Date(this.post.createdAt).toISOString()) || errors.push('First Post not set to creation date of post')) &&

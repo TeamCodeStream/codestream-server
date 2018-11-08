@@ -77,6 +77,10 @@ class APIRequestTest extends GenericTest {
 			// but divert contents to a pubnub channel that we'll listen on
 			requestOptions.headers['X-CS-Test-Tracking'] = true;
 		}
+		if (options.trackOnChannel) {
+			// if a special channel is specified for tracking testing, use that
+			requestOptions.headers['X-CS-Track-Channel'] = options.trackOnChannel;
+		}
 		if (options.testBotOut) {
 			// we're doing testing of bot messages going out, divert messages to the
 			// bot to a pubnub channel that we'll listen on

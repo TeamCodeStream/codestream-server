@@ -374,6 +374,9 @@ class ProviderConnectRequest extends RestfulRequest {
 		if (this.userWasAddedToTeam || this.identityUpdated) {
 			await this.publishUserToSelf();
 		}
+
+		// track the event
+		await this.trackConnect();
 	}
 
 	// publish the new user to the team channel
@@ -425,6 +428,46 @@ class ProviderConnectRequest extends RestfulRequest {
 			// this doesn't break the chain, but it is unfortunate...
 			this.warn(`Could not publish user update to user ${this.user.id}: ${JSON.stringify(error)}`);
 		}
+	}
+
+	// track the connect event for analytics
+	async trackConnect () {
+		// check if user has opted out
+		const preferences = this.user.get('preferences') || {};
+		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
+			return;
+		}
+
+		const company = await this.data.companies.getById(this.team.get('companyId'));
+		const provider = this.provider.charAt(0).toUpperCase() + this.provider.slice(1);
+		const trackObject = {
+			'distinct_id': this.user.id,
+			'Email Address': this.user.get('email'),
+			'Registered': this.user.get('isRegistered'),
+			'Join Method': this.user.get('joinMethod'),
+			'Team ID': this.team.id,
+			'Team Size': this.team.get('memberIds').length,
+			'Team Name': this.team.get('name'),
+			'Reporting Group': this.team.get('reportingGroup') || '',
+			'Provider': provider,
+			'Company': company.get('name'),
+			'Signup Status': this.responseData.signupStatus
+		};
+		if (this.user.get('registeredAt')) {
+			trackObject['Date Signed Up'] = new Date(this.user.get('registeredAt')).toISOString();
+		}
+		if (this.user.get('lastPostCreatedAt')) {
+			trackObject['Date of Last Post'] = new Date(this.user.get('lastPostCreatedAt')).toISOString();
+		}
+
+		this.api.services.analytics.track(
+			'Provider Connect Succeeded',
+			trackObject,
+			{
+				request: this,
+				user: this.user
+			}
+		);
 	}
 
 	// describe this route for help

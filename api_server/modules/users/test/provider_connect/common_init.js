@@ -54,7 +54,7 @@ class CommonInit {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.preExistingTeamCreator = response.user;
-				this.preExistingTeam = response.team;
+				this.preExistingTeam = response.teams[0];
 				callback();
 			}
 		);
@@ -146,21 +146,13 @@ class CommonInit {
 	}
 
 	// do a provider-connect request with the data passed in
-	doProviderConnect (data, callback) {
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: `/no-auth/provider-connect/${this.provider}`,
-				data: data
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				return callback(null, {
-					user: response.user,
-					team: response.teams[0]
-				});
-			}
-		);
+	doProviderConnect (data, callback, options = {}) {
+		Object.assign(options, {
+			method: 'put',
+			path: `/no-auth/provider-connect/${this.provider}`,
+			data: data
+		});
+		this.doApiRequest(options, callback);
 	}
 }
 

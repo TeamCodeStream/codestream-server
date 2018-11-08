@@ -453,7 +453,6 @@ class PostCreator extends ModelCreator {
 			'Provider': provider,
 			Company: companyName,
 			'Endpoint': endpoint,
-			'Plan': 'Free', // FIXME: update when we have payments
 			'Date of Last Post': new Date(this.model.get('createdAt')).toISOString()
 		};
 		if (this.user.get('registeredAt')) {

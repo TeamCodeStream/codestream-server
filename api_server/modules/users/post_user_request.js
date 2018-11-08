@@ -196,14 +196,13 @@ class PostUserRequest extends PostRequest {
 			'Provider': provider,
 			'Company': company.get('name'),
 			'Endpoint': this.request.headers['x-cs-plugin-ide'] || 'Unknown IDE',
-			'Plugin Version': this.request.headers['x-cs-plugin-version'] || '',
-			'Plan': 'Free' // FIXME: update when we have payments
+			'Plugin Version': this.request.headers['x-cs-plugin-version'] || ''
 		};
 		if (invitingUser.get('registeredAt')) {
-			trackObject['Date Signed Up'] = new Date(this.user.get('registeredAt')).toISOString();
+			trackObject['Date Signed Up'] = new Date(this.invitingUser.get('registeredAt')).toISOString();
 		}
 		if (invitingUser.get('lastPostCreatedAt')) {
-			trackObject['Date of Last Post'] = new Date(this.user.get('lastPostCreatedAt')).toISOString();
+			trackObject['Date of Last Post'] = new Date(this.invitingUser.get('lastPostCreatedAt')).toISOString();
 		}
 
 		this.api.services.analytics.track(
