@@ -199,10 +199,10 @@ class PostUserRequest extends PostRequest {
 			'Plugin Version': this.request.headers['x-cs-plugin-version'] || ''
 		};
 		if (invitingUser.get('registeredAt')) {
-			trackObject['Date Signed Up'] = new Date(this.invitingUser.get('registeredAt')).toISOString();
+			trackObject['Date Signed Up'] = new Date(invitingUser.get('registeredAt')).toISOString();
 		}
 		if (invitingUser.get('lastPostCreatedAt')) {
-			trackObject['Date of Last Post'] = new Date(this.invitingUser.get('lastPostCreatedAt')).toISOString();
+			trackObject['Date of Last Post'] = new Date(invitingUser.get('lastPostCreatedAt')).toISOString();
 		}
 
 		this.api.services.analytics.track(
