@@ -14,50 +14,40 @@ class CommonInit {
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
-			this.makePostlessCodemark,
-			this.makeCodemarkData
+			this.makeCodemarkUpdateData,
 		], callback);
 	}
 
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
+		this.streamOptions.creatorIndex = 1;
+		Object.assign(this.postOptions, {
+			creatorIndex: 0,
+			wantCodemark: true
+		});
 		callback();
 	}
 
-	makePostlessCodemark (callback) {
-		const codemarkData = this.codemarkFactory.getRandomCodemarkData();
-		Object.assign(codemarkData, {
-			teamId: this.team._id,
-			providerType: RandomString.generate(8)
-		});
-		this.doApiRequest(
-			{
-				method: 'post',
-				path: '/codemarks',
-				data: codemarkData,
-				token: this.users[1].accessToken
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.codemark = response.codemark;
-				callback();
-			}
-		);
+	getCodemarkUpdateData () {
+		return {
+			status: RandomString.generate(8),
+			color: RandomString.generate(8),
+			title: RandomString.generate(100),
+			text: RandomString.generate(100)
+		};
 	}
 
-	// form the data for the codemark update
-	makeCodemarkData (callback) {
-		this.data = {
-			postId: RandomString.generate(10),
-			streamId: RandomString.generate(10)
-		};
+	makeCodemarkUpdateData (callback) {
+		if (this.postData && this.postData[0]) {
+			this.codemark = this.postData[0].codemark;
+		}
+		this.data = this.getCodemarkUpdateData();
 		this.expectedData = {
 			codemark: {
 				_id: this.codemark._id,
-				$set: Object.assign(DeepClone(this.data), { 
+				$set: Object.assign(DeepClone(this.data), {
 					version: this.expectedVersion,
-					providerType: this.codemark.providerType,
-					modifiedAt: Date.now()	// placeholder
+					modifiedAt: Date.now() // placeholder
 				}),
 				$version: {
 					before: this.expectedVersion - 1,
@@ -65,6 +55,9 @@ class CommonInit {
 				}
 			}
 		};
+		if (this.codemark.providerType) {
+			this.expectedData.codemark.$set.providerType = this.codemark.providerType;
+		}
 		this.expectedCodemark = DeepClone(this.codemark);
 		Object.assign(this.expectedCodemark, this.expectedData.codemark.$set);
 		this.modifiedAfter = Date.now();

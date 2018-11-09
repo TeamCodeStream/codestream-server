@@ -3,11 +3,13 @@
 'use strict';
 
 const PutCodemarkTest = require('./put_codemark_test');
+const SetPostIdTest = require('./set_post_id_test');
 
 class PutCodemarkRequestTester {
 
 	test () {
 		new PutCodemarkTest().test();
+		new SetPostIdTest().test();
 	}
 }
 

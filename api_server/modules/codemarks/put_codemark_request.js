@@ -8,13 +8,13 @@ class PutCodemarkRequest extends PutRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		// get the codemark, only someone on the team can update it
+		// get the codemark, only the author can edit a codemark
 		const codemark = await this.data.codemarks.getById(this.request.params.id);
 		if (!codemark) {
 			throw this.errorHandler.error('notFound', { info: 'codemark' });
 		}
-		if (!this.user.hasTeam(codemark.get('teamId'))) {
-			throw this.errorHandler.error('updateAuth');
+		if (codemark.get('creatorId') !== this.user.id) {
+			throw this.errorHandler.error('updateAuth', { reason: 'only the author can update a codemark' });
 		}
 	}
 
@@ -47,12 +47,17 @@ class PutCodemarkRequest extends PutRequest {
 	// describe this route for help
 	static describe (module) {
 		const description = PutRequest.describe(module);
-		description.access = 'User must be a member of the team that owns the codemark';
+		description.access = 'Only the creator of a codemark can update it';
 		description.input = {
 			summary: description.input,
 			looksLike: {
 				'streamId': '<If specified, updates the stream ID the codemark belongs to>',
-				'postId': '<If specified, updates the post ID that points to this codemark>'
+				'postId': '<If specified, updates the post ID that points to this codemark>',
+				'status': '<Change the status of the codemark>',
+				'color': '<Change the color of the codemark>',
+				'text': '<Change the text of the codemark>',
+				'title': '<Change the title of the codemark>',
+				'assignees': '<Change the array of IDs representing assignees (to issues)>'
 			}
 		};
 		description.publishes = {

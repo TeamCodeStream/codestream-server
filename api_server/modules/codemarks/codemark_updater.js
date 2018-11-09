@@ -23,7 +23,8 @@ class CodemarkUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['postId', 'streamId']
+			string: ['postId', 'streamId', 'status', 'text', 'title', 'color'],
+			'array(string)': ['assignees']
 		};
 	}
 
