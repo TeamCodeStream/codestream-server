@@ -103,12 +103,12 @@ class PostPostRequest extends PostRequest {
 		};
 		description.returns.summary = 'A post object, plus additional objects that may have been created on-the-fly, marker objects and marker locations for any markers';
 		Object.assign(description.returns.looksLike, {
-			codemarks: [
-				'<@@#codemark object#codemark@@ > (knowledge base codemarks referenced by this post)>',
+			codemark: [
+				'<@@#codemark object#codemark@@ > (knowledge base codemark referenced by this post)>',
 				'...'
 			],
 			markers: [
-				'<@@#marker object#marker@@ > (marker objects associated with quoted markers)',
+				'<@@#marker objects#marker@@ > (marker objects associated with quoted markers)',
 				'...'
 			],
 			markerLocations: '<@@#marker locations object#markerLocations@@ > (marker locations for markers associated with quoted markers)',
