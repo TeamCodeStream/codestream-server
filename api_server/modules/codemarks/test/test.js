@@ -8,7 +8,7 @@
 const GetCodemarkRequestTester = require('./get_codemark/test');
 const GetCodemarksRequestTester = require('./get_codemarks/test');
 const PostCodemarkRequestTester = require('./post_codemark/test');
-//const PutCodemarkRequestTester = require('./put_codemark/test');
+const PutCodemarkRequestTester = require('./put_codemark/test');
 
 describe('codemark requests', function() {
 
@@ -17,5 +17,5 @@ describe('codemark requests', function() {
 	describe('GET /codemarks/:id', GetCodemarkRequestTester.test);
 	describe('GET /codemarks', GetCodemarksRequestTester.test);
 	describe('POST /codemarks', PostCodemarkRequestTester.test);
-	//describe('PUT /codemarks/:id', PutCodemarkRequestTester.test);
+	describe('PUT /codemarks/:id', PutCodemarkRequestTester.test);
 });

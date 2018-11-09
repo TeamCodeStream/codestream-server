@@ -11,7 +11,7 @@ const CodemarkTestConstants = require('../codemark_test_constants');
 class PutCodemarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		return 'should return the updated codemark when updating an codemark';
+		return 'should return the updated codemark when updating a codemark';
 	}
 
 	get method () {
