@@ -73,7 +73,13 @@ async function OpenMongoClient () {
 	const mongoClient = new MongoClient();
 	const mongoOptions = Object.assign({}, Config.mongo);
 	mongoOptions.collections = MONGO_COLLECTIONS;
-	Mongo = await mongoClient.openMongoClient(mongoOptions);
+	try {
+		Mongo = await mongoClient.openMongoClient(mongoOptions);
+	}
+	catch (error) {
+		console.error('Unable to open mongo client', error);
+		process.exit();
+	}
 	MongoData = Mongo.mongoCollections;
 }
 
