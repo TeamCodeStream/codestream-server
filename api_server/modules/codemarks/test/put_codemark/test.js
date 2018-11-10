@@ -13,6 +13,9 @@ const NoUpdatePostIdTest = require('./no_update_post_id_test');
 const NoStreamIdTest = require('./no_stream_id_test');
 const MessageTest = require('./message_test');
 const ProviderTypeMessageTest = require('./provider_type_message_test');
+const UpdateMarkerTest = require('./update_marker_test');
+const UpdateMarkerFetchTest = require('./update_marker_fetch_test');
+const UpdateMarkerMessageTest = require('./update_marker_message_test');
 
 class PutCodemarkRequestTester {
 
@@ -35,6 +38,11 @@ class PutCodemarkRequestTester {
 		new ProviderTypeMessageTest({ streamType: 'channel' }).test();
 		new ProviderTypeMessageTest({ streamType: 'direct' }).test();
 		new ProviderTypeMessageTest({ streamType: 'team stream' }).test();
+		new UpdateMarkerTest().test();
+		new UpdateMarkerFetchTest().test();
+		new UpdateMarkerMessageTest({ streamType: 'channel' }).test();
+		new UpdateMarkerMessageTest({ streamType: 'direct' }).test();
+		new UpdateMarkerMessageTest({ streamType: 'team stream' }).test();
 	}
 }
 

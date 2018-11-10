@@ -99,12 +99,16 @@ class CodemarkCreator extends ModelCreator {
 	async handleMarker (markerInfo) {
 		// handle the marker itself separately
 		Object.assign(markerInfo, {
-			teamId: this.team.id,
-			postStreamId: this.attributes.streamId,
-			postId: this.attributes.postId
+			teamId: this.team.id
 		});
 		if (this.attributes.providerType) {
 			markerInfo.providerType = this.attributes.providerType;
+		}
+		if (this.attributes.streamId) {
+			markerInfo.postStreamId = this.attributes.streamId;
+		}
+		if (this.attributes.postId) {
+			markerInfo.postId = this.attributes.postId;
 		}
 		const marker = await new MarkerCreator({
 			request: this.request,
