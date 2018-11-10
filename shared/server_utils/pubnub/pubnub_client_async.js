@@ -26,9 +26,6 @@ class PubNubClient {
 			return;
 		}
 		message.messageId = message.messageId || UUID();
-		this._log('*******************************************************************', options);
-		this._log('PUBLISHING TO ' + channel + ': ' + JSON.stringify(message), options);
-		this._log('*******************************************************************', options);
 		const result = await this.pubnub.publish(
 			{
 				message: message,
