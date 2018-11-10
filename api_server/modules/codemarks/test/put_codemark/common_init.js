@@ -57,6 +57,7 @@ class CommonInit {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.codemark = response.codemark;
+				this.markers = response.markers;
 				callback();
 			}
 		);
@@ -69,6 +70,9 @@ class CommonInit {
 			teamId: this.team._id,
 			providerType: RandomString.generate(8)
 		});
+		if (this.wantMarker) {
+			data.markers = [this.markerFactory.getRandomMarkerData()];
+		}
 		return data;
 	}
 

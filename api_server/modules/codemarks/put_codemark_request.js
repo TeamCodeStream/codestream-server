@@ -18,6 +18,17 @@ class PutCodemarkRequest extends PutRequest {
 		}
 	}
 
+	// handle response to the request
+	async handleResponse () {
+		if (this.gotError) {
+			return await super.handleResponse();
+		}
+		if (this.transforms.markerUpdates) {
+			this.responseData.markers = this.transforms.markerUpdates;
+		}
+		await super.handleResponse();
+	}
+
 	// after the codemark is updated...
 	async postProcess () {
 		await this.publishCodemark();
@@ -38,10 +49,9 @@ class PutCodemarkRequest extends PutRequest {
 				`team-${this.codemark.get('teamId')}` : 
 				`stream-${stream.id}`;
 		}
-		const message = {
-			codemark: this.responseData.codemark,
+		const message = Object.assign({}, this.responseData, {
 			requestId: this.request.id
-		};
+		});
 		try {
 			await this.api.services.messager.publish(
 				message,

@@ -146,10 +146,19 @@ class User extends CodeStreamModel {
 		if (!marker) {
 			throw request.errorHandler.error('notFound', { info: 'marker' });
 		}
-		const authorized = await this.authorizeStream(
-			marker.get('fileStreamId'),
-			request
-		);
+		let authorized;
+		if (marker.get('providerType')) {
+			authorized = await this.authorizeTeam(
+				marker.get('teamId'),
+				request
+			);
+		}
+		else {
+			authorized = await this.authorizeStream(
+				marker.get('fileStreamId'),
+				request
+			);
+		}
 		return authorized ? marker : false;
 	}
 
