@@ -6,7 +6,7 @@ const Assert = require('assert');
 class NoUpdateOtherAttributeTest extends PutStreamTest {
 
 	get description () {
-		return `should not update ${this.attribute} even if sent in the request`;
+		return `should not update ${this.attribute} even if sent in the request to update a stream`;
 	}
 
 	// form the data for the stream update

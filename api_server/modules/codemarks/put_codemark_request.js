@@ -9,11 +9,11 @@ class PutCodemarkRequest extends PutRequest {
 	// authorize the request for the current user
 	async authorize () {
 		// get the codemark, only the author can edit a codemark
-		const codemark = await this.data.codemarks.getById(this.request.params.id);
-		if (!codemark) {
+		this.codemark = await this.data.codemarks.getById(this.request.params.id);
+		if (!this.codemark) {
 			throw this.errorHandler.error('notFound', { info: 'codemark' });
 		}
-		if (codemark.get('creatorId') !== this.user.id) {
+		if (this.codemark.get('creatorId') !== this.user.id) {
 			throw this.errorHandler.error('updateAuth', { reason: 'only the author can update a codemark' });
 		}
 	}
@@ -25,14 +25,25 @@ class PutCodemarkRequest extends PutRequest {
 
 	// publish the codemark to the appropriate messager channel(s)
 	async publishCodemark () {
-		const teamId = this.request.params.id.toLowerCase();
-		const channel = 'team-' + teamId;
+		let channel;
+		// for third-party codemarks, we have no stream channels, so we have to send
+		// the update out over the team channel ... known security flaw, for now
+		if (this.codemark.get('providerType')) {
+			channel = `team-${this.codemark.get('teamId')}`;
+		}
+		else {
+			const stream = await this.data.streams.getById(this.codemark.get('streamId'));
+			if (!stream) { return; } // sanity
+			channel = stream.get('isTeamStream') ? 
+				`team-${this.codemark.get('teamId')}` : 
+				`stream-${stream.id}`;
+		}
 		const message = {
 			codemark: this.responseData.codemark,
-			requestId: this.request.request.id
+			requestId: this.request.id
 		};
 		try {
-			await this.messager.publish(
+			await this.api.services.messager.publish(
 				message,
 				channel,
 				{ request: this.request	}
@@ -40,7 +51,7 @@ class PutCodemarkRequest extends PutRequest {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish codemark update message to team ${teamId}: ${JSON.stringify(error)}`);
+			this.request.warn(`Could not publish codemark update message to channel ${channel}: ${JSON.stringify(error)}`);
 		}
 	}
 
@@ -61,7 +72,7 @@ class PutCodemarkRequest extends PutRequest {
 			}
 		};
 		description.publishes = {
-			summary: 'Publishes the updated codemark attributes to the team channel for the team that owns the codemark',
+			summary: 'Publishes the updated codemark attributes to the team channel for the team that owns the codemark, or to the stream channel if using CodeStream streams',
 			looksLike: {
 				'codemark': '<@@#codemark object#codemark@@>'
 			}

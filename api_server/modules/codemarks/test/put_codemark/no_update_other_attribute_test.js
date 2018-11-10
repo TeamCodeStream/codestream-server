@@ -1,17 +1,17 @@
 'use strict';
 
-const PutPostTest = require('./put_post_test');
+const PutCodemarkTest = require('./put_codemark_test');
 const Assert = require('assert');
 
-class NoUpdateOtherAttributeTest extends PutPostTest {
+class NoUpdateOtherAttributeTest extends PutCodemarkTest {
 
 	get description () {
-		return `should not update ${this.attribute} even if sent in the request to update a post`;
+		return `should not update ${this.attribute} even if sent in the request to update a codemark`;
 	}
 
-	// form the data for the post update
-	makePostData (callback) {
-		super.makePostData(() => {
+	makeCodemarkUpdateData (callback) {
+		super.makeCodemarkUpdateData(error => {
+			if (error) { return callback(error); }
 			this.data[this.attribute] = 'x'; // set bogus value for the attribute, it shouldn't matter
 			callback();
 		});
@@ -19,7 +19,7 @@ class NoUpdateOtherAttributeTest extends PutPostTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		const set = data.post.$set;
+		const set = data.codemark.$set;
 		Assert(set[this.attribute] === undefined, 'attribute appears in the response');
 		super.validateResponse(data);
 	}

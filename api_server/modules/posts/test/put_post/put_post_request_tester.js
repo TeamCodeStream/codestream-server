@@ -21,6 +21,7 @@ class PutPostRequestTester {
 		new PostNotFoundTest().test();
 		new MessageTest({ streamType: 'channel' }).test();
 		new MessageTest({ streamType: 'direct' }).test();
+		new MessageTest({ streamType: 'team stream' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'streamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'repoId' }).test();

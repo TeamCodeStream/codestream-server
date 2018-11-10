@@ -6,7 +6,7 @@ const Assert = require('assert');
 class NoUpdateOtherAttributeTest extends PutTeamTest {
 
 	get description () {
-		return `should not update ${this.attribute} even if sent in the request`;
+		return `should not update ${this.attribute} even if sent in the request to update a team`;
 	}
 
 	// form the data for the team update

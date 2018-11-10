@@ -84,7 +84,6 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		clientConfig.uuid = user._pubnubUuid || user._id;
 		clientConfig.authKey = token;
 		let client = new PubNub(clientConfig);
-		console.log(this.testNum + ': MAKING PUBNUB CLIENT FOR ' + clientConfig.uuid + ' - ' + clientConfig.authKey);
 		this.pubnubClientsForUser[user._id] = new PubNubClient({
 			pubnub: client
 		});
@@ -113,7 +112,6 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			this.messageReceiveTimeout || 5000
 		);
 		// subscribe to the channel of interest
-		console.log(this.testNum + ': USER ' + this.currentUser.user._id + ' LISTENING TO ' + this.channelName);
 		this.pubnubClientsForUser[this.currentUser.user._id].subscribe(
 			this.channelName,
 			this.messageReceived.bind(this),
@@ -139,12 +137,10 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// called when a message has been received, assert that it matches expectations
 	messageReceived (error, message) {
 		if (error) { return this.messageCallback(error); }
-		console.log(this.testNum + ': RECEIVED', JSON.stringify(message, undefined, 5));
 		if (message.channel !== this.channelName) {
 			return;	// ignore
 		}
 		else if (!this.validateMessage(message)) {
-			console.log(this.testNum + ': MESSAGE IGNORED');
 			return; // ignore
 		}
 

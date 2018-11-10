@@ -6,7 +6,7 @@ const Assert = require('assert');
 class NoUpdateOtherAttributeTest extends PutMarkerTest {
 
 	get description () {
-		return `should not update ${this.attribute} even if sent in the request`;
+		return `should not update ${this.attribute} even if sent in the request to update a marker`;
 	}
 
 	// form the data for the marker update
