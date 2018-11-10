@@ -6,7 +6,7 @@ const Assert = require('assert');
 class NoUpdateOtherAttributeTest extends PutUserTest {
 
 	get description () {
-		return `should not update ${this.otherAttribute} even if sent in the request`;
+		return `should not update ${this.otherAttribute} even if sent in the request to update a user`;
 	}
 
 	// form the data for the post update
