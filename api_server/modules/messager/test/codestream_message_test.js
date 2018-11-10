@@ -141,7 +141,6 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			return;	// ignore
 		}
 		else if (!this.validateMessage(message)) {
-			console.log(this.testNum + ': MESSAGE IGNORED');
 			return; // ignore
 		}
 
