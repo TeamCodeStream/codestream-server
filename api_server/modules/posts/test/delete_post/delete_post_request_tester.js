@@ -43,7 +43,6 @@ class DeletePostRequestTester {
 		new CodemarkMessageTest({ streamType: 'team stream' }).test();
 		new MarkerMessageTest({ streamType: 'channel' }).test();
 		new MarkerMessageTest({ streamType: 'direct' }).test();
-		new MarkerMessageTest({ streamType: 'team stream' }).test();
 	}
 }
 
