@@ -189,6 +189,9 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 		this.parentPost = await this.data.posts.getById(this.model.get('parentPostId'));
+		if (this.parentPost.get('parentPostId')) {
+			throw this.errorHandler.error('noReplyToReply');
+		}
 		await this.updateParentPost();
 		await this.updateParentCodemark();
 	}

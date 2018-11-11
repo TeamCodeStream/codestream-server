@@ -5,17 +5,20 @@
 const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const CodemarkCreator = require('./codemark_creator');
 const CodemarkUpdater = require('./codemark_updater');
+const CodemarkDeleter = require('./codemark_deleter');
+
 const Codemark = require('./codemark');
 
 // expose these restful routes
 const CODEMARK_STANDARD_ROUTES = {
-	want: ['get', 'getMany', 'post', 'put'],
+	want: ['get', 'getMany', 'post', 'put', 'delete'],
 	baseRouteName: 'codemarks',
 	requestClasses: {
 		'get': require('./get_codemark_request'),
 		'getMany': require('./get_codemarks_request'),
 		'post': require('./post_codemark_request'),
-		'put': require('./put_codemark_request')
+		'put': require('./put_codemark_request'),
+		'delete': require('./delete_codemark_request')
 	}
 };
 
@@ -45,6 +48,10 @@ class Codemarks extends Restful {
 		return CodemarkUpdater;
 	}
 
+	get deleterClass () {
+		return CodemarkDeleter;
+	}
+	
 	getRoutes () {
 		return  super.getRoutes(CODEMARK_STANDARD_ROUTES);
 	}

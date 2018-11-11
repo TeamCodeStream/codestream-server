@@ -125,6 +125,7 @@ class PostPostRequest extends PostRequest {
 			summary: 'If the post was created in a team stream (a channel with all members of the team), then the post object will be published to the team channel; otherwise it will be published to the stream channel for the stream in which it was created.',
 			looksLike: '(same as response)'
 		};
+		description.errors.push('noReplyToReply');
 		return description;
 	}
 }

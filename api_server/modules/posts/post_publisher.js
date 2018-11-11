@@ -25,14 +25,8 @@ class PostPublisher {
 
 	// publish a post to the given channel
 	async publishPostToChannel (channel) {
-		const message = {
-			post: this.data.post,
+		const message = Object.assign({}, this.data, {
 			requestId: this.request.request.id
-		};
-		['markers', 'markerLocations', 'streams', 'users', 'repos', 'codemark'].forEach(type => {
-			if (this.data[type]) {
-				message[type] = this.data[type];
-			}
 		});
 		try {
 			await this.messager.publish(

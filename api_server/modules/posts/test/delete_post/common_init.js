@@ -14,7 +14,8 @@ class CommonInit {
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
-			this.setExpectedData
+			this.setExpectedData,
+			this.setPath
 		], callback);
 	}
 
@@ -22,18 +23,23 @@ class CommonInit {
 		this.teamOptions.creatorIndex = 1;
 		this.userOptions.numRegistered = 2;
 		this.streamOptions.creatorIndex = 1;
-		this.streamOptions.type = this.streamType || 'channel';
-		this.postOptions.creatorIndex = 0;
-		if (this.streamType === 'file') {
-			this.repoOptions.creatorIndex = 1;
+		if (this.streamType === 'team stream') {
+			Object.assign(this.streamOptions, {
+				type: 'channel',
+				isTeamStream: true
+			});
 		}
+		else {
+			this.streamOptions.type = this.streamType || 'channel';
+		}
+		this.postOptions.creatorIndex = 0;
 		callback();
 	}
 
 	setExpectedData (callback) {
 		this.post = this.postData[this.testPost].post;
 		this.expectedData = {
-			post: {
+			posts: [{
 				_id: this.post._id,
 				$set: { 
 					version: this.expectedVersion,
@@ -45,25 +51,16 @@ class CommonInit {
 					before: this.expectedVersion - 1,
 					after: this.expectedVersion
 				}
-			}
+			}]
 		};
-		if (this.postOptions.wantMarker) {
-			this.expectedData.markers = [{
-				_id: this.postData[0].markers[0]._id,
-				$set: {
-					deactivated: true,
-					version: 2
-				},
-				$version: {
-					before: 1,
-					after: 2
-				}
-			}];
-		}
 		this.expectedPost = DeepClone(this.post);
-		Object.assign(this.expectedPost, this.expectedData.post.$set);
-		this.path = '/posts/' + this.post._id;
+		Object.assign(this.expectedPost, this.expectedData.posts[0].$set);
 		this.modifiedAfter = Date.now();
+		callback();
+	}
+
+	setPath (callback) {
+		this.path = '/posts/' + this.post._id;
 		callback();
 	}
 

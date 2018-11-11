@@ -6,12 +6,12 @@ const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation'
 const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const CommonInit = require('./common_init');
-const PostTestConstants = require('../post_test_constants');
+const CodemarkTestConstants = require('../codemark_test_constants');
 
-class DeletePostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
+class DeleteCodemarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		return 'should return the deactivated post when deleting a post';
+		return 'should return the deactivated codemark and associated post when deleting a codemark';
 	}
 
 	get method () {
@@ -25,15 +25,15 @@ class DeletePostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		const post = data.posts[0];
+		const codemark = data.codemarks[0];
 		// verify modifiedAt was updated, and then set it so the deepEqual works
-		Assert(post.$set.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was deleted');
-		this.expectedData.posts[0].$set.modifiedAt = post.$set.modifiedAt;
+		Assert(codemark.$set.modifiedAt > this.modifiedAfter, 'modifiedAt for the codemark is not greater than before the codemark was deleted');
+		this.expectedData.codemarks[0].$set.modifiedAt = codemark.$set.modifiedAt;
 		// verify we got back the proper response
 		Assert.deepEqual(data, this.expectedData, 'response data is not correct');
-		// verify the post in the response has no attributes that should not go to clients
-		this.validateSanitized(post.$set, PostTestConstants.UNSANITIZED_ATTRIBUTES);
+		// verify the post and codemark in the response has no attributes that should not go to clients
+		this.validateSanitized(codemark.$set, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 
-module.exports = DeletePostTest;
+module.exports = DeleteCodemarkTest;
