@@ -3,15 +3,10 @@
 'use strict';
 
 const ModelDeleter = require(process.env.CS_API_TOP + '/lib/util/restful/model_deleter');
-const MarkerDeleter = require(process.env.CS_API_TOP + '/modules/markers/marker_deleter');
-const Post = require('./post');
+const CodemarkDeleter = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_deleter');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class PostDeleter extends ModelDeleter {
-
-	get modelClass () {
-		return Post;    // class to use to create a post model
-	}
 
 	get collectionName () {
 		return 'posts';	// data collection to use
@@ -33,7 +28,7 @@ class PostDeleter extends ModelDeleter {
 	// called before the delete is actually deleted
 	async preDelete () {
 		await this.getPost();			// get the post
-		await this.deleteMarkers();		// delete any associated markers
+		await this.deleteCodemark();	// delete any referenced codemark
 		await this.getParentPost();		// get the parent post (if this is a reply)
 		await this.updateNumReplies();	// update numReplies field in a parent codemark, if needed
 		this.addEditToHistory();		// add this deactivation to the maintained history of edits
@@ -51,24 +46,15 @@ class PostDeleter extends ModelDeleter {
 		}
 	}
 
-	// delete any associated markers
-	async deleteMarkers () {
-		const markers = this.post.get('markers') || [];
-		const markerIds = markers
-			.map(marker => marker.markerId)
-			.filter(markerId => markerId);
-		this.transforms.markerUpdates = [];
-		await Promise.all(markerIds.map(async markerId => {
-			await this.deleteMarker(markerId);
-		}));
-	}
-
-	// delete a single associated marker
-	async deleteMarker (markerId) {
-		const markerUpdate = await new MarkerDeleter({
-			request: this.request
-		}).deleteMarker(markerId);
-		this.transforms.markerUpdates.push(markerUpdate);
+	// delete any referenced codemark
+	async deleteCodemark () {
+		if (!this.post.get('codemarkId') || this.dontDeleteCodemark) {
+			return;
+		}
+		this.transforms.deletedCodemark = await new CodemarkDeleter({
+			request: this.request,
+			dontDeletePost: true
+		}).deleteCodemark(this.post.get('codemarkId'));
 	}
 
 	// get the parent post, if the deleted post is a reply
@@ -81,10 +67,36 @@ class PostDeleter extends ModelDeleter {
 		);
 	}
 
-	// if the deleted post is a reply to a post with an codemark,
-	// update the numReplies attribute of the associated codemark
+	// update numReplies for parent post and possibly its associated codemark
 	async updateNumReplies () {
-		if (!this.parentPost || !this.parentPost.get('codemarkId')) {
+		if (!this.parentPost) {
+			return;
+		}
+		await this.updatePostReplies();
+		await this.updateCodemarkReplies();
+	}
+
+	// decrement numReplies for the parent post to the deleted post, as needed
+	async updatePostReplies () {
+		if (!this.parentPost.get('numReplies')) {
+			return;
+		}
+		const op = {
+			$set: {
+				numReplies: this.parentPost.get('numReplies') - 1
+			}
+		};
+		this.transforms.updatedParentPost = await new ModelSaver({
+			request: this.request,
+			collection: this.request.data.posts,
+			id: this.parentPost.id
+		}).save(op);
+	}
+
+	// decrement numReplies for the codemark referenced by the parent post 
+	// to the deleted post, as needed
+	async updateCodemarkReplies () {
+		if (!this.parentPost.get('codemarkId')) {
 			return;
 		}
 		const codemark = await this.request.data.codemarks.getById(this.parentPost.get('codemarkId'));
@@ -96,12 +108,11 @@ class PostDeleter extends ModelDeleter {
 				numReplies: codemark.get('numReplies') - 1
 			}
 		};
-		const codemarkUpdate = await new ModelSaver({
+		this.transforms.updatedParentCodemark = await new ModelSaver({
 			request: this.request,
 			collection: this.request.data.codemarks,
 			id: codemark.id
 		}).save(op);
-		this.transforms.codemarkUpdates.push(codemarkUpdate);
 	}
 
 	// add an edit to the maintained history of edits

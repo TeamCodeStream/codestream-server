@@ -104,6 +104,9 @@ class APIRequest {
 				}
 			}
 		}
+		else if (error) {
+			this.warn(ErrorHandler.log(error));
+		}
 		if (error) {
 			this.close();
 		}

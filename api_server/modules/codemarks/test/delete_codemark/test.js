@@ -1,49 +1,46 @@
-// handle unit tests for the "PUT /posts" request
+// handle unit tests for the "DELETE /codemarks/:d" request to delete a knowledge base codemark
 
 'use strict';
 
-const DeletePostTest = require('./delete_post_test');
-const DeletePostFetchTest = require('./delete_post_fetch_test');
 const DeleteCodemarkTest = require('./delete_codemark_test');
 const DeleteCodemarkFetchTest = require('./delete_codemark_fetch_test');
 const DeleteMarkerTest = require('./delete_marker_test');
 const DeleteMarkerFetchTest = require('./delete_marker_fetch_test');
-const NumRepliesTest = require('./num_replies_test');
-const NumRepliesCodemarkTest = require('./num_replies_codemark_test');
+const DeletePostTest = require('./delete_post_test');
+const DeletePostFetchTest = require('./delete_post_fetch_test');
+const DeletePostAndMarkerTest = require('./delete_post_and_marker_test');
+const DeletePostAndMarkerFetchTest = require('./delete_post_and_marker_fetch_test');
 const ACLTest = require('./acl_test');
 const ACLTeamTest = require('./acl_team_test');
-const PostNotFoundTest = require('./post_not_found_test');
+const CodemarkNotFoundTest = require('./codemark_not_found_test');
 const AlreadyDeletedTest = require('./already_deleted_test');
 const AdminCanDeleteTest = require('./admin_can_delete_test');
 const MessageTest = require('./message_test');
-const CodemarkMessageTest = require('./codemark_message_test');
 const MarkerMessageTest = require('./marker_message_test');
 
-class DeletePostRequestTester {
+class DeleteCodemarkRequestTester {
 
-	deletePostTest () {
-		new DeletePostTest().test();
-		new DeletePostFetchTest().test();
+	test () {
 		new DeleteCodemarkTest().test();
 		new DeleteCodemarkFetchTest().test();
 		new DeleteMarkerTest().test();
 		new DeleteMarkerFetchTest().test();
-		new NumRepliesTest().test();
-		new NumRepliesCodemarkTest().test();
+		new DeletePostTest().test();
+		new DeletePostFetchTest().test();
+		new DeletePostAndMarkerTest().test();
+		new DeletePostAndMarkerFetchTest().test();
 		new ACLTest().test();
 		new ACLTeamTest().test();
-		new PostNotFoundTest().test();
+		new CodemarkNotFoundTest().test();
 		new AlreadyDeletedTest().test();
 		new AdminCanDeleteTest().test();
 		new MessageTest({ streamType: 'channel' }).test();
 		new MessageTest({ streamType: 'direct' }).test();
 		new MessageTest({ streamType: 'team stream' }).test();
-		new CodemarkMessageTest({ streamType: 'channel' }).test();
-		new CodemarkMessageTest({ streamType: 'direct' }).test();
-		new CodemarkMessageTest({ streamType: 'team stream' }).test();
 		new MarkerMessageTest({ streamType: 'channel' }).test();
 		new MarkerMessageTest({ streamType: 'direct' }).test();
+		new MarkerMessageTest({ streamType: 'team stream' }).test();
 	}
 }
 
-module.exports = DeletePostRequestTester;
+module.exports = new DeleteCodemarkRequestTester();

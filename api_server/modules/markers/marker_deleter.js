@@ -3,13 +3,8 @@
 'use strict';
 
 const ModelDeleter = require(process.env.CS_API_TOP + '/lib/util/restful/model_deleter');
-const Marker = require('./marker');
 
 class MarkerDeleter extends ModelDeleter {
-
-	get modelClass () {
-		return Marker;    // class to use to create a post model
-	}
 
 	get collectionName () {
 		return 'markers';	// data collection to use
@@ -18,6 +13,12 @@ class MarkerDeleter extends ModelDeleter {
 	// convenience wrapper
 	async deleteMarker (id) {
 		return await this.deleteModel(id);
+	}
+
+	// set the actual op to execute to delete an op 
+	setOpForDelete () {
+		super.setOpForDelete();
+		this.deleteOp.$set.modifiedAt = Date.now();
 	}
 }
 
