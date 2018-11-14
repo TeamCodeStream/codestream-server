@@ -24,7 +24,7 @@ class CodemarkTest extends PostPostTest {
 	}
 
 	addCodemarkData (callback) {
-		this.data.codemark = this.codemarkFactory.getRandomCodemarkData();
+		this.data.codemark = this.codemarkFactory.getRandomCodemarkData({ codemarkType: this.codemarkType || 'comment' });
 		callback();
 	}
 

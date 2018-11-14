@@ -34,10 +34,10 @@ module.exports = {
 		description: 'Third-party provider, as needed (eg. slack)'
 	},
 	type: {
-		type: 'string',
+		type: 'codemarkType',
 		required: true,
 		maxLength: 25,
-		description: 'Type of the codemark, like "question", "code trap", etc.'
+		description: 'Type of the codemark, like "question", "trap", etc.'
 	},
 	color: {
 		type: 'string',

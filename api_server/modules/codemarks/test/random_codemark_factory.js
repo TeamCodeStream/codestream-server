@@ -14,7 +14,7 @@ class RandomCodemarkFactory {
 	getRandomCodemarkData (options = {}) {
 		const data = {
 			title: RandomString.generate(50),
-			type: options.codemarkType || RandomString.generate(10),
+			type: options.codemarkType || 'comment',
 			status: RandomString.generate(10),
 			color: RandomString.generate(10),
 			text: RandomString.generate(100)

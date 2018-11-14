@@ -209,6 +209,7 @@ class TestTeamCreator {
 				token,
 				streamId: this.teamStream._id,
 				wantCodemark: true,
+				codemarkType: 'comment',
 				wantMarkers: 1,
 				withRandomStream: true,
 				withRemotes: this.repoOptions.withRemotes,

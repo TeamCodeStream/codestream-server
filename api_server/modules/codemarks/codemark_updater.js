@@ -5,6 +5,7 @@
 const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
 const Codemark = require('./codemark');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
 class CodemarkUpdater extends ModelUpdater {
 
@@ -32,12 +33,14 @@ class CodemarkUpdater extends ModelUpdater {
 	// called before the codemark is actually saved
 	async preSave () {
 		await this.getCodemark();		// get the codemark
-		if (this.attributes.postId) {
+		if (this.attributes.postId || this.attributes.streamId) {
 			// if providing post ID, we assume it is a pre-created codemark for third-party
 			// integration, which requires special treatment
 			await this.validatePostId();
 			await this.updateMarkers();
 		}
+		await this.preValidate();
+		await this.validateAssignees();
 		await super.preSave();		// base-class preSave
 	}
 
@@ -57,10 +60,9 @@ class CodemarkUpdater extends ModelUpdater {
 		if (!this.codemark.get('providerType')) {
 			throw this.errorHandler.error('validation', { info: 'can not set postId if codemark is has no providerType' });
 		}
-		if (!this.attributes.streamId) {
-			throw this.errorHandler.error('parameterRequired', { info: 'streamId' });
+		if (!this.attributes.streamId || !this.attributes.postId) {
+			throw this.errorHandler.error('parameterRequired', { info: 'streamId and postId' });
 		}
-		this.attributes.providerType = this.codemark.get('providerType');
 	}
 
 	// if postID and stream ID are being set, set them on any referenced markers as well
@@ -91,6 +93,45 @@ class CodemarkUpdater extends ModelUpdater {
 		}).save(op);
 		this.transforms.markerUpdates.push(markerUpdate);
 	}
+
+	// pre-validate the incoming attributes before saving
+	async preValidate () {
+		// since validation is dependent on the type of codemark, we can't let the
+		// generic ModelUpdater do the full validation, so create a temporary model
+		// and run the validation against that
+		const tempAttributes = DeepClone(this.codemark.attributes);
+		Object.assign(tempAttributes, this.attributes);
+		const tempModel = new Codemark(tempAttributes);
+		try {
+			await tempModel.preSave();
+		}
+		catch (error) {
+			throw this.request.errorHandler.error('validation', { info: error });
+		}
+	}
+
+	// if this is an issue, validate the assignees ... all users must be on the team
+	async validateAssignees () {
+		if (this.codemark.get('type') !== 'issue' || !this.attributes.assignees) {
+			delete this.attributes.assignees;
+			return;
+		}
+		const users = await this.data.users.getByIds(
+			this.attributes.assignees,
+			{
+				fields: ['_id', 'teamIds'],
+				noCache: true
+			}
+		);
+		const teamId = this.codemark.get('teamId');
+		if (
+			users.length !== this.attributes.assignees.length ||
+			users.find(user => !user.hasTeam(teamId))
+		) {
+			throw this.errorHandler.error('validation', { info: 'assignees must contain only users on the team' });
+		}
+	}
+
 }
 
 module.exports = CodemarkUpdater;

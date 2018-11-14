@@ -70,6 +70,7 @@ class CodemarkCreator extends ModelCreator {
 		this.createId();	 		// pre-allocate an ID
 		await this.getTeam();		// get the team that will own this codemark
 		await this.handleMarkers();	// handle any associated markers
+		await this.validateAssignees();	// validate the assignees (for issues)
 		await super.preSave();		// proceed with the save...
 	}
 
@@ -116,6 +117,28 @@ class CodemarkCreator extends ModelCreator {
 		}).createMarker(markerInfo);
 		this.transforms.createdMarkers = this.transforms.createdMarkers || [];
 		this.transforms.createdMarkers.push(marker);
+	}
+
+	// if this is an issue, validate the assignees ... all users must be on the team
+	async validateAssignees () {
+		if (this.attributes.type !== 'issue' || !this.attributes.assignees) {
+			delete this.attributes.assignees;
+			return;
+		}
+		const users = await this.data.users.getByIds(
+			this.attributes.assignees,
+			{
+				fields: ['_id', 'teamIds'],
+				noCache: true
+			}
+		);
+		const teamId = this.team.id;
+		if (
+			users.length !== this.attributes.assignees.length ||
+			users.find(user => !user.hasTeam(teamId))
+		) {
+			throw this.errorHandler.error('validation', { info: 'assignees must contain only users on the team' });
+		}
 	}
 }
 

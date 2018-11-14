@@ -24,7 +24,7 @@ class CommonInit {
 	// form the data for the codemark we'll create in the test
 	makeCodemarkData (callback) {
 		this.codemarkCreatedAfter = Date.now();
-		this.data = this.codemarkFactory.getRandomCodemarkData();
+		this.data = this.codemarkFactory.getRandomCodemarkData({ codemarkType: this.codemarkType || 'comment' });
 		Object.assign(this.data, {
 			teamId: this.team._id,
 			providerType: RandomString.generate(8),

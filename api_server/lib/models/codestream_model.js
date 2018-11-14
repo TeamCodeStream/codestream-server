@@ -4,6 +4,7 @@
 
 const DataModel = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model');
 const CodeStreamModelValidator = require('./codestream_model_validator');
+const ObjectID = require('mongodb').ObjectID;
 
 class CodeStreamModel extends DataModel {
 
@@ -39,6 +40,21 @@ class CodeStreamModel extends DataModel {
 		}
 		else if (this.attributes[attribute] instanceof Array) {
 			this.attributes[attribute] = this.attributes[attribute].map(elem => elem.toLowerCase());
+		}
+	}
+
+	// cheater function to force an ID attribute to be lowercase
+	lowerCaseNativeId (attribute) {
+		if (typeof this.attributes[attribute] === 'string') {
+			try {
+				// this will harmlessly throw if it's not a valid mongo ID
+				ObjectID(this.attributes[attribute]);
+				this.toLowerCase(attribute);
+			}
+			catch (error) { error; }
+		}
+		else {
+			this.lowerCase(attribute);
 		}
 	}
 }
