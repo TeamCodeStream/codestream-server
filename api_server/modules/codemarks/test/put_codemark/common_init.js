@@ -35,7 +35,8 @@ class CommonInit {
 		if (!this.goPostless) {
 			Object.assign(this.postOptions, {
 				creatorIndex: 0,
-				wantCodemark: true
+				wantCodemark: true,
+				codemarkType: this.codemarkType || 'comment'
 			});
 		}
 		callback();
@@ -65,7 +66,7 @@ class CommonInit {
 
 	// get data to use for the postless codemark, as needed
 	getPostlessCodemarkData () {
-		const data = this.codemarkFactory.getRandomCodemarkData();
+		const data = this.codemarkFactory.getRandomCodemarkData({ codemarkType: this.codemarkType || 'comment' });
 		Object.assign(data, {
 			teamId: this.team._id,
 			providerType: RandomString.generate(8)
@@ -112,9 +113,6 @@ class CommonInit {
 				}
 			}
 		};
-		if (this.codemark.providerType) {
-			this.expectedData.codemark.$set.providerType = this.codemark.providerType;
-		}
 		this.expectedCodemark = DeepClone(this.codemark);
 		Object.assign(this.expectedCodemark, this.expectedData.codemark.$set);
 		this.modifiedAfter = Date.now();

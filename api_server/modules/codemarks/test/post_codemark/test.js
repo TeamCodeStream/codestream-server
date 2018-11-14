@@ -41,6 +41,16 @@ const OnTheFlyMarkerStreamInvalidRepoIdTest = require('./on_the_fly_marker_strea
 const ACLTeamTest = require('./acl_team_test');
 const TeamNotFoundTest = require('./team_not_found_test');
 const EmptyPostIdTest = require('./empty_post_id_test');
+const InvalidTypeTest = require('./invalid_type_test');
+const ValidTypeTest = require('./valid_type_test');
+const ValidTypeWithMarkerTest = require('./valid_type_with_marker_test');
+const MarkerRequiredTest = require('./marker_required_test');
+const RequiredForTypeTest = require('./required_for_type_test');
+const RequiredForTypeWithMarkerTest = require('./required_for_type_with_marker_test');
+const IssueWithAssigneesTest = require('./issue_with_assignees_test');
+const InvalidAssigneeTest = require('./invalid_assignee_test');
+const AssigneeNotOnTeamTest = require('./assignee_not_on_team_test');
+const AssigneesIgnoredTest = require('./assignees_ignored_test');
 
 class PostCodemarkRequestTester {
 
@@ -89,6 +99,22 @@ class PostCodemarkRequestTester {
 		new ACLTeamTest().test();
 		new TeamNotFoundTest().test();
 		new EmptyPostIdTest().test();
+		new InvalidTypeTest().test();
+		new ValidTypeTest({ codemarkType: 'issue' }).test();
+		new ValidTypeTest({ codemarkType: 'question' }).test();
+		new ValidTypeWithMarkerTest({ codemarkType: 'bookmark' }).test();
+		new ValidTypeWithMarkerTest({ codemarkType: 'trap' }).test();
+		new MarkerRequiredTest({ codemarkType: 'bookmark' }).test();
+		new MarkerRequiredTest({ codemarkType: 'trap' }).test();
+		new RequiredForTypeTest({ codemarkType: 'comment', attribute: 'text' }).test();
+		new RequiredForTypeWithMarkerTest({ codemarkType: 'bookmark', attribute: 'text' }).test();
+		new RequiredForTypeWithMarkerTest({ codemarkType: 'trap', attribute: 'text' }).test();
+		new RequiredForTypeTest({ codemarkType: 'question', attribute: 'title' }).test();
+		new RequiredForTypeTest({ codemarkType: 'issue', attribute: 'title' }).test();
+		new IssueWithAssigneesTest().test();
+		new InvalidAssigneeTest().test();
+		new AssigneeNotOnTeamTest().test();
+		new AssigneesIgnoredTest().test();
 	}
 }
 

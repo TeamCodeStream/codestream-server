@@ -72,6 +72,17 @@ const OnTheFlyMarkerStreamRepoNotFoundTest = require('./on_the_fly_marker_stream
 const OnTheFlyMarkerStreamNoRemotesTest = require('./on_the_fly_marker_stream_no_remotes_test');
 const OnTheFlyMarkerStreamInvalidRepoIdTest = require('./on_the_fly_marker_stream_invalid_repo_id_test');
 const OriginFromPluginTest = require('./origin_from_plugin_test');
+const InvalidCodemarkTypeTest = require('./invalid_codemark_type_test');
+const ValidCodemarkTypeTest = require('./valid_codemark_type_test');
+const ValidCodemarkTypeWithMarkerTest = require('./valid_codemark_type_with_marker_test');
+const MarkerRequiredForCodemarkTest = require('./marker_required_for_codemark_test');
+const RequiredForCodemarkTypeTest = require('./required_for_codemark_type_test');
+const RequiredForCodemarkTypeWithMarkerTest = require('./required_for_codemark_type_with_marker_test');
+const IssueWithAssigneesTest = require('./issue_with_assignees_test');
+const InvalidAssigneeTest = require('./invalid_assignee_test');
+const AssigneeNotOnTeamTest = require('./assignee_not_on_team_test');
+const AssigneesIgnoredTest = require('./assignees_ignored_test');
+const NoReplyToReplyTest = require('./no_reply_to_reply_test');
 
 class PostPostRequestTester {
 
@@ -152,6 +163,23 @@ class PostPostRequestTester {
 		new OnTheFlyMarkerStreamNoRemotesTest().test();
 		new OnTheFlyMarkerStreamInvalidRepoIdTest().test();
 		new OriginFromPluginTest().test();
+		new InvalidCodemarkTypeTest().test();
+		new ValidCodemarkTypeTest({ codemarkType: 'issue' }).test();
+		new ValidCodemarkTypeTest({ codemarkType: 'question' }).test();
+		new ValidCodemarkTypeWithMarkerTest({ codemarkType: 'bookmark' }).test();
+		new ValidCodemarkTypeWithMarkerTest({ codemarkType: 'trap' }).test();
+		new RequiredForCodemarkTypeTest({ codemarkType: 'comment', attribute: 'text' }).test();
+		new RequiredForCodemarkTypeWithMarkerTest({ codemarkType: 'bookmark', attribute: 'text' }).test();
+		new RequiredForCodemarkTypeWithMarkerTest({ codemarkType: 'trap', attribute: 'text' }).test();
+		new RequiredForCodemarkTypeTest({ codemarkType: 'question', attribute: 'title' }).test();
+		new RequiredForCodemarkTypeTest({ codemarkType: 'issue', attribute: 'title' }).test();
+		new MarkerRequiredForCodemarkTest({ codemarkType: 'bookmark' }).test();
+		new MarkerRequiredForCodemarkTest({ codemarkType: 'trap' }).test();
+		new IssueWithAssigneesTest().test();
+		new InvalidAssigneeTest().test();
+		new AssigneeNotOnTeamTest().test();
+		new AssigneesIgnoredTest().test();
+		new NoReplyToReplyTest().test();
 	}
 }
 

@@ -11,9 +11,15 @@ const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_
 const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const CodemarkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_creator');
+const Errors = require('./errors');
 
 class PostCreator extends ModelCreator {
 
+	constructor (options) {
+		super(options);
+		this.errorHandler.add(Errors);
+	}
+	
 	get modelClass () {
 		return Post;	// class to use to create a post model
 	}

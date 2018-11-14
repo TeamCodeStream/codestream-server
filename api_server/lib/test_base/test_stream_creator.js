@@ -143,6 +143,9 @@ class TestStreamCreator {
 				options.codemarkType = this.postOptions.codemarkTypes[typeIndex];
 			}
 		}
+		else if (this.postOptions.codemarkType) {
+			options.codemarkType = this.postOptions.codemarkType;
+		}
 	}
 
 	setMarkerOptions (options) {
