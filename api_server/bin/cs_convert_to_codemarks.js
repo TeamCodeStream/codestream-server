@@ -78,7 +78,7 @@ class Converter {
 		if (marker.providerType) {
 			codemark.providerType = marker.providerType;
 		}
-		else if (marker.postId.match(/|/)) {
+		else if (marker.postId.match(/\|/)) {
 			codemark.providerType = 'slack';
 		}
 		if (post) {
