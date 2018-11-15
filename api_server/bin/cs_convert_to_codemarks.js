@@ -69,10 +69,17 @@ class Converter {
 			streamId: marker.postStreamId || (post && post.streamId),
 			postId: marker.postId,
 			markerIds: [marker._id.toString()],
-			fileStreamIds: [marker.fileStreamId || (marker.codeBlock && marker.codeBlock.streamId) || marker.streamId]
+			fileStreamIds: [marker.fileStreamId || (marker.codeBlock && marker.codeBlock.streamId) || marker.streamId],
+			deactivated: marker.deactivated,
+			createdAt: marker.createdAt,
+			modifiedAt: marker.modifiedAt,
+			creatorId: marker.creatorId
 		};
 		if (marker.providerType) {
 			codemark.providerType = marker.providerType;
+		}
+		else if (marker.postId.match(/|/)) {
+			codemark.providerType = 'slack';
 		}
 		if (post) {
 			['type', 'color', 'status', 'title', 'assignees', 'text'].forEach(prop => {
