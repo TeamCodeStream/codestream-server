@@ -370,7 +370,7 @@ class MongoCollection {
 
 	// do a find-and-modify operation, a cheap atomic operation
 	async findAndModify (query, data, options = {}) {
-		return await this._runQuery(
+		const result = await this._runQuery(
 			'findAndModify',
 			query,
 			options,
@@ -378,6 +378,8 @@ class MongoCollection {
 			data,
 			options
 		);
+		await this._idStringify(result.value);
+		return result;
 	}
 
 	// delete a document by id
@@ -496,7 +498,7 @@ class MongoCollection {
 		}
 		else if (object && typeof object === 'object') {
 			if (object._id) {
-				object._id = object._id.toString();
+				object.id = object._id = object._id.toString();
 			}
 		}
 		return object;

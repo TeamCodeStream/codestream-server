@@ -41,7 +41,7 @@ class UpsertTest extends GetByIdTest {
 			}
 		);
 		this.testDocument = Object.assign({}, update);
-		this.testDocument._id = id.toString();
+		this.testDocument.id = this.testDocument._id = id.toString();
 		delete this.expectedVersion;
 	}
 }
