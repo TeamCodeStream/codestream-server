@@ -45,6 +45,7 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const expectedSeqNum = this.expectedSeqNum || 1;
 		const expectedOrigin = this.expectedOrigin || '';
 		const result = (
+			((post.id === post._id) || errors.push('id not set to _id')) && 
 			((post.text === this.data.text) || errors.push('text does not match')) &&
 			((post.teamId === this.team._id) || errors.push('teamId does not match the team')) &&
 			((post.streamId === this.data.streamId) || errors.push('streamId does not match')) &&

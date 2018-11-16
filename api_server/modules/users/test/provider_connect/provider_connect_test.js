@@ -66,6 +66,7 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		}
 		Assert.equal(data.signupStatus, signupStatus, 'signupStatus is not correct, should be ' + signupStatus);
 		const result = (
+			((user.id === user._id) || errors.push('id not set to _id')) && 
 			(user.email || errors.push('no email')) &&
 			(user.username || errors.push('username not set')) &&
 			(user.fullName || errors.push('full name not set')) &&
@@ -109,6 +110,7 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const creatorId = this.wantPreExistingTeam ? this.preExistingTeamCreator._id : user._id;
 		const errors = [];
 		const result = (
+			((team.id === team._id) || errors.push('id not set to _id')) && 
 			((team.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof team.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((team.modifiedAt >= team.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&

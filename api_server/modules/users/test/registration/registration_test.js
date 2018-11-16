@@ -43,6 +43,7 @@ class RegistrationTest extends CodeStreamAPITest {
 		(user.secondaryEmails || []).sort();
 		(this.data.secondaryEmails || []).sort();
 		let result = (
+			((user.id === user._id) || errors.push('id not set to _id')) && 
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
 			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&
 			((user.username === this.data.username) || errors.push('incorrect username')) &&
