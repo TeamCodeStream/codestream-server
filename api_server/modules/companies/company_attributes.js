@@ -7,5 +7,10 @@ module.exports = {
 		type: 'string',
 		maxLength: 256,
 		description: 'Name of the company'
+	},
+	teamIds: {
+		type: 'arrayOfIds',
+		maxLength: 256,
+		description: 'Teams owned by the company'
 	}
 };

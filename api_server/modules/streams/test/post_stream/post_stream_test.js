@@ -35,6 +35,7 @@ class PostStreamTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const stream = data.stream;
 		const errors = [];
 		const result = (
+			((stream.id === stream._id) || errors.push('id not set to _id')) && 
 			((stream.type === this.data.type) || errors.push('type does not match')) &&
 			((stream.teamId === this.data.teamId) || errors.push('teamId does not match')) &&
 			((stream.deactivated === false) || errors.push('deactivated not false')) &&

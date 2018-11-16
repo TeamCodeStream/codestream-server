@@ -94,6 +94,7 @@ class TeamCreator extends ModelCreator {
 		}
 		let company = this.attributes.company || {};
 		company.name = this.determineCompanyName();	// company name is determined from the user's email
+		company.teamIds = [this.attributes._id];
 		this.transforms.createdCompany = await new CompanyCreator({
 			request: this.request
 		}).createCompany(company);

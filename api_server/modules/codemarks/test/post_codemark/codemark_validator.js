@@ -18,6 +18,7 @@ class CodemarkValidator {
 		const codemark = data.codemark;
 		let errors = [];
 		let result = (
+			((codemark.id === codemark._id) || errors.push('id not set to _id')) && 
 			((codemark.teamId === this.test.team._id) || errors.push('teamId does not match the team')) &&
 			((codemark.streamId === (this.inputCodemark.streamId || '')) || errors.push('streamId does not match the stream')) &&
 			((codemark.postId === (this.inputCodemark.postId || '')) || errors.push('postId does not match the post')) &&
@@ -85,6 +86,7 @@ class CodemarkValidator {
 		const fileStreamId = this.getExpectedFileStreamId(data);
 		const commitHash = this.getExpectedCommitHash(inputMarker);
 		let result = (
+			((marker.id === marker._id) || errors.push('id not set to _id')) && 
 			((marker.teamId === this.test.team._id) || errors.push('teamId does not match the team')) &&
 			((marker.fileStreamId === fileStreamId) || errors.push('fileStreamId does not match the expected stream ID')) &&
 			((marker.deactivated === false) || errors.push('deactivated not false')) &&

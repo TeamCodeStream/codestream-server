@@ -24,6 +24,7 @@ class CreateStreamTest extends EditingTest {
 		const editing = editingUsers[this.currentUser.user._id];
 		const errors = [];
 		const result = (
+			((stream.id === stream._id) || errors.push('id not set to _id')) && 
 			((stream.type === 'file') || errors.push('type is not file')) &&
 			((stream.teamId === this.data.teamId) || errors.push('teamId does not match')) &&
 			((stream.deactivated === false) || errors.push('deactivated not false')) &&

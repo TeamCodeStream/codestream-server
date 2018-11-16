@@ -46,16 +46,18 @@ class PostTeamTest extends CodeStreamAPITest {
 		callback();
 	}
 
+	/* eslint complexity: 0 */
 	// validate the response to the test request
 	validateResponse (data) {
 		const team = data.team;
 		const errors = [];
 		const result = (
+			((team.id === team._id) || errors.push('id not set to _id')) && 
 			((team.name === this.data.name) || errors.push('name does not match')) &&
 			((team.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof team.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((team.modifiedAt >= team.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-            ((team.creatorId === this.currentUser.user._id) || errors.push('creatorId not equal to current user id')) &&
+			((team.creatorId === this.currentUser.user._id) || errors.push('creatorId not equal to current user id')) &&
 			((team.memberIds.length === 1 && team.memberIds[0] === this.currentUser.user._id) || errors.push('current user is not the only member')) &&
 			((team.adminIds.length === 1 && team.adminIds[0] === this.currentUser.user._id) || errors.push('current user was not made an admin')) &&
 			((team.primaryReferral === (this.teamReferral || 'external')) || errors.push('primaryReferral is incorrect'))
@@ -75,13 +77,15 @@ class PostTeamTest extends CodeStreamAPITest {
 			EmailUtilities.parseEmail(this.currentUser.user.email).domain;
 		const errors = [];
 		const result = (
+			((company.id === company._id) || errors.push('id not set to _id')) && 
 			((company.name === companyName) || errors.push('company name not correct')) &&
-            ((company._id === team.companyId) || errors.push('company ID not the same as team.companyId')) &&
+			((company._id === team.companyId) || errors.push('company ID not the same as team.companyId')) &&
 			((company.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof company.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((company.modifiedAt >= company.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
             ((company.creatorId === this.currentUser.user._id) || errors.push('creatorId not equal to current user id'))
 		);
+		Assert.deepEqual(company.teamIds, [team._id], 'company teamIds is not equal to the array of teams');
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		this.validateSanitized(company, TeamTestConstants.UNSANITIZED_COMPANY_ATTRIBUTES);
 	}
@@ -91,6 +95,7 @@ class PostTeamTest extends CodeStreamAPITest {
 		const stream = data.streams[0];
 		const errors = [];
 		const result = (
+			((stream.id === stream._id) || errors.push('id not set to _id')) && 
 			((stream.name === 'general') || errors.push('team stream name should be general')) &&
 			((stream.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof stream.createdAt === 'number') || errors.push('createdAt not number')) &&

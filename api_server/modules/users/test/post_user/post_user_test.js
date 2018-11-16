@@ -58,6 +58,7 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const expectedFullName = this.getExpectedFullName();
 		const expectedCreatorId = this.getExpectedCreatorId();
 		const result = (
+			((user.id === user._id) || errors.push('id not set to _id')) && 
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
 			((user.username === expectedUsername) || errors.push('username is not the first part of the email')) &&
 			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&

@@ -25,7 +25,8 @@ class CompanyCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['name']
+				string: ['name'],
+				'array(string)': ['teamIds']
 			}
 		};
 	}

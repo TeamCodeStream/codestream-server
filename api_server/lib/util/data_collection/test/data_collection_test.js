@@ -186,6 +186,7 @@ class DataCollectionTest extends GenericTest {
 	validateModelResponse () {
 		Assert(typeof this.response === 'object', 'improper response');
 		Assert(typeof this.response.attributes === 'object', 'improper fetched model');
+		this.testModel.attributes.id = this.testModel.attributes._id;
 		Assert.deepEqual(this.testModel.attributes, this.response.attributes, 'fetched model doesn\'t match');
 		if (this.expectedOp) {
 			Assert.deepEqual(this.actualOp, this.expectedOp, 'returned op is not correct');

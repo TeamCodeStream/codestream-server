@@ -40,6 +40,7 @@ class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const post = data.post;
 		const errors = [];
 		const result = (
+			((post.id === post._id) || errors.push('id not set to _id')) && 
 			((post.text === this.data.text) || errors.push('text does not match')) &&
 			((post.teamId === this.team._id) || errors.push('teamId does not match the team')) &&
 			((post.streamId === this.stream._id) || errors.push('streamId does not match')) &&

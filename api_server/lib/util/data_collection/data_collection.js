@@ -90,7 +90,7 @@ class DataCollection {
 	async create (data, options = {}) {
 		// the ID can be provided or we'll generate one
 		const id = (data._id || this.createId()).toString();
-		data._id = id;
+		data._id = data.id = id;
 		data.version = 1;
 		const model = new this.modelClass(data);
 		this.addModelToCache(model);
@@ -179,7 +179,6 @@ class DataCollection {
 			data,
 			Object.assign({}, options, { requestId: this.requestId })
 		);
-		result.value._id = result.value._id.toString();
 		return result.value;
 	}
 

@@ -113,7 +113,8 @@ class APIRequestTest extends GenericTest {
 
 	// check that the object we got back matches expectation, assuming ID
 	validateMatchingObject (id, object, name) {
-		Assert(id.toString() === object._id.toString(), `${name} doesn't match`);
+		Assert(id === object._id, `${name} doesn't match`);
+		Assert(id === object.id, `id in ${name} is not set to _id`);
 	}
 
 	// check that the objects we got back match expections, by ID
@@ -121,11 +122,17 @@ class APIRequestTest extends GenericTest {
 		let objectIds_1 = objects1.map(object => object._id).sort();
 		let objectIds_2 = objects2.map(object => object._id).sort();
 		Assert.deepEqual(objectIds_2, objectIds_1, `${name} returned don't match`);
+		objects1.forEach(object => {
+			Assert.equal(object.id, object._id, 'an object\'s id is not set to _id');
+		});
 	}
 
 	// check that the objects we got back exactly match expectations
 	validateSortedMatchingObjects(objects1, objects2, name) {
 		Assert.deepEqual(objects2, objects1, `${name} returned don't match`);
+		objects1.forEach(object => {
+			Assert.equal(object.id, object._id, 'an object\'s id is not set to _id');
+		});
 	}
 }
 

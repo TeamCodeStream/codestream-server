@@ -7,6 +7,10 @@ module.exports = {
 		type: 'id',
 		description: 'ID of the model'
 	},
+	id: {
+		type: 'id',
+		description: 'ID of the model'
+	},
 	version: {
 		type: 'number',
 		required: true,
