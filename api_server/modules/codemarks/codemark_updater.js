@@ -112,10 +112,16 @@ class CodemarkUpdater extends ModelUpdater {
 
 	// if this is an issue, validate the assignees ... all users must be on the team
 	async validateAssignees () {
-		if (this.codemark.get('type') !== 'issue' || !this.attributes.assignees) {
+		if (this.codemark.get('type') !== 'issue') {
+			// assignees only valid for issues
 			delete this.attributes.assignees;
 			return;
 		}
+		else if (this.codemark.get('providerType') || !this.attributes.assignees) {
+			// if using a third-party provider, we don't care what goes in there
+			return;
+		}
+
 		const users = await this.data.users.getByIds(
 			this.attributes.assignees,
 			{

@@ -23,6 +23,8 @@ const ClearAssigneesTest = require('./clear_assignees_test');
 const InvalidAssigneeTest = require('./invalid_assignee_test');
 const AssigneeNotOnTeamTest = require('./assignee_not_on_team_test');
 const AssigneesIgnoredTest = require('./assignees_ignored_test');
+const SetPostlessAssigneesTest = require('./set_postless_assignees_test');
+const UpdatePostlessAssigneesTest = require('./update_postless_assignees_test');
 
 class PutCodemarkRequestTester {
 
@@ -61,6 +63,8 @@ class PutCodemarkRequestTester {
 		new InvalidAssigneeTest().test();
 		new AssigneeNotOnTeamTest().test();
 		new AssigneesIgnoredTest().test();
+		new SetPostlessAssigneesTest().test();
+		new UpdatePostlessAssigneesTest().test();
 	}
 }
 

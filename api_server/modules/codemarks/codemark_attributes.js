@@ -55,7 +55,7 @@ module.exports = {
 		description: 'Title of the post'
 	},
 	assignees: {
-		type: 'arrayOfIds',
+		type: 'arrayOfStrings',
 		maxLength: 200,
 		description: 'Array of user IDs to whom a task is assigned'
 	},
