@@ -2,6 +2,7 @@
 
 const PostCodemarkTest = require('./post_codemark_test');
 const Assert = require('assert');
+const RandomString = require('randomstring');
 
 class AssigneesIgnoredTest extends PostCodemarkTest {
 
@@ -9,16 +10,12 @@ class AssigneesIgnoredTest extends PostCodemarkTest {
 		return 'should return a valid codemark when creating a non-issue codemark but should ignore assignees';
 	}
 
-	setTestOptions (callback) {
-		super.setTestOptions(() => {
-			this.userOptions.numRegistered = 3;
-			callback();
-		});
-	}
-
 	makeCodemarkData (callback) {
 		super.makeCodemarkData(() => {
-			this.data.assignees = [this.users[1].user._id, this.users[2].user._id];
+			this.data.assignees = [
+				RandomString.generate(10),
+				RandomString.generate(10)
+			];
 			callback();
 		});
 	}

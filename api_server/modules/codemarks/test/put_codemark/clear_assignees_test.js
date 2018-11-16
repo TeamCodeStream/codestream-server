@@ -1,6 +1,7 @@
 'use strict';
 
 const PutCodemarkTest = require('./put_codemark_test');
+const RandomString = require('randomstring');
 
 class ClearAssigneesTest extends PutCodemarkTest {
 
@@ -23,7 +24,10 @@ class ClearAssigneesTest extends PutCodemarkTest {
 
 	getPostlessCodemarkData () {
 		const data = super.getPostlessCodemarkData();
-		data.assignees = [this.users[1].user._id, this.users[2].user._id];
+		data.assignees = [
+			RandomString.generate(10),
+			RandomString.generate(10)
+		];
 		return data;
 	}
 

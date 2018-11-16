@@ -48,8 +48,6 @@ const MarkerRequiredTest = require('./marker_required_test');
 const RequiredForTypeTest = require('./required_for_type_test');
 const RequiredForTypeWithMarkerTest = require('./required_for_type_with_marker_test');
 const IssueWithAssigneesTest = require('./issue_with_assignees_test');
-const InvalidAssigneeTest = require('./invalid_assignee_test');
-const AssigneeNotOnTeamTest = require('./assignee_not_on_team_test');
 const AssigneesIgnoredTest = require('./assignees_ignored_test');
 
 class PostCodemarkRequestTester {
@@ -112,8 +110,6 @@ class PostCodemarkRequestTester {
 		new RequiredForTypeTest({ codemarkType: 'question', attribute: 'title' }).test();
 		new RequiredForTypeTest({ codemarkType: 'issue', attribute: 'title' }).test();
 		new IssueWithAssigneesTest().test();
-		new InvalidAssigneeTest().test();
-		new AssigneeNotOnTeamTest().test();
 		new AssigneesIgnoredTest().test();
 	}
 }

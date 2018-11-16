@@ -1,6 +1,7 @@
 'use strict';
 
 const PostCodemarkTest = require('./post_codemark_test');
+const RandomString = require('randomstring');
 
 class IssueWithAssigneesTest extends PostCodemarkTest {
 
@@ -13,16 +14,15 @@ class IssueWithAssigneesTest extends PostCodemarkTest {
 		return 'should return a valid codemark when creating an issue codemark with an array of valid assignees';
 	}
 
-	setTestOptions (callback) {
-		super.setTestOptions(() => {
-			this.userOptions.numRegistered = 3;
-			callback();
-		});
-	}
-
 	makeCodemarkData (callback) {
 		super.makeCodemarkData(() => {
-			this.data.assignees = [this.users[1].user._id, this.users[2].user._id];
+			// for third-party provider codemarks, we can put anything we want in here,
+			// it's only if we're not using third-party that the server will try to validate
+			// that these are valid members of the team, and that can only happen through POST /posts
+			this.data.assignees = [
+				RandomString.generate(10),
+				RandomString.generate(10)
+			];
 			callback();
 		});
 	}
