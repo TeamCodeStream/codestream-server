@@ -35,9 +35,10 @@ export CS_API_DATA=$CS_API_SANDBOX/data   # data directory
 export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
 
 [ -z "$CS_API_PORT" ] && export CS_API_PORT=12079
+[ -z "$CS_API_ENV" ] && export CS_API_ENV=dev
+[ -z "$CS_API_ASSET_ENV" ] && export CS_API_ASSET_ENV=local
 export CS_API_LOG_CONSOLE_OK=1
 export CS_API_HELP_AVAILABLE=1
-[ -z "$CS_API_ASSET_ENV" ] && export CS_API_ASSET_ENV=local
 
 
 # =============== SSL Certificate ==================
@@ -181,7 +182,7 @@ export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo
 # ============ Email Settings ================
 # Outbound email events are placed on this queue. The outbound email
 # server processes the queue and sends the emails (a lambda function)
-export CS_API_OUTBOUND_EMAIL_SQS="dev_${DT_USER}_outboundEmail"
+export CS_API_OUTBOUND_EMAIL_SQS="${CS_API_ENV}_${DT_USER}_outboundEmail"
 
 # Set the interval (in ms) between emails being sent
 export CS_API_EMAIL_NOTIFICATION_INTERVAL=300000
@@ -198,7 +199,7 @@ export CS_API_SUPPRESS_EMAILS=1
 # This is used when sending email notifications, we want replies to come back
 # to us and for the stream where the original post originated to be identified
 # in the reply-to address
-export CS_API_REPLY_TO_DOMAIN=dev.codestream.com
+export CS_API_REPLY_TO_DOMAIN=${CS_API_ENV}.codestream.com
 
 # Emails sent from CodeStream will be sent using this address
 export CS_API_SENDER_EMAIL=alerts@codestream.com
