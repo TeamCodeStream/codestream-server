@@ -11,7 +11,7 @@ PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-PD_Keyset"
 
 . $CS_API_TOP/sandbox/defaults.sh
 
-export CS_API_PORT=8080
+export CS_API_PORT=8443
 export CS_API_REPLY_TO_DOMAIN=${CS_API_ENV}.codestream.com
 export CS_API_OUTBOUND_EMAIL_SQS="${CS_API_ENV}_outboundEmail"
 export CS_API_WEB_CLIENT_ORIGIN=https://${CS_API_ENV}-app.codestream.us
