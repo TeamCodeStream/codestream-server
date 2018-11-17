@@ -37,12 +37,12 @@ class MessageToTeamTest extends CodeStreamMessageTest {
 	adjustMarkers (callback) {
 		this.markers = this.postData.map(postData => postData.markers[0]);
 		this.locations = this.postData.reduce((locations, postData) => {
-			const markerId = postData.markers[0]._id;
+			const markerId = postData.markers[0].id;
 			locations[markerId] = postData.markerLocations[0].locations[markerId];
 			return locations;
 		}, {});
 		this.adjustedMarkerLocations = {};
-		this.markers.sort((a, b) => { return a._id.localeCompare(b._id); });	// should be in sorted order for comparison of the results
+		this.markers.sort((a, b) => { return a.id.localeCompare(b.id); });	// should be in sorted order for comparison of the results
 		this.markers.forEach(marker => {
 			this.adjustMarker(marker);
 		});
@@ -52,21 +52,21 @@ class MessageToTeamTest extends CodeStreamMessageTest {
 	// adjust a single marker's location as if it is adjusted for a different commit
 	adjustMarker (marker) {
 		const adjustedLocation = [];
-		const location = this.locations[marker._id];
+		const location = this.locations[marker.id];
 		// pure randomness here, not very realistic, but should't matter
 		location.slice(0, 4).forEach(coordinate => {
 			let adjustedCoordinate = coordinate + Math.floor(Math.random() * coordinate);
 			adjustedLocation.push(adjustedCoordinate);
 		});
-		this.adjustedMarkerLocations[marker._id] = adjustedLocation;
+		this.adjustedMarkerLocations[marker.id] = adjustedLocation;
 	}
 
 	// set the data to be used in the request that triggers the message
 	setData (callback) {
 		this.newCommitHash = this.repoFactory.randomCommitHash();	// a new commit hash for the adjusted locations
 		this.data = {
-			teamId: this.team._id,
-			streamId: this.repoStreams[0]._id,
+			teamId: this.team.id,
+			streamId: this.repoStreams[0].id,
 			commitHash: this.newCommitHash,
 			locations: this.adjustedMarkerLocations
 		};
@@ -76,7 +76,7 @@ class MessageToTeamTest extends CodeStreamMessageTest {
 	// set the pubnub channel name we expect a message on
 	setChannelName (callback) {
 		// marker location messages come to us on the team channel
-		this.channelName = `team-${this.team._id}`;
+		this.channelName = `team-${this.team.id}`;
 		callback();
 	}
 
@@ -95,8 +95,8 @@ class MessageToTeamTest extends CodeStreamMessageTest {
 				// this is the message we expect to receive through the team channel
 				this.message = {
 					markerLocations: {
-						teamId: this.team._id,
-						streamId: this.repoStreams[0]._id,
+						teamId: this.team.id,
+						streamId: this.repoStreams[0].id,
 						commitHash: this.newCommitHash.toLowerCase(),
 						locations: this.adjustedMarkerLocations
 					}

@@ -17,7 +17,7 @@ class StreamChannelTest extends CodeStreamMessageTest {
 	// set the channel name to listen on
 	setChannelName (callback) {
 		// listening on the stream channel for this stream
-		this.channelName = 'stream-' + this.stream._id;
+		this.channelName = 'stream-' + this.stream.id;
 		callback();
 	}
 }

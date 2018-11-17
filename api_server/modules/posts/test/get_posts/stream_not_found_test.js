@@ -20,7 +20,7 @@ class StreamNotFoundTest extends GetPostsTest {
 	setPath (callback) {
 		// provide some random non-existent stream ID
 		const streamId = ObjectID();
-		this.path = `/posts?teamId=${this.team._id}&streamId=${streamId}`;
+		this.path = `/posts?teamId=${this.team.id}&streamId=${streamId}`;
 		callback();
 	}
 }

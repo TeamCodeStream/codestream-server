@@ -44,8 +44,8 @@ class GetStreamsTest extends CodeStreamAPITest {
 			this.foreignTeam = response.team;
 			this.foreignRepo = response.repo;
 			this.usersByTeam = {
-				[this.team._id]: this.users,
-				[this.foreignTeam._id]: response.users
+				[this.team.id]: this.users,
+				[this.foreignTeam.id]: response.users
 			};
 			callback();
 		});
@@ -68,7 +68,7 @@ class GetStreamsTest extends CodeStreamAPITest {
 
 	// create some channel and direct streams in the given team
 	createChannelDirectStreamsForTeam (team, callback) {
-		this.streamsByTeam[team._id] = [];
+		this.streamsByTeam[team.id] = [];
 		const which = this.dontDoDirectStreams ? ['channel'] : ['channel', 'direct'];
 		BoundAsync.forEachSeries(
 			this,
@@ -97,27 +97,27 @@ class GetStreamsTest extends CodeStreamAPITest {
 	// create a single stream of the given type in the given team
 	createStreamForTeam (team, type, n, callback) {
 		// we'll include some of the random unregistered users in the stream on a rotating basis
-		const unregisteredUsers = this.usersByTeam[team._id].filter(user => !user.user.isRegistered);
+		const unregisteredUsers = this.usersByTeam[team.id].filter(user => !user.user.isRegistered);
 		const user = unregisteredUsers[n % unregisteredUsers.length];
 		const isTeamStream = type === 'channel' && n === this.whichIsTeamStream;
 		const isPublic = type === 'channel' && n === this.whichIsPublic;
 		const options = {
-			teamId: team._id,
+			teamId: team.id,
 			type: type,
-			memberIds: isTeamStream || isPublic ? undefined : [user.user._id],
+			memberIds: isTeamStream || isPublic ? undefined : [user.user.id],
 			token: this.users[1].accessToken,	
 			isTeamStream: isTeamStream,
 			privacy: isPublic ? 'public' : undefined
 		};
 		if (n % 2 === 1 && !isTeamStream && !isPublic) {
 			// every other stream has the current user as a member
-			options.memberIds.push(this.currentUser.user._id);
+			options.memberIds.push(this.currentUser.user.id);
 		}
 
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.streamsByTeam[team._id].push(response.stream);
+				this.streamsByTeam[team.id].push(response.stream);
 				setTimeout(callback, this.streamCreateThrottle || 0);	// slow it down to avoid overloading pubnub (which has to do access grants)
 			},
 			options
@@ -144,7 +144,7 @@ class GetStreamsTest extends CodeStreamAPITest {
 
 	// create some file-type streams in the given repo
 	createFileStreamsForRepo (repo, callback) {
-		this.streamsByRepo[repo._id] = [];
+		this.streamsByRepo[repo.id] = [];
 		BoundAsync.timesSeries(
 			this,
 			this.numStreams,
@@ -159,14 +159,14 @@ class GetStreamsTest extends CodeStreamAPITest {
 	createFileStreamForRepo (repo, callback) {
 		const options = {
 			teamId: repo.teamId,
-			repoId: repo._id,
+			repoId: repo.id,
 			type: 'file',
 			token: this.users[1].accessToken	
 		};
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.streamsByRepo[repo._id].push(response.stream);
+				this.streamsByRepo[repo.id].push(response.stream);
 				setTimeout(callback, this.streamCreateThrottle || 0);
 			},
 			options

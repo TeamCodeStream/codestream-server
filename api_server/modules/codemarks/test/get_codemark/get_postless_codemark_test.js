@@ -42,7 +42,7 @@ class GetPostlessCodemarkTest extends CodeStreamAPITest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.codemark = response.codemark;
-				this.path = '/codemarks/' + this.codemark._id;
+				this.path = '/codemarks/' + this.codemark.id;
 				callback();
 			}
 		);
@@ -52,7 +52,7 @@ class GetPostlessCodemarkTest extends CodeStreamAPITest {
 	makeCodemarkData () {
 		const data = this.codemarkFactory.getRandomCodemarkData();
 		Object.assign(data, {
-			teamId: this.team._id,
+			teamId: this.team.id,
 			providerType: RandomString.generate(8),
 			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)
@@ -63,7 +63,7 @@ class GetPostlessCodemarkTest extends CodeStreamAPITest {
 	// validate the request response
 	validateResponse (data) {
 		// validate we got the correct codemark, and that we only got sanitized attributes
-		this.validateMatchingObject(this.codemark._id, data.codemark, 'codemark');
+		this.validateMatchingObject(this.codemark.id, data.codemark, 'codemark');
 		Assert.equal(data.post, undefined, 'post is not undefined');
 		this.validateSanitized(data.codemark, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

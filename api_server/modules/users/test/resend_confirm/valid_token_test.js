@@ -33,7 +33,7 @@ class ValidTokenTest extends ResendConfirmTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				Assert(response.user && response.user._id === this.userId, 'returns user ID does not match');
+				Assert(response.user && response.user.id === this.userId, 'returns user ID does not match');
 				Assert.equal(response.user.email, userEmail, 'email does not match');
 				Assert(response.user.isRegistered, 'isRegisterd not set');
 				callback();

@@ -16,7 +16,7 @@ class InvalidTypeTest extends GetStreamsTest {
 	}
 
 	setPath (callback) {
-		this.path = `/streams?teamId=${this.team._id}&type=sometype`;
+		this.path = `/streams?teamId=${this.team.id}&type=sometype`;
 		callback();
 	}
 }

@@ -27,11 +27,11 @@ class MarkerForBadStreamTypeTest extends CodemarkMarkerTest {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) return callback(error);
-				this.data.codemark.markers[0].fileStreamId = response.stream._id;
+				this.data.codemark.markers[0].fileStreamId = response.stream.id;
 				callback();
 			},
 			{
-				teamId: this.team._id,
+				teamId: this.team.id,
 				type: this.streamType,
 				token: this.token
 			}

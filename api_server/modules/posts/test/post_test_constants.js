@@ -9,7 +9,7 @@ const CodemarkAttributes = require(process.env.CS_API_TOP + '/modules/codemarks/
 
 // fields expected in all posts
 const EXPECTED_POST_FIELDS = [
-	'_id',
+	'id',
 	'deactivated',
 	'createdAt',
 	'modifiedAt',

@@ -75,7 +75,7 @@ class TeamContentCombiner {
 			},
 			{ 
 				hint: PostIndexes.byId,
-				fields: ['_id', 'createdAt', 'streamId']
+				fields: ['id', 'createdAt', 'streamId']
 			}
 		);
 	}
@@ -90,12 +90,12 @@ class TeamContentCombiner {
 			const post = this.posts[i];
 			await this.data.posts.updateDirect(
 				{ 
-					_id: this.data.posts.objectIdSafe(post._id) 
+					id: this.data.posts.objectIdSafe(post.id) 
 				},
 				{
 					$set: { 
 						seqNum: i + 1,
-						streamId: this.teamStream._id.toString()
+						streamId: this.teamStream.id.toString()
 					}
 				}
 			);
@@ -106,7 +106,7 @@ class TeamContentCombiner {
 	// next sequence number for new posts after all the other posts have been added
 	async updateStreamNextSeqNum () {
 		await this.data.streams.updateDirect(
-			{ _id: this.data.streams.objectIdSafe(this.teamStream._id) },
+			{ id: this.data.streams.objectIdSafe(this.teamStream.id) },
 			{ $set: { nextSeqNum: this.posts.length + 1 } }
 		);
 	}
@@ -130,7 +130,7 @@ class ContentCombiner {
 		Object.assign(this, options);
 		this.logger = this.logger || console;
 		await this.openMongoClient();
-		const teamIds = this.teamIds || (await this.getTeams()).map(team => team._id);
+		const teamIds = this.teamIds || (await this.getTeams()).map(team => team.id);
 		await Promise.all(teamIds.map(async teamId => {
 			this.logger.log(`Moving posts for team ${teamId}...`);
 			await new TeamContentCombiner().go({ 
@@ -159,8 +159,8 @@ class ContentCombiner {
 		return await this.mongoClient.mongoCollections.teams.getByQuery(
 			{},
 			{ 
-				hint: { _id: 1 },
-				fields: ['_id']
+				hint: { id: 1 },
+				fields: ['id']
 			}
 		);
 	}

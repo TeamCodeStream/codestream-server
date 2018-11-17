@@ -30,10 +30,10 @@ class AdminCanDeleteTest extends DeleteCodemarkTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/teams/' + this.team._id,
+				path: '/teams/' + this.team.id,
 				data: {
 					$push: { 
-						adminIds: this.currentUser.user._id 
+						adminIds: this.currentUser.user.id 
 					}
 				},
 				token: this.users[1].accessToken

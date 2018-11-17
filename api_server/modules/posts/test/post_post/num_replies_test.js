@@ -23,7 +23,7 @@ class NumRepliesTest extends PostReplyTest {
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: '/posts/' + this.postData[0].post._id,
+				path: '/posts/' + this.postData[0].post.id,
 				token: this.token
 			},
 			(error, response) => {

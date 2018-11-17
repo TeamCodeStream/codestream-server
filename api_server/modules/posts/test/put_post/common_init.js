@@ -43,11 +43,12 @@ class CommonInit {
 			text: this.postFactory.randomText()
 		};
 		if (this.wantMention) {
-			this.data.mentionedUserIds = [this.users[1].user._id];
+			this.data.mentionedUserIds = [this.users[1].user.id];
 		}
 		this.expectedData = {
 			post: {
-				_id: this.post._id,
+				_id: this.post.id,	// DEPRECATE ME
+				id: this.post.id,
 				$set: Object.assign(DeepClone(this.data), { 
 					version: this.expectedVersion,
 					hasBeenEdited: true,
@@ -65,7 +66,7 @@ class CommonInit {
 		}
 		this.expectedPost = DeepClone(this.post);
 		Object.assign(this.expectedPost, this.expectedData.post.$set);
-		this.path = '/posts/' + this.post._id;
+		this.path = '/posts/' + this.post.id;
 		this.modifiedAfter = Date.now();
 		callback();
 	}
@@ -76,7 +77,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/posts/' + this.post._id,
+				path: '/posts/' + this.post.id,
 				data: this.data,
 				token: this.token
 			},

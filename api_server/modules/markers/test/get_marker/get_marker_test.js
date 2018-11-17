@@ -37,22 +37,22 @@ class GetMarkerTest extends CodeStreamAPITest {
 	setPath (callback) {
 		// try to fetch the marker
 		this.marker = this.postData[0].markers[0];
-		this.path = '/markers/' + this.marker._id;
+		this.path = '/markers/' + this.marker.id;
 		callback();
 	}
 
 	// validate the request response
 	validateResponse (data) {
 		// validate we got the correct marker, and that we only got sanitized attributes
-		this.validateMatchingObject(this.marker._id, data.marker, 'marker');
+		this.validateMatchingObject(this.marker.id, data.marker, 'marker');
 		this.validateSanitized(data.marker, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// validate we also got the parent codemark, with only sanitized attributes
-		this.validateMatchingObject(this.postData[0].codemark._id, data.codemark, 'codemark');
+		this.validateMatchingObject(this.postData[0].codemark.id, data.codemark, 'codemark');
 		this.validateSanitized(data.codemark, MarkerTestConstants.UNSANITIZED_CODEMARK_ATTRIBUTES);
 
 		// if using CodeStream posts, validate that we got the referencing post, with only sanitized attributes
-		this.validateMatchingObject(this.postData[0].post._id, data.post, 'post');
+		this.validateMatchingObject(this.postData[0].post.id, data.post, 'post');
 		this.validateSanitized(data.post, MarkerTestConstants.UNSANITIZED_POST_ATTRIBUTES);
 	}
 }

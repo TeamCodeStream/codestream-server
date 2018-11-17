@@ -81,7 +81,7 @@ class SessionManager {
 	// save the modified sessions data to the database
 	async saveSessions () {
 		await this.request.data.users.updateDirect(
-			{ _id: this.request.data.users.objectIdSafe(this.user.id) },
+			{ id: this.request.data.users.objectIdSafe(this.user.id) },
 			this.op
 		);
 	}

@@ -33,13 +33,13 @@ class EditingTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const stream = data.streams[0];
 		if (this.wantStopEditing) {
 			Assert(stream.$unset, 'no $unset in stream response');
-			const unsetKey = `editingUsers.${this.currentUser.user._id}`;
+			const unsetKey = `editingUsers.${this.currentUser.user.id}`;
 			Assert(stream.$unset[unsetKey], 'no editingUsers for current user in stream.$unset response');
 			Assert(stream.$unset[unsetKey] === true, 'unset key is not false');
 		}
 		else {
 			Assert(stream.$set, 'no $set in stream response');
-			const setKey = `editingUsers.${this.currentUser.user._id}`;
+			const setKey = `editingUsers.${this.currentUser.user.id}`;
 			Assert(stream.$set[setKey], 'no editingUsers for current user in stream.$set response');
 			const editing = stream.$set[setKey];
 			Assert(editing.startedAt > this.editedAfter, 'startedAt for edit is not greater than before the editing was indicated');

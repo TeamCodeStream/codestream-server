@@ -62,7 +62,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 	run (callback) {
 		// create a pubnub client and attempt to subscribe to the channel of interest
 		let pubNubClient = this.createPubNubClient();
-		let channel = `${this.which}-${this[this.which]._id}`;
+		let channel = `${this.which}-${this[this.which].id}`;
 		pubNubClient.subscribe(
 			channel,
 			() => {},
@@ -79,7 +79,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.user._pubnubUuid || this.user._id;
+		clientConfig.uuid = this.user._pubnubUuid || this.user.id;
 		clientConfig.authKey = this.pubnubToken;	// the PubNub token is the auth key for the subscription
 		let client = new PubNub(clientConfig);
 		return new PubNubClient({

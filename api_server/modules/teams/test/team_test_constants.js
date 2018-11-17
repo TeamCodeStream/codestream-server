@@ -8,7 +8,7 @@ const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stre
 
 // fields expected in all teams
 const EXPECTED_TEAM_FIELDS = [
-	'_id',
+	'id',
 	'companyId',
 	'name',
 	'memberIds',
@@ -21,7 +21,7 @@ const EXPECTED_TEAM_FIELDS = [
 
 // fields expected in the company returned
 const EXPECTED_COMPANY_FIELDS = [
-	'_id',
+	'id',
 	'deactivated',
 	'createdAt',
 	'modifiedAt',

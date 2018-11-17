@@ -32,7 +32,7 @@ class PostFileStreamTest extends PostStreamTest {
 	makeStreamOptions (callback) {
 		// get the standard stream options, and add the repo ID, required for file-type stream
 		super.makeStreamOptions(() => {
-			this.postStreamOptions.repoId = this.repo._id;
+			this.postStreamOptions.repoId = this.repo.id;
 			callback();
 		});
 	}

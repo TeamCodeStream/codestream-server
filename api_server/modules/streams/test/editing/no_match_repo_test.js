@@ -19,7 +19,7 @@ class NoMatchRepoTest extends EditingTest {
 	makeEditingData (callback) {
 		// make the usual data but use the teamid for the second team created
 		super.makeEditingData(() => {
-			this.data.repoId = this.otherRepo._id;
+			this.data.repoId = this.otherRepo.id;
 			callback();
 		});
 	}

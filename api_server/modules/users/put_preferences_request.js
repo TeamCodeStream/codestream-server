@@ -81,7 +81,7 @@ class PutPreferencesRequest extends RestfulRequest {
 				summary: 'A user object with directives appropriate for updating the user\'s preferences',
 				looksLike: {
 					user: {
-						_id: '<ID of the user>',
+						id: '<ID of the user>',
 						preferences: {
 							'<some preferences value>': '<some directive>',
 							'...': '...'
@@ -93,7 +93,7 @@ class PutPreferencesRequest extends RestfulRequest {
 				summary: 'Publishes a user object, with directives corresponding to the request body passed in, to the user\'s user channel, indicating how the preferences object for the user object should be updated.',
 				looksLike: {
 					user: {
-						_id: '<ID of the user>',
+						id: '<ID of the user>',
 						preferences: {
 							'<some preferences value>': '<some directive>',
 							'...': '...'

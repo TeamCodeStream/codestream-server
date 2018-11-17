@@ -23,7 +23,7 @@ class GetReposRequest extends GetManyRequest {
 		if (this.request.query.ids) {
 			// you can specify particular IDs, but they must all be from the same team
 			let ids = decodeURIComponent(this.request.query.ids).toLowerCase().split(',');
-			query._id = this.data.repos.inQuerySafe(ids);
+			query.id = this.data.repos.inQuerySafe(ids);
 		}
 		return query;
 	}

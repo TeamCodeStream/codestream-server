@@ -20,7 +20,7 @@ class NewStreamToMembersTest extends Aggregation(CodeStreamMessageTest, CommonIn
 	setChannelName (callback) {
 		// listen on the current user's me-channel, they should get a message that they have been
 		// added to the team
-		this.channelName = `user-${this.currentUser.user._id}`;
+		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
 
@@ -37,8 +37,8 @@ class NewStreamToMembersTest extends Aggregation(CodeStreamMessageTest, CommonIn
 			{
 				type: this.type,
 				token: this.users[1].accessToken,
-				teamId: this.team._id,
-				memberIds: [this.currentUser.user._id]
+				teamId: this.team.id,
+				memberIds: [this.currentUser.user.id]
 			}
 		);
 	}

@@ -12,7 +12,7 @@ class GetPostlessCodemarksByTypeTest extends GetPostlessCodemarksTest {
 	setPath (callback) {
 		this.type = this.postOptions.codemarkTypes[1];
 		this.expectedCodemarks = this.codemarks.filter(codemark => codemark.type === this.type);
-		this.path = `/codemarks?teamId=${this.team._id}&type=${this.type}`;
+		this.path = `/codemarks?teamId=${this.team.id}&type=${this.type}`;
 		callback();
 	}
 

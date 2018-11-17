@@ -52,13 +52,13 @@ class OtherTeamTest extends PutMarkerLocationsTest {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.data.streamId = response.stream._id;
+				this.data.streamId = response.stream.id;
 				callback();
 			},
 			{
 				type: 'file',
-				teamId: this.otherTeam._id,	// using the other team
-				repoId: this.otherRepo._id,	// using the other repo
+				teamId: this.otherTeam.id,	// using the other team
+				repoId: this.otherRepo.id,	// using the other repo
 				token: this.users[1].accessToken	// other user is the creator
 			}
 		);

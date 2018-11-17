@@ -28,7 +28,7 @@ class ExistingUnregisteredUserTest extends ProviderConnectTest {
 		const { user } = data;
 
 		// ensure returned user is the same as the pre-existing user
-		Assert.equal(user._id, this.preExistingUnconnectedUser._id, 'returned user does not match pre-existing user');
+		Assert.equal(user.id, this.preExistingUnconnectedUser.id, 'returned user does not match pre-existing user');
 		super.validateResponse(data);
 	} 
 }

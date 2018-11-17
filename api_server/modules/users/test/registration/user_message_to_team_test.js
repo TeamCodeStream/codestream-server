@@ -19,7 +19,7 @@ class UserMessageToTeamTest extends CodeStreamMessageTest {
 	// set the channel name we expect to receive a message on
 	setChannelName (callback) {
 		// newly registered users should be seen on the team channel
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = 'team-' + this.team.id;
 		callback();
 	}
 

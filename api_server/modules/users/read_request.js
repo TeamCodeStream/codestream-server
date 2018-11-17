@@ -90,7 +90,7 @@ class ReadRequest extends RestfulRequest {
 				summary: 'Publishes a user object, with directives, to the user\'s user channel, indicating how the lastReads attribute for the user object should be updated',
 				looksLike: {
 					user: {
-						_id: '<ID of the user>',
+						id: '<ID of the user>',
 						$unset: {
 							lastReads: {
 								['<streamId>']: true

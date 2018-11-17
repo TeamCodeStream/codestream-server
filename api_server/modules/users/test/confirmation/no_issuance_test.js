@@ -39,7 +39,7 @@ class NoIssuanceTest extends ConfirmationWithLinkTest {
 	changeToken (callback) {
 		const tokenHandler = new TokenHandler(SecretsConfig.auth);
 		const payload = tokenHandler.decode(this.data.token);
-		payload.uid = this.otherUser._id;
+		payload.uid = this.otherUser.id;
 		this.data.token = tokenHandler.generate(payload, 'conf');
 		callback();
 	}

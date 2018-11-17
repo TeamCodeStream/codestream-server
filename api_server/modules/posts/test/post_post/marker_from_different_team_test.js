@@ -50,12 +50,12 @@ class MarkerFromDifferentTeamTest extends CodemarkMarkerTest {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) return callback(error);
-				this.data.codemark.markers[0].fileStreamId = response.stream._id;
+				this.data.codemark.markers[0].fileStreamId = response.stream.id;
 				callback();
 			},
 			{
-				teamId: this.foreignTeam._id,
-				repoId: this.foreignRepo._id,
+				teamId: this.foreignTeam.id,
+				repoId: this.foreignRepo.id,
 				type: 'file',
 				token: this.users[1].accessToken
 			}

@@ -20,7 +20,7 @@ class GetUnreadStreamsTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// set for fetching streams with "unread" messages
-		this.path = `/streams?teamId=${this.team._id}&unread`;
+		this.path = `/streams?teamId=${this.team.id}&unread`;
 		callback();
 	}
 
@@ -28,8 +28,8 @@ class GetUnreadStreamsTest extends GetStreamsTest {
 	createPosts (callback) {
 		// we'll select a subset of the stream we created, then create posts there ... 
 		// we then expect only those streams
-		const myStreams = this.streamsByTeam[this.team._id].filter(stream => {
-			return stream.memberIds.includes(this.currentUser.user._id);
+		const myStreams = this.streamsByTeam[this.team.id].filter(stream => {
+			return stream.memberIds.includes(this.currentUser.user.id);
 		});
 		this.expectedStreams = myStreams.slice(1, 3);
 		BoundAsync.forEach(
@@ -45,8 +45,8 @@ class GetUnreadStreamsTest extends GetStreamsTest {
 		this.postFactory.createRandomPost(
 			callback,
 			{
-				teamId: this.team._id,
-				streamId: stream._id,
+				teamId: this.team.id,
+				streamId: stream.id,
 				token: this.users[1].accessToken	// have the "other" user create the post
 			}
 		);

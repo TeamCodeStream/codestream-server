@@ -23,10 +23,10 @@ class InboundEmailMessageTest extends Aggregation(CodeStreamMessageTest, CommonI
 	setChannelName (callback) {
 		// team channel for file-type streams, or team-streams, otherwise the stream channel
 		if (this.type === 'file' || this.isTeamStream) {
-			this.channelName = `team-${this.team._id}`;
+			this.channelName = `team-${this.team.id}`;
 		}
 		else {
-			this.channelName = `stream-${this.stream._id}`;
+			this.channelName = `stream-${this.stream.id}`;
 		}
 		callback();
 	}

@@ -15,7 +15,7 @@ class NoLastReadsForAuthorTest extends LastReadsNoneTest {
 	}
 
 	getExpectedFields () {
-		return { user: ['_id'] };
+		return { user: ['id'] };
 	}
 
 	// validate the response to the request

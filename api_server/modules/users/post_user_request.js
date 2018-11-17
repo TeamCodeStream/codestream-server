@@ -235,7 +235,7 @@ class PostUserRequest extends PostRequest {
 			}
 		};
 		await this.data.users.updateDirect(
-			{ _id: this.data.users.objectIdSafe(user.id) },
+			{ id: this.data.users.objectIdSafe(user.id) },
 			update
 		);
 	}

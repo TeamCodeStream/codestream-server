@@ -26,7 +26,7 @@ class ResendConfirmTest extends CodeStreamAPITest {
 		this.userFactory.registerRandomUser((error, data) => {
 			if (error) { return callback(error); }
 			// form the data to send with the confirmation request
-			this.userId = data.user._id;
+			this.userId = data.user.id;
 			this.data = { 
 				email: data.user.email,
 				_confirmationCheat: SecretsConfig.confirmationCheat

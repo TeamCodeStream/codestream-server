@@ -35,7 +35,7 @@ class TrackingTest extends InboundEmailMessageTest {
 		// for the user that is being tracked as the post creator, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the tracker
 		// service (mixpanel) on this channel, and then we'll validate the data
-		this.channelName = `user-${this.users[1].user._id}`;
+		this.channelName = `user-${this.users[1].user.id}`;
 		callback();
 	}
 
@@ -81,13 +81,13 @@ class TrackingTest extends InboundEmailMessageTest {
 		const result = (
 			((message.type === 'track') || errors.push('type not correct')) &&
 			((message.event === 'Post Created') || errors.push('event not correct')) &&
-			((data.distinct_id === this.users[1].user._id) || errors.push('distinct_id not set to post originator\'s ID')) &&
+			((data.distinct_id === this.users[1].user.id) || errors.push('distinct_id not set to post originator\'s ID')) &&
 			((data.Type === 'Chat') || errors.push('Type not correct')) &&
 			((data.Thread === 'Parent') || errors.push('Thread not correct')) &&
 			((data.Category === category) || errors.push('Category not correct')) &&
 			((data['Email Address'] === this.users[1].user.email) || errors.push('Email Address does not match post originator')) &&
 			((data['Join Method'] === this.users[1].user.joinMethod) || errors.push('Join Method does not match post originator')) &&
-			((data['Team ID'] === this.team._id) || errors.push('Team ID does not match team')) &&
+			((data['Team ID'] === this.team.id) || errors.push('Team ID does not match team')) &&
 			((data['Team Name'] === this.team.name) || errors.push('Team Name does not match team')) &&
 			((data['Provider'] === 'CodeStream') || errors.push('Provider not set to CodeStream')) &&
 			((data['Team Size'] === this.team.memberIds.length) || errors.push('Team Size does not match number of members in team')) &&

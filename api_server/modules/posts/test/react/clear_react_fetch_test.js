@@ -26,13 +26,13 @@ class ClearReactFetchTest extends ThirdReactFetchTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/react/' + this.post._id,
+				path: '/react/' + this.post.id,
 				data: data,
 				token: this.token
 			},
 			error => {
 				if (error) { return callback(error); }
-				const index = this.expectedReactions[this.reaction].indexOf(this.currentUser.user._id);
+				const index = this.expectedReactions[this.reaction].indexOf(this.currentUser.user.id);
 				this.expectedReactions[this.reaction].splice(index, 1);
 				callback();
 			}

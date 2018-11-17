@@ -29,7 +29,7 @@ class ACLTeamTest extends GetOtherStreamTest {
 
 	// set the path to use when making the test request
 	setPath (callback) {
-		this.path = '/streams/' + this.stream._id;
+		this.path = '/streams/' + this.stream.id;
 		callback();
 	}
 }

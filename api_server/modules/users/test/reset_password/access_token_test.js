@@ -45,7 +45,7 @@ class AccessTokenTest extends ResetPasswordTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that we got back "ourselves", and that there are no attributes a client shouldn't see
-		this.validateMatchingObject(this.currentUser.user._id, data.user, 'user');
+		this.validateMatchingObject(this.currentUser.user.id, data.user, 'user');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

@@ -18,7 +18,8 @@ class UpdateMarkerTest extends SetPostIdTest {
 	makeCodemarkUpdateData (callback) {
 		super.makeCodemarkUpdateData(() => {
 			this.expectedData.markers = [{
-				_id: this.codemark.markerIds[0],
+				_id: this.codemark.markerIds[0],	// DEPRECATE ME
+				id: this.codemark.markerIds[0],
 				$set: {
 					postStreamId: this.data.streamId,
 					postId: this.data.postId,

@@ -39,12 +39,12 @@ class GetPostlessMarkersTest extends GetMarkersTest {
 	createMarker (n, callback) {
 		const data = this.codemarkFactory.getRandomCodemarkData();
 		Object.assign(data, {
-			teamId: this.team._id,
+			teamId: this.team.id,
 			providerType: RandomString.generate(8),
 			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)
 		});
-		data.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0]._id });
+		data.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0].id });
 		this.doApiRequest(
 			{
 				method: 'post',

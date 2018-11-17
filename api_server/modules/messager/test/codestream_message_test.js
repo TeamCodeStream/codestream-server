@@ -81,10 +81,10 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = user._pubnubUuid || user._id;
+		clientConfig.uuid = user._pubnubUuid || user.id;
 		clientConfig.authKey = token;
 		let client = new PubNub(clientConfig);
-		this.pubnubClientsForUser[user._id] = new PubNubClient({
+		this.pubnubClientsForUser[user.id] = new PubNubClient({
 			pubnub: client
 		});
 	}
@@ -112,7 +112,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			this.messageReceiveTimeout || 5000
 		);
 		// subscribe to the channel of interest
-		this.pubnubClientsForUser[this.currentUser.user._id].subscribe(
+		this.pubnubClientsForUser[this.currentUser.user.id].subscribe(
 			this.channelName,
 			this.messageReceived.bind(this),
 			callback,

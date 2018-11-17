@@ -31,7 +31,7 @@ class LastReadsUpdater {
 		const lastReadsElem = 'lastReads.' + this.stream.id;
 		const lastEmailsSentElem = 'lastEmailsSent.' + this.stream.id;
 		const query = {
-			_id: this.data.users.inQuerySafe(memberIds),
+			id: this.data.users.inQuerySafe(memberIds),
 			[lastReadsElem]: { $exists: false }
 		};
 		const previousPostSeqNum = this.previousPostSeqNum || 0;

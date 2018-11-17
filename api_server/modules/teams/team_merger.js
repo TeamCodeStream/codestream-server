@@ -52,7 +52,7 @@ class TeamMerger {
 		this.toUsers = await this.mongoClient.mongoCollections.users.getByQuery(
 			query,
 			{
-				fields: ['_id', 'username', 'email'],
+				fields: ['id', 'username', 'email'],
 				hint: UserIndexes.byTeamIds
 			}
 		);
@@ -74,7 +74,7 @@ class TeamMerger {
 		this.fromUsers = await this.mongoClient.mongoCollections.users.getByQuery(
 			query,
 			{
-				fields: ['_id', 'username', 'email'],
+				fields: ['id', 'username', 'email'],
 				hint: UserIndexes.byTeamIds
 			}
 		);
@@ -86,7 +86,7 @@ class TeamMerger {
 		allUsers.forEach(user1 => {
 			allUsers.forEach(user2 => {
 				if (
-					user1._id !== user2._id &&
+					user1.id !== user2.id &&
                     user1.username &&
                     user2.username &&
                     user1.username.toLowerCase() === user2.username.toLowerCase()
@@ -101,11 +101,11 @@ class TeamMerger {
 	}
 
 	async removeUsers () {
-		const userIds = this.fromUsers.map(user => user._id);
+		const userIds = this.fromUsers.map(user => user.id);
 		const fromCompanyIds = this.fromTeams.map(team => team.companyId);
 		this.logger.log(`Removing ${userIds.length} users from teams...`);
 		await this.mongoClient.mongoCollections.users.updateDirect(
-			{ _id: this.mongoClient.mongoCollections.users.inQuerySafe(userIds) },
+			{ id: this.mongoClient.mongoCollections.users.inQuerySafe(userIds) },
 			{
 				$pullAll: {
 					teamIds: this.fromTeamIds,
@@ -116,10 +116,10 @@ class TeamMerger {
 	}
 
 	async addUsers () {
-		const userIds = this.fromUsers.map(user => user._id);
+		const userIds = this.fromUsers.map(user => user.id);
 		this.logger.log(`Moving ${userIds.length} users to team...`);
 		await this.mongoClient.mongoCollections.users.updateDirect(
-			{ _id: this.mongoClient.mongoCollections.users.inQuerySafe(userIds) },
+			{ id: this.mongoClient.mongoCollections.users.inQuerySafe(userIds) },
 			{
 				$push: {
 					teamIds: this.toTeamId,
@@ -145,7 +145,7 @@ class TeamMerger {
 		});
 		memberIds.sort();
 		await this.mongoClient.mongoCollections.teams.updateDirect(
-			{ _id: this.mongoClient.mongoCollections.teams.objectIdSafe(this.toTeamId) },
+			{ id: this.mongoClient.mongoCollections.teams.objectIdSafe(this.toTeamId) },
 			{ $set: { memberIds: memberIds } }
 		);
 	}
@@ -155,7 +155,7 @@ class TeamMerger {
 		const now = Date.now();
 		await Promise.all(this.fromTeams.map(async fromTeam => {
 			await this.mongoClient.mongoCollections.teams.updateDirect(
-				{ _id: this.mongoClient.mongoCollections.teams.objectIdSafe(fromTeam._id) },
+				{ id: this.mongoClient.mongoCollections.teams.objectIdSafe(fromTeam.id) },
 				{
 					$set: {
 						name: `${fromTeam.name}-deactivated${now}`,

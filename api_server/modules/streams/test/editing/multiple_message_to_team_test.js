@@ -18,7 +18,7 @@ class MultipleMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Multi
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// it is the team channel
-		this.channelName = `team-${this.team._id}`;
+		this.channelName = `team-${this.team.id}`;
 		callback();
 	}
 

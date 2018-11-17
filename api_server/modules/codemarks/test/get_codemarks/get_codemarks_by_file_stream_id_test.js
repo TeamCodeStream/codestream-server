@@ -26,7 +26,7 @@ class GetCodemarksByFileStreamIdTest extends GetCodemarksWithMarkersTest {
 	}
 
 	createOtherPosts (callback) {
-		this.path = `/codemarks?teamId=${this.team._id}&fileStreamId=${this.repoStreams[0]._id}`;
+		this.path = `/codemarks?teamId=${this.team.id}&fileStreamId=${this.repoStreams[0].id}`;
 		BoundAsync.timesSeries(
 			this,
 			5,
@@ -39,7 +39,7 @@ class GetCodemarksByFileStreamIdTest extends GetCodemarksWithMarkersTest {
 		this.postFactory.createRandomPost(
 			callback,
 			{
-				streamId: this.stream._id,
+				streamId: this.stream.id,
 				token: this.users[1].accessToken,
 				wantCodemark: true, 
 				wantMarkers: true
@@ -50,7 +50,7 @@ class GetCodemarksByFileStreamIdTest extends GetCodemarksWithMarkersTest {
 	// validate correct response
 	validateResponse (data) {
 		data.codemarks.forEach(codemark => {
-			Assert.deepEqual(codemark.fileStreamIds, [this.repoStreams[0]._id], 'got a codemark with non-matching stream ID');
+			Assert.deepEqual(codemark.fileStreamIds, [this.repoStreams[0].id], 'got a codemark with non-matching stream ID');
 		});
 		super.validateResponse(data);
 	}

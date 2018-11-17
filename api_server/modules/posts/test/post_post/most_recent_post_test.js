@@ -37,7 +37,7 @@ class MostRecentPostTest extends CodeStreamAPITest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/streams/' + this.stream._id;
+			this.path = '/streams/' + this.stream.id;
 			callback();
 		});
 	}
@@ -48,9 +48,9 @@ class MostRecentPostTest extends CodeStreamAPITest {
 		// last post created in the stream
 		const posts = this.postData.map(postData => postData.post);
 		const lastPost = posts[posts.length - 1];
-		Assert(data.stream.mostRecentPostId === lastPost._id, 'mostRecentPostId for stream does not match post');
+		Assert(data.stream.mostRecentPostId === lastPost.id, 'mostRecentPostId for stream does not match post');
 		Assert(data.stream.mostRecentPostCreatedAt = lastPost.createdAt, 'mostRecentPostCreatedAt for stream does not match post');
-		Assert(data.stream.sortId === lastPost._id, 'sortId for stream does not match post');
+		Assert(data.stream.sortId === lastPost.id, 'sortId for stream does not match post');
 	}
 }
 

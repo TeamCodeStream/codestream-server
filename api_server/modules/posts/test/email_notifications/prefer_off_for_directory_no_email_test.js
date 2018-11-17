@@ -14,7 +14,7 @@ class PreferOffForDirectoryNoEmailTest extends PreferenceOffTest {
 		let directory = Path.dirname(this.stream.file).replace(/\./g, '*');
 		return {
 			streamTreatments: {
-				[this.repo._id]: {
+				[this.repo.id]: {
 					[directory]: 'mute'
 				}
 			}

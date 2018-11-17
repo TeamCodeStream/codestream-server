@@ -94,7 +94,7 @@ class TeamCreator extends ModelCreator {
 		}
 		let company = this.attributes.company || {};
 		company.name = this.determineCompanyName();	// company name is determined from the user's email
-		company.teamIds = [this.attributes._id];
+		company.teamIds = [this.attributes.id];
 		this.transforms.createdCompany = await new CompanyCreator({
 			request: this.request
 		}).createCompany(company);
@@ -104,7 +104,7 @@ class TeamCreator extends ModelCreator {
 	// create a stream for the entire team, everyone on the team is always a member of this stream
 	async createTeamStream () {
 		let stream = {
-			teamId: this.attributes._id,
+			teamId: this.attributes.id,
 			type: 'channel',
 			name: 'general',
 			isTeamStream: true

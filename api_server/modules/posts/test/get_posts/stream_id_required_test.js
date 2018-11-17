@@ -9,7 +9,7 @@ class StreamIDRequiredTest extends GetPostsTest {
 	}
 
 	setPath (callback) {
-		this.path = '/posts?teamId=' + this.team._id;
+		this.path = '/posts?teamId=' + this.team.id;
 		callback();
 	}
 

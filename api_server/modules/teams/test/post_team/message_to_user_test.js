@@ -15,7 +15,7 @@ class MessageToUserTest extends CodeStreamMessageTest {
 
 	// set the name of the channel on which to listen for messages
 	setChannelName (callback) {
-		this.channelName = `user-${this.currentUser.user._id}`;
+		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
 
@@ -29,16 +29,17 @@ class MessageToUserTest extends CodeStreamMessageTest {
 				// this is the message we expect to see
 				this.message = {
 					user: {
-						_id: this.currentUser.user._id,
+						_id: this.currentUser.user.id,	// DEPRECATE ME
+						id: this.currentUser.user.id,
 						$set: {
 							joinMethod: 'Created Team',
 							primaryReferral: 'external',
-							originTeamId: response.team._id,
+							originTeamId: response.team.id,
 							version: 3
 						},
 						$addToSet: {
-							teamIds: response.team._id,
-							companyIds: response.company._id
+							teamIds: response.team.id,
+							companyIds: response.company.id
 						},
 						$version: {
 							before: 2,

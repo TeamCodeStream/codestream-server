@@ -38,12 +38,13 @@ class CommonInit {
 	setExpectedData (callback) {
 		this.expectedData = {
 			user: {
-				_id: this.currentUser.user._id,
+				_id: this.currentUser.user.id,	// DEPRECATE ME
+				id: this.currentUser.user.id,
 				$set: {
 					version: 4
 				},
 				$unset: {
-					[`lastReads.${this.stream._id}`]: true,
+					[`lastReads.${this.stream.id}`]: true,
 				},
 				$version: {
 					before: 3,
@@ -59,7 +60,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/read/' + this.stream._id,
+				path: '/read/' + this.stream.id,
 				token: this.token
 			},
 			callback

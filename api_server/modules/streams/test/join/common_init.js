@@ -27,12 +27,13 @@ class CommonInit {
 	}
 
 	setExpectedData (callback) {
-		this.path = '/join/' + this.stream._id;
+		this.path = '/join/' + this.stream.id;
 		this.expectedData = {
 			stream: {
-				_id: this.stream._id,
+				_id: this.stream.id,	// DEPRECATE ME
+				id: this.stream.id,
 				$addToSet: {
-					memberIds: [ this.currentUser.user._id ]
+					memberIds: [ this.currentUser.user.id ]
 				},
 				$set: {
 					version: 2
@@ -45,7 +46,7 @@ class CommonInit {
 		};
 		this.expectedStream = Object.assign({}, this.stream);
 		if (this.stream.memberIds) {
-			this.expectedStream.memberIds = [...this.stream.memberIds, this.currentUser.user._id];
+			this.expectedStream.memberIds = [...this.stream.memberIds, this.currentUser.user.id];
 			this.expectedStream.memberIds.sort();
 		}
 		this.expectedStream.version = 2;
@@ -59,7 +60,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: `/join/${this.stream._id}`,
+				path: `/join/${this.stream.id}`,
 				token: this.token
 			},
 			(error, response) => {

@@ -33,7 +33,7 @@ class GetByIdFromDatabaseTest extends DataCollectionTest {
 		catch (error) {
 			return callback(error);
 		}
-		this.testModel.id = this.testModel.attributes._id = createdDocument._id;
+		this.testModel.id = this.testModel.attributes.id = createdDocument.id;
 		callback();
 	}
 

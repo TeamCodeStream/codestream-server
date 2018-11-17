@@ -41,11 +41,11 @@ class GetMarkerLocationsRequest extends RestfulRequest {
 		const commitHash = decodeURIComponent(this.request.query.commitHash).toLowerCase();
 		const query = {
 			//			teamId: teamId,	 // will be needed for sharding, but for now, we'll avoiding an index here
-			_id: `${streamId}|${commitHash}`
+			id: `${streamId}|${commitHash}`
 		};
 		const markerLocations = await this.data.markerLocations.getByQuery(
 			query,
-			{ hint: { _id: 1 } }
+			{ hint: { id: 1 } }
 		);
 		if (markerLocations.length === 0) {
 			this.responseData.markerLocations = {};

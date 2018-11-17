@@ -165,7 +165,7 @@ class TestTeamCreator {
 				path: '/users',
 				data: {
 					email: email,
-					teamId: this.team._id,
+					teamId: this.team.id,
 					_pubnubUuid: this.test.userFactory.getNextPubnubUuid()
 				},
 				token
@@ -178,7 +178,7 @@ class TestTeamCreator {
 				else {
 					this.users.push({ user: response.user });
 				}
-				this.team.memberIds.push(response.user._id);
+				this.team.memberIds.push(response.user.id);
 				callback();
 			}
 		);
@@ -207,7 +207,7 @@ class TestTeamCreator {
 			},
 			{
 				token,
-				streamId: this.teamStream._id,
+				streamId: this.teamStream.id,
 				wantCodemark: true,
 				codemarkType: 'comment',
 				wantMarkers: 1,

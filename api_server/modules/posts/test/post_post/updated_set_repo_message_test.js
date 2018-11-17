@@ -30,7 +30,7 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 			// use existing repo but new remote, this should get added to the existing repo
 			this.data.codemark.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
 			const marker = this.data.codemark.markers[0];
-			marker.repoId = this.repo._id;
+			marker.repoId = this.repo.id;
 			this.addedRemote = marker.remotes[0];
 			callback();
 		});
@@ -39,7 +39,7 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// repo updates comes by the team channel
-		this.channelName = `team-${this.team._id}`;
+		this.channelName = `team-${this.team.id}`;
 		callback();
 	}
 
@@ -58,7 +58,8 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 				if (error) { return callback(error); }
 				this.message = { 
 					repos: [{
-						_id: this.repo._id,
+						_id: this.repo.id,	// DEPRECATE ME
+						id: this.repo.id,
 						$push: {
 							remotes: [{
 								url: this.addedRemote,

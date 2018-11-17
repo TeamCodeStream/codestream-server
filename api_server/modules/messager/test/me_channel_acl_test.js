@@ -12,7 +12,7 @@ class MeChannelACLTest extends CodeStreamMessageACLTest {
 	setChannelName (callback) {
 		// since we've set up the pubnub client for the other user, subscribing to the
 		// me-channel for the current user should fail
-		this.channelName = 'user-' + this.users[1].user._id;
+		this.channelName = 'user-' + this.users[1].user.id;
 		callback();
 	}
 }

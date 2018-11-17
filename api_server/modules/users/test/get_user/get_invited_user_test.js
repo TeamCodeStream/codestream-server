@@ -23,7 +23,7 @@ class GetInvitedUserTest extends CodeStreamAPITest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			this.otherUser = this.users[3].user;
-			this.path = '/users/' + this.otherUser._id;
+			this.path = '/users/' + this.otherUser.id;
 			callback();
 		});
 	}
@@ -31,7 +31,7 @@ class GetInvitedUserTest extends CodeStreamAPITest {
 	// validate the response to the test request...
 	validateResponse (data) {
 		// validate we got back the expected user, and make sure there aren't any attributes a client shouldn't see
-		this.validateMatchingObject(this.otherUser._id, data.user, 'user');
+		this.validateMatchingObject(this.otherUser.id, data.user, 'user');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

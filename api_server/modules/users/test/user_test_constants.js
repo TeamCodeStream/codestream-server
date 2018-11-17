@@ -4,7 +4,7 @@ const UserAttributes = require(process.env.CS_API_TOP + '/modules/users/user_att
 
 // we expect to see these fields for users who are not yet confirmed
 const EXPECTED_UNREGISTERED_USER_FIELDS = [
-	'_id',
+	'id',
 	'email',
 	'deactivated',
 	'createdAt',

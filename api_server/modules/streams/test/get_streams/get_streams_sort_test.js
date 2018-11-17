@@ -19,14 +19,14 @@ class GetStreamsSortTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// put the streams we expect in ascending order by ID, this is the order we expect in the response
-		this.expectedStreams = this.streamsByTeam[this.team._id].filter(stream => {
-			return stream.memberIds.includes(this.currentUser.user._id);
+		this.expectedStreams = this.streamsByTeam[this.team.id].filter(stream => {
+			return stream.memberIds.includes(this.currentUser.user.id);
 		});
 		this.expectedStreams.push(this.teamStream);
 		this.expectedStreams.sort((a, b) => {
-			return a._id.localeCompare(b._id);
+			return a.id.localeCompare(b.id);
 		});
-		this.path = `/streams/?teamId=${this.team._id}&sort=asc`;
+		this.path = `/streams/?teamId=${this.team.id}&sort=asc`;
 		callback();
 	}
 

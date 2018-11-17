@@ -13,7 +13,7 @@ class PreferOffForFileNoEmailTest extends PreferenceOffTest {
 		let file = this.stream.file.replace(/\./g, '*');
 		return {
 			streamTreatments: {
-				[this.repo._id]: {
+				[this.repo.id]: {
 					[file]: 'mute'
 				}
 			}

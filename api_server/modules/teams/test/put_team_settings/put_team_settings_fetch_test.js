@@ -24,7 +24,7 @@ class PutTeamSettingsFetchTest extends PutTeamSettingsTest {
 	validateTeamObject (callback) {
 		this.doApiRequest({
 			method: 'get',
-			path: '/teams/' + this.team._id,
+			path: '/teams/' + this.team.id,
 			token: this.token
 		}, (error, response) => {
 			if (error) { return callback(error); }

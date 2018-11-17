@@ -15,7 +15,7 @@ class DataModel {
 			this.setDefaults();	// set defaults, and _then_ apply the attributes as given (which might overwrite defaults)
 		}
 		Object.assign(this.attributes, DeepClone(attributes || {}));	// make a deep copy of all attributes
-		this.id = this.attributes._id;	// establish an ID field for convenience
+		this.id = this.attributes.id;	// establish an ID field for convenience
 	}
 
 	// get the validator engine to use to validate attributes

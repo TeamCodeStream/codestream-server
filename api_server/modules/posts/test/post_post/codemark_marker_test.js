@@ -16,7 +16,7 @@ class CodemarkMarkerTest extends CodemarkTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.codemark.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0]._id });
+			this.data.codemark.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0].id });
 			callback();
 		});
 	}

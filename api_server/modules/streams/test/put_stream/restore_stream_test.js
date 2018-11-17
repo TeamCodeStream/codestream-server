@@ -15,7 +15,7 @@ class RestoreStreamTest extends PutStreamFetchTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: `/streams/${this.stream._id}`,
+				path: `/streams/${this.stream.id}`,
 				data: { isArchived: true },
 				token: this.token
 			},

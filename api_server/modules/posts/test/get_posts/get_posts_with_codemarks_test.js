@@ -17,7 +17,7 @@ class GetPostsWithCodemarksTest extends GetPostsTest {
 	// validate the response to the fetch request
 	validateResponse (data) {
 		data.posts.forEach(post => {
-			const codemark = data.codemarks.find(codemark => codemark._id === post.codemarkId);
+			const codemark = data.codemarks.find(codemark => codemark.id === post.codemarkId);
 			Assert(codemark, 'codemark not returned with post');
 		});
 		super.validateResponse(data);

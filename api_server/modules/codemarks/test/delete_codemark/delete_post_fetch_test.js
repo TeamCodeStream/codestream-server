@@ -29,7 +29,7 @@ class DeletePostFetchTest extends DeletePostTest {
 	}
 
 	setPath (callback) {
-		this.path = '/posts/' + this.postData[0].post._id;
+		this.path = '/posts/' + this.postData[0].post.id;
 		callback();
 	}
 

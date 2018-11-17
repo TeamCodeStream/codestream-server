@@ -67,7 +67,7 @@ class SlackChannelNameTooLongTest extends CodeStreamAPITest {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.path = '/streams/' + response.stream._id;
+				this.path = '/streams/' + response.stream.id;
 				this.data = {
 					name: 'abcdefghijklmnopqrstuv'
 				};
@@ -75,7 +75,7 @@ class SlackChannelNameTooLongTest extends CodeStreamAPITest {
 			},
 			{
 				type: 'channel', 
-				teamId: this.team._id,
+				teamId: this.team.id,
 				name,
 				token: this.token
 			}

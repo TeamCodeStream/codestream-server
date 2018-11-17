@@ -21,7 +21,8 @@ class NumRepliesToCodemarkMessageTest extends NumRepliesMessageToStreamTest {
 		super.generateMessage(error => {
 			if (error) { return callback(error); }
 			this.message.codemark = {
-				_id: this.postData[0].codemark._id,
+				_id: this.postData[0].codemark.id,	// DEPRECATE ME
+				id: this.postData[0].codemark.id,
 				$set: { 
 					numReplies: 2,
 					version: 3

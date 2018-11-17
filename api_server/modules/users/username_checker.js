@@ -70,7 +70,7 @@ class UsernameChecker  {
 		// we're not concerned about the user matching its own username,
 		// nor are we concerned about deactivated users
 		if (
-			(this.userId && user._id === this.userId) ||
+			(this.userId && user.id === this.userId) ||
 			!user.username ||
 			user.deactivated
 		) {

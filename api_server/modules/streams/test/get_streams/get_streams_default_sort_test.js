@@ -19,15 +19,15 @@ class GetStreamsDefaultSortTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// default sort order for streams without posts is by their ID, in descending order
-		this.expectedStreams = this.streamsByTeam[this.team._id].filter(stream => {
-			return stream.memberIds.includes(this.currentUser.user._id);
+		this.expectedStreams = this.streamsByTeam[this.team.id].filter(stream => {
+			return stream.memberIds.includes(this.currentUser.user.id);
 		});
 		this.expectedStreams.push(this.teamStream);
 		this.expectedStreams.sort((a, b) => {
-			return a._id.localeCompare(b._id);
+			return a.id.localeCompare(b.id);
 		});
 		this.expectedStreams.reverse();
-		this.path = `/streams/?teamId=${this.team._id}`;
+		this.path = `/streams/?teamId=${this.team.id}`;
 		callback();
 	}
 

@@ -33,7 +33,7 @@ class DeleteRequest extends RestfulRequest {
 			input: `Specify the ${modelName} ID in the path`,
 			returns: {
 				[modelName]: {
-					_id: `<${modelName} ID>`,
+					id: `<${modelName} ID>`,
 					$set: {
 						deactivated: true
 					}

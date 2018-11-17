@@ -65,7 +65,7 @@ class GrantTest extends CodeStreamAPITest {
 		if (!this.wantForeignStream) { return callback(); }
 		let streamOptions = {
 			type: 'channel',
-			teamId: this.foreignTeam._id,
+			teamId: this.foreignTeam.id,
 			token: this.users[1].accessToken	// the "other" user creates the stream
 		};
 		this.streamFactory.createRandomStream(
@@ -84,7 +84,7 @@ class GrantTest extends CodeStreamAPITest {
 		if (!this.wantOtherStream) { return callback(); }
 		let streamOptions = {
 			type: 'channel',
-			teamId: this.team._id,
+			teamId: this.team.id,
 			token: this.users[1].accessToken	// the "other" user creates the stream
 		};
 		this.streamFactory.createRandomStream(

@@ -17,7 +17,7 @@ class UnregisteredMentionTest extends PostToChannelTest {
 		super.makePostData(() => {
 			// add users to the mentionedUserIds array
 			this.mentionedUser = this.users.find(user => !user.user.isRegistered).user;
-			this.data.mentionedUserIds = [this.mentionedUser._id];
+			this.data.mentionedUserIds = [this.mentionedUser.id];
 			callback();
 		});
 	}
@@ -74,7 +74,7 @@ class UnregisteredMentionTest extends PostToChannelTest {
 	verifyUserUpdate (callback) {
 		const user = this.confirmedUser;
 		Assert(user.internalMethod === 'mention_notification', 'internalMethod not correct');
-		Assert(user.internalMethodDetail === this.currentUser.user._id, 'internalMethodDetail not set to post author');
+		Assert(user.internalMethodDetail === this.currentUser.user.id, 'internalMethodDetail not set to post author');
 		Assert(user.numMentions === 1, 'numMentions not set to 1');
 		callback();
 	}

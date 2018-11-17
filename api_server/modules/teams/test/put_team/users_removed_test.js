@@ -32,7 +32,7 @@ class UsersRemovedTest extends PutTeamTest {
 		// remove the current user from the team, this will be done by the "other" user
 		super.makeTeamData(() => {
 			this.data.$pull = {
-				memberIds: this.currentUser.user._id
+				memberIds: this.currentUser.user.id
 			};
 			this.path = '/users/me';
 			callback();
@@ -42,7 +42,7 @@ class UsersRemovedTest extends PutTeamTest {
 	// validate that the response is correct
 	validateResponse (data) {
 		// verify the team we were removed from is not in the current user's teamIds
-		Assert(!data.user.teamIds.includes(this.team._id));
+		Assert(!data.user.teamIds.includes(this.team.id));
 	}
 }
 

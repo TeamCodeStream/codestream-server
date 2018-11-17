@@ -5,7 +5,7 @@
 const CompanyAttributes = require(process.env.CS_API_TOP + '/modules/companies/company_attributes');
 
 const EXPECTED_COMPANY_FIELDS = [
-	'_id',
+	'id',
 	'name',
 	'deactivated',
 	'createdAt',

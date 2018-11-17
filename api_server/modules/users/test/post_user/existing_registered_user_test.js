@@ -19,7 +19,7 @@ class ExistingRegisteredUserTest extends PostUserTest {
 	validateResponse (data) {
 		// verify join method and associated analytics attributes
 		const user = data.user;
-		const originTeamId = this.originTeam ? this.originTeam._id : this.team._id;
+		const originTeamId = this.originTeam ? this.originTeam.id : this.team.id;
 		Assert(user.joinMethod === 'Added to Team', 'join method not set to "Added to Team"');
 		Assert(user.primaryReferral === 'internal', 'primary referral not set to "internal"');
 		Assert(user.originTeamId === originTeamId, 'origin team ID not set to correct team');

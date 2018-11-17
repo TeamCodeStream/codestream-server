@@ -31,7 +31,7 @@ class CodemarkNumRepliesTest extends PostReplyTest {
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: '/codemarks/' + this.postData[0].codemark._id,
+				path: '/codemarks/' + this.postData[0].codemark.id,
 				token: this.token
 			},
 			(error, response) => {

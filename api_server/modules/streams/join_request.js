@@ -98,7 +98,7 @@ class JoinRequest extends RestfulRequest {
 				summary: 'A stream object, with a directive that the user has joined the stream',
 				looksLike: {
 					stream: {
-						_id: '<ID of the stream>',
+						id: '<ID of the stream>',
 						$addToSet: {
 							memberIds: ['<ID of the current user>']
 						}
@@ -109,7 +109,7 @@ class JoinRequest extends RestfulRequest {
 				summary: 'The response data will be published on the team channel for the team that owns the stream',
 				looksLike: {
 					stream: {
-						_id: '<ID of the stream>',
+						id: '<ID of the stream>',
 						$addToSet: {
 							memberIds: ['<ID of the current user>']
 						}

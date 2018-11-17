@@ -6,7 +6,7 @@ const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stre
 
 // fields expected in all streams
 const EXPECTED_STREAM_FIELDS = [
-	'_id',
+	'id',
 	'deactivated',
 	'createdAt',
 	'modifiedAt',

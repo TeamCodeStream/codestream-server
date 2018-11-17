@@ -56,7 +56,7 @@ class SubscriptionTest extends LoginTest {
 	run (callback) {
 		// create a pubnub client and attempt to subscribe to the channel of interest
 		let pubNubClient = this.createPubNubClient();
-		let channel = `${this.which}-${this[this.which]._id}`;
+		let channel = `${this.which}-${this[this.which].id}`;
 		pubNubClient.subscribe(
 			channel,
 			() => {},
@@ -73,7 +73,7 @@ class SubscriptionTest extends LoginTest {
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.currentUser.user._pubnubUuid || this.currentUser.user._id;
+		clientConfig.uuid = this.currentUser.user._pubnubUuid || this.currentUser.user.id;
 		clientConfig.authKey = this.pubnubToken;	// the PubNub token is the auth key for the subscription
 		let client = new PubNub(clientConfig);
 		return new PubNubClient({

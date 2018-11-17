@@ -37,7 +37,7 @@ class GetMarkersRequest extends GetManyRequest {
 			if (ids.length > 100) {
 				return 'too many IDs';
 			}
-			query._id = this.data.markers.inQuerySafe(ids);
+			query.id = this.data.markers.inQuerySafe(ids);
 		}
 		let { before, after, inclusive } = this.request.query;
 		if (before !== undefined) {
@@ -110,11 +110,11 @@ class GetMarkersRequest extends GetManyRequest {
 		this.commitHash = this.request.query.commitHash.toLowerCase();
 		const query = {
 			// teamId: this.teamId, // will be needed for sharding, but for now, we'll avoid an index here
-			_id: `${this.streamId}|${this.commitHash}`
+			id: `${this.streamId}|${this.commitHash}`
 		};
 		const markerLocations = await this.data.markerLocations.getByQuery(
 			query,
-			{ hint: { _id: 1 } }
+			{ hint: { id: 1 } }
 		);
 		if (markerLocations.length === 0) {
 			// no marker locations for this commit, oh well

@@ -40,13 +40,13 @@ class GetPostlessCodemarksTest extends GetCodemarksTest {
 		const type = this.postOptions.codemarkTypes[this.postOptions.assignedTypes[n]];
 		const codemarkData = this.codemarkFactory.getRandomCodemarkData({ codemarkType: type });
 		Object.assign(codemarkData, {
-			teamId: this.team._id,
+			teamId: this.team.id,
 			providerType: RandomString.generate(8),
 			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)
 		});
 		if (this.postOptions.wantMarker) {
-			codemarkData.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0]._id });
+			codemarkData.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0].id });
 		}
 		this.doApiRequest(
 			{

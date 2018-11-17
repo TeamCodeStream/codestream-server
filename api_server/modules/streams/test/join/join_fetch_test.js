@@ -29,7 +29,7 @@ class JoinFetchTest extends JoinTest {
 	}
 
 	setFetchPath (callback) {
-		this.path = '/streams/' + this.stream._id;
+		this.path = '/streams/' + this.stream.id;
 		callback();
 	}
 

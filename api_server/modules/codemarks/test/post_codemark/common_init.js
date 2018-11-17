@@ -26,7 +26,7 @@ class CommonInit {
 		this.codemarkCreatedAfter = Date.now();
 		this.data = this.codemarkFactory.getRandomCodemarkData({ codemarkType: this.codemarkType || 'comment' });
 		Object.assign(this.data, {
-			teamId: this.team._id,
+			teamId: this.team.id,
 			providerType: RandomString.generate(8),
 			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)

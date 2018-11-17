@@ -34,7 +34,7 @@ class OnlyAdminsTest extends PostUserTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/team-settings/' + this.team._id,
+				path: '/team-settings/' + this.team.id,
 				data: {
 					onlyAdminsCanInvite: true
 				},

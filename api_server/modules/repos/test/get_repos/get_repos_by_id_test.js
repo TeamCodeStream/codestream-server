@@ -12,8 +12,8 @@ class GetReposByIdTest extends GetReposTest {
 	setPath (callback) {
 		// i am a member of both teams owning these repos, so i should be able to fetch both
 		this.expectedRepos = [this.postData[0].repos[0], this.postData[2].repos[0]];
-		let ids = this.expectedRepos.map(repo => repo._id);
-		this.path = `/repos?teamId=${this.team._id}&ids=${ids}`;
+		let ids = this.expectedRepos.map(repo => repo.id);
+		this.path = `/repos?teamId=${this.team.id}&ids=${ids}`;
 		callback();
 	}
 }

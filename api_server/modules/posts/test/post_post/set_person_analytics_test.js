@@ -14,7 +14,7 @@ class SetPersonAnalyticsTest extends MessageToAuthorTest {
 		// create the post with testing of tracking on, to receive the mock message back that
 		// would otherwise go to MixPanel
 		const data = {
-			streamId: this.stream._id,
+			streamId: this.stream.id,
 			text: this.postFactory.randomText()
 		};
 		this.doApiRequest(
@@ -41,7 +41,7 @@ class SetPersonAnalyticsTest extends MessageToAuthorTest {
 		const errors = [];
 		const result = (
 			((message.type === 'setPerson') || errors.push('type not correct')) &&
-			((message.event === this.users[1].user._id) || errors.push('event should be the user ID')) &&
+			((message.event === this.users[1].user.id) || errors.push('event should be the user ID')) &&
 			((data['Total Posts'] === 1) || errors.push('Total Posts should be 1'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));

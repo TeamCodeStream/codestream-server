@@ -24,7 +24,7 @@ class ACLTest extends CodeStreamAPITest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			this.otherUser = this.users[1].user;
-			this.path = '/users/' + this.otherUser._id;
+			this.path = '/users/' + this.otherUser.id;
 			callback();
 		});
 	}

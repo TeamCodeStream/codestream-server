@@ -16,7 +16,7 @@ class PresenceJoinTest extends CodeStreamMessageTest {
 	// set the channel name to listen on
 	setChannelName (callback) {
 		// we'll listen on the team channel for the presence message
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = 'team-' + this.team.id;
 		callback();
 	}
 
@@ -27,7 +27,7 @@ class PresenceJoinTest extends CodeStreamMessageTest {
 		const otherUser = this.users[1].user;
 		const token = this.users[1].pubNubToken;
 		this.makePubnubForClient(token, otherUser);
-		this.pubnubClientsForUser[otherUser._id].subscribe(
+		this.pubnubClientsForUser[otherUser.id].subscribe(
 			this.channelName,
 			() => {},
 			callback,

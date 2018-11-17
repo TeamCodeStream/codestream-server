@@ -65,7 +65,7 @@ class UnregisteredInviteTest extends PostUserTest {
 	verifyUserUpdate (callback) {
 		const user = this.confirmedUser;
 		Assert(user.internalMethod === 'invitation', 'internalMethod not correct');
-		Assert(user.internalMethodDetail === this.currentUser.user._id, 'internalMethodDetail not set to inviter');
+		Assert(user.internalMethodDetail === this.currentUser.user.id, 'internalMethodDetail not set to inviter');
 		Assert(user.numInvites === 2, 'numInvites not set to 2');
 		callback();
 	}

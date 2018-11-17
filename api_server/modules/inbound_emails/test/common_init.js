@@ -35,7 +35,7 @@ class CommonInit {
 
 	// make the data to be used in the request that triggers the message
 	makePostData (callback) {
-		const toEmail = `${this.stream._id}.${this.team._id}@${EmailConfig.replyToDomain}`;
+		const toEmail = `${this.stream.id}.${this.team.id}@${EmailConfig.replyToDomain}`;
 		this.data = {
 			to: [{ address: toEmail }],
 			from: { address: this.users[1].user.email },

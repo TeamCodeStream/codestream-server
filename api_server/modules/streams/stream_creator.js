@@ -173,7 +173,7 @@ class StreamCreator extends ModelCreator {
 			}
 		}
 		this.createId();
-		this.attributes.sortId = this.attributes._id;
+		this.attributes.sortId = this.attributes.id;
 		await super.preSave();
 	}
 

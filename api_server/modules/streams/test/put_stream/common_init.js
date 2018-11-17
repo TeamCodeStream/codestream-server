@@ -37,7 +37,8 @@ class CommonInit {
 		this.data = this.getUpdateData();
 		this.expectedData = {
 			stream: {
-				_id: this.stream._id,
+				_id: this.stream.id,	// DEPRECATE ME
+				id: this.stream.id,
 				$set: Object.assign(DeepClone(this.data), { version: this.expectedVersion }),
 				$version: {
 					before: this.expectedVersion - 1,
@@ -45,7 +46,7 @@ class CommonInit {
 				}
 			}
 		};
-		this.path = '/streams/' + this.stream._id;
+		this.path = '/streams/' + this.stream.id;
 		this.modifiedAfter = Date.now();
 		callback();
 	}
@@ -56,7 +57,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: `/streams/${this.stream._id}`,
+				path: `/streams/${this.stream.id}`,
 				data: this.data,
 				token: this.token
 			},

@@ -46,7 +46,7 @@ class CodemarkUpdater extends ModelUpdater {
 
 	// get the codemark
 	async getCodemark () {
-		this.codemark = await this.request.data.codemarks.getById(this.attributes._id);
+		this.codemark = await this.request.data.codemarks.getById(this.attributes.id);
 		if (!this.codemark) {
 			throw this.errorHandler.error('notFound', { info: 'codemark' });
 		}
@@ -125,7 +125,7 @@ class CodemarkUpdater extends ModelUpdater {
 		const users = await this.data.users.getByIds(
 			this.attributes.assignees,
 			{
-				fields: ['_id', 'teamIds'],
+				fields: ['id', 'teamIds'],
 				noCache: true
 			}
 		);

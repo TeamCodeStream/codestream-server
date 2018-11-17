@@ -15,7 +15,7 @@ class GetPostsAfterInclusiveTest extends GetPostsTest {
 		this.expectedPosts = this.postData.map(postData => postData.post);
 		const pivot = this.expectedPosts[2].seqNum;
 		this.expectedPosts = this.expectedPosts.filter(post => post.seqNum >= pivot);
-		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&after=${pivot}&inclusive`;
+		this.path = `/posts/?teamId=${this.team.id}&streamId=${this.stream.id}&after=${pivot}&inclusive`;
 		callback();
 	}
 }

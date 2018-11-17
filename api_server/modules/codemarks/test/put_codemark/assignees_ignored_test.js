@@ -18,7 +18,7 @@ class AssigneesIgnoredTest extends PutCodemarkTest {
 
 	makeCodemarkUpdateData (callback) {
 		super.makeCodemarkUpdateData(() => {
-			this.data.assignees = [this.users[1].user._id, this.users[2].user._id];
+			this.data.assignees = [this.users[1].user.id, this.users[2].user.id];
 			callback();
 		});
 	}

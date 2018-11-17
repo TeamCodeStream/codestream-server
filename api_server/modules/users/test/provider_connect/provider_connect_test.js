@@ -66,7 +66,7 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		}
 		Assert.equal(data.signupStatus, signupStatus, 'signupStatus is not correct, should be ' + signupStatus);
 		const result = (
-			((user.id === user._id) || errors.push('id not set to _id')) && 
+			((user.id === user._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			(user.email || errors.push('no email')) &&
 			(user.username || errors.push('username not set')) &&
 			(user.fullName || errors.push('full name not set')) &&
@@ -75,10 +75,10 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((user.creatorId === user._id) || errors.push('creatorId not equal to _id')) &&
+			((user.creatorId === user.id) || errors.push('creatorId not equal to id')) &&
 			((user.joinMethod === joinMethod) || errors.push('joinMethod not set to "Created Team"')) &&
 			((user.primaryReferral === primaryReferral) || errors.push('primaryReferral not set to "internal"')) &&
-			((user.originTeamId === team._id) || errors.push('originTeamId not set to ID of created team')) &&
+			((user.originTeamId === team.id) || errors.push('originTeamId not set to ID of created team')) &&
 			((user.isRegistered === true) || errors.push('isRegistered not true')) &&
 			((user.registeredAt >= user.createdAt) || errors.push('registeredAt not greater than or equal to createAt')) &&
 			(providerInfo[this.provider].userId || errors.push('providerInfo.userId not set for provider')) &&
@@ -86,8 +86,8 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			(!!providerInfo[this.provider].accessToken || errors.push('providerInfo.accessToken not set for provider'))
 		);
 		Assert(result === true && errors.length === 0, 'user in response not valid: ' + errors.join(', '));
-		Assert.deepEqual(user.teamIds, [team._id], 'teamIds not set to team created');
-		Assert.deepEqual(user.companyIds, [company._id], 'companyIds not set to company created');
+		Assert.deepEqual(user.teamIds, [team.id], 'teamIds not set to team created');
+		Assert.deepEqual(user.companyIds, [company.id], 'companyIds not set to company created');
 		Assert.deepEqual(user.providerIdentities, [`${this.provider}::${providerInfo[this.provider].userId}`], 'providerIdentities is not correct');
 		if (this.preExistingUnconnectedUser) {
 			Assert(!user.phoneNumber, 'phone number is set');
@@ -107,24 +107,24 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const team = data.teams[0];
 		const company = data.companies[0];
 		const providerInfo = team.providerInfo;
-		const creatorId = this.wantPreExistingTeam ? this.preExistingTeamCreator._id : user._id;
+		const creatorId = this.wantPreExistingTeam ? this.preExistingTeamCreator.id : user.id;
 		const errors = [];
 		const result = (
-			((team.id === team._id) || errors.push('id not set to _id')) && 
+			((team.id === team._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((team.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof team.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((team.modifiedAt >= team.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((team.creatorId === creatorId) || errors.push('creatorId not equal to _id')) &&
+			((team.creatorId === creatorId) || errors.push('creatorId not equal to id')) &&
 			(team.name || errors.push('no name for team')) &&
 			((team.primaryReferral === 'external') || errors.push('primaryReferral not set to "external"')) &&
-			((team.companyId === company._id) || errors.push('team companyId not set to ID of company created')) &&
+			((team.companyId === company.id) || errors.push('team companyId not set to ID of company created')) &&
 			(!!providerInfo[this.provider].teamId || errors.push('teamId not set for provider'))
 		);
 		Assert(result === true && errors.length === 0, 'team in response not valid: ' + errors.join(', '));
 
-		const memberIds = [user._id];
+		const memberIds = [user.id];
 		if (this.wantPreExistingTeam) {
-			memberIds.push(this.preExistingTeamCreator._id);
+			memberIds.push(this.preExistingTeamCreator.id);
 		}
 		memberIds.sort();
 		team.memberIds.sort();

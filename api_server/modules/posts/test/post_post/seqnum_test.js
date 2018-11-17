@@ -38,7 +38,7 @@ class SeqNumTest extends PostPostTest {
 				callback();
 			},
 			{
-				streamId: this.stream._id,
+				streamId: this.stream.id,
 				token: this.token
 			}
 		);

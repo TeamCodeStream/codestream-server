@@ -36,14 +36,14 @@ class GetPostTest extends CodeStreamAPITest {
 	// set the path to use for this request
 	setPath (callback) {
 		this.post = this.postData[0].post;
-		this.path = '/posts/' + this.post._id;
+		this.path = '/posts/' + this.post.id;
 		callback();
 	}
 
 	// vdlidate the response to the request
 	validateResponse (data) {
 		// verify we got the right post, and that there are no attributes we don't want the client to see
-		this.validateMatchingObject(this.post._id, data.post, 'post');
+		this.validateMatchingObject(this.post.id, data.post, 'post');
 		this.validateSanitized(data.post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

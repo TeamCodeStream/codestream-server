@@ -24,11 +24,11 @@ class RemoveUserTest extends PutStreamTest {
 			if (this.removedUsers.length === 1) {
 				// this tests conversion of single element to an array
 				const removedUser = this.removedUsers[0];
-				this.data.$pull = { memberIds: removedUser._id };
-				this.expectedData.stream.$pull.memberIds = [removedUser._id];
+				this.data.$pull = { memberIds: removedUser.id };
+				this.expectedData.stream.$pull.memberIds = [removedUser.id];
 			}
 			else {
-				const removedUserIds = this.removedUsers.map(user => user._id);
+				const removedUserIds = this.removedUsers.map(user => user.id);
 				this.data.$pull = { memberIds: removedUserIds };
 				this.expectedData.stream.$pull.memberIds = [...removedUserIds];
 			}

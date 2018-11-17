@@ -89,8 +89,9 @@ class DataCollection {
 	// create a model using the data passed in
 	async create (data, options = {}) {
 		// the ID can be provided or we'll generate one
-		const id = (data._id || this.createId()).toString();
-		data._id = data.id = id;
+		const id = (data.id || this.createId()).toString();
+		data.id = id;
+		data._id = id;	// DEPRECATE ME
 		data.version = 1;
 		const model = new this.modelClass(data);
 		this.addModelToCache(model);
@@ -113,11 +114,11 @@ class DataCollection {
 
 	// update a model
 	async update (data, options = {}) {
-		const id = data._id || options.id;
-		delete data._id;
+		const id = data.id || options.id;
+		delete data.id;
 		if (!id) {
 			// we must have an ID for it, either in options or in the attributes
-			throw this.errorHandler.error('id', { info: '_id' });
+			throw this.errorHandler.error('id', { info: 'id' });
 		}
 		// applying an update is always a $set operation
 		return await this.applyOpById(id, { $set: data}, options);
@@ -205,7 +206,7 @@ class DataCollection {
 
 	// add data a single model in the cache, which may be new data or it may overwrite existing data
 	_addDataToCache (data) {
-		const id = data._id;
+		const id = data.id;
 		let model = this.models[id];
 		if (model) {
 			// have a model already, assign attributes as needed
@@ -261,7 +262,8 @@ class DataCollection {
 		if (!this.toCreateIds[id]) {
 			// merge the new op with any existing op for the model
 			this.modelOps[id] = this.mergeOps(this.modelOps[id], op);
-			this.modelOps[id]._id = id.toString();
+			this.modelOps[id].id = id;
+			this.modelOps[id]._id = id;	// DEPRECATE ME
 		}
 		if (this.models[id]) {
 			// apply the op to our model, so its attributes change accordingly

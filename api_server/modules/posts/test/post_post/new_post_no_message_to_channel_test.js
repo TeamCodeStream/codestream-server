@@ -20,7 +20,7 @@ class NewPostNoMessageToChannelTest extends NewPostMessageToChannelTest {
 	setChannelName (callback) {
 		// listen on the team channel, but the message should go to the stream channel
 		this.useToken = this.users[1].accessToken;
-		this.channelName = `team-${this.team._id}`;
+		this.channelName = `team-${this.team.id}`;
 		callback();
 	}
 

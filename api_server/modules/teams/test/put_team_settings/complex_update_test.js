@@ -22,7 +22,8 @@ class ComplexUpdateTest extends PutTeamSettingsFetchTest {
 		this.data = ComplexUpdate.UPDATE_OP;
 		this.expectResponse = {
 			team: Object.assign({}, {
-				_id: this.team._id
+				_id: this.team.id,	// DEPRECATE ME
+				id: this.team.id
 			}, ComplexUpdate.EXPECTED_OP)
 		};
 		this.expectSettings = ComplexUpdate.EXPECTED_SETTINGS;

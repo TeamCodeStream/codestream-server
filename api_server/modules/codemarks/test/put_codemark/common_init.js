@@ -68,7 +68,7 @@ class CommonInit {
 	getPostlessCodemarkData () {
 		const data = this.codemarkFactory.getRandomCodemarkData({ codemarkType: this.codemarkType || 'comment' });
 		Object.assign(data, {
-			teamId: this.team._id,
+			teamId: this.team.id,
 			providerType: RandomString.generate(8)
 		});
 		if (this.wantMarker) {
@@ -102,7 +102,8 @@ class CommonInit {
 		this.data = this.getCodemarkUpdateData();
 		this.expectedData = {
 			codemark: {
-				_id: this.codemark._id,
+				_id: this.codemark.id,	// DEPRECATE ME
+				id: this.codemark.id,
 				$set: Object.assign(DeepClone(this.data), {
 					version: this.expectedVersion,
 					modifiedAt: Date.now() // placeholder
@@ -116,7 +117,7 @@ class CommonInit {
 		this.expectedCodemark = DeepClone(this.codemark);
 		Object.assign(this.expectedCodemark, this.expectedData.codemark.$set);
 		this.modifiedAfter = Date.now();
-		this.path = '/codemarks/' + this.codemark._id;
+		this.path = '/codemarks/' + this.codemark.id;
 		callback();
 	}
 
@@ -125,7 +126,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/codemarks/' + this.codemark._id,
+				path: '/codemarks/' + this.codemark.id,
 				data: this.data,
 				token: this.token
 			},

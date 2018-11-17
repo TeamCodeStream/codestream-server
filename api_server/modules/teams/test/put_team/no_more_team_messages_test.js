@@ -26,7 +26,7 @@ class NoMoreTeamMessagesTest extends Aggregation(CodeStreamMessageTest, CommonIn
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = 'team-' + this.team.id;
 		callback();
 	}
 
@@ -36,7 +36,7 @@ class NoMoreTeamMessagesTest extends Aggregation(CodeStreamMessageTest, CommonIn
 		// for messages on the team channel, but shouldn't see them
 		super.makeTeamData(() => {
 			this.data.$pull = {
-				memberIds: this.currentUser._id
+				memberIds: this.currentUser.id
 			};
 			callback();
 		});
@@ -66,7 +66,7 @@ class NoMoreTeamMessagesTest extends Aggregation(CodeStreamMessageTest, CommonIn
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/teams/' + this.team._id,
+				path: '/teams/' + this.team.id,
 				data: this.data,
 				token: this.otherUserData[0].accessToken
 			},
@@ -99,7 +99,7 @@ class NoMoreTeamMessagesTest extends Aggregation(CodeStreamMessageTest, CommonIn
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/teams/' + this.team._id,
+				path: '/teams/' + this.team.id,
 				data: { name: this.newTeamName },
 				token: this.otherUserData[0].accessToken
 			},

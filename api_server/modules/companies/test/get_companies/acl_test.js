@@ -17,9 +17,9 @@ class ACLTest extends GetCompaniesTest {
 	setPath (callback) {
 		// include the "foreign" company in the IDs, this should fail
 		let ids = [
-			this.company._id,
-			this.companyWithMe._id,
-			this.companyWithoutMe._id
+			this.company.id,
+			this.companyWithMe.id,
+			this.companyWithoutMe.id
 		];
 		this.path = '/companies?ids=' + ids.join(',');
 		callback();

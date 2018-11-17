@@ -23,7 +23,7 @@ class ChannelIgnoresFileTest extends PostChannelStreamTest {
 			if (error) { return callback(error); }
 			// ...and add some file-type attributes, these should be ignored
 			this.data.file = this.streamFactory.randomFile();
-			this.data.repoId = this.repo._id;
+			this.data.repoId = this.repo.id;
 			callback();
 		});
 	}

@@ -24,7 +24,7 @@ class NoMatchTeamTest extends EditingTest {
 	makeEditingData (callback) {
 		// make the usual data but use the teamid for the second team created
 		super.makeEditingData(() => {
-			this.data.teamId = this.foreignTeam._id;
+			this.data.teamId = this.foreignTeam.id;
 			callback();
 		});
 	}

@@ -32,7 +32,7 @@ class ConfirmationEmailWithLinkTest extends ConfirmationEmailTest {
 		Assert.equal(payload.iss, 'CodeStream', 'token payload issuer is not CodeStream');
 		Assert.equal(payload.alg, 'HS256', 'token payload algortihm is not HS256');
 		Assert.equal(payload.type, 'conf', 'token payload type should be conf');
-		Assert.equal(payload.uid, this.currentUser.user._id, 'uid in token payload is incorrect');
+		Assert.equal(payload.uid, this.currentUser.user.id, 'uid in token payload is incorrect');
 		Assert(payload.iat <= Math.floor(Date.now() / 1000), 'iat in token payload is not earlier than now');
 		Assert.equal(payload.exp, payload.iat + 86400, 'token payload expiration is not one day out');
 

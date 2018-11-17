@@ -21,11 +21,11 @@ class RemoveAdminTest extends PutTeamTest {
 			if (this.removedAdmins.length === 1) {
 				// this tests conversion of single element to an array
 				const removedAdmin = this.removedAdmins[0];
-				this.data.$pull = { adminIds: removedAdmin._id };
-				this.expectedData.team.$pull = { adminIds: [removedAdmin._id] };
+				this.data.$pull = { adminIds: removedAdmin.id };
+				this.expectedData.team.$pull = { adminIds: [removedAdmin.id] };
 			}
 			else {
-				const removedAdminIds = this.removedAdmins.map(user => user._id);
+				const removedAdminIds = this.removedAdmins.map(user => user.id);
 				this.data.$pull = { adminIds: removedAdminIds };
 				this.expectedData.team.$pull = { adminIds: removedAdminIds };
 			}

@@ -72,7 +72,7 @@ class Deleter {
 		try {
 			this.team = await this.mongoClient.mongoCollections.teams.getById(
 				this.teamId,
-				{ fields: ['_id', 'companyId'] }
+				{ fields: ['id', 'companyId'] }
 			);
 		}
 		catch (error) {
@@ -88,7 +88,7 @@ class Deleter {
 					name: this.teamIdOrName
 				},
 				{
-					fields: ['_id', 'companyId'],
+					fields: ['id', 'companyId'],
 					overrideHintRequired: true
 				}
 			);
@@ -100,7 +100,7 @@ class Deleter {
 			throw `team not found: ${this.teamIdOrName}`;
 		}
 		this.team = teams[0];
-		this.teamId = this.team._id;
+		this.teamId = this.team.id;
 	}
 
 	async getRepo () {
@@ -133,7 +133,7 @@ class Deleter {
 					searchableEmail: this.userIdOrEmail.toLowerCase()
 				},
 				{
-					fields: ['_id'],
+					fields: ['id'],
 					hint: UserIndexes.bySearchableEmail
 				}
 			);
@@ -169,7 +169,7 @@ class Deleter {
 					teamIds: this.teamId
 				},
 				{
-					fields: ['_id', 'teamIds'],
+					fields: ['id', 'teamIds'],
 					hint: UserIndexes.byTeamIds
 				}
 			);
@@ -190,7 +190,7 @@ class Deleter {
 					teamId: this.teamId
 				},
 				{
-					fields: ['_id'],
+					fields: ['id'],
 					hint: RepoIndexes.byTeamId
 				}
 			);
@@ -198,7 +198,7 @@ class Deleter {
 		catch (error) {
 			throw `unable to fetch repos by team: ${JSON.stringify(error)}`;
 		}
-		this.repoIds = repos.map(repo => repo._id);
+		this.repoIds = repos.map(repo => repo.id);
 	}
 
 	async getStreams () {
@@ -220,7 +220,7 @@ class Deleter {
 			streams = await this.mongoClient.mongoCollections.streams.getByQuery(
 				query,
 				{
-					fields: ['_id'],
+					fields: ['id'],
 					hint: hint
 				}
 			);
@@ -228,7 +228,7 @@ class Deleter {
 		catch (error) {
 			throw `unable to fetch streams by repo: ${JSON.stringify(error)}`;
 		}
-		this.streamIds = streams.map(stream => stream._id);
+		this.streamIds = streams.map(stream => stream.id);
 	}
 
 	async deleteRepos () {
@@ -258,7 +258,7 @@ class Deleter {
 		this.logger.log(`Deactivating repo ${repoId}...`);
 		try {
 			await this.mongoClient.mongoCollections.repos.updateDirect(
-				{ _id: this.mongoClient.mongoCollections.repos.objectIdSafe(repoId) },
+				{ id: this.mongoClient.mongoCollections.repos.objectIdSafe(repoId) },
 				{ $set: { deactivated: true } }
 			);
 		}
@@ -275,7 +275,7 @@ class Deleter {
 		this.logger.log(`Deactivating team ${teamId}...`);
 		try {
 			await this.mongoClient.mongoCollections.teams.updateDirect(
-				{ _id: this.mongoClient.mongoCollections.teams.objectIdSafe(teamId) },
+				{ id: this.mongoClient.mongoCollections.teams.objectIdSafe(teamId) },
 				{ $set: { deactivated: true } }
 			);
 		}
@@ -291,7 +291,7 @@ class Deleter {
 		this.logger.log(`Deactivating company ${this.team.companyId}...`);
 		try {
 			await this.mongoClient.mongoCollections.companies.updateDirect(
-				{ _id: this.mongoClient.mongoCollections.companies.objectIdSafe(this.team.companyId) },
+				{ id: this.mongoClient.mongoCollections.companies.objectIdSafe(this.team.companyId) },
 				{ $set: { deactivated: true } }
 			);
 		}
@@ -320,7 +320,7 @@ class Deleter {
 					user.teamIds[0] === this.teamId
 				);
 			})
-			.map(user => user._id);
+			.map(user => user.id);
 
 		if (userIdsToDelete.length === 0) {
 			return;
@@ -328,7 +328,7 @@ class Deleter {
 		this.logger.log(`Deactivating ${userIdsToDelete.length} users...`);
 		try {
 			await this.mongoClient.mongoCollections.users.updateDirect(
-				{ _id: this.mongoClient.mongoCollections.users.inQuerySafe(userIdsToDelete) },
+				{ id: this.mongoClient.mongoCollections.users.inQuerySafe(userIdsToDelete) },
 				{ $set: { deactivated: true, searchableEmail: 'deactivated' + Date.now() } }
 			);
 		}
@@ -354,7 +354,7 @@ class Deleter {
 		this.logger.log(`Deactivating user ${this.userIdOrEmail}...`);
 		try {
 			await this.mongoClient.mongoCollections.users.updateDirect(
-				{ _id: this.mongoClient.mongoCollections.users.objectIdSafe(this.user._id) },
+				{ id: this.mongoClient.mongoCollections.users.objectIdSafe(this.user.id) },
 				{ $set: { deactivated: true, searchableEmail: 'deactivated' + Date.now() } }
 			);
 		}
@@ -370,7 +370,7 @@ class Deleter {
 		this.logger.log(`Deactivating ${this.streamIds.length} streams...`);
 		try {
 			await this.mongoClient.mongoCollections.streams.updateDirect(
-				{ _id: this.mongoClient.mongoCollections.streams.inQuerySafe(this.streamIds) },
+				{ id: this.mongoClient.mongoCollections.streams.inQuerySafe(this.streamIds) },
 				{ $set: { deactivated: true } }
 			);
 		}

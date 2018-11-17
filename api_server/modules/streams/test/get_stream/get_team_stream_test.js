@@ -25,7 +25,7 @@ class GetTeamStreamTest extends GetStreamTest {
 
 	setPath (callback) {
 		this.stream = this.teamStream;
-		this.path = '/streams/' + this.teamStream._id;
+		this.path = '/streams/' + this.teamStream.id;
 		callback();
 	}
 }

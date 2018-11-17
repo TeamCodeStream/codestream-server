@@ -31,9 +31,9 @@ class CodemarkSecondReplyTest extends PostReplyTest {
 		this.postFactory.createRandomPost(
 			callback,
 			{
-				streamId: this.stream._id,
+				streamId: this.stream.id,
 				token: this.users[1].accessToken,
-				parentPostId: this.postData[0].post._id
+				parentPostId: this.postData[0].post.id
 			}
 		);
 	}
@@ -43,7 +43,7 @@ class CodemarkSecondReplyTest extends PostReplyTest {
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: '/codemarks/' + this.postData[0].codemark._id,
+				path: '/codemarks/' + this.postData[0].codemark.id,
 				token: this.token
 			},
 			(error, response) => {

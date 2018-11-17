@@ -49,7 +49,7 @@ class ModelSaver {
 				this.ops[attribute] = Object.assign(this.ops[attribute] || {}, this.attributes[attribute]);
 				delete this.attributes[attribute];
 			}
-			else if (attribute !== '_id') {
+			else if (attribute !== 'id') {
 				this.ops.$set = this.ops.$set || {};
 				if (typeof this.attributes[attribute] === 'object') {
 					this.ops.$set[attribute] = DeepClone(this.attributes[attribute]);
@@ -86,7 +86,7 @@ class ModelSaver {
 			this.ops = {
 				$set: this.attributes
 			};
-			delete this.ops.$set._id;
+			delete this.ops.$set.id;
 		}
 		this.updateOp = await this.collection.applyOpById(
 			this.id,

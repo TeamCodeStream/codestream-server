@@ -33,16 +33,16 @@ class ReactFetchTest extends ReactTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/react/' + this.post._id,
+				path: '/react/' + this.post.id,
 				data: this.data,
 				token: this.token
 			},
 			error => {
 				if (error) { return callback(error); }
 				delete this.data;	// don't need this anymore
-				this.path = '/posts/' + this.post._id;
+				this.path = '/posts/' + this.post.id;
 				this.expectedReactions = {
-					[this.reaction]: [this.currentUser.user._id]
+					[this.reaction]: [this.currentUser.user.id]
 				};
 				callback();
 			}

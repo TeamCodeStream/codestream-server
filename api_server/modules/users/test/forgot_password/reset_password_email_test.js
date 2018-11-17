@@ -46,7 +46,7 @@ class ResetPasswordEmailTest extends CodeStreamMessageTest {
 		// for the user we expect to receive the reset password email, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the outbound email
 		// service on this channel, and then we'll validate the data
-		this.channelName = `user-${this.currentUser.user._id}`;
+		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
 
@@ -55,7 +55,7 @@ class ResetPasswordEmailTest extends CodeStreamMessageTest {
 		// this is the message we expect to see
 		this.message = {
 			type: 'resetPassword',
-			userId: this.currentUser.user._id
+			userId: this.currentUser.user.id
 		};
 		// in this case, we've already started the test in makeData, which created the user ...
 		// but the email was delayed, so we can just start listening for it now...

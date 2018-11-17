@@ -71,7 +71,7 @@ class GetPostsRequest extends GetManyRequest {
 		else if (parameter === 'ids') {
 			// fetch by array of IDs
 			const ids = value.split(',');
-			query._id = this.data.posts.inQuerySafe(ids);
+			query.id = this.data.posts.inQuerySafe(ids);
 		}
 		else if (RELATIONAL_PARAMETERS.includes(parameter)) {
 			// before, after, inclusive

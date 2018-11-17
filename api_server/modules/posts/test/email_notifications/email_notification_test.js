@@ -26,8 +26,8 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		if (!this.onlineForTeam) {
 			return callback();	// not requested for this test
 		}
-		let channel = `team-${this.team._id}`;
-		this.pubnubClientsForUser[this.currentUser._id].subscribe(
+		let channel = `team-${this.team.id}`;
+		this.pubnubClientsForUser[this.currentUser.id].subscribe(
 			channel,
 			() => {},
 			callback
@@ -39,8 +39,8 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		if (!this.onlineForRepo) {
 			return callback();	// not requested for this test
 		}
-		let channel = `repo-${this.repo._id}`;
-		this.pubnubClientsForUser[this.currentUser._id].subscribe(
+		let channel = `repo-${this.repo.id}`;
+		this.pubnubClientsForUser[this.currentUser.id].subscribe(
 			channel,
 			() => {},
 			callback
@@ -116,8 +116,8 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			{
 				token: this.creatorToken,	// first user creates the stream
 				type: 'file',
-				repoId: this.repo._id,
-				teamId: this.team._id
+				repoId: this.repo.id,
+				teamId: this.team.id
 			}
 		);
 	}
@@ -155,7 +155,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		this.postFactory.createRandomPost(
 			callback,
 			{
-				streamId: this.stream._id,
+				streamId: this.stream.id,
 				token: this.creatorToken
 			}
 		);
@@ -173,7 +173,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 				callback();
 			},
 			{
-				streamId: this.stream._id,
+				streamId: this.stream.id,
 				token: this.creatorToken
 			}
 		);
@@ -191,7 +191,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			// we want an unregistered user to the get the email,
 			// otherwise the current user will stay the same, meaning the user that will create the post
 			this.currentUser = this.unregisteredUser;
-			this.pubNubToken = this.unregisteredUser._id;
+			this.pubNubToken = this.unregisteredUser.id;
 		}
 		callback();
 	}
@@ -203,7 +203,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 				if (this.wantMention) {
 					// the mentionedUserIds array is passed by the client and represents the users who are mentioned
 					// in the post
-					data.mentionedUserIds = [this.currentUser._id];
+					data.mentionedUserIds = [this.currentUser.id];
 				}
 				// if we want multi-line text, do it now, in this case linefeeds should be replaced with <br/>
 				if (this.wantMultiLine) {
@@ -219,13 +219,13 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 				}
 				// if we wanted a parent post, then make this post a reply
 				if (this.parentPost) {
-					data.parentPostId = this.parentPost._id;
+					data.parentPostId = this.parentPost.id;
 				}
 				this.data = data;
 				callback();
 			},
 			{
-				streamId: this.stream._id,
+				streamId: this.stream.id,
 				wantMarkers: this.wantMarker ? 1 : 0	// for testing code in the email
 			}
 		);
@@ -253,7 +253,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		// for the user we expect to receive the notification, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the outbound email
 		// service on this channel, and then we'll validate the data
-		this.channelName = `user-${this.currentUser._id}`;
+		this.channelName = `user-${this.currentUser.id}`;
 		callback();
 	}
 
@@ -315,7 +315,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 	validateReplyTo (message) {
 		// it should be set to the stream ID ... this is how we identify where the reply
 		// goes if the user replies to the email
-		let replyTo = `${this.stream._id}.${this.team._id}@${EmailConfig.replyToDomain}`;
+		let replyTo = `${this.stream.id}.${this.team.id}@${EmailConfig.replyToDomain}`;
 		Assert.equal(message.reply_to.email, replyTo, 'incorrect reply_to');
 		Assert.equal(message.reply_to.name, 'CodeStream', 'incorrect reply_to name');
 	}

@@ -28,12 +28,12 @@ class ACLStreamTest extends PutMarkerLocationsTest {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.data.streamId = response.stream._id;
+				this.data.streamId = response.stream.id;
 				callback();
 			},
 			{
 				type: 'channel',
-				teamId: this.team._id,
+				teamId: this.team.id,
 				token: this.users[1].accessToken	// other user is the creator, and it doesn't include me
 			}
 		);

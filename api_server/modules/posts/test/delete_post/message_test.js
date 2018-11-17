@@ -19,10 +19,10 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	setChannelName (callback) {
 		// for channels and directs the message comes on the stream channel
 		if (this.stream.isTeamStream) {
-			this.channelName = `team-${this.team._id}`;
+			this.channelName = `team-${this.team.id}`;
 		}
 		else {
-			this.channelName = `stream-${this.stream._id}`;
+			this.channelName = `stream-${this.stream.id}`;
 		}
 		callback();
 	}

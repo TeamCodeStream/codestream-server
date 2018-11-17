@@ -29,10 +29,10 @@ class TestStreamCreator {
 			type: this.streamOptions.type,
 			privacy: this.streamOptions.privacy,
 			isTeamStream: this.streamOptions.isTeamStream,
-			teamId: this.team._id
+			teamId: this.team.id
 		};
 		if (this.streamOptions.type === 'file' && this.repo) {
-			streamOptions.repoId = this.repo._id;
+			streamOptions.repoId = this.repo.id;
 		}
 		streamOptions.token = this.users[this.streamOptions.creatorIndex].accessToken;
 		const hasMembers = (
@@ -44,12 +44,12 @@ class TestStreamCreator {
 		);
 		if (hasMembers) {
 			if (this.streamOptions.members === 'all') {
-				streamOptions.memberIds = this.users.map(u => u.user._id);
+				streamOptions.memberIds = this.users.map(u => u.user.id);
 			}
 			else if (this.streamOptions.members instanceof Array) {
 				streamOptions.memberIds = [];
 				this.streamOptions.members.forEach(userIndex => {
-					streamOptions.memberIds.push(this.users[userIndex].user._id);
+					streamOptions.memberIds.push(this.users[userIndex].user.id);
 				});
 			}
 		}
@@ -85,7 +85,7 @@ class TestStreamCreator {
 
 	createPost (n, callback) {
 		const postOptions = {
-			streamId: this.stream._id,
+			streamId: this.stream.id,
 		};
 
 		if (
@@ -105,7 +105,7 @@ class TestStreamCreator {
 		if (this.postOptions.postData && this.postOptions.postData[n]) {
 			const postData = this.postOptions.postData[n];
 			if (typeof postData.replyTo !== 'undefined') {
-				postOptions.parentPostId = this.postData[postData.replyTo].post._id;
+				postOptions.parentPostId = this.postData[postData.replyTo].post.id;
 				delete postData.replyTo;
 			}
 			Object.assign(postOptions, this.postOptions.postData[n]);
@@ -155,7 +155,7 @@ class TestStreamCreator {
 				typeof this.postOptions.markerStreamId === 'number' &&
 				this.repoStreams
 			) {
-				options.fileStreamId = this.repoStreams[this.postOptions.markerStreamId]._id;
+				options.fileStreamId = this.repoStreams[this.postOptions.markerStreamId].id;
 			}
 			else {
 				options.fileStreamId = this.postOptions.markerStreamId;

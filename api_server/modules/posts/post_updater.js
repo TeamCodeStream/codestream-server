@@ -39,7 +39,7 @@ class PostUpdater extends ModelUpdater {
 
 	// get the post
 	async getPost () {
-		this.post = await this.request.data.posts.getById(this.attributes._id);
+		this.post = await this.request.data.posts.getById(this.attributes.id);
 		if (!this.post) {
 			throw this.errorHandler.error('notFound', { info: 'post' });
 		}

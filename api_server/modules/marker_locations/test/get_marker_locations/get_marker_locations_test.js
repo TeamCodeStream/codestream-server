@@ -37,8 +37,8 @@ class GetMarkerLocationsTest extends CodeStreamAPITest {
 	// these are the query parameters for the "GET /marker-locations" request
 	getQueryParameters () {
 		return {
-			teamId: this.team._id,
-			streamId: this.repoStreams[0]._id,
+			teamId: this.team.id,
+			streamId: this.repoStreams[0].id,
 			commitHash: this.postOptions.commitHash
 		};
 	}
@@ -47,7 +47,7 @@ class GetMarkerLocationsTest extends CodeStreamAPITest {
 	setPath (callback) {
 		this.markers = this.postData.map(postData => postData.markers[0]);
 		this.locations = this.postData.reduce((locations, postData) => {
-			const markerId = postData.markers[0]._id;
+			const markerId = postData.markers[0].id;
 			locations[markerId] = postData.markerLocations[0].locations[markerId];
 			return locations;
 		}, {});
@@ -63,13 +63,13 @@ class GetMarkerLocationsTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		Assert(data.numMarkers === this.numPosts, 'number of markers indicated does not match the number of posts created');
 		const markerLocations = data.markerLocations;
-		Assert.equal(markerLocations.teamId, this.team._id, 'teamId does not match');
-		Assert.equal(markerLocations.streamId, this.repoStreams[0]._id, 'streamId does not match');
+		Assert.equal(markerLocations.teamId, this.team.id, 'teamId does not match');
+		Assert.equal(markerLocations.streamId, this.repoStreams[0].id, 'streamId does not match');
 		Assert.equal(markerLocations.commitHash, this.postOptions.commitHash.toLowerCase(), 'commitHash does not match');
 		const locations = markerLocations.locations;
 		Assert.equal(Object.keys(locations).length, this.postOptions.numPosts, 'number of locations does not match the number of posts created');
 		Object.keys(locations).forEach(markerId => {
-			const marker = this.markers.find(marker => marker._id === markerId);
+			const marker = this.markers.find(marker => marker.id === markerId);
 			Assert(marker, 'did not find a match for received marker location');
 			Assert.deepEqual(locations[markerId], this.locations[markerId], 'location of received marker does not match that of the created marker');
 		});

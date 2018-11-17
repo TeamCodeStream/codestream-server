@@ -25,7 +25,7 @@ class MessageTest extends CodeStreamMessageTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/team-settings/' + this.team._id,
+				path: '/team-settings/' + this.team.id,
 				data: data,
 				token: this.token
 			},
@@ -36,7 +36,7 @@ class MessageTest extends CodeStreamMessageTest {
 	// set the channel name to listen on
 	setChannelName (callback) {
 		// setting changes should be sent on the team channel
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = 'team-' + this.team.id;
 		callback();
 	}
 
@@ -48,7 +48,7 @@ class MessageTest extends CodeStreamMessageTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/team-settings/' + this.team._id,
+				path: '/team-settings/' + this.team.id,
 				data: data,
 				token: this.token
 			},
@@ -56,7 +56,8 @@ class MessageTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				this.message = {
 					team: {
-						_id: this.team._id
+						_id: this.team.id,	// DEPRECATE ME
+						id: this.team.id
 					}
 				};
 				Object.assign(this.message.team, ComplexUpdate.EXPECTED_OP);

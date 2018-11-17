@@ -22,7 +22,7 @@ class TokenIsValidTest extends LoginTest {
 				},
 				(getMeError, response) => {
 					if (getMeError) { return callback(getMeError); }
-					Assert(response.user._id === this.response.user._id, '/me did not return same user');
+					Assert(response.user.id === this.response.user.id, '/me did not return same user');
 					callback();
 				}
 			);

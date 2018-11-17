@@ -39,7 +39,7 @@ class ProviderTrackingTest extends TrackingTest {
 				this.team = response.teams[0];
 				this.company = response.companies[0];
 				this.data = {
-					teamId: this.team._id,
+					teamId: this.team.id,
 					email: this.userFactory.randomEmail()				
 				};
 				this.token = response.accessToken;

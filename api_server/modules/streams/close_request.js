@@ -50,7 +50,8 @@ class CloseRequest extends RestfulRequest {
 		this.responseData = {
 			user: this.transforms.updateOp,
 			stream: {	// note, this stream update only applies for the current user
-				_id: this.stream.id,
+				_id: this.stream.id,	// DEPRECATE ME
+				id: this.stream.id,
 				$set: {
 					isClosed: true
 				}

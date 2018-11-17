@@ -24,7 +24,7 @@ class NewFileStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, 
 	// set the name of the channel to listen for the message on
 	setChannelName (callback) {
 		// when a file-type stream is created, we should get a message on the team channel
-		this.channelName = `team-${this.team._id}`;
+		this.channelName = `team-${this.team.id}`;
 		callback();
 	}
 
@@ -39,8 +39,8 @@ class NewFileStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, 
 			},
 			{
 				token: this.users[1].accessToken,
-				teamId: this.team._id,
-				repoId: this.repo._id
+				teamId: this.team.id,
+				repoId: this.repo.id
 			}
 		);
 	}

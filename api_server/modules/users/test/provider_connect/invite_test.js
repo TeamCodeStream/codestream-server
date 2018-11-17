@@ -17,7 +17,7 @@ class InviteTest extends ProviderConnectTest {
 	before (callback) {
 		// add the team ID to the request
 		super.before(() => {
-			this.data.teamId = this.preExistingTeam._id;
+			this.data.teamId = this.preExistingTeam.id;
 			callback();
 		});
 	}

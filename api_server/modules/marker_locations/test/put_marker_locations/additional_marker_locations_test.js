@@ -42,15 +42,15 @@ class AdditionalMarkerLocationsTest extends PutMarkerLocationsFetchTest {
 				this.postData.push(response);
 				const marker = response.markers[0];
 				this.markers.push(marker);
-				this.locations[marker._id] = response.markerLocations[0].locations[marker._id];
+				this.locations[marker.id] = response.markerLocations[0].locations[marker.id];
 				callback();
 			},
 			{
-				teamId: this.team._id,
-				streamId: this.stream._id,
+				teamId: this.team.id,
+				streamId: this.stream.id,
 				wantCodemark: 1,
 				wantMarkers: 1,
-				fileStreamId: this.repoStreams[0]._id,
+				fileStreamId: this.repoStreams[0].id,
 				token: token,
 				commitHash: this.postOptions.commitHash	// they will all have the same commit hash
 			}
@@ -68,14 +68,14 @@ class AdditionalMarkerLocationsTest extends PutMarkerLocationsFetchTest {
 
 	// save the marker locations we calculated for the new markers
 	setMoreMarkerLocations (callback) {
-		const newMarkerIds = this.newMarkers.map(marker => marker._id);
+		const newMarkerIds = this.newMarkers.map(marker => marker.id);
 		const newAdjustedMarkerLocations = {};
 		newMarkerIds.forEach(markerId => {
 			newAdjustedMarkerLocations[markerId] = this.adjustedMarkerLocations[markerId];
 		});
 		const data = {
-			teamId: this.team._id,
-			streamId: this.repoStreams[0]._id,
+			teamId: this.team.id,
+			streamId: this.repoStreams[0].id,
 			commitHash: this.newCommitHash,
 			locations: newAdjustedMarkerLocations
 		};

@@ -20,7 +20,7 @@ class NewStreamNoMessageTest extends Aggregation(CodeStreamMessageTest, CommonIn
 	// set the name of the channel to listen for the message on
 	setChannelName (callback) {
 		// we'll listen on our me-channel, but no message should be received since we're not a member of the stream
-		this.channelName = `user-${this.currentUser.user._id}`;
+		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
 
@@ -37,8 +37,8 @@ class NewStreamNoMessageTest extends Aggregation(CodeStreamMessageTest, CommonIn
 			{
 				type: this.type,
 				token: this.users[1].accessToken,	
-				teamId: this.team._id,
-				memberIds: [this.users[2].user._id]	
+				teamId: this.team.id,
+				memberIds: [this.users[2].user.id]	
 			}
 		);
 	}

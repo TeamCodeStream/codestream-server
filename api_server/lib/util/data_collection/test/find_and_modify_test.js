@@ -36,7 +36,7 @@ class FindAndModifyTest extends GetByIdFromDatabaseTest {
 		let document;
 		try {
 			document = await this.data.test.findAndModify(
-				{ _id: this.data.test.objectIdSafe(this.testModel.id) },
+				{ id: this.data.test.objectIdSafe(this.testModel.id) },
 				{ '$inc': update }
 			);
 		}
@@ -51,7 +51,7 @@ class FindAndModifyTest extends GetByIdFromDatabaseTest {
 		// first make sure the find-and-modify returned the document without the increment,
 		// then run the base-class validation WITH the increment ... this will retrieve the document
 		// again, now showing the increment
-		this.testModel.attributes.id = this.testModel.attributes._id;
+		this.testModel.attributes.id = this.testModel.attributes.id;
 		Assert.deepEqual(this.testModel.attributes, this.fetchedDocument, 'fetched document not equal to test model attributes');
 		this.testModel.attributes.number += 5;
 		callback();

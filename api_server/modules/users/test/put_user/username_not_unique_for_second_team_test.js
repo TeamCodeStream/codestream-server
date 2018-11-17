@@ -53,7 +53,7 @@ class UsernameNotUniqueForSecondTeamTest extends PutUserTest {
 				path: '/users',
 				data: {
 					email: this.currentUser.user.email,
-					teamId: this.secondTeam._id
+					teamId: this.secondTeam.id
 				},
 				token: this.users[2].accessToken
 			},

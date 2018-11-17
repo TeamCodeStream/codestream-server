@@ -33,7 +33,7 @@ class JoinMethodTest extends ConfirmationTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that the joinMethod has been set to "Added to Team"
-		const originTeamId = this.originTeam ? this.originTeam._id : this.team._id;
+		const originTeamId = this.originTeam ? this.originTeam.id : this.team.id;
 		Assert(data.user.joinMethod === 'Added to Team', 'joinMethod not properly set');
 		Assert(data.user.primaryReferral === 'internal', 'primaryReferral not set to internal');
 		Assert(data.user.originTeamId === originTeamId, 'originTeamId not set to correct team');

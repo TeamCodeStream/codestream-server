@@ -29,7 +29,7 @@ class DeleteCodemarkFetchTest extends DeleteCodemarkTest {
 	}
 
 	setPath (callback) {
-		this.path = '/codemarks/' + this.postData[0].codemark._id;
+		this.path = '/codemarks/' + this.postData[0].codemark.id;
 		callback();
 	}
 

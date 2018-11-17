@@ -45,14 +45,14 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const expectedSeqNum = this.expectedSeqNum || 1;
 		const expectedOrigin = this.expectedOrigin || '';
 		const result = (
-			((post.id === post._id) || errors.push('id not set to _id')) && 
+			((post.id === post._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((post.text === this.data.text) || errors.push('text does not match')) &&
-			((post.teamId === this.team._id) || errors.push('teamId does not match the team')) &&
+			((post.teamId === this.team.id) || errors.push('teamId does not match the team')) &&
 			((post.streamId === this.data.streamId) || errors.push('streamId does not match')) &&
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((post.modifiedAt >= post.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((post.creatorId === this.currentUser.user._id) || errors.push('creatorId not equal to current user id')) &&
+			((post.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
 			((post.seqNum === expectedSeqNum) || errors.push('seqNum not equal to expected seqNum')) &&
 			((post.origin === expectedOrigin) || errors.push('origin not equal to expected origin')) &&
 			((post.numReplies === 0) || errors.push('numReplies should be 0'))
@@ -71,12 +71,13 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// verify we got the expected stream update in the response
 	validateStreamUpdate (data) {
 		if (!this.stream) { return; }
-		const streamUpdate = data.streams.find(stream => stream._id === this.stream._id);
+		const streamUpdate = data.streams.find(stream => stream.id === this.stream.id);
 		const expectedStreamUpdate = {
-			_id: this.stream._id,
+			_id: this.stream.id,	// DEPRECATE ME
+			id: this.stream.id,
 			$set: {
-				mostRecentPostId: data.post._id,
-				sortId: data.post._id,
+				mostRecentPostId: data.post.id,
+				sortId: data.post.id,
 				mostRecentPostCreatedAt: data.post.createdAt,
 				version: this.expectedVersion
 			},

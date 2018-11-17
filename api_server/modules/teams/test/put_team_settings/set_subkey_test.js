@@ -33,7 +33,8 @@ class SetSubkeyTest extends PutTeamSettingsFetchTest {
 		this.data = { $set: set };
 		this.expectResponse = {
 			team: {
-				_id: this.team._id,
+				_id: this.team.id,	// DEPRECATE ME
+				id: this.team.id,
 				$set: {
 					'settings.topLevelSetting.settingThree': 'three',
 					'settings.topLevelSetting.settingFour': 4

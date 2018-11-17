@@ -20,11 +20,11 @@ class GetChildPostsTest extends GetPostsTest {
 	// set the path for the request
 	setPath (callback) {
 		// myPosts will be the posts we expect to get back, look for posts with parentPostId matching the post we replied to
-		const parentPostId = this.postData[this.whichPostToReplyTo].post._id;
+		const parentPostId = this.postData[this.whichPostToReplyTo].post.id;
 		this.expectedPosts = this.postData
 			.map(postData => postData.post)
 			.filter(post => post.parentPostId === parentPostId);
-		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&parentPostId=${parentPostId}`;
+		this.path = `/posts/?teamId=${this.team.id}&streamId=${this.stream.id}&parentPostId=${parentPostId}`;
 		callback();
 	}
 }

@@ -34,9 +34,10 @@ class CommonInit {
 		};
 		this.expectedData = {
 			post: {
-				_id: this.post._id,
+				_id: this.post.id,	// DEPRECATE ME
+				id: this.post.id,
 				$addToSet: {
-					[`reactions.${this.reaction}`]: this.currentUser.user._id
+					[`reactions.${this.reaction}`]: this.currentUser.user.id
 				},
 				$set: {
 					version: this.expectedVersion
@@ -47,7 +48,7 @@ class CommonInit {
 				}
 			}
 		};
-		this.path = '/react/' + this.post._id;
+		this.path = '/react/' + this.post.id;
 		callback();
 	}
 }

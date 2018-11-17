@@ -159,7 +159,7 @@ class GetStreamsRequest extends GetManyRequest {
 		else if (parameter === 'ids') {
 			// fetch by array of IDs
 			let ids = value.split(',');
-			query._id = this.data.streams.inQuerySafe(ids);
+			query.id = this.data.streams.inQuerySafe(ids);
 		}
 		else if (parameter === 'unread') {
 			// fetch streams in which there are unread messages for this user
@@ -169,7 +169,7 @@ class GetStreamsRequest extends GetManyRequest {
 				return false;
 			}
 			else {
-				query._id = this.data.streams.inQuerySafe(ids);
+				query.id = this.data.streams.inQuerySafe(ids);
 			}
 		}
 		else if (RELATIONAL_PARAMETERS.includes(parameter)) {
@@ -214,7 +214,7 @@ class GetStreamsRequest extends GetManyRequest {
 	async setIsClosed () {
 		const closedStreams = (this.user.get('preferences') || {}).closedStreams || {};
 		this.responseData.streams.forEach(stream => {
-			if (closedStreams[stream._id]) {
+			if (closedStreams[stream.id]) {
 				stream.isClosed = true;
 			}
 		});

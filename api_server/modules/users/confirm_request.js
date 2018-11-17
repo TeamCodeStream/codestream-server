@@ -195,7 +195,7 @@ class ConfirmRequest extends RestfulRequest {
 			set.confirmationAttempts = this.user.get('confirmationAttempts') + 1;
 		}
 		await this.data.users.updateDirect(
-			{ _id: this.data.users.objectIdSafe(this.user.id) },
+			{ id: this.data.users.objectIdSafe(this.user.id) },
 			{ $set: set }
 		);
 	}

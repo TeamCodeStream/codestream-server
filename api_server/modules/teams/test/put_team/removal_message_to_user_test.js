@@ -20,7 +20,7 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 		// remove current user from the team, that user will then try to subscribe
 		super.makeTeamData(() => {
 			this.data.$pull = {
-				memberIds: this.currentUser.user._id
+				memberIds: this.currentUser.user.id
 			};
 			callback();
 		});
@@ -28,7 +28,7 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		this.channelName = `user-${this.currentUser.user._id}`;
+		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
 
@@ -41,9 +41,10 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 			if (error) { return callback(error); }
 			this.message = {
 				user: {
-					_id: this.currentUser.user._id,
+					_id: this.currentUser.user.id,	// DEPRECATE ME
+					id: this.currentUser.user.id,
 					$pull: {
-						teamIds: this.team._id
+						teamIds: this.team.id
 					},
 					$set: {
 						version: 4

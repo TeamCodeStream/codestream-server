@@ -35,7 +35,7 @@ class NumMarkersTest extends CodeStreamAPITest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/streams/' + this.stream._id;
+			this.path = '/streams/' + this.stream.id;
 			callback();
 		});
 	}

@@ -22,7 +22,7 @@ class SetAssigneesTest extends PutCodemarkTest {
 
 	getCodemarkUpdateData () {
 		const data = super.getCodemarkUpdateData();
-		data.assignees = [this.users[1].user._id, this.users[2].user._id];
+		data.assignees = [this.users[1].user.id, this.users[2].user.id];
 		return data;
 	}
 }

@@ -110,11 +110,11 @@ class StreamUpdater extends ModelUpdater {
 			},
 			{
 				hint: Indexes.byName,
-				fields: ['_id', 'name'],
+				fields: ['id', 'name'],
 				noCache: true
 			}
 		);
-		if (matchingStreams.find(stream => stream._id !== this.stream.id)) {
+		if (matchingStreams.find(stream => stream.id !== this.stream.id)) {
 			throw this.errorHandler.error('duplicateName');
 		}
 	}

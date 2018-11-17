@@ -21,17 +21,17 @@ class CommonInit {
 	makeAdmins (callback) {
 		const adminIds = [];
 		if (!this.dontMakeCurrentUserAdmin) {
-			adminIds.push(this.currentUser.user._id);
+			adminIds.push(this.currentUser.user.id);
 		}
 		if (this.whichAdmins) {
 			for (let i = 0; i < this.whichAdmins.length; i++) {
-				adminIds.push(this.users[this.whichAdmins[i]].user._id);
+				adminIds.push(this.users[this.whichAdmins[i]].user.id);
 			}
 		}
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/teams/' + this.team._id,
+				path: '/teams/' + this.team.id,
 				data: { $push: { adminIds } },
 				token: this.users[1].accessToken
 			},
@@ -49,11 +49,12 @@ class CommonInit {
 			name: this.teamFactory.randomName()
 		};
 		this.expectedTeam = Object.assign({}, this.team, this.data);
-		this.path = '/teams/' + this.team._id;
+		this.path = '/teams/' + this.team.id;
 		this.modifiedAfter = Date.now();
 		this.expectedData = {
 			team: {
-				_id: this.team._id,
+				_id: this.team.id,	// DEPRECATE ME
+				id: this.team.id,
 				$set: {
 					name: this.data.name,
 					modifiedAt: this.modifiedAfter,
@@ -74,7 +75,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/teams/' + this.team._id,
+				path: '/teams/' + this.team.id,
 				data: this.data,
 				token
 			},

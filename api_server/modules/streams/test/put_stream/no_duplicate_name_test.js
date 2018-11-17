@@ -35,8 +35,8 @@ class NoDuplicateNameTest extends PutStreamTest {
 			},
 			{
 				type: 'channel',
-				teamId: this.team._id, // create the stream in the team we already created
-				memberIds: [this.currentUser.user._id], // include current user in stream 
+				teamId: this.team.id, // create the stream in the team we already created
+				memberIds: [this.currentUser.user.id], // include current user in stream 
 				token: this.users[1].accessToken // the "other user" is the stream creator
 			}
 		);

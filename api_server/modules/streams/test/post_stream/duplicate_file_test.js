@@ -30,7 +30,7 @@ class DuplicateFileTest extends PostFileStreamTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that we got back the stream that we already created
-		Assert(data.stream._id === this.duplicateStream._id, 'returned stream should be the same as the existing stream');
+		Assert(data.stream.id === this.duplicateStream.id, 'returned stream should be the same as the existing stream');
 		super.validateResponse(data);
 	}
 }

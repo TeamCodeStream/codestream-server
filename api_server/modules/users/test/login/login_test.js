@@ -51,7 +51,7 @@ class LoginTest extends CodeStreamAPITest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate we get back the expected user, an access token, and a pubnub subscription key
-		Assert(data.user._id === data.user.id, 'id not set to _id');
+		Assert(data.user._id === data.user.id, 'id not set to _id');	// DEPRECATE ME
 		Assert(data.user.email === this.data.email, 'email doesn\'t match');
 		Assert(data.user.lastLogin > this.beforeLogin, 'lastLogin not set to most recent login time');
 		Assert(data.accessToken, 'no access token');

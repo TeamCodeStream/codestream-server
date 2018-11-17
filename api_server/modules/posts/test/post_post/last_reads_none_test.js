@@ -43,7 +43,7 @@ class LastReadsNoneTest extends CodeStreamAPITest {
 		// we fetched the user's "user" object, we should see their lastReads attribute
 		// for the created stream set to 0, meaning they haven't read any messages in that
 		// stream
-		Assert(data.user.lastReads[this.stream._id] === 0, 'lastReads for stream is not 0');
+		Assert(data.user.lastReads[this.stream.id] === 0, 'lastReads for stream is not 0');
 	}
 }
 

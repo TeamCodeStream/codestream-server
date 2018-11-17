@@ -200,14 +200,14 @@ class UserCreator extends ModelCreator {
 
 	// create the user
 	async create () {
-		this.model.attributes._id = this.collection.createId();
+		this.model.attributes.id = this.collection.createId();
 		if (this.user) {
 			// someone else is creating (inviting) this user
 			this.model.attributes.creatorId = this.user.id;
 		}
 		else {
 			// user creating themselves
-			this.model.attributes.creatorId = this.model.attributes._id;
+			this.model.attributes.creatorId = this.model.attributes.id;
 		}
 		if (this.teamIds) {
 			// NOTE - we don't allow setting this in the original attributes,
