@@ -114,7 +114,7 @@ class EmailTest {
 		let userData = this.userData[this.userData.length - 1];
 		let data = {
 			email: userData.user.email,
-			userId: userData.user._id,
+			userId: userData.user.id,
 			confirmationCode: userData.user.confirmationCode
 		};
 		this.apiRequest(
@@ -154,7 +154,7 @@ class EmailTest {
 	// invite the second user to the team
 	inviteOtherUser (callback) {
 		let data = {
-			teamId: this.team._id,
+			teamId: this.team.id,
 			email: this.userData[1].user.email
 		};
 		this.apiRequest(
@@ -173,8 +173,8 @@ class EmailTest {
 		let data = {
 			type: 'channel',
 			name: RandomString.generate(10),
-			teamId: this.team._id,
-			memberIds: [this.userData[1].user._id]
+			teamId: this.team.id,
+			memberIds: [this.userData[1].user.id]
 		};
 		this.apiRequest(
 			{
@@ -197,7 +197,7 @@ class EmailTest {
 		// processing the inbound email
 		let clientConfig = Object.assign({}, PubNubConfig);
 		let user = this.userData[1].user;
-		clientConfig.uuid = user._pubnubUuid || user._id;
+		clientConfig.uuid = user._pubnubUuid || user.id;
 		clientConfig.authKey = this.userData[1].pubnubToken;
 		let client = new PubNub(clientConfig);
 		this.pubNubClient = new PubNubClient({
@@ -226,7 +226,7 @@ class EmailTest {
 	// "reply-to" address for the stream and team
 	makeSubstitutions (callback) {
 		this.emailData = this.emailData.replace(/@@@from@@@/g, this.userData[0].user.email);
-		let to = `${this.stream._id}.${this.team._id}@${InboundEmailConfig.replyToDomain}`;
+		let to = `${this.stream.id}.${this.team.id}@${InboundEmailConfig.replyToDomain}`;
 		['to', 'cc', 'bcc', 'x-original-to', 'delivered-to'].forEach(field => {
 			let regEx = new RegExp(`@@@${field}@@@`, 'g');
 			this.emailData = this.emailData.replace(regEx, to);
@@ -242,7 +242,7 @@ class EmailTest {
 	// begin listening on the simulated client
 	listenOnClient (callback) {
 		// we'll time out after 10 seconds
-		this.channelName = `stream-${this.stream._id}`;
+		this.channelName = `stream-${this.stream.id}`;
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this, this.channelName),
 			10000
@@ -292,10 +292,10 @@ class EmailTest {
 		Assert.ifError(this.shouldFail);	// if this test should fail, we should not have recieved a message
 		Assert(message.requestId, 'received message has no requestId');
 		let post = message.post;
-		Assert.equal(post.teamId, this.team._id, 'incorrect team ID');
-		Assert.equal(post.streamId, this.stream._id, 'incorrect stream ID');
+		Assert.equal(post.teamId, this.team.id, 'incorrect team ID');
+		Assert.equal(post.streamId, this.stream.id, 'incorrect stream ID');
 		Assert.equal(post.text, this.expectedText, 'text does not match');
-		Assert.equal(post.creatorId, this.userData[0].user._id, 'creatorId is not the expected user');
+		Assert.equal(post.creatorId, this.userData[0].user.id, 'creatorId is not the expected user');
 		return true;
 	}
 
