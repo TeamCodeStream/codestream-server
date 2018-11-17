@@ -46,7 +46,7 @@ class TeamMismatchTest extends ProviderConnectTest {
 		this.teamFactory.createRandomTeam(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.data.teamId = response.team._id;
+				this.data.teamId = response.team.id;
 				callback();
 			},
 			{ 

@@ -16,7 +16,7 @@ class FileIgnoresChannelTest extends PostFileStreamTest {
 			if (error) { return callback(error); }
 			// ...and add some channel-type attributes, these should be ignored
 			this.data.name = this.streamFactory.randomName();
-			this.data.memberIds = this.users.splice(1, 3).map(user => user._id);
+			this.data.memberIds = this.users.splice(1, 3).map(user => user.id);
 			callback();
 		});
 	}

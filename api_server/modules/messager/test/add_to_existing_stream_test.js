@@ -31,10 +31,10 @@ class AddToExistingStreamTest extends CodeStreamMessageTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/streams/' + this.stream._id,
+				path: '/streams/' + this.stream.id,
 				data: {
 					$push: {
-						memberIds: this.users[0].user._id
+						memberIds: this.users[0].user.id
 					}
 				},
 				token: this.users[1].accessToken
@@ -46,7 +46,7 @@ class AddToExistingStreamTest extends CodeStreamMessageTest {
 	// set the channel name to listen on
 	setChannelName (callback) {
 		// we expect the message on the stream channel
-		this.channelName = 'stream-' + this.stream._id;
+		this.channelName = 'stream-' + this.stream.id;
 		callback();
 	}
 }

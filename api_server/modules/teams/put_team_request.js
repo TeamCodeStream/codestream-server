@@ -82,7 +82,7 @@ class PutTeamRequest extends PutRequest {
 
 	// publish the removal to the messager channel for any user that has been removed from the team
 	async publishRemovalToUser (userUpdate) {
-		const channel = 'user-' + userUpdate._id;
+		const channel = 'user-' + userUpdate.id;
 		const message = Object.assign({}, { user: userUpdate }, { requestId: this.request.id });
 		try {
 			await this.api.services.messager.publish(
@@ -93,7 +93,7 @@ class PutTeamRequest extends PutRequest {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish team removal message to user ${userUpdate._id}: ${JSON.stringify(error)}`);
+			this.warn(`Could not publish team removal message to user ${userUpdate.id}: ${JSON.stringify(error)}`);
 		}
 
 	}

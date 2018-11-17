@@ -28,11 +28,11 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		// remove another user from the team, that user will then try to subscribe
 		super.makeTeamData(() => {
 			this.data.$pull = {
-				memberIds: this.users[1].user._id
+				memberIds: this.users[1].user.id
 			};
 			this.expectedData.team.$pull = {
-				memberIds: [this.users[1].user._id],
-				adminIds: [this.users[1].user._id]
+				memberIds: [this.users[1].user.id],
+				adminIds: [this.users[1].user.id]
 			};
 			callback();
 		});
@@ -43,14 +43,14 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		const clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.users[1].user._pubnubUuid || this.users[1].user._id;
+		clientConfig.uuid = this.users[1].user._pubnubUuid || this.users[1].user.id;
 		clientConfig.authKey = this.users[1].pubNubToken;
 		const client = new PubNub(clientConfig);
 		const pubnubClient = new PubNubClient({
 			pubnub: client
 		});
 		pubnubClient.subscribe(
-			`team-${this.team._id}`,
+			`team-${this.team.id}`,
 			() => {
 				Assert.fail('message received on team channel');
 			},

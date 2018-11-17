@@ -44,7 +44,7 @@ class GetPostlessMarkerTest extends CodeStreamAPITest {
 				if (error) { return callback(error); }
 				this.marker = response.markers[0];
 				this.codemark = response.codemark;
-				this.path = '/markers/' + this.marker._id;
+				this.path = '/markers/' + this.marker.id;
 				callback();
 			}
 		);
@@ -54,7 +54,7 @@ class GetPostlessMarkerTest extends CodeStreamAPITest {
 	makeCodemarkData () {
 		const data = this.codemarkFactory.getRandomCodemarkData();
 		Object.assign(data, {
-			teamId: this.team._id,
+			teamId: this.team.id,
 			providerType: RandomString.generate(8),
 			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)
@@ -66,11 +66,11 @@ class GetPostlessMarkerTest extends CodeStreamAPITest {
 	// validate the request response
 	validateResponse (data) {
 		// validate we got the correct marker, and that we only got sanitized attributes
-		this.validateMatchingObject(this.marker._id, data.marker, 'marker');
+		this.validateMatchingObject(this.marker.id, data.marker, 'marker');
 		this.validateSanitized(data.marker, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// validate we also got the parent codemark, with only sanitized attributes
-		this.validateMatchingObject(this.codemark._id, data.codemark, 'codemark');
+		this.validateMatchingObject(this.codemark.id, data.codemark, 'codemark');
 		this.validateSanitized(data.codemark, MarkerTestConstants.UNSANITIZED_CODEMARK_ATTRIBUTES);
 
 		// we should NOT get a post, since we're using third-party posts

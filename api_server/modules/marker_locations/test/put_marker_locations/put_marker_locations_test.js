@@ -44,12 +44,12 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 	adjustMarkers (callback) {
 		this.markers = this.postData.map(postData => postData.markers[0]);
 		this.locations = this.postData.reduce((locations, postData) => {
-			const markerId = postData.markers[0]._id;
+			const markerId = postData.markers[0].id;
 			locations[markerId] = postData.markerLocations[0].locations[markerId];
 			return locations;
 		}, {});
 		this.adjustedMarkerLocations = {};
-		this.markers.sort((a, b) => { return a._id.localeCompare(b._id); });	// sort for easy compare to the results
+		this.markers.sort((a, b) => { return a.id.localeCompare(b.id); });	// sort for easy compare to the results
 		this.markers.forEach(marker => {
 			this.adjustMarker(marker);
 		});
@@ -59,21 +59,21 @@ class PutMarkerLocationsTest extends CodeStreamAPITest {
 	// adjust a single marker for saving as a different commit
 	adjustMarker (marker) {
 		const adjustedLocation = [];
-		const location = this.locations[marker._id];
+		const location = this.locations[marker.id];
 		// totally random adjustments, probably not realistic but it should do the trick
 		location.slice(0, 4).forEach(coordinate => {
 			const adjustedCoordinate = coordinate + Math.floor(Math.random() * coordinate);
 			adjustedLocation.push(adjustedCoordinate);
 		});
-		this.adjustedMarkerLocations[marker._id] = adjustedLocation;
+		this.adjustedMarkerLocations[marker.id] = adjustedLocation;
 	}
 
 	// set data to be used in the request
 	setData (callback) {
 		this.newCommitHash = this.repoFactory.randomCommitHash();	// adjusted marker locations have a new commit
 		this.data = {
-			teamId: this.team._id,
-			streamId: this.repoStreams[0]._id,
+			teamId: this.team.id,
+			streamId: this.repoStreams[0].id,
 			commitHash: this.newCommitHash,
 			locations: this.adjustedMarkerLocations
 		};

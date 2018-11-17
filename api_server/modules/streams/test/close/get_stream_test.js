@@ -23,7 +23,7 @@ class GetStreamTest extends CloseTest {
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: '/streams/' + this.stream._id,
+				path: '/streams/' + this.stream.id,
 				token: this.currentUser.accessToken
 			},
 			(error, response) => {

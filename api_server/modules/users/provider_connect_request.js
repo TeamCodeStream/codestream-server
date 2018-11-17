@@ -388,7 +388,8 @@ class ProviderConnectRequest extends RestfulRequest {
 			data = {
 				user: Object.assign(
 					{
-						_id: this.user.id
+						_id: this.user.id,	// DEPRECATE ME
+						id: this.user.id
 					}, 
 					this.transforms.userUpdate
 				)
@@ -407,7 +408,8 @@ class ProviderConnectRequest extends RestfulRequest {
 		const data = {
 			user: Object.assign(
 				{
-					_id: this.user.id
+					_id: this.user.id,	// DEPRECATE ME
+					id: this.user.id
 				},
 				this.transforms.userUpdate
 			),

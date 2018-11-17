@@ -42,7 +42,7 @@ class MarkerCreator extends ModelCreator {
 	}
 
 	async validateAttributes () {
-		this.attributes._id = this.collection.createId();	 // pre-allocate an ID
+		this.attributes.id = this.collection.createId();	 // pre-allocate an ID
 		this.attributes.commitHashWhenCreated = this.attributes.commitHashWhenCreated || this.attributes.commitHash; // client can provide either
 		delete this.attributes.commitHash;
 		if (this.attributes.commitHashWhenCreated) {
@@ -305,14 +305,14 @@ class MarkerCreator extends ModelCreator {
 		let op = {
 			$set: {
 				teamId: this.attributes.teamId,
-				[`locations.${this.attributes._id}`]: this.attributes.locationWhenCreated
+				[`locations.${this.attributes.id}`]: this.attributes.locationWhenCreated
 			}
 		};
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			op.$set._forTesting = true;
 		}
 		await this.data.markerLocations.updateDirectWhenPersist(
-			{ _id: id },
+			{ id },
 			op,
 			{ upsert: true }
 		);
@@ -324,7 +324,7 @@ class MarkerCreator extends ModelCreator {
 			streamId: this.stream.id,
 			commitHash: this.attributes.commitHashWhenCreated,
 			locations: {
-				[this.attributes._id]: this.attributes.locationWhenCreated
+				[this.attributes.id]: this.attributes.locationWhenCreated
 			}
 		};
 		this.transforms.markerLocations = this.transforms.markerLocations || [];

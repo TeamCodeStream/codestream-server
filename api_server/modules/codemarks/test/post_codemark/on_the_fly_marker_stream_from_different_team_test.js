@@ -43,7 +43,7 @@ class OnTheFlyMarkerStreamFromDifferentTeamTest extends MarkerStreamOnTheFlyTest
 			if (error) { return callback(error); }
 			const marker = this.data.markers[0];
 			Object.assign(marker, {
-				repoId: response.repo._id,
+				repoId: response.repo.id,
 				file: this.streamFactory.randomFile()
 			});
 			callback();

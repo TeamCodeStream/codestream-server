@@ -47,7 +47,7 @@ class StreamNoMatchTeamTest extends InboundEmailTest {
 			let toAddress = this.data.to[0].address;
 			let atIndex = toAddress.indexOf('@');
 			let dotIndex = toAddress.indexOf('.');
-			this.data.to[0].address = toAddress.slice(0, dotIndex + 1) + this.otherTeam._id +
+			this.data.to[0].address = toAddress.slice(0, dotIndex + 1) + this.otherTeam.id +
 				toAddress.slice(atIndex);
 			this.data.to.splice(1);
 			callback();

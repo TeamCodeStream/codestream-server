@@ -49,7 +49,7 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 	// set the name of the channel we'll listen on for the test message
 	setChannelName (callback) {
 		// the team channel gets the message that a new user has confirmed registration
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = 'team-' + this.team.id;
 		callback();
 	}
 
@@ -62,7 +62,7 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 			isRegistered: true,
 			joinMethod: 'Added to Team',
 			primaryReferral: 'internal',
-			originTeamId: this.team._id,
+			originTeamId: this.team.id,
 			version: 3
 		});
 		this.message = {

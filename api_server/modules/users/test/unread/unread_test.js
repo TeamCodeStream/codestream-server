@@ -20,7 +20,7 @@ class UnreadTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		this.init(error => {
 			if (error) { return callback(error); }
 			const unreadPost = this.postData[this.unreadPost].post;
-			this.path = '/unread/' + unreadPost._id;
+			this.path = '/unread/' + unreadPost.id;
 			callback();
 		});
 	}

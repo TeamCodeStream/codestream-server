@@ -18,7 +18,8 @@ class NumRepliesCodemarkTest extends NumRepliesTest {
 	setExpectedData (callback) {
 		super.setExpectedData(() => {
 			this.expectedData.codemarks = [{
-				_id: this.postData[0].codemark._id,
+				_id: this.postData[0].codemark.id,	// DEPRECATE ME
+				id: this.postData[0].codemark.id,
 				$set: {
 					numReplies: 2,
 					version: 5

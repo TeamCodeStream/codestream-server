@@ -31,7 +31,7 @@ class CommonInit {
 				callback();
 			},
 			{
-				streamId: this.stream._id
+				streamId: this.stream.id
 			}
 		);
 	}

@@ -68,7 +68,7 @@ class Converter {
 			teamId: marker.teamId,
 			streamId: marker.postStreamId || (post && post.streamId),
 			postId: marker.postId,
-			markerIds: [marker._id.toString()],
+			markerIds: [marker.id.toString()],
 			fileStreamIds: [marker.fileStreamId || (marker.codeBlock && marker.codeBlock.streamId) || marker.streamId],
 			deactivated: marker.deactivated,
 			createdAt: marker.createdAt,
@@ -111,12 +111,12 @@ class Converter {
 		}
 		marker.fileStreamId = codemark.fileStreamIds[0];
 		marker.postStreamId = marker.postStreamId || (post && post.streamId);
-		marker.codemarkId = codemark._id.toString();
+		marker.codemarkId = codemark.id.toString();
 		await this.data.markers.update(marker);
 	}
 
 	async updatePost (post, codemark) {
-		post.codemarkId = codemark._id.toString();
+		post.codemarkId = codemark.id.toString();
 		await this.data.posts.update(post);
 	}
 
@@ -131,7 +131,7 @@ class Converter {
 			unset.$unset.text = true;
 		}
 		await this.data.posts.updateDirect(
-			{ _id: this.data.posts.objectIdSafe(post._id) },
+			{ id: this.data.posts.objectIdSafe(post.id) },
 			unset
 		);
 	}
@@ -150,7 +150,7 @@ class Converter {
 			}
 		};
 		await this.data.markers.updateDirect(
-			{ _id: this.data.markers.objectIdSafe(marker._id) },
+			{ id: this.data.markers.objectIdSafe(marker.id) },
 			unset
 		);
 	}

@@ -45,7 +45,7 @@ class MeAttributesTest extends ConfirmationTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that the user got a correct lastReads attribute when confirming
-		Assert(data.user.lastReads[this.stream._id] === 0, 'lastReads should be 0');
+		Assert(data.user.lastReads[this.stream.id] === 0, 'lastReads should be 0');
 		delete data.user.lastReads;	// so super.validateResponse will pass
 		super.validateResponse(data);
 	}

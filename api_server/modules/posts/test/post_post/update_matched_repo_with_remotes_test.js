@@ -25,7 +25,7 @@ class UpdateMatchedRepoWithRemotesTest extends FindRepoByRemotesTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		const repo = data.repos[0];
-		Assert.equal(repo._id, this.repo._id, 'got repo that does not match the test repo');
+		Assert.equal(repo.id, this.repo.id, 'got repo that does not match the test repo');
 		const remotesPushed = repo.$push.remotes.map(remote => remote.normalizedUrl);
 		remotesPushed.sort();
 		const remotesAdded = this.remotesAdded.map(remote => NormalizeUrl(remote));

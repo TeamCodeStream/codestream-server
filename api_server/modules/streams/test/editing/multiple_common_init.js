@@ -112,9 +112,9 @@ class MultipleCommonInit {
 			},
 			{
 				type: type,
-				teamId: teamInfo.team._id,
-				repoId: type === 'file' ? teamInfo.repo._id : undefined, // file-type streams must have repoId
-				memberIds: type !== 'file' ? teamInfo.users.map(user => user._id) : undefined, // channel/direct must have members
+				teamId: teamInfo.team.id,
+				repoId: type === 'file' ? teamInfo.repo.id : undefined, // file-type streams must have repoId
+				memberIds: type !== 'file' ? teamInfo.users.map(user => user.id) : undefined, // channel/direct must have members
 				token: this.users[1].accessToken // the "other user" is the stream creator
 			}
 		);
@@ -122,7 +122,7 @@ class MultipleCommonInit {
 
 	// classify a stream we created according to whether it is a foreign stream, and by type
 	classifyStream (stream) {
-		if (stream.teamId === this.team._id) {
+		if (stream.teamId === this.team.id) {
 			if (stream.type === 'channel') {
 				this.myChannelStreams.push(stream);
 			}
@@ -177,9 +177,9 @@ class MultipleCommonInit {
 	setAlreadyEditingStreamForUser (info, index, callback) {
 		const stream = this.myFileStreams[index];
 		const data = {
-			teamId: this.team._id,
-			repoId: this.repo._id,
-			streamId: stream._id,
+			teamId: this.team.id,
+			repoId: this.repo.id,
+			streamId: stream.id,
 			editing: {
 				commitHash: this.repoFactory.randomCommitHash()
 			}
@@ -200,16 +200,16 @@ class MultipleCommonInit {
 		// user will specify several streams by stream ID that they are editing,
 		// some of these are already being edited by the user
 		let streamIds = this.userWillEditByStreamId.map(index => {
-			return this.myFileStreams[index]._id;
+			return this.myFileStreams[index].id;
 		});
 		streamIds = [
 			...streamIds,
-			this.myChannelStreams[0]._id,
-			this.myDirectStreams[1]._id,
-			this.foreignChannelStreams[1]._id,
-			this.foreignDirectStreams[0]._id,
-			this.foreignFileStreams[0]._id,
-			this.foreignFileStreams[1]._id
+			this.myChannelStreams[0].id,
+			this.myDirectStreams[1].id,
+			this.foreignChannelStreams[1].id,
+			this.foreignDirectStreams[0].id,
+			this.foreignFileStreams[0].id,
+			this.foreignFileStreams[1].id
 		];
 
 		// user will specify several streams by filename that they are editing,
@@ -224,8 +224,8 @@ class MultipleCommonInit {
 		// combine the stream IDs and files into the request, and say they are all
 		// being edited as of the same commit hash
 		this.data = {
-			teamId: this.team._id,
-			repoId: this.repo._id,
+			teamId: this.team.id,
+			repoId: this.repo.id,
 			streamIds,
 			files,
 			editing: { commitHash: this.repoFactory.randomCommitHash() }
@@ -254,32 +254,32 @@ class MultipleCommonInit {
 	// expected for the indexed stream
 	findStreamInExpectedResponse (index, streams) {
 		const stream = this.myFileStreams[index];
-		const responseStream = streams.find(inStream => inStream._id === stream._id);
+		const responseStream = streams.find(inStream => inStream.id === stream.id);
 		if (this.userHasBeenEditing.includes(index)) {
 			if (
 				!this.userWillEditByStreamId.includes(index) &&
 				!this.userWillEditByFile.includes(index)
 			) {
-				Assert(responseStream, `stream ${stream._id} not found in response`);
-				Assert(responseStream.$set.modifiedAt > this.editedAfter, `modifiedAt for ${stream._id} not properly set`);
-				Assert.equal(responseStream.$unset[`editingUsers.${this.currentUser.user._id}`], true, `editingUsers for ${stream._id} not unset`);
+				Assert(responseStream, `stream ${stream.id} not found in response`);
+				Assert(responseStream.$set.modifiedAt > this.editedAfter, `modifiedAt for ${stream.id} not properly set`);
+				Assert.equal(responseStream.$unset[`editingUsers.${this.currentUser.user.id}`], true, `editingUsers for ${stream.id} not unset`);
 			}
 			else if (responseStream) {
-				Assert.fail(`stream ${responseStream._id} not expected in response`);
+				Assert.fail(`stream ${responseStream.id} not expected in response`);
 			}
 		}
 		else if (
 			this.userWillEditByStreamId.includes(index) ||
 			this.userWillEditByFile.includes(index)
 		) {
-			Assert(responseStream, `stream ${stream._id} not found in response`);
-			Assert(responseStream.$set.modifiedAt > this.editedAfter, `modifiedAt for ${stream._id} not properly set`);
-			const set = responseStream.$set[`editingUsers.${this.currentUser.user._id}`];
-			Assert.equal(set.commitHash, this.data.editing.commitHash, `editingUsers for ${stream._id} has incorrect commitHash`);
-			Assert(set.startedAt > this.editedAfter, `startedAt for ${stream._id} not properly set`);
+			Assert(responseStream, `stream ${stream.id} not found in response`);
+			Assert(responseStream.$set.modifiedAt > this.editedAfter, `modifiedAt for ${stream.id} not properly set`);
+			const set = responseStream.$set[`editingUsers.${this.currentUser.user.id}`];
+			Assert.equal(set.commitHash, this.data.editing.commitHash, `editingUsers for ${stream.id} has incorrect commitHash`);
+			Assert(set.startedAt > this.editedAfter, `startedAt for ${stream.id} not properly set`);
 		}
 		else if (responseStream) {
-			Assert.fail(`stream ${responseStream._id} not expected in response`);
+			Assert.fail(`stream ${responseStream.id} not expected in response`);
 		}
 	}
 
@@ -289,12 +289,12 @@ class MultipleCommonInit {
 		const file = this.newFiles[index];
 		const responseStream = streams.find(inStream => inStream.file === file);
 		Assert(responseStream, `stream for new stream ${file} not found in response`);
-		Assert(responseStream.teamId === this.team._id, `incorrect team ID in stream created for ${file}`);
-		Assert(responseStream.repoId === this.repo._id, `incorrect repo ID in stream created for ${file}`);
+		Assert(responseStream.teamId === this.team.id, `incorrect team ID in stream created for ${file}`);
+		Assert(responseStream.repoId === this.repo.id, `incorrect repo ID in stream created for ${file}`);
 		Assert(responseStream.createdAt > this.editedAfter, `incorrect createdAt in stream created for ${file}`);
 		Assert(responseStream.modifiedAt > this.editedAfter, `incorrect modifiedAt in stream created for ${file}`);
 		Assert(responseStream.type === 'file', `incorrect type in stream created for ${file}`);
-		const entry = responseStream.editingUsers[`editingUsers.${this.currentUser.user._id}`];
+		const entry = responseStream.editingUsers[`editingUsers.${this.currentUser.user.id}`];
 		Assert(entry, `no entry for editing user in stream created for ${file}`);
 		Assert(entry.commitHash === this.data.editing.commitHash, `commitHash is not correct for stream created for ${file}`);
 		Assert(entry.startedAt > this.editedAfter, `startedAt is not correct for stream created for ${file}`);
@@ -307,9 +307,9 @@ class MultipleCommonInit {
 			...this.foreignFileStreams,
 			...this.foreignChannelStreams,
 			...this.foreignDirectStreams
-		].map(stream => stream._id);
+		].map(stream => stream.id);
 		const hasForeignStream = streams.find(stream => {
-			return foreignStreams.includes(stream._id);
+			return foreignStreams.includes(stream.id);
 		});
 		Assert(!hasForeignStream, 'foreign stream found in response');
 	}

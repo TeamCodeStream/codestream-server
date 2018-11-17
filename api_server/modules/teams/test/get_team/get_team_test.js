@@ -27,7 +27,7 @@ class GetTeamTest extends CodeStreamAPITest {
 	// set the path to use when making the test request
 	setPath (callback) {
 		// fetch the team i created
-		this.path = '/teams/' + this.team._id;
+		this.path = '/teams/' + this.team.id;
 		callback();
 	}
 
@@ -35,7 +35,7 @@ class GetTeamTest extends CodeStreamAPITest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that we got back the expected team (the team we created)
-		this.validateMatchingObject(this.team._id, data.team, 'team');
+		this.validateMatchingObject(this.team.id, data.team, 'team');
 		// ensure the team we got back has no attributes the client shouldn't see, derived classes will do further validation
 		this.validateSanitized(data.team, TeamTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

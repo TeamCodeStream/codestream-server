@@ -27,7 +27,7 @@ class CommonInit {
 	makeStreamOptions (callback) {
 		this.postStreamOptions = {
 			type: this.type,		// stream type
-			teamId: this.team._id	// ID of the team to own the stream
+			teamId: this.team.id	// ID of the team to own the stream
 		};
 		callback();
 	}

@@ -27,7 +27,7 @@ class NoIssuanceTest extends ChangeEmailConfirmTest {
 		super.setData(() => {
 			const tokenHandler = new TokenHandler(SecretsConfig.auth);
 			const payload = tokenHandler.decode(this.data.token);
-			payload.uid = this.users[1].user._id;
+			payload.uid = this.users[1].user.id;
 			this.data.token = tokenHandler.generate(payload, 'email');
 			callback();
 		});

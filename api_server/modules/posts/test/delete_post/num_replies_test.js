@@ -22,7 +22,8 @@ class NumRepliesTest extends DeletePostTest {
 	setExpectedData (callback) {
 		super.setExpectedData(() => {
 			this.expectedData.posts.push({
-				_id: this.postData[0].post._id,
+				_id: this.postData[0].post.id,	// DEPRECATE ME
+				id: this.postData[0].post.id,
 				$set: {
 					numReplies: 2,
 					version: 5

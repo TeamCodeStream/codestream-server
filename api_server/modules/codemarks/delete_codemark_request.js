@@ -142,19 +142,19 @@ class DeleteCodemarkRequest extends DeleteRequest {
 			summary: 'Returns the codemark with a directive to set deactivated flag to true, as well as any associated post or markers',
 			looksLike: {
 				codemark: {
-					_id: '<ID of the codemark>',
+					id: '<ID of the codemark>',
 					$set: {
 						deactivated: true
 					}
 				},
 				post: {
-					_id: '<ID of associated post>',
+					id: '<ID of associated post>',
 					$set: {
 						deactivated: true
 					}
 				},
 				markers: [{
-					_id: '<ID of associated marker>',
+					id: '<ID of associated marker>',
 					$set: {
 						deactivated: true
 					}

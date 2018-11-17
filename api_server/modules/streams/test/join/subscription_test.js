@@ -36,7 +36,7 @@ class SubscriptionTest extends JoinTest {
 	run (callback) {
 		// create a pubnub client and attempt to subscribe to whichever channel
 		const pubNubClient = this.createPubNubClient();
-		const channel = `stream-${this.stream._id}`;
+		const channel = `stream-${this.stream.id}`;
 		pubNubClient.subscribe(
 			channel,
 			() => {},
@@ -53,7 +53,7 @@ class SubscriptionTest extends JoinTest {
 		const clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser.user._id;
+		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser.user.id;
 		clientConfig.authKey = this.currentUser.pubNubToken;
 		let client = new PubNub(clientConfig);
 		return new PubNubClient({

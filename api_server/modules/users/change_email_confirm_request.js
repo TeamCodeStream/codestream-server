@@ -143,7 +143,7 @@ class ChangeEmailConfirmRequest extends RestfulRequest {
 				summary: 'Directive to set the user\'s new email',
 				looksLike: {
 					user: {
-						_id: '<ID of the user>',
+						id: '<ID of the user>',
 						$set: {
 							email: '<New email>'
 						}

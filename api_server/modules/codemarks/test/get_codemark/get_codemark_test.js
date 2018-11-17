@@ -36,18 +36,18 @@ class GetCodemarkTest extends CodeStreamAPITest {
 	setPath (callback) {
 		// try to fetch the codemark
 		this.codemark = this.postData[0].codemark;
-		this.path = '/codemarks/' + this.codemark._id;
+		this.path = '/codemarks/' + this.codemark.id;
 		callback();
 	}
 
 	// validate the request response
 	validateResponse (data) {
 		// validate we got the correct codemark, and that we only got sanitized attributes
-		this.validateMatchingObject(this.codemark._id, data.codemark, 'codemark');
+		this.validateMatchingObject(this.codemark.id, data.codemark, 'codemark');
 		this.validateSanitized(data.codemark, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// validate we also got the parent post, with only sanitized attributes
-		this.validateMatchingObject(this.postData[0].post._id, data.post, 'post');
+		this.validateMatchingObject(this.postData[0].post.id, data.post, 'post');
 		this.validateSanitized(data.post, CodemarkTestConstants.UNSANITIZED_POST_ATTRIBUTES);
 	}
 }

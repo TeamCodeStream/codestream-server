@@ -22,7 +22,7 @@ class AlreadyDeletedTest extends DeletePostTest {
 			this.doApiRequest(
 				{
 					method: 'delete',
-					path: '/posts/' + this.post._id,
+					path: '/posts/' + this.post.id,
 					token: this.token
 				},
 				callback

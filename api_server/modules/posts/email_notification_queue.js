@@ -71,7 +71,7 @@ class EmailNotificationQueue {
 		let numRetries = 0;
 		let gotError = null;
 		const query = {
-			_id: this.request.data.streams.objectIdSafe(this.stream.id)
+			id: this.request.data.streams.objectIdSafe(this.stream.id)
 		};
 		const update = {
 			$set: {
@@ -135,7 +135,7 @@ class EmailNotificationQueue {
 	// we modified it ... see backOffAsNeeded() above
 	async restoreSeqNum (seqNum) {
 		await this.request.data.streams.updateDirect(
-			{ _id: this.request.data.streams.objectIdSafe(this.stream.id) },
+			{ id: this.request.data.streams.objectIdSafe(this.stream.id) },
 			{ $set: { emailNotificationSeqNum: seqNum } }
 		);
 	}
@@ -169,7 +169,7 @@ class EmailNotificationQueue {
 	// from being sent indefinitely....
 	async setWhenSet () {
 		await this.request.data.streams.updateDirect(
-			{ _id: this.request.data.streams.objectIdSafe(this.stream.id) },
+			{ id: this.request.data.streams.objectIdSafe(this.stream.id) },
 			{ $set: { emailNotificationSeqNumSetAt: Date.now() } }
 		);
 	}

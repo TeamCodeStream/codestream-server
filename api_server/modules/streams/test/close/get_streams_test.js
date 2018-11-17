@@ -66,14 +66,14 @@ class GetStreamsTest extends CloseTest {
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: `/streams?teamId=${this.team._id}&type=direct`,
+				path: `/streams?teamId=${this.team.id}&type=direct`,
 				token: this.currentUser.accessToken
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
 				Assert.equal(response.streams.length, this.otherStreams.length + 1, 'did not fetch all direct streams');
 				response.streams.forEach(stream => {
-					if (stream._id === this.stream._id) {
+					if (stream.id === this.stream.id) {
 						Assert(stream.isClosed, 'isClosed on test stream is not set');
 					}
 					else {

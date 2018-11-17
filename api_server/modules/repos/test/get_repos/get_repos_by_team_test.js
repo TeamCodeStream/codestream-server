@@ -13,7 +13,7 @@ class GetReposByTeamTest extends GetReposTest {
 		// i expect to fetch all repos owned by the team i'm on, including the one i created
 		// and those created by others
 		this.expectedRepos = this.postData.map(postData => postData.repos[0]);
-		this.path = '/repos?teamId=' + this.team._id;
+		this.path = '/repos?teamId=' + this.team.id;
 		callback();
 	}
 }

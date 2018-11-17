@@ -19,7 +19,7 @@ class ExistingUnregisterdUserOnTeamTest extends ExistingUnregisterdUserTest {
 		const team = data.teams[0];
 
 		// ensure returned team is NOT the same as the pre-created team the user was already on
-		Assert.notEqual(team._id, this.preExistingUnconnectedTeam._id, 'returned team matches pre-existing team');
+		Assert.notEqual(team.id, this.preExistingUnconnectedTeam.id, 'returned team matches pre-existing team');
 		super.validateResponse(data);
 	} 
 }

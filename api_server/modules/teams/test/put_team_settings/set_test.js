@@ -30,7 +30,8 @@ class SetTest extends PutTeamSettingsFetchTest {
 		this.expectSettings = set;
 		this.expectResponse = {
 			team: {
-				_id: this.team._id,
+				_id: this.team.id,	// DEPRECATE ME
+				id: this.team.id,
 				$set: {
 					'settings.settingOne': 1,
 					'settings.settingTwo': 'two',

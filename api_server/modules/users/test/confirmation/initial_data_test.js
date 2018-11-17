@@ -45,9 +45,9 @@ class InitialDataTest extends ConfirmationTest {
 	validateResponse (data) {
 		// validate that we got the team and repo in the response
 		Assert(data.teams.length === 1, 'no team in response');
-		this.validateMatchingObject(this.team._id, data.teams[0], 'team');
+		this.validateMatchingObject(this.team.id, data.teams[0], 'team');
 		Assert(data.repos.length === 1, 'no repo in response');
-		this.validateMatchingObject(this.repo._id, data.repos[0], 'repo');
+		this.validateMatchingObject(this.repo.id, data.repos[0], 'repo');
 		super.validateResponse(data);
 	}
 }

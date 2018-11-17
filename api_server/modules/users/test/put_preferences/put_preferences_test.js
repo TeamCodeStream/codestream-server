@@ -66,7 +66,8 @@ class PutPreferencesTest extends CodeStreamAPITest {
 	getBaseExpectedResponse () {
 		return {
 			user: {
-				_id: this.currentUser.user._id,
+				_id: this.currentUser.user.id,	// DEPRECATE ME
+				id: this.currentUser.user.id,
 				$set: {
 					version: this.expectVersion
 				},

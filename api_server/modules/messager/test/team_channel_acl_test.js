@@ -21,7 +21,7 @@ class TeamChannelACLTest extends CodeStreamMessageACLTest {
 	setChannelName (callback) {
 		// we'll subscribe to the channel for the created team, but since the pubnub channel
 		// is for the "other" user, they won't be able to subscribe
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = 'team-' + this.team.id;
 		callback();
 	}
 }

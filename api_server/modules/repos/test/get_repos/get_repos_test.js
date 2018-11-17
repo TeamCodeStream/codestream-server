@@ -54,8 +54,8 @@ class GetReposTest extends CodeStreamAPITest {
 			},
 			{
 				token: this.users[1].accessToken,
-				teamId: this.foreignTeam._id,
-				streamId: this.foreignTeamStream._id,
+				teamId: this.foreignTeam.id,
+				streamId: this.foreignTeamStream.id,
 				wantCodemark: true,
 				wantMarkers: 1,
 				withRandomStream: true

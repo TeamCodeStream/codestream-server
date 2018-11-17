@@ -21,7 +21,7 @@ class GetPostsBeforeAfterTest extends GetPostsTest {
 		const lowerPivot = this.expectedPosts[2].seqNum;
 		const upperPivot = this.expectedPosts[5].seqNum;
 		this.expectedPosts = this.expectedPosts.filter(post => post.seqNum > lowerPivot && post.seqNum < upperPivot);
-		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&before=${upperPivot}&after=${lowerPivot}`;
+		this.path = `/posts/?teamId=${this.team.id}&streamId=${this.stream.id}&before=${upperPivot}&after=${lowerPivot}`;
 		callback();
 	}
 }

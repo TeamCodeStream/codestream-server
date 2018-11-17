@@ -26,13 +26,13 @@ class GetCompanyTest extends CodeStreamAPITest {
 	// set the path for the request to test
 	setPath (callback) {
 		// requesting the company created by the other user, but i was included in the team
-		this.path = '/companies/' + this.company._id;
+		this.path = '/companies/' + this.company.id;
 		callback();
 	}
 
 	// validate that we got the right company
 	validateResponse (data) {
-		this.validateMatchingObject(this.company._id, data.company, 'company');
+		this.validateMatchingObject(this.company.id, data.company, 'company');
 		this.validateSanitized(data.company, CompanyTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

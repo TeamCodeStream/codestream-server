@@ -10,7 +10,7 @@ const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stre
 
 // fields expected in all posts
 const EXPECTED_REPO_FIELDS = [
-	'_id',
+	'id',
 	'deactivated',
 	'createdAt',
 	'modifiedAt',
@@ -25,7 +25,7 @@ const EXPECTED_REPO_FIELDS = [
 
 // fields expected in the team returned, if team created on the fly
 const EXPECTED_TEAM_FIELDS = [
-	'_id',
+	'id',
 	'deactivated',
 	'createdAt',
 	'modifiedAt',
@@ -37,7 +37,7 @@ const EXPECTED_TEAM_FIELDS = [
 
 // fields expected in the company returned, if team creeated on the fly
 const EXPECTED_COMPANY_FIELDS = [
-	'_id',
+	'id',
 	'deactivated',
 	'createdAt',
 	'modifiedAt',

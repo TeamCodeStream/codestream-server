@@ -37,12 +37,12 @@ class CorrectSortOrderTest extends GetStreamsTest {
 	// create some posts in some of the streams to rearrange their sort order, since streams are fetched by 
 	// most recent post first
 	createPosts (callback) {
-		this.expectedStreams = this.streamsByTeam[this.team._id].filter(stream => {
-			return stream.memberIds.includes(this.currentUser.user._id);
+		this.expectedStreams = this.streamsByTeam[this.team.id].filter(stream => {
+			return stream.memberIds.includes(this.currentUser.user.id);
 		});
 		this.expectedStreams.push(this.teamStream);
 		this.expectedStreams.sort((a, b) => {	// sort by ID, which is the default sort order when there are no posts 
-			return a._id.localeCompare(b._id);
+			return a.id.localeCompare(b.id);
 		});
 		const streamsWithPost = [];
 		// for these streams, and in this order, we'll create a post, which changes its sort order
@@ -69,14 +69,14 @@ class CorrectSortOrderTest extends GetStreamsTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				// we expect the mostRecentPostId field to be updated by this
-				stream.mostRecentPostId = stream.sortId = response.post._id;	
+				stream.mostRecentPostId = stream.sortId = response.post.id;	
 				stream.mostRecentPostCreatedAt = response.post.createdAt;
 				stream.version = 2;
 				setTimeout(() => { callback(); }, this.waitTime);	// wait for the update to take, since we get the response before it persists
 			},
 			{
-				teamId: this.team._id,
-				streamId: stream._id,
+				teamId: this.team.id,
+				streamId: stream.id,
 				token: this.users[1].accessToken	// let the "other" user create the post
 			}
 		);
@@ -84,7 +84,7 @@ class CorrectSortOrderTest extends GetStreamsTest {
 
 	// set the path to use when issuing the request
 	setPath (callback) {
-		this.path = `/streams/?teamId=${this.team._id}`;
+		this.path = `/streams/?teamId=${this.team.id}`;
 		callback();
 	}
 

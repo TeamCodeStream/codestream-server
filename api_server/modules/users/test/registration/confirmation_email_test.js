@@ -42,7 +42,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				this.users.push(response);
 				this.currentUser = response;
-				this.currentUser.pubNubToken = this.currentUser.user._id;
+				this.currentUser.pubNubToken = this.currentUser.user.id;
 				callback();
 			}
 		);
@@ -53,7 +53,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		// for the user we expect to receive the confirmation email, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the outbound email
 		// service on this channel, and then we'll validate the data
-		this.channelName = `user-${this.currentUser.user._id}`;
+		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
 
@@ -62,7 +62,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		// expect to receive this message
 		this.message = {
 			type: 'confirm',
-			userId: this.currentUser.user._id
+			userId: this.currentUser.user.id
 		};
 		// in this case, we've already started the test in makeData, which created the user ...
 		// but the email was delayed, so we can just start listening for it now...

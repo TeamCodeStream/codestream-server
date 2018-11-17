@@ -17,9 +17,9 @@ class ACLTest extends GetTeamsTest {
 	setPath (callback) {
 		// include the "foreign" team in the IDs, this should fail
 		let ids = [
-			this.team._id,
-			this.teamWithMe._id,
-			this.teamWithoutMe._id
+			this.team.id,
+			this.teamWithMe.id,
+			this.teamWithoutMe.id
 		];
 		this.path = '/teams?ids=' + ids.join(',');
 		callback();

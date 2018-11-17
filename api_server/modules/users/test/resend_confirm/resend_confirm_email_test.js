@@ -48,7 +48,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				this.currentUser = {
 					user: response.user,
-					pubNubToken: response.user._id
+					pubNubToken: response.user.id
 				};
 				this.originalToken = response.user.confirmationToken;
 				callback();
@@ -77,7 +77,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 		// for the user we expect to receive the confirmation email, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the outbound email
 		// service on this channel, and then we'll validate the data
-		this.channelName = `user-${this.currentUser.user._id}`;
+		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
 
@@ -86,7 +86,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 		// this is the message we expect to see
 		this.message = {
 			type: 'confirm',
-			userId: this.currentUser.user._id
+			userId: this.currentUser.user.id
 		};
 		// in this case, we've already started the test in makeData, which created the user 
 		// and then made the resend request...
@@ -114,7 +114,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 		Assert.equal(payload.iss, 'CodeStream', 'token payload issuer is not CodeStream');
 		Assert.equal(payload.alg, 'HS256', 'token payload algortihm is not HS256');
 		Assert.equal(payload.type, 'conf', 'token payload type should be conf');
-		Assert.equal(payload.uid, this.currentUser.user._id, 'uid in token payload is incorrect');
+		Assert.equal(payload.uid, this.currentUser.user.id, 'uid in token payload is incorrect');
 		Assert(payload.iat <= Math.floor(Date.now() / 1000), 'iat in token payload is not earlier than now');
 		Assert.equal(payload.exp, payload.iat + 86400, 'token payload expiration is not one day out');
 

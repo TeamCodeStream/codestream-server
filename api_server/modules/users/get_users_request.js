@@ -24,7 +24,7 @@ class GetUsersRequest extends GetManyRequest {
 		// can also specify individual IDs
 		if (this.request.query.ids) {
 			let ids = decodeURIComponent(this.request.query.ids).toLowerCase().split(',');
-			query._id = this.data.users.inQuerySafe(ids);
+			query.id = this.data.users.inQuerySafe(ids);
 		}
 		return query;
 	}

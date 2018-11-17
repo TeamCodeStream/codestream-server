@@ -64,7 +64,7 @@ class DataCollectionTest extends GenericTest {
 		catch (error) {
 			return callback(error);
 		}
-		this.testModel.id = this.testModel.attributes._id = createdModel.id;
+		this.testModel.id = this.testModel.attributes.id = createdModel.id;
 		this.testModel.attributes.version = 1;
 		callback();
 	}
@@ -88,7 +88,7 @@ class DataCollectionTest extends GenericTest {
 		catch (error) {
 			return callback(error);
 		}
-		this.controlModel.id = this.controlModel.attributes._id = createdModel.id;
+		this.controlModel.id = this.controlModel.attributes.id = createdModel.id;
 		callback();
 	}
 
@@ -144,7 +144,7 @@ class DataCollectionTest extends GenericTest {
 		catch (error) {
 			return callback(error);
 		}
-		this.models[n].id = this.models[n].attributes._id = createdModel.id;
+		this.models[n].id = this.models[n].attributes.id = createdModel.id;
 		this.models[n].attributes.version = 1;
 		callback();
 	}
@@ -165,7 +165,7 @@ class DataCollectionTest extends GenericTest {
 	// do an established update of the test model
 	async updateTestModel (callback) {
 		const update = {
-			_id: this.testModel.id,
+			id: this.testModel.id,
 			text: 'replaced!',
 			number: 123
 		};
@@ -186,7 +186,7 @@ class DataCollectionTest extends GenericTest {
 	validateModelResponse () {
 		Assert(typeof this.response === 'object', 'improper response');
 		Assert(typeof this.response.attributes === 'object', 'improper fetched model');
-		this.testModel.attributes.id = this.testModel.attributes._id;
+		this.testModel.attributes.id = this.testModel.attributes.id;
 		Assert.deepEqual(this.testModel.attributes, this.response.attributes, 'fetched model doesn\'t match');
 		if (this.expectedOp) {
 			Assert.deepEqual(this.actualOp, this.expectedOp, 'returned op is not correct');

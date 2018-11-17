@@ -16,11 +16,11 @@ class AddAdminTest extends PutTeamTest {
 			if (this.addedAdmins.length === 1) {
 				// this tests conversion of single element to an array
 				const addedAdmin = this.addedAdmins[0];
-				this.data.$addToSet = { adminIds: addedAdmin._id };
-				this.expectedData.team.$addToSet = { adminIds: [addedAdmin._id] };
+				this.data.$addToSet = { adminIds: addedAdmin.id };
+				this.expectedData.team.$addToSet = { adminIds: [addedAdmin.id] };
 			}
 			else {
-				const addedAdminIds = this.addedAdmins.map(user => user._id);
+				const addedAdminIds = this.addedAdmins.map(user => user.id);
 				this.data.$addToSet = { adminIds: addedAdminIds };
 				this.expectedData.team.$addToSet = { adminIds: addedAdminIds };
 			}

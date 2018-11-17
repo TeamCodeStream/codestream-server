@@ -16,7 +16,7 @@ class MeChannelTest extends CodeStreamMessageTest {
 	// set the channel to try to subscribe to
 	setChannelName (callback) {
 		const currentUser = this.users[0].user;
-		this.channelName = 'user-' + currentUser._id;
+		this.channelName = 'user-' + currentUser.id;
 		callback();
 	}
 }

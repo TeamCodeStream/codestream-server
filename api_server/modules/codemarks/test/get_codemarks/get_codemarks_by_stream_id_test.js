@@ -26,11 +26,11 @@ class GetCodemarksByStreamIdTest extends GetCodemarksTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherStream = response.stream;
-				this.path = `/codemarks?teamId=${this.team._id}&streamId=${this.stream._id}`;
+				this.path = `/codemarks?teamId=${this.team.id}&streamId=${this.stream.id}`;
 				callback();
 			},
 			{
-				teamId: this.team._id,
+				teamId: this.team.id,
 				type: 'channel',
 				token: this.users[1].accessToken
 			}
@@ -50,7 +50,7 @@ class GetCodemarksByStreamIdTest extends GetCodemarksTest {
 		this.postFactory.createRandomPost(
 			callback,
 			{
-				streamId: this.otherStream._id,
+				streamId: this.otherStream.id,
 				token: this.users[1].accessToken,
 				wantCodemark: true
 			}
@@ -60,7 +60,7 @@ class GetCodemarksByStreamIdTest extends GetCodemarksTest {
 	// validate correct response
 	validateResponse (data) {
 		data.codemarks.forEach(codemark => {
-			Assert.equal(codemark.streamId, this.stream._id, 'got a codemark with non-matching stream ID');
+			Assert.equal(codemark.streamId, this.stream.id, 'got a codemark with non-matching stream ID');
 		});
 		super.validateResponse(data);
 	}

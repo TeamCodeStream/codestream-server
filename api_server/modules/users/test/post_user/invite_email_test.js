@@ -40,7 +40,7 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					if (error) { return callback(error); }
 					this.userCreator = this.currentUser.user;
 					this.currentUser = {
-						pubNubToken: response.user._id,
+						pubNubToken: response.user.id,
 						user: response.user
 					};
 					callback();
@@ -54,7 +54,7 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		// for the user we expect to receive the invite email, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the outbound email
 		// service on this channel, and then we'll validate the data
-		this.channelName = `user-${this.currentUser.user._id}`;
+		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
 
@@ -68,8 +68,8 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		// this is the message we expect to see
 		this.message = {
 			type: 'invite',
-			userId: this.currentUser.user._id,
-			inviterId: this.userCreator._id,
+			userId: this.currentUser.user.id,
+			inviterId: this.userCreator.id,
 			teamName: this.team.name,
 			checkOutLink: expectedLink
 		};

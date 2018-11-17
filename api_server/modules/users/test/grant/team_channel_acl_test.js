@@ -23,7 +23,7 @@ class TeamChannelACLTest extends GrantTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// set to grant access to the channel for a team that the current user is not a member of
-		this.path = '/grant/team-' + this.foreignTeam._id;
+		this.path = '/grant/team-' + this.foreignTeam.id;
 		callback();
 	}
 }

@@ -18,7 +18,7 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// it is the team channel
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = 'team-' + this.team.id;
 		callback();
 	}
 
@@ -37,9 +37,10 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				if (error) { return callback(error); }
 				this.message = response;
 				this.message.team = {
-					_id: this.team._id,
+					_id: this.team.id,	// DEPRECATE ME
+					id: this.team.id,
 					$addToSet: {
-						memberIds: response.user._id
+						memberIds: response.user.id
 					},
 					$set: {
 						version: 6

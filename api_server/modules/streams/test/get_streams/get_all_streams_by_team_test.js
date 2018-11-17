@@ -18,9 +18,9 @@ class GetAllStreamsByTeamTest extends GetStreamsTest {
 	setPath (callback) {
 		// we'll fetch all the streams from the team (without repo, it's all the channel and direct streams),
 		// but note that only the streams we are a member of will be fetched
-		const teamId = this.team._id;
+		const teamId = this.team.id;
 		const teamStreams = this.streamsByTeam[teamId];
-		const userId = this.currentUser.user._id;
+		const userId = this.currentUser.user.id;
 		this.expectedStreams = teamStreams.filter(
 			stream => stream.isTeamStream || stream.privacy === 'public' || stream.memberIds.includes(userId)
 		);

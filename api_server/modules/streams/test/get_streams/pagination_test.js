@@ -37,12 +37,12 @@ class PaginationTest extends GetStreamsTest {
 	run (callback) {
 		// make sure our expected streams our sorted, since they will come back to us (and are paginated)
 		// in sorted order
-		this.expectedStreams = this.streamsByTeam[this.team._id].filter(stream => {
-			return stream.memberIds.includes(this.currentUser.user._id);
+		this.expectedStreams = this.streamsByTeam[this.team.id].filter(stream => {
+			return stream.memberIds.includes(this.currentUser.user.id);
 		});
 		this.expectedStreams.push(this.teamStream);
 		this.expectedStreams.sort((a, b) => {
-			return a._id.localeCompare(b._id);
+			return a.id.localeCompare(b.id);
 		});
 		// divide into pages
 		this.numPages = Math.floor(this.numStreams / this.streamsPerPage);
@@ -65,7 +65,7 @@ class PaginationTest extends GetStreamsTest {
 
 	// fetch a single page of streams and validate the response
 	fetchPage (pageNum, callback) {
-		this.path = `/streams/?teamId=${this.team._id}`;
+		this.path = `/streams/?teamId=${this.team.id}`;
 		if (this.tryOverLimit) {
 			// we'll try to fetch more than the server's limit, we should still get back
 			// the maximum number of streams allowed in a page

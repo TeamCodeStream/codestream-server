@@ -29,13 +29,13 @@ class ACLStreamTest extends GetMarkerLocationsTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				// fetch marker locations for this stream
-				this.path = `/marker-locations?teamId=${this.team._id}&streamId=${response.stream._id}&commitHash=${this.postOptions.commitHash}`;
+				this.path = `/marker-locations?teamId=${this.team.id}&streamId=${response.stream.id}&commitHash=${this.postOptions.commitHash}`;
 				callback();
 			},
 			{
 				type: 'channel',
 				token: this.users[1].accessToken,	 // the other user creates it
-				teamId: this.team._id
+				teamId: this.team.id
 			}
 		);
 	}

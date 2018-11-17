@@ -23,7 +23,7 @@ class GetMyselfNoMeAttributesTest extends GetMyselfTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.id = this.currentUser.user._id; // we'll fetch "ourselves" but by our real ID, not by "me" ... this doesn't return me attributes
+			this.id = this.currentUser.user.id; // we'll fetch "ourselves" but by our real ID, not by "me" ... this doesn't return me attributes
 			callback();
 		});
 	}

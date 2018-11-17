@@ -31,7 +31,7 @@ class ArchiveClearUnreadsMessageTest extends Aggregation(CodeStreamMessageTest, 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// lastReads is being updated for the individual user
-		this.channelName = `user-${this.currentUser.user._id}`;
+		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
 
@@ -41,9 +41,10 @@ class ArchiveClearUnreadsMessageTest extends Aggregation(CodeStreamMessageTest, 
 			if (error) { return callback(error); }
 			this.message = {
 				user: {
-					_id: this.currentUser.user._id,
+					_id: this.currentUser.user.id,	// DEPRECATE ME
+					id: this.currentUser.user.id,
 					$unset: {
-						[`lastReads.${this.stream._id}`]: true
+						[`lastReads.${this.stream.id}`]: true
 					},
 					$set: {
 						version: 4

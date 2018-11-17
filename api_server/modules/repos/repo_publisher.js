@@ -35,8 +35,8 @@ class RepoPublisher {
 		}
 		let message = DeepClone(this.data);
 		message.requestId = this.request.request.id;
-		const channel = 'user-' + user._id;
-		let currentUser = message.users.find(userInData => user._id === userInData._id);
+		const channel = 'user-' + user.id;
+		let currentUser = message.users.find(userInData => user.id === userInData.id);
 		if (currentUser !== -1) {
 			// explicitly send the directive to add company and team to the user attributes
 			// for this user, avoiding race conditions with the arrays
@@ -44,7 +44,7 @@ class RepoPublisher {
 			delete currentUser.teamIds;
 			currentUser.$addToSet = {
 				companyIds: this.team.companyId,
-				teamIds: this.team._id
+				teamIds: this.team.id
 			};
 		}
 		try {
@@ -56,7 +56,7 @@ class RepoPublisher {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish team-add message to user ${user._id}: ${JSON.stringify(error)}`);
+			this.request.warn(`Could not publish team-add message to user ${user.id}: ${JSON.stringify(error)}`);
 		}
 	}
 
@@ -75,9 +75,10 @@ class RepoPublisher {
 			// if the repo already existed, all we need to do is let the team
 			// members that new users have been added to the team
 			message.users = this.data.users;
-			const newMemberIds = message.users.map(user => user._id);
+			const newMemberIds = message.users.map(user => user.id);
 			message.team = {
-				_id: this.team._id,
+				id: this.team.id,
+				_id: this.team.id,	// DEPRECATE ME
 				$addToSet: { memberIds: newMemberIds }
 			};
 		}
@@ -91,7 +92,7 @@ class RepoPublisher {
 
 	// publish a given message to the team channel for the team that owns the repo
 	async publishMessageToTeam (message) {
-		const teamId = this.team._id;
+		const teamId = this.team.id;
 		const channel = 'team-' + teamId;
 		try {
 			await this.messager.publish(

@@ -18,7 +18,7 @@ class StreamChannelGrantTest extends GrantTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// set to grant access to the channel for a stream that the current user is a member of
-		this.path = '/grant/stream-' + this.stream._id;
+		this.path = '/grant/stream-' + this.stream.id;
 		callback();
 	}
 }

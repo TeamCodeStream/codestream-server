@@ -20,13 +20,13 @@ class GetStreamsGreaterThanEqualTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// pick the ID of a stream in the middle of the streams we created, and expect all those with IDs greater than or equal
-		this.expectedStreams = this.streamsByTeam[this.team._id].filter(stream => {
-			return stream.memberIds.includes(this.currentUser.user._id);
+		this.expectedStreams = this.streamsByTeam[this.team.id].filter(stream => {
+			return stream.memberIds.includes(this.currentUser.user.id);
 		});
 		this.expectedStreams.push(this.teamStream);
-		const pivot = this.expectedStreams[2]._id;
+		const pivot = this.expectedStreams[2].id;
 		this.expectedStreams = this.expectedStreams.filter(stream => ObjectID(stream.sortId) >= ObjectID(pivot));
-		this.path = `/streams/?teamId=${this.team._id}&gte=${pivot}`;
+		this.path = `/streams/?teamId=${this.team.id}&gte=${pivot}`;
 		callback();
 	}
 }

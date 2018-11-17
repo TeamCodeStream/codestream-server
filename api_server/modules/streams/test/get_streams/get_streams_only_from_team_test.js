@@ -12,8 +12,8 @@ class GetStreamsOnlyFromTeamTest extends GetStreamsTest {
 	setPath (callback) {
 		// we'll try to fetch a few streams from our team, and one from the "foreign" team, which we
 		// don't belong to ... we should get back only the streams from our team
-		const teamId = this.team._id;
-		const foreignTeamId = this.foreignTeam._id;
+		const teamId = this.team.id;
+		const foreignTeamId = this.foreignTeam.id;
 		this.expectedStreams = [
 			this.streamsByTeam[teamId][1],
 			this.streamsByTeam[teamId][5],
@@ -24,7 +24,7 @@ class GetStreamsOnlyFromTeamTest extends GetStreamsTest {
 			this.streamsByTeam[foreignTeamId][2]
 		];
 		const allStreams = [...this.expectedStreams, ...otherStreams];
-		const ids = allStreams.map(stream => stream._id);
+		const ids = allStreams.map(stream => stream.id);
 		this.path = `/streams?teamId=${teamId}&ids=${ids}`;
 		callback();
 	}

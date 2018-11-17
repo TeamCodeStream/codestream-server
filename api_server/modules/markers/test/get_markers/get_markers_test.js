@@ -40,7 +40,7 @@ class GetMarkersTest extends CodeStreamAPITest {
 	setMarkers (callback) {
 		this.markers = this.postData.map(postData => postData.markers[0]);
 		this.locations = this.postData.reduce((locations, postData) => {
-			const markerId = postData.markers[0]._id;
+			const markerId = postData.markers[0].id;
 			locations[markerId] = postData.markerLocations[0].locations[markerId];
 			return locations;
 		}, {});
@@ -51,8 +51,8 @@ class GetMarkersTest extends CodeStreamAPITest {
 	// get query parameters to use in the test query
 	getQueryParameters () {
 		return {
-			teamId: this.team._id,
-			streamId: this.repoStreams[0]._id
+			teamId: this.team.id,
+			streamId: this.repoStreams[0].id
 		};
 	}
 
@@ -74,10 +74,10 @@ class GetMarkersTest extends CodeStreamAPITest {
 
 		// make sure that for each marker, we also got a post and an codemark that reference the marker
 		data.markers.forEach(marker => {
-			const codemark = data.codemarks.find(codemark => codemark._id === marker.codemarkId);
+			const codemark = data.codemarks.find(codemark => codemark.id === marker.codemarkId);
 			Assert(codemark, 'no codemark found for marker');
 			if (!marker.providerType) {
-				const post = data.posts.find(post => post._id === codemark.postId);
+				const post = data.posts.find(post => post.id === codemark.postId);
 				Assert(post, 'no post found for marker\'s codemark');
 			}
 		});

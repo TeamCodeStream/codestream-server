@@ -42,7 +42,7 @@ class ModelUpdater {
 		if (attributes) {
 			const info = RequireAllow.requireAllow(this.attributes, { optional: attributes });
 			if (!info) {
-				this.attributes._id = this.id;
+				this.attributes.id = this.id;
 			}
 			else if (info.invalid) {
 				throw this.errorHandler.error('invalidParameter', { info: info.invalid.join(',') });
@@ -51,7 +51,7 @@ class ModelUpdater {
 				this.request.warn(`These attributes were deleted: ${info.deleted.join(',')}`);
 			}
 		}
-		this.attributes._id = this.id;
+		this.attributes.id = this.id;
 	}
 
 	// which attributes are allowed? override to specify

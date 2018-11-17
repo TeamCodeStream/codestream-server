@@ -35,7 +35,7 @@ class MessageTest extends CodeStreamMessageTest {
 	// set the channel name to listen on
 	setChannelName (callback) {
 		// preference changes come back to the user on their own me-channel
-		this.channelName = 'user-' + this.currentUser.user._id;
+		this.channelName = 'user-' + this.currentUser.user.id;
 		callback();
 	}
 
@@ -56,7 +56,8 @@ class MessageTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				this.message = {
 					user: {
-						_id: this.currentUser.user._id
+						_id: this.currentUser.user.id,	// DEPRECATE ME
+						id: this.currentUser.user.id
 					}
 				};
 				this.message = this.getBaseExpectedResponse();
@@ -70,7 +71,8 @@ class MessageTest extends CodeStreamMessageTest {
 	getBaseExpectedResponse () {
 		return {
 			user: {
-				_id: this.currentUser.user._id,
+				_id: this.currentUser.user.id,	// DEPRECATE ME
+				id: this.currentUser.user.id,
 				$set: {
 					version: this.expectVersion
 				},

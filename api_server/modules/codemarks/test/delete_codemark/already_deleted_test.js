@@ -22,7 +22,7 @@ class AlreadyDeletedTest extends DeleteCodemarkTest {
 			this.doApiRequest(
 				{
 					method: 'delete',
-					path: '/codemarks/' + this.codemark._id,
+					path: '/codemarks/' + this.codemark.id,
 					token: this.token
 				},
 				callback

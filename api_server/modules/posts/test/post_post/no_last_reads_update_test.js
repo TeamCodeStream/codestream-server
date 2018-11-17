@@ -52,7 +52,7 @@ class NoLastReadsUpdateTest extends CodeStreamAPITest {
 	markRead (callback) {
 		this.doApiRequest({
 			method: 'put',
-			path: '/read/' + this.stream._id,
+			path: '/read/' + this.stream.id,
 			token: this.token
 		}, callback);
 	}
@@ -72,7 +72,7 @@ class NoLastReadsUpdateTest extends CodeStreamAPITest {
 	// create a single post in the stream we created
 	createPost (n, callback) {
 		const postOptions = {
-			streamId: this.stream._id,
+			streamId: this.stream.id,
 			token: this.users[1].accessToken	// the "other user" will create the posts
 		};
 		this.postFactory.createRandomPost(
@@ -93,7 +93,7 @@ class NoLastReadsUpdateTest extends CodeStreamAPITest {
 		// which we marked as read for the current user
 		const firstPosts = this.postData.map(postData => postData.post);
 		const lastReadPost = firstPosts[firstPosts.length - 1];
-		Assert(data.user.lastReads[this.stream._id] === lastReadPost.seqNum, 'lastReads for stream is not equal to the seqNum of the last post read');
+		Assert(data.user.lastReads[this.stream.id] === lastReadPost.seqNum, 'lastReads for stream is not equal to the seqNum of the last post read');
 	}
 }
 

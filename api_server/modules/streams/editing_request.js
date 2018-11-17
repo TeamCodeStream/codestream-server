@@ -264,7 +264,7 @@ class EditingRequest extends RestfulRequest {
 			return;
 		}
 		const query = {
-			_id: this.data.streams.inQuerySafe(this.newStreamsBeingEdited)
+			id: this.data.streams.inQuerySafe(this.newStreamsBeingEdited)
 		};
 		await this.data.streams.updateDirect(
 			query,
@@ -286,7 +286,7 @@ class EditingRequest extends RestfulRequest {
 			return ;
 		}
 		const query = {
-			_id: this.data.streams.inQuerySafe(this.streamsNoLongerBeingEdited)
+			id: this.data.streams.inQuerySafe(this.streamsNoLongerBeingEdited)
 		};
 		await this.data.streams.updateDirect(
 			query,
@@ -304,13 +304,15 @@ class EditingRequest extends RestfulRequest {
 		// new streams the user is editing, indicated as such
 		this.newStreamsBeingEdited.forEach(streamId => {
 			this.responseData.streams.push(Object.assign({}, {
-				_id: streamId
+				id: streamId,
+				_id: streamId	// DEPRECATE ME
 			}, this.beingEditedOp));
 		});
 		// streams the user is no longer editing, indicated as such
 		this.streamsNoLongerBeingEdited.forEach(streamId => {
 			this.responseData.streams.push(Object.assign({}, {
-				_id: streamId
+				id: streamId,
+				_id: streamId	// DEPRECATE ME
 			}, this.noLongerBeingEditedOp));
 		});
 	}

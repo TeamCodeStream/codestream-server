@@ -27,13 +27,13 @@ class ThirdReactFetchTest extends SecondReactFetchTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/react/' + this.post._id,
+				path: '/react/' + this.post.id,
 				data: data,
 				token: thirdReactor.accessToken
 			},
 			error => {
 				if (error) { return callback(error); }
-				this.expectedReactions[this.reaction].push(thirdReactor.user._id);
+				this.expectedReactions[this.reaction].push(thirdReactor.user.id);
 				callback();
 			}
 		);

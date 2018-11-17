@@ -13,7 +13,7 @@ class MentionTest extends PostToChannelTest {
 	makePostData (callback) {
 		super.makePostData(() => {
 			// add users to the mentionedUserIds array
-			this.data.mentionedUserIds = [this.users[1].user._id, this.currentUser.user._id];
+			this.data.mentionedUserIds = [this.users[1].user.id, this.currentUser.user.id];
 			callback();
 		});
 	}

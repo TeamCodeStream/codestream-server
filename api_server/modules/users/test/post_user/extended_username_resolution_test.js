@@ -47,7 +47,7 @@ class ExtendedUsernameResolutionTest extends UsernameResolutionTest {
 				method: 'post',
 				path: '/users',
 				data: {
-					teamId: this.team._id,
+					teamId: this.team.id,
 					email: `${conflictingUsername}@${domain}`
 				},
 				token: this.token

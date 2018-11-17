@@ -12,9 +12,9 @@ class GetStreamsOnlyFromRepoTest extends GetStreamsTest {
 	setPath (callback) {
 		// we'll try to fetch a few streams from our repo, and one from the "foreign" repo, which we
 		// don't have access to ... we should get back only the streams from our repo
-		const teamId = this.team._id;
-		const repoId = this.repo._id;
-		const foreignRepoId = this.foreignRepo._id;
+		const teamId = this.team.id;
+		const repoId = this.repo.id;
+		const foreignRepoId = this.foreignRepo.id;
 		this.expectedStreams = [
 			this.streamsByRepo[repoId][0],
 			this.streamsByRepo[repoId][2]
@@ -23,7 +23,7 @@ class GetStreamsOnlyFromRepoTest extends GetStreamsTest {
 			this.streamsByRepo[foreignRepoId][1],
 		];
 		const allStreams = [...this.expectedStreams, ...otherStreams];
-		const ids = allStreams.map(stream => stream._id);
+		const ids = allStreams.map(stream => stream.id);
 		this.path = `/streams?teamId=${teamId}&repoId=${repoId}&ids=${ids}`;
 		callback();
 	}

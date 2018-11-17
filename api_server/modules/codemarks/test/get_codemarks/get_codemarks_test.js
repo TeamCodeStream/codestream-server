@@ -45,7 +45,7 @@ class GetCodemarksTest extends CodeStreamAPITest {
 	// set the path to use for the request
 	setPath (callback) {
 		this.expectedCodemarks = this.codemarks;
-		this.path = `/codemarks?teamId=${this.team._id}`;
+		this.path = `/codemarks?teamId=${this.team.id}`;
 		callback();
 	}
 
@@ -58,12 +58,12 @@ class GetCodemarksTest extends CodeStreamAPITest {
 		// make sure we got a post with each codemark that matches the post to which the codemark belongs
 		data.codemarks.forEach(codemark => {
 			if (!codemark.providerType) {
-				const post = data.posts.find(post => post._id === codemark.postId);
+				const post = data.posts.find(post => post.id === codemark.postId);
 				Assert(post, 'no post found for marker\'s codemark');
 			}
 			if (this.postOptions.wantMarker) {
 				codemark.markerIds.forEach(markerId => {
-					const marker = data.markers.find(marker => marker._id === markerId);
+					const marker = data.markers.find(marker => marker.id === markerId);
 					Assert(marker, 'no marker found for codemark\'s marker');
 				});
 			}

@@ -25,7 +25,7 @@ class OtherStreamChannelACLTest extends GrantTest {
 	setPath (callback) {
 		// set to grant access to the channel for a stream in the current user's team, but the current user 
 		// is not a member of the stream
-		this.path = '/grant/stream-' + this.otherStream._id;
+		this.path = '/grant/stream-' + this.otherStream.id;
 		callback();
 	}
 }

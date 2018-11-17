@@ -22,7 +22,7 @@ class UserChannelACLTest extends GrantTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// set to grant access to the other user's me-channel
-		this.path = '/grant/user-' + this.users[1].user._id;
+		this.path = '/grant/user-' + this.users[1].user.id;
 		callback();
 	}
 }

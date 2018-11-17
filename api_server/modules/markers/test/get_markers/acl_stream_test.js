@@ -29,13 +29,13 @@ class ACLStreamTest extends GetMarkersTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				// we'll try to fetch from this other stream
-				this.path = `/markers?teamId=${this.team._id}&streamId=${response.stream._id}`;
+				this.path = `/markers?teamId=${this.team.id}&streamId=${response.stream.id}`;
 				callback();
 			},
 			{
 				type: 'channel',	// not even a file stream!
 				token: this.users[1].accessToken,	// other user is the creator
-				teamId: this.team._id
+				teamId: this.team.id
 			}
 		);
 	}

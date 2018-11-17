@@ -50,7 +50,7 @@ class ArchiveClearUnreadsTest extends PutStreamTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				Assert.equal(typeof response.user.lastReads[this.stream._id], 'undefined', 'lastReads for the user was not deleted');
+				Assert.equal(typeof response.user.lastReads[this.stream.id], 'undefined', 'lastReads for the user was not deleted');
 				callback();
 			}
 		);

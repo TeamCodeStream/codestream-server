@@ -20,15 +20,15 @@ class GetStreamsLimitTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// set up our expected streams to be in sorted order, and then limit to the first 3
-		this.expectedStreams = this.streamsByTeam[this.team._id].filter(stream => {
-			return stream.memberIds.includes(this.currentUser.user._id);
+		this.expectedStreams = this.streamsByTeam[this.team.id].filter(stream => {
+			return stream.memberIds.includes(this.currentUser.user.id);
 		});
 		this.expectedStreams.push(this.teamStream);
 		this.expectedStreams.sort((a, b) => {
-			return a._id.localeCompare(b._id);
+			return a.id.localeCompare(b.id);
 		});
 		this.expectedStreams.splice(0, this.numStreams + 1 - 3);
-		this.path = `/streams/?teamId=${this.team._id}&&limit=3`;
+		this.path = `/streams/?teamId=${this.team.id}&&limit=3`;
 		callback();
 	}
 }

@@ -28,7 +28,8 @@ class UnsetTest extends PutTeamSettingsFetchTest {
 		};
 		this.expectResponse = {
 			team: {
-				_id: this.team._id,
+				_id: this.team.id,	// DEPRECATE ME
+				id: this.team.id,
 				$unset: {
 					'settings.settingTwo': true
 				}

@@ -29,7 +29,7 @@ class NoReplyToReplyTest extends PostPostTest {
 	makePostData (callback) {
 		super.makePostData(() => {
 			// use the ID of the second post we created, as a reply to the first
-			this.data.parentPostId = this.postData[1].post._id;
+			this.data.parentPostId = this.postData[1].post.id;
 			callback();
 		});
 	}

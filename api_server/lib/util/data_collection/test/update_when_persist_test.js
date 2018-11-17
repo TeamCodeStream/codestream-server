@@ -53,7 +53,7 @@ class UpdateWhenPersistTest extends DataCollectionTest {
 			return callback(error);
 		}
 		response.forEach(responseObject => {
-			Assert(responseObject.text === 'hello' + responseObject.number, `model ${responseObject._id} was persisted`);
+			Assert(responseObject.text === 'hello' + responseObject.number, `model ${responseObject.id} was persisted`);
 		});
 		callback();
 	}
@@ -79,10 +79,10 @@ class UpdateWhenPersistTest extends DataCollectionTest {
 		Assert(this.response.length === this.models.length);
 		this.response.forEach(responseObject => {
 			if (this.wantN(responseObject.number)) {
-				Assert(responseObject.text === 'goodbye', `expected model ${responseObject._id} wasn't updated`);
+				Assert(responseObject.text === 'goodbye', `expected model ${responseObject.id} wasn't updated`);
 			}
 			else {
-				Assert(responseObject.text === 'hello' + responseObject.number, `model ${responseObject._id} seems to have been improperly updated`);
+				Assert(responseObject.text === 'hello' + responseObject.number, `model ${responseObject.id} seems to have been improperly updated`);
 			}
 		});
 	}

@@ -24,7 +24,7 @@ class ReadACLTest extends ReadTest {
 	}
 
 	markRead (callback) {
-		this.path = '/read/' + this.stream._id,
+		this.path = '/read/' + this.stream.id,
 		callback();
 	}
 }

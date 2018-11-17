@@ -9,7 +9,7 @@ class CodeStreamMessageACLTest extends CodeStreamMessageTest {
 	run (callback) {
 		// try to subscribe to the channel of interest, but we expect this to fail
 		const user = this.users[0].user;
-		this.pubnubClientsForUser[user._id].subscribe(
+		this.pubnubClientsForUser[user.id].subscribe(
 			this.channelName,
 			() => {
 				Assert.fail('message received');

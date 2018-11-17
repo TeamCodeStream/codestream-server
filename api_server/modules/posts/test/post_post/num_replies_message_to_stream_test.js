@@ -26,8 +26,8 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 			callback,
 			{
 				token: this.users[1].accessToken,
-				streamId: this.stream._id,
-				parentPostId: this.postData[0].post._id
+				streamId: this.stream.id,
+				parentPostId: this.postData[0].post.id
 			}
 		);
 	}
@@ -35,7 +35,7 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// it is the stream channel
-		this.channelName = `stream-${this.stream._id}`;
+		this.channelName = `stream-${this.stream.id}`;
 		callback();
 	}
 
@@ -46,8 +46,8 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 		// numReplies for the parent post is set to 2
 		const postOptions = {
 			token: this.users[1].accessToken,
-			streamId: this.stream._id,
-			parentPostId: this.postData[0].post._id
+			streamId: this.stream.id,
+			parentPostId: this.postData[0].post.id
 		};
 		this.postFactory.createRandomPost(
 			(error, response) => {
@@ -55,7 +55,8 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 				this.post = response.post;
 				this.message = {
 					post: {
-						_id: this.postData[0].post._id,
+						_id: this.postData[0].post.id,	// DEPRECATE ME
+						id: this.postData[0].post.id,
 						$set: { 
 							numReplies: 2,
 							version: 3

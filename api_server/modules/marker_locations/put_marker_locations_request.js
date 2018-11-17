@@ -86,7 +86,7 @@ class PutMarkerLocationsRequest extends RestfulRequest {
 			update.$set._forTesting = true;
 		}
 		await this.data.markerLocations.updateDirectWhenPersist(
-			{ _id: id },
+			{ id },
 			update,
 			{ upsert: true }
 		);

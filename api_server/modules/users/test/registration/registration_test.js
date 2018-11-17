@@ -43,7 +43,7 @@ class RegistrationTest extends CodeStreamAPITest {
 		(user.secondaryEmails || []).sort();
 		(this.data.secondaryEmails || []).sort();
 		let result = (
-			((user.id === user._id) || errors.push('id not set to _id')) && 
+			((user.id === user._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
 			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&
 			((user.username === this.data.username) || errors.push('incorrect username')) &&
@@ -52,7 +52,7 @@ class RegistrationTest extends CodeStreamAPITest {
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((user.creatorId === user._id.toString()) || errors.push('creatorId not equal to _id')) &&
+			((user.creatorId === user.id.toString()) || errors.push('creatorId not equal to id')) &&
 			((typeof user.confirmationCode === 'string') || errors.push('confirmationCode is not a string')) &&
 			((user.phoneNumber === '') || errors.push('phoneNumber not set to default of empty string')) &&
 			((user.iWorkOn === '') || errors.push('iWorkOn not set to default value of empty string')) &&

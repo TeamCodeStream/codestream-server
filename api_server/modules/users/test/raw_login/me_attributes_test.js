@@ -30,7 +30,7 @@ class MeAttributesTest extends LoginTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// verfiy we got a lastReads object, with an entry for the stream
-		Assert(data.user.lastReads[this.stream._id] === 0, 'lastReads should be 0');
+		Assert(data.user.lastReads[this.stream.id] === 0, 'lastReads should be 0');
 		delete data.user.lastReads;	// so super.validateResponse will pass
 		super.validateResponse(data);
 	}

@@ -26,7 +26,7 @@ class UserGetsStreamMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// user receives the message on their own user channel
-		this.channelName = `user-${this.users[2].user._id}`;
+		this.channelName = `user-${this.users[2].user.id}`;
 		callback();
 	}
 
@@ -37,7 +37,7 @@ class UserGetsStreamMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 			const originalMessage = this.message;
 			this.message = { stream: this.stream };
 			Object.assign(this.message.stream, originalMessage.stream.$set);
-			this.message.stream.memberIds.push(this.users[2].user._id);
+			this.message.stream.memberIds.push(this.users[2].user.id);
 			callback();
 		});
 	}

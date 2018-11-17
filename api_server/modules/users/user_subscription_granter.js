@@ -39,14 +39,14 @@ class UserSubscriptionGranter  {
 		const repos = await this.data.repos.getByQuery(
 			query,
 			{
-				fields: ['_id'],
+				fields: ['id'],
 				hint: RepoIndexes.byTeamId,
 				noCache: true
 			}
 		);
 		for (let repo of repos) {
 			this.channels.push({
-				name: `repo-${repo._id}`,
+				name: `repo-${repo.id}`,
 				includePresence: true
 			});
 		}
@@ -64,7 +64,7 @@ class UserSubscriptionGranter  {
 		}));
 
 		for (let stream of streams) {
-			this.channels.push(`stream-${stream._id}`);
+			this.channels.push(`stream-${stream.id}`);
 		}
 	}
 
@@ -79,7 +79,7 @@ class UserSubscriptionGranter  {
 		return await this.data.streams.getByQuery(
 			query,
 			{
-				fields: ['_id'],
+				fields: ['id'],
 				hint: StreamIndexes.byMembers,
 				noCache: true
 			}

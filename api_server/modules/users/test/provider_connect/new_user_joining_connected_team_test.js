@@ -20,9 +20,9 @@ class NewUserJoiningConnectedTeamTest extends ProviderConnectTest {
 		const team = data.teams[0];
 
 		// ensure created user is on the same team as the original user
-		Assert.equal(team._id, this.preExistingTeam._id, 'returned team does not match pre-created team');
+		Assert.equal(team.id, this.preExistingTeam.id, 'returned team does not match pre-created team');
 		Assert.deepEqual(user.teamIds, this.preExistingTeamCreator.teamIds, 'teamIds of created user does not match that of the pre-existing team creator');
-		Assert(team.memberIds.includes(user._id), 'returned user is not in the team returned');
+		Assert(team.memberIds.includes(user.id), 'returned user is not in the team returned');
 
 		super.validateResponse(data);
 	} 

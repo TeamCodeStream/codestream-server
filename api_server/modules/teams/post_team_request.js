@@ -32,7 +32,7 @@ class PostTeamRequest extends PostRequest {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish joinMethod update message to user ${this.user._id}: ${JSON.stringify(error)}`);
+			this.warn(`Could not publish joinMethod update message to user ${this.user.id}: ${JSON.stringify(error)}`);
 		}
 	}
 

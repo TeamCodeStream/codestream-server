@@ -22,7 +22,7 @@ class DeletePostAndMarkerTest extends DeletePostTest {
 		const postData = this.postData[this.testPost];
 		super.setExpectedData(() => {
 			this.expectedData.markers = [{
-				_id: postData.markers[0]._id,
+				id: postData.markers[0].id,
 				$set: {
 					deactivated: true,
 					version: 2

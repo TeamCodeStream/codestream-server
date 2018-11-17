@@ -25,11 +25,11 @@ class PresenceLeaveTest extends CodeStreamMessageTest {
 
 	// subscribe the other user to the team channel, before unsubscribing
 	subscribe (callback) {
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = 'team-' + this.team.id;
 		const otherUser = this.users[1].user;
 		const token = this.users[1].pubNubToken;
 		this.makePubnubForClient(token, otherUser);
-		this.pubnubClientsForUser[otherUser._id].subscribe(
+		this.pubnubClientsForUser[otherUser.id].subscribe(
 			this.channelName,
 			() => {},
 			callback,
@@ -55,7 +55,7 @@ class PresenceLeaveTest extends CodeStreamMessageTest {
 		// have the "other" user unsubscribe from the team channel, the current user
 		// should receive a "leave" presence message
 		const otherUser = this.users[1].user;
-		this.pubnubClientsForUser[otherUser._id].unsubscribe(this.channelName);
+		this.pubnubClientsForUser[otherUser.id].unsubscribe(this.channelName);
 		callback();
 	}
 

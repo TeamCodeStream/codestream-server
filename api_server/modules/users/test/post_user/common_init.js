@@ -55,7 +55,7 @@ class CommonInit {
 	// form the data for the user update
 	makeUserData (callback) {
 		this.data = {
-			teamId: this.team._id
+			teamId: this.team.id
 		};
 		if (this.wantExistingUser) {
 			if (this.existingUserOnTeam) {

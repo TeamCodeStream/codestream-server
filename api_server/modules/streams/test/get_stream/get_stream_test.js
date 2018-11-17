@@ -45,14 +45,14 @@ class GetStreamTest extends CodeStreamAPITest {
 
 	// set the path to use when issuing the request
 	setPath (callback) {
-		this.path = '/streams/' + this.stream._id;
+		this.path = '/streams/' + this.stream.id;
 		callback();
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
 		// make sure we got back the stream we created, and make sure there are no attributes that should not be seen by clients
-		this.validateMatchingObject(this.stream._id, data.stream, 'stream');
+		this.validateMatchingObject(this.stream.id, data.stream, 'stream');
 		this.validateSanitized(data.stream, StreamTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

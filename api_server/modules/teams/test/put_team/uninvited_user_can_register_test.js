@@ -26,10 +26,10 @@ class UninvitedUserCanRegisterTest extends PutTeamTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/teams/' + this.team._id,
+				path: '/teams/' + this.team.id,
 				data: {
 					$pull: {
-						memberIds: this.unregisteredUser.user._id
+						memberIds: this.unregisteredUser.user.id
 					}
 				},
 				token: this.users[1].accessToken
@@ -67,7 +67,7 @@ class UninvitedUserCanRegisterTest extends PutTeamTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.registerResponse = response;
-				Assert.equal(response.user._id, this.unregisteredUser.user._id, 'user ID does not match after re-register');
+				Assert.equal(response.user.id, this.unregisteredUser.user.id, 'user ID does not match after re-register');
 				Assert.equal(response.user.username, this.data.username, 'username does not match the user given on re-register');
 				callback();
 			}
@@ -88,7 +88,7 @@ class UninvitedUserCanRegisterTest extends PutTeamTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.confirmResponse = response;
-				Assert.equal(response.user._id, this.unregisteredUser.user._id, 'user ID does not match after confirm');
+				Assert.equal(response.user.id, this.unregisteredUser.user.id, 'user ID does not match after confirm');
 				callback();
 			}
 		);
@@ -107,7 +107,7 @@ class UninvitedUserCanRegisterTest extends PutTeamTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				Assert.equal(response.user._id, this.unregisteredUser.user._id, 'user ID does not match after login');
+				Assert.equal(response.user.id, this.unregisteredUser.user.id, 'user ID does not match after login');
 				Assert.equal(response.accessToken, this.confirmResponse.accessToken, 'access token does not match after login');
 				callback();
 			}

@@ -11,8 +11,8 @@ class GetFileStreamsByRepoTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// we'll fetch all the file streams from the repo
-		const repoId = this.repo._id;
-		const teamId = this.team._id;
+		const repoId = this.repo.id;
+		const teamId = this.team.id;
 		this.expectedStreams = [
 			...this.streamsByRepo[repoId],
 			this.repoStreams[0]

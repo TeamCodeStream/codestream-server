@@ -32,14 +32,14 @@ class GetRepoTest extends CodeStreamAPITest {
 	// set the path for the test request
 	setPath (callback) {
 		// fetch the repo (created by submitting a post with a marker and remotes)
-		this.path = '/repos/' + this.repo._id;
+		this.path = '/repos/' + this.repo.id;
 		callback();
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
 		// make sure we got the expected repo
-		this.validateMatchingObject(this.repo._id, data.repo, 'repo');
+		this.validateMatchingObject(this.repo.id, data.repo, 'repo');
 		// make sure we didn't get attributes not suitable for the client 
 		this.validateSanitized(data.repo, RepoTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

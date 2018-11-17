@@ -21,13 +21,13 @@ class CommonInit {
 
 	// mark the stream as read
 	markRead (callback) {
-		if (!this.stream.memberIds.includes(this.currentUser.user._id)) {
+		if (!this.stream.memberIds.includes(this.currentUser.user.id)) {
 			return callback();
 		}
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/read/' + this.stream._id,
+				path: '/read/' + this.stream.id,
 				token: this.token
 			},
 			callback
@@ -38,9 +38,10 @@ class CommonInit {
 		this.lastReadPost = this.postData[this.unreadPost - 1].post;
 		this.expectedData = {
 			user: {
-				_id: this.currentUser.user._id,
+				_id: this.currentUser.user.id,	// DEPRECATE ME
+				id: this.currentUser.user.id,
 				$set: {
-					[`lastReads.${this.stream._id}`]: this.lastReadPost.seqNum,
+					[`lastReads.${this.stream.id}`]: this.lastReadPost.seqNum,
 					version: 5
 				},
 				$version: {
@@ -58,7 +59,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/unread/' + post._id,
+				path: '/unread/' + post.id,
 				token: this.token
 			},
 			callback

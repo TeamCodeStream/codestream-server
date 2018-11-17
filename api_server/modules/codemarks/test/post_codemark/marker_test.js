@@ -25,7 +25,7 @@ class MarkerTest extends PostCodemarkTest {
 
 	makeCodemarkData (callback) {
 		super.makeCodemarkData(() => {
-			this.data.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0]._id });
+			this.data.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0].id });
 			callback();
 		});
 	}

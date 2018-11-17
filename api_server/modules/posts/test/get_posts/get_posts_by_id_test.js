@@ -17,8 +17,8 @@ class GetPostsByIdTest extends GetPostsTest {
 			posts[2],
 			posts[3]
 		];
-		const ids = this.expectedPosts.map(post => post._id);
-		this.path = `/posts?teamId=${this.team._id}&streamId=${this.stream._id}&ids=${ids}`;
+		const ids = this.expectedPosts.map(post => post.id);
+		this.path = `/posts?teamId=${this.team.id}&streamId=${this.stream.id}&ids=${ids}`;
 		callback();
 	}
 }

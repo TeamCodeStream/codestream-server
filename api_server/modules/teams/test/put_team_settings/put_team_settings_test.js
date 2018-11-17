@@ -30,7 +30,7 @@ class PutTeamSettingsTest extends CodeStreamAPITest {
 	// before the actual test ... derived test class should override and
 	// fill this.preSetData as appropriate
 	preSetSettings (callback) {
-		this.path = '/team-settings/' + this.team._id;
+		this.path = '/team-settings/' + this.team.id;
 		if (!this.preSetData) {
 			return callback();
 		}
@@ -51,7 +51,8 @@ class PutTeamSettingsTest extends CodeStreamAPITest {
 		};
 		this.expectResponse = {
 			team: {
-				_id: this.team._id,
+				_id: this.team.id,	// DEPRECATE ME
+				id: this.team.id,
 				$set: {
 					'settings.simpleSetting': true
 				}

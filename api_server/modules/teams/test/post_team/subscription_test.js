@@ -22,7 +22,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 	run (callback) {
 		// create a pubnub client and attempt to subscribe to the team channel
 		const pubNubClient = this.createPubNubClient();
-		const channel = `team-${this.team._id}`;
+		const channel = `team-${this.team.id}`;
 		pubNubClient.subscribe(
 			channel,
 			() => {},
@@ -39,7 +39,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		const clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.currentUser.user._pubnubUuid || this.currentUser.user._id;
+		clientConfig.uuid = this.currentUser.user._pubnubUuid || this.currentUser.user.id;
 		clientConfig.authKey = this.currentUser.pubNubToken;
 		const client = new PubNub(clientConfig);
 		return new PubNubClient({

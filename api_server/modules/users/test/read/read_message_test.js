@@ -17,7 +17,7 @@ class ReadMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// should come back through the user's me-channel
-		this.channelName = 'user-' + this.currentUser.user._id;
+		this.channelName = 'user-' + this.currentUser.user.id;
 		callback();
 	}
 

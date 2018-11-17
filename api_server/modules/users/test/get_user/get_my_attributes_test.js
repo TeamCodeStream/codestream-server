@@ -29,7 +29,7 @@ class GetMyAttributesTest extends GetMyselfTest {
 
 	validateResponse (data) {
 		// verfiy we got a lastReads object, with an entry for the stream
-		Assert(data.user.lastReads[this.stream._id] === 0, 'lastReads should be 0');
+		Assert(data.user.lastReads[this.stream.id] === 0, 'lastReads should be 0');
 		super.validateResponse(data);
 	}
 

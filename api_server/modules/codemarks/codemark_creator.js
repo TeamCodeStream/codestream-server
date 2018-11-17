@@ -113,7 +113,7 @@ class CodemarkCreator extends ModelCreator {
 		}
 		const marker = await new MarkerCreator({
 			request: this.request,
-			codemarkId: this.attributes._id
+			codemarkId: this.attributes.id
 		}).createMarker(markerInfo);
 		this.transforms.createdMarkers = this.transforms.createdMarkers || [];
 		this.transforms.createdMarkers.push(marker);
@@ -134,7 +134,7 @@ class CodemarkCreator extends ModelCreator {
 		const users = await this.data.users.getByIds(
 			this.attributes.assignees,
 			{
-				fields: ['_id', 'teamIds'],
+				fields: ['id', 'teamIds'],
 				noCache: true
 			}
 		);

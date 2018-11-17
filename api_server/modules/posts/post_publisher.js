@@ -18,7 +18,7 @@ class PostPublisher {
 		}
 		else {
 			// for channels and direct, we publish to the stream itself
-			const channel = `stream-${this.stream._id}`;
+			const channel = `stream-${this.stream.id}`;
 			await this.publishPostToChannel(channel);
 		}
 	}

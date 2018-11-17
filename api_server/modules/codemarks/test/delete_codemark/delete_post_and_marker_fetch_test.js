@@ -29,7 +29,7 @@ class DeletePostAndMarkerFetchTest extends DeletePostAndMarkerTest {
 	}
 
 	setPath (callback) {
-		this.path = '/markers/' + this.markers[0]._id;
+		this.path = '/markers/' + this.markers[0].id;
 		callback();
 	}
 

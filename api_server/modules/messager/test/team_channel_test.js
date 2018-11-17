@@ -16,7 +16,7 @@ class TeamChannelTest extends CodeStreamMessageTest {
 	// set the channel name to listen on
 	setChannelName (callback) {
 		// we'll listen on the team channel for the created team
-		this.channelName = 'team-' + this.team._id;
+		this.channelName = 'team-' + this.team.id;
 		callback();
 	}
 }

@@ -109,7 +109,7 @@ class DeletePostRequest extends DeleteRequest {
 			summary: 'Returns the post with a directive to set deactivated flag to true',
 			looksLike: {
 				post: {
-					_id: '<ID of the post>',
+					id: '<ID of the post>',
 					$set: {
 						deactivated: true
 					}
@@ -120,7 +120,7 @@ class DeletePostRequest extends DeleteRequest {
 			summary: 'If the post belongs to a file stream or a team stream (a channel with all members of the team), then the post object will be published to the team channel; otherwise it will be published to the stream channel for the stream to which it belongs.',
 			looksLike: {
 				post: {
-					_id: '<ID of the post>',
+					id: '<ID of the post>',
 					$set: {
 						deactivated: true
 					}

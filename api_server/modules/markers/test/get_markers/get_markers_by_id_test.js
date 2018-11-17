@@ -17,7 +17,7 @@ class GetMarkersByIdTest extends GetMarkersTest {
 			this.markers[2],
 			this.markers[3]
 		];
-		queryParameters.ids = this.expectedMarkers.map(marker => marker._id);
+		queryParameters.ids = this.expectedMarkers.map(marker => marker.id);
 		return queryParameters;
 	}
 }

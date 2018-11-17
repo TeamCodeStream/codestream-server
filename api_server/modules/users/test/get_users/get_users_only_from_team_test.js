@@ -35,7 +35,7 @@ class GetUsersOnlyFromTeamTest extends GetUsersTest {
 			if (error) { return callback(error); }
 			this.foreignTeam = data.team;
 			this.foreignUsers = data.users.filter(user => {
-				return user.user._id !== this.users[1].user._id;
+				return user.user.id !== this.users[1].user.id;
 			});
 			callback();
 		});
@@ -46,11 +46,11 @@ class GetUsersOnlyFromTeamTest extends GetUsersTest {
 		if (!this.foreignTeam) { return callback(); }
 		// we'll attempt to fetch some users from "our" team, and users from the "foreign" team, by ID
 		// but since we're not allowed to see users on the foreign team, we should only see users on our team
-		const teamId = this.team._id;
+		const teamId = this.team.id;
 		this.myUsers = [1,3,4].map(index => this.users[index].user);
 		const foreignUsers = [2, 4].map(index => this.foreignUsers[index].user);
 		const allUsers = [...this.myUsers, ...foreignUsers];
-		const ids = allUsers.map(user => user._id);
+		const ids = allUsers.map(user => user.id);
 		this.path = `/users?teamId=${teamId}&ids=${ids}`;
 		callback();
 	}

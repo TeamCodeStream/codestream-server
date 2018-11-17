@@ -29,7 +29,8 @@ class ChangeEmailConfirmTest extends Aggregation(CodeStreamAPITest, CommonInit) 
 	validateResponse (data) {
 		const expectData = {
 			user: {
-				_id: this.currentUser.user._id,
+				_id: this.currentUser.user.id,	// DEPRECATE ME
+				id: this.currentUser.user.id,
 				$set: {
 					email: this.newEmail,
 					version: 4

@@ -18,14 +18,14 @@ class CodemarkValidator {
 		const codemark = data.codemark;
 		let errors = [];
 		let result = (
-			((codemark.id === codemark._id) || errors.push('id not set to _id')) && 
-			((codemark.teamId === this.test.team._id) || errors.push('teamId does not match the team')) &&
+			((codemark.id === codemark._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
+			((codemark.teamId === this.test.team.id) || errors.push('teamId does not match the team')) &&
 			((codemark.streamId === (this.inputCodemark.streamId || '')) || errors.push('streamId does not match the stream')) &&
 			((codemark.postId === (this.inputCodemark.postId || '')) || errors.push('postId does not match the post')) &&
 			((codemark.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof codemark.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((codemark.modifiedAt >= codemark.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((codemark.creatorId === this.test.currentUser.user._id) || errors.push('creatorId not equal to current user id')) &&
+			((codemark.creatorId === this.test.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
 			((codemark.type === this.inputCodemark.type) || errors.push('type does not match')) &&
 			((codemark.status === this.inputCodemark.status) || errors.push('status does not match')) &&
 			((codemark.color === this.inputCodemark.color) || errors.push('color does not match')) &&
@@ -86,16 +86,16 @@ class CodemarkValidator {
 		const fileStreamId = this.getExpectedFileStreamId(data);
 		const commitHash = this.getExpectedCommitHash(inputMarker);
 		let result = (
-			((marker.id === marker._id) || errors.push('id not set to _id')) && 
-			((marker.teamId === this.test.team._id) || errors.push('teamId does not match the team')) &&
+			((marker.id === marker._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
+			((marker.teamId === this.test.team.id) || errors.push('teamId does not match the team')) &&
 			((marker.fileStreamId === fileStreamId) || errors.push('fileStreamId does not match the expected stream ID')) &&
 			((marker.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof marker.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((marker.modifiedAt >= marker.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((marker.creatorId === this.test.currentUser.user._id) || errors.push('creatorId not equal to current user id')) &&
+			((marker.creatorId === this.test.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
 			((marker.postStreamId === codemark.streamId) || errors.push('postStreamId does not match the codemark stream')) &&
 			((marker.postId === codemark.postId) || errors.push('postId does not match the codemark post')) &&
-			((marker.codemarkId === codemark._id) || errors.push('codemarkId does not match the codemark')) && 
+			((marker.codemarkId === codemark.id) || errors.push('codemarkId does not match the codemark')) && 
 			((marker.commitHashWhenCreated === commitHash) || errors.push('marker commit hash does not match the expected commit hash')) &&
 			((marker.file === file) || errors.push('marker file does not match the expected file')) &&
 			((marker.repo === repoUrl) || errors.push('marker repo does not match the expected remote')) &&
@@ -112,7 +112,7 @@ class CodemarkValidator {
 		}
 
 		Assert.deepEqual(marker.locationWhenCreated, inputMarker.location, 'marker location does not match the given location');
-		Assert.deepEqual(codemark.markerIds, [marker._id], 'codemark markerIds does not match the created marker');
+		Assert.deepEqual(codemark.markerIds, [marker.id], 'codemark markerIds does not match the created marker');
 		Assert.deepEqual(codemark.fileStreamIds, [marker.fileStreamId || null], 'codemark fileStreamIds does not match the file streams of the created markers');
 
 		// verify the marker has no attributes that should not go to clients
@@ -151,10 +151,10 @@ class CodemarkValidator {
 	// get the repo ID we expect to see in the marker
 	getExpectedRepoId (data) {
 		if (this.test.repoOnTheFly) {
-			return data.repos[0]._id;
+			return data.repos[0].id;
 		}
 		else if (!this.test.dontExpectRepoId && this.test.repo) {
-			return this.test.repo._id;
+			return this.test.repo.id;
 		}
 		else {
 			return undefined;
@@ -164,10 +164,10 @@ class CodemarkValidator {
 	// get the file stream ID we expect to see in the marker
 	getExpectedFileStreamId (data) {
 		if (this.test.streamOnTheFly) {
-			return data.streams[0]._id;
+			return data.streams[0].id;
 		}
 		else if (!this.test.dontExpectFileStreamId && this.test.repoStreams && this.test.repoStreams[0]) {
-			return this.test.repoStreams[0]._id;
+			return this.test.repoStreams[0].id;
 		}
 		else {
 			return undefined;
@@ -196,13 +196,13 @@ class CodemarkValidator {
 		const markerLocations = data.markerLocations[0];
 		Assert.equal(typeof markerLocations, 'object', 'markerLocations is not an object');
 		let result = (
-			((markerLocations.teamId === this.test.team._id) || errors.push('markerLocations teamId does not match')) &&
+			((markerLocations.teamId === this.test.team.id) || errors.push('markerLocations teamId does not match')) &&
 			((markerLocations.streamId === marker.fileStreamId) || errors.push('markerLocations streamId does not match marker fileStreaId')) &&
 			((markerLocations.commitHash === marker.commitHashWhenCreated) || errors.push('markerLocations commitHash does not match the marker commitHash'))
 		);
 		Assert(result === true && errors.length === 0, 'returned markerLocations not valid: ' + errors.join(', '));
 		const locations = markerLocations.locations;
-		Assert.deepEqual(locations[marker._id], inputMarker.location, 'markerLocations location for marker does not match');
+		Assert.deepEqual(locations[marker.id], inputMarker.location, 'markerLocations location for marker does not match');
 	}
 
 	// validate that the created stream matches expectations
@@ -214,11 +214,11 @@ class CodemarkValidator {
 		const inputMarker = this.inputCodemark.markers[0];
 		const file = this.test.streamOnTheFly ? inputMarker.file : this.test.repoStreams[0].file;
 		let result = (
-			((stream.teamId === this.test.team._id) || errors.push('stream teamId does not match')) &&
-			((stream.repoId === repo._id) || errors.push('stream repoId does not match the created repo')) &&
+			((stream.teamId === this.test.team.id) || errors.push('stream teamId does not match')) &&
+			((stream.repoId === repo.id) || errors.push('stream repoId does not match the created repo')) &&
 			((stream.type === 'file') || errors.push('created stream is not type file')) &&
 			((stream.file === file) || errors.push('stream file does not match the given file')) &&
-			((stream._id === marker.fileStreamId) || errors.push('marker fileStreamId does not match the created stream'))
+			((stream.id === marker.fileStreamId) || errors.push('marker fileStreamId does not match the created stream'))
 		);
 		Assert(result === true && errors.length === 0, 'returned stream not valid: ' + errors.join(', '));
 
@@ -234,9 +234,9 @@ class CodemarkValidator {
 		const marker = data.markers[0];
 		const inputMarker = this.inputCodemark.markers[0];
 		let result = (
-			((repo.teamId === this.test.team._id) || errors.push('repo teamId does not match')) &&
-			((repo._id === marker.repoId) || errors.push('marker repoId does not match the created repo')) &&
-			((stream.repoId === repo._id) || errors.push('stream repoId does not match the created repo'))
+			((repo.teamId === this.test.team.id) || errors.push('repo teamId does not match')) &&
+			((repo.id === marker.repoId) || errors.push('marker repoId does not match the created repo')) &&
+			((stream.repoId === repo.id) || errors.push('stream repoId does not match the created repo'))
 		);
 		Assert(result === true && errors.length === 0, 'returned repo not valid: ' + errors.join(', '));
 

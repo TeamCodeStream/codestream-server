@@ -40,7 +40,8 @@ class CommonInit {
 		this.post = this.postData[this.testPost].post;
 		this.expectedData = {
 			posts: [{
-				_id: this.post._id,
+				_id: this.post.id,	// DEPRECATE ME
+				id: this.post.id,
 				$set: { 
 					version: this.expectedVersion,
 					deactivated: true,
@@ -60,7 +61,7 @@ class CommonInit {
 	}
 
 	setPath (callback) {
-		this.path = '/posts/' + this.post._id;
+		this.path = '/posts/' + this.post.id;
 		callback();
 	}
 
@@ -68,7 +69,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'delete',
-				path: '/posts/' + this.post._id,
+				path: '/posts/' + this.post.id,
 				data: null,
 				token: this.token
 			},

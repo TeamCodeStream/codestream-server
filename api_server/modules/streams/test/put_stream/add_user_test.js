@@ -17,11 +17,11 @@ class AddUserTest extends PutStreamTest {
 			if (this.addedUsers.length === 1) {
 				// this tests conversion of single element to an array
 				const addedUser = this.addedUsers[0];
-				this.data.$addToSet = { memberIds: addedUser._id };
-				this.expectedData.stream.$addToSet.memberIds = [addedUser._id];
+				this.data.$addToSet = { memberIds: addedUser.id };
+				this.expectedData.stream.$addToSet.memberIds = [addedUser.id];
 			}
 			else {
-				const addedUserIds = this.addedUsers.map(user => user._id);
+				const addedUserIds = this.addedUsers.map(user => user.id);
 				this.data.$addToSet = { memberIds: addedUserIds };
 				this.expectedData.stream.$addToSet.memberIds = [...addedUserIds];
 			}

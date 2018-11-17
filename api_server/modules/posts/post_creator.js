@@ -108,7 +108,7 @@ class PostCreator extends ModelCreator {
 		const codemarkAttributes = Object.assign({}, this.attributes.codemark, {
 			teamId: this.team.id,
 			streamId: this.stream.id,
-			postId: this.attributes._id
+			postId: this.attributes.id
 		});
 		this.transforms.createdCodemark = await new CodemarkCreator({
 			request: this.request
@@ -133,7 +133,7 @@ class PostCreator extends ModelCreator {
 			let foundStream;
 			try {
 				foundStream = await this.data.streams.findAndModify(
-					{ _id: this.data.streams.objectIdSafe(this.attributes.streamId) },
+					{ id: this.data.streams.objectIdSafe(this.attributes.streamId) },
 					{ $inc: { nextSeqNum: 1 } },
 					{ fields: { nextSeqNum: 1 } }
 				);
@@ -159,9 +159,9 @@ class PostCreator extends ModelCreator {
 		// the created post
 		const op = {
 			$set: {
-				mostRecentPostId: this.attributes._id,
+				mostRecentPostId: this.attributes.id,
 				mostRecentPostCreatedAt: this.attributes.createdAt,
-				sortId: this.attributes._id
+				sortId: this.attributes.id
 			}
 		};
 		// increment the number of markers in this stream
@@ -399,7 +399,7 @@ class PostCreator extends ModelCreator {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish author update message to user ${this.user._id}: ${JSON.stringify(error)}`);
+			this.request.warn(`Could not publish author update message to user ${this.user.id}: ${JSON.stringify(error)}`);
 		}
 	}
 
@@ -498,7 +498,7 @@ class PostCreator extends ModelCreator {
 			userIds,
 			{
 				noCache: true,
-				fields: ['_id', 'isRegistered']
+				fields: ['id', 'isRegistered']
 			}
 		);
 	}
@@ -527,7 +527,7 @@ class PostCreator extends ModelCreator {
 			}
 		};
 		await this.data.users.updateDirect(
-			{ _id: this.data.users.objectIdSafe(user.id) },
+			{ id: this.data.users.objectIdSafe(user.id) },
 			update
 		);
 	}

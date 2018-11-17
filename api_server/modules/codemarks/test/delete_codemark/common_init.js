@@ -59,7 +59,7 @@ class CommonInit {
 	getPostlessCodemarkData () {
 		const data = this.codemarkFactory.getRandomCodemarkData();
 		Object.assign(data, {
-			teamId: this.team._id,
+			teamId: this.team.id,
 			providerType: RandomString.generate(8)
 		});
 		if (this.wantMarker) {
@@ -71,7 +71,7 @@ class CommonInit {
 	setExpectedData (callback) {
 		this.expectedData = {
 			codemarks: [{
-				_id: this.codemark._id,
+				id: this.codemark.id,
 				$set: {
 					version: this.expectedVersion,
 					deactivated: true,
@@ -90,7 +90,7 @@ class CommonInit {
 	}
 
 	setPath (callback) {
-		this.path = '/codemarks/' + this.codemark._id;
+		this.path = '/codemarks/' + this.codemark.id;
 		callback();
 	}
 
@@ -98,7 +98,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'delete',
-				path: '/codemarks/' + this.codemark._id,
+				path: '/codemarks/' + this.codemark.id,
 				data: null,
 				token: this.token
 			},

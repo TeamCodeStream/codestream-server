@@ -3,7 +3,7 @@
 'use strict';
 
 module.exports = {
-	_id: {
+	_id: {	// DEPRECATE ME
 		type: 'id',
 		description: 'ID of the model'
 	},

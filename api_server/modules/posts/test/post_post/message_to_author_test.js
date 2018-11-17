@@ -24,7 +24,7 @@ class MessageToAuthorTest extends NewPostMessageToChannelTest {
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// the message comes on the author's me-channel
-		this.channelName = `user-${this.users[1].user._id}`;
+		this.channelName = `user-${this.users[1].user.id}`;
 		// also set the message we expect to receive
 		this.timeBeforePost = Date.now();
 		callback();
@@ -33,14 +33,15 @@ class MessageToAuthorTest extends NewPostMessageToChannelTest {
 	validateMessage (message) {
 		this.message = {
 			user: {
-				_id: this.users[1].user._id,
+				_id: this.users[1].user.id,	// DEPRECATE ME
+				id: this.users[1].user.id,
 				$set: {
 					version: 4,
 					totalPosts: 1,
 					lastPostCreatedAt: this.timeBeforePost
 				},	// this is a placeholder, it should be some time greater than this
 				$unset: {
-					[`lastReads.${this.stream._id}`]: true 
+					[`lastReads.${this.stream.id}`]: true 
 				},
 				$version: {
 					before: 3,

@@ -34,8 +34,8 @@ class CodemarkTest extends PostPostTest {
 		// validate that we got an codemark in the response
 		// verify we got back an codemark with the attributes we specified
 		const inputCodemark = Object.assign(this.data.codemark, {
-			streamId: this.stream._id,
-			postId: data.post._id
+			streamId: this.stream.id,
+			postId: data.post.id
 		});
 		new CodemarkValidator({
 			test: this,

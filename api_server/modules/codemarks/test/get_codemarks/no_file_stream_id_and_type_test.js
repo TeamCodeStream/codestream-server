@@ -21,7 +21,7 @@ class NoFileStreamIdAndTypeTest extends GetCodemarksTest {
 
 	setPath (callback) {
 		// no teamID in this path...
-		this.path = `/codemarks?teamId=${this.team._id}&fileStreamId=${this.repoStreams[0]._id}&type=comment`;
+		this.path = `/codemarks?teamId=${this.team.id}&fileStreamId=${this.repoStreams[0].id}&type=comment`;
 		callback();
 	}
 }

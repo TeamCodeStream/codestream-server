@@ -48,9 +48,9 @@ class CommonInit {
 		const editing = this.stopEditing ? false : { commitHash: this.repoFactory.randomCommitHash() };
 		const fileStream = this.dontWantExistingStream ? null : this.repoStreams[0];
 		this.data = {
-			teamId: this.team._id,
-			repoId: this.repo._id,
-			streamId: fileStream ? fileStream._id : undefined,
+			teamId: this.team.id,
+			repoId: this.repo.id,
+			streamId: fileStream ? fileStream.id : undefined,
 			file: fileStream ? undefined : this.streamFactory.randomFile(),
 			editing: editing
 		};

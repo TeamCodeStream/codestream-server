@@ -40,7 +40,7 @@ class PutMarkerLocationsFetchTest extends PutMarkerLocationsTest {
 	// set path for the test request
 	setPath (callback) {
 		// the actual test is the fetch of the marker locations we just saved, and verifting they are correct
-		this.path = `/marker-locations?teamId=${this.team._id}&streamId=${this.repoStreams[0]._id}&commitHash=${this.newCommitHash}`;
+		this.path = `/marker-locations?teamId=${this.team.id}&streamId=${this.repoStreams[0].id}&commitHash=${this.newCommitHash}`;
 		delete this.data;	// don't need this anymore, data is in the query parameters
 		callback();
 	}
@@ -58,9 +58,9 @@ class PutMarkerLocationsFetchTest extends PutMarkerLocationsTest {
 
 	// validate an individual marker we retrieved from the server
 	validateMarker (markerId, location) {
-		const marker = this.markers.find(marker => marker._id === markerId);
+		const marker = this.markers.find(marker => marker.id === markerId);
 		Assert(marker, 'got markerId that does not correspond to a marker created by this request');
-		Assert.deepEqual(this.adjustedMarkerLocations[marker._id], location, 'returned location does not match');
+		Assert.deepEqual(this.adjustedMarkerLocations[marker.id], location, 'returned location does not match');
 	}
 }
 

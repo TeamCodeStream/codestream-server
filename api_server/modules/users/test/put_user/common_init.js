@@ -25,11 +25,12 @@ class CommonInit {
 		});
 		this.expectedUser = DeepClone(this.currentUser.user);
 		Object.assign(this.expectedUser, this.data);
-		this.path = '/users/' + (this.id || this.currentUser.user._id);
+		this.path = '/users/' + (this.id || this.currentUser.user.id);
 		this.modifiedAfter = Date.now();
 		this.expectedData = {
 			user: {
-				_id: this.currentUser.user._id,
+				_id: this.currentUser.user.id,	// DEPRECATE ME
+				id: this.currentUser.user.id,
 				$set: {
 					version: 4
 				},

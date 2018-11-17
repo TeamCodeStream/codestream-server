@@ -24,7 +24,7 @@ class NewTeamStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, 
 	// set the name of the channel to listen for the message on
 	setChannelName (callback) {
 		// when a team stream is created, we should get a message on the team channel
-		this.channelName = `team-${this.team._id}`;
+		this.channelName = `team-${this.team.id}`;
 		callback();
 	}
 
@@ -39,7 +39,7 @@ class NewTeamStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, 
 			},
 			{
 				token: this.users[1].accessToken,	// stream creator creates the stream
-				teamId: this.team._id,
+				teamId: this.team.id,
 				type: 'channel',
 				isTeamStream: true
 			}

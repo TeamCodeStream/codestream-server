@@ -28,7 +28,7 @@ class SignupTokenTest extends ProviderConnectTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				Assert.equal(response.user._id, this.returnedUser._id, 'user returned by check-signup does not match user created by provider-connect');
+				Assert.equal(response.user.id, this.returnedUser.id, 'user returned by check-signup does not match user created by provider-connect');
 				callback();
 			}
 		);

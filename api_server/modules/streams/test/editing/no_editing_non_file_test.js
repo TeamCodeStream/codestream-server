@@ -21,13 +21,13 @@ class NoEditingNonFileTest extends EditingTest {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.data.streamId = response.stream._id;
+				this.data.streamId = response.stream.id;
 				callback();
 			},
 			{
 				type: this.type,
-				memberIds: [this.users[1].user._id],
-				teamId: this.team._id,
+				memberIds: [this.users[1].user.id],
+				teamId: this.team.id,
 				token: this.token
 			}
 		);

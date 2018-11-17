@@ -54,7 +54,7 @@ class IllegalSlackChannelNameTest extends CodeStreamAPITest {
 				if (error) { return callback(error); }
 				const team = response.teams[0];
 				this.data = {
-					teamId: team._id,
+					teamId: team.id,
 					type: 'channel',
 					name: `channel${this.illegalCharacter}`
 				};

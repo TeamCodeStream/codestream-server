@@ -11,7 +11,7 @@ class MeChannelGrantTest extends GrantTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// set to grant access to the user's me-channel
-		this.path = '/grant/user-' + this.currentUser.user._id;
+		this.path = '/grant/user-' + this.currentUser.user.id;
 		callback();
 	}
 }

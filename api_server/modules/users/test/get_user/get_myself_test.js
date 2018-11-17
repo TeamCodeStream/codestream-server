@@ -18,7 +18,7 @@ class GetMyselfTest extends CodeStreamAPITest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// we'll fetch "ourselves", either by literal ID, or by "me" in the path
-			this.path = '/users/' + (this.id || this.currentUser.user._id);
+			this.path = '/users/' + (this.id || this.currentUser.user.id);
 			callback();
 		});
 	}
@@ -26,7 +26,7 @@ class GetMyselfTest extends CodeStreamAPITest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that we got back "ourselves", and that there are no attributes a client shouldn't see
-		this.validateMatchingObject(this.currentUser.user._id, data.user, 'user');
+		this.validateMatchingObject(this.currentUser.user.id, data.user, 'user');
 		const attributes = this.id === 'me' ? UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME : UserTestConstants.UNSANITIZED_ATTRIBUTES;
 		this.validateSanitized(data.user, attributes);
 	}

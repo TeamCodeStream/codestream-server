@@ -28,7 +28,7 @@ class PostReplyTest extends PostPostTest {
 	makePostData (callback) {
 		super.makePostData(() => {
 			// use the ID of the "other post" we created as the parent
-			this.data.parentPostId = this.postData[0].post._id;
+			this.data.parentPostId = this.postData[0].post.id;
 			callback();
 		});
 	}

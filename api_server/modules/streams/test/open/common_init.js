@@ -30,7 +30,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/close/' + this.stream._id,
+				path: '/close/' + this.stream.id,
 				data: {},
 				token: this.currentUser.accessToken
 			},
@@ -39,13 +39,14 @@ class CommonInit {
 	}
 
 	setPath (callback) {
-		this.path = `/open/${this.stream._id}`;
+		this.path = `/open/${this.stream.id}`;
 		const version = this.expectedUserVersion || 5;
 		this.expectedResponse = {
 			user: {
-				_id: this.currentUser.user._id,
+				_id: this.currentUser.user.id,	// DEPRECATE ME
+				id: this.currentUser.user.id,
 				$unset: {
-					[`preferences.closedStreams.${this.stream._id}`]: true
+					[`preferences.closedStreams.${this.stream.id}`]: true
 				},
 				$set: {
 					version
@@ -56,7 +57,8 @@ class CommonInit {
 				}
 			},
 			stream: {
-				_id: this.stream._id,
+				_id: this.stream.id,	// DEPRECATE ME
+				id: this.stream.id,
 				$unset: {
 					isClosed: true
 				}

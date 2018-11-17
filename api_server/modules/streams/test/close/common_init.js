@@ -23,12 +23,13 @@ class CommonInit {
 	}
 
 	setPath (callback) {
-		this.path = `/close/${this.stream._id}`;
+		this.path = `/close/${this.stream.id}`;
 		this.expectedResponse = {
 			user: {
-				_id: this.currentUser.user._id,
+				_id: this.currentUser.user.id,	// DEPRECATE ME
+				id: this.currentUser.user.id,
 				$set: {
-					[`preferences.closedStreams.${this.stream._id}`]: true,
+					[`preferences.closedStreams.${this.stream.id}`]: true,
 					version: 4
 				},
 				$version: {
@@ -37,7 +38,8 @@ class CommonInit {
 				}
 			},
 			stream: {
-				_id: this.stream._id,
+				_id: this.stream.id,	// DEPRECATE ME
+				id: this.stream.id,
 				$set: {
 					isClosed: true
 				}

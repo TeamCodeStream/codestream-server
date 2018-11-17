@@ -17,7 +17,7 @@ class MessageToUserTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		this.channelName = `user-${this.currentUser.user._id}`;
+		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
 
@@ -27,7 +27,7 @@ class MessageToUserTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/close/' + this.stream._id,
+				path: '/close/' + this.stream.id,
 				data: {},
 				token: this.currentUser.accessToken
 			},

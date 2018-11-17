@@ -19,7 +19,7 @@ class NewPostMessageToChannelTest extends Aggregation(CodeStreamMessageTest, Com
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// channels and DMs go to the stream channel
-		this.channelName = `stream-${this.stream._id}`;
+		this.channelName = `stream-${this.stream.id}`;
 		callback();
 	}
 

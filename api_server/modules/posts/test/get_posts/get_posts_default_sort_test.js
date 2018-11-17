@@ -17,7 +17,7 @@ class GetPostsDefaultSortTest extends GetPostsTest {
 			return a.seqNum - b.seqNum;
 		});
 		this.expectedPosts.reverse();
-		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}`;
+		this.path = `/posts/?teamId=${this.team.id}&streamId=${this.stream.id}`;
 		callback();
 	}
 

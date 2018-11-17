@@ -34,10 +34,10 @@ class MarkerLocations extends DataModel {
 		// this little wrinkle to the client, so here we parse out the streamID and commit
 		// hash and return them to the client separately
 		let object = super.getSanitizedObject();
-		if (object._id) {
-			let parts = object._id.split('|');
+		if (object.id) {
+			let parts = object.id.split('|');
 			if (parts.length > 1) {
-				delete object._id;
+				delete object.id;
 				object.streamId = parts[0];
 				object.commitHash = parts[1];
 			}

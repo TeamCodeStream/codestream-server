@@ -33,7 +33,7 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// user should get a message on their me-channel
-		this.channelName = 'user-' + this.existingUserData.user._id;
+		this.channelName = 'user-' + this.existingUserData.user.id;
 		callback();
 	}
 
@@ -55,22 +55,22 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 
 	// set the message we expect to receive
 	setExpectedMessage () {
-		this.team.memberIds.push(this.existingUserData.user._id);
+		this.team.memberIds.push(this.existingUserData.user.id);
 		this.team.memberIds.sort();
 		const teamCreatorData = this.users[this.teamOptions.creatorIndex];
 		Object.assign({}, teamCreatorData.user, {
-			teamIds: [this.team._id],
-			companyIds: [this.company._id],
+			teamIds: [this.team.id],
+			companyIds: [this.company.id],
 			joinMethod: 'Created Team',
 			primaryReferral: 'external',
-			originTeamId: this.team._id
+			originTeamId: this.team.id
 		});
 		Object.assign({}, this.currentUser, {
-			teamIds: [this.team._id],
-			companyIds: [this.company._id],
+			teamIds: [this.team.id],
+			companyIds: [this.company.id],
 			joinMethod: 'Added to Team',
 			primaryReferral: 'internal',
-			originTeamId: this.team._id
+			originTeamId: this.team.id
 		});
 
 		this.message = {
@@ -80,7 +80,7 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 			users: [teamCreatorData.user, this.currentUser]
 		};
 		this.message.users.sort((a, b) => {
-			return a._id.localeCompare(b._id);
+			return a.id.localeCompare(b.id);
 		});
 	}
 
@@ -88,15 +88,16 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 	validateMessage (inMessage) {
 		const message = inMessage.message;
 		const expectedUserOp = {
-			_id: this.existingUserData.user._id,
+			_id: this.existingUserData.user.id,	// DEPRECATE ME
+			id: this.existingUserData.user.id,
 			$addToSet: {
-				teamIds: this.team._id,
-				companyIds: this.company._id
+				teamIds: this.team.id,
+				companyIds: this.company.id
 			},
 			$set: {
 				joinMethod: 'Added to Team',
 				primaryReferral: 'internal',
-				originTeamId: this.team._id,
+				originTeamId: this.team.id,
 				version: 3
 			},
 			$version: {
@@ -105,11 +106,11 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 			}
 		};
 		Assert.deepEqual(message.user, expectedUserOp, 'user op not correct');
-		Assert.equal(message.company._id, this.company._id, 'company ID not correct');
-		Assert.equal(message.team._id, this.team._id, 'team ID not correct');
+		Assert.equal(message.company.id, this.company.id, 'company ID not correct');
+		Assert.equal(message.team.id, this.team.id, 'team ID not correct');
 		const expectedUserIds = this.team.memberIds;
 		expectedUserIds.sort();
-		const userIds = message.users.map(u => u._id);
+		const userIds = message.users.map(u => u.id);
 		userIds.sort();
 		Assert.deepEqual(userIds, expectedUserIds, 'user IDs not correct');
 		return true;

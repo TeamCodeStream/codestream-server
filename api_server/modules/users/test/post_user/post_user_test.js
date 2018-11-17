@@ -43,22 +43,22 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		(user.secondaryEmails || []).sort();
 		(this.data.secondaryEmails || []).sort();
 		(user.teamIds || []).sort();
-		const teamIds = [this.team._id];
+		const teamIds = [this.team.id];
 		if (this.existingUserTeam) {
-			teamIds.push(this.existingUserTeam._id);
+			teamIds.push(this.existingUserTeam.id);
 			teamIds.sort();
 		}
 		(user.companyIds || []).sort();
-		const companyIds = [this.company._id];
+		const companyIds = [this.company.id];
 		if (this.existingUserCompany) {
-			companyIds.push(this.existingUserCompany._id);
+			companyIds.push(this.existingUserCompany.id);
 			companyIds.sort();
 		}
 		const expectedUsername = this.getExpectedUsername();
 		const expectedFullName = this.getExpectedFullName();
 		const expectedCreatorId = this.getExpectedCreatorId();
 		const result = (
-			((user.id === user._id) || errors.push('id not set to _id')) && 
+			((user.id === user._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
 			((user.username === expectedUsername) || errors.push('username is not the first part of the email')) &&
 			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&
@@ -99,7 +99,7 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	getExpectedCreatorId () {
 		return this.wantExistingUser ?
 			this.existingUserData.user.creatorId :
-			this.currentUser.user._id;
+			this.currentUser.user.id;
 	}
 }
 

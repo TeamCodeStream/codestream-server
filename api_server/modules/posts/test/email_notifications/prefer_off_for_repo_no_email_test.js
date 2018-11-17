@@ -12,7 +12,7 @@ class PreferOffForRepoNoEmailTest extends PreferenceOffTest {
 	getPreference () {
 		return {
 			streamTreatments: {
-				[this.repo._id]: {
+				[this.repo.id]: {
 					['/']: 'mute'
 				}
 			}

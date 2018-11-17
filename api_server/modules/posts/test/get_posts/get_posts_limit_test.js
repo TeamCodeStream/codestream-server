@@ -22,7 +22,7 @@ class GetPostsLimitTest extends GetPostsTest {
 			return a.seqNum - b.seqNum;
 		});
 		this.expectedPosts.splice(0, this.postOptions.numPosts - 3);
-		this.path = `/posts/?teamId=${this.team._id}&streamId=${this.stream._id}&limit=3`;
+		this.path = `/posts/?teamId=${this.team.id}&streamId=${this.stream.id}&limit=3`;
 		callback();
 	}
 }

@@ -40,7 +40,8 @@ class CommonInit {
 		this.marker = this.marker || this.postData[0].markers[0];
 		this.expectedData = {
 			marker: {
-				_id: this.marker._id,
+				_id: this.marker.id,	// DEPRECATE ME
+				id: this.marker.id,
 				$set: Object.assign(DeepClone(this.data), { 
 					version: this.expectedVersion,
 					modifiedAt: Date.now()	// placeholder
@@ -55,7 +56,7 @@ class CommonInit {
 		this.expectedMarker = DeepClone(this.marker);
 		Object.assign(this.expectedMarker, this.expectedData.marker.$set);
 		this.modifiedAfter = Date.now();
-		this.path = '/markers/' + this.marker._id;
+		this.path = '/markers/' + this.marker.id;
 		callback();
 	}
 }

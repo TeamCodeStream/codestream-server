@@ -17,7 +17,7 @@ class NoAddUsersTest extends PutTeamTest {
 	// before the test runs...
 	makeTeamData (callback) {
 		super.makeTeamData(() => {
-			this.data.$addToSet = { memberIds: this.users[0].user._id };
+			this.data.$addToSet = { memberIds: this.users[0].user.id };
 			callback();
 		});
 	}

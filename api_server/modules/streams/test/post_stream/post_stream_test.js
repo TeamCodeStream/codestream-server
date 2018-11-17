@@ -35,13 +35,13 @@ class PostStreamTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const stream = data.stream;
 		const errors = [];
 		const result = (
-			((stream.id === stream._id) || errors.push('id not set to _id')) && 
+			((stream.id === stream._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((stream.type === this.data.type) || errors.push('type does not match')) &&
 			((stream.teamId === this.data.teamId) || errors.push('teamId does not match')) &&
 			((stream.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof stream.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((stream.modifiedAt >= stream.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((stream.creatorId === this.currentUser.user._id) || errors.push('creatorId not equal to current user id'))
+			((stream.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		this.validateSanitized(stream, StreamTestConstants.UNSANITIZED_ATTRIBUTES);

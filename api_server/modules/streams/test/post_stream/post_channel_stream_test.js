@@ -25,7 +25,7 @@ class PostChannelStreamTest extends PostStreamTest {
 	makeStreamOptions (callback) {
 		// get the standard stream options, and add some members to the stream
 		super.makeStreamOptions(() => {
-			this.postStreamOptions.memberIds = this.users.slice(1, 3).map(user => user.user._id);
+			this.postStreamOptions.memberIds = this.users.slice(1, 3).map(user => user.user.id);
 			callback();
 		});
 	}
@@ -35,8 +35,8 @@ class PostChannelStreamTest extends PostStreamTest {
 		// the current user will be automatically added as a member, make sure we have a sorted
 		// array so we can compare arrays
 		if (!this.data.isTeamStream) {
-			if (!this.data.memberIds.includes(this.currentUser.user._id)) {
-				this.data.memberIds.push(this.currentUser.user._id);
+			if (!this.data.memberIds.includes(this.currentUser.user.id)) {
+				this.data.memberIds.push(this.currentUser.user.id);
 				this.data.memberIds.sort();
 			}
 		}

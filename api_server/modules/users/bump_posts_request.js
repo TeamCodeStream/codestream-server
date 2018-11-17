@@ -29,7 +29,10 @@ class BumpPostsRequest extends RestfulRequest {
 			return super.handleResponse();
 		}
 		this.responseData = {
-			user: Object.assign({_id: this.user.id}, this.updateOp)
+			user: Object.assign({
+				_id: this.user.id,	// DEPRECATE ME
+				id: this.user.id
+			}, this.updateOp)
 		};
 		super.handleResponse();
 	}
@@ -66,7 +69,7 @@ class BumpPostsRequest extends RestfulRequest {
 				summary: 'Directive to set totalPosts for user',
 				looksLike: {
 					user: {
-						_id: '<ID of the user>',
+						id: '<ID of the user>',
 						$set: {
 							totalPosts: '<New post count>'
 						}
@@ -77,7 +80,7 @@ class BumpPostsRequest extends RestfulRequest {
 				summary: 'Publishes a user object, with directives, to the user\'s user channel, with directive to increment the user\'s total posts',
 				looksLike: {
 					user: {
-						_id: '<ID of the user>',
+						id: '<ID of the user>',
 						$set: {
 							totalPosts: '<New post count>'
 						}

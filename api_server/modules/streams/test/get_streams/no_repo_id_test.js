@@ -16,7 +16,7 @@ class NoRepoIdTest extends GetStreamsTest {
 	}
 
 	setPath (callback) {
-		this.path = `/streams?teamId=${this.team._id}&type=file`;
+		this.path = `/streams?teamId=${this.team.id}&type=file`;
 		callback();
 	}
 }

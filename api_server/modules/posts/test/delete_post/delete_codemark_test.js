@@ -22,7 +22,8 @@ class DeleteCodemarkTest extends DeletePostTest {
 		const postData = this.postData[0];
 		super.setExpectedData(() => {
 			this.expectedData.codemarks = [{
-				_id: postData.codemark._id,
+				_id: postData.codemark.id,	// DEPRECATE ME
+				id: postData.codemark.id,
 				$set: {
 					deactivated: true,
 					modifiedAt: Date.now(),	// placeholder
