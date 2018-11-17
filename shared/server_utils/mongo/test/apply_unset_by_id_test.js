@@ -17,7 +17,7 @@ class ApplyUnsetByIdTest extends UpdateTest {
 			'$unset': update
 		};
 		this.actualOp = await this.data.test.applyOpById(
-			this.testDocument._id,
+			this.testDocument.id,
 			this.expectedOp
 		);
 		delete this.testDocument.text;

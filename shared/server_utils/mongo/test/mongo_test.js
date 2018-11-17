@@ -60,7 +60,7 @@ class MongoTest extends GenericTest {
 			}
 		};
 		const createdDocument = await this.data.test.create(this.testDocument);
-		this.testDocument._id = createdDocument._id;
+		this.testDocument.id = createdDocument.id;
 	}
 
 	// create a simple control document, distinct from the test document, we should never see this document again
@@ -76,7 +76,7 @@ class MongoTest extends GenericTest {
 			}
 		};
 		const createdDocument = await this.data.test.create(this.controlDocument);
-		this.controlDocument._id = createdDocument._id;
+		this.controlDocument.id = createdDocument.id;
 	}
 
 	// create a bunch of random documents
@@ -105,7 +105,7 @@ class MongoTest extends GenericTest {
 			flag: flag
 		};
 		const createdDocument = await this.data.test.create(this.documents[n]);
-		this.documents[n]._id = createdDocument._id;
+		this.documents[n].id = createdDocument.id;
 	}
 
 	// filter the test documents down to only the ones we want in our test results

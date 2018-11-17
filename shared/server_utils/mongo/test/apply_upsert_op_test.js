@@ -18,7 +18,7 @@ class ApplyUpsertOpTest extends UpdateTest {
 			'$set': update
 		};
 		this.actualOp = await this.data.test.applyOpById(
-			this.testDocument._id,
+			this.testDocument.id,
 			this.expectedOp,
 			{ upsert: true }
 		);

@@ -17,7 +17,7 @@ class ApplyPullByIdTest extends UpdateTest {
 			'$pull': update
 		};
 		this.actualOp = await this.data.test.applyOpById(
-			this.testDocument._id,
+			this.testDocument.id,
 			this.expectedOp
 		);
 		const index = this.testDocument.array.indexOf(4);

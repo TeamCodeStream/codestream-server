@@ -18,7 +18,7 @@ class ApplyNewIncByIdTest extends UpdateTest {
 			'$inc': update 
 		};
 		this.actualOp = await this.data.test.applyOpById(
-			this.testDocument._id,
+			this.testDocument.id,
 			this.expectedOp
 		);
 		this.testDocument.newNumber = 5;

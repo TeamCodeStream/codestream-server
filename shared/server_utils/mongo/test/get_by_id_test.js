@@ -33,7 +33,7 @@ class GetByIdTest extends MongoTest {
 		// get the test document and check that it matches
 		let response;
 		try {
-			response = await this.data.test.getById(this.testDocument._id);
+			response = await this.data.test.getById(this.testDocument.id);
 		}
 		catch (error) {
 			this.checkResponse(error, response, callback);

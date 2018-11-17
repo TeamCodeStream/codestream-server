@@ -45,7 +45,7 @@ class CreateManyTest extends MongoTest {
 			return a.number - b.number;
 		});
 		// get the documents that should have been created, by ID, and verify we got them
-		const ids = this.testDocuments.map(document => { return document._id; });
+		const ids = this.testDocuments.map(document => { return document.id; });
 		let response;
 		try {
 			response = await this.data.test.getByIds(ids);

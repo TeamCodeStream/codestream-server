@@ -23,7 +23,7 @@ class DeleteByIdTest extends MongoTest {
 
 	// delete the test document
 	async deleteDocument () {
-		await this.data.test.deleteById(this.testDocument._id);
+		await this.data.test.deleteById(this.testDocument.id);
 	}
 
 	// run the test...
@@ -33,7 +33,7 @@ class DeleteByIdTest extends MongoTest {
 		this.testDocuments = [this.controlDocument];
 		let response;
 		try {
-			const ids = [this.testDocument._id, this.controlDocument._id];
+			const ids = [this.testDocument.id, this.controlDocument.id];
 			response = await this.data.test.getByIds(ids);
 		}
 		catch (error) {

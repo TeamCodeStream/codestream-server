@@ -33,7 +33,7 @@ class FindAndModifyTest extends UpdateTest {
 			number: 5
 		};
 		const result = await this.data.test.findAndModify(
-			{ _id: this.data.test.objectIdSafe(this.testDocument._id) },
+			{ id: this.data.test.objectIdSafe(this.testDocument.id) },
 			{ '$inc': update }
 		);
 		this.fetchedDocument = result.value;
@@ -42,7 +42,6 @@ class FindAndModifyTest extends UpdateTest {
 	checkFetchedDocument () {
 		// check that the fetched document matches the document before the update, but then prepare for the
 		// document to be checked against the document after the update (in the base class's run method)
-		this.fetchedDocument.id = this.fetchedDocument._id = this.fetchedDocument._id.toString();
 		Assert.deepEqual(this.testDocument, this.fetchedDocument, 'fetched document not equal to test document');
 		this.testDocument.number += 5;
 	}

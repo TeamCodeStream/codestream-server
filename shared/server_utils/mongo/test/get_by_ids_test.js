@@ -24,7 +24,7 @@ class GetByIdsTest extends MongoTest {
 	// run the test...
 	async run (callback) {
 		// get the documents we want, and verify we didn't get any others
-		let ids = this.testDocuments.map(document => { return document._id; });
+		let ids = this.testDocuments.map(document => { return document.id; });
 		let response;
 		try {
 			response = await this.data.test.getByIds(ids);

@@ -27,14 +27,14 @@ class DeleteByIdsTest extends MongoTest {
 		const toDelete = this.documents.filter(document => {
 			return !this.wantN(document.number);
 		});
-		const ids = toDelete.map(document => { return document._id; });
+		const ids = toDelete.map(document => { return document.id; });
 		await this.data.test.deleteByIds(ids);
 	}
 
 	// run the test...
 	async run (callback) {
 		// fetch all the test documents, but we should only get back the ones we didn't delete
-		const ids = this.documents.map(document => { return document._id; });
+		const ids = this.documents.map(document => { return document.id; });
 		let response;
 		try {
 			response = await this.data.test.getByIds(ids);

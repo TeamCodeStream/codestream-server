@@ -17,7 +17,7 @@ class ApplyPushByIdTest extends UpdateTest {
 			'$push': update
 		};
 		this.actualOp = await this.data.test.applyOpById(
-			this.testDocument._id,
+			this.testDocument.id,
 			this.expectedOp
 		);
 		this.testDocument.array.push(7);

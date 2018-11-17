@@ -18,7 +18,7 @@ class ApplySetSubObjectByIdTest extends UpdateTest {
 			'$set': update	
 		};
 		this.actualOp = await this.data.test.applyOpById(
-			this.testDocument._id,
+			this.testDocument.id,
 			this.expectedOp
 		);
 		Object.assign(this.testDocument.object, { x: 'replaced!', z: 3 });

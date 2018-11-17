@@ -17,7 +17,7 @@ class ApplyAddByIdTest extends UpdateTest {
 			'$addToSet': update
 		};
 		this.actualOp = await this.data.test.applyOpById(
-			this.testDocument._id,
+			this.testDocument.id,
 			this.expectedOp
 		);
 		this.testDocument.array.push(7);

@@ -30,7 +30,7 @@ class UpdateByIdTest extends GetByIdTest {
 			$set: update
 		};
 		this.actualOp = await this.data.test.updateById(
-			this.testDocument._id,
+			this.testDocument.id,
 			update
 		);
 		Object.assign(this.testDocument, update);

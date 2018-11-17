@@ -130,21 +130,14 @@ class MongoCollection {
 	// get several documents according to the specified query, providing sort, limit, and fields options
 	// optional streaming of the results is also supported
 	async getByQuery (query, options = {}) {
-		if (this.options.hintsRequired && !options.hint && !options.overrideHintRequired) {
-			throw this.errorHandler.error('hintRequired', { query: query });
-		}
+		let project = {};
+		query = this._normalizeQueryOptions(query, options, project);
 		let cursor = this.dbCollection.find(query, { hint: options.hint });
 		if (options.sort) {
 			cursor = cursor.sort(options.sort);
 		}
 		if (options.limit) {
 			cursor = cursor.limit(options.limit);
-		}
-		let project = {};
-		if (options.fields) {
-			options.fields.forEach(field => {
-				project[field] = 1;
-			});
 		}
 		const startTime = Date.now();
 
@@ -186,10 +179,8 @@ class MongoCollection {
 	}
 
 	// get a single document (first we find) according to the specified query
-	async getOneByQuery (query, options) {
-		if (this.options.hintsRequired && !options.hint && !options.overrideHintRequired) {
-			throw this.errorHandler.error('hintRequired', { query: query });
-		}
+	async getOneByQuery (query, options = {}) {
+		query = this._normalizeQueryOptions(query, options, {});
 		const result = await this._runQuery(
 			'findOne',
 			query,
@@ -199,11 +190,53 @@ class MongoCollection {
 		return await this._idStringify(result);
 	}
 
+	// given query and options, normalize for direct communication with mongo
+	_normalizeQueryOptions (query, options, project) {
+		// turn id into _id
+		if (query.id) {
+			query = Object.assign({}, query);
+			query._id = query.id;
+			delete query.id;
+		}
+
+		// turn id into _id in hint
+		if (options.hint && options.hint.id) {
+			options.hint = Object.assign({}, options.hint);
+			options.hint._id = options.hint.id;
+			delete options.hint.id;
+		}
+		if (this.options.hintsRequired && !options.hint && !options.overrideHintRequired) {
+			throw this.errorHandler.error('hintRequired', { query: query });
+		}
+
+		// turn id into _id in sort
+		if (options.sort && options.sort.id) {
+			options.sort = Object.assign({}, options.sort);
+			options.sort._id = options.sort.id;
+			delete options.sort.id;
+		}
+
+		// turn id into _id in fields
+		if (options.fields) {
+			const index = options.fields.indexOf('id');
+			if (index !== -1) {
+				options.fields = [...options.fields];
+				options.fields[index] = '_id';
+			}
+			options.fields.forEach(field => {
+				project[field] = 1;
+			});
+		}
+
+		return query;
+	}
+
 	// create a document
 	async create (document, options) {
 		// get an ID in mongo ID form, or generate one
-		if (document._id) {
-			document._id = options.overrideId ? document._id : this.objectIdSafe(document._id);
+		if (document.id) {
+			document._id = options.overrideId ? document.id : this.objectIdSafe(document.id);
+			delete document.id;
 		}
 		else {
 			document._id = ObjectID();
@@ -240,10 +273,10 @@ class MongoCollection {
 
 	// update a document
 	async update (document, options = {}) {
-		const id = document._id;
+		const id = document.id;
 		if (!id) {
 			// must have an ID to update!
-			throw this.errorHandler.error('id', { info: '_id' });
+			throw this.errorHandler.error('id', { info: 'id' });
 		}
 		return await this.updateById(id, document, options);
 	}
@@ -251,7 +284,7 @@ class MongoCollection {
 	// update a document with an explicitly provided ID
 	async updateById (id, data, options) {
 		const set = Object.assign({}, data);
-		delete set._id; // since we're using the explicit ID, we'll ignore the one in the data
+		delete set.id; delete set._id; // since we're using the explicit ID, we'll ignore the one in the data
 		// apply a $set to the data
 		return await this._applyMongoOpById(
 			id,
@@ -300,8 +333,9 @@ class MongoCollection {
 
 	// apply a mongo op to a document
 	async _applyMongoOpById (id, op, options = {}) {
-		if (op._id) {
+		if (op.id || op._id) {
 			op = Object.assign({}, op);
+			delete op.id;
 			delete op._id;
 		}
 		if (options.version) {
@@ -360,6 +394,11 @@ class MongoCollection {
 
 	// update documents directly, the caller can do whatever they want with the database
 	async updateDirect (query, data, options) {
+		if (query.id) {
+			query = Object.assign({}, query);
+			query._id = query.id;
+			delete query.id;
+		}
 		return await this._runQuery(
 			'updateMany',
 			query,
@@ -370,6 +409,11 @@ class MongoCollection {
 
 	// do a find-and-modify operation, a cheap atomic operation
 	async findAndModify (query, data, options = {}) {
+		if (query.id) {
+			query = Object.assign({}, query);
+			query._id = query.id;
+			delete query.id;
+		}
 		const result = await this._runQuery(
 			'findAndModify',
 			query,
@@ -404,7 +448,8 @@ class MongoCollection {
 	}
 
 	// delete documents by query ... VERY DANGEROUS!!!
-	async deleteByQuery (query, options) {
+	async deleteByQuery (query, options = {}) {
+		query = this._normalizeQueryOptions(query, options, {});
 		return await this._runQuery(
 			'deleteMany',
 			query,

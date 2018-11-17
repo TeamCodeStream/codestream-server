@@ -26,14 +26,14 @@ class UpsertTest extends GetByIdTest {
 		// it did not exist before
 		const id = ObjectID();	// generate a new ID for it
 		const update = {
-			_id: id,
+			id: id,
 			text: 'upserted!',
 			number: 123
 		};
 		this.expectedOp = {
 			$set: Object.assign({}, update)
 		};
-		delete this.expectedOp.$set._id;
+		delete this.expectedOp.$set.id;
 		this.actualOp = await this.data.test.update(
 			update,
 			{
@@ -41,7 +41,8 @@ class UpsertTest extends GetByIdTest {
 			}
 		);
 		this.testDocument = Object.assign({}, update);
-		this.testDocument.id = this.testDocument._id = id.toString();
+		this.testDocument.id = id.toString();
+		this.testDocument._id = this.testDocument.id;	// DEPRECATE ME
 		delete this.expectedVersion;
 	}
 }

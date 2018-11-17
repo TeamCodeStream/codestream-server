@@ -35,7 +35,7 @@ class UpdateDirectTest extends MongoTest {
 	// run the test...
 	async run (callback) {
 		// fetch our test documents
-		const ids = this.documents.map(document => { return document._id; });
+		const ids = this.documents.map(document => { return document.id; });
 		let response;
 		try {
 			response = await this.data.test.getByIds(ids);
@@ -53,10 +53,10 @@ class UpdateDirectTest extends MongoTest {
 		Assert(this.response.length === this.documents.length);
 		this.response.forEach(responseDocument => {
 			if (this.wantN(responseDocument.number)) {
-				Assert(responseDocument.text === 'goodbye', `expected document ${responseDocument._id} wasn't updated`);
+				Assert(responseDocument.text === 'goodbye', `expected document ${responseDocument.id} wasn't updated`);
 			}
 			else {
-				Assert(responseDocument.text === 'hello' + responseDocument.number, `document ${responseDocument._id} seems to have been improperly updated`);
+				Assert(responseDocument.text === 'hello' + responseDocument.number, `document ${responseDocument.id} seems to have been improperly updated`);
 			}
 		});
 	}

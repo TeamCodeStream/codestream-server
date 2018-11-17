@@ -10,7 +10,7 @@ class VersionMismatchTest extends UpdateTest {
 
 	async doInterimUpdate () {
 		await this.data.test.applyOpById(
-			this.testDocument._id,
+			this.testDocument.id,
 			{ $set: { text: 'interim!' } },
 			{ version: 1}
 		);
@@ -30,7 +30,7 @@ class VersionMismatchTest extends UpdateTest {
 			'$set': update
 		};
 		this.actualOp = await this.data.test.applyOpById(
-			this.testDocument._id,
+			this.testDocument.id,
 			this.expectedOp,
 			{ version: 1 }
 		);
