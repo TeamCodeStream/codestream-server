@@ -62,7 +62,7 @@ class EmailHandler {
 	// user's me-channel, which the test client should be listening to
 	async testCallback (body, options) {
 		if (!options || !options.user || !this.messager) { return; }
-		const channel = `user-${options.user._id}`;
+		const channel = `user-${options.user.id}`;
 		await this.messager.publish(
 			body,
 			channel,

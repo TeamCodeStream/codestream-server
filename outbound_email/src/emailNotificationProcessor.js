@@ -86,7 +86,7 @@ class EmailNotificationProcessor {
 			return;
 		}
 		// query the messager service (pubnub) for who is subscribed to the team channel
-		const channel = 'repo-' + this.repo._id;
+		const channel = 'repo-' + this.repo.id;
 		try {
 			this.onlineUserIdsForRepo = [];
 			this.onlineUserIdsForRepo = await this.messager.getSubscribedUsers(
@@ -97,13 +97,13 @@ class EmailNotificationProcessor {
 		catch (error) {
 			throw `Unable to obtain subscribed users for channel ${channel}: ${error}`;
 		}
-		this.logger.log(`These users are online for repo ${this.repo._id}: ${this.onlineUserIdsForRepo}`);
+		this.logger.log(`These users are online for repo ${this.repo.id}: ${this.onlineUserIdsForRepo}`);
 	}
 
 	// get the team members that are currently subscribed to the team channel (they are online)
 	async getTeamSubscribedMembers () {
 		// query the messager service (pubnub) for who is subscribed to the team channel
-		const channel = 'team-' + this.team._id;
+		const channel = 'team-' + this.team.id;
 		try {
 			this.onlineUserIdsForTeam = [];
 			this.onlineUserIdsForTeam = await this.messager.getSubscribedUsers(
@@ -113,7 +113,7 @@ class EmailNotificationProcessor {
 		catch (error) {
 			throw `Unable to obtain subscribed users for channel ${channel}: ${error}`;
 		}
-		this.logger.log(`These users are online for team ${this.team._id}: ${this.onlineUserIdsForTeam}`);
+		this.logger.log(`These users are online for team ${this.team.id}: ${this.onlineUserIdsForTeam}`);
 	}
 
 	// get the user objects for the offline members
@@ -122,14 +122,14 @@ class EmailNotificationProcessor {
 			// if this is a non-file type stream, then if the user is offline for the team,
 			// then they are truly offline ... there is no sense of whether they have the repo open or not
 			if (this.stream.type !== 'file') {
-				if (!this.onlineUserIdsForTeam.includes(member._id)) {
+				if (!this.onlineUserIdsForTeam.includes(member.id)) {
 					return true;
 				}
 			}
 			else {
 				// for file-type streams, if they show as offline according to pubnub,
 				// they are truly offline
-				if (!this.onlineUserIdsForRepo.includes(member._id)) {
+				if (!this.onlineUserIdsForRepo.includes(member.id)) {
 					return true;
 				}
 			}
@@ -168,7 +168,7 @@ class EmailNotificationProcessor {
 		// can filter down to those users who really want an email based on mentions
 		let wantsEmail = this.userWantsEmail(user, this.stream, true);
 		if (wantsEmail) {
-			const lastReadSeqNum = user.lastReads && user.lastReads[this.stream._id];
+			const lastReadSeqNum = user.lastReads && user.lastReads[this.stream.id];
 			if (typeof lastReadSeqNum !== 'undefined') {
 				// we'll keep track of the earliest post we need, so we only need fetch from that post forward
 				if (
@@ -186,7 +186,7 @@ class EmailNotificationProcessor {
 			}
 		}
 		else {
-			this.logger.log(`User ${user._id}:${user.email} has email notifications turned off for this stream`);
+			this.logger.log(`User ${user.id}:${user.email} has email notifications turned off for this stream`);
 		}
 		return wantsEmail;
 	}
@@ -194,7 +194,7 @@ class EmailNotificationProcessor {
 	// get the most recent posts in the stream, by sequence number
 	async getPosts () {
 		const query = {
-			streamId: this.stream._id,
+			streamId: this.stream.id,
 			seqNum: { $gte: this.needPostsFromSeqNum }
 		};
 		this.posts = await this.data.posts.getByQuery(
@@ -227,7 +227,7 @@ class EmailNotificationProcessor {
 		const needActivityBefore = earliestPost ? earliestPost.createdAt : Date.now();
 		if (!this.offlineMembers.find(user => {
 			const lastEmailsSent = user.lastEmailsSent || {};
-			const lastSeqNumSent = lastEmailsSent[this.stream._id] || 0;
+			const lastSeqNumSent = lastEmailsSent[this.stream.id] || 0;
 			return (
 				user.lastActivityAt && 
 				user.lastActivityAt < needActivityBefore &&
@@ -243,7 +243,7 @@ class EmailNotificationProcessor {
 
 		// fetch up to the limit of posts
 		const query = {
-			streamId: this.stream._id
+			streamId: this.stream.id
 		};
 		if (earliestPost) {
 			query.seqNum = {
@@ -339,7 +339,7 @@ class EmailNotificationProcessor {
 			return ids;
 		}, []);
 		this.postCreators = creatorIds.reduce((creators, creatorId) => {
-			const creator = this.allMembers.find(member => member._id === creatorId);
+			const creator = this.allMembers.find(member => member.id === creatorId);
 			if (creator) {
 				creators.push(creator);
 			}
@@ -357,10 +357,10 @@ class EmailNotificationProcessor {
 
 	// render the HTML needed for an individual post
 	async renderPost (post) {
-		const creator = this.postCreators.find(creator => creator._id === post.creatorId);
+		const creator = this.postCreators.find(creator => creator.id === post.creatorId);
 		let parentPost;
 		if (post.parentPostId) {
-			parentPost = this.parentPosts.find(parentPost => parentPost._id === post.parentPostId);
+			parentPost = this.parentPosts.find(parentPost => parentPost.id === post.parentPostId);
 		}
 		const firstUserTimeZone = this.toReceiveEmails[0].timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
 		// if all users have the same timezone, use the first one
@@ -396,14 +396,14 @@ class EmailNotificationProcessor {
 	// determine which posts a given user will receive in the email, according to their last
 	// read message for the stream
 	async determinePostsForUser (user) {
-		const lastReadSeqNum = user.lastReads[this.stream._id] || 0;
+		const lastReadSeqNum = user.lastReads[this.stream.id] || 0;
 		const lastActivityAt = user.lastActivityAt || null;
 		const lastEmailsSent = user.lastEmailsSent || {};
-		const lastEmailSent = lastEmailsSent[this.stream._id] || 0;
+		const lastEmailSent = lastEmailsSent[this.stream.id] || 0;
 
 		const lastReadPostIndex = this.posts.findIndex(post => {
 			// look back for any posts authored by this user, as a failsafe
-			if (post.creatorId === user._id) {
+			if (post.creatorId === user.id) {
 				return true;
 			}
 
@@ -425,34 +425,34 @@ class EmailNotificationProcessor {
 			}
 		});
 		if (lastReadPostIndex === -1) {
-			this.renderedPostsPerUser[user._id] = [...this.renderedPosts];
+			this.renderedPostsPerUser[user.id] = [...this.renderedPosts];
 		}
 		else {
-			this.renderedPostsPerUser[user._id] = this.renderedPosts.slice(0, lastReadPostIndex);
+			this.renderedPostsPerUser[user.id] = this.renderedPosts.slice(0, lastReadPostIndex);
 		}
-		if (this.renderedPostsPerUser[user._id].length === 0) {
+		if (this.renderedPostsPerUser[user.id].length === 0) {
 			return;
 		}
 
 		if (this.stream.type === 'direct') {
 			// direct messages are treated like mentions
-			this.mentionsPerUser[user._id] = true;
+			this.mentionsPerUser[user.id] = true;
 		}
 		else {
 			// otherwise, need to look through the posts per user
-			this.renderedPostsPerUser[user._id].find(renderedPost => {
+			this.renderedPostsPerUser[user.id].find(renderedPost => {
 				if (this.postMentionsUser(renderedPost.post, user)) {
-					this.mentionsPerUser[user._id] = renderedPost.post.creatorId;
+					this.mentionsPerUser[user.id] = renderedPost.post.creatorId;
 					return true;
 				}
 			});
 		}
 
-		const firstPost = this.renderedPostsPerUser[user._id][0].post;
-		this.hasMultipleAuthorsPerUser[user._id] = this.renderedPostsPerUser[user._id].find(renderedPost => {
+		const firstPost = this.renderedPostsPerUser[user.id][0].post;
+		this.hasMultipleAuthorsPerUser[user.id] = this.renderedPostsPerUser[user.id].find(renderedPost => {
 			return renderedPost.post.creatorId !== firstPost.creatorId;
 		});
-		this.hasEmotesPerUser[user._id] = this.renderedPostsPerUser[user._id].find(renderedPost => {
+		this.hasEmotesPerUser[user.id] = this.renderedPostsPerUser[user.id].find(renderedPost => {
 			return this.getPostEmote(renderedPost.post);
 		});
 	}
@@ -476,15 +476,15 @@ class EmailNotificationProcessor {
 	// as needed
 	async personalizeRenderedPostsPerUser (user) {
 		let personalizedRenders = [];
-		this.renderedPostsPerUser[user._id].forEach(renderedPost => {
+		this.renderedPostsPerUser[user.id].forEach(renderedPost => {
 			let { html, post } = renderedPost;
 
 			// if the user has multiple authors represented in the posts they are getting
 			// in their email, we show the author usernames, otherwise hide them
-			const suppressAuthor = !this.hasMultipleAuthorsPerUser[user._id] && !this.hasEmotesPerUser[user._id];
+			const suppressAuthor = !this.hasMultipleAuthorsPerUser[user.id] && !this.hasEmotesPerUser[user.id];
 			let authorSpan = '';
 			if (!suppressAuthor) {
-				const creator = this.postCreators.find(creator => creator._id === post.creatorId);
+				const creator = this.postCreators.find(creator => creator.id === post.creatorId);
 				if (creator) {
 					authorSpan = PostRenderer.renderAuthorSpan(creator, this.getPostEmote(post));
 				}
@@ -497,7 +497,7 @@ class EmailNotificationProcessor {
 
 			personalizedRenders.push({ html, post });
 		});
-		this.renderedPostsPerUser[user._id] = personalizedRenders;
+		this.renderedPostsPerUser[user.id] = personalizedRenders;
 	}
 
 	// render each user's email in html
@@ -510,26 +510,26 @@ class EmailNotificationProcessor {
 
 	// render a single email for the given user
 	async renderEmailForUser (user) {
-		const renderedPosts = this.renderedPostsPerUser[user._id];
+		const renderedPosts = this.renderedPostsPerUser[user.id];
 		renderedPosts.reverse(); // display earliest to latest
 		if (
 			renderedPosts.length === 0 ||
 			/* Disabling per COD-525, countermanding COD-436 ... oh the joy
-			!this.mentionsPerUser[user._id] || // per COD-436, only send email notifications to mentioned users
+			!this.mentionsPerUser[user.id] || // per COD-436, only send email notifications to mentioned users
 			*/
-			!this.userWantsEmail(user, this.stream, !!this.mentionsPerUser[user._id])
+			!this.userWantsEmail(user, this.stream, !!this.mentionsPerUser[user.id])
 		) {
 			// renderedPosts.length should not be 0, but this can still happen because at the
 			// time we determined who preferred getting emails, we didn't have the posts, so
 			// we didn't know if the user was mentioned, so we couldn't base our determination
 			// on whether the user was mentioned ... now we can
-			this.logger.log(`User ${user._id}:${user.email} has no posts to render, or is not mentioned, or does not want email notifications`);
+			this.logger.log(`User ${user.id}:${user.email} has no posts to render, or is not mentioned, or does not want email notifications`);
 			return;
 		}
 		const postsHtml = renderedPosts.map(renderedPost => renderedPost.html);
 		const offlineForRepo = (
 			this.stream.type === 'file' &&
-			this.onlineUserIdsForTeam.includes(user._id)
+			this.onlineUserIdsForTeam.includes(user.id)
 		); // online for team, but offline for repo
 		let html = new EmailNotificationRenderer().render({
 			user,
@@ -537,7 +537,7 @@ class EmailNotificationProcessor {
 			team: this.team,
 			repo: this.repo,
 			stream: this.stream,
-			mentioned: !!this.mentionsPerUser[user._id],
+			mentioned: !!this.mentionsPerUser[user.id],
 			streams: this.streams,
 			offlineForRepo,
 			supportEmail: Config.supportEmail
@@ -556,13 +556,13 @@ class EmailNotificationProcessor {
 	// send an email notification to the given user
 	async sendNotificationToUser (userAndHtml) {
 		const { user, html } = userAndHtml;
-		const posts = this.renderedPostsPerUser[user._id].map(renderedPost => renderedPost.post);
+		const posts = this.renderedPostsPerUser[user.id].map(renderedPost => renderedPost.post);
 		let creator;
-		if (!this.hasMultipleAuthors || !this.hasMultipleAuthorsPerUser[user._id]) {
-			creator = this.postCreators.find(creator => creator._id === posts[0].creatorId);
+		if (!this.hasMultipleAuthors || !this.hasMultipleAuthorsPerUser[user.id]) {
+			creator = this.postCreators.find(creator => creator.id === posts[0].creatorId);
 		}
-		const mentioningAuthor = this.mentionsPerUser[user._id] ?
-			this.postCreators.find(creator => creator._id === this.mentionsPerUser[user._id]) :
+		const mentioningAuthor = this.mentionsPerUser[user.id] ?
+			this.postCreators.find(creator => creator.id === this.mentionsPerUser[user.id]) :
 			null;
 		const options = {
 			logger: this.logger,
@@ -581,7 +581,7 @@ class EmailNotificationProcessor {
 			postCreators: this.postCreators
 		};
 		try {
-			this.logger.log(`Sending email notification to ${user.email}, posts from ${posts[0]._id} to ${posts[posts.length-1]._id}`);
+			this.logger.log(`Sending email notification to ${user.email}, posts from ${posts[0].id} to ${posts[posts.length-1].id}`);
 			await new EmailNotificationSender().sendEmailNotification(options);
 		}
 		catch (error) {
@@ -600,11 +600,11 @@ class EmailNotificationProcessor {
 	}
 
 	async updateUser (user) {
-		const posts = this.renderedPostsPerUser[user._id];
+		const posts = this.renderedPostsPerUser[user.id];
 		const lastPost = posts[posts.length - 1].post;
 		const op = { 
 			$set: {
-				[`lastEmailsSent.${this.stream._id}`]: lastPost.seqNum
+				[`lastEmailsSent.${this.stream.id}`]: lastPost.seqNum
 			} 
 		};
 		if (!user.hasReceivedFirstEmail) {
@@ -612,12 +612,12 @@ class EmailNotificationProcessor {
 		}
 		try {
 			await this.data.users.updateDirect(
-				{ _id: this.data.users.objectIdSafe(user._id) },
+				{ id: this.data.users.objectIdSafe(user.id) },
 				op
 			);
 		}
 		catch (error) {
-			this.logger.warn(`Unable to update user ${user._id} after email notification: ${JSON.stringify(error)}`);
+			this.logger.warn(`Unable to update user ${user.id} after email notification: ${JSON.stringify(error)}`);
 		}
 	}
 
@@ -719,13 +719,13 @@ class EmailNotificationProcessor {
 		}
 		const preferences = user.preferences || {};
 		const mutedStreams = preferences.mutedStreams || {};
-		return !mutedStreams[stream._id];
+		return !mutedStreams[stream.id];
 	}
 
 	// does this post mention the current user?
 	postMentionsUser (post, user) {
 		const mentionedUserIds = post.mentionedUserIds || [];
-		return mentionedUserIds.includes(user._id);
+		return mentionedUserIds.includes(user.id);
 	}
 
 	// get the emote for this post, if it starts with /me (basically the rest of the post)

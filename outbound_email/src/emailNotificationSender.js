@@ -12,7 +12,7 @@ class EmailNotificationSender {
 		const author = mentioningAuthor || creator;
 		const fromName = author ? `${sender.getUserDisplayName(author)} (via CodeStream)` : 'CodeStream';
 		const subject = this.getNotificationSubject(options);
-		const replyTo = `${stream._id}.${team._id}@${Config.replyToDomain}`;
+		const replyTo = `${stream.id}.${team.id}@${Config.replyToDomain}`;
 
 		sender.sendEmail({
 			type: 'notification',
@@ -115,11 +115,11 @@ class EmailNotificationSender {
 
 		// in naming the stream, we prioritize active participants in the conversation
 		// (i.e., authors of posts the user will be seeing in the email)
-		postCreators = postCreators.filter(postCreator => postCreator._id !== user._id);
+		postCreators = postCreators.filter(postCreator => postCreator.id !== user.id);
 		const nonPostCreators = members.filter(member => {
 			return (
-				member._id !== user._id &&
-				!postCreators.find(postCreator => postCreator._id === member._id)
+				member.id !== user.id &&
+				!postCreators.find(postCreator => postCreator.id === member.id)
 			);
 		});
 		const streamMembers = [...postCreators, ...nonPostCreators];
@@ -159,9 +159,9 @@ class EmailNotificationSender {
 				post.codeBlocks.length > 0
 			) {
 				const markerId = post.codeBlocks[0].markerId;
-				const marker = markers.find(marker => marker._id === markerId);
-				const stream = streams.find(stream => marker && stream._id === marker.streamId);
-				const repo = repos.find(repo => stream && repo._id === stream.repoId);
+				const marker = markers.find(marker => marker.id === markerId);
+				const stream = streams.find(stream => marker && stream.id === marker.streamId);
+				const repo = repos.find(repo => stream && repo.id === stream.repoId);
 				if (repo) {
 					const path = this.truncatePath(`${repo.normalizedUrl}/${stream.file}`);
 					if (path.search(/^https?:/) >= 0) {
@@ -197,7 +197,7 @@ class EmailNotificationSender {
 	// does this post mention the current user?
 	postMentionsUser (post, user) {
 		const mentionedUserIds = post.mentionedUserIds || [];
-		return mentionedUserIds.includes(user._id);
+		return mentionedUserIds.includes(user.id);
 	}
 }
 

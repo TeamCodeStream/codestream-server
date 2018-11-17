@@ -76,7 +76,7 @@ class EmailNotificationHandler {
 		const posts = await this.data.posts.getByQuery(
 			query,
 			{
-				fields: ['_id', 'seqNum'],
+				fields: ['id', 'seqNum'],
 				hint: Index.bySeqNum,
 				limit: 1
 			}
@@ -105,7 +105,7 @@ class EmailNotificationHandler {
 		else {
 			const timeSinceTriggerTime = this.processingStartedAt - this.message.initialTriggerTime;
 			if (timeSinceTriggerTime <= Config.sessionAwayTimeout) {
-				this.log(`Mopping up offline users for stream ${this.stream._id}...`);
+				this.log(`Mopping up offline users for stream ${this.stream.id}...`);
 				this.fromSeqNum = this.message.seqNum;
 				initialTriggerTime = this.message.initialTriggerTime;
 			}
@@ -116,12 +116,12 @@ class EmailNotificationHandler {
 
 		const message = {
 			type: 'notification',
-			streamId: this.stream._id,
+			streamId: this.stream.id,
 			seqNum: this.fromSeqNum,
 			initialTriggerTime
 		};
 		const delay = Math.floor(Config.notificationInterval / 1000);
-		this.log(`Triggering email notifications for stream ${this.stream._id} in ${delay} seconds...`);
+		this.log(`Triggering email notifications for stream ${this.stream.id} in ${delay} seconds...`);
 		try {
 			await callbackWrap(
 				this.queuer.sendMessage.bind(this.queuer),
@@ -131,7 +131,7 @@ class EmailNotificationHandler {
 			);
 		}
 		catch (error) {
-			this.warn(`Unable to queue next email notifications for stream ${this.stream._id} and seqNum ${this.fromSeqNum}: ${error.toString()}`);
+			this.warn(`Unable to queue next email notifications for stream ${this.stream.id} and seqNum ${this.fromSeqNum}: ${error.toString()}`);
 		}
 	}
 
@@ -161,7 +161,7 @@ class EmailNotificationHandler {
 		}
 		try {
 			await this.data.streams.updateDirect(
-				{ _id: this.data.streams.objectIdSafe(this.stream.id) },
+				{ id: this.data.streams.objectIdSafe(this.stream.id) },
 				update
 			);
 		}

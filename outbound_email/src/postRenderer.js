@@ -26,8 +26,8 @@ class PostRenderer {
 		let preContext = '';
 		let postContext = '';
 		if (codeBlock && codeBlock.code) {
-			const marker = markers.find(marker => marker._id === codeBlock.markerId);
-			const stream = streams.find(stream => marker && stream._id === marker.streamId);
+			const marker = markers.find(marker => marker.id === codeBlock.markerId);
+			const stream = streams.find(stream => marker && stream.id === marker.streamId);
 			// try to prevent the email client from linkifying this url
 			let path = stream.file;
 			//				let path = Path.join(repo.normalizedUrl, stream.file);
@@ -142,7 +142,7 @@ class PostRenderer {
 		}
 		const mentionedUserIds = post.mentionedUserIds || [];
 		mentionedUserIds.forEach(userId => {
-			const user = members.find(user => user._id === userId);
+			const user = members.find(user => user.id === userId);
 			if (user) {
 				const username = user.username || EmailUtilities.parseEmail(user.email).name;
 				const regexp = new RegExp(`@${username}`, 'g');
