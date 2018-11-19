@@ -83,6 +83,7 @@ const InvalidAssigneeTest = require('./invalid_assignee_test');
 const AssigneeNotOnTeamTest = require('./assignee_not_on_team_test');
 const AssigneesIgnoredTest = require('./assignees_ignored_test');
 const NoReplyToReplyTest = require('./no_reply_to_reply_test');
+const ParentPostIdTest = require('./parent_post_id_test');
 
 class PostPostRequestTester {
 
@@ -180,6 +181,7 @@ class PostPostRequestTester {
 		new AssigneeNotOnTeamTest().test();
 		new AssigneesIgnoredTest().test();
 		new NoReplyToReplyTest().test();
+		new ParentPostIdTest().test();
 	}
 }
 
