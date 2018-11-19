@@ -18,6 +18,10 @@ module.exports = {
 		default: '',
 		description: 'The @@#post#post@@ that points to this codemark'
 	},
+	parentPostId: {
+		type: 'string',
+		description: 'If this codemark is part of a reply to a @@#post#post@@, the ID of the parent post'
+	},
 	markerIds: {
 		type: 'arrayOfIds',
 		maxLength: 10,

@@ -110,6 +110,9 @@ class PostCreator extends ModelCreator {
 			streamId: this.stream.id,
 			postId: this.attributes.id
 		});
+		if (this.attributes.parentPostId) {
+			codemarkAttributes.parentPostId = this.attributes.parentPostId;
+		}
 		this.transforms.createdCodemark = await new CodemarkCreator({
 			request: this.request
 		}).createCodemark(codemarkAttributes);
