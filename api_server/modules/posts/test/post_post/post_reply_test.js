@@ -20,6 +20,7 @@ class PostReplyTest extends PostPostTest {
 			callback();
 		});
 	}
+
 	get description () {
 		return 'should return a valid post when creating a reply post in a file stream';
 	}

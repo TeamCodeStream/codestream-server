@@ -11,18 +11,18 @@ module.exports = {
 	streamId: {
 		type: 'string',
 		default: '',
-		maxLength: 25,
+		maxLength: 50,
 		description: 'The @@#stream#stream@@ this codemark belongs to'
 	},
 	postId: {
 		type: 'string',
 		default: '',
-		maxLength: 25,
+		maxLength: 50,
 		description: 'The @@#post#post@@ that points to this codemark'
 	},
 	parentPostId: {
 		type: 'string',
-		maxLength: 25,
+		maxLength: 50,
 		description: 'If this codemark is part of a reply to a @@#post#post@@, the ID of the parent post'
 	},
 	markerIds: {
