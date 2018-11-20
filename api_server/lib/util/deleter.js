@@ -244,7 +244,8 @@ class Deleter {
 		this.logger.log(`Deleting repos in team ${this.teamId}...`);
 		try {
 			await this.mongoClient.mongoCollections.repos.deleteByQuery(
-				{ teamId: this.teamId }
+				{ teamId: this.teamId },
+				{ overrideHintRequired: true }
 			);
 		}
 		catch (error) {
@@ -256,7 +257,7 @@ class Deleter {
 		const repoId = this.repoId.toLowerCase();
 		this.logger.log(`Deleting repo ${repoId}...`);
 		try {
-			await this.mongoClient.mongoCollections.repos.deleteById(repoId);
+			await this.mongoClient.mongoCollections.repos.deleteById(repoId, { overrideHintRequired: true });
 		}
 		catch (error) {
 			throw `unable to delete repo: ${JSON.stringify(error)}`;
@@ -270,7 +271,7 @@ class Deleter {
 		const teamId = this.teamId.toLowerCase();
 		this.logger.log(`Deleting team ${teamId}...`);
 		try {
-			await this.mongoClient.mongoCollections.teams.deleteById(teamId);
+			await this.mongoClient.mongoCollections.teams.deleteById(teamId, { overrideHintRequired: true });
 		}
 		catch (error) {
 			throw `unable to delete team: ${JSON.stringify(error)}`;
@@ -284,7 +285,8 @@ class Deleter {
 		this.logger.log(`Deleting company ${this.team.companyId}...`);
 		try {
 			await this.mongoClient.mongoCollections.companies.deleteById(
-				this.team.companyId
+				this.team.companyId,
+				{ overrideHintRequired: true }
 			);
 		}
 		catch (error) {
@@ -319,7 +321,7 @@ class Deleter {
 		}
 		this.logger.log(`Deleting ${userIdsToDelete.length} users...`);
 		try {
-			await this.mongoClient.mongoCollections.users.deleteByIds(userIdsToDelete);
+			await this.mongoClient.mongoCollections.users.deleteByIds(userIdsToDelete, { overrideHintRequired: true });
 		}
 		catch (error) {
 			throw `unable to delete users: ${JSON.stringify(error)}`;
@@ -342,7 +344,7 @@ class Deleter {
 	async deleteSingleUser () {
 		this.logger.log(`Deleting user ${this.userIdOrEmail}...`);
 		try {
-			await this.mongoClient.mongoCollections.users.deleteById(this.user.id);
+			await this.mongoClient.mongoCollections.users.deleteById(this.user.id, { overrideHintRequired: true });
 		}
 		catch (error) {
 			throw `unable to delete user: ${JSON.stringify(error)}`;
@@ -355,7 +357,7 @@ class Deleter {
 		}
 		this.logger.log(`Deleting ${this.streamIds.length} streams...`);
 		try {
-			await this.mongoClient.mongoCollections.streams.deleteByIds(this.streamIds);
+			await this.mongoClient.mongoCollections.streams.deleteByIds(this.streamIds, { overrideHintRequired: true });
 		}
 		catch (error) {
 			throw `unable to delete streams: ${JSON.stringify(error)}`;
@@ -369,7 +371,8 @@ class Deleter {
 		this.logger.log(`Deleting posts in ${this.streamIds.length} streams...`);
 		try {
 			await this.mongoClient.mongoCollections.posts.deleteByQuery(
-				{ streamId: { $in: this.streamIds } }
+				{ streamId: { $in: this.streamIds } },
+				{ overrideHintRequired: true }
 			);
 		}
 		catch (error) {
@@ -384,7 +387,8 @@ class Deleter {
 		this.logger.log(`Deleting markers in ${this.streamIds.length} streams...`);
 		try {
 			await this.mongoClient.mongoCollections.markers.deleteByQuery(
-				{ streamId: { $in: this.streamIds } }
+				{ streamId: { $in: this.streamIds } },
+				{ overrideHintRequired: true }
 			);
 		}
 		catch (error) {
@@ -399,7 +403,8 @@ class Deleter {
 		this.logger.log(`Deleting marker locations in ${this.streamIds.length} streams...`);
 		try {
 			await this.mongoClient.mongoCollections.markerLocations.deleteByQuery(
-				{ streamId: { $in: this.streamIds } }
+				{ streamId: { $in: this.streamIds } },
+				{ overrideHintRequired: true }
 			);
 		}
 		catch (error) {
