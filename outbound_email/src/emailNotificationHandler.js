@@ -25,7 +25,14 @@ class EmailNotificationHandler {
 			await this.updateStreamSeqNum();	// update the emailNotificationSeqNum value to reflect the timer being set again
 		}
 		catch (error) {
-			return this.warn('Email notification handling failed: ' + JSON.stringify(error));
+			let message;
+			if (error instanceof Error) {
+				message = `${error.message}\n${error.stack}`; 
+			}
+			else {
+				message = JSON.stringify(error);
+			}
+			return this.warn(`Email notification handling failed: ${message}`);
 		}
 		this.log(`Successfully processed an email notification request: ${JSON.stringify(this.message)}`);
 	}
