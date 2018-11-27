@@ -604,7 +604,14 @@ class EmailNotificationProcessor {
 			await new EmailNotificationSender().sendEmailNotification(options);
 		}
 		catch (error) {
-			this.logger.warn(`Unable to send email notification to ${user.email}: ${JSON.stringify(error)}`);
+			let message;
+			if (error instanceof Error) {
+				message = `${error.message}\n${error.stack}`; 
+			}
+			else {
+				message = JSON.stringify(error);
+			}
+			this.logger.warn(`Unable to send email notification to ${user.email}: ${message}`);
 		}
 	}
 

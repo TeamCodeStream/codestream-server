@@ -15,7 +15,14 @@ class EmailHandler {
 			await this.sendEmail();
 		}
 		catch (error) {
-			return this.logger.warn(`Email handling for ${this.message.type} email failed: ${JSON.stringify(error)}`);
+			let message;
+			if (error instanceof Error) {
+				message = `${error.message}\n${error.stack}`; 
+			}
+			else {
+				message = JSON.stringify(error);
+			}
+			return this.logger.warn(`Email handling for ${this.message.type} email failed: ${message}`);
 		}
 		this.logger.log(`Successfully processed a ${this.message.type} email request: ${JSON.stringify(this.message)}`);
 	}

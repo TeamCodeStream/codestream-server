@@ -13,7 +13,6 @@ class EmailNotificationSender {
 		const fromName = author ? `${sender.getUserDisplayName(author)} (via CodeStream)` : 'CodeStream';
 		const subject = this.getNotificationSubject(options);
 		const replyTo = `${stream.id}.${team.id}@${Config.replyToDomain}`;
-
 		sender.sendEmail({
 			type: 'notification',
 			from: { email: Config.senderEmail, name: fromName },
