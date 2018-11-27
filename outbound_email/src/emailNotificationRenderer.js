@@ -32,16 +32,36 @@ class EmailNotificationRenderer {
 			margin-bottom: 3px;
 		}
 		.author {
-		  font-weight: bold;
+			font-weight: bold;
 		}
 		.datetime {
 			color: #888888;
 		}
 		.replyto {
-		  color: #888888;
-		  overflow: hidden;
+			color: #888888;
+			overflow: hidden;
 			text-overflow: ellipsis;
 			margin-bottom: 5px;
+		}
+		.title {
+			font-weight: bold;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			margin-bottom: 5px;
+		}
+		.titleWithText {
+			font-weight: bold;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			margin-bottom: 5px;
+			border-bottom: 1px dashed #dddddd;
+		}
+		.assigneesTitle {
+			font-weight: bold;
+		}
+		.assignees {
+			color: #000;
+			line-height: 1.1em;
 		}
 		.text {
 			color: #000;
@@ -68,11 +88,11 @@ class EmailNotificationRenderer {
 			padding: 5px 12px 5px 12px;
 		}
 		.codeContext {
-		  font-family: "Roboto Mono", Courier;
-		  color: #888888;
+			font-family: "Roboto Mono", Courier;
+			color: #888888;
 		}
 		.address {
-		  color: #888888;
+			color: #888888;
 		}
 		.rule {
 			border: 1px solid #e0e0e0;
@@ -129,25 +149,16 @@ class EmailNotificationRenderer {
 		const teamName = team.name;
 		const installLink = this.getInstallLink(options);
 		let intro;
-		if (isRegistered) {
-			/*
-			if (offlineForRepo) {
-				return 'We noticed that you don’t currently have this repo open in your IDE and didn’t want you to miss this discussion.';
-			}
-			else {
-				return 'We noticed that you don’t currently have your IDE open and didn’t want you to miss this discussion.';
-			}
-*/
+		if (!isRegistered) {
+			return;
 		}
-		else if (firstEmail) {
+		if (firstEmail) {
 			intro = `You’ve been added to ${teamName} on CodeStream, where your team is currently discussing code.<br><a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
 		}
 		else {
 			intro = `<a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
 		}
-		if (intro) {
-			return `<div class="intro">${intro}</div><br/>`;
-		}
+		return `<div class="intro">${intro}</div><br/>`;
 	}
 }
 

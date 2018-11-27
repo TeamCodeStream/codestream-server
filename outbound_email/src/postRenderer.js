@@ -11,7 +11,7 @@ const HLJS = require('highlight.js');
 class PostRenderer {
 
 	render (options) {
-		const { post, suppressAuthors, timeZone, streams, markers } = options;
+		const { post, suppressAuthors, timeZone, fileStreams, codemarks, markers } = options;
 
 		// the timestamp is dependent on the user's timezone, but if all users are from the same
 		// timezone, we can format the timestamp here and fully render the email; otherwise we
@@ -20,33 +20,30 @@ class PostRenderer {
 
 		const replyText = this.getReplyText(options);
 		const text = this.getNotificationText(options);
-		const codeBlock = this.getNotificationCodeBlock(options);
-		let pathToFile = '';
-		let code = ''; 
-		let preContext = '';
-		let postContext = '';
-		if (codeBlock && codeBlock.code) {
-			const marker = markers.find(marker => marker.id === codeBlock.markerId);
-			const stream = streams.find(stream => marker && stream.id === marker.streamId);
-			// try to prevent the email client from linkifying this url
-			let path = stream.file;
-			//				let path = Path.join(repo.normalizedUrl, stream.file);
-			pathToFile = path
-				.replace(/\//g, '<span>/</span>')
-				.replace(/\./g, '<span>.</span>');
-
-			// do syntax highlighting for the code block, based on the file extension
-			let extension = Path.extname(path).toLowerCase();
+		const codemark = post.codemarkId ? 
+			codemarks.find(codemark => codemark.id === post.codemarkId) :
+			null;
+		const marker = codemark && codemark.markerIds && codemark.markerIds.length ? 
+			markers.find(marker => marker.id === codemark.markerIds[0]) :
+			null;
+		const fileStream = marker && marker.fileStreamId ?
+			fileStreams.find(stream => stream.id === marker.fileStreamId) :
+			null;
+		let file = (fileStream && fileStream.file) || (marker && marker.file) || '';
+		let code = marker && marker.code;
+		if (code && file) {
+			// do syntax highlighting for the code, based on the file extension
+			let extension = Path.extname(file).toLowerCase();
 			if (extension.startsWith('.')) {
 				extension = extension.substring(1);
 			}
-			code = this.highlightCode(codeBlock.code, extension);
-			if (codeBlock.preContext) {
-				preContext = this.highlightCode(codeBlock.preContext, extension);
-			}
-			if (codeBlock.postContext) {
-				postContext = this.highlightCode(codeBlock.postContext, extension);
-			}
+			code = this.highlightCode(code, extension);
+		}
+		if (file) {
+			// try to prevent the email client from linkifying this url
+			file = file
+				.replace(/\//g, '<span>/</span>')
+				.replace(/\./g, '<span>.</span>');
 		}
 
 		// we don't display the author if all the emails are from the same author, but this can
@@ -68,37 +65,39 @@ class PostRenderer {
 `;
 		}
 
+		// display title for certain codemark types
+		let titleDiv = '';
+		if (codemark && codemark.title) {
+			const titleClass = text ? 'titleWithText' : 'title';
+			titleDiv = `
+<div class="${titleClass}">
+	${codemark.title}
+	<br>
+</div>
+`;
+		}
+
 		// possibly display code blocks
 		let codeBlockDiv = '';
-		if (codeBlock) {
+		if (code) {
 			codeBlockDiv = `
 <div>
 	<br>
 	<div class="codeBlock">
 		<div class="pathToFile">
-			${pathToFile}
+			${file}
 		</div>
-<!--
-		<div class="codeContext">
-			${preContext}
-		</div>
--->
 		<div class="code">
 			${code}
 		</div>
-<!--
-		<div class="codeContext">
-			${postContext}
-		</div>
--->
-		</div>
+	</div>
 </div>
 `;
 		}
 
 		// don't display text if this is an "emote" (starting with /me)
 		let textDiv = '';
-		if (post.text && !post.hasEmote) {
+		if (text && !post.hasEmote) {
 			textDiv =	`
 <div class="text">
 	${text}
@@ -106,13 +105,28 @@ class PostRenderer {
 `;
 		}
 
+		// display assignees if this is an issue with assignees
+		let assigneesDiv = '';
+		if (codemark && codemark.type === 'issue' && codemark.assignees && codemark.assignees.length > 0) {
+			const assigneesText = this.getAssigneesText(codemark, options);
+			assigneesDiv = `
+<div class="assigneesTitle">
+	Assignees
+</div>
+<div class="assignees">
+	${assigneesText}
+<div>
+`;
+		}
 		return `
 <div class="postWrapper">
 	<div class="authorLine">
 		${authorSpan}<span class="datetime">${datetime}</span>
 	</div>
 	${replyToDiv}
+	${titleDiv}
 	${textDiv}
+	${assigneesDiv}
 	${codeBlockDiv}
 </div>
 `;
@@ -120,14 +134,20 @@ class PostRenderer {
 
 	// get the text to display for the parent post, if this is a reply
 	getReplyText (options) {
-		const { parentPost } = options;
-		return parentPost ? parentPost.text : null;
+		const { parentPost, parentCodemark } = options;
+		return parentCodemark ?
+			parentCodemark.title || parentCodemark.text :
+			parentPost ? parentPost.text : null;
 	}
 
 	// get the text of the post for the notification
 	getNotificationText (options) {
-		const { post } = options;
-		let text = this.cleanForEmail(post.text || '');
+		const { post, codemarks } = options;
+		const codemark = post.codemarkId ? 
+			codemarks.find(codemark => codemark.id === post.codemarkId) :
+			null;
+		let text = (codemark && codemark.text) || post.text;
+		text = this.cleanForEmail(text || '');
 		return this.handleMentions(text, options);
 	}
 
@@ -152,16 +172,22 @@ class PostRenderer {
 		return text;
 	}
 
-	// get any code block associated iwth the post
-	getNotificationCodeBlock (options) {
-		const { post } = options;
-		const codeBlocks = post.codeBlocks;
-		if (!codeBlocks || codeBlocks.length === 0) {
-			return null;
+	// get the assignees to an issue displayed as usernames
+	getAssigneesText (codemark, options) {
+		let { members } = options;
+		if (!members) {
+			members = [];
 		}
-		return codeBlocks[0];
+		const users = [];
+		codemark.assignees.forEach(userId => {
+			const user = members.find(user => user.id === userId);
+			if (user) {
+				users.push(user.username);
+			}
+		});
+		return users.join(', ');
 	}
-
+	
 	// do syntax highlighting on a code block
 	highlightCode (code, extension) {
 		return this.whiteSpaceToHtml(HLJS.highlight(extension, code).value);
@@ -181,10 +207,14 @@ class PostRenderer {
 	}
 
 	// render the author span portion of an email post
-	static renderAuthorSpan (creator, emote) {
+	static renderAuthorSpan (creator, codemark, emote) {
 		const author = creator.username || EmailUtilities.parseEmail(creator.email).name;
 		let text = `<span class="author">${author}&nbsp;</span>`;
-		if (emote) {
+		if (codemark) {
+			const codemarkText = PostRenderer.getCodemarkActivity(codemark);
+			text += `${codemarkText}&nbsp;&nbsp;`;
+		}
+		else if (emote) {
 			text += `${emote}&nbsp;&nbsp;`;
 		}
 		else {
@@ -197,6 +227,22 @@ class PostRenderer {
 	static formatTime (timeStamp, timeZone) {
 		timeZone = timeZone || 'America/New_York';
 		return MomentTimezone.tz(timeStamp, timeZone).format('ddd, MMM D h:mm a');
+	}
+	
+	// get the activity text associated with a particular codemark type
+	static getCodemarkActivity (codemark) {
+		switch (codemark.type) {
+			case 'question': 
+				return 'has a question';
+			case 'issue': 
+				return 'posted an issue';
+			case 'bookmark': 
+				return 'set a bookmark';
+			case 'trap':
+				return 'created a code trap';
+			default:
+				return 'commented on code';	// shouldn't happen, just a failsafe
+		}
 	}
 }
 

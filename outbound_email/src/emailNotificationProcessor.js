@@ -22,23 +22,24 @@ class EmailNotificationProcessor {
 	// currently online for the repo and the team
 	async sendEmailNotifications () {
 		await this.getTeam();					// get the team that owns the stream that owns the post
-		await this.getRepo();					// get the repo that owns the stream that owns the post
 		await this.getAllMembers();				// get all members of the team
-		await this.getRepoSubscribedMembers();	// get users who are subscribed to the repo channel
-		await this.getTeamSubscribedMembers();	// get users who are subscribed to the team channel
+		await this.getSubscribedMembers();		// get users who are subscribed to the team channel
 		await this.getOfflineMembers();			// get offline members: those who are not subscribed to the repo channel
 		if (await this.filterByPreference()) { 	// filter to those who haven't turned email notifications off
 			return;	// indicates no emails will be sent, so just abort
 		}
 		await this.getPosts(); 					// get the most recent posts in the stream
 		await this.getEarlierPosts();			// get any posts created before the current post, if there are away timeouts
-		if (await this.characterizePosts()) {	// characterize the posts for summary conditions
+		if (await this.filterDeactivatedPosts()) {	// filter out any deactivated posts, and abort as needed
 			return;	// indicates no emails will be sent, so just abort
-		}			
-		await this.getMarkers();				// get the markers representing the codeblocks of the posts
-		await this.getStreams();				// get the streams representing the codeblocks of the posts
-		await this.getRepos();					// get the repos representing the codeblocks of the posts
+		}	
+		await this.getCodemarks();				// get the codemarks attached to the posts		
+		await this.getMarkers();				// get the markers referenced by the codemarks
+		await this.characterizePosts();			// characterize the posts for later processing
+		await this.getStreams();				// get the file-streams representing the markers
+		await this.getRepos();					// get the repos representing the file-streams
 		await this.getParentPosts();			// get the parent post if this is a reply
+		await this.getParentCodemarks();		// get the parent codemark if this is a reply
 		await this.getPostCreators();			// get the creators of all the posts
 		await this.renderPosts();				// render the HTML for each post needed
 		await this.determinePostsPerUser();		// determine which users get which posts
@@ -57,13 +58,6 @@ class EmailNotificationProcessor {
 		this.team = await this.data.teams.getById(this.stream.teamId);
 	}
 
-	// get the repo that owns the stream that owns the post
-	async getRepo () {
-		if (this.stream.repoId) {
-			this.repo = await this.data.repos.getById(this.stream.repoId);
-		}
-	}
-
 	// get all members of the team
 	async getAllMembers () {
 		let memberIds;
@@ -79,29 +73,8 @@ class EmailNotificationProcessor {
 		this.allMembers = await this.data.users.getByIds(memberIds);
 	}
 
-	// get the team members that are currently subscribed to the repo channel for the
-	// repo to which the stream belongs
-	async getRepoSubscribedMembers () {
-		if (!this.repo) {	// not applicable to non file-type streams
-			return;
-		}
-		// query the messager service (pubnub) for who is subscribed to the team channel
-		const channel = 'repo-' + this.repo.id;
-		try {
-			this.onlineUserIdsForRepo = [];
-			this.onlineUserIdsForRepo = await this.messager.getSubscribedUsers(
-				channel,
-				{ request: this.request }
-			);
-		}
-		catch (error) {
-			throw `Unable to obtain subscribed users for channel ${channel}: ${error}`;
-		}
-		this.logger.log(`These users are online for repo ${this.repo.id}: ${this.onlineUserIdsForRepo}`);
-	}
-
 	// get the team members that are currently subscribed to the team channel (they are online)
-	async getTeamSubscribedMembers () {
+	async getSubscribedMembers () {
 		// query the messager service (pubnub) for who is subscribed to the team channel
 		const channel = 'team-' + this.team.id;
 		try {
@@ -119,19 +92,9 @@ class EmailNotificationProcessor {
 	// get the user objects for the offline members
 	async getOfflineMembers () {
 		this.offlineMembers = this.allMembers.filter(member => {
-			// if this is a non-file type stream, then if the user is offline for the team,
-			// then they are truly offline ... there is no sense of whether they have the repo open or not
-			if (this.stream.type !== 'file') {
-				if (!this.onlineUserIdsForTeam.includes(member.id)) {
-					return true;
-				}
-			}
-			else {
-				// for file-type streams, if they show as offline according to pubnub,
-				// they are truly offline
-				if (!this.onlineUserIdsForRepo.includes(member.id)) {
-					return true;
-				}
+			// if the user is offline for the team, they can not be active
+			if (!this.onlineUserIdsForTeam.includes(member.id)) {
+				return true;
 			}
 			const isActive = this.hasActiveSession(member);
 			if (isActive) {
@@ -155,7 +118,7 @@ class EmailNotificationProcessor {
 		this.hasMultipleTimeZones = this.toReceiveEmails.find(user => user.timeZone !== firstUser.timeZone);
 	}
 
-	// determine whether the givenn user wants an email notification for the current post
+	// determine whether the given user wants an email notification for the current post
 	userToReceiveEmail (user) {
 		// deactivated users never get emails
 		if (user.deactivated) {
@@ -262,16 +225,47 @@ class EmailNotificationProcessor {
 		this.posts = [...this.posts, ...earlierPosts];
 	}
 
-	// characterize the posts we have by filtering out any deactivated ones, determining whether we have
-	// multiple authors represented, and whether we have emojis present, all of which affect later treatment
-	async characterizePosts () {
-		// filter out any deactivated posts, and short-circuit if we don't have any left
+	// filter out any deactivated posts and abort email notifications if none are left
+	async filterDeactivatedPosts () {
 		this.posts = this.posts.filter(post => !post.deactivated);
 		if (this.posts.length === 0) {
 			this.logger.log('Aborting email notifications, all posts are deactivated');
 			return true;
 		}
+	}
 
+	// get the codemarks attached to the posts
+	async getCodemarks () {
+		const codemarkIds = this.posts.reduce((codemarkIds, post) => {
+			if (post.codemarkId) {
+				codemarkIds.push(post.codemarkId);
+			}
+			return codemarkIds;
+		}, []);
+		if (codemarkIds.length === 0) {
+			return;
+		}
+		this.codemarks = await this.data.codemarks.getByIds(codemarkIds);
+	}
+
+	// get the markers referenced by the codemarks
+	async getMarkers () {
+		if (!this.codemarks) { return; }
+		const markerIds = this.codemarks.reduce((markerIds, codemark) => {
+			if (codemark.markerIds && codemark.markerIds.length) {
+				markerIds = [...markerIds, ...codemark.markerIds];
+			}
+			return markerIds;
+		}, []);
+		if (markerIds.length === 0) {
+			return;
+		}
+		this.markers = await this.data.markers.getByIds(markerIds);
+	}
+
+	// characterize the posts we have by determining whether we have multiple authors represented, 
+	// and whether we have emojis or non-comment codemarks present, all of which affect later treatment
+	async characterizePosts () {
 		// record whether we have multiple authors represented in the posts
 		const firstPost = this.posts[0];
 		this.hasMultipleAuthors = this.posts.find(post => post.creatorId !== firstPost.creatorId);
@@ -279,40 +273,40 @@ class EmailNotificationProcessor {
 		// record whether we have any emotes represented in the posts 
 		// (which must be displayed even if we would otherwise suppress the author line)
 		this.hasEmotes = this.posts.find(post => this.getPostEmote(post));
-	}
 
-	// get the markers representing the code blocks of the posts
-	async getMarkers () {
-		this.codeBlocks = this.posts.reduce((codeBlocks, post) => {
-			if (post.codeBlocks) {
-				codeBlocks = [...codeBlocks, ...post.codeBlocks];
-			}
-			return codeBlocks;
-		}, []);
-		this.markerIds = this.codeBlocks.map(codeBlock => codeBlock.markerId);
-		this.markers = await this.data.markers.getByIds(this.markerIds);
+		// record whether we have any non-comment codemarks represented in the posts 
+		// (which must be displayed even if we would otherwise suppress the author line)
+		this.hasNonCommentCodemarks = this.posts.find(post => this.getNonCommentCodemark(post));
 	}
 
 	// get the streams representing the code blocks of the posts
 	async getStreams () {
-		this.streamIds = this.markers.reduce((streamIds, marker) => {
+		if (!this.markers) { return; }
+		const fileStreamIds = this.markers.reduce((streamIds, marker) => {
 			if (!streamIds.includes(marker.streamId)) {
 				streamIds.push(marker.streamId);
 			}
 			return streamIds;
 		}, []);
-		this.streams = await this.data.streams.getByIds(this.streamIds);
+		if (fileStreamIds.length === 0) {
+			return;
+		}
+		this.fileStreams = await this.data.streams.getByIds(fileStreamIds);
 	}
 
 	// get the repos representing the code blocks of the posts
 	async getRepos () {
-		this.repoIds = this.streams.reduce((repoIds, stream) => {
+		if (!this.streams) { return; }
+		const repoIds = this.streams.reduce((repoIds, stream) => {
 			if (!repoIds.includes(stream.repoId)) {
 				repoIds.push(stream.repoId);
 			}
 			return repoIds;
 		}, []);
-		this.repos = await this.data.repos.getByIds(this.repoIds);
+		if (repoIds.length === 0) {
+			return;
+		}
+		this.repos = await this.data.repos.getByIds(repoIds);
 	}
 
 	// get the parent post to any post in the array of posts to go in the email notification,
@@ -328,6 +322,24 @@ class EmailNotificationProcessor {
 			return; // no replies!
 		}
 		this.parentPosts = await this.data.posts.getByIds(parentPostIds);
+	}
+
+	// get the parent codemark to any post in the array of posts to go in the email notification,
+	// for those posts that are replies
+	async getParentCodemarks () {
+		if (!this.parentPosts) {
+			return;
+		}
+		const parentCodemarkIds = this.parentPosts.reduce((ids, post) => {
+			if (post.codemarkId) {
+				ids.push(post.codemarkId);
+			}
+			return ids;
+		}, []);
+		if (parentCodemarkIds.length === 0) {
+			return;
+		}
+		this.parentCodemarks = await this.data.codemarks.getByIds(parentCodemarkIds);
 	}
 
 	// get the creators of all the posts, gleaned from the members
@@ -358,9 +370,12 @@ class EmailNotificationProcessor {
 	// render the HTML needed for an individual post
 	async renderPost (post) {
 		const creator = this.postCreators.find(creator => creator.id === post.creatorId);
-		let parentPost;
+		let parentPost, parentCodemark;
 		if (post.parentPostId) {
 			parentPost = this.parentPosts.find(parentPost => parentPost.id === post.parentPostId);
+			if (parentPost && parentPost.codemarkId) {
+				parentCodemark = this.parentCodemarks.find(parentCodemark => parentCodemark.id === parentPost.codemarkId);
+			}
 		}
 		const firstUserTimeZone = this.toReceiveEmails[0].timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
 		// if all users have the same timezone, use the first one
@@ -369,11 +384,12 @@ class EmailNotificationProcessor {
 			post,
 			creator,
 			parentPost,
-			suppressAuthors: !this.hasMultipleAuthors && !this.hasEmotes,
+			parentCodemark,
+			suppressAuthors: !this.hasMultipleAuthors && !this.hasEmotes && !this.hasNonCommentCodemarks,
 			timeZone,
+			codemarks: this.codemarks,
 			markers: this.markers,
-			streams: this.streams,
-			repos: this.repos,
+			fileStreams: this.fileStreams,
 			members: this.allMembers
 		});
 		this.renderedPosts.push({
@@ -388,6 +404,7 @@ class EmailNotificationProcessor {
 		this.mentionsPerUser = {};
 		this.hasMultipleAuthorsPerUser = {};
 		this.hasEmotesPerUser = {};
+		this.hasNonCommentCodemarksPerUser = {};
 		for (let user of this.toReceiveEmails) {
 			await this.determinePostsForUser(user);
 		}
@@ -455,6 +472,9 @@ class EmailNotificationProcessor {
 		this.hasEmotesPerUser[user.id] = this.renderedPostsPerUser[user.id].find(renderedPost => {
 			return this.getPostEmote(renderedPost.post);
 		});
+		this.hasNonCommentCodemarksPerUser[user.id] = this.renderedPostsPerUser[user.id].find(renderedPost => {
+			return this.getNonCommentCodemark(renderedPost.post);
+		});
 	}
 
 	// personalize each user's rendered posts as needed ... the rendered posts need to be
@@ -480,13 +500,23 @@ class EmailNotificationProcessor {
 			let { html, post } = renderedPost;
 
 			// if the user has multiple authors represented in the posts they are getting
-			// in their email, we show the author usernames, otherwise hide them
-			const suppressAuthor = !this.hasMultipleAuthorsPerUser[user.id] && !this.hasEmotesPerUser[user.id];
+			// in their email, we show the author usernames, otherwise hide them,
+			// we also show the author line if the post text has an emote, or an activity 
+			// coming from a non-comment codemark
+			const suppressAuthor = (
+				!this.hasMultipleAuthorsPerUser[user.id] &&
+				!this.hasEmotesPerUser[user.id] &&
+				!this.hasNonCommentCodemarksPerUser[user.id]
+			);
 			let authorSpan = '';
 			if (!suppressAuthor) {
 				const creator = this.postCreators.find(creator => creator.id === post.creatorId);
 				if (creator) {
-					authorSpan = PostRenderer.renderAuthorSpan(creator, this.getPostEmote(post));
+					authorSpan = PostRenderer.renderAuthorSpan(
+						creator,
+						this.getNonCommentCodemark(post),
+						this.getPostEmote(post)
+					);
 				}
 			}
 			html = html.replace(/\{\{\{authorSpan\}\}\}/g, authorSpan);
@@ -527,19 +557,12 @@ class EmailNotificationProcessor {
 			return;
 		}
 		const postsHtml = renderedPosts.map(renderedPost => renderedPost.html);
-		const offlineForRepo = (
-			this.stream.type === 'file' &&
-			this.onlineUserIdsForTeam.includes(user.id)
-		); // online for team, but offline for repo
 		let html = new EmailNotificationRenderer().render({
 			user,
 			posts: postsHtml,
 			team: this.team,
-			repo: this.repo,
 			stream: this.stream,
 			mentioned: !!this.mentionsPerUser[user.id],
-			streams: this.streams,
-			offlineForRepo,
 			supportEmail: Config.supportEmail
 		});
 		html = html.replace(/[\t\n]/g, '');
@@ -569,14 +592,10 @@ class EmailNotificationProcessor {
 			sender: this.sender,
 			content: html,
 			user,
-			posts,
 			creator,
 			mentioningAuthor,
 			stream: this.stream,
 			team: this.team,
-			streams: this.streams,
-			repos: this.repos,
-			markers: this.markers,
 			members: this.allMembers,
 			postCreators: this.postCreators
 		};
@@ -730,10 +749,24 @@ class EmailNotificationProcessor {
 
 	// get the emote for this post, if it starts with /me (basically the rest of the post)
 	getPostEmote (post) {
-		const text = post.text || '';
+		const codemark = post.codemarkId ?
+			this.codemarks.find(codemark => codemark.id === post.codemarkId) :
+			null;
+		const text = (codemark && codemark.text) || post.text || '';
 		const match = text.match(/^\/me\s+(.*)/);
 		post.hasEmote = match && match.length > 1 && match[1];
 		return post.hasEmote;
+	}
+
+	// get the non-comment codemark for this post, since this gives us an activity line like an emote
+	getNonCommentCodemark (post) {
+		const codemark = post.codemarkId ?
+			this.codemarks.find(codemark => codemark.id === post.codemarkId) :
+			null;
+		if (codemark && codemark.type !== 'comment') {
+			post.nonCommentCodemark = codemark;
+		}
+		return post.nonCommentCodemark;
 	}
 }
 

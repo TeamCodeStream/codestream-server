@@ -17,7 +17,7 @@ const InviteEmailHandler = require('./inviteEmailHandler');
 const ResetPasswordEmailHandler = require('./resetPasswordEmailHandler');
 const TeamCreatedEmailHandler = require('./teamCreatedEmailHandler');
 
-const MONGO_COLLECTIONS = ['users', 'teams', 'repos', 'streams', 'posts', 'markers'];
+const MONGO_COLLECTIONS = ['users', 'teams', 'repos', 'streams', 'posts', 'codemarks', 'markers'];
 
 var AWS = new AWSClass();
 var Mongo;

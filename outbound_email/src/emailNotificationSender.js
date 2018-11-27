@@ -8,7 +8,7 @@ class EmailNotificationSender {
 
 	// send an email notification to the user specified
 	async sendEmailNotification (options) {
-		const { user, creator, posts, team, stream, content, mentioningAuthor, sender } = options;
+		const { user, creator, team, stream, content, mentioningAuthor, sender } = options;
 		const author = mentioningAuthor || creator;
 		const fromName = author ? `${sender.getUserDisplayName(author)} (via CodeStream)` : 'CodeStream';
 		const subject = this.getNotificationSubject(options);
@@ -144,60 +144,6 @@ class EmailNotificationSender {
 		else {
 			return `${usernames[0]}, ${usernames[1]} and others`;
 		}
-	}
-
-	// get the file for the most recent code block in the list of posts
-	getFileForCodeBlock (options) {
-		const { posts, markers, streams, repos, user } = options;
-		// posts are ordered earliest to latest
-		let numPosts = posts.length;
-		for (let i = numPosts - 1; i >= 0; i--) {
-			const post = posts[i];
-			if (
-				this.postMentionsUser(post, user) &&
-				post.codeBlocks instanceof Array &&
-				post.codeBlocks.length > 0
-			) {
-				const markerId = post.codeBlocks[0].markerId;
-				const marker = markers.find(marker => marker.id === markerId);
-				const stream = streams.find(stream => marker && stream.id === marker.streamId);
-				const repo = repos.find(repo => stream && repo.id === stream.repoId);
-				if (repo) {
-					const path = this.truncatePath(`${repo.normalizedUrl}/${stream.file}`);
-					if (path.search(/^https?:/) >= 0) {
-						return path;
-					}
-					else {
-						return `https://${path}`;
-					}
-				}
-			}
-		}
-	}
-
-	// truncate a path to fewer than 60 characters, as needed
-	truncatePath (path) {
-		if (path.length < 20) { return path; }
-		// this is not really that sophisticated, and can still result in long paths if their 
-		// components are long, but we're not really caring too much
-		const parts = path.split('/');
-		const numParts = parts.length;
-		if (numParts < 4) { 
-			// total fallback
-			return `${parts[0]}/.../${parts[2]}`;
-		}
-		else if (numParts === 4) {
-			return `${parts[0]}/${parts[1]}/.../${parts[numParts - 1]}`;
-		}
-		else {
-			return `${parts[0]}/${parts[1]}/.../${parts[numParts - 2]}/${parts[numParts - 1]}`;
-		}
-	}
-
-	// does this post mention the current user?
-	postMentionsUser (post, user) {
-		const mentionedUserIds = post.mentionedUserIds || [];
-		return mentionedUserIds.includes(user.id);
 	}
 }
 
