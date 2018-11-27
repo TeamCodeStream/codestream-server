@@ -1,0 +1,16 @@
+// This is a template for configuring the cs_api-copy-data
+// You can add any parameters that you might type on the command line
+
+// This usage will perform the copy and try to restore the data if it fails
+// cs_api-copy-team-data --cfg ..../etc/copy-config.json --load --pre-delete --restore-on-fail
+
+{
+	// "db": "codestream",
+	// "dumpDir": "/my/dump/directory",
+	"verbose": true,
+	// "teamName": "CodeStream",
+	"teamId": "5bbe4963acc6981860b78f03",
+	"sourceUrl": "mongodb://user:pass@host:port/db",
+	// "destUrl": "mongodb://prv-mongo.codestream.us/codestream"
+	"destUrl": "mongodb://localhost/codestream"
+}
