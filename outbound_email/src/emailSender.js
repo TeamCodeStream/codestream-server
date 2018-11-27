@@ -3,7 +3,6 @@
 'use strict';
 
 const SendGridEmail = require('./server_utils/sendgrid_email');
-const EmailUtilities = require('./server_utils/email_utilities');
 const Config = require('./config');
 
 class EmailSender {
@@ -41,20 +40,6 @@ class EmailSender {
 	// given a user, figure out a full display name to use in the subject
 	getUserDisplayName (user) {
 		return user.fullName || user.email;
-	}
-
-	// given a user, figure out a username to use in the subject
-	getUsername (user) {
-		if (user.username) {
-			return user.username;
-		}
-		const parsed = EmailUtilities.parseEmail(user.email);
-		if (typeof parsed === 'object') {
-			return parsed.name;
-		}
-		else {
-			return user.email;
-		}
 	}
 }
 

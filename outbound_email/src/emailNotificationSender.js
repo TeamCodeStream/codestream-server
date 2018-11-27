@@ -3,6 +3,7 @@
 'use strict';
 
 const Config = require('./config');
+const EmailUtilities = require('./server_utils/email_utilities');
 
 class EmailNotificationSender {
 
@@ -142,6 +143,20 @@ class EmailNotificationSender {
 		}
 		else {
 			return `${usernames[0]}, ${usernames[1]} and others`;
+		}
+	}
+
+	// given a user, figure out a username to use in the subject
+	getUsername (user) {
+		if (user.username) {
+			return user.username;
+		}
+		const parsed = EmailUtilities.parseEmail(user.email);
+		if (typeof parsed === 'object') {
+			return parsed.name;
+		}
+		else {
+			return user.email;
 		}
 	}
 }
