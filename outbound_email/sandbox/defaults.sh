@@ -10,6 +10,12 @@
 #         (eg. this file is CS_OUTBOUND_EMAIL_TOP/sandbox/defaults.sh)
 #  CS_OUTBOUND_EMAIL_SANDBOX  Path to the root directory of the sandbox tree
 
+# Installation options
+if [ -f "$CS_OUTBOUND_EMAIL_SANDBOX/sb.options" ]; then
+	echo "Loading extra params from sb.options"
+	. $CS_OUTBOUND_EMAIL_SANDBOX/sb.options
+	export `grep ^CS_OUTBOUND_EMAIL_ $CS_OUTBOUND_EMAIL_SANDBOX/sb.options|cut -f1 -d=`
+fi
 
 # Uncomment and setup if yarn is required. Available versions can be seen
 # with the command:

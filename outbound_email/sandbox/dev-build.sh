@@ -5,10 +5,11 @@
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-PD_Keyset"
 #MONGO_ACCESS_FILE="$HOME/.codestream/mongo/abc-codestream-api"
 
+export CS_OUTBOUND_EMAIL_SQS=${CS_OUTBOUND_EMAIL_ASSET_ENV}_outboundEmail
+
 . $CS_OUTBOUND_EMAIL_TOP/sandbox/defaults.sh
 
 export CS_OUTBOUND_EMAIL_MONGO_HOST=${CS_OUTBOUND_EMAIL_ASSET_ENV}-mongo.codestream.us
-export CS_OUTBOUND_EMAIL_SQS=${CS_OUTBOUND_EMAIL_ASSET_ENV}_outboundEmail
 export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=${CS_OUTBOUND_EMAIL_ASSET_ENV}.codestream.com
 export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.generic.template.json
 # export CS_OUTBOUND_EMAIL_LAMBDA_SUBNETS='"subnet-c538ff98","subnet-2730ae43"'
