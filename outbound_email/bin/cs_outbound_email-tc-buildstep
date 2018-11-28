@@ -7,6 +7,7 @@ import sys
 
 sys.path.append(os.environ['DT_TOP'] + "/lib")
 import devTools
+import awsLambda
 from sysUtils import dumpDict, shellExecNoBuffer, someValueOrNone, readJsonFileIgnoreComments
 from buildUtils import *
 
@@ -14,6 +15,7 @@ assetExtensionList = ['info', 'zip', 'lambda.json']
 
 args = parseStandardBuildArgs()
 dt = devTools.devTools()
+awsL = awsLambda.awsLambda()
 buildData = buildInit(__file__, dt, args)
 buildDir = buildData['sandboxTop'] + "/src"
 os.chdir(buildDir)
@@ -75,9 +77,14 @@ if args.action == 'update':
 	# install the artifiacts (update the lambda code and environment)
 	os.rename("../out/" + buildData['givenBuildNumber'] + ".zip", "../out/outbound-email.zip")
 	os.rename("../out/" + buildData['givenBuildNumber'] + ".lambda.json", "../out/outbound-email.lambda.json")
-	print("updating lambda function code an environment")
-	buildstepGeneric(args, cmd = "npm run lambda:update_env", workingDir = buildDir)
-	buildstepGeneric(args, cmd = "npm run lambda:update_code", workingDir = buildDir)
+	if awsL.lambdaFunctionExists(os.environ['CS_OUTBOUND_EMAIL_SQS']):
+		print("updating lambda function code an environment")
+		buildstepGeneric(args, cmd = "npm run lambda:update_env", workingDir = buildDir)
+		buildstepGeneric(args, cmd = "npm run lambda:update_code", workingDir = buildDir)
+	else:
+		print("lambda function does not exist, installing it along with the trigger")
+		buildstepGeneric(args, cmd = "npm run lambda:install_func", workingDir = buildDir)
+		buildstepGeneric(args, cmd = "npm run lambda:install_trigger", workingDir = buildDir)
 	os.rename("../out/outbound-email.zip", "../out/" + buildData['givenBuildNumber'] + ".zip")
 	os.rename("../out/outbound-email.lambda.json", "../out/" + buildData['givenBuildNumber'] + ".lambda.json")
 	os.unlink("../out/outbound-email.lambda-environment.json")
