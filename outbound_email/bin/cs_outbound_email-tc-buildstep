@@ -55,7 +55,7 @@ if args.action == 'promote':
 		sourceAssetEnv = 'qa'
 	elif buildData['assetEnv'] == 'pd':
 		sourceAssetEnv = 'ci'
-	elif buildData['sbInfo']['cfg_file'] == 'dev-runtime.sh':
+	elif buildData['sbInfo']['cfg_file'] == 'dev-build.sh':
 		sourceAssetEnv = 'ci'
 	else:
 		print("you must specify --build-env")
