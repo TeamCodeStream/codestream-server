@@ -83,6 +83,7 @@ if args.action == 'update':
 		buildstepGeneric(args, cmd = "npm run lambda:update_code", workingDir = buildDir)
 	else:
 		print("lambda function does not exist, installing it along with the trigger")
+		buildstepGeneric(args, cmd = "npm run lambda:config_env", workingDir = buildDir)
 		buildstepGeneric(args, cmd = "npm run lambda:install_func", workingDir = buildDir)
 		buildstepGeneric(args, cmd = "npm run lambda:install_trigger", workingDir = buildDir)
 	os.rename("../out/outbound-email.zip", "../out/" + buildData['givenBuildNumber'] + ".zip")
