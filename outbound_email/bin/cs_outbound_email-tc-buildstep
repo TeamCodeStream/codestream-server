@@ -51,13 +51,16 @@ if args.action == 'promote':
 	sourceAssetEnv = None
 	if args.build_env:
 		sourceAssetEnv = args.build_env
-	elif buildData['assetEnv'] == 'pd':
-		sourceAssetEnv = 'ci'
 	elif buildData['assetEnv'] == 'prod':
 		sourceAssetEnv = 'qa'
+	elif buildData['assetEnv'] == 'pd':
+		sourceAssetEnv = 'ci'
+	elif buildData['sbInfo']['cfg_file'] == 'dev-runtime.sh':
+		sourceAssetEnv = 'ci'
 	else:
 		print("you must specify --build-env")
 		exit(1)
+	print("sourceAssetEnv =", sourceAssetEnv)
 	fetchArtifacts(args, buildData, assetExtensionList, destDir = "../out/" + sourceAssetEnv, sourceAssetEnv = sourceAssetEnv, publishDir = "outbound-email")
 	buildstepGeneric(args, cmd = "npm run lambda:config", workingDir = buildDir)
 	os.rename("../out/outbound-email.lambda.json", "../out/" + buildData['givenBuildNumber'] + ".lambda.json")
