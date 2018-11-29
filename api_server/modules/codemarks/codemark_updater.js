@@ -25,7 +25,7 @@ class CodemarkUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['postId', 'streamId', 'status', 'text', 'title', 'color'],
+			string: ['postId', 'streamId', 'parentPostId', 'status', 'text', 'title', 'color'],
 			'array(string)': ['assignees']
 		};
 	}
@@ -38,6 +38,10 @@ class CodemarkUpdater extends ModelUpdater {
 			// integration, which requires special treatment
 			await this.validatePostId();
 			await this.updateMarkers();
+		}
+		if (this.attributes.parentPostId && !this.codemark.get('providerType')) {
+			// can only update parentPostId for third-party
+			delete this.attributes.parentPostId;
 		}
 		await this.preValidate();
 		await this.validateAssignees();

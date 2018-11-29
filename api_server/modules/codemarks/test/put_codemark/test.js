@@ -25,6 +25,7 @@ const AssigneeNotOnTeamTest = require('./assignee_not_on_team_test');
 const AssigneesIgnoredTest = require('./assignees_ignored_test');
 const SetPostlessAssigneesTest = require('./set_postless_assignees_test');
 const UpdatePostlessAssigneesTest = require('./update_postless_assignees_test');
+const SetParentPostIdTest = require('./set_parent_post_id_test');
 
 class PutCodemarkRequestTester {
 
@@ -39,6 +40,7 @@ class PutCodemarkRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'markerIds' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'providerType' }).test();
+		new NoUpdateOtherAttributeTest({ attribute: 'parentPostId' }).test();
 		new NoUpdatePostIdTest().test();
 		new NoUpdateStreamIdTest().test();
 		new NoStreamIdTest().test();
@@ -65,6 +67,7 @@ class PutCodemarkRequestTester {
 		new AssigneesIgnoredTest().test();
 		new SetPostlessAssigneesTest().test();
 		new UpdatePostlessAssigneesTest().test();
+		new SetParentPostIdTest().test();
 	}
 }
 
