@@ -13,9 +13,22 @@ class PutCodemarkRequest extends PutRequest {
 		if (!this.codemark) {
 			throw this.errorHandler.error('notFound', { info: 'codemark' });
 		}
-		if (this.codemark.get('creatorId') !== this.user.id) {
-			throw this.errorHandler.error('updateAuth', { reason: 'only the author can update a codemark' });
+		if (
+			this.codemark.get('creatorId') !== this.user.id &&
+			!this.isChangeToIssueStatus()	// allow anyone on team to update an issue's status
+		) {
+			throw this.errorHandler.error('updateAuth', { reason: 'only the author, or a team member changing an issue\'s status, can update a codemark' });
 		}
+	}
+
+	// if the update is a change to the issue's status, and nothing else, then we allow anyone
+	// on the team to do it
+	isChangeToIssueStatus () {
+		return (
+			this.codemark.get('type') === 'issue' &&
+			Object.keys(this.request.body).length === 1 &&
+			Object.keys(this.request.body)[0] === 'status'
+		);
 	}
 
 	// handle response to the request

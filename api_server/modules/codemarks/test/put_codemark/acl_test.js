@@ -11,7 +11,7 @@ class ACLTest extends PutCodemarkTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1010',
-			reason: 'only the author can update a codemark'
+			reason: 'only the author.* can update a codemark'
 		};
 	}
 

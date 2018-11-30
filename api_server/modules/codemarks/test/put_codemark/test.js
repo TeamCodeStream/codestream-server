@@ -26,6 +26,8 @@ const AssigneesIgnoredTest = require('./assignees_ignored_test');
 const SetPostlessAssigneesTest = require('./set_postless_assignees_test');
 const UpdatePostlessAssigneesTest = require('./update_postless_assignees_test');
 const SetParentPostIdTest = require('./set_parent_post_id_test');
+const TeamMemberUpdateIssueStatusTest = require('./team_member_update_issue_status_test');
+const UpdateStatusACLTest = require('./update_status_acl_test');
 
 class PutCodemarkRequestTester {
 
@@ -68,6 +70,8 @@ class PutCodemarkRequestTester {
 		new SetPostlessAssigneesTest().test();
 		new UpdatePostlessAssigneesTest().test();
 		new SetParentPostIdTest().test();
+		new TeamMemberUpdateIssueStatusTest().test();
+		new UpdateStatusACLTest().test();
 	}
 }
 
