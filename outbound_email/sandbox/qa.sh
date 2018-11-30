@@ -8,6 +8,7 @@ export CS_OUTBOUND_EMAIL_SQS=qa_outboundEmail
 . $CS_OUTBOUND_EMAIL_TOP/sandbox/defaults.sh
 
 unset CS_OUTBOUND_EMAIL_TO
+export CS_OUTBOUND_EMAIL_LAMBDA_IAM_ROLE=cs_Lambda
 export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=qa.codestream.com
 export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.generic.template.json
 export CS_OUTBOUND_EMAIL_LAMBDA_SUBNETS='"subnet-96423fcb","subnet-e7446c83"'
