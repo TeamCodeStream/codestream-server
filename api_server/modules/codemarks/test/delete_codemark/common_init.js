@@ -60,7 +60,9 @@ class CommonInit {
 		const data = this.codemarkFactory.getRandomCodemarkData();
 		Object.assign(data, {
 			teamId: this.team.id,
-			providerType: RandomString.generate(8)
+			providerType: RandomString.generate(8),
+			postId: RandomString.generate(8),
+			streamId: RandomString.generate(8)
 		});
 		if (this.wantMarker) {
 			data.markers = [this.markerFactory.getRandomMarkerData()];

@@ -84,15 +84,17 @@ class DeleteCodemarkRequest extends DeleteRequest {
 
 	// publish the codemark to the appropriate messager channel
 	async publishCodemark () {
-		if (this.codemark.get('providerType')) {
-			// don't publish codemarks with third-party provider 
-			return;
-		}
 		const message = Object.assign({}, this.responseData, {
 			requestId: this.request.id
 		});
+
+		// for third-party codemarks, we have no stream channels, so we have to send
+		// the update out over the team channel ... known security flaw, for now
 		let channel;
-		if (this.stream.get('isTeamStream')) {
+		if (
+			this.codemark.get('providerType') ||
+			this.stream.get('isTeamStream')
+		) {
 			channel = `team-${this.team.id}`;
 		}
 		else {
