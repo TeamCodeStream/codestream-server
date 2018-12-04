@@ -5,7 +5,7 @@ const CodemarkTestConstants = require('../codemark_test_constants');
 const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 const Assert = require('assert');
 
-class DeletePostTest extends DeleteCodemarkTest{
+class DeletePostTest extends DeleteCodemarkTest {
 
 	get description () {
 		return 'should return the deactivated codemark and post when deleting a codemark attached to a post';

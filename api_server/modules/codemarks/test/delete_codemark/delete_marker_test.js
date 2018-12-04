@@ -20,6 +20,7 @@ class DeleteMarkerTest extends DeleteCodemarkTest {
 		super.setExpectedData(() => {
 			this.expectedData.markers = [{
 				id: this.markers[0].id,
+				_id: this.markers[0].id,
 				$set: {
 					deactivated: true,
 					version: 2

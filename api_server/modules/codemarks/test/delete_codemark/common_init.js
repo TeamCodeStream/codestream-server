@@ -74,6 +74,7 @@ class CommonInit {
 		this.expectedData = {
 			codemarks: [{
 				id: this.codemark.id,
+				_id: this.codemark.id,
 				$set: {
 					version: this.expectedVersion,
 					deactivated: true,

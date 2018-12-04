@@ -74,10 +74,10 @@ class DeleteCodemarkRequest extends DeleteRequest {
 
 	// after the codemark is deleted...
 	async postProcess () {
+		// need the stream for publishing
 		if (!this.codemark.get('providerType')) {
 			this.stream = await this.data.streams.getById(this.codemark.get('streamId'));
 		}
-		// need the stream for publishing
 		await this.publishCodemark();
 		await this.publishMarkers();
 	}
@@ -91,10 +91,7 @@ class DeleteCodemarkRequest extends DeleteRequest {
 		// for third-party codemarks, we have no stream channels, so we have to send
 		// the update out over the team channel ... known security flaw, for now
 		let channel;
-		if (
-			this.codemark.get('providerType') ||
-			this.stream.get('isTeamStream')
-		) {
+		if (!this.stream || this.stream.get('isTeamStream')) {
 			channel = `team-${this.team.id}`;
 		}
 		else {
@@ -115,7 +112,13 @@ class DeleteCodemarkRequest extends DeleteRequest {
 
 	// deleted markers always go out to the team channel, even if they are in a private stream
 	async publishMarkers () {
-		if (!this.responseData.markers || (this.stream && this.stream.get('isTeamStream'))) {
+		// we only need to publish markers if the codemark was in a private CodeStream channel,
+		// otherwise, the message went out to the team channel anyway
+		if (
+			!this.responseData.markers ||
+			!this.stream ||
+			this.stream.get('isTeamStream')
+		) {
 			return;
 		}
 		const message = {

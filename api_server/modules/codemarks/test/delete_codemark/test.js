@@ -17,7 +17,9 @@ const AlreadyDeletedTest = require('./already_deleted_test');
 const AdminCanDeleteTest = require('./admin_can_delete_test');
 const MessageTest = require('./message_test');
 const MarkerMessageTest = require('./marker_message_test');
-const DeletePostlessMarkerTest = require('./delete_postless_marker_test');
+const DeletePostMessageTest = require('./delete_post_message_test');
+const DeletePostAndMarkerMessageTest = require('./delete_post_and_marker_message_test');
+const MarkerToTeamMessageTest = require('./marker_to_team_message_test');
 
 class DeleteCodemarkRequestTester {
 
@@ -35,13 +37,16 @@ class DeleteCodemarkRequestTester {
 		new CodemarkNotFoundTest().test();
 		new AlreadyDeletedTest().test();
 		new AdminCanDeleteTest().test();
-		new MessageTest({ streamType: 'channel' }).test();
-		new MessageTest({ streamType: 'direct' }).test();
-		new MessageTest({ streamType: 'team stream' }).test();
-		new MarkerMessageTest({ streamType: 'channel' }).test();
-		new MarkerMessageTest({ streamType: 'direct' }).test();
-		new MarkerMessageTest({ streamType: 'team stream' }).test();
-		new DeletePostlessMarkerTest().test();
+		new MessageTest().test();
+		new MarkerMessageTest().test();
+		new DeletePostMessageTest({ streamType: 'channel' }).test();
+		new DeletePostMessageTest({ streamType: 'direct' }).test();
+		new DeletePostMessageTest({ streamType: 'team stream' }).test();
+		new DeletePostAndMarkerMessageTest({ streamType: 'channel' }).test();
+		new DeletePostAndMarkerMessageTest({ streamType: 'direct' }).test();
+		new DeletePostAndMarkerMessageTest({ streamType: 'team stream' }).test();
+		new MarkerToTeamMessageTest({ streamType: 'channel' }).test();
+		new MarkerToTeamMessageTest({ streamType: 'direct' }).test();
 	}
 }
 
