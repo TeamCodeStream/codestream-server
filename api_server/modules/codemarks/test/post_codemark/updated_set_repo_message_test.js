@@ -6,6 +6,7 @@ const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/message
 const MarkerTest = require('./marker_test');
 const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
 const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');
+const Assert = require('assert');
 
 class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit, MarkerTest) {
 
@@ -48,28 +49,27 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 				data: this.data,
 				token: this.token
 			},
-			error => {
+			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = { 
-					repos: [{
-						_id: this.repo.id,	// DEPRECATE ME
-						id: this.repo.id,
-						$push: {
-							remotes: [{
-								url: this.addedRemote,
-								normalizedUrl: normalizedRemote,
-								companyIdentifier
-							}]
-						},
-						$version: {
-							before: 1,
-							after: 2
-						},
-						$set: {
-							version: 2
-						}
-					}]
-				};
+				this.message = response;
+				this.reposMessage = [{
+					_id: this.repo.id,	// DEPRECATE ME
+					id: this.repo.id,
+					$push: {
+						remotes: [{
+							url: normalizedRemote,
+							normalizedUrl: normalizedRemote,
+							companyIdentifier
+						}]
+					},
+					$version: {
+						before: 1,
+						after: 2
+					},
+					$set: {
+						version: 2
+					}
+				}];
 				callback();
 			}
 		);
@@ -77,9 +77,8 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 
 	// validate the incoming message
 	validateMessage (message) {
-		// ignore the message publishing the new file-stream, we only want the repo message
-		if (message.message.stream) { return false; }
-		return true;
+		Assert.deepEqual(this.reposMessage, message.message.repos, 'unexpected repos in message');
+		return super.validateMessage(message);
 	}
 }
 

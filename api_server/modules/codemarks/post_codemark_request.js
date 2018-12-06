@@ -3,8 +3,6 @@
 'use strict';
 
 const PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
-const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
-const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 
 class PostCodemarkRequest extends PostRequest {
 
@@ -81,35 +79,15 @@ class PostCodemarkRequest extends PostRequest {
 
 	// after the response is sent
 	async postProcess () {
-		// these operations are independent and can happen in parallel
-		await awaitParallel([
-			this.publishCreatedStreamsForMarkers,	// publish any streams created on-the-fly for the markers, as needed
-			this.publishRepos						// publish any created or updated repos to the team
-		], this);
+		await this.publishCodemark();
 	}
 
-	// if we created any streams on-the-fly for the markers, publish them as needed
-	async publishCreatedStreamsForMarkers () {
-		// streams created on-the-fly for markers are necessarily going to be file streams,
-		// these should automatically get published to the whole team
-		await Promise.all((this.transforms.createdStreamsForMarkers || []).map(async stream => {
-			await this.publishStream(stream);
-		}));
-	}
-
-	// publish any created or updated repos to the team
-	async publishRepos () {
-		const repos = (this.transforms.createdRepos || []).map(repo => repo.getSanitizedObject())
-			.concat(this.transforms.repoUpdates || []);
-		if (repos.length === 0) {
-			return;
-		}
-
+	// publish the codemark and associated data to the team channel, ignoring stricter privacy issues for now
+	async publishCodemark () {
 		const channel = `team-${this.teamId}`;
-		const message = {
-			repos: repos,
+		const message = Object.assign({}, this.responseData, {
 			requestId: this.request.id
-		};
+		});
 		try {
 			await this.api.services.messager.publish(
 				message,
@@ -119,22 +97,10 @@ class PostCodemarkRequest extends PostRequest {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish repos message to team ${this.teamId}: ${JSON.stringify(error)}`);
+			this.warn(`Could not publish codemark message to team ${this.teamId}: ${JSON.stringify(error)}`);
 		}
 	}
 
-	// publish a given stream
-	async publishStream (stream) {
-		const sanitizedStream = stream.getSanitizedObject();
-		await new StreamPublisher({
-			stream: sanitizedStream,
-			data: { stream: sanitizedStream },
-			request: this,
-			messager: this.api.services.messager,
-			isNew: true
-		}).publishStream();
-	}
-	
 	// describe this route for help
 	static describe (module) {
 		const description = PostRequest.describe(module);

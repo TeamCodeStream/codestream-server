@@ -31,8 +31,7 @@ const UpdateMatchedRepoWithRemotesTest = require('./update_matched_repo_with_rem
 const UpdateSetRepoWithRemotesTest = require('./update_set_repo_with_remotes_test');
 const CreateRepoOnTheFlyTest = require('./create_repo_on_the_fly_test');
 const DuplicateFileStreamTest = require('./duplicate_file_stream_test');
-const NewMarkerStreamMessageToTeamTest = require('./new_marker_stream_message_to_team_test');
-const NewRepoMessageToTeamTest = require('./new_repo_message_to_team_test');
+const MessageToTeamTest = require('./message_to_team_test');
 const UpdatedSetRepoMessageTest = require('./updated_set_repo_message_test');
 const OnTheFlyMarkerStreamFromDifferentTeamTest = require('./on_the_fly_marker_stream_from_different_team_test');
 const OnTheFlyMarkerStreamRepoNotFoundTest = require('./on_the_fly_marker_stream_repo_not_found_test');
@@ -88,8 +87,7 @@ class PostCodemarkRequestTester {
 		new UpdateSetRepoWithRemotesTest().test();
 		new CreateRepoOnTheFlyTest().test();
 		new DuplicateFileStreamTest().test();
-		new NewMarkerStreamMessageToTeamTest().test();
-		new NewRepoMessageToTeamTest().test();
+		new MessageToTeamTest().test();
 		new UpdatedSetRepoMessageTest().test();
 		new OnTheFlyMarkerStreamFromDifferentTeamTest().test();
 		new OnTheFlyMarkerStreamRepoNotFoundTest().test();
