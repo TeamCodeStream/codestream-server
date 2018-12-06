@@ -197,4 +197,5 @@ if args.load:
 			exit(1)
 		print("=== Restore succeesful")
 
+	print("DON'T FORGET TO RE-CREATE THE INDEXES IDIOT")
 exit(0)

@@ -67,7 +67,7 @@ if args.action == 'release':
 	infoFileName = args.build_number + ".info"
 	pkgInfo = readJsonFileIgnoreComments(infoFileName)
 	applyTagToRepos(os.environ['CS_API_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
-	updatePackageVersion(buildData['sandboxTop'] + "/package.json", "develop", pkgInfo['version'], bumpLevel = 'patch')
+	updatePackageVersion(buildData['sandboxTop'] + "/package.json", "development", pkgInfo['version'], bumpLevel = 'patch')
 
 if args.action == 'docker':
 	verInfo = parseBuildNumber(args.build_number)
