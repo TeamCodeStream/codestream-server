@@ -64,6 +64,7 @@ if args.action == 'release':
 	if os.environ['CS_MAILIN_ASSET_ENV'] != "prod":
 		print("release can only be run in a sandbox configured for production")
 		exit(1)
+	setArtifactLinks("prod/" + publishDir, args.build_number, assetExtensionList, 'current')
 	infoFileName = args.build_number + ".info"
 	pkgInfo = readJsonFileIgnoreComments(infoFileName)
 	applyTagToRepos(os.environ['CS_MAILIN_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
