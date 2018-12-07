@@ -66,6 +66,7 @@ if args.action == 'release':
 		exit(1)
 	infoFileName = args.build_number + ".info"
 	pkgInfo = readJsonFileIgnoreComments(infoFileName)
+	setArtifactLinks("prod/" + publishDir, args.build_number, assetExtensionList, 'current')
 	applyTagToRepos(os.environ['CS_API_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
 	updatePackageVersion(buildData['sandboxTop'] + "/package.json", "development", pkgInfo['version'], bumpLevel = 'patch')
 
