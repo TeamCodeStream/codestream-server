@@ -53,7 +53,7 @@ class ProviderAuthRequest extends RestfulRequest {
 		// FIXME ... this is my (colin's) key!!!
 		const key = this.request.query.key || 'e19498416be875ef9078ec7751bbce7e';
 		const state = this.request.query.code;
-		const publicApiUrl = this.api.config.express.publicApiUrl;
+		const publicApiUrl = this.api.config.api.publicApiUrl;
 		const parameters = {
 			expiration: 'never',
 			name: 'CodeStream',

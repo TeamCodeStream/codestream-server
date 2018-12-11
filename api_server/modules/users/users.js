@@ -8,6 +8,7 @@ const UserUpdater = require('./user_updater');
 const SignupTokens = require('./signup_tokens');
 const User = require('./user');
 const Errors = require('./errors');
+const FS = require('fs');
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {
@@ -188,6 +189,7 @@ class Users extends Restful {
 
 	initialize () {
 		this.signupTokens.initialize();
+		this.afterTrelloAuthHtml = FS.readFileSync(process.env.CS_API_TOP + '/modules/users/etc/afterTrelloAuth.html', { encoding: 'utf8' });
 	}
 
 	describeErrors () {

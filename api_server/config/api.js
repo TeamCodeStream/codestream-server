@@ -34,5 +34,6 @@ module.exports = {
 	// (supports only vscode right now, TBD how to deal with multiple IDEs)
 	assetEnvironment: process.env.CS_API_ASSET_ENV || 'prod',
 
+	// public url to access the API server from "beyond"
 	publicApiUrl: process.env.CS_API_PUBLIC_URL || 'https://api.codestream.com'
 };
