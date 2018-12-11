@@ -34,8 +34,8 @@ export CS_API_CONFS=$CS_API_SANDBOX/conf  # config files directory
 export CS_API_DATA=$CS_API_SANDBOX/data   # data directory
 export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
 
-[ -z "$CS_API_HOST" ] && export CS_API_HOST=localhost.codestream.us
 [ -z "$CS_API_PORT" ] && export CS_API_PORT=12079
+[ -z "$CS_API_PUBLIC_URL" ] && export CS_API_PUBLIC_URL=https://localhost.codestream.us:$CS_API_PORT
 [ -z "$CS_API_ENV" ] && export CS_API_ENV=dev
 [ -z "$CS_API_ASSET_ENV" ] && export CS_API_ASSET_ENV=local
 export CS_API_LOG_CONSOLE_OK=1

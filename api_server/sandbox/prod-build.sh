@@ -24,3 +24,4 @@ export CS_API_SENDER_EMAIL=ci-alerts@codestream.com
 export CS_API_SLACKBOT_ORIGIN=http://localhost.codestream.us:37202
 export CS_API_TEAMSBOT_ORIGIN=http://localhost.codestream.us:37203
 export CS_API_WEB_CLIENT_ORIGIN=http://localhost.codestream.us:37204
+export CS_API_PUBLIC_URL=https://localhost.codestream.us:37205

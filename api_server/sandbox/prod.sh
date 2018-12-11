@@ -19,6 +19,7 @@ export CS_API_REPLY_TO_DOMAIN=prod.codestream.com
 export CS_API_OUTBOUND_EMAIL_SQS="prod_outboundEmail"
 
 export CS_API_WEB_CLIENT_ORIGIN=https://app.codestream.com
+export CS_API_PUBLIC_URL=https://api.codestream.com
 
 unset CS_API_HELP_AVAILABLE
 unset CS_API_SUPPRESS_EMAILS

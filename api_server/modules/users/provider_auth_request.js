@@ -53,8 +53,7 @@ class ProviderAuthRequest extends RestfulRequest {
 		// FIXME ... this is my (colin's) key!!!
 		const key = this.request.query.key || 'e19498416be875ef9078ec7751bbce7e';
 		const state = this.request.query.code;
-		const host = this.api.config.api.host;
-		const port = this.api.config.express.port;
+		const publicApiUrl = this.api.config.express.publicApiUrl;
 		const parameters = {
 			expiration: 'never',
 			name: 'CodeStream',
@@ -62,7 +61,7 @@ class ProviderAuthRequest extends RestfulRequest {
 			response_type: 'token',
 			key,
 			callback_method: 'fragment',
-			return_url: `https://${host}:${port}/no-auth/provider-token/trello?state=${state}`
+			return_url: `${publicApiUrl}/no-auth/provider-token/trello?state=${state}`
 		};
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)

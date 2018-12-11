@@ -9,3 +9,4 @@ export CS_API_SSL_CERTFILE=/etc/pki/wildcard.codestream.us/wildcard.codestream.u
 export CS_API_SSL_CAFILE=/etc/pki/wildcard.codestream.us/wildcard.codestream.us-ca
 export CS_API_PORT=12179
 export CS_API_REPLY_TO_DOMAIN=pd.codestream.com
+export CS_API_PUBLIC_URL=https://localhost.codestream.us:$CS_API_PORT

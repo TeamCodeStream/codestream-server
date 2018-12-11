@@ -15,4 +15,5 @@ export CS_API_PORT=8443
 export CS_API_REPLY_TO_DOMAIN=${CS_API_ENV}.codestream.com
 export CS_API_OUTBOUND_EMAIL_SQS="${CS_API_ENV}_outboundEmail"
 export CS_API_WEB_CLIENT_ORIGIN=https://${CS_API_ENV}-app.codestream.us
+export CS_API_PUBLIC_URL=https://${CS_API_ENV}-api.codestream.us
 unset CS_API_SUPPRESS_EMAILS
