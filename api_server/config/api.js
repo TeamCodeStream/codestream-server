@@ -32,5 +32,8 @@ module.exports = {
 
 	// environment for purposes of returning the correct asset URL for downloading the latest extension
 	// (supports only vscode right now, TBD how to deal with multiple IDEs)
-	assetEnvironment: process.env.CS_API_ASSET_ENV || 'prod'
+	assetEnvironment: process.env.CS_API_ASSET_ENV || 'prod',
+
+	// TEMPORARY
+	host: process.env.CS_API_HOST || 'api.codestream.com'
 };

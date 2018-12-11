@@ -160,6 +160,9 @@ class APIRequest {
 		if (this.gotError) {
 			return await this.handleErrorResponse();
 		}
+		else if (this.responseHandled) {
+			return;
+		}
 		this.statusCode = this.statusCode || 200;
 		this.response.
 			set('X-Request-Id', this.request.id).

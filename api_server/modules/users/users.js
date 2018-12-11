@@ -8,7 +8,6 @@ const UserUpdater = require('./user_updater');
 const SignupTokens = require('./signup_tokens');
 const User = require('./user');
 const Errors = require('./errors');
-//const HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {
@@ -123,6 +122,21 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: '/no-auth/provider-connect/:provider',
 		requestClass: require('./provider_connect_request')
+	},
+	{
+		method: 'get',
+		path: '/no-auth/provider-auth/:provider',
+		requestClass: require('./provider_auth_request')
+	},
+	{
+		method: 'get',
+		path: '/no-auth/provider-token/:provider',
+		requestClass: require('./provider_token_request')
+	},
+	{
+		method: 'get',
+		path: '/provider-auth-code',
+		requestClass: require('./provider_authcode_request')
 	},
 	{
 		method: 'put',
