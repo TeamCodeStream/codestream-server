@@ -42,13 +42,17 @@ export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
 
 # Publicly accessible url for accessing the API service
 [ -z "$CS_API_PUBLIC_URL" ] && export CS_API_PUBLIC_URL=https://localhost.codestream.us:$CS_API_PORT
+
+# For consutrction of a callback URL used in authentication
 if [ -z "$CS_API_AUTH_ORIGIN" ]; then
-	export CS_API_AUTH_ORIGIN=https://auth.codestream.us/$CS_API_ENV
-	TUNNEL_IP=`netstat -rn|grep '^10\.99'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
-	if [ -z "$TUNNEL_IP" ]; then
-		echo "I cannot detect your VPN IP so oauth callbacks will not work"
-	else
-		export CS_API_AUTH_ORIGIN="$CS_API_AUTH_ORIGIN-$TUNNEL_IP"
+	export CS_API_AUTH_ORIGIN=https://auth.codestream.us/no-auth/$CS_API_ENV
+	if [ "$CS_API_ENV" == local ]; then
+		TUNNEL_IP=`netstat -rn|grep '^10\.99'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
+		if [ -z "$TUNNEL_IP" ]; then
+			echo "I cannot detect your VPN IP so oauth callbacks will not work"
+		else
+			export CS_API_AUTH_ORIGIN="$CS_API_AUTH_ORIGIN-$TUNNEL_IP"
+		fi
 	fi
 fi
 
@@ -152,10 +156,11 @@ fi
 
 
 # ================= GitHub API Access ==============
-[ -z "$GITHUB_API_ACCESS_FILE" ] && GITHUB_API_ACCESS_FILE=$HOME/.codestream/github/codestreamops
+[ -z "$GITHUB_API_ACCESS_FILE" ] && GITHUB_API_ACCESS_FILE=$HOME/.codestream/github/development
 if [ -f $GITHUB_API_ACCESS_FILE ]; then
 	. $GITHUB_API_ACCESS_FILE
-	export CS_API_GITHUB_ACCESS_TOKEN="$GITHUB_ACCESS_TOKEN"
+	export CS_API_GITHUB_CLIENT_ID="$GITHUB_CLIENT_ID"
+	export CS_API_GITHUB_CLIENT_SECRET="$GITHUB_CLIENT_SECRET"
 else
 	echo "********************************************************************"
 	echo "WARNING: GitHub api access file not found ($GITHUB_API_ACCESS_FILE)."
@@ -165,10 +170,11 @@ fi
 
 
 # ================= Asana API Access ==============
-[ -z "$ASANA_API_ACCESS_FILE" ] && ASANA_API_ACCESS_FILE=$HOME/.codestream/asana/ops-codestream-clients
+[ -z "$ASANA_API_ACCESS_FILE" ] && ASANA_API_ACCESS_FILE=$HOME/.codestream/asana/development
 if [ -f $ASANA_API_ACCESS_FILE ]; then
 	. $ASANA_API_ACCESS_FILE
-	export CS_API_ASANA_ACCESS_TOKEN="$ASANA_ACCESS_TOKEN"
+	export CS_API_ASANA_CLIENT_ID="$ASANA_CLIENT_ID"
+	export CS_API_ASANA_CLIENT_SECRET="$ASANA_CLIENT_SECRET"
 else
 	echo "********************************************************************"
 	echo "WARNING: Asana api access file not found ($ASANA_API_ACCESS_FILE)."
