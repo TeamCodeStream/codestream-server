@@ -17,12 +17,12 @@ class GithubAuth extends APIServerModule {
 	async handleAuthRedirect (options) {
 		const { request, provider, state } = options;
 		const { config } = request.api;
-		const { publicApiUrl, environment } = config.api;
+		const { authOrigin } = config.api;
 		const { appClientId } = config.github;
 		const { response } = request;
 		const parameters = {
 			client_id: appClientId,
-			redirect_uri: `${publicApiUrl}/no-auth/provider-token/${provider}/${environment}`,
+			redirect_uri: `${authOrigin}/provider-token/${provider}`,
 			scope: 'repo,user',
 			state
 		};
@@ -37,14 +37,14 @@ class GithubAuth extends APIServerModule {
 		// must exchange the provided authorization code for an access token
 		const { request, state, provider } = options;
 		const { config } = request.api;
-		const { publicApiUrl, environment } = config.api;
+		const { authOrigin } = config.api;
 		const { appClientId, appClientSecret } = config.github;
 		const code = request.request.query.code || '';
 		const parameters = {
 			client_id: appClientId,
 			client_secret: appClientSecret,
 			code,
-			redirect_uri: `${publicApiUrl}/no-auth/provider-token/${provider}/${environment}`,
+			redirect_uri: `${authOrigin}/provider-token/${provider}`,
 			state
 		};
 		const query = Object.keys(parameters)

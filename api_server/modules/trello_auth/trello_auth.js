@@ -14,19 +14,19 @@ class TrelloAuth extends APIServerModule {
 	}
 
 	async handleAuthRedirect (options) {
-		// FIXME ... this is my (colin's) key!!!
-		const key = options.key || 'e19498416be875ef9078ec7751bbce7e';
 		const { provider, state, request } = options;
-		const { publicApiUrl, environment } = options.request.api.config.api;
+		const { config } = request.api;
+		const { authOrigin } = config.api;
+		const { apiKey } = config.trello;
 		const { response } = request;
 		const parameters = {
 			expiration: 'never',
 			name: 'CodeStream',
 			scope: 'read,write',
 			response_type: 'token',
-			key,
+			key: apiKey,
 			callback_method: 'fragment',
-			return_url: `${publicApiUrl}/no-auth/provider-token/${provider}/${environment}?state=${state}`
+			return_url: `${authOrigin}/provider-token/${provider}?state=${state}`
 		};
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
@@ -40,7 +40,7 @@ class TrelloAuth extends APIServerModule {
 		// so send a client script that can 
 		const { request, provider, state } = options;
 		const { response } = request;
-		const { publicApiUrl, environment } = options.request.api.config.api;
+		const { authOrigin } = options.request.api.config.api;
 		if (request.request.query.token) {
 			// already have the token, so good to go 
 			return true;
@@ -55,7 +55,7 @@ class TrelloAuth extends APIServerModule {
 		return result;
 	}, {});
 	const token = hashObject.token || '';
-	document.location.href = "${publicApiUrl}/no-auth/provider-token/${provider}/${environment}?state=${state}&token=" + token;
+	document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&token=" + token;
 </script>
 `
 		);

@@ -130,7 +130,7 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'get',
-		path: '/no-auth/provider-token/:provider/:environment',
+		path: '/no-auth/:environment/provider-token/:provider',
 		requestClass: require('./provider_token_request')
 	},
 	{
