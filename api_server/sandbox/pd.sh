@@ -8,6 +8,7 @@ PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-PD_Keyset"
 #BOT_SECRETS_FILE=
 #OTHER_SECRETS_FILE=
 export CS_API_ASSET_ENV=dev
+export CS_API_ENV=pd
 
 . $CS_API_TOP/sandbox/defaults.sh
 
