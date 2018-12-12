@@ -43,7 +43,7 @@ class TrelloAuth extends APIServerModule {
 		const { authOrigin } = options.request.api.config.api;
 		if (request.request.query.token) {
 			// already have the token, so good to go 
-			return true;
+			return { accessToken: request.request.query.token };
 		}
 		response.type('text/html');
 		response.send(`
