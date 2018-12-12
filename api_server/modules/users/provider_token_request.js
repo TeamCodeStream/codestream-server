@@ -23,10 +23,9 @@ class ProviderTokenRequest extends RestfulRequest {
 	async process () {
 		this.provider = this.request.params.provider.toLowerCase();
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
-		if (!this.request.query.token) {
-			// special allowance for token in the fragment, which we can't access,
-			// so send a client script that can 
-			return await this.extractTokenFromFragment();
+		this.tokenData = await this.preProcessHook();
+		if (!this.tokenData) {
+			return;
 		}
 		await this.validateState();			// decode the state token and validate
 		await this.getUser();				// get the user initiating the auth request
@@ -44,31 +43,27 @@ class ProviderTokenRequest extends RestfulRequest {
 					string: ['state']
 				},
 				optional: {
-					string: ['token']
+					string: ['token', 'code']
 				}
 			}
 		);
 	}
 
-	// special allowance for token in the fragment, which we can't access,
-	// so send a client script that can 
-	async extractTokenFromFragment () {
-		this.response.type('text/html');
-		const publicUrl = this.api.config.api.publicApiUrl;
-		this.response.send(`
-<script>
-	var hash = window.location.hash.substr(1);
-	var hashObject = hash.split('&').reduce(function (result, item) {
-		var parts = item.split('=');
-		result[parts[0]] = parts[1];
-		return result;
-	}, {});
-	const token = hashObject.token || '';
-	document.location.href = "${publicUrl}/no-auth/provider-token/${this.provider}?state=${this.request.query.state}&token=" + token;
-</script>
-`
-		);
-		this.responseHandled = true;
+	// allow for individual providers to do pre-processing of the incoming data
+	async preProcessHook () {
+		const options = {
+			request: this,
+			state: this.request.query.state,
+			provider: this.provider
+		};
+		switch (this.provider) {
+		case 'trello':
+			return await this.api.services.trelloAuth.preProcessTokenCallback(options);
+		case 'github':
+			return await this.api.services.githubAuth.preProcessTokenCallback(options);
+		case 'asana':
+			return await this.api.services.asanaAuth.preProcessTokenCallback(options);
+		}
 	}
 
 	// decode the state token and validate
@@ -115,11 +110,14 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// save the provided token for the user
 	async saveToken () {
+		const token = (this.tokenData && this.tokenData.accessToken) || this.request.query.token;
+		if (!token) {
+			throw this.errorHandler.error('updateAuth', { reason: 'token not returned from provider' });
+		}
+		this.tokenData = this.tokenData || { accessToken: token };
 		const op = {
 			$set: {
-				[`providerInfo.${this.team.id}.${this.provider}`]: {
-					accessToken: this.request.query.token
-				}
+				[`providerInfo.${this.team.id}.${this.provider}`]: this.tokenData
 			}
 		};
 
@@ -133,7 +131,19 @@ class ProviderTokenRequest extends RestfulRequest {
 	// send the response html
 	async sendResponse () {
 		this.response.type('text/html');
-		this.response.send(this.module.afterTrelloAuthHtml);
+		let html = '<p>All set!</p>';
+		switch (this.provider) {
+		case 'trello':
+			html = this.api.services.trelloAuth.getAfterAuthHtml();
+			break;
+		case 'github':
+			html = this.api.services.githubAuth.getAfterAuthHtml();
+			break;
+		case 'asana':
+			html = this.api.services.asanaAuth.getAfterAuthHtml();
+			break;
+		}
+		this.response.send(html);
 		this.responseHandled = true;
 	}
 

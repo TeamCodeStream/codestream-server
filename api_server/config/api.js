@@ -35,5 +35,9 @@ module.exports = {
 	assetEnvironment: process.env.CS_API_ASSET_ENV || 'prod',
 
 	// public url to access the API server from "beyond"
-	publicApiUrl: process.env.CS_API_PUBLIC_URL || 'https://api.codestream.com'
+	publicApiUrl: process.env.CS_API_PUBLIC_URL || 'https://api.codestream.com',
+
+	// environment, please use this configuration value sparingly, really anything that depends 
+	// on environment should have its own environment variable instead
+	environment: process.env.CS_API_ENVIRONMENT || 'prod'
 };

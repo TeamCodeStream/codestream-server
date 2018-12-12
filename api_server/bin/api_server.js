@@ -16,6 +16,8 @@ const SecretsConfig = require(ConfigDirectory + '/secrets.js');
 const PubNubConfig = require(ConfigDirectory + '/pubnub.js');
 const MixPanelConfig = require(ConfigDirectory + '/mixpanel.js');
 const SlackConfig = require(ConfigDirectory + '/slack.js');
+const GithubConfig = require(ConfigDirectory + '/github.js');
+const AsanaConfig = require(ConfigDirectory + '/asana.js');
 const LoggerConfig = require(ConfigDirectory + '/logger.js');
 const EmailConfig = require(ConfigDirectory + '/email.js');
 const AWSConfig = require(ConfigDirectory + '/aws.js');
@@ -71,6 +73,8 @@ const MyAPICluster = new ClusterWrapper(
 		pubnub: PubNubConfig,
 		mixpanel: MixPanelConfig,
 		slack: SlackConfig,
+		github: GithubConfig,
+		asana: AsanaConfig,
 		email: EmailConfig,
 		aws: AWSConfig,
 		webclient: WebClientConfig,

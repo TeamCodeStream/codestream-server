@@ -42,6 +42,10 @@ class ProviderAuthRequest extends RestfulRequest {
 		switch (this.provider) {
 		case 'trello':
 			return await this.trelloRedirect();
+		case 'github':
+			return await this.githubRedirect();
+		case 'asana':
+			return await this.asanaRedirect();
 		default: 
 			throw this.errorHandler.error('unknownProvider', { info: this.provider });
 		}
@@ -50,42 +54,42 @@ class ProviderAuthRequest extends RestfulRequest {
 
 	// perform redirect for trello auth
 	async trelloRedirect () {
-		// FIXME ... this is my (colin's) key!!!
-		const key = this.request.query.key || 'e19498416be875ef9078ec7751bbce7e';
-		const state = this.request.query.code;
-		const publicApiUrl = this.api.config.api.publicApiUrl;
-		const parameters = {
-			expiration: 'never',
-			name: 'CodeStream',
-			scope: 'read,write',
-			response_type: 'token',
-			key,
-			callback_method: 'fragment',
-			return_url: `${publicApiUrl}/no-auth/provider-token/trello?state=${state}`
+		if (!this.api.services.trelloAuth) {
+			return;
+		}
+		const options = {
+			key: this.request.query.key,
+			state: this.request.query.code,
+			provider: this.provider,
+			request: this
 		};
-		const query = Object.keys(parameters)
-			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
-			.join('&');
-		this.response.redirect(`https://trello.com/1/authorize?${query}`);
-		this.responseHandled = true;
+		await this.api.services.trelloAuth.handleAuthRedirect(options); 
 	}
 
-	// generate a state token based on the passed payload
-	async generateStateToken (payload) {
-		// time till expiration can be provided (normally for testing purposes),
-		// or default to configuration
-		let expiresIn = 10 * 60 * 1000;
-		const requestExpiresIn = this.request.query.expiresIn ? parseInt(this.request.query.expiresIn, 10) : null;
-		if (requestExpiresIn && requestExpiresIn < expiresIn) {
-			this.warn('Overriding configured provider auth token expiration to ' + requestExpiresIn);
-			expiresIn = requestExpiresIn;
+	// perform redirect for github auth
+	async githubRedirect () {
+		if (!this.api.services.githubAuth) {
+			return;
 		}
-		const expiresAt = Date.now() + expiresIn;
-		return this.api.services.tokenHandler.generate(
-			payload,
-			'pauth',
-			{ expiresAt }
-		);
+		const options = {
+			state: this.request.query.code,
+			provider: this.provider,
+			request: this
+		};
+		await this.api.services.githubAuth.handleAuthRedirect(options);
+	}
+
+	// perform redirect for asana auth
+	async asanaRedirect () {
+		if (!this.api.services.asanaAuth) {
+			return;
+		}
+		const options = {
+			state: this.request.query.code,
+			provider: this.provider,
+			request: this
+		};
+		await this.api.services.asanaAuth.handleAuthRedirect(options);
 	}
 
 	// describe this route for help

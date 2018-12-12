@@ -69,7 +69,7 @@ class APIServerModules {
 		// we're looking for a module.js file, if we find it, we'll read in the module contents
 		const moduleJS = Path.join(moduleDirectory, 'module.js');
 		const name = Path.basename(moduleDirectory);
-		let module = this.instantiateModule(moduleJS, name);
+		let module = this.instantiateModule(moduleJS, name, moduleDirectory);
 		if (typeof module === 'string') {
 			// really an error
 			throw module;
@@ -80,7 +80,7 @@ class APIServerModules {
 	}
 
 	// instantiate a module, as given by the module.js file found in the module directory
-	instantiateModule (moduleJS, name) {
+	instantiateModule (moduleJS, name, path) {
 		// we should get a class, derived from APIServerModule
 		let moduleClass;
 		try {
@@ -97,7 +97,8 @@ class APIServerModules {
 		try {
 			module = new moduleClass({
 				modules: this,
-				api: this.api
+				api: this.api,
+				path
 			});
 			module.name = module.name || name;
 		}
