@@ -138,6 +138,45 @@ else
 fi
 
 
+# ================= Trello API Access ==============
+[ -z "$TRELLO_API_ACCESS_FILE" ] && TRELLO_API_ACCESS_FILE=$HOME/.codestream/trello/codestreamops
+if [ -f $TRELLO_API_ACCESS_FILE ]; then
+	. $TRELLO_API_ACCESS_FILE
+	export CS_API_TRELLO_API_KEY="$TRELLO_API_KEY"
+else
+	echo "********************************************************************"
+	echo "WARNING: trello api access file not found ($TRELLO_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
+
+
+# ================= GitHub API Access ==============
+[ -z "$GITHUB_API_ACCESS_FILE" ] && GITHUB_API_ACCESS_FILE=$HOME/.codestream/github/codestreamops
+if [ -f $GITHUB_API_ACCESS_FILE ]; then
+	. $GITHUB_API_ACCESS_FILE
+	export CS_API_GITHUB_ACCESS_TOKEN="$GITHUB_ACCESS_TOKEN"
+else
+	echo "********************************************************************"
+	echo "WARNING: GitHub api access file not found ($GITHUB_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
+
+
+# ================= Asana API Access ==============
+[ -z "$ASANA_API_ACCESS_FILE" ] && ASANA_API_ACCESS_FILE=$HOME/.codestream/asana/ops-codestream-clients
+if [ -f $ASANA_API_ACCESS_FILE ]; then
+	. $ASANA_API_ACCESS_FILE
+	export CS_API_ASANA_ACCESS_TOKEN="$ASANA_ACCESS_TOKEN"
+else
+	echo "********************************************************************"
+	echo "WARNING: Asana api access file not found ($ASANA_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
+
+
 # =============== PubNub Settings ==============
 # see README.pubnub for more details
 [ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-Local_Keyset_1"
