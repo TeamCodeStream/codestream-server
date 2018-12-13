@@ -42,5 +42,9 @@ module.exports = {
 
 	// environment, please use this configuration value sparingly, really anything that depends 
 	// on environment should have its own environment variable instead
-	environment: process.env.CS_API_ENV || 'prod'
+	environment: process.env.CS_API_ENV || 'prod',
+
+	// callback environment, slightly different than environment, allows for callbacks through
+	// VPN to developers' local servers
+	callbackEnvironment: process.env.CS_API_CALLBACK_ENV || 'prod'
 };

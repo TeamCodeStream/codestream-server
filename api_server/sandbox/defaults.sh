@@ -44,7 +44,7 @@ export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
 [ -z "$CS_API_PUBLIC_URL" ] && export CS_API_PUBLIC_URL=https://localhost.codestream.us:$CS_API_PORT
 
 # For consutrction of a callback URL used in authentication
-[ -z "$CS_API_AUTH_ORIGIN" ] && export CS_API_AUTH_ORIGIN=https://auth.codestream.us/no-auth/oauth
+[ -z "$CS_API_AUTH_ORIGIN" ] && export CS_API_AUTH_ORIGIN=https://auth.codestream.us/no-auth
 if [ "$CS_API_ENV" == local  -a  -z "$CS_API_CALLBACK_ENV" ]; then
 	TUNNEL_IP=`netstat -rn|grep '^10\.99'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
 	if [ -z "$TUNNEL_IP" ]; then

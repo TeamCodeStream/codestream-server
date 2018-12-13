@@ -1,66 +1,70 @@
-// provide service to handle asana credential authorization
+// provide service to handle jira credential authorization
 
 'use strict';
 
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 const fetch = require('node-fetch');
 const FS = require('fs');
-const FormData = require('form-data');
 
-class AsanaAuth extends APIServerModule {
+class JiraAuth extends APIServerModule {
 
 	services () {
 		return async () => {
-			return { asanaAuth: this };
+			return { jiraAuth: this };
 		};
 	}
 
 	// get redirect parameters and url to use in the redirect response
 	getRedirectData (options) {
-		const { request, redirectUri, state } = options;
-		const { appClientId } = request.api.config.asana;
+		const { request, state, redirectUri } = options;
+		const { appClientId } = request.api.config.jira;
 		const parameters = {
+			audience: 'api.atlassian.com',
 			client_id: appClientId,
+			scope: 'read:jira-user read:jira-work write:jira-work',
 			redirect_uri: redirectUri,
 			response_type: 'code',
+			prompt: 'consent',
 			state
 		};
-		const url = 'https://app.asana.com/-/oauth_authorize';
+		const url = 'https://auth.atlassian.com/authorize';
 		return { url, parameters };
 	}
 
 	// given an auth code, exchange it for an access token
 	async exchangeAuthCodeForToken (options) {
 		// must exchange the provided authorization code for an access token
-		const { request, state, code, redirectUri } = options;
-		const { appClientId, appClientSecret } = request.api.config.asana;
+		const { request, code, redirectUri } = options;
+		const { appClientId, appClientSecret } = request.api.config.jira;
 		const parameters = {
 			grant_type: 'authorization_code',
 			client_id: appClientId,
 			client_secret: appClientSecret,
 			code,
-			redirect_uri: redirectUri,
-			state
+			redirect_uri: redirectUri
 		};
-		const form = new FormData();
-		Object.keys(parameters).forEach(key => {
-			form.append(key, parameters[key]);
-		});
-		const url = 'https://app.asana.com/-/oauth_token';
+		const url = 'https://auth.atlassian.com/oauth/token';
 		const response = await fetch(
 			url,
 			{
 				method: 'post',
-				body: form
+				body: JSON.stringify(parameters),
+				headers: {
+					'Content-Type': 'application/json'
+				}
 			}
 		);
 		const responseData = await response.json();
-		return { 
-			accessToken: responseData.access_token,
-			refreshToken: responseData.refresh_token,
-			expiresAt: Date.now() + (59 * 60 * 1000 + 55 * 1000),	// token good for one hour, we'll give a 5-second margin
-			data: responseData.data
+		const token = responseData.access_token;
+		delete responseData.access_token;
+		const data = { 
+			accessToken: token,
+			data: responseData
 		};
+		if (responseData.expires_in) {
+			data.expiresAt = Date.now() + responseData.expires_in * 1000 - 5000;
+		}
+		return data;
 	}
 
 	// get html to display once auth is complete
@@ -75,4 +79,4 @@ class AsanaAuth extends APIServerModule {
 	}
 }
 
-module.exports = AsanaAuth;
+module.exports = JiraAuth;

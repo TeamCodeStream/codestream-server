@@ -13,12 +13,10 @@ class TrelloAuth extends APIServerModule {
 		};
 	}
 
-	async handleAuthRedirect (options) {
-		const { provider, state, request } = options;
-		const { config } = request.api;
-		const { authOrigin } = config.api;
-		const { apiKey } = config.trello;
-		const { response } = request;
+	// get redirect parameters and url to use in the redirect response
+	getRedirectData (options) {
+		const { request, state, redirectUri } = options;
+		const { apiKey } = request.api.config.trello;
 		const parameters = {
 			expiration: 'never',
 			name: 'CodeStream',
@@ -26,15 +24,13 @@ class TrelloAuth extends APIServerModule {
 			response_type: 'token',
 			key: apiKey,
 			callback_method: 'fragment',
-			return_url: `${authOrigin}/provider-token/${provider}?state=${state}`
+			return_url: `${redirectUri}?state=${state}`
 		};
-		const query = Object.keys(parameters)
-			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
-			.join('&');
-		response.redirect(`https://trello.com/1/authorize?${query}`);
-		request.responseHandled = true;
+		const url = 'https://trello.com/1/authorize';
+		return { parameters, url };
 	}
 
+	// perform pre-processing of data from the token callback, as needed
 	async preProcessTokenCallback (options) {
 		// special allowance for token in the fragment, which we can't access,
 		// so send a client script that can 
@@ -63,11 +59,14 @@ class TrelloAuth extends APIServerModule {
 		return false;	// indicates to stop further processing
 	}
 
+	// get html to display once auth is complete
 	getAfterAuthHtml () {
 		return this.afterAuthHtml;
 	}
 
+	// initialize the module
 	initialize () {
+		// read in the after-auth html to display once auth is complete
 		this.afterAuthHtml = FS.readFileSync(this.path + '/afterAuth.html', { encoding: 'utf8' });
 	}
 }

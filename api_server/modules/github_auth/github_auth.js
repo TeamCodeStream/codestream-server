@@ -14,37 +14,30 @@ class GithubAuth extends APIServerModule {
 		};
 	}
 
-	async handleAuthRedirect (options) {
-		const { request, provider, state } = options;
-		const { config } = request.api;
-		const { authOrigin } = config.api;
-		const { appClientId } = config.github;
-		const { response } = request;
+	// get redirect parameters and url to use in the redirect response
+	getRedirectData (options) {
+		const { request, state, redirectUri } = options;
+		const { appClientId } = request.api.config.github;
 		const parameters = {
 			client_id: appClientId,
-			redirect_uri: `${authOrigin}/provider-token/${provider}`,
+			redirect_uri: redirectUri,
 			scope: 'repo,user',
 			state
 		};
-		const query = Object.keys(parameters)
-			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
-			.join('&');
-		response.redirect(`https://github.com/login/oauth/authorize?${query}`);
-		request.responseHandled = true;
+		const url = 'https://github.com/login/oauth/authorize';
+		return { url, parameters };
 	}
 
-	async preProcessTokenCallback (options) {
+	// given an auth code, exchange it for an access token
+	async exchangeAuthCodeForToken (options) {
 		// must exchange the provided authorization code for an access token
-		const { request, state, provider } = options;
-		const { config } = request.api;
-		const { authOrigin } = config.api;
-		const { appClientId, appClientSecret } = config.github;
-		const code = request.request.query.code || '';
+		const { request, state, code, redirectUri } = options;
+		const { appClientId, appClientSecret } = request.api.config.github;
 		const parameters = {
 			client_id: appClientId,
 			client_secret: appClientSecret,
 			code,
-			redirect_uri: `${authOrigin}/provider-token/${provider}`,
+			redirect_uri: redirectUri,
 			state
 		};
 		const query = Object.keys(parameters)
@@ -62,11 +55,14 @@ class GithubAuth extends APIServerModule {
 		return { accessToken: responseData.access_token };
 	}
 
+	// get html to display once auth is complete
 	getAfterAuthHtml () {
 		return this.afterAuthHtml;
 	}
 
+	// initialize the module
 	initialize () {
+		// read in the after-auth html to display once auth is complete
 		this.afterAuthHtml = FS.readFileSync(this.path + '/afterAuth.html', { encoding: 'utf8' });
 	}
 }
