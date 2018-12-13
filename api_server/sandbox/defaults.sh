@@ -44,16 +44,16 @@ export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
 [ -z "$CS_API_PUBLIC_URL" ] && export CS_API_PUBLIC_URL=https://localhost.codestream.us:$CS_API_PORT
 
 # For consutrction of a callback URL used in authentication
-if [ -z "$CS_API_AUTH_ORIGIN" ]; then
-	export CS_API_AUTH_ORIGIN=https://auth.codestream.us/no-auth/$CS_API_ENV
-	if [ "$CS_API_ENV" == local ]; then
-		TUNNEL_IP=`netstat -rn|grep '^10\.99'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
-		if [ -z "$TUNNEL_IP" ]; then
-			echo "I cannot detect your VPN IP so oauth callbacks will not work"
-		else
-			export CS_API_AUTH_ORIGIN="$CS_API_AUTH_ORIGIN-$TUNNEL_IP"
-		fi
+[ -z "$CS_API_AUTH_ORIGIN" ] && export CS_API_AUTH_ORIGIN=https://auth.codestream.us/no-auth/oauth
+if [ "$CS_API_ENV" == local  -a  -z "$CS_API_CALLBACK_ENV" ]; then
+	TUNNEL_IP=`netstat -rn|grep '^10\.99'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
+	if [ -z "$TUNNEL_IP" ]; then
+		echo "I cannot detect your VPN IP so oauth callbacks will not work to your local machine"
+	else
+		export CS_API_CALLBACK_ENV="local-$TUNNEL_IP"
 	fi
+elif [ -z "$CS_API_CALLBACK_ENV" ]; then
+	export CS_API_CALLBACK_ENV=$CS_API_ENV
 fi
 
 # This defines the asset environment (local, dev or prod)
