@@ -37,8 +37,14 @@ function _SimpleRequest (method, host, port, path, data, options, callback) {
 				else {
 					parsed = responseData;
 				}
+
 				if (response.statusCode < 200 || response.statusCode >= 300) {
-					return callback(`error response, status code was ${response.statusCode}: ${JSON.stringify(parsed)}`, parsed, response);
+					if (options.expectRedirect && response.statusCode >= 300 && response.statusCode < 400) {
+						return callback(null, response.headers.location);
+					}
+					else {
+						return callback(`error response, status code was ${response.statusCode}: ${JSON.stringify(parsed)}`, parsed, response);
+					}
 				}
 				else {
 					return callback(null, parsed, response);
