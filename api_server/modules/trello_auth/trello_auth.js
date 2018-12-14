@@ -34,10 +34,13 @@ class TrelloAuth extends APIServerModule {
 	async preProcessTokenCallback (options) {
 		// special allowance for token in the fragment, which we can't access,
 		// so send a client script that can 
-		const { request, provider, state } = options;
+		const { request, provider, state, mockToken } = options;
 		const { response } = request;
 		const { authOrigin } = options.request.api.config.api;
-		if (request.request.query.token) {
+		if (mockToken) {
+			return { accessToken: mockToken };
+		}
+		else if (request.request.query.token) {
 			// already have the token, so good to go 
 			return { accessToken: request.request.query.token };
 		}

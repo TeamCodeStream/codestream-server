@@ -31,15 +31,19 @@ class ProviderDeauthRequest extends RestfulRequest {
 		);
 	}
 
+	// clear the credentials for the given provider (in the path) and the given team ID (in the body)
 	async clearCredentials () {
+		// remove credentials for the given provider and team ID in the user object
 		const teamId = this.request.body.teamId.toLowerCase();
 		const provider = this.request.params.provider.toLowerCase();
 		const op = {
 			$unset: {
 				[`providerInfo.${teamId}.${provider}`]: true
+			},
+			$set: {
+				modifiedAt: Date.now()
 			}
 		};
-
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this,
 			collection: this.data.users,
@@ -47,6 +51,7 @@ class ProviderDeauthRequest extends RestfulRequest {
 		}).save(op);
 	}
 
+	// handle the request response 
 	async handleResponse () {
 		if (this.gotError) {
 			return super.handleResponse();

@@ -32,7 +32,7 @@ class AsanaAuth extends APIServerModule {
 	// given an auth code, exchange it for an access token
 	async exchangeAuthCodeForToken (options) {
 		// must exchange the provided authorization code for an access token
-		const { request, state, code, redirectUri } = options;
+		const { request, state, code, redirectUri, mockToken } = options;
 		const { appClientId, appClientSecret } = request.api.config.asana;
 		const parameters = {
 			grant_type: 'authorization_code',
@@ -42,11 +42,20 @@ class AsanaAuth extends APIServerModule {
 			redirect_uri: redirectUri,
 			state
 		};
+		const expiresAt = Date.now() + (59 * 60 * 1000 + 55 * 1000);	// token good for one hour, we'll give a 5-second margin
+		const url = 'https://app.asana.com/-/oauth_token';
+		if (mockToken) {
+			return {
+				accessToken: mockToken,
+				refreshToken: 'refreshMe',
+				expiresAt,
+				_testCall: { url, parameters }
+			};
+		}
 		const form = new FormData();
 		Object.keys(parameters).forEach(key => {
 			form.append(key, parameters[key]);
 		});
-		const url = 'https://app.asana.com/-/oauth_token';
 		const response = await fetch(
 			url,
 			{
@@ -58,7 +67,7 @@ class AsanaAuth extends APIServerModule {
 		return { 
 			accessToken: responseData.access_token,
 			refreshToken: responseData.refresh_token,
-			expiresAt: Date.now() + (59 * 60 * 1000 + 55 * 1000),	// token good for one hour, we'll give a 5-second margin
+			expiresAt,
 			data: responseData.data
 		};
 	}

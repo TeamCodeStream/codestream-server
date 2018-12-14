@@ -55,7 +55,7 @@ class ProviderTokenRequest extends RestfulRequest {
 					string: ['state']
 				},
 				optional: {
-					string: ['token', 'code']
+					string: ['token', 'code', '_mockToken']
 				}
 			}
 		);
@@ -69,7 +69,8 @@ class ProviderTokenRequest extends RestfulRequest {
 		const options = {
 			state: this.request.query.state,
 			provider: this.provider,
-			request: this
+			request: this,
+			mockToken: this.request.query._mockToken
 		};
 		this.tokenData = await this.serviceAuth.preProcessTokenCallback(options); 
 		if (this.tokenData) { 
@@ -119,7 +120,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			provider: this.provider,
 			state: this.request.query.state,
 			redirectUri, 
-			request: this
+			request: this,
+			mockToken: this.request.query._mockToken
 		};
 		this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
 	}
@@ -127,7 +129,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	// get the user initiating the auth request
 	async getUser () {
 		this.user = await this.data.users.getById(this.userId);
-		if (!this.user) {
+		if (!this.user || this.user.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
 	}
@@ -138,7 +140,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			throw this.errorHandler.error('updateAuth', { reason: 'user is not on the indicated team' });			
 		}
 		this.team = await this.data.teams.getById(this.teamId);
-		if (!this.team) {
+		if (!this.team || this.team.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'team' });
 		}
 	}
@@ -150,9 +152,11 @@ class ProviderTokenRequest extends RestfulRequest {
 			throw this.errorHandler.error('updateAuth', { reason: 'token not returned from provider' });
 		}
 		this.tokenData = this.tokenData || { accessToken: token };
+		const modifiedAt = Date.now();
 		const op = {
 			$set: {
-				[`providerInfo.${this.team.id}.${this.provider}`]: this.tokenData
+				[`providerInfo.${this.team.id}.${this.provider}`]: this.tokenData,
+				modifiedAt
 			}
 		};
 

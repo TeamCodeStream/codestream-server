@@ -31,7 +31,7 @@ class GithubAuth extends APIServerModule {
 	// given an auth code, exchange it for an access token
 	async exchangeAuthCodeForToken (options) {
 		// must exchange the provided authorization code for an access token
-		const { request, state, code, redirectUri } = options;
+		const { request, state, code, redirectUri, mockToken } = options;
 		const { appClientId, appClientSecret } = request.api.config.github;
 		const parameters = {
 			client_id: appClientId,
@@ -44,6 +44,12 @@ class GithubAuth extends APIServerModule {
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
 		const url = `https://github.com/login/oauth/access_token?${query}`;
+		if (mockToken) {
+			return {
+				accessToken: mockToken,
+				_testCall: { url, parameters }
+			};
+		}
 		const response = await fetch(
 			url,
 			{

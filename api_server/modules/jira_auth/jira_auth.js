@@ -34,7 +34,7 @@ class JiraAuth extends APIServerModule {
 	// given an auth code, exchange it for an access token
 	async exchangeAuthCodeForToken (options) {
 		// must exchange the provided authorization code for an access token
-		const { request, code, redirectUri } = options;
+		const { request, code, redirectUri, mockToken } = options;
 		const { appClientId, appClientSecret } = request.api.config.jira;
 		const parameters = {
 			grant_type: 'authorization_code',
@@ -44,6 +44,13 @@ class JiraAuth extends APIServerModule {
 			redirect_uri: redirectUri
 		};
 		const url = 'https://auth.atlassian.com/oauth/token';
+		if (mockToken) {
+			return {
+				accessToken: mockToken,
+				expiresAt: Date.now() + 3600 * 1000,
+				_testCall: { url, parameters }
+			};
+		}
 		const response = await fetch(
 			url,
 			{
