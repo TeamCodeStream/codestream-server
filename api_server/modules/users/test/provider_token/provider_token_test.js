@@ -5,6 +5,8 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 const CommonInit = require('./common_init');
 const Assert = require('assert');
 
+/* eslint no-console: 0 */
+
 class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
@@ -43,6 +45,10 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const { url, parameters } = providerInfo._testCall;
 		const expectedUrl = expectedData.url;
 		const expectedParameters = expectedData.parameters;
+		console.warn('GOT URL', url);
+		console.warn('EXP URL', expectedUrl);
+		console.warn('GOT PARAMS', JSON.stringify(parameters, undefined, 5));
+		console.warn('EXP PARAMS', JSON.stringify(expectedParameters, undefined, 5));
 		Assert.equal(url, expectedUrl, 'url passed for token exchange is not correct');
 		Assert.deepEqual(parameters, expectedParameters, 'parameters passed for token exchange are not correct');
 
