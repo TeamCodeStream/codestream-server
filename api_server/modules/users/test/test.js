@@ -5,8 +5,7 @@
 // make eslint happy
 /* globals describe */
 
-//const UserRequestTester = require('./user_request_tester');
-/*
+const UserRequestTester = require('./user_request_tester');
 const GetSessionsRequestTester = require('./get_sessions/test');
 const PresenceRequestTester = require('./presence/test');
 const ChangePasswordRequestTester = require('./change_password/test');
@@ -20,20 +19,16 @@ const ChangeEmailConfirmRequestTester = require('./change_email_confirm/test');
 const ProviderConnectRequestTester = require('./provider_connect/test');
 const ProviderAuthCodeRequestTester = require('./provider_authcode/test');
 const ProviderAuthRequestTester = require('./provider_auth/test');
-*/
 const ProviderTokenRequestTester = require('./provider_token/test');
-/*
 const ProviderDeauthRequestTester = require('./provider_deauth/test');
 const BumpPostsRequestTester = require('./bump_posts/test');
-*/
 
-//const userRequestTester = new UserRequestTester();
+const userRequestTester = new UserRequestTester();
 
 describe('user requests', function() {
 
 	this.timeout(20000);
 
-	/*
 	describe('POST /no-auth/register', userRequestTester.registrationTest);
 	describe('POST /no-auth/confirm', userRequestTester.confirmationTest);
 	describe('PUT /no-auth/login', userRequestTester.loginTest);
@@ -60,10 +55,7 @@ describe('user requests', function() {
 	describe('PUT /no-auth/provider-connect/:provider', ProviderConnectRequestTester.test);
 	describe('GET /provider-auth-code', ProviderAuthCodeRequestTester.test);
 	describe('GET /no-auth/provider-auth/:provider', ProviderAuthRequestTester.test);
-	*/
 	describe('GET /no-auth/provider-token/:provider', ProviderTokenRequestTester.test);
-	/*
 	describe('PUT /provider-deauth/:provider', ProviderDeauthRequestTester.test);
 	describe('PUT /bump-posts', BumpPostsRequestTester.test);
-	*/
 });

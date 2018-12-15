@@ -6,13 +6,10 @@
 /* globals describe */
 
 describe ('modules', () => {
-/*
 	require('./authenticator/test/test.js');
 	require('./versioner/test/test.js');
 	require('./messager/test/test.js');
-*/
 	require('./users/test/test.js');
-/*
 	require('./repos/test/test.js');
 	require('./companies/test/test.js');
 	require('./teams/test/test.js');
@@ -23,5 +20,4 @@ describe ('modules', () => {
 	//require('./slack_integration/test/test.js');
 	//require('./teams_integration/test/test.js');
 	require('./marker_locations/test/test.js');
-*/
 });

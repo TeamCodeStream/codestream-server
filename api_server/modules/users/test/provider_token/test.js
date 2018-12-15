@@ -4,7 +4,6 @@
 'use strict';
 
 const ProviderTokenTest = require('./provider_token_test');
-/*
 const UnknownProviderTest = require('./unknown_provider_test');
 const StateRequiredTest = require('./state_required_test');
 const InvalidTokenTest = require('./invalid_token_test');
@@ -13,13 +12,12 @@ const WrongTokenTypeTest = require('./wrong_token_type_test');
 const UserNotFoundTest = require('./user_not_found_test');
 const UserNotOnTeamTest = require('./user_not_on_team_test');
 const MessageTest = require('./message_test');
-*/
 
 const PROVIDERS = [
-//	'trello',
+	'trello',
 	'github',
-//	'asana',
-//	'jira'
+	'asana',
+	'jira'
 ];
 
 class ProviderTokenRequestTester {
@@ -27,9 +25,8 @@ class ProviderTokenRequestTester {
 	test () {
 		PROVIDERS.forEach(provider => {
 			new ProviderTokenTest({ provider }).test();
-			//new MessageTest({ provider }).test();
+			new MessageTest({ provider }).test();
 		});
-		/*
 		new UnknownProviderTest().test();
 		new StateRequiredTest({ provider: 'trello' }).test();
 		new InvalidTokenTest({ provider: 'github' }).test();
@@ -37,7 +34,6 @@ class ProviderTokenRequestTester {
 		new WrongTokenTypeTest({ provider: 'jira' }).test();
 		new UserNotFoundTest({ provider: 'trello' }).test();
 		new UserNotOnTeamTest({ provider: 'github' }).test();
-		*/
 	}
 }
 
