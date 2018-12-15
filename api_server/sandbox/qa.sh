@@ -8,6 +8,7 @@ MONGO_ACCESS_FILE="$HOME/.codestream/mongo/qa-codestream-dbowner"
 BOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-qa
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/qa-api
 export CS_API_ASSET_ENV=prod
+export CS_API_ENV=qa
 
 . $CS_API_TOP/sandbox/defaults.sh
 

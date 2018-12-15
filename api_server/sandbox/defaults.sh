@@ -6,7 +6,7 @@
 # CS_API_SANDBOX  /path/to/root/of/sandbox
 # CS_API_TOP      /path/to/root/of/primary/git/project
 
-# ============== Optional extra settings =============
+# ========== Optional override settings ==========
 if [ -f "$CS_API_SANDBOX/sb.options" ]; then
 	echo "Loading extra params from sb.options"
 	. $CS_API_SANDBOX/sb.options
@@ -34,12 +34,37 @@ export CS_API_CONFS=$CS_API_SANDBOX/conf  # config files directory
 export CS_API_DATA=$CS_API_SANDBOX/data   # data directory
 export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
 
+# Port the API server will run on
 [ -z "$CS_API_PORT" ] && export CS_API_PORT=12079
+
+# This defines the runtime environment (local, pd, qa, prod, etc...)
+[ -z "$CS_API_ENV" ] && export CS_API_ENV=local
+
+# Publicly accessible url for accessing the API service
 [ -z "$CS_API_PUBLIC_URL" ] && export CS_API_PUBLIC_URL=https://localhost.codestream.us:$CS_API_PORT
-[ -z "$CS_API_ENV" ] && export CS_API_ENV=dev
+
+# For consutrction of a callback URL used in authentication
+[ -z "$CS_API_AUTH_ORIGIN" ] && export CS_API_AUTH_ORIGIN=https://auth.codestream.us/no-auth
+if [ "$CS_API_ENV" == local  -a  -z "$CS_API_CALLBACK_ENV" ]; then
+	TUNNEL_IP=`netstat -rn|grep '^10\.99'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
+	if [ -z "$TUNNEL_IP" ]; then
+		echo "I cannot detect your VPN IP so oauth callbacks will not work to your local machine"
+	else
+		export CS_API_CALLBACK_ENV="local-$TUNNEL_IP"
+	fi
+elif [ -z "$CS_API_CALLBACK_ENV" ]; then
+	export CS_API_CALLBACK_ENV=$CS_API_ENV
+fi
+
+# This defines the asset environment (local, dev or prod)
 [ -z "$CS_API_ASSET_ENV" ] && export CS_API_ASSET_ENV=local
+
+# Allow console logging?
 export CS_API_LOG_CONSOLE_OK=1
+
+# Enable help
 export CS_API_HELP_AVAILABLE=1
+
 
 # =============== SSL Certificate ==================
 [ -z "$SSL_CERT" ] && SSL_CERT=wildcard.codestream.us
@@ -48,7 +73,6 @@ export CS_API_SSL_CERT_DIR=$HOME/.certs/$SSL_CERT
 export CS_API_SSL_KEYFILE=$CS_API_SSL_CERT_DIR/$SSL_CERT-key
 export CS_API_SSL_CERTFILE=$CS_API_SSL_CERT_DIR/$SSL_CERT-crt
 export CS_API_SSL_CAFILE=$CS_API_SSL_CERT_DIR/$SSL_CERT-ca
-
 
 
 # ================ Mongo Settings ==================
@@ -113,6 +137,47 @@ if [ -f $SLACK_API_ACCESS_FILE ]; then
 else
 	echo "********************************************************************"
 	echo "WARNING: slack api access file not found ($SLACK_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
+
+
+# ================= Trello API Access ==============
+[ -z "$TRELLO_API_ACCESS_FILE" ] && TRELLO_API_ACCESS_FILE=$HOME/.codestream/trello/codestreamops
+if [ -f $TRELLO_API_ACCESS_FILE ]; then
+	. $TRELLO_API_ACCESS_FILE
+	export CS_API_TRELLO_API_KEY="$TRELLO_API_KEY"
+else
+	echo "********************************************************************"
+	echo "WARNING: trello api access file not found ($TRELLO_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
+
+
+# ================= GitHub API Access ==============
+[ -z "$GITHUB_API_ACCESS_FILE" ] && GITHUB_API_ACCESS_FILE=$HOME/.codestream/github/development
+if [ -f $GITHUB_API_ACCESS_FILE ]; then
+	. $GITHUB_API_ACCESS_FILE
+	export CS_API_GITHUB_CLIENT_ID="$GITHUB_CLIENT_ID"
+	export CS_API_GITHUB_CLIENT_SECRET="$GITHUB_CLIENT_SECRET"
+else
+	echo "********************************************************************"
+	echo "WARNING: GitHub api access file not found ($GITHUB_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
+
+
+# ================= Asana API Access ==============
+[ -z "$ASANA_API_ACCESS_FILE" ] && ASANA_API_ACCESS_FILE=$HOME/.codestream/asana/development
+if [ -f $ASANA_API_ACCESS_FILE ]; then
+	. $ASANA_API_ACCESS_FILE
+	export CS_API_ASANA_CLIENT_ID="$ASANA_CLIENT_ID"
+	export CS_API_ASANA_CLIENT_SECRET="$ASANA_CLIENT_SECRET"
+else
+	echo "********************************************************************"
+	echo "WARNING: Asana api access file not found ($ASANA_API_ACCESS_FILE)."
 	echo "         Run dt-update-secrets and reload your sandbox"
 	echo "********************************************************************"
 fi

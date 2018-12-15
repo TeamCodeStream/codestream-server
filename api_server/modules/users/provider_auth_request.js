@@ -4,6 +4,7 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 const Errors = require('./errors');
+
 class ProviderAuthRequest extends RestfulRequest {
 
 	constructor (options) {
@@ -18,7 +19,7 @@ class ProviderAuthRequest extends RestfulRequest {
 
 	// process the request...
 	async process () {
-		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
+		await this.requireAndAllow();	// require certain parameters, discard unknown parameters
 		await this.performRedirect();	// perform whatever redirect is necessary to initiate the authorization
 	}
 
@@ -29,73 +30,59 @@ class ProviderAuthRequest extends RestfulRequest {
 			{
 				required: {
 					string: ['code']
-				},
-				optional: {
-					string: ['key', 'expiresIn']
 				}
 			}
 		);
 	}
 
+	// response with a redirect to the third-party provider
 	async performRedirect () {
+		// get the provider service corresponding to the passed provider
 		this.provider = this.request.params.provider.toLowerCase();
-		switch (this.provider) {
-		case 'trello':
-			return await this.trelloRedirect();
-		default: 
+		let serviceAuth = {
+			trello: 'trelloAuth',
+			github: 'githubAuth',
+			asana: 'asanaAuth',
+			jira: 'jiraAuth'
+		}[this.provider];
+		if (!serviceAuth || !this.api.services[serviceAuth]) {
 			throw this.errorHandler.error('unknownProvider', { info: this.provider });
 		}
 
-	}
-
-	// perform redirect for trello auth
-	async trelloRedirect () {
-		// FIXME ... this is my (colin's) key!!!
-		const key = this.request.query.key || 'e19498416be875ef9078ec7751bbce7e';
-		const state = this.request.query.code;
-		const publicApiUrl = this.api.config.api.publicApiUrl;
-		const parameters = {
-			expiration: 'never',
-			name: 'CodeStream',
-			scope: 'read,write',
-			response_type: 'token',
-			key,
-			callback_method: 'fragment',
-			return_url: `${publicApiUrl}/no-auth/provider-token/trello?state=${state}`
+		// set up options for initiating a redirect for the particular service
+		const { authOrigin, callbackEnvironment } = this.api.config.api;
+		const { code } = this.request.query;
+		const state = `${callbackEnvironment}!${code}`;
+		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
+		const options = {
+			state,
+			provider: this.provider,
+			request: this,
+			redirectUri
 		};
+
+		// get the specific query data to use in the redirect, and response with the redirect url
+		const { parameters, url } = this.api.services[serviceAuth].getRedirectData(options); 
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
-		this.response.redirect(`https://trello.com/1/authorize?${query}`);
+		this.response.redirect(`${url}?${query}`);
 		this.responseHandled = true;
-	}
-
-	// generate a state token based on the passed payload
-	async generateStateToken (payload) {
-		// time till expiration can be provided (normally for testing purposes),
-		// or default to configuration
-		let expiresIn = 10 * 60 * 1000;
-		const requestExpiresIn = this.request.query.expiresIn ? parseInt(this.request.query.expiresIn, 10) : null;
-		if (requestExpiresIn && requestExpiresIn < expiresIn) {
-			this.warn('Overriding configured provider auth token expiration to ' + requestExpiresIn);
-			expiresIn = requestExpiresIn;
-		}
-		const expiresAt = Date.now() + expiresIn;
-		return this.api.services.tokenHandler.generate(
-			payload,
-			'pauth',
-			{ expiresAt }
-		);
 	}
 
 	// describe this route for help
 	static describe () {
 		return {
 			tag: 'provider-auth',
-			summary: 'Initiates authorization with a third-party provider',
+			summary: 'Initiates authorization with a third-party provider by returning the appropriate redirect',
 			access: 'No authorization needed, this is essentially just a redirect to the third-party auth process',
-			description: 'Provide the appropriate redirect response to initiate authorization against the given third-party provider',
-			input: 'Specify the provider in the path',
+			description: 'Provides the appropriate redirect response to initiate authorization against the given third-party provider; a temporary auth code is required, retrieved via the @@#provider-auth-code#provider-auth-code@@ request, to make this call',
+			input: {
+				summary: 'Specify the provider in the path, and an auth code, retrieved from the @@#provider-auth-code#provider-auth-code@@ request, in the query parameters',
+				looksLike: {
+					code: '<Temporary third-party auth code, retrieved from the @@#provider-auth-code#provider-auth-code@@ request>'
+				}
+			},
 			returns: 'Redirects to the appropriate authorization page for the provider in question'
 		};
 	}

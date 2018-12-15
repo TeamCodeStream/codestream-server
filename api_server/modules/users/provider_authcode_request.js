@@ -8,7 +8,15 @@ const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restf
 class ProviderAuthCodeRequest extends RestfulRequest {
 
 	async authorize () {
-		// no authorization necessary, the user is simply obtaining an auth code to use in further requests
+		// user must be a member of the team
+		this.teamId = this.request.query.teamId;
+		if (!this.teamId) {
+			throw this.errorHandler.error('parameterRequired', { info: 'teamId' });
+		}
+		this.teamId = this.teamId.toLowerCase();
+		if (!this.user.hasTeam(this.teamId)) {
+			throw this.errorHandler.error('readAuth', { reason: 'user must be a member of the team' });
+		}
 	}
 
 	// process the request...
@@ -32,6 +40,7 @@ class ProviderAuthCodeRequest extends RestfulRequest {
 		);
 	}
 
+	// generate the code 
 	async generateCode () {
 		const state = {
 			userId: this.request.user.id,

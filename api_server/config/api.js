@@ -35,5 +35,16 @@ module.exports = {
 	assetEnvironment: process.env.CS_API_ASSET_ENV || 'prod',
 
 	// public url to access the API server from "beyond"
-	publicApiUrl: process.env.CS_API_PUBLIC_URL || 'https://api.codestream.com'
+	publicApiUrl: process.env.CS_API_PUBLIC_URL || 'https://api.codestream.com',
+
+	// origin to use for third-party auth callbacks
+	authOrigin: process.env.CS_API_AUTH_ORIGIN || 'https://auth.codestream.com/no-auth/prod',
+
+	// environment, please use this configuration value sparingly, really anything that depends 
+	// on environment should have its own environment variable instead
+	environment: process.env.CS_API_ENV || 'prod',
+
+	// callback environment, slightly different than environment, allows for callbacks through
+	// VPN to developers' local servers
+	callbackEnvironment: process.env.CS_API_CALLBACK_ENV || 'prod'
 };

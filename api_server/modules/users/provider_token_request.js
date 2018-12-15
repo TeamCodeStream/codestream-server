@@ -21,14 +21,25 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// process the request...
 	async process () {
+		// determine the authorization service to use, based on the provider
 		this.provider = this.request.params.provider.toLowerCase();
+		let serviceAuth = {
+			trello: 'trelloAuth',
+			github: 'githubAuth',
+			asana: 'asanaAuth',
+			jira: 'jiraAuth'
+		}[this.provider];
+		if (!serviceAuth || !this.api.services[serviceAuth]) {
+			throw this.errorHandler.error('unknownProvider', { info: this.provider });
+		}
+		this.serviceAuth = this.api.services[serviceAuth];
+
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
-		if (!this.request.query.token) {
-			// special allowance for token in the fragment, which we can't access,
-			// so send a client script that can 
-			return await this.extractTokenFromFragment();
+		if (await this.preProcessHook()) {
+			return;
 		}
 		await this.validateState();			// decode the state token and validate
+		await this.exchangeAuthCodeForToken();	// exchange the given auth code for an access token, as needed
 		await this.getUser();				// get the user initiating the auth request
 		await this.getTeam();				// get the team the user is authed with
 		await this.saveToken();				// save the provided token
@@ -44,36 +55,39 @@ class ProviderTokenRequest extends RestfulRequest {
 					string: ['state']
 				},
 				optional: {
-					string: ['token']
+					string: ['token', 'code', '_mockToken']
 				}
 			}
 		);
 	}
 
-	// special allowance for token in the fragment, which we can't access,
-	// so send a client script that can 
-	async extractTokenFromFragment () {
-		this.response.type('text/html');
-		const publicUrl = this.api.config.api.publicApiUrl;
-		this.response.send(`
-<script>
-	var hash = window.location.hash.substr(1);
-	var hashObject = hash.split('&').reduce(function (result, item) {
-		var parts = item.split('=');
-		result[parts[0]] = parts[1];
-		return result;
-	}, {});
-	const token = hashObject.token || '';
-	document.location.href = "${publicUrl}/no-auth/provider-token/${this.provider}?state=${this.request.query.state}&token=" + token;
-</script>
-`
-		);
-		this.responseHandled = true;
+	// allow for individual providers to do pre-processing of the incoming data
+	async preProcessHook () {
+		if (typeof this.serviceAuth.preProcessTokenCallback !== 'function') {
+			return false;
+		}
+		const options = {
+			state: this.request.query.state,
+			provider: this.provider,
+			request: this,
+			mockToken: this.request.query._mockToken
+		};
+		this.tokenData = await this.serviceAuth.preProcessTokenCallback(options); 
+		if (this.tokenData) { 
+			return false;	
+		}
+		else {
+			return true;	// indicates to stop further processing
+		}
 	}
 
 	// decode the state token and validate
 	async validateState () {
-		const stateToken = this.request.query.state;
+		let stateToken = this.request.query.state;
+		const delimiter = stateToken.indexOf('!');
+		if (delimiter !== -1) {
+			stateToken = stateToken.substr(delimiter + 1);
+		}
 		let payload;
 		try {
 			payload = this.api.services.tokenHandler.verify(stateToken);
@@ -94,10 +108,28 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.teamId = payload.teamId;
 	}
 
+	// perform an exchange of auth code for access token, as needed
+	async exchangeAuthCodeForToken () {
+		if (typeof this.serviceAuth.exchangeAuthCodeForToken !== 'function') {
+			return;
+		}
+		const { authOrigin } = this.api.config.api;
+		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
+		const options = {
+			code: this.request.query.code || '',
+			provider: this.provider,
+			state: this.request.query.state,
+			redirectUri, 
+			request: this,
+			mockToken: this.request.query._mockToken
+		};
+		this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
+	}
+
 	// get the user initiating the auth request
 	async getUser () {
 		this.user = await this.data.users.getById(this.userId);
-		if (!this.user) {
+		if (!this.user || this.user.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
 	}
@@ -108,18 +140,23 @@ class ProviderTokenRequest extends RestfulRequest {
 			throw this.errorHandler.error('updateAuth', { reason: 'user is not on the indicated team' });			
 		}
 		this.team = await this.data.teams.getById(this.teamId);
-		if (!this.team) {
+		if (!this.team || this.team.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'team' });
 		}
 	}
 
 	// save the provided token for the user
 	async saveToken () {
+		const token = (this.tokenData && this.tokenData.accessToken) || this.request.query.token;
+		if (!token) {
+			throw this.errorHandler.error('updateAuth', { reason: 'token not returned from provider' });
+		}
+		this.tokenData = this.tokenData || { accessToken: token };
+		const modifiedAt = Date.now();
 		const op = {
 			$set: {
-				[`providerInfo.${this.team.id}.${this.provider}`]: {
-					accessToken: this.request.query.token
-				}
+				[`providerInfo.${this.team.id}.${this.provider}`]: this.tokenData,
+				modifiedAt
 			}
 		};
 
@@ -133,7 +170,11 @@ class ProviderTokenRequest extends RestfulRequest {
 	// send the response html
 	async sendResponse () {
 		this.response.type('text/html');
-		this.response.send(this.module.afterTrelloAuthHtml);
+		let html = '<p>All set!</p>';
+		if (this.serviceAuth && typeof this.serviceAuth.getAfterAuthHtml === 'function') {
+			html = this.serviceAuth.getAfterAuthHtml();
+		}
+		this.response.send(html);
 		this.responseHandled = true;
 	}
 
@@ -174,12 +215,13 @@ class ProviderTokenRequest extends RestfulRequest {
 			tag: 'provider-token',
 			summary: 'Completes the authorization of a third-party provider by storing the resulting token',
 			access: 'No authorization needed, authorization is handled by looking at the provided state object',
-			description: 'Once third-party authorization is complete, call this request to store the token retrieved by auth against the third-party provider',
+			description: 'Once third-party authorization is complete, this request is the callback to store the token retrieved by auth against the third-party provider',
 			input: {
 				summary: 'Specify parmaeters in the query',
 				looksLike: {
 					'state*': '<State token generate by call to provider-auth>',
-					'token': '<Third-party auth token, if not provided, a short script will be returned to retrieve it from the document fragment>'
+					'code': '<Authorization code, which will then be used to exchange for an access token>',
+					'token': '<Access token, bypassing exchange of auth code for access token>'
 				}
 			},
 			returns: 'html text to display when the authorization process is complete',
