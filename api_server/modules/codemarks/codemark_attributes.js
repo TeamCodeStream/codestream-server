@@ -75,5 +75,15 @@ module.exports = {
 		type: 'number',
 		default: 0,
 		description: 'The number of replies to this codemark'
+	},
+	pinned: {
+		type: 'boolean',
+		default: true,
+		description: 'Codemark is pinned, meaning it is displayed on the Annotations panel (the default)'
+	},
+	pinnedReplies: {
+		type: 'arrayOfStrings',
+		maxLength: 100,
+		description: 'Array of post IDs representing posts that are replies to this codemark, and which are "pinned" to the codemark'
 	}
 };

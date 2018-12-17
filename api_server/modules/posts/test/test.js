@@ -5,9 +5,8 @@
 // make eslint happy
 /* globals describe */
 
-var PostsRequestTester = require('./posts_request_tester');
-
-var postsRequestTester = new PostsRequestTester();
+const PostsRequestTester = require('./posts_request_tester');
+const postsRequestTester = new PostsRequestTester();
 
 describe('post requests', function() {
 

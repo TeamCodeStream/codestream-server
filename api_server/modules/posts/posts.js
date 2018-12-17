@@ -76,7 +76,6 @@ class Posts extends Restful {
 		return [...standardRoutes, ...POST_ADDITIONAL_ROUTES];
 	}
 
-
 	// initialize the module
 	async initialize () {
 		// create a queue for handling messages concerning triggering the interval

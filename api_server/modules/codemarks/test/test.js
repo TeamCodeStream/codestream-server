@@ -10,6 +10,10 @@ const GetCodemarksRequestTester = require('./get_codemarks/test');
 const PostCodemarkRequestTester = require('./post_codemark/test');
 const PutCodemarkRequestTester = require('./put_codemark/test');
 const DeleteCodemarkRequestTester = require('./delete_codemark/test');
+const PinRequestTester = require('./pin/test');
+const UnpinRequestTester = require('./unpin/test');
+const PinPostRequestTester = require('./pin_post/test');
+const UnpinPostRequestTester = require('./unpin_post/test');
 
 describe('codemark requests', function() {
 
@@ -20,4 +24,8 @@ describe('codemark requests', function() {
 	describe('POST /codemarks', PostCodemarkRequestTester.test);
 	describe('PUT /codemarks/:id', PutCodemarkRequestTester.test);
 	describe('DELETE /codemarks/:id', DeleteCodemarkRequestTester.test);
+	describe('PUT /pin/:id', PinRequestTester.test);
+	describe('PUT /unpin/:id', UnpinRequestTester.test);
+	describe('PUT /pin-post', PinPostRequestTester.test);
+	describe('PUT /unpin-post', UnpinPostRequestTester.test);
 });

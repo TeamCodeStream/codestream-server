@@ -55,21 +55,24 @@ class PostUpdater extends ModelUpdater {
 
 	// add an edit to the maintained history of edits
 	async addEditToHistory () {
-		this.attributes.hasBeenEdited = true;
+		if (this.attributes.text) {
+			this.attributes.hasBeenEdited = true;
+		}
+		const previousAttributes = {}, setAttributes = {};
+		Object.keys(this.attributes).forEach(attribute => {
+			if (['text', 'mentionedUserIds'].includes(attribute)) {
+				if (this.post.get(attribute) !== undefined) {
+					previousAttributes[attribute] = this.post.get(attribute);
+				}
+				setAttributes[attribute] = this.attributes[attribute];
+			}
+		});
 		const edit = {
 			editorId: this.request.user.id,
 			editedAt: Date.now(),
-			previousAttributes: {
-				text: this.post.get('text')
-			},
-			setAttributes: {
-				text: this.attributes.text
-			}
+			previousAttributes,
+			setAttributes
 		};
-		if (this.attributes.mentionedUserIds) {
-			edit.previousAttributes.mentionedUserIds = this.post.get('mentionedUserIds');
-			edit.setAttributes.mentionedUserIds = this.attributes.mentionedUserIds;
-		}
 		this.attributes.$push = this.attributes.$push || {};
 		this.attributes.$push.editHistory = edit;
 	}
