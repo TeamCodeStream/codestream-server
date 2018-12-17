@@ -22,6 +22,30 @@ const CODEMARK_STANDARD_ROUTES = {
 	}
 };
 
+// additional routes for this module
+const CODEMARK_ADDITIONAL_ROUTES = [
+	{
+		method: 'put',
+		path: 'pin/:id',
+		requestClass: require('./pin_request')
+	},
+	{
+		method: 'put',
+		path: 'unpin/:id',
+		requestClass: require('./unpin_request')
+	},
+	{
+		method: 'put',
+		path: 'pin-post',
+		requestClass: require('./pin_post_request')
+	},
+	{
+		method: 'put',
+		path: 'unpin-post',
+		requestClass: require('./unpin_post_request')
+	}
+];
+
 class Codemarks extends Restful {
 
 	get collectionName () {
@@ -52,8 +76,10 @@ class Codemarks extends Restful {
 		return CodemarkDeleter;
 	}
 	
+	// get all routes exposed by this module
 	getRoutes () {
-		return  super.getRoutes(CODEMARK_STANDARD_ROUTES);
+		let standardRoutes = super.getRoutes(CODEMARK_STANDARD_ROUTES);
+		return [...standardRoutes, ...CODEMARK_ADDITIONAL_ROUTES];
 	}
 }
 

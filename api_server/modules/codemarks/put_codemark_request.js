@@ -3,6 +3,7 @@
 'use strict';
 
 const PutRequest = require(process.env.CS_API_TOP + '/lib/util/restful/put_request');
+const CodemarkPublisher = require('./codemark_publisher');
 
 class PutCodemarkRequest extends PutRequest {
 
@@ -49,33 +50,11 @@ class PutCodemarkRequest extends PutRequest {
 
 	// publish the codemark to the appropriate messager channel(s)
 	async publishCodemark () {
-		let channel;
-		// for third-party codemarks, we have no stream channels, so we have to send
-		// the update out over the team channel ... known security flaw, for now
-		if (this.codemark.get('providerType')) {
-			channel = `team-${this.codemark.get('teamId')}`;
-		}
-		else {
-			const stream = await this.data.streams.getById(this.codemark.get('streamId'));
-			if (!stream) { return; } // sanity
-			channel = stream.get('isTeamStream') ? 
-				`team-${this.codemark.get('teamId')}` : 
-				`stream-${stream.id}`;
-		}
-		const message = Object.assign({}, this.responseData, {
-			requestId: this.request.id
-		});
-		try {
-			await this.api.services.messager.publish(
-				message,
-				channel,
-				{ request: this.request	}
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish codemark update message to channel ${channel}: ${JSON.stringify(error)}`);
-		}
+		await new CodemarkPublisher({
+			codemark: this.codemark,
+			request: this,
+			data: this.responseData
+		}).publishCodemark();
 	}
 
 	// describe this route for help
