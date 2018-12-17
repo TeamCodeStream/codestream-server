@@ -183,6 +183,20 @@ else
 fi
 
 
+# ================= Atlassian API Access ==============
+[ -z "$ATLASSIAN_API_ACCESS_FILE" ] && ATLASSIAN_API_ACCESS_FILE=$HOME/.codestream/atlassian/development
+if [ -f $ATLASSIAN_API_ACCESS_FILE ]; then
+	. $ATLASSIAN_API_ACCESS_FILE
+	export CS_API_ATLASSIAN_CLIENT_ID="$ATLASSIAN_CLIENT_ID"
+	export CS_API_ATLASSIAN_SECRET="$ATLASSIAN_SECRET"
+else
+	echo "********************************************************************"
+	echo "WARNING: atlassian api access file not found ($ATLASSIAN_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
+
+
 # =============== PubNub Settings ==============
 # see README.pubnub for more details
 [ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-Local_Keyset_1"
