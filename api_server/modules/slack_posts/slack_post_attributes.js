@@ -13,6 +13,11 @@ module.exports = {
 		required: true,
 		description: 'ID of the slack stream in which the post was created'
 	},
+	postId: {
+		type: 'string',
+		required: true,
+		description: 'ID of the slack post that was created'
+	},
 	origin: {
 		type: 'string',
 		maxLength: 20,

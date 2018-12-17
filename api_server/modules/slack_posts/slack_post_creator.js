@@ -26,7 +26,7 @@ class SlackPostCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['teamId', 'streamId']
+				string: ['teamId', 'streamId', 'postId']
 			},
 			optional: {
 			}
