@@ -36,13 +36,14 @@ class TrelloAuth extends APIServerModule {
 		// so send a client script that can 
 		const { request, provider, state, mockToken } = options;
 		const { response } = request;
-		const { authOrigin } = options.request.api.config.api;
+		const { authOrigin } = request.api.config.api;
+		const { apiKey } = request.api.config.trello;
 		if (mockToken) {
-			return { accessToken: mockToken };
+			return { accessToken: mockToken, apiKey };
 		}
 		else if (request.request.query.token) {
 			// already have the token, so good to go 
-			return { accessToken: request.request.query.token };
+			return { accessToken: request.request.query.token, apiKey };
 		}
 		response.type('text/html');
 		response.send(`

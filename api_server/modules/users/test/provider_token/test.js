@@ -17,7 +17,7 @@ const PROVIDERS = [
 	'trello',
 	'github',
 	'asana',
-//	'jira'
+	'jira'
 ];
 
 class ProviderTokenRequestTester {

@@ -6,6 +6,7 @@ const ProviderTokenTest = require('./provider_token_test');
 const CommonInit = require('./common_init');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const TrelloConfig = require(process.env.CS_API_TOP + '/config/trello');
 
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -97,6 +98,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		else if (this.provider === 'jira') {
 			Assert(providerInfo.expiresAt > this.requestSentAt + 3590 * 1000, 'expiresAt not set for asana');
 			expectedProviderInfo.expiresAt = providerInfo.expiresAt;
+		}
+		else if (this.provider === 'trello') {
+			expectedProviderInfo.apiKey = TrelloConfig.apiKey;
 		}
 		return super.validateMessage(message);
 	}

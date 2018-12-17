@@ -45,7 +45,6 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const expectedParameters = expectedData.parameters;
 		Assert.equal(url, expectedUrl, 'url passed for token exchange is not correct');
 		Assert.deepEqual(parameters, expectedParameters, 'parameters passed for token exchange are not correct');
-
 	}
 }
 
