@@ -187,8 +187,9 @@ fi
 [ -z "$ATLASSIAN_API_ACCESS_FILE" ] && ATLASSIAN_API_ACCESS_FILE=$HOME/.codestream/atlassian/development
 if [ -f $ATLASSIAN_API_ACCESS_FILE ]; then
 	. $ATLASSIAN_API_ACCESS_FILE
-	export CS_API_ATLASSIAN_CLIENT_ID="$ATLASSIAN_CLIENT_ID"
-	export CS_API_ATLASSIAN_SECRET="$ATLASSIAN_SECRET"
+	export CS_API_JIRA_CLIENT_ID="$JIRA_CLIENT_ID"
+	export CS_API_JIRA_SECRET="$JIRA_SECRET"
+	export CS_API_JIRA_AUTH_CODE_GEN_TEMPLATE="$JIRA_AUTH_URL_TEMPLATE"
 else
 	echo "********************************************************************"
 	echo "WARNING: atlassian api access file not found ($ATLASSIAN_API_ACCESS_FILE)."
