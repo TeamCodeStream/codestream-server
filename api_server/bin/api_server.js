@@ -47,7 +47,8 @@ const DataCollections = {
 	posts: require(ModuleDirectory + '/posts/post'),
 	markers: require(ModuleDirectory + '/markers/marker'),
 	codemarks: require(ModuleDirectory + '/codemarks/codemark'),
-	markerLocations: require(ModuleDirectory + '/marker_locations/marker_locations')
+	markerLocations: require(ModuleDirectory + '/marker_locations/marker_locations'),
+	slackPosts: require(ModuleDirectory + '/slack_posts/slack_post')
 };
 
 // establish our mongo collections, these include our DataCollections, but 

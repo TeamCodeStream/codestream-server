@@ -1,0 +1,21 @@
+// attributes for slack-post documents/models
+
+'use strict';
+
+module.exports = {
+	teamId: {
+		type: 'id',
+		required: true,
+		description: 'ID of the @@#team#team@@ that owns this post'
+	},
+	streamId: {
+		type: 'string',
+		required: true,
+		description: 'ID of the slack stream in which the post was created'
+	},
+	origin: {
+		type: 'string',
+		maxLength: 20,
+		description: 'Origin of the post: "email" for an email reply, "slack" for a reply from Slack, "teams" for a reply from MSTeams'
+	}
+};
