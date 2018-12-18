@@ -105,7 +105,10 @@ class TrackTokenDeprecatedTest extends CodeStreamMessageTest {
 				reallyTrack: true,
 				token: this.token
 			},
-			callback
+			() => {
+				// ignore error response
+				callback();
+			}
 		);
 	}
 
