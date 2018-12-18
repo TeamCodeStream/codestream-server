@@ -24,6 +24,8 @@ const NoUidTest = require('./no_uid_test');
 const UserNotFound = require('./user_not_found_test');
 const NoIssuanceTest = require('./no_issuance_test');
 const TokenDeprecatedTest = require('./token_deprecated_test');
+const TrackTokenExpiredTest = require('./track_token_expired_test');
+const TrackTokenDeprecatedTest = require('./track_token_deprecated_test');
 
 class ConfirmationRequestTester {
 
@@ -54,6 +56,8 @@ class ConfirmationRequestTester {
 		new UserNotFound().test();
 		new NoIssuanceTest().test();
 		new TokenDeprecatedTest().test();
+		new TrackTokenExpiredTest().test();
+		new TrackTokenDeprecatedTest().test();
 	}
 }
 

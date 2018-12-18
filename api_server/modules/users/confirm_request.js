@@ -71,6 +71,11 @@ class ConfirmRequest extends RestfulRequest {
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;
 			if (message === 'jwt expired') {
+				// for an expired token, we still need to know the user's email for tracking purposes,
+				// so we still need to decode the token and get the user
+				this.payload = this.api.services.tokenHandler.decode(this.request.body.token);
+				await this.getUser();	// still need the user for the tracking event
+				this.trackFailureEvent('Expired');
 				throw this.errorHandler.error('tokenExpired');
 			}
 			else {
@@ -110,9 +115,11 @@ class ConfirmRequest extends RestfulRequest {
 		const accessTokens = this.user.get('accessTokens') || {};
 		const confirmationTokens = accessTokens.conf || {};
 		if (!confirmationTokens || !confirmationTokens.minIssuance) {
+			this.trackFailureEvent('Already Used');
 			throw this.errorHandler.error('tokenInvalid', { reason: 'no issuance for conf token found' });
 		}
 		if (confirmationTokens.minIssuance > this.payload.iat * 1000) {
+			this.trackFailureEvent('Already Used');
 			throw this.errorHandler.error('tokenInvalid', { reason: 'a more recent conf token has been issued' });
 		}
 	}
@@ -225,6 +232,23 @@ class ConfirmRequest extends RestfulRequest {
 			request: this,
 			messager: this.api.services.messager
 		}).publishUserToTeams();
+	}
+
+	// track a confirmation failure for analytics
+	async trackFailureEvent (failureEvent) {
+		if (!this.user) { return; }
+		const trackObject = {
+			Error: failureEvent,
+			'Email Address': this.user.get('email')
+		};
+		this.api.services.analytics.track(
+			'Email Confirmation Failed',
+			trackObject,
+			{
+				request: this,
+				user: this.user
+			}
+		);
 	}
 
 	// describe this route for help
