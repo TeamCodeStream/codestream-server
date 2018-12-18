@@ -29,6 +29,7 @@ class SlackPostCreator extends ModelCreator {
 				string: ['teamId', 'streamId', 'postId']
 			},
 			optional: {
+				string: ['parentPostId']
 			}
 		};
 	}

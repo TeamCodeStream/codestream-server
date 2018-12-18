@@ -41,7 +41,8 @@ class PostSlackPostRequest extends PostRequest {
 			looksLike: {
 				'teamId*': '<ID of the team associated with the slack account in which the slack post is being created>',
 				'streamId*': '<ID of the slack stream in which the slack post is being created>',
-				'postId*': '<ID of the slack post>'
+				'postId*': '<ID of the slack post>',
+				'parentPostId': '<ID of the parent slack post>'
 			}
 		};
 		description.returns.summary = 'The slack-post object created';
