@@ -73,7 +73,9 @@ class TrackTokenExpiredTest extends CodeStreamMessageTest {
 				reallyTrack: true,
 				token: this.token
 			},
-			callback
+			() => {
+				callback();
+			}
 		);
 	}
 

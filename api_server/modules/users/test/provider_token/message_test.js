@@ -8,6 +8,8 @@ const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const TrelloConfig = require(process.env.CS_API_TOP + '/config/trello');
 
+/* eslint no-console: 0 */
+
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	constructor (options) {
@@ -102,6 +104,8 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		else if (this.provider === 'trello') {
 			expectedProviderInfo.apiKey = TrelloConfig.apiKey;
 		}
+		console.warn('MSG', JSON.stringify(message, undefined, 5));
+		console.warn('EXP', JSON.stringify(this.message, undefined, 5));
 		return super.validateMessage(message);
 	}
 }
