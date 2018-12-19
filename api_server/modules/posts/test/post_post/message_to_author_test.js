@@ -15,7 +15,7 @@ class MessageToAuthorTest extends NewPostMessageToChannelTest {
 		// since the update message will come back on the creator's me-channel
 		super.makeData(() => {
 			this.currentUser = this.users[1];
-			this.pubNubToken = this.users[1].pubNubToken;
+			this.pubnubToken = this.users[1].pubnubToken;
 			this.useToken = this.users[1].accessToken;
 			callback();
 		});
@@ -41,7 +41,7 @@ class MessageToAuthorTest extends NewPostMessageToChannelTest {
 					lastPostCreatedAt: this.timeBeforePost
 				},	// this is a placeholder, it should be some time greater than this
 				$unset: {
-					[`lastReads.${this.stream.id}`]: true 
+					[`lastReads.${this.stream.id}`]: true
 				},
 				$version: {
 					before: 3,

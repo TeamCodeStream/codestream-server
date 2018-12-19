@@ -44,7 +44,7 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.users[1].user._pubnubUuid || this.users[1].user.id;
-		clientConfig.authKey = this.users[1].pubNubToken;
+		clientConfig.authKey = this.users[1].pubnubToken;
 		const client = new PubNub(clientConfig);
 		const pubnubClient = new PubNubClient({
 			pubnub: client

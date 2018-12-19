@@ -57,11 +57,11 @@ class LoginHelper {
 		// generate a unique PubNub token, to be stored with the user object, the one and only way a 
 		// user can subscribe to PubNub (though for now, they can also subscribe with their access token,
 		// but we will deprecate this ability once the old atom client is deprecated)
-		this.pubNubToken = this.user.get('pubNubToken');
-		if (!this.pubNubToken) {
-			this.pubNubToken = (UUID() + '-' + UUID()).split('-').join('');
+		this.pubnubToken = this.user.get('pubNubToken');
+		if (!this.pubnubToken) {
+			this.pubnubToken = (UUID() + '-' + UUID()).split('-').join('');
 			set = {
-				pubNubToken: this.pubNubToken
+				pubNubToken: this.pubnubToken
 			};
 		}
 
@@ -118,7 +118,7 @@ class LoginHelper {
 			user: this.user.getSanitizedObjectForMe(),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
 			pubnubKey: this.request.api.config.pubnub.subscribeKey,	// give them the subscribe key for pubnub
-			pubnubToken: this.pubNubToken	// token used to subscribe to PubNub channels
+			pubnubToken: this.pubnubToken	// token used to subscribe to PubNub channels
 		};
 		Object.assign(this.responseData, this.initialData);
 	}

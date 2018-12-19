@@ -23,7 +23,7 @@ class SubscriptionTest extends JoinTest {
 		BoundAsync.series(this, [
 			super.before,
 			this.updateStream,
-			this.wait	
+			this.wait
 		], callback);
 	}
 
@@ -54,7 +54,7 @@ class SubscriptionTest extends JoinTest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser.user.id;
-		clientConfig.authKey = this.currentUser.pubNubToken;
+		clientConfig.authKey = this.currentUser.pubnubToken;
 		let client = new PubNub(clientConfig);
 		return new PubNubClient({
 			pubnub: client

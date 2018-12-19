@@ -87,8 +87,7 @@ class SignupTokens {
 
 	// find a signup token record by token, 
 	// return null if no token record was found,
-	// return false if a record was found but it is expired,
-	// otherwise return the user ID found in the record
+	// otherwise return the userId and whether the token is expired
 	async _find (token, options) {
 		options = Object.assign({}, options, { hint: Indexes.byToken });
 		const tokens = await this.collection.getByQuery({ token }, options);
@@ -96,10 +95,10 @@ class SignupTokens {
 		if (!tokenData) {
 			return null;
 		}
-		if (tokenData.expiresAt < Date.now()) {
-			return false;
-		}
-		return tokenData.userId;
+		return {
+			userId: tokenData.userId,
+			expired: tokenData.expiresAt < Date.now()
+		};
 	}
 
 }

@@ -15,9 +15,17 @@ class PostSlackPostRequest extends PostRequest {
 	async postProcess () {
 		// send the update to the totalPosts count for the user on the user's me-channel
 		const channel = `user-${this.user.id}`;
-		const message = Object.assign({}, this.creator.updateOp, {
+		const message = {
+			user: Object.assign(
+				{
+					id: this.user.id,
+					_id: this.user.id // DEPRECATE ME
+				},
+				this.creator.updateOp
+			),
 			requestId: this.request.id
-		});
+		};
+	
 		try {
 			await this.api.services.messager.publish(
 				message,
