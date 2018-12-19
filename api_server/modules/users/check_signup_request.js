@@ -43,15 +43,21 @@ class CheckSignupRequest extends RestfulRequest {
 	}
 
 	async findToken () {
-		this.userId = await this.api.services.signupTokens.find(
+		const info = await this.api.services.signupTokens.find(
 			this.request.body.token,
 			{ requestId: this.request.id }
 		);
-		if (this.userId === null) {
+		if (!info) {
+			this.trackTokenFailure('Token Expired');
 			throw this.errorHandler.error('noUserId');
 		}
-		else if (this.userId === false) {
+		else if (info.expired) {
+			this.user = await this.data.users.getById(info.userId);
+			this.trackTokenFailure('Token Expired');
 			throw this.errorHandler.error('tokenExpired');
+		}
+		else {
+			this.userId = info.userId;
 		}
 	}
 
@@ -59,12 +65,15 @@ class CheckSignupRequest extends RestfulRequest {
 	async getUser () {
 		this.user = await this.data.users.getById(this.userId);
 		if (!this.user || this.user.get('deactivated')) {
+			this.trackTokenFailure('User Not On Team');
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
 		if (!this.user.get('isRegistered')) {
+			this.trackTokenFailure('Email Not Confirmed');
 			throw this.errorHandler.error('noLoginUnregistered');
 		}
 		if ((this.user.get('teamIds') || []).length === 0) {
+			this.trackTokenFailure('User Not On Team');
 			throw this.errorHandler.error('userNotOnTeam');
 		}
 	}
@@ -81,6 +90,23 @@ class CheckSignupRequest extends RestfulRequest {
 	// remove the signup token we were given, signup using this token is no longer valid
 	async removeSignupToken () {
 		await this.api.services.signupTokens.remove(this.request.body.token, { requestId: this.request.id });
+	}
+
+	// track any token failure by sending an event to the analytics service
+	trackTokenFailure (eventName) {
+		if (!this.user) { return; }
+		const trackObject = {
+			Error: eventName,
+			'Email Address': this.user.get('email')
+		};
+		this.api.services.analytics.track(
+			'Continue Into IDE Failed',
+			trackObject,
+			{
+				request: this,
+				user: this.user
+			}
+		);
 	}
 
 	// describe this route for help

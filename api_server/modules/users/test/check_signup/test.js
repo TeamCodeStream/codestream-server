@@ -13,6 +13,9 @@ const NoTeamsTest = require('./no_teams_test');
 const NoReuseTokenTest = require('./no_reuse_token_test');
 const NoLoginUnregisteredTest = require('./no_login_unregistered_test');
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
+const TrackTokenExpiredTest = require('./track_token_expired_test');
+const TrackUserNotOnTeamTest = require('./track_user_not_on_team_test');
+const TrackUserNotRegisteredTest = require('./track_user_not_registered_test');
 
 class CheckSignupRequestTester {
 
@@ -29,7 +32,10 @@ class CheckSignupRequestTester {
 			TokenExpiredTest,
 			NoTeamsTest,
 			NoReuseTokenTest,
-			NoLoginUnregisteredTest
+			NoLoginUnregisteredTest,
+			TrackTokenExpiredTest,
+			TrackUserNotOnTeamTest,
+			TrackUserNotRegisteredTest
 		]);
 	}
 }

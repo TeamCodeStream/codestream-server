@@ -42,7 +42,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				this.users.push(response);
 				this.currentUser = response;
-				this.currentUser.pubNubToken = this.currentUser.user.id;
+				this.currentUser.pubnubToken = this.currentUser.user.id;
 				callback();
 			}
 		);
