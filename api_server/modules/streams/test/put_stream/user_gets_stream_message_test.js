@@ -17,7 +17,7 @@ class UserGetsStreamMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 			if (error) { return callback(error); }
 			// we expect the message on the added user's me-channel
 			this.currentUserToken = this.token;
-			this.pubNubToken = this.users[2].pubNubToken;
+			this.pubnubToken = this.users[2].pubnubToken;
 			this.currentUser = this.users[2];
 			callback();
 		});

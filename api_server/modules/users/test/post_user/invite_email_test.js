@@ -40,7 +40,7 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					if (error) { return callback(error); }
 					this.userCreator = this.currentUser.user;
 					this.currentUser = {
-						pubNubToken: response.user.id,
+						pubnubToken: response.user.id,
 						user: response.user
 					};
 					callback();

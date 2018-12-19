@@ -29,7 +29,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 			this.resendConfirm
 		], callback);
 	}
-    
+
 	// register a user to use for the test
 	registerUser (callback) {
 		this.data = this.userFactory.getRandomUserData();
@@ -48,7 +48,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				this.currentUser = {
 					user: response.user,
-					pubNubToken: response.user.id
+					pubnubToken: response.user.id
 				};
 				this.originalToken = response.user.confirmationToken;
 				callback();
@@ -88,7 +88,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 			type: 'confirm',
 			userId: this.currentUser.user.id
 		};
-		// in this case, we've already started the test in makeData, which created the user 
+		// in this case, we've already started the test in makeData, which created the user
 		// and then made the resend request...
 		// but the email was delayed, so we can just start listening for it now...
 		callback();

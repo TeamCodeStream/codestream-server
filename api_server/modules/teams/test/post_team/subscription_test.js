@@ -40,7 +40,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.currentUser.user._pubnubUuid || this.currentUser.user.id;
-		clientConfig.authKey = this.currentUser.pubNubToken;
+		clientConfig.authKey = this.currentUser.pubnubToken;
 		const client = new PubNub(clientConfig);
 		return new PubNubClient({
 			pubnub: client

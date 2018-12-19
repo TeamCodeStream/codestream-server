@@ -25,7 +25,7 @@ class PresenceJoinTest extends CodeStreamMessageTest {
 		// have the second user subscribe to the team channel, the current user
 		// should receive a "join" presence message
 		const otherUser = this.users[1].user;
-		const token = this.users[1].pubNubToken;
+		const token = this.users[1].pubnubToken;
 		this.makePubnubForClient(token, otherUser);
 		this.pubnubClientsForUser[otherUser.id].subscribe(
 			this.channelName,
