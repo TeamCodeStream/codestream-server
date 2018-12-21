@@ -48,7 +48,7 @@ class CheckSignupRequest extends RestfulRequest {
 			{ requestId: this.request.id }
 		);
 		if (!info) {
-			this.trackTokenFailure('Token Expired');
+			this.trackTokenFailure('User Not Signed Up');
 			throw this.errorHandler.error('noUserId');
 		}
 		else if (info.expired) {
@@ -94,11 +94,12 @@ class CheckSignupRequest extends RestfulRequest {
 
 	// track any token failure by sending an event to the analytics service
 	trackTokenFailure (eventName) {
-		if (!this.user) { return; }
 		const trackObject = {
-			Error: eventName,
-			'Email Address': this.user.get('email')
+			Error: eventName
 		};
+		if (this.user) {
+			trackObject['Email Address'] = this.user.get('email');
+		}
 		this.api.services.analytics.track(
 			'Continue Into IDE Failed',
 			trackObject,
