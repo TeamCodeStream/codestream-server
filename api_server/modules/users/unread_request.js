@@ -25,8 +25,9 @@ class UnreadRequest extends RestfulRequest {
 		const streamId = this.post.get('streamId');
 		const seqNum = this.post.get('seqNum') - 1;
 		const op = {
-			'$set': {
-				['lastReads.' + streamId]: seqNum
+			$set: {
+				['lastReads.' + streamId]: seqNum,
+				modifiedAt: Date.now()
 			}
 		};
 		this.updateOp = await new ModelSaver({

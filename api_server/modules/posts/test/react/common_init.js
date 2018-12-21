@@ -49,6 +49,7 @@ class CommonInit {
 			}
 		};
 		this.path = '/react/' + this.post.id;
+		this.updatedAt = Date.now();
 		callback();
 	}
 }

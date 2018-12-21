@@ -52,6 +52,7 @@ class ClearReactTest extends ReactTest {
 		const data = {
 			[this.reaction]: true
 		};
+		this.updatedAt = Date.now();
 		this.doApiRequest(
 			{
 				method: 'put',

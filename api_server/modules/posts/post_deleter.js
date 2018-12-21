@@ -83,7 +83,8 @@ class PostDeleter extends ModelDeleter {
 		}
 		const op = {
 			$set: {
-				numReplies: this.parentPost.get('numReplies') - 1
+				numReplies: this.parentPost.get('numReplies') - 1,
+				modifiedAt: Date.now()
 			}
 		};
 		this.transforms.updatedParentPost = await new ModelSaver({
@@ -105,7 +106,8 @@ class PostDeleter extends ModelDeleter {
 		}
 		const op = { 
 			$set: {
-				numReplies: codemark.get('numReplies') - 1
+				numReplies: codemark.get('numReplies') - 1,
+				modifiedAt: Date.now()
 			}
 		};
 		this.transforms.updatedParentCodemark = await new ModelSaver({

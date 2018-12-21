@@ -41,6 +41,7 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 	generateMessage (callback) {
 		// do the update, this should trigger a message to the
 		// team channel with the updated post
+		this.updatedAt = Date.now();
 		this.setExpectedMessage();
 		this.doApiRequest(
 			{
@@ -86,6 +87,7 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 
 	// validate the received message
 	validateMessage (inMessage) {
+		Assert(inMessage.message.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
 		const message = inMessage.message;
 		const expectedUserOp = {
 			_id: this.existingUserData.user.id,	// DEPRECATE ME
@@ -98,6 +100,7 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 				joinMethod: 'Added to Team',
 				primaryReferral: 'internal',
 				originTeamId: this.team.id,
+				modifiedAt: inMessage.message.user.$set.modifiedAt,
 				version: 3
 			},
 			$version: {

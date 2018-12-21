@@ -3,6 +3,7 @@
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const CommonInit = require('./common_init');
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Assert = require('assert');
 
 class UneadMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -24,11 +25,19 @@ class UneadMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// issue the api request that triggers the message
 	generateMessage (callback) {
+		this.updatedAt = Date.now();
+
 		// we expect a message the unset the lastReads value for this stream
 		this.message = this.expectedData;
 
 		// indicate marking the stream unread
 		this.markUnread(callback);
+	}
+
+	validateMessage (message) {
+		Assert(message.message.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
+		return super.validateMessage(message);
 	}
 }
 

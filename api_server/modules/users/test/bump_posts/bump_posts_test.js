@@ -20,12 +20,15 @@ class BumpPostsTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		this.init(error => {
 			if (error) { return callback(error); }
 			this.path = '/bump-posts';
+			this.updatedAt = Date.now();
 			callback();
 		});
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
+		Assert(data.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		this.expectedData.user.$set.modifiedAt = data.user.$set.modifiedAt;
 		Assert.deepEqual(data, this.expectedData, 'response is incorrect');
 	}
 }

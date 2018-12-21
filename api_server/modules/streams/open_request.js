@@ -33,6 +33,9 @@ class OpenRequest extends RestfulRequest {
 		const op = {
 			$unset: {
 				[`preferences.closedStreams.${this.stream.id}`]: true
+			},
+			$set: {
+				modifiedAt: Date.now()
 			}
 		};
 		this.transforms.updateOp = await new ModelSaver({

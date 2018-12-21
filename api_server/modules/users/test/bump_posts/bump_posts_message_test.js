@@ -3,6 +3,7 @@
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const CommonInit = require('./common_init');
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Assert = require('assert');
 
 class BumpPostsMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -28,7 +29,14 @@ class BumpPostsMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit
 		// to the post that was marked unread ... the sequence numbers are 1-based so this is 
 		// just the same as the ordinal number of the post in the array of posts created
 		this.message = this.expectedData;
+		this.updatedAt = Date.now();
 		this.bumpPosts(callback);
+	}
+
+	validateMessage (message) {
+		Assert(message.message.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
+		return super.validateMessage(message);
 	}
 }
 

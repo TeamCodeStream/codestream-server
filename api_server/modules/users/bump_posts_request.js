@@ -16,7 +16,12 @@ class BumpPostsRequest extends RestfulRequest {
 	async process () {
 		let totalPosts = this.user.get('totalPosts') || 0;
 		totalPosts++;
-		const op = { $set: { totalPosts } };
+		const op = {
+			$set: {
+				totalPosts,
+				modifiedAt: Date.now()
+			}
+		};
 		this.updateOp = await new ModelSaver({
 			request: this,
 			collection: this.data.users,

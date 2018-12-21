@@ -24,6 +24,8 @@ class CloseTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
+		Assert(data.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		this.expectedResponse.user.$set.modifiedAt = data.user.$set.modifiedAt;
 		// verify we got back the expected response
 		Assert.deepEqual(data, this.expectedResponse, 'response is not correct');
 	}

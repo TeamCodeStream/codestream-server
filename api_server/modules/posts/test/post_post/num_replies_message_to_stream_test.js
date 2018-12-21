@@ -5,6 +5,7 @@ const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/message
 const PostReplyTest = require('./post_reply_test');
 const CommonInit = require('./common_init');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Assert = require('assert');
 
 class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostReplyTest) {
 
@@ -49,6 +50,7 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 			streamId: this.stream.id,
 			parentPostId: this.postData[0].post.id
 		};
+		this.postCreatedAt = Date.now();
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -79,6 +81,8 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 		if (!message.message.post || !message.message.post.$set) {
 			return false;
 		}
+		Assert(message.message.post.$set.modifiedAt > this.postCreatedAt, 'modifiedAt not changed');
+		this.message.post.$set.modifiedAt = message.message.post.$set.modifiedAt;
 		return super.validateMessage(message);
 	}
 }

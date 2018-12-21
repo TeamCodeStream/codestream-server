@@ -22,6 +22,8 @@ class PutPreferencesRequest extends RestfulRequest {
 		if (typeof op === 'string') {
 			throw this.errorHandler.error('invalidParameter', { info: op });
 		}
+		op.$set = op.$set || {};
+		op.$set.modifiedAt = Date.now();
 		this.updateOp = await new ModelSaver({
 			request: this,
 			collection: this.data.users,

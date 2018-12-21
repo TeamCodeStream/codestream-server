@@ -2,6 +2,7 @@
 
 const GetStreamsTest = require('./get_streams_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Assert = require('assert');
 
 class CorrectSortOrderTest extends GetStreamsTest {
 
@@ -55,6 +56,7 @@ class CorrectSortOrderTest extends GetStreamsTest {
 			this.expectedStreams.push(stream);
 		});
 		this.expectedStreams.reverse();
+		this.updatedAt = Date.now();
 		BoundAsync.forEachSeries(
 			this,
 			streamsWithPost,
@@ -90,6 +92,14 @@ class CorrectSortOrderTest extends GetStreamsTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
+		for (let i = 0; i < data.streams.length; i++) {
+			const stream = data.streams[i];
+			const expectedStream = this.expectedStreams[i];
+			if (stream.version === 2) {
+				Assert(stream.modifiedAt > this.updatedAt, 'modifiedAt not changed for stream with post');
+				expectedStream.modifiedAt = stream.modifiedAt;
+			}
+		}
 		// validate that we got the streams back in the correct order, before standard validation
 		this.validateSortedMatchingObjects(data.streams, this.expectedStreams, 'streams');
 		super.validateResponse(data);

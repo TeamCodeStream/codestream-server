@@ -42,6 +42,7 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 	generateMessage (callback) {
 		const normalizedRemote = NormalizeUrl(this.addedRemote);
 		const companyIdentifier = ExtractCompanyIdentifier.getCompanyIdentifier(normalizedRemote);
+		this.updatedAt = Date.now();
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -77,6 +78,8 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 
 	// validate the incoming message
 	validateMessage (message) {
+		Assert(message.message.repos[0].$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		this.reposMessage[0].$set.modifiedAt = message.message.repos[0].$set.modifiedAt;
 		Assert.deepEqual(this.reposMessage, message.message.repos, 'unexpected repos in message');
 		return super.validateMessage(message);
 	}

@@ -54,6 +54,7 @@ class UnsetSubkeyTest extends PutTeamSettingsFetchTest {
 		delete this.expectSettings.topLevelSetting.settingOne;
 		delete this.expectSettings.topLevelSetting.settingThree;
 		delete this.expectSettings.topLevelSetting.settingFive;
+		this.updatedAt = Date.now();
 		callback();
 	}
 }

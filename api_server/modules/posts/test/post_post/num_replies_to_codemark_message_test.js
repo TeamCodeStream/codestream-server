@@ -1,6 +1,7 @@
 'use strict';
 
 const NumRepliesMessageToStreamTest = require('./num_replies_message_to_stream_test');
+const Assert = require('assert');
 
 class NumRepliesToCodemarkMessageTest extends NumRepliesMessageToStreamTest {
 
@@ -34,6 +35,16 @@ class NumRepliesToCodemarkMessageTest extends NumRepliesMessageToStreamTest {
 			};
 			callback();
 		});
+	}
+
+	validateMessage (message) {
+		// only look for directives in the message
+		if (!message.message.post || !message.message.post.$set) {
+			return false;
+		}
+		Assert(message.message.codemark.$set.modifiedAt > this.postCreatedAt, 'modifiedAt for codemark not changed');
+		this.message.codemark.$set.modifiedAt = message.message.codemark.$set.modifiedAt;
+		return super.validateMessage(message);
 	}
 }
 

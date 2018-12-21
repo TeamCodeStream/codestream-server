@@ -1,6 +1,7 @@
 'use strict';
 
 const DeletePostTest = require('./delete_post_test');
+const Assert = require('assert');
 
 class NumRepliesTest extends DeletePostTest {
 
@@ -33,8 +34,17 @@ class NumRepliesTest extends DeletePostTest {
 					after: 5
 				}
 			});
+			this.updatedAt = Date.now();
 			callback();
 		});
+	}
+
+	validateResponse (data) {
+		const dataPost = data.posts.find(post => post.id === this.postData[0].post.id);
+		Assert(dataPost.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		const expectedPost = this.expectedData.posts.find(post => post.id === this.postData[0].post.id);
+		expectedPost.$set.modifiedAt = dataPost.$set.modifiedAt;
+		return super.validateResponse(data);
 	}
 }
 

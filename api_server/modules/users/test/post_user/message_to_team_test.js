@@ -3,6 +3,7 @@
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const CommonInit = require('./common_init');
+const Assert = require('assert');
 
 class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -26,6 +27,7 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	generateMessage (callback) {
 		// do the update, this should trigger a message to the
 		// team channel with the updated post
+		this.updatedAt = Date.now();
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -53,6 +55,12 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				callback();
 			}
 		);
+	}
+
+	validateMessage (message) {
+		Assert(message.message.team.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		this.message.team.$set.modifiedAt = message.message.team.$set.modifiedAt;
+		return super.validateMessage(message);
 	}
 }
 

@@ -64,6 +64,7 @@ class CommonInit {
 				}
 			}
 		};
+		this.updatedAt = Date.now();
 		callback();
 	}
 }

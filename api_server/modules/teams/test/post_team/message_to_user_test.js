@@ -1,6 +1,7 @@
 'use strict';
 
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const Assert = require('assert');
 
 class MessageToUserTest extends CodeStreamMessageTest {
 
@@ -23,6 +24,7 @@ class MessageToUserTest extends CodeStreamMessageTest {
 	generateMessage (callback) {
 		// create a new team, this should trigger a message
 		// to the user that their "joinMethod" attribute has been set
+		this.updatedAt = Date.now();
 		this.teamFactory.createRandomTeam(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -58,6 +60,8 @@ class MessageToUserTest extends CodeStreamMessageTest {
 	// validate the incoming message
 	validateMessage (message) {
 		const subMessage = message.message;
+		Assert(subMessage.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		this.message.user.$set.modifiedAt = subMessage.user.$set.modifiedAt;
 		// ignore any other message, we're looking for an update to our own user object
 		if (!subMessage.user) {
 			return false;

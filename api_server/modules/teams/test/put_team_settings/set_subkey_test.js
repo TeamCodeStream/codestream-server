@@ -43,6 +43,7 @@ class SetSubkeyTest extends PutTeamSettingsFetchTest {
 		};
 		this.expectSettings = this.preSetData;
 		Object.assign(this.expectSettings.topLevelSetting, set.topLevelSetting);
+		this.updatedAt = Date.now();
 		callback();
 	}
 }

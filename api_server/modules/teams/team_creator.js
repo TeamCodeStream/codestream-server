@@ -139,9 +139,12 @@ class TeamCreator extends ModelCreator {
 	async updateUser () {
 		// add the team's ID to the user's teamIds array, and the company ID to the companyIds array
 		const op = {
-			'$addToSet': {
+			$addToSet: {
 				companyIds: this.attributes.companyId,
 				teamIds: this.model.id
+			},
+			$set: {
+				modifiedAt: Date.now()
 			}
 		};
 		this.updateUserJoinMethod(this.user, op);
