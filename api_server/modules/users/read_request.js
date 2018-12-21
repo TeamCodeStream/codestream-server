@@ -27,7 +27,11 @@ class ReadRequest extends RestfulRequest {
 		// unset the lastReads value for the given stream, or simply remove the lastReads
 		// value completely if "all" specified
 		this.streamId = this.request.params.streamId.toLowerCase();
-		let op;
+		let op = {
+			$set: {
+				modifiedAt: Date.now()
+			}
+		};
 		if (this.streamId === 'all') {
 			op = {
 				'$unset': {

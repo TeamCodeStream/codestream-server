@@ -233,6 +233,9 @@ class MarkerCreator extends ModelCreator {
 		const op = {
 			$push: {
 				remotes: remotesToPush
+			},
+			$set: {
+				modifiedAt: Date.now()
 			}
 		};
 		const repoUpdateOp = await new ModelSaver({

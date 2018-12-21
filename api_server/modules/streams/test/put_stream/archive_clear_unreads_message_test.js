@@ -3,6 +3,7 @@
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const CommonInit = require('./common_init');
+const Assert = require('assert');
 
 class ArchiveClearUnreadsMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -37,6 +38,7 @@ class ArchiveClearUnreadsMessageTest extends Aggregation(CodeStreamMessageTest, 
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
+		this.updatedAt = Date.now();
 		this.updateStream(error => {
 			if (error) { return callback(error); }
 			this.message = {
@@ -57,6 +59,12 @@ class ArchiveClearUnreadsMessageTest extends Aggregation(CodeStreamMessageTest, 
 			};
 			callback();
 		});
+	}
+
+	validateMessage (message) {
+		Assert(message.message.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
+		return super.validateMessage(message);
 	}
 }
 

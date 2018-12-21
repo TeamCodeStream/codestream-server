@@ -37,6 +37,7 @@ class UnsetTest extends PutTeamSettingsFetchTest {
 		};
 		this.expectSettings = Object.assign({}, this.preSetData);
 		delete this.expectSettings.settingTwo;
+		this.updatedAt = Date.now();
 		callback();
 	}
 }

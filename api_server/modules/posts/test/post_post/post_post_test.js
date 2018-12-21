@@ -89,6 +89,8 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		if (this.expectMarker) {
 			expectedStreamUpdate.$set.numMarkers = 1;
 		}
+		Assert(streamUpdate.$set.modifiedAt > this.postCreatedAfter, 'modifiedAt not changed');
+		expectedStreamUpdate.$set.modifiedAt = streamUpdate.$set.modifiedAt;
 		Assert.deepEqual(streamUpdate, expectedStreamUpdate, 'stream update not correct');		
 	}
 }

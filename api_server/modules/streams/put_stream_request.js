@@ -157,6 +157,9 @@ class PutStreamRequest extends PutRequest {
 		const op = {
 			$unset: {
 				[`lastReads.${stream.id}`]: true
+			},
+			$set: {
+				modifiedAt: Date.now()
 			}
 		};
 		

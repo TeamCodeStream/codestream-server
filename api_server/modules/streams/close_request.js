@@ -32,7 +32,8 @@ class CloseRequest extends RestfulRequest {
 		// update the user's preferences to indicate the stream is "closed"
 		const op = {
 			$set: {
-				[`preferences.closedStreams.${this.stream.id}`]: true
+				[`preferences.closedStreams.${this.stream.id}`]: true,
+				modifiedAt: Date.now()
 			}
 		};
 		this.transforms.updateOp = await new ModelSaver({

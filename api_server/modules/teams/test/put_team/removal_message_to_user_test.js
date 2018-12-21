@@ -3,6 +3,7 @@
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const CommonInit = require('./common_init');
+const Assert = require('assert');
 
 class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -37,6 +38,7 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 		// do the update, this should trigger a message to the
 		// user with the team removed from their teamIds
 		this.otherUserUpdatesTeam = true;
+		this.updatedAt = Date.now();
 		this.updateTeam(error => {
 			if (error) { return callback(error); }
 			this.message = {
@@ -57,6 +59,12 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 			};
 			callback();
 		});
+	}
+
+	validateMessage (message) {
+		Assert(message.message.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
+		return super.validateMessage(message);
 	}
 }
 

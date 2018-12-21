@@ -4,6 +4,7 @@ const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation'
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const RemoveUserTest = require('./remove_user_test');
 const CommonInit = require('./common_init');
+const Assert = require('assert');
 
 class RemoveUserUnreadsMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit, RemoveUserTest) {
 
@@ -39,6 +40,7 @@ class RemoveUserUnreadsMessageTest extends Aggregation(CodeStreamMessageTest, Co
 	generateMessage (callback) {
 		// do the update, this should trigger a message to the
 		// stream channel with the updated stream
+		this.updatedAt = Date.now();
 		this.updateStream(error => {
 			if (error) { return callback(error); }
 			this.message = {
@@ -59,6 +61,12 @@ class RemoveUserUnreadsMessageTest extends Aggregation(CodeStreamMessageTest, Co
 			};
 			callback();
 		});
+	}
+
+	validateMessage (message) {
+		Assert(message.message.user.$set.modifiedAt > this.updatedAt, 'modifedAt not changed');
+		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
+		return super.validateMessage(message);
 	}
 }
 

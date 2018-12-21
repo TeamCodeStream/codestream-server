@@ -26,6 +26,11 @@ class MarkerUpdater extends ModelUpdater {
 			string: ['commitHashWhenCreated']
 		};
 	}
+
+	async preSave () {
+		this.attributes.modifiedAt = Date.now();
+		await super.preSave();
+	}
 }
 
 module.exports = MarkerUpdater;

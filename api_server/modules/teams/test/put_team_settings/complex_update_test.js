@@ -27,6 +27,7 @@ class ComplexUpdateTest extends PutTeamSettingsFetchTest {
 			}, ComplexUpdate.EXPECTED_OP)
 		};
 		this.expectSettings = ComplexUpdate.EXPECTED_SETTINGS;
+		this.updatedAt = Date.now();
 		callback();
 	}
 }

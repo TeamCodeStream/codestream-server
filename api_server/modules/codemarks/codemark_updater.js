@@ -45,6 +45,7 @@ class CodemarkUpdater extends ModelUpdater {
 		}
 		await this.preValidate();
 		await this.validateAssignees();
+		this.attributes.modifiedAt = Date.now();
 		await super.preSave();		// base-class preSave
 	}
 

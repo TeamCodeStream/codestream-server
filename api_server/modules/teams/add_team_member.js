@@ -44,7 +44,10 @@ class AddTeamMember  {
 		const op = { 
 			$addToSet: { 
 				memberIds: this.addUser.id 
-			} 
+			},
+			$set: {
+				modifiedAt: Date.now()
+			}
 		};
 		this.transforms.teamUpdate = await new ModelSaver({
 			request: this.request,
@@ -56,9 +59,12 @@ class AddTeamMember  {
 	// update the user to indicate they are on a new team
 	async updateUser () {
 		const op = {
-			'$addToSet': {
+			$addToSet: {
 				companyIds: this.team.get('companyId'),
 				teamIds: this.team.id
+			},
+			$set: {
+				modifiedAt: Date.now()
 			}
 		};
 		// handle the rare case where a registered user isn't on a team yet,
@@ -71,10 +77,10 @@ class AddTeamMember  {
 				!this.addUser.get('joinMethod')
 			)
 		) {
-			op.$set = {
+			Object.assign(op.$set, {
 				joinMethod: 'Added to Team',
 				primaryReferral: 'internal'
-			};
+			});
 			const creatorId = this.team.get('creatorId');
 			const teamCreator = await this.data.users.getById(creatorId);
 			if (teamCreator && teamCreator.get('originTeamId')) {

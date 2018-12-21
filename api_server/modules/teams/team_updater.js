@@ -163,6 +163,9 @@ class TeamUpdater extends ModelUpdater {
 		const op = {
 			$pull: {
 				teamIds: this.team.id 
+			},
+			$set: {
+				modifiedAt: Date.now()
 			}
 		};
 		const updateOp = await new ModelSaver({

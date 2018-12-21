@@ -222,7 +222,8 @@ class ProviderConnectRequest extends RestfulRequest {
 					userId: this.providerInfo.userId,
 					teamId: this.providerInfo.teamId,
 					accessToken: this.providerInfo.accessToken
-				}
+				},
+				modifiedAt: Date.now()
 			}
 		};
 

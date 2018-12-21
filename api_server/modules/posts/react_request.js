@@ -42,7 +42,11 @@ class ReactRequest extends RestfulRequest {
 		if (reactions.length === 0) {
 			return;
 		}
-		const op = {};
+		const op = {
+			$set: {
+				modifiedAt: Date.now()
+			}
+		};
 		reactions.forEach(reaction => {
 			if (this.request.body[reaction]) {
 				op.$addToSet = op.$addToSet || {};

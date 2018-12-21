@@ -3,6 +3,7 @@
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const ComplexUpdate = require('./complex_update');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const Assert = require('assert');
 
 class MessageTest extends CodeStreamMessageTest {
 
@@ -45,6 +46,7 @@ class MessageTest extends CodeStreamMessageTest {
 		// apply a complex update operation to the already "complex" settings
 		// data, and confirm the appropriate complex op to apply at the client
 		let data = ComplexUpdate.UPDATE_OP;
+		this.updatedAt = Date.now();
 		this.doApiRequest(
 			{
 				method: 'put',
@@ -69,6 +71,12 @@ class MessageTest extends CodeStreamMessageTest {
 				callback();
 			}
 		);
+	}
+
+	validateMessage (message) {
+		Assert(message.message.team.$set.modifiedAt > this.updatedAt);
+		this.message.team.$set.modifiedAt = message.message.team.$set.modifiedAt;
+		return super.validateMessage(message);
 	}
 }
 

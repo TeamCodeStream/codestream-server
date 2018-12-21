@@ -102,12 +102,12 @@ class ConfirmHelper {
 	async doUserUpdate () {
 		const now = Date.now();
 		let op = {
-			'$set': {
+			$set: {
 				isRegistered: true,
 				modifiedAt: now,
 				registeredAt: now
 			},
-			'$unset': {
+			$unset: {
 				confirmationCode: true,
 				confirmationAttempts: true,
 				confirmationCodeExpiresAt: true,

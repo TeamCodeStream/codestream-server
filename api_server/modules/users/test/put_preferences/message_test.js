@@ -2,6 +2,7 @@
 
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const ComplexUpdate = require('./complex_update');
+const Assert = require('assert');
 
 class MessageTest extends CodeStreamMessageTest {
 
@@ -45,6 +46,7 @@ class MessageTest extends CodeStreamMessageTest {
 		// data, and confirm the appropriate complex op to apply at the client
 		const data = ComplexUpdate.UPDATE_OP;
 		this.expectVersion++;
+		this.updatedAt = Date.now();
 		this.doApiRequest(
 			{
 				method: 'put',
@@ -82,6 +84,12 @@ class MessageTest extends CodeStreamMessageTest {
 				}
 			}
 		};
+	}
+
+	validateMessage (message) {
+		Assert(message.message.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
+		return super.validateMessage(message);
 	}
 }
 

@@ -39,6 +39,7 @@ class SimpleUpdateTest extends PutTeamSettingsFetchTest {
 				}
 			}
 		};
+		this.updatedAt = Date.now();
 		callback();
 	}
 }

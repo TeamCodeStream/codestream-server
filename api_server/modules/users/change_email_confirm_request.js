@@ -89,7 +89,7 @@ class ChangeEmailConfirmRequest extends RestfulRequest {
 	// update the user in the database with new email
 	async updateUser () {
 		const op = {
-			'$set': {
+			$set: {
 				email: this.payload.email,
 				modifiedAt: Date.now()
 			}

@@ -164,7 +164,8 @@ class PostCreator extends ModelCreator {
 			$set: {
 				mostRecentPostId: this.attributes.id,
 				mostRecentPostCreatedAt: this.attributes.createdAt,
-				sortId: this.attributes.id
+				sortId: this.attributes.id,
+				modifiedAt: Date.now()
 			}
 		};
 		// increment the number of markers in this stream
@@ -209,7 +210,8 @@ class PostCreator extends ModelCreator {
 	async updateParentPost () {
 		const op = { 
 			$set: {
-				numReplies: (this.parentPost.get('numReplies') || 0) + 1
+				numReplies: (this.parentPost.get('numReplies') || 0) + 1,
+				modifiedAt: Date.now()
 			} 
 		};
 		this.transforms.postUpdate = await new ModelSaver({
@@ -229,7 +231,8 @@ class PostCreator extends ModelCreator {
 
 		const op = { 
 			$set: {
-				numReplies: (codemark.get('numReplies') || 0) + 1
+				numReplies: (codemark.get('numReplies') || 0) + 1,
+				modifiedAt: Date.now()
 			}
 		};
 		this.transforms.codemarkUpdate = await new ModelSaver({
@@ -245,7 +248,8 @@ class PostCreator extends ModelCreator {
 		const op = {
 			$set: { 
 				lastPostCreatedAt: this.attributes.createdAt,
-				totalPosts: (this.user.get('totalPosts') || 0) + 1
+				totalPosts: (this.user.get('totalPosts') || 0) + 1,
+				modifiedAt: Date.now()
 			},
 			$unset: { [`lastReads.${this.stream.id}`]: true }
 		};
