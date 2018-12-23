@@ -8,6 +8,8 @@ const TrelloConfig = require(process.env.CS_API_TOP + '/config/trello');
 const GithubConfig = require(process.env.CS_API_TOP + '/config/github');
 const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
 const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
+const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
+const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
 
 class ProviderAuthTest extends CodeStreamAPITest {
 
@@ -70,6 +72,12 @@ class ProviderAuthTest extends CodeStreamAPITest {
 		case 'jira':
 			redirectData = this.getJiraRedirectData();
 			break;
+		case 'gitlab':
+			redirectData = this.getGitlabRedirectData();
+			break;
+		case 'bitbucket':
+			redirectData = this.getBitbucketRedirectData();
+			break;
 		default:
 			throw `unknown provider ${this.provider}`;
 		}
@@ -129,6 +137,29 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			state: this.state
 		};
 		const url = 'https://auth.atlassian.com/authorize';
+		return { url, parameters };
+	}
+
+	getGitlabRedirectData () {
+		const parameters = {
+			client_id: GitlabConfig.appClientId,
+			redirect_uri: `${this.redirectUri}?state=${this.state}`,
+			state: this.state,
+			response_type: 'token'
+		};
+		const url = 'https://gitlab.com/oauth/authorize';
+		return { url, parameters };
+	}
+
+	getBitbucketRedirectData () {
+		const parameters = {
+			client_id: BitbucketConfig.appClientId,
+			redirect_uri: this.redirectUri,
+			scope: 'repository issue',
+			state: this.state,
+			response_type: 'code'
+		};
+		const url = 'https://bitbucket.org/site/oauth2/authorize';
 		return { url, parameters };
 	}
 }

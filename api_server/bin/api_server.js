@@ -20,6 +20,8 @@ const GithubConfig = require(ConfigDirectory + '/github.js');
 const AsanaConfig = require(ConfigDirectory + '/asana.js');
 const TrelloConfig = require(ConfigDirectory + '/trello.js');
 const JiraConfig = require(ConfigDirectory + '/jira.js');
+const BitbucketConfig = require(ConfigDirectory + '/bitbucket.js');
+const GitlabConfig = require(ConfigDirectory + '/gitlab.js');
 const LoggerConfig = require(ConfigDirectory + '/logger.js');
 const EmailConfig = require(ConfigDirectory + '/email.js');
 const AWSConfig = require(ConfigDirectory + '/aws.js');
@@ -80,6 +82,8 @@ const MyAPICluster = new ClusterWrapper(
 		asana: AsanaConfig,
 		trello: TrelloConfig,
 		jira: JiraConfig,
+		bitbucket: BitbucketConfig,
+		gitlab: GitlabConfig,
 		email: EmailConfig,
 		aws: AWSConfig,
 		webclient: WebClientConfig,

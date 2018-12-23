@@ -43,7 +43,9 @@ class ProviderAuthRequest extends RestfulRequest {
 			trello: 'trelloAuth',
 			github: 'githubAuth',
 			asana: 'asanaAuth',
-			jira: 'jiraAuth'
+			jira: 'jiraAuth',
+			bitbucket: 'bitbucketAuth',
+			gitlab: 'gitlabAuth'
 		}[this.provider];
 		if (!serviceAuth || !this.api.services[serviceAuth]) {
 			throw this.errorHandler.error('unknownProvider', { info: this.provider });

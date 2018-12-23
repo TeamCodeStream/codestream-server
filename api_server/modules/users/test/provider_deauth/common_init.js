@@ -9,6 +9,8 @@ const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const GithubConfig = require(process.env.CS_API_TOP + '/config/github');
 const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
 const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
+const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
+const Base64 = require('base-64');
 
 class CommonInit {
 
@@ -147,6 +149,17 @@ class CommonInit {
 		};
 		const url = 'https://auth.atlassian.com/oauth/token';
 		return { url, parameters };
+	}
+
+	getExpectedBitbucketTestCallData () {
+		const parameters = {
+			code: this.code,
+			grant_type: 'authorization_code',
+			redirect_uri: this.redirectUri
+		};
+		const userAuth = Base64.encode(`${BitbucketConfig.appClientId}:${BitbucketConfig.appClientSecret}`);
+		const url = 'https://bitbucket.org/site/oauth2/access_token';
+		return { url, parameters, userAuth };
 	}
 }
 

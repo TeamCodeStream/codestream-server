@@ -26,6 +26,7 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		let expectedData;
 		switch (this.provider) {
 		case 'trello':
+		case 'gitlab':
 			return;
 		case 'github':
 			expectedData = this.getExpectedGithubTestCallData();
@@ -35,6 +36,9 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			break;
 		case 'jira':
 			expectedData = this.getExpectedJiraTestCallData();
+			break;
+		case 'bitbucket':
+			expectedData = this.getExpectedBitbucketTestCallData();
 			break;
 		default:
 			throw `unknown provider ${this.provider}`;

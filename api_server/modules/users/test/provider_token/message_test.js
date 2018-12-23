@@ -49,6 +49,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		let expectedTestCallData;
 		switch (this.provider) {
 		case 'trello':
+		case 'gitlab':
 			break;
 		case 'github':
 			expectedTestCallData = this.getExpectedGithubTestCallData();
@@ -58,6 +59,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			break;
 		case 'jira':
 			expectedTestCallData = this.getExpectedJiraTestCallData();
+			break;
+		case 'bitbucket':
+			expectedTestCallData = this.getExpectedBitbucketTestCallData();
 			break;
 		default:
 			throw `unknown provider ${this.provider}`;
@@ -98,6 +102,11 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		else if (this.provider === 'jira') {
 			Assert(providerInfo.expiresAt > this.requestSentAt + 3590 * 1000, 'expiresAt not set for asana');
 			expectedProviderInfo.expiresAt = providerInfo.expiresAt;
+		}
+		else if (this.provider === 'bitbucket') {
+			Assert(providerInfo.expiresAt > this.requestSentAt + 7190 * 1000, 'expiresAt not set for bitbucket');
+			expectedProviderInfo.expiresAt = providerInfo.expiresAt;
+			expectedProviderInfo.refreshToken = 'refreshMe';
 		}
 		else if (this.provider === 'trello') {
 			expectedProviderInfo.apiKey = TrelloConfig.apiKey;

@@ -27,7 +27,9 @@ class ProviderTokenRequest extends RestfulRequest {
 			trello: 'trelloAuth',
 			github: 'githubAuth',
 			asana: 'asanaAuth',
-			jira: 'jiraAuth'
+			jira: 'jiraAuth',
+			bitbucket: 'bitbucketAuth',
+			gitlab: 'gitlabAuth'
 		}[this.provider];
 		if (!serviceAuth || !this.api.services[serviceAuth]) {
 			throw this.errorHandler.error('unknownProvider', { info: this.provider });
@@ -72,8 +74,12 @@ class ProviderTokenRequest extends RestfulRequest {
 			request: this,
 			mockToken: this.request.query._mockToken
 		};
-		this.tokenData = await this.serviceAuth.preProcessTokenCallback(options); 
-		if (this.tokenData) { 
+		const result = await this.serviceAuth.preProcessTokenCallback(options); 
+		if (typeof result === 'object') {
+			this.tokenData = result;
+			return false;
+		}
+		else if (result) { 
 			return false;	
 		}
 		else {

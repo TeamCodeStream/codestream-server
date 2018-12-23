@@ -5,6 +5,7 @@
     "@slack/client": "^4.6.0",
     "async": "2.1.2",
     "aws-sdk": "^2.205.0",
+    "base-64": "^0.1.0",
     "bcrypt": "1.0.2",
     "body-parser": "1.15.2",
     "commander": "2.9.0",
