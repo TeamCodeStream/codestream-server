@@ -4,13 +4,19 @@ const PutTeamTest = require('./put_team_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
 const PubNub = require('pubnub');
+const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
 const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
-const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
+const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client');
 
 class TeamSubscriptionRevokedTest extends PutTeamTest {
 
 	get description () {
 		return 'users removed from a team should no longer be able to subscribe to the team channel for that team';
+	}
+
+	after (callback) {
+		this.pubnubClient.unsubscribeAll();
+		super.after(callback);
 	}
 
 	// run the actual test...
@@ -45,11 +51,11 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.users[1].user._pubnubUuid || this.users[1].user.id;
 		clientConfig.authKey = this.users[1].pubnubToken;
-		const client = new PubNub(clientConfig);
-		const pubnubClient = new PubNubClient({
+		const client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
+		this.pubnubClient = new PubNubClient({
 			pubnub: client
 		});
-		pubnubClient.subscribe(
+		this.pubnubClient.subscribe(
 			`team-${this.team.id}`,
 			() => {
 				Assert.fail('message received on team channel');

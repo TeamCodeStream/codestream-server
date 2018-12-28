@@ -108,6 +108,26 @@ class CodeStreamAPITest extends APIRequestTest {
 		], callback);
 	}
 
+	after (callback) {
+		if (this.mockMode) {
+			this.clearMockCache(callback);
+			//callback();
+		}
+		else {
+			callback();
+		}
+	}
+
+	clearMockCache (callback) {
+		this.doApiRequest(
+			{
+				method: 'delete',
+				path: '/no-auth/--clear-mock-cache'
+			},
+			callback
+		);
+	}
+
 	createUsersAndTeam (callback) {
 		new TestTeamCreator({
 			test: this,

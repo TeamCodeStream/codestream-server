@@ -10,6 +10,14 @@ const DEPENDENCIES = [
 	'access_logger'	// since we do query logging, we need the access logger module
 ];
 
+const ROUTES = [
+	{
+		method: 'delete',
+		path: 'no-auth/--clear-mock-cache',
+		func: 'handleClearMockCache'
+	}
+];
+
 class Mongo extends APIServerModule {
 
 	constructor (config) {
@@ -19,6 +27,10 @@ class Mongo extends APIServerModule {
 
 	getDependencies () {
 		return DEPENDENCIES;
+	}
+
+	getRoutes () {
+		return ROUTES;
 	}
 
 	services () {
@@ -35,6 +47,9 @@ class Mongo extends APIServerModule {
 			if (mongoOptions.queryLogging && this.api.loggerId) {
 				mongoOptions.queryLogging.loggerId = this.api.loggerId;
 			}
+			if (this.api.config.api.mockMode) {
+				mongoOptions.mockMode = true;
+			}
 			this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoOptions);
 			return { mongoClient: this.mongoClient };
 		};
@@ -45,6 +60,16 @@ class Mongo extends APIServerModule {
 		return () => {
 			return this.mongoClient.mongoCollections;
 		};
+	}
+
+	handleClearMockCache (request, response) {
+		if (this.api.config.api.mockMode) {
+			this.mongoClient.clearMockCache();
+			response.status(200).send({});
+		}
+		else {
+			response.status(401).send('NOT IN MOCK MODE');
+		}
 	}
 }
 

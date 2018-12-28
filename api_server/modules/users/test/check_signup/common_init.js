@@ -76,7 +76,8 @@ class CommonInit {
 
 	// wait a few seconds to make sure the signup token is saved
 	wait (callback) {
-		setTimeout(callback, 2000);
+		const time = this.waitTime || (this.mockMode ? 200 : 2000);
+		setTimeout(callback, time);
 	}
 
 }

@@ -260,7 +260,7 @@ class MultipleCommonInit {
 				!this.userWillEditByStreamId.includes(index) &&
 				!this.userWillEditByFile.includes(index)
 			) {
-				Assert(responseStream, `stream ${stream.id} not found in response`);
+				Assert(responseStream, `stream ${stream.id} not found in response, but user has been editing`);
 				Assert(responseStream.$set.modifiedAt > this.editedAfter, `modifiedAt for ${stream.id} not properly set`);
 				Assert.equal(responseStream.$unset[`editingUsers.${this.currentUser.user.id}`], true, `editingUsers for ${stream.id} not unset`);
 			}
@@ -272,7 +272,7 @@ class MultipleCommonInit {
 			this.userWillEditByStreamId.includes(index) ||
 			this.userWillEditByFile.includes(index)
 		) {
-			Assert(responseStream, `stream ${stream.id} not found in response`);
+			Assert(responseStream, `stream ${stream.id} not found in response, but user will edit`);
 			Assert(responseStream.$set.modifiedAt > this.editedAfter, `modifiedAt for ${stream.id} not properly set`);
 			const set = responseStream.$set[`editingUsers.${this.currentUser.user.id}`];
 			Assert.equal(set.commitHash, this.data.editing.commitHash, `editingUsers for ${stream.id} has incorrect commitHash`);

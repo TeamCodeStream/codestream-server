@@ -4,6 +4,7 @@ var Assert = require('assert');
 var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var PubNub = require('pubnub');
+var MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
 var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
 var RandomString = require('randomstring');
@@ -20,6 +21,9 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	// before the test, set up pubnub clients and start listening
 	before (callback) {
+		if (this.mockMode && this.wantServer) {
+			return callback();
+		}
 		this.pubnubClientsForUser = {};
 		BoundAsync.series(this, [
 			super.before,
@@ -32,17 +36,24 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	// after the test runs, unsubscribe from all channels
 	after (callback) {
-		Object.keys(this.pubnubClientsForUser).forEach(userId => {
+		Object.keys(this.pubnubClientsForUser || []).forEach(userId => {
 			this.pubnubClientsForUser[userId].unsubscribeAll();
+			if (this.mockMode) {
+				this.pubnubClientsForUser[userId].pubnub.stop();
+			}
 		});
 		if (this.pubnubForServer) {
 			this.pubnubForServer.unsubscribeAll();
 		}
-		callback();
+		super.after(callback);
 	}
 
 	// during the test, we send a message and wait for it to arrive
 	run (callback) {
+		if (this.mockMode && this.wantServer) {
+			console.warn('NOTE - THIS TEST CAN NOT SIMULATE A SERVER IN MOCK MODE, PASSING SUPERFICIALLY');
+			return callback();
+		}
 		BoundAsync.series(this, [
 			this.listenOnClient,	// start listening first
 			this.waitForSubscribe,	// after listening, wait a bit till we generate the message
@@ -69,7 +80,13 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		// all we have to do here is provide the full config, which includes the secretKey
 		let config = Object.assign({}, PubNubConfig);
 		config.uuid = `API-${OS.hostname()}-${this.testNum}`;
-		let client = new PubNub(config);
+		if (this.mockMode) {
+			config.isServer = true;
+		}
+		let client = this.mockMode ? new MockPubnub(config) : new PubNub(config);
+		if (this.mockMode) {
+			client.init();
+		}
 		this.pubnubForServer = new PubNubClient({
 			pubnub: client
 		});
@@ -83,7 +100,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		delete clientConfig.publishKey;
 		clientConfig.uuid = user._pubnubUuid || user.id;
 		clientConfig.authKey = token;
-		let client = new PubNub(clientConfig);
+		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		this.pubnubClientsForUser[user.id] = new PubNubClient({
 			pubnub: client
 		});
@@ -101,7 +118,8 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	// wait for permissions to be set through pubnub PAM
 	wait (callback) {
-		setTimeout(callback, 5000);
+		const time = this.mockMode ? 100 : 5000;
+		setTimeout(callback, time);
 	}
 
 	// begin listening on the simulated client

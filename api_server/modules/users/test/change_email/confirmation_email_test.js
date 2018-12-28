@@ -24,7 +24,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		this.data = {
 			email: this.userFactory.randomEmail()
 		};
-		this.data._delayEmail = 5000;	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
+		this.data._delayEmail = this.mockMode ? 200 : 5000;	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
 		callback();
 	}
 

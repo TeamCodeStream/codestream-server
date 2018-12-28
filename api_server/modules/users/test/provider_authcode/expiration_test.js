@@ -33,7 +33,7 @@ class ExpirationTest extends ProviderAuthCodeTest {
 				}
 				catch (error) {
 					Assert.equal(error.name, 'TokenExpiredError', 'did not receive expiration error');
-					callback();
+					return callback();
 				}
 				Assert.fail('payload not expired');
 			}, this.expiresIn + 1000);

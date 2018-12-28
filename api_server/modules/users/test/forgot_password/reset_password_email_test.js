@@ -22,7 +22,7 @@ class ResetPasswordEmailTest extends CodeStreamMessageTest {
 	makeRequestData () {
 		return {
 			email: this.currentUser.user.email,
-			_delayEmail: 10000 // delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
+			_delayEmail: this.mockMode ? 200 : 10000 // delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
 		};
 	}
 

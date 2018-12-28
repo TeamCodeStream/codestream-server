@@ -59,7 +59,7 @@ class TrackTokenDeprecatedTest extends CodeStreamMessageTest {
 
 	// wait a few seconds, since the expiration is only valid to a second
 	wait (callback) {
-		setTimeout(callback,  2000);
+		setTimeout(callback, 2000);
 	}
 
 	// generate a subsequent token to the one we already generated, this 

@@ -46,5 +46,10 @@ module.exports = {
 
 	// callback environment, slightly different than environment, allows for callbacks through
 	// VPN to developers' local servers
-	callbackEnvironment: process.env.CS_API_CALLBACK_ENV || 'prod'
+	callbackEnvironment: process.env.CS_API_CALLBACK_ENV || 'prod',
+
+	// runs in "mock mode" ... meaning nothing is saved to a database (it's all stored in memory),
+	// and PubNub is replaced by IPC, for testing purposes when tests are run on the same
+	// machine as the API server
+	mockMode: process.env.CS_API_MOCK_MODE || false
 };

@@ -36,7 +36,8 @@ class ArchiveClearUnreadsTest extends PutStreamTest {
 
 	// wait a few seconds since clearing lastReads happens after the response
 	wait (callback) {
-		setTimeout(callback, 5000);
+		const time = this.mockMode ? 300 : 5000;
+		setTimeout(callback, time);
 	}
 
 	// fetch the current user, and validate that the lastReads

@@ -5,6 +5,11 @@ const Assert = require('assert');
 
 class NoEmailToUnknownEmailTest extends ResetPasswordEmailTest {
 
+	constructor (options) {
+		super(options);
+		this.messageReceiveTimeout = this.mockMode ? 3000 : 10000;
+	}
+	
 	get description () {
 		return 'should not send a reset password email when handling a reset password request for an unknown email';
 	}

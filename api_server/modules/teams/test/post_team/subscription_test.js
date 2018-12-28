@@ -1,8 +1,9 @@
 'use strict';
 
 const PubNub = require('pubnub');
+const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
 const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
-const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
+const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const Assert = require('assert');
 
@@ -18,12 +19,17 @@ class SubscriptionTest extends CodeStreamAPITest {
 		return 'user should be able to subscribe to the team channel when they create a new team';
 	}
 
+	after (callback) {
+		this.pubnubClient.unsubscribeAll();
+		super.after(callback);
+	}
+
 	// run the test
 	run (callback) {
 		// create a pubnub client and attempt to subscribe to the team channel
-		const pubNubClient = this.createPubNubClient();
+		this.pubnubClient = this.createPubNubClient();
 		const channel = `team-${this.team.id}`;
-		pubNubClient.subscribe(
+		this.pubnubClient.subscribe(
 			channel,
 			() => {},
 			error => {
@@ -41,7 +47,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.currentUser.user._pubnubUuid || this.currentUser.user.id;
 		clientConfig.authKey = this.currentUser.pubnubToken;
-		const client = new PubNub(clientConfig);
+		const client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		return new PubNubClient({
 			pubnub: client
 		});

@@ -15,7 +15,7 @@ class PaginationTest extends GetStreamsTest {
 		this.dontDoForeign = true;
 		this.dontDoFileStreams = true;
 		this.dontDoDirectStreams = true;
-		this.streamCreateThrottle = 100;	// slow things down, pubnub gets overwhelmed
+		this.streamCreateThrottle = this.mockMode ? 0 : 100;	// slow things down, pubnub gets overwhelmed
 	}
 
 	get description () {
@@ -105,6 +105,9 @@ class PaginationTest extends GetStreamsTest {
 		Assert(response.streams instanceof Array, `response.streams for ${pageNum} fetch is not an array`);
 		if (pageNum + 1 < this.numPages) {	// more flag should be set except for the last page
 			Assert(response.more === true, `more expected for page ${pageNum}`);
+		}
+		else {
+			Assert(!response.more, 'more flag set for last page');
 		}
 		const begin = pageNum * this.streamsPerPage;
 		const end = begin + this.streamsPerPage;

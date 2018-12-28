@@ -76,6 +76,7 @@ class PostUserRequest extends PostRequest {
 			userData._pubnubUuid = this.request.body._pubnubUuid;
 		}
 		this.transforms.createdUser = await userCreator.createUser(userData);
+		this.wasOnTeam = this.transforms.createdUser.hasTeam(this.team.id);
 	}
 
 	// add the passed user to the team indicated, this will create the user as needed
@@ -146,6 +147,9 @@ class PostUserRequest extends PostRequest {
 
 		// queue invite email for send by outbound email service
 		const user = this.transforms.createdUser;
+		if (user.get('isRegistered') && this.wasOnTeam) {
+			return;
+		}
 		const email = user.get('email');
 		const numInvites = user.get('numInvites') || 0;
 		const campaign = numInvites > 0 ? 'reinvite_email' : 'invitation_email';

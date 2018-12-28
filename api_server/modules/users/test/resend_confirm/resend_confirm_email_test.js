@@ -64,7 +64,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 				path: '/no-auth/resend-confirm',
 				data: {
 					email: this.data.email,
-					_delayEmail: 10000 // delay the email so we have time to subscribe
+					_delayEmail: this.mockMode ? 500 : 10000 // delay the email so we have time to subscribe
 				},
 				testEmails: true	// this should get us email data back in the pubnub me-channel
 			},

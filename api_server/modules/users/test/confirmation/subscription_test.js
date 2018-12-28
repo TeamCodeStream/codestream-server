@@ -3,7 +3,8 @@
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const PubNub = require('pubnub');
 const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
-const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
+const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
+const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const Assert = require('assert');
 const ConfirmationTest = require('./confirmation_test');
@@ -28,6 +29,11 @@ class SubscriptionTest extends CodeStreamAPITest {
 			ConfirmationTest.prototype.before.bind(this),
 			this.confirm
 		], callback);
+	}
+
+	after (callback) {
+		this.pubnubClient.unsubscribeAll();
+		super.after(callback);
 	}
 
 	getUserData () {
@@ -61,9 +67,9 @@ class SubscriptionTest extends CodeStreamAPITest {
 	// run the actual test...
 	run (callback) {
 		// create a pubnub client and attempt to subscribe to the channel of interest
-		let pubNubClient = this.createPubNubClient();
+		this.pubnubClient = this.createPubNubClient();
 		let channel = `${this.which}-${this[this.which].id}`;
-		pubNubClient.subscribe(
+		this.pubnubClient.subscribe(
 			channel,
 			() => {},
 			error => {
@@ -81,7 +87,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.user._pubnubUuid || this.user.id;
 		clientConfig.authKey = this.pubnubToken;	// the PubNub token is the auth key for the subscription
-		let client = new PubNub(clientConfig);
+		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		return new PubNubClient({
 			pubnub: client
 		});

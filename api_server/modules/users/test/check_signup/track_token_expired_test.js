@@ -7,6 +7,7 @@ class TrackTokenExpiredTest extends TrackingTest {
 	constructor (options) {
 		super(options);
 		this.expiresIn = 1000;
+		this.waitTime = 2000;
 		this.expectedError = 'Token Expired';
 	}
 

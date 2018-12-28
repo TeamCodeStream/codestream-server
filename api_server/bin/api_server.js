@@ -88,7 +88,6 @@ const MyAPICluster = new ClusterWrapper(
 		aws: AWSConfig,
 		webclient: WebClientConfig,
 		limits: Limits,
-		allowConfigOverride: true,
 		dataCollections: DataCollections,
 		logger: Logger
 	},

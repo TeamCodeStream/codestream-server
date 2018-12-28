@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint no-console: 0 */
+
 const CodeStreamMessageTest = require('./codestream_message_test');
 
 class PresenceJoinTest extends CodeStreamMessageTest {
@@ -11,6 +13,13 @@ class PresenceJoinTest extends CodeStreamMessageTest {
 
 	get description () {
 		return 'members of the team should get a "join" presence message when another user subscribes to the team channel';
+	}
+
+	run (callback) {
+		if (this.mockMode) {
+			console.warn('NOTE - THIS TEST CAN NOT BE RUN IN MOCK MODE, PASSING SUPERFICIALLY');
+			return callback();
+		}
 	}
 
 	// set the channel name to listen on

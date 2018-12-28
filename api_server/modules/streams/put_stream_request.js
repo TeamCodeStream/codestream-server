@@ -140,14 +140,14 @@ class PutStreamRequest extends PutRequest {
 		else {
 			memberIds = stream.get('memberIds') || [];
 		}
-		this.clearUnreadsForUsers(memberIds);
+		await this.clearUnreadsForUsers(memberIds);
 	}
 
 	// clear the unreads for the given users, and publish a message to each users on their channel
 	async clearUnreadsForUsers (userIds) {
 		// update the lastReads for all users, or as given by the query
 		await Promise.all(userIds.map(async userId => {
-			this.clearUnreadsForUser(userId);
+			await this.clearUnreadsForUser(userId);
 		}));
 	}
 
@@ -169,7 +169,7 @@ class PutStreamRequest extends PutRequest {
 			id: userId
 		}).save(op);
 		await this.data.users.persist();
-
+		
 		const message = {
 			user: updateOp,
 			requestId: this.request.id

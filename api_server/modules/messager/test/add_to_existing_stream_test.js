@@ -20,6 +20,9 @@ class AddToExistingStreamTest extends CodeStreamMessageTest {
 	}
 
 	before (callback) {
+		if (this.mockMode && this.wantServer) {
+			return callback();
+		}
 		BoundAsync.series(this, [
 			super.before,
 			this.addUserToStream,

@@ -13,6 +13,11 @@ const ROUTES = [
 		method: 'get',
 		path: '/no-auth/version',
 		requestClass: require('./version_request')
+	},
+	{
+		method: 'put',
+		path: '/no-auth/--put-mock-version',
+		func: 'handleMockVersion'
 	}
 ];
 
@@ -87,6 +92,16 @@ class Versioner extends APIServerModule {
 		}
 		if (versionCompatibility.supportedAgent) {
 			response.set('X-CS-Supported-Agent', versionCompatibility.supportedAgent);
+		}
+	}
+
+	handleMockVersion (request, response) {
+		if (this.api.config.api.mockMode) {
+			this.api.data.versionMatrix.create(request.body);
+			response.send({});
+		}
+		else {
+			response.status(401).send('NOT IN MOCK MODE');
 		}
 	}
 

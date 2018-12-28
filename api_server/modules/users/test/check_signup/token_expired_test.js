@@ -7,6 +7,7 @@ class TokenExpiredTest extends CheckSignupTest {
 	constructor (options) {
 		super(options);
 		this.expiresIn = 1000;
+		this.waitTime = 2000;
 	}
 
 	get description () {

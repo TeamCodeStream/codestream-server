@@ -5,6 +5,7 @@
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
 const PubNub = require('pubnub');
 const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
+const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
 const OS = require('os');
 
 class Messager extends APIServerModule {
@@ -20,7 +21,14 @@ class Messager extends APIServerModule {
 			this.api.log('Connecting to PubNub...');
 			let config = Object.assign({}, this.api.config.pubnub);
 			config.uuid = 'API-' + OS.hostname();
-			this.pubnub = new PubNub(config);
+			if (this.api.config.api.mockMode) {
+				this.api.log('Note - Pubnub service was started in mock mode');
+				this.pubnub = new MockPubnub(Object.assign({}, config, { isServer: true }));
+				this.pubnub.init();
+			}
+			else {
+				this.pubnub = new PubNub(config);
+			}
 			this.pubnubClient = new PubNubClient({
 				pubnub: this.pubnub
 			});

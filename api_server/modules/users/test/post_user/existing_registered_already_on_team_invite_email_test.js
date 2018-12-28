@@ -25,7 +25,7 @@ class ExistingRegisteredAlreadyOnTeamInviteEmailTest extends InviteEmailTest {
 	messageReceived (error, message) {
 		if (error) { return this.messageCallback(error); }
 		message = message.message;
-		if (!message.from && !message.to) { return false; }	// ignore anything not matching
+		if (!message.type) { return false; }	// ignore anything not matching
 		Assert.fail('message was received');
 	}
 
