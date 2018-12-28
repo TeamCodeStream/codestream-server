@@ -154,7 +154,7 @@ class MockPubnub {
 		}
 	}
 
-	_handleClientMessage (message) {
+	_handleClientMessage (/*message*/) {
 	}
 
 	_handleClientSubscribe (message, socket) {
@@ -219,12 +219,12 @@ class MockPubnub {
 	}
 
 	_parse (json) {
-		let data;
+		let data = {};
 		try {
 			data = JSON.parse(json);
 		}
 		catch (error) {
-			console.error('Unable to parse data: ' + error);
+			return data;
 		}
 		return data;
 	}

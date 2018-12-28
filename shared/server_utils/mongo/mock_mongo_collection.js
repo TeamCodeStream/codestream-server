@@ -116,7 +116,6 @@ class MockMongoCollection {
 	}
 
 	updateDocument (document, update) {
-try {
 		this._sanitizeUpdate(update);
 		Object.keys(update).forEach(attribute => {
 			if (attribute.startsWith('$')) {
@@ -129,11 +128,6 @@ try {
 				document[attribute] = update[attribute];
 			}
 		});
-}
-catch (e) {
-	console.warn('E', e);
-	throw e;
-}
 	}
 
 	_sanitizeUpdate (update) {
@@ -374,7 +368,7 @@ catch (e) {
 					throw `unknown directive ${directive}`;
 				}
 			}
-		})
+		});
 	}
 
 	_applySet (document, attribute, value) {
@@ -421,7 +415,7 @@ catch (e) {
 			typeof value === 'object' &&
 			value.$each instanceof Array
 		) {
-			value = value.$each
+			value = value.$each;
 		}
 		else {
 			value = [value];
