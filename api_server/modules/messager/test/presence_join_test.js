@@ -20,6 +20,9 @@ class PresenceJoinTest extends CodeStreamMessageTest {
 			console.warn('NOTE - THIS TEST CAN NOT BE RUN IN MOCK MODE, PASSING SUPERFICIALLY');
 			return callback();
 		}
+		else {
+			super.run(callback);
+		}
 	}
 
 	// set the channel name to listen on
