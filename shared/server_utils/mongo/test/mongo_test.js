@@ -23,6 +23,9 @@ class MongoTest extends GenericTest {
 		const mongoConfig = Object.assign({}, MongoConfig, { collections: ['test'] });
 		delete mongoConfig.queryLogging;
 		delete mongoConfig.hintsRequired;
+		if (this.mockMode) {
+			mongoConfig.mockMode = true;
+		}
 
 		try {
 			this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);

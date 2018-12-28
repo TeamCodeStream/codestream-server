@@ -29,7 +29,7 @@ class PresenceTest extends BasePubNubTest {
 
 	// wait for the join message for the first client to pass
 	waitForJoin (callback) {
-		setTimeout(callback, 5000);
+		setTimeout(callback, 3000);
 	}
 
 	// subscribe to our random channel on the second client

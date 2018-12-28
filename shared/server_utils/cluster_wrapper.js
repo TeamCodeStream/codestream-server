@@ -11,7 +11,6 @@ const AwaitUtils = require('./await_utils');
 
 Program
 	.option('--one_worker [one_worker]', 'Use only one worker')	// force to use only worker, sometimes desirable for clarity when reading output
-	.option('--overrideConfig [config.key=value]', 'Override configuration value') // override an internal configuration value
 	.parse(process.argv);
 
 class ClusterWrapper {
@@ -21,9 +20,6 @@ class ClusterWrapper {
 		this.options = options;
 		this.logger = logger || console;
 		this.workers = {};
-		if (this.config.allowConfigOverride) {
-			this.handleConfigOverrides();
-		}
 		if (!serverClass) {
 			throw new Error('serverClass must be provided in ClusterWrapper constructor');
 		}
@@ -48,7 +44,7 @@ class ClusterWrapper {
 	}
 
 	processArguments () {
-		if (Program.one_worker || this.options.oneWorker) {
+		if (Program.one_worker || this.options.oneWorker || process.env.CS_API_MOCK_MODE) {
 			this.oneWorker = true;
 		}
 	}
@@ -178,29 +174,6 @@ class ClusterWrapper {
 				process.exit(3);	// 3 means to signal the master that we are not to be re-spawned
 			}
 		});
-	}
-
-	handleConfigOverrides () {
-		// handle any explicit overrides of configuration values, provided on the command line
-		if (Program.overrideConfig) {
-			this.handleConfigOverride(Program.overrideConfig);
-		}
-		/*
-		_.each(
-			Program.overrideConfig,
-			this.handleConfigOverride
-		);
-		*/
-	}
-
-	handleConfigOverride (override) {
-		let match = override.match(/^(.*)\.(.*)=(.*)$/);
-		if (!match || match.length < 4) {
-			this.logger.warn(`Ignoring configuration override (${override}), format is config.key=value`);
-			return;
-		}
-		this.logger.log(`Setting config value ${match[1]}.${match[2]} to ${match[3]}`);
-		this.config[match[1]][match[2]] = match[3];
 	}
 }
 

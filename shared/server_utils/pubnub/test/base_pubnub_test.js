@@ -30,9 +30,11 @@ class BasePubNubTest extends GenericTest {
 	after (callback) {
 		this.pubnubForClients.forEach(pubnub => {
 			pubnub.unsubscribeAll();
+			pubnub.pubnub.stop();
 		});
-		this.pubnubForServer.unsubscribe();
-		callback();
+		this.pubnubForServer.unsubscribeAll();
+		this.pubnubForServer.pubnub.stop();
+		super.after(callback);
 	}
 
 	// establish the PubNub clients we will use
@@ -114,7 +116,9 @@ class BasePubNubTest extends GenericTest {
 			};
 			return;
 		}
-		if (error) { return this.messageCallback(error); }
+		if (error) { 
+			return this.messageCallback(error); 
+		}
 		if (this.validateMessage(message)) {
 			this.messageCallback();
 		}

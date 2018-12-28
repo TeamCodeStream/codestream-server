@@ -7,6 +7,7 @@
 
 const MongoDbClient = require('mongodb').MongoClient;
 const MongoCollection = require('./mongo_collection');
+const MockMongoCollection = require('./mock_mongo_collection');
 const SimpleFileLogger = require('..//simple_file_logger');
 
 class MongoClient {
@@ -52,6 +53,12 @@ class MongoClient {
 		if (!this.config) {
 			throw 'mongo configuration required';
 		}
+		if (this.config.mockMode) {
+			if (this.config.logger) {
+				this.config.logger.log('Note - mongo client has been opened in mock mode');
+			}
+			return;
+		}
 		if (!this.config.url) {
 			const host = this.config.host || '127.0.0.1';
 			const port = this.config.port || 27017;
@@ -88,7 +95,12 @@ class MongoClient {
 	// create a single MongoCollection object as a bridge to the mongo driver's Collection object
 	async makeCollection (collection) {
 		if (typeof collection !== 'string') { return; }
-		this.dbCollections[collection] = this.db.collection(collection);
+		if (this.config.mockMode) {
+			this.dbCollections[collection] = new MockMongoCollection({ collectionName: collection });
+		}
+		else {
+			this.dbCollections[collection] = this.db.collection(collection);
+		}
 		this.mongoCollections[collection] = new MongoCollection({
 			dbCollection: this.dbCollections[collection],
 			queryLogger: this.config.queryLogger,
@@ -96,6 +108,14 @@ class MongoClient {
 			reallySlowLogger: this.config.reallySlowLogger,
 			hintsRequired: this.config.hintsRequired
 		});
+	}
+
+	clearMockCache () {
+		if (this.config.mockMode) {
+			for (let dbCollection in this.dbCollections) {
+				this.dbCollections[dbCollection].clearCache();
+			}
+		}
 	}
 }
 

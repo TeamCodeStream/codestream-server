@@ -41,7 +41,7 @@ class UnsubscribeTest extends PubNubTest {
 	// listen for a while to make sure we don't receive the message
 	setTimer (callback) {
 		// wait 5 seconds to make sure the message isn't received
-		setTimeout(callback, 5000);
+		setTimeout(callback, 3000);
 	}
 }
 
