@@ -74,7 +74,7 @@ class PutPresenceTest extends CodeStreamAPITest {
 		// validate the session data was updated appropriately
 		const session = data.sessions[this.presenceData.sessionId];
 		Assert(session.status === this.presenceData.status, 'status does not match');
-		Assert(session.updatedAt > this.updatedAfter, 'updatedAt timestamp not properly set');
+		Assert(session.updatedAt >= this.updatedAfter, 'updatedAt timestamp not properly set');
 	}
 }
 

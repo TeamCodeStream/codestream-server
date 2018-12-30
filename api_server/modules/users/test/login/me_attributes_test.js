@@ -1,10 +1,8 @@
 'use strict';
 
 const LoginTest = require('./login_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
 const UserTestConstants = require('../user_test_constants');
-const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class MeAttributesTest extends LoginTest {
 
@@ -29,13 +27,6 @@ class MeAttributesTest extends LoginTest {
 		return response;
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			CodeStreamAPITest.prototype.before.bind(this),
-			super.before
-		], callback);
-	}
-	
 	getUserData () {
 		const data = this.userFactory.getRandomUserData();
 		data.email = this.users[3].user.email;

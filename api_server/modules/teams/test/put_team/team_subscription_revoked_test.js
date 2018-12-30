@@ -6,6 +6,7 @@ const Assert = require('assert');
 const PubNub = require('pubnub');
 const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
 const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
+const IpcConfig = require(process.env.CS_API_TOP + '/config/ipc');
 const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client');
 
 class TeamSubscriptionRevokedTest extends PutTeamTest {
@@ -51,10 +52,15 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.users[1].user._pubnubUuid || this.users[1].user.id;
 		clientConfig.authKey = this.users[1].pubnubToken;
+		if (this.mockMode) {
+			clientConfig.ipc = this.ipc;
+			clientConfig.serverId = IpcConfig.serverId;
+		}
 		const client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		this.pubnubClient = new PubNubClient({
 			pubnub: client
 		});
+		this.pubnubClient.init();
 		this.pubnubClient.subscribe(
 			`team-${this.team.id}`,
 			() => {

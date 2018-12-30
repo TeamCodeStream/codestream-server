@@ -19,10 +19,10 @@ class TrackTokenDeprecatedTest extends CodeStreamMessageTest {
 	}
 
 	// before the test runs...
-	before (callback) {
+	makeData (callback) {
 		BoundAsync.series(this, [
 			this.registerUser,
-			this.wait,
+			this.waitForExpiration,
 			this.generateSubsequentToken
 		], callback);
 	}
@@ -52,13 +52,13 @@ class TrackTokenDeprecatedTest extends CodeStreamMessageTest {
 					user,
 					pubnubToken: user.id
 				};
-				super.before(callback);
+				callback();
 			}
 		);
 	}
 
 	// wait a few seconds, since the expiration is only valid to a second
-	wait (callback) {
+	waitForExpiration (callback) {
 		setTimeout(callback, 2000);
 	}
 

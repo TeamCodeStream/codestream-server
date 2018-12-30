@@ -26,7 +26,7 @@ class GetStreamsGreaterThanEqualTest extends GetStreamsTest {
 		this.expectedStreams.push(this.teamStream);
 		const pivot = this.expectedStreams[2].id;
 		this.expectedStreams = this.expectedStreams.filter(stream => ObjectID(stream.sortId) >= ObjectID(pivot));
-		this.path = `/streams/?teamId=${this.team.id}&gte=${pivot}`;
+		this.path = `/streams?teamId=${this.team.id}&gte=${pivot}`;
 		callback();
 	}
 }

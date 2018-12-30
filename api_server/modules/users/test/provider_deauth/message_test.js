@@ -40,7 +40,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	validateMessage (message) {
-		Assert(message.message.user.$set.modifiedAt > this.requestSentAt, 'modifiedAt not set');
+		Assert(message.message.user.$set.modifiedAt >= this.requestSentAt, 'modifiedAt not set');
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
 		return super.validateMessage(message);
 	}

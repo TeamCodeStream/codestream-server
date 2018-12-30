@@ -15,7 +15,7 @@ class GetPostsAfterTest extends GetPostsTest {
 		this.expectedPosts = this.postData.map(postData => postData.post);
 		const pivot = this.expectedPosts[2].seqNum;
 		this.expectedPosts = this.expectedPosts.filter(post => post.seqNum > pivot);
-		this.path = `/posts/?teamId=${this.team.id}&streamId=${this.stream.id}&after=${pivot}`;
+		this.path = `/posts?teamId=${this.team.id}&streamId=${this.stream.id}&after=${pivot}`;
 		callback();
 	}
 }

@@ -2,12 +2,20 @@
 
 'use strict';
 
-var GenericTest = require('./generic_test');
-var HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
-var ExpressConfig = require(process.env.CS_API_TOP + '/config/express');
-var Assert = require('assert');
+const GenericTest = require('./generic_test');
+const HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
+const ExpressConfig = require(process.env.CS_API_TOP + '/config/express');
+const Assert = require('assert');
+const IpcConfig = require(process.env.CS_API_TOP + '/config/ipc');
+const IPC = require('node-ipc');
+const UUID = require('uuid/v4');
 
 class APIRequestTest extends GenericTest {
+
+	constructor (options) {
+		super(options);
+		this.ipcRequestInfo = {};
+	}
 
 	get method () {
 		return this._method || 'get';
@@ -25,6 +33,26 @@ class APIRequestTest extends GenericTest {
 		this._path = path;
 	}
 
+	before (callback) {
+		if (this.mockMode) {
+			this.connectToIpc(callback);
+		}
+		else {
+			callback();
+		}
+	}
+
+	// connect to IPC in mock mode
+	connectToIpc (callback) {
+		IPC.config.id = IpcConfig.clientId;
+		IPC.config.silent = true;
+		IPC.connectTo(IpcConfig.serverId, () => {
+			IPC.of[IpcConfig.serverId].on('response', this.handleIpcResponse.bind(this));
+		});
+		this.ipc = IPC;
+		callback();
+	}
+
 	// the guts of making an API server request
 	doApiRequest (options = {}, callback = null) {
 		let requestOptions = Object.assign({}, options.requestOptions || {});
@@ -34,14 +62,74 @@ class APIRequestTest extends GenericTest {
 		const method = options.method || 'get';
 		const path = options.path || '/';
 		const data = options.data || null;
-		HTTPSBot[method](
-			ExpressConfig.host,
-			ExpressConfig.port,
-			path,
-			data,
-			requestOptions,
-			callback
-		);
+		if (this.mockMode) {
+			this.sendIpcRequest({
+				method,
+				path,
+				data,
+				headers: requestOptions.headers
+			}, callback, requestOptions);
+
+		}
+		else {
+			HTTPSBot[method](
+				ExpressConfig.host,
+				ExpressConfig.port,
+				path,
+				data,
+				requestOptions,
+				callback
+			);
+		}
+	}
+
+	// send an API server request over IPC, for mock mode
+	sendIpcRequest (options, callback, requestOptions = {}) {
+		const clientRequestId = UUID();
+		const message = {
+			method: options.method,
+			path: options.path,
+			headers: options.headers,
+			clientRequestId
+		};
+		if (options.method === 'get') {
+			message.query = options.data;
+		}
+		else {
+			message.body = options.data;
+		}
+		this.ipcRequestInfo[clientRequestId] = {
+			callback,
+			options: requestOptions
+		};
+		this.ipc.of[IpcConfig.serverId].emit('request', message);
+	}
+
+	// handle a request response over IPC, for mock mode
+	handleIpcResponse (response) {
+		const info = this.ipcRequestInfo[response.clientRequestId];
+		if (!info) { return; }
+		const { options, callback } = info;
+		delete this.ipcRequestInfo[response.clientRequestId];
+		response.headers = Object.keys(response.headers || {}).reduce((headers, headerKey) => {
+			headers[headerKey.toLowerCase()] = response.headers[headerKey];
+			return headers;
+		}, {});
+		if (response.statusCode < 200 || response.statusCode >= 300) {
+			if (
+				options.expectRedirect &&
+				response.statusCode >= 300 &&
+				response.statusCode < 400
+			) {
+				return callback(null, response.headers.location);
+			}
+			else {
+				return callback(`error response, status code was ${response.statusCode}`, response.data, response);
+			}
+		}
+		else {
+			return callback(null, response.data, response);
+		}
 	}
 
 	// make header options to go out with the API request

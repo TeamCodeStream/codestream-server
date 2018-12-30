@@ -20,8 +20,8 @@ class NoIssuanceTest extends ConfirmationWithLinkTest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
-			this.createOtherUser,
 			super.before,
+			this.createOtherUser,
 			this.changeToken
 		], callback);
 	}

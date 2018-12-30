@@ -5,6 +5,7 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 const UserTestConstants = require('../user_test_constants');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 const UserAttributes = require('../../user_attributes');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class ConfirmationTest extends CodeStreamAPITest {
 
@@ -26,6 +27,13 @@ class ConfirmationTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
+		BoundAsync.series(this, [
+			super.before,
+			this.registerUser
+		], callback);
+	}
+
+	registerUser (callback) {
 		const data = this.getUserData();
 		Object.assign(data, {
 			_confirmationCheat: SecretsConfig.confirmationCheat, // gives us the confirmation code in the response

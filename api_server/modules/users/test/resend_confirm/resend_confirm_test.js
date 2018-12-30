@@ -2,6 +2,7 @@
 
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class ResendConfirmTest extends CodeStreamAPITest {
 
@@ -19,6 +20,13 @@ class ResendConfirmTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
+		BoundAsync.series(this, [
+			super.before,
+			this.registerUser
+		], callback);
+	}
+
+	registerUser (callback) {
 		const options = {
 			wantLink: true
 		};

@@ -2,8 +2,6 @@
 
 const ConfirmationTest = require('./confirmation_test');
 const Assert = require('assert');
-const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const UserTestConstants = require('../user_test_constants');
 
 class MeAttributesTest extends ConfirmationTest {
@@ -29,13 +27,6 @@ class MeAttributesTest extends ConfirmationTest {
 		return response;
 	}
 
-	before (callback) {
-		BoundAsync.series(this, [
-			CodeStreamAPITest.prototype.before.bind(this),
-			super.before
-		], callback);
-	}
-	
 	getUserData () {
 		const data = this.userFactory.getRandomUserData();
 		data.email = this.users[3].user.email;

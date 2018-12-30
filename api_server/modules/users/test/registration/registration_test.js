@@ -25,13 +25,16 @@ class RegistrationTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
-		// establish random user data for the registration, we cheat and fetch the
-		// confirmation code in the test so we don't have to get it from an email
-		this.data = this.userFactory.getRandomUserData();
-		this.data.signupToken = require('uuid/v4');	// more accurately simulates signup from the web
-		this.data._confirmationCheat = SecretsConfig.confirmationCheat;
-		this.expectedVersion = 1;
-		callback();
+		super.before(error => {
+			if (error) { return callback(error); }
+			// establish random user data for the registration, we cheat and fetch the
+			// confirmation code in the test so we don't have to get it from an email
+			this.data = this.userFactory.getRandomUserData();
+			this.data.signupToken = require('uuid/v4');	// more accurately simulates signup from the web
+			this.data._confirmationCheat = SecretsConfig.confirmationCheat;
+			this.expectedVersion = 1;
+			callback();
+		});
 	}
 
 	/* eslint complexity: 0 */

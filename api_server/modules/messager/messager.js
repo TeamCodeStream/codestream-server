@@ -21,19 +21,35 @@ class Messager extends APIServerModule {
 			this.api.log('Connecting to PubNub...');
 			let config = Object.assign({}, this.api.config.pubnub);
 			config.uuid = 'API-' + OS.hostname();
-			if (this.api.config.api.mockMode) {
-				this.api.log('Note - Pubnub service was started in mock mode');
-				this.pubnub = new MockPubnub(Object.assign({}, config, { isServer: true }));
-				this.pubnub.init();
-			}
-			else {
-				this.pubnub = new PubNub(config);
-			}
+			this.pubnub = this.api.config.api.mockMode ? new MockPubnub(config) : new PubNub(config);
 			this.pubnubClient = new PubNubClient({
 				pubnub: this.pubnub
 			});
+			if (!this.api.config.api.mockMode) {
+				this.pubnubClient.init();
+			}
 			return { messager: this.pubnubClient };
 		};
+	}
+
+	async initialize () {
+		if (this.api.config.api.mockMode) {
+			this.connectToMockPubnub();
+		}
+	}
+
+	connectToMockPubnub () {
+		if (!this.api.services.ipc) {
+			this.api.warn('No IPC service is available in mock mode');
+			return;
+		}
+		this.api.log('Note - Pubnub service was started in mock mode');
+		this.pubnub.init({
+			isServer: true, 
+			ipc: this.api.services.ipc,
+			serverId: this.api.config.ipc.serverId
+		});
+		this.pubnubClient.init();
 	}
 }
 

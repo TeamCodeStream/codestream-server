@@ -52,6 +52,7 @@ class VersionRequestTest extends CodeStreamAPITest {
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
+			super.before,
 			this.connectToMongo,
 			this.createVersionInfo
 		], callback);

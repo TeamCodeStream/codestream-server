@@ -3,6 +3,7 @@
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
 const Assert = require('assert');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class TrackTokenExpiredTest extends CodeStreamMessageTest {
 
@@ -16,8 +17,14 @@ class TrackTokenExpiredTest extends CodeStreamMessageTest {
 		return 'should send a Email Confirmation Failed event for tracking purposes when a user clicks on an expired confirmation link';
 	}
 
-	// before the test runs...
-	before (callback) {
+	makeData (callback) {
+		BoundAsync.series(this, [
+			this.registerUser,
+			this.waitForExpiration
+		], callback);
+	}
+
+	registerUser (callback) {
 		const data = this.userFactory.getRandomUserData();
 		Object.assign(data, {
 			_confirmationCheat: SecretsConfig.confirmationCheat, // gives us the confirmation code in the response
@@ -43,13 +50,13 @@ class TrackTokenExpiredTest extends CodeStreamMessageTest {
 					user,
 					pubnubToken: user.id
 				};
-				super.before(callback);
+				callback();
 			}
 		);
 	}
 
-	createUsersAndTeam (callback) {
-		callback();
+	waitForExpiration (callback) {
+		setTimeout(callback, 2000);
 	}
 
 	// set the channel name to listen for the email message on

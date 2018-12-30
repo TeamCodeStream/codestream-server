@@ -4,6 +4,7 @@ const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation'
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const CommonInit = require('./common_init');
 const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -13,7 +14,10 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// before the test runs...
 	before (callback) {
-		this.init(callback);
+		BoundAsync.series(this, [
+			CodeStreamAPITest.prototype.before.bind(this),
+			this.init
+		], callback);
 	}
 
 	// validate the response to the test request

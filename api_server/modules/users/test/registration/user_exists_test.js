@@ -1,6 +1,7 @@
 'use strict';
 
 const RegistrationTest = require('./registration_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class UserExistsTest extends RegistrationTest {
 
@@ -10,6 +11,13 @@ class UserExistsTest extends RegistrationTest {
 
 	// before the test runs...
 	before (callback) {
+		BoundAsync.series(this, [
+			super.before,
+			this.createExistingUser
+		], callback);
+	}
+
+	createExistingUser (callback) {
 		// create a random user, unconfirmed, and then borrow that user's email for the registration
 		this.userFactory.createRandomUser(
 			(error, data) => {
@@ -17,7 +25,7 @@ class UserExistsTest extends RegistrationTest {
 				this.data = this.userFactory.getRandomUserData();
 				this.data.email = data.user.email;
 				this.expectedVersion = 2;	// version will be bumped
-				super.before(callback);
+				callback();
 			},
 			{
 				noConfirm: true

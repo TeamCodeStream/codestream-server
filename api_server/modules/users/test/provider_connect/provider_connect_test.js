@@ -30,12 +30,15 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// before the test runs...
 	before (callback) {
-		this.apiRequestOptions = {
-			headers: {
-				'X-CS-Plugin-IDE': 'webclient'
-			}
-		};
-		this.init(callback);
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.apiRequestOptions = {
+				headers: {
+					'X-CS-Plugin-IDE': 'webclient'
+				}
+			};
+			this.init(callback);
+		});
 	}
 
 	/* eslint complexity: 0 */

@@ -1,9 +1,7 @@
 'use strict';
 
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const ConfirmationTest = require('./confirmation_test');
 const Assert = require('assert');
-const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class JoinMethodTest extends ConfirmationTest {
 
@@ -15,13 +13,6 @@ class JoinMethodTest extends ConfirmationTest {
 
 	get description () {
 		return 'the user\'s joinMethod attribute should get updated to Added to Team when a user confirms registration and they are already on a team';
-	}
-
-	before (callback) {
-		BoundAsync.series(this, [
-			CodeStreamAPITest.prototype.before.bind(this),
-			super.before
-		], callback);
 	}
 
 	getUserData () {

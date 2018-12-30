@@ -48,7 +48,7 @@ class AccessLogger extends APIServerModule {
 		this.logger.log(
 			request.id                     + ' '   +
 			status                         + ' '   +
-			request.method                 + ' '   +
+			request.method.toUpperCase()   + ' '   +
 			request.url                    + ' '   +
 			userId                         + ' '   +
 			response.statusCode            + ' '   +

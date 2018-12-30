@@ -14,6 +14,7 @@ const ExpressConfig = require(ConfigDirectory + '/express.js');
 const MongoConfig = require(ConfigDirectory + '/mongo.js');
 const SecretsConfig = require(ConfigDirectory + '/secrets.js');
 const PubNubConfig = require(ConfigDirectory + '/pubnub.js');
+const IpcConfig = require(ConfigDirectory + '/ipc.js');
 const MixPanelConfig = require(ConfigDirectory + '/mixpanel.js');
 const SlackConfig = require(ConfigDirectory + '/slack.js');
 const GithubConfig = require(ConfigDirectory + '/github.js');
@@ -76,6 +77,7 @@ const MyAPICluster = new ClusterWrapper(
 			logger: Logger
 		}),
 		pubnub: PubNubConfig,
+		ipc: IpcConfig,
 		mixpanel: MixPanelConfig,
 		slack: SlackConfig,
 		github: GithubConfig,

@@ -1,14 +1,15 @@
 'use strict';
 
-var Assert = require('assert');
-var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var PubNub = require('pubnub');
-var MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
-var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
-var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
-var RandomString = require('randomstring');
-var OS = require('os');
+const Assert = require('assert');
+const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const PubNub = require('pubnub');
+const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
+const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
+const IpcConfig = require(process.env.CS_API_TOP + '/config/ipc');
+const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
+const RandomString = require('randomstring');
+const OS = require('os');
 
 /* eslint no-console: 0 */
 
@@ -52,6 +53,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	run (callback) {
 		if (this.mockMode && this.wantServer) {
 			console.warn('NOTE - THIS TEST CAN NOT SIMULATE A SERVER IN MOCK MODE, PASSING SUPERFICIALLY');
+			this.testDidNotRun = true;
 			return callback();
 		}
 		BoundAsync.series(this, [
@@ -81,12 +83,9 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		let config = Object.assign({}, PubNubConfig);
 		config.uuid = `API-${OS.hostname()}-${this.testNum}`;
 		if (this.mockMode) {
-			config.isServer = true;
+			throw 'test client can not be a server in mock mode';
 		}
-		let client = this.mockMode ? new MockPubnub(config) : new PubNub(config);
-		if (this.mockMode) {
-			client.init();
-		}
+		let client = new PubNub(config);
 		this.pubnubForServer = new PubNubClient({
 			pubnub: client
 		});
@@ -100,10 +99,17 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		delete clientConfig.publishKey;
 		clientConfig.uuid = user._pubnubUuid || user.id;
 		clientConfig.authKey = token;
+		if (this.mockMode) {
+			clientConfig.ipc = this.ipc;
+			clientConfig.serverId = IpcConfig.serverId;
+		}
 		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		this.pubnubClientsForUser[user.id] = new PubNubClient({
 			pubnub: client
 		});
+		if (this.mockMode) {
+			this.pubnubClientsForUser[user.id].init();
+		}
 	}
 
 	// make whatever data we need to set up our messaging, this should be overridden for specific tests

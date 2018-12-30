@@ -14,7 +14,7 @@ class OneRelationalTest extends GetStreamsTest {
 		// try to fetch with both a "lt" and "gt" operator, which is forbidden 
 		const id1 = ObjectID();
 		const id2 = ObjectID();
-		this.path = `/streams?teamId=${this.team.id}&&lt=${id1}&gt=${id2}`;
+		this.path = `/streams?teamId=${this.team.id}&lt=${id1}&gt=${id2}`;
 		callback();
 	}
 

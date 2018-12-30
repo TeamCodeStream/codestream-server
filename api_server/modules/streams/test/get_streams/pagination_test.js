@@ -65,7 +65,7 @@ class PaginationTest extends GetStreamsTest {
 
 	// fetch a single page of streams and validate the response
 	fetchPage (pageNum, callback) {
-		this.path = `/streams/?teamId=${this.team.id}`;
+		this.path = `/streams?teamId=${this.team.id}`;
 		if (this.tryOverLimit) {
 			// we'll try to fetch more than the server's limit, we should still get back
 			// the maximum number of streams allowed in a page

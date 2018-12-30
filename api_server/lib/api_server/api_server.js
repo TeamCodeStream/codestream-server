@@ -10,6 +10,7 @@ const HTTPS = require('https');
 const HTTP = require('http');
 const FS = require('fs');
 const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const IPCResponse = require('./ipc_response');
 
 class APIServer {
 
@@ -85,6 +86,9 @@ class APIServer {
 	// register all middleware functions
 	registerMiddleware () {
 		this.log('Registering middleware...');
+		if (this.config.api.mockMode) {
+			return this.registerMiddlewareForIpc();
+		}
 		this.express.use(this.setupRequest.bind(this));	// this is always first in the middleware chain
 		const middlewareFunctions = this.modules.getMiddlewareFunctions();
 		middlewareFunctions.forEach(middlewareFunction => {
@@ -142,12 +146,18 @@ class APIServer {
 		if (!(middleware instanceof Array)) {
 			middleware = [middleware];
 		}
+		if (this.config.api.mockMode) {
+			return this.registerRouteForIpc(routeObject, middleware);
+		}
 		const args = [ routeObject.path, ...middleware, routeObject.func];
 		this.express[routeObject.method].apply(this.express, args);
 	}
 
 	// start listening for requests!
 	listen (callback) {
+		if (this.config.api.mockMode) {
+			this.listenToIpc();
+		}
 		const serverOptions = this.getServerOptions();
 		if (typeof serverOptions === 'string') {
 			return callback('failed to make server options: ' + serverOptions);
@@ -172,6 +182,11 @@ class APIServer {
 			this.log(`Listening on port ${this.config.express.port}...`);
 			callback();
 		});
+	}
+
+	// listen on IPC instead, for "mock-mode", testing in local environment
+	listenToIpc () {
+		this.services.ipc.on('request', this.handleIpcRequest.bind(this));
 	}
 
 	// get options for express js to listen for requests
@@ -311,6 +326,120 @@ class APIServer {
 			description.path = routeObject.path;
 			description.route = `${routeObject.method.toUpperCase()} ${routeObject.path}`;
 			this.documentedRoutes.push(description);
+		}
+	}
+
+	// register a route for IPC requests, which simulate HTTP requests for testing purposes
+	registerRouteForIpc (routeObject, middleware) {
+		this.ipcRoutes = this.ipcRoutes || {};
+		this.ipcRoutes[routeObject.path] = this.ipcRoutes[routeObject.path] || {};
+		this.ipcRoutes[routeObject.path][routeObject.method] = {
+			middleware,
+			func: routeObject.func
+		};
+	}
+
+	// register middleware for IPC requests, which simulate HTTP requests for testing purposes
+	registerMiddlewareForIpc () {
+		this.ipcMiddleware = [];
+		this.ipcMiddleware.push(this.setupRequest.bind(this));
+		const middlewareFunctions = this.modules.getMiddlewareFunctions();
+		middlewareFunctions.forEach(middlewareFunction => {
+			this.ipcMiddleware.push(middlewareFunction);
+		});
+	}
+
+	// handle an inbound IPC request, which simulates an HTTP request for testing purposes
+	handleIpcRequest (request, socket) {
+		request.params = {};
+		request.query = request.query || {};
+		request.body = request.body || {};
+		request.headers = Object.keys(request.headers || {}).reduce((headers, headerKey) => {
+			headers[headerKey.toLowerCase()] = request.headers[headerKey];
+			return headers;
+		}, {});
+		request.url = request.path;
+		request.path = request.url.split('?')[0];
+		request.query = (request.url.split('?')[1] || '').split('&').reduce((query, param) => {
+			const keyValue = param.split('=');
+			query[decodeURIComponent(keyValue[0])] = keyValue[1] ? decodeURIComponent(keyValue[1]) : true;
+			return query;
+		}, {});
+		const response = new IPCResponse({
+			ipc: this.services.ipc,
+			socket,
+			clientRequestId: request.clientRequestId
+		});
+		let pathRoute = this.ipcRoutes[request.path];
+		if (!pathRoute) {
+			pathRoute = this.findIpcRoute(request);
+			if (!pathRoute) {
+				return response.sendStatus(404);
+			}
+		}
+		const route = pathRoute[request.method];
+		if (!route) {
+			return response.sendStatus(404);
+		}
+
+		this.ipcMiddleware = this.ipcMiddleware || [];
+		let i = 0;
+		const next = () => {
+			i++;
+			if (i === this.ipcMiddleware.length) {
+				route.func(request, response);
+			}
+			else {
+				this.ipcMiddleware[i](request, response, next);
+			}
+		};
+		this.ipcMiddleware[0](request, response, next);
+	}
+
+	// find a matching route to a path given in an IPC request
+	findIpcRoute (request) {
+		const { path } = request;
+		const routeKey = Object.keys(this.ipcRoutes).find(routeKey => {
+			return this.routeMatchesPath(routeKey, path, request);
+		});
+		if (routeKey) {
+			return this.ipcRoutes[routeKey];
+		}
+	}
+
+	// determine whether the given route matches the given path
+	routeMatchesPath (route, path, request) {
+		const pathParts = path.split('/');
+		const routeParts = route.split('/');
+		if (pathParts.length !== routeParts.length) {
+			return false;
+		}
+		let i = -1;
+		const params = {};
+		const matches = !routeParts.find(routePart => {
+			i++;
+			const pathPart = pathParts[i];
+			return !this.routePartMatchesPathPart(routePart, pathPart, params);
+		});
+		if (matches) {
+			Object.assign(request.params, params);
+		}
+		return matches;
+	}
+
+	// determine whether the given part of a route matches the given part of a path
+	routePartMatchesPathPart (routePart, pathPart, params) {
+		if (routePart.startsWith(':')) {
+			if (pathPart) {
+				params[routePart.slice(1)] = pathPart;
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return routePart === pathPart;
 		}
 	}
 

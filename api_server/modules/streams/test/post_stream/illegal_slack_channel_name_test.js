@@ -32,7 +32,10 @@ class IllegalSlackChannelNameTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
-		this.createSlackTeam(callback);
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.createSlackTeam(callback);
+		});
 	}
 
 	// create a slack-connected team

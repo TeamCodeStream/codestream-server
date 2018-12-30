@@ -6,6 +6,7 @@ const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
 const UserAttributes = require('../../user_attributes');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class LoginTest extends CodeStreamAPITest {
 
@@ -27,6 +28,13 @@ class LoginTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
+		BoundAsync.series(this, [
+			super.before,
+			this.makeUser
+		], callback);
+	}
+
+	makeUser (callback) {
 		// create a random registered user, then prepare to submit the login request
 		// with the user's email and password
 		const func = this.noConfirm ? 'registerUser' : 'createUser';

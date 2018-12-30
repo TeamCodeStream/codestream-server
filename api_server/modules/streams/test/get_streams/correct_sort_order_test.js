@@ -86,7 +86,7 @@ class CorrectSortOrderTest extends GetStreamsTest {
 
 	// set the path to use when issuing the request
 	setPath (callback) {
-		this.path = `/streams/?teamId=${this.team.id}`;
+		this.path = `/streams?teamId=${this.team.id}`;
 		callback();
 	}
 

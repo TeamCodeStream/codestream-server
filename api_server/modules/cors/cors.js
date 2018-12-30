@@ -45,6 +45,9 @@ class CorsModule extends APIServerModule {
 	}
 
 	middlewares () {
+		if (this.api.config.api.mockMode) {
+			return [];
+		}
 		// return a middleware function to handle CORS considerations
 		const corsOptions = {
 			origin: (origin, callback) => {

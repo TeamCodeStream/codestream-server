@@ -26,7 +26,7 @@ class GetStreamsSortTest extends GetStreamsTest {
 		this.expectedStreams.sort((a, b) => {
 			return a.id.localeCompare(b.id);
 		});
-		this.path = `/streams/?teamId=${this.team.id}&sort=asc`;
+		this.path = `/streams?teamId=${this.team.id}&sort=asc`;
 		callback();
 	}
 

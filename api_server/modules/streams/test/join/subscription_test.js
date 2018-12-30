@@ -5,6 +5,7 @@ const PubNub = require('pubnub');
 const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
 const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client');
+const IpcConfig = require(process.env.CS_API_TOP + '/config/ipc');
 const JoinTest = require('./join_test');
 const Assert = require('assert');
 
@@ -43,6 +44,7 @@ class SubscriptionTest extends JoinTest {
 	run (callback) {
 		// create a pubnub client and attempt to subscribe to whichever channel
 		this.pubnubClient = this.createPubNubClient();
+		this.pubnubClient.init();
 		const channel = `stream-${this.stream.id}`;
 		this.pubnubClient.subscribe(
 			channel,
@@ -62,6 +64,10 @@ class SubscriptionTest extends JoinTest {
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser.user.id;
 		clientConfig.authKey = this.currentUser.pubnubToken;
+		if (this.mockMode) {
+			clientConfig.ipc = this.ipc;
+			clientConfig.serverId = IpcConfig.serverId;
+		}
 		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		return new PubNubClient({
 			pubnub: client

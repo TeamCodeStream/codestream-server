@@ -103,15 +103,18 @@ class CodeStreamAPITest extends APIRequestTest {
 
 	before (callback) {
 		BoundAsync.series(this, [
+			super.before,
 			this.createUsersAndTeam,
 			this.createStreamAndPosts
 		], callback);
 	}
 
 	after (callback) {
-		if (this.mockMode) {
+		if (
+			this.mockMode &&
+			!this.testDidNotRun
+		) {
 			this.clearMockCache(callback);
-			//callback();
 		}
 		else {
 			callback();

@@ -9,6 +9,9 @@ class BodyParserModule extends APIServerModule {
 
 	middlewares () {
 		return (request, response, next) => {
+			if (this.api.config.api.mockMode) {
+				return next();
+			}
 			// we only need to obtain the middleware function once
 			this.bodyParserFunc = this.bodyParserFunc || BodyParser.json({
 				reviver: this.jsonBodyReviver
