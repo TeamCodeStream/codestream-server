@@ -11,6 +11,9 @@ class PubNubClient {
 		this.messageListeners = {};		// callbacks for each channel when message is received
 		this.statusCallbacks = {};		// callbacks for each channel indicating subscibe success or failure
 		this.statusTimeouts = {};		// timeouts for attempts to subscribe
+	}
+
+	init () {
 		this.pubnub.addListener({
 			message: this._handleMessage.bind(this),
 			presence: this._handleMessage.bind(this),

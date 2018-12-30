@@ -47,6 +47,7 @@ class BasePubNubTest extends GenericTest {
 		this.pubnubForServer = new PubNubClient({
 			pubnub: client
 		});
+		this.pubnubForServer.init();
 
 		// set up two pubnub clients
 		this.pubnubForClients = new Array(this.numClients);
@@ -61,6 +62,7 @@ class BasePubNubTest extends GenericTest {
 			this.pubnubForClients[i] = new PubNubClient({
 				pubnub: client
 			});
+			this.pubnubForClients[i].init();
 		}
 		callback();
 	}

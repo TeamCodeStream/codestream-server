@@ -11,13 +11,16 @@ class PubNubClient {
 		this.statusTimeouts = {};		// timeouts for attempts to subscribe
 		this.failureCallbacks = {};		// callbacks for each channel when subscription fails after subscribing
 		this.subscribed = {};			// channels have been subscribed to
+	}
+
+	init () {
 		this.pubnub.addListener({
 			message: this._handleMessage.bind(this),
 			presence: this._handleMessage.bind(this),
 			status: this._handleStatus.bind(this)
 		});
 	}
-
+	
 	// publish a message to the specified channel
 	publish (message, channel, callback, options = {}) {
 		if (this._requestSaysToBlockMessages(options)) {

@@ -1,10 +1,5 @@
 'use strict';
 
-const IPC = require('node-ipc');
-
-const MOCK_PUBNUB_CLIENT_ID = 'mock_pubnub_client';
-const MOCK_PUBNUB_SERVER_ID = 'mock_pubnub_server';
-
 class MockPubnub {
 	
 	constructor (options) {
@@ -12,10 +7,10 @@ class MockPubnub {
 		this.history = {};
 		this.listeners = [];
 		this.grants = {};
-		IPC.config.silent = true;
 	}
 
-	init () {
+	init (config) {
+		Object.assign(this, config);
 		if (!this.isServer) {
 			this._initClient();
 		}
@@ -26,20 +21,12 @@ class MockPubnub {
 	}
 
 	_initServer () {
-		IPC.config.id = MOCK_PUBNUB_SERVER_ID;
-		IPC.serve(() => {
-			IPC.server.on('message', this._handleClientMessage.bind(this));
-			IPC.server.on('subscribe', this._handleClientSubscribe.bind(this));
-		});
-		IPC.server.start();
+		this.ipc.on('subscribe', this._handleClientSubscribe.bind(this));
 	}
 
 	_initClient () {
-		IPC.config.id = MOCK_PUBNUB_CLIENT_ID;
-		IPC.connectTo(MOCK_PUBNUB_SERVER_ID, () => {
-			IPC.of[MOCK_PUBNUB_SERVER_ID].on('message', this._handleServerMessage.bind(this));
-			IPC.of[MOCK_PUBNUB_SERVER_ID].on('status', this._handleStatus.bind(this));
-		});
+		this.ipc.of[this.serverId].on('message', this._handleServerMessage.bind(this));
+		this.ipc.of[this.serverId].on('status', this._handleStatus.bind(this));
 	}
 
 	addListener (listener) {
@@ -79,15 +66,14 @@ class MockPubnub {
 		delete this.history[channel];
 		if (Object.keys(this.history).length === 0) {
 			this.stop();
-		}
-		if (this.isServer) {
-			IPC.server.stop();
+			if (this.isServer) {
+				this.ipc.stop();
+			}
 		}
 	}
 
 	stop () {
 		this.listeners = [];
-		IPC.disconnect(MOCK_PUBNUB_SERVER_ID);
 		this.inited = false;
 	}
 
@@ -154,9 +140,6 @@ class MockPubnub {
 		}
 	}
 
-	_handleClientMessage (/*message*/) {
-	}
-
 	_handleClientSubscribe (message, socket) {
 		message = this._parse(message);
 		const { authKey, channels } = message;
@@ -210,11 +193,11 @@ class MockPubnub {
 		data = JSON.stringify(data);
 		if (this.isServer) {
 			if (this.socket) {
-				IPC.server.emit(this.socket, type, data);
+				this.ipc.emit(this.socket, type, data);
 			}
 		}
 		else {
-			IPC.of[MOCK_PUBNUB_SERVER_ID].emit(type, data);
+			this.ipc.of[this.serverId].emit(type, data);
 		}
 	}
 
