@@ -4,7 +4,7 @@ const RegistrationTest = require('./registration_test');
 const RandomString = require('randomstring');
 
 // from username_validator.js
-const ALLOWED_CHARACTERS = '-._();\'[]{},/';
+const SPECIAL_CHARACTERS = '-._();\'[]{},/àéíóūñ६¾管理員';
 
 class SpecialCharactersUsernameTest extends RegistrationTest {
 
@@ -16,7 +16,7 @@ class SpecialCharactersUsernameTest extends RegistrationTest {
 		super.before(error => {
 			// generate random user data, but a username with a bad character
 			if (error) { return callback(error); }
-			this.data.username = RandomString.generate(12) + ALLOWED_CHARACTERS;
+			this.data.username = RandomString.generate(12) + SPECIAL_CHARACTERS;
 			callback();
 		});
 	}

@@ -15,8 +15,8 @@ const ConfirmationEmailWithLinkTest = require('./confirmation_email_with_link_te
 const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
 const PreferencesTest = require('./preferences_test');
 const SpecialCharactersUsernameTest = require('./special_characters_username_test');
-
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
+
 class RegistrationRequestTester {
 
 	registrationTest () {
