@@ -2,7 +2,7 @@
 // in one place ... less fragile
 
 const ALLOWED_UPPER = 'A-Z';
-const ALLOWED_LOWER = 'a-z0-9-._';
+const ALLOWED_LOWER = 'a-z0-9-._\\(\\);\'\\[\\]\\{\\},\\/';
 const ALLOWED_CHARACTERS = `${ALLOWED_UPPER}${ALLOWED_LOWER}`;
 
 module.exports = {
