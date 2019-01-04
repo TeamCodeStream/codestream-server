@@ -89,6 +89,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		this.pubnubForServer = new PubNubClient({
 			pubnub: client
 		});
+		this.pubnubForServer.init();
 	}
 
 	// set up the pubnub client as if we are a client, we can't control access rights in this case
@@ -107,9 +108,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		this.pubnubClientsForUser[user.id] = new PubNubClient({
 			pubnub: client
 		});
-		if (this.mockMode) {
-			this.pubnubClientsForUser[user.id].init();
-		}
+		this.pubnubClientsForUser[user.id].init();
 	}
 
 	// make whatever data we need to set up our messaging, this should be overridden for specific tests
