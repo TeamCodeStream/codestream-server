@@ -198,6 +198,34 @@ else
 fi
 
 
+# ================= GitLab API Access ==============
+[ -z "$GITLAB_API_ACCESS_FILE" ] && GITLAB_API_ACCESS_FILE=$HOME/.codestream/gitlab/development
+if [ -f $GITLAB_API_ACCESS_FILE ]; then
+	. $GITLAB_API_ACCESS_FILE
+	export CS_API_GITLAB_CLIENT_ID="$GITLAB_APP_ID"
+	export CS_API_GITLAB_CLIENT_SECRET="$GITLAB_SECRET"
+else
+	echo "********************************************************************"
+	echo "WARNING: GitLab api access file not found ($GITLAB_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
+
+
+# ================= BitBucket API Access ==============4
+[ -z "$BITBUCKET_API_ACCESS_FILE" ] && BITBUCKET_API_ACCESS_FILE=$HOME/.codestream/bitbucket/development
+if [ -f $BITBUCKET_API_ACCESS_FILE ]; then
+	. $BITBUCKET_API_ACCESS_FILE
+	export CS_API_BITBUCKET_CLIENT_ID="$BITBUCKET_KEY"
+	export CS_API_BITBUCKET_CLIENT_SECRET="$BITBUCKET_SECRET"
+else
+	echo "********************************************************************"
+	echo "WARNING: BitBucket api access file not found ($BITBUCKET_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
+
+
 # =============== PubNub Settings ==============
 # see README.pubnub for more details
 [ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-Local_Keyset_1"
