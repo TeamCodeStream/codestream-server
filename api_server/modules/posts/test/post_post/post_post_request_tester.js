@@ -84,6 +84,7 @@ const AssigneeNotOnTeamTest = require('./assignee_not_on_team_test');
 const AssigneesIgnoredTest = require('./assignees_ignored_test');
 const NoReplyToReplyTest = require('./no_reply_to_reply_test');
 const ParentPostIdTest = require('./parent_post_id_test');
+const CodemarkOriginTest = require('./codemark_origin_test');
 
 class PostPostRequestTester {
 
@@ -182,6 +183,7 @@ class PostPostRequestTester {
 		new AssigneesIgnoredTest().test();
 		new NoReplyToReplyTest().test();
 		new ParentPostIdTest().test();
+		new CodemarkOriginTest().test();
 	}
 }
 

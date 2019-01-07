@@ -85,5 +85,10 @@ module.exports = {
 		type: 'arrayOfStrings',
 		maxLength: 100,
 		description: 'Array of post IDs representing posts that are replies to this codemark, and which are "pinned" to the codemark'
+	},
+	origin: {
+		type: 'string',
+		maxLength: 20,
+		description: 'Origin of the codemark, usually the IDE'
 	}
 };

@@ -114,7 +114,8 @@ class PostCreator extends ModelCreator {
 			codemarkAttributes.parentPostId = this.attributes.parentPostId;
 		}
 		this.transforms.createdCodemark = await new CodemarkCreator({
-			request: this.request
+			request: this.request,
+			origin: this.attributes.origin
 		}).createCodemark(codemarkAttributes);
 		delete this.attributes.codemark;
 		this.attributes.codemarkId = this.transforms.createdCodemark.id;

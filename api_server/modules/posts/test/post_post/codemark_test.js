@@ -28,7 +28,6 @@ class CodemarkTest extends PostPostTest {
 		callback();
 	}
 
-	/* eslint complexity: 0 */
 	// validate the response to the post request
 	validateResponse (data) {
 		// validate that we got an codemark in the response
@@ -39,7 +38,8 @@ class CodemarkTest extends PostPostTest {
 		});
 		new CodemarkValidator({
 			test: this,
-			inputCodemark
+			inputCodemark,
+			expectedOrigin: this.expectedOrigin
 		}).validateCodemark(data);
 		super.validateResponse(data);
 	}

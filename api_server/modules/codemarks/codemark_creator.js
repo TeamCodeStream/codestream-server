@@ -66,6 +66,7 @@ class CodemarkCreator extends ModelCreator {
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
+		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.creatorId = this.request.user.id;
 		this.createId();	 		// pre-allocate an ID
 		await this.getTeam();		// get the team that will own this codemark

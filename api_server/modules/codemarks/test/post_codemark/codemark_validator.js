@@ -16,6 +16,7 @@ class CodemarkValidator {
 	validateCodemark (data) {
 		// verify we got back an codemark with the attributes we specified
 		const codemark = data.codemark;
+		const expectedOrigin = this.expectedOrigin || '';
 		let errors = [];
 		let result = (
 			((codemark.id === codemark._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
@@ -31,7 +32,8 @@ class CodemarkValidator {
 			((codemark.color === this.inputCodemark.color) || errors.push('color does not match')) &&
 			((codemark.text === this.inputCodemark.text) || errors.push('text does not match')) &&
 			((codemark.title === this.inputCodemark.title) || errors.push('title does not match')) &&
-			((codemark.numReplies === 0) || errors.push('codemark should have 0 replies'))
+			((codemark.numReplies === 0) || errors.push('codemark should have 0 replies')) &&
+			((codemark.origin === expectedOrigin) || errors.push('origin not equal to expected origin'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 

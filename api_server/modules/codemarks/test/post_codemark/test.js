@@ -49,6 +49,7 @@ const RequiredForTypeWithMarkerTest = require('./required_for_type_with_marker_t
 const IssueWithAssigneesTest = require('./issue_with_assignees_test');
 const AssigneesIgnoredTest = require('./assignees_ignored_test');
 const ParentPostIdTest = require('./parent_post_id_test');
+const OriginFromPluginTest = require('./origin_from_plugin_test');
 
 class PostCodemarkRequestTester {
 
@@ -111,6 +112,7 @@ class PostCodemarkRequestTester {
 		new IssueWithAssigneesTest().test();
 		new AssigneesIgnoredTest().test();
 		new ParentPostIdTest().test();
+		new OriginFromPluginTest().test();
 	}
 }
 
