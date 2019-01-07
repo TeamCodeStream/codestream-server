@@ -53,7 +53,7 @@ class MessageToAuthorTest extends NewPostMessageToChannelTest {
 		const lastPostCreatedAt = message.message.user.$set.lastPostCreatedAt;
 		Assert(typeof lastPostCreatedAt === 'number' && lastPostCreatedAt > this.timeBeforePost, 'lastPostCreatedAt is not set or not greater than the time before the post');
 		this.message.user.$set.lastPostCreatedAt = lastPostCreatedAt;	// to pass the base-class validation
-		Assert(message.message.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		Assert(message.message.user.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
 		return super.validateMessage(message);
 	}

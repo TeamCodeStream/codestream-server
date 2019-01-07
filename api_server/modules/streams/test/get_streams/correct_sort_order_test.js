@@ -96,7 +96,7 @@ class CorrectSortOrderTest extends GetStreamsTest {
 			const stream = data.streams[i];
 			const expectedStream = this.expectedStreams[i];
 			if (stream.version === 2) {
-				Assert(stream.modifiedAt > this.updatedAt, 'modifiedAt not changed for stream with post');
+				Assert(stream.modifiedAt >= this.updatedAt, 'modifiedAt not changed for stream with post');
 				expectedStream.modifiedAt = stream.modifiedAt;
 			}
 		}

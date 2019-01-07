@@ -90,7 +90,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	validateMessage (message) {
-		Assert(message.message.user.$set.modifiedAt > this.requestSentAt, 'modifiedAt not set');
+		Assert(message.message.user.$set.modifiedAt >= this.requestSentAt, 'modifiedAt not set');
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
 		const providerInfo = message.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];
 		const expectedProviderInfo = this.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];

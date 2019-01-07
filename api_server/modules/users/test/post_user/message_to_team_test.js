@@ -58,7 +58,7 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	validateMessage (message) {
-		Assert(message.message.team.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		Assert(message.message.team.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		this.message.team.$set.modifiedAt = message.message.team.$set.modifiedAt;
 		return super.validateMessage(message);
 	}

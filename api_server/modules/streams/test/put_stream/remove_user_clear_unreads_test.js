@@ -2,6 +2,7 @@
 
 const RemoveUserTest = require('./remove_user_test');
 const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class RemoveUserClearUnreadsTest extends RemoveUserTest {
 
@@ -24,12 +25,17 @@ class RemoveUserClearUnreadsTest extends RemoveUserTest {
 
 	// run the actual test...
 	run (callback) {
-		// run the usual test, but then fetch the user object for the user that was
-		// removed from the stream, we should see no lastReads for this stream
-		super.run(error => {
-			if (error) { return callback(error); }
-			this.fetchRemovedUser(callback);
-		});
+		BoundAsync.series(this, [
+			super.run,
+			this.wait,	// need to wait a bit since clearing lastReads happens after the response
+			this.fetchRemovedUser
+		], callback);
+	}
+
+	// wait a few seconds since clearing lastReads happens after the response
+	wait (callback) {
+		const time = this.mockMode ? 300 : 2000;
+		setTimeout(callback, time);
 	}
 
 	// fetch the user that was removed from the stream, and validate that the lastReads

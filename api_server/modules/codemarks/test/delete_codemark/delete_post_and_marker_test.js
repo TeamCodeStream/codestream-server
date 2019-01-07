@@ -41,7 +41,7 @@ class DeletePostAndMarkerTest extends DeletePostTest {
 
 	validateResponse (data) {
 		const marker = data.markers[0];
-		Assert(marker.$set.modifiedAt > this.modifiedAfter, 'codemark modifiedAt is not greater than before the post was deleted');
+		Assert(marker.$set.modifiedAt >= this.modifiedAfter, 'codemark modifiedAt is not greater than before the post was deleted');
 		this.expectedData.markers[0].$set.modifiedAt = marker.$set.modifiedAt;
 		this.validateSanitized(marker.$set, CodemarkTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
 		super.validateResponse(data);

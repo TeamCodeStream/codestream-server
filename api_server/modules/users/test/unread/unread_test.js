@@ -27,7 +27,7 @@ class UnreadTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	validateResponse (data) {
-		Assert(data.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		Assert(data.user.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		this.expectedData.user.$set.modifiedAt = data.user.$set.modifiedAt;
 		Assert.deepEqual(data, this.expectedData, 'response not correct');
 	}

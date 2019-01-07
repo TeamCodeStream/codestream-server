@@ -81,7 +81,7 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 		if (!message.message.post || !message.message.post.$set) {
 			return false;
 		}
-		Assert(message.message.post.$set.modifiedAt > this.postCreatedAt, 'modifiedAt not changed');
+		Assert(message.message.post.$set.modifiedAt >= this.postCreatedAt, 'modifiedAt not changed');
 		this.message.post.$set.modifiedAt = message.message.post.$set.modifiedAt;
 		return super.validateMessage(message);
 	}

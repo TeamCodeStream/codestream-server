@@ -38,7 +38,7 @@ class UpdateMarkerTest extends SetPostIdTest {
 
 	validateResponse (data) {
 		// verify modifiedAt was updated, and then set it so the deepEqual works
-		Assert(data.markers[0].$set.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the codemark was updated');
+		Assert(data.markers[0].$set.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the codemark was updated');
 		this.expectedData.markers[0].$set.modifiedAt = data.markers[0].$set.modifiedAt;
 		super.validateResponse(data);
 	}

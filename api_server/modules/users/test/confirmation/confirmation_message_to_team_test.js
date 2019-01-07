@@ -79,7 +79,7 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		// we can't predict these in advance, just check that they were updated
 		// and then add them to our comparison message for validation
 		const user = message.message.users[0];
-		Assert(typeof user.modifiedAt === 'number' && user.modifiedAt > this.beforeConfirmTime, 'modifiedAt not updated properly');
+		Assert(typeof user.modifiedAt === 'number' && user.modifiedAt >= this.beforeConfirmTime, 'modifiedAt not updated properly');
 		Assert(typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime, 'registeredAt not updated properly');
 		Assert(typeof user.lastLogin === 'number' && user.lastLogin > this.beforeConfirmTime, 'lastLogin not updated properly');
 		this.message.users[0].modifiedAt = user.modifiedAt;

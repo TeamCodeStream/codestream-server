@@ -29,7 +29,7 @@ class PutCodemarkFetchTest extends PutCodemarkTest {
 
 	// validate that the response is correct
 	validateResponse (data) {
-		Assert(data.codemark.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the codemark was updated');
+		Assert(data.codemark.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the codemark was updated');
 		this.expectedCodemark.modifiedAt = data.codemark.modifiedAt;
 		// verify what we fetch is what we got back in the response
 		Assert.deepEqual(data.codemark, this.expectedCodemark, 'fetched codemark does not match');

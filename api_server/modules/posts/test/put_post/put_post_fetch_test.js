@@ -29,7 +29,7 @@ class PutPostFetchTest extends PutPostTest {
 
 	// validate that the response is correct
 	validateResponse (data) {
-		Assert(data.post.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was updated');
+		Assert(data.post.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the post was updated');
 		this.expectedPost.modifiedAt = data.post.modifiedAt;
 		// verify what we fetch is what we got back in the response
 		Assert.deepEqual(data.post, this.expectedPost, 'fetched post does not match');

@@ -29,7 +29,7 @@ class DeleteCodemarkFetchTest extends DeleteCodemarkTest {
 
 	// validate that the response is correct
 	validateResponse (data) {
-		Assert(data.codemark.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was updated');
+		Assert(data.codemark.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the post was updated');
 		this.expectedCodemark.modifiedAt = data.codemark.modifiedAt;
 		// verify what we fetch is what we got back in the response
 		Assert.deepEqual(data.codemark, this.expectedCodemark, 'fetched codemark does not match');

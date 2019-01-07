@@ -60,7 +60,7 @@ class MessageToUserTest extends CodeStreamMessageTest {
 	// validate the incoming message
 	validateMessage (message) {
 		const subMessage = message.message;
-		Assert(subMessage.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		Assert(subMessage.user.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		this.message.user.$set.modifiedAt = subMessage.user.$set.modifiedAt;
 		// ignore any other message, we're looking for an update to our own user object
 		if (!subMessage.user) {

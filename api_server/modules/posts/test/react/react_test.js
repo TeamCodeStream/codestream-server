@@ -26,7 +26,7 @@ class ReactTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify modifiedAt was updated, and then set it so the deepEqual works
-		Assert(data.post.$set.modifiedAt > this.updatedAt, 'modifiedAt is not greater than before the post was updated');
+		Assert(data.post.$set.modifiedAt >= this.updatedAt, 'modifiedAt is not greater than before the post was updated');
 		this.expectedData.post.$set.modifiedAt = data.post.$set.modifiedAt;
 		Assert.deepEqual(data, this.expectedData, 'incorrect response data');
 		// verify the post in the response has no attributes that should not go to clients

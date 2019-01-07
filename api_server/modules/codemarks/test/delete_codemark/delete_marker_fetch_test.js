@@ -35,7 +35,7 @@ class DeleteMarkerFetchTest extends DeleteMarkerTest {
 
 	// validate that the response is correct
 	validateResponse (data) {
-		Assert(data.marker.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was deleted');
+		Assert(data.marker.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the post was deleted');
 		this.expectedMarker.modifiedAt = data.marker.modifiedAt;
 		// verify what we fetch is what we got back in the response
 		Assert.deepEqual(data.marker, this.expectedMarker, 'fetched marker does not match');

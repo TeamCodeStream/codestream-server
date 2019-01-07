@@ -87,7 +87,7 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 
 	// validate the received message
 	validateMessage (inMessage) {
-		Assert(inMessage.message.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		Assert(inMessage.message.user.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		const message = inMessage.message;
 		const expectedUserOp = {
 			_id: this.existingUserData.user.id,	// DEPRECATE ME

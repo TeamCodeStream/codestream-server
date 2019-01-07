@@ -32,7 +32,7 @@ class PutStreamFetchTest extends PutStreamTest {
 		// verify what we fetch is what we got back in the response
 		data.stream.memberIds.sort();
 		this.expectedStream.memberIds.sort();
-		Assert(data.stream.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the stream was updated');
+		Assert(data.stream.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the stream was updated');
 		this.expectedStream.modifiedAt = data.stream.modifiedAt;
 		Assert.deepEqual(data.stream, this.expectedStream, 'fetched stream does not match');
 	}

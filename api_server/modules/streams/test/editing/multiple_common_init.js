@@ -261,7 +261,7 @@ class MultipleCommonInit {
 				!this.userWillEditByFile.includes(index)
 			) {
 				Assert(responseStream, `stream ${stream.id} not found in response, but user has been editing`);
-				Assert(responseStream.$set.modifiedAt > this.editedAfter, `modifiedAt for ${stream.id} not properly set`);
+				Assert(responseStream.$set.modifiedAt >= this.editedAfter, `modifiedAt for ${stream.id} not properly set`);
 				Assert.equal(responseStream.$unset[`editingUsers.${this.currentUser.user.id}`], true, `editingUsers for ${stream.id} not unset`);
 			}
 			else if (responseStream) {
@@ -273,7 +273,7 @@ class MultipleCommonInit {
 			this.userWillEditByFile.includes(index)
 		) {
 			Assert(responseStream, `stream ${stream.id} not found in response, but user will edit`);
-			Assert(responseStream.$set.modifiedAt > this.editedAfter, `modifiedAt for ${stream.id} not properly set`);
+			Assert(responseStream.$set.modifiedAt >= this.editedAfter, `modifiedAt for ${stream.id} not properly set`);
 			const set = responseStream.$set[`editingUsers.${this.currentUser.user.id}`];
 			Assert.equal(set.commitHash, this.data.editing.commitHash, `editingUsers for ${stream.id} has incorrect commitHash`);
 			Assert(set.startedAt > this.editedAfter, `startedAt for ${stream.id} not properly set`);
@@ -292,7 +292,7 @@ class MultipleCommonInit {
 		Assert(responseStream.teamId === this.team.id, `incorrect team ID in stream created for ${file}`);
 		Assert(responseStream.repoId === this.repo.id, `incorrect repo ID in stream created for ${file}`);
 		Assert(responseStream.createdAt > this.editedAfter, `incorrect createdAt in stream created for ${file}`);
-		Assert(responseStream.modifiedAt > this.editedAfter, `incorrect modifiedAt in stream created for ${file}`);
+		Assert(responseStream.modifiedAt >= this.editedAfter, `incorrect modifiedAt in stream created for ${file}`);
 		Assert(responseStream.type === 'file', `incorrect type in stream created for ${file}`);
 		const entry = responseStream.editingUsers[`editingUsers.${this.currentUser.user.id}`];
 		Assert(entry, `no entry for editing user in stream created for ${file}`);

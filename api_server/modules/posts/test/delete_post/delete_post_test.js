@@ -27,7 +27,7 @@ class DeletePostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	validateResponse (data) {
 		const post = data.posts[0];
 		// verify modifiedAt was updated, and then set it so the deepEqual works
-		Assert(post.$set.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the post was deleted');
+		Assert(post.$set.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the post was deleted');
 		this.expectedData.posts[0].$set.modifiedAt = post.$set.modifiedAt;
 		// verify we got back the proper response
 		Assert.deepEqual(data, this.expectedData, 'response data is not correct');

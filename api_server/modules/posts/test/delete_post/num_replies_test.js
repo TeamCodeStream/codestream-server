@@ -41,7 +41,7 @@ class NumRepliesTest extends DeletePostTest {
 
 	validateResponse (data) {
 		const dataPost = data.posts.find(post => post.id === this.postData[0].post.id);
-		Assert(dataPost.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		Assert(dataPost.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		const expectedPost = this.expectedData.posts.find(post => post.id === this.postData[0].post.id);
 		expectedPost.$set.modifiedAt = dataPost.$set.modifiedAt;
 		return super.validateResponse(data);

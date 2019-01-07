@@ -26,7 +26,7 @@ class PutTeamTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify modifiedAt was updated, and then set it so the deepEqual works
-		Assert(data.team.$set.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the team was updated');
+		Assert(data.team.$set.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the team was updated');
 		this.expectedData.team.$set.modifiedAt = data.team.$set.modifiedAt;
 		// verify we got back the proper response
 		Assert.deepEqual(data, this.expectedData, 'response data is not correct');

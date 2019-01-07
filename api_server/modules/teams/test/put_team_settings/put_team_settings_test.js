@@ -64,7 +64,7 @@ class PutTeamSettingsTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert(data.team.$set.modifiedAt > this.updatedAt, 'modifiedAt was not changed');
+		Assert(data.team.$set.modifiedAt >= this.updatedAt, 'modifiedAt was not changed');
 		this.expectResponse.team.$set = this.expectResponse.team.$set || {};
 		this.expectResponse.team.$set.modifiedAt = data.team.$set.modifiedAt;
 		this.expectResponse.team.$set.version = this.expectVersion;

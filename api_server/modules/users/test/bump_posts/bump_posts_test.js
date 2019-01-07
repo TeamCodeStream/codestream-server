@@ -27,7 +27,7 @@ class BumpPostsTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert(data.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		Assert(data.user.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		this.expectedData.user.$set.modifiedAt = data.user.$set.modifiedAt;
 		Assert.deepEqual(data, this.expectedData, 'response is incorrect');
 	}

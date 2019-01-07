@@ -27,7 +27,7 @@ class DeleteCodemarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	validateResponse (data) {
 		const codemark = data.codemarks[0];
 		// verify modifiedAt was updated, and then set it so the deepEqual works
-		Assert(codemark.$set.modifiedAt > this.modifiedAfter, 'modifiedAt for the codemark is not greater than before the codemark was deleted');
+		Assert(codemark.$set.modifiedAt >= this.modifiedAfter, 'modifiedAt for the codemark is not greater than before the codemark was deleted');
 		this.expectedData.codemarks[0].$set.modifiedAt = codemark.$set.modifiedAt;
 		// verify we got back the proper response
 		Assert.deepEqual(data, this.expectedData, 'response data is not correct');

@@ -82,7 +82,7 @@ class PutPreferencesTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert(data.user.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		Assert(data.user.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		this.expectResponse.user.$set.modifiedAt = data.user.$set.modifiedAt;
 		// verify we got back the expected preferences update directive
 		Assert.deepEqual(data, this.expectResponse);

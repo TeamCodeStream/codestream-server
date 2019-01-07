@@ -45,7 +45,7 @@ class EditingTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			Assert(editing.startedAt > this.editedAfter, 'startedAt for edit is not greater than before the editing was indicated');
 			Assert(editing.commitHash === this.data.editing.commitHash, 'commitHash does not match');
 		}
-		Assert(stream.$set.modifiedAt > this.editedAfter, 'modifiedAt is not greater than before the editing was indicated');
+		Assert(stream.$set.modifiedAt >= this.editedAfter, 'modifiedAt is not greater than before the editing was indicated');
 	}
 }
 

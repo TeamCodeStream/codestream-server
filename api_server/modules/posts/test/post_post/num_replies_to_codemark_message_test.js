@@ -42,7 +42,7 @@ class NumRepliesToCodemarkMessageTest extends NumRepliesMessageToStreamTest {
 		if (!message.message.post || !message.message.post.$set) {
 			return false;
 		}
-		Assert(message.message.codemark.$set.modifiedAt > this.postCreatedAt, 'modifiedAt for codemark not changed');
+		Assert(message.message.codemark.$set.modifiedAt >= this.postCreatedAt, 'modifiedAt for codemark not changed');
 		this.message.codemark.$set.modifiedAt = message.message.codemark.$set.modifiedAt;
 		return super.validateMessage(message);
 	}

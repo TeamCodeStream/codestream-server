@@ -74,7 +74,7 @@ class MessageTest extends CodeStreamMessageTest {
 	}
 
 	validateMessage (message) {
-		Assert(message.message.team.$set.modifiedAt > this.updatedAt);
+		Assert(message.message.team.$set.modifiedAt >= this.updatedAt);
 		this.message.team.$set.modifiedAt = message.message.team.$set.modifiedAt;
 		return super.validateMessage(message);
 	}

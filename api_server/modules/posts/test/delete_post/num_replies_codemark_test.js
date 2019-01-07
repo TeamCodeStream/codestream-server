@@ -36,7 +36,7 @@ class NumRepliesCodemarkTest extends NumRepliesTest {
 
 	validateResponse (data) {
 		const dataCodemark = data.codemarks.find(codemark => codemark.id === this.postData[0].codemark.id);
-		Assert(dataCodemark.$set.modifiedAt > this.updatedAt, 'modifiedAt not changed');
+		Assert(dataCodemark.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		const expectedCodemark = this.expectedData.codemarks.find(codemark => codemark.id === this.postData[0].codemark.id);
 		expectedCodemark.$set.modifiedAt = dataCodemark.$set.modifiedAt;
 		return super.validateResponse(data);

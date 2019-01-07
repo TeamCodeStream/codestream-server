@@ -43,7 +43,7 @@ class ChangeEmailConfirmTest extends Aggregation(CodeStreamAPITest, CommonInit) 
 		};
 		Assert.equal(typeof data.user.$set.modifiedAt, 'number', 'modifiedAt not set to number in response');
 		Assert(data.user.$set.modifiedAt < Date.now(), 'modifiedAt is not in the past');
-		Assert(data.user.$set.modifiedAt > this.testBegins, 'modifiedAt is not set to after the beginning of the test');
+		Assert(data.user.$set.modifiedAt >= this.testBegins, 'modifiedAt is not set to after the beginning of the test');
 		expectData.user.$set.modifiedAt = data.user.$set.modifiedAt;
 		Assert.deepEqual(data, expectData, 'invalid response');
 	}

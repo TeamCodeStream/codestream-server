@@ -26,7 +26,7 @@ class UnpinTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify modifiedAt was updated, and then set it so the deepEqual works
-		Assert(data.codemark.$set.modifiedAt > this.modifiedAfter, 'modifiedAt is not greater than before the before was updated');
+		Assert(data.codemark.$set.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the before was updated');
 		this.expectedData.codemark.$set.modifiedAt = data.codemark.$set.modifiedAt;
 		// verify we got back the proper response
 		Assert.deepEqual(data, this.expectedData, 'response data is not correct');
