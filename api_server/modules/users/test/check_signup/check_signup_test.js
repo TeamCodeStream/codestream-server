@@ -13,6 +13,12 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		super(options);
 		this.userOptions.numRegistered = 0;
 		delete this.teamOptions.creatorIndex;
+		this.expectedOrigin = 'VS Code';
+		this.apiRequestOptions = {
+			headers: {
+				'X-CS-Plugin-IDE': this.expectedOrigin
+			}
+		};
 	}
 
 	get description () {
@@ -44,6 +50,7 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		// validate we get back the expected user, an access token, and a pubnub subscription key
 		Assert(data.user.email === this.currentUser.user.email, 'email doesn\'t match');
 		Assert(data.user.lastLogin > this.beforeLogin, 'lastLogin not set to most recent login time');
+		Assert.equal(data.user.lastOrigin, this.expectedOrigin, 'lastOrigin not set to plugin IDE');
 		Assert(data.accessToken, 'no access token');
 		Assert(data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');

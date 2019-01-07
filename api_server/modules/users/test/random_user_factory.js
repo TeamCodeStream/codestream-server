@@ -56,7 +56,7 @@ class _UserCreator {
 	}
 
 	// confirm a user registration by issuing a POST /no-auth/confirm request
-	_confirmUser (callback) {
+	_confirmUser (callback, options = {}) {
 		let data = {
 			email: this.user.email,
 			confirmationCode: this.user.confirmationCode
@@ -65,7 +65,10 @@ class _UserCreator {
 			{
 				method: 'post',
 				path: '/no-auth/confirm',
-				data: data
+				data: data,
+				requestOptions: {
+					headers: options.headers || {}
+				}
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -78,9 +81,9 @@ class _UserCreator {
 	}
 
 	// confirm registration for a given user
-	confirmUser (user, callback) {
+	confirmUser (user, callback, options = {}) {
 		this.user = user;
-		this._confirmUser(callback);
+		this._confirmUser(callback, options);
 	}
 }
 
@@ -202,8 +205,8 @@ class RandomUserFactory {
 	}
 
 	// confirm registration of a user given some user data
-	confirmUser (user, callback) {
-		new _UserCreator(this).confirmUser(user, callback);
+	confirmUser (user, callback, options = {}) {
+		new _UserCreator(this).confirmUser(user, callback, options);
 	}
 }
 

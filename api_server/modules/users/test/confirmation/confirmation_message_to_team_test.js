@@ -11,6 +11,12 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 	constructor (options) {
 		super(options);
 		this.teamOptions.numAdditionalInvites = 2;
+		this.expectedOrigin = 'VS Code';
+		this.apiRequestOptions = {
+			headers: {
+				'X-CS-Plugin-IDE': this.expectedOrigin
+			}
+		};
 	}
 
 	get description () {
@@ -71,7 +77,7 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		this.beforeConfirmTime = Date.now();
 
 		// confirming the user should trigger the message
-		this.userFactory.confirmUser(this.registeringUser, callback);
+		this.userFactory.confirmUser(this.registeringUser, callback, { headers: { 'x-cs-plugin-ide': this.expectedOrigin }});
 	}
 
 	// validate the message received
@@ -82,9 +88,11 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		Assert(typeof user.modifiedAt === 'number' && user.modifiedAt >= this.beforeConfirmTime, 'modifiedAt not updated properly');
 		Assert(typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime, 'registeredAt not updated properly');
 		Assert(typeof user.lastLogin === 'number' && user.lastLogin > this.beforeConfirmTime, 'lastLogin not updated properly');
+		Assert.equal(user.lastOrigin, this.expectedOrigin, 'lastOrigin not set to plugin IDE');
 		this.message.users[0].modifiedAt = user.modifiedAt;
 		this.message.users[0].registeredAt = user.registeredAt;
 		this.message.users[0].lastLogin = user.lastLogin;
+		this.message.users[0].lastOrigin = this.expectedOrigin;
 		return super.validateMessage(message);
 	}
 }

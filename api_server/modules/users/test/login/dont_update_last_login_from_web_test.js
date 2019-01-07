@@ -24,7 +24,9 @@ class DontUpdateLastLoginFromWebTest extends LoginTest {
 
 	validateResponse (data) {
 		Assert(!data.user.lastLogin < this.beforeLogin, 'lastLogin was set by request');
+		Assert(data.user.lastOrigin !== 'webclient', 'lastOrigin was set to webclient');
 		data.user.lastLogin = this.beforeLogin + 1;	// appease the rest of the validation
+		this.expectedOrigin = undefined;
 		super.validateResponse(data);
 	}
 }

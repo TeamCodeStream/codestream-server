@@ -205,5 +205,10 @@ module.exports = {
 	lastLogin: {
 		type: 'timestamp',
 		description: 'Time the user last logged in (not including logging in from the web clienapp)'
+	},
+	lastOrigin: {
+		type: 'string',
+		maxLength: 20,
+		description: 'Plugin IDE user was using when they last logged in'
 	}
 };
