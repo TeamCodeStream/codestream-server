@@ -158,10 +158,13 @@ class ProviderRefreshRequest extends RestfulRequest {
 			description: 'Given a refresh token issued by a third-party provider, use that refresh token to fetch a new access token from the provider',
 			input: {
 				summary: 'Specify teamId and refreshToken in the query',
-				looksLike: '?teamId=<teamId>&refreshToken=<refreshToken>'
+				looksLike: {
+					teamId: '<ID of the team for which provider access is required>',
+					refreshToken: '<Refresh token as obtained during a previous authorization>'
+				}
 			},
 			returns: {
-				summary: 'Returns a directive indicating how to update the @@#user object#user object@@ with new token data',
+				summary: 'Returns a directive indicating how to update the user object with new token data',
 				looksLike: {
 					user: '<user directive>'
 				}
