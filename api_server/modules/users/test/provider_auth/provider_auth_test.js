@@ -130,7 +130,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 		const parameters = {
 			audience: 'api.atlassian.com',
 			client_id: JiraConfig.appClientId,
-			scope: 'read:jira-user read:jira-work write:jira-work',
+			scope: 'read:jira-user read:jira-work write:jira-work offline_access',
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			prompt: 'consent',

@@ -102,6 +102,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		else if (this.provider === 'jira') {
 			Assert(providerInfo.expiresAt > this.requestSentAt + 3590 * 1000, 'expiresAt not set for asana');
 			expectedProviderInfo.expiresAt = providerInfo.expiresAt;
+			expectedProviderInfo.refreshToken = 'refreshMe';
 		}
 		else if (this.provider === 'bitbucket') {
 			Assert(providerInfo.expiresAt > this.requestSentAt + 7190 * 1000, 'expiresAt not set for bitbucket');
