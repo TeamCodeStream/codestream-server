@@ -23,18 +23,10 @@ class ProviderTokenRequest extends RestfulRequest {
 	async process () {
 		// determine the authorization service to use, based on the provider
 		this.provider = this.request.params.provider.toLowerCase();
-		let serviceAuth = {
-			trello: 'trelloAuth',
-			github: 'githubAuth',
-			asana: 'asanaAuth',
-			jira: 'jiraAuth',
-			bitbucket: 'bitbucketAuth',
-			gitlab: 'gitlabAuth'
-		}[this.provider];
-		if (!serviceAuth || !this.api.services[serviceAuth]) {
+		this.serviceAuth = this.api.services[`${this.provider}Auth`];
+		if (!this.serviceAuth) {
 			throw this.errorHandler.error('unknownProvider', { info: this.provider });
 		}
-		this.serviceAuth = this.api.services[serviceAuth];
 
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
 		if (await this.preProcessHook()) {
@@ -129,7 +121,12 @@ class ProviderTokenRequest extends RestfulRequest {
 			request: this,
 			mockToken: this.request.query._mockToken
 		};
-		this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
+		try {
+			this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
+		}
+		catch (error) {
+			throw this.errorHandler.error('updateAuth', { info: error });
+		}
 	}
 
 	// get the user initiating the auth request

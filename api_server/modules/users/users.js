@@ -144,6 +144,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		requestClass: require('./provider_deauth_request')
 	},
 	{
+		method: 'get',
+		path: '/provider-refresh/:provider',
+		requestClass: require('./provider_refresh_request')
+	},
+	{
 		method: 'put',
 		path: 'bump-posts',
 		requestClass: require('./bump_posts_request')

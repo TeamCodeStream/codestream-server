@@ -34,16 +34,24 @@ class BitbucketAuth extends APIServerModule {
 	// given an auth code, exchange it for an access token
 	async exchangeAuthCodeForToken (options) {
 		// must exchange the provided authorization code for an access token
-		const { request, code, redirectUri, mockToken } = options;
+		const { request, code, redirectUri, mockToken, refreshToken } = options;
 		const { appClientId, appClientSecret } = request.api.config.bitbucket;
 		const parameters = {
-			code,
-			grant_type: 'authorization_code',
-			redirect_uri: redirectUri
+			grant_type: refreshToken ? 'refresh_token' : 'authorization_code'
 		};
+		if (refreshToken) {
+			parameters.refresh_token = refreshToken;
+		}
+		else {
+			parameters.code = code;
+			parameters.redirect_uri = redirectUri;
+		}
 		const userAuth = Base64.encode(`${appClientId}:${appClientSecret}`);
 		const url = 'https://bitbucket.org/site/oauth2/access_token';
 		if (mockToken) {
+			if (mockToken === 'error') {
+				throw { error: 'invalid_grant' };
+			}
 			return {
 				accessToken: mockToken,
 				refreshToken: 'refreshMe',
@@ -80,6 +88,11 @@ class BitbucketAuth extends APIServerModule {
 			delete responseData.refresh_token;
 		}
 		return data;
+	}
+
+	// use a refresh token to obtain a new access token
+	async refreshToken (options) {
+		return await this.exchangeAuthCodeForToken(options);
 	}
 
 	// get html to display once auth is complete

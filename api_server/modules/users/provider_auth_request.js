@@ -39,15 +39,8 @@ class ProviderAuthRequest extends RestfulRequest {
 	async performRedirect () {
 		// get the provider service corresponding to the passed provider
 		this.provider = this.request.params.provider.toLowerCase();
-		let serviceAuth = {
-			trello: 'trelloAuth',
-			github: 'githubAuth',
-			asana: 'asanaAuth',
-			jira: 'jiraAuth',
-			bitbucket: 'bitbucketAuth',
-			gitlab: 'gitlabAuth'
-		}[this.provider];
-		if (!serviceAuth || !this.api.services[serviceAuth]) {
+		this.serviceAuth = this.api.services[`${this.provider}Auth`];
+		if (!this.serviceAuth) {
 			throw this.errorHandler.error('unknownProvider', { info: this.provider });
 		}
 
@@ -64,7 +57,7 @@ class ProviderAuthRequest extends RestfulRequest {
 		};
 
 		// get the specific query data to use in the redirect, and response with the redirect url
-		const { parameters, url } = this.api.services[serviceAuth].getRedirectData(options); 
+		const { parameters, url } = this.serviceAuth.getRedirectData(options); 
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
