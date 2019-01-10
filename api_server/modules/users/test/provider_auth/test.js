@@ -12,8 +12,8 @@ const PROVIDERS = [
 	'github',
 	'asana',
 	'jira',
-	'gitlab',
-	'bitbucket',
+	//'gitlab',
+	//'bitbucket',
 	'slack',
 	'msteams',
 	'glip'

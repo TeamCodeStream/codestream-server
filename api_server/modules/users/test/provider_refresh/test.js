@@ -15,8 +15,8 @@ const MessageTest = require('./message_test');
 const PROVIDERS = [
 	'asana',
 	'jira',
-	'bitbucket',
-	'gitlab',
+	//'bitbucket',
+	//'gitlab',
 	'msteams',
 	'glip'
 ];
