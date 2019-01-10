@@ -226,6 +226,38 @@ else
 fi
 
 
+# ================= MSTeams API Access ==============4
+export CS_API_MSTEAMS_CLIENT_ID="placeholder"
+export CS_API_MSTEAMS_CLIENT_SECRET="placeholder"
+#[ -z "$MSTEAMS_API_ACCESS_FILE" ] && MSTEAMS_API_ACCESS_FILE=$HOME/.codestream/msteams/development
+#if [ -f $MSTEAMS_API_ACCESS_FILE ]; then
+#	. $MSTEAMS_API_ACCESS_FILE
+#	export CS_API_MSTEAMS_CLIENT_ID="$BITBUCKET_KEY"
+#	export CS_API_MSTEAMS_CLIENT_SECRET="$BITBUCKET_SECRET"
+#else
+#	echo "********************************************************************"
+#	echo "WARNING: MSTeams api access file not found ($MSTEAMS_API_ACCESS_FILE)."
+#	echo "         Run dt-update-secrets and reload your sandbox"
+#	echo "********************************************************************"
+#fi
+
+
+# ================= Glip API Access ==============4
+export CS_API_GLIP_CLIENT_ID="placeholder"
+export CS_API_GLIP_CLIENT_SECRET="placeholder"
+#[ -z "$GLIP_API_ACCESS_FILE" ] && GLIP_API_ACCESS_FILE=$HOME/.codestream/glip/development
+#if [ -f $GLIP_API_ACCESS_FILE ]; then
+#	. $GLIP_API_ACCESS_FILE
+#	export CS_API_GLIP_CLIENT_ID="$BITBUCKET_KEY"
+#	export CS_API_GLIP_CLIENT_SECRET="$BITBUCKET_SECRET"
+#else
+#	echo "********************************************************************"
+#	echo "WARNING: Glip api access file not found ($GLIP_API_ACCESS_FILE)."
+#	echo "         Run dt-update-secrets and reload your sandbox"
+#	echo "********************************************************************"
+#fi
+
+
 # =============== PubNub Settings ==============
 # see README.pubnub for more details
 [ -z "$PUBNUB_KEY_FILE" ] && PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-Local_Keyset_1"
