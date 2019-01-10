@@ -19,7 +19,10 @@ const PROVIDERS = [
 	'asana',
 	'jira',
 	'gitlab',
-	'bitbucket'
+	'bitbucket',
+	'slack',
+	'msteams',
+	'glip'
 ];
 
 class ProviderTokenRequestTester {
@@ -34,8 +37,8 @@ class ProviderTokenRequestTester {
 		new InvalidTokenTest({ provider: 'github' }).test();
 		new TokenExpiredTest({ provider: 'asana' }).test();
 		new WrongTokenTypeTest({ provider: 'jira' }).test();
-		new UserNotFoundTest({ provider: 'trello' }).test();
-		new UserNotOnTeamTest({ provider: 'github' }).test();
+		new UserNotFoundTest({ provider: 'gitlab' }).test();
+		new UserNotOnTeamTest({ provider: 'bitbucket' }).test();
 	}
 }
 

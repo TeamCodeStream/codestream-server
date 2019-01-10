@@ -35,8 +35,17 @@ class ProviderRefreshTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		case 'jira':
 			expectedData = this.getExpectedJiraTestCallData();
 			break;
+		case 'gitlab':
+			expectedData = this.getExpectedGitlabTestCallData();
+			break;
 		case 'bitbucket':
 			expectedData = this.getExpectedBitbucketTestCallData();
+			break;
+		case 'msteams':
+			expectedData = this.getExpectedMSTeamsTestCallData();
+			break;
+		case 'glip':
+			expectedData = this.getExpectedGlipTestCallData();
 			break;
 		default:
 			throw `unknown provider ${this.provider}`;

@@ -108,7 +108,7 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// perform an exchange of auth code for access token, as needed
 	async exchangeAuthCodeForToken () {
-		if (typeof this.serviceAuth.exchangeAuthCodeForToken !== 'function') {
+		if (!this.serviceAuth.exchangeRequired()) {
 			return;
 		}
 		const { authOrigin } = this.api.config.api;

@@ -13,7 +13,10 @@ const PROVIDERS = [
 	'asana',
 	'jira',
 	'gitlab',
-	'bitbucket'
+	'bitbucket',
+	'slack',
+	'msteams',
+	'glip'
 ];
 
 class ProviderDeauthRequestTester {

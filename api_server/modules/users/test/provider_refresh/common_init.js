@@ -8,7 +8,10 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
 const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
+const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
 const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
+const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
+const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const Base64 = require('base-64');
 
 class CommonInit {
@@ -143,20 +146,61 @@ class CommonInit {
 			grant_type: 'refresh_token',
 			client_id: JiraConfig.appClientId,
 			client_secret: JiraConfig.appClientSecret,
-			refresh_token: this.refreshToken
+			refresh_token: this.refreshToken,
+			redirect_uri: this.redirectUri
 		};
 		const url = 'https://auth.atlassian.com/oauth/token';
+		return { url, parameters };
+	}
+
+	getExpectedGitlabTestCallData () {
+		const parameters = {
+			redirect_uri: this.redirectUri,
+			grant_type: 'refresh_token',
+			client_id: GitlabConfig.appClientId,
+			client_secret: GitlabConfig.appClientSecret,
+			refresh_token: this.refreshToken
+		};
+		const query = Object.keys(parameters)
+			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
+			.join('&');
+		const url = `https://gitlab.com/oauth/token?${query}`;
 		return { url, parameters };
 	}
 
 	getExpectedBitbucketTestCallData () {
 		const parameters = {
 			refresh_token: this.refreshToken,
-			grant_type: 'refresh_token'
+			grant_type: 'refresh_token',
+			redirect_uri: this.redirectUri
 		};
 		const userAuth = Base64.encode(`${BitbucketConfig.appClientId}:${BitbucketConfig.appClientSecret}`);
 		const url = 'https://bitbucket.org/site/oauth2/access_token';
 		return { url, parameters, userAuth };
+	}
+
+	getExpectedMSTeamsTestCallData () {
+		const parameters = {
+			refresh_token: this.refreshToken,
+			grant_type: 'refresh_token',
+			client_id: MSTeamsConfig.appClientId,
+			client_secret: MSTeamsConfig.appClientSecret,
+			redirect_uri: this.redirectUri
+		};
+		const url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
+		return { url, parameters };
+	}
+
+	getExpectedGlipTestCallData () {
+		const parameters = {
+			refresh_token: this.refreshToken,
+			grant_type: 'refresh_token',
+			client_id: GlipConfig.appClientId,
+			client_secret: GlipConfig.appClientSecret,
+			redirect_uri: this.redirectUri
+		};
+		const url = 'https://api.ringcentral.com/restapi/oauth/token';
+		return { url, parameters };
 	}
 }
 

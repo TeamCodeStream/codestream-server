@@ -66,7 +66,7 @@ class ProviderRefreshRequest extends RestfulRequest {
 
 	// perform an exchange of auth code for access token, as needed
 	async fetchAccessToken () {
-		if (typeof this.serviceAuth.refreshToken !== 'function') {
+		if (!this.serviceAuth.supportsRefresh()) {
 			throw this.errorHandler.error('readAuth', { reason: 'token refresh not supported by provider' });
 		}
 		const { authOrigin } = this.api.config.api;

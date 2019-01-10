@@ -2,32 +2,40 @@
 
 'use strict';
 
-const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
-const FS = require('fs');
+const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module.js');
 
-class TrelloAuth extends APIServerModule {
+const OAUTH_CONFIG = {
+	provider: 'trello',
+	authUrl: 'https://trello.com/1/authorize',
+	scopes: 'read,write',
+	additionalAuthCodeParameters: {
+		expiration: 'never',
+		name: 'CodeStream',
+		response_type: 'token',
+		callback_method: 'fragment'
+	},
+	noExchange: true
+};
 
-	services () {
-		return async () => {
-			return { trelloAuth: this };
-		};
+class TrelloAuth extends OAuth2Module {
+
+	constructor (config) {
+		super(config);
+		this.oauthConfig = OAUTH_CONFIG;
 	}
 
 	// get redirect parameters and url to use in the redirect response
+	// here we override the usual method to deal with some trello peculiarities
 	getRedirectData (options) {
-		const { request, state, redirectUri } = options;
-		const { apiKey } = request.api.config.trello;
-		const parameters = {
-			expiration: 'never',
-			name: 'CodeStream',
-			scope: 'read,write',
-			response_type: 'token',
-			key: apiKey,
-			callback_method: 'fragment',
-			return_url: `${redirectUri}?state=${state}`
-		};
-		const url = 'https://trello.com/1/authorize';
-		return { parameters, url };
+		const data = super.getRedirectData(options);
+		const { state, redirectUri } = options;
+		data.parameters.return_url = `${redirectUri}?state=${state}`;
+		delete data.parameters.redirect_uri;
+		const { apiKey } = this.api.config.trello;
+		data.parameters.key = apiKey;
+		delete data.parameters.client_id;
+		delete data.parameters.state;
+		return data;
 	}
 
 	// perform pre-processing of data from the token callback, as needed
@@ -36,8 +44,8 @@ class TrelloAuth extends APIServerModule {
 		// so send a client script that can 
 		const { request, provider, state, mockToken } = options;
 		const { response } = request;
-		const { authOrigin } = request.api.config.api;
-		const { apiKey } = request.api.config.trello;
+		const { authOrigin } = this.api.config.api;
+		const { apiKey } = this.api.config.trello;
 		if (mockToken) {
 			return { accessToken: mockToken, apiKey };
 		}
@@ -61,17 +69,6 @@ class TrelloAuth extends APIServerModule {
 		);
 		request.responseHandled = true;
 		return false;	// indicates to stop further processing
-	}
-
-	// get html to display once auth is complete
-	getAfterAuthHtml () {
-		return this.afterAuthHtml;
-	}
-
-	// initialize the module
-	initialize () {
-		// read in the after-auth html to display once auth is complete
-		this.afterAuthHtml = FS.readFileSync(this.path + '/afterAuth.html', { encoding: 'utf8' });
 	}
 }
 

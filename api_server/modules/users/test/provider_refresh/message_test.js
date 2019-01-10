@@ -48,7 +48,6 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		let expectedTestCallData;
 		switch (this.provider) {
 		case 'trello':
-		case 'gitlab':
 			break;
 		case 'github':
 			expectedTestCallData = this.getExpectedGithubTestCallData();
@@ -59,8 +58,17 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		case 'jira':
 			expectedTestCallData = this.getExpectedJiraTestCallData();
 			break;
+		case 'gitlab':
+			expectedTestCallData = this.getExpectedGitlabTestCallData();
+			break;
 		case 'bitbucket':
 			expectedTestCallData = this.getExpectedBitbucketTestCallData();
+			break;
+		case 'msteams':
+			expectedTestCallData = this.getExpectedMSTeamsTestCallData();
+			break;
+		case 'glip':
+			expectedTestCallData = this.getExpectedGlipTestCallData();
 			break;
 		default:
 			throw `unknown provider ${this.provider}`;
@@ -94,19 +102,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const providerInfo = message.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];
 		const expectedProviderInfo = this.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];
 		expectedProviderInfo.refreshToken = 'refreshMe';
-		if (this.provider === 'asana') {
-			Assert(providerInfo.expiresAt > this.requestSentAt + 3590 * 1000, 'expiresAt not set for asana');
-			expectedProviderInfo.expiresAt = providerInfo.expiresAt;
-		}
-		else if (this.provider === 'jira') {
-			Assert(providerInfo.expiresAt > this.requestSentAt + 3590 * 1000, 'expiresAt not set for asana');
-			expectedProviderInfo.expiresAt = providerInfo.expiresAt;
-		}
-		else if (this.provider === 'bitbucket') {
-			Assert(providerInfo.expiresAt > this.requestSentAt + 7190 * 1000, 'expiresAt not set for bitbucket');
-			expectedProviderInfo.expiresAt = providerInfo.expiresAt;
-			expectedProviderInfo.refreshToken = 'refreshMe';
-		}
+		const expiresIn = ['jira', 'asana', 'glip', 'msteams'].includes(this.provider) ? 3600 : 7200;
+		Assert(providerInfo.expiresAt > this.requestSentAt + (expiresIn - 6) * 1000, `expiresAt not set for ${this.provider}`);
+		expectedProviderInfo.expiresAt = providerInfo.expiresAt;
 		return super.validateMessage(message);
 	}
 }

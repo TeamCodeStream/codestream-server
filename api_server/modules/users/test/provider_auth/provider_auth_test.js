@@ -10,6 +10,9 @@ const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
 const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
 const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
 const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
+const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
+const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
+const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
 
 class ProviderAuthTest extends CodeStreamAPITest {
 
@@ -78,6 +81,15 @@ class ProviderAuthTest extends CodeStreamAPITest {
 		case 'bitbucket':
 			redirectData = this.getBitbucketRedirectData();
 			break;
+		case 'slack':
+			redirectData = this.getSlackRedirectData();
+			break;
+		case 'msteams':
+			redirectData = this.getMSTeamsRedirectData();
+			break;
+		case 'glip':
+			redirectData = this.getGlipRedirectData();
+			break;
 		default:
 			throw `unknown provider ${this.provider}`;
 		}
@@ -92,13 +104,13 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	getTrelloRedirectData () {
 		this.redirectUri += `?state=${this.state}`;
 		const parameters = {
+			response_type: 'token',
+			scope: 'read,write',
 			expiration: 'never',
 			name: 'CodeStream',
-			scope: 'read,write',
-			response_type: 'token',
-			key: TrelloConfig.apiKey,
 			callback_method: 'fragment',
-			return_url: this.redirectUri
+			return_url: this.redirectUri,
+			key: TrelloConfig.apiKey
 		};
 		const url = 'https://trello.com/1/authorize';
 		return { url, parameters };
@@ -108,8 +120,9 @@ class ProviderAuthTest extends CodeStreamAPITest {
 		const parameters = {
 			client_id: GithubConfig.appClientId,
 			redirect_uri: this.redirectUri,
-			scope: 'repo,user',
-			state: this.state
+			response_type: 'code',
+			state: this.state,
+			scope: 'repo,user'
 		};
 		const url = 'https://github.com/login/oauth/authorize';
 		return { url, parameters };
@@ -128,13 +141,13 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getJiraRedirectData () {
 		const parameters = {
-			audience: 'api.atlassian.com',
 			client_id: JiraConfig.appClientId,
-			scope: 'read:jira-user read:jira-work write:jira-work offline_access',
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
+			state: this.state,
+			scope: 'read:jira-user read:jira-work write:jira-work offline_access',
+			audience: 'api.atlassian.com',
 			prompt: 'consent',
-			state: this.state
 		};
 		const url = 'https://auth.atlassian.com/authorize';
 		return { url, parameters };
@@ -143,9 +156,9 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	getGitlabRedirectData () {
 		const parameters = {
 			client_id: GitlabConfig.appClientId,
-			redirect_uri: `${this.redirectUri}?state=${this.state}`,
-			state: this.state,
-			response_type: 'token'
+			redirect_uri: `${this.redirectUri}`,
+			response_type: 'code',
+			state: this.state
 		};
 		const url = 'https://gitlab.com/oauth/authorize';
 		return { url, parameters };
@@ -155,11 +168,48 @@ class ProviderAuthTest extends CodeStreamAPITest {
 		const parameters = {
 			client_id: BitbucketConfig.appClientId,
 			redirect_uri: this.redirectUri,
-			scope: 'repository issue',
+			response_type: 'code',
 			state: this.state,
-			response_type: 'code'
+			scope: 'repository issue'
 		};
 		const url = 'https://bitbucket.org/site/oauth2/authorize';
+		return { url, parameters };
+	}
+
+	getSlackRedirectData () {
+		const parameters = {
+			client_id: SlackConfig.appClientId,
+			redirect_uri: this.redirectUri,
+			response_type: 'code',
+			state: this.state,
+			scope: 'identify client'
+		};
+		const url = 'https://slack.com/oauth/authorize';
+		return { url, parameters };
+	}
+
+	getMSTeamsRedirectData () {
+		const parameters = {
+			client_id: MSTeamsConfig.appClientId,
+			redirect_uri: this.redirectUri,
+			response_type: 'code',
+			state: this.state,
+			scope: 'https://graph.microsoft.com/mail.read offline_access',
+			response_mode: 'query',
+			prompt: 'consent'
+		};
+		const url = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
+		return { url, parameters };
+	}
+
+	getGlipRedirectData () {
+		const parameters = {
+			client_id: GlipConfig.appClientId,
+			redirect_uri: this.redirectUri,
+			response_type: 'code',
+			state: this.state
+		};
+		const url = 'https://api.ringcentral.com/restapi/oauth/authorize';
 		return { url, parameters };
 	}
 }

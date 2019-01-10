@@ -15,13 +15,16 @@ const MessageTest = require('./message_test');
 const PROVIDERS = [
 	'asana',
 	'jira',
-	'bitbucket'
+	'bitbucket',
+	'gitlab',
+	'msteams',
+	'glip'
 ];
 
 const UNSUPPORTED_PROVIDERS = [
 	'trello',
 	'github',
-	'gitlab'
+	'slack'
 ];
 
 class ProviderRefreshTester {
@@ -37,9 +40,9 @@ class ProviderRefreshTester {
 		});
 		new ParameterRequiredTest({ provider: 'jira', parameter: 'teamId' }).test();
 		new ParameterRequiredTest({ provider: 'bitbucket', parameter: 'refreshToken' }).test();
-		new ACLTest({ provider: 'asana' }).test();
-		new UnknownProviderTest({ provider: 'jira' }).test();
-		new TeamNotFoundTest({ provider: 'bitbucket' }).test();
+		new ACLTest({ provider: 'gitlab' }).test();
+		new UnknownProviderTest({ provider: 'asana' }).test();
+		new TeamNotFoundTest({ provider: 'jira' }).test();
 	}
 }
 

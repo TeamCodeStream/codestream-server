@@ -17,6 +17,8 @@ const PubNubConfig = require(ConfigDirectory + '/pubnub.js');
 const IpcConfig = require(ConfigDirectory + '/ipc.js');
 const MixPanelConfig = require(ConfigDirectory + '/mixpanel.js');
 const SlackConfig = require(ConfigDirectory + '/slack.js');
+const MSTeamsConfig = require(ConfigDirectory + '/msteams.js');
+const GlipConfig = require(ConfigDirectory + '/glip.js');
 const GithubConfig = require(ConfigDirectory + '/github.js');
 const AsanaConfig = require(ConfigDirectory + '/asana.js');
 const TrelloConfig = require(ConfigDirectory + '/trello.js');
@@ -80,6 +82,8 @@ const MyAPICluster = new ClusterWrapper(
 		ipc: IpcConfig,
 		mixpanel: MixPanelConfig,
 		slack: SlackConfig,
+		msteams: MSTeamsConfig,
+		glip: GlipConfig,
 		github: GithubConfig,
 		asana: AsanaConfig,
 		trello: TrelloConfig,

@@ -2,15 +2,22 @@
 
 'use strict';
 
-const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module.js');
 const ProviderInfoAuthorizer = require('./provider_info_authorizer');
 
-class SlackAuth extends APIServerModule {
+const OAUTH_CONFIG = {
+	provider: 'slack',
+	authUrl: 'https://slack.com/oauth/authorize',
+	tokenUrl: 'https://slack.com/api/oauth.access',
+	exchangeFormat: 'form',
+	scopes: 'identify client'
+};
 
-	services () {
-		return async () => {
-			return { slackAuth: this };
-		};
+class SlackAuth extends OAuth2Module {
+
+	constructor (config) {
+		super(config);
+		this.oauthConfig = OAUTH_CONFIG;
 	}
 
 	async authorizeProviderInfo (providerInfo, options) {

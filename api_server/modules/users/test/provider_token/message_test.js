@@ -49,7 +49,6 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		let expectedTestCallData;
 		switch (this.provider) {
 		case 'trello':
-		case 'gitlab':
 			break;
 		case 'github':
 			expectedTestCallData = this.getExpectedGithubTestCallData();
@@ -60,8 +59,20 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		case 'jira':
 			expectedTestCallData = this.getExpectedJiraTestCallData();
 			break;
+		case 'gitlab':
+			expectedTestCallData = this.getExpectedGitlabTestCallData();
+			break;
 		case 'bitbucket':
 			expectedTestCallData = this.getExpectedBitbucketTestCallData();
+			break;
+		case 'slack':
+			expectedTestCallData = this.getExpectedSlackTestCallData();
+			break;
+		case 'msteams':
+			expectedTestCallData = this.getExpectedMSTeamsTestCallData();
+			break;
+		case 'glip':
+			expectedTestCallData = this.getExpectedGlipTestCallData();
 			break;
 		default:
 			throw `unknown provider ${this.provider}`;
@@ -94,22 +105,13 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
 		const providerInfo = message.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];
 		const expectedProviderInfo = this.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];
-		if (this.provider === 'asana') {
-			Assert(providerInfo.expiresAt > this.requestSentAt + 3590 * 1000, 'expiresAt not set for asana');
-			expectedProviderInfo.expiresAt = providerInfo.expiresAt;
+		if (['jira', 'asana', 'bitbucket', 'gitlab', 'glip', 'msteams'].includes(this.provider)) {
 			expectedProviderInfo.refreshToken = 'refreshMe';
-		}
-		else if (this.provider === 'jira') {
-			Assert(providerInfo.expiresAt > this.requestSentAt + 3590 * 1000, 'expiresAt not set for asana');
+			const expiresIn = ['jira', 'asana', 'glip', 'msteams'].includes(this.provider) ? 3600 : 7200;
+			Assert(providerInfo.expiresAt > this.requestSentAt + (expiresIn - 6) * 1000, `expiresAt not set for ${this.provider}`);
 			expectedProviderInfo.expiresAt = providerInfo.expiresAt;
-			expectedProviderInfo.refreshToken = 'refreshMe';
 		}
-		else if (this.provider === 'bitbucket') {
-			Assert(providerInfo.expiresAt > this.requestSentAt + 7190 * 1000, 'expiresAt not set for bitbucket');
-			expectedProviderInfo.expiresAt = providerInfo.expiresAt;
-			expectedProviderInfo.refreshToken = 'refreshMe';
-		}
-		else if (this.provider === 'trello') {
+		if (this.provider === 'trello') {
 			expectedProviderInfo.apiKey = TrelloConfig.apiKey;
 		}
 		return super.validateMessage(message);
