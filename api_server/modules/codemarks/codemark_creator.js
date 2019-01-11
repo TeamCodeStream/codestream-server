@@ -54,8 +54,8 @@ class CodemarkCreator extends ModelCreator {
 				string: ['teamId', 'type']
 			},
 			optional: {
-				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text'],
-				'array(object)': ['markers'],
+				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderUrl'],
+				'array(object)': ['markers', 'externalAssignees'],
 				'array(string)': ['assignees']
 			}
 		};
@@ -125,6 +125,7 @@ class CodemarkCreator extends ModelCreator {
 		if (this.attributes.type !== 'issue') {
 			// assignees only valid for issues
 			delete this.attributes.assignees;
+			delete this.attributes.externalAssignees;
 			return;
 		}
 		else if (this.attributes.providerType || !this.attributes.assignees) {

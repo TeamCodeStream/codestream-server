@@ -118,7 +118,10 @@ class PostCodemarkRequest extends PostRequest {
 				'status': '<Status of the codemark, for things like issues>',
 				'title': '<Title of the codemark>',
 				'assignees': '<Array of IDs representing users assigned to the codemark, for issues>',
-				'markers': '<Array of @@#marker objects#marker@@ representing markers to be created for this codemark>'
+				'markers': '<Array of @@#marker objects#marker@@ representing markers to be created for this codemark>',
+				'externalProvider': '<For externally linked issues, the name of the provider servier (eg. jira, asana)>',
+				'externalProviderUrl': '<For externally linked issues, the URL to access the issue>',
+				'externalAssignees': '<For externally linked issues, array of assignees to the issue, expected to be objects with at least displayName>'
 			}
 		};
 		description.returns.summary = 'An codemark object, plus any markers created, plus streams and/or repos created for markers';

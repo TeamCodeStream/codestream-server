@@ -159,8 +159,8 @@ class ProviderRefreshRequest extends RestfulRequest {
 			input: {
 				summary: 'Specify teamId and refreshToken in the query',
 				looksLike: {
-					teamId: '<ID of the team for which provider access is required>',
-					refreshToken: '<Refresh token as obtained during a previous authorization>'
+					'teamId*': '<ID of the team for which provider access is required>',
+					'refreshToken*': '<Refresh token as obtained during a previous authorization>'
 				}
 			},
 			returns: {

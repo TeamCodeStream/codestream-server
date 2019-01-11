@@ -90,5 +90,18 @@ module.exports = {
 		type: 'string',
 		maxLength: 20,
 		description: 'Origin of the codemark, usually the IDE'
+	},
+	externalAssignees: {
+		type: 'arrayOfObjects',
+		maxLength: 50,
+		maxObjectLength: 256
+	},
+	externalProvider: {
+		type: 'string',
+		maxLength: 25
+	},
+	externalProviderUrl: {
+		type: 'string',
+		maxLength: 1000
 	}
 };
