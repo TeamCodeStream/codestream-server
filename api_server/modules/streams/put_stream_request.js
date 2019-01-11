@@ -6,7 +6,6 @@ const PutRequest = require(process.env.CS_API_TOP + '/lib/util/restful/put_reque
 const StreamPublisher = require('./stream_publisher');
 const StreamSubscriptionGranter = require('./stream_subscription_granter');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class PutStreamRequest extends PutRequest {
 
@@ -35,15 +34,15 @@ class PutStreamRequest extends PutRequest {
 		// revoke permissions for all removed users to subscribe to the stream channel
 		await awaitParallel([
 			this.grantUserMessagingPermissions,
-			this.revokeUserMessagingPermissions,
-			this.clearUnreads
+			this.revokeUserMessagingPermissions
 		], this);
 
 		// publish the update as needed, and 
 		// explicitly publish to any users added to a stream
 		await awaitParallel([
 			this.publishStream,
-			this.publishToUsers
+			this.publishToUsers,
+			this.publishUserUpdates
 		], this);
 	}
 	
@@ -111,70 +110,21 @@ class PutStreamRequest extends PutRequest {
 		}).publishStreamToUsers(userIds);
 	}
 
-	// clear the unreads for all relevant users - users removed from the stream, or if the stream
-	// was archived, all users in the stream
-	async clearUnreads () {
-		if (this.updater.wasArchived) {
-			// the stream was archived, remove lastUnreads for all users in the stream
-			await this.clearUnreadsForAllUsers();
-		}
-		else if (this.transforms.removedUsers && this.transforms.removedUsers.length > 0) {
-			// certain users were removed, remove lastUnreads for those users only
-			const userIds = this.transforms.removedUsers.map(user => user.id);
-			await this.clearUnreadsForUsers(userIds);
-		}
-	}
-	
-	// clear the unreads for all users in the stream, since it was archived
-	async clearUnreadsForAllUsers () {
-		const stream = this.updater.stream;
-		const teamId = stream.get('teamId');
-		let memberIds;
-		if (stream.get('isTeamStream')) {
-			const team = await this.data.teams.getById(teamId);
-			if (!team) {
-				return;	// should never happen
-			}
-			memberIds = team.get('memberIds') || [];
-		}
-		else {
-			memberIds = stream.get('memberIds') || [];
-		}
-		await this.clearUnreadsForUsers(memberIds);
-	}
-
-	// clear the unreads for the given users, and publish a message to each users on their channel
-	async clearUnreadsForUsers (userIds) {
-		// update the lastReads for all users, or as given by the query
-		await Promise.all(userIds.map(async userId => {
-			await this.clearUnreadsForUser(userId);
+	// publish any user updates (cleared lastReads for the stream) to the given users
+	async publishUserUpdates () {
+		const userUpdates = this.transforms.userUpdateOps || [];
+		await Promise.all(userUpdates.map(async userUpdate => {
+			await this.publishUserUpdate(userUpdate);
 		}));
 	}
 
-	// clear the unreads for the given user, and publish a message on their channel
-	async clearUnreadsForUser (userId) {
-		const stream = this.updater.stream;
-		const op = {
-			$unset: {
-				[`lastReads.${stream.id}`]: true
-			},
-			$set: {
-				modifiedAt: Date.now()
-			}
-		};
-		
-		const updateOp = await new ModelSaver({
-			request: this,
-			collection: this.data.users,
-			id: userId
-		}).save(op);
-		await this.data.users.persist();
-		
+	// publish a user update (cleared lastReads for the stream) to the given user
+	async publishUserUpdate (updateOp) {
 		const message = {
 			user: updateOp,
 			requestId: this.request.id
 		};
-		const channel = `user-${userId}`;
+		const channel = `user-${updateOp.id}`;
 		try {
 			await this.api.services.messager.publish(
 				message,
@@ -184,7 +134,7 @@ class PutStreamRequest extends PutRequest {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish unreads message to user ${userId}: ${JSON.stringify(error)}`);
+			this.warn(`Could not publish unreads message to user ${updateOp.id}: ${JSON.stringify(error)}`);
 		}
 	}
 

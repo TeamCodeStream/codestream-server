@@ -7,6 +7,7 @@ const Stream = require('./stream');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class StreamUpdater extends ModelUpdater {
 
@@ -78,6 +79,7 @@ class StreamUpdater extends ModelUpdater {
 		await this.checkNameUnique();
 		await this.checkNameForProvider();
 		await this.getUsers();
+		await this.clearUnreads();
 		this.attributes.modifiedAt = Date.now();
 		await super.preSave();
 	}
@@ -183,6 +185,60 @@ class StreamUpdater extends ModelUpdater {
 			this.attributes.$pull.memberIds = memberIds;
 			this.transforms.removedUsers = users;
 		}
+	}
+
+	// clear the unreads for all relevant users - users removed from the stream, or if the stream
+	// was archived, all users in the stream
+	async clearUnreads () {
+		if (this.wasArchived) {
+			// the stream was archived, remove lastUnreads for all users in the stream
+			await this.clearUnreadsForAllUsers();
+		}
+		else if (this.transforms.removedUsers && this.transforms.removedUsers.length > 0) {
+			// certain users were removed, remove lastUnreads for those users only
+			const userIds = this.transforms.removedUsers.map(user => user.id);
+			await this.clearUnreadsForUsers(userIds);
+		}
+	}
+	
+	// clear the unreads for all users in the stream, since it was archived
+	async clearUnreadsForAllUsers () {
+		let memberIds;
+		if (this.stream.get('isTeamStream')) {
+			memberIds = this.team.get('memberIds') || [];
+		}
+		else {
+			memberIds = this.stream.get('memberIds') || [];
+		}
+		await this.clearUnreadsForUsers(memberIds);
+	}
+
+	// clear the unreads for the given users
+	async clearUnreadsForUsers (userIds) {
+		this.transforms.userUpdateOps = [];
+		// update the lastReads for all users, or as given by the query
+		await Promise.all(userIds.map(async userId => {
+			await this.clearUnreadsForUser(userId);
+		}));
+	}
+
+	// clear the unreads for the given user
+	async clearUnreadsForUser (userId) {
+		const op = {
+			$unset: {
+				[`lastReads.${this.stream.id}`]: true
+			},
+			$set: {
+				modifiedAt: Date.now()
+			}
+		};
+		
+		const updateOp = await new ModelSaver({
+			request: this.request,
+			collection: this.request.data.users,
+			id: userId
+		}).save(op);
+		this.transforms.userUpdateOps.push(updateOp);
 	}
 }
 
