@@ -4,7 +4,6 @@
 
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 const fetch = require('node-fetch');
-const FS = require('fs');
 const FormData = require('form-data');
 const Base64 = require('base-64');
 
@@ -224,17 +223,6 @@ class OAuth2Module extends APIServerModule {
 	// use a refresh token to obtain a new access token
 	async refreshToken (options) {
 		return await this.exchangeAuthCodeForToken(options);
-	}
-
-	// get html to display once auth is complete
-	getAfterAuthHtml () {
-		return this.afterAuthHtml;
-	}
-
-	// initialize the module
-	initialize () {
-		// read in the after-auth html to display once auth is complete
-		this.afterAuthHtml = FS.readFileSync(this.path + '/afterAuth.html', { encoding: 'utf8' });
 	}
 }
 
