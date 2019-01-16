@@ -122,7 +122,7 @@ class PostRenderer {
 </div>
 <div class="assignees">
 	${assigneesText}
-<div>
+</div>
 `;
 		}
 		return `
