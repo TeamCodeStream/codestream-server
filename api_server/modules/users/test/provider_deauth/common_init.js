@@ -60,6 +60,7 @@ class CommonInit {
 				method: 'get',
 				path: path,
 				requestOptions: {
+					noJsonInResponse: true,
 					expectRedirect: true
 				}
 			},
