@@ -172,12 +172,7 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// send the response html
 	async sendResponse () {
-		this.response.type('text/html');
-		let html = '<p>All set!</p>';
-		if (this.serviceAuth && typeof this.serviceAuth.getAfterAuthHtml === 'function') {
-			html = this.serviceAuth.getAfterAuthHtml();
-		}
-		this.response.send(html);
+		this.response.redirect(`https://webflow.codestream.com/auth-complete/${this.provider}`);
 		this.responseHandled = true;
 	}
 
