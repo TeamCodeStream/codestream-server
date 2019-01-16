@@ -107,7 +107,14 @@ class PostRenderer {
 
 		// display assignees if this is an issue with assignees
 		let assigneesDiv = '';
-		if (codemark && codemark.type === 'issue' && codemark.assignees && codemark.assignees.length > 0) {
+		if (
+			codemark && 
+			codemark.type === 'issue' && 
+			(
+				(codemark.assignees && codemark.assignees.length > 0) ||
+				(codemark.externalAssignees && codemark.externalAssignees.length > 0)
+			)
+		 ) {
 			const assigneesText = this.getAssigneesText(codemark, options);
 			assigneesDiv = `
 <div class="assigneesTitle">
@@ -179,12 +186,21 @@ class PostRenderer {
 			members = [];
 		}
 		const users = [];
-		codemark.assignees.forEach(userId => {
+		(codemark.assignees || []).forEach(userId => {
 			const user = members.find(user => user.id === userId);
 			if (user) {
 				users.push(user.username);
 			}
 		});
+		(codemark.externalAssignees || []).forEach(assignee => {
+			if (
+				typeof assignee === 'object' &&
+				assignee.displayName && 
+				typeof assignee.displayName === 'string'
+			) {
+				users.push(assignee.displayName);
+			}
+		})
 		return users.join(', ');
 	}
 	

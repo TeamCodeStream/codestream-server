@@ -9,8 +9,7 @@ const Path = require('path');
 const Config = require('./config');
 const EmailNotificationSender = require('./emailNotificationSender');
 
-// make eslint happy
-/* globals Intl */
+const DEFAULT_TIME_ZONE = 'America/New_York';
 
 class EmailNotificationProcessor {
 
@@ -115,7 +114,8 @@ class EmailNotificationProcessor {
 		// if they are, then we don't need to personalize the rendering of each email,
 		// since we can make all the timestamps the same
 		const firstUser = this.toReceiveEmails[0];
-		this.hasMultipleTimeZones = this.toReceiveEmails.find(user => user.timeZone !== firstUser.timeZone);
+		const firstUserTimeZone = firstUser.timeZone || DEFAULT_TIME_ZONE;
+		this.hasMultipleTimeZones = this.toReceiveEmails.find(user => (user.timeZone || DEFAULT_TIME_ZONE) !== firstUserTimeZone);
 	}
 
 	// determine whether the given user wants an email notification for the current post
@@ -377,7 +377,7 @@ class EmailNotificationProcessor {
 				parentCodemark = this.parentCodemarks.find(parentCodemark => parentCodemark.id === parentPost.codemarkId);
 			}
 		}
-		const firstUserTimeZone = this.toReceiveEmails[0].timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+		const firstUserTimeZone = this.toReceiveEmails[0].timeZone || DEFAULT_TIME_ZONE;
 		// if all users have the same timezone, use the first one
 		const timeZone = this.hasMultipleTimeZones ? null : firstUserTimeZone;
 		const html = new PostRenderer().render({
@@ -413,7 +413,8 @@ class EmailNotificationProcessor {
 	// determine which posts a given user will receive in the email, according to their last
 	// read message for the stream
 	async determinePostsForUser (user) {
-		const lastReadSeqNum = user.lastReads[this.stream.id] || 0;
+		const lastReads = user.lastReads || {};
+		const lastReadSeqNum = lastReads[this.stream.id] || 0;
 		const lastActivityAt = user.lastActivityAt || null;
 		const lastEmailsSent = user.lastEmailsSent || {};
 		const lastEmailSent = lastEmailsSent[this.stream.id] || 0;
@@ -483,7 +484,12 @@ class EmailNotificationProcessor {
 	// of unread posts), OR (2) all the users receiving emails are not in the same time zone
 	// (because the timestamps for the posts are timezone-dependent)
 	async personalizePerUser () {
-		if (!this.hasMultipleAuthors && !this.hasEmotes && !this.hasMultipleTimeZones) {
+		if (
+			!this.hasMultipleAuthors &&
+			!this.hasEmotes &&
+			!this.hasMultipleTimeZones &&
+			!this.hasNonCommentCodemarks
+		) {
 			return;
 		}
 		for (let user of this.toReceiveEmails) {
@@ -522,7 +528,7 @@ class EmailNotificationProcessor {
 			html = html.replace(/\{\{\{authorSpan\}\}\}/g, authorSpan);
 
 			// format the timestamp of this post with timezone dependency
-			const datetime = PostRenderer.formatTime(post.createdAt, user.timeZone);
+			const datetime = PostRenderer.formatTime(post.createdAt, user.timeZone || DEFAULT_TIME_ZONE);
 			html = html.replace(/\{\{\{datetime\}\}\}/g, datetime);
 
 			personalizedRenders.push({ html, post });
