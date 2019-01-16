@@ -65,7 +65,7 @@ class CommonInit {
 				method: 'get',
 				path: `/no-auth/provider-token/${this.provider}?code=${this.code}&state=${this.state}&_mockToken=${this.firstMockToken}`,
 				requestOptions: {
-					noJsonInResponse: true
+					expectRedirect: true
 				}
 			},
 			callback
