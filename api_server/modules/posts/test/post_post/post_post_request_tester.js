@@ -171,7 +171,7 @@ class PostPostRequestTester {
 		new ValidCodemarkTypeWithMarkerTest({ codemarkType: 'bookmark' }).test();
 		new ValidCodemarkTypeWithMarkerTest({ codemarkType: 'trap' }).test();
 		new RequiredForCodemarkTypeTest({ codemarkType: 'comment', attribute: 'text' }).test();
-		new RequiredForCodemarkTypeWithMarkerTest({ codemarkType: 'bookmark', attribute: 'text' }).test();
+		new RequiredForCodemarkTypeWithMarkerTest({ codemarkType: 'bookmark', attribute: 'title' }).test();
 		new RequiredForCodemarkTypeWithMarkerTest({ codemarkType: 'trap', attribute: 'text' }).test();
 		new RequiredForCodemarkTypeTest({ codemarkType: 'question', attribute: 'title' }).test();
 		new RequiredForCodemarkTypeTest({ codemarkType: 'issue', attribute: 'title' }).test();

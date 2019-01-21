@@ -58,7 +58,7 @@ class PutCodemarkRequestTester {
 		new UpdateMarkerMessageTest({ streamType: 'direct' }).test();
 		new UpdateMarkerMessageTest({ streamType: 'team stream' }).test();
 		new RequiredForTypeTest({ codemarkType: 'comment', attribute: 'text' }).test();
-		new RequiredForTypeTest({ codemarkType: 'bookmark', attribute: 'text', wantMarker: true }).test();
+		new RequiredForTypeTest({ codemarkType: 'bookmark', attribute: 'title', wantMarker: true }).test();
 		new RequiredForTypeTest({ codemarkType: 'trap', attribute: 'text', wantMarker: true }).test();
 		new RequiredForTypeTest({ codemarkType: 'question', attribute: 'title' }).test();
 		new RequiredForTypeTest({ codemarkType: 'issue', attribute: 'title' }).test();
