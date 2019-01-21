@@ -17,13 +17,13 @@ const TYPES_REQUIRING_MARKERS = [
 
 const TYPES_REQUIRING_TEXT = [
 	'comment',
-	'trap',
-	'bookmark'
+	'trap'
 ];
 
 const TYPES_REQUIRING_TITLE = [
 	'question',
-	'issue'
+	'issue',
+	'bookmark'
 ];
 
 module.exports = {

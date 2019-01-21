@@ -106,10 +106,10 @@ class PostCodemarkRequestTester {
 		new MarkerRequiredTest({ codemarkType: 'bookmark' }).test();
 		new MarkerRequiredTest({ codemarkType: 'trap' }).test();
 		new RequiredForTypeTest({ codemarkType: 'comment', attribute: 'text' }).test();
-		new RequiredForTypeWithMarkerTest({ codemarkType: 'bookmark', attribute: 'text' }).test();
-		new RequiredForTypeWithMarkerTest({ codemarkType: 'trap', attribute: 'text' }).test();
 		new RequiredForTypeTest({ codemarkType: 'question', attribute: 'title' }).test();
 		new RequiredForTypeTest({ codemarkType: 'issue', attribute: 'title' }).test();
+		new RequiredForTypeWithMarkerTest({ codemarkType: 'bookmark', attribute: 'title' }).test();
+		new RequiredForTypeWithMarkerTest({ codemarkType: 'trap', attribute: 'text' }).test();
 		new IssueWithAssigneesTest().test();
 		new AssigneesIgnoredTest().test();
 		new ParentPostIdTest().test();
