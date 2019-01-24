@@ -1,12 +1,19 @@
 
 # This provides the runtime environment for QA
 
-PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Testing-QA_Keyset"
-MONGO_ACCESS_FILE="$HOME/.codestream/mongo/qa-codestream-dbowner"
 #SSL_CERT=
-#MIXPANEL_TOKEN_FILE
-BOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-qa
+MONGO_ACCESS_FILE="$HOME/.codestream/mongo/qa-codestream-dbowner"
+SLACK_API_ACCESS_FILE=$HOME/.codestream/slack/production
+#TRELLO_API_ACCESS_FILE=
+GITHUB_API_ACCESS_FILE=$HOME/.codestream/github/production
+ASANA_API_ACCESS_FILE=$HOME/.codestream/asana/production
+ATLASSIAN_API_ACCESS_FILE=$HOME/.codestream/atlassian/production
+GITLAB_API_ACCESS_FILE=$HOME/.codestream/gitlab/production
+BITBUCKET_API_ACCESS_FILE=$HOME/.codestream/bitbucket/production
+PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Testing-QA_Keyset"
+#MIXPANEL_TOKEN_FILE=
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/qa-api
+
 export CS_API_ASSET_ENV=prod
 export CS_API_ENV=qa
 

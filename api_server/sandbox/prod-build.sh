@@ -3,12 +3,8 @@
 # well as running supporting API sandboxes for other builds.
 
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-CI_Keyset"
-#MONGO_ACCESS_FILE=
-#SSL_CERT=
-#MIXPANEL_TOKEN_FILE=
-#BOT_SECRETS_FILE=
-#SLACK_API_ACCESS_FILE=
 OTHER_SECRETS_FILE="$HOME/.codestream/codestream-services/ci-api"
+
 export CS_API_ASSET_ENV=prod
 
 # This variable can be overridden when the sandbox is installed
@@ -21,7 +17,5 @@ export CS_API_OUTBOUND_EMAIL_SQS="ci_outboundEmail"
 export CS_API_SENDER_EMAIL=ci-alerts@codestream.com
 
 # These are fake ports
-export CS_API_SLACKBOT_ORIGIN=http://localhost.codestream.us:37202
-export CS_API_TEAMSBOT_ORIGIN=http://localhost.codestream.us:37203
 export CS_API_WEB_CLIENT_ORIGIN=http://localhost.codestream.us:37204
 export CS_API_PUBLIC_URL=https://localhost.codestream.us:37205

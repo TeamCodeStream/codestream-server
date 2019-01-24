@@ -1,13 +1,19 @@
 
 # This provides the runtime environment for prod
 
-PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset"
-MONGO_ACCESS_FILE="$HOME/.codestream/mongo/prod-codestream-dbowner"
 SSL_CERT=codestream.com
-SLACK_API_ACCESS_FILE=$HOME/.codestream/slack-api/production
+MONGO_ACCESS_FILE="$HOME/.codestream/mongo/prod-codestream-dbowner"
+SLACK_API_ACCESS_FILE=$HOME/.codestream/slack/production
+#TRELLO_API_ACCESS_FILE=
+GITHUB_API_ACCESS_FILE=$HOME/.codestream/github/production
+ASANA_API_ACCESS_FILE=$HOME/.codestream/asana/production
+ATLASSIAN_API_ACCESS_FILE=$HOME/.codestream/atlassian/production
+GITLAB_API_ACCESS_FILE=$HOME/.codestream/gitlab/production
+BITBUCKET_API_ACCESS_FILE=$HOME/.codestream/bitbucket/production
+PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset"
 MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
-BOT_SECRETS_FILE=$HOME/.codestream/slackbot/codestream-production
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/prod-api
+
 export CS_API_ASSET_ENV=prod
 export CS_API_ENV=prod
 export CS_API_AUTH_ORIGIN=https://api.codestream.com/no-auth
