@@ -56,6 +56,9 @@ elif [ -z "$CS_API_CALLBACK_ENV" ]; then
 	export CS_API_CALLBACK_ENV=$CS_API_ENV
 fi
 
+# Pointer to the codestream marketing site
+[ -z "$CS_API_MARKETING_SITE_URL" ] && export CS_API_MARKETING_SITE_URL=https://teamcodestream.webflow.io
+
 # This defines the asset environment (local, dev or prod)
 [ -z "$CS_API_ASSET_ENV" ] && export CS_API_ASSET_ENV=local
 

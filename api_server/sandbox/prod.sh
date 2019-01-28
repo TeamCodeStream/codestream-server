@@ -17,6 +17,7 @@ OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/prod-api
 export CS_API_ASSET_ENV=prod
 export CS_API_ENV=prod
 export CS_API_AUTH_ORIGIN=https://api.codestream.com/no-auth
+export CS_API_MARKETING_SITE_URL=https://www.codestream.com
 
 . $CS_API_TOP/sandbox/defaults.sh
 
