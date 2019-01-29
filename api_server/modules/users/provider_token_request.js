@@ -172,7 +172,8 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// send the response html
 	async sendResponse () {
-		this.response.redirect(`https://webflow.codestream.com/auth-complete/${this.provider}`);
+		const host = this.api.config.webclient.marketingHost;
+		this.response.redirect(`${host}/auth-complete/${this.provider}`);
 		this.responseHandled = true;
 	}
 
