@@ -98,9 +98,6 @@ class EmailNotificationRenderer {
 			border: 1px solid #e0e0e0;
 			margin-bottom: 15px;
 		}
-		.footnote {
-			color: #888888
-		}
 	</style>
 </head>
 <html>
@@ -109,11 +106,10 @@ class EmailNotificationRenderer {
 			${postsContent}
 		</div>
 		<hr class=rule>
-		${intro}
-		<div class=footnote>
-			Add to the discussion by replying to this email.<br/>
+		<div class=intro>
+			${intro}
 			<br/>
-			Control notifications by emailing <a href="mailto:${supportEmail}">${supportEmail}</a>.
+			Control notifications by emailing <a href="mailto:${supportEmail}">${supportEmail}</a>.<br/>
 		</div>
 <!--
 		<br>
@@ -129,39 +125,27 @@ class EmailNotificationRenderer {
 	}
 
 	// link that user should click on to learn about CodeStream and install the plugin
-	getInstallLink (options) {
-/*
-		const { user, mentioned } = options;
-		const firstEmail = !user.hasReceivedFirstEmail;
-		const campaign = (
-			(firstEmail && mentioned && 'first_mention_notification_unreg') ||
-			(firstEmail && !mentioned && 'first_newmessage_notification_unreg') ||
-			(!firstEmail && mentioned && 'mention_notification_unreg') ||
-			(!firstEmail && !mentioned && 'newmessage_notification_unreg')
-		);
-*/
-		return `https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream`;
-//		return `http://get.codestream.com/invited?utm_medium=email&utm_source=product&utm_campaign=${campaign}`;
+	getInstallLinks () {
+		const vsCodeLink = 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream';
+		const vsLink = 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs';
+		return `<a clicktracking="off" href="${vsCodeLink}">VS Code</a> or <a clicktracking="off" href="${vsLink}">Visual Studio</a>`;
 	}
 
+
+//	Install CodeStream for [VS Code] or [Visual Studio], or add to the discussion by replying to this email.
 	// determine the intro text of an email notification
 	getNotificationIntro (options) {
 		const { user, team } = options;
-		const isRegistered = user.isRegistered;
-		const firstEmail = !user.hasReceivedFirstEmail;
-		const teamName = team.name;
-		const installLink = this.getInstallLink(options);
-		let intro;
-		if (!isRegistered) {
-			return;
+		if (user.isRegistered) {
+			return 'Add to the discussion by replying to this email.<br/>';
 		}
-		if (firstEmail) {
-			intro = `You’ve been added to ${teamName} on CodeStream, where your team is currently discussing code.<br><a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
+		let intro = '';
+		if (!user.hasReceivedFirstEmail) {
+			intro = `You’ve been added to ${team.name} on CodeStream, where your team is currently discussing code.<br/>`;
 		}
-		else {
-			intro = `<a clicktracking="off" href="${installLink}">Install CodeStream</a> to chat right from within your IDE.`;
-		}
-		return `<div class="intro">${intro}</div><br/>`;
+		const installLinks = this.getInstallLinks();
+		intro += `Install CodeStream for ${installLinks}, or add to the discussion by replying to this email.<br/>`;
+		return intro;
 	}
 }
 
