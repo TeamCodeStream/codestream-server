@@ -21,8 +21,8 @@ const PROVIDERS = [
 	'gitlab',
 	'bitbucket',
 	'slack',
-	'msteams',
-	'glip'
+	'msteams'
+	//'glip'
 ];
 
 class ProviderTokenRequestTester {

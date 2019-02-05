@@ -17,8 +17,8 @@ const PROVIDERS = [
 	'jira',
 	'bitbucket',
 	'gitlab',
-	'msteams',
-	'glip'
+	'msteams'
+	//'glip'
 ];
 
 const UNSUPPORTED_PROVIDERS = [
