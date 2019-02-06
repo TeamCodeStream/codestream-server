@@ -66,6 +66,13 @@ module.exports = {
 	replyToDomain: process.env.CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN || 'dev.codestream.com',
 
 	// SQS queue for queueing outbound email messages
-	outboundEmailQueueName: process.env.CS_OUTBOUND_EMAIL_SQS
-
+	outboundEmailQueueName: process.env.CS_OUTBOUND_EMAIL_SQS,
+	
+	// logging (for running as a service)
+	logging: {
+		directory: process.env.CS_OUTBOUND_EMAIL_LOGS,	// put log files in this directory
+		basename: 'outbound-email',						// use this for the basename of the log file
+		retentionPeriod: 30 * 24 * 60 * 60 * 1000,		// retain log files for this many milliseconds
+		consoleOk: process.env.CS_MAILOUT_LOG_CONSOLE_OK // also output to the console
+	}
 };
