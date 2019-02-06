@@ -9,6 +9,7 @@ class EmailNotificationHandler {
 
 	constructor (options) {
 		Object.assign(this, options);
+		this.logger = this.logger || console;
 	}
 
 	async handleMessage (message) {
@@ -178,11 +179,11 @@ class EmailNotificationHandler {
 	}
 
 	log (message) {
-		console.log(message);
+		this.logger.log(message);
 	}
 
 	warn (message) {
-		console.warn(message);
+		this.logger.warn(message);
 	}
 }
 

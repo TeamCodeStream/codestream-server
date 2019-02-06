@@ -47,6 +47,16 @@ module.exports = {
 		emailTo: process.env.CS_OUTBOUND_EMAIL_TO // redirect emails to this address, for safe testing
 	},
 
+	// smtp credentials
+	smtp: {
+		service: process.env.CS_OUTBOUND_EMAIL_SMTP_SERVICE,
+		host: process.env.CS_OUTBOUND_EMAIL_SMTP_HOST,
+		port: process.env.CS_OUTBOUND_EMAIL_SMTP_PORT,
+		username: process.env.CS_OUTBOUND_EMAIL_SMTP_USERNAME,
+		password: process.env.CS_OUTBOUND_EMAIL_SMTP_PASSWORD,
+		emailTo: process.env.CS_OUTBOUND_EMAIL_TO // redirect emails to this address, for safe testing
+	},
+
 	// how often email notifications will be sent per stream
 	notificationInterval: parseInt(process.env.CS_OUTBOUND_EMAIL_NOTIFICATION_INTERVAL || 300000, 10), 
 
