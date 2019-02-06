@@ -41,6 +41,15 @@ class SQSClient {
 		});
 	}
 
+	// stop listening on the given queue
+	stopListening (queueName) {
+		if (!this.queues[queueName]) {
+			 return;
+		}
+		this.queues[queueName].stopPolling = true;
+		delete this.queues[queueName].handler;
+	}
+	
 	// send a message to the given message queue
 	sendMessage (queueName, data, options, callback) {
 		options = options || {};
