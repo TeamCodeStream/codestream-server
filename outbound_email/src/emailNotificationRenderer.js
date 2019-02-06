@@ -127,9 +127,8 @@ class EmailNotificationRenderer {
 	// link that user should click on to learn about CodeStream and install the plugin
 	getInstallLinks () {
 		const vsCodeLink = 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream';
-		//const vsLink = 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs';
-		//return `<a clicktracking="off" href="${vsCodeLink}">VS Code</a> or <a clicktracking="off" href="${vsLink}">Visual Studio</a>`;
-		return `<a clicktracking="off" href="${vsCodeLink}">VS Code</a>`;
+		const vsLink = 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs';
+		return `<a clicktracking="off" href="${vsCodeLink}">VS Code</a> or <a clicktracking="off" href="${vsLink}">Visual Studio</a>`;
 	}
 
 
