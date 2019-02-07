@@ -2,7 +2,7 @@
 	"name": "outbound-email",
 	"version": "0.4.4",
 	"dependencies": {
-		"deep-equal": "^1.0.1",
+		"deep-equal": "1.0.1",
 		"highlight.js": "9.12.0",
 		"moment-timezone": "0.5.21",
 		"mongodb": "2.2.31",
