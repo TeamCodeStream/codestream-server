@@ -9,7 +9,7 @@ const OAUTH_CONFIG = {
 	authUrl: 'https://bitbucket.org/site/oauth2/authorize',
 	tokenUrl: 'https://bitbucket.org/site/oauth2/access_token',
 	exchangeFormat: 'form',
-	scopes: 'repository issue',
+	scopes: 'account team repository issue:write',
 	appIdInAuthorizationHeader: true,
 	mockAccessTokenExpiresIn: 7200,
 	supportsRefresh: true
