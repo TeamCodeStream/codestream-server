@@ -1,7 +1,7 @@
 'use strict';
 
 const DeepEqual = require('deep-equal');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const DeepClone = require('../deep_clone');
 const ObjectID = require('mongodb').ObjectID;
 
 class MockMongoCollection {
