@@ -3,13 +3,13 @@
 
 #SSL_CERT=
 MONGO_ACCESS_FILE="$HOME/.codestream/mongo/qa-codestream-dbowner"
-SLACK_API_ACCESS_FILE=$HOME/.codestream/slack/production
+#SLACK_API_ACCESS_FILE=$HOME/.codestream/slack/production
 #TRELLO_API_ACCESS_FILE=
-GITHUB_API_ACCESS_FILE=$HOME/.codestream/github/production
-ASANA_API_ACCESS_FILE=$HOME/.codestream/asana/production
-ATLASSIAN_API_ACCESS_FILE=$HOME/.codestream/atlassian/production
-GITLAB_API_ACCESS_FILE=$HOME/.codestream/gitlab/production
-BITBUCKET_API_ACCESS_FILE=$HOME/.codestream/bitbucket/production
+#GITHUB_API_ACCESS_FILE=$HOME/.codestream/github/production
+#ASANA_API_ACCESS_FILE=$HOME/.codestream/asana/production
+#ATLASSIAN_API_ACCESS_FILE=$HOME/.codestream/atlassian/production
+#GITLAB_API_ACCESS_FILE=$HOME/.codestream/gitlab/production
+#BITBUCKET_API_ACCESS_FILE=$HOME/.codestream/bitbucket/production
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Testing-QA_Keyset"
 #MIXPANEL_TOKEN_FILE=
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/qa-api
