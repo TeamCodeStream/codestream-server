@@ -85,8 +85,8 @@ class RabbitMQClient {
 		if (options.delay) {
 			publishOptions.headers = {
 				'x-delay': options.delay * 1000
-			}
-		};
+			};
+		}
 		queue.channel.publish(
 			queueName, 
 			'', 
@@ -111,7 +111,7 @@ class RabbitMQClient {
 			data = JSON.parse(content);
 		}
 		catch (error) {
-			this.warn(`Unable to process message on queue ${queueName}: bad JSON data: ${error}`);
+			this.warn(`Unable to process message on queue ${name}: bad JSON data: ${error}`);
 		}
 		queue.handler(data);
 	}

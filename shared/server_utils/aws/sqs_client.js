@@ -26,14 +26,13 @@ class SQSClient {
 		};
 		this.sqs.createQueue(params, (error, data) => {
 			if (error) {
-				return callback(`unable to create queue ${options.name}: ${error}`);
+				throw `unable to create queue ${options.name}: ${error}`;
 			}
 			this.queues[options.name] = {
 				name: options.name,
 				options: options,
 				url: data.QueueUrl
 			};
-			callback();
 		});
 	}
 
