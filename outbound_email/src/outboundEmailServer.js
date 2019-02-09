@@ -5,6 +5,7 @@
 
 const AWS = require('./server_utils/aws/aws');
 const SQSClient = require('./server_utils/aws/sqs_client');
+const RabbitMQClient = require('./server_utils/rabbitmq');
 const { callbackWrap } = require('./server_utils/await_utils');
 const MongoClient = require('./server_utils/mongo/mongo_client.js');
 const EmailNotificationHandler = require('./emailNotificationHandler');
@@ -49,18 +50,15 @@ class OutboundEmailServer {
 	// start listening for messages
 	async startListening () {
 		this.log(`Listening to ${this.config.outboundEmailQueueName}...`);
-		await callbackWrap(
-			this.sqsClient.createQueue.bind(this.sqsClient),
-			{
-				name: this.config.outboundEmailQueueName,
-				handler: (this.config.messageHandler || this.processMessage).bind(this)
-			}
-		);
+		await this.queuer.listen({
+			name: this.config.outboundEmailQueueName,
+			handler: (this.config.messageHandler || this.processMessage).bind(this)
+		});
 	}
 
 	// stop listening for messages
 	stopListening () {
-		this.sqsClient.stopListening(this.config.outboundEmailQueueName);
+		this.queuer.stopListening(this.config.outboundEmailQueueName);
 	}
 
 	// handle a message from the master
@@ -115,12 +113,12 @@ class OutboundEmailServer {
 		if (callback) { 
 			callback(true);
 		}
-		this.numOpenTasks++;
 		await this.initAsNeeded();
 		if (!this.handlers[message.type]) {
 			this.warn(`No email handler for type ${message.type}`);
 			return;
 		}
+		this.numOpenTasks++;
 		await this.handlers[message.type].handleMessage(message);
 		this.numOpenTasks--;
 		if (this.numOpenTasks === 0 && this.killReceived) {
@@ -132,12 +130,13 @@ class OutboundEmailServer {
 		if (this.handlers) { return; }
 		await this.openMongoClient();
 		await this.openPubnubClient();
-		await this.openSQSClient();
+		await this.openQueuer();
 		await this.makeEmailSender();
 		await this.makeHandlers();
 	}
 	
 	async openMongoClient () {
+		this.log('Opening connection to mongo...');
 		const mongoClient = new MongoClient();
 		const mongoOptions = Object.assign({}, this.config.mongo);
 		mongoOptions.collections = MONGO_COLLECTIONS;
@@ -152,17 +151,48 @@ class OutboundEmailServer {
 	}
 	
 	async openPubnubClient () {
+		this.log('Opening connection to Pubnub...');
 		const pubnubOptions = Object.assign({}, this.config.pubnub);
 		pubnubOptions.uuid = 'OutboundEmail-' + OS.hostname();
 		const pubnub = new PubNub(pubnubOptions);
 		this.pubnub = new PubNubClient({ pubnub });
 	}
 	
-	async openSQSClient () {
-		const aws = new AWS(this.config.aws);
-		this.sqsClient = new SQSClient({ aws });
+	async openQueuer () {
+		if (this.config.rabbitmq && this.config.rabbitmq.host) {
+			await this.openRabbitMQ();
+		}
+		else {
+			await this.openSQS();
+		}
 	}
 	
+	async openRabbitMQ () {
+		this.log('Opening connection to RabbitMQ...');
+		const { user, password, host, port } = this.config.rabbitmq;
+		const config = {
+			host: `amqp://${user}:${password}@${host}:${port}`,
+			logger: this,
+			isPublisher: true
+		};
+		this.queuer = new RabbitMQClient(config);
+		await this.queuer.init();
+		await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
+		this.queuerIsRabbitMQ = true;
+	}
+
+	async openSQS () {
+		this.log('Opening connection to SQS...');
+		const aws = new AWS(this.config.aws);
+		this.queuer = new SQSClient({ aws, logger: this.logger });
+		await callbackWrap(
+			this.queuer.createQueue.bind(this.queuer),
+			{
+				name: this.config.outboundEmailQueueName
+			}
+		);
+	}
+
 	async makeEmailSender () {
 		this.emailSender = new EmailSender({
 			logger: this.logger,
@@ -175,7 +205,7 @@ class OutboundEmailServer {
 			logger: this.logger,
 			data: this.data,
 			messager: this.pubnub,
-			queuer: this.sqsClient,
+			queuer: this.queuer,
 			sender: this.emailSender
 		};
 		this.handlers = {

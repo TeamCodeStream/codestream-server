@@ -57,6 +57,14 @@ module.exports = {
 		emailTo: process.env.CS_OUTBOUND_EMAIL_TO // redirect emails to this address, for safe testing
 	},
 
+	// RabbitMQ configuration
+	rabbitmq: {
+		host: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_HOST,
+		port: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_PORT,
+		user: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_USER,
+		password: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_PASSWORD
+	},
+
 	// how often email notifications will be sent per stream
 	notificationInterval: parseInt(process.env.CS_OUTBOUND_EMAIL_NOTIFICATION_INTERVAL || 300000, 10), 
 

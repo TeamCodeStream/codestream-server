@@ -131,8 +131,7 @@ class EmailNotificationHandler {
 		const delay = Math.floor(Config.notificationInterval / 1000);
 		this.log(`Triggering email notifications for stream ${this.stream.id} in ${delay} seconds...`);
 		try {
-			await callbackWrap(
-				this.queuer.sendMessage.bind(this.queuer),
+			await this.queuer.sendMessage(
 				Config.outboundEmailQueueName,
 				message,
 				{ delay: delay }
