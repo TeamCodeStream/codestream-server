@@ -17,36 +17,34 @@ class SQSClient {
 	}
 
 	// create a queue given the name provided, messages will be returned in the handler callback provided
-	createQueue (options) {
+	async createQueue (options) {
 		if (!options.name) {
 			throw 'must provide a queue name';
 		}
 		const params = {
 			QueueName: options.name
 		};
-		return new Promise((resolve, reject) => {
-			this.sqs.createQueue(params, (error, data) => {
-				if (error) {
-					return reject(`unable to create queue ${options.name}: ${error}`);
-				}
-				this.queues[options.name] = {
-					name: options.name,
-					options: options,
-					url: data.QueueUrl
-				};
-				resolve();
-			});
+		this.sqs.createQueue(params, (error, data) => {
+			if (error) {
+				return callback(`unable to create queue ${options.name}: ${error}`);
+			}
+			this.queues[options.name] = {
+				name: options.name,
+				options: options,
+				url: data.QueueUrl
+			};
+			callback();
 		});
 	}
 
 	// start listening to the specified queue
-	listen (options) {
+	async listen (options) {
 		const { name } = options;
 		const queue = this.queues[name];
 		if (!queue) {
 			throw `cannot listen to queue ${options.name}, queue has not been created yet`;
 		}
-		queue.handler = options.handler;
+		queue[name].handler = options.handler;
 		this._initiatePolling(name);
 	}
 
