@@ -2,13 +2,13 @@
 
 'use strict';
 
-let ApiCfg = {};
+let ApiConfig = {};
 if (process.env.CS_API_CFG_FILE) {
-	ApiCfg = require(process.env.CS_API_CFG_FILE).apiServer;
-	ApiCfg.mockMode = false;
+	ApiConfig = require(process.env.CS_API_CFG_FILE).apiServer;
+	ApiConfig.mockMode = false;
 }
 else {
-	ApiCfg = {
+	ApiConfig = {
 		// avoid the email configuration by setting this env var
 		confirmationNotRequired: process.env.CS_API_CONFIRMATION_NOT_REQUIRED,
 
@@ -61,7 +61,7 @@ else {
 // list of third-party providers available for integrations
 // this is a superset of what may actually be available in a given installation, given which
 // providers represent services that are enabled by configuration of the individual modules
-ApiCfg.thirdPartyProviders = [
+ApiConfig.thirdPartyProviders = [
 	'asana',
 	'azuredevops',
 	'bitbucket',
@@ -74,12 +74,12 @@ ApiCfg.thirdPartyProviders = [
 ];
 
 // matching these paths means Authorization header is not required
-ApiCfg.unauthenticatedPaths = ['^\\/no-auth\\/', '^\\/robots\\.txt$'];
+ApiConfig.unauthenticatedPaths = ['^\\/no-auth\\/', '^\\/robots\\.txt$'];
 
 // matching these paths means Authorization header is optional, behavior may vary
-ApiCfg.optionalAuthenticatedPaths = ['^\\/help(\\/|$)', '^\\/c\\/', '^\\/p\\/', '^\\/web\\/'];
+ApiConfig.optionalAuthenticatedPaths = ['^\\/help(\\/|$)', '^\\/c\\/', '^\\/p\\/', '^\\/web\\/'];
 
 // matchines these paths means cookie authentication is required
-ApiCfg.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/web\\/'];
+ApiConfig.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/web\\/'];
 
-module.exports = ApiCfg;
+module.exports = ApiConfig;
