@@ -17,9 +17,9 @@ class SQSClient {
 	}
 
 	// create a queue given the name provided, messages will be returned in the handler callback provided
-	createQueue (options, callback) {
+	async createQueue (options) {
 		if (!options.name) {
-			return callback('must provide a queue name');
+			throw 'must provide a queue name';
 		}
 		const params = {
 			QueueName: options.name
@@ -31,14 +31,21 @@ class SQSClient {
 			this.queues[options.name] = {
 				name: options.name,
 				options: options,
-				url: data.QueueUrl,
-				handler: options.handler
+				url: data.QueueUrl
 			};
-			if (options.handler) {
-				this._initiatePolling(options.name);
-			}
 			callback();
 		});
+	}
+
+	// start listening to the specified queue
+	async listen (options) {
+		const { name } = options;
+		const queue = this.queues[name];
+		if (!queue) {
+			throw `cannot listen to queue ${options.name}, queue has not been created yet`;
+		}
+		queue[name].handler = options.handler;
+		this._initiatePolling(name);
 	}
 
 	// stop listening on the given queue
@@ -47,9 +54,8 @@ class SQSClient {
 			return;
 		}
 		this.queues[queueName].stopPolling = true;
-		delete this.queues[queueName].handler;
 	}
-	
+
 	// send a message to the given message queue
 	sendMessage (queueName, data, options, callback) {
 		options = options || {};

@@ -21,33 +21,54 @@ class RabbitMQClient {
 
 	// create a queue given the name provided, messages will be returned in the handler callback provided
 	async createQueue (options) {
-		if (!options.name) {
+		const { name } = options;
+		if (!name) {
 			throw 'must provide a queue name';
 		}
 		const channel = await this.rabbitmq.createChannel();
-		channel.assertQueue(options.name);
-		if (options.isPublisher) {
-			await channel.deleteExchange(options.name);
-			await channel.assertExchange(
-				options.name,
-				'x-delayed-message',
-				{ 
-					arguments: {
-						'x-delayed-type': 'direct'
-					}
+		await channel.deleteExchange(name);
+		await channel.assertExchange(
+			name,
+			'x-delayed-message',
+			{ 
+				durable: true,
+				arguments: {
+					'x-delayed-type': 'fanout'
 				}
-			);
-		}
-		if (options.handler) {
-			await channel.consume(options.name, this._processMessage.bind(this));
-		}
+			}
+		);
+		await channel.assertQueue(name, { durable: true });
+		await channel.bindQueue(name, name, '');
+		channel.on('error', error => {
+			this.warn(`RabbitMQ handler error: ${error.message}`);
+		});
 		this.queues[options.name] = {
 			name: options.name,
-			channel,
-			handler: options.handler
+			channel
 		};
 	}
 
+	// start listening to the specified queue
+	async listen (options) {
+		const { name } = options;
+		const queue = this.queues[name];
+		if (!queue) {
+			throw `cannot listen to queue ${options.name}, queue has not been created yet`;
+		}
+		queue.handler = options.handler;
+		const result = await queue.channel.consume(name, this._processMessage.bind(this));
+		queue.tag = result.consumerTag;
+	}
+	
+	// stop listening on the given queue
+	stopListening (queueName) {
+		const queue = this.queues[queueName];
+		if (!queue || !queue.channel || !queue.tag) {
+			return;
+		}
+		queue.channel.cancel(queue.tag);
+	}
+	
 	// send a message to the given message queue
 	async sendMessage (queueName, data, options) {
 		options = options || {};
@@ -58,7 +79,9 @@ class RabbitMQClient {
 		if (!queue) {
 			throw `no queue found matching ${queueName}`;
 		}
-		const publishOptions = {};
+		const publishOptions = {
+			persistent: true
+		};
 		if (options.delay) {
 			publishOptions.headers = {
 				'x-delay': options.delay * 1000
@@ -66,7 +89,7 @@ class RabbitMQClient {
 		};
 		queue.channel.publish(
 			queueName, 
-			queueName, 
+			'', 
 			Buffer.from(JSON.stringify(data)),
 			publishOptions
 		);
@@ -75,10 +98,10 @@ class RabbitMQClient {
 	// process data for a single message data from the given queue
 	_processMessage (message) {
 		const { content, fields } = message;
-		const queueName = fields.routingKey;	
+		const name = fields.exchange;	
 
-		this.log(`Received a RabbitMQ message on queue ${queueName}`);
-		const queue = this.queues[queueName];
+		this.log(`Received a RabbitMQ message on queue ${name}`);
+		const queue = this.queues[name];
 		if (!queue) { return; }
 		queue.channel.ack(message);
 		if (!content || !queue.handler) { return; }
