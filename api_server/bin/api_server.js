@@ -30,6 +30,7 @@ const AzureDevOpsConfig = require(ConfigDirectory + '/azuredevops');
 const LoggerConfig = require(ConfigDirectory + '/logger');
 const EmailConfig = require(ConfigDirectory + '/email');
 const AWSConfig = require(ConfigDirectory + '/aws');
+const RabbitMQConfig = require(ConfigDirectory + '/rabbitmq');
 const WebClientConfig = require(ConfigDirectory + '/webclient');
 const Limits = require(ConfigDirectory + '/limits');
 const Version = require(ConfigDirectory + '/version');
@@ -97,6 +98,7 @@ const MyAPICluster = new ClusterWrapper(
 		azuredevops: AzureDevOpsConfig,
 		email: EmailConfig,
 		aws: AWSConfig,
+		rabbitmq: RabbitMQConfig,
 		webclient: WebClientConfig,
 		limits: Limits,
 		dataCollections: DataCollections,

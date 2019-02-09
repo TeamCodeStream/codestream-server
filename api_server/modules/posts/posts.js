@@ -7,7 +7,6 @@ const PostCreator = require('./post_creator');
 const PostUpdater = require('./post_updater');
 const PostDeleter = require('./post_deleter');
 const Post = require('./post');
-const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const Errors = require('./errors');
 
 const DEPENDENCIES = [
@@ -82,13 +81,10 @@ class Posts extends Restful {
 		// timer for email notifications
 		if (!this.api.services.queueService) { return; }
 		if (!this.api.config.aws.sqs.outboundEmailQueueName) { return; }
-		await callbackWrap(
-			this.api.services.queueService.createQueue.bind(this.api.services.queueService),
-			{
-				name: this.api.config.aws.sqs.outboundEmailQueueName,
-				logger: this.api
-			}
-		);
+		await this.api.services.queueService.createQueue({
+			name: this.api.config.aws.sqs.outboundEmailQueueName,
+			logger: this.api
+		});
 	}
 
 	describeErrors () {

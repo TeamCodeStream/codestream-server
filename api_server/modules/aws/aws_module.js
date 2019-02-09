@@ -11,16 +11,26 @@ class AWSModule extends APIServerModule {
 
 	services () {
 		// return a function that, when invoked, returns a service structure with the desired AWS services
+		if (this.api.config.api.dontWantAWS) {
+			this.api.log('Not configured to use AWS services');
+			return null;
+		}
 		return async () => {
 			this.api.log('Initiating AWS services...');
 			this.aws = new AWS(this.api.config.aws);
-			this.initializeSQS();
-			return { queueService: this.sqsClient };
+			this.awsServices = {};
+
+			const queueService = this.api.config.api.queueService || 'sqs';
+			if (queueService === 'sqs') {
+				this.initializeSQS();
+			}
+
+			return this.awsServices;
 		};
 	}
 
 	initializeSQS () {
-		this.sqsClient = new SQSClient({ aws: this.aws, logger: this.api });
+		this.awsServices.queueService = new SQSClient({ aws: this.aws, logger: this.api });
 	}
 }
 

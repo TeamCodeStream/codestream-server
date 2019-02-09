@@ -3,7 +3,8 @@
   "version": "1.20.7",
   "dependencies": {
     "@slack/client": "^4.6.0",
-    "analytics-node": "^3.3.0",
+    "amqplib": "0.5.3",
+    "analytics-node": "3.3.0",
     "async": "2.1.2",
     "aws-sdk": "^2.205.0",
     "base-64": "^0.1.0",
