@@ -66,7 +66,6 @@ const NumRepliesToCodemarkMessageTest = require('./num_replies_to_codemark_messa
 const MentionTest = require('./mention_test');
 const UnregisteredMentionTest = require('./unregistered_mention_test');
 const MessageToAuthor = require('./message_to_author_test');
-//const SetPersonAnalyticsTest = require('./set_person_analytics_test');
 const OnTheFlyMarkerStreamFromDifferentTeamTest = require('./on_the_fly_marker_stream_from_different_team_test');
 const OnTheFlyMarkerStreamRepoNotFoundTest = require('./on_the_fly_marker_stream_repo_not_found_test');
 const OnTheFlyMarkerStreamNoRemotesTest = require('./on_the_fly_marker_stream_no_remotes_test');
@@ -159,7 +158,6 @@ class PostPostRequestTester {
 		new MentionTest().test();
 		new UnregisteredMentionTest().test();
 		new MessageToAuthor().test();
-		//new SetPersonAnalyticsTest().test();
 		new OnTheFlyMarkerStreamFromDifferentTeamTest().test();
 		new OnTheFlyMarkerStreamRepoNotFoundTest().test();
 		new OnTheFlyMarkerStreamNoRemotesTest().test();

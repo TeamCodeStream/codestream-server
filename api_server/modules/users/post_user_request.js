@@ -188,7 +188,7 @@ class PostUserRequest extends PostRequest {
 		const provider = providerInfo.slack ? 'Slack' : 'CodeStream';
 		const trackObject = {
 			'distinct_id': invitingUser.id,
-			'Email Address': invitingUser.get('email'),
+			'email': invitingUser.get('email'),
 			'Invitee Email Address': invitedUser.get('email'),
 			'First Invite': !invitedUser.get('numInvites'),
 			'Registered': !!invitedUser.get('isRegistered'),
@@ -198,12 +198,16 @@ class PostUserRequest extends PostRequest {
 			'Team Name': this.team.get('name'),
 			'Reporting Group': this.team.get('reportingGroup') || '',
 			'Provider': provider,
-			'Company': company.get('name'),
+			'Company Name': company.get('name'),
 			'Endpoint': this.request.headers['x-cs-plugin-ide'] || 'Unknown IDE',
-			'Plugin Version': this.request.headers['x-cs-plugin-version'] || ''
+			'Plugin Version': this.request.headers['x-cs-plugin-version'] || '',
+			company: {
+				id: this.team.id,
+				name: this.team.get('name')
+			}
 		};
 		if (invitingUser.get('registeredAt')) {
-			trackObject['Date Signed Up'] = new Date(invitingUser.get('registeredAt')).toISOString();
+			trackObject['createdAt'] = new Date(invitingUser.get('registeredAt')).toISOString();
 		}
 		if (invitingUser.get('lastPostCreatedAt')) {
 			trackObject['Date of Last Post'] = new Date(invitingUser.get('lastPostCreatedAt')).toISOString();

@@ -15,7 +15,7 @@ const MongoConfig = require(ConfigDirectory + '/mongo.js');
 const SecretsConfig = require(ConfigDirectory + '/secrets.js');
 const PubNubConfig = require(ConfigDirectory + '/pubnub.js');
 const IpcConfig = require(ConfigDirectory + '/ipc.js');
-const MixPanelConfig = require(ConfigDirectory + '/mixpanel.js');
+const SegmentConfig = require(ConfigDirectory + '/segment.js');
 const SlackConfig = require(ConfigDirectory + '/slack.js');
 const MSTeamsConfig = require(ConfigDirectory + '/msteams.js');
 const GlipConfig = require(ConfigDirectory + '/glip.js');
@@ -80,7 +80,7 @@ const MyAPICluster = new ClusterWrapper(
 		}),
 		pubnub: PubNubConfig,
 		ipc: IpcConfig,
-		mixpanel: MixPanelConfig,
+		segment: SegmentConfig,
 		slack: SlackConfig,
 		msteams: MSTeamsConfig,
 		glip: GlipConfig,

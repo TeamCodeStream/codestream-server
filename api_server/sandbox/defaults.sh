@@ -270,6 +270,14 @@ else
 fi
 
 
+# =============== Segment Settings ==============
+[ -z "$SEGMENT_TOKEN_FILE" ] && SEGMENT_TOKEN_FILE=$HOME/.codestream/segment/development
+if [ -f $SEGMENT_TOKEN_FILE ]; then
+	. $SEGMENT_TOKEN_FILE
+	export CS_API_SEGMENT_TOKEN=$SEGMENT_TOKEN
+fi
+
+
 # =============== Other Secrets ===============
 [ -z "$OTHER_SECRETS_FILE" ] && OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/dev-api
 if [ -f $OTHER_SECRETS_FILE ]; then

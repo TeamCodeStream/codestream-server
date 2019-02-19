@@ -271,7 +271,6 @@ class PostCreator extends ModelCreator {
 			this.publishParentPost,				// if this post was a reply and we updated the parent post, publish that
 			this.triggerNotificationEmails,		// trigger email notifications to members who should receive them
 			this.publishToAuthor,				// publish directives to the author's me-channel
-			//this.sendPostCountToAnalytics,		// update analytics post count for the post's author
 			this.trackPost,						// for server-generated posts, send analytics info
 			this.updateMentions					// for mentioned users, update their mentions count for analytics 
 		], this);
@@ -411,26 +410,6 @@ class PostCreator extends ModelCreator {
 		}
 	}
 
-	// send the post count update to our analytics service
-	async sendPostCountToAnalytics () {
-		// check if user has opted out
-		const preferences = this.user.get('preferences') || {};
-		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
-			return;
-		}
-		this.api.services.analytics.setPerson(
-			this.user.id,
-			{
-				'Total Posts': this.user.get('totalPosts'),
-				'Date of Last Post': new Date(this.user.get('lastPostCreatedAt')).toISOString()
-			},
-			{
-				request: this.request,
-				user: this.user
-			}
-		);
-	}
-
 	// track this post for analytics, with the possibility that the user may have opted out
 	async trackPost () {
 		// only track for inbound emails, client-originating posts are tracked by the client
@@ -461,22 +440,28 @@ class PostCreator extends ModelCreator {
 			Type: 'Chat',
 			Thread: 'Parent',
 			Category: category,
-			'Email Address': this.user.get('email'),
+			'email': this.user.get('email'),
 			'Join Method': this.user.get('joinMethod'),
 			'Team ID': this.team ? this.team.id : undefined,
 			'Team Name': this.team ? this.team.get('name') : undefined,
 			'Team Size': this.team ? this.team.get('memberIds').length : undefined,
 			'Reporting Group': this.team ? (this.team.get('reportingGroup') || '') : undefined,
 			'Provider': provider,
-			Company: companyName,
+			'Company Name': companyName,
 			'Endpoint': endpoint,
 			'Date of Last Post': new Date(this.model.get('createdAt')).toISOString()
 		};
 		if (this.user.get('registeredAt')) {
-			trackObject['Date Signed Up'] = new Date(this.user.get('registeredAt')).toISOString();
+			trackObject['createdAt'] = new Date(this.user.get('registeredAt')).toISOString();
 		}
 		if (this.user.get('totalPosts') === 1) {
 			trackObject['First Post?'] = new Date(this.model.get('createdAt')).toISOString();
+		}
+		if (this.team) {
+			trackObject.company = {
+				id: this.team.id,
+				name: this.team.get('name')
+			};
 		}
 
 		this.api.services.analytics.track(

@@ -98,7 +98,7 @@ class CheckSignupRequest extends RestfulRequest {
 			Error: eventName
 		};
 		if (this.user) {
-			trackObject['Email Address'] = this.user.get('email');
+			trackObject['email'] = this.user.get('email');
 		}
 		this.api.services.analytics.track(
 			'Continue Into IDE Failed',
