@@ -275,6 +275,8 @@ fi
 if [ -f $SEGMENT_TOKEN_FILE ]; then
 	. $SEGMENT_TOKEN_FILE
 	export CS_API_SEGMENT_TOKEN=$SEGMENT_TOKEN
+else
+	echo "WARNING: Segment token not found ($SEGMENT_TOKEN_FILE). API will not start."
 fi
 
 
