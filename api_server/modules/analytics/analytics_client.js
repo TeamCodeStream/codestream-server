@@ -2,19 +2,30 @@
 
 'use strict';
 
+const AnalyticsNode = require('analytics-node');
+
 class AnalyticsClient {
 
-	constructor (options) {
-		Object.assign(this, options);
+	constructor (config) {
+		this.config = config || {};
+		if (this.config.token) {
+			this.segment = new AnalyticsNode(this.config.token);
+		}
+		else {
+			this.warn('No Segment token provided, no telemetry will be available');
+		}
 	}
 
 	// track an analytics event
 	track (event, data, options = {}) {
+		if (!this.segment) { 
+			this.log('Would have sent tracking event, tracking disabled: ' + event);
+			return; 
+		}
+
 		if (this._requestSaysToBlockTracking(options)) {
 			// we are blocking tracking, for testing purposes
-			if (options.request) {
-				options.request.log('Would have sent tracking event: ' + event);
-			}
+			this.log('Would have sent tracking event: ' + event);
 			return;
 		}
 
@@ -28,11 +39,9 @@ class AnalyticsClient {
 			// we received a header in the request asking us to divert this tracking event
 			// instead of actually sending it, for testing purposes ... we'll
 			// emit the request body to the callback provided
-			if (options.request) {
-				options.request.log(`Diverting tracking event ${event} to test callback`);
-			}
-			if (this.testCallback) {
-				this.testCallback('track', trackData, options.user, options.request);
+			this.log(`Diverting tracking event ${event} to test callback`);
+			if (this.config.testCallback) {
+				this.config.testCallback('track', trackData, options.user, options.request);
 			}
 			return;
 		}
@@ -64,6 +73,18 @@ class AnalyticsClient {
 			options.request.request.headers &&
 			options.request.request.headers['x-cs-test-tracking']
 		);
+	}
+
+	log (message) {
+		if (this.config.logger) {
+			this.config.logger.log(message);
+		}
+	}
+
+	warn (message) {
+		if (this.config.logger) {
+			this.config.logger.warn(message);
+		}
 	}
 }
 

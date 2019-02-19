@@ -3,7 +3,6 @@
 'use strict';
 
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
-const AnalyticsNode = require('analytics-node');
 const AnalyticsClient = require('./analytics_client');
 
 class Analytics extends APIServerModule {
@@ -12,16 +11,12 @@ class Analytics extends APIServerModule {
 		// return a function that, when invoked, returns a service structure with the 
 		// segment analytics client as the analytics service
 		return async () => {
-			if (!this.api.config.segment) {
-				return this.api.warn('Will not connect to Segment Analytics, no configuration supplied');
-			}
-
 			this.api.log('Connecting to Segment Analytics...');
-			this.segment = new AnalyticsNode(this.api.config.segment.token);
-			this.analyticsClient = new AnalyticsClient({
-				segment: this.segment,
-				testCallback: this.testCallback.bind(this)
+			const config = Object.assign({}, this.api.config.segment, {
+				testCallback: this.testCallback.bind(this),
+				logger: this.api
 			});
+			this.analyticsClient = new AnalyticsClient(config);
 			return { analytics: this.analyticsClient };
 		};
 	}
