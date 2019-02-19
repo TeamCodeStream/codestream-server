@@ -14,10 +14,17 @@ class AnalyticsClient {
 			// we are blocking tracking, for testing purposes
 			if (options.request) {
 				options.request.log('Would have sent tracking event: ' + event);
-				return;
 			}
+			return;
 		}
-		else if (this._requestSaysToTestTracking(options)) {
+
+		const trackData = {
+			userId: options.user && options.user.id,
+			event,
+			properties: data
+		};
+		
+		if (this._requestSaysToTestTracking(options)) {
 			// we received a header in the request asking us to divert this tracking event
 			// instead of actually sending it, for testing purposes ... we'll
 			// emit the request body to the callback provided
@@ -25,38 +32,16 @@ class AnalyticsClient {
 				options.request.log(`Diverting tracking event ${event} to test callback`);
 			}
 			if (this.testCallback) {
-				this.testCallback('track', event, data, options.user, options.request);
+				this.testCallback('track', trackData, options.user, options.request);
 			}
+			return;
 		}
-		else {
-			this.mixPanel.track(event, data);
-		}
-	}
 
-	// set person properties
-	setPerson (userId, data, options = {}) {
-		if (this._requestSaysToBlockTracking(options)) {
-			// we are blocking tracking, for testing purposes
-			if (options.request) {
-				options.request.log('Would have sent analytics person update for ' + userId);
-				return;
-			}
-		}
-		else if (this._requestSaysToTestTracking(options)) {
-			// we received a header in the request asking us to divert this tracking event
-			// instead of actually sending it, for testing purposes ... we'll
-			// emit the request body to the callback provided
-			if (options.request) {
-				options.request.log(`Diverting analytics person update for ${userId} to test callback`);
-			}
-			if (this.testCallback) {
-				this.testCallback('setPerson', userId, data, options.user, options.request);
-			}
-		}
-		else {
-			data = Object.assign({}, data, { $distinct_id: userId });
-			this.mixPanel.people.set(userId, data);
-		}
+		this.segment.track({
+			userId: options.user && options.user.id,
+			event,
+			properties: data
+		});
 	}
 
 	// determine if special header was sent with the request that says to block tracking

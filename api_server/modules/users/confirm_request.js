@@ -239,7 +239,7 @@ class ConfirmRequest extends RestfulRequest {
 		if (!this.user) { return; }
 		const trackObject = {
 			Error: failureEvent,
-			'Email Address': this.user.get('email')
+			'email': this.user.get('email')
 		};
 		this.api.services.analytics.track(
 			'Email Confirmation Failed',

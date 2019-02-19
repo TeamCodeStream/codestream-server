@@ -22,7 +22,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	setChannelName (callback) {
 		// for the user originating the request, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the tracker
-		// service (mixpanel) on this channel, and then we'll validate the data
+		// service on this channel, and then we'll validate the data
 		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
@@ -49,15 +49,19 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	// validate the message received from pubnub
 	validateMessage (message) {
 		message = message.message;
-		if (message.type !== 'track') {
+		const { type, data } = message;
+		if (type !== 'track') {
 			return false;
 		}
 		const expectedMessage = {
-			Error: this.expectedError,
-			'Email Address': this.currentUser.user.email
+			userId: this.currentUser.user.id,
+			event: 'Continue Into IDE Failed',
+			properties: {
+				Error: this.expectedError,
+				'email': this.currentUser.user.email
+			}
 		};
-		Assert.equal(message.event, 'Continue Into IDE Failed', 'event not correct');
-		Assert.deepEqual(message.data, expectedMessage, 'tracking data not correct');
+		Assert.deepEqual(data, expectedMessage, 'tracking data not correct');
 		return true;
 	}
 }

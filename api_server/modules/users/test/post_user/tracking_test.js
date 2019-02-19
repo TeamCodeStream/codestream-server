@@ -20,7 +20,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	setChannelName (callback) {
 		// for the user originating the request, we use their me-channel
 		// we'll be sending the data that we would otherwise send to the tracker
-		// service (mixpanel) on this channel, and then we'll validate the data
+		// service on this channel, and then we'll validate the data
 		this.channelName = `user-${this.currentUser.user.id}`;
 		callback();
 	}
@@ -49,31 +49,33 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	// validate the message received from pubnub
 	validateMessage (message) {
 		message = message.message;
-		if (message.type !== 'track') {
+		const { type, data } = message;
+		if (type !== 'track') {
 			return false;
 		}
-		const data = message.data;
+		const { properties } = data;
 		const registered = !!this.existingUserIsRegistered;
 		const firstInvite = !this.subsequentInvite;
 		const provider = this.expectedProvider || 'CodeStream';
 		const errors = [];
 		const result = (
-			((message.event === 'Team Member Invited') || errors.push('event not correct')) &&
-			((data.distinct_id === this.currentUser.user.id) || errors.push('distinct_id not set to request originator\'s ID')) &&
-			((data['Invitee Email Address'] === this.createdUser.email) || errors.push('Email Address does not match request originator')) &&
-			((data['First Invite'] === firstInvite) || errors.push('First Invite not correct')) &&
-			((data['Email Address'] === this.currentUser.user.email) || errors.push('Email Address not correct')) && 
-			((data['Registered'] === registered) || errors.push('Registered not correct')) &&
-			((data['Join Method'] === 'Created Team') || errors.push('Join Method not correct')) && 
-			((data['Team ID'] === this.team.id) || errors.push('Team ID not correct')) &&
-			((data['Team Size'] === this.team.memberIds.length + 1) || errors.push('Team Size not correct')) &&
-			((data['Team Name'] === this.team.name) || errors.push('Team Name not correct')) &&
-			((data['Provider'] === provider) || errors.push(`Provider not set to ${provider}`)) && 
-			((data['Company'] === this.company.name) || errors.push('incorrect company name')) &&
-			((data['Endpoint'] === 'Unknown IDE') || errors.push('IDE should be unknown')) &&
-			((data['Plugin Version'] === '') || errors.push('Plugin Version should be blank')) &&
-			((data['Date Signed Up'] === new Date(this.currentUser.user.registeredAt).toISOString()) || errors.push('Date Signed Up not correct')) &&
-			((data['Reporting Group'] === '') || errors.push('Reporting Group should be empty string'))
+			((data.userId === this.currentUser.user.id) || errors.push('userId not correct')) &&
+			((data.event === 'Team Member Invited') || errors.push('event not correct')) &&
+			((properties.distinct_id === this.currentUser.user.id) || errors.push('distinct_id not set to request originator\'s ID')) &&
+			((properties['Invitee Email Address'] === this.createdUser.email) || errors.push('Email Address does not match request originator')) &&
+			((properties['First Invite'] === firstInvite) || errors.push('First Invite not correct')) &&
+			((properties['email'] === this.currentUser.user.email) || errors.push('email not correct')) && 
+			((properties['Registered'] === registered) || errors.push('Registered not correct')) &&
+			((properties['Join Method'] === 'Created Team') || errors.push('Join Method not correct')) && 
+			((properties['Team ID'] === this.team.id) || errors.push('Team ID not correct')) &&
+			((properties['Team Size'] === this.team.memberIds.length + 1) || errors.push('Team Size not correct')) &&
+			((properties['Team Name'] === this.team.name) || errors.push('Team Name not correct')) &&
+			((properties['Provider'] === provider) || errors.push(`Provider not set to ${provider}`)) && 
+			((properties['Company Name'] === this.company.name) || errors.push('incorrect company name')) &&
+			((properties['Endpoint'] === 'Unknown IDE') || errors.push('IDE should be unknown')) &&
+			((properties['Plugin Version'] === '') || errors.push('Plugin Version should be blank')) &&
+			((properties['createdAt'] === new Date(this.currentUser.user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
+			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;

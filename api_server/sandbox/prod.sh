@@ -11,7 +11,7 @@ ATLASSIAN_API_ACCESS_FILE=$HOME/.codestream/atlassian/production
 GITLAB_API_ACCESS_FILE=$HOME/.codestream/gitlab/production
 BITBUCKET_API_ACCESS_FILE=$HOME/.codestream/bitbucket/production
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset"
-MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
+SEGMENT_TOKEN_FILE=$HOME/.codestream/segment/production
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/prod-api
 
 export CS_API_ASSET_ENV=prod

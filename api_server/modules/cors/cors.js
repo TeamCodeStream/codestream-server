@@ -38,8 +38,6 @@ class CorsModule extends APIServerModule {
 
 	getServiceOrigins () {
 		return [
-			this.api.config.slack.botOrigin,	// origin for Slack bot
-			this.api.config.teams.botOrigin,    // origin for MS Teams bot
 			this.api.config.webclient.host 		// origin for web app
 		];
 	}
