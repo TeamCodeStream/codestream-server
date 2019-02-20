@@ -271,7 +271,7 @@ fi
 
 
 # =============== Segment Settings ==============
-[ -z "$SEGMENT_TOKEN_FILE" ] && SEGMENT_TOKEN_FILE=$HOME/.codestream/segment/development
+[ -z "$SEGMENT_TOKEN_FILE" ] && SEGMENT_TOKEN_FILE=$HOME/.codestream/segment/dev-api
 if [ -f $SEGMENT_TOKEN_FILE ]; then
 	. $SEGMENT_TOKEN_FILE
 	export CS_API_SEGMENT_TOKEN=$SEGMENT_TOKEN
@@ -292,6 +292,8 @@ if [ -f $OTHER_SECRETS_FILE ]; then
 	export CS_API_CONFIRMATION_CHEAT_CODE="$CONFIRMATION_CHEAT_CODE"
 	# for allowing unregistered users to subscribe to their me-channel, for testing emails
 	export CS_API_SUBSCRIPTION_CHEAT_CODE="$SUBSCRIPTION_CHEAT_CODE"
+	# for accessing the api prior to authentication
+	export CS_API_PRE_AUTH_SECRET="$PRE_AUTH_SECRET"
 else
 	echo "****"
 	echo "**** FATAL ERROR ****"
