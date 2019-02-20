@@ -24,7 +24,7 @@ class TelemetryKeyTest extends CodeStreamAPITest {
 	}
 
 	get path () {
-		return `/no-auth/telemetry-key?secret=${SecretsConfig.telemetry}`;
+		return `/no-auth/telemetry-key?secret=${encodeURIComponent(SecretsConfig.telemetry)}`;
 	}
 
 	// validate the response to the test request

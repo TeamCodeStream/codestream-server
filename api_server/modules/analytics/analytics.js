@@ -52,7 +52,8 @@ class Analytics extends APIServerModule {
 	// the keys the client will use for telemetry (this is a write key and can not be used 
 	// to read anything)
 	handleTelemetryKey (request, response) {
-		if (request.query.secret !== this.api.config.secrets.telemetry) {
+		const inSecret = decodeURIComponent(request.query.secret || '');
+		if (!inSecret || inSecret !== this.api.config.secrets.telemetry) {
 			const error = 'incorrect telemetry secret';
 			this.api.warn(error);
 			return response.status(403).send({ error });
