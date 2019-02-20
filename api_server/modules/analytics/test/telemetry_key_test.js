@@ -29,7 +29,7 @@ class TelemetryKeyTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert.equal(data.token, SegmentConfig.token, 'returned token is not correct');
+		Assert.equal(data.key, SegmentConfig.token, 'returned token is not correct');
 	}
 }
 

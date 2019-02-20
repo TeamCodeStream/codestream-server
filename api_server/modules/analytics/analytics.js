@@ -53,11 +53,15 @@ class Analytics extends APIServerModule {
 	// to read anything)
 	handleTelemetryKey (request, response) {
 		if (request.query.secret !== this.api.config.secrets.telemetry) {
-			return response.status(403).send({ error: 'incorrect telemetry secret' });
+			const error = 'incorrect telemetry secret';
+			this.api.warn(error);
+			return response.status(403).send({ error });
 		}
 		const token = this.api.config.segment.token;
 		if (!token) {
-			return response.status(403).send({ error: 'no telemetry token available' });
+			const error = 'no telemetry token available';
+			this.api.warn(error);
+			return response.status(403).send({ error });
 		}
 		response.send({
 			key: this.api.config.segment.token
