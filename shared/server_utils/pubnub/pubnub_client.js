@@ -4,13 +4,17 @@
 
 class PubNubClient {
 
-	constructor (options) {
+	constructor (/*options*/) {
+		throw 'this guy is deprecated!';
+		/*
+
 		Object.assign(this, options);
 		this.messageListeners = {};		// callbacks for each channel when message is received
 		this.statusCallbacks = {};		// callbacks for each channel indicating subscibe success or failure
 		this.statusTimeouts = {};		// timeouts for attempts to subscribe
 		this.failureCallbacks = {};		// callbacks for each channel when subscription fails after subscribing
 		this.subscribed = {};			// channels have been subscribed to
+		*/
 	}
 
 	init () {
@@ -22,7 +26,7 @@ class PubNubClient {
 	}
 	
 	// publish a message to the specified channel
-	publish (message, channel, callback, options = {}) {
+	publish (message, channel, options = {}, callback = null) {
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
 			if (options.request) {
@@ -48,7 +52,7 @@ class PubNubClient {
 
 	// subscribe to the specified channel, providing a listener callback for the
 	// actual message ... the callback is just whether the subscribe succeeded
-	subscribe (channel, listener, callback, options = {}) {
+	subscribe (channel, listener, options = {}, callback = null) {
 		// subscribe to the channel, but success or failure comes back in a
 		// status message, handled by _handleStatus
 		this.messageListeners[channel] = listener;

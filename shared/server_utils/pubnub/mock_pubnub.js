@@ -72,7 +72,7 @@ class MockPubnub {
 		}
 	}
 
-	stop () {
+	disconnect () {
 		this.listeners = [];
 		this.inited = false;
 	}

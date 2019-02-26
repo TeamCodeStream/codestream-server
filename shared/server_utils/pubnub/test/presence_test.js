@@ -33,16 +33,16 @@ class PresenceTest extends BasePubNubTest {
 	}
 
 	// subscribe to our random channel on the second client
-	subscribeOnOtherClient (callback) {
+	async subscribeOnOtherClient (callback) {
 		delete this.gotMessage;
-		this.pubnubForClients[1].subscribe(
+		await this.pubnubForClients[1].subscribe(
 			this.channelName,
 			() => {},
-			callback,
 			{
 				withPresence: true
 			}
 		);
+		callback();
 	}
 
 	validateMessage (message) {

@@ -1,7 +1,7 @@
 'use strict';
 
 var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
-var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
+var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
 var PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 var PubNub = require('pubnub');
 var RandomString = require('randomstring');
@@ -30,10 +30,10 @@ class BasePubNubTest extends GenericTest {
 	after (callback) {
 		this.pubnubForClients.forEach(pubnub => {
 			pubnub.unsubscribeAll();
-			pubnub.pubnub.stop();
+			pubnub.disconnect();
 		});
 		this.pubnubForServer.unsubscribeAll();
-		this.pubnubForServer.pubnub.stop();
+		this.pubnubForServer.disconnect();
 		super.after(callback);
 	}
 
@@ -72,34 +72,39 @@ class BasePubNubTest extends GenericTest {
 		BoundAsync.times(
 			this,
 			this.numClients,
-			(n, timesCallback) => {
-				this.pubnubForServer.grant(
+			async (n, timesCallback) => {
+				await this.pubnubForServer.grant(
 					this.authKeys[n],
 					this.channelName,
-					timesCallback,
 					{
 						includePresence: this.withPresence
 					}
 				);
+				timesCallback();
 			},
 			callback
 		);
 	}
 
 	// begin listening to our random channel on the client
-	listenOnClient (callback) {
+	async listenOnClient (callback) {
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this),
 			this.messageReceiveTimeout || 5000
 		);
-		this.pubnubForClients[0].subscribe(
-			this.channelName,
-			this.messageReceived.bind(this),
-			callback,
-			{
-				withPresence: this.withPresence
-			}
-		);
+		try {
+			await this.pubnubForClients[0].subscribe(
+				this.channelName,
+				this.messageReceived.bind(this),
+				{
+					withPresence: this.withPresence
+				}
+			);
+		}
+		catch (error) {
+			return callback(error);			
+		}
+		callback();
 	}
 
 	// called if message doesn't arrive after timeout
@@ -127,12 +132,12 @@ class BasePubNubTest extends GenericTest {
 	}
 
 	// send a random message from the server
-	sendRandomFromServer (callback) {
-		this.pubnubForServer.publish(
+	async sendRandomFromServer (callback) {
+		await this.pubnubForServer.publish(
 			this.message,
-			this.channelName,
-			callback
+			this.channelName
 		);
+		callback();
 	}
 
 	// wait for the message to be received
