@@ -457,12 +457,6 @@ class PostCreator extends ModelCreator {
 		if (this.user.get('totalPosts') === 1) {
 			trackObject['First Post?'] = new Date(this.model.get('createdAt')).toISOString();
 		}
-		if (this.team) {
-			trackObject.company = {
-				id: this.team.id,
-				name: this.team.get('name')
-			};
-		}
 
 		this.api.services.analytics.track(
 			'Post Created',

@@ -200,11 +200,7 @@ class PostUserRequest extends PostRequest {
 			'Provider': provider,
 			'Company Name': company.get('name'),
 			'Endpoint': this.request.headers['x-cs-plugin-ide'] || 'Unknown IDE',
-			'Plugin Version': this.request.headers['x-cs-plugin-version'] || '',
-			company: {
-				id: this.team.id,
-				name: this.team.get('name')
-			}
+			'Plugin Version': this.request.headers['x-cs-plugin-version'] || ''
 		};
 		if (invitingUser.get('registeredAt')) {
 			trackObject['createdAt'] = new Date(invitingUser.get('registeredAt')).toISOString();
