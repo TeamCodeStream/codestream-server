@@ -9,6 +9,7 @@ class TrackUserNotRegisteredTest extends TrackingTest {
 		this.dontConfirm = true;	// don't confirm registration
 		this.dontCreateTeam = true; // suppress creating the team for the test
 		this.expectedError = 'Email Not Confirmed';
+		this.cheatOnSubscription = true;
 	}
 
 	get description () {

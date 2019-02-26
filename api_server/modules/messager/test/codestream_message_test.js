@@ -6,10 +6,13 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 const PubNub = require('pubnub');
 const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
 const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
+const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
+const SocketClusterConfig = require(process.env.CS_API_TOP + '/config/socketcluster');
+const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
 const IpcConfig = require(process.env.CS_API_TOP + '/config/ipc');
-const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
 const RandomString = require('randomstring');
 const OS = require('os');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
 /* eslint no-console: 0 */
 
@@ -17,19 +20,21 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
+		this.reallySendMessages = true;	// we suppress messages ordinarily, but since we're actually testing them...
+		this.usingSocketCluster = SocketClusterConfig.port;
 	}
 
-	// before the test, set up pubnub clients and start listening
+	// before the test, set up messaging clients and start listening
 	before (callback) {
 		if (this.mockMode && this.wantServer) {
 			return callback();
 		}
-		this.pubnubClientsForUser = {};
+		this.messagerClientsForUser = {};
 		BoundAsync.series(this, [
 			super.before,
 			this.makeData,	// make whatever data we need to be in the database to proceed
-			this.makePubnubClients,	// make pubnub client simulating server to send and client to receive
+			this.makeMessagerForServer,	// make messager client simulating server to send
+			this.makeMessagerForClient,	// make messager client simulating client to receive
 			this.setChannelName,	// set the channel name that we'll listen for
 			this.wait				// wait a bit for access privileges to be set
 		], callback);
@@ -37,14 +42,12 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	// after the test runs, unsubscribe from all channels
 	after (callback) {
-		Object.keys(this.pubnubClientsForUser || []).forEach(userId => {
-			this.pubnubClientsForUser[userId].unsubscribeAll();
-			if (this.mockMode) {
-				this.pubnubClientsForUser[userId].pubnub.stop();
-			}
+		Object.keys(this.messagerClientsForUser || []).forEach(userId => {
+			this.messagerClientsForUser[userId].unsubscribeAll();
+			this.messagerClientsForUser[userId].disconnect();
 		});
-		if (this.pubnubForServer) {
-			this.pubnubForServer.unsubscribeAll();
+		if (this.messagerForServer) {
+			this.messagerForServer.unsubscribeAll();
 		}
 		super.after(callback);
 	}
@@ -65,20 +68,13 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		], callback);
 	}
 
-	// establish the PubNub clients we will use to send and receive a message
-	makePubnubClients (callback) {
-		// set up the pubnub client as if we are the server
-		if (this.wantServer) {
-			this.makePubnubForServer();
+	makeMessagerForServer (callback) {
+		if (!this.wantServer) {
+			return callback();
 		}
-
-		// set up a pubnub client as if we are a client for the current user
-		this.makePubnubForClient(this.currentUser.pubnubToken, this.currentUser.user);
-		callback();
-	}
-
-	// set up the pubnub client as if we are the server
-	makePubnubForServer () {
+		if (this.usingSocketCluster) {
+			return this.makeSocketClusterClientForServer(callback);
+		}
 		// all we have to do here is provide the full config, which includes the secretKey
 		let config = Object.assign({}, PubNubConfig);
 		config.uuid = `API-${OS.hostname()}-${this.testNum}`;
@@ -90,11 +86,29 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			pubnub: client
 		});
 		this.pubnubForServer.init();
+		callback();
 	}
 
-	// set up the pubnub client as if we are a client, we can't control access rights in this case
-	makePubnubForClient (token, user) {
+	async makeSocketClusterClientForServer (callback) {
+		const config = Object.assign({}, SocketClusterConfig);
+		this.messagerForServer = new SocketClusterClient(config);
+		try {
+			await this.messagerForServer.init();
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
+	}
+
+	makeMessagerForClient (callback) {
+		if (this.usingSocketCluster) {
+			return this.makeSocketClusterClientForClient(callback);
+		}
+
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
+		const token = this.currentUser.pubnubToken;
+		const user = this.currentUser.user;
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
@@ -105,10 +119,30 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			clientConfig.serverId = IpcConfig.serverId;
 		}
 		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
-		this.pubnubClientsForUser[user.id] = new PubNubClient({
+		this.messagerClientsForUser[user.id] = new PubNubClient({
 			pubnub: client
 		});
-		this.pubnubClientsForUser[user.id].init();
+		this.messagerClientsForUser[user.id].init();
+		callback();
+	}
+
+	async makeSocketClusterClientForClient (callback) {
+		const { user, pubnubToken } = this.currentUser;
+		const config = Object.assign({}, SocketClusterConfig, {
+			uid: user.id,
+			authKey: pubnubToken,
+		});
+		if (this.cheatOnSubscription) {
+			config.authSecret = SecretsConfig.subscriptionCheat;
+		}
+		this.messagerClientsForUser[user.id] = new SocketClusterClient(config);
+		try {
+			await this.messagerClientsForUser[user.id].init();
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// make whatever data we need to set up our messaging, this should be overridden for specific tests
@@ -123,27 +157,33 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	// wait for permissions to be set through pubnub PAM
 	wait (callback) {
-		const time = this.mockMode ? 100 : 5000;
+		const time = this.usingSocketCluster ? 0 : (this.mockMode ? 100 : 5000);
 		setTimeout(callback, time);
 	}
 
 	// begin listening on the simulated client
-	listenOnClient (callback) {
+	async listenOnClient (callback) {
 		// we'll time out after 5 seconds
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this, this.channelName),
 			this.messageReceiveTimeout || 5000
 		);
 		// subscribe to the channel of interest
-		this.pubnubClientsForUser[this.currentUser.user.id].subscribe(
-			this.channelName,
-			this.messageReceived.bind(this),
-			callback,
-			{
-				withPresence: this.withPresence,
-				onFail: this.onSubscribeFail ? this.onSubscribeFail.bind(this) : undefined
-			}
-		);
+		const messager = this.messagerClientsForUser[this.currentUser.user.id];
+		try {
+			await messager.subscribe(
+				this.channelName,
+				this.messageReceived.bind(this),
+				{
+					withPresence: this.withPresence,
+					onFail: this.onSubscribeFail ? this.onSubscribeFail.bind(this) : undefined
+				}
+			);
+		}
+		catch (error) {
+			return callback(error);
+		}
+		callback();
 	}
 
 	// wait some period after we subscribe before generating the test message
@@ -196,11 +236,11 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// send a random message from the server
 	sendFromServer (callback) {
 		this.message = RandomString.generate(100);
-		this.pubnubForServer.publish(
+		this.messagerForServer.publish(
 			this.message,
-			this.channelName,
-			callback
+			this.channelName
 		);
+		callback();
 	}
 
 	// wait for the message to arrive

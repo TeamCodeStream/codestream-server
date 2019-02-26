@@ -11,6 +11,11 @@ const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_uti
 
 class EmailNotificationTest extends CodeStreamMessageTest {
 
+	constructor (options) {
+		super(options);
+		this.cheatOnSubscription = true;
+	}
+	
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
@@ -22,29 +27,29 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 	}
 
 	// subscribe to the team channel for the team we created, as requested for the specific test
-	subscribeToTeam (callback) {
+	async subscribeToTeam (callback) {
 		if (!this.onlineForTeam) {
 			return callback();	// not requested for this test
 		}
 		let channel = `team-${this.team.id}`;
-		this.pubnubClientsForUser[this.currentUser.id].subscribe(
+		await this.messagerClientsForUser[this.currentUser.id].subscribe(
 			channel,
-			() => {},
-			callback
+			() => {}
 		);
+		callback();
 	}
 
 	// subscribe to the repo channel for the repo we created, as requested for the specific test
-	subscribeToRepo (callback) {
+	async subscribeToRepo (callback) {
 		if (!this.onlineForRepo) {
 			return callback();	// not requested for this test
 		}
 		let channel = `repo-${this.repo.id}`;
-		this.pubnubClientsForUser[this.currentUser.id].subscribe(
+		await this.messagerClientsForUser[this.currentUser.id].subscribe(
 			channel,
-			() => {},
-			callback
+			() => {}
 		);
+		callback();
 	}
 
 	// wait for the subscriptions to take effect

@@ -16,6 +16,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 		this.userOptions.numRegistered = 0;
 		delete this.teamOptions.creatorIndex;
 		this.messageReceiveTimeout = 10000;	// wait 10 seconds for message
+		this.cheatOnSubscription = true;
 	}
 
 	get description () {
@@ -64,7 +65,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 				path: '/no-auth/resend-confirm',
 				data: {
 					email: this.data.email,
-					_delayEmail: this.mockMode ? 500 : 10000 // delay the email so we have time to subscribe
+					_delayEmail: this.usingSocketCluster ? 1000 : (this.mockMode ? 500 : 10000) // delay the email so we have time to subscribe
 				},
 				testEmails: true	// this should get us email data back in the pubnub me-channel
 			},

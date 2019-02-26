@@ -92,6 +92,10 @@ module.exports = {
 		type: 'string',
 		serverOnly: true
 	},
+	socketClusterToken: {
+		type: 'string',
+		serverOnly: true
+	},
 	hasReceivedFirstEmail: {
 		type: 'boolean',
 		serverOnly: true

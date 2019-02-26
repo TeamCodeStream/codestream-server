@@ -23,11 +23,11 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 	}
 
 	// establish the PubNub clients we will use to send and receive a message
-	makePubnubClients (callback) {
+	makeMessagerForClient (callback) {
 		// need the right token to subscribe to the existing user's me-channel
 		this.currentUser = this.existingUserData;
 		this.currentUserToken = this.token;
-		super.makePubnubClients(callback);
+		super.makeMessagerForClient(callback);
 	}
 
 	// set the name of the channel we expect to receive a message on

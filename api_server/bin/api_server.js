@@ -14,6 +14,7 @@ const ExpressConfig = require(ConfigDirectory + '/express');
 const MongoConfig = require(ConfigDirectory + '/mongo');
 const SecretsConfig = require(ConfigDirectory + '/secrets');
 const PubNubConfig = require(ConfigDirectory + '/pubnub');
+const SocketClusterConfig = require(ConfigDirectory + '/socketcluster');
 const IpcConfig = require(ConfigDirectory + '/ipc');
 const SegmentConfig = require(ConfigDirectory + '/segment');
 const SlackConfig = require(ConfigDirectory + '/slack');
@@ -83,6 +84,7 @@ const MyAPICluster = new ClusterWrapper(
 			logger: Logger
 		}),
 		pubnub: PubNubConfig,
+		socketCluster: SocketClusterConfig,
 		ipc: IpcConfig,
 		segment: SegmentConfig,
 		slack: SlackConfig,

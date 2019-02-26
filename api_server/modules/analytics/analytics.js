@@ -44,7 +44,7 @@ class Analytics extends APIServerModule {
 		await this.api.services.messager.publish(
 			message,
 			channel,
-			request
+			{ request }
 		);
 	}
 	

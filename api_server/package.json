@@ -37,6 +37,7 @@
     "node-ipc": "^9.1.1",
     "pubnub": "4.20.0",
     "randomstring": "1.1.5",
+    "socketcluster-client": "^14.2.1",
     "strftime": "0.9.2",
     "string-similarity": "1.2.0",
     "toposort": "1.0.3",
@@ -57,6 +58,7 @@
   "devDependencies": {
     "eslint": "^4.18.2",
     "mocha-teamcity-reporter": "1.1.1",
-    "pre-commit": "1.2.2"
+    "pre-commit": "1.2.2",
+    "socketcluster": "^14.3.3"
   }
 }

@@ -12,6 +12,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		this.messageReceiveTimeout = 10000;	// wait 10 seconds for message
 		this.userOptions.numRegistered = 0;
 		delete this.teamOptions.creatorIndex;
+		this.cheatOnSubscription = true;
 	}
 
 	get description () {
@@ -23,7 +24,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		this.data = this.userFactory.getRandomUserData();
 		this.data.email = this.useEmail || this.data.email; // allow sub-class override
 		this.data._subscriptionCheat = SecretsConfig.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
-		this.data._delayEmail = this.mockMode ? 300 : 10000;	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
+		this.data._delayEmail = this.usingSocketCluster ? 1000 : (this.mockMode ? 300 : 8000);	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
 		if (this.wantLink) {
 			this.data.wantLink = true;
 		}

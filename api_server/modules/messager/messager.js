@@ -6,6 +6,7 @@ const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_se
 const PubNub = require('pubnub');
 const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
 const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
+const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
 const OS = require('os');
 
 class Messager extends APIServerModule {
@@ -14,22 +15,42 @@ class Messager extends APIServerModule {
 		// return a function that, when invoked, returns a service structure with the pubnub client as
 		// the messager service
 		return async () => {
-			if (!this.api.config.pubnub) {
-				return this.api.warn('Will not connect to PubNub, no PubNub configuration supplied');
+			if (this.api.config.socketCluster && this.api.config.socketCluster.port) {
+				return await this.connectToSocketCluster();
 			}
-
-			this.api.log('Connecting to PubNub...');
-			let config = Object.assign({}, this.api.config.pubnub);
-			config.uuid = 'API-' + OS.hostname();
-			this.pubnub = this.api.config.api.mockMode ? new MockPubnub(config) : new PubNub(config);
-			this.pubnubClient = new PubNubClient({
-				pubnub: this.pubnub
-			});
-			if (!this.api.config.api.mockMode) {
-				this.pubnubClient.init();
+			else if (this.api.config.pubnub) {
+				return await this.connectToPubNub();
 			}
-			return { messager: this.pubnubClient };
+			else {
+				return this.api.warn('No messager configuration supplied, messaging will not be available');
+			}
 		};
+	}
+
+	async connectToSocketCluster () {
+		this.api.log('Connecting to SocketCluster...');
+		const config = Object.assign({}, this.api.config.socketCluster, {
+			logger: this.api,
+			uid: 'API',
+			authKey: this.api.config.secrets.messager
+		});
+		this.socketClusterClient = new SocketClusterClient(config);
+		await this.socketClusterClient.init();
+		return { messager: this.socketClusterClient };
+	}
+
+	async connectToPubNub () {
+		this.api.log('Connecting to PubNub...');
+		let config = Object.assign({}, this.api.config.pubnub);
+		config.uuid = 'API-' + OS.hostname();
+		this.pubnub = this.api.config.api.mockMode ? new MockPubnub(config) : new PubNub(config);
+		this.pubnubClient = new PubNubClient({
+			pubnub: this.pubnub
+		});
+		if (!this.api.config.api.mockMode) {
+			this.pubnubClient.init();
+		}
+		return { messager: this.pubnubClient };
 	}
 
 	async initialize () {

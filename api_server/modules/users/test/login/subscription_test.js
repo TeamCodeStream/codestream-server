@@ -4,7 +4,9 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 const PubNub = require('pubnub');
 const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
 const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
-const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client');
+const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
+const SocketClusterConfig = require(process.env.CS_API_TOP + '/config/socketcluster');
+const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
 const IpcConfig = require(process.env.CS_API_TOP + '/config/ipc');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const Assert = require('assert');
@@ -16,6 +18,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
 		this.teamOptions.creatorIndex = 1;
 		this.streamOptions.creatorIndex = 1;
+		this.usingSocketCluster = SocketClusterConfig.port;
 	}
 
 	get description () {
@@ -31,7 +34,8 @@ class SubscriptionTest extends CodeStreamAPITest {
 	}
 
 	after (callback) {
-		this.pubnubClient.unsubscribeAll();
+		this.messagerClient.unsubscribeAll();
+		this.messagerClient.disconnect();
 		super.after(callback);
 	}
 
@@ -59,33 +63,51 @@ class SubscriptionTest extends CodeStreamAPITest {
 
 	// wait a bit for the permissions to be granted
 	wait (callback) {
-		const time = this.mockMode ? 200 : 2000;
+		const time = this.usingSocketCluster ? 0 : (this.mockMode ? 300 : 5000);
 		setTimeout(callback, time);
 	}
 
 	// run the actual test...
-	run (callback) {
+	async run (callback) {
 		// create a pubnub client and attempt to subscribe to the channel of interest
-		this.pubnubClient = this.createPubNubClient();
-		this.pubnubClient.init();
+		this.messagerClient = this.createMessagerClient();
+		this.messagerClient.init();
 		let channel = `${this.which}-${this[this.which].id}`;
-		this.pubnubClient.subscribe(
-			channel,
-			() => {},
-			error => {
-				Assert.ifError(error, `error subscribing to ${channel}`);
-				callback();
-			}
-		);
+		try {
+			await this.messagerClient.subscribe(
+				channel,
+				() => {}
+			);
+			callback();
+		}
+		catch (error) {
+			Assert.fail(`error subscribing to ${channel}`);
+		}
 	}
 
-	// create a pubnub client, through which we'll attempt to subscribe to the channel of interest
-	createPubNubClient () {
+	createMessagerClient () {
+		if (this.usingSocketCluster) {
+			return this.createSocketClusterClient();
+		}
+		else {
+			return this.createPubnubClient();
+		}
+	}
+
+	createSocketClusterClient () {
+		const config = Object.assign({}, SocketClusterConfig, {
+			uid: this.user.id,
+			authKey: this.pubnubToken 
+		});
+		return new SocketClusterClient(config);
+	}
+
+	createPubnubClient () { 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
-		let clientConfig = Object.assign({}, PubNubConfig);
+		const clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
-		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser.id;
+		clientConfig.uuid = this.user._pubnubUuid || this.user.id;
 		clientConfig.authKey = this.pubnubToken;	// the PubNub token is the auth key for the subscription
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;

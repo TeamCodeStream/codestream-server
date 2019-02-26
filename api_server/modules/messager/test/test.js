@@ -10,7 +10,7 @@ const StreamDirectTest = require('./stream_direct_test');
 const StreamDirectACLTest = require('./stream_direct_acl_test');
 const StreamChannelTeamACLTest = require('./stream_channel_team_acl_test');
 const AddToExistingStreamTest = require('./add_to_existing_stream_test');
-const PresenceJoinTest = require('./presence_join_test');
+//const PresenceJoinTest = require('./presence_join_test');
 //const PresenceLeaveTest = require('./presence_leave_test');
 
 // make eslint happy
@@ -30,7 +30,7 @@ describe('messages', function() {
 	new StreamDirectACLTest().test();
 	new StreamChannelTeamACLTest().test();
 	new AddToExistingStreamTest().test();
-	new PresenceJoinTest().test();
-//	new PresenceLeaveTest().test(); // Disabled pending further need and investigation
+	// new PresenceJoinTest().test();	// This functionality is currently deprecated
+	// new PresenceLeaveTest().test(); // Disabled pending further need and investigation
 
 });

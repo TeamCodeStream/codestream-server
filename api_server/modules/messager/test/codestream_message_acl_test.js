@@ -6,19 +6,21 @@ const Assert = require('assert');
 class CodeStreamMessageACLTest extends CodeStreamMessageTest {
 
 	// run the test...
-	run (callback) {
+	async run (callback) {
 		// try to subscribe to the channel of interest, but we expect this to fail
 		const user = this.users[0].user;
-		this.pubnubClientsForUser[user.id].subscribe(
-			this.channelName,
-			() => {
-				Assert.fail('message received');
-			},
-			(error) => {
-				Assert(error, 'error not thrown trying to subscribe');
-				callback();
-			}
-		);
+		try {
+			await this.messagerClientsForUser[user.id].subscribe(
+				this.channelName,
+				() => {
+					Assert.fail('message received');
+				}
+			);
+			Assert.fail('subscribe was successful, but should not have been');
+		}
+		catch (error) {
+			return callback();
+		}
 	}
 }
 

@@ -11,6 +11,7 @@ class TrackTokenExpiredTest extends CodeStreamMessageTest {
 		super(options);
 		this.userOptions.numRegistered = 0;
 		delete this.teamOptions.creatorIndex;
+		this.cheatOnSubscription = true;
 	}
 
 	get description () {

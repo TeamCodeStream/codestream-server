@@ -70,7 +70,7 @@ class PutTeamRequestTester {
 		new UsersNotOnTeamTest().test();
 		new UsersRemovedTest().test();
 		new TeamSubscriptionRevokedTest().test();
-		//		new NoMoreTeamMessagesTest().test(); // Disabled pending resolution of https://support.pubnub.com/support/tickets/7939 (>sigh<)
+		// new NoMoreTeamMessagesTest().test(); // Disabled pending resolution of https://support.pubnub.com/support/tickets/7939 (>sigh<)
 		new RemovalMessageToUserTest().test();
 		new UninvitedUserCanRegisterTest().test();
 	}
