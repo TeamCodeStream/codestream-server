@@ -52,13 +52,6 @@ class ProviderInfoAuthorizer {
 		}
 		let result;
 		try {
-			const params = {
-				client_id: this.request.api.config.slack.appClientId,
-				client_secret: this.request.api.config.slack.appClientSecret,
-				redirect_uri: this.providerInfo.redirectUri,
-				code: this.providerInfo.code
-			};
-			this.request.log(`EXCHANGING SLACK CODE FOR ACCESS TOKEN: ${JSON.stringify(params, undefined, 5)}`);
 			result = await this.webClient.oauth.access({
 				client_id: this.request.api.config.slack.appClientId,
 				client_secret: this.request.api.config.slack.appClientSecret,
@@ -67,7 +60,6 @@ class ProviderInfoAuthorizer {
 			});
 		}
 		catch (error) {
-			this.request.log('FAIL');
 			throw this.request.errorHandler.error('invalidProviderCredentials', { reason: error.message });
 		}
 		return result.access_token;
@@ -88,7 +80,6 @@ class ProviderInfoAuthorizer {
 			return await this.webClient.apiCall(method, options);
 		}
 		catch (error) {
-			this.request.log('SLACK API CALL FAILED');
 			throw this.request.errorHandler.error('invalidProviderCredentials', { reason: error.message });
 		}
 	}
