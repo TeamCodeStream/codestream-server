@@ -7,10 +7,16 @@ const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const GithubConfig = require(process.env.CS_API_TOP + '/config/github');
+const GithubEnterpriseConfig = require(process.env.CS_API_TOP + '/config/github_enterprise');
 const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
 const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
 const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
 const Base64 = require('base-64');
+const URL = require('url');
+
+const ENTERPRISE_PROVIDERS = [
+	'github-enterprise'
+];
 
 class CommonInit {
 
@@ -44,6 +50,10 @@ class CommonInit {
 				this.authCode = response.code;
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
+				if (ENTERPRISE_PROVIDERS.includes(this.provider)) {
+					this.appOrigin = `https://${this.provider}.codestream.us`;
+					this.state += `!${encodeURIComponent(this.appOrigin)}`;
+				}
 				callback();
 			}
 		);
@@ -74,12 +84,18 @@ class CommonInit {
 		this.data = {
 			teamId: this.team.id
 		};
+		let key = `providerInfo.${this.team.id}.${this.provider}`;
+		if (this.includeHost) {
+			const host = encodeURIComponent(URL.parse(this.appOrigin).host).replace(/\./g, '*');
+			this.data.host = host;
+			key += `.${host}`;
+		}
 		this.message = this.expectedResponse = {
 			user: {
 				_id: this.currentUser.user.id, 	// DEPRECATE ME
 				id: this.currentUser.user.id,
 				$unset: {
-					[`providerInfo.${this.team.id}.${this.provider}`]: true
+					[key]: true
 				},
 				$set: {
 					version: 5,
@@ -124,6 +140,21 @@ class CommonInit {
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
 		const url = `https://github.com/login/oauth/access_token?${query}`;
+		return { url, parameters };
+	}
+
+	getExpectedGithubEnterpriseTestCallData () {
+		const parameters = {
+			client_id: GithubEnterpriseConfig.appClientId,
+			client_secret: GithubEnterpriseConfig.appClientSecret,
+			code: this.code,
+			redirect_uri: this.redirectUri,
+			state: this.state
+		};
+		const query = Object.keys(parameters)
+			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
+			.join('&');
+		const url = `https://${this.appOrigin}/login/oauth/access_token?${query}`;
 		return { url, parameters };
 	}
 

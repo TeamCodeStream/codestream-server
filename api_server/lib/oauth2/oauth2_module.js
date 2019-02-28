@@ -22,7 +22,11 @@ class OAuth2Module extends APIServerModule {
 
 	// get redirect parameters and url to use in the redirect response
 	getRedirectData (options) {
-		const { provider, authUrl, scopes, additionalAuthCodeParameters } = this.oauthConfig;
+		const { provider, authPath, scopes, additionalAuthCodeParameters } = this.oauthConfig;
+		const appOrigin = options.appOrigin || this.oauthConfig.appOrigin;
+		if (!appOrigin && !options.appOrigin) {
+			throw options.request.errorHandler.error('providerNeedsOrigin');
+		}
 		const { redirectUri, state } = options;
 		const { appClientId } = this.api.config[provider];
 		const parameters = {
@@ -37,7 +41,7 @@ class OAuth2Module extends APIServerModule {
 		if (additionalAuthCodeParameters) {
 			Object.assign(parameters, additionalAuthCodeParameters);
 		}
-		const url = authUrl;
+		const url = `${appOrigin}/${authPath}`;
 		return { url, parameters };
 	}
 	
@@ -53,13 +57,18 @@ class OAuth2Module extends APIServerModule {
 
 	// given an auth code, exchange it for an access token
 	async exchangeAuthCodeForToken (options) {
-		const { tokenUrl, exchangeFormat } = this.oauthConfig;
 		const { mockToken } = options;
+		const { tokenPath, exchangeFormat } = this.oauthConfig;
+		let { appOrigin } = this.oauthConfig;
+		appOrigin = appOrigin || options.appOrigin;
+		if (!appOrigin) {
+			throw options.request.errorHandler.error('providerNeedsOrigin');
+		}
 
 		// must exchange the provided authorization code for an access token,
 		// prepare parameters for the token exchange request
 		const parameters = this.prepareTokenExchangeParameters(options);
-		const url = tokenUrl;
+		const url = `${appOrigin}/${tokenPath}`;
 
 		// for testing, we do a mock reply instead of an actual call out to the provider
 		if (mockToken) {
@@ -223,6 +232,18 @@ class OAuth2Module extends APIServerModule {
 	// use a refresh token to obtain a new access token
 	async refreshToken (options) {
 		return await this.exchangeAuthCodeForToken(options);
+	}
+
+	// get the page to land on once auth is complete
+	getAuthCompletePage () {
+		const { provider, authCompletePage } = this.oauthConfig;
+		return authCompletePage || provider;
+	}
+	
+	// return whether the service offers multi-origins (for enterprise)
+	canHaveMultiOrigins () {
+		const { canHaveMultiOrigins } = this.oauthConfig;
+		return canHaveMultiOrigins;
 	}
 }
 

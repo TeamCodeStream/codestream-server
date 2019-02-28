@@ -30,9 +30,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			{
 				method: 'put',
 				path: `/provider-deauth/${this.provider}`,
-				data: {
-					teamId: this.team.id
-				},
+				data: this.data,
 				token: this.currentUser.accessToken
 			},
 			callback

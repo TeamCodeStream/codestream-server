@@ -6,6 +6,7 @@ const Assert = require('assert');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const TrelloConfig = require(process.env.CS_API_TOP + '/config/trello');
 const GithubConfig = require(process.env.CS_API_TOP + '/config/github');
+const GithubEnterpriseConfig = require(process.env.CS_API_TOP + '/config/github_enterprise');
 const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
 const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
 const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
@@ -13,6 +14,10 @@ const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
 const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
+
+const ENTERPRISE_PROVIDERS = [
+	'github-enterprise'
+];
 
 class ProviderAuthTest extends CodeStreamAPITest {
 
@@ -55,6 +60,11 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				this.path = `/no-auth/provider-auth/${this.provider}?code=${this.authCode}`;
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
+				if (ENTERPRISE_PROVIDERS.includes(this.provider)) {
+					this.appOrigin = `https://${this.provider}.codestream.us`;
+					this.path += `&appOrigin=${this.appOrigin}`;
+					this.state += `!${this.appOrigin}`;
+				}
 				callback();
 			}
 		);
@@ -68,6 +78,9 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			break;
 		case 'github':
 			redirectData = this.getGithubRedirectData();
+			break;
+		case 'github-enterprise':
+			redirectData = this.getGithubEnterpriseRedirectData();
 			break;
 		case 'asana':
 			redirectData = this.getAsanaRedirectData();
@@ -125,6 +138,18 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			scope: 'repo,user'
 		};
 		const url = 'https://github.com/login/oauth/authorize';
+		return { url, parameters };
+	}
+
+	getGithubEnterpriseRedirectData () {
+		const parameters = {
+			client_id: GithubEnterpriseConfig.appClientId,
+			redirect_uri: this.redirectUri,
+			response_type: 'code',
+			state: this.state,
+			scope: 'repo,user'
+		};
+		const url = `${this.appOrigin}/login/oauth/authorize`;
 		return { url, parameters };
 	}
 

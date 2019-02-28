@@ -23,7 +23,6 @@ class InvalidTokenTest extends ProviderTokenTest {
 		const parameters = super.getQueryParameters();
 		parameters.state = 'xyz';
 		return parameters;
-
 	}
 }
 

@@ -6,8 +6,9 @@ const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module
 
 const OAUTH_CONFIG = {
 	provider: 'bitbucket',
-	authUrl: 'https://bitbucket.org/site/oauth2/authorize',
-	tokenUrl: 'https://bitbucket.org/site/oauth2/access_token',
+	appOrigin: 'https://bitbucket.org',
+	authPath: 'site/oauth2/authorize',
+	tokenPath: 'site/oauth2/access_token',
 	exchangeFormat: 'form',
 	scopes: 'account team repository issue:write',
 	appIdInAuthorizationHeader: true,

@@ -6,8 +6,9 @@ const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module
 
 const OAUTH_CONFIG = {
 	provider: 'msteams',
-	authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
-	tokenUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
+	appOrigin: 'https://login.microsoftonline.com',
+	authPath: 'common/oauth2/v2.0/authorize',
+	tokenPath: 'common/oauth2/v2.0/token',
 	exchangeFormat: 'form',
 	scopes: 'https://graph.microsoft.com/mail.read offline_access',
 	additionalAuthCodeParameters: {

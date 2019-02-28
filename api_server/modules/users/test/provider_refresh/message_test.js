@@ -52,6 +52,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		case 'github':
 			expectedTestCallData = this.getExpectedGithubTestCallData();
 			break;
+		case 'github-enterprise':
+			expectedTestCallData = this.getExpectedGithubEnterpriseTestCallData();
+			break;
 		case 'asana':
 			expectedTestCallData = this.getExpectedAsanaTestCallData();
 			break;

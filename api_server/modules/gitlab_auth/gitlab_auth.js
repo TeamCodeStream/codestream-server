@@ -6,8 +6,9 @@ const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module
 
 const OAUTH_CONFIG = {
 	provider: 'gitlab',
-	authUrl: 'https://gitlab.com/oauth/authorize',
-	tokenUrl: 'https://gitlab.com/oauth/token',
+	appOrigin: 'https://gitlab.com',
+	authPath: 'oauth/authorize',
+	tokenPath: 'oauth/token',
 	exchangeFormat: 'query',
 	mockAccessTokenExpiresIn: 7200,
 	supportsRefresh: true

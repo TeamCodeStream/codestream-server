@@ -6,8 +6,9 @@ const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module
 
 const OAUTH_CONFIG = {
 	provider: 'asana',
-	authUrl: 'https://app.asana.com/-/oauth_authorize',
-	tokenUrl: 'https://app.asana.com/-/oauth_token',
+	appOrigin: 'https://app.asana.com',
+	authPath: '-/oauth_authorize',
+	tokenPath: '-/oauth_token',
 	exchangeFormat: 'form',
 	accessTokenExpiresIn: 3600,
 	supportsRefresh: true

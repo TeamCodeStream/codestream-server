@@ -6,6 +6,7 @@ const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restf
 const AuthenticatorErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
 const Errors = require('./errors');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const URL = require('url');
 
 class ProviderTokenRequest extends RestfulRequest {
 
@@ -81,10 +82,11 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// decode the state token and validate
 	async validateState () {
-		let stateToken = this.request.query.state;
-		const delimiter = stateToken.indexOf('!');
-		if (delimiter !== -1) {
-			stateToken = stateToken.substr(delimiter + 1);
+		const stateProps = this.request.query.state.split('!');
+		const stateToken = stateProps[1];
+		this.appOrigin = stateProps[2];
+		if (this.appOrigin) {
+			this.appOrigin = decodeURIComponent(this.appOrigin);
 		}
 		let payload;
 		try {
@@ -119,13 +121,15 @@ class ProviderTokenRequest extends RestfulRequest {
 			state: this.request.query.state,
 			redirectUri, 
 			request: this,
-			mockToken: this.request.query._mockToken
+			mockToken: this.request.query._mockToken,
+			appOrigin: this.appOrigin
 		};
 		try {
 			this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
 		}
 		catch (error) {
-			throw this.errorHandler.error('updateAuth', { info: error });
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			throw this.errorHandler.error('updateAuth', { info: message });
 		}
 	}
 
@@ -156,9 +160,13 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 		this.tokenData = this.tokenData || { accessToken: token };
 		const modifiedAt = Date.now();
+		let setKey = `providerInfo.${this.team.id}.${this.provider}`;
+		if (this.serviceAuth.canHaveMultiOrigins()) {
+			setKey += '.' + URL.parse(this.appOrigin).host.replace(/\./g, '*');
+		}
 		const op = {
 			$set: {
-				[`providerInfo.${this.team.id}.${this.provider}`]: this.tokenData,
+				[setKey]: this.tokenData,
 				modifiedAt
 			}
 		};
@@ -173,7 +181,8 @@ class ProviderTokenRequest extends RestfulRequest {
 	// send the response html
 	async sendResponse () {
 		const host = this.api.config.webclient.marketingHost;
-		this.response.redirect(`${host}/auth-complete/${this.provider}`);
+		const authCompletePage = this.serviceAuth.getAuthCompletePage();
+		this.response.redirect(`${host}/auth-complete/${authCompletePage}`);
 		this.responseHandled = true;
 	}
 

@@ -88,5 +88,10 @@ module.exports = {
 		code: 'USRC-1016',
 		message: 'The team the user was invited to does not match the CodeStream team associated with their third-party provider account',
 		description: 'The user was invited to a team, but the ID of the team they were invited to does not match the ID of the team that matches the third-party team associated with their third-party credentials'
+	},
+	'providerNeedsOrigin': {
+		code: 'USRC-1017',
+		message: 'This provider needs an origin',
+		description: 'The provider is on-premise and the caller needs to specify an origin to connect'
 	}
 };

@@ -6,8 +6,9 @@ const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module
 
 const OAUTH_CONFIG = {
 	provider: 'jira',
-	authUrl: 'https://auth.atlassian.com/authorize',
-	tokenUrl: 'https://auth.atlassian.com/oauth/token',
+	appOrigin: 'https://auth.atlassian.com',
+	authPath: 'authorize',
+	tokenPath: 'oauth/token',
 	exchangeFormat: 'json',
 	scopes: 'read:jira-user read:jira-work write:jira-work offline_access',
 	additionalAuthCodeParameters: {

@@ -7,6 +7,7 @@ const CommonInit = require('./common_init');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const TrelloConfig = require(process.env.CS_API_TOP + '/config/trello');
+const URL = require('url');
 
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -53,6 +54,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		case 'github':
 			expectedTestCallData = this.getExpectedGithubTestCallData();
 			break;
+		case 'github-enterprise':
+			expectedTestCallData = this.getExpectedGithubEnterpriseTestCallData();
+			break;
 		case 'asana':
 			expectedTestCallData = this.getExpectedAsanaTestCallData();
 			break;
@@ -81,6 +85,11 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		if (expectedTestCallData) {
 			expectedData._testCall = expectedTestCallData;
 		}
+		let key = `providerInfo.${this.team.id}.${this.provider}`;
+		if (this.appOrigin) {
+			const host = URL.parse(this.appOrigin).host.replace(/\./g, '*');
+			key += `.${host}`;
+		}
 		// issue the provider-token request, and establish the message we expect to receive
 		this.message = {
 			user: {
@@ -89,7 +98,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				$set: {
 					version: 4,
 					modifiedAt: Date.now(),
-					[`providerInfo.${this.team.id}.${this.provider}`]: expectedData
+					[key]: expectedData
 				},
 				$version: {
 					before: 3,
@@ -103,8 +112,13 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	validateMessage (message) {
 		Assert(message.message.user.$set.modifiedAt >= this.requestSentAt, 'modifiedAt not set');
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
-		const providerInfo = message.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];
-		const expectedProviderInfo = this.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];
+		let key = `providerInfo.${this.team.id}.${this.provider}`;
+		if (this.appOrigin) {
+			const host = URL.parse(this.appOrigin).host.replace(/\./g, '*');
+			key += `.${host}`;
+		}
+		const providerInfo = message.message.user.$set[key];
+		const expectedProviderInfo = this.message.user.$set[key];
 		if (['jira', 'asana', 'bitbucket', 'gitlab', 'glip', 'msteams'].includes(this.provider)) {
 			expectedProviderInfo.refreshToken = 'refreshMe';
 			const expiresIn = ['jira', 'asana', 'glip', 'msteams'].includes(this.provider) ? 3600 : 7200;

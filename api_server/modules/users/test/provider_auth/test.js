@@ -6,10 +6,12 @@
 const ProviderAuthTest = require('./provider_auth_test');
 const UnknownProviderTest = require('./unknown_provider_test');
 const NoCodeTest = require('./no_code_test');
+const NoAppOriginTest = require('./no_app_origin_test');
 
 const PROVIDERS = [
 	'trello',
 	'github',
+	'github-enterprise',
 	'asana',
 	'jira',
 	'gitlab',
@@ -27,6 +29,7 @@ class ProviderAuthRequestTester {
 		});
 		new UnknownProviderTest().test();
 		new NoCodeTest({ provider: 'github' }).test();
+		new NoAppOriginTest({ provider: 'github-enterprise' }).test();
 	}
 }
 

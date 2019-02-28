@@ -9,28 +9,29 @@
 // load configurations
 const ConfigDirectory = process.env.CS_API_TOP + '/config';
 const ModuleDirectory = process.env.CS_API_TOP + '/modules';
-const ApiConfig = require(ConfigDirectory + '/api.js');
-const ExpressConfig = require(ConfigDirectory + '/express.js');
-const MongoConfig = require(ConfigDirectory + '/mongo.js');
-const SecretsConfig = require(ConfigDirectory + '/secrets.js');
-const PubNubConfig = require(ConfigDirectory + '/pubnub.js');
-const IpcConfig = require(ConfigDirectory + '/ipc.js');
-const SegmentConfig = require(ConfigDirectory + '/segment.js');
-const SlackConfig = require(ConfigDirectory + '/slack.js');
-const MSTeamsConfig = require(ConfigDirectory + '/msteams.js');
-const GlipConfig = require(ConfigDirectory + '/glip.js');
-const GithubConfig = require(ConfigDirectory + '/github.js');
-const AsanaConfig = require(ConfigDirectory + '/asana.js');
-const TrelloConfig = require(ConfigDirectory + '/trello.js');
-const JiraConfig = require(ConfigDirectory + '/jira.js');
-const BitbucketConfig = require(ConfigDirectory + '/bitbucket.js');
-const GitlabConfig = require(ConfigDirectory + '/gitlab.js');
-const LoggerConfig = require(ConfigDirectory + '/logger.js');
-const EmailConfig = require(ConfigDirectory + '/email.js');
-const AWSConfig = require(ConfigDirectory + '/aws.js');
-const WebClientConfig = require(ConfigDirectory + '/webclient.js');
-const Limits = require(ConfigDirectory + '/limits.js');
-const Version = require(ConfigDirectory + '/version.js');
+const ApiConfig = require(ConfigDirectory + '/api');
+const ExpressConfig = require(ConfigDirectory + '/express');
+const MongoConfig = require(ConfigDirectory + '/mongo');
+const SecretsConfig = require(ConfigDirectory + '/secrets');
+const PubNubConfig = require(ConfigDirectory + '/pubnub');
+const IpcConfig = require(ConfigDirectory + '/ipc');
+const SegmentConfig = require(ConfigDirectory + '/segment');
+const SlackConfig = require(ConfigDirectory + '/slack');
+const MSTeamsConfig = require(ConfigDirectory + '/msteams');
+const GlipConfig = require(ConfigDirectory + '/glip');
+const GithubConfig = require(ConfigDirectory + '/github');
+const GithubEnterpriseConfig = require(ConfigDirectory + '/github_enterprise');
+const AsanaConfig = require(ConfigDirectory + '/asana');
+const TrelloConfig = require(ConfigDirectory + '/trello');
+const JiraConfig = require(ConfigDirectory + '/jira');
+const BitbucketConfig = require(ConfigDirectory + '/bitbucket');
+const GitlabConfig = require(ConfigDirectory + '/gitlab');
+const LoggerConfig = require(ConfigDirectory + '/logger');
+const EmailConfig = require(ConfigDirectory + '/email');
+const AWSConfig = require(ConfigDirectory + '/aws');
+const WebClientConfig = require(ConfigDirectory + '/webclient');
+const Limits = require(ConfigDirectory + '/limits');
+const Version = require(ConfigDirectory + '/version');
 const SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
 const ClusterWrapper = require(process.env.CS_API_TOP + '/server_utils/cluster_wrapper');
 
@@ -85,6 +86,7 @@ const MyAPICluster = new ClusterWrapper(
 		msteams: MSTeamsConfig,
 		glip: GlipConfig,
 		github: GithubConfig,
+		'github-enterprise': GithubEnterpriseConfig,
 		asana: AsanaConfig,
 		trello: TrelloConfig,
 		jira: JiraConfig,

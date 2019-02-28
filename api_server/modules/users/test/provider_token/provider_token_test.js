@@ -5,6 +5,7 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 const CommonInit = require('./common_init');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const URL = require('url');
 
 class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -23,7 +24,11 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that the token stored for the user matches the mock token we created
-		const providerInfo = data.user.providerInfo[this.team.id][this.provider];
+		let providerInfo = data.user.providerInfo[this.team.id][this.provider];
+		if (this.appOrigin) {
+			const host = URL.parse(this.appOrigin).host.replace(/\./g, '*');
+			providerInfo = providerInfo[host];
+		}
 		const token = providerInfo.accessToken;
 		Assert.equal(token, this.mockToken, 'user access token not found to be equal to the mock token');
 
@@ -36,6 +41,9 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			return;
 		case 'github':
 			expectedData = this.getExpectedGithubTestCallData();
+			break;
+		case 'github-enterprise':
+			expectedData = this.getExpectedGithubEnterpriseTestCallData();
 			break;
 		case 'asana':
 			expectedData = this.getExpectedAsanaTestCallData();
