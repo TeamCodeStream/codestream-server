@@ -12,12 +12,10 @@ const WrongTokenTypeTest = require('./wrong_token_type_test');
 const UserNotFoundTest = require('./user_not_found_test');
 const UserNotOnTeamTest = require('./user_not_on_team_test');
 const MessageTest = require('./message_test');
-const NoAppOriginTest = require('./no_app_origin_test');
 
 const PROVIDERS = [
 	'trello',
 	'github',
-	'github-enterprise',
 	'asana',
 	'jira',
 	'gitlab',
@@ -27,12 +25,20 @@ const PROVIDERS = [
 	//'glip'
 ];
 
+const ENTERPRISE_PROVIDERS = [
+	'github'
+];
+
 class ProviderTokenRequestTester {
 
 	test () {
 		PROVIDERS.forEach(provider => {
 			new ProviderTokenTest({ provider }).test();
 			new MessageTest({ provider }).test();
+			if (ENTERPRISE_PROVIDERS.includes(provider)) {
+				new ProviderTokenTest({ provider, testOrigin: true }).test();
+				new MessageTest({ provider, testOrigin: true }).test();
+			}
 		});
 		new UnknownProviderTest().test();
 		new StateRequiredTest({ provider: 'trello' }).test();
@@ -41,7 +47,6 @@ class ProviderTokenRequestTester {
 		new WrongTokenTypeTest({ provider: 'jira' }).test();
 		new UserNotFoundTest({ provider: 'gitlab' }).test();
 		new UserNotOnTeamTest({ provider: 'bitbucket' }).test();
-		new NoAppOriginTest({ provider: 'github-enterprise' }).test();
 	}
 }
 

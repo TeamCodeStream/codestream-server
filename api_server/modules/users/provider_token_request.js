@@ -84,9 +84,9 @@ class ProviderTokenRequest extends RestfulRequest {
 	async validateState () {
 		const stateProps = this.request.query.state.split('!');
 		const stateToken = stateProps[1];
-		this.appOrigin = stateProps[2];
-		if (this.appOrigin) {
-			this.appOrigin = decodeURIComponent(this.appOrigin);
+		this.origin = stateProps[2];
+		if (this.origin) {
+			this.origin = decodeURIComponent(this.origin);
 		}
 		let payload;
 		try {
@@ -122,7 +122,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			redirectUri, 
 			request: this,
 			mockToken: this.request.query._mockToken,
-			appOrigin: this.appOrigin
+			origin: this.origin
 		};
 		try {
 			this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
@@ -161,8 +161,9 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.tokenData = this.tokenData || { accessToken: token };
 		const modifiedAt = Date.now();
 		let setKey = `providerInfo.${this.team.id}.${this.provider}`;
-		if (this.serviceAuth.canHaveMultiOrigins()) {
-			setKey += '.' + URL.parse(this.appOrigin).host.replace(/\./g, '*');
+		if (this.origin) {
+			const host = URL.parse(this.origin).host.replace(/\./g, '*');
+			setKey += `.origins.${host}`;
 		}
 		const op = {
 			$set: {

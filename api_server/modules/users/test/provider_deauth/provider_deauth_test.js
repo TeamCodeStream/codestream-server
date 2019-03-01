@@ -8,7 +8,11 @@ const Assert = require('assert');
 class ProviderDeauthTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		return `should clear the access token and associated data for the user when deauthorizing against ${this.provider}`;
+		let description = `should clear the access token and associated data for the user when deauthorizing against ${this.provider}`;
+		if (this.testOrigin) {
+			description += ', enterprise version';
+		}
+		return description;
 	}
 
 	get method () {

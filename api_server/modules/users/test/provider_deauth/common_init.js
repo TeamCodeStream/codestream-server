@@ -7,16 +7,11 @@ const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const GithubConfig = require(process.env.CS_API_TOP + '/config/github');
-const GithubEnterpriseConfig = require(process.env.CS_API_TOP + '/config/github_enterprise');
 const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
 const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
 const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
 const Base64 = require('base-64');
 const URL = require('url');
-
-const ENTERPRISE_PROVIDERS = [
-	'github-enterprise'
-];
 
 class CommonInit {
 
@@ -50,9 +45,9 @@ class CommonInit {
 				this.authCode = response.code;
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
-				if (ENTERPRISE_PROVIDERS.includes(this.provider)) {
-					this.appOrigin = `https://${this.provider}.codestream.us`;
-					this.state += `!${encodeURIComponent(this.appOrigin)}`;
+				if (this.testOrigin) {
+					this.origin = `https://${this.provider}.codestream.us`;
+					this.state += `!${encodeURIComponent(this.origin)}`;
 				}
 				callback();
 			}
@@ -85,10 +80,10 @@ class CommonInit {
 			teamId: this.team.id
 		};
 		let key = `providerInfo.${this.team.id}.${this.provider}`;
-		if (this.includeHost) {
-			const host = encodeURIComponent(URL.parse(this.appOrigin).host).replace(/\./g, '*');
+		if (this.testOrigin) {
+			const host = encodeURIComponent(URL.parse(this.origin).host).replace(/\./g, '*');
 			this.data.host = host;
-			key += `.${host}`;
+			key += `.origins.${host}`;
 		}
 		this.message = this.expectedResponse = {
 			user: {
@@ -139,22 +134,8 @@ class CommonInit {
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
-		const url = `https://github.com/login/oauth/access_token?${query}`;
-		return { url, parameters };
-	}
-
-	getExpectedGithubEnterpriseTestCallData () {
-		const parameters = {
-			client_id: GithubEnterpriseConfig.appClientId,
-			client_secret: GithubEnterpriseConfig.appClientSecret,
-			code: this.code,
-			redirect_uri: this.redirectUri,
-			state: this.state
-		};
-		const query = Object.keys(parameters)
-			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
-			.join('&');
-		const url = `https://${this.appOrigin}/login/oauth/access_token?${query}`;
+		const origin = this.origin || 'https://github.com';
+		const url = `${origin}/login/oauth/access_token?${query}`;
 		return { url, parameters };
 	}
 

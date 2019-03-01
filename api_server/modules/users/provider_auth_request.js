@@ -32,7 +32,7 @@ class ProviderAuthRequest extends RestfulRequest {
 					string: ['code']
 				},
 				optional: {
-					string: ['appOrigin']
+					string: ['origin']
 				}
 			}
 		);
@@ -48,13 +48,13 @@ class ProviderAuthRequest extends RestfulRequest {
 		}
 
 		// set up options for initiating a redirect for the particular service
-		let { appOrigin } = this.request.query;
+		let { origin } = this.request.query;
 		const { code } = this.request.query;
 		const { authOrigin, callbackEnvironment } = this.api.config.api;
 		let state = `${callbackEnvironment}!${code}`;
-		if (appOrigin) {
-			appOrigin = decodeURIComponent(appOrigin);
-			state += `!${appOrigin}`;
+		if (origin) {
+			origin = decodeURIComponent(origin);
+			state += `!${origin}`;
 		}
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 		const options = {
@@ -62,7 +62,7 @@ class ProviderAuthRequest extends RestfulRequest {
 			provider: this.provider,
 			request: this,
 			redirectUri,
-			appOrigin
+			origin
 		};
 
 		// get the specific query data to use in the redirect, and response with the redirect url
@@ -85,7 +85,7 @@ class ProviderAuthRequest extends RestfulRequest {
 				summary: 'Specify the provider in the path, and an auth code, retrieved from the @@#provider-auth-code#provider-auth-code@@ request, in the query parameters',
 				looksLike: {
 					'code*': '<Temporary third-party auth code, retrieved from the @@#provider-auth-code#provider-auth-code@@ request>',
-					'appOrigin': '<Redirect to this URL instead of the standard one (eg. for on-premise versions), required for on-prem integrations>'
+					'origin': '<Redirect to this URL instead of the standard one (eg. for on-premise versions), required for on-prem integrations>'
 				}
 			},
 			returns: 'Redirects to the appropriate authorization page for the provider in question'

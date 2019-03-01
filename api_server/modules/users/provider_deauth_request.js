@@ -42,7 +42,7 @@ class ProviderDeauthRequest extends RestfulRequest {
 		const host = this.request.body.host;
 		let key = `providerInfo.${teamId}.${provider}`;
 		if (host) {
-			key += `.${host}`;
+			key += `.origins.${host}`;
 		}
 		const op = {
 			$unset: {

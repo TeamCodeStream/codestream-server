@@ -6,7 +6,6 @@ const Assert = require('assert');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const TrelloConfig = require(process.env.CS_API_TOP + '/config/trello');
 const GithubConfig = require(process.env.CS_API_TOP + '/config/github');
-const GithubEnterpriseConfig = require(process.env.CS_API_TOP + '/config/github_enterprise');
 const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
 const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
 const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
@@ -14,10 +13,6 @@ const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
 const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
-
-const ENTERPRISE_PROVIDERS = [
-	'github-enterprise'
-];
 
 class ProviderAuthTest extends CodeStreamAPITest {
 
@@ -31,7 +26,11 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	get description () {
-		return `should provide the appropriate redirect, when initiating an authorization flow to ${this.provider}`;
+		let description = `should provide the appropriate redirect, when initiating an authorization flow to ${this.provider}`;
+		if (this.testOrigin) {
+			description += ', enterprise version';
+		}
+		return description;
 	}
 
 	get method () {
@@ -60,10 +59,10 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				this.path = `/no-auth/provider-auth/${this.provider}?code=${this.authCode}`;
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
-				if (ENTERPRISE_PROVIDERS.includes(this.provider)) {
-					this.appOrigin = `https://${this.provider}.codestream.us`;
-					this.path += `&appOrigin=${this.appOrigin}`;
-					this.state += `!${this.appOrigin}`;
+				if (this.testOrigin) {
+					this.origin = `https://${this.provider}.codestream.us`;
+					this.path += `&origin=${this.origin}`;
+					this.state += `!${this.origin}`;
 				}
 				callback();
 			}
@@ -78,9 +77,6 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			break;
 		case 'github':
 			redirectData = this.getGithubRedirectData();
-			break;
-		case 'github-enterprise':
-			redirectData = this.getGithubEnterpriseRedirectData();
 			break;
 		case 'asana':
 			redirectData = this.getAsanaRedirectData();
@@ -130,26 +126,16 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getGithubRedirectData () {
+		const appClientId = this.origin ? GithubConfig.enterpriseAppClientId : GithubConfig.appClientId;
 		const parameters = {
-			client_id: GithubConfig.appClientId,
+			client_id: appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
 			scope: 'repo,user'
 		};
-		const url = 'https://github.com/login/oauth/authorize';
-		return { url, parameters };
-	}
-
-	getGithubEnterpriseRedirectData () {
-		const parameters = {
-			client_id: GithubEnterpriseConfig.appClientId,
-			redirect_uri: this.redirectUri,
-			response_type: 'code',
-			state: this.state,
-			scope: 'repo,user'
-		};
-		const url = `${this.appOrigin}/login/oauth/authorize`;
+		const origin = this.origin || 'https://github.com';
+		const url = `${origin}/login/oauth/authorize`;
 		return { url, parameters };
 	}
 

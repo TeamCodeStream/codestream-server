@@ -8,7 +8,11 @@ const Assert = require('assert');
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return `user should receive a message to clear the token data after deauthorizing ${this.provider}`;
+		let description = `user should receive a message to clear the token data after deauthorizing ${this.provider}`;
+		if (this.testOrigin) {
+			description += ', enterprise version';
+		}
+		return description;
 	}
 
 	// make the data that triggers the message to be received

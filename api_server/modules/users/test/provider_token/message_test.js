@@ -17,7 +17,11 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	get description () {
-		return `user should receive a message with the token data after authenticating with ${this.provider}`;
+		let description = `user should receive a message with the token data after authenticating with ${this.provider}`;
+		if (this.testOrigin) {
+			description += ', enterprise version';
+		}
+		return description;
 	}
 
 	// make the data that triggers the message to be received
@@ -54,9 +58,6 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		case 'github':
 			expectedTestCallData = this.getExpectedGithubTestCallData();
 			break;
-		case 'github-enterprise':
-			expectedTestCallData = this.getExpectedGithubEnterpriseTestCallData();
-			break;
 		case 'asana':
 			expectedTestCallData = this.getExpectedAsanaTestCallData();
 			break;
@@ -86,9 +87,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			expectedData._testCall = expectedTestCallData;
 		}
 		let key = `providerInfo.${this.team.id}.${this.provider}`;
-		if (this.appOrigin) {
-			const host = URL.parse(this.appOrigin).host.replace(/\./g, '*');
-			key += `.${host}`;
+		if (this.origin) {
+			const host = URL.parse(this.origin).host.replace(/\./g, '*');
+			key += `.origins.${host}`;
 		}
 		// issue the provider-token request, and establish the message we expect to receive
 		this.message = {
@@ -113,9 +114,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		Assert(message.message.user.$set.modifiedAt >= this.requestSentAt, 'modifiedAt not set');
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
 		let key = `providerInfo.${this.team.id}.${this.provider}`;
-		if (this.appOrigin) {
-			const host = URL.parse(this.appOrigin).host.replace(/\./g, '*');
-			key += `.${host}`;
+		if (this.origin) {
+			const host = URL.parse(this.origin).host.replace(/\./g, '*');
+			key += `.origins.${host}`;
 		}
 		const providerInfo = message.message.user.$set[key];
 		const expectedProviderInfo = this.message.user.$set[key];

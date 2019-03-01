@@ -23,12 +23,16 @@ class OAuth2Module extends APIServerModule {
 	// get redirect parameters and url to use in the redirect response
 	getRedirectData (options) {
 		const { provider, authPath, scopes, additionalAuthCodeParameters } = this.oauthConfig;
-		const appOrigin = options.appOrigin || this.oauthConfig.appOrigin;
-		if (!appOrigin && !options.appOrigin) {
-			throw options.request.errorHandler.error('providerNeedsOrigin');
-		}
+		const origin = options.origin || this.oauthConfig.appOrigin;
 		const { redirectUri, state } = options;
-		const { appClientId } = this.api.config[provider];
+		const config = this.api.config[provider];
+		let appClientId;
+		if (options.origin && config.enterpriseAppClientId) {
+			appClientId = config.enterpriseAppClientId;
+		}
+		else {
+			appClientId = config.appClientId;
+		}
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: redirectUri,
@@ -41,7 +45,7 @@ class OAuth2Module extends APIServerModule {
 		if (additionalAuthCodeParameters) {
 			Object.assign(parameters, additionalAuthCodeParameters);
 		}
-		const url = `${appOrigin}/${authPath}`;
+		const url = `${origin}/${authPath}`;
 		return { url, parameters };
 	}
 	
@@ -59,16 +63,13 @@ class OAuth2Module extends APIServerModule {
 	async exchangeAuthCodeForToken (options) {
 		const { mockToken } = options;
 		const { tokenPath, exchangeFormat } = this.oauthConfig;
-		let { appOrigin } = this.oauthConfig;
-		appOrigin = appOrigin || options.appOrigin;
-		if (!appOrigin) {
-			throw options.request.errorHandler.error('providerNeedsOrigin');
-		}
+		const { appOrigin } = this.oauthConfig;
+		const origin = options.origin || appOrigin;
 
 		// must exchange the provided authorization code for an access token,
 		// prepare parameters for the token exchange request
 		const parameters = this.prepareTokenExchangeParameters(options);
-		const url = `${appOrigin}/${tokenPath}`;
+		const url = `${origin}/${tokenPath}`;
 
 		// for testing, we do a mock reply instead of an actual call out to the provider
 		if (mockToken) {
@@ -96,7 +97,16 @@ class OAuth2Module extends APIServerModule {
 	prepareTokenExchangeParameters (options) {
 		const { provider, appIdInAuthorizationHeader, noGrantType } = this.oauthConfig;
 		const { state, code, redirectUri, refreshToken } = options;
-		const { appClientId, appClientSecret } = this.api.config[provider];
+		const config = this.api.config[provider];
+		let appClientId, appClientSecret;
+		if (options.origin && config.enterpriseAppClientId) {
+			appClientId = config.enterpriseAppClientId;
+			appClientSecret = config.enterpriseAppClientSecret;
+		}
+		else {
+			appClientId = config.appClientId;
+			appClientSecret = config.appClientSecret;
+		}
 		const parameters = {
 			redirect_uri: redirectUri
 		};
@@ -238,12 +248,6 @@ class OAuth2Module extends APIServerModule {
 	getAuthCompletePage () {
 		const { provider, authCompletePage } = this.oauthConfig;
 		return authCompletePage || provider;
-	}
-	
-	// return whether the service offers multi-origins (for enterprise)
-	canHaveMultiOrigins () {
-		const { canHaveMultiOrigins } = this.oauthConfig;
-		return canHaveMultiOrigins;
 	}
 }
 

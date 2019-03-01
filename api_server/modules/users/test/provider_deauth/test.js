@@ -6,13 +6,10 @@
 const ProviderDeauthTest = require('./provider_deauth_test');
 const NoTeamIdTest = require('./no_team_id_test');
 const MessageTest = require('./message_test');
-const DeauthHostTest = require('./deauth_host_test');
-const DeauthHostMessageTest = require('./deauth_host_message_test');
 
 const PROVIDERS = [
 	'trello',
 	'github',
-	'github-enterprise',
 	'asana',
 	'jira',
 	'gitlab',
@@ -23,7 +20,7 @@ const PROVIDERS = [
 ];
 
 const ENTERPRISE_PROVIDERS = [
-	'github-enterprise'
+	'github'
 ];
 
 class ProviderDeauthRequestTester {
@@ -33,8 +30,8 @@ class ProviderDeauthRequestTester {
 			new ProviderDeauthTest({ provider }).test();
 			new MessageTest({ provider }).test();
 			if (ENTERPRISE_PROVIDERS.includes(provider)) {
-				new DeauthHostTest({ provider }).test();
-				new DeauthHostMessageTest({ provider }).test();
+				new ProviderDeauthTest({ provider, testOrigin: true }).test();
+				new MessageTest({ provider, testOrigin: true }).test();
 			}
 		});
 		new NoTeamIdTest({ provider: 'trello' }).test();

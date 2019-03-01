@@ -147,6 +147,8 @@ if [ -f $GITHUB_API_ACCESS_FILE ]; then
 	. $GITHUB_API_ACCESS_FILE
 	export CS_API_GITHUB_CLIENT_ID="$GITHUB_CLIENT_ID"
 	export CS_API_GITHUB_CLIENT_SECRET="$GITHUB_CLIENT_SECRET"
+	export CS_API_GITHUB_ENTERPRISE_CLIENT_ID="github_enterprise_placeholder_client_id"
+	export CS_API_GITHUB_ENTERPRISE_CLIENT_SECRET="github_enterprise_placeholder_client_secret"
 else
 	echo "********************************************************************"
 	echo "WARNING: GitHub api access file not found ($GITHUB_API_ACCESS_FILE)."

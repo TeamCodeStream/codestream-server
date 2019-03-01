@@ -20,7 +20,6 @@ const SlackConfig = require(ConfigDirectory + '/slack');
 const MSTeamsConfig = require(ConfigDirectory + '/msteams');
 const GlipConfig = require(ConfigDirectory + '/glip');
 const GithubConfig = require(ConfigDirectory + '/github');
-const GithubEnterpriseConfig = require(ConfigDirectory + '/github_enterprise');
 const AsanaConfig = require(ConfigDirectory + '/asana');
 const TrelloConfig = require(ConfigDirectory + '/trello');
 const JiraConfig = require(ConfigDirectory + '/jira');
@@ -86,7 +85,6 @@ const MyAPICluster = new ClusterWrapper(
 		msteams: MSTeamsConfig,
 		glip: GlipConfig,
 		github: GithubConfig,
-		'github-enterprise': GithubEnterpriseConfig,
 		asana: AsanaConfig,
 		trello: TrelloConfig,
 		jira: JiraConfig,

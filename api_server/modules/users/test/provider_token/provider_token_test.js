@@ -10,7 +10,11 @@ const URL = require('url');
 class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		return `should set an access token for the user when completing an authorization flow for ${this.provider}`;
+		let description = `should set an access token for the user when completing an authorization flow for ${this.provider}`;
+		if (this.testOrigin) {
+			description += ', enterprise version';
+		}
+		return description;
 	}
 
 	// before the test runs...
@@ -25,9 +29,9 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	validateResponse (data) {
 		// validate that the token stored for the user matches the mock token we created
 		let providerInfo = data.user.providerInfo[this.team.id][this.provider];
-		if (this.appOrigin) {
-			const host = URL.parse(this.appOrigin).host.replace(/\./g, '*');
-			providerInfo = providerInfo[host];
+		if (this.origin) {
+			const host = URL.parse(this.origin).host.replace(/\./g, '*');
+			providerInfo = providerInfo.origins[host];
 		}
 		const token = providerInfo.accessToken;
 		Assert.equal(token, this.mockToken, 'user access token not found to be equal to the mock token');
@@ -41,9 +45,6 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			return;
 		case 'github':
 			expectedData = this.getExpectedGithubTestCallData();
-			break;
-		case 'github-enterprise':
-			expectedData = this.getExpectedGithubEnterpriseTestCallData();
 			break;
 		case 'asana':
 			expectedData = this.getExpectedAsanaTestCallData();
