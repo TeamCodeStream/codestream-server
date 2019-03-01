@@ -51,5 +51,17 @@ module.exports = {
 	// runs in "mock mode" ... meaning nothing is saved to a database (it's all stored in memory),
 	// and PubNub is replaced by IPC, for testing purposes when tests are run on the same
 	// machine as the API server
-	mockMode: process.env.CS_API_MOCK_MODE || false
+	mockMode: process.env.CS_API_MOCK_MODE || false,
+
+	// list of third-party issue providers available for issue codemark integrations
+	// this is a superset of what may actually be available in a given installation, given which
+	// providers represent services that are enabled by configuration of the individual modules
+	issueProviders: [
+		'asana',
+		'bitbucket',
+		'github',
+		'gitlab',
+		'jira',
+		'trello'
+	]
 };

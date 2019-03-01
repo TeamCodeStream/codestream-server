@@ -118,6 +118,7 @@ class LoginRequest extends RestfulRequest {
 					accessToken: '<user\'s access token, to be used in future requests>',
 					pubnubKey: '<subscribe key to use for connecting to PubNub>',
 					pubnubToken: '<user\'s token for subscribing to PubNub channels>',
+					issueProviders: '<info structures with available third-party issue providers>',
 					teams: [
 						'<@@#team object#team@@>',
 						'...'

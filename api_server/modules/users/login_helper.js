@@ -17,6 +17,7 @@ class LoginHelper {
 		await this.getInitialData();
 		await this.generateAccessToken();
 		await this.updateLastLogin();
+		await this.getThirdPartyIssueProviders();
 		await this.formResponse();
 		await this.grantSubscriptionPermissions();
 		return this.responseData;
@@ -121,13 +122,34 @@ class LoginHelper {
 		await this.request.data.users.applyOpById(this.user.id, op);
 	}
 
+	// get the third-party issue providers that are available for issue codemark integration
+	async getThirdPartyIssueProviders () {
+		const issueProviders = this.request.api.config.api.issueProviders || [];
+		this.issueProviders = issueProviders.reduce((prev, provider) => {
+			const service = `${provider}Auth`;
+			const serviceAuth = this.request.api.services[service];
+			if (serviceAuth) {
+				const capabilities = serviceAuth.getCapabilities();
+				if (capabilities.hasEnterprise || capabilities.hasCloud) {
+					prev.push({
+						name: provider,
+						hasEnterprise: capabilities.hasEnterprise,
+						enterpriseOnly: !capabilities.hasCloud
+					});
+				}
+			}
+			return prev;
+		}, []);
+	}
+
 	// form the response to the request
 	async formResponse () {
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe(),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
 			pubnubKey: this.request.api.config.pubnub.subscribeKey,	// give them the subscribe key for pubnub
-			pubnubToken: this.pubnubToken	// token used to subscribe to PubNub channels
+			pubnubToken: this.pubnubToken,	// token used to subscribe to PubNub channels
+			issueProviders: this.issueProviders	// available third-party issue providers for integrations
 		};
 		Object.assign(this.responseData, this.initialData);
 	}

@@ -11,7 +11,14 @@ class OAuth2Module extends APIServerModule {
 
 	services () {
 		const { provider } = this.oauthConfig;
-		if (!this.api.config[provider]) {
+		if (
+			!this.api.config[provider] ||
+			(
+				!this.api.config[provider].appClientId &&
+				!this.api.config[provider].enterpriseAppClientId &&
+				!this.api.config[provider].apiKey
+			)
+		) {
 			this.api.warn(`No configuration for ${provider}, auth service will be unavailable`);
 			return;
 		}
@@ -248,6 +255,16 @@ class OAuth2Module extends APIServerModule {
 	getAuthCompletePage () {
 		const { provider, authCompletePage } = this.oauthConfig;
 		return authCompletePage || provider;
+	}
+
+	// return the capabilities of this provider (enterprise or cloud)
+	getCapabilities () {
+		const { provider } = this.oauthConfig;
+		const config = this.api.config[provider];
+		return {
+			hasEnterprise: !!config.enterpriseAppClientId,
+			hasCloud: !!config.appClientId || !!config.apiKey
+		};
 	}
 }
 
