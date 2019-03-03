@@ -6,42 +6,45 @@ const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_se
 const fetch = require('node-fetch');
 const FormData = require('form-data');
 const Base64 = require('base-64');
+const URL = require('url');
 
 class OAuth2Module extends APIServerModule {
 
 	services () {
 		const { provider } = this.oauthConfig;
-		if (
-			!this.api.config[provider] ||
-			(
-				!this.api.config[provider].appClientId &&
-				!this.api.config[provider].enterpriseAppClientId &&
-				!this.api.config[provider].apiKey
-			)
-		) {
+		this.apiConfig = this.api.config[provider];
+		if (!this.apiConfig) {
 			this.api.warn(`No configuration for ${provider}, auth service will be unavailable`);
 			return;
 		}
+		this.enterpriseConfig = {};
 		return async () => {
 			return { [`${provider}Auth`]: this };
 		};
 	}
 
+	async initialize () {
+		const { enterpriseConfigFile } = this.apiConfig;
+		const { provider } = this.oauthConfig;
+		if (!enterpriseConfigFile) {
+			return;
+		}
+		try {
+			this.enterpriseConfig = require(enterpriseConfigFile);
+		}
+		catch (error) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.api.warn(`Unable to load enterprise configuration file for ${provider}: ${message}`);
+		}
+	}
+
 	// get redirect parameters and url to use in the redirect response
 	getRedirectData (options) {
-		const { provider, authPath, scopes, additionalAuthCodeParameters } = this.oauthConfig;
-		const origin = options.origin || this.oauthConfig.appOrigin;
+		const { authPath, scopes, additionalAuthCodeParameters } = this.oauthConfig;
+		const clientInfo = this.getClientInfo(options);
 		const { redirectUri, state } = options;
-		const config = this.api.config[provider];
-		let appClientId;
-		if (options.origin && config.enterpriseAppClientId) {
-			appClientId = config.enterpriseAppClientId;
-		}
-		else {
-			appClientId = config.appClientId;
-		}
 		const parameters = {
-			client_id: appClientId,
+			client_id: clientInfo.clientId,
 			redirect_uri: redirectUri,
 			response_type: 'code',
 			state
@@ -52,10 +55,34 @@ class OAuth2Module extends APIServerModule {
 		if (additionalAuthCodeParameters) {
 			Object.assign(parameters, additionalAuthCodeParameters);
 		}
-		const url = `${origin}/${authPath}`;
+		const url = `${clientInfo.origin}/${authPath}`;
 		return { url, parameters };
 	}
 	
+	// get client info according to options and configuration, might be for the cloud-based
+	// host, or for an enterprise on-premise instance
+	getClientInfo (options) {
+		const { origin } = options;
+		let host, clientInfo;
+		if (origin) {
+			host = URL.parse(origin).host.toLowerCase();
+		}
+		if (host) {
+			if (!this.enterpriseConfig[host]) {
+				throw options.request.errorHandler.error('unknownProviderHost');
+			}
+			clientInfo = this.enterpriseConfig[host];
+		}
+		else {
+			clientInfo = this.apiConfig;
+		}
+		return {
+			origin: origin || this.oauthConfig.appOrigin,
+			clientId: clientInfo.appClientId,
+			clientSecret: clientInfo.appClientSecret
+		};
+	}
+
 	// is an auth code for access token exchange required for this provider?
 	exchangeRequired () {
 		return !this.oauthConfig.noExchange;
@@ -70,13 +97,12 @@ class OAuth2Module extends APIServerModule {
 	async exchangeAuthCodeForToken (options) {
 		const { mockToken } = options;
 		const { tokenPath, exchangeFormat } = this.oauthConfig;
-		const { appOrigin } = this.oauthConfig;
-		const origin = options.origin || appOrigin;
+		const clientInfo = this.getClientInfo(options);
 
 		// must exchange the provided authorization code for an access token,
 		// prepare parameters for the token exchange request
-		const parameters = this.prepareTokenExchangeParameters(options);
-		const url = `${origin}/${tokenPath}`;
+		const parameters = this.prepareTokenExchangeParameters(options, clientInfo);
+		const url = `${clientInfo.origin}/${tokenPath}`;
 
 		// for testing, we do a mock reply instead of an actual call out to the provider
 		if (mockToken) {
@@ -101,19 +127,9 @@ class OAuth2Module extends APIServerModule {
 	}
 
 	// prepare parameters for token exchange
-	prepareTokenExchangeParameters (options) {
-		const { provider, appIdInAuthorizationHeader, noGrantType } = this.oauthConfig;
+	prepareTokenExchangeParameters (options, clientInfo) {
+		const { appIdInAuthorizationHeader, noGrantType } = this.oauthConfig;
 		const { state, code, redirectUri, refreshToken } = options;
-		const config = this.api.config[provider];
-		let appClientId, appClientSecret;
-		if (options.origin && config.enterpriseAppClientId) {
-			appClientId = config.enterpriseAppClientId;
-			appClientSecret = config.enterpriseAppClientSecret;
-		}
-		else {
-			appClientId = config.appClientId;
-			appClientSecret = config.appClientSecret;
-		}
 		const parameters = {
 			redirect_uri: redirectUri
 		};
@@ -121,11 +137,11 @@ class OAuth2Module extends APIServerModule {
 			parameters.grant_type = refreshToken ? 'refresh_token' : 'authorization_code';
 		}
 		if (appIdInAuthorizationHeader) {
-			parameters.__userAuth = Base64.encode(`${appClientId}:${appClientSecret}`);
+			parameters.__userAuth = Base64.encode(`${clientInfo.clientId}:${clientInfo.clientSecret}`);
 		}
 		else {
-			parameters.client_id = appClientId;
-			parameters.client_secret = appClientSecret;
+			parameters.client_id = clientInfo.clientId;
+			parameters.client_secret = clientInfo.clientSecret;
 		}
 		if (refreshToken) {
 			parameters.refresh_token = refreshToken;
@@ -257,14 +273,23 @@ class OAuth2Module extends APIServerModule {
 		return authCompletePage || provider;
 	}
 
-	// return the capabilities of this provider (enterprise or cloud)
-	getCapabilities () {
-		const { provider } = this.oauthConfig;
-		const config = this.api.config[provider];
-		return {
-			hasEnterprise: !!config.enterpriseAppClientId,
-			hasCloud: !!config.appClientId || !!config.apiKey
-		};
+	// return the instances of this provider (public instance, plus and on-premise instances)
+	getInstances () {
+		const instances = {};
+		if (this.oauthConfig.appOrigin && (this.apiConfig.appClientId || this.apiConfig.apiKey)) {
+			const host = URL.parse(this.oauthConfig.appOrigin).host;
+			instances[host] = {
+				public: true,
+				host
+			};
+		}
+		Object.keys(this.enterpriseConfig).forEach(host => {
+			instances[host] = {
+				public: false,
+				host
+			};
+		});
+		return Object.keys(instances).length ? instances : null;
 	}
 }
 

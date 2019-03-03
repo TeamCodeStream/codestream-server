@@ -6,6 +6,7 @@
 const ProviderAuthTest = require('./provider_auth_test');
 const UnknownProviderTest = require('./unknown_provider_test');
 const NoCodeTest = require('./no_code_test');
+const InvalidHostTest = require('./invalid_host_test');
 
 const PROVIDERS = [
 	'trello',
@@ -19,17 +20,18 @@ const PROVIDERS = [
 	//'glip'
 ];
 
-const ENTERPRISE_PROVIDERS = [
-	'github'
-];
+const ENTERPRISE_PROVIDERS = {
+	'github': 'git.codestream.us'
+};
 
 class ProviderAuthRequestTester {
 
 	test () {
 		PROVIDERS.forEach(provider => {
 			new ProviderAuthTest({ provider }).test();
-			if (ENTERPRISE_PROVIDERS.includes(provider)) {
-				new ProviderAuthTest({ provider, testOrigin: true }).test();
+			if (Object.keys(ENTERPRISE_PROVIDERS).includes(provider)) {
+				new ProviderAuthTest({ provider, testOrigin: ENTERPRISE_PROVIDERS[provider] }).test();
+				new InvalidHostTest({ provider, testOrigin: 'nothing.nothing.com' }).test();
 			}
 		});
 		new UnknownProviderTest().test();

@@ -15,6 +15,7 @@ const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
 const Base64 = require('base-64');
+const GithubEnterpriseConfig = require(process.env.CS_API_TOP + '/etc/githubEnterprise');
 
 class CommonInit {
 
@@ -51,7 +52,7 @@ class CommonInit {
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
 				if (this.testOrigin) {
-					this.origin = `https://${this.provider}.codestream.us`;
+					this.origin = `https://${this.testOrigin}`;
 					this.state += `!${this.origin}`;
 				}
 				callback();
@@ -104,8 +105,12 @@ class CommonInit {
 	}
 
 	getExpectedGithubTestCallData () {
-		const appClientId = this.origin ? GithubConfig.enterpriseAppClientId : GithubConfig.appClientId;
-		const appClientSecret = this.origin ? GithubConfig.enterpriseAppClientSecret : GithubConfig.appClientSecret;
+		const appClientId = this.testOrigin ? 
+			GithubEnterpriseConfig[this.testOrigin].appClientId :
+			GithubConfig.appClientId;
+		const appClientSecret = this.testOrigin ?
+			GithubEnterpriseConfig[this.testOrigin].appClientSecret :
+			GithubConfig.appClientSecret;
 		const parameters = {
 			redirect_uri: this.redirectUri,
 			client_id: appClientId,

@@ -46,7 +46,7 @@ class CommonInit {
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
 				if (this.testOrigin) {
-					this.origin = `https://${this.provider}.codestream.us`;
+					this.origin = `https://${this.testOrigin}`;
 					this.state += `!${encodeURIComponent(this.origin)}`;
 				}
 				callback();
@@ -80,7 +80,7 @@ class CommonInit {
 			teamId: this.team.id
 		};
 		let key = `providerInfo.${this.team.id}.${this.provider}`;
-		if (this.testOrigin) {
+		if (this.origin) {
 			const host = encodeURIComponent(URL.parse(this.origin).host).replace(/\./g, '*');
 			this.data.host = host;
 			key += `.origins.${host}`;

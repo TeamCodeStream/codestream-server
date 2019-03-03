@@ -129,12 +129,11 @@ class LoginHelper {
 			const service = `${provider}Auth`;
 			const serviceAuth = this.request.api.services[service];
 			if (serviceAuth) {
-				const capabilities = serviceAuth.getCapabilities();
-				if (capabilities.hasEnterprise || capabilities.hasCloud) {
+				const instances = serviceAuth.getInstances();
+				if (instances) {
 					prev.push({
 						name: provider,
-						hasEnterprise: capabilities.hasEnterprise,
-						enterpriseOnly: !capabilities.hasCloud
+						instances
 					});
 				}
 			}

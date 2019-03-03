@@ -88,5 +88,10 @@ module.exports = {
 		code: 'USRC-1016',
 		message: 'The team the user was invited to does not match the CodeStream team associated with their third-party provider account',
 		description: 'The user was invited to a team, but the ID of the team they were invited to does not match the ID of the team that matches the third-party team associated with their third-party credentials'
+	},
+	'unknownProviderHost': {
+		code: 'USRC-1017',
+		message: 'The third-party provider host can not be matched to a known enterprise host',
+		description: 'Enterprise customers should configure their installation with the hosts they wish users to be able to connect to for on-premise third-party integrations; the host for the origin passed in the request was not found among the known host for this installation'
 	}
 };

@@ -25,9 +25,9 @@ const PROVIDERS = [
 	//'glip'
 ];
 
-const ENTERPRISE_PROVIDERS = [
-	'github'
-];
+const ENTERPRISE_PROVIDERS = {
+	'github': 'git.codestream.us'
+};
 
 class ProviderTokenRequestTester {
 
@@ -35,9 +35,10 @@ class ProviderTokenRequestTester {
 		PROVIDERS.forEach(provider => {
 			new ProviderTokenTest({ provider }).test();
 			new MessageTest({ provider }).test();
-			if (ENTERPRISE_PROVIDERS.includes(provider)) {
-				new ProviderTokenTest({ provider, testOrigin: true }).test();
-				new MessageTest({ provider, testOrigin: true }).test();
+			if (Object.keys(ENTERPRISE_PROVIDERS).includes(provider)) {
+				const testOrigin = ENTERPRISE_PROVIDERS[provider];
+				new ProviderTokenTest({ provider, testOrigin }).test();
+				new MessageTest({ provider, testOrigin }).test();
 			}
 		});
 		new UnknownProviderTest().test();

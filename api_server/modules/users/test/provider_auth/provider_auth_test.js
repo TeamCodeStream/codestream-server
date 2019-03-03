@@ -13,6 +13,7 @@ const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
 const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
+const GithubEnterpriseConfig = require(process.env.CS_API_TOP + '/etc/githubEnterprise');
 
 class ProviderAuthTest extends CodeStreamAPITest {
 
@@ -60,7 +61,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
 				if (this.testOrigin) {
-					this.origin = `https://${this.provider}.codestream.us`;
+					this.origin = `https://${this.testOrigin}`;
 					this.path += `&origin=${this.origin}`;
 					this.state += `!${this.origin}`;
 				}
@@ -126,7 +127,9 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getGithubRedirectData () {
-		const appClientId = this.origin ? GithubConfig.enterpriseAppClientId : GithubConfig.appClientId;
+		const appClientId = this.testOrigin ?
+			GithubEnterpriseConfig[this.testOrigin].appClientId :
+			GithubConfig.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
