@@ -30,8 +30,8 @@ class ProviderAuthRequestTester {
 		PROVIDERS.forEach(provider => {
 			new ProviderAuthTest({ provider }).test();
 			if (Object.keys(ENTERPRISE_PROVIDERS).includes(provider)) {
-				new ProviderAuthTest({ provider, testOrigin: ENTERPRISE_PROVIDERS[provider] }).test();
-				new InvalidHostTest({ provider, testOrigin: 'nothing.nothing.com' }).test();
+				new ProviderAuthTest({ provider, testHost: ENTERPRISE_PROVIDERS[provider] }).test();
+				new InvalidHostTest({ provider, testHost: 'nothing.nothing.com' }).test();
 			}
 		});
 		new UnknownProviderTest().test();

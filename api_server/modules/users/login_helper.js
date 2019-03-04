@@ -130,7 +130,8 @@ class LoginHelper {
 			const serviceAuth = this.request.api.services[service];
 			if (serviceAuth) {
 				const instances = serviceAuth.getInstances() || [];
-				for (let instance in instances) {
+				for (let host in instances) {
+					const instance = instances[host];
 					prev.push({
 						name: provider,
 						host: instance.host,

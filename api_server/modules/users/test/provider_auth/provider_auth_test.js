@@ -28,7 +28,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	get description () {
 		let description = `should provide the appropriate redirect, when initiating an authorization flow to ${this.provider}`;
-		if (this.testOrigin) {
+		if (this.testHost) {
 			description += ', enterprise version';
 		}
 		return description;
@@ -60,10 +60,9 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				this.path = `/no-auth/provider-auth/${this.provider}?code=${this.authCode}`;
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
-				if (this.testOrigin) {
-					this.origin = `https://${this.testOrigin}`;
-					this.path += `&origin=${this.origin}`;
-					this.state += `!${this.origin}`;
+				if (this.testHost) {
+					this.path += `&host=${this.testHost}`;
+					this.state += `!${this.testHost}`;
 				}
 				callback();
 			}
@@ -127,8 +126,8 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getGithubRedirectData () {
-		const appClientId = this.testOrigin ?
-			GithubEnterpriseConfig[this.testOrigin].appClientId :
+		const appClientId = this.testHost ?
+			GithubEnterpriseConfig[this.testHost].appClientId :
 			GithubConfig.appClientId;
 		const parameters = {
 			client_id: appClientId,
@@ -137,8 +136,8 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			state: this.state,
 			scope: 'repo,user'
 		};
-		const origin = this.origin || 'https://github.com';
-		const url = `${origin}/login/oauth/authorize`;
+		const host = this.testHost || 'github.com';
+		const url = `https://${host}/login/oauth/authorize`;
 		return { url, parameters };
 	}
 

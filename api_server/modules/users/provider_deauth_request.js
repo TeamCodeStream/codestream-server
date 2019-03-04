@@ -39,10 +39,13 @@ class ProviderDeauthRequest extends RestfulRequest {
 		// remove credentials for the given provider and team ID in the user object
 		const teamId = this.request.body.teamId.toLowerCase();
 		const provider = this.request.params.provider.toLowerCase();
-		const host = this.request.body.host;
+		let host = this.request.body.host;
+		if (host) {
+			host = host.toLowerCase();
+		}
 		let key = `providerInfo.${teamId}.${provider}`;
 		if (host) {
-			key += `.origins.${host}`;
+			key += `.hosts.${host}`;
 		}
 		const op = {
 			$unset: {

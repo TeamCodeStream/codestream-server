@@ -92,6 +92,6 @@ module.exports = {
 	'unknownProviderHost': {
 		code: 'USRC-1017',
 		message: 'The third-party provider host can not be matched to a known enterprise host',
-		description: 'Enterprise customers should configure their installation with the hosts they wish users to be able to connect to for on-premise third-party integrations; the host for the origin passed in the request was not found among the known host for this installation'
+		description: 'Enterprise customers should configure their installation with the hosts they wish users to be able to connect to for on-premise third-party integrations; the host passed in the request was not found among the known hosts for this installation'
 	}
 };

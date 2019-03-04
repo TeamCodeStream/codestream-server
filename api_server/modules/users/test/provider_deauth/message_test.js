@@ -9,7 +9,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
 		let description = `user should receive a message to clear the token data after deauthorizing ${this.provider}`;
-		if (this.testOrigin) {
+		if (this.testHost) {
 			description += ', enterprise version';
 		}
 		return description;

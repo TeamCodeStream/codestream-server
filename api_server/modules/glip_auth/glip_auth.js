@@ -6,7 +6,7 @@ const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module
 
 const OAUTH_CONFIG = {
 	provider: 'glip',
-	appOrigin: 'https://api.ringcentral.com',
+	host: 'api.ringcentral.com',
 	authPath: 'restapi/oauth/authorize',
 	tokenPath: 'restapi/oauth/token',
 	exchangeFormat: 'form',

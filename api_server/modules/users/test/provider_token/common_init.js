@@ -51,9 +51,8 @@ class CommonInit {
 				this.authCode = response.code;
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
-				if (this.testOrigin) {
-					this.origin = `https://${this.testOrigin}`;
-					this.state += `!${this.origin}`;
+				if (this.testHost) {
+					this.state += `!${this.testHost}`;
 				}
 				callback();
 			}
@@ -105,11 +104,11 @@ class CommonInit {
 	}
 
 	getExpectedGithubTestCallData () {
-		const appClientId = this.testOrigin ? 
-			GithubEnterpriseConfig[this.testOrigin].appClientId :
+		const appClientId = this.testHost ? 
+			GithubEnterpriseConfig[this.testHost].appClientId :
 			GithubConfig.appClientId;
-		const appClientSecret = this.testOrigin ?
-			GithubEnterpriseConfig[this.testOrigin].appClientSecret :
+		const appClientSecret = this.testHost ?
+			GithubEnterpriseConfig[this.testHost].appClientSecret :
 			GithubConfig.appClientSecret;
 		const parameters = {
 			redirect_uri: this.redirectUri,
@@ -121,8 +120,8 @@ class CommonInit {
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
-		const origin = this.origin || 'https://github.com';
-		const url = `${origin}/login/oauth/access_token?${query}`;
+		const host = this.testHost || 'github.com';
+		const url = `https://${host}/login/oauth/access_token?${query}`;
 		return { url, parameters };
 	}
 

@@ -11,7 +11,6 @@ const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
 const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
 const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
 const Base64 = require('base-64');
-const URL = require('url');
 
 class CommonInit {
 
@@ -45,9 +44,8 @@ class CommonInit {
 				this.authCode = response.code;
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
-				if (this.testOrigin) {
-					this.origin = `https://${this.testOrigin}`;
-					this.state += `!${encodeURIComponent(this.origin)}`;
+				if (this.testHost) {
+					this.state += `!${this.testHost}`;
 				}
 				callback();
 			}
@@ -80,10 +78,10 @@ class CommonInit {
 			teamId: this.team.id
 		};
 		let key = `providerInfo.${this.team.id}.${this.provider}`;
-		if (this.origin) {
-			const host = encodeURIComponent(URL.parse(this.origin).host).replace(/\./g, '*');
+		if (this.testHost) {
+			const host = this.testHost.replace(/\./g, '*');
 			this.data.host = host;
-			key += `.origins.${host}`;
+			key += `.hosts.${host}`;
 		}
 		this.message = this.expectedResponse = {
 			user: {
@@ -134,8 +132,8 @@ class CommonInit {
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
-		const origin = this.origin || 'https://github.com';
-		const url = `${origin}/login/oauth/access_token?${query}`;
+		const host = this.testHost || 'github.com';
+		const url = `https://${host}/login/oauth/access_token?${query}`;
 		return { url, parameters };
 	}
 

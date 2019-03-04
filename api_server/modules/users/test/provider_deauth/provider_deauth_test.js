@@ -9,7 +9,7 @@ class ProviderDeauthTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
 		let description = `should clear the access token and associated data for the user when deauthorizing against ${this.provider}`;
-		if (this.testOrigin) {
+		if (this.testHost) {
 			description += ', enterprise version';
 		}
 		return description;

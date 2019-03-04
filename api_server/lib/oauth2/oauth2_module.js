@@ -6,7 +6,6 @@ const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_se
 const fetch = require('node-fetch');
 const FormData = require('form-data');
 const Base64 = require('base-64');
-const URL = require('url');
 
 class OAuth2Module extends APIServerModule {
 
@@ -55,17 +54,17 @@ class OAuth2Module extends APIServerModule {
 		if (additionalAuthCodeParameters) {
 			Object.assign(parameters, additionalAuthCodeParameters);
 		}
-		const url = `${clientInfo.origin}/${authPath}`;
+		const url = `https://${clientInfo.host}/${authPath}`;
 		return { url, parameters };
 	}
 	
 	// get client info according to options and configuration, might be for the cloud-based
 	// host, or for an enterprise on-premise instance
 	getClientInfo (options) {
-		const { origin } = options;
-		let host, clientInfo;
-		if (origin) {
-			host = URL.parse(origin).host.toLowerCase();
+		let { host } = options;
+		let clientInfo;
+		if (host) {
+			host = host.toLowerCase();
 		}
 		if (host) {
 			if (!this.enterpriseConfig[host]) {
@@ -77,7 +76,7 @@ class OAuth2Module extends APIServerModule {
 			clientInfo = this.apiConfig;
 		}
 		return {
-			origin: origin || this.oauthConfig.appOrigin,
+			host: host || this.oauthConfig.host,
 			clientId: clientInfo.appClientId,
 			clientSecret: clientInfo.appClientSecret
 		};
@@ -102,7 +101,7 @@ class OAuth2Module extends APIServerModule {
 		// must exchange the provided authorization code for an access token,
 		// prepare parameters for the token exchange request
 		const parameters = this.prepareTokenExchangeParameters(options, clientInfo);
-		const url = `${clientInfo.origin}/${tokenPath}`;
+		const url = `https://${clientInfo.host}/${tokenPath}`;
 
 		// for testing, we do a mock reply instead of an actual call out to the provider
 		if (mockToken) {
@@ -276,8 +275,8 @@ class OAuth2Module extends APIServerModule {
 	// return the instances of this provider (public instance, plus and on-premise instances)
 	getInstances () {
 		const instances = {};
-		if (this.oauthConfig.appOrigin && (this.apiConfig.appClientId || this.apiConfig.apiKey)) {
-			const host = URL.parse(this.oauthConfig.appOrigin).host;
+		if (this.oauthConfig.host && (this.apiConfig.appClientId || this.apiConfig.apiKey)) {
+			const host = this.oauthConfig.host.toLowerCase();
 			instances[host] = {
 				public: true,
 				host

@@ -6,7 +6,7 @@ const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module
 
 const OAUTH_CONFIG = {
 	provider: 'jira',
-	appOrigin: 'https://auth.atlassian.com',
+	host: 'auth.atlassian.com',
 	authPath: 'authorize',
 	tokenPath: 'oauth/token',
 	exchangeFormat: 'json',

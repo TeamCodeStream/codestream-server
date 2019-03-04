@@ -6,7 +6,6 @@ const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restf
 const AuthenticatorErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
 const Errors = require('./errors');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const URL = require('url');
 
 class ProviderTokenRequest extends RestfulRequest {
 
@@ -84,10 +83,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	async validateState () {
 		const stateProps = this.request.query.state.split('!');
 		const stateToken = stateProps[1];
-		this.origin = stateProps[2];
-		if (this.origin) {
-			this.origin = decodeURIComponent(this.origin);
-		}
+		this.host = stateProps[2];
 		let payload;
 		try {
 			payload = this.api.services.tokenHandler.verify(stateToken);
@@ -122,7 +118,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			redirectUri, 
 			request: this,
 			mockToken: this.request.query._mockToken,
-			origin: this.origin
+			host: this.host
 		};
 		try {
 			this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
@@ -161,9 +157,9 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.tokenData = this.tokenData || { accessToken: token };
 		const modifiedAt = Date.now();
 		let setKey = `providerInfo.${this.team.id}.${this.provider}`;
-		if (this.origin) {
-			const host = URL.parse(this.origin).host.replace(/\./g, '*');
-			setKey += `.origins.${host}`;
+		if (this.host) {
+			const host = this.host.replace(/\./g, '*');
+			setKey += `.hosts.${host}`;
 		}
 		const op = {
 			$set: {

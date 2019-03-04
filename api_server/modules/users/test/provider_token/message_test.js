@@ -7,7 +7,6 @@ const CommonInit = require('./common_init');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const TrelloConfig = require(process.env.CS_API_TOP + '/config/trello');
-const URL = require('url');
 
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -18,7 +17,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
 		let description = `user should receive a message with the token data after authenticating with ${this.provider}`;
-		if (this.testOrigin) {
+		if (this.testHost) {
 			description += ', enterprise version';
 		}
 		return description;
@@ -87,9 +86,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			expectedData._testCall = expectedTestCallData;
 		}
 		let key = `providerInfo.${this.team.id}.${this.provider}`;
-		if (this.origin) {
-			const host = URL.parse(this.origin).host.replace(/\./g, '*');
-			key += `.origins.${host}`;
+		if (this.testHost) {
+			const host = this.testHost.replace(/\./g, '*');
+			key += `.hosts.${host}`;
 		}
 		// issue the provider-token request, and establish the message we expect to receive
 		this.message = {
@@ -114,9 +113,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		Assert(message.message.user.$set.modifiedAt >= this.requestSentAt, 'modifiedAt not set');
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
 		let key = `providerInfo.${this.team.id}.${this.provider}`;
-		if (this.origin) {
-			const host = URL.parse(this.origin).host.replace(/\./g, '*');
-			key += `.origins.${host}`;
+		if (this.testHost) {
+			const host = this.testHost.replace(/\./g, '*');
+			key += `.hosts.${host}`;
 		}
 		const providerInfo = message.message.user.$set[key];
 		const expectedProviderInfo = this.message.user.$set[key];

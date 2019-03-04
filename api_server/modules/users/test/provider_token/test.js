@@ -36,9 +36,9 @@ class ProviderTokenRequestTester {
 			new ProviderTokenTest({ provider }).test();
 			new MessageTest({ provider }).test();
 			if (Object.keys(ENTERPRISE_PROVIDERS).includes(provider)) {
-				const testOrigin = ENTERPRISE_PROVIDERS[provider];
-				new ProviderTokenTest({ provider, testOrigin }).test();
-				new MessageTest({ provider, testOrigin }).test();
+				const testHost = ENTERPRISE_PROVIDERS[provider];
+				new ProviderTokenTest({ provider, testHost }).test();
+				new MessageTest({ provider, testHost }).test();
 			}
 		});
 		new UnknownProviderTest().test();

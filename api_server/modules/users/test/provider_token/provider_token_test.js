@@ -5,13 +5,12 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 const CommonInit = require('./common_init');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const URL = require('url');
 
 class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
 		let description = `should set an access token for the user when completing an authorization flow for ${this.provider}`;
-		if (this.testOrigin) {
+		if (this.testHost) {
 			description += ', enterprise version';
 		}
 		return description;
@@ -29,9 +28,9 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	validateResponse (data) {
 		// validate that the token stored for the user matches the mock token we created
 		let providerInfo = data.user.providerInfo[this.team.id][this.provider];
-		if (this.origin) {
-			const host = URL.parse(this.origin).host.replace(/\./g, '*');
-			providerInfo = providerInfo.origins[host];
+		if (this.testHost) {
+			const host = this.testHost.replace(/\./g, '*');
+			providerInfo = providerInfo.hosts[host];
 		}
 		const token = providerInfo.accessToken;
 		Assert.equal(token, this.mockToken, 'user access token not found to be equal to the mock token');

@@ -30,9 +30,9 @@ class ProviderDeauthRequestTester {
 			new ProviderDeauthTest({ provider }).test();
 			new MessageTest({ provider }).test();
 			if (Object.keys(ENTERPRISE_PROVIDERS).includes(provider)) {
-				const testOrigin = ENTERPRISE_PROVIDERS[provider];
-				new ProviderDeauthTest({ provider, testOrigin }).test();
-				new MessageTest({ provider, testOrigin }).test();
+				const testHost = ENTERPRISE_PROVIDERS[provider];
+				new ProviderDeauthTest({ provider, testHost }).test();
+				new MessageTest({ provider, testHost }).test();
 			}
 		});
 		new NoTeamIdTest({ provider: 'trello' }).test();
