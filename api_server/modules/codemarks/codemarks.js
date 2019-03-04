@@ -43,7 +43,19 @@ const CODEMARK_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'unpin-post',
 		requestClass: require('./unpin_post_request')
+	},
+/*
+	{
+		method: 'get',
+		path: 'c/:teamId/:uuid',
+		requestClass: require('./link_codemark_request')
+	},
+	{
+		method: 'get',
+		path: 'p/:teamId/:uuid',
+		requestClass: require('./link_codemark_request')
 	}
+*/
 ];
 
 class Codemarks extends Restful {

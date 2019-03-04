@@ -7,12 +7,14 @@ const TYPES = [
 	'issue',
 	'question',
 	'bookmark',
-	'trap'
+	'trap',
+	'link'
 ];
 
 const TYPES_REQUIRING_MARKERS = [
 	'bookmark',
-	'trap'
+	'trap',
+	'link'
 ];
 
 const TYPES_REQUIRING_TEXT = [
@@ -26,9 +28,14 @@ const TYPES_REQUIRING_TITLE = [
 	'bookmark'
 ];
 
+const INVISIBLE_TYPES = [
+	'link'
+];
+
 module.exports = {
 	TYPES,
 	TYPES_REQUIRING_MARKERS,
 	TYPES_REQUIRING_TEXT,
-	TYPES_REQUIRING_TITLE
+	TYPES_REQUIRING_TITLE,
+	INVISIBLE_TYPES
 };

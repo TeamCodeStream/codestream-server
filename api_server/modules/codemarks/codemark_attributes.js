@@ -94,14 +94,30 @@ module.exports = {
 	externalAssignees: {
 		type: 'arrayOfObjects',
 		maxLength: 50,
-		maxObjectLength: 256
+		maxObjectLength: 256,
+		description: 'Array of assignees to this issue codemark, as known to its external provider'
 	},
 	externalProvider: {
 		type: 'string',
-		maxLength: 25
+		maxLength: 25,
+		description: 'External provider for this codemark (eg. github, trello)'
 	},
 	externalProviderUrl: {
 		type: 'string',
-		maxLength: 1000
+		maxLength: 1000,
+		description: 'Link to the issue in its external provider'
+	},
+	hasPublicPermalink: {
+		type: 'boolean',
+		description: 'Indicates if a public permalink has been generated for this codemark'
+	},
+	invisible: {
+		type: 'boolean',
+		description: 'Indicates this codemark is "invisible", meaning it should not really be seen in the UI'
+	},
+	remoteCodeUrl: {
+		type: 'object',
+		maxLength: 500,
+		description: 'Object referencing a link to the code block references by this codemark in an external provider, contains "name" and "url"'
 	}
 };

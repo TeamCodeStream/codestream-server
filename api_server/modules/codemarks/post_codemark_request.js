@@ -121,7 +121,8 @@ class PostCodemarkRequest extends PostRequest {
 				'markers': '<Array of @@#marker objects#marker@@ representing markers to be created for this codemark>',
 				'externalProvider': '<For externally linked issues, the name of the provider servier (eg. jira, asana)>',
 				'externalProviderUrl': '<For externally linked issues, the URL to access the issue>',
-				'externalAssignees': '<For externally linked issues, array of assignees to the issue, expected to be objects with at least displayName>'
+				'externalAssignees': '<For externally linked issues, array of assignees to the issue, expected to be objects with at least displayName>',
+				'remoteCodeUrl': '<Object referencing a link to the code block references by this codemark in an external provider, contains "name" and "url">'
 			}
 		};
 		description.returns.summary = 'An codemark object, plus any markers created, plus streams and/or repos created for markers';

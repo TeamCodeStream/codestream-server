@@ -14,15 +14,16 @@
 /* eslint no-console: 0 */
 
 const AllModuleIndexes = {
-	teams: require(process.env.CS_API_TOP + '/modules/teams/indexes.js'),
-	repos: require(process.env.CS_API_TOP + '/modules/repos/indexes.js'),
-	streams: require(process.env.CS_API_TOP + '/modules/streams/indexes.js'),
-	posts: require(process.env.CS_API_TOP + '/modules/posts/indexes.js'),
-	markers: require(process.env.CS_API_TOP + '/modules/markers/indexes.js'),
-	codemarks: require(process.env.CS_API_TOP + '/modules/codemarks/indexes.js'),
-	users: require(process.env.CS_API_TOP + '/modules/users/indexes.js'),
-	signupTokens: require(process.env.CS_API_TOP + '/modules/users/signup_token_indexes.js'),
-	versionMatrix: require(process.env.CS_API_TOP + '/modules/versioner/indexes.js')
+	teams: require(process.env.CS_API_TOP + '/modules/teams/indexes'),
+	repos: require(process.env.CS_API_TOP + '/modules/repos/indexes'),
+	streams: require(process.env.CS_API_TOP + '/modules/streams/indexes'),
+	posts: require(process.env.CS_API_TOP + '/modules/posts/indexes'),
+	markers: require(process.env.CS_API_TOP + '/modules/markers/indexes'),
+	codemarks: require(process.env.CS_API_TOP + '/modules/codemarks/indexes'),
+	codemarkLinks: require(process.env.CS_API_TOP + '/modules/codemarks/codemark_link_indexes'),
+	users: require(process.env.CS_API_TOP + '/modules/users/indexes'),
+	signupTokens: require(process.env.CS_API_TOP + '/modules/users/signup_token_indexes'),
+	versionMatrix: require(process.env.CS_API_TOP + '/modules/versioner/indexes')
 };
 
 const AllFinished = {

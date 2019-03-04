@@ -5,6 +5,7 @@
 const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 const Codemark = require('./codemark');
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
+const CodemarkTypes = require('./codemark_types');
 
 class CodemarkCreator extends ModelCreator {
 
@@ -29,6 +30,14 @@ class CodemarkCreator extends ModelCreator {
 		if (this.attributes.markers) {
 			await this.validateMarkers();
 		}
+		
+		// if we have a remoteCodeUrl object, validate it
+		if (typeof this.attributes.remoteCodeUrl === 'object') {
+			this.validateRemoteCodeUrl();
+		} 
+		else {
+			delete this.attributes.remoteCodeUrl;
+		}
 	}
 
 	// validate the markers sent with the post creation, this is too important to just drop,
@@ -47,6 +56,15 @@ class CodemarkCreator extends ModelCreator {
 		}
 	}
 
+	// validate the remoteCodeUrl, really just restricting it to a name and a url, for now
+	validateRemoteCodeUrl () {
+		const { name, url } = this.attributes.remoteCodeUrl;
+		if (!name || typeof name !== 'string' || !url || typeof url !== 'string') {
+			throw this.errorHandler.error('validation', { info: 'remoteCodeUrl: name and url are required and must be strings' } );
+		}
+		this.attributes.remoteCodeUrl = { name, url };
+	}
+
 	// these attributes are required or optional to create an codemark document
 	getRequiredAndOptionalAttributes () {
 		return {
@@ -55,6 +73,7 @@ class CodemarkCreator extends ModelCreator {
 			},
 			optional: {
 				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderUrl'],
+				object: ['remoteCodeUrl'],
 				'array(object)': ['markers', 'externalAssignees'],
 				'array(string)': ['assignees']
 			}
@@ -68,6 +87,9 @@ class CodemarkCreator extends ModelCreator {
 		}
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.creatorId = this.request.user.id;
+		if (CodemarkTypes.INVISIBLE_TYPES.includes(this.attributes.type)) {
+			this.attributes.invisible = true;
+		}
 		this.createId();	 		// pre-allocate an ID
 		await this.getTeam();		// get the team that will own this codemark
 		await this.handleMarkers();	// handle any associated markers

@@ -33,32 +33,41 @@ class CodemarkValidator extends CodeStreamModelValidator {
 		if (info.error) {
 			return info;
 		}
-
+		const { type, title, text, markerIds } = attributes;
+		
 		// markers are required for these types
 		if (
-			CodemarkTypes.TYPES_REQUIRING_MARKERS.includes(attributes.type) &&
+			CodemarkTypes.TYPES_REQUIRING_MARKERS.includes(type) &&
 			(
-				!(attributes.markerIds instanceof Array) ||
-				attributes.markerIds < 1
+				!(markerIds instanceof Array) ||
+				markerIds < 1
 			)
 		) {
-			info.error = `${attributes.type} codemarks require markers`;
+			info.error = `${type} codemarks require markers`;
 		}
 
 		// text is required for these types
 		if (
-			CodemarkTypes.TYPES_REQUIRING_TEXT.includes(attributes.type) &&
-			!attributes.text
+			CodemarkTypes.TYPES_REQUIRING_TEXT.includes(type) &&
+			!text
 		) {
-			info.error = `${attributes.type} codemarks require text`;
+			info.error = `${type} codemarks require text`;
 		}
 
 		// title is required for these types
 		if (
-			CodemarkTypes.TYPES_REQUIRING_TITLE.includes(attributes.type) &&
-			!attributes.title
+			CodemarkTypes.TYPES_REQUIRING_TITLE.includes(type) &&
+			!title
 		) {
-			info.error = `${attributes.type} codemarks require title`;
+			info.error = `${type} codemarks require title`;
+		}
+
+		// these types are invisible and should have neither text nor title
+		if (
+			CodemarkTypes.INVISIBLE_TYPES.includes(type) &&
+			(title || text)
+		) {
+			info.error = `${type} codemarks cannot have title or text`;
 		}
 		return info;
 	}
