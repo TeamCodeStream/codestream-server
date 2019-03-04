@@ -15,7 +15,8 @@ const OAUTH_CONFIG = {
 		response_type: 'token',
 		callback_method: 'fragment'
 	},
-	noExchange: true
+	noExchange: true,
+	hasIssues: true
 };
 
 class TrelloAuth extends OAuth2Module {

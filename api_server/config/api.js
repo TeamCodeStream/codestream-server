@@ -53,15 +53,16 @@ module.exports = {
 	// machine as the API server
 	mockMode: process.env.CS_API_MOCK_MODE || false,
 
-	// list of third-party issue providers available for issue codemark integrations
+	// list of third-party providers available for integrations
 	// this is a superset of what may actually be available in a given installation, given which
 	// providers represent services that are enabled by configuration of the individual modules
-	issueProviders: [
+	thirdPartyProviders: [
 		'asana',
 		'bitbucket',
 		'github',
 		'gitlab',
 		'jira',
-		'trello'
+		'trello',
+		'slack'
 	]
 };

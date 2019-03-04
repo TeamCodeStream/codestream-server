@@ -50,7 +50,7 @@ const EXPECTED_LOGIN_RESPONSE = {
 	accessToken: true,
 	pubnubToken: true,
 	pubnubKey: true,
-	issueProviders: true,
+	providers: true,
 	teams: true,
 	repos: true
 };

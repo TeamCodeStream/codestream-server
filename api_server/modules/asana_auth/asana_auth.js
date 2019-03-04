@@ -11,7 +11,8 @@ const OAUTH_CONFIG = {
 	tokenPath: '-/oauth_token',
 	exchangeFormat: 'form',
 	accessTokenExpiresIn: 3600,
-	supportsRefresh: true
+	supportsRefresh: true,
+	hasIssues: true
 };
 
 class AsanaAuth extends OAuth2Module {

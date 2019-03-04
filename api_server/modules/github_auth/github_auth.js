@@ -11,7 +11,8 @@ const OAUTH_CONFIG = {
 	tokenPath: 'login/oauth/access_token',
 	exchangeFormat: 'query',
 	scopes: 'repo,user',
-	noGrantType: true
+	noGrantType: true,
+	hasIssues: true
 };
 
 class GithubAuth extends OAuth2Module {

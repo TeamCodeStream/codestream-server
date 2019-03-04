@@ -40,11 +40,9 @@ class ProviderDeauthRequest extends RestfulRequest {
 		const teamId = this.request.body.teamId.toLowerCase();
 		const provider = this.request.params.provider.toLowerCase();
 		let host = this.request.body.host;
-		if (host) {
-			host = host.toLowerCase();
-		}
 		let key = `providerInfo.${teamId}.${provider}`;
 		if (host) {
+			host = host.toLowerCase().replace(/\./g, '*');
 			key += `.hosts.${host}`;
 		}
 		const op = {

@@ -13,7 +13,8 @@ const OAUTH_CONFIG = {
 	scopes: 'account team repository issue:write',
 	appIdInAuthorizationHeader: true,
 	mockAccessTokenExpiresIn: 7200,
-	supportsRefresh: true
+	supportsRefresh: true,
+	hasIssues: true
 };
 
 class BitbucketAuth extends OAuth2Module {

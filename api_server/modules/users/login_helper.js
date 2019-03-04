@@ -17,7 +17,7 @@ class LoginHelper {
 		await this.getInitialData();
 		await this.generateAccessToken();
 		await this.updateLastLogin();
-		await this.getThirdPartyIssueProviders();
+		await this.getThirdPartyProviders();
 		await this.formResponse();
 		await this.grantSubscriptionPermissions();
 		return this.responseData;
@@ -123,9 +123,9 @@ class LoginHelper {
 	}
 
 	// get the third-party issue providers that are available for issue codemark integration
-	async getThirdPartyIssueProviders () {
-		const issueProviders = this.request.api.config.api.issueProviders || [];
-		this.issueProviders = issueProviders.reduce((prev, provider) => {
+	async getThirdPartyProviders () {
+		const providers = this.request.api.config.api.thirdPartyProviders || [];
+		this.providers = providers.reduce((prev, provider) => {
 			const service = `${provider}Auth`;
 			const serviceAuth = this.request.api.services[service];
 			if (serviceAuth) {
@@ -135,7 +135,8 @@ class LoginHelper {
 					prev.push({
 						name: provider,
 						host: instance.host,
-						isEnterprise: !instance.public
+						isEnterprise: !instance.public,
+						hasIssues: instance.hasIssues
 					});
 				}
 			}
@@ -150,7 +151,7 @@ class LoginHelper {
 			accessToken: this.accessToken,	// access token to supply in future requests
 			pubnubKey: this.request.api.config.pubnub.subscribeKey,	// give them the subscribe key for pubnub
 			pubnubToken: this.pubnubToken,	// token used to subscribe to PubNub channels
-			issueProviders: this.issueProviders	// available third-party issue providers for integrations
+			providers: this.providers	// available third-party providers for integrations
 		};
 		Object.assign(this.responseData, this.initialData);
 	}

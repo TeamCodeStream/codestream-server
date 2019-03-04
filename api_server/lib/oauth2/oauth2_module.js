@@ -279,13 +279,15 @@ class OAuth2Module extends APIServerModule {
 			const host = this.oauthConfig.host.toLowerCase();
 			instances[host] = {
 				public: true,
-				host
+				host,
+				hasIssues: this.oauthConfig.hasIssues
 			};
 		}
 		Object.keys(this.enterpriseConfig).forEach(host => {
 			instances[host] = {
 				public: false,
-				host
+				host,
+				hasIssues: this.oauthConfig.hasIssues
 			};
 		});
 		return Object.keys(instances).length ? instances : null;

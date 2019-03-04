@@ -16,7 +16,8 @@ const OAUTH_CONFIG = {
 		prompt: 'consent'
 	},
 	mockAccessTokenExpiresIn: 3600,
-	supportsRefresh: true
+	supportsRefresh: true,
+	hasIssues: true
 };
 
 class JiraAuth extends OAuth2Module {

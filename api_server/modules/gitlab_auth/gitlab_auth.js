@@ -11,7 +11,8 @@ const OAUTH_CONFIG = {
 	tokenPath: 'oauth/token',
 	exchangeFormat: 'query',
 	mockAccessTokenExpiresIn: 7200,
-	supportsRefresh: true
+	supportsRefresh: true,
+	hasIssues: true
 };
 
 class GitlabAuth extends OAuth2Module {
