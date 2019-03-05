@@ -44,7 +44,17 @@ const CODEMARK_ADDITIONAL_ROUTES = [
 		path: 'unpin-post',
 		requestClass: require('./unpin_post_request')
 	},
-/*
+	{
+		method: 'post',
+		path: 'codemark-link',
+		requestClass: require('./codemark_link_request')
+	},
+	{
+		method: 'post',
+		path: 'codemark-link/:id',
+		requestClass: require('./codemark_link_existing_request')
+	}
+	/*
 	{
 		method: 'get',
 		path: 'c/:teamId/:uuid',

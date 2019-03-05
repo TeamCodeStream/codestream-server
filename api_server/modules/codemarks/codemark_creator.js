@@ -6,6 +6,7 @@ const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_c
 const Codemark = require('./codemark');
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const CodemarkTypes = require('./codemark_types');
+const CodemarkLinkCreator = require('./codemark_link_creator');
 
 class CodemarkCreator extends ModelCreator {
 
@@ -75,7 +76,8 @@ class CodemarkCreator extends ModelCreator {
 				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderUrl'],
 				object: ['remoteCodeUrl'],
 				'array(object)': ['markers', 'externalAssignees'],
-				'array(string)': ['assignees']
+				'array(string)': ['assignees'],
+				'boolean': ['createPermalink']
 			}
 		};
 	}
@@ -90,11 +92,18 @@ class CodemarkCreator extends ModelCreator {
 		if (CodemarkTypes.INVISIBLE_TYPES.includes(this.attributes.type)) {
 			this.attributes.invisible = true;
 		}
+		this.makeLink = this.attributes.createPermalink;
+		delete this.attributes.createPermalink;
 		this.createId();	 		// pre-allocate an ID
 		await this.getTeam();		// get the team that will own this codemark
 		await this.handleMarkers();	// handle any associated markers
 		await this.validateAssignees();	// validate the assignees (for issues)
 		await super.preSave();		// proceed with the save...
+	}
+
+	// right after the document is saved...
+	async postSave () {
+		await this.createCodemarkLink();	// create a permalink to the codemark, if asked
 	}
 
 	// get the team that will own this codemark
@@ -169,6 +178,19 @@ class CodemarkCreator extends ModelCreator {
 		) {
 			throw this.errorHandler.error('validation', { info: 'assignees must contain only users on the team' });
 		}
+	}
+
+	// create a link to the codemark, if asked
+	async createCodemarkLink () {
+		if (!this.makeLink) {
+			return;
+		}
+		this.transforms.permalink = await new CodemarkLinkCreator({
+			request: this.request,
+			codemark: this.model,
+			isPublic: this.linkIsPublic,
+			teamId: this.team.id
+		}).createCodemarkLink();
 	}
 }
 
