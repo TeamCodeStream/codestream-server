@@ -109,6 +109,7 @@ module.exports = {
 	},
 	hasPublicPermalink: {
 		type: 'boolean',
+		serverOnly: true,
 		description: 'Indicates if a public permalink has been generated for this codemark'
 	},
 	invisible: {
