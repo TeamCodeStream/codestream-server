@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Sign in to CodeStream</h2>
+
+<p>Sign in to CodeStream to access this codemark.</p>
+
+{{#if error}}
+	<p>{{error}}</p>
+{{/if}}
+
+<button onclick="window.location.href='/web/slack-auth'">Sign in with Slack</button>
+
+<form action="/web/signin" method="post">
+	<input type=hidden name=finishUrl value="{{finishUrl}}"><br>
+	Email<br>
+	<input type=text name=email value={{email}}>
+	<br>
+	Password<br>
+	<input type=password name=password>
+	<br><br>
+	<input type=submit value="Sign in with CodeStream">
+</form> 
+
+</body>
+</html>

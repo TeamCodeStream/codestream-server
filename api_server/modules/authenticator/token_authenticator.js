@@ -31,14 +31,19 @@ class TokenAuthenticator {
 			// e.g. '/no-auth/path' ... no authentication required
 			return true;
 		}
-		// look for a token in this order: cookie, query, body, header
-		const token =
-			/*
-			(this.request.signedCookies && this.request.signedCookies.t) ||
-			(this.request.query && this.request.query.t && decodeURIComponent(this.request.query.t)) ||
-			(this.request.body && this.request.body.t) ||
-*/
-			this.tokenFromHeader(this.request);
+		let token;
+
+		// certain paths required cookie authentication
+		if (this.pathIsCookieAuth(this.request)) {
+			token = (this.request.signedCookies && this.request.signedCookies.t);
+		}
+
+		// otherwise look for a Bearer token
+		else {
+			token =	this.tokenFromHeader(this.request);
+		}
+
+
 		if (!token) {
 			if (!this.pathIsOptionalAuth(this.request)) {
 				throw this.errorHandler.error('missingAuthorization');
@@ -119,6 +124,15 @@ class TokenAuthenticator {
 	// according to config
 	pathIsOptionalAuth (request) {
 		const paths = this.api.config.api.optionalAuthenticatedPaths || [];
+		return paths.find(path => {
+			const regExp = new RegExp(path);
+			return request.path.match(regExp);
+		});
+	}
+
+	// for certain paths, cookie authentication is required
+	pathIsCookieAuth (request) {
+		const paths = this.api.config.api.cookieAuthenticatedPaths || [];
 		return paths.find(path => {
 			const regExp = new RegExp(path);
 			return request.path.match(regExp);

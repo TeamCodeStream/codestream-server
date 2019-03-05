@@ -8,16 +8,30 @@ const BodyParser = require('body-parser');
 class BodyParserModule extends APIServerModule {
 
 	middlewares () {
-		return (request, response, next) => {
-			if (this.api.config.api.mockMode) {
-				return next();
+		return [
+			
+			// json
+			(request, response, next) => {
+				if (this.api.config.api.mockMode) {
+					return next();
+				}
+				// we only need to obtain the middleware function once
+				this.jsonParserFunc = this.jsonParserFunc || BodyParser.json({
+					reviver: this.jsonBodyReviver
+				});
+				this.jsonParserFunc(request, response, next);
+			},
+
+			// form-data
+			(request, response, next) => {
+				if (this.api.config.api.mockMode) {
+					return next();
+				}
+				// we only need to obtain the middleware function once
+				this.formParserFunc = this.formParserFunc || BodyParser.urlencoded({ extended: true });
+				this.formParserFunc(request, response, next);
 			}
-			// we only need to obtain the middleware function once
-			this.bodyParserFunc = this.bodyParserFunc || BodyParser.json({
-				reviver: this.jsonBodyReviver
-			});
-			this.bodyParserFunc(request, response, next);
-		};
+		];
 	}
 
 	jsonBodyReviver (key, value) {

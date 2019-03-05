@@ -4,11 +4,9 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
-const BCrypt = require('bcrypt');
 const LoginHelper = require('./login_helper');
-const Indexes = require('./indexes');
 const Errors = require('./errors');
-const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const LoginCore = require('./login_core');
 
 class LoginRequest extends RestfulRequest {
 
@@ -24,10 +22,9 @@ class LoginRequest extends RestfulRequest {
 
 	// process the request....
 	async process () {
-		await this.requireAndAllow();			// require certain parameters, and discard unknown parameters
-		await this.getUser();					// get the user indicated by email in the request
-		await this.validatePassword();			// validate the given password matches their password hash
-		await this.doLogin();					// proceed with actual login
+		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
+		await this.handleLogin();		// handle the actual login check
+		await this.doLogin();			// proceed with actual login
 	}
 
 	// require these parameters, and discard any unknown parameters
@@ -42,50 +39,12 @@ class LoginRequest extends RestfulRequest {
 		);
 	}
 
-	// get the user indicated by the passed email
-	async getUser () {
-		this.user = await this.data.users.getOneByQuery(
-			{
-				searchableEmail: this.request.body.email.toLowerCase()
-			},
-			{
-				hint: Indexes.bySearchableEmail
-			}
-		);
-		/*
-		// Killing this check to avoid email harvesting vulnerability, instead we'll drop through
-		// and return a password mismatch error even if the user doesn't exist
-		if (!this.user || this.user.get('deactivated')) {
-			throw this.errorHandler.error('notFound', { info: 'email' });
-		}
-		*/
-	}
-
-	// validate that the given password matches the password hash stored for the user
-	async validatePassword () {
-		let result;
-		try {
-			if (
-				this.user &&
-				!this.user.get('deactivated') &&
-				this.user.get('passwordHash')
-			) {
-				result = await callbackWrap(
-					BCrypt.compare,
-					this.request.body.password,
-					this.user.get('passwordHash')
-				);
-			}
-		}
-		catch (error) {
-			throw this.errorHandler.error('token', { reason: error });
-		}
-		if (!result) {
-			throw this.errorHandler.error('passwordMismatch');
-		}
-		if (!this.user.get('isRegistered')) {
-			throw this.errorHandler.error('noLoginUnregistered');
-		}
+	// handle the actual login check ... get user and validate password
+	async handleLogin () {
+		const { email, password } = this.request.body;
+		this.user = await new LoginCore({
+			request: this
+		}).login(email, password);
 	}
 
 	// proceed with the actual login, calling into a login helper 

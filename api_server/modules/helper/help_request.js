@@ -42,7 +42,7 @@ class HelpRequest extends APIRequest {
 				await this.serveByTag(tag);
 			}
 		}
-		this.responseIssued = true;
+		this.responseHandled = true;
 	}
 
 	async serveOverview () {

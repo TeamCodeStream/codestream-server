@@ -131,6 +131,9 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// get the user initiating the auth request
 	async getUser () {
+		if (this.userId === 'anon') {
+			await this.createUser();
+		}
 		this.user = await this.data.users.getById(this.userId);
 		if (!this.user || this.user.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
@@ -175,6 +178,11 @@ class ProviderTokenRequest extends RestfulRequest {
 		}).save(op);
 	}
 
+	// this auth started out anonymously, so in this case we create the user
+	async createUser () {
+
+	}
+	
 	// send the response html
 	async sendResponse () {
 		const host = this.api.config.webclient.marketingHost;
