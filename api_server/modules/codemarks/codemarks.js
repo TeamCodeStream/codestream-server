@@ -46,26 +46,9 @@ const CODEMARK_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'post',
-		path: 'codemark-link',
+		path: 'codemarks/:id/permalink',
 		requestClass: require('./codemark_link_request')
-	},
-	{
-		method: 'post',
-		path: 'codemark-link/:id',
-		requestClass: require('./codemark_link_existing_request')
 	}
-	/*
-	{
-		method: 'get',
-		path: 'c/:teamId/:uuid',
-		requestClass: require('./link_codemark_request')
-	},
-	{
-		method: 'get',
-		path: 'p/:teamId/:uuid',
-		requestClass: require('./link_codemark_request')
-	}
-*/
 ];
 
 class Codemarks extends Restful {

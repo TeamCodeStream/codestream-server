@@ -13,8 +13,11 @@ module.exports = {
 	unauthenticatedPaths: ['^\\/no-auth\\/'],	
 
 	// matching these paths means Authorization header is optional, behavior may vary
-	optionalAuthenticatedPaths: ['^\\/help(\\/|$)'],
+	optionalAuthenticatedPaths: ['^\\/help(\\/|$)', '^\\/c\\/', '^\\/p\\/', '^\\/web\\/'],
 	
+	// matchines these paths means cookie authentication is required
+	cookieAuthenticatedPaths: ['^\\/c\\/', '^\\/web\\/'],
+
 	// if this is set, API server /help is available
 	helpIsAvailable: process.env.CS_API_HELP_AVAILABLE,	
 
