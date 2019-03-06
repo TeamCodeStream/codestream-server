@@ -6,6 +6,7 @@ const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restf
 const AuthenticatorErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
 const Errors = require('./errors');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const ProviderIdentityConnector = require('./provider_identity_connector');
 
 class ProviderTokenRequest extends RestfulRequest {
 
@@ -21,23 +22,51 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// process the request...
 	async process () {
-		// determine the authorization service to use, based on the provider
-		this.provider = this.request.params.provider.toLowerCase();
-		this.serviceAuth = this.api.services[`${this.provider}Auth`];
-		if (!this.serviceAuth) {
-			throw this.errorHandler.error('unknownProvider', { info: this.provider });
-		}
+		try {
+			// determine the authorization service to use, based on the provider
+			this.provider = this.request.params.provider.toLowerCase();
+			this.serviceAuth = this.api.services[`${this.provider}Auth`];
+			if (!this.serviceAuth) {
+				throw this.errorHandler.error('unknownProvider', { info: this.provider });
+			}
 
-		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
-		if (await this.preProcessHook()) {
-			return;
+			await this.requireAndAllow();		// require certain parameters, discard unknown parameters
+			if (await this.preProcessHook()) {
+				return;
+			}
+			await this.validateState();			// decode the state token and validate
+			await this.exchangeAuthCodeForToken();	// exchange the given auth code for an access token, as needed
+			if (this.userId === 'anon' || this.userId === 'anonCreate') {
+				await this.matchOrCreateUser();
+				await this.saveSignupToken();
+			}
+			else {
+				await this.getUser();				// get the user initiating the auth request
+				await this.getTeam();				// get the team the user is authed with
+			}
+			await this.saveToken();				// save the provided token
+			await this.sendResponse();			// send the response html
 		}
-		await this.validateState();			// decode the state token and validate
-		await this.exchangeAuthCodeForToken();	// exchange the given auth code for an access token, as needed
-		await this.getUser();				// get the user initiating the auth request
-		await this.getTeam();				// get the team the user is authed with
-		await this.saveToken();				// save the provided token
-		await this.sendResponse();			// send the response html
+		catch (error) {
+			// if we have a url to redirect to, redirect with an error, rather
+			// than just throwing
+			if (
+				this.tokenPayload &&
+				this.tokenPayload.url &&
+				typeof error === 'object' &&
+				error.code
+			) {
+				let url = `${this.tokenPayload.url}?error=${error.code}&state=${this.request.query.state}`;
+				if (this.userIdentity && this.userIdentity.email) {
+					url += `&email=${encodeURIComponent(this.userIdentity.email)}`;
+				}
+				this.response.redirect(url);
+				this.responseHandled = true;
+			}
+			else {
+				throw error;
+			}
+		}
 	}
 
 	// require certain parameters, discard unknown parameters
@@ -82,11 +111,10 @@ class ProviderTokenRequest extends RestfulRequest {
 	// decode the state token and validate
 	async validateState () {
 		const stateProps = this.request.query.state.split('!');
-		const stateToken = stateProps[1];
+		this.stateToken = stateProps[1];
 		this.host = stateProps[2];
-		let payload;
 		try {
-			payload = this.api.services.tokenHandler.verify(stateToken);
+			this.tokenPayload = this.api.services.tokenHandler.verify(this.stateToken);
 		}
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;
@@ -97,11 +125,11 @@ class ProviderTokenRequest extends RestfulRequest {
 				throw this.errorHandler.error('tokenInvalid', { reason: message });
 			}
 		}
-		if (payload.type !== 'pauth') {
+		if (this.tokenPayload.type !== 'pauth') {
 			throw this.errorHandler.error('tokenInvalid', { reason: 'not a provider authorization token' });
 		}
-		this.userId = payload.userId;
-		this.teamId = payload.teamId;
+		this.userId = this.tokenPayload.userId;
+		this.teamId = this.tokenPayload.teamId;
 	}
 
 	// perform an exchange of auth code for access token, as needed
@@ -131,9 +159,6 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// get the user initiating the auth request
 	async getUser () {
-		if (this.userId === 'anon') {
-			await this.createUser();
-		}
 		this.user = await this.data.users.getById(this.userId);
 		if (!this.user || this.user.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
@@ -164,12 +189,12 @@ class ProviderTokenRequest extends RestfulRequest {
 			const host = this.host.replace(/\./g, '*');
 			setKey += `.hosts.${host}`;
 		}
-		const op = {
-			$set: {
-				[setKey]: this.tokenData,
-				modifiedAt
-			}
-		};
+		const op = this.transforms.userUpdate || {};
+		delete op.id;
+		delete op._id;
+		op.$set = op.$set || {};
+		op.$set[setKey] = this.tokenData;
+		op.$set.modifiedAt = modifiedAt;
 
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this,
@@ -178,16 +203,73 @@ class ProviderTokenRequest extends RestfulRequest {
 		}).save(op);
 	}
 
-	// this auth started out anonymously, so in this case we create the user
-	async createUser () {
+	// this auth started out anonymously, so try to find a match for the user,
+	// and possibly create one if needed
+	async matchOrCreateUser () {
+		// get access token
+		const token = (this.tokenData && this.tokenData.accessToken) || this.request.query.token;
+		if (!token) {
+			throw this.errorHandler.error('updateAuth', { reason: 'token not returned from provider' });
+		}
 
+		// check that the third-party auth provider supports identity matching,
+		// and if so, get identifying info
+		if (typeof this.serviceAuth.getUserIdentity !== 'function') {
+			throw this.errorHandler.error('identityMatchingNotSupported');
+		}
+		this.userIdentity = await this.serviceAuth.getUserIdentity({
+			accessToken: token,
+			request: this
+		});
+
+		// now attempt to match the identifying info with an existing user
+		await this.matchUser(this.userIdentity); 
+		if (this.user) {
+			return;
+		}
+		else if (this.userId !== 'anonCreate') {
+			// if no match found, throw an error unless we're allowed to create a user
+			throw this.errorHandler.error('noIdentityMatch');
+		}
+
+		// TODO: here we create a new user, but not tackling that problem for now
 	}
 	
+	// match the identifying information with an existing CodeStream user
+	async matchUser (userIdentity) {
+		this.connector = new ProviderIdentityConnector({
+			request: this,
+			provider: this.provider,
+			okToCreateUser: this.userId === 'anonCreate',
+			okToAddUserToTeam: this.userId === 'anonCreate',
+			mustMatchTeam: this.userId === 'anon',
+			mustMatchUser: this.userId === 'anon'
+		});
+		await this.connector.connectIdentity(userIdentity);
+		this.user = this.connector.user;
+		this.team = this.connector.team;
+	}
+
+	// if a signup token is provided, this allows a client session to identify the user ID that was eventually
+	// signed up as it originated from the IDE
+	async saveSignupToken () {
+		await this.api.services.signupTokens.insert(
+			this.stateToken,
+			this.user.id,
+			{ 
+				requestId: this.request.id
+			}
+		);
+	}
+
 	// send the response html
 	async sendResponse () {
 		const host = this.api.config.webclient.marketingHost;
 		const authCompletePage = this.serviceAuth.getAuthCompletePage();
-		this.response.redirect(`${host}/auth-complete/${authCompletePage}`);
+		const redirect = this.tokenPayload.url ? 
+			`${decodeURIComponent(this.tokenPayload.url)}?state=${this.request.query.state}` :
+			`${host}/auth-complete/${authCompletePage}`;
+		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}
 

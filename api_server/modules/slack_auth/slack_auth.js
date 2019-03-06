@@ -33,6 +33,12 @@ class SlackAuth extends OAuth2Module {
 			return 'name must be no longer than 21 characters';
 		}
 	}
+
+	// match the given slack identity to a CodeStream identity
+	async getUserIdentity (options) {
+		const authorizer = new ProviderInfoAuthorizer({ options });
+		return await authorizer.getSlackIdentity(options.accessToken);
+	}
 }
 
 module.exports = SlackAuth;

@@ -10,7 +10,7 @@
 	<p>{{error}}</p>
 {{/if}}
 
-<button onclick="window.location.href='/web/slack-auth'">Sign in with Slack</button>
+<button onclick="window.location.href='{{slackLink}}'">Sign in with Slack</button>
 
 <form action="/web/signin" method="post">
 	<input type=hidden name=finishUrl value="{{finishUrl}}"><br>

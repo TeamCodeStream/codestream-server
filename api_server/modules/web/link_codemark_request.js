@@ -24,17 +24,25 @@ class LinkCodemarkRequest extends APIRequest {
 	}
 
 	async process () {
-		!await this.checkAuthentication() ||
-		!await this.getCodemarkLink() ||
-		!await this.getCodemark() ||
-		!await this.showCodemark();
+		await this.checkAuthentication() &&
+		await this.getCodemarkLink() &&
+		await this.getCodemark() &&
+		await this.showCodemark();
 	}
 
 	async checkAuthentication () {
 		// if no identity, redirect to the login page
 		if (!this.isPublic && !this.user) {
 			this.log('User requesting codemark link but has no identity, redirecting to login');
-			this.module.evalTemplate(this, 'login', { finishUrl: this.request.url });
+			let redirect = `/web/login?url=${encodeURIComponent(this.request.path)}`;
+			if (this.request.query.error) {
+				redirect += `&error=${this.request.query.error}`;
+			}
+			if (this.request.query.errorData) {
+				redirect += `&errorData=${this.request.query.errorData}`;
+			}
+			this.response.redirect(redirect);
+			this.responseHandled = true;
 			return false;
 		}
 		return true;

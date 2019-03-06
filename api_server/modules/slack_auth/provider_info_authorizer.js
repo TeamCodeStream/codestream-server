@@ -26,16 +26,25 @@ class ProviderInfoAuthorizer {
 		// connect to slack exchange the auth code for an access token
 		this.accessToken = await this.exchangeCodeForAccessToken();
 
-		this.webClient = new WebClient(this.accessToken);
+		// return identifying information
+		return await this.getSlackIdentity(this.accessToken);
+	}
+
+	// return identifying information associated with the fetched access token
+	async getSlackIdentity (accessToken) {
+		this.webClient = new WebClient(accessToken);
 		const identityInfo = await this.slackApiRequest('auth.test');
 		const userInfo = await this.slackApiRequest('users.info', { user: identityInfo.user_id });
+		if (!identityInfo || !userInfo) {
+			throw this.request.errorHandler.error('noIdentityMatch');
+		}
 		this.request.log('identityInfo: ' + JSON.stringify(identityInfo, undefined, 5));
 		this.request.log('userInfo: ' + JSON.stringify(userInfo, undefined, 5));
 		return {
 			userId: identityInfo.user_id,
 			teamId: identityInfo.team_id,
 			teamName: identityInfo.team,
-			accessToken: this.accessToken,
+			accessToken,
 			username: userInfo.user.profile.display_name,
 			fullName: userInfo.user.profile.real_name,
 			email: userInfo.user.profile.email,
@@ -67,7 +76,11 @@ class ProviderInfoAuthorizer {
 
 	// make a slack request
 	async slackApiRequest(method, options = {}) {
-		const mockCode = this.providerInfo.code.match(/^mock.*-(.+)-(.+)$/);
+		const mockCode = (
+			this.providerInfo &&
+			this.providerInfo.code && 
+			this.providerInfo.code.match(/^mock.*-(.+)-(.+)$/)
+		);
 		if (mockCode && mockCode.length >= 3) {
 			if (method === 'auth.test') {
 				return this._mockIdentity(mockCode[1], mockCode[2]);

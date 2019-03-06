@@ -37,6 +37,16 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: 'web/slack-auth-complete',
+		requestClass: require('./web_slack_auth_complete_request')
+	},
+	{
+		method: 'get',
+		path: 'web/error',
+		requestClass: require('./web_error_request')
+	},
+	{
+		method: 'get',
 		path: 'c/:teamId/:id',
 		requestClass: require('./link_codemark_request')
 	},

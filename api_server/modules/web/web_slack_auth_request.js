@@ -1,6 +1,7 @@
 'use strict';
 
 const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
+const WebErrors = require('./errors');
 
 class WebSlackAuthRequest extends APIRequest {
 
@@ -9,18 +10,26 @@ class WebSlackAuthRequest extends APIRequest {
 
 	async process () {
 		if (!this.api.services.slackAuth) {
-			throw 'slack auth is not available';
+			this.warn('Slack auth is not available');
+			this.redirectLogin(WebErrors.internalError.code);
+			return;
 		}
 
-		const expiresAt = Date.now() + 10 * 60 * 1000;
+		const expiresAt = Date.now() + 2 * 60 * 1000;
 		const payload = {
-			userId: 'anon'
+			userId: 'anon',
+			url: `https://${this.request.hostname}:${this.api.config.express.port}/web/slack-auth-complete`,
+			end: this.request.query.url
 		};
 		const code = this.api.services.tokenHandler.generate(
 			payload,
 			'pauth',
 			{ expiresAt }
 		);
+		this.response.cookie('tslack', code, {
+			secure: true,
+			signed: true
+		});
 
 		// set up options for initiating a redirect 
 		const { authOrigin, callbackEnvironment } = this.api.config.api;
@@ -39,6 +48,12 @@ class WebSlackAuthRequest extends APIRequest {
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
 		this.response.redirect(`${url}?${query}`);
+		this.responseHandled = true;
+	}
+
+	redirectLogin (error) {
+		const url = encodeURIComponent(this.request.query.url);
+		this.response.redirect(`/web/login?error=${error}&url=${url}`);
 		this.responseHandled = true;
 	}
 }

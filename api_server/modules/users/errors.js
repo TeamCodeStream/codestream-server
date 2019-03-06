@@ -93,5 +93,15 @@ module.exports = {
 		code: 'USRC-1017',
 		message: 'The third-party provider host can not be matched to a known enterprise host',
 		description: 'Enterprise customers should configure their installation with the hosts they wish users to be able to connect to for on-premise third-party integrations; the host passed in the request was not found among the known hosts for this installation'
+	},
+	'identityMatchingNotSupported': {
+		code: 'USRC-1018',
+		message: 'Identity matching is not supported for this third-party provider',
+		description: 'This third-party provider does not support matching an identity with a user on CodeStream'
+	},
+	'noIdentityMatch': {
+		code: 'USRC-1019',
+		message: 'No CodeStream identity was found to match the identity from third-party provider authentication',
+		description: 'After completing third-party provider authentication, a matching identity on CodeStream could not be found'
 	}
 };

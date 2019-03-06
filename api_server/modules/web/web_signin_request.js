@@ -2,6 +2,7 @@
 
 const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 const LoginCore = require(process.env.CS_API_TOP + '/modules/users/login_core');
+const WebErrors = require('./errors');
 
 class WebSigninRequest extends APIRequest {
 
@@ -35,15 +36,12 @@ class WebSigninRequest extends APIRequest {
 	}
 
 	loginError () {
-		this.module.evalTemplate(
-			this,
-			'login',
-			{ 
-				error: 'Sorry, you entered an incorrect email or password.',
-				email: this.request.body.email,
-				finishUrl: this.request.body.finishUrl
-			}
-		);
+		const error = WebErrors.invalidLogin.code;
+		const email = encodeURIComponent(this.request.body.email || '');
+		const url = encodeURIComponent(this.request.body.finishUrl || '');
+		const redirect = `/web/login?error=${error}&email=${email}&url=${url}`;
+		this.response.redirect(redirect);
+		this.responseHandled = true;
 	}
 
 	issueCookie () {
