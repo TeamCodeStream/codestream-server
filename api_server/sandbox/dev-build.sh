@@ -3,7 +3,7 @@
 # well as running supporting API sandboxes for other builds.
 
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-CI_Keyset"
-OTHER_SECRETS_FILE="$HOME/.codestream/codestream-services/ci-api"
+OTHER_SECRETS_FILE="$HOME/.codestream/services/ci-api"
 
 export CS_API_ASSET_ENV=dev
 

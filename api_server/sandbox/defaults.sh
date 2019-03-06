@@ -283,7 +283,7 @@ fi
 
 
 # =============== Other Secrets ===============
-[ -z "$OTHER_SECRETS_FILE" ] && OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/dev-api
+[ -z "$OTHER_SECRETS_FILE" ] && OTHER_SECRETS_FILE=$HOME/.codestream/codestream/local-api
 if [ -f $OTHER_SECRETS_FILE ]; then
 	. $OTHER_SECRETS_FILE
 	export CS_API_AUTH_SECRET="$AUTH_SECRET"
@@ -296,6 +296,8 @@ if [ -f $OTHER_SECRETS_FILE ]; then
 	export CS_API_SUBSCRIPTION_CHEAT_CODE="$SUBSCRIPTION_CHEAT_CODE"
 	# for accessing the api prior to authentication
 	export CS_API_PRE_AUTH_SECRET="$PRE_AUTH_SECRET"
+	# for permalinks
+	export CS_API_COOKIE_SECRET="$COOKIE_SECRET"
 else
 	echo "****"
 	echo "**** FATAL ERROR ****"

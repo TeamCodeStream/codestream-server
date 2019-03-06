@@ -12,7 +12,7 @@ MONGO_ACCESS_FILE="$HOME/.codestream/mongo/qa-codestream-dbowner"
 #BITBUCKET_API_ACCESS_FILE=$HOME/.codestream/bitbucket/production
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Testing-QA_Keyset"
 #MIXPANEL_TOKEN_FILE=
-OTHER_SECRETS_FILE=$HOME/.codestream/codestream-services/qa-api
+OTHER_SECRETS_FILE=$HOME/.codestream/codestream/qa-api
 
 export CS_API_ASSET_ENV=prod
 export CS_API_ENV=qa

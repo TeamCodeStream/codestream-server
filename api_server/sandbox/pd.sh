@@ -6,7 +6,7 @@ PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-PD_Keyset"
 #SSL_CERT=
 #MIXPANEL_TOKEN_FILE=
 #BOT_SECRETS_FILE=
-#OTHER_SECRETS_FILE=
+OTHER_SECRETS_FILE=OTHER_SECRETS_FILE=$HOME/.codestream/codestream/dev-api
 export CS_API_ASSET_ENV=dev
 export CS_API_ENV=pd
 
