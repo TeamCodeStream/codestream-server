@@ -86,7 +86,7 @@ class LinkCodemarkRequest extends APIRequest {
 	}
 
 	async showCodemark () {
-		const creator = await this.data.users.getById(this.codemark.get('creatorId'));
+		this.creator = await this.data.users.getById(this.codemark.get('creatorId'));
 
 		let marker, file;
 		const markerId = this.codemark.get('markerIds')[0];
@@ -97,7 +97,7 @@ class LinkCodemarkRequest extends APIRequest {
 			file = (fileStream && fileStream.get('file')) || (marker && marker.get('file'));
 		}
 
-		const username = creator && creator.get('username');
+		const username = this.creator && this.creator.get('username');
 		const activity = this.getActivity(this.codemark.get('type'));
 		const showComment = username && !this.codemark.get('invisible');
 		const createdAt = this.formatTime(this.codemark.get('createdAt'));
@@ -142,8 +142,18 @@ class LinkCodemarkRequest extends APIRequest {
 	}
 
 	formatTime (timeStamp) {
-		const timeZone = (this.user && this.user.get('timeZone')) || 'America/New_York';
-		return MomentTimezone.tz(timeStamp, timeZone).format('ddd, MMM D h:mm a');
+		const formatWithoutTimezone = 'ddd, MMM D h:mm a';
+		const formatWithTimezone = formatWithoutTimezone + ' z';
+		let timeZone = this.user && this.user.get('timeZone');
+		let format = formatWithoutTimezone;
+		if (!timeZone) {
+			format = formatWithTimezone;
+			timeZone = this.creator && this.creator.get('timeZone');
+			if (!timeZone) {
+				timeZone = 'Etc/GMT';
+			}
+		}
+		return MomentTimezone.tz(timeStamp, timeZone).format(format);
 	}
 
 	highlightCode (code, extension) {
