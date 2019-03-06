@@ -76,3 +76,5 @@ if args.action == 'docker':
 	buildstepGeneric(args, cmd = os.environ['CS_API_TOP'] + "/sandbox/docker/make-image.sh -V " + dockerVersion)
 	if args.push:
 		buildstepGeneric(args, cmd = "dt-docker-util -a push --image-name teamcodestream/local-api:" + dockerVersion)
+		buildstepGeneric(args, cmd = "dt-docker-util --action rmi --image-name teamcodestream/local-api --filter 'before=teamcodestream/local-api:" + dockerVersion + "'")
+	
