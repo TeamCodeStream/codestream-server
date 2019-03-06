@@ -128,6 +128,7 @@ class PostCodemarkRequest extends PostRequest {
 				'externalProviderUrl': '<For externally linked issues, the URL to access the issue>',
 				'externalAssignees': '<For externally linked issues, array of assignees to the issue, expected to be objects with at least displayName>',
 				'remoteCodeUrl': '<Object referencing a link to the code block references by this codemark in an external provider, contains "name" and "url">',
+				'threadUrl': '<Object referencing a link to the thread this codemark was created in, comtains "name" and "url">',
 				'createPermalink': '<If set, create a permalink to the codemark, and return it>' 
 			}
 		};

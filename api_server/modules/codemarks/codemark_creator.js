@@ -32,13 +32,9 @@ class CodemarkCreator extends ModelCreator {
 			await this.validateMarkers();
 		}
 		
-		// if we have a remoteCodeUrl object, validate it
-		if (typeof this.attributes.remoteCodeUrl === 'object') {
-			this.validateRemoteCodeUrl();
-		} 
-		else {
-			delete this.attributes.remoteCodeUrl;
-		}
+		// if we have url container objects, validate them
+		this.validateUrlObject('remoteCodeUrl');
+		this.validateUrlObject('threadUrl');
 	}
 
 	// validate the markers sent with the post creation, this is too important to just drop,
@@ -57,13 +53,15 @@ class CodemarkCreator extends ModelCreator {
 		}
 	}
 
-	// validate the remoteCodeUrl, really just restricting it to a name and a url, for now
-	validateRemoteCodeUrl () {
-		const { name, url } = this.attributes.remoteCodeUrl;
+	// validate a url container object, really just restricting it to a name and a url, for now
+	validateUrlObject (objectName) {
+		const { urlObject } = this.attributes;
+		if (!urlObject) return;
+		const { name, url } = urlObject;
 		if (!name || typeof name !== 'string' || !url || typeof url !== 'string') {
-			throw this.errorHandler.error('validation', { info: 'remoteCodeUrl: name and url are required and must be strings' } );
+			throw this.errorHandler.error('validation', { info: `${objectName}: name and url are required and must be strings` } );
 		}
-		this.attributes.remoteCodeUrl = { name, url };
+		this.attributes[objectName] = { name, url };
 	}
 
 	// these attributes are required or optional to create an codemark document
@@ -74,7 +72,7 @@ class CodemarkCreator extends ModelCreator {
 			},
 			optional: {
 				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderUrl'],
-				object: ['remoteCodeUrl'],
+				object: ['remoteCodeUrl', 'threadUrl'],
 				'array(object)': ['markers', 'externalAssignees'],
 				'array(string)': ['assignees'],
 				'boolean': ['createPermalink']

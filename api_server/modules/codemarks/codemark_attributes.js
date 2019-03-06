@@ -120,5 +120,10 @@ module.exports = {
 		type: 'object',
 		maxLength: 500,
 		description: 'Object referencing a link to the code block references by this codemark in an external provider, contains "name" and "url"'
+	},
+	threadUrl: {
+		type: 'object',
+		maxLength: 500,
+		description: 'Object referencing a link to the thread in which this codemark was created'
 	}
 };

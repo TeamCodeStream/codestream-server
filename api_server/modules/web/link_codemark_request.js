@@ -12,7 +12,8 @@ const PROVIDER_DISPLAY_NAMES = {
 	'gitlab': 'GitLab',
 	'trello': 'Trello',
 	'jira': 'Jira',
-	'asana': 'Asana'
+	'asana': 'Asana',
+	'slack': 'Slack'
 };
 
 class LinkCodemarkRequest extends APIRequest {
@@ -114,8 +115,14 @@ class LinkCodemarkRequest extends APIRequest {
 		}
 
 		const remoteCodeUrl = this.codemark.get('remoteCodeUrl') || {};
-		const provider = PROVIDER_DISPLAY_NAMES[remoteCodeUrl.name] || remoteCodeUrl.name;
-		const providerUrl = remoteCodeUrl.url;
+		const codeProvider = PROVIDER_DISPLAY_NAMES[remoteCodeUrl.name] || remoteCodeUrl.name;
+		const codeProviderUrl = remoteCodeUrl.url;
+
+		const threadUrl = this.codemark.get('threadUrl') || {};
+		const threadProvider = PROVIDER_DISPLAY_NAMES[threadUrl.name] || threadUrl.name;
+		const threadProviderUrl = threadUrl.url;
+
+		const hasProviderButtons = codeProvider || threadProvider;
 
 		this.module.evalTemplate(this, 'codemark', {
 			showComment,
@@ -126,8 +133,11 @@ class LinkCodemarkRequest extends APIRequest {
 			text,
 			file,
 			code,
-			provider,
-			providerUrl
+			hasProviderButtons,
+			codeProvider,
+			codeProviderUrl,
+			threadProvider,
+			threadProviderUrl
 		});
 	}
 

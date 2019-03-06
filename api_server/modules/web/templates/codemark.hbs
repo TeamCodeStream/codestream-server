@@ -30,9 +30,14 @@
 	{{{code}}}
 </div>
 
-{{#if provider}}
+{{#if hasProviderButtons}}
 	<div class=buttons>
-		<button onclick='window.open("{{providerUrl}}", "_blank")'>Open on {{provider}}</button>
+		{{#if codeProvider}}
+			<button onclick='window.open("{{codeProviderUrl}}", "_blank")'>Open Code on {{codeProvider}}</button>
+		{{/if}}
+		{{#if threadProvider}}
+			<button onclick='window.open("{{threadProviderUrl}}", "_blank")'>Open Thread on {{threadProvider}}</button>
+		{{/if}}
 	</div>
 {{/if}}
 
