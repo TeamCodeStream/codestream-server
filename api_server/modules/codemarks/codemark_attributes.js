@@ -102,6 +102,11 @@ module.exports = {
 		maxLength: 25,
 		description: 'External provider for this codemark (eg. github, trello)'
 	},
+	externalProviderHost: {
+		type: 'string',
+		maxLength: 200,
+		description: 'Host of the external provider, which may be an enterprise installation'
+	},
 	externalProviderUrl: {
 		type: 'string',
 		maxLength: 1000,

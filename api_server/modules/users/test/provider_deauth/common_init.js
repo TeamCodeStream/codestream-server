@@ -83,6 +83,7 @@ class CommonInit {
 			this.data.host = host;
 			key += `.hosts.${host}`;
 		}
+		//key += '.accessToken';
 		this.message = this.expectedResponse = {
 			user: {
 				_id: this.currentUser.user.id, 	// DEPRECATE ME

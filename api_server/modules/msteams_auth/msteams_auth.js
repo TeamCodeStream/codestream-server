@@ -7,6 +7,7 @@ const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module
 const OAUTH_CONFIG = {
 	provider: 'msteams',
 	host: 'login.microsoftonline.com',
+	apiHost: 'graph.microsoft.com/v1.0',
 	authPath: 'common/oauth2/v2.0/authorize',
 	tokenPath: 'common/oauth2/v2.0/token',
 	exchangeFormat: 'form',

@@ -7,6 +7,7 @@ const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module
 const OAUTH_CONFIG = {
 	provider: 'trello',
 	host: 'trello.com',
+	apiHost: 'api.trello.com/1',
 	authPath: '1/authorize',
 	scopes: 'read,write',
 	additionalAuthCodeParameters: {

@@ -71,7 +71,7 @@ class CodemarkCreator extends ModelCreator {
 				string: ['teamId', 'type']
 			},
 			optional: {
-				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderUrl'],
+				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderHost', 'externalProviderUrl'],
 				object: ['remoteCodeUrl', 'threadUrl'],
 				'array(object)': ['markers', 'externalAssignees'],
 				'array(string)': ['assignees'],

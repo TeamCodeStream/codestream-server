@@ -135,6 +135,7 @@ class LoginHelper {
 					prev.push({
 						name: provider,
 						host: instance.host,
+						apiHost: instance.apiHost,
 						isEnterprise: !instance.public,
 						hasIssues: instance.hasIssues
 					});

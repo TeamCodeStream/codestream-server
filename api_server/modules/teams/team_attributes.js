@@ -50,5 +50,10 @@ module.exports = {
 		type: 'string',
 		maxLength: 20,
 		serverOnly: true
+	},
+	providerHosts: {
+		type: 'object',
+		maxLength: 10000,
+		serverOnly: true
 	}
 };

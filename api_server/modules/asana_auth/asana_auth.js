@@ -7,6 +7,7 @@ const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module
 const OAUTH_CONFIG = {
 	provider: 'asana',
 	host: 'app.asana.com',
+	apiHost: 'app.asana.com',
 	authPath: '-/oauth_authorize',
 	tokenPath: '-/oauth_token',
 	exchangeFormat: 'form',

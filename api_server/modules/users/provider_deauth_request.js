@@ -45,6 +45,7 @@ class ProviderDeauthRequest extends RestfulRequest {
 			host = host.toLowerCase().replace(/\./g, '*');
 			key += `.hosts.${host}`;
 		}
+		// key += '.accessToken';
 		const op = {
 			$unset: {
 				[key]: true

@@ -193,7 +193,10 @@ class ProviderTokenRequest extends RestfulRequest {
 		delete op.id;
 		delete op._id;
 		op.$set = op.$set || {};
-		op.$set[setKey] = this.tokenData;
+		for (let key of Object.keys(this.tokenData)) {
+			const dataKey = `${setKey}.${key}`;
+			op.$set[dataKey] = this.tokenData[key];
+		}
 		op.$set.modifiedAt = modifiedAt;
 
 		this.transforms.userUpdate = await new ModelSaver({

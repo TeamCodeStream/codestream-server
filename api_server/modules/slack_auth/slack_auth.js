@@ -8,6 +8,7 @@ const ProviderInfoAuthorizer = require('./provider_info_authorizer');
 const OAUTH_CONFIG = {
 	provider: 'slack',
 	host: 'slack.com',
+	apiHost: 'slack.com/api',
 	authPath: 'oauth/authorize',
 	tokenPath: 'api/oauth.access',
 	exchangeFormat: 'form',
