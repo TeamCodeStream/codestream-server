@@ -26,10 +26,11 @@ class LoginHelper {
 	// get the initial data to return in the response, this is a time-saver for the client
 	// so it doesn't have to fetch this data with separate requests
 	async getInitialData () {
-		this.initialData = await new InitialDataFetcher({
+		this.initialDataFetcher = new InitialDataFetcher({
 			request: this.request,
 			user: this.user
-		}).fetchInitialData();
+		});
+		this.initialData = await this.initialDataFetcher.fetchInitialData();
 	}
 
 	// grant the user permission to subscribe to various messager channels
@@ -129,7 +130,7 @@ class LoginHelper {
 			const service = `${provider}Auth`;
 			const serviceAuth = this.request.api.services[service];
 			if (serviceAuth) {
-				const instances = serviceAuth.getInstances() || [];
+				const instances = serviceAuth.getInstances(this.initialDataFetcher.teams) || [];
 				for (let host in instances) {
 					const instance = instances[host];
 					prev.push({
@@ -137,7 +138,8 @@ class LoginHelper {
 						host: instance.host,
 						apiHost: instance.apiHost,
 						isEnterprise: !instance.public,
-						hasIssues: instance.hasIssues
+						hasIssues: instance.hasIssues,
+						teamId: instance.teamId
 					});
 				}
 			}

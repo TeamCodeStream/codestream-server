@@ -273,7 +273,10 @@ class OAuth2Module extends APIServerModule {
 	}
 
 	// return the instances of this provider (public instance, plus and on-premise instances)
-	getInstances () {
+	getInstances (teams = []) {
+		const { provider } = this.oauthConfig;
+
+		// get base instances of all providers without enterprise hosts
 		const instances = {};
 		if (this.oauthConfig.host && (this.apiConfig.appClientId || this.apiConfig.apiKey)) {
 			const host = this.oauthConfig.host.toLowerCase();
@@ -285,14 +288,30 @@ class OAuth2Module extends APIServerModule {
 				hasIssues: this.oauthConfig.hasIssues
 			};
 		}
-		Object.keys(this.enterpriseConfig).forEach(host => {
-			instances[host] = {
+
+		// get any instances of enterprise hosts given by configuration
+		this.addInstancesByConfig(instances, this.enterpriseConfig);
+
+		// get any instances of enterprise hosts given by team
+		teams.forEach(team => {
+			const hosts = (team.get('providerHosts') || {})[provider];
+			this.addInstancesByConfig(instances, hosts, team.id);
+		});
+
+		return Object.keys(instances).length ? instances : null;
+	}
+
+	// add instances of provider hosts according to configuration passed in
+	addInstancesByConfig (instances, config, teamId) {
+		Object.keys(config || {}).forEach(host => {
+			const destarredHost = host.replace(/\*/g, '.');
+			instances[destarredHost] = {
 				public: false,
-				host,
-				hasIssues: this.oauthConfig.hasIssues
+				host: destarredHost,
+				hasIssues: this.oauthConfig.hasIssues,
+				teamId
 			};
 		});
-		return Object.keys(instances).length ? instances : null;
 	}
 }
 

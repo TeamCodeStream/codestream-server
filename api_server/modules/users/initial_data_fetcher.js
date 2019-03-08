@@ -28,8 +28,8 @@ class InitialDataFetcher  {
 			this.initialData.teams = [];
 			return;
 		}
-		const teams = await this.request.data.teams.getByIds(teamIds);
-		this.initialData.teams = await this.request.sanitizeModels(teams);
+		this.teams = await this.request.data.teams.getByIds(teamIds);
+		this.initialData.teams = await this.request.sanitizeModels(this.teams);
 	}
 
 	// get the companies that own the teams
