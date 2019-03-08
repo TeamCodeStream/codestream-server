@@ -61,16 +61,28 @@ class OAuth2Module extends APIServerModule {
 	// get client info according to options and configuration, might be for the cloud-based
 	// host, or for an enterprise on-premise instance
 	getClientInfo (options) {
+		const { provider } = this.oauthConfig;
 		let { host } = options;
 		let clientInfo;
 		if (host) {
 			host = host.toLowerCase();
 		}
 		if (host) {
-			if (!this.enterpriseConfig[host]) {
+			const starredHost = host.replace(/\./g, '*');
+			if (
+				options.team && 
+				options.team.get('providerHosts') && 
+				options.team.get('providerHosts')[provider] &&
+				options.team.get('providerHosts')[provider][starredHost]
+			) {
+				clientInfo = options.team.get('providerHosts')[provider][starredHost];
+			}
+			else if (this.enterpriseConfig[host]) {
+				clientInfo = this.enterpriseConfig[host];
+			}
+			else {
 				throw options.request.errorHandler.error('unknownProviderHost');
 			}
-			clientInfo = this.enterpriseConfig[host];
 		}
 		else {
 			clientInfo = this.apiConfig;

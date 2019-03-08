@@ -69,7 +69,9 @@ class CommonInit {
 					expectRedirect: true
 				}
 			},
-			callback
+			() => {
+				setTimeout(callback, 200);
+			}
 		);
 	}
 

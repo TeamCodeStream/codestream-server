@@ -49,7 +49,7 @@ class ProviderRefreshRequest extends RestfulRequest {
 					string: ['refreshToken', 'teamId']
 				},
 				optional: {
-					string: ['_mockToken']
+					string: ['_mockToken', 'host']
 				}
 			}
 		);
@@ -71,12 +71,18 @@ class ProviderRefreshRequest extends RestfulRequest {
 		}
 		const { authOrigin } = this.api.config.api;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
+		let host;
+		if (this.request.query.host) {
+			host = decodeURIComponent(this.request.query.host).toLowerCase();
+		}
 		const options = {
 			refreshToken: this.refreshToken,
 			provider: this.provider,
 			redirectUri, 
 			request: this,
-			mockToken: this.request.query._mockToken
+			mockToken: this.request.query._mockToken,
+			team: this.team,
+			host
 		};
 		try {
 			this.tokenData = await this.serviceAuth.refreshToken(options);
