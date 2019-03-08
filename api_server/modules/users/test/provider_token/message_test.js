@@ -97,8 +97,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				_id: this.currentUser.user.id, // DEPRECATE ME
 				$set: {
 					version: 4,
-					modifiedAt: Date.now(),
-					[key]: expectedData
+					modifiedAt: Date.now()
 				},
 				$version: {
 					before: 3,
@@ -106,6 +105,10 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				}
 			}
 		};
+		for (let dataKey of Object.keys(expectedData)) {
+			const setKey = key + `.${dataKey}`;
+			this.message.user.$set[setKey] = expectedData[dataKey];
+		}
 		callback();
 	}
 
@@ -117,16 +120,18 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			const host = this.testHost.replace(/\./g, '*');
 			key += `.hosts.${host}`;
 		}
-		const providerInfo = message.message.user.$set[key];
-		const expectedProviderInfo = this.message.user.$set[key];
+		const providerSet = message.message.user.$set;
+		const expectedProviderSet = this.message.user.$set;
 		if (['jira', 'asana', 'bitbucket', 'gitlab', 'glip', 'msteams'].includes(this.provider)) {
-			expectedProviderInfo.refreshToken = 'refreshMe';
+			expectedProviderSet[`${key}.refreshToken`] = 'refreshMe';
 			const expiresIn = ['jira', 'asana', 'glip', 'msteams'].includes(this.provider) ? 3600 : 7200;
-			Assert(providerInfo.expiresAt > this.requestSentAt + (expiresIn - 6) * 1000, `expiresAt not set for ${this.provider}`);
-			expectedProviderInfo.expiresAt = providerInfo.expiresAt;
+			const expiresAtKey = `${key}.expiresAt`;
+			const providerExpiresAt = providerSet[expiresAtKey];
+			Assert(providerExpiresAt > this.requestSentAt + (expiresIn - 6) * 1000, `expiresAt not set for ${this.provider}`);
+			expectedProviderSet[expiresAtKey] = providerExpiresAt;
 		}
 		if (this.provider === 'trello') {
-			expectedProviderInfo.apiKey = TrelloConfig.apiKey;
+			expectedProviderSet[`${key}.apiKey`] = TrelloConfig.apiKey;
 		}
 		return super.validateMessage(message);
 	}

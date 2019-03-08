@@ -36,6 +36,7 @@ class ProviderDeauthRequest extends RestfulRequest {
 
 	// clear the credentials for the given provider (in the path) and the given team ID (in the body)
 	async clearCredentials () {
+
 		// remove credentials for the given provider and team ID in the user object
 		const teamId = this.request.body.teamId.toLowerCase();
 		const provider = this.request.params.provider.toLowerCase();
@@ -45,7 +46,16 @@ class ProviderDeauthRequest extends RestfulRequest {
 			host = host.toLowerCase().replace(/\./g, '*');
 			key += `.hosts.${host}`;
 		}
-		// key += '.accessToken';
+		const existingProviderInfo = (this.user.get('providerInfo') || {})[teamId] || {};
+		if (
+			!host && 
+			existingProviderInfo[provider] &&
+			existingProviderInfo[provider].hosts &&
+			Object.keys(existingProviderInfo[provider].hosts).length > 0
+		) {
+			// if we have enterprise hosts for this provider, don't stomp on them
+			key += '.accessToken';
+		}
 		const op = {
 			$unset: {
 				[key]: true
