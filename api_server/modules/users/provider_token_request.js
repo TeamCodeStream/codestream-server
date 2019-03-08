@@ -35,14 +35,14 @@ class ProviderTokenRequest extends RestfulRequest {
 				return;
 			}
 			await this.validateState();			// decode the state token and validate
+			if (!this.userId.startsWith('anon')) {
+				await this.getUser();				// get the user initiating the auth request
+				await this.getTeam();				// get the team the user is authed with
+			}
 			await this.exchangeAuthCodeForToken();	// exchange the given auth code for an access token, as needed
 			if (this.userId === 'anon' || this.userId === 'anonCreate') {
 				await this.matchOrCreateUser();
 				await this.saveSignupToken();
-			}
-			else {
-				await this.getUser();				// get the user initiating the auth request
-				await this.getTeam();				// get the team the user is authed with
 			}
 			await this.saveToken();				// save the provided token
 			await this.sendResponse();			// send the response html
@@ -146,7 +146,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			redirectUri, 
 			request: this,
 			mockToken: this.request.query._mockToken,
-			host: this.host
+			host: this.host,
+			team: this.team
 		};
 		try {
 			this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);

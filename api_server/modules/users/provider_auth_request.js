@@ -20,6 +20,10 @@ class ProviderAuthRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		await this.requireAndAllow();	// require certain parameters, discard unknown parameters
+		if (this.request.query.host) {
+			// if there is a host, we might need to get the host info based on the team
+			await this.getTeam();
+		}
 		await this.performRedirect();	// perform whatever redirect is necessary to initiate the authorization
 	}
 
@@ -36,6 +40,22 @@ class ProviderAuthRequest extends RestfulRequest {
 				}
 			}
 		);
+	}
+
+	// get the team associated with the auth-code, in case we need to find enterprise-specific client info
+	async getTeam () {
+		let payload;
+		try {
+			payload = this.api.services.tokenHandler.decode(this.request.query.code);
+		}
+		catch (error) {
+			const message = typeof error === 'object' ? error.message : error;
+			throw this.errorHandler.error('tokenInvalid', { reason: message });
+		}
+		if (payload.type !== 'pauth') {
+			throw this.errorHandler.error('tokenInvalid', { reason: 'not a provider authorization token' });
+		}
+		this.team = await this.data.teams.getById(payload.teamId);
 	}
 
 	// response with a redirect to the third-party provider
@@ -62,7 +82,8 @@ class ProviderAuthRequest extends RestfulRequest {
 			provider: this.provider,
 			request: this,
 			redirectUri,
-			host
+			host,
+			team: this.team
 		};
 
 		// get the specific query data to use in the redirect, and response with the redirect url

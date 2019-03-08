@@ -77,11 +77,11 @@ class OAuth2Module extends APIServerModule {
 			) {
 				clientInfo = options.team.get('providerHosts')[provider][starredHost];
 			}
-			else if (this.enterpriseConfig[host]) {
+			if (!clientInfo) {
 				clientInfo = this.enterpriseConfig[host];
-			}
-			else {
-				throw options.request.errorHandler.error('unknownProviderHost');
+				if (!clientInfo) {
+					throw options.request.errorHandler.error('unknownProviderHost');
+				}
 			}
 		}
 		else {
