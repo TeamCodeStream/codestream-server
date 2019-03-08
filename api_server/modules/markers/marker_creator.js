@@ -128,6 +128,12 @@ class MarkerCreator extends ModelCreator {
 		await this.getStream();					// get the file-stream for the marker, if provided
 		await this.getOrCreateRepo();			// get or create a repo to which the marker will belong, if applicable
 		await this.createFileStream();			// create a file-stream for the marker, as needed
+		if (this.trialRun) {
+			// on a trial run, we're not actually saving the marker, so indicate to the base-class
+			// that we don't want an actual save, but it will still create a model for us
+			this.suppressSave = true;
+			return;
+		}
 		await this.updateMarkerLocations();		// update the marker's location for the particular commit
 		await super.preSave();					// proceed with the save...
 	}
@@ -192,8 +198,12 @@ class MarkerCreator extends ModelCreator {
 	async getRepo () {
 		this.repo = this.teamRepos.find(repo => repo.id === this.attributes.repoId);
 		if (!this.repo) {
-			throw this.request.errorHandler.error('notFound', { info: 'marker repo' });
+			this.repo = await this.request.data.repos.getById(this.attributes.repoId);
+			if (!this.repo || this.repo.get('teamId') !== this.team.id) {
+				throw this.request.errorHandler.error('notFound', { info: 'marker repo' });	
+			}
 		}
+
 		if (this.attributes.remotes) {
 			await this.updateRepoWithNewRemotes(this.repo, this.attributes.remotes);
 		}

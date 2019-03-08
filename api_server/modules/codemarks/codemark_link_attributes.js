@@ -16,6 +16,11 @@ module.exports = {
 		required: true,
 		description: 'ID of the @@#codemark#codemark@@ linked to by this link'
 	},
+	md5Hash: {
+		type: 'string', 
+		required: true,
+		description: 'MD5 hash of the codemark\'s distinguishing properties, so we know if we have dupes'
+	},
 	_forTesting: {
 		type: 'boolean',
 		serverOnly: true

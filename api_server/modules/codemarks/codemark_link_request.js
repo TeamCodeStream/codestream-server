@@ -42,8 +42,7 @@ class CodemarkLinkRequest extends RestfulRequest {
 		this.responseData.permalink = await new CodemarkLinkCreator({
 			request: this,
 			codemark: this.codemark,
-			isPublic: this.request.body.isPublic,
-			teamId: this.codemark.get('teamId')
+			isPublic: this.request.body.isPublic
 		}).createCodemarkLink();
 	}
 

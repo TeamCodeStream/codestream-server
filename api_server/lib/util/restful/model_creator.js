@@ -28,6 +28,10 @@ class ModelCreator {
 		await this.validate();					// validate the attributes
 		await this.checkExisting();				// check if there is already a matching document, according to the derived class
 		await this.preSave();					// prepare to save the document
+		if (this.suppressSave) {
+			this.model = new this.modelClass(this.attributes);
+			return this.model;
+		}
 		this.checkValidationWarnings();			// check for any validation warnings that came up in preSave
 		await this.createOrUpdate();			// create the document, or if already existed, we might want to update it
 		await this.postSave();					// give the derived class a chance to do stuff after we've saved
