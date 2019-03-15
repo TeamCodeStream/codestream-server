@@ -16,6 +16,7 @@ class SocketClusterClient {
 	init () {
 		return new Promise((resolve, reject) => {
 			this.socket = SocketCluster.create({ 
+				hostname: this.config.host,
 				port: this.config.port,
 				multiplex: false,	// don't allow reusing connections
 				rejectUnauthorized: !this.config.dontRejectUnauthorized,
@@ -40,7 +41,6 @@ class SocketClusterClient {
 				uid: this.config.uid,
 				secret: this.config.authSecret
 			});
-
 		});
 	}
 
