@@ -63,7 +63,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.user = response.user;
-				this.pubnubToken = response.pubnubToken;
+				this.messagerToken = response.messagerToken;
 				callback();
 			}
 		);
@@ -99,7 +99,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 	createSocketClusterClient () {
 		const config = Object.assign({}, SocketClusterConfig, {
 			uid: this.user.id,
-			authKey: this.pubnubToken 
+			authKey: this.messagerToken 
 		});
 		return new SocketClusterClient(config);
 	}
@@ -110,7 +110,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.user._pubnubUuid || this.user.id;
-		clientConfig.authKey = this.pubnubToken;	// the PubNub token is the auth key for the subscription
+		clientConfig.authKey = this.messagerToken;	// the PubNub token is the auth key for the subscription
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
 			clientConfig.serverId = IpcConfig.serverId;

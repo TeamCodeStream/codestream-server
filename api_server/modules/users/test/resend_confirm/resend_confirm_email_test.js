@@ -49,7 +49,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				this.currentUser = {
 					user: response.user,
-					pubnubToken: response.user.id
+					messagerToken: response.user.id
 				};
 				this.originalToken = response.user.confirmationToken;
 				callback();

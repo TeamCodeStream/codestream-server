@@ -24,7 +24,7 @@ class TeamSubscriptionGranter  {
 			this.team.get('memberIds') || [],
 			{
 				// only need these fields
-				fields: ['isRegistered', 'accessToken', 'accessTokens', 'pubNubToken']
+				fields: ['isRegistered', 'accessToken', 'accessTokens', 'messagerToken']
 			}
 		);
 	}
@@ -36,8 +36,8 @@ class TeamSubscriptionGranter  {
 			if (user.get('isRegistered')) {
 				tokens.push(user.getAccessToken());
 			}
-			if (user.get('pubNubToken')) {
-				tokens.push(user.get('pubNubToken'));
+			if (user.get('messagerToken')) {
+				tokens.push(user.get('messagerToken'));
 			}
 			return tokens;
 		}, []);

@@ -58,7 +58,7 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 	createSocketClusterClient () {
 		const config = Object.assign({}, SocketClusterConfig, {
 			uid: this.users[1].user.id,
-			authKey: this.users[1].pubnubToken 
+			authKey: this.users[1].messagerToken 
 		});
 		return new SocketClusterClient(config);
 	}
@@ -69,7 +69,7 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.users[1].user._pubnubUuid || this.users[1].user.id;
-		clientConfig.authKey = this.users[1].pubnubToken;
+		clientConfig.authKey = this.users[1].messagerToken;
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
 			clientConfig.serverId = IpcConfig.serverId;

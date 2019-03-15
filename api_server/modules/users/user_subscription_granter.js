@@ -93,8 +93,8 @@ class UserSubscriptionGranter  {
 		if (this.user.get('isRegistered')) {
 			tokens.push(this.user.getAccessToken());
 		}
-		if (this.user.get('pubNubToken')) {
-			tokens.push(this.user.get('pubNubToken'));
+		if (this.user.get('messagerToken')) {
+			tokens.push(this.user.get('messagerToken'));
 		}
 		try {
 			await Promise.all(tokens.map(async token => {

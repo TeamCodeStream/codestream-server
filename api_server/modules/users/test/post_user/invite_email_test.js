@@ -41,7 +41,7 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					if (error) { return callback(error); }
 					this.userCreator = this.currentUser.user;
 					this.currentUser = {
-						pubnubToken: response.user.id,
+						messagerToken: response.user.id,
 						user: response.user
 					};
 					callback();

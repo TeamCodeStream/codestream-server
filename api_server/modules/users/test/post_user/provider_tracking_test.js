@@ -45,7 +45,7 @@ class ProviderTrackingTest extends TrackingTest {
 				this.token = response.accessToken;
 				this.currentUser = { 
 					user: response.user,
-					pubnubToken: response.pubnubToken
+					messagerToken: response.messagerToken
 				};
 				this.expectedProvider = 'Slack';
 				callback();

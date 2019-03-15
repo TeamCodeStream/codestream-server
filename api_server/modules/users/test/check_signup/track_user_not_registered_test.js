@@ -19,7 +19,7 @@ class TrackUserNotRegisteredTest extends TrackingTest {
 	async registerUser (callback) {
 		super.registerUser(error => {
 			if (error) { return callback(error); }
-			this.currentUser.pubnubToken = this.currentUser.user.id;
+			this.currentUser.messagerToken = this.currentUser.user.id;
 			callback();
 		});
 	}

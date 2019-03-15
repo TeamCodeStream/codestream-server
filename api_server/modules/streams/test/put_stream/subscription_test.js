@@ -72,10 +72,10 @@ class SubscriptionTest extends AddUserTest {
 	}
 
 	createSocketClusterClient () {
-		const { user, pubnubToken } = this.currentUser;
+		const { user, messagerToken } = this.currentUser;
 		const config = Object.assign({}, SocketClusterConfig, {
 			uid: user.id,
-			authKey: pubnubToken 
+			authKey: messagerToken 
 		});
 		return new SocketClusterClient(config);
 	}
@@ -86,7 +86,7 @@ class SubscriptionTest extends AddUserTest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser.user.id;
-		clientConfig.authKey = this.currentUser.pubnubToken;
+		clientConfig.authKey = this.currentUser.messagerToken;
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
 			clientConfig.serverId = IpcConfig.serverId;

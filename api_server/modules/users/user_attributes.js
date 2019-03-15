@@ -92,7 +92,7 @@ module.exports = {
 		type: 'string',
 		serverOnly: true
 	},
-	socketClusterToken: {
+	messagerToken: {
 		type: 'string',
 		serverOnly: true
 	},

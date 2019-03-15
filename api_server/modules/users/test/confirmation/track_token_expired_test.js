@@ -49,7 +49,7 @@ class TrackTokenExpiredTest extends CodeStreamMessageTest {
 				};
 				this.currentUser = { 
 					user,
-					pubnubToken: user.id
+					messagerToken: user.id
 				};
 				callback();
 			}

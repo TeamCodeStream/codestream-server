@@ -63,9 +63,16 @@ class LoginHelper {
 		this.pubnubToken = this.user.get('pubNubToken');
 		if (!this.pubnubToken) {
 			this.pubnubToken = (UUID() + '-' + UUID()).split('-').join('');
-			set = {
-				pubNubToken: this.pubnubToken
-			};
+			set = set || {};
+			set.pubNubToken = this.pubnubToken;
+		}
+
+		// set a more generic "messager" token, to allow for other messager solutions beside PubNub
+		this.messagerToken = this.user.get('messagerToken');
+		if (!this.messagerToken) {
+			this.messagerToken = this.pubnubToken;
+			set = set || {};
+			set.messagerToken = this.messagerToken;
 		}
 
 		// look for a new-style token (with min issuance), if it doesn't exist, or our current token
@@ -151,8 +158,18 @@ class LoginHelper {
 			accessToken: this.accessToken,	// access token to supply in future requests
 			pubnubKey: this.request.api.config.pubnub.subscribeKey,	// give them the subscribe key for pubnub
 			pubnubToken: this.pubnubToken,	// token used to subscribe to PubNub channels
-			providers: this.providers	// available third-party providers for integrations
+			providers: this.providers,	// available third-party providers for integrations
+			messagerToken: this.messagerToken // more generic "messager" token, for messager solutions other than PubNub
 		};
+
+		// if using socketcluster for messaging (for on-prem installations), return host info
+		const { socketCluster } = this.request.api.config; 
+		if (socketCluster && socketCluster.host && socketCluster.port) {
+			this.responseData.socketCluster = {
+				host: socketCluster.host,
+				port: socketCluster.port
+			};
+		}
 		Object.assign(this.responseData, this.initialData);
 	}
 }

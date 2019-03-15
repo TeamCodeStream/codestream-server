@@ -107,7 +107,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		}
 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
-		const token = this.currentUser.pubnubToken;
+		const token = this.currentUser.messagerToken;
 		const user = this.currentUser.user;
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
@@ -127,10 +127,10 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	}
 
 	async makeSocketClusterClientForClient (callback) {
-		const { user, pubnubToken } = this.currentUser;
+		const { user, messagerToken } = this.currentUser;
 		const config = Object.assign({}, SocketClusterConfig, {
 			uid: user.id,
-			authKey: pubnubToken,
+			authKey: messagerToken,
 		});
 		if (this.cheatOnSubscription) {
 			config.authSecret = SecretsConfig.subscriptionCheat;
