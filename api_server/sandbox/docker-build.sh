@@ -1,4 +1,6 @@
 
+# This sets up the environment for the TeamCity Docker Build
+
 . $CS_API_TOP/sandbox/defaults.sh
 
 DOCKER_AUTH_FILE=$HOME/.codestream/docker/dockerhub-jimmyjayp

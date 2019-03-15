@@ -271,8 +271,9 @@ if [ -f $MIXPANEL_TOKEN_FILE ]; then
 	. $MIXPANEL_TOKEN_FILE
 	export CS_API_MIXPANEL_TOKEN=$MIXPANEL_TOKEN
 else
-	echo "Warning: using old mixpanel development token"
-	export CS_API_MIXPANEL_TOKEN=4308967c7435e61d9697ce240bc68d02
+	echo "**************************************************************"
+	echo "WARNING: MixPanel token file ($MIXPANEL_TOKEN_FILE) not found"
+	echo "**************************************************************"
 fi
 
 
@@ -282,7 +283,18 @@ if [ -f $SEGMENT_TOKEN_FILE ]; then
 	. $SEGMENT_TOKEN_FILE
 	export CS_API_SEGMENT_TOKEN=$SEGMENT_TOKEN
 else
+	echo "**************************************************************"
 	echo "WARNING: Segment token not found ($SEGMENT_TOKEN_FILE). Server-side telemetry will be unavailable."
+	echo "**************************************************************"
+fi
+[ -z "$SEGMENT_WEB_TOKEN_FILE" ] && SEGMENT_WEB_TOKEN_FILE=$HOME/.codestream/segment/dev-webapp
+if [ -f $SEGMENT_WEB_TOKEN_FILE ]; then
+	. $SEGMENT_WEB_TOKEN_FILE
+	export CS_API_SEGMENT_WEB_TOKEN=$SEGMENT_TOKEN
+else
+	echo "**************************************************************"
+	echo "WARNING: Segment web token not found ($SEGMENT_WEB_TOKEN_FILE). Server-side telemetry will be unavailable."
+	echo "**************************************************************"
 fi
 
 

@@ -1,6 +1,6 @@
 
 # This provides an environment for building the dev asset as
-# well as running supporting API sandboxes for other builds.
+# well as running to support API sandboxes for other builds.
 
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-CI_Keyset"
 OTHER_SECRETS_FILE="$HOME/.codestream/codestream/ci-api"
