@@ -46,7 +46,11 @@ export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
 # For consutrction of a callback URL used in authentication
 [ -z "$CS_API_AUTH_ORIGIN" ] && export CS_API_AUTH_ORIGIN=https://auth.codestream.us/no-auth
 if [ "$CS_API_ENV" == local  -a  -z "$CS_API_CALLBACK_ENV" ]; then
-	TUNNEL_IP=`netstat -rn|grep '^10\.99'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
+	if [ "$DT_OS_TYPE" == osx ]; then
+		TUNNEL_IP=`netstat -rn|grep '^10\.99'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
+	elif [ -f $HOME/.codestream/local-vpn-ip ]; then
+		TUNNEL_IP=`cat $HOME/.codestream/local-vpn-ip`
+	fi
 	if [ -z "$TUNNEL_IP" ]; then
 		echo "I cannot detect your VPN IP so oauth callbacks will not work to your local machine"
 	else
