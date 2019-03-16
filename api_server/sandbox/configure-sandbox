@@ -20,8 +20,8 @@ if [ "$CS_API_YARN" == true ]; then
     echo "yarn install (from `pwd`)"
     yarn install --frozen-lockfile
 else
-    echo "npm install --no-save (from `pwd`)"
-    npm install --no-save
+    echo "npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS (from `pwd`)"
+    npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS
 fi
 
 # package integrity check

@@ -27,6 +27,11 @@ fi
 export CS_API_NODE_VER=8.11.3
 export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$CS_API_TOP/node_modules/.bin:$PATH
 
+# Set this variable if you require additional options when doing npm installs
+# (run from sandbox/configure-sandbox).  For example, doing npm installs from
+# inside a docker container requires --unsafe-perm
+# export CS_API_NPM_INSTALL_XTRA_OPTS=
+
 export CS_API_LOGS=$CS_API_SANDBOX/log    # Log directory
 export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
 export CS_API_TMP=$CS_API_SANDBOX/tmp     # temp directory
@@ -48,8 +53,8 @@ export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
 if [ "$CS_API_ENV" == local  -a  -z "$CS_API_CALLBACK_ENV" ]; then
 	if [ "$DT_OS_TYPE" == osx ]; then
 		TUNNEL_IP=`netstat -rn|grep '^10\.99'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
-	elif [ -f $HOME/.codestream/local-vpn-ip ]; then
-		TUNNEL_IP=`cat $HOME/.codestream/local-vpn-ip`
+	elif [ -n "$DT_FALLBACK_TUNNEL_IP" ]; then
+		TUNNEL_IP="$DT_FALLBACK_TUNNEL_IP"
 	fi
 	if [ -z "$TUNNEL_IP" ]; then
 		echo "I cannot detect your VPN IP so oauth callbacks will not work to your local machine"
