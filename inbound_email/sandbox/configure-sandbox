@@ -31,13 +31,13 @@ cd $CS_MAILIN_TOP
 if [ -n "$CS_MAILIN_NODE_VER" ]; then
 	[ -d $CS_MAILIN_TOP/node_modules ] && /bin/rm -rf $CS_MAILIN_TOP/node_modules
 	if [ "$CS_MAILIN_YARN" == true ]; then
-    	[ ! -f $CS_MAILIN_TOP/yarn.lock ] && echo "WARNING: yarn.lock not found - creating one"
-    	echo "yarn install (from `pwd`)"
-    	yarn install --frozen-lockfile
+		[ ! -f $CS_MAILIN_TOP/yarn.lock ] && echo "WARNING: yarn.lock not found - creating one"
+		echo "yarn install (from `pwd`)"
+		yarn install --frozen-lockfile
 		[ $? -ne 0 ] && echo "yarn install failed" && exit 1
 	else
-    	echo "npm install --no-save (from `pwd`)"
-    	npm install --no-save
+		echo "npm install --no-save $CS_MAILIN_NPM_INSTALL_XTRA_OPTS (from `pwd`)"
+		npm install --no-save $CS_MAILIN_NPM_INSTALL_XTRA_OPTS
 		[ $? -ne 0 ] && echo "npm install failed" && exit 1
 	fi
 fi
@@ -48,9 +48,9 @@ cd $CS_MAILIN_TOP/.git/hooks
 for hook in post-checkout post-merge post-rewrite
 do
 	if [ -f $CS_MAILIN_TOP/hooks/$hook ]; then
-    	echo -n "...$hook"
-    	/bin/rm -f $hook
-    	ln -sf ../../hooks/$hook
+		echo -n "...$hook"
+		/bin/rm -f $hook
+		ln -sf ../../hooks/$hook
 	fi
 done
 echo "."

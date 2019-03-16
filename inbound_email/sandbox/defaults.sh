@@ -29,6 +29,12 @@ fi
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/node-$DT_OS_TYPE-*
 export CS_MAILIN_NODE_VER=8.11.3
 export PATH=$CS_MAILIN_SANDBOX/node/bin:$CS_MAILIN_TOP/node_modules/.bin:$PATH
+#
+# Set this variable if you require additional options when doing npm installs
+# (run from sandbox/configure-sandbox).  For example, doing npm installs from
+# inside a docker container requires --unsafe-perm
+#
+# export CS_MAILIN_NPM_INSTALL_XTRA_OPTS=
 
 # Add sandbox utilities to the search path
 export PATH=$CS_MAILIN_TOP/bin:$PATH
