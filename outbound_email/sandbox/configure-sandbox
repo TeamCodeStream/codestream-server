@@ -43,8 +43,8 @@ if [ $mode != "no_build"  -a  -f package.json -a -n "$CS_OUTBOUND_EMAIL_NODE_VER
 		yarn install --frozen-lockfile
 		[ $? -ne 0 ] && echo "yarn install failed" && [ $abort_on_fail -eq 1 ] && exit 1
 	else
-		echo "npm install --no-save (from `pwd`)"
-		npm install --no-save
+		echo "npm install --no-save $CS_OUTBOUND_EMAIL_NPM_INSTALL_XTRA_OPTS (from `pwd`)"
+		npm install --no-save $CS_OUTBOUND_EMAIL_NPM_INSTALL_XTRA_OPTS
 		[ $? -ne 0 ] && echo "npm install failed" && [ $abort_on_fail -eq 1 ] && exit 1
 	fi
 fi

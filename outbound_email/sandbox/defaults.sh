@@ -30,6 +30,7 @@ fi
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/node-$DT_OS_TYPE-*
 export CS_OUTBOUND_EMAIL_NODE_VER=8.11.3
 export PATH=$CS_OUTBOUND_EMAIL_SANDBOX/node/bin:$CS_OUTBOUND_EMAIL_TOP/node_modules/.bin:$PATH
+# export CS_OUTBOUND_EMAIL_NPM_INSTALL_XTRA_OPTS=
 
 # Uncomment if you want to short circuit the sandbox hooks (see hooks/git_hooks.sh)
 # export CS_OUTBOUND_EMAIL_DISABLE_GIT_HOOKS=1
