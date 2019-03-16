@@ -3,5 +3,6 @@
 'use strict';
 
 module.exports = {
-	token: process.env.CS_API_SEGMENT_TOKEN
+	token: process.env.CS_API_SEGMENT_TOKEN,
+	webToken: process.env.CS_API_SEGMENT_WEB_TOKEN
 };

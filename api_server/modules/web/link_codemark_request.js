@@ -25,6 +25,7 @@ class LinkCodemarkRequest extends APIRequest {
 	}
 
 	async process () {
+		this.teamId = this.request.params.teamId.toLowerCase();
 		await this.checkAuthentication() &&
 		await this.getCodemarkLink() &&
 		await this.getCodemark() &&
@@ -35,7 +36,7 @@ class LinkCodemarkRequest extends APIRequest {
 		// if no identity, redirect to the login page
 		if (!this.isPublic && !this.user) {
 			this.log('User requesting codemark link but has no identity, redirecting to login');
-			let redirect = `/web/login?url=${encodeURIComponent(this.request.path)}`;
+			let redirect = `/web/login?url=${encodeURIComponent(this.request.path)}&teamId=${this.teamId}`;
 			if (this.request.query.error) {
 				redirect += `&error=${this.request.query.error}`;
 			}
@@ -51,15 +52,14 @@ class LinkCodemarkRequest extends APIRequest {
 
 	async getCodemarkLink () {
 		// check if the user is on the indicated team
-		const teamId = this.request.params.teamId.toLowerCase();
-		if (!this.isPublic && !this.user.hasTeam(teamId)) {
+		if (!this.isPublic && !this.user.hasTeam(this.teamId)) {
 			this.warn('User requesting codemark link is not on the team that owns the codemark');
 			return this.redirect404();
 		}
 		// get the link to the codemark
 		const linkId = this.request.params.id.toLowerCase();
 		const codemarkLinks = await this.data.codemarkLinks.getByQuery(
-			{ teamId: teamId, _id: linkId },
+			{ teamId: this.teamId, _id: linkId },
 			{ hint: CodemarkLinkIndexes.byTeamId }
 		);
 		if (codemarkLinks.length === 0) {
@@ -124,6 +124,8 @@ class LinkCodemarkRequest extends APIRequest {
 
 		const hasProviderButtons = codeProvider || threadProvider;
 
+		const segmentKey = this.api.config.segment.webToken;
+
 		this.module.evalTemplate(this, 'codemark', {
 			showComment,
 			username,
@@ -137,7 +139,8 @@ class LinkCodemarkRequest extends APIRequest {
 			codeProvider,
 			codeProviderUrl,
 			threadProvider,
-			threadProviderUrl
+			threadProviderUrl,
+			segmentKey
 		});
 	}
 

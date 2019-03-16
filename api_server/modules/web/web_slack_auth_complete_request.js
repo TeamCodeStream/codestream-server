@@ -20,7 +20,7 @@ class WebSlackAuthCompleteRequest extends APIRequest {
 	}
 
 	async verifyState () {
-		// we should get a state parameter in the query, and we should have a stored cookie,
+		// we should get a state parametezr in the query, and we should have a stored cookie,
 		// and they should match
 		const { state } = this.request.query;
 		const stateProps = state.split('!');
@@ -133,7 +133,15 @@ class WebSlackAuthCompleteRequest extends APIRequest {
 	}
 
 	finishFlow () {
-		this.response.redirect(this.payload.end);
+		const params = {
+			finishUrl: this.payload.end || '/web/finish',
+			teamId: this.payload.teamId || '',
+			userId: this.user.id,
+			provider: 'Slack'
+		};
+		const query = Object.keys(params).map(param => `${param}=${params[param]}`).join('&');
+		const redirect = `/web/auth-complete?${query}`;
+		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}
 

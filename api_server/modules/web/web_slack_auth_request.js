@@ -18,6 +18,7 @@ class WebSlackAuthRequest extends APIRequest {
 		const expiresAt = Date.now() + 2 * 60 * 1000;
 		const payload = {
 			userId: 'anon',
+			teamId: this.request.query.teamId || '',
 			url: `https://${this.request.hostname}:${this.api.config.express.port}/web/slack-auth-complete`,
 			end: this.request.query.url
 		};

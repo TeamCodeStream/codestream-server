@@ -61,12 +61,10 @@ class WebSigninRequest extends APIRequest {
 	}
 
 	finishFlow () {
-		if (this.request.body.finishUrl) {
-			this.response.redirect(this.request.body.finishUrl);
-		}
-		else {
-			this.response.redirect('/web/finish');
-		}
+		const finishUrl = this.request.body.finishUrl || '/web/finish';
+		const teamId = this.request.body.teamId || '';
+		const redirect = `/web/auth-complete?userId=${this.user.id}&teamId=${teamId}&finishUrl=${encodeURIComponent(finishUrl)}`;
+		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}
 }

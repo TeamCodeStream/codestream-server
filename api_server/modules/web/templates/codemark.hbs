@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css">
 	<style>
 		.hljs{display:block;overflow-x:auto;padding:0.5em;color:#383a42;background:#fafafa}.hljs-comment,.hljs-quote{color:#a0a1a7;font-style:italic}.hljs-doctag,.hljs-keyword,.hljs-formula{color:#a626a4}.hljs-section,.hljs-name,.hljs-selector-tag,.hljs-deletion,.hljs-subst{color:#e45649}.hljs-literal{color:#0184bb}.hljs-string,.hljs-regexp,.hljs-addition,.hljs-attribute,.hljs-meta-string{color:#50a14f}.hljs-built_in,.hljs-class .hljs-title{color:#c18401}.hljs-attr,.hljs-variable,.hljs-template-variable,.hljs-type,.hljs-selector-class,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-number{color:#986801}.hljs-symbol,.hljs-bullet,.hljs-link,.hljs-meta,.hljs-selector-id,.hljs-title{color:#4078f2}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:bold}.hljs-link{text-decoration:underline}
 	</style>
+
+	<script type="text/javascript">
+		!function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
+		analytics.load("{{segmentKey}}");
+		analytics.page();
+		}}();
+	</script>	
 </head>
 <body>
+
+<script>
+	window.analytics.track('Page Viewed', { 'Page Name': 'Codemark' });
+</script>
 
 {{#if showComment}}
 	<div class=comment>
@@ -33,10 +44,10 @@
 {{#if hasProviderButtons}}
 	<div class=buttons>
 		{{#if codeProvider}}
-			<button onclick='window.open("{{codeProviderUrl}}", "_blank")'>Open Code on {{codeProvider}}</button>
+			<button onclick='window.analytics.track("Opened On", { Destination: "{{codeProvider}}" }); window.open("{{codeProviderUrl}}", "_blank")'>Open Code on {{codeProvider}}</button>
 		{{/if}}
 		{{#if threadProvider}}
-			<button onclick='window.open("{{threadProviderUrl}}", "_blank")'>Open Thread on {{threadProvider}}</button>
+			<button onclick='window.analytics.track("Opened On", { Destination: "{{threadProvider}}" }); window.open("{{threadProviderUrl}}", "_blank")'>Open Thread on {{threadProvider}}</button>
 		{{/if}}
 	</div>
 {{/if}}

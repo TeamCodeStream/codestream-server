@@ -42,6 +42,11 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: 'web/auth-complete',
+		requestClass: require('./web_auth_complete_request')
+	},
+	{
+		method: 'get',
 		path: 'web/error',
 		requestClass: require('./web_error_request')
 	},

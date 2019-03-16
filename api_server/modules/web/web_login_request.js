@@ -13,11 +13,13 @@ class WebLoginRequest extends APIRequest {
 	async process () {
 		const url = this.request.query.url ? decodeURIComponent(this.request.query.url) : '';
 		const email = this.request.query.email ? decodeURIComponent(this.request.query.email) : '';
-		const slackLink = `/web/slack-auth?url=${encodeURIComponent(url)}`;
+		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
+		const slackLink = `/web/slack-auth?url=${encodeURIComponent(url)}&teamId=${teamId}`;
 		const error = this.request.query.error ? this.handleError() : '';
 		this.module.evalTemplate(this, 'login', { 
 			error,
 			email,
+			teamId,
 			finishUrl: decodeURIComponent(this.request.query.url || ''),
 			slackLink
 		});
