@@ -68,5 +68,5 @@ if args.action == 'release':
 	infoFileName = args.build_number + ".info"
 	pkgInfo = readJsonFileIgnoreComments(infoFileName)
 	applyTagToRepos(os.environ['CS_MAILIN_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
-	updatePackageVersion(buildData['sandboxTop'] + "/package.json", "development", pkgInfo['version'], bumpLevel = 'patch')
+	updatePackageVersion(buildData['sandboxTop'] + "/package.json", "develop", pkgInfo['version'], bumpLevel = 'patch')
 	buildstepGeneric(args, cmd = "dt-set-asset-version -D prod/inbound-email --tag current --build " + args.build_number)
