@@ -14,7 +14,9 @@ cd $CS_API_TOP
 
 [ -f .gitmodules ] && echo "updating submodules" && git submodule update --init --recursive
 
-[ -d $CS_API_TOP/node_modules ] && /bin/rm -rf $CS_API_TOP/node_modules
+[ -d "$CS_API_NODE_MODULES_DIR" ] && /bin/rm -rf $CS_API_NODE_MODULES_DIR
+[ "$CS_API_NODE_MODULES_DIR" != "$CS_API_TOP/node_modules" ] && mkdir -p $CS_API_NODE_MODULES_DIR && ln -s $CS_API_TOP/package.json $CS_API_NODE_MODULES_DIR/package.json && ln -s $CS_API_TOP/package-lock.json $CS_API_NODE_MODULES_DIR/package-lock.json
+
 if [ "$CS_API_YARN" == true ]; then
     [ ! -f $CS_API_TOP/yarn.lock ] && echo "WARNING: yarn.lock not found - creating one"
     echo "yarn install (from `pwd`)"

@@ -31,6 +31,7 @@ export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$C
 # (run from sandbox/configure-sandbox).  For example, doing npm installs from
 # inside a docker container requires --unsafe-perm
 # export CS_API_NPM_INSTALL_XTRA_OPTS=
+[ -z "$CS_API_NODE_MODULES_DIR" ] && export CS_API_NODE_MODULES_DIR=$CS_API_TOP/node_modules
 
 export CS_API_LOGS=$CS_API_SANDBOX/log    # Log directory
 export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
