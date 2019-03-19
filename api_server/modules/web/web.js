@@ -65,6 +65,11 @@ const ROUTES = [
 		path: 'web/styles/web.css',
 		requestClass: require('./web_style')
 	},
+	{
+		method: 'get',
+		path: 'robots.txt',
+		requestClass: require('./web_robots_request')
+	}
 ];
 
 class Web extends APIServerModule {
@@ -90,6 +95,8 @@ class Web extends APIServerModule {
 		}));
 
 		await this.readVersionInfo();
+		await this.readStylesheet();
+		await this.readRobots();
 	}
 
 	async readAndCompileTemplate (file) {
@@ -156,9 +163,30 @@ class Web extends APIServerModule {
 		}
 	}
 
-	stylesheet(request){
-		request.response.set('Content-Type', 'text/css').send(FS.readFileSync(process.env.CS_API_TOP +'/modules/web/styles/web.css', 'utf8'));
-		request.responseHandled = true;
+	readStylesheet () {
+		try {
+			this.stylesheet = FS.readFileSync(process.env.CS_API_TOP +'/modules/web/styles/web.css', 'utf8');
+		}
+		catch (error) {
+			return;
+		}
+	}
+
+	getStylesheet () {
+		return this.stylesheet;
+	}
+
+	readRobots () {
+		try {
+			this.robots = FS.readFileSync(process.env.CS_API_TOP + '/modules/web/etc/robots.txt', 'utf8');
+		}
+		catch (error) {
+			return;
+		}
+	}
+
+	getRobots () {
+		return this.robots;
 	}
 }
 

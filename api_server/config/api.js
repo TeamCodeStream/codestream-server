@@ -10,7 +10,7 @@ module.exports = {
 	sessionAwayTimeout: parseInt(process.env.CS_API_SESSION_AWAY_TIMEOUT || 10 * 60 * 1000, 10),	
 
 	// matching these paths means Authorization header is not required
-	unauthenticatedPaths: ['^\\/no-auth\\/'],	
+	unauthenticatedPaths: ['^\\/no-auth\\/', '^\\/robots\\.txt$'],	
 
 	// matching these paths means Authorization header is optional, behavior may vary
 	optionalAuthenticatedPaths: ['^\\/help(\\/|$)', '^\\/c\\/', '^\\/p\\/', '^\\/web\\/'],
