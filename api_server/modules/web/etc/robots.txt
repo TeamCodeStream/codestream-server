@@ -1,1 +1,3 @@
-ROBOTS
+User-agent: *
+Disallow: /c/
+Disallow: /p/
