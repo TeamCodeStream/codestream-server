@@ -71,11 +71,10 @@ class CodemarkCreator extends ModelCreator {
 				string: ['teamId', 'type']
 			},
 			optional: {
-				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderHost', 'externalProviderUrl'],
+				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderHost', 'externalProviderUrl', 'createPermalink'],
 				object: ['remoteCodeUrl', 'threadUrl'],
 				'array(object)': ['markers', 'externalAssignees'],
-				'array(string)': ['assignees'],
-				'boolean': ['createPermalink']
+				'array(string)': ['assignees']
 			}
 		};
 	}
@@ -228,7 +227,7 @@ class CodemarkCreator extends ModelCreator {
 			request: this.request,
 			codemark: this.model,
 			markers: this.transforms.createdMarkers || [],
-			isPublic: this.linkIsPublic
+			isPublic: this.makeLink === 'public'
 		}).createCodemarkLink();
 	}
 
@@ -244,7 +243,7 @@ class CodemarkCreator extends ModelCreator {
 		}).findCodemarkLink(
 			this.attributes,
 			this.trialRunMarkers,
-			this.linkIsPublic
+			this.makeLink === 'public'
 		);
 
 		if (info) {
