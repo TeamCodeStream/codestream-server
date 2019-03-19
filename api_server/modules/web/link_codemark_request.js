@@ -53,8 +53,8 @@ class LinkCodemarkRequest extends APIRequest {
 
 	decodeLinkId (linkId, pad) {
 		linkId = linkId
-			.replace(/\*/g, '+')
-			.replace(/-/g, '/');
+			.replace(/-/g, '+')
+			.replace(/_/g, '/');
 		const padding = '='.repeat(pad);
 		linkId = `${linkId}${padding}`;
 		return Buffer.from(linkId, 'base64').toString('hex');

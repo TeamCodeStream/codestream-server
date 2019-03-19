@@ -47,8 +47,8 @@ class CodemarkLinkCreator {
 		return Buffer.from(linkId, 'hex')
 			.toString('base64')
 			.split('=')[0]
-			.replace(/\+/g, '*')
-			.replace(/\//g, '-');
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_');
 	}
 
 	// make the actual permalink
