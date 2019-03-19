@@ -42,10 +42,21 @@ class CodemarkLinkCreator {
 		);
 	}
 
+	// encode a link ID using base64 encoding, to shorten it
+	encodeLinkId (linkId) {
+		return Buffer.from(linkId, 'hex')
+			.toString('base64')
+			.split('=')[0]
+			.replace(/\+/g, '*')
+			.replace(/\//g, '-');
+	}
+
 	// make the actual permalink
 	makePermalink (linkId, isPublic, teamId) {
 		const origin = this.request.api.config.api.publicApiUrl;
 		const linkType = isPublic ? 'p' : 'c';
+		linkId = this.encodeLinkId(linkId);
+		teamId = this.encodeLinkId(teamId);
 		return `${origin}/${linkType}/${teamId}/${linkId}`;
 	}
 
@@ -98,7 +109,7 @@ class CodemarkLinkCreator {
 
 	// hash the distinguishing codemark attributes
 	hashCodemark (attributes, markers, isPublic) {
-		const hashText = this.makeHashText(attributes, markers, !!isPublic);
+		const hashText = this.makeHashText(attributes, markers, isPublic);
 		if (!hashText) {
 			return;
 		}
@@ -108,7 +119,7 @@ class CodemarkLinkCreator {
 	// make the text that reflects the distinguishing characteristics of a codemark,
 	// a combination of team, code, repo, file, commit hash, and location
 	// if all of these are the same, we should get the same MD5 hash
-	makeHashText (attributes, markers) {
+	makeHashText (attributes, markers, isPublic) {
 		const markerText = (markers || '')
 			.map(marker => {
 				return [
@@ -123,7 +134,7 @@ class CodemarkLinkCreator {
 		if (!markerText) {
 			return '';
 		}
-		return `${attributes.teamId}${markerText}`;
+		return `${attributes.teamId}${markerText}${isPublic ? 1 : 0}`;
 	}
 }
 

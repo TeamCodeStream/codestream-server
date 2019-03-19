@@ -26,7 +26,7 @@ class LinkCodemarkRequest extends APIRequest {
 	}
 
 	async process () {
-		this.teamId = this.request.params.teamId.toLowerCase();
+		this.teamId = this.decodeLinkId(this.request.params.teamId);
 		await this.checkAuthentication() &&
 		await this.getCodemarkLink() &&
 		await this.getCodemark() &&
@@ -51,6 +51,15 @@ class LinkCodemarkRequest extends APIRequest {
 		return true;
 	}
 
+	decodeLinkId (linkId, pad) {
+		linkId = linkId
+			.replace(/\*/g, '+')
+			.replace(/-/g, '/');
+		const padding = '='.repeat(pad);
+		linkId = `${linkId}${padding}`;
+		return Buffer.from(linkId, 'base64').toString('hex');
+	}
+
 	async getCodemarkLink () {
 		// check if the user is on the indicated team
 		if (!this.isPublic && !this.user.hasTeam(this.teamId)) {
@@ -58,7 +67,7 @@ class LinkCodemarkRequest extends APIRequest {
 			return this.redirect404();
 		}
 		// get the link to the codemark
-		const linkId = this.request.params.id.toLowerCase();
+		const linkId = this.decodeLinkId(this.request.params.id, 2);
 		const codemarkLinks = await this.data.codemarkLinks.getByQuery(
 			{ teamId: this.teamId, _id: linkId },
 			{ hint: CodemarkLinkIndexes.byTeamId }
