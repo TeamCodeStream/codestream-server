@@ -18,18 +18,14 @@
 			<div class="box">
 				<div class="box-content box-content-sm">
 					<div class="box-border">
-						<h1>Sign In to CodeStream</h1>
-						<p class="text-centered">
-							<span>
-								Sign in to CodeStream to access this codemark.
-							</span>
-						</p>
+						<h1>You need to be signed in to see this page</h1>
+
 						<div class="form-group">
 							<button class="btn" onclick="window.location.href='{{slackLink}}'">
 								Sign in with Slack
 							</button>
 						</div>
-						<br /><br /><br />
+						<br /><hr /><br />
 						<div class="form-wrapper">
 							<form action="/web/signin" method="post">
 								{{#if error}}
