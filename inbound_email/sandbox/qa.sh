@@ -1,6 +1,6 @@
 
 PUBNUB_KEY_FILE=$HOME/.codestream/pubnub/CodeStream-Testing-QA_Keyset
-MAIL_SECRETS_FILE=$HOME/.codestream/codestream-services/qa-mailin
+MAIL_SECRETS_FILE=$HOME/.codestream/codestream/qa-mailin
 
 . $CS_MAILIN_TOP/sandbox/defaults.sh
 

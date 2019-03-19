@@ -64,7 +64,7 @@ export CS_MAILIN_TEMP_ATTACHMENT_DIRECTORY=$CS_MAILIN_MAILQ_TOP/attachments
 
 
 # Secret code needed to communicate with API server (match CS_API_INBOUND_EMAIL_SECRET)
-[ -z "$MAIL_SECRETS_FILE" ] && MAIL_SECRETS_FILE=$HOME/.codestream/codestream-services/dev-api
+[ -z "$MAIL_SECRETS_FILE" ] && MAIL_SECRETS_FILE=$HOME/.codestream/codestream/dev-api
 if [ -f "$MAIL_SECRETS_FILE" ]; then
 	. $MAIL_SECRETS_FILE
 	export CS_MAILIN_SECRET=$INBOUND_EMAIL_SECRET
@@ -102,5 +102,5 @@ export CS_MAILIN_SENDER_EMAIL=alerts@codestream.com
 
 # For the local poller service (cs_mailin-local-poller)
 # Inbound user and mail server
-export CS_MAILIN_INBOUND_MAIL_SERVER=web@devmail1.codestream.us
+export CS_MAILIN_INBOUND_MAIL_SERVER=web@localmail.codestream.us
 export CS_MAILIN_INBOUND_MAIL_DIR=/home/web/codestream-mail/inbound/web/new
