@@ -9,7 +9,9 @@ class WebFinishRequest extends APIRequest {
 	}
 
 	async process () {
-		this.module.evalTemplate(this, 'finish');
+		this.module.evalTemplate(this, 'finish', {
+			version: this.module.versionInfo()
+		});
 	}
 
 }

@@ -9,9 +9,7 @@ class WebErrorRequest extends APIRequest {
 	}
 
 	async process () {
-		this.module.evalTemplate(this, 'error', {
-			version: this.module.versionInfo()
-		});
+		this.module.stylesheet(this);
 	}
 }
 

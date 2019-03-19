@@ -21,7 +21,8 @@ class WebLoginRequest extends APIRequest {
 			email,
 			teamId,
 			finishUrl: decodeURIComponent(this.request.query.url || ''),
-			slackLink
+			slackLink,
+			version: this.module.versionInfo()
 		});
 	}
 

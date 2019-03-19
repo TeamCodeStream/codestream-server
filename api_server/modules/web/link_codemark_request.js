@@ -5,6 +5,7 @@ const CodemarkLinkIndexes = require(process.env.CS_API_TOP + '/modules/codemarks
 const MomentTimezone = require('moment-timezone');
 const HLJS = require('highlight.js');
 const Path = require('path');
+const MD5 = require('md5');
 
 const PROVIDER_DISPLAY_NAMES = {
 	'github': 'GitHub',
@@ -97,9 +98,16 @@ class LinkCodemarkRequest extends APIRequest {
 			file = (fileStream && fileStream.get('file')) || (marker && marker.get('file'));
 		}
 
-		const username = this.creator && this.creator.get('username');
+		const username = this.creator && this.creator.get('username');		
 		const activity = this.getActivity(this.codemark.get('type'));
 		const showComment = username && !this.codemark.get('invisible');
+		
+		let email;
+		let emailHash;
+		if (showComment) {
+			email = this.creator.get('email');
+			emailHash = email && MD5(email.trim().toLowerCase());
+		}
 		const createdAt = this.formatTime(this.codemark.get('createdAt'));
 		const title = this.codemark.get('title');
 		const text = this.codemark.get('text');
@@ -129,6 +137,7 @@ class LinkCodemarkRequest extends APIRequest {
 		this.module.evalTemplate(this, 'codemark', {
 			showComment,
 			username,
+			emailHash,
 			activity,
 			createdAt,
 			title,
@@ -140,7 +149,8 @@ class LinkCodemarkRequest extends APIRequest {
 			codeProviderUrl,
 			threadProvider,
 			threadProviderUrl,
-			segmentKey
+			segmentKey,
+			version: this.module.versionInfo()
 		});
 	}
 

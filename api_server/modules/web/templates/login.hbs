@@ -1,28 +1,65 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+	<title>CodeStream</title>
+	<link rel="icon" type="image/png" sizes="32x32" href="https://app.codestream.com/favicon-32x32.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="https://app.codestream.com/favicon-16x16.png" />
+	<link rel="stylesheet" href="/web/styles/web.css?_={{version}}" />
+</head>
+
 <body>
+	<div id="root">
+		<div class="root-inner">
+			<div class="logo-wrapper">
+				<img class="logo" src="https://app.codestream.com/static/media/logo.537e3780.png" />
+			</div>
 
-<h2>Sign in to CodeStream</h2>
-
-<p>Sign in to CodeStream to access this codemark.</p>
-
-{{#if error}}
-	<p>{{error}}</p>
-{{/if}}
-
-<button onclick="window.location.href='{{slackLink}}'">Sign in with Slack</button>
-
-<form action="/web/signin" method="post">
-	<input type=hidden name=finishUrl value="{{finishUrl}}">
-	<input type=hidden name=teamId value="{{teamId}}">
-	Email<br>
-	<input type=text name=email value={{email}}>
-	<br>
-	Password<br>
-	<input type=password name=password>
-	<br><br>
-	<input type=submit value="Sign in with CodeStream">
-</form> 
-
+			<div class="box">
+				<div class="box-content box-content-sm">
+					<div class="box-border">
+						<h1>Sign In to CodeStream</h1>
+						<p class="text-centered">
+							<span>
+								Sign in to CodeStream to access this codemark.
+							</span>
+						</p>
+						<div class="form-group">
+							<button class="btn" onclick="window.location.href='{{slackLink}}'">
+								Sign in with Slack
+							</button>
+						</div>
+						<br /><br /><br />
+						<div class="form-wrapper">
+							<form action="/web/signin" method="post">
+								{{#if error}}
+									<div class="form-group">
+										<div class="error" style="width:100%;">{{error}}</span>
+									</div>
+								{{/if}}
+								<input type="hidden" name="finishUrl" value="{{finishUrl}}">
+								<input type="hidden" name="teamId" value="{{teamId}}" />
+								<div class="form-group">
+									<label class="label">Email</label>
+									<input class="form-control" type="text" name="email" value="{{email}}"
+										placeholder="chereth.cutestory@gmail.com" />
+									<p class="hint"></p>
+								</div>
+								<div class="form-group">
+									<label class="label">Password</label>
+									<input class="form-control" type="password" name="password" />
+									<p class="hint"></p>
+								</div>
+								<div class="form-group">
+									<input type="submit" value="Sign in with CodeStream" class="btn" />
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
+
 </html>

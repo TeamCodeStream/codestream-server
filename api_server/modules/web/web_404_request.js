@@ -9,7 +9,9 @@ class Web404Request extends APIRequest {
 	}
 
 	async process () {
-		this.module.evalTemplate(this, '404');
+		this.module.evalTemplate(this, '404', {
+			version: this.module.versionInfo()
+		});
 	}
 
 }

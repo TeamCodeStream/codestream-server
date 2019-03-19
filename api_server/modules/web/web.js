@@ -59,7 +59,12 @@ const ROUTES = [
 		method: 'get',
 		path: 'p/:teamId/:id',
 		requestClass: require('./link_codemark_request')
-	}
+	},
+	{
+		method: 'get',
+		path: 'web/styles/web.css',
+		requestClass: require('./web_style')
+	},
 ];
 
 class Web extends APIServerModule {
@@ -83,6 +88,8 @@ class Web extends APIServerModule {
 		await Promise.all(files.map(async file => {
 			await this.readAndCompileTemplate(file);
 		}));
+
+		await this.readVersionInfo();
 	}
 
 	async readAndCompileTemplate (file) {
@@ -122,6 +129,35 @@ class Web extends APIServerModule {
 		if (!template) return;
 		const html = template(data);
 		request.response.send(html);
+		request.responseHandled = true;
+	}
+
+	versionInfo() {
+		if (this._versionInfo) return this._versionInfo;
+
+		return new Date().getTime();
+	}
+
+	async readVersionInfo() {
+		try {
+			const path = process.env.CS_API_TOP + '/api-server.info';
+			if (!FS.existsSync(path)) return;
+
+			const apiServerInfo = FS.readFileSync(path);
+			if (!apiServerInfo) return;
+
+			const data = JSON.parse(apiServerInfo);
+			if (!data) return;
+
+			this._versionInfo = data.version+data.buildNumber;									
+		}	
+		catch(err) {
+			return;
+		}
+	}
+
+	stylesheet(request){
+		request.response.set('Content-Type', 'text/css').send(FS.readFileSync(process.env.CS_API_TOP +'/modules/web/styles/web.css', 'utf8'));
 		request.responseHandled = true;
 	}
 }

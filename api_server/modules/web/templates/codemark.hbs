@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css">
-	<style>
-		.hljs{display:block;overflow-x:auto;padding:0.5em;color:#383a42;background:#fafafa}.hljs-comment,.hljs-quote{color:#a0a1a7;font-style:italic}.hljs-doctag,.hljs-keyword,.hljs-formula{color:#a626a4}.hljs-section,.hljs-name,.hljs-selector-tag,.hljs-deletion,.hljs-subst{color:#e45649}.hljs-literal{color:#0184bb}.hljs-string,.hljs-regexp,.hljs-addition,.hljs-attribute,.hljs-meta-string{color:#50a14f}.hljs-built_in,.hljs-class .hljs-title{color:#c18401}.hljs-attr,.hljs-variable,.hljs-template-variable,.hljs-type,.hljs-selector-class,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-number{color:#986801}.hljs-symbol,.hljs-bullet,.hljs-link,.hljs-meta,.hljs-selector-id,.hljs-title{color:#4078f2}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:bold}.hljs-link{text-decoration:underline}
-	</style>
 
+<head>
+	<title>CodeStream</title>
+	<link rel="icon" type="image/png" sizes="32x32" href="https://app.codestream.com/favicon-32x32.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="https://app.codestream.com/favicon-16x16.png" />
+	<link rel="stylesheet" href="/web/styles/web.css?_={{version}}" />
 	<script type="text/javascript">
 		!function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
 		analytics.load("{{segmentKey}}");
@@ -14,43 +14,67 @@
 	</script>	
 </head>
 <body>
-
 <script>
 	window.analytics.track('Page Viewed', { 'Page Name': 'Codemark' });
 </script>
+	<div id="root">
+		<div class="root-inner">
+			<div class="logo-wrapper">
+				<img class="logo" src="https://app.codestream.com/static/media/logo.537e3780.png" />
+			</div>
+			<div class="box">
+				<div class="box-content">
+					<div>
+					   {{#if showComment}}  
+						<div class="flex">
+							<div class="headshot">
+								{{#if emailHash}}								
+									<img class="headshot-image"	src="https://www.gravatar.com/avatar/{{emailHash}}?s=36" />
+								{{/if}}
+							</div>
+							<div>
+								<div class="posted-on">
+									<span class="author">{{username}}</span>
+									<span class="time">{{createdAt}}</span>
+								</div>
+								<div>
+									{{#if title}}
+									<p class=title>{{title}}</p>
+									{{/if}}
+									{{#if text}}
+									<p class=text>{{text}}</p>
+									{{/if}}
+								</div>
+							</div>
+						</div>
+					   {{/if}} 
 
-{{#if showComment}}
-	<div class=comment>
-		<img class=headshot src="">
-		<p class=authorLine>
-			<span class=author>{{username}}</span>&nbsp;<span class=activity>{{activity}}</span>&nbsp;<span class=datetime>{{createdAt}}</span>
-		</p>
-		{{#if title}}
-			<p class=title>{{title}}</p>
-		{{/if}}
-		{{#if text}}
-			<p class=text>{{text}}</p>
-		{{/if}}
+						<div class="box-border box-border-sm">
+							{{#if file}}<p class="file">{{file}}</p>{{/if}}
+							<div class="code">
+								<code class="prettyprint">{{{code}}}</code>
+							</div>
+						</div>
+
+						{{#if hasProviderButtons}}
+						<div>
+							<div class="button-group">
+								<div class="button-list">
+									{{#if codeProvider}}
+									<button class="btn btn-sm" onclick='window.analytics.track("Opened On", { Destination: "{{codeProvider}}" }); window.open("{{codeProviderUrl}}", "_blank")'>Open Code on {{codeProvider}}</button>
+									{{/if}}
+									{{#if threadProvider}}
+									<button class="btn btn-sm" onclick='window.open("{{threadProviderUrl}}", "_blank")'>Open Thread on {{threadProvider}}</button>
+									{{/if}}
+								</div>
+							</div>
+						</div>
+						{{/if}}
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
-{{/if}}
-
-<div class=code>
-	{{#if file}}
-		<p class=file>{{file}}</p>
-	{{/if}}
-	{{{code}}}
-</div>
-
-{{#if hasProviderButtons}}
-	<div class=buttons>
-		{{#if codeProvider}}
-			<button onclick='window.analytics.track("Opened On", { Destination: "{{codeProvider}}" }); window.open("{{codeProviderUrl}}", "_blank")'>Open Code on {{codeProvider}}</button>
-		{{/if}}
-		{{#if threadProvider}}
-			<button onclick='window.analytics.track("Opened On", { Destination: "{{threadProvider}}" }); window.open("{{threadProviderUrl}}", "_blank")'>Open Thread on {{threadProvider}}</button>
-		{{/if}}
-	</div>
-{{/if}}
-
+	<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
 </body>
 </html>
