@@ -174,6 +174,8 @@ class LinkCodemarkRequest extends APIRequest {
 			const fileStream = marker && marker.get('fileStreamId') &&
 				await this.data.streams.getById(marker.get('fileStreamId'));
 			file = (fileStream && fileStream.get('file')) || (marker && marker.get('file'));
+			const repo = (marker && marker.get('repo')) || '';
+			file = `${repo}/${file}`;
 		}
 		return { marker, file };
 	}
