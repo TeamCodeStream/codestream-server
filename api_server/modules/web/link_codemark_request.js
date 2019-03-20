@@ -3,8 +3,6 @@
 const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 const CodemarkLinkIndexes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_link_indexes');
 const MomentTimezone = require('moment-timezone');
-const HLJS = require('highlight.js');
-const Path = require('path');
 const MD5 = require('md5');
 const Identify = require('./identify');
 
@@ -128,13 +126,8 @@ class LinkCodemarkRequest extends APIRequest {
 		const text = this.codemark.get('text');
 		let code = marker.get('code') || '';
 
-		if (code && file) {
-			// do syntax highlighting for the code, based on the file extension
-			let extension = Path.extname(file).toLowerCase();
-			if (extension.startsWith('.')) {
-				extension = extension.substring(1);
-			}
-			code = this.highlightCode(code, extension);
+		if (code) {
+			code = this.whiteSpaceToHtml(code);
 		}
 
 		const remoteCodeUrl = this.codemark.get('remoteCodeUrl') || {};
@@ -209,10 +202,6 @@ class LinkCodemarkRequest extends APIRequest {
 			}
 		}
 		return MomentTimezone.tz(timeStamp, timeZone).format(format);
-	}
-
-	highlightCode (code, extension) {
-		return this.whiteSpaceToHtml(HLJS.highlight(extension, code).value);
 	}
 
 	getActivity (type) {
