@@ -29,6 +29,9 @@ class ProviderTokenRequest extends RestfulRequest {
 			if (!this.serviceAuth) {
 				throw this.errorHandler.error('unknownProvider', { info: this.provider });
 			}
+			else if (this.request.query.error) {
+				throw this.errorHandler.error('tokenInvalid', { reason: this.request.query.error });
+			}
 
 			await this.requireAndAllow();		// require certain parameters, discard unknown parameters
 			if (await this.preProcessHook()) {

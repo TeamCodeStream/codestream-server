@@ -66,7 +66,11 @@ class TrelloAuth extends OAuth2Module {
 		return result;
 	}, {});
 	const token = hashObject.token || '';
-	document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&token=" + token;
+	if (token) {
+		document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&token=" + token;
+	} else {
+		document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&error=NO_TOKEN";
+	}
 </script>
 `
 		);
