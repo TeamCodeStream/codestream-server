@@ -58,6 +58,11 @@ class TrelloAuth extends OAuth2Module {
 		}
 		response.type('text/html');
 		response.send(`
+		<script
+		src="https://code.jquery.com/jquery-3.3.1.min.js"
+		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+		crossorigin="anonymous"></script>
+<script src="https://api.trello.com/1/client.js?key=15b499a5b08872a4fe5ad7274c782d8a"></script>
 <script>
 	alert('location=' + document.location);
 	var hash = window.location.hash.substr(1);
@@ -70,7 +75,27 @@ class TrelloAuth extends OAuth2Module {
 	if (token) {
 		document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&token=" + token;
 	} else {
-		document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&error=NO_TOKEN";
+
+		function AuthenticateTrello() {
+		  Trello.authorize({
+			name: "CodeStream",
+			type: "popup",
+			interactive: true,
+			expiration: "never",
+			persist: true,
+			success: function () { onAuthorizeSuccessful(); },
+			scope: { write: true, read: true },
+		  });
+		}
+		function onAuthorizeSuccessful() {
+		  var token = Trello.token();
+		  if (token) {
+			  document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&token=" + token;
+		  } else {
+			document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&error=NO_TOKEN";
+		  }
+		}
+		AuthenticateTrello();
 	}
 </script>
 `
