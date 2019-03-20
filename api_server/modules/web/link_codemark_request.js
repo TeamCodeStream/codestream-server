@@ -14,7 +14,9 @@ const PROVIDER_DISPLAY_NAMES = {
 	'trello': 'Trello',
 	'jira': 'Jira',
 	'asana': 'Asana',
-	'slack': 'Slack'
+	'slack': 'Slack',
+	'azure-devops': 'Azure DevOps',
+	'vsts': 'Visual Studio Team Services'
 };
 
 class LinkCodemarkRequest extends APIRequest {
