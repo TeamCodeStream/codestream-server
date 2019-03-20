@@ -67,7 +67,7 @@
 									<button class="btn btn-sm" onclick='window.analytics.track("Opened On", { Destination: "{{codeProvider}}" }); window.open("{{codeProviderUrl}}", "_blank")'>Open Code on {{codeProvider}}</button>
 									{{/if}}
 									{{#if threadProvider}}
-									<button class="btn btn-sm" onclick='window.open("{{threadProviderUrl}}", "_blank")'>Open Thread on {{threadProvider}}</button>
+									<button class="btn btn-sm" onclick='window.analytics.track("Opened On", { Destination: "{{threadProvider}}" }); window.open("{{threadProviderUrl}}", "_blank")'>Open Thread on {{threadProvider}}</button>
 									{{/if}}
 								</div>
 							</div>
