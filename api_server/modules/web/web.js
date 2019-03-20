@@ -42,11 +42,6 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
-		path: 'web/auth-complete',
-		requestClass: require('./web_auth_complete_request')
-	},
-	{
-		method: 'get',
 		path: 'web/error',
 		requestClass: require('./web_error_request')
 	},
@@ -120,23 +115,23 @@ class Web extends APIServerModule {
 		}
 	}
 
-	ensureTemplate (name, request) {
+	evalTemplateNoSend(name, data = {}) {
 		const template = this.templates[name];
-		if (!template) {
+		if (!template) return;
+		return template(data);
+	}
+	
+	evalTemplate (request, name, data = {}) {
+		const html = this.evalTemplateNoSend(name, data);
+		if (!html) {
 			this.api.warn(`Could not fulfill request, no template for ${name}`);
 			request.response.send(500);
 			request.responseIssued = true;
-			return;
 		}
-		return template;
-	}
-
-	evalTemplate (request, name, data = {}) {
-		const template = this.ensureTemplate(name, request);
-		if (!template) return;
-		const html = template(data);
-		request.response.send(html);
-		request.responseHandled = true;
+		else {
+			request.response.send(html);
+			request.responseHandled = true;
+		}
 	}
 
 	versionInfo() {

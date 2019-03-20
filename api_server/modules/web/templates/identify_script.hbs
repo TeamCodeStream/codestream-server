@@ -1,0 +1,24 @@
+<script>
+
+	const props = {
+		Provider: '{{provider}}',
+		Endpoint: 'apiweb',
+		email: '{{email}}',
+		'Join Method': '{{joinMethod}}',
+		createdAt: '{{userRegisteredAt}}',
+		name: '{{fullName}}' || undefined,
+		'Date of Last Post': '{{dateOfLastPost}}' || undefined,
+		'Team ID': '{{teamId}}',
+		'Team Name': '{{teamName}}',
+		'Company Name': '{{companyName}}',
+		company: {
+			id: '{{teamId}}',
+			name: '{{teamName}}'
+		},
+		'Team Size': {{teamSize}}
+	};
+
+	const userId = '{{userId}}';
+	window.analytics.identify(userId, props);
+	
+</script>

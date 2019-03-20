@@ -6,6 +6,7 @@ const MomentTimezone = require('moment-timezone');
 const HLJS = require('highlight.js');
 const Path = require('path');
 const MD5 = require('md5');
+const Identify = require('./identify');
 
 const PROVIDER_DISPLAY_NAMES = {
 	'github': 'GitHub',
@@ -32,6 +33,7 @@ class LinkCodemarkRequest extends APIRequest {
 		await this.checkAuthentication() &&
 		await this.getCodemarkLink() &&
 		await this.getCodemark() &&
+		await this.getIdentifyingInfo() && 
 		await this.showCodemark();
 	}
 
@@ -97,17 +99,19 @@ class LinkCodemarkRequest extends APIRequest {
 		return true;
 	}
 
+	async getIdentifyingInfo () {
+		if (this.request.query.identify) {
+			this.team = await this.data.teams.getById(this.teamId);
+			if (this.team) {
+				this.company = await this.data.companies.getById(this.team.get('companyId'));
+			}
+		}
+		return true;
+	}
+
 	async showCodemark () {
 		this.creator = await this.data.users.getById(this.codemark.get('creatorId'));
-
-		let marker, file;
-		const markerId = this.codemark.get('markerIds')[0];
-		if (markerId) {
-			marker = await this.data.markers.getById(markerId);
-			const fileStream = marker && marker.get('fileStreamId') &&
-				await this.data.streams.getById(marker.get('fileStreamId'));
-			file = (fileStream && fileStream.get('file')) || (marker && marker.get('file'));
-		}
+		const { marker, file } = await this.getMarkerInfo();
 
 		const username = this.creator && this.creator.get('username');		
 		const activity = this.getActivity(this.codemark.get('type'));
@@ -145,7 +149,7 @@ class LinkCodemarkRequest extends APIRequest {
 
 		const segmentKey = this.api.config.segment.webToken;
 
-		this.module.evalTemplate(this, 'codemark', {
+		const templateProps = {
 			showComment,
 			username,
 			emailHash,
@@ -162,7 +166,34 @@ class LinkCodemarkRequest extends APIRequest {
 			threadProviderUrl,
 			segmentKey,
 			version: this.module.versionInfo()
-		});
+		};
+		if (this.request.query.identify) {
+			this.addIdentifyScript(templateProps);
+		}
+		this.module.evalTemplate(this, 'codemark', templateProps);
+	}
+
+	async getMarkerInfo () {
+		let marker, file;
+		const markerId = this.codemark.get('markerIds')[0];
+		if (markerId) {
+			marker = await this.data.markers.getById(markerId);
+			const fileStream = marker && marker.get('fileStreamId') &&
+				await this.data.streams.getById(marker.get('fileStreamId'));
+			file = (fileStream && fileStream.get('file')) || (marker && marker.get('file'));
+		}
+		return { marker, file };
+	}
+
+	addIdentifyScript (props) {
+		const identifyOptions = {
+			provider: this.request.query.provider,
+			user: this.user,
+			team: this.team,
+			company: this.company,
+			module: this.module
+		};
+		props.identifyScript = Identify(identifyOptions);
 	}
 
 	formatTime (timeStamp) {

@@ -62,8 +62,7 @@ class WebSigninRequest extends APIRequest {
 
 	finishFlow () {
 		const finishUrl = this.request.body.finishUrl || '/web/finish';
-		const teamId = this.request.body.teamId || '';
-		const redirect = `/web/auth-complete?userId=${this.user.id}&teamId=${teamId}&finishUrl=${encodeURIComponent(finishUrl)}`;
+		const redirect = `${finishUrl}?identify=true&provider=CodeStream`;
 		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}

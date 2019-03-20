@@ -133,14 +133,8 @@ class WebSlackAuthCompleteRequest extends APIRequest {
 	}
 
 	finishFlow () {
-		const params = {
-			finishUrl: this.payload.end || '/web/finish',
-			teamId: this.payload.teamId || '',
-			userId: this.user.id,
-			provider: 'Slack'
-		};
-		const query = Object.keys(params).map(param => `${param}=${params[param]}`).join('&');
-		const redirect = `/web/auth-complete?${query}`;
+		const finishUrl = this.payload.end || '/web/finish';
+		const redirect = `${finishUrl}?identify=true&provider=Slack`;
 		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}
