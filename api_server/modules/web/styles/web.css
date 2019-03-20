@@ -106,10 +106,6 @@ h1 {
   min-height: 100%;
   height: 100%;
 }
-.button-group {
-  padding-top: 10px;
-  box-sizing: border-box;
-}
 
 .label {
   color: rgb(154, 161, 179);
@@ -123,6 +119,7 @@ h1 {
   padding: 5px 0px;
   font: 0.7rem Menlo, Consolas, "DejaVu Sans Mono", monospace;
 }
+
 .btn {
   cursor: pointer;
   color: white;
@@ -134,8 +131,25 @@ h1 {
 }
 .btn-sm {
   padding: 0.5rem;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   width: auto;
+}
+
+.btn-list {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+.btn-list .btn {
+  width:initial;
+}
+.btn-list .btn.btn-sm {
+  margin-right:.1rem;
+}
+
+.btn-group {
+  padding-top: 10px;
+  box-sizing: border-box;
 }
 .form-wrapper {
   max-width: none;
@@ -174,11 +188,7 @@ h1 {
   color: rgb(76, 114, 202);
   font-weight: 700;
 }
-.button-list {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-}
+
 .code {
   background: #1e1e1e;
   padding:5px;

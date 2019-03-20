@@ -42,10 +42,10 @@
 								</div>
 								<div>
 									{{#if title}}
-									<p class=title>{{title}}</p>
+									<p class="title">{{title}}</p>
 									{{/if}}
 									{{#if text}}
-									<p class=text>{{text}}</p>
+									<p class="text">{{text}}</p>
 									{{/if}}
 								</div>
 							</div>
@@ -61,8 +61,8 @@
 
 						{{#if hasProviderButtons}}
 						<div>
-							<div class="button-group">
-								<div class="button-list">
+							<div class="btn-group">
+								<div class="btn-list">
 									{{#if codeProvider}}
 									<button class="btn btn-sm" onclick='window.analytics.track("Opened On", { Destination: "{{codeProvider}}" }); window.open("{{codeProviderUrl}}", "_blank")'>Open Code on {{codeProvider}}</button>
 									{{/if}}
