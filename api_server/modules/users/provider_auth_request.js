@@ -91,7 +91,6 @@ class ProviderAuthRequest extends RestfulRequest {
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
-		this.log(`Redirecting ${this.provider} auth to ${url}?${query}`);
 		this.response.redirect(`${url}?${query}`);
 		this.responseHandled = true;
 	}
