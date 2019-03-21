@@ -19,7 +19,7 @@ class WebSlackAuthRequest extends APIRequest {
 		const payload = {
 			userId: 'anon',
 			teamId: this.request.query.teamId || '',
-			url: `https://${this.request.hostname}:${this.api.config.express.port}/web/slack-auth-complete`,
+			url: `${this.api.config.api.publicApiUrl}/web/slack-auth-complete`,
 			end: this.request.query.url
 		};
 		const code = this.api.services.tokenHandler.generate(
