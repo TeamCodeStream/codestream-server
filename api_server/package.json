@@ -1,6 +1,6 @@
 {
   "name": "api-server",
-  "version": "1.20.2",
+  "version": "1.20.3",
   "dependencies": {
     "@slack/client": "^4.6.0",
     "analytics-node": "^3.3.0",
