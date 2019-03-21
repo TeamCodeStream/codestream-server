@@ -174,10 +174,21 @@ class LinkCodemarkRequest extends APIRequest {
 			const fileStream = marker && marker.get('fileStreamId') &&
 				await this.data.streams.getById(marker.get('fileStreamId'));
 			file = (fileStream && fileStream.get('file')) || (marker && marker.get('file'));
-			const repo = (marker && marker.get('repo')) || '';
+			let repo = (marker && marker.get('repo')) || '';
+			repo = this.bareRepo(repo);
 			file = `${repo}/${file}`;
 		}
 		return { marker, file };
+	}
+
+	bareRepo (repo) {
+		if (repo.match(/^(bitbucket\.org|github\.com)\/(.+)\//)) {
+			repo = repo.split('/').splice(2).join('/');
+		}
+		else if (repo.indexOf('/') !== -1) {
+			repo = repo.split('/').splice(1).join('/');
+		}
+		return repo;
 	}
 
 	addIdentifyScript (props) {
