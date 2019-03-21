@@ -59,7 +59,6 @@ class TrelloAuth extends OAuth2Module {
 		response.type('text/html');
 		response.send(`
 <script>
-	alert('location=' + document.location);
 	var hash = window.location.hash.substr(1);
 	var hashObject = hash.split('&').reduce(function (result, item) {
 		var parts = item.split('=');
