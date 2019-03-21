@@ -7,7 +7,7 @@ import sys
 
 sys.path.append(os.environ['DT_TOP'] + "/lib")
 import devTools
-from sysUtils import dumpDict, shellExecNoBuffer, someValueOrNone
+import sysUtils as su
 from buildUtils import *
 
 assetExtensionList = ['info', 'tgz']
@@ -42,17 +42,17 @@ if args.action in ['pack','info']:
 	infoFileName = pkgInfo['localAssetFilePrefix'] + ".info"
 	pkgInfo['assetsMD5'][tarballAssetName] = "0"
 	pkgInfo['sandboxType'] = buildData['sbInfo']['sb_type']
-	dumpDict(pkgInfo, "api-server.info")
+	su.dumpDict(pkgInfo, "api-server.info")
 
 if args.action == 'pack':
 	buildstepGeneric(args, cmd = "npm run tarball")
 	pkgInfo['assetsMD5'][tarballAssetName] = dt.md5Hash("api-server.tgz")
-	dumpDict(pkgInfo, "api-server.info")
+	su.dumpDict(pkgInfo, "api-server.info")
 	os.rename("api-server.info", infoFileName)
 	os.rename("api-server.tgz", tarballAssetName)
 	if args.verbose:
-		dumpDict(pkgInfo, None, "packageInfo:")
-		shellExecNoBuffer("ls -l " + pkgInfo['localAssetFilePrefix'] + ".*", printCmd = True)
+		su.dumpDict(pkgInfo, None, "packageInfo:")
+		su.shellExecNoBuffer("ls -l " + pkgInfo['localAssetFilePrefix'] + ".*", printCmd = True)
 
 if args.action == 'citest':
 	buildstepGeneric(args, cmd = "npm run test:ci")
@@ -65,7 +65,7 @@ if args.action == 'release':
 		print("release can only be run in a sandbox configured for production")
 		exit(1)
 	infoFileName = args.build_number + ".info"
-	pkgInfo = readJsonFileIgnoreComments(infoFileName)
+	pkgInfo = su.readJsonFileIgnoreComments(infoFileName)
 	setArtifactLinks("prod/" + publishDir, args.build_number, assetExtensionList, 'current')
 	applyTagToRepos(os.environ['CS_API_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
 	updatePackageVersion(buildData['sandboxTop'] + "/package.json", "develop", pkgInfo['version'], bumpLevel = 'patch')
