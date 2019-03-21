@@ -12,7 +12,8 @@ GITLAB_API_ACCESS_FILE=$HOME/.codestream/gitlab/production
 BITBUCKET_API_ACCESS_FILE=$HOME/.codestream/bitbucket/production
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset"
 SEGMENT_TOKEN_FILE=$HOME/.codestream/segment/prod-api
-SEGMENT_WEB_TOKEN_FILE=$HOME/.codestream/segment/dev-webapp
+SEGMENT_WEB_TOKEN_FILE=$HOME/.codestream/segment/prod-webapp
+MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream/prod-api
 
 export CS_API_ASSET_ENV=prod
