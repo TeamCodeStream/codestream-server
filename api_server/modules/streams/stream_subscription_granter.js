@@ -55,7 +55,10 @@ class StreamSubscriptionGranter  {
 			await this.messager[func](
 				this.tokens,
 				channel,
-				{ request: this.request }
+				{ 
+					request: this.request,
+					userIds: this.members.map(m => m.id)
+				}
 			);
 		}
 		catch (error) {
