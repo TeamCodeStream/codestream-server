@@ -238,19 +238,20 @@ class SocketClusterClient {
 	// revoke read and/or write permission for the specified channel for the specified
 	// set of tokens (keys)
 	async revoke (tokens, channel, options = {}) {
-		await Promise.all(tokens.map(async token => {
-			await this.revokeToken(token, channel, options);
+		const userIds = options.userIds || [];
+		await Promise.all(userIds.map(async userId => {
+			await this.revokeToken(userId, channel, options);
 		}));
 	}
 
-	async revokeToken (token, channel, options = {}) {
+	async revokeToken (userId, channel, options = {}) {
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
-			this._log(`Would have revoked access for ${token} to ${channel}`, options);
+			this._log(`Would have revoked access for ${userId} to ${channel}`, options);
 			return;
 		}
-		this._log(`Revoking access for ${token} to ${channel}`, options);
-		this.socket.emit('desubscribe');
+		this._log(`Revoking access for ${userId} to ${channel}`, options);
+		this.socket.emit('desubscribe', { userId, channel });
 		/*		
 		if (!(tokens instanceof Array)) {
 			tokens = [tokens];
