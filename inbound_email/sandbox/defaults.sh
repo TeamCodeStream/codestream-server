@@ -48,6 +48,9 @@ export CS_MAILIN_PIDS=$CS_MAILIN_SANDBOX/pid    # pid files directory
 
 [ -z "$CS_MAILIN_ASSET_ENV" ] && export CS_MAILIN_ASSET_ENV=local
 
+# This defines the runtime environment (local, pd, qa, prod, etc...)
+[ -z "$CS_MAILIN_ENV" ] && export CS_MAILIN_ENV=local
+
 # Inbound mail queue directories
 export CS_MAILIN_MAILQ_TOP=$CS_MAILIN_SANDBOX/mailq
 # new email files will be delivered to this directory
