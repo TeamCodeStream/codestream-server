@@ -11,6 +11,7 @@ class SocketClusterClient {
 		this.config = config;
 		this.messageListeners = {};		// callbacks for each channel when message is received
 		this.channelPromises = {};		// promises for channel subscriptions
+		this.subscribedUserPromises = {};	// promises for requests to know subscribed users
 	}
 
 	init () {
@@ -36,6 +37,8 @@ class SocketClusterClient {
 			this.socket.on('subscribe', this._handleSubscribe.bind(this));
 
 			this.socket.on('authed', this._handleAuthed.bind(this));
+			this.socket.on('subscribedUsers', this._handleSubscribedUsers.bind(this));
+
 			this.socket.emit('auth', {
 				token: this.config.authKey,
 				uid: this.config.uid,
@@ -283,10 +286,27 @@ class SocketClusterClient {
 		*/		
 	}
 
+
 	// get list of users (by ID) currently subscribed to the passed channel
-	async getSubscribedUsers (/*channel, options = {}*/) {
-		// not supported for now
-		return [];
+	getSubscribedUsers (channel) {
+		const requestId = UUID();
+		const promise = new Promise((resolve, reject) => {
+			this.subscribedUserPromises[requestId] = { resolve, reject };
+		});
+		this.socket.emit('getSubscribedUsers', { requestId, channel });
+		return promise;
+	}
+
+	_handleSubscribedUsers (data) {
+		const promise = this.subscribedUserPromises[data.requestId];
+		if (!promise) { return; }
+		if (data.error) {
+			promise.reject(data.error);
+		}
+		else {
+			promise.resolve(data);
+		}
+		delete this.subscribedUserPromises[data.requestId];
 	}
 
 	disconnect () {
