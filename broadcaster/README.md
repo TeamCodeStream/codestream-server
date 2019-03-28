@@ -1,2 +1,5 @@
-# codestream-messager
-Provides pub-sub messaging for on-prem versions of CodeStream
+SocketCluster Sample App
+======
+
+This is a sample SocketCluster app.
+
