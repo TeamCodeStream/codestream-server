@@ -40,6 +40,13 @@ module.exports = {
 		uuid: 'OutboundEmailServer'
 	},
 
+	// socket cluster connection configuration
+	socketCluster: {
+		host: process.env.CS_OUTBOUND_EMAIL_SOCKET_CLUSTER_HOST,
+		port: process.env.CS_OUTBOUND_EMAIL_SOCKET_CLUSTER_PORT,
+		messagerSecret: process.env.CS_OUTBOUND_EMAIL_MESSAGER_SECRET
+	},
+	
 	// sendgrid credentials
 	sendgrid: {
 		url: '/v3/mail/send',

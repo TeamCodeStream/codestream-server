@@ -74,7 +74,7 @@ class EmailNotificationProcessor {
 
 	// get the team members that are currently subscribed to the team channel (they are online)
 	async getSubscribedMembers () {
-		// query the messager service (pubnub) for who is subscribed to the team channel
+		// query the messager service for who is subscribed to the team channel
 		const channel = 'team-' + this.team.id;
 		try {
 			this.onlineUserIdsForTeam = [];

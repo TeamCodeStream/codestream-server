@@ -6,12 +6,12 @@
 const AWS = require('./server_utils/aws/aws');
 const SQSClient = require('./server_utils/aws/sqs_client');
 const RabbitMQClient = require('./server_utils/rabbitmq');
-const { callbackWrap } = require('./server_utils/await_utils');
 const MongoClient = require('./server_utils/mongo/mongo_client.js');
 const EmailNotificationHandler = require('./emailNotificationHandler');
 const OS = require('os');
 const PubNub = require('pubnub');
 const PubNubClient = require('./server_utils/pubnub/pubnub_client_async');
+const SocketClusterClient = require('./server_utils/socketcluster/socketcluster_client');
 const EmailSender = require('./emailSender');
 const ConfirmationEmailHandler = require('./confirmationEmailHandler');
 const AlreadyRegisteredEmailHandler = require('./alreadyRegisteredEmailHandler');
@@ -129,7 +129,7 @@ class OutboundEmailServer {
 	async initAsNeeded () {
 		if (this.handlers) { return; }
 		await this.openMongoClient();
-		await this.openPubnubClient();
+		await this.openMessagerClient();
 		await this.openQueuer();
 		await this.makeEmailSender();
 		await this.makeHandlers();
@@ -150,14 +150,34 @@ class OutboundEmailServer {
 		this.data = this.mongo.mongoCollections;
 	}
 	
+	openMessagerClient () {
+		if (this.config.socketCluster.port) {
+			return this.openSocketClusterClient();
+		}
+		else {
+			return this.openPubnubClient();
+		}	
+	}
+
 	async openPubnubClient () {
 		this.log('Opening connection to Pubnub...');
 		const pubnubOptions = Object.assign({}, this.config.pubnub);
 		pubnubOptions.uuid = 'OutboundEmail-' + OS.hostname();
 		const pubnub = new PubNub(pubnubOptions);
-		this.pubnub = new PubNubClient({ pubnub });
+		this.messager = new PubNubClient({ pubnub });
 	}
 	
+	async openSocketClusterClient () {
+		this.log('Opening connection to SocketCluster...');
+		const config = Object.assign({}, this.config.socketCluster, {
+			logger: this,
+			uid: 'API',
+			authKey: this.config.socketCluster.messagerSecret
+		});
+		this.messager = new SocketClusterClient(config);
+		await this.messager.init();
+	}
+		
 	async openQueuer () {
 		if (this.config.rabbitmq && this.config.rabbitmq.host) {
 			await this.openRabbitMQ();
@@ -191,7 +211,7 @@ class OutboundEmailServer {
 	async makeEmailSender () {
 		this.emailSender = new EmailSender({
 			logger: this.logger,
-			messager: this.pubnub
+			messager: this.messager
 		});
 	}
 	
@@ -199,7 +219,7 @@ class OutboundEmailServer {
 		const handlerOptions = {
 			logger: this.logger,
 			data: this.data,
-			messager: this.pubnub,
+			messager: this.messager,
 			queuer: this.queuer,
 			sender: this.emailSender
 		};
