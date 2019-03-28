@@ -28,12 +28,13 @@ module.exports = {
 	secrets: {
 		api: process.env.CS_MESSAGER_API_SECRET,
 		auth: process.env.CS_MESSAGER_AUTH_SECRET,
-		subscriptionCheat: process.env.CS_MESSAGER_SUBSCRIPTION_CHEAT_CODE,	// for allowing unregistered users to subscribe to their me-channel, for testing emails
+		subscriptionCheat: process.env.CS_MESSAGER_SUBSCRIPTION_CHEAT_CODE	// for allowing unregistered users to subscribe to their me-channel, for testing emails
 	},
 	https: {
 		keyfile: process.env.CS_MESSAGER_SSL_KEYFILE,
 		certfile: process.env.CS_MESSAGER_SSL_CERTFILE,
-		cafile: process.env.CS_MESSAGER_SSL_CAFILE
+		cafile: process.env.CS_MESSAGER_SSL_CAFILE,
+		port: process.env.CS_MESSAGER_PORT
 	},
 	history: {
 		retentionPeriod: 30 * 24 * 60 * 60 * 1000,

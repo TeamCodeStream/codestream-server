@@ -54,14 +54,13 @@ var MakeHttpsOptions = function () {
 var options = {
   workers: Number(argv.w) || Number(process.env.SOCKETCLUSTER_WORKERS) || 1,
   brokers: Number(argv.b) || Number(process.env.SOCKETCLUSTER_BROKERS) || 1,
-  port: Number(argv.p) || Number(process.env.SOCKETCLUSTER_PORT) || 8000,
   // You can switch to 'sc-uws' for improved performance.
   wsEngine: process.env.SOCKETCLUSTER_WS_ENGINE || 'ws',
   appName: argv.n || process.env.SOCKETCLUSTER_APP_NAME || null,
   workerController: workerControllerPath || path.join(__dirname, 'worker.js'),
   brokerController: brokerControllerPath || path.join(__dirname, 'broker.js'),
   workerClusterController: workerClusterControllerPath || null,
-  socketChannelLimit: Number(process.env.SOCKETCLUSTER_SOCKET_CHANNEL_LIMIT) || 1000,
+  socketChannelLimit: Number(process.env.SOCKETCLUSTER_SOCKET_CHANNEL_LIMIT) || 10000,
   clusterStateServerHost: argv.cssh || process.env.SCC_STATE_SERVER_HOST || null,
   clusterStateServerPort: process.env.SCC_STATE_SERVER_PORT || null,
   clusterMappingEngine: process.env.SCC_MAPPING_ENGINE || null,
@@ -80,7 +79,8 @@ var options = {
   // CodeStream options
   authKey: CodeStreamConfig.secrets.auth,
   protocol: 'https',
-  protocolOptions: MakeHttpsOptions()
+  protocolOptions: MakeHttpsOptions(),
+  port: CodeStreamConfig.https.port
 };
 
 var bootTimeout = Number(process.env.SOCKETCLUSTER_CONTROLLER_BOOT_TIMEOUT) || 10000;
