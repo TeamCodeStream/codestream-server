@@ -304,7 +304,7 @@ class SocketClusterClient {
 			promise.reject(data.error);
 		}
 		else {
-			promise.resolve(data);
+			promise.resolve(data.userIds);
 		}
 		delete this.subscribedUserPromises[data.requestId];
 	}
