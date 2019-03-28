@@ -185,12 +185,7 @@ class OutboundEmailServer {
 		this.log('Opening connection to SQS...');
 		const aws = new AWS(this.config.aws);
 		this.queuer = new SQSClient({ aws, logger: this.logger });
-		await callbackWrap(
-			this.queuer.createQueue.bind(this.queuer),
-			{
-				name: this.config.outboundEmailQueueName
-			}
-		);
+		await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
 	}
 
 	async makeEmailSender () {
@@ -271,33 +266,33 @@ class OutboundEmailServer {
 		}
 	}
 
-	critical (message, file) {
+	critical (message) {
 		if (this.logger && typeof this.logger.critical === 'function') {
-			this.logger.critical(message, file);
+			this.logger.critical(message);
 		}
 	}
 
-	error (message, file) {
+	error (message) {
 		if (this.logger && typeof this.logger.error === 'function') {
-			this.logger.error(message, file);
+			this.logger.error(message);
 		}
 	}
 
-	warn (message, file) {
+	warn (message) {
 		if (this.logger && typeof this.logger.warn === 'function') {
-			this.logger.warn(message, file);
+			this.logger.warn(message);
 		}
 	}
 
-	log (message, file) {
+	log (message) {
 		if (this.logger && typeof this.logger.log === 'function') {
-			this.logger.log(message, file);
+			this.logger.log(message);
 		}
 	}
 
-	debug (message, file) {
+	debug (message) {
 		if (this.logger && typeof this.logger.debug === 'function') {
-			this.logger.debug(message, file);
+			this.logger.debug(message);
 		}
 	}
 }
