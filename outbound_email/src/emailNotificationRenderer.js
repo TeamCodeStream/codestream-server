@@ -124,15 +124,7 @@ class EmailNotificationRenderer {
 `;
 	}
 
-	// link that user should click on to learn about CodeStream and install the plugin
-	getInstallLinks () {
-		const vsCodeLink = 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream';
-		const vsLink = 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs';
-		return `<a clicktracking="off" href="${vsCodeLink}">VS Code</a> or <a clicktracking="off" href="${vsLink}">Visual Studio</a>`;
-	}
-
-
-//	Install CodeStream for [VS Code] or [Visual Studio], or add to the discussion by replying to this email.
+	//	Install CodeStream for [VS Code] or [Visual Studio], or add to the discussion by replying to this email.
 	// determine the intro text of an email notification
 	getNotificationIntro (options) {
 		const { user, team } = options;
@@ -141,10 +133,11 @@ class EmailNotificationRenderer {
 		}
 		let intro = '';
 		if (!user.hasReceivedFirstEmail) {
-			intro = `You’ve been added to ${team.name} on CodeStream, where your team is currently discussing code.<br/>`;
+			intro = `You’ve been added to ${team.name} on CodeStream, where your team is currently discussing code.<br/><br/>`;
 		}
-		const installLinks = this.getInstallLinks();
-		intro += `Install CodeStream for ${installLinks}, or add to the discussion by replying to this email.<br/>`;
+
+		const link = 'https://codestream.com/?utm_medium=email&utm_source=product&utm_campaign=newmessage_notification_unreg';
+		intro += `<a clicktracking="off" href="${link}">Install the CodeStream extension</a> for your IDE, or add to the discussion by replying to this email.<br/>`;
 		return intro;
 	}
 }
