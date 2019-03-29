@@ -44,7 +44,7 @@ class SQSClient {
 	// stop listening on the given queue
 	stopListening (queueName) {
 		if (!this.queues[queueName]) {
-			 return;
+			return;
 		}
 		this.queues[queueName].stopPolling = true;
 		delete this.queues[queueName].handler;
