@@ -4,6 +4,5 @@
 
 module.exports = {
 	appClientId: process.env.CS_API_GITHUB_CLIENT_ID,
-	appClientSecret: process.env.CS_API_GITHUB_CLIENT_SECRET,
-	enterpriseConfigFile: `${process.env.CS_API_TOP}/etc/githubEnterprise.js`
+	appClientSecret: process.env.CS_API_GITHUB_CLIENT_SECRET
 };
