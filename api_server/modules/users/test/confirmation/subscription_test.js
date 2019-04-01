@@ -36,8 +36,8 @@ class SubscriptionTest extends CodeStreamAPITest {
 	}
 
 	after (callback) {
-		this.messagerClient.unsubscribeAll();
-		this.messagerClient.disconnect();
+		this.broadcasterClient.unsubscribeAll();
+		this.broadcasterClient.disconnect();
 		super.after(callback);
 	}
 
@@ -63,7 +63,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.user = response.user;
-				this.messagerToken = response.messagerToken;
+				this.broadcasterToken = response.broadcasterToken;
 				callback();
 			}
 		);
@@ -72,11 +72,11 @@ class SubscriptionTest extends CodeStreamAPITest {
 	// run the actual test...
 	async run (callback) {
 		// create a pubnub client and attempt to subscribe to the channel of interest
-		this.messagerClient = this.createMessagerClient();
-		this.messagerClient.init();
+		this.broadcasterClient = this.createBroadcasterClient();
+		this.broadcasterClient.init();
 		let channel = `${this.which}-${this[this.which].id}`;
 		try {
-			await this.messagerClient.subscribe(
+			await this.broadcasterClient.subscribe(
 				channel,
 				() => {}
 			);
@@ -87,7 +87,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		}
 	}
 
-	createMessagerClient () {
+	createBroadcasterClient () {
 		if (this.usingSocketCluster) {
 			return this.createSocketClusterClient();
 		}
@@ -99,7 +99,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 	createSocketClusterClient () {
 		const config = Object.assign({}, SocketClusterConfig, {
 			uid: this.user.id,
-			authKey: this.messagerToken 
+			authKey: this.broadcasterToken 
 		});
 		return new SocketClusterClient(config);
 	}
@@ -110,7 +110,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.user._pubnubUuid || this.user.id;
-		clientConfig.authKey = this.messagerToken;	// the PubNub token is the auth key for the subscription
+		clientConfig.authKey = this.broadcasterToken;	// the PubNub token is the auth key for the subscription
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
 			clientConfig.serverId = IpcConfig.serverId;

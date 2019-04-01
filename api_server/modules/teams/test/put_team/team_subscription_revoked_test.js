@@ -23,8 +23,8 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 	}
 
 	after (callback) {
-		this.messagerClient.unsubscribeAll();
-		this.messagerClient.disconnect();
+		this.broadcasterClient.unsubscribeAll();
+		this.broadcasterClient.disconnect();
 		super.after(callback);
 	}
 
@@ -34,19 +34,19 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		// subscribe to the team channel, which should fail
 		BoundAsync.series(this, [
 			super.run,
-			this.makeMessagerClient,
+			this.makeBroadcasterClient,
 			this.trySubscribeToTeam
 		], callback);
 	}
 
-	async makeMessagerClient (callback) {
+	async makeBroadcasterClient (callback) {
 		// create a pubnub client and attempt to subscribe to the team channel
-		this.messagerClient = this.createMessagerClient();
-		this.messagerClient.init();
+		this.broadcasterClient = this.createBroadcasterClient();
+		this.broadcasterClient.init();
 		callback();
 	}
 
-	createMessagerClient () {
+	createBroadcasterClient () {
 		if (this.usingSocketCluster) {
 			return this.createSocketClusterClient();
 		}
@@ -58,7 +58,7 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 	createSocketClusterClient () {
 		const config = Object.assign({}, SocketClusterConfig, {
 			uid: this.users[1].user.id,
-			authKey: this.users[1].messagerToken 
+			authKey: this.users[1].broadcasterToken 
 		});
 		return new SocketClusterClient(config);
 	}
@@ -69,7 +69,7 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.users[1].user._pubnubUuid || this.users[1].user.id;
-		clientConfig.authKey = this.users[1].messagerToken;
+		clientConfig.authKey = this.users[1].broadcasterToken;
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
 			clientConfig.serverId = IpcConfig.serverId;
@@ -98,7 +98,7 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 	// try to subscribe to the team channel
 	async trySubscribeToTeam (callback) {
 		try {
-			await this.messagerClient.subscribe(
+			await this.broadcasterClient.subscribe(
 				`team-${this.team.id}`,
 				() => {
 					Assert.fail('message received on team channel');

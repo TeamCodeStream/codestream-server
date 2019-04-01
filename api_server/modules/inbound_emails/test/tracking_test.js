@@ -25,7 +25,7 @@ class TrackingTest extends InboundEmailMessageTest {
 		super.makeData(() => {
 			this.users[1].user.joinMethod = 'Added to Team';
 			this.currentUser = this.users[1];
-			this.messagerToken = this.users[1].messagerToken;
+			this.broadcasterToken = this.users[1].broadcasterToken;
 			callback();
 		});
 	}

@@ -24,12 +24,12 @@ class PutPostRequest extends PutRequest {
 		await this.publishPost();
 	}
 
-	// publish the post to the appropriate messager channel
+	// publish the post to the appropriate broadcaster channel
 	async publishPost () {
 		await new PostPublisher({
 			data: this.responseData,
 			request: this,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			stream: this.updater.stream.attributes
 		}).publishPost();
 	}

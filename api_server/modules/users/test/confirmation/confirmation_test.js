@@ -95,7 +95,7 @@ class ConfirmationTest extends CodeStreamAPITest {
 		Assert(data.accessToken, 'no access token');
 		Assert(data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
-		Assert(data.messagerToken, 'no messager token');
+		Assert(data.broadcasterToken, 'no broadcaster token');
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 

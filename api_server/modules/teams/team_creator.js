@@ -131,7 +131,7 @@ class TeamCreator extends ModelCreator {
 	async postSave () {
 		await super.postSave();
 		await this.updateUser();	// update the current user to indicate they are a member of the team
-		await this.grantUserMessagingPermissions();		// grant permission to the team creator to subscribe to the team messager channel
+		await this.grantUserMessagingPermissions();		// grant permission to the team creator to subscribe to the team broadcaster channel
 		await this.sendTeamCreatedEmail();	// send email to us that a new team has been created
 	}
 
@@ -184,11 +184,11 @@ class TeamCreator extends ModelCreator {
 		Object.assign(op.$set, set);
 	}
 
-	// grant permission to the team creator to subscribe to the team messager channel
+	// grant permission to the team creator to subscribe to the team broadcaster channel
 	async grantUserMessagingPermissions () {
 		const granterOptions = {
 			data: this.data,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			team: this.model,
 			members: [this.user],
 			request: this.request

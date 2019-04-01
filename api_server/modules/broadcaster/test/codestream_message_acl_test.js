@@ -10,7 +10,7 @@ class CodeStreamMessageACLTest extends CodeStreamMessageTest {
 		// try to subscribe to the channel of interest, but we expect this to fail
 		const user = this.users[0].user;
 		try {
-			await this.messagerClientsForUser[user.id].subscribe(
+			await this.broadcasterClientsForUser[user.id].subscribe(
 				this.channelName,
 				() => {
 					Assert.fail('message received');

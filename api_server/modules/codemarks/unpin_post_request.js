@@ -78,7 +78,7 @@ class UnpinPostRequest extends RestfulRequest {
 		await this.publishUpdate();
 	}
 
-	// publish the update to the appropriate messager channel(s)
+	// publish the update to the appropriate broadcaster channel(s)
 	async publishUpdate () {
 		new CodemarkPublisher({
 			codemark: this.codemark,

@@ -23,7 +23,7 @@ class PutMarkerRequest extends PutRequest {
 		await this.publishMarker();
 	}
 
-	// publish the marker to the appropriate messager channel(s)
+	// publish the marker to the appropriate broadcaster channel(s)
 	async publishMarker () {
 		const teamId = this.marker.get('teamId');
 		const channel = 'team-' + teamId;
@@ -32,7 +32,7 @@ class PutMarkerRequest extends PutRequest {
 			requestId: this.request.id
 		};
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request	}

@@ -234,7 +234,7 @@ class UserCreator extends ModelCreator {
 		}
 		// allow unregistered users to subscribe to me-channel, needed for mock email testing
 		this.api.warn(`NOTE - granting subscription permission to me channel for unregistered user ${this.model.id}, this had better be a test!`);
-		await this.api.services.messager.grant(
+		await this.api.services.broadcaster.grant(
 			[this.model.id],
 			`user-${this.model.id}`,
 			() => {},

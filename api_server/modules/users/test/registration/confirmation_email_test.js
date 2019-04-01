@@ -2,7 +2,7 @@
 
 'use strict';
 
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
 class ConfirmationEmailTest extends CodeStreamMessageTest {
@@ -43,7 +43,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				this.users.push(response);
 				this.currentUser = response;
-				this.currentUser.messagerToken = this.currentUser.user.id;
+				this.currentUser.broadcasterToken = this.currentUser.user.id;
 				callback();
 			}
 		);

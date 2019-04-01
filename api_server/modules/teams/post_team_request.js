@@ -24,7 +24,7 @@ class PostTeamRequest extends PostRequest {
 		};
 		const channel = `user-${this.user.id}`;
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this	}

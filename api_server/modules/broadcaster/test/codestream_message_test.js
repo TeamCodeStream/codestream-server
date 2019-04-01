@@ -29,12 +29,12 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		if (this.mockMode && this.wantServer) {
 			return callback();
 		}
-		this.messagerClientsForUser = {};
+		this.broadcasterClientsForUser = {};
 		BoundAsync.series(this, [
 			super.before,
 			this.makeData,	// make whatever data we need to be in the database to proceed
-			this.makeMessagerForServer,	// make messager client simulating server to send
-			this.makeMessagerForClient,	// make messager client simulating client to receive
+			this.makeBroadcasterForServer,	// make broadcaster client simulating server to send
+			this.makeBroadcasterForClient,	// make broadcaster client simulating client to receive
 			this.setChannelName,	// set the channel name that we'll listen for
 			this.wait				// wait a bit for access privileges to be set
 		], callback);
@@ -42,12 +42,12 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	// after the test runs, unsubscribe from all channels
 	after (callback) {
-		Object.keys(this.messagerClientsForUser || []).forEach(userId => {
-			this.messagerClientsForUser[userId].unsubscribeAll();
-			this.messagerClientsForUser[userId].disconnect();
+		Object.keys(this.broadcasterClientsForUser || []).forEach(userId => {
+			this.broadcasterClientsForUser[userId].unsubscribeAll();
+			this.broadcasterClientsForUser[userId].disconnect();
 		});
-		if (this.messagerForServer) {
-			this.messagerForServer.unsubscribeAll();
+		if (this.broadcasterForServer) {
+			this.broadcasterForServer.unsubscribeAll();
 		}
 		super.after(callback);
 	}
@@ -68,7 +68,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		], callback);
 	}
 
-	makeMessagerForServer (callback) {
+	makeBroadcasterForServer (callback) {
 		if (!this.wantServer) {
 			return callback();
 		}
@@ -91,9 +91,9 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	async makeSocketClusterClientForServer (callback) {
 		const config = Object.assign({}, SocketClusterConfig);
-		this.messagerForServer = new SocketClusterClient(config);
+		this.broadcasterForServer = new SocketClusterClient(config);
 		try {
-			await this.messagerForServer.init();
+			await this.broadcasterForServer.init();
 		}
 		catch (error) {
 			return callback(error);
@@ -101,13 +101,13 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		callback();
 	}
 
-	makeMessagerForClient (callback) {
+	makeBroadcasterForClient (callback) {
 		if (this.usingSocketCluster) {
 			return this.makeSocketClusterClientForClient(callback);
 		}
 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
-		const token = this.currentUser.messagerToken;
+		const token = this.currentUser.broadcasterToken;
 		const user = this.currentUser.user;
 		let clientConfig = Object.assign({}, PubNubConfig);
 		delete clientConfig.secretKey;
@@ -119,25 +119,25 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			clientConfig.serverId = IpcConfig.serverId;
 		}
 		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
-		this.messagerClientsForUser[user.id] = new PubNubClient({
+		this.broadcasterClientsForUser[user.id] = new PubNubClient({
 			pubnub: client
 		});
-		this.messagerClientsForUser[user.id].init();
+		this.broadcasterClientsForUser[user.id].init();
 		callback();
 	}
 
 	async makeSocketClusterClientForClient (callback) {
-		const { user, messagerToken } = this.currentUser;
+		const { user, broadcasterToken } = this.currentUser;
 		const config = Object.assign({}, SocketClusterConfig, {
 			uid: user.id,
-			authKey: messagerToken,
+			authKey: broadcasterToken,
 		});
 		if (this.cheatOnSubscription) {
 			config.authSecret = SecretsConfig.subscriptionCheat;
 		}
-		this.messagerClientsForUser[user.id] = new SocketClusterClient(config);
+		this.broadcasterClientsForUser[user.id] = new SocketClusterClient(config);
 		try {
-			await this.messagerClientsForUser[user.id].init();
+			await this.broadcasterClientsForUser[user.id].init();
 		}
 		catch (error) {
 			return callback(error);
@@ -169,9 +169,9 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			this.messageReceiveTimeout || 5000
 		);
 		// subscribe to the channel of interest
-		const messager = this.messagerClientsForUser[this.currentUser.user.id];
+		const broadcaster = this.broadcasterClientsForUser[this.currentUser.user.id];
 		try {
-			await messager.subscribe(
+			await broadcaster.subscribe(
 				this.channelName,
 				this.messageReceived.bind(this),
 				{
@@ -236,7 +236,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// send a random message from the server
 	sendFromServer (callback) {
 		this.message = RandomString.generate(100);
-		this.messagerForServer.publish(
+		this.broadcasterForServer.publish(
 			this.message,
 			this.channelName
 		);

@@ -126,7 +126,7 @@ class PostUserRequest extends PostRequest {
 		const team = await this.data.teams.getById(this.team.id);
 		await new AddTeamPublisher({
 			request: this,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			user: this.transforms.createdUser,
 			team: team,
 			teamUpdate: this.transforms.teamUpdate,

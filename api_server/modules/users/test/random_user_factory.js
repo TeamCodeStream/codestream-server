@@ -26,7 +26,7 @@ class _UserCreator {
 				{
 					user: this.user,
 					accessToken: this.token,
-					messagerToken: this.messagerToken,
+					broadcasterToken: this.broadcasterToken,
 					password: this.data.password
 				}
 			);
@@ -74,7 +74,7 @@ class _UserCreator {
 				if (error) { return callback(error); }
 				this.user = response.user;
 				this.token = response.accessToken;
-				this.messagerToken = response.messagerToken;
+				this.broadcasterToken = response.broadcasterToken;
 				callback();
 			}
 		);

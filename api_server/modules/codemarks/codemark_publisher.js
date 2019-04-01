@@ -1,4 +1,4 @@
-// handle publishing a new or updated codemark to the appropriate messager channel
+// handle publishing a new or updated codemark to the appropriate broadcaster channel
 
 'use strict';
 
@@ -26,7 +26,7 @@ class CodemarkPublisher {
 			requestId: this.request.request.id
 		});
 		try {
-			await this.request.api.services.messager.publish(
+			await this.request.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request	}

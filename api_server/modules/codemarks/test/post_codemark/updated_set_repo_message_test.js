@@ -2,7 +2,7 @@
 
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CommonInit = require('./common_init');
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const MarkerTest = require('./marker_test');
 const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
 const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');

@@ -68,12 +68,12 @@ class DeletePostRequest extends DeleteRequest {
 		await this.publishMarkers();
 	}
 
-	// publish the post to the appropriate messager channel
+	// publish the post to the appropriate broadcaster channel
 	async publishPost () {
 		await new PostPublisher({
 			data: this.responseData,
 			request: this,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			stream: this.stream.attributes
 		}).publishPost();
 	}
@@ -89,7 +89,7 @@ class DeletePostRequest extends DeleteRequest {
 		};
 		const channel = `team-${this.team.id}`;
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request }

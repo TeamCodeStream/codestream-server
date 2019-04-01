@@ -34,7 +34,7 @@ class LoginHelper {
 		this.initialData = await this.initialDataFetcher.fetchInitialData();
 	}
 
-	// grant the user permission to subscribe to various messager channels
+	// grant the user permission to subscribe to various broadcaster channels
 	async grantSubscriptionPermissions () {
 		// note - it is tough to determine whether this should go before or after the response ... with users in a lot
 		// of streams, there could be a performance hit here, but do we want to take a performance hit or do we want
@@ -43,7 +43,7 @@ class LoginHelper {
 		try {
 			await new UserSubscriptionGranter({
 				data: this.request.data,
-				messager: this.request.api.services.messager,
+				broadcaster: this.request.api.services.broadcaster,
 				user: this.user,
 				request: this.request
 			}).grantAll();
@@ -66,13 +66,12 @@ class LoginHelper {
 			set = set || {};
 			set.pubNubToken = this.pubnubToken;
 		}
-
-		// set a more generic "messager" token, to allow for other messager solutions beside PubNub
-		this.messagerToken = this.user.get('messagerToken');
-		if (!this.messagerToken) {
-			this.messagerToken = this.pubnubToken;
+		// set a more generic "broadcaster" token, to allow for other broadcaster solutions beside PubNub
+		this.broadcasterToken = this.user.get('broadcasterToken');
+		if (!this.broadcasterToken) {
+			this.broadcasterToken = this.pubnubToken;
 			set = set || {};
-			set.messagerToken = this.messagerToken;
+			set.broadcasterToken = this.broadcasterToken;
 		}
 
 		// look for a new-style token (with min issuance), if it doesn't exist, or our current token
@@ -159,7 +158,7 @@ class LoginHelper {
 			pubnubKey: this.request.api.config.pubnub.subscribeKey,	// give them the subscribe key for pubnub
 			pubnubToken: this.pubnubToken,	// token used to subscribe to PubNub channels
 			providers: this.providers,	// available third-party providers for integrations
-			messagerToken: this.messagerToken // more generic "messager" token, for messager solutions other than PubNub
+			broadcasterToken: this.broadcasterToken // more generic "broadcaster" token, for broadcaster solutions other than PubNub
 		};
 
 		// if using socketcluster for messaging (for on-prem installations), return host info

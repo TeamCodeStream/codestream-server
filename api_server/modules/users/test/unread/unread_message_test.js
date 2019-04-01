@@ -1,6 +1,6 @@
 'use strict';
 
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const CommonInit = require('./common_init');
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const Assert = require('assert');

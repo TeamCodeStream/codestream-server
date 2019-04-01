@@ -94,7 +94,7 @@ class PostCodemarkRequest extends PostRequest {
 			requestId: this.request.id
 		});
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this }

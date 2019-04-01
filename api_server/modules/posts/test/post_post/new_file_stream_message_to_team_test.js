@@ -3,7 +3,7 @@
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const PostToChannelTest = require('./post_to_channel_test');
 const CommonInit = require('./common_init');
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 
 class NewFileStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostToChannelTest) {
 

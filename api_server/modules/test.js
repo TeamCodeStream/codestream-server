@@ -9,7 +9,7 @@ describe ('modules', () => {
 	require('./authenticator/test/test.js');
 	require('./versioner/test/test.js');
 	require('./analytics/test/test.js');
-	require('./messager/test/test.js');
+	require('./broadcaster/test/test.js');
 	require('./users/test/test.js');
 	require('./repos/test/test.js');
 	require('./companies/test/test.js');

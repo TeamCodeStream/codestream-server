@@ -202,11 +202,11 @@ class StreamCreator extends ModelCreator {
 
 	// after the stream has been saved
 	async postSave () {
-		// grant permission to the members of the stream to subscribe to the stream's messager channel
+		// grant permission to the members of the stream to subscribe to the stream's broadcaster channel
 		await this.grantUserMessagingPermissions();
 	}
 
-	// grant permission to the members of the stream to subscribe to the stream's messager channel
+	// grant permission to the members of the stream to subscribe to the stream's broadcaster channel
 	async grantUserMessagingPermissions () {
 		if (!this.model.get('memberIds') || this.model.get('isTeamStream')) {
 			// no need to grant permissions for file-type stream, or for team-streams,
@@ -216,7 +216,7 @@ class StreamCreator extends ModelCreator {
 		try {
 			await new StreamSubscriptionGranter({
 				data: this.data,
-				messager: this.api.services.messager,
+				broadcaster: this.api.services.broadcaster,
 				stream: this.model,
 				request: this.request
 			}).grantToMembers();

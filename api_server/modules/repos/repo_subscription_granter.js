@@ -1,4 +1,4 @@
-// handle granting permission for users to subscribe to the messager channel for a repo
+// handle granting permission for users to subscribe to the broadcaster channel for a repo
 
 'use strict';
 
@@ -21,8 +21,8 @@ class RepoSubscriptionGranter  {
 			if (user.get('isRegistered')) {
 				tokens.push(user.getAccessToken());
 			}
-			if (user.get('messagerToken')) {
-				tokens.push(user.get('messagerToken'));
+			if (user.get('broadcasterToken')) {
+				tokens.push(user.get('broadcasterToken'));
 			}
 			return tokens;
 		}, []);
@@ -35,7 +35,7 @@ class RepoSubscriptionGranter  {
 		}
 		const channel = 'repo-' + this.repo.id;
 		try {
-			await this.messager.grant(
+			await this.broadcaster.grant(
 				this.tokens,
 				channel,
 				{

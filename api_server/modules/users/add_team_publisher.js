@@ -33,7 +33,7 @@ class AddTeamPublisher {
 			team: this.teamUpdate,
 		};
 		try {
-			await this.messager.publish(
+			await this.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request	}
@@ -115,7 +115,7 @@ class AddTeamPublisher {
 		message.users = this.sanitizedTeamMembers;
 		message.repos = this.sanitizedRepos;
 		try {
-			await this.messager.publish(
+			await this.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request }

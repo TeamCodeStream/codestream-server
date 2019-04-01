@@ -24,7 +24,7 @@ const AllModuleIndexes = {
 	users: require(process.env.CS_API_TOP + '/modules/users/indexes'),
 	signupTokens: require(process.env.CS_API_TOP + '/modules/users/signup_token_indexes'),
 	versionMatrix: require(process.env.CS_API_TOP + '/modules/versioner/indexes'),
-	messages: require(process.env.CS_API_TOP + '/modules/messager/indexes')
+	messages: require(process.env.CS_API_TOP + '/modules/broadcaster/indexes')
 };
 
 const AllFinished = {

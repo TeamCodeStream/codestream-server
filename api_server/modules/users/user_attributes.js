@@ -92,7 +92,7 @@ module.exports = {
 		type: 'string',
 		serverOnly: true
 	},
-	messagerToken: {
+	broadcasterToken: {
 		type: 'string',
 		serverOnly: true
 	},

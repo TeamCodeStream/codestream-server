@@ -35,7 +35,7 @@ class PutTeamRequest extends PutRequest {
 		}
 		const granterOptions = {
 			data: this.data,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			team: this.updater.team,
 			members: this.transforms.removedUsers,
 			request: this,
@@ -58,7 +58,7 @@ class PutTeamRequest extends PutRequest {
 			requestId: this.request.id
 		};
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this }
@@ -70,7 +70,7 @@ class PutTeamRequest extends PutRequest {
 		}
 	}
 
-	// publish the removal to the messager channel for any users that have been removed from the team
+	// publish the removal to the broadcaster channel for any users that have been removed from the team
 	async publishRemovalToUsers () {
 		if (!this.transforms.userUpdates) {
 			return;
@@ -80,12 +80,12 @@ class PutTeamRequest extends PutRequest {
 		}));
 	}
 
-	// publish the removal to the messager channel for any user that has been removed from the team
+	// publish the removal to the broadcaster channel for any user that has been removed from the team
 	async publishRemovalToUser (userUpdate) {
 		const channel = 'user-' + userUpdate.id;
 		const message = Object.assign({}, { user: userUpdate }, { requestId: this.request.id });
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this }

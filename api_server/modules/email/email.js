@@ -85,13 +85,13 @@ class Email extends APIServerModule {
 	// the email server through this callback, we'll send it along through the
 	// user's me-channel, which the test client should be listening to
 	async publishEmailMessageForTesting (message, options) {
-		if (!options || !options.user || !this.api.services.messager) { return; }
+		if (!options || !options.user || !this.api.services.broadcaster) { return; }
 		const channel = `user-${options.user.id}`;
 		if (options.request) {
 			options.request.log(`Publishing outbound email message: ${JSON.stringify(message)}`);
 			message = Object.assign({}, message, { requestId: options.request.request.id });
 		}
-		await this.api.services.messager.publish(
+		await this.api.services.broadcaster.publish(
 			message,
 			channel,
 			{ request: options.request }

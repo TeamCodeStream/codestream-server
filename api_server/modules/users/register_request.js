@@ -276,7 +276,7 @@ class RegisterRequest extends RestfulRequest {
 			user: this.user,
 			data: this.user.getSanitizedObject({ request: this }),
 			request: this,
-			messager: this.api.services.messager
+			broadcaster: this.api.services.broadcaster
 		}).publishUserToTeams();
 	}
 

@@ -67,7 +67,7 @@ class CloseRequest extends RestfulRequest {
 		const channel = `user-${this.user.id}`;
 		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this }

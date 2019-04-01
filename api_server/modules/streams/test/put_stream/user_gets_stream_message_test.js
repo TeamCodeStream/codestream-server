@@ -1,7 +1,7 @@
 'use strict';
 
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const AddUserTest = require('./add_user_test');
 const CommonInit = require('./common_init');
 
@@ -17,7 +17,7 @@ class UserGetsStreamMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 			if (error) { return callback(error); }
 			// we expect the message on the added user's me-channel
 			this.currentUserToken = this.token;
-			this.messagerToken = this.users[2].messagerToken;
+			this.broadcasterToken = this.users[2].broadcasterToken;
 			this.currentUser = this.users[2];
 			callback();
 		});

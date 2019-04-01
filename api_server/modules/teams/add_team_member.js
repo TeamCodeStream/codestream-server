@@ -99,7 +99,7 @@ class AddTeamMember  {
 	async grantUserMessagingPermissions () {
 		const granterOptions = {
 			data: this.data,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			team: this.team,
 			members: [this.addUser],
 			request: this.request

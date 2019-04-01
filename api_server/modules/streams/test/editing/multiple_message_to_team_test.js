@@ -1,7 +1,7 @@
 'use strict';
 
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const MultipleCommonInit = require('./multiple_common_init');
 
 class MultipleMessageToTeamTest extends Aggregation(CodeStreamMessageTest, MultipleCommonInit) {

@@ -1,6 +1,6 @@
 'use strict';
 
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const Assert = require('assert');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
@@ -51,7 +51,7 @@ class TrackTokenDeprecatedTest extends CodeStreamMessageTest {
 				};
 				this.currentUser = { 
 					user,
-					messagerToken: user.id
+					broadcasterToken: user.id
 				};
 				callback();
 			}

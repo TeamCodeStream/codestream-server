@@ -49,7 +49,7 @@ const EXPECTED_LOGIN_RESPONSE = {
 	user: EXPECTED_USER_FIELDS,
 	accessToken: true,
 	pubnubToken: true,
-	messagerToken: true,
+	broadcasterToken: true,
 	pubnubKey: true,
 	providers: true,
 	teams: true,

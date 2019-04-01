@@ -1,4 +1,4 @@
-// handle publishing a new repo to the messager channel appropriate for the request
+// handle publishing a new repo to the broadcaster channel appropriate for the request
 
 'use strict';
 
@@ -48,7 +48,7 @@ class RepoPublisher {
 			};
 		}
 		try {
-			await this.messager.publish(
+			await this.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request }
@@ -95,7 +95,7 @@ class RepoPublisher {
 		const teamId = this.team.id;
 		const channel = 'team-' + teamId;
 		try {
-			await this.messager.publish(
+			await this.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request	}

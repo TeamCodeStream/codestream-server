@@ -48,7 +48,7 @@ class PutCodemarkRequest extends PutRequest {
 		await this.publishCodemark();
 	}
 
-	// publish the codemark to the appropriate messager channel(s)
+	// publish the codemark to the appropriate broadcaster channel(s)
 	async publishCodemark () {
 		await new CodemarkPublisher({
 			codemark: this.codemark,

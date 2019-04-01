@@ -15,7 +15,7 @@ class MessageToAuthorTest extends NewPostMessageToChannelTest {
 		// since the update message will come back on the creator's me-channel
 		super.makeData(() => {
 			this.currentUser = this.users[1];
-			this.messagerToken = this.users[1].messagerToken;
+			this.broadcasterToken = this.users[1].broadcasterToken;
 			this.useToken = this.users[1].accessToken;
 			this.updatedAt = Date.now();
 			callback();

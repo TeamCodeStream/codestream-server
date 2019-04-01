@@ -63,7 +63,7 @@ class JoinRequest extends RestfulRequest {
 	async grantUserMessagingPermissions () {
 		const granterOptions = {
 			data: this.data,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			stream: this.stream,
 			members: [this.user],
 			request: this
@@ -76,12 +76,12 @@ class JoinRequest extends RestfulRequest {
 		}
 	}
 
-	// publish the stream to the appropriate messager channel
+	// publish the stream to the appropriate broadcaster channel
 	async publishStream () {
 		await new StreamPublisher({
 			data: this.responseData,
 			request: this,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			stream: this.stream.attributes
 		}).publishStream();
 	}

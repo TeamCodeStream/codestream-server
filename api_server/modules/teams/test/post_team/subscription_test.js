@@ -24,19 +24,19 @@ class SubscriptionTest extends CodeStreamAPITest {
 	}
 
 	after (callback) {
-		this.messagerClient.unsubscribeAll();
-		this.messagerClient.disconnect();
+		this.broadcasterClient.unsubscribeAll();
+		this.broadcasterClient.disconnect();
 		super.after(callback);
 	}
 
 	// run the test
 	async run (callback) {
 		// create a pubnub client and attempt to subscribe to the team channel
-		this.messagerClient = this.createMessagerClient();
-		this.messagerClient.init();
+		this.broadcasterClient = this.createBroadcasterClient();
+		this.broadcasterClient.init();
 		const channel = `team-${this.team.id}`;
 		try {
-			await this.messagerClient.subscribe(
+			await this.broadcasterClient.subscribe(
 				channel,
 				() => {}
 			);
@@ -47,7 +47,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		}
 	}
 
-	createMessagerClient () {
+	createBroadcasterClient () {
 		if (this.usingSocketCluster) {
 			return this.createSocketClusterClient();
 		}
@@ -57,10 +57,10 @@ class SubscriptionTest extends CodeStreamAPITest {
 	}
 
 	createSocketClusterClient () {
-		const { user, messagerToken } = this.currentUser;
+		const { user, broadcasterToken } = this.currentUser;
 		const config = Object.assign({}, SocketClusterConfig, {
 			uid: user.id,
-			authKey: messagerToken 
+			authKey: broadcasterToken 
 		});
 		return new SocketClusterClient(config);
 	}
@@ -71,7 +71,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser.user.id;
-		clientConfig.authKey = this.currentUser.messagerToken;
+		clientConfig.authKey = this.currentUser.broadcasterToken;
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
 			clientConfig.serverId = IpcConfig.serverId;

@@ -15,12 +15,12 @@ class PostStreamRequest extends PostRequest {
 
 	// after the post is created...
 	async postProcess () {
-		// publish the stream to the appropriate messager channel
+		// publish the stream to the appropriate broadcaster channel
 		await new StreamPublisher({
 			data: this.responseData,
 			stream: this.responseData.stream,
 			request: this,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			isNew: true
 		}).publishStream();
 	}

@@ -1,4 +1,4 @@
-// provides a messager service to the API server, this allows messages to be sent
+// provides a pub-sub broadcaster service to the API server, this allows messages to be sent
 // from server to client (and possibly received from client to server) through pubnub
 'use strict';
 
@@ -9,11 +9,11 @@ const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_p
 const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
 const OS = require('os');
 
-class Messager extends APIServerModule {
+class Broadcaster extends APIServerModule {
 
 	services () {
 		// return a function that, when invoked, returns a service structure with the pubnub client as
-		// the messager service
+		// the broadcaster service
 		return async () => {
 			if (this.api.config.socketCluster && this.api.config.socketCluster.port) {
 				return await this.connectToSocketCluster();
@@ -22,7 +22,7 @@ class Messager extends APIServerModule {
 				return await this.connectToPubNub();
 			}
 			else {
-				return this.api.warn('No messager configuration supplied, messaging will not be available');
+				return this.api.warn('No broadcaster configuration supplied, messaging will not be available');
 			}
 		};
 	}
@@ -32,11 +32,11 @@ class Messager extends APIServerModule {
 		const config = Object.assign({}, this.api.config.socketCluster, {
 			logger: this.api,
 			uid: 'API',
-			authKey: this.api.config.secrets.messager
+			authKey: this.api.config.secrets.broadcaster
 		});
 		this.socketClusterClient = new SocketClusterClient(config);
 		await this.socketClusterClient.init();
-		return { messager: this.socketClusterClient };
+		return { broadcaster: this.socketClusterClient };
 	}
 
 	async connectToPubNub () {
@@ -50,7 +50,7 @@ class Messager extends APIServerModule {
 		if (!this.api.config.api.mockMode) {
 			this.pubnubClient.init();
 		}
-		return { messager: this.pubnubClient };
+		return { broadcaster: this.pubnubClient };
 	}
 
 	async initialize () {
@@ -74,4 +74,4 @@ class Messager extends APIServerModule {
 	}
 }
 
-module.exports = Messager;
+module.exports = Broadcaster;

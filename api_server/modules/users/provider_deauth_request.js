@@ -87,7 +87,7 @@ class ProviderDeauthRequest extends RestfulRequest {
 		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
 		const channel = `user-${this.user.id}`;
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this }

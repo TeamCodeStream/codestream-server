@@ -69,7 +69,7 @@ class ReadRequest extends RestfulRequest {
 		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
 		Object.assign(message.user, this.op);
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this	}

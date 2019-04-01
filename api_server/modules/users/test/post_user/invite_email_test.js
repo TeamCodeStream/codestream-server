@@ -2,7 +2,7 @@
 
 'use strict';
 
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CommonInit = require('./common_init');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
@@ -41,7 +41,7 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					if (error) { return callback(error); }
 					this.userCreator = this.currentUser.user;
 					this.currentUser = {
-						messagerToken: response.user.id,
+						broadcasterToken: response.user.id,
 						user: response.user
 					};
 					callback();

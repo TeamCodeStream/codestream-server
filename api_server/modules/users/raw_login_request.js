@@ -40,7 +40,7 @@ class RawLoginRequest extends RestfulRequest {
 					pubnubKey: '<subscribe key to use for connecting to PubNub>',
 					pubnubToken: '<user\'s token for subscribing to PubNub channels>',
 					providers: '<info structures with available third-party providers>',
-					messagerToken: '<user\'s token for subscribing to real-time messaging channels>',
+					broadcasterToken: '<user\'s token for subscribing to real-time messaging channels>',
 					teams: [
 						'<@@#team object#team@@>',
 						'...'

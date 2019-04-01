@@ -82,7 +82,7 @@ class DeleteCodemarkRequest extends DeleteRequest {
 		await this.publishMarkers();
 	}
 
-	// publish the codemark to the appropriate messager channel
+	// publish the codemark to the appropriate broadcaster channel
 	async publishCodemark () {
 		const message = Object.assign({}, this.responseData, {
 			requestId: this.request.id
@@ -98,7 +98,7 @@ class DeleteCodemarkRequest extends DeleteRequest {
 			channel = `stream-${this.stream.id}`;
 		}
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this }
@@ -127,7 +127,7 @@ class DeleteCodemarkRequest extends DeleteRequest {
 		};
 		const channel = `team-${this.team.id}`;
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request }

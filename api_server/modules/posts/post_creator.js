@@ -307,7 +307,7 @@ class PostCreator extends ModelCreator {
 			requestId: this.request.request.id
 		};
 		try {
-			await this.request.api.services.messager.publish(
+			await this.request.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request }
@@ -332,17 +332,17 @@ class PostCreator extends ModelCreator {
 			stream: sanitizedStream,
 			data: { stream: sanitizedStream },
 			request: this.request,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			isNew: true
 		}).publishStream();
 	}
 	
-	// publish the post to the appropriate messager channel
+	// publish the post to the appropriate broadcaster channel
 	async publishPost () {
 		await new PostPublisher({
 			request: this.request,
 			data: this.request.responseData,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			stream: this.stream.attributes
 		}).publishPost();
 	}
@@ -361,7 +361,7 @@ class PostCreator extends ModelCreator {
 		await new PostPublisher({
 			request: this.request,
 			data,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			stream: this.stream.attributes	// assuming stream for the parent post is the same as for the reply
 		}).publishPost();
 	}
@@ -398,7 +398,7 @@ class PostCreator extends ModelCreator {
 			user: this.transforms.updatePostCountOp
 		};
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request }

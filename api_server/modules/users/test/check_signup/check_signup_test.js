@@ -55,7 +55,7 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(data.accessToken, 'no access token');
 		Assert(data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
-		Assert(data.messagerToken, 'no messager token');
+		Assert(data.broadcasterToken, 'no broadcaster token');
 		Assert(data.teams.length === 1, 'no team in response');
 		this.validateMatchingObject(this.team.id, data.teams[0], 'team');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);

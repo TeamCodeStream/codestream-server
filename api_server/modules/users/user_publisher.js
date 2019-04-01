@@ -22,7 +22,7 @@ class UserPublisher {
 			users: [this.data]
 		};
 		try {
-			await this.messager.publish(
+			await this.broadcaster.publish(
 				message,
 				'team-' + teamId,
 				{ request: this.request }

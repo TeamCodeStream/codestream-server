@@ -25,13 +25,13 @@ class PutUserRequest extends PutRequest {
 		await this.publishUser();
 	}
 
-	// publish the user to the appropriate messager channel(s)
+	// publish the user to the appropriate broadcaster channel(s)
 	async publishUser () {
 		await new UserPublisher({
 			user: this.user,
 			data: this.responseData.user,
 			request: this,
-			messager: this.api.services.messager
+			broadcaster: this.api.services.broadcaster
 		}).publishUserToTeams();
 	}
 

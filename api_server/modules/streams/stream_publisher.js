@@ -1,4 +1,4 @@
-// handle publishing a new stream to the messager channel appropriate for the stream
+// handle publishing a new stream to the broadcaster channel appropriate for the stream
 
 'use strict';
 
@@ -35,7 +35,7 @@ class StreamPublisher {
 		const channel = 'team-' + teamId;
 		const message = Object.assign({}, this.data, { requestId: this.request.request.id });
 		try {
-			await this.messager.publish(
+			await this.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request }
@@ -64,7 +64,7 @@ class StreamPublisher {
 		const channel = 'user-' + userId;
 		const message = Object.assign({}, this.data, { requestId: this.request.request.id });
 		try {
-			await this.messager.publish(
+			await this.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request	}
@@ -81,7 +81,7 @@ class StreamPublisher {
 		const channel = 'stream-' + this.stream.id;
 		const message = Object.assign({}, this.data, { requestId: this.request.request.id });
 		try {
-			await this.messager.publish(
+			await this.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request }

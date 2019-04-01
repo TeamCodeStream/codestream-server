@@ -144,7 +144,7 @@ class APIRequestTest extends GenericTest {
 			requestOptions.headers['X-CS-Block-Email-Sends'] = true;
 		}
 		if (!options.reallySendMessages && !this.reallySendMessages) {
-			// since we're just doing testing, block actual messages from going out over the messager
+			// since we're just doing testing, block actual messages from going out over the broadcaster
 			requestOptions.headers['X-CS-Block-Message-Sends'] = true;
 		}
 		if (!options.reallyTrack) {

@@ -1,4 +1,4 @@
-// handle publishing a new post to the messager channel appropriate for the stream
+// handle publishing a new post to the broadcaster channel appropriate for the stream
 // in which the post was created
 
 'use strict';
@@ -29,7 +29,7 @@ class PostPublisher {
 			requestId: this.request.request.id
 		});
 		try {
-			await this.messager.publish(
+			await this.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request }

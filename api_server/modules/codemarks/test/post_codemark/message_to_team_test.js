@@ -3,7 +3,7 @@
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const MarkerTest = require('./marker_test');
 const CommonInit = require('./common_init');
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 
 class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit, MarkerTest) {
 

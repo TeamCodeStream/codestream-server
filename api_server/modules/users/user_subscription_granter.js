@@ -1,4 +1,4 @@
-// handle granting permission to a given user to subscribe to various messager channels
+// handle granting permission to a given user to subscribe to various broadcaster channels
 
 'use strict';
 
@@ -93,12 +93,12 @@ class UserSubscriptionGranter  {
 		if (this.user.get('isRegistered')) {
 			tokens.push(this.user.getAccessToken());
 		}
-		if (this.user.get('messagerToken')) {
-			tokens.push(this.user.get('messagerToken'));
+		if (this.user.get('broadcasterToken')) {
+			tokens.push(this.user.get('broadcasterToken'));
 		}
 		try {
 			await Promise.all(tokens.map(async token => {
-				await this.messager.grantMultiple(
+				await this.broadcaster.grantMultiple(
 					token,
 					this.channels,
 					{ request: this.request }

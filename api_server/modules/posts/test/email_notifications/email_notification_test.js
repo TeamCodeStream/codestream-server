@@ -3,7 +3,7 @@
 'use strict';
 
 var Assert = require('assert');
-var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Path = require('path');
 const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
@@ -32,7 +32,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			return callback();	// not requested for this test
 		}
 		let channel = `team-${this.team.id}`;
-		await this.messagerClientsForUser[this.currentUser.id].subscribe(
+		await this.broadcasterClientsForUser[this.currentUser.id].subscribe(
 			channel,
 			() => {}
 		);
@@ -45,7 +45,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 			return callback();	// not requested for this test
 		}
 		let channel = `repo-${this.repo.id}`;
-		await this.messagerClientsForUser[this.currentUser.id].subscribe(
+		await this.broadcasterClientsForUser[this.currentUser.id].subscribe(
 			channel,
 			() => {}
 		);
@@ -190,13 +190,13 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		if (this.wantRegisteredUser) {
 			// we want a registered user to get the email
 			this.currentUser = this.otherUserData.user;
-			this.messagerToken = this.otherUserData.messagerToken;
+			this.broadcasterToken = this.otherUserData.broadcasterToken;
 		}
 		else if (!this.creatorIsListener) {
 			// we want an unregistered user to the get the email,
 			// otherwise the current user will stay the same, meaning the user that will create the post
 			this.currentUser = this.unregisteredUser;
-			this.messagerToken = this.unregisteredUser.id;
+			this.broadcasterToken = this.unregisteredUser.id;
 		}
 		callback();
 	}

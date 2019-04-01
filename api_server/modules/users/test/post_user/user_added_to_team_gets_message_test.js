@@ -1,7 +1,7 @@
 'use strict';
 
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const CommonInit = require('./common_init');
 const Assert = require('assert');
 
@@ -23,11 +23,11 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 	}
 
 	// establish the PubNub clients we will use to send and receive a message
-	makeMessagerForClient (callback) {
+	makeBroadcasterForClient (callback) {
 		// need the right token to subscribe to the existing user's me-channel
 		this.currentUser = this.existingUserData;
 		this.currentUserToken = this.token;
-		super.makeMessagerForClient(callback);
+		super.makeBroadcasterForClient(callback);
 	}
 
 	// set the name of the channel we expect to receive a message on

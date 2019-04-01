@@ -1,6 +1,6 @@
 'use strict';
 
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const RandomString = require('randomstring');
 const User = require(process.env.CS_API_TOP + '/modules/users/user');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');

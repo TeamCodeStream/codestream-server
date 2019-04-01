@@ -1,4 +1,4 @@
-// handles granting permission to the users in a team to subscribe to the team's messager channel
+// handles granting permission to the users in a team to subscribe to the team's broadcaster channel
 
 'use strict';
 
@@ -24,7 +24,7 @@ class TeamSubscriptionGranter  {
 			this.team.get('memberIds') || [],
 			{
 				// only need these fields
-				fields: ['isRegistered', 'accessToken', 'accessTokens', 'messagerToken']
+				fields: ['isRegistered', 'accessToken', 'accessTokens', 'broadcasterToken']
 			}
 		);
 	}
@@ -36,8 +36,8 @@ class TeamSubscriptionGranter  {
 			if (user.get('isRegistered')) {
 				tokens.push(user.getAccessToken());
 			}
-			if (user.get('messagerToken')) {
-				tokens.push(user.get('messagerToken'));
+			if (user.get('broadcasterToken')) {
+				tokens.push(user.get('broadcasterToken'));
 			}
 			return tokens;
 		}, []);
@@ -51,7 +51,7 @@ class TeamSubscriptionGranter  {
 		const channel = 'team-' + this.team.id;
 		const func = this.revoke ? 'revoke' : 'grant';
 		try {
-			await this.messager[func](
+			await this.broadcaster[func](
 				this.tokens,
 				channel,
 				{

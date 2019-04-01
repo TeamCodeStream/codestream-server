@@ -230,7 +230,7 @@ class ConfirmRequest extends RestfulRequest {
 			user: this.user,
 			data: this.user.getSanitizedObject({ request: this }),
 			request: this,
-			messager: this.api.services.messager
+			broadcaster: this.api.services.broadcaster
 		}).publishUserToTeams();
 	}
 
@@ -276,7 +276,7 @@ class ConfirmRequest extends RestfulRequest {
 					pubnubKey: '<subscribe key to use for connecting to PubNub>',
 					pubnubToken: '<user\'s token for subscribing to PubNub channels>',
 					providers: '<info structures with available third-party providers>',
-					messagerToken: '<user\'s token for subscribing to real-time messaging channels>',
+					broadcastToken: '<user\'s token for subscribing to real-time messaging channels>',
 					teams: [
 						'<@@#team object#team@@>',
 						'...'

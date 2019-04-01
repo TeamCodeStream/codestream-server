@@ -1,4 +1,4 @@
-// handles granting permission to the users in a stream to subscribe to the messager channel
+// handles granting permission to the users in a stream to subscribe to the broadcaster channel
 // appropriate to the stream
 
 'use strict';
@@ -25,7 +25,7 @@ class StreamSubscriptionGranter  {
 			this.stream.get('memberIds') || [],
 			{
 				// only need these fields
-				fields: ['isRegistered', 'accessToken', 'accessTokens', 'messagerToken']
+				fields: ['isRegistered', 'accessToken', 'accessTokens', 'broadcasterToken']
 			}
 		);
 	}
@@ -37,8 +37,8 @@ class StreamSubscriptionGranter  {
 			if (user.get('isRegistered')) {
 				tokens.push(user.getAccessToken());
 			}
-			if (user.get('messagerToken')) {
-				tokens.push(user.get('messagerToken'));
+			if (user.get('broadcasterToken')) {
+				tokens.push(user.get('broadcasterToken'));
 			}
 			return tokens;
 		}, []);
@@ -52,7 +52,7 @@ class StreamSubscriptionGranter  {
 		const channel = 'stream-' + this.stream.id;
 		const func = this.revoke ? 'revoke' : 'grant';
 		try {
-			await this.messager[func](
+			await this.broadcaster[func](
 				this.tokens,
 				channel,
 				{ 

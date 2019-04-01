@@ -1,5 +1,5 @@
 // handle the "PUT /grant/:channel" request to explicitly grant access to particular
-// messager channels ... this is a failsafe initiated by the client when subscription
+// broadcaster channels ... this is a failsafe initiated by the client when subscription
 // to a partciular channel is failing
 
 'use strict';
@@ -116,11 +116,11 @@ class GrantRequest extends RestfulRequest {
 		if (this.user.get('isRegistered')) {
 			tokens.push(this.user.getAccessToken());
 		}
-		if (this.user.get('messagerToken')) {
-			tokens.push(this.user.get('messagerToken'));
+		if (this.user.get('broadcasterToken')) {
+			tokens.push(this.user.get('broadcasterToken'));
 		}
 		try {
-			await this.api.services.messager.grant(
+			await this.api.services.broadcaster.grant(
 				tokens,
 				channel,
 				{

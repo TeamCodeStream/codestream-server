@@ -77,7 +77,7 @@ class ReactRequest extends RestfulRequest {
 		await this.publishUpdate();
 	}
 
-	// publish the update to the appropriate messager channel
+	// publish the update to the appropriate broadcaster channel
 	async publishUpdate () {
 		const stream = await this.data.streams.getById(this.post.get('streamId'));
 		if (!stream) {
@@ -86,7 +86,7 @@ class ReactRequest extends RestfulRequest {
 		await new PostPublisher({
 			data: this.responseData,
 			request: this,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			stream: stream.attributes
 		}).publishPost();
 	}

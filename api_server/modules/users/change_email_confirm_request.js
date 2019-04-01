@@ -122,7 +122,7 @@ class ChangeEmailConfirmRequest extends RestfulRequest {
 			user: this.user,
 			data: this.responseData.user,
 			request: this,
-			messager: this.api.services.messager
+			broadcaster: this.api.services.broadcaster
 		}).publishUserToTeams();
 	}
 

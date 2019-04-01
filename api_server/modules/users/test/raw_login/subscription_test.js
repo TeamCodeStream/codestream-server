@@ -5,7 +5,7 @@ const PubNub = require('pubnub');
 const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
 const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 const IpcConfig = require(process.env.CS_API_TOP + '/config/ipc');
-const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client.js');
+const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
 const SocketClusterConfig = require(process.env.CS_API_TOP + '/config/socketcluster');
 const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
 const Assert = require('assert');
@@ -34,8 +34,8 @@ class SubscriptionTest extends LoginTest {
 	}
 
 	after (callback) {
-		this.messagerClient.unsubscribeAll();
-		this.messagerClient.disconnect();
+		this.broadcasterClient.unsubscribeAll();
+		this.broadcasterClient.disconnect();
 		super.after(callback);
 	}
 
@@ -52,7 +52,7 @@ class SubscriptionTest extends LoginTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.user = response.user;
-				this.messagerToken = response.messagerToken;
+				this.broadcasterToken = response.broadcasterToken;
 				callback();
 			}
 		);
@@ -67,11 +67,11 @@ class SubscriptionTest extends LoginTest {
 	// run the actual test...
 	async run (callback) {
 		// create a pubnub client and attempt to subscribe to the channel of interest
-		this.messagerClient = this.createMessagerClient();
-		this.messagerClient.init();
+		this.broadcasterClient = this.createBroadcasterClient();
+		this.broadcasterClient.init();
 		let channel = `${this.which}-${this[this.which].id}`;
 		try {
-			await this.messagerClient.subscribe(
+			await this.broadcasterClient.subscribe(
 				channel,
 				() => {}
 			);
@@ -82,7 +82,7 @@ class SubscriptionTest extends LoginTest {
 		}
 	}
 
-	createMessagerClient () {
+	createBroadcasterClient () {
 		if (this.usingSocketCluster) {
 			return this.createSocketClusterClient();
 		}
@@ -94,7 +94,7 @@ class SubscriptionTest extends LoginTest {
 	createSocketClusterClient () {
 		const config = Object.assign({}, SocketClusterConfig, {
 			uid: this.user.id,
-			authKey: this.messagerToken 
+			authKey: this.broadcasterToken 
 		});
 		return new SocketClusterClient(config);
 	}
@@ -105,7 +105,7 @@ class SubscriptionTest extends LoginTest {
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.user._pubnubUuid || this.user.id;
-		clientConfig.authKey = this.messagerToken;	// the PubNub token is the auth key for the subscription
+		clientConfig.authKey = this.broadcasterToken;	// the PubNub token is the auth key for the subscription
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
 			clientConfig.serverId = IpcConfig.serverId;

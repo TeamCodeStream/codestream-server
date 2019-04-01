@@ -3,7 +3,7 @@
 'use strict';
 
 const Assert = require('assert');
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/messager/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
@@ -49,7 +49,7 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 				if (error) { return callback(error); }
 				this.currentUser = {
 					user: response.user,
-					messagerToken: response.user.id
+					broadcasterToken: response.user.id
 				};
 				this.originalToken = response.user.confirmationToken;
 				callback();

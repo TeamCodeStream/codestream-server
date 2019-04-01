@@ -66,7 +66,7 @@ class PutStreamRequest extends PutRequest {
 	async setUserMessagingPermissions (members, revoke = false) {
 		const granterOptions = {
 			data: this.data,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			stream: this.updater.stream,
 			members,
 			revoke,
@@ -80,17 +80,17 @@ class PutStreamRequest extends PutRequest {
 		}
 	}
 	
-	// publish the stream to the appropriate messager channel
+	// publish the stream to the appropriate broadcaster channel
 	async publishStream () {
 		await new StreamPublisher({
 			data: this.responseData,
 			request: this,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			stream: this.updater.stream.attributes
 		}).publishStream();
 	}
 
-	// publish the stream to the messager channel for any users that have been added to the stream
+	// publish the stream to the broadcaster channel for any users that have been added to the stream
 	async publishToUsers () {
 		const stream = await this.data.streams.getById(this.updater.stream.id);
 		// only applies to private streams, and only if there are users added
@@ -105,7 +105,7 @@ class PutStreamRequest extends PutRequest {
 		await new StreamPublisher({
 			data: { stream: stream.getSanitizedObject({ request: this }) },
 			request: this,
-			messager: this.api.services.messager,
+			broadcaster: this.api.services.broadcaster,
 			stream: this.updater.stream.attributes
 		}).publishStreamToUsers(userIds);
 	}
@@ -126,7 +126,7 @@ class PutStreamRequest extends PutRequest {
 		};
 		const channel = `user-${updateOp.id}`;
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this }
