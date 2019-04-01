@@ -1,3 +1,3 @@
 [submodule "codestream/server_utils"]
 	path = codestream/server_utils
-	url = https://github.com/TeamCodeStream/server_utils.git
+	url = git@github.com:teamcodestream/server_utils.git
