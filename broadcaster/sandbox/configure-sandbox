@@ -1,0 +1,86 @@
+#!/bin/bash
+
+[ -z "$1" ] && echo "Do not run this script directly. Run dt-configure-sandbox instead." && exit 1
+
+# argument:
+#   configure         normal configuration mode. Run on a clean install or reconfigure (mode = configure)
+#   git_hook          run from within a git hook (mode = git_hook)
+#   deploy            run from within a deployment (dt-build)
+#   configureNoAbort  configuration mode but don't abort early if there's a build failure (mode = configure)
+mode=""
+abort_on_fail=1
+[ "$1" == "git-hook" ] && mode=git_hook
+[ "$1" == "configure" ] && mode=configure
+[ "$1" == "deploy" ] && mode=deploy
+[ "$1" == "configureNoAbort" ] && mode=configure && abort_on_fail=0
+[ -z "$mode" ] && echo "Error: bad configure mode" && exit 1
+
+# This script is called as a hook (from dt-configure-sandbox, deployment script, git hook, ...).
+# DO NOT CALL IT DIRECTLY.
+#
+# Place any commands needed to prepare the sandbox for use here. Assume the
+# environment is set
+
+cd $CS_BROADCASTER_TOP
+
+# Install git submodules
+[ -f .gitmodules ] && echo "Updating submodules" && git submodule update --init --recursive
+
+# Exmaple: expanding templates
+# $DT_TOP/bin/create-file-from-template.py -t $XYZ_SANDBOX/git_project/etc/httpd.conf.template -o $XYZ_SANDBOX/conf/httpd.conf
+
+# If the sandbox uses node, wipe the node_modules and re-install during re-configuration
+if [ -f $CS_BROADCASTER_TOP/package.json -a -n "$CS_BROADCASTER_NODE_VER" ]; then
+	[ -d $CS_BROADCASTER_TOP/node_modules ] && /bin/rm -rf $CS_BROADCASTER_TOP/node_modules
+	if [ "$CS_BROADCASTER_YARN" == true ]; then
+		[ ! -f $CS_BROADCASTER_TOP/yarn.lock ] && echo "WARNING: yarn.lock not found - creating one"
+		echo "yarn install (from `pwd`)"
+		yarn install --frozen-lockfile
+		[ $? -ne 0 ] && echo "yarn install failed" && [ $abort_on_fail -eq 1 ] && exit 1
+	else
+		echo "npm install --no-save (from `pwd`)"
+		npm install --no-save
+		[ $? -ne 0 ] && echo "npm install failed" && [ $abort_on_fail -eq 1 ] && exit 1
+	fi
+fi
+
+# Optional NPM package integrity check
+# To set this integrtity check up, you must manually create (and maintain) a file containing
+# a list of packages whenever you make changes:
+#    cd $CS_BROADCASTER_TOP
+#    npm ls | grep -v ^CodeStream_Server@ >sandbox/package-versions.txt
+#
+#
+# if [ -f sandbox/package-versions.txt ]; then
+# 	tmpfile=/tmp/junk$$
+# 	npm ls |grep -v ^CodeStream_Server@ >$tmpfile
+# 	x=`diff sandbox/package-versions.txt $tmpfile|wc -l`
+# 	if [ $x -gt 0 ]; then
+# 		echo "***************************************************************************"
+# 		echo "   ERROR: package tree looks different than sandbox/package-versions.txt"
+# 		echo "***************************************************************************"
+# 		[ $abort_on_fail -eq 1 ] && exit 1
+# 	else
+# 		echo "Package integrtity check looks good"
+# 	fi
+# 	/bin/rm $tmpfile
+# fi
+
+
+# Add git hooks as needed
+if [ -d "$CS_BROADCASTER_TOP/hooks" ]; then
+	echo -n "Installing git hooks as sym links"
+	cd $CS_BROADCASTER_TOP/.git/hooks
+	for hook in post-checkout post-merge post-rewrite
+	do
+		if [ -f $CS_BROADCASTER_TOP/hooks/$hook ]; then
+			echo -n "...$hook"
+			/bin/rm -f $hook
+			ln -sf ../../hooks/$hook
+		fi
+	done
+	echo "."
+fi
+
+# You must exit with a status of '0' if the script was successful or '1' otherwise.
+exit 0
