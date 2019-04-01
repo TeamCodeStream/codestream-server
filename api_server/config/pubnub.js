@@ -3,7 +3,11 @@
 'use strict';
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 let PubnubCfg = {};
+=======
+let PubnubCfg = {}
+>>>>>>> Stashed changes
 =======
 let PubnubCfg = {}
 >>>>>>> Stashed changes
