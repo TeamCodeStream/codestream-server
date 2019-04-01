@@ -1,0 +1,138 @@
+{
+	"apiProtocol": {
+		"port": {{ CS_API_PORT }},
+		"https": {
+			"keyfile": "{{ CS_API_SSL_KEYFILE }}",
+			"certfile": "{{ CS_API_SSL_CERTFILE }}",
+			"cafile": "{{ CS_API_SSL_CAFILE }}"
+		}
+	},
+	"apiServer": {
+		"confirmationNotRequired": "{{ CS_API_CONFIRMATION_NOT_REQUIRED }}",
+		"sessionAwayTimeout": 600000,
+		"helpIsAvailable": "{{ CS_API_HELP_AVAILABLE }}",
+		"forgotPasswordExpiration": 86400000,
+		"confirmationExpiration": 86400000,
+		"confirmCodeExpiration": 604800000,
+		"signupTokenExpiration": 600000,
+		"assetEnvironment": "{{ CS_API_ASSET_ENV }}",
+		"publicApiUrl": "{{ CS_API_PUBLIC_URL }}",
+		"authOrigin": "{{ CS_API_AUTH_ORIGIN }}",
+		"environment": "{{ CS_API_ENV }}",
+		"callbackEnvironment": "{{ CS_API_CALLBACK_ENV }}"
+	},
+	"webAppServer": {
+		"host": "{{ CS_API_WEB_CLIENT_ORIGIN }}",
+		"marketingHost": "{{ CS_API_MARKETING_SITE_URL }}"
+	},
+	"apiServerLogging": {
+		"directory": "{{ CS_API_LOG_DIRECTORY }}",
+		"consoleOk": "{{ CS_API_LOG_CONSOLE_OK }}",
+		"debugOk": "{{ CS_API_LOG_DEBUG }}"
+	},
+	"broadcastEngine": {
+		"pubnub": {
+			"publicKey": "{{ CS_API_PUBNUB_PUBLISH_KEY }}",
+			"subscribeKey": "{{ CS_API_PUBNUB_SUBSCRIBE_KEY }}",
+			"secretKey": "{{ CS_API_PUBNUB_SECRET }}",
+			"ssl": true,
+			"keepAlive": true,
+			"uuid": "CodeStreamServer"
+		}
+	},
+	"secrets": {
+		"auth": "{{ CS_API_AUTH_SECRET }}",
+		"cookie": "{{ CS_API_COOKIE_SECRET }}",
+		"confirmationCheat": "{{ CS_API_CONFIRMATION_CHEAT_CODE }}",
+		"subscriptionCheat": "{{ CS_API_SUBSCRIPTION_CHEAT_CODE }}",
+		"mail": "{{ CS_API_INBOUND_EMAIL_SECRET }}",
+		"telemetry": "{{ CS_API_PRE_AUTH_SECRET }}"
+	},
+	"integrations": {
+		"slack": {
+			"slack.com": {
+				"appClientId": "{{ CS_API_SLACK_CLIENT_ID }}",
+				"appClientSecret": "{{ CS_API_SLACK_CLIENT_SECRET }}"
+			}
+		},
+		"trello": {
+			"trello.com": {
+				"apiKey": "{{ CS_API_TRELLO_API_KEY }}"
+			}
+		},
+		"asana": {
+			"asana.com": {
+				"desc": "Asana Cloud Service OAuth Integration",
+				"appClientId": "{{ CS_API_ASANA_CLIENT_ID }}",
+				"appClientSecret": "{{ CS_API_ASANA_CLIENT_SECRET }}"
+			}
+		},
+		"bitbucket": {
+			"bitbucket.com": {
+				"desc": "BitBucket Cloud Service OAuth Integration",
+				"appClientId": "{{ CS_API_BITBUCKET_CLIENT_ID }}",
+				"appClientSecret": "{{ CS_API_BITBUCKET_CLIENT_SECRET }}"
+			}
+		},
+		"gitlab": {
+			"gitlab.com": {
+				"desc": "GitLab Cloud Service OAuth Integration",
+				"appClientId": "{{ CS_API_GITLAB_CLIENT_ID }}",
+				"appClientSecret": "{{ CS_API_GITLAB_CLIENT_SECRET }}"
+			}
+		},
+		"glip": {
+			"glip.com": {
+				"desc": "Glip Cloud Service OAuth Integration",
+				"appClientId": "{{ CS_API_GLIP_CLIENT_ID }}",
+				"appClientSecret": "{{ CS_API_GLIP_CLIENT_SECRET }}"
+			}
+		},
+		"jira": {
+			"atlassian.com": {
+				"desc": "Jira Cloud Service OAuth Intregration",
+				"appClientId": "{{ CS_API_JIRA_CLIENT_ID }}",
+				"appClientSecret": "{{ CS_API_JIRA_SECRET }}"
+			}
+		},
+		"github": {
+			"github.com": {
+				"desc": "Github Cloud Service OAuth Integration",
+				"appClientId": "{{ CS_API_GITHUB_CLIENT_ID }}",
+				"appClientSecret": "{{ CS_API_GITHUB_CLIENT_SECRET }}"
+			},
+			"git.codestream.us": {
+				"desc": "Github Enterprise Server On-Prem OAuth Integration",
+				"appClientId": "{{ CS_API_GITHUB_ENTERPRISE_CLIENT_ID }}",
+				"appClientSecret": "{{ CS_API_GITHUB_ENTERPRISE_CLIENT_SECRET }}",
+				"localProvider": true
+			}
+		},
+		"msteams": {
+			"microsoft.com": {
+				"desc": "MS Teams Cloud Service Oauth Integration",
+				"appClientId": "{{ CS_API_MSTEAMS_CLIENT_ID }}",
+				"appClientSecret": "{{ CS_API_MSTEAMS_CLIENT_SECRET }}"
+			}
+		}
+	},
+	"segment": {
+		"token": "{{ CS_API_SEGMENT_TOKEN }}",
+		"webToken": "{{ CS_API_SEGMENT_WEB_TOKEN }}"
+	},
+	"aws": {
+		"region": "us-east-1",
+		"sqs": {
+			"outboundEmailQueueName": "{{ CS_API_OUTBOUND_EMAIL_SQS }}"
+		}
+	},
+	"mongo": {
+		"url": "{{ CS_API_MONGO_URL }}",
+		"database": "{{ CS_API_MONGO_DATABASE }}"
+	},
+	"email": {
+		"replyToDomain": "{{ CS_API_REPLY_TO_DOMAIN }}",
+		"notificationInterval": {{ CS_API_EMAIL_NOTIFICATION_INTERVAL }},
+		"suppressEmails": true
+	}
+}
