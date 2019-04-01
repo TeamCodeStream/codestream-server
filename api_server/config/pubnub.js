@@ -2,15 +2,7 @@
 
 'use strict';
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 let PubnubCfg = {};
-=======
-let PubnubCfg = {}
->>>>>>> Stashed changes
-=======
-let PubnubCfg = {}
->>>>>>> Stashed changes
 if (process.env.CS_API_CFG_FILE) {
 	PubnubCfg = require(process.env.CS_API_CFG_FILE).broadcastEngine.pubnub;
 }
