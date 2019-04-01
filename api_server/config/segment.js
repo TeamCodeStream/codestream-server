@@ -2,7 +2,15 @@
 
 'use strict';
 
-module.exports = {
-	token: process.env.CS_API_SEGMENT_TOKEN,
-	webToken: process.env.CS_API_SEGMENT_WEB_TOKEN
-};
+let SegmentCfg = {};
+if (process.env.CS_API_CFG_FILE) {
+	SegmentCfg = require(process.env.CS_API_CFG_FILE).segment;
+}
+else {
+	SegmentCfg = {
+		token: process.env.CS_API_SEGMENT_TOKEN,
+		webToken: process.env.CS_API_SEGMENT_WEB_TOKEN
+	};
+}
+
+module.exports = SegmentCfg;

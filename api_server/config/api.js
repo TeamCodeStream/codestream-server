@@ -2,76 +2,84 @@
 
 'use strict';
 
-module.exports = {
-	// avoid the email configuration by setting this env var
-	confirmationNotRequired: process.env.CS_API_CONFIRMATION_NOT_REQUIRED,	 
+let ApiCfg = {};
+if (process.env.CS_API_CFG_FILE) {
+	ApiCfg = require(process.env.CS_API_CFG_FILE).apiServer;
+	ApiCfg.mockMode = false;
+}
+else {
+	ApiCfg = {
+		// avoid the email configuration by setting this env var
+		confirmationNotRequired: process.env.CS_API_CONFIRMATION_NOT_REQUIRED,
 
-	// how long before we call a user "away" from keyboard
-	sessionAwayTimeout: parseInt(process.env.CS_API_SESSION_AWAY_TIMEOUT || 10 * 60 * 1000, 10),	
+		// how long before we call a user "away" from keyboard
+		sessionAwayTimeout: parseInt(process.env.CS_API_SESSION_AWAY_TIMEOUT || 10 * 60 * 1000, 10),
 
-	// matching these paths means Authorization header is not required
-	unauthenticatedPaths: ['^\\/no-auth\\/', '^\\/robots\\.txt$'],	
+		// if this is set, API server /help is available
+		helpIsAvailable: process.env.CS_API_HELP_AVAILABLE,
 
-	// matching these paths means Authorization header is optional, behavior may vary
-	optionalAuthenticatedPaths: ['^\\/help(\\/|$)', '^\\/c\\/', '^\\/p\\/', '^\\/web\\/'],
-	
-	// matchines these paths means cookie authentication is required
-	cookieAuthenticatedPaths: ['^\\/c\\/', '^\\/web\\/'],
+		// how long a token for forgot-password remains valid
+		forgotPasswordExpiration: parseInt(process.env.CS_API_FORGOT_PASSWORD_EXPIRATION || 24 * 60 * 60 * 1000, 10),
 
-	// if this is set, API server /help is available
-	helpIsAvailable: process.env.CS_API_HELP_AVAILABLE,	
+		// how long a token for email confirmation remains valid
+		confirmationExpiration: parseInt(process.env.CS_API_CONFIRMATION_EXPIRATION || 24 * 60 * 60 * 1000, 10),
 
-	// how long a token for forgot-password remains valid
-	forgotPasswordExpiration: parseInt(process.env.CS_API_FORGOT_PASSWORD_EXPIRATION || 24 * 60 * 60 * 1000, 10),	
+		// how long a confirmation code remains valid
+		confirmCodeExpiration: parseInt(process.env.CS_API_CONFIRM_CODE_EXPIRATION || 7 * 24 * 60 * 60 * 1000, 10),
 
-	// how long a token for email confirmation remains valid
-	confirmationExpiration: parseInt(process.env.CS_API_CONFIRMATION_EXPIRATION || 24 * 60 * 60 * 1000, 10),	
+		// how long a signup token issued by the IDE for a user to signup on web remains valid
+		signupTokenExpiration: parseInt(process.env.CS_API_SIGNUP_TOKEN_EXPIRATION || 10 * 60 * 1000, 10),
 
-	// how long a confirmation code remains valid
-	confirmCodeExpiration: parseInt(process.env.CS_API_CONFIRM_CODE_EXPIRATION || 7 * 24 * 60 * 60 * 1000, 10),
+		// environment for purposes of returning the correct asset URL for downloading the latest extension
+		// (supports only vscode right now, TBD how to deal with multiple IDEs)
+		assetEnvironment: process.env.CS_API_ASSET_ENV || 'prod',
 
-	// how long a signup token issued by the IDE for a user to signup on web remains valid
-	signupTokenExpiration: parseInt(process.env.CS_API_SIGNUP_TOKEN_EXPIRATION || 10 * 60 * 1000, 10),
+		// public url to access the API server from "beyond"
+		publicApiUrl: process.env.CS_API_PUBLIC_URL || 'https://api.codestream.com',
 
-	// environment for purposes of returning the correct asset URL for downloading the latest extension
-	// (supports only vscode right now, TBD how to deal with multiple IDEs)
-	assetEnvironment: process.env.CS_API_ASSET_ENV || 'prod',
+		// origin to use for third-party auth callbacks
+		authOrigin: process.env.CS_API_AUTH_ORIGIN || 'https://auth.codestream.com/no-auth/prod',
 
-	// public url to access the API server from "beyond"
-	publicApiUrl: process.env.CS_API_PUBLIC_URL || 'https://api.codestream.com',
+		// environment, please use this configuration value sparingly, really anything that depends
+		// on environment should have its own environment variable instead
+		environment: process.env.CS_API_ENV || 'prod',
 
-	// origin to use for third-party auth callbacks
-	authOrigin: process.env.CS_API_AUTH_ORIGIN || 'https://auth.codestream.com/no-auth/prod',
+		// callback environment, slightly different than environment, allows for callbacks through
+		// VPN to developers' local servers
+		callbackEnvironment: process.env.CS_API_CALLBACK_ENV || 'prod',
 
-	// environment, please use this configuration value sparingly, really anything that depends 
-	// on environment should have its own environment variable instead
-	environment: process.env.CS_API_ENV || 'prod',
+		// runs in "mock mode" ... meaning nothing is saved to a database (it's all stored in memory),
+		// and PubNub is replaced by IPC, for testing purposes when tests are run on the same
+		// machine as the API server
+		mockMode: process.env.CS_API_MOCK_MODE || false,
 
-	// callback environment, slightly different than environment, allows for callbacks through
-	// VPN to developers' local servers
-	callbackEnvironment: process.env.CS_API_CALLBACK_ENV || 'prod',
+		// API server will not use any AWS services (on-prem mode)
+		dontWantAWS: process.env.CS_API_DONT_WANT_AWS || false
+	};
+}
 
-	// runs in "mock mode" ... meaning nothing is saved to a database (it's all stored in memory),
-	// and PubNub is replaced by IPC, for testing purposes when tests are run on the same
-	// machine as the API server
-	mockMode: process.env.CS_API_MOCK_MODE || false,
+// list of third-party providers available for integrations
+// this is a superset of what may actually be available in a given installation, given which
+// providers represent services that are enabled by configuration of the individual modules
+ApiCfg.thirdPartyProviders = [
+	'asana',
+	'azuredevops',
+	'bitbucket',
+	'github',
+	'gitlab',
+	'jira',
+	'slack',
+	'trello',
+	'youtrack'
+];
 
-	// list of third-party providers available for integrations
-	// this is a superset of what may actually be available in a given installation, given which
-	// providers represent services that are enabled by configuration of the individual modules
-	thirdPartyProviders: [
-		'asana',
-		'bitbucket',
-		'github',
-		'gitlab',
-		'jira',
-		'trello',
-		'youtrack',
-		'azuredevops',
-		'slack'
-	],
-	
-	// API server will not use any AWS services (on-prem mode)
-	dontWantAWS: process.env.CS_API_DONT_WANT_AWS || false,
-};
+// matching these paths means Authorization header is not required
+ApiCfg.unauthenticatedPaths = ['^\\/no-auth\\/', '^\\/robots\\.txt$'];
 
+// matching these paths means Authorization header is optional, behavior may vary
+ApiCfg.optionalAuthenticatedPaths = ['^\\/help(\\/|$)', '^\\/c\\/', '^\\/p\\/', '^\\/web\\/'];
+
+// matchines these paths means cookie authentication is required
+ApiCfg.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/web\\/'];
+
+module.exports = ApiCfg;

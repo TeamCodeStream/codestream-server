@@ -31,7 +31,7 @@ export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$C
 # (run from sandbox/configure-sandbox).  For example, doing npm installs from
 # inside a docker container requires --unsafe-perm
 # export CS_API_NPM_INSTALL_XTRA_OPTS=
-[ -z "$CS_API_NODE_MODULES_DIR" ] && export CS_API_NODE_MODULES_DIR=$CS_API_TOP/node_modules
+#[ -z "$CS_API_NODE_MODULES_DIR" ] && export CS_API_NODE_MODULES_DIR=$CS_API_TOP/node_modules
 
 export CS_API_LOGS=$CS_API_SANDBOX/log    # Log directory
 export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
@@ -87,31 +87,37 @@ export CS_API_SSL_KEYFILE=$CS_API_SSL_CERT_DIR/$SSL_CERT-key
 export CS_API_SSL_CERTFILE=$CS_API_SSL_CERT_DIR/$SSL_CERT-crt
 export CS_API_SSL_CAFILE=$CS_API_SSL_CERT_DIR/$SSL_CERT-ca
 
-
 # ================ Mongo Settings ==================
-[ -z "$CS_API_MONGO_DATABASE" ] && export CS_API_MONGO_DATABASE=codestream
 [ -z "$MONGO_ACCESS_FILE" ] && MONGO_ACCESS_FILE="$HOME/.codestream/mongo/mongo-access"
 if [ -f $MONGO_ACCESS_FILE ]; then
 	. $MONGO_ACCESS_FILE
-	[ -n "$MONGO_HOST" ] && export CS_API_MONGO_HOST=$MONGO_HOST
-	[ -n "$MONGO_PORT" ] && export CS_API_MONGO_PORT=$MONGO_PORT
-	[ -n "$MONGO_URL" ] && export CS_API_MONGO_URL=$MONGO_URL
-	[ -n "$MONGO_APP_USER" ] && export CS_API_MONGO_USER=$MONGO_APP_USER
-	[ -n "$MONGO_APP_PASS" ] && export CS_API_MONGO_PASS=$MONGO_APP_PASS
 	[ -n "$MONGO_DB" ] && export CS_API_MONGO_DATABASE=$MONGO_DB
-else
+	[ -n "$MONGO_URL" ] && export CS_API_MONGO_URL=$MONGO_URL
+	# MONGO_HOST=
+	# MONGO_PORT=
+	# MONGO_APP_USER=
+	# MONGO_APP_PASS=
+elif [ -n "$MDB_HOST" ]; then
 	# Take the values from the mongo sandbox in the playground
-	export CS_API_MONGO_HOST=$MDB_HOST
-	export CS_API_MONGO_PORT=$MDB_PORT
-	# Define these to tell the API service to use mongo authentication
-	#export CS_API_MONGO_USER=api
-	#export CS_API_MONGO_PASS=api
+	MONGO_HOST=$MDB_HOST
+	[ -n "$MDB_PORT" ] && MONGO_PORT=$MDB_PORT
+	[ -n "$MDB_USER" ] && MONGO_APP_USER=$MDB_USER
+	[ -n "$MDB_PASS" ] && MONGO_APP_PASS=$MDB_PASS
+else
+	MONGO_HOST=localhost
 fi
-[ -n "$CS_API_MONGO_DATABASE" ] && export CS_API_MONGO_DATABASE=codestream
-# Construct the mongo URL (needed if authentication is used)
-if [ -n "$CS_API_MONGO_USER" -a -z "$CS_API_MONGO_URL" ]; then
-	export CS_API_MONGO_URL="mongodb://$CS_API_MONGO_USER:$CS_API_MONGO_PASS@$CS_API_MONGO_HOST:$CS_API_MONGO_PORT/$CS_API_MONGO_DATABASE"
+[ -z "$CS_API_MONGO_DATABASE" ] && export CS_API_MONGO_DATABASE=codestream
+# Construct the mongo URL if need be
+if [ -z "$CS_API_MONGO_URL" ]; then
+	CS_API_MONGO_URL="mongodb://"
+	[ -n "$MONGO_APP_PASS" ] && mongo_pass=":MONGO_APP_PASS" || mongo_pass=""
+	[ -n "$MONGO_APP_USER" ] && CS_API_MONGO_URL="${CS_API_MONGO_URL}${MONGO_APP_USER}${mongo_pass}@"
+	CS_API_MONGO_URL="${CS_API_MONGO_URL}$MONGO_HOST"
+	[ -n "$MONGO_PORT" ] && CS_API_MONGO_URL="${CS_API_MONGO_URL}:$MONGO_PORT"
+	CS_API_MONGO_URL="${CS_API_MONGO_URL}/$CS_API_MONGO_DATABASE"
+	export CS_API_MONGO_URL
 fi
+
 
 # Define these if you want the mdb-mongo CLI to access the database
 # using the system account above (as opposed to 'root')
@@ -157,8 +163,6 @@ if [ -f $GITHUB_API_ACCESS_FILE ]; then
 	. $GITHUB_API_ACCESS_FILE
 	export CS_API_GITHUB_CLIENT_ID="$GITHUB_CLIENT_ID"
 	export CS_API_GITHUB_CLIENT_SECRET="$GITHUB_CLIENT_SECRET"
-	#export CS_API_GITHUB_ENTERPRISE_CLIENT_ID="github_enterprise_placeholder_client_id"
-	#export CS_API_GITHUB_ENTERPRISE_CLIENT_SECRET="github_enterprise_placeholder_client_secret"
 else
 	echo "********************************************************************"
 	echo "WARNING: GitHub api access file not found ($GITHUB_API_ACCESS_FILE)."
@@ -373,6 +377,7 @@ export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo
 # ============ Email Settings ================
 # Outbound email events are placed on this queue. The outbound email
 # server processes the queue and sends the emails (a lambda function)
+#export CS_API_AWS_REGION="us-east-1"
 export CS_API_OUTBOUND_EMAIL_SQS="${CS_API_ENV}_${DT_USER}_outboundEmail"
 
 # Set the interval (in ms) between emails being sent

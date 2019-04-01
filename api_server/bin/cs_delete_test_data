@@ -1,6 +1,5 @@
 #!/bin/bash
 
-[ -n "$CS_API_MONGO_URL" ] && murl="$CS_API_MONGO_URL" || murl="mongodb://$CS_API_MONGO_HOST:$CS_API_MONGO_PORT/$CS_API_MONGO_DATABASE"
-
-echo mongo $murl $CS_API_TOP/bin/cs_delete_test_data.js
-mongo $murl $CS_API_TOP/bin/cs_delete_test_data.js
+[ -z "$CS_API_MONGO_URL" ] && echo "CS_API_MONGO_URL not defined" && exit 1
+echo mongo $CS_API_MONGO_URL $CS_API_TOP/bin/cs_delete_test_data.js
+mongo $CS_API_MONGO_URL $CS_API_TOP/bin/cs_delete_test_data.js

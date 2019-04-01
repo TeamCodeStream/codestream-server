@@ -1,8 +1,13 @@
-// slack-bot integration configuration
+// slack integration configuration
 
 'use strict';
+let SlackCfg = {};
+if (process.env.CS_API_CFG_FILE) {
+	SlackCfg = require(process.env.CS_API_CFG_FILE).integrations.slack['slack.com'];
+}
+else {
+	SlackCfg.appClientId = process.env.CS_API_SLACK_CLIENT_ID;
+	SlackCfg.appClientSecret = process.env.CS_API_SLACK_CLIENT_SECRET;
+}
 
-module.exports = {
-	appClientId: process.env.CS_API_SLACK_CLIENT_ID,
-	appClientSecret: process.env.CS_API_SLACK_CLIENT_SECRET
-};
+module.exports = SlackCfg;

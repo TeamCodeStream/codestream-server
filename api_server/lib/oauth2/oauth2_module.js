@@ -23,13 +23,13 @@ class OAuth2Module extends APIServerModule {
 	}
 
 	async initialize () {
-		const { enterpriseConfigFile } = this.apiConfig;
+		const { localProviders } = this.apiConfig;
 		const { provider } = this.oauthConfig;
-		if (!enterpriseConfigFile) {
+		if (!localProviders) {
 			return;
 		}
 		try {
-			this.enterpriseConfig = require(enterpriseConfigFile);
+			this.enterpriseConfig = localProviders;
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
