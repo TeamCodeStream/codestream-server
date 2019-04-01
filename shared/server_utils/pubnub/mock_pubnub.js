@@ -65,7 +65,7 @@ class MockPubnub {
 	_unsubscribeChannel (channel) {
 		delete this.history[channel];
 		if (Object.keys(this.history).length === 0) {
-			this.stop();
+			this.disconnect();
 			if (this.isServer) {
 				this.ipc.stop();
 			}
