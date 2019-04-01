@@ -79,16 +79,15 @@ export CS_BROADCASTER_PIDS=$CS_BROADCASTER_SANDBOX/pid    # pid files directory
 
 # Secrets
 # =============== Other Secrets ===============
-[ -z "$OTHER_SECRETS_FILE" ] && OTHER_SECRETS_FILE=$HOME/.codestream/codestream/local-api
+[ -z "$OTHER_SECRETS_FILE" ] && OTHER_SECRETS_FILE=$HOME/.codestream/codestream/local-services
 if [ -f $OTHER_SECRETS_FILE ]; then
 	. $OTHER_SECRETS_FILE
-	# export CS_API_AUTH_SECRET="$AUTH_SECRET"
 	# used to privilege certain api server requests to the messager service
-	export CS_BROADCASTER_AUTH_SECRET=""
+	export CS_BROADCASTER_AUTH_SECRET="$BCAST_AUTH_SECRET"
 	# used to generate json web tokens for authentication tokens passed to the client
-	export CS_BROADCASTER_API_SECRET=""
+	export CS_BROADCASTER_API_SECRET="$BCAST_API_SECRET"
 	# set to the same value that CS_API_SUBSCRIPTION_CHEAT_CODE is set to for the api server
-	export CS_API_SUBSCRIPTION_CHEAT_CODE="$SUBSCRIPTION_CHEAT_CODE"
+	export CS_BROADCASTER_SUBSCRIPTION_CHEAT_CODE="$SUBSCRIPTION_CHEAT_CODE"
 else
 	echo "****"
 	echo "**** FATAL ERROR ****"
