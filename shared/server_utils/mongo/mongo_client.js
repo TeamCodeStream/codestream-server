@@ -76,8 +76,14 @@ class MongoClient {
 				this.config.url,
 				this.config.settings || {}
 			);
+			if (this.config.logger) {
+				this.config.logger.log('DID CONNECT TO MONGO!');
+			}
 		}
 		catch (error) {
+			if (this.config.logger) {
+				this.config.logger.log('Could not connect to mongo: ' + error);
+			}
 			throw 'could not connect to mongo: ' + error;
 		}
 	}
