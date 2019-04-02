@@ -42,7 +42,7 @@ class SocketClusterClient {
 			this.socket.emit('auth', {
 				token: this.config.authKey,
 				uid: this.config.uid,
-				secret: this.config.authSecret
+				subscriptionCheat: this.config.subscriptionCheat
 			});
 		});
 	}
