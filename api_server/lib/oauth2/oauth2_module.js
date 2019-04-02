@@ -120,8 +120,6 @@ class OAuth2Module extends APIServerModule {
 			return this.makeMockData(url, parameters, mockToken);
 		}
 
-		this.api.log('EXCHANGING AUTH CODE, PARAMS ARE: ' + JSON.stringify(parameters));
-
 		// perform the exchange, which can be from form data, json data, or query
 		let response;
 		if (exchangeFormat === 'form') {
@@ -134,7 +132,7 @@ class OAuth2Module extends APIServerModule {
 			response = await this.fetchAccessTokenWithJson(url, parameters);
 		}
 		const responseData = await response.json();
-		this.api.log('RESPONSE DATA IS: ' + JSON.stringify(responseData, undefined, 5));
+
 		// normalize and return the token data
 		return this.normalizeTokenDataResponse(responseData);
 	}
@@ -252,7 +250,6 @@ class OAuth2Module extends APIServerModule {
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
 		url += `?${query}`;
-		this.api.log('FETCHING ' + url);
 		return await fetch(
 			url,
 			{
