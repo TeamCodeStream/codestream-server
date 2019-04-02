@@ -21,7 +21,7 @@ module.exports = {
 	},
 	logger: {
 		directory: process.env.CS_BROADCASTER_LOGS,	// put log files in this directory
-		basename: 'messager',								// use this for the basename of the log file
+		basename: 'broadcaster',								// use this for the basename of the log file
 		retentionPeriod: 30 * 24 * 60 * 60 * 1000,			// retain log files for this many milliseconds
 		consoleOk: process.env.CS_BROADCASTER_LOG_CONSOLE_OK	// also output to the console
 	},
