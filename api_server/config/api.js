@@ -73,7 +73,5 @@ module.exports = {
 	
 	// API server will not use any AWS services (on-prem mode)
 	dontWantAWS: process.env.CS_API_DONT_WANT_AWS || false,
-
-	// what provider to use for a queue service (currently "sqs" or "rabbitmq")
-	queueService: process.env.CS_API_QUEUE_SERVICE || 'sqs'
 };
+

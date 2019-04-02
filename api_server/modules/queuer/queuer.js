@@ -1,5 +1,4 @@
-// provides a message queue client to the API server,
-// using SQS or RabbitMQ, as needed
+// provides a message queue client to the API server, using AWS SQS as needed
 
 'use strict';
 
@@ -11,7 +10,7 @@ class Queuer extends APIServerModule {
 	services () {
 		// return a function that, when invoked, returns a service structure with the desired AWS services
 		return async () => {
-			if (this.api.config.api.queueService !== 'rabbitmq') {
+			if (!this.api.config.api.dontWantAWS) {
 				return {};
 			}
 			this.api.log('Initiating RabbitMQ connection...');

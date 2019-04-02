@@ -19,12 +19,7 @@ class AWSModule extends APIServerModule {
 			this.api.log('Initiating AWS services...');
 			this.aws = new AWS(this.api.config.aws);
 			this.awsServices = {};
-
-			const queueService = this.api.config.api.queueService || 'sqs';
-			if (queueService === 'sqs') {
-				this.initializeSQS();
-			}
-
+			this.initializeSQS();
 			return this.awsServices;
 		};
 	}
