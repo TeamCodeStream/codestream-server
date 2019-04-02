@@ -151,7 +151,7 @@ class CodeStream {
 			return socket.emit('error', new Error('AuthError: no uid provided'));
 		}
 		try {
-			await this.validateToken(data.token, data.uid, data.secret);
+			await this.validateToken(data.token, data.uid, data.subscriptionCheat);
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -161,7 +161,7 @@ class CodeStream {
 		socket.emit('authed');
 	}
 
-	async validateToken (token, uid, secret) {
+	async validateToken (token, uid, subscriptionCheat) {
 		if (!this.data) { throw 'not connected to db'; }
 		if (uid === 'API' && token === Config.secrets.api) {
 			return;
@@ -178,8 +178,8 @@ class CodeStream {
 		if (!user || user.deactivated) {
 			throw 'user not found';
 		}
-		if (token !== user.messagerToken) {
-			if (secret === Config.secrets.subscriptionCheat) {
+		if (token !== user.broadcasterToken) {
+			if (subscriptionCheat === Config.secrets.subscriptionCheat) {
 				this.warn('NOTE: Allowing subscription with user ID, this had better be a test!!!');
 			}
 			else {

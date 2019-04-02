@@ -82,7 +82,7 @@ export CS_BROADCASTER_PIDS=$CS_BROADCASTER_SANDBOX/pid    # pid files directory
 [ -z "$OTHER_SECRETS_FILE" ] && OTHER_SECRETS_FILE=$HOME/.codestream/codestream/local-services
 if [ -f $OTHER_SECRETS_FILE ]; then
 	. $OTHER_SECRETS_FILE
-	# used to privilege certain api server requests to the messager service
+	# used to privilege certain api server requests to the broadcaster service
 	export CS_BROADCASTER_AUTH_SECRET="$BCAST_AUTH_SECRET"
 	# used to generate json web tokens for authentication tokens passed to the client
 	export CS_BROADCASTER_API_SECRET="$BCAST_API_SECRET"
