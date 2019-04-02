@@ -133,7 +133,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			authKey: broadcasterToken,
 		});
 		if (this.cheatOnSubscription) {
-			config.authSecret = SecretsConfig.subscriptionCheat;
+			config.subscriptionCheat = SecretsConfig.subscriptionCheat;
 		}
 		this.broadcasterClientsForUser[user.id] = new SocketClusterClient(config);
 		try {
