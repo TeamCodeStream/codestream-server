@@ -2,12 +2,12 @@
 
 'use strict';
 
-let SecretsConfig = {};
+let SecretsCfg = {};
 if (process.env.CS_API_CFG_FILE) {
-	SecretsConfig = require(process.env.CS_API_CFG_FILE).secrets;
+	SecretsCfg = require(process.env.CS_API_CFG_FILE).secrets;
 }
 else {
-	SecretsConfig = {
+	SecretsCfg = {
 		auth: process.env.CS_API_AUTH_SECRET,	// for authentication
 		cookie: process.env.CS_API_COOKIE_SECRET,	// for cookie authentication
 		confirmationCheat: process.env.CS_API_CONFIRMATION_CHEAT_CODE,	// for bypassing email confirmation, used for unit testing
@@ -18,4 +18,4 @@ else {
 	};
 }
 
-module.exports = SecretsConfig;
+module.exports = SecretsCfg;

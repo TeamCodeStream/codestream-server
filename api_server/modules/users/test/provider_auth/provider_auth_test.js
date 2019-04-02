@@ -16,7 +16,6 @@ const AzureDevOpsConfig = require(process.env.CS_API_TOP + '/config/azuredevops'
 const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
-//const GithubEnterpriseConfig = require(process.env.CS_API_TOP + '/etc/githubEnterprise');
 
 class ProviderAuthTest extends CodeStreamAPITest {
 
@@ -136,7 +135,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getGithubRedirectData () {
 		const appClientId = this.testHost ?
-			''/*GithubEnterpriseConfig[this.testHost].appClientId*/ :
+			GithubConfig.localProviders[this.testHost].appClientId :
 			GithubConfig.appClientId;
 		const parameters = {
 			client_id: appClientId,

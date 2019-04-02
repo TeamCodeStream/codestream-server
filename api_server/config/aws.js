@@ -2,7 +2,7 @@
 
 'use strict';
 
-let AwsCfg = {};
+let AwsCfg = { sqs: { } };
 if (process.env.CS_API_CFG_FILE) {
 	AwsCfg = require(process.env.CS_API_CFG_FILE).aws;
 }

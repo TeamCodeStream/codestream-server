@@ -21,8 +21,10 @@ else {
 	GitHubCfg.appClientId = process.env.CS_API_GITHUB_CLIENT_ID;
 	GitHubCfg.appClientSecret = process.env.CS_API_GITHUB_CLIENT_SECRET;
 	if (process.env.CS_API_GITHUB_ENTERPRISE_SERVER) {
-		GitHubCfg.localProviders[process.env.CS_API_GITHUB_ENTERPRISE_SERVER].appClientId = process.env.CS_API_GITHUB_ENTERPRISE_CLIENT_ID;
-		GitHubCfg.localProviders[process.env.CS_API_GITHUB_ENTERPRISE_SERVER].appClientId = process.env.CS_API_GITHUB_ENTERPRISE_CLIENT_SECRET;
+		GitHubCfg.localProviders[process.env.CS_API_GITHUB_ENTERPRISE_SERVER] = {
+			appClientId: process.env.CS_API_GITHUB_ENTERPRISE_CLIENT_ID,
+			appClientSecret: process.env.CS_API_GITHUB_ENTERPRISE_CLIENT_SECRET
+		};
 	}
 }
 

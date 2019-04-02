@@ -16,7 +16,6 @@ const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
 const Base64 = require('base-64');
-//const GithubEnterpriseConfig = require(process.env.CS_API_TOP + '/etc/githubEnterprise');
 
 class CommonInit {
 
@@ -106,10 +105,10 @@ class CommonInit {
 
 	getExpectedGithubTestCallData () {
 		const appClientId = this.testHost ? 
-			''/*GithubEnterpriseConfig[this.testHost].appClientId*/ :
+			GithubConfig.localProviders[this.testHost].appClientId :
 			GithubConfig.appClientId;
 		const appClientSecret = this.testHost ?
-			''/*GithubEnterpriseConfig[this.testHost].appClientSecret*/ :
+			GithubConfig.localProviders[this.testHost].appClientSecret :
 			GithubConfig.appClientSecret;
 		const parameters = {
 			redirect_uri: this.redirectUri,
