@@ -43,8 +43,6 @@ class OutboundEmailServer {
 	// set relevant event listeners
 	setListeners () {
 		process.on('message', this.handleMasterMessage.bind(this));
-		process.on('SIGINT', () => {});
-		process.on('SIGTERM', () => {});
 	}
 
 	// start listening for messages
@@ -80,6 +78,8 @@ class OutboundEmailServer {
 				this.config.logger.loggerId = this.loggerId;
 				this.config.logger.loggerHost = OS.hostname();
 			}
+			process.on('SIGINT', () => {});
+			process.on('SIGTERM', () => {});
 		}
 	}
 
