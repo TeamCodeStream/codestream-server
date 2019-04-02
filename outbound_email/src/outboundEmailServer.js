@@ -141,7 +141,9 @@ class OutboundEmailServer {
 		const mongoOptions = Object.assign({}, this.config.mongo);
 		mongoOptions.collections = MONGO_COLLECTIONS;
 		try {
+			this.log('MONGO OPTIONS ARE: ' + JSON.stringify(mongoOptions));
 			this.mongo = await mongoClient.openMongoClient(mongoOptions);
+			this.log('DID OPEN MONGO CLIENT!');
 		}
 		catch (error) {
 			this.error('Unable to open mongo client', error);
@@ -165,6 +167,7 @@ class OutboundEmailServer {
 		pubnubOptions.uuid = 'OutboundEmail-' + OS.hostname();
 		const pubnub = new PubNub(pubnubOptions);
 		this.broadcaster = new PubNubClient({ pubnub });
+		this.log('DID OPEN PUBNUB CLIENT!');
 	}
 	
 	async openSocketClusterClient () {
@@ -206,6 +209,7 @@ class OutboundEmailServer {
 		const aws = new AWS(this.config.aws);
 		this.queuer = new SQSClient({ aws, logger: this.logger });
 		await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
+		this.log('DID OPEN SQS!');
 	}
 
 	async makeEmailSender () {
