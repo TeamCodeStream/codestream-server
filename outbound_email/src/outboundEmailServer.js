@@ -129,7 +129,7 @@ class OutboundEmailServer {
 	async initAsNeeded () {
 		if (this.handlers) { return; }
 		await this.openMongoClient();
-		await this.openMessagerClient();
+		await this.openBroadcasterClient();
 		await this.openQueuer();
 		await this.makeEmailSender();
 		await this.makeHandlers();
@@ -150,7 +150,7 @@ class OutboundEmailServer {
 		this.data = this.mongo.mongoCollections;
 	}
 	
-	openMessagerClient () {
+	openBroadcasterClient () {
 		if (this.config.socketCluster.port) {
 			return this.openSocketClusterClient();
 		}
@@ -164,7 +164,7 @@ class OutboundEmailServer {
 		const pubnubOptions = Object.assign({}, this.config.pubnub);
 		pubnubOptions.uuid = 'OutboundEmail-' + OS.hostname();
 		const pubnub = new PubNub(pubnubOptions);
-		this.messager = new PubNubClient({ pubnub });
+		this.broadcaster = new PubNubClient({ pubnub });
 	}
 	
 	async openSocketClusterClient () {
@@ -172,10 +172,10 @@ class OutboundEmailServer {
 		const config = Object.assign({}, this.config.socketCluster, {
 			logger: this,
 			uid: 'API',
-			authKey: this.config.socketCluster.messagerSecret
+			authKey: this.config.socketCluster.broadcasterSecret
 		});
-		this.messager = new SocketClusterClient(config);
-		await this.messager.init();
+		this.broadcaster = new SocketClusterClient(config);
+		await this.broadcaster.init();
 	}
 		
 	async openQueuer () {
@@ -211,7 +211,7 @@ class OutboundEmailServer {
 	async makeEmailSender () {
 		this.emailSender = new EmailSender({
 			logger: this.logger,
-			messager: this.messager
+			broadcaster: this.broadcaster
 		});
 	}
 	
@@ -219,7 +219,7 @@ class OutboundEmailServer {
 		const handlerOptions = {
 			logger: this.logger,
 			data: this.data,
-			messager: this.messager,
+			broadcaster: this.broadcaster,
 			queuer: this.queuer,
 			sender: this.emailSender
 		};

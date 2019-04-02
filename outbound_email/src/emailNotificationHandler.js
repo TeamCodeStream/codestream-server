@@ -62,7 +62,7 @@ class EmailNotificationHandler {
 			data: this.data,
 			stream: this.stream,
 			seqNum: this.message.seqNum,
-			messager: this.messager,
+			broadcaster: this.broadcaster,
 			sender: this.sender
 		}).sendEmailNotifications();
 	}

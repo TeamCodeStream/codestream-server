@@ -44,7 +44,7 @@ module.exports = {
 	socketCluster: {
 		host: process.env.CS_OUTBOUND_EMAIL_SOCKET_CLUSTER_HOST,
 		port: process.env.CS_OUTBOUND_EMAIL_SOCKET_CLUSTER_PORT,
-		messagerSecret: process.env.CS_OUTBOUND_EMAIL_MESSAGER_SECRET
+		broadcasterSecret: process.env.CS_OUTBOUND_EMAIL_BROADCASTER_SECRET
 	},
 	
 	// sendgrid credentials
@@ -95,9 +95,9 @@ module.exports = {
 	
 	// logging (for running as a service)
 	logging: {
-		directory: process.env.CS_OUTBOUND_EMAIL_LOGS,	// put log files in this directory
+		directory: process.env.CS_OUTBOUND_EMAIL_LOG_DIRECTORY,	// put log files in this directory
 		basename: 'outbound-email',						// use this for the basename of the log file
 		retentionPeriod: 30 * 24 * 60 * 60 * 1000,		// retain log files for this many milliseconds
-		consoleOk: process.env.CS_MAILOUT_LOG_CONSOLE_OK // also output to the console
+		consoleOk: process.env.CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK // also output to the console
 	}
 };
