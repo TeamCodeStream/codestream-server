@@ -138,7 +138,7 @@ class OutboundEmailServer {
 	async openMongoClient () {
 		this.log('Opening connection to mongo...');
 		const mongoClient = new MongoClient();
-		const mongoOptions = Object.assign({}, this.config.mongo);
+		const mongoOptions = Object.assign({}, this.config.mongo, { logger: this });
 		mongoOptions.collections = MONGO_COLLECTIONS;
 		try {
 			this.log('MONGO OPTIONS ARE: ' + JSON.stringify(mongoOptions));
