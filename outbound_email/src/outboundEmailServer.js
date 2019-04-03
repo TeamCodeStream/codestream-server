@@ -131,8 +131,8 @@ class OutboundEmailServer {
 		await this.openMongoClient();
 		await this.openBroadcasterClient();
 		await this.openQueuer();
-		await this.makeEmailSender();
-		await this.makeHandlers();
+		this.makeEmailSender();
+		this.makeHandlers();
 	}
 	
 	async openMongoClient () {
@@ -146,7 +146,8 @@ class OutboundEmailServer {
 			this.log('DID OPEN MONGO CLIENT!');
 		}
 		catch (error) {
-			this.error('Unable to open mongo client', error);
+			const msg = error instanceof Error ? error.message : JSON.stringify(error);
+			this.error('Unable to open mongo client: ' + msg);
 			process.exit();
 		}
 		this.data = this.mongo.mongoCollections;
@@ -154,10 +155,10 @@ class OutboundEmailServer {
 	
 	openBroadcasterClient () {
 		if (this.config.socketCluster.port) {
-			return this.openSocketClusterClient();
+			return await this.openSocketClusterClient();
 		}
 		else {
-			return this.openPubnubClient();
+			return await this.openPubnubClient();
 		}	
 	}
 
@@ -212,7 +213,7 @@ class OutboundEmailServer {
 		this.log('DID OPEN SQS!');
 	}
 
-	async makeEmailSender () {
+	makeEmailSender () {
 		this.emailSender = new EmailSender({
 			logger: this.logger,
 			broadcaster: this.broadcaster

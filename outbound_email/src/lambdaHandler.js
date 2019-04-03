@@ -6,7 +6,7 @@ var OutboundEmailService;
 exports.handler = async function(event) {
 	try {
 		OutboundEmailService = OutboundEmailService || new OutboundEmailServer(Config);
-		OutboundEmailService.start(async error => {
+		await OutboundEmailService.start(async error => {
 			if (error) {
 				console.error('server failed to start: ' + error); // eslint-disable-line no-console
 				process.exit();	
