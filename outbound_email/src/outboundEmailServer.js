@@ -153,7 +153,7 @@ class OutboundEmailServer {
 		this.data = this.mongo.mongoCollections;
 	}
 	
-	openBroadcasterClient () {
+	async openBroadcasterClient () {
 		if (this.config.socketCluster.port) {
 			return await this.openSocketClusterClient();
 		}
