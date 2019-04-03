@@ -32,6 +32,7 @@ class SocketClusterClient {
 					reject(error);
 				}
 				const message = error instanceof Error ? error.message : JSON.stringify(error);
+				console.log('typeof error=' + typeof error);
 				this._warn('SOCKET ERROR: ', message);
 			});
 			this.socket.on('subscribe', this._handleSubscribe.bind(this));
@@ -293,6 +294,7 @@ class SocketClusterClient {
 		const promise = new Promise((resolve, reject) => {
 			this.subscribedUserPromises[requestId] = { resolve, reject };
 		});
+		console.log('EMITTING SUBSCRIBED USERS...');
 		this.socket.emit('getSubscribedUsers', { requestId, channel });
 		return promise;
 	}
@@ -304,6 +306,7 @@ class SocketClusterClient {
 			promise.reject(data.error);
 		}
 		else {
+			console.warn('GOT SUBSCRIBED USERS: ' + JSON.stringify(data));
 			promise.resolve(data.userIds);
 		}
 		delete this.subscribedUserPromises[data.requestId];
