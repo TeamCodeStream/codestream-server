@@ -31,10 +31,7 @@ class SocketClusterClient {
 				if (!this._connected) {
 					reject(error);
 				}
-				const message = error instanceof Error ? error.message : JSON.stringify(error);
-				console.log('typeof error=' + typeof error);
-				console.log('error is', JSON.stringify(error));
-				this._warn('SOCKET ERROR: ', message);
+				this._warn('SOCKET ERROR: ', JSON.stringify(error));
 			});
 			this.socket.on('subscribe', this._handleSubscribe.bind(this));
 
