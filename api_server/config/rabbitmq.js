@@ -4,7 +4,7 @@
 
 let RabbitCfg = {};
 if (process.env.CS_API_CFG_FILE) {
-	RabbitCfg = require(process.env.CS_API_CFG_FILE).broadcastEngine.rabbitmq;
+	RabbitCfg = require(process.env.CS_API_CFG_FILE).queuingEngine.rabbitmq;
 }
 else {
 	RabbitCfg = {
