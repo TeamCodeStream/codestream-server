@@ -5,14 +5,15 @@ ADD config /opt/api/api_server/config
 ADD lib /opt/api/api_server/lib
 ADD modules /opt/api/api_server/modules
 ADD server_utils /opt/api/api_server/server_utils
-ADD etc/api-config-docker.json /opt/api/api_server/etc/api-config.json
 ADD etc/webmail_companies.js /opt/api/api_server/etc/webmail_companies.js
 ADD bin/api_server.js /opt/api/api_server/bin/api_server.js
 ADD bin/cs_api-start-docker /opt/api/api_server/bin/cs_api-start-docker
 ADD bin/ensure-indexes.js /opt/api/api_server/bin/ensure-indexes.js
 ADD package.json /opt/api/api_server/package.json
 ADD package-lock.json /opt/api/api_server/package-lock.json
-ADD extras/wildcard.codestream.us /opt/api/certs/wildcard.codestream.us
+
+# This directory will be mounted from the host OS
+RUN mkdir /opt/config
 
 WORKDIR /opt/api
 RUN mkdir log tmp pid
@@ -23,8 +24,8 @@ RUN npm install --no-save
 EXPOSE 12079
 
 ENV CS_API_TOP=/opt/api/api_server
-ENV CS_API_CFG_FILE=/opt/api/api_server/etc/api-config.json
-ENV AWS_ACCESS_KEY_ID=AKIAIOLVOAOGX57D5UBQ
-ENV AWS_SECRET_ACCESS_KEY=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
+ENV CS_API_CFG_FILE=/opt/config/codestream-services-config.json
+# ENV AWS_ACCESS_KEY_ID=AKIAIOLVOAOGX57D5UBQ
+# ENV AWS_SECRET_ACCESS_KEY=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
 
 CMD [ "/opt/api/api_server/bin/cs_api-start-docker" ]

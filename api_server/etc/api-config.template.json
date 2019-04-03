@@ -19,7 +19,8 @@
 		"publicApiUrl": "{{ CS_API_PUBLIC_URL }}",
 		"authOrigin": "{{ CS_API_AUTH_ORIGIN }}",
 		"environment": "{{ CS_API_ENV }}",
-		"callbackEnvironment": "{{ CS_API_CALLBACK_ENV }}"
+		"callbackEnvironment": "{{ CS_API_CALLBACK_ENV }}",
+		"dontWantAWS": false,
 	},
 	"webAppServer": {
 		"host": "{{ CS_API_WEB_CLIENT_ORIGIN }}",
@@ -38,6 +39,12 @@
 			"ssl": true,
 			"keepAlive": true,
 			"uuid": "CodeStreamServer"
+		},
+		"rabbitmq": {
+			"host": "{{ CS_API_RABBITMQ_HOST }}",
+			"port": "{{ CS_API_RABBITMQ_PORT }}",
+			"user": "{{ CS_API_RABBITMQ_USER }}",
+			"password": "{{ CS_API_RABBITMQ_PASS }}"
 		}
 	},
 	"secrets": {

@@ -1,6 +1,6 @@
 
 # Create default variable settings in this file
-
+set -x
 # Set by development tools
 # CS_API_NAME     Name of the sandbox
 # CS_API_SANDBOX  /path/to/root/of/sandbox
@@ -373,7 +373,6 @@ export CS_API_TEST_REPO_PATH=$CS_API_SANDBOX/TestRepo
 # export CS_API_TEST_ONLY=true
 
 
-
 # ============ Email Settings ================
 # Outbound email events are placed on this queue. The outbound email
 # server processes the queue and sends the emails (a lambda function)
@@ -399,3 +398,22 @@ export CS_API_REPLY_TO_DOMAIN=${CS_API_ENV}.codestream.com
 
 # Emails sent from CodeStream will be sent using this address
 export CS_API_SENDER_EMAIL=alerts@codestream.com
+
+
+
+# Added for On-Prem work
+
+# ============ RabbitMQ (on-prem) ============
+[ -z "RABBITMQ_ACCESS_FILE" ] && RABBITMQ_ACCESS_FILE=$HOME/.codestream/codestream/local-rabbitmq
+if [ -f $RABBITMQ_ACCESS_FILE ]; then
+	. $RABBITMQ_ACCESS_FILE
+	export CS_API_RABBITMQ_HOST=$RABBITMQ_HOST
+	export CS_API_RABBITMQ_PORT=$RABBITMQ_PORT
+	export CS_API_RABBITMQ_USER=$RABBITMQ_USER
+	export CS_API_RABBITMQ_PASSWORD=$RABBITMQ_PASS
+else
+	echo "Not loading sandbox with RabbitMQ" >&2
+fi
+
+# uncomment for on-prem (non-SQS)
+# export CS_API_DONT_WANT_AWS=1
