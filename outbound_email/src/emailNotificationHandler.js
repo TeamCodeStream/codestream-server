@@ -2,7 +2,6 @@
 
 const EmailNotificationProcessor = require('./emailNotificationProcessor');
 const Index = require('./postIndex');
-const { callbackWrap } = require('./server_utils/await_utils');
 const Config = require('./config');
 
 class EmailNotificationHandler {

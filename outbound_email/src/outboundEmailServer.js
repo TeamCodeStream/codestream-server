@@ -40,9 +40,6 @@ class OutboundEmailServer {
 		if (!this.config.dontListen) {
 			await this.startListening();
 		}
-else {
-	console.log('NOT LISTENING BECAUSE RUNNING FROM LAMBDA');
-}
 	}
 
 	// set relevant event listeners
@@ -101,15 +98,11 @@ else {
 						this.warn('Could not parse record body: ', JSON.stringify(error));
 						return;
 					}
-					console.log('processing message: ' + JSON.stringify(record, undefined, 5));
 					await this.processMessage(body);
-					console.log('processed message');
 				}));
 			}
 			else {
-				console.log('processing single message: ' + JSON.stringify(record, undefined, 5));
 				await this.processMessage(event);
-				console.log('processed message');
 			}
 		}
 		catch (error) {
@@ -128,9 +121,7 @@ else {
 			return;
 		}
 		this.numOpenTasks++;
-		console.log('handling message: ' + JSON.stringify(message, undefined, 5));
 		await this.handlers[message.type].handleMessage(message);
-		console.log('handled message: ' + JSON.stringify(message));
 		this.numOpenTasks--;
 		if (this.numOpenTasks === 0 && this.killReceived) {
 			this.shutdown();
@@ -152,9 +143,7 @@ else {
 		const mongoOptions = Object.assign({}, this.config.mongo, { logger: this });
 		mongoOptions.collections = MONGO_COLLECTIONS;
 		try {
-			this.log('MONGO OPTIONS ARE: ' + JSON.stringify(mongoOptions));
 			this.mongo = await mongoClient.openMongoClient(mongoOptions);
-			this.log('DID OPEN MONGO CLIENT!');
 		}
 		catch (error) {
 			const msg = error instanceof Error ? error.message : JSON.stringify(error);
@@ -179,7 +168,6 @@ else {
 		pubnubOptions.uuid = 'OutboundEmail-' + OS.hostname();
 		const pubnub = new PubNub(pubnubOptions);
 		this.broadcaster = new PubNubClient({ pubnub });
-		this.log('DID OPEN PUBNUB CLIENT!');
 	}
 	
 	async openSocketClusterClient () {
@@ -221,7 +209,6 @@ else {
 		const aws = new AWS(this.config.aws);
 		this.queuer = new SQSClient({ aws, logger: this.logger });
 		await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
-		this.log('DID OPEN SQS!');
 	}
 
 	makeEmailSender () {
