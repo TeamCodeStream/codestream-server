@@ -11,7 +11,7 @@ exports.handler = async function(event) {
 				console.error('server failed to start: ' + error); // eslint-disable-line no-console
 				process.exit();	
 			}
-			OutboundEmailService.lambda(event);
+			await OutboundEmailService.lambda(event);
 		});
 	}
 	catch (error) {
