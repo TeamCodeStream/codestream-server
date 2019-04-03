@@ -37,7 +37,12 @@ class OutboundEmailServer {
 		this.numOpenTasks = 0;
 		await this.setListeners();
 		await this.initAsNeeded();
-		await this.startListening();
+		if (!this.config.dontListen) {
+			await this.startListening();
+		}
+else {
+	console.log('NOT LISTENING BECAUSE RUNNING FROM LAMBDA');
+}
 	}
 
 	// set relevant event listeners
@@ -96,11 +101,15 @@ class OutboundEmailServer {
 						this.warn('Could not parse record body: ', JSON.stringify(error));
 						return;
 					}
+					console.log('processing message: ' + JSON.stringify(record, undefined, 5));
 					await this.processMessage(body);
+					console.log('processed message');
 				}));
 			}
 			else {
+				console.log('processing single message: ' + JSON.stringify(record, undefined, 5));
 				await this.processMessage(event);
+				console.log('processed message');
 			}
 		}
 		catch (error) {
@@ -119,7 +128,9 @@ class OutboundEmailServer {
 			return;
 		}
 		this.numOpenTasks++;
+		console.log('handling message: ' + JSON.stringify(message, undefined, 5));
 		await this.handlers[message.type].handleMessage(message);
+		console.log('handled message: ' + JSON.stringify(message));
 		this.numOpenTasks--;
 		if (this.numOpenTasks === 0 && this.killReceived) {
 			this.shutdown();
