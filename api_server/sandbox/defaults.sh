@@ -1,6 +1,6 @@
 
 # Create default variable settings in this file
-set -x
+#set -x
 # Set by development tools
 # CS_API_NAME     Name of the sandbox
 # CS_API_SANDBOX  /path/to/root/of/sandbox
