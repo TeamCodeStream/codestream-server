@@ -3,7 +3,7 @@
 const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 const CodemarkLinkIndexes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_link_indexes');
 const MomentTimezone = require('moment-timezone');
-const MD5 = require('md5');
+const Crypto = require('crypto');
 const Identify = require('./identify');
 
 const PROVIDER_DISPLAY_NAMES = {
@@ -120,7 +120,9 @@ class LinkCodemarkRequest extends APIRequest {
 		let emailHash;
 		if (showComment) {
 			email = this.creator.get('email');
-			emailHash = email && MD5(email.trim().toLowerCase());
+			if (email) {
+				emailHash = Crypto.createHash('md5').update(email.trim().toLowerCase()).digest('hex');
+			}
 		}
 		const createdAt = this.formatTime(this.codemark.get('createdAt'));
 		const title = this.codemark.get('title');

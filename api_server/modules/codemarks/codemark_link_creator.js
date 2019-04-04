@@ -4,7 +4,7 @@
 'use strict';
 
 const UUID = require('uuid/v4');
-const MD5 = require('md5');
+const Crypto = require('crypto');
 const CodemarkLinkIndexes = require('./codemark_link_indexes');
 
 class CodemarkLinkCreator {
@@ -113,7 +113,7 @@ class CodemarkLinkCreator {
 		if (!hashText) {
 			return;
 		}
-		return MD5(hashText);
+		return Crypto.createHash('md5').update(hashText).digest('hex');		
 	}
 
 	// make the text that reflects the distinguishing characteristics of a codemark,
