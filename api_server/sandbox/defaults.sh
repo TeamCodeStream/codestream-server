@@ -404,7 +404,7 @@ export CS_API_SENDER_EMAIL=alerts@codestream.com
 # Added for On-Prem work
 
 # ============ RabbitMQ (on-prem) ============
-[ -z "RABBITMQ_ACCESS_FILE" ] && RABBITMQ_ACCESS_FILE=$HOME/.codestream/codestream/local-rabbitmq
+[ -z "$RABBITMQ_ACCESS_FILE" ] && RABBITMQ_ACCESS_FILE=$HOME/.codestream/codestream/local-rabbitmq
 if [ -f $RABBITMQ_ACCESS_FILE ]; then
 	. $RABBITMQ_ACCESS_FILE
 	export CS_API_RABBITMQ_HOST=$RABBITMQ_HOST
