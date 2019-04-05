@@ -68,7 +68,7 @@ class VersionerTest extends CodeStreamAPITest {
 	}
 
 	// connect to mongo directly to create the fake plugin, along with version info
-	async connectToMongo (callback) {
+	connectToMongo (callback) {
 		if (this.mockMode) {
 			return callback();	// not applicable in mock mode
 		}
@@ -78,19 +78,22 @@ class VersionerTest extends CodeStreamAPITest {
 		const mongoConfig = Object.assign({}, MongoConfig, { collections: ['versionMatrix'] });
 		delete mongoConfig.queryLogging;
 		delete mongoConfig.hintsRequired;
-		try {
-			this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		this.mongoData = this.mongoClient.mongoCollections;
-		callback();
+
+		(async () => {
+			try {
+				this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			this.mongoData = this.mongoClient.mongoCollections;
+			callback();
+		})();
 	}
 
 	// create dummy version info for a fake IDE plugin, we'll use this info in issuing a 
 	// request with the appropriate header info for the test
-	async createVersionInfo (callback) {
+	createVersionInfo (callback) {
 		// create a fake plugin name, and set up headers to be sent with the request
 		this.pluginName = `plugin-${RandomString.generate(12)}`;
 		this.apiRequestOptions = Object.assign({}, this.apiRequestOptions || {}, {
@@ -113,13 +116,15 @@ class VersionerTest extends CodeStreamAPITest {
 			}
 		};
 
-		if (this.mockMode) {
-			return this.sendMockVersionData(versionData, callback);
-		}
-		else {
-			await this.mongoData.versionMatrix.create(versionData);
-			callback();
-		}
+		(async () => {
+			if (this.mockMode) {
+				return this.sendMockVersionData(versionData, callback);
+			}
+			else {
+				await this.mongoData.versionMatrix.create(versionData);
+				callback();
+			}
+		})();
 	}
 
 	// send mock version matrix data to the api server

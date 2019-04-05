@@ -45,21 +45,23 @@ class SubscriptionTest extends JoinTest {
 	}
 
 	// run the test
-	async run (callback) {
-		// create a broadcaster client and attempt to subscribe to whichever channel
-		this.broadcasterClient = this.createBroadcasterClient();
-		this.broadcasterClient.init();
-		const channel = `stream-${this.stream.id}`;
-		try {
-			await this.broadcasterClient.subscribe(
-				channel,
-				() => {}
-			);
-			callback();
-		}
-		catch (error) {
-			Assert.fail(`error subscribing to ${channel}`);
-		}
+	run (callback) {
+		(async () => {
+			// create a broadcaster client and attempt to subscribe to whichever channel
+			this.broadcasterClient = this.createBroadcasterClient();
+			this.broadcasterClient.init();
+			const channel = `stream-${this.stream.id}`;
+			try {
+				await this.broadcasterClient.subscribe(
+					channel,
+					() => {}
+				);
+				callback();
+			}
+			catch (error) {
+				Assert.fail(`error subscribing to ${channel}`);
+			}
+		})();
 	}
 
 	createBroadcasterClient () {

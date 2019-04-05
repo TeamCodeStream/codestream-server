@@ -8,7 +8,7 @@ class ApplyNoAddToCacheTest extends UpdateToCacheTest {
 		return 'should get an unchanged model after applying a no-op add update to a cached model';
 	}
 
-	async updateTestModel (callback) {
+	updateTestModel (callback) {
 		// this element is already in the array, so check that the document is not changed at all by this op
 		const update = {
 			array: 4
@@ -16,16 +16,19 @@ class ApplyNoAddToCacheTest extends UpdateToCacheTest {
 		this.expectedOp = {
 			'$addToSet': update
 		};
-		try {
-			this.actualOp = await this.data.test.applyOpById(
-				this.testModel.id,
-				this.expectedOp
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+
+		(async () => {
+			try {
+				this.actualOp = await this.data.test.applyOpById(
+					this.testModel.id,
+					this.expectedOp
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		})();
 	}
 }
 

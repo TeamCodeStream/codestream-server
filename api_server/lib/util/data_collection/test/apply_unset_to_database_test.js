@@ -8,7 +8,7 @@ class ApplyUnsetToDatabaseTest extends UpdateToDatabaseTest {
 		return 'should get the correct model after applying an unset update and persisting';
 	}
 
-	async updateTestModel (callback) {
+	updateTestModel (callback) {
 		// unset a value and verify it is unset
 		const unset = {
 			text: 1,
@@ -16,17 +16,20 @@ class ApplyUnsetToDatabaseTest extends UpdateToDatabaseTest {
 		this.expectedOp = {
 			'$unset': unset
 		};
-		try {
-			this.actualOp = await this.data.test.applyOpById(
-				this.testModel.id,
-				this.expectedOp
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		delete this.testModel.attributes.text;
-		callback();
+
+		(async () => {
+			try {
+				this.actualOp = await this.data.test.applyOpById(
+					this.testModel.id,
+					this.expectedOp
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			delete this.testModel.attributes.text;
+			callback();
+		})();
 	}
 }
 

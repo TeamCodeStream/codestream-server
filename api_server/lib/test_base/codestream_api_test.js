@@ -114,14 +114,19 @@ class CodeStreamAPITest extends APIRequestTest {
 			this.mockMode &&
 			!this.testDidNotRun
 		) {
-			this.clearMockCache(callback);
+			this.clearMockCache(() => {
+				super.after(callback);
+			});
 		}
 		else {
-			callback();
+			super.after(callback);
 		}
 	}
 
 	clearMockCache (callback) {
+		if (!this.connectedToIpc()) { 
+			return callback();
+		}
 		this.doApiRequest(
 			{
 				method: 'delete',

@@ -22,18 +22,20 @@ class UpdateToDatabaseTest extends DataCollectionTest {
 	}
 
 	// run the test...
-	async run (callback) {
-		// fetch our test model directly from the database, the change should be reflected
-		// because we persisted the update ... since our test model has the update already,
-		// it should match the object returned
-		let response;
-		try {
-			response = await this.mongoData.test.getById(this.testModel.id);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			// fetch our test model directly from the database, the change should be reflected
+			// because we persisted the update ... since our test model has the update already,
+			// it should match the object returned
+			let response;
+			try {
+				response = await this.mongoData.test.getById(this.testModel.id);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	validateResponse () {

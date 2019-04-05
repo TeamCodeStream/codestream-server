@@ -21,39 +21,45 @@ class GetByIdFromCacheAfterDeletedTest extends DataCollectionTest {
 		], callback);
 	}
 
-	async getModel (callback) {
-		// we get the model from the cache
-		try {
-			await this.data.test.getById(this.testModel.id);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	getModel (callback) {
+		(async () => {
+			// we get the model from the cache
+			try {
+				await this.data.test.getById(this.testModel.id);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		})();
 	}
 
-	async deleteModel (callback) {
-		// we delete the model from the database (pulling the run out from under the cache)
-		try {
-			await this.mongoData.test.deleteById(this.testModel.id);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	deleteModel (callback) {
+		(async () => {
+			// we delete the model from the database (pulling the run out from under the cache)
+			try {
+				await this.mongoData.test.deleteById(this.testModel.id);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		})();
 	}
 
 	// run the test...
-	async run (callback) {
-		// this should fetch the model from the cache, even though we've deleted it in the database
-		let response;
-		try {
-			response = await this.data.test.getById(this.testModel.id);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			// this should fetch the model from the cache, even though we've deleted it in the database
+			let response;
+			try {
+				response = await this.data.test.getById(this.testModel.id);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	validateResponse () {

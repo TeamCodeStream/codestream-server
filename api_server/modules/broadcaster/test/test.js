@@ -32,5 +32,4 @@ describe('messages', function() {
 	new AddToExistingStreamTest().test();
 	// new PresenceJoinTest().test();	// This functionality is currently deprecated
 	// new PresenceLeaveTest().test(); // Disabled pending further need and investigation
-
 });

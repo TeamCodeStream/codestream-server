@@ -70,21 +70,23 @@ class SubscriptionTest extends CodeStreamAPITest {
 	}
 
 	// run the actual test...
-	async run (callback) {
-		// create a pubnub client and attempt to subscribe to the channel of interest
-		this.broadcasterClient = this.createBroadcasterClient();
-		this.broadcasterClient.init();
-		let channel = `${this.which}-${this[this.which].id}`;
-		try {
-			await this.broadcasterClient.subscribe(
-				channel,
-				() => {}
-			);
-			callback();
-		}
-		catch (error) {
-			Assert.fail(`error subscribing to ${channel}`);
-		}
+	run (callback) {
+		(async () => {
+			// create a pubnub client and attempt to subscribe to the channel of interest
+			this.broadcasterClient = this.createBroadcasterClient();
+			this.broadcasterClient.init();
+			let channel = `${this.which}-${this[this.which].id}`;
+			try {
+				await this.broadcasterClient.subscribe(
+					channel,
+					() => {}
+				);
+				callback();
+			}
+			catch (error) {
+				Assert.fail(`error subscribing to ${channel}`);
+			}
+		})();
 	}
 
 	createBroadcasterClient () {

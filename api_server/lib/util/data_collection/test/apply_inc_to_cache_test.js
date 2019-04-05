@@ -8,7 +8,7 @@ class ApplyIncToCacheTest extends UpdateToCacheTest {
 		return 'should get the correct model after applying an increment update to a cached model';
 	}
 
-	async updateTestModel (callback) {
+	updateTestModel (callback) {
 		// increment a numeric field, make sure it gets incremented
 		const update = {
 			number: 5
@@ -16,17 +16,20 @@ class ApplyIncToCacheTest extends UpdateToCacheTest {
 		this.expectedOp = {
 			'$inc': update
 		};
-		try {
-			this.actualOp = await this.data.test.applyOpById(
-				this.testModel.id,
-				this.expectedOp
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		this.testModel.attributes.number += 5;
-		callback();
+
+		(async () => {
+			try {
+				this.actualOp = await this.data.test.applyOpById(
+					this.testModel.id,
+					this.expectedOp
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			this.testModel.attributes.number += 5;
+			callback();
+		})();
 	}
 }
 

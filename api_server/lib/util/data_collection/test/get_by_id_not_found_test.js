@@ -9,17 +9,19 @@ class GetByIdNotFoundTest extends DataCollectionTest {
 		return 'should get null when getting model that does not exist';
 	}
 
-	async run (callback) {
-		// fetch a new ID (not yet assigned to a document) and try to fetch
-		let nextId = this.data.test.createId();
-		let response;
-		try {
-			response = await this.data.test.getById(nextId);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			// fetch a new ID (not yet assigned to a document) and try to fetch
+			let nextId = this.data.test.createId();
+			let response;
+			try {
+				response = await this.data.test.getById(nextId);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	validateResponse () {

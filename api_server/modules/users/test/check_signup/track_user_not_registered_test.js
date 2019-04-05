@@ -16,7 +16,7 @@ class TrackUserNotRegisteredTest extends TrackingTest {
 		return 'should send a Continue Into IDE Failed event for tracking purposes when a call is made to check signup status of an expired token';
 	}
 
-	async registerUser (callback) {
+	registerUser (callback) {
 		super.registerUser(error => {
 			if (error) { return callback(error); }
 			this.currentUser.broadcasterToken = this.currentUser.user.id;

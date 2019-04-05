@@ -8,7 +8,7 @@ class ApplyIncToDatabaseTest extends UpdateToDatabaseTest {
 		return 'should get the correct model after applying an increment update and persisting';
 	}
 
-	async updateTestModel (callback) {
+	updateTestModel (callback) {
 		// increment a numeric field, make sure it gets incremented
 		const update = {
 			number: 5
@@ -16,17 +16,20 @@ class ApplyIncToDatabaseTest extends UpdateToDatabaseTest {
 		this.expectedOp = {
 			'$inc': update
 		};
-		try {
-			this.actualOp = await this.data.test.applyOpById(
-				this.testModel.id,
-				this.expectedOp
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		this.testModel.attributes.number += 5;
-		callback();
+
+		(async () => {
+			try {
+				this.actualOp = await this.data.test.applyOpById(
+					this.testModel.id,
+					this.expectedOp
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			this.testModel.attributes.number += 5;
+			callback();
+		})();
 	}
 }
 

@@ -27,29 +27,35 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 	}
 
 	// subscribe to the team channel for the team we created, as requested for the specific test
-	async subscribeToTeam (callback) {
+	subscribeToTeam (callback) {
 		if (!this.onlineForTeam) {
 			return callback();	// not requested for this test
 		}
-		let channel = `team-${this.team.id}`;
-		await this.broadcasterClientsForUser[this.currentUser.id].subscribe(
-			channel,
-			() => {}
-		);
-		callback();
+
+		(async () => {
+			let channel = `team-${this.team.id}`;
+			await this.broadcasterClientsForUser[this.currentUser.id].subscribe(
+				channel,
+				() => {}
+			);
+			callback();
+		})();
 	}
 
 	// subscribe to the repo channel for the repo we created, as requested for the specific test
-	async subscribeToRepo (callback) {
+	subscribeToRepo (callback) {
 		if (!this.onlineForRepo) {
 			return callback();	// not requested for this test
 		}
-		let channel = `repo-${this.repo.id}`;
-		await this.broadcasterClientsForUser[this.currentUser.id].subscribe(
-			channel,
-			() => {}
-		);
-		callback();
+
+		(async () => {
+			let channel = `repo-${this.repo.id}`;
+			await this.broadcasterClientsForUser[this.currentUser.id].subscribe(
+				channel,
+				() => {}
+			);
+			callback();
+		})();
 	}
 
 	// wait for the subscriptions to take effect

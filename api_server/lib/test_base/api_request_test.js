@@ -42,6 +42,13 @@ class APIRequestTest extends GenericTest {
 		}
 	}
 
+	after (callback) {
+		if (this.ipc) {
+			this.ipc.disconnect(IpcConfig.serverId);
+		}
+		super.after(callback);
+	}
+
 	// connect to IPC in mock mode
 	connectToIpc (callback) {
 		IPC.config.id = IpcConfig.clientId;
@@ -51,6 +58,14 @@ class APIRequestTest extends GenericTest {
 		});
 		this.ipc = IPC;
 		callback();
+	}
+
+	// are we connected to IPC?
+	connectedToIpc () {
+		return (
+			this.ipc &&
+			this.ipc.of[IpcConfig.serverId]
+		);
 	}
 
 	// the guts of making an API server request

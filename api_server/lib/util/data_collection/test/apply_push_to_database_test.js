@@ -8,7 +8,7 @@ class ApplyPushToDatabaseTest extends UpdateToDatabaseTest {
 		return 'should get the correct model after applying a push update and persisting';
 	}
 
-	async updateTestModel (callback) {
+	updateTestModel (callback) {
 		// push this element to the array, and check that it's there
 		const update = {
 			array: 7
@@ -16,17 +16,20 @@ class ApplyPushToDatabaseTest extends UpdateToDatabaseTest {
 		this.expectedOp = {
 			'$push': update
 		};
-		try {
-			this.actualOp = await this.data.test.applyOpById(
-				this.testModel.id,
-				this.expectedOp
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		this.testModel.attributes.array.push(7);
-		callback();
+
+		(async () => {
+			try {
+				this.actualOp = await this.data.test.applyOpById(
+					this.testModel.id,
+					this.expectedOp
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			this.testModel.attributes.array.push(7);
+			callback();
+		})();
 	}
 }
 

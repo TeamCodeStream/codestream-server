@@ -48,6 +48,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		});
 		if (this.broadcasterForServer) {
 			this.broadcasterForServer.unsubscribeAll();
+			this.broadcasterForServer.disconnect();
 		}
 		super.after(callback);
 	}
@@ -82,23 +83,25 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			throw 'test client can not be a server in mock mode';
 		}
 		let client = new PubNub(config);
-		this.pubnubForServer = new PubNubClient({
+		this.broadcasterForServer = new PubNubClient({
 			pubnub: client
 		});
-		this.pubnubForServer.init();
+		this.broadcasterForServer.init();
 		callback();
 	}
 
-	async makeSocketClusterClientForServer (callback) {
-		const config = Object.assign({}, SocketClusterConfig);
-		this.broadcasterForServer = new SocketClusterClient(config);
-		try {
-			await this.broadcasterForServer.init();
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	makeSocketClusterClientForServer (callback) {
+		(async () => {
+			const config = Object.assign({}, SocketClusterConfig);
+			this.broadcasterForServer = new SocketClusterClient(config);
+			try {
+				await this.broadcasterForServer.init();
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		})();
 	}
 
 	makeBroadcasterForClient (callback) {
@@ -126,7 +129,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		callback();
 	}
 
-	async makeSocketClusterClientForClient (callback) {
+	makeSocketClusterClientForClient (callback) {
 		const { user, broadcasterToken } = this.currentUser;
 		const config = Object.assign({}, SocketClusterConfig, {
 			uid: user.id,
@@ -135,14 +138,17 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		if (this.cheatOnSubscription) {
 			config.subscriptionCheat = SecretsConfig.subscriptionCheat;
 		}
-		this.broadcasterClientsForUser[user.id] = new SocketClusterClient(config);
-		try {
-			await this.broadcasterClientsForUser[user.id].init();
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+
+		(async () => {
+			this.broadcasterClientsForUser[user.id] = new SocketClusterClient(config);
+			try {
+				await this.broadcasterClientsForUser[user.id].init();
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		})();
 	}
 
 	// make whatever data we need to set up our messaging, this should be overridden for specific tests
@@ -162,28 +168,31 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	}
 
 	// begin listening on the simulated client
-	async listenOnClient (callback) {
+	listenOnClient (callback) {
 		// we'll time out after 5 seconds
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this, this.channelName),
 			this.messageReceiveTimeout || 5000
 		);
-		// subscribe to the channel of interest
-		const broadcaster = this.broadcasterClientsForUser[this.currentUser.user.id];
-		try {
-			await broadcaster.subscribe(
-				this.channelName,
-				this.messageReceived.bind(this),
-				{
-					withPresence: this.withPresence,
-					onFail: this.onSubscribeFail ? this.onSubscribeFail.bind(this) : undefined
-				}
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+
+		(async () => {
+			// subscribe to the channel of interest
+			const broadcaster = this.broadcasterClientsForUser[this.currentUser.user.id];
+			try {
+				await broadcaster.subscribe(
+					this.channelName,
+					this.messageReceived.bind(this),
+					{
+						withPresence: this.withPresence,
+						onFail: this.onSubscribeFail ? this.onSubscribeFail.bind(this) : undefined
+					}
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		})();
 	}
 
 	// wait some period after we subscribe before generating the test message

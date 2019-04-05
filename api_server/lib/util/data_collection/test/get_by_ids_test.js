@@ -21,37 +21,41 @@ class GetByIdsTest extends DataCollectionTest {
 		], callback);
 	}
 
-	async getSomeTestModels (callback) {
-		// fetch some of our test models, this will put some of them in the cache; when we go to fetch,
-		// we will fetch these plus others, ensuring the data collection can handle fetching from cache
-		// and database as needed
-		const ids = this.testModels.map(model => { return model.id; });
-		const someIds = [...ids].splice(Math.trunc(ids.length / 2));
-		if (someIds.length >= ids.length) {
-			return callback('not enough models to run this test');
-		}
-		try {
-			await this.data.test.getByIds(someIds);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	getSomeTestModels (callback) {
+		(async () => {
+			// fetch some of our test models, this will put some of them in the cache; when we go to fetch,
+			// we will fetch these plus others, ensuring the data collection can handle fetching from cache
+			// and database as needed
+			const ids = this.testModels.map(model => { return model.id; });
+			const someIds = [...ids].splice(Math.trunc(ids.length / 2));
+			if (someIds.length >= ids.length) {
+				return callback('not enough models to run this test');
+			}
+			try {
+				await this.data.test.getByIds(someIds);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		})();
 	}
 
 	// run the test...
-	async run (callback) {
-		// get our test models, this will include those that are in the cache and those that must
-		// be fetched from the database
-		const ids = this.testModels.map(model => { return model.id; });
-		let response;
-		try {
-			response = await this.data.test.getByIds(ids);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			// get our test models, this will include those that are in the cache and those that must
+			// be fetched from the database
+			const ids = this.testModels.map(model => { return model.id; });
+			let response;
+			try {
+				response = await this.data.test.getByIds(ids);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	validateResponse () {

@@ -8,7 +8,7 @@ class ApplyUnsetToCacheTest extends UpdateToCacheTest {
 		return 'should get the correct model after applying an unset update to a cached model';
 	}
 
-	async updateTestModel (callback) {
+	updateTestModel (callback) {
 		// unset a value and verify it is unset
 		const unset = {
 			text: 1,
@@ -16,17 +16,20 @@ class ApplyUnsetToCacheTest extends UpdateToCacheTest {
 		this.expectedOp = {
 			'$unset': unset
 		};
-		try {
-			this.actualOp = await this.data.test.applyOpById(
-				this.testModel.id,
-				this.expectedOp
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		delete this.testModel.attributes.text;
-		callback();
+		
+		(async () => {
+			try {
+				this.actualOp = await this.data.test.applyOpById(
+					this.testModel.id,
+					this.expectedOp
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			delete this.testModel.attributes.text;
+			callback();
+		})();
 	}
 }
 

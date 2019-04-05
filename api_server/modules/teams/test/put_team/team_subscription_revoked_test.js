@@ -39,7 +39,7 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		], callback);
 	}
 
-	async makeBroadcasterClient (callback) {
+	makeBroadcasterClient (callback) {
 		// create a pubnub client and attempt to subscribe to the team channel
 		this.broadcasterClient = this.createBroadcasterClient();
 		this.broadcasterClient.init();
@@ -96,19 +96,21 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 	}
 
 	// try to subscribe to the team channel
-	async trySubscribeToTeam (callback) {
-		try {
-			await this.broadcasterClient.subscribe(
-				`team-${this.team.id}`,
-				() => {
-					Assert.fail('message received on team channel');
-				}
-			);
-			Assert.fail('subscription to team channel was successful');
-		} 
-		catch (error) {
-			callback();
-		}
+	trySubscribeToTeam (callback) {
+		(async () => {
+			try {
+				await this.broadcasterClient.subscribe(
+					`team-${this.team.id}`,
+					() => {
+						Assert.fail('message received on team channel');
+					}
+				);
+				Assert.fail('subscription to team channel was successful');
+			} 
+			catch (error) {
+				callback();
+			}
+		})();
 	}
 }
 

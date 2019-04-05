@@ -20,23 +20,25 @@ class GetOneByQueryTest extends DataCollectionTest {
 	}
 
 	// run the test...
-	async run (callback) {
-		// the cache has been cleared, but we should be able to get a model by query,
-		// since the DataCollection should go out to the database for the model
-		this.testModel = this.models[4];
-		let response;
-		try {
-			response = await this.data.test.getOneByQuery(
-				{
-					text: this.testModel.get('text'),
-					flag: this.testModel.get('flag')
-				}
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			// the cache has been cleared, but we should be able to get a model by query,
+			// since the DataCollection should go out to the database for the model
+			this.testModel = this.models[4];
+			let response;
+			try {
+				response = await this.data.test.getOneByQuery(
+					{
+						text: this.testModel.get('text'),
+						flag: this.testModel.get('flag')
+					}
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	validateResponse () {

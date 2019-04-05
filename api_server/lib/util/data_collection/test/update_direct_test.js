@@ -22,33 +22,37 @@ class UpdateDirectTest extends DataCollectionTest {
 	}
 
 	// update our test models using a direct update query, which bypasses the cache
-	async updateModels (callback) {
-		// do a direct update to change the text of our test models
-		const regexp = new RegExp(`^${this.randomizer}yes$`);
-		try {
-			await this.data.test.updateDirect(
-				{ flag: regexp },
-				{ $set: { text: 'goodbye'} }
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	updateModels (callback) {
+		(async () => {
+			// do a direct update to change the text of our test models
+			const regexp = new RegExp(`^${this.randomizer}yes$`);
+			try {
+				await this.data.test.updateDirect(
+					{ flag: regexp },
+					{ $set: { text: 'goodbye'} }
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		})();
 	}
 
 	// run the test...
-	async run (callback) {
-		// query the database directly for our test models
-		const ids = this.models.map(model => { return model.id; });
-		let response;
-		try {
-			response = await this.mongoData.test.getByIds(ids);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			// query the database directly for our test models
+			const ids = this.models.map(model => { return model.id; });
+			let response;
+			try {
+				response = await this.mongoData.test.getByIds(ids);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	// validate the response

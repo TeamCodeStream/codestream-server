@@ -8,7 +8,7 @@ class ApplyUnsetSubObjectToDatabaseTest extends UpdateToDatabaseTest {
 		return 'should get the correct model after applying a sub-object unset to a model and persisting';
 	}
 
-	async updateTestModel (callback) {
+	updateTestModel (callback) {
 		// selectively unset some values in the object, and verify they are unset
 		const unset = {
 			'object.y': true
@@ -16,17 +16,20 @@ class ApplyUnsetSubObjectToDatabaseTest extends UpdateToDatabaseTest {
 		this.expectedOp = {
 			'$unset': unset
 		};
-		try {
-			this.actualOp = await this.data.test.applyOpById(
-				this.testModel.id,
-				this.expectedOp
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		delete this.testModel.attributes.object.y;
-		callback();
+		
+		(async () => {
+			try {
+				this.actualOp = await this.data.test.applyOpById(
+					this.testModel.id,
+					this.expectedOp
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			delete this.testModel.attributes.object.y;
+			callback();
+		})();
 	}
 }
 

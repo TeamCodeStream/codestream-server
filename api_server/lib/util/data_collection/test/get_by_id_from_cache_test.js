@@ -19,15 +19,17 @@ class GetByIdFromCacheTest extends DataCollectionTest {
 	}
 
 	// run the test...
-	async run (callback) {
-		let response;
-		try {
-			response = await this.data.test.getById(this.testModel.id);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			let response;
+			try {
+				response = await this.data.test.getById(this.testModel.id);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	validateResponse () {

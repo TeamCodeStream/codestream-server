@@ -8,7 +8,7 @@ class ApplyNoPullToCacheTest extends UpdateToCacheTest {
 		return 'should get the correct model after applying a no-op pull update to a cached model';
 	}
 
-	async updateTestModel (callback) {
+	updateTestModel (callback) {
 		// this element is not in the array, so check that the document is not changed at all by this op
 		const update = {
 			array: 8
@@ -16,16 +16,19 @@ class ApplyNoPullToCacheTest extends UpdateToCacheTest {
 		this.expectedOp = {
 			'$pull': update
 		};
-		try {
-			this.actualOp = await this.data.test.applyOpById(
-				this.testModel.id,
-				this.expectedOp
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+
+		(async () => {
+			try {
+				this.actualOp = await this.data.test.applyOpById(
+					this.testModel.id,
+					this.expectedOp
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		})();
 	}
 }
 

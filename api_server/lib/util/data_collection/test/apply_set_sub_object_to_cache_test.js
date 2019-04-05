@@ -8,7 +8,7 @@ class ApplySetSubObjectToCacheTest extends UpdateToCacheTest {
 		return 'should get the correct model after applying a sub-object set to a cached model';
 	}
 
-	async updateTestModel (callback) {
+	updateTestModel (callback) {
 		// selectively set some values in the object, and verify they are set
 		const set = {
 			'object.x': 'replaced!',
@@ -17,17 +17,20 @@ class ApplySetSubObjectToCacheTest extends UpdateToCacheTest {
 		this.expectedOp = {
 			'$set': set
 		};
-		try {
-			this.actualOp = await this.data.test.applyOpById(
-				this.testModel.id,
-				this.expectedOp
-			);
-		}
-		catch (error) {
-			return callback(error);
-		}
-		Object.assign(this.testModel.attributes.object, { x: 'replaced!', z: 3 });
-		callback();
+
+		(async () => {
+			try {
+				this.actualOp = await this.data.test.applyOpById(
+					this.testModel.id,
+					this.expectedOp
+				);
+			}
+			catch (error) {
+				return callback(error);
+			}
+			Object.assign(this.testModel.attributes.object, { x: 'replaced!', z: 3 });
+			callback();
+		})();
 	}
 }
 
