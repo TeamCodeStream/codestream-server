@@ -10,16 +10,18 @@ class UpdateDirectTest extends MongoTest {
 	}
 
 	// before the test runs...
-	async before (callback) {
-		try {
-			await super.before();					// set up mongo client
-			await this.createRandomDocuments();	// create a series of random documents
-			await this.updateDocuments();			// update those documents using a direct update
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	before (callback) {
+		super.before(async error => {
+			if (error) { return callback(error); }
+			try {
+				await this.createRandomDocuments();	// create a series of random documents
+				await this.updateDocuments();			// update those documents using a direct update
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		});
 	}
 
 	// update the test documents using a direct update operation
@@ -33,17 +35,19 @@ class UpdateDirectTest extends MongoTest {
 	}
 
 	// run the test...
-	async run (callback) {
-		// fetch our test documents
-		const ids = this.documents.map(document => { return document.id; });
-		let response;
-		try {
-			response = await this.data.test.getByIds(ids);
-		}
-		catch (error) {
-			this.checkResponse(error, response, callback);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			// fetch our test documents
+			const ids = this.documents.map(document => { return document.id; });
+			let response;
+			try {
+				response = await this.data.test.getByIds(ids);
+			}
+			catch (error) {
+				this.checkResponse(error, response, callback);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	// validate the response

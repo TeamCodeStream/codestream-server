@@ -311,6 +311,7 @@ class PubNubClient {
 	}
 
 	disconnect () {
+		this.pubnub.disconnect();
 	}
 
 	// determine if special header was sent with the request that says to block pubnub messages

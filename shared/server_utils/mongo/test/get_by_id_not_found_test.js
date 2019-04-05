@@ -10,17 +10,19 @@ class GetByIdNotFoundTest extends MongoTest {
 	}
 
 	// run the test...
-	async run (callback) {
-		// get an unused ID and use it to fetch a document, should get nothing
-		const nextId = this.data.test.createId();
-		let response;
-		try {
-			response = await this.data.test.getById(nextId);
-		}
-		catch (error) {
-			this.checkResponse(error, response, callback);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			// get an unused ID and use it to fetch a document, should get nothing
+			const nextId = this.data.test.createId();
+			let response;
+			try {
+				response = await this.data.test.getById(nextId);
+			}
+			catch (error) {
+				this.checkResponse(error, response, callback);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	validateResponse () {

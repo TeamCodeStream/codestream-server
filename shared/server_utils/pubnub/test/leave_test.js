@@ -35,16 +35,18 @@ class LeaveTest extends BasePubNubTest {
 	}
 
 	// subscribe to our random channel on the second client
-	async subscribeOnOtherClient (callback) {
-		delete this.gotMessage;
-		await this.pubnubForClients[1].subscribe(
-			this.channelName,
-			() => {},
-			{
-				withPresence: true
-			}
-		);
-		callback();
+	subscribeOnOtherClient (callback) {
+		(async () => {
+			delete this.gotMessage;
+			await this.pubnubForClients[1].subscribe(
+				this.channelName,
+				() => {},
+				{
+					withPresence: true
+				}
+			);
+			callback();
+		})();
 	}
 
 	// wait for the join message for the first client to pass

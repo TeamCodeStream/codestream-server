@@ -11,15 +11,17 @@ class FindAndModifyTest extends UpdateTest {
 	}
 
 	// run the test...
-	async run (callback) {
-		try {
-			this.checkFetchedDocument();	// check that we got the unmodified document as a result of the operation
-			await this.superRun();				// do the normal check for UpdateTest, checking against the updated test document
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	run (callback) {
+		(async () => {
+			try {
+				this.checkFetchedDocument();	// check that we got the unmodified document as a result of the operation
+				await this.superRun();				// do the normal check for UpdateTest, checking against the updated test document
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		})();
 	}
 
 	async superRun () {

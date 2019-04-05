@@ -17,7 +17,7 @@ class MongoTest extends GenericTest {
 	}
 
 	// before the test runs...
-	async before (callback) {
+	before (callback) {
 		// set up the mongo client, and open it against a test collection
 		this.mongoClientFactory = new MongoClient();
 		const mongoConfig = Object.assign({}, MongoConfig, { collections: ['test'] });
@@ -27,21 +27,25 @@ class MongoTest extends GenericTest {
 			mongoConfig.mockMode = true;
 		}
 
-		try {
-			this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
-		}
-		catch (error) {
-			if (callback) {
+		(async () => {
+			try {
+				this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
+			}
+			catch (error) {
 				return callback(error);
 			}
-			else {
-				throw error;
-			}
-		}
-		this.data = this.mongoClient.mongoCollections;
-		if (callback) {
+			this.data = this.mongoClient.mongoCollections;
 			callback();
-		}
+		})();
+	}
+
+	after (callback) {
+		(async () => {
+			if (this.mongoClient) {
+				await this.mongoClient.close();
+			}
+			callback();
+		})();
 	}
 
 	// create a test document which we'll manipulate and a control document which we won't touch

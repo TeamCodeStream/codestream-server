@@ -86,7 +86,7 @@ class MockMongoCollection {
 		};
 	}
 
-	async findAndModify (query, options, update) {
+	async findOneAndUpdate (query, update) {
 		const document = await this.findOne(query);
 		let result = null;
 		if (document) {

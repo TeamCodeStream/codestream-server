@@ -226,6 +226,7 @@ class MongoCollection {
 			options.fields.forEach(field => {
 				project[field] = 1;
 			});
+			delete options.fields;
 		}
 
 		return query;
@@ -358,7 +359,7 @@ class MongoCollection {
 			if (await this._tryApplyMongoOpByIdAndVersion(id, version, op, options)) {
 				break;
 			}
-			const refetchedDocument = await this.getById(id, { fields: ['version'] });
+			const refetchedDocument = await this.getById(id, { version: 1 });
 			if (refetchedDocument.version === version) {
 				throw this.errorHandler.error('updateFailureNoVersion');
 			}
@@ -415,12 +416,10 @@ class MongoCollection {
 			delete query.id;
 		}
 		const result = await this._runQuery(
-			'findAndModify',
+			'findOneAndUpdate',
 			query,
 			options,
-			{},
-			data,
-			options
+			data
 		);
 		await this._idStringify(result.value);
 		return result;

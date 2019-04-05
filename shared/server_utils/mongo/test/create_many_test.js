@@ -10,16 +10,18 @@ class CreateManyTest extends MongoTest {
 	}
 
 	// before the test runs...
-	async before (callback) {
-		try {
-			await super.before();			// set up mongo client
-			this.prepareDocuments();	// prepare the document data
-			await this.createDocuments();	// create the documents
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	before (callback) {
+		super.before(async error => {
+			if (error) { return callback(error); }
+			try {
+				this.prepareDocuments();	// prepare the document data
+				await this.createDocuments();	// create the documents
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		});
 	}
 
 	// prepare a set of documents
@@ -39,21 +41,23 @@ class CreateManyTest extends MongoTest {
 	}
 
 	// run the test...
-	async run (callback) {
-		// sort the documents to avoid ambiguous order in the comparison
-		this.testDocuments.sort((a, b) => {
-			return a.number - b.number;
-		});
-		// get the documents that should have been created, by ID, and verify we got them
-		const ids = this.testDocuments.map(document => { return document.id; });
-		let response;
-		try {
-			response = await this.data.test.getByIds(ids);
-		}
-		catch (error) {
-			this.checkResponse(error, response, callback);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			// sort the documents to avoid ambiguous order in the comparison
+			this.testDocuments.sort((a, b) => {
+				return a.number - b.number;
+			});
+			// get the documents that should have been created, by ID, and verify we got them
+			const ids = this.testDocuments.map(document => { return document.id; });
+			let response;
+			try {
+				response = await this.data.test.getByIds(ids);
+			}
+			catch (error) {
+				this.checkResponse(error, response, callback);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	// validate we got the documents we expected

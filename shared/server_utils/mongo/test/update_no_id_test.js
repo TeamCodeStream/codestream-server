@@ -10,33 +10,37 @@ class UpdateNoIdTest extends MongoTest {
 	}
 
 	// before the test runs...
-	async before (callback) {
-		try {
-			await super.before();			// set up mongo client
-			await this.createTestDocument(); // create a test document
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	before (callback) {
+		super.before(async error => {
+			if (error) { return callback(error); }
+			try {
+				await this.createTestDocument(); // create a test document
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		});
 	}
 
-	async run (callback) {
-		// to do an update operation, the caller must supply an ID, either in the options,
-		// or in the update itself ... if there is no ID, we should get back an error
-		const update = {
-			text: 'replaced!',
-			number: 123
-		};
-		try {
-			await this.data.test.update(update);
-		}
-		catch (error) {
-			const errorCode = 'MDTA-1001';
-			Assert(typeof error === 'object' && error.code && error.code === errorCode, `error code ${errorCode} expected`);
-			return callback();
-		}
-		callback('error not thrown');
+	run (callback) {
+		(async () => {
+			// to do an update operation, the caller must supply an ID, either in the options,
+			// or in the update itself ... if there is no ID, we should get back an error
+			const update = {
+				text: 'replaced!',
+				number: 123
+			};
+			try {
+				await this.data.test.update(update);
+			}
+			catch (error) {
+				const errorCode = 'MDTA-1001';
+				Assert(typeof error === 'object' && error.code && error.code === errorCode, `error code ${errorCode} expected`);
+				return callback();
+			}
+			callback('error not thrown');
+		})();
 	}
 }
 

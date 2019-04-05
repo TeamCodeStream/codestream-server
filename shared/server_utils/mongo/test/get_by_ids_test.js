@@ -9,30 +9,34 @@ class GetByIdsTest extends MongoTest {
 	}
 
 	// before the test runs...
-	async before (callback) {
-		try {
-			await super.before();					// set up mongo client
-			await this.createRandomDocuments();		// create a series of random documents
-			await this.filterTestDocuments();		// filter down to the ones we want`
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	before (callback) {
+		super.before(async error => {
+			if (error) { return callback(error); }
+			try {
+				await this.createRandomDocuments();		// create a series of random documents
+				await this.filterTestDocuments();		// filter down to the ones we want`
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		});
 	}
 
 	// run the test...
-	async run (callback) {
-		// get the documents we want, and verify we didn't get any others
-		let ids = this.testDocuments.map(document => { return document.id; });
-		let response;
-		try {
-			response = await this.data.test.getByIds(ids);
-		}
-		catch (error) {
-			this.checkResponse(error, response, callback);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			// get the documents we want, and verify we didn't get any others
+			let ids = this.testDocuments.map(document => { return document.id; });
+			let response;
+			try {
+				response = await this.data.test.getByIds(ids);
+			}
+			catch (error) {
+				this.checkResponse(error, response, callback);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	validateResponse () {

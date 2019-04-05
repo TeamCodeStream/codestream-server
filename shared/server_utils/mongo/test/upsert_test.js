@@ -10,15 +10,17 @@ class UpsertTest extends GetByIdTest {
 	}
 
 	// before the test runs...
-	async before (callback) {
-		try {
-			await super.before();
-			await this.updateDocument();
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	before (callback) {
+		super.before(async error => {
+			if (error) { return callback(error); }
+			try {
+				await this.updateDocument();
+			}
+			catch (error) {
+				return callback(error);
+			}
+			callback();
+		});
 	}
 
 	async updateDocument () {

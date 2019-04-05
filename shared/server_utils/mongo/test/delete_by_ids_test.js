@@ -8,17 +8,19 @@ class DeleteByIdsTest extends MongoTest {
 		return 'should not get documents after they have been deleted by ID';
 	}
 
-	async before (callback) {
-		try {
-			await super.before();					// set up mongo client
-			await this.createRandomDocuments();	// create a set of random documents
-			await this.filterTestDocuments();		// filter down to the documents we will NOT delete
-			await this.deleteDocuments();			// delete some of the documents
-		}
-		catch (error) {
-			return callback(error);
-		}
-		callback();
+	before (callback) {
+		super.before(async error => {
+			if (error) { return callback(error); }
+			try {
+				await this.createRandomDocuments();	// create a set of random documents
+				await this.filterTestDocuments();		// filter down to the documents we will NOT delete
+				await this.deleteDocuments();			// delete some of the documents
+			}
+			catch (error) {
+				return callback(error); 
+			}
+			callback();
+		});
 	}
 
 	// delete a subset of our test documents
@@ -32,17 +34,19 @@ class DeleteByIdsTest extends MongoTest {
 	}
 
 	// run the test...
-	async run (callback) {
-		// fetch all the test documents, but we should only get back the ones we didn't delete
-		const ids = this.documents.map(document => { return document.id; });
-		let response;
-		try {
-			response = await this.data.test.getByIds(ids);
-		}
-		catch (error) {
-			this.checkResponse(error, response, callback);
-		}
-		this.checkResponse(null, response, callback);
+	run (callback) {
+		(async () => {
+			// fetch all the test documents, but we should only get back the ones we didn't delete
+			const ids = this.documents.map(document => { return document.id; });
+			let response;
+			try {
+				response = await this.data.test.getByIds(ids);
+			}
+			catch (error) {
+				this.checkResponse(error, response, callback);
+			}
+			this.checkResponse(null, response, callback);
+		})();
 	}
 
 	validateResponse () {

@@ -28,6 +28,12 @@ class MongoClient {
 		return this;
 	}
 
+	async close () {
+		if (this.mongoClient) {
+			await this.mongoClient.close();
+		}
+	}
+
 	// establish the query logger ... in addition to logging all queries, we can also
 	// log slow queries and really slow queries according to threshold settings
 	establishQueryLogger () {
@@ -72,9 +78,10 @@ class MongoClient {
 			if (this.config.logger) {
 				this.config.logger.log(`Connecting to mongo: ${this.config.url}`);
 			}
-			this.db = await MongoDbClient.connect(
+			const settings = Object.assign({}, this.config.settings, { useNewUrlParser: true });
+			this.mongoClient = await MongoDbClient.connect(
 				this.config.url,
-				this.config.settings || {}
+				settings
 			);
 		}
 		catch (error) {
@@ -99,7 +106,7 @@ class MongoClient {
 			this.dbCollections[collection] = new MockMongoCollection({ collectionName: collection });
 		}
 		else {
-			this.dbCollections[collection] = this.db.collection(collection);
+			this.dbCollections[collection] = this.mongoClient.db().collection(collection);
 		}
 		this.mongoCollections[collection] = new MongoCollection({
 			dbCollection: this.dbCollections[collection],

@@ -72,39 +72,44 @@ class BasePubNubTest extends GenericTest {
 		BoundAsync.times(
 			this,
 			this.numClients,
-			async (n, timesCallback) => {
-				await this.pubnubForServer.grant(
-					this.authKeys[n],
-					this.channelName,
-					{
-						includePresence: this.withPresence
-					}
-				);
-				timesCallback();
+			(n, timesCallback) => {
+				(async () => {
+					await this.pubnubForServer.grant(
+						this.authKeys[n],
+						this.channelName,
+						{
+							includePresence: this.withPresence
+						}
+					);
+					timesCallback();
+				})();
 			},
 			callback
 		);
 	}
 
 	// begin listening to our random channel on the client
-	async listenOnClient (callback) {
+	listenOnClient (callback) {
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this),
 			this.messageReceiveTimeout || 5000
 		);
-		try {
-			await this.pubnubForClients[0].subscribe(
-				this.channelName,
-				this.messageReceived.bind(this),
-				{
-					withPresence: this.withPresence
-				}
-			);
-		}
-		catch (error) {
-			return callback(error);			
-		}
-		callback();
+
+		(async () => {
+			try {
+				await this.pubnubForClients[0].subscribe(
+					this.channelName,
+					this.messageReceived.bind(this),
+					{
+						withPresence: this.withPresence
+					}
+				);
+			}
+			catch (error) {
+				return callback(error);			
+			}
+			callback();
+		})();
 	}
 
 	// called if message doesn't arrive after timeout
@@ -132,12 +137,14 @@ class BasePubNubTest extends GenericTest {
 	}
 
 	// send a random message from the server
-	async sendRandomFromServer (callback) {
-		await this.pubnubForServer.publish(
-			this.message,
-			this.channelName
-		);
-		callback();
+	sendRandomFromServer (callback) {
+		(async () => {
+			await this.pubnubForServer.publish(
+				this.message,
+				this.channelName
+			);
+			callback();
+		})();
 	}
 
 	// wait for the message to be received

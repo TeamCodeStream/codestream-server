@@ -9,22 +9,17 @@ class UpdateTest extends GetByIdTest {
 	}
 
 	// before the test runs...
-	async before (callback) {
-		try {
-			await super.before();			// set up mongo client and create a test document
-			await this.updateDocument();	// update the test document
-		}
-		catch (error) {
-			if (callback) {
+	before (callback) {
+		super.before(async error => {
+			if (error) { return callback(error); }
+			try {
+				await this.updateDocument();	// update the test document
+			}
+			catch (error) {
 				return callback(error);
 			}
-			else {
-				throw error;
-			}
-		}
-		if (callback) {
 			callback();
-		}
+		});
 	}
 
 	async updateDocument () {
