@@ -351,11 +351,11 @@ s	}
 	// and discarding as much html as we can
 	async extractText () {
 		let text = '';
-		if (typeof this.text === 'string') {
-			text = this.text;
-		}
-		if (!text && typeof this.html === 'string') {
+		if (typeof this.html === 'string') {
 			text = this.textFromHtml(this.html);
+		}
+		else if (typeof this.text === 'string') {
+			text = this.text;
 		}
 		if (text) {
 			text = this.extractReply(text);

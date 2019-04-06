@@ -8,7 +8,7 @@ const APIConfig = require(process.env.CS_MAILIN_TOP + '/config/api');
 const InboundEmailConfig = require(process.env.CS_MAILIN_TOP + '/config/inbound_email');
 const PubNubConfig = require(process.env.CS_MAILIN_TOP + '/config/pubnub');
 const PubNub = require('pubnub');
-const PubNubClient = require(process.env.CS_MAILIN_TOP + '/server_utils/pubnub/pubnub_client');
+const PubNubClient = require(process.env.CS_MAILIN_TOP + '/server_utils/pubnub/pubnub_client_async');
 const FS = require('fs');
 const Assert = require('assert');
 const Path = require('path');
@@ -203,6 +203,7 @@ class EmailTest {
 		this.pubNubClient = new PubNubClient({
 			pubnub: client
 		});
+		this.pubNubClient.init();
 		callback();
 	}
 
@@ -236,7 +237,7 @@ class EmailTest {
 
 	// wait a bit, since access to the pubnub channel doesn't take effect immediately
 	wait (callback) {
-		setTimeout(callback, 5000);
+		setTimeout(callback, 2000);
 	}
 
 	// begin listening on the simulated client
@@ -249,11 +250,13 @@ class EmailTest {
 		);
 
 		// subscribe to the channel of interest
-		this.pubNubClient.subscribe(
-			this.channelName,
-			this.messageReceived.bind(this),
-			callback
-		);
+		(async () => {
+			await this.pubNubClient.subscribe(
+				this.channelName,
+				this.messageReceived.bind(this)
+			);
+			callback();
+		})();
 	}
 
 	// called if message doesn't arrive after timeout

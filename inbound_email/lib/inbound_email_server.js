@@ -9,7 +9,6 @@
 'use strict';
 
 const FS = require('fs');
-const Watchr = require('watchr');
 const Path = require('path');
 const ChildProcess = require('child_process');
 const FileHandler = require('./file_handler');
@@ -29,7 +28,7 @@ class InboundEmailServer {
 	async start () {
 		this.numOpenTasks = 0;
 		this.setListeners();	// set process listeners
-		await this.startWatching();	// start watching for files in the watched directory, representing inbound emails
+		this.startWatching();	// start watching for files in the watched directory, representing inbound emails
 		await this.touchPreExistingFiles();	// touch any pre-existing files, forcing them to trigger a change
 	}
 
@@ -41,33 +40,26 @@ class InboundEmailServer {
 	}
 
 	// start watching for changes to the inbound email directory
-	async startWatching () {
-		return new Promise((resolve, reject) => {
-			this.watcher = Watchr.open(
-				this.config.inboundEmail.inboundEmailDirectory,
-				this.onFileChange.bind(this),
-				error => {
-					if (error) {
-						return reject('Setting up watcher failed: ' + error);
-					}
-					this.log('Watching...');
-					resolve();
-				}
-			);
-			this.watcher.on('error', error => {
-				this.warn(`Watcher emitted an error: ${error}`);
-			});
-		});
+	startWatching () {
+		const path = this.config.inboundEmail.inboundEmailDirectory;
+		this.log(`Watching ${path}...`);
+		FS.watch(path, this.onFileChange.bind(this));
 	}
 
 	// called upon a change of file in the inbound email directory
-	onFileChange (changeType, filePath) {
-		if (changeType === 'create' || changeType === 'update') {
+	async onFileChange (changeType, file) {
+		if (changeType === 'rename') {
 			// new file, handle the inbound email
 			// or even for files that have been "updated", these may have been
 			// created earlier, but processing couldn't proceed because the file
 			// was incomplete
-			this.handleEmail(filePath);
+			const path = this.config.inboundEmail.inboundEmailDirectory;
+			const filePath = Path.join(path, file);
+			FS.access(filePath, error => {
+				if (!error) {
+					this.handleEmail(filePath);
+				}
+			});
 		}
 	}
 
@@ -144,7 +136,6 @@ class InboundEmailServer {
 	shutdown () {
 		if (this.shuttingDown) { return; }
 		this.shuttingDown = true;
-		this.stopWatching();
 		setTimeout(() => {
 			process.exit(0);
 		}, 100);
@@ -166,7 +157,6 @@ class InboundEmailServer {
 				},
 				5000
 			);
-			this.stopWatching();
 			this.shutdownPending = true;
 		}
 		else {
@@ -192,12 +182,7 @@ class InboundEmailServer {
 			this.shutdown();
 		}
 	}
-
-	// stop watching, we have a shutdown in progress
-	stopWatching () {
-		this.watcher.close();
-	}
-
+	
 	onSigint () {
 	}
 

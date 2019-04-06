@@ -9,6 +9,7 @@
 		"pubnub": "4.23.0",
 		"randomstring": "1.1.5",
 		"strftime": "0.10.0",
+		"uuid": "3.3.2",
 		"watchr": "4.1.0"
 	},
 	"devDependencies": {

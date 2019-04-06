@@ -95,7 +95,7 @@ fi
 
 
 # domain we use in the reply-to field of outbound emails_sent (match CS_API_REPLY_TO_DOMAIN)
-export CS_MAILIN_REPLY_TO_DOMAIN=dev.codestream.com
+export CS_MAILIN_REPLY_TO_DOMAIN=local.codestream.com
 
 # address we send outbound emails from (match CS_API_SENDER_EMAIL)
 export CS_MAILIN_SENDER_EMAIL=alerts@codestream.com
