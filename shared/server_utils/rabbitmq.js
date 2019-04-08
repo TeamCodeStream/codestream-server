@@ -26,7 +26,6 @@ class RabbitMQClient {
 			throw 'must provide a queue name';
 		}
 		const channel = await this.rabbitmq.createChannel();
-		await channel.deleteExchange(name);
 		await channel.assertExchange(
 			name,
 			'x-delayed-message',
