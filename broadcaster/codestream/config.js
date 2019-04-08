@@ -16,7 +16,7 @@ if (process.env.CS_BROADCASTER_CFG_FILE) {
 	LoggerCfg = { ...LoggerCfg, ...CfgFile.broadcastEngine.codestreamBroadcaster.logger};
 	Secrets = CfgFile.broadcastEngine.codestreamBroadcaster.secrets;
 	Secrets.subscriptionCheat = CfgFile.secrets.subscriptionCheat;
-	HttpsCfg = { ...CfgFile.apiProtocol.https, ...CfgFile.broadcastEngine.codestreamBroadcaster.port.toString() };
+	HttpsCfg = { ...CfgFile.apiProtocol.https, ...{ port: CfgFile.broadcastEngine.codestreamBroadcaster.port.toString() } };
 	console.log("using config file");
 }
 else {
