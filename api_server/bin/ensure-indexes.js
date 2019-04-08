@@ -92,9 +92,10 @@ function WaitUntilFinished() {
 }
 
 (async function() {
-	let db;
+	let mongoClient, db;
 	try {
-		db = await MongoClient.connect(MongoConfig.url);
+		mongoClient = await MongoClient.connect(MongoConfig.url, { useNewUrlParser: true });
+		db = mongoClient.db();
 	}
 	catch (error) {
 		console.log('mongo connect error', error);
