@@ -229,7 +229,7 @@ class CodeStream {
 		if (channel.startsWith('team-') && this.uidsByTeamChannel[channel]) {
 			const index = this.uidsByTeamChannel[channel].indexOf(uid);
 			if (index !== -1) {
-				this.uidsByTeamChannel.splice(index, 1);
+				this.uidsByTeamChannel[channel].splice(index, 1);
 			}
 		}
 	}
