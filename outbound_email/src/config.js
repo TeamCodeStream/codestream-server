@@ -2,25 +2,62 @@
 
 'use strict';
 
-// mongo configuration
+let Cfg = {
+	maxPostsPerEmail: 25	// maximum number of posts in an email notification
+};
 
-'use strict';
+Cfg.logging = {
+	basename: 'outbound-email',					// use this for the basename of the log file
+	retentionPeriod: 30 * 24 * 60 * 60 * 1000	// retain log files for this many milliseconds
+};
 
-// mongo url can come from either a raw supplied url or from individual components,
-// where authentication with user and password may or not be relevant
-let MongoUrl = process.env.CS_OUTBOUND_EMAIL_MONGO_URL;
-if (!MongoUrl) {
-	if (process.env.CS_OUTBOUND_EMAIL_MONGO_USER) {
-		MongoUrl = `mongodb://${process.env.CS_OUTBOUND_EMAIL_MONGO_USER}:${process.env.CS_OUTBOUND_EMAIL_MONGO_PASS}@${process.env.CS_OUTBOUND_EMAIL_MONGO_HOST}:${process.env.CS_OUTBOUND_EMAIL_MONGO_PORT}/${process.env.CS_OUTBOUND_EMAIL_MONGO_DATABASE}`;
-	}
-	else {
-		MongoUrl = `mongodb://${process.env.CS_OUTBOUND_EMAIL_MONGO_HOST}:${process.env.CS_OUTBOUND_EMAIL_MONGO_PORT}/${process.env.CS_OUTBOUND_EMAIL_MONGO_DATABASE}`;
-	}
+
+if (process.env.CS_OUTBOUND_EMAIL_CFG_FILE) {
+	let CfgFile = require(process.env.CS_OUTBOUND_EMAIL_CFG_FILE);
+	Cfg.mongo = CfgFile.mongo;
+	Cfg.mongo.hintsRequired = true;
+
+	Cfg.pubnub = CfgFile.broadcastEngine.pubnub;
+	Cfg.pubnub.uuid = 'OutboundEmailServer';
+
+	Cfg.socketCluster = {
+		host: CfgFile.broadcastEngine.codestreamBroadcaster.host,
+		port: CfgFile.broadcastEngine.codestreamBroadcaster.port,
+		broadcasterSecret: CfgFile.broadcastEngine.codestreamBroadcaster.secrets.api
+	};
+
+	Cfg.sendgrid = CfgFile.emailDeliveryService.sendgrid;
+
+	Cfg.logging.directory = CfgFile.outboundMailLogging.directory;
+	Cfg.logging.consoleOk = CfgFile.outboundMailLogging.consoleOk;
+
+	Cfg.rabbitmq = CfgFile.queuingEngine.rabbitmq;
+
+	Cfg.notificationInterval = CfgFile.email.notificationInterval;
+	Cfg.replyToDomain = CfgFile.email.replyToDomain;
+	Cfg.senderEmail = CfgFile.email.senderEmail;
+	Cfg.supportEmail = CfgFile.email.supportEmail;
+
+	// SQS queue for queueing outbound email messages
+	Cfg.outboundEmailQueueName = CfgFile.queuingEngine.awsSQS.sqs.outboundEmailQueueName;
+
+	Cfg.sessionAwayTimeout = CfgFile.apiServer.sessionAwayTimeout;
+
+	Cfg.smtp = CfgFile.emailDeliveryService.NodeMailer;
 }
-
-module.exports = {
-	// mongo connection configuration
-	mongo: {
+else {
+	// mongo url can come from either a raw supplied url or from individual components,
+	// where authentication with user and password may or not be relevant
+	let MongoUrl = process.env.CS_OUTBOUND_EMAIL_MONGO_URL;
+	if (!MongoUrl) {
+		if (process.env.CS_OUTBOUND_EMAIL_MONGO_USER) {
+			MongoUrl = `mongodb://${process.env.CS_OUTBOUND_EMAIL_MONGO_USER}:${process.env.CS_OUTBOUND_EMAIL_MONGO_PASS}@${process.env.CS_OUTBOUND_EMAIL_MONGO_HOST}:${process.env.CS_OUTBOUND_EMAIL_MONGO_PORT}/${process.env.CS_OUTBOUND_EMAIL_MONGO_DATABASE}`;
+		}
+		else {
+			MongoUrl = `mongodb://${process.env.CS_OUTBOUND_EMAIL_MONGO_HOST}:${process.env.CS_OUTBOUND_EMAIL_MONGO_PORT}/${process.env.CS_OUTBOUND_EMAIL_MONGO_DATABASE}`;
+		}
+	}
+	Cfg.mongo = {
 		host: process.env.CS_OUTBOUND_EMAIL_MONGO_HOST,
 		port: process.env.CS_OUTBOUND_EMAIL_MONGO_PORT,
 		database: process.env.CS_OUTBOUND_EMAIL_MONGO_DATABASE,
@@ -28,76 +65,71 @@ module.exports = {
 		pass: process.env.CS_OUTBOUND_EMAIL_MONGO_PASS,
 		url: MongoUrl,
 		hintsRequired: true
-	},
+	};
 
 	// pubnub connection configuration
-	pubnub: {
+	Cfg.pubnub = {
 		publishKey: process.env.CS_OUTBOUND_EMAIL_PUBNUB_PUBLISH_KEY,
 		subscribeKey: process.env.CS_OUTBOUND_EMAIL_PUBNUB_SUBSCRIBE_KEY,
 		secretKey: process.env.CS_OUTBOUND_EMAIL_PUBNUB_SECRET,
 		ssl: true,
 		keepAlive: true,
 		uuid: 'OutboundEmailServer'
-	},
+	};
 
 	// socket cluster connection configuration
-	socketCluster: {
+	Cfg.socketCluster = {
 		host: process.env.CS_OUTBOUND_EMAIL_SOCKET_CLUSTER_HOST,
 		port: process.env.CS_OUTBOUND_EMAIL_SOCKET_CLUSTER_PORT,
 		broadcasterSecret: process.env.CS_OUTBOUND_EMAIL_BROADCASTER_SECRET
-	},
-	
+	};
+
 	// sendgrid credentials
-	sendgrid: {
+	Cfg.sendgrid = {
 		url: '/v3/mail/send',
 		apiKey: process.env.CS_OUTBOUND_EMAIL_SENDGRID_SECRET,
 		emailTo: process.env.CS_OUTBOUND_EMAIL_TO // redirect emails to this address, for safe testing
-	},
+	};
+
+	// logging (for running as a service)
+	Cfg.logging.directory = process.env.CS_OUTBOUND_EMAIL_LOG_DIRECTORY;	// put log files in this directory
+	Cfg.logging.consoleOk = process.env.CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK;	// also output to the console
+
+	// RabbitMQ configuration
+	Cfg.rabbitmq = {
+		host: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_HOST,
+		port: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_PORT,
+		user: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_USER,
+		password: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_PASSWORD
+	};
+
+	// how often email notifications will be sent per stream
+	Cfg.notificationInterval = parseInt(process.env.CS_OUTBOUND_EMAIL_NOTIFICATION_INTERVAL || 300000, 10);
+
+	// reply to will be like <streamId>@dev.codestream.com
+	Cfg.replyToDomain = process.env.CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN || 'dev.codestream.com';
+
+	// we'll send emails from this address
+	Cfg.senderEmail = process.env.CS_OUTBOUND_EMAIL_SENDER_EMAIL || 'alerts@codestream.com';
+
+	// SQS queue for queueing outbound email messages
+	Cfg.outboundEmailQueueName = process.env.CS_OUTBOUND_EMAIL_SQS;
+
+	// email for support
+	Cfg.supportEmail = process.env.CS_OUTBOUND_EMAIL_SUPPORT_EMAIL || 'support@codestream.com';
+
+	// how long before we call a user "away" from keyboard
+	Cfg.sessionAwayTimeout = parseInt(process.env.CS_OUTBOUND_EMAIL_SESSION_AWAY_TIMEOUT || 10 * 60 * 1000, 10);
 
 	// smtp credentials
-	smtp: {
+	Cfg.smtp = {
 		service: process.env.CS_OUTBOUND_EMAIL_SMTP_SERVICE,
 		host: process.env.CS_OUTBOUND_EMAIL_SMTP_HOST,
 		port: process.env.CS_OUTBOUND_EMAIL_SMTP_PORT,
 		username: process.env.CS_OUTBOUND_EMAIL_SMTP_USERNAME,
 		password: process.env.CS_OUTBOUND_EMAIL_SMTP_PASSWORD,
 		emailTo: process.env.CS_OUTBOUND_EMAIL_TO // redirect emails to this address, for safe testing
-	},
+	};
+}
 
-	// RabbitMQ configuration
-	rabbitmq: {
-		host: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_HOST,
-		port: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_PORT,
-		user: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_USER,
-		password: process.env.CS_OUTBOUND_EMAIL_RABBITMQ_PASSWORD
-	},
-
-	// how often email notifications will be sent per stream
-	notificationInterval: parseInt(process.env.CS_OUTBOUND_EMAIL_NOTIFICATION_INTERVAL || 300000, 10), 
-
-	// how long before we call a user "away" from keyboard
-	sessionAwayTimeout: parseInt(process.env.CS_OUTBOUND_EMAIL_SESSION_AWAY_TIMEOUT || 10 * 60 * 1000, 10),	
-
-	// maximum number of posts in an email notification
-	maxPostsPerEmail: 25,
-
-	// we'll send emails from this address	
-	senderEmail: process.env.CS_OUTBOUND_EMAIL_SENDER_EMAIL || 'alerts@codestream.com', 
-
-	// email for support
-	supportEmail: process.env.CS_OUTBOUND_EMAIL_SUPPORT_EMAIL || 'support@codestream.com', 
-
-	// reply to will be like <streamId>@dev.codestream.com
-	replyToDomain: process.env.CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN || 'dev.codestream.com',
-
-	// SQS queue for queueing outbound email messages
-	outboundEmailQueueName: process.env.CS_OUTBOUND_EMAIL_SQS,
-	
-	// logging (for running as a service)
-	logging: {
-		directory: process.env.CS_OUTBOUND_EMAIL_LOG_DIRECTORY,	// put log files in this directory
-		basename: 'outbound-email',						// use this for the basename of the log file
-		retentionPeriod: 30 * 24 * 60 * 60 * 1000,		// retain log files for this many milliseconds
-		consoleOk: process.env.CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK // also output to the console
-	}
-};
+module.exports = Cfg;
