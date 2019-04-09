@@ -1,5 +1,5 @@
 
-FROM node:8.11.3
+FROM node:10.15.3
 
 ADD config /opt/api/api_server/config
 ADD lib /opt/api/api_server/lib
@@ -25,7 +25,7 @@ EXPOSE 12079
 
 ENV CS_API_TOP=/opt/api/api_server
 ENV CS_API_CFG_FILE=/opt/config/codestream-services-config.json
-# ENV AWS_ACCESS_KEY_ID=AKIAIOLVOAOGX57D5UBQ
-# ENV AWS_SECRET_ACCESS_KEY=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
+# ENV AWS_ACCESS_KEY_ID=
+# ENV AWS_SECRET_ACCESS_KEY=
 
 CMD [ "/opt/api/api_server/bin/cs_api-start-docker" ]
