@@ -49,7 +49,8 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	validateResponse (data) {
 		// validate we get back the expected user, an access token, and a pubnub subscription key
 		Assert(data.user.email === this.currentUser.user.email, 'email doesn\'t match');
-		Assert(data.user.lastLogin > this.beforeLogin, 'lastLogin not set to most recent login time');
+		Assert(data.user.lastLogin >= this.beforeLogin, 'lastLogin not set to most recent login time');
+		Assert(data.user.firstSessionStartedAt >= this.beforeLogin, 'firstSessionStartedAt not set to most recent login time');		
 		Assert.equal(data.user.lastOrigin, this.expectedOrigin, 'lastOrigin not set to plugin IDE');
 		Assert(data.accessToken, 'no access token');
 		Assert(data.pubnubKey, 'no pubnub key');

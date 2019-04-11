@@ -120,6 +120,9 @@ class LoginHelper {
 		if (origin) {
 			op.$set.lastOrigin = origin;
 		}
+		if (this.trueLogin) {
+			op.$set.firstSessionStartedAt = this.user.get('firstSessionStartedAt') === undefined ? Date.now() : 0;
+		}
 		await this.request.data.users.applyOpById(this.user.id, op);
 	}
 

@@ -75,6 +75,7 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			(user.fullName || errors.push('full name not set')) &&
 			(user.timeZone || errors.push('time zone not set')) &&
 			((user.lastLogin || 0) < this.beforeLogin || errors.push('last login time was set but should not have been')) && 
+			((user.firstSessionStartedAt === undefined) || errors.push('firstSessionStartedAt should not have been set')) && 
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&

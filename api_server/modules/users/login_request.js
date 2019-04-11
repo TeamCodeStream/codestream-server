@@ -52,7 +52,8 @@ class LoginRequest extends RestfulRequest {
 		this.responseData = await new LoginHelper({
 			request: this,
 			user: this.user,
-			loginType: this.loginType
+			loginType: this.loginType,
+			trueLogin: true
 		}).login();
 	}
 

@@ -71,7 +71,10 @@ class LoginTest extends CodeStreamAPITest {
 		// validate we get back the expected user, an access token, and a pubnub subscription key
 		Assert(data.user._id === data.user.id, 'id not set to _id');	// DEPRECATE ME
 		Assert(data.user.email === this.data.email, 'email doesn\'t match');
-		Assert(data.user.lastLogin > this.beforeLogin, 'lastLogin not set to most recent login time');
+		Assert(data.user.lastLogin >= this.beforeLogin, 'lastLogin not set to most recent login time');
+		if (!this.dontCheckFirstSession) {
+			Assert(data.user.firstSessionStartedAt >= this.beforeLogin, 'firstSessionStartedAt not set to most recent login time');
+		}
 		Assert.equal(data.user.lastOrigin, this.expectedOrigin, 'lastOrigin not set to plugin IDE');
 		Assert(data.accessToken, 'no access token');
 		Assert(data.pubnubKey, 'no pubnub key');

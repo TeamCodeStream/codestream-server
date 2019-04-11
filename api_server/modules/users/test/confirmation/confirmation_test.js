@@ -86,8 +86,10 @@ class ConfirmationTest extends CodeStreamAPITest {
 			((user.email === this.data.email) || errors.push('incorrect email')) &&
 			((user._id === this.userId) || errors.push('incorrect _id')) &&	// DEPRECATE ME
 			((user.id === this.userId) || errors.push('incorrect user id')) && 
-			((user.isRegistered ) || errors.push('isRegistered not set')) &&
-			((typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime) || errors.push('registeredAt not properly set'))
+			((user.isRegistered) || errors.push('isRegistered not set')) &&
+			((typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime) || errors.push('registeredAt not properly set')) &&
+			((typeof user.lastLogin === 'number' && user.lastLogin > this.beforeConfirmTime) || errors.push('lastLogin not properly set')) &&
+			((user.firstSessionStartedAt === undefined) || errors.push('firstSesssionStartedAt should not have been set'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert(data.accessToken, 'no access token');

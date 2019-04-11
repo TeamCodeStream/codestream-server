@@ -19,10 +19,7 @@ class CommonInit {
 
 	// form the data for the user update
 	makeUserData (callback) {
-		this.data = {};
-		this.attributes.forEach(attribute => {
-			this.data[attribute] = RandomString.generate(10);
-		});
+		this.setTestData();
 		this.expectedUser = DeepClone(this.currentUser.user);
 		Object.assign(this.expectedUser, this.data);
 		this.path = '/users/' + (this.id || this.currentUser.user.id);
@@ -41,6 +38,14 @@ class CommonInit {
 			}
 		};
 		callback();
+	}
+
+	// set the data to be used for the test
+	setTestData () {
+		this.data = {};
+		this.attributes.forEach(attribute => {
+			this.data[attribute] = RandomString.generate(10);
+		});
 	}
 
 	// perform the actual user update 

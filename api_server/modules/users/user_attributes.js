@@ -210,5 +210,11 @@ module.exports = {
 		type: 'string',
 		maxLength: 20,
 		description: 'Plugin IDE user was using when they last logged in'
+	},
+	firstSessionStartedAt: {
+		type: 'number',
+		serverOnly: true,
+		forMe: true,
+		description: 'Indicates first session for the user, cleared upon second login or 12 hours after first login (by client)'
 	}
 };

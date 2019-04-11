@@ -15,6 +15,7 @@ const NewTokenTest = require('./new_token_test');
 const TokenIsValidTest = require('./token_is_valid_test');
 const SubscriptionTest = require('./subscription_test');
 const DontUpdateLastLoginFromWebTest = require('./dont_update_last_login_from_web_test');
+const ClearFirstSessionTest = require('./clear_first_session_test');
 
 class LoginRequestTester {
 
@@ -35,6 +36,7 @@ class LoginRequestTester {
 		new SubscriptionTest({ which: 'team' }).test();
 		new SubscriptionTest({ which: 'stream' }).test();
 		new DontUpdateLastLoginFromWebTest().test();
+		new ClearFirstSessionTest().test();
 	}
 }
 

@@ -5,6 +5,11 @@ const Assert = require('assert');
 
 class DontUpdateLastLoginFromWebTest extends LoginTest {
 
+	constructor (options) {
+		super(options);
+		this.dontCheckFirstSession = true;
+	}
+
 	get description () {
 		return 'when logging in from the web app, lastLogin should NOT be updated';
 	}
@@ -25,6 +30,7 @@ class DontUpdateLastLoginFromWebTest extends LoginTest {
 	validateResponse (data) {
 		Assert(!data.user.lastLogin < this.beforeLogin, 'lastLogin was set by request');
 		Assert(data.user.lastOrigin !== 'webclient', 'lastOrigin was set to webclient');
+		Assert(data.user.firstSessionStartedAt === undefined, 'firstSessionStartedAt was set');
 		data.user.lastLogin = this.beforeLogin + 1;	// appease the rest of the validation
 		this.expectedOrigin = undefined;
 		super.validateResponse(data);
