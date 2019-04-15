@@ -62,11 +62,17 @@ class ConfirmHelper {
 
 	// proceed with the actual login, calling into a login helper 
 	async doLogin () {
-		this.responseData = await new LoginHelper({
+		const loginHelper = new LoginHelper({
 			request: this.request,
 			user: this.user,
 			loginType: this.loginType
-		}).login();
+		});
+		if (this.notTrueLogin) {
+			await loginHelper.allowLogin();
+		} 
+		else {
+			this.responseData = await loginHelper.login();
+		}
 	}
 
 	// update the user in the database, indicating they are confirmed
@@ -101,12 +107,12 @@ class ConfirmHelper {
 	// and add analytics data or other attributes as needed
 	async doUserUpdate () {
 		const now = Date.now();
-		let op = {
+		const op = {
 			$set: {
 				isRegistered: true,
 				modifiedAt: now,
 				registeredAt: now
-			},
+			}, 
 			$unset: {
 				confirmationCode: true,
 				confirmationAttempts: true,
@@ -114,14 +120,17 @@ class ConfirmHelper {
 				'accessTokens.conf': true
 			}
 		};
+
 		if (this.passwordHash) {
 			op.$set.passwordHash = this.passwordHash;
 		}
+
 		['username', 'fullName', 'timeZone'].forEach(attribute => {
 			if (this.data[attribute]) {
 				op.$set[attribute] = this.data[attribute];
 			}
 		});
+
 		if ((this.user.get('teamIds') || []).length > 0) {
 			if (!this.user.get('joinMethod')) {
 				op.$set.joinMethod = 'Added to Team';	// for tracking
@@ -131,12 +140,13 @@ class ConfirmHelper {
 			}
 			if (
 				!this.user.get('originTeamId') &&
-				this.teamCreator &&
+				this.teamCreator && 
 				this.teamCreator.get('originTeamId')
 			) {
 				op.$set.originTeamId = this.teamCreator.get('originTeamId');
 			}
 		}
+
 		this.request.transforms.userUpdate = await new ModelSaver({
 			request: this.request,
 			collection: this.request.data.users,

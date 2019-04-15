@@ -46,12 +46,12 @@ class ProviderDeauthRequest extends RestfulRequest {
 			host = host.toLowerCase().replace(/\./g, '*');
 			key += `.hosts.${host}`;
 		}
-		const existingProviderInfo = (this.user.get('providerInfo') || {})[teamId] || {};
+		const existingProviderInfo = this.user.getProviderInfo(provider, teamId);
 		if (
 			!host && 
-			existingProviderInfo[provider] &&
-			existingProviderInfo[provider].hosts &&
-			Object.keys(existingProviderInfo[provider].hosts).length > 0
+			existingProviderInfo &&
+			existingProviderInfo.hosts &&
+			Object.keys(existingProviderInfo.hosts).length > 0
 		) {
 			// if we have enterprise hosts for this provider, don't stomp on them
 			key += '.accessToken';

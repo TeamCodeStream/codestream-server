@@ -97,7 +97,9 @@ h1 {
   color: rgb(220, 223, 228);
   font: bold 24px "Helvetica Neue", arial, sans-serif;
 }
-
+h3 {
+  text-align: center;
+}
 .content {
   margin-top: -160px;
   display: flex;

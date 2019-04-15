@@ -7,6 +7,7 @@ const AuthenticatorErrors = require(process.env.CS_API_TOP + '/modules/authentic
 const Errors = require('./errors');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const ProviderIdentityConnector = require('./provider_identity_connector');
+const UserPublisher = require('./user_publisher');
 
 class ProviderTokenRequest extends RestfulRequest {
 
@@ -49,7 +50,9 @@ class ProviderTokenRequest extends RestfulRequest {
 				await this.matchOrCreateUser();
 				await this.saveSignupToken();
 			}
-			await this.saveToken();				// save the provided token
+			else {
+				await this.saveToken();				// save the provided token
+			}
 			await this.sendResponse();			// send the response html
 		}
 		catch (error) {
@@ -66,11 +69,13 @@ class ProviderTokenRequest extends RestfulRequest {
 					url += `&email=${encodeURIComponent(this.userIdentity.email)}`;
 				}
 				this.response.redirect(url);
-				this.responseHandled = true;
 			}
 			else {
-				throw error;
+				const message = error instanceof Error ? error.message : JSON.stringify(error);
+				this.warn('Error handling provider token request: ' + message);
+				this.response.redirect('/web/error');
 			}
+			this.responseHandled = true;
 		}
 	}
 
@@ -116,10 +121,9 @@ class ProviderTokenRequest extends RestfulRequest {
 			throw this.errorHandler.error('parameterRequired', { info: 'state' });
 		}
 		const stateProps = this.request.query.state.split('!');
-		this.stateToken = stateProps[1];
 		this.host = stateProps[2];
 		try {
-			this.tokenPayload = this.api.services.tokenHandler.verify(this.stateToken);
+			this.tokenPayload = this.api.services.tokenHandler.verify(stateProps[1]);
 		}
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;
@@ -195,7 +199,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			const host = this.host.replace(/\./g, '*');
 			setKey += `.hosts.${host}`;
 		}
-		const op = this.transforms.userUpdate || {};
+		const op = {};
 		delete op.id;
 		delete op._id;
 		op.$set = op.$set || {};
@@ -233,15 +237,6 @@ class ProviderTokenRequest extends RestfulRequest {
 
 		// now attempt to match the identifying info with an existing user
 		await this.matchUser(this.userIdentity); 
-		if (this.user) {
-			return;
-		}
-		else if (this.userId !== 'anonCreate') {
-			// if no match found, throw an error unless we're allowed to create a user
-			throw this.errorHandler.error('noIdentityMatch');
-		}
-
-		// TODO: here we create a new user, but not tackling that problem for now
 	}
 	
 	// match the identifying information with an existing CodeStream user
@@ -250,7 +245,6 @@ class ProviderTokenRequest extends RestfulRequest {
 			request: this,
 			provider: this.provider,
 			okToCreateUser: this.userId === 'anonCreate',
-			okToAddUserToTeam: this.userId === 'anonCreate',
 			mustMatchTeam: this.userId === 'anon',
 			mustMatchUser: this.userId === 'anon'
 		});
@@ -262,8 +256,11 @@ class ProviderTokenRequest extends RestfulRequest {
 	// if a signup token is provided, this allows a client session to identify the user ID that was eventually
 	// signed up as it originated from the IDE
 	async saveSignupToken () {
+		if (!this.tokenPayload.st) {
+			return;
+		}
 		await this.api.services.signupTokens.insert(
-			this.stateToken,
+			this.tokenPayload.st,
 			this.user.id,
 			{ 
 				requestId: this.request.id
@@ -285,14 +282,31 @@ class ProviderTokenRequest extends RestfulRequest {
 	// after a response is returned....
 	async postProcess () {
 		if (!this.user) { return; }
-		await this.publishUserToSelf();
+		// new users get published to the team channel
+		if (this.connector && (this.connector.userWasConfirmed || this.connector.userWasAddedToTeam)) {
+			await this.publishUserToTeams();
+		}
+		if (this.transforms.userUpdate) {
+			await this.publishUserToSelf();
+		}
 	}
 
-	// publish updated user to themselves, to propagate the new token
+	// publish the new user to the team channel
+	async publishUserToTeams () {
+		await new UserPublisher({
+			user: this.user,
+			data: this.user.getSanitizedObject(),
+			request: this,
+			broadcaster: this.api.services.broadcaster
+		}).publishUserToTeams();
+	}
+
+	// publish updated user to themselves, because their identity token has changed
 	async publishUserToSelf () {
 		const data = {
 			user: Object.assign(
 				{
+					_id: this.user.id,	// DEPRECATE ME
 					id: this.user.id
 				},
 				this.transforms.userUpdate

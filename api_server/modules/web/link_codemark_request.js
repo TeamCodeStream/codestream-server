@@ -196,7 +196,7 @@ class LinkCodemarkRequest extends APIRequest {
 
 	addIdentifyScript (props) {
 		const identifyOptions = {
-			provider: this.request.query.provider,
+			provider: PROVIDER_DISPLAY_NAMES[this.request.query.provider] || '???',
 			user: this.user,
 			team: this.team,
 			company: this.company,

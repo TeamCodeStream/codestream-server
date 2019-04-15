@@ -79,7 +79,10 @@ ApiCfg.unauthenticatedPaths = ['^\\/no-auth\\/', '^\\/robots\\.txt$'];
 // matching these paths means Authorization header is optional, behavior may vary
 ApiCfg.optionalAuthenticatedPaths = ['^\\/help(\\/|$)', '^\\/c\\/', '^\\/p\\/', '^\\/web\\/'];
 
-// matchines these paths means cookie authentication is required
+// matching these paths means cookie authentication is required
 ApiCfg.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/web\\/'];
+
+// server will use this cookie to store identity token
+ApiCfg.identityCookie = 'tcs';
 
 module.exports = ApiCfg;

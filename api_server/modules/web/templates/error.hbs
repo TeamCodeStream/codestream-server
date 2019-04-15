@@ -4,7 +4,10 @@
     <title>CodeStream</title>
     <link rel="icon" type="image/png" sizes="32x32" href="https://app.codestream.com/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="https://app.codestream.com/favicon-16x16.png" />
-    <link rel="stylesheet" href="/web/styles/web.css?_={{version}}" />
+    <link rel="stylesheet" href="/no-auth/web/styles/web.css?_={{version}}" />
+	<script>
+		history.pushState(null, "CodeStream", location.href.split("?")[0]);
+	</script>
 </head>
 <body>
     <div id="root">
@@ -16,6 +19,9 @@
                 <div class="box-content box-content">
                     <div class="box-border">
                         <h1>Sorry, something went wrong.</h1>
+                        {{#if code}}								
+							<h3>Error code: {{code}}</h3>
+						{{/if}}
                         <p style="text-align:center;">
                             Please contact <a href='mailto:support@codestream.com'>CodeStream support</a>.
                         </p>

@@ -4,13 +4,20 @@ const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request
 const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
 const WebErrors = require('./errors');
 
-class WebSlackAuthCompleteRequest extends APIRequest {
+class WebProviderAuthCompleteRequest extends APIRequest {
 
 	async authorize () {
 		// we'll handle auth during the request
 	}
 
 	async process () {
+		this.provider = this.request.params.provider.toLowerCase();
+		this.serviceAuth = this.api.services[`${this.provider}Auth`];
+		if (!this.serviceAuth) {
+			this.warn(`Auth service ${this.provider} is not available`);
+			return this.badError();
+		}
+
 		await this.verifyState() &&			// verify the state token passed in
 		await this.handleError() &&			// handle any error in the query
 		await this.matchSignupToken() &&	// match the signup token to a user ID
@@ -20,25 +27,26 @@ class WebSlackAuthCompleteRequest extends APIRequest {
 	}
 
 	async verifyState () {
+		if (this.request.query.error) { return true; }
 		// we should get a state parametezr in the query, and we should have a stored cookie,
 		// and they should match
 		const { state } = this.request.query;
 		const stateProps = state.split('!');
-		this.code = stateProps[1];
+		const code = stateProps[1];
 
-		const storedCode = this.request.signedCookies.tslack;
-		if (!this.code || !storedCode || this.code !== storedCode) {
-			this.warn(`Received state code ${this.code} which did not match stored ${storedCode}`);
+		const storedCode = this.request.signedCookies[`t-${this.provider}`];
+		if (!code || !storedCode || code !== storedCode) {
+			this.warn(`Received state code ${code} which did not match stored ${storedCode}`);
 			return this.badError();
 		}
-		this.response.clearCookie('tslack', {
+		this.response.clearCookie(`t-${this.provider}`, {
 			secure: true,
 			signed: true
 		});
 
 		// decode the payload
 		try {
-			this.payload = this.api.services.tokenHandler.decode(this.code);
+			this.payload = this.api.services.tokenHandler.decode(code);
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -72,12 +80,12 @@ class WebSlackAuthCompleteRequest extends APIRequest {
 		case 'noIdentityMatch': {
 			const email = this.request.query.email ?
 				decodeURIComponent(this.request.query.email).toLowerCase() :
-				'Slack user';
+				`${this.provider} user`;
 			return this.loginError(WebErrors.userNotFound, { email });
 		}
 
 		case 'duplicateProviderAuth':
-			return this.loginError(WebErrors.noAccessToCodemark);
+			return this.loginError(WebErrors.providerLoginFailed);
 
 		default:
 			if (this.payload) {
@@ -90,12 +98,15 @@ class WebSlackAuthCompleteRequest extends APIRequest {
 	}
 
 	async matchSignupToken () {
+		if (!this.payload.st) {
+			return;
+		}
 		const info = await this.api.services.signupTokens.find(
-			this.code,
+			this.payload.st,
 			{ requestId: this.request.id }
 		);
 		if (!info) {
-			return this.loginError(WebErrors.slackLoginFailed);
+			return this.loginError(WebErrors.providerLoginFailed);
 		}
 		else if (info.expired) {
 			return this.loginError(WebErrors.tokenExpired);
@@ -125,7 +136,7 @@ class WebSlackAuthCompleteRequest extends APIRequest {
 			return this.loginError(WebErrors.userNotRegistered);
 		}
 
-		this.response.cookie('t', this.token, {
+		this.response.cookie(this.api.config.api.identityCookie, this.token, {
 			secure: true,
 			signed: true
 		});
@@ -134,7 +145,7 @@ class WebSlackAuthCompleteRequest extends APIRequest {
 
 	finishFlow () {
 		const finishUrl = this.payload.end || '/web/finish';
-		const redirect = `${finishUrl}?identify=true&provider=Slack`;
+		const redirect = `${finishUrl}?identify=true&provider=${this.provider}`;
 		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}
@@ -145,13 +156,19 @@ class WebSlackAuthCompleteRequest extends APIRequest {
 	}
 
 	loginError (error, data) {
+		if (!this.payload || !this.payload.end) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.warn('Auth complete request failed: ' + message);
+			return this.badError();
+		}
 		let redirect = `${this.payload.end}?error=${error.code}`;
 		if (data) {
 			redirect += `&errorData=${encodeURIComponent(JSON.stringify(data))}`;
 		}
+		this.warn('Web login error: ' + error.code);
 		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}
 }
 
-module.exports = WebSlackAuthCompleteRequest;
+module.exports = WebProviderAuthCompleteRequest;

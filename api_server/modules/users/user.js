@@ -408,6 +408,20 @@ class User extends CodeStreamModel {
 			return this.get('accessToken');
 		}
 	}
+
+	// get the provider info for this user, by provider and team
+	getProviderInfo (provider, teamId = null) {
+		let providerInfo = this.get('providerInfo');
+		if (!providerInfo) { return; }
+		return (
+			teamId && 
+			providerInfo[teamId] &&
+			providerInfo[teamId][provider]
+		) ||
+		(
+			providerInfo[provider]
+		);
+	}
 }
 
 module.exports = User;

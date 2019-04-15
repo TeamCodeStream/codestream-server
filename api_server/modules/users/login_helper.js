@@ -14,6 +14,7 @@ class LoginHelper {
 		this.loginType = this.loginType || 'web';
 	}
 
+	// perform a true login for the user, including returning full response data
 	async login () {
 		await this.getInitialData();
 		await this.generateAccessToken();
@@ -24,6 +25,13 @@ class LoginHelper {
 		return this.responseData;
 	}
 
+	// prepare for the user being allowed to login, without actually generating the
+	// response data needed for a true login
+	async allowLogin () {
+		await this.generateAccessToken();
+		await this.grantSubscriptionPermissions();
+	}
+
 	// get the initial data to return in the response, this is a time-saver for the client
 	// so it doesn't have to fetch this data with separate requests
 	async getInitialData () {
@@ -32,25 +40,6 @@ class LoginHelper {
 			user: this.user
 		});
 		this.initialData = await this.initialDataFetcher.fetchInitialData();
-	}
-
-	// grant the user permission to subscribe to various broadcaster channels
-	async grantSubscriptionPermissions () {
-		// note - it is tough to determine whether this should go before or after the response ... with users in a lot
-		// of streams, there could be a performance hit here, but do we want to take a performance hit or do we want
-		// to risk the client subscribing to channels for which they don't yet have permissions? i've opted for the
-		// performance hit, and i suspect it won't ever be a problem, but be aware...
-		try {
-			await new UserSubscriptionGranter({
-				data: this.request.data,
-				broadcaster: this.request.api.services.broadcaster,
-				user: this.user,
-				request: this.request
-			}).grantAll();
-		}
-		catch (error) {
-			throw this.request.errorHandler.error('userMessagingGrant', { reason: error });
-		}
 	}
 
 	// generate an access token for this login if needed
@@ -152,6 +141,9 @@ class LoginHelper {
 
 	// form the response to the request
 	async formResponse () {
+		if (this.notTrueLogin) {
+			return;
+		}
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
@@ -170,6 +162,25 @@ class LoginHelper {
 			};
 		}
 		Object.assign(this.responseData, this.initialData);
+	}
+
+	// grant the user permission to subscribe to various broadcaster channels
+	async grantSubscriptionPermissions () {
+		// note - it is tough to determine whether this should go before or after the response ... with users in a lot
+		// of streams, there could be a performance hit here, but do we want to take a performance hit or do we want
+		// to risk the client subscribing to channels for which they don't yet have permissions? i've opted for the
+		// performance hit, and i suspect it won't ever be a problem, but be aware...
+		try {
+			await new UserSubscriptionGranter({
+				data: this.request.data,
+				broadcaster: this.request.api.services.broadcaster,
+				user: this.user,
+				request: this.request
+			}).grantAll();
+		}
+		catch (error) {
+			throw this.request.errorHandler.error('userMessagingGrant', { reason: error });
+		}
 	}
 }
 

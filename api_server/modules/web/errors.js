@@ -27,9 +27,9 @@ module.exports = {
 		code: 'SWEB-1005',
 		message: 'User is not yet registered on CodeStream.'
 	},
-	'slackLoginFailed': {
+	'providerLoginFailed': {
 		code: 'SWEB-1006',
-		message: 'Slack login failed.'
+		message: 'Provider login failed.'
 	},
 	'tokenExpired': {
 		code: 'SWEB-1007',

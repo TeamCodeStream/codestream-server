@@ -14,7 +14,7 @@ class WebLoginRequest extends APIRequest {
 		const url = this.request.query.url ? decodeURIComponent(this.request.query.url) : '';
 		const email = this.request.query.email ? decodeURIComponent(this.request.query.email) : '';
 		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
-		const slackLink = `/web/slack-auth?url=${encodeURIComponent(url)}&teamId=${teamId}`;
+		const slackLink = `/web/provider-auth/slack?url=${encodeURIComponent(url)}&teamId=${teamId}`;
 		const error = this.request.query.error ? this.handleError() : '';
 		this.module.evalTemplate(this, 'login', { 
 			error,

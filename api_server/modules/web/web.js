@@ -32,17 +32,22 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
-		path: 'web/slack-auth',
-		requestClass: require('./web_slack_auth_request')
+		path: 'web/provider-auth/:provider',
+		requestClass: require('./web_provider_auth_request')
 	},
 	{
 		method: 'get',
-		path: 'web/slack-auth-complete',
-		requestClass: require('./web_slack_auth_complete_request')
+		path: 'web/provider-auth-complete/:provider',
+		requestClass: require('./web_provider_auth_complete_request')
 	},
-	{
+	{   
 		method: 'get',
 		path: 'web/error',
+		requestClass: require('./web_error_request')
+	},
+	{   
+		method: 'get',
+		path: 'no-auth/web/error',
 		requestClass: require('./web_error_request')
 	},
 	{
@@ -57,7 +62,7 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
-		path: 'web/styles/web.css',
+		path: 'no-auth/web/styles/web.css',
 		requestClass: require('./web_style')
 	},
 	{

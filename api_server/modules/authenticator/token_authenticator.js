@@ -16,13 +16,31 @@ class TokenAuthenticator {
 
 	// authenticate the request, we'll look for the token in a variety of places
 	async authenticate () {
-		const noTokenNeeded = await this.getToken();
-		if (noTokenNeeded) {
-			return;
+		try {
+			const noTokenNeeded = await this.getToken();
+			if (noTokenNeeded) {
+				return;
+			}
+			await this.verifyToken();
+			await this.getUser();
+			await this.validateToken();
 		}
-		await this.verifyToken();
-		await this.getUser();
-		await this.validateToken();
+		catch (error) {
+			if (
+				this.pathIsCookieAuth(this.request) &&
+				this.pathIsOptionalAuth(this.request)
+			) {
+				const cookie = this.api.config.api.identityCookie || 't';
+				this.response.clearCookie(cookie, {
+					secure: true,
+					signed: true
+				});
+				return;
+			}
+			else {
+				throw error;
+			}
+		}
 	}
 
 	// get the authentication token from any number of places
@@ -35,7 +53,8 @@ class TokenAuthenticator {
 
 		// certain paths required cookie authentication
 		if (this.pathIsCookieAuth(this.request)) {
-			token = (this.request.signedCookies && this.request.signedCookies.t);
+			const cookie = this.api.config.api.identityCookie || 't';
+			token = (this.request.signedCookies && this.request.signedCookies[cookie]);
 		}
 
 		// otherwise look for a Bearer token

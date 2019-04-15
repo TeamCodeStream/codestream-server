@@ -36,6 +36,9 @@ class Authenticator extends APIServerModule {
 				}).authenticate();
 			}
 			catch (error) {
+				if (this.pathIsWeb(request) && this.api.config.api.webErrorRedirect) {
+					return response.redirect(this.api.config.api.webErrorRedirect + '?code=' + error.code);
+				}
 				// fail with a 401, signalling no authentication at all
 				response.set('WWW-Authenticate', 'Bearer');
 				request.abortWith = {
@@ -52,6 +55,15 @@ class Authenticator extends APIServerModule {
 		return async () => {
 			return { tokenHandler: this.tokenHandler };
 		};
+	}
+
+	// certain paths are associated with web requests, and should be redirected to an error page
+	pathIsWeb (request) {
+		const paths = this.api.config.api.webPaths || [];
+		return paths.find(path => {
+			const regExp = new RegExp(path);
+			return request.path.match(regExp);
+		});
 	}
 
 	// describe any errors associated with this module, for help

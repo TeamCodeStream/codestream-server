@@ -3,31 +3,34 @@
 const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 const WebErrors = require('./errors');
 
-class WebSlackAuthRequest extends APIRequest {
+class WebProviderAuthRequest extends APIRequest {
 
 	async authorize () {
 	}
 
 	async process () {
-		if (!this.api.services.slackAuth) {
-			this.warn('Slack auth is not available');
+		this.provider = this.request.params.provider.toLowerCase();
+		this.serviceAuth = this.api.services[`${this.provider}Auth`];
+		if (!this.serviceAuth) {
+			this.warn(`Auth service ${this.provider} is not available`);
 			this.redirectLogin(WebErrors.internalError.code);
 			return;
 		}
 
 		const expiresAt = Date.now() + 2 * 60 * 1000;
 		const payload = {
-			userId: 'anon',
+			userId: 'anonCreate', //this.request.query.createOk ? 'anonCreate' : 'anon',
 			teamId: this.request.query.teamId || '',
-			url: `${this.api.config.api.publicApiUrl}/web/slack-auth-complete`,
-			end: this.request.query.url
+			url: `${this.api.config.api.publicApiUrl}/web/provider-auth-complete/${this.provider}`,
+			end: this.request.query.url || '',
+			st: this.request.query.signupToken || ''
 		};
 		const code = this.api.services.tokenHandler.generate(
 			payload,
 			'pauth',
 			{ expiresAt }
 		);
-		this.response.cookie('tslack', code, {
+		this.response.cookie(`t-${this.provider}`, code, {
 			secure: true,
 			signed: true
 		});
@@ -35,16 +38,16 @@ class WebSlackAuthRequest extends APIRequest {
 		// set up options for initiating a redirect 
 		const { authOrigin, callbackEnvironment } = this.api.config.api;
 		let state = `${callbackEnvironment}!${code}`;
-		const redirectUri = `${authOrigin}/provider-token/slack`;
+		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 		const options = {
 			state,
-			provider: 'slack',
+			provider: this.provider,
 			request: this,
 			redirectUri
 		};
 
 		// get the specific query data to use in the redirect, and respond with the redirect url
-		const { parameters, url } = this.api.services.slackAuth.getRedirectData(options); 
+		const { parameters, url } = this.serviceAuth.getRedirectData(options); 
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
@@ -59,4 +62,4 @@ class WebSlackAuthRequest extends APIRequest {
 	}
 }
 
-module.exports = WebSlackAuthRequest;
+module.exports = WebProviderAuthRequest;

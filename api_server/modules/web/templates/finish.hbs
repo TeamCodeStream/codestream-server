@@ -5,7 +5,10 @@
     <title>CodeStream</title>
     <link rel="icon" type="image/png" sizes="32x32" href="https://app.codestream.com/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="https://app.codestream.com/favicon-16x16.png" />
-    <link rel="stylesheet" href="/web/styles/web.css?_={{version}}" />
+    <link rel="stylesheet" href="/no-auth/web/styles/web.css?_={{version}}" />
+    <script>
+        history.pushState(null, "CodeStream", location.href.split("?")[0]);
+    </script>
 </head>
 
 <body>
@@ -17,7 +20,8 @@
             <div class="box">
                 <div class="box-content box-content">
                     <div class="box-border">
-                        <h1>Thanks for signing in to CodeStream!</h1>
+                      <h1>All Set!</h1>
+                      <h3>You can now head back to your editor and start using CodeStream.</h3>
                     </div>
                 </div>
             </div>

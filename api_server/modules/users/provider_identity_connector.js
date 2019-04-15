@@ -10,6 +10,7 @@ const TeamIndexes = require(process.env.CS_API_TOP + '/modules/teams/indexes');
 const TeamCreator = require(process.env.CS_API_TOP + '/modules/teams/team_creator');
 const AddTeamMember = require(process.env.CS_API_TOP + '/modules/teams/add_team_member');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const ConfirmHelper = require('./confirm_helper');
 
 class ProviderIdentityConnector {
 
@@ -25,16 +26,12 @@ class ProviderIdentityConnector {
 	async connectIdentity (providerInfo) {
 		this.providerInfo = providerInfo;
 
-		// must have an email or we can't proceed
-		if (!this.providerInfo.email) {
-			throw this.errorHandler.error('parameterRequired', { info: 'email' });
-		}
-		if (!this.providerInfo.teamId) {
-			throw this.errorHandler.error('parameterRequired', { info: 'teamId' });
-		}
-		if (!this.providerInfo.userId) {
-			throw this.errorHandler.error('parameterRequired', { info: 'userId' });
-		}
+		// must have these attributes from the provider or we can't proceed
+		['email', 'teamId', 'teamName', 'userId'].forEach(attribute => {
+			if (!this.providerInfo[attribute]) {
+				throw this.errorHandler.error('parameterRequired', { info: attribute });
+			}
+		});
 
 		// for usernames, if we couldn't get one, take the first part of the email
 		if (!this.providerInfo.username) {
@@ -44,8 +41,11 @@ class ProviderIdentityConnector {
 
 		await this.findTeam();
 		await this.findUser();
-		await this.createOrUpdateUser();
-		await this.addUserToTeam();
+		await this.createUserAsNeeded();
+		await this.createTeamAsNeeded();
+		await this.addUserToTeamAsNeeded();
+		await this.setUserProviderInfo();
+		await this.confirmUserAsNeeded();
 	}
 	
 	// find the team corresponding to the provider identity, if any
@@ -95,23 +95,21 @@ class ProviderIdentityConnector {
 			query,
 			{ hint: Indexes.byProviderIdentities }
 		);
+		if (!user) { return; }
+		this.request.log('Matched user ' + user.id + ' by provider identity');
+		
+		const teamId = this.team ? this.team.id : null;
+		const userProviderInfo = user.getProviderInfo(this.provider, teamId);
 
 		// if we found a user, but the user is on a different team, throw an error,
 		// we can't allow the user to be logged in for this provider in two different ways (yet)
-		if (user) {
-			const userProviderInfo = user.get('providerInfo') || {};
-			if (
-				userProviderInfo &&
-				userProviderInfo[this.provider] && 
-				userProviderInfo[this.provider].teamId !== this.providerInfo.teamId
-			) {
-				throw this.errorHandler.error('duplicateProviderAuth');
-			}
+		if (
+			userProviderInfo &&
+			userProviderInfo.teamId !== this.providerInfo.teamId
+		) {
+			throw this.errorHandler.error('duplicateProviderAuth');
 		}
 
-		if (user) {
-			this.request.log('Matched user ' + user.id + ' by provider identity');
-		}
 		return user;
 	}
 
@@ -126,8 +124,9 @@ class ProviderIdentityConnector {
 		// if we found a user, but we see that the user already has credentials for this provider,
 		// throw an error, we can't allow the user to be logged in for this provider in two different ways (yet)
 		if (user) {
-			const userProviderInfo = user.get('providerInfo') || {};
-			if (userProviderInfo[this.provider]) {
+			const teamId = this.team ? this.team.id : null;
+			const userProviderInfo = user.getProviderInfo(this.provider, teamId);
+			if (userProviderInfo) {
 				throw this.errorHandler.error('duplicateProviderAuth');
 			}
 			this.request.log('Matched user ' + user.id + ' by email');
@@ -136,25 +135,91 @@ class ProviderIdentityConnector {
 		return user;
 	}
 
-	// create the user based on the passed information, or update an existing user if we found a user
-	// that matched the credentials given for the provider
-	async createOrUpdateUser () {
+	// create a provider-registered user if one was not found, based on the passed information
+	async createUserAsNeeded () {
 		if (this.user) {
-			await this.updateUser();
+			return;
 		}
-		else if (this.okToCreateUser) {
-			this.request.log('No match to user, will create...');
-			await this.createUser();
+		else if (!this.okToCreateUser) {
+			return;
 		}
+
+		this.request.log('No match to user, will create...');
+		this.userCreator = new UserCreator({
+			request: this.request,
+			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
+			subscriptionCheat: this._subscriptionCheat === this.api.config.secrets.subscriptionCheat
+		});
+
+		const userData = {
+			_pubnubUuid: this._pubnubUuid,
+			providerIdentities: [`${this.provider}::${this.providerInfo.userId}`]
+		};
+		['email', 'username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn'].forEach(attribute => {
+			if (this.providerInfo[attribute]) {
+				userData[attribute] = this.providerInfo[attribute];
+			}
+		});
+		if (this.team) {
+			userData.providerInfo = {
+				[this.provider]: {
+					[this.team.id]: {
+						userId: this.providerInfo.userId,
+						teamId: this.providerInfo.teamId,
+						accessToken: this.providerInfo.accessToken
+					}
+				}
+			};
+		}
+		this.user = this.createdUser = await this.userCreator.createUser(userData);
+	}
+	
+	// create a team to associate with this identity, if one was not found
+	async createTeamAsNeeded () {
+		if (this.team) {
+			return;
+		}
+
+		this.request.log('No match to team, will create...');
+		const teamData = {
+			name: this.providerInfo.teamName
+		};
+		this.request.user = this.user;
+		this.team = this.createdTeam = await new TeamCreator({
+			request: this.request,
+			providerIdentities: [`${this.provider}::${this.providerInfo.teamId}`],
+			providerInfo: {
+				[this.provider]: {
+					teamId: this.providerInfo.teamId
+				}
+			}
+		}).createTeam(teamData);
 	}
 
-	// we found an existing user that matched the credentials, perform any update to the user object here
-	async updateUser () {
+	// one way or the other the user will be added to a team ... if there was no team identified
+	// with the provider credentials, create one, and if there was one, add the user to it
+	async addUserToTeamAsNeeded () {
+		if (this.team.get('memberIds').includes(this.user.id)) {
+			return;
+		}
+		await new AddTeamMember({
+			request: this.request,
+			addUser: this.user,
+			team: this.team
+		}).addTeamMember();
+		this.userWasAddedToTeam = true;
+	}
+
+	// might need to update the user object, either because we had to create it before we had to create or team,
+	// or because we found an existing user object, and its identity information from the provider has changed
+	async setUserProviderInfo () {
 		let mustUpdate = false;
 
 		// if the key provider info (userId or accessToken) has changed, we need to update
-		const existingProviderInfo = (this.user.get('providerInfo') || {})[this.provider];
+		const teamlessProviderInfo = this.user.getProviderInfo(this.provider);
+		const existingProviderInfo = this.user.getProviderInfo(this.provider, this.team.id);
 		if (
+			teamlessProviderInfo || 
 			!existingProviderInfo || 
 			existingProviderInfo.userId !== this.providerInfo.userId ||
 			existingProviderInfo.accessToken !== this.providerInfo.accessToken
@@ -182,96 +247,50 @@ class ProviderIdentityConnector {
 			return !id.startsWith(`${this.provider}::`);
 		});
 		identities.push(`${this.provider}::${this.providerInfo.userId}`);
-		const op = {
+		const op = { 
 			$set: {
-				providerIdentities: identities,
-				[`providerInfo.${this.provider}`]: {
-					userId: this.providerInfo.userId,
-					teamId: this.providerInfo.teamId,
-					accessToken: this.providerInfo.accessToken
-				},
 				modifiedAt: Date.now()
+			},
+			$unset: {
+				[`providerInfo.${this.provider}`]: true	// delete old way of storing provider info that is not associated with a team
 			}
 		};
+		Object.assign(op.$set, {
+			providerIdentities: identities,
+			[`providerInfo.${this.team.id}.${this.provider}`]: {
+				userId: this.providerInfo.userId,
+				teamId: this.providerInfo.teamId,
+				accessToken: this.providerInfo.accessToken
+			}
+		});
 
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this.request,
 			collection: this.data.users,
 			id: this.user.id
 		}).save(op);
-		this.identityUpdated = true;
 	}
 
-	// this is the first login for this user to CodeStream, create a new user record with confirmed registration
-	async createUser () {
-		this.userCreator = new UserCreator({
-			request: this.request,
-			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
-			subscriptionCheat: this._subscriptionCheat === this.api.config.secrets.subscriptionCheat
-		});
+	// if we found an existing unregistered user, signing in is like confirmation,
+	// so update the user to indicate they are confirmed
+	async confirmUserAsNeeded () {
+		if (this.user.get('isRegistered')) {
+			return;
+		}
 
-		const userData = {
-			_pubnubUuid: this._pubnubUuid,
-			providerInfo: {
-				[this.provider]: {
-					userId: this.providerInfo.userId,
-					teamId: this.providerInfo.teamId,
-					accessToken: this.providerInfo.accessToken
-				}
-			},
-			providerIdentities: [`${this.provider}::${this.providerInfo.userId}`]
-		};
-		['email', 'username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn'].forEach(attribute => {
+		const userData = {};
+		['email', 'username', 'fullName', 'timeZone'].forEach(attribute => {
 			if (this.providerInfo[attribute]) {
 				userData[attribute] = this.providerInfo[attribute];
 			}
 		});
-		this.user = this.createdUser = await this.userCreator.createUser(userData);
-	}
-
-	// one way or the other the user will be added to a team ... if there was no team identified
-	// with the provider credentials, create one, and if there was one, add the user to it
-	async addUserToTeam () {
-		if (!this.okToAddUserToTeam) {
-			return;
-		}
-		if (!this.team) {
-			await this.createTeam();
-		}
-		await this.addToTeam();
-	}
-
-	// create a team to associate with this identity
-	async createTeam () {
-		if (!this.providerInfo.teamName) {
-			return;
-		}
-		const teamData = {
-			name: this.providerInfo.teamName
-		};
-		this.request.user = this.user;
-		this.team = this.createdTeam = await new TeamCreator({
-			request: this.request,
-			providerIdentities: [`${this.provider}::${this.providerInfo.teamId}`],
-			providerInfo: {
-				[this.provider]: {
-					teamId: this.providerInfo.teamId
-				}
-			}
-		}).createTeam(teamData);
-	}
-
-	// add the passed user to the team indicated, this will create the user as needed
-	async addToTeam () {
-		if (!this.team || this.team.get('memberIds').includes(this.user.id)) {
-			return;
-		}
-		await new AddTeamMember({
-			request: this.request,
-			addUser: this.user,
-			team: this.team
-		}).addTeamMember();
-		this.userWasAddedToTeam = true;
+		await new ConfirmHelper({
+			request: this,
+			user: this.user,
+			dontCheckUsername: true,
+			notTrueLogin: true
+		}).confirm(userData);
+		this.userWasConfirmed = true;
 	}
 }
 
