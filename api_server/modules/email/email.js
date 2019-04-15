@@ -3,7 +3,6 @@
 'use strict';
 
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
-const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
 class Email extends APIServerModule {
 
@@ -42,8 +41,7 @@ class Email extends APIServerModule {
 		}
 
 		const delay = options.delay ? Math.floor(options.delay / 1000) : 0;
-		await callbackWrap(
-			this.api.services.queueService.sendMessage.bind(this.api.services.queueService),
+		await this.api.services.queueService.sendMessage(
 			this.api.config.aws.sqs.outboundEmailQueueName,
 			message,
 			{ delay }
