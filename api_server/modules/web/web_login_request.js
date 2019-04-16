@@ -11,6 +11,7 @@ class WebLoginRequest extends APIRequest {
 	}
 
 	async process () {
+		const csrf = this.request.csrfToken();
 		const url = this.request.query.url ? decodeURIComponent(this.request.query.url) : '';
 		const email = this.request.query.email ? decodeURIComponent(this.request.query.email) : '';
 		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
@@ -22,7 +23,8 @@ class WebLoginRequest extends APIRequest {
 			teamId,
 			finishUrl: decodeURIComponent(this.request.query.url || ''),
 			slackLink,
-			version: this.module.versionInfo()
+			version: this.module.versionInfo(),
+			csrf
 		});
 	}
 
