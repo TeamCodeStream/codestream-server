@@ -44,8 +44,35 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
+			this.addTestHost,
 			this.getAuthCode
 		], callback);
+	}
+
+	// add a test-host for testing enterprise connections, as needed
+	addTestHost (callback) {
+		if (!this.testHost) {
+			return callback();
+		}
+		const starredHost = this.testHost.replace(/\./g, '*');
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/teams/' + this.team.id,
+				data: {
+					providerHosts: {
+						[this.provider]: {
+							[starredHost]: {
+								appClientId: 'testClientId',
+								appClientSecret: 'testClientSecret'
+							}
+						}
+					}
+				},
+				token: this.token
+			},
+			callback
+		);
 	}
 
 	// get an auth-code for initiating the authorization flow
@@ -62,9 +89,10 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				this.path = `/no-auth/provider-auth/${this.provider}?code=${this.authCode}`;
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
-				if (this.testHost) {
-					this.path += `&host=${this.testHost}`;
-					this.state += `!${this.testHost}`;
+				const testHost = this.testRequestHost || this.testHost;
+				if (testHost) {
+					this.path += `&host=${testHost}`;
+					this.state += `!${testHost}`;
 				}
 				callback();
 			}
@@ -134,9 +162,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getGithubRedirectData () {
-		const appClientId = this.testHost ?
-			GithubConfig.localProviders[this.testHost].appClientId :
-			GithubConfig.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : GithubConfig.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,

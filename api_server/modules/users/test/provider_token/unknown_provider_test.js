@@ -1,6 +1,7 @@
 'use strict';
 
 const ProviderTokenTest = require('./provider_token_test');
+const Assert = require('assert');
 
 class UnknownProviderTest extends ProviderTokenTest {
 
@@ -8,16 +9,18 @@ class UnknownProviderTest extends ProviderTokenTest {
 		super(options);
 		this.runRequestAsTest = true;
 		this.provider = 'blahblah';
+		this.apiRequestOptions = {
+			noJsonInResponse: true,
+			expectRedirect: true
+		};
 	}
 
 	get description () {
-		return 'should return an error when completing authorization flow for an unknown provider';
+		return 'should redirect to an error page when completing authorization flow for an unknown provider';
 	}
 
-	getExpectedError () {
-		return {
-			code: 'USRC-1013'
-		};
+	validateResponse (data) {
+		Assert.equal(data, '/web/error?code=USRC-1013', `redirect url not correct for ${this.provider}`);
 	}
 }
 

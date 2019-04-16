@@ -3,23 +3,21 @@
 const ProviderTokenTest = require('./provider_token_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const Assert = require('assert');
 
 class UserNotFoundTest extends ProviderTokenTest {
 
 	constructor (options) {
 		super(options);
 		this.runRequestAsTest = true;
+		this.apiRequestOptions = {
+			noJsonInResponse: true,
+			expectRedirect: true
+		};
 	}
 
 	get description () {
-		return 'should return an error when completing a third-party provider authorization flow and the user indicated in the state token does not exist';
-	}
-
-	getExpectedError () {
-		return {
-			code: 'RAPI-1003',
-			info: 'user'
-		};
+		return 'should redirect to an error page when completing a third-party provider authorization flow and the user indicated in the state token does not exist';
 	}
 
 	getQueryParameters () {
@@ -30,6 +28,10 @@ class UserNotFoundTest extends ProviderTokenTest {
 		payload.userId = 'x';
 		parameters.state = delimited[0] + '!' + tokenHandler.generate(payload, 'pauth');
 		return parameters;
+	}
+
+	validateResponse (data) {
+		Assert.equal(data, '/web/error?code=RAPI-1003', `redirect url not correct for ${this.provider}`);
 	}
 }
 

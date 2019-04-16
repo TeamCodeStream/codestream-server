@@ -23,9 +23,10 @@ class TokenReplacementTest extends UserAlreadyConnectedOnTeamTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// ensure we got the new auth token back in the response
+		const teamId = this.preExistingTeam.id;
 		Assert.notEqual(
-			data.user.providerInfo[this.provider].accessToken,
-			this.preExistingConnectedUser.providerInfo[this.provider].accessToken,
+			data.user.providerInfo[teamId][this.provider].accessToken,
+			this.preExistingConnectedUser.providerInfo[teamId][this.provider].accessToken,
 			'returned auth token does not match the changed auth token'
 		);
 		super.validateResponse(data);

@@ -39,7 +39,7 @@ class ProviderAuthRequestTester {
 			}
 			if (Object.keys(ENTERPRISE_PROVIDERS).includes(provider)) {
 				new ProviderAuthTest({ provider, testHost: ENTERPRISE_PROVIDERS[provider] }).test();
-				new InvalidHostTest({ provider, testHost: 'nothing.nothing.com' }).test();
+				new InvalidHostTest({ provider, testHost: ENTERPRISE_PROVIDERS[provider], testRequestHost: 'nothing.nothing.com' }).test();
 			}
 		});
 		new UnknownProviderTest().test();

@@ -6,6 +6,7 @@ const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_u
 const Team = require('./team');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
 class TeamUpdater extends ModelUpdater {
 
@@ -25,13 +26,20 @@ class TeamUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['name'],
-			object: ['$addToSet', '$push', '$pull']
+			string: ['name', '_confirmationCheat'],
+			object: ['$addToSet', '$push', '$pull', 'providerHosts']
 		};
 	}
 
 	// validate the input attributes
 	validateAttributes () {
+		if (
+			this.attributes.providerHosts &&
+			this.attributes._confirmationCheat !== SecretsConfig._confirmationCheat
+		) {
+			// this is only for test purposes, for now, so can only be done with cheat code
+			delete this.attributes.providerHosts;
+		}
 		// look for directives applied to memberIds or adminIds, we only allow a single directive at once
 		let finalDirective = null;
 		for (let directive of ['$push', '$pull', '$addToSet']) {

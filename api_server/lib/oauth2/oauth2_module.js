@@ -23,18 +23,7 @@ class OAuth2Module extends APIServerModule {
 	}
 
 	async initialize () {
-		const { localProviders } = this.apiConfig;
-		const { provider } = this.oauthConfig;
-		if (!localProviders) {
-			return;
-		}
-		try {
-			this.enterpriseConfig = localProviders;
-		}
-		catch (error) {
-			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			this.api.warn(`Unable to load enterprise configuration file for ${provider}: ${message}`);
-		}
+		this.enterpriseConfig = this.apiConfig.localProviders;
 	}
 
 	// get redirect parameters and url to use in the redirect response

@@ -18,8 +18,9 @@ class CommonInit {
 	
 	// set the data to use in the request
 	setData (callback) {
-		const mockUserId = this.preExistingConnectedUser ?
-			this.preExistingConnectedUser.providerInfo[this.provider].userId :
+		const teamId = this.preExistingTeam ? this.preExistingTeam.id : null;
+		const mockUserId = teamId && this.preExistingConnectedUser ?
+			this.preExistingConnectedUser.providerInfo[teamId][this.provider].userId :
 			null;
 		const mockTeamId = this.preExistingTeam ? 
 			this.preExistingTeam.providerInfo[this.provider].teamId : 

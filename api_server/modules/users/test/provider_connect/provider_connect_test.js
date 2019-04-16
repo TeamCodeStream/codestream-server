@@ -85,14 +85,14 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((user.originTeamId === team.id) || errors.push('originTeamId not set to ID of created team')) &&
 			((user.isRegistered === true) || errors.push('isRegistered not true')) &&
 			((user.registeredAt >= user.createdAt) || errors.push('registeredAt not greater than or equal to createAt')) &&
-			(providerInfo[this.provider].userId || errors.push('providerInfo.userId not set for provider')) &&
-			(providerInfo[this.provider].teamId || errors.push('providerInfo.teamId not set for provider')) &&
-			(!!providerInfo[this.provider].accessToken || errors.push('providerInfo.accessToken not set for provider'))
+			(providerInfo[team.id][this.provider].userId || errors.push('providerInfo.userId not set for provider')) &&
+			(providerInfo[team.id][this.provider].teamId || errors.push('providerInfo.teamId not set for provider')) &&
+			(!!providerInfo[team.id][this.provider].accessToken || errors.push('providerInfo.accessToken not set for provider'))
 		);
 		Assert(result === true && errors.length === 0, 'user in response not valid: ' + errors.join(', '));
 		Assert.deepEqual(user.teamIds, [team.id], 'teamIds not set to team created');
 		Assert.deepEqual(user.companyIds, [company.id], 'companyIds not set to company created');
-		Assert.deepEqual(user.providerIdentities, [`${this.provider}::${providerInfo[this.provider].userId}`], 'providerIdentities is not correct');
+		Assert.deepEqual(user.providerIdentities, [`${this.provider}::${providerInfo[team.id][this.provider].userId}`], 'providerIdentities is not correct');
 		if (this.preExistingUnconnectedUser) {
 			Assert(!user.phoneNumber, 'phone number is set');
 			Assert(!user.iWorkOn, 'iWorkOn is set');

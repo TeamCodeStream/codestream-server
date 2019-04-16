@@ -10,7 +10,7 @@ class InvalidHostTest extends ProviderAuthTest {
 	}
 
 	get description () {
-		return `should return an error when initiating authorization flow for ${this.provider}, enterprise provider, but the host is not found`;
+		return `should return an error when initiating authorization flow for ${this.provider}, enterprise version, but the host is not found`;
 	}
 
 	getExpectedError () {

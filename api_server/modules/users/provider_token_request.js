@@ -73,7 +73,11 @@ class ProviderTokenRequest extends RestfulRequest {
 			else {
 				const message = error instanceof Error ? error.message : JSON.stringify(error);
 				this.warn('Error handling provider token request: ' + message);
-				this.response.redirect('/web/error');
+				let url = '/web/error';
+				if (typeof error === 'object' && error.code) {
+					url += `?code=${error.code}`;
+				}
+				this.response.redirect(url);
 			}
 			this.responseHandled = true;
 		}

@@ -19,6 +19,7 @@ class CommonInit {
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
+			this.addTestHost,	// add simulated enterprise host, as needed
 			this.getAuthCode,	// get an auth-code to use in the provider-token request
 			this.setProviderToken,	// make the provider-token request
 			this.setExpectedResponse,	// set the expected response or message
@@ -28,6 +29,32 @@ class CommonInit {
 	setTestOptions (callback) {
 		this.userOptions.numRegistered = 1;
 		callback();
+	}
+
+	// add a test-host for testing enterprise connections, as needed
+	addTestHost (callback) {
+		if (!this.testHost) {
+			return callback();
+		}
+		const starredHost = this.testHost.replace(/\./g, '*');
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/teams/' + this.team.id,
+				data: {
+					providerHosts: {
+						[this.provider]: {
+							[starredHost]: {
+								appClientId: 'testClientId',
+								appClientSecret: 'testClientSecret'
+							}
+						}
+					}
+				},
+				token: this.token
+			},
+			callback
+		);
 	}
 
 	// get an auth-code for initiating the authorization flow

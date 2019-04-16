@@ -98,18 +98,28 @@ class ProviderIdentityConnector {
 		if (!user) { return; }
 		this.request.log('Matched user ' + user.id + ' by provider identity');
 		
-		const teamId = this.team ? this.team.id : null;
-		const userProviderInfo = user.getProviderInfo(this.provider, teamId);
+		// get any existing provider info associated with this provider
+		const userProviderInfo = user.get('providerInfo') || {};
+		let providerTeamInfo;
+		Object.keys(userProviderInfo).find(teamId => {
+			if (teamId === this.provider) {
+				providerTeamInfo = userProviderInfo[teamId];
+				return true;
+			}
+			else if (userProviderInfo[teamId][this.provider]) {
+				providerTeamInfo = userProviderInfo[teamId][this.provider];
+				return true;
+			}
+		});
 
-		// if we found a user, but the user is on a different team, throw an error,
+		// if we found a user, but the user is on a different team for this provider, throw an error,
 		// we can't allow the user to be logged in for this provider in two different ways (yet)
 		if (
-			userProviderInfo &&
-			userProviderInfo.teamId !== this.providerInfo.teamId
+			providerTeamInfo &&
+			providerTeamInfo.teamId !== this.providerInfo.teamId
 		) {
 			throw this.errorHandler.error('duplicateProviderAuth');
 		}
-
 		return user;
 	}
 
