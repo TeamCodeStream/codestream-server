@@ -21,7 +21,7 @@ RUN mkdir log tmp pid
 WORKDIR /opt/api/api_server
 RUN npm install --no-save
 
-EXPOSE 12079
+EXPOSE 443
 
 ENV CS_API_TOP=/opt/api/api_server
 ENV CS_API_CFG_FILE=/opt/config/codestream-services-config.json
