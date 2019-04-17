@@ -17,7 +17,7 @@ const OAUTH_CONFIG = {
 		callback_method: 'fragment'
 	},
 	noExchange: true,
-	tokenFromFragment: 'access_token',
+	tokenFromFragment: 'token',
 	additionalTokenValues: ['apiKey'],
 	hasIssues: true
 };

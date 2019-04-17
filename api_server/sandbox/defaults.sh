@@ -225,7 +225,6 @@ fi
 
 
 # ================= YouTrack API Access ==============
-export CS_API_YOUTRACK_CLIENT_ID="a0119d61-8072-4762-b5f4-fa167eb8ff18" # test account, for now
 #[ -z "$YOUTRACK_API_ACCESS_FILE" ] && YOUTRACK_API_ACCESS_FILE=$HOME/.codestream/youtrack/codestreamops
 #if [ -f $YOUTRACK_API_ACCESS_FILE ]; then
 #	. $YOUTRACK_API_ACCESS_FILE

@@ -146,7 +146,7 @@ class OAuth2Module extends APIServerModule {
 		result[parts[0]] = parts[1];
 		return result;
 	}, {});
-	const token = hashObject[${tokenFromFragment}] || '';
+	const token = hashObject['${tokenFromFragment}'] || '';
 	if (token) {
 		document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&token=" + token;
 	} else {
