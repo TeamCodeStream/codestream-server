@@ -225,16 +225,17 @@ fi
 
 
 # ================= YouTrack API Access ==============
-[ -z "$YOUTRACK_API_ACCESS_FILE" ] && YOUTRACK_API_ACCESS_FILE=$HOME/.codestream/youtrack/codestreamops
-if [ -f $YOUTRACK_API_ACCESS_FILE ]; then
-	. $YOUTRACK_API_ACCESS_FILE
-	export CS_API_YOUTRACK_CLIENT_ID="$YOUTRACK_CLIENT_ID"
-else
-	echo "********************************************************************"
-	echo "WARNING: YouTrack api access file not found ($YOUTRACK_API_ACCESS_FILE)."
-	echo "         Run dt-update-secrets and reload your sandbox"
-	echo "********************************************************************"
-fi
+export CS_API_YOUTRACK_CLIENT_ID=placeholder
+#[ -z "$YOUTRACK_API_ACCESS_FILE" ] && YOUTRACK_API_ACCESS_FILE=$HOME/.codestream/youtrack/codestreamops
+#if [ -f $YOUTRACK_API_ACCESS_FILE ]; then
+#	. $YOUTRACK_API_ACCESS_FILE
+#	export CS_API_YOUTRACK_CLIENT_ID="$YOUTRACK_CLIENT_ID"
+#else
+#	echo "********************************************************************"
+#	echo "WARNING: YouTrack api access file not found ($YOUTRACK_API_ACCESS_FILE)."
+#	echo "         Run dt-update-secrets and reload your sandbox"
+#	echo "********************************************************************"
+#fi
 
 
 # ================= MSTeams API Access ==============4
