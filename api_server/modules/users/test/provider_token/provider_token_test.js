@@ -38,6 +38,7 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		let expectedData;
 		switch (this.provider) {
 		case 'trello':
+		case 'youtrack':
 			return;
 		case 'gitlab':
 			expectedData = this.getExpectedGitlabTestCallData();

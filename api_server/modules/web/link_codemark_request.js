@@ -13,6 +13,7 @@ const PROVIDER_DISPLAY_NAMES = {
 	'trello': 'Trello',
 	'jira': 'Jira',
 	'asana': 'Asana',
+	'youtrack': 'YouTrack',
 	'slack': 'Slack',
 	'azure-devops': 'Azure DevOps',
 	'vsts': 'Visual Studio Team Services'

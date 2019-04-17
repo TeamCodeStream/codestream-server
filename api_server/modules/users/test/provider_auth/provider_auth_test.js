@@ -10,6 +10,7 @@ const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
 const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
 const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
 const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
+const YouTrackConfig = require(process.env.CS_API_TOP + '/config/youtrack');
 const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
@@ -89,6 +90,9 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			break;
 		case 'bitbucket':
 			redirectData = this.getBitbucketRedirectData();
+			break;
+		case 'youtrack':
+			redirectData = this.getYouTrackRedirectData();
 			break;
 		case 'slack':
 			redirectData = this.getSlackRedirectData();
@@ -186,6 +190,19 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			scope: 'account team repository issue:write'
 		};
 		const url = 'https://bitbucket.org/site/oauth2/authorize';
+		return { url, parameters };
+	}
+
+	getYouTrackRedirectData () {
+		const parameters = {
+			client_id: YouTrackConfig.appClientId,
+			redirect_uri: this.redirectUri,
+			response_type: 'token',
+			state: this.state,
+			scope: 'YouTrack',
+			request_credentials: 'default'
+		};
+		const url = 'https://youtrack.com/api/rest/oauth2/auth';
 		return { url, parameters };
 	}
 

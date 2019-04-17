@@ -25,6 +25,7 @@ const TrelloConfig = require(ConfigDirectory + '/trello');
 const JiraConfig = require(ConfigDirectory + '/jira');
 const BitbucketConfig = require(ConfigDirectory + '/bitbucket');
 const GitlabConfig = require(ConfigDirectory + '/gitlab');
+const YouTrackConfig = require(ConfigDirectory + '/youtrack');
 const LoggerConfig = require(ConfigDirectory + '/logger');
 const EmailConfig = require(ConfigDirectory + '/email');
 const AWSConfig = require(ConfigDirectory + '/aws');
@@ -91,6 +92,7 @@ const MyAPICluster = new ClusterWrapper(
 		jira: JiraConfig,
 		bitbucket: BitbucketConfig,
 		gitlab: GitlabConfig,
+		youtrack: YouTrackConfig,
 		email: EmailConfig,
 		aws: AWSConfig,
 		webclient: WebClientConfig,

@@ -34,7 +34,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			}
 
 			await this.requireAndAllow();		// require certain parameters, discard unknown parameters
-			if (await this.preProcessHook()) {
+			if (await this.extractFromFragmentAsNeeded()) {
 				return;
 			}
 			await this.validateState();			// decode the state token and validate
@@ -87,18 +87,16 @@ class ProviderTokenRequest extends RestfulRequest {
 		);
 	}
 
-	// allow for individual providers to do pre-processing of the incoming data
-	async preProcessHook () {
-		if (typeof this.serviceAuth.preProcessTokenCallback !== 'function') {
-			return false;
+	async extractFromFragmentAsNeeded () {
+		if (!this.serviceAuth.tokenFromFragment()) {
+			return;
 		}
 		const options = {
 			state: this.request.query.state,
-			provider: this.provider,
 			request: this,
 			mockToken: this.request.query._mockToken
 		};
-		const result = await this.serviceAuth.preProcessTokenCallback(options); 
+		const result = await this.serviceAuth.extractTokenFromFragment(options); 
 		if (typeof result === 'object') {
 			this.tokenData = result;
 			return false;

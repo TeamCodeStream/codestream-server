@@ -66,6 +66,7 @@ module.exports = {
 		'gitlab',
 		'jira',
 		'trello',
+		'youtrack',
 		'slack'
 	]
 };

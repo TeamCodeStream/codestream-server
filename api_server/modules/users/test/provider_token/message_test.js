@@ -53,6 +53,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		let expectedTestCallData;
 		switch (this.provider) {
 		case 'trello':
+		case 'youtrack':
 			break;
 		case 'github':
 			expectedTestCallData = this.getExpectedGithubTestCallData();

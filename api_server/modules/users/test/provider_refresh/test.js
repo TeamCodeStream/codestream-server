@@ -24,6 +24,7 @@ const PROVIDERS = [
 const UNSUPPORTED_PROVIDERS = [
 	'trello',
 	'github',
+	'youtrack',
 	'slack'
 ];
 

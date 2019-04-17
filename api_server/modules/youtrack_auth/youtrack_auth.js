@@ -1,34 +1,32 @@
-// provide service to handle trello credential authorization
+// provide service to handle YouTrack credential authorization
 
 'use strict';
 
 const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module.js');
 
 const OAUTH_CONFIG = {
-	provider: 'trello',
-	host: 'trello.com',
-	apiHost: 'api.trello.com/1',
-	authPath: '1/authorize',
-	scopes: 'read,write',
+	provider: 'youtrack',
+	host: 'colincodestream.myjetbrains.com/youtrack',
+	apiHost: 'colincodestream.myjetbrains.com/youtrack/api/rest',
+	authPath: 'api/rest/oauth2/auth',
+	scopes: 'YouTrack',
 	additionalAuthCodeParameters: {
-		expiration: 'never',
-		name: 'CodeStream',
-		response_type: 'token',
-		callback_method: 'fragment'
+		request_credentials: 'default',
+		response_type: 'token'
 	},
 	noExchange: true,
 	tokenFromFragment: 'access_token',
-	additionalTokenValues: ['apiKey'],
 	hasIssues: true
 };
 
-class TrelloAuth extends OAuth2Module {
+class YouTrackAuth extends OAuth2Module {
 
 	constructor (config) {
 		super(config);
 		this.oauthConfig = OAUTH_CONFIG;
 	}
 
+	/*
 	// get redirect parameters and url to use in the redirect response
 	// here we override the usual method to deal with some trello peculiarities
 	getRedirectData (options) {
@@ -42,6 +40,7 @@ class TrelloAuth extends OAuth2Module {
 		delete data.parameters.state;
 		return data;
 	}
+	*/
 }
 
-module.exports = TrelloAuth;
+module.exports = YouTrackAuth;

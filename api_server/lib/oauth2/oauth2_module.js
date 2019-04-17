@@ -104,6 +104,61 @@ class OAuth2Module extends APIServerModule {
 		return this.oauthConfig.supportsRefresh;
 	}
 
+	// does this provider gets its token from a url fragment?
+	tokenFromFragment () {
+		return !!this.oauthConfig.tokenFromFragment;
+	}
+
+	// extract the access token from a fragment sent to the browser
+	extractTokenFromFragment (options) {
+		// special allowance for token in the fragment, which we can't access,
+		// so send a client script that can 
+		const { provider, tokenFromFragment, additionalTokenValues } = this.oauthConfig;
+		if (!tokenFromFragment) { return; }
+		const { request, state, mockToken } = options;
+		const { response } = request;
+		const { authOrigin } = this.api.config.api;
+		let tokenParams = {};
+		if (mockToken || request.request.query[tokenFromFragment]) {
+			if (mockToken) {
+				tokenParams.accessToken = mockToken;
+			}
+			else if (request.request.query[tokenFromFragment]) {
+				// already have the token, so good to go 
+				tokenParams.accessToken = request.request.query[tokenFromFragment];
+			}
+			(additionalTokenValues || []).forEach(value => {
+				if (this.apiConfig[value]) {
+					tokenParams[value] = this.apiConfig[value];
+				}
+				else if (this.oauthConfig[value]) {
+					tokenParams[value] = this.oauthConfig[value];
+				}
+			});
+			return tokenParams;
+		}
+		response.type('text/html');
+		response.send(`
+<script>
+	var hash = window.location.hash.substr(1);
+	var hashObject = hash.split('&').reduce(function (result, item) {
+		var parts = item.split('=');
+		result[parts[0]] = parts[1];
+		return result;
+	}, {});
+	const token = hashObject[${tokenFromFragment}] || '';
+	if (token) {
+		document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&token=" + token;
+	} else {
+		document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&error=NO_TOKEN";
+	}
+</script>
+`
+		);
+		request.responseHandled = true;
+		return false;	// indicates to stop further processing
+	}
+
 	// given an auth code, exchange it for an access token
 	async exchangeAuthCodeForToken (options) {
 		const { mockToken } = options;
