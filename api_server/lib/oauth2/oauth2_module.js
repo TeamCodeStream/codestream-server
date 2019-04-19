@@ -244,6 +244,9 @@ class OAuth2Module extends APIServerModule {
 		if (responseData.refresh_token) {
 			tokenData.refreshToken = responseData.refresh_token;
 		}
+		if (responseData.apiKey) {
+			tokenData.apiKey = responseData.apiKey;
+		}
 		if (responseData.expires_in) {
 			tokenData.expiresAt = Date.now() + (responseData.expires_in - 5) * 1000;
 		}
