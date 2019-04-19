@@ -101,9 +101,9 @@ class PutTeamSettingsRequest extends RestfulRequest {
 			publishes: {
 				summary: 'Publishes a team object, with directives corresponding to the request body passed in, to the team channel, indicating how the settings object for the team object should be updated.',
 				looksLike: {
-					user: {
+					team: {
 						id: '<ID of the team>',
-						preferences: {
+						settings: {
 							'<some settings value>': '<some directive>',
 							'...': '...'
 						}
