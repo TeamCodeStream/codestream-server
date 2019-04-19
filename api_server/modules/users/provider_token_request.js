@@ -30,7 +30,9 @@ class ProviderTokenRequest extends RestfulRequest {
 				throw this.errorHandler.error('unknownProvider', { info: this.provider });
 			}
 			else if (this.request.query.error) {
-				throw this.errorHandler.error('tokenInvalid', { reason: this.request.query.error });
+				this.response.redirect('/web/error?code=' + this.request.query.error);
+				this.responseHandled = true;
+				return;
 			}
 
 			await this.requireAndAllow();		// require certain parameters, discard unknown parameters
@@ -77,11 +79,8 @@ class ProviderTokenRequest extends RestfulRequest {
 		await this.requireAllowParameters(
 			'query',
 			{
-				required: {
-					string: ['state']
-				},
 				optional: {
-					string: ['token', 'code', '_mockToken']
+					string: ['state', 'token', 'code', 'token_type', 'expires_in' ,'scope', 'error', '_mockToken']
 				}
 			}
 		);
@@ -92,13 +91,15 @@ class ProviderTokenRequest extends RestfulRequest {
 			return;
 		}
 		const options = {
-			state: this.request.query.state,
+			state: this.request.query.state || '',
 			request: this,
 			mockToken: this.request.query._mockToken
 		};
 		const result = await this.serviceAuth.extractTokenFromFragment(options); 
 		if (typeof result === 'object') {
-			this.tokenData = result;
+			Object.assign(result, this.request.query);
+			delete result.state;
+			this.tokenData = this.serviceAuth.normalizeTokenDataResponse(result);
 			return false;
 		}
 		else if (result) { 
@@ -111,6 +112,9 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// decode the state token and validate
 	async validateState () {
+		if (!this.request.query.state) {
+			throw this.errorHandler.error('parameterRequired', { info: 'state' });
+		}
 		const stateProps = this.request.query.state.split('!');
 		this.stateToken = stateProps[1];
 		this.host = stateProps[2];

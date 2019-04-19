@@ -119,13 +119,13 @@ class OAuth2Module extends APIServerModule {
 		const { response } = request;
 		const { authOrigin } = this.api.config.api;
 		let tokenParams = {};
-		if (mockToken || request.request.query[tokenFromFragment]) {
+		if (mockToken || request.request.query.token) {
 			if (mockToken) {
-				tokenParams.accessToken = mockToken;
+				tokenParams.access_token = mockToken;
 			}
-			else if (request.request.query[tokenFromFragment]) {
+			else if (request.request.query.token) {
 				// already have the token, so good to go 
-				tokenParams.accessToken = request.request.query[tokenFromFragment];
+				tokenParams.access_token = request.request.query.token;
 			}
 			(additionalTokenValues || []).forEach(value => {
 				if (this.apiConfig[value]) {
@@ -147,11 +147,24 @@ class OAuth2Module extends APIServerModule {
 		return result;
 	}, {});
 	const token = hashObject['${tokenFromFragment}'] || '';
-	if (token) {
-		document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&token=" + token;
-	} else {
-		document.location.href = "${authOrigin}/provider-token/${provider}?state=${state}&error=NO_TOKEN";
+	let state = "${state}";
+	if (!state) {
+		state = hashObject.state;
 	}
+	let href;
+	if (!token) {
+		href = "${authOrigin}/provider-token/${provider}?error=NO_TOKEN";
+	}
+	else {
+		href = "${authOrigin}/provider-token/${provider}?" + hash;
+		if (!hashObject.token) {
+			href += "&token=" + token;
+		}
+	}
+	if (!hashObject.state) {
+		href += "&state=" + state;
+	}
+	document.location.href = href;
 </script>
 `
 		);

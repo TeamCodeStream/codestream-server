@@ -70,7 +70,17 @@ class ProviderAuthRequest extends RestfulRequest {
 		// set up options for initiating a redirect for the particular service
 		let { host } = this.request.query;
 		const { code } = this.request.query;
-		const { authOrigin, callbackEnvironment } = this.api.config.api;
+		const { callbackEnvironment } = this.api.config.api;
+		let { authOrigin } = this.api.config.api;
+
+		// HACK - youtrack won't give us the state as a query parameter in the callback, it puts it in the fragment,
+		// this means we can't proxy to the api server appropriate to the environment ... so bypass the proxy
+		// entirely and go straight to the source ... this won't work for all providers because some only allow a
+		// single redirect uri, which is sucky sucky
+		if (this.provider === 'youtrack') {	
+			authOrigin = `${this.api.config.api.publicApiUrl}/no-auth`;
+		}
+
 		let state = `${callbackEnvironment}!${code}`;
 		if (host) {
 			host = decodeURIComponent(host).toLowerCase();
