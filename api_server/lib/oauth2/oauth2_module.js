@@ -103,6 +103,11 @@ class OAuth2Module extends APIServerModule {
 	supportsRefresh () {
 		return this.oauthConfig.supportsRefresh;
 	}
+	
+	// does this provider have issues?
+	hasIssues () {
+		return this.oauthConfig.hasIssues;
+	}
 
 	// does this provider gets its token from a url fragment?
 	tokenFromFragment () {
@@ -355,46 +360,50 @@ class OAuth2Module extends APIServerModule {
 		return authCompletePage || provider;
 	}
 
-	// return the instances of this provider (public instance, plus and on-premise instances)
-	getInstances (teams = []) {
-		const { provider } = this.oauthConfig;
-
-		// get base instances of all providers without enterprise hosts
-		const instances = {};
-		if (this.oauthConfig.host && (this.apiConfig.appClientId || this.apiConfig.apiKey)) {
-			const host = this.oauthConfig.host.toLowerCase();
-			const apiHost = this.oauthConfig.apiHost.toLowerCase();
-			instances[host] = {
-				public: true,
-				host,
-				apiHost,
-				hasIssues: this.oauthConfig.hasIssues
-			};
+	// get standard and enterprise instances linked to this third-party provider
+	getInstances () {
+		// get the standard instance, if configured
+		const standardInstances = [];
+		const standardInstance = this.getStandardInstance();
+		if (standardInstance) {
+			standardInstances.push(standardInstance);
 		}
 
 		// get any instances of enterprise hosts given by configuration
-		this.addInstancesByConfig(instances, this.enterpriseConfig);
+		const enterpriseInstances = this.addInstancesByConfig(this.enterpriseConfig);
 
-		// get any instances of enterprise hosts given by team
-		teams.forEach(team => {
-			const hosts = (team.get('providerHosts') || {})[provider];
-			this.addInstancesByConfig(instances, hosts, team.id);
-		});
-
-		return Object.keys(instances).length ? instances : null;
+		return [...standardInstances, ...enterpriseInstances];
 	}
 
-	// add instances of provider hosts according to configuration passed in
-	addInstancesByConfig (instances, config, teamId) {
+	// get the standard in-cloud instance of the third-party provider, if configured
+	getStandardInstance () {
+		const { host, provider, apiHost, hasIssues } = this.oauthConfig;
+		const { appClientId, apiKey } = this.apiConfig;
+		if (host && (appClientId || apiKey)) {
+			return {
+				name: provider,
+				isEnterprise: false,
+				host: host.toLowerCase(),
+				apiHost: apiHost.toLowerCase(),
+				hasIssues: hasIssues
+			};
+		}
+	}
+
+	// get instances of provider hosts according to configuration passed in
+	getInstancesByConfig (config) {
+		const { provider, hasIssues } = this.oauthConfig;
+		const instances = [];
 		Object.keys(config || {}).forEach(host => {
 			const destarredHost = host.replace(/\*/g, '.');
-			instances[destarredHost] = {
-				public: false,
+			instances.push({
+				name: provider,
+				isEnterprise: true,
 				host: destarredHost,
-				hasIssues: this.oauthConfig.hasIssues,
-				teamId
-			};
+				hasIssues,
+			});
 		});
+		return instances;
 	}
 }
 

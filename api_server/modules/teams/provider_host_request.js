@@ -5,7 +5,6 @@
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
 class ProviderHostRequest extends RestfulRequest {
 
@@ -56,14 +55,15 @@ class ProviderHostRequest extends RestfulRequest {
 			throw this.errorHandler.error('unknownProvider', { info: provider });
 		}
 
+		const now = Date.now();
 		const starredHost = this.request.body.host.replace(/\./g, '*');
 		const data = Object.assign({}, this.request.body);
 		delete data.host;
-		this.setKey = `providerHosts.${provider}.${starredHost}`;
+		const setKey = `providerHosts.${provider}.${starredHost}`;
 		const op = {
 			$set: {
 				modifiedAt: Date.now(),
-				[this.setKey]: data 
+				[setKey]: data 
 			}
 		};
 
@@ -72,6 +72,19 @@ class ProviderHostRequest extends RestfulRequest {
 			collection: this.data.teams,
 			id: this.team.id
 		}).save(op);
+
+		this.responseData = {
+			team: {
+				$set: {
+					modifiedAt: now,
+					[`providerHosts.${starredHost}`]: {
+						name: provider,
+						isEnterprise: true,
+						hasIssues: serviceAuth.hasIssues()
+					}
+				}
+			}
+		};
 	}
 
 	// handle returning the response
@@ -79,10 +92,8 @@ class ProviderHostRequest extends RestfulRequest {
 		if (this.gotError) {
 			return await super.handleResponse();
 		}
-		
-		// remove client secret from what we return and publish to clients
-		this.responseData = DeepClone({ team: this.updateOp });
-		delete this.responseData.team.$set[this.setKey].appClientSecret;
+		this.responseData.team.$set.version = this.updateOp.$set.version;
+		this.responseData.team.$version = this.updateOp.$version;
 		await super.handleResponse();
 	}
 
