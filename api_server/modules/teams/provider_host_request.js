@@ -56,7 +56,8 @@ class ProviderHostRequest extends RestfulRequest {
 		}
 
 		const now = Date.now();
-		const starredHost = this.request.body.host.replace(/\./g, '*');
+		const host = this.request.body.host.toLowerCase();
+		const starredHost = host.replace(/\./g, '*');
 		const data = Object.assign({}, this.request.body);
 		delete data.host;
 		const setKey = `providerHosts.${provider}.${starredHost}`;
@@ -78,6 +79,8 @@ class ProviderHostRequest extends RestfulRequest {
 				$set: {
 					modifiedAt: now,
 					[`providerHosts.${starredHost}`]: {
+						id: starredHost,
+						host,
 						name: provider,
 						isEnterprise: true,
 						hasIssues: serviceAuth.hasIssues()
