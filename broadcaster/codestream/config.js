@@ -9,9 +9,9 @@ let LoggerCfg = {
 };
 let Secrets = {};
 let HttpsCfg = {};
-
-if (process.env.CS_BROADCASTER_CFG_FILE) {
-	let CfgFile = require(process.env.CS_BROADCASTER_CFG_FILE);
+let CfgFileName = process.env.CS_BROADCASTER_CFG_FILE || process.env.CODESTREAM_CFG_FILE;
+if (CfgFileName) {
+	let CfgFile = require(CfgFileName);
 	MongoCfg = CfgFile.mongo;
 	LoggerCfg = { ...LoggerCfg, ...CfgFile.broadcastEngine.codestreamBroadcaster.logger};
 	Secrets = CfgFile.broadcastEngine.codestreamBroadcaster.secrets;

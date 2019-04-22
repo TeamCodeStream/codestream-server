@@ -85,6 +85,7 @@ if [ -f $OTHER_SECRETS_FILE ]; then
 	# used to privilege certain api server requests to the broadcaster service
 	export CS_BROADCASTER_AUTH_SECRET="$BCAST_AUTH_SECRET"
 	# used to generate json web tokens for authentication tokens passed to the client
+	# This must match CS_API_BROADCASTER_SECRET in the API service
 	export CS_BROADCASTER_API_SECRET="$BCAST_API_SECRET"
 	# set to the same value that CS_API_SUBSCRIPTION_CHEAT_CODE is set to for the api server
 	export CS_BROADCASTER_SUBSCRIPTION_CHEAT_CODE="$SUBSCRIPTION_CHEAT_CODE"
