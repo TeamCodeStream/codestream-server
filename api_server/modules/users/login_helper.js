@@ -164,8 +164,7 @@ class LoginHelper {
 			if (responseTeam) {
 				responseTeam.providerHosts = {};
 				providers.forEach(provider => {
-					const starredHost = provider.host.replace(/\./g, '*');
-					responseTeam.providerHosts[starredHost] = Object.assign({}, provider, { id: starredHost });
+					responseTeam.providerHosts[provider.id] = provider;
 				});
 			}
 		});

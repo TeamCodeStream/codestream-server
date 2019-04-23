@@ -377,14 +377,17 @@ class OAuth2Module extends APIServerModule {
 
 	// get the standard in-cloud instance of the third-party provider, if configured
 	getStandardInstance () {
-		const { host, provider, apiHost, hasIssues } = this.oauthConfig;
+		const { host, provider, apiHost, hasIssues, enterpriseOnly } = this.oauthConfig;
 		const { appClientId, apiKey } = this.apiConfig;
-		if (host && (appClientId || apiKey)) {
+		if (host && (enterpriseOnly || appClientId || apiKey)) {
+			const starredHost = host.toLowerCase().replace(/\./g, '*');
 			return {
+				id: starredHost,
 				name: provider,
 				isEnterprise: false,
+				enterpriseOnly,
 				host: host.toLowerCase(),
-				apiHost: apiHost.toLowerCase(),
+				apiHost: apiHost ? apiHost.toLowerCase() : undefined,
 				hasIssues: hasIssues
 			};
 		}
@@ -397,6 +400,7 @@ class OAuth2Module extends APIServerModule {
 		Object.keys(config || {}).forEach(host => {
 			const destarredHost = host.replace(/\*/g, '.');
 			instances.push({
+				id: host,
 				name: provider,
 				isEnterprise: true,
 				host: destarredHost,

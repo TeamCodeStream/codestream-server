@@ -6,6 +6,7 @@ const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module
 
 const OAUTH_CONFIG = {
 	provider: 'youtrack',
+	host: 'youtrack.com',
 	authPath: 'hub/api/rest/oauth2/auth',
 	scopes: 'YouTrack',
 	additionalAuthCodeParameters: {
@@ -14,7 +15,8 @@ const OAUTH_CONFIG = {
 	},
 	noExchange: true,
 	tokenFromFragment: 'access_token',
-	hasIssues: true
+	hasIssues: true,
+	enterpriseOnly: true
 };
 
 class YouTrackAuth extends OAuth2Module {
