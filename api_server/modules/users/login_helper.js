@@ -158,7 +158,7 @@ class LoginHelper {
 	// on a per-team basis ... this will include all standard in-cloud providers (whether CodeStream
 	// is on-prem or not), plus all on-prem providers for the particular team
 	async getThirdPartyProvidersPerTeam () {
-		this.initialDataFetcher.teams.forEach(team => {
+		(this.initialDataFetcher.teams || []).forEach(team => {
 			const providers = this.getThirdPartyProvidersForTeam(team);
 			const responseTeam = this.initialDataFetcher.initialData.teams.find(t => t.id === team.id);
 			if (responseTeam) {
