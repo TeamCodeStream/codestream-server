@@ -7,7 +7,7 @@ class TeamCreatedEmailHandler extends EmailHandler {
 
 	async getSendOptions () {
 		const options = await super.getSendOptions();
-		options.to = { email: 'team@codestream.com', name: 'CodeStream' };
+		options.to = { email: this.message.to, name: 'CodeStream' };
 		options.from = { email: Config.senderEmail, name: 'CodeStream' };
 		return options;
 	}
