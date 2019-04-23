@@ -404,7 +404,7 @@ class OAuth2Module extends APIServerModule {
 				name: provider,
 				isEnterprise: true,
 				host: destarredHost,
-				hasIssues,
+				hasIssues
 			});
 		});
 		return instances;

@@ -150,6 +150,11 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'put',
+		path: '/provider-set-token/:provider',
+		requestClass: require('./provider_set_token_request')
+	},
+	{
+		method: 'put',
 		path: 'bump-posts',
 		requestClass: require('./bump_posts_request')
 	}
