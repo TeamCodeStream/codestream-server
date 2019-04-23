@@ -203,17 +203,25 @@ class TeamCreator extends ModelCreator {
 
 	// send email to us that a new team has been created
 	async sendTeamCreatedEmail () {
-		if (this.model /*&& this.api.config.email.replyToDomain === 'prod.codestream.com'*/) {
-			this.api.services.email.queueEmailSend(
-				{
-					type: 'teamCreated',
-					userId: this.user.id,
-					teamName: this.model.get('name')
-				},
-				{
-					request: this.request
+		if (this.model) {
+			[ 'pez@codestream.com', 'dave@codesteam.com' ].forEach(email => {
+				if (this.api.config.email.replyToDomain === 'prod.codestream.com') {
+					this.api.services.email.queueEmailSend(
+						{
+							type: 'teamCreated',
+							userId: this.user.id,
+							teamName: this.model.get('name'),
+							to: email
+						},
+						{
+							request: this.request
+						}
+					);
 				}
-			);
+				else {
+					this.request.log('Would have sent email created email to ' + email);
+				}
+			});
 		}
 	}
 }
