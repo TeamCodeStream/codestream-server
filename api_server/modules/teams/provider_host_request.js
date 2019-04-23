@@ -76,9 +76,10 @@ class ProviderHostRequest extends RestfulRequest {
 
 		this.responseData = {
 			team: {
+				id: this.team.id,
 				$set: {
 					modifiedAt: now,
-					[`providerHosts.${starredHost}`]: {
+					[`providerHosts.${provider}.${starredHost}`]: {
 						id: starredHost,
 						host,
 						name: provider,
@@ -128,7 +129,7 @@ class ProviderHostRequest extends RestfulRequest {
 			input: {
 				summary: 'Specify the provider and the team ID in the path, and host and other attributes in the request body.',
 				looksLike: {
-					host: '<Host (domain or IP) of the provider>',
+					'host*': '<Host (domain or IP) of the provider>',
 					appClientId: '<Client ID to use to connect, where applicable>',
 					appClientSecret: '<Client secret to use to connect, where applicable>',
 					apiKey: '<API key to use to connect, where applicable (trello)>'
