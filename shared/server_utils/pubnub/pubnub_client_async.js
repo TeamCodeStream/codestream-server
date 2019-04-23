@@ -155,16 +155,22 @@ class PubNubClient {
 	}
 
 	async _grantMultipleHelper (token, channels, options) { 
-		const result = await this.pubnub.grant(
-			{
-				channels,
-				authKeys: [token],
-				read: options.read === false ? false : true,
-				write: options.write === true ? true : false,
-				ttl: options.ttl || 0
-			}
-		);
-
+		let result;
+		try {
+			result = await this.pubnub.grant(
+				{
+					channels,
+					authKeys: [token],
+					read: options.read === false ? false : true,
+					write: options.write === true ? true : false,
+					ttl: options.ttl || 0
+				}
+			);
+		}
+		catch (error) {
+			this._warn(`Unable to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}: ${JSON.stringify(error)}`, options);
+			throw error;
+		}
 		if (result.error) {
 			this._warn(`Unable to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}: ${JSON.stringify(result.errorData)}`, options);
 			throw result.errorData;
