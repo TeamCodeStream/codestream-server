@@ -1,4 +1,4 @@
-// handle the "PUT /provider-host" request to set a provider host for a given third-party provider
+// handle the "DELETE /provider-host" request to set a provider host for a given third-party provider
 
 'use strict';
 
@@ -6,7 +6,7 @@ const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restf
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
 
-class ProviderHostRequest extends RestfulRequest {
+class DeleteProviderHostRequest extends RestfulRequest {
 
 	constructor (options) {
 		super(options);
@@ -21,33 +21,12 @@ class ProviderHostRequest extends RestfulRequest {
 			throw this.errorHandler.error('notFound', { info: 'team' });
 		}
 		if (!this.user.hasTeam(this.team.id)) {
-			throw this.errorHandler.error('updateAuth', { reason: 'user must be a member of the team' });
+			throw this.errorHandler.error('deleteAuth', { reason: 'user must be a member of the team' });
 		}
 	}
 
 	// process the request
 	async process () {
-		await this.requireAndAllow();	// require parameters, and filter out unknown parameters
-		await this.setProviderHost();	// set the provider host for the team
-	}
-
-	// require certain parameters, and discard unknown parameters
-	async requireAndAllow () {
-		await this.requireAllowParameters(
-			'body',
-			{
-				required: {
-					string: ['host']
-				},
-				optional: {
-					string: ['appClientId', 'appClientSecret', 'apiKey']
-				}
-			}
-		);
-	}
-
-	// process the request...
-	async setProviderHost () {
 		// make sure we know about this provider
 		const provider = this.request.params.provider.toLowerCase();
 		const serviceAuth = this.api.services[`${provider}Auth`];
@@ -56,15 +35,14 @@ class ProviderHostRequest extends RestfulRequest {
 		}
 
 		const now = Date.now();
-		const host = this.request.body.host.toLowerCase();
-		const starredHost = host.replace(/\./g, '*');
-		const data = Object.assign({}, this.request.body);
-		delete data.host;
-		const setKey = `providerHosts.${provider}.${starredHost}`;
+		const providerId = this.request.params.providerId.toLowerCase();
+		const unsetKey = `providerHosts.${provider}.${providerId}`;
 		const op = {
 			$set: {
 				modifiedAt: now,
-				[setKey]: data 
+			},
+			$unset: {
+				[unsetKey]: true
 			}
 		};
 
@@ -78,14 +56,10 @@ class ProviderHostRequest extends RestfulRequest {
 			team: {
 				id: this.team.id,
 				$set: {
-					modifiedAt: now,
-					[`providerHosts.${starredHost}`]: {
-						id: starredHost,
-						host,
-						name: provider,
-						isEnterprise: true,
-						hasIssues: serviceAuth.hasIssues()
-					}
+					modifiedAt: now
+				},
+				$unset: {
+					[`providerHosts.${providerId}`]: true
 				}
 			}
 		};
@@ -122,25 +96,18 @@ class ProviderHostRequest extends RestfulRequest {
 	// describe this route for help
 	static describe () {
 		return {
-			tag: 'provider-host',
-			summary: 'Set the attributes for a third-party provider host for the given team',
-			access: 'Only a member of the team can set a provider host',
-			description: 'For connecting to on-prem third-party integration providers, or for providers that have per-team provider settings, set the attributes needed to connect to the third-party provider host',
-			input: {
-				summary: 'Specify the provider and the team ID in the path, and host and other attributes in the request body.',
-				looksLike: {
-					'host*': '<Host (domain or IP) of the provider>',
-					appClientId: '<Client ID to use to connect, where applicable>',
-					appClientSecret: '<Client secret to use to connect, where applicable>',
-					apiKey: '<API key to use to connect, where applicable (trello)>'
-				}
-			},
+			tag: 'delete-provider-host',
+			summary: 'Delete the attributes for a third-party provider host for the given team',
+			access: 'Only a member of the team can delete a provider host',
+			description: 'For connecting to on-prem third-party integration providers, or for providers that have per-team provider settings, delete the attributes needed to connect to the third-party provider host',
+			input: 'Specify the provider, team ID, and provider ID in the path.',
 			returns: {
 				summary: 'A team object, with directives appropriate for updating the team\'s providerHosts attribute',
 				looksLike: {
 					team: {
 						id: '<ID of the team>',
-						$set: '<$set directive to update providerHosts>'
+						$set: '<$set directive to update providerHosts>',
+						$unset: '<$unset directive to delete the actual provider host attributes>'
 					}
 				}
 			},
@@ -149,17 +116,18 @@ class ProviderHostRequest extends RestfulRequest {
 				looksLike: {
 					team: {
 						id: '<ID of the team>',
-						$set: '<$set directive to update providerHosts>'
+						$set: '<$set directive to update providerHosts>',
+						$unset: '<$unset directive to delete the actual provider host attributes>'
 					}
 				}
 			},
 			errors: [
 				'notFound',
-				'updateAuth',
+				'deleteAuth',
 				'unknownProvider'
 			]
 		};
 	}
 }
 
-module.exports = ProviderHostRequest;
+module.exports = DeleteProviderHostRequest;
