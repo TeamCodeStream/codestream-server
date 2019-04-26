@@ -1,4 +1,4 @@
-// base class for many tests of the "PUT /teams" requests
+// base class for many tests of the "PUT /provider-host" requests
 
 'use strict';
 
@@ -8,10 +8,10 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 const CommonInit = require('./common_init');
 const TeamTestConstants = require('../team_test_constants');
 
-class PutTeamTest extends Aggregation(CodeStreamAPITest, CommonInit) {
+class ProviderHostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		return 'should return the updated team when updating a team';
+		return 'should return proper directive to update a team when a provider host is added';
 	}
 
 	get method () {
@@ -35,4 +35,4 @@ class PutTeamTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 }
 
-module.exports = PutTeamTest;
+module.exports = ProviderHostTest;

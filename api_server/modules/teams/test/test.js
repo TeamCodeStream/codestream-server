@@ -5,7 +5,7 @@
 // make eslint happy
 /* globals describe */
 
-//const ProviderHostRequestTester = require('./provider_host/test');
+const ProviderHostRequestTester = require('./provider_host/test');
 
 const TeamsRequestTester = require('./teams_request_tester');
 
@@ -20,5 +20,5 @@ describe('team requests', function() {
 	describe('POST /teams', teamsRequestTester.postTeamTest);
 	describe('PUT /teams/:id', teamsRequestTester.putTeamTest);
 	describe('PUT /team-settings/:id', teamsRequestTester.putTeamSettingsTest);
-//	describe('PUT /provider-host/:provider/:teamId', ProviderHostRequestTester.test);
+	describe('PUT /provider-host/:provider/:teamId', ProviderHostRequestTester.test);
 });
