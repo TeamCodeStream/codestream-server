@@ -371,7 +371,7 @@ s	}
 			html
 				.replace(/<p>(.*?)<\/p>/ig, (match, text) => { return text + '\n'; })
 				.replace(/<div>(.*?)<\/div>/ig, (match, text) => { return text + '\n'; })
-				.replace(/<br\s*\/?>(\n)?/ig, '\n')
+				.replace(/<br.*?\/?>(\n)?/ig, '\n')
 				.replace(/(<([^>]+)>)/ig, '')
 				.replace(/&nbsp;/ig, ' ')
 		);
