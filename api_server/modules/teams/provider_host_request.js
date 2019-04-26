@@ -79,7 +79,7 @@ class ProviderHostRequest extends RestfulRequest {
 				id: this.team.id,
 				$set: {
 					modifiedAt: now,
-					[`providerHosts.${provider}.${starredHost}`]: {
+					[`providerHosts.${starredHost}`]: {
 						id: starredHost,
 						host,
 						name: provider,

@@ -250,7 +250,7 @@ class RegisterRequest extends RestfulRequest {
 		// FIXME - we eventually need to deprecate serving the user object completely,
 		// this is a security vulnerability
 		if (!this.user.get('isRegistered') || this.user.get('_forTesting')) {
-			this.responseData = { user: this.user.getSanitizedObjectForMe() };
+			this.responseData = { user: this.user.getSanitizedObjectForMe({ request: this }) };
 			if (this._confirmationCheat === this.api.config.secrets.confirmationCheat) {
 				// this allows for testing without actually receiving the email
 				this.log('Confirmation cheat detected, hopefully this was called by test code');
@@ -274,7 +274,7 @@ class RegisterRequest extends RestfulRequest {
 	async publishUserToTeams () {
 		await new UserPublisher({
 			user: this.user,
-			data: this.user.getSanitizedObject(),
+			data: this.user.getSanitizedObject({ request: this }),
 			request: this,
 			messager: this.api.services.messager
 		}).publishUserToTeams();

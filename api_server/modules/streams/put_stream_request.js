@@ -103,7 +103,7 @@ class PutStreamRequest extends PutRequest {
 		}
 		const userIds = this.transforms.addedUsers.map(user => user.id);
 		await new StreamPublisher({
-			data: { stream: stream.getSanitizedObject() },
+			data: { stream: stream.getSanitizedObject({ request: this }) },
 			request: this,
 			messager: this.api.services.messager,
 			stream: this.updater.stream.attributes

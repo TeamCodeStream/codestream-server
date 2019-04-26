@@ -16,7 +16,8 @@ const EXPECTED_TEAM_FIELDS = [
 	'createdAt',
 	'modifiedAt',
 	'creatorId',
-	'primaryReferral'
+	'primaryReferral',
+	'providerHosts'
 ];
 
 // fields expected in the company returned
@@ -43,7 +44,7 @@ const UNSANITIZED_STREAM_ATTRIBUTES = Object.keys(StreamAttributes).filter(attri
 });
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(TeamAttributes).filter(attribute => {
-	return TeamAttributes[attribute].serverOnly;
+	return attribute !== 'providerHosts' && TeamAttributes[attribute].serverOnly;
 });
 
 module.exports = {

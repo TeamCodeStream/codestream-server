@@ -161,7 +161,7 @@ class ProviderConnectRequest extends RestfulRequest {
 		let data;
 		if (this.connector.userWasAddedToTeam) {
 			data = {
-				user: this.user.getSanitizedObject()
+				user: this.user.getSanitizedObject({ request: this })
 			};
 		}
 		else {

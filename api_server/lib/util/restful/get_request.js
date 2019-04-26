@@ -29,7 +29,7 @@ class GetRequest extends RestfulRequest {
 		}
 		this.responseData = this.responseData || {};
 		// sanitize it for returning to client (eliminate any attributes we don't want the client to see)
-		this.responseData[modelName] = this.model.getSanitizedObject();
+		this.responseData[modelName] = this.model.getSanitizedObject({ request: this });
 	}
 
 	// describe this route for help

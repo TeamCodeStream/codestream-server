@@ -17,7 +17,7 @@ class GetMarkerRequest extends GetRequest {
 		const codemarkId = this.model.get('codemarkId');
 		this.codemark = await this.data.codemarks.getById(codemarkId);
 		if (!this.codemark) { return; } // shouldn't happen
-		this.responseData.codemark = this.codemark.getSanitizedObject();
+		this.responseData.codemark = this.codemark.getSanitizedObject({ request: this });
 	}
 
 	// get the post referencing the codemark that is the parent to this marker, if any
@@ -28,7 +28,7 @@ class GetMarkerRequest extends GetRequest {
 		const postId = this.codemark.get('postId');
 		this.post = await this.data.posts.getById(postId);
 		if (!this.post) { return; } // shouldn't happen
-		this.responseData.post = this.post.getSanitizedObject();
+		this.responseData.post = this.post.getSanitizedObject({ request: this });
 	}
 
 	// describe this route for help

@@ -40,9 +40,9 @@ class PostTeamRequest extends PostRequest {
 		if (this.gotError) {
 			return super.handleResponse();
 		}
-		this.responseData.company = this.transforms.createdCompany.getSanitizedObject();
+		this.responseData.company = this.transforms.createdCompany.getSanitizedObject({ request: this });
 		this.responseData.streams = [
-			this.transforms.createdTeamStream.getSanitizedObject()
+			this.transforms.createdTeamStream.getSanitizedObject({ request: this })
 		];
 		super.handleResponse();
 	}

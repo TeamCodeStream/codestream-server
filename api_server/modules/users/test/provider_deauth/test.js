@@ -21,15 +21,22 @@ const PROVIDERS = [
 ];
 
 const ENTERPRISE_PROVIDERS = {
-//	'github': 'git.codestream.us'
+//	'github': 'git.codestream.us',
+//	'youtrack': 'teamcodestream.youtrack.com'
 };
+
+const ENTERPRISE_ONLY_PROVIDERS = [
+	'youtrack'
+];
 
 class ProviderDeauthRequestTester {
 
 	test () {
 		PROVIDERS.forEach(provider => {
-			new ProviderDeauthTest({ provider }).test();
-			new MessageTest({ provider }).test();
+			if (!ENTERPRISE_ONLY_PROVIDERS.includes(provider)) {
+				new ProviderDeauthTest({ provider }).test();
+				new MessageTest({ provider }).test();
+			}
 			if (Object.keys(ENTERPRISE_PROVIDERS).includes(provider)) {
 				const testHost = ENTERPRISE_PROVIDERS[provider];
 				new ProviderDeauthTest({ provider, testHost }).test();

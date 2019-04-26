@@ -26,14 +26,14 @@ class MarkerLocations extends DataModel {
 
 	// get a sanitized object for return to the client (cleansed of attributes we don't want
 	// the client to see)
-	getSanitizedObject () {
+	getSanitizedObject (options) {
 		// we don't use a mongo-generated ID for the MarkerLocations model, but instead
 		// combine the stream ID and the commit hash and use that ... this ensures that
 		// we never have a duplicate of the same information, since the stream ID and the
 		// the commit hash uniquely define a set of marker locations ... but we don't expose
 		// this little wrinkle to the client, so here we parse out the streamID and commit
 		// hash and return them to the client separately
-		let object = super.getSanitizedObject();
+		let object = super.getSanitizedObject(options);
 		if (object.id) {
 			let parts = object.id.split('|');
 			if (parts.length > 1) {

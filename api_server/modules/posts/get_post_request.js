@@ -18,7 +18,7 @@ class GetPostRequest extends GetRequest {
 		if (!codemarkId) { return; }
 		this.codemark = await this.data.codemarks.getById(codemarkId);
 		if (!this.codemark) { return; }
-		this.responseData.codemark = this.codemark.getSanitizedObject();
+		this.responseData.codemark = this.codemark.getSanitizedObject({ request: this });
 	}
 
 	// get the markers referenced by this post, if any
@@ -27,7 +27,7 @@ class GetPostRequest extends GetRequest {
 		const markerIds = this.codemark.get('markerIds') || [];
 		if (markerIds.length === 0) { return; }
 		const markers = await this.data.markers.getByIds(markerIds);
-		this.responseData.markers = markers.map(marker => marker.getSanitizedObject());
+		this.responseData.markers = markers.map(marker => marker.getSanitizedObject({ request: this }));
 	}
 
 	// describe this route for help

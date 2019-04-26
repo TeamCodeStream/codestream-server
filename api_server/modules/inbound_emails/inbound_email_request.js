@@ -184,7 +184,7 @@ class InboundEmailRequest extends RestfulRequest {
 			throw this.errorHandler.error('internal', { reason: error });
 		}
 		this.post = this.postCreator.model;
-		this.responseData.post = this.post.getSanitizedObject();
+		this.responseData.post = this.post.getSanitizedObject({ request: this });
 	}
 
 	// after the post is created...

@@ -213,7 +213,7 @@ class ConfirmRequest extends RestfulRequest {
 		}
 		// get the user again since it was changed, this should fetch from cache and not from database
 		this.user = await this.data.users.getById(this.user.id);
-		this.responseData.user = this.user.getSanitizedObjectForMe();
+		this.responseData.user = this.user.getSanitizedObjectForMe({ request: this });
 		await super.handleResponse();
 	}
 
@@ -228,7 +228,7 @@ class ConfirmRequest extends RestfulRequest {
 	async publishUserToTeams () {
 		await new UserPublisher({
 			user: this.user,
-			data: this.user.getSanitizedObject(),
+			data: this.user.getSanitizedObject({ request: this }),
 			request: this,
 			messager: this.api.services.messager
 		}).publishUserToTeams();

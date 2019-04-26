@@ -195,7 +195,7 @@ class GetPostsRequest extends GetManyRequest {
 			return;
 		}
 		this.codemarks = await this.data.codemarks.getByIds(codemarkIds);
-		this.responseData.codemarks = this.codemarks.map(codemark => codemark.getSanitizedObject());
+		this.responseData.codemarks = this.codemarks.map(codemark => codemark.getSanitizedObject({ request: this }));
 	}
 
 	// get the markers associated with the fetched posts, as needed
@@ -209,7 +209,7 @@ class GetPostsRequest extends GetManyRequest {
 			return;
 		}
 		const markers = await this.data.markers.getByIds(markerIds);
-		this.responseData.markers = markers.map(marker => marker.getSanitizedObject());
+		this.responseData.markers = markers.map(marker => marker.getSanitizedObject({ request: this }));
 	}
 
 	// describe this route for help

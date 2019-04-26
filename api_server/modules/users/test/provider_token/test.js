@@ -27,15 +27,22 @@ const PROVIDERS = [
 ];
 
 const ENTERPRISE_PROVIDERS = {
-//	'github': 'git.codestream.us'
+//	'github': 'git.codestream.us',
+//	'youtrack': 'teamcodestream.youtrack.com'
 };
+
+const ENTERPRISE_ONLY_PROVIDERS = [
+	'youtrack'
+];
 
 class ProviderTokenRequestTester {
 
 	test () {
 		PROVIDERS.forEach(provider => {
-			new ProviderTokenTest({ provider }).test();
-			new MessageTest({ provider }).test();
+			if (!ENTERPRISE_ONLY_PROVIDERS.includes(provider)) {
+				new ProviderTokenTest({ provider }).test();
+				new MessageTest({ provider }).test();
+			}
 			if (Object.keys(ENTERPRISE_PROVIDERS).includes(provider)) {
 				const testHost = ENTERPRISE_PROVIDERS[provider];
 				new ProviderTokenTest({ provider, testHost }).test();

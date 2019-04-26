@@ -352,9 +352,9 @@ class User extends CodeStreamModel {
 	// get a sanitized me-object ... we normally "sanitize" server-only attributes
 	// out of an object, but for the user's own me-object, there are attributes that
 	// they are allowed to see, but no others
-	getSanitizedObjectForMe () {
+	getSanitizedObjectForMe (options) {
 		const meOnlyAttributes = this.getMeOnlyAttributes();
-		const sanitizedAttributes = this.getSanitizedObject();
+		const sanitizedAttributes = this.getSanitizedObject(options);
 		return Object.assign(sanitizedAttributes, meOnlyAttributes);
 	}
 

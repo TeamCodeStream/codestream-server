@@ -294,7 +294,7 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 
-		const repos = (this.transforms.createdRepos || []).map(repo => repo.getSanitizedObject())
+		const repos = (this.transforms.createdRepos || []).map(repo => repo.getSanitizedObject({ request: this.request }))
 			.concat(this.transforms.repoUpdates || []);
 		if (repos.length === 0) {
 			return;
@@ -327,7 +327,7 @@ class PostCreator extends ModelCreator {
 		if (!this.stream.hasPrivateContent()) {
 			return;
 		}
-		const sanitizedStream = stream.getSanitizedObject();
+		const sanitizedStream = stream.getSanitizedObject({ request: this.request });
 		await new StreamPublisher({
 			stream: sanitizedStream,
 			data: { stream: sanitizedStream },

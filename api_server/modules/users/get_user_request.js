@@ -11,7 +11,7 @@ class GetUserRequest extends GetRequest {
 		// allow for specifying "me" as the user to fetch
 		if (this.request.params.id.toLowerCase() === 'me') {
 			// allow certain "me-attributes" that only this user can see
-			this.responseData = { user: this.user.getSanitizedObjectForMe() };
+			this.responseData = { user: this.user.getSanitizedObjectForMe({ request: this }) };
 			return;
 		}
 		await super.process();

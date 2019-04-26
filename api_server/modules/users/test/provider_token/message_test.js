@@ -133,6 +133,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		}
 		if (this.provider === 'trello') {
 			expectedProviderSet[`${key}.apiKey`] = TrelloConfig.apiKey;
+			expectedProviderSet[`${key}.data`] = {
+				apiKey: TrelloConfig.apiKey
+			};
 		}
 		return super.validateMessage(message);
 	}

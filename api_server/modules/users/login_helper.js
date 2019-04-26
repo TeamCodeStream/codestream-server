@@ -5,6 +5,7 @@
 const InitialDataFetcher = require('./initial_data_fetcher');
 const UserSubscriptionGranter = require('./user_subscription_granter');
 const UUID = require('uuid/v4');
+const ProviderFetcher = require('./provider_fetcher');
 
 class LoginHelper {
 
@@ -17,8 +18,7 @@ class LoginHelper {
 		await this.getInitialData();
 		await this.generateAccessToken();
 		await this.updateLastLogin();
-		await this.getThirdPartyProviders();
-		await this.getThirdPartyProvidersPerTeam();
+		this.getThirdPartyProviders();
 		await this.formResponse();
 		await this.grantSubscriptionPermissions();
 		return this.responseData;
@@ -128,66 +128,26 @@ class LoginHelper {
 	}
 
 	// get the third-party issue providers that are available for issue codemark integration
-	// DEPRECATE ME...
-	// serving the providers in this way supports legacy clients that expect information about 
-	// third-party providers to be independent of teams (except on-prem providers, but no customers
-	// are actually using that yet) ... the new way is to serve up all provider info as part
-	// of the team properties (see getThirdPartyProvidersPerTeam() below) ... so this routine can
-	// be deprecated when we are assured all clients in the wild are past the point where they will need
-	// this (as of 4/19/19)
-	async getThirdPartyProviders () {
-		this.providers = await this.getStandardThirdPartyProviders() || [];
-	}
+	// this fetches the "standard" in-cloud providers, we'll add to this for providers for each individual team
+	getThirdPartyProviders () {
+		const info = new ProviderFetcher({
+			request: this.request,
+			teams: this.initialDataFetcher.teams
+		}).getThirdPartyProviders();
 
-	async getStandardThirdPartyProviders () {
-		const providers = this.request.api.config.api.thirdPartyProviders || [];
-		return providers.reduce((prev, provider) => {
-			const service = `${provider}Auth`;
-			const serviceAuth = this.request.api.services[service];
-			if (serviceAuth) {
-				const standardInstance = serviceAuth.getStandardInstance();
-				if (standardInstance) {
-					prev.push(standardInstance);
-				}
-			}
-			return prev;
-		}, []);
-	}
-
-	// get the third-party issue providers that are available for issue codemark integration,
-	// on a per-team basis ... this will include all standard in-cloud providers (whether CodeStream
-	// is on-prem or not), plus all on-prem providers for the particular team
-	async getThirdPartyProvidersPerTeam () {
+		this.providers = info.standardProviders;
 		(this.initialDataFetcher.teams || []).forEach(team => {
-			const providers = this.getThirdPartyProvidersForTeam(team);
 			const responseTeam = this.initialDataFetcher.initialData.teams.find(t => t.id === team.id);
 			if (responseTeam) {
-				responseTeam.providerHosts = {};
-				providers.forEach(provider => {
-					responseTeam.providerHosts[provider.id] = provider;
-				});
+				responseTeam.providerHosts = info.providerHosts[responseTeam.id];
 			}
 		});
-	}
-
-	getThirdPartyProvidersForTeam (team) {
-		let teamInstances = [...this.providers];
-		const providerHosts = team.get('providerHosts') || {};
-		Object.keys(providerHosts).forEach(provider => {
-			const service = `${provider}Auth`;
-			const serviceAuth = this.request.api.services[service];
-			if (serviceAuth) {
-				const instances = serviceAuth.getInstancesByConfig(providerHosts[provider]);
-				teamInstances = [...teamInstances, ...instances];
-			}
-		});
-		return teamInstances;
 	}
 
 	// form the response to the request
 	async formResponse () {
 		this.responseData = {
-			user: this.user.getSanitizedObjectForMe(),	// include me-only attributes
+			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
 			pubnubKey: this.request.api.config.pubnub.subscribeKey,	// give them the subscribe key for pubnub
 			pubnubToken: this.pubnubToken,	// token used to subscribe to PubNub channels

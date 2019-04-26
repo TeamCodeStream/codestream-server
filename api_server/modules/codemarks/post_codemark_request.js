@@ -49,7 +49,7 @@ class PostCodemarkRequest extends PostRequest {
 
 		// add any repos created for posts with codemarks and markers
 		if (transforms.createdRepos && transforms.createdRepos.length > 0) {
-			responseData.repos = transforms.createdRepos.map(repo => repo.getSanitizedObject());
+			responseData.repos = transforms.createdRepos.map(repo => repo.getSanitizedObject({ request: this }));
 		}
 
 		// add any repos updated for posts with codemarks and markers, which may have brought 
@@ -63,14 +63,14 @@ class PostCodemarkRequest extends PostRequest {
 
 		// add any file streams created for markers
 		if (transforms.createdStreamsForMarkers && transforms.createdStreamsForMarkers.length > 0) {
-			responseData.streams = transforms.createdStreamsForMarkers.map(stream => stream.getSanitizedObject());
+			responseData.streams = transforms.createdStreamsForMarkers.map(stream => stream.getSanitizedObject({ request: this }));
 		}
 
 		// add any markers created 
 		if (transforms.createdMarkers && transforms.createdMarkers.length > 0) {
 			responseData.markers = [
 				...(responseData.markers || []),
-				...transforms.createdMarkers.map(marker => marker.getSanitizedObject())
+				...transforms.createdMarkers.map(marker => marker.getSanitizedObject({ request: this }))
 			];
 		}
 

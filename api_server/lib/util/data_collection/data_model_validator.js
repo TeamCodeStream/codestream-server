@@ -204,9 +204,9 @@ class DataModelValidator {
 	}
 
 	// for a given model, return a sanitized object with any attributes removed that should not be served to clients
-	getSanitizedObject (model) {
+	getSanitizedObject (model, options) {
 		let object = DeepClone(model.attributes);
-		return this.sanitizeAttributes(object);
+		return this.sanitizeAttributes(object, options);
 	}
 
 	// set default attributes for an object, according to the attribute definitions

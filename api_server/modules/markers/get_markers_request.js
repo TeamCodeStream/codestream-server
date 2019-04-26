@@ -84,7 +84,7 @@ class GetMarkersRequest extends GetManyRequest {
 			return;
 		}
 		this.codemarks = await this.data.codemarks.getByIds(codemarkIds);
-		this.responseData.codemarks = this.codemarks.map(codemark => codemark.getSanitizedObject());
+		this.responseData.codemarks = this.codemarks.map(codemark => codemark.getSanitizedObject({ request: this }));
 	}
 
 	// get the posts pointing to the fetched markers, as needed
@@ -97,7 +97,7 @@ class GetMarkersRequest extends GetManyRequest {
 			return;
 		}
 		this.posts = await this.data.posts.getByIds(postIds);
-		this.responseData.posts = this.posts.map(post => post.getSanitizedObject());
+		this.responseData.posts = this.posts.map(post => post.getSanitizedObject({ request: this }));
 	}
 
 	// if the user provides a commit hash, we'll fetch marker locations associated with the markers for the stream,
@@ -122,7 +122,7 @@ class GetMarkersRequest extends GetManyRequest {
 			return;
 		}
 		this.markerLocations = markerLocations[0];
-		this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
+		this.responseData.markerLocations = this.markerLocations.getSanitizedObject({ request: this });
 	}
 
 	// describe this route for help

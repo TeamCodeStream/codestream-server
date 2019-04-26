@@ -299,7 +299,7 @@ class EditingRequest extends RestfulRequest {
 		this.responseData.streams = [];
 		// created streams are returned in full
 		this.createdStreams.forEach(stream => {
-			this.responseData.streams.push(stream.getSanitizedObject());
+			this.responseData.streams.push(stream.getSanitizedObject({ request: this }));
 		});
 		// new streams the user is editing, indicated as such
 		this.newStreamsBeingEdited.forEach(streamId => {

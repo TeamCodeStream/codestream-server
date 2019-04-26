@@ -40,14 +40,14 @@ class RestfulRequest extends APIRequest {
 	async sanitizeModels (models) {
 		const sanitizedObjects = [];
 		for (var model of models) {
-			sanitizedObjects.push(model.getSanitizedObject());
+			sanitizedObjects.push(model.getSanitizedObject({ request: this }));
 		}
 		return sanitizedObjects;
 	}
 
 	// sanitize a single model (eliminate attributes we don't want the client to see)
 	sanitizeModel (model) {
-		this.sanitizedObjects.push(model.getSanitizedObject());
+		this.sanitizedObjects.push(model.getSanitizedObject({ request: this }));
 	}
 }
 

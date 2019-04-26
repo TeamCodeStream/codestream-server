@@ -261,8 +261,9 @@ class OAuth2Module extends APIServerModule {
 		const extraData = responseData.data || {};
 		delete responseData.data;
 		tokenData.data = Object.assign({}, responseData, extraData);
-		delete tokenData.data.access_token;
-		delete tokenData.data.refresh_token;
+		['access_token', 'refresh_token', 'state', 'code', '_mockToken'].forEach(prop => {
+			delete tokenData.data[prop];
+		});
 		return tokenData;
 	}
 

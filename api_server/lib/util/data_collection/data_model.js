@@ -78,8 +78,8 @@ class DataModel {
 	}
 
 	// get a sanitized version of this model, as an object ... with attributes not to be served to clients
-	getSanitizedObject () {
-		return this.validator.getSanitizedObject(this);
+	getSanitizedObject (options) {
+		return this.validator.getSanitizedObject(this, options);
 	}
 
 	// sanitize this model, removing all attributes that should not be served to clients

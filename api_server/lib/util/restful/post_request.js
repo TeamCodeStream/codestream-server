@@ -20,7 +20,7 @@ class PostRequest extends RestfulRequest {
 		// sanitize the model (eliminate attributes we don't want the client to see),
 		// and set up the response to the client ... the creator class might have
 		// additional information to put in the response, so handle that here as well
-		this.responseData[modelName] = model.getSanitizedObject();
+		this.responseData[modelName] = model.getSanitizedObject({ request: this });
 	}
 
 	// after the request has been processed and response returned to the client....

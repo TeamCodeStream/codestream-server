@@ -30,7 +30,7 @@ class PostPostRequest extends PostRequest {
 
 		// add any repos created for posts with codemarks and markers
 		if (transforms.createdRepos && transforms.createdRepos.length > 0) {
-			responseData.repos = transforms.createdRepos.map(repo => repo.getSanitizedObject());
+			responseData.repos = transforms.createdRepos.map(repo => repo.getSanitizedObject({ request: this }));
 		}
 
 		// add any repos updated for posts with codemarks and markers, which may have brought 
@@ -44,7 +44,7 @@ class PostPostRequest extends PostRequest {
 
 		// add any file streams created for markers
 		if (transforms.createdStreamsForMarkers && transforms.createdStreamsForMarkers.length > 0) {
-			responseData.streams = transforms.createdStreamsForMarkers.map(stream => stream.getSanitizedObject());
+			responseData.streams = transforms.createdStreamsForMarkers.map(stream => stream.getSanitizedObject({ request: this }));
 		}
 
 		// the stream gets updated as a result of the new post, so add that
@@ -59,7 +59,7 @@ class PostPostRequest extends PostRequest {
 		if (transforms.createdMarkers && transforms.createdMarkers.length > 0) {
 			responseData.markers = [
 				...(responseData.markers || []),
-				...transforms.createdMarkers.map(marker => marker.getSanitizedObject())
+				...transforms.createdMarkers.map(marker => marker.getSanitizedObject({ request: this }))
 			];
 		}
 
@@ -70,7 +70,7 @@ class PostPostRequest extends PostRequest {
 
 		// a knowledge base codemark might have been created with the post, add it
 		if (transforms.createdCodemark) {
-			responseData.codemark = transforms.createdCodemark.getSanitizedObject();
+			responseData.codemark = transforms.createdCodemark.getSanitizedObject({ request: this });
 		}
 
 		// if there is a parent post update, add it

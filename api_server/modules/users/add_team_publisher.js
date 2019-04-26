@@ -29,7 +29,7 @@ class AddTeamPublisher {
 		const channel = `team-${this.team.id}`;
 		const message = {
 			requestId: this.request.request.id,
-			user: this.user.getSanitizedObject(),
+			user: this.user.getSanitizedObject({ request: this.request }),
 			team: this.teamUpdate,
 		};
 		try {
@@ -110,8 +110,8 @@ class AddTeamPublisher {
 			requestId: this.request.request.id,
 			user: this.userUpdate
 		};
-		message.team = this.team.getSanitizedObject();
-		message.company = this.company.getSanitizedObject();
+		message.team = this.team.getSanitizedObject({ request: this.request });
+		message.company = this.company.getSanitizedObject({ request: this.request });
 		message.users = this.sanitizedTeamMembers;
 		message.repos = this.sanitizedRepos;
 		try {

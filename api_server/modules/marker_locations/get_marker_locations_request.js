@@ -52,7 +52,7 @@ class GetMarkerLocationsRequest extends RestfulRequest {
 			return;	// no matching marker locations for this commit, we'll just send an empty response
 		}
 		this.markerLocations = markerLocations[0];
-		this.responseData.markerLocations = this.markerLocations.getSanitizedObject();
+		this.responseData.markerLocations = this.markerLocations.getSanitizedObject({ request: this });
 		this.responseData.numMarkers = this.stream.get('numMarkers');
 	}
 
