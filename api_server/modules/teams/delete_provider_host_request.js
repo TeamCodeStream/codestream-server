@@ -55,6 +55,7 @@ class DeleteProviderHostRequest extends RestfulRequest {
 		this.responseData = {
 			team: {
 				id: this.team.id,
+				_id: this.team.id,	// DEPRECATE ME
 				$set: {
 					modifiedAt: now
 				},
