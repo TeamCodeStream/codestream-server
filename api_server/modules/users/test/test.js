@@ -22,6 +22,7 @@ const ProviderAuthRequestTester = require('./provider_auth/test');
 const ProviderTokenRequestTester = require('./provider_token/test');
 const ProviderDeauthRequestTester = require('./provider_deauth/test');
 const ProviderRefreshRequestTester = require('./provider_refresh/test');
+const ProviderSetTokenRequestTester = require('./provider_set_token/test');
 const BumpPostsRequestTester = require('./bump_posts/test');
 
 const userRequestTester = new UserRequestTester();
@@ -59,5 +60,6 @@ describe('user requests', function() {
 	describe('GET /no-auth/provider-token/:provider', ProviderTokenRequestTester.test);
 	describe('PUT /provider-deauth/:provider', ProviderDeauthRequestTester.test);
 	describe('GET /provider-refresh/:provider', ProviderRefreshRequestTester.test);
+	describe('PUT /provider-set-token/:provider', ProviderSetTokenRequestTester.test);
 	describe('PUT /bump-posts', BumpPostsRequestTester.test);
 });
