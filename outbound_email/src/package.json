@@ -1,6 +1,6 @@
 {
 	"name": "outbound-email",
-	"version": "0.4.5",
+	"version": "0.4.6",
 	"dependencies": {
 		"deep-equal": "1.0.1",
 		"highlight.js": "9.12.0",
