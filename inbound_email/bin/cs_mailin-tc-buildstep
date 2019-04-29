@@ -7,7 +7,7 @@ import sys
 
 sys.path.append(os.environ['DT_TOP'] + "/lib")
 import devTools
-from sysUtils import dumpDict, shellExecNoBuffer, someValueOrNone
+import sysUtils as su
 from buildUtils import *
 
 assetExtensionList = ['info', 'tgz']
@@ -42,17 +42,17 @@ if args.action in ['pack','info']:
 	infoFileName = pkgInfo['localAssetFilePrefix'] + ".info"
 	pkgInfo['assetsMD5'][tarballAssetName] = "0"
 	pkgInfo['sandboxType'] = buildData['sbInfo']['sb_type']
-	dumpDict(pkgInfo, publishDir + ".info")
+	su.dumpDict(pkgInfo, publishDir + ".info")
 
 if args.action == 'pack':
 	buildstepGeneric(args, cmd = "npm run tarball")
 	pkgInfo['assetsMD5'][tarballAssetName] = dt.md5Hash(publishDir + ".tgz")
-	dumpDict(pkgInfo, publishDir + ".info")
+	su.dumpDict(pkgInfo, publishDir + ".info")
 	os.rename(publishDir + ".info", infoFileName)
 	os.rename(publishDir + ".tgz", tarballAssetName)
 	if args.verbose:
-		dumpDict(pkgInfo, None, "packageInfo:")
-		shellExecNoBuffer("ls -l " + pkgInfo['localAssetFilePrefix'] + ".*", printCmd = True)
+		su.dumpDict(pkgInfo, None, "packageInfo:")
+		su.shellExecNoBuffer("ls -l " + pkgInfo['localAssetFilePrefix'] + ".*", printCmd = True)
 
 if args.action == 'citest':
 	buildstepGeneric(args, cmd = "npm run test:ci")
@@ -66,7 +66,7 @@ if args.action == 'release':
 		exit(1)
 	setArtifactLinks("prod/" + publishDir, args.build_number, assetExtensionList, 'current')
 	infoFileName = args.build_number + ".info"
-	pkgInfo = readJsonFileIgnoreComments(infoFileName)
+	pkgInfo = su.readJsonFileIgnoreComments(infoFileName)
 	applyTagToRepos(os.environ['CS_MAILIN_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
 	updatePackageVersion(buildData['sandboxTop'] + "/package.json", "develop", pkgInfo['version'], bumpLevel = 'patch')
 	buildstepGeneric(args, cmd = "dt-set-asset-version -D prod/inbound-email --tag current --build " + args.build_number)
