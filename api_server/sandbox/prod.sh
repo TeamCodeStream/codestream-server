@@ -4,12 +4,13 @@
 SSL_CERT=codestream.com
 MONGO_ACCESS_FILE="$HOME/.codestream/mongo/prod-codestream-dbowner"
 SLACK_API_ACCESS_FILE=$HOME/.codestream/slack/production
-#TRELLO_API_ACCESS_FILE=
+# TRELLO_API_ACCESS_FILE=
 GITHUB_API_ACCESS_FILE=$HOME/.codestream/github/production
 ASANA_API_ACCESS_FILE=$HOME/.codestream/asana/production
 ATLASSIAN_API_ACCESS_FILE=$HOME/.codestream/atlassian/production
 GITLAB_API_ACCESS_FILE=$HOME/.codestream/gitlab/production
 BITBUCKET_API_ACCESS_FILE=$HOME/.codestream/bitbucket/production
+# AZUREDEVOPS_API_ACCESS_FILE=$HOME/.codestream/microsoft/devops-production
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset"
 SEGMENT_TOKEN_FILE=$HOME/.codestream/segment/prod-api
 SEGMENT_WEB_TOKEN_FILE=$HOME/.codestream/segment/prod-webapp

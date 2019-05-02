@@ -238,19 +238,17 @@ fi
 
 
 # ================= Azure DevOps API Access ==============
-export CS_API_AZUREDEVOPS_CLIENT_ID="70D802C1-E4C0-471F-BEAA-88C25B339590"
-export CS_API_AZUREDEVOPS_CLIENT_SECRET="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs"
-#[ -z "$AZUREDEVOPS_API_ACCESS_FILE" ] && YOUTRACK_API_ACCESS_FILE=$HOME/.codestream/azuredevops/codestreamops
-#if [ -f $AZUREDEVOPS_API_ACCESS_FILE ]; then
-#	. $AZUREDEVOPS_API_ACCESS_FILE
-#	export CS_API_AZUREDEVOPS_CLIENT_ID="$AZUREDEVOPS_CLIENT_ID"
-#	export CS_API_AZUREDEVOPS_CLIENT_SECRET="$AZUREDEVOPS_CLIENT_SECRET"
-#else
-#	echo "********************************************************************"
-#	echo "WARNING: Azure DevOps api access file not found ($AZUREDEVOPS_API_ACCESS_FILE)."
-#	echo "         Run dt-update-secrets and reload your sandbox"
-#	echo "********************************************************************"
-#fi
+[ -z "$AZUREDEVOPS_API_ACCESS_FILE" ] && AZUREDEVOPS_API_ACCESS_FILE=$HOME/.codestream/microsoft/devops-development
+if [ -f $AZUREDEVOPS_API_ACCESS_FILE ]; then
+	. $AZUREDEVOPS_API_ACCESS_FILE
+	export CS_API_AZUREDEVOPS_CLIENT_ID="$AZUREDEVOPS_CLIENT_ID"
+	export CS_API_AZUREDEVOPS_CLIENT_SECRET="$AZUREDEVOPS_CLIENT_SECRET"
+else
+	echo "********************************************************************"
+	echo "WARNING: Azure DevOps api access file not found ($AZUREDEVOPS_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
 
 
 # ================= MSTeams API Access ==============4
