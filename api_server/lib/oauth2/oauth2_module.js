@@ -395,9 +395,9 @@ class OAuth2Module extends APIServerModule {
 
 	// get the standard in-cloud instance of the third-party provider, if configured
 	getStandardInstance () {
-		const { host, provider, apiHost, hasIssues, enterpriseOnly, needsConfigure } = this.oauthConfig;
+		const { host, provider, apiHost, hasIssues, enterpriseOnly, needsConfigure, disabled } = this.oauthConfig;
 		const { appClientId, apiKey } = this.apiConfig;
-		if (host && (enterpriseOnly || appClientId || apiKey)) {
+		if (!disabled && host && (enterpriseOnly || appClientId || apiKey)) {
 			const starredHost = host.toLowerCase().replace(/\./g, '*');
 			return {
 				id: starredHost,
