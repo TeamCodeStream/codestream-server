@@ -17,6 +17,7 @@ const PROVIDERS = [
 	'jira',
 	'bitbucket',
 	'gitlab',
+	'azuredevops',
 	'msteams'
 	//'glip'
 ];
@@ -43,7 +44,7 @@ class ProviderRefreshTester {
 		new ParameterRequiredTest({ provider: 'bitbucket', parameter: 'refreshToken' }).test();
 		new ACLTest({ provider: 'gitlab' }).test();
 		new UnknownProviderTest({ provider: 'asana' }).test();
-		new TeamNotFoundTest({ provider: 'jira' }).test();
+		new TeamNotFoundTest({ provider: 'azuredevlops' }).test();
 	}
 }
 

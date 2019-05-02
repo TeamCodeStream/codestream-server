@@ -187,7 +187,6 @@ class OAuth2Module extends APIServerModule {
 		// prepare parameters for the token exchange request
 		const parameters = this.prepareTokenExchangeParameters(options, clientInfo);
 		const url = `https://${clientInfo.host}/${tokenPath}`;
-
 		// for testing, we do a mock reply instead of an actual call out to the provider
 		if (mockToken) {
 			return this.makeMockData(url, parameters, mockToken);
@@ -212,7 +211,15 @@ class OAuth2Module extends APIServerModule {
 
 	// prepare parameters for token exchange
 	prepareTokenExchangeParameters (options, clientInfo) {
-		const { appIdInAuthorizationHeader, noGrantType } = this.oauthConfig;
+		const { 
+			appIdInAuthorizationHeader,
+			noGrantType,
+			additionalTokenParameters,
+			additionalRefreshTokenParameters,
+			secretParameterName,
+			codeParameterName,
+			refreshTokenParameterName
+		} = this.oauthConfig;
 		const { state, code, redirectUri, refreshToken } = options;
 		const parameters = {
 			redirect_uri: redirectUri
@@ -225,15 +232,25 @@ class OAuth2Module extends APIServerModule {
 		}
 		else {
 			parameters.client_id = clientInfo.clientId;
-			parameters.client_secret = clientInfo.clientSecret;
+			const secretKey = secretParameterName || 'client_secret';
+			parameters[secretKey] = clientInfo.clientSecret;
 		}
 		if (refreshToken) {
-			parameters.refresh_token = refreshToken;
+			const refreshTokenKey = refreshTokenParameterName || 'refresh_token';
+			parameters[refreshTokenKey] = refreshToken;
 		}
 		else {
-			parameters.code = code;
+			const codeKey = codeParameterName || 'code';
+			parameters[codeKey] = code;
 			parameters.state = state;
 		}
+		if (additionalTokenParameters) {
+			Object.assign(parameters, additionalTokenParameters);
+		}
+		if (refreshToken && additionalRefreshTokenParameters) {
+			Object.assign(parameters, additionalRefreshTokenParameters);
+		}
+
 		return parameters;
 	}
 
@@ -378,7 +395,7 @@ class OAuth2Module extends APIServerModule {
 
 	// get the standard in-cloud instance of the third-party provider, if configured
 	getStandardInstance () {
-		const { host, provider, apiHost, hasIssues, enterpriseOnly } = this.oauthConfig;
+		const { host, provider, apiHost, hasIssues, enterpriseOnly, needsConfigure } = this.oauthConfig;
 		const { appClientId, apiKey } = this.apiConfig;
 		if (host && (enterpriseOnly || appClientId || apiKey)) {
 			const starredHost = host.toLowerCase().replace(/\./g, '*');
@@ -387,6 +404,7 @@ class OAuth2Module extends APIServerModule {
 				name: provider,
 				isEnterprise: false,
 				enterpriseOnly,
+				needsConfigure,
 				host: host.toLowerCase(),
 				apiHost: apiHost ? apiHost.toLowerCase() : undefined,
 				hasIssues: hasIssues

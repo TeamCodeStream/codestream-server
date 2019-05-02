@@ -15,7 +15,7 @@ const PROVIDER_DISPLAY_NAMES = {
 	'asana': 'Asana',
 	'youtrack': 'YouTrack',
 	'slack': 'Slack',
-	'azure-devops': 'Azure DevOps',
+	'azuredevops': 'Azure DevOps',
 	'vsts': 'Visual Studio Team Services'
 };
 

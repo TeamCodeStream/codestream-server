@@ -67,6 +67,7 @@ module.exports = {
 		'jira',
 		'trello',
 		'youtrack',
+		'azuredevops',
 		'slack'
 	]
 };

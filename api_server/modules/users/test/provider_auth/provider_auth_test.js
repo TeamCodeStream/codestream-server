@@ -11,6 +11,8 @@ const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
 const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
 const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
 const YouTrackConfig = require(process.env.CS_API_TOP + '/config/youtrack');
+const AzureDevOpsConfig = require(process.env.CS_API_TOP + '/config/azuredevops');
+
 const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
@@ -93,6 +95,9 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			break;
 		case 'youtrack':
 			redirectData = this.getYouTrackRedirectData();
+			break;
+		case 'azuredevops':
+			redirectData = this.getAzureDevOpsRedirectData();
 			break;
 		case 'slack':
 			redirectData = this.getSlackRedirectData();
@@ -201,6 +206,20 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			state: this.state,
 			scope: 'YouTrack',
 			request_credentials: 'default'
+		};
+		const url = 'https://youtrack.com/api/rest/oauth2/auth';
+		return { url, parameters };
+	}
+
+	getAzureDevOpsRedirectData () {
+		const parameters = {
+			client_id: AzureDevOpsConfig.appClientId,
+			redirect_uri: this.redirectUri,
+			response_type: 'Assertion',
+			state: this.state,
+			scope: 'vso.identity vso.work_write',
+			client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+			grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer'
 		};
 		const url = 'https://youtrack.com/api/rest/oauth2/auth';
 		return { url, parameters };

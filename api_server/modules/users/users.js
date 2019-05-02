@@ -155,6 +155,11 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'put',
+		path: '/provider-info/:provider',
+		requestClass: require('./provider_info_request')
+	},
+	{
+		method: 'put',
 		path: 'bump-posts',
 		requestClass: require('./bump_posts_request')
 	}

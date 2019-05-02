@@ -41,6 +41,9 @@ class ProviderRefreshTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		case 'bitbucket':
 			expectedData = this.getExpectedBitbucketTestCallData();
 			break;
+		case 'azuredevops':
+			expectedData = this.getExpectedAzureDevOpsTestCallData();
+			break;
 		case 'msteams':
 			expectedData = this.getExpectedMSTeamsTestCallData();
 			break;

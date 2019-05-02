@@ -16,7 +16,8 @@ const OAUTH_CONFIG = {
 	noExchange: true,
 	tokenFromFragment: 'access_token',
 	hasIssues: true,
-	enterpriseOnly: true
+	enterpriseOnly: true,
+	needsConfigure: true
 };
 
 class YouTrackAuth extends OAuth2Module {

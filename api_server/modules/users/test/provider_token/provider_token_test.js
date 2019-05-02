@@ -55,6 +55,9 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		case 'bitbucket':
 			expectedData = this.getExpectedBitbucketTestCallData();
 			break;
+		case 'azuredevops':
+			expectedData = this.getExpectedAzureDevOpsTestCallData();
+			break;
 		case 'slack':
 			expectedData = this.getExpectedSlackTestCallData();
 			break;

@@ -15,6 +15,7 @@ const PROVIDERS = [
 	'gitlab',
 	'bitbucket',
 	'youtrack',
+	'azuredevops',
 	'slack',
 	'msteams',
 	'glip'

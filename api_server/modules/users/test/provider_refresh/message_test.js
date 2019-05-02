@@ -65,6 +65,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		case 'bitbucket':
 			expectedTestCallData = this.getExpectedBitbucketTestCallData();
 			break;
+		case 'azuredevops':
+			expectedTestCallData = this.getExpectedAzureDevOpsTestCallData();
+			break;
 		case 'msteams':
 			expectedTestCallData = this.getExpectedMSTeamsTestCallData();
 			break;
@@ -103,7 +106,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const providerInfo = message.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];
 		const expectedProviderInfo = this.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];
 		expectedProviderInfo.refreshToken = 'refreshMe';
-		const expiresIn = ['jira', 'asana', 'glip', 'msteams'].includes(this.provider) ? 3600 : 7200;
+		const expiresIn = ['jira', 'asana', 'azuredevops', 'glip', 'msteams'].includes(this.provider) ? 3600 : 7200;
 		Assert(providerInfo.expiresAt > this.requestSentAt + (expiresIn - 6) * 1000, `expiresAt not set for ${this.provider}`);
 		expectedProviderInfo.expiresAt = providerInfo.expiresAt;
 		return super.validateMessage(message);

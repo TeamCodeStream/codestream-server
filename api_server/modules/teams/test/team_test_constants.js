@@ -101,7 +101,17 @@ const STANDARD_PROVIDER_HOSTS = {
 		name: 'youtrack',
 		isEnterprise: false,
 		enterpriseOnly: true,
+		needsConfigure: true,
 		host: 'youtrack.com',
+		hasIssues: true
+	},
+	'app*vssps*visualstudio*com': {
+		id: 'app*vssps*visualstudio*com',
+		name: 'azuredevops',
+		isEnterprise: false,
+		enterpriseOnly: false,
+		needsConfigure: true,
+		host: 'app.vssps.visualstudio.com',
 		hasIssues: true
 	},
 	'slack*com': {

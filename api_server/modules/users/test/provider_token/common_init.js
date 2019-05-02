@@ -11,6 +11,7 @@ const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
 const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
 const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
 const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
+const AzureDevOpsConfig = require(process.env.CS_API_TOP + '/config/azuredevops');
 const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
@@ -177,6 +178,19 @@ class CommonInit {
 		const userAuth = Base64.encode(`${BitbucketConfig.appClientId}:${BitbucketConfig.appClientSecret}`);
 		const url = 'https://bitbucket.org/site/oauth2/access_token';
 		return { url, parameters, userAuth };
+	}
+
+	getExpectedAzureDevOpsTestCallData () {
+		const parameters = {
+			grant_type: 'authorization_code',
+			client_id: AzureDevOpsConfig.appClientId,
+			client_secret: AzureDevOpsConfig.appClientSecret,
+			code: this.code,
+			redirect_uri: this.redirectUri,
+			state: this.state
+		};
+		const url = 'https://auth.atlassian.com/oauth/token';
+		return { url, parameters };
 	}
 
 	getExpectedSlackTestCallData () {

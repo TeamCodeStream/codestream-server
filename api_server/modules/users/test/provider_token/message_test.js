@@ -70,6 +70,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		case 'bitbucket':
 			expectedTestCallData = this.getExpectedBitbucketTestCallData();
 			break;
+		case 'azuredevops':
+			expectedTestCallData = this.getExpectedAzureDevOpsTestCallData();
+			break;
 		case 'slack':
 			expectedTestCallData = this.getExpectedSlackTestCallData();
 			break;
@@ -123,9 +126,10 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		}
 		const providerSet = message.message.user.$set;
 		const expectedProviderSet = this.message.user.$set;
-		if (['jira', 'asana', 'bitbucket', 'gitlab', 'glip', 'msteams'].includes(this.provider)) {
+		if (['jira', 'asana', 'bitbucket', 'gitlab', 'azuredevops', 'glip', 'msteams'].includes(this.provider)) {
 			expectedProviderSet[`${key}.refreshToken`] = 'refreshMe';
-			const expiresIn = ['jira', 'asana', 'glip', 'msteams'].includes(this.provider) ? 3600 : 7200;
+			const expiresIn = ['bitbucket', 'gitlab'].includes(this.provider) ? 7200 : 
+				this.provider === 'azuredevops' ? 3599 : 3600;
 			const expiresAtKey = `${key}.expiresAt`;
 			const providerExpiresAt = providerSet[expiresAtKey];
 			Assert(providerExpiresAt > this.requestSentAt + (expiresIn - 6) * 1000, `expiresAt not set for ${this.provider}`);
