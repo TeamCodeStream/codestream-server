@@ -11,7 +11,7 @@ const OAUTH_CONFIG = {
 	authPath: 'oauth2/authorize',
 	tokenPath: 'oauth2/token',
 	exchangeFormat: 'form',
-	scopes: 'vso.identity vso.work_full',
+	scopes: 'vso.identity vso.work_write',
 	additionalAuthCodeParameters: {
 		response_type: 'Assertion',
 	},
