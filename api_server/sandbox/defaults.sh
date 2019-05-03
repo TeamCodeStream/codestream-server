@@ -241,7 +241,7 @@ fi
 [ -z "$AZUREDEVOPS_API_ACCESS_FILE" ] && AZUREDEVOPS_API_ACCESS_FILE=$HOME/.codestream/microsoft/devops-development
 if [ -f $AZUREDEVOPS_API_ACCESS_FILE ]; then
 	. $AZUREDEVOPS_API_ACCESS_FILE
-	export CS_API_AZUREDEVOPS_CLIENT_ID="$AZUREDEVOPS_CLIENT_ID"
+	export CS_API_AZUREDEVOPS_CLIENT_ID="$AZUREDEVOPS_APP_ID"
 	export CS_API_AZUREDEVOPS_CLIENT_SECRET="$AZUREDEVOPS_CLIENT_SECRET"
 else
 	echo "********************************************************************"
