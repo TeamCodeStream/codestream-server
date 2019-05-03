@@ -21,7 +21,7 @@ class ProviderFetcher {
 			const service = `${provider}Auth`;
 			const serviceAuth = this.request.api.services[service];
 			if (serviceAuth) {
-				const standardInstance = serviceAuth.getStandardInstance();
+				const standardInstance = serviceAuth.getStandardInstance(this.teams);
 				if (standardInstance) {
 					prev.push(standardInstance);
 				}
