@@ -27,7 +27,7 @@ fi
 # Uncomment and setup if node is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/node-$DT_OS_TYPE-*
-export CS_MAILIN_NODE_VER=8.11.3
+export CS_MAILIN_NODE_VER=10.15.3
 export PATH=$CS_MAILIN_SANDBOX/node/bin:$CS_MAILIN_TOP/node_modules/.bin:$PATH
 #
 # Set this variable if you require additional options when doing npm installs
