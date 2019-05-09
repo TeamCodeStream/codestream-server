@@ -2,13 +2,13 @@
 
 const EmailNotificationProcessor = require('./emailNotificationProcessor');
 const Index = require('./postIndex');
-const { callbackWrap } = require('./server_utils/await_utils');
 const Config = require('./config');
 
 class EmailNotificationHandler {
 
 	constructor (options) {
 		Object.assign(this, options);
+		this.logger = this.logger || console;
 	}
 
 	async handleMessage (message) {
@@ -61,7 +61,7 @@ class EmailNotificationHandler {
 			data: this.data,
 			stream: this.stream,
 			seqNum: this.message.seqNum,
-			messager: this.messager,
+			broadcaster: this.broadcaster,
 			sender: this.sender
 		}).sendEmailNotifications();
 	}
@@ -130,8 +130,7 @@ class EmailNotificationHandler {
 		const delay = Math.floor(Config.notificationInterval / 1000);
 		this.log(`Triggering email notifications for stream ${this.stream.id} in ${delay} seconds...`);
 		try {
-			await callbackWrap(
-				this.queuer.sendMessage.bind(this.queuer),
+			await this.queuer.sendMessage(
 				Config.outboundEmailQueueName,
 				message,
 				{ delay: delay }
@@ -178,11 +177,11 @@ class EmailNotificationHandler {
 	}
 
 	log (message) {
-		console.log(message);
+		this.logger.log(message);
 	}
 
 	warn (message) {
-		console.warn(message);
+		this.logger.warn(message);
 	}
 }
 

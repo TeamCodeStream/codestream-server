@@ -5,35 +5,29 @@
 'use strict';
 
 const LambdaLocal = require('lambda-local');
-const AWSFactory = require('./server_utils/aws/aws');
-const SQSClientFactory = require('./server_utils/aws/sqs_client');
-const { callbackWrap } = require('./server_utils/await_utils');
 const Config = require('./config');
+const OutboundEmailServer = require('./outboundEmailServer');
+
+var OutboundEmailService;
 
 (async function() {
-	await OpenSQSClient();
-})();
-
-async function OpenSQSClient () {
-	const aws = new AWSFactory(Config.aws);
-	const sqsClient = new SQSClientFactory({ aws });
-	console.log(`Listening to ${Config.outboundEmailQueueName}...`);
-	await callbackWrap(
-		sqsClient.createQueue.bind(sqsClient),
-		{
-			name: Config.outboundEmailQueueName,
-			handler: HandleMessage
+	Config.messageHandler = HandleMessage;
+	OutboundEmailService = new OutboundEmailServer(Config);
+	OutboundEmailService.start((error) => {
+		if (error) {
+			console.error('server failed to start: ' + error); // eslint-disable-line no-console
+			process.exit();	
 		}
-	);
-}
+	});
+})();
 
 async function HandleMessage (message, releaseCallback) {
 	releaseCallback(true); // this releases the message from the queue
 	try {
 		await LambdaLocal.execute({
 			event: message,
-			lambdaPath: './lambdaHandler',
-			lambdaHandler: 'handler',
+			lambdaFunc: OutboundEmailService,
+			lambdaHandler: 'lambda',
 			profilePath: '~/.aws/credentials',
 			timeoutMs: 10000,
 			environment: {
