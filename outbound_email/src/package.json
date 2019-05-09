@@ -5,9 +5,9 @@
 		"deep-equal": "1.0.1",
 		"amqplib": "0.5.3",
 		"highlight.js": "9.15.6",
-		"moment-timezone": "0.5.23",
-		"mongodb": "3.2.2",
-		"nodemailer": "6.0.0",
+		"moment-timezone": "0.5.25",
+		"mongodb": "3.2.4",
+		"nodemailer": "6.1.1",
 		"pubnub": "4.23.0",
 		"sendgrid": "5.2.3",
 		"socketcluster-client": "14.2.2",
@@ -33,7 +33,7 @@
 	],
 	"devDependencies": {
 		"eslint": "5.16.0",
-		"lambda-local": "1.5.2",
+		"lambda-local": "1.6.2",
 		"pre-commit": "1.2.2"
 	}
 }
