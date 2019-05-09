@@ -1,11 +1,11 @@
 {
-	"name" : "inbound-email",
-	"version" : "1.4.3",
+	"name": "inbound-email",
+	"version": "1.4.3",
 	"dependencies": {
 		"async": "2.6.2",
 		"commander": "2.20.0",
 		"html-entities": "1.2.1",
-		"mailparser": "2.6.0",
+		"mailparser": "2.7.1",
 		"pubnub": "4.23.0",
 		"randomstring": "1.1.5",
 		"strftime": "0.10.0",
@@ -13,8 +13,8 @@
 		"watchr": "4.1.0"
 	},
 	"devDependencies": {
-		"mocha": "6.0.2",
-		"mocha-teamcity-reporter": "2.5.2"
+		"mocha": "6.1.4",
+		"mocha-teamcity-reporter": "3.0.0"
 	},
 	"scripts": {
 		"veryclean": "git clean -fXd",
