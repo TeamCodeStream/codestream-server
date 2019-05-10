@@ -130,7 +130,7 @@ class ProviderSetTokenRequest extends RestfulRequest {
 		};
 		const channel = `user-${this.user.id}`;
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				data,
 				channel,
 				{ request: this }

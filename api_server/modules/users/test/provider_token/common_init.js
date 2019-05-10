@@ -204,14 +204,15 @@ class CommonInit {
 
 	getExpectedAzureDevOpsTestCallData () {
 		const parameters = {
-			grant_type: 'authorization_code',
-			client_id: AzureDevOpsConfig.appClientId,
-			client_secret: AzureDevOpsConfig.appClientSecret,
-			code: this.code,
 			redirect_uri: this.redirectUri,
-			state: this.state
+			grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+			client_id: AzureDevOpsConfig.appClientId,
+			client_assertion: AzureDevOpsConfig.appClientSecret,
+			assertion: this.code,
+			state: this.state,
+			client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
 		};
-		const url = 'https://auth.atlassian.com/oauth/token';
+		const url = 'https://app.vssps.visualstudio.com/oauth2/token';
 		return { url, parameters };
 	}
 

@@ -28,8 +28,8 @@ const PROVIDERS = [
 ];
 
 const ENTERPRISE_PROVIDERS = {
-//	'github': 'git.codestream.us',
-//	'youtrack': 'teamcodestream.youtrack.com'
+	'github': 'git.codestream.us',
+	'youtrack': 'teamcodestream.youtrack.com'
 };
 
 const ENTERPRISE_ONLY_PROVIDERS = [

@@ -96,6 +96,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		apiHost: 'api.trello.com/1',
 		hasIssues: true
 	},
+	/*
 	'youtrack*com': {
 		id: 'youtrack*com',
 		name: 'youtrack',
@@ -105,13 +106,14 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'youtrack.com',
 		hasIssues: true
 	},
+	*/
 	'app*vssps*visualstudio*com': {
 		id: 'app*vssps*visualstudio*com',
 		name: 'azuredevops',
 		isEnterprise: false,
-		enterpriseOnly: false,
 		needsConfigure: true,
 		host: 'app.vssps.visualstudio.com',
+		apiHost: 'dev.azure.com',
 		hasIssues: true
 	},
 	'slack*com': {

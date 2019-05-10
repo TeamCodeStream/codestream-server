@@ -67,7 +67,7 @@ class OAuth2Module extends APIServerModule {
 				clientInfo = options.team.get('providerHosts')[provider][starredHost];
 			}
 			if (!clientInfo) {
-				clientInfo = this.enterpriseConfig[host];
+				clientInfo = this.enterpriseConfig && this.enterpriseConfig[host];
 				if (!clientInfo) {
 					throw options.request.errorHandler.error('unknownProviderHost');
 				}

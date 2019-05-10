@@ -108,7 +108,7 @@ class ProviderHostRequest extends RestfulRequest {
 		const channel = 'team-' + this.team.id;
 		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
 		try {
-			await this.api.services.messager.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this }
