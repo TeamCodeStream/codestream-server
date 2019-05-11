@@ -32,7 +32,7 @@
 	},
 	"Tags" : {
 		"Name" : "{{ CS_OUTBOUND_EMAIL_SQS }}",
-		"CostMajor" : "dev",
+		"CostMajor" : "local",
 		"CostMinor" : "outbound-email"
 	}
 }

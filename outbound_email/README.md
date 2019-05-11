@@ -17,16 +17,16 @@ If you are using the dev_tools toolkit, install the sandbox with this command. O
 you do, it's recommended that you copy the playground template file to your **$DT_PLAYGROUNDS**
 directory and edit it accordingly.
 ```
-dt-new-sandbox -yCD -t cs_mailout -n $sandbox_name
-dt-load $sandbox_name
-cp $CS_OUTBOUND_EMAIL_TOP/sandbox/playground.template $DT_PLAYGROUNDS/$playground_name
+$ dt-new-sandbox -yCD -t cs_mailout -n $sandbox_name
+$ dt-load $sandbox_name
+$ cp $CS_OUTBOUND_EMAIL_TOP/sandbox/playground.template $DT_PLAYGROUNDS/$playground_name
 ```
 #### Without dev_tools
-You're on your own to supply node & npm. Recommended versions are node 8.11.3 and npm 6.2.0.
-You're also on your own to setup your shell's environment.  Default environment variable
-definitions can be found in **sandbox/defaults.sh**.
-1. Clone the project
-1. `(cd src && npm install --no-save)`
+You're on your own to supply node & npm. Recommended versions are node 10.15.3 and npm 6.4.1.
+You're also on your own to setup your shell's environment.
+1. `$ git clone git@github.com:teamcodestream/outbound_email`
+1. `$ cd outbound_email && npm install --no-save`
+1. Use **sandbox/defaults.sh** as a guide for setting up your environment variables.
 
 
 ## Quick Start
@@ -35,7 +35,10 @@ API service will create the outbound SQS mail queue so you must run it before yo
 install the lambda function and trigger.
 1. Build and bundle the outgoing mail service and install the lambda function and trigger.
 ```
-cd src && npm run build && npm run lambda:config && npm run lambda:install
+$ cd src
+$ npm run build           # create the code and zip it to ../out/outbound-email.zip
+$ npm run lambda:config   # create the lambda function config file in ../out/outbound-email.lambda.json
+$ npm run lambda:install  # create the lambda function and trigger
 ```
 
 ## Development Lifecycle
@@ -46,7 +49,7 @@ uninstall your lambda function.
 
 You can see the lambda functions with:
 ```
-dt-aws-lamnda -a list-funcs
+$ dt-aws-lamnda -a list-funcs
 ```
 In a nutshell, the development lifecycle looks like this:
 1. Modify your API server so it queues outbound email events
@@ -64,44 +67,44 @@ Use the npm scripts below to do the work of installing, uninstalling, updating, 
 ## NPM scripts
 Build / Create asset (../out/outbound-email.zip)
 ```
-cd src && npm run build
+$ cd src && npm run build
 ```
 
 Update the Lambda function in AWS with the latest build
 ```
-cd src && npm run lambda:update
+$ cd src && npm run lambda:update
 ```
 
 Perform both abovemented tasks at once
 ```
-cd src && npm run reupdate
+$ cd src && npm run reupdate
 ```
 
 Create the Lamda function definition (../out/outbound-email.lambda.json)
 ```
-cd src && npm run lambda:config
+$ cd src && npm run lambda:config
 ```
 
 Install the lambda function and a trigger on the SQS queue
 ```
-cd src && npm run lambda:install
+$ cd src && npm run lambda:install
 ```
 
 Uninstall the lambda function and trigger (do this when you're done developing). Note
 that uninstalling a lambda function and its triggers takes time to completely flush
 in AWS so you should wait a little bit before you re-install it.
 ```
-cd src && npm run lambda:uninstall
+$ cd src && npm run lambda:uninstall
 ```
 
 Update the Lambda function environment variables (prerequisite - lamda:config)
 ```
-cd src && npm run lambda:update_env
+$ cd src && npm run lambda:update_env
 ```
 
 Clean the repo
 ```
-cd src && npm run clean
+$ cd src && npm run clean
 ```
 
 ## Testing

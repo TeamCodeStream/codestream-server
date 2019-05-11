@@ -17,6 +17,11 @@ if [ -f "$CS_OUTBOUND_EMAIL_SANDBOX/sb.options" ]; then
 	export `grep ^CS_OUTBOUND_EMAIL_ $CS_OUTBOUND_EMAIL_SANDBOX/sb.options|cut -f1 -d=`
 fi
 
+
+# Additional shell functions
+. $DT_TOP/lib/sandbox_utils.sh
+
+
 # Uncomment and setup if yarn is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/yarn-$DT_OS_TYPE-*
@@ -57,7 +62,7 @@ if [ -n "$MONGO_ACCESS_FILE" -a -f "$MONGO_ACCESS_FILE" ]; then
 	[ -n "$MONGO_DB" ] && export CS_OUTBOUND_EMAIL_MONGO_DATABASE=$MONGO_DB
 else
 	# Take the values from the mongo sandbox in the playground
-	TUNNEL_IP=$(dt_print_tunnel_ip)
+	TUNNEL_IP=$(sandutil_get_tunnel_ip)
 	[ -z "$TUNNEL_IP" ] && echo "FATAL: Lambda functions for outbound email won't work w/o your VPN IP" >&2
 	export CS_OUTBOUND_EMAIL_MONGO_HOST=$TUNNEL_IP
 	export CS_OUTBOUND_EMAIL_MONGO_PORT=27017
@@ -104,8 +109,8 @@ export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=local.codestream.com
 # this is good and risk-free for developer testing
 export CS_OUTBOUND_EMAIL_TO="${DT_USER}@codestream.com"
 
-export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.local.template.json
-export CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME=nodejs10.15
+export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.local.template.json-custom_node10
+export CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME=provided
 export CS_OUTBOUND_EMAIL_AWS_ACCOUNT=564564469595
 export CS_OUTBOUND_EMAIL_LAMBDA_IAM_ROLE=cs_LambdaDevelopment
 export CS_OUTBOUND_EMAIL_SQS_ARN="arn:aws:sqs:us-east-1:$CS_OUTBOUND_EMAIL_AWS_ACCOUNT:$CS_OUTBOUND_EMAIL_SQS"
