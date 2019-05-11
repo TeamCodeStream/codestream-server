@@ -26,6 +26,9 @@ const NoIssuanceTest = require('./no_issuance_test');
 const TokenDeprecatedTest = require('./token_deprecated_test');
 const TrackTokenExpiredTest = require('./track_token_expired_test');
 const TrackTokenDeprecatedTest = require('./track_token_deprecated_test');
+const TrackCodeExpiredTest = require('./track_code_expired_test');
+const TrackIncorrectCodeTest = require('./track_incorrect_code_test');
+const ReuseCodeTest = require('./reuse_code_test');
 
 class ConfirmationRequestTester {
 
@@ -58,6 +61,9 @@ class ConfirmationRequestTester {
 		new TokenDeprecatedTest().test();
 		new TrackTokenExpiredTest().test();
 		new TrackTokenDeprecatedTest().test();
+		new TrackCodeExpiredTest().test();
+		new TrackIncorrectCodeTest().test();
+		new ReuseCodeTest().test();
 	}
 }
 

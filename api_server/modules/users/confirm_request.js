@@ -158,10 +158,12 @@ class ConfirmRequest extends RestfulRequest {
 			if (this.user.get('confirmationAttempts') === MAX_CONFIRMATION_ATTEMPTS) {
 				this.maxConfirmationAttempts = true;
 			}
+			this.trackFailureEvent('Incorrect Code');
 		}
 		else if (Date.now() > this.user.get('confirmationCodeExpiresAt')) {
 			confirmFailed = true;
 			this.confirmationExpired = true;
+			this.trackFailureEvent('Expired');
 		}
 		return confirmFailed; // if true, shortcuts and prepares for failure response
 	}
