@@ -2,8 +2,8 @@
 	"name": "outbound-email",
 	"version": "0.4.6",
 	"dependencies": {
-		"deep-equal": "1.0.1",
 		"amqplib": "0.5.3",
+		"deep-equal": "1.0.1",
 		"highlight.js": "9.15.6",
 		"moment-timezone": "0.5.25",
 		"mongodb": "3.2.4",
@@ -11,7 +11,8 @@
 		"pubnub": "4.23.0",
 		"sendgrid": "5.2.3",
 		"socketcluster-client": "14.2.2",
-		"strftime": "0.10.0"
+		"strftime": "0.10.0",
+		"uuid": "3.3.2"
 	},
 	"scripts": {
 		"eslint": "eslint .",

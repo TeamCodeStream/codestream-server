@@ -4,8 +4,8 @@ const EmailHandler = require('./emailHandler');
 
 class ConfirmationEmailHandler extends EmailHandler {
 
-	// render the email, with a confirmation code (old-style, to be deprecated), or a link
-	// to the web app
+	// render the email, with a confirmation code, or a link to the web app
+	// (to be deprecated?)
 	async renderEmail () {
 		if (this.message.url) {
 			await this.renderWithLink();
@@ -31,12 +31,12 @@ ${this.message.url}<br/><br/>
 
 	// render the email with a confirmation code, to be deprecated
 	async renderWithCode () {
-		this.subject = 'Your confirmation code';
+		this.subject = 'Confirm your email address';
 		const code = this.user.confirmationCode;
 		this.content = `
 <html>
-Your CodeStream confirmation code is ${code}.<br/><br/>
-Cheers,<br/><br/>
+Before you get started on CodeStream, please take a second to make sure we've got the right email address. Enter the following code in the CodeStream pane in your IDE.<br/><br/>
+${code}<br/><br/>
 Team CodeStream<br/><br/>
 </html>
 `;
