@@ -2,7 +2,6 @@
 
 // define a series of test parameters to be used for unit testing the inbound email server
 module.exports = [
-/*
 	{
 		description: 'a simple email',
 		emailFile: 'simple.eml',
@@ -58,13 +57,11 @@ module.exports = [
 		emailFile: 'html.eml',
 		expectedText: 'paragraph\n\ndiv\n\n\n   between spaces   past spaces'
 	},
-*/
 	{
 		description: 'an email with a "From:" reply',
 		emailFile: 'with_from_reply.eml',
 		expectedText: 'test'
 	},
-/*
 	{
 		description: 'an email with a "wrote:" reply',
 		emailFile: 'with_wrote_reply.eml',
@@ -105,5 +102,4 @@ module.exports = [
 		emailFile: 'no_text.eml',
 		shouldFail: true
 	}
-	*/
 ];
