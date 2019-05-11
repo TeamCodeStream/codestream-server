@@ -15,6 +15,8 @@ const ConfirmationEmailWithLinkTest = require('./confirmation_email_with_link_te
 const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
 const PreferencesTest = require('./preferences_test');
 const SpecialCharactersUsernameTest = require('./special_characters_username_test');
+const ReuseConfirmationCodeTest = require('./reuse_confirmation_code_test');
+const NewCodeAfterReusabilityWindowTest = require('./new_code_after_reusability_window_test');
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
 
 class RegistrationRequestTester {
@@ -41,6 +43,8 @@ class RegistrationRequestTester {
 			AlreadyRegisteredEmailTest
 		]);
 		new PreferencesTest().test();
+		new ReuseConfirmationCodeTest().test();
+		new NewCodeAfterReusabilityWindowTest().test();
 	}
 }
 

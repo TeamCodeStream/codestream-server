@@ -73,6 +73,10 @@ module.exports = {
 		type: 'timestamp',
 		serverOnly: true
 	},
+	confirmationCodeUsableUntil: {
+		type: 'timestamp',
+		serverOnly: true
+	},
 	lastReads: {
 		type: 'object',
 		maxLength: 10000,

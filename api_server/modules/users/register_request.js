@@ -7,6 +7,7 @@ const UserCreator = require('./user_creator');
 const ConfirmCode = require('./confirm_code');
 const UserPublisher = require('./user_publisher');
 const Errors = require('./errors');
+const Indexes = require('./indexes');
 
 class RegisterRequest extends RestfulRequest {
 
@@ -25,6 +26,7 @@ class RegisterRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
+		await this.getExistingUser();		// get the existing user matching this email, if any
 		await this.generateConfirmCode();	// generate a confirmation code, as requested
 		await this.saveUser();				// save user to database
 		await this.generateLinkToken();		// generate a token for the confirm link, as requested
@@ -55,11 +57,19 @@ class RegisterRequest extends RestfulRequest {
 				},
 				optional: {
 					string: ['fullName', 'firstName', 'lastName', 'timeZone', '_pubnubUuid'],	// first/last name should be deprecated once original atom client is deprecated
-					number: ['timeout'],
+					number: ['timeout', 'reuseTimeout'],
 					'array(string)': ['secondaryEmails'],
 					object: ['preferences']
 				}
 			}
+		);
+	}
+
+	// get the existing user matching this email, if any
+	async getExistingUser () {
+		this.user = await this.data.users.getOneByQuery(
+			{ searchableEmail: this.request.body.email.toLowerCase() },
+			{ hint: Indexes.bySearchableEmail }
 		);
 	}
 
@@ -75,12 +85,23 @@ class RegisterRequest extends RestfulRequest {
 			return;	// new-style confirmation emails with links rather than confirmation codes, so skip this
 		}
 		// add confirmation related attributes to be saved when we save the user
-		this.request.body.confirmationCode = ConfirmCode();
-		this.request.body.confirmationAttempts = 0;
-		let timeout = this.request.body.timeout || this.api.config.api.confirmCodeExpiration;
-		timeout = Math.min(timeout, this.api.config.api.confirmCodeExpiration);
-		this.request.body.confirmationCodeExpiresAt = Date.now() + timeout;
+		if (
+			!this.user ||
+			!this.user.get('confirmationCode') ||
+			!this.user.get('confirmationCodeUsableUntil') ||
+			Date.now() >= this.user.get('confirmationCodeUsableUntil')
+		) {
+			this.request.body.confirmationCode = ConfirmCode();
+			let timeout = this.request.body.timeout || this.api.config.api.confirmCodeExpiration;
+			timeout = Math.min(timeout, this.api.config.api.confirmCodeExpiration);
+			this.request.body.confirmationCodeExpiresAt = Date.now() + timeout;
+			let reuseTimeout = this.request.body.reuseTimeout || this.api.config.api.confirmationCodeUsabilityWindow;
+			reuseTimeout = Math.min(reuseTimeout, this.api.config.api.confirmationCodeUsabilityWindow);
+			this.request.body.confirmationCodeUsableUntil = Date.now() + reuseTimeout;
+		}
 		delete this.request.body.timeout;
+		delete this.request.body.reuseTimeout;
+		this.request.body.confirmationAttempts = 0;
 	}
 
 	// save the user to the database, given the attributes in the request body
@@ -203,7 +224,7 @@ class RegisterRequest extends RestfulRequest {
 		}
 
 		// otherwise if the client wants a confirmation email with a link
-		// (soon to be the only way we'll do it), send that...
+		// (soon to be deprecated), send that...
 		else if (this.wantLink) {
 
 			// generate the url and queue the email send with the outbound email service
@@ -223,8 +244,8 @@ class RegisterRequest extends RestfulRequest {
 			);
 		}
 
-		// othwerwise we're sending an old-style confirmation email with a 
-		// confirmation code (soon to be deprecated)
+		// othwerwise we're sending an old-style (and now new-style) confirmation email with a 
+		// confirmation code 
 		else {
 			this.log(`Triggering confirmation email with confirmation code to ${this.user.get('email')}...`);
 			await this.api.services.email.queueEmailSend(
