@@ -63,7 +63,7 @@ if [ -n "$MONGO_ACCESS_FILE" -a -f "$MONGO_ACCESS_FILE" ]; then
 else
 	# Take the values from the mongo sandbox in the playground
 	TUNNEL_IP=$(sandutil_get_tunnel_ip)
-	[ -z "$TUNNEL_IP" ] && echo "FATAL: Lambda functions for outbound email won't work w/o your VPN IP" >&2
+	[ -z "$TUNNEL_IP" -a "$CS_OUTBOUND_EMAIL_ASSET_ENV" == "local" ] && echo "FATAL: Lambda functions for outbound email won't work w/o your VPN IP" >&2
 	export CS_OUTBOUND_EMAIL_MONGO_HOST=$TUNNEL_IP
 	export CS_OUTBOUND_EMAIL_MONGO_PORT=27017
 	export CS_OUTBOUND_EMAIL_MONGO_DATABASE=codestream
