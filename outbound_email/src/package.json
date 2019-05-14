@@ -1,6 +1,6 @@
 {
 	"name": "outbound-email",
-	"version": "0.4.6",
+	"version": "0.5.1",
 	"dependencies": {
 		"amqplib": "0.5.3",
 		"deep-equal": "1.0.1",
