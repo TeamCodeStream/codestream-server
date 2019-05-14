@@ -45,6 +45,16 @@ class EmailTest {
 		], callback);
 	}
 
+	// after the test runs, unsubscribe from all channels
+	after (callback) {
+		if (this.pubNubClient) {
+			this.pubNubClient.unsubscribeAll();
+			this.pubNubClient.disconnect();
+		}
+		callback();
+	}
+		
+		
 	// run the actual test...
 	run (callback) {
 		BoundAsync.series(this, [
@@ -237,7 +247,7 @@ class EmailTest {
 
 	// wait a bit, since access to the pubnub channel doesn't take effect immediately
 	wait (callback) {
-		setTimeout(callback, 2000);
+		setTimeout(callback, 3000);
 	}
 
 	// begin listening on the simulated client
@@ -324,6 +334,7 @@ class EmailTest {
 	clearTimer (callback) {
 		// clean up the pubnub client, and cancel the message timer
 		this.pubNubClient.unsubscribe(this.channelName);
+		this.pubNubClient.disconnect();
 		delete this.pubNubClient;
 		if (this.messageTimer) {
 			clearTimeout(this.messageTimer);

@@ -21,6 +21,7 @@ describe('Inbound Email', function() {
 			// and then define the actual test
 			let emailTest = new EmailTest(test);
 			before(emailTest.before.bind(emailTest));
+			after(emailTest.after.bind(emailTest));
 
 			it(emailTest.it, itCallback => {
 				emailTest.run(itCallback);
@@ -28,12 +29,4 @@ describe('Inbound Email', function() {
 			forEachCallback();
 		}
 	);
-
-	after (() => {
-		// no idea why this needs to be here, something about the pubnub client
-		// won't let the process finish
-		setTimeout(() => {
-			process.exit();
-		}, 1000);
-	});
 });
