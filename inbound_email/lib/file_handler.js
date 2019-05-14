@@ -359,7 +359,6 @@ this.log('but got an error');
 	// and discarding as much html as we can
 	async extractText () {
 		let text = '';
-console.warn('extracting text', this.html);
 		if (typeof this.html === 'string') {
 			text = this.textFromHtml(this.html);
 		}
