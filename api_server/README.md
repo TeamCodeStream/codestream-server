@@ -49,3 +49,4 @@ and **$my_api_sandbox_name** variables with their real vales
 	mv ~/sandboxes/$my_api_sandbox_name.ORIG/api_server/.git .
 	/bin/rm -rf ~/sandboxes/$my_api_sandbox_name.ORIG
 	```
+
