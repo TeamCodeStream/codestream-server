@@ -384,12 +384,21 @@ class OAuth2Module extends APIServerModule {
 
 	// get the standard in-cloud instance of the third-party provider, if configured
 	getStandardInstance (teams) {
-		const { host, provider, apiHost, hasIssues, enterpriseOnly, needsConfigure, disabled } = this.oauthConfig;
+		const { 
+			host,
+			provider,
+			apiHost,
+			hasIssues,
+			enterpriseOnly,
+			needsConfigure,
+			disabled,
+			acceptsUserDefinedToken
+		} = this.oauthConfig;
 		const integrationDisabled = disabled && !(teams || []).find(team => {
 			return (team.get('allowedDisabledIntegrations') || []).includes(provider);
 		});
 		const { appClientId, apiKey } = this.apiConfig;
-		if (!integrationDisabled && host && (enterpriseOnly || appClientId || apiKey)) {
+		if (!integrationDisabled && host && (acceptsUserDefinedToken || enterpriseOnly || appClientId || apiKey)) {
 			const starredHost = host.toLowerCase().replace(/\./g, '*');
 			return {
 				id: starredHost,

@@ -81,7 +81,7 @@ class ProviderSetTokenRequest extends RestfulRequest {
 			data.data.expiresIn = this.request.body.expiresIn;
 			data.expiresAt = Date.now() + (this.request.body.expiresIn - 5) * 1000;
 		}
-		['refreshToken', 'apiKey', 'data;'].forEach(attribute => {
+		['refreshToken', 'apiKey'].forEach(attribute => {
 			if (this.request.body[attribute]) {
 				data.data[attribute] = this.request.body[attribute];
 				data[attribute] = this.request.body[attribute];
