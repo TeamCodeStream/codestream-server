@@ -84,6 +84,7 @@ class FileHandler {
 
 	// create a read stream on the email file and start reading
 	async initiateReadStream () {
+this.log('Initating read stream for ' + this.fileToProcess);
 		return new Promise((resolve, reject) => {
 			// we'll callback only when (1) we've parsed the email file and (2)
 			// we've processed and saved any attachments
@@ -99,6 +100,7 @@ class FileHandler {
 			// pipe the output of the read stream into the mail parser
 			const mailParser = new MailParser({ streamAttachments: true });
 			mailParser.on('error', error => {
+this.log('error parsing mail file');
 				reject(`error parsing email file ${this.fileToProcess}: ${error}`);
 			});
 			mailParser.on('headers', this.handleHeaders.bind(this));
@@ -110,11 +112,15 @@ s	}
 
 	// handle headers received from the mail parser
 	handleHeaders (headers) {
+		headers.forEach((value, key) => {
+			this.log(`${key}=${value}`);
+		});
 		this.headers = headers;
 	}
 
 	// handle mail data received from the mail parser
 	handleMailData (data) {
+this.log('read mail data:' + data.text);
 		// attachment or text...
 		if (data.type === 'attachment') {
 			this.handleAttachment(data.content);
@@ -192,7 +198,9 @@ s	}
 
 	// called when the parse operation is finished on the email file
 	parseFinished () {
+this.log('Parse Finished!');
 		if (this.gotError) {
+this.log('but got an error');
 			return; // short-circuit because we already got an error
 		}
 		if (
@@ -351,6 +359,7 @@ s	}
 	// and discarding as much html as we can
 	async extractText () {
 		let text = '';
+console.warn('extracting text', this.html);
 		if (typeof this.html === 'string') {
 			text = this.textFromHtml(this.html);
 		}
