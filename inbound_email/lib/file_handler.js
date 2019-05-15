@@ -23,7 +23,7 @@ class FileHandler {
 	async handle () {
 		let gotError;
 		try {
-			await this.wait();
+			await this.waitTillCopyComplete();		// wait till the copy to the new directory is complete
 			await this.moveToProcessDirectory();	// move the email file to the "processing" directory
 			await this.createTempDirectoryForAttachments(); // create a temporary directory to hold attachment files
 			await this.initiateReadStream();		// create a read stream to read the email file from, and start reading
@@ -39,10 +39,37 @@ class FileHandler {
 		this.finish(gotError);
 	}
 
-	wait () {
-		return new Promise(resolve => {
-			setTimeout(resolve, 3000);
-		});
+	// wait till the copy of the file into the new directory is complete, since watcher alerts us
+	// as soon as the file appears ... we'll check every second for the same modified time, and only
+	// proceed when it hasn't changed ... let's hope this is adequate
+	async waitTillCopyComplete () {
+		let lastModTime = 0;
+		let i;
+		for (i = 0; i < 60; i++) {
+			let fileStat;
+			await new Promise((resolve, reject) => {
+				FS.stat(this.filePath, (error, stat) => {
+					if (error) { return reject(error); }
+					fileStat = stat;
+					resolve();
+				});
+			});
+
+			const modTime = fileStat.mtime.getTime();
+			if (!lastModTime) {
+				lastModTime = modTime;
+			}
+			else if (modTime === lastModTime) {
+				break;
+			}
+
+			await new Promise(resolve => {
+				setTimeout(resolve, 1000);
+			});
+		}
+		if (i === 60) {
+			throw 'file too big';
+		}
 	}
 
 	// move the email file to the "processing" directory,
@@ -91,7 +118,6 @@ class FileHandler {
 
 	// create a read stream on the email file and start reading
 	async initiateReadStream () {
-this.log('Initating read stream for ' + this.fileToProcess);
 		return new Promise((resolve, reject) => {
 			// we'll callback only when (1) we've parsed the email file and (2)
 			// we've processed and saved any attachments
@@ -107,7 +133,6 @@ this.log('Initating read stream for ' + this.fileToProcess);
 			// pipe the output of the read stream into the mail parser
 			const mailParser = new MailParser({ streamAttachments: true });
 			mailParser.on('error', error => {
-this.log('error parsing mail file');
 				reject(`error parsing email file ${this.fileToProcess}: ${error}`);
 			});
 			mailParser.on('headers', this.handleHeaders.bind(this));
@@ -119,15 +144,11 @@ s	}
 
 	// handle headers received from the mail parser
 	handleHeaders (headers) {
-		headers.forEach((value, key) => {
-			this.log(`${key}=${value}`);
-		});
 		this.headers = headers;
 	}
 
 	// handle mail data received from the mail parser
 	handleMailData (data) {
-this.log('read mail data:' + data.text);
 		// attachment or text...
 		if (data.type === 'attachment') {
 			this.handleAttachment(data.content);
@@ -205,9 +226,7 @@ this.log('read mail data:' + data.text);
 
 	// called when the parse operation is finished on the email file
 	parseFinished () {
-this.log('Parse Finished!');
 		if (this.gotError) {
-this.log('but got an error');
 			return; // short-circuit because we already got an error
 		}
 		if (
