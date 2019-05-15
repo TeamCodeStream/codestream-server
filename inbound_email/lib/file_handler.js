@@ -23,6 +23,7 @@ class FileHandler {
 	async handle () {
 		let gotError;
 		try {
+			await this.wait();
 			await this.moveToProcessDirectory();	// move the email file to the "processing" directory
 			await this.createTempDirectoryForAttachments(); // create a temporary directory to hold attachment files
 			await this.initiateReadStream();		// create a read stream to read the email file from, and start reading
@@ -36,6 +37,12 @@ class FileHandler {
 			gotError = error;
 		}
 		this.finish(gotError);
+	}
+
+	wait () {
+		return new Promise(resolve => {
+			setTimeout(resolve, 3000);
+		});
 	}
 
 	// move the email file to the "processing" directory,
