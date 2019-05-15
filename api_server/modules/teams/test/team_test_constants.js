@@ -96,17 +96,14 @@ const STANDARD_PROVIDER_HOSTS = {
 		apiHost: 'api.trello.com/1',
 		hasIssues: true
 	},
-	/*
 	'youtrack*com': {
 		id: 'youtrack*com',
 		name: 'youtrack',
 		isEnterprise: false,
-		enterpriseOnly: true,
 		needsConfigure: true,
 		host: 'youtrack.com',
 		hasIssues: true
 	},
-	*/
 	'app*vssps*visualstudio*com': {
 		id: 'app*vssps*visualstudio*com',
 		name: 'azuredevops',
