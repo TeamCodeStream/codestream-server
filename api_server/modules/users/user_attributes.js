@@ -224,5 +224,10 @@ module.exports = {
 		serverOnly: true,
 		forMe: true,
 		description: 'Indicates first session for the user, cleared upon second login or 12 hours after first login (by client)'
+	},
+	inviteCode: {
+		type: 'string',
+		serverOnly: true,
+		description: 'code used to match a team invite with a given user'
 	}
 };

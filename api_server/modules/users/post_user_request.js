@@ -65,9 +65,8 @@ class PostUserRequest extends PostRequest {
 		const userCreator = new UserCreator({
 			request: this,
 			teamIds: [this.team.id],
-			//dontSaveIfExists: true,	
 			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
-			userBeingAddedToTeam: true
+			userBeingAddedToTeamId: this.team.id
 		});
 		const userData = {
 			email: this.request.body.email
@@ -145,15 +144,19 @@ class PostUserRequest extends PostRequest {
 			return;
 		}
 
-		// queue invite email for send by outbound email service
+		// don't send an email if invited user is already registered and already on a team
 		const user = this.transforms.createdUser;
 		if (user.get('isRegistered') && this.wasOnTeam) {
 			return;
 		}
+
+		// queue invite email for send by outbound email service
+		/*
 		const email = user.get('email');
 		const numInvites = user.get('numInvites') || 0;
 		const campaign = numInvites > 0 ? 'reinvite_email' : 'invitation_email';
 		const checkOutLink = `${this.api.config.webclient.host}/signup?email=${encodeURIComponent(email)}&utm_medium=email&utm_source=product&utm_campaign=${campaign}&force_auth=true`;
+		*/
 		this.log(`Triggering invite email to ${user.get('email')}...`);
 		await this.api.services.email.queueEmailSend(
 			{
@@ -161,7 +164,7 @@ class PostUserRequest extends PostRequest {
 				userId: user.id,
 				inviterId: this.user.id,
 				teamName: this.team.get('name'),
-				checkOutLink
+				//checkOutLink
 			},
 			{
 				request: this,

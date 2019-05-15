@@ -26,6 +26,7 @@ class RegisterRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
+		await this.getInvitedUser();		// get the user associated with an invite code, as needed
 		await this.getExistingUser();		// get the existing user matching this email, if any
 		await this.generateConfirmCode();	// generate a confirmation code, as requested
 		await this.saveUser();				// save user to database
@@ -33,21 +34,15 @@ class RegisterRequest extends RestfulRequest {
 		await this.saveTokenInfo();			// save the token info to the user object, if we're doing a confirm link
 		await this.generateAccessToken();	// generate an access token, as needed (if confirmation not required)
 		await this.saveSignupToken();		// save the signup token so we can identify this user with an IDE session
-		await this.sendEmail();				// send the confirmation email with the confirmation code
 	}
 
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
 		// many attributes that are allowed but don't become attributes of the created user
-		['_confirmationCheat', '_subscriptionCheat', '_delayEmail', 'wantLink', 'expiresIn', 'signupToken'].forEach(parameter => {
+		['_confirmationCheat', '_subscriptionCheat', '_delayEmail', 'wantLink', 'expiresIn', 'signupToken', 'inviteCode'].forEach(parameter => {
 			this[parameter] = this.request.body[parameter];
 			delete this.request.body[parameter];
 		});
-
-		// backward compatibility with first/last name, turn it into a full name
-		if (!this.request.body.fullName && (this.request.body.firstName || this.request.body.lastName)) {
-			this.request.body.fullName = `${this.request.body.firstName || ''} ${this.request.body.lastName || ''}`.trim();
-		}
 
 		await this.requireAllowParameters(
 			'body',
@@ -56,13 +51,31 @@ class RegisterRequest extends RestfulRequest {
 					string: ['email', 'password', 'username']
 				},
 				optional: {
-					string: ['fullName', 'firstName', 'lastName', 'timeZone', '_pubnubUuid'],	// first/last name should be deprecated once original atom client is deprecated
+					string: ['fullName', 'inviteCode', 'timeZone', '_pubnubUuid'],
 					number: ['timeout', 'reuseTimeout'],
 					'array(string)': ['secondaryEmails'],
 					object: ['preferences']
 				}
 			}
 		);
+	}
+
+	// get the user associated with an invite code, as needed
+	async getInvitedUser () {
+		if (!this.inviteCode) {
+			return;
+		}
+		const info = await this.api.services.signupTokens.find(
+			this.inviteCode,
+			{ requestId: this.request.id }
+		);
+		if (!info) {
+			return;
+		}
+		else if (info.expired) {
+			throw this.errorHandler.error('tokenExpired');
+		}
+		this.invitedUser = await this.data.users.getById(info.userId);
 	}
 
 	// get the existing user matching this email, if any
@@ -111,10 +124,30 @@ class RegisterRequest extends RestfulRequest {
 			this.signupToken = this.request.body.signupToken;
 			delete this.request.body.signupToken;	
 		}
+
+		// have to deal with a little weirdness here ... if we get an invite code, and the invite code references
+		// a user that already exists, and they don't match the email the user is trying to register with,
+		// we will effectively change the invited user's email to the user they are registered with ... but we
+		// can't allow this if the invited user is already registered (which shouldn't happen in theory), or if the
+		// email the user is trying to register with already belongs to another invited user
+		let existingUser;
+		if (this.invitedUser && this.invitedUser.get('email').toLowerCase() !== this.request.body.email.toLowerCase()) {
+			if (this.invitedUser.get('isRegistered')) {
+				throw this.errorHandler.error('alreadyAccepted');
+			}
+			else if (this.user) {
+				throw this.errorHandler.error('inviteMismatch');
+			}
+			else {
+				existingUser = this.invitedUser;
+			}
+		}
+
 		this.userCreator = new UserCreator({
 			request: this,
 			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
-			subscriptionCheat: this._subscriptionCheat === this.api.config.secrets.subscriptionCheat
+			subscriptionCheat: this._subscriptionCheat === this.api.config.secrets.subscriptionCheat,
+			existingUser	// triggers finding the existing user at a different email than the one being registered
 		});
 		this.user = await this.userCreator.createUser(this.request.body);
 	}
@@ -196,8 +229,65 @@ class RegisterRequest extends RestfulRequest {
 		);
 	}
 
+	// handle the response to the request
+	async handleResponse () {
+		if (this.gotError) {
+			return await super.handleResponse();
+		}
+		// need to refetch the user, since it may have changed, this should fetch from cache, not database
+		this.user = await this.data.users.getById(this.user.id);
+		// FIXME - we eventually need to deprecate serving the user object completely,
+		// this is a security vulnerability
+		if (!this.user.get('isRegistered') || this.user.get('_forTesting')) {
+			this.responseData = { user: this.user.getSanitizedObjectForMe({ request: this }) };
+			if (this._confirmationCheat === this.api.config.secrets.confirmationCheat) {
+				// this allows for testing without actually receiving the email
+				this.log('Confirmation cheat detected, hopefully this was called by test code');
+				this.responseData.user.confirmationCode = this.user.get('confirmationCode');
+				this.responseData.user.confirmationToken = this.token;
+			}
+		}
+		if (this.accessToken) {
+			this.responseData.accessToken = this.accessToken;
+		}
+		await super.handleResponse();
+	}
+
+	// after a response is returned....
+	async postProcess () {
+		// new users get published to the team channel
+		await this.publishUserToTeams();
+
+		// remove invite code from the registered user, and as a saved signup token
+		await this.removeInviteCode();
+
+		// send the confirmation email with the confirmation code
+		await this.sendConfirmationEmail();				
+	}
+
+	// publish the new user to the team channel
+	async publishUserToTeams () {
+		await new UserPublisher({
+			user: this.user,
+			data: this.user.getSanitizedObject({ request: this }),
+			request: this,
+			broadcaster: this.api.services.broadcaster
+		}).publishUserToTeams();
+	}
+
+	// if the user registered using an invite code, invalidate the invite code by removing it from
+	// the user object and as a saved signup token
+	async removeInviteCode () {
+		if (!this.invitedUser) { return; }
+		await this.data.users.updateDirect(
+			{ id: this.data.users.objectIdSafe(this.invitedUser.id) },
+			{ $unset: { inviteCode: true } }
+		);
+		await this.api.services.signupTokens.remove(this.inviteCode);
+	}
+
 	// send out the confirmation email with the confirmation code
-	async sendEmail () {
+	async sendConfirmationEmail () {
 		if (!this.confirmationRequired) {
 			return;
 		}
@@ -261,46 +351,6 @@ class RegisterRequest extends RestfulRequest {
 		}
 	}
 
-	// handle the response to the request
-	async handleResponse () {
-		if (this.gotError) {
-			return await super.handleResponse();
-		}
-		// need to refetch the user, since it may have changed, this should fetch from cache, not database
-		this.user = await this.data.users.getById(this.user.id);
-		// FIXME - we eventually need to deprecate serving the user object completely,
-		// this is a security vulnerability
-		if (!this.user.get('isRegistered') || this.user.get('_forTesting')) {
-			this.responseData = { user: this.user.getSanitizedObjectForMe({ request: this }) };
-			if (this._confirmationCheat === this.api.config.secrets.confirmationCheat) {
-				// this allows for testing without actually receiving the email
-				this.log('Confirmation cheat detected, hopefully this was called by test code');
-				this.responseData.user.confirmationCode = this.user.get('confirmationCode');
-				this.responseData.user.confirmationToken = this.token;
-			}
-		}
-		if (this.accessToken) {
-			this.responseData.accessToken = this.accessToken;
-		}
-		await super.handleResponse();
-	}
-
-	// after a response is returned....
-	async postProcess () {
-		// new users get published to the team channel
-		await this.publishUserToTeams();
-	}
-
-	// publish the new user to the team channel
-	async publishUserToTeams () {
-		await new UserPublisher({
-			user: this.user,
-			data: this.user.getSanitizedObject({ request: this }),
-			request: this,
-			broadcaster: this.api.services.broadcaster
-		}).publishUserToTeams();
-	}
-
 	// describe this route for help
 	static describe () {
 		return {
@@ -319,7 +369,8 @@ class RegisterRequest extends RestfulRequest {
 					'secondaryEmails': '<Array of other emails the user wants to associate with their account>',
 					'preferences': '<Object representing any preferences the user wants to set as they register>',
 					'wantLink': '<Set this to send a confirmation email with a link instead of a code>',
-					'signupToken': '<Client-generated signup token, passed to signup on the web, to associate an IDE session with the new user>'
+					'signupToken': '<Client-generated signup token, passed to signup on the web, to associate an IDE session with the new user>',
+					'inviteCode': '<Invite code associated with an invitation to this user>'
 				}
 			},
 			returns: {
@@ -338,7 +389,9 @@ class RegisterRequest extends RestfulRequest {
 				'parameterRequired',
 				'usernameNotUnique',
 				'exists',
-				'validation'
+				'validation',
+				'inviteMismatch',
+				'alreadyAccepted'
 			]
 		};
 	}

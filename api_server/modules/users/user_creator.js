@@ -12,6 +12,7 @@ const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors.js');
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 const UsernameValidator = require('./username_validator');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const UUID = require('uuid/v4');
 
 class UserCreator extends ModelCreator {
 
@@ -90,6 +91,18 @@ class UserCreator extends ModelCreator {
 		return true;
 	}
 
+	// override base class function to check for an existing user that has already
+	// been found, this is for the weird use case where a user is using a different
+	// email address to sign up as an already existing (unregistered) account
+	async checkExisting () {
+		if (this.existingUser) {
+			this.existingModel = this.existingUser;
+		}
+		else {
+			await super.checkExisting();
+		}
+	}
+
 	// return database query to check if a matching user already exists
 	checkExistingQuery () {
 		// look for matching email (case-insensitive)
@@ -127,9 +140,24 @@ class UserCreator extends ModelCreator {
 			this.usernameCameFromEmail = true;	// this will force a resolution of uniqueness conflict, rather than an error
 		}
 
+		this.setInviteCode();				// set an invite code for the user to accept an invite
 		await this.hashPassword();			// hash the user's password, if given
 		await this.checkUsernameUnique();	// check if the user's username will be unique for the teams they are on
 		await super.preSave();
+	}
+
+	// set an invite code for the user to accept an invite, as needed
+	setInviteCode () {
+		// if user being added to team, generate an invite code and save it as a signup token
+		if (
+			this.userBeingAddedToTeamId &&
+			(
+				!this.existingModel ||
+				!this.existingModel.get('inviteCode')
+			)
+		) {
+			this.inviteCode = this.attributes.inviteCode = UUID();
+		}
 	}
 
 	// hash the given password, as needed
@@ -188,7 +216,7 @@ class UserCreator extends ModelCreator {
 		}
 
 		// on registration, we throw the error, but if user is being invited to the team, we tolerate it
-		if (!this.userBeingAddedToTeam) {
+		if (!this.userBeingAddedToTeamId) {
 			throw this.errorHandler.error('usernameNotUnique', {
 				info: {
 					username: username,
@@ -220,6 +248,9 @@ class UserCreator extends ModelCreator {
 
 	// after the user object is saved...
 	async postSave () {
+		// save an invite code as a signup token for this user
+		await this.saveSignupToken();
+
 		// grant the user access to their own me-channel, strictly for testing purposes
 		// (since they are not confirmed yet)
 		await this.grantMeChannel();
@@ -239,6 +270,23 @@ class UserCreator extends ModelCreator {
 			`user-${this.model.id}`,
 			() => {},
 			{ request: this.request	}
+		);
+	}
+
+	// if we have an invite code 
+	async saveSignupToken () {
+		// if we have an invite code, save it as a signup token
+		if (!this.inviteCode) {
+			return;
+		}
+		await this.api.services.signupTokens.insert(
+			this.inviteCode,
+			this.model.id,
+			{ 
+				requestId: this.request.request.id,
+				secureExpiresIn: this.request.api.config.api.inviteCodeExpiration,
+				teamId: this.userBeingAddedToTeamId
+			}
 		);
 	}
 }

@@ -31,16 +31,21 @@ class SignupTokens {
 
 	// insert a single signup token, and associate it with the given user ID
 	async insert (token, userId, options = {}) {
+		const tokenData = {
+			token,
+			userId
+		};
 		let expiresIn = this.expirationTime;
 		if (typeof options.expiresIn === 'number' && options.expiresIn < this.expirationTime) {
 			expiresIn = options.expiresIn;
 		}
-		const expiresAt = Date.now() + expiresIn;
-		const tokenData = {
-			token,
-			userId,
-			expiresAt
-		};
+		else if (typeof options.secureExpiresIn === 'number') {
+			expiresIn = options.secureExpiresIn;
+		}
+		tokenData.expiresAt = Date.now() + expiresIn;
+		if (options.teamId) {
+			tokenData.teamId = options.teamId;
+		}
 
 		// we always remove old tokens, keeping the signupTokens collection small
 		await this.removeOldTokens(options);
@@ -97,7 +102,8 @@ class SignupTokens {
 		}
 		return {
 			userId: tokenData.userId,
-			expired: tokenData.expiresAt < Date.now()
+			expired: tokenData.expiresAt < Date.now(),
+			teamId: tokenData.teamId
 		};
 	}
 

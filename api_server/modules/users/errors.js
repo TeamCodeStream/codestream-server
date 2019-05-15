@@ -103,5 +103,15 @@ module.exports = {
 		code: 'USRC-1019',
 		message: 'No CodeStream identity was found to match the identity from third-party provider authentication',
 		description: 'After completing third-party provider authentication, a matching identity on CodeStream could not be found'
+	},
+	'inviteMismatch': {
+		code: 'USRC-1020',
+		message: 'An attempt was made to register using an invite code, but the email in the registration request belongs to a different user for which there is an outstanding invitation',
+		description: 'If two users are invited, and one of them uses an invite code but attempts to register with the email associated with a different user who has been invited, there is an ambiguity in how to proceed with the registration. This ambiguity must be resolved by the inviting user.'
+	},
+	'alreadyAccepted': {
+		code: 'USRC-1021',
+		message: 'An attempt was made to register a user associated with an invite code, but the user associated with the invite code is already registered',
+		description: 'If a user is invited, and they register with an email that does not match the original invited user, but the invited user is already registered, we can not proceed because we would be changing the email of a registered user.'
 	}
 };

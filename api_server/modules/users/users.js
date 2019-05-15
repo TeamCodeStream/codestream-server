@@ -109,6 +109,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		requestClass: require('./check_signup_request')
 	},
 	{
+		method: 'get',
+		path: 'no-auth/invite-info',
+		requestClass: require('./invite_info_request')
+	},
+	{
 		method: 'put',
 		path: 'change-email',
 		requestClass: require('./change_email_request')
