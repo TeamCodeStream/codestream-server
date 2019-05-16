@@ -116,6 +116,11 @@ class TeamCreator extends ModelCreator {
 
 	// determine a name for this company, based on the user's domain or email
 	determineCompanyName () {
+		// if the user previously set a company name, just use that
+		if (this.user.get('companyName')) {
+			return this.user.get('companyName');
+		}
+		
 		// if it's a webmail user, we just name the company after the whole email,
 		// otherwise use the domain
 		const email = EmailUtilities.parseEmail(this.user.get('email'));

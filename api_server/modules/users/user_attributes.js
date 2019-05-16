@@ -228,6 +228,13 @@ module.exports = {
 	inviteCode: {
 		type: 'string',
 		serverOnly: true,
-		description: 'code used to match a team invite with a given user'
+		maxLength: 40,
+		description: 'Code used to match a team invite with a given user'
+	},
+	companyName: {
+		type: 'string',
+		serverOnly: true,
+		maxLength: 100,
+		description: 'Temporary holding place for the company name, until the user actually creates a team'
 	}
 };
