@@ -72,9 +72,12 @@ class PostTeamTest extends CodeStreamAPITest {
 	validateCompany (data) {
 		const team = data.team;
 		const company = data.company;
-		const companyName = this.userOptions && this.userOptions.wantWebmail ?
-			this.currentUser.user.email :
-			EmailUtilities.parseEmail(this.currentUser.user.email).domain;
+		const companyName = this.currentUser.companyName ||
+			(
+				this.userOptions && this.userOptions.wantWebmail ?
+					this.currentUser.user.email :
+					EmailUtilities.parseEmail(this.currentUser.user.email).domain
+			);
 		const errors = [];
 		const result = (
 			((company.id === company._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME

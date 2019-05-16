@@ -27,7 +27,8 @@ class _UserCreator {
 					user: this.user,
 					accessToken: this.token,
 					broadcasterToken: this.broadcasterToken,
-					password: this.data.password
+					password: this.data.password,
+					companyName: this.data.companyName
 				}
 			);
 		});

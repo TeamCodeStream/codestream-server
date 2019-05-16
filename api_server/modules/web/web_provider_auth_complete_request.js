@@ -99,7 +99,7 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 
 	async matchSignupToken () {
 		if (!this.payload.st) {
-			return;
+			return true;
 		}
 		const info = await this.api.services.signupTokens.find(
 			this.payload.st,
