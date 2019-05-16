@@ -1,0 +1,27 @@
+#!/bin/bash
+
+function usage {
+	echo "usage: $0 [-D] -d designator"
+	exit 1
+}
+
+dropCodestreamDb=1
+while getopts "Dd:" arg
+do
+	case $arg in
+	D) dropCodestreamDb=0;;
+	d) dumpTag=$OPTARG;;
+	esac
+done
+[ -z "$dumpTag" ] && echo "-d is required" && usage
+
+dumpDir=$CS_API_SANDBOX/data/dump.$dumpTag
+
+[ ! -d $dumpDir ] && echo "$dumpDir not found" && exit 1
+
+if [ $dropCodestreamDb -eq 1 ]; then
+	echo "mongo --host localhost codestream --eval \"db.dropDatabase()\""
+	mongo --host localhost codestream --eval "db.dropDatabase()"
+fi
+
+mongorestore --host localhost $dumpDir

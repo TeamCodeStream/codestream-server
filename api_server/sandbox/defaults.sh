@@ -8,7 +8,7 @@
 
 # ========== Optional override settings ==========
 if [ -f "$CS_API_SANDBOX/sb.options" ]; then
-	echo "Loading extra params from sb.options"
+	echo "Loading override parameters from $CS_API_SANDBOX/sb.options"
 	. $CS_API_SANDBOX/sb.options
 	export `grep ^CS_API_ $CS_API_SANDBOX/sb.options|cut -f1 -d=`
 fi
@@ -18,20 +18,21 @@ fi
 # Uncomment and setup if yarn is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/yarn-$DT_OS_TYPE-*
-#export CS_API_YARN=true
-#export CS_API_YARN_VER=1.3.2
+# export CS_API_YARN=true
+# export CS_API_YARN_VER=1.3.2
+# export PATH=CS_API_SANDBOX/yarn/bin:$PATH
 
 # Uncomment and setup if node is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/node-$DT_OS_TYPE-*
 export CS_API_NODE_VER=10.15.3
-export PATH=$CS_API_SANDBOX/node/bin:$CS_API_SANDBOX/yarn/bin:$CS_API_TOP/bin:$CS_API_TOP/node_modules/.bin:$PATH
+export PATH=$CS_API_SANDBOX/node/bin:$CS_API_TOP/bin:$CS_API_TOP/node_modules/.bin:$PATH
 
 # Set this variable if you require additional options when doing npm installs
 # (run from sandbox/configure-sandbox).  For example, doing npm installs from
 # inside a docker container requires --unsafe-perm
 # export CS_API_NPM_INSTALL_XTRA_OPTS=
-#[ -z "$CS_API_NODE_MODULES_DIR" ] && export CS_API_NODE_MODULES_DIR=$CS_API_TOP/node_modules
+# [ -z "$CS_API_NODE_MODULES_DIR" ] && export CS_API_NODE_MODULES_DIR=$CS_API_TOP/node_modules
 
 export CS_API_LOGS=$CS_API_SANDBOX/log    # Log directory
 export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
@@ -302,18 +303,6 @@ else
 	echo "**************************************************************"
 fi
 
-# =============== MixPanel Settings ==============
-[ -z "$MIXPANEL_TOKEN_FILE" ] && MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/development
-if [ -f $MIXPANEL_TOKEN_FILE ]; then
-	. $MIXPANEL_TOKEN_FILE
-	export CS_API_MIXPANEL_TOKEN=$MIXPANEL_TOKEN
-else
-	echo "**************************************************************"
-	echo "WARNING: MixPanel token file ($MIXPANEL_TOKEN_FILE) not found"
-	echo "**************************************************************"
-fi
-
-
 # =============== Segment Settings ==============
 [ -z "$SEGMENT_TOKEN_FILE" ] && SEGMENT_TOKEN_FILE=$HOME/.codestream/segment/dev-api
 if [ -f $SEGMENT_TOKEN_FILE ]; then
@@ -403,6 +392,14 @@ export CS_API_SENDER_EMAIL=alerts@codestream.com
 
 # Added for On-Prem work
 
+# ============ Broadcaster ================
+# Uncomment / Set these if you want to use the Broadcaster instead of PubNub
+# export CS_API_SOCKETCLUSTER_HOST=localhost.codestream.us
+# export CS_API_SOCKETCLUSTER_PORT=12443
+
+# This needs to match CS_BROADCASTER_API_SECRET in the broadcaster service
+# export CS_API_BROADCASTER_SECRET=
+
 # ============ RabbitMQ (on-prem) ============
 [ -z "$RABBITMQ_ACCESS_FILE" ] && RABBITMQ_ACCESS_FILE=$HOME/.codestream/codestream/local-rabbitmq
 if [ -f $RABBITMQ_ACCESS_FILE ]; then
@@ -415,5 +412,5 @@ else
 	echo "Not loading sandbox with RabbitMQ" >&2
 fi
 
-# uncomment for on-prem (non-SQS)
+# uncomment for on-prem (will use RabbitMQ in lieu of AWS SQS for message queuing)
 # export CS_API_DONT_WANT_AWS=1
