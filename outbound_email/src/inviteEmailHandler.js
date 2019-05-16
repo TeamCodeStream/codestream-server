@@ -32,13 +32,29 @@ I've added you to the ${this.message.teamName} team on CodeStream so that we can
 	}
 
 	async renderForUnregisteredUser () {
+		const ideLinks = {
+			"VS Code": 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream',
+			"Visual Studio": 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs',
+			"JetBrains": 'https://plugins.jetbrains.com/plugin/12206-codestream',
+			"Atom": 'https://atom.io/packages/codestream'
+		};
+		const links = [];
+		for (let ide in ideLinks) {
+			const href = `<a clicktracking="off" href="${ideLinks[ide]}">${ide}</a>`;
+			links.push(href);
+		}
+		const allLinks = links.slice(0, links.length - 1).join(', ') + ' or ' + links[links.length - 1];
+
 		this.content = `
 <html>
-CodeStream is a chat service made for developers which:<br/><br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&bull;&nbsp;Makes it easy to talk about code by putting team chat in your IDE<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&bull;&nbsp;Anchors conversations to your codeblocks, so a knowledge base builds up over time<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&bull;&nbsp;Connects to Slack and email, enabling easier team communication about code<br/><br/>
-<a clicktracking="off" href="${this.message.checkOutLink}">Check out CodeStream</a><br/>
+CodeStream's cloud-based service and IDE plugins help dev teams discuss, review, and understand code. Discussing code is now as simple as commenting on a Google Doc — select the code and type your question.<br/>
+<br/>
+1. Download CodeStream for ${allLinks}.<br/>
+<br/>
+2. Click “Join a Team” and paste in your invitation code:<br/>
+<b>${this.user.inviteCode}</b><br/>
+<br/>
+Team CodeStream<br/>
 </html>
 `;		
 	}
