@@ -8,14 +8,13 @@ if (process.env.CS_API_CFG_FILE) {
 	ClusterCfg = {
 		host: Cfg.broadcastEngine.codestreamBroadcaster.host,
 		port: Cfg.broadcastEngine.codestreamBroadcaster.port,
-		dontRejectUnauthorized: undefined
+		authKey: Cfg.broadcastEngine.codestreamBroadcaster.secrets.api
 	};
 }
 else {
 	ClusterCfg = {
 		host: process.env.CS_API_SOCKETCLUSTER_HOST,
-		port: process.env.CS_API_SOCKETCLUSTER_PORT,
-		dontRejectUnauthorized: undefined
+		port: process.env.CS_API_SOCKETCLUSTER_PORT
 	};
 }
 

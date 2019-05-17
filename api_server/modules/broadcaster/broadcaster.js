@@ -31,8 +31,7 @@ class Broadcaster extends APIServerModule {
 		this.api.log('Connecting to SocketCluster...');
 		const config = Object.assign({}, this.api.config.socketCluster, {
 			logger: this.api,
-			uid: 'API',
-			authKey: this.api.config.secrets.broadcaster
+			uid: 'API'
 		});
 		this.socketClusterClient = new SocketClusterClient(config);
 		await this.socketClusterClient.init();
