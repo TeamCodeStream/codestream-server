@@ -91,7 +91,7 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 				return this.loginError(WebErrors.unknownError, { error });
 			}
 			else {
-				return this.badError();
+				return this.badError(error);
 			}
 		}
 	}

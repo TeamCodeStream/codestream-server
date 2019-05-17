@@ -71,7 +71,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			else {
 				const message = error instanceof Error ? error.message : JSON.stringify(error);
 				this.warn('Error handling provider token request: ' + message);
-				let url = `/web/error?code=${this.errorCode}`;
+				let url = `/web/error?code=${this.errorCode}&provider=${this.provider}`;
 				this.response.redirect(url);
 			}
 			await this.saveSignupToken();
@@ -128,6 +128,10 @@ class ProviderTokenRequest extends RestfulRequest {
 			this.tokenPayload = this.api.services.tokenHandler.verify(this.stateToken);
 		}
 		catch (error) {
+			try {
+				this.tokenPayload = this.api.services.tokenHandler.decode(this.stateToken);
+			}
+			catch (e) { this.warn('error decoding state token'); }
 			const message = typeof error === 'object' ? error.message : error;
 			if (message === 'jwt expired') {
 				throw this.errorHandler.error('tokenExpired');

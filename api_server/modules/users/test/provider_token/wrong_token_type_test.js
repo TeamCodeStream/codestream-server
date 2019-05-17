@@ -30,7 +30,7 @@ class WrongTokenTypeTest extends ProviderTokenTest {
 	}
 
 	validateResponse (data) {
-		Assert.equal(data, '/web/error?code=AUTH-1002', `redirect url not correct for ${this.provider}`);
+		Assert.equal(data, `/web/error?code=AUTH-1002&provider=${this.provider}`, `redirect url not correct for ${this.provider}`);
 	}
 }
 

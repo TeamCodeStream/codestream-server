@@ -17,7 +17,12 @@ class WebProviderAuthRequest extends APIRequest {
 			return;
 		}
 
-		const expiresAt = Date.now() + 2 * 60 * 1000;
+		let expiresIn = 2 * 60 * 1000;
+		const passedExpiresIn = parseInt(this.request.query.expiresIn || '', 10);
+		if (passedExpiresIn && passedExpiresIn < expiresIn) {
+			expiresIn = passedExpiresIn;
+		}
+		const expiresAt = Date.now() + expiresIn;
 		const payload = {
 			userId: 'anonCreate', //this.request.query.createOk ? 'anonCreate' : 'anon',
 			teamId: this.request.query.teamId || '',

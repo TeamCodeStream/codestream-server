@@ -25,7 +25,7 @@ class StateRequiredTest extends ProviderTokenTest {
 	}
 
 	validateResponse (data) {
-		Assert.equal(data, '/web/error?code=RAPI-1001', `redirect url not correct for ${this.provider}`);
+		Assert.equal(data, `/web/error?code=RAPI-1001&provider=${this.provider}`, `redirect url not correct for ${this.provider}`);
 	}
 }
 

@@ -20,7 +20,7 @@ class UnknownProviderTest extends ProviderTokenTest {
 	}
 
 	validateResponse (data) {
-		Assert.equal(data, '/web/error?code=USRC-1013', `redirect url not correct for ${this.provider}`);
+		Assert.equal(data, '/web/error?code=USRC-1013&provider=blahblah', `redirect url not correct for ${this.provider}`);
 	}
 }
 
