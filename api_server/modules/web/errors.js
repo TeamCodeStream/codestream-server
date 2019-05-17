@@ -38,5 +38,9 @@ module.exports = {
 	'invalidLogin': {
 		code: 'SWEB-1008',
 		message: 'Sorry, you entered an incorrect email or password.'
+	},
+	'noUser': {
+		code: 'SWEB-1009',
+		message: 'No user can be associated with this authorization flow'
 	}
 };

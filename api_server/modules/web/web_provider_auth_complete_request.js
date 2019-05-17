@@ -28,15 +28,14 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 
 	async verifyState () {
 		if (this.request.query.error) { return true; }
-		// we should get a state parametezr in the query, and we should have a stored cookie,
+		// we should get a state parameter in the query, and we should have a stored cookie,
 		// and they should match
 		const { state } = this.request.query;
 		const stateProps = state.split('!');
-		const code = stateProps[1];
-
+		this.code = stateProps[1];
 		const storedCode = this.request.signedCookies[`t-${this.provider}`];
-		if (!code || !storedCode || code !== storedCode) {
-			this.warn(`Received state code ${code} which did not match stored ${storedCode}`);
+		if (!this.code || !storedCode || this.code !== storedCode) {
+			this.warn(`Received state code ${this.code} which did not match stored ${storedCode}`);
 			return this.badError();
 		}
 		this.response.clearCookie(`t-${this.provider}`, {
@@ -46,7 +45,7 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 
 		// decode the payload
 		try {
-			this.payload = this.api.services.tokenHandler.decode(code);
+			this.payload = this.api.services.tokenHandler.decode(this.code);
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -85,7 +84,7 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 		}
 
 		case 'duplicateProviderAuth':
-			return this.loginError(WebErrors.providerLoginFailed);
+			return this.loginError(UserErrors.duplicateProviderAuth);
 
 		default:
 			if (this.payload) {
@@ -98,11 +97,9 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 	}
 
 	async matchSignupToken () {
-		if (!this.payload.st) {
-			return true;
-		}
+		const token = this.payload.st || this.code;
 		const info = await this.api.services.signupTokens.find(
-			this.payload.st,
+			token,
 			{ requestId: this.request.id }
 		);
 		if (!info) {
@@ -118,6 +115,10 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 	}
 
 	async getUser () {
+		if (!this.userId) {
+			this.warn('No userId obtained from request');
+			return this.loginError(WebErrors.noUser);
+		}
 		this.user = await this.data.users.getById(this.userId);
 		if (!this.user) {
 			this.warn('User not found: ' + this.userId);
@@ -150,8 +151,12 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 		this.responseHandled = true;
 	}
 
-	badError () {
-		this.response.redirect('/web/error');
+	badError (errorCode) {
+		let redirect = `/web/error?provider=${this.provider}`;
+		if (errorCode) {
+			redirect += '&code=' + errorCode;
+		}
+		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}
 
@@ -159,9 +164,9 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 		if (!this.payload || !this.payload.end) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this.warn('Auth complete request failed: ' + message);
-			return this.badError();
+			return this.badError(error.code);
 		}
-		let redirect = `${this.payload.end}?error=${error.code}`;
+		let redirect = `${this.payload.end}?error=${error.code}&provider=${this.provider}`;
 		if (data) {
 			redirect += `&errorData=${encodeURIComponent(JSON.stringify(data))}`;
 		}

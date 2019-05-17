@@ -5,19 +5,7 @@ const CodemarkLinkIndexes = require(process.env.CS_API_TOP + '/modules/codemarks
 const MomentTimezone = require('moment-timezone');
 const Crypto = require('crypto');
 const Identify = require('./identify');
-
-const PROVIDER_DISPLAY_NAMES = {
-	'github': 'GitHub',
-	'bitbucket': 'Bitbucket',
-	'gitlab': 'GitLab',
-	'trello': 'Trello',
-	'jira': 'Jira',
-	'asana': 'Asana',
-	'youtrack': 'YouTrack',
-	'slack': 'Slack',
-	'azuredevops': 'Azure DevOps',
-	'vsts': 'Visual Studio Team Services'
-};
+const ProviderDisplayNames = require('./provider_display_names');
 
 class LinkCodemarkRequest extends APIRequest {
 
@@ -134,11 +122,11 @@ class LinkCodemarkRequest extends APIRequest {
 		}
 
 		const remoteCodeUrl = this.codemark.get('remoteCodeUrl') || {};
-		const codeProvider = PROVIDER_DISPLAY_NAMES[remoteCodeUrl.name] || remoteCodeUrl.name;
+		const codeProvider = ProviderDisplayNames[remoteCodeUrl.name] || remoteCodeUrl.name;
 		const codeProviderUrl = remoteCodeUrl.url;
 
 		const threadUrl = this.codemark.get('threadUrl') || {};
-		const threadProvider = PROVIDER_DISPLAY_NAMES[threadUrl.name] || threadUrl.name;
+		const threadProvider = ProviderDisplayNames[threadUrl.name] || threadUrl.name;
 		const threadProviderUrl = threadUrl.url;
 
 		const hasProviderButtons = codeProvider || threadProvider;
@@ -196,7 +184,7 @@ class LinkCodemarkRequest extends APIRequest {
 
 	addIdentifyScript (props) {
 		const identifyOptions = {
-			provider: PROVIDER_DISPLAY_NAMES[this.request.query.provider] || '???',
+			provider: ProviderDisplayNames[this.request.query.provider] || '???',
 			user: this.user,
 			team: this.team,
 			company: this.company,

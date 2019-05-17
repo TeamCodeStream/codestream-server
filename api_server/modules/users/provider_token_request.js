@@ -31,7 +31,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				throw this.errorHandler.error('unknownProvider', { info: this.provider });
 			}
 			else if (this.request.query.error) {
-				this.response.redirect('/web/error?code=' + this.request.query.error);
+				this.response.redirect(`/web/error?code=${this.request.query.error}&provider=${this.provider}&tryAgain=1`);
 				this.responseHandled = true;
 				return;
 			}
@@ -125,9 +125,10 @@ class ProviderTokenRequest extends RestfulRequest {
 			throw this.errorHandler.error('parameterRequired', { info: 'state' });
 		}
 		const stateProps = this.request.query.state.split('!');
+		this.stateToken = stateProps[1];
 		this.host = stateProps[2];
 		try {
-			this.tokenPayload = this.api.services.tokenHandler.verify(stateProps[1]);
+			this.tokenPayload = this.api.services.tokenHandler.verify(this.stateToken);
 		}
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;
@@ -260,11 +261,9 @@ class ProviderTokenRequest extends RestfulRequest {
 	// if a signup token is provided, this allows a client session to identify the user ID that was eventually
 	// signed up as it originated from the IDE
 	async saveSignupToken () {
-		if (!this.tokenPayload.st) {
-			return;
-		}
+		const token = this.tokenPayload.st || this.stateToken;
 		await this.api.services.signupTokens.insert(
-			this.tokenPayload.st,
+			token,
 			this.user.id,
 			{ 
 				requestId: this.request.id
