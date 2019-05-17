@@ -113,5 +113,10 @@ module.exports = {
 		code: 'USRC-1021',
 		message: 'An attempt was made to register a user associated with an invite code, but the user associated with the invite code is already registered',
 		description: 'If a user is invited, and they register with an email that does not match the original invited user, but the invited user is already registered, we can not proceed because we would be changing the email of a registered user.'
+	},
+	'providerLoginFailed': {
+		code: 'USRC-1022',
+		message: 'The attempt to sign-in with a given third-party provider failed',
+		description: 'The attempt to sign-in with a given third-party provider failed'
 	}
 };

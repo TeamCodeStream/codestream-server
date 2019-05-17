@@ -285,7 +285,9 @@ class UserCreator extends ModelCreator {
 			{ 
 				requestId: this.request.request.id,
 				secureExpiresIn: this.request.api.config.api.inviteCodeExpiration,
-				teamId: this.userBeingAddedToTeamId
+				more: {
+					teamId: this.userBeingAddedToTeamId
+				}
 			}
 		);
 	}

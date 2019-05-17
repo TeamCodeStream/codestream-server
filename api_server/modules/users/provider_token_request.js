@@ -4,6 +4,7 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 const AuthenticatorErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
+const WebErrors = require(process.env.CS_API_TOP + '/modules/web/errors');
 const Errors = require('./errors');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const ProviderIdentityConnector = require('./provider_identity_connector');
@@ -30,17 +31,15 @@ class ProviderTokenRequest extends RestfulRequest {
 			if (!this.serviceAuth) {
 				throw this.errorHandler.error('unknownProvider', { info: this.provider });
 			}
-			else if (this.request.query.error) {
-				this.response.redirect(`/web/error?code=${this.request.query.error}&provider=${this.provider}&tryAgain=1`);
-				this.responseHandled = true;
-				return;
-			}
 
 			await this.requireAndAllow();		// require certain parameters, discard unknown parameters
 			if (await this.extractFromFragmentAsNeeded()) {
 				return;
 			}
 			await this.validateState();			// decode the state token and validate
+			if (this.handleError()) {			// check for error condition passed in
+				return;
+			}
 			if (!this.userId.startsWith('anon')) {
 				await this.getUser();				// get the user initiating the auth request
 				await this.getTeam();				// get the team the user is authed with
@@ -56,15 +55,14 @@ class ProviderTokenRequest extends RestfulRequest {
 			await this.sendResponse();			// send the response html
 		}
 		catch (error) {
+			this.errorCode = typeof error === 'object' && error.code ? error.code : WebErrors['unknownError'].code;
 			// if we have a url to redirect to, redirect with an error, rather
 			// than just throwing
 			if (
 				this.tokenPayload &&
-				this.tokenPayload.url &&
-				typeof error === 'object' &&
-				error.code
+				this.tokenPayload.url
 			) {
-				let url = `${this.tokenPayload.url}?error=${error.code}&state=${this.request.query.state}`;
+				let url = `${this.tokenPayload.url}?error=${this.errorCode}&state=${this.request.query.state}`;
 				if (this.userIdentity && this.userIdentity.email) {
 					url += `&email=${encodeURIComponent(this.userIdentity.email)}`;
 				}
@@ -73,12 +71,10 @@ class ProviderTokenRequest extends RestfulRequest {
 			else {
 				const message = error instanceof Error ? error.message : JSON.stringify(error);
 				this.warn('Error handling provider token request: ' + message);
-				let url = '/web/error';
-				if (typeof error === 'object' && error.code) {
-					url += `?code=${error.code}`;
-				}
+				let url = `/web/error?code=${this.errorCode}`;
 				this.response.redirect(url);
 			}
+			await this.saveSignupToken();
 			this.responseHandled = true;
 		}
 	}
@@ -127,6 +123,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		const stateProps = this.request.query.state.split('!');
 		this.stateToken = stateProps[1];
 		this.host = stateProps[2];
+
 		try {
 			this.tokenPayload = this.api.services.tokenHandler.verify(this.stateToken);
 		}
@@ -144,6 +141,16 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 		this.userId = this.tokenPayload.userId;
 		this.teamId = this.tokenPayload.teamId;
+	}
+
+	// handle any error sent by the provider
+	handleError () {
+		if (!this.request.query.error) { return; }
+		this.errorCode = this.request.query.error;
+		this.saveSignupToken();
+		this.response.redirect(`/web/error?code=${this.errorCode}&provider=${this.provider}`);
+		this.responseHandled = true;
+		return true;
 	}
 
 	// perform an exchange of auth code for access token, as needed
@@ -256,17 +263,32 @@ class ProviderTokenRequest extends RestfulRequest {
 		await this.connector.connectIdentity(userIdentity);
 		this.user = this.connector.user;
 		this.team = this.connector.team;
+
+		// set signup status
+		if (this.connector.createdTeam) {
+			this.signupStatus = 'teamCreated';
+		}
+		else if (this.connector.createdUser) {
+			this.signupStatus = 'userCreated';
+		}
+		else {
+			this.signupStatus = 'signedIn';
+		}
 	}
 
 	// if a signup token is provided, this allows a client session to identify the user ID that was eventually
 	// signed up as it originated from the IDE
 	async saveSignupToken () {
-		const token = this.tokenPayload.st || this.stateToken;
+		const token = (this.tokenPayload && this.tokenPayload.st) || this.stateToken;
 		await this.api.services.signupTokens.insert(
 			token,
-			this.user.id,
+			this.user ? this.user.id : null,
 			{ 
-				requestId: this.request.id
+				requestId: this.request.id,
+				more: {
+					signupStatus: this.signupStatus,
+					error: this.errorCode
+				}
 			}
 		);
 	}

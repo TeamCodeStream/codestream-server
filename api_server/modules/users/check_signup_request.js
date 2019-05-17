@@ -24,10 +24,16 @@ class CheckSignupRequest extends RestfulRequest {
 	// process the request....
 	async process () {
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
-		await this.findToken();         // look for the signup token provided
-		await this.getUser();           // get the user associated with the email in the token
-		await this.doLogin();           // perform login functions for this user, now that we've verified the token
-		await this.removeSignupToken(); // remove the signup token we found
+		try {
+			await this.findToken();			// look for the signup token provided
+			await this.getUser();			// get the user associated with the email in the token
+			await this.doLogin();			// perform login functions for this user, now that we've verified the token
+			await this.removeSignupToken();	// remove the signup token we found
+		}
+		catch (error) {
+			await this.removeSignupToken();
+			throw (error);
+		}
 	}
 
 	// require these parameters, and discard any unknown parameters
@@ -43,37 +49,31 @@ class CheckSignupRequest extends RestfulRequest {
 	}
 
 	async findToken () {
-		const info = await this.api.services.signupTokens.find(
+		this.signupToken = await this.api.services.signupTokens.find(
 			this.request.body.token,
 			{ requestId: this.request.id }
 		);
-		if (!info) {
-			this.trackTokenFailure('User Not Signed Up');
+		if (!this.signupToken) {
 			throw this.errorHandler.error('noUserId');
 		}
-		else if (info.expired) {
-			this.user = await this.data.users.getById(info.userId);
-			this.trackTokenFailure('Token Expired');
-			throw this.errorHandler.error('tokenExpired');
+		else if (this.signupToken.error) {
+			throw this.errorHandler.error('providerLoginFailed', { error: this.signupToken.error });
 		}
-		else {
-			this.userId = info.userId;
+		else if (this.signupToken.expired) {
+			throw this.errorHandler.error('tokenExpired');
 		}
 	}
 
 	// get the user associated with the ID
 	async getUser () {
-		this.user = await this.data.users.getById(this.userId);
+		this.user = await this.data.users.getById(this.signupToken.userId);
 		if (!this.user || this.user.get('deactivated')) {
-			this.trackTokenFailure('User Not On Team');
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
-		if (!this.user.get('isRegistered')) {
-			this.trackTokenFailure('Email Not Confirmed');
+		else if (!this.user.get('isRegistered')) {
 			throw this.errorHandler.error('noLoginUnregistered');
 		}
-		if ((this.user.get('teamIds') || []).length === 0) {
-			this.trackTokenFailure('User Not On Team');
+		else if ((this.user.get('teamIds') || []).length === 0) {
 			throw this.errorHandler.error('userNotOnTeam');
 		}
 	}
@@ -86,29 +86,12 @@ class CheckSignupRequest extends RestfulRequest {
 			loginType: this.loginType,
 			trueLogin: true
 		}).login();
+		this.responseData.signupStatus = this.signupToken.signupStatus;
 	}
 
 	// remove the signup token we were given, signup using this token is no longer valid
 	async removeSignupToken () {
 		await this.api.services.signupTokens.remove(this.request.body.token, { requestId: this.request.id });
-	}
-
-	// track any token failure by sending an event to the analytics service
-	trackTokenFailure (eventName) {
-		const trackObject = {
-			Error: eventName
-		};
-		if (this.user) {
-			trackObject['email'] = this.user.get('email');
-		}
-		this.api.services.analytics.track(
-			'Continue Into IDE Failed',
-			trackObject,
-			{
-				request: this,
-				user: this.user
-			}
-		);
 	}
 
 	// describe this route for help

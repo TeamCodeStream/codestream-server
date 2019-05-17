@@ -14,19 +14,10 @@ class WebErrorRequest extends APIRequest {
 		const { code, title, body } = this.getSpecialErrorDisplay(errorCode) || {};
 		const withProvider = this.request.query.provider ? ` with ${ProviderDisplayNames[this.request.query.provider]}` : '';
 		const withCode = errorCode ? ` (error: <b>${errorCode}</b>)` : '';
-		let tryAgainButton, tryAgainButtonUrl, tryAgainButtonText;
-		if (this.request.query.tryAgain && this.request.query.provider) {
-			tryAgainButton = true;
-			tryAgainButtonText = 'Try Again';
-			tryAgainButtonUrl = `/web/provider-auth/${this.request.query.provider}`;
-		}
 		this.module.evalTemplate(this, 'error', {
 			title: title || 'Authentication failed',
-			body: body || `We were not able to authenticate you${withProvider}${withCode}. Please contact <a href="mailto:support@codestream.com">CodeStream support</a>.`,
+			body: body || `We were not able to authenticate you${withProvider}${withCode}. <a href="mailto:support@codestream.com">Contact support</a> if you need assistance, or return to your IDE to try again.`,
 			version: this.module.versionInfo(),
-			tryAgainButton,
-			tryAgainButtonText,
-			tryAgainButtonUrl,
 			code: code || ''
 		});
 	}

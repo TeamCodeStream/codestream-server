@@ -43,8 +43,8 @@ class SignupTokens {
 			expiresIn = options.secureExpiresIn;
 		}
 		tokenData.expiresAt = Date.now() + expiresIn;
-		if (options.teamId) {
-			tokenData.teamId = options.teamId;
+		if (typeof options.more === 'object') {
+			Object.assign(tokenData, options.more);
 		}
 
 		// we always remove old tokens, keeping the signupTokens collection small
@@ -87,6 +87,7 @@ class SignupTokens {
 
 	// insert a signup token record
 	async _insert (tokenData, options) {
+		await this.remove(tokenData.token);
 		return await this.collection.create(tokenData, options);
 	}
 
@@ -100,11 +101,8 @@ class SignupTokens {
 		if (!tokenData) {
 			return null;
 		}
-		return {
-			userId: tokenData.userId,
-			expired: tokenData.expiresAt < Date.now(),
-			teamId: tokenData.teamId
-		};
+		tokenData.expired = tokenData.expiresAt < Date.now();
+		return tokenData;
 	}
 
 }
