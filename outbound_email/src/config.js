@@ -92,7 +92,7 @@ else {
 	};
 
 	// logging (for running as a service)
-	Cfg.logging.directory = process.env.CS_OUTBOUND_EMAIL_LOG_DIRECTORY;	// put log files in this directory
+	Cfg.logging.directory = process.env.CS_OUTBOUND_EMAIL_LOGS;	// put log files in this directory
 	Cfg.logging.consoleOk = process.env.CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK;	// also output to the console
 
 	// RabbitMQ configuration

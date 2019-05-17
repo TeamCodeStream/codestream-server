@@ -12,7 +12,7 @@
 
 # Installation options
 if [ -f "$CS_OUTBOUND_EMAIL_SANDBOX/sb.options" ]; then
-	echo "Loading extra params from sb.options"
+	echo "Loading override parameters from $CS_OUTBOUND_EMAIL_SANDBOX/sb.options"
 	. $CS_OUTBOUND_EMAIL_SANDBOX/sb.options
 	export `grep ^CS_OUTBOUND_EMAIL_ $CS_OUTBOUND_EMAIL_SANDBOX/sb.options|cut -f1 -d=`
 fi
@@ -44,12 +44,16 @@ export PATH=$CS_OUTBOUND_EMAIL_SANDBOX/node/bin:$CS_OUTBOUND_EMAIL_TOP/node_modu
 export PATH=$CS_OUTBOUND_EMAIL_TOP/bin:$PATH
 
 # Standard variables to consider using
-#export CS_OUTBOUND_EMAIL_LOGS=$CS_OUTBOUND_EMAIL_SANDBOX/log    # Log directory
+export CS_OUTBOUND_EMAIL_LOGS=$CS_OUTBOUND_EMAIL_SANDBOX/log    # Log directory
+# comment out if you do not want log messages to get sent to the console
+export CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK=1
+
 #export CS_OUTBOUND_EMAIL_TMP=$CS_OUTBOUND_EMAIL_SANDBOX/tmp     # temp directory
 #export CS_OUTBOUND_EMAIL_CONFS=$CS_OUTBOUND_EMAIL_SANDBOX/conf  # config files directory
 #export CS_OUTBOUND_EMAIL_DATA=$CS_OUTBOUND_EMAIL_SANDBOX/data   # data directory
 #export CS_OUTBOUND_EMAIL_PIDS=$CS_OUTBOUND_EMAIL_SANDBOX/pid    # pid files directory
 [ -z "$CS_OUTBOUND_EMAIL_ASSET_ENV" ] && export CS_OUTBOUND_EMAIL_ASSET_ENV=local
+
 
 #[ -z "$MONGO_ACCESS_FILE" ] && MONGO_ACCESS_FILE="$HOME/.codestream/mongo/mongo-access"
 if [ -n "$MONGO_ACCESS_FILE" -a -f "$MONGO_ACCESS_FILE" ]; then
@@ -125,4 +129,26 @@ if [ -z "$CS_FUNCTION_VERSION" ]; then
 	else
 		export CS_FUNCTION_VERSION=`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p version`
 	fi
+fi
+
+# Added for On-Prem work
+
+# Uncomment if running with the broadcaster service
+# export CS_OUTBOUND_EMAIL_SOCKET_CLUSTER_HOST=localhost.codestream.us
+# export CS_OUTBOUND_EMAIL_SOCKET_CLUSTER_PORT=12443
+
+# This must match CS_BROADCASTER_AUTH_SECRET
+# export CS_OUTBOUND_EMAIL_BROADCASTER_SECRET=.......
+
+# ============ RabbitMQ (on-prem) ============
+# If CS_OUTBOUND_EMAIL_RABBITMQ_HOST is set, outbound email service will use rabbitMQ and NOT AWS SQS
+[ -z "$RABBITMQ_ACCESS_FILE" ] && RABBITMQ_ACCESS_FILE=$HOME/.codestream/codestream/local-rabbitmq
+if [ -f $RABBITMQ_ACCESS_FILE ]; then
+	. $RABBITMQ_ACCESS_FILE
+	export CS_OUTBOUND_EMAIL_RABBITMQ_HOST=$RABBITMQ_HOST
+	export CS_OUTBOUND_EMAIL_RABBITMQ_PORT=$RABBITMQ_PORT
+	export CS_OUTBOUND_EMAIL_RABBITMQ_USER=$RABBITMQ_USER
+	export CS_OUTBOUND_EMAIL_RABBITMQ_PASSWORD=$RABBITMQ_PASS
+else
+	echo "Not loading sandbox with RabbitMQ" >&2
 fi
