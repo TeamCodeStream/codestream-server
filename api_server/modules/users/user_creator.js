@@ -279,12 +279,14 @@ class UserCreator extends ModelCreator {
 		if (!this.inviteCode) {
 			return;
 		}
+
+		let expiresIn = this.inviteCodeExpiresIn || this.request.api.config.api.inviteCodeExpiration;
 		await this.api.services.signupTokens.insert(
 			this.inviteCode,
 			this.model.id,
 			{ 
 				requestId: this.request.request.id,
-				secureExpiresIn: this.request.api.config.api.inviteCodeExpiration,
+				secureExpiresIn: expiresIn,
 				more: {
 					teamId: this.userBeingAddedToTeamId
 				}

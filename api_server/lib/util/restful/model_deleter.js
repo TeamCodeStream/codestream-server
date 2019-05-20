@@ -20,7 +20,7 @@ class ModelDeleter {
 			throw this.errorHandler.error('internal', { reason: `collection ${this.collectionName} is not a valid collection` });
 		}
 		this.id = id;
-		this.setOpForDelete();
+		await this.setOpForDelete();
 		await this.preDelete();	// prepare to delete the document
 		await this.delete();	// delete the document
 		await this.postDelete();// give the derived class a chance to do stuff after we've deleted

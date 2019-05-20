@@ -8,6 +8,7 @@ const AddTeamMember = require(process.env.CS_API_TOP + '/modules/teams/add_team_
 const AddTeamPublisher = require('./add_team_publisher');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const UserCreator = require(process.env.CS_API_TOP + '/modules/users/user_creator');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
 class PostUserRequest extends PostRequest {
 
@@ -44,7 +45,10 @@ class PostUserRequest extends PostRequest {
 		this.delayEmail = this.request.body._delayEmail; // delay sending the invite email, for testing
 		delete this.request.body._delayEmail;
 		this.subscriptionCheat = this.request.body._subscriptionCheat; // cheat code for testing only, allow subscription to me-channel before confirmation
+		this.confirmationCheat = this.request.body._confirmationCheat; // cheat code for testing only, send invite code in the response
+		this.inviteCodeExpiresIn = this.request.body._inviteCodeExpiresIn;	// make invite code expire in less time, for testing
 		delete this.request.body._subscriptionCheat;
+		delete this.request.body._confirmationCheat;
 		await this.requireAllowParameters(
 			'body',
 			{
@@ -62,11 +66,16 @@ class PostUserRequest extends PostRequest {
 
 	// create the user, if needed
 	async createUser () {
-		const userCreator = new UserCreator({
+		let expiresIn;
+		if (this.inviteCodeExpiresIn && this.inviteCodeExpiresIn < this.request.api.config.api.inviteCodeExpiration) {
+			expiresIn = this.inviteCodeExpiresIn;
+		}
+		this.userCreator = new UserCreator({
 			request: this,
 			teamIds: [this.team.id],
 			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
-			userBeingAddedToTeamId: this.team.id
+			userBeingAddedToTeamId: this.team.id,
+			inviteCodeExpiresIn: expiresIn
 		});
 		const userData = {
 			email: this.request.body.email
@@ -74,7 +83,7 @@ class PostUserRequest extends PostRequest {
 		if (this.request.body._pubnubUuid) {
 			userData._pubnubUuid = this.request.body._pubnubUuid;
 		}
-		this.transforms.createdUser = await userCreator.createUser(userData);
+		this.transforms.createdUser = await this.userCreator.createUser(userData);
 		this.wasOnTeam = this.transforms.createdUser.hasTeam(this.team.id);
 	}
 
@@ -104,6 +113,11 @@ class PostUserRequest extends PostRequest {
 		// this should just fetch from the cache, not from the database
 		const user = await this.data.users.getById(this.transforms.createdUser.id);
 		this.responseData = { user: user.getSanitizedObject() };
+
+		// send invite code in the response, for testing purposes
+		if (this.confirmationCheat === SecretsConfig.confirmationCheat) {
+			this.responseData.inviteCode = this.userCreator.inviteCode;
+		}
 		await super.handleResponse();
 	}
 

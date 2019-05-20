@@ -19,7 +19,6 @@ const ExistingRegisteredUserMessageToTeamTest = require('./existing_registered_u
 const UserAddedToTeamGetsMessageTest = require('./user_added_to_team_gets_message_test');
 const UnregisteredInviteTest = require('./unregistered_invite_test');
 const DontSendEmailTest = require('./dont_send_email_test');
-/*
 const InviteEmailTest = require('./invite_email_test');
 const ExistingUnregisteredInviteEmailTest = require('./existing_unregistered_invite_email_test');
 const ExistingRegisteredInviteEmailTest = require('./existing_registered_invite_email_test');
@@ -27,7 +26,6 @@ const ExistingRegisteredOnTeamInviteEmailTest = require('./existing_registered_o
 const ExistingUnregisteredOnTeamInviteEmailTest = require('./existing_unregistered_on_team_invite_email_test');
 const ExistingUnregisteredAlreadyOnTeamInviteEmailTest = require('./existing_unregistered_already_on_team_invite_email_test');
 const ExistingRegisteredAlreadyOnTeamInviteEmailTest = require('./existing_registered_already_on_team_invite_email_test');
-*/
 const TrackingTest = require('./tracking_test');
 const TrackingRegisteredTest = require('./tracking_registered_test');
 const TrackingAlreadyInvitedTest = require('./tracking_already_invited_test');
@@ -68,7 +66,6 @@ class PostUserRequestTester {
 		// are actually run in their "before" stage, and they will fail due to timeouts
 		// if they are run in parallel
 		SerializeTests([
-			/* Disabled until they be updated for invite codes
 			InviteEmailTest,
 			ExistingUnregisteredInviteEmailTest,
 			ExistingRegisteredInviteEmailTest,
@@ -76,7 +73,6 @@ class PostUserRequestTester {
 			ExistingUnregisteredOnTeamInviteEmailTest,
 			ExistingUnregisteredAlreadyOnTeamInviteEmailTest,
 			ExistingRegisteredAlreadyOnTeamInviteEmailTest
-			*/
 		]);
 		new TrackingTest().test();
 		new TrackingRegisteredTest().test();

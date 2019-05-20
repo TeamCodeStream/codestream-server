@@ -5,19 +5,21 @@
 const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const UserCreator = require('./user_creator');
 const UserUpdater = require('./user_updater');
+const UserDeleter = require('./user_deleter');
 const SignupTokens = require('./signup_tokens');
 const User = require('./user');
 const Errors = require('./errors');
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {
-	want: ['get', 'getMany', 'put', 'post'],
+	want: ['get', 'getMany', 'put', 'post', 'delete'],
 	baseRouteName: 'users',
 	requestClasses: {
 		'get': require('./get_user_request'),
 		'getMany': require('./get_users_request'),
 		'put': require('./put_user_request'),
-		'post': require('./post_user_request')
+		'post': require('./post_user_request'),
+		'delete': require('./delete_user_request')
 	}
 };
 
@@ -194,6 +196,10 @@ class Users extends Restful {
 
 	get updaterClass () {
 		return UserUpdater;	// use this class to update users
+	}
+
+	get deleterClass () {
+		return UserDeleter;	// user this class to delete users
 	}
 
 	// get all routes exposed by this module

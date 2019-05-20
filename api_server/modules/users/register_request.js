@@ -292,7 +292,7 @@ class RegisterRequest extends RestfulRequest {
 			return;
 		}
 		if (this._delayEmail) {
-			setTimeout(this.sendEmail.bind(this), this._delayEmail);
+			setTimeout(this.sendConfirmationEmail.bind(this), this._delayEmail);
 			delete this._delayEmail;
 			return;
 		}

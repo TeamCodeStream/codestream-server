@@ -6,7 +6,6 @@ const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadca
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CommonInit = require('./common_init');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
-const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
 
 class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -61,18 +60,12 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// generate the message that starts the test
 	generateMessage (callback) {
-		// generate the expected "check-out" link
-		const email = encodeURIComponent(this.currentUser.user.email);
-		const expectedCampaign = this.expectedCampaign || 'invitation_email';
-		const expectedLink = `${WebClientConfig.host}/signup?email=${email}&utm_medium=email&utm_source=product&utm_campaign=${expectedCampaign}&force_auth=true`;
-
 		// this is the message we expect to see
 		this.message = {
 			type: 'invite',
 			userId: this.currentUser.user.id,
 			inviterId: this.userCreator.id,
-			teamName: this.team.name,
-			checkOutLink: expectedLink
+			teamName: this.team.name
 		};
 
 		// in this case, we've already started the test in makeData, which created the user ...

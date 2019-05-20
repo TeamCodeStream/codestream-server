@@ -5,18 +5,20 @@
 const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const TeamCreator = require('./team_creator');
 const TeamUpdater = require('./team_updater');
+const TeamDeleter = require('./team_deleter');
 const Team = require('./team');
 const Errors = require('./errors');
 
 // expose these restful routes
 const TEAM_STANDARD_ROUTES = {
-	want: ['get', 'getMany', 'post', 'put'],
+	want: ['get', 'getMany', 'post', 'put', 'delete'],
 	baseRouteName: 'teams',
 	requestClasses: {
 		'get': require('./get_team_request'),
 		'getMany': require('./get_teams_request'),
 		'post': require('./post_team_request'),
-		'put': require('./put_team_request')
+		'put': require('./put_team_request'),
+		'delete': require('./delete_team_request')
 	}
 };
 
@@ -68,6 +70,10 @@ class Teams extends Restful {
 
 	get updaterClass () {
 		return TeamUpdater;	// use this class to update teams
+	}
+
+	get deleterClass () {
+		return TeamDeleter; // use this class to delete teams
 	}
 
 	// compile all the routes to expose
