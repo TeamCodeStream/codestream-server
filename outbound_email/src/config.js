@@ -11,9 +11,9 @@ Cfg.logging = {
 	retentionPeriod: 30 * 24 * 60 * 60 * 1000	// retain log files for this many milliseconds
 };
 
-
-if (process.env.CS_OUTBOUND_EMAIL_CFG_FILE) {
-	let CfgFile = require(process.env.CS_OUTBOUND_EMAIL_CFG_FILE);
+let CfgFileName = process.env.CS_OUTBOUND_EMAIL_CFG_FILE || process.env.CODESTREAM_CFG_FILE;
+if (CfgFileName) {
+	let CfgFile = require(CfgFileName);
 	Cfg.mongo = CfgFile.mongo;
 	Cfg.mongo.hintsRequired = true;
 
