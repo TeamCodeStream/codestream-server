@@ -54,7 +54,7 @@ export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
 [ -z "$CS_API_AUTH_ORIGIN" ] && export CS_API_AUTH_ORIGIN=https://auth.codestream.us/no-auth
 if [ "$CS_API_ENV" == local  -a  -z "$CS_API_CALLBACK_ENV" ]; then
 	if [ "$DT_OS_TYPE" == osx ]; then
-		TUNNEL_IP=`netstat -rn|grep '^10\.99'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
+		TUNNEL_IP=`netstat -rn|grep '^10\.9'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
 	elif [ -n "$DT_FALLBACK_TUNNEL_IP" ]; then
 		TUNNEL_IP="$DT_FALLBACK_TUNNEL_IP"
 	fi
