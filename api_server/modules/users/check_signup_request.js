@@ -131,7 +131,9 @@ class CheckSignupRequest extends RestfulRequest {
 				'tokenInvalid',
 				'tokenExpired',
 				'notFound',
-				'userNotOnTeam'
+				'userNotOnTeam',
+				'providerLoginFailed',
+				'duplicateProviderAuth'
 			]
 		};
 	}
