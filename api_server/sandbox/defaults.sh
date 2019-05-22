@@ -257,19 +257,17 @@ fi
 
 
 # ================= MSTeams API Access ==============4
-export CS_API_MSTEAMS_CLIENT_ID="placeholder"
-export CS_API_MSTEAMS_CLIENT_SECRET="placeholder"
-#[ -z "$MSTEAMS_API_ACCESS_FILE" ] && MSTEAMS_API_ACCESS_FILE=$HOME/.codestream/msteams/development
-#if [ -f $MSTEAMS_API_ACCESS_FILE ]; then
-#	. $MSTEAMS_API_ACCESS_FILE
-#	export CS_API_MSTEAMS_CLIENT_ID="$BITBUCKET_KEY"
-#	export CS_API_MSTEAMS_CLIENT_SECRET="$BITBUCKET_SECRET"
-#else
-#	echo "********************************************************************"
-#	echo "WARNING: MSTeams api access file not found ($MSTEAMS_API_ACCESS_FILE)."
-#	echo "         Run dt-update-secrets and reload your sandbox"
-#	echo "********************************************************************"
-#fi
+[ -z "$MSTEAMS_API_ACCESS_FILE" ] && MSTEAMS_API_ACCESS_FILE=$HOME/.codestream/microsoft/teams-development
+if [ -f $MSTEAMS_API_ACCESS_FILE ]; then
+	. $MSTEAMS_API_ACCESS_FILE
+	export CS_API_MSTEAMS_CLIENT_ID="$TEAMS_APP_ID"
+	export CS_API_MSTEAMS_CLIENT_SECRET="$TEAMS_APP_SECRET"
+else
+	echo "********************************************************************"
+	echo "WARNING: MSTeams api access file not found ($MSTEAMS_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
 
 
 # ================= Glip API Access ==============4
