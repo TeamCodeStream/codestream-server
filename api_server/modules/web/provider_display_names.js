@@ -7,6 +7,7 @@ module.exports = {
 	'asana': 'Asana',
 	'youtrack': 'YouTrack',
 	'slack': 'Slack',
+	'msteams': 'Microsoft Teams',
 	'azuredevops': 'Azure DevOps',
 	'vsts': 'Visual Studio Team Services'
 };

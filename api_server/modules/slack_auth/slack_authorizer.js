@@ -5,7 +5,7 @@
 const { WebClient } = require('@slack/client');
 const RandomString = require('randomstring');
 
-class ProviderInfoAuthorizer {
+class SlackAuthorizer {
 
 	constructor (options) {
 		Object.assign(this, options);
@@ -121,4 +121,4 @@ class ProviderInfoAuthorizer {
 	}
 }
 
-module.exports = ProviderInfoAuthorizer;
+module.exports = SlackAuthorizer;

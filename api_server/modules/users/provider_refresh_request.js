@@ -99,9 +99,12 @@ class ProviderRefreshRequest extends RestfulRequest {
 			throw this.errorHandler.error('readAuth', { reason: 'token not returned from provider' });
 		}
 		const modifiedAt = Date.now();
+		const existingProviderInfo = ((this.user.get('providerInfo') || {})[this.team.id] || {})[this.provider] || {};
+		const providerInfoKey = `providerInfo.${this.team.id}.${this.provider}`;
+		const newProviderInfo = Object.assign({}, existingProviderInfo, this.tokenData);
 		const op = {
 			$set: {
-				[`providerInfo.${this.team.id}.${this.provider}`]: this.tokenData,
+				[providerInfoKey]: newProviderInfo,
 				modifiedAt
 			}
 		};

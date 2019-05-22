@@ -9,6 +9,7 @@ const Errors = require('./errors');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const ProviderIdentityConnector = require('./provider_identity_connector');
 const UserPublisher = require('./user_publisher');
+const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 
 class ProviderTokenRequest extends RestfulRequest {
 
@@ -55,6 +56,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			await this.sendResponse();			// send the response html
 		}
 		catch (error) {
+			this.warn(ErrorHandler.log(error));
 			this.errorCode = typeof error === 'object' && error.code ? error.code : WebErrors['unknownError'].code;
 			// if we have a url to redirect to, redirect with an error, rather
 			// than just throwing
@@ -248,6 +250,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 		this.userIdentity = await this.serviceAuth.getUserIdentity({
 			accessToken: token,
+			apiConfig: this.api.config[this.provider],
 			request: this
 		});
 
@@ -262,7 +265,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			provider: this.provider,
 			okToCreateUser: this.userId === 'anonCreate',
 			mustMatchTeam: this.userId === 'anon',
-			mustMatchUser: this.userId === 'anon'
+			mustMatchUser: this.userId === 'anon',
+			tokenData: this.tokenData
 		});
 		await this.connector.connectIdentity(userIdentity);
 		this.user = this.connector.user;

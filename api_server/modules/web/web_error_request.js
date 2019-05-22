@@ -12,7 +12,9 @@ class WebErrorRequest extends APIRequest {
 	async process () {
 		const errorCode = decodeURIComponent(this.request.query.code || '');
 		const { code, title, body } = this.getSpecialErrorDisplay(errorCode) || {};
-		const withProvider = this.request.query.provider ? ` with ${ProviderDisplayNames[this.request.query.provider]}` : '';
+		const withProvider = this.request.query.provider && ProviderDisplayNames[this.request.query.provider] ?
+			` with ${ProviderDisplayNames[this.request.query.provider]}` :
+			'';
 		const withCode = errorCode ? ` (error: <b>${errorCode}</b>)` : '';
 		this.module.evalTemplate(this, 'error', {
 			title: title || 'Authentication failed',
@@ -23,11 +25,16 @@ class WebErrorRequest extends APIRequest {
 	}
 
 	getSpecialErrorDisplay (code) {
+
+		const connectedTeam = this.request.query.provider && ProviderDisplayNames[this.request.query.provider] ?
+			`${ProviderDisplayNames[this.request.query.provider]}-connected` :
+			'third-party connected';
+
 		switch (code) {
 		case 'USRC-1015': 
 			return {
 				title: 'Multiple Workspaces',
-				body: 'Unfortunately, at this time, you can only be a member of one Slack-connected team on CodeStream. <a href="mailto:support@codestream.com">Contact support</a> and we\'ll let you know as soon as support for multiple Slack-connected teams is ready.'
+				body: `Unfortunately, at this time, you can only be a member of one ${connectedTeam} team on CodeStream. <a href="mailto:support@codestream.com">Contact support</a> and we'll let you know as soon as support for multiple ${connectedTeam} teams is ready.`
 			};
 		}
 	}

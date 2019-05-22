@@ -265,13 +265,14 @@ class ProviderIdentityConnector {
 				[`providerInfo.${this.provider}`]: true	// delete old way of storing provider info that is not associated with a team
 			}
 		};
+		const providerInfoData = Object.assign({
+			userId: this.providerInfo.userId,
+			teamId: this.providerInfo.teamId,
+			accessToken: this.providerInfo.accessToken
+		}, this.tokenData || {});
 		Object.assign(op.$set, {
 			providerIdentities: identities,
-			[`providerInfo.${this.team.id}.${this.provider}`]: {
-				userId: this.providerInfo.userId,
-				teamId: this.providerInfo.teamId,
-				accessToken: this.providerInfo.accessToken
-			}
+			[`providerInfo.${this.team.id}.${this.provider}`]: providerInfoData
 		});
 
 		this.transforms.userUpdate = await new ModelSaver({

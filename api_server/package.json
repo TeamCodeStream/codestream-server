@@ -2,6 +2,7 @@
   "name": "api-server",
   "version": "1.21.1",
   "dependencies": {
+    "@microsoft/microsoft-graph-client": "1.7.0",
     "@slack/client": "5.0.1",
     "amqplib": "0.5.3",
     "analytics-node": "3.3.0",
@@ -30,6 +31,7 @@
     "moment": "2.24.0",
     "moment-timezone": "0.5.25",
     "mongodb": "3.2.4",
+    "msal": "0.2.4",
     "node-fetch": "2.5.0",
     "node-ipc": "9.1.1",
     "pubnub": "4.24.0",

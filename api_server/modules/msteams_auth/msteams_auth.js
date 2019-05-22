@@ -3,6 +3,7 @@
 'use strict';
 
 const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module.js');
+const MSTeamsAuthorizer = require('./msteams_authorizer');
 
 const OAUTH_CONFIG = {
 	provider: 'msteams',
@@ -11,7 +12,13 @@ const OAUTH_CONFIG = {
 	authPath: 'common/oauth2/v2.0/authorize',
 	tokenPath: 'common/oauth2/v2.0/token',
 	exchangeFormat: 'form',
-	scopes: 'https://graph.microsoft.com/mail.read offline_access',
+	scopes: [
+		'User.Read',
+		'User.Read.All',
+		'Group.Read.All',
+		'Chat.ReadWrite',
+		'offline_access'
+	].join(' '),
 	additionalAuthCodeParameters: {
 		response_mode: 'query',
 		prompt: 'consent'
@@ -25,6 +32,12 @@ class MSTeamsAuth extends OAuth2Module {
 	constructor (config) {
 		super(config);
 		this.oauthConfig = OAUTH_CONFIG;
+	}
+
+	// match the given slack identity to a CodeStream identity
+	async getUserIdentity (options) {
+		const authorizer = new MSTeamsAuthorizer({ options });
+		return await authorizer.getMSTeamsIdentity(options.accessToken);
 	}
 }
 

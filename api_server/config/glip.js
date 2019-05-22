@@ -1,4 +1,4 @@
-// MSTeams integration configuration
+// Glip integration configuration
 
 'use strict';
 

@@ -3,7 +3,7 @@
 'use strict';
 
 const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module.js');
-const ProviderInfoAuthorizer = require('./provider_info_authorizer');
+const SlackAuthorizer = require('./slack_authorizer');
 
 const OAUTH_CONFIG = {
 	provider: 'slack',
@@ -23,7 +23,7 @@ class SlackAuth extends OAuth2Module {
 	}
 
 	async authorizeProviderInfo (providerInfo, options) {
-		return await new ProviderInfoAuthorizer({ providerInfo, options }).exchangeAndAuthorize();
+		return await new SlackAuthorizer({ providerInfo, options }).exchangeAndAuthorize();
 	}
 
 	validateChannelName (name) {
@@ -37,7 +37,7 @@ class SlackAuth extends OAuth2Module {
 
 	// match the given slack identity to a CodeStream identity
 	async getUserIdentity (options) {
-		const authorizer = new ProviderInfoAuthorizer({ options });
+		const authorizer = new SlackAuthorizer({ options });
 		return await authorizer.getSlackIdentity(options.accessToken);
 	}
 }
