@@ -353,9 +353,12 @@ class Deleter {
 	async deleteSingleUser () {
 		this.logger.log(`Deactivating user ${this.userIdOrEmail}...`);
 		try {
+			const now = Date.now();
+			const emailParts = this.user.email.split('@');
+			const newEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
 			await this.mongoClient.mongoCollections.users.updateDirect(
 				{ id: this.mongoClient.mongoCollections.users.objectIdSafe(this.user.id) },
-				{ $set: { deactivated: true, searchableEmail: 'deactivated' + Date.now() } }
+				{ $set: { deactivated: true, email: newEmail, searchableEmail: newEmail.toLowerCase() } }
 			);
 		}
 		catch (error) {
