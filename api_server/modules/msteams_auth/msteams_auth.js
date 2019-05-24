@@ -16,6 +16,7 @@ const OAUTH_CONFIG = {
 		'User.Read',
 		'User.Read.All',
 		'Group.Read.All',
+		'Group.ReadWrite.All',
 		'Chat.ReadWrite',
 		'offline_access'
 	].join(' '),
