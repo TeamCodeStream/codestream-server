@@ -16,7 +16,7 @@ class MSTeamsAuthorizer {
 	async getMSTeamsIdentity (accessToken) {
 		this.token = accessToken;
 		const userInfo = await this.graphApiRequest('/me');
-		const groupInfo = await this.graphApiRequest('/groups');
+		const groupInfo = await this.graphApiRequest('/me/joinedTeams');
 		if (!userInfo || !groupInfo) {
 			throw this.request.errorHandler.error('noIdentityMatch');
 		}
