@@ -16,16 +16,16 @@ class MSTeamsAuthorizer {
 	async getMSTeamsIdentity (accessToken) {
 		this.token = accessToken;
 		const userInfo = await this.graphApiRequest('/me');
-		const groupInfo = await this.graphApiRequest('/me/joinedTeams');
-		if (!userInfo || !groupInfo) {
+		const orgInfo = await this.graphApiRequest('/organization?$select=id,displayName');
+		if (!userInfo || !orgInfo) {
 			throw this.request.errorHandler.error('noIdentityMatch');
 		}
 		this.request.log('userInfo: ' + JSON.stringify(userInfo, undefined, 5));
-		this.request.log('groupInfo: ' + JSON.stringify(groupInfo, undefined, 5));
+		this.request.log('orgInfo: ' + JSON.stringify(orgInfo, undefined, 5));
 		return {
 			userId: userInfo.id,
-			teamId: groupInfo.value[0] ? groupInfo.value[0].id : null,	// FIXME ... we need a team picker
-			teamName: groupInfo.value[0] ? groupInfo.value[0].displayName : null,
+			teamId: orgInfo.value[0].id,
+			teamName: orgInfo.value[0].displayName,
 			accessToken,
 			username: userInfo.displayName.toLowerCase().replace(/ /g, '_'),
 			fullName: userInfo.displayName,
@@ -46,8 +46,8 @@ class MSTeamsAuthorizer {
 			if (method === '/me') {
 				return this._mockUser(mockCode[1]);
 			}
-			else if (method === '/groups') {
-				return this._mockGroups(mockCode[2]);
+			else if (method === '/organization') {
+				return this._mockOrganization(mockCode[2]);
 			}
 		}
 		try {
@@ -79,7 +79,7 @@ class MSTeamsAuthorizer {
 		};
 	}
 
-	_mockGroups (mockTeamId) {
+	_mockOrganization (mockTeamId) {
 		return {
 			values: [{
 				id: mockTeamId,
