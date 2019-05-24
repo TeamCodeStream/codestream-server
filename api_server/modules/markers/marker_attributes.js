@@ -16,12 +16,12 @@ module.exports = {
 	},
 	postStreamId: {
 		type: 'string',
-		maxLength: 100,
+		maxLength: 150,
 		description: 'ID of the @@#stream#stream@@ of the @@#post#post@@ that references this marker, or can be a third-party stream ID'
 	},
 	postId: {
 		type: 'string',
-		maxLength: 100,
+		maxLength: 150,
 		description: 'ID of the @@#post#post@@ that references this marker, or can be a third-party post ID'
 	},
 	codemarkId: {

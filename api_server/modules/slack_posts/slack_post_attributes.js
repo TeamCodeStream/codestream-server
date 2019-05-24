@@ -10,13 +10,13 @@ module.exports = {
 	},
 	streamId: {
 		type: 'string',
-		maxLength: 100,
+		maxLength: 150,
 		required: true,
 		description: 'ID of the slack stream in which the post was created'
 	},
 	postId: {
 		type: 'string',
-		maxLength: 100,
+		maxLength: 150,
 		required: true,
 		description: 'ID of the slack post that was created'
 	},
@@ -27,7 +27,7 @@ module.exports = {
 	},
 	parentPostId: {
 		type: 'string',
-		maxLength: 100,
+		maxLength: 150,
 		description: 'ID of the parent post to this post' 
 	}
 };
