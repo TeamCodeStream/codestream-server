@@ -8,6 +8,7 @@ const ConfirmCode = require('./confirm_code');
 const UserPublisher = require('./user_publisher');
 const Errors = require('./errors');
 const Indexes = require('./indexes');
+const ConfirmHelper = require('./confirm_helper');
 
 class RegisterRequest extends RestfulRequest {
 
@@ -28,6 +29,9 @@ class RegisterRequest extends RestfulRequest {
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
 		await this.getInvitedUser();		// get the user associated with an invite code, as needed
 		await this.getExistingUser();		// get the existing user matching this email, if any
+		if (await this.doLogin()) {			// under some circumstances, confirmation is not necessary,
+			return;							// and we just log the user in
+		}
 		await this.generateConfirmCode();	// generate a confirmation code, as requested
 		await this.saveUser();				// save user to database
 		await this.generateLinkToken();		// generate a token for the confirm link, as requested
@@ -51,7 +55,7 @@ class RegisterRequest extends RestfulRequest {
 					string: ['email', 'password', 'username']
 				},
 				optional: {
-					string: ['fullName', 'inviteCode', 'timeZone', 'companyName', '_pubnubUuid'],
+					string: ['fullName', 'timeZone', 'companyName', '_pubnubUuid'],
 					number: ['timeout', 'reuseTimeout'],
 					'array(string)': ['secondaryEmails'],
 					object: ['preferences']
@@ -84,6 +88,23 @@ class RegisterRequest extends RestfulRequest {
 			{ searchableEmail: this.request.body.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
+	}
+
+	// under some circumstances, we allow the user to skip confirmation and go right to login
+	async doLogin () {
+		// sometimes confirmation is not required (development environment, or test environment),
+		// or, if the user has an invite code and is registering with the same email that the invite was sent to
+		this.invitedUserWithSameEmail = this.invitedUser && 
+			this.invitedUser.get('email').toLowerCase() === this.request.body.email.toLowerCase();
+		if (this.confirmationRequired && !this.invitedUserWithSameEmail) {
+			return;
+		}
+
+		this.responseData = await new ConfirmHelper({
+			request: this,
+			user: this.invitedUser
+		}).confirm(this.request.body);
+		return true;
 	}
 
 	// generate a confirmation code for the user, we'll send this out to them
@@ -288,7 +309,7 @@ class RegisterRequest extends RestfulRequest {
 
 	// send out the confirmation email with the confirmation code
 	async sendConfirmationEmail () {
-		if (!this.confirmationRequired) {
+		if (!this.confirmationRequired || this.invitedUserWithSameEmail) {
 			return;
 		}
 		if (this._delayEmail) {
