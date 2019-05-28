@@ -134,9 +134,13 @@ class ProviderIdentityConnector {
 		// if we found a user, but we see that the user already has credentials for this provider,
 		// throw an error, we can't allow the user to be logged in for this provider in two different ways (yet)
 		if (user) {
-			const teamId = this.team ? this.team.id : null;
-			const userProviderInfo = user.getProviderInfo(this.provider, teamId);
-			if (userProviderInfo) {
+			const userProviderInfo = user.get('providerInfo') || {};
+			if (Object.keys(userProviderInfo).find(teamId => {
+				return (
+					teamId === this.provider ||
+					userProviderInfo[teamId][this.provider]
+				);
+			})) {
 				throw this.errorHandler.error('duplicateProviderAuth');
 			}
 			this.request.log('Matched user ' + user.id + ' by email');
