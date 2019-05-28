@@ -37,6 +37,7 @@ class ConfirmRequest extends RestfulRequest {
 			return await this.failedConfirmation();
 		}
 		await this.doConfirm();				// call out to confirm helper to finish the confirmation
+		await this.removeSignupTokens();	// remove any signup tokens or invite codes associated with this user
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -253,6 +254,11 @@ class ConfirmRequest extends RestfulRequest {
 		);
 	}
 
+	// remove any old signup tokens associated with this user
+	async removeSignupTokens () {
+		await this.api.services.signupTokens.removeByUserId(this.user.id);
+	}
+	
 	// describe this route for help
 	static describe () {
 		return {

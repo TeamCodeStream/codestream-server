@@ -85,6 +85,18 @@ class SignupTokens {
 		);
 	}
 
+	// remove tokens associated with a particular user
+	async removeByUserId (userId) {
+		// NOTE - there is a concession here ... there is no index for userId on the signupTokens collection
+		// we're assuming that the total number of records in this collection is kept small by the fact
+		// that old tokens are continuously removed, and therefore this query won't be terribly expensive
+		// this is a tradeoff made in favor of maintaining an index for this one case
+		await this.collection.deleteByQuery(
+			{ userId },
+			{ overrideHintRequired: true }
+		);
+	}
+
 	// insert a signup token record
 	async _insert (tokenData, options) {
 		await this.remove(tokenData.token);

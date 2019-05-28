@@ -104,6 +104,8 @@ class RegisterRequest extends RestfulRequest {
 			request: this,
 			user: this.invitedUser
 		}).confirm(this.request.body);
+
+		this.api.services.signupTokens.removeByUserId(this.invitedUser.id);
 		return true;
 	}
 
