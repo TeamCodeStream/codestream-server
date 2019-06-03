@@ -287,6 +287,7 @@ class UserCreator extends ModelCreator {
 			{ 
 				requestId: this.request.request.id,
 				secureExpiresIn: expiresIn,
+				isInviteCode: true,
 				more: {
 					teamId: this.userBeingAddedToTeamId
 				}

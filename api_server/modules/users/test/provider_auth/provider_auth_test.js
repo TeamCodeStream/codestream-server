@@ -268,7 +268,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
-			scope: 'https://graph.microsoft.com/mail.read offline_access',
+			scope: 'User.Read User.Read.All Group.Read.All Group.ReadWrite.All Chat.ReadWrite offline_access',
 			response_mode: 'query',
 			prompt: 'consent'
 		};

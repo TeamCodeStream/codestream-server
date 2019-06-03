@@ -46,6 +46,9 @@ class SignupTokens {
 		if (typeof options.more === 'object') {
 			Object.assign(tokenData, options.more);
 		}
+		if (options.isInviteCode) {
+			tokenData.isInviteCode = true;
+		}
 
 		// we always remove old tokens, keeping the signupTokens collection small
 		await this.removeOldTokens(options);
@@ -86,13 +89,13 @@ class SignupTokens {
 	}
 
 	// remove tokens associated with a particular user
-	async removeByUserId (userId) {
+	async removeInviteCodesByUserId (userId) {
 		// NOTE - there is a concession here ... there is no index for userId on the signupTokens collection
 		// we're assuming that the total number of records in this collection is kept small by the fact
 		// that old tokens are continuously removed, and therefore this query won't be terribly expensive
 		// this is a tradeoff made in favor of maintaining an index for this one case
 		await this.collection.deleteByQuery(
-			{ userId },
+			{ userId, isInviteCode: true },
 			{ overrideHintRequired: true }
 		);
 	}

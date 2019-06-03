@@ -256,7 +256,7 @@ class ConfirmRequest extends RestfulRequest {
 
 	// remove any old signup tokens associated with this user
 	async removeSignupTokens () {
-		await this.api.services.signupTokens.removeByUserId(this.user.id);
+		await this.api.services.signupTokens.removeInviteCodesByUserId(this.user.id);
 	}
 	
 	// describe this route for help
