@@ -25,7 +25,7 @@ class ConfirmHelper {
 	// hash the given password, as needed
 	async hashPassword () {
 		if (!this.data.password) { return; }
-		this.data.passwordHash = await new PasswordHasher({
+		this.passwordHash = await new PasswordHasher({
 			errorHandler: this.request.errorHandler,
 			password: this.data.password
 		}).hashPassword();
