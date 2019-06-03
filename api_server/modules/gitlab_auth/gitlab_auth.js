@@ -2,7 +2,7 @@
 
 'use strict';
 
-const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module.js');
+const OAuthModule = require(process.env.CS_API_TOP + '/lib/oauth/oauth_module.js');
 
 const OAUTH_CONFIG = {
 	provider: 'gitlab',
@@ -16,7 +16,7 @@ const OAUTH_CONFIG = {
 	hasIssues: true
 };
 
-class GitlabAuth extends OAuth2Module {
+class GitlabAuth extends OAuthModule {
 
 	constructor (config) {
 		super(config);

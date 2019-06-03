@@ -1,4 +1,4 @@
-// provide service to handle OAuth2 based authorization
+// provide service to handle OAuth based authorization (either 1.0 or 2.0)
 
 'use strict';
 
@@ -6,8 +6,9 @@ const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_se
 const fetch = require('node-fetch');
 const FormData = require('form-data');
 const Base64 = require('base-64');
+const OAuth = require('oauth').OAuth;
 
-class OAuth2Module extends APIServerModule {
+class OAuthModule extends APIServerModule {
 
 	services () {
 		const { provider } = this.oauthConfig;
@@ -79,8 +80,19 @@ class OAuth2Module extends APIServerModule {
 		return {
 			host: host || this.oauthConfig.host,
 			clientId: clientInfo.appClientId,
-			clientSecret: clientInfo.appClientSecret
+			clientSecret: clientInfo.appClientSecret,
+			clientConsumerKey: clientInfo.appConsumerKey
 		};
+	}
+
+	// does this module use OAuth 1.0 (OAuth 2.0 is the default) 
+	usesOauth1 () {
+		return this.oauthConfig.usesOauth1;
+	}
+	
+	// return the path to use for the authorize step of OAuth 1.0
+	getAuthorizePath () {
+		return this.oauthConfig.authorizePath;
 	}
 
 	// is an auth code for access token exchange required for this provider?
@@ -369,42 +381,39 @@ class OAuth2Module extends APIServerModule {
 
 	// get standard and enterprise instances linked to this third-party provider
 	getInstances () {
-		// get the standard instance, if configured
-		const standardInstances = [];
-		const standardInstance = this.getStandardInstance(this.teams);
-		if (standardInstance) {
-			standardInstances.push(standardInstance);
-		}
+		// get the standard instances, if configured
+		const standardInstance = this.getStandardInstance();
 
 		// get any instances of enterprise hosts given by configuration
-		const enterpriseInstances = this.addInstancesByConfig(this.enterpriseConfig);
+		const instances = this.addInstancesByConfig(this.enterpriseConfig);
 
-		return [...standardInstances, ...enterpriseInstances];
+		if (standardInstance) {
+			instances.push(standardInstance);
+		}
+		return instances;
 	}
 
 	// get the standard in-cloud instance of the third-party provider, if configured
-	getStandardInstance (teams) {
+	getStandardInstance () {
 		const { 
 			host,
 			provider,
 			apiHost,
 			hasIssues,
-			enterpriseOnly,
+			forEnterprise,
 			needsConfigure,
 			disabled,
 			acceptsUserDefinedToken
 		} = this.oauthConfig;
-		const integrationDisabled = disabled && !(teams || []).find(team => {
-			return (team.get('allowedDisabledIntegrations') || []).includes(provider);
-		});
-		const { appClientId, apiKey } = this.apiConfig;
-		if (!integrationDisabled && host && (acceptsUserDefinedToken || enterpriseOnly || appClientId || apiKey)) {
+		const { appClientId, appConsumerKey, apiKey } = this.apiConfig;
+		const hasKey = appClientId || appConsumerKey || apiKey;
+		if (!disabled && host && (acceptsUserDefinedToken || forEnterprise || hasKey)) {
 			const starredHost = host.toLowerCase().replace(/\./g, '*');
 			return {
 				id: starredHost,
 				name: provider,
 				isEnterprise: false,
-				enterpriseOnly,
+				forEnterprise,
 				needsConfigure,
 				host: host.toLowerCase(),
 				apiHost: apiHost ? apiHost.toLowerCase() : undefined,
@@ -429,6 +438,61 @@ class OAuth2Module extends APIServerModule {
 		});
 		return instances;
 	}
+
+	// fetch a request token for modules using OAuth 1.0
+	getRequestToken (options) {
+		this.initOauth1AsNeeded(options);
+		return new Promise((resolve, reject) => {
+			this.oauth1Consumer.getOAuthRequestToken(
+				(error, oauthToken, oauthTokenSecret) => {
+					if (error) {
+						reject(error);
+					}
+					else {
+						resolve({ oauthToken, oauthTokenSecret });
+					}
+				}
+			);
+		});
+	}
+
+	// fetch an access token for modules using OAuth 1.0, given an OAuth token obtained
+	// from the provider-auth request
+	async getOauth1AccessToken (options) {
+		this.initOauth1AsNeeded(options);
+		return new Promise((resolve, reject) => {
+			this.oauth1Consumer.getOAuthAccessToken(
+				options.oauthToken,
+				options.oauthTokenSecret,
+				null,
+				(error, accessToken) => {
+					if (error) {
+						reject(error);
+					}
+					else {
+						resolve({ accessToken });
+					}
+				}
+			);
+		});
+	}
+
+	// init an OAuth 1.0 client for the given client options, as needed
+	initOauth1AsNeeded (options) {
+		if (this.oauth1Consumer) { return; }
+		const clientInfo = this.getClientInfo(options);
+		this.oauth1Consumer = new OAuth(
+			`http://${clientInfo.host}/${this.oauthConfig.requestTokenPath}`,
+			`http://${clientInfo.host}/${this.oauthConfig.accessTokenPath}`,
+			clientInfo.clientConsumerKey,
+			clientInfo.clientSecret,
+			'1.0',
+			null,
+			'RSA-SHA1',
+			null,
+			null
+		);
+	}
 }
 
-module.exports = OAuth2Module;
+module.exports = OAuthModule;

@@ -2,7 +2,7 @@
 
 'use strict';
 
-const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module.js');
+const OAuthModule = require(process.env.CS_API_TOP + '/lib/oauth/oauth_module.js');
 const SlackAuthorizer = require('./slack_authorizer');
 
 const OAUTH_CONFIG = {
@@ -15,7 +15,7 @@ const OAUTH_CONFIG = {
 	scopes: 'identify client'
 };
 
-class SlackAuth extends OAuth2Module {
+class SlackAuth extends OAuthModule {
 
 	constructor (config) {
 		super(config);

@@ -119,6 +119,10 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// decode the state token and validate
 	async validateState () {
+		if (this.serviceAuth.usesOauth1()) {
+			// information is waiting for us in a cookie instead
+			return this.extractTokenFromCookie();
+		}
 		if (!this.request.query.state) {
 			throw this.errorHandler.error('parameterRequired', { info: 'state' });
 		}
@@ -161,6 +165,9 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// perform an exchange of auth code for access token, as needed
 	async exchangeAuthCodeForToken () {
+		if (this.serviceAuth.usesOauth1()) {
+			return await this.getOauth1AccessToken();
+		}
 		if (!this.serviceAuth.exchangeRequired()) {
 			return;
 		}
@@ -168,7 +175,6 @@ class ProviderTokenRequest extends RestfulRequest {
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 		const options = {
 			code: this.request.query.code || '',
-			provider: this.provider,
 			state: this.request.query.state,
 			redirectUri, 
 			request: this,
@@ -183,6 +189,45 @@ class ProviderTokenRequest extends RestfulRequest {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			throw this.errorHandler.error('updateAuth', { info: message });
 		}
+	}
+
+	// extract stored token information from cookie, for OAuth 1.0
+	extractTokenFromCookie () {
+		const cookie = `rt-${this.provider}`;
+		const token = this.request.signedCookies[cookie];
+		if (!token) {
+			throw this.errorHandler.error('updateAuth', { info: 'token information not found' });
+		}
+		this.response.clearCookie(cookie, {
+			secure: true,
+			signed: true
+		});
+		try {
+			this.oauthToken = JSON.parse(token);
+		}
+		catch (error) {
+			throw this.errorHandler.error('updateAuth', { info: 'invalid token information' });
+		}
+		this.userId = this.oauthToken.userId;
+		this.teamId = this.oauthToken.teamId;
+		this.host = this.oauthToken.host;
+	}
+
+	// get an OAuth 1.0 access token
+	async getOauth1AccessToken () {
+		const team = await this.data.teams.getById(this.teamId);
+		if (!team) {
+			throw this.errorHandler.error('notFound', { info: 'team' });
+		}
+		const { oauthToken, oauthTokenSecret } = this.oauthToken;
+		const options = {
+			request: this,
+			oauthToken,
+			oauthTokenSecret,
+			host: this.host,
+			team: team
+		};
+		this.tokenData = await this.serviceAuth.getOauth1AccessToken(options);
 	}
 
 	// get the user initiating the auth request
@@ -305,7 +350,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	async sendResponse () {
 		const host = this.api.config.webclient && this.api.config.webclient.marketingHost;
 		const authCompletePage = this.serviceAuth.getAuthCompletePage();
-		const redirect = this.tokenPayload.url ? 
+		const redirect = this.tokenPayload && this.tokenPayload.url ? 
 			`${decodeURIComponent(this.tokenPayload.url)}?state=${this.request.query.state}` :
 			`${host}/auth-complete/${authCompletePage}`;
 		this.response.redirect(redirect);

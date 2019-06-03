@@ -19,11 +19,21 @@ class ProviderAuthRequest extends RestfulRequest {
 
 	// process the request...
 	async process () {
+
+		// get the provider service corresponding to the passed provider
+		this.provider = this.request.params.provider.toLowerCase();
+		this.serviceAuth = this.api.services[`${this.provider}Auth`];
+		if (!this.serviceAuth) {
+			throw this.errorHandler.error('unknownProvider', { info: this.provider });
+		}
+
 		await this.requireAndAllow();	// require certain parameters, discard unknown parameters
+		await this.extractFromAuthCode();	// extract the payload from the auth code
 		if (this.request.query.host) {
 			// if there is a host, we might need to get the host info based on the team
 			await this.getTeam();
 		}
+		await this.getRequestToken();	// get request token, as needed (for OAuth 1.0)
 		await this.performRedirect();	// perform whatever redirect is necessary to initiate the authorization
 	}
 
@@ -42,29 +52,59 @@ class ProviderAuthRequest extends RestfulRequest {
 		);
 	}
 
-	// get the team associated with the auth-code, in case we need to find enterprise-specific client info
-	async getTeam () {
-		let payload;
+	// extract the payload from the auth code
+	async extractFromAuthCode () {
 		try {
-			payload = this.api.services.tokenHandler.decode(this.request.query.code);
+			this.payload = this.api.services.tokenHandler.decode(this.request.query.code);
 		}
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;
 			throw this.errorHandler.error('tokenInvalid', { reason: message });
 		}
-		if (payload.type !== 'pauth') {
+		if (this.payload.type !== 'pauth') {
 			throw this.errorHandler.error('tokenInvalid', { reason: 'not a provider authorization token' });
 		}
-		this.team = await this.data.teams.getById(payload.teamId);
+	}
+
+	// get the team associated with the auth-code, in case we need to find enterprise-specific client info
+	async getTeam () {
+		this.team = await this.data.teams.getById(this.payload.teamId);
+	}
+
+	// get a request token, for modules implementing OAuth 1.0 (yuckers)
+	async getRequestToken () {
+		if (!this.serviceAuth.usesOauth1()) {
+			return;
+		}
+		let { host } = this.request.query;
+		const options = {
+			request: this,
+			host,
+			team: this.team
+		};
+
+		// once we obtain the token, we need it not only for the redirect, but for the callback,
+		// but it won't survive the direct so we need to store it as a cookie --- yuckers
+		this.requestTokenInfo = await this.serviceAuth.getRequestToken(options);
+		const cookie = `rt-${this.provider}`;
+		const token = JSON.stringify({
+			oauthToken: this.requestTokenInfo.oauthToken,
+			oauthTokenSecret: this.requestTokenInfo.oauthTokenSecret,
+			userId: this.payload.userId,
+			teamId: this.payload.teamId,
+			host
+		});
+		this.response.cookie(cookie, token, {
+			secure: true,
+			signed: true
+		});
 	}
 
 	// response with a redirect to the third-party provider
 	async performRedirect () {
-		// get the provider service corresponding to the passed provider
-		this.provider = this.request.params.provider.toLowerCase();
-		this.serviceAuth = this.api.services[`${this.provider}Auth`];
-		if (!this.serviceAuth) {
-			throw this.errorHandler.error('unknownProvider', { info: this.provider });
+		// for modules following OAuth 1.0....
+		if (this.serviceAuth.usesOauth1()) {
+			return await this.performOauth1Redirect();
 		}
 
 		// set up options for initiating a redirect for the particular service
@@ -89,7 +129,6 @@ class ProviderAuthRequest extends RestfulRequest {
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 		const options = {
 			state,
-			provider: this.provider,
 			request: this,
 			redirectUri,
 			host,
@@ -102,6 +141,18 @@ class ProviderAuthRequest extends RestfulRequest {
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
 		this.response.redirect(`${url}?${query}`);
+		this.responseHandled = true;
+	}
+
+	// perform an OAuth 1.0 redirect, for those modules that only support OAuth 1.0
+	async performOauth1Redirect () {
+		const { host } = this.request.query;
+		const authOrigin = `${this.api.config.api.publicApiUrl}/no-auth`;
+		const callback = encodeURIComponent(`${authOrigin}/provider-token/${this.provider}`);
+		const authorizePath = this.serviceAuth.getAuthorizePath();
+		const clientInfo = this.serviceAuth.getClientInfo({ host, team: this.team });
+		const url = `http://${clientInfo.host}/${authorizePath}?oauth_token=${this.requestTokenInfo.oauthToken}&oauth_callback=${callback}`;
+		this.response.redirect(url);
 		this.responseHandled = true;
 	}
 

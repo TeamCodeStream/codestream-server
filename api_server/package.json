@@ -34,6 +34,7 @@
     "msal": "0.2.4",
     "node-fetch": "2.5.0",
     "node-ipc": "9.1.1",
+    "oauth": "0.9.15",
     "pubnub": "4.24.0",
     "socketcluster-client": "14.2.2",
     "strftime": "0.10.0",

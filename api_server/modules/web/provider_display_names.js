@@ -4,6 +4,7 @@ module.exports = {
 	'gitlab': 'GitLab',
 	'trello': 'Trello',
 	'jira': 'Jira',
+	'jiraserver': 'Jira Server',
 	'asana': 'Asana',
 	'youtrack': 'YouTrack',
 	'slack': 'Slack',

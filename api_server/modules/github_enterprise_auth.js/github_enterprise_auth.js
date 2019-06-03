@@ -1,22 +1,22 @@
-// provide service to handle github credential authorization
+// provide service to handle GitHub Enterprise credential authorization
 
 'use strict';
 
 const OAuthModule = require(process.env.CS_API_TOP + '/lib/oauth/oauth_module.js');
 
 const OAUTH_CONFIG = {
-	provider: 'github',
-	host: 'github.com',
-	apiHost: 'api.github.com',
+	provider: 'github_enterprise',
+	host: 'github.com/enterprise',
 	authPath: 'login/oauth/authorize',
 	tokenPath: 'login/oauth/access_token',
 	exchangeFormat: 'query',
 	scopes: 'repo,user',
 	noGrantType: true,
-	hasIssues: true
+	hasIssues: true,
+	forEnterprise: true
 };
 
-class GithubAuth extends OAuthModule {
+class GithubEnterpriseAuth extends OAuthModule {
 
 	constructor (config) {
 		super(config);
@@ -24,4 +24,4 @@ class GithubAuth extends OAuthModule {
 	}
 }
 
-module.exports = GithubAuth;
+module.exports = GithubEnterpriseAuth;

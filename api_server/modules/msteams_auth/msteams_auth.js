@@ -2,7 +2,7 @@
 
 'use strict';
 
-const OAuth2Module = require(process.env.CS_API_TOP + '/lib/oauth2/oauth2_module.js');
+const OAuthModule = require(process.env.CS_API_TOP + '/lib/oauth/oauth_module.js');
 const MSTeamsAuthorizer = require('./msteams_authorizer');
 
 const OAUTH_CONFIG = {
@@ -28,7 +28,7 @@ const OAUTH_CONFIG = {
 	mockAccessTokenExpiresIn: 3600
 };
 
-class MSTeamsAuth extends OAuth2Module {
+class MSTeamsAuth extends OAuthModule {
 
 	constructor (config) {
 		super(config);

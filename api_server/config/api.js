@@ -66,8 +66,10 @@ ApiCfg.thirdPartyProviders = [
 	'azuredevops',
 	'bitbucket',
 	'github',
+	'github_enterprise',
 	'gitlab',
 	'jira',
+	'jiraserver',
 	'slack',
 	'trello',
 	'youtrack'
