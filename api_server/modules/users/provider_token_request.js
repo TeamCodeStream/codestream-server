@@ -303,7 +303,7 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// send the response html
 	async sendResponse () {
-		const host = this.api.config.webclient.marketingHost;
+		const host = this.api.config.webclient && this.api.config.webclient.marketingHost;
 		const authCompletePage = this.serviceAuth.getAuthCompletePage();
 		const redirect = this.tokenPayload.url ? 
 			`${decodeURIComponent(this.tokenPayload.url)}?state=${this.request.query.state}` :
