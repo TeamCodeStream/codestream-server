@@ -11,13 +11,13 @@ let Secrets = {};
 let HttpsCfg = {};
 let CfgFileName = process.env.CS_BROADCASTER_CFG_FILE || process.env.CODESTREAM_CFG_FILE;
 if (CfgFileName) {
+	console.log("loading config file", CfgFileName);
 	let CfgFile = require(CfgFileName);
 	MongoCfg = CfgFile.mongo;
 	LoggerCfg = { ...LoggerCfg, ...CfgFile.broadcastEngine.codestreamBroadcaster.logger};
 	Secrets = CfgFile.broadcastEngine.codestreamBroadcaster.secrets;
 	Secrets.subscriptionCheat = CfgFile.secrets.subscriptionCheat;
 	HttpsCfg = { ...CfgFile.apiProtocol.https, ...{ port: CfgFile.broadcastEngine.codestreamBroadcaster.port.toString() } };
-	console.log("using config file");
 }
 else {
 	// mongo url can come from either a raw supplied url or from individual components,
