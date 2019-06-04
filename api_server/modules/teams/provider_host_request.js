@@ -88,7 +88,8 @@ class ProviderHostRequest extends RestfulRequest {
 						hasIssues: serviceAuth.hasIssues()
 					}
 				}
-			}
+			},
+			providerId: starredHost
 		};
 	}
 
