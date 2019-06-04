@@ -24,7 +24,7 @@ const ProviderDeauthRequestTester = require('./provider_deauth/test');
 const ProviderRefreshRequestTester = require('./provider_refresh/test');
 const ProviderSetTokenRequestTester = require('./provider_set_token/test');
 const BumpPostsRequestTester = require('./bump_posts/test');
-const InviteInfoRequestTester = require('./invite_info/test');
+//const InviteInfoRequestTester = require('./invite_info/test');
 
 const userRequestTester = new UserRequestTester();
 
@@ -63,5 +63,5 @@ describe('user requests', function() {
 	describe('GET /provider-refresh/:provider', ProviderRefreshRequestTester.test);
 	describe('PUT /provider-set-token/:provider', ProviderSetTokenRequestTester.test);
 	describe('PUT /bump-posts', BumpPostsRequestTester.test);
-	describe('GET /no-auth/invite-info', InviteInfoRequestTester.test);
+	//describe('GET /no-auth/invite-info', InviteInfoRequestTester.test);
 });
