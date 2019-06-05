@@ -13,9 +13,8 @@ const OAUTH_CONFIG = {
 	authorizePath: 'plugins/servlet/oauth/authorize',
 	accessTokenPath: 'plugins/servlet/oauth/access-token',
 	hasIssues: true,
-	forEnterprise: true,
 	needsConfigure: true,
-	disabled: true
+	forEnterprise: true
 };
 
 class JiraServerAuth extends OAuthModule {

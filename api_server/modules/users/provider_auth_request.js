@@ -151,7 +151,7 @@ class ProviderAuthRequest extends RestfulRequest {
 		const callback = encodeURIComponent(`${authOrigin}/provider-token/${this.provider}`);
 		const authorizePath = this.serviceAuth.getAuthorizePath();
 		const clientInfo = this.serviceAuth.getClientInfo({ host, team: this.team });
-		const url = `http://${clientInfo.host}/${authorizePath}?oauth_token=${this.requestTokenInfo.oauthToken}&oauth_callback=${callback}`;
+		const url = `${clientInfo.host}/${authorizePath}?oauth_token=${this.requestTokenInfo.oauthToken}&oauth_callback=${callback}`;
 		this.response.redirect(url);
 		this.responseHandled = true;
 	}

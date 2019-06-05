@@ -44,7 +44,7 @@ class OAuthModule extends APIServerModule {
 		if (additionalAuthCodeParameters) {
 			Object.assign(parameters, additionalAuthCodeParameters);
 		}
-		const url = `https://${clientInfo.host}/${authPath}`;
+		const url = `${clientInfo.host}/${authPath}`;
 		return { url, parameters };
 	}
 	
@@ -78,10 +78,8 @@ class OAuthModule extends APIServerModule {
 			clientInfo = this.apiConfig;
 		}
 		return {
-			host: host || this.oauthConfig.host,
-			clientId: clientInfo.appClientId,
-			clientSecret: clientInfo.appClientSecret,
-			clientConsumerKey: clientInfo.appConsumerKey
+			host: host || `https://${this.oauthConfig.host}`,
+			oauthData: clientInfo.oauthData
 		};
 	}
 
@@ -187,7 +185,7 @@ class OAuthModule extends APIServerModule {
 		// must exchange the provided authorization code for an access token,
 		// prepare parameters for the token exchange request
 		const parameters = this.prepareTokenExchangeParameters(options, clientInfo);
-		const url = `https://${clientInfo.host}/${tokenPath}`;
+		const url = `${clientInfo.host}/${tokenPath}`;
 		// for testing, we do a mock reply instead of an actual call out to the provider
 		if (mockToken) {
 			return this.makeMockData(url, parameters, mockToken);
@@ -405,8 +403,8 @@ class OAuthModule extends APIServerModule {
 			disabled,
 			acceptsUserDefinedToken
 		} = this.oauthConfig;
-		const { appClientId, appConsumerKey, apiKey } = this.apiConfig;
-		const hasKey = appClientId || appConsumerKey || apiKey;
+		const { appClientId, apiKey } = this.apiConfig;
+		const hasKey = appClientId || apiKey;
 		if (!disabled && host && (acceptsUserDefinedToken || forEnterprise || hasKey)) {
 			const starredHost = host.toLowerCase().replace(/\./g, '*');
 			return {
@@ -433,7 +431,8 @@ class OAuthModule extends APIServerModule {
 				name: provider,
 				isEnterprise: true,
 				host: destarredHost,
-				hasIssues
+				hasIssues,
+				oauthData: config[host].oauthData
 			});
 		});
 		return instances;
@@ -470,7 +469,7 @@ class OAuthModule extends APIServerModule {
 						reject(error);
 					}
 					else {
-						resolve({ accessToken });
+						resolve({ accessToken, oauthTokenSecret: options.oauthTokenSecret });
 					}
 				}
 			);
@@ -481,11 +480,13 @@ class OAuthModule extends APIServerModule {
 	initOauth1AsNeeded (options) {
 		if (this.oauth1Consumer) { return; }
 		const clientInfo = this.getClientInfo(options);
+		const { oauthData } = clientInfo || {};
+		const { consumerKey, privateKey } = oauthData;
 		this.oauth1Consumer = new OAuth(
-			`http://${clientInfo.host}/${this.oauthConfig.requestTokenPath}`,
-			`http://${clientInfo.host}/${this.oauthConfig.accessTokenPath}`,
-			clientInfo.clientConsumerKey,
-			clientInfo.clientSecret,
+			`${clientInfo.host}/${this.oauthConfig.requestTokenPath}`,
+			`${clientInfo.host}/${this.oauthConfig.accessTokenPath}`,
+			consumerKey,
+			privateKey,
 			'1.0',
 			null,
 			'RSA-SHA1',

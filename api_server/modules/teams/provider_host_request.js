@@ -40,7 +40,8 @@ class ProviderHostRequest extends RestfulRequest {
 					string: ['host']
 				},
 				optional: {
-					string: ['appClientId', 'appClientSecret', 'apiKey']
+					string: ['appClientId', 'appClientSecret', 'apiKey'],
+					object: ['oauthData']
 				}
 			}
 		);
@@ -74,22 +75,21 @@ class ProviderHostRequest extends RestfulRequest {
 			id: this.team.id
 		}).save(op);
 
+		const instances = serviceAuth.getInstancesByConfig({
+			[host]: {
+				oauthData: data.oauthData
+			}
+		});
 		this.responseData = {
 			team: {
 				id: this.team.id,
 				_id: this.team.id,	// DEPRECATE ME
 				$set: {
 					modifiedAt: now,
-					[`providerHosts.${starredHost}`]: {
-						id: starredHost,
-						host,
-						name: provider,
-						isEnterprise: true,
-						hasIssues: serviceAuth.hasIssues()
-					}
-				}
+					[`providerHosts.${starredHost}`]: instances[0]
+				},
 			},
-			providerId: starredHost
+			providerId: instances[0].id
 		};
 	}
 
