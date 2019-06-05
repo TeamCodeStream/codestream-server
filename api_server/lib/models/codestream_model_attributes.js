@@ -1,4 +1,4 @@
-// attributes that apply to all CodeSteam models
+// attributes that apply to all CodeStream models
 
 'use strict';
 
