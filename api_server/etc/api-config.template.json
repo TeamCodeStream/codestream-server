@@ -15,7 +15,6 @@
 		"confirmationExpiration": 86400000,
 		"confirmCodeExpiration": 604800000,
 		"signupTokenExpiration": 600000,
-		"inviteCodeExpiration": 31536000000,
 		"assetEnvironment": "{{ CS_API_ASSET_ENV }}",
 		"publicApiUrl": "{{ CS_API_PUBLIC_URL }}",
 		"authOrigin": "{{ CS_API_AUTH_ORIGIN }}",

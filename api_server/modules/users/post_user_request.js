@@ -66,16 +66,12 @@ class PostUserRequest extends PostRequest {
 
 	// create the user, if needed
 	async createUser () {
-		let expiresIn;
-		if (this.inviteCodeExpiresIn && this.inviteCodeExpiresIn < this.request.api.config.api.inviteCodeExpiration) {
-			expiresIn = this.inviteCodeExpiresIn;
-		}
 		this.userCreator = new UserCreator({
 			request: this,
 			teamIds: [this.team.id],
 			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
 			userBeingAddedToTeamId: this.team.id,
-			inviteCodeExpiresIn: expiresIn
+			inviteCodeExpiresIn: this.inviteCodeExpiresIn
 		});
 		const userData = {
 			email: this.request.body.email

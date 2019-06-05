@@ -27,15 +27,9 @@ else {
 		// how long a confirmation code remains valid
 		confirmCodeExpiration: parseInt(process.env.CS_API_CONFIRM_CODE_EXPIRATION || 7 * 24 * 60 * 60 * 1000, 10),
 
-		// how long we can use the same confirmation code for
-		confirmationCodeUsabilityWindow: parseInt(process.env.CS_API_CONFIRMATION_CODE_USABILITY_WINDOW || 60 * 60 * 1000),
-
 		// how long a signup token issued by the IDE for a user to signup on web remains valid
 		signupTokenExpiration: parseInt(process.env.CS_API_SIGNUP_TOKEN_EXPIRATION || 10 * 60 * 1000, 10),
 
-		// how long an invite code remains valid
-		inviteCodeExpiration: parseInt(process.env.CS_API_INVITE_CODE_EXPIRATION || 365 * 24 * 60 * 60 * 1000, 10),
-		
 		// environment for purposes of returning the correct asset URL for downloading the latest extension
 		// (supports only vscode right now, TBD how to deal with multiple IDEs)
 		assetEnvironment: process.env.CS_API_ASSET_ENV || 'prod',

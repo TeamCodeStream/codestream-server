@@ -10,6 +10,9 @@ const Errors = require('./errors');
 const Indexes = require('./indexes');
 const ConfirmHelper = require('./confirm_helper');
 
+// how long we can use the same confirmation code for
+const CONFIRMATION_CODE_USABILITY_WINDOW = 60 * 60 * 1000;
+
 class RegisterRequest extends RestfulRequest {
 
 	constructor (options) {
@@ -131,8 +134,8 @@ class RegisterRequest extends RestfulRequest {
 			let timeout = this.request.body.timeout || this.api.config.api.confirmCodeExpiration;
 			timeout = Math.min(timeout, this.api.config.api.confirmCodeExpiration);
 			this.request.body.confirmationCodeExpiresAt = Date.now() + timeout;
-			let reuseTimeout = this.request.body.reuseTimeout || this.api.config.api.confirmationCodeUsabilityWindow;
-			reuseTimeout = Math.min(reuseTimeout, this.api.config.api.confirmationCodeUsabilityWindow);
+			let reuseTimeout = this.request.body.reuseTimeout || CONFIRMATION_CODE_USABILITY_WINDOW;
+			reuseTimeout = Math.min(reuseTimeout, CONFIRMATION_CODE_USABILITY_WINDOW);
 			this.request.body.confirmationCodeUsableUntil = Date.now() + reuseTimeout;
 		}
 		delete this.request.body.timeout;

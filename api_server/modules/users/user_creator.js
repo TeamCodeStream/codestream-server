@@ -14,6 +14,9 @@ const UsernameValidator = require('./username_validator');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 const UUID = require('uuid/v4');
 
+// how long an invite code remains valid
+const INVITE_CODE_EXPIRATION = 365 * 24 * 60 * 60 * 1000;
+
 class UserCreator extends ModelCreator {
 
 	constructor (options) {
@@ -280,7 +283,8 @@ class UserCreator extends ModelCreator {
 			return;
 		}
 
-		let expiresIn = this.inviteCodeExpiresIn || this.request.api.config.api.inviteCodeExpiration;
+		let expiresIn = this.inviteCodeExpiresIn && this.inviteCodeExpiresIn < INVITE_CODE_EXPIRATION ?
+			this.inviteCodeExpiresIn : undefined;
 		await this.api.services.signupTokens.insert(
 			this.inviteCode,
 			this.model.id,
