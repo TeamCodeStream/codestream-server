@@ -76,7 +76,7 @@ class ProviderHostRequest extends RestfulRequest {
 		}).save(op);
 
 		const instances = serviceAuth.getInstancesByConfig({
-			[host]: {
+			[starredHost]: {
 				oauthData: data.oauthData
 			}
 		});
@@ -89,7 +89,7 @@ class ProviderHostRequest extends RestfulRequest {
 					[`providerHosts.${starredHost}`]: instances[0]
 				},
 			},
-			providerId: instances[0].id
+			providerId: starredHost
 		};
 	}
 

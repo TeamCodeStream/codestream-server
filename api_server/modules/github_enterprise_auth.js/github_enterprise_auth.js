@@ -13,7 +13,8 @@ const OAUTH_CONFIG = {
 	scopes: 'repo,user',
 	noGrantType: true,
 	hasIssues: true,
-	forEnterprise: true
+	forEnterprise: true,
+	authCompletePage: 'github'
 };
 
 class GithubEnterpriseAuth extends OAuthModule {

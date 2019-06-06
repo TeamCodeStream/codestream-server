@@ -79,7 +79,9 @@ class OAuthModule extends APIServerModule {
 		}
 		return {
 			host: host || `https://${this.oauthConfig.host}`,
-			oauthData: clientInfo.oauthData
+			oauthData: clientInfo.oauthData,
+			clientId: clientInfo.appClientId,
+			clientSecret: clientInfo.appClientSecret,
 		};
 	}
 
