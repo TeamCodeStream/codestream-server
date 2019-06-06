@@ -15,32 +15,26 @@ const PROVIDERS = [
 	'jira',
 	'gitlab',
 	'bitbucket',
-	'youtrack',
+	//'youtrack',
 	'azuredevops',
 	'msteams'
 	//'glip'
 ];
 
 const ENTERPRISE_PROVIDERS = {
-	'github': 'git.codestream.us',
-	'youtrack': 'teamcodestream.youtrack.com'
+//	'github_enterprise': 'https://git.codestream.us',
+//	'jiraserver': 'https://jira.codestream.us'
 };
-
-const ENTERPRISE_ONLY_PROVIDERS = [
-	'youtrack'
-];
 
 class ProviderAuthRequestTester {
 
 	test () {
 		PROVIDERS.forEach(provider => {
-			if (!ENTERPRISE_ONLY_PROVIDERS.includes(provider)) {
-				new ProviderAuthTest({ provider }).test();
-			}
-			if (Object.keys(ENTERPRISE_PROVIDERS).includes(provider)) {
-				new ProviderAuthTest({ provider, testHost: ENTERPRISE_PROVIDERS[provider] }).test();
-				new InvalidHostTest({ provider, testHost: ENTERPRISE_PROVIDERS[provider], testRequestHost: 'nothing.nothing.com' }).test();
-			}
+			new ProviderAuthTest({ provider }).test();
+		});
+		Object.keys(ENTERPRISE_PROVIDERS).forEach(provider => {
+			new ProviderAuthTest({ provider, testHost: ENTERPRISE_PROVIDERS[provider] }).test();
+			new InvalidHostTest({ provider, testHost: ENTERPRISE_PROVIDERS[provider], testRequestHost: 'nothing.nothing.com' }).test();
 		});
 		new UnknownProviderTest().test();
 		new NoCodeTest({ provider: 'github' }).test();

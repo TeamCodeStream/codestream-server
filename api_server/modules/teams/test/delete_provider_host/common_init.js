@@ -61,7 +61,7 @@ class CommonInit {
 			hasIssues: true,
 			host: this.controlProviderHostData.host
 		};
-		const starredHost = this.host.replace(/\./g, '*');
+		const starredHost = encodeURIComponent(this.host.replace(/\./g, '*')).toLowerCase();
 		this.path = `/provider-host/${this.provider}/${this.team.id}/${starredHost}`;
 		this.modifiedAfter = Date.now();
 		this.expectedData = {
@@ -86,7 +86,7 @@ class CommonInit {
 
 	// perform the actual deletion of the host 
 	deleteProviderHost (callback) {
-		const starredHost = this.host.replace(/\./g, '*');
+		const starredHost = encodeURIComponent(this.host.replace(/\./g, '*')).toLowerCase();
 		this.doApiRequest(
 			{
 				method: 'delete',

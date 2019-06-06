@@ -6,8 +6,7 @@ const OAuthModule = require(process.env.CS_API_TOP + '/lib/oauth/oauth_module.js
 
 const OAUTH_CONFIG = {
 	provider: 'jiraserver',
-	host: 'localhost:8080',
-	apiHost: 'localhost:8080',
+	host: 'jiraserver/enterprise',
 	usesOauth1: true,
 	requestTokenPath: 'plugins/servlet/oauth/request-token',
 	authorizePath: 'plugins/servlet/oauth/authorize',

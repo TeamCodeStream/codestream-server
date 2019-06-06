@@ -43,7 +43,8 @@ class CommonInit {
 					before: 3,
 					after: 4
 				}
-			}
+			},
+			providerId: starredHost
 		};
 		callback();
 	}

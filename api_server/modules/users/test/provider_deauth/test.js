@@ -14,7 +14,7 @@ const PROVIDERS = [
 	'jira',
 	'gitlab',
 	'bitbucket',
-	'youtrack',
+	//'youtrack',
 	'azuredevops',
 	'slack',
 	'msteams',
@@ -22,27 +22,21 @@ const PROVIDERS = [
 ];
 
 const ENTERPRISE_PROVIDERS = {
-	'github': 'git.codestream.us',
-	'youtrack': 'teamcodestream.youtrack.com'
+//	'github_enterprise': 'https://git.codestream.us',
+//	'jiraserver': 'https://jira.codestream.us'
 };
-
-const ENTERPRISE_ONLY_PROVIDERS = [
-	'youtrack'
-];
 
 class ProviderDeauthRequestTester {
 
 	test () {
 		PROVIDERS.forEach(provider => {
-			if (!ENTERPRISE_ONLY_PROVIDERS.includes(provider)) {
-				new ProviderDeauthTest({ provider }).test();
-				new MessageTest({ provider }).test();
-			}
-			if (Object.keys(ENTERPRISE_PROVIDERS).includes(provider)) {
-				const testHost = ENTERPRISE_PROVIDERS[provider];
-				new ProviderDeauthTest({ provider, testHost }).test();
-				new MessageTest({ provider, testHost }).test();
-			}
+			new ProviderDeauthTest({ provider }).test();
+			new MessageTest({ provider }).test();
+		});
+		Object.keys(ENTERPRISE_PROVIDERS).forEach(provider => {
+			const testHost = ENTERPRISE_PROVIDERS[provider];
+			new ProviderDeauthTest({ provider, testHost }).test();
+			new MessageTest({ provider, testHost }).test();
 		});
 		new NoTeamIdTest({ provider: 'trello' }).test();
 	}

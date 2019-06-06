@@ -13,16 +13,12 @@ const MessageToTeamTest = require('./message_to_team_test');
 
 const TEST_HOSTS = [
 	{
-		provider: 'github',
-		host: 'git.codestream.us'
+		provider: 'github_enterprise',
+		host: 'https://git.codestream.us'
 	},
 	{
-		provider: 'youtrack',
-		host: 'teamcodestream.youtrack.com'
-	},
-	{
-		provider: 'jira',
-		host: 'jira.codestream.us'
+		provider: 'jiraserver',
+		host: 'https://jira.codestream.us'
 	}
 ];
 

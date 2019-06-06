@@ -6,7 +6,7 @@ const OAuthModule = require(process.env.CS_API_TOP + '/lib/oauth/oauth_module.js
 
 const OAUTH_CONFIG = {
 	provider: 'github_enterprise',
-	host: 'github.com/enterprise',
+	host: 'github/enterprise',
 	authPath: 'login/oauth/authorize',
 	tokenPath: 'login/oauth/access_token',
 	exchangeFormat: 'query',

@@ -72,6 +72,14 @@ const STANDARD_PROVIDER_HOSTS = {
 		apiHost: 'api.github.com',
 		hasIssues: true
 	},
+	'github/enterprise': {
+		id: 'github/enterprise',
+		name: 'github_enterprise',
+		isEnterprise: false,
+		forEnterprise: true,
+		host: 'github/enterprise',
+		hasIssues: true
+	},
 	'gitlab*com': {
 		id: 'gitlab*com',
 		name: 'gitlab',
@@ -86,6 +94,15 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		host: 'auth.atlassian.com',
 		apiHost: 'api.atlassian.com',
+		hasIssues: true
+	},
+	'jiraserver/enterprise': {
+		id: 'jiraserver/enterprise',
+		name: 'jiraserver',
+		isEnterprise: false,
+		forEnterprise: true,
+		needsConfigure: true,
+		host: 'jiraserver/enterprise',
 		hasIssues: true
 	},
 	'trello*com': {
