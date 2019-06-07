@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo "Git hook $0 is running (pwd=`pwd`, args=$*)"
+# squash_merge=$1
+
+. $GIT_DIR/hooks/git_hooks.sh || exit 1
+githook_file_has_changed package.json || update_docs
+exit 0

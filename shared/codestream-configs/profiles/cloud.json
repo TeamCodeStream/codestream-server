@@ -1,0 +1,151 @@
+// This profile is used for various cloud environments including qa, prod, pd, etc...
+// Services:
+//    - pubnub
+//    - sendgrid
+//    - SQS
+//    - api + mongo consolidated to one host
+//    - inbound email on dedicated host
+//    - outbound email as lambda func
+//
+// - Default values represent non-local development environments (values for local
+//   can be found in variables.json)
+{
+	"ssl": {
+		"prod": {
+			"certfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-crt",
+			"cafile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-ca",
+			"keyfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-key"
+		},
+		"defaultEnv": {
+			"certfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt",
+			"cafile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-ca",
+			"keyfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-key"
+		}
+	},
+
+	"sharedSecrets": {
+		"local": {
+			"_loadFile": "secrets/codestream/local-secrets"
+		},
+		"prod": {
+			"_loadFile": "secrets/codestream/production-secrets"
+		},
+		"qa": {
+			"_loadFile": "secrets/codestream/qa-secrets"
+		},
+		"defaultEnv": {
+			"_loadFile": "secrets/codestream/dev-secrets"
+		}
+	},
+
+	"email": {
+		"defaultEnv": {
+			"emailTo": "",
+			"senderEmail": "{CSSVC_ENV}_alerts@codestream.com",
+			"supportEmail": "{CSSVC_ENV}_support@codestream.com",
+			"replyToDomain": "{CSSVC_ENV}.codestream.com"
+		}
+	},
+
+	"broadcastEngine": {
+		"pubnub": {
+			"local": {
+				"_loadFile": "secrets/pubnub/CodeStream-Development-Local_Keyset_1"
+			},
+			"ci": {
+				"_loadFile": "secrets/pubnub/CodeStream-Development-CI_Keyset"
+			},
+			"prod": {
+				"_loadFile": "secrets/pubnub/CodeStream-Production-Prod_Keyset"
+			},
+			"qa": {
+				"_loadFile": "secrets/pubnub/CodeStream-Testing-QA_Keyset"
+			},
+			"defaultEnv": {
+				"_loadFile": "secrets/pubnub/CodeStream-Development-PD_Keyset"
+			},
+		}
+	},
+
+	"queuingEngine": {
+		"awsSQS": {
+			"defaultEnv": {
+				"outboundEmailQueueName": "{CSSVC_ENV}_outboundEmail"
+			}
+		}
+	},
+
+	"emailDeliveryService": {
+		"sendgrid": {
+			"qa": {
+				"_loadFile": "secrets/sendgrid/qa"
+			},
+			"prod": {
+				"_loadFile": "secrets/sendgrid/prod"
+			},
+			"defaultEnv": {
+				"_loadFile": "secrets/sendgrid/development"
+			}
+		}
+	},
+
+	"storage": {
+		"mongo": {
+			"qa": {
+				"_loadFile": "secrets/mongo/qa-codestream-dbowner"
+			},
+			"prod": {
+				"_loadFile": "secrets/mongo/prod-codestream-dbowner"
+			},
+			"defaultEnv": {
+				"url": "mongodb://{CSSVC_ENV}.codestream.us/codestream"
+			}
+		}
+	},
+
+	"telemetry": {
+		"segment": {
+			"prod": {
+				"_loadFile": "secrets/segment/prod-api"
+			},
+			"defaultEnv": {
+				"_loadFile": "secrets/segment/dev-api"
+			}
+		}
+	},
+
+	"integrations": {
+		"slack": {
+			"appProvider": {
+				"slack.com": {
+					"prod": {
+						"_loadFile": "secrets/slack/production"
+					},
+					"defaultEnv": {
+						"_loadFile": "secrets/slack/development"
+					}
+				}
+			}
+		},
+		"github": {
+			"appProvider": {
+				"github.com": {
+					"prod": {
+						"_loadFile": "secrets/github/production"
+					},
+					"defaultEnv": {
+						"_loadFile": "secrets/github/development"
+					}
+				},
+				"git.codestream.us": {
+					"prod": {
+						"_remove": true
+					},
+					"defaultEnv": {
+						"_loadFile": "secrets/github/development-onprem"
+					}
+				}
+			}
+		}
+	}
+}

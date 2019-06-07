@@ -1,0 +1,182 @@
+{
+    "apiServer": {
+        "logging": {
+            "consoleOk": "allow logging to the console",
+            "debugOk": "more verbose logging (debug level)",
+            "directory": "directory for api server logs"
+        },
+        "port": "Network port for the api service"
+    },
+    "broadcastEngine": {
+        "codestreamBroadcaster": {
+            "host": "hostname of the broadcaster service",
+            "logging": {
+                "consoleOk": "allow logging to the console",
+                "debugOk": "more verbose logging (debug level)",
+                "directory": "directory for broadcaster logs"
+            },
+            "port": "Network port for the broadcaster service",
+            "secrets": {
+                "api": "used to generate json web tokens for authentication tokens passed to the client",
+                "auth": "used to privilege certain api server requests to the broadcaster service"
+            }
+        },
+        "pubnub": {
+            "keepAlive": "use pubnub keep-alives",
+            "publicKey": "pubnub publishing key",
+            "secretKey": "pubnub adminstrative (secret) key",
+            "ssl": "use SSL for pubnub communications",
+            "subscribeKey": "pubnub subscription key",
+            "uuid": "description needed"
+        }
+    },
+    "email": {
+        "emailTo": "Divert all email to this address",
+        "notificationInterval": "Frequency (ms) email is generated",
+        "replyToDomain": "email domain for routing replies back",
+        "senderEmail": "all generated emails are sent as this user",
+        "supportEmail": "support email address to include on email and forms",
+        "suppressEmails": "Stop email from being sent"
+    },
+    "emailDeliveryService": {
+        "NodeMailer": {
+            "host": "smtp mailer host",
+            "password": "smtp authentication password",
+            "port": "Email submission port",
+            "service": "NodeMailer service type (gmail, ...)",
+            "username": "smtp authentication user"
+        },
+        "sendgrid": {
+            "apiKey": "key to access sendgrid API",
+            "url": ""
+        }
+    },
+    "inboundEmailServer": {
+        "inboundEmailDirectory": "new email files will be delivered to this directory by the mail agent",
+        "logging": {
+            "consoleOk": "allow logging to the console",
+            "debugOk": "more verbose logging (debug level)",
+            "directory": "directory for inbound email logs"
+        },
+        "processDirectory": "email files will be moved to this directory for processing",
+        "tempAttachmentDirectory": "attachments in incoming emails will be stored temporarily here"
+    },
+    "integrations": {
+        "asana": {
+            "<appProvider>": {
+                "appClientId": "Asana client Id",
+                "appClientSecret": "Asana secret",
+                "localProvider": "true if service is on-prem"
+            }
+        },
+        "bitbucket": {
+            "<appProvider>": {
+                "appClientId": "Bitbucket API client Id",
+                "appClientSecret": "Bitbucket API secret",
+                "localProvider": "true if service is on-prem"
+            }
+        },
+        "github": {
+            "<appProvider>": {
+                "appClientId": "Github API client Id",
+                "appClientSecret": "Github API secret",
+                "localProvider": "true if service is on-prem"
+            }
+        },
+        "gitlab": {
+            "<appProvider>": {
+                "appClientId": "GitLab API client Id",
+                "appClientSecret": "GitLab API secret",
+                "localProvider": "true if service is on-prem"
+            }
+        },
+        "glip": {
+            "<appProvider>": {
+                "appClientId": "Glip API client Id",
+                "appClientSecret": "Glip API secret",
+                "localProvider": "true if service is on-prem"
+            }
+        },
+        "jira": {
+            "<appProvider>": {
+                "appClientId": "Jira API client Id",
+                "appClientSecret": "Jira API secret",
+                "localProvider": "true if service is on-prem"
+            }
+        },
+        "msteams": {
+            "<appProvider>": {
+                "appClientId": "MS Teams API client Id",
+                "appClientSecret": "MS Teams API secret",
+                "localProvider": "true if service is on-prem"
+            }
+        },
+        "slack": {
+            "<appProvider>": {
+                "appClientId": "Slack app client Id",
+                "appClientSecret": "Slack app secret",
+                "localProvider": "true if service is on-prem"
+            }
+        },
+        "trello": {
+            "<appProvider>": {
+                "apiKey": "Trello API key",
+                "localProvider": "true if service is on-prem"
+            }
+        },
+        "youtrack": {
+            "<appProvider>": {
+                "appClientId": "YouTrack API client Id",
+                "appClientSecret": "YouTrack API secret",
+                "localProvider": "true if service is on-prem"
+            }
+        }
+    },
+    "outboundEmailServer": {
+        "logging": {
+            "consoleOk": "allow logging to the console",
+            "debugOk": "more verbose logging (debug level)",
+            "directory": "directory for outbound email logs"
+        }
+    },
+    "queuingEngine": {
+        "awsSQS": {
+            "outboundEmailQueueName": "SQS queue name",
+            "region": "AWS region where queue resides"
+        },
+        "rabbitmq": {
+            "host": "hostname of rabbitMQ service",
+            "outboundEmailQueueName": "RabbitMQ queue name",
+            "password": "rabbitmq password for authentication",
+            "port": "network port for rabbitmq service",
+            "user": "rabbitmq user for authentication"
+        }
+    },
+    "sharedSecrets": {
+        "auth": "secret used for authentication",
+        "confirmationCheat": "for bypassing email confirmation, used for unit testing",
+        "cookie": "secret used for permalinks",
+        "mail": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails",
+        "subscriptionCheat": "allows unregistered users to subscribe to their me-channel, for testing emails",
+        "telemetry": "for accessing the api prior to authentication (pre-auth secret)"
+    },
+    "ssl": {
+        "cafile": "SSL certificate authority bundle (chain) file",
+        "certfile": "SSL certificate",
+        "keyfile": "SSL private key file"
+    },
+    "storage": {
+        "mongo": {
+            "url": "mongo connect string"
+        }
+    },
+    "telemetry": {
+        "mixpanel": {
+            "token": "Mixpanel API token"
+        },
+        "segment": {
+            "token": "segment token for clients",
+            "webToken": "segment web token for the web app"
+        }
+    }
+}
