@@ -199,6 +199,9 @@ class PostUserRequest extends PostRequest {
 		const invitedUser = this.transforms.createdUser;
 		const providerInfo = (this.team && this.team.get('providerInfo')) || {};
 		const provider = providerInfo.slack ? 'Slack' : (providerInfo.msteams ? 'MSTeams' : 'CodeStream');
+		const firstSessionStartedAt = invitingUser.get('firstSessionStartedAt');
+		const FIRST_SESSION_TIMEOUT = 12 * 60 * 60 * 1000;
+		const firstSession = firstSessionStartedAt && firstSessionStartedAt < Date.now() + FIRST_SESSION_TIMEOUT; 
 		const trackObject = {
 			'distinct_id': invitingUser.id,
 			'email': invitingUser.get('email'),
@@ -213,7 +216,8 @@ class PostUserRequest extends PostRequest {
 			'Provider': provider,
 			'Company Name': company.get('name'),
 			'Endpoint': this.request.headers['x-cs-plugin-ide'] || 'Unknown IDE',
-			'Plugin Version': this.request.headers['x-cs-plugin-version'] || ''
+			'Plugin Version': this.request.headers['x-cs-plugin-version'] || '',
+			'First Session': firstSession
 		};
 		if (invitingUser.get('registeredAt')) {
 			trackObject['createdAt'] = new Date(invitingUser.get('registeredAt')).toISOString();
