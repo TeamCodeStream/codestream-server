@@ -25,8 +25,10 @@ class TeamNotFoundTest extends InviteInfoTest {
 				{
 					method: 'delete',
 					path: '/teams/' + this.team.id,
-					data: {
-						_secret: SecretsConfig.confirmationCheat
+					requestOptions: {
+						headers: {
+							'X-Delete-Team-Secret': SecretsConfig.confirmationCheat
+						}
 					},
 					token: this.token
 				},

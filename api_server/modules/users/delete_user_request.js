@@ -10,7 +10,7 @@ class DeleteUserRequest extends DeleteRequest {
 	// authorize the request for the current user
 	async authorize () {
 		// currently can only be done if a secret is provided
-		if (this.request.body._secret !== SecretsConfig.confirmationCheat) {
+		if (this.request.headers['x-delete-user-secret'] !== SecretsConfig.confirmationCheat) {
 			throw this.errorHandler.error('deleteAuth');
 		}
 	}
