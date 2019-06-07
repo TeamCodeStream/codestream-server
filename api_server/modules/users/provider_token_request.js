@@ -340,7 +340,8 @@ class ProviderTokenRequest extends RestfulRequest {
 				requestId: this.request.id,
 				more: {
 					signupStatus: this.signupStatus,
-					error: this.errorCode
+					error: this.errorCode,
+					provider: this.provider
 				}
 			}
 		);

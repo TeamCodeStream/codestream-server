@@ -57,7 +57,10 @@ class CheckSignupRequest extends RestfulRequest {
 			throw this.errorHandler.error('noUserId');
 		}
 		else if (this.signupToken.error) {
-			throw this.errorHandler.error('providerLoginFailed', { error: this.signupToken.error });
+			throw this.errorHandler.error('providerLoginFailed', { 
+				error: this.signupToken.error,
+				provider: this.signupToken.provider
+			});
 		}
 		else if (this.signupToken.expired) {
 			throw this.errorHandler.error('tokenExpired');
