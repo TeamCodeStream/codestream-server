@@ -198,7 +198,7 @@ class PostUserRequest extends PostRequest {
 		const invitingUser = this.user;
 		const invitedUser = this.transforms.createdUser;
 		const providerInfo = (this.team && this.team.get('providerInfo')) || {};
-		const provider = providerInfo.slack ? 'Slack' : 'CodeStream';
+		const provider = providerInfo.slack ? 'Slack' : (providerInfo.msteams ? 'MSTeams' : 'CodeStream');
 		const trackObject = {
 			'distinct_id': invitingUser.id,
 			'email': invitingUser.get('email'),

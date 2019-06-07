@@ -434,7 +434,7 @@ class PostCreator extends ModelCreator {
 		}
 		const companyName = this.company ? this.company.get('name') : '???';
 		const providerInfo = (this.team && this.team.get('providerInfo')) || {};
-		const provider = providerInfo.slack ? 'Slack' : 'CodeStream';
+		const provider = providerInfo.slack ? 'Slack' : (providerInfo.msteams ? 'MSTeams' : 'CodeStream');
 		const trackObject = {
 			distinct_id: this.user.id,
 			Type: 'Chat',

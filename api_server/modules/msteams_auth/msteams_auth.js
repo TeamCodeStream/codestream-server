@@ -13,11 +13,8 @@ const OAUTH_CONFIG = {
 	tokenPath: 'common/oauth2/v2.0/token',
 	exchangeFormat: 'form',
 	scopes: [
-		'User.Read',
 		'User.Read.All',
-		'Group.Read.All',
 		'Group.ReadWrite.All',
-		'Chat.ReadWrite',
 		'offline_access'
 	].join(' '),
 	additionalAuthCodeParameters: {
