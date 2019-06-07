@@ -55,5 +55,18 @@ module.exports = {
 		type: 'object',
 		maxLength: 10000,
 		serverOnly: true
+	},
+	plan: {
+		type: 'string',
+		maxLength: 20,
+		description: 'Current payment plan for this team'
+	},
+	trialStartDate: {
+		type: 'timestamp',
+		description: 'Date/time this team\'s trial started' 
+	},
+	trialEndDate: {
+		type: 'timestamp',
+		description: 'Date/time this team\'s trial will end'
 	}
 };
