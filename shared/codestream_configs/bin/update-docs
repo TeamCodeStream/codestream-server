@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+sys.path.append(os.environ['DT_TOP'] + "/lib")
+import sysUtils as su
+
+debug = False
+
+
+# return a reference to a dict (object) within cfgFile that
+# traverses the keyPath. If the enter path cannot be followed
+# return the leaf.
+def findNode(keyPath):
+	global cfgFile
+	node = cfgFile
+	i = 0
+	while i < len(keyPath):
+		if keyPath[i] not in node:
+			return node
+		node = node[keyPath[i]]
+		i += 1
+	return node
+
+
+# Create a cfgFile dict based on variables.json
+def buildCfgFile(cfgVars, keyPath, task='show-descriptions'):
+	global cfgFile
+	for k in cfgVars.keys():
+		node = findNode(keyPath)
+		if 'desc' not in cfgVars[k]:
+			node[k] = {}
+			buildCfgFile(cfgVars[k], keyPath + [k])
+		else:
+			if task == 'show-descriptions':
+				node[k] = cfgVars[k]['desc']
+
+
+repoRoot = os.path.dirname(os.path.realpath(__file__)) + "/.."
+cfgVars = su.readJsonFileIgnoreComments(repoRoot + "/variables.json")
+
+if '--show-desc' in sys.argv:
+	cfgFile = {}
+	buildCfgFile(cfgVars, [])
+	su.dumpDict(cfgFile)
+else:
+	print("usage: " + sys.argv[0] + " {--show-desc}")
+	exit(1)
+exit(0)

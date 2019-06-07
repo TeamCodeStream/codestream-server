@@ -1,0 +1,505 @@
+// This defines all variables used across all services and lays out the config
+// file format.
+//
+// The default values are used for local development.
+//
+// Values / Properties for each variable are:
+//    "variable-name": {
+//        "desc": "Description of variable, used for generated docs",  (required)
+//        "env": "CSSVC_SOME_ENV_VAR_NAME",  (optional, env vars override the config)
+//        "required": true,                  (optional, if true variable is required at startup)
+//        "envRequired": true,               (optional, env variable required)
+//        "default": "default-value"         (optional, applies to local development, any type)
+//    }
+//
+// Notes
+//   - Any default values that include '{ENV_VAR_NAME}' denote the use
+//     of the variable, at run-time, to set the config parameter.
+//
+//   - Blocks whose key is '<appProvider>' are repeated based on the profiles
+//     (for example github.com and a Github Enterprise Server on-prem)
+
+{
+	// Default SSL certificate (assumes wildcard usable with all services)
+	"ssl": {
+		"certfile": {
+			"desc": "SSL certificate",
+			"env": "CSSVC_SSL_CERTFILE",
+			"default": "{HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-crt"
+		},
+		"cafile": {
+			"desc": "SSL certificate authority bundle (chain) file",
+			"env": "CSSVC_SSL_CAFILE",
+			"default": "{HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-ca"
+		},
+		"keyfile": {
+			"desc": "SSL private key file",
+			"env": "CSSVC_SSL_KEYFILE",
+			"default": "{HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-key"
+		}
+	},
+
+	// Core secrets used in all configurations
+	"sharedSecrets": {
+		"auth": {
+			"desc": "secret used for authentication",
+			"env": "CSSVC_AUTH_SECRET",
+			"default": "AuthSecret"
+		},
+		"cookie": {
+			"desc": "secret used for permalinks",
+			"env": "CSSVC_COOKIE_SECRET",
+			"default": "CookieSecret"
+		},
+		"confirmationCheat": {
+			"desc": "for bypassing email confirmation, used for unit testing",
+			"env": "CSSVC_CONFIRMATION_CHEAT_CODE",
+			"default": "ConfirmationCheatCode"
+		},
+		"subscriptionCheat": {
+			"desc": "allows unregistered users to subscribe to their me-channel, for testing emails",
+			"env": "CSSVC_SUBSCRIPTION_CHEAT_CODE",
+			"default": "SubscriptionCheatCode"
+		},
+		"mail": {
+			"desc": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails",
+			"env": "CSSVC_INBOUND_EMAIL_SECRET",
+			"default": "InboundEmailSecret"
+		},
+		"telemetry": {
+			"desc": "for accessing the api prior to authentication (pre-auth secret)",
+			"env": "CSSVC_PRE_AUTH_SECRET",
+			"required": "PreAuthSecret"
+		}
+	},
+
+	// Core email settings
+	"email": {
+		"emailTo": {
+			"desc": "Divert all email to this address",
+			"env": "CSSVC_",
+			"default": "{DT_USER}@codestream.com"
+		},
+		"senderEmail": {
+			"desc": "all generated emails are sent as this user",
+			"default": "local_alerts@codestream.com"
+		},
+		"supportEmail": {
+			"desc": "support email address to include on email and forms",
+			"default": "local_support@codestream.com"
+		},
+		"suppressEmails": {
+			"desc": "Stop email from being sent",
+			"env": "CSSVC_",
+			"default": true
+		},
+		"replyToDomain": {
+			"desc": "email domain for routing replies back",
+			"default": "local.codestream.com"
+		},
+		"notificationInterval": {
+			"desc": "Frequency (ms) email is generated",
+			"default": 300000
+		}
+	},
+		
+	// Broadcasting - choose one
+	"broadcastEngine": {
+		"pubnub": {
+			"publicKey": {
+				"desc": "pubnub publishing key",
+				"env": "CSSVC_PUBNUB_PUBLISH_KEY",
+				"required": true
+			},
+			"subscribeKey": {
+				"desc": "pubnub subscription key",
+				"env": "CSSVC_PUBNUB_SUBSCRIBE_KEY",
+				"required": true
+			},
+			"secretKey": {
+				"desc": "pubnub adminstrative (secret) key",
+				"env": "CSSVC_PUBNUB_SECRET",
+				"required": true
+			},
+			"ssl": {
+				"desc": "use SSL for pubnub communications",
+				"default": true
+			},
+			"keepAlive": {
+				"desc": "use pubnub keep-alives",
+				"default": true
+			},
+			"uuid": {
+				"desc": "description needed",
+				"default": "CodeStreamServer"
+			}
+		},
+		"codestreamBroadcaster": {
+			"port": {
+				"desc": "Network port for the broadcaster service",
+				"env": "CSSVC_BROADCASTER_PORT",
+				"default": 12443
+			},
+			"host": {
+				"desc": "hostname of the broadcaster service",
+				"default": "localhost.codestream.us"
+			},
+			"secrets": {
+				"auth": {
+					"desc": "used to privilege certain api server requests to the broadcaster service",
+					"env": "CSSVC_BROADCASTER_AUTH_SECRET",
+					"required": true
+				},
+				"api": {
+					"desc": "used to generate json web tokens for authentication tokens passed to the client",
+					"env": "CSSVC_BROADCASTER_API_SECRET",
+					"required": true
+				}
+			},
+			"logging": {
+				"directory": {
+					"desc": "directory for broadcaster logs",
+					"env": "CS_BROADCASTER_LOGS",
+					"default": "{CS_BROADCASTER_LOGS}",
+					"required": true
+				},
+				"consoleOk": {
+					"desc": "allow logging to the console",
+					"env": "CSSVC_BROADCASTER_LOG_CONSOLE_OK",
+					"default": true
+				},
+				"debugOk": {
+					"desc": "more verbose logging (debug level)",
+					"env": "CSSVC_BROADCASTER_DEBUG_OK",
+					"default": false
+				}
+			}
+		}
+	},
+
+	// queuing - choose one
+	"queuingEngine": {
+		"rabbitmq": {
+			"host": {
+				"desc": "hostname of rabbitMQ service",
+				"env": "CSSVC_",
+				"default": "localhost.codestream.us",
+				"required": true
+			},
+			"port": {
+				"desc": "network port for rabbitmq service",
+				"default": 5672
+			},
+			"user": {
+				"desc": "rabbitmq user for authentication",
+				"default": "code"
+			},
+			"password": {
+				"desc": "rabbitmq password for authentication",
+				"default": "stream"
+			},
+			"outboundEmailQueueName": {
+				"desc": "RabbitMQ queue name",
+				"env": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME",
+				"default": "outboundEmail"
+			}
+		},
+		"awsSQS": {
+			"region": {
+				"desc": "AWS region where queue resides",
+				"default": "us-east-1"
+			},
+			"outboundEmailQueueName": {
+				"desc": "SQS queue name",
+				"env": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME",
+				"default": "local_{DT_USER}_outboundEmail",
+				"envRequred": true
+			}
+		}
+	},
+
+	// Email delivery service - choose one
+	"emailDeliveryService": {
+		"sendgrid": {
+			"url": {
+				"desc": "",
+				"env": "",
+				"default": "",
+				"required": true
+			},
+			"apiKey": {
+				"desc": "key to access sendgrid API",
+				"env": "",
+				"required": true
+			}
+		},
+		"NodeMailer": {
+			"service": {
+				"desc": "NodeMailer service type (gmail, ...)",
+				"required": true
+			},
+			"host": {
+				"desc": "smtp mailer host",
+				"required": true
+			},
+			"port": {
+				"desc": "Email submission port",
+				"default": 587
+			},
+			"username": {
+				"desc": "smtp authentication user"
+			},
+			"password": {
+				"desc": "smtp authentication password"
+			}			
+		}
+	},
+
+	// database storage - choose one
+	"storage": {
+		"mongo": {
+			"url": {
+				"desc": "mongo connect string",
+				"env": "CSSVC_MONGO_URL",
+				"default": "mongodb://localhost/codestream"
+			}
+		}
+	},
+
+	// Telemetry services
+	"telemetry": {
+		"segment": {
+			"token": {
+				"desc": "segment token for clients"
+			},
+			"webToken": {
+				"desc": "segment web token for the web app"
+			}
+		},
+		"mixpanel": {
+			"token": {
+				"desc": "Mixpanel API token"
+			}
+		}
+	},
+
+	// 3rd party integration keys and secrets
+	"integrations": {
+		"slack": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "Slack app client Id"
+				},
+				"appClientSecret": {
+					"desc": "Slack app secret"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
+					"default": false
+				}
+			}
+		},
+		"trello": {
+			"<appProvider>": {
+				"apiKey": {
+					"desc": "Trello API key"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
+					"default": false
+				}
+			}
+		},
+		"asana": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "Asana client Id"
+				},
+				"appClientSecret": {
+					"desc": "Asana secret"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
+					"default": false
+				}
+			}
+		},
+		"bitbucket": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "Bitbucket API client Id"
+				},
+				"appClientSecret": {
+					"desc": "Bitbucket API secret"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
+					"default": false
+				}
+			}
+		},
+		"gitlab": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "GitLab API client Id"
+				},
+				"appClientSecret": {
+					"desc": "GitLab API secret"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
+					"default": false
+				}
+			}
+		},
+		"glip": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "Glip API client Id"
+				},
+				"appClientSecret": {
+					"desc": "Glip API secret"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
+					"default": false
+				}
+			}
+		},
+		"jira": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "Jira API client Id"
+				},
+				"appClientSecret": {
+					"desc": "Jira API secret"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
+					"default": false
+				}
+			}
+		},
+		"github": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "Github API client Id"
+				},
+				"appClientSecret": {
+					"desc": "Github API secret"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
+					"default": false
+				}
+			}
+		},
+		"msteams": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "MS Teams API client Id"
+				},
+				"appClientSecret": {
+					"desc": "MS Teams API secret"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
+					"default": false
+				}
+			}
+		},
+		"youtrack": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "YouTrack API client Id"
+				},
+				"appClientSecret": {
+					"desc": "YouTrack API secret"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
+					"default": false
+				}
+			}
+		}
+	},
+
+
+	// CodeStream Services
+	"apiServer": {
+		"port": {
+			"desc": "Network port for the api service",
+			"env": "CSSVC_API_PORT",
+			"default": 12079
+		},
+		"logging": {
+			"directory": {
+				"desc": "directory for api server logs",
+				"env": "CS_API_LOGS",
+				"envRequired": true
+			},
+			"consoleOk": {
+				"desc": "allow logging to the console",
+				"env": "CSSVC_API_LOG_CONSOLE_OK",
+				"default": true
+			},
+			"debugOk": {
+				"desc": "more verbose logging (debug level)",
+				"env": "CSSVC_API_DEBUG_OK",
+				"default": false
+			}
+		}
+	},
+
+	"inboundEmailServer": {
+		"inboundEmailDirectory": {
+			"desc": "new email files will be delivered to this directory by the mail agent",
+			"default": "{CS_MAILIN_SANDBOX}/mailq/new"
+		},
+		"processDirectory": {
+			"desc": "email files will be moved to this directory for processing",
+			"default": "{CS_MAILIN_SANDBOX}/mailq/process"
+		},
+		"tempAttachmentDirectory": {
+			"desc": "attachments in incoming emails will be stored temporarily here",
+			"default": "{CS_MAILIN_SANDBOX}/mailq/attachments"
+		},
+		"logging": {
+			"directory": {
+				"desc": "directory for inbound email logs",
+				"env": "CS_MAILIN_LOGS",
+				"envRequired": true
+			},
+			"consoleOk": {
+				"desc": "allow logging to the console",
+				"env": "CSSVC_MAILIN_LOG_CONSOLE_OK",
+				"default": true
+			},
+			"debugOk": {
+				"desc": "more verbose logging (debug level)",
+				"env": "CSSVC_MAILIN_DEBUG_OK",
+				"default": false
+			}
+		}
+	},
+
+	"outboundEmailServer": {
+		"logging": {
+			"directory": {
+				"desc": "directory for outbound email logs",
+				"env": "CS_OUTBOUND_EMAIL_LOGS",
+				"envRequired": true
+			},
+			"consoleOk": {
+				"desc": "allow logging to the console",
+				"env": "CSSVC_OUTBOUND_EMAIL_LOG_CONSOLE_OK",
+				"default": true
+			},
+			"debugOk": {
+				"desc": "more verbose logging (debug level)",
+				"env": "CSSVC_MAILIN_DEBUG_OK",
+				"default": false
+			}
+		}
+	}
+}

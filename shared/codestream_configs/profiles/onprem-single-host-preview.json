@@ -1,0 +1,7 @@
+// Profile: onprem, single host preview (docker)
+// - broadcaster
+// - SMTP (NodeMailer)
+// - RabbitMQ
+// - api, mongo, rabbit, broadcast & mailout run as individual
+//   containers on a single host-based docker network
+{}
