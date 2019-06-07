@@ -2,6 +2,7 @@
 
 const TrackingTest = require('./tracking_test');
 const RandomString = require('randomstring');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class ProviderTrackingTest extends TrackingTest {
 
@@ -15,8 +16,12 @@ class ProviderTrackingTest extends TrackingTest {
 		return 'should set Provider to Slack in tracking message when user is invited to a slack team';
 	}
 
+	// make the data the will be used when issuing the request that triggers the message
 	makeData (callback) {
-		this.createSlackTeam(callback);
+		BoundAsync.series(this, [
+			this.createSlackTeam,
+			this.doLogin
+		], callback);
 	}
 
 	// create a slack-connected team

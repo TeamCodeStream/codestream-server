@@ -4,6 +4,7 @@ const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadca
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CommonInit = require('./common_init');
 const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -13,7 +14,22 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// make the data the will be used when issuing the request that triggers the message
 	makeData (callback) {
-		this.init(callback);
+		BoundAsync.series(this, [
+			this.init,
+			this.doLogin
+		], callback);
+	}
+
+	// perform an actual login before running the test, to set the "First Session" property
+	doLogin (callback) {
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/login',
+				token: this.token
+			},
+			callback
+		);
 	}
 
 	// set the channel name to listen for the email message on
@@ -75,7 +91,8 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((properties['Endpoint'] === 'Unknown IDE') || errors.push('IDE should be unknown')) &&
 			((properties['Plugin Version'] === '') || errors.push('Plugin Version should be blank')) &&
 			((properties['createdAt'] === new Date(this.currentUser.user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
-			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string'))
+			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string')) &&
+			((properties['First Session'] === true) || errors.push('First Session should be true'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;
