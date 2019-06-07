@@ -15,6 +15,17 @@ const PROVIDER_POST_STANDARD_ROUTES = {
 	}
 };
 
+// additional routes for this module
+const PROVIDER_POST_ADDITIONAL_ROUTES = [
+	// DEPRECATE ME ... this is to just to prevent a 404 until 
+	// extenion that calls /provider-posts is released
+	{
+		method: 'post',
+		path: 'slack-posts',
+		requestClass: require('./slack_post_request')
+	}
+];
+
 class ProviderPosts extends Restful {
 
 	get collectionName () {
@@ -39,7 +50,8 @@ class ProviderPosts extends Restful {
 
 	// get all routes exposed by this module
 	getRoutes () {
-		return super.getRoutes(PROVIDER_POST_STANDARD_ROUTES);
+		let standardRoutes = super.getRoutes(PROVIDER_POST_STANDARD_ROUTES);
+		return [...standardRoutes, ...PROVIDER_POST_ADDITIONAL_ROUTES];
 	}
 }
 
