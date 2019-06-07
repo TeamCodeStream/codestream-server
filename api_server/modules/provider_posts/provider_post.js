@@ -1,15 +1,15 @@
-// provides the SlackPost model for handling slack posts
+// provides the ProviderPost model for handling provider posts
 
 'use strict';
 
 const CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
 const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
-const SlackPostAttributes = require('./slack_post_attributes');
+const ProviderPostAttributes = require('./provider_post_attributes');
 
-class SlackPost extends CodeStreamModel {
+class ProviderPost extends CodeStreamModel {
 
 	getValidator () {
-		return new CodeStreamModelValidator(SlackPostAttributes);
+		return new CodeStreamModelValidator(ProviderPostAttributes);
 	}
 
 	// right before the post is saved...
@@ -19,4 +19,4 @@ class SlackPost extends CodeStreamModel {
 	}
 }
 
-module.exports = SlackPost;
+module.exports = ProviderPost;

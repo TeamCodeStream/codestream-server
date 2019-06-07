@@ -1,23 +1,23 @@
-// this class should be used to create all slack-post documents in the database
+// this class should be used to create all provider-post documents in the database
 
 'use strict';
 
-const SlackPost = require('./slack_post');
+const ProviderPost = require('./provider_post');
 const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
-class SlackPostCreator extends ModelCreator {
+class ProviderPostCreator extends ModelCreator {
 
 	get modelClass () {
-		return SlackPost;	// class to use to create a slack-post model
+		return ProviderPost;	// class to use to create a provider-post model
 	}
 
 	get collectionName () {
-		return 'slackPosts';	// data collection to use
+		return 'providerPosts';	// data collection to use
 	}
 
 	// convenience wrapper
-	async createSlackPost (attributes) {
+	async createProviderPost (attributes) {
 		return await this.createModel(attributes);
 	}
 
@@ -36,6 +36,7 @@ class SlackPostCreator extends ModelCreator {
 
 	// called before the post is actually saved
 	async preSave () {
+		this.attributes.provider = this.request.request.params.provider.toLowerCase();
 		this.attributes.creatorId = this.user.id;
 		this.attributes.createdAt = Date.now();
 		this.attributes.origin = this.request.request.headers['x-cs-plugin-ide'] || '';
@@ -64,4 +65,4 @@ class SlackPostCreator extends ModelCreator {
 	}
 }
 
-module.exports = SlackPostCreator;
+module.exports = ProviderPostCreator;
