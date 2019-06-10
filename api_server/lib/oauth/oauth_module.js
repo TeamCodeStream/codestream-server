@@ -402,12 +402,11 @@ class OAuthModule extends APIServerModule {
 			hasIssues,
 			forEnterprise,
 			needsConfigure,
-			disabled,
-			acceptsUserDefinedToken
+			disabled
 		} = this.oauthConfig;
 		const { appClientId, apiKey } = this.apiConfig;
 		const hasKey = appClientId || apiKey;
-		if (!disabled && host && (acceptsUserDefinedToken || forEnterprise || hasKey)) {
+		if (!disabled && host && hasKey) {
 			const starredHost = host.toLowerCase().replace(/\./g, '*');
 			return {
 				id: starredHost,
