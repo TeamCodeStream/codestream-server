@@ -19,7 +19,7 @@ class InboundEmailRequest extends RestfulRequest {
 	async authorize () {
 		// if no reply-to domain is specified, this is probably an on-prem installation
 		// where inbound emails are not supported
-		if (!this.api.config.email.replyToDomain) {
+		if (this.api.config.email.inboundEmailDisabled) {
 			throw this.errorHandler.error('notSupported');
 		}
 
