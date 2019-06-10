@@ -37,5 +37,10 @@ module.exports = {
 		code: 'INBE-1006',
 		message: 'The stream is not owned by this team',
 		internal: true
+	},
+	'notSupported': {
+		code: 'INBE-1007',
+		message: 'Inbound emails are not supported for this installation',
+		internal: true 
 	}
 };

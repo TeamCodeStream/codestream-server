@@ -17,6 +17,12 @@ class InboundEmailRequest extends RestfulRequest {
 
 	// authorize the client (the inbound email server) to make this request
 	async authorize () {
+		// if no reply-to domain is specified, this is probably an on-prem installation
+		// where inbound emails are not supported
+		if (!this.api.config.email.replyToDomain) {
+			throw this.errorHandler.error('notSupported');
+		}
+
 		// we rely on a secret, known only to the inbound email server and the
 		// API server ... disallowing arbitrary clients to call this request
 		if (this.request.body.secret !== this.api.config.secrets.mail) {
