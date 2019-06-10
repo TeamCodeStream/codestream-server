@@ -37,6 +37,7 @@ if (CfgFileName) {
 	Cfg.replyToDomain = CfgFile.email.replyToDomain;
 	Cfg.senderEmail = CfgFile.email.senderEmail;
 	Cfg.supportEmail = CfgFile.email.supportEmail;
+	Cfg.inboundEmailDisabled = CfgFile.email.inboundEmailDisabled;
 
 	// SQS queue for queueing outbound email messages
 	Cfg.outboundEmailQueueName = CfgFile.queuingEngine.awsSQS.sqs.outboundEmailQueueName;
@@ -109,6 +110,9 @@ else {
 	// reply to will be like <streamId>@dev.codestream.com
 	Cfg.replyToDomain = process.env.CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN;
 
+	// indicates inbound emails (and email replies) are completely disabled (for on-prem)
+	Cfg.inboundEmailDisabled = process.env.CS_OUTBOUND_EMAIL_INBOUND_EMAIL_DISABLED;
+	
 	// we'll send emails from this address
 	Cfg.senderEmail = process.env.CS_OUTBOUND_EMAIL_SENDER_EMAIL || 'alerts@codestream.com';
 

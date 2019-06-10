@@ -126,9 +126,10 @@ class EmailNotificationRenderer {
 
 	// determine the intro text of an email notification
 	getNotificationIntro (options) {
-		const { user, team, repliesSupported } = options;
+		const { user, team, inboundEmailDisabled } = options;
 		if (user.isRegistered) {
-			return repliesSupported ? 'Add to the discussion by replying to this email.<br/>' : '';
+		const { user, team, inboundEmailDisabled } = options;
+			return inboundEmailDisabled ? '' : 'Add to the discussion by replying to this email.<br/>';
 		}
 		let intro = '';
 		if (!user.hasReceivedFirstEmail) {
@@ -137,7 +138,7 @@ class EmailNotificationRenderer {
 
 		const link = 'https://codestream.com/?utm_medium=email&utm_source=product&utm_campaign=newmessage_notification_unreg';
 		intro += `<a clicktracking="off" href="${link}">Install the CodeStream extension</a> for your IDE`;
-		if (repliesSupported) {
+		if (!inboundEmailDisabled) {
 			intro += ', or add to the discussion by replying to this email.<br/>';
 		}
 		else {

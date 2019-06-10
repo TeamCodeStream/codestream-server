@@ -13,7 +13,7 @@ class EmailNotificationSender {
 		const author = mentioningAuthor || creator;
 		const fromName = author ? `${sender.getUserDisplayName(author)} (via CodeStream)` : 'CodeStream';
 		const subject = this.getNotificationSubject(options);
-		const replyTo = Config.replyToDomain ? `${stream.id}.${team.id}@${Config.replyToDomain}` : '';
+		const replyTo = Config.inboundEmailDisabled ? '' : `${stream.id}.${team.id}@${Config.replyToDomain}`;
 		sender.sendEmail({
 			type: 'notification',
 			from: { email: Config.senderEmail, name: fromName },

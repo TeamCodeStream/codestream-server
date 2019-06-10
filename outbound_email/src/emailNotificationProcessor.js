@@ -570,7 +570,7 @@ class EmailNotificationProcessor {
 			stream: this.stream,
 			mentioned: !!this.mentionsPerUser[user.id],
 			supportEmail: Config.supportEmail,
-			repliesSupported: !!Config.replyToDomain
+			inboundEmailDisabled: Config.inboundEmailDisabled
 		});
 		html = html.replace(/[\t\n]/g, '');
 		this.renderedEmails.push({ user, html });
