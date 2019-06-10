@@ -569,7 +569,8 @@ class EmailNotificationProcessor {
 			team: this.team,
 			stream: this.stream,
 			mentioned: !!this.mentionsPerUser[user.id],
-			supportEmail: Config.supportEmail
+			supportEmail: Config.supportEmail,
+			repliesSupported: !!Config.replyToDomain
 		});
 		html = html.replace(/[\t\n]/g, '');
 		this.renderedEmails.push({ user, html });

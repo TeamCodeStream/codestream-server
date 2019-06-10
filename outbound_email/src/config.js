@@ -107,7 +107,7 @@ else {
 	Cfg.notificationInterval = parseInt(process.env.CS_OUTBOUND_EMAIL_NOTIFICATION_INTERVAL || 300000, 10);
 
 	// reply to will be like <streamId>@dev.codestream.com
-	Cfg.replyToDomain = process.env.CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN || 'dev.codestream.com';
+	Cfg.replyToDomain = process.env.CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN;
 
 	// we'll send emails from this address
 	Cfg.senderEmail = process.env.CS_OUTBOUND_EMAIL_SENDER_EMAIL || 'alerts@codestream.com';

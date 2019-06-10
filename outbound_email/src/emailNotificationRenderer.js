@@ -124,12 +124,11 @@ class EmailNotificationRenderer {
 `;
 	}
 
-	//	Install CodeStream for [VS Code] or [Visual Studio], or add to the discussion by replying to this email.
 	// determine the intro text of an email notification
 	getNotificationIntro (options) {
-		const { user, team } = options;
+		const { user, team, repliesSupported } = options;
 		if (user.isRegistered) {
-			return 'Add to the discussion by replying to this email.<br/>';
+			return repliesSupported ? 'Add to the discussion by replying to this email.<br/>' : '';
 		}
 		let intro = '';
 		if (!user.hasReceivedFirstEmail) {
@@ -137,7 +136,13 @@ class EmailNotificationRenderer {
 		}
 
 		const link = 'https://codestream.com/?utm_medium=email&utm_source=product&utm_campaign=newmessage_notification_unreg';
-		intro += `<a clicktracking="off" href="${link}">Install the CodeStream extension</a> for your IDE, or add to the discussion by replying to this email.<br/>`;
+		intro += `<a clicktracking="off" href="${link}">Install the CodeStream extension</a> for your IDE`;
+		if (repliesSupported) {
+			intro += ', or add to the discussion by replying to this email.<br/>';
+		}
+		else {
+			intro += '.<br/>';
+		}
 		return intro;
 	}
 }
