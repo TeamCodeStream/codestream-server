@@ -68,7 +68,7 @@ module.exports = {
 	},
 	text: {
 		type: 'string',
-		maxLength: 1000,
+		maxLength: 10000,
 		description: 'The text of this codemark'
 	},
 	numReplies: {
