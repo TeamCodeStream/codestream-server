@@ -14,4 +14,4 @@ environment features are needed.
 - **profiles/\*.json** define configuration profiles (codestream cloud
   environments, single host docker preview, mac development using pubnub,
   mac development using broadcaster, etc...)
-- **README.parameter-descriptions.json** (auto-generated with git hook).
+- [README.parameter-definitions.json](README.parameter-definitions.json) (auto-generated with git hook).
