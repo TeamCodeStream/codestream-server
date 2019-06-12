@@ -284,7 +284,7 @@ class UserCreator extends ModelCreator {
 		}
 
 		let expiresIn = this.inviteCodeExpiresIn && this.inviteCodeExpiresIn < INVITE_CODE_EXPIRATION ?
-			this.inviteCodeExpiresIn : undefined;
+			this.inviteCodeExpiresIn : INVITE_CODE_EXPIRATION;
 		await this.api.services.signupTokens.insert(
 			this.inviteCode,
 			this.model.id,

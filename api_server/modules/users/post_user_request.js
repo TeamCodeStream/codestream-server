@@ -56,7 +56,7 @@ class PostUserRequest extends PostRequest {
 					string: ['teamId', 'email']
 				},
 				optional: {
-					string: ['_pubnubUuid'],
+					string: ['_pubnubUuid', 'fullName'],
 					boolean: ['dontSendEmail']
 				}
 			}
@@ -74,7 +74,8 @@ class PostUserRequest extends PostRequest {
 			inviteCodeExpiresIn: this.inviteCodeExpiresIn
 		});
 		const userData = {
-			email: this.request.body.email
+			email: this.request.body.email,
+			fullName: this.request.body.fullName
 		};
 		if (this.request.body._pubnubUuid) {
 			userData._pubnubUuid = this.request.body._pubnubUuid;
