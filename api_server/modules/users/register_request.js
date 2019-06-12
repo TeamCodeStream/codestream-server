@@ -109,6 +109,7 @@ class RegisterRequest extends RestfulRequest {
 		}).confirm(this.request.body);
 
 		this.api.services.signupTokens.removeInviteCodesByUserId(this.invitedUser.id);
+		this.userLoggedIn = true;
 		return true;
 	}
 
@@ -257,7 +258,7 @@ class RegisterRequest extends RestfulRequest {
 
 	// handle the response to the request
 	async handleResponse () {
-		if (this.gotError) {
+		if (this.gotError || this.userLoggedIn) {
 			return await super.handleResponse();
 		}
 		// need to refetch the user, since it may have changed, this should fetch from cache, not database
