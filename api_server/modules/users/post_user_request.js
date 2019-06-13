@@ -42,13 +42,12 @@ class PostUserRequest extends PostRequest {
 
 	// require certain parameters, and discard unknown parameters
 	async requireAndAllow () {
-		this.delayEmail = this.request.body._delayEmail; // delay sending the invite email, for testing
-		delete this.request.body._delayEmail;
-		this.subscriptionCheat = this.request.body._subscriptionCheat; // cheat code for testing only, allow subscription to me-channel before confirmation
-		this.confirmationCheat = this.request.body._confirmationCheat; // cheat code for testing only, send invite code in the response
-		this.inviteCodeExpiresIn = this.request.body._inviteCodeExpiresIn;	// make invite code expire in less time, for testing
-		delete this.request.body._subscriptionCheat;
-		delete this.request.body._confirmationCheat;
+		// many attributes that are allowed but don't become attributes of the created user
+		['_confirmationCheat', '_subscriptionCheat', '_delayEmail', '_inviteCodeExpiresIn'].forEach(parameter => {
+			this[parameter] = this.request.body[parameter];
+			delete this.request.body[parameter];
+		});
+
 		await this.requireAllowParameters(
 			'body',
 			{
@@ -69,17 +68,18 @@ class PostUserRequest extends PostRequest {
 		this.userCreator = new UserCreator({
 			request: this,
 			teamIds: [this.team.id],
-			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			subscriptionCheat: this._subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
 			userBeingAddedToTeamId: this.team.id,
-			inviteCodeExpiresIn: this.inviteCodeExpiresIn
+			inviteCodeExpiresIn: this._inviteCodeExpiresIn
 		});
 		const userData = {
-			email: this.request.body.email,
-			fullName: this.request.body.fullName
+			email: this.request.body.email
 		};
-		if (this.request.body._pubnubUuid) {
-			userData._pubnubUuid = this.request.body._pubnubUuid;
-		}
+		['fullName', '_pubnubUuid'].forEach(attribute => {
+			if (this.request.body[attribute]) {
+				userData[attribute] = this.request.body[attribute];
+			}
+		});
 		this.transforms.createdUser = await this.userCreator.createUser(userData);
 		this.wasOnTeam = this.transforms.createdUser.hasTeam(this.team.id);
 	}
@@ -95,7 +95,7 @@ class PostUserRequest extends PostRequest {
 			request: this,
 			addUser: this.transforms.createdUser,
 			team: this.team,
-			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			subscriptionCheat: this._subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
 		}).addTeamMember();
 		// refetch the user since they changed when added to team
 		this.transforms.createdUser = await this.data.users.getById(this.transforms.createdUser.id);
@@ -112,7 +112,7 @@ class PostUserRequest extends PostRequest {
 		this.responseData = { user: user.getSanitizedObject() };
 
 		// send invite code in the response, for testing purposes
-		if (this.confirmationCheat === SecretsConfig.confirmationCheat) {
+		if (this._confirmationCheat === SecretsConfig.confirmationCheat) {
 			this.responseData.inviteCode = this.userCreator.inviteCode;
 		}
 		await super.handleResponse();
@@ -149,9 +149,9 @@ class PostUserRequest extends PostRequest {
 		if (this.dontSendEmail) {
 			return; // don't send email if this flag is set
 		}
-		if (this.delayEmail) {	// allow client to delay the email send, for testing purposes
-			setTimeout(this.sendInviteEmail.bind(this), this.delayEmail);
-			delete this.delayEmail;
+		if (this._delayEmail) {	// allow client to delay the email send, for testing purposes
+			setTimeout(this.sendInviteEmail.bind(this), this._delayEmail);
+			delete this._delayEmail;
 			return;
 		}
 

@@ -18,6 +18,13 @@ const SpecialCharactersUsernameTest = require('./special_characters_username_tes
 const ReuseConfirmationCodeTest = require('./reuse_confirmation_code_test');
 const NewCodeAfterReusabilityWindowTest = require('./new_code_after_reusability_window_test');
 const InviteCodeTest = require('./invite_code_test');
+const InviteCodeRemovedTest = require('./invite_code_removed_test');
+const InviteCodeDifferentEmailTest = require('./invite_code_different_email_test');
+const InviteCodeExpiredTest = require('./invite_code_expired_test');
+const InviteCodeRemovedAfterUseTest = require('./invite_code_removed_after_use_test');
+const AlreadyInvitedTest = require('./already_invited_test');
+const InvitedUserMessageToTeamTest = require('./invited_user_message_to_team_test');
+
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
 
 class RegistrationRequestTester {
@@ -47,6 +54,12 @@ class RegistrationRequestTester {
 		new ReuseConfirmationCodeTest().test();
 		new NewCodeAfterReusabilityWindowTest().test();
 		new InviteCodeTest().test();
+		new InviteCodeRemovedTest().test();
+		new InviteCodeDifferentEmailTest().test();
+		new InviteCodeExpiredTest().test();
+		new InviteCodeRemovedAfterUseTest().test();
+		new AlreadyInvitedTest().test();
+		new InvitedUserMessageToTeamTest().test();
 	}
 }
 

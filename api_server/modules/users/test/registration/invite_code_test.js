@@ -4,6 +4,7 @@ const RegistrationTest = require('./registration_test');
 const Assert = require('assert');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 const UserTestConstants = require('../user_test_constants');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class InviteCodeTest extends RegistrationTest {
 
@@ -23,30 +24,35 @@ class InviteCodeTest extends RegistrationTest {
 
 	// before the test runs...
 	before (callback) {
-		// invite the user before registering ... since the user is registering with the same email
-		// with which they were invited, and since they provide an invite code, we should skip confirmation
-		// and just log them in
-		super.before(error => {
-			if (error) { return callback(error); }
-			this.doApiRequest(
-				{
-					method: 'post',
-					path: '/users',
-					data: {
-						teamId: this.team.id,
-						email: this.data.email,
-						_pubnubUuid: this.data._pubnubUuid,
-						_confirmationCheat: SecretsConfig.confirmationCheat
-					},
-					token: this.token
+		BoundAsync.series(this, [
+			super.before,
+			this.inviteUser
+		], callback);
+	}
+
+	// invite the user before registering ... since the user is registering with the same email
+	// with which they were invited, and since they provide an invite code, we should skip confirmation
+	// and just log them in
+	inviteUser (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/users',
+				data: {
+					teamId: this.team.id,
+					email: this.data.email,
+					_pubnubUuid: this.data._pubnubUuid,
+					_confirmationCheat: SecretsConfig.confirmationCheat,
+					_inviteCodeExpiresIn: this.inviteCodeExpiresIn
 				},
-				(error, response) => {
-					if (error) { return callback(error); }
-					this.data.inviteCode = response.inviteCode;
-					callback();
-				}
-			);
-		});
+				token: this.token
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.data.inviteCode = response.inviteCode;
+				callback();
+			}
+		);
 	}
 
 	// validate the response to the test request

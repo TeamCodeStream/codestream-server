@@ -60,7 +60,7 @@ class RegistrationTest extends CodeStreamAPITest {
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((user.creatorId === user.id.toString()) || errors.push('creatorId not equal to id')) &&
+			((user.creatorId === (this.expectedCreatorId || user.id).toString()) || errors.push('creatorId not equal to id')) &&
 			((typeof user.confirmationCode === 'string') || errors.push('confirmationCode is not a string')) &&
 			((user.phoneNumber === '') || errors.push('phoneNumber not set to default of empty string')) &&
 			((user.iWorkOn === '') || errors.push('iWorkOn not set to default value of empty string')) &&
@@ -68,6 +68,7 @@ class RegistrationTest extends CodeStreamAPITest {
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');
+		this.confirmationCode = user.confirmationCode;
 		delete user.confirmationCode; // this is technically unsanitized, but we "cheat" during the test
 		// verify we got no attributes that clients shouldn't see
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
