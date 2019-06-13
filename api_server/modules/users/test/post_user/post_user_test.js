@@ -92,7 +92,7 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			return this.existingUserData.user.fullName;
 		}
 		else {
-			return undefined;
+			return this.data.fullName;
 		}
 	}
 
