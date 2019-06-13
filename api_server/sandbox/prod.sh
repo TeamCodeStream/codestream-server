@@ -14,6 +14,7 @@ AZUREDEVOPS_API_ACCESS_FILE=$HOME/.codestream/microsoft/devops-production
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Production-Prod_Keyset"
 SEGMENT_TOKEN_FILE=$HOME/.codestream/segment/prod-api
 SEGMENT_WEB_TOKEN_FILE=$HOME/.codestream/segment/prod-webapp
+MSTEAMS_API_ACCESS_FILE=$HOME/.codestream/microsoft/teams-production
 MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream/prod-api
 
