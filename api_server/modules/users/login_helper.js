@@ -5,7 +5,7 @@
 const InitialDataFetcher = require('./initial_data_fetcher');
 const UserSubscriptionGranter = require('./user_subscription_granter');
 const UUID = require('uuid/v4');
-const ProviderFetcher = require('./provider_fetcher');
+const ProviderFetcher = require(process.env.CS_API_TOP + '/modules/providers/provider_fetcher');
 
 class LoginHelper {
 

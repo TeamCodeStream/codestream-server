@@ -3,7 +3,7 @@
 const ConfirmationTest = require('./confirmation_test');
 const Assert = require('assert');
 const UserTestConstants = require('../user_test_constants');
-const STANDARD_PROVIDER_HOSTS = require(process.env.CS_API_TOP + '/modules/teams/test/team_test_constants').STANDARD_PROVIDER_HOSTS;
+const STANDARD_PROVIDER_HOSTS = require(process.env.CS_API_TOP + '/modules/providers/provider_test_constants').STANDARD_PROVIDER_HOSTS;
 
 class InitialDataTest extends ConfirmationTest {
 

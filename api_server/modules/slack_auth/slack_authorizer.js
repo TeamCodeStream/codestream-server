@@ -4,6 +4,7 @@
 
 const { WebClient } = require('@slack/client');
 const RandomString = require('randomstring');
+const ProviderErrors = require(process.env.CS_API_TOP + '/modules/providers/errors');
 
 class SlackAuthorizer {
 
@@ -11,6 +12,7 @@ class SlackAuthorizer {
 		Object.assign(this, options);
 		this.request = options.options.request;
 		this.webClient = new WebClient();
+		this.request.errorHandler.add(ProviderErrors);
 	}
 
 	// given an authorization code from slack, exchange it for an access token and then get info 

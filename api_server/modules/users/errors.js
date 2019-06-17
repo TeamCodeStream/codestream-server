@@ -69,6 +69,7 @@ module.exports = {
 		message: 'This user is not yet on a team',
 		description: 'The user indicated by the passed signup token is not yet on any teams, so they are not cleared yet for sign-in'
 	},
+	/* deprecated in favor of provider module errors
 	'unknownProvider': {
 		code: 'USRC-1013',
 		message: 'Provider unknown',
@@ -84,11 +85,13 @@ module.exports = {
 		message: 'The user already has credentials for this provider',
 		description: 'The provider info passed contained credentials for a third-party provider that did not match the credentials the user already has for the provider'
 	},
+	*/
 	'inviteTeamMismatch': {
 		code: 'USRC-1016',
 		message: 'The team the user was invited to does not match the CodeStream team associated with their third-party provider account',
 		description: 'The user was invited to a team, but the ID of the team they were invited to does not match the ID of the team that matches the third-party team associated with their third-party credentials'
 	},
+	/* deprecated in favor of provider module errors
 	'unknownProviderHost': {
 		code: 'USRC-1017',
 		message: 'The third-party provider host can not be matched to a known enterprise host',
@@ -104,6 +107,7 @@ module.exports = {
 		message: 'No CodeStream identity was found to match the identity from third-party provider authentication',
 		description: 'After completing third-party provider authentication, a matching identity on CodeStream could not be found'
 	},
+	*/
 	'inviteMismatch': {
 		code: 'USRC-1020',
 		message: 'An attempt was made to register using an invite code, but the email in the registration request belongs to a different user for which there is an outstanding invitation',

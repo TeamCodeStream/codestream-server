@@ -33,16 +33,6 @@ const TEAM_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'team-settings/:id',
 		requestClass: require('./put_team_settings_request')
-	},
-	{
-		method: 'put',
-		path: 'provider-host/:provider/:teamId',
-		requestClass: require('./provider_host_request')
-	},
-	{
-		method: 'delete',
-		path: 'provider-host/:provider/:teamId/:providerId',
-		requestClass: require('./delete_provider_host_request')
 	}
 ];
 

@@ -127,46 +127,6 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'put',
-		path: '/no-auth/provider-connect/:provider',
-		requestClass: require('./provider_connect_request')
-	},
-	{
-		method: 'get',
-		path: '/no-auth/provider-auth/:provider',
-		requestClass: require('./provider_auth_request')
-	},
-	{
-		method: 'get',
-		path: '/no-auth/provider-token/:provider',
-		requestClass: require('./provider_token_request')
-	},
-	{
-		method: 'get',
-		path: '/provider-auth-code',
-		requestClass: require('./provider_authcode_request')
-	},
-	{
-		method: 'put',
-		path: '/provider-deauth/:provider',
-		requestClass: require('./provider_deauth_request')
-	},
-	{
-		method: 'get',
-		path: '/provider-refresh/:provider',
-		requestClass: require('./provider_refresh_request')
-	},
-	{
-		method: 'put',
-		path: '/provider-set-token/:provider',
-		requestClass: require('./provider_set_token_request')
-	},
-	{
-		method: 'put',
-		path: '/provider-info/:provider',
-		requestClass: require('./provider_info_request')
-	},
-	{
-		method: 'put',
 		path: 'bump-posts',
 		requestClass: require('./bump_posts_request')
 	}
