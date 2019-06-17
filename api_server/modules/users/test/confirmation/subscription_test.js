@@ -17,7 +17,11 @@ class SubscriptionTest extends CodeStreamAPITest {
 	constructor (options) {
 		super(options);
 		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
-		this.teamOptions.creatorIndex = 1;
+		this.userOptions.numRegistered = 2;
+		Object.assign(this.teamOptions, {
+			creatorIndex: 1,
+			numAdditionalInvites: 2
+		});
 		this.teamOptions.numAdditionalInvites = 2;
 		this.streamOptions.creatorIndex = 1;
 		this.usingSocketCluster = SocketClusterConfig.port;

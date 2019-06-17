@@ -8,8 +8,11 @@ class MeAttributesTest extends LoginTest {
 
 	constructor (options) {
 		super(options);
-		this.teamOptions.creatorIndex = 1;
-		this.teamOptions.numAdditionalInvites = 2;
+		this.userOptions.numRegistered = 2;
+		Object.assign(this.teamOptions, {
+			creatorIndex: 1,
+			numAdditionalInvites: 2
+		});
 		this.streamOptions.creatorIndex = 1;
 		this.postOptions.creatorIndex = 1;
 		this.postOptions.wantMarker = true;

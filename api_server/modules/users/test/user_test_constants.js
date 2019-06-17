@@ -51,7 +51,6 @@ const EXPECTED_LOGIN_RESPONSE = {
 	pubnubToken: true,
 	broadcasterToken: true,
 	pubnubKey: true,
-	providers: true,
 	teams: true,
 	repos: true
 };

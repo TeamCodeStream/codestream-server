@@ -61,6 +61,9 @@ class SlackAuthorizer {
 		}
 		let result;
 		try {
+			if (this.providerInfo.code === 'invalid-code') {
+				throw 'mock invalid';
+			}
 			result = await this.webClient.oauth.access({
 				client_id: this.request.api.config.slack.appClientId,
 				client_secret: this.request.api.config.slack.appClientSecret,

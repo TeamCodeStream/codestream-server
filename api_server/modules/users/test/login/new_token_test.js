@@ -40,7 +40,7 @@ class NewTokenTest extends LoginTest {
 				method: 'put',
 				path: '/password',
 				data: passwordData,
-				token: this.accessToken
+				token: this.token
 			},
 			callback
 		);

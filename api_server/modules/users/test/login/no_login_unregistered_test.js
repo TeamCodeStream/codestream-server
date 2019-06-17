@@ -1,12 +1,14 @@
 'use strict';
 
-var LoginTest = require('./login_test');
+const LoginTest = require('./login_test');
+const RandomString = require('randomstring');
 
 class NoLoginUnregisteredTest extends LoginTest {
 
 	constructor (options) {
 		super(options);
-		this.noConfirm = true;
+		this.userOptions.numUnregistered = 1;
+		this.userOptions.userData = [{}, { password: RandomString.generate(10) }];
 	}
 
 	get description () {
@@ -17,6 +19,17 @@ class NoLoginUnregisteredTest extends LoginTest {
 		return {
 			code: 'USRC-1010'
 		};
+	}
+
+	before (callback) {
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.data = {
+				email: this.users[1].user.email,
+				password: this.userOptions.userData[1].password
+			};
+			callback();
+		});
 	}
 }
 

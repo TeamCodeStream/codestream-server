@@ -23,11 +23,12 @@ class ClearFirstSessionTest extends LoginTest {
 				method: 'put',
 				path: '/no-auth/login',
 				data: {
-					email: this.user.email,
-					password: this.userData.password
+					email: this.data.email,
+					password: this.data.password
 				}
 			},
 			(error, response) => {
+				if (error) { return callback(error); }
 				Assert(response.user.firstSessionStartedAt === 0, 'firstSession was not set to 0');
 				callback();
 			}

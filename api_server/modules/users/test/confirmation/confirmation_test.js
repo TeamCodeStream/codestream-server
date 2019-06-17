@@ -9,6 +9,12 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 
 class ConfirmationTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		delete this.teamOptions.creatorIndex;
+		this.userOptions.numRegistered = 0;
+	}
+
 	get description () {
 		return 'should return valid user data and an access token when confirming a registration';
 	}

@@ -6,6 +6,7 @@ const UserTestConstants = require('../user_test_constants');
 const CommonInit = require('./common_init');
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const STANDARD_PROVIDER_HOSTS = require(process.env.CS_API_TOP + '/modules/teams/test/team_test_constants').STANDARD_PROVIDER_HOSTS;
 
 class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -57,6 +58,7 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
 		Assert(data.teams.length === 1, 'no team in response');
+		Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');
 		this.validateMatchingObject(this.team.id, data.teams[0], 'team');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}

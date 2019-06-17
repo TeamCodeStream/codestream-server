@@ -1,6 +1,6 @@
 'use strict';
 
-var LoginTest = require('./login_test');
+const LoginTest = require('./login_test');
 
 class NoAttributeTest extends LoginTest {
 

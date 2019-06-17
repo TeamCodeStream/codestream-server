@@ -7,8 +7,11 @@ class JoinMethodTest extends ConfirmationTest {
 
 	constructor (options) {
 		super(options);
-		this.teamOptions.creatorIndex = 1;
-		this.teamOptions.numAdditionalInvites = 2;
+		this.userOptions.numRegistered = 2;
+		Object.assign(this.teamOptions, {
+			creatorIndex: 1,
+			numAdditionalInvites: 2
+		});
 	}
 
 	get description () {

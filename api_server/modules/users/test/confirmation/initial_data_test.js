@@ -3,12 +3,17 @@
 const ConfirmationTest = require('./confirmation_test');
 const Assert = require('assert');
 const UserTestConstants = require('../user_test_constants');
+const STANDARD_PROVIDER_HOSTS = require(process.env.CS_API_TOP + '/modules/teams/test/team_test_constants').STANDARD_PROVIDER_HOSTS;
 
 class InitialDataTest extends ConfirmationTest {
 
 	constructor (options) {
 		super(options);
-		this.teamOptions.creatorIndex = 1;
+		this.userOptions.numRegistered = 2;
+		Object.assign(this.teamOptions, {
+			creatorIndex: 1,
+			numAdditionalInvites: 2
+		});
 		this.teamOptions.numAdditionalInvites = 2;
 		this.streamOptions.creatorIndex = 1;
 		this.repoOptions.creatorIndex = 1;
@@ -39,6 +44,7 @@ class InitialDataTest extends ConfirmationTest {
 		this.validateMatchingObject(this.team.id, data.teams[0], 'team');
 		Assert(data.repos.length === 1, 'no repo in response');
 		this.validateMatchingObject(this.repo.id, data.repos[0], 'repo');
+		Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');
 		super.validateResponse(data);
 	}
 }

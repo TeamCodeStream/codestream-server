@@ -10,7 +10,10 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 
 	constructor (options) {
 		super(options);
-		this.teamOptions.numAdditionalInvites = 2;
+		Object.assign(this.teamOptions, {
+			creatorIndex: 1,
+			numAdditionalInvites: 2
+		});
 		this.expectedOrigin = 'VS Code';
 		this.apiRequestOptions = {
 			headers: {

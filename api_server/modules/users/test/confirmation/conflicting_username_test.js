@@ -7,7 +7,10 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.teamOptions.numAdditionalInvites = 2;
+		Object.assign(this.teamOptions, {
+			creatorIndex: 1,
+			numAdditionalInvites: 2
+		});
 	}
 
 	get description () {

@@ -130,7 +130,6 @@ class LoginHelper {
 			teams: this.initialDataFetcher.teams
 		}).getThirdPartyProviders();
 
-		this.providers = info.standardProviders;
 		(this.initialDataFetcher.teams || []).forEach(team => {
 			const responseTeam = this.initialDataFetcher.initialData.teams.find(t => t.id === team.id);
 			if (responseTeam) {
@@ -149,7 +148,6 @@ class LoginHelper {
 			accessToken: this.accessToken,	// access token to supply in future requests
 			pubnubKey: this.request.api.config.pubnub.subscribeKey,	// give them the subscribe key for pubnub
 			pubnubToken: this.pubnubToken,	// token used to subscribe to PubNub channels
-			providers: this.providers,	// available third-party providers for integrations
 			broadcasterToken: this.broadcasterToken // more generic "broadcaster" token, for broadcaster solutions other than PubNub
 		};
 

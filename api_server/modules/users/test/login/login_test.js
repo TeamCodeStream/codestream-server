@@ -6,7 +6,7 @@ const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
 const UserAttributes = require('../../user_attributes');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const STANDARD_PROVIDER_HOSTS = require(process.env.CS_API_TOP + '/modules/teams/test/team_test_constants').STANDARD_PROVIDER_HOSTS;
 
 class LoginTest extends CodeStreamAPITest {
 
@@ -18,6 +18,8 @@ class LoginTest extends CodeStreamAPITest {
 				'X-CS-Plugin-IDE': 'VS Code'
 			}
 		};
+		this.userOptions.numRegistered = 1;
+		this.teamOptions.numAdditionalInvites = 0;
 	}
 
 	get description () {
@@ -38,32 +40,15 @@ class LoginTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.makeUser
-		], callback);
-	}
-
-	makeUser (callback) {
-		// create a random registered user, then prepare to submit the login request
-		// with the user's email and password
-		const func = this.noConfirm ? 'registerUser' : 'createUser';
-		this.userData = this.getUserData();
-		this.userFactory[func](this.userData, (error, userData) => {
+		super.before(error => {
 			if (error) { return callback(error); }
-			this.user = userData.user;
 			this.data = {
-				email: this.user.email,
-				password: this.userData.password
+				email: this.currentUser.user.email,
+				password: this.currentUser.password
 			};
-			this.accessToken = userData.accessToken;
 			this.beforeLogin = Date.now();
 			callback();
 		});
-	}
-
-	getUserData () {
-		return this.userFactory.getRandomUserData();
 	}
 
 	// validate the response to the test request
@@ -80,6 +65,7 @@ class LoginTest extends CodeStreamAPITest {
 		Assert(data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
+		Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 

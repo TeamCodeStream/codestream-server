@@ -18,7 +18,7 @@ class InvalidCodeTest extends ProviderConnectTest {
 	before (callback) {
 		// substitute a totally bogus auth token
 		super.before(() => {
-			this.data.providerInfo.code = 'blahblah';
+			this.data.providerInfo.code = 'invalid-code';
 			callback();
 		});
 	}

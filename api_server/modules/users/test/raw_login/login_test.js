@@ -6,18 +6,20 @@ const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
 const UserAttributes = require('../../user_attributes');
+const STANDARD_PROVIDER_HOSTS = require(process.env.CS_API_TOP + '/modules/teams/test/team_test_constants').STANDARD_PROVIDER_HOSTS;
 
 class LoginTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		delete this.teamOptions.creatorIndex;
 		this.expectedOrigin = 'VS Code';
 		this.apiRequestOptions = {
 			headers: {
 				'X-CS-Plugin-IDE': 'VS Code'
 			}
 		};
+		this.userOptions.numRegistered = 1;
+		this.teamOptions.numAdditionalInvites = 0;
 	}
 
 	get description () {
@@ -56,6 +58,7 @@ class LoginTest extends CodeStreamAPITest {
 		Assert(data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
+		Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 

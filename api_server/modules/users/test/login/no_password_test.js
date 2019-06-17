@@ -1,15 +1,17 @@
 'use strict';
 
 const RandomString = require('randomstring');
-const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const LoginTest = require('./login_test');
 
 class NoPasswordTest extends LoginTest {
 
 	constructor (options) {
 		super(options);
-		this.teamOptions.creatorIndex = 1;
-		this.teamOptions.numAdditionalInvites = 2;
+		this.userOptions.numRegistered = 2;
+		Object.assign(this.teamOptions, {
+			creatorIndex: 1,
+			numAdditionalInvites: 1
+		});
 	}
 
 	get description () {
@@ -23,10 +25,10 @@ class NoPasswordTest extends LoginTest {
 	}
 
 	before (callback) {
-		CodeStreamAPITest.prototype.before.call(this, error => {
+		super.before(error => {
 			if (error) { return callback(error); }
 			this.data = {
-				email: this.users[3].user.email,
+				email: this.users[2].user.email,
 				password: RandomString.generate(8)
 			};
 			callback();
