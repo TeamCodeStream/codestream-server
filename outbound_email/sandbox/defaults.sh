@@ -47,11 +47,12 @@ export PATH=$CS_OUTBOUND_EMAIL_TOP/bin:$PATH
 export CS_OUTBOUND_EMAIL_LOGS=$CS_OUTBOUND_EMAIL_SANDBOX/log    # Log directory
 # comment out if you do not want log messages to get sent to the console
 export CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK=1
-
 #export CS_OUTBOUND_EMAIL_TMP=$CS_OUTBOUND_EMAIL_SANDBOX/tmp     # temp directory
 #export CS_OUTBOUND_EMAIL_CONFS=$CS_OUTBOUND_EMAIL_SANDBOX/conf  # config files directory
 #export CS_OUTBOUND_EMAIL_DATA=$CS_OUTBOUND_EMAIL_SANDBOX/data   # data directory
 #export CS_OUTBOUND_EMAIL_PIDS=$CS_OUTBOUND_EMAIL_SANDBOX/pid    # pid files directory
+
+[ -z "$CS_OUTBOUND_EMAIL_ENV" ] && export CS_OUTBOUND_EMAIL_ENV=local
 [ -z "$CS_OUTBOUND_EMAIL_ASSET_ENV" ] && export CS_OUTBOUND_EMAIL_ASSET_ENV=local
 
 
@@ -65,14 +66,13 @@ if [ -n "$MONGO_ACCESS_FILE" -a -f "$MONGO_ACCESS_FILE" ]; then
 	[ -n "$MONGO_APP_PASS" ] && export CS_OUTBOUND_EMAIL_MONGO_PASS=$MONGO_APP_PASS
 	[ -n "$MONGO_DB" ] && export CS_OUTBOUND_EMAIL_MONGO_DATABASE=$MONGO_DB
 else
-	# Take the values from the mongo sandbox in the playground
-	TUNNEL_IP=$(sandutil_get_tunnel_ip)
-	[ -z "$TUNNEL_IP" -a "$CS_OUTBOUND_EMAIL_ASSET_ENV" == "local" ] && echo "FATAL: Lambda functions for outbound email won't work w/o your VPN IP" >&2
-	export CS_OUTBOUND_EMAIL_MONGO_HOST=$TUNNEL_IP
+	# Take the values from the vpn tunnel
+	MY_IP=$(sandutil_get_tunnel_ip fallbackLocalIp)
+	[ -z "$MY_IP" -a -n "$MDB_HOST" ] && MY_IP=$MDB_HOST
+	export CS_OUTBOUND_EMAIL_MONGO_HOST=$MY_IP
 	export CS_OUTBOUND_EMAIL_MONGO_PORT=27017
 	export CS_OUTBOUND_EMAIL_MONGO_DATABASE=codestream
-	echo "Setting mongo database to point to local development"
-	echo "Mongo Host = $CS_OUTBOUND_EMAIL_MONGO_HOST"
+	echo "outbound email mongo host = $CS_OUTBOUND_EMAIL_MONGO_HOST"
 	# Define these to tell the API service to use mongo authentication
 	#export CS_OUTBOUND_EMAIL_MONGO_USER=api
 	#export CS_OUTBOUND_EMAIL_MONGO_PASS=api
