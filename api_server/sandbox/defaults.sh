@@ -6,6 +6,8 @@
 # CS_API_SANDBOX  /path/to/root/of/sandbox
 # CS_API_TOP      /path/to/root/of/primary/git/project
 
+. $DT_TOP/lib/sandbox_utils.sh
+
 # ========== Optional override settings ==========
 if [ -f "$CS_API_SANDBOX/sb.options" ]; then
 	echo "Loading override parameters from $CS_API_SANDBOX/sb.options"
@@ -47,33 +49,36 @@ export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
 # This defines the runtime environment (local, pd, qa, prod, etc...)
 [ -z "$CS_API_ENV" ] && export CS_API_ENV=local
 
+# This defines the artifact (asset) build environment (local, dev or prod)
+[ -z "$CS_API_ASSET_ENV" ] && export CS_API_ASSET_ENV=local
+
+# For ec2 development, we run local sandboxes on named ec2 instances (not localhost)
+if [ "$CS_API_ENV" == local  -a  "$DT_OS_TYPE" == linux -a `hostname|cut -f1 -d\.` != localhost  ]; then
+	LOCAL_HOSTNAME=`hostname`
+	namedHost=1
+else
+	LOCAL_HOSTNAME="localhost.codestream.us"
+	namedHost=0
+fi
+
 # Publicly accessible url for accessing the API service
-[ -z "$CS_API_PUBLIC_URL" ] && export CS_API_PUBLIC_URL=https://localhost.codestream.us:$CS_API_PORT
+[ -z "$CS_API_PUBLIC_URL" ] && export CS_API_PUBLIC_URL=https://$LOCAL_HOSTNAME:$CS_API_PORT
 
 # For consutrction of a callback URL used in authentication
+# CS_API_AUTH_ORIGIN & CS_API_CALLBACK_ENV
 [ -z "$CS_API_AUTH_ORIGIN" ] && export CS_API_AUTH_ORIGIN=https://auth.codestream.us/no-auth
 if [ "$CS_API_ENV" == local  -a  -z "$CS_API_CALLBACK_ENV" ]; then
-	if [ "$DT_OS_TYPE" == osx ]; then
-		TUNNEL_IP=`netstat -rn|grep '^10\.9'|grep -v '/'|awk '{print $1}'|sed -e 's/\./-/g'`
-	elif [ -n "$DT_FALLBACK_TUNNEL_IP" ]; then
-		TUNNEL_IP="$DT_FALLBACK_TUNNEL_IP"
-	fi
-	if [ -z "$TUNNEL_IP" ]; then
-		echo "I cannot detect your VPN IP so oauth callbacks will not work to your local machine"
-	else
-		export CS_API_CALLBACK_ENV="local-$TUNNEL_IP"
-	fi
+	TUNNEL_IP=$(sandutil_get_tunnel_ip fallbackLocalIp,useHyphens)
+	[ -n "$TUNNEL_IP" ] && export CS_API_CALLBACK_ENV="local-$TUNNEL_IP"
 elif [ -z "$CS_API_CALLBACK_ENV" ]; then
 	export CS_API_CALLBACK_ENV=$CS_API_ENV
 fi
+[ -z "$CS_API_CALLBACK_ENV" ] && echo "call back environment not set - you will not be able to test integrations" >&2
 
 # Pointer to the codestream marketing site
 [ -z "$CS_API_MARKETING_SITE_URL" ] && export CS_API_MARKETING_SITE_URL=https://teamcodestream.webflow.io
 
-# This defines the asset environment (local, dev or prod)
-[ -z "$CS_API_ASSET_ENV" ] && export CS_API_ASSET_ENV=local
-
-# Allow console logging?
+# Allow console logging
 export CS_API_LOG_CONSOLE_OK=1
 
 # Enable help
@@ -349,7 +354,7 @@ fi
 
 # =============== Other Services ==============
 # The web-app service (for constructing links in email notifications)
-[ -z "$CS_API_WEB_CLIENT_ORIGIN" ] && export CS_API_WEB_CLIENT_ORIGIN=http://localhost.codestream.us:1380
+[ -z "$CS_API_WEB_CLIENT_ORIGIN" ] && export CS_API_WEB_CLIENT_ORIGIN=http://$LOCAL_HOSTNAME:1380
 
 
 # ============ Testing Settings ==============
@@ -407,7 +412,7 @@ if [ -f $RABBITMQ_ACCESS_FILE ]; then
 	export CS_API_RABBITMQ_USER=$RABBITMQ_USER
 	export CS_API_RABBITMQ_PASSWORD=$RABBITMQ_PASS
 else
-	echo "Not loading sandbox with RabbitMQ" >&2
+	echo "RabbitMQ variables not set" >&2
 fi
 
 # uncomment for on-prem (will use RabbitMQ in lieu of AWS SQS for message queuing)

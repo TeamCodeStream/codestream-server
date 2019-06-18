@@ -1,0 +1,21 @@
+
+#desc# CodeStream API services including mongo
+
+# IMPORTANT: this only works if all of the sandboxes are
+#            running the same version of node
+
+#sandboxes# mongo,api,mailout
+#environment# local
+
+dt_load mongo --quiet
+dt_load mailout --quiet
+dt_load api
+if [ "$1" == start ]; then
+	cs_api-service start
+	cs_outbound_email-service start
+elif [ "$1" == stop ]; then
+	cs_outbound_email-service stop
+	cs_api-service stop
+	sleep 5
+fi
+cd $CS_API_TOP
