@@ -4,6 +4,7 @@
 SSL_CERT=codestream.com
 MONGO_ACCESS_FILE="$HOME/.codestream/mongo/prod-codestream-dbowner"
 SLACK_API_ACCESS_FILE=$HOME/.codestream/slack/production
+SLACK_STRICT_API_ACCESS_FILE="$HOME/.codestream/slack/production-strict"
 # TRELLO_API_ACCESS_FILE=
 GITHUB_API_ACCESS_FILE=$HOME/.codestream/github/production
 ASANA_API_ACCESS_FILE=$HOME/.codestream/asana/production
