@@ -28,7 +28,8 @@ class WebProviderAuthRequest extends APIRequest {
 			teamId: this.request.query.teamId || '',
 			url: `${this.api.config.api.publicApiUrl}/web/provider-auth-complete/${this.provider}`,
 			end: this.request.query.url || '',
-			st: this.request.query.signupToken || ''
+			st: this.request.query.signupToken || '',
+			access: this.request.query.access || ''
 		};
 		const code = this.api.services.tokenHandler.generate(
 			payload,
@@ -48,7 +49,8 @@ class WebProviderAuthRequest extends APIRequest {
 			state,
 			provider: this.provider,
 			request: this,
-			redirectUri
+			redirectUri,
+			access: this.request.query.access
 		};
 
 		// get the specific query data to use in the redirect, and respond with the redirect url

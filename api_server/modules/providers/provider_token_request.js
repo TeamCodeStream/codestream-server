@@ -148,6 +148,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 		this.userId = this.tokenPayload.userId;
 		this.teamId = this.tokenPayload.teamId;
+		this.providerAccess = this.tokenPayload.access;
 	}
 
 	// handle any error sent by the provider
@@ -177,7 +178,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			request: this,
 			mockToken: this.request.query._mockToken,
 			host: this.host,
-			team: this.team
+			team: this.team,
+			access: this.providerAccess
 		};
 		try {
 			this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
@@ -338,7 +340,9 @@ class ProviderTokenRequest extends RestfulRequest {
 				more: {
 					signupStatus: this.signupStatus,
 					error: this.errorCode,
-					provider: this.provider
+					provider: this.provider,
+					providerAccess: this.providerAccess,
+					teamId: this.team && this.team.id
 				}
 			}
 		);

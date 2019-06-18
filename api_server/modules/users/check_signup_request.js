@@ -91,6 +91,8 @@ class CheckSignupRequest extends RestfulRequest {
 		}).login();
 		this.responseData.signupStatus = this.signupToken.signupStatus;
 		this.responseData.provider = this.signupToken.provider;
+		this.responseData.providerAccess = this.signupToken.providerAccess;
+		this.responseData.teamId = this.signupToken.teamId;
 	}
 
 	// remove the signup token we were given, signup using this token is no longer valid

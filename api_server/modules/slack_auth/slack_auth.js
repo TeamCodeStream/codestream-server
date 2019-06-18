@@ -15,6 +15,26 @@ const OAUTH_CONFIG = {
 	scopes: 'identify client'
 };
 
+const STRICT_SCOPES = [
+	'channels:history',
+	'channels:read',
+	'channels:write',
+	'chat:write:user',
+	'groups:history',
+	'groups:read',
+	'groups:write',
+	'im:history',
+	'im:read',
+	'im:write',
+	'users:read',
+	'users:read.email',
+	'users.profile:read',
+	'reactions:write',
+	'mpim:history',
+	'mpim:read',
+	'mpim:write'
+];
+
 class SlackAuth extends OAuthModule {
 
 	constructor (config) {
@@ -24,6 +44,27 @@ class SlackAuth extends OAuthModule {
 
 	async authorizeProviderInfo (providerInfo, options) {
 		return await new SlackAuthorizer({ providerInfo, options }).exchangeAndAuthorize();
+	}
+
+	// overrides OAuthModule.getRedirectData to allow for "slack-lite", slack without the
+	// scary "client" scope
+	getRedirectData (options) {
+		const data = super.getRedirectData(options);
+		if (options.access === 'strict') {
+			data.parameters.scope = STRICT_SCOPES.join(' ');
+		}
+		return data;
+	}
+
+	// overrides OAuthModule.getClientInfo to allow for "slack-lite", slack without the
+	// scary "client" scope ... in this case, we use different client ID and secret
+	getClientInfo (options) {
+		const info = super.getClientInfo(options);
+		if (options.access === 'strict') {
+			info.clientId = this.apiConfig.appStrictClientId;
+			info.clientSecret = this.apiConfig.appStrictClientSecret;
+		}
+		return info;
 	}
 
 	validateChannelName (name) {
