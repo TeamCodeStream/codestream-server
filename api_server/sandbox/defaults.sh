@@ -150,6 +150,20 @@ else
 fi
 
 
+# ================= Slack Strict API Access ==================
+[ -z "$SLACK_STRICT_API_ACCESS_FILE" ] && SLACK_STRICT_API_ACCESS_FILE=$HOME/.codestream/slack/development-strict
+if [ -f $SLACK_STRICT_API_ACCESS_FILE ]; then
+	. $SLACK_STRICT_API_ACCESS_FILE
+	export CS_API_SLACK_STRICT_CLIENT_ID="$SLACK_CLIENT_ID"
+	export CS_API_SLACK_STRICT_CLIENT_SECRET="$SLACK_CLIENT_SECRET"
+else
+	echo "********************************************************************"
+	echo "WARNING: slack strict api access file not found ($SLACK_STRICT_API_ACCESS_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
+	echo "********************************************************************"
+fi
+
+
 # ================= Trello API Access ==============
 [ -z "$TRELLO_API_ACCESS_FILE" ] && TRELLO_API_ACCESS_FILE=$HOME/.codestream/trello/codestreamops
 if [ -f $TRELLO_API_ACCESS_FILE ]; then
