@@ -18,8 +18,7 @@ const OAUTH_CONFIG = {
 		'offline_access'
 	].join(' '),
 	additionalAuthCodeParameters: {
-		response_mode: 'query',
-		prompt: 'consent'
+		response_mode: 'query'
 	},
 	supportsRefresh: true,
 	mockAccessTokenExpiresIn: 3600

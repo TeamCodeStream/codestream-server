@@ -85,10 +85,10 @@ class IntercomUpdater {
 			console.log(`Updating team ${team._id}:"${team.name}" with`, update);
 			try {
 				await this.intercomClient.companies.update(update);
-				setTimeout(resolve, 1000);
+				setTimeout(resolve, 300);
 			}
 			catch (error) {
-				console.warn('unable to update team ' + team._id, error);
+				console.warn('****** UNABLE TO UPDATE TEAM ' + team._id, error);
 				setTimeout(resolve, 100);
 			}
 		});
