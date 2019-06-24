@@ -58,6 +58,7 @@
     "intercom-client": "2.10.6",
     "mocha": "6.1.4",
     "mocha-teamcity-reporter": "3.0.0",
+    "nodemon": "1.19.1",
     "pre-commit": "1.2.2",
     "randomstring": "1.1.5",
     "socketcluster": "14.3.3"

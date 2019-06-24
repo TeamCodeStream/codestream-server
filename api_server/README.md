@@ -50,3 +50,19 @@ and **$my_api_sandbox_name** variables with their real vales
 	/bin/rm -rf ~/sandboxes/$my_api_sandbox_name.ORIG
 	```
 
+1. If you'd like to run with a node watcher, run the following, replacing the `-e` argument with the file extensions you'd like to watch for changes:
+	```
+	nodemon -e js,hbs bin/api_server.js --one_worker
+	```
+
+1. If you'd like to run the api_server with a debugger, add an `--inspect` argument before the executable .js file as such:
+	```
+	node --inspect bin/api_server.js --one_worker
+	```
+	or
+
+	```
+	nodemon -e js,hbs --inspect bin/api_server.js --one_worker
+	```
+
+then, in VS Code, run the `Node: Debugger` task. You'll want to attach to the process running on port `9230` when prompted.
