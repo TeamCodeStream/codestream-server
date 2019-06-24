@@ -12,6 +12,26 @@ const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils')
 const ROUTES = [
 	{
 		method: 'get',
+		path: 'web/user/password',
+		requestClass: require('./web_password_set')
+	},
+	{
+		method: 'post',
+		path: 'web/user/password',
+		requestClass: require('./web_password_set')
+	},
+	{
+		method: 'get',
+		path: 'web/user/password/reset/invalid',
+		requestClass: require('./web_password_reset_invalid')
+	},
+	{
+		method: 'get',
+		path: 'web/user/password/updated',
+		requestClass: require('./web_password_updated')
+	},
+	{
+		method: 'get',
 		path: 'web/finish',
 		requestClass: require('./web_finish_request')
 	},

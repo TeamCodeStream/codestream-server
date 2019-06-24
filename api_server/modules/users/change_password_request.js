@@ -3,10 +3,7 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const BCrypt = require('bcrypt');
-const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
-const PasswordHasher = require('./password_hasher');
-const UserValidator = require('./user_validator');
+const ChangePasswordCore = require(process.env.CS_API_TOP + '/modules/users/change_password_core');
 
 class ChangePasswordRequest extends RestfulRequest {
 
@@ -17,10 +14,11 @@ class ChangePasswordRequest extends RestfulRequest {
 	// process the request....
 	async process () {
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
-		await this.validatePassword();	// validate the given password matches their password hash
-		await this.hashPassword();		// hash the new password
-		await this.generateToken();		// generate a new access token
-		await this.updateUser();		// update the user's database record
+		
+		await new ChangePasswordCore({
+			request: this,
+			errorHandler: this.errorHandler
+		}).changePassword(this.user, this.request.body.newPassword, this.request.body.existingPassword);
 	}
 
 	// require these parameters, and discard any unknown parameters
@@ -33,71 +31,6 @@ class ChangePasswordRequest extends RestfulRequest {
 				}
 			}
 		);
-		this.password = this.request.body.newPassword;
-		this.user = this.request.user;
-	}
-
-	// validate that the existing password matches the password hash stored for the user
-	async validatePassword () {
-		let result;
-		try {
-			result = await callbackWrap(
-				BCrypt.compare,
-				this.request.body.existingPassword,
-				this.user.get('passwordHash')
-			);
-		}
-		catch (error) {
-			throw this.errorHandler.error('token', { reason: error });
-		}
-		if (!result) {
-			throw this.errorHandler.error('passwordMismatch');
-		}
-	}
-
-	// hash the given password, as needed
-	async hashPassword () {
-		const error = new UserValidator().validatePassword(this.password);
-		if (error) {
-			throw this.errorHandler.error('validation', { info: `password ${error}` });
-		}
-		this.passwordHash = await new PasswordHasher({
-			errorHandler: this.errorHandler,
-			password: this.password
-		}).hashPassword();
-	}
-
-	// generate a new access token for the user, all other access tokens will be invalidated by this
-	async generateToken () {
-		this.accessToken = this.api.services.tokenHandler.generate({ uid: this.user.id });
-		this.minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
-		this.responseData = {
-			accessToken: this.accessToken
-		};
-	}
-
-	// update the user in the database, with their new password hash and access tokens
-	async updateUser () {
-		const accessTokens = this.user.get('accessTokens') || {};
-		Object.keys(accessTokens).forEach(type => {
-			if (type === 'rst' || type === 'conf') {
-				delete accessTokens[type];
-			}
-			else {
-				accessTokens[type].invalidated = true;
-			}
-		});
-		accessTokens.web = {
-			token: this.accessToken,
-			minIssuance: this.minIssuance
-		};
-		const op = {
-			'$set': {
-				passwordHash: this.passwordHash,
-				accessTokens: accessTokens
-			}
-		};
-		this.user = await this.data.users.applyOpById(this.user.id, op);
 	}
 
 	// describe this route for help
