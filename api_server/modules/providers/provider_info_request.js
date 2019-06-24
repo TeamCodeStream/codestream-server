@@ -1,4 +1,4 @@
-// handle the "POST /provider-info" request to set miscellaneous provider info
+// handle the "PUT /provider-info" request to set miscellaneous provider info
 // for a third-party provider direct from the client
 
 'use strict';

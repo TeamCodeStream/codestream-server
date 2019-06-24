@@ -1,13 +1,13 @@
 'use strict';
 
-const ProviderSetTokenTest = require('./provider_set_token_test');
+const ProviderInfoTest = require('./provider_info_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
 
-class FetchTest extends ProviderSetTokenTest {
+class FetchTest extends ProviderInfoTest {
 
 	get description () {
-		return 'should properly update the user with the provider token when a provider token is added, checked by fetching the user';
+		return 'should properly update the user with the provider info when provider info is set, checked by fetching the user';
 	}
 
 	get method () {
@@ -18,7 +18,7 @@ class FetchTest extends ProviderSetTokenTest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,			// do the usual test prep
-			this.setProviderToken,	// perform the actual update
+			this.setProviderInfo,	// perform the actual update
 			this.setPath			// set the path of the test, which is to fetch the user
 		], callback);
 	}
@@ -31,8 +31,8 @@ class FetchTest extends ProviderSetTokenTest {
 	// validate that the response is correct
 	validateResponse (data) {
 		// verify what we fetch is what we got back in the response
-		this.expectedUser.modifiedAt = this.setProviderTokenResponse.user.$set.modifiedAt;
-		this.expectedUser.version = this.setProviderTokenResponse.user.$set.version;
+		this.expectedUser.modifiedAt = this.setProviderInfoResponse.user.$set.modifiedAt;
+		this.expectedUser.version = this.setProviderInfoResponse.user.$set.version;
 		this.expectedUser.companyIds = [this.company.id];
 		this.expectedUser.teamIds = [this.team.id];
 		this.expectedUser.joinMethod = 'Created Team';

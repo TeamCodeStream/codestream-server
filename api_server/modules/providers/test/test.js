@@ -12,6 +12,7 @@ const ProviderTokenRequestTester = require('./provider_token/test');
 const ProviderDeauthRequestTester = require('./provider_deauth/test');
 const ProviderRefreshRequestTester = require('./provider_refresh/test');
 const ProviderSetTokenRequestTester = require('./provider_set_token/test');
+const ProviderInfoRequestTester = require('./provider_info/test');
 const ProviderHostRequestTester = require('./provider_host/test');
 const DeleteProviderHostRequestTester = require('./delete_provider_host/test');
 
@@ -26,6 +27,7 @@ describe('user requests', function() {
 	describe('PUT /provider-deauth/:provider', ProviderDeauthRequestTester.test);
 	describe('GET /provider-refresh/:provider', ProviderRefreshRequestTester.test);
 	describe('PUT /provider-set-token/:provider', ProviderSetTokenRequestTester.test);
+	describe('PUT /provider-info/:provider', ProviderInfoRequestTester.test);
 	describe('PUT /provider-host/:provider/:teamId', ProviderHostRequestTester.test);
 	describe('DELETE /provider-host/:provider/:teamId/:providerId', DeleteProviderHostRequestTester.test);
 });

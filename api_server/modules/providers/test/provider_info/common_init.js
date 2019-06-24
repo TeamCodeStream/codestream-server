@@ -8,17 +8,17 @@ class CommonInit {
 	init (callback) {
 		BoundAsync.series(this, [
 			CodeStreamAPITest.prototype.before.bind(this),
-			this.makeProviderTokenData	// make the data to be used during the update
+			this.makeProviderInfoData	// make the data to be used during the update
 		], callback);
 	}
 	
 	// form the data for the update
-	makeProviderTokenData (callback) {
+	makeProviderInfoData (callback) {
 		this.data = {
 			teamId: this.team.id,
-			token: 'somerandomtoken',
 			data: {
-				baseUrl: 'https://someurl.com'
+				organization: 'someorg',
+				otherData: 'foo'
 			}
 		};
 		if (this.testHost) {
@@ -32,7 +32,7 @@ class CommonInit {
 			}
 		};
 			
-		this.path = `/provider-set-token/${this.provider}`;
+		this.path = `/provider-info/${this.provider}`;
 		this.modifiedAfter = Date.now();
 		this.expectedData = {
 			user: {
@@ -54,35 +54,32 @@ class CommonInit {
 		if (this.testHost) {
 			setKey += `.hosts.${starredHost}`;
 		}
-		const setData = {
-			accessToken: this.data.token,
-			data: this.data.data
-		};
-		this.expectedData.user.$set[`${setKey}.accessToken`] = this.data.token;
-		this.expectedData.user.$set[`${setKey}.data`] = this.data.data;
+		Object.keys(this.data.data).forEach(key => {
+			this.expectedData.user.$set[`${setKey}.${key}`] = this.data.data[key];
+		});
 		if (this.testHost) {
 			this.expectedUser.providerInfo[this.team.id][this.provider].hosts = {
-				[starredHost]: setData
+				[starredHost]: this.data.data
 			};
 		}
 		else {
-			this.expectedUser.providerInfo[this.team.id][this.provider] = setData;
+			this.expectedUser.providerInfo[this.team.id][this.provider] = this.data.data;
 		}
 		callback();
 	}
 
 	// perform the actual update 
-	setProviderToken (callback) {
+	setProviderInfo (callback) {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: `/provider-set-token/${this.provider}`,
+				path: `/provider-info/${this.provider}`,
 				data: this.data,
 				token: this.token
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.setProviderTokenResponse = response;
+				this.setProviderInfoResponse = response;
 				delete this.data;	// don't need this anymore
 				callback();
 			}
