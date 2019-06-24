@@ -10,14 +10,14 @@ class UnknownProviderTest extends DeleteProviderHostTest {
 
 	getExpectedError () {
 		return {
-			code: 'USRC-1013'
+			code: 'PRVD-1000'
 		};
 	}
 
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(); }
-			const starredHost = this.host.replace(/\./g, '*');
+			const starredHost = encodeURIComponent(this.host.replace(/\./g, '*'));
 			this.path = `/provider-host/unknown/${this.team.id}/${starredHost}`;
 			callback();
 		});

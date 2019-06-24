@@ -6,7 +6,7 @@ const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation'
 const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const CommonInit = require('./common_init');
-const TeamTestConstants = require('../team_test_constants');
+const TeamTestConstants = require(process.env.CS_API_TOP + '/modules/teams/test/team_test_constants');
 
 class DeleteProviderHostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 

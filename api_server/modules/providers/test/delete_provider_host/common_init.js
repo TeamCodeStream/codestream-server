@@ -61,8 +61,9 @@ class CommonInit {
 			hasIssues: true,
 			host: this.controlProviderHostData.host
 		};
-		const starredHost = encodeURIComponent(this.host.replace(/\./g, '*')).toLowerCase();
-		this.path = `/provider-host/${this.provider}/${this.team.id}/${starredHost}`;
+		const starredHost = this.host.replace(/\./g, '*').toLowerCase();
+		const encodedHost = encodeURIComponent(starredHost);
+		this.path = `/provider-host/${this.provider}/${this.team.id}/${encodedHost}`;
 		this.modifiedAfter = Date.now();
 		this.expectedData = {
 			team: {

@@ -34,7 +34,7 @@ class DeleteProviderHostRequest extends RestfulRequest {
 		}
 
 		const now = Date.now();
-		const providerId = this.request.params.providerId.toLowerCase();
+		const providerId = decodeURIComponent(this.request.params.providerId.toLowerCase());
 		const unsetKey = `providerHosts.${provider}.${providerId}`;
 		const op = {
 			$set: {

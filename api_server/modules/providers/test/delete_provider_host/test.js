@@ -3,15 +3,13 @@
 
 'use strict';
 
-/*
 const DeleteProviderHostTest = require('./delete_provider_host_test');
 const TeamNotFoundTest = require('./team_not_found_test');
 const ACLTest = require('./acl_test');
 const UnknownProviderTest = require('./unknown_provider_test');
 const FetchTest = require('./fetch_test');
 const MessageToTeamTest = require('./message_to_team_test');
-*/
-/*
+
 const TEST_HOSTS = [
 	{
 		provider: 'github_enterprise',
@@ -30,12 +28,10 @@ var SameTestHostNum = () => {
 var NextTestHostNum = () => {
 	return (TEST_HOST_NUM++) % TEST_HOSTS.length;
 };
-*/
 
 class DeleteProviderHostRequestTester {
 
 	test () {
-		/*
 		new DeleteProviderHostTest({ 
 			provider: TEST_HOSTS[SameTestHostNum()].provider,
 			host: TEST_HOSTS[NextTestHostNum()].host
@@ -60,7 +56,6 @@ class DeleteProviderHostRequestTester {
 			provider: TEST_HOSTS[SameTestHostNum()].provider,
 			host: TEST_HOSTS[NextTestHostNum()].host
 		}).test();
-		*/
 	}
 }
 
