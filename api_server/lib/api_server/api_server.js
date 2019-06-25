@@ -405,7 +405,7 @@ class APIServer {
 			return;
 		}
 
-		const cookies = request.headers.cookie.split(';');
+		const cookies = request.headers.cookie.split('; ');
 		for (let cookie of cookies) {
 			let [name, value] = cookie.split('=');
 			if (name && value) {
