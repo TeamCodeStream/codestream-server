@@ -15,7 +15,7 @@ class ProviderInfoRequestTester {
 
 	test () {
 		new ProviderInfoTest({ provider: 'trello' }).test();
-		new ProviderInfoTest({ provider: 'github', testHost: 'github.codestream.us' }).test();
+		new ProviderInfoTest({ provider: 'github_enterprise', testHost: 'github.codestream.us' }).test();
 		new TeamNotFoundTest({ provider: 'asana' }).test();
 		new ACLTest({ provider: 'jira' }).test();
 		new ParameterRequiredTest({ provider: 'gitlab', parameter: 'teamId' }).test();

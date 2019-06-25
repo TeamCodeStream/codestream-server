@@ -54,8 +54,10 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		switch (this.provider) {
 		case 'trello':
 		case 'youtrack':
+		case 'jiraserver':
 			break;
 		case 'github':
+		case 'github_enterprise':
 			expectedTestCallData = this.getExpectedGithubTestCallData();
 			break;
 		case 'asana':
@@ -126,6 +128,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		}
 		const providerSet = message.message.user.$set;
 		const expectedProviderSet = this.message.user.$set;
+
 		if (['jira', 'asana', 'bitbucket', 'gitlab', 'azuredevops', 'glip', 'msteams'].includes(this.provider)) {
 			expectedProviderSet[`${key}.refreshToken`] = 'refreshMe';
 			const expiresIn = ['bitbucket', 'gitlab'].includes(this.provider) ? 7200 : 
@@ -135,15 +138,22 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			Assert(providerExpiresAt > this.requestSentAt + (expiresIn - 6) * 1000, `expiresAt not set for ${this.provider}`);
 			expectedProviderSet[expiresAtKey] = providerExpiresAt;
 		}
+
 		if (this.provider === 'trello') {
 			expectedProviderSet[`${key}.apiKey`] = TrelloConfig.apiKey;
 			expectedProviderSet[`${key}.data`] = {
 				apiKey: TrelloConfig.apiKey
 			};
 		}
+
 		if (this.provider === 'youtrack') {
 			expectedProviderSet[`${key}.data`] = { };
 		}
+
+		if (this.provider === 'jiraserver') {
+			expectedProviderSet[`${key}.oauthTokenSecret`] = this.oauthTokenSecret;
+		}
+
 		return super.validateMessage(message);
 	}
 }

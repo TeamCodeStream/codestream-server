@@ -21,18 +21,12 @@ class CookieParserModule extends APIServerModule {
 		return [
 
 			(request, response, next) => {
-				if (this.api.config.api.mockMode) {
-					return next();
-				}
 				// we only need to obtain the parser function once
 				this.cookieParserFunc = this.cookieParserFunc || CookieParser(this.api.config.secrets.cookie);
 				return this.cookieParserFunc(request, response, next);
 			},
 
 			(request, response, next) => {
-				if (this.api.config.api.mockMode) {
-					return next();
-				}
 				if (!this.pathIsCookieAuth(request)) {
 					return next();
 				}

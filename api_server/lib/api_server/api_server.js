@@ -358,6 +358,7 @@ class APIServer {
 			headers[headerKey.toLowerCase()] = request.headers[headerKey];
 			return headers;
 		}, {});
+		this.handleIpcRequestCookies(request);
 		request.url = request.path;
 		request.path = request.url.split('?')[0];
 		request.query = (request.url.split('?')[1] || '').split('&').reduce((query, param) => {
@@ -394,6 +395,28 @@ class APIServer {
 			}
 		};
 		this.ipcMiddleware[0](request, response, next);
+	}
+
+	// handle any cookies in an incoming IPC request
+	handleIpcRequestCookies (request) {
+		request.cookies = {};
+		request.signedCookies = {};
+		if (!request.headers.cookie) {
+			return;
+		}
+
+		const cookies = request.headers.cookie.split(';');
+		for (let cookie of cookies) {
+			let [name, value] = cookie.split('=');
+			if (name && value) {
+				name = name.trim();
+				value = value.trim();
+				request.cookies[name] = value;
+				if (value.startsWith('s:')) {
+					request.signedCookies[name] = value.substring(2);
+				}
+			}
+		}
 	}
 
 	// find a matching route to a path given in an IPC request

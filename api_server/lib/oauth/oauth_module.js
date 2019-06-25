@@ -441,8 +441,12 @@ class OAuthModule extends APIServerModule {
 
 	// fetch a request token for modules using OAuth 1.0
 	getRequestToken (options) {
+		const { mockToken } = options;
 		this.initOauth1AsNeeded(options);
 		return new Promise((resolve, reject) => {
+			if (mockToken) {
+				return resolve({ oauthToken: mockToken, oauthTokenSecret: 'mockTokenSecret '});
+			}
 			this.oauth1Consumer.getOAuthRequestToken(
 				(error, oauthToken, oauthTokenSecret) => {
 					if (error) {
@@ -461,6 +465,9 @@ class OAuthModule extends APIServerModule {
 	async getOauth1AccessToken (options) {
 		this.initOauth1AsNeeded(options);
 		return new Promise((resolve, reject) => {
+			if (options.mockToken) {
+				return resolve({ accessToken: options.mockToken, oauthTokenSecret: options.oauthTokenSecret });
+			}
 			this.oauth1Consumer.getOAuthAccessToken(
 				options.oauthToken,
 				options.oauthTokenSecret,
@@ -481,8 +488,8 @@ class OAuthModule extends APIServerModule {
 	initOauth1AsNeeded (options) {
 		if (this.oauth1Consumer) { return; }
 		const clientInfo = this.getClientInfo(options);
-		const { oauthData } = clientInfo || {};
-		const { consumerKey, privateKey } = oauthData;
+		const { oauthData } = clientInfo;
+		const { consumerKey, privateKey } = (oauthData || {});
 		this.oauth1Consumer = new OAuth(
 			`${clientInfo.host}/${this.oauthConfig.requestTokenPath}`,
 			`${clientInfo.host}/${this.oauthConfig.accessTokenPath}`,

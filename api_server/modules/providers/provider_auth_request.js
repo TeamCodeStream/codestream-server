@@ -3,6 +3,7 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
 class ProviderAuthRequest extends RestfulRequest {
 
@@ -38,6 +39,14 @@ class ProviderAuthRequest extends RestfulRequest {
 
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
+		// mock token must be accompanied by secret
+		if (this.request.query._secret !== SecretsConfig.confirmationCheat) {
+			delete this.request.query._mockToken;
+		}
+		else {
+			delete this.request.query._secret;
+		}
+
 		await this.requireAllowParameters(
 			'query',
 			{
@@ -45,7 +54,7 @@ class ProviderAuthRequest extends RestfulRequest {
 					string: ['code']
 				},
 				optional: {
-					string: ['host']
+					string: ['host', '_mockToken']
 				}
 			}
 		);
@@ -75,15 +84,16 @@ class ProviderAuthRequest extends RestfulRequest {
 		if (!this.serviceAuth.usesOauth1()) {
 			return;
 		}
-		let { host } = this.request.query;
+		let { host, _mockToken } = this.request.query;
 		const options = {
 			request: this,
 			host,
-			team: this.team
+			team: this.team,
+			mockToken: _mockToken
 		};
 
 		// once we obtain the token, we need it not only for the redirect, but for the callback,
-		// but it won't survive the direct so we need to store it as a cookie --- yuckers
+		// but it won't survive the redirect so we need to store it as a cookie --- yuckers
 		this.requestTokenInfo = await this.serviceAuth.getRequestToken(options);
 		const cookie = `rt-${this.provider}`;
 		const token = JSON.stringify({
@@ -149,7 +159,7 @@ class ProviderAuthRequest extends RestfulRequest {
 		const authOrigin = `${this.api.config.api.publicApiUrl}/no-auth`;
 		const callback = encodeURIComponent(`${authOrigin}/provider-token/${this.provider}`);
 		const authorizePath = this.serviceAuth.getAuthorizePath();
-		const clientInfo = this.serviceAuth.getClientInfo({ host, team: this.team });
+		const clientInfo = this.serviceAuth.getClientInfo({ host, team: this.team, request: this });
 		const url = `${clientInfo.host}/${authorizePath}?oauth_token=${this.requestTokenInfo.oauthToken}&oauth_callback=${callback}`;
 		this.response.redirect(url);
 		this.responseHandled = true;

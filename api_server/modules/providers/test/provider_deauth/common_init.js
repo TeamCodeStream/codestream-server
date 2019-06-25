@@ -6,11 +6,7 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
-const GithubConfig = require(process.env.CS_API_TOP + '/config/github');
-const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
-const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
-const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
-const Base64 = require('base-64');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
 class CommonInit {
 
@@ -22,7 +18,7 @@ class CommonInit {
 			this.addTestHost,	// add simulated enterprise host, as needed
 			this.getAuthCode,	// get an auth-code to use in the provider-token request
 			this.setProviderToken,	// make the provider-token request
-			this.setExpectedResponse,	// set the expected response or message
+			this.setExpectedResponse	// set the expected response or message
 		], callback);
 	}
 
@@ -84,6 +80,7 @@ class CommonInit {
 		this.code = RandomString.generate(16);
 		this.mockToken = RandomString.generate(16);
 		const path = this.getPath();
+		const cookie = this.provider === 'jiraserver' ? this.getJiraServerCookie() : undefined;
 		this.requestSentAfter = Date.now();		
 		this.doApiRequest(
 			{
@@ -91,7 +88,8 @@ class CommonInit {
 				path: path,
 				requestOptions: {
 					noJsonInResponse: true,
-					expectRedirect: true
+					expectRedirect: true,
+					headers: { cookie }
 				}
 			},
 			callback
@@ -144,60 +142,22 @@ class CommonInit {
 		return {
 			code: this.code,
 			state: this.state,
-			_mockToken: this.mockToken
+			_mockToken: this.mockToken,
+			_secret: SecretsConfig.confirmationCheat
 		};
 	}
 
-	getExpectedGithubTestCallData () {
-		const parameters = {
-			client_id: GithubConfig.appClientId,
-			client_secret: GithubConfig.appClientSecret,
-			code: this.code,
-			redirect_uri: this.redirectUri,
-			state: this.state
-		};
-		const query = Object.keys(parameters)
-			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
-			.join('&');
-		const host = this.testHost || 'github.com';
-		const url = `https://${host}/login/oauth/access_token?${query}`;
-		return { url, parameters };
-	}
-
-	getExpectedAsanaTestCallData () {
-		const parameters = {
-			grant_type: 'authorization_code',
-			client_id: AsanaConfig.appClientId,
-			client_secret: AsanaConfig.appClientSecret,
-			code: this.code,
-			redirect_uri: this.redirectUri,
-			state: this.state
-		};
-		const url = 'https://app.asana.com/-/oauth_token';
-		return { url, parameters };
-	}
-
-	getExpectedJiraTestCallData () {
-		const parameters = {
-			grant_type: 'authorization_code',
-			client_id: JiraConfig.appClientId,
-			client_secret: JiraConfig.appClientSecret,
-			code: this.code,
-			redirect_uri: this.redirectUri
-		};
-		const url = 'https://auth.atlassian.com/oauth/token';
-		return { url, parameters };
-	}
-
-	getExpectedBitbucketTestCallData () {
-		const parameters = {
-			code: this.code,
-			grant_type: 'authorization_code',
-			redirect_uri: this.redirectUri
-		};
-		const userAuth = Base64.encode(`${BitbucketConfig.appClientId}:${BitbucketConfig.appClientSecret}`);
-		const url = 'https://bitbucket.org/site/oauth2/access_token';
-		return { url, parameters, userAuth };
+	getJiraServerCookie () {
+		this.oauthTokenSecret = RandomString.generate(16);
+		const cookie = `rt-${this.provider}`;
+		const token = JSON.stringify({
+			oauthToken: RandomString.generate(16),
+			oauthTokenSecret: this.oauthTokenSecret,
+			userId: this.currentUser.user.id,
+			teamId: this.team.id,
+			host: this.testHost
+		});
+		return `${cookie}=s:${token};`;
 	}
 }
 

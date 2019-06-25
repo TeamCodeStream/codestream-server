@@ -14,7 +14,7 @@ const PROVIDERS = [
 	'jira',
 	'gitlab',
 	'bitbucket',
-	//'youtrack',
+	'youtrack',
 	'azuredevops',
 	'slack',
 	'msteams',
@@ -22,8 +22,8 @@ const PROVIDERS = [
 ];
 
 const ENTERPRISE_PROVIDERS = {
-//	'github_enterprise': 'https://git.codestream.us',
-//	'jiraserver': 'https://jira.codestream.us'
+	'github_enterprise': 'https://git.codestream.us',
+	'jiraserver': 'https://jira.codestream.us'
 };
 
 class ProviderDeauthRequestTester {

@@ -8,6 +8,7 @@ const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_sav
 const ProviderIdentityConnector = require('./provider_identity_connector');
 const UserPublisher = require('../users/user_publisher');
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
 class ProviderTokenRequest extends RestfulRequest {
 
@@ -80,6 +81,14 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
+		// mock token must be accompanied by secret
+		if (this.request.query._secret !== SecretsConfig.confirmationCheat) {
+			delete this.request.query._mockToken;
+		}
+		else {
+			delete this.request.query._secret;
+		}
+
 		await this.requireAllowParameters(
 			'query',
 			{
@@ -224,7 +233,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			oauthToken,
 			oauthTokenSecret,
 			host: this.host,
-			team: team
+			team: team,
+			mockToken: this.request.query._mockToken
 		};
 		this.tokenData = await this.serviceAuth.getOauth1AccessToken(options);
 	}
