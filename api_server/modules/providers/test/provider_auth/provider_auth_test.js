@@ -11,10 +11,12 @@ const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
 const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
 const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
 const AzureDevOpsConfig = require(process.env.CS_API_TOP + '/config/azuredevops');
-
+const YouTrackConfig = require(process.env.CS_API_TOP + '/config/youtrack');
 const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
+const RandomString = require('randomstring');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
 class ProviderAuthTest extends CodeStreamAPITest {
 
@@ -86,6 +88,10 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				if (error) { return callback(error); }
 				this.authCode = response.code;
 				this.path = `/no-auth/provider-auth/${this.provider}?code=${this.authCode}`;
+				if (this.provider === 'jiraserver') {
+					this.mockToken = RandomString.generate(12);
+					this.path += `&_mockToken=${this.mockToken}&_secret=${SecretsConfig.confirmationCheat}`;
+				}
 				const authOrigin = this.provider === 'youtrack' ? `${ApiConfig.publicApiUrl}/no-auth` : ApiConfig.authOrigin;
 				this.redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
@@ -106,6 +112,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			redirectData = this.getTrelloRedirectData(); 
 			break;
 		case 'github':
+		case 'github_enterprise': 
 			redirectData = this.getGithubRedirectData();
 			break;
 		case 'asana':
@@ -113,6 +120,9 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			break;
 		case 'jira':
 			redirectData = this.getJiraRedirectData();
+			break;
+		case 'jiraserver':
+			redirectData = this.getJiraServerRedirectData();
 			break;
 		case 'gitlab':
 			redirectData = this.getGitlabRedirectData();
@@ -170,8 +180,8 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			state: this.state,
 			scope: 'repo,user'
 		};
-		const host = this.testHost || 'github.com';
-		const url = `https://${host}/login/oauth/authorize`;
+		const host = this.testHost || 'https://github.com';
+		const url = `${host}/login/oauth/authorize`;
 		return { url, parameters };
 	}
 
@@ -187,8 +197,9 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getJiraRedirectData () {
+		const appClientId = this.testHost ? 'testClientId' : JiraConfig.appClientId;
 		const parameters = {
-			client_id: JiraConfig.appClientId,
+			client_id: appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
@@ -196,7 +207,18 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			audience: 'api.atlassian.com',
 			prompt: 'consent',
 		};
-		const url = 'https://auth.atlassian.com/authorize';
+		const host = this.testHost || 'https://auth.atlassian.com';
+		const url = `${host}/authorize`;
+		return { url, parameters };
+	}
+
+	getJiraServerRedirectData () {
+		const callback = `${ApiConfig.publicApiUrl}/no-auth/provider-token/${this.provider}`;
+		const parameters = {
+			oauth_token: this.mockToken,
+			oauth_callback: callback
+		};
+		const url = `${this.testHost}/plugins/servlet/oauth/authorize`;
 		return { url, parameters };
 	}
 
@@ -224,7 +246,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getYouTrackRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : GithubConfig.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : YouTrackConfig.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
@@ -269,8 +291,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			response_type: 'code',
 			state: this.state,
 			scope: 'User.Read.All Group.ReadWrite.All offline_access',
-			response_mode: 'query',
-			prompt: 'consent'
+			response_mode: 'query'
 		};
 		const url = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
 		return { url, parameters };

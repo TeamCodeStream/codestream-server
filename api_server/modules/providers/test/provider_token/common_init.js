@@ -16,6 +16,7 @@ const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
 const Base64 = require('base-64');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
 class CommonInit {
 
@@ -93,9 +94,15 @@ class CommonInit {
 		this.code = RandomString.generate(16);
 		this.mockToken = RandomString.generate(16);
 		const path = this.getPath();
+		const cookie = this.provider === 'jiraserver' ? this.getJiraServerCookie() : undefined;
 		if (this.runRequestAsTest) {
 			// in this case, the actual test is actually making the request, so just prepare the path
 			this.path = path;
+			if (cookie) {
+				this.apiRequestOptions = this.apiRequestOptions || {};
+				this.apiRequestOptions.headers = this.apiRequestOptions.headers || {};
+				this.apiRequestOptions.headers.cookie = cookie;
+			}
 			return callback();
 		}
 		this.path = '/users/me';
@@ -105,7 +112,8 @@ class CommonInit {
 				path: path,
 				requestOptions: {
 					noJsonInResponse: true,
-					expectRedirect: true
+					expectRedirect: true,
+					headers: { cookie }
 				}
 			},
 			callback
@@ -126,7 +134,8 @@ class CommonInit {
 		return {
 			code: this.code,
 			state: this.state,
-			_mockToken: this.mockToken
+			_mockToken: this.mockToken,
+			_secret: SecretsConfig.confirmationCheat
 		};
 	}
 
@@ -143,8 +152,8 @@ class CommonInit {
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
-		const host = this.testHost || 'github.com';
-		const url = `https://${host}/login/oauth/access_token?${query}`;
+		const host = this.testHost || 'https://github.com';
+		const url = `${host}/login/oauth/access_token?${query}`;
 		return { url, parameters };
 	}
 
@@ -162,16 +171,23 @@ class CommonInit {
 	}
 
 	getExpectedJiraTestCallData () {
+		const appClientId = this.testHost ? 'testClientId' : JiraConfig.appClientId;
+		const appClientSecret = this.testHost ? 'testClientSecret' : JiraConfig.appClientSecret;
 		const parameters = {
 			grant_type: 'authorization_code',
-			client_id: JiraConfig.appClientId,
-			client_secret: JiraConfig.appClientSecret,
+			client_id: appClientId,
+			client_secret: appClientSecret,
 			code: this.code,
 			redirect_uri: this.redirectUri,
 			state: this.state
 		};
-		const url = 'https://auth.atlassian.com/oauth/token';
+		const host = this.testHost || 'https://auth.atlassian.com';
+		const url = `${host}/oauth/token`;
 		return { url, parameters };
+	}
+
+	getExpectedJiraServerTestCallData () {
+
 	}
 
 	getExpectedGitlabTestCallData () {
@@ -253,6 +269,19 @@ class CommonInit {
 		};
 		const url = 'https://api.ringcentral.com/restapi/oauth/token';
 		return { url, parameters  };
+	}
+
+	getJiraServerCookie () {
+		this.oauthTokenSecret = RandomString.generate(16);
+		const cookie = `rt-${this.provider}`;
+		const token = JSON.stringify({
+			oauthToken: RandomString.generate(16),
+			oauthTokenSecret: this.oauthTokenSecret,
+			userId: this.currentUser.user.id,
+			teamId: this.team.id,
+			host: this.testHost
+		});
+		return `${cookie}=s:${token};`;
 	}
 }
 

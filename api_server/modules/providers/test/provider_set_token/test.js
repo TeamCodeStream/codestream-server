@@ -15,7 +15,7 @@ class ProviderSetTokenRequestTester {
 
 	test () {
 		new ProviderSetTokenTest({ provider: 'trello' }).test();
-		new ProviderSetTokenTest({ provider: 'github', testHost: 'github.codestream.us' }).test();
+		new ProviderSetTokenTest({ provider: 'github_enterprise', testHost: 'github.codestream.us' }).test();
 		new TeamNotFoundTest({ provider: 'asana' }).test();
 		new ACLTest({ provider: 'jira' }).test();
 		new ParameterRequiredTest({ provider: 'gitlab', parameter: 'teamId' }).test();

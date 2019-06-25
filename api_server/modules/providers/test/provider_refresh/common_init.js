@@ -14,6 +14,7 @@ const AzureDevOpsConfig = require(process.env.CS_API_TOP + '/config/azuredevops'
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const Base64 = require('base-64');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
 class CommonInit {
 
@@ -61,10 +62,19 @@ class CommonInit {
 		this.code = RandomString.generate(16);
 		this.firstMockToken = RandomString.generate(16);
 		this.refreshedMockToken = RandomString.generate(16);
+		const parameters = {
+			code: this.code,
+			state: this.state,
+			_mockToken: this.firstMockToken,
+			_secret: SecretsConfig.confirmationCheat
+		};
+		const query = Object.keys(parameters)
+			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
+			.join('&');
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: `/no-auth/provider-token/${this.provider}?code=${this.code}&state=${this.state}&_mockToken=${this.firstMockToken}`,
+				path: `/no-auth/provider-token/${this.provider}?${query}`,
 				requestOptions: {
 					noJsonInResponse: true,
 					expectRedirect: true

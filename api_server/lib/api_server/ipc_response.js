@@ -64,6 +64,9 @@ class IPCResponse extends EventEmitter {
 		if (what === 'content-length') {
 			return this.contentLength;
 		}
+		else {
+			return this.headers[what];
+		}
 	}
 
 	redirect (url) {
@@ -71,6 +74,23 @@ class IPCResponse extends EventEmitter {
 		this.statusCode = 301;
 		this.send();
 		return this;
+	}
+
+	cookie (name, value, options = {}) {
+		let cookieHeader = this.get('cookie') || '';
+		const signedPart = options.signed ? 's:' : '';
+		cookieHeader += `${name}=${signedPart}${value};`;
+		this.set('cookie', cookieHeader);
+	}
+
+	clearCookie (name) {
+		let cookieHeader = this.get('cookie') || '';
+		const cookies = cookieHeader.split(';');
+		const foundCookie = cookies.findIndex(cookie => cookie.split('=')[0] === name);
+		if (foundCookie !== -1) {
+			cookies.splice(foundCookie, 1);
+		}
+		this.set('cookie', cookies.join(';'));
 	}
 }
 

@@ -35,15 +35,21 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const token = providerInfo.accessToken;
 		Assert.equal(token, this.mockToken, 'user access token not found to be equal to the mock token');
 
+		if (this.provider === 'jiraserver') {
+			Assert.equal(providerInfo.oauthTokenSecret, this.oauthTokenSecret, 'OAuth token secret not correct');
+		}
+
 		let expectedData;
 		switch (this.provider) {
 		case 'trello':
 		case 'youtrack':
+		case 'jiraserver':
 			return;
 		case 'gitlab':
 			expectedData = this.getExpectedGitlabTestCallData();
 			return;
 		case 'github':
+		case 'github_enterprise':
 			expectedData = this.getExpectedGithubTestCallData();
 			break;
 		case 'asana':
