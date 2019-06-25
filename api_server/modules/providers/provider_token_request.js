@@ -9,6 +9,7 @@ const ProviderIdentityConnector = require('./provider_identity_connector');
 const UserPublisher = require('../users/user_publisher');
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const Base64 = require('base-64');
 
 class ProviderTokenRequest extends RestfulRequest {
 
@@ -82,7 +83,8 @@ class ProviderTokenRequest extends RestfulRequest {
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
 		// mock token must be accompanied by secret
-		if (this.request.query._secret !== SecretsConfig.confirmationCheat) {
+		if (decodeURIComponent(this.request.query._secret || '') !== SecretsConfig.confirmationCheat) {
+			this.warn('Deleting mock token because incorrect secret sent');
 			delete this.request.query._mockToken;
 		}
 		else {
@@ -202,7 +204,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	// extract stored token information from cookie, for OAuth 1.0
 	extractTokenFromCookie () {
 		const cookie = `rt-${this.provider}`;
-		const token = this.request.signedCookies[cookie];
+		const token = this.request.signedCookies[cookie] || (this.request.query._mockToken && this.request.cookies[cookie]);
 		if (!token) {
 			throw this.errorHandler.error('updateAuth', { info: 'token information not found' });
 		}
@@ -211,7 +213,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			signed: true
 		});
 		try {
-			this.oauthToken = JSON.parse(token);
+			this.oauthToken = JSON.parse(Base64.decode(token));
 		}
 		catch (error) {
 			throw this.errorHandler.error('updateAuth', { info: 'invalid token information' });

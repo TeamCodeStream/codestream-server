@@ -4,6 +4,7 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const Base64 = require('base-64');
 
 class ProviderAuthRequest extends RestfulRequest {
 
@@ -40,7 +41,8 @@ class ProviderAuthRequest extends RestfulRequest {
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
 		// mock token must be accompanied by secret
-		if (this.request.query._secret !== SecretsConfig.confirmationCheat) {
+		if (decodeURIComponent(this.request.query._secret || '') !== SecretsConfig.confirmationCheat) {
+			this.warn('Deleting mock token because incorrect secret sent');
 			delete this.request.query._mockToken;
 		}
 		else {
@@ -96,13 +98,13 @@ class ProviderAuthRequest extends RestfulRequest {
 		// but it won't survive the redirect so we need to store it as a cookie --- yuckers
 		this.requestTokenInfo = await this.serviceAuth.getRequestToken(options);
 		const cookie = `rt-${this.provider}`;
-		const token = JSON.stringify({
+		const token = Base64.encode(JSON.stringify({
 			oauthToken: this.requestTokenInfo.oauthToken,
 			oauthTokenSecret: this.requestTokenInfo.oauthTokenSecret,
 			userId: this.payload.userId,
 			teamId: this.payload.teamId,
 			host
-		});
+		}));
 		this.response.cookie(cookie, token, {
 			secure: true,
 			signed: true

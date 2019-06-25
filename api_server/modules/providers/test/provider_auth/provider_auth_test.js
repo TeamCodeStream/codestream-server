@@ -90,7 +90,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				this.path = `/no-auth/provider-auth/${this.provider}?code=${this.authCode}`;
 				if (this.provider === 'jiraserver') {
 					this.mockToken = RandomString.generate(12);
-					this.path += `&_mockToken=${this.mockToken}&_secret=${SecretsConfig.confirmationCheat}`;
+					this.path += `&_mockToken=${this.mockToken}&_secret=${encodeURIComponent(SecretsConfig.confirmationCheat)}`;
 				}
 				const authOrigin = this.provider === 'youtrack' ? `${ApiConfig.publicApiUrl}/no-auth` : ApiConfig.authOrigin;
 				this.redirectUri = `${authOrigin}/provider-token/${this.provider}`;

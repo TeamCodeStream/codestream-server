@@ -113,7 +113,7 @@ class CommonInit {
 				requestOptions: {
 					noJsonInResponse: true,
 					expectRedirect: true,
-					headers: { cookie }
+					headers: cookie ? { cookie } : undefined
 				}
 			},
 			callback
@@ -274,14 +274,14 @@ class CommonInit {
 	getJiraServerCookie () {
 		this.oauthTokenSecret = RandomString.generate(16);
 		const cookie = `rt-${this.provider}`;
-		const token = JSON.stringify({
+		const token = Base64.encode(JSON.stringify({
 			oauthToken: RandomString.generate(16),
 			oauthTokenSecret: this.oauthTokenSecret,
 			userId: this.currentUser.user.id,
 			teamId: this.team.id,
 			host: this.testHost
-		});
-		return `${cookie}=s:${token};`;
+		}));
+		return `${cookie}=${token}; `;
 	}
 }
 

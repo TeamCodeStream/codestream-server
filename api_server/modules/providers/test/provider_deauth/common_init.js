@@ -7,6 +7,7 @@ const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const Base64 = require('base-64');
 
 class CommonInit {
 
@@ -89,7 +90,7 @@ class CommonInit {
 				requestOptions: {
 					noJsonInResponse: true,
 					expectRedirect: true,
-					headers: { cookie }
+					headers: cookie ? { cookie } : undefined
 				}
 			},
 			callback
@@ -150,14 +151,14 @@ class CommonInit {
 	getJiraServerCookie () {
 		this.oauthTokenSecret = RandomString.generate(16);
 		const cookie = `rt-${this.provider}`;
-		const token = JSON.stringify({
+		const token = Base64.encode(JSON.stringify({
 			oauthToken: RandomString.generate(16),
 			oauthTokenSecret: this.oauthTokenSecret,
 			userId: this.currentUser.user.id,
 			teamId: this.team.id,
 			host: this.testHost
-		});
-		return `${cookie}=s:${token};`;
+		}));
+		return `${cookie}=${token}; `;
 	}
 }
 
