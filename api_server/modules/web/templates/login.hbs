@@ -28,7 +28,16 @@
 								Sign in with Slack
 							</button>
 						</div>
-						<br /><hr /><br />
+						<br />
+						<div class="form-group">
+							<button class="btn" onclick="window.location.href='{{msteamsLink}}'">
+								Sign in with Microsoft Teams
+							</button>
+						</div>
+						<br />
+
+						<hr />
+						<br />
 						<div class="form-wrapper">
 							<form action="/web/signin" method="post">
 								{{#if error}}
