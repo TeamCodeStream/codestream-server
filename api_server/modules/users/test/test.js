@@ -5,6 +5,7 @@
 // make eslint happy
 /* globals describe */
 
+/*
 const UserRequestTester = require('./user_request_tester');
 const GetSessionsRequestTester = require('./get_sessions/test');
 const PresenceRequestTester = require('./presence/test');
@@ -13,18 +14,22 @@ const ForgotPasswordRequestTester = require('./forgot_password/test');
 const CheckResetRequestTester = require('./check_reset/test');
 const ResetPasswordRequestTester = require('./reset_password/test');
 const ResendConfirmRequestTester = require('./resend_confirm/test');
+*/
 const CheckSignupRequestTester = require('./check_signup/test');
+/*
 const ChangeEmailRequestTester = require('./change_email/test');
 const ChangeEmailConfirmRequestTester = require('./change_email_confirm/test');
 const BumpPostsRequestTester = require('./bump_posts/test');
 const InviteInfoRequestTester = require('./invite_info/test');
 
 const userRequestTester = new UserRequestTester();
+*/
 
 describe('user requests', function() {
 
 	this.timeout(20000);
 
+	/*
 	describe('POST /no-auth/register', userRequestTester.registrationTest);
 	describe('POST /no-auth/confirm', userRequestTester.confirmationTest);
 	describe('PUT /no-auth/login', userRequestTester.loginTest);
@@ -45,9 +50,12 @@ describe('user requests', function() {
 	describe('GET /no-auth/check-reset', CheckResetRequestTester.test);
 	describe('PUT /no-auth/reset-password', ResetPasswordRequestTester.test);
 	describe('PUT /no-auth/resend-confirm', ResendConfirmRequestTester.test);
+	*/
 	describe('PUT /no-auth/check-signup', CheckSignupRequestTester.test);
+	/*
 	describe('PUT /change-email', ChangeEmailRequestTester.test);
 	describe('PUT /no-auth/change-email-confirm', ChangeEmailConfirmRequestTester.test);
 	describe('PUT /bump-posts', BumpPostsRequestTester.test);
 	describe('GET /no-auth/invite-info', InviteInfoRequestTester.test);
+	*/
 });
