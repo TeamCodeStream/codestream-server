@@ -6,5 +6,9 @@
 module.exports = {
 	byProviderIdentities: {
 		providerIdentities: 1
+	},
+	byPlan: {
+		plan: 1,
+		deactivated: 1
 	}
 };
