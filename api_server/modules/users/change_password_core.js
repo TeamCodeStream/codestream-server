@@ -12,23 +12,23 @@ class ChangePasswordCore {
 	}
 
 	// set a password on a user wo/checking their existing password
-	async setPassword(user, newPassword) {
-		this.user = user;
-		this.password = newPassword;
-		
-		await this.hashPassword();		// hash the new password
-		await this.generateToken();		// generate a new access token
-		await this.updateUser();		// update the user's database record
+	async setPassword(user, newPassword) {			
+		await this.savePassword(user, newPassword);
 	}
 
 	// set a password on a user checking their existing password
-	async changePassword(user, newPassword, existingPassword) {
+	async changePassword(user, newPassword, existingPassword) {				
+		await this.savePassword(user, newPassword, existingPassword, true);
+	}
+
+	async savePassword(user, newPassword, existingPassword, validatePassword) {		
 		this.user = user;
-		this.password = newPassword;
-		
+		this.password = newPassword;		
 		this.existingPassword = existingPassword;
-		await this.validatePassword();	// validate the given password matches their password hash
-		
+
+		if (validatePassword) {
+			await this.validatePassword();	// validate the given password matches their password hash
+		}
 		await this.hashPassword();		// hash the new password
 		await this.generateToken();		// generate a new access token
 		await this.updateUser();		// update the user's database record
@@ -59,10 +59,10 @@ class ChangePasswordCore {
 			);
 		}
 		catch (error) {
-			throw this.errorHandler.error('token', { reason: error });
+			throw this.request.errorHandler.error('token', { reason: error });
 		}
 		if (!result) {
-			throw this.errorHandler.error('passwordMismatch');
+			throw this.request.errorHandler.error('passwordMismatch');
 		}
 	}
 
@@ -70,10 +70,10 @@ class ChangePasswordCore {
 	async hashPassword () {
 		const error = new UserValidator().validatePassword(this.password);
 		if (error) {
-			throw this.errorHandler.error('validation', { info: `password ${error}` });
+			throw this.request.errorHandler.error('validation', { info: `password ${error}` });
 		}
 		this.passwordHash = await new PasswordHasher({
-			errorHandler: this.errorHandler,
+			errorHandler: this.request.errorHandler,
 			password: this.password
 		}).hashPassword();
 	}
@@ -109,34 +109,6 @@ class ChangePasswordCore {
 			}
 		};
 		this.user = await this.request.data.users.applyOpById(this.user.id, op);
-	}
-
-	// describe this route for help
-	static describe () {
-		return {
-			tag: 'password',
-			summary: 'Change a user\'s password',
-			access: 'Current user can only change their own password',
-			description: 'Change a user\'s password, providing the current password for security. Note that this invalidates all current access tokens for the user; a new access token will be returned with the response to the request, but other sessions will no longer be able to authenticate.',
-			input: {
-				summary: 'Specify existing password and new password in the request body',
-				looksLike: {
-					'existingPassword*': '<User\'s existing password>',
-					'newPassword*': '<User\'s new password>'
-				}
-			},
-			returns: {
-				summary: 'A new access token',
-				looksLike: {
-					accessToken: '<New access token>'
-				}
-			},
-			errors: [
-				'parameterRequired',
-				'passwordMismatch',
-				'validation'
-			]
-		};
 	}
 }
 

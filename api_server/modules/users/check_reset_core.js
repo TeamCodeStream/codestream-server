@@ -15,14 +15,14 @@ class CheckResetCore {
 		catch (error) {
 			const message = typeof error === 'object' ? error.message : error;
 			if (message === 'jwt expired') {				
-				throw this.errorHandler.error('tokenExpired');
+				throw this.request.errorHandler.error('tokenExpired');
 			}
 			else {				
-				throw this.errorHandler.error('tokenInvalid', { reason: message });
+				throw this.request.errorHandler.error('tokenInvalid', { reason: message });
 			}
 		}
 		if (this.payload.type !== 'rst') {			
-			throw this.errorHandler.error('tokenInvalid', { reason: 'not an rst token' });
+			throw this.request.errorHandler.error('tokenInvalid', { reason: 'not an rst token' });
 		}
 		await this.getUser();
 		await this.validateToken();
@@ -33,7 +33,7 @@ class CheckResetCore {
 	// get the user associated with the email in the token payload
 	async getUser () {
 		if (!this.payload.email) {
-			throw this.errorHandler.error('tokenInvalid', { reason: 'no email found in rst token' });
+			throw this.request.errorHandler.error('tokenInvalid', { reason: 'no email found in rst token' });
 		}
 		const users = await this.request.data.users.getByQuery(
 			{ 
@@ -44,7 +44,7 @@ class CheckResetCore {
 			}
 		);
 		if (users.length < 1) {			
-			throw this.errorHandler.error('tokenInvalid', { reason: 'user not found' });
+			throw this.request.errorHandler.error('tokenInvalid', { reason: 'user not found' });
 		}
 		this.user = users[0];
 	}
@@ -54,10 +54,10 @@ class CheckResetCore {
 		const accessTokens = this.user.get('accessTokens') || {};
 		const resetTokens = accessTokens.rst || {};
 		if (!resetTokens || !resetTokens.minIssuance) {			
-			throw this.errorHandler.error('tokenInvalid', { reason: 'no issuance for rst token found' });
+			throw this.request.errorHandler.error('tokenInvalid', { reason: 'no issuance for rst token found' });
 		}
 		if (resetTokens.minIssuance > this.payload.iat * 1000) {
-			throw this.errorHandler.error('tokenInvalid', { reason: 'a more recent rst token has been issued' });
+			throw this.request.errorHandler.error('tokenInvalid', { reason: 'a more recent rst token has been issued' });
 		}
 	}
 } 

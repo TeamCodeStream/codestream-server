@@ -21,8 +21,7 @@ class CheckResetRequest extends RestfulRequest {
 	async process () {
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters	
 		this.user = await new CheckResetCore({
-			request: this,
-			errorHandler: this.errorHandler
+			request: this			
 		}).getUserFromToken(this.request.query.token);
 
 		this.responseData = {

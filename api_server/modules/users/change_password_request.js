@@ -16,8 +16,7 @@ class ChangePasswordRequest extends RestfulRequest {
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
 		
 		await new ChangePasswordCore({
-			request: this,
-			errorHandler: this.errorHandler
+			request: this			
 		}).changePassword(this.user, this.request.body.newPassword, this.request.body.existingPassword);
 	}
 

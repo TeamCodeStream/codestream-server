@@ -13,12 +13,12 @@ const ROUTES = [
 	{
 		method: 'get',
 		path: 'web/user/password',
-		requestClass: require('./web_password_set')
+		requestClass: require('./web_set_password_request')
 	},
 	{
 		method: 'post',
 		path: 'web/user/password',
-		requestClass: require('./web_password_set')
+		requestClass: require('./set_password_request')
 	},
 	{
 		method: 'get',
