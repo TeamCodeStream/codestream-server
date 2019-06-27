@@ -82,9 +82,6 @@ class ChangePasswordCore {
 	async generateToken () {
 		this.accessToken = this.request.api.services.tokenHandler.generate({ uid: this.user.id });
 		this.minIssuance = this.request.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
-		this.responseData = {
-			accessToken: this.accessToken
-		};
 	}
 
 	// update the user in the database, with their new password hash and access tokens

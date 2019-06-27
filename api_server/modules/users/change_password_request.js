@@ -4,8 +4,14 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const ChangePasswordCore = require(process.env.CS_API_TOP + '/modules/users/change_password_core');
+const Errors = require('./errors');
 
 class ChangePasswordRequest extends RestfulRequest {
+
+	constructor (options) {
+		super(options);
+		this.errorHandler.add(Errors);
+	}
 
 	async authorize () {
 		// only applies to current user, no authorization required
@@ -15,9 +21,14 @@ class ChangePasswordRequest extends RestfulRequest {
 	async process () {
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
 		
-		await new ChangePasswordCore({
+		const changePasswordCore = new ChangePasswordCore({
 			request: this			
-		}).changePassword(this.user, this.request.body.newPassword, this.request.body.existingPassword);
+		});
+		await changePasswordCore.changePassword(this.user, this.request.body.newPassword, this.request.body.existingPassword);
+
+		this.responseData = {
+			accessToken: changePasswordCore.accessToken
+		};
 	}
 
 	// require these parameters, and discard any unknown parameters

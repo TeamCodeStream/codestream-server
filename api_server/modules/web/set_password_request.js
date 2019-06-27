@@ -4,10 +4,15 @@
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 const CheckResetCore = require(process.env.CS_API_TOP + '/modules/users/check_reset_core');
 const ChangePasswordCore = require(process.env.CS_API_TOP + '/modules/users/change_password_core');
+const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
+const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
 
 class SetPasswordRequest extends RestfulRequest {
+
 	constructor(options) {
 		super(options);
+		this.errorHandler.add(UserErrors);
+		this.errorHandler.add(AuthErrors);
 	}
 
 	async authorize() {
@@ -31,6 +36,7 @@ class SetPasswordRequest extends RestfulRequest {
 		const { password, token } = this.request.body;
 		if (!token) {
 			//something happened between render and POST... (tampering? redirect it.)
+			this.warn('No token found in request');
 			this.redirectError();
 			return;
 		}
@@ -38,12 +44,12 @@ class SetPasswordRequest extends RestfulRequest {
 		let user;
 		try {
 			user = await new CheckResetCore({
-				request: this,
-				errorHandler: this.errorHandler
+				request: this
 			}).getUserFromToken(token);
 
 			if (!user) {
 				//can't find a user, no need to try again
+				this.warn('User not found');
 				this.redirectError();
 				return;
 			}
@@ -66,7 +72,7 @@ class SetPasswordRequest extends RestfulRequest {
 			this.responseHandled = true;
 		}
 		catch (error) {
-			if (typeof error === 'object' && error.message === 'Validation error') {					
+			if (typeof error === 'object' && error.code === 'RAPI-1005') {					
 				this.render({
 					error: error.info || 'something unexpected happened',
 					email: user.get('email'),
@@ -76,6 +82,8 @@ class SetPasswordRequest extends RestfulRequest {
 			}
 			
 			// something else bad happened -- just redirect to failure screen
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.warn('Error resetting password: ' + message);
 			this.redirectError();				
 			return;
 		}		

@@ -3,10 +3,13 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 const CheckResetCore = require(process.env.CS_API_TOP + '/modules/users/check_reset_core');
+const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
 
 class WebSetPasswordRequest extends RestfulRequest {
+
 	constructor(options) {
 		super(options);
+		this.errorHandler.add(AuthErrors);
 	}
 
 	async authorize() {
@@ -16,6 +19,7 @@ class WebSetPasswordRequest extends RestfulRequest {
 	async process() {				
 		const token = this.request.query.token;
 		if (!token) {
+			this.warn('No token found in request');
 			this.redirectError();
 			return;
 		}
@@ -23,11 +27,12 @@ class WebSetPasswordRequest extends RestfulRequest {
 		let user;
 		try {
 			user = await new CheckResetCore({
-				request: this,
-				errorHandler: this.errorHandler
+				request: this
 			}).getUserFromToken(token);
 		}
 		catch (error) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.warn('Error thrown in checking reset: ' + message);
 			this.redirectError();
 			return;
 		}

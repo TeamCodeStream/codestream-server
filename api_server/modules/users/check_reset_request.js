@@ -25,7 +25,7 @@ class CheckResetRequest extends RestfulRequest {
 		}).getUserFromToken(this.request.query.token);
 
 		this.responseData = {
-			email: this.payload.email
+			email: this.user.get('email')
 		};		
 	}
 
