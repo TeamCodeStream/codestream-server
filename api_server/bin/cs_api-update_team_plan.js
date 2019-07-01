@@ -74,7 +74,7 @@ class PlanUpdater {
 		try {
 			await this.data.teams.updateDirect(
 				{ _id: this.data.teams.objectIdSafe(this.teamId) },
-				{ $set: { plan: this.plan } }
+				{ $set: { plan: this.plan, planStartDate: Date.now() } }
 			);
 		}
 		catch (error) {
