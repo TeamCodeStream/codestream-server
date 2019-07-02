@@ -15,10 +15,11 @@ const Strftime = require('strftime');
 const ACCESS_TOKEN = 'dG9rOjJmYzY2YzMwX2Y0M2NfNDlmNV9iMDczXzZkMGJlNDRhYThjYToxOjA=';
 
 // need these collections from mongo
-const COLLECTIONS = ['teams'];
+const COLLECTIONS = ['teams', 'updatePlanLastRunAt'];
 
 // throttle the updates so we don't stress mongo or intercom
 const THROTTLE_TIME = 100;
+const RUN_INTERVAL = 24 * 60 * 60 * 1000;
 
 class PlanUpdater {
 
@@ -28,15 +29,17 @@ class PlanUpdater {
 			Object.assign(this, options);
 			this.logger = this.logger || console;
 			await this.openMongoClient();
+			if (await this.abortIfDoneAlready()) {
+				return;
+			}
 			await this.openIntercomClient();
 			await this.process();
-			console.log('DONE');
+			await this.updateLastRunAt();
 		}
 		catch (error) {
 			this.logger.error(error);
-			process.exit();
+			throw error;
 		}
-		process.exit();
 	}
 
 	// open a mongo client to read from
@@ -50,6 +53,14 @@ class PlanUpdater {
 		}
 		catch (error) {
 			throw `unable to open mongo client: ${JSON.stringify(error)}`;
+		}
+	}
+
+	// if another instance of this script already ran, just abort
+	async abortIfDoneAlready () {
+		const lastRunAt = await this.data.updatePlanLastRunAt.getByQuery({}, { overrideHintRequired: true });
+		if (lastRunAt && lastRunAt[0] && lastRunAt[0].lastRunAt > Date.now() - RUN_INTERVAL) {
+			return true;
 		}
 	}
 
@@ -87,12 +98,12 @@ class PlanUpdater {
 		const now = Date.now();
 		const date = Strftime('%Y-%m-%d %H:%M:%S.%L');
 		if (team.trialEndDate > now) {
-			console.log(`${date}: team ${team._id} ("${team.name}") is still in trial`);
+			this.logger.log(`${date}: team ${team._id} ("${team.name}") is still in trial`);
 			return await this.wait(THROTTLE_TIME);
 		}
 
 		let newPlan = team.memberIds.length > 2 ? 'TRIALEXPIRED' : 'FREEPLAN';
-		console.log(`\x1b[33m${date}: Updating team ${team._id} ("${team.name}") to ${newPlan}\x1b[0m`);
+		this.logger.log(`\x1b[33m${date}: Updating team ${team._id} ("${team.name}") to ${newPlan}\x1b[0m`);
 		await this.updateMongo(team, newPlan);
 		await this.updateIntercom(team, newPlan);
 		await this.wait(THROTTLE_TIME);
@@ -108,7 +119,7 @@ class PlanUpdater {
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			console.warn(`Update to team ${team._id} failed: ${message}`);
+			this.logger.warn(`Update to team ${team._id} failed: ${message}`);
 		}
 	}
 	
@@ -127,7 +138,7 @@ class PlanUpdater {
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message: JSON.stringify(error);
-			console.error(`Unable to update team ${team._id} on Intercom: ${message}`);
+			this.logger.error(`Unable to update team ${team._id} on Intercom: ${message}`);
 		}
 	}
 
@@ -137,6 +148,15 @@ class PlanUpdater {
 			setTimeout(resolve, time);
 		});
 	}
+	
+	// update when this script was last run so other running instances don't try
+	async updateLastRunAt () {
+		await this.data.updatePlanLastRunAt.updateDirect(
+			{ }, 
+			{ $set: { lastRunAt: Date.now() } },
+			{ upsert: true}
+		);
+	}
 }
 
 (async function() {
@@ -144,9 +164,10 @@ class PlanUpdater {
 		await new PlanUpdater().go();
 	}
 	catch (error) {
-		console.error(error);
-		process.exit();
+		this.logger.error(error);
+		process.exit(1);
 	}
+	process.exit(0);
 })();
 
 
