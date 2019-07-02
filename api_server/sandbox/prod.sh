@@ -17,6 +17,7 @@ SEGMENT_TOKEN_FILE=$HOME/.codestream/segment/prod-api
 SEGMENT_WEB_TOKEN_FILE=$HOME/.codestream/segment/prod-webapp
 MSTEAMS_API_ACCESS_FILE=$HOME/.codestream/microsoft/teams-production
 MIXPANEL_TOKEN_FILE=$HOME/.codestream/mixpanel/production
+INTERCOM_TOKEN_FILE=$HOME/.codestream/intercom/production
 OTHER_SECRETS_FILE=$HOME/.codestream/codestream/prod-api
 
 export CS_API_ASSET_ENV=prod

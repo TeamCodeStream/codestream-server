@@ -316,7 +316,7 @@ if [ -f $PUBNUB_KEY_FILE ]; then
 else
 	echo "**************************************************************"
 	echo "WARNING: pubnub key files not found ($PUBNUB_KEY_FILE)."
-	echo "          Run dt-update-secrets and reload your sandbox"
+	echo "         Run dt-update-secrets and reload your sandbox"
 	echo "**************************************************************"
 fi
 
@@ -337,6 +337,19 @@ if [ -f $SEGMENT_WEB_TOKEN_FILE ]; then
 else
 	echo "**************************************************************"
 	echo "WARNING: Segment web token not found ($SEGMENT_WEB_TOKEN_FILE). Server-side telemetry will be unavailable."
+	echo "**************************************************************"
+fi
+
+
+# =============== Intercom Settings ==============
+[ -z "$INTERCOM_TOKEN_FILE" ] && INTERCOM_TOKEN_FILE=$HOME/.codestream/intercom/development
+if [ -f $INTERCOM_TOKEN_FILE ]; then
+	. $INTERCOM_TOKEN_FILE
+	export CS_API_INTERCOM_ACCESS_TOKEN=$INTERCOM_ACCESS_TOKEN
+else
+	echo "**************************************************************"
+	echo "WARNING: intercom access token file not found ($INTERCOM_TOKEN_FILE)."
+	echo "         Run dt-update-secrets and reload your sandbox"
 	echo "**************************************************************"
 fi
 

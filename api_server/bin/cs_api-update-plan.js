@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+//desc// update payment plan and trial info in mongo and on Intercom
+
 /* eslint no-console: 0 */
 
 'use strict';
@@ -9,10 +11,7 @@ const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 const Intercom = require('intercom-client');
 const Indexes = require(process.env.CS_API_TOP + '/modules/teams/indexes');
 const Strftime = require('strftime');
-
-// this is Colin's personal access token, created for the "CodeStream Internal" app
-// for our Intercom CodeStream workspace
-const ACCESS_TOKEN = 'dG9rOjJmYzY2YzMwX2Y0M2NfNDlmNV9iMDczXzZkMGJlNDRhYThjYToxOjA=';
+const ACCESS_TOKEN = require(process.env.CS_API_TOP + '/config/intercom').accessToken;
 
 // need these collections from mongo
 const COLLECTIONS = ['teams', 'updatePlanLastRunAt'];
