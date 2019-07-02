@@ -56,14 +56,8 @@ class Email extends APIServerModule {
 			options.request.request.headers
 		);
 		return (
-			(
-				headers &&
-				headers['x-cs-block-email-sends']
-			) ||
-			(
-				this.api.config.email.suppressEmails &&
-				(!headers || headers['x-cs-test-email-sends'])
-			)
+			this.api.config.email.suppressEmails ||
+			(headers && headers['x-cs-block-email-sends'])
 		);
 	}
 

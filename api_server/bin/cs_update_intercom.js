@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// one-time update of intercom with all the trial data in the mongo database
+
 /* eslint no-console: 0 */
 
 'use strict';
@@ -7,10 +9,7 @@
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
 const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 const Intercom = require('intercom-client');
-
-// this is Colin's personal access token, created for the "CodeStream Internal" app
-// for our Intercom CodeStream workspace
-const ACCESS_TOKEN = 'dG9rOjJmYzY2YzMwX2Y0M2NfNDlmNV9iMDczXzZkMGJlNDRhYThjYToxOjA=';
+const ACCESS_TOKEN = require(process.env.CS_API_TOP + '/config/intercom').accessToken;
 
 const COLLECTIONS = ['teams'];
 

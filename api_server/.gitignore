@@ -1,6 +1,7 @@
 node_modules/
 .DS_Store
 .vscode
+!.vscode/launch.json
 api-server.tgz
 api-server-*.tgz
 api-server.info

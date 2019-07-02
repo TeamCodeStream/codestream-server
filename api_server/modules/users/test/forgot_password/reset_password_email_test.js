@@ -5,7 +5,7 @@
 
 const Assert = require('assert');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
-const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 
 class ResetPasswordEmailTest extends CodeStreamMessageTest {
 
@@ -68,9 +68,10 @@ class ResetPasswordEmailTest extends CodeStreamMessageTest {
 		if (!gotMessage.type) { return false; }	// ignore anything not matching
 
 		// verify a match to the url
-		const host = WebClientConfig.host.replace(/\//g, '\\/');
-		const shouldMatch = new RegExp(`${host}\\/reset-password\\/(.*)$`);
-		const match = gotMessage.url.match(shouldMatch);
+		const host = ApiConfig.publicApiUrl.replace(/\//g, '\\/');
+		const shouldMatch = `${host}\\/web\\/user\\/password\\?token=(.*)$`;
+		const regex = new RegExp(shouldMatch);
+		const match = gotMessage.url.match(regex);
 		Assert(match && match.length === 2, 'reset password link url is not correct');
 
 		// pass the deepEqual

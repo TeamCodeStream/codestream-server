@@ -220,6 +220,7 @@ class TeamCreator extends ModelCreator {
 		if (this.model) {
 			[ 'pez@codestream.com', 'dave@codestream.com', 'claudio@codestream.com', 'scott@codestream.com' ].forEach(email => {
 				if (this.api.config.email.replyToDomain === 'prod.codestream.com') {
+					this.request.log(`Triggering team-created email for team ${this.model.id} ("${this.model.get('name')}")...`);
 					this.api.services.email.queueEmailSend(
 						{
 							type: 'teamCreated',
