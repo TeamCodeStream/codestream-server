@@ -4,6 +4,7 @@
 
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
 const RabbitMQClient = require(process.env.CS_API_TOP +'/server_utils/rabbitmq');
+const TryIndefinitely = require(process.env.CS_API_TOP + '/server_utils/try_indefinitely');
 
 class Queuer extends APIServerModule {
 
@@ -21,8 +22,10 @@ class Queuer extends APIServerModule {
 					logger: this.api,
 					isPublisher: true
 				};
-				this.rabbitmq = new RabbitMQClient(config);
-				await this.rabbitmq.init();
+				await TryIndefinitely(async () => {
+					this.rabbitmq = new RabbitMQClient(config);
+					await this.rabbitmq.init();
+				}, 1000, this.api, 'Unable to connect to RabbitMQ, retrying...');
 			}
 			catch (error) {
 				this.api.error('Unable to initiate RabbitMQ connection: ' + error.message);

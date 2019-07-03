@@ -8,6 +8,7 @@ const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubn
 const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
 const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
 const OS = require('os');
+const TryIndefinitely = require(process.env.CS_API_TOP + '/server_utils/try_indefinitely');
 
 class Broadcaster extends APIServerModule {
 
@@ -34,7 +35,10 @@ class Broadcaster extends APIServerModule {
 			uid: 'API'
 		});
 		this.socketClusterClient = new SocketClusterClient(config);
-		await this.socketClusterClient.init();
+		await TryIndefinitely(async () => {
+			await this.socketClusterClient.init();
+			await this.socketClusterClient.publish('test', 'test');
+		}, 1000, this.api, 'Unable to connect to SocketCluster, retrying...');
 		return { broadcaster: this.socketClusterClient };
 	}
 
@@ -49,6 +53,9 @@ class Broadcaster extends APIServerModule {
 		if (!this.api.config.api.mockMode) {
 			this.pubnubClient.init();
 		}
+		await TryIndefinitely(async () => {
+			await this.pubnubClient.publish('test', 'test');
+		}, 1000, this.api, 'Unable to connect to PubNub, retrying...');
 		return { broadcaster: this.pubnubClient };
 	}
 

@@ -267,26 +267,25 @@ class APIServer {
 	// we're going to commit suicide regardless ... meanie master
 	wantShutdown (signal) {
 		// how many open requests do we have right now?
-		let numOpenRequests =
+		let myOpenRequests =
 			this.services.requestTracker &&
-			this.services.requestTracker.numOpenRequests();
+			this.services.requestTracker.myOpenRequests();
 
-		if (numOpenRequests && !this.killReceived) {
+		if (myOpenRequests.length && !this.killReceived) {
 			// we've got some open requests, and no additional commands to die
-			this.critical(`Worker ${this.workerId} received ${signal}, waiting for ${numOpenRequests} requests to complete, send ${signal} again to kill`);
+			this.critical(`Worker ${this.workerId} received ${signal}, waiting for these requests to complete ... ${myOpenRequests} ... send ${signal} again to kill`);
 			this.killReceived = true;
 			// give the user 5 seconds to force-kill us, otherwise their chance to do so expires
 			setTimeout(
 				() => {	this.killReceived = false; },
 				5000
 			);
-			this.expressServer.close();
 			this.shutdownPending = true;
 		}
 		else {
-			if (numOpenRequests) {
+			if (myOpenRequests.length) {
 				// the user is impatient, we'll die even though we have open requests
-				this.critical(`Worker ${this.workerId} received ${signal}, shutting down despite ${numOpenRequests} open requests...`);
+				this.critical(`Worker ${this.workerId} received ${signal}, shutting down despite ${myOpenRequests.length} open requests...`);
 			}
 			else {
 				// we have no open requests, so we can just die
@@ -295,6 +294,18 @@ class APIServer {
 			// seppuku
 			this.shutdown();
 		}
+		this.critical(`Worker ${this.workerId} will no longer respond to requests`);
+		this.expressServer && this.expressServer.close();
+	}
+
+	// is this worker waiting to shutdown?
+	waitingToShutdown () {
+		return this.shutdownPending;
+	}
+
+	// worker tells us they are waiting for these requests
+	waitingForRequests (requestIds, currentRequestId) {
+		this.critical(`Worker ${this.workerId} completed request ${currentRequestId}, still waiting for these requests to finish: ${requestIds}`);
 	}
 
 	// signal that there are currently no open requests

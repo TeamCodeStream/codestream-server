@@ -8,6 +8,7 @@ const PostUpdater = require('./post_updater');
 const PostDeleter = require('./post_deleter');
 const Post = require('./post');
 const Errors = require('./errors');
+const TryIndefinitely = require(process.env.CS_API_TOP + '/server_utils/try_indefinitely');
 
 const DEPENDENCIES = [
 	'aws'
@@ -81,10 +82,12 @@ class Posts extends Restful {
 		// timer for email notifications
 		if (!this.api.services.queueService) { return; }
 		if (!this.api.config.aws.sqs.outboundEmailQueueName) { return; }
-		await this.api.services.queueService.createQueue({
-			name: this.api.config.aws.sqs.outboundEmailQueueName,
-			logger: this.api
-		});
+		await TryIndefinitely(async () => {
+			await this.api.services.queueService.createQueue({
+				name: this.api.config.aws.sqs.outboundEmailQueueName,
+				logger: this.api
+			});
+		}, 1000, this.api, 'Unable to create outbound email queue, retrying...');
 	}
 
 	describeErrors () {

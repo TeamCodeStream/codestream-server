@@ -58,14 +58,17 @@ class RequestTracker extends APIServerModule {
 	// requests to work on
 	untrackRequest (request) {
 		delete this.trackedRequests[request.id];
-		if (this.numOpenRequests() === 0) {
+		if (Object.keys(this.trackedRequests).length === 0) {
 			this.api.noMoreRequests();
+		}
+		else if (this.api.waitingToShutdown()) {
+			this.api.waitingForRequests(Object.keys(this.trackedRequests), request.id);
 		}
 	}
 
-	// how many requests are we currently serving?
-	numOpenRequests () {
-		return Object.keys(this.trackedRequests).length;
+	// what requests are we currently serving?
+	myOpenRequests () {
+		return Object.keys(this.trackedRequests);
 	}
 }
 
