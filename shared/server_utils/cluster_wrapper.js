@@ -83,7 +83,7 @@ class ClusterWrapper {
 
 	onExit (worker, code, signal) {
 		// a worker died, we'll attempt to respawn if appropriate
-		this.logger.warn(`Worker ${worker.id} (process ${worker.process.pid}) died with exit code:${code} and signal:${signal}`);
+		this.logger.critical(`Worker ${worker.id} (process ${worker.process.pid}) died with exit code:${code} and signal:${signal}`);
 
 		// failed with a known error that will be fatal to all children no matter
 		// how often restarted ... so kill the whole thing!!!
@@ -95,10 +95,10 @@ class ClusterWrapper {
 		// don't want to auto-revive them
 		if (this.dontSpawnNewWorkers === true) {
 			if (code === 3) {
-				this.logger.warn('Fatal error; unable to spawn worker threads without them immediately dying');
+				this.logger.critical('Fatal error; unable to spawn worker threads without them immediately dying');
 			}
 			else {
-				this.logger.warn('Got shutdown; will not restart worker threads');
+				this.logger.critical('Got shutdown; will not restart worker threads');
 			}
 		}
 		else {
@@ -113,7 +113,7 @@ class ClusterWrapper {
 		// just a quick message to track when the master process sends an explicit
 		// disconnect to the worker
 		if (this.dontSpawnNewWorkers === true) {
-			this.logger.warn(`Worker disconnected from cluster pool >${worker.process.pid}<`);
+			this.logger.critical(`Worker disconnected from cluster pool >${worker.process.pid}<`);
 		}
 		delete this.workers[worker.id];
 	}

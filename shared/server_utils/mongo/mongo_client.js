@@ -8,7 +8,8 @@
 const MongoDbClient = require('mongodb').MongoClient;
 const MongoCollection = require('./mongo_collection');
 const MockMongoCollection = require('./mock_mongo_collection');
-const SimpleFileLogger = require('..//simple_file_logger');
+const SimpleFileLogger = require('../simple_file_logger');
+const TryIndefinitely = require('../try_indefinitely');
 
 class MongoClient {
 
@@ -79,10 +80,12 @@ class MongoClient {
 				this.config.logger.log(`Connecting to mongo: ${this.config.url}`);
 			}
 			const settings = Object.assign({}, this.config.settings, { useNewUrlParser: true });
-			this.mongoClient = await MongoDbClient.connect(
-				this.config.url,
-				settings
-			);
+			await TryIndefinitely(async () => {
+				this.mongoClient = await MongoDbClient.connect(
+					this.config.url,
+					settings
+				);
+			}, 1000, this.config.logger, 'Unable to connect to Mongo, retrying...');
 		}
 		catch (error) {
 			throw 'could not connect to mongo: ' + error;
