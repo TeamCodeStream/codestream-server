@@ -262,7 +262,7 @@ class APIServerModules {
 		}
 		else if (route.requestClass) {
 			// the execution can go through a class object, derived from APIRequest
-			func = this.requestClassFulfiller(route.requestClass, route, module);
+			func = this.requestClassFulfiller(route.requestClass, route, module, route.initializers || {});
 		}
 		if (!func) {
 			this.api.warn(`Invalid callback function for module ${module.name}`, route);
@@ -325,13 +325,14 @@ class APIServerModules {
 
 	// fulfill a request by instantiating the request class for a request
 	// and calling its fulfill() function, see api_request.js
-	requestClassFulfiller (requestClass, route, module) {
+	requestClassFulfiller (requestClass, route, module, initializers = {}) {
 		return (request, response) => {
 			let apiRequest = new requestClass({
 				api: this.api,
 				module: module,
 				request: request,
-				response: response
+				response: response,
+				initializers
 			});
 			apiRequest.fulfill();
 		};

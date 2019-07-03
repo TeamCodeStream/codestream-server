@@ -2,16 +2,18 @@
 
 const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 
-class WebPasswordUpdated extends APIRequest {
+class StandardPageRequest extends APIRequest {
+
 	async authorize () {
 		// no authorization needed
 	}
 
 	async process () {
-		this.module.evalTemplate(this, 'password_updated', {
-			version: this.module.versionInfo(),
+		this.module.evalTemplate(this, this.initializers.template, {
+			version: this.module.versionInfo()
 		});
 	}
+
 }
 
-module.exports = WebPasswordUpdated;
+module.exports = StandardPageRequest;

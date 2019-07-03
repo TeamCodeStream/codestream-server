@@ -9,6 +9,25 @@ const FS = require('fs');
 const Path = require('path');
 const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
+const STANDARD_PAGES = [
+	{
+		route: 'web/404',
+		template: '404'
+	},
+	{
+		route: 'web/finish',
+		template: 'finish'
+	},
+	{
+		route: 'web/user/password/reset/invalid',
+		template: 'password_reset_invalid'
+	},
+	{
+		route: 'web/user/password/updated',
+		template: 'password_updated'
+	}
+];
+
 const ROUTES = [
 	{
 		method: 'get',
@@ -22,28 +41,8 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
-		path: 'web/user/password/reset/invalid',
-		requestClass: require('./web_password_reset_invalid')
-	},
-	{
-		method: 'get',
-		path: 'web/user/password/updated',
-		requestClass: require('./web_password_updated')
-	},
-	{
-		method: 'get',
-		path: 'web/finish',
-		requestClass: require('./web_finish_request')
-	},
-	{
-		method: 'get',
 		path: 'web/login',
 		requestClass: require('./web_login_request')
-	},
-	{
-		method: 'get',
-		path: '/web/404',
-		requestClass: require('./web_404_request')
 	},
 	{
 		method: 'post',
@@ -95,7 +94,16 @@ const ROUTES = [
 class Web extends APIServerModule {
 
 	getRoutes () {
-		return ROUTES;
+		return ROUTES.concat(
+			STANDARD_PAGES.map(page => {
+				return {
+					method: 'get',
+					path: page.route,
+					requestClass: require('./standard_page_request'),
+					initializers: { template: page.template }
+				};
+			})
+		);
 	}
 
 	async initialize () {
