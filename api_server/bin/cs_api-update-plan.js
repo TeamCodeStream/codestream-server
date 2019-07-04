@@ -32,8 +32,8 @@ class PlanUpdater {
 				return;
 			}
 			await this.openIntercomClient();
-			await this.process();
 			await this.updateLastRunAt();
+			await this.process();
 		}
 		catch (error) {
 			this.logger.error(error);
