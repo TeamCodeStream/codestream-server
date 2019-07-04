@@ -17,7 +17,7 @@ const ACCESS_TOKEN = require(process.env.CS_API_TOP + '/config/intercom').access
 const COLLECTIONS = ['teams', 'updatePlanLastRunAt'];
 
 // throttle the updates so we don't stress mongo or intercom
-const THROTTLE_TIME = 100;
+const THROTTLE_TIME = 200;
 const RUN_INTERVAL = 24 * 60 * 60 * 1000;
 
 class PlanUpdater {
