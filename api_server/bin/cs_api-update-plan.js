@@ -17,7 +17,8 @@ const ACCESS_TOKEN = require(process.env.CS_API_TOP + '/config/intercom').access
 const COLLECTIONS = ['teams', 'updatePlanLastRunAt'];
 
 // throttle the updates so we don't stress mongo or intercom
-const THROTTLE_TIME = 200;
+const NO_UPDATE_THROTTLE_TIME = 10;
+const UPDATE_THROTTLE_TIME = 1000;
 const RUN_INTERVAL = 24 * 60 * 60 * 1000;
 
 class PlanUpdater {
@@ -98,14 +99,14 @@ class PlanUpdater {
 		const date = Strftime('%Y-%m-%d %H:%M:%S.%L');
 		if (team.trialEndDate > now) {
 			this.logger.log(`${date}: team ${team._id} ("${team.name}") is still in trial`);
-			return await this.wait(THROTTLE_TIME);
+			return await this.wait(NO_UPDATE_THROTTLE_TIME);
 		}
 
 		let newPlan = team.memberIds.length > 2 ? 'TRIALEXPIRED' : 'FREEPLAN';
 		this.logger.log(`\x1b[33m${date}: Updating team ${team._id} ("${team.name}") to ${newPlan}\x1b[0m`);
-		await this.updateMongo(team, newPlan);
 		await this.updateIntercom(team, newPlan);
-		await this.wait(THROTTLE_TIME);
+		await this.updateMongo(team, newPlan);
+		await this.wait(UPDATE_THROTTLE_TIME);
 	}
 
 	// update the plan in mongo
