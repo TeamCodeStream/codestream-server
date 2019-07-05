@@ -19,7 +19,7 @@ const COLLECTIONS = ['teams', 'updatePlanLastRunAt'];
 // throttle the updates so we don't stress mongo or intercom
 const NO_UPDATE_THROTTLE_TIME = 10;
 const UPDATE_THROTTLE_TIME = 1000;
-const RUN_INTERVAL = 24 * 60 * 60 * 1000;
+const RUN_INTERVAL = 23 * 60 * 60 * 1000;
 
 class PlanUpdater {
 
