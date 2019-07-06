@@ -103,7 +103,7 @@ class PlanUpdater {
 		}
 
 		let newPlan = team.memberIds.length > 2 ? 'TRIALEXPIRED' : 'FREEPLAN';
-		this.logger.log(`\x1b[33m${date}: Updating team ${team._id} ("${team.name}") to ${newPlan}\x1b[0m`);
+		this.logger.log(`${date}: Updating team ${team._id} ("${team.name}") to ${newPlan}\x1b[0m`);
 		await this.updateIntercom(team, newPlan);
 		await this.updateMongo(team, newPlan);
 		await this.wait(UPDATE_THROTTLE_TIME);
