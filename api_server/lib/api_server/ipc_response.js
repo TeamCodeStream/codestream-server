@@ -42,6 +42,10 @@ class IPCResponse extends EventEmitter {
 		return this;
 	}
 
+	setHeader (header, value) {
+		return this.set(header, value);
+	}
+	
 	type (type) {
 		this.set('Content-Type', type);
 		return this;
@@ -67,6 +71,10 @@ class IPCResponse extends EventEmitter {
 		else {
 			return this.headers[what];
 		}
+	}
+
+	getHeader (what) {
+		return this.get(what);
 	}
 
 	redirect (url) {

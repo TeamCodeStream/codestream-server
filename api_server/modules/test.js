@@ -19,6 +19,7 @@ describe ('modules', () => {
 	require('./posts/test/test.js');
 	require('./codemarks/test/test.js');
 	require('./markers/test/test.js');
+	require('./web/test/test.js');
 	require('./inbound_emails/test/test.js');
 	require('./marker_locations/test/test.js');
 });
