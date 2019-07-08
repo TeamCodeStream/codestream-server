@@ -13,7 +13,8 @@ const TryIndefinitely = require('../try_indefinitely');
 
 class MongoClient {
 
-	constructor () {
+	constructor (options = {}) {
+		this.options = options;
 		this.dbCollections = {};
 		this.mongoCollections = {};
 	}
@@ -80,12 +81,20 @@ class MongoClient {
 				this.config.logger.log(`Connecting to mongo: ${this.config.url}`);
 			}
 			const settings = Object.assign({}, this.config.settings, { useNewUrlParser: true });
-			await TryIndefinitely(async () => {
+			if (this.options.tryIndefinitely) {
+				await TryIndefinitely(async () => {
+					this.mongoClient = await MongoDbClient.connect(
+						this.config.url,
+						settings
+					);
+				}, 1000, this.config.logger, 'Unable to connect to Mongo, retrying...');
+			}
+			else {
 				this.mongoClient = await MongoDbClient.connect(
 					this.config.url,
 					settings
 				);
-			}, 1000, this.config.logger, 'Unable to connect to Mongo, retrying...');
+			}
 		}
 		catch (error) {
 			throw 'could not connect to mongo: ' + error;
