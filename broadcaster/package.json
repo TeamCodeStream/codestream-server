@@ -9,19 +9,19 @@
     }
   ],
   "dependencies": {
-    "connect": "3.6.6",
+    "connect": "3.7.0",
     "deep-equal": "1.0.1",
-    "express": "4.16.3",
-    "minimist": "1.1.0",
-    "mongodb": "2.2.31",
-    "morgan": "1.7.0",
-    "sc-errors": "1.4.1",
+    "express": "4.17.1",
+    "minimist": "1.2.0",
+    "mongodb": "3.2.7",
+    "morgan": "1.9.1",
+    "sc-errors": "2.0.0",
     "sc-framework-health-check": "2.0.0",
     "sc-hot-reboot": "1.0.0",
     "scc-broker-client": "6.1.0",
-    "serve-static": "1.13.2",
-    "socketcluster": "14.3.2",
-    "socketcluster-client": "14.2.1",
+    "serve-static": "1.14.1",
+    "socketcluster": "14.3.5",
+    "socketcluster-client": "14.2.2",
     "strftime": "0.10.0"
   },
   "keywords": [
