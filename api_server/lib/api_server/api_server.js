@@ -115,6 +115,9 @@ class APIServer {
 	setupRequest (request, response, next) {
 		request.api = this;
 		request.apiModules = this.modules;
+		if (this.shutdownPending) {
+			return next(new Error('shutdown pending'));
+		}
 		process.nextTick(next);
 	}
 
