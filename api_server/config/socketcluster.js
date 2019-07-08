@@ -14,7 +14,8 @@ if (process.env.CS_API_CFG_FILE) {
 else {
 	ClusterCfg = {
 		host: process.env.CS_API_SOCKETCLUSTER_HOST,
-		port: process.env.CS_API_SOCKETCLUSTER_PORT
+		port: process.env.CS_API_SOCKETCLUSTER_PORT,
+		authKey: process.env.CS_API_SOCKETCLUSTER_AUTH_KEY
 	};
 }
 

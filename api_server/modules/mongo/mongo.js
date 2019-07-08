@@ -22,7 +22,7 @@ class Mongo extends APIServerModule {
 
 	constructor (config) {
 		super(config);
-		this.mongoClientFactory = new MongoClient();
+		this.mongoClientFactory = new MongoClient({ tryIndefinitely: true });
 	}
 
 	getDependencies () {
