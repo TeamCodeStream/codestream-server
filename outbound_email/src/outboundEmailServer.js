@@ -19,6 +19,8 @@ const ChangeEmailConfirmationHandler = require('./changeEmailConfirmationHandler
 const InviteEmailHandler = require('./inviteEmailHandler');
 const ResetPasswordEmailHandler = require('./resetPasswordEmailHandler');
 const TeamCreatedEmailHandler = require('./teamCreatedEmailHandler');
+const TryIndefinitely = require('./server_utils/try_indefinitely');
+const { awaitParallel } = require('./server_utils/await_utils');
 
 const MONGO_COLLECTIONS = ['users', 'teams', 'repos', 'streams', 'posts', 'codemarks', 'markers'];
 
@@ -130,16 +132,18 @@ class OutboundEmailServer {
 	
 	async initAsNeeded () {
 		if (this.handlers) { return; }
-		await this.openMongoClient();
-		await this.openBroadcasterClient();
-		await this.openQueuer();
+		await awaitParallel([
+			this.openMongoClient,
+			this.openBroadcasterClient,
+			this.openQueuer
+		], this);
 		this.makeEmailSender();
 		this.makeHandlers();
 	}
 	
 	async openMongoClient () {
 		this.log('Opening connection to mongo...');
-		const mongoClient = new MongoClient();
+		const mongoClient = new MongoClient({ tryIndefinitely: true });
 		const mongoOptions = Object.assign({}, this.config.mongo, { logger: this });
 		mongoOptions.collections = MONGO_COLLECTIONS;
 		try {
@@ -167,7 +171,11 @@ class OutboundEmailServer {
 		const pubnubOptions = Object.assign({}, this.config.pubnub);
 		pubnubOptions.uuid = 'OutboundEmail-' + OS.hostname();
 		const pubnub = new PubNub(pubnubOptions);
+		await TryIndefinitely(async () => {
+			await pubnub.publish('test', 'test');
+		}, 1000, this, 'Unable to connect to PubNub, retrying...');
 		this.broadcaster = new PubNubClient({ pubnub });
+
 	}
 	
 	async openSocketClusterClient () {
@@ -178,7 +186,10 @@ class OutboundEmailServer {
 			authKey: this.config.socketCluster.broadcasterSecret
 		});
 		this.broadcaster = new SocketClusterClient(config);
-		await this.broadcaster.init();
+		await TryIndefinitely(async () => {
+			await this.broadcaster.init();
+			await this.broadcaster.publish('test', 'test');
+		}, 1000, this, 'Unable to connect to SocketCluster, retrying...');
 	}
 		
 	async openQueuer () {
@@ -199,8 +210,10 @@ class OutboundEmailServer {
 			isPublisher: true
 		};
 		this.queuer = new RabbitMQClient(config);
-		await this.queuer.init();
-		await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
+		await TryIndefinitely(async () => {
+			await this.queuer.init();
+			await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
+		}, 1000, this, 'Unable to connect to RabbitMQ, retrying...');
 		this.queuerIsRabbitMQ = true;
 	}
 
@@ -208,7 +221,9 @@ class OutboundEmailServer {
 		this.log('Opening connection to SQS...');
 		const aws = new AWS(this.config.aws);
 		this.queuer = new SQSClient({ aws, logger: this.logger });
-		await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
+		await TryIndefinitely(async () => {
+			await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
+		}, 1000, this, 'Unable to connect to SQS, retrying...');
 	}
 
 	makeEmailSender () {
