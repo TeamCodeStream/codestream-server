@@ -15,9 +15,19 @@ const ACCESS_TOKEN = require(process.env.CS_API_TOP + '/config/intercom').access
 // need these collections from mongo
 const COLLECTIONS = ['teams'];
 
+const parseDate = function(date) {
+	const timestamp = Date.parse(date);
+	if (isNaN(timestamp)) {
+		console.error('Invalid date: ' + date);
+		process.exit(1);
+	}
+	return timestamp;
+};
+
 Commander
 	.option('-t, --teamId <teamId>', 'CodeStream ID of the team whose plan to change')
 	.option('-p, --plan <plan>', 'Name of plan to change to')
+	.option('-s, --start <date>', 'Set planStartDate to this date (best to put the date in quotes)', parseDate)
 	.parse(process.argv);
 
 if (!Commander.teamId || !Commander.plan) {
@@ -70,10 +80,16 @@ class PlanUpdater {
 
 	// update the plan in mongo
 	async updateMongo () {
+		const set = {
+			plan: this.plan,
+		};
+		if (Commander.start) {
+			set.planStartDate = Commander.start;
+		}
 		try {
 			await this.data.teams.updateDirect(
 				{ _id: this.data.teams.objectIdSafe(this.teamId) },
-				{ $set: { plan: this.plan, planStartDate: Date.now() } }
+				{ $set: set }
 			);
 		}
 		catch (error) {
