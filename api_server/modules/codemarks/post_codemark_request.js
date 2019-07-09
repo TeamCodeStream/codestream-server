@@ -25,9 +25,17 @@ class PostCodemarkRequest extends PostRequest {
 		if (this.request.body.type !== 'link' && !this.request.body.providerType) {
 			throw this.errorHandler.error('parameterRequired', { info: 'providerType' });
 		}
+
+		// if no provider type on a link-type codemark, we ignore the post and stream IDs,
+		// we would not expect them to be meaningful
+		else if (this.request.body.type === 'link' && !this.request.body.providerType) {
+			delete this.request.body.postId;
+			delete this.request.body.streamId;
+		}
+		
 		// if there is a postId, there must be a streamId
 		if (this.request.body.postId && !this.request.body.streamId) {
-			throw this.errorHandler.error('parameterRequired', { info: ' streamId with postId' });
+			throw this.errorHandler.error('parameterRequired', { info: 'streamId with postId' });
 		}
 		await super.process();
 	}

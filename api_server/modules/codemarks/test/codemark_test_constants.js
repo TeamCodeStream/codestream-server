@@ -8,7 +8,7 @@ const RepoAttributes = require(process.env.CS_API_TOP + '/modules/repos/repo_att
 const MarkerAttributes = require(process.env.CS_API_TOP + '/modules/markers/marker_attributes');
 const PostAttributes = require(process.env.CS_API_TOP + '/modules/posts/post_attributes');
 
-const EXPECTED_CODEMARK_FIELDS = [
+const EXPECTED_BASE_CODEMARK_FIELDS = [
 	'_id',
 	'deactivated',
 	'createdAt',
@@ -20,10 +20,17 @@ const EXPECTED_CODEMARK_FIELDS = [
 	'type',
 	'status',
 	'color',
-	'title',
-	'text',
 	'numReplies'
 ];
+
+const EXPECTED_CODEMARK_FIELDS = EXPECTED_BASE_CODEMARK_FIELDS.concat([
+	'title',
+	'text'
+]);
+
+const EXPECTED_INVISIBLE_CODEMARK_FIELDS = EXPECTED_BASE_CODEMARK_FIELDS.concat([
+	'invisible'
+]);
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(CodemarkAttributes).filter(attribute => {
 	return CodemarkAttributes[attribute].serverOnly;
@@ -46,7 +53,9 @@ const UNSANITIZED_POST_ATTRIBUTES = Object.keys(PostAttributes).filter(attribute
 });
 
 module.exports = {
+	EXPECTED_BASE_CODEMARK_FIELDS,
 	EXPECTED_CODEMARK_FIELDS,
+	EXPECTED_INVISIBLE_CODEMARK_FIELDS,	
 	UNSANITIZED_ATTRIBUTES,
 	UNSANITIZED_STREAM_ATTRIBUTES,
 	UNSANITIZED_REPO_ATTRIBUTES,

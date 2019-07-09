@@ -12,7 +12,7 @@ class NoCommitHashWithFileTest extends MarkerTest {
 	}
 
 	get description () {
-		return 'should be ok to create an codemark with a marker but not providing a commit hash even if there is a file';
+		return 'should be ok to create a codemark with a marker but not providing a commit hash even if there is a file';
 	}
 
 	// form the data to use in trying to create the codemark

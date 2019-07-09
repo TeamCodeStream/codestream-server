@@ -5,7 +5,7 @@ const PostCodemarkTest = require('./post_codemark_test');
 class EmptyPostIdTest extends PostCodemarkTest {
 
 	get description () {
-		return 'should be ok to create an codemark without a post ID if there is also no stream ID';
+		return 'should be ok to create a codemark without a post ID if there is also no stream ID';
 	}
 
 	// before the test runs...

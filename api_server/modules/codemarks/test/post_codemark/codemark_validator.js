@@ -21,8 +21,6 @@ class CodemarkValidator {
 		let result = (
 			((codemark.id === codemark._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((codemark.teamId === this.test.team.id) || errors.push('teamId does not match the team')) &&
-			((codemark.streamId === (this.inputCodemark.streamId || '')) || errors.push('streamId does not match the stream')) &&
-			((codemark.postId === (this.inputCodemark.postId || '')) || errors.push('postId does not match the post')) &&
 			((codemark.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof codemark.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((codemark.modifiedAt >= codemark.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
@@ -35,6 +33,18 @@ class CodemarkValidator {
 			((codemark.numReplies === 0) || errors.push('codemark should have 0 replies')) &&
 			((codemark.origin === expectedOrigin) || errors.push('origin not equal to expected origin'))
 		);
+		if (this.inputCodemark.providerType) {
+			result = result && (
+				((codemark.streamId === (this.inputCodemark.streamId || '')) || errors.push('streamId does not match the stream')) &&
+				((codemark.postId === (this.inputCodemark.postId || '')) || errors.push('postId does not match the post'))
+			);
+		}
+		else {
+			result = result && (
+				((codemark.streamId === '') || errors.push('streamId is not empty')) &&
+				((codemark.postId === '') || errors.push('postId is not empty'))
+			);
+		}
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 
 		// verify the codemark in the response has no attributes that should not go to clients
@@ -95,8 +105,6 @@ class CodemarkValidator {
 			((typeof marker.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((marker.modifiedAt >= marker.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((marker.creatorId === this.test.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
-			((marker.postStreamId === codemark.streamId) || errors.push('postStreamId does not match the codemark stream')) &&
-			((marker.postId === codemark.postId) || errors.push('postId does not match the codemark post')) &&
 			((marker.codemarkId === codemark.id) || errors.push('codemarkId does not match the codemark')) && 
 			((marker.commitHashWhenCreated === commitHash) || errors.push('marker commit hash does not match the expected commit hash')) &&
 			((marker.file === file) || errors.push('marker file does not match the expected file')) &&
@@ -104,6 +112,18 @@ class CodemarkValidator {
 			((marker.repoId === repoId) || errors.push('repoId does not match the expected repo ID')) &&
 			((marker.code === inputMarker.code) || errors.push('marker code does not match the given code'))
 		);
+		if (this.inputCodemark.providerType) {
+			result = result && (
+				((marker.postStreamId === codemark.streamId) || errors.push('postStreamId does not match the codemark stream')) &&
+				((marker.postId === codemark.postId) || errors.push('postId does not match the codemark post'))
+			);
+		}
+		else {
+			result = result && (
+				((typeof marker.postStreamId === 'undefined') || errors.push('marker streamId is not undefined')) &&
+				((typeof marker.postId === 'undefined') || errors.push('marker postId is not undefined'))
+			);
+		}
 		Assert(result === true && errors.length === 0, 'returned marker not valid: ' + errors.join(', '));
 
 		if (this.test.expectProviderType) {

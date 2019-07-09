@@ -21,8 +21,6 @@ class Codemark extends CodeStreamModel {
 		this.lowerCase('markerIds');
 		await super.preSave(options);
 	}
-	
-	// 
 }
 
 module.exports = Codemark;

@@ -28,7 +28,13 @@ class PostCodemarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	getExpectedFields () {
-		const expectedFields = CodemarkTestConstants.EXPECTED_CODEMARK_FIELDS;
+		let expectedFields;
+		if (this.codemarkType === 'link') {
+			expectedFields = CodemarkTestConstants.EXPECTED_INVISIBLE_CODEMARK_FIELDS;
+		}
+		else {
+			expectedFields = CodemarkTestConstants.EXPECTED_CODEMARK_FIELDS;
+		}
 		return { codemark: expectedFields };
 	}
 

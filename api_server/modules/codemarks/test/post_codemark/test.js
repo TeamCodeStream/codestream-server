@@ -46,11 +46,15 @@ const ValidTypeWithMarkerTest = require('./valid_type_with_marker_test');
 const MarkerRequiredTest = require('./marker_required_test');
 const RequiredForTypeTest = require('./required_for_type_test');
 const RequiredForTypeWithMarkerTest = require('./required_for_type_with_marker_test');
+const InvisibleTypeTest = require('./invisible_type_test');
 const IssueWithAssigneesTest = require('./issue_with_assignees_test');
 const AssigneesIgnoredTest = require('./assignees_ignored_test');
 const ParentPostIdTest = require('./parent_post_id_test');
 const OriginFromPluginTest = require('./origin_from_plugin_test');
 const ExternalIssueProviderTest = require('./external_issue_provider_test');
+const NoProviderTypeWithLinkTest = require('./no_provider_type_with_link_test');
+const PermalinkTest = require('./permalink_test');
+const DuplicateLinkTest = require('./duplicate_link_test');
 
 class PostCodemarkRequestTester {
 
@@ -103,18 +107,27 @@ class PostCodemarkRequestTester {
 		new ValidTypeTest({ codemarkType: 'question' }).test();
 		new ValidTypeWithMarkerTest({ codemarkType: 'bookmark' }).test();
 		new ValidTypeWithMarkerTest({ codemarkType: 'trap' }).test();
+		new ValidTypeWithMarkerTest({ codemarkType: 'link' }).test();
 		new MarkerRequiredTest({ codemarkType: 'bookmark' }).test();
 		new MarkerRequiredTest({ codemarkType: 'trap' }).test();
+		new MarkerRequiredTest({ codemarkType: 'link' }).test();
 		new RequiredForTypeTest({ codemarkType: 'comment', attribute: 'text' }).test();
 		new RequiredForTypeTest({ codemarkType: 'question', attribute: 'title' }).test();
 		new RequiredForTypeTest({ codemarkType: 'issue', attribute: 'title' }).test();
 		new RequiredForTypeWithMarkerTest({ codemarkType: 'bookmark', attribute: 'title' }).test();
 		new RequiredForTypeWithMarkerTest({ codemarkType: 'trap', attribute: 'text' }).test();
+		new InvisibleTypeTest({ codemarkType: 'link', attribute: 'text' }).test();
+		new InvisibleTypeTest({ codemarkType: 'link', attribute: 'title' }).test();
 		new IssueWithAssigneesTest().test();
 		new AssigneesIgnoredTest().test();
 		new ParentPostIdTest().test();
 		new OriginFromPluginTest().test();
 		new ExternalIssueProviderTest().test();
+		new NoProviderTypeWithLinkTest().test();
+		new PermalinkTest({ permalinkType: 'public' }).test();
+		new PermalinkTest({ permalinkType: 'private' }).test();
+		new DuplicateLinkTest({ permalinkType: 'public' }).test();
+		new DuplicateLinkTest({ permalinkType: 'private' }).test();
 	}
 }
 

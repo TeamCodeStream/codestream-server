@@ -6,6 +6,7 @@
 /* globals describe */
 
 const SimpleWebTest = require('./simple_web_test');
+//const PermalinkTest = require('./permalink_test');
 
 const SIMPLE_TESTS = [
 	{
@@ -31,4 +32,5 @@ describe('web', function() {
 	SIMPLE_TESTS.forEach(test => {
 		new SimpleWebTest(test).test();
 	});
+	//new PermalinkTest().test();
 });

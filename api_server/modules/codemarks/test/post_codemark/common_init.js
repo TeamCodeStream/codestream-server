@@ -31,6 +31,10 @@ class CommonInit {
 			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)
 		});
+		if (this.codemarkType === 'link') {
+			delete this.data.title;
+			delete this.data.text;
+		}
 		callback();
 	}
 }
