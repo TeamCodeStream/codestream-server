@@ -172,10 +172,9 @@ class OutboundEmailServer {
 		pubnubOptions.uuid = 'OutboundEmail-' + OS.hostname();
 		const pubnub = new PubNub(pubnubOptions);
 		await TryIndefinitely(async () => {
-			await pubnub.publish('test', 'test');
+			await pubnub.publish({ message: 'test', channel: 'test' });
 		}, 1000, this, 'Unable to connect to PubNub, retrying...');
 		this.broadcaster = new PubNubClient({ pubnub });
-
 	}
 	
 	async openSocketClusterClient () {
