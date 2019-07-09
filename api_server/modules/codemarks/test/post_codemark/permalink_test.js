@@ -1,6 +1,6 @@
 'use strict';
 
-const MarkerTest = require('./marker_Test');
+const MarkerTest = require('./marker_test');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const Assert = require('assert');
 
