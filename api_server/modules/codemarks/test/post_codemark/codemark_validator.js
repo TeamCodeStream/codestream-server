@@ -33,7 +33,7 @@ class CodemarkValidator {
 			((codemark.numReplies === 0) || errors.push('codemark should have 0 replies')) &&
 			((codemark.origin === expectedOrigin) || errors.push('origin not equal to expected origin'))
 		);
-		if (this.inputCodemark.providerType) {
+		if (this.inputCodemark.providerType || this.usingCodeStreamChannels) {
 			result = result && (
 				((codemark.streamId === (this.inputCodemark.streamId || '')) || errors.push('streamId does not match the stream')) &&
 				((codemark.postId === (this.inputCodemark.postId || '')) || errors.push('postId does not match the post'))
@@ -112,7 +112,7 @@ class CodemarkValidator {
 			((marker.repoId === repoId) || errors.push('repoId does not match the expected repo ID')) &&
 			((marker.code === inputMarker.code) || errors.push('marker code does not match the given code'))
 		);
-		if (this.inputCodemark.providerType) {
+		if (this.inputCodemark.providerType || this.usingCodeStreamChannels) {
 			result = result && (
 				((marker.postStreamId === codemark.streamId) || errors.push('postStreamId does not match the codemark stream')) &&
 				((marker.postId === codemark.postId) || errors.push('postId does not match the codemark post'))

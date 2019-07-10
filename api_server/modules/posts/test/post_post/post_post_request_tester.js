@@ -168,6 +168,7 @@ class PostPostRequestTester {
 		new ValidCodemarkTypeTest({ codemarkType: 'question' }).test();
 		new ValidCodemarkTypeWithMarkerTest({ codemarkType: 'bookmark' }).test();
 		new ValidCodemarkTypeWithMarkerTest({ codemarkType: 'trap' }).test();
+		new ValidCodemarkTypeWithMarkerTest({ codemarkType: 'link' }).test();
 		new RequiredForCodemarkTypeTest({ codemarkType: 'comment', attribute: 'text' }).test();
 		new RequiredForCodemarkTypeWithMarkerTest({ codemarkType: 'bookmark', attribute: 'title' }).test();
 		new RequiredForCodemarkTypeWithMarkerTest({ codemarkType: 'trap', attribute: 'text' }).test();
@@ -175,6 +176,7 @@ class PostPostRequestTester {
 		new RequiredForCodemarkTypeTest({ codemarkType: 'issue', attribute: 'title' }).test();
 		new MarkerRequiredForCodemarkTest({ codemarkType: 'bookmark' }).test();
 		new MarkerRequiredForCodemarkTest({ codemarkType: 'trap' }).test();
+		new MarkerRequiredForCodemarkTest({ codemarkType: 'link' }).test();
 		new IssueWithAssigneesTest().test();
 		new InvalidAssigneeTest().test();
 		new AssigneeNotOnTeamTest().test();

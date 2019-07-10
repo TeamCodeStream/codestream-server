@@ -25,6 +25,10 @@ class CodemarkTest extends PostPostTest {
 
 	addCodemarkData (callback) {
 		this.data.codemark = this.codemarkFactory.getRandomCodemarkData({ codemarkType: this.codemarkType || 'comment' });
+		if (this.codemarkType === 'link') {
+			delete this.data.codemark.text;
+			delete this.data.codemark.title;
+		}
 		callback();
 	}
 
@@ -39,7 +43,8 @@ class CodemarkTest extends PostPostTest {
 		new CodemarkValidator({
 			test: this,
 			inputCodemark,
-			expectedOrigin: this.expectedOrigin
+			expectedOrigin: this.expectedOrigin,
+			usingCodeStreamChannels: true
 		}).validateCodemark(data);
 		super.validateResponse(data);
 	}
