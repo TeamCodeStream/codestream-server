@@ -110,9 +110,6 @@ class CodemarkLinkCreator {
 	// hash the distinguishing codemark attributes
 	hashCodemark (attributes, markers, isPublic) {
 		const hashText = this.makeHashText(attributes, markers, isPublic);
-		if (!hashText) {
-			return;
-		}
 		return Crypto.createHash('md5').update(hashText).digest('hex');		
 	}
 
@@ -120,7 +117,7 @@ class CodemarkLinkCreator {
 	// a combination of team, code, repo, file, commit hash, and location
 	// if all of these are the same, we should get the same MD5 hash
 	makeHashText (attributes, markers, isPublic) {
-		const markerText = (markers || '')
+		const markerText = (markers || [])
 			.map(marker => {
 				return [
 					marker.get('code'),
@@ -131,9 +128,6 @@ class CodemarkLinkCreator {
 				].join('');
 			})
 			.join('');
-		if (!markerText) {
-			return '';
-		}
 		return `${attributes.teamId}${markerText}${isPublic ? 1 : 0}`;
 	}
 }

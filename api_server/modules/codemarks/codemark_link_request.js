@@ -22,6 +22,7 @@ class CodemarkLinkRequest extends RestfulRequest {
 	// process the request
 	async process () {
 		await this.requireAndAllow();	// require parameters, and filter out unknown parameters
+		await this.getMarkers();		// get the markers associated with the codemark
 		await this.makeLink();			// create the codemark link
 	}
 
@@ -35,6 +36,16 @@ class CodemarkLinkRequest extends RestfulRequest {
 				}
 			}
 		);
+	}
+
+	// get the markers associated with this codemark
+	async getMarkers () {
+		if (this.codemark.get('markerIds')) {
+			this.markers = await this.data.markers.getByIds(this.codemark.get('markerIds'));
+		}
+		else {
+			this.markers = [];
+		}
 	}
 
 	// create the link to the codemark
