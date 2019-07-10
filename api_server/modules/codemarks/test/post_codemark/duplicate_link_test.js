@@ -11,7 +11,7 @@ class DuplicateLinkTest extends PermalinkTest {
 	}
 
 	get description () {
-		return 'when creating a link for a codemark with attributes matching an existing link, should find the created link instead of creating a new one';
+		return `when creating a link for a ${this.permalinkType} codemark with attributes matching an existing link, should find the created link instead of creating a new one`;
 	}
 
 	run (callback) {
