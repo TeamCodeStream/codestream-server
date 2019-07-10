@@ -28,6 +28,11 @@ class PostPostRequest extends PostRequest {
 		// adding objects to the response returned
 		const { transforms, responseData } = this;
 
+		// add permalink, if requested
+		if (transforms.permalink) {
+			responseData.permalink = transforms.permalink;
+		}
+
 		// add any repos created for posts with codemarks and markers
 		if (transforms.createdRepos && transforms.createdRepos.length > 0) {
 			responseData.repos = transforms.createdRepos.map(repo => repo.getSanitizedObject({ request: this }));

@@ -75,6 +75,7 @@ const InvalidCodemarkTypeTest = require('./invalid_codemark_type_test');
 const ValidCodemarkTypeTest = require('./valid_codemark_type_test');
 const ValidCodemarkTypeWithMarkerTest = require('./valid_codemark_type_with_marker_test');
 const MarkerRequiredForCodemarkTest = require('./marker_required_for_codemark_test');
+const InvisibleCodemarkTypeTest = require('./invisible_codemark_type_test');
 const RequiredForCodemarkTypeTest = require('./required_for_codemark_type_test');
 const RequiredForCodemarkTypeWithMarkerTest = require('./required_for_codemark_type_with_marker_test');
 const IssueWithAssigneesTest = require('./issue_with_assignees_test');
@@ -84,6 +85,8 @@ const AssigneesIgnoredTest = require('./assignees_ignored_test');
 const NoReplyToReplyTest = require('./no_reply_to_reply_test');
 const ParentPostIdTest = require('./parent_post_id_test');
 const CodemarkOriginTest = require('./codemark_origin_test');
+const PermalinkTest = require('./permalink_test');
+const DuplicateLinkTest = require('./duplicate_link_test');
 
 class PostPostRequestTester {
 
@@ -177,6 +180,8 @@ class PostPostRequestTester {
 		new MarkerRequiredForCodemarkTest({ codemarkType: 'bookmark' }).test();
 		new MarkerRequiredForCodemarkTest({ codemarkType: 'trap' }).test();
 		new MarkerRequiredForCodemarkTest({ codemarkType: 'link' }).test();
+		new InvisibleCodemarkTypeTest({ codemarkType: 'link', attribute: 'text' }).test();
+		new InvisibleCodemarkTypeTest({ codemarkType: 'link', attribute: 'title' }).test();
 		new IssueWithAssigneesTest().test();
 		new InvalidAssigneeTest().test();
 		new AssigneeNotOnTeamTest().test();
@@ -184,6 +189,10 @@ class PostPostRequestTester {
 		new NoReplyToReplyTest().test();
 		new ParentPostIdTest().test();
 		new CodemarkOriginTest().test();
+		new PermalinkTest({ permalinkType: 'public' }).test();
+		new PermalinkTest({ permalinkType: 'private' }).test();
+		new DuplicateLinkTest({ permalinkType: 'public' }).test();
+		new DuplicateLinkTest({ permalinkType: 'private' }).test();
 	}
 }
 
