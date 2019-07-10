@@ -12,9 +12,10 @@ const Intercom = require('intercom-client');
 const Indexes = require(process.env.CS_API_TOP + '/modules/teams/indexes');
 const Strftime = require('strftime');
 const ACCESS_TOKEN = require(process.env.CS_API_TOP + '/config/intercom').accessToken;
+const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 
 // need these collections from mongo
-const COLLECTIONS = ['teams', 'updatePlanLastRunAt'];
+const COLLECTIONS = ['teams', 'users', 'updatePlanLastRunAt'];
 
 // throttle the updates so we don't stress mongo or intercom
 const NO_UPDATE_THROTTLE_TIME = 10;
@@ -102,11 +103,27 @@ class PlanUpdater {
 			return await this.wait(NO_UPDATE_THROTTLE_TIME);
 		}
 
-		let newPlan = team.memberIds.length > 5 ? 'TRIALEXPIRED' : 'FREEPLAN';
+		const users = await this.getRegisteredUsers(team);
+		let newPlan = users.length > 5 ? 'TRIALEXPIRED' : 'FREEPLAN';
 		this.logger.log(`${date}: Updating team ${team._id} ("${team.name}") to ${newPlan}`);
 		await this.updateIntercom(team, newPlan);
 		await this.updateMongo(team, newPlan);
 		await this.wait(UPDATE_THROTTLE_TIME);
+	}
+
+	// get the registered users on a team
+	async getRegisteredUsers (team) {
+		return await this.data.users.getByQuery(
+			{ 
+				teamIds: team._id.toString(),
+				isRegistered: true,
+				deactivated: false
+			},
+			{
+				hint: UserIndexes.byTeamIds,
+				fields: ['_id']
+			}
+		);
 	}
 
 	// update the plan in mongo
