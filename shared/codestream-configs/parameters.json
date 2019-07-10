@@ -284,6 +284,8 @@
 	},
 
 	// 3rd party integration keys and secrets
+	// NOTE: Environment variables in these sections refer ONLY to the default
+	//       provider (usually the cloud service)
 	"integrations": {
 		"slack": {
 			"<appProvider>": {
@@ -397,13 +399,15 @@
 		"msteams": {
 			"<appProvider>": {
 				"appClientId": {
+					"env": "CSSVC_MSTEAMS_CLIENT_ID",
 					"desc": "MS Teams API client Id"
 				},
 				"appClientSecret": {
+					"env": "CSSVC_MSTEAMS_CLIENT_SECRET",
 					"desc": "MS Teams API secret"
 				},
 				"localProvider": {
-					"desc": "true if service is on-prem",
+					"desc": "true if msteams service is an on-prem installation",
 					"default": false
 				}
 			}
