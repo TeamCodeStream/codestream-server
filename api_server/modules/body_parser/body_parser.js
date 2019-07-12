@@ -15,6 +15,7 @@ class BodyParserModule extends APIServerModule {
 				if (this.api.config.api.mockMode) {
 					return next();
 				}
+
 				// we only need to obtain the middleware function once
 				this.jsonParserFunc = this.jsonParserFunc || BodyParser.json({
 					reviver: this.jsonBodyReviver
@@ -27,6 +28,12 @@ class BodyParserModule extends APIServerModule {
 				if (this.api.config.api.mockMode) {
 					return next();
 				}
+
+				// form encoded requests are only allowed for requests related to the web sub-system
+				if (!request.path.match(/^\/web\//)) {
+					return next();
+				}
+
 				// we only need to obtain the middleware function once
 				this.formParserFunc = this.formParserFunc || BodyParser.urlencoded({ extended: true });
 				this.formParserFunc(request, response, next);

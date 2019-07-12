@@ -20,6 +20,7 @@ class SetPasswordRequest extends RestfulRequest {
 	}
 
 	async requireAndAllow() {		
+		delete this.request.body._csrf;
 		await this.requireAllowParameters(
 			'body',
 			{
