@@ -136,7 +136,7 @@ class APIRequestTest extends GenericTest {
 				response.statusCode >= 300 &&
 				response.statusCode < 400
 			) {
-				return callback(null, response.headers.location);
+				return callback(null, response.headers.location, response);
 			}
 			else {
 				return callback(`error response, status code was ${response.statusCode}`, response.data, response);

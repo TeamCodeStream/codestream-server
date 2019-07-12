@@ -165,6 +165,9 @@ class LinkCodemarkRequest extends APIRequest {
 			const fileStream = marker && marker.get('fileStreamId') &&
 				await this.data.streams.getById(marker.get('fileStreamId'));
 			file = (fileStream && fileStream.get('file')) || (marker && marker.get('file'));
+			if (file.startsWith('/')) {
+				file = file.slice(1);
+			}
 			let repo = (marker && marker.get('repo')) || '';
 			repo = this.bareRepo(repo);
 			file = `${repo}/${file}`;
@@ -184,7 +187,7 @@ class LinkCodemarkRequest extends APIRequest {
 
 	addIdentifyScript (props) {
 		const identifyOptions = {
-			provider: ProviderDisplayNames[this.request.query.provider] || '???',
+			provider: ProviderDisplayNames[this.request.query.provider] || this.request.query.provider,
 			user: this.user,
 			team: this.team,
 			company: this.company,
@@ -218,8 +221,9 @@ class LinkCodemarkRequest extends APIRequest {
 			return 'set a bookmark';
 		case 'trap':
 			return 'created a code trap';
-		default:
-			return 'commented on code';	// shouldn't happen, just a failsafe
+		case 'comment':
+		default: // shouldn't happen, just a failsafe
+			return 'commented on code';
 		}
 	}
 
