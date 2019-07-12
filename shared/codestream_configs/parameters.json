@@ -6,7 +6,7 @@
 // Values / Properties for each variable are:
 //    "variable-name": {
 //        "desc": "Description of variable, used for generated docs",  (required)
-//        "env": "CSSVC_SOME_ENV_VAR_NAME",  (optional, env vars override the config)
+//        "env": "CSSVC_SOME_ENV_VAR_NAME",  (optional, env variable to override the config)
 //        "required": true,                  (optional, if true variable is required at startup)
 //        "envRequired": true,               (optional, env variable required)
 //        "default": "default-value"         (optional, applies to local development, any type)
@@ -25,21 +25,21 @@
 		"certfile": {
 			"desc": "SSL certificate",
 			"env": "CSSVC_SSL_CERTFILE",
-			"default": "{HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-crt"
+			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-crt"
 		},
 		"cafile": {
 			"desc": "SSL certificate authority bundle (chain) file",
 			"env": "CSSVC_SSL_CAFILE",
-			"default": "{HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-ca"
+			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-ca"
 		},
 		"keyfile": {
 			"desc": "SSL private key file",
 			"env": "CSSVC_SSL_KEYFILE",
-			"default": "{HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-key"
+			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-key"
 		}
 	},
 
-	// Core secrets used in all configurations
+	// Core secrets
 	"sharedSecrets": {
 		"auth": {
 			"desc": "secret used for authentication",
@@ -156,7 +156,7 @@
 					"required": true
 				}
 			},
-			"logging": {
+			"logger": {
 				"directory": {
 					"desc": "directory for broadcaster logs",
 					"env": "CS_BROADCASTER_LOGS",
@@ -218,7 +218,7 @@
 		}
 	},
 
-	// Email delivery service - choose one
+	// Email delivery services - choose one
 	"emailDeliveryService": {
 		"sendgrid": {
 			"url": {
@@ -266,7 +266,7 @@
 		}
 	},
 
-	// Telemetry services
+	// Telemetry and tracking services
 	"telemetry": {
 		"segment": {
 			"token": {
@@ -279,6 +279,11 @@
 		"mixpanel": {
 			"token": {
 				"desc": "Mixpanel API token"
+			}
+		},
+		"intercom": {
+			"token": {
+				"desc": "Intercom Access Token"
 			}
 		}
 	},
@@ -428,7 +433,6 @@
 		}
 	},
 
-
 	// CodeStream Services
 	"apiServer": {
 		"port": {
@@ -436,7 +440,7 @@
 			"env": "CSSVC_API_PORT",
 			"default": 12079
 		},
-		"logging": {
+		"logger": {
 			"directory": {
 				"desc": "directory for api server logs",
 				"env": "CS_API_LOGS",
@@ -468,7 +472,7 @@
 			"desc": "attachments in incoming emails will be stored temporarily here",
 			"default": "{CS_MAILIN_SANDBOX}/mailq/attachments"
 		},
-		"logging": {
+		"logger": {
 			"directory": {
 				"desc": "directory for inbound email logs",
 				"env": "CS_MAILIN_LOGS",
@@ -488,7 +492,7 @@
 	},
 
 	"outboundEmailServer": {
-		"logging": {
+		"logger": {
 			"directory": {
 				"desc": "directory for outbound email logs",
 				"env": "CS_OUTBOUND_EMAIL_LOGS",
