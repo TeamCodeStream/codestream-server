@@ -23,7 +23,9 @@ class CodemarkLinkRequest extends RestfulRequest {
 	async process () {
 		await this.requireAndAllow();	// require parameters, and filter out unknown parameters
 		await this.getMarkers();		// get the markers associated with the codemark
-		await this.makeLink();			// create the codemark link
+		if (!await this.findExisting()) {	// find a possible existing codemark link for this same codemark
+			await this.makeLink();		// create a new codemark link
+		}
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -48,12 +50,31 @@ class CodemarkLinkRequest extends RestfulRequest {
 		}
 	}
 
+	// find a possible existing codemark link for this same codemark
+	async findExisting () {
+		const info = await new CodemarkLinkCreator({
+			request: this
+		}).findCodemarkLink(
+			this.codemark.attributes,
+			this.markers,
+			this.request.body.isPublic,
+			true
+		);
+
+		if (info) {
+			this.responseData.permalink = info.url;
+			return true;
+		}
+	}
+
 	// create the link to the codemark
 	async makeLink () {
 		this.responseData.permalink = await new CodemarkLinkCreator({
 			request: this,
 			codemark: this.codemark,
-			isPublic: this.request.body.isPublic
+			markers: this.markers,
+			isPublic: this.request.body.isPublic,
+			isExistingCodemark: true
 		}).createCodemarkLink();
 	}
 

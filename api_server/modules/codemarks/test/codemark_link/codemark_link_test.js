@@ -18,7 +18,8 @@ class CodemarkLinkTest extends CodeStreamAPITest {
 
 	get description () {
 		const withMarkers = this.wantMarkers ? ' with markers' : '';
-		return `should return a valid permalink url when creating a ${this.permalinkType} permalink associated with an existing codemark${withMarkers}`;
+		const codemarkType = this.codemarkType || 'comment';
+		return `should return a valid permalink url when creating a ${this.permalinkType} permalink associated with an existing ${codemarkType} codemark${withMarkers}`;
 	}
 
 	get method () {
@@ -39,7 +40,7 @@ class CodemarkLinkTest extends CodeStreamAPITest {
 
 	// create the codemark that we'll create a permalink for
 	createCodemark (callback) {
-		const data = this.codemarkFactory.getRandomCodemarkData();
+		const data = this.codemarkFactory.getRandomCodemarkData({ codemarkType: this.codemarkType });
 		if (this.wantMarkers) {
 			data.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0].id });
 		}
