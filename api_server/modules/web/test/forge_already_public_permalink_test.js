@@ -28,7 +28,7 @@ class ForgeAlreadyPublicPermalinkTest extends PermalinkTest {
 
 	// create a private version of the public permalink we created
 	createPrivatePermalink (callback) {
-		this.data.createPermalink = 'private';
+		this.codemarkData.createPermalink = 'private';
 		this.createCodemarkForPermalink(error => {
 			// now forge it as a public permalink, this still shouldn't work
 			if (error) { return callback(error); }

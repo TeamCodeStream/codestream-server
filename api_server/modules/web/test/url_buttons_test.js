@@ -10,11 +10,11 @@ class UrlButtonsTest extends PrivatePermalinkTest {
 	}
 
 	createCodemarkForPermalink (callback) {
-		this.data.remoteCodeUrl = {
+		this.codemarkData.remoteCodeUrl = {
 			name: 'github',
 			url: this.repoFactory.randomUrl()
 		};
-		this.data.threadUrl  = {
+		this.codemarkData.threadUrl  = {
 			name: 'slack',
 			url: this.repoFactory.randomUrl()
 		};

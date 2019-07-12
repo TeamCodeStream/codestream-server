@@ -5,6 +5,7 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 const RandomString = require('randomstring');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const Assert = require('assert');
+const Secrets = require(process.env.CS_API_TOP + '/config/secrets');
 
 class PermalinkTest extends CodeStreamAPITest {
 
@@ -13,8 +14,10 @@ class PermalinkTest extends CodeStreamAPITest {
 		this.teamOptions.creatorIndex = 1;
 		this.repoOptions.creatorIndex = 1;
 		this.apiRequestOptions = {
+			noJsonInRequest: true,
 			noJsonInResponse: true
 		};
+		this.ignoreTokenOnRequest = true;
 	}
 
 	get description () {
@@ -33,7 +36,7 @@ class PermalinkTest extends CodeStreamAPITest {
 	createPermalink (callback) {
 		this.makeCodemarkData();
 		if (!this.dontWantPermalinkYet) {
-			this.data.createPermalink = this.permalinkType || 'public';
+			this.codemarkData.createPermalink = this.permalinkType || 'public';
 		}
 		this.createCodemarkForPermalink(callback);
 	}
@@ -41,18 +44,18 @@ class PermalinkTest extends CodeStreamAPITest {
 	// make the codemark data
 	makeCodemarkData () {
 		const codemarkType = this.codemarkType || 'link';
-		this.data = this.codemarkFactory.getRandomCodemarkData({ codemarkType });
+		this.codemarkData = this.codemarkFactory.getRandomCodemarkData({ codemarkType });
 		if (codemarkType === 'link') {
-			delete this.data.text;
-			delete this.data.title;
+			delete this.codemarkData.text;
+			delete this.codemarkData.title;
 		}
-		Object.assign(this.data, {
+		Object.assign(this.codemarkData, {
 			teamId: this.team.id,
 			providerType: RandomString.generate(8),
 			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)
 		});
-		this.data.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0].id });
+		this.codemarkData.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0].id });
 	}
 
 	// create the codemark that ends up generating the permalink
@@ -61,7 +64,7 @@ class PermalinkTest extends CodeStreamAPITest {
 			{
 				method: 'post',
 				path: '/codemarks',
-				data: this.data,
+				data: this.codemarkData,
 				token: this.users[1].accessToken
 			},
 			(error, response) => {
@@ -88,14 +91,16 @@ class PermalinkTest extends CodeStreamAPITest {
 				},
 				requestOptions: {
 					noJsonInResponse: true,
-					expectRedirect: true
+					expectRedirect: true,
+					headers: {
+						'x-csrf-bypass-secret': Secrets.confirmationCheat
+					}
 				}
 			},
 			(error, location, response) => {
 				if (error) { return callback(error); }
-				const setCookie = response.headers['set-cookie'];
-				const match = setCookie.match('tcs=(.+);');
-				this.setCookie(match[1]);
+				const setCookie = decodeURIComponent((response.headers['set-cookie'] || '').toString());
+				this.setCookie(setCookie);
 				callback();
 			}
 		);
@@ -104,9 +109,7 @@ class PermalinkTest extends CodeStreamAPITest {
 	// set the cookie to be sent with the request, in the request headers
 	setCookie (cookie) {
 		this.apiRequestOptions = Object.assign(this.apiRequestOptions || {}, {
-			headers: {
-				'cookie': `tcs=${cookie}`
-			}
+			headers: { cookie }
 		});
 	}
 

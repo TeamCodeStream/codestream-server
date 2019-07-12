@@ -40,6 +40,8 @@ const SIMPLE_TESTS = [
 
 describe('web', function() {
 
+	this.timeout(5000);
+
 	SIMPLE_TESTS.forEach(test => {
 		new SimpleWebTest(test).test();
 	});

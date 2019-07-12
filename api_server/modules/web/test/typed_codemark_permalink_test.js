@@ -44,8 +44,8 @@ class TypedCodemarkPermalinkTest extends PrivatePermalinkTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		const authorSpan = `<span class="author">${this.users[1].user.username}</span>`;
-		const titleParagraph = `<p class="title">${this.data.title}</p>`;
-		const textParagraph = `	<p class="text">${this.data.text}</p>`;
+		const titleParagraph = `<p class="title">${this.codemarkData.title}</p>`;
+		const textParagraph = `	<p class="text">${this.codemarkData.text}</p>`;
 		Assert.notEqual(data.indexOf(authorSpan), -1, 'did not get expected author in the html response');
 		Assert.notEqual(data.indexOf(titleParagraph), -1, 'did not get expected title in the html response');
 		Assert.notEqual(data.indexOf(textParagraph), -1, 'did not get expected text in the html response');

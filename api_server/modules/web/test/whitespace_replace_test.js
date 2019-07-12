@@ -9,7 +9,7 @@ class WhitespaceReplaceTest extends PrivatePermalinkTest {
 	}
 
 	createCodemarkForPermalink (callback) {
-		this.data.markers[0].code = 'function () {\n\tfoo();\n    bar();\n}\n';
+		this.codemarkData.markers[0].code = 'function () {\n\tfoo();\n    bar();\n}\n';
 		this.expectedCode = 'function () {<br/>&nbsp;&nbsp;&nbsp;&nbsp;foo();<br/>&nbsp;&nbsp;&nbsp;&nbsp;bar();<br/>}<br/>';
 		super.createCodemarkForPermalink(callback);
 	}
