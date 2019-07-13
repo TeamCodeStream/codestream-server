@@ -19,7 +19,21 @@ class SetPasswordRequest extends RestfulRequest {
 		// no authorization needed
 	}
 
+	async requireAndAllow() {		
+		delete this.request.body._csrf;
+		await this.requireAllowParameters(
+			'body',
+			{
+				required: {
+					string: ['token', 'password']
+				}
+			}
+		);		
+	}
+
 	async process() {
+		await this.requireAndAllow();		
+	
 		const { password, token } = this.request.body;
 		if (!token) {
 			//something happened between render and POST... (tampering? redirect it.)
@@ -34,6 +48,13 @@ class SetPasswordRequest extends RestfulRequest {
 				request: this
 			}).getUserFromToken(token);
 
+			if (!user) {
+				//can't find a user, no need to try again
+				this.warn('User not found');
+				this.redirectError();
+				return;
+			}
+
 			if (!password) {
 				this.render({
 					error: 'password is required',
@@ -42,7 +63,7 @@ class SetPasswordRequest extends RestfulRequest {
 				});
 				return;
 			}
-	
+
 			await new ChangePasswordCore({
 				request: this,
 				errorHandler: this.errorHandler

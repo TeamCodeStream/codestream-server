@@ -1,6 +1,6 @@
 'use strict';
 
-const WebTest = require('../web_test');
+const WebTest = require('./web_test');
 const Assert = require('assert');
 
 class SimpleWebTest extends WebTest {

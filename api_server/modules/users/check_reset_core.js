@@ -43,7 +43,7 @@ class CheckResetCore {
 				hint: Indexes.bySearchableEmail
 			}
 		);
-		if (users.length < 1 || users[0].get('deactivated')) {
+		if (users.length < 1) {			
 			throw this.request.errorHandler.error('tokenInvalid', { reason: 'user not found' });
 		}
 		this.user = users[0];
