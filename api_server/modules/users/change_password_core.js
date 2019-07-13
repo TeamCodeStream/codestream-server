@@ -34,20 +34,6 @@ class ChangePasswordCore {
 		await this.updateUser();		// update the user's database record
 	}
 
-	// require these parameters, and discard any unknown parameters
-	async requireAndAllow () {
-		await this.requireAllowParameters(
-			'body',
-			{
-				required: {
-					string: ['newPassword', 'existingPassword']
-				}
-			}
-		);
-		this.password = this.request.body.newPassword;
-		this.user = this.request.user;
-	}
-
 	// validate that the existing password matches the password hash stored for the user
 	async validatePassword () {
 		let result;
