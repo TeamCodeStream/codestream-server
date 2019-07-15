@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# refresh everything
+
+[ -z "$KM_PKI" ] && echo "KM_PKI not defined. Where is the PKI database?" && exit 1
+binDir=`dirname $0`
+repoRoot=`dirname $binDir`
+
+$binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json
+$binDir/process-profile --show-env --out $repoRoot/README.parameter-environment-overrides.json

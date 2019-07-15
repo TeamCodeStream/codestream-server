@@ -1,6 +1,6 @@
 {
     "apiServer": {
-        "logging": {
+        "logger": {
             "consoleOk": "allow logging to the console",
             "debugOk": "more verbose logging (debug level)",
             "directory": "directory for api server logs"
@@ -10,7 +10,7 @@
     "broadcastEngine": {
         "codestreamBroadcaster": {
             "host": "hostname of the broadcaster service",
-            "logging": {
+            "logger": {
                 "consoleOk": "allow logging to the console",
                 "debugOk": "more verbose logging (debug level)",
                 "directory": "directory for broadcaster logs"
@@ -53,7 +53,7 @@
     },
     "inboundEmailServer": {
         "inboundEmailDirectory": "new email files will be delivered to this directory by the mail agent",
-        "logging": {
+        "logger": {
             "consoleOk": "allow logging to the console",
             "debugOk": "more verbose logging (debug level)",
             "directory": "directory for inbound email logs"
@@ -90,13 +90,6 @@
                 "localProvider": "true if service is on-prem"
             }
         },
-        "glip": {
-            "<appProvider>": {
-                "appClientId": "Glip API client Id",
-                "appClientSecret": "Glip API secret",
-                "localProvider": "true if service is on-prem"
-            }
-        },
         "jira": {
             "<appProvider>": {
                 "appClientId": "Jira API client Id",
@@ -108,7 +101,7 @@
             "<appProvider>": {
                 "appClientId": "MS Teams API client Id",
                 "appClientSecret": "MS Teams API secret",
-                "localProvider": "true if service is on-prem"
+                "localProvider": "true if msteams service is an on-prem installation"
             }
         },
         "slack": {
@@ -133,7 +126,7 @@
         }
     },
     "outboundEmailServer": {
-        "logging": {
+        "logger": {
             "consoleOk": "allow logging to the console",
             "debugOk": "more verbose logging (debug level)",
             "directory": "directory for outbound email logs"
@@ -171,6 +164,9 @@
         }
     },
     "telemetry": {
+        "intercom": {
+            "token": "Intercom Access Token"
+        },
         "mixpanel": {
             "token": "Mixpanel API token"
         },
