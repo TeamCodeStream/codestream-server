@@ -4,4 +4,42 @@
 // - RabbitMQ
 // - api, mongo, rabbit, broadcast & mailout run as individual
 //   containers on a single host-based docker network
-{}
+
+{
+	"ssl": {
+		"prod": {
+			"certfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.com-crt",
+			"cafile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.com-ca",
+			"keyfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.com-key"
+		},
+		"defaultEnv": {}
+	},
+	"broadcastEngine": {
+		"codestreamBroadcaster": {}
+	},
+	"integrations": {
+		"slack": {
+			"slack.com": {
+				"prod": {
+					"_loadSecretsFile": "slack/prod.cfg"
+				},
+				"defaultEnv": {
+					"_loadSecretsFile": "slack/dev.cfg"
+				}
+			},
+			"slack.codestream.us": {
+				"prod": {
+					"appClientId": "slackOnPremClientId_prod",
+					"appClientSecret": "slackOnPremClientSecret_prod",
+					"localProvider": true
+				},
+				"defaultEnv": {}
+				// "defaultEnv": {
+				// 	"appClientId": "slackOnPremClientId_default",
+				// 	"appClientSecret": "slackOnPremClientSecret_default",
+				// 	"localProvider": true
+				// }
+			}
+		}
+	}
+}
