@@ -155,7 +155,7 @@ else:
 	exit(1)
 
 if args.out:
-	su.dumpDict(cfgFile, None, args.out)
+	su.dumpDict(cfgFile, args.out)
 else:
 	su.dumpDict(cfgFile)
 exit(0)
