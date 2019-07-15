@@ -292,31 +292,6 @@
 	// NOTE: Environment variables in these sections refer ONLY to the default
 	//       provider (usually the cloud service)
 	"integrations": {
-		"slack": {
-			"<appProvider>": {
-				"appClientId": {
-					"desc": "Slack app client Id"
-				},
-				"appClientSecret": {
-					"desc": "Slack app secret"
-				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
-				}
-			}
-		},
-		"trello": {
-			"<appProvider>": {
-				"apiKey": {
-					"desc": "Trello API key"
-				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
-				}
-			}
-		},
 		"asana": {
 			"<appProvider>": {
 				"appClientId": {
@@ -345,13 +320,13 @@
 				}
 			}
 		},
-		"gitlab": {
+		"github": {
 			"<appProvider>": {
 				"appClientId": {
-					"desc": "GitLab API client Id"
+					"desc": "Github API client Id"
 				},
 				"appClientSecret": {
-					"desc": "GitLab API secret"
+					"desc": "Github API secret"
 				},
 				"localProvider": {
 					"desc": "true if service is on-prem",
@@ -359,13 +334,13 @@
 				}
 			}
 		},
-		"glip": {
+		"gitlab": {
 			"<appProvider>": {
 				"appClientId": {
-					"desc": "Glip API client Id"
+					"desc": "GitLab API client Id"
 				},
 				"appClientSecret": {
-					"desc": "Glip API secret"
+					"desc": "GitLab API secret"
 				},
 				"localProvider": {
 					"desc": "true if service is on-prem",
@@ -387,20 +362,6 @@
 				}
 			}
 		},
-		"github": {
-			"<appProvider>": {
-				"appClientId": {
-					"desc": "Github API client Id"
-				},
-				"appClientSecret": {
-					"desc": "Github API secret"
-				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
-				}
-			}
-		},
 		"msteams": {
 			"<appProvider>": {
 				"appClientId": {
@@ -413,6 +374,31 @@
 				},
 				"localProvider": {
 					"desc": "true if msteams service is an on-prem installation",
+					"default": false
+				}
+			}
+		},
+		"slack": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "Slack app client Id"
+				},
+				"appClientSecret": {
+					"desc": "Slack app secret"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
+					"default": false
+				}
+			}
+		},
+		"trello": {
+			"<appProvider>": {
+				"apiKey": {
+					"desc": "Trello API key"
+				},
+				"localProvider": {
+					"desc": "true if service is on-prem",
 					"default": false
 				}
 			}

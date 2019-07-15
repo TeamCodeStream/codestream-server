@@ -2,11 +2,93 @@
 
 import os
 import sys
+import argparse
+import re
 
 sys.path.append(os.environ['DT_TOP'] + "/lib")
 import sysUtils as su
 
-debug = False
+
+def debugMsg(msg):
+	if args.debug:
+		su.printErr(msg)
+
+
+def getSectionDefaultsFromSchema(schema, cfg, spaces):
+	for prop in list(schema.keys()):
+		debugMsg(f"{spaces}getSectionDefaultsFromSchema: prop = {prop}")
+		if 'desc' in schema[prop]:
+			cfg[prop] = su.someValueOrNone(schema[prop], 'default')
+		else:
+			cfg[prop] = {}
+			getSectionDefaultsFromSchema(schema[prop], cfg[prop], f"{spaces}  ")
+
+
+# return the repeating block's key, if found
+def blockKey(schema, spaces):
+	keyList = list(schema.keys())
+	debugMsg(f"{spaces}blockKey schema keys are {keyList}")
+	if len(keyList) == 1:
+		match = re.search(r'^\<(.+)\>$', keyList[0])
+		if match:
+			debugMsg(f"{spaces}repeating block found with key {match.group(1)}")
+			return(match.group(1))
+	return None
+
+
+# loads a block from the profile, processing special directives like "_loadSecretsFile"
+# Also ensures that no variables in remote files which are not defined in the schema
+# are acceidentally added - enforces the schema!
+def fetchBlockProperties(profileEnvBlock, schema, repeatingBlockKey, spaces):
+	debugMsg(f"{spaces}fetchBlockProperties schema key list {list(schema.keys())}")
+	if '_loadSecretsFile' in profileEnvBlock:
+		secretsFile = f"{args.secrets}/{profileEnvBlock['_loadSecretsFile']}"
+		debugMsg(f"{spaces}fetchBlockProperties from {secretsFile}")
+		secretsData = su.readKeyValueFile(secretsFile)
+		block = {}
+		if repeatingBlockKey:
+			getSectionDefaultsFromSchema(schema[repeatingBlockKey], block, spaces)
+		else:
+			getSectionDefaultsFromSchema(schema, block, spaces)
+		for sProp in list(block.keys()):
+			if sProp in secretsData:
+				block[sProp] = secretsData[sProp]
+		return block
+	return profileEnvBlock
+
+
+def buildCfgFile(cfg, schema, profile, spaces=''):
+	debugMsg(f"{spaces}buildCfgFile: {list(profile.keys())}")
+	for prop in list(profile.keys()):
+		envBlock = True if 'defaultEnv' in profile[prop] else False
+		env = args.env if args.env in profile[prop] else 'defaultEnv'
+		repeatingBlockKeyVar = blockKey(schema, spaces)  # appProvider
+		repeatingBlockKey = f"<{repeatingBlockKeyVar}>" if repeatingBlockKeyVar else None  # <appProvider>
+		debugMsg(f"{spaces}checking prop = {prop}, envBlock = {envBlock}, env = {env}, repeatingBlockKeyVar = {repeatingBlockKeyVar}")
+		if type(profile[prop]) is dict and not profile[prop]:
+			debugMsg(f"{spaces}empty dict in profile - using schema defaults")
+			cfg[prop] = {}
+			getSectionDefaultsFromSchema(schema[prop], cfg[prop], spaces)
+		elif type(profile[prop]) is dict and envBlock:
+			debugMsg(f"{spaces}using profile dict for {env}")
+			# cfg[prop] = profile[prop][env]
+			cfg[prop] = fetchBlockProperties(profile[prop][env], schema, repeatingBlockKey, spaces)
+			if not cfg[prop]:
+				debugMsg(f"{spaces}empty dict for {env} - using schema defaults")
+				if repeatingBlockKey:
+					getSectionDefaultsFromSchema(schema[repeatingBlockKey], cfg[prop], spaces)
+				else:
+					getSectionDefaultsFromSchema(schema[prop], cfg[prop], spaces)
+		elif type(profile[prop]) is dict:
+			debugMsg(f"{spaces}diving deeper on {prop}")
+			cfg[prop] = {}
+			buildCfgFile(cfg[prop], schema[prop], profile[prop], f"{spaces}  ")
+		elif prop in schema:
+			debugMsg(f"{spaces}setting scalar")
+			cfg[prop] = profile[prop]
+		else:
+			su.printErr("property {} not defined in schema".format(prop))
+			exit(1)
 
 
 # return a reference to a dict (object) within cfgFile that
@@ -25,26 +107,55 @@ def findNode(keyPath):
 
 
 # Create a cfgFile dict based on variables.json
-def buildCfgFile(cfgVars, keyPath, task='show-descriptions'):
+def buildCfgFileProperties(schema, keyPath, task='show-desc'):
 	global cfgFile
-	for k in cfgVars.keys():
+	for k in schema.keys():
 		node = findNode(keyPath)
-		if 'desc' not in cfgVars[k]:
+		if 'desc' not in schema[k]:
 			node[k] = {}
-			buildCfgFile(cfgVars[k], keyPath + [k])
+			buildCfgFileProperties(schema[k], keyPath + [k], task)
 		else:
-			if task == 'show-descriptions':
-				node[k] = cfgVars[k]['desc']
+			if task == 'show-desc':
+				node[k] = schema[k]['desc']
+			elif task == 'show-env':
+				node[k] = schema[k]['env'] if su.someValueOrNone(schema[k], 'env') else "undefined"
 
+
+secretsDefault = ""
+if su.someValueOrNone(os.environ, 'KM_PKI'):
+	secretsDefault = f"{os.environ['KM_PKI']}/secrets"
+parser = argparse.ArgumentParser(description="create config data files from templates")
+parser.add_argument('--verbose', action='store_true', default=False, help="verbose reporting")
+parser.add_argument('--debug', action='store_true', default=False, help="debug mode")
+parser.add_argument('--show-desc', action='store_true', default=False, help="display parameter with descriptions")
+parser.add_argument('--show-env', action='store_true', default=False, help="display parameter environment vars")
+parser.add_argument('-p', '--profile', type=str, help="profile")
+parser.add_argument('-e', '--env', type=str, default="defaultEnv", help="environment")
+parser.add_argument('--secrets', type=str, default=secretsDefault, help="secrets directory")
+parser.add_argument('--out', type=str, help="output file (defaults to stdout)")
+args = parser.parse_args()
+if args.debug:
+	args.verbose = True
+# if not args.secrets:
+# 	printErr("warning: no secrets directory defined")
 
 repoRoot = os.path.dirname(os.path.realpath(__file__)) + "/.."
-cfgVars = su.readJsonFileIgnoreComments(repoRoot + "/variables.json")
+schema = su.readJsonFileIgnoreComments(repoRoot + "/parameters.json")
 
-if '--show-desc' in sys.argv:
-	cfgFile = {}
-	buildCfgFile(cfgVars, [])
-	su.dumpDict(cfgFile)
+cfgFile = {}
+if args.show_desc:
+	buildCfgFileProperties(schema, [])
+elif args.show_env:
+	buildCfgFileProperties(schema, [], 'show-env')
+elif args.profile:
+	profile = su.readJsonFileIgnoreComments(args.profile)
+	buildCfgFile(cfgFile, schema, profile)
 else:
-	print("usage: " + sys.argv[0] + " {--show-desc}")
+	parser.print_help()
 	exit(1)
+
+if args.out:
+	su.dumpDict(cfgFile, None, args.out)
+else:
+	su.dumpDict(cfgFile)
 exit(0)
