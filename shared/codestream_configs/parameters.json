@@ -141,7 +141,8 @@
 				"default": 12443
 			},
 			"host": {
-				"desc": "hostname of the broadcaster service",
+				"desc": "hostname of the broadcaster service (from client point-of-view)",
+				"env": "CSSVC_BROADCASTER_HOST",
 				"default": "localhost.codestream.us"
 			},
 			"secrets": {
@@ -159,8 +160,8 @@
 			"logger": {
 				"directory": {
 					"desc": "directory for broadcaster logs",
-					"env": "CS_BROADCASTER_LOGS",
-					"default": "{CS_BROADCASTER_LOGS}",
+					"env": "CSSVC_BROADCASTER_LOGS",
+					"default": "${CS_BROADCASTER_LOGS}",
 					"required": true
 				},
 				"consoleOk": {

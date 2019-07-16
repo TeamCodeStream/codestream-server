@@ -1,0 +1,26 @@
+// Profile: onprem, single host preview (docker)
+// - broadcaster
+// - SMTP (NodeMailer)
+// - RabbitMQ
+// - api, mongo, rabbit, broadcast & mailout run as individual
+//   containers on a single host-based docker network
+
+{
+	"ssl": {
+		"certfile": "/opt/config/{{SSL_CERT_FILE}}",
+		"cafile": "/opt/config/{{SSL_CA_FILE}}",
+		"keyfile": "/opt/config/{{SSL_KEY_FILE}}"
+	},
+	"broadcastEngine": {
+		"codestreamBroadcaster": {
+			"host": "{{FQDN}}",
+			"logger": {
+				"directory": "/opt/broadcaster/log"
+			},
+			"secrets": {
+				"api": "{{SECRET_BROADCAST_API}}",
+				"auth": "{{SECRET_BROADCAST_AUTH}}"
+			}
+		}
+	}
+}
