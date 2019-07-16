@@ -6,11 +6,7 @@
 //   containers on a single host-based docker network
 
 {
-	"ssl": {
-		"certfile": "/opt/config/{{SSL_CERT_FILE}}",
-		"cafile": "/opt/config/{{SSL_CA_FILE}}",
-		"keyfile": "/opt/config/{{SSL_KEY_FILE}}"
-	},
+	// infrastructure services
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
 			"host": "{{FQDN}}",
@@ -21,6 +17,48 @@
 				"api": "{{SECRET_BROADCAST_API}}",
 				"auth": "{{SECRET_BROADCAST_AUTH}}"
 			}
+		}
+	},
+	"queuingEngine": {
+		"rabbitmq": {
+			"host": "{{FQHN}}"
+		}
+	},
+	"emailDeliveryService": {
+		"NodeMailer": {}
+	},
+	"storage": {},
+	// ssl wildcard certificate
+	"ssl": {
+		"certfile": "/opt/config/{{SSL_CERT_FILE}}",
+		"cafile": "/opt/config/{{SSL_CA_FILE}}",
+		"keyfile": "/opt/config/{{SSL_KEY_FILE}}"
+	},
+	// codestream general settings
+	"email": {},
+	"sharedSecrets": {
+		"auth": "{{SECRET_AUTH}}",
+		"cookie": "{{SECRET_COOKIE}}",
+		"confirmationCheat": "{{SECRET_CONFIRMATION_CHEAT}}",
+		"subscriptionCheat": "{{SECRET_SUBSCRIPTION_CHEAT}}",
+		"mail": "{{SECRET_MAIL}}",
+		"telemetry": "{{SECRET_TELEMETRY}}"
+	},
+	// codestream services
+	"apiServer": {
+		"port": 443,
+		"publicApiUrl": "https://{{FQHN}}",
+		"authOrigin": "",
+		"environment": "onprem",
+		"callbackEnvironment": "onprem",
+		"dontWantAWS": true,
+		"logger": {
+			"directory": "/opt/api/log"
+		}
+	},
+	"outboundEmailServer": {
+		"logger": {
+			"directory": "/opt/mailout/log"
 		}
 	}
 }
