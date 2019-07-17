@@ -63,6 +63,10 @@ class StructuredConfigFile {
 		if(data[prop]) {
 			return data[prop];
 		}
+		if(data.hasOwnProperty(prop) && data[prop] == null) {
+			// console.log(`property ${prop} was nulled out in the config file`);
+			return;
+		}
 		if(schema[prop].hasOwnProperty('default')) {
 			// console.log(`using default config value for ${prop}`);
 			return this._interpolate(schema[prop]['default'], process.env);
@@ -73,7 +77,7 @@ class StructuredConfigFile {
 
 	// recursively build the sectionData from the configuration data & schema
 	_buildSection(sectionData, schema, data) {
-		for (let prop of Object.keys(schema)) {
+		for (let prop of Object.keys(data)) {
 			if (schema[prop].hasOwnProperty('desc')) {
 				// leaf node
 				sectionData[prop] = this._getConfigValue(prop, schema, data);
