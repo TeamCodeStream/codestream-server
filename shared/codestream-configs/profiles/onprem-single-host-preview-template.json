@@ -1,9 +1,7 @@
 // Profile: onprem, single host preview (docker)
-// - broadcaster
-// - SMTP (NodeMailer)
-// - RabbitMQ
-// - api, mongo, rabbit, broadcast & mailout run as individual
-//   containers on a single host-based docker network
+// - Broadcasts:     codestream broadcaster
+// - Queuing:        rabbitMQ
+// - Outbound SMTP:  NodeMailer
 
 {
 	// infrastructure services
@@ -27,7 +25,6 @@
 	"emailDeliveryService": {
 		"NodeMailer": {}
 	},
-	"storage": {},
 	// ssl wildcard certificate
 	"ssl": {
 		"certfile": "/opt/config/{{SSL_CERT_FILE}}",
@@ -35,7 +32,12 @@
 		"keyfile": "/opt/config/{{SSL_KEY_FILE}}"
 	},
 	// codestream general settings
-	"email": {},
+	"email": {
+		"emailTo": null,
+		"senderEmail": "{{SENDER_EMAIL}}",
+		"supportEmail": "{{SUPPORT_EMAIL}}",
+		"replyToDomain": "{{FQHN}}"
+	},
 	"sharedSecrets": {
 		"auth": "{{SECRET_AUTH}}",
 		"cookie": "{{SECRET_COOKIE}}",
@@ -44,12 +46,19 @@
 		"mail": "{{SECRET_MAIL}}",
 		"telemetry": "{{SECRET_TELEMETRY}}"
 	},
+	// database
+	"storage": {
+		"mongo": {
+			"url": "mongodb://{{FQHN}}/codestream"
+		}
+	},
 	// codestream services
 	"apiServer": {
 		"port": 443,
 		"publicApiUrl": "https://{{FQHN}}",
-		"authOrigin": "",
-		"environment": "onprem",
+		"authOrigin": "https://my-codestream-proxy.my-company.com/no-auth",
+		"assetEnvironment": "onprem",
+		"runTimeEnvironment": "onprem",
 		"callbackEnvironment": "onprem",
 		"dontWantAWS": true,
 		"logger": {

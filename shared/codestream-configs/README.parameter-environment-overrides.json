@@ -1,11 +1,25 @@
 {
     "apiServer": {
+        "assetEnvironment": "CS_API_ASSET_ENV",
+        "authOrigin": "CS_API_AUTH_ORIGIN",
+        "callbackEnvironment": "CS_API_CALLBACK_ENV",
+        "confirmCodeExpiration": "CS_API_CONFIRM_CODE_EXPIRATION",
+        "confirmationExpiration": "CS_API_CONFIRMATION_EXPIRATION",
+        "confirmationNotRequired": "CS_API_CONFIRMATION_NOT_REQUIRED",
+        "dontWantAWS": "CS_API_DONT_WANT_AWS",
+        "forgotPasswordExpiration": "CS_API_FORGOT_PASSWORD_EXPIRATION",
+        "helpIsAvailable": "CS_API_HELP_AVAILABLE",
         "logger": {
-            "consoleOk": "CSSVC_API_LOG_CONSOLE_OK",
-            "debugOk": "CSSVC_API_DEBUG_OK",
+            "consoleOk": "CS_API_LOG_CONSOLE_OK",
+            "debugOk": "CS_API_DEBUG_OK",
             "directory": "CS_API_LOGS"
         },
-        "port": "CSSVC_API_PORT"
+        "mockMode": "CS_API_MOCK_MODE",
+        "port": "CS_API_PORT",
+        "publicApiUrl": "CS_API_PUBLIC_URL",
+        "runTimeEnvironment": "CS_API_ENV",
+        "sessionAwayTimeout": "CS_API_SESSION_AWAY_TIMEOUT",
+        "signupTokenExpiration": "CS_API_SIGNUP_TOKEN_EXPIRATION"
     },
     "broadcastEngine": {
         "codestreamBroadcaster": {
@@ -13,7 +27,7 @@
             "logger": {
                 "consoleOk": "CSSVC_BROADCASTER_LOG_CONSOLE_OK",
                 "debugOk": "CSSVC_BROADCASTER_DEBUG_OK",
-                "directory": "CS_BROADCASTER_LOGS"
+                "directory": "CSSVC_BROADCASTER_LOGS"
             },
             "port": "CSSVC_BROADCASTER_PORT",
             "secrets": {
@@ -36,7 +50,7 @@
         "replyToDomain": "undefined",
         "senderEmail": "undefined",
         "supportEmail": "undefined",
-        "suppressEmails": "CSSVC_"
+        "suppressEmails": "undefined"
     },
     "emailDeliveryService": {
         "NodeMailer": {
@@ -90,6 +104,13 @@
                 "localProvider": "undefined"
             }
         },
+        "glip": {
+            "<appProvider>": {
+                "appClientId": "undefined",
+                "appClientSecret": "undefined",
+                "localProvider": "undefined"
+            }
+        },
         "jira": {
             "<appProvider>": {
                 "appClientId": "undefined",
@@ -127,8 +148,8 @@
     },
     "outboundEmailServer": {
         "logger": {
-            "consoleOk": "CSSVC_OUTBOUND_EMAIL_LOG_CONSOLE_OK",
-            "debugOk": "CSSVC_MAILIN_DEBUG_OK",
+            "consoleOk": "CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK",
+            "debugOk": "CS_MAILIN_DEBUG_OK",
             "directory": "CS_OUTBOUND_EMAIL_LOGS"
         }
     },
@@ -138,7 +159,7 @@
             "region": "undefined"
         },
         "rabbitmq": {
-            "host": "CSSVC_",
+            "host": "undefined",
             "outboundEmailQueueName": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME",
             "password": "undefined",
             "port": "undefined",

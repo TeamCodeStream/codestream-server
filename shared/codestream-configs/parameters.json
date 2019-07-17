@@ -473,11 +473,6 @@
 			"env": "CS_API_SIGNUP_TOKEN_EXPIRATION",
 			"default": 600000
 		},
-		"assetEnvironment": {
-			"desc": "environment used to create and retrieve assets (local, onprem, dev or prod)",
-			"env": "CS_API_ASSET_ENV",
-			"default": "local"
-		},
 		"publicApiUrl": {
 			"desc": "public url to access the API server from beyond",
 			"env": "CS_API_PUBLIC_URL",
@@ -488,7 +483,12 @@
 			"env": "CS_API_AUTH_ORIGIN",
 			"default": "https://auth.codestream.com/no-auth/prod"
 		},
-		"environment": {
+		"assetEnvironment": {
+			"desc": "environment used to create and retrieve assets (local, onprem, dev or prod)",
+			"env": "CS_API_ASSET_ENV",
+			"default": "local"
+		},
+		"runTimeEnvironment": {
 			"desc": "run-time environment; use sparingly with preference for more specific params",
 			"env": "CS_API_ENV"
 		},
@@ -566,12 +566,12 @@
 			},
 			"consoleOk": {
 				"desc": "allow logging to the console",
-				"env": "CSSVC_OUTBOUND_EMAIL_LOG_CONSOLE_OK",
+				"env": "CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK",
 				"default": true
 			},
 			"debugOk": {
 				"desc": "more verbose logging (debug level)",
-				"env": "CSSVC_MAILIN_DEBUG_OK",
+				"env": "CS_MAILIN_DEBUG_OK",
 				"default": false
 			}
 		}
