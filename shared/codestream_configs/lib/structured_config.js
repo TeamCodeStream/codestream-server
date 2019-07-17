@@ -1,8 +1,12 @@
 
 'use strict';
 
+const util = require('util')
 const fs = require('fs');
 const hjson = require('hjson');
+
+const schemas = {};
+const configs = {};
 
 /*
 	options:
@@ -13,12 +17,20 @@ class StructuredConfigFile {
 	constructor (options = {}) {
 		this.schemaFileName = options.schemaFile || process.env.CSSVC_CFG_SCHEMA_FILE;
 		this.configFileName = options.configFile || process.env.CSSVC_CFG_FILE;
-		this.schema = hjson.parse(fs.readFileSync(this.schemaFileName, 'utf8'));
+		if (!schemas.hasOwnProperty(this.schemaFileName)) {
+			console.log(`loading schema (${this.schemaFileName})`);
+			schemas[this.schemaFileName] = hjson.parse(fs.readFileSync(this.schemaFileName, 'utf8'));
+		}
+		this.schema = schemas[this.schemaFileName];
+		if (!configs.hasOwnProperty(this.configFileName)) {
+			console.log(`loading config (${this.configFileName})`);
+			configs[this.configFileName] = hjson.parse(fs.readFileSync(this.configFileName, 'utf8'));
+		}
 		this.config = hjson.parse(fs.readFileSync(this.configFileName, 'utf8'));
 	}
 
-	dump() {
-		console.log(this);
+	_dump() {
+		console.log(util.inspect(this, false, null, true /* enable colors */))
 	}
 
 	_getSection(p, section) {
@@ -39,6 +51,37 @@ class StructuredConfigFile {
 		}
 		// console.log(p);
 		return p;
+	}
+
+	_mongoUrlParse(mongoUrl) {
+		let parsed = mongoUrl.match(/^mongodb:\/\/([^\/]+)\/([^?]+?)((\?)(.+))?$/);
+		const results = {
+			serversAuthString: parsed[1],
+			user: null,
+			pass: null,
+			servers: [],
+			database: parsed[2],
+			optionsString: parsed[5],
+			options: {}
+		};
+		parsed = results.serversAuthString.match(/^(([^:]+)(:(.+))?@)?(.+)$/);
+		results.user = parsed[2];
+		results.pass = parsed[4];
+		results.serverList = parsed[5];
+		results.serverList.split(',').forEach(function (serverAndPort) {
+			let parts = serverAndPort.split(':');
+			results.servers.push({
+				host: parts[0],
+				port: parts[1] || 27017
+			})
+		});
+		if (results.optionsString) {
+			results.optionsString.split('&').forEach(function(optionAssignment) {
+				let optionPair = optionAssignment.split('=');
+				results.options[optionPair[0]] = optionPair[1];
+			});
+		}
+		return results;
 	}
 
 	_interpolate(template, context) {
@@ -81,6 +124,10 @@ class StructuredConfigFile {
 			if (schema[prop].hasOwnProperty('desc')) {
 				// leaf node
 				sectionData[prop] = this._getConfigValue(prop, schema, data);
+				if (typeof(sectionData[prop]) == 'string') {
+					// console.log(`-- ${sectionData[prop]}`);
+					sectionData[prop] = this._interpolate(sectionData[prop], process.env);
+				}
 			}
 			else {
 				sectionData[prop] = {};
@@ -96,6 +143,18 @@ class StructuredConfigFile {
 		let sectionData = {};
 		this._buildSection(sectionData, schema, data);
 		return sectionData;
+	}
+
+	// public method to get a fully populated section of the configuration file
+	getProperty(propString) {
+		let propList = propString.split('.');
+		let property = propList.slice(propList.length - 1);
+		let section = propList.slice(0, propList.length - 1).join('.');
+		let schema = this._getSection(this.schema, section);
+		let data = this._getSection(this.config, section);
+		let sectionData = {};
+		this._buildSection(sectionData, schema, data);
+		return sectionData[property];
 	}
 }
 

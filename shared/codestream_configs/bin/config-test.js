@@ -12,7 +12,5 @@ let o;
 o = testCfg.getSection();
 // o = testCfg.getSection('broadcastEngine.codestreamBroadcaster');
 // o = testCfg.getSection();
-
-// console.log(o);
 console.log(util.inspect(o, false, null, true /* enable colors */))
 process.exit();
