@@ -2,6 +2,8 @@
 
 'use strict';
 
+const structuredCfgFile = require('../codestream-configs/lib/structured_config');
+
 let MongoCfg = {};
 let LoggerCfg = {
 	basename: 'broadcaster',								// use this for the basename of the log file
@@ -9,15 +11,26 @@ let LoggerCfg = {
 };
 let Secrets = {};
 let HttpsCfg = {};
-let CfgFileName = process.env.CS_BROADCASTER_CFG_FILE || process.env.CODESTREAM_CFG_FILE;
+let CfgFileName = process.env.CS_BROADCASTER_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
-	console.log("loading config file", CfgFileName);
-	let CfgFile = require(CfgFileName);
-	MongoCfg = CfgFile.mongo;
-	LoggerCfg = { ...LoggerCfg, ...CfgFile.broadcastEngine.codestreamBroadcaster.logger};
-	Secrets = CfgFile.broadcastEngine.codestreamBroadcaster.secrets;
-	Secrets.subscriptionCheat = CfgFile.secrets.subscriptionCheat;
-	HttpsCfg = { ...CfgFile.apiProtocol.https, ...{ port: CfgFile.broadcastEngine.codestreamBroadcaster.port.toString() } };
+	const CfgData = new structuredCfgFile({
+		schemaFile: './codestream-configs/parameters.json',
+		configFile: CfgFileName
+	});
+	MongoCfg = CfgData.getSection('storage.mongo');
+	const MongoParsed = CfgData._mongoUrlParse(MongoCfg.url);
+	MongoCfg.database = MongoParsed.database;
+
+	LoggerCfg = { ...LoggerCfg, ...CfgData.getSection('broadcastEngine.codestreamBroadcaster.logger') };
+
+	Secrets = CfgData.getSection('broadcastEngine.codestreamBroadcaster.secrets');
+	Secrets.subscriptionCheat = CfgData.getProperty('sharedSecrets.subscriptionCheat');
+
+	// HttpsCfg = { ...CfgFile.apiProtocol.https, ...{ port: CfgFile.broadcastEngine.codestreamBroadcaster.port.toString() } };
+	HttpsCfg = CfgData.getSection('ssl');
+	HttpsCfg.port = CfgData.getProperty('broadcastEngine.codestreamBroadcaster.port').toString();
+	console.log(HttpsCfg);
+	process.exit();
 }
 else {
 	// mongo url can come from either a raw supplied url or from individual components,

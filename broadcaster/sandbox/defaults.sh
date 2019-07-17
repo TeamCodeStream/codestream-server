@@ -10,6 +10,7 @@
 #         (eg. this file is CS_BROADCASTER_TOP/sandbox/defaults.sh)
 #  CS_BROADCASTER_SANDBOX  Path to the root directory of the sandbox tree
 
+. $DT_TOP/lib/sandbox_utils.sh
 
 # Installation options
 # --------------------
@@ -18,12 +19,7 @@
 # settings will override any others specified in the sandbox config.
 # Each row is stricly a KEY=VALUE assignment. Do not write shell
 # code. Use a ash (#) for comments.
-
-if [ -f "$CS_BROADCASTER_SANDBOX/sb.options" ]; then
-	echo "Loading extra params from sb.options"
-	. $CS_BROADCASTER_SANDBOX/sb.options
-	export `grep ^CS_BROADCASTER_ $CS_BROADCASTER_SANDBOX/sb.options|cut -f1 -d=`
-fi
+sandutil_load_options $CS_BROADCASTER_SANDBOX || { echo "failed to load options" >&2 && return 1; }
 
 
 # ------------- Yarn --------------

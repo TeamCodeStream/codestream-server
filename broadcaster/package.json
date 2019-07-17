@@ -12,6 +12,7 @@
     "connect": "3.7.0",
     "deep-equal": "1.0.1",
     "express": "4.17.1",
+    "hjson": "^3.1.2",
     "minimist": "1.2.0",
     "mongodb": "3.2.7",
     "morgan": "1.9.1",
