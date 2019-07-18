@@ -77,7 +77,6 @@
 	"email": {
 		"emailTo": {
 			"desc": "Divert all email to this address",
-			"env": "CSSVC_",
 			"default": "${DT_USER}@codestream.com"
 		},
 		"senderEmail": {

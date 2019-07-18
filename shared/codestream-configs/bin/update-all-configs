@@ -8,8 +8,8 @@ repoRoot=`dirname $binDir`
 
 echo $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json
 $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json
-echo $binDir/process-profile --show-env --out $repoRoot/README.parameter-environment-overrides.json
-$binDir/process-profile --show-env --out $repoRoot/README.parameter-environment-overrides.json
+# echo $binDir/process-profile --show-env --out $repoRoot/README.parameter-environment-overrides.json
+# $binDir/process-profile --show-env --out $repoRoot/README.parameter-environment-overrides.json
 
 echo -n "Update ~/src/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template (y/N)? "
 read ans
