@@ -9,6 +9,18 @@ sys.path.append(os.environ['DT_TOP'] + "/lib")
 import sysUtils as su
 
 
+# utility function - takes a json file with comments on top (optional) and sorts the json data
+def sortJsonWithHeaderComments(file):
+	comments = su.shellExecNoBuffer(f"grep '^//' {file} >/tmp/_comments; echo >>/tmp/_comments")
+	json = su.readJsonFileIgnoreComments(file)
+	su.dumpDict(json, "/tmp/_json")
+	print(f"backing up file to {file}.backup")
+	su.shellExecNoBuffer(f"cp {file} {file}.backup")
+	su.shellExecNoBuffer(f"cat /tmp/_comments /tmp/_json >{file}")
+	os.remove("/tmp/_comments")
+	os.remove("/tmp/_json")
+
+
 def debugMsg(msg):
 	if args.debug:
 		su.printErr(msg)
@@ -77,38 +89,39 @@ def buildCfgFile(cfg, schema, profile, spaces=''):
 		env = args.env if su.someValueOrNone(profile[prop], args.env) else 'defaultEnv'
 		repeatingBlockKeyVar = blockKey(schema, spaces)  # appProvider
 		repeatingBlockKey = f"<{repeatingBlockKeyVar}>" if repeatingBlockKeyVar else None  # <appProvider>
-		debugMsg(f"\n{spaces}checking prop = {prop}, envBlock = {envBlock}, env = {env}, repeatingBlockKeyVar = {repeatingBlockKeyVar}")
+		debugMsg(f"\n{spaces}=== checking prop = {prop}, envBlock = {envBlock}, env = {env}, repeatingBlockKeyVar = {repeatingBlockKeyVar}")
 
 		if type(profile[prop]) is dict and not profile[prop]:
-			debugMsg(f"{spaces}empty dict in profile - using schema defaults")
+			debugMsg(f"{spaces}1 empty dict in profile - using schema defaults")
 			cfg[prop] = {}
 			getSectionDefaultsFromSchema(schema[prop], cfg[prop], spaces)
 		elif type(profile[prop]) is dict and envBlock:
-			debugMsg(f"{spaces}using profile dict for {env}")
-			# cfg[prop] = profile[prop][env]
-			cfg[prop] = fetchBlockProperties(profile[prop][env], schema, repeatingBlockKey, spaces)
+			debugMsg(f"{spaces}2 using profile dict for {env}")
+			cfg[prop] = fetchBlockProperties(profile[prop][env], schema[prop], repeatingBlockKey, spaces)  # if schema[prop] should be schema, we're in trouble!
 			if not cfg[prop]:
-				debugMsg(f"{spaces}empty dict for {env} - using schema defaults")
+				debugMsg(f"{spaces}2A empty dict for {env}, repeatingBlockKey = {repeatingBlockKey} - using schema defaults")
 				if repeatingBlockKey:
 					getSectionDefaultsFromSchema(schema[repeatingBlockKey], cfg[prop], spaces)
 				else:
 					getSectionDefaultsFromSchema(schema[prop], cfg[prop], spaces)
 		elif type(profile[prop]) is dict:
-			debugMsg(f"{spaces}diving deeper on {prop}")
+			debugMsg(f"{spaces}3 diving deeper on {prop}")
 			cfg[prop] = {}
 			if repeatingBlockKey:
 				buildCfgFile(cfg[prop], schema[repeatingBlockKey], profile[prop], f"{spaces}  ")
 			else:
 				buildCfgFile(cfg[prop], schema[prop], profile[prop], f"{spaces}  ")
 		elif prop in schema:
-			debugMsg(f"{spaces}setting scalar")
+			debugMsg(f"{spaces}4 setting scalar")
 			cfg[prop] = profile[prop]
 			fillSection = True
 		else:
 			su.printErr("property {} not defined in schema".format(prop))
 			exit(1)
+		if args.debug:
+			su.dumpDict(cfg[prop], None, f"end of loop for prop: cfg[{prop}]:")
 
-	# this will complete a section that is only partially specified in the profile with defaults
+	# this will complete a section with default properties where the profile only specifies a fraction of them
 	if blockDefaults and fillSection:
 		for defaultProp in list(blockDefaults.keys()):
 			if defaultProp not in cfg:
@@ -151,10 +164,10 @@ secretsDefault = ""
 if su.someValueOrNone(os.environ, 'KM_PKI'):
 	secretsDefault = f"{os.environ['KM_PKI']}/secrets"
 parser = argparse.ArgumentParser(description="create config data files from templates")
-parser.add_argument('--verbose', action='store_true', default=False, help="verbose reporting")
 parser.add_argument('--debug', action='store_true', default=False, help="debug mode")
 parser.add_argument('--show-desc', action='store_true', default=False, help="display parameter with descriptions")
 parser.add_argument('--show-env', action='store_true', default=False, help="display parameter environment vars")
+parser.add_argument('--sort-json', type=str, help="sort a json file where their might be comments on top (not embedded)")
 parser.add_argument('-p', '--profile', type=str, help="profile")
 parser.add_argument('-e', '--env', type=str, default="defaultEnv", help="environment")
 parser.add_argument('--secrets', type=str, default=secretsDefault, help="secrets directory")
@@ -164,8 +177,6 @@ if len(sys.argv) == 1:
 	exit(1)
 
 args = parser.parse_args()
-if args.debug:
-	args.verbose = True
 # if not args.secrets:
 # 	printErr("warning: no secrets directory defined")
 
@@ -177,6 +188,9 @@ if args.show_desc:
 	buildCfgFileProperties(schema, [])
 elif args.show_env:
 	buildCfgFileProperties(schema, [], 'show-env')
+elif args.sort_json:
+	sortJsonWithHeaderComments(args.sort_json)
+	exit(0)
 elif args.profile:
 	profile = su.readJsonFileIgnoreComments(args.profile)
 	buildCfgFile(cfgFile, schema, profile)
@@ -187,5 +201,6 @@ else:
 if args.out:
 	su.dumpDict(cfgFile, args.out)
 else:
+	debugMsg("-----------  RESULTS  -------------")
 	su.dumpDict(cfgFile)
 exit(0)
