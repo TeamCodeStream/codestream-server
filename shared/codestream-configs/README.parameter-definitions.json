@@ -1,6 +1,6 @@
 {
     "apiServer": {
-        "assetEnvironment": "environment used to create and retrieve assets (local, onprem, dev or prod) [CS_API_ASSET_ENV]",
+        "assetEnvironment": "environment used to create and retrieve API assets (local, onprem, dev or prod) [CS_API_ASSET_ENV]",
         "authOrigin": "origin to use for third-party auth callbacks [CS_API_AUTH_ORIGIN]",
         "callbackEnvironment": "allows for callbacks through VPN to developers' local servers [CS_API_CALLBACK_ENV]",
         "confirmCodeExpiration": "how long a confirmation code remains valid (in millisecs, default = 1 week) [CS_API_CONFIRM_CODE_EXPIRATION]",
@@ -17,12 +17,13 @@
         "mockMode": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC [CS_API_MOCK_MODE]",
         "port": "Network port for the api service [CS_API_PORT]",
         "publicApiUrl": "public url to access the API server from beyond [CS_API_PUBLIC_URL]",
-        "runTimeEnvironment": "run-time environment; use sparingly with preference for more specific params [CS_API_ENV]",
+        "runTimeEnvironment": "API run-time environment; use sparingly with preference for more specific params [CS_API_ENV]",
         "sessionAwayTimeout": "how long before we call a user 'away' from keyboard (in millisecs) [CS_API_SESSION_AWAY_TIMEOUT]",
         "signupTokenExpiration": "how long a signup token issued by the IDE for a user to signup on web remains valid (in millisecs, default = 10 min) [CS_API_SIGNUP_TOKEN_EXPIRATION]"
     },
     "broadcastEngine": {
         "codestreamBroadcaster": {
+            "assetEnvironment": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod) [CS_BROADCASTER_ASSET_ENV]",
             "host": "hostname of the broadcaster service (from client point-of-view)",
             "logger": {
                 "consoleOk": "allow logging to the console [CSSVC_BROADCASTER_LOG_CONSOLE_OK]",
@@ -30,6 +31,7 @@
                 "directory": "directory for broadcaster logs [CSSVC_BROADCASTER_LOGS]"
             },
             "port": "Network port for the broadcaster service [CSSVC_BROADCASTER_PORT]",
+            "runTimeEnvironment": "Broadcaster run-time environment; use sparingly with preference for more specific params [CS_BROADCASTER_ENV]",
             "secrets": {
                 "api": "used to generate json web tokens for authentication tokens passed to the client [CSSVC_BROADCASTER_API_SECRET]",
                 "auth": "used to privilege certain api server requests to the broadcaster service [CSSVC_BROADCASTER_AUTH_SECRET]"
@@ -45,7 +47,7 @@
         }
     },
     "email": {
-        "emailTo": "Divert all email to this address [CSSVC_]",
+        "emailTo": "Divert all email to this address",
         "notificationInterval": "Frequency email is generated (in millisecs, default = 30 secs)",
         "replyToDomain": "email domain for routing replies back to codestream",
         "senderEmail": "all generated emails will be sent as this user",
