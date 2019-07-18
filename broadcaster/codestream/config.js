@@ -18,19 +18,15 @@ if (CfgFileName) {
 		configFile: CfgFileName
 	});
 	MongoCfg = CfgData.getSection('storage.mongo');
-	const MongoParsed = CfgData._mongoUrlParse(MongoCfg.url);
-	MongoCfg.database = MongoParsed.database;
+	MongoCfg.database = CfgData._mongoUrlParse(MongoCfg.url).database;
 
 	LoggerCfg = { ...LoggerCfg, ...CfgData.getSection('broadcastEngine.codestreamBroadcaster.logger') };
 
 	Secrets = CfgData.getSection('broadcastEngine.codestreamBroadcaster.secrets');
 	Secrets.subscriptionCheat = CfgData.getProperty('sharedSecrets.subscriptionCheat');
 
-	// HttpsCfg = { ...CfgFile.apiProtocol.https, ...{ port: CfgFile.broadcastEngine.codestreamBroadcaster.port.toString() } };
 	HttpsCfg = CfgData.getSection('ssl');
 	HttpsCfg.port = CfgData.getProperty('broadcastEngine.codestreamBroadcaster.port').toString();
-	console.log(HttpsCfg);
-	process.exit();
 }
 else {
 	// mongo url can come from either a raw supplied url or from individual components,
