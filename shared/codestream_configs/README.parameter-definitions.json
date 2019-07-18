@@ -1,51 +1,51 @@
 {
     "apiServer": {
-        "assetEnvironment": "environment used to create and retrieve assets (local, onprem, dev or prod)",
-        "authOrigin": "origin to use for third-party auth callbacks",
-        "callbackEnvironment": "allows for callbacks through VPN to developers' local servers",
-        "confirmCodeExpiration": "how long a confirmation code remains valid (in millisecs, default = 1 week)",
-        "confirmationExpiration": "how long a token for email confirmation remains valid (in millisecs, default = 1 day)",
-        "confirmationNotRequired": "set to true to disable email confirmation",
-        "dontWantAWS": "set to true so API server will not use any AWS services",
-        "forgotPasswordExpiration": "how long a token for forgot-password remains valid (in millisecs, default = 1 day)",
-        "helpIsAvailable": "set to true enable API /help",
+        "assetEnvironment": "environment used to create and retrieve assets (local, onprem, dev or prod) [CS_API_ASSET_ENV]",
+        "authOrigin": "origin to use for third-party auth callbacks [CS_API_AUTH_ORIGIN]",
+        "callbackEnvironment": "allows for callbacks through VPN to developers' local servers [CS_API_CALLBACK_ENV]",
+        "confirmCodeExpiration": "how long a confirmation code remains valid (in millisecs, default = 1 week) [CS_API_CONFIRM_CODE_EXPIRATION]",
+        "confirmationExpiration": "how long a token for email confirmation remains valid (in millisecs, default = 1 day) [CS_API_CONFIRMATION_EXPIRATION]",
+        "confirmationNotRequired": "set to true to disable email confirmation [CS_API_CONFIRMATION_NOT_REQUIRED]",
+        "dontWantAWS": "set to true so API server will not use any AWS services [CS_API_DONT_WANT_AWS]",
+        "forgotPasswordExpiration": "how long a token for forgot-password remains valid (in millisecs, default = 1 day) [CS_API_FORGOT_PASSWORD_EXPIRATION]",
+        "helpIsAvailable": "set to true enable API /help [CS_API_HELP_AVAILABLE]",
         "logger": {
-            "consoleOk": "allow logging to the console",
-            "debugOk": "more verbose logging (debug level)",
-            "directory": "directory for api server logs"
+            "consoleOk": "allow logging to the console [CS_API_LOG_CONSOLE_OK]",
+            "debugOk": "more verbose logging (debug level) [CS_API_DEBUG_OK]",
+            "directory": "directory for api server logs [CS_API_LOGS]"
         },
-        "mockMode": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC",
-        "port": "Network port for the api service",
-        "publicApiUrl": "public url to access the API server from beyond",
-        "runTimeEnvironment": "run-time environment; use sparingly with preference for more specific params",
-        "sessionAwayTimeout": "how long before we call a user 'away' from keyboard (in millisecs)",
-        "signupTokenExpiration": "how long a signup token issued by the IDE for a user to signup on web remains valid (in millisecs, default = 10 min)"
+        "mockMode": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC [CS_API_MOCK_MODE]",
+        "port": "Network port for the api service [CS_API_PORT]",
+        "publicApiUrl": "public url to access the API server from beyond [CS_API_PUBLIC_URL]",
+        "runTimeEnvironment": "run-time environment; use sparingly with preference for more specific params [CS_API_ENV]",
+        "sessionAwayTimeout": "how long before we call a user 'away' from keyboard (in millisecs) [CS_API_SESSION_AWAY_TIMEOUT]",
+        "signupTokenExpiration": "how long a signup token issued by the IDE for a user to signup on web remains valid (in millisecs, default = 10 min) [CS_API_SIGNUP_TOKEN_EXPIRATION]"
     },
     "broadcastEngine": {
         "codestreamBroadcaster": {
             "host": "hostname of the broadcaster service (from client point-of-view)",
             "logger": {
-                "consoleOk": "allow logging to the console",
-                "debugOk": "more verbose logging (debug level)",
-                "directory": "directory for broadcaster logs"
+                "consoleOk": "allow logging to the console [CSSVC_BROADCASTER_LOG_CONSOLE_OK]",
+                "debugOk": "more verbose logging (debug level) [CSSVC_BROADCASTER_DEBUG_OK]",
+                "directory": "directory for broadcaster logs [CSSVC_BROADCASTER_LOGS]"
             },
-            "port": "Network port for the broadcaster service",
+            "port": "Network port for the broadcaster service [CSSVC_BROADCASTER_PORT]",
             "secrets": {
-                "api": "used to generate json web tokens for authentication tokens passed to the client",
-                "auth": "used to privilege certain api server requests to the broadcaster service"
+                "api": "used to generate json web tokens for authentication tokens passed to the client [CSSVC_BROADCASTER_API_SECRET]",
+                "auth": "used to privilege certain api server requests to the broadcaster service [CSSVC_BROADCASTER_AUTH_SECRET]"
             }
         },
         "pubnub": {
             "keepAlive": "use pubnub keep-alives",
-            "publicKey": "pubnub publishing key",
-            "secretKey": "pubnub adminstrative (secret) key",
+            "publicKey": "pubnub publishing key [CSSVC_PUBNUB_PUBLISH_KEY]",
+            "secretKey": "pubnub adminstrative (secret) key [CSSVC_PUBNUB_SECRET]",
             "ssl": "use SSL for pubnub communications",
-            "subscribeKey": "pubnub subscription key",
+            "subscribeKey": "pubnub subscription key [CSSVC_PUBNUB_SUBSCRIBE_KEY]",
             "uuid": "description needed"
         }
     },
     "email": {
-        "emailTo": "Divert all email to this address",
+        "emailTo": "Divert all email to this address [CSSVC_]",
         "notificationInterval": "Frequency email is generated (in millisecs, default = 30 secs)",
         "replyToDomain": "email domain for routing replies back to codestream",
         "senderEmail": "all generated emails will be sent as this user",
@@ -68,9 +68,9 @@
     "inboundEmailServer": {
         "inboundEmailDirectory": "new email files will be delivered to this directory by the mail agent",
         "logger": {
-            "consoleOk": "allow logging to the console",
-            "debugOk": "more verbose logging (debug level)",
-            "directory": "directory for inbound email logs"
+            "consoleOk": "allow logging to the console [CSSVC_MAILIN_LOG_CONSOLE_OK]",
+            "debugOk": "more verbose logging (debug level) [CSSVC_MAILIN_DEBUG_OK]",
+            "directory": "directory for inbound email logs [CS_MAILIN_LOGS]"
         },
         "processDirectory": "email files will be moved to this directory for processing",
         "tempAttachmentDirectory": "attachments in incoming emails will be stored temporarily here"
@@ -120,8 +120,8 @@
         },
         "msteams": {
             "<appProvider>": {
-                "appClientId": "MS Teams API client Id",
-                "appClientSecret": "MS Teams API secret",
+                "appClientId": "MS Teams API client Id [CSSVC_MSTEAMS_CLIENT_ID]",
+                "appClientSecret": "MS Teams API secret [CSSVC_MSTEAMS_CLIENT_SECRET]",
                 "localProvider": "true if msteams service is an on-prem installation"
             }
         },
@@ -148,40 +148,40 @@
     },
     "outboundEmailServer": {
         "logger": {
-            "consoleOk": "allow logging to the console",
-            "debugOk": "more verbose logging (debug level)",
-            "directory": "directory for outbound email logs"
+            "consoleOk": "allow logging to the console [CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK]",
+            "debugOk": "more verbose logging (debug level) [CS_MAILIN_DEBUG_OK]",
+            "directory": "directory for outbound email logs [CS_OUTBOUND_EMAIL_LOGS]"
         }
     },
     "queuingEngine": {
         "awsSQS": {
-            "outboundEmailQueueName": "SQS queue name",
+            "outboundEmailQueueName": "SQS queue name [CSSVC_OUTBOUND_EMAIL_QUEUE_NAME]",
             "region": "AWS region where queue resides"
         },
         "rabbitmq": {
             "host": "hostname of rabbitMQ service",
-            "outboundEmailQueueName": "RabbitMQ queue name",
+            "outboundEmailQueueName": "RabbitMQ queue name [CSSVC_OUTBOUND_EMAIL_QUEUE_NAME]",
             "password": "rabbitmq password for authentication",
             "port": "network port for rabbitmq service",
             "user": "rabbitmq user for authentication"
         }
     },
     "sharedSecrets": {
-        "auth": "secret used for authentication",
-        "confirmationCheat": "for bypassing email confirmation, used for unit testing",
-        "cookie": "secret used for permalinks",
-        "mail": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails",
-        "subscriptionCheat": "allows unregistered users to subscribe to their me-channel, for testing emails",
-        "telemetry": "for accessing the api prior to authentication (pre-auth secret)"
+        "auth": "secret used for authentication [CSSVC_AUTH_SECRET]",
+        "confirmationCheat": "for bypassing email confirmation, used for unit testing [CSSVC_CONFIRMATION_CHEAT_CODE]",
+        "cookie": "secret used for permalinks [CSSVC_COOKIE_SECRET]",
+        "mail": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails [CSSVC_INBOUND_EMAIL_SECRET]",
+        "subscriptionCheat": "allows unregistered users to subscribe to their me-channel, for testing emails [CSSVC_SUBSCRIPTION_CHEAT_CODE]",
+        "telemetry": "for accessing the api prior to authentication (pre-auth secret) [CSSVC_PRE_AUTH_SECRET]"
     },
     "ssl": {
-        "cafile": "SSL certificate authority bundle (chain) file",
-        "certfile": "SSL certificate",
-        "keyfile": "SSL private key file"
+        "cafile": "SSL certificate authority bundle (chain) file [CSSVC_SSL_CAFILE]",
+        "certfile": "SSL certificate [CSSVC_SSL_CERTFILE]",
+        "keyfile": "SSL private key file [CSSVC_SSL_KEYFILE]"
     },
     "storage": {
         "mongo": {
-            "url": "mongo connect string"
+            "url": "mongo connect string [CSSVC_MONGO_URL]"
         }
     },
     "telemetry": {

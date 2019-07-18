@@ -141,6 +141,8 @@ def buildCfgFileProperties(schema, keyPath, task='show-desc'):
 		else:
 			if task == 'show-desc':
 				node[k] = schema[k]['desc']
+				if su.someValueOrNone(schema[k], 'env'):
+					node[k] += f" [{schema[k]['env']}]"
 			elif task == 'show-env':
 				node[k] = schema[k]['env'] if su.someValueOrNone(schema[k], 'env') else "undefined"
 
