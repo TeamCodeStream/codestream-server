@@ -142,6 +142,15 @@
 				"desc": "hostname of the broadcaster service (from client point-of-view)",
 				"default": "localhost.codestream.us"
 			},
+			"assetEnvironment": {
+				"desc": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod)",
+				"env": "CS_BROADCASTER_ASSET_ENV",
+				"default": "local"
+			},
+			"runTimeEnvironment": {
+				"desc": "Broadcaster run-time environment; use sparingly with preference for more specific params",
+				"env": "CS_BROADCASTER_ENV"
+			},
 			"secrets": {
 				"auth": {
 					"desc": "used to privilege certain api server requests to the broadcaster service",
@@ -430,7 +439,7 @@
 		}
 	},
 
-	// CodeStream Services
+	// Other CodeStream Services
 	"apiServer": {
 		"port": {
 			"desc": "Network port for the api service",
@@ -483,12 +492,12 @@
 			"default": "https://auth.codestream.com/no-auth/prod"
 		},
 		"assetEnvironment": {
-			"desc": "environment used to create and retrieve assets (local, onprem, dev or prod)",
+			"desc": "environment used to create and retrieve API assets (local, onprem, dev or prod)",
 			"env": "CS_API_ASSET_ENV",
 			"default": "local"
 		},
 		"runTimeEnvironment": {
-			"desc": "run-time environment; use sparingly with preference for more specific params",
+			"desc": "API run-time environment; use sparingly with preference for more specific params",
 			"env": "CS_API_ENV"
 		},
 		"callbackEnvironment": {
