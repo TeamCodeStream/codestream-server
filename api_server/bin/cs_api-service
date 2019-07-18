@@ -31,7 +31,7 @@ function startup {
 			echo "******"
 		fi
 	fi
-	echo "Starting $CS_API_TOP/bin/api_server.js. Logging to $CS_API_LOG_DIRECTORY/api.log"
+	echo "Starting $CS_API_TOP/bin/api_server.js. Logging to $CS_API_LOGS/api.log"
 	if [ $run_fg -eq 1 ]; then
 		$CS_API_TOP/bin/api_server.js $server_args
 	else

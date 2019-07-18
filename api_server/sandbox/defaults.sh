@@ -9,11 +9,7 @@
 . $DT_TOP/lib/sandbox_utils.sh
 
 # ========== Optional override settings ==========
-if [ -f "$CS_API_SANDBOX/sb.options" ]; then
-	echo "Loading override parameters from $CS_API_SANDBOX/sb.options"
-	. $CS_API_SANDBOX/sb.options
-	export `grep ^CS_API_ $CS_API_SANDBOX/sb.options|cut -f1 -d=`
-fi
+sandutil_load_options $CS_API_SANDBOX || { echo "failed to load options" >&2 && return 1; }
 
 # =============== Core Settings =================
 
@@ -37,20 +33,19 @@ export PATH=$CS_API_SANDBOX/node/bin:$CS_API_TOP/bin:$CS_API_TOP/node_modules/.b
 # [ -z "$CS_API_NODE_MODULES_DIR" ] && export CS_API_NODE_MODULES_DIR=$CS_API_TOP/node_modules
 
 export CS_API_LOGS=$CS_API_SANDBOX/log    # Log directory
-export CS_API_LOG_DIRECTORY=$CS_API_SANDBOX/log
 export CS_API_TMP=$CS_API_SANDBOX/tmp     # temp directory
 export CS_API_CONFS=$CS_API_SANDBOX/conf  # config files directory
 export CS_API_DATA=$CS_API_SANDBOX/data   # data directory
 export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
-
-# Port the API server will run on
-[ -z "$CS_API_PORT" ] && export CS_API_PORT=12079
 
 # This defines the runtime environment (local, pd, qa, prod, etc...)
 [ -z "$CS_API_ENV" ] && export CS_API_ENV=local
 
 # This defines the artifact (asset) build environment (local, dev or prod)
 [ -z "$CS_API_ASSET_ENV" ] && export CS_API_ASSET_ENV=local
+
+# Port the API server will run on
+[ -z "$CS_API_PORT" ] && export CS_API_PORT=12079
 
 # For ec2 development, we run local sandboxes on named ec2 instances (not localhost)
 if [ "$CS_API_ENV" == local  -a  "$DT_OS_TYPE" == linux -a `hostname|cut -f1 -d\.` != localhost  ]; then

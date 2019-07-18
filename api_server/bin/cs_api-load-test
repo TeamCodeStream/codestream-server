@@ -57,7 +57,7 @@ shift `expr $OPTIND - 1`
 [ $n_threads -le 0 ] && usage
 
 start_time=`date +%Y%m%d-%H%M%S`
-logdir=$CS_API_LOG_DIRECTORY/load-test-$start_time
+logdir=$CS_API_LOGS/load-test-$start_time
 mkdir $logdir
 echo "Test logs will reside in $logdir"
 

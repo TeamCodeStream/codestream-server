@@ -7,7 +7,7 @@ if (process.env.CS_API_CFG_FILE) {
 	LoggerCfg = require(process.env.CS_API_CFG_FILE).apiServerLogging;
 }
 else {
-	LoggerCfg.directory = process.env.CS_API_LOG_DIRECTORY;	  // put log files in this directory
+	LoggerCfg.directory = process.env.CS_API_LOGS;            // put log files in this directory
 	LoggerCfg.consoleOk = process.env.CS_API_LOG_CONSOLE_OK;  // also output to the console
 	LoggerCfg.debugOk = process.env.CS_API_LOG_DEBUG;         // output debug messages, for special debugging
 }
