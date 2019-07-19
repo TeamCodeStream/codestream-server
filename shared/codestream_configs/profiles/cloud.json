@@ -6,146 +6,149 @@
 // - Outbound SMTP:  sendgrid
 
 {
-    "broadcastEngine": {
-        "pubnub": {
-            "defaultEnv": {
-                "_loadSecretsFile": "pubnub/dev.cfg"
-            },
-            "local": {
-                "_loadSecretsFile": "pubnub/local.cfg"
-            }
-        }
-    },
-    "email": {},
-    "emailDeliveryService": {
-        "sendgrid": {
-            "defaultEnv": {
-                "_loadSecretsFile": "sendgrid/dev.cfg"
-            }
-        }
-    },
-    "integrations": {
-        "asana": {
-            "asana.com": {
-                "defaultEnv": {
-                    "_loadSecretsFile": "asana/dev.cfg"
-                },
-                "prod": {
-                    "_loadSecretsFile": "asana/prod.cfg"
-                }
-            }
-        },
-        "bitbucket": {
-            "bitbucket.com": {
-                "defaultEnv": {
-                    "_loadSecretsFile": "bitbucket/dev.cfg"
-                },
-                "prod": {
-                    "_loadSecretsFile": "bitbucket/prod.cfg"
-                }
-            }
-        },
-        "github": {
-            "github.com": {
-                "defaultEnv": {
-                    "_loadSecretsFile": "github/dev.cfg"
-                },
-                "prod": {
-                    "_loadSecretsFile": "github/prod.cfg"
-                }
-            }
-        },
-        "gitlab": {
-            "gitlab.com": {
-                "defaultEnv": {
-                    "_loadSecretsFile": "gitlab/dev.cfg"
-                },
-                "prod": {
-                    "_loadSecretsFile": "gitlab/prod.cfg"
-                }
-            }
-        },
-        "jira": {
-            "atlassian.net": {
-                "defaultEnv": {
-                    "_loadSecretsFile": "atlassian/dev.cfg"
-                },
-                "prod": {
-                    "_loadSecretsFile": "atlassian/prod.cfg"
-                }
-            }
-        },
-        "msteams": {
-            "microsoft.com": {
-                "defaultEnv": {
-                    "_loadSecretsFile": "microsoft/teams-dev.cfg"
-                },
-                "prod": {
-                    "_loadSecretsFile": "microsoft/teams-prod.cfg"
-                }
-            }
-        },
-        "slack": {
-            "slack.com": {
-                "defaultEnv": {
-                    "_loadSecretsFile": "slack/dev-combined.cfg"
-                },
-                "prod": {
-                    "_loadSecretsFile": "slack/prod-combined.cfg"
-                }
-            }
-        },
-        "trello": {
-            "trello.com": {
-                "defaultEnv": {
-                    "_loadSecretsFile": "trello/codestreamops.cfg"
-                }
-            }
-        },
-        "youtrack": {
-            "jetbrains.com": {
-                "defaultEnv": {}
-            }
-        }
-    },
-    "queuingEngine": {
-        "awsSQS": {
-            "defaultEnv": {}
-        }
-    },
-    "sharedSecrets": {
-        "defaultEnv": {
-            "_loadSecretsFile": "codestream/dev-secrets.cfg"
-        }
-    },
-    "ssl": {
-        "defaultEnv": {
-            "cafile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-ca",
-            "certfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt",
-            "keyfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-key"
-        },
-        "local": {},
-        "prod": {
-            "cafile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-ca",
-            "certfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-crt",
-            "keyfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-key"
-        }
-    },
-    "storage": {
-        "mongo": {
-            "defaultEnv": {}
-        }
-    },
-    "telemetry": {
-        "intercom": {
-            "defaultEnv": {
-                "_loadSecretsFile": "intercom/dev.cfg"
-            }
-        },
-        "segment": {
-            "defaultEnv": {
-                "_loadSecretsFile": "segment/dev-api.cfg"
-            }
-        }
-    }
+	"apiServer": {
+		"defaultEnv": {}
+	},
+	"broadcastEngine": {
+		"pubnub": {
+			"defaultEnv": {
+				"_loadSecretsFile": "pubnub/dev.cfg"
+			},
+			"local": {
+				"_loadSecretsFile": "pubnub/local.cfg"
+			}
+		}
+	},
+	"email": {},
+	"emailDeliveryService": {
+		"sendgrid": {
+			"defaultEnv": {
+				"_loadSecretsFile": "sendgrid/dev.cfg"
+			}
+		}
+	},
+	"integrations": {
+		"asana": {
+			"asana.com": {
+				"defaultEnv": {
+					"_loadSecretsFile": "asana/dev.cfg"
+				},
+				"prod": {
+					"_loadSecretsFile": "asana/prod.cfg"
+				}
+			}
+		},
+		"bitbucket": {
+			"bitbucket.com": {
+				"defaultEnv": {
+					"_loadSecretsFile": "bitbucket/dev.cfg"
+				},
+				"prod": {
+					"_loadSecretsFile": "bitbucket/prod.cfg"
+				}
+			}
+		},
+		"github": {
+			"github.com": {
+				"defaultEnv": {
+					"_loadSecretsFile": "github/dev.cfg"
+				},
+				"prod": {
+					"_loadSecretsFile": "github/prod.cfg"
+				}
+			}
+		},
+		"gitlab": {
+			"gitlab.com": {
+				"defaultEnv": {
+					"_loadSecretsFile": "gitlab/dev.cfg"
+				},
+				"prod": {
+					"_loadSecretsFile": "gitlab/prod.cfg"
+				}
+			}
+		},
+		"jira": {
+			"atlassian.net": {
+				"defaultEnv": {
+					"_loadSecretsFile": "atlassian/dev.cfg"
+				},
+				"prod": {
+					"_loadSecretsFile": "atlassian/prod.cfg"
+				}
+			}
+		},
+		"msteams": {
+			"microsoft.com": {
+				"defaultEnv": {
+					"_loadSecretsFile": "microsoft/teams-dev.cfg"
+				},
+				"prod": {
+					"_loadSecretsFile": "microsoft/teams-prod.cfg"
+				}
+			}
+		},
+		"slack": {
+			"slack.com": {
+				"defaultEnv": {
+					"_loadSecretsFile": "slack/dev-combined.cfg"
+				},
+				"prod": {
+					"_loadSecretsFile": "slack/prod-combined.cfg"
+				}
+			}
+		},
+		"trello": {
+			"trello.com": {
+				"defaultEnv": {
+					"_loadSecretsFile": "trello/codestreamops.cfg"
+				}
+			}
+		},
+		"youtrack": {
+			"jetbrains.com": {
+				"defaultEnv": {}
+			}
+		}
+	},
+	"queuingEngine": {
+		"awsSQS": {
+			"defaultEnv": {}
+		}
+	},
+	"sharedSecrets": {
+		"defaultEnv": {
+			"_loadSecretsFile": "codestream/dev-secrets.cfg"
+		}
+	},
+	"ssl": {
+		"defaultEnv": {
+			"cafile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-ca",
+			"certfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt",
+			"keyfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-key"
+		},
+		"local": {},
+		"prod": {
+			"cafile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-ca",
+			"certfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-crt",
+			"keyfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-key"
+		}
+	},
+	"storage": {
+		"mongo": {
+			"defaultEnv": {}
+		}
+	},
+	"telemetry": {
+		"intercom": {
+			"defaultEnv": {
+				"_loadSecretsFile": "intercom/dev.cfg"
+			}
+		},
+		"segment": {
+			"defaultEnv": {
+				"_loadSecretsFile": "segment/dev-api.cfg"
+			}
+		}
+	}
 }

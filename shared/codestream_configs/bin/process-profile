@@ -13,7 +13,7 @@ import sysUtils as su
 def sortJsonWithHeaderComments(file):
 	comments = su.shellExecNoBuffer(f"grep '^//' {file} >/tmp/_comments; echo >>/tmp/_comments")
 	json = su.readJsonFileIgnoreComments(file)
-	su.dumpDict(json, "/tmp/_json")
+	su.dumpDictOpts(json, where="/tmp/_json", tab_indent=True)
 	print(f"backing up file to {file}.backup")
 	su.shellExecNoBuffer(f"cp {file} {file}.backup")
 	su.shellExecNoBuffer(f"cat /tmp/_comments /tmp/_json >{file}")
@@ -202,8 +202,8 @@ else:
 	exit(1)
 
 if args.out:
-	su.dumpDict(cfgFile, args.out)
+	su.dumpDictOpts(cfgFile, where=args.out, tab_indent=True)
 else:
 	debugMsg("-----------  RESULTS  -------------")
-	su.dumpDict(cfgFile)
+	su.dumpDictOpts(cfgFile)
 exit(0)

@@ -15,7 +15,7 @@ const configs = {};
 */
 class StructuredConfigFile {
 	constructor (options = {}) {
-		this.schemaFileName = options.schemaFile || process.env.CSSVC_CFG_SCHEMA_FILE;
+		this.schemaFileName = options.schemaFile || process.env.CSSVC_CFG_SCHEMA_FILE || __dirname + '/../parameters.json';
 		this.configFileName = options.configFile || process.env.CSSVC_CFG_FILE;
 		if (!schemas.hasOwnProperty(this.schemaFileName)) {
 			console.log(`loading schema (${this.schemaFileName})`);
@@ -118,11 +118,31 @@ class StructuredConfigFile {
 		return;
 	}
 
+	_isRepeatingBlockKey(schema) {
+		if (!schema) {
+			return;
+		}
+		let propList = Object.keys(schema)
+		if (propList.length == 1 && propList[0].startsWith('<') && propList[0].endsWith('>')) {
+			return propList[0];
+		}
+		return;
+	}
+
 	// recursively build the sectionData from the configuration data & schema
 	_buildSection(sectionData, schema, data) {
+		if (!data) {
+			return;
+		}
+		// console.log('------------\nschema:', schema);
+		// console.log('data:', data);
+		let blockKey = this._isRepeatingBlockKey(schema);
 		for (let prop of Object.keys(data)) {
-			if (schema[prop].hasOwnProperty('desc')) {
-				// leaf node
+			// console.log('prop', prop);
+			let schemaProp = blockKey ? blockKey : prop;
+			// console.log('schemaProp =', schemaProp);
+			if (schema[schemaProp].hasOwnProperty('desc')) {
+				// console.log('leaf node');
 				sectionData[prop] = this._getConfigValue(prop, schema, data);
 				if (typeof(sectionData[prop]) == 'string') {
 					// console.log(`-- ${sectionData[prop]}`);
@@ -131,7 +151,7 @@ class StructuredConfigFile {
 			}
 			else {
 				sectionData[prop] = {};
-				this._buildSection(sectionData[prop], schema[prop], data[prop]);
+				this._buildSection(sectionData[prop], schema[schemaProp], data[prop]);
 			}
 		}
 	}
