@@ -2,9 +2,19 @@
 
 'use strict';
 
-let MongoCfg = {};
-if (process.env.CS_API_CFG_FILE) {
-	MongoCfg = require(process.env.CS_API_CFG_FILE).mongo;
+const structuredCfgFile = require('../codestream-configs/lib/structured_config');
+
+let MongoCfg = {
+	url: null,
+	database: null
+};
+
+let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
+if(CfgFileName) {
+	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
+	MongoCfg = CfgData.getSection('storage.mongo');
+	let MongoParsed = CfgData._mongoUrlParse(MongoCfg.url);
+	MongoCfg.database = MongoParsed.database;
 }
 else {
 	MongoCfg.database = process.env.CS_API_MONGO_DATABASE;

@@ -2,9 +2,16 @@
 
 'use strict';
 
-let AsanaCfg = {};
-if (process.env.CS_API_CFG_FILE) {
-	AsanaCfg = require(process.env.CS_API_CFG_FILE).integrations.asana['asana.com'];
+const structuredCfgFile = require('../codestream-configs/lib/structured_config');
+let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
+
+let AsanaCfg = {
+	appClientId: null,
+	appClientSecret: null
+};
+if (CfgFileName) {
+	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
+	AsanaCfg = CfgData.getSection('integrations.asana');
 }
 else {
 	AsanaCfg.appClientId = process.env.CS_API_ASANA_CLIENT_ID;

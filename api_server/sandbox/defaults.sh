@@ -7,6 +7,7 @@
 # CS_API_TOP      /path/to/root/of/primary/git/project
 
 . $DT_TOP/lib/sandbox_utils.sh
+. $CS_API_TOP/sandbox/lib/sbutils.sh
 
 # ========== Optional override settings ==========
 sandutil_load_options $CS_API_SANDBOX || { echo "failed to load options" >&2 && return 1; }
@@ -34,9 +35,10 @@ export PATH=$CS_API_SANDBOX/node/bin:$CS_API_TOP/bin:$CS_API_TOP/node_modules/.b
 
 export CS_API_LOGS=$CS_API_SANDBOX/log    # Log directory
 export CS_API_TMP=$CS_API_SANDBOX/tmp     # temp directory
-export CS_API_CONFS=$CS_API_SANDBOX/conf  # config files directory
+# not needed vvvvv
 export CS_API_DATA=$CS_API_SANDBOX/data   # data directory
 export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
+export CS_API_CONFS=$CS_API_SANDBOX/conf  # config files directory
 
 # This defines the runtime environment (local, pd, qa, prod, etc...)
 [ -z "$CS_API_ENV" ] && export CS_API_ENV=local
@@ -62,13 +64,9 @@ fi
 # For consutrction of a callback URL used in authentication
 # CS_API_AUTH_ORIGIN & CS_API_CALLBACK_ENV
 [ -z "$CS_API_AUTH_ORIGIN" ] && export CS_API_AUTH_ORIGIN=https://auth.codestream.us/no-auth
-if [ "$CS_API_ENV" == local  -a  -z "$CS_API_CALLBACK_ENV" ]; then
-	TUNNEL_IP=$(sandutil_get_tunnel_ip fallbackLocalIp,useHyphens)
-	[ -n "$TUNNEL_IP" ] && export CS_API_CALLBACK_ENV="local-$TUNNEL_IP"
-elif [ -z "$CS_API_CALLBACK_ENV" ]; then
-	export CS_API_CALLBACK_ENV=$CS_API_ENV
-fi
-[ -z "$CS_API_CALLBACK_ENV" ] && echo "call back environment not set - you will not be able to test integrations" >&2
+
+# this sets CS_API_CALLBACK_ENV
+set_callback_env
 
 # Pointer to the codestream marketing site
 [ -z "$CS_API_MARKETING_SITE_URL" ] && export CS_API_MARKETING_SITE_URL=https://teamcodestream.webflow.io

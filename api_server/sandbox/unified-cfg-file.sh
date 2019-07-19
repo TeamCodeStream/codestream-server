@@ -1,5 +1,6 @@
 
 . $DT_TOP/lib/sandbox_utils.sh
+. $CS_API_TOP/sandbox/lib/sbutils.sh
 
 sandutil_load_options $CS_API_SANDBOX || { echo "failed to load options" >&2 && return 1; }
 
@@ -13,12 +14,11 @@ export PATH=$CS_API_TOP/bin:$PATH
 [ -n "$CSSVC_CFG_FILE" ] && cfgFile=$CSSVC_CFG_FILE || cfgFile=$CS_API_CFG_FILE
 echo "Using config file $cfgFile"
 
-# env vars required for all scripts in the sandbox to work
-export CS_API_LOGS=$CS_API_SANDBOX/log    # Log directory
-export CS_API_TMP=$CS_API_SANDBOX/tmp     # temp directory
-export CS_API_CONFS=$CS_API_SANDBOX/conf  # config files directory
-export CS_API_DATA=$CS_API_SANDBOX/data   # data directory
-export CS_API_PIDS=$CS_API_SANDBOX/pid    # pid files directory
+# env vars required for scripts that don't load the config file
+export CS_API_LOGS=`eval echo $(get-json-property -j $cfgFile -p apiServer.logger.directory)`
+export CS_API_TMP=`eval echo $(get-json-property -j $cfgFile -p apiServer.tmpDirectory)`
+export CS_API_ASSET_ENV=`eval echo $(get-json-property -j $cfgFile -p apiServer.assetEnvironment)`
+export CS_API_ENV=`eval echo $(get-json-property -j $cfgFile -p apiServer.runTimeEnvironment)`
 
-export CS_API_ASSET_ENV=$(get-json-property -j $cfgFile -p apiServer.assetEnvironment)
-export CS_API_ENV=$(get-json-property -j $cfgFile -p apiServer.runTimeEnvironment)
+# this sets CS_API_CALLBACK_ENV
+set_callback_env

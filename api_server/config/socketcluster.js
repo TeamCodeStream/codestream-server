@@ -2,14 +2,25 @@
 
 'use strict';
 
-let ClusterCfg = {};
-if (process.env.CS_API_CFG_FILE) {
-	let Cfg = require(process.env.CS_API_CFG_FILE);
-	ClusterCfg = {
-		host: Cfg.broadcastEngine.codestreamBroadcaster.host,
-		port: Cfg.broadcastEngine.codestreamBroadcaster.port,
-		authKey: Cfg.broadcastEngine.codestreamBroadcaster.secrets.api
-	};
+const structuredCfgFile = require('../codestream-configs/lib/structured_config');
+
+let ClusterCfg = {
+	host: null,
+	port: null,
+	authKey: null
+};
+
+let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
+if (CfgFileName) {
+	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
+	let BroadcastCfg = CfgData.getSection('broadcastEngine.codestreamBroadcaster');
+	if (Object.keys(BroadcastCfg).length != 0) {
+		ClusterCfg = {
+			host: BroadcastCfg.host,
+			port: BroadcastCfg.port,
+			authKey: BroadcastCfg.secrets.api
+		};
+	}
 }
 else {
 	ClusterCfg = {
