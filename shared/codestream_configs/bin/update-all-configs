@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# re-generate codestream config files and config templates for distribution
+
 function diff_notify {
 	local file=$1 ask=$2
 	local ans
@@ -18,8 +20,6 @@ function diff_notify {
 	fi
 }
 
-# refresh everything
-
 [ -z "$KM_PKI" ] && echo "Set KM_PKI to the location of the PKI database" && exit 1
 [ "$1" == "-y" ] && yes="" || yes=y
 binDir=`dirname $0`
@@ -28,5 +28,10 @@ repoRoot=`dirname $binDir`
 $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
 diff_notify $repoRoot/README.parameter-definitions.json "$yes"
 
+# template for on-prem with docker
 $binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out ~/src/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.x
 diff_notify ~/src/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template "$yes"
+
+# configs for development (distributed via dt-update-secrets)
+$binDir/process-profile --profile $repoRoot/profiles/cloud.json --env local --out $KM_PKI/secrets/configs/local-cloud-development.json.x
+diff_notify $KM_PKI/secrets/configs/local-cloud-development.json "$yes"
