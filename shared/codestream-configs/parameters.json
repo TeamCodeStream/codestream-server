@@ -342,10 +342,6 @@
 				},
 				"appClientSecret": {
 					"desc": "GitLab API secret"
-				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
 				}
 			}
 		},
@@ -356,10 +352,6 @@
 				},
 				"appClientSecret": {
 					"desc": "Glip API secret"
-				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
 				}
 			}
 		},
@@ -384,10 +376,6 @@
 				},
 				"appClientSecret": {
 					"desc": "Github API secret"
-				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
 				}
 			}
 		},
@@ -400,10 +388,6 @@
 				"appClientSecret": {
 					"env": "CSSVC_MSTEAMS_CLIENT_SECRET",
 					"desc": "MS Teams API secret"
-				},
-				"localProvider": {
-					"desc": "true if msteams service is an on-prem installation",
-					"default": false
 				}
 			}
 		},
@@ -414,10 +398,6 @@
 				},
 				"appClientSecret": {
 					"desc": "YouTrack API secret"
-				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
 				}
 			}
 		}
