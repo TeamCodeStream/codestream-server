@@ -68,13 +68,15 @@
         }
     },
     "inboundEmailServer": {
+        "assetEnvironment": "environment used to create and retrieve inbound email service assets (local, onprem, dev, prod, ...) [CS_MAILIN_ASSET_ENV]",
         "inboundEmailDirectory": "new email files will be delivered to this directory by the mail agent",
         "logger": {
-            "consoleOk": "allow logging to the console [CSSVC_MAILIN_LOG_CONSOLE_OK]",
-            "debugOk": "more verbose logging (debug level) [CSSVC_MAILIN_DEBUG_OK]",
+            "consoleOk": "allow logging to the console [CS_MAILIN_LOG_CONSOLE_OK]",
+            "debugOk": "more verbose logging (debug level) [CS_MAILIN_DEBUG_OK]",
             "directory": "directory for inbound email logs [CS_MAILIN_LOGS]"
         },
         "processDirectory": "email files will be moved to this directory for processing",
+        "runTimeEnvironment": "Inbound email service run-time environment; use sparingly with preference for more specific params [CS_MAILIN_ENV]",
         "tempAttachmentDirectory": "attachments in incoming emails will be stored temporarily here"
     },
     "integrations": {
@@ -149,11 +151,13 @@
         }
     },
     "outboundEmailServer": {
+        "assetEnvironment": "environment used to create and retrieve outbound email assets (local, onprem, dev, prod, ...) [CS_OUTBOUND_EMAIL_ASSET_ENV]",
         "logger": {
             "consoleOk": "allow logging to the console [CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK]",
             "debugOk": "more verbose logging (debug level) [CS_MAILIN_DEBUG_OK]",
             "directory": "directory for outbound email logs [CS_OUTBOUND_EMAIL_LOGS]"
-        }
+        },
+        "runTimeEnvironment": "Outbound email run-time environment; use sparingly with preference for more specific params [CS_OUTBOUND_EMAIL_ENV]"
     },
     "queuingEngine": {
         "awsSQS": {

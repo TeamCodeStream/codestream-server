@@ -97,7 +97,10 @@ def buildCfgFile(cfg, schema, profile, spaces=''):
 			getSectionDefaultsFromSchema(schema[prop], cfg[prop], spaces)
 		elif type(profile[prop]) is dict and envBlock:
 			debugMsg(f"{spaces}2 using profile dict for {env}")
-			cfg[prop] = fetchBlockProperties(profile[prop][env], schema[prop], repeatingBlockKey, spaces)  # if schema[prop] should be schema, we're in trouble!
+			if repeatingBlockKey:
+				cfg[prop] = fetchBlockProperties(profile[prop][env], schema, repeatingBlockKey, spaces)  # if schema should be schema[prop], we're in trouble!
+			else:
+				cfg[prop] = fetchBlockProperties(profile[prop][env], schema[prop], repeatingBlockKey, spaces)  # if schema[prop] should be schema, we're in trouble!
 			if not cfg[prop]:
 				debugMsg(f"{spaces}2A empty dict for {env}, repeatingBlockKey = {repeatingBlockKey} - using schema defaults")
 				if repeatingBlockKey:
