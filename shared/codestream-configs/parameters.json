@@ -149,7 +149,8 @@
 			},
 			"runTimeEnvironment": {
 				"desc": "Broadcaster run-time environment; use sparingly with preference for more specific params",
-				"env": "CS_BROADCASTER_ENV"
+				"env": "CS_BROADCASTER_ENV",
+				"default": "local"
 			},
 			"secrets": {
 				"auth": {
@@ -218,7 +219,7 @@
 			"outboundEmailQueueName": {
 				"desc": "SQS queue name",
 				"env": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME",
-				"default": "local_{DT_USER}_outboundEmail",
+				"default": "local_${DT_USER}_outboundEmail",
 				"envRequred": true
 			}
 		}
@@ -227,15 +228,8 @@
 	// Email delivery services - choose one
 	"emailDeliveryService": {
 		"sendgrid": {
-			"url": {
-				"desc": "",
-				"env": "",
-				"default": "",
-				"required": true
-			},
-			"apiKey": {
+			"apiSecret": {
 				"desc": "key to access sendgrid API",
-				"env": "",
 				"required": true
 			}
 		},
@@ -301,14 +295,16 @@
 		"slack": {
 			"<appProvider>": {
 				"appClientId": {
-					"desc": "Slack app client Id"
+					"desc": "Slack app client Id (legacy scopes)"
 				},
 				"appClientSecret": {
-					"desc": "Slack app secret"
+					"desc": "Slack app secret (legacy scopes)"
 				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
+				"appStrictClientId": {
+					"desc": "Slack strict app client Id (app directory)"
+				},
+				"appStrictClientSecret": {
+					"desc": "Slack strict app secret (app directory)"
 				}
 			}
 		},
@@ -316,10 +312,6 @@
 			"<appProvider>": {
 				"apiKey": {
 					"desc": "Trello API key"
-				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
 				}
 			}
 		},
@@ -330,10 +322,6 @@
 				},
 				"appClientSecret": {
 					"desc": "Asana secret"
-				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
 				}
 			}
 		},
@@ -344,10 +332,6 @@
 				},
 				"appClientSecret": {
 					"desc": "Bitbucket API secret"
-				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
 				}
 			}
 		},
@@ -498,7 +482,8 @@
 		},
 		"runTimeEnvironment": {
 			"desc": "API run-time environment; use sparingly with preference for more specific params",
-			"env": "CS_API_ENV"
+			"env": "CS_API_ENV",
+			"default": "local"
 		},
 		"callbackEnvironment": {
 			"desc": "allows for callbacks through VPN to developers' local servers",
@@ -536,15 +521,25 @@
 	"inboundEmailServer": {
 		"inboundEmailDirectory": {
 			"desc": "new email files will be delivered to this directory by the mail agent",
-			"default": "{CS_MAILIN_SANDBOX}/mailq/new"
+			"default": "${CS_MAILIN_SANDBOX}/mailq/new"
 		},
 		"processDirectory": {
 			"desc": "email files will be moved to this directory for processing",
-			"default": "{CS_MAILIN_SANDBOX}/mailq/process"
+			"default": "${CS_MAILIN_SANDBOX}/mailq/process"
 		},
 		"tempAttachmentDirectory": {
 			"desc": "attachments in incoming emails will be stored temporarily here",
-			"default": "{CS_MAILIN_SANDBOX}/mailq/attachments"
+			"default": "${CS_MAILIN_SANDBOX}/mailq/attachments"
+		},
+		"assetEnvironment": {
+			"desc": "environment used to create and retrieve inbound email service assets (local, onprem, dev, prod, ...)",
+			"env": "CS_MAILIN_ASSET_ENV",
+			"default": "local"
+		},
+		"runTimeEnvironment": {
+			"desc": "Inbound email service run-time environment; use sparingly with preference for more specific params",
+			"env": "CS_MAILIN_ENV",
+			"default": "local"
 		},
 		"logger": {
 			"directory": {
@@ -554,18 +549,28 @@
 			},
 			"consoleOk": {
 				"desc": "allow logging to the console",
-				"env": "CSSVC_MAILIN_LOG_CONSOLE_OK",
+				"env": "CS_MAILIN_LOG_CONSOLE_OK",
 				"default": true
 			},
 			"debugOk": {
 				"desc": "more verbose logging (debug level)",
-				"env": "CSSVC_MAILIN_DEBUG_OK",
+				"env": "CS_MAILIN_DEBUG_OK",
 				"default": false
 			}
 		}
 	},
 
 	"outboundEmailServer": {
+		"assetEnvironment": {
+			"desc": "environment used to create and retrieve outbound email assets (local, onprem, dev, prod, ...)",
+			"env": "CS_OUTBOUND_EMAIL_ASSET_ENV",
+			"default": "local"
+		},
+		"runTimeEnvironment": {
+			"desc": "Outbound email run-time environment; use sparingly with preference for more specific params",
+			"env": "CS_OUTBOUND_EMAIL_ENV",
+			"default": "local"
+		},
 		"logger": {
 			"directory": {
 				"desc": "directory for outbound email logs",

@@ -1,19 +1,32 @@
 #!/bin/bash
 
+function diff_notify {
+	local file=$1 ask=$2
+	local ans
+	x=`diff $file $file.x|wc -l`
+	if [ $x -gt 0 ]; then
+		echo "$file has changed"
+		if [ -n "$ask" ]; then
+			echo -n "update it (y/N)? "
+			read ans
+			[ "$ans" != y ] && /bin/rm $file.x && echo "skipped" && return
+		fi
+		mv $file.x $file
+	else
+		# echo "$file did not change"
+		/bin/rm $file.x
+	fi
+}
+
 # refresh everything
 
 [ -z "$KM_PKI" ] && echo "Set KM_PKI to the location of the PKI database" && exit 1
+[ "$1" == "-y" ] && yes="" || yes=y
 binDir=`dirname $0`
 repoRoot=`dirname $binDir`
 
-echo $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json
-$binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json
-# echo $binDir/process-profile --show-env --out $repoRoot/README.parameter-environment-overrides.json
-# $binDir/process-profile --show-env --out $repoRoot/README.parameter-environment-overrides.json
+$binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
+diff_notify $repoRoot/README.parameter-definitions.json "$yes"
 
-echo -n "Update ~/src/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template (y/N)? "
-read ans
-if [ "$ans" == y ]; then
-	echo $binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out ~/src/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template
-	$binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out ~/src/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template
-fi
+$binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out ~/src/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.x
+diff_notify ~/src/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template "$yes"
