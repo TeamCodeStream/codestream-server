@@ -405,6 +405,11 @@
 
 	// Other CodeStream Services
 	"apiServer": {
+		"tmpDirectory": {
+			"desc": "temp directory",
+			"env": "CS_API_TMP",
+			"default": "${CS_API_SANDBOX}/tmp"
+		},
 		"port": {
 			"desc": "Network port for the api service",
 			"env": "CS_API_PORT",
@@ -448,12 +453,12 @@
 		"publicApiUrl": {
 			"desc": "public url to access the API server from beyond",
 			"env": "CS_API_PUBLIC_URL",
-			"default": "https://api.codestream.com"
+			"default": "https://localhost.codestream.us"
 		},
 		"authOrigin": {
 			"desc": "origin to use for third-party auth callbacks",
 			"env": "CS_API_AUTH_ORIGIN",
-			"default": "https://auth.codestream.com/no-auth/prod"
+			"default": "https://auth.codestream.us/no-auth"
 		},
 		"assetEnvironment": {
 			"desc": "environment used to create and retrieve API assets (local, onprem, dev or prod)",
@@ -467,7 +472,9 @@
 		},
 		"callbackEnvironment": {
 			"desc": "allows for callbacks through VPN to developers' local servers",
-			"env": "CS_API_CALLBACK_ENV"
+			"env": "CS_API_CALLBACK_ENV",
+			"default": "${CS_API_CALLBACK_ENV}",
+			"required": true
 		},
 		"mockMode": {
 			"desc": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC",
@@ -483,6 +490,7 @@
 			"directory": {
 				"desc": "directory for api server logs",
 				"env": "CS_API_LOGS",
+				"default": "${CS_API_SANDBOX}/log",
 				"envRequired": true
 			},
 			"consoleOk": {
