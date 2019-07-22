@@ -464,7 +464,7 @@ class MongoCollection {
 	}
 
 	// log a mongo query to our logger
-	_logMongoQuery (options, ...args) {
+	_logMongoQuery (options, args) {
 		if (!this.options.queryLogger) {
 			return;
 		}
@@ -472,7 +472,7 @@ class MongoCollection {
 	}
 
 	// log a mongo query to our logger
-	_logMongoQueryToLogger (logger, options, ...args) {
+	_logMongoQueryToLogger (logger, options, args) {
 		let {
 			error = null,
 			query = {},
@@ -482,9 +482,9 @@ class MongoCollection {
 			queryOptions = {},
 			noSlow = false
 		} = options;
-		const queryString = this._jsonStringify(query);
+		const queryString = this._jsonStringify(this._sanitizeForLogging(query, 'query', options));
 		const optionsString = this._jsonStringify(queryOptions);
-		const additionalArgumentsString = this._jsonStringify(args || {});
+		const additionalArgumentsString = this._jsonStringify(this._sanitizeForLogging(args || [], 'additionalArguments', options));
 		const fullQuery = `${requestId} db.${this.dbCollection.collectionName}.${mongoFunc}(${queryString},${optionsString},${additionalArgumentsString})`;
 		logger.log(`${fullQuery}|${time}|${error}`);
 		if (
@@ -556,6 +556,71 @@ class MongoCollection {
 			})
 		);
 		return objects;
+	}
+
+	// sanitize the passed structure for logging, ensuring sensitive data is removed
+	_sanitizeForLogging (data, type, options) {
+		const collectionName = this.dbCollection.collectionName;
+		const { mongoFunc } = options;
+		for (let noLogData of this.options.noLogData || []) {
+			if (noLogData.collection === collectionName) {
+				const { fields } = noLogData;
+				if (mongoFunc === 'insertOne' && type === 'query') {
+					return this._sanitizeInsertOneForLogging(data, fields);
+				}
+				else if (mongoFunc === 'insertMany' && type === 'query') {
+					return this._sanitizeInsertManyForLogging(data, fields);
+				}
+				else if (['updateOne', 'updateMany', 'findOneAndUpdate'].indexOf(mongoFunc) !== -1 && type === 'additionalArguments') {
+					return this._sanitizeUpdateForLogging(data, fields);
+				}
+			}
+		}
+		return data;
+	}
+
+	// sanitize the query structure to an insertOne, for logging, ensuring sensitive data is removed
+	_sanitizeInsertOneForLogging (data, fields) {
+		let newData = data;
+		let cloned = false;
+		for (let field of fields) {
+			if (typeof data[field] === 'string') {
+				if (!cloned) {
+					newData = DeepClone(data);
+					cloned = true;
+				}
+				newData[field] = '*'.repeat(data[field].length); 
+			}
+		}
+		return newData;
+	}
+
+	// sanitize the query structure to an insertMany, for logging, ensuring sensitive data is removed
+	_sanitizeInsertManyForLogging (data, fields) {
+		const newData = [];
+		if (!(data instanceof Array)) {
+			return data;
+		}
+		for (let datum of data) {
+			newData.push(this._sanitizeInsertOneForLogging(datum, fields));
+		}
+		return newData;
+	}
+
+	// sanitize the op for an updateOne, for logging, ensuring sensitive data is removed
+	_sanitizeUpdateForLogging (data, fields) {
+		let newData = data;
+		let cloned = false;
+		for (let field of fields) {
+			if (data[0].$set && typeof data[0].$set[field] === 'string') {
+				if (!cloned) {
+					newData = DeepClone(data);
+					cloned = true;
+				}
+				newData[0].$set[field] = '*'.repeat(data[0].$set[field].length);
+			}
+		}
+		return newData;
 	}
 }
 
