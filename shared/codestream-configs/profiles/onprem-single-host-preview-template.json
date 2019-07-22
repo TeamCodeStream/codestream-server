@@ -6,65 +6,84 @@
 // - Outbound SMTP:  NodeMailer
 
 {
-    "apiServer": {
-        "assetEnvironment": "onprem",
-        "authOrigin": "https://my-codestream-proxy.my-company.com/no-auth",
-        "callbackEnvironment": "onprem",
-        "dontWantAWS": true,
-        "logger": {
-            "directory": "/opt/api/log"
-        },
-        "port": 443,
-        "publicApiUrl": "https://{{FQHN}}",
-        "runTimeEnvironment": "onprem"
-    },
-    "broadcastEngine": {
-        "codestreamBroadcaster": {
-            "host": "{{FQDN}}",
-            "logger": {
-                "directory": "/opt/broadcaster/log"
-            },
-            "secrets": {
-                "api": "{{SECRET_BROADCAST_API}}",
-                "auth": "{{SECRET_BROADCAST_AUTH}}"
-            }
-        }
-    },
-    "email": {
-        "emailTo": null,
-        "replyToDomain": "{{FQHN}}",
-        "senderEmail": "{{SENDER_EMAIL}}",
-        "supportEmail": "{{SUPPORT_EMAIL}}"
-    },
-    "emailDeliveryService": {
-        "NodeMailer": {}
-    },
-    "outboundEmailServer": {
-        "logger": {
-            "directory": "/opt/mailout/log"
-        }
-    },
-    "queuingEngine": {
-        "rabbitmq": {
-            "host": "{{FQHN}}"
-        }
-    },
-    "sharedSecrets": {
-        "auth": "{{SECRET_AUTH}}",
-        "confirmationCheat": "{{SECRET_CONFIRMATION_CHEAT}}",
-        "cookie": "{{SECRET_COOKIE}}",
-        "mail": "{{SECRET_MAIL}}",
-        "subscriptionCheat": "{{SECRET_SUBSCRIPTION_CHEAT}}",
-        "telemetry": "{{SECRET_TELEMETRY}}"
-    },
-    "ssl": {
-        "cafile": "/opt/config/{{SSL_CA_FILE}}",
-        "certfile": "/opt/config/{{SSL_CERT_FILE}}",
-        "keyfile": "/opt/config/{{SSL_KEY_FILE}}"
-    },
-    "storage": {
-        "mongo": {
-            "url": "mongodb://{{FQHN}}/codestream"
-        }
-    }
+	"apiServer": {
+		"defaultEnv": {
+			"assetEnvironment": "onprem",
+			"authOrigin": "https://my-codestream-proxy.my-company.com/no-auth",
+			"callbackEnvironment": "onprem",
+			"dontWantAWS": true,
+			"logger": {
+				"directory": "/opt/api/log"
+			},
+			"port": 443,
+			"publicApiUrl": "https://{{FQHN}}",
+			"runTimeEnvironment": "onprem",
+			"tmpDirectory": "/opt/api/tmp"
+		}
+	},
+	"broadcastEngine": {
+		"codestreamBroadcaster": {
+			"defaultEnv": {			
+				"host": "{{FQDN}}",
+				"logger": {
+					"directory": "/opt/broadcaster/log"
+				},
+				"secrets": {
+					"api": "{{SECRET_BROADCAST_API}}",
+					"auth": "{{SECRET_BROADCAST_AUTH}}"
+				}
+			}
+		}
+	},
+	"email": {
+		"defaultEnv": {
+			"emailTo": null,
+			"replyToDomain": "{{FQHN}}",
+			"senderEmail": "{{SENDER_EMAIL}}",
+			"supportEmail": "{{SUPPORT_EMAIL}}"
+		}
+	},
+	"emailDeliveryService": {
+		"NodeMailer": {
+			"defaultEnv": {}
+		}
+	},
+	"outboundEmailServer": {
+		"defaultEnv": {
+			"logger": {
+				"directory": "/opt/mailout/log"
+			}
+		}
+	},
+	"queuingEngine": {
+		"rabbitmq": {
+			"defaultEnv": {
+				"host": "{{FQHN}}"
+			}
+		}
+	},
+	"sharedSecrets": {
+		"defaultEnv": {
+			"auth": "{{SECRET_AUTH}}",
+			"confirmationCheat": "{{SECRET_CONFIRMATION_CHEAT}}",
+			"cookie": "{{SECRET_COOKIE}}",
+			"mail": "{{SECRET_MAIL}}",
+			"subscriptionCheat": "{{SECRET_SUBSCRIPTION_CHEAT}}",
+			"telemetry": "{{SECRET_TELEMETRY}}"
+		}
+	},
+	"ssl": {
+		"defaultEnv": {
+			"cafile": "/opt/config/{{SSL_CA_FILE}}",
+			"certfile": "/opt/config/{{SSL_CERT_FILE}}",
+			"keyfile": "/opt/config/{{SSL_KEY_FILE}}"
+		}
+	},
+	"storage": {
+		"mongo": {
+			"defaultEnv": {
+				"url": "mongodb://{{FQHN}}/codestream"
+			}
+		}
+	}
 }

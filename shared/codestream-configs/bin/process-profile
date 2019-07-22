@@ -48,6 +48,20 @@ def blockKey(schema, spaces):
 	return None
 
 
+def loadSecretsFile(secretsFile, schema, repeatingBlockKey, spaces):
+	debugMsg(f"{spaces}loading {args.secrets}/{secretsFile}")
+	secretsData = su.readKeyValueFile(f"{args.secrets}/{secretsFile}")
+	block = {}
+	if repeatingBlockKey:
+		getSectionDefaultsFromSchema(schema[repeatingBlockKey], block, spaces)
+	else:
+		getSectionDefaultsFromSchema(schema, block, spaces)
+	for sProp in list(block.keys()):
+		if sProp in secretsData:
+			block[sProp] = secretsData[sProp]
+	return block
+
+
 # loads a block from the profile, processing special directives like "_loadSecretsFile"
 # Also ensures that no variables in remote files which are not defined in the schema
 # are acceidentally added - enforces the schema!
@@ -70,50 +84,65 @@ def fetchBlockProperties(profileEnvBlock, schema, repeatingBlockKey, spaces):
 
 
 def buildCfgFile(cfg, schema, profile, spaces=''):
-	envParentBlock = True if 'defaultEnv' in profile else False
-	debugMsg(f"{spaces}buildCfgFile: {list(profile.keys())}, envParentBlock = {envParentBlock}")
-	if envParentBlock:
-		# we are processing an environment block (props are environments or defaultEnv)
-		envParent = args.env if su.someValueOrNone(profile, args.env) is None else 'defaultEnv'
-		debugMsg(f"{spaces}diving deeper with envParent = {envParent}, {profile[envParent]}")
-		buildCfgFile(cfg, schema, profile[envParent], f"{spaces}  ")
-		return
+	# envParentBlock = True if 'defaultEnv' in profile else False
+	debugMsg(f"{spaces}buildCfgFile profile keys: {list(profile.keys())}")
+
+	if type(profile) is dict:
+		if 'defaultEnv' in profile:
+			env = args.env if args.env in profile else 'defaultEnv'
+			debugMsg(f"{spaces}processing environment block for env = {env}, {profile[env]}")
+			buildCfgFile(cfg, schema, profile[env], f"{spaces}  ")
+			return
+
+		if '_loadSecretsFile' in profile:
+			profile = loadSecretsFile(profile['_loadSecretsFile'], schema, None, spaces)
+			debugMsg(f"{spaces}secrets loaded from file. block keys are {list(profile.keys())}")
+			buildCfgFile(cfg, schema, profile, f"{spaces}  ")
+			return
+
+		if not profile:
+			debugMsg(f"{spaces}profile is empty dict - setting to defaults")
+			getSectionDefaultsFromSchema(schema, cfg, spaces)
+			return
+
 	blockDefaults = {}
-	if 'defaultEnv' not in profile:
-		getSectionDefaultsFromSchema(schema, blockDefaults, spaces)
+	# if 'defaultEnv' not in profile:
+	# if not envParentBlock:
+	getSectionDefaultsFromSchema(schema, blockDefaults, spaces)
 	fillSection = False
 	for prop in list(profile.keys()):
 		# envBlock = True if 'defaultEnv' in profile[prop] else False
 		# env = args.env if args.env in profile[prop] else 'defaultEnv'
-		envBlock = True if envParentBlock or su.someValueOrNone(profile[prop], 'defaultEnv') is not None else False
-		env = args.env if args.env in profile[prop] else 'defaultEnv'
+		# envBlock = True if envParentBlock or su.someValueOrNone(profile[prop], 'defaultEnv') is not None else False
+		env = args.env if profile[prop] is dict and args.env in profile[prop] else 'defaultEnv'
 		repeatingBlockKeyVar = blockKey(schema, spaces)  # appProvider
 		repeatingBlockKey = f"<{repeatingBlockKeyVar}>" if repeatingBlockKeyVar else None  # <appProvider>
-		debugMsg(f"\n{spaces}=== checking prop = {prop}, envBlock = {envBlock}, env = {env}, repeatingBlockKeyVar = {repeatingBlockKeyVar}")
+		debugMsg(f"\n{spaces}=== checking prop = {prop}, env = {env}, repeatingBlockKeyVar = {repeatingBlockKeyVar}")
 
 		if type(profile[prop]) is dict and not profile[prop]:
 			debugMsg(f"{spaces}1 empty dict in profile - using schema defaults")
 			cfg[prop] = {}
 			getSectionDefaultsFromSchema(schema[prop], cfg[prop], spaces)
-		elif type(profile[prop]) is dict and envBlock:
-			debugMsg(f"{spaces}2 using profile dict for {env}")
-			if repeatingBlockKey:
-				cfg[prop] = fetchBlockProperties(profile[prop][env], schema, repeatingBlockKey, spaces)  # if schema should be schema[prop], we're in trouble!
-			else:
-				cfg[prop] = fetchBlockProperties(profile[prop][env], schema[prop], repeatingBlockKey, spaces)  # if schema[prop] should be schema, we're in trouble!
-			if not cfg[prop]:
-				debugMsg(f"{spaces}2A empty dict for {env}, repeatingBlockKey = {repeatingBlockKey} - using schema defaults")
-				if repeatingBlockKey:
-					getSectionDefaultsFromSchema(schema[repeatingBlockKey], cfg[prop], spaces)
-				else:
-					getSectionDefaultsFromSchema(schema[prop], cfg[prop], spaces)
+		# elif type(profile[prop]) is dict and envBlock:
 		elif type(profile[prop]) is dict:
-			debugMsg(f"{spaces}3 diving deeper on {prop}")
+			debugMsg(f"{spaces}3 diving deeper on {prop}, profile[{prop}] = {profile[prop]}")
 			cfg[prop] = {}
 			if repeatingBlockKey:
 				buildCfgFile(cfg[prop], schema[repeatingBlockKey], profile[prop], f"{spaces}  ")
 			else:
 				buildCfgFile(cfg[prop], schema[prop], profile[prop], f"{spaces}  ")
+		# elif type(profile[prop]) is dict:
+		# 	debugMsg(f"{spaces}2 using profile dict for {env}")
+		# 	if repeatingBlockKey:
+		# 		cfg[prop] = fetchBlockProperties(profile[prop][env], schema, repeatingBlockKey, spaces)  # if schema should be schema[prop], we're in trouble!
+		# 	else:
+		# 		cfg[prop] = fetchBlockProperties(profile[prop][env], schema[prop], repeatingBlockKey, spaces)  # if schema[prop] should be schema, we're in trouble!
+		# 	if not cfg[prop]:
+		# 		debugMsg(f"{spaces}2A empty dict for {env}, repeatingBlockKey = {repeatingBlockKey} - using schema defaults")
+		# 		if repeatingBlockKey:
+		# 			getSectionDefaultsFromSchema(schema[repeatingBlockKey], cfg[prop], spaces)
+		# 		else:
+		# 			getSectionDefaultsFromSchema(schema[prop], cfg[prop], spaces)
 		elif prop in schema:
 			debugMsg(f"{spaces}4 setting scalar")
 			cfg[prop] = profile[prop]

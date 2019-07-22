@@ -1,205 +1,205 @@
 {
-    "apiServer": {
-        "assetEnvironment": "environment used to create and retrieve API assets (local, onprem, dev or prod) [CS_API_ASSET_ENV]",
-        "authOrigin": "origin to use for third-party auth callbacks [CS_API_AUTH_ORIGIN]",
-        "callbackEnvironment": "allows for callbacks through VPN to developers' local servers [CS_API_CALLBACK_ENV]",
-        "confirmCodeExpiration": "how long a confirmation code remains valid (in millisecs, default = 1 week) [CS_API_CONFIRM_CODE_EXPIRATION]",
-        "confirmationExpiration": "how long a token for email confirmation remains valid (in millisecs, default = 1 day) [CS_API_CONFIRMATION_EXPIRATION]",
-        "confirmationNotRequired": "set to true to disable email confirmation [CS_API_CONFIRMATION_NOT_REQUIRED]",
-        "dontWantAWS": "set to true so API server will not use any AWS services [CS_API_DONT_WANT_AWS]",
-        "forgotPasswordExpiration": "how long a token for forgot-password remains valid (in millisecs, default = 1 day) [CS_API_FORGOT_PASSWORD_EXPIRATION]",
-        "helpIsAvailable": "set to true enable API /help [CS_API_HELP_AVAILABLE]",
-        "logger": {
-            "consoleOk": "allow logging to the console [CS_API_LOG_CONSOLE_OK]",
-            "debugOk": "more verbose logging (debug level) [CS_API_DEBUG_OK]",
-            "directory": "directory for api server logs [CS_API_LOGS]"
-        },
-        "mockMode": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC [CS_API_MOCK_MODE]",
-        "port": "Network port for the api service [CS_API_PORT]",
-        "publicApiUrl": "public url to access the API server from beyond [CS_API_PUBLIC_URL]",
-        "runTimeEnvironment": "API run-time environment; use sparingly with preference for more specific params [CS_API_ENV]",
-        "sessionAwayTimeout": "how long before we call a user 'away' from keyboard (in millisecs) [CS_API_SESSION_AWAY_TIMEOUT]",
-        "signupTokenExpiration": "how long a signup token issued by the IDE for a user to signup on web remains valid (in millisecs, default = 10 min) [CS_API_SIGNUP_TOKEN_EXPIRATION]"
-    },
-    "broadcastEngine": {
-        "codestreamBroadcaster": {
-            "assetEnvironment": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod) [CS_BROADCASTER_ASSET_ENV]",
-            "host": "hostname of the broadcaster service (from client point-of-view)",
-            "logger": {
-                "consoleOk": "allow logging to the console [CSSVC_BROADCASTER_LOG_CONSOLE_OK]",
-                "debugOk": "more verbose logging (debug level) [CSSVC_BROADCASTER_DEBUG_OK]",
-                "directory": "directory for broadcaster logs [CSSVC_BROADCASTER_LOGS]"
-            },
-            "port": "Network port for the broadcaster service [CSSVC_BROADCASTER_PORT]",
-            "runTimeEnvironment": "Broadcaster run-time environment; use sparingly with preference for more specific params [CS_BROADCASTER_ENV]",
-            "secrets": {
-                "api": "used to generate json web tokens for authentication tokens passed to the client [CSSVC_BROADCASTER_API_SECRET]",
-                "auth": "used to privilege certain api server requests to the broadcaster service [CSSVC_BROADCASTER_AUTH_SECRET]"
-            }
-        },
-        "pubnub": {
-            "keepAlive": "use pubnub keep-alives",
-            "publicKey": "pubnub publishing key [CSSVC_PUBNUB_PUBLISH_KEY]",
-            "secretKey": "pubnub adminstrative (secret) key [CSSVC_PUBNUB_SECRET]",
-            "ssl": "use SSL for pubnub communications",
-            "subscribeKey": "pubnub subscription key [CSSVC_PUBNUB_SUBSCRIBE_KEY]",
-            "uuid": "description needed"
-        }
-    },
-    "email": {
-        "emailTo": "Divert all email to this address",
-        "notificationInterval": "Frequency email is generated (in millisecs, default = 30 secs)",
-        "replyToDomain": "email domain for routing replies back to codestream",
-        "senderEmail": "all generated emails will be sent as this user",
-        "supportEmail": "support email address to include on email and forms",
-        "suppressEmails": "Stop all email from being sent"
-    },
-    "emailDeliveryService": {
-        "NodeMailer": {
-            "host": "smtp mailer host",
-            "password": "smtp authentication password",
-            "port": "Email submission port",
-            "service": "NodeMailer service type (gmail, ...)",
-            "username": "smtp authentication user"
-        },
-        "sendgrid": {
-            "apiKey": "key to access sendgrid API",
-            "url": ""
-        }
-    },
-    "inboundEmailServer": {
-        "assetEnvironment": "environment used to create and retrieve inbound email service assets (local, onprem, dev, prod, ...) [CS_MAILIN_ASSET_ENV]",
-        "inboundEmailDirectory": "new email files will be delivered to this directory by the mail agent",
-        "logger": {
-            "consoleOk": "allow logging to the console [CS_MAILIN_LOG_CONSOLE_OK]",
-            "debugOk": "more verbose logging (debug level) [CS_MAILIN_DEBUG_OK]",
-            "directory": "directory for inbound email logs [CS_MAILIN_LOGS]"
-        },
-        "processDirectory": "email files will be moved to this directory for processing",
-        "runTimeEnvironment": "Inbound email service run-time environment; use sparingly with preference for more specific params [CS_MAILIN_ENV]",
-        "tempAttachmentDirectory": "attachments in incoming emails will be stored temporarily here"
-    },
-    "integrations": {
-        "asana": {
-            "<appProvider>": {
-                "appClientId": "Asana client Id",
-                "appClientSecret": "Asana secret",
-                "localProvider": "true if service is on-prem"
-            }
-        },
-        "bitbucket": {
-            "<appProvider>": {
-                "appClientId": "Bitbucket API client Id",
-                "appClientSecret": "Bitbucket API secret",
-                "localProvider": "true if service is on-prem"
-            }
-        },
-        "github": {
-            "<appProvider>": {
-                "appClientId": "Github API client Id",
-                "appClientSecret": "Github API secret",
-                "localProvider": "true if service is on-prem"
-            }
-        },
-        "gitlab": {
-            "<appProvider>": {
-                "appClientId": "GitLab API client Id",
-                "appClientSecret": "GitLab API secret",
-                "localProvider": "true if service is on-prem"
-            }
-        },
-        "glip": {
-            "<appProvider>": {
-                "appClientId": "Glip API client Id",
-                "appClientSecret": "Glip API secret",
-                "localProvider": "true if service is on-prem"
-            }
-        },
-        "jira": {
-            "<appProvider>": {
-                "appClientId": "Jira API client Id",
-                "appClientSecret": "Jira API secret",
-                "localProvider": "true if service is on-prem"
-            }
-        },
-        "msteams": {
-            "<appProvider>": {
-                "appClientId": "MS Teams API client Id [CSSVC_MSTEAMS_CLIENT_ID]",
-                "appClientSecret": "MS Teams API secret [CSSVC_MSTEAMS_CLIENT_SECRET]",
-                "localProvider": "true if msteams service is an on-prem installation"
-            }
-        },
-        "slack": {
-            "<appProvider>": {
-                "appClientId": "Slack app client Id",
-                "appClientSecret": "Slack app secret",
-                "localProvider": "true if service is on-prem"
-            }
-        },
-        "trello": {
-            "<appProvider>": {
-                "apiKey": "Trello API key",
-                "localProvider": "true if service is on-prem"
-            }
-        },
-        "youtrack": {
-            "<appProvider>": {
-                "appClientId": "YouTrack API client Id",
-                "appClientSecret": "YouTrack API secret",
-                "localProvider": "true if service is on-prem"
-            }
-        }
-    },
-    "outboundEmailServer": {
-        "assetEnvironment": "environment used to create and retrieve outbound email assets (local, onprem, dev, prod, ...) [CS_OUTBOUND_EMAIL_ASSET_ENV]",
-        "logger": {
-            "consoleOk": "allow logging to the console [CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK]",
-            "debugOk": "more verbose logging (debug level) [CS_MAILIN_DEBUG_OK]",
-            "directory": "directory for outbound email logs [CS_OUTBOUND_EMAIL_LOGS]"
-        },
-        "runTimeEnvironment": "Outbound email run-time environment; use sparingly with preference for more specific params [CS_OUTBOUND_EMAIL_ENV]"
-    },
-    "queuingEngine": {
-        "awsSQS": {
-            "outboundEmailQueueName": "SQS queue name [CSSVC_OUTBOUND_EMAIL_QUEUE_NAME]",
-            "region": "AWS region where queue resides"
-        },
-        "rabbitmq": {
-            "host": "hostname of rabbitMQ service",
-            "outboundEmailQueueName": "RabbitMQ queue name [CSSVC_OUTBOUND_EMAIL_QUEUE_NAME]",
-            "password": "rabbitmq password for authentication",
-            "port": "network port for rabbitmq service",
-            "user": "rabbitmq user for authentication"
-        }
-    },
-    "sharedSecrets": {
-        "auth": "secret used for authentication [CSSVC_AUTH_SECRET]",
-        "confirmationCheat": "for bypassing email confirmation, used for unit testing [CSSVC_CONFIRMATION_CHEAT_CODE]",
-        "cookie": "secret used for permalinks [CSSVC_COOKIE_SECRET]",
-        "mail": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails [CSSVC_INBOUND_EMAIL_SECRET]",
-        "subscriptionCheat": "allows unregistered users to subscribe to their me-channel, for testing emails [CSSVC_SUBSCRIPTION_CHEAT_CODE]",
-        "telemetry": "for accessing the api prior to authentication (pre-auth secret) [CSSVC_PRE_AUTH_SECRET]"
-    },
-    "ssl": {
-        "cafile": "SSL certificate authority bundle (chain) file [CSSVC_SSL_CAFILE]",
-        "certfile": "SSL certificate [CSSVC_SSL_CERTFILE]",
-        "keyfile": "SSL private key file [CSSVC_SSL_KEYFILE]"
-    },
-    "storage": {
-        "mongo": {
-            "url": "mongo connect string [CSSVC_MONGO_URL]"
-        }
-    },
-    "telemetry": {
-        "intercom": {
-            "token": "Intercom Access Token"
-        },
-        "mixpanel": {
-            "token": "Mixpanel API token"
-        },
-        "segment": {
-            "token": "segment token for clients",
-            "webToken": "segment web token for the web app"
-        }
-    }
+	"apiServer": {
+		"assetEnvironment": "environment used to create and retrieve API assets (local, onprem, dev or prod) [CS_API_ASSET_ENV]",
+		"authOrigin": "origin to use for third-party auth callbacks [CS_API_AUTH_ORIGIN]",
+		"callbackEnvironment": "allows for callbacks through VPN to developers' local servers [CS_API_CALLBACK_ENV]",
+		"confirmCodeExpiration": "how long a confirmation code remains valid (in millisecs, default = 1 week) [CS_API_CONFIRM_CODE_EXPIRATION]",
+		"confirmationExpiration": "how long a token for email confirmation remains valid (in millisecs, default = 1 day) [CS_API_CONFIRMATION_EXPIRATION]",
+		"confirmationNotRequired": "set to true to disable email confirmation [CS_API_CONFIRMATION_NOT_REQUIRED]",
+		"dontWantAWS": "set to true so API server will not use any AWS services [CS_API_DONT_WANT_AWS]",
+		"forgotPasswordExpiration": "how long a token for forgot-password remains valid (in millisecs, default = 1 day) [CS_API_FORGOT_PASSWORD_EXPIRATION]",
+		"helpIsAvailable": "set to true enable API /help [CS_API_HELP_AVAILABLE]",
+		"ignoreHttps": "set to true to respond to http instead of https [CS_API_IGNORE_HTTPS]",
+		"logger": {
+			"consoleOk": "allow logging to the console [CS_API_LOG_CONSOLE_OK]",
+			"debugOk": "more verbose logging (debug level) [CS_API_DEBUG_OK]",
+			"directory": "directory for api server logs [CS_API_LOGS]"
+		},
+		"mockMode": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC [CS_API_MOCK_MODE]",
+		"port": "Network port for the api service [CS_API_PORT]",
+		"publicApiUrl": "public url to access the API server from beyond [CS_API_PUBLIC_URL]",
+		"runTimeEnvironment": "API run-time environment; use sparingly with preference for more specific params [CS_API_ENV]",
+		"sessionAwayTimeout": "how long before we call a user 'away' from keyboard (in millisecs) [CS_API_SESSION_AWAY_TIMEOUT]",
+		"signupTokenExpiration": "how long a signup token issued by the IDE for a user to signup on web remains valid (in millisecs, default = 10 min) [CS_API_SIGNUP_TOKEN_EXPIRATION]",
+		"tmpDirectory": "temp directory [CS_API_TMP]"
+	},
+	"broadcastEngine": {
+		"codestreamBroadcaster": {
+			"assetEnvironment": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod) [CS_BROADCASTER_ASSET_ENV]",
+			"host": "hostname of the broadcaster service (from client point-of-view)",
+			"logger": {
+				"consoleOk": "allow logging to the console [CSSVC_BROADCASTER_LOG_CONSOLE_OK]",
+				"debugOk": "more verbose logging (debug level) [CSSVC_BROADCASTER_DEBUG_OK]",
+				"directory": "directory for broadcaster logs [CSSVC_BROADCASTER_LOGS]"
+			},
+			"port": "Network port for the broadcaster service [CSSVC_BROADCASTER_PORT]",
+			"runTimeEnvironment": "Broadcaster run-time environment; use sparingly with preference for more specific params [CS_BROADCASTER_ENV]",
+			"secrets": {
+				"api": "used to generate json web tokens for authentication tokens passed to the client [CSSVC_BROADCASTER_API_SECRET]",
+				"auth": "used to privilege certain api server requests to the broadcaster service [CSSVC_BROADCASTER_AUTH_SECRET]"
+			}
+		},
+		"pubnub": {
+			"keepAlive": "use pubnub keep-alives",
+			"publishKey": "pubnub publishing key [CSSVC_PUBNUB_PUBLISH_KEY]",
+			"secretKey": "pubnub adminstrative (secret) key [CSSVC_PUBNUB_SECRET]",
+			"ssl": "use SSL for pubnub communications",
+			"subscribeKey": "pubnub subscription key [CSSVC_PUBNUB_SUBSCRIBE_KEY]",
+			"uuid": "description needed"
+		}
+	},
+	"email": {
+		"emailTo": "Divert all email to this address",
+		"notificationInterval": "Frequency email is generated (in millisecs, default = 30 secs)",
+		"replyToDomain": "email domain for routing replies back to codestream",
+		"senderEmail": "all generated emails will be sent as this user",
+		"supportEmail": "support email address to include on email and forms",
+		"suppressEmails": "Stop all email from being sent"
+	},
+	"emailDeliveryService": {
+		"NodeMailer": {
+			"host": "smtp mailer host",
+			"password": "smtp authentication password",
+			"port": "Email submission port",
+			"service": "NodeMailer service type (gmail, ...)",
+			"username": "smtp authentication user"
+		},
+		"sendgrid": {
+			"apiSecret": "key to access sendgrid API"
+		}
+	},
+	"inboundEmailServer": {
+		"assetEnvironment": "environment used to create and retrieve inbound email service assets (local, onprem, dev, prod, ...) [CS_MAILIN_ASSET_ENV]",
+		"inboundEmailDirectory": "new email files will be delivered to this directory by the mail agent",
+		"inboundEmailDisabled": "true will not allow inbound emails",
+		"logger": {
+			"consoleOk": "allow logging to the console [CS_MAILIN_LOG_CONSOLE_OK]",
+			"debugOk": "more verbose logging (debug level) [CS_MAILIN_DEBUG_OK]",
+			"directory": "directory for inbound email logs [CS_MAILIN_LOGS]"
+		},
+		"processDirectory": "email files will be moved to this directory for processing",
+		"runTimeEnvironment": "Inbound email service run-time environment; use sparingly with preference for more specific params [CS_MAILIN_ENV]",
+		"tempAttachmentDirectory": "attachments in incoming emails will be stored temporarily here"
+	},
+	"integrations": {
+		"asana": {
+			"<appProvider>": {
+				"appClientId": "Asana client Id",
+				"appClientSecret": "Asana secret"
+			}
+		},
+		"bitbucket": {
+			"<appProvider>": {
+				"appClientId": "Bitbucket API client Id",
+				"appClientSecret": "Bitbucket API secret"
+			}
+		},
+		"devops": {
+			"<appProvider>": {
+				"appClientId": "MS Azure DevOps API client Id [CSSVC_DEVOPS_CLIENT_ID]",
+				"appClientSecret": "MS Azure DevOps API secret [CSSVC_DEVOPS_CLIENT_SECRET]"
+			}
+		},
+		"github": {
+			"<appProvider>": {
+				"appClientId": "Github API client Id",
+				"appClientSecret": "Github API secret"
+			}
+		},
+		"gitlab": {
+			"<appProvider>": {
+				"appClientId": "GitLab API client Id",
+				"appClientSecret": "GitLab API secret"
+			}
+		},
+		"glip": {
+			"<appProvider>": {
+				"appClientId": "Glip API client Id",
+				"appClientSecret": "Glip API secret"
+			}
+		},
+		"jira": {
+			"<appProvider>": {
+				"appClientId": "Jira API client Id",
+				"appClientSecret": "Jira API secret"
+			}
+		},
+		"msteams": {
+			"<appProvider>": {
+				"appClientId": "MS Teams API client Id [CSSVC_MSTEAMS_CLIENT_ID]",
+				"appClientSecret": "MS Teams API secret [CSSVC_MSTEAMS_CLIENT_SECRET]"
+			}
+		},
+		"slack": {
+			"<appProvider>": {
+				"appClientId": "Slack app client Id (legacy scopes)",
+				"appClientSecret": "Slack app secret (legacy scopes)",
+				"appStrictClientId": "Slack strict app client Id (app directory)",
+				"appStrictClientSecret": "Slack strict app secret (app directory)"
+			}
+		},
+		"trello": {
+			"<appProvider>": {
+				"apiKey": "Trello API key"
+			}
+		},
+		"youtrack": {
+			"<appProvider>": {
+				"appClientId": "YouTrack API client Id",
+				"appClientSecret": "YouTrack API secret"
+			}
+		}
+	},
+	"outboundEmailServer": {
+		"assetEnvironment": "environment used to create and retrieve outbound email assets (local, onprem, dev, prod, ...) [CS_OUTBOUND_EMAIL_ASSET_ENV]",
+		"logger": {
+			"consoleOk": "allow logging to the console [CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK]",
+			"debugOk": "more verbose logging (debug level) [CS_MAILIN_DEBUG_OK]",
+			"directory": "directory for outbound email logs [CS_OUTBOUND_EMAIL_LOGS]"
+		},
+		"runTimeEnvironment": "Outbound email run-time environment; use sparingly with preference for more specific params [CS_OUTBOUND_EMAIL_ENV]"
+	},
+	"queuingEngine": {
+		"awsSQS": {
+			"outboundEmailQueueName": "SQS queue name [CSSVC_OUTBOUND_EMAIL_QUEUE_NAME]",
+			"region": "AWS region where queue resides"
+		},
+		"rabbitmq": {
+			"host": "hostname of rabbitMQ service",
+			"outboundEmailQueueName": "RabbitMQ queue name [CSSVC_OUTBOUND_EMAIL_QUEUE_NAME]",
+			"password": "rabbitmq password for authentication",
+			"port": "network port for rabbitmq service",
+			"user": "rabbitmq user for authentication"
+		}
+	},
+	"sharedSecrets": {
+		"auth": "secret used for authentication [CSSVC_AUTH_SECRET]",
+		"confirmationCheat": "for bypassing email confirmation, used for unit testing [CSSVC_CONFIRMATION_CHEAT_CODE]",
+		"cookie": "secret used for permalinks [CSSVC_COOKIE_SECRET]",
+		"mail": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails [CSSVC_INBOUND_EMAIL_SECRET]",
+		"subscriptionCheat": "allows unregistered users to subscribe to their me-channel, for testing emails [CSSVC_SUBSCRIPTION_CHEAT_CODE]",
+		"telemetry": "for accessing the api prior to authentication (pre-auth secret) [CSSVC_PRE_AUTH_SECRET]"
+	},
+	"ssl": {
+		"cafile": "SSL certificate authority bundle (chain) file [CSSVC_SSL_CAFILE]",
+		"certfile": "SSL certificate [CSSVC_SSL_CERTFILE]",
+		"keyfile": "SSL private key file [CSSVC_SSL_KEYFILE]"
+	},
+	"storage": {
+		"mongo": {
+			"url": "mongo connect string [CSSVC_MONGO_URL]"
+		}
+	},
+	"telemetry": {
+		"intercom": {
+			"token": "Intercom Access Token"
+		},
+		"mixpanel": {
+			"token": "Mixpanel API token"
+		},
+		"segment": {
+			"token": "segment token for clients",
+			"webToken": "segment web token for the web app"
+		}
+	}
 }
