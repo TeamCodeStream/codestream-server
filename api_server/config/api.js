@@ -92,4 +92,5 @@ ApiCfg.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/web\\/'];
 // server will use this cookie to store identity token
 ApiCfg.identityCookie = 'tcs';
 
+if (process.env.CS_API_SHOW_CFG) console.log('Config[api]:', ApiCfg);
 module.exports = ApiCfg;

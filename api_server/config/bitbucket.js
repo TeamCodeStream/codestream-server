@@ -23,6 +23,5 @@ else {
 	BitBucketCfg.appClientSecret = process.env.CS_API_BITBUCKET_CLIENT_SECRET;
 }
 
-console.log('bitbucket:', BitBucketCfg);
-process.exit();
+if (process.env.CS_API_SHOW_CFG) console.log('Config[bitbucket]:', BitBucketCfg);
 module.exports = BitBucketCfg;

@@ -20,4 +20,5 @@ else {
 LoggerCfg.basename = 'api';                                   // use this for the basename of the log file
 LoggerCfg.retentionPeriod = 30 * 24 * 60 * 60 * 1000;         // retain log files for this many milliseconds
 
+if (process.env.CS_API_SHOW_CFG) console.log('Config[logger]:', LoggerCfg);
 module.exports = LoggerCfg;

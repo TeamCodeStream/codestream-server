@@ -2,9 +2,20 @@
 
 'use strict';
 
-let EmailCfg = {};
-if (process.env.CS_API_CFG_FILE) {
-	EmailCfg = require(process.env.CS_API_CFG_FILE).email;
+const structuredCfgFile = require('../codestream-configs/lib/structured_config');
+
+let EmailCfg = {
+	replyToDomain: null,
+	notificationInterval: null,
+	suppressEmails: null,
+	inboundEmailDisabled: null
+};
+
+let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
+if (CfgFileName) {
+	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
+	EmailCfg = CfgData.getSection('email');
+	EmailCfg.inboundEmailDisabled = CfgData.getProperty('inboundEmailServer.inboundEmailDisabled');
 }
 else {
 	EmailCfg.replyToDomain = process.env.CS_API_REPLY_TO_DOMAIN;	// reply to will be like <streamId>@dev.codestream.com
@@ -13,4 +24,5 @@ else {
 	EmailCfg.inboundEmailDisabled = process.env.CS_API_INBOUND_EMAIL_DISABLED;	// don't allow inbound emails
 }
 
+if (process.env.CS_API_SHOW_CFG) console.log('Config[email]:', EmailCfg);
 module.exports = EmailCfg;

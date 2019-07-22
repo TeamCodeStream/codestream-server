@@ -22,4 +22,5 @@ else {
 	MsTeamsCfg.appClientSecret = process.env.CS_API_MSTEAMS_CLIENT_SECRET;
 }
 
+if (process.env.CS_API_SHOW_CFG) console.log('Config[msteams]:', MsTeamsCfg);
 module.exports = MsTeamsCfg;

@@ -2,9 +2,14 @@
 
 'use strict';
 
+const structuredCfgFile = require('../codestream-configs/lib/structured_config');
+
 let RabbitCfg = {};
-if (process.env.CS_API_CFG_FILE) {
-	RabbitCfg = require(process.env.CS_API_CFG_FILE).queuingEngine.rabbitmq;
+
+let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
+if (CfgFileName) {
+	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
+	RabbitCfg = CfgData.getSection('queuingEngine.rabbitmq');
 }
 else {
 	RabbitCfg = {
@@ -15,4 +20,5 @@ else {
 	};
 }
 
+if (process.env.CS_API_SHOW_CFG) console.log('Config[rabbitmq]:', RabbitCfg);
 module.exports = RabbitCfg;

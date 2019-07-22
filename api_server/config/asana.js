@@ -18,4 +18,5 @@ else {
 	AsanaCfg.appClientSecret = process.env.CS_API_ASANA_CLIENT_SECRET;
 }
 
+if (process.env.CS_API_SHOW_CFG) console.log('Config[asana]:', AsanaCfg);
 module.exports = AsanaCfg;

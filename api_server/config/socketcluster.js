@@ -30,4 +30,5 @@ else {
 	};
 }
 
+if (process.env.CS_API_SHOW_CFG) console.log('Config[socketcluster]:', ClusterCfg);
 module.exports = ClusterCfg;

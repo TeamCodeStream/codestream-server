@@ -22,4 +22,5 @@ else {
 	GlipCfg.appClientSecret = process.env.CS_API_GLIP_CLIENT_SECRET;
 }
 
+if (process.env.CS_API_SHOW_CFG) console.log('Config[glip]:', GlipCfg);
 module.exports = GlipCfg;

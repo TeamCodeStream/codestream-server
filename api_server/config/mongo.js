@@ -47,4 +47,5 @@ MongoCfg.queryLogging = { // we write a separate log file for mongo queries, and
 	]
 };
 
+if (process.env.CS_API_SHOW_CFG) console.log('Config[mongo]:', MongoCfg);
 module.exports = MongoCfg;
