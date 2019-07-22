@@ -23,7 +23,7 @@
 	},
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
-			"defaultEnv": {			
+			"defaultEnv": {
 				"host": "{{FQDN}}",
 				"logger": {
 					"directory": "/opt/broadcaster/log"

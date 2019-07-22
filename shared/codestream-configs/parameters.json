@@ -580,6 +580,7 @@
 			"directory": {
 				"desc": "directory for outbound email logs",
 				"env": "CS_OUTBOUND_EMAIL_LOGS",
+				"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/log",
 				"envRequired": true
 			},
 			"consoleOk": {
@@ -592,6 +593,11 @@
 				"env": "CS_MAILIN_DEBUG_OK",
 				"default": false
 			}
+		},
+		"tmpDirectory": {
+			"desc": "temp directory",
+			"env": "CS_OUTBOUND_EMAIL_TMP",
+			"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/tmp"
 		}
 	}
 }

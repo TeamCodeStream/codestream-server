@@ -22,15 +22,15 @@
 	"email": {
 		"defaultEnv": {}
 	},
-	"inboundEmailServer": {
-		"defaultEnv": {}
-	},
 	"emailDeliveryService": {
 		"sendgrid": {
 			"defaultEnv": {
 				"_loadSecretsFile": "sendgrid/dev.cfg"
 			}
 		}
+	},
+	"inboundEmailServer": {
+		"defaultEnv": {}
 	},
 	"integrations": {
 		"asana": {
@@ -50,6 +50,16 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "bitbucket/prod.cfg"
+				}
+			}
+		},
+		"devops": {
+			"microsoft.com": {
+				"defaultEnv": {
+					"_loadSecretsFile": "microsoft/devops-dev.cfg"
+				},
+				"prod": {
+					"_loadSecretsFile": "microsoft/devops-prod.cfg"
 				}
 			}
 		},
@@ -110,21 +120,14 @@
 				}
 			}
 		},
-		"devops": {
-			"microsoft.com": {
-				"prod": {
-					"_loadSecretsFile": "microsoft/devops-prod.cfg"
-				},
-				"defaultEnv": {
-					"_loadSecretsFile": "microsoft/devops-dev.cfg"
-				}
-			}
-		},
 		"youtrack": {
 			"jetbrains.com": {
 				"defaultEnv": {}
 			}
 		}
+	},
+	"outboundEmailServer": {
+		"defaultEnv": {}
 	},
 	"queuingEngine": {
 		"awsSQS": {
