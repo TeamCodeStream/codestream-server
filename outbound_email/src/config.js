@@ -2,49 +2,62 @@
 
 'use strict';
 
+const structuredCfgFile = require('../src/codestream-configs/lib/structured_config');
+
 let Cfg = {
-	maxPostsPerEmail: 25	// maximum number of posts in an email notification
+	maxPostsPerEmail: 25,	// maximum number of posts in an email notification
+	logging: {
+		basename: 'outbound-email',					// use this for the basename of the log file
+		retentionPeriod: 30 * 24 * 60 * 60 * 1000	// retain log files for this many milliseconds
+	}
 };
 
-Cfg.logging = {
-	basename: 'outbound-email',					// use this for the basename of the log file
-	retentionPeriod: 30 * 24 * 60 * 60 * 1000	// retain log files for this many milliseconds
-};
-
-let CfgFileName = process.env.CS_OUTBOUND_EMAIL_CFG_FILE || process.env.CODESTREAM_CFG_FILE;
+let CfgFileName = process.env.CS_OUTBOUND_EMAIL_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
-	let CfgFile = require(CfgFileName);
-	Cfg.mongo = CfgFile.mongo;
-	Cfg.mongo.hintsRequired = true;
+	const CfgData = new structuredCfgFile( {configFile: CfgFileName} );
+	Cfg.logging.consoleOk = CfgData.getProperty('outboundEmailServer.logger.consoleOk');
+	Cfg.logging.debugOk = CfgData.getProperty('outboundEmailServer.logger.debugOk');
+	Cfg.logging.directory = CfgData.getProperty('outboundEmailServer.logger.directory');
+	// Cfg.logging.directory = CfgFile.outboundMailLogging.directory;
+	// Cfg.logging.consoleOk = CfgFile.outboundMailLogging.consoleOk;
 
-	Cfg.pubnub = CfgFile.broadcastEngine.pubnub;
+	Cfg.mongo = {};
+	Cfg.mongo.url = CfgData.getProperty('outboundEmailServer.storage.mongo.url') || CfgData.getProperty('storage.mongo.url');
+	Cfg.mongo.database = CfgData._mongoUrlParse(Cfg.mongo.url).database;
+	// Cfg.mongo = CfgFile.mongo;
+	// Cfg.mongo.hintsRequired = true;
+
+	Cfg.pubnub = CfgData.getSection('broadcastEngine.pubnub');
+	// FIXME - this overrides the value in the config file
 	Cfg.pubnub.uuid = 'OutboundEmailServer';
+	Cfg.socketCluster = CfgData.getSection('broadcastEngine.broadcaster');
+	// Cfg.pubnub = CfgFile.broadcastEngine.pubnub;
+	// Cfg.socketCluster = {
+	// 	host: CfgFile.broadcastEngine.codestreamBroadcaster.host,
+	// 	port: CfgFile.broadcastEngine.codestreamBroadcaster.port,
+	// 	broadcasterSecret: CfgFile.broadcastEngine.codestreamBroadcaster.secrets.api
+	// };
 
-	Cfg.socketCluster = {
-		host: CfgFile.broadcastEngine.codestreamBroadcaster.host,
-		port: CfgFile.broadcastEngine.codestreamBroadcaster.port,
-		broadcasterSecret: CfgFile.broadcastEngine.codestreamBroadcaster.secrets.api
-	};
+	Cfg.sendgrid = CfgData.getSection('emailDeliveryService.sendgrid');
+	Cfg.sendgrid.emailTo = CfgData.getProperty('email.emailTo');
+	// Cfg.sendgrid = CfgFile.emailDeliveryService.sendgrid;
 
-	Cfg.sendgrid = CfgFile.emailDeliveryService.sendgrid;
+	Cfg.smtp = CfgData.getSection('emailDeliveryService.NodeMailer');
+	Cfg.smtp.emailTo = CfgData.getProperty('email.emailTo');
+	// Cfg.smtp = CfgFile.emailDeliveryService.NodeMailer;
 
-	Cfg.logging.directory = CfgFile.outboundMailLogging.directory;
-	Cfg.logging.consoleOk = CfgFile.outboundMailLogging.consoleOk;
-
-	Cfg.rabbitmq = CfgFile.queuingEngine.rabbitmq;
-
-	Cfg.notificationInterval = CfgFile.email.notificationInterval;
-	Cfg.replyToDomain = CfgFile.email.replyToDomain;
-	Cfg.senderEmail = CfgFile.email.senderEmail;
-	Cfg.supportEmail = CfgFile.email.supportEmail;
-	Cfg.inboundEmailDisabled = CfgFile.email.inboundEmailDisabled;
-
+	Cfg.rabbitmq = CfgData.getSection('queuingEngine.rabbitmq');
+	Cfg.outboundEmailQueueName = Cfg.rabbitmq.outboundEmailQueueName ? Cfg.rabbitmq : CfgData.getProperty('queuingEngine.awsSQS.sqs.outboundEmailQueueName');
 	// SQS queue for queueing outbound email messages
-	Cfg.outboundEmailQueueName = CfgFile.queuingEngine.awsSQS.sqs.outboundEmailQueueName;
+	// Cfg.outboundEmailQueueName = CfgFile.queuingEngine.awsSQS.sqs.outboundEmailQueueName;
+	// Cfg.rabbitmq = CfgFile.queuingEngine.rabbitmq;
 
-	Cfg.sessionAwayTimeout = CfgFile.apiServer.sessionAwayTimeout;
-
-	Cfg.smtp = CfgFile.emailDeliveryService.NodeMailer;
+	Cfg.notificationInterval = CfgData.getProperty('email.notificationInterval');
+	Cfg.replyToDomain = CfgData.getProperty('email.replyToDomain');
+	Cfg.senderEmail = CfgData.getProperty('email.senderEmail');
+	Cfg.supportEmail = CfgData.getProperty('email.supportEmail');
+	Cfg.sessionAwayTimeout = CfgData.getProperty('apiServer.sessionAwayTimeout');
+	Cfg.inboundEmailDisabled = CfgData.getProperty('inboundEmailServer.inboundEmailDisabled');
 }
 else {
 	// mongo url can come from either a raw supplied url or from individual components,
@@ -136,4 +149,6 @@ else {
 	};
 }
 
+if (process.env.CS_OUTBOUND_EMAIL_SHOW_CFG) console.log('Config[config]:', Cfg);
+process.exit();
 module.exports = Cfg;
