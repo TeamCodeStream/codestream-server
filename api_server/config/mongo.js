@@ -16,7 +16,21 @@ MongoCfg.queryLogging = { // we write a separate log file for mongo queries, and
 	slowBasename: 'slow-mongo-query',
 	slowThreshold: 100, // queries that take longer than this go to the slow query log
 	reallySlowBasename: 'really-slow-mongo-query',
-	reallySlowThreshold: 1000 // queries that take longer than this go to the "really slow" query log
+	reallySlowThreshold: 1000, // queries that take longer than this go to the "really slow" query log
+	noLogData: [
+		{
+			collection: 'posts',
+			fields: ['text']
+		},
+		{
+			collection: 'codemarks',
+			fields: ['text', 'title']
+		},
+		{
+			collection: 'markers',
+			fields: ['code']
+		}
+	]
 };
 
 module.exports = MongoCfg;
