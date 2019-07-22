@@ -104,7 +104,7 @@
 	// Broadcasting - choose one
 	"broadcastEngine": {
 		"pubnub": {
-			"publicKey": {
+			"publishKey": {
 				"desc": "pubnub publishing key",
 				"env": "CSSVC_PUBNUB_PUBLISH_KEY",
 				"required": true
@@ -362,10 +362,6 @@
 				},
 				"appClientSecret": {
 					"desc": "Jira API secret"
-				},
-				"localProvider": {
-					"desc": "true if service is on-prem",
-					"default": false
 				}
 			}
 		},
@@ -388,6 +384,18 @@
 				"appClientSecret": {
 					"env": "CSSVC_MSTEAMS_CLIENT_SECRET",
 					"desc": "MS Teams API secret"
+				}
+			}
+		},
+		"devops": {
+			"<appProvider>": {
+				"appClientId": {
+					"env": "CSSVC_DEVOPS_CLIENT_ID",
+					"desc": "MS Azure DevOps API client Id"
+				},
+				"appClientSecret": {
+					"env": "CSSVC_DEVOPS_CLIENT_SECRET",
+					"desc": "MS Azure DevOps API secret"
 				}
 			}
 		},
@@ -414,6 +422,11 @@
 			"desc": "Network port for the api service",
 			"env": "CS_API_PORT",
 			"default": 12079
+		},
+		"ignoreHttps": {
+			"desc": "set to true to respond to http instead of https",
+			"env": "CS_API_IGNORE_HTTPS",
+			"default": false
 		},
 		"confirmationNotRequired": {
 			"desc": "set to true to disable email confirmation",
@@ -507,6 +520,10 @@
 	},
 
 	"inboundEmailServer": {
+		"inboundEmailDisabled": {
+			"desc": "true will not allow inbound emails",
+			"default": false
+		},
 		"inboundEmailDirectory": {
 			"desc": "new email files will be delivered to this directory by the mail agent",
 			"default": "${CS_MAILIN_SANDBOX}/mailq/new"

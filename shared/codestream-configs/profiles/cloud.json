@@ -19,7 +19,12 @@
 			}
 		}
 	},
-	"email": {},
+	"email": {
+		"defaultEnv": {}
+	},
+	"inboundEmailServer": {
+		"defaultEnv": {}
+	},
 	"emailDeliveryService": {
 		"sendgrid": {
 			"defaultEnv": {
@@ -102,6 +107,16 @@
 			"trello.com": {
 				"defaultEnv": {
 					"_loadSecretsFile": "trello/codestreamops.cfg"
+				}
+			}
+		},
+		"devops": {
+			"microsoft.com": {
+				"prod": {
+					"_loadSecretsFile": "microsoft/devops-prod.cfg"
+				},
+				"defaultEnv": {
+					"_loadSecretsFile": "microsoft/devops-dev.cfg"
 				}
 			}
 		},
