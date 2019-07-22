@@ -86,7 +86,7 @@ def buildCfgFile(cfg, schema, profile, spaces=''):
 		# envBlock = True if 'defaultEnv' in profile[prop] else False
 		# env = args.env if args.env in profile[prop] else 'defaultEnv'
 		envBlock = True if envParentBlock or su.someValueOrNone(profile[prop], 'defaultEnv') is not None else False
-		env = args.env if su.someValueOrNone(profile[prop], args.env) else 'defaultEnv'
+		env = args.env if args.env in profile[prop] else 'defaultEnv'
 		repeatingBlockKeyVar = blockKey(schema, spaces)  # appProvider
 		repeatingBlockKey = f"<{repeatingBlockKeyVar}>" if repeatingBlockKeyVar else None  # <appProvider>
 		debugMsg(f"\n{spaces}=== checking prop = {prop}, envBlock = {envBlock}, env = {env}, repeatingBlockKeyVar = {repeatingBlockKeyVar}")
