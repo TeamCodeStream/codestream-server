@@ -228,7 +228,11 @@
 	// Email delivery services - choose one
 	"emailDeliveryService": {
 		"sendgrid": {
-			"apiSecret": {
+			"url": {
+				"desc": "sendgrid api uri",
+				"default": "/v3/mail/send"
+			},
+			"apiKey": {
 				"desc": "key to access sendgrid API",
 				"required": true
 			}
@@ -598,6 +602,14 @@
 			"desc": "temp directory",
 			"env": "CS_OUTBOUND_EMAIL_TMP",
 			"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/tmp"
+		},
+		"storage": {
+			"mongo": {
+				"url": {
+					"desc": "optional override for mongo connect string",
+					"env": "CSSVC_MAILOUT_MONGO_URL"
+				}
+			}
 		}
 	}
 }
