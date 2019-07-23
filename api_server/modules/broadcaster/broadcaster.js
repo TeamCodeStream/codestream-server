@@ -30,6 +30,7 @@ class Broadcaster extends APIServerModule {
 
 	async connectToSocketCluster () {
 		this.api.log('Connecting to SocketCluster...');
+		this.api.log('SOCKETCLUSTER CONFIG: ' + JSON.stringify(this.api.config.socketCluster, undefined, 5));
 		const config = Object.assign({}, this.api.config.socketCluster, {
 			logger: this.api,
 			uid: 'API'
