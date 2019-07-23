@@ -26,6 +26,13 @@ class SocketClusterClient {
 			this.socket.on('connect', () => {
 				this._connected = true;
 				resolve();
+
+				this._log('SENDING AUTH: ' + this.config.authKey);
+				this.socket.emit('auth', {
+					token: this.config.authKey,
+					uid: this.config.uid,
+					subscriptionCheat: this.config.subscriptionCheat
+				});
 			});
 			this.socket.on('error', error => {
 				if (!this._connected) {
@@ -37,13 +44,6 @@ class SocketClusterClient {
 
 			this.socket.on('authed', this._handleAuthed.bind(this));
 			this.socket.on('subscribedUsers', this._handleSubscribedUsers.bind(this));
-
-			this._log('SENDING AUTH: ' + this.config.authKey);
-			this.socket.emit('auth', {
-				token: this.config.authKey,
-				uid: this.config.uid,
-				subscriptionCheat: this.config.subscriptionCheat
-			});
 		});
 	}
 
