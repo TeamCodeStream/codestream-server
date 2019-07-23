@@ -470,7 +470,7 @@
 		"publicApiUrl": {
 			"desc": "public url to access the API server from beyond",
 			"env": "CS_API_PUBLIC_URL",
-			"default": "https://localhost.codestream.us"
+			"default": "https://localhost.codestream.us:12079"
 		},
 		"authOrigin": {
 			"desc": "origin to use for third-party auth callbacks",
