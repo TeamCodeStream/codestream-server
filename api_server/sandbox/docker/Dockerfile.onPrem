@@ -5,6 +5,7 @@ ADD config /opt/api/api_server/config
 ADD lib /opt/api/api_server/lib
 ADD modules /opt/api/api_server/modules
 ADD server_utils /opt/api/api_server/server_utils
+ADD codestream-configs /opt/api/api_server/codestream-configs
 ADD etc/webmail_companies.js /opt/api/api_server/etc/webmail_companies.js
 ADD bin/api_server.js /opt/api/api_server/bin/api_server.js
 ADD bin/cs_api-start-docker /opt/api/api_server/bin/cs_api-start-docker
@@ -25,6 +26,7 @@ EXPOSE 443
 
 ENV CS_API_TOP=/opt/api/api_server
 ENV CS_API_CFG_FILE=/opt/config/codestream-services-config.json
+ENV CS_API_SHOW_CFG=1
 # ENV AWS_ACCESS_KEY_ID=
 # ENV AWS_SECRET_ACCESS_KEY=
 
