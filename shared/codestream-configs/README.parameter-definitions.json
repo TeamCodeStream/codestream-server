@@ -65,7 +65,8 @@
 			"username": "smtp authentication user"
 		},
 		"sendgrid": {
-			"apiSecret": "key to access sendgrid API"
+			"apiKey": "key to access sendgrid API",
+			"url": "sendgrid api uri"
 		}
 	},
 	"inboundEmailServer": {
@@ -157,7 +158,13 @@
 			"debugOk": "more verbose logging (debug level) [CS_MAILIN_DEBUG_OK]",
 			"directory": "directory for outbound email logs [CS_OUTBOUND_EMAIL_LOGS]"
 		},
-		"runTimeEnvironment": "Outbound email run-time environment; use sparingly with preference for more specific params [CS_OUTBOUND_EMAIL_ENV]"
+		"runTimeEnvironment": "Outbound email run-time environment; use sparingly with preference for more specific params [CS_OUTBOUND_EMAIL_ENV]",
+		"storage": {
+			"mongo": {
+				"url": "optional override for mongo connect string [CSSVC_MAILOUT_MONGO_URL]"
+			}
+		},
+		"tmpDirectory": "temp directory [CS_OUTBOUND_EMAIL_TMP]"
 	},
 	"queuingEngine": {
 		"awsSQS": {

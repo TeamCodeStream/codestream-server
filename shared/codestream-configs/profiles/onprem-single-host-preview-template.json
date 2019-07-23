@@ -24,7 +24,7 @@
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
 			"defaultEnv": {
-				"host": "{{FQDN}}",
+				"host": "{{FQHN}}",
 				"logger": {
 					"directory": "/opt/broadcaster/log"
 				},
@@ -40,7 +40,8 @@
 			"emailTo": null,
 			"replyToDomain": "{{FQHN}}",
 			"senderEmail": "{{SENDER_EMAIL}}",
-			"supportEmail": "{{SUPPORT_EMAIL}}"
+			"supportEmail": "{{SUPPORT_EMAIL}}",
+			"suppressEmails": false
 		}
 	},
 	"emailDeliveryService": {

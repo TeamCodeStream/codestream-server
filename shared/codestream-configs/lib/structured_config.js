@@ -85,7 +85,7 @@ class StructuredConfigFile {
 	}
 
 	_interpolate(template, context) {
-		if (!template) {
+		if (!template || typeof(tempate) != 'string' ) {
 			return template;
 		}
 		const TokenSanitizeRegex = /\$\{(?:\W*)?(\w*?)(?:[\W\d]*)\}/g;
