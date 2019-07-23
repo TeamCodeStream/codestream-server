@@ -16,6 +16,7 @@ class CodeStream {
 		this.addMiddlware();
 		this.addConnectionListeners();
 		this.logger = new SimpleFileLogger(Config.logger);
+		this.logger.log('CODESTREAM CONFIG: ' + JSON.stringify(Config, undefined, 5));
 		this.connectToMongo();
 	}
 
@@ -178,6 +179,7 @@ class CodeStream {
 	
 	// handle an client trying to authorize their socket connection
 	async handleAuth (socket, data) {
+		this.logger.log('RECEIVED AUTH: ' + JSON.stringify(data, undefined, 5));
 		if (!data.token) {
 			return socket.emit('error', new Error('AuthError: no auth token provided'));
 		}
