@@ -126,7 +126,7 @@ class MongoClient {
 			slowLogger: this.config.slowLogger,
 			reallySlowLogger: this.config.reallySlowLogger,
 			hintsRequired: this.config.hintsRequired,
-			noLogData: this.config.queryLogging.noLogData
+			noLogData: (this.config.queryLogging || {}).noLogData
 		});
 	}
 
