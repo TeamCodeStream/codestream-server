@@ -19,5 +19,5 @@ export CS_OUTBOUND_EMAIL_TMP=`eval echo $(get-json-property -j $cfgFile -p outbo
 export CS_OUTBOUND_EMAIL_ASSET_ENV=`eval echo $(get-json-property -j $cfgFile -p outboundEmailServer.assetEnvironment)`
 export CS_OUTBOUND_EMAIL_ENV=`eval echo $(get-json-property -j $cfgFile -p outboundEmailServer.runTimeEnvironment)`
 
-# this sets CS_API_CALLBACK_ENV
-#set_callback_env
+export CSSVC_TUNNEL_IP=$(sandutil_get_tunnel_ip fallbackLocalIp)
+echo "VPN tunnel IP (CSSVC_TUNNEL_IP): $CSSVC_TUNNEL_IP"
