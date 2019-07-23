@@ -256,7 +256,7 @@ class EmailTest {
 		this.channelName = `stream-${this.stream.id}`;
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this, this.channelName),
-			10000
+			8000
 		);
 
 		// subscribe to the channel of interest

@@ -12,7 +12,7 @@ const EmailTests = require('./email_tests');
 // tests where we expect processing the file to fail, and we expect no post as
 // as result
 describe('Inbound Email', function() {
-	this.timeout(30000);
+	this.timeout(10000);
 
 	Async.forEachSeries(
 		EmailTests,
@@ -20,11 +20,13 @@ describe('Inbound Email', function() {
 			// invoke an instance of the test class, define before callback,
 			// and then define the actual test
 			let emailTest = new EmailTest(test);
-			before(emailTest.before.bind(emailTest));
-			after(emailTest.after.bind(emailTest));
+			describe(emailTest.description, () => {
+				before(emailTest.before.bind(emailTest));
+				after(emailTest.after.bind(emailTest));
 
-			it(emailTest.it, itCallback => {
-				emailTest.run(itCallback);
+				it(emailTest.it, itCallback => {
+					emailTest.run(itCallback);
+				});
 			});
 			forEachCallback();
 		}
