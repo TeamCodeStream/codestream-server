@@ -20,98 +20,172 @@
 //     (for example github.com and a Github Enterprise Server on-prem)
 
 {
-	// Default SSL certificate (assumes wildcard usable with all services)
-	"ssl": {
-		"certfile": {
-			"desc": "SSL certificate",
-			"env": "CSSVC_SSL_CERTFILE",
-			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-crt"
+	"apiServer": {
+		"assetEnvironment": {
+			"default": "local",
+			"desc": "environment used to create and retrieve API assets (local, onprem, dev or prod)",
+			"env": "CS_API_ASSET_ENV"
 		},
-		"cafile": {
-			"desc": "SSL certificate authority bundle (chain) file",
-			"env": "CSSVC_SSL_CAFILE",
-			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-ca"
+		"authOrigin": {
+			"default": "https://auth.codestream.us/no-auth",
+			"desc": "origin to use for third-party auth callbacks",
+			"env": "CS_API_AUTH_ORIGIN"
 		},
-		"keyfile": {
-			"desc": "SSL private key file",
-			"env": "CSSVC_SSL_KEYFILE",
-			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-key"
+		"callbackEnvironment": {
+			"default": "${CS_API_CALLBACK_ENV}",
+			"desc": "allows for callbacks through VPN to developers' local servers",
+			"env": "CS_API_CALLBACK_ENV",
+			"required": true
+		},
+		"confirmCodeExpiration": {
+			"default": 604800000,
+			"desc": "how long a confirmation code remains valid (in millisecs, default = 1 week)",
+			"env": "CS_API_CONFIRM_CODE_EXPIRATION"
+		},
+		"confirmationExpiration": {
+			"default": 86400000,
+			"desc": "how long a token for email confirmation remains valid (in millisecs, default = 1 day)",
+			"env": "CS_API_CONFIRMATION_EXPIRATION"
+		},
+		"confirmationNotRequired": {
+			"default": false,
+			"desc": "set to true to disable email confirmation",
+			"env": "CS_API_CONFIRMATION_NOT_REQUIRED"
+		},
+		"dontWantAWS": {
+			"default": false,
+			"desc": "set to true so API server will not use any AWS services",
+			"env": "CS_API_DONT_WANT_AWS"
+		},
+		"forgotPasswordExpiration": {
+			"default": 86400000,
+			"desc": "how long a token for forgot-password remains valid (in millisecs, default = 1 day)",
+			"env": "CS_API_FORGOT_PASSWORD_EXPIRATION"
+		},
+		"helpIsAvailable": {
+			"default": false,
+			"desc": "set to true enable API /help",
+			"env": "CS_API_HELP_AVAILABLE"
+		},
+		"ignoreHttps": {
+			"default": false,
+			"desc": "set to true to respond to http instead of https",
+			"env": "CS_API_IGNORE_HTTPS"
+		},
+		"logger": {
+			"consoleOk": {
+				"default": true,
+				"desc": "allow logging to the console",
+				"env": "CS_API_LOG_CONSOLE_OK"
+			},
+			"debugOk": {
+				"default": false,
+				"desc": "more verbose logging (debug level)",
+				"env": "CS_API_DEBUG_OK"
+			},
+			"directory": {
+				"default": "${CS_API_SANDBOX}/log",
+				"desc": "directory for api server logs",
+				"env": "CS_API_LOGS",
+				"envRequired": true
+			}
+		},
+		"mockMode": {
+			"default": false,
+			"desc": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC",
+			"env": "CS_API_MOCK_MODE"
+		},
+		"port": {
+			"default": 12079,
+			"desc": "Network port for the api service",
+			"env": "CS_API_PORT"
+		},
+		"publicApiUrl": {
+			"default": "https://localhost.codestream.us:12079",
+			"desc": "public url to access the API server from beyond",
+			"env": "CS_API_PUBLIC_URL"
+		},
+		"runTimeEnvironment": {
+			"default": "local",
+			"desc": "API run-time environment; use sparingly with preference for more specific params",
+			"env": "CS_API_ENV"
+		},
+		"sessionAwayTimeout": {
+			"default": 600000,
+			"desc": "how long before we call a user 'away' from keyboard (in millisecs)",
+			"env": "CS_API_SESSION_AWAY_TIMEOUT"
+		},
+		"signupTokenExpiration": {
+			"default": 600000,
+			"desc": "how long a signup token issued by the IDE for a user to signup on web remains valid (in millisecs, default = 10 min)",
+			"env": "CS_API_SIGNUP_TOKEN_EXPIRATION"
+		},
+		"tmpDirectory": {
+			"default": "${CS_API_SANDBOX}/tmp",
+			"desc": "temp directory",
+			"env": "CS_API_TMP"
 		}
 	},
-
-	// Core secrets shared by all services
-	"sharedSecrets": {
-		"auth": {
-			"desc": "secret used for authentication",
-			"env": "CSSVC_AUTH_SECRET",
-			"default": "AuthSecret"
-		},
-		"cookie": {
-			"desc": "secret used for permalinks",
-			"env": "CSSVC_COOKIE_SECRET",
-			"default": "CookieSecret"
-		},
-		"confirmationCheat": {
-			"desc": "for bypassing email confirmation, used for unit testing",
-			"env": "CSSVC_CONFIRMATION_CHEAT_CODE",
-			"default": "ConfirmationCheatCode"
-		},
-		"subscriptionCheat": {
-			"desc": "allows unregistered users to subscribe to their me-channel, for testing emails",
-			"env": "CSSVC_SUBSCRIPTION_CHEAT_CODE",
-			"default": "SubscriptionCheatCode"
-		},
-		"mail": {
-			"desc": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails",
-			"env": "CSSVC_INBOUND_EMAIL_SECRET",
-			"default": "InboundEmailSecret"
-		},
-		"telemetry": {
-			"desc": "for accessing the api prior to authentication (pre-auth secret)",
-			"env": "CSSVC_PRE_AUTH_SECRET",
-			"required": "PreAuthSecret"
-		}
-	},
-
-	// Core email settings
-	"email": {
-		"emailTo": {
-			"desc": "Divert all email to this address",
-			"default": "${DT_USER}@codestream.com"
-		},
-		"senderEmail": {
-			"desc": "all generated emails will be sent as this user",
-			"default": "local_alerts@codestream.com"
-		},
-		"supportEmail": {
-			"desc": "support email address to include on email and forms",
-			"default": "local_support@codestream.com"
-		},
-		"suppressEmails": {
-			"desc": "Stop all email from being sent",
-			"default": true
-		},
-		"replyToDomain": {
-			"desc": "email domain for routing replies back to codestream",
-			"default": "local.codestream.com"
-		},
-		"notificationInterval": {
-			"desc": "Frequency email is generated (in millisecs, default = 30 secs)",
-			"default": 300000
-		}
-	},
-		
-	// Broadcasting - choose one
 	"broadcastEngine": {
+		"codestreamBroadcaster": {
+			"assetEnvironment": {
+				"default": "local",
+				"desc": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod)",
+				"env": "CS_BROADCASTER_ASSET_ENV"
+			},
+			"host": {
+				"default": "localhost.codestream.us",
+				"desc": "hostname of the broadcaster service (from client point-of-view)"
+			},
+			"logger": {
+				"consoleOk": {
+					"default": true,
+					"desc": "allow logging to the console",
+					"env": "CSSVC_BROADCASTER_LOG_CONSOLE_OK"
+				},
+				"debugOk": {
+					"default": false,
+					"desc": "more verbose logging (debug level)",
+					"env": "CSSVC_BROADCASTER_DEBUG_OK"
+				},
+				"directory": {
+					"default": "${CS_BROADCASTER_LOGS}",
+					"desc": "directory for broadcaster logs",
+					"env": "CSSVC_BROADCASTER_LOGS",
+					"required": true
+				}
+			},
+			"port": {
+				"default": 12443,
+				"desc": "Network port for the broadcaster service",
+				"env": "CSSVC_BROADCASTER_PORT"
+			},
+			"runTimeEnvironment": {
+				"default": "local",
+				"desc": "Broadcaster run-time environment; use sparingly with preference for more specific params",
+				"env": "CS_BROADCASTER_ENV"
+			},
+			"secrets": {
+				"api": {
+					"desc": "used to generate json web tokens for authentication tokens passed to the client",
+					"env": "CSSVC_BROADCASTER_API_SECRET",
+					"required": true
+				},
+				"auth": {
+					"desc": "used to privilege certain api server requests to the broadcaster service",
+					"env": "CSSVC_BROADCASTER_AUTH_SECRET",
+					"required": true
+				}
+			}
+		},
 		"pubnub": {
+			"keepAlive": {
+				"default": true,
+				"desc": "use pubnub keep-alives"
+			},
 			"publishKey": {
 				"desc": "pubnub publishing key",
 				"env": "CSSVC_PUBNUB_PUBLISH_KEY",
-				"required": true
-			},
-			"subscribeKey": {
-				"desc": "pubnub subscription key",
-				"env": "CSSVC_PUBNUB_SUBSCRIBE_KEY",
 				"required": true
 			},
 			"secretKey": {
@@ -120,205 +194,127 @@
 				"required": true
 			},
 			"ssl": {
-				"desc": "use SSL for pubnub communications",
-				"default": true
+				"default": true,
+				"desc": "use SSL for pubnub communications"
 			},
-			"keepAlive": {
-				"desc": "use pubnub keep-alives",
-				"default": true
+			"subscribeKey": {
+				"desc": "pubnub subscription key",
+				"env": "CSSVC_PUBNUB_SUBSCRIBE_KEY",
+				"required": true
 			},
 			"uuid": {
-				"desc": "description needed",
-				"default": "CodeStreamServer"
-			}
-		},
-		"codestreamBroadcaster": {
-			"port": {
-				"desc": "Network port for the broadcaster service",
-				"env": "CSSVC_BROADCASTER_PORT",
-				"default": 12443
-			},
-			"host": {
-				"desc": "hostname of the broadcaster service (from client point-of-view)",
-				"default": "localhost.codestream.us"
-			},
-			"assetEnvironment": {
-				"desc": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod)",
-				"env": "CS_BROADCASTER_ASSET_ENV",
-				"default": "local"
-			},
-			"runTimeEnvironment": {
-				"desc": "Broadcaster run-time environment; use sparingly with preference for more specific params",
-				"env": "CS_BROADCASTER_ENV",
-				"default": "local"
-			},
-			"secrets": {
-				"auth": {
-					"desc": "used to privilege certain api server requests to the broadcaster service",
-					"env": "CSSVC_BROADCASTER_AUTH_SECRET",
-					"required": true
-				},
-				"api": {
-					"desc": "used to generate json web tokens for authentication tokens passed to the client",
-					"env": "CSSVC_BROADCASTER_API_SECRET",
-					"required": true
-				}
-			},
-			"logger": {
-				"directory": {
-					"desc": "directory for broadcaster logs",
-					"env": "CSSVC_BROADCASTER_LOGS",
-					"default": "${CS_BROADCASTER_LOGS}",
-					"required": true
-				},
-				"consoleOk": {
-					"desc": "allow logging to the console",
-					"env": "CSSVC_BROADCASTER_LOG_CONSOLE_OK",
-					"default": true
-				},
-				"debugOk": {
-					"desc": "more verbose logging (debug level)",
-					"env": "CSSVC_BROADCASTER_DEBUG_OK",
-					"default": false
-				}
+				"default": "CodeStreamServer",
+				"desc": "description needed"
 			}
 		}
 	},
-
-	// queuing - choose one
-	"queuingEngine": {
-		"rabbitmq": {
-			"host": {
-				"desc": "hostname of rabbitMQ service",
-				"default": "localhost.codestream.us",
-				"required": true
-			},
-			"port": {
-				"desc": "network port for rabbitmq service",
-				"default": 5672
-			},
-			"user": {
-				"desc": "rabbitmq user for authentication",
-				"default": "code"
-			},
-			"password": {
-				"desc": "rabbitmq password for authentication",
-				"default": "stream"
-			},
-			"outboundEmailQueueName": {
-				"desc": "RabbitMQ queue name",
-				"env": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME",
-				"default": "outboundEmail"
-			}
+	"email": {
+		"emailTo": {
+			"default": "${DT_USER}@codestream.com",
+			"desc": "Divert all email to this address"
 		},
-		"awsSQS": {
-			"region": {
-				"desc": "AWS region where queue resides",
-				"default": "us-east-1"
-			},
-			"outboundEmailQueueName": {
-				"desc": "SQS queue name",
-				"env": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME",
-				"default": "local_${DT_USER}_outboundEmail",
-				"envRequred": true
-			}
+		"notificationInterval": {
+			"default": 300000,
+			"desc": "Frequency email is generated (in millisecs, default = 30 secs)"
+		},
+		"replyToDomain": {
+			"default": "local.codestream.com",
+			"desc": "email domain for routing replies back to codestream"
+		},
+		"senderEmail": {
+			"default": "local_alerts@codestream.com",
+			"desc": "all generated emails will be sent as this user"
+		},
+		"supportEmail": {
+			"default": "local_support@codestream.com",
+			"desc": "support email address to include on email and forms"
+		},
+		"suppressEmails": {
+			"default": true,
+			"desc": "Stop all email from being sent"
 		}
 	},
-
-	// Email delivery services - choose one
 	"emailDeliveryService": {
-		"sendgrid": {
-			"url": {
-				"desc": "sendgrid api uri",
-				"default": "/v3/mail/send"
-			},
-			"apiKey": {
-				"desc": "key to access sendgrid API",
-				"required": true
-			}
-		},
 		"NodeMailer": {
-			"service": {
-				"desc": "NodeMailer service type (gmail, ...)",
-				"required": true
-			},
 			"host": {
 				"desc": "smtp mailer host",
 				"required": true
 			},
+			"password": {
+				"desc": "smtp authentication password"
+			},
 			"port": {
-				"desc": "Email submission port",
-				"default": 587
+				"default": 587,
+				"desc": "Email submission port"
+			},
+			"service": {
+				"desc": "NodeMailer service type (gmail, ...)",
+				"required": true
 			},
 			"username": {
 				"desc": "smtp authentication user"
+			}
+		},
+		"sendgrid": {
+			"apiKey": {
+				"desc": "key to access sendgrid API",
+				"required": true
 			},
-			"password": {
-				"desc": "smtp authentication password"
-			}			
-		}
-	},
-
-	// database storage - choose one
-	"storage": {
-		"mongo": {
 			"url": {
-				"desc": "mongo connect string",
-				"env": "CSSVC_MONGO_URL",
-				"default": "mongodb://localhost/codestream"
+				"default": "/v3/mail/send",
+				"desc": "sendgrid api uri"
 			}
 		}
 	},
-
-	// Telemetry and tracking services
-	"telemetry": {
-		"segment": {
-			"token": {
-				"desc": "segment token for clients"
+	"inboundEmailServer": {
+		"assetEnvironment": {
+			"default": "local",
+			"desc": "environment used to create and retrieve inbound email service assets (local, onprem, dev, prod, ...)",
+			"env": "CS_MAILIN_ASSET_ENV"
+		},
+		"inboundEmailDirectory": {
+			"default": "${CS_MAILIN_SANDBOX}/mailq/new",
+			"env": "CS_MAILIN_INBOUND_EMAIL_DIR",
+			"desc": "new email files will be delivered to this directory by the mail agent"
+		},
+		"inboundEmailDisabled": {
+			"default": false,
+			"env": "CS_MAILIN_INBOUND_EMAIL_DISABLED",
+			"desc": "true will disable inbound email processing"
+		},
+		"logger": {
+			"consoleOk": {
+				"default": true,
+				"desc": "allow logging to the console",
+				"env": "CS_MAILIN_LOG_CONSOLE_OK"
 			},
-			"webToken": {
-				"desc": "segment web token for the web app"
+			"debugOk": {
+				"default": false,
+				"desc": "more verbose logging (debug level)",
+				"env": "CS_MAILIN_DEBUG_OK"
+			},
+			"directory": {
+				"desc": "directory for inbound email logs",
+				"env": "CS_MAILIN_LOGS",
+				"default": "${CS_MAILIN_SANDBOX}/log",
+				"envRequired": true
 			}
 		},
-		"mixpanel": {
-			"token": {
-				"desc": "Mixpanel API token"
-			}
+		"processDirectory": {
+			"default": "${CS_MAILIN_SANDBOX}/mailq/process",
+			"desc": "email files will be moved to this directory for processing"
 		},
-		"intercom": {
-			"token": {
-				"desc": "Intercom Access Token"
-			}
+		"runTimeEnvironment": {
+			"default": "local",
+			"desc": "Inbound email service run-time environment; use sparingly with preference for more specific params",
+			"env": "CS_MAILIN_ENV"
+		},
+		"tempAttachmentDirectory": {
+			"default": "${CS_MAILIN_SANDBOX}/mailq/attachments",
+			"desc": "attachments in incoming emails will be stored temporarily here"
 		}
 	},
-
-	// 3rd party integration keys and secrets
-	// NOTE: Environment variables in these sections refer ONLY to the default
-	//       provider (usually the cloud service)
 	"integrations": {
-		"slack": {
-			"<appProvider>": {
-				"appClientId": {
-					"desc": "Slack app client Id (legacy scopes)"
-				},
-				"appClientSecret": {
-					"desc": "Slack app secret (legacy scopes)"
-				},
-				"appStrictClientId": {
-					"desc": "Slack strict app client Id (app directory)"
-				},
-				"appStrictClientSecret": {
-					"desc": "Slack strict app secret (app directory)"
-				}
-			}
-		},
-		"trello": {
-			"<appProvider>": {
-				"apiKey": {
-					"desc": "Trello API key"
-				}
-			}
-		},
 		"asana": {
 			"<appProvider>": {
 				"appClientId": {
@@ -336,6 +332,28 @@
 				},
 				"appClientSecret": {
 					"desc": "Bitbucket API secret"
+				}
+			}
+		},
+		"devops": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "MS Azure DevOps API client Id",
+					"env": "CSSVC_DEVOPS_CLIENT_ID"
+				},
+				"appClientSecret": {
+					"desc": "MS Azure DevOps API secret",
+					"env": "CSSVC_DEVOPS_CLIENT_SECRET"
+				}
+			}
+		},
+		"github": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "Github API client Id"
+				},
+				"appClientSecret": {
+					"desc": "Github API secret"
 				}
 			}
 		},
@@ -369,37 +387,38 @@
 				}
 			}
 		},
-		"github": {
-			"<appProvider>": {
-				"appClientId": {
-					"desc": "Github API client Id"
-				},
-				"appClientSecret": {
-					"desc": "Github API secret"
-				}
-			}
-		},
 		"msteams": {
 			"<appProvider>": {
 				"appClientId": {
-					"env": "CSSVC_MSTEAMS_CLIENT_ID",
-					"desc": "MS Teams API client Id"
+					"desc": "MS Teams API client Id",
+					"env": "CSSVC_MSTEAMS_CLIENT_ID"
 				},
 				"appClientSecret": {
-					"env": "CSSVC_MSTEAMS_CLIENT_SECRET",
-					"desc": "MS Teams API secret"
+					"desc": "MS Teams API secret",
+					"env": "CSSVC_MSTEAMS_CLIENT_SECRET"
 				}
 			}
 		},
-		"devops": {
+		"slack": {
 			"<appProvider>": {
 				"appClientId": {
-					"env": "CSSVC_DEVOPS_CLIENT_ID",
-					"desc": "MS Azure DevOps API client Id"
+					"desc": "Slack app client Id (legacy scopes)"
 				},
 				"appClientSecret": {
-					"env": "CSSVC_DEVOPS_CLIENT_SECRET",
-					"desc": "MS Azure DevOps API secret"
+					"desc": "Slack app secret (legacy scopes)"
+				},
+				"appStrictClientId": {
+					"desc": "Slack strict app client Id (app directory)"
+				},
+				"appStrictClientSecret": {
+					"desc": "Slack strict app secret (app directory)"
+				}
+			}
+		},
+		"trello": {
+			"<appProvider>": {
+				"apiKey": {
+					"desc": "Trello API key"
 				}
 			}
 		},
@@ -414,194 +433,34 @@
 			}
 		}
 	},
-
-	// Other CodeStream Services
-	"apiServer": {
-		"tmpDirectory": {
-			"desc": "temp directory",
-			"env": "CS_API_TMP",
-			"default": "${CS_API_SANDBOX}/tmp"
-		},
-		"port": {
-			"desc": "Network port for the api service",
-			"env": "CS_API_PORT",
-			"default": 12079
-		},
-		"ignoreHttps": {
-			"desc": "set to true to respond to http instead of https",
-			"env": "CS_API_IGNORE_HTTPS",
-			"default": false
-		},
-		"confirmationNotRequired": {
-			"desc": "set to true to disable email confirmation",
-			"env": "CS_API_CONFIRMATION_NOT_REQUIRED",
-			"default": false
-		},
-		"sessionAwayTimeout": {
-			"desc": "how long before we call a user 'away' from keyboard (in millisecs)",
-			"env": "CS_API_SESSION_AWAY_TIMEOUT",
-			"default": 600000
-		},
-		"helpIsAvailable": {
-			"desc": "set to true enable API /help",
-			"env": "CS_API_HELP_AVAILABLE",
-			"default": false
-		},
-		"forgotPasswordExpiration": {
-			"desc": "how long a token for forgot-password remains valid (in millisecs, default = 1 day)",
-			"env": "CS_API_FORGOT_PASSWORD_EXPIRATION",
-			"default": 86400000
-		},
-		"confirmationExpiration": {
-			"desc": "how long a token for email confirmation remains valid (in millisecs, default = 1 day)",
-			"env": "CS_API_CONFIRMATION_EXPIRATION",
-			"default": 86400000
-		},
-		"confirmCodeExpiration": {
-			"desc": "how long a confirmation code remains valid (in millisecs, default = 1 week)",
-			"env": "CS_API_CONFIRM_CODE_EXPIRATION",
-			"default": 604800000
-		},
-		"signupTokenExpiration": {
-			"desc": "how long a signup token issued by the IDE for a user to signup on web remains valid (in millisecs, default = 10 min)",
-			"env": "CS_API_SIGNUP_TOKEN_EXPIRATION",
-			"default": 600000
-		},
-		"publicApiUrl": {
-			"desc": "public url to access the API server from beyond",
-			"env": "CS_API_PUBLIC_URL",
-			"default": "https://localhost.codestream.us:12079"
-		},
-		"authOrigin": {
-			"desc": "origin to use for third-party auth callbacks",
-			"env": "CS_API_AUTH_ORIGIN",
-			"default": "https://auth.codestream.us/no-auth"
-		},
-		"assetEnvironment": {
-			"desc": "environment used to create and retrieve API assets (local, onprem, dev or prod)",
-			"env": "CS_API_ASSET_ENV",
-			"default": "local"
-		},
-		"runTimeEnvironment": {
-			"desc": "API run-time environment; use sparingly with preference for more specific params",
-			"env": "CS_API_ENV",
-			"default": "local"
-		},
-		"callbackEnvironment": {
-			"desc": "allows for callbacks through VPN to developers' local servers",
-			"env": "CS_API_CALLBACK_ENV",
-			"default": "${CS_API_CALLBACK_ENV}",
-			"required": true
-		},
-		"mockMode": {
-			"desc": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC",
-			"env": "CS_API_MOCK_MODE",
-			"default": false
-		},
-		"dontWantAWS": {
-			"desc": "set to true so API server will not use any AWS services",
-			"env": "CS_API_DONT_WANT_AWS",
-			"default": false
-		},
-		"logger": {
-			"directory": {
-				"desc": "directory for api server logs",
-				"env": "CS_API_LOGS",
-				"default": "${CS_API_SANDBOX}/log",
-				"envRequired": true
-			},
-			"consoleOk": {
-				"desc": "allow logging to the console",
-				"env": "CS_API_LOG_CONSOLE_OK",
-				"default": true
-			},
-			"debugOk": {
-				"desc": "more verbose logging (debug level)",
-				"env": "CS_API_DEBUG_OK",
-				"default": false
-			}
-		}
-	},
-
-	"inboundEmailServer": {
-		"inboundEmailDisabled": {
-			"desc": "true will not allow inbound emails",
-			"default": false
-		},
-		"inboundEmailDirectory": {
-			"desc": "new email files will be delivered to this directory by the mail agent",
-			"default": "${CS_MAILIN_SANDBOX}/mailq/new"
-		},
-		"processDirectory": {
-			"desc": "email files will be moved to this directory for processing",
-			"default": "${CS_MAILIN_SANDBOX}/mailq/process"
-		},
-		"tempAttachmentDirectory": {
-			"desc": "attachments in incoming emails will be stored temporarily here",
-			"default": "${CS_MAILIN_SANDBOX}/mailq/attachments"
-		},
-		"assetEnvironment": {
-			"desc": "environment used to create and retrieve inbound email service assets (local, onprem, dev, prod, ...)",
-			"env": "CS_MAILIN_ASSET_ENV",
-			"default": "local"
-		},
-		"runTimeEnvironment": {
-			"desc": "Inbound email service run-time environment; use sparingly with preference for more specific params",
-			"env": "CS_MAILIN_ENV",
-			"default": "local"
-		},
-		"logger": {
-			"directory": {
-				"desc": "directory for inbound email logs",
-				"env": "CS_MAILIN_LOGS",
-				"envRequired": true
-			},
-			"consoleOk": {
-				"desc": "allow logging to the console",
-				"env": "CS_MAILIN_LOG_CONSOLE_OK",
-				"default": true
-			},
-			"debugOk": {
-				"desc": "more verbose logging (debug level)",
-				"env": "CS_MAILIN_DEBUG_OK",
-				"default": false
-			}
-		}
-	},
-
 	"outboundEmailServer": {
 		"assetEnvironment": {
+			"default": "local",
 			"desc": "environment used to create and retrieve outbound email assets (local, onprem, dev, prod, ...)",
-			"env": "CS_OUTBOUND_EMAIL_ASSET_ENV",
-			"default": "local"
-		},
-		"runTimeEnvironment": {
-			"desc": "Outbound email run-time environment; use sparingly with preference for more specific params",
-			"env": "CS_OUTBOUND_EMAIL_ENV",
-			"default": "local"
+			"env": "CS_OUTBOUND_EMAIL_ASSET_ENV"
 		},
 		"logger": {
-			"directory": {
-				"desc": "directory for outbound email logs",
-				"env": "CS_OUTBOUND_EMAIL_LOGS",
-				"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/log",
-				"envRequired": true
-			},
 			"consoleOk": {
+				"default": true,
 				"desc": "allow logging to the console",
-				"env": "CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK",
-				"default": true
+				"env": "CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK"
 			},
 			"debugOk": {
+				"default": false,
 				"desc": "more verbose logging (debug level)",
-				"env": "CS_MAILIN_DEBUG_OK",
-				"default": false
+				"env": "CS_MAILIN_DEBUG_OK"
+			},
+			"directory": {
+				"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/log",
+				"desc": "directory for outbound email logs",
+				"env": "CS_OUTBOUND_EMAIL_LOGS",
+				"envRequired": true
 			}
 		},
-		"tmpDirectory": {
-			"desc": "temp directory",
-			"env": "CS_OUTBOUND_EMAIL_TMP",
-			"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/tmp"
+		"runTimeEnvironment": {
+			"default": "local",
+			"desc": "Outbound email run-time environment; use sparingly with preference for more specific params",
+			"env": "CS_OUTBOUND_EMAIL_ENV"
 		},
 		"storage": {
 			"mongo": {
@@ -609,6 +468,127 @@
 					"desc": "optional override for mongo connect string",
 					"env": "CSSVC_MAILOUT_MONGO_URL"
 				}
+			}
+		},
+		"tmpDirectory": {
+			"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/tmp",
+			"desc": "temp directory",
+			"env": "CS_OUTBOUND_EMAIL_TMP"
+		}
+	},
+	"queuingEngine": {
+		"awsSQS": {
+			"outboundEmailQueueName": {
+				"default": "local_${DT_USER}_outboundEmail",
+				"desc": "SQS queue name",
+				"env": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME",
+				"envRequred": true
+			},
+			"region": {
+				"default": "us-east-1",
+				"desc": "AWS region where queue resides"
+			}
+		},
+		"rabbitmq": {
+			"host": {
+				"default": "localhost.codestream.us",
+				"desc": "hostname of rabbitMQ service",
+				"required": true
+			},
+			"outboundEmailQueueName": {
+				"default": "outboundEmail",
+				"desc": "RabbitMQ queue name",
+				"env": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME"
+			},
+			"password": {
+				"default": "stream",
+				"desc": "rabbitmq password for authentication"
+			},
+			"port": {
+				"default": 5672,
+				"desc": "network port for rabbitmq service"
+			},
+			"user": {
+				"default": "code",
+				"desc": "rabbitmq user for authentication"
+			}
+		}
+	},
+	"sharedSecrets": {
+		"auth": {
+			"default": "AuthSecret",
+			"desc": "secret used for authentication",
+			"env": "CSSVC_AUTH_SECRET"
+		},
+		"confirmationCheat": {
+			"default": "ConfirmationCheatCode",
+			"desc": "for bypassing email confirmation, used for unit testing",
+			"env": "CSSVC_CONFIRMATION_CHEAT_CODE"
+		},
+		"cookie": {
+			"default": "CookieSecret",
+			"desc": "secret used for permalinks",
+			"env": "CSSVC_COOKIE_SECRET"
+		},
+		"mail": {
+			"default": "InboundEmailSecret",
+			"desc": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails",
+			"env": "CSSVC_INBOUND_EMAIL_SECRET"
+		},
+		"subscriptionCheat": {
+			"default": "SubscriptionCheatCode",
+			"desc": "allows unregistered users to subscribe to their me-channel, for testing emails",
+			"env": "CSSVC_SUBSCRIPTION_CHEAT_CODE"
+		},
+		"telemetry": {
+			"desc": "for accessing the api prior to authentication (pre-auth secret)",
+			"env": "CSSVC_PRE_AUTH_SECRET",
+			"required": "PreAuthSecret"
+		}
+	},
+	"ssl": {
+		"cafile": {
+			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-ca",
+			"desc": "SSL certificate authority bundle (chain) file",
+			"env": "CSSVC_SSL_CAFILE"
+		},
+		"certfile": {
+			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-crt",
+			"desc": "SSL certificate",
+			"env": "CSSVC_SSL_CERTFILE"
+		},
+		"keyfile": {
+			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-key",
+			"desc": "SSL private key file",
+			"env": "CSSVC_SSL_KEYFILE"
+		}
+	},
+	"storage": {
+		"mongo": {
+			"url": {
+				"default": "mongodb://localhost/codestream",
+				"desc": "mongo connect string",
+				"env": "CSSVC_MONGO_URL"
+			}
+		}
+	},
+	"telemetry": {
+		"intercom": {
+			"token": {
+				"desc": "Intercom Access Token"
+			}
+		},
+		"mixpanel": {
+			"token": {
+				"desc": "Mixpanel API token"
+			}
+		},
+		"segment": {
+			"token": {
+				"desc": "segment token for clients"
+			},
+			"webToken": {
+				"desc": "segment web token for the web app"
 			}
 		}
 	}
