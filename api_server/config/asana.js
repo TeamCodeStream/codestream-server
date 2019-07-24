@@ -11,7 +11,10 @@ let AsanaCfg = {
 };
 if (CfgFileName) {
 	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
-	AsanaCfg = CfgData.getSection('integrations.asana');
+	let asanaProviders = CfgData.getSection('integrations.asana');
+	if (asanaProviders['asana.com']) {
+		AsanaCfg = asanaProviders['asana.com'];
+	}
 }
 else {
 	AsanaCfg.appClientId = process.env.CS_API_ASANA_CLIENT_ID;

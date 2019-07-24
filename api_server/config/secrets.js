@@ -10,7 +10,7 @@ let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
 	SecretsCfg = CfgData.getSection('sharedSecrets');
-	SecretsCfg.broadcaster = CfgData.getProperty('broadcastEngine.broadcaster.secrets.api');
+	SecretsCfg.broadcaster = CfgData.getProperty('broadcastEngine.codestreamBroadcaster.secrets.api');
 }
 else {
 	SecretsCfg = {
