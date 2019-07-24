@@ -14,7 +14,7 @@ export PATH=$CS_API_TOP/bin:$PATH
 [ -n "$CSSVC_CFG_FILE" ] && cfgFile=$CSSVC_CFG_FILE || cfgFile=$CS_API_CFG_FILE
 echo "Using config file $cfgFile"
 
-# env vars required for scripts that don't load the config file
+# env vars required for aux scripts that don't load the config file
 export CS_API_LOGS=`eval echo $(get-json-property -j $cfgFile -p apiServer.logger.directory)`
 export CS_API_TMP=`eval echo $(get-json-property -j $cfgFile -p apiServer.tmpDirectory)`
 export CS_API_ASSET_ENV=`eval echo $(get-json-property -j $cfgFile -p apiServer.assetEnvironment)`
