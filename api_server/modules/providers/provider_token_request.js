@@ -83,7 +83,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
 		// mock token must be accompanied by secret
-		if (decodeURIComponent(this.request.query._secret || '') !== SecretsConfig.confirmationCheat) {
+		if (this.request.query._mockToken && decodeURIComponent(this.request.query._secret || '') !== SecretsConfig.confirmationCheat) {
 			this.warn('Deleting mock token because incorrect secret sent');
 			delete this.request.query._mockToken;
 		}
