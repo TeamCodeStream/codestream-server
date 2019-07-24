@@ -14,10 +14,6 @@ export PATH=$CS_BROADCASTER_TOP/bin:$PATH
 echo "Using config file $cfgFile"
 
 # These variables are used by shell scripts
-export CS_BROADCASTER_TMP=$CS_BROADCASTER_SANDBOX/tmp     # temp directory
-export CS_BROADCASTER_CONFS=$CS_BROADCASTER_SANDBOX/conf  # config files directory
-export CS_BROADCASTER_DATA=$CS_BROADCASTER_SANDBOX/data   # data directory
-export CS_BROADCASTER_PIDS=$CS_BROADCASTER_SANDBOX/pid    # pid files directory
 export CS_BROADCASTER_LOGS=$(get-json-property -j $cfgFile -p broadcastEngine.codestreamBroadcaster.logger.directory)
 export CS_BROADCASTER_ASSET_ENV=$(get-json-property -j $cfgFile -p broadcastEngine.codestreamBroadcaster.assetEnvironment)
 export CS_BROADCASTER_ENV=$(get-json-property -j $cfgFile -p broadcastEngine.codestreamBroadcaster.runTimeEnvironment)
