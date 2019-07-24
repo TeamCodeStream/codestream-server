@@ -25,8 +25,13 @@
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
 			"local": {
+				"assetEnvironment": "local",
+				"runTimeEnvironment": "local",
 				"secrets": {
 					"_loadSecretsFile": "codestream/local-bcast-secrets.cfg"
+				},
+				"logger": {
+					"directory": "${CS_BROADCASTER_SANDBOX}/logs"
 				}
 			},
 			"defaultEnv": {}
