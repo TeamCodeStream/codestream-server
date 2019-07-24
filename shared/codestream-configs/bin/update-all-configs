@@ -32,6 +32,7 @@ function diff_notify {
 binDir=`dirname $0`
 repoRoot=`dirname $binDir`
 
+[ ! -d $repoRoot/../onprem-install ] && echo "$repoRoot/../onprem-install not found (pwd=`pwd`)" >&2 && exit 1
 $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
 diff_notify $repoRoot/README.parameter-definitions.json "$yes"
 
@@ -42,3 +43,6 @@ diff_notify ~/src/onprem-install/config-templates/single-host-preview-minimal-cf
 # configs for development (distributed via dt-update-secrets)
 $binDir/process-profile --profile $repoRoot/profiles/cloud.json --env local --out $KM_PKI/secrets/config/local-cloud-development.json.x
 diff_notify $KM_PKI/secrets/config/local-cloud-development.json "$yes"
+
+$binDir/process-profile --profile $repoRoot/profiles/onprem-development.json --env local --out $KM_PKI/secrets/config/local-onprem-development.json.template.x
+diff_notify $KM_PKI/secrets/config/local-onprem-development.json.template "$yes"
