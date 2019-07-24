@@ -18,39 +18,25 @@ if (CfgFileName) {
 	Cfg.logging.consoleOk = CfgData.getProperty('outboundEmailServer.logger.consoleOk');
 	Cfg.logging.debugOk = CfgData.getProperty('outboundEmailServer.logger.debugOk');
 	Cfg.logging.directory = CfgData.getProperty('outboundEmailServer.logger.directory');
-	// Cfg.logging.directory = CfgFile.outboundMailLogging.directory;
-	// Cfg.logging.consoleOk = CfgFile.outboundMailLogging.consoleOk;
 
 	Cfg.mongo = {};
 	Cfg.mongo.url = CfgData.getProperty('outboundEmailServer.storage.mongo.url') || CfgData.getProperty('storage.mongo.url');
 	Cfg.mongo.database = CfgData._mongoUrlParse(Cfg.mongo.url).database;
-	// Cfg.mongo = CfgFile.mongo;
-	// Cfg.mongo.hintsRequired = true;
 
 	Cfg.pubnub = CfgData.getSection('broadcastEngine.pubnub');
 	// FIXME - this overrides the value in the config file
 	Cfg.pubnub.uuid = 'OutboundEmailServer';
-	Cfg.socketCluster = CfgData.getSection('broadcastEngine.broadcaster');
-	// Cfg.pubnub = CfgFile.broadcastEngine.pubnub;
-	// Cfg.socketCluster = {
-	// 	host: CfgFile.broadcastEngine.codestreamBroadcaster.host,
-	// 	port: CfgFile.broadcastEngine.codestreamBroadcaster.port,
-	// 	broadcasterSecret: CfgFile.broadcastEngine.codestreamBroadcaster.secrets.api
-	// };
+	Cfg.socketCluster = CfgData.getSection('broadcastEngine.codestreamBroadcaster');
+	Cfg.socketCluster.broadcasterSecret = CfgData.getProperty('broadcastEngine.codestreamBroadcaster.secrets.api');
 
 	Cfg.sendgrid = CfgData.getSection('emailDeliveryService.sendgrid');
 	Cfg.sendgrid.emailTo = CfgData.getProperty('email.emailTo');
-	// Cfg.sendgrid = CfgFile.emailDeliveryService.sendgrid;
 
 	Cfg.smtp = CfgData.getSection('emailDeliveryService.NodeMailer');
 	Cfg.smtp.emailTo = CfgData.getProperty('email.emailTo');
-	// Cfg.smtp = CfgFile.emailDeliveryService.NodeMailer;
 
 	Cfg.rabbitmq = CfgData.getSection('queuingEngine.rabbitmq');
-	Cfg.outboundEmailQueueName = Cfg.rabbitmq.outboundEmailQueueName ? Cfg.rabbitmq : CfgData.getProperty('queuingEngine.awsSQS.sqs.outboundEmailQueueName');
-	// SQS queue for queueing outbound email messages
-	// Cfg.outboundEmailQueueName = CfgFile.queuingEngine.awsSQS.sqs.outboundEmailQueueName;
-	// Cfg.rabbitmq = CfgFile.queuingEngine.rabbitmq;
+	Cfg.outboundEmailQueueName = Cfg.rabbitmq ? Cfg.rabbitmq.outboundEmailQueueName : CfgData.getProperty('queuingEngine.awsSQS.sqs.outboundEmailQueueName');
 
 	Cfg.notificationInterval = CfgData.getProperty('email.notificationInterval');
 	Cfg.replyToDomain = CfgData.getProperty('email.replyToDomain');
@@ -150,5 +136,4 @@ else {
 }
 
 if (process.env.CS_OUTBOUND_EMAIL_SHOW_CFG) console.log('Config[config]:', Cfg);
-process.exit();
 module.exports = Cfg;
