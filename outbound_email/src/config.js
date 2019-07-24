@@ -2,7 +2,7 @@
 
 'use strict';
 
-const structuredCfgFile = require('../src/codestream-configs/lib/structured_config');
+const StructuredCfgFile = require('../src/codestream-configs/lib/structured_config');
 
 let Cfg = {
 	maxPostsPerEmail: 25,	// maximum number of posts in an email notification
@@ -14,7 +14,7 @@ let Cfg = {
 
 let CfgFileName = process.env.CS_OUTBOUND_EMAIL_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
-	const CfgData = new structuredCfgFile( {configFile: CfgFileName} );
+	const CfgData = new StructuredCfgFile( {configFile: CfgFileName} );
 	Cfg.logging.consoleOk = CfgData.getProperty('outboundEmailServer.logger.consoleOk');
 	Cfg.logging.debugOk = CfgData.getProperty('outboundEmailServer.logger.debugOk');
 	Cfg.logging.directory = CfgData.getProperty('outboundEmailServer.logger.directory');
@@ -36,7 +36,8 @@ if (CfgFileName) {
 	Cfg.smtp.emailTo = CfgData.getProperty('email.emailTo');
 
 	Cfg.rabbitmq = CfgData.getSection('queuingEngine.rabbitmq');
-	Cfg.outboundEmailQueueName = Cfg.rabbitmq ? Cfg.rabbitmq.outboundEmailQueueName : CfgData.getProperty('queuingEngine.awsSQS.sqs.outboundEmailQueueName');
+	console.log(Cfg.rabbitmq);
+	Cfg.outboundEmailQueueName = (Object.keys(Cfg.rabbitmq).length > 0) ? Cfg.rabbitmq.outboundEmailQueueName : CfgData.getProperty('queuingEngine.awsSQS.outboundEmailQueueName');
 
 	Cfg.notificationInterval = CfgData.getProperty('email.notificationInterval');
 	Cfg.replyToDomain = CfgData.getProperty('email.replyToDomain');
@@ -135,5 +136,7 @@ else {
 	};
 }
 
-if (process.env.CS_OUTBOUND_EMAIL_SHOW_CFG) console.log('Config[config]:', Cfg);
+if (process.env.CS_OUTBOUND_EMAIL_SHOW_CFG) {
+	console.log('Config[config]:', JSON.stringify(Cfg, undefined, 10));
+}
 module.exports = Cfg;
