@@ -7,6 +7,7 @@ const Codemark = require('./codemark');
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const CodemarkTypes = require('./codemark_types');
 const CodemarkLinkCreator = require('./codemark_link_creator');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class CodemarkCreator extends ModelCreator {
 
@@ -37,7 +38,7 @@ class CodemarkCreator extends ModelCreator {
 		this.validateUrlObject('threadUrl');
 	}
 
-	// validate the markers sent with the post creation, this is too important to just drop,
+	// validate the markers sent with the codemark creation, this is too important to just drop,
 	// so we return an error instead
 	async validateMarkers () {
 		const result = new Codemark().validator.validateArrayOfObjects(
@@ -74,7 +75,7 @@ class CodemarkCreator extends ModelCreator {
 				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderHost', 'externalProviderUrl', 'createPermalink'],
 				object: ['remoteCodeUrl', 'threadUrl'],
 				'array(object)': ['markers', 'externalAssignees'],
-				'array(string)': ['assignees']
+				'array(string)': ['assignees', 'relatedCodemarkIds', 'tags']
 			}
 		};
 	}
@@ -97,6 +98,9 @@ class CodemarkCreator extends ModelCreator {
 		this.createId();	 		// pre-allocate an ID
 		await this.getTeam();		// get the team that will own this codemark
 
+		// if we have tags, make sure they are all valid
+		await this.handleTags();
+
 		// for link-type codemarks, we do a "trial run" of creating the markers ... this is because
 		// we need the logic that associates code blocks with repos and file streams, but we don't
 		// actuallly want to create the markers yet, in case we already have a duplicate codemark
@@ -114,6 +118,9 @@ class CodemarkCreator extends ModelCreator {
 			this.trialRun = false;
 			await this.handleMarkers();
 		}
+
+		// link related codemarks to this one
+		await this.linkRelatedCodemarks();
 
 		await this.validateAssignees();	// validate the assignees (for issues)
 		await super.preSave();		// proceed with the save...
@@ -140,6 +147,28 @@ class CodemarkCreator extends ModelCreator {
 			throw this.errorHandler.error('notFound', { info: 'team'});
 		}
 		this.attributes.teamId = this.team.id;	
+	}
+
+	// handle any tags tied to the codemark
+	async handleTags () {
+		if (!this.attributes.tags) {
+			return;
+		}
+		const tags = this.attributes.tags;
+
+		// make sure every tag is found within the array of tags for the team
+		const teamTags = this.team.get('tags') || [];
+		let offendingTagId;
+		if (tags.find(tagId => {
+			if (!teamTags.find(teamTag => {
+				return teamTag.id === tagId;
+			})) {
+				offendingTagId = tagId;
+				return true;
+			}
+		})) {
+			throw this.errorHandler.error('notFound', { info: 'tag ' + offendingTagId });
+		}
 	}
 
 	// handle any markers tied to the codemark
@@ -187,6 +216,43 @@ class CodemarkCreator extends ModelCreator {
 			this.transforms.createdMarkers = this.transforms.createdMarkers || [];
 			this.transforms.createdMarkers.push(marker);
 		}
+	}
+
+	// for related codemarks, link the related codemarks to this one
+	async linkRelatedCodemarks () {
+		if (!this.attributes.relatedCodemarkIds) {
+			return;
+		}
+
+		// get the codemarks
+		const relatedCodemarks = await this.data.codemarks.getByIds(this.attributes.relatedCodemarkIds);
+		if (relatedCodemarks.length !== this.attributes.relatedCodemarkIds.length) {
+			throw this.errorHandler.error('notFound', { info: 'related codemarks' });
+		}
+
+		// make sure the user has access to all the codemarks
+		await Promise.all(relatedCodemarks.map(async relatedCodemark => {
+			if (!await this.user.authorizeCodemark(relatedCodemark.id, this.request)) {
+				throw this.errorHandler.error('updateAuth', { reason: 'user does not have access to all related codemarks' });
+			}
+		}));
+
+		// for each related codemark, update the codemark to be related to this one
+		this.transforms.updatedCodemarks = this.transforms.updatedCodemarks || [];
+		await Promise.all(relatedCodemarks.map(async relatedCodemark => {
+			await this.linkRelatedCodemark(relatedCodemark);
+		}));
+	}
+
+	// link a related codemark back to the codemark being created
+	async linkRelatedCodemark (relatedCodemark) {
+		const op = { $addToSet: { relatedCodemarkIds: this.attributes.id } };
+		const updateOp = await new ModelSaver({
+			request: this.request,
+			collection: this.data.codemarks,
+			id: relatedCodemark.id
+		}).save(op);
+		this.transforms.updatedCodemarks.push(updateOp);
 	}
 
 	// if this is an issue, validate the assignees ... all users must be on the team

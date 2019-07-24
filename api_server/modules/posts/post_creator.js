@@ -236,11 +236,13 @@ class PostCreator extends ModelCreator {
 				modifiedAt: Date.now()
 			}
 		};
-		this.transforms.codemarkUpdate = await new ModelSaver({
+		this.transforms.updatedCodemarks = this.transforms.updatedCodemarks || [];
+		const codemarkUpdate = await new ModelSaver({
 			request: this.request,
 			collection: this.data.codemarks,
 			id: codemark.id
 		}).save(op);
+		this.transforms.updatedCodemarks.push(codemarkUpdate);
 	}
 
 	// update the total post count for the author of the post, along with the date/time of last post,
@@ -355,8 +357,8 @@ class PostCreator extends ModelCreator {
 		const data = {
 			post: this.transforms.postUpdate
 		};
-		if (this.transforms.codemarkUpdate) {
-			data.codemark = this.transforms.codemarkUpdate;
+		if (this.transforms.updatedCodemarks) {
+			data.codemarks = this.transforms.updatedCodemarks;
 		}
 		await new PostPublisher({
 			request: this.request,

@@ -13,7 +13,7 @@ class CodemarkTest extends PostPostTest {
 	}
 
 	get description () {
-		return 'should return the post with an codemark when creating a post with codemark info';
+		return 'should return the post with a codemark when creating a post with codemark info';
 	}
 
 	makePostData (callback) {

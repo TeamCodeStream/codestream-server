@@ -72,6 +72,10 @@ module.exports = {
 	planStartDate: {
 		type: 'timestamp',
 		description: 'Date/time this team was converted from trial to a paid plan'
+	},
+	tags: {
+		type: 'arrayOfObjects',
+		maxLength: 500,
+		description: 'Array of custom tag objects available to the members of this team, object contains id, color, and label'
 	}
-
 };

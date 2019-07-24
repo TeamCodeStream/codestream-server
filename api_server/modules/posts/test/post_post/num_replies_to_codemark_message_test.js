@@ -21,7 +21,7 @@ class NumRepliesToCodemarkMessageTest extends NumRepliesMessageToStreamTest {
 		// add updated codemark op to the message we expect
 		super.generateMessage(error => {
 			if (error) { return callback(error); }
-			this.message.codemark = {
+			this.message.codemarks = [{
 				_id: this.postData[0].codemark.id,	// DEPRECATE ME
 				id: this.postData[0].codemark.id,
 				$set: { 
@@ -32,7 +32,7 @@ class NumRepliesToCodemarkMessageTest extends NumRepliesMessageToStreamTest {
 					before: 2,
 					after: 3
 				}
-			};
+			}];
 			callback();
 		});
 	}
@@ -42,8 +42,8 @@ class NumRepliesToCodemarkMessageTest extends NumRepliesMessageToStreamTest {
 		if (!message.message.post || !message.message.post.$set) {
 			return false;
 		}
-		Assert(message.message.codemark.$set.modifiedAt >= this.postCreatedAt, 'modifiedAt for codemark not changed');
-		this.message.codemark.$set.modifiedAt = message.message.codemark.$set.modifiedAt;
+		Assert(message.message.codemarks[0].$set.modifiedAt >= this.postCreatedAt, 'modifiedAt for codemark not changed');
+		this.message.codemarks[0].$set.modifiedAt = message.message.codemarks[0].$set.modifiedAt;
 		return super.validateMessage(message);
 	}
 }

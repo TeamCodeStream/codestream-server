@@ -130,5 +130,15 @@ module.exports = {
 		type: 'object',
 		maxLength: 500,
 		description: 'Object referencing a link to the thread in which this codemark was created'
+	},
+	relatedCodemarkIds: {
+		type: 'arrayOfIds',
+		maxLength: 50,
+		description: 'The IDs of any @@#codemarks#codemark@@ related to this codemark'
+	},
+	tags: {
+		type: 'arrayOfIds',
+		maxLength: 50,
+		description: 'The IDs of any tags associated with this codemark'
 	}
 };

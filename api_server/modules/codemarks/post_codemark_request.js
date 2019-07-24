@@ -87,6 +87,11 @@ class PostCodemarkRequest extends PostRequest {
 			responseData.markerLocations = transforms.markerLocations;
 		}
 
+		// if there are other codemarks updated, add them
+		if (transforms.updatedCodemarks) {
+			responseData.codemarks = transforms.updatedCodemarks;
+		}
+
 		await super.handleResponse();
 	}
 
@@ -138,6 +143,8 @@ class PostCodemarkRequest extends PostRequest {
 				'externalAssignees': '<For externally linked issues, array of assignees to the issue, expected to be objects with at least displayName>',
 				'remoteCodeUrl': '<Object referencing a link to the code block references by this codemark in an external provider, contains "name" and "url">',
 				'threadUrl': '<Object referencing a link to the thread this codemark was created in, comtains "name" and "url">',
+				'relatedCodemarkIds': '<Array of IDs that are to be related to this codemark, the link will be made bi-directional>',
+				'tags': '<Array of tag objects to be associated with this codemark, tag objects contain color and label>',
 				'createPermalink': '<If set, create a permalink to the codemark, and return it>' 
 			}
 		};

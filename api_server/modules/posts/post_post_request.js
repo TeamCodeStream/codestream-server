@@ -83,9 +83,9 @@ class PostPostRequest extends PostRequest {
 			responseData.posts = [transforms.postUpdate];
 		}
 
-		// if there is a parent codemark update, add it
-		if (transforms.codemarkUpdate) {
-			responseData.codemarks = [transforms.codemarkUpdate];
+		// if there are other codemarks updated, add them
+		if (transforms.updatedCodemarks) {
+			responseData.codemarks = transforms.updatedCodemarks;
 		}
 		
 		await super.handleResponse();

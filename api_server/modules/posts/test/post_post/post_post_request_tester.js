@@ -87,6 +87,9 @@ const ParentPostIdTest = require('./parent_post_id_test');
 const CodemarkOriginTest = require('./codemark_origin_test');
 const PermalinkTest = require('./permalink_test');
 const DuplicateLinkTest = require('./duplicate_link_test');
+const RelatedCodemarksTest = require('./related_codemarks_test');
+const RelatedCodemarkNotFoundTest = require('./related_codemark_not_found_test');
+const RelatedCodemarkACLTest = require('./related_codemark_acl_test');
 
 class PostPostRequestTester {
 
@@ -193,6 +196,9 @@ class PostPostRequestTester {
 		new PermalinkTest({ permalinkType: 'private' }).test();
 		new DuplicateLinkTest({ permalinkType: 'public' }).test();
 		new DuplicateLinkTest({ permalinkType: 'private' }).test();
+		new RelatedCodemarksTest().test();
+		new RelatedCodemarkNotFoundTest().test();
+		new RelatedCodemarkACLTest().test();
 	}
 }
 

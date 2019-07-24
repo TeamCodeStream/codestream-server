@@ -164,7 +164,7 @@ class User extends CodeStreamModel {
 
 	// authorize the user to "access" an codemark model, based on ID
 	async authorizeCodemark (id, request) {
-		// to access an codemark, the user must have access to the stream it belongs to
+		// to access a codemark, the user must have access to the stream it belongs to
 		// (for read access)
 		const codemark = await request.data.codemarks.getById(id);
 		if (!codemark) {

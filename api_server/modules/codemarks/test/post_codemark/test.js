@@ -55,6 +55,9 @@ const ExternalIssueProviderTest = require('./external_issue_provider_test');
 const NoProviderTypeWithLinkTest = require('./no_provider_type_with_link_test');
 const PermalinkTest = require('./permalink_test');
 const DuplicateLinkTest = require('./duplicate_link_test');
+const RelatedCodemarksTest = require('./related_codemarks_test');
+const RelatedCodemarkNotFoundTest = require('./related_codemark_not_found_test');
+const RelatedCodemarkACLTest = require('./related_codemark_acl_test');
 
 class PostCodemarkRequestTester {
 
@@ -128,6 +131,9 @@ class PostCodemarkRequestTester {
 		new PermalinkTest({ permalinkType: 'private' }).test();
 		new DuplicateLinkTest({ permalinkType: 'public' }).test();
 		new DuplicateLinkTest({ permalinkType: 'private' }).test();
+		new RelatedCodemarksTest().test();
+		new RelatedCodemarkNotFoundTest().test();
+		new RelatedCodemarkACLTest().test();
 	}
 }
 
