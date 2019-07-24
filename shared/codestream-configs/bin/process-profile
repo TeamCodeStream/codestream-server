@@ -90,10 +90,10 @@ def buildCfgFile(cfg, schema, profile, spaces=''):
 	getSectionDefaultsFromSchema(schema, blockDefaults, spaces)
 	fillSection = False
 	for prop in list(profile.keys()):
-		env = args.env if profile[prop] is dict and args.env in profile[prop] else 'defaultEnv'
+		# env = args.env if profile[prop] is dict and args.env in profile[prop] else 'defaultEnv'
 		repeatingBlockKeyVar = blockKey(schema, spaces)  # appProvider
 		repeatingBlockKey = f"<{repeatingBlockKeyVar}>" if repeatingBlockKeyVar else None  # <appProvider>
-		debugMsg(f"\n{spaces}=== checking prop = {prop}, env = {env}, repeatingBlockKeyVar = {repeatingBlockKeyVar}")
+		debugMsg(f"\n{spaces}=== checking prop = {prop}, repeatingBlockKeyVar = {repeatingBlockKeyVar}")
 
 		if type(profile[prop]) is dict and not profile[prop]:
 			debugMsg(f"{spaces}1 empty dict in profile - using schema defaults")
@@ -113,6 +113,7 @@ def buildCfgFile(cfg, schema, profile, spaces=''):
 		else:
 			su.printErr("property {} not defined in schema".format(prop))
 			exit(1)
+
 		if args.debug:
 			su.dumpDict(cfg[prop], None, f"end of loop for prop: cfg[{prop}]:")
 

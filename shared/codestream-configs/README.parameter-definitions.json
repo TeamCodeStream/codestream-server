@@ -28,9 +28,9 @@
 			"assetEnvironment": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod) [CS_BROADCASTER_ASSET_ENV]",
 			"host": "hostname of the broadcaster service (from client point-of-view)",
 			"logger": {
-				"consoleOk": "allow logging to the console [CSSVC_BROADCASTER_LOG_CONSOLE_OK]",
-				"debugOk": "more verbose logging (debug level) [CSSVC_BROADCASTER_DEBUG_OK]",
-				"directory": "directory for broadcaster logs [CSSVC_BROADCASTER_LOGS]"
+				"consoleOk": "allow logging to the console [CS_BROADCASTER_LOG_CONSOLE_OK]",
+				"debugOk": "more verbose logging (debug level) [CS_BROADCASTER_DEBUG_OK]",
+				"directory": "directory for broadcaster logs [CS_BROADCASTER_LOGS]"
 			},
 			"port": "Network port for the broadcaster service [CSSVC_BROADCASTER_PORT]",
 			"runTimeEnvironment": "Broadcaster run-time environment; use sparingly with preference for more specific params [CS_BROADCASTER_ENV]",

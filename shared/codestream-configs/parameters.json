@@ -141,17 +141,17 @@
 				"consoleOk": {
 					"default": true,
 					"desc": "allow logging to the console",
-					"env": "CSSVC_BROADCASTER_LOG_CONSOLE_OK"
+					"env": "CS_BROADCASTER_LOG_CONSOLE_OK"
 				},
 				"debugOk": {
 					"default": false,
 					"desc": "more verbose logging (debug level)",
-					"env": "CSSVC_BROADCASTER_DEBUG_OK"
+					"env": "CS_BROADCASTER_DEBUG_OK"
 				},
 				"directory": {
-					"default": "${CS_BROADCASTER_LOGS}",
+					"default": "${CS_BROADCASTER_SANDBOX}/log",
 					"desc": "directory for broadcaster logs",
-					"env": "CSSVC_BROADCASTER_LOGS",
+					"env": "CS_BROADCASTER_LOGS",
 					"required": true
 				}
 			},
