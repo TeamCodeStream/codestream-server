@@ -10,13 +10,16 @@ import sysUtils as su
 
 
 # utility function - takes a json file with comments on top (optional) and sorts the json data
-def sortJsonWithHeaderComments(file):
+def sortJsonWithHeaderComments(file, json=None, outFile=None):
+	if not json:
+		json = su.readJsonFileIgnoreComments(file)
+	if not outFile:
+		outFile = file
 	comments = su.shellExecNoBuffer(f"grep '^//' {file} >/tmp/_comments; echo >>/tmp/_comments")
-	json = su.readJsonFileIgnoreComments(file)
 	su.dumpDictOpts(json, where="/tmp/_json", tab_indent=True)
-	print(f"backing up file to {file}.backup")
-	su.shellExecNoBuffer(f"cp {file} {file}.backup")
-	su.shellExecNoBuffer(f"cat /tmp/_comments /tmp/_json >{file}")
+	# print(f"backing up file to {file}.backup")
+	# su.shellExecNoBuffer(f"cp {file} {file}.backup")
+	su.shellExecNoBuffer(f"cat /tmp/_comments /tmp/_json >{outFile}")
 	os.remove("/tmp/_comments")
 	os.remove("/tmp/_json")
 
@@ -226,6 +229,9 @@ elif args.sort_json:
 elif args.profile:
 	profile = su.readJsonFileIgnoreComments(args.profile)
 	buildCfgFile(cfgFile, schema, profile)
+	if args.out:
+		sortJsonWithHeaderComments(args.profile, json=cfgFile, outFile=args.out)
+		exit(0)
 else:
 	parser.print_help()
 	exit(1)

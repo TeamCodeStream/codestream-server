@@ -85,7 +85,7 @@ class StructuredConfigFile {
 	}
 
 	_interpolate(template, context) {
-		if (!template || typeof(tempate) != 'string' ) {
+		if (!template || typeof(template) != 'string' ) {
 			return template;
 		}
 		const TokenSanitizeRegex = /\$\{(?:\W*)?(\w*?)(?:[\W\d]*)\}/g;
@@ -103,12 +103,8 @@ class StructuredConfigFile {
 			// console.log(`overriding config value for ${prop} from ${schema[prop]['env']}`);
 			return process.env[ schema[prop]['env'] ];
 		}
-		if(data[prop]) {
+		if (data.hasOwnProperty(prop)) {
 			return data[prop];
-		}
-		if(data.hasOwnProperty(prop) && data[prop] == null) {
-			// console.log(`property ${prop} was nulled out in the config file`);
-			return;
 		}
 		if(schema[prop].hasOwnProperty('default')) {
 			// console.log(`using default config value for ${prop}`);
@@ -142,7 +138,7 @@ class StructuredConfigFile {
 			let schemaProp = blockKey ? blockKey : prop;
 			// console.log('schemaProp =', schemaProp);
 			if (schema[schemaProp].hasOwnProperty('desc')) {
-				// console.log('leaf node');
+				// console.log(`leaf node at prop ${prop} -> ${sectionData[prop]}`);
 				sectionData[prop] = this._getConfigValue(prop, schema, data);
 				if (typeof(sectionData[prop]) == 'string') {
 					// console.log(`-- ${sectionData[prop]}`);
@@ -158,6 +154,7 @@ class StructuredConfigFile {
 
 	// public method to get a fully populated section of the configuration file
 	getSection(section = '') {
+		// console.log(`>>>>>>>>>>>>>>>>> GET SECTION ${section}`);
 		let schema = this._getSection(this.schema, section);
 		let data = this._getSection(this.config, section);
 		let sectionData = {};
