@@ -87,9 +87,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			this.warn('Deleting mock token because incorrect secret sent');
 			delete this.request.query._mockToken;
 		}
-		else {
-			delete this.request.query._secret;
-		}
+		delete this.request.query._secret;
 
 		await this.requireAllowParameters(
 			'query',
