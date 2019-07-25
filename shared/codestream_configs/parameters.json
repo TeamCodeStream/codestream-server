@@ -253,6 +253,10 @@
 			},
 			"username": {
 				"desc": "smtp authentication user"
+			},
+			"secure": {
+				"desc": "use secure transport when sending mail",
+				"default": true
 			}
 		},
 		"sendgrid": {
