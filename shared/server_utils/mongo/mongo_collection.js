@@ -598,6 +598,9 @@ class MongoCollection {
 
 	// sanitize the set op for an update operation, for logging, ensuring sensitive data is removed
 	_sanitizeUpdateForLogging (data, fields) {
+		if (!data[0] || !data[0].$set) {
+			return data;
+		}
 		const options = { cloned: false };
 		data[0].$set = this._normalizeSet(data[0].$set, options);
 		data[0].$set = this._sanitizeDataForLogging(data[0].$set, fields, options);
