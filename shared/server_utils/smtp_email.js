@@ -11,7 +11,19 @@ class SMTPEmail {
 	}
 
 	async init () {
-		this.nodeMailer = NodeMailer.createTransport(this.config);
+		let transportOptions = {
+			service: this.config.service,
+			host: this.config.host,
+			port: this.config.port,
+			secure: this.config.secure
+		};
+		if (this.config.username) {
+			transportOptions.auth = {
+				auth: this.config.username,
+				pass: this.config.password
+			}
+		};
+		this.nodeMailer = NodeMailer.createTransport(transportOptions);
 	}
 
 	// send an email through SMTP
