@@ -31,7 +31,7 @@
 					"_loadSecretsFile": "codestream/local-bcast-secrets.cfg"
 				},
 				"logger": {
-					"directory": "${CS_BROADCASTER_SANDBOX}/logs"
+					"directory": "${CS_BROADCASTER_SANDBOX}/log"
 				}
 			},
 			"defaultEnv": {}
