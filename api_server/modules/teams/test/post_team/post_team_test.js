@@ -6,6 +6,7 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 const TeamTestConstants = require('../team_test_constants');
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const DefaultTags = require('../../default_tags');
 
 class PostTeamTest extends CodeStreamAPITest {
 
@@ -67,6 +68,7 @@ class PostTeamTest extends CodeStreamAPITest {
 			((team.trialEndDate === team.createdAt + n36Days) || errors.push('trialEndDate not set to trialStartDate plus 36 days'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		Assert.deepEqual(team.tags, DefaultTags, 'tags not set to defaults');
 		this.validateCompany(data);
 		this.validateTeamStream(data);
 		this.validateSanitized(team, TeamTestConstants.UNSANITIZED_ATTRIBUTES);

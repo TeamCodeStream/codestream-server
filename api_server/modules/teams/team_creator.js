@@ -13,6 +13,7 @@ const WebmailCompanies = require(process.env.CS_API_TOP + '/etc/webmail_companie
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 const StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const DefaultTags = require('./default_tags');
 
 const TRIAL_PERIOD_FOR_30_DAY_TRIAL = 36 * 24 * 60 * 60 * 1000;	// NOTE - this is 36 days, which gives breathing room
 
@@ -67,6 +68,7 @@ class TeamCreator extends ModelCreator {
 		this.attributes.creatorId = this.user.id;	// user making the request is the team creator
 		this.attributes.memberIds = [this.user.id];	// user creating the team should always be a member
 		this.attributes.adminIds = [this.user.id];	// user creating the team becomes its administrator
+		this.attributes.tags = [...DefaultTags];	// default tags for codemarks
 
 		// default this team to a 30-day trial
 		// now that we have createdAt, start the trial ticket from that time forward

@@ -4,7 +4,7 @@
 'use strict';
 
 const PutTeamSettingsTest = require('./put_team_settings_test');
-const PutPreferencesFetchTest = require('./put_team_settings_fetch_test');
+const PutTeamSettingsFetchTest = require('./put_team_settings_fetch_test');
 const InvalidParameterTest = require('./invalid_parameter_test');
 const SimpleUpdateTest = require('./simple_update_test');
 const SetTest = require('./set_test');
@@ -23,7 +23,7 @@ class PutPreferencesRequestTester {
 
 	putTeamSettingsTest () {
 		new PutTeamSettingsTest().test();
-		new PutPreferencesFetchTest().test();
+		new PutTeamSettingsFetchTest().test();
 		new InvalidParameterTest().test();
 		new SimpleUpdateTest().test();
 		new SetTest().test();

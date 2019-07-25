@@ -33,6 +33,11 @@ const TEAM_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'team-settings/:id',
 		requestClass: require('./put_team_settings_request')
+	},
+	{
+		method: 'post',
+		path: 'team-tags/:id',
+		requestClass: require('./create_team_tag_request')
 	}
 ];
 

@@ -6,8 +6,8 @@
 /* globals describe */
 
 const TeamsRequestTester = require('./teams_request_tester');
-
 const teamsRequestTester = new TeamsRequestTester();
+const CreateTagRequestTester = require('./create_tag/test');
 
 describe('team requests', function() {
 
@@ -18,4 +18,6 @@ describe('team requests', function() {
 	describe('POST /teams', teamsRequestTester.postTeamTest);
 	describe('PUT /teams/:id', teamsRequestTester.putTeamTest);
 	describe('PUT /team-settings/:id', teamsRequestTester.putTeamSettingsTest);
+	describe('POST /team-tags/:id', CreateTagRequestTester.test);
+
 });
