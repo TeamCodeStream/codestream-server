@@ -21,6 +21,6 @@ EXPOSE 12443
 
 ENV CS_BROADCASTER_TOP=/opt/broadcaster/broadcaster
 ENV CS_BROADCASTER_CFG_FILE=/opt/config/codestream-services-config.json
-ENV CS_BROADCASTER_SHOW_CFG=1
+# ENV CS_BROADCASTER_SHOW_CFG=1
 
 CMD [ "/opt/broadcaster/broadcaster/bin/server.js" ]
