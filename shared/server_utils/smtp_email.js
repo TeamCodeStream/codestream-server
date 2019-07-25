@@ -11,7 +11,7 @@ class SMTPEmail {
 	}
 
 	async init () {
-		let transportOptions = {
+		const transportOptions = {
 			service: this.config.service,
 			host: this.config.host,
 			port: this.config.port,
@@ -19,7 +19,7 @@ class SMTPEmail {
 		};
 		if (this.config.username) {
 			transportOptions.auth = {
-				auth: this.config.username,
+				user: this.config.username,
 				pass: this.config.password
 			}
 		};
