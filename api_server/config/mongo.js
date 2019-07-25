@@ -17,7 +17,7 @@ MongoCfg.queryLogging = { // we write a separate log file for mongo queries, and
 	slowThreshold: 100, // queries that take longer than this go to the slow query log
 	reallySlowBasename: 'really-slow-mongo-query',
 	reallySlowThreshold: 1000, // queries that take longer than this go to the "really slow" query log
-	noLogData: [
+	noLogData: [	// remove the fields below from query logging, replace with '*' 
 		{
 			collection: 'posts',
 			fields: ['text']
@@ -29,6 +29,10 @@ MongoCfg.queryLogging = { // we write a separate log file for mongo queries, and
 		{
 			collection: 'markers',
 			fields: ['code']
+		},
+		{
+			collection: 'users',
+			fields: ['providerInfo.*.*.accessToken', 'accessTokens.*.token', 'pubNubToken', 'broadcasterToken']
 		}
 	]
 };
