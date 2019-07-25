@@ -61,6 +61,7 @@
 			"host": "smtp mailer host",
 			"password": "smtp authentication password",
 			"port": "Email submission port",
+			"secure": "use secure transport when sending mail",
 			"service": "NodeMailer service type (gmail, ...)",
 			"username": "smtp authentication user"
 		},
