@@ -1,11 +1,11 @@
 'use strict';
 
-const CreateTagTest = require('./create_tag_test');
+const UpdateTagTest = require('./update_tag_test');
 
-class ParameterOptionalTest extends CreateTagTest {
+class ParameterOptionalTest extends UpdateTagTest {
 
 	get description () {
-		return `should be ok to create a team tag with no ${this.parameter}`;
+		return `should be ok to update a team tag with no ${this.parameter}`;
 	}
 
 	// before the test runs...
@@ -15,7 +15,7 @@ class ParameterOptionalTest extends CreateTagTest {
 			if (error) { return callback(error); }
 			// ...delete the parameter of interest
 			delete this.data[this.parameter];
-			delete this.expectedResponse.team.$set[`tags.${this.data.id}`][this.parameter];
+			delete this.expectedResponse.team.$set[`tags.${this.tagId}`][this.parameter];
 			callback();
 		});
 	}

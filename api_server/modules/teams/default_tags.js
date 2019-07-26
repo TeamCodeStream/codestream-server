@@ -1,36 +1,28 @@
 'use strict';
 
-module.exports = [
-	{
-		id: '_blue',
+module.exports = {
+	_blue: {
 		color: 'blue'
 	},
-	{
-		id: '_green',
+	_green: {
 		color: 'green'
 	},
-	{
-		id: '_yello',
+	_yellow: {
 		color: 'yellow'
 	},
-	{
-		id: '_orange',
+	_orange: {
 		color: 'orange'
 	},
-	{
-		id: '_red',
+	_red: {
 		color: 'red'
 	},
-	{
-		id: '_purple',
+	_purple: {
 		color: 'purple'
 	},
-	{
-		id: '_aqua',
+	_aqua: {
 		color: 'aqua'
 	},
-	{
-		id: '_gray',
+	_gray: {
 		color: 'gray'
 	}
-];
+};

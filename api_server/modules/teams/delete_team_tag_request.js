@@ -1,63 +1,45 @@
-// handle the "POST /team-tags/:id" request to create a team tag
+// handle the "DELETE /team-tags/:teamId/:id" request to delete a team tag
 
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
-class CreateTeamTagRequest extends RestfulRequest {
+class DeleteTeamTagRequest extends RestfulRequest {
 
 	async authorize () {
 		// user must be a member of the team
-		if (!this.user.hasTeam(this.request.params.id)) {
+		if (!this.user.hasTeam(this.request.params.teamId)) {
 			throw this.errorHandler.error('updateAuth', { reason: 'user must be a member of the team' });
 		}
 	}
 
 	// process the request...
 	async process () {
-		await this.requireAndAllow();	// require certain parameters, discard unknown ones
 		await this.getTeam();			// get the team
 		await this.updateTeam();		// update the team with the tag
 	}
 
-	// require certain parameters, and discard unknown parameters
-	async requireAndAllow () {
-		await this.requireAllowParameters(
-			'body',
-			{
-				required: {
-					string: ['id', 'color']
-				},
-				optional: {
-					string: ['label']
-				}
-			}
-		);
-	}
-
 	// get the team
 	async getTeam () {
-		this.team = await this.data.teams.getById(this.request.params.id.toLowerCase());
+		this.team = await this.data.teams.getById(this.request.params.teamId.toLowerCase());
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team' });
 		}
 	}
 	
-	// update the team with the new tag
+	// update the team, setting the tag as deactivated
 	async updateTeam () {
-		const tagId = this.request.body.id;
-		delete this.request.body.id;
-		const tag = this.request.body;
+		const tagId = this.request.params.id;
 		const tags = this.team.get('tags') || {};
-		if (tags[tagId]) {
-			throw this.errorHandler.error('exists', { info: 'tag' });
+		if (!tags[tagId]) {
+			throw this.errorHandler.error('notFound', { info: 'tag' });
 		}
 
 		const op = {
 			$set: {
-				[`tags.${tagId}`]: tag,
-				modifiedAt: Date.now()
+				modifiedAt: Date.now(),
+				[`tags.${tagId}.deactivated`]: true
 			}
 		};
 		this.updateOp = await new ModelSaver({
@@ -90,38 +72,36 @@ class CreateTeamTagRequest extends RestfulRequest {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate
-			this.warn(`Unable to publish tag create message to channel ${channel}: ${JSON.stringify(error)}`);
+			this.warn(`Unable to publish tag delete message to channel ${channel}: ${JSON.stringify(error)}`);
 		}
 	}
 
 	// describe this route for help
 	static describe () {
 		return {
-			tag: 'team-tags',
-			summary: 'Create a custom tag for a team',
-			access: 'Only a member of the team can add a tag',
-			description: 'Adds a new custom tag to the list of custom tags available for codemarks to a team. The tag consists of required id and color field, and optional label field.',
-			input: 'Specify the tag attributes in the request body.',
+			tag: 'delete-team-tags',
+			summary: 'Delete a custom tag for a team',
+			access: 'Only a member of the team can delete a tag',
+			description: 'Delete a custom tag among the list of custom tags available for codemarks to a team. Really just sets a deactivated flag.',
+			input: 'No input body.',
 			returns: {
-				summary: 'A team object, with directives appropriate for adding the tag for the team',
+				summary: 'A team object, with directives appropriate for deleting the tag for the team',
 				looksLike: {
 					team: '<some directive>'
 				}
 			},
 			publishes: {
-				summary: 'A team object, with directives appropriate for adding the tag for the team',
+				summary: 'A team object, with directives appropriate for deleting the tag for the team',
 				looksLike: {
 					team: '<some directive>'
 				}
 			},
 			errors: [
 				'notFound',
-				'parameterRequired',
-				'exists',
 				'updateAuth'
 			]
 		};
 	}
 }
 
-module.exports = CreateTeamTagRequest;
+module.exports = DeleteTeamTagRequest;

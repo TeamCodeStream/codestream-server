@@ -19,7 +19,7 @@ class NoCreateDefaultTagTest extends CreateTagTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.id = DefaultTags[0].id;	// use one of the default tag IDs
+			this.data.id = Object.keys(DefaultTags)[2];	// use one of the default tag IDs
 			callback();
 		});
 	}

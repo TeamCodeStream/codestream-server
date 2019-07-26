@@ -38,6 +38,16 @@ const TEAM_ADDITIONAL_ROUTES = [
 		method: 'post',
 		path: 'team-tags/:id',
 		requestClass: require('./create_team_tag_request')
+	},
+	{
+		method: 'put',
+		path: 'team-tags/:teamId/:id',
+		requestClass: require('./update_team_tag_request')
+	},
+	{
+		method: 'delete',
+		path: 'team-tags/:teamId/:id',
+		requestClass: require('./delete_team_tag_request')
 	}
 ];
 

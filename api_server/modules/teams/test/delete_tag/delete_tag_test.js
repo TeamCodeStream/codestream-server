@@ -1,4 +1,4 @@
-// provide a base class for most tests of the "POST /team-tags/:id" request
+// provide a base class for most tests of the "DELETE /team-tags/:teamId/:id" request
 
 'use strict';
 
@@ -7,14 +7,14 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 const Assert = require('assert');
 const CommonInit = require('./common_init');
 
-class CreateTagTest extends Aggregation(CodeStreamAPITest, CommonInit) {
+class DeleteTagTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		return 'should add a tag and respond with appropriate directive when creating a tag for a team';
+		return 'should delete a tag and respond with appropriate directive when deleting a tag for a team';
 	}
 
 	get method () {
-		return 'post';
+		return 'delete';
 	}
 
 	// before the test runs...
@@ -30,4 +30,4 @@ class CreateTagTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 }
 
-module.exports = CreateTagTest;
+module.exports = DeleteTagTest;
