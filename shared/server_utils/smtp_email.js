@@ -21,8 +21,8 @@ class SMTPEmail {
 			transportOptions.auth = {
 				user: this.config.username,
 				pass: this.config.password
-			}
-		};
+			};
+		}
 		this.nodeMailer = NodeMailer.createTransport(transportOptions);
 	}
 
