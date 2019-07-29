@@ -27,7 +27,8 @@ class UpdateTeamTagRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['color']
+					string: ['color'],
+					number: ['sortOrder']
 				},
 				optional: {
 					string: ['label']

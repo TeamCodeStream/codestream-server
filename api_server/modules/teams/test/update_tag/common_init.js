@@ -42,7 +42,8 @@ class CommonInit {
 				data: {
 					id: tagId,
 					color: RandomString.generate(6),
-					label: RandomString.generate(10)
+					label: RandomString.generate(10),
+					sortOrder: Math.floor(Math.random() * 100)
 				},
 				token: this.users[1].accessToken
 			},
@@ -60,7 +61,8 @@ class CommonInit {
 		this.path = `/team-tags/${this.team.id}/${this.tagId}`;
 		this.data = {
 			color: RandomString.generate(6),
-			label: RandomString.generate(20)
+			label: RandomString.generate(20),
+			sortOrder: Math.floor(Math.random() * 100)
 		};
 		this.updatedAt = Date.now();
 		this.expectedResponse = {

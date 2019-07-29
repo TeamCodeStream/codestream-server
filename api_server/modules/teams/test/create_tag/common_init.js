@@ -27,7 +27,8 @@ class CommonInit {
 		this.data = {
 			id,
 			color: RandomString.generate(6),
-			label: RandomString.generate(20)
+			label: RandomString.generate(20),
+			sortOrder: Math.floor(Math.random() * 100)
 		};
 		this.updatedAt = Date.now();
 		const expectedData = { ...this.data };

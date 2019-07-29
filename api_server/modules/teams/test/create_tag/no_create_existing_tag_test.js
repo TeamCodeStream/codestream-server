@@ -32,7 +32,8 @@ class NoCreateExistingTagTest extends CreateTagTest {
 			this.data = {
 				id,
 				color: RandomString.generate(6),
-				label: RandomString.generate(10)
+				label: RandomString.generate(10),
+				sortOrder: Math.floor(Math.random() * 100)
 			};
 			callback();
 		});

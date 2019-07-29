@@ -29,6 +29,7 @@ class UpdateTagRequestTester {
 		new TagNotFoundTest().test();
 		new ACLTest().test();
 		new ParameterRequiredTest({ parameter: 'color' }).test();
+		new ParameterRequiredTest({ parameter: 'sortOrder' }).test();
 		new ParameterOptionalTest({ parameter: 'label' }).test();
 	}
 }

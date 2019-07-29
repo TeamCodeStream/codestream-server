@@ -27,7 +27,8 @@ class CreateTeamTagRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['id', 'color']
+					string: ['id', 'color'],
+					number: ['sortOrder']
 				},
 				optional: {
 					string: ['label']
