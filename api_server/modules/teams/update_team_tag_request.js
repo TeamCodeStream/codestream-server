@@ -101,7 +101,14 @@ class UpdateTeamTagRequest extends RestfulRequest {
 			summary: 'Update a custom tag for a team',
 			access: 'Only a member of the team can update a tag',
 			description: 'Update a custom tag among the list of custom tags available for codemarks to a team. Note that the whole tag is update according to the request body, partial updates are not supported.',
-			input: 'Specify the tag attributes (color and label) in the request body.',
+			input: {
+				summary: 'Specify the tag attributes (color and label) in the request body.',
+				looksLike: {
+					'color*': '<Color associated with the tag>',
+					'sortOrder*': '<Sort order for the tag, numeric>',
+					'label': '<Label associated with the tag>'
+				}
+			},
 			returns: {
 				summary: 'A team object, with directives appropriate for update the tag for the team',
 				looksLike: {

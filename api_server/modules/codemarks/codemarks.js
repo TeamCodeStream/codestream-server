@@ -48,6 +48,16 @@ const CODEMARK_ADDITIONAL_ROUTES = [
 		method: 'post',
 		path: 'codemarks/:id/permalink',
 		requestClass: require('./codemark_link_request')
+	},
+	{
+		method: 'put',
+		path: 'relate-codemark/:id1/:id2',
+		requestClass: require('./relate_codemark_request')
+	},
+	{
+		method: 'put',
+		path: 'unrelate-codemark/:id1/:id2',
+		requestClass: require('./relate_codemark_request')
 	}
 ];
 

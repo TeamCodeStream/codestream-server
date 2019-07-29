@@ -101,8 +101,16 @@ class CreateTeamTagRequest extends RestfulRequest {
 			tag: 'team-tags',
 			summary: 'Create a custom tag for a team',
 			access: 'Only a member of the team can add a tag',
-			description: 'Adds a new custom tag to the list of custom tags available for codemarks to a team. The tag consists of required id and color field, and optional label field.',
-			input: 'Specify the tag attributes in the request body.',
+			description: 'Adds a new custom tag to the list of custom tags available for codemarks to a team. The tag consists of required id, color, and sortOrder field, and optional label field.',
+			input: {
+				summary: 'Specify the tag attributes in the request body.',
+				looksLike: {
+					'id*': '<ID of the tag>',
+					'color*': '<Color associated with the tag>',
+					'sortOrder*': '<Sort order for the tag, numeric>',
+					'label': '<Label associated with the tag>'
+				}
+			},
 			returns: {
 				summary: 'A team object, with directives appropriate for adding the tag for the team',
 				looksLike: {

@@ -15,6 +15,8 @@ const UnpinRequestTester = require('./unpin/test');
 const PinPostRequestTester = require('./pin_post/test');
 const UnpinPostRequestTester = require('./unpin_post/test');
 const CodemarkLinkRequestTester = require('./codemark_link/test');
+const RelateCodemarkRequestTester = require('./relate_codemark/test');
+const UnrelateCodemarkRequestTester = require('./unrelate_codemark/test');
 
 describe('codemark requests', function() {
 
@@ -30,4 +32,6 @@ describe('codemark requests', function() {
 	describe('PUT /pin-post', PinPostRequestTester.test);
 	describe('PUT /unpin-post', UnpinPostRequestTester.test);
 	describe('POST /codemark/:id/permalink', CodemarkLinkRequestTester.test);
+	describe('PUT /relate-codemark/:id1/:id2', RelateCodemarkRequestTester.test);
+	describe('PUT /unrelate-codemark/:id1/:id2', UnrelateCodemarkRequestTester.test);
 });
