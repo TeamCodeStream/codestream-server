@@ -4,65 +4,98 @@
 The CodeStream API Service is lovely.
 
 
-## Installation (or major upgrade) for local development as a dev_tools sandbox
+## Installation for local cloud development using dev_tools
 
 ### Prerequisites
-1. Install the dev_tools tookkit [here](https://github.com/teamcodestream/dev_tools).
-1. Install mongo - this is available as a dev_tools sandbox. Instructions are [here](https://github.com/teamcodestream/mongodb_tools).
-1. Access to the CodeStream network via the VPN
+1. Install the dev_tools tookkit
+   [here](https://github.com/teamcodestream/dev_tools).
+1. Install mongo - this is available as a dev_tools sandbox or you can install
+   any version. Instructions for the mongo sandbox are
+   [here](https://github.com/teamcodestream/mongodb_tools).
+1. Make sure you can access the CodeStream network via the VPN.
+1. Review the procedure for managing the [unified config
+   file](README.unified-cfg-file.md) and set your config to
+   **local-cloud-development.json**
 
-### Commands
-1. If your intention is to do a major upgrade of your existing sandbox (because you cannot afford to loose your
-local repository), in a clean shell (no sandboxes loaded), run this command:
-	```
-	mv ~/sandboxes/$my_api_sandbox_name ~/sandboxes/$my_api_sandbox_name.ORIG
-	```
+
+### Quick Start
 1. Open a new terminal window
-1. Load your dev_tools mongo sandbox if you're using one (`dt-load $my_mongo_sandbox_name`) or make sure mongo is running.
-1. Install the api sandbox with the command (only specify `-I` if you are *not* using a dev_tools mongo sandbox).
+1. Load your dev_tools mongo sandbox if you're using one and start the mongo service.
 	```
-	dt-new-sandbox -y -C -t cs_api -n $my_api_sandbox_name -D [-I]
+	$ dt-load <my-mongo-sandbox-name>
+	$ mdb-service start
 	```
-1. Optionally, create a playground file as **~/playgrounds/$my_api_playground_name**. Here's a template you might want to use. Make sure you replace the **$my_mongo_sandbox_name**
-and **$my_api_sandbox_name** variables with their real vales
-	```shell
-	#desc# API server playground
-	#sandboxes# $my_mongo_sandbox_name,$my_api_sandbox_name
+    If using your own mongo installation, make sure it's running and accessible
+    without credentials on **localhost**.
+1. Install the api sandbox (only specify `-I` if you are *not* using or have not
+   loaded a dev_tools mongo sandbox). We're migrating to a new unified config
+   file format so for now include the `-e` and `-b` options.
+	```
+	dt-sb-new-sandbox -yCD [-I] -t cs_api -n <your-api-sandbox-name> -e unified-cfg-file.sh -b config_update
+	```
+1. Load your api sandbox:
+	```
+	$ dt-load <your-api-sandbox-name>
+	```
+1. Create a playground for setting up future terminals with your mongo + api
+   sandboxes:
+	```
+	$ dt-sb-create-playground -n <your-api-playground-name> -t $CS_API_TOP/sandbox/playgrounds/default.template
+	```
+	There are other playground templates you may find useful in $CS_API_TOP/sandbox/playgrounds/.
 
-	dt_load $my_mongo_sandbox_name --quiet
-	dt_load $my_api_sandbox_name
 
-	# uncomment these lines if you want to colorize your iTerm2 window
-	#. $DT_TOP/lib/iterm2-utils.sh
-	#it2_tab_rgb `basename ${BASH_SOURCE[0]}` 102 204 0
+## Common Commands
 
-	cd $CS_API_TOP
+- To setup a new terminal's environment for the API
+    ```
+    $ dt-load-playground <your-api-playground-name> [--start | --stop]
+    ```
+    optional **--start** will load the sandboxes and start the services.
+	
+	optional **--stop** will load the sandboxes and shutdown the services.
+
+- To control the mongo service (if mongo is a sandbox):
 	```
-1. To load your playground, type the following ( (make sure you replace $my_api_playground_name with the real name).
-	```
-	dt-load-playground $my_api_playground_name
-	```
-1. If you were upgrading an existing sandbox and ran the command in the first step, finish up with these commands:
-	```
-	cd $CS_API_TOP
-	/bin/rm -rf .git
-	mv ~/sandboxes/$my_api_sandbox_name.ORIG/api_server/.git .
-	/bin/rm -rf ~/sandboxes/$my_api_sandbox_name.ORIG
+	$ mdb-service
 	```
 
-1. If you'd like to run with a node watcher, run the following, replacing the `-e` argument with the file extensions you'd like to watch for changes:
+- To run the API in the foreground with one worker:
 	```
-	nodemon -e js,hbs bin/api_server.js --one_worker
+	$ cd $CS_API_TOP
+	$ bin/ensure-indexes.js
+	$ bin/api_server.js --one_worker
 	```
 
-1. If you'd like to run the api_server with a debugger, add an `--inspect` argument before the executable .js file as such:
+- To control the api service using the init script
+	```
+	$ cs_api-service
+	```
+
+- To see the api sandbox commands
+	```
+	$ cs_api-help
+	```
+
+- To see the api sandbox environment variables
+	```
+	$ cs_api-vars
+	```
+
+- To run the api_server with a debugger, add an `--inspect` argument before the
+   executable .js file as such:
 	```
 	node --inspect bin/api_server.js --one_worker
 	```
 	or
-
 	```
 	nodemon -e js,hbs --inspect bin/api_server.js --one_worker
 	```
+	Then, in VS Code, run the `Node: Debugger` task. You'll want to attach to the process running on port `9230` when prompted.
 
-then, in VS Code, run the `Node: Debugger` task. You'll want to attach to the process running on port `9230` when prompted.
+
+## Other Readme's
+
+[The unified configuration file](README.unified-cfg-file.md)
+<br>
+[OnPrem development configuration](README.onprem-development.md)

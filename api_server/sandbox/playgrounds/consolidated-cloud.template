@@ -1,0 +1,34 @@
+
+#desc# All services for cloud development
+
+# IMPORTANT - READ THIS!!!
+#
+# consolidating different node-based sandboxes into one
+# playground may cause issues since all services will find
+# node, npm, globally installed npm modules and 
+# node_modules/.bin/ from whichever node-based sandbox
+# was loaded last.
+
+#sandboxTypes# mongo,cs_api,cs_mailout
+#sandboxes# {{SBNAME_mongo}},{{SBNAME_cs_api}},{{SBNAME_cs_mailout}}
+#environment# local
+
+dt_load {{SBNAME_mongo}} --quiet
+dt_load {{SBNAME_cs_mailout}} --quiet
+dt_load {{SBNAME_cs_api}}
+if [ "$1" == start ]; then
+	mdb-service start
+	sleep 2
+	cs_api-service start
+	cs_outbound_email-service start
+elif [ "$1" == stop ]; then
+	cs_outbound_email-service stop
+	cs_api-service stop
+	mdb-service stop
+	sleep 5
+fi
+cd $CS_API_TOP
+
+# uncomment these if you use iterm2 and want to colorize your tabs
+# . $DT_TOP/lib/iterm2-utils.sh
+# it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 88 45
