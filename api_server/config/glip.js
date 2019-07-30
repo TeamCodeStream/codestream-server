@@ -2,7 +2,7 @@
 
 'use strict';
 
-const structuredCfgFile = require('../codestream-configs/lib/structured_config');
+const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
 
 let GlipCfg = {
 	appClientId: null,
@@ -11,7 +11,7 @@ let GlipCfg = {
 
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
-	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
+	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	let glipProviders = CfgData.getSection('integrations.glip');
 	if (glipProviders['glip.com']) {
 		GlipCfg = glipProviders['glip.com'];

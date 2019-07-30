@@ -2,7 +2,7 @@
 
 'use strict';
 
-const structuredCfgFile = require('../codestream-configs/lib/structured_config');
+const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
 
 let ClusterCfg = {
 	host: null,
@@ -12,7 +12,7 @@ let ClusterCfg = {
 
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
-	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
+	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	let BroadcastCfg = CfgData.getSection('broadcastEngine.codestreamBroadcaster');
 	if (Object.keys(BroadcastCfg).length != 0) {
 		ClusterCfg = {

@@ -2,7 +2,7 @@
 
 'use strict';
 
-const structuredCfgFile = require('../codestream-configs/lib/structured_config');
+const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
 
 let EmailCfg = {
 	replyToDomain: null,
@@ -13,9 +13,14 @@ let EmailCfg = {
 
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
-	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
+	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	EmailCfg = CfgData.getSection('email');
-	EmailCfg.inboundEmailDisabled = CfgData.getProperty('inboundEmailServer.inboundEmailDisabled');
+	if (!Object.keys(EmailCfg).length) {
+		EmailCfg.inboundEmailDisabled = true;
+	}
+	else {
+		EmailCfg.inboundEmailDisabled = CfgData.getProperty('inboundEmailServer.inboundEmailDisabled');
+	}
 }
 else {
 	EmailCfg.replyToDomain = process.env.CS_API_REPLY_TO_DOMAIN;	// reply to will be like <streamId>@dev.codestream.com

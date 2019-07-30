@@ -2,7 +2,7 @@
 
 'use strict';
 
-const structuredCfgFile = require('../codestream-configs/lib/structured_config');
+const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
 
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 
@@ -12,7 +12,7 @@ let BitBucketCfg = {
 };
 
 if (CfgFileName) {
-	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
+	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	let bitbucketProviders = CfgData.getSection('integrations.bitbucket');
 	if (bitbucketProviders['bitbucket.com']) {
 		BitBucketCfg = bitbucketProviders['bitbucket.com'];

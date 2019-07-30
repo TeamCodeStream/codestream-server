@@ -2,7 +2,7 @@
 
 'use strict';
 
-const structuredCfgFile = require('../codestream-configs/lib/structured_config');
+const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
 
 let MongoCfg = {
 	url: null,
@@ -11,7 +11,7 @@ let MongoCfg = {
 
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if(CfgFileName) {
-	const CfgData = new structuredCfgFile({ configFile: CfgFileName });
+	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	MongoCfg = CfgData.getSection('storage.mongo');
 	let MongoParsed = CfgData._mongoUrlParse(MongoCfg.url);
 	MongoCfg.database = MongoParsed.database;
