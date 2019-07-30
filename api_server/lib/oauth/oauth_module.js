@@ -489,7 +489,13 @@ class OAuthModule extends APIServerModule {
 		if (this.oauth1Consumer) { return; }
 		const clientInfo = this.getClientInfo(options);
 		const { oauthData } = clientInfo;
-		const { consumerKey, privateKey } = (oauthData || {});
+		let { consumerKey, privateKey } = (oauthData || {});
+		privateKey = privateKey.trim();
+		const match = privateKey.match(/^-----BEGIN ([A-Z]+) PRIVATE KEY-----(.+)-----END ([A-Z]+) PRIVATE KEY-----/s);
+		if (match && match.length > 3) {
+			const keyPart = match[2].replace(/\s+/g, '\n');
+			privateKey = `-----BEGIN ${match[1]} PRIVATE KEY-----${keyPart}-----END ${match[3]} PRIVATE KEY-----\n`;
+		}
 		this.oauth1Consumer = new OAuth(
 			`${clientInfo.host}/${this.oauthConfig.requestTokenPath}`,
 			`${clientInfo.host}/${this.oauthConfig.accessTokenPath}`,
