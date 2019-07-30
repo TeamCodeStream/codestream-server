@@ -157,11 +157,12 @@ class CodemarkCreator extends ModelCreator {
 		const tags = this.attributes.tags;
 
 		// make sure every tag is found within the array of tags for the team
-		const teamTags = this.team.get('tags') || [];
+		const teamTags = this.team.get('tags') || {};
+		const teamTagIds = Object.keys(teamTags);
 		let offendingTagId;
 		if (tags.find(tagId => {
-			if (!teamTags.find(teamTag => {
-				return teamTag.id === tagId;
+			if (!teamTagIds.find(teamTagId => {
+				return teamTagId === tagId && !teamTags[teamTagId].deactivated;
 			})) {
 				offendingTagId = tagId;
 				return true;

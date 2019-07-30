@@ -137,7 +137,7 @@ module.exports = {
 		description: 'The IDs of any @@#codemarks#codemark@@ related to this codemark'
 	},
 	tags: {
-		type: 'arrayOfIds',
+		type: 'arrayOfStrings',
 		maxLength: 50,
 		description: 'The IDs of any tags associated with this codemark'
 	}

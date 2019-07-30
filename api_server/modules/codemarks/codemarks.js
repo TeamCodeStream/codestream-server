@@ -57,7 +57,17 @@ const CODEMARK_ADDITIONAL_ROUTES = [
 	{
 		method: 'put',
 		path: 'unrelate-codemark/:id1/:id2',
-		requestClass: require('./relate_codemark_request')
+		requestClass: require('./unrelate_codemark_request')
+	},
+	{
+		method: 'put',
+		path: 'codemarks/:id/add-tag',
+		requestClass: require('./add_tag_request')
+	},
+	{
+		method: 'put',
+		path: 'codemarks/:id/remove-tag',
+		requestClass: require('./remove_tag_request')
 	}
 ];
 

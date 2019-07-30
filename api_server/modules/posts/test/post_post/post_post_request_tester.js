@@ -90,6 +90,10 @@ const DuplicateLinkTest = require('./duplicate_link_test');
 const RelatedCodemarksTest = require('./related_codemarks_test');
 const RelatedCodemarkNotFoundTest = require('./related_codemark_not_found_test');
 const RelatedCodemarkACLTest = require('./related_codemark_acl_test');
+const TagsTest = require('./tags_test');
+const TagNotFoundTest = require('./tag_not_found_test');
+const DeactivatedTagTest = require('./deactivated_tag_test');
+const DeactivatedDefaultTagTest = require('./deactivated_default_tag_test');
 
 class PostPostRequestTester {
 
@@ -199,6 +203,10 @@ class PostPostRequestTester {
 		new RelatedCodemarksTest().test();
 		new RelatedCodemarkNotFoundTest().test();
 		new RelatedCodemarkACLTest().test();
+		new TagsTest().test();
+		new TagNotFoundTest().test();
+		new DeactivatedTagTest().test();
+		new DeactivatedDefaultTagTest().test();
 	}
 }
 

@@ -105,7 +105,10 @@ class RelateCodemarkRequest extends RestfulRequest {
 			summary: 'Relate two codemarks',
 			access: 'Codemarks must be from the same team, and the user must be a member of the team.',
 			description: 'Relate two codemarks. The relationship is bi-directional, and will be set in both directions.',
-			input: 'Specify each codemark ID in the request path, the order is irrelevant',
+			input: {
+				summary: 'Specify each codemark ID in the request path, the order is irrelevant',
+				looksLike: {}
+			},
 			returns: 'A codemarks array, with directives indicating how to update the codemarks',
 			publishes: 'The response data will be published on the team channel for the team that owns the codemarks',
 			errors: [
