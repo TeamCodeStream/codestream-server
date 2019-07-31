@@ -3,6 +3,7 @@
 'use strict';
 
 const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
+let ShowCfg = process.env.CS_API_SHOW_CFG || false;
 
 let EmailCfg = {
 	replyToDomain: null,
@@ -14,6 +15,7 @@ let EmailCfg = {
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
+	ShowCfg = CfgData.getProperty('apiServer.showConfig');
 	EmailCfg = CfgData.getSection('email');
 	if (!Object.keys(EmailCfg).length) {
 		EmailCfg.inboundEmailDisabled = true;
@@ -29,5 +31,5 @@ else {
 	EmailCfg.inboundEmailDisabled = process.env.CS_API_INBOUND_EMAIL_DISABLED;	// don't allow inbound emails
 }
 
-if (process.env.CS_API_SHOW_CFG) console.log('Config[email]:', EmailCfg);
+if (ShowCfg) console.log('Config[email]:', JSON.stringify(EmailCfg, undefined, 10));
 module.exports = EmailCfg;

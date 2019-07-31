@@ -3,6 +3,7 @@
 'use strict';
 
 const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
+let ShowCfg = process.env.CS_API_SHOW_CFG || false;
 
 let ClusterCfg = {
 	host: null,
@@ -13,6 +14,7 @@ let ClusterCfg = {
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
+	ShowCfg = CfgData.getProperty('apiServer.showConfig');
 	let BroadcastCfg = CfgData.getSection('broadcastEngine.codestreamBroadcaster');
 	if (Object.keys(BroadcastCfg).length != 0) {
 		ClusterCfg = {
@@ -30,5 +32,5 @@ else {
 	};
 }
 
-if (process.env.CS_API_SHOW_CFG) console.log('Config[socketcluster]:', ClusterCfg);
+if (ShowCfg) console.log('Config[socketcluster]:', JSON.stringify(ClusterCfg, undefined, 10));
 module.exports = ClusterCfg;

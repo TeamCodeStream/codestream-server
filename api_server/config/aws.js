@@ -3,6 +3,7 @@
 'use strict';
 
 const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
+let ShowCfg = process.env.CS_API_SHOW_CFG || false;
 
 let AwsCfg = {
 	region: null,
@@ -14,6 +15,7 @@ let AwsCfg = {
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
+	ShowCfg = CfgData.getProperty('apiServer.showConfig');
 	if (Object.keys(CfgData.getSection('queuingEngine.awsSQS')).length > 0) {
 		AwsCfg.region = CfgData.getProperty('queuingEngine.awsSQS.region');
 		AwsCfg.sqs.outboundEmailQueueName = CfgData.getProperty('queuingEngine.awsSQS.outboundEmailQueueName');
@@ -30,5 +32,5 @@ else {
 	AwsCfg.sqs.outboundEmailQueueName = process.env.CS_API_OUTBOUND_EMAIL_SQS;
 }
 
-if (process.env.CS_API_SHOW_CFG) console.log('Config[aws]:', AwsCfg);
+if (ShowCfg) console.log('Config[aws]:', JSON.stringify(AwsCfg, undefined, 10));
 module.exports = AwsCfg;

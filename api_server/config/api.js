@@ -5,12 +5,14 @@
 const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
 
 let ApiCfg = {};
+let ShowCfg = process.env.CS_API_SHOW_CFG || false;
 
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile( {configFile: CfgFileName} );
 	ApiCfg = CfgData.getSection('apiServer');
 	ApiCfg.environment = ApiCfg.runTimeEnvironment;
+	ShowCfg = ApiCfg.showConfig;
 }
 else {
 	ApiCfg = {
@@ -92,5 +94,5 @@ ApiCfg.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/web\\/'];
 // server will use this cookie to store identity token
 ApiCfg.identityCookie = 'tcs';
 
-if (process.env.CS_API_SHOW_CFG) console.log('Config[api]:', ApiCfg);
+if (ShowCfg) console.log('Config[api]:', JSON.stringify(ApiCfg, undefined, 10));
 module.exports = ApiCfg;

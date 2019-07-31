@@ -3,6 +3,7 @@
 'use strict';
 
 const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
+let ShowCfg = process.env.CS_API_SHOW_CFG || false;
 
 let JiraCfg = {
 	appClientId: null,
@@ -13,6 +14,7 @@ let JiraCfg = {
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
+	ShowCfg = CfgData.getProperty('apiServer.showConfig');
 	let jiraProviders = CfgData.getSection('integrations.jira');
 	Object.keys(jiraProviders).forEach(provider => {
 		if (provider == 'atlassian.net') {
@@ -29,5 +31,5 @@ else {
 	JiraCfg.appClientSecret = process.env.CS_API_JIRA_SECRET;
 }
 
-if (process.env.CS_API_SHOW_CFG) console.log('Config[jira]:', JiraCfg);
-module.exports = JiraCfg;
+if (ShowCfg) console.log('Config[jira]:', JSON.stringify(JiraCfg, undefined, 10));
+]module.exports = JiraCfg;

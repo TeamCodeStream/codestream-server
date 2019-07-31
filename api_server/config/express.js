@@ -3,6 +3,7 @@
 'use strict';
 
 const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
+let ShowCfg = process.env.CS_API_SHOW_CFG || false;
 
 let ExpressCfg = {
 	port: null,
@@ -17,6 +18,7 @@ let ExpressCfg = {
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
+	ShowCfg = CfgData.getProperty('apiServer.showConfig');
 	ExpressCfg = {
 		port: CfgData.getProperty('apiServer.port'),
 		ignoreHttps: CfgData.getProperty('apiServer.ignoreHttps'),
@@ -33,5 +35,5 @@ else {
 	ExpressCfg.ignoreHttps = process.env.CS_API_IGNORE_HTTPS; // run on http instead of https, for testing only
 }
 
-if (process.env.CS_API_SHOW_CFG) console.log('Config[express]:', ExpressCfg);
+if (ShowCfg) console.log('Config[express]:', JSON.stringify(ExpressCfg, undefined, 10));
 module.exports = ExpressCfg;
