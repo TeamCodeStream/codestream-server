@@ -21,6 +21,11 @@
 
 {
 	"apiServer": {
+		"showConfig": {
+			"desc": "print exported api configuration data to console",
+			"default": false,
+			"env": "CS_API_SHOW_CFG"
+		},
 		"assetEnvironment": {
 			"default": "local",
 			"desc": "environment used to create and retrieve API assets (local, onprem, dev or prod)",
@@ -128,6 +133,11 @@
 	},
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
+			"showConfig": {
+				"desc": "print exported broadcaster configuration data to console",
+				"default": false,
+				"env": "CS_BROADCASTER_SHOW_CFG"
+			},
 			"assetEnvironment": {
 				"default": "local",
 				"desc": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod)",
@@ -271,6 +281,11 @@
 		}
 	},
 	"inboundEmailServer": {
+		"showConfig": {
+			"desc": "print exported inbound email configuration data to console",
+			"default": false,
+			"env": "CS_MAILIN_SHOW_CFG"
+		},
 		"assetEnvironment": {
 			"default": "local",
 			"desc": "environment used to create and retrieve inbound email service assets (local, onprem, dev, prod, ...)",
@@ -316,6 +331,11 @@
 		"tempAttachmentDirectory": {
 			"default": "${CS_MAILIN_SANDBOX}/mailq/attachments",
 			"desc": "attachments in incoming emails will be stored temporarily here"
+		},
+		"tmpDirectory": {
+			"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/tmp",
+			"desc": "temp directory",
+			"env": "CS_MAILIN_TMP"
 		}
 	},
 	"integrations": {
@@ -438,6 +458,11 @@
 		}
 	},
 	"outboundEmailServer": {
+		"showConfig": {
+			"desc": "print exported outbound email configuration data to console",
+			"default": false,
+			"env": "CS_OUTBOUND_EMAIL_SHOW_CFG"
+		},
 		"assetEnvironment": {
 			"default": "local",
 			"desc": "environment used to create and retrieve outbound email assets (local, onprem, dev, prod, ...)",
