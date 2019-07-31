@@ -20,6 +20,7 @@
 		"publicApiUrl": "public url to access the API server from beyond [CS_API_PUBLIC_URL]",
 		"runTimeEnvironment": "API run-time environment; use sparingly with preference for more specific params [CS_API_ENV]",
 		"sessionAwayTimeout": "how long before we call a user 'away' from keyboard (in millisecs) [CS_API_SESSION_AWAY_TIMEOUT]",
+		"showConfig": "print exported api configuration data to console [CS_API_SHOW_CFG]",
 		"signupTokenExpiration": "how long a signup token issued by the IDE for a user to signup on web remains valid (in millisecs, default = 10 min) [CS_API_SIGNUP_TOKEN_EXPIRATION]",
 		"tmpDirectory": "temp directory [CS_API_TMP]"
 	},
@@ -37,7 +38,8 @@
 			"secrets": {
 				"api": "used to generate json web tokens for authentication tokens passed to the client [CSSVC_BROADCASTER_API_SECRET]",
 				"auth": "used to privilege certain api server requests to the broadcaster service [CSSVC_BROADCASTER_AUTH_SECRET]"
-			}
+			},
+			"showConfig": "print exported broadcaster configuration data to console [CS_BROADCASTER_SHOW_CFG]"
 		},
 		"pubnub": {
 			"keepAlive": "use pubnub keep-alives",
@@ -81,7 +83,9 @@
 		},
 		"processDirectory": "email files will be moved to this directory for processing",
 		"runTimeEnvironment": "Inbound email service run-time environment; use sparingly with preference for more specific params [CS_MAILIN_ENV]",
-		"tempAttachmentDirectory": "attachments in incoming emails will be stored temporarily here"
+		"showConfig": "print exported inbound email configuration data to console [CS_MAILIN_SHOW_CFG]",
+		"tempAttachmentDirectory": "attachments in incoming emails will be stored temporarily here",
+		"tmpDirectory": "temp directory [CS_MAILIN_TMP]"
 	},
 	"integrations": {
 		"asana": {
@@ -156,13 +160,14 @@
 		"assetEnvironment": "environment used to create and retrieve outbound email assets (local, onprem, dev, prod, ...) [CS_OUTBOUND_EMAIL_ASSET_ENV]",
 		"logger": {
 			"consoleOk": "allow logging to the console [CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK]",
-			"debugOk": "more verbose logging (debug level) [CS_MAILIN_DEBUG_OK]",
+			"debugOk": "more verbose logging (debug level) [CS_OUTBOUND_EMAIL_DEBUG_OK]",
 			"directory": "directory for outbound email logs [CS_OUTBOUND_EMAIL_LOGS]"
 		},
 		"runTimeEnvironment": "Outbound email run-time environment; use sparingly with preference for more specific params [CS_OUTBOUND_EMAIL_ENV]",
+		"showConfig": "print exported outbound email configuration data to console [CS_OUTBOUND_EMAIL_SHOW_CFG]",
 		"storage": {
 			"mongo": {
-				"url": "optional override for mongo connect string [CSSVC_MAILOUT_MONGO_URL]"
+				"url": "optional override for mongo connect string [CS_OUTBOUND_EMAIL_MONGO_URL]"
 			}
 		},
 		"tmpDirectory": "temp directory [CS_OUTBOUND_EMAIL_TMP]"
@@ -170,14 +175,14 @@
 	"queuingEngine": {
 		"awsSQS": {
 			"outboundEmailQueueName": "SQS queue name [CSSVC_OUTBOUND_EMAIL_QUEUE_NAME]",
-			"region": "AWS region where queue resides"
+			"region": "AWS region where queue resides [AWS_REGION]"
 		},
 		"rabbitmq": {
 			"host": "hostname of rabbitMQ service",
 			"outboundEmailQueueName": "RabbitMQ queue name [CSSVC_OUTBOUND_EMAIL_QUEUE_NAME]",
-			"password": "rabbitmq password for authentication",
-			"port": "network port for rabbitmq service",
-			"user": "rabbitmq user for authentication"
+			"password": "rabbitmq password for authentication [CSSVC_RABBITMQ_PASS]",
+			"port": "network port for rabbitmq service [CSSVC_RABBITMQ_PORT]",
+			"user": "rabbitmq user for authentication [CSSVC_RABBITMQ_USER]"
 		}
 	},
 	"sharedSecrets": {

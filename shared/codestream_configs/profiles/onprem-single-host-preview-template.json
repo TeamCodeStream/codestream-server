@@ -4,6 +4,7 @@
 // - Broadcast:      codestream broadcaster
 // - Queuing:        rabbitMQ
 // - Outbound SMTP:  NodeMailer
+// - Telemetry:      Segment production
 
 {
 	"apiServer": {
@@ -84,6 +85,13 @@
 		"mongo": {
 			"defaultEnv": {
 				"url": "mongodb://{{FQHN}}/codestream"
+			}
+		}
+	},
+	"telemetry": {
+		"segment": {
+			"defaultEnv": {
+				"_loadSecretsFile": "segment/prod-api.cfg"
 			}
 		}
 	}

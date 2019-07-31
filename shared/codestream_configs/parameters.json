@@ -13,19 +13,15 @@
 //    }
 //
 // Notes
-//   - Any default values that include '{ENV_VAR_NAME}' denote the use
+//   - Any default values that include '${ENV_VAR_NAME}' denote the use
 //     of the variable, at run-time, to set the config parameter.
 //
-//   - Blocks whose key is '<appProvider>' are repeated based on the profiles
-//     (for example github.com and a Github Enterprise Server on-prem)
+//   - Blocks whose key is '<appProvider>' (or any variable name enclosed in
+//     '<','>') are repeated based on the profiles (for example github.com and a
+//     Github Enterprise Server on-prem)
 
 {
 	"apiServer": {
-		"showConfig": {
-			"desc": "print exported api configuration data to console",
-			"default": false,
-			"env": "CS_API_SHOW_CFG"
-		},
 		"assetEnvironment": {
 			"default": "local",
 			"desc": "environment used to create and retrieve API assets (local, onprem, dev or prod)",
@@ -120,6 +116,11 @@
 			"desc": "how long before we call a user 'away' from keyboard (in millisecs)",
 			"env": "CS_API_SESSION_AWAY_TIMEOUT"
 		},
+		"showConfig": {
+			"default": false,
+			"desc": "print exported api configuration data to console",
+			"env": "CS_API_SHOW_CFG"
+		},
 		"signupTokenExpiration": {
 			"default": 600000,
 			"desc": "how long a signup token issued by the IDE for a user to signup on web remains valid (in millisecs, default = 10 min)",
@@ -133,11 +134,6 @@
 	},
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
-			"showConfig": {
-				"desc": "print exported broadcaster configuration data to console",
-				"default": false,
-				"env": "CS_BROADCASTER_SHOW_CFG"
-			},
 			"assetEnvironment": {
 				"default": "local",
 				"desc": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod)",
@@ -186,6 +182,11 @@
 					"env": "CSSVC_BROADCASTER_AUTH_SECRET",
 					"required": true
 				}
+			},
+			"showConfig": {
+				"default": false,
+				"desc": "print exported broadcaster configuration data to console",
+				"env": "CS_BROADCASTER_SHOW_CFG"
 			}
 		},
 		"pubnub": {
@@ -257,16 +258,16 @@
 				"default": 587,
 				"desc": "Email submission port"
 			},
+			"secure": {
+				"default": true,
+				"desc": "use secure transport when sending mail"
+			},
 			"service": {
 				"desc": "NodeMailer service type (gmail, ...)",
 				"required": true
 			},
 			"username": {
 				"desc": "smtp authentication user"
-			},
-			"secure": {
-				"desc": "use secure transport when sending mail",
-				"default": true
 			}
 		},
 		"sendgrid": {
@@ -281,11 +282,6 @@
 		}
 	},
 	"inboundEmailServer": {
-		"showConfig": {
-			"desc": "print exported inbound email configuration data to console",
-			"default": false,
-			"env": "CS_MAILIN_SHOW_CFG"
-		},
 		"assetEnvironment": {
 			"default": "local",
 			"desc": "environment used to create and retrieve inbound email service assets (local, onprem, dev, prod, ...)",
@@ -293,13 +289,13 @@
 		},
 		"inboundEmailDirectory": {
 			"default": "${CS_MAILIN_SANDBOX}/mailq/new",
-			"env": "CS_MAILIN_INBOUND_EMAIL_DIR",
-			"desc": "new email files will be delivered to this directory by the mail agent"
+			"desc": "new email files will be delivered to this directory by the mail agent",
+			"env": "CS_MAILIN_INBOUND_EMAIL_DIR"
 		},
 		"inboundEmailDisabled": {
 			"default": false,
-			"env": "CS_MAILIN_INBOUND_EMAIL_DISABLED",
-			"desc": "true will disable inbound email processing"
+			"desc": "true will disable inbound email processing",
+			"env": "CS_MAILIN_INBOUND_EMAIL_DISABLED"
 		},
 		"logger": {
 			"consoleOk": {
@@ -313,9 +309,9 @@
 				"env": "CS_MAILIN_DEBUG_OK"
 			},
 			"directory": {
+				"default": "${CS_MAILIN_SANDBOX}/log",
 				"desc": "directory for inbound email logs",
 				"env": "CS_MAILIN_LOGS",
-				"default": "${CS_MAILIN_SANDBOX}/log",
 				"envRequired": true
 			}
 		},
@@ -327,6 +323,11 @@
 			"default": "local",
 			"desc": "Inbound email service run-time environment; use sparingly with preference for more specific params",
 			"env": "CS_MAILIN_ENV"
+		},
+		"showConfig": {
+			"default": false,
+			"desc": "print exported inbound email configuration data to console",
+			"env": "CS_MAILIN_SHOW_CFG"
 		},
 		"tempAttachmentDirectory": {
 			"default": "${CS_MAILIN_SANDBOX}/mailq/attachments",
@@ -458,11 +459,6 @@
 		}
 	},
 	"outboundEmailServer": {
-		"showConfig": {
-			"desc": "print exported outbound email configuration data to console",
-			"default": false,
-			"env": "CS_OUTBOUND_EMAIL_SHOW_CFG"
-		},
 		"assetEnvironment": {
 			"default": "local",
 			"desc": "environment used to create and retrieve outbound email assets (local, onprem, dev, prod, ...)",
@@ -477,7 +473,7 @@
 			"debugOk": {
 				"default": false,
 				"desc": "more verbose logging (debug level)",
-				"env": "CS_MAILIN_DEBUG_OK"
+				"env": "CS_OUTBOUND_EMAIL_DEBUG_OK"
 			},
 			"directory": {
 				"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/log",
@@ -491,11 +487,16 @@
 			"desc": "Outbound email run-time environment; use sparingly with preference for more specific params",
 			"env": "CS_OUTBOUND_EMAIL_ENV"
 		},
+		"showConfig": {
+			"default": false,
+			"desc": "print exported outbound email configuration data to console",
+			"env": "CS_OUTBOUND_EMAIL_SHOW_CFG"
+		},
 		"storage": {
 			"mongo": {
 				"url": {
 					"desc": "optional override for mongo connect string",
-					"env": "CSSVC_MAILOUT_MONGO_URL"
+					"env": "CS_OUTBOUND_EMAIL_MONGO_URL"
 				}
 			}
 		},
@@ -515,7 +516,8 @@
 			},
 			"region": {
 				"default": "us-east-1",
-				"desc": "AWS region where queue resides"
+				"desc": "AWS region where queue resides",
+				"env": "AWS_REGION"
 			}
 		},
 		"rabbitmq": {
@@ -531,15 +533,18 @@
 			},
 			"password": {
 				"default": "stream",
-				"desc": "rabbitmq password for authentication"
+				"desc": "rabbitmq password for authentication",
+				"env": "CSSVC_RABBITMQ_PASS"
 			},
 			"port": {
 				"default": 5672,
-				"desc": "network port for rabbitmq service"
+				"desc": "network port for rabbitmq service",
+				"env": "CSSVC_RABBITMQ_PORT"
 			},
 			"user": {
 				"default": "code",
-				"desc": "rabbitmq user for authentication"
+				"desc": "rabbitmq user for authentication",
+				"env": "CSSVC_RABBITMQ_USER"
 			}
 		}
 	},

@@ -17,45 +17,45 @@
 
 {
 	"apiServer": {
+		"defaultEnv": {},
 		"local": {
 			"dontWantAWS": true
-		},
-		"defaultEnv": {}
+		}
 	},
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
+			"defaultEnv": {},
 			"local": {
 				"assetEnvironment": "local",
+				"logger": {
+					"directory": "${CS_BROADCASTER_SANDBOX}/log"
+				},
 				"runTimeEnvironment": "local",
 				"secrets": {
 					"_loadSecretsFile": "codestream/local-bcast-secrets.cfg"
-				},
-				"logger": {
-					"directory": "${CS_BROADCASTER_SANDBOX}/log"
 				}
-			},
-			"defaultEnv": {}
+			}
 		}
 	},
 	"email": {
-		"local": {},
-		"defaultEnv": {}
+		"defaultEnv": {},
+		"local": {}
 	},
 	"emailDeliveryService": {
+		"defaultEnv": {},
 		"local": {
 			"NodeMailer": {
-				"service": "gmail",
 				"host": "smtp.gmail.com",
+				"password": "{{GMAIL_ACCOUNT_PASSWORD_PLAIN_TEXT}}",
 				"port": 587,
-				"username": "${DT_USER}@codestream.com",
-				"password": "{{GMAIL_ACCOUNT_PASSWORD_PLAIN_TEXT}}"
+				"service": "gmail",
+				"username": "${DT_USER}@codestream.com"
 			}
-		},
-		"defaultEnv": {}
+		}
 	},
 	"inboundEmailServer": {
-		"local": {},
-		"defaultEnv": {}
+		"defaultEnv": {},
+		"local": {}
 	},
 	"integrations": {
 		"asana": {
@@ -152,23 +152,23 @@
 		}
 	},
 	"outboundEmailServer": {
-		"local": {},
-		"defaultEnv": {}
+		"defaultEnv": {},
+		"local": {}
 	},
 	"queuingEngine": {
-		"local": {
-			"rabbitmq": {}
-		},
 		"defaultEnv": {
 			"awsSQS": {}
+		},
+		"local": {
+			"rabbitmq": {}
 		}
 	},
 	"sharedSecrets": {
-		"local": {
-			"_loadSecretsFile": "codestream/local-secrets.cfg"
-		},
 		"defaultEnv": {
 			"_loadSecretsFile": "codestream/dev-secrets.cfg"
+		},
+		"local": {
+			"_loadSecretsFile": "codestream/local-secrets.cfg"
 		}
 	},
 	"ssl": {
