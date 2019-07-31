@@ -66,7 +66,7 @@ class PutCodemarkRequest extends PutRequest {
 	// describe this route for help
 	static describe (module) {
 		const description = PutRequest.describe(module);
-		description.access = 'Only the creator of a codemark can update it';
+		description.access = 'Only the creator of a codemark can update it, except tags and the status of issues';
 		description.input = {
 			summary: description.input,
 			looksLike: {
@@ -76,7 +76,8 @@ class PutCodemarkRequest extends PutRequest {
 				'color': '<Change the color of the codemark>',
 				'text': '<Change the text of the codemark>',
 				'title': '<Change the title of the codemark>',
-				'assignees': '<Change the array of IDs representing assignees (to issues)>'
+				'assignees': '<Change the array of IDs representing assignees (to issues)>',
+				'tags': '<Change the array of tags associatd with this codemark>'
 			}
 		};
 		description.publishes = {
