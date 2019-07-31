@@ -30,15 +30,22 @@ function diff_notify {
 [ -z "$KM_PKI" ] && echo "Set KM_PKI to the location of the PKI database" && exit 1
 [ "$1" == "-y" ] && yes="" || yes=y
 binDir=`dirname $0`
-repoRoot=`dirname $binDir`
+repoRoot=$(cd $binDir/.. && pwd)
+srcDir=`dirname $repoRoot`
+
+for p in `/bin/ls $repoRoot/profiles/*.json $repoRoot/parameters.json`
+do
+	echo "sorting $p"
+	$binDir/process-profile --sort-json $p
+done
 
 [ ! -d $repoRoot/../onprem-install ] && echo "$repoRoot/../onprem-install not found (pwd=`pwd`)" >&2 && exit 1
 $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
 diff_notify $repoRoot/README.parameter-definitions.json "$yes"
 
 # template for on-prem with docker
-$binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $repoRoot/../onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.x
-diff_notify ~/src/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template "$yes"
+$binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.x
+diff_notify $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template "$yes"
 
 # configs for development (distributed via dt-update-secrets)
 $binDir/process-profile --profile $repoRoot/profiles/cloud.json --env local --out $KM_PKI/secrets/config/local-cloud-development.json.x
