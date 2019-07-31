@@ -1,0 +1,26 @@
+
+FROM node:10.15.3
+
+# This directory will be mounted from the host OS
+RUN mkdir /opt/config
+
+WORKDIR /opt/broadcaster
+RUN mkdir log tmp pid
+
+WORKDIR /opt/broadcaster/broadcaster
+
+ADD *.js *.json /opt/broadcaster/broadcaster/
+ADD codestream /opt/broadcaster/broadcaster/codestream
+ADD codestream-configs /opt/broadcaster/broadcaster/codestream-configs
+ADD public /opt/broadcaster/broadcaster/public
+ADD bin/server.js /opt/broadcaster/broadcaster/bin/server.js
+
+RUN npm install --no-save
+
+EXPOSE 12443
+
+ENV CS_BROADCASTER_TOP=/opt/broadcaster/broadcaster
+ENV CS_BROADCASTER_CFG_FILE=/opt/config/codestream-services-config.json
+# ENV CS_BROADCASTER_SHOW_CFG=1
+
+CMD [ "/opt/broadcaster/broadcaster/bin/server.js" ]
