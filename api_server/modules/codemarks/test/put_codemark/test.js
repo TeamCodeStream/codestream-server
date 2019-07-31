@@ -28,6 +28,10 @@ const UpdatePostlessAssigneesTest = require('./update_postless_assignees_test');
 const SetParentPostIdTest = require('./set_parent_post_id_test');
 const TeamMemberUpdateIssueStatusTest = require('./team_member_update_issue_status_test');
 const UpdateStatusACLTest = require('./update_status_acl_test');
+const TagsTest = require('./tags_test');
+const OtherUserCanAddTagsTest = require('./other_user_can_add_tags_test');
+const TagNotFoundTest = require('./tag_not_found_test');
+const TagDeactivatedTest = require('./tag_deactivated_test');
 
 class PutCodemarkRequestTester {
 
@@ -72,6 +76,10 @@ class PutCodemarkRequestTester {
 		new SetParentPostIdTest().test();
 		new TeamMemberUpdateIssueStatusTest().test();
 		new UpdateStatusACLTest().test();
+		new TagsTest().test();
+		new OtherUserCanAddTagsTest().test();
+		new TagNotFoundTest().test();
+		new TagDeactivatedTest().test();
 	}
 }
 

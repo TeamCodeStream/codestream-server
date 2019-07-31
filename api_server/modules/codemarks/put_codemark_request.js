@@ -9,27 +9,33 @@ class PutCodemarkRequest extends PutRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		// get the codemark, only the author can edit a codemark
+		// first get the codemark
 		this.codemark = await this.data.codemarks.getById(this.request.params.id);
 		if (!this.codemark) {
 			throw this.errorHandler.error('notFound', { info: 'codemark' });
 		}
-		if (
-			this.codemark.get('creatorId') !== this.user.id &&
-			!this.isChangeToIssueStatus()	// allow anyone on team to update an issue's status
-		) {
-			throw this.errorHandler.error('updateAuth', { reason: 'only the author, or a team member changing an issue\'s status, can update a codemark' });
-		}
-	}
 
-	// if the update is a change to the issue's status, and nothing else, then we allow anyone
-	// on the team to do it
-	isChangeToIssueStatus () {
-		return (
-			this.codemark.get('type') === 'issue' &&
-			Object.keys(this.request.body).length === 1 &&
-			Object.keys(this.request.body)[0] === 'status'
-		);
+		// in the most general case, the author can edit anything they want about a codemark
+		if (this.codemark.get('creatorId') === this.user.id) {
+			return;
+		}
+
+		// the rest can only be done by other members of the team
+		if (!this.user.hasTeam(this.codemark.get('teamId'))) {
+			throw this.errorHandler.error('updateAuth', { reason: 'user must be on the team that owns the codemark' });
+		}
+
+		// team members can only change an issue's status, or the tags array
+		if (Object.keys(this.request.body).find(attribute => {
+			return ['tags', 'status'].indexOf(attribute) === -1;
+		})) {
+			throw this.errorHandler.error('updateAuth', { reason: 'only the creator of the codemark can make this update' });
+		}
+
+		// only issues can have status change
+		if (this.request.body.status && this.codemark.get('type') !== 'issue') {
+			throw this.errorHandler.error('updateAuth', { reason: 'can not change the status of a codemark type that is not an issue' });
+		}
 	}
 
 	// handle response to the request

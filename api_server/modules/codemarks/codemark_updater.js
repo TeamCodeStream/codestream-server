@@ -26,13 +26,14 @@ class CodemarkUpdater extends ModelUpdater {
 	getAllowedAttributes () {
 		return {
 			string: ['postId', 'streamId', 'parentPostId', 'status', 'text', 'title', 'color'],
-			'array(string)': ['assignees']
+			'array(string)': ['assignees', 'tags']
 		};
 	}
 
 	// called before the codemark is actually saved
 	async preSave () {
 		await this.getCodemark();		// get the codemark
+		await this.getTeam();			// get the codemark's team
 		if (this.attributes.postId || this.attributes.streamId) {
 			// if providing post ID, we assume it is a pre-created codemark for third-party
 			// integration, which requires special treatment
@@ -44,6 +45,7 @@ class CodemarkUpdater extends ModelUpdater {
 			delete this.attributes.parentPostId;
 		}
 		await this.preValidate();
+		await this.validateTags();
 		await this.validateAssignees();
 		this.attributes.modifiedAt = Date.now();
 		await super.preSave();		// base-class preSave
@@ -54,6 +56,14 @@ class CodemarkUpdater extends ModelUpdater {
 		this.codemark = await this.request.data.codemarks.getById(this.attributes.id);
 		if (!this.codemark) {
 			throw this.errorHandler.error('notFound', { info: 'codemark' });
+		}
+	}
+
+	// get the codemark's team
+	async getTeam () {
+		this.team = await this.request.data.teams.getById(this.codemark.get('teamId'));
+		if (!this.team) {
+			throw this.errorHandler.error('notFound', { info: 'team' });
 		}
 	}
 
@@ -112,6 +122,26 @@ class CodemarkUpdater extends ModelUpdater {
 		}
 		catch (error) {
 			throw this.request.errorHandler.error('validation', { info: error });
+		}
+	}
+
+	// if there are tags, each tag must be known to the team
+	async validateTags () {
+		if (!this.attributes.tags) {
+			return;
+		}
+		const teamTags = this.team.get('tags') || {};
+		const teamTagIds = Object.keys(teamTags);
+		let offendingTagId;
+		if (this.attributes.tags.find(tagId => {
+			if (!teamTagIds.find(teamTagId => {
+				return teamTagId === tagId && !teamTags[teamTagId].deactivated;
+			})) {
+				offendingTagId = tagId;
+				return true;
+			}
+		})) {
+			throw this.errorHandler.error('notFound', { info: 'tag ' + offendingTagId });
 		}
 	}
 

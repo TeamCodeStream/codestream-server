@@ -11,7 +11,7 @@ class ACLTeamTest extends PutCodemarkTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1010',
-			reason: 'only the author.* can update a codemark'
+			reason: 'user must be on the team that owns the codemark'
 		};
 	}
 

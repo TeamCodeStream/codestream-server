@@ -12,7 +12,7 @@ class UpdateStatusACLTest extends TeamMemberUpdateIssueStatusTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1010',
-			reason: 'only the author.* can update a codemark'
+			reason: 'only the creator of the codemark can make this update'
 		};
 	}
 
