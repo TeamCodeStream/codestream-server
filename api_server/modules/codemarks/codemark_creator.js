@@ -233,11 +233,11 @@ class CodemarkCreator extends ModelCreator {
 
 		// make sure the user has access to all the codemarks
 		await Promise.all(relatedCodemarks.map(async relatedCodemark => {
-			if (relatedCodemark.get('teamId') !== this.team.id) {
-				throw this.errorHandler.error('updateAuth', { reason: 'all related codemarks must be for the same team' });
-			}
 			if (!await this.user.authorizeCodemark(relatedCodemark.id, this.request)) {
 				throw this.errorHandler.error('updateAuth', { reason: 'user does not have access to all related codemarks' });
+			}
+			if (relatedCodemark.get('teamId') !== this.team.id) {
+				throw this.errorHandler.error('updateAuth', { reason: 'all related codemarks must be for the same team' });
 			}
 		}));
 
