@@ -447,16 +447,23 @@ class OAuthModule extends APIServerModule {
 			if (mockToken) {
 				return resolve({ oauthToken: mockToken, oauthTokenSecret: 'mockTokenSecret '});
 			}
-			this.oauth1Consumer.getOAuthRequestToken(
-				(error, oauthToken, oauthTokenSecret) => {
-					if (error) {
-						reject(error);
+			try {
+				this.oauth1Consumer.getOAuthRequestToken(
+					(error, oauthToken, oauthTokenSecret) => {
+						if (error) {
+							throw (error);
+						}
+						else {
+							resolve({ oauthToken, oauthTokenSecret });
+						}
 					}
-					else {
-						resolve({ oauthToken, oauthTokenSecret });
-					}
-				}
-			);
+				);
+			}
+			catch (error) {
+				const rejectError = options.request && options.request.errorHandler ?
+					options.request.errorHandler.error('tokenInvalid') : error;
+				reject(rejectError);
+			}
 		});
 	}
 
@@ -474,6 +481,8 @@ class OAuthModule extends APIServerModule {
 				null,
 				(error, accessToken) => {
 					if (error) {
+						error = options.request && options.request.errorHandler ?
+							options.request.errorHandler.error('tokenInvalid') : error;
 						reject(error);
 					}
 					else {

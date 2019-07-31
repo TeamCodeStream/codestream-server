@@ -5,6 +5,7 @@
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 const Base64 = require('base-64');
+const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 
 class ProviderAuthRequest extends RestfulRequest {
 
@@ -21,21 +22,32 @@ class ProviderAuthRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 
-		// get the provider service corresponding to the passed provider
-		this.provider = this.request.params.provider.toLowerCase();
-		this.serviceAuth = this.api.services[`${this.provider}Auth`];
-		if (!this.serviceAuth) {
-			throw this.errorHandler.error('unknownProvider', { info: this.provider });
-		}
+		try {
+			// get the provider service corresponding to the passed provider
+			this.provider = this.request.params.provider.toLowerCase();
+			this.serviceAuth = this.api.services[`${this.provider}Auth`];
+			if (!this.serviceAuth) {
+				throw this.errorHandler.error('unknownProvider', { info: this.provider });
+			}
 
-		await this.requireAndAllow();	// require certain parameters, discard unknown parameters
-		await this.extractFromAuthCode();	// extract the payload from the auth code
-		if (this.request.query.host) {
-			// if there is a host, we might need to get the host info based on the team
-			await this.getTeam();
+			await this.requireAndAllow();	// require certain parameters, discard unknown parameters
+			await this.extractFromAuthCode();	// extract the payload from the auth code
+			if (this.request.query.host) {
+				// if there is a host, we might need to get the host info based on the team
+				await this.getTeam();
+			}
+			await this.getRequestToken();	// get request token, as needed (for OAuth 1.0)
+			await this.performRedirect();	// perform whatever redirect is necessary to initiate the authorization
 		}
-		await this.getRequestToken();	// get request token, as needed (for OAuth 1.0)
-		await this.performRedirect();	// perform whatever redirect is necessary to initiate the authorization
+		catch (error) {
+			this.warn(ErrorHandler.log(error));
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			const code = typeof error === 'object' ? error.code : 'unknown';
+			this.warn('Error handling provider token request: ' + message);
+			let url = `/web/error?code=${code}&provider=${this.provider}`;
+			this.response.redirect(url);
+			this.responseHandled = true;
+		}
 	}
 
 	// require certain parameters, discard unknown parameters
