@@ -32,7 +32,7 @@ MongoCfg.queryLogging = { // we write a separate log file for mongo queries, and
 		},
 		{
 			collection: 'users',
-			fields: ['providerInfo.*.*.accessToken', 'accessTokens.*.token', 'pubNubToken', 'broadcasterToken']
+			fields: ['providerInfo.*.*.accessToken', 'providerInfo.*.*.refreshToken', 'accessTokens.*.token', 'pubNubToken', 'broadcasterToken']
 		}
 	]
 };
