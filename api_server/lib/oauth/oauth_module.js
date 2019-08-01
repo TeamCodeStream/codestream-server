@@ -499,7 +499,7 @@ class OAuthModule extends APIServerModule {
 		const clientInfo = this.getClientInfo(options);
 		const { oauthData } = clientInfo;
 		let { consumerKey, privateKey } = (oauthData || {});
-		privateKey = privateKey.trim();
+		privateKey = (privateKey || '').trim();
 		const match = privateKey.match(/^-----BEGIN ([A-Z]+) PRIVATE KEY-----(.+)-----END ([A-Z]+) PRIVATE KEY-----/s);
 		if (match && match.length > 3) {
 			const keyPart = match[2].replace(/\s+/g, '\n');
