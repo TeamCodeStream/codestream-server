@@ -32,4 +32,4 @@ else {
 }
 
 if (ShowCfg) console.log('Config[jira]:', JSON.stringify(JiraCfg, undefined, 10));
-]module.exports = JiraCfg;
+module.exports = JiraCfg;
