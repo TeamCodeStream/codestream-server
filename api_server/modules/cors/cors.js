@@ -20,10 +20,10 @@ const _parseDomain = url => {
 		parsed = URL.parse(url);
 	}
 	catch (error) {
-		return url;
+		return url.toLowerCase();
 	}
 	if (!parsed || !parsed.hostname) {
-		return url;
+		return url.toLowerCase();
 	}
 	const parts = parsed.hostname.split('.').reverse();
 	if (parts.length > 1) {
@@ -38,7 +38,7 @@ class CorsModule extends APIServerModule {
 
 	getServiceOrigins () {
 		return [
-			this.api.config.webclient.host 		// origin for web app
+			//this.api.config.webclient.host 	// origin for web app
 		];
 	}
 
@@ -55,15 +55,21 @@ class CorsModule extends APIServerModule {
 				}
 
 				// check against whitelisted domains
-				const originDomain = _parseDomain(origin).toLowerCase();
+				const originDomain = _parseDomain(origin);
 				if (_WHITELISTED_DOMAINS.includes(originDomain)) {
+					return callback(null, true);
+				}
+
+				// check against the public api
+				const publicDomain = _parseDomain(this.api.config.api.publicApiUrl || '');
+				if (originDomain === publicDomain) {
 					return callback(null, true);
 				}
 
 				// allow other codestream services to have their own origins
 				const serviceOrigins = this.getServiceOrigins();
 				for (let serviceOrigin of serviceOrigins) {
-					const serviceOriginDomain = _parseDomain(serviceOrigin).toLowerCase();
+					const serviceOriginDomain = _parseDomain(serviceOrigin);
 					if (originDomain === serviceOriginDomain) {
 						return callback(null, true);
 					}
