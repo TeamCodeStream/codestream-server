@@ -4,6 +4,7 @@
 	"dependencies": {
 		"async": "2.6.2",
 		"commander": "2.20.0",
+		"hjson": "^3.1.2",
 		"html-entities": "1.2.1",
 		"mailparser": "2.7.1",
 		"pubnub": "4.23.0",

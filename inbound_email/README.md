@@ -1,23 +1,37 @@
-This is the inbound email server. It handles email files deposited in a directory
-by our mail server (Postfix), and digests them for use by CodeStream. It reads
-and parses the mail files, does some processing, then sends them to the API server
-using a special http call.
+# CodeStream Inbound Email Gateway Service
 
-This repo should be used within the context of the dev_tools sandbox model. You
-should install it as a working sandbox and load the sandbox into your shell's
-environment before launching any of the services.
+This service processes replies to CodeStream generated emails and injects them
+back into the system. This service expects the inbound emails to be dropped
+into a designated directory by a standard email service (such as postfix).
 
-Git hooks and submodules are initialized and maintained through hooks which will
-be setup up installation.   See the dev_tools readme for more information concerning
-sandboxes.
+Full instructions for setting this sandbox up, along with others needed to
+complete the codestream development environment can be found with the API
+service documentation.
 
-Configuration settings are primarily defined in the *sandbox/defaults.sh* file.
-The sandbox type, environment variable & command prefix is *cs_mailin*.
 
-*DO NOT USE NPM TO MANAGE THIS REPO.  USE YARN.*  New npm modules should be installed
-with the *yarn install $module* command. Building node_modules from the package.json file
-should be done with *yarn install --frozen-lockfile*
+## Installation for local cloud development using dev_tools
 
+### Prerequisites
+1. Install the dev_tools tookkit
+   [here](https://github.com/teamcodestream/dev_tools).
+1. Install the [API service](https://github.com/teamcodestream/api_service).
+1. Review the procedure for managing the [unified config
+   file](README.unified-cfg-file.md) and set your config to
+   **local-cloud-development.json**
+
+### Quick Start
+1. Open a new terminal window
+1. Install the inbound email service
+    ```
+    $ dt-sb-new-sandbox -yCD -t cs_mailin -n <sandbox-name>
+    ```
+1. Load your sandbox
+    ```
+    $ dt-load <sandbox-name>
+    ```
+1. Create a playground for your inbound mail service
+    ```
+    $ dt-sb-create-playground -n <mailin-playground-name> -t $CS_MAILIN_TOP/sandbox/playgrounds/default.template
 
 Sandbox commands:
 
