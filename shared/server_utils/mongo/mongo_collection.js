@@ -566,12 +566,15 @@ class MongoCollection {
 			if (noLogData.collection === collectionName) {
 				const { fields } = noLogData;
 				if (mongoFunc === 'insertOne' && type === 'query') {
+					data = DeepClone(data);
 					return this._sanitizeInsertOneForLogging(data, fields);
 				}
 				else if (mongoFunc === 'insertMany' && type === 'query') {
+					data = DeepClone(data);
 					return this._sanitizeInsertManyForLogging(data, fields);
 				}
 				else if (['updateOne', 'updateMany', 'findOneAndUpdate'].indexOf(mongoFunc) !== -1 && type === 'additionalArguments') {
+					data = DeepClone(data);
 					return this._sanitizeUpdateForLogging(data, fields);
 				}
 			}
@@ -601,72 +604,51 @@ class MongoCollection {
 		if (!data[0] || !data[0].$set) {
 			return data;
 		}
-		const options = { cloned: false };
-		data[0].$set = this._normalizeSet(data[0].$set, options);
-		data[0].$set = this._sanitizeDataForLogging(data[0].$set, fields, options);
+		data[0].$set = this._normalizeSet(data[0].$set);
+		data[0].$set = this._sanitizeDataForLogging(data[0].$set, fields);
 		return data;
 	}
 	
 	// normalize the set object, removing any fields with dot-notation and replacing with object equivalents
-	_normalizeSet (set, options) {
+	_normalizeSet (set) {
 		const multipartKeys = Object.keys(set).filter(key => key.match(/\./));
 		if (multipartKeys.length === 0) {
 			return set;
-		}
-		if (!options.cloned) {
-			set = DeepClone(set, options);
-			options.cloned = true;
 		}
 		for (let key of multipartKeys) {
 			const keyParts = key.split('.');
 			set[keyParts[0]] = set[keyParts[0]] || {};
 			const subKey = keyParts.slice(1).join('.');
 			set[keyParts[0]][subKey] = set[key];
-			this._normalizeSet(set[keyParts[0]], options);
+			this._normalizeSet(set[keyParts[0]]);
 			delete set[key];
 		}
 		return set;
 	}
 	
 	// sanitize the passed data object for logging, according to the fields passed in
-	_sanitizeDataForLogging (data, fields, options = {}) {
-		options = {
-			cloned: options.cloned || false,
-			data,
-			levels: []
-		};
+	_sanitizeDataForLogging (data, fields) {
 		for (let field of fields) {
-			this._sanitizeFieldInObject(options.newData || options.data, field, options);
+			this._sanitizeFieldInObject(data, field);
 		}
-		return options.newData || data;
+		return data;
 	}
 	
 	// for a given field, sanitize that field out of the data object, for logging
 	// includes recursive sanitization for sub-objects, if specified
-	_sanitizeFieldInObject (obj, field, options) {
+	_sanitizeFieldInObject (obj, field) {
 		const parts = field.split('.');
 		if (parts.length > 1) {
 			const topField = parts[0];
 			const keys = topField === '*' ? Object.keys(obj) : [topField];
 			for (let key of keys) {
 				if (typeof obj[key] === 'object') {
-					options.levels.push(key);
-					this._sanitizeFieldInObject(obj[key], parts.slice(1).join('.'), options);
-					options.levels.unshift();
+					this._sanitizeFieldInObject(obj[key], parts.slice(1).join('.'));
 				}
 			}
 		}
 		else if (typeof obj[field] === 'string') {
-			if (!options.cloned) {
-				options.newData = DeepClone(options.data);
-				options.cloned = true;
-				obj = options.newData;
-				for (let level of options.levels) {
-					obj = obj[level];
-				}
-			}
-			const realField = options.realField || field;
-			obj[realField] = '*'.repeat(obj[realField].length);
+			obj[field] = '*'.repeat(obj[field].length);
 		}
 	}
 }
