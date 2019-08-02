@@ -62,6 +62,12 @@ class CodemarkUpdater extends ModelUpdater {
 		// validate any provided tags
 		await this.codemarkHelper.validateTags(this.attributes.tags, this.team);
 
+		// if there is a color, that comes from an older version of the extension, 
+		// and should be made into a tag
+		if (this.attributes.color && !this.attributes.tags) {
+			this.attributes.tags = [`_${this.attributes.color}`];	// assume this is the ID we want to use
+		}
+
 		// link or unlink related codemarks to this one
 		await this.codemarkHelper.changeCodemarkRelations(this.codemark.attributes, this.attributes, this.team.id);
 

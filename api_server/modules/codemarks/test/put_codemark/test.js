@@ -44,6 +44,7 @@ const RemoveRelatedCodemarksFetchTest = require('./remove_related_codemarks_fetc
 const RelatedCodemarksMessageTest = require('./related_codemarks_message_test');
 const AddRelatedCodemarksMessageTest = require('./add_related_codemarks_message_test');
 const RemoveRelatedCodemarksMessageTest = require('./remove_related_codemarks_message_test');
+const ColorBecomesTagTest = require('./color_becomes_tag_test');
 
 class PutCodemarkRequestTester {
 
@@ -104,6 +105,7 @@ class PutCodemarkRequestTester {
 		new RelatedCodemarksMessageTest().test();
 		new AddRelatedCodemarksMessageTest().test();
 		new RemoveRelatedCodemarksMessageTest().test();
+		new ColorBecomesTagTest().test();
 	}
 }
 

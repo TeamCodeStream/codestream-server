@@ -16,7 +16,6 @@ class RandomCodemarkFactory {
 			title: RandomString.generate(50),
 			type: options.codemarkType || 'comment',
 			status: RandomString.generate(10),
-			color: RandomString.generate(10),
 			text: RandomString.generate(100)
 		};
 		if (options.wantMarkers) {

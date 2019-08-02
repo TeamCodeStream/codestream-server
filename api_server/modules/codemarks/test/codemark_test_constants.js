@@ -19,7 +19,6 @@ const EXPECTED_BASE_CODEMARK_FIELDS = [
 	'postId',
 	'type',
 	'status',
-	'color',
 	'numReplies'
 ];
 

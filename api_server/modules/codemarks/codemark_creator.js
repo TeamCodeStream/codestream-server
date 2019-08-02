@@ -112,6 +112,12 @@ class CodemarkCreator extends ModelCreator {
 		// if we have tags, make sure they are all valid
 		await this.codemarkHelper.validateTags(this.attributes.tags, this.team);
 
+		// if there is a color, that comes from an older version of the extension, 
+		// and should be made into a tag
+		if (this.attributes.color && !this.attributes.tags) {
+			this.attributes.tags = [`_${this.attributes.color}`];	// assume this is the ID we want to use
+		}
+
 		// for link-type codemarks, we do a "trial run" of creating the markers ... this is because
 		// we need the logic that associates code blocks with repos and file streams, but we don't
 		// actuallly want to create the markers yet, in case we already have a duplicate codemark
