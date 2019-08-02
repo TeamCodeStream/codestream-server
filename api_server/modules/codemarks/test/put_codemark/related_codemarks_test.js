@@ -27,6 +27,18 @@ class RelatedCodemarksTest extends PutCodemarkTest {
 			});
 			expectedCodemark.$set.modifiedAt = updatedCodemark.$set.modifiedAt;
 		}
+
+		// rearrange the response codemarks to match the expected codemarks,
+		// so the deepEqual succeeds
+		const updatedCodemarks = data.codemarks;
+		data.codemarks = [];
+		for (let expectedCodemark of this.expectedData.codemarks) {
+			const updatedCodemark = updatedCodemarks.find(updatedCodemark => {
+				return updatedCodemark.id === expectedCodemark.id;
+			});
+			data.codemarks.push(updatedCodemark);
+		}
+
 		super.validateResponse(data);
 	}
 }
