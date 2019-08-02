@@ -6,8 +6,14 @@ const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_u
 const Codemark = require('./codemark');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const CodemarkHelper = require('./codemark_helper');
 
 class CodemarkUpdater extends ModelUpdater {
+
+	constructor (options) {
+		super(options);
+		this.codemarkHelper = new CodemarkHelper({ request: this });
+	}
 
 	get modelClass () {
 		return Codemark;	// class to use to create a codemark model
@@ -26,29 +32,45 @@ class CodemarkUpdater extends ModelUpdater {
 	getAllowedAttributes () {
 		return {
 			string: ['postId', 'streamId', 'parentPostId', 'status', 'text', 'title', 'color'],
-			'array(string)': ['assignees', 'tags']
+			'array(string)': ['assignees', 'tags', 'relatedCodemarkIds']
 		};
 	}
 
 	// called before the codemark is actually saved
 	async preSave () {
-		await this.getCodemark();		// get the codemark
-		await this.getTeam();			// get the codemark's team
+		// get the codemark
+		await this.getCodemark();	
+		
+		// get the codemark's team
+		await this.getTeam();	
+
+		// if providing post ID, we assume it is a pre-created codemark for third-party
+		// integration, which requires special treatment
 		if (this.attributes.postId || this.attributes.streamId) {
-			// if providing post ID, we assume it is a pre-created codemark for third-party
-			// integration, which requires special treatment
 			await this.validatePostId();
 			await this.updateMarkers();
 		}
+
+		// can only update parentPostId for third-party
 		if (this.attributes.parentPostId && !this.codemark.get('providerType')) {
-			// can only update parentPostId for third-party
 			delete this.attributes.parentPostId;
 		}
+
+		// pre-validate the incoming attributes before saving
 		await this.preValidate();
-		await this.validateTags();
-		await this.validateAssignees();
+
+		// validate any provided tags
+		await this.codemarkHelper.validateTags(this.attributes.tags, this.team);
+
+		// link or unlink related codemarks to this one
+		await this.codemarkHelper.changeCodemarkRelations(this.codemark.attributes, this.attributes, this.team.id);
+
+		// validate any assignees, for issues
+		await this.codemarkHelper.validateAssignees(this.codemark.attributes, this.attributes);
+
+		// proceed with the save...
 		this.attributes.modifiedAt = Date.now();
-		await super.preSave();		// base-class preSave
+		await super.preSave();
 	}
 
 	// get the codemark
@@ -124,55 +146,6 @@ class CodemarkUpdater extends ModelUpdater {
 			throw this.request.errorHandler.error('validation', { info: error });
 		}
 	}
-
-	// if there are tags, each tag must be known to the team
-	async validateTags () {
-		if (!this.attributes.tags) {
-			return;
-		}
-		const teamTags = this.team.get('tags') || {};
-		const teamTagIds = Object.keys(teamTags);
-		let offendingTagId;
-		if (this.attributes.tags.find(tagId => {
-			if (!teamTagIds.find(teamTagId => {
-				return teamTagId === tagId && !teamTags[teamTagId].deactivated;
-			})) {
-				offendingTagId = tagId;
-				return true;
-			}
-		})) {
-			throw this.errorHandler.error('notFound', { info: 'tag ' + offendingTagId });
-		}
-	}
-
-	// if this is an issue, validate the assignees ... all users must be on the team
-	async validateAssignees () {
-		if (this.codemark.get('type') !== 'issue') {
-			// assignees only valid for issues
-			delete this.attributes.assignees;
-			return;
-		}
-		else if (this.codemark.get('providerType') || !this.attributes.assignees) {
-			// if using a third-party provider, we don't care what goes in there
-			return;
-		}
-
-		const users = await this.data.users.getByIds(
-			this.attributes.assignees,
-			{
-				fields: ['id', 'teamIds'],
-				noCache: true
-			}
-		);
-		const teamId = this.codemark.get('teamId');
-		if (
-			users.length !== this.attributes.assignees.length ||
-			users.find(user => !user.hasTeam(teamId))
-		) {
-			throw this.errorHandler.error('validation', { info: 'assignees must contain only users on the team' });
-		}
-	}
-
 }
 
 module.exports = CodemarkUpdater;

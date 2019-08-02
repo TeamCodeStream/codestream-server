@@ -63,15 +63,16 @@ class RelatedCodemarksTest extends MarkerTest {
 				return updatedCodemark.id === relatedCodemarkId;
 			});
 			Assert(updatedCodemark, 'related codemark not found to be updated');
-			
+			Assert(updatedCodemark.$set.modifiedAt >= data.codemark.createdAt - 500);
 			const expectedOp = {
 				id: relatedCodemarkId,
 				_id: relatedCodemarkId,	// DEPRECATE ME
 				$addToSet: {
-					relatedCodemarkIds: data.codemark.id
+					relatedCodemarkIds: data.codemark.id,
 				},
 				$set: {
-					version: 2
+					version: 2,
+					modifiedAt: updatedCodemark.$set.modifiedAt
 				},
 				$version: {
 					before: 1,

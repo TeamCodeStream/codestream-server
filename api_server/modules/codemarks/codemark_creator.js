@@ -7,9 +7,14 @@ const Codemark = require('./codemark');
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const CodemarkTypes = require('./codemark_types');
 const CodemarkLinkCreator = require('./codemark_link_creator');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const CodemarkHelper = require('./codemark_helper');
 
 class CodemarkCreator extends ModelCreator {
+
+	constructor (options) {
+		super(options);
+		this.codemarkHelper = new CodemarkHelper({ request: this });
+	}
 
 	get modelClass () {
 		return Codemark;	// class to use to create an codemark model
@@ -82,24 +87,30 @@ class CodemarkCreator extends ModelCreator {
 
 	// right before the document is saved...
 	async preSave () {
-		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
+		// special for-testing header for easy wiping of test data
+		if (this.request.isForTesting()) {
 			this.attributes._forTesting = true;
 		}
 
+		// establish some default attributes
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.creatorId = this.request.user.id;
 		if (CodemarkTypes.INVISIBLE_TYPES.includes(this.attributes.type)) {
 			this.attributes.invisible = true;
 		}
 
+		// are we requesting a permalink?
 		this.makeLink = this.attributes.createPermalink;
 		delete this.attributes.createPermalink;
 
-		this.createId();	 		// pre-allocate an ID
-		await this.getTeam();		// get the team that will own this codemark
+		// pre-allocate an ID
+		this.createId();
+		
+		// get the team that will own this codemark
+		await this.getTeam();
 
 		// if we have tags, make sure they are all valid
-		await this.handleTags();
+		await this.codemarkHelper.validateTags(this.attributes.tags, this.team);
 
 		// for link-type codemarks, we do a "trial run" of creating the markers ... this is because
 		// we need the logic that associates code blocks with repos and file streams, but we don't
@@ -119,11 +130,14 @@ class CodemarkCreator extends ModelCreator {
 			await this.handleMarkers();
 		}
 
-		// link related codemarks to this one
-		await this.linkRelatedCodemarks();
+		// link or unlink related codemarks to this one
+		await this.codemarkHelper.changeCodemarkRelations({}, this.attributes, this.team.id);
 
-		await this.validateAssignees();	// validate the assignees (for issues)
-		await super.preSave();		// proceed with the save...
+		// validate assignees, for issues
+		await this.codemarkHelper.validateAssignees({}, this.attributes);
+
+		// proceed with the save...
+		await super.preSave();
 	}
 
 	// right after the document is saved...
@@ -147,29 +161,6 @@ class CodemarkCreator extends ModelCreator {
 			throw this.errorHandler.error('notFound', { info: 'team'});
 		}
 		this.attributes.teamId = this.team.id;	
-	}
-
-	// handle any tags tied to the codemark
-	async handleTags () {
-		if (!this.attributes.tags) {
-			return;
-		}
-		const tags = this.attributes.tags;
-
-		// make sure every tag is found within the array of tags for the team
-		const teamTags = this.team.get('tags') || {};
-		const teamTagIds = Object.keys(teamTags);
-		let offendingTagId;
-		if (tags.find(tagId => {
-			if (!teamTagIds.find(teamTagId => {
-				return teamTagId === tagId && !teamTags[teamTagId].deactivated;
-			})) {
-				offendingTagId = tagId;
-				return true;
-			}
-		})) {
-			throw this.errorHandler.error('notFound', { info: 'tag ' + offendingTagId });
-		}
 	}
 
 	// handle any markers tied to the codemark
@@ -216,75 +207,6 @@ class CodemarkCreator extends ModelCreator {
 		else {
 			this.transforms.createdMarkers = this.transforms.createdMarkers || [];
 			this.transforms.createdMarkers.push(marker);
-		}
-	}
-
-	// for related codemarks, link the related codemarks to this one
-	async linkRelatedCodemarks () {
-		if (!this.attributes.relatedCodemarkIds) {
-			return;
-		}
-
-		// get the codemarks
-		const relatedCodemarks = await this.data.codemarks.getByIds(this.attributes.relatedCodemarkIds);
-		if (relatedCodemarks.length !== this.attributes.relatedCodemarkIds.length) {
-			throw this.errorHandler.error('notFound', { info: 'related codemarks' });
-		}
-
-		// make sure the user has access to all the codemarks
-		await Promise.all(relatedCodemarks.map(async relatedCodemark => {
-			if (!await this.user.authorizeCodemark(relatedCodemark.id, this.request)) {
-				throw this.errorHandler.error('updateAuth', { reason: 'user does not have access to all related codemarks' });
-			}
-			if (relatedCodemark.get('teamId') !== this.team.id) {
-				throw this.errorHandler.error('updateAuth', { reason: 'all related codemarks must be for the same team' });
-			}
-		}));
-
-		// for each related codemark, update the codemark to be related to this one
-		this.transforms.updatedCodemarks = this.transforms.updatedCodemarks || [];
-		await Promise.all(relatedCodemarks.map(async relatedCodemark => {
-			await this.linkRelatedCodemark(relatedCodemark);
-		}));
-	}
-
-	// link a related codemark back to the codemark being created
-	async linkRelatedCodemark (relatedCodemark) {
-		const op = { $addToSet: { relatedCodemarkIds: this.attributes.id } };
-		const updateOp = await new ModelSaver({
-			request: this.request,
-			collection: this.data.codemarks,
-			id: relatedCodemark.id
-		}).save(op);
-		this.transforms.updatedCodemarks.push(updateOp);
-	}
-
-	// if this is an issue, validate the assignees ... all users must be on the team
-	async validateAssignees () {
-		if (this.attributes.type !== 'issue') {
-			// assignees only valid for issues
-			delete this.attributes.assignees;
-			delete this.attributes.externalAssignees;
-			return;
-		}
-		else if (this.attributes.providerType || !this.attributes.assignees) {
-			// if using a third-party provider, we don't care what goes in there
-			return;
-		}
-
-		const users = await this.data.users.getByIds(
-			this.attributes.assignees,
-			{
-				fields: ['id', 'teamIds'],
-				noCache: true
-			}
-		);
-		const teamId = this.team.id;
-		if (
-			users.length !== this.attributes.assignees.length ||
-			users.find(user => !user.hasTeam(teamId))
-		) {
-			throw this.errorHandler.error('validation', { info: 'assignees must contain only users on the team' });
 		}
 	}
 

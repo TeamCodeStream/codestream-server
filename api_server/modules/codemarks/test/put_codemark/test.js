@@ -32,6 +32,15 @@ const TagsTest = require('./tags_test');
 const OtherUserCanAddTagsTest = require('./other_user_can_add_tags_test');
 const TagNotFoundTest = require('./tag_not_found_test');
 const TagDeactivatedTest = require('./tag_deactivated_test');
+const RelatedCodemarksTest = require('./related_codemarks_test');
+const RelatedCodemarksFetchTest = require('./related_codemarks_fetch_test');
+const RelatedCodemarkNotFoundTest = require('./related_codemark_not_found_test');
+const RelatedCodemarkACLTest = require('./related_codemark_acl_test');
+const RelatedCodemarksDifferentTeamTest = require('./related_codemarks_different_team_test');
+const AddRelatedCodemarksTest = require('./add_related_codemarks_test');
+const AddRelatedCodemarksFetchTest = require('./add_related_codemarks_fetch_test');
+const RemoveRelatedCodemarksTest = require('./remove_related_codemarks_test');
+const RemoveRelatedCodemarksFetchTest = require('./remove_related_codemarks_fetch_test');
 
 class PutCodemarkRequestTester {
 
@@ -80,6 +89,15 @@ class PutCodemarkRequestTester {
 		new OtherUserCanAddTagsTest().test();
 		new TagNotFoundTest().test();
 		new TagDeactivatedTest().test();
+		new RelatedCodemarksTest().test();
+		new RelatedCodemarksFetchTest().test();
+		new RelatedCodemarkNotFoundTest().test();
+		new RelatedCodemarkACLTest().test();
+		new RelatedCodemarksDifferentTeamTest().test();
+		new AddRelatedCodemarksTest().test();
+		new AddRelatedCodemarksFetchTest().test();
+		new RemoveRelatedCodemarksTest().test();
+		new RemoveRelatedCodemarksFetchTest().test();
 	}
 }
 

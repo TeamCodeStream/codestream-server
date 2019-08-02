@@ -43,9 +43,17 @@ class PutCodemarkRequest extends PutRequest {
 		if (this.gotError) {
 			return await super.handleResponse();
 		}
+
+		// if there are updates to markers, add them to the response
 		if (this.transforms.markerUpdates) {
 			this.responseData.markers = this.transforms.markerUpdates;
 		}
+
+		// if there are other codemarks updated, add them to the response
+		if (this.transforms.updatedCodemarks) {
+			this.responseData.codemarks = this.transforms.updatedCodemarks;
+		}
+
 		await super.handleResponse();
 	}
 
@@ -77,7 +85,8 @@ class PutCodemarkRequest extends PutRequest {
 				'text': '<Change the text of the codemark>',
 				'title': '<Change the title of the codemark>',
 				'assignees': '<Change the array of IDs representing assignees (to issues)>',
-				'tags': '<Change the array of tags associatd with this codemark>'
+				'tags': '<Change the array of tags associatd with this codemark>',
+				'relatedCodemarkIds': '<Array of IDs that are to be related to this codemark, the link will be made bi-directional>',
 			}
 		};
 		description.publishes = {

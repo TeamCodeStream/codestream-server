@@ -15,7 +15,9 @@ class CommonInit {
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
 			this.makePostlessCodemark,	// make a postless codemark, as needed
-			this.makeCodemarkUpdateData	// make the data to use when issuing the test request
+			this.makeCodemarkUpdateData, // make the data to use when issuing the test request
+			this.createRelatedCodemarks, // make related codemarks, as needed
+			this.adjustExpectedDataForRelatedCodemarks // make adjustments to expected test results
 		], callback);
 	}
 
@@ -118,6 +120,73 @@ class CommonInit {
 		Object.assign(this.expectedCodemark, this.expectedData.codemark.$set);
 		this.modifiedAfter = Date.now();
 		this.path = '/codemarks/' + this.codemark.id;
+		callback();
+	}
+
+	// create several codemarks to be related to the codemark to be updated during the test
+	createRelatedCodemarks (callback) {
+		if (!this.wantRelatedCodemarks) {
+			return callback();
+		}
+		this.addedRelatedCodemarkIds = [];
+		this.data.relatedCodemarkIds = [...(this.prerelatedCodemarkIds || [])];
+		BoundAsync.timesSeries(
+			this,
+			3,
+			this.createRelatedCodemark,
+			callback
+		);
+	}
+
+	// create a single codemark to be related to the codemark created during the test
+	createRelatedCodemark (n, callback) {
+		const codemarkData = this.codemarkFactory.getRandomCodemarkData();
+		Object.assign(codemarkData, {
+			teamId: this.team.id,
+			providerType: RandomString.generate(10),
+			streamId: RandomString.generate(10),
+			postId: RandomString.generate(10)
+		});
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/codemarks',
+				data: codemarkData,
+				token: this.users[1].accessToken
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.addedRelatedCodemarkIds.push(response.codemark.id);
+				this.data.relatedCodemarkIds.push(response.codemark.id);
+				callback();
+			}
+		);
+	}
+
+	// adjust the expected response data to reflect the related codemarks
+	adjustExpectedDataForRelatedCodemarks (callback) {
+		if (!this.wantRelatedCodemarks) {
+			return callback();
+		}
+		this.expectedData.codemark.$set.relatedCodemarkIds = [...(this.prerelatedCodemarkIds || []), ...this.addedRelatedCodemarkIds];
+		this.expectedData.codemarks = this.addedRelatedCodemarkIds.map(relatedCodemarkId => {
+			return {
+				id: relatedCodemarkId,
+				_id: relatedCodemarkId,
+				$addToSet: {
+					relatedCodemarkIds: this.codemark.id
+				},
+				$set: {
+					modifiedAt: Date.now(),	// placeholder
+					version: 2
+				},
+				$version: {
+					before: 1,
+					after: 2
+				}
+			};
+		});
+		this.expectedCodemark.relatedCodemarkIds = [...this.prerelatedCodemarkIds || [], ...this.addedRelatedCodemarkIds];
 		callback();
 	}
 
