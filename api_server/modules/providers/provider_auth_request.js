@@ -43,7 +43,7 @@ class ProviderAuthRequest extends RestfulRequest {
 			this.warn(ErrorHandler.log(error));
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			const code = typeof error === 'object' ? error.code : 'unknown';
-			this.warn('Error handling provider token request: ' + message);
+			this.warn('Error handling provider auth request: ' + message);
 			let url = `/web/error?code=${code}&provider=${this.provider}`;
 			this.response.redirect(url);
 			this.responseHandled = true;

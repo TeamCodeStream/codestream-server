@@ -1,23 +1,25 @@
 'use strict';
 
 const ProviderAuthTest = require('./provider_auth_test');
+const Assert = require('assert');
 
 class UnknownProviderTest extends ProviderAuthTest {
 
 	constructor (options) {
 		super(options);
-		delete this.apiRequestOptions;
+		this.apiRequestOptions = {
+			noJsonInResponse: true,
+			expectRedirect: true
+		};
 		this.provider = 'blahblah';
 	}
 
 	get description () {
-		return 'should return an error when initiating authorization flow for an unknown provider';
+		return 'should redirect to an error page when initiating authorization flow for an unknown provider';
 	}
 
-	getExpectedError () {
-		return {
-			code: 'PRVD-1000'
-		};
+	validateResponse (data) {
+		Assert.equal(data, `/web/error?code=PRVD-1000&provider=${this.provider}`, `redirect url not correct for ${this.provider}`);
 	}
 }
 
