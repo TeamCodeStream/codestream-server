@@ -41,6 +41,9 @@ const AddRelatedCodemarksTest = require('./add_related_codemarks_test');
 const AddRelatedCodemarksFetchTest = require('./add_related_codemarks_fetch_test');
 const RemoveRelatedCodemarksTest = require('./remove_related_codemarks_test');
 const RemoveRelatedCodemarksFetchTest = require('./remove_related_codemarks_fetch_test');
+const RelatedCodemarksMessageTest = require('./related_codemarks_message_test');
+const AddRelatedCodemarksMessageTest = require('./add_related_codemarks_message_test');
+const RemoveRelatedCodemarksMessageTest = require('./remove_related_codemarks_message_test');
 
 class PutCodemarkRequestTester {
 
@@ -98,6 +101,9 @@ class PutCodemarkRequestTester {
 		new AddRelatedCodemarksFetchTest().test();
 		new RemoveRelatedCodemarksTest().test();
 		new RemoveRelatedCodemarksFetchTest().test();
+		new RelatedCodemarksMessageTest().test();
+		new AddRelatedCodemarksMessageTest().test();
+		new RemoveRelatedCodemarksMessageTest().test();
 	}
 }
 
