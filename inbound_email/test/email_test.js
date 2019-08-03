@@ -316,6 +316,9 @@ class EmailTest {
 	// made field substitutions on it ... this should trigger the post getting created
 	writeEmailFile (callback) {
 		let path = Path.join(InboundEmailConfig.inboundEmailDirectory, this.emailFile);
+		if (FS.existsSync(path)) {
+			FS.unlinkSync(path);
+		}
 		FS.writeFile(path, this.emailData, callback);
 	}
 

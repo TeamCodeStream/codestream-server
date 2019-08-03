@@ -22,6 +22,7 @@ class InboundEmailServer {
 		if (!config.noLogging) {
 			this.logger = this.config.logger || console;
 		}
+		this.inProcess = {};
 	}
 
 	// start 'er up
@@ -48,7 +49,19 @@ class InboundEmailServer {
 
 	// called upon a change of file in the inbound email directory
 	async onFileChange (changeType, file) {
-		if (changeType === 'rename') {
+		this.log(`Got ${changeType} notification: ${file}`);
+		if (changeType === 'rename' || changeType === 'change') {
+
+			// guard against multiple notifications
+			if (this.inProcess[file]) {
+				this.log('Already in process, ignoring ' + file);
+				return;
+			}
+			this.inProcess[file] = true;
+			setTimeout(() => {
+				delete this.inProcess[file];
+			}, 60000);
+
 			// new file, handle the inbound email
 			// or even for files that have been "updated", these may have been
 			// created earlier, but processing couldn't proceed because the file
