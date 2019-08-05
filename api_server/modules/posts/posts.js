@@ -87,7 +87,7 @@ class Posts extends Restful {
 				name: this.api.config.aws.sqs.outboundEmailQueueName,
 				logger: this.api
 			});
-		}, 1000, this.api, 'Unable to create outbound email queue, retrying...');
+		}, 5000, this.api, 'Unable to create outbound email queue, retrying...');
 	}
 
 	describeErrors () {

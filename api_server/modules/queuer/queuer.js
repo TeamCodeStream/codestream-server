@@ -25,7 +25,7 @@ class Queuer extends APIServerModule {
 				await TryIndefinitely(async () => {
 					this.rabbitmq = new RabbitMQClient(config);
 					await this.rabbitmq.init();
-				}, 1000, this.api, 'Unable to connect to RabbitMQ, retrying...');
+				}, 5000, this.api, 'Unable to connect to RabbitMQ, retrying...');
 			}
 			catch (error) {
 				this.api.error('Unable to initiate RabbitMQ connection: ' + error.message);

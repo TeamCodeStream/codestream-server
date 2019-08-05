@@ -40,7 +40,7 @@ class Broadcaster extends APIServerModule {
 			if (!this.api.config.api.mockMode) {
 				await this.socketClusterClient.publish('test', 'test');
 			}
-		}, 1000, this.api, 'Unable to connect to SocketCluster, retrying...');
+		}, 5000, this.api, 'Unable to connect to SocketCluster, retrying...');
 		return { broadcaster: this.socketClusterClient };
 	}
 
@@ -56,7 +56,7 @@ class Broadcaster extends APIServerModule {
 			this.pubnubClient.init();
 			await TryIndefinitely(async () => {
 				await this.pubnubClient.publish('test', 'test');
-			}, 1000, this.api, 'Unable to connect to PubNub, retrying...');
+			}, 5000, this.api, 'Unable to connect to PubNub, retrying...');
 		}
 		return { broadcaster: this.pubnubClient };
 	}
