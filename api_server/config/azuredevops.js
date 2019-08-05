@@ -2,6 +2,8 @@
 
 'use strict';
 
+/* eslint no-console: 0 */
+
 const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
 let ShowCfg = process.env.CS_API_SHOW_CFG || false;
 
@@ -24,7 +26,7 @@ else {
 		appClientId: process.env.CS_API_AZUREDEVOPS_CLIENT_ID,
 		appClientSecret: process.env.CS_API_AZUREDEVOPS_CLIENT_SECRET
 	};
-};
+}
 
 if (ShowCfg) console.log('Config[azuredevops]:', JSON.stringify(DevOpsCfg, undefined, 10));
 module.exports = DevOpsCfg;
