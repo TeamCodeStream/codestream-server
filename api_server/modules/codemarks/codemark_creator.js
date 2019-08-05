@@ -99,8 +99,8 @@ class CodemarkCreator extends ModelCreator {
 			this.attributes.invisible = true;
 		}
 
-		// are we requesting a permalink?
-		this.makeLink = this.attributes.createPermalink;
+		// are we requesting a permalink? really just need to know if a public permalink is requested
+		this.permalinkType = this.attributes.createPermalink;
 		delete this.attributes.createPermalink;
 
 		// pre-allocate an ID
@@ -121,7 +121,7 @@ class CodemarkCreator extends ModelCreator {
 		// for link-type codemarks, we do a "trial run" of creating the markers ... this is because
 		// we need the logic that associates code blocks with repos and file streams, but we don't
 		// actuallly want to create the markers yet, in case we already have a duplicate codemark
-		this.trialRun = this.makeLink && this.attributes.type === 'link';
+		this.trialRun = this.attributes.type === 'link';
 		await this.handleMarkers();	// handle any associated markers
 
 		// now look for an existing codemark as needed
@@ -142,22 +142,11 @@ class CodemarkCreator extends ModelCreator {
 		// validate assignees, for issues
 		await this.codemarkHelper.validateAssignees({}, this.attributes);
 
+		// create a permalink to this codemark, as needed
+		await this.createPermalink();
+
 		// proceed with the save...
 		await super.preSave();
-	}
-
-	// right after the document is saved...
-	async postSave () {
-		if (!this.makeLink) { return; }
-		if (this.existingModel) {
-			// found an existing codemark that matches this one, so just return 
-			// the existing permalink
-			this.transforms.permalink = this.existingPermalink;
-		}
-		else {
-			// create a permalink to the codemark, if asked			
-			await this.createCodemarkLink();	
-		}
 	}
 
 	// get the team that will own this codemark
@@ -216,36 +205,34 @@ class CodemarkCreator extends ModelCreator {
 		}
 	}
 
-	// create a link to the codemark, if asked
-	async createCodemarkLink () {
-		if (!this.makeLink) {
-			return;
+	// create a permalink url to the codemark
+	async createPermalink () {
+		if (this.existingPermalink) {
+			this.attributes.permalink = this.existingPermalink;
 		}
-		this.transforms.permalink = await new CodemarkLinkCreator({
-			request: this.request,
-			codemark: this.model,
-			markers: this.transforms.createdMarkers || [],
-			isPublic: this.makeLink === 'public'
-		}).createCodemarkLink();
+		else {
+			this.attributes.permalink = await new CodemarkLinkCreator({
+				request: this.request,
+				codemark: this.attributes,
+				markers: this.transforms.createdMarkers || [],
+				isPublic: this.permalinkType === 'public'
+			}).createCodemarkLink();
+		}
+		this.transforms.permalink = this.attributes.permalink;
 	}
 
 	// find an existing codemark that exactly matches this one, only for link-type codemarks
 	// this saves us from creating duplicate codemarks when all we are interested in is a permalink
 	async findExisting () {
-		if (!this.makeLink || !this.attributes.type === 'link') {
-			// don't care if we're not interested in a straight permalink type
-			return;
-		}
 		const info = await new CodemarkLinkCreator({
 			request: this.request
 		}).findCodemarkLink(
 			this.attributes,
-			this.trialRunMarkers,
-			this.makeLink === 'public'
+			this.trialRunMarkers || this.transforms.createdMarkers,
+			this.permalinkType === 'public'
 		);
 
 		if (info) {
-			this.existingCodemarkLink = info.codemarkLink;
 			this.existingModel = this.model = info.codemark;
 			this.existingPermalink = info.url;
 			return true;

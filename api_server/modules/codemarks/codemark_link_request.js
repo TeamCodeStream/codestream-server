@@ -57,8 +57,7 @@ class CodemarkLinkRequest extends RestfulRequest {
 		}).findCodemarkLink(
 			this.codemark.attributes,
 			this.markers,
-			this.request.body.isPublic,
-			true
+			this.request.body.isPublic
 		);
 
 		if (info) {
@@ -71,10 +70,9 @@ class CodemarkLinkRequest extends RestfulRequest {
 	async makeLink () {
 		this.responseData.permalink = await new CodemarkLinkCreator({
 			request: this,
-			codemark: this.codemark,
+			codemark: this.codemark.attributes,
 			markers: this.markers,
-			isPublic: this.request.body.isPublic,
-			isExistingCodemark: true
+			isPublic: this.request.body.isPublic
 		}).createCodemarkLink();
 	}
 

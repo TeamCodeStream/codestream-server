@@ -15,6 +15,7 @@ class GetCodemarksTest extends CodeStreamAPITest {
 			numPosts: 10,
 			creatorIndex: 1,
 			wantCodemark: true,
+			wantMarker: true,
 			codemarkTypes: ['question', 'issue', 'comment'],
 			assignedTypes: [0, 1, 2, 2, 1, 0, 2, 1, 2, 0]
 		});

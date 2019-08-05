@@ -140,5 +140,10 @@ module.exports = {
 		type: 'arrayOfStrings',
 		maxLength: 50,
 		description: 'The IDs of any tags associated with this codemark'
+	},
+	permalink: {
+		type: 'string',
+		maxLength: 1000,
+		description: 'Private permalink URL for this codemark'
 	}
 };

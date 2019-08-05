@@ -24,13 +24,13 @@ class CodemarkLinkCreator {
 	// link may be public or private
 	async createLink () {
 		const linkId = UUID().replace(/-/g, '');
-		this.url = this.makePermalink(linkId, this.isPublic, this.codemark.get('teamId'));
-		const hash = this.hashCodemark(this.codemark.attributes, this.markers, this.isPublic, this.isExistingCodemark);
+		this.url = this.makePermalink(linkId, this.isPublic, this.codemark.teamId);
+		const hash = this.hashCodemark(this.codemark, this.markers, this.isPublic);
 
 		// upsert the link, which should be collision free
 		const update = {
 			$set: {
-				teamId: this.codemark.get('teamId'),
+				teamId: this.codemark.teamId,
 				codemarkId: this.codemark.id,
 				md5Hash: hash
 			}
@@ -64,7 +64,7 @@ class CodemarkLinkCreator {
 	async updateCodemark () {
 		// if this was a public permalink, and the codemark doesn't yet have a public permalink,
 		// indicate that it now has one
-		if (this.isPublic && !this.codemark.get('hasPublicPermalink')) {
+		if (this.isPublic && !this.codemark.hasPublicPermalink) {
 			await this.request.data.codemarks.updateDirectWhenPersist(
 				{ id: this.request.data.codemarks.objectIdSafe(this.codemark.id) },
 				{ $set: { hasPublicPermalink: true } }
@@ -75,9 +75,9 @@ class CodemarkLinkCreator {
 	// given codemark attributes and markers, determine if a link-type codemark has already
 	// been created with these exact attributes, as determiend by an MD5 hash ... if we find
 	// one, just return it, we won't create a duplicate 
-	async findCodemarkLink (attributes, markers, isPublic, isExistingCodemark) {
+	async findCodemarkLink (attributes, markers, isPublic) {
 		// hash the relevant codemark attributes
-		const hash = this.hashCodemark(attributes, markers, isPublic, isExistingCodemark);
+		const hash = this.hashCodemark(attributes, markers, isPublic);
 
 		// look for a link that matches this hash exactly
 		const codemarkLink = await this.request.data.codemarkLinks.getOneByQuery(
@@ -105,15 +105,15 @@ class CodemarkLinkCreator {
 	}
 
 	// hash the distinguishing codemark attributes
-	hashCodemark (attributes, markers, isPublic, isExistingCodemark) {
-		const hashText = this.makeHashText(attributes, markers, isPublic, isExistingCodemark);
+	hashCodemark (attributes, markers, isPublic) {
+		const hashText = this.makeHashText(attributes, markers, isPublic);
 		return Crypto.createHash('md5').update(hashText).digest('hex');		
 	}
 
 	// make the text that reflects the distinguishing characteristics of a codemark,
 	// a combination of team, code, repo, file, commit hash, and location
 	// if all of these are the same, we should get the same MD5 hash
-	makeHashText (attributes, markers, isPublic, isExistingCodemark) {
+	makeHashText (attributes, markers, isPublic) {
 		const markerText = (markers || [])
 			.map(marker => {
 				return [
@@ -125,8 +125,8 @@ class CodemarkLinkCreator {
 				].join('');
 			})
 			.join('');
-		const isExisting = isExistingCodemark ? '1' : '';
-		return `${attributes.teamId}${isExisting}${markerText}${isPublic ? 1 : 0}`;
+		const type = attributes.type !== 'link' ? attributes.type : '';
+		return `${attributes.teamId}${type}${markerText}${isPublic ? 1 : 0}`;
 	}
 }
 

@@ -19,7 +19,8 @@ const EXPECTED_BASE_CODEMARK_FIELDS = [
 	'postId',
 	'type',
 	'status',
-	'numReplies'
+	'numReplies',
+	'permalink'
 ];
 
 const EXPECTED_CODEMARK_FIELDS = EXPECTED_BASE_CODEMARK_FIELDS.concat([

@@ -1,8 +1,7 @@
 'use strict';
 
 const MarkerTest = require('./marker_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
-const Assert = require('assert');
+const CodemarkValidator = require('./codemark_validator');
 
 class PermalinkTest extends MarkerTest {
 
@@ -23,24 +22,10 @@ class PermalinkTest extends MarkerTest {
 	}
 
 	validateResponse (data) {
-		const { permalink } = data;
-		const type = this.permalinkType === 'public' ? 'p' : 'c';
-		const origin = ApiConfig.publicApiUrl.replace(/\//g, '\\/');
-		const regex = `^${origin}\\/${type}\\/([A-Za-z0-9_-]+)\\/([A-Za-z0-9_-]+)$`;
-		const match = permalink.match(new RegExp(regex));
-		Assert(match, `returned permalink "${permalink}" does not match /${regex}/`);
-
-		const teamId = this.decodeLinkId(match[1]);
-		Assert.equal(teamId, this.team.id, 'permalink does not contain proper team ID');
-
+		new CodemarkValidator({
+			test: this
+		}).validatePermalink(data.codemark.permalink);
 		super.validateResponse(data);
-	}
-
-	decodeLinkId (linkId) {
-		linkId = linkId
-			.replace(/-/g, '+')
-			.replace(/_/g, '/');
-		return Buffer.from(linkId, 'base64').toString('hex');
 	}
 }
 

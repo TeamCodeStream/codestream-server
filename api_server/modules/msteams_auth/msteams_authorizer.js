@@ -17,7 +17,13 @@ class MSTeamsAuthorizer {
 		this.token = accessToken;
 		const userInfo = await this.graphApiRequest('/me');
 		const orgInfo = await this.graphApiRequest('/organization?$select=id,displayName');
-		if (!userInfo || !orgInfo) {
+		if (!userInfo || !orgInfo || userInfo.error || orgInfo.error) {
+			if (userInfo.error) {
+				this.request.warn('Error obtaining user info', JSON.stringify(userInfo, undefined, 5));
+			}
+			else if (orgInfo.error) {
+				this.request.warn('Error obtaining org info', JSON.stringify(orgInfo, undefined, 5));
+			}
 			throw this.request.errorHandler.error('noIdentityMatch');
 		}
 		this.request.log('userInfo: ' + JSON.stringify(userInfo, undefined, 5));

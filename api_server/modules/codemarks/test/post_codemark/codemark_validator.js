@@ -4,6 +4,7 @@ const Assert = require('assert');
 const NormalizeURL = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
 const CodemarkTestConstants = require('../codemark_test_constants');
 const Path = require('path');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 
 class CodemarkValidator {
 
@@ -49,6 +50,9 @@ class CodemarkValidator {
 
 		// verify the codemark in the response has no attributes that should not go to clients
 		this.test.validateSanitized(codemark, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
+
+		// validate the codemark's permalink
+		this.validatePermalink(codemark.permalink);
 
 		// if we are expecting a provider type, check it now
 		if (this.test.expectProviderType) {
@@ -276,6 +280,25 @@ class CodemarkValidator {
 
 		// verify the repo has no attributes that should not go to clients
 		this.test.validateSanitized(repo, CodemarkTestConstants.UNSANITIZED_REPO_ATTRIBUTES);
+	}
+
+	// validate the returned permalink URL is correct
+	validatePermalink (permalink) {
+		const type = this.test.permalinkType === 'public' ? 'p' : 'c';
+		const origin = ApiConfig.publicApiUrl.replace(/\//g, '\\/');
+		const regex = `^${origin}\\/${type}\\/([A-Za-z0-9_-]+)\\/([A-Za-z0-9_-]+)$`;
+		const match = permalink.match(new RegExp(regex));
+		Assert(match, `returned permalink "${permalink}" does not match /${regex}/`);
+
+		const teamId = this.decodeLinkId(match[1]);
+		Assert.equal(teamId, this.test.team.id, 'permalink does not contain proper team ID');
+	}
+
+	decodeLinkId (linkId) {
+		linkId = linkId
+			.replace(/-/g, '+')
+			.replace(/_/g, '/');
+		return Buffer.from(linkId, 'base64').toString('hex');
 	}
 }
 

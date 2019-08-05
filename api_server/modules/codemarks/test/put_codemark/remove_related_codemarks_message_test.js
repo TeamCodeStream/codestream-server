@@ -59,6 +59,7 @@ class RemoveRelatedCodemarksMessageTest extends Aggregation(CodeStreamMessageTes
 			streamId: RandomString.generate(10),
 			postId: RandomString.generate(10)
 		});
+		codemarkData.markers = [this.markerFactory.getRandomMarkerData()];
 		this.doApiRequest(
 			{
 				method: 'post',
