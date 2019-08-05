@@ -87,7 +87,7 @@ class MongoClient {
 						this.config.url,
 						settings
 					);
-				}, 1000, this.config.logger, 'Unable to connect to Mongo, retrying...');
+				}, 5000, this.config.logger, 'Unable to connect to Mongo, retrying...');
 			}
 			else {
 				this.mongoClient = await MongoDbClient.connect(
