@@ -11,10 +11,6 @@ const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils')
 
 const STANDARD_PAGES = [
 	{
-		route: 'web/404',
-		template: '404'
-	},
-	{
 		route: 'web/finish',
 		template: 'finish'
 	},
@@ -29,6 +25,11 @@ const STANDARD_PAGES = [
 ];
 
 const ROUTES = [
+	{
+		method: 'get',
+		path: 'web/404',
+		requestClass: require('./web_404_request')
+	},
 	{
 		method: 'get',
 		path: 'web/user/password',
@@ -51,6 +52,11 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: 'web/logout',
+		requestClass: require('./web_logout_request')
+	},
+	{
+		method: 'get',
 		path: 'web/provider-auth/:provider',
 		requestClass: require('./web_provider_auth_request')
 	},
@@ -59,12 +65,12 @@ const ROUTES = [
 		path: 'web/provider-auth-complete/:provider',
 		requestClass: require('./web_provider_auth_complete_request')
 	},
-	{   
+	{
 		method: 'get',
 		path: 'web/error',
 		requestClass: require('./web_error_request')
 	},
-	{   
+	{
 		method: 'get',
 		path: 'no-auth/web/error',
 		requestClass: require('./web_error_request')
@@ -93,7 +99,7 @@ const ROUTES = [
 
 class Web extends APIServerModule {
 
-	getRoutes () {
+	getRoutes() {
 		return ROUTES.concat(
 			STANDARD_PAGES.map(page => {
 				return {
@@ -106,7 +112,7 @@ class Web extends APIServerModule {
 		);
 	}
 
-	async initialize () {
+	async initialize() {
 		this.templates = {};
 
 		let files;
@@ -127,7 +133,7 @@ class Web extends APIServerModule {
 		await this.readRobots();
 	}
 
-	async readAndCompileTemplate (file) {
+	async readAndCompileTemplate(file) {
 		let contents;
 		try {
 			contents = await AwaitUtils.callbackWrap(FS.readFile, file, 'utf8');
@@ -153,8 +159,8 @@ class Web extends APIServerModule {
 		if (!template) return;
 		return template(data);
 	}
-	
-	evalTemplate (request, name, data = {}) {
+
+	evalTemplate(request, name, data = {}) {
 		const html = this.evalTemplateNoSend(name, data);
 		if (!html) {
 			this.api.warn(`Could not fulfill request, no template for ${name}`);
@@ -184,27 +190,27 @@ class Web extends APIServerModule {
 			const data = JSON.parse(apiServerInfo);
 			if (!data) return;
 
-			this._versionInfo = data.version+data.buildNumber;									
-		}	
-		catch(err) {
+			this._versionInfo = data.version + data.buildNumber;
+		}
+		catch (err) {
 			return;
 		}
 	}
 
-	readStylesheet () {
+	readStylesheet() {
 		try {
-			this.stylesheet = FS.readFileSync(process.env.CS_API_TOP +'/modules/web/styles/web.css', 'utf8');
+			this.stylesheet = FS.readFileSync(process.env.CS_API_TOP + '/modules/web/styles/web.css', 'utf8');
 		}
 		catch (error) {
 			return;
 		}
 	}
 
-	getStylesheet () {
+	getStylesheet() {
 		return this.stylesheet;
 	}
 
-	readRobots () {
+	readRobots() {
 		try {
 			this.robots = FS.readFileSync(process.env.CS_API_TOP + '/modules/web/etc/robots.txt', 'utf8');
 		}
@@ -213,7 +219,7 @@ class Web extends APIServerModule {
 		}
 	}
 
-	getRobots () {
+	getRobots() {
 		return this.robots;
 	}
 }
