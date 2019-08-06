@@ -19,5 +19,5 @@ else {
 	};
 }
 
-if (ShowConfig) console.log('Config[pubnub]:', JSON.stringify(PubnubCfg, undefined, 10));
+if (ShowCfg) console.log('Config[pubnub]:', JSON.stringify(PubnubCfg, undefined, 10));
 module.exports = PubnubCfg;
