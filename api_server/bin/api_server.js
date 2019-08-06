@@ -36,7 +36,6 @@ const AWSConfig = require(ConfigDirectory + '/aws');
 const RabbitMQConfig = require(ConfigDirectory + '/rabbitmq');
 const WebClientConfig = require(ConfigDirectory + '/webclient');
 const Limits = require(ConfigDirectory + '/limits');
-const Version = require(ConfigDirectory + '/version');
 const SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
 const ClusterWrapper = require(process.env.CS_API_TOP + '/server_utils/cluster_wrapper');
 
@@ -78,7 +77,6 @@ const MyAPICluster = new ClusterWrapper(
 	{
 		moduleDirectory: ModuleDirectory,
 		api: ApiConfig,
-		version: Version,
 		secrets: SecretsConfig,
 		express: ExpressConfig,
 		mongo: Object.assign(MongoConfig, {
