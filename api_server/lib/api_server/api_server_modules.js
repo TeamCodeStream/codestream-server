@@ -344,10 +344,10 @@ class APIServerModules {
 	}
 
 	// give modules a post-load opportunity to initialize
-	initializeModules () {
-		this.modules.forEach(module => {
-			module.initialize.bind(module)();
-		});
+	async initializeModules () {
+		await Promise.all(this.modules.map(async module => {
+			await module.initialize.bind(module)();
+		}));
 	}
 
 	// describe all models declared by all modules, for help

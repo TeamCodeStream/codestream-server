@@ -67,7 +67,8 @@ const DataCollections = {
 // through mongo, we don't abstract them out into DataCollections
 const MongoCollections = Object.keys(DataCollections).concat([
 	'signupTokens',
-	'versionMatrix'
+	'versionMatrix',
+	'migrationVersion'
 ]);
 
 // invoke a node cluster master with our configurations provided

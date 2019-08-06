@@ -33,7 +33,7 @@ class APIServer {
 		this.registerMiddleware();
 		this.registerRoutes();
 		this.registerDataSources();
-		this.modules.initializeModules();
+		await this.modules.initializeModules();
 		this.makeHelp();
 		await AwaitUtils.callbackWrap(this.listen.bind(this));
 	}
@@ -249,6 +249,7 @@ class APIServer {
 		else if (message.youAre) {
 			// master is telling us our worker ID and helping us identify ourselves in the logs
 			this.workerId = message.youAre;
+			this.amFirstWorker = message.firstWorker;
 			if (this.config.logger) {
 				this.loggerId = 'W' + this.workerId;
 				this.config.logger.loggerId = this.loggerId;
