@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-const util = require('util')
+/* eslint no-console: 0 */
+
+const util = require('util');
 const structuredCfgFile = require('../lib/structured_config');
 const testCfg = new structuredCfgFile({
 	schemaFile: '/Users/jj/src/codestream-configs/parameters.json',
@@ -12,5 +14,5 @@ let o;
 o = testCfg.getSection();
 // o = testCfg.getSection('broadcastEngine.codestreamBroadcaster');
 // o = testCfg.getSection();
-console.log(util.inspect(o, false, null, true /* enable colors */))
+console.log(util.inspect(o, false, null, true /* enable colors */));
 process.exit();
