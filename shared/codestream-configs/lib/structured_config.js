@@ -1,12 +1,14 @@
 
 'use strict';
 
-const util = require('util')
+const util = require('util');
 const fs = require('fs');
 const hjson = require('hjson');
 
 const schemas = {};
 const configs = {};
+
+/* eslint no-console: 0 */
 
 /*
 	options:
@@ -30,7 +32,7 @@ class StructuredConfigFile {
 	}
 
 	_dump() {
-		console.log(util.inspect(this, false, null, true /* enable colors */))
+		console.log(util.inspect(this, false, null, true /* enable colors */));
 	}
 
 	_getSection(p, section) {
@@ -54,7 +56,7 @@ class StructuredConfigFile {
 	}
 
 	_mongoUrlParse(mongoUrl) {
-		let parsed = mongoUrl.match(/^mongodb:\/\/([^\/]+)\/([^?]+?)((\?)(.+))?$/);
+		let parsed = mongoUrl.match(/^mongodb:\/\/([^/]+)\/([^?]+?)((\?)(.+))?$/);
 		const results = {
 			serversAuthString: parsed[1],
 			user: null,
@@ -73,7 +75,7 @@ class StructuredConfigFile {
 			results.servers.push({
 				host: parts[0],
 				port: parts[1] || 27017
-			})
+			});
 		});
 		if (results.optionsString) {
 			results.optionsString.split('&').forEach(function(optionAssignment) {
@@ -118,7 +120,7 @@ class StructuredConfigFile {
 		if (!schema) {
 			return;
 		}
-		let propList = Object.keys(schema)
+		let propList = Object.keys(schema);
 		if (propList.length == 1 && propList[0].startsWith('<') && propList[0].endsWith('>')) {
 			return propList[0];
 		}
