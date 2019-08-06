@@ -124,7 +124,9 @@ class ClusterWrapper {
 		this.workers[worker.id] = worker;
 		worker.on('message', this.onWorkerMessage);
 		// let the worker know what its ID is
-		Cluster.workers[worker.id].send({ youAre: worker.id });
+		const firstWorker = !this.gotFirstWorker;
+		Cluster.workers[worker.id].send({ youAre: worker.id, firstWorker });
+		this.gotFirstWorker = true;
 	}
 
 	onWorkerMessage (message) {
