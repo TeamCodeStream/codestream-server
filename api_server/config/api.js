@@ -13,7 +13,7 @@ let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile( {configFile: CfgFileName} );
 	ApiCfg = CfgData.getSection('apiServer');
-	ApiCfg.environment = ApiCfg.runTimeEnvironment;
+	ApiCfg.runtimeEnvironment = ApiCfg.runTimeEnvironment;
 	ShowCfg = ApiCfg.showConfig;
 }
 else {
@@ -51,7 +51,7 @@ else {
 
 		// environment, please use this configuration value sparingly, really anything that depends 
 		// on environment should have its own environment variable instead
-		environment: process.env.CS_API_ENV || 'prod',
+		runtimeEnvironment: process.env.CS_API_ENV || 'prod',
 
 		// callback environment, slightly different than environment, allows for callbacks through
 		// VPN to developers' local servers

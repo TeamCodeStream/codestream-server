@@ -15,7 +15,8 @@ class MigrationsModule extends APIServerModule {
 		}
 
 		// we don't do automatic migrations in production
-		if (this.api.config.api.environment === 'prod') {
+		const runtimeEnvironment = this.api.config.api.runtimeEnvironment;
+		if (runtimeEnvironment.match(/^(prod|qa)$/i)) {
 			this.api.log('NOTE: Not doing automatic migrations, this is the cloud production environment');
 			return;
 		}
