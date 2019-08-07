@@ -529,7 +529,7 @@ class CodeStream {
 
 		// stream channels are authorized if they are file or team streams for a team the user is in,
 		// or they are for a stream the user is in
-		if (streams.find(stream => {
+		const offendingStream = streams.find(stream => {
 			return (
 				!user.teamIds.includes(stream.teamId) || 
 				(
@@ -538,8 +538,9 @@ class CodeStream {
 					!(stream.memberIds || []).includes(user._id)
 				)
 			);
-		})) {
-			return `unauthorized channel: stream-${stream._id}`;
+		});
+		if (offendingStream) {
+			return `unauthorized channel: stream-${offendingStream._id}`;
 		}
 	}
 

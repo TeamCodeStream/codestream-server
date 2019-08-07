@@ -2,6 +2,8 @@
 
 'use strict';
 
+/* eslint no-console: 0 */
+
 const structuredCfgFile = require('../codestream-configs/lib/structured_config');
 
 let MongoCfg = {};
@@ -69,7 +71,7 @@ const Cfg = {
 		retentionPeriod: 30 * 24 * 60 * 60 * 1000,
 		sweepPeriod: 60 * 60 * 1000
 	}
-}
+};
 
 if (process.env.CS_BROADCASTER_SHOW_CFG) console.log('Config:', Cfg);
 module.exports = Cfg;

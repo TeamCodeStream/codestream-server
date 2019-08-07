@@ -25,6 +25,10 @@
     "socketcluster-client": "14.2.2",
     "strftime": "0.10.0"
   },
+  "devDependencies": {
+    "eslint": "5.16.0",
+    "pre-commit": "1.2.2"
+  },
   "keywords": [
     "websocket",
     "server",
@@ -35,6 +39,10 @@
   "readmeFilename": "README.md",
   "scripts": {
     "start": "node server.js",
-    "start:docker": "node dockerwait.js && node ${SOCKETCLUSTER_MASTER_CONTROLLER:-server.js}"
-  }
+    "start:docker": "node dockerwait.js && node ${SOCKETCLUSTER_MASTER_CONTROLLER:-server.js}",
+    "eslint": "eslint ./codestream"
+  },
+  "pre-commit": [
+    "eslint"
+  ]
 }
