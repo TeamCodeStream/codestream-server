@@ -2,13 +2,15 @@
 
 'use strict';
 
+/* eslint no-console: 0 */
+
 function parseUrl(url) {
 	let parsed = url.match(/^http(s)?:\/\/([\w\d-.]+)(:(\d+))?\/?/);
-	let protocolPort = parsed[1] ? "443" : "80";
+	let protocolPort = parsed[1] ? '443' : '80';
 	return {
 		host: parsed[2],
 		port: parseInt(parsed[4] || protocolPort, 10)
-	}
+	};
 }
 
 const StructuredCfgFile = require('../codestream-configs/lib/structured_config');

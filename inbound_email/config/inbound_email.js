@@ -2,6 +2,8 @@
 
 'use strict';
 
+/* eslint no-console: 0 */
+
 const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
 let EmailCfg = {};
 
@@ -20,7 +22,7 @@ else {
 		replyToDomain: process.env.CS_MAILIN_REPLY_TO_DOMAIN || 'dev.codestream.com',	// reply to will be like <streamId>@dev.codestream.com
 		senderEmail: process.env.CS_MAILIN_SENDER_EMAIL, // emails from our system are sent from this address
 		showConfig: process.env.CS_MAILIN_SHOW_CFG || false
-	}
+	};
 }
 
 if (EmailCfg.showConfig) console.log('Config[inbound_email]:', JSON.stringify(EmailCfg, undefined, 10));

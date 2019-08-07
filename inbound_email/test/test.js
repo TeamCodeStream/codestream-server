@@ -6,6 +6,9 @@ const EmailTest = require('./email_test');
 const Async = require('async');
 const EmailTests = require('./email_tests');
 
+// make eslint happy
+/* globals describe, before, after, it */
+
 // we'll execute a series of tests, each of which plants a particular email file
 // in the inbound emails directory and expects certain text in the post as a result,
 // we'll listen for the post on a pubnub client. Alternatively, there are some

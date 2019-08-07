@@ -15,13 +15,19 @@
 	},
 	"devDependencies": {
 		"mocha": "6.1.4",
-		"mocha-teamcity-reporter": "3.0.0"
+		"mocha-teamcity-reporter": "3.0.0",
+		"eslint": "5.16.0",
+		"pre-commit": "1.2.2"
 	},
 	"scripts": {
 		"veryclean": "git clean -fXd",
 		"clean": "git clean -fXd -e !node_modules -e !node_modules/**/*",
 		"test": "mocha",
 		"test:ci": "mocha --reporter mocha-teamcity-reporter",
-		"tarball": "touch inbound-email.tgz && tar -czpf inbound-email.tgz --exclude inbound-email.tgz --exclude .git ."
-	}
+		"tarball": "touch inbound-email.tgz && tar -czpf inbound-email.tgz --exclude inbound-email.tgz --exclude .git .",
+		"eslint": "eslint ."
+	},
+	"pre-commit": [
+		"eslint"
+	]
 }

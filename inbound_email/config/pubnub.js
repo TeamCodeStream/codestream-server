@@ -2,6 +2,8 @@
 
 'use strict';
 
+/* eslint no-console: 0 */
+
 const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
 let PubnubCfg = {};
 let ShowCfg = process.env.CS_MAILIN_SHOW_CFG || false;

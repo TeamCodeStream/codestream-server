@@ -2,6 +2,8 @@
 
 'use strict';
 
+/* eslint no-console: 0 */
+
 const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
 let SecretsCfg = {};
 let ShowCfg = process.env.CS_MAILIN_SHOW_CFG || false;
@@ -13,7 +15,7 @@ if (CfgFileName) {
 	SecretsCfg = {
 		mailSecret: CfgData.getProperty('sharedSecrets.mail'),
 		confirmationCheat: CfgData.getProperty('sharedSecrets.confirmationCheat')
-	}
+	};
 }
 else {
 	SecretsCfg = {

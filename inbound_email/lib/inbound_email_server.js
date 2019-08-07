@@ -160,7 +160,7 @@ class InboundEmailServer {
 	wantShutdown (signal) {
 		if (this.numOpenTasks && !this.killReceived) {
 			// we've got some open tasks, and no additional commands to die
-			this.critical(`Worker ${this.workerId} received ${signal}, waiting for ${numOpenTasks} tasks to complete, send ${signal} again to kill`);
+			this.critical(`Worker ${this.workerId} received ${signal}, waiting for ${this.numOpenTasks} tasks to complete, send ${signal} again to kill`);
 			this.killReceived = true;
 			// give the user 5 seconds to force-kill us, otherwise their chance to do so expires
 			setTimeout(

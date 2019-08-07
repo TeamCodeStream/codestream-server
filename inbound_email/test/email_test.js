@@ -27,10 +27,10 @@ class EmailTest {
 
 	get it () {
 		if (this.shouldFail) {
-			return `should not create a post from ${this.description}`
+			return `should not create a post from ${this.description}`;
 		}
 		else {
-			return `should create a post originating from ${this.description}`
+			return `should create a post originating from ${this.description}`;
 		}
 	}
 
@@ -380,6 +380,6 @@ class EmailTest {
 			callback
 		);
 	}
-};
+}
 
 module.exports = EmailTest;

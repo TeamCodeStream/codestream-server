@@ -140,7 +140,7 @@ class FileHandler {
 			mailParser.on('end', this.parseFinished.bind(this));
 			readStream.pipe(mailParser);
 		});
-s	}
+	}
 
 	// handle headers received from the mail parser
 	handleHeaders (headers) {
@@ -160,9 +160,10 @@ s	}
 	}
 
 	// handle an attachment in the parsed mail stream
-	handleAttachment (attachment) {
+	handleAttachment (/*attachment*/) {
 		return;	// ignore attachments for now
 		// pipe the output of the attachment stream to a temp file
+		/*
 		let attachmentIndex = this.attachments.length;
 		let filename = attachment.filename || `attachment.${attachmentIndex+1}`;
 		let attachmentFile = Path.join(this.attachmentPath, filename);
@@ -188,6 +189,7 @@ s	}
 		attachment.stream.on('end', () => {
 			attachment.release();
 		});
+		*/
 	}
 
 	// handle any errors that occur during attachment streaming
@@ -326,7 +328,10 @@ s	}
 	// handle a single attachment file ... this is a file that was streamed from the
 	// mail parser and saved as a temp file ... we'll put that into S3 storage for
 	// use by the API server
-	async handleAttachmentFile (attachment) {
+	async handleAttachmentFile (/*attachment*/) {
+		/*
+		WHEN WE'RE READY TO DEAL WITH ATTACHMENTS
+
 		// prepare to store on S3
 		const size = attachment.parseAttachment.size;
 		const basename = Path.basename(attachment.path);
@@ -341,8 +346,6 @@ s	}
 
 		this.log('Would have handled attachment: ' + JSON.stringify(options));
 		// store on S3
-		/*
-		WHEN WE'RE READY TO DEAL WITH ATTACHMENTS
 		this.FileStorageService.storeFile(
 			options,
 			(error, storageUrl, downloadUrl, versionId, storagePath) => {
@@ -376,7 +379,7 @@ s	}
 			await callbackWrap(FS.rmdir, this.attachmentPath);
 		}
 		catch (error) {
-			this.warn(`Unable to delete temporary directory ${dirname}: ${error}`);
+			this.warn(`Unable to delete temporary directory ${this.attachmentPath}: ${error}`);
 		}
 	}
 
@@ -426,9 +429,9 @@ s	}
 			new RegExp(`(.*)\\(via ${productName}\\) <(.+)@(.+)>\n`),
 			new RegExp(`<${qualifiedEmailRegex}>`, 'i'),
 			new RegExp(`${qualifiedEmailRegex}\\s+wrote:`, 'i'),
-			new RegExp(`^(^\n)*On.*(\n)?.*wrote:$`, 'im'),
-			new RegExp(`-+original\\s+message-+\\s*`, 'i'),
-			new RegExp(`--\\s\n`),	// standard signature separator
+			new RegExp('^(^\\n)*On.*(\\n)?.*wrote:$', 'im'),
+			new RegExp('-+original\\s+message-+\\s*', 'i'),
+			new RegExp('--\\s\\n'),	// standard signature separator
 		];
 
 		// for each regex, look for a match, our final matching index is the
