@@ -46,7 +46,7 @@ class EmailHandler {
 			user: this.user,
 			subject: this.subject,
 			content: this.content
-		}
+		};
 		if (this.message.testing) {
 			options.testCallback = this.testCallback.bind(this);
 		}

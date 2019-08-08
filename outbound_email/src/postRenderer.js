@@ -10,6 +10,7 @@ const HLJS = require('highlight.js');
 
 class PostRenderer {
 
+	/* eslint complexity: 0 */
 	render (options) {
 		const { post, suppressAuthors, timeZone, fileStreams, codemarks, markers } = options;
 
@@ -114,7 +115,7 @@ class PostRenderer {
 				(codemark.assignees && codemark.assignees.length > 0) ||
 				(codemark.externalAssignees && codemark.externalAssignees.length > 0)
 			)
-		 ) {
+		) {
 			const assigneesText = this.getAssigneesText(codemark, options);
 			assigneesDiv = `
 <div class="assigneesTitle">
@@ -200,7 +201,7 @@ class PostRenderer {
 			) {
 				users.push(assignee.displayName);
 			}
-		})
+		});
 		return users.join(', ');
 	}
 	
@@ -248,16 +249,16 @@ class PostRenderer {
 	// get the activity text associated with a particular codemark type
 	static getCodemarkActivity (codemark) {
 		switch (codemark.type) {
-			case 'question': 
-				return 'has a question';
-			case 'issue': 
-				return 'posted an issue';
-			case 'bookmark': 
-				return 'set a bookmark';
-			case 'trap':
-				return 'created a code trap';
-			default:
-				return 'commented on code';	// shouldn't happen, just a failsafe
+		case 'question': 
+			return 'has a question';
+		case 'issue': 
+			return 'posted an issue';
+		case 'bookmark': 
+			return 'set a bookmark';
+		case 'trap':
+			return 'created a code trap';
+		default:
+			return 'commented on code';	// shouldn't happen, just a failsafe
 		}
 	}
 }
