@@ -296,13 +296,14 @@ class MongoCollection {
 
 	// apply a single set of ops (directives) to modify the data associated with the specified document
 	async applyOpById (id, op, options) {
+		const localOp = op;
 		const mongoOp = this.opToDbOp(op); // convert into mongo language
 		const updateOp = await this._applyMongoOpById(id, mongoOp, options);
 		if (updateOp.$version) {
-			op.$version = updateOp.$version;
+			localOp.$version = updateOp.$version;
 			if (updateOp.$version.after) {
-				op.$set = op.$set || {};
-				op.$set.version = updateOp.$version.after;
+				localOp.$set = localOp.$set || {};
+				localOp.$set.version = updateOp.$version.after;
 			}
 		}
 		return op;
@@ -355,6 +356,7 @@ class MongoCollection {
 
 	async _applyMongoOpByIdAndVersion (id, version, op, options) {
 		let i;
+		const localOp = op;
 		for (i = 0; i < 10; i++) {
 			if (await this._tryApplyMongoOpByIdAndVersion(id, version, op, options)) {
 				break;
@@ -369,9 +371,9 @@ class MongoCollection {
 			throw this.errorHandler.error('updateFailureVersion');
 		}
 		const newVersion = version + 1;
-		op.$set = op.$set || {};
-		op.$set.version = newVersion;
-		op.$version = {
+		localOp.$set = localOp.$set || {};
+		localOp.$set.version = newVersion;
+		localOp.$version = {
 			before: version,
 			after: newVersion
 		};
