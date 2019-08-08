@@ -1,3 +1,7 @@
+'use strict';
+
+/* eslint no-console: 0 */
+
 const Config = require('./config');
 const OutboundEmailServer = require('./outboundEmailServer');
 
