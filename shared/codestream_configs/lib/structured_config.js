@@ -9,6 +9,7 @@ const schemas = {};
 const configs = {};
 
 /* eslint no-console: 0 */
+/* eslint no-prototype-builtins: 0 */
 
 /*
 	options:
