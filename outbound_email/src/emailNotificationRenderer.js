@@ -128,6 +128,7 @@ class EmailNotificationRenderer {
 	getNotificationIntro (options) {
 		const { user, team, inboundEmailDisabled } = options;
 		if (user.isRegistered) {
+		const { user, team, inboundEmailDisabled } = options;
 			return inboundEmailDisabled ? '' : 'Add to the discussion by replying to this email.<br/>';
 		}
 		let intro = '';

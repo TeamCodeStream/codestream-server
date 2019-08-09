@@ -23,5 +23,5 @@ exports.handler = async function(event) {
 		console.warn('Error processing lambda event:', error);
 		throw error;
 	}
-};
+}
  
