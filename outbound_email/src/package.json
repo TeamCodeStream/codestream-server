@@ -16,7 +16,7 @@
 		"uuid": "3.3.2"
 	},
 	"scripts": {
-		"eslint": "eslint ./src",
+		"eslint": "eslint .",
 		"clean": "([ -d ../out ] && /bin/rm -rf ../out || /bin/echo -n) && (cd .. && git clean -Xdf)",
 		"_make_out_dir": "[ ! -d ../out ] && mkdir ../out || /bin/echo -n",
 		"build": "npm run _make_out_dir && zip --quiet -r ../out/outbound-email.zip *",
