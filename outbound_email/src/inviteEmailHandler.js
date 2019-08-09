@@ -33,10 +33,10 @@ I've added you to the ${this.message.teamName} team on CodeStream so that we can
 
 	async renderForUnregisteredUser () {
 		const ideLinks = {
-			"VS Code": 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream',
-			"Visual Studio": 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs',
-			"JetBrains": 'https://plugins.jetbrains.com/plugin/12206-codestream',
-			"Atom": 'https://atom.io/packages/codestream'
+			'VS Code': 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream',
+			'Visual Studio': 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs',
+			'JetBrains': 'https://plugins.jetbrains.com/plugin/12206-codestream',
+			'Atom': 'https://atom.io/packages/codestream'
 		};
 		const links = [];
 		for (let ide in ideLinks) {
