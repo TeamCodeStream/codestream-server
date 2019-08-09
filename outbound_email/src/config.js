@@ -2,6 +2,8 @@
 
 'use strict';
 
+/* eslint no-console: 0 */
+
 const StructuredCfgFile = require('../src/codestream-configs/lib/structured_config');
 
 let Cfg = {
@@ -36,7 +38,6 @@ if (CfgFileName) {
 	Cfg.smtp.emailTo = CfgData.getProperty('email.emailTo');
 
 	Cfg.rabbitmq = CfgData.getSection('queuingEngine.rabbitmq');
-	console.log(Cfg.rabbitmq);
 	Cfg.outboundEmailQueueName = (Object.keys(Cfg.rabbitmq).length > 0) ? Cfg.rabbitmq.outboundEmailQueueName : CfgData.getProperty('queuingEngine.awsSQS.outboundEmailQueueName');
 
 	Cfg.notificationInterval = CfgData.getProperty('email.notificationInterval');
