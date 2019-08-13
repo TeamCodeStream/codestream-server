@@ -62,5 +62,10 @@ module.exports = {
 	repoId: {
 		type: 'id',
 		description: 'ID of the repo the file containing this code comes from'
+	},
+	branchWhenCreated: {
+		type: 'string',
+		maxLength: 250,
+		description: 'Branch the user was on in their repo when this marker was created'
 	}
 };

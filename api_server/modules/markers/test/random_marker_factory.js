@@ -23,6 +23,11 @@ class RandomMarkerFactory {
 		return RandomString.generate(40);
 	}
 
+	// generate a random branch
+	randomBranch () {
+		return `${RandomString.generate(10)}/${RandomString.generate(10)}`;
+	}
+
 	// create a random location array, following several randomly induced scenarios
 	// lineStart, columnStart, lineEnd, columnEnd ... and a fifth element for additional information
 	randomLocation () {
@@ -93,7 +98,8 @@ class RandomMarkerFactory {
 	getRandomMarkerData (options = {}) {
 		const data = {
 			code: RandomString.generate(1000),
-			location: this.randomLocation()
+			location: this.randomLocation(),
+			branchWhenCreated: this.randomBranch()
 		};
 		if (options.fileStreamId) {
 			// for markers that come from a different stream than the one the post will go into

@@ -34,7 +34,7 @@ class MarkerCreator extends ModelCreator {
 				string: ['teamId', 'code']
 			},
 			optional: {
-				string: ['fileStreamId', 'postId', 'postStreamId', 'providerType', 'code', 'file', 'repo', 'repoId', 'commitHash', 'commitHashWhenCreated'],
+				string: ['fileStreamId', 'postId', 'postStreamId', 'providerType', 'code', 'file', 'repo', 'repoId', 'commitHash', 'commitHashWhenCreated', 'branchWhenCreated'],
 				'array': ['location', 'locationWhenCreated'],
 				'array(string)': ['remotes']
 			}
