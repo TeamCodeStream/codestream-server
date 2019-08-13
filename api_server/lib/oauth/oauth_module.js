@@ -451,7 +451,9 @@ class OAuthModule extends APIServerModule {
 				this.oauth1Consumer.getOAuthRequestToken(
 					(error, oauthToken, oauthTokenSecret) => {
 						if (error) {
-							throw (error);
+							const rejectError = options.request && options.request.errorHandler ?
+								options.request.errorHandler.error('tokenInvalid') : error;
+							reject(rejectError);
 						}
 						else {
 							resolve({ oauthToken, oauthTokenSecret });
