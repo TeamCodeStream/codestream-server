@@ -77,17 +77,13 @@ class DeleteRelationsTest extends DeleteCodemarkTest {
 		this.expectedData.codemarks.sort((a, b) => {
 			return a.id.localeCompare(b.id);
 		});
-		const relatedCodemarks = this.postData.map(pd => pd.codemark);
-		relatedCodemarks.forEach(relatedCodemark => {
-			const returnedRelatedCodemark = data.codemarks.find(returnedCodemark => {
-				return returnedCodemark.id === relatedCodemark.id;
+		this.expectedData.codemarks.forEach(expectedCodemark => {
+			const returnedCodemark = data.codemarks.find(c => {
+				return c.id === expectedCodemark.id;
 			});
-			Assert(returnedRelatedCodemark.$set.modifiedAt >= this.modifiedAfter, 'related codemark modifiedAt is not greater than before the codemark was deleted');
-			const expectedCodemark = this.expectedData.codemarks.find(expectedCodemark => {
-				return expectedCodemark.id === relatedCodemark.id;
-			});
-			expectedCodemark.$set.modifiedAt = returnedRelatedCodemark.$set.modifiedAt;
-			this.validateSanitized(returnedRelatedCodemark.$set, PostTestConstants.UNSANITIZED_CODEMARK_ATTRIBUTES);
+			Assert(returnedCodemark.$set.modifiedAt >= this.modifiedAfter, 'related codemark modifiedAt is not greater than before the codemark was deleted');
+			expectedCodemark.$set.modifiedAt = returnedCodemark.$set.modifiedAt;
+			this.validateSanitized(returnedCodemark.$set, PostTestConstants.UNSANITIZED_CODEMARK_ATTRIBUTES);
 		});
 		super.validateResponse(data);
 	}
