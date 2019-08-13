@@ -224,6 +224,10 @@ class CodemarkCreator extends ModelCreator {
 	// find an existing codemark that exactly matches this one, only for link-type codemarks
 	// this saves us from creating duplicate codemarks when all we are interested in is a permalink
 	async findExisting () {
+		// only find existing codemarks for link-types
+		if (this.attributes.type !== 'link') {
+			return;
+		}
 		const info = await new CodemarkLinkCreator({
 			request: this.request
 		}).findCodemarkLink(

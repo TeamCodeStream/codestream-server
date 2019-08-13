@@ -64,6 +64,7 @@ const TagNotFoundTest = require('./tag_not_found_test');
 const DeactivatedTagTest = require('./deactivated_tag_test');
 const DeactivatedDefaultTagTest = require('./deactivated_default_tag_test');
 const ColorBecomesTagTest = require('./color_becomes_tag_test');
+const NoDuplicateNonLinkTest = require('./no_duplicate_non_link_test');
 
 class PostCodemarkRequestTester {
 
@@ -146,6 +147,7 @@ class PostCodemarkRequestTester {
 		new DeactivatedTagTest().test();
 		new DeactivatedDefaultTagTest().test();
 		new ColorBecomesTagTest().test();
+		new NoDuplicateNonLinkTest().test();
 	}
 }
 
