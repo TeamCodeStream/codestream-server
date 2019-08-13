@@ -18,6 +18,7 @@ const AdminCanDeleteTest = require('./admin_can_delete_test');
 const MessageTest = require('./message_test');
 const CodemarkMessageTest = require('./codemark_message_test');
 const MarkerMessageTest = require('./marker_message_test');
+const DeleteRelationsTest = require('./delete_relations_test');
 
 class DeletePostRequestTester {
 
@@ -43,6 +44,7 @@ class DeletePostRequestTester {
 		new CodemarkMessageTest({ streamType: 'team stream' }).test();
 		new MarkerMessageTest({ streamType: 'channel' }).test();
 		new MarkerMessageTest({ streamType: 'direct' }).test();
+		new DeleteRelationsTest().test();
 	}
 }
 

@@ -27,6 +27,7 @@ class DeleteCodemarkTest extends DeletePostTest {
 				$set: {
 					deactivated: true,
 					modifiedAt: Date.now(),	// placeholder
+					relatedCodemarkIds: [],
 					version: 2
 				},
 				$version: {

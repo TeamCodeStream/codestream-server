@@ -57,6 +57,11 @@ class DeletePostRequest extends DeleteRequest {
 			this.responseData.posts.push(this.transforms.updatedParentPost);
 		}
 		
+		// if any related codemarks were touched, add that to the response
+		if (this.transforms.unrelatedCodemarks) {
+			this.responseData.codemarks = [...this.responseData.codemarks, ...this.transforms.unrelatedCodemarks];
+		}
+
 		await super.handleResponse();
 	}
 
@@ -66,6 +71,7 @@ class DeletePostRequest extends DeleteRequest {
 		this.stream = await this.data.streams.getById(this.post.get('streamId'));
 		await this.publishPost();
 		await this.publishMarkers();
+		await this.publishUnrelatedCodemarks();
 	}
 
 	// publish the post to the appropriate broadcaster channel
@@ -98,6 +104,35 @@ class DeletePostRequest extends DeleteRequest {
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
 			this.warn(`Could not publish markers message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
+	}
+
+	// any codemarks that were related to the codemark owend by this post, but are now unrelated, need to be published
+	// to the team channel, if the codemark itself didn't already go out to the team channel
+	async publishUnrelatedCodemarks () {
+		// we only need to publish these codemarks if the deleted codemark was in a private CodeStream channel,
+		// otherwise, the message went out to the team channel anyway
+		if (
+			!this.transforms.unrelatedCodemarks ||
+			this.stream.get('isTeamStream')
+		) {
+			return;
+		}
+		const message = {
+			codemarks: this.responseData.codemarks,
+			requestId: this.request.id
+		};
+		const channel = `team-${this.team.id}`;
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.warn(`Could not publish unrelated codemarks message to channel ${channel}: ${JSON.stringify(error)}`);
 		}
 	}
 
