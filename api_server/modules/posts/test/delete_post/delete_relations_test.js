@@ -71,7 +71,13 @@ class DeleteRelationsTest extends DeleteCodemarkTest {
 	}
 
 	validateResponse (data) {
-		const relatedCodemarks = this.postData.slice(1).map(pd => pd.codemark);
+		data.codemarks.sort((a, b) => {
+			return a.id.localeCompare(b.id);
+		});
+		this.expectedData.codemarks.sort((a, b) => {
+			return a.id.localeCompare(b.id);
+		});
+		const relatedCodemarks = this.postData.map(pd => pd.codemark);
 		relatedCodemarks.forEach(relatedCodemark => {
 			const returnedRelatedCodemark = data.codemarks.find(returnedCodemark => {
 				return returnedCodemark.id === relatedCodemark.id;
