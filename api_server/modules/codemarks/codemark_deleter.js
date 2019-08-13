@@ -4,6 +4,7 @@
 
 const ModelDeleter = require(process.env.CS_API_TOP + '/lib/util/restful/model_deleter');
 const MarkerDeleter = require(process.env.CS_API_TOP + '/modules/markers/marker_deleter');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class CodemarkDeleter extends ModelDeleter {
 
@@ -16,17 +17,20 @@ class CodemarkDeleter extends ModelDeleter {
 		return await this.deleteModel(id);
 	}
 
-	// set the actual op to execute to delete an op 
+	// set the actual op to execute to delete a codemark 
 	setOpForDelete () {
+		// remove any links to other codemarks
 		super.setOpForDelete();
+		this.deleteOp.$set.relatedCodemarkIds = [];
 		this.deleteOp.$set.modifiedAt = Date.now();
 	}
-
+	
 	// called before the delete is actually deleted
 	async preDelete () {
 		await this.getCodemark();		// get the codemark
 		await this.deletePost();		// delete the associated post
 		await this.deleteMarkers();		// delete any associated markers
+		await this.deleteRelations();	// delete the relations for any codemarks related to this one
 		await super.preDelete();		// base-class preDelete
 	}
 
@@ -71,6 +75,37 @@ class CodemarkDeleter extends ModelDeleter {
 			request: this.request
 		}).deleteMarker(markerId);
 		this.transforms.deletedMarkers.push(deletedMarker);
+	}
+
+	// delete the relations with any other codemarks
+	async deleteRelations () {
+		const relatedCodemarkIds = this.codemark.get('relatedCodemarkIds') || [];
+		if (relatedCodemarkIds.length === 0) {
+			return;
+		}
+		this.transforms.unrelatedCodemarks = [];
+		await Promise.all(relatedCodemarkIds.map(async relatedCodemarkId => {
+			await this.deleteRelation(relatedCodemarkId);
+		}));
+	}
+
+	// delete the relation from one codemark to the one being deactivated
+	async deleteRelation (relatedCodemarkId) {
+		const now = Date.now();
+		const op = { 
+			$pull: { 
+				relatedCodemarkIds: this.id
+			},
+			$set: {
+				modifiedAt: now
+			}
+		};
+		const updateOp = await new ModelSaver({
+			request: this.request,
+			collection: this.data.codemarks,
+			id: relatedCodemarkId
+		}).save(op);
+		this.transforms.unrelatedCodemarks.push(updateOp);
 	}
 }
 

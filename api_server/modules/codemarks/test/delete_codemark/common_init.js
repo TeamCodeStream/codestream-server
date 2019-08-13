@@ -16,6 +16,7 @@ class CommonInit {
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
 			this.makePostlessCodemark,
+			this.makeRelatedCodemarks,
 			this.setExpectedData,
 			this.setPath
 		], callback);
@@ -70,14 +71,49 @@ class CommonInit {
 		return data;
 	}
 
+	// make any codemarks to be related to this one
+	makeRelatedCodemarks (callback) {
+		if (!this.wantRelatedCodemarks) {
+			return callback();
+		}
+		this.relatedCodemarks = [];
+		BoundAsync.timesSeries(
+			this,
+			3,
+			this.makeRelatedCodemark,
+			callback
+		);
+	}
+
+	// make a codemark to be related to the one to be deleted
+	makeRelatedCodemark (n, callback) {
+		const data = this.getPostlessCodemarkData();
+		data.relatedCodemarkIds = [this.codemark.id];
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/codemarks',
+				data,
+				token: this.token
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.relatedCodemarks.push(response.codemark);
+				this.expectedVersion++;
+				callback();
+			}
+		);
+	}
+
 	setExpectedData (callback) {
 		this.expectedData = {
 			codemarks: [{
 				id: this.codemark.id,
-				_id: this.codemark.id,
+				_id: this.codemark.id,	// DEPRECATE ME
 				$set: {
 					version: this.expectedVersion,
 					deactivated: true,
+					relatedCodemarkIds: [],
 					modifiedAt: Date.now() // placehodler
 				},
 				$version: {
@@ -86,6 +122,23 @@ class CommonInit {
 				}
 			}]
 		};
+		(this.relatedCodemarks || []).forEach(relatedCodemark => {
+			this.expectedData.codemarks.push({
+				id: relatedCodemark.id,
+				_id: relatedCodemark.id,
+				$set: {
+					version: 2,
+					modifiedAt: Date.now()
+				},
+				$pull: {
+					relatedCodemarkIds: this.codemark.id
+				},
+				$version: {
+					before: 1,
+					after: 2
+				}
+			});
+		});
 		this.expectedCodemark = DeepClone(this.codemark);
 		Object.assign(this.expectedCodemark, this.expectedData.codemarks[0].$set);
 		this.modifiedAfter = Date.now();

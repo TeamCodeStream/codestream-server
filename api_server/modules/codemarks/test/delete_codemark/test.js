@@ -20,6 +20,8 @@ const MarkerMessageTest = require('./marker_message_test');
 const DeletePostMessageTest = require('./delete_post_message_test');
 const DeletePostAndMarkerMessageTest = require('./delete_post_and_marker_message_test');
 const MarkerToTeamMessageTest = require('./marker_to_team_message_test');
+const DeleteRelationsTest = require('./delete_relations_test');
+const DeleteRelationsMessageTest = require('./delete_relations_message_test');
 
 class DeleteCodemarkRequestTester {
 
@@ -47,6 +49,8 @@ class DeleteCodemarkRequestTester {
 		new DeletePostAndMarkerMessageTest({ streamType: 'team stream' }).test();
 		new MarkerToTeamMessageTest({ streamType: 'channel' }).test();
 		new MarkerToTeamMessageTest({ streamType: 'direct' }).test();
+		new DeleteRelationsTest().test();
+		new DeleteRelationsMessageTest().test();
 	}
 }
 
