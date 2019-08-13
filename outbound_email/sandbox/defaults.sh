@@ -113,8 +113,8 @@ export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=local.codestream.com
 # this is good and risk-free for developer testing
 export CS_OUTBOUND_EMAIL_TO="${DT_USER}@codestream.com"
 
-export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.local.template.json-custom_node10
-export CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME=provided
+export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.local.template.json
+export CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME="nodejs10.x"
 export CS_OUTBOUND_EMAIL_AWS_ACCOUNT=564564469595
 export CS_OUTBOUND_EMAIL_LAMBDA_IAM_ROLE=cs_LambdaDevelopment
 export CS_OUTBOUND_EMAIL_SQS_ARN="arn:aws:sqs:us-east-1:$CS_OUTBOUND_EMAIL_AWS_ACCOUNT:$CS_OUTBOUND_EMAIL_SQS"
@@ -127,7 +127,7 @@ if [ -z "$CS_FUNCTION_VERSION" ]; then
 	if [ -n "$BUILD_NUMBER" ]; then
 		export CS_FUNCTION_VERSION=$BUILD_NUMBER
 	else
-		export CS_FUNCTION_VERSION=`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p version`
+		export CS_FUNCTION_VERSION="`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p name`-`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p version`"
 	fi
 fi
 

@@ -4,7 +4,7 @@
 
 /* eslint no-console: 0 */
 
-const StructuredCfgFile = require('../src/codestream-configs/lib/structured_config');
+const StructuredCfgFile = require('./codestream-configs/lib/structured_config');
 
 let Cfg = {
 	maxPostsPerEmail: 25,	// maximum number of posts in an email notification
