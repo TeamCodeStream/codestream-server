@@ -109,7 +109,14 @@ class MongoClient {
 			collections = collections.map(c => c.name);
 		}
 		else if (this.config.collections instanceof Array) {
-			collections = this.config.collections;
+			let configCollections = [...this.config.collections];
+			const allIndex = configCollections.indexOf('__all');
+			if (allIndex !== -1) {
+				configCollections.splice(allIndex, 1);
+				collections = await this.mongoClient.db().listCollections().toArray();
+				collections = collections.map(c => c.name);
+			}
+			collections = [...collections, ...configCollections];
 		}
 		else {
 			return;
