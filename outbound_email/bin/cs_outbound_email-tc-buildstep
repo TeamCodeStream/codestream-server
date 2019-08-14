@@ -16,7 +16,7 @@ args = bu.parseStandardBuildArgs()
 dt = devTools.devTools()
 awsL = awsLambda.awsLambda()
 buildData = bu.buildInit(__file__, dt, args)
-buildDir = buildData['sandboxTop'] + "/src"
+buildDir = buildData['sandboxTop']
 os.chdir(buildDir)
 if args.verbose:
 	print("current directory is", buildDir)
@@ -35,16 +35,16 @@ if args.action == 'build':
 	pkgInfo = bu.getPackageInfo(buildData = buildData, gitRepoCommitDir = buildData['sandboxTop'])
 	bu.buildstepGeneric(args, cmd = "npm run build", workingDir = buildDir)
 	bu.buildstepGeneric(args, cmd = "npm run lambda:config", workingDir = buildDir)
-	os.rename("../out/outbound-email.zip", "../out/" + pkgInfo['localAssetFilePrefix'] + ".zip")
-	os.rename("../out/outbound-email.lambda.json", "../out/" + pkgInfo['localAssetFilePrefix'] + ".lambda.json")
-	md5zip = dt.md5Hash("../out/" + pkgInfo['localAssetFilePrefix'] + ".zip")
-	md5json = dt.md5Hash("../out/" + pkgInfo['localAssetFilePrefix'] + ".lambda.json")
+	os.rename("./out/outbound-email.zip", "./out/" + pkgInfo['localAssetFilePrefix'] + ".zip")
+	os.rename("./out/outbound-email.lambda.json", "./out/" + pkgInfo['localAssetFilePrefix'] + ".lambda.json")
+	md5zip = dt.md5Hash("./out/" + pkgInfo['localAssetFilePrefix'] + ".zip")
+	md5json = dt.md5Hash("./out/" + pkgInfo['localAssetFilePrefix'] + ".lambda.json")
 	pkgInfo['assetsMD5'][pkgInfo['localAssetFilePrefix'] + ".zip"] = md5zip
 	pkgInfo['assetsMD5'][pkgInfo['localAssetFilePrefix'] + ".lambda.json"] = md5json
-	su.dumpDict(pkgInfo, "../out/" + pkgInfo['localAssetFilePrefix'] + ".info")
+	su.dumpDict(pkgInfo, "./out/" + pkgInfo['localAssetFilePrefix'] + ".info")
 	if args.verbose:
 		su.dumpDict(pkgInfo, None, "Package Info:")
-	su.shellExecNoBuffer("ls -l " + pkgInfo['localAssetFilePrefix'] + ".*", workingDir = "../out", printCmd = True)
+	su.shellExecNoBuffer("ls -l " + pkgInfo['localAssetFilePrefix'] + ".*", workingDir = "./out", printCmd = True)
 
 if args.action == 'citest':
 	bu.buildstepGeneric(args, cmd = "echo Testing not configured", workingDir = buildDir)
@@ -64,21 +64,21 @@ if args.action == 'promote':
 		print("you must specify --build-env")
 		exit(1)
 	print("sourceAssetEnv =", sourceAssetEnv)
-	bu.fetchArtifacts(args, buildData, assetExtensionList, destDir = "../out/" + sourceAssetEnv, sourceAssetEnv = sourceAssetEnv, publishDir = "outbound-email")
+	bu.fetchArtifacts(args, buildData, assetExtensionList, destDir = "./out/" + sourceAssetEnv, sourceAssetEnv = sourceAssetEnv, publishDir = "outbound-email")
 	bu.buildstepGeneric(args, cmd = "npm run lambda:config", workingDir = buildDir)
-	os.rename("../out/outbound-email.lambda.json", "../out/" + buildData['givenBuildNumber'] + ".lambda.json")
-	os.rename("../out/" + sourceAssetEnv + "/" + buildData['givenBuildNumber'] + ".zip", "../out/" + buildData['givenBuildNumber'] + ".zip")
-	pkgInfo = su.readJsonFileIgnoreComments("../out/" + sourceAssetEnv + "/" + buildData['givenBuildNumber'] + ".info")
+	os.rename("./out/outbound-email.lambda.json", "./out/" + buildData['givenBuildNumber'] + ".lambda.json")
+	os.rename("./out/" + sourceAssetEnv + "/" + buildData['givenBuildNumber'] + ".zip", "./out/" + buildData['givenBuildNumber'] + ".zip")
+	pkgInfo = su.readJsonFileIgnoreComments("./out/" + sourceAssetEnv + "/" + buildData['givenBuildNumber'] + ".info")
 	pkgInfo['assetEnvironment'] = os.environ['CS_OUTBOUND_EMAIL_ASSET_ENV']
-	su.dumpDict(pkgInfo, "../out/" + buildData['givenBuildNumber'] + ".info")
+	su.dumpDict(pkgInfo, "./out/" + buildData['givenBuildNumber'] + ".info")
 	if args.verbose:
 		su.dumpDict(pkgInfo, None, "New package info:")
-	bu.buildstepGeneric(args, cmd = "/bin/rm -rf " + "../out/" + sourceAssetEnv, workingDir = buildDir)
+	bu.buildstepGeneric(args, cmd = "/bin/rm -rf " + "./out/" + sourceAssetEnv, workingDir = buildDir)
 
 if args.action == 'update':
 	# install the artifiacts (update the lambda code and environment)
-	os.rename("../out/" + buildData['givenBuildNumber'] + ".zip", "../out/outbound-email.zip")
-	os.rename("../out/" + buildData['givenBuildNumber'] + ".lambda.json", "../out/outbound-email.lambda.json")
+	os.rename("./out/" + buildData['givenBuildNumber'] + ".zip", "./out/outbound-email.zip")
+	os.rename("./out/" + buildData['givenBuildNumber'] + ".lambda.json", "./out/outbound-email.lambda.json")
 	if awsL.lambdaFunctionExists(os.environ['CS_OUTBOUND_EMAIL_SQS']):
 		print("updating lambda function code and environment on pre-existing function")
 		bu.buildstepGeneric(args, cmd = "npm run lambda:update_env", workingDir = buildDir)
@@ -88,18 +88,18 @@ if args.action == 'update':
 		bu.buildstepGeneric(args, cmd = "npm run lambda:config_env", workingDir = buildDir)
 		bu.buildstepGeneric(args, cmd = "npm run lambda:install_func", workingDir = buildDir)
 		bu.buildstepGeneric(args, cmd = "npm run lambda:install_trigger", workingDir = buildDir)
-	os.rename("../out/outbound-email.zip", "../out/" + buildData['givenBuildNumber'] + ".zip")
-	os.rename("../out/outbound-email.lambda.json", "../out/" + buildData['givenBuildNumber'] + ".lambda.json")
-	os.unlink("../out/outbound-email.lambda-environment.json")
+	os.rename("./out/outbound-email.zip", "./out/" + buildData['givenBuildNumber'] + ".zip")
+	os.rename("./out/outbound-email.lambda.json", "./out/" + buildData['givenBuildNumber'] + ".lambda.json")
+	os.unlink("./out/outbound-email.lambda-environment.json")
 
 if args.action == 'publish':
-	bu.publishArtifacts(args, buildData, assetExtensionList, sourceDir = "../out", publishDir = "outbound-email")
+	bu.publishArtifacts(args, buildData, assetExtensionList, sourceDir = "./out", publishDir = "outbound-email")
 
 if args.action == 'release':
 	if os.environ['CS_OUTBOUND_EMAIL_ASSET_ENV'] != "prod":
 		print("release can only be run in a sandbox configured for production")
 		exit(1)
-	infoFileName = "../out/" + args.build_number + ".info"
+	infoFileName = "./out/" + args.build_number + ".info"
 	pkgInfo = su.readJsonFileIgnoreComments(infoFileName)
 	bu.applyTagToRepos(os.environ['CS_OUTBOUND_EMAIL_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
-	bu.updatePackageVersion(buildData['sandboxTop'] + "/src/package.json", "develop", pkgInfo['version'], bumpLevel = 'patch')
+	bu.updatePackageVersion(buildData['sandboxTop'] + "/package.json", "develop", pkgInfo['version'], bumpLevel = 'patch')

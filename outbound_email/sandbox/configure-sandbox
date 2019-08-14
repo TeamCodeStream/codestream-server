@@ -29,7 +29,7 @@ cd $CS_OUTBOUND_EMAIL_TOP || exit 1
 # Install git submodules
 [ $mode != "no_build" -a -f .gitmodules ] && git submodule update --init --recursive
 
-cd src || exit 1
+#cd src || exit 1
 
 # Exmaple: expanding templates
 # $DT_TOP/bin/create-file-from-template.py -t $XYZ_SANDBOX/git_project/etc/httpd.conf.template -o $XYZ_SANDBOX/conf/httpd.conf
