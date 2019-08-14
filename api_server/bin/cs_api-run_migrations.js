@@ -29,14 +29,15 @@ class MigrationRunner {
 	// open a mongo client to read from
 	async openMongoClient () {
 		this.mongoClient = new MongoClient();
-		let mongoConfig = Object.assign({}, MongoConfig, { collections: 'all' });
+		let mongoConfig = Object.assign({}, MongoConfig, { collections: ['__all', 'migrationVersion'] });
 		delete mongoConfig.queryLogging;
 		try {
 			await this.mongoClient.openMongoClient(mongoConfig);
 			this.data = this.mongoClient.mongoCollections;
 		}
 		catch (error) {
-			throw `unable to open mongo client: ${JSON.stringify(error)}`;
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			throw `unable to open mongo client: ${message}`;
 		}
 	}
 
