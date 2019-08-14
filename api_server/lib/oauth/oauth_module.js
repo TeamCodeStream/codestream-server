@@ -451,8 +451,9 @@ class OAuthModule extends APIServerModule {
 				this.oauth1Consumer.getOAuthRequestToken(
 					(error, oauthToken, oauthTokenSecret) => {
 						if (error) {
+							const message = error instanceof Error ? error.message : JSON.stringify(error);
 							const rejectError = options.request && options.request.errorHandler ?
-								options.request.errorHandler.error('tokenInvalid') : error;
+								options.request.errorHandler.error('tokenInvalid', { reason: message }) : message;
 							reject(rejectError);
 						}
 						else {
@@ -462,8 +463,9 @@ class OAuthModule extends APIServerModule {
 				);
 			}
 			catch (error) {
+				const message = error instanceof Error ? error.message : JSON.stringify(error);
 				const rejectError = options.request && options.request.errorHandler ?
-					options.request.errorHandler.error('tokenInvalid') : error;
+					options.request.errorHandler.error('tokenInvalid', { reason: message }) : message;
 				reject(rejectError);
 			}
 		});
