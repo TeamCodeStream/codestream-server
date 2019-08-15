@@ -103,7 +103,7 @@ class MongoClient {
 
 	// for each desired database collection, create a MongoCollection object as a bridge
 	async makeCollections () {
-		let collections;
+		let collections = [];
 		if (this.config.collections === 'all') {
 			collections = await this.mongoClient.db().listCollections().toArray();
 			collections = collections.map(c => c.name);
