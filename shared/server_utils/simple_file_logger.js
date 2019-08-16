@@ -28,6 +28,9 @@ class SimpleFileLogger {
 		// the log files will have a date stamp associated with them, but there will
 		// always be "today's" log file with no date stamp, it is a symbolic link to the log file for today
 		this.linkName = this.getLinkName();
+
+		// what is my timezone offset? we'll assume it never changes 
+		this.timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
 	}
 
 	// initialize logging
@@ -50,13 +53,12 @@ class SimpleFileLogger {
 	}
 
 	// get a log file name associated with the passed date
-	getLogFileName (date) {
-		if (!date) {
-			date = Date.now();
+	getLogFileName (timestamp) {
+		if (!timestamp) {
+			timestamp = Date.now();
 		}
-		if (typeof date === 'number') {
-			date = new Date(date);
-		}
+		timestamp += this.timezoneOffset;
+		const date = new Date(timestamp);
 		const format = this.format || '%Y%m%d';
 		const formatted = Strftime(format, date);
 		const extension = this.extension || 'log';
@@ -116,7 +118,9 @@ class SimpleFileLogger {
 
 	// output text to the current log file
 	out (text, requestId) {
-		let fullText = Strftime('%Y-%m-%d %H:%M:%S.%L');
+		const now = Date.now() + this.timezoneOffset;
+		const date = new Date(now);
+		let fullText = Strftime('%Y-%m-%d %H:%M:%S.%LZ', date);
 		if (this.loggerId) {
 			fullText += ' ' + this.loggerId;
 		}
@@ -150,11 +154,7 @@ class SimpleFileLogger {
 	midnight (timestamp) {
 		const oneDay = 24 * 60 * 60 * 1000;
 		const msSinceMidnightGmt = timestamp % oneDay;
-		const midnightGmt = timestamp - msSinceMidnightGmt;
-		const oneMinute = 60 * 1000;
-		const timezoneOffset = new Date().getTimezoneOffset() * oneMinute;
-		const myMidnight = midnightGmt + timezoneOffset - oneDay;
-		return myMidnight;
+		return timestamp - msSinceMidnightGmt;
 	}
 
 	// rotate to the next log file
