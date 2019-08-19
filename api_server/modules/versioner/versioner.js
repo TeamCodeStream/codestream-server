@@ -19,6 +19,11 @@ const ROUTES = [
 		method: 'put',
 		path: '/no-auth/--put-mock-version',
 		func: 'handleMockVersion'
+	},
+	{
+		method: 'get',
+		path: '/no-auth/capabilities',
+		requestClass: require('./capabilities_request')
 	}
 ];
 

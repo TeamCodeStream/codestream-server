@@ -24,6 +24,7 @@ const BadVersionRequestTest = require('./bad_version_request_test');
 const ImproperVersionTest = require('./improper_version_test');
 const ImproperVersionRequestTest = require('./improper_version_request_test');
 const APIVersionTest = require('./api_version_test');
+const CapabilitiesTest = require('./capabilities_test');
 
 describe('versioner', function() {
 
@@ -48,4 +49,5 @@ describe('versioner', function() {
 	new ImproperVersionTest().test();
 	new ImproperVersionRequestTest().test();
 	new APIVersionTest().test();
+	new CapabilitiesTest().test();
 });

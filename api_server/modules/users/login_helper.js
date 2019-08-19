@@ -6,6 +6,7 @@ const InitialDataFetcher = require('./initial_data_fetcher');
 const UserSubscriptionGranter = require('./user_subscription_granter');
 const UUID = require('uuid/v4');
 const ProviderFetcher = require(process.env.CS_API_TOP + '/modules/providers/provider_fetcher');
+const APICapabilities = require(process.env.CS_API_TOP + '/etc/capabilities');
 
 class LoginHelper {
 
@@ -148,7 +149,8 @@ class LoginHelper {
 			accessToken: this.accessToken,	// access token to supply in future requests
 			pubnubKey: this.request.api.config.pubnub.subscribeKey,	// give them the subscribe key for pubnub
 			pubnubToken: this.pubnubToken,	// token used to subscribe to PubNub channels
-			broadcasterToken: this.broadcasterToken // more generic "broadcaster" token, for broadcaster solutions other than PubNub
+			broadcasterToken: this.broadcasterToken, // more generic "broadcaster" token, for broadcaster solutions other than PubNub
+			capabilities: [...APICapabilities]	// capabilities served by this API server
 		};
 
 		// if using socketcluster for messaging (for on-prem installations), return host info
