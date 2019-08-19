@@ -37,6 +37,7 @@
     "node-ipc": "9.1.1",
     "oauth": "0.9.15",
     "pubnub": "4.24.0",
+    "read-package-json": "2.1.0",
     "socketcluster-client": "14.2.2",
     "strftime": "0.10.0",
     "toposort": "2.0.2",

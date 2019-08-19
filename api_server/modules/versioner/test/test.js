@@ -23,6 +23,7 @@ const BadVersionTest = require('./bad_version_test');
 const BadVersionRequestTest = require('./bad_version_request_test');
 const ImproperVersionTest = require('./improper_version_test');
 const ImproperVersionRequestTest = require('./improper_version_request_test');
+const APIVersionTest = require('./api_version_test');
 
 describe('versioner', function() {
 
@@ -46,4 +47,5 @@ describe('versioner', function() {
 	new BadVersionRequestTest().test();
 	new ImproperVersionTest().test();
 	new ImproperVersionRequestTest().test();
+	new APIVersionTest().test();
 });

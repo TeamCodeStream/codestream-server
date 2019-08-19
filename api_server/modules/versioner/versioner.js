@@ -7,6 +7,7 @@ const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_se
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const Errors = require('./errors');
 const VersionInfo = require('./version_info');
+const ReadPackageJson = require('read-package-json');
 
 const ROUTES = [
 	{
@@ -57,11 +58,15 @@ class Versioner extends APIServerModule {
 	// examine the request headers for plugin version information, lookup the matching
 	// version information in our internal version matrix, and determine compatibility
 	async handleVersionCompatibility (request, response) {
+
+		// this is just the API server version, which we return to the client
+		response.set('X-CS-API-Version', this.apiVersion);
+
+		// determine version disposition, based on version information passed from the extension
 		const versionCompatibility = await this.versionInfo.handleVersionCompatibility({
 			pluginIDE: request.headers['x-cs-plugin-ide'],
 			pluginVersion: request.headers['x-cs-plugin-version'],
 		});
-
 		response.set('X-CS-Version-Disposition', versionCompatibility.versionDisposition);
 
 		// if the plugin is too old, we can not honor this request at all, but let
@@ -95,6 +100,7 @@ class Versioner extends APIServerModule {
 		}
 	}
 
+	// handle setting a mock version in the compatibility matrix, for testing
 	handleMockVersion (request, response) {
 		if (this.api.config.api.mockMode) {
 			this.api.data.versionMatrix.create(request.body);
@@ -103,6 +109,23 @@ class Versioner extends APIServerModule {
 		else {
 			response.status(401).send('NOT IN MOCK MODE');
 		}
+	}
+
+	// initialize this module
+	async initialize () {
+		// read our package.json and extract the API server version,
+		// which we'll return to the client on every request
+		return new Promise((resolve, reject) => {
+			ReadPackageJson(
+				process.env.CS_API_TOP + '/package.json',
+				(error, data) => {
+					if (error) { reject(error); }
+					this.apiVersion = data.version;
+					this.api.log('API Version is ' + this.apiVersion);
+					resolve();
+				}
+			);
+		});
 	}
 
 	// describe any errors associated with this module, for help
