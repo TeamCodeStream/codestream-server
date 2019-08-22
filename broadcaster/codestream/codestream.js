@@ -196,6 +196,7 @@ class CodeStream {
 
 		// all good, set the token for the socket and emit an 'authed' event letting the
 		// client know they are actually authed
+		this.logger.log(`USER ${data.uid} IS AUTHORIZED`);
 		socket.setAuthToken({ uid: data.uid });
 		socket.emit('authed');
 	}
