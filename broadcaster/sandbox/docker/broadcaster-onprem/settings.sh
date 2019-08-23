@@ -1,6 +1,6 @@
 
 dockerHubOrganization=teamcodestream
-defaultImageVersion=0.0.8
+defaultImageVersion=0.0.9
 buildParameters=""
 runParameterss="-P -v $localConfigDir:/opt/config"
 containerName="csbcast"

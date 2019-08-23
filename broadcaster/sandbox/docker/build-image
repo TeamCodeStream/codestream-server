@@ -1,3 +1,0 @@
-#!/bin/bash
-imageVer=0.0.1
-docker build -t teamcodestream/broadcaster-onprem:$imageVer -f ./Dockerfile.onPrem $CS_BROADCASTER_TOP
