@@ -442,13 +442,13 @@ class OAuthModule extends APIServerModule {
 	// fetch a request token for modules using OAuth 1.0
 	getRequestToken (options) {
 		const { mockToken } = options;
-		this.initOauth1AsNeeded(options);
+		const oauthConsumer = this.initOauth1(options);
 		return new Promise((resolve, reject) => {
 			if (mockToken) {
 				return resolve({ oauthToken: mockToken, oauthTokenSecret: 'mockTokenSecret '});
 			}
 			try {
-				this.oauth1Consumer.getOAuthRequestToken(
+				oauthConsumer.getOAuthRequestToken(
 					(error, oauthToken, oauthTokenSecret) => {
 						if (error) {
 							const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -474,12 +474,12 @@ class OAuthModule extends APIServerModule {
 	// fetch an access token for modules using OAuth 1.0, given an OAuth token obtained
 	// from the provider-auth request
 	async getOauth1AccessToken (options) {
-		this.initOauth1AsNeeded(options);
+		const oauthConsumer = this.initOauth1(options);
 		return new Promise((resolve, reject) => {
 			if (options.mockToken) {
 				return resolve({ accessToken: options.mockToken, oauthTokenSecret: options.oauthTokenSecret });
 			}
-			this.oauth1Consumer.getOAuthAccessToken(
+			oauthConsumer.getOAuthAccessToken(
 				options.oauthToken,
 				options.oauthTokenSecret,
 				null,
@@ -498,8 +498,7 @@ class OAuthModule extends APIServerModule {
 	}
 
 	// init an OAuth 1.0 client for the given client options, as needed
-	initOauth1AsNeeded (options) {
-		if (this.oauth1Consumer) { return; }
+	initOauth1 (options) {
 		const clientInfo = this.getClientInfo(options);
 		const { oauthData } = clientInfo;
 		let { consumerKey, privateKey } = (oauthData || {});
@@ -509,7 +508,7 @@ class OAuthModule extends APIServerModule {
 			const keyPart = match[2].replace(/\s+/g, '\n');
 			privateKey = `-----BEGIN ${match[1]} PRIVATE KEY-----${keyPart}-----END ${match[3]} PRIVATE KEY-----\n`;
 		}
-		this.oauth1Consumer = new OAuth(
+		return new OAuth(
 			`${clientInfo.host}/${this.oauthConfig.requestTokenPath}`,
 			`${clientInfo.host}/${this.oauthConfig.accessTokenPath}`,
 			consumerKey,
