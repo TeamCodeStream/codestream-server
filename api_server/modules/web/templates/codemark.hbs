@@ -3,86 +3,524 @@
 
 <head>
 	<title>CodeStream</title>
+	<link rel="dns-prefetch" href="https://images.codestream.com">
 	<link rel="icon" type="image/png" sizes="32x32" href="https://images.codestream.com/logos/cs-favicon-32x32.png" />
 	<link rel="icon" type="image/png" sizes="16x16" href="https://images.codestream.com/logos/cs-favicon-16x16.png" />
+	<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+		integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"
+		integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o"
+		crossorigin="anonymous"></script>
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 	<link rel="stylesheet" href="/no-auth/web/styles/web.css?_={{version}}" />
 	<script type="text/javascript">
-		!function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
-		analytics.load("{{segmentKey}}");
-		analytics.page();
-		}}();
-	</script>	
+		!function () {
+			var analytics = window.analytics = window.analytics || []; if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice."); else {
+				analytics.invoked = !0; analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "debug", "page", "once", "off", "on"]; analytics.factory = function (t) { return function () { var e = Array.prototype.slice.call(arguments); e.unshift(t); analytics.push(e); return analytics } }; for (var t = 0; t < analytics.methods.length; t++) { var e = analytics.methods[t]; analytics[e] = analytics.factory(e) } analytics.load = function (t, e) { var n = document.createElement("script"); n.type = "text/javascript"; n.async = !0; n.src = "https://cdn.segment.com/analytics.js/v1/" + t + "/analytics.min.js"; var a = document.getElementsByTagName("script")[0]; a.parentNode.insertBefore(n, a); analytics._loadOptions = e }; analytics.SNIPPET_VERSION = "4.1.0";
+				analytics.load("{{segmentKey}}");
+				analytics.page();
+			}
+		}();
+	</script>
 </head>
+
 <body>
-
 	{{{identifyScript}}}
-
 	<script>
-		window.analytics.track('Page Viewed', { 'Page Name': 'Codemark' });
+		window.analytics.track('Page Viewed', { 'Page Name': '{{codemarkType}}' });
 	</script>
 	<script>
 		history.pushState(null, "CodeStream", location.href.split("?")[0]);
 	</script>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<a class="navbar-brand" href="https://codestream.com">
+			<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
+		</a>
+		<div class="collapse navbar-collapse" id="navbarNavDropdown"></div>
+		<ul class="navbar-nav" id="menu">
+			<li class="nav-item dropdown">
+				<a class="nav-link" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+					aria-expanded="false">
+					<span class="navbar-toggler-icon"></span>
+				</a>
+				<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+					<a class="dropdown-item" href="#">{{teamName}}</a>
+					<div class="dropdown-divider"></div>
+					<a class="dropdown-item" href="mailto:support@codestream.com">Feedback</a>
+					<a class="dropdown-item" href="https://github.com/teamcodestream/codestream/wiki"
+						target="_blank">Help</a>
+					<div class="dropdown-divider"></div>
+					<a class="dropdown-item" href="/web/logout">Sign Out</a>
+				</div>
+			</li>
+		</ul>
+	</nav>
 
-	<div id="root">
-		<div class="root-inner">
-			<div class="logo-wrapper">
-				<img class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
-			</div>
-			<div class="box">
-				<div class="box-content">
+	<div id="alert-wrapper"></div>
+	<div class="container-fluid" id="root">
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3">
+				<div class="box-content box-border box-border-sm">
 					<div>
-					   {{#if showComment}}  
+						{{#if showComment}}
 						<div class="flex">
-							<div class="headshot">
-								{{#if emailHash}}								
-									<img class="headshot-image"	src="https://www.gravatar.com/avatar/{{emailHash}}?s=36" />
-								{{/if}}
+							{{#if hasEmailHashOrAuthorInitials}}
+							<div class="headshot">														 							 
+								<img style="position:absolute; z-index:2;" class="headshot-image" src="https://www.gravatar.com/avatar/{{emailHash}}?s=20&d=blank" />
+								<span class="headshot-initials">{{authorInitials}}</span>								 								
 							</div>
+							{{/if}}
 							<div>
 								<div class="posted-on">
-									<span class="author">{{username}}</span>&nbsp;
-									<span class="activity">{{activity}}</span>&nbsp;
+									<span class="author">{{username}}</span>
+									{{!-- <span class="activity">{{activity}}</span>&nbsp; --}}
 									<span class="time">{{createdAt}}</span>
-								</div>
-								<div>
-									{{#if title}}
-									<p class="title">{{title}}</p>
-									{{/if}}
-									{{#if text}}
-									<p class="text">{{text}}</p>
-									{{/if}}
-								</div>
-							</div>
-						</div>
-					   {{/if}} 
-
-						<div class="box-border box-border-sm">
-							{{#if file}}<p class="file">{{file}}</p>{{/if}}
-							<div class="code">
-								<code class="prettyprint">{{{code}}}</code>
-							</div>
-						</div>
-
-						{{#if hasProviderButtons}}
-						<div>
-							<div class="btn-group">
-								<div class="btn-list">
-									{{#if codeProvider}}
-									<button class="btn btn-sm" onclick='window.analytics.track("Opened On", { Destination: "{{codeProvider}}" }); window.open("{{codeProviderUrl}}", "_blank")'>Open Code on {{codeProvider}}</button>
-									{{/if}}
-									{{#if threadProvider}}
-									<button class="btn btn-sm" onclick='window.analytics.track("Opened On", { Destination: "{{threadProvider}}" }); window.open("{{threadProviderUrl}}", "_blank")'>Open Thread on {{threadProvider}}</button>
-									{{/if}}
 								</div>
 							</div>
 						</div>
 						{{/if}}
+						{{#if showComment}}
+						{{#if text}}
+						<p class="text">{{text}}</p>
+						{{/if}}
+						{{#if title}}
+						<p class="title">{{title}}</p>
+						{{/if}}
+						{{/if}}
+						{{#if file}}<p class="file">{{file}}</p>{{/if}}
+						<div class="code">
+							{{#if codeStartingLineNumber}}
+							<code class="prettyprint linenums:{{codeStartingLineNumber}}">{{{code}}}</code>
+							{{/if}}
+							{{^codeStartingLineNumber}}
+							<code class="prettyprint">{{{code}}}</code>
+							{{/codeStartingLineNumber}}
+						</div>
+
+						<div class="row no-gutters mt-2">
+							<div class="col-sm-6">
+								<span>Open in</span>
+								<div class="btn-group ide-list" style="white-space:nowrap">
+									<a href="#" class="dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+										aria-haspopup="true" aria-expanded="false">
+										<span class="sr-only">Toggle Dropdown</span>
+									</a>
+									<div class="dropdown-menu dropdown-menu-right" id="ide-list-items">
+										{{#ides}}
+										{{#if ideName}}
+										<a class="dropdown-item" href="#" data-ide="" data-ide-name="{{ideName}}"
+											data-ide-moniker="{{moniker}}" data-ide-protocol="{{protocol}}"
+											data-ide-download-url="{{downloadUrl}}">{{ideName}}</a>
+										{{/if}}
+										{{^ideName}}
+										<div class="dropdown-divider"></div>
+										{{/ideName}}
+										{{/ides}}
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-1"></div>
+							<div class="col-sm-1"></div>
+							<div class="col-sm-4">
+								{{#if hasProviderButtons}}
+								<div class="float-right">
+									{{#if codeProvider}}
+									<a href="#"
+										onclick='event.preventDefault();window.analytics.track("Opened Code", { Host: "{{codeProvider}}" }); window.open("{{codeProviderUrl}}", "_blank");'>Open
+										on {{codeProvider}}</a>
+									{{/if}}
+									{{#if externalProvider}}
+									<a href="#"
+										onclick='event.preventDefault();window.analytics.track("Opened Issue", { Service: "{{externalProvider}}" }); window.open("{{externalProviderUrl}}", "_blank")'>Open
+										issue on {{externalProvider}}
+									</a>
+									{{/if}}
+								</div>
+								{{/if}}
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+
+	<script>
+		(function (f) { if (typeof exports === "object" && typeof module !== "undefined") { module.exports = f() } else if (typeof define === "function" && define.amd) { define([], f) } else { var g; if (typeof window !== "undefined") { g = window } else if (typeof global !== "undefined") { g = global } else if (typeof self !== "undefined") { g = self } else { g = this } g.protocolCheck = f() } })(function () {
+			var define, module, exports; return (function e(t, n, r) { function s(o, u) { if (!n[o]) { if (!t[o]) { var a = typeof require == "function" && require; if (!u && a) return a(o, !0); if (i) return i(o, !0); var f = new Error("Cannot find module '" + o + "'"); throw f.code = "MODULE_NOT_FOUND", f } var l = n[o] = { exports: {} }; t[o][0].call(l.exports, function (e) { var n = t[o][1][e]; return s(n ? n : e) }, l, l.exports, e, t, n, r) } return n[o].exports } var i = typeof require == "function" && require; for (var o = 0; o < r.length; o++)s(r[o]); return s })({
+				1: [function (require, module, exports) {
+					function _registerEvent(target, eventType, cb) {
+						if (target.addEventListener) {
+							target.addEventListener(eventType, cb);
+							return {
+								remove: function () {
+									target.removeEventListener(eventType, cb);
+								}
+							};
+						} else {
+							target.attachEvent(eventType, cb);
+							return {
+								remove: function () {
+									target.detachEvent(eventType, cb);
+								}
+							};
+						}
+					}
+
+					function _createHiddenIframe(target, uri) {
+						var iframe = document.createElement("iframe");
+						iframe.src = uri;
+						iframe.id = "hiddenIframe";
+						iframe.style.display = "none";
+						target.appendChild(iframe);
+
+						return iframe;
+					}
+
+					function _createDetachedHiddenIframe() {
+						var iframe = document.createElement("iframe");
+						iframe.id = "hiddenDetachedIframe";
+						iframe.style.display = "none";
+						return iframe;
+					}
+
+					function openUriWithHiddenFrame(uri, failCb, successCb) {
+
+						var timeout = setTimeout(function () {
+							failCb();
+							handler.remove();
+						}, 1000);
+
+						var iframe = document.querySelector("#hiddenIframe");
+						if (!iframe) {
+							iframe = _createHiddenIframe(document.body, "about:blank");
+						}
+
+						var handler = _registerEvent(window, "blur", onBlur);
+
+						function onBlur() {
+							clearTimeout(timeout);
+							handler.remove();
+							successCb();
+						}
+
+						iframe.contentWindow.location.href = uri;
+					}
+
+					function openUriWithTimeoutHack(uri, failCb, successCb) {
+
+						var timeout = setTimeout(function () {
+							failCb();
+							handler.remove();
+						}, 1000);
+
+						//handle page running in an iframe (blur must be registered with top level window)
+						var target = window;
+						while (target != target.parent) {
+							target = target.parent;
+						}
+
+						var handler = _registerEvent(target, "blur", onBlur);
+
+						function onBlur() {
+							clearTimeout(timeout);
+							handler.remove();
+							successCb();
+						}
+
+						window.location = uri;
+					}
+
+					function openUriUsingFirefox(uri, failCb, successCb) {
+						openUriUsingIE10InWindows7(uri, failCb, successCb);
+						return;
+						var iframe = document.querySelector("#hiddenIframe");
+
+						if (!iframe) {
+							iframe = _createHiddenIframe(document.body, "about:blank");
+						}
+
+						try {
+							iframe.contentWindow.location.href = uri;
+							successCb();
+						} catch (e) {
+							if (e.name == "NS_ERROR_UNKNOWN_PROTOCOL") {
+								failCb();
+							}
+						}
+					}
+
+					function openUriUsingFirefox2(uri, failCb, successCb) {
+						var worked;
+						var iframe = document.querySelector("#hiddenDetachedIframe");
+						var attached;
+						if (iframe) {
+							iframe.remove();
+						}
+						iframe = _createDetachedHiddenIframe(uri);
+						iframe.style.width = "333px";
+						iframe.style.height = "333px";
+						iframe.src = "about:blank";
+						try {
+
+							var onblur = function () {
+								worked = true;
+								console.log('blurred');
+								iframe.removeEventListener('blur', onblur, false);
+							}
+
+							iframe.addEventListener("blur", onblur, false);
+							document.body.appendChild(iframe);
+							var i = 0;
+							var interval = setInterval(function () {
+								console.log(document.activeElement);
+								if (i === 39) {
+									console.log('stopping');
+									clearInterval(interval);
+									failCb();
+									return;
+								}
+								if (worked) {
+									console.log('worked');
+									clearInterval(interval);
+									successCb();
+								}
+								i++;
+							}, 100);
+
+
+							iframe.contentWindow.location.href = uri;
+						} catch (e) {
+							failCb();
+						}
+					}
+
+					function openUriUsingIEInOlderWindows(uri, failCb, successCb) {
+						if (getInternetExplorerVersion() === 10) {
+							openUriUsingIE10InWindows7(uri, failCb, successCb);
+						} else if (getInternetExplorerVersion() === 9 || getInternetExplorerVersion() === 11) {
+							openUriWithHiddenFrame(uri, failCb, successCb);
+						} else {
+							openUriInNewWindowHack(uri, failCb, successCb);
+						}
+					}
+
+					function openUriUsingIE10InWindows7(uri, failCb, successCb) {
+						var timeout = setTimeout(failCb, 1000);
+						window.addEventListener("blur", function () {
+							clearTimeout(timeout);
+							successCb();
+						});
+
+						var iframe = document.querySelector("#hiddenIframe");
+						if (!iframe) {
+							iframe = _createHiddenIframe(document.body, "about:blank");
+						}
+						try {
+							iframe.contentWindow.location.href = uri;
+						} catch (e) {
+							failCb();
+							clearTimeout(timeout);
+						}
+					}
+
+					function openUriInNewWindowHack(uri, failCb, successCb) {
+						var myWindow = window.open('', '', 'width=0,height=0');
+
+						myWindow.document.write("<iframe src='" + uri + "'></iframe>");
+
+						setTimeout(function () {
+							try {
+								myWindow.location.href;
+								myWindow.setTimeout("window.close()", 1000);
+								successCb();
+							} catch (e) {
+								myWindow.close();
+								failCb();
+							}
+						}, 1000);
+					}
+
+					function openUriWithMsLaunchUri(uri, failCb, successCb) {
+						navigator.msLaunchUri(uri,
+							successCb,
+							failCb
+						);
+					}
+
+					function checkBrowser() {
+						var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+						var ua = navigator.userAgent.toLowerCase();
+						return {
+							isOpera: isOpera,
+							isFirefox: typeof InstallTrigger !== 'undefined',
+							isSafari: (~ua.indexOf('safari') && !~ua.indexOf('chrome')) || Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0,
+							isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
+							isChrome: !!window.chrome && !isOpera,
+							isIE: /*@cc_on!@*/false || !!document.documentMode // At least IE6
+						}
+					}
+
+					function getInternetExplorerVersion() {
+						var rv = -1;
+						if (navigator.appName === "Microsoft Internet Explorer") {
+							var ua = navigator.userAgent;
+							var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+							if (re.exec(ua) != null)
+								rv = parseFloat(RegExp.$1);
+						}
+						else if (navigator.appName === "Netscape") {
+							var ua = navigator.userAgent;
+							var re = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+							if (re.exec(ua) != null) {
+								rv = parseFloat(RegExp.$1);
+							}
+						}
+						return rv;
+					}
+
+					module.exports = function (uri, failCb, successCb, unsupportedCb) {
+						function failCallback() {
+							failCb && failCb();
+						}
+
+						function successCallback() {
+							successCb && successCb();
+						}
+
+						if (navigator.msLaunchUri) { //for IE and Edge in Win 8 and Win 10
+							openUriWithMsLaunchUri(uri, failCb, successCb);
+						} else {
+							var browser = checkBrowser();
+
+							if (browser.isFirefox) {
+								openUriUsingFirefox(uri, failCallback, successCallback);
+							} else if (browser.isChrome || browser.isIOS) {
+								openUriWithTimeoutHack(uri, failCallback, successCallback);
+							} else if (browser.isIE) {
+								openUriUsingIEInOlderWindows(uri, failCallback, successCallback);
+							} else if (browser.isSafari) {
+								openUriWithHiddenFrame(uri, failCallback, successCallback);
+							} else {
+								unsupportedCb();
+								//not supported, implement please
+							}
+						}
+					}
+
+				}, {}]
+			}, {}, [1])(1)
+		});
+	</script>
+
+	<script>
+		$(function () {
+			function getCookie(cname) {
+				var name = cname + "=";
+				var decodedCookie = decodeURIComponent(document.cookie);
+				var ca = decodedCookie.split(';');
+				for (var i = 0; i < ca.length; i++) {
+					var c = ca[i];
+					while (c.charAt(0) == ' ') {
+						c = c.substring(1);
+					}
+					if (c.indexOf(name) == 0) {
+						return c.substring(name.length, c.length);
+					}
+				}
+				return "";
+			}
+
+			function setSelected(moniker) {
+				var u = $('#ide-list-items').find('[data-ide-moniker="' + moniker + '"]');
+				if (u.length) {
+					$('.ide-list .selected-ide').remove();
+					$('.ide-list').prepend(
+						$(u[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide').on('click', cb)
+					)
+				}
+				setCookie('cs__ide-mru--{{repoId}}', moniker);
+			}
+
+			function cb(e) {
+				e.preventDefault();
+
+				var protocolStart = $(this).attr('data-ide-protocol');
+				var ideName = $(this).attr('data-ide-name');
+				var moniker = $(this).attr('data-ide-moniker');
+				var downloadUrl = $(this).attr('data-ide-download-url');
+				var protocol = protocolStart + 'codemark/{{codemarkId}}/open';
+
+				setSelected(moniker);
+
+				var $existingAlert = $('.alert');
+				if ($existingAlert.length) {
+					$existingAlert.alert('close');
+				}
+
+				var timeout = setTimeout(function () {
+					createBanner(ideName, downloadUrl);
+				}, 200);
+
+				window.protocolCheck(protocol,
+					function () {
+						//fail
+						console.log(`CodeStream: failed for Moniker=${moniker} Path=${protocol} `);
+						window.analytics.track("Open in IDE", { IDE: moniker, "Protocol Handled": false });
+					}, function () {
+						//success
+						console.log(`CodeStream: success for Moniker=${moniker} Path=${protocol}`);
+						clearTimeout(timeout);
+
+						window.analytics.track("Open in IDE", { IDE: moniker, "Protocol Handled": true });
+					});
+			}
+
+			function createBanner(ide, downloadUrl) {
+				var $existingAlert = $('.alert');
+				if ($existingAlert.length) {
+					$existingAlert.alert('close');
+				}
+				var $alert = $(`<div class="alert alert-warning alert-dismissible fade show" role="alert">
+				Launching ${ide}... If nothing happens, download the <a href='${downloadUrl}'>CodeStream</a> extension for ${ide} and
+				try
+				again.
+				<button type = "button" class="close" data-dismiss="alert" aria-label="Close" >
+					<span aria-hidden="true">&times;</span>
+				</button >
+			</div>`);
+				$('#alert-wrapper').append($alert);
+				$alert.show();
+			}
+
+			function setCookie(cname, cvalue, exdays) {
+				var d = new Date();
+				d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+				var expires = "expires=" + d.toUTCString();
+				document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+			}
+
+			var mru = getCookie("cs__ide-mru--{{repoId}}");
+			if (mru) {
+				var u = $('#ide-list-items').find('[data-ide-moniker="' + mru + '"]');
+				if (u.length) {
+					$('.ide-list').prepend($(u[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide'));
+				}
+				else {
+					$('.ide-list').prepend($($('#ide-list-items').find('a')[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide'));
+				}
+			}
+			else {
+				$('.ide-list').prepend($($('#ide-list-items').find('a')[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide'));
+			}
+
+			$('[data-ide=""]').on('click', cb);
+
+		})
+
+	</script>
 </body>
+
 </html>

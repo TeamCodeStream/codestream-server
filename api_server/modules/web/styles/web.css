@@ -1,34 +1,50 @@
 html,
-body {
-  background-color: #2d323b;
-}
-
-html,
 body,
-#root {
-  height: 100%;
+#root { 
   padding: 0;
   margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", ans-serif;
+  font-size: 0.94rem;
+  background-color: #1E1E1E !important;
+  color: rgb(220, 223, 228);
 }
-a {
-  color: #0098f2;
+a,
+a:hover,
+a:visited,
+a:active {
+  color: #009aef;
 }
-
 #root {
-  height: 100%;
-  padding: 0;
-  margin: 0;
+  margin-top:60px;
+}
+.container-fluid .row {
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .flex {
   display: flex;
 }
-
+.headshot {
+  position:relative; 
+  width:30px;
+}
 .headshot-image {
   border-radius: 0.25rem;
-  height: 36px;
-  margin-right: 1rem;
-  width: 36px;
+  height: 20px;
+  margin-right: .5rem;
+  width: 20px;
+}
+.headshot-initials {
+  background: #678; 
+  border-radius:3px; 
+  color: #1E1E1E !important; 
+  height: 20px;
+  position: absolute;   
+  text-align: center;
+  text-transform: capitalize;
+  width: 20px;
+  z-index: 1;  
 }
 
 .posted-on {
@@ -37,28 +53,25 @@ a {
 
 .author {
   display: inline-block;
-  margin-right: 0.5rem;
+  margin-right: 0.35rem;
+  color:#c7c7c6;
+  font-weight:700;
 }
 
 .time {
   display: inline-block;
-  opacity: 0.4;
+  opacity: 0.6;
   font-size: 0.85rem;
 }
 
-.root-inner {
-  min-height: 100%;
-  height: 100%;
-}
-.logo-wrapper {
-  width: 215px;
-  margin: 20px;
-}
 .logo {
-  width: 215px;
+  width: 200px;
+  height:30px;
+  margin:5px;
 }
+
 .box {
-  margin-top: -160px;
+  margin-top:50px;
   display: flex;
   -webkit-box-align: center;
   align-items: center;
@@ -69,23 +82,26 @@ a {
   color: rgb(255, 99, 71);
   padding: 5px 0 5px 0;
 }
-.box-content {
+.box-content,
+.box-content-transparent {
   max-width: 750px;
   width: 100%;
   box-sizing: border-box;
   margin: 0px auto;
-  background: rgb(45, 50, 59);
   padding: 2rem;
-  font: 1rem "Helvetica Neue", arial, sans-serif;
   color: rgb(137, 143, 158);
+}
+.box-content {
+  background-color: #282828 !important;
 }
 .box-content-sm {
   max-width: 450px;
 }
 .box-border {
   margin-top: 1rem;
-  padding: 2rem;
-  border: 1px solid black;
+  padding: 1.5rem;
+  border: 1px solid #383838;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2)
 }
 .box-border-sm {
   margin-top: 0.75rem;
@@ -93,60 +109,61 @@ a {
 }
 h1 {
   text-align: center;
-  margin-top: 0px;
   color: rgb(220, 223, 228);
-  font: bold 24px "Helvetica Neue", arial, sans-serif;
+  font-weight:bold;
+  font-size:1.35rem;
+  padding-bottom:0.5rem;
 }
 h3 {
   text-align: center;
 }
-.content {
-  margin-top: -160px;
-  display: flex;
-  -webkit-box-align: center;
-  align-items: center;
-  min-height: 100%;
-  height: 100%;
-}
 
-.label {
-  color: rgb(154, 161, 179);
-  font: 14px "Helvetica Neue", arial, sans-serif;
-}
 .hint {
   color: rgb(92, 97, 109);
   min-height: 21px;
   box-sizing: border-box;
   margin: 0px;
   padding: 5px 0px;
-  font: 0.7rem Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  font: 0.85rem Menlo, Consolas, "DejaVu Sans Mono", monospace;
 }
 
 .btn {
   cursor: pointer;
   color: white;
-  background-color: rgb(76, 114, 202);
+  background-color: #007BCB;
   width: 100%;
-  padding: 1rem;
-  font: 1rem "Helvetica Neue", arial, sans-serif;
+  padding: .5rem;
+  /* font: 1rem "Helvetica Neue", arial, sans-serif; */
   border: 1px solid black;
 }
+.btn:hover {
+   color: white;
+   background-color: #009aef;
+}
 .btn-sm {
-  padding: 0.5rem;
+  padding: 0.35rem;
   flex: 0 1 auto;
   width: auto;
 }
 
-.btn-list {
-  display: flex;
-  align-items: center;
-  justify-content: left;
+input.bg-dark:-webkit-autofill {
+    -webkit-box-shadow:0 0 0 50px #1E1E1E inset; /* Change the color to your own background color */
+    -webkit-text-fill-color: rgb(220, 223, 228);
 }
-.btn-list .btn {
-  width:initial;
+
+input.bg-dark:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 50px #1E1E1E inset;/*your box-shadow*/
+    -webkit-text-fill-color: rgb(220, 223, 228);
+} 
+
+.bg-dark, .form-control:focus {
+  background:#1E1E1E;
+  color:rgb(220, 223, 228);
 }
-.btn-list .btn.btn-sm {
-  margin-right:.1rem;
+input.bg-dark:-webkit-autofill,
+input.bg-dark:-internal-autofill-selected {
+    background-color: #1E1E1E !important;
+    color:rgb(220, 223, 228);
 }
 
 .btn-group {
@@ -163,41 +180,101 @@ h3 {
   flex: 0 0 auto;
 }
 
-.form-group {
+/* .form-group {
   padding-top: 10px;
   box-sizing: border-box;
-}
+} */
 .form-wrapper div {
   flex: 0 0 auto;
 }
 
-.form-control {
-  margin-top: 5px;
-  color: rgb(172, 177, 184);
-  width: 100%;
-  box-sizing: border-box;
-  background-color: rgb(33, 37, 44);
-  padding: 12px 10px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: rgb(33, 37, 44);
-  font: 0.8rem Menlo, Consolas, "DejaVu Sans Mono", monospace;
-}
-.text-centered {
-  text-align: center;
-}
 .mention {
   color: rgb(76, 114, 202);
   font-weight: 700;
 }
 
+.text {
+  padding-top:5px;
+  color:#c7c7c6;
+}
+.title {
+  padding-top:5px;
+  color:#c7c7c6;
+}
+
+
 .code {
   background: #1e1e1e;
   padding:5px;
+  border: 1px solid #383838;
 }
 hr {
   border-color:#3c424e;
 }
+.ide-list:hover {
+border:1px solid #464545;
+}
+.ide-list {
+  border:1px solid #383838;
+  padding-top:0px !important;
+  vertical-align: top;
+  background: #252424;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+.selected-ide {
+  padding:0 9px 0 9px;
+}
+.ide-list a,
+.dropdown-menu a {
+  color: #c7c7c6;
+}
+.ide-list a:hover,
+.dropdown-menu a:hover {
+text-decoration: none;
+background: #282828;
+}
+.ide-list .dropdown-toggle-split {
+    padding-top: .05rem;
+    padding-left: .4rem;
+  border-left:1px solid #383838;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+.dropdown-menu {
+  background:#2C2C2C;
+    border: 1px solid #383838;
+}
+.alert {
+  border-radius: 0;
+  color:#333;
+}
+.alert a {
+  color:#333;
+  font-weight: bold;
+  text-decoration: underline;
+}
+#alert-wrapper {
+  height:41px;
+  display: block;
+}
+.dropdown-divider  {
+  border-top: 1px solid #383838;
+}
+a.dropdown-item:hover {
+  color:#c7c7c6;
+  background:#0087D7;
+}
+.navbar-toggler {
+  border:0;
+}
+.navbar-dark.bg-dark {
+  background: #1E1E1E !important;
+}
+.form-control {
+  border: 1px solid #383838 !important;
+}
+
 
 /* Pretty printing styles. Used with prettify.js. */
 /* Visual Studio Code - Monaco theme by Alex Rodin, based on Vim sunburst theme by David Leibovic */

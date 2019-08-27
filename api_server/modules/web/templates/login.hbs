@@ -5,6 +5,8 @@
 	<title>CodeStream</title>
 	<link rel="icon" type="image/png" sizes="32x32" href="https://images.codestream.com/logos/cs-favicon-32x32.png" />
 	<link rel="icon" type="image/png" sizes="16x16" href="https://images.codestream.com/logos/cs-favicon-16x16.png" />
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 	<link rel="stylesheet" href="/no-auth/web/styles/web.css?_={{version}}" />
 	<script>
 		history.pushState(null, "CodeStream", location.href.split("?")[0]);
@@ -12,58 +14,56 @@
 </head>
 
 <body>
-	<div id="root">
-		<div class="root-inner">
-			<div class="logo-wrapper">
-				<img class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<a class="navbar-brand" href="https://codestream.com">
+			<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
+		</a>
+	</nav>
+	<div class="container mt-5">
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3">
+				<h1>You need to be signed in to see this page</h1>
 			</div>
-
-			<div class="box">
-				<div class="box-content box-content-sm">
-					<div class="box-border">
-						<h1>You need to be signed in to see this page</h1>
-
+		</div>
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+				<div class="box-content box-border">
+					<button class="btn" onclick="window.location.href='{{slackLink}}'">
+						Sign in with Slack
+					</button>
+					<br><br>
+					<button class="btn" onclick="window.location.href='{{msteamsLink}}'">
+						Sign in with Microsoft Teams
+					</button>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+				<div class="box-content box-border">
+					<form action="/web/signin" method="post">
+						{{#if error}}
 						<div class="form-group">
-							<button class="btn" onclick="window.location.href='{{slackLink}}'">
-								Sign in with Slack
-							</button>
-						</div>
-						<br />
-						<div class="form-group">
-							<button class="btn" onclick="window.location.href='{{msteamsLink}}'">
-								Sign in with Microsoft Teams
-							</button>
-						</div>
-						<br />
-
-						<hr />
-						<br />
-						<div class="form-wrapper">
-							<form action="/web/signin" method="post">
-								{{#if error}}
-									<div class="form-group">
-										<div class="error" style="width:100%;">{{error}}</span>
-									</div>
-								{{/if}}
-								<input type="hidden" name="finishUrl" value="{{finishUrl}}">
-								<input type="hidden" name="teamId" value="{{teamId}}" />
-								<input type="hidden" name="_csrf" value="{{csrf}}" />		
-								<div class="form-group">
-									<label class="label">Email</label>
-									<input class="form-control" type="text" name="email" value="{{email}}" />
-									<p class="hint"></p>
-								</div>
-								<div class="form-group">
-									<label class="label">Password</label>
-									<input class="form-control" type="password" name="password" />
-									<p class="hint"></p>
-								</div>
-								<div class="form-group">
-									<input type="submit" value="Sign in with CodeStream" class="btn" />
-								</div>
-							</form>
-						</div>
-					</div>
+							<div class="error text-center" style="width:100%;">{{error}}</span>
+							</div>
+							{{/if}}
+							<input type="hidden" name="finishUrl" value="{{finishUrl}}">
+							<input type="hidden" name="teamId" value="{{teamId}}" />
+							<input type="hidden" name="_csrf" value="{{csrf}}" />
+							<div class="form-group">
+								<label for="email">Email</label>
+								<input class="form-control bg-dark" type="text" name="email" id="email"
+									value="{{email}}" />
+							</div>
+							<div class="form-group">
+								<label for="password">Password</label>
+								<input autocomplete="off" class="form-control bg-dark" type="password" name="password"
+									id="password" />
+							</div>
+							<div class="form-group">
+								<input type="submit" value="Sign in with CodeStream" class="btn" />
+							</div>
+					</form>
 				</div>
 			</div>
 		</div>
