@@ -15,7 +15,7 @@ class CapabilitiesRequest extends RestfulRequest {
 	async process () {
 		// return the capabilities
 		this.responseData = {
-			capabilities: [...APICapabilities]
+			capabilities: { ...APICapabilities }
 		};
 	}
 
@@ -25,11 +25,11 @@ class CapabilitiesRequest extends RestfulRequest {
 			tag: 'capabilities',
 			summary: 'Get array of capabilities served by this API server',
 			access: 'No access rule',
-			description: 'Capabilities are just an array of strings, with meaning to the extensions; extensions can use this call to get the capabilities of a given instance of the API server so it can know what features to offer',
+			description: 'Capabilities are a hash with the names of the capabilities as keys, with meaning to the extensions; extensions can use this call to get the capabilities of a given instance of the API server so it can know what features to offer',
 			returns: {
-				summary: 'Returns an array of strings indicating the API server capabilities',
+				summary: 'Returns a hash indicating the API server capabilities, generally the hash values contain: description, url, version',
 				looksLike: {
-					capabilities: '<Array of strings>'
+					capabilities: '<capabilities>'
 				}
 			}
 		};

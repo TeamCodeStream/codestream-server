@@ -150,7 +150,7 @@ class LoginHelper {
 			pubnubKey: this.request.api.config.pubnub.subscribeKey,	// give them the subscribe key for pubnub
 			pubnubToken: this.pubnubToken,	// token used to subscribe to PubNub channels
 			broadcasterToken: this.broadcasterToken, // more generic "broadcaster" token, for broadcaster solutions other than PubNub
-			capabilities: [...APICapabilities]	// capabilities served by this API server
+			capabilities: {...APICapabilities }	// capabilities served by this API server
 		};
 
 		// if using socketcluster for messaging (for on-prem installations), return host info

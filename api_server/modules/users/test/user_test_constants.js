@@ -1,6 +1,7 @@
 'use strict';
 
 const UserAttributes = require(process.env.CS_API_TOP + '/modules/users/user_attributes');
+const APICapabilities = require(process.env.CS_API_TOP + '/etc/capabilities');
 
 // we expect to see these fields for users who are not yet confirmed
 const EXPECTED_UNREGISTERED_USER_FIELDS = [
@@ -64,10 +65,10 @@ const UNSANITIZED_ATTRIBUTES_FOR_ME = Object.keys(UserAttributes).filter(attribu
 	return UserAttributes[attribute].serverOnly && !UserAttributes[attribute].forMe;
 });
 
-// capabilities served by the API server, should match etc/capabilities.js
-const API_CAPABILITIES = [
-	'basic'
-];
+// capabilities served by the API server
+const API_CAPABILITIES = {
+	...APICapabilities
+};
 
 module.exports = {
 	EXPECTED_USER_RESPONSE,
