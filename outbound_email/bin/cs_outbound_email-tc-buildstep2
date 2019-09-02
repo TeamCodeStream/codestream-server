@@ -60,7 +60,8 @@ elif args.action == 'pack':
 	build.getMD5SumsForAssets()
 	build.writeAssetInfo()
 elif args.action == 'publish':
-	build.publish()                           # publish assets for distribution
+	# build.publish()                           # publish assets for distribution
+	print("nothing to publish yet")
 elif args.action == 'tag':
 	build.tag()                               # update version info and apply tags
 elif args.action == 'release':
