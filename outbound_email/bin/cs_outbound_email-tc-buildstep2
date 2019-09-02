@@ -12,7 +12,7 @@ import sysUtils as su
 import buildUtils
 
 # 1. add filename extensions for all assets created (tgz, vsix, zip, ...)
-assetExtensionList = ['zip', 'lambda.json']
+assetExtensionList = ['zip']
 
 # 2. add any additional repos to be included (do not include primary repo)
 additionalRepos = []
@@ -53,7 +53,6 @@ elif args.action == 'citest':
 elif args.action == 'pack':
 	# build.pack()                              # create asset info file and package assets
 	build.execCmd("npm run build")
-	build.execCmd("npm run lambda:config")
 elif args.action == 'publish':
 	build.publish()                           # publish assets for distribution
 elif args.action == 'tag':
