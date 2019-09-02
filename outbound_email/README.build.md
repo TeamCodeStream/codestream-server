@@ -7,10 +7,12 @@ for all environments.
 
 CI
 - run tests (unconfigured)
-- create dev code asset (zip file, CI info file)
+- create dev code asset (zip file, CI info file) and store artifacts in TC
 
-PD Lambda
+PD Lambda Deployment
 - create lambda config for PD
+- modify asset info file for PD?
+- publish assets as pd/outbound-email
 - deploy PD lambda function
 
 Spin-Up Dev Environments
