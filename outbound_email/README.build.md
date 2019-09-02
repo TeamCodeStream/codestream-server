@@ -1,8 +1,35 @@
 # Outbound Email Build & Deployment Information
 
-The outbound email project is a node service that runs as an AWS Lambda function.  
+The Outbound Email Gateway can run either as a service on a host OS or as an AWS
+Lambda function.  The _integration_ TC builds (one for development, one for
+production) generates the code asset (zip file) as well as the lambda files
+for all environments.
 
-TeamCity Project: [outbound_email](http://tc.codestream.us/project.html?projectId=OutboundEmail&tab=projectOverview)
+CI
+- run tests (unconfigured)
+- create dev code asset (zip file, CI info file)
+
+PD Lambda
+- create lambda config for PD
+- deploy PD lambda function
+
+Spin-Up Dev Environments
+- create lambda configs for each one
+- deploy lambda functions for each one
+
+Prod Integration
+- run tsets (unconfigured)
+- create prod code asset (zip file, info file)
+
+QA Lambda
+- create lambda config for QA
+- deploy QA lambda function
+
+Prod Release
+- tag & bump version info
+- create lambda config for Prod
+- deploy Prod lambda function
+------------------------
 
 ## Assets
 There are 3 assets.

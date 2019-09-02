@@ -6,10 +6,15 @@ the AWS Lambda service. This service is triggered by SQS events.
 
 ## Installation
 Many of the build, setup and tear down functions depend on the
-[dev_tools](https://github.com/teamcodestream/dev_tools) toolkit
-so it's strongly advised you install it as a prerequisite. In local development, the
-lambda function needs to access your mongodb server so your VPN connection must
-be up.
+[dev_tools](https://github.com/teamcodestream/dev_tools) toolkit so it's
+strongly advised you install it as a prerequisite.
+
+You can run this service directly via node using the `cs_outbound_email-service`
+script to control it, or it can run as an AWS Lambda function (instructions
+below).
+
+If running as a lambda function in development, your VPN connection must be up
+as the service connects directly to mongo.
 
 ### Local Sandbox
 #### With dev_tools

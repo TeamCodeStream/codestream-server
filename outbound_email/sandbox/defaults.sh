@@ -10,16 +10,11 @@
 #         (eg. this file is CS_OUTBOUND_EMAIL_TOP/sandbox/defaults.sh)
 #  CS_OUTBOUND_EMAIL_SANDBOX  Path to the root directory of the sandbox tree
 
-# Installation options
-if [ -f "$CS_OUTBOUND_EMAIL_SANDBOX/sb.options" ]; then
-	echo "Loading override parameters from $CS_OUTBOUND_EMAIL_SANDBOX/sb.options"
-	. $CS_OUTBOUND_EMAIL_SANDBOX/sb.options
-	export `grep ^CS_OUTBOUND_EMAIL_ $CS_OUTBOUND_EMAIL_SANDBOX/sb.options|cut -f1 -d=`
-fi
-
-
 # Additional shell functions
 . $DT_TOP/lib/sandbox_utils.sh
+
+# ========== Optional override settings ==========
+sandutil_load_options $CS_OUTBOUND_EMAIL_SANDBOX || { echo "failed to load options" >&2 && return 1; }
 
 
 # Uncomment and setup if yarn is required. Available versions can be seen
@@ -46,15 +41,14 @@ export PATH=$CS_OUTBOUND_EMAIL_TOP/bin:$PATH
 # Standard variables to consider using
 export CS_OUTBOUND_EMAIL_LOGS=$CS_OUTBOUND_EMAIL_SANDBOX/log    # Log directory
 # comment out if you do not want log messages to get sent to the console
+export CS_OUTBOUND_EMAIL_TMP=$CS_OUTBOUND_EMAIL_SANDBOX/tmp     # temp directory
+export CS_OUTBOUND_EMAIL_CONFS=$CS_OUTBOUND_EMAIL_SANDBOX/conf  # config files directory
+export CS_OUTBOUND_EMAIL_DATA=$CS_OUTBOUND_EMAIL_SANDBOX/data   # data directory
+export CS_OUTBOUND_EMAIL_PIDS=$CS_OUTBOUND_EMAIL_SANDBOX/pid    # pid files directory
 export CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK=1
-#export CS_OUTBOUND_EMAIL_TMP=$CS_OUTBOUND_EMAIL_SANDBOX/tmp     # temp directory
-#export CS_OUTBOUND_EMAIL_CONFS=$CS_OUTBOUND_EMAIL_SANDBOX/conf  # config files directory
-#export CS_OUTBOUND_EMAIL_DATA=$CS_OUTBOUND_EMAIL_SANDBOX/data   # data directory
-#export CS_OUTBOUND_EMAIL_PIDS=$CS_OUTBOUND_EMAIL_SANDBOX/pid    # pid files directory
 
 [ -z "$CS_OUTBOUND_EMAIL_ENV" ] && export CS_OUTBOUND_EMAIL_ENV=local
 [ -z "$CS_OUTBOUND_EMAIL_ASSET_ENV" ] && export CS_OUTBOUND_EMAIL_ASSET_ENV=local
-
 
 #[ -z "$MONGO_ACCESS_FILE" ] && MONGO_ACCESS_FILE="$HOME/.codestream/mongo/mongo-access"
 if [ -n "$MONGO_ACCESS_FILE" -a -f "$MONGO_ACCESS_FILE" ]; then
@@ -113,23 +107,6 @@ export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=local.codestream.com
 # this is good and risk-free for developer testing
 export CS_OUTBOUND_EMAIL_TO="${DT_USER}@codestream.com"
 
-export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.local.template.json
-export CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME="nodejs10.x"
-export CS_OUTBOUND_EMAIL_AWS_ACCOUNT=564564469595
-export CS_OUTBOUND_EMAIL_LAMBDA_IAM_ROLE=cs_LambdaDevelopment
-export CS_OUTBOUND_EMAIL_SQS_ARN="arn:aws:sqs:us-east-1:$CS_OUTBOUND_EMAIL_AWS_ACCOUNT:$CS_OUTBOUND_EMAIL_SQS"
-export CS_OUTBOUND_EMAIL_SNS_TOPIC_ARN="arn:aws:sns:us-east-1:$CS_OUTBOUND_EMAIL_AWS_ACCOUNT:dev_UnprocessedOutboundEmailEvents"
-#export CS_OUTBOUND_EMAIL_LAMBDA_SUBNETS=
-#export CS_OUTBOUND_EMAIL_LAMBDA_SECURITY_GROUPS=
-
-# Standard variable name for lambda functions
-if [ -z "$CS_FUNCTION_VERSION" ]; then
-	if [ -n "$BUILD_NUMBER" ]; then
-		export CS_FUNCTION_VERSION=$BUILD_NUMBER
-	else
-		export CS_FUNCTION_VERSION="`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p name`-`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p version`"
-	fi
-fi
 
 # Added for On-Prem work
 
@@ -149,6 +126,4 @@ if [ -f $RABBITMQ_ACCESS_FILE ]; then
 	export CS_OUTBOUND_EMAIL_RABBITMQ_PORT=$RABBITMQ_PORT
 	export CS_OUTBOUND_EMAIL_RABBITMQ_USER=$RABBITMQ_USER
 	export CS_OUTBOUND_EMAIL_RABBITMQ_PASSWORD=$RABBITMQ_PASS
-else
-	echo "Not loading sandbox with RabbitMQ" >&2
 fi

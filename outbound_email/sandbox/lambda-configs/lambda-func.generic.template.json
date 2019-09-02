@@ -1,12 +1,12 @@
 {
 	// "Code": {
-		// "ZipFile": "fileb://../out/outboundEmail.zip"
+	// 	"ZipFile": "fileb://../out/outboundEmail.zip"
 	// },
 	"DeadLetterConfig": {
 		// this SNS topic notifies ops for unprorcessed (failed) queue events
 		"TargetArn": "{{ CS_OUTBOUND_EMAIL_SNS_TOPIC_ARN }}"
 	},
-	"Description": "outbound email service for {{ CS_OUTBOUND_EMAIL_ASSET_ENV }}",
+	"Description": "{{ CS_OUTBOUND_EMAIL_LAMBDA_DESCRIPTION }}",
 	"Environment": {
 		"Variables": {
 			"CS_FUNCTION_VERSION" : "{{ CS_FUNCTION_VERSION }}",
@@ -19,9 +19,6 @@
 	// "MemorySize": Integer,
 	"Role": "arn:aws:iam::{{ CS_OUTBOUND_EMAIL_AWS_ACCOUNT }}:role/{{ CS_OUTBOUND_EMAIL_LAMBDA_IAM_ROLE }}",
 	"Runtime": "{{ CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME }}",
-	"Layers": [
-		"arn:aws:lambda:us-east-1:553035198032:layer:nodejs10:12"
-	],
 	"Timeout": 10,
 	// "TracingConfig": TracingConfig,
 	"VpcConfig": {
@@ -34,7 +31,7 @@
 	},
 	"Tags" : {
 		"Name" : "{{ CS_OUTBOUND_EMAIL_SQS }}",
-		"CostMajor" : "{{ CS_OUTBOUND_EMAIL_ASSET_ENV }}",
+		"CostMajor" : "{{ CS_OUTBOUND_EMAIL_ENV }}",
 		"CostMinor" : "outbound-email"
 	}
 }
