@@ -53,6 +53,12 @@ elif args.action == 'citest':
 elif args.action == 'pack':
 	# build.pack()                              # create asset info file and package assets
 	build.execCmd("npm run build")
+	# mv ../out/outbound-email.zip ...
+	buildName = build.getDisplayVersion("name-version")  # codestream-1.2.3
+	fullName = build.getDisplayVersion("full")           # [prefix-]codestream-1.2.3+1000
+	os.rename(f"../out/{buildName}.zip", f"{fullName}.zip")
+	build.getMD5SumsForAssets()
+	build.writeAssetInfo()
 elif args.action == 'publish':
 	build.publish()                           # publish assets for distribution
 elif args.action == 'tag':
