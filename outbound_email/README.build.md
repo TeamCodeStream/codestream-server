@@ -11,7 +11,9 @@ CI
 
 PD Lambda Deployment
 - create lambda config for PD
-- modify asset info file for PD?
+- modify asset info file for PD
+  - add lambda config
+  - add runTimeEnvironment property
 - publish assets as pd/outbound-email
 - deploy PD lambda function
 

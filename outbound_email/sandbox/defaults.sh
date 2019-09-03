@@ -96,16 +96,16 @@ else
 	echo "**************************************************************"
 fi
 
-export CS_OUTBOUND_EMAIL_NOTIFICATION_INTERVAL=300000
-export CS_OUTBOUND_EMAIL_SESSION_AWAY_TIMEOUT=600000
+[ -z "$CS_OUTBOUND_EMAIL_NOTIFICATION_INTERVAL" ] && export CS_OUTBOUND_EMAIL_NOTIFICATION_INTERVAL=300000
+[ -z "$CS_OUTBOUND_EMAIL_SESSION_AWAY_TIMEOUT" ] && export CS_OUTBOUND_EMAIL_SESSION_AWAY_TIMEOUT=600000
 [ -z "$CS_OUTBOUND_EMAIL_SQS" ] && export CS_OUTBOUND_EMAIL_SQS=local_${DT_USER}_outboundEmail
 
-export CS_OUTBOUND_EMAIL_SENDER_EMAIL=alerts@codestream.com
-export CS_OUTBOUND_EMAIL_SUPPORT_EMAIL=support@codestream.com
-export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=local.codestream.com
+[ -z "$CS_OUTBOUND_EMAIL_SENDER_EMAIL" ] && export CS_OUTBOUND_EMAIL_SENDER_EMAIL=alerts@codestream.com
+[ -z "$CS_OUTBOUND_EMAIL_SUPPORT_EMAIL" ] && export CS_OUTBOUND_EMAIL_SUPPORT_EMAIL=support@codestream.com
+[ -z "$CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN" ] && export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=local.codestream.com
 # set to a valid email to have all emails diverted to the specified address,
 # this is good and risk-free for developer testing
-export CS_OUTBOUND_EMAIL_TO="${DT_USER}@codestream.com"
+[ -z "$CS_OUTBOUND_EMAIL_TO" ] && export CS_OUTBOUND_EMAIL_TO="${DT_USER}@codestream.com"
 
 
 # Added for On-Prem work
@@ -127,3 +127,5 @@ if [ -f $RABBITMQ_ACCESS_FILE ]; then
 	export CS_OUTBOUND_EMAIL_RABBITMQ_USER=$RABBITMQ_USER
 	export CS_OUTBOUND_EMAIL_RABBITMQ_PASSWORD=$RABBITMQ_PASS
 fi
+
+. $CS_OUTBOUND_EMAIL_TOP/sandbox/lambda-configs/$CS_OUTBOUND_EMAIL_ENV.sh
