@@ -23,7 +23,10 @@
 		"veryclean": "git clean -fXd",
 		"clean": "git clean -fXd -e !node_modules -e !node_modules/**/*",
 		"test": "mocha",
-		"test:ci": "mocha --reporter mocha-teamcity-reporter",
+		"cistart": "cs_mailin-service start",
+		"cistop": "cs_mailin-service stop",
+		"citest": "mocha --reporter mocha-teamcity-reporter",
+		"test:ci": "npm run citest",
 		"tarball": "touch inbound-email.tgz && tar -czpf inbound-email.tgz --exclude inbound-email.tgz --exclude .git .",
 		"eslint": "eslint ."
 	},

@@ -47,8 +47,7 @@ elif args.action == 'build':
 	# build.build()                             # complete build so services can be started
 	print("nothing to build")
 elif args.action == 'citest':
-	# build.citest()                            # run the continuous integration test suite
-	build.execCmd("npm run test:ci")
+	build.citest()                            # run the continuous integration test suite
 elif args.action == 'pack':
 	build.pack()                              # create asset info file and package assets
 elif args.action == 'publish':

@@ -15,10 +15,15 @@ service_name=inbound_email_server.js
 ec=0
 case "$1" in
 	start)
-		nohup $CS_MAILIN_TOP/bin/$service_name $server_args >/dev/null 2>&1 </dev/null &
-		sleep 1
-		service_status $service_name
-		ec=$?
+		if [ -n "$(service_pid_from_pstree $service_name)" ]; then
+			echo "$service_name is aleady running"
+			service_status $service_name
+		else
+			nohup $CS_MAILIN_TOP/bin/$service_name $server_args >/dev/null 2>&1 </dev/null &
+			sleep 1
+			service_status $service_name
+			ec=$?
+		fi
 		;;
 	stop)
 		service_stop $service_name
