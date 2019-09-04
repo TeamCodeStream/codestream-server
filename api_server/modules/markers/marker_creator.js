@@ -35,8 +35,9 @@ class MarkerCreator extends ModelCreator {
 			},
 			optional: {
 				string: ['fileStreamId', 'postId', 'postStreamId', 'providerType', 'code', 'file', 'repo', 'repoId', 'commitHash', 'commitHashWhenCreated', 'branchWhenCreated'],
-				'array': ['location', 'locationWhenCreated'],
-				'array(string)': ['remotes']
+				array: ['location', 'locationWhenCreated'],
+				'array(string)': ['remotes'],
+				'array(object)': ['referenceLocations']
 			}
 		};
 	}
@@ -52,12 +53,12 @@ class MarkerCreator extends ModelCreator {
 		delete this.attributes.location;
 		this.attributes.creatorId = this.request.user.id;
 
-		// the location coordinates must be valid
-		if (typeof this.attributes.locationWhenCreated !== 'undefined') {
-			const result = MarkerCreator.validateLocation(this.attributes.locationWhenCreated);
-			if (result) {
-				return result;
-			}
+		// validate incoming locations, which can include information from 
+		// commitHashWhenCreated and locationWhenCreated, or can include multiple
+		// reference locations
+		const result = this.validateLocations();
+		if (result) {
+			return result;
 		}
 
 		// if there is a postId, there must be a postStreamId
@@ -93,6 +94,57 @@ class MarkerCreator extends ModelCreator {
 		}
 	}
  
+	// multiple locations, linked to commit hashes, may be provided with markers
+	// each must have a commit hash and a valid set of location coordinates
+	validateLocations () {
+		// we can accept locations in proper form directly from the request...
+		let unvalidatedLocations = [];
+		if (this.attributes.referenceLocations) {
+			unvalidatedLocations = this.attributes.referenceLocations;
+			delete this.attributes.referenceLocations;
+		}
+
+		// ...and/or if given with commitHashWhenCreated and locationWhenCreated,
+		// form another location from these
+		if (
+			this.attributes.commitHashWhenCreated &&
+			this.attributes.locationWhenCreated &&
+			!unvalidatedLocations.find(location => location.commitHash === this.attributes.commitHashWhenCreated)
+		) {
+			const referenceLocation = {
+				commitHash: this.attributes.commitHashWhenCreated,
+				location: this.attributes.locationWhenCreated
+			};
+			if (this.attributes.branchWhenCreated) {
+				referenceLocation.branch = this.attributes.branchWhenCreated;
+			}
+			unvalidatedLocations.unshift(referenceLocation);
+		}
+
+		// make sure all the location objects are validated, including their actual location coordinates
+		this.attributes.referenceLocations = [];
+		for (let location of unvalidatedLocations) {
+			if (typeof location.commitHash !== 'string' || location.commitHash.length === 0) {
+				return 'locations must have commitHash which must be a string';
+			}
+			const result = MarkerCreator.validateLocation(location.location);
+			if (result) {
+				return `invalid location ${location.location}: ${result}`;
+			}
+			const validatedLocation = {
+				commitHash: location.commitHash.toLowerCase(),
+				location: location.location
+			};
+			if (typeof location.flags === 'object') {
+				validatedLocation.flags = location.flags;
+			}
+			if (typeof location.branch === 'string') {
+				validatedLocation.branch = location.branch;
+			}
+			this.attributes.referenceLocations.push(validatedLocation);
+		}
+	}
+
 	// validate a marker location, must be in the strict format:
 	// [lineStart, columnStart, lineEnd, columnEnd, fifthElement]
 	// the first four elements are coordinates and are required
@@ -313,12 +365,18 @@ class MarkerCreator extends ModelCreator {
 
 	// update the location of this marker in the marker locations structure for this stream and commit
 	async updateMarkerLocations () {
-		if (!this.attributes.locationWhenCreated || !this.stream) { return; }	// location is not strictly required, ignore if not provided
-		const id = `${this.attributes.fileStreamId}|${this.attributes.commitHashWhenCreated}`.toLowerCase();
+		if (!this.stream) { return; } // this is only meaningful if we have a file stream
+		await Promise.all(this.attributes.referenceLocations.map(async location => {
+			await this.updateMarkerLocationsByCommitHash(location);
+		}));
+	}
+
+	async updateMarkerLocationsByCommitHash (location) {
+		const id = `${this.attributes.fileStreamId}|${location.commitHash}`.toLowerCase();
 		let op = {
 			$set: {
 				teamId: this.attributes.teamId,
-				[`locations.${this.attributes.id}`]: this.attributes.locationWhenCreated
+				[`locations.${this.attributes.id}`]: location.location
 			}
 		};
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
@@ -335,9 +393,9 @@ class MarkerCreator extends ModelCreator {
 		const newMarkerLocation = {
 			teamId: this.team.id,
 			streamId: this.stream.id,
-			commitHash: this.attributes.commitHashWhenCreated,
+			commitHash: location.commitHash,
 			locations: {
-				[this.attributes.id]: this.attributes.locationWhenCreated
+				[this.attributes.id]: location.location
 			}
 		};
 		this.transforms.markerLocations = this.transforms.markerLocations || [];

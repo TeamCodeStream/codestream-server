@@ -67,5 +67,10 @@ module.exports = {
 		type: 'string',
 		maxLength: 250,
 		description: 'Branch the user was on in their repo when this marker was created'
+	},
+	referenceLocations: {
+		type: 'arrayOfObjects',
+		maxLength: 500,
+		description: 'Array of objects with commitHash and optional flags, indicating reference commit hashes where the marker is known to have calculated marker locations'
 	}
 };

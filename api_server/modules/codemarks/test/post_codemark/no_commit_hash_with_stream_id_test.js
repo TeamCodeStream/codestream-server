@@ -1,8 +1,8 @@
 'use strict';
 
-const Markertest = require('./marker_test');
+const MarkerTest = require('./marker_test');
 
-class NoCommitHashWithStreamIdTest extends Markertest {
+class NoCommitHashWithStreamIdTest extends MarkerTest {
 
 	constructor (options) {
 		super(options);

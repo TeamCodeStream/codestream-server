@@ -96,6 +96,12 @@ const TagNotFoundTest = require('./tag_not_found_test');
 const DeactivatedTagTest = require('./deactivated_tag_test');
 const DeactivatedDefaultTagTest = require('./deactivated_default_tag_test');
 const CodemarkColorBecomesTagTest = require('./codemark_color_becomes_tag_test');
+const CodemarkWithReferenceLocationsTest = require('./codemark_with_reference_locations_test');
+const CodemarkWithNoCommitHashInReferenceLocation = require('./codemark_with_no_commit_hash_in_reference_location_test');
+const CodemarkWithInvalidCommitHashInReferenceLocation = require('./codemark_with_invalid_commit_hash_in_reference_location_test');
+const CodemarkWithEmptyCommitHashInReferenceLocation = require('./codemark_with_empty_commit_hash_in_reference_location_test');
+const CodemarkWithNoLocationInReferenceLocationTest = require('./codemark_with_no_location_in_reference_location_test');
+const CodemarkWithInvalidLocationInReferenceLocationTest = require('./codemark_with_invalid_location_in_reference_location_test');
 
 class PostPostRequestTester {
 
@@ -211,6 +217,12 @@ class PostPostRequestTester {
 		new DeactivatedTagTest().test();
 		new DeactivatedDefaultTagTest().test();
 		new CodemarkColorBecomesTagTest().test();
+		new CodemarkWithReferenceLocationsTest().test();
+		new CodemarkWithNoCommitHashInReferenceLocation().test();
+		new CodemarkWithInvalidCommitHashInReferenceLocation().test();
+		new CodemarkWithEmptyCommitHashInReferenceLocation().test();
+		new CodemarkWithNoLocationInReferenceLocationTest().test();
+		new CodemarkWithInvalidLocationInReferenceLocationTest().test();
 	}
 }
 

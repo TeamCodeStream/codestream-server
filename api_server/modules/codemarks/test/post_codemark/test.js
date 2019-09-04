@@ -65,6 +65,12 @@ const DeactivatedTagTest = require('./deactivated_tag_test');
 const DeactivatedDefaultTagTest = require('./deactivated_default_tag_test');
 const ColorBecomesTagTest = require('./color_becomes_tag_test');
 const NoDuplicateNonLinkTest = require('./no_duplicate_non_link_test');
+const ReferenceLocationsTest = require('./reference_locations_test');
+const NoCommitHashInReferenceLocation = require('./no_commit_hash_in_reference_location_test');
+const InvalidCommitHashInReferenceLocation = require('./invalid_commit_hash_in_reference_location_test');
+const EmptyCommitHashInReferenceLocation = require('./empty_commit_hash_in_reference_location_test');
+const NoLocationInReferenceLocationTest = require('./no_location_in_reference_location_test');
+const InvalidLocationInReferenceLocationTest = require('./invalid_location_in_reference_location_test');
 
 class PostCodemarkRequestTester {
 
@@ -148,6 +154,12 @@ class PostCodemarkRequestTester {
 		new DeactivatedDefaultTagTest().test();
 		new ColorBecomesTagTest().test();
 		new NoDuplicateNonLinkTest().test();
+		new ReferenceLocationsTest().test();
+		new NoCommitHashInReferenceLocation().test();
+		new InvalidCommitHashInReferenceLocation().test();
+		new EmptyCommitHashInReferenceLocation().test();
+		new NoLocationInReferenceLocationTest().test();
+		new InvalidLocationInReferenceLocationTest().test();
 	}
 }
 

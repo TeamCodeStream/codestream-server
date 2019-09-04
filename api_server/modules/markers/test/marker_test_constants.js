@@ -22,7 +22,8 @@ const EXPECTED_MARKER_FIELDS = [
 	'file',
 	'repo',
 	'repoId',
-	'branchWhenCreated'
+	'branchWhenCreated',
+	'referenceLocations'
 ];
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(MarkerAttributes).filter(attribute => {
