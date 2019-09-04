@@ -451,7 +451,7 @@
 				var ideName = $(this).attr('data-ide-name');
 				var moniker = $(this).attr('data-ide-moniker');
 				var downloadUrl = $(this).attr('data-ide-download-url');
-				var protocol = protocolStart + 'codemark/{{codemarkId}}/open';
+				var protocol = protocolStart + 'codemark/{{codemarkId}}/open?repoId={{repoId}}';
 
 				setSelected(moniker);
 
