@@ -7,6 +7,8 @@
 
 const MarkersRequestTester = require('./markers_request_tester');
 
+const ReferenceLocationRequestTester = require('./reference_location/test');
+
 const markersRequestTester = new MarkersRequestTester();
 
 describe('marker requests', function() {
@@ -16,4 +18,5 @@ describe('marker requests', function() {
 	describe('GET /markers/:id', markersRequestTester.getMarkerTest);
 	describe('GET /markers', markersRequestTester.getMarkersTest);
 	describe('PUT /markers/:id', markersRequestTester.putMarkerTest);
+	describe('PUT /markers/:id/referenceLocation', ReferenceLocationRequestTester.test);
 });

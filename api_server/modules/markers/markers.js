@@ -18,6 +18,15 @@ const MARKER_STANDARD_ROUTES = {
 	}
 };
 
+// additional routes for this module
+const MARKER_ADDITIONAL_ROUTES = [
+	{
+		method: 'put',
+		path: 'markers/:id/reference-location',
+		requestClass: require('./reference_location_request')
+	}
+];
+
 class Markers extends Restful {
 
 	get collectionName () {
@@ -44,8 +53,10 @@ class Markers extends Restful {
 		return MarkerUpdater;
 	}
 
+	// get all routes exposed by this module
 	getRoutes () {
-		return  super.getRoutes(MARKER_STANDARD_ROUTES);
+		let standardRoutes = super.getRoutes(MARKER_STANDARD_ROUTES);
+		return [...standardRoutes, ...MARKER_ADDITIONAL_ROUTES];
 	}
 }
 
