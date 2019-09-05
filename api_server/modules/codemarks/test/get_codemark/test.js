@@ -10,6 +10,8 @@ const ACLTest = require('./acl_test');
 const PostlessACLTest = require('./postless_acl_test');
 const ACLTeamTest = require('./acl_team_test');
 const NotFoundTest = require('./not_found_test');
+const GetLinkCodemarkTest = require('./get_link_codemark_test');
+const LinkCodemarkACLTest = require('./link_codemark_acl_test');
 
 class GetCodemarkRequestTester {
 
@@ -24,6 +26,8 @@ class GetCodemarkRequestTester {
 		new ACLTeamTest({ type: 'direct' }).test();
 		new ACLTeamTest({ type: 'channel' }).test();
 		new NotFoundTest().test();
+		new GetLinkCodemarkTest().test();
+		new LinkCodemarkACLTest().test();
 	}
 }
 

@@ -171,7 +171,13 @@ class User extends CodeStreamModel {
 			throw request.errorHandler.error('notFound', { info: 'codemark' });
 		}
 		let authorized;
-		if (codemark.get('providerType')) {
+		if (
+			codemark.get('providerType') || 
+			(
+				codemark.get('type') === 'link' && 
+				!codemark.get('streamId')
+			)
+		) {
 			authorized = await this.authorizeTeam(
 				codemark.get('teamId'),
 				request

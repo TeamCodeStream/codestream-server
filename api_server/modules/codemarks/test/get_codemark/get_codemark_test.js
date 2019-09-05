@@ -47,8 +47,10 @@ class GetCodemarkTest extends CodeStreamAPITest {
 		this.validateSanitized(data.codemark, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// validate we also got the parent post, with only sanitized attributes
-		this.validateMatchingObject(this.postData[0].post.id, data.post, 'post');
-		this.validateSanitized(data.post, CodemarkTestConstants.UNSANITIZED_POST_ATTRIBUTES);
+		if (this.postData[0]) {
+			this.validateMatchingObject(this.postData[0].post.id, data.post, 'post');
+			this.validateSanitized(data.post, CodemarkTestConstants.UNSANITIZED_POST_ATTRIBUTES);
+		}
 	}
 }
 
