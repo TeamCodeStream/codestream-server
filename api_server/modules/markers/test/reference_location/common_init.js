@@ -36,7 +36,6 @@ class CommonInit {
 		this.data = {
 			commitHash: this.repoFactory.randomCommitHash(),
 			location: this.markerFactory.randomLocation(),
-			branch: this.markerFactory.randomBranch(),
 			flags: { x: 1, y: '2', z: true } 
 		};
 		this.marker = this.marker || this.postData[0].markers[0];

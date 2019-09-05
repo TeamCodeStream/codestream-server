@@ -138,9 +138,6 @@ class MarkerCreator extends ModelCreator {
 			if (typeof location.flags === 'object') {
 				validatedLocation.flags = location.flags;
 			}
-			if (typeof location.branch === 'string') {
-				validatedLocation.branch = location.branch;
-			}
 			this.attributes.referenceLocations.push(validatedLocation);
 		}
 	}

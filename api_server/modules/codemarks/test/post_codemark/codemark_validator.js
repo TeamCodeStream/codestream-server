@@ -163,8 +163,7 @@ class CodemarkValidator {
 			expectedReferenceLocations.unshift(
 				{
 					commitHash: markerData.commitHash.toLowerCase(),
-					location: markerData.location,
-					branch: markerData.branchWhenCreated
+					location: markerData.location
 				}
 			);
 		}

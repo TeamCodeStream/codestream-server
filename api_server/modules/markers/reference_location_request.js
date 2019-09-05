@@ -47,7 +47,6 @@ class ReferenceLocationRequest extends RestfulRequest {
 					string: ['commitHash']
 				},
 				optional: {
-					string: ['branch'],
 					object: ['flags']
 				}
 			}
@@ -154,7 +153,6 @@ class ReferenceLocationRequest extends RestfulRequest {
 				looksLike: {
 					'commitHash*': '<Commit hash of the reference location>',
 					'location*': '<Location coordinates of the reference location>',
-					'branch': '<The branch associated with this reference location>',
 					'flags': '<Object containing arbitrary information to associate with the reference location>'
 				}
 			},

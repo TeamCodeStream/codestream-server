@@ -16,7 +16,6 @@ class CodemarkWithReferenceLocationsTest extends CodemarkMarkerTest {
 				{
 					commitHash: this.repoFactory.randomCommitHash(),
 					location: this.markerFactory.randomLocation(),
-					branch: this.markerFactory.randomBranch(),
 					flags: {
 						elem1: true,
 						elem2: 'hello'
@@ -25,7 +24,6 @@ class CodemarkWithReferenceLocationsTest extends CodemarkMarkerTest {
 				{
 					commitHash: this.repoFactory.randomCommitHash(),
 					location: this.markerFactory.randomLocation(),
-					branch: this.markerFactory.randomBranch(),
 					flags: {
 						elem3: 1,
 						elem4: {
