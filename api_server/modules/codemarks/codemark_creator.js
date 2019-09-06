@@ -77,6 +77,7 @@ class CodemarkCreator extends ModelCreator {
 				string: ['teamId', 'type']
 			},
 			optional: {
+				boolean: ['_dontCreatePermalink'],
 				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderHost', 'externalProviderUrl', 'createPermalink'],
 				object: ['remoteCodeUrl', 'threadUrl'],
 				'array(object)': ['markers', 'externalAssignees'],
@@ -102,6 +103,10 @@ class CodemarkCreator extends ModelCreator {
 		// are we requesting a permalink? really just need to know if a public permalink is requested
 		this.permalinkType = this.attributes.createPermalink;
 		delete this.attributes.createPermalink;
+
+		// this is just for testing
+		this.dontCreatePermalink = this.attributes._dontCreatePermalink;
+		delete this.attributes._dontCreatePermalink;
 
 		// pre-allocate an ID
 		this.createId();
@@ -143,7 +148,9 @@ class CodemarkCreator extends ModelCreator {
 		await this.codemarkHelper.validateAssignees({}, this.attributes);
 
 		// create a permalink to this codemark, as needed
-		await this.createPermalink();
+		if (!this.dontCreatePermalink) {
+			await this.createPermalink();
+		}
 
 		// proceed with the save...
 		await super.preSave();

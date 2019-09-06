@@ -8,6 +8,8 @@ const WithMarkerTest = require('./with_marker_test');
 const InvalidCodemarkIdTest = require('./invalid_codemark_id_test');
 const ACLTest = require('./acl_test');
 const DuplicateLinkTest = require('./duplicate_link_test');
+const SavePermalinkTest = require('./save_permalink_test');
+const SavePermalinkMessageTest = require('./save_permalink_message_test');
 
 class CodemarkLinkRequestTester {
 
@@ -26,6 +28,9 @@ class CodemarkLinkRequestTester {
 		new DuplicateLinkTest({ permalinkType: 'private' }).test();
 		new DuplicateLinkTest({ wantMarkers: 1, permalinkType: 'public' }).test();
 		new DuplicateLinkTest({ wantMarkers: 1, permalinkType: 'private' }).test();
+		new SavePermalinkTest({ permalinkType: 'private' }).test();
+		new SavePermalinkTest({ permalinkType: 'public' }).test();
+		new SavePermalinkMessageTest({ permalinkType: 'private' }).test();
 	}
 }
 

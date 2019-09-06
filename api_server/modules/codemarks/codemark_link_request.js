@@ -4,6 +4,7 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const CodemarkLinkCreator = require('./codemark_link_creator');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class CodemarkLinkRequest extends RestfulRequest {
 
@@ -26,6 +27,7 @@ class CodemarkLinkRequest extends RestfulRequest {
 		if (!await this.findExisting()) {	// find a possible existing codemark link for this same codemark
 			await this.makeLink();		// create a new codemark link
 		}
+		await this.saveToCodemark();	// save the permalink to the codemark as needed
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -74,6 +76,52 @@ class CodemarkLinkRequest extends RestfulRequest {
 			markers: this.markers,
 			isPublic: this.request.body.isPublic
 		}).createCodemarkLink();
+	}
+
+	// save the permalink with the codemark as needed
+	async saveToCodemark () {
+		// this is how we get permalinks set for legacy codemarks, before we
+		// actually created a permalink for every codemark ... only applies if
+		// the codemark doesn't already have a permalink, and if the permalink
+		// is private
+		if (this.codemark.get('permalink') || this.request.body.isPublic) {
+			return;
+		}
+
+		const op = { 
+			$set: {
+				permalink: this.responseData.permalink,
+				modifiedAt: Date.now()
+			}
+		};
+		this.updateOp = await new ModelSaver({
+			request: this.request,
+			collection: this.data.codemarks,
+			id: this.codemark.id
+		}).save(op);
+	}
+
+	async postProcess () {
+		// if the codemark was updated, send the update to the team channel
+		if (!this.updateOp) {
+			return;
+		}
+		const message = {
+			codemark: this.updateOp,
+			requestId: this.request.id
+		};
+		const channel = 'team-' + this.codemark.get('teamId');
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate
+			this.warn(`Unable to publish codemark update message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// describe this route for help

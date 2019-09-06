@@ -2,19 +2,13 @@
 
 'use strict';
 
+const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const RandomString = require('randomstring');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const Assert = require('assert');
+const CommonInit = require('./common_init');
 
-class CodemarkLinkTest extends CodeStreamAPITest {
-
-	constructor (options) {
-		super(options);
-		this.teamOptions.creatorIndex = 1;
-		this.repoOptions.creatorIndex = 1;
-	}
+class CodemarkLinkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
 		const withMarkers = this.wantMarkers ? ' with markers' : '';
@@ -32,47 +26,13 @@ class CodemarkLinkTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.createCodemark
-		], callback);
-	}
-
-	// create the codemark that we'll create a permalink for
-	createCodemark (callback) {
-		const data = this.codemarkFactory.getRandomCodemarkData({ codemarkType: this.codemarkType });
-		if (this.wantMarkers) {
-			data.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0].id });
-		}
-		Object.assign(data, {
-			teamId: this.team.id,
-			providerType: RandomString.generate(8),
-			streamId: RandomString.generate(10),
-			postId: RandomString.generate(10)
-		});
-		
-		this.doApiRequest(
-			{
-				method: 'post',
-				path: '/codemarks',
-				data,
-				token: this.users[1].accessToken
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.codemark = response.codemark;
-				this.path = `/codemarks/${this.codemark.id}/permalink`;
-				if (this.permalinkType === 'public') {
-					this.data = { isPublic: true };
-				}
-				callback();
-			}
-		);
+		this.init(callback);
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
 		const { permalink } = data;
+		this.permalink = permalink;
 		const type = this.permalinkType === 'public' ? 'p' : 'c';
 		const origin = ApiConfig.publicApiUrl.replace(/\//g, '\\/');
 		const regex = `^${origin}\\/${type}\\/([A-Za-z0-9_-]+)\\/([A-Za-z0-9_-]+)$`;
