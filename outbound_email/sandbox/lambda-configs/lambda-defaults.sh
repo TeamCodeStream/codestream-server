@@ -1,8 +1,13 @@
 
 # lambda function defaults
 
-[ -z "$CS_LAMBDA_VERSION" ] && export CS_LAMBDA_VERSION="`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p name`-`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p version`"
-
+if [ -z "$CS_LAMBDA_VERSION" ]; then
+	if [ -n "$TCBUILD_ASSET_FULL_NAME" ]; then
+		export CS_LAMBDA_VERSION=$TCBUILD_ASSET_FULL_NAME
+	else
+		export CS_LAMBDA_VERSION="`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p name`-`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p version`"
+	fi
+fi
 [ -z "$CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE" ] && export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.generic.template.json
 [ -z "$CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME" ] && export CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME="nodejs10.x"
 [ -z "$CS_OUTBOUND_EMAIL_AWS_ACCOUNT" ] && export CS_OUTBOUND_EMAIL_AWS_ACCOUNT=564564469595
