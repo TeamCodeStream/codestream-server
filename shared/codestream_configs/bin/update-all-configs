@@ -43,11 +43,11 @@ done
 $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
 diff_notify $repoRoot/README.parameter-definitions.json "$yes"
 
-# template for on-prem with docker
-$binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.x
-diff_notify $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template "$yes"
+# create the config template for on-prem single host preview (beta version)
+$binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta.x
+diff_notify $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta "$yes"
 
-# configs for development (distributed via dt-update-secrets)
+# configs for development (consumed by developers via dt-update-secrets)
 $binDir/process-profile --profile $repoRoot/profiles/cloud.json --env local --out $KM_PKI/secrets/config/local-cloud-development.json.x
 diff_notify $KM_PKI/secrets/config/local-cloud-development.json "$yes"
 
