@@ -191,7 +191,7 @@ class LinkCodemarkRequest extends APIRequest {
 	async createAssignees() {
 		let assignees = [];
 		const csAssigneeIds = this.codemark.get('assignees');
-		if (csAssigneeIds) {
+		if (csAssigneeIds && csAssigneeIds.length) {
 			const csAssignees = await this.data.users.getByIds(csAssigneeIds);
 			if (csAssignees && csAssignees.length) {
 				csAssignees.forEach(_ => {
