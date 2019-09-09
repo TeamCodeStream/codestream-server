@@ -67,84 +67,207 @@
 						{{#if showComment}}
 						<div class="flex">
 							{{#if hasEmailHashOrAuthorInitials}}
-							<div class="headshot">														 							 
-								<img style="position:absolute; z-index:2;" class="headshot-image" src="https://www.gravatar.com/avatar/{{emailHash}}?s=20&d=blank" />
-								<span class="headshot-initials">{{authorInitials}}</span>								 								
+							<div class="headshot">
+								<img style="position:absolute; z-index:2;" class="headshot-image"
+									src="https://www.gravatar.com/avatar/{{emailHash}}?s=20&d=blank" />
+								<span class="headshot-initials">{{authorInitials}}</span>
 							</div>
 							{{/if}}
 							<div>
 								<div class="posted-on">
 									<span class="author">{{username}}</span>
-									{{!-- <span class="activity">{{activity}}</span>&nbsp; --}}
 									<span class="time">{{createdAt}}</span>
 								</div>
 							</div>
 						</div>
 						{{/if}}
 						{{#if showComment}}
-						{{#if text}}
-						<p class="text">{{text}}</p>
-						{{/if}}
 						{{#if title}}
 						<p class="title">{{title}}</p>
 						{{/if}}
-						{{/if}}
-						{{#if file}}<p class="file">{{file}}</p>{{/if}}
-						<div class="code">
-							{{#if codeStartingLineNumber}}
-							<code class="prettyprint linenums:{{codeStartingLineNumber}}">{{{code}}}</code>
-							{{/if}}
-							{{^codeStartingLineNumber}}
-							<code class="prettyprint">{{{code}}}</code>
-							{{/codeStartingLineNumber}}
-						</div>
 
-						<div class="row no-gutters mt-2">
+
+						{{#if hasTagsOrAssignees}}
+						<div class="row no-gutters mt-4">
+							{{#if tags}}
 							<div class="col-sm-6">
-								<span>Open in</span>
-								<div class="btn-group ide-list" style="white-space:nowrap">
-									<a href="#" class="dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
-										aria-haspopup="true" aria-expanded="false">
-										<span class="sr-only">Toggle Dropdown</span>
-									</a>
-									<div class="dropdown-menu dropdown-menu-right" id="ide-list-items">
-										{{#ides}}
-										{{#if ideName}}
-										<a class="dropdown-item" href="#" data-ide="" data-ide-name="{{ideName}}"
-											data-ide-moniker="{{moniker}}" data-ide-protocol="{{protocol}}"
-											data-ide-download-url="{{downloadUrl}}">{{ideName}}</a>
-										{{/if}}
-										{{^ideName}}
-										<div class="dropdown-divider"></div>
-										{{/ideName}}
-										{{/ides}}
-									</div>
-								</div>
+								<h6>TAGS</h6>
 							</div>
-							<div class="col-sm-1"></div>
-							<div class="col-sm-1"></div>
-							<div class="col-sm-4">
-								{{#if hasProviderButtons}}
-								<div class="float-right">
-									{{#if codeProvider}}
-									<a href="#"
-										onclick='event.preventDefault();window.analytics.track("Opened Code", { Host: "{{codeProvider}}" }); window.open("{{codeProviderUrl}}", "_blank");'>Open
-										on {{codeProvider}}</a>
+							{{/if}}
+							{{#if assignees}}
+							<div class="col-sm-6">
+								<h6>ASSIGNEES</h6>
+							</div>
+							{{/if}}
+						</div>
+						<div class="row no-gutters mt-0">
+							{{#if tags}}
+							<div class="col-sm-6">
+								{{#tags}}
+								{{#if label}}
+								<span class="label label-square" style="background-color:{{color}};">
+									{{label}}
+								</span>
+								{{/if}}
+								{{^label}}
+								<span class="label label-square label-empty" style="background-color:{{color}};">
+									&#8291;
+								</span>
+								{{/label}}
+
+								{{/tags}}
+
+							</div>
+							{{/if}}
+							{{#if assignees}}
+							<div class="col-sm-6">
+								{{#assignees}}
+								<div class="assignee-wrapper">
+									{{#if initials}}
+									<span class="headshot-initials-inline" title="{{tooltip}}">{{initials}}</span>
 									{{/if}}
-									{{#if externalProvider}}
-									<a href="#"
-										onclick='event.preventDefault();window.analytics.track("Opened Issue", { Service: "{{externalProvider}}" }); window.open("{{externalProviderUrl}}", "_blank")'>Open
-										issue on {{externalProvider}}
-									</a>
-									{{/if}}
+									<span title="{{tooltip}}">{{label}}</span>
 								</div>
+								{{/assignees}}
+							</div>
+							{{/if}}
+						</div>
+						{{/if}}
+
+
+
+						<div class="row no-gutters mt-4">
+							<div class="col-sm-12">
+								<h6>DESCRIPTION</h6>
+							</div>
+						</div>
+						<div class="row no-gutters mt-0">
+							<div class="col-sm-12">
+								{{#if text}}
+								<p class="description">{{text}}</p>
 								{{/if}}
 							</div>
+						</div>
+
+						{{#if externalProvider}}
+						<div class="row no-gutters mt-3">
+							<div class="col-sm-12">
+								<h6>OPEN ON</h6>
+							</div>
+						</div>
+						<div class="row no-gutters mt-0">
+							<div class="col-sm-12">
+								{{!-- {{externalProvider}} --}}
+								<a href="#"
+									onclick='event.preventDefault();window.analytics.track("Opened Issue", { Service: "{{externalProvider}}" }); window.open("{{externalProviderUrl}}", "_blank")'>
+									{{externalProviderUrl}}
+								</a>
+							</div>
+						</div>
+						{{/if}}
+						{{#if relatedCodemarks}}
+						<div class="row no-gutters mt-3">
+							<div class="col-sm-12">
+								<h6>RELATED</h6>
+							</div>
+						</div>
+						<div class="row no-gutters mt-0">
+							<div class="col-sm-12">
+								{{#relatedCodemarks}}
+								<a href="{{url}}">{{text}} {{file}}</a>
+								{{/relatedCodemarks}}
+							</div>
+						</div>
+						{{/if}}
+
+
+
+
+						{{/if}}
+
+						{{#if showComment}}
+						{{#if whenCreated}}
+						<div class="row no-gutters mt-3">
+							<div class="col-sm-12">
+								<h6>ORIGINAL CODE</h6>
+							</div>
+						</div>
+						<div class="row no-gutters mt-0">
+							<div class="col-sm-12">
+								{{#whenCreated}}
+								<span class="monospace">
+									{{#if branchWhenCreated}}
+									<span title="branch">{{branchWhenCreated}}</span>
+									{{/if}}
+									{{#if commitHashWhenCreated}}
+									<span title="commit hash">{{commitHashWhenCreated}}</span>
+									{{/if}}
+								</span>
+								{{/whenCreated}}
+							</div>
+						</div>
+						{{/if}}
+						{{/if}}
+
+						<div class="row no-gutters {{#if showComment}}mt-4{{else}}mt-1{{/if}}">
+							<div class="col-sm-12">
+								{{#if file}}
+								<span class="file">{{file}}</span>
+								{{/if}}
+							</div>
+
+							<div class="col-sm-12">
+								<div class="code">
+									{{#if codeStartingLineNumber}}
+									<code class="prettyprint linenums:{{codeStartingLineNumber}}">{{{code}}}</code>
+									{{/if}}
+									{{^codeStartingLineNumber}}
+									<code class="prettyprint">{{{code}}}</code>
+									{{/codeStartingLineNumber}}
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row no-gutters mt-3">
+						<div class="col-sm-6">
+							{{!-- <span class="label-for-btn">Open in</span>
+							<div class="btn-group ide-list" style="white-space:nowrap">
+								<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split"
+									data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<span class="sr-only">Toggle Dropdown</span>
+								</a>
+								<div class="dropdown-menu dropdown-menu-right" id="ide-list-items">
+									{{#ides}}
+									{{#if ideName}}
+									<a class="dropdown-item" href="#" data-ide="" data-ide-name="{{ideName}}"
+										data-ide-moniker="{{moniker}}" data-ide-protocol="{{protocol}}"
+										data-ide-download-url="{{downloadUrl}}">{{ideName}}</a>
+									{{/if}}
+									{{^ideName}}
+									<div class="dropdown-divider"></div>
+									{{/ideName}}
+									{{/ides}}
+								</div>
+							</div> --}}
+						</div>
+						<div class="col-sm-1"></div>
+						<div class="col-sm-1"></div>
+						<div class="col-sm-4">
+							{{#if hasProviderButtons}}
+							<div class="float-right">
+								{{#if codeProvider}}
+								<a href="#" class="btn btn-sm"
+									onclick='event.preventDefault();window.analytics.track("Opened Code", { Host: "{{codeProvider}}" }); window.open("{{codeProviderUrl}}", "_blank");'>Open
+									on {{codeProvider}}</a>
+								{{/if}}
+							</div>
+							{{/if}}
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+	</div>
 	</div>
 
 	<script>
@@ -438,7 +561,7 @@
 				if (u.length) {
 					$('.ide-list .selected-ide').remove();
 					$('.ide-list').prepend(
-						$(u[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide').on('click', cb)
+						$(u[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide btn btn-sm').on('click', cb)
 					)
 				}
 				setCookie('cs__ide-mru--{{repoId}}', moniker);
@@ -468,13 +591,13 @@
 					function () {
 						//fail
 						console.log(`CodeStream: failed for Moniker=${moniker} Path=${protocol} `);
-						window.analytics.track("Open in IDE", { IDE: moniker, "Protocol Handled": false });
+						window.analytics.track("Opened in IDE", { IDE: moniker, "Protocol Handled": false });
 					}, function () {
 						//success
 						console.log(`CodeStream: success for Moniker=${moniker} Path=${protocol}`);
 						clearTimeout(timeout);
 
-						window.analytics.track("Open in IDE", { IDE: moniker, "Protocol Handled": true });
+						window.analytics.track("Opened in IDE", { IDE: moniker, "Protocol Handled": true });
 					});
 			}
 
@@ -506,14 +629,20 @@
 			if (mru) {
 				var u = $('#ide-list-items').find('[data-ide-moniker="' + mru + '"]');
 				if (u.length) {
-					$('.ide-list').prepend($(u[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide'));
+					$('.ide-list').prepend($(u[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide btn btn-sm'));
 				}
 				else {
-					$('.ide-list').prepend($($('#ide-list-items').find('a')[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide'));
+					var a = $('#ide-list-items').find('a')[0];
+					if (a) {
+						$('.ide-list').prepend($(a.outerHTML).removeClass('dropdown-item').addClass('selected-ide btn btn-sm'));
+					}
 				}
 			}
 			else {
-				$('.ide-list').prepend($($('#ide-list-items').find('a')[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide'));
+				var a = $('#ide-list-items').find('a')[0];
+				if (a) {
+					$('.ide-list').prepend($(a.outerHTML).removeClass('dropdown-item').addClass('selected-ide btn btn-sm'));
+				}
 			}
 
 			$('[data-ide=""]').on('click', cb);

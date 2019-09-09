@@ -21,13 +21,24 @@ a:active {
   margin-left: 0;
   margin-right: 0;
 }
-
+.row-header {
+  margin-top:5px;
+}
+h6 {
+  font-weight: 700;
+  font-size: .75em;
+  padding:0 !important;
+  margin:0 !important;
+}
 .flex {
   display: flex;
 }
 .headshot {
   position:relative; 
   width:30px;
+}
+.assignee-wrapper{
+  margin-bottom:3px;
 }
 .headshot-image {
   border-radius: 0.25rem;
@@ -46,6 +57,17 @@ a:active {
   width: 20px;
   z-index: 1;  
 }
+.headshot-initials-inline {
+  background: #678; 
+  border-radius:3px; 
+  color: #1E1E1E !important; 
+  display:inline-block;
+  height: 20px;     
+  text-align: center;
+  text-transform: capitalize;
+  width: 20px; 
+}
+
 
 .posted-on {
   margin-bottom: 0.125rem;
@@ -117,7 +139,24 @@ h1 {
 h3 {
   text-align: center;
 }
-
+.label.label-square {
+  min-width:20px; 
+  min-height:20px;
+  color:#dfdfdf;
+  display: inline-block;
+  padding: .4em .6em .3em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+}
+.label-empty {
+  width:20px;
+}
 .hint {
   color: rgb(92, 97, 109);
   min-height: 21px;
@@ -192,9 +231,11 @@ input.bg-dark:-internal-autofill-selected {
   color: rgb(76, 114, 202);
   font-weight: 700;
 }
-
-.text {
+.file {
+  
   padding-top:5px;
+}
+.description {
   color:#c7c7c6;
 }
 .title {
@@ -212,30 +253,34 @@ hr {
   border-color:#3c424e;
 }
 .ide-list:hover {
-border:1px solid #464545;
+  border:1px solid #464545;
+  background: transparent;
 }
 .ide-list {
   border:1px solid #383838;
   padding-top:0px !important;
   vertical-align: top;
-  background: #252424;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
-.selected-ide {
-  padding:0 9px 0 9px;
-}
-.ide-list a,
 .dropdown-menu a {
   color: #c7c7c6;
+}
+.monospace {
+      font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace;
+      font-size:.85em;
 }
 .ide-list a:hover,
 .dropdown-menu a:hover {
 text-decoration: none;
-background: #282828;
+}
+.label-for-btn {
+  display: inline-block;
+  line-height: 1.4em;
+  margin-top: 8px;
 }
 .ide-list .dropdown-toggle-split {
-    padding-top: .05rem;
+    padding-top: .5rem;
     padding-left: .4rem;
   border-left:1px solid #383838;
   border-top-right-radius: 4px;

@@ -28,7 +28,11 @@
                     aria-expanded="false">
                     <span class="navbar-toggler-icon"></span>
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">                   
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                    {{#if teamName}}
+                    <a class="dropdown-item" href="#">{{teamName}}</a>
+                    <div class="dropdown-divider"></div>
+                    {{/if}}
                     <a class="dropdown-item" href="/web/logout">Sign Out</a>
                 </div>
             </li>

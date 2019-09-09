@@ -7,6 +7,17 @@ const Crypto = require('crypto');
 const Identify = require('./identify');
 const ProviderDisplayNames = require('./provider_display_names');
 
+const tagMap = {
+	blue: '#3578ba',
+	green: '#7aba5d',
+	yellow: '#edd648',
+	orange: '#f1a340',
+	red: '#d9634f',
+	purple: '#b87cda',
+	aqua: '#5abfdc',
+	gray: '#888888'
+};
+
 const ides = [
 	{ ideName: 'Atom', protocol: 'atom://codestream/', moniker: 'atom', downloadUrl: 'https://atom.io/packages/codestream' },
 	{},
@@ -73,7 +84,7 @@ class LinkCodemarkRequest extends APIRequest {
 		// check if the user is on the indicated team
 		if (!this.isPublic && !this.user.hasTeam(this.teamId)) {
 			this.warn('User requesting codemark link is not on the team that owns the codemark');
-			return this.redirect404();
+			return this.redirect404(this.teamId);
 		}
 		// get the link to the codemark
 		const linkId = this.decodeLinkId(this.request.params.id, 2);
@@ -83,7 +94,7 @@ class LinkCodemarkRequest extends APIRequest {
 		);
 		if (codemarkLinks.length === 0) {
 			this.warn('User requested a codemark link that was not found');
-			return this.redirect404();
+			return this.redirect404(this.teamId);
 		}
 		this.codemarkLink = codemarkLinks[0];
 		return true;
@@ -95,7 +106,7 @@ class LinkCodemarkRequest extends APIRequest {
 		this.codemark = await this.data.codemarks.getById(codemarkId);
 		if (!this.codemark) {
 			this.warn('User requested to link to a codemark but the codemark was not found');
-			return this.redirect404();
+			return this.redirect404(this.teamId);
 		}
 		if (this.isPublic && !this.codemark.get('hasPublicPermalink')) {
 			this.warn('Public link to codemark with no public permalink will not be honored');
@@ -138,13 +149,133 @@ class LinkCodemarkRequest extends APIRequest {
 		};
 	}
 
+	getAvatarForAssignee(fullName) {
+		let authorInitials;
+		if (fullName) {
+			authorInitials = fullName.replace(/(\w)\w*/g, '$1').replace(/\s/g, '');
+			if (authorInitials.length > 2) authorInitials = authorInitials.substring(0, 2);
+		}
+		//  else if (username) {
+		// 	authorInitials = username.charAt(0);
+		// }
+		return authorInitials;
+
+	}
+
+	createTags() {
+		let tags = [];
+		const teamTags = this.team.get('tags');
+		if (teamTags) {
+			let rawTags = this.codemark.get('tags');
+			if (rawTags && rawTags.length) {
+				for (let i = 0; i < rawTags.length; i++) {
+					let t = rawTags[i];
+					const teamTag = teamTags[t];
+					if (teamTag) {
+						let color = tagMap[teamTag.color];
+						if (!color) {
+							color = teamTag.color;
+						}
+
+						tags.push({
+							color: color,
+							label: teamTag.label
+						});
+					}
+				}
+			}
+		}
+		return tags;
+	}
+
+	async createAssignees() {
+		let assignees = [];
+		const csAssigneeIds = this.codemark.get('assignees');
+		if (csAssigneeIds) {
+			const csAssignees = await this.data.users.getByIds(csAssigneeIds);
+			if (csAssignees && csAssignees.length) {
+				csAssignees.forEach(_ => {
+					const fullName = _.get('fullName');
+					assignees.push({
+						initials: this.getAvatarForAssignee(fullName),
+						label: fullName,
+						tooltip: fullName
+					});
+				});
+			}
+			else {
+				assignees.push({
+					label: csAssigneeIds.length == 1 ? '1 User' : `${csAssigneeIds.length} Users`,
+					tooltip: csAssigneeIds.join(', ')
+				});
+			}
+		}
+		const externalAssignees = this.codemark.get('externalAssignees');
+		if (externalAssignees && externalAssignees.length) {
+			externalAssignees.forEach(_ => {
+				assignees.push({
+					initials: this.getAvatarForAssignee(_.displayName),
+					label: _.displayName,
+					tooltip: _.displayName
+				});
+			});
+		}
+
+		return assignees;
+	}
+
+	async createRelatedCodemarks() {
+		const relatedCodemarkIds = this.codemark.get('relatedCodemarkIds');
+		if (!relatedCodemarkIds || relatedCodemarkIds.length == 0) return undefined;
+
+		let relatedCodemarks = [];
+		const relatedCodemarksData = await this.data.codemarks.getByIds(relatedCodemarkIds);
+		if (relatedCodemarksData) {
+
+			for (let i = 0; i < relatedCodemarksData.length; i++) {
+				const _ = relatedCodemarksData[i];
+				const markerIds = _.get('markerIds');
+				const { file } = markerIds && markerIds.length ?
+					await this.getMarkerInfoByMarkerId(markerIds[0]) : null;
+				relatedCodemarks.push({
+					type: _.get('type'),
+					url: _.get('permalink'),
+					file: file,
+					text: _.get('text')
+				});
+			}
+		}
+		return relatedCodemarks;
+	}
+
+	async createAdditionalInfo() {
+		let repoId;
+		const markers = this.codemark.get('markerIds');
+		let codeStartingLineNumber = 0;
+		let whenCreated = null;
+		if (markers && markers.length) {
+			const marker = await this.data.markers.getById(markers[0]);
+			if (marker) {
+				let commitHashWhenCreated = marker.get('commitHashWhenCreated');
+				whenCreated = {
+					commitHashWhenCreated: commitHashWhenCreated ? commitHashWhenCreated.substring(0, 7) : null,
+					branchWhenCreated: marker.get('branchWhenCreated')
+				};
+				repoId = marker.get('repoId');
+				const locationWhenCreated = marker.get('locationWhenCreated');
+				if (locationWhenCreated && locationWhenCreated.length > 0) {
+					codeStartingLineNumber = locationWhenCreated[0];
+				}
+			}
+		}
+		return { repoId, codeStartingLineNumber, whenCreated };
+	}
 	async showCodemark() {
 		this.creator = await this.data.users.getById(this.codemark.get('creatorId'));
 		const { marker, file } = await this.getMarkerInfo();
-		const activity = this.getActivity(this.codemark.get('type'));
 		const username = this.creator && this.creator.get('username');
 		const showComment = username && !this.codemark.get('invisible');
-		const { authorInitials, emailHash } = this.getAvatar(showComment, username);		 
+		const { authorInitials, emailHash } = this.getAvatar(showComment, username);
 		const createdAt = this.formatTime(this.codemark.get('createdAt'));
 		const title = this.codemark.get('title');
 		const text = this.codemark.get('text');
@@ -164,30 +295,23 @@ class LinkCodemarkRequest extends APIRequest {
 
 		const hasProviderButtons = codeProvider || externalProvider;
 
-		let repoId;
 		const segmentKey = this.api.config.segment.webToken;
-		const markers = this.codemark.get('markerIds');
-		let codeStartingLineNumber = 0;
-		if (markers && markers.length) {
-			const marker = await this.data.markers.getById(markers[0]);
-			if (marker) {
-				repoId = marker.get('repoId');
-				const locationWhenCreated = marker.get('locationWhenCreated');
-				if (locationWhenCreated && locationWhenCreated.length > 0) {
-					codeStartingLineNumber = locationWhenCreated[0];
-				}
-			}
-		}
+
+		const { repoId, codeStartingLineNumber, whenCreated } = await this.createAdditionalInfo();
 		const codemarkType = this.codemark.get('type');
+		const assignees = await this.createAssignees();
+		const tags = this.createTags();
+
 		const templateProps = {
 			codemarkId: this.codemark.get('id'),
 			teamName: this.team.get('name'),
 			showComment,
+			whenCreated: whenCreated,
+			assignees: assignees,
 			codemarkType: codemarkType === 'link' ? 'Permalink' : 'Codemark',
 			repoId,
 			username,
 			emailHash,
-			activity,
 			createdAt,
 			authorInitials,
 			hasEmailHashOrAuthorInitials: emailHash || authorInitials,
@@ -195,7 +319,10 @@ class LinkCodemarkRequest extends APIRequest {
 			text,
 			file,
 			code,
+			relatedCodemarks: await this.createRelatedCodemarks(),
+			tags: tags,
 			hasProviderButtons,
+			hasTagsOrAssignees: (assignees && assignees.length) || (tags && tags.length),
 			codeProvider,
 			codeProviderUrl,
 			externalProvider,
@@ -212,8 +339,12 @@ class LinkCodemarkRequest extends APIRequest {
 	}
 
 	async getMarkerInfo() {
+		return this.getMarkerInfoByMarkerId(this.codemark.get('markerIds')[0]);
+	}
+
+	async getMarkerInfoByMarkerId(markerId) {
 		let marker, file;
-		const markerId = this.codemark.get('markerIds')[0];
+
 		if (markerId) {
 			marker = await this.data.markers.getById(markerId);
 			const fileStream = marker && marker.get('fileStreamId') &&
@@ -251,31 +382,15 @@ class LinkCodemarkRequest extends APIRequest {
 	}
 
 	formatTime(timeStamp) {
-		const format = 'h:mm A MMM D';		
-		let timeZone = this.user && this.user.get('timeZone');		
-		if (!timeZone) {			
+		const format = 'h:mm A MMM D';
+		let timeZone = this.user && this.user.get('timeZone');
+		if (!timeZone) {
 			timeZone = this.creator && this.creator.get('timeZone');
 			if (!timeZone) {
 				timeZone = 'Etc/GMT';
 			}
 		}
 		return MomentTimezone.tz(timeStamp, timeZone).format(format);
-	}
-
-	getActivity(type) {
-		switch (type) {
-		case 'question':
-			return 'has a question';
-		case 'issue':
-			return 'posted an issue';
-		case 'bookmark':
-			return 'set a bookmark';
-		case 'trap':
-			return 'created a code trap';
-		case 'comment':
-		default: // shouldn't happen, just a failsafe
-			return 'commented on code';
-		}
 	}
 
 	whiteSpaceToHtml(text) {
@@ -285,8 +400,12 @@ class LinkCodemarkRequest extends APIRequest {
 			.replace(/\n/g, '<br/>');
 	}
 
-	redirect404() {
-		this.response.redirect('/web/404');
+	redirect404(teamId) {
+		let url = '/web/404';
+		if (teamId) {
+			url += `?teamId=${teamId}`;
+		}
+		this.response.redirect(url);
 		this.responseHandled = true;
 	}
 }
