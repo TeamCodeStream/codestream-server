@@ -232,7 +232,9 @@ input.bg-dark:-internal-autofill-selected {
   font-weight: 700;
 }
 .file {
-  
+  white-space: nowrap;    
+  overflow: hidden;   
+  text-overflow: ellipsis;
   padding-top:5px;
 }
 .description {
