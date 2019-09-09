@@ -241,7 +241,7 @@ class LinkCodemarkRequest extends APIRequest {
 					type: _.get('type'),
 					url: _.get('permalink'),
 					file: file,
-					text: _.get('text')
+					title: _.get('title')
 				});
 			}
 		}
