@@ -1,11 +1,11 @@
 'use strict';
 
-const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 const CodemarkLinkIndexes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_link_indexes');
 const MomentTimezone = require('moment-timezone');
 const Crypto = require('crypto');
 const Identify = require('./identify');
 const ProviderDisplayNames = require('./provider_display_names');
+const WebRequestBase = require('./web_request_base');
 
 const tagMap = {
 	blue: '#3578ba',
@@ -36,7 +36,7 @@ const ides = [
 	{ ideName: 'GoLand', protocol: 'jetbrains://goland/', moniker: 'jb-goland', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' }
 ];
 
-class LinkCodemarkRequest extends APIRequest {
+class LinkCodemarkRequest extends WebRequestBase {
 
 	async authorize() {
 		// we'll handle authorization in the process phase,
@@ -330,12 +330,13 @@ class LinkCodemarkRequest extends APIRequest {
 			segmentKey,
 			codeStartingLineNumber: codeStartingLineNumber,
 			ides: ides,
-			version: this.module.versionInfo()
 		};
+
 		if (this.request.query.identify) {
 			this.addIdentifyScript(templateProps);
 		}
-		this.module.evalTemplate(this, 'codemark', templateProps);
+
+		await super.render('codemark', templateProps);
 	}
 
 	async getMarkerInfo() {

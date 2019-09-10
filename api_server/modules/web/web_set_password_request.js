@@ -1,22 +1,16 @@
 // handles the GET request
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 const CheckResetCore = require(process.env.CS_API_TOP + '/modules/users/check_reset_core');
-const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
+const WebRequestBase = require('./web_request_base');
 
-class WebSetPasswordRequest extends RestfulRequest {
-
-	constructor(options) {
-		super(options);
-		this.errorHandler.add(AuthErrors);
-	}
+class WebSetPasswordRequest extends WebRequestBase {
 
 	async authorize() {
 		// no authorization needed
 	}
 
-	async process() {				
+	async process() {
 		const token = this.request.query.token;
 		if (!token) {
 			this.warn('No token found in request');
@@ -37,22 +31,17 @@ class WebSetPasswordRequest extends RestfulRequest {
 			return;
 		}
 
-		this.render({
-			email: user.get('email'),
-			token: token
-		});	 
-	}
 
-	render(viewModel) {		
-		let data = Object.assign({}, viewModel, {
-			csrf: this.request.csrfToken(),
-			version: this.module.versionInfo(),
+		return super.render('password_set', {
+			email: user.get('email'),
+			token: token,
+			csrf: this.request.csrfToken()
 		});
 
-		this.module.evalTemplate(this, 'password_set', data);
 	}
 
-	redirectError() {		
+
+	redirectError() {
 		this.response.redirect('/web/user/password/reset/invalid');
 		this.responseHandled = true;
 	}

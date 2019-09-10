@@ -3,11 +3,7 @@
 
 <head>
 	<title>CodeStream</title>
-	<link rel="icon" type="image/png" sizes="32x32" href="https://images.codestream.com/logos/cs-favicon-32x32.png" />
-	<link rel="icon" type="image/png" sizes="16x16" href="https://images.codestream.com/logos/cs-favicon-16x16.png" />
-	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
-		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<link rel="stylesheet" href="/no-auth/web/styles/web.css?_={{version}}" />
+	{{> partial_html_head partial_html_head_model}}
 	<script>
 		history.pushState(null, "CodeStream", location.href.split("?")[0]);
 	</script>

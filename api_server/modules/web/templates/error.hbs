@@ -3,22 +3,14 @@
 
 <head>
     <title>CodeStream</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="https://images.codestream.com/logos/cs-favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="https://images.codestream.com/logos/cs-favicon-16x16.png" />
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="/no-auth/web/styles/web.css?_={{version}}" />
+    {{> partial_html_head partial_html_head_model}}
     <script>
         history.pushState(null, "CodeStream", location.href.split("?")[0]);
     </script>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="https://codestream.com">
-            <img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
-        </a>
-    </nav>
+    {{> partial_menu partial_menu_model}}
     <div class="container-fluid" id="root">
         <div class="row">
             <div class="col-sm-6 offset-sm-3">

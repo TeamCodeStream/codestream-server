@@ -10,18 +10,13 @@ const Path = require('path');
 const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 
 const STANDARD_PAGES = [
+	/*
+	// example standard page
 	{
-		route: 'web/finish',
-		template: 'finish'
+		route: 'web/example',
+		template: 'example'
 	},
-	{
-		route: 'web/user/password/reset/invalid',
-		template: 'password_reset_invalid'
-	},
-	{
-		route: 'web/user/password/updated',
-		template: 'password_updated'
-	}
+	 */
 ];
 
 const ROUTES = [
@@ -29,6 +24,21 @@ const ROUTES = [
 		method: 'get',
 		path: 'web/404',
 		requestClass: require('./web_404_request')
+	},
+	{
+		method: 'get',
+		path: 'web/user/password/reset/invalid',
+		requestClass: require('./password_reset_invalid')
+	},
+	{
+		method: 'get',
+		path: 'web/user/password/updated',
+		requestClass: require('./password_updated_request')
+	},
+	{
+		method: 'get',
+		path: 'web/finish',
+		requestClass: require('./web_finish_request')
 	},
 	{
 		method: 'get',
@@ -146,7 +156,12 @@ class Web extends APIServerModule {
 
 		const name = Path.basename(file, '.hbs');
 		try {
-			this.templates[name] = Handlebars.compile(contents);
+			if (name.indexOf('partial_') === 0) {
+				this.templates[name] = Handlebars.registerPartial(name, contents);
+			}
+			else {
+				this.templates[name] = Handlebars.compile(contents);
+			}
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);

@@ -1,24 +1,13 @@
 'use strict';
 
-const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
+const WebRequestBase = require('./web_request_base');
 
-class Web404Request extends APIRequest {
+class Web404Request extends WebRequestBase {
 	async authorize() {
 	}
 	async process() {
-		let teamName;
-		if (this.request.query) {
-			const teamId = this.request.query.teamId;
-			if (teamId) {
-				const team = await this.data.teams.getById(teamId);
-				if (team) {
-					teamName = team.get('name');
-				}
-			}
-		}
-		this.module.evalTemplate(this, '404', {
-			teamName: teamName,
-			isAuthenticated: this.user != null
+		return super.render('404', {
+			hasAnotherTeamId: !!this.request.query.teamId,
 		});
 	}
 }

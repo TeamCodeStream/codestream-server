@@ -1,13 +1,13 @@
 // handles the POST request
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 const CheckResetCore = require(process.env.CS_API_TOP + '/modules/users/check_reset_core');
 const ChangePasswordCore = require(process.env.CS_API_TOP + '/modules/users/change_password_core');
 const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
 const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
+const WebRequestBase = require('./web_request_base');
 
-class SetPasswordRequest extends RestfulRequest {
+class SetPasswordRequest extends WebRequestBase {
 
 	constructor(options) {
 		super(options);
@@ -19,7 +19,7 @@ class SetPasswordRequest extends RestfulRequest {
 		// no authorization needed
 	}
 
-	async requireAndAllow() {		
+	async requireAndAllow() {
 		delete this.request.body._csrf;
 		await this.requireAllowParameters(
 			'body',
@@ -28,12 +28,12 @@ class SetPasswordRequest extends RestfulRequest {
 					string: ['token', 'password']
 				}
 			}
-		);		
+		);
 	}
 
 	async process() {
-		await this.requireAndAllow();		
-	
+		await this.requireAndAllow();
+
 		const { password, token } = this.request.body;
 		if (!token) {
 			//something happened between render and POST... (tampering? redirect it.)
@@ -73,33 +73,31 @@ class SetPasswordRequest extends RestfulRequest {
 			this.responseHandled = true;
 		}
 		catch (error) {
-			if (typeof error === 'object' && error.code === 'RAPI-1005') {					
+			if (typeof error === 'object' && error.code === 'RAPI-1005') {
 				this.render({
 					error: error.info || 'something unexpected happened',
 					email: user.get('email'),
 					token: token
-				});					
+				});
 				return;
 			}
-			
+
 			// something else bad happened -- just redirect to failure screen
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this.warn('Error resetting password: ' + message);
-			this.redirectError();				
+			this.redirectError();
 			return;
-		}		
+		}
 	}
 
-	render(viewModel) {		
-		let data = Object.assign({}, viewModel, {
-			csrf: this.request.csrfToken(),
-			version: this.module.versionInfo(),
-		});
+	async render(viewModel) {
 
-		this.module.evalTemplate(this, 'password_set', data);
+		return super.render('password_set', Object.assign({}, viewModel, {
+			csrf: this.request.csrfToken()
+		}));
 	}
 
-	redirectError() {		
+	redirectError() {
 		this.response.redirect('/web/user/password/reset/invalid');
 		this.responseHandled = true;
 	}
