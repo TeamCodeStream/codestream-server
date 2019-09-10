@@ -87,7 +87,7 @@ if [ -f $OTHER_SECRETS_FILE ]; then
 	export CS_BROADCASTER_SUBSCRIPTION_CHEAT_CODE="$SUBSCRIPTION_CHEAT_CODE"
 else
 	echo "****"
-	echo "**** FATAL ERROR ****"
+	echo "**** WARNING ****"
 	echo "**** secrets file ($OTHER_SECRETS_FILE) not found. Run 'dt-update-secrets' to fix this then"
 	echo "**** reload your playground / sandbox"
 	echo "****"
