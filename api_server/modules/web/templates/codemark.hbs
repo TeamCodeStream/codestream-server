@@ -232,7 +232,7 @@
 					</div>
 					<div class="row no-gutters mt-3">
 						<div class="col-sm-6">
-							{{!-- <span class="label-for-btn">Open in</span>
+							<span class="label-for-btn">Open in</span>
 							<div class="btn-group ide-list" style="white-space:nowrap">
 								<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split"
 									data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -250,7 +250,7 @@
 									{{/ideName}}
 									{{/ides}}
 								</div>
-							</div> --}}
+							</div>
 						</div>
 						<div class="col-sm-1"></div>
 						<div class="col-sm-1"></div>
@@ -586,7 +586,7 @@
 				}
 
 				var timeout = setTimeout(function () {
-					createBanner(ideName, downloadUrl);
+					createBanner(ideName, protocolStart, downloadUrl);
 				}, 200);
 
 				window.protocolCheck(protocol,
@@ -603,15 +603,20 @@
 					});
 			}
 
-			function createBanner(ide, downloadUrl) {
+			function createBanner(ide, protocol, downloadUrl) {
 				var $existingAlert = $('.alert');
 				if ($existingAlert.length) {
 					$existingAlert.alert('close');
 				}
+				var message = `Launching ${ide}... If nothing happens, download the <a href='${downloadUrl}'>CodeStream</a> extension for ${ide} and`;
+
+				if (protocol.indexOf('jetbrains') > -1) {
+					message += ' the <a href="https://www.jetbrains.com/toolbox/app/" target="_blank">Jetbrains Toolbox App</a> and';
+				}
+				message += ' try again';
+
 				var $alert = $(`<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				Launching ${ide}... If nothing happens, download the <a href='${downloadUrl}'>CodeStream</a> extension for ${ide} and
-				try
-				again.
+				${message}
 				<button type = "button" class="close" data-dismiss="alert" aria-label="Close" >
 					<span aria-hidden="true">&times;</span>
 				</button >
