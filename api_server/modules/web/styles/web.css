@@ -67,7 +67,9 @@ h6 {
   text-transform: capitalize;
   width: 20px; 
 }
-
+.icon svg {
+  fill:rgb(137, 143, 158);
+}
 
 .posted-on {
   margin-bottom: 0.125rem;
