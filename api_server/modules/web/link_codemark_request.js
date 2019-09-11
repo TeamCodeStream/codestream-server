@@ -24,16 +24,16 @@ const ides = [
 	{ ideName: 'Visual Studio', protocol: 'codestream-vs://codestream/', moniker: 'vs', downloadUrl: 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs' },
 	{ ideName: 'Visual Studio Code', protocol: 'vscode://codestream.codestream/', moniker: 'vsc', downloadUrl: 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream' },
 	{},
-	{ ideName: 'Android Studio', protocol: 'jetbrains://android/', moniker: 'jb-android-studio', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
-	{ ideName: 'IntelliJ IDEA', protocol: 'jetbrains://idea/', moniker: 'jb-intellij', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
-	{ ideName: 'PyCharm', protocol: 'jetbrains://pycharm/', moniker: 'jb-pycharm', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
-	{ ideName: 'WebStorm', protocol: 'jetbrains://web-storm/', moniker: 'jb-webstorm', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
-	{ ideName: 'PhpStorm', protocol: 'jetbrains://phpstorm/', moniker: 'jb-phpstorm', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
-	{ ideName: 'Rider', protocol: 'jetbrains://rider/', moniker: 'jb-rider', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
-	{ ideName: 'CLion', protocol: 'jetbrains://clion/', moniker: 'jb-clion', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
-	{ ideName: 'DataGrip', protocol: 'jetbrains://datagrip/', moniker: 'jb-datagrip', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
-	{ ideName: 'RubyMine', protocol: 'jetbrains://rubymine/', moniker: 'jb-rubymine', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
-	{ ideName: 'GoLand', protocol: 'jetbrains://goland/', moniker: 'jb-goland', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' }
+	{ ideName: 'Android Studio', protocol: 'jetbrains://android/codestream/', moniker: 'jb-android', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
+	{ ideName: 'CLion', protocol: 'jetbrains://clion/codestream/', moniker: 'jb-clion', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
+	{ ideName: 'DataGrip', protocol: 'jetbrains://datagrip/codestream/', moniker: 'jb-datagrip', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
+	{ ideName: 'GoLand', protocol: 'jetbrains://goland/codestream/', moniker: 'jb-goland', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
+	{ ideName: 'IntelliJ IDEA', protocol: 'jetbrains://idea/codestream/', moniker: 'jb-idea', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
+	{ ideName: 'PhpStorm', protocol: 'jetbrains://phpstorm/codestream/', moniker: 'jb-phpstorm', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
+	{ ideName: 'PyCharm', protocol: 'jetbrains://pycharm/codestream/', moniker: 'jb-pycharm', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
+	{ ideName: 'Rider', protocol: 'jetbrains://rider/codestream/', moniker: 'jb-rider', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
+	{ ideName: 'RubyMine', protocol: 'jetbrains://rubymine/codestream/', moniker: 'jb-rubymine', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
+	{ ideName: 'WebStorm', protocol: 'jetbrains://web-storm/codestream/', moniker: 'jb-web-storm', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
 ];
 
 class LinkCodemarkRequest extends WebRequestBase {
