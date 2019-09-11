@@ -22,9 +22,9 @@
 	<script>
 		window.analytics.track('Page Viewed', { 'Page Name': '{{codemarkType}}' });
 	</script>
-	<script>
+	{{!-- <script>
 		history.pushState(null, "CodeStream", location.href.split("?")[0]);
-	</script>
+	</script> --}}
 
 	{{> partial_menu partial_menu_model}}
 
@@ -201,8 +201,7 @@
 						</div>
 					</div>
 					<div class="row no-gutters mt-3">
-						<div class="col-sm-6">
-							<span class="label-for-btn">Open in</span>
+						<div class="col-sm-6">							
 							<div class="btn-group ide-list" style="white-space:nowrap">
 								<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split"
 									data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -528,12 +527,19 @@
 				return "";
 			}
 
+			function createSelected(el){
+				var $thing = $(el.outerHTML)
+				.removeClass('dropdown-item').addClass('selected-ide btn btn-sm').on('click', cb);
+				$thing.html("Open in "+ $thing.html());
+				return $thing;
+			}
+
 			function setSelected(moniker) {
 				var u = $('#ide-list-items').find('[data-ide-moniker="' + moniker + '"]');
 				if (u.length) {
 					$('.ide-list .selected-ide').remove();
 					$('.ide-list').prepend(
-						$(u[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide btn btn-sm').on('click', cb)
+					 createSelected(u[0])
 					)
 				}
 				setCookie('cs__ide-mru--{{repoId}}', moniker);
@@ -585,7 +591,23 @@
 				}
 				message += ' try again';
 
-				var $alert = $(`<div class="alert alert-warning alert-dismissible fade show" role="alert">
+				var $alert = $(`<div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+				${message}
+				<button type = "button" class="close" data-dismiss="alert" aria-label="Close" >
+					<span aria-hidden="true">&times;</span>
+				</button >
+			</div>`);
+				$('#alert-wrapper').append($alert);
+				$alert.show();
+			}
+
+			function createMessage(message) {
+				var $existingAlert = $('.alert');
+				if ($existingAlert.length) {
+					$existingAlert.alert('close');
+				}			 
+
+				var $alert = $(`<div class="alert alert-info alert-dismissible fade show text-center" role="alert">
 				${message}
 				<button type = "button" class="close" data-dismiss="alert" aria-label="Close" >
 					<span aria-hidden="true">&times;</span>
@@ -602,30 +624,49 @@
 				document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 			}
 
+			
+
 			var mru = getCookie("cs__ide-mru--{{repoId}}");
 			if (mru) {
 				var u = $('#ide-list-items').find('[data-ide-moniker="' + mru + '"]');
-				if (u.length) {
-					$('.ide-list').prepend($(u[0].outerHTML).removeClass('dropdown-item').addClass('selected-ide btn btn-sm'));
+				if (u && u.length) {
+					$('.ide-list').prepend(createSelected(u[0]));
 				}
 				else {
-					var a = $('#ide-list-items').find('a')[0];
-					if (a) {
-						$('.ide-list').prepend($(a.outerHTML).removeClass('dropdown-item').addClass('selected-ide btn btn-sm'));
+					var a = $('#ide-list-items').find('a');
+					if (a && a.length) {
+						$('.ide-list').prepend(createSelected(a[0]));
 					}
 				}
 			}
 			else {
-				var a = $('#ide-list-items').find('a')[0];
-				if (a) {
-					$('.ide-list').prepend($(a.outerHTML).removeClass('dropdown-item').addClass('selected-ide btn btn-sm'));
+				var a = $('#ide-list-items').find('a');
+				if (a && a.length) {
+					$('.ide-list').prepend(createSelected(a[0]));
 				}
 			}
 
 			$('[data-ide=""]').on('click', cb);
-
+			var isDefault;
+			var launcher = encodeURIComponent('{{launchIde}}').replace(/'/g, "''");
+			if (launcher) {
+				var item;
+				if (launcher === "default") {
+					item = mru;
+					isDefault = true;
+				}
+				else {
+					item = launcher;
+				}
+				var u = $('#ide-list-items').find('[data-ide-moniker="' + item + '"]');
+				if (u && u.length){
+					u.click();
+				}
+				else if (isDefault) {
+					createMessage("To open this codemark in your IDE, please select from the list below");
+				}
+			}
 		})
-
 	</script>
 </body>
 

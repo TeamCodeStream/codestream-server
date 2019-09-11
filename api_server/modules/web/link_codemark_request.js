@@ -305,6 +305,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		const templateProps = {
 			codemarkId: this.codemark.get('id'),
 			teamName: this.team.get('name'),
+			launchIde: this.request.query.ide === '' ? 'default' : this.request.query.ide,
 			showComment,
 			whenCreated: whenCreated,
 			assignees: assignees,
