@@ -556,6 +556,10 @@
 
 				setSelected(moniker);
 
+				if (moniker.indexOf('jb-') === 0) {
+					protocol+=`&controller=codemark&id={{codemarkId}}&action=open`;
+				}
+
 				var $existingAlert = $('.alert');
 				if ($existingAlert.length) {
 					$existingAlert.alert('close');
