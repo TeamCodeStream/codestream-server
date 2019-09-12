@@ -14,6 +14,9 @@ a:visited,
 a:active {
   color: #009aef;
 }
+p {
+  margin-bottom: .5rem !important;
+}
 #root {
   margin-top:60px;
 }
@@ -239,14 +242,34 @@ input.bg-dark:-internal-autofill-selected {
   text-overflow: ellipsis;
   padding-top:5px;
 }
+.at-mention {
+  color: #009aef;
+}
+.at-mention.me {
+  background:  #009aef;
+  color:#efefef;
+  border-radius: 8px;
+  padding:1px 4px 1px 4px;;
+}
 .description {
-  color:#c7c7c6;
+  color:rgba(241, 241, 241, 0.8);
+}
+.description code {
+  color: #dfdfdf !important;
+  border: 1px solid #464646;
+  border-radius: 3px;
+  white-space: pre;
+  font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  background: rgba(210, 199, 199, 0.1);
+  padding: 2px 5px;
+}
+.description pre.code.prettyprint {
+  width:100%;
 }
 .title {
   padding-top:5px;
   color:#c7c7c6;
 }
-
 
 .code {
   background: #1e1e1e;
@@ -408,8 +431,9 @@ code.prettyprint {
 }
 
 pre.prettyprint {
-  margin: 1em auto;
-  padding: 1em;
+  border: 1px solid #383838 !important;
+  margin: 5px auto;
+  padding: 5px;
   white-space: pre-wrap;
   font-family: Consolas, "Courier New", monospace;
   font-size: 14px;

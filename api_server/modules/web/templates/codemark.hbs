@@ -56,7 +56,6 @@
 						<p class="title">{{title}}</p>
 						{{/if}}
 
-
 						{{#if hasTagsOrAssignees}}
 						<div class="row no-gutters mt-4">
 							{{#if tags}}
@@ -114,7 +113,9 @@
 						<div class="row no-gutters mt-0">
 							<div class="col-sm-12">
 								{{#if text}}
-								<p class="description">{{text}}</p>
+									<div class="description">
+										{{{text}}}				
+									</div>				 
 								{{/if}}
 							</div>
 						</div>
@@ -151,9 +152,6 @@
 							</div>
 						</div>
 						{{/if}}
-
-
-
 
 						{{/if}}
 

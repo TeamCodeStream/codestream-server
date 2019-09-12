@@ -6,6 +6,7 @@ const Crypto = require('crypto');
 const Identify = require('./identify');
 const ProviderDisplayNames = require('./provider_display_names');
 const WebRequestBase = require('./web_request_base');
+const Markdowner = require('./markdowner');
 
 const tagMap = {
 	blue: '#3578ba',
@@ -302,6 +303,19 @@ class LinkCodemarkRequest extends WebRequestBase {
 		const assignees = await this.createAssignees();
 		const tags = this.createTags();
 
+		let descriptionAsHtml;
+		try {
+			const me = this.user.get('username').toLowerCase();
+			descriptionAsHtml = new Markdowner({logger: this.api.logger}).markdownify(text).replace(/@(\w+)/g, (match, name) => {				
+				const nameNormalized = name.toLowerCase();		 
+				return `<span class="at-mention${nameNormalized === me ? ' me' : ''}">${match}</span>`; 		
+			});
+		}
+		catch(ex) {		
+			descriptionAsHtml = text;
+			this.api.logger.warn(ex);			
+		}
+
 		const templateProps = {
 			codemarkId: this.codemark.get('id'),
 			teamName: this.team.get('name'),
@@ -317,7 +331,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 			authorInitials,
 			hasEmailHashOrAuthorInitials: emailHash || authorInitials,
 			title,
-			text,
+			text: descriptionAsHtml,
 			file,
 			code,
 			relatedCodemarks: await this.createRelatedCodemarks(),
