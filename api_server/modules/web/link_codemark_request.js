@@ -24,7 +24,7 @@ const ides = [
 	{ ideName: 'Visual Studio', protocol: 'codestream-vs://codestream/', moniker: 'vs', downloadUrl: 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs' },
 	{ ideName: 'Visual Studio Code', protocol: 'vscode://codestream.codestream/', moniker: 'vsc', downloadUrl: 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream' },
 	{},
-	{ ideName: 'Android Studio', protocol: 'jetbrains://android/codestream/', moniker: 'jb-android', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
+	{ ideName: 'Android Studio', protocol: 'jetbrains://studio/codestream/', moniker: 'jb-studio', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
 	{ ideName: 'CLion', protocol: 'jetbrains://clion/codestream/', moniker: 'jb-clion', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
 	{ ideName: 'DataGrip', protocol: 'jetbrains://datagrip/codestream/', moniker: 'jb-datagrip', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
 	{ ideName: 'GoLand', protocol: 'jetbrains://goland/codestream/', moniker: 'jb-goland', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
