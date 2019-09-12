@@ -118,6 +118,18 @@ class Versioner extends APIServerModule {
 
 	// initialize this module
 	async initialize () {
+		if (this.api.config.api.runtimeEnvironment !== 'prod') {
+			const apiTestVersion = await this.api.data.versionMatrix.getOneByQuery(
+				{ apiTestVersion: { $exists: true } },
+				{ overrideHintRequired: true }
+			);
+			if (apiTestVersion && apiTestVersion.apiTestVersion) {
+				this.apiVersion = apiTestVersion.apiTestVersion;
+				this.api.log('Test API Version is ' + this.apiVersion);
+				return;
+			}
+		}
+
 		// read our package.json and extract the API server version,
 		// which we'll return to the client on every request
 		return new Promise((resolve, reject) => {
