@@ -569,7 +569,8 @@
 				setSelected(moniker);
 
 				if (moniker.indexOf('jb-') === 0) {
-					protocol+=`&controller=codemark&id={{codemarkId}}&action=open`;
+					var fileName = '{{file}}';
+					protocol+=`&controller=codemark&id={{codemarkId}}&action=open&file=${encodeURIComponent(fileName)}`;
 				}
 
 				var $existingAlert = $('.alert');
