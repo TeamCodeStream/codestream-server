@@ -17,7 +17,7 @@ class ACLTest extends PrivatePermalinkTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert.equal(data, '/web/404', 'did not get redirected to expected page');
+		Assert(data.match(/^\/web\/404/), 'did not get redirected to expected page');
 	}
 }
 
