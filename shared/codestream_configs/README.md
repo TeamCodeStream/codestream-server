@@ -1,8 +1,8 @@
 # CodeStream Configuration Templates
 
 ## Overview
-A **config parameter schema file** and profiles for maintaining and deploying
-usable codestream configuration files.
+A **config parameter schema file**, node library, utilities and profiles for
+maintaining and deploying codestream configuration files.
 
 - Intended to be used as a git submodule so use **develop** branch for
   everything.
@@ -12,10 +12,14 @@ usable codestream configuration files.
   environments, single host docker preview, mac development using pubnub,
   mac development using broadcaster, etc...)
 - [README.parameter-definitions.json](README.parameter-definitions.json) -
-  parameter descriptions and environment variables used to override them.
-- Run `bin/update-all-configs` to refresh all config files as well as the
-  parameter descriptions and environment overrides. This needs to be run with
-  access to the secrets database (KM_PKI needs to be defined)
+  parameter descriptions and environment variables used to override the values
+  in the file.
+- Updates to the schema and/or profiles require downstream files and templates
+  to be updated and deployed. Run `bin/update-all-configs` to refresh
+  everything. This needs to be with access to the secrets database (KM_PKI needs
+  to be defined or the key management sandbox loaded).
+- If you update the schema or defaults, ALL projects that use this will need to
+  be updated.
 
 
 ## Schema File
