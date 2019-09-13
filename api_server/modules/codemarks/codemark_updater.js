@@ -31,8 +31,10 @@ class CodemarkUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['postId', 'streamId', 'parentPostId', 'status', 'text', 'title', 'color'],
-			'array(string)': ['assignees', 'tags', 'relatedCodemarkIds']
+			string: ['postId', 'streamId', 'parentPostId', 'status', 'text', 'title', 'color', 'externalProvider', 'externalProviderHost', 'externalProviderUrl'],
+			object: ['remoteCodeUrl', 'threadUrl'],
+			'array(string)': ['assignees', 'tags', 'relatedCodemarkIds'],
+			'array(object)': ['externalAssignees']
 		};
 	}
 
