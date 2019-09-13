@@ -92,6 +92,36 @@ class CommonInit {
 				streamId: RandomString.generate(10)
 			});
 		}
+		if (this.updateExternal) {
+			const provider = RandomString.generate(10);
+			Object.assign(data, {
+				externalProvider: provider,
+				externalProviderHost: `${provider}.com`,
+				externalProviderUrl: `${provider}.com/${RandomString.generate(10)}`
+			});
+		}
+		if (this.updateExternalAssignees) {
+			Object.assign(data, {
+				externalAssignees: [
+					{ id: RandomString.generate(10), name: RandomString.generate(10) },
+					{ id: RandomString.generate(10), name: RandomString.generate(10) }
+				]
+			});
+		}
+		if (this.updateUrls) {
+			const codeProvider = RandomString.generate(10);
+			const threadProvider = RandomString.generate(10);
+			Object.assign(data, {
+				remoteCodeUrl: {
+					name: codeProvider,
+					url: `https://${codeProvider}.com/${RandomString.generate(10)}`
+				},
+				threadUrl: {
+					name: threadProvider,
+					url: `https://${threadProvider}.com/${RandomString.generate(10)}`
+				}
+			});
+		}
 		return data;
 	}
 

@@ -45,6 +45,9 @@ const RelatedCodemarksMessageTest = require('./related_codemarks_message_test');
 const AddRelatedCodemarksMessageTest = require('./add_related_codemarks_message_test');
 const RemoveRelatedCodemarksMessageTest = require('./remove_related_codemarks_message_test');
 const ColorBecomesTagTest = require('./color_becomes_tag_test');
+const SetExternalProviderTest = require('./set_external_provider_test');
+const SetExternalAssigneesTest = require('./set_external_assignees_test');
+const SetUrlsTest = require('./set_urls_test');
 
 class PutCodemarkRequestTester {
 
@@ -106,6 +109,9 @@ class PutCodemarkRequestTester {
 		new AddRelatedCodemarksMessageTest().test();
 		new RemoveRelatedCodemarksMessageTest().test();
 		new ColorBecomesTagTest().test();
+		new SetExternalProviderTest().test();
+		new SetExternalAssigneesTest().test();
+		new SetUrlsTest().test();
 	}
 }
 
