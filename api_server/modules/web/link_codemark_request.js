@@ -89,10 +89,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		}
 		// get the link to the codemark
 		const linkId = this.decodeLinkId(this.request.params.id, 2);
-		const codemarkLinks = await this.data.codemarkLinks.getByQuery(
-			{ teamId: this.teamId, _id: linkId },
-			{ hint: CodemarkLinkIndexes.byTeamId }
-		);
+		const codemarkLinks = await this.data.codemarkLinks.getByQuery({ teamId: this.teamId, _id: linkId }, { hint: CodemarkLinkIndexes.byTeamId });
 		if (codemarkLinks.length === 0) {
 			this.warn('User requested a codemark link that was not found');
 			return this.redirect404(this.teamId);
@@ -146,7 +143,8 @@ class LinkCodemarkRequest extends WebRequestBase {
 			}
 		}
 		return {
-			authorInitials, emailHash
+			authorInitials,
+			emailHash
 		};
 	}
 
@@ -203,8 +201,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 						tooltip: fullName
 					});
 				});
-			}
-			else {
+			} else {
 				assignees.push({
 					label: csAssigneeIds.length == 1 ? '1 User' : `${csAssigneeIds.length} Users`,
 					tooltip: csAssigneeIds.join(', ')
@@ -306,14 +303,13 @@ class LinkCodemarkRequest extends WebRequestBase {
 		let descriptionAsHtml;
 		try {
 			const me = this.user.get('username').toLowerCase();
-			descriptionAsHtml = new Markdowner({logger: this.api.logger}).markdownify(text).replace(/@(\w+)/g, (match, name) => {				
-				const nameNormalized = name.toLowerCase();		 
-				return `<span class="at-mention${nameNormalized === me ? ' me' : ''}">${match}</span>`; 		
+			descriptionAsHtml = new Markdowner({ logger: this.api.logger }).markdownify(text).replace(/@(\w+)/g, (match, name) => {
+				const nameNormalized = name.toLowerCase();
+				return `<span class="at-mention${nameNormalized === me ? ' me' : ''}">${match}</span>`;
 			});
-		}
-		catch(ex) {		
+		} catch (ex) {
 			descriptionAsHtml = text;
-			this.api.logger.warn(ex);			
+			this.api.logger.warn(ex);
 		}
 
 		const templateProps = {
@@ -323,6 +319,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 			showComment,
 			whenCreated: whenCreated,
 			assignees: assignees,
+			isIssue: codemarkType === 'issue',
 			codemarkType: codemarkType === 'link' ? 'Permalink' : 'Codemark',
 			repoId,
 			username,
@@ -379,8 +376,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 	bareRepo(repo) {
 		if (repo.match(/^(bitbucket\.org|github\.com)\/(.+)\//)) {
 			repo = repo.split('/').splice(2).join('/');
-		}
-		else if (repo.indexOf('/') !== -1) {
+		} else if (repo.indexOf('/') !== -1) {
 			repo = repo.split('/').splice(1).join('/');
 		}
 		return repo;

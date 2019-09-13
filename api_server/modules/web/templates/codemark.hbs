@@ -104,13 +104,14 @@
 						{{/if}}
 
 
-
+						{{#if isIssue}}
 						<div class="row no-gutters mt-4">
 							<div class="col-sm-12">
 								<h6>DESCRIPTION</h6>
 							</div>
 						</div>
-						<div class="row no-gutters mt-0">
+						{{/if}}
+						<div class="row no-gutters {{#if isIssue}}mt-0{{else}}mt-1{{/if}}">
 							<div class="col-sm-12">
 								{{#if text}}
 									<div class="description">
