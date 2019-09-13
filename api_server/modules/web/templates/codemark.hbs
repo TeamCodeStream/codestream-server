@@ -146,8 +146,10 @@
 						<div class="row no-gutters mt-0">
 							<div class="col-sm-12">
 								{{#relatedCodemarks}}
-								<div>
-									<a href="{{url}}">{{title}} {{file}}</a>
+								<div class="related-codemark">
+								<a href="{{url}}" class="related-codemark-link">
+									 {{title}}
+									<span class="related-codemark-file">{{file}}</span></a>
 								</div>
 								{{/relatedCodemarks}}
 							</div>

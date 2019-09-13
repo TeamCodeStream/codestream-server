@@ -236,6 +236,17 @@ input.bg-dark:-internal-autofill-selected {
   color: rgb(76, 114, 202);
   font-weight: 700;
 }
+span.related-codemark-file {
+  color: rgb(137, 143, 158);
+}
+a.related-codemark-link {
+  color:rgba(241, 241, 241, 0.8);
+}
+a.related-codemark-link:hover,
+a.related-codemark-link:hover .related-codemark-file {
+   color: #009aef !important;
+   text-decoration:none;
+}
 .file {
   white-space: nowrap;    
   overflow: hidden;   

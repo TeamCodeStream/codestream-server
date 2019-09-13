@@ -235,11 +235,12 @@ class LinkCodemarkRequest extends WebRequestBase {
 				const markerIds = _.get('markerIds');
 				const { file } = markerIds && markerIds.length ?
 					await this.getMarkerInfoByMarkerId(markerIds[0]) : null;
+				const type = _.get('type');
 				relatedCodemarks.push({
-					type: _.get('type'),
+					type: type,
 					url: _.get('permalink'),
 					file: file,
-					title: _.get('title')
+					title: type == 'issue' ? _.get('title') : _.get('text')
 				});
 			}
 		}
