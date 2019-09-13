@@ -252,10 +252,12 @@ class LinkCodemarkRequest extends WebRequestBase {
 		const markers = this.codemark.get('markerIds');
 		let codeStartingLineNumber = 0;
 		let whenCreated = null;
+		let rawFileName;
 		if (markers && markers.length) {
 			const marker = await this.data.markers.getById(markers[0]);
 			if (marker) {
 				let commitHashWhenCreated = marker.get('commitHashWhenCreated');
+				rawFileName = marker.get('file');
 				whenCreated = {
 					commitHashWhenCreated: commitHashWhenCreated ? commitHashWhenCreated.substring(0, 7) : null,
 					branchWhenCreated: marker.get('branchWhenCreated')
@@ -267,7 +269,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 				}
 			}
 		}
-		return { repoId, codeStartingLineNumber, whenCreated };
+		return { repoId, codeStartingLineNumber, whenCreated, rawFileName };
 	}
 	async showCodemark() {
 		this.creator = await this.data.users.getById(this.codemark.get('creatorId'));
@@ -296,7 +298,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 
 		const segmentKey = this.api.config.segment.webToken;
 
-		const { repoId, codeStartingLineNumber, whenCreated } = await this.createAdditionalInfo();
+		const { repoId, codeStartingLineNumber, whenCreated, rawFileName } = await this.createAdditionalInfo();
 		const codemarkType = this.codemark.get('type');
 		const assignees = await this.createAssignees();
 		const tags = this.createTags();
@@ -330,6 +332,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 			hasEmailHashOrAuthorInitials: emailHash || authorInitials,
 			title,
 			text: descriptionAsHtml,
+			rawFileName,
 			file,
 			code,
 			relatedCodemarks: await this.createRelatedCodemarks(),

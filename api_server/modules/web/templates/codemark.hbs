@@ -571,7 +571,7 @@
 				setSelected(moniker);
 
 				if (moniker.indexOf('jb-') === 0) {
-					var fileName = '{{file}}';
+					var fileName = '{{rawFileName}}';
 					protocol+=`&controller=codemark&id={{codemarkId}}&action=open&file=${encodeURIComponent(fileName)}`;
 				}
 
