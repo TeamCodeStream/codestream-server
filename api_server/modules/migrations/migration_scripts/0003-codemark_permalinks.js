@@ -5,7 +5,7 @@ const CodemarkLinkCreator = require(process.env.CS_API_TOP + '/modules/codemarks
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const Marker = require(process.env.CS_API_TOP + '/modules/markers/marker');
 
-const THROTTLE_TIME = 100;
+const THROTTLE_TIME = 333;
 
 class CodemarkPermalinks extends Migration {
 
