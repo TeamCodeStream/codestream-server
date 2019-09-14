@@ -167,7 +167,7 @@ class CodemarkCreator extends ModelCreator {
 
 	// handle any markers tied to the codemark
 	async handleMarkers () {
-		if (!this.attributes.markers) {
+		if (!this.attributes.markers || !this.attributes.markers.length) {
 			return;
 		}
 		if (this.trialRun) {

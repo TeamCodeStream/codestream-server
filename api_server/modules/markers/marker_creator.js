@@ -403,7 +403,7 @@ class MarkerCreator extends ModelCreator {
 			);
 		});
 		if (markerLocations) {
-			Object.assign(this.transforms.markerLocations.locations, newMarkerLocation.locations);
+			Object.assign(markerLocations.locations, newMarkerLocation.locations);
 		}
 		else {
 			this.transforms.markerLocations.push(newMarkerLocation);
