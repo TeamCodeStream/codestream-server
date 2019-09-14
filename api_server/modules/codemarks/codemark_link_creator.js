@@ -35,7 +35,10 @@ class CodemarkLinkCreator {
 				md5Hash: hash
 			}
 		};
-		await this.request.data.codemarkLinks.updateDirectWhenPersist(
+		const func = this.request.data.codemarkLinks.updateDirectWhenPersist ||
+			this.request.data.codemarkLinks.updateDirect;	// allows for migration script
+		await func.call(
+			this.request.data.codemarkLinks,
 			{ id: linkId },
 			update,
 			{ upsert: true }
@@ -53,7 +56,7 @@ class CodemarkLinkCreator {
 
 	// make the actual permalink
 	makePermalink (linkId, isPublic, teamId) {
-		const origin = this.request.api.config.api.publicApiUrl;
+		const origin = this.origin || this.request.api.config.api.publicApiUrl;
 		const linkType = isPublic ? 'p' : 'c';
 		linkId = this.encodeLinkId(linkId);
 		teamId = this.encodeLinkId(teamId);
@@ -95,12 +98,13 @@ class CodemarkLinkCreator {
 
 		// found a match, get the codemark itself
 		const codemark = await this.request.data.codemarks.getById(
-			codemarkLink.get('codemarkId')
+			codemarkLink.get ? codemarkLink.get('codemarkId') : codemarkLink.codemarkId
 		);
 		if (!codemark) {
 			return null;
 		}
-		const url = this.makePermalink(codemarkLink.id, isPublic, codemark.get('teamId'));
+		const teamId = codemark.get ? codemark.get('teamId') : codemark.teamId;
+		const url = this.makePermalink(codemarkLink.id, isPublic, teamId);
 		return { codemarkLink, codemark, url };
 	}
 

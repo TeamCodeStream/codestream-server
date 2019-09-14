@@ -49,7 +49,7 @@ class MigrationsHelper {
 		let executed = false;
 		try {
 			const migrationClass = require(`./migration_scripts/${migrationScript}`);
-			const migration = new migrationClass({ data: this.data });
+			const migration = new migrationClass({ data: this.data, logger: this.logger });
 			this.log(`Migration ${migrationScript}: ${migration.description}`);
 			await migration.execute();
 			executed = true;

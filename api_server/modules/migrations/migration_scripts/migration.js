@@ -19,6 +19,10 @@ class Migration {
 	verify () {
 		throw 'Must override verify() for this migration!';
 	}
+
+	log (message) {
+		this.logger.log(message);
+	}
 }
 
 module.exports = Migration;
