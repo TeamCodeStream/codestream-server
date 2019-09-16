@@ -575,9 +575,9 @@
 			"env": "CSSVC_SUBSCRIPTION_CHEAT_CODE"
 		},
 		"telemetry": {
+			"default": "PreAuthSecret",
 			"desc": "for accessing the api prior to authentication (pre-auth secret)",
-			"env": "CSSVC_PRE_AUTH_SECRET",
-			"required": "PreAuthSecret"
+			"env": "CSSVC_PRE_AUTH_SECRET"
 		}
 	},
 	"ssl": {
