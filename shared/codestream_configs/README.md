@@ -7,19 +7,18 @@ maintaining and deploying codestream configuration files.
 - Intended to be used as a git submodule so use **develop** branch for
   everything.
 - The config parameter definition file, **parameters.json**, defines all
-  configuration parameters and the structure of the configuration file.
+  configuration parameters and the structure of the configuration file. It is a super-set of parameters for all services.
 - **profiles/\*.json** define configuration profiles (codestream cloud
   environments, single host docker preview, mac development using pubnub,
   mac development using broadcaster, etc...)
 - [README.parameter-definitions.json](README.parameter-definitions.json) -
-  parameter descriptions and environment variables used to override the values
-  in the file.
+  (generated) parameter descriptions and environment variables used to override
+  the values in the file.
 - Updates to the schema and/or profiles require downstream files and templates
   to be updated and deployed. Run `bin/update-all-configs` to refresh
-  everything. This needs to be with access to the secrets database (KM_PKI needs
-  to be defined or the key management sandbox loaded).
-- If you update the schema or defaults, ALL projects that use this will need to
-  be updated.
+  everything. This needs to be run with access to the secrets database (the key management sandbox should be loaded).
+- If you update the schema or defaults, ALL projects that use this configuration
+  file will need to be updated.
 
 
 ## Schema File
