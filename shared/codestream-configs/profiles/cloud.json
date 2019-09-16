@@ -11,45 +11,47 @@
 {
 	"apiServer": {
 		"ci": {
-			"publicApiUrl": "https://localhost.codestream.us:37105",
 			"assetEnvironment": "dev",
-			"runTimeEnvironment": "ci",
-			"port": 37101
+			"runTimeEnvironment": "ci"
+		},
+		"defaultEnv": {
+			"assetEnvironment": "dev",
+			"port": 443,
+			"runTimeEnvironment": "??CUSTOM??"
+		},
+		"local": {},
+		"pd": {
+			"assetEnvironment": "dev",
+			"port": 9443,
+			"publicApiUrl": "https://pd-api.codestream.us:9443",
+			"runTimeEnvironment": "pd"
 		},
 		"pi": {
 			"assetEnvironment": "prod",
 			"runTimeEnvironment": "pi"
 		},
-		"defaultEnv": {
-			"port": 443,
-			"assetEnvironment": "dev",
-			"runTimeEnvironment": "??CUSTOM??"
-		},
-		"local": {},
-		"pd": {
-			"publicApiUrl": "https://pd-api.codestream.us:9443",
-			"port": 9443,
-			"assetEnvironment": "dev",
-			"runTimeEnvironment": "pd"
-		},
 		"prod": {
-			"port": 443,
-			"authOrigin": "https://api.codestream.com/no-auth",
 			"assetEnvironment": "prod",
+			"authOrigin": "https://api.codestream.com/no-auth",
+			"port": 8443,
+			"publicApiUrl": "https://api.codestream.com",
 			"runTimeEnvironment": "prod"
 		},
 		"qa": {
-			"publicApiUrl": "https://qa-api.codestream.us",
-			"port": 8443,
 			"assetEnvironment": "prod",
-			"runTimeEnvironment": "qa",
 			"logger": {
 				"consoleOk": false
-			}
+			},
+			"port": 8443,
+			"publicApiUrl": "https://qa-api.codestream.us",
+			"runTimeEnvironment": "qa"
 		}
 	},
 	"broadcastEngine": {
 		"pubnub": {
+			"ci": {
+				"_loadSecretsFile": "pubnub/ci.cfg"
+			},
 			"defaultEnv": {
 				"_loadSecretsFile": "pubnub/dev.cfg"
 			},
@@ -59,43 +61,40 @@
 			"pd": {
 				"_loadSecretsFile": "pubnub/dev.cfg"
 			},
-			"qa": {
-				"_loadSecretsFile": "pubnub/qa.cfg"
+			"pi": {
+				"_loadSecretsFile": "pubnub/ci.cfg"
 			},
 			"prod": {
 				"_loadSecretsFile": "pubnub/prod.cfg"
 			},
-			"ci": {
-				"_loadSecretsFile": "pubnub/ci.cfg"
-			},
-			"pi": {
-				"_loadSecretsFile": "pubnub/ci.cfg"
+			"qa": {
+				"_loadSecretsFile": "pubnub/qa.cfg"
 			}
 		}
 	},
 	"email": {
-		"defaultEnv": {},
-		"local": {},
-		"pd": {
-			"suppressEmails": false,
-			"replyToDomain": "pd.codestream.com",
-			"senderEmail": "pd_alerts@codestream.com",
-			"supportEmail": "pd_support@codestream.com"
-		},
-		"qa": {
-			"suppressEmails": false,
-			"replyToDomain": "qa.codestream.com",
-			"senderEmail": "qa_alerts@codestream.com",
-			"supportEmail": "qa_support@codestream.com"
-		},
-		"prod": {},
 		"ci": {
 			"replyToDomain": "ci.codestream.com",
 			"senderEmail": "ci_alerts@codestream.com",
 			"supportEmail": "ci_support@codestream.com"
 		},
+		"defaultEnv": {},
+		"local": {},
+		"pd": {
+			"replyToDomain": "pd.codestream.com",
+			"senderEmail": "pd_alerts@codestream.com",
+			"supportEmail": "pd_support@codestream.com",
+			"suppressEmails": false
+		},
 		"pi": {
-			"replyToDomain": "ci.codestream.com",
+			"replyToDomain": "ci.codestream.com"
+		},
+		"prod": {},
+		"qa": {
+			"replyToDomain": "qa.codestream.com",
+			"senderEmail": "qa_alerts@codestream.com",
+			"supportEmail": "qa_support@codestream.com",
+			"suppressEmails": false
 		}
 	},
 	"emailDeliveryService": {
@@ -103,39 +102,39 @@
 			"defaultEnv": {
 				"_loadSecretsFile": "sendgrid/dev.cfg"
 			},
-			"qa": {
-				"_loadSecretsFile": "sendgrid/qa.cfg"
-			},
 			"prod": {
 				"_loadSecretsFile": "sendgrid/prod.cfg"
+			},
+			"qa": {
+				"_loadSecretsFile": "sendgrid/qa.cfg"
 			}
 		}
 	},
 	"inboundEmailServer": {
+		"ci": {
+			"assetEnvironment": "dev",
+			"runTimeEnvironment": "ci"
+		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
-			"runTimeEnvironment": "??CUSTOM??",
+			"runTimeEnvironment": "??CUSTOM??"
 		},
 		"local": {},
 		"pd": {
 			"assetEnvironment": "dev",
 			"runTimeEnvironment": "pd"
 		},
-		"qa": {
+		"pi": {
 			"assetEnvironment": "prod",
-			"runTimeEnvironment": "qa"
+			"runTimeEnvironment": "pi"
 		},
 		"prod": {
 			"assetEnvironment": "prod",
 			"runTimeEnvironment": "prod"
 		},
-		"ci": {
-			"assetEnvironment": "dev",
-			"runTimeEnvironment": "ci"
-		},
-		"pi": {
+		"qa": {
 			"assetEnvironment": "prod",
-			"runTimeEnvironment": "pi"
+			"runTimeEnvironment": "qa"
 		}
 	},
 	"integrations": {
@@ -144,11 +143,6 @@
 				"defaultEnv": {
 					"_loadSecretsFile": "asana/dev.cfg"
 				},
-				"local": {},
-				"pd": {},
-				"qa": {},
-				"ci": {},
-				"pi": {},
 				"prod": {
 					"_loadSecretsFile": "asana/prod.cfg"
 				}
@@ -161,12 +155,7 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "bitbucket/prod.cfg"
-				},
-				"local": {},
-				"pd": {},
-				"qa": {},
-				"ci": {},
-				"pi": {}
+				}
 			}
 		},
 		"devops": {
@@ -176,12 +165,7 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "microsoft/devops-prod.cfg"
-				},
-				"local": {},
-				"pd": {},
-				"qa": {},
-				"ci": {},
-				"pi": {}
+				}
 			}
 		},
 		"github": {
@@ -191,12 +175,7 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "github/prod.cfg"
-				},
-				"local": {},
-				"pd": {},
-				"qa": {},
-				"ci": {},
-				"pi": {}
+				}
 			}
 		},
 		"gitlab": {
@@ -206,12 +185,7 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "gitlab/prod.cfg"
-				},
-				"local": {},
-				"pd": {},
-				"qa": {},
-				"ci": {},
-				"pi": {}
+				}
 			}
 		},
 		"jira": {
@@ -221,12 +195,7 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "atlassian/prod.cfg"
-				},
-				"local": {},
-				"pd": {},
-				"qa": {},
-				"ci": {},
-				"pi": {}
+				}
 			}
 		},
 		"msteams": {
@@ -236,12 +205,7 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "microsoft/teams-prod.cfg"
-				},
-				"local": {},
-				"pd": {},
-				"qa": {},
-				"ci": {},
-				"pi": {}
+				}
 			}
 		},
 		"slack": {
@@ -251,40 +215,27 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "slack/prod-combined.cfg"
-				},
-				"local": {},
-				"pd": {},
-				"qa": {},
-				"ci": {},
-				"pi": {}
+				}
 			}
 		},
 		"trello": {
 			"trello.com": {
 				"defaultEnv": {
 					"_loadSecretsFile": "trello/codestreamops.cfg"
-				},
-				"local": {},
-				"pd": {},
-				"qa": {},
-				"prod": {},
-				"ci": {},
-				"pi": {}
+				}
 			}
 		},
 		"youtrack": {
 			"jetbrains.com": {
-				"defaultEnv": {},
-				"local": {},
-				"pd": {},
-				"qa": {},
-				"prod": {},
-				"ci": {},
-				"pi": {}
+				"defaultEnv": {}
 			}
 		}
 	},
 	"outboundEmailServer": {
+		"ci": {
+			"assetEnvironment": "dev",
+			"runTimeEnvironment": "ci"
+		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
 			"runTimeEnvironment": "??CUSTOM??"
@@ -294,59 +245,57 @@
 			"assetEnvironment": "dev",
 			"runTimeEnvironment": "pd"
 		},
-		"qa": {
+		"pi": {
 			"assetEnvironment": "prod",
-			"runTimeEnvironment": "qa"
+			"runTimeEnvironment": "pi"
 		},
 		"prod": {
 			"assetEnvironment": "prod",
 			"runTimeEnvironment": "prod"
 		},
-		"ci": {
-			"assetEnvironment": "dev",
-			"runTimeEnvironment": "ci"
-		},
-		"pi": {
+		"qa": {
 			"assetEnvironment": "prod",
-			"runTimeEnvironment": "pi"
+			"runTimeEnvironment": "qa"
 		}
 	},
 	"queuingEngine": {
 		"awsSQS": {
-			"defaultEnv": {},
+			"ci": {
+				"outboundEmailQueueName": "ci_outboundEmail"
+			},
+			"defaultEnv": {
+				"outboundEmailQueueName": "??CUSTOM??"
+			},
 			"local": {},
 			"pd": {
-				"outboundEmailQueueName": "pd_outboundEmail",
-			},
-			"qa": {},
-			"prod": {},
-			"ci": {
-				"outboundEmailQueueName": "ci_outboundEmail",
+				"outboundEmailQueueName": "pd_outboundEmail"
 			},
 			"pi": {
-				"outboundEmailQueueName": "ci_outboundEmail",
+				"outboundEmailQueueName": "ci_outboundEmail"
+			},
+			"prod": {
+				"outboundEmailQueueName": "prod_outboundEmail"
+			},
+			"qa": {
+				"outboundEmailQueueName": "qa_outboundEmail"
 			}
 		}
 	},
 	"sharedSecrets": {
+		"ci": {
+			"_loadSecretsFile": "codestream/ci-secrets.cfg"
+		},
 		"defaultEnv": {
 			"_loadSecretsFile": "codestream/dev-secrets.cfg"
 		},
-		"local": {},
-		"pd": {
-			"_loadSecretsFile": "codestream/dev-secrets.cfg"
-		},
-		"qa": {
-			"_loadSecretsFile": "codestream/qa-secrets.cfg"
+		"pi": {
+			"_loadSecretsFile": "codestream/ci-secrets.cfg"
 		},
 		"prod": {
 			"_loadSecretsFile": "codestream/prod-secrets.cfg"
 		},
-		"ci": {
-			"_loadSecretsFile": "codestream/ci-secrets.cfg"
-		},
-		"pi": {
-			"_loadSecretsFile": "codestream/ci-secrets.cfg"
+		"qa": {
+			"_loadSecretsFile": "codestream/qa-secrets.cfg"
 		}
 	},
 	"ssl": {
@@ -360,49 +309,35 @@
 			"cafile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-ca",
 			"certfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-crt",
 			"keyfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-key"
-		},
-		"pd": {},
-		"qa": {},
-		"ci": {},
-		"pi": {}
+		}
 	},
 	"storage": {
 		"mongo": {
 			"defaultEnv": {},
-			"local": {},
 			"pd": {
 				"url": "mongodb://localhost:47017/codestream"
 			},
+			"prod": {
+				"_loadSecretsFile": "mongo/prod.cfg"
+			},
 			"qa": {
 				"_loadSecretsFile": "mongo/qa.cfg"
-			},
-			"prod": {},
-			"ci": {},
-			"pi": {}
+			}
 		}
 	},
 	"telemetry": {
 		"intercom": {
 			"defaultEnv": {
 				"_loadSecretsFile": "intercom/dev.cfg"
-			},
-			"local": {},
-			"pd": {},
-			"qa": {},
-			"prod": {},
-			"ci": {},
-			"pi": {}
+			}
 		},
 		"segment": {
 			"defaultEnv": {
 				"_loadSecretsFile": "segment/dev-api.cfg"
 			},
-			"local": {},
-			"pd": {},
-			"qa": {},
-			"prod": {},
-			"ci": {},
-			"pi": {}
+			"prod": {
+				"_loadSecretsFile": "segment/prod-api.cfg"
+			}
 		}
 	}
 }
