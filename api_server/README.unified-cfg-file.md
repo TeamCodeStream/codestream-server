@@ -61,16 +61,18 @@ but for now, add these options when you execute the `db-sb-new-sandbox` command.
 ### Config file Version
 
 For non-local environments, config files are deployed according to a version
-number which is kept with the schema (in [codestream-configs](https://github.com/teamcodestream/codestream-configs)). This number is bumped each time the schema is updated.
+number which is kept with the schema (in
+[codestream-configs](https://github.com/teamcodestream/codestream-configs)).
+This number must be bumped each time the schema is updated.
 
 When config files are deployed, they are deployed as
-`config-file-name_<version>_.json`. WHen a sandbox is loaded, it will locate the
-most recent config file on the system whose version is `<=` the schema version of
-the sandbox.
+`config-file-name_<env>_<version>_.json`. WHen a sandbox is loaded, it will
+locate the most recent config file for the sandbox's environment on the system
+whose version is `<=` the schema version of the sandbox.
 
-For example, say these config files are installed:
+For example, say these config files are installed on a QA api host:
 ```
-codestream-config_3_.json       # app schema 3 thru 5
-codestream-config_6_.json       # app schema 6
-codestream-config_7_.json       # app schema 7 and greater
+codestream-config_qa_3_.json       # app schema 3 thru 5
+codestream-config_qa_6_.json       # app schema 6
+codestream-config_qa_7_.json       # app schema 7 and greater
 ```

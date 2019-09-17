@@ -10,8 +10,8 @@ export PATH=$CS_API_SANDBOX/node/bin:$CS_API_TOP/node_modules/.bin:$PATH
 
 export PATH=$CS_API_TOP/bin:$PATH
 
-# this sets CSSVC_CFG_FILE
-sandutil_get_codestream_cfg_file $CS_API_CFG_FILE
+# find the config file
+sandutil_get_codestream_cfg_file "$CS_API_SANDBOX" "$CS_API_CFG_FILE"
 
 # env vars required for aux scripts that don't load the config file
 export CS_API_LOGS=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.logger.directory)`
