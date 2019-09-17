@@ -25,27 +25,29 @@
 		<div class="row">
 			<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
 				<div class="box-content box-border">
-					<form action="/web/signin" method="post">
-						{{#if error}}
+					<form action="/web/signin" method="post">					
 						<div class="form-group">
-							<div class="error text-center" style="width:100%;">{{error}}</span>
-							</div>
-							{{/if}}
-							<input type="hidden" name="finishUrl" value="{{finishUrl}}">
-							<input type="hidden" name="teamId" value="{{teamId}}" />
-							<input type="hidden" name="_csrf" value="{{csrf}}" />
-							<div class="form-group">
-								<label for="email">Email</label>
-								<input class="form-control bg-dark" type="text" name="email" id="email"
-									value="{{email}}" />
-							</div>
-							<div class="form-group">
-								<label for="password">Password</label>
-								<input autocomplete="off" class="form-control bg-dark" type="password" name="password"
-									id="password" />
-							</div>
-							<div class="form-group">
-								<input type="submit" value="Sign in with CodeStream" class="btn" />
+								{{#if error}}
+								<div class="error text-center" style="width:100%;">
+									{{error}}
+								</div>
+								{{/if}}
+								<input type="hidden" name="finishUrl" value="{{finishUrl}}">
+								<input type="hidden" name="teamId" value="{{teamId}}" />
+								<input type="hidden" name="_csrf" value="{{csrf}}" />
+								<div class="form-group">
+									<label for="email">Email</label>
+									<input class="form-control bg-dark" type="text" name="email" id="email"
+										value="{{email}}" />
+								</div>
+								<div class="form-group">
+									<label for="password">Password</label>
+									<input autocomplete="off" class="form-control bg-dark" type="password" name="password"
+										id="password" />
+								</div>
+								<div class="form-group">
+									<input type="submit" value="Sign in with CodeStream" class="btn" />
+								</div>
 							</div>
 					</form>
 				</div>

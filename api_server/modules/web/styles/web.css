@@ -180,6 +180,9 @@ h3 {
   /* font: 1rem "Helvetica Neue", arial, sans-serif; */
   border: 1px solid black;
 }
+.btn:visited {
+   color: white;
+}
 .btn:hover {
    color: white;
    background-color: #009aef;
