@@ -215,9 +215,9 @@
 						</div>
 					</div>
 					<div class="row no-gutters mt-3">
-						<div class="col-sm-6">							
-							<div class="btn-group ide-list" style="white-space:nowrap">
-								<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split"
+						<div class="col-xl-5 col-lg-6 col-md-12 col-sm-12 col-xs-12 mb-2">							
+							<div class="btn-group ide-list btn-block" style="white-space:nowrap;">
+								<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
 									data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 									<span class="sr-only">Toggle Dropdown</span>
 								</a>
@@ -235,13 +235,12 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-sm-1"></div>
-						<div class="col-sm-1"></div>
-						<div class="col-sm-4">
+					 
+						<div class="col-xl-7 col-lg-6 col-md-12 col-sm-12 col-xs-12">
 							{{#if hasProviderButtons}}
-							<div class="float-right">
+							<div class="float-lg-right float-xl-right">
 								{{#if codeProvider}}
-								<a href="#" class="btn btn-sm"
+								<a href="#" class="btn btn-sm btn-block form-control"
 									onclick='event.preventDefault();window.analytics.track("Opened Code", { Host: "{{codeProvider}}" }); window.open("{{codeProviderUrl}}", "_blank");'>Open
 									on {{codeProvider}}</a>
 								{{/if}}
@@ -543,7 +542,7 @@
 
 			function createSelected(el){
 				var $thing = $(el.outerHTML)
-				.removeClass('dropdown-item').addClass('selected-ide btn btn-sm').on('click', cb);
+				.removeClass('dropdown-item').addClass('selected-ide btn btn-sm btn-block form-control').on('click', cb);
 				$thing.html("Open in "+ $thing.html());
 				return $thing;
 			}

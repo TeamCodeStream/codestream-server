@@ -294,15 +294,13 @@ hr {
   border-color:#3c424e;
 }
 .ide-list:hover {
-  border:1px solid #464545;
   background: transparent;
 }
 .ide-list {
-  border:1px solid #383838;
   padding-top:0px !important;
   vertical-align: top;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
+  border-top-left-radius: .2rem;
+  border-bottom-left-radius: .2rem;
 }
 .dropdown-menu a {
   color: #c7c7c6;
@@ -320,12 +318,42 @@ text-decoration: none;
   line-height: 1.4em;
   margin-top: 8px;
 }
+
+@media (min-width: 576px) { 
+  .ide-list {    
+    width:100%;
+  }
+ }
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) { 
+   .ide-list {    
+    width:100%;
+  }
+ }
+
+/* Large devices (desktops, 992px and up)*/
+@media (min-width: 992px) { 
+   .ide-list {    
+    max-width:inherit;
+  }
+ }
+
+/* Extra large devices (large desktops, 1200px and up)*/
+@media (min-width: 1200px) { 
+   .ide-list {    
+    max-width:inherit;
+  }
+}
 .ide-list .dropdown-toggle-split {
-    padding-top: .5rem;
-    padding-left: .4rem;
+  padding-top: .5rem;
+  padding-left: .4rem;
   border-left:1px solid #383838;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
+  border-top-right-radius: .2rem;
+  border-bottom-right-radius: .2rem;
+  max-width:30px;
+  width:25px;
+  min-width:25px;
 }
 .dropdown-menu {
   background:#2C2C2C;
@@ -360,7 +388,6 @@ a.dropdown-item:hover {
 .form-control {
   border: 1px solid #383838 !important;
 }
-
 
 /* Pretty printing styles. Used with prettify.js. */
 /* Visual Studio Code - Monaco theme by Alex Rodin, based on Vim sunburst theme by David Leibovic */
