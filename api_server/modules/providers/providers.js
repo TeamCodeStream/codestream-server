@@ -59,6 +59,11 @@ const ROUTES = [
 		method: 'delete',
 		path: 'provider-host/:provider/:teamId/:providerId',
 		requestClass: require('./delete_provider_host_request')
+	},
+	{
+		method: 'post',
+		path: '/no-auth/provider-action/:provider',
+		requestClass: require('./provider_action_request')
 	}
 ];
 
