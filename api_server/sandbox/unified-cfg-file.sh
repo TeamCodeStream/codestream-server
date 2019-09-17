@@ -21,3 +21,6 @@ export CS_API_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer
 
 # this sets CS_API_CALLBACK_ENV
 set_callback_env
+
+#### NEEDS TO BE DEALT WITH
+#unset CS_API_SETUP_MONGO

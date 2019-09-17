@@ -46,7 +46,7 @@ Files distributed via `dt-update-secrets`.
 
 | File | Desc |
 | --- | --- |
-| local-cloud-development.json | for running development sandboxes natively on your computer targeted for the production configuration (pubnub, sendgrid, sqs) |
+| codestream-cloud-config.local.json | for running development sandboxes natively, targeted for production (pubnub, sendgrid, sqs) |
 | local-onprem-development.json.template | for creating a config running development sandboxes natiely on your computer targeted for the on-prem (docker) configuration (broadcaster, nodemailer, rabbitmq) |
 
 
@@ -56,4 +56,21 @@ Follow the instructions for setting up a sandbox in the main [README](README.md)
 but for now, add these options when you execute the `db-sb-new-sandbox` command.
 ```
 -e unified-cfg-file.sh -b config_update
+```
+
+### Config file Version
+
+For non-local environments, config files are deployed according to a version
+number which is kept with the schema (in [codestream-configs](https://github.com/teamcodestream/codestream-configs)). This number is bumped each time the schema is updated.
+
+When config files are deployed, they are deployed as
+`config-file-name_<version>_.json`. WHen a sandbox is loaded, it will locate the
+most recent config file on the system whose version is `<=` the schema version of
+the sandbox.
+
+For example, say these config files are installed:
+```
+codestream-config_2.1.2_.json   # app schema 2.1.2 thru 2.1.x
+codestream-config_2.2.0_.json   # app schema 2.2.x
+codestream-config_2.3.0_.json   # app schema 2.3.x and greater
 ```
