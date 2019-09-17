@@ -1,17 +1,28 @@
 # Unified Config File
 
-We're moving our sandbox configurations from setting configuration parameters
-from environment variables to reading them from a single configuration file
-shared by all sandboxes.
+We're moving our CodeStream sandbox configurations from setting configuration
+parameters via environment variables to reading them from a single configuration
+file shared by all CodeStream services (sandboxes).
 
-As sandboxes are modified to support this, they should re-configured (or
-installed) using the `unified-cfg-file.sh` sandbox configuration file. When we
-are satisfied that all configurations work with the unified config file, this
-will become the new default sandbox configuration (`default.sh`).
+During the migration, you should install (or reconfigure) your sandboxes to use
+the `unified-cfg-file.sh` sandbox configuration file. Once we are satisfied
+that all configurations work with the unified config file, this will become the
+new default sandbox configuration (`default.sh`) and you'll need to reconfigure
+your sandboxes to use that.
 
-## Migration
+Follow normal procedures to install your sandboxes but for now add this
+option when you execute the `db-sb-new-sandbox` command.
+```
+-e unified-cfg-file.sh
+```
+Or if you are reconfiguring existing sandboxes, from with a shell
+that does *NOT* have any sandboxes loaded, run:
+```
+$ dt-sb-configure -R -n <sandbox-name> -e unified-cfg-file.sh
+```
 
-### Prepare
+
+### Keep your config files up to date
 1. Bring your development environment, including dev_tools, up to date
    (`dt-selfupdate -y`). Always keep your dev_tools installation updated.
 1. Update your secrets (`dt-update-secrets`).
@@ -23,40 +34,59 @@ will become the new default sandbox configuration (`default.sh`).
 
    Config files are fully functional and can be used directly where as templates
    must be copied to the corresponding `.json` file suffix and edited to
-   replace the template variables `{{TEMPLATE_VAR}}`.
+   replace the template variables within `{{TEMPLATE_VAR_EXAMPLE}}`.
+
+1. To accomodate versioning of the config file schema (see below) as well as
+   selecting an environment, the default sandbox behavior will try to find the
+   most appropriate config file with those two attributes in mind.
+   Thusly, the config files are deployed as follows:
+   ```
+   codestream-cloud_local_2_.json
+   onprem-development_local_2_.json.template
+   ```
+   or more generally,
+   ```
+   <configuration-name>_<env>_<schema-version>.json.*
+   ```
+   where `local` represents the environment and `2` represents the schema
+   version number [stored
+   here](https://github.com/TeamCodeStream/codestream-configs/blob/develop/parameters.preview).
+   This value will change over time and you will end up with numerious
+   `codestream-cloud_local_*_json` (eg) files. That's normal.
 
 1. The default behavior for sandboxes configured with `unified-cfg-file.sh` is
    to look for a configuration file called
-   **~/.codestream/config/codestream-services-config.json**. Make this a
-   symbolic link to switch between the various configuration files on your
-   computer.
+   **~/.codestream/config/codestream-services-config.json** as a last resort.
+   One option for maintaining your config file is to manage this symbolic link
+   yourself.
    ```
    $ cd ~/.codestream/config
    $ ln -snf <the-config-file-you-want.json> codestream-services-config.json
    $ ls -l
    ```
-1. Setup a link for the configuration file you want **_before_** loading any
-   sandboxes.  If you change the link, close your sandbox shell sessions and
-   re-load the sandboxes or playgrounds in new shells.
+   You must set the link **_before_** loading any sandboxes.  If they're already
+   loaded, kill those terminals and fire up new ones and reload.
 
+1. Alternatively you can create this special file to indicate that you want the
+   _proper_ config schema version for a particular configuration. For example,
+   if you're running the `codestream-cloud` config on your development computer,
+   this will tell the sandboxes to look for the most recent schema version
+   config for a given repo.
+   ```
+   $ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
+   ```
 
-### Distributed Config Files and Templates
+The shell function that applies this selection algorythm is called _sandutil_get_codestream_cfg_file()_ and can be found in [dev_tools/lib/sandbox_utils.sh](https://github.com/TeamCodeStream/dev_tools/blob/master/lib/sandbox_utils.sh)
+
+### Distributed Configuration Files and Templates
 
 Files distributed via `dt-update-secrets`.
 
 | File | Desc |
 | --- | --- |
-| codestream-cloud-config.local.json | for running development sandboxes natively, targeted for production (pubnub, sendgrid, sqs) |
-| local-onprem-development.json.template | for creating a config running development sandboxes natiely on your computer targeted for the on-prem (docker) configuration (broadcaster, nodemailer, rabbitmq) |
+| codestream-cloud | intended to go into production (pubnub, sendgrid, sqs) |
+| onprem-development | for development of the CodeStream On-Prem service (broadcaster, nodemailer, rabbitmq) |
 
-
-### Setup an API sandbox (and playground)
-
-Follow the instructions for setting up a sandbox in the main [README](README.md)
-but for now, add these options when you execute the `db-sb-new-sandbox` command.
-```
--e unified-cfg-file.sh -b config_update
-```
 
 ### Config file Version
 
