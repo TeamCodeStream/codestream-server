@@ -70,7 +70,7 @@ the sandbox.
 
 For example, say these config files are installed:
 ```
-codestream-config_2.1.2_.json   # app schema 2.1.2 thru 2.1.x
-codestream-config_2.2.0_.json   # app schema 2.2.x
-codestream-config_2.3.0_.json   # app schema 2.3.x and greater
+codestream-config_3_.json       # app schema 3 thru 5
+codestream-config_6_.json       # app schema 6
+codestream-config_7_.json       # app schema 7 and greater
 ```
