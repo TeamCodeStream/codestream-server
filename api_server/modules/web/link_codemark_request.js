@@ -322,6 +322,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 			teamName: this.team.get('name'),
 			launchIde: this.request.query.ide === '' ? 'default' : this.request.query.ide,
 			showComment,
+			markerId: marker && marker.get('id'),
 			whenCreated: whenCreated,
 			assignees: assignees,
 			isIssue: codemarkType === 'issue',

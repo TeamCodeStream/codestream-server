@@ -111,7 +111,7 @@ h6 {
 }
 .box-content,
 .box-content-transparent {
-  max-width: 750px;
+  max-width: 800px;
   width: 100%;
   box-sizing: border-box;
   margin: 0px auto;
@@ -277,7 +277,7 @@ a.related-codemark-link:hover .related-codemark-file {
   background: rgba(210, 199, 199, 0.1);
   padding: 2px 5px;
 }
-.description pre.code.prettyprint {
+.description pre.code-wrapper.prettyprint {
   width:100%;
 }
 .title {
@@ -285,11 +285,50 @@ a.related-codemark-link:hover .related-codemark-file {
   color:#c7c7c6;
 }
 
-.code {
+.code-control,
+.code-control:hover,
+.code-control:active,
+.code-control:visited  {
+  padding: 0px;
+  font-weight: 600;
+  font-size: 1.4em;
+  text-decoration: none !important;
+  color: rgb(137, 143, 158);
+}
+.octicon {
+  fill: rgb(137, 143, 158);
+}
+.code-wrapper {
   background: #1e1e1e;
   padding:5px;
   border: 1px solid #383838;
+  overflow-x:auto;
 }
+
+.code-wrapper .prettyprint {
+  white-space: nowrap;
+  
+}
+.code-wrapper::-webkit-scrollbar {
+  width: 20px; 
+} 
+
+.code-wrapper::-webkit-scrollbar-thumb {
+  background: #282828;
+  border-radius: .2rem;
+}
+.code-wrapper:hover::-webkit-scrollbar-thumb {
+  background: #383838;
+}
+
+.code-wrapper::-webkit-scrollbar-corner {
+   background: #1e1e1e;
+}
+.code-wrapper::-webkit-scrollbar-track {
+  background: #1e1e1e;
+  border-radius: 0;
+}
+
 hr {
   border-color:#3c424e;
 }
@@ -378,6 +417,13 @@ text-decoration: none;
 a.dropdown-item:hover {
   color:#c7c7c6;
   background:#0087D7;
+}
+span.dropdown-item {
+    color:#c7c7c6;
+}
+span.dropdown-item:hover {
+    color:#c7c7c6;
+    background:initial;
 }
 .navbar-toggler {
   border:0;

@@ -31,7 +31,7 @@
 	<div id="alert-wrapper"></div>
 	<div class="container-fluid" id="root">
 		<div class="row">
-			<div class="col-sm-6 offset-sm-3">
+			<div class="col-sm-8 offset-sm-2">
 				<div class="box-content box-border box-border-sm">
 					<div>
 						{{#if showComment}}
@@ -197,13 +197,28 @@
 
 						<div class="row no-gutters {{#if showComment}}mt-4{{else}}mt-1{{/if}}">
 							<div class="col-sm-12">
-								{{#if file}}
-								<div class="file" title="{{file}}">{{file}}</div>
-								{{/if}}
+								<div class="row no-gutters">
+									<div class="col-sm-11">
+									{{#if file}}
+									<div class="file" title="{{file}}">{{file}}</div>
+									{{/if}}
+									</div>
+									<div class="col-sm-1">
+									<div data-action-code-controls="{{markerId}}" class="code-controls float-right" style="display:none; padding-top:0px;">										
+										<a href="#" class="code-control" title="expand code" data-action-expand="{{markerId}}">
+											<svg class="octicon octicon-unfold" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true">
+												<path fill-rule="evenodd"
+													d="M11.5 7.5L14 10c0 .55-.45 1-1 1H9v-1h3.5l-2-2h-7l-2 2H5v1H1c-.55 0-1-.45-1-1l2.5-2.5L0 5c0-.55.45-1 1-1h4v1H1.5l2 2h7l2-2H9V4h4c.55 0 1 .45 1 1l-2.5 2.5zM6 6h2V3h2L7 0 4 3h2v3zm2 3H6v3H4l3 3 3-3H8V9z">
+												</path>
+											</svg>
+										</a>
+									</div>
+									</div>
+								</div>						 							 
 							</div>
 
 							<div class="col-sm-12">
-								<div class="code">
+								<div class="code-wrapper" style="max-height:275px;" data-action-expand-id="{{markerId}}">
 									{{#if codeStartingLineNumber}}
 									<code class="prettyprint linenums:{{codeStartingLineNumber}}">{{{code}}}</code>
 									{{/if}}
@@ -253,7 +268,47 @@
 		</div>
 	</div>
 	</div>
+	<script>
+		$('[data-action-expand]').click(function (e) {
+			e.preventDefault();
 
+			var $this = $(this);
+			var val = $this.attr("data-action-expand");
+			if (val) {
+				var target = $('[data-action-expand-id="' + val + '"]');
+				if (target && target.length) {
+					if (target.css('max-height') !== 'none') {
+						target.css('max-height', 'none');
+						$this.html('<svg class="octicon octicon-fold" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M7 9l3 3H8v3H6v-3H4l3-3zm3-6H8V0H6v3H4l3 3 3-3zm4 2c0-.55-.45-1-1-1h-2.5l-1 1h3l-2 2h-7l-2-2h3l-1-1H1c-.55 0-1 .45-1 1l2.5 2.5L0 10c0 .55.45 1 1 1h2.5l1-1h-3l2-2h7l2 2h-3l1 1H13c.55 0 1-.45 1-1l-2.5-2.5L14 5z"></path></svg>').attr('title', 'collapse code');
+					}
+					else {
+						target.css('max-height', '275px');
+						$this.html('<svg class="octicon octicon-unfold" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M11.5 7.5L14 10c0 .55-.45 1-1 1H9v-1h3.5l-2-2h-7l-2 2H5v1H1c-.55 0-1-.45-1-1l2.5-2.5L0 5c0-.55.45-1 1-1h4v1H1.5l2 2h7l2-2H9V4h4c.55 0 1 .45 1 1l-2.5 2.5zM6 6h2V3h2L7 0 4 3h2v3zm2 3H6v3H4l3 3 3-3H8V9z"></path></svg>').attr('title', 'expand code');
+					}
+				}
+			}
+		})
+
+		$(function () {
+			var toggleCodeControls = function(){
+				var wrapper = $('.code-wrapper');
+				if (wrapper && wrapper.length) {
+					var $control = $('[data-action-code-controls="{{markerId}}"]');
+					if (wrapper[0].clientHeight < wrapper[0].scrollHeight) {
+						$control.show();						
+					}
+					else {
+						$control.hide();
+					}
+				}
+			}
+			$(window).resize(function () {
+				toggleCodeControls();
+			});
+
+			toggleCodeControls();
+		})
+	</script>
 	<script>
 		(function (f) { if (typeof exports === "object" && typeof module !== "undefined") { module.exports = f() } else if (typeof define === "function" && define.amd) { define([], f) } else { var g; if (typeof window !== "undefined") { g = window } else if (typeof global !== "undefined") { g = global } else if (typeof self !== "undefined") { g = self } else { g = this } g.protocolCheck = f() } })(function () {
 			var define, module, exports; return (function e(t, n, r) { function s(o, u) { if (!n[o]) { if (!t[o]) { var a = typeof require == "function" && require; if (!u && a) return a(o, !0); if (i) return i(o, !0); var f = new Error("Cannot find module '" + o + "'"); throw f.code = "MODULE_NOT_FOUND", f } var l = n[o] = { exports: {} }; t[o][0].call(l.exports, function (e) { var n = t[o][1][e]; return s(n ? n : e) }, l, l.exports, e, t, n, r) } return n[o].exports } var i = typeof require == "function" && require; for (var o = 0; o < r.length; o++)s(r[o]); return s })({
