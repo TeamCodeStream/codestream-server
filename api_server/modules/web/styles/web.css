@@ -182,15 +182,21 @@ h3 {
 }
 .btn:visited {
    color: white;
+   background: rgb(0, 123, 203) !important;
 }
+
+.btn:active,
 .btn:hover {
-   color: white;
-   background-color: #009aef;
+   color: white !important;
+   background-color: #009aef !important;
 }
-.btn-sm {
-  padding: 0.35rem;
+.btn-sm {  
   flex: 0 1 auto;
   width: auto;
+}
+.btn-open-in {
+  padding-left:10px;
+  padding-right:10px;
 }
 
 input.bg-dark:-webkit-autofill {
@@ -217,6 +223,7 @@ input.bg-dark:-internal-autofill-selected {
   padding-top: 10px;
   box-sizing: border-box;
 }
+
 .form-wrapper {
   max-width: none;
   display: block;
