@@ -284,6 +284,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		let code = marker.get('code') || '';
 
 		if (code) {
+			code = code.replace(/>/g, '&gt;').replace(/</g, '&lt;');
 			code = this.whiteSpaceToHtml(code);
 		}
 
@@ -411,8 +412,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 	}
 
 	whiteSpaceToHtml(text) {
-		return text
-			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+		return text.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
 			.replace(/^ +/gm, match => { return match.replace(/ /g, '&nbsp;'); })
 			.replace(/\n/g, '<br/>');
 	}
