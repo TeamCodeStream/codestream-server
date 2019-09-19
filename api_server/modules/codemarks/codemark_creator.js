@@ -51,7 +51,7 @@ class CodemarkCreator extends ModelCreator {
 			{
 				type: 'array(object)',
 				maxLength: 10,
-				maxObjectLength: 10000
+				maxObjectLength: 100000
 			}
 		);
 		if (result) {	// really an error
