@@ -237,7 +237,7 @@ class TeamCreator extends ModelCreator {
 					);
 				}
 				else {
-					this.request.log('Would have sent email created email to ' + email);
+					this.request.log('Would have sent team created email to ' + email);
 				}
 			});
 		}

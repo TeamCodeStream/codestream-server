@@ -4,7 +4,17 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
+const ProviderDisplayNames = require(process.env.CS_API_TOP + '/modules/web/provider_display_names');
+const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 
+const CODE_PROVIDERS = {
+	github: 'GitHub',
+	gitlab: 'GitLab',
+	bitBucket: 'Bitbucket',
+	'azure-devops': 'Azure DevOps',
+	vsts: 'Azure DevOps'
+};
+	
 class ProviderActionRequest extends RestfulRequest {
 
 	async authorize () {
@@ -13,19 +23,19 @@ class ProviderActionRequest extends RestfulRequest {
 
 	// process the request...
 	async process () {
-		return;
-		/*
+		this.provider = this.request.params.provider.toLowerCase();
+
 		await this.requireAndAllow();	// require certain parameters, discard unknown parameters
-		await this.getUser() &&			// get the user that initiated this action
-		await this.getTeam() &&			// get the team the user is on, matching the identity
-		await this.getCompany() &&		// get the company the team belongs to
-		await this.sendTelemetry();		// send telemetry for this action
-		*/
+
+		this.parseActionInfo() && 	// parse the action info within the payload
+		await this.getUser() &&		// get the user that initiated this action
+		await this.getTeam() &&		// get the team the user is on, matching the identity
+		await this.getCompany() &&	// get the company the team belongs to
+		await this.sendTelemetry();	// send telemetry for this action
 	}
 
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
-		/*
 		await this.requireAllowParameters(
 			'body',
 			{
@@ -33,18 +43,36 @@ class ProviderActionRequest extends RestfulRequest {
 					object: ['payload']
 				}
 			}
-		);*/
-
+		);
 	}
 
-	/*
+	// parse the action info within the given payload
+	parseActionInfo () {
+		const action_id = this.request.body.payload.actions &&
+			this.request.body.payload.actions[0] &&
+			this.request.body.payload.actions[0].action_id;
+		if (!action_id) {
+			this.log(`Could not find action_id within the ${this.provider} payload`);
+			return false;
+		}
+
+		try {
+			this.actionPayload = JSON.parse(action_id);
+		}
+		catch (error) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.log(`Unable to parse action_id sent with ${this.provider} payload: ${message}`);
+			return false;
+		}
+		return true;
+	}
+
 	// get the user that initiated this action
 	async getUser () {
-		this.provider = this.request.params.provider.toLowerCase();
 		this.providerUserId = this.request.body.payload.user &&
 			this.request.body.payload.user.id;
 		if (!this.providerUserId) {
-			this.log(`${this.provider} did not give a user ID`);
+			this.log(`${this.provider} did not give a user ID in action payload`);
 			return false;
 		}
 
@@ -52,90 +80,134 @@ class ProviderActionRequest extends RestfulRequest {
 			{ providerIdentities: `${this.provider}::${this.providerUserId}` },
 			{ hint: UserIndexes.byProviderIdentities } 
 		);
-		if (users.length === 0) {
-			this.log(`CodeStream user with ${this.provider} identity matching ${this.providerUserId} was not found`);
-			return false;
-		}
-		else if (users.length > 0) {
+		if (users.length > 1) {
+			// this shouldn't really happen
 			this.log(`Multiple CodeStream users found matching ${this.provider} identity ${this.providerUserId}`);
 			return false;
 		}
-
-		this.user = users[0];
+		if (users.length === 1) {
+			this.user = users[0];
+		}
 		return true;
 	}
 
 	// get the team the user is on, matching the identity
 	async getTeam () {
-		const teamIds = this.user.get('teamIds') || [];
-		if (teamIds.length === 0) {
+		const teamId = this.actionPayload.teamId;
+		if (!teamId) {
+			this.log(`Could not find teamId within the ${this.provider} action payload`);
+			return false;
+		} 
+		if (this.user && !this.user.hasTeam(teamId)) {
+			this.log(`User is not a member of the team provided in ${this.provider} action payload`);
 			return false;
 		}
-
-		this.providerTeamId = this.request.body.payload.team &&
-			this.request.body.payload.team.id;
-		if (!this.providerTeamId) {
-			this.log(`${this.provider} did not give a team ID`);
-			return false;
-		}
-
-		const teamIdentity = `${this.provider}::${this.providerTeamId}`;
-		const teams = await this.data.teams.getByIds(teamIds);
-		this.team = teams.find(team => {
-			return providerIdentities.find(id => id === teamIdentity);
-		});
+		this.team = await this.data.teams.getById(teamId);
 		if (!this.team) {
-			this.log(`CodeStream team with ${this.provider} identity matching ${this.providerTeamId} was not found`);
+			this.log(`Team not found, as provided in ${this.provider} action payload`);
 			return false;
 		}
-
 		return true;
 	}
 
 	// get the company that owns the team
 	async getCompany () {
-		this.company = await this.data.companies.get(this.team.get('companyId'));
+		this.company = await this.data.companies.getById(this.team.get('companyId'));
+		return true;	// we'll tolerate not being able to find the company, though it would be weird....
 	}
-	*/
-	
+
+	// send telemetry event associated with this action
+	async sendTelemetry () {
+		const info = this.getTrackingInfo();
+		if (!info) {
+			this.log(`Could not get tracking info from ${this.provider} payload`);
+			return false;
+		}
+
+		const provider = this.provider === 'slack' ? 'Slack' :
+			this.provider === 'msteams' ? 'MSTeams' : this.provider;
+		const trackObject = {
+			'distinct_id': this.user ? this.user.id : this.providerUserId,
+			'Team ID': this.team.id,
+			'Team Name': this.team.get('name'),
+			'Company Name': this.company ? this.company.get('name') : '',
+			'Team Size': this.team.get('memberIds').length,
+			'Provider': provider,
+			'Endpoint': provider
+		};
+		if (this.user) {
+			Object.assign(trackObject, {
+				'email': this.user.get('email'),
+				'Join Method': this.user.get('joinMethod')
+			});
+			if (this.user.get('registeredAt')) {
+				trackObject['createdAt'] = new Date(this.user.get('registeredAt')).toISOString();
+			}
+			if (this.user.get('lastPostCreatedAt')) {
+				trackObject['Date of Last Post'] = new Date(this.user.get('lastPostCreatedAt')).toISOString();
+			}
+		}
+		Object.assign(trackObject, info.data);
+
+		this.api.services.analytics.track(
+			info.event,
+			trackObject,
+			{
+				request: this,
+				user: this.user
+			}
+		);
+	}
+
+	// get the tracking info associated with this requset 
+	getTrackingInfo () {
+		if (this.actionPayload.linkType === 'web') {
+			return {
+				event: 'Opened on Web'
+			};
+		} 
+		else if (this.actionPayload.linkType === 'ide') {
+			return {
+				event: 'Opened in IDE'
+			};
+		}
+		else if (this.actionPayload.linkType === 'external') {
+			if (this.actionPayload.externalType === 'code') {
+				return {
+					event: 'Opened Code',
+					data: {
+						Host: CODE_PROVIDERS[this.actionPayload.externalProvider] || ''
+					}
+				};
+			}
+			else if (this.actionPayload.externalType === 'issue') {
+				return {
+					event: 'Opened Issue',
+					data: {
+						Service: ProviderDisplayNames[this.actionPayload.externalProvider] || ''
+					}
+				};
+			}
+		}
+	}
+
 	// describe this route for help
 	static describe () {
 		return {
-			/*
-			tag: 'provider-connect',
-			summary: 'Connects a user from a third-party provider to CodeStream',
-			access: 'No authorization needed, authorization is handled within the request logic',
-			description: 'Once third-party authorization is complete, call this request to register the user with CodeStream; the user will be assumed to be confirmed after a basic check of the provider credentials with the provider in question',
+			tag: 'provider-action',
+			summary: 'Callback indicating a user action within a provider rendering of a post',
+			access: 'No authorization needed',
+			description: 'Provides a callback for whenever a user takes an action within a provider\'s rich rendering of a post',
 			input: {
-				summary: 'Specify attributes in the body',
+				summary: 'Specify payload in the body',
 				looksLike: {
-					'providerInfo*': '<Provider info with credentials and other info gleaned from the third-party auth process>',
-					'signupToken': '<Client-generated signup token, passed to signup on the web, to associate an IDE session with the new user>'
+					'provider*': '<Payload object>'
 				}
 			},
-			returns: {
-				summary: 'Returns a user object',
-				looksLike: {
-					user: '<@@#user object#user@@>'
-				}
-			},
-			publishes: {
-				summary: 'If the user was invited and being put on a new team, or if the user was already on a teams and was confirmed with this request, an updated user object will be published to the team channel for each team the user is on.',
-				looksLike: {
-					user: '<@@#user object#user@@>'
-				}
-			},
+			returns: 'Empty object',
 			errors: [
 				'parameterRequired',
-				'usernameNotUnique',
-				'exists',
-				'validation',
-				'unknownProvider',
-				'invalidProviderCredentials',
-				'duplicateProviderAuth',
-				'inviteTeamMismatch'
 			]
-			*/
 		};
 	}
 }

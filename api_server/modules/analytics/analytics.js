@@ -38,9 +38,10 @@ class Analytics extends APIServerModule {
 	// the segment analytics server through this callback, we'll send it along through the
 	// user's me-channel, which the test client should be listening to
 	async testCallback (type, data, user, request) {
-		if (!user || !this.api.services.broadcaster) { return; }
+		if (!this.api.services.broadcaster) { return; }
+		if (!user && !request.request.headers['x-cs-track-channel']) { return; }
 		const channel = request.request.headers['x-cs-track-channel'] || `user-${user.id}`;
-		const message = { type, data };
+		const message = { type, data, requestId: request.request.id };
 		await this.api.services.broadcaster.publish(
 			message,
 			channel,

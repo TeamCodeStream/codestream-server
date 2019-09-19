@@ -15,6 +15,7 @@ const ProviderSetTokenRequestTester = require('./provider_set_token/test');
 const ProviderInfoRequestTester = require('./provider_info/test');
 const ProviderHostRequestTester = require('./provider_host/test');
 const DeleteProviderHostRequestTester = require('./delete_provider_host/test');
+const ProviderActionRequestTester = require('./provider_action/test');
 
 describe('user requests', function() {
 
@@ -30,4 +31,5 @@ describe('user requests', function() {
 	describe('PUT /provider-info/:provider', ProviderInfoRequestTester.test);
 	describe('PUT /provider-host/:provider/:teamId', ProviderHostRequestTester.test);
 	describe('DELETE /provider-host/:provider/:teamId/:providerId', DeleteProviderHostRequestTester.test);
+	describe('POST /no-auth/provider-action/:provider', ProviderActionRequestTester.test);
 });

@@ -30,11 +30,13 @@ class AnalyticsClient {
 		}
 
 		const trackData = {
-			userId: options.user && options.user.id,
 			event,
 			properties: data
 		};
-		
+		if (options.user) {
+			trackData.userId = options.user.id;
+		}
+
 		if (this._requestSaysToTestTracking(options)) {
 			// we received a header in the request asking us to divert this tracking event
 			// instead of actually sending it, for testing purposes ... we'll
