@@ -4,7 +4,6 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
-const Base64 = require('base-64');
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 
 class ProviderAuthRequest extends RestfulRequest {
@@ -103,22 +102,7 @@ class ProviderAuthRequest extends RestfulRequest {
 			team: this.team,
 			mockToken: _mockToken
 		};
-
-		// once we obtain the token, we need it not only for the redirect, but for the callback,
-		// but it won't survive the redirect so we need to store it as a cookie --- yuckers
 		this.requestTokenInfo = await this.serviceAuth.getRequestToken(options);
-		const cookie = `rt-${this.provider}`;
-		const token = Base64.encode(JSON.stringify({
-			oauthToken: this.requestTokenInfo.oauthToken,
-			oauthTokenSecret: this.requestTokenInfo.oauthTokenSecret,
-			userId: this.payload.userId,
-			teamId: this.payload.teamId,
-			host
-		}));
-		this.response.cookie(cookie, token, {
-			secure: true,
-			signed: true
-		});
 	}
 
 	// response with a redirect to the third-party provider
@@ -167,9 +151,20 @@ class ProviderAuthRequest extends RestfulRequest {
 
 	// perform an OAuth 1.0 redirect, for those modules that only support OAuth 1.0
 	async performOauth1Redirect () {
-		const { host } = this.request.query;
+		let { host } = this.request.query;
+		const { code } = this.request.query;
+		const { callbackEnvironment } = this.api.config.api;
 		const authOrigin = `${this.api.config.api.publicApiUrl}/no-auth`;
-		const callback = encodeURIComponent(`${authOrigin}/provider-token/${this.provider}`);
+		let state = `${callbackEnvironment}!${code}`;
+		if (host) {
+			host = decodeURIComponent(host).toLowerCase();
+			state += `!${host}`;
+		}
+		const encodedSecret = this.api.services.tokenHandler.generate({
+			sec: this.requestTokenInfo.oauthTokenSecret
+		}, 'oasec');
+		state += `!${encodedSecret}`;
+		const callback = encodeURIComponent(`${authOrigin}/provider-token/${this.provider}?state=${state}`);
 		const authorizePath = this.serviceAuth.getAuthorizePath();
 		const clientInfo = this.serviceAuth.getClientInfo({ host, team: this.team, request: this });
 		const url = `${clientInfo.host}/${authorizePath}?oauth_token=${this.requestTokenInfo.oauthToken}&oauth_callback=${callback}`;

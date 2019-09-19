@@ -9,7 +9,6 @@ const ProviderIdentityConnector = require('./provider_identity_connector');
 const UserPublisher = require('../users/user_publisher');
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
-const Base64 = require('base-64');
 
 class ProviderTokenRequest extends RestfulRequest {
 
@@ -93,7 +92,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			'query',
 			{
 				optional: {
-					string: ['state', 'token', 'code', 'token_type', 'expires_in' ,'scope', 'error', '_mockToken']
+					string: ['state', 'token', 'code', 'token_type', 'expires_in' ,'scope', 'error', 'oauth_token', '_mockToken']
 				}
 			}
 		);
@@ -125,10 +124,6 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// decode the state token and validate
 	async validateState () {
-		if (this.serviceAuth.usesOauth1()) {
-			// information is waiting for us in a cookie instead
-			return this.extractTokenFromCookie();
-		}
 		if (!this.request.query.state) {
 			throw this.errorHandler.error('parameterRequired', { info: 'state' });
 		}
@@ -158,7 +153,25 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.userId = this.tokenPayload.userId;
 		this.teamId = this.tokenPayload.teamId;
 		this.providerAccess = this.tokenPayload.access;
+
+		if (this.serviceAuth.usesOauth1()) {
+			let secretPayload;
+			try {
+				secretPayload = this.api.services.tokenHandler.decode(stateProps[3]);
+			}
+			catch (error) {
+				throw this.errorHandler.error('tokenInvalid', { reason: 'unable to obtain token secret' });
+			}
+			if (secretPayload.type !== 'oasec') {
+				throw this.errorHandler.error('tokenInvalid', { reason: 'token secret is not of the correct type' });
+			}
+			this.oauthToken = {
+				oauthToken: decodeURIComponent(this.request.query.oauth_token),
+				oauthTokenSecret: secretPayload.sec
+			};
+		}
 	}
+
 
 	// handle any error sent by the provider
 	handleError () {
@@ -197,28 +210,6 @@ class ProviderTokenRequest extends RestfulRequest {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			throw this.errorHandler.error('updateAuth', { info: message });
 		}
-	}
-
-	// extract stored token information from cookie, for OAuth 1.0
-	extractTokenFromCookie () {
-		const cookie = `rt-${this.provider}`;
-		const token = this.request.signedCookies[cookie] || (this.request.query._mockToken && this.request.cookies[cookie]);
-		if (!token) {
-			throw this.errorHandler.error('updateAuth', { info: 'token information not found' });
-		}
-		this.response.clearCookie(cookie, {
-			secure: true,
-			signed: true
-		});
-		try {
-			this.oauthToken = JSON.parse(Base64.decode(token));
-		}
-		catch (error) {
-			throw this.errorHandler.error('updateAuth', { info: 'invalid token information' });
-		}
-		this.userId = this.oauthToken.userId;
-		this.teamId = this.oauthToken.teamId;
-		this.host = this.oauthToken.host;
 	}
 
 	// get an OAuth 1.0 access token
