@@ -62,7 +62,7 @@ const BuildIndexes = async function(db, collection) {
 	if (!Build) { return; }
 	const moduleIndexes = AllModuleIndexes[collection];
 	const collectionObj = db.collection(collection);
-	await Promise.all(Object.keys(moduleIndexes).map(async indexName => {
+	for (let indexName in moduleIndexes) {
 		const index = moduleIndexes[indexName];
 		AllFinished.indexes++;
 		console.log('ensuring index on collection', collection, index);
@@ -74,7 +74,7 @@ const BuildIndexes = async function(db, collection) {
 		}
 		AllFinished.indexed++;
 		console.log('indexed collection, index', collection, index);
-	}));
+	}
 };
 
 const DoCollection = async function(db, collection) {
@@ -101,8 +101,8 @@ function WaitUntilFinished() {
 		console.log('mongo connect error', error);
 		process.exit(1);
 	}
-	await Promise.all(Object.keys(AllModuleIndexes).map(async collection => {
+	for (let collection in AllModuleIndexes) {
 		await DoCollection(db, collection);
-	}));
+	}
 	WaitUntilFinished();
 })();
