@@ -441,11 +441,11 @@ class OAuthModule extends APIServerModule {
 
 	// fetch a request token for modules using OAuth 1.0
 	getRequestToken (options) {
-		const { mockToken } = options;
+		const { mockToken, mockTokenSecret } = options;
 		const oauthConsumer = this.initOauth1(options);
 		return new Promise((resolve, reject) => {
-			if (mockToken) {
-				return resolve({ oauthToken: mockToken, oauthTokenSecret: 'mockTokenSecret '});
+			if (mockToken && mockTokenSecret) {
+				return resolve({ oauthToken: mockToken, oauthTokenSecret: mockTokenSecret});
 			}
 			try {
 				oauthConsumer.getOAuthRequestToken(

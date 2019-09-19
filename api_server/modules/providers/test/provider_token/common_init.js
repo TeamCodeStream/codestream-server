@@ -17,6 +17,7 @@ const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
 const Base64 = require('base-64');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
 
 class CommonInit {
 
@@ -82,6 +83,11 @@ class CommonInit {
 				if (this.testHost) {
 					this.state += `!${this.testHost}`;
 				}
+				if (this.provider === 'jiraserver') {
+					this.oauthTokenSecret = RandomString.generate(10);
+					const encodedSecret = new TokenHandler(SecretsConfig.auth).generate({ sec: this.oauthTokenSecret }, 'oasec');
+					this.state += `!${encodedSecret}`;
+				}
 				callback();
 			}
 		);
@@ -94,15 +100,9 @@ class CommonInit {
 		this.code = RandomString.generate(16);
 		this.mockToken = RandomString.generate(16);
 		const path = this.getPath();
-		const cookie = this.provider === 'jiraserver' ? this.getJiraServerCookie() : undefined;
 		if (this.runRequestAsTest) {
 			// in this case, the actual test is actually making the request, so just prepare the path
 			this.path = path;
-			if (cookie) {
-				this.apiRequestOptions = this.apiRequestOptions || {};
-				this.apiRequestOptions.headers = this.apiRequestOptions.headers || {};
-				this.apiRequestOptions.headers.cookie = cookie;
-			}
 			return callback();
 		}
 		this.path = '/users/me';
@@ -112,8 +112,7 @@ class CommonInit {
 				path: path,
 				requestOptions: {
 					noJsonInResponse: true,
-					expectRedirect: true,
-					headers: cookie ? { cookie } : undefined
+					expectRedirect: true
 				}
 			},
 			callback
@@ -269,19 +268,6 @@ class CommonInit {
 		};
 		const url = 'https://api.ringcentral.com/restapi/oauth/token';
 		return { url, parameters  };
-	}
-
-	getJiraServerCookie () {
-		this.oauthTokenSecret = RandomString.generate(16);
-		const cookie = `rt-${this.provider}`;
-		const token = Base64.encode(JSON.stringify({
-			oauthToken: RandomString.generate(16),
-			oauthTokenSecret: this.oauthTokenSecret,
-			userId: this.currentUser.user.id,
-			teamId: this.team.id,
-			host: this.testHost
-		}));
-		return `${cookie}=${token}; `;
 	}
 }
 

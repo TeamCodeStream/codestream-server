@@ -162,7 +162,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			catch (error) {
 				throw this.errorHandler.error('tokenInvalid', { reason: 'unable to obtain token secret' });
 			}
-			if (secretPayload.type !== 'oasec') {
+			if (!secretPayload || secretPayload.type !== 'oasec') {
 				throw this.errorHandler.error('tokenInvalid', { reason: 'token secret is not of the correct type' });
 			}
 			this.oauthToken = {

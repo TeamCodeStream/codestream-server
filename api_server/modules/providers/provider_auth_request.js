@@ -52,9 +52,11 @@ class ProviderAuthRequest extends RestfulRequest {
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
 		// mock token must be accompanied by secret
-		if (this.request.query._mockToken && decodeURIComponent(this.request.query._secret || '') !== SecretsConfig.confirmationCheat) {
+		if (this.request.query._mockToken && this.request.query._mockTokenSecret &&
+			decodeURIComponent(this.request.query._secret || '') !== SecretsConfig.confirmationCheat) {
 			this.warn('Deleting mock token because incorrect secret sent');
 			delete this.request.query._mockToken;
+			delete this.request.query._mockTokenSecret;
 		}
 		delete this.request.query._secret;
 
@@ -65,7 +67,7 @@ class ProviderAuthRequest extends RestfulRequest {
 					string: ['code']
 				},
 				optional: {
-					string: ['host', '_mockToken']
+					string: ['host', '_mockToken', '_mockTokenSecret']
 				}
 			}
 		);
@@ -95,12 +97,13 @@ class ProviderAuthRequest extends RestfulRequest {
 		if (!this.serviceAuth.usesOauth1()) {
 			return;
 		}
-		let { host, _mockToken } = this.request.query;
+		let { host, _mockToken, _mockTokenSecret } = this.request.query;
 		const options = {
 			request: this,
 			host,
 			team: this.team,
-			mockToken: _mockToken
+			mockToken: _mockToken,
+			mockTokenSecret: _mockTokenSecret
 		};
 		this.requestTokenInfo = await this.serviceAuth.getRequestToken(options);
 	}

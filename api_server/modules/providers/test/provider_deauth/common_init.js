@@ -7,7 +7,7 @@ const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
-const Base64 = require('base-64');
+const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
 
 class CommonInit {
 
@@ -71,6 +71,11 @@ class CommonInit {
 				if (this.testHost) {
 					this.state += `!${this.testHost}`;
 				}
+				if (this.provider === 'jiraserver') {
+					this.oauthTokenSecret = RandomString.generate(10);
+					const encodedSecret = new TokenHandler(SecretsConfig.auth).generate({ sec: this.oauthTokenSecret }, 'oasec');
+					this.state += `!${encodedSecret}`;
+				}
 				callback();
 			}
 		);
@@ -81,7 +86,6 @@ class CommonInit {
 		this.code = RandomString.generate(16);
 		this.mockToken = RandomString.generate(16);
 		const path = this.getPath();
-		const cookie = this.provider === 'jiraserver' ? this.getJiraServerCookie() : undefined;
 		this.requestSentAfter = Date.now();		
 		this.doApiRequest(
 			{
@@ -89,8 +93,7 @@ class CommonInit {
 				path: path,
 				requestOptions: {
 					noJsonInResponse: true,
-					expectRedirect: true,
-					headers: cookie ? { cookie } : undefined
+					expectRedirect: true
 				}
 			},
 			callback
@@ -146,19 +149,6 @@ class CommonInit {
 			_mockToken: this.mockToken,
 			_secret: SecretsConfig.confirmationCheat
 		};
-	}
-
-	getJiraServerCookie () {
-		this.oauthTokenSecret = RandomString.generate(16);
-		const cookie = `rt-${this.provider}`;
-		const token = Base64.encode(JSON.stringify({
-			oauthToken: RandomString.generate(16),
-			oauthTokenSecret: this.oauthTokenSecret,
-			userId: this.currentUser.user.id,
-			teamId: this.team.id,
-			host: this.testHost
-		}));
-		return `${cookie}=${token}; `;
 	}
 }
 

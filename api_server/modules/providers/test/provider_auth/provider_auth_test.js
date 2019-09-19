@@ -17,6 +17,7 @@ const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
 const RandomString = require('randomstring');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
 
 class ProviderAuthTest extends CodeStreamAPITest {
 
@@ -90,7 +91,8 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				this.path = `/no-auth/provider-auth/${this.provider}?code=${this.authCode}`;
 				if (this.provider === 'jiraserver') {
 					this.mockToken = RandomString.generate(12);
-					this.path += `&_mockToken=${this.mockToken}&_secret=${encodeURIComponent(SecretsConfig.confirmationCheat)}`;
+					this.mockTokenSecret = RandomString.generate(12);
+					this.path += `&_mockToken=${this.mockToken}&_mockTokenSecret=${this.mockTokenSecret}&_secret=${encodeURIComponent(SecretsConfig.confirmationCheat)}`;
 				}
 				const authOrigin = this.provider === 'youtrack' ? `${ApiConfig.publicApiUrl}/no-auth` : ApiConfig.authOrigin;
 				this.redirectUri = `${authOrigin}/provider-token/${this.provider}`;
@@ -213,7 +215,8 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getJiraServerRedirectData () {
-		const callback = `${ApiConfig.publicApiUrl}/no-auth/provider-token/${this.provider}`;
+		const encodedSecret = new TokenHandler(SecretsConfig.auth).generate({ sec: this.mockTokenSecret }, 'oasec');
+		const callback = `${ApiConfig.publicApiUrl}/no-auth/provider-token/${this.provider}?state=${this.state}!${encodedSecret}`;
 		const parameters = {
 			oauth_token: this.mockToken,
 			oauth_callback: callback
