@@ -19,7 +19,7 @@ class MarkerTooBigTest extends CodemarkMarkerTest {
 	makePostData (callback) {
 		// put a whole bunch of code in the marker, greater than the limit
 		super.makePostData(() => {
-			this.data.codemark.markers[0].code = 'x'.repeat(10001);
+			this.data.codemark.markers[0].code = 'x'.repeat(100001);
 			callback();
 		});
 	}
