@@ -64,7 +64,7 @@ elif args.action == 'publish':
 elif args.action == 'tag':
 	build.tag()                               # update version info and apply tags
 elif args.action == 'release':
-	build.release()                           # release assets to the general public
+	build.release(releaseToRTE=True)          # release assets to the general public
 elif args.action == 'awsLambda':
 	# create a lambda function definition for the currently loaded environment
 	build.awsLambda(lambdaConfig='./out/')   # create lambda config
