@@ -54,7 +54,7 @@ elif args.action == 'pack':
 	buildName = build.getDisplayVersion("name")          # outbound-email
 	fullName = build.getDisplayVersion("full")           # [prefix-]outbound-email-1.2.3+1000
 	build.execCmd("npm run build")
-	build.execCmd(f"pwd; ls; renaming ./out/{buildName}.zip -> {fullName}.zip")
+	build.execCmd(f"pwd; ls; echo 'moving ./out/{buildName}.zip to src/{fullName}.zip'")
 	os.rename(f"./out/{buildName}.zip", f"src/{fullName}.zip")
 	build.getMD5SumsForAssets(directory="src")
 	build.writeAssetInfo(directory="src")
