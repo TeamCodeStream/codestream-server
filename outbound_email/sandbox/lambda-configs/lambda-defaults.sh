@@ -5,7 +5,7 @@ if [ -z "$CS_LAMBDA_VERSION" ]; then
 	if [ -n "$TCBUILD_ASSET_FULL_NAME" ]; then
 		export CS_LAMBDA_VERSION=$TCBUILD_ASSET_FULL_NAME
 	else
-		export CS_LAMBDA_VERSION="`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p name`-`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/src/package.json -p version`"
+		export CS_LAMBDA_VERSION="`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/package.json -p name`-`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/package.json -p version`"
 	fi
 fi
 [ -z "$CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE" ] && export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.generic.template.json
