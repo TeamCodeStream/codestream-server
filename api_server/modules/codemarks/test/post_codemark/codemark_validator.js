@@ -244,7 +244,10 @@ class CodemarkValidator {
 
 	// validate that the marker locations structure matches expectations for a created marker
 	validateMarkerLocations (data) {
-		if (this.test.dontExpectMarkerLocations) { 
+		const noCommitHashOrLocations = !this.inputCodemark.markers.find(inputMarker => {
+			return inputMarker.commitHash && inputMarker.location;
+		});
+		if (this.test.dontExpectMarkerLocations || noCommitHashOrLocations) { 
 			Assert.equal(typeof data.markerLocations, 'undefined', 'markerLocations should be undefined');
 			return;
 		}
