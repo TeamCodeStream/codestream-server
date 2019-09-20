@@ -2,7 +2,7 @@
 
 const CodemarkMarkerTest = require('./codemark_marker_test');
 
-class MarkerStreamOnTheFly extends CodemarkMarkerTest {
+class MarkerStreamOnTheFlyTest extends CodemarkMarkerTest {
 
 	constructor (options) {
 		super(options);
@@ -19,15 +19,17 @@ class MarkerStreamOnTheFly extends CodemarkMarkerTest {
 	makePostData (callback) {
 		// specify to create a file-stream for the marker on the fly, instead of the file stream already created
 		super.makePostData(() => {
-			const marker = this.data.codemark.markers[0];
-			delete marker.fileStreamId;
-			Object.assign(marker, {
-				file: this.streamFactory.randomFile(),
-				remotes: this.useRemotes || [this.repoFactory.randomUrl()]
-			});
+			for (let i = 0; i < this.expectMarkers; i++) {
+				const marker = this.data.codemark.markers[i];
+				delete marker.fileStreamId;
+				Object.assign(marker, {
+					file: this.streamFactory.randomFile(),
+					remotes: this.useRemotes || [this.repoFactory.randomUrl()]
+				});
+			}
 			callback();
 		});
 	}
 }
 
-module.exports = MarkerStreamOnTheFly;
+module.exports = MarkerStreamOnTheFlyTest;

@@ -6,7 +6,7 @@ class CodemarkMarkerTest extends CodemarkTest {
 
 	constructor (options) {
 		super(options);
-		this.expectMarker = true;
+		this.expectMarkers = 1;
 		this.repoOptions.creatorIndex = 1;
 	}
 
@@ -16,7 +16,7 @@ class CodemarkMarkerTest extends CodemarkTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.codemark.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0].id });
+			this.data.codemark.markers = this.markerFactory.createRandomMarkers(this.expectMarkers, { fileStreamId: this.repoStreams[0].id });
 			callback();
 		});
 	}

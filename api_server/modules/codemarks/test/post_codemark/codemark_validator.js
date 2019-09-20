@@ -63,8 +63,8 @@ class CodemarkValidator {
 		}
 
 		// if we are expecting a marker with the codemark, validate it
-		if (this.test.expectMarker) {
-			this.validateMarker(data);
+		if (this.test.expectMarkers) {
+			this.validateMarkers(data);
 			this.validateMarkerLocations(data);
 		}
 		else {
@@ -89,17 +89,24 @@ class CodemarkValidator {
 	}
 
 	// validate the markers created as a result of the codemark with markers
-	validateMarker (data) {
+	validateMarkers (data) {
+		Assert(data.markers instanceof Array, 'markers is not an array');
+		Assert.equal(data.markers.length, this.test.expectMarkers, 'length of markers array should be ' + this.test.expectMarkers);
+		for (let i = 0; i < this.test.expectMarkers; i++) {
+			this.validateMarker(data, i);
+		}
+	}
+
+	// validate the nth marker created as a result of the codemark with markers
+	validateMarker (data, n) {
 		let errors = [];
 		const codemark = data.codemark;
-		Assert(data.markers instanceof Array, 'markers is not an array');
-		Assert.equal(data.markers.length, 1, 'length of markers array should be 1');
-		const marker = data.markers[0];
-		const inputMarker = this.inputCodemark.markers[0];
+		const marker = data.markers[n];
+		const inputMarker = this.inputCodemark.markers[n];
 		const repoUrl = this.getExpectedRepoUrl(inputMarker);
 		const file = this.getExpectedFile(inputMarker);
-		const repoId = this.getExpectedRepoId(data);
-		const fileStreamId = this.getExpectedFileStreamId(data);
+		const repoId = this.getExpectedRepoId(data, n);
+		const fileStreamId = this.getExpectedFileStreamId(data, n);
 		const commitHash = this.getExpectedCommitHash(inputMarker);
 		let result = (
 			((marker.id === marker._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
@@ -128,7 +135,7 @@ class CodemarkValidator {
 				((typeof marker.postId === 'undefined') || errors.push('marker postId is not undefined'))
 			);
 		}
-		Assert(result === true && errors.length === 0, 'returned marker not valid: ' + errors.join(', '));
+		Assert(result === true && errors.length === 0, `returned marker ${n} not valid: ${errors.join(', ')}`);
 
 		if (this.test.expectProviderType) {
 			Assert.equal(marker.providerType, codemark.providerType, 'marker providerType not equal to codemark providerType');
@@ -138,12 +145,12 @@ class CodemarkValidator {
 		}
 
 		Assert.deepEqual(marker.locationWhenCreated, inputMarker.location, 'marker location does not match the given location');
-		Assert.deepEqual(codemark.markerIds, [marker.id], 'codemark markerIds does not match the created marker');
-		Assert.deepEqual(codemark.fileStreamIds, [marker.fileStreamId || null], 'codemark fileStreamIds does not match the file streams of the created markers');
+		Assert.equal(codemark.markerIds[n], marker.id, `codemark ${n}th element of markerIds does not match the ${n}th marker`);
+		Assert.equal(codemark.fileStreamIds[n], marker.fileStreamId || null, `codemark ${n}th element of fileStreamIds does not match the file streams of the ${n}th marker`);
 
 		// validate the reference locations, containing the commit hash and location plus
 		// any other additional commit hashes and locations supplied at post creation time
-		this.validateReferenceLocations(marker);
+		this.validateReferenceLocations(marker, n);
 
 		// verify the marker has no attributes that should not go to clients
 		this.test.validateSanitized(marker, CodemarkTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
@@ -151,8 +158,8 @@ class CodemarkValidator {
 
 	// validate the reference locations, containing the commit hash and location plus
 	// any other additional commit hashes and locations supplied at post creation time
-	validateReferenceLocations (marker) {
-		const markerData = this.inputCodemark.markers[0];
+	validateReferenceLocations (marker, n) {
+		const markerData = this.inputCodemark.markers[n];
 		const expectedReferenceLocations = (markerData.referenceLocations || []).map(rl => {
 			return {
 				...rl,
@@ -200,9 +207,9 @@ class CodemarkValidator {
 	}
 
 	// get the repo ID we expect to see in the marker
-	getExpectedRepoId (data) {
+	getExpectedRepoId (data, n) {
 		if (this.test.repoOnTheFly) {
-			return data.repos[0].id;
+			return data.repos[n].id;
 		}
 		else if (!this.test.dontExpectRepoId && this.test.repo) {
 			return this.test.repo.id;
@@ -213,9 +220,9 @@ class CodemarkValidator {
 	}
 
 	// get the file stream ID we expect to see in the marker
-	getExpectedFileStreamId (data) {
+	getExpectedFileStreamId (data, n) {
 		if (this.test.streamOnTheFly) {
-			return data.streams[0].id;
+			return data.streams[n].id;
 		}
 		else if (!this.test.dontExpectFileStreamId && this.test.repoStreams && this.test.repoStreams[0]) {
 			return this.test.repoStreams[0].id;
@@ -237,31 +244,38 @@ class CodemarkValidator {
 
 	// validate that the marker locations structure matches expectations for a created marker
 	validateMarkerLocations (data) {
-		const inputMarker = this.inputCodemark.markers[0];
-		if (this.test.dontExpectMarkerLocations || !inputMarker.commitHash || !inputMarker.location) { 
+		if (this.test.dontExpectMarkerLocations) { 
 			Assert.equal(typeof data.markerLocations, 'undefined', 'markerLocations should be undefined');
 			return;
 		}
-		const marker = data.markers[0];
+		const expectedMarkerLocations = [];
+		for (let i = 0; i < this.test.expectMarkers; i++) {
+			const marker = data.markers[i];
+			const inputMarker = this.inputCodemark.markers[i];
+			if (!inputMarker.commitHash || !inputMarker.location) { 
+				continue;
+			}
 
-		const expectedMarkerLocations = (inputMarker.referenceLocations || []).map(rl => {
-			return {
+			expectedMarkerLocations.push({
 				teamId: this.test.team.id,
 				streamId: marker.fileStreamId,
-				commitHash: rl.commitHash.toLowerCase(),
+				commitHash: marker.commitHashWhenCreated,
 				locations: {
-					[marker.id]: rl.location
+					[marker.id]: inputMarker.location
 				}
-			};
-		});
-		expectedMarkerLocations.unshift({
-			teamId: this.test.team.id,
-			streamId: marker.fileStreamId,
-			commitHash: marker.commitHashWhenCreated,
-			locations: {
-				[marker.id]: inputMarker.location
-			}
-		});
+			});
+	
+			(inputMarker.referenceLocations || []).forEach(rl => {
+				expectedMarkerLocations.push({
+					teamId: this.test.team.id,
+					streamId: marker.fileStreamId,
+					commitHash: rl.commitHash.toLowerCase(),
+					locations: {
+						[marker.id]: rl.location
+					}
+				});
+			});
+		}
 
 		Assert.deepEqual(data.markerLocations, expectedMarkerLocations, 'markerLocations location for marker does not match');
 	}

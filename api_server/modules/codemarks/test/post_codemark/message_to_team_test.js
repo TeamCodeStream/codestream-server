@@ -20,7 +20,7 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
 			this.repoOptions.creatorIndex = 1;
-			this.expectMarker = true;
+			this.expectMarkers = 1;
 			callback();
 		});
 	}

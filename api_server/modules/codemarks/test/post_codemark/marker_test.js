@@ -12,7 +12,7 @@ class MarkerTest extends PostCodemarkTest {
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
 			this.repoOptions.creatorIndex = 1;
-			this.expectMarker = true;
+			this.expectMarkers = 1;
 			callback();
 		});
 	}
@@ -25,7 +25,7 @@ class MarkerTest extends PostCodemarkTest {
 
 	makeCodemarkData (callback) {
 		super.makeCodemarkData(() => {
-			this.data.markers = this.markerFactory.createRandomMarkers(1, { fileStreamId: this.repoStreams[0].id });
+			this.data.markers = this.markerFactory.createRandomMarkers(this.expectMarkers, { fileStreamId: this.repoStreams[0].id });
 			callback();
 		});
 	}

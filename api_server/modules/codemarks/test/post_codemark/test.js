@@ -71,6 +71,8 @@ const InvalidCommitHashInReferenceLocation = require('./invalid_commit_hash_in_r
 const EmptyCommitHashInReferenceLocation = require('./empty_commit_hash_in_reference_location_test');
 const NoLocationInReferenceLocationTest = require('./no_location_in_reference_location_test');
 const InvalidLocationInReferenceLocationTest = require('./invalid_location_in_reference_location_test');
+const MultipleMarkersTest = require('./multiple_markers_test');
+const MultipleMarkersStreamOnTheFlyTest = require('./multiple_markers_stream_on_the_fly_test');
 
 class PostCodemarkRequestTester {
 
@@ -160,6 +162,8 @@ class PostCodemarkRequestTester {
 		new EmptyCommitHashInReferenceLocation().test();
 		new NoLocationInReferenceLocationTest().test();
 		new InvalidLocationInReferenceLocationTest().test();
+		new MultipleMarkersTest().test();
+		new MultipleMarkersStreamOnTheFlyTest().test();
 	}
 }
 
