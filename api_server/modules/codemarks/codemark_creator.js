@@ -173,9 +173,9 @@ class CodemarkCreator extends ModelCreator {
 		if (this.trialRun) {
 			this.trialRunMarkers = [];
 		}
-		await Promise.all(this.attributes.markers.map(async marker => {
+		for (let marker of this.attributes.markers) {
 			await this.handleMarker(marker);
-		}));
+		}
 		if (!this.trialRun) {
 			this.attributes.markerIds = this.transforms.createdMarkers.map(marker => marker.id);
 			this.attributes.fileStreamIds = this.transforms.createdMarkers.map(marker => (marker.get('fileStreamId') || null));
