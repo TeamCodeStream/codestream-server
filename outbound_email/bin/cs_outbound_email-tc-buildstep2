@@ -54,9 +54,10 @@ elif args.action == 'pack':
 	buildName = build.getDisplayVersion("name")          # outbound-email
 	fullName = build.getDisplayVersion("full")           # [prefix-]outbound-email-1.2.3+1000
 	build.execCmd("npm run build")
-	os.rename(f"./out/{buildName}.zip", f"{fullName}.zip")
-	build.getMD5SumsForAssets()
-	build.writeAssetInfo()
+	build.execCmd(f"pwd; ls; renaming ./out/{buildName}.zip -> {fullname}.zip")
+	os.rename(f"./out/{buildName}.zip", f"src/{fullName}.zip")
+	build.getMD5SumsForAssets(directory="src")
+	build.writeAssetInfo(directory="src")
 elif args.action == 'publish':
 	# lambda assets (only ones published) are published under their runTimeEnvironment
 	build.publish(publishToRTE=True)          # publish assets for distribution
