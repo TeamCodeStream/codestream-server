@@ -21,20 +21,44 @@ that does *NOT* have any sandboxes loaded, run:
 $ dt-sb-configure -R -n <sandbox-name> -e unified-cfg-file.sh
 ```
 
+### TL;DR - Initial migration steps
+1. Make sure dev_tools is up to date as well as your secrets (see below).
+1. If you intend to run the *codestream cloud* configuration on your local
+   machine:
+   ```
+   $ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
+   ```
+1. Update your existing sandbox configurations or install new sandboxes to use
+   the `unified-cfg-file.sh` configuration.
+1. Start all services
+
 
 ### Keep your config files up to date
-1. Bring your development environment, including dev_tools, up to date
-   (`dt-selfupdate -y`). Always keep your dev_tools installation updated.
+1. If you're using dev_tools on your own computer, bring it up to date
+   (`dt-selfupdate -y`). Always keep your dev_tools installation updated. This
+   does not apply to our managed EC2 instances, which keep it updated
+   automatically.
+
 1. Update your secrets (`dt-update-secrets`).
 
+
 ### Managing the Configuration Files
+
 1. Look in your **~/.codestream/config/** directory. You'll find config files
    (ending in `.json`) and templates (ending in `.json.template`). The list of
    config files and templates will grow over time. Consider these read-only.
+   They are overwritten whenever you run `dt-update-secrets`.
 
-   Config files are fully functional and can be used directly where as templates
-   must be copied to the corresponding `.json` file suffix and edited to
-   replace the template variables within `{{TEMPLATE_VAR_EXAMPLE}}`.
+   Config files (`.json`) are fully functional and can be used directly where as
+   templates (`.json.template`) must be copied to the corresponding `.json` file
+   suffix and edited to replace the template variables within
+   `{{TEMPLATE_VAR_EXAMPLE}}`.
+
+   The `dt-merge-json` script can be used to integrate on-going updates of the
+   deployed config files and templates with your working copy. It will ensure
+   all properties from the _new file_ are merged into the _existing file_ but
+   will retain pre-existing values from the _existing file_. It's got limited
+   abilities but should suffice for maintaining most config file updates.
 
 1. To accomodate versioning of the config file schema (see below) as well as
    selecting an environment, the default sandbox behavior will try to find the
@@ -54,18 +78,18 @@ $ dt-sb-configure -R -n <sandbox-name> -e unified-cfg-file.sh
    This value will change over time and you will end up with numerious
    `codestream-cloud_local_*_json` (eg) files. That's normal.
 
-1. The default behavior for sandboxes configured with `unified-cfg-file.sh` is
-   to look for a configuration file called
-   **~/.codestream/config/codestream-services-config.json** as a last resort.
-   One option for maintaining your config file is to manage this symbolic link
-   yourself.
+1. The `unified-cfg-file.sh` sandbox configuration will look for a configuration
+   file called **~/.codestream/config/codestream-services-config.json** as a
+   last resort. One option for maintaining your config file is to manage this
+   symbolic link yourself.
    ```
    $ cd ~/.codestream/config
    $ ln -snf <the-config-file-you-want.json> codestream-services-config.json
    $ ls -l
    ```
    You must set the link **_before_** loading any sandboxes.  If they're already
-   loaded, kill those terminals and fire up new ones and reload.
+   loaded, kill those terminals and fire up new ones and reload after you've set
+   the link.
 
 1. Alternatively you can create this special file to indicate that you want the
    _proper_ config schema version for a particular configuration. For example,
@@ -76,7 +100,9 @@ $ dt-sb-configure -R -n <sandbox-name> -e unified-cfg-file.sh
    $ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
    ```
 
-The shell function that applies this selection algorythm is called _sandutil_get_codestream_cfg_file()_ and can be found in [dev_tools/lib/sandbox_utils.sh](https://github.com/TeamCodeStream/dev_tools/blob/master/lib/sandbox_utils.sh)
+The shell function that applies this selection algorythm is called
+_sandutil_get_codestream_cfg_file()_ and can be found in
+[dev_tools/lib/sandbox_utils.sh](https://github.com/TeamCodeStream/dev_tools/blob/master/lib/sandbox_utils.sh)
 
 ### Distributed Configuration Files and Templates
 

@@ -26,9 +26,7 @@ RUN npm install --no-save
 EXPOSE 443
 
 ENV CS_API_TOP=/opt/api/api_server
-ENV CS_API_CFG_FILE=/opt/config/codestream-services-config.json
+ENV CSSVC_CFG_FILE=/opt/config/codestream-services-config.json
 # ENV CS_API_SHOW_CFG=1
-# ENV AWS_ACCESS_KEY_ID=
-# ENV AWS_SECRET_ACCESS_KEY=
 
 CMD [ "/opt/api/api_server/bin/cs_api-start-docker" ]
