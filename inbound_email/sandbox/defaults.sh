@@ -102,6 +102,6 @@ export CS_MAILIN_SENDER_EMAIL=alerts@codestream.com
 #export CS_MAILIN_LOG_CONSOLE_OK=1
 
 # For the local poller service (cs_mailin-local-poller)
-# Inbound user and mail server
-export CS_MAILIN_INBOUND_MAIL_SERVER=web@localmail.codestream.us
-export CS_MAILIN_INBOUND_MAIL_DIR=/home/web/codestream-mail/inbound/web/new
+# Remote Inbound mail server name and directory
+export CS_MAILIN_REMOTE_INBOUND_MAIL_SERVER=web@localmail.codestream.us
+export CS_MAILIN_REMOTE_INBOUND_MAIL_DIR=/home/web/codestream-mail/inbound/web/new
