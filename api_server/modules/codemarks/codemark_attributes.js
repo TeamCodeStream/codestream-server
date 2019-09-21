@@ -27,7 +27,7 @@ module.exports = {
 	},
 	markerIds: {
 		type: 'arrayOfIds',
-		maxLength: 10,
+		maxLength: 100,
 		description: 'The IDs of any @@#markers#marker@@ associated with this codemark'
 	},
 	fileStreamIds: {

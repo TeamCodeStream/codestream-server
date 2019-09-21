@@ -173,6 +173,9 @@ class MarkerCreator extends ModelCreator {
 		if (this.codemarkId) {
 			this.attributes.codemarkId = this.codemarkId;
 		}
+		if (this.supersedesMarkerId) {
+			this.attributes.supersedesMarkerId = this.supersedesMarkerId;
+		}
 		await this.getTeam();					// get the team that will own the marker
 		await this.getStream();					// get the file-stream for the marker, if provided
 		await this.getOrCreateRepo();			// get or create a repo to which the marker will belong, if applicable

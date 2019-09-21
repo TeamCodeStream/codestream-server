@@ -50,7 +50,7 @@ class CodemarkCreator extends ModelCreator {
 			this.attributes.markers,
 			{
 				type: 'array(object)',
-				maxLength: 10,
+				maxLength: 100,
 				maxObjectLength: 100000
 			}
 		);

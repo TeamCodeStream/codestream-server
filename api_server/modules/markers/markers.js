@@ -24,6 +24,11 @@ const MARKER_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'markers/:id/reference-location',
 		requestClass: require('./reference_location_request')
+	},
+	{
+		method: 'put',
+		path: 'markers/:id/move',
+		requestClass: require('./move_request')
 	}
 ];
 

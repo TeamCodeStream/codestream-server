@@ -46,7 +46,7 @@ module.exports = {
 	},
 	code: {
 		type: 'string',
-		maxLength: 10000,
+		maxLength: 100000,
 		description: 'The code associated with this marker'
 	},
 	file: {
@@ -72,5 +72,13 @@ module.exports = {
 		type: 'arrayOfObjects',
 		maxLength: 500,
 		description: 'Array of objects with commitHash and optional flags, indicating reference commit hashes where the marker is known to have calculated marker locations'
+	},
+	supersededByMarkerId: {
+		type: 'id',
+		description: 'ID of the @@#marker#marker@@ that superseded this one, when the code block to which this marker refers was moved'
+	},
+	supersedesMarkerId: {
+		type: 'id',
+		description: 'ID of the @@#marker@marker@@ that this one superseded, when the code block to which this marker refers was moved'
 	}
 };
