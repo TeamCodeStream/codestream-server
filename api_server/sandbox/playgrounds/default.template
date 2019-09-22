@@ -1,6 +1,7 @@
 
 #desc# mongo/api playground
 
+#playgroundName# api
 #sandboxTypes# mongo,cs_api
 #sandboxes# {{SBNAME_mongo}},{{SBNAME_cs_api}}
 #environment# local

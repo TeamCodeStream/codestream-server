@@ -9,12 +9,14 @@
 # node_modules/.bin/ from whichever node-based sandbox
 # was loaded last.
 
-#sandboxTypes# mongo,cs_api,cs_mailout
-#sandboxes# {{SBNAME_mongo}},{{SBNAME_cs_api}},{{SBNAME_cs_mailout}}
+#playgroundName# cloud-dev
+#sandboxTypes# mongo,cs_api,cs_mailout,cs_mailin
+#sandboxes# {{SBNAME_mongo}},{{SBNAME_cs_api}},{{SBNAME_cs_mailout}},{{SBNAME_cs_mailin}}
 #environment# local
 
 dt_load {{SBNAME_mongo}} --quiet
 dt_load {{SBNAME_cs_mailout}} --quiet
+dt_load {{SBNAME_cs_mailin}} --quiet
 dt_load {{SBNAME_cs_api}}
 if [ "$1" == start ]; then
 	mdb-service start

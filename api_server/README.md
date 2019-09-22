@@ -40,9 +40,13 @@ The CodeStream API Service is lovely.
 1. Create a playground for setting up future terminals with your mongo + api
    sandboxes:
 	```
-	$ dt-sb-create-playground -n <your-api-playground-name> -t $CS_API_TOP/sandbox/playgrounds/default.template
+	$ dt-sb-create-playground -t $CS_API_TOP/sandbox/playgrounds/default.template
 	```
-	There are other playground templates you may find useful in $CS_API_TOP/sandbox/playgrounds/.
+	or
+	```
+	$ dt-sb-create-playground -n <custom-playground-name> -t $CS_API_TOP/sandbox/playgrounds/default.template
+	```
+   There are other playground templates you may find useful in $CS_API_TOP/sandbox/playgrounds/.
 
 
 ## Common Commands

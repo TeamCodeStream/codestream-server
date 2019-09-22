@@ -39,8 +39,13 @@ last.
 
 1. Create your playground file (**$DT_PLAYGROUNDS/\<onprem-playground-filename\>**) from this template.
 	```
-	$ dt-sb-create-playground -n <onprem-playground-filename> -t $CS_API_TOP/sandbox/playgrounds/consolidated-onprem.template
+	$ dt-sb-create-playground -t $CS_API_TOP/sandbox/playgrounds/consolidated-onprem.template
 	```
+	or
+	```
+	$ dt-sb-create-playground -n <custom-playground-name> -t $CS_API_TOP/sandbox/playgrounds/consolidated-onprem.template
+	```
+
 
 1. When loading your playground in future shells, you can use the optional
    **--start** and **--stop** parameters. The default start/stop behavior
