@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#desc# stop/start/status all cs services in 'cloud-dev' playground
+
+function usage {
+	echo "usage: `basename $0` {action}"
+	exit 1
+}
+
+function signal_services {
+	local action=$1
+	cs_api-service $action
+	cs_mailin-service $action
+	cs_outbound_email-service $action
+}
+
+case "$1" in
+	start)
+		cs_api-service start -- --one_worker
+		cs_mailin-service start -- --one_worker
+		cs_outbound_email-service start -- --one_worker
+		sleep 1
+		echo
+		echo
+		signal_services status
+		;;
+	stop)
+		signal_services stop
+		sleep 1
+		signal_services status
+		;;
+	status)
+		signal_services status
+		;;
+	*) usage;;
+esac
