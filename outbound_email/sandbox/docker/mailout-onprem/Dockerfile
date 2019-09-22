@@ -15,7 +15,7 @@ ADD bin/outbound_email_server.js /opt/mailout/outbound_email/bin/outbound_email_
 RUN npm install --no-save
 
 ENV CS_OUTBOUND_EMAIL_TOP=/opt/mailout/outbound_email
-ENV CS_OUTBOUND_EMAIL_CFG_FILE=/opt/config/codestream-services-config.json
+ENV CSSVC_CFG_FILE=/opt/config/codestream-services-config.json
 # ENV CS_OUTBOUND_EMAIL_SHOW_CFG=1
 
 CMD [ "/opt/mailout/outbound_email/bin/outbound_email_server.js" ]
