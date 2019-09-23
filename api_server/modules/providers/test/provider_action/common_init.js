@@ -20,6 +20,10 @@ class CommonInit {
 
 	init (callback) {
 		this.linkType = this.linkType || 'web';
+		if (!this.mockMode) {
+			this.apiRequestOptions = this.apiRequestOptions || {};
+			this.apiRequestOptions.noJsonInRequest = true;
+		}
 		// get an auth-code and set the token
 		BoundAsync.series(this, [
 			this.setTestOptions,
@@ -83,16 +87,21 @@ class CommonInit {
 				actionPayload.externalProvider = 'trello';
 			}
 		}
-		this.data = {
-			payload: {
-				user: {
-					id: this.mockUserId
-				},
-				actions: [{
-					action_id: JSON.stringify(actionPayload)
-				}]
-			}
+
+		const payload = {
+			user: {
+				id: this.mockUserId
+			},
+			actions: [{
+				action_id: JSON.stringify(actionPayload)
+			}]
 		};
+		if (this.mockMode) {
+			this.data = { payload };
+		}
+		else {
+			this.data = `payload=${encodeURIComponent(JSON.stringify(payload))}`;
+		}
 
 		const properties = {
 			distinct_id: this.user ? this.user.id : this.mockUserId,
