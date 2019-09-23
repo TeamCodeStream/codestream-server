@@ -16,24 +16,11 @@ class BodyParserModule extends APIServerModule {
 					return next();
 				}
 
-				if (request.path.match(/provider-action/)) {
-					var data='';
-					//request.setEncoding('utf8');
-					request.on('data', function(chunk) { 
-						data += chunk;
-					});
-					request.on('end', function() {
-						this.api.log('RAW PROVIDER ACTION BODY: ' + data);
-						next();
-					});
-				}
-				else {
-					// we only need to obtain the middleware function once
-					this.jsonParserFunc = this.jsonParserFunc || BodyParser.json({
-						reviver: this.jsonBodyReviver
-					});
-					this.jsonParserFunc(request, response, next);
-				}
+				// we only need to obtain the middleware function once
+				this.jsonParserFunc = this.jsonParserFunc || BodyParser.json({
+					reviver: this.jsonBodyReviver
+				});
+				this.jsonParserFunc(request, response, next);
 			},
 
 			// form-data

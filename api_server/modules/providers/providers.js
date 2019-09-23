@@ -81,6 +81,37 @@ class Providers extends APIServerModule {
 		return ROUTES;
 	}
 
+	middlewares () {
+		return (request, response, next) => {
+			if (this.api.config.api.mockMode) {
+				return next();
+			}
+
+			// HACK: the provider-action request (coming from slack) is form data with a value that is 
+			// encoded JSON data ... monumentally stupid
+			if (!request.path.match(/^\/no-auth\/provider-action/)) {
+				return next();
+			}
+
+			let data = '';
+			request.on('data', chunk => { 
+				data += chunk;
+			});
+			request.on('end', () => {
+				const [ key, value ] = data.split('=');
+				if (key === 'payload') {
+					try {
+						request.body = { payload: JSON.parse(decodeURIComponent(value)) };
+					}
+					catch (error) {
+						request.body = { };
+					}
+				}
+				next();
+			});
+		};
+	}
+
 	// describe any errors associated with this module, for help
 	describeErrors () {
 		return {
