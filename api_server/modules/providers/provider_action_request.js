@@ -25,6 +25,7 @@ class ProviderActionRequest extends RestfulRequest {
 	async process () {
 		this.provider = this.request.params.provider.toLowerCase();
 
+		this.log('PROVIDER ACTION PAYLOAD: ' + JSON.stringify(this.request.body, undefined, 5));
 		await this.requireAndAllow();	// require certain parameters, discard unknown parameters
 
 		this.parseActionInfo() && 	// parse the action info within the payload
