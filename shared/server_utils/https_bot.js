@@ -60,7 +60,12 @@ function _SimpleRequest (method, host, port, path, data, options, callback) {
 		callback(error);
 	});
 	if (data) {
-		request.write(JSON.stringify(data));
+		if (options.noJsonInRequest) {
+			request.write(data);
+		}
+		else {
+			request.write(JSON.stringify(data));
+		}
 	}
 	request.end();
 }
