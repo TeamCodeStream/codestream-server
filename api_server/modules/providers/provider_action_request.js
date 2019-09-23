@@ -26,6 +26,8 @@ class ProviderActionRequest extends RestfulRequest {
 		this.provider = this.request.params.provider.toLowerCase();
 
 		this.log('PROVIDER ACTION PAYLOAD: ' + JSON.stringify(this.request.body, undefined, 5));
+		
+		/*
 		await this.requireAndAllow();	// require certain parameters, discard unknown parameters
 
 		this.parseActionInfo() && 	// parse the action info within the payload
@@ -33,6 +35,7 @@ class ProviderActionRequest extends RestfulRequest {
 		await this.getTeam() &&		// get the team the user is on, matching the identity
 		await this.getCompany() &&	// get the company the team belongs to
 		await this.sendTelemetry();	// send telemetry for this action
+		*/
 	}
 
 	// require certain parameters, discard unknown parameters
