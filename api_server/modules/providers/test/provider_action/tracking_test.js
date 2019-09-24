@@ -27,14 +27,18 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	// generate the message by issuing a request
 	generateMessage (callback) {
 		// initiate the request, this should trigger a publish of the tracker message
+		const path =  `/no-auth/provider-action/${this.provider}`;
 		this.doApiRequest(
 			{
 				method: 'post',
-				path: `/no-auth/provider-action/${this.provider}`,
+				path,
 				data: this.data,
 				testTracking: true,
 				reallyTrack: true,
-				trackOnChannel: `user-${this.user.id}`
+				trackOnChannel: `user-${this.user.id}`,
+				requestOptions: {
+					noJsonInRequest: true
+				}
 			},
 			callback
 		);

@@ -9,13 +9,13 @@ class NoTeamIdTest extends TrackingTest {
 		return `${this.provider} action request should succeed but no tracking message will be sent if a team ID is not found in the action payload`;
 	}
 
-	init (callback) {
+	setData (callback) {
 		// delete the action_id from the payload
-		super.init(error => {
+		super.setData(error => {
 			if (error) { return callback(error); }
-			const action = JSON.parse(this.data.payload.actions[0].action_id);
+			const action = JSON.parse(this.data.actions[0].action_id);
 			delete action.teamId;
-			this.data.payload.actions[0].action_id = JSON.stringify(action);
+			this.data.actions[0].action_id = JSON.stringify(action);
 			callback();
 		});
 	}

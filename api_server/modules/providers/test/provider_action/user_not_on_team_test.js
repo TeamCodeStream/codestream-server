@@ -10,9 +10,9 @@ class UserNotOnTeamTest extends TrackingTest {
 		return `${this.provider} action request should succeed but no tracking message will be sent if the user initiating the action is not on the team indicated in the action payload`;
 	}
 
-	init (callback) {
+	setData (callback) {
 		BoundAsync.series(this, [
-			super.init,
+			super.setData,
 			this.createOtherUser,
 			this.createOtherTeam
 		], callback);
@@ -29,9 +29,9 @@ class UserNotOnTeamTest extends TrackingTest {
 	createOtherTeam (callback) {
 		this.teamFactory.createRandomTeam((error, response) => {
 			if (error) { return callback(error); }
-			const action = JSON.parse(this.data.payload.actions[0].action_id);
+			const action = JSON.parse(this.data.actions[0].action_id);
 			action.teamId = response.team.id;
-			this.data.payload.actions[0].action_id = JSON.stringify(action);
+			this.data.actions[0].action_id = JSON.stringify(action);
 			callback();			
 		}, { token: this.otherTeamCreator.accessToken });
 	}

@@ -10,13 +10,13 @@ class UnknownLinkTypeTest extends TrackingTest {
 		return `${this.provider} action request should succeed but no tracking message will be sent if the link type given in the action payload is unknown`;
 	}
 
-	init (callback) {
+	setData (callback) {
 		// substitute an invalid link type
-		super.init(error => {
+		super.setData(error => {
 			if (error) { return callback(error); }
-			const action = JSON.parse(this.data.payload.actions[0].action_id);
+			const action = JSON.parse(this.data.actions[0].action_id);
 			action.linkType = RandomString.generate(10);
-			this.data.payload.actions[0].action_id = JSON.stringify(action);
+			this.data.actions[0].action_id = JSON.stringify(action);
 			callback();
 		});
 	}

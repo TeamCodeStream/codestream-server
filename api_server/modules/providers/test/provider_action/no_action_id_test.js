@@ -9,11 +9,11 @@ class NoActionIdTest extends TrackingTest {
 		return `${this.provider} action request should succeed but no tracking message will be sent if action_id is not found in the payload`;
 	}
 
-	init (callback) {
+	setData (callback) {
 		// delete the action_id from the payload
-		super.init(error => {
+		super.setData(error => {
 			if (error) { return callback(error); }
-			delete this.data.payload.actions[0].action_id;
+			delete this.data.actions[0].action_id;
 			callback();
 		});
 	}

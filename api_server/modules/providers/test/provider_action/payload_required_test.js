@@ -15,13 +15,15 @@ class PayloadRequiredTest extends ProviderActionTest {
 		};
 	}
 
-	// before the test runs...
-	before (callback) {
-		// delete the payload from the request
-		super.before(() => {
-			delete this.data.payload;
-			callback();
-		});
+	prepareData (callback) {
+		// override final preparation of data and remove payload
+		if (this.mockMode) {
+			this.data = { };
+		}
+		else {
+			this.data = 'payload=';
+		}
+		callback();
 	}
 }
 

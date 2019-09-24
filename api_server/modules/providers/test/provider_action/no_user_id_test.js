@@ -9,11 +9,11 @@ class NoUserIdTest extends TrackingTest {
 		return `${this.provider} action request should succeed but no tracking message will be sent if a user ID is not found in the payload`;
 	}
 
-	init (callback) {
+	setData (callback) {
 		// delete the action_id from the payload
-		super.init(error => {
+		super.setData(error => {
 			if (error) { return callback(error); }
-			delete this.data.payload.user.id;
+			delete this.data.user.id;
 			callback();
 		});
 	}

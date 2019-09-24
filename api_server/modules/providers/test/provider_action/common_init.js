@@ -20,16 +20,13 @@ class CommonInit {
 
 	init (callback) {
 		this.linkType = this.linkType || 'web';
-		if (!this.mockMode) {
-			this.apiRequestOptions = this.apiRequestOptions || {};
-			this.apiRequestOptions.noJsonInRequest = true;
-		}
 		// get an auth-code and set the token
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
 			this.createUser,	// pre-create user and team, with auth for this provider 
-			this.setData		// set the data to use for the test request
+			this.setData,		// set the data to use for the test request
+			this.prepareData	// once data is set, prepare it for sending in the test request
 		], callback);
 	}
 
@@ -38,6 +35,10 @@ class CommonInit {
 		// don't create a team or any users, these will be created as part of the initial provider auth
 		delete this.teamOptions.creatorIndex;
 		this.userOptions.numRegistered = 0;
+		if (!this.mockMode) {
+			this.apiRequestOptions = this.apiRequestOptions || {};
+			this.apiRequestOptions.noJsonInRequest = true;
+		}
 		callback();
 	}
 
@@ -88,7 +89,7 @@ class CommonInit {
 			}
 		}
 
-		const payload = {
+		this.data = {
 			user: {
 				id: this.mockUserId
 			},
@@ -96,12 +97,6 @@ class CommonInit {
 				action_id: JSON.stringify(actionPayload)
 			}]
 		};
-		if (this.mockMode) {
-			this.data = { payload };
-		}
-		else {
-			this.data = `payload=${encodeURIComponent(JSON.stringify(payload))}`;
-		}
 
 		const properties = {
 			distinct_id: this.user ? this.user.id : this.mockUserId,
@@ -140,6 +135,19 @@ class CommonInit {
 			data
 		};
 
+		callback();
+	}
+
+	// once data is set, prepare it for sending in the test request
+	// this is because in mock mode, we don't support non-json data, so it needs to
+	// be formed in the url encoded data that the server is ready for
+	prepareData (callback) {
+		if (this.mockMode) {
+			this.data = { payload: this.data };
+		}
+		else {
+			this.data = `payload=${encodeURIComponent(JSON.stringify(this.data))}`;
+		}
 		callback();
 	}
 }

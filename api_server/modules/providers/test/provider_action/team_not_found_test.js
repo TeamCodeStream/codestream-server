@@ -10,13 +10,13 @@ class TeamNotFoundTest extends TrackingTest {
 		return `${this.provider} action request should succeed but no tracking message will be sent if the team given in the action payload is not found`;
 	}
 
-	init (callback) {
+	setData (callback) {
 		// substitute an invalid team
-		super.init(error => {
+		super.setData(error => {
 			if (error) { return callback(error); }
-			const action = JSON.parse(this.data.payload.actions[0].action_id);
+			const action = JSON.parse(this.data.actions[0].action_id);
 			action.teamId = ObjectID();
-			this.data.payload.actions[0].action_id = JSON.stringify(action);
+			this.data.actions[0].action_id = JSON.stringify(action);
 			callback();
 		});
 	}
