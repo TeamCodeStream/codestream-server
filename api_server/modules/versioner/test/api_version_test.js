@@ -37,7 +37,8 @@ class APIVersionTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse () {
-		Assert.equal(this.httpResponse.headers['x-cs-api-version'], this.apiVersion, 'API version is not correct');
+		const headerVersion = this.httpResponse.headers['x-cs-api-version'];
+		Assert.equal(headerVersion, this.apiVersion, `API version from header (${headerVersion}) does not match API version from package.json (${this.apiVersion})`);
 	}
 }
 

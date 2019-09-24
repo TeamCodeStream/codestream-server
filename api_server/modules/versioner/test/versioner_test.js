@@ -67,6 +67,11 @@ class VersionerTest extends CodeStreamAPITest {
 		], callback);
 	}
 
+	after (callback) {
+		this.mongoClient.close();
+		super.after(callback);
+	}
+
 	// connect to mongo directly to create the fake plugin, along with version info
 	connectToMongo (callback) {
 		if (this.mockMode) {
