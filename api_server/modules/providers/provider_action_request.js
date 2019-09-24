@@ -77,9 +77,13 @@ class ProviderActionRequest extends RestfulRequest {
 		}
 
 		const users = await this.data.users.getByQuery(
-			{ providerIdentities: `${this.provider}::${this.providerUserId}` },
+			{
+				providerIdentities: `${this.provider}::${this.providerUserId}`,
+				deactivated: false
+			},
 			{ hint: UserIndexes.byProviderIdentities } 
 		);
+
 		if (users.length > 1) {
 			// this shouldn't really happen
 			this.log(`Multiple CodeStream users found matching ${this.provider} identity ${this.providerUserId}`);
