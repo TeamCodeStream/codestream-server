@@ -32,7 +32,7 @@ module.exports = {
 	},
 	fileStreamIds: {
 		type: 'arrayOfIds',
-		maxLength: 10,
+		maxLength: 100,
 		description: 'The Ids of the @@#file streams#stream@@ from which the @@#markers#marker@@ originate'
 	},
 	providerType: {
