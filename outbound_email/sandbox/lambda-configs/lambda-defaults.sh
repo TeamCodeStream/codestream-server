@@ -8,6 +8,10 @@ if [ -z "$CS_LAMBDA_VERSION" ]; then
 		export CS_LAMBDA_VERSION="`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/package.json -p name`-`get-json-property -j $CS_OUTBOUND_EMAIL_TOP/package.json -p version`"
 	fi
 fi
+
+# CS_OUTBOUND_EMAIL_CFG_FILE is overridden for lambda functions as it will be deployed within the code's zip file
+export CS_OUTBOUND_EMAIL_CFG_FILE=./codestream-services-config.json
+
 [ -z "$CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE" ] && export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.generic.template.json
 [ -z "$CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME" ] && export CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME="nodejs10.x"
 [ -z "$CS_OUTBOUND_EMAIL_AWS_ACCOUNT" ] && export CS_OUTBOUND_EMAIL_AWS_ACCOUNT=564564469595
