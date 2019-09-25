@@ -18,7 +18,8 @@ class BodyParserModule extends APIServerModule {
 
 				// we only need to obtain the middleware function once
 				this.jsonParserFunc = this.jsonParserFunc || BodyParser.json({
-					reviver: this.jsonBodyReviver
+					reviver: this.jsonBodyReviver,
+					limit: '2mb'
 				});
 				this.jsonParserFunc(request, response, next);
 			},
