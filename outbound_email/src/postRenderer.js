@@ -24,28 +24,6 @@ class PostRenderer {
 		const codemark = post.codemarkId ? 
 			codemarks.find(codemark => codemark.id === post.codemarkId) :
 			null;
-		const marker = codemark && codemark.markerIds && codemark.markerIds.length ? 
-			markers.find(marker => marker.id === codemark.markerIds[0]) :
-			null;
-		const fileStream = marker && marker.fileStreamId ?
-			fileStreams.find(stream => stream.id === marker.fileStreamId) :
-			null;
-		let file = (fileStream && fileStream.file) || (marker && marker.file) || '';
-		let code = marker && marker.code;
-		if (code && file) {
-			// do syntax highlighting for the code, based on the file extension
-			let extension = Path.extname(file).toLowerCase();
-			if (extension.startsWith('.')) {
-				extension = extension.substring(1);
-			}
-			code = this.highlightCode(code, extension);
-		}
-		if (file) {
-			// try to prevent the email client from linkifying this url
-			file = file
-				.replace(/\//g, '<span>/</span>')
-				.replace(/\./g, '<span>.</span>');
-		}
 
 		// we don't display the author if all the emails are from the same author, but this can
 		// be user-dependent, so if we know all the posts are from the same author, we can hide
@@ -79,22 +57,9 @@ class PostRenderer {
 		}
 
 		// possibly display code blocks
-		let codeBlockDiv = '';
-		if (code) {
-			codeBlockDiv = `
-<div>
-	<br>
-	<div class="codeBlock">
-		<div class="pathToFile">
-			${file}
-		</div>
-		<div class="code">
-			${code}
-		</div>
-	</div>
-</div>
-`;
-		}
+		const codeBlockDivs = (codemark.markerIds || []).map(markerId => {
+			return this.renderMarker(markerId, markers, fileStreams);
+		}).join('');
 
 		// don't display text if this is an "emote" (starting with /me)
 		let textDiv = '';
@@ -135,7 +100,45 @@ class PostRenderer {
 	${titleDiv}
 	${textDiv}
 	${assigneesDiv}
-	${codeBlockDiv}
+	${codeBlockDivs}
+</div>
+`;
+	}
+
+	// render a single code block
+	renderMarker (markerId, markers, fileStreams) {
+		const marker = markers.find(marker => marker.id === markerId);
+		if (!marker || !marker.code) { return; }
+
+		const fileStream = marker.fileStreamId && fileStreams.find(stream => stream.id === marker.fileStreamId);
+		let file = (fileStream && fileStream.file) || marker.file || '';
+		let code = marker.code;
+
+		if (file) {
+			// do syntax highlighting for the code, based on the file extension
+			let extension = Path.extname(file).toLowerCase();
+			if (extension.startsWith('.')) {
+				extension = extension.substring(1);
+			}
+			code = this.highlightCode(code, extension);
+
+			// try to prevent the email client from linkifying this url
+			file = file
+				.replace(/\//g, '<span>/</span>')
+				.replace(/\./g, '<span>.</span>');
+		}
+
+		return `
+<div>
+	<br>
+	<div class="codeBlock">
+		<div class="pathToFile">
+			${file}
+		</div>
+		<div class="code">
+			${code}
+		</div>
+	</div>
 </div>
 `;
 	}
@@ -207,7 +210,10 @@ class PostRenderer {
 	
 	// do syntax highlighting on a code block
 	highlightCode (code, extension) {
-		return this.whiteSpaceToHtml(HLJS.highlight(extension, code).value);
+		if (extension) {
+			code = HLJS.highlight(extension, code).value;
+		}
+		return this.whiteSpaceToHtml(code);
 	}
 
 	// clean this text for email
