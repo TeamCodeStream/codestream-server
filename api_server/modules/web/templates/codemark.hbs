@@ -115,8 +115,8 @@
 							<div class="col-sm-12">
 								{{#if text}}
 									<div class="description">
-										{{{text}}}				
-									</div>				 
+										{{{text}}}
+									</div>
 								{{/if}}
 							</div>
 						</div>
@@ -124,7 +124,7 @@
 						{{#if externalProvider}}
 						<div class="row no-gutters mt-3">
 							<div class="col-sm-12">
-								<h6>OPEN ON</h6>
+								<h6>LINKED ISSUES</h6>
 							</div>
 						</div>
 						<div class="row no-gutters mt-0">
@@ -204,7 +204,7 @@
 									{{/if}}
 									</div>
 									<div class="col-sm-1">
-									<div data-action-code-controls="{{markerId}}" class="code-controls float-right" style="display:none; padding-top:0px;">										
+									<div data-action-code-controls="{{markerId}}" class="code-controls float-right" style="display:none; padding-top:0px;">
 										<a href="#" class="code-control" title="expand code" data-action-expand="{{markerId}}">
 											<svg class="octicon octicon-unfold" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true">
 												<path fill-rule="evenodd"
@@ -214,7 +214,7 @@
 										</a>
 									</div>
 									</div>
-								</div>						 							 
+								</div>
 							</div>
 
 							<div class="col-sm-12">
@@ -230,7 +230,7 @@
 						</div>
 					</div>
 					<div class="row no-gutters mt-3">
-						<div class="col-xl-5 col-lg-6 col-md-12 col-sm-12 col-xs-12 mb-2">							
+						<div class="col-xl-5 col-lg-6 col-md-12 col-sm-12 col-xs-12 mb-2">
 							<div class="btn-group ide-list btn-block" style="white-space:nowrap;">
 								<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
 									data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -250,7 +250,7 @@
 								</div>
 							</div>
 						</div>
-					 
+
 						<div class="col-xl-7 col-lg-6 col-md-12 col-sm-12 col-xs-12">
 							{{#if hasProviderButtons}}
 							<div class="float-lg-right float-xl-right">
@@ -267,13 +267,13 @@
 		</div>
 	</div>
 	</div>
-	<script>	
+	<script>
 		$(function () {
 			var isExpanded;
 			$('[data-code-provider=""]').click(function(e) {
 				window.analytics.track("Opened Code", { Host: "{{codeProvider}}" })
 			})
-			
+
 			$('[data-action-expand]').click(function (e) {
 				e.preventDefault();
 
@@ -301,7 +301,7 @@
 				if (wrapper && wrapper.length) {
 					var $control = $('[data-action-code-controls="{{markerId}}"]');
 					if (wrapper[0].clientHeight < wrapper[0].scrollHeight) {
-						$control.show();						
+						$control.show();
 					}
 					else if(!isExpanded) {
 						$control.hide();
@@ -684,7 +684,7 @@
 				var $existingAlert = $('.alert');
 				if ($existingAlert.length) {
 					$existingAlert.alert('close');
-				}			 
+				}
 
 				var $alert = $(`<div class="alert alert-info alert-dismissible fade show text-center" role="alert">
 				${message}
@@ -703,7 +703,7 @@
 				document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 			}
 
-			
+
 
 			var mru = getCookie("cs__ide-mru--{{repoId}}");
 			if (mru) {
