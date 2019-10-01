@@ -32,12 +32,21 @@ function diff_notify {
 binDir=`dirname $0`
 repoRoot=$(cd $binDir/.. && pwd)
 srcDir=`dirname $repoRoot`
+schemaVersion=`cat $repoRoot/parameters.version`
 
 for p in `/bin/ls $repoRoot/profiles/*.json $repoRoot/parameters.json`
 do
 	echo "sorting $p"
 	$binDir/process-profile --sort-json $p
 done
+
+echo "Current schema version is: $schemaVersion"
+echo -n "Do you want to bump it for these latest writes (y/N)? "; read ans
+if [ "$ans" == y -o "$ans" == yes ]; then
+	expr $schemaVersion + 1 >$repoRoot/parameters.version
+	schemaVersion=`cat $repoRoot/parameters.version`
+	echo "Schema version is now: $schemaVersion"
+fi
 
 [ ! -d $repoRoot/../onprem-install ] && echo "$repoRoot/../onprem-install not found (pwd=`pwd`)" >&2 && exit 1
 $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
@@ -47,14 +56,12 @@ diff_notify $repoRoot/README.parameter-definitions.json "$yes"
 $binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta.x
 diff_notify $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta "$yes"
 
-# configs for development (consumed by developers via dt-update-secrets)
-# $binDir/process-profile --profile $repoRoot/profiles/cloud.json --env local --out $KM_PKI/secrets/config/local-cloud-development.json.x
-# diff_notify $KM_PKI/secrets/config/local-cloud-development.json "$yes"
+# cloud configuration, all environments (consumed by developers via dt-update-secrets)
 for csEnv in local ci pi pd qa prod
 do
-	$binDir/process-profile --profile $repoRoot/profiles/cloud.json --env $csEnv --out $KM_PKI/secrets/config/codestream-cloud-config.$csEnv.json.x || exit 1
-	diff_notify $KM_PKI/secrets/config/codestream-cloud-config.$csEnv.json "$yes"
+	$binDir/process-profile --profile $repoRoot/profiles/cloud.json --env $csEnv --out $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json.x || exit 1
+	diff_notify $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json "$yes"
 done
 
-$binDir/process-profile --profile $repoRoot/profiles/onprem-development.json --env local --out $KM_PKI/secrets/config/local-onprem-development.json.template.x
-diff_notify $KM_PKI/secrets/config/local-onprem-development.json.template "$yes"
+$binDir/process-profile --profile $repoRoot/profiles/onprem-development.json --env local --out $KM_PKI/secrets/config/onprem-development_local_${schemaVersion}_.json.template.x
+diff_notify $KM_PKI/secrets/config/onprem-development_local_${schemaVersion}_.json.template "$yes"

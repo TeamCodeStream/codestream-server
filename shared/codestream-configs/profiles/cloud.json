@@ -16,12 +16,16 @@
 		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
+			"helpIsAvailable": true,
 			"port": 443,
 			"runTimeEnvironment": "??CUSTOM??"
 		},
-		"local": {},
+		"local": {
+			"helpIsAvailable": true
+		},
 		"pd": {
 			"assetEnvironment": "dev",
+			"helpIsAvailable": true,
 			"port": 9443,
 			"publicApiUrl": "https://pd-api.codestream.us:9443",
 			"runTimeEnvironment": "pd"
@@ -33,6 +37,9 @@
 		"prod": {
 			"assetEnvironment": "prod",
 			"authOrigin": "https://api.codestream.com/no-auth",
+			"logger": {
+				"consoleOk": false
+			},
 			"port": 8443,
 			"publicApiUrl": "https://api.codestream.com",
 			"runTimeEnvironment": "prod"
@@ -89,7 +96,12 @@
 		"pi": {
 			"replyToDomain": "ci.codestream.com"
 		},
-		"prod": {},
+		"prod": {
+			"replyToDomain": "prod.codestream.com",
+			"senderEmail": "alerts@codestream.com",
+			"supportEmail": "support@codestream.com",
+			"suppressEmails": false
+		},
 		"qa": {
 			"replyToDomain": "qa.codestream.com",
 			"senderEmail": "qa_alerts@codestream.com",
