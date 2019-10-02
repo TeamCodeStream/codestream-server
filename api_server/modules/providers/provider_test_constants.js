@@ -49,6 +49,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		forEnterprise: true,
 		host: 'gitlab/enterprise',
+		apiHost: 'gitlab.com/api/v4',
 		hasIssues: true
 	},
 	'auth*atlassian*com': {
