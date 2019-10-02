@@ -77,6 +77,7 @@ ApiCfg.thirdPartyProviders = [
 	'github',
 	'github_enterprise',
 	'gitlab',
+	'gitlab_enterprise',
 	'jira',
 	'jiraserver',
 	'slack',

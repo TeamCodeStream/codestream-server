@@ -127,6 +127,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			redirectData = this.getJiraServerRedirectData();
 			break;
 		case 'gitlab':
+		case 'gitlab_enterprise': 
 			redirectData = this.getGitlabRedirectData();
 			break;
 		case 'bitbucket':
@@ -226,13 +227,18 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getGitlabRedirectData () {
+		const appClientId = this.testHost ? 'testClientId' : GitlabConfig.appClientId;
 		const parameters = {
-			client_id: GitlabConfig.appClientId,
+			client_id: appClientId,
 			redirect_uri: `${this.redirectUri}`,
 			response_type: 'code',
 			state: this.state
 		};
-		const url = 'https://gitlab.com/oauth/authorize';
+		if (this.testHost) {
+			parameters.scope = 'api';
+		}
+		const host = this.testHost || 'https://gitlab.com';
+		const url = `${host}/oauth/authorize`;
 		return { url, parameters };
 	}
 

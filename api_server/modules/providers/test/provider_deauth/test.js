@@ -23,7 +23,8 @@ const PROVIDERS = [
 
 const ENTERPRISE_PROVIDERS = {
 	'github_enterprise': 'https://git.codestream.us',
-	'jiraserver': 'https://jira.codestream.us'
+	'jiraserver': 'https://jira.codestream.us',
+	'gitlab_enterprise': 'https://gitlab.codestream.us'
 };
 
 class ProviderDeauthRequestTester {

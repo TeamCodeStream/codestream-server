@@ -190,18 +190,21 @@ class CommonInit {
 	}
 
 	getExpectedGitlabTestCallData () {
+		const appClientId = this.testHost ? 'testClientId' : GitlabConfig.appClientId;
+		const appClientSecret = this.testHost ? 'testClientSecret' : GitlabConfig.appClientSecret;
 		const parameters = {
 			redirect_uri: this.redirectUri,
 			grant_type: 'authorization_code',
-			client_id: GitlabConfig.appClientId,
-			client_secret: GitlabConfig.appClientSecret,
+			client_id: appClientId,
+			client_secret: appClientSecret,
 			code: this.code,
 			state: this.state
 		};
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
-		const url = `https://gitlab.com/oauth/token?${query}`;
+		const host = this.testHost || 'https://gitlab.com';
+		const url = `${host}/oauth/token?${query}`;
 		return { url, parameters };
 	}
 

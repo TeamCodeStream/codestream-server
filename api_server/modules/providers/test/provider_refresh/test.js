@@ -29,6 +29,10 @@ const UNSUPPORTED_PROVIDERS = [
 	'slack'
 ];
 
+const ENTERPRISE_PROVIDERS = {
+	'gitlab_enterprise': 'https://gitlab.codestream.us'
+};
+
 class ProviderRefreshTester {
 
 	test () {
@@ -39,6 +43,12 @@ class ProviderRefreshTester {
 		});
 		UNSUPPORTED_PROVIDERS.forEach(provider => {
 			new NoRefreshForProviderTest({ provider: 'asana', unsupportedProvider: provider }).test();
+		});
+		Object.keys(ENTERPRISE_PROVIDERS).forEach(provider => {
+			const testHost = ENTERPRISE_PROVIDERS[provider];
+			new ProviderRefreshTest({ provider, testHost }).test();
+			new InvalidTokenTest({ provider, testHost }).test();
+			new MessageTest({ provider, testHost }).test();
 		});
 		new ParameterRequiredTest({ provider: 'jira', parameter: 'teamId' }).test();
 		new ParameterRequiredTest({ provider: 'bitbucket', parameter: 'refreshToken' }).test();

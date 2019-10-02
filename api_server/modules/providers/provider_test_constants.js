@@ -43,6 +43,14 @@ const STANDARD_PROVIDER_HOSTS = {
 		apiHost: 'gitlab.com/api/v4',
 		hasIssues: true 
 	},
+	'gitlab/enterprise': {
+		id: 'gitlab/enterprise',
+		name: 'gitlab_enterprise',
+		isEnterprise: false,
+		forEnterprise: true,
+		host: 'gitlab/enterprise',
+		hasIssues: true
+	},
 	'auth*atlassian*com': {
 		id: 'auth*atlassian*com',
 		name: 'jira',

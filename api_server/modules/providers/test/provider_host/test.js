@@ -19,6 +19,10 @@ const TEST_HOSTS = [
 	{
 		provider: 'jiraserver',
 		host: 'https://jira.codestream.us'
+	},
+	{
+		provider: 'gitlab_enterprise',
+		host: 'https://gitlab.codestream.us'
 	}
 ];
 

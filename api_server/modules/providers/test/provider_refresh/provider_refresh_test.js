@@ -23,7 +23,11 @@ class ProviderRefreshTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that the token stored for the user matches the mock token we created
-		const providerInfo = data.user.providerInfo[this.team.id][this.provider];
+		let providerInfo = data.user.providerInfo[this.team.id][this.provider];
+		if (this.testHost) {
+			const starredHost = this.testHost.replace(/\./g, '*');
+			providerInfo = providerInfo.hosts[starredHost];
+		}
 		const token = providerInfo.accessToken;
 		Assert.equal(token, this.refreshedMockToken, 'user access token not found to be equal to the mock token upon refresh');
 
@@ -36,6 +40,7 @@ class ProviderRefreshTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			expectedData = this.getExpectedJiraTestCallData();
 			break;
 		case 'gitlab':
+		case 'gitlab_enterprise':
 			expectedData = this.getExpectedGitlabTestCallData();
 			break;
 		case 'bitbucket':

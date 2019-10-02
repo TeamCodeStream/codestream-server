@@ -60,6 +60,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			expectedTestCallData = this.getExpectedJiraTestCallData();
 			break;
 		case 'gitlab':
+		case 'gitlab_enterprise':
 			expectedTestCallData = this.getExpectedGitlabTestCallData();
 			break;
 		case 'bitbucket':
@@ -82,6 +83,11 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			expectedData._testCall = expectedTestCallData;
 		}
 		// issue the provider-token request, and establish the message we expect to receive
+		let key = `providerInfo.${this.team.id}.${this.provider}`;
+		if (this.testHost) {
+			const starredHost = this.testHost.replace(/\./g, '*');
+			key += `.hosts.${starredHost}`;
+		}
 		this.message = {
 			user: {
 				id: this.currentUser.user.id,
@@ -89,7 +95,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				$set: {
 					version: 5,
 					modifiedAt: Date.now(),
-					[`providerInfo.${this.team.id}.${this.provider}`]: expectedData
+					[key]: expectedData
 				},
 				$version: {
 					before: 4,
@@ -103,8 +109,13 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	validateMessage (message) {
 		Assert(message.message.user.$set.modifiedAt >= this.requestSentAt, 'modifiedAt not set');
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
-		const providerInfo = message.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];
-		const expectedProviderInfo = this.message.user.$set[`providerInfo.${this.team.id}.${this.provider}`];
+		let key = `providerInfo.${this.team.id}.${this.provider}`;
+		if (this.testHost) {
+			const starredHost = this.testHost.replace(/\./g, '*');
+			key += `.hosts.${starredHost}`;
+		}
+		const providerInfo = message.message.user.$set[key];
+		const expectedProviderInfo = this.message.user.$set[key];
 		expectedProviderInfo.refreshToken = 'refreshMe';
 		const expiresIn = ['jira', 'asana', 'azuredevops', 'glip', 'msteams'].includes(this.provider) ? 3600 : 7200;
 		Assert(providerInfo.expiresAt > this.requestSentAt + (expiresIn - 6) * 1000, `expiresAt not set for ${this.provider}`);

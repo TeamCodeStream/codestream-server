@@ -46,6 +46,7 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		case 'jiraserver':
 			return;
 		case 'gitlab':
+		case 'gitlab_enterprise':
 			expectedData = this.getExpectedGitlabTestCallData();
 			return;
 		case 'github':

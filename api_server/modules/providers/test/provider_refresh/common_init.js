@@ -24,6 +24,7 @@ class CommonInit {
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
+			this.addTestHost,	// add simulated enterprise host, as needed
 			this.getAuthCode,	// get an auth-code to use in the provider-token request
 			this.setProviderToken,	// make the provider-token request, this sets the original access token
 			this.getUser,		// fetch the user object, so we have the original access token
@@ -34,6 +35,32 @@ class CommonInit {
 	setTestOptions (callback) {
 		this.userOptions.numRegistered = 1;
 		callback();
+	}
+
+	// add a test-host for testing enterprise connections, as needed
+	addTestHost (callback) {
+		if (!this.testHost) {
+			return callback();
+		}
+		const starredHost = this.testHost.replace(/\./g, '*');
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/teams/' + this.team.id,
+				data: {
+					providerHosts: {
+						[this.provider]: {
+							[starredHost]: {
+								appClientId: 'testClientId',
+								appClientSecret: 'testClientSecret'
+							}
+						}
+					}
+				},
+				token: this.token
+			},
+			callback
+		);
 	}
 
 	// get an auth-code for initiating the authorization flow
@@ -50,6 +77,9 @@ class CommonInit {
 				this.authCode = response.code;
 				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
 				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
+				if (this.testHost) {
+					this.state += `!${this.testHost}`;
+				}
 				callback();
 			}
 		);
@@ -98,7 +128,12 @@ class CommonInit {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.user = response.user;
-				this.refreshToken = this.user.providerInfo[this.team.id][this.provider].refreshToken;
+				let providerInfo = this.user.providerInfo[this.team.id][this.provider];
+				if (this.testHost) {
+					const starredHost = this.testHost.replace(/\./g, '*');
+					providerInfo = providerInfo.hosts[starredHost];
+				}
+				this.refreshToken = providerInfo.refreshToken;
 				callback();
 			}
 		);
@@ -136,11 +171,15 @@ class CommonInit {
 
 	// return the query parameters to use when constructing the path to use in the test request
 	getQueryParameters () {
-		return {
+		const parameters = {
 			teamId: this.team.id,
 			refreshToken: this.refreshToken,
 			_mockToken: this.refreshedMockToken
 		};
+		if (this.testHost) {
+			parameters.host = this.testHost;
+		}
+		return parameters;
 	}
 
 	getExpectedAsanaTestCallData () {
@@ -168,17 +207,20 @@ class CommonInit {
 	}
 
 	getExpectedGitlabTestCallData () {
+		const appClientId = this.testHost ? 'testClientId' : GitlabConfig.appClientId;
+		const appClientSecret = this.testHost ? 'testClientSecret' : GitlabConfig.appClientSecret;
 		const parameters = {
 			redirect_uri: this.redirectUri,
 			grant_type: 'refresh_token',
-			client_id: GitlabConfig.appClientId,
-			client_secret: GitlabConfig.appClientSecret,
+			client_id: appClientId,
+			client_secret: appClientSecret,
 			refresh_token: this.refreshToken
 		};
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
-		const url = `https://gitlab.com/oauth/token?${query}`;
+		const host = this.testHost || 'https://gitlab.com';
+		const url = `${host}/oauth/token?${query}`;
 		return { url, parameters };
 	}
 

@@ -70,9 +70,8 @@ class ProviderRefreshRequest extends RestfulRequest {
 		}
 		const { authOrigin } = this.api.config.api;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
-		let host;
 		if (this.request.query.host) {
-			host = decodeURIComponent(this.request.query.host).toLowerCase();
+			this.host = decodeURIComponent(this.request.query.host).toLowerCase();
 		}
 		const options = {
 			refreshToken: this.refreshToken,
@@ -81,7 +80,7 @@ class ProviderRefreshRequest extends RestfulRequest {
 			request: this,
 			mockToken: this.request.query._mockToken,
 			team: this.team,
-			host
+			host: this.host
 		};
 		try {
 			this.tokenData = await this.serviceAuth.refreshToken(options);
@@ -98,8 +97,13 @@ class ProviderRefreshRequest extends RestfulRequest {
 			throw this.errorHandler.error('readAuth', { reason: 'token not returned from provider' });
 		}
 		const modifiedAt = Date.now();
-		const existingProviderInfo = ((this.user.get('providerInfo') || {})[this.team.id] || {})[this.provider] || {};
-		const providerInfoKey = `providerInfo.${this.team.id}.${this.provider}`;
+		let existingProviderInfo = ((this.user.get('providerInfo') || {})[this.team.id] || {})[this.provider] || {};
+		let providerInfoKey = `providerInfo.${this.team.id}.${this.provider}`;
+		if (this.host) {
+			const starredHost = this.host.replace(/\./g, '*');
+			providerInfoKey += `.hosts.${starredHost}`;
+			existingProviderInfo = (existingProviderInfo.hosts || {})[starredHost] || {};
+		}
 		const newProviderInfo = Object.assign({}, existingProviderInfo, this.tokenData);
 		const op = {
 			$set: {
