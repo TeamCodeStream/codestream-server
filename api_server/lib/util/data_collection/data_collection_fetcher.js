@@ -26,7 +26,25 @@ class DataCollectionFetcher {
 		await this.fetch();
 		await this.modelize();
 		await this.add();
-		return (this.cachedModels || []).concat(this.fetchedModels || []);	// combine cached and fetched models to return
+		const models = [...(this.cachedModels || []), ...(this.fetchedModels || [])]; // combine cached and fetched models to return
+		if (this.options.sortInOrder) {
+			return this.sortByIds(ids, models);
+		}
+		else {
+			return models;
+		}
+	}
+
+	// sort models according to the order given in the ids
+	sortByIds (ids, models) {
+		const sortedModels = [];
+		for (let id of ids) {
+			const model = models.find(m => m.id === id);
+			if (model) {
+				sortedModels.push(model);
+			}
+		}
+		return sortedModels;
 	}
 
 	// get several models according to their IDs, only from the cache

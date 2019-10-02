@@ -10,6 +10,7 @@ const GetByIdFromDatabaseTest = require('./get_by_id_from_database_test');
 const GetByIdFromCacheAfterDeletedTest = require('./get_by_id_from_cache_after_deleted_test');
 const GetByIdNotFoundTest = require('./get_by_id_not_found_test');
 const GetByIdsTest = require('./get_by_ids_test');
+const GetByIdsSortTest = require('./get_by_ids_sort_test');
 const GetByIdsFromQueryCacheTest = require('./get_by_ids_from_query_cache_test');
 const GetByQueryTest = require('./get_by_query_test');
 const GetByQuerySkipsCacheTest = require('./get_by_query_skips_cache_test');
@@ -59,6 +60,7 @@ describe('dataCollection', function() {
 	new GetByIdFromCacheAfterDeletedTest().test();
 	new GetByIdNotFoundTest().test();
 	new GetByIdsTest().test();
+	new GetByIdsSortTest().test();
 	new GetByIdsFromQueryCacheTest().test();
 	new GetByQueryTest().test();
 	new GetByQuerySkipsCacheTest().test();
