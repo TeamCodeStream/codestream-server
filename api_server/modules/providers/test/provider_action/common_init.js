@@ -126,10 +126,11 @@ class CommonInit {
 			properties.Service = 'Trello';
 		}
 
-		const data = { event, properties };
-		if (this.user) {
-			data.userId = this.user.id;
-		}
+		const data = {
+			event,
+			properties,
+			userId: this.user ? this.user.id : this.mockUserId
+		};
 		this.message = {
 			type: 'track',
 			data
