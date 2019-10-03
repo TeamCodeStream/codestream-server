@@ -158,7 +158,7 @@ class ProviderActionRequest extends RestfulRequest {
 			trackObject,
 			{
 				request: this,
-				user: this.user
+				user: this.user || { id: this.providerUserId }
 			}
 		);
 	}
