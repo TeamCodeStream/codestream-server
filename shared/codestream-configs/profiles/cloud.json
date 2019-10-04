@@ -225,6 +225,9 @@
 				"defaultEnv": {
 					"_loadSecretsFile": "slack/dev-combined.cfg"
 				},
+				"local": {
+					"_loadSecretsFile": "slack/local-combined.cfg"
+				},
 				"prod": {
 					"_loadSecretsFile": "slack/prod-combined.cfg"
 				}
