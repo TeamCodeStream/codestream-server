@@ -9,11 +9,10 @@ export PATH=$CS_BROADCASTER_SANDBOX/node/bin:$CS_BROADCASTER_TOP/node_modules/.b
 
 export PATH=$CS_BROADCASTER_TOP/bin:$PATH
 
-[ -z "$CSSVC_CFG_FILE" -a -z "$CS_BROADCASTER_CFG_FILE" ] && export CS_BROADCASTER_CFG_FILE=$HOME/.codestream/config/codestream-services-config.json
-[ -n "$CSSVC_CFG_FILE" ] && cfgFile=$CSSVC_CFG_FILE || cfgFile=$CS_BROADCASTER_CFG_FILE
-echo "Using config file $cfgFile"
+# find the config file
+sandutil_get_codestream_cfg_file "$CS_BROADCASTER_SANDBOX" "$CS_BROADCASTER_CFG_FILE"
 
 # These variables are used by shell scripts
-export CS_BROADCASTER_LOGS=$(get-json-property -j $cfgFile -p broadcastEngine.codestreamBroadcaster.logger.directory)
-export CS_BROADCASTER_ASSET_ENV=$(get-json-property -j $cfgFile -p broadcastEngine.codestreamBroadcaster.assetEnvironment)
-export CS_BROADCASTER_ENV=$(get-json-property -j $cfgFile -p broadcastEngine.codestreamBroadcaster.runTimeEnvironment)
+export CS_BROADCASTER_LOGS=$(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.logger.directory)
+export CS_BROADCASTER_ASSET_ENV=$(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.assetEnvironment)
+export CS_BROADCASTER_ENV=$(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.runTimeEnvironment)
