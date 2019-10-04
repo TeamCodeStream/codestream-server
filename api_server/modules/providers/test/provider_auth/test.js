@@ -17,6 +17,7 @@ const PROVIDERS = [
 	'bitbucket',
 	'youtrack',
 	'azuredevops',
+	'slack',
 	'msteams'
 	//'glip'
 ];

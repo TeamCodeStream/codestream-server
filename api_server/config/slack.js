@@ -12,8 +12,8 @@ let SlackCfg = {
 	appClientSecret: null,
 	appStrictClientId: null,
 	appStrictClientSecret: null,
-	appSharedClientId: null,
-	appSharedClientSecret: null
+	appSharingClientId: null,
+	appSharingClientSecret: null
 };
 
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
@@ -30,6 +30,8 @@ else {
 	SlackCfg.appClientSecret = process.env.CS_API_SLACK_CLIENT_SECRET;
 	SlackCfg.appStrictClientId = process.env.CS_API_SLACK_STRICT_CLIENT_ID;
 	SlackCfg.appStrictClientSecret = process.env.CS_API_SLACK_STRICT_CLIENT_SECRET;
+	SlackCfg.appSharingClientId = process.env.CS_API_SLACK_SHARING_CLIENT_ID;
+	SlackCfg.appSharingClientSecret = process.env.CS_API_SLACK_SHARING_CLIENT_SECRET;
 }
 
 if (ShowCfg) console.log('Config[slack]:', JSON.stringify(SlackCfg, undefined, 10));

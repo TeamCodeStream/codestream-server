@@ -39,12 +39,12 @@ class ProviderTokenRequest extends RestfulRequest {
 			if (this.handleError()) {			// check for error condition passed in
 				return;
 			}
-			if (!this.userId.startsWith('anon')) {
+			if (this.userId !== 'anon') {
 				await this.getUser();				// get the user initiating the auth request
 				await this.getTeam();				// get the team the user is authed with
 			}
 			await this.exchangeAuthCodeForToken();	// exchange the given auth code for an access token, as needed
-			if (this.userId === 'anon' || this.userId === 'anonCreate') {
+			if (this.userId === 'anon') {
 				await this.matchOrCreateUser();
 				await this.saveSignupToken();
 			}
@@ -153,6 +153,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.userId = this.tokenPayload.userId;
 		this.teamId = this.tokenPayload.teamId;
 		this.providerAccess = this.tokenPayload.access;
+		this.sharing = this.tokenPayload.sm;
 
 		if (this.serviceAuth.usesOauth1()) {
 			let secretPayload;
@@ -201,7 +202,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			mockToken: this.request.query._mockToken,
 			host: this.host,
 			team: this.team,
-			access: this.providerAccess
+			access: this.providerAccess,
+			sharing: this.sharing
 		};
 		try {
 			this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
@@ -308,9 +310,8 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.connector = new ProviderIdentityConnector({
 			request: this,
 			provider: this.provider,
-			okToCreateUser: this.userId === 'anonCreate',
-			mustMatchTeam: this.userId === 'anon',
-			mustMatchUser: this.userId === 'anon',
+			okToCreateUser: this.userId === 'anon',
+			okToCreateTeam: !this.sharing && this.userId === 'anon',
 			tokenData: this.tokenData
 		});
 		await this.connector.connectIdentity(userIdentity);

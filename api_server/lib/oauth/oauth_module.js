@@ -77,11 +77,14 @@ class OAuthModule extends APIServerModule {
 		else {
 			clientInfo = this.apiConfig;
 		}
+
+		const clientId = options.sharing ? clientInfo.appSharingClientId : clientInfo.appClientId;
+		const clientSecret = options.sharing ? clientInfo.appSharingClientSecret : clientInfo.appClientSecret;
 		return {
 			host: host || `https://${this.oauthConfig.host}`,
 			oauthData: clientInfo.oauthData,
-			clientId: clientInfo.appClientId,
-			clientSecret: clientInfo.appClientSecret,
+			clientId,
+			clientSecret,
 		};
 	}
 

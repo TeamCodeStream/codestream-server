@@ -24,12 +24,13 @@ class WebProviderAuthRequest extends APIRequest {
 		}
 		const expiresAt = Date.now() + expiresIn;
 		const payload = {
-			userId: 'anonCreate', //this.request.query.createOk ? 'anonCreate' : 'anon',
+			userId: 'anon',
 			teamId: this.request.query.teamId || '',
 			url: `${this.api.config.api.publicApiUrl}/web/provider-auth-complete/${this.provider}`,
 			end: this.request.query.url || '',
 			st: this.request.query.signupToken || '',
-			access: this.request.query.access || ''
+			access: this.request.query.access || '',
+			sm: !!this.request.query.sharing
 		};
 		const code = this.api.services.tokenHandler.generate(
 			payload,
@@ -50,7 +51,8 @@ class WebProviderAuthRequest extends APIRequest {
 			provider: this.provider,
 			request: this,
 			redirectUri,
-			access: this.request.query.access
+			access: this.request.query.access,
+			sharing: !!this.request.query.sharing
 		};
 
 		// get the specific query data to use in the redirect, and respond with the redirect url

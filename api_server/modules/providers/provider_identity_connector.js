@@ -66,7 +66,7 @@ class ProviderIdentityConnector {
 		}
 		else {
 			this.request.log('No match for team');
-			if (this.expectedTeamId || this.mustMatchTeam) {
+			if (this.expectedTeamId) {
 				throw this.errorHandler.error('inviteTeamMismatch', { reason: 'no match to third-party team' });
 			}
 		}
@@ -79,9 +79,6 @@ class ProviderIdentityConnector {
 			await this.findUserByProviderId() ||
 			await this.findUserByEmail()
 		);
-		if (this.mustMatchUser && !this.user) {
-			throw this.errorHandler.error('noIdentityMatch');
-		}
 	}
 
 	// find the user associated with the passed credentials by matching against the provider identity
@@ -156,6 +153,11 @@ class ProviderIdentityConnector {
 		}
 		else if (!this.okToCreateUser) {
 			return;
+		}
+		else if (!this.team && !this.okToCreateTeam) {
+			// we don't allow a new user to be created with a new team in the "sharing model"
+			this.request.log('No match to user, in sharing model they must sign up first');
+			throw this.errorHandler.error('noIdentityMatch');
 		}
 
 		this.request.log('No match to user, will create...');
