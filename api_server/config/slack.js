@@ -11,7 +11,9 @@ let SlackCfg = {
 	appClientId: null,
 	appClientSecret: null,
 	appStrictClientId: null,
-	appStrictClientSecret: null
+	appStrictClientSecret: null,
+	appSharedClientId: null,
+	appSharedClientSecret: null
 };
 
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;

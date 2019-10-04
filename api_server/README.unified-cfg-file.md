@@ -22,25 +22,17 @@ $ dt-sb-configure -R -n <sandbox-name> -e unified-cfg-file.sh
 ```
 
 ### TL;DR - Initial migration steps
-1. Make sure dev_tools is up to date as well as your secrets (see below).
-1. If you intend to run the *codestream cloud* configuration on your local
-   machine:
-   ```
-   $ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
-   ```
-1. Update your existing sandbox configurations or install new sandboxes to use
-   the `unified-cfg-file.sh` configuration.
-1. Start all services
-
-
-### Keep your config files up to date
 1. If you're using dev_tools on your own computer, bring it up to date
    (`dt-selfupdate -y`). Always keep your dev_tools installation updated. This
-   does not apply to our managed EC2 instances, which keep it updated
+   does not apply to our managed EC2 instances, which are kept updated
    automatically.
-
 1. Update your secrets (`dt-update-secrets`).
-
+1. Look in your _~/.codestream/config/_ directory. You'll see a **README**
+   file with instructions for different scenarios.
+1. Update your existing sandbox configurations to use, or install new sandboxes
+   configured with, the `unified-cfg-file.sh` configuration.  Use
+   `dt-sb-new-sandbox` to install the sandboxes or `dt-sb-configure` to change
+   an existing sandbox's config.
 
 ### Managing the Configuration Files
 
