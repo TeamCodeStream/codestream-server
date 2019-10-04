@@ -432,11 +432,17 @@
 				"appClientSecret": {
 					"desc": "Slack app secret (legacy scopes)"
 				},
+				"appSharingClientId": {
+					"desc": "Slack sharing app client Id"
+				},
+				"appSharingClientSecret": {
+					"desc": "Slack sharing app secret"
+				},
 				"appStrictClientId": {
-					"desc": "Slack strict app client Id (app directory)"
+					"desc": "Slack strict app client Id"
 				},
 				"appStrictClientSecret": {
-					"desc": "Slack strict app secret (app directory)"
+					"desc": "Slack strict app secret"
 				}
 			}
 		},

@@ -27,7 +27,7 @@ function diff_notify {
 	fi
 }
 
-[ -z "$KM_PKI" ] && echo "Set KM_PKI to the location of the PKI database" && exit 1
+[ -z "$KM_PKI" ] && echo "Set KM_PKI to the location of the PKI database (use -y to bypass prompts)" && exit 1
 [ "$1" == "-y" ] && yes="" || yes=y
 binDir=`dirname $0`
 repoRoot=$(cd $binDir/.. && pwd)
