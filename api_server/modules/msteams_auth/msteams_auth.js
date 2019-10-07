@@ -34,7 +34,7 @@ class MSTeamsAuth extends OAuthModule {
 	// match the given slack identity to a CodeStream identity
 	async getUserIdentity (options) {
 		const authorizer = new MSTeamsAuthorizer({ options });
-		return await authorizer.getMSTeamsIdentity(options.accessToken);
+		return await authorizer.getMSTeamsIdentity(options.accessToken, options.providerInfo);
 	}
 }
 

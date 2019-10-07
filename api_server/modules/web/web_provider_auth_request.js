@@ -55,6 +55,12 @@ class WebProviderAuthRequest extends APIRequest {
 			sharing: !!this.request.query.sharing
 		};
 
+		// test mode to just return the generated state variable
+		if (this.request.query._returnState) {
+			this.responseData = { state };
+			return;
+		}
+
 		// get the specific query data to use in the redirect, and respond with the redirect url
 		const { parameters, url } = this.serviceAuth.getRedirectData(options); 
 		const query = Object.keys(parameters)

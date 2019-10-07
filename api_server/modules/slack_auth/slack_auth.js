@@ -79,7 +79,7 @@ class SlackAuth extends OAuthModule {
 	// match the given slack identity to a CodeStream identity
 	async getUserIdentity (options) {
 		const authorizer = new SlackAuthorizer({ options });
-		return await authorizer.getSlackIdentity(options.accessToken);
+		return await authorizer.getSlackIdentity(options.accessToken, options.providerInfo);
 	}
 }
 

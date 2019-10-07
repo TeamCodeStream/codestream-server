@@ -13,8 +13,9 @@ class MSTeamsAuthorizer {
 	}
 
 	// return identifying information associated with the fetched access token
-	async getMSTeamsIdentity (accessToken) {
+	async getMSTeamsIdentity (accessToken, providerInfo) {
 		this.token = accessToken;
+		this.providerInfo = this.providerInfo || providerInfo;
 		const userInfo = await this.graphApiRequest('/me');
 		const orgInfo = await this.graphApiRequest('/organization?$select=id,displayName');
 		if (!userInfo || !orgInfo || userInfo.error || orgInfo.error) {
@@ -42,7 +43,10 @@ class MSTeamsAuthorizer {
 	}
 
 	// make an Graph API request
-	async graphApiRequest(method) {
+	async graphApiRequest (method) {
+		if (this.token === 'invalid-token') { // for testing
+			throw this.request.errorHandler.error('invalidProviderCredentials', { reason: 'invalid token' });		
+		}
 		const mockCode = (
 			this.providerInfo &&
 			this.providerInfo.code && 
@@ -52,7 +56,7 @@ class MSTeamsAuthorizer {
 			if (method === '/me') {
 				return this._mockUser(mockCode[1]);
 			}
-			else if (method === '/organization') {
+			else if (method.match(/^\/organization/)) {
 				return this._mockOrganization(mockCode[2]);
 			}
 		}
@@ -87,7 +91,7 @@ class MSTeamsAuthorizer {
 
 	_mockOrganization (mockTeamId) {
 		return {
-			values: [{
+			value: [{
 				id: mockTeamId,
 				displayName: RandomString.generate(10)
 			}]

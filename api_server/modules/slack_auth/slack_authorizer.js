@@ -33,7 +33,9 @@ class SlackAuthorizer {
 	}
 
 	// return identifying information associated with the fetched access token
-	async getSlackIdentity (accessToken) {
+	async getSlackIdentity (accessToken, providerInfo) {
+		this.accessToken = accessToken;
+		this.providerInfo = this.providerInfo || providerInfo;
 		this.webClient = new WebClient(accessToken);
 		const identityInfo = await this.slackApiRequest('auth.test');
 		const userInfo = await this.slackApiRequest('users.info', { user: identityInfo.user_id });
@@ -81,6 +83,9 @@ class SlackAuthorizer {
 
 	// make a slack request
 	async slackApiRequest(method, options = {}) {
+		if (this.accessToken === 'invalid-token') {	// for testing
+			throw this.request.errorHandler.error('invalidProviderCredentials', { reason: 'invalid token' });
+		}
 		const mockCode = (
 			this.providerInfo &&
 			this.providerInfo.code && 

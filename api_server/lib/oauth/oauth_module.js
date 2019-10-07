@@ -297,6 +297,9 @@ class OAuthModule extends APIServerModule {
 		if (mockToken === 'error') {
 			throw { error: 'invalid_grant' };
 		}
+		else if (mockToken === 'noToken') {
+			mockToken = '';
+		}
 		if (exchangeFormat === 'query') {
 			const query = Object.keys(parameters)
 				.map(key => `${key}=${encodeURIComponent(parameters[key])}`)

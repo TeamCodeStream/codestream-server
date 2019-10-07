@@ -298,6 +298,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.userIdentity = await this.serviceAuth.getUserIdentity({
 			accessToken: token,
 			apiConfig: this.api.config[this.provider],
+			providerInfo: { code: this.request.query.code },
 			request: this
 		});
 

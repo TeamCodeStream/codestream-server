@@ -7,11 +7,16 @@ const ProviderTokenTest = require('./provider_token_test');
 const UnknownProviderTest = require('./unknown_provider_test');
 const StateRequiredTest = require('./state_required_test');
 const InvalidTokenTest = require('./invalid_token_test');
+const NoTokenTest = require('./no_token_test');
 const TokenExpiredTest = require('./token_expired_test');
 const WrongTokenTypeTest = require('./wrong_token_type_test');
 const UserNotFoundTest = require('./user_not_found_test');
 const UserNotOnTeamTest = require('./user_not_on_team_test');
 const MessageTest = require('./message_test');
+const IdentityMatchTest = require('./identity_match_test');
+const InvalidIdentityTokenTest = require('./invalid_identity_token_test');
+const BadProviderIdentityMatchTest = require('./bad_provider_identity_match_test');
+const NoIdentityMatchTokenTest = require('./no_identity_match_token_test');
 
 const PROVIDERS = [
 	'trello',
@@ -33,6 +38,11 @@ const ENTERPRISE_PROVIDERS = {
 	'gitlab_enterprise': 'https://gitlab.codestream.us'
 };
 
+const AUTH_PROVIDERS = [
+	'slack',
+	'msteams'
+];
+
 class ProviderTokenRequestTester {
 
 	test () {
@@ -45,13 +55,20 @@ class ProviderTokenRequestTester {
 			new ProviderTokenTest({ provider, testHost }).test();
 			new MessageTest({ provider, testHost }).test();
 		});
+		AUTH_PROVIDERS.forEach(provider => {
+			new IdentityMatchTest({ provider }).test();
+			new InvalidIdentityTokenTest({ provider }).test();
+			new BadProviderIdentityMatchTest({ provider }).test();
+			new NoIdentityMatchTokenTest({ provider }).test();
+		});
 		new UnknownProviderTest().test();
 		new StateRequiredTest({ provider: 'trello' }).test();
 		new InvalidTokenTest({ provider: 'github' }).test();
-		new TokenExpiredTest({ provider: 'asana' }).test();
-		new WrongTokenTypeTest({ provider: 'jira' }).test();
-		new UserNotFoundTest({ provider: 'gitlab' }).test();
-		new UserNotOnTeamTest({ provider: 'bitbucket' }).test();
+		new NoTokenTest({ provider: 'asana' }).test();
+		new TokenExpiredTest({ provider: 'jira' }).test();
+		new WrongTokenTypeTest({ provider: 'gitlab' }).test();
+		new UserNotFoundTest({ provider: 'bitbucket' }).test();
+		new UserNotOnTeamTest({ provider: 'trello' }).test();
 	}
 }
 

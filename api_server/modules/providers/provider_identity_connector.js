@@ -58,6 +58,9 @@ class ProviderIdentityConnector {
 			query,
 			{ hint: TeamIndexes.byProviderIdentities }
 		);
+
+		// DEPRECATE ME? - pretty sure the notion of being invited to a specific team
+		// that is associated with a provider identity is deprecated now
 		if (this.team) {
 			this.request.log('Matched team ' + this.team.id);
 			if (this.expectedTeamId && this.expectedTeamId !== this.team.id) {
