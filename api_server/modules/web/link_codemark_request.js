@@ -33,7 +33,7 @@ const ides = [
 	{ ideName: 'IntelliJ IDEA', protocol: 'jetbrains://idea/codestream/', moniker: 'jb-idea', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
 	{ ideName: 'PhpStorm', protocol: 'jetbrains://php-storm/codestream/', moniker: 'jb-phpstorm', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
 	{ ideName: 'PyCharm', protocol: 'jetbrains://pycharm/codestream/', moniker: 'jb-pycharm', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
-	{ ideName: 'Rider', protocol: 'jetbrains://rider/codestream/', moniker: 'jb-rider', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
+	{ ideName: 'Rider', protocol: 'jetbrains://rd/codestream/', moniker: 'jb-rider', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
 	{ ideName: 'RubyMine', protocol: 'jetbrains://rubymine/codestream/', moniker: 'jb-rubymine', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
 	{ ideName: 'WebStorm', protocol: 'jetbrains://web-storm/codestream/', moniker: 'jb-web-storm', downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream' },
 ];
