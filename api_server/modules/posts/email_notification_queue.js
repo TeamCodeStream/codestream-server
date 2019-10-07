@@ -49,6 +49,7 @@ class EmailNotificationQueue {
 			seqNum < this.fromSeqNum &&
 			seqNumSetAt > Date.now() - staleInterval
 		) {
+			this.request.log(`Stream ${this.stream.id} not getting email notifications because seqNum (${seqNum}) < fromSeqNum (${this.fromSeqNum}) and seqNumSetAt (${seqNumSetAt}) > stale time (${Date.now() - staleInterval})`);
 			return;
 		}
 		await this.setAndFetchSeqNum();		// set and fetch the sequence number representing the oldest post for an email notification
@@ -125,6 +126,7 @@ class EmailNotificationQueue {
 			this.foundSeqNum < this.fromSeqNum &&
 			this.foundSeqNumSetAt > Date.now() - staleInterval
 		) {
+			this.request.log(`Backing off email notification for stream ${this.stream.id} because foundSeqNum (${this.foundSeqNum}) < fromSeqNum (${this.fromSeqNum}) and foundSeqNumSetAt (${this.foundSeqNumSetAt}) > stale time (${Date.now() - staleInterval})`);
 			this.backedOff = true;
 			await this.restoreSeqNum(this.foundSeqNum);
 			return true;
