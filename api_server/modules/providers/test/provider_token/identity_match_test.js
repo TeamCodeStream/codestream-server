@@ -19,7 +19,7 @@ class IdentityMatchTest extends Aggregation(CodeStreamAPITest, IdentityMatchComm
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify we were redirected to auth-complete page at the end of the flow
-		Assert.equal(this.providerTokenResponse.statusCode, 301, 'call to provider-token should have redirected');
+		Assert([301, 302].indexOf(this.providerTokenResponse.statusCode) >= 0, 'call to provider-token should have redirected');
 		Assert(this.providerTokenData.match(`\\/web\\/provider-auth-complete\\/${this.provider}`), 'call to provider-token should have redirected to provider-auth-complete page');
 
 		// verify that the correct provider info made its way into the user object created
