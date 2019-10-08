@@ -34,6 +34,19 @@ class ErrorHandler {
 		return Object.assign({}, this.errors[key], info);
 	}
 
+	// create an error object based on the code passed in
+	errorByCode (code, info) {
+		const tag = Object.keys(this.errors).find(key => {
+			return this.errors[key].code === code;
+		});
+		if (tag) {
+			return this.error(tag, info);
+		}
+		else {
+			return this.error('???', info);	// will return an UNKNOWN error, not ideal at all
+		}
+	}
+
 	// syntactic sugar for a special kind of error
 	dataError (error) {
 		return this.error('data', { reason: error });
