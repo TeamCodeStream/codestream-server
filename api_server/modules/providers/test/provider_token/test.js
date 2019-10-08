@@ -17,6 +17,7 @@ const IdentityMatchTest = require('./identity_match_test');
 const InvalidIdentityTokenTest = require('./invalid_identity_token_test');
 const BadProviderIdentityMatchTest = require('./bad_provider_identity_match_test');
 const NoIdentityMatchTokenTest = require('./no_identity_match_token_test');
+const NoSignUpInSharingTest = require('./no_signup_in_sharing_test');
 
 const PROVIDERS = [
 	'trello',
@@ -60,6 +61,7 @@ class ProviderTokenRequestTester {
 			new InvalidIdentityTokenTest({ provider }).test();
 			new BadProviderIdentityMatchTest({ provider }).test();
 			new NoIdentityMatchTokenTest({ provider }).test();
+			new NoSignUpInSharingTest({ provider }).test();
 		});
 		new UnknownProviderTest().test();
 		new StateRequiredTest({ provider: 'trello' }).test();
