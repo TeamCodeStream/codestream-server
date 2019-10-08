@@ -1,0 +1,193 @@
+
+<div class="row no-gutters {{#if showComment}}mt-4{{else}}mt-1{{/if}}" id="marker-{{markerId}}">
+    <div class="col-sm-12">
+        <div class="row no-gutters">
+            <div class="col-sm-11 pb-2">  
+                {{#if debug}}
+                    <b>{{markerId}}</b>
+                {{/if}}
+                {{#if file}}
+                    <span class="pr-4">							
+                        <span class="monospace file" title="{{file}}">
+                            <span class="icon">
+                                <svg version="1.1" width="16" height="16" viewBox="0 0 12 16" class="octicon octicon-file" aria-hidden="true">
+                                    <path fill-rule="evenodd"
+                                        d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z">
+                                    </path>
+                                </svg>
+                            </span>
+                            {{file}}
+                            </span>                      
+                        </span>
+                    </span>
+                {{/if}}
+                {{#if whenCreated}}
+                    {{#whenCreated}}							 
+                        {{#if branchWhenCreated}}
+                            <span class="monospace branch pr-4">
+                                <span class="icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16">
+                                        <path fill-rule="evenodd"
+                                            d="M10 5c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v.3c-.02.52-.23.98-.63 1.38-.4.4-.86.61-1.38.63-.83.02-1.48.16-2 .45V4.72a1.993 1.993 0 0 0-1-3.72C.88 1 0 1.89 0 3a2 2 0 0 0 1 1.72v6.56c-.59.35-1 .99-1 1.72 0 1.11.89 2 2 2 1.11 0 2-.89 2-2 0-.53-.2-1-.53-1.36.09-.06.48-.41.59-.47.25-.11.56-.17.94-.17 1.05-.05 1.95-.45 2.75-1.25S8.95 7.77 9 6.73h-.02C9.59 6.37 10 5.73 10 5zM2 1.8c.66 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2C1.35 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2zm0 12.41c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm6-8c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z" />
+                                    </svg>
+                                </span>
+                                {{branchWhenCreated}}</span>
+                        {{/if}}
+                        {{#if commitHashWhenCreated}}
+                            <span class="monospace pr-4">
+                                <span class="icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16">
+                                        <path fill-rule="evenodd"
+                                            d="M10.86 7c-.45-1.72-2-3-3.86-3-1.86 0-3.41 1.28-3.86 3H0v2h3.14c.45 1.72 2 3 3.86 3 1.86 0 3.41-1.28 3.86-3H14V7h-3.14zM7 10.2c-1.22 0-2.2-.98-2.2-2.2 0-1.22.98-2.2 2.2-2.2 1.22 0 2.2.98 2.2 2.2 0 1.22-.98 2.2-2.2 2.2z" />
+                                    </svg>
+                                </span>
+                                <span title="commit hash">{{commitHashWhenCreated}}</span>
+                            </span>
+                        {{/if}}										
+                {{/whenCreated}}
+                {{/if}}
+               
+            </div>
+
+            <div class="col-sm-1">
+                <div data-action-code-controls="{{markerId}}" class="code-controls float-right" style="display:none; padding-top:0px;">										
+                    <a href="#" class="code-control" title="expand code" data-action-expand="{{markerId}}">
+                        <svg class="octicon octicon-unfold" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M11.5 7.5L14 10c0 .55-.45 1-1 1H9v-1h3.5l-2-2h-7l-2 2H5v1H1c-.55 0-1-.45-1-1l2.5-2.5L0 5c0-.55.45-1 1-1h4v1H1.5l2 2h7l2-2H9V4h4c.55 0 1 .45 1 1l-2.5 2.5zM6 6h2V3h2L7 0 4 3h2v3zm2 3H6v3H4l3 3 3-3H8V9z">
+                            </path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>						 							 
+    </div>
+
+    <div class="col-sm-12">
+        <div class="code-wrapper" style="max-height:275px;" data-action-expand-id="{{markerId}}">
+            {{#if codeStartingLineNumber}}
+            <code class="prettyprint linenums:{{codeStartingLineNumber}}">{{{code}}}</code>
+            {{/if}}
+            {{^codeStartingLineNumber}}
+            <code class="prettyprint">{{{code}}}</code>
+            {{/codeStartingLineNumber}}
+        </div>
+    </div>
+</div>
+
+<div class="row no-gutters mt-1 {{#if isLast}}mb-1{{else}}mb-3{{/if}}">      
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">     
+        <div class="float-lg-right float-xl-right">
+            {{#if codeProvider}}
+            <a href="{{codeProviderUrl}}" data-code-provider="{{markerId}}" 
+            target="_blank" class="btn btn-sm btn-block-wrap form-control btn-open-in">Open
+                on {{codeProvider}}</a>
+            {{/if}}
+            <div class="btn-group ide-list btn-block-wrap" style="white-space:nowrap;" data-marker-id="{{markerId}}">
+                <a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="sr-only">Toggle Dropdown</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right ide-list-items" data-list-items="{{markerId}}" data-element-ide-list="">
+                    {{#ides}}
+                        {{#if ideName}}
+                        <a class="dropdown-item" href="#"
+                            data-ide="" 
+                            data-ide-name="{{ideName}}"
+                            data-ide-moniker="{{moniker}}" 
+                            data-ide-protocol="{{protocol}}"
+                            data-ide-download-url="{{downloadUrl}}"
+                            data-repo-id="{{../repoId}}"
+                            data-marker-id="{{../markerId}}"
+                            >{{ideName}}</a>
+                        {{/if}}
+                        {{^ideName}}
+                        <div class="dropdown-divider"></div>
+                        {{/ideName}}
+                    {{/ides}}
+                </div>
+            </div>
+        </div>
+      
+    </div>
+</div>
+
+<script>
+    $(function () {
+
+        $('[data-ide=""]').on('click', function(e) {
+            if ($(this).attr('data-marker-id') !== '{{markerId}}') return;
+
+            window.CODESTREAM.openEditor(e, $(this), '{{markerId}}');
+        });
+
+        $('[data-code-provider="{{markerId}}"]').click(function(e) {
+            window.analytics.track("Opened Code", { Host: "{{codeProvider}}" })
+        });
+
+        var isExpanded;
+        $('[data-action-expand="{{markerId}}"]').click(function (e) {
+            e.preventDefault();
+            var target = e.target;
+            var i = 0;
+            while (target.tagName !== 'A') {
+                target = target.parentElement;
+                i++;
+                if (i === 10) {
+                    break;
+                }
+            }
+            if (i === 10) {
+                console.warn('invalid target');
+            }
+            var $this = $(this);
+            var val = $this.attr("data-action-expand");
+            if (val) {
+                var target = $('[data-action-expand-id="' + val + '"]');
+                if (target && target.length) {
+                    if (target.css('max-height') !== 'none') {
+                        isExpanded = true;
+                        target.css('max-height', 'none');
+                        $this.html('<svg class="octicon octicon-fold" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M7 9l3 3H8v3H6v-3H4l3-3zm3-6H8V0H6v3H4l3 3 3-3zm4 2c0-.55-.45-1-1-1h-2.5l-1 1h3l-2 2h-7l-2-2h3l-1-1H1c-.55 0-1 .45-1 1l2.5 2.5L0 10c0 .55.45 1 1 1h2.5l1-1h-3l2-2h7l2 2h-3l1 1H13c.55 0 1-.45 1-1l-2.5-2.5L14 5z"></path></svg>').attr('title', 'collapse code');
+                    }
+                    else {
+                        isExpanded = false;
+                        target.css('max-height', '275px');
+                        $this.html('<svg class="octicon octicon-unfold" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M11.5 7.5L14 10c0 .55-.45 1-1 1H9v-1h3.5l-2-2h-7l-2 2H5v1H1c-.55 0-1-.45-1-1l2.5-2.5L0 5c0-.55.45-1 1-1h4v1H1.5l2 2h7l2-2H9V4h4c.55 0 1 .45 1 1l-2.5 2.5zM6 6h2V3h2L7 0 4 3h2v3zm2 3H6v3H4l3 3 3-3H8V9z"></path></svg>').attr('title', 'expand code');
+                    }
+                }
+            }
+        })
+
+        var toggleCodeControls = function(){
+            var wrapper = $('[data-action-expand-id="{{markerId}}"]');
+            if (wrapper && wrapper.length) {
+                var $control = $('[data-action-code-controls="{{markerId}}"]');
+                if (wrapper[0].clientHeight < wrapper[0].scrollHeight) {
+                    $control.show();						
+                }
+                else if(!isExpanded) {
+                    $control.hide();
+                }
+            }
+        }
+        $(window).resize(function () {
+            toggleCodeControls();
+        });
+
+        toggleCodeControls(); 
+
+        setTimeout(function() {
+            var markerId = '{{markerId}}';
+            var qsMarkerId = '{{selectedMarker}}'
+            if (markerId && markerId === qsMarkerId) {
+                var $target = $('#marker-{{markerId}}');
+                if ($target && $target.length) {                    
+                    $target[0].scrollIntoView({ behavior: 'smooth' , block: 'start', inline: 'nearest'})
+                    $target.addClass('anm8-scrollIntoView');
+                }            
+            }
+        }, 200);
+        
+    });
+</script>

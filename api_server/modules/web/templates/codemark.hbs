@@ -33,93 +33,97 @@
 		<div class="row">
 			<div class="col-sm-8 offset-sm-2">
 				<div class="box-content box-border box-border-sm">
-					<div>
-						{{#if showComment}}
-						<div class="flex">
-							{{#if hasEmailHashOrAuthorInitials}}
-							<div class="headshot">
-								<img style="position:absolute; z-index:2;" class="headshot-image"
-									src="https://www.gravatar.com/avatar/{{emailHash}}?s=20&d=blank" />
-								<span class="headshot-initials">{{authorInitials}}</span>
-							</div>
-							{{/if}}
-							<div>
-								<div class="posted-on">
-									<span class="author">{{username}}</span>
-									<span class="time">{{createdAt}}</span>
-								</div>
-							</div>
+					 
+					{{#if showComment}}
+					<div class="flex">
+						{{#if hasEmailHashOrAuthorInitials}}
+						<div class="headshot">
+							<img style="position:absolute; z-index:2;" class="headshot-image"
+								src="https://www.gravatar.com/avatar/{{emailHash}}?s=20&d=blank" />
+							<span class="headshot-initials">{{authorInitials}}</span>
 						</div>
 						{{/if}}
-						{{#if showComment}}
-						{{#if title}}
-						<p class="title">{{title}}</p>
-						{{/if}}
+						<div>
+							<div class="posted-on">
+								<span class="author">{{username}}</span>
+								<span class="time">{{createdAt}}</span>
+							</div>
+						</div>
+					</div>
+					{{/if}}
+					{{#if showComment}}
+					{{#if title}}
+					<p class="title">{{title}}</p>
+					{{/if}}
 
-						{{#if hasTagsOrAssignees}}
-						<div class="row no-gutters mt-4">
-							{{#if tags}}
-							<div class="col-sm-6">
-								<h6>TAGS</h6>
-							</div>
-							{{/if}}
-							{{#if assignees}}
-							<div class="col-sm-6">
-								<h6>ASSIGNEES</h6>
-							</div>
-							{{/if}}
+					{{#if hasTagsOrAssignees}}
+					<div class="row no-gutters mt-4">
+						{{#if tags}}
+						<div class="col-sm-6">
+							<h6>TAGS</h6>
 						</div>
-						<div class="row no-gutters mt-0">
-							{{#if tags}}
+						{{/if}}
+						{{#if assignees}}
+						<div class="col-sm-6">
+							<h6>ASSIGNEES</h6>
+						</div>
+						{{/if}}
+					</div>
+					<div class="row no-gutters mt-1">
+						{{#if tags}}
 							<div class="col-sm-6">
 								{{#tags}}
-								{{#if label}}
-								<span class="label label-square" style="background-color:{{color}};">
-									{{label}}
-								</span>
-								{{/if}}
-								{{^label}}
-								<span class="label label-square label-empty" style="background-color:{{color}};">
-									&#8291;
-								</span>
-								{{/label}}
-
-								{{/tags}}
-
-							</div>
-							{{/if}}
-							{{#if assignees}}
-							<div class="col-sm-6">
-								{{#assignees}}
-								<div class="assignee-wrapper">
-									{{#if initials}}
-									<span class="headshot-initials-inline" title="{{tooltip}}">{{initials}}</span>
+									{{#if label}}
+									<span class="label label-square" style="background-color:{{color}};">
+										{{label}}
+									</span>
 									{{/if}}
-									<span title="{{tooltip}}">{{label}}</span>
-								</div>
-								{{/assignees}}
+									{{^label}}
+									<span class="label label-square label-empty" style="background-color:{{color}};">
+										&#8291;
+									</span>
+									{{/label}}
+								{{/tags}}
 							</div>
+						{{/if}}
+						{{#if assignees}}
+						<div class="col-sm-6">
+							{{#assignees}}
+							<div class="assignee-wrapper">
+								{{#if initials}}
+								<span class="headshot-initials-inline" title="{{tooltip}}">{{initials}}</span>
+								{{/if}}
+								<span title="{{tooltip}}">{{label}}</span>
+							</div>
+							{{/assignees}}
+						</div>
+						{{/if}}
+					</div>
+					{{/if}}
+
+
+					{{#if isIssue}}
+					<div class="row no-gutters mt-4">
+						<div class="col-sm-12">
+							<h6>DESCRIPTION</h6>
+						</div>
+					</div>
+					{{/if}}
+					<div class="row no-gutters {{#if isIssue}}mt-0{{else}}mt-1{{/if}}">
+						<div class="col-sm-12">
+							{{#if text}}
+								<div class="description">
+									{{#if isIssue}}
+										<span class="icon">
+											<svg version="1.1" width="16" height="16" class="octicon octicon-description" aria-hidden="true" viewBox="0 0 24 24"><path d="M 4 3 A 1.0001 1.0001 0 1 0 4 5 L 20 5 A 1.0001 1.0001 0 1 0 20 3 L 4 3 z M 4 7 A 1.0001 1.0001 0 1 0 4 9 L 15 9 A 1.0001 1.0001 0 1 0 15 7 L 4 7 z M 4 11 A 1.0001 1.0001 0 1 0 4 13 L 20 13 A 1.0001 1.0001 0 1 0 20 11 L 4 11 z M 4 15 A 1.0001 1.0001 0 1 0 4 17 L 15 17 A 1.0001 1.0001 0 1 0 15 15 L 4 15 z M 4 19 A 1.0001 1.0001 0 1 0 4 21 L 20 21 A 1.0001 1.0001 0 1 0 20 19 L 4 19 z"></path>
+											</svg>
+										</span>
+									{{/if}}
+									{{{text}}}				
+								</div>				 
 							{{/if}}
 						</div>
-						{{/if}}
-
-
-						{{#if isIssue}}
-						<div class="row no-gutters mt-4">
-							<div class="col-sm-12">
-								<h6>DESCRIPTION</h6>
-							</div>
-						</div>
-						{{/if}}
-						<div class="row no-gutters {{#if isIssue}}mt-0{{else}}mt-1{{/if}}">
-							<div class="col-sm-12">
-								{{#if text}}
-									<div class="description">
-										{{{text}}}
-									</div>
-								{{/if}}
-							</div>
-						</div>
+					</div>
 
 						{{#if externalProvider}}
 						<div class="row no-gutters mt-3">
@@ -127,16 +131,17 @@
 								<h6>LINKED ISSUES</h6>
 							</div>
 						</div>
-						<div class="row no-gutters mt-0">
-							<div class="col-sm-12">
-								{{!-- {{externalProvider}} --}}
-								<a href="#"
-									onclick='event.preventDefault();window.analytics.track("Opened Issue", { Service: "{{externalProvider}}" }); window.open("{{externalProviderUrl}}", "_blank")'>
-									{{externalProviderUrl}}
-								</a>
-							</div>
+				
+					<div class="row no-gutters mt-0">
+						<div class="col-sm-12">						 
+							<a href="#"
+								onclick='event.preventDefault();window.analytics.track("Opened Issue", { Service: "{{externalProvider}}" }); window.open("{{externalProviderUrl}}", "_blank")'>
+							{{#if externalProviderIcon}}{{{externalProviderIcon}}}{{/if}}{{externalProvider}} {{externalProviderUrl}}
+							</a>
 						</div>
-						{{/if}}
+					</div>
+					{{/if}}
+					
 						{{#if relatedCodemarks}}
 						<div class="row no-gutters mt-3">
 							<div class="col-sm-12">
@@ -147,121 +152,20 @@
 							<div class="col-sm-12">
 								{{#relatedCodemarks}}
 								<div class="related-codemark">
-								<a href="{{url}}" class="related-codemark-link">
-									 {{title}}
-									<span class="related-codemark-file">{{file}}</span></a>
+									<a href="{{url}}" class="related-codemark-link">
+										{{#if icon}}{{{icon}}}{{/if}}									
+										{{title}}
+										<span class="related-codemark-file">{{file}}</span>
+									</a>
 								</div>
 								{{/relatedCodemarks}}
 							</div>
 						</div>
 						{{/if}}
-
-						{{/if}}
-
-						{{#if showComment}}
-						{{#if whenCreated}}
-						<div class="row no-gutters mt-3">
-							<div class="col-sm-12">
-								<h6>ORIGINAL CODE</h6>
-							</div>
-						</div>
-						<div class="row no-gutters mt-0">
-							<div class="col-sm-12">
-								{{#whenCreated}}
-								<span class="monospace">
-									{{#if branchWhenCreated}}
-									<span title="branch">
-										<span class="icon">
-										<svg xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16">
-											<path fill-rule="evenodd"
-												d="M10 5c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v.3c-.02.52-.23.98-.63 1.38-.4.4-.86.61-1.38.63-.83.02-1.48.16-2 .45V4.72a1.993 1.993 0 0 0-1-3.72C.88 1 0 1.89 0 3a2 2 0 0 0 1 1.72v6.56c-.59.35-1 .99-1 1.72 0 1.11.89 2 2 2 1.11 0 2-.89 2-2 0-.53-.2-1-.53-1.36.09-.06.48-.41.59-.47.25-.11.56-.17.94-.17 1.05-.05 1.95-.45 2.75-1.25S8.95 7.77 9 6.73h-.02C9.59 6.37 10 5.73 10 5zM2 1.8c.66 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2C1.35 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2zm0 12.41c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm6-8c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z" />
-											</svg>
-											</span>
-										{{branchWhenCreated}}</span>
-									{{/if}}
-									{{#if commitHashWhenCreated}}
-										<span class="icon">
-											<svg xmlns="http://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16">
-												<path fill-rule="evenodd"
-													d="M10.86 7c-.45-1.72-2-3-3.86-3-1.86 0-3.41 1.28-3.86 3H0v2h3.14c.45 1.72 2 3 3.86 3 1.86 0 3.41-1.28 3.86-3H14V7h-3.14zM7 10.2c-1.22 0-2.2-.98-2.2-2.2 0-1.22.98-2.2 2.2-2.2 1.22 0 2.2.98 2.2 2.2 0 1.22-.98 2.2-2.2 2.2z" />
-												</svg>
-										</span>
-									<span title="commit hash">{{commitHashWhenCreated}}</span>
-									{{/if}}
-								</span>
-								{{/whenCreated}}
-							</div>
-						</div>
-						{{/if}}
-						{{/if}}
-
-						<div class="row no-gutters {{#if showComment}}mt-4{{else}}mt-1{{/if}}">
-							<div class="col-sm-12">
-								<div class="row no-gutters">
-									<div class="col-sm-11">
-									{{#if file}}
-									<div class="file" title="{{file}}">{{file}}</div>
-									{{/if}}
-									</div>
-									<div class="col-sm-1">
-									<div data-action-code-controls="{{markerId}}" class="code-controls float-right" style="display:none; padding-top:0px;">
-										<a href="#" class="code-control" title="expand code" data-action-expand="{{markerId}}">
-											<svg class="octicon octicon-unfold" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true">
-												<path fill-rule="evenodd"
-													d="M11.5 7.5L14 10c0 .55-.45 1-1 1H9v-1h3.5l-2-2h-7l-2 2H5v1H1c-.55 0-1-.45-1-1l2.5-2.5L0 5c0-.55.45-1 1-1h4v1H1.5l2 2h7l2-2H9V4h4c.55 0 1 .45 1 1l-2.5 2.5zM6 6h2V3h2L7 0 4 3h2v3zm2 3H6v3H4l3 3 3-3H8V9z">
-												</path>
-											</svg>
-										</a>
-									</div>
-									</div>
-								</div>
-							</div>
-
-							<div class="col-sm-12">
-								<div class="code-wrapper" style="max-height:275px;" data-action-expand-id="{{markerId}}">
-									{{#if codeStartingLineNumber}}
-									<code class="prettyprint linenums:{{codeStartingLineNumber}}">{{{code}}}</code>
-									{{/if}}
-									{{^codeStartingLineNumber}}
-									<code class="prettyprint">{{{code}}}</code>
-									{{/codeStartingLineNumber}}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="row no-gutters mt-3">
-						<div class="col-xl-5 col-lg-6 col-md-12 col-sm-12 col-xs-12 mb-2">
-							<div class="btn-group ide-list btn-block" style="white-space:nowrap;">
-								<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
-									data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									<span class="sr-only">Toggle Dropdown</span>
-								</a>
-								<div class="dropdown-menu dropdown-menu-right" id="ide-list-items">
-									{{#ides}}
-									{{#if ideName}}
-									<a class="dropdown-item" href="#" data-ide="" data-ide-name="{{ideName}}"
-										data-ide-moniker="{{moniker}}" data-ide-protocol="{{protocol}}"
-										data-ide-download-url="{{downloadUrl}}">{{ideName}}</a>
-									{{/if}}
-									{{^ideName}}
-									<div class="dropdown-divider"></div>
-									{{/ideName}}
-									{{/ides}}
-								</div>
-							</div>
-						</div>
-
-						<div class="col-xl-7 col-lg-6 col-md-12 col-sm-12 col-xs-12">
-							{{#if hasProviderButtons}}
-							<div class="float-lg-right float-xl-right">
-								{{#if codeProvider}}
-								<a href="{{codeProviderUrl}}" data-code-provider="" target="_blank" class="btn btn-sm btn-block form-control btn-open-in">Open
-									on {{codeProvider}}</a>
-								{{/if}}
-							</div>
-							{{/if}}
-						</div>
-					</div>
+					{{/if}}
+					{{#markers}}
+						{{> partial_marker this}}
+					{{/markers}}
 				</div>
 			</div>
 		</div>
@@ -269,11 +173,13 @@
 	</div>
 	<script>
 		$(function () {
+			
+			/*
 			var isExpanded;
-			$('[data-code-provider=""]').click(function(e) {
-				window.analytics.track("Opened Code", { Host: "{{codeProvider}}" })
-			})
-
+			//$('[data-code-provider=""]').click(function(e) {
+			//	window.analytics.track("Opened Code", { Host: "{{codeProvider}}" })
+			//})
+			
 			$('[data-action-expand]').click(function (e) {
 				e.preventDefault();
 
@@ -313,6 +219,7 @@
 			});
 
 			toggleCodeControls();
+			*/
 		})
 	</script>
 	<script>
@@ -585,6 +492,8 @@
 
 	<script>
 		$(function () {
+			window.CODESTREAM = {} || window.CODESTREAM;
+			
 			function getCookie(cname) {
 				var name = cname + "=";
 				var decodedCookie = decodeURIComponent(document.cookie);
@@ -601,62 +510,84 @@
 				return "";
 			}
 
-			function createSelected(el){
+			function setCookie(cname, cvalue, exdays) {
+				var d = new Date();
+				d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+				var expires = "expires=" + d.toUTCString();
+				document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+			}
+
+			function createSelected(el, markerId){
 				var $thing = $(el.outerHTML)
-				.removeClass('dropdown-item').addClass('selected-ide btn btn-sm btn-block form-control btn-open-in').on('click', cb);
-				$thing.html("Open in "+ $thing.html());
+				
+				.attr('data-marker-id', markerId).removeClass('dropdown-item')
+				.addClass('selected-ide btn btn-sm btn-block form-control btn-open-in')
+				.on('click', function(e) {					
+					window.CODESTREAM.openEditor(e, $thing, $thing.attr('data-marker-id'));
+				});
+				var html = $thing.html();
+				if (html.indexOf('Open in') === -1) {
+					html = 'Open in '+html;
+				}
+				$thing.html(html);
 				return $thing;
 			}
 
-			function setSelected(moniker) {
-				var u = $('#ide-list-items').find('[data-ide-moniker="' + moniker + '"]');
-				if (u.length) {
-					$('.ide-list .selected-ide').remove();
-					$('.ide-list').prepend(
-					 createSelected(u[0])
+			function setSelected($el) {								 
+				$('.ide-list .selected-ide').remove();
+				for(var i = 0; i< $('.ide-list').length; i++){
+					var $item = $($('.ide-list')[i]);
+					$item.prepend(
+						createSelected($el[0], $item.attr('data-marker-id'))
 					)
-				}
-				setCookie('cs__ide-mru--{{repoId}}', moniker);
+				}						 
 			}
 
-			function cb(e) {
-				e.preventDefault();
-
-				var protocolStart = $(this).attr('data-ide-protocol');
-				var ideName = $(this).attr('data-ide-name');
-				var moniker = $(this).attr('data-ide-moniker');
-				var downloadUrl = $(this).attr('data-ide-download-url');
-				var protocol = protocolStart + 'codemark/{{codemarkId}}/open?repoId={{repoId}}';
-
-				setSelected(moniker);
-
-				if (moniker.indexOf('jb-') === 0) {
-					var fileName = '{{rawFileName}}';
-					protocol+=`&controller=codemark&id={{codemarkId}}&action=open&file=${encodeURIComponent(fileName)}`;
-				}
-
-				var $existingAlert = $('.alert');
-				if ($existingAlert.length) {
-					$existingAlert.alert('close');
-				}
-
-				var timeout = setTimeout(function () {
-					createBanner(ideName, protocolStart, downloadUrl);
-				}, 200);
-
-				window.protocolCheck(protocol,
-					function () {
-						//fail
-						console.log(`CodeStream: failed for Moniker=${moniker} Path=${protocol} `);
-						window.analytics.track("Opened in IDE", { IDE: moniker, "Protocol Handled": false });
-					}, function () {
-						//success
-						console.log(`CodeStream: success for Moniker=${moniker} Path=${protocol}`);
-						clearTimeout(timeout);
-
-						window.analytics.track("Opened in IDE", { IDE: moniker, "Protocol Handled": true });
-					});
+		window.CODESTREAM.openEditor = function(e, $el, markerId) {			
+			e.preventDefault();
+			
+			if (!markerId) {
+				console.error('missing markerId');
+				return;
 			}
+
+			var protocolStart = $el.attr('data-ide-protocol');
+			var ideName = $el.attr('data-ide-name');
+			var moniker = $el.attr('data-ide-moniker');
+			var downloadUrl = $el.attr('data-ide-download-url');
+			var repoId = $el.attr('data-repo-id');				
+			var protocol = protocolStart + 'codemark/{{codemarkId}}/open?repoId='+repoId+'&marker='+markerId;
+
+			setSelected($el);
+			setCookie('cs__ide-mru--{{repoId}}', moniker);
+
+			if (moniker.indexOf('jb-') === 0) {
+				var fileName = '{{rawFileName}}';
+				protocol+=`&controller=codemark&id={{codemarkId}}&action=open&file=${encodeURIComponent(fileName)}`;
+			}
+
+			var $existingAlert = $('.alert');
+			if ($existingAlert.length) {
+				$existingAlert.alert('close');
+			}
+
+			var timeout = setTimeout(function () {
+				createBanner(ideName, protocolStart, downloadUrl);
+			}, 200);
+
+			window.protocolCheck(protocol,
+				function () {
+					//fail
+					console.log(`CodeStream: failed for Moniker=${moniker} Path=${protocol} `);
+					window.analytics.track("Opened in IDE", { IDE: moniker, "Protocol Handled": false });
+				}, function () {
+					//success
+					console.log(`CodeStream: success for Moniker=${moniker} Path=${protocol}`);
+					clearTimeout(timeout);
+
+					window.analytics.track("Opened in IDE", { IDE: moniker, "Protocol Handled": true });
+			});
+		}
 
 			function createBanner(ide, protocol, downloadUrl) {
 				var $existingAlert = $('.alert');
@@ -694,40 +625,30 @@
 			</div>`);
 				$('#alert-wrapper').append($alert);
 				$alert.show();
-			}
-
-			function setCookie(cname, cvalue, exdays) {
-				var d = new Date();
-				d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-				var expires = "expires=" + d.toUTCString();
-				document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-			}
-
-
+			}			
 
 			var mru = getCookie("cs__ide-mru--{{repoId}}");
 			if (mru) {
-				var u = $('#ide-list-items').find('[data-ide-moniker="' + mru + '"]');
+				var u = $('[data-element-ide-list]').find('[data-ide-moniker="' + mru + '"]');
 				if (u && u.length) {
-					$('.ide-list').prepend(createSelected(u[0]));
+					setSelected(u);					
 				}
 				else {
-					var a = $('#ide-list-items').find('a');
+					var a = $('[data-element-ide-list]').find('a');
 					if (a && a.length) {
-						$('.ide-list').prepend(createSelected(a[0]));
+						setSelected(a);						
 					}
 				}
 			}
 			else {
-				var a = $('#ide-list-items').find('a');
+				var a = $('[data-element-ide-list]').find('a');
 				if (a && a.length) {
-					$('.ide-list').prepend(createSelected(a[0]));
+					setSelected(a);					
 				}
-			}
+			}			
 
-			$('[data-ide=""]').on('click', cb);
 			var isDefault;
-			var launcher = encodeURIComponent('{{launchIde}}').replace(/'/g, "''");
+			var launcher = encodeURIComponent('{{queryString.ide}}').replace(/'/g, "''");
 			if (launcher) {
 				var item;
 				if (launcher === "default") {
@@ -737,7 +658,7 @@
 				else {
 					item = launcher;
 				}
-				var u = $('#ide-list-items').find('[data-ide-moniker="' + item + '"]');
+				var u = $('[data-element-ide-list]').find('[data-ide-moniker="' + item + '"]');
 				if (u && u.length){
 					u.click();
 				}
