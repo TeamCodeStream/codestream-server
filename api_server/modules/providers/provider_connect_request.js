@@ -70,6 +70,7 @@ class ProviderConnectRequest extends RestfulRequest {
 			provider: this.provider,
 			okToCreateUser: true,
 			okToCreateTeam: true,
+			okToFindExistingUserByEmail: true,
 			_pubnubUuid: this.request.body._pubnubUuid,
 			_subscriptionCheat: this.request.body._subscriptionCheat
 		};

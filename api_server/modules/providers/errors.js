@@ -32,5 +32,10 @@ module.exports = {
 		code: 'PRVD-1005',
 		message: 'No CodeStream identity was found to match the identity from third-party provider authentication',
 		description: 'After completing third-party provider authentication, a matching identity on CodeStream could not be found'
+	},
+	'providerAuthNotAllowed': {
+		code: 'PRVD-1006',
+		message: 'Third-party authentication is not allowed for this user',
+		description: 'Users that are already registered on CodeStream are not allowed to authenticate with a third-party provider; they must sign in with their CodeStream credentials'
 	}
 };

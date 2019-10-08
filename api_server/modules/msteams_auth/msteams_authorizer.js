@@ -83,7 +83,7 @@ class MSTeamsAuthorizer {
 		return {
 			id: mockUserId,
 			displayName: `${RandomString.generate(8)} ${RandomString.generate(8)}`,
-			mail: /*this.providerInfo.mockEmail || */`${RandomString.generate(8)}@${RandomString.generate(8)}.com`,
+			mail: this.providerInfo.mockEmail || `${RandomString.generate(8)}@${RandomString.generate(8)}.com`,
 			businessPhones: [Math.floor(Math.random() * 1000000000)],
 			jobTitle: RandomString.generate(50)
 		};

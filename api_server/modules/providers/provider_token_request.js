@@ -85,6 +85,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (this.request.query._mockToken && decodeURIComponent(this.request.query._secret || '') !== SecretsConfig.confirmationCheat) {
 			this.warn('Deleting mock token because incorrect secret sent');
 			delete this.request.query._mockToken;
+			delete this.request.query._mockEmail;
 		}
 		delete this.request.query._secret;
 
@@ -92,7 +93,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			'query',
 			{
 				optional: {
-					string: ['state', 'token', 'code', 'token_type', 'expires_in' ,'scope', 'error', 'oauth_token', '_mockToken']
+					string: ['state', 'token', 'code', 'token_type', 'expires_in' ,'scope', 'error', 'oauth_token', '_mockToken', '_mockEmail']
 				}
 			}
 		);
@@ -298,7 +299,10 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.userIdentity = await this.serviceAuth.getUserIdentity({
 			accessToken: token,
 			apiConfig: this.api.config[this.provider],
-			providerInfo: { code: this.request.query.code },
+			providerInfo: { 
+				code: this.request.query.code,
+				mockEmail: this.request.query._mockEmail
+			},
 			request: this
 		});
 
@@ -313,6 +317,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			provider: this.provider,
 			okToCreateUser: this.userId === 'anon',
 			okToCreateTeam: !this.sharing && this.userId === 'anon',
+			okToFindExistingUserByEmail: !this.sharing,
 			tokenData: this.tokenData
 		});
 		await this.connector.connectIdentity(userIdentity);

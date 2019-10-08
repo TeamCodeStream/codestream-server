@@ -41,6 +41,12 @@ class WebErrorRequest extends WebRequestBase {
 				title: 'Account Not Found',
 				body: 'Please return to your IDE and sign up.'
 			};
+
+		case 'PRVD-1006':
+			return {
+				title: 'Invalid Credentials',
+				body: 'Please return to your IDE and sign in using your email address and CodeStream password.'
+			};
 		}
 	}
 }

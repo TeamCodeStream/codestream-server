@@ -131,6 +131,22 @@ class ProviderIdentityConnector {
 			{ hint: Indexes.bySearchableEmail }
 		);
 
+		if (user && !this.okToFindExistingUserByEmail) {
+			// under the sharing model...
+			// if we found a user not yet associated with an identity for this provider,
+			// then we're going to make them sign-in using their CodeStream credentials...
+			// but exception for unregistered users, in which case we return the same error
+			// as we would if they didn't exist at all
+			this.request.log('Matched user ' + user.id + ' by email');
+			if (user.get('isRegistered')) {
+				throw this.errorHandler.error('providerAuthNotAllowed');
+			}
+			else {
+				this.request.log('User is not registered, treat this as if there is no match to the identity');
+				throw this.errorHandler.error('noIdentityMatch');
+			}
+		}
+
 		// if we found a user, but we see that the user already has credentials for this provider,
 		// throw an error, we can't allow the user to be logged in for this provider in two different ways (yet)
 		if (user) {
