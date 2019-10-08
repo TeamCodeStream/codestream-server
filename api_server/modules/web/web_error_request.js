@@ -10,12 +10,14 @@ class WebErrorRequest extends WebRequestBase {
 	}
 
 	async process() {
-		const errorCode = decodeURIComponent(this.request.query.code || '');
+		let errorCode = decodeURIComponent(this.request.query.code || '');
+		let providerError = decodeURIComponent(this.request.query.providerError || '');
 		const { code, title, body } = this.getSpecialErrorDisplay(errorCode) || {};
 		const withProvider = this.request.query.provider && ProviderDisplayNames[this.request.query.provider] ?
 			` with ${ProviderDisplayNames[this.request.query.provider]}` :
 			'';
-		const withCode = errorCode ? ` (error: <b>${errorCode}</b>)` : '';
+		const displayCode = providerError || errorCode;
+		const withCode = displayCode ? ` (error: <b>${displayCode}</b>)` : '';
 		return super.render('error', {
 			title: title || 'Authentication failed',
 			body: body || `We were not able to authenticate you${withProvider}${withCode}. <a href="mailto:support@codestream.com">Contact support</a> if you need assistance, or return to your IDE to try again.`,

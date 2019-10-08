@@ -174,13 +174,17 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 	}
 
-
 	// handle any error sent by the provider
 	handleError () {
 		if (!this.request.query.error) { return; }
-		this.errorCode = this.request.query.error;
+		this.errorCode = this.sharing ? this.errorHandler.error('providerLoginFailed').code : this.request.query.error;
+		this.providerError = this.sharing && this.request.query.error;
 		this.saveSignupToken();
-		this.response.redirect(`/web/error?code=${this.errorCode}&provider=${this.provider}`);
+		let url = `/web/error?code=${this.errorCode}&provider=${this.provider}`;
+		if (this.providerError) {
+			url += `&providerError=${this.providerError}`;
+		}
+		this.response.redirect(url);
 		this.responseHandled = true;
 		return true;
 	}
@@ -348,9 +352,11 @@ class ProviderTokenRequest extends RestfulRequest {
 				more: {
 					signupStatus: this.signupStatus,
 					error: this.errorCode,
+					providerError: this.providerError,
 					provider: this.provider,
 					providerAccess: this.providerAccess,
-					teamId: this.team && this.team.id
+					teamId: this.team && this.team.id,
+					sharing: this.sharing
 				}
 			}
 		);

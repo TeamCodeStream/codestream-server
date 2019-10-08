@@ -5,6 +5,7 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const AuthenticatorErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
+const ProviderErrors = require(process.env.CS_API_TOP + '/modules/providers/errors');
 const UserErrors = require('./errors');
 const LoginHelper = require('./login_helper');
 
@@ -14,6 +15,7 @@ class CheckSignupRequest extends RestfulRequest {
 		super(options);
 		this.errorHandler.add(UserErrors);
 		this.errorHandler.add(AuthenticatorErrors);
+		this.errorHandler.add(ProviderErrors);
 		this.loginType = this.loginType || 'web';
 	}
 
@@ -57,10 +59,18 @@ class CheckSignupRequest extends RestfulRequest {
 			throw this.errorHandler.error('noUserId');
 		}
 		else if (this.signupToken.error) {
-			throw this.errorHandler.error('providerLoginFailed', { 
-				error: this.signupToken.error,
-				provider: this.signupToken.provider
-			});
+			if (this.signupToken.sharing) {
+				throw this.errorHandler.errorByCode(this.signupToken.error, {
+					providerError: this.signupToken.providerError,
+					provider: this.signupToken.provider
+				});
+			}
+			else {
+				throw this.errorHandler.error('providerLoginFailed', {
+					error: this.signupToken.sharing ? this.signupToken.providerError : this.signupToken.error,
+					provider: this.signupToken.provider
+				});
+			}
 		}
 		else if (this.signupToken.expired) {
 			throw this.errorHandler.error('tokenExpired');

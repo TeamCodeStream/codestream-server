@@ -23,6 +23,7 @@ class NoExistingRegisteredUserSharingTest extends IdentityMatchErrorTest {
 	// get parameter to use in the provider-auth request that kicks the authentication off
 	getProviderAuthParameters () {
 		const parameters = super.getProviderAuthParameters();
+		this.sharing = true;
 		parameters.sharing = true;
 		return parameters;
 	}
