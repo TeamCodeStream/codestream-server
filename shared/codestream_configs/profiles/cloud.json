@@ -18,7 +18,8 @@
 			"assetEnvironment": "dev",
 			"helpIsAvailable": true,
 			"port": 443,
-			"runTimeEnvironment": "??CUSTOM??"
+			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us",
+			"runTimeEnvironment": "${CSSVC_ENV}"
 		},
 		"local": {
 			"helpIsAvailable": true
@@ -65,9 +66,6 @@
 			"local": {
 				"_loadSecretsFile": "pubnub/local.cfg"
 			},
-			"pd": {
-				"_loadSecretsFile": "pubnub/dev.cfg"
-			},
 			"pi": {
 				"_loadSecretsFile": "pubnub/ci.cfg"
 			},
@@ -85,7 +83,12 @@
 			"senderEmail": "ci_alerts@codestream.com",
 			"supportEmail": "ci_support@codestream.com"
 		},
-		"defaultEnv": {},
+		"defaultEnv": {
+			"replyToDomain": "${CSSVC_ENV}.codestream.com",
+			"senderEmail": "${CSSVC_ENV}_alerts@codestream.com",
+			"supportEmail": "${CSSVC_ENV}_support@codestream.com",
+			"suppressEmails": false
+		},
 		"local": {},
 		"pd": {
 			"replyToDomain": "pd.codestream.com",
@@ -94,7 +97,9 @@
 			"suppressEmails": false
 		},
 		"pi": {
-			"replyToDomain": "ci.codestream.com"
+			"replyToDomain": "pi.codestream.com",
+			"senderEmail": "pi_alerts@codestream.com",
+			"supportEmail": "pi_support@codestream.com"
 		},
 		"prod": {
 			"replyToDomain": "prod.codestream.com",
@@ -129,7 +134,7 @@
 		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
-			"runTimeEnvironment": "??CUSTOM??"
+			"runTimeEnvironment": "${CSSVC_ENV}"
 		},
 		"local": {},
 		"pd": {
@@ -253,7 +258,7 @@
 		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
-			"runTimeEnvironment": "??CUSTOM??"
+			"runTimeEnvironment": "${CSSVC_ENV}"
 		},
 		"local": {},
 		"pd": {
@@ -279,7 +284,7 @@
 				"outboundEmailQueueName": "ci_outboundEmail"
 			},
 			"defaultEnv": {
-				"outboundEmailQueueName": "??CUSTOM??"
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
 			},
 			"local": {},
 			"pd": {
