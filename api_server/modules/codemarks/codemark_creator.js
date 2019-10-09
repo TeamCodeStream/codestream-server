@@ -40,8 +40,12 @@ class CodemarkCreator extends ModelCreator {
 		}
 		
 		// if we have url container objects, validate them
-		this.validateUrlObject('remoteCodeUrl');
-		this.validateUrlObject('threadUrl');
+		const result = 
+			MarkerCreator.validateUrlObject(this.attributes, 'remoteCodeUrl') ||
+			MarkerCreator.validateUrlObject(this.attributes, 'threadUrl');
+		if (result) {
+			throw this.errorHandler.error('validation', { info: result });
+		}
 	}
 
 	// validate the markers sent with the codemark creation, this is too important to just drop,

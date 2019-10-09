@@ -26,20 +26,22 @@ class MarkerCreator extends ModelCreator {
 		return await this.createModel(attributes);
 	}
 
-	// normalize post creation operation (pre-save)
-	async normalize () {		 	
-		// if we have url container objects, validate them
-		this.validateUrlObject('remoteCodeUrl');
+	// normalize marker creation operation (pre-save)
+	async normalize () {
+		const result = MarkerCreator.validateUrlObject(this.attributes, 'remoteCodeUrl');
+		if (result) {
+			throw this.errorHandler.error('validation', { info: result });
+		}
 	}
 	
-	validateUrlObject (objectName) {
-		const { urlObject } = this.attributes;
-		if (!urlObject) return;
-		const { name, url } = urlObject;
+	// validate a url container object, really just restricting it to a name and a url, for now
+	static validateUrlObject (attributes, key) {
+		if (!attributes[key]) { return; }
+		const { name, url } = attributes[key];
 		if (!name || typeof name !== 'string' || !url || typeof url !== 'string') {
-			throw this.errorHandler.error('validation', { info: `${objectName}: name and url are required and must be strings` } );
+			return `${key}: name and url are required and must be strings`;
 		}
-		this.attributes[objectName] = { name, url };
+		attributes[key] = { name, url };
 	}
 
 	// these attributes are required or optional to create a marker document
