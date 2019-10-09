@@ -5,7 +5,6 @@
 const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 const Marker = require('./marker');
 const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
-const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 const RepoCreator = require(process.env.CS_API_TOP + '/modules/repos/repo_creator');
 const StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
@@ -205,9 +204,7 @@ class MarkerCreator extends ModelCreator {
 			return;
 		}
 
-		// first, get all the repos owned by the team, then fetch the given repo or try to find a match 
-		// to the remotes that are given
-		await this.getTeamRepos();
+		// fetch the given repo or try to find a match to the remotes that are given
 		if (this.attributes.repoId) {
 			await this.getRepo();
 		}
@@ -233,19 +230,6 @@ class MarkerCreator extends ModelCreator {
 		delete this.attributes.remotes;
 	}
 
-	// get all the repos known to this team, we'll try to match the repo that any
-	// markers are associated with with one of these repos
-	async getTeamRepos () {
-		this.teamRepos = await this.request.data.repos.getByQuery(
-			{ 
-				teamId: this.team.id
-			},
-			{ 
-				hint: RepoIndexes.byTeamId 
-			}
-		);
-	}
-
 	// get the repo as given by a repo ID in the marker attibutes
 	async getRepo () {
 		this.repo = this.teamRepos.find(repo => repo.id === this.attributes.repoId);
@@ -254,6 +238,7 @@ class MarkerCreator extends ModelCreator {
 			if (!this.repo || this.repo.get('teamId') !== this.team.id) {
 				throw this.request.errorHandler.error('notFound', { info: 'marker repo' });	
 			}
+			this.teamRepos.push(this.repo);
 		}
 
 		if (this.attributes.remotes) {
@@ -320,6 +305,7 @@ class MarkerCreator extends ModelCreator {
 		}).createRepo(repoInfo);
 		this.transforms.createdRepos = this.transforms.createdRepos || [];
 		this.transforms.createdRepos.push(this.repo);
+		this.teamRepos.push(this.repo);
 	}
 
 	// get the file stream for which the marker is being created
@@ -354,6 +340,16 @@ class MarkerCreator extends ModelCreator {
 			type: 'file',
 			file: this.attributes.file
 		};
+
+		// first make sure we didn't already create a stream for this exact file,
+		// this can happen with multiple-markers-per-codemark support
+		this.stream = (this.transforms.createdStreamsForMarkers || []).find(stream => {
+			return stream.get('repoId') === this.repo.id && stream.get('file') === this.attributes.file;
+		});
+		if (this.stream) {
+			this.attributes.fileStreamId = this.stream.id;
+			return;
+		}
 		this.stream = await new StreamCreator({
 			request: this.request,
 			nextSeqNum: 2

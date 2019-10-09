@@ -8,6 +8,7 @@ const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_
 const CodemarkTypes = require('./codemark_types');
 const CodemarkLinkCreator = require('./codemark_link_creator');
 const CodemarkHelper = require('./codemark_helper');
+const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 
 class CodemarkCreator extends ModelCreator {
 
@@ -123,6 +124,11 @@ class CodemarkCreator extends ModelCreator {
 			this.attributes.tags = [`_${this.attributes.color}`];	// assume this is the ID we want to use
 		}
 
+		// we'll need all the repos for the team if there are markers
+		if (this.attributes.markers && this.attributes.markers.length > 0) {
+			await this.getTeamRepos();
+		}
+
 		// for link-type codemarks, we do a "trial run" of creating the markers ... this is because
 		// we need the logic that associates code blocks with repos and file streams, but we don't
 		// actuallly want to create the markers yet, in case we already have a duplicate codemark
@@ -165,6 +171,19 @@ class CodemarkCreator extends ModelCreator {
 		this.attributes.teamId = this.team.id;	
 	}
 
+	// get all the repos known to this team, we'll try to match the repo that any
+	// markers are associated with with one of these repos
+	async getTeamRepos () {
+		this.teamRepos = await this.request.data.repos.getByQuery(
+			{ 
+				teamId: this.team.id
+			},
+			{ 
+				hint: RepoIndexes.byTeamId 
+			}
+		);
+	}
+
 	// handle any markers tied to the codemark
 	async handleMarkers () {
 		if (!this.attributes.markers || !this.attributes.markers.length) {
@@ -201,6 +220,7 @@ class CodemarkCreator extends ModelCreator {
 		const marker = await new MarkerCreator({
 			request: this.request,
 			codemarkId: this.attributes.id,
+			teamRepos: this.teamRepos,
 			trialRun: this.trialRun // indicates not to create the marker for real
 		}).createMarker(markerInfo);
 		if (this.trialRun) {

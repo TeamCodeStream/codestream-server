@@ -6,6 +6,7 @@
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 
 class MoveRequest extends RestfulRequest {
 
@@ -20,6 +21,7 @@ class MoveRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		await this.requireAndAllow();	// require certain parameters, discard unknown ones
+		await this.getTeamRepos();		// get all the repos for a team, required for marker creation
 		await this.createNewMarker();	// create a new marker, this supersedes the previous marker
 		await this.updateMarker();		// update the superseded marker with the new marker
 		await this.updateCodemark();	// update the markers pointed to by the codemark
@@ -37,6 +39,19 @@ class MoveRequest extends RestfulRequest {
 		if (!this.request.body.code) {
 			throw this.errorHandler.error('parameterRequired', { info: 'code' });
 		}
+	}
+
+	// get all the repos known to this team, we'll try to match the repo that any
+	// markers are associated with with one of these repos
+	async getTeamRepos () {
+		this.teamRepos = await this.data.repos.getByQuery(
+			{ 
+				teamId: this.marker.get('teamId')
+			},
+			{ 
+				hint: RepoIndexes.byTeamId 
+			}
+		);
 	}
 
 	// moving a marker actually entails creating a new one, and then referencing the old one
@@ -57,7 +72,8 @@ class MoveRequest extends RestfulRequest {
 		this.transforms.createdMarker = await new MarkerCreator({
 			request: this,
 			supersedesMarkerId: this.marker.id,
-			codemarkId: this.marker.get('codemarkId')
+			codemarkId: this.marker.get('codemarkId'),
+			teamRepos: this.teamRepos
 		}).createMarker(markerInfo);
 	}
 
