@@ -57,7 +57,7 @@ $binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-
 diff_notify $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta "$yes"
 
 # cloud configuration, all environments (consumed by developers via dt-update-secrets)
-for csEnv in local ci pi pd qa prod
+for csEnv in local ci pi pd qa prod dev
 do
 	$binDir/process-profile --profile $repoRoot/profiles/cloud.json --env $csEnv --out $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json.x || exit 1
 	diff_notify $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json "$yes"
