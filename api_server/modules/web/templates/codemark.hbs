@@ -383,11 +383,17 @@
 					}
 
 					function openUriUsingIE10InWindows7(uri, failCb, successCb) {
-						var timeout = setTimeout(failCb, 1000);
-						window.addEventListener("blur", function () {
+						var timeout = setTimeout(function() {
+							window.removeEventListener("blur", handler);
+							failCb();
+						}, 2000);
+						
+						var handler = function () {
+							window.removeEventListener("blur", handler);
 							clearTimeout(timeout);
 							successCb();
-						});
+						};
+						window.addEventListener("blur", handler);
 
 						var iframe = document.querySelector("#hiddenIframe");
 						if (!iframe) {
@@ -396,9 +402,10 @@
 						try {
 							iframe.contentWindow.location.href = uri;
 						} catch (e) {
+							window.removeEventListener("blur", handler);
 							failCb();
 							clearTimeout(timeout);
-						}
+						}						
 					}
 
 					function openUriInNewWindowHack(uri, failCb, successCb) {
