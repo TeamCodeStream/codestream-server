@@ -19,6 +19,7 @@ class IdentityMatchCommonInit {
 			CodeStreamAPITest.prototype.before.bind(this),
 			this.doProviderAuth,	// simulate the web-based provider auth process, to get the proper state variable
 			this.setProviderToken,	// make the provider-token request
+			this.wait,				// wait for signup token to be saved
 			this.waitForSignupToken	// wait for our signup token to be validated
 		], callback);
 	}
@@ -115,6 +116,11 @@ class IdentityMatchCommonInit {
 			_mockToken: this.mockToken,
 			_secret: SecretsConfig.confirmationCheat
 		};
+	}
+
+	// wait for the signup token to be saved before we start checking
+	wait (callback) {
+		setTimeout(callback, 1000);
 	}
 
 	// wait for our signup token to be validated ... just like the IDE, we use the signup token
