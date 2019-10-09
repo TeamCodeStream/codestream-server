@@ -412,7 +412,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 				codeStartingLineNumber = locationWhenCreated[0];
 			}
 
-			const remoteCodeUrl = this.codemark.get('remoteCodeUrl') || {};
+			const remoteCodeUrl = marker.get('remoteCodeUrl') || this.codemark.get('remoteCodeUrl') || {};
 			const codeProvider =
 				ProviderDisplayNames[remoteCodeUrl.name] || remoteCodeUrl.name;
 			const codeProviderUrl = remoteCodeUrl.url;

@@ -80,5 +80,10 @@ module.exports = {
 	supersedesMarkerId: {
 		type: 'id',
 		description: 'ID of the @@#marker@marker@@ that this one superseded, when the code block to which this marker refers was moved'
-	}
+	},
+	remoteCodeUrl: {
+		type: 'object',
+		maxLength: 500,
+		description: 'Object referencing a link to the code block references by this codemark in an external provider, contains "name" and "url"'
+	}	
 };

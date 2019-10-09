@@ -26,6 +26,22 @@ class MarkerCreator extends ModelCreator {
 		return await this.createModel(attributes);
 	}
 
+	// normalize post creation operation (pre-save)
+	async normalize () {		 	
+		// if we have url container objects, validate them
+		this.validateUrlObject('remoteCodeUrl');
+	}
+	
+	validateUrlObject (objectName) {
+		const { urlObject } = this.attributes;
+		if (!urlObject) return;
+		const { name, url } = urlObject;
+		if (!name || typeof name !== 'string' || !url || typeof url !== 'string') {
+			throw this.errorHandler.error('validation', { info: `${objectName}: name and url are required and must be strings` } );
+		}
+		this.attributes[objectName] = { name, url };
+	}
+
 	// these attributes are required or optional to create a marker document
 	getRequiredAndOptionalAttributes () {
 		return {
@@ -35,6 +51,7 @@ class MarkerCreator extends ModelCreator {
 			optional: {
 				string: ['fileStreamId', 'postId', 'postStreamId', 'providerType', 'code', 'file', 'repo', 'repoId', 'commitHash', 'commitHashWhenCreated', 'branchWhenCreated'],
 				array: ['location', 'locationWhenCreated'],
+				object: ['remoteCodeUrl'],
 				'array(string)': ['remotes'],
 				'array(object)': ['referenceLocations']
 			}
