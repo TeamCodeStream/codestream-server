@@ -34,3 +34,5 @@ cd $CS_API_TOP
 # uncomment these if you use iterm2 and want to colorize your tabs
 # . $DT_TOP/lib/iterm2-utils.sh
 # it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 88 45
+
+echo "Use the 'cs_api-cloud-services' script to control all services at once"

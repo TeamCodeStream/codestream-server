@@ -10,14 +10,22 @@ export PATH=$CS_API_SANDBOX/node/bin:$CS_API_TOP/node_modules/.bin:$PATH
 
 export PATH=$CS_API_TOP/bin:$PATH
 
+# if the run-time env has been set as an option and no config file has been
+# specified, assume this is a spin-up-dev instance and get the latest
+# codestream-cloud development config file
+if [ -n "$CSSVC_ENV" -a -z "$CS_API_CFG_FILE" ]; then
+	export CS_API_CFG_FILE=$(/bin/ls $HOME/.codestream/config/codestream-cloud_dev_*_.json|tail -1)
+	export CS_API_ENV=$CSSVC_ENV
+fi
+
 # find the config file
 sandutil_get_codestream_cfg_file "$CS_API_SANDBOX" "$CS_API_CFG_FILE"
 
 # env vars required for aux scripts that don't use the config file
+[ -z "$CS_API_ENV" ] && export CS_API_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.runTimeEnvironment)`
 export CS_API_LOGS=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.logger.directory)`
 export CS_API_TMP=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.tmpDirectory)`
 export CS_API_ASSET_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.assetEnvironment)`
-export CS_API_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.runTimeEnvironment)`
 
 # this sets CS_API_CALLBACK_ENV
 set_callback_env
