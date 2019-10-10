@@ -9,8 +9,33 @@ if [ -z "$CS_LAMBDA_VERSION" ]; then
 	fi
 fi
 
-# CS_OUTBOUND_EMAIL_CFG_FILE is overridden for lambda functions as it will be deployed within the code's zip file
-[ -n "$CS_OUTBOUND_EMAIL_CFG_FILE" -o -n "$CSSVC_CFG_FILE" ] && export CS_OUTBOUND_EMAIL_CFG_FILE=./codestream-services-config.json
+if [ -n "$CS_OUTBOUND_EMAIL_CFG_FILE" -o -n "$CSSVC_CFG_FILE" ]; then
+	# For local sandboxes, print a helpful message on how to switch
+	# between running as a lambda function vs. a local node process.
+	if [ "$CS_OUTBOUND_EMAIL_ENV" == local ]; then
+		if [ -z "$CS_OUTBOUND_EMAIL_NO_LAMBDA" ]; then
+			echo "
+Your sandbox is configured for deployment as a lambda function.
+If you want to run it as a node service on this computer run this
+command, kill this shell and re-load your sandbox.
+
+   $ echo CS_OUTBOUND_EMAIL_NO_LAMBDA=1 >> $CS_OUTBOUND_EMAIL_SANDBOX/sb.options
+"
+		else
+			echo "
+Your sandbox is configured to run as a node service on this host. If
+you want to run it as a lambda function, remove the setting line
+from $CS_OUTBOUND_EMAIL_SANDBOX/sb.options, kill the shell and reload
+the sandbox.
+"
+		fi
+	fi
+	# Override the default config file setting for deployment as a lambda
+	# function because the config file needs to be included in the zip
+	# file that gets uploaded to AWS
+	[ -z "$CS_OUTBOUND_EMAIL_NO_LAMBDA" ] && export CS_OUTBOUND_EMAIL_CFG_FILE=./codestream-services-config.json
+fi
+
 
 [ -z "$CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE" ] && export CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE=lambda-func.generic.template.json
 [ -z "$CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME" ] && export CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME="nodejs10.x"

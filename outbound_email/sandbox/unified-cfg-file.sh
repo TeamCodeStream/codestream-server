@@ -27,4 +27,3 @@ TUNNEL_IP=$(sandutil_get_tunnel_ip fallbackLocalIp)
 [ -n "$OUTBOUND_EMAIL_MONGO_URL" ] && echo "overriding mongo connection string: $CS_OUTBOUND_EMAIL_MONGO_URL"
 
 [ -n "$CS_OUTBOUND_EMAIL_SQS" ] && . $CS_OUTBOUND_EMAIL_TOP/sandbox/lambda-configs/$CS_OUTBOUND_EMAIL_ENV.sh
-[ -n "$CS_OUTBOUND_EMAIL_SQS" -a ! -f "$CS_OUTBOUND_EMAIL_TOP/sandbox/lambda-configs/$CS_OUTBOUND_EMAIL_ENV.sh" ] && . $CS_OUTBOUND_EMAIL_TOP/sandbox/lambda-configs/dev.sh
