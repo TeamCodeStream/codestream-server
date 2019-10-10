@@ -16,6 +16,7 @@ export PATH=$CS_OUTBOUND_EMAIL_TOP/bin:$PATH
 if [ -n "$CSSVC_ENV" -a -z "$CS_OUTBOUND_EMAIL_CFG_FILE" ]; then
 	export CS_OUTBOUND_EMAIL_CFG_FILE=$(/bin/ls $HOME/.codestream/config/codestream-cloud_dev_*_.json|tail -1)
 	export CS_OUTBOUND_EMAIL_ENV=$CSSVC_ENV
+	lambdaCfgFile=dev.sh
 fi
 
 # find the config file
@@ -50,4 +51,5 @@ the sandbox.
 	fi
 fi
 
-[ -n "$CS_OUTBOUND_EMAIL_SQS" -a -z "$CS_OUTBOUND_EMAIL_NO_LAMBDA" ] && . $CS_OUTBOUND_EMAIL_TOP/sandbox/lambda-configs/$CS_OUTBOUND_EMAIL_ENV.sh
+[ -z "$lambdaCfgFile" ] && lambdaCfgFile=$CS_OUTBOUND_EMAIL_ENV.sh
+[ -n "$CS_OUTBOUND_EMAIL_SQS" -a -z "$CS_OUTBOUND_EMAIL_NO_LAMBDA" ] && . $CS_OUTBOUND_EMAIL_TOP/sandbox/lambda-configs/$lambdaCfgFile
