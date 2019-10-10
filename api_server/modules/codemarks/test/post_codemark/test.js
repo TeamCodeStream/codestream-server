@@ -81,7 +81,7 @@ class PostCodemarkRequestTester {
 		new MarkerTest().test();
 		new NoAttributeTest({ attribute: 'type' }).test();
 		new NoAttributeTest({ attribute: 'teamId' }).test();
-		new NoAttributeTest({ attribute: 'providerType' }).test();
+		//new NoAttributeTest({ attribute: 'providerType' }).test();
 		new NoAttributeTest({ attribute: 'streamId' }).test();
 		new NoCommitHashTest().test();
 		new NoCommitHashWithFileTest().test();

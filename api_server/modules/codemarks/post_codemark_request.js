@@ -20,6 +20,7 @@ class PostCodemarkRequest extends PostRequest {
 	}
 
 	async process () {
+		/*
 		// providerType is required for incoming requests, other attribute requirements
 		// will be enforced by CodemarkCreator
 		if (this.request.body.type !== 'link' && !this.request.body.providerType) {
@@ -32,6 +33,7 @@ class PostCodemarkRequest extends PostRequest {
 			delete this.request.body.postId;
 			delete this.request.body.streamId;
 		}
+		*/
 		
 		// if there is a postId, there must be a streamId
 		if (this.request.body.postId && !this.request.body.streamId) {
