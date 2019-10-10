@@ -34,11 +34,13 @@ set_callback_env
 #
 # local development on ec2 instances (remote hosts) should reference their
 # hostname and not 'localhost' in URL's
-[ `cat /etc/system-release 2>/dev/null | grep -i "Amazon Linux"|wc -l` -eq 1 ] && remoteHost=1 || remoteHost=0
-if [ $remoteHost -eq 1 ]; then
-	apiPort=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.port)`
-	export CS_API_PUBLIC_URL="https://`hostname`:$apiPort"
-	echo "publicApiUrl = $CS_API_PUBLIC_URL (remove development host override)"
+if [ "$CS_API_ENV" == "local" ]; then
+	[ `cat /etc/system-release 2>/dev/null | grep -i "Amazon Linux"|wc -l` -eq 1 ] && ec2Instance=1 || ec2Instance=0
+	if [ $ec2Instance -eq 1 ]; then
+		apiPort=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.port)`
+		export CS_API_PUBLIC_URL="https://`hostname`:$apiPort"
+		echo "publicApiUrl = $CS_API_PUBLIC_URL (setting remote development host override)"
+	fi
 fi
 
 # CONSIDER MOVING THIS TO THE CONFIG FILE!!
