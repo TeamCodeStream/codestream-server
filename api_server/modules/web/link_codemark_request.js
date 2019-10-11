@@ -407,9 +407,18 @@ class LinkCodemarkRequest extends WebRequestBase {
 				branchWhenCreated: marker.get('branchWhenCreated')
 			};
 			repoId = marker.get('repoId');
-			const locationWhenCreated = marker.get('locationWhenCreated');
-			if (locationWhenCreated && locationWhenCreated.length > 0) {
+			const locationWhenCreated = marker.get('locationWhenCreated');		
+			if (locationWhenCreated && locationWhenCreated.length) {
 				codeStartingLineNumber = locationWhenCreated[0];
+			}
+			else {
+				const referenceLocations = marker.get('referenceLocations');
+				if (referenceLocations && referenceLocations.length) {
+					const location = referenceLocations[0].location;
+					if (location) {
+						codeStartingLineNumber = location[0];
+					}
+				}
 			}
 
 			const remoteCodeUrl = marker.get('remoteCodeUrl') || this.codemark.get('remoteCodeUrl') || {};
