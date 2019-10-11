@@ -57,7 +57,7 @@ class PostRenderer {
 		}
 
 		// possibly display code blocks
-		const codeBlockDivs = (codemark.markerIds || []).map(markerId => {
+		const codeBlockDivs = ((codemark && codemark.markerIds) || []).map(markerId => {
 			return this.renderMarker(markerId, markers, fileStreams);
 		}).join('');
 
