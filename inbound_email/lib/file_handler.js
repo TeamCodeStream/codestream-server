@@ -48,8 +48,10 @@ class FileHandler {
 		for (i = 0; i < 60; i++) {
 			let fileStat;
 			await new Promise((resolve, reject) => {
+				this.log('Statting ' + this.filePath);
 				FS.stat(this.filePath, (error, stat) => {
 					if (error) { return reject(error); }
+					this.log(`Stat for ${this.filePath}: ${JSON.stringify(stat)}`);
 					fileStat = stat;
 					resolve();
 				});
@@ -60,6 +62,7 @@ class FileHandler {
 				lastModTime = modTime;
 			}
 			else if (modTime === lastModTime) {
+				this.log('File has not changed for 1 second: ' + this.filePath);
 				break;
 			}
 
@@ -70,6 +73,7 @@ class FileHandler {
 		if (i === 60) {
 			throw 'file too big';
 		}
+		this.log('Will now process ' + this.filePath);
 	}
 
 	// move the email file to the "processing" directory,

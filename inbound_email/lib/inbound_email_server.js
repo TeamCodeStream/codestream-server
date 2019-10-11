@@ -68,9 +68,14 @@ class InboundEmailServer {
 			// was incomplete
 			const path = this.config.inboundEmail.inboundEmailDirectory;
 			const filePath = Path.join(path, file);
+			this.log('Accessing ' + file);
 			FS.access(filePath, error => {
 				if (!error) {
 					this.handleEmail(filePath);
+				}
+				else {
+					const message = error instanceof Error ? error.message : JSON.stringify(error);
+					this.warn(`ERROR ACCESSING ${filePath}: ${message}`);
 				}
 			});
 		}
@@ -79,6 +84,7 @@ class InboundEmailServer {
 	// handle an email file, determine whether it is "ours" to process, and then process as needed
 	async handleEmail (filePath) {
 		this.numOpenTasks++;
+		this.log('Handling ' + filePath);
 		await new FileHandler({
 			inboundEmailServer: this,
 			filePath: filePath
