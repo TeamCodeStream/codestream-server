@@ -219,7 +219,8 @@ class EmailTest {
 
 	// read the email file indicated for the test
 	readEmailFile (callback) {
-		let path = Path.join(process.env.CS_MAILIN_TOP, 'test', 'test_files', this.emailFile);
+		const inputFile = this.emailFile + '.eml';
+		let path = Path.join(process.env.CS_MAILIN_TOP, 'test', 'test_files', inputFile);
 		FS.readFile(
 			path,
 			'utf8',
@@ -315,7 +316,8 @@ class EmailTest {
 	// write the email file to the inbound email directory, this is after we have
 	// made field substitutions on it ... this should trigger the post getting created
 	writeEmailFile (callback) {
-		let path = Path.join(InboundEmailConfig.inboundEmailDirectory, this.emailFile);
+		const outputFile = `${this.emailFile}-${Math.random()}.eml`;
+		let path = Path.join(InboundEmailConfig.inboundEmailDirectory, outputFile);
 		if (FS.existsSync(path)) {
 			FS.unlinkSync(path);
 		}
