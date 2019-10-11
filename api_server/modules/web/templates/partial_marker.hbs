@@ -66,11 +66,10 @@
     <div class="col-sm-12">
         <div class="code-wrapper" style="max-height:275px;" data-action-expand-id="{{markerId}}">
             {{#if codeStartingLineNumber}}
-            <code class="prettyprint linenums:{{codeStartingLineNumber}}">{{{code}}}</code>
-            {{/if}}
-            {{^codeStartingLineNumber}}
+            <code class="prettyprint linenums:{{codeStartingLineNumber}}">{{{code}}}</code>            
+            {{else}}
             <code class="prettyprint">{{{code}}}</code>
-            {{/codeStartingLineNumber}}
+            {{/if}}
         </div>
     </div>
 </div>
