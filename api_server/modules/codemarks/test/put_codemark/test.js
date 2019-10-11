@@ -10,7 +10,7 @@ const CodemarkNotFoundTest = require('./codemark_not_found_test');
 const PutCodemarkFetchTest = require('./put_codemark_fetch_test');
 const NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
 const NoUpdatePostIdTest = require('./no_update_post_id_test');
-const NoUpdateStreamIdTest = require('./no_update_stream_id_test');
+const StreamIdRequiredTest = require('./stream_id_required_test');
 const NoStreamIdTest = require('./no_stream_id_test');
 const MessageTest = require('./message_test');
 const ProviderTypeMessageTest = require('./provider_type_message_test');
@@ -48,6 +48,14 @@ const ColorBecomesTagTest = require('./color_becomes_tag_test');
 const SetExternalProviderTest = require('./set_external_provider_test');
 const SetExternalAssigneesTest = require('./set_external_assignees_test');
 const SetUrlsTest = require('./set_urls_test');
+const SetCodeStreamPostIdTest = require('./set_codestream_post_id_test');
+const PostNotFoundTest = require('./post_not_found_test');
+const ACLPostTest = require('./acl_post_test');
+const SetCodeStreamPostIdMarkersTest = require('./set_codestream_post_id_markers_test');
+const PostDeactivatedTest = require('./post_deactivated_test');
+const PostFromOtherTeamTest = require('./post_from_other_team_test');
+const IgnoreStreamIdTest = require('./ignore_stream_id_test');
+const LinkPostMessageTest = require('./link_post_message_test');
 
 class PutCodemarkRequestTester {
 
@@ -64,7 +72,7 @@ class PutCodemarkRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'providerType' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'parentPostId' }).test();
 		new NoUpdatePostIdTest().test();
-		new NoUpdateStreamIdTest().test();
+		new StreamIdRequiredTest().test();
 		new NoStreamIdTest().test();
 		new MessageTest({ streamType: 'channel' }).test();
 		new MessageTest({ streamType: 'direct' }).test();
@@ -112,6 +120,16 @@ class PutCodemarkRequestTester {
 		new SetExternalProviderTest().test();
 		new SetExternalAssigneesTest().test();
 		new SetUrlsTest().test();
+		new SetCodeStreamPostIdTest().test();
+		new PostNotFoundTest().test();
+		new ACLPostTest().test();
+		new SetCodeStreamPostIdMarkersTest().test();
+		new PostDeactivatedTest().test();
+		new PostFromOtherTeamTest().test();
+		new IgnoreStreamIdTest().test();
+		new LinkPostMessageTest({ streamType: 'channel' }).test();
+		new LinkPostMessageTest({ streamType: 'direct' }).test();
+		new LinkPostMessageTest({ streamType: 'team stream' }).test();
 	}
 }
 

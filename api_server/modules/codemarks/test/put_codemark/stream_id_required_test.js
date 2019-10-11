@@ -3,16 +3,16 @@
 const SetPostIdTest = require('./set_post_id_test');
 const RandomString = require('randomstring');
 
-class NoUpdateStreamIdTest extends SetPostIdTest {
+class StreamIdRequiredTest extends SetPostIdTest {
 
 	get description () {
-		return 'should return an error if trying to update a codemark with a stream ID and the post ID has already been set';
+		return 'should return an error if trying to update a codemark with a stream ID but no post ID';
 	}
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1005',
-			info: 'codemark already has a post ID'
+			code: 'RAPI-1001',
+			info: 'postId'
 		};
 	}
 
@@ -33,4 +33,4 @@ class NoUpdateStreamIdTest extends SetPostIdTest {
 	}
 }
 
-module.exports = NoUpdateStreamIdTest;
+module.exports = StreamIdRequiredTest;

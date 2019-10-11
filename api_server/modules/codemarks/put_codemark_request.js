@@ -15,6 +15,17 @@ class PutCodemarkRequest extends PutRequest {
 			throw this.errorHandler.error('notFound', { info: 'codemark' });
 		}
 
+		// if linking to a CodeStream post, the user must be the author of the post
+		if (typeof this.request.body.postId === 'string' && !this.codemark.get('providerType')) {
+			this.post = await this.data.posts.getById(this.request.body.postId.toLowerCase());
+			if (!this.post) {
+				throw this.errorHandler.error('notFound', { info: 'post' });
+			}
+			if (this.post.get('creatorId') !== this.user.id) {
+				throw this.errorHandler.error('updateAuth', { reason: 'user must be the author of the post being linked' });
+			}
+		}
+
 		// in the most general case, the author can edit anything they want about a codemark
 		if (this.codemark.get('creatorId') === this.user.id) {
 			return;
@@ -52,6 +63,11 @@ class PutCodemarkRequest extends PutRequest {
 		// if there are other codemarks updated, add them to the response
 		if (this.transforms.updatedCodemarks) {
 			this.responseData.codemarks = this.transforms.updatedCodemarks;
+		}
+
+		// add any updatedPost to the response
+		if (this.transforms.postUpdate) {
+			this.responseData.post = this.transforms.postUpdate;
 		}
 
 		await super.handleResponse();

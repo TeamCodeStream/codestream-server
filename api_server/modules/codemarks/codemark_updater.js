@@ -48,9 +48,13 @@ class CodemarkUpdater extends ModelUpdater {
 
 		// if providing post ID, we assume it is a pre-created codemark for third-party
 		// integration, which requires special treatment
-		if (this.attributes.postId || this.attributes.streamId) {
+		if (this.attributes.postId) {
 			await this.validatePostId();
 			await this.updateMarkers();
+			await this.updatePost();
+		}
+		else if (this.attributes.streamId) {
+			throw this.errorHandler.error('parameterRequired', { info: 'postId' });	// can only set streamId with postId
 		}
 
 		// can only update parentPostId for third-party
@@ -99,14 +103,33 @@ class CodemarkUpdater extends ModelUpdater {
 
 	// validate the operation
 	async validatePostId () {
-		if (this.codemark.get('postId')) {
-			throw this.errorHandler.error('validation', { info: 'codemark already has a post ID' });
+		if (this.codemark.get('postId') || this.codemark.get('streamId')) {
+			throw this.errorHandler.error('validation', { info: 'codemark already has a post ID or stream ID' });
 		}
+
+		/*
 		if (!this.codemark.get('providerType')) {
 			throw this.errorHandler.error('validation', { info: 'can not set postId if codemark is has no providerType' });
 		}
 		if (!this.attributes.streamId || !this.attributes.postId) {
 			throw this.errorHandler.error('parameterRequired', { info: 'streamId and postId' });
+		}
+		*/
+
+		// if this is a CodeStream post (no third-party provider), make sure it's a valid post,
+		// and ignore any given value of the streamId, we'll use the post's streamId
+		if (!this.codemark.get('providerType')) {
+			this.post = await this.data.posts.getById(this.attributes.postId);
+			if (!this.post || this.post.get('deactivated')) {
+				throw this.errorHandler.error('notFound', { info: 'post' });
+			}
+			else if (this.post.get('teamId') !== this.team.id) {
+				throw this.errorHandler.error('updateAuth', { reason: 'linked post must be for the same team' });
+			}
+			this.attributes.streamId = this.post.get('streamId');
+		}
+		else if (!this.attributes.streamId) {
+			throw this.errorHandler.error('parameterRequired', { info: 'streamId' });
 		}
 	}
 
@@ -137,6 +160,24 @@ class CodemarkUpdater extends ModelUpdater {
 			id: marker.id
 		}).save(op);
 		this.transforms.markerUpdates.push(markerUpdate);
+	}
+
+	// for codemarks not on teams associated with third-party providers,
+	// if we are setting the post ID, it is for a CodeStream post ...
+	// therefore, we need to update the post
+	async updatePost () {
+		if (!this.post) { return; }
+		const op = {
+			$set: {
+				codemarkId: this.codemark.id,
+				modifiedAt: Date.now()
+			}
+		};
+		this.transforms.postUpdate = await new ModelSaver({
+			request: this.request,
+			collection: this.request.data.posts,
+			id: this.attributes.postId
+		}).save(op);
 	}
 
 	// pre-validate the incoming attributes before saving
