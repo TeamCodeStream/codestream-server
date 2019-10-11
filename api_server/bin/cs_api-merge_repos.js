@@ -8,7 +8,7 @@
 
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
 const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
-const Commander = require('commander');
+const Commander = require(process.env.CS_API_TOP + '/node_modules/commander');
 
 // need these collections from mongo
 const COLLECTIONS = ['repos', 'markers', 'streams', 'users'];
