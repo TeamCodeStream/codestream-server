@@ -58,12 +58,12 @@ class FileHandler {
 			});
 
 			const modTime = fileStat.mtime.getTime();
-			if (!lastModTime) {
-				lastModTime = modTime;
-			}
-			else if (modTime === lastModTime) {
+			if (lastModTime && modTime === lastModTime) {
 				this.log('File has not changed for 1 second: ' + this.filePath);
 				break;
+			}
+			else {
+				lastModTime = modTime;
 			}
 
 			await new Promise(resolve => {
