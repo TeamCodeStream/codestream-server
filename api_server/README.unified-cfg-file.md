@@ -34,8 +34,18 @@ $ dt-sb-configure -R -n <sandbox-name> -e unified-cfg-file.sh
    `dt-sb-new-sandbox` to install the sandboxes or `dt-sb-configure` to change
    an existing sandbox's config.
 
-### Managing the Configuration Files
+### Common Sandbox Environment Variables
 
+These variables are optional
+
+| Env Var | Description |
+| --- | --- |
+| CSSVC_CFG_FILE | configuration file and path |
+| CSSVC_ENV | environment (value must be consistent with configuration file value) |
+| CSSVC_CONFIGURATION | for determiniming configuration (eg. 'codestream-cloud', 'onprem-development', etc...) |
+
+
+### Managing the Configuration Files
 1. Look in your **~/.codestream/config/** directory. You'll find config files
    (ending in `.json`) and templates (ending in `.json.template`). The list of
    config files and templates will grow over time. Consider these read-only.
@@ -97,7 +107,6 @@ _sandutil_get_codestream_cfg_file()_ and can be found in
 [dev_tools/lib/sandbox_utils.sh](https://github.com/TeamCodeStream/dev_tools/blob/master/lib/sandbox_utils.sh)
 
 ### Distributed Configuration Files and Templates
-
 Files distributed via `dt-update-secrets`.
 
 | File | Desc |
