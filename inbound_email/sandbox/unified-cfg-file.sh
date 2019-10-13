@@ -18,7 +18,9 @@ if [ -n "$CSSVC_ENV" -a -z "$CS_MAILIN_CFG_FILE" ]; then
 fi
 
 # find the config file
-sandutil_get_codestream_cfg_file "$CS_MAILIN_SANDBOX" "$CS_MAILIN_CFG_FILE"
+[ -n "$CSSVC_ENV" ] && export CS_MAILIN_ENV=$CSSVC_ENV
+[ -n "$CS_MAILIN_CFG_FILE" ] && configParm=$CS_MAILIN_CFG_FILE || configParm="$CSSVC_CONFIGURATION"
+sandutil_get_codestream_cfg_file "$CS_MAILIN_SANDBOX" "$configParm" "$CSSVC_ENV"
 
 # env vars required for aux scripts that don't load the config file directly
 [ -z "$CS_MAILIN_ENV" ] && export CS_MAILIN_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.runTimeEnvironment)`
