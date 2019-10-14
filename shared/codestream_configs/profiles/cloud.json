@@ -17,7 +17,7 @@
 		"defaultEnv": {
 			"assetEnvironment": "dev",
 			"helpIsAvailable": true,
-			"port": 443,
+			"port": 8443,
 			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us",
 			"runTimeEnvironment": "${CSSVC_ENV}"
 		},
