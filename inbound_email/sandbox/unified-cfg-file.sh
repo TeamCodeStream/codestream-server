@@ -9,14 +9,6 @@ export PATH=$CS_MAILIN_SANDBOX/node/bin:$CS_MAILIN_TOP/node_modules/.bin:$PATH
 
 export PATH=$CS_MAILIN_TOP/bin:$PATH
 
-# if the run-time env has been set as an option and no config file has been
-# specified, assume this is a spin-up-dev instance and get the latest
-# codestream-cloud development config file
-if [ -n "$CSSVC_ENV" -a -z "$CS_MAILIN_CFG_FILE" ]; then
-	export CS_MAILIN_CFG_FILE=$(/bin/ls $HOME/.codestream/config/codestream-cloud_dev_*_.json|tail -1)
-	export CS_MAILIN_ENV=$CSSVC_ENV
-fi
-
 # find the config file
 [ -n "$CSSVC_ENV" ] && export CS_MAILIN_ENV=$CSSVC_ENV
 [ -n "$CS_MAILIN_CFG_FILE" ] && configParm=$CS_MAILIN_CFG_FILE || configParm="$CSSVC_CONFIGURATION"

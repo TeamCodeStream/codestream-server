@@ -1,72 +1,67 @@
 #!/usr/bin/env python3
 
-#desc# Standard interface to CodeStream's TeamCity build process for the VS Code Extension
+# desc# Standard interface to CodeStream's build process
+
+# https://github.com/TeamCodeStream/teamcity_tools/blob/master/README.md#Structured_Builds
 
 import os
 import sys
 
 sys.path.append(os.environ['DT_TOP'] + "/lib")
-import devTools
 import sysUtils as su
-from buildUtils import *
+import buildUtils
 
-assetExtensionList = ['info', 'tgz']
-publishDir = "inbound-email"
+# 1. add filename extensions for all assets created (tgz, vsix, zip, ...)
+assetExtensionList = ['tgz']
 
-args = parseStandardBuildArgs()
-dt = devTools.devTools()
-buildData = buildInit(__file__, dt, args)
-os.chdir(buildData['sandboxTop'])
-if args.verbose: print("current directory is", buildData['sandboxTop'])
+# 2. add any additional repos to be included (do not include primary repo)
+additionalRepos = []
 
+# 3. choose the build type (npm, intellijPlugin, custom)
+buildType = buildUtils.buildType.npm
+
+args = buildUtils.parseStandardBuildArgs()
+buildOptions = {
+	'verbose': args.verbose,
+	'assetExtensionList': assetExtensionList,
+	'additionalRepos': additionalRepos
+}
+
+# 4. Set this if you want your applied git tags to be something other than 'v' (v1.2.3)
+# buildOptions['gitTagPrefix'] = "mytag-"
+
+if args.verbose:
+	print("buildstep running with", args.action)
+
+build = buildUtils.build(buildType, **buildOptions)
+if not build:
+	su.printErr("could not get a build object")
+	exit(1)
+
+# 5. Make sure the default actions apply, if not make changes as necessary.
+#    Use 'build.execCmd("command string")' to execute custom actions.
+#    https://github.com/TeamCodeStream/teamcity_tools/blob/master/README.project-build-types.md
 if args.action == 'prep':
-	buildstepPrep(args)
-	exit(0)
+	build.prep()                              # set teamcity variables / parameters
+elif args.action == 'build':
+	# build.build()                             # complete build so services can be started
+	print("nothing to build")
+elif args.action == 'citest':
+	build.citest()                            # run the continuous integration test suite
+elif args.action == 'pack':
+	build.pack()                              # create asset info file and package assets
+elif args.action == 'publish':
+	build.publish()                           # publish assets for distribution
+elif args.action == 'tag':
+	build.tag()                               # update version info and apply tags
+elif args.action == 'release':
+	build.release()                           # release assets to the general public
+elif args.action == 'update':
+	build.update()                            # update existing asset to create a new one
+elif args.action == 'docker':
+	build.docker()                            # create docker containers
+else:
+	su.printErr("invalid build args")
+	exit(1)
 
-if args.action in ['clean','destroy']:
-	buildstepGeneric(args, cmd = "npm run clean")
-
-if args.action == 'destroy':
-	buildstepDestroy(args, buildData)
-
-if args.action == 'build':
-	print("there's nothing to build")
-
-pkgInfo = None
-tarballAssetName = None
-infoFileName = None
-if args.action in ['pack','info']:
-	# create asset info file (w/o md5sum)
-	pkgInfo = getPackageInfo(buildData = buildData, gitRepoCommitDir = buildData['sandboxTop'])
-	tarballAssetName = pkgInfo['localAssetFilePrefix'] + ".tgz"
-	infoFileName = pkgInfo['localAssetFilePrefix'] + ".info"
-	pkgInfo['assetsMD5'][tarballAssetName] = "0"
-	pkgInfo['sandboxType'] = buildData['sbInfo']['sb_type']
-	su.dumpDict(pkgInfo, publishDir + ".info")
-
-if args.action == 'pack':
-	buildstepGeneric(args, cmd = "npm run tarball")
-	pkgInfo['assetsMD5'][tarballAssetName] = dt.md5Hash(publishDir + ".tgz")
-	su.dumpDict(pkgInfo, publishDir + ".info")
-	os.rename(publishDir + ".info", infoFileName)
-	os.rename(publishDir + ".tgz", tarballAssetName)
-	if args.verbose:
-		su.dumpDict(pkgInfo, None, "packageInfo:")
-		su.shellExecNoBuffer("ls -l " + pkgInfo['localAssetFilePrefix'] + ".*", printCmd = True)
-
-if args.action == 'citest':
-	buildstepGeneric(args, cmd = "npm run test:ci")
-
-if args.action == 'publish':
-	publishArtifacts(args, buildData, assetExtensionList, publishDir = publishDir)
-
-if args.action == 'release':
-	if os.environ['CS_MAILIN_ASSET_ENV'] != "prod":
-		print("release can only be run in a sandbox configured for production")
-		exit(1)
-	setArtifactLinks("prod/" + publishDir, args.build_number, assetExtensionList, 'current')
-	infoFileName = args.build_number + ".info"
-	pkgInfo = su.readJsonFileIgnoreComments(infoFileName)
-	applyTagToRepos(os.environ['CS_MAILIN_SANDBOX'], "v" + pkgInfo['version'], pkgInfo['repoCommitId'])
-	updatePackageVersion(buildData['sandboxTop'] + "/package.json", "develop", pkgInfo['version'], bumpLevel = 'patch')
-	buildstepGeneric(args, cmd = "dt-set-asset-version -D prod/inbound-email --tag current --build " + args.build_number)
+exit(0)
