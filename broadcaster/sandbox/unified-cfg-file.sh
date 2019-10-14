@@ -9,8 +9,9 @@ export PATH=$CS_BROADCASTER_SANDBOX/node/bin:$CS_BROADCASTER_TOP/node_modules/.b
 
 export PATH=$CS_BROADCASTER_TOP/bin:$PATH
 
-# find the config file
-sandutil_get_codestream_cfg_file "$CS_BROADCASTER_SANDBOX" "$CS_BROADCASTER_CFG_FILE"
+[ -n "$CSSVC_ENV" ] && export CS_BROADCASTER_ENV=$CSSVC_ENV
+[ -n "$CS_BROADCASTER_CFG_FILE" ] && configParm=$CS_BROADCASTER_CFG_FILE || configParm="$CSSVC_CONFIGURATION"
+sandutil_get_codestream_cfg_file "$CS_BROADCASTER_SANDBOX" "$configParm" "$CSSVC_ENV"
 
 # These variables are used by shell scripts
 export CS_BROADCASTER_ENV=$(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.runTimeEnvironment 2>/dev/null)
