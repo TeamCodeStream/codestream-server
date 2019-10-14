@@ -10,17 +10,12 @@ export PATH=$CS_OUTBOUND_EMAIL_SANDBOX/node/bin:$CS_OUTBOUND_EMAIL_TOP/node_modu
 # sandbox bin directory is at front of search path
 export PATH=$CS_OUTBOUND_EMAIL_TOP/bin:$PATH
 
-# if the run-time env has been set as an option and no config file has been
-# specified, assume this is a spin-up-dev instance and get the latest
-# codestream-cloud development config file
-if [ -n "$CSSVC_ENV" -a -z "$CS_OUTBOUND_EMAIL_CFG_FILE" ]; then
-	export CS_OUTBOUND_EMAIL_CFG_FILE=$(/bin/ls $HOME/.codestream/config/codestream-cloud_dev_*_.json|tail -1)
-	export CS_OUTBOUND_EMAIL_ENV=$CSSVC_ENV
-	lambdaCfgFile=dev.sh
-fi
 
-# find the config file
-sandutil_get_codestream_cfg_file "$CS_OUTBOUND_EMAIL_SANDBOX" "$CS_OUTBOUND_EMAIL_CFG_FILE"
+[ -n "$CSSVC_ENV" ] && export CS_OUTBOUND_EMAIL_ENV=$CSSVC_ENV
+[ -n "$CSSVC_ENV" ] && [ ! -f $CS_OUTBOUND_EMAIL_TOP/sandbox/lambda-configs/$CSSVC_ENV.sh ] && lambdaCfgFile=dev.sh
+[ -n "$CS_OUTBOUND_EMAIL_CFG_FILE" ] && configParm=$CS_OUTBOUND_EMAIL_CFG_FILE || configParm="$CSSVC_CONFIGURATION"
+sandutil_get_codestream_cfg_file "$CS_OUTBOUND_EMAIL_SANDBOX" "$configParm" "$CSSVC_ENV"
+
 
 # env vars required for scripts that don't load the config file
 [ -z "$CS_OUTBOUND_EMAIL_ENV" ] && export CS_OUTBOUND_EMAIL_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p outboundEmailServer.runTimeEnvironment)`
