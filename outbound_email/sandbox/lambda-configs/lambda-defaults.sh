@@ -1,8 +1,10 @@
 
 # lambda function defaults
 
-export CS_OUTBOUND_EMAIL_CFG_FILE=./codestream-services-config.json
-echo -e "Config file reset to $CS_OUTBOUND_EMAIL_CFG_FILE for packaging lambda function\n"
+if [ -z "$noConfig" ]; then
+	export CS_OUTBOUND_EMAIL_CFG_FILE=./codestream-services-config.json
+	echo -e "Config file reset to $CS_OUTBOUND_EMAIL_CFG_FILE for packaging lambda function\n"
+fi
 
 # when running a VPN, set the mongo connect override to reference mongo via the vpn ip (lambda functions need to connect)
 if [ "$CS_OUTBOUND_EMAIL_ENV" == "local" ]; then
