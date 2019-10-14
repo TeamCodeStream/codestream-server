@@ -5,9 +5,11 @@ export CS_OUTBOUND_EMAIL_CFG_FILE=./codestream-services-config.json
 echo -e "Config file reset to $CS_OUTBOUND_EMAIL_CFG_FILE for packaging lambda function\n"
 
 # when running a VPN, set the mongo connect override to reference mongo via the vpn ip (lambda functions need to connect)
-TUNNEL_IP=$(sandutil_get_tunnel_ip fallbackLocalIp)
-[ -n "$TUNNEL_IP" ] && export CS_OUTBOUND_EMAIL_MONGO_URL=mongodb://$TUNNEL_IP/codestream
-[ -n "$OUTBOUND_EMAIL_MONGO_URL" ] && echo "overriding mongo connection string: $CS_OUTBOUND_EMAIL_MONGO_URL"
+if [ "$CS_OUTBOUND_EMAIL_ENV" == "local" ]; then
+	TUNNEL_IP=$(sandutil_get_tunnel_ip fallbackLocalIp)
+	[ -n "$TUNNEL_IP" ] && export CS_OUTBOUND_EMAIL_MONGO_URL=mongodb://$TUNNEL_IP/codestream
+	[ -n "$OUTBOUND_EMAIL_MONGO_URL" ] && echo "overriding mongo connection string: $CS_OUTBOUND_EMAIL_MONGO_URL"
+fi
 
 if [ -z "$CS_LAMBDA_VERSION" ]; then
 	if [ -n "$TCBUILD_ASSET_FULL_NAME" ]; then
