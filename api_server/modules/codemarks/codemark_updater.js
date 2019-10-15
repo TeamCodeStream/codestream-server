@@ -103,8 +103,8 @@ class CodemarkUpdater extends ModelUpdater {
 
 	// validate the operation
 	async validatePostId () {
-		if (this.codemark.get('postId') || this.codemark.get('streamId')) {
-			throw this.errorHandler.error('validation', { info: 'codemark already has a post ID or stream ID' });
+		if (this.codemark.get('postId')) {
+			throw this.errorHandler.error('validation', { info: 'codemark already has a post ID' });
 		}
 
 		/*
