@@ -52,9 +52,11 @@
 					</div>
 					{{/if}}
 					{{#if showComment}}
-					{{#if title}}
-					<p class="title">{{title}}</p>
-					{{/if}}
+						{{#if isIssue}}							
+							<span class="title">{{title}}</span>							
+						{{else}}
+							<span class="title">{{{text}}}</span>
+						{{/if}}
 
 					{{#if hasTagsOrAssignees}}
 					<div class="row no-gutters mt-4">
@@ -103,28 +105,25 @@
 
 
 					{{#if isIssue}}
-					<div class="row no-gutters mt-4">
-						<div class="col-sm-12">
-							<h6>DESCRIPTION</h6>
-						</div>
-					</div>
+						{{#if text}}
+							<div class="row no-gutters mt-4">
+								<div class="col-sm-12">
+									<h6>DESCRIPTION</h6>
+								</div>
+							</div>						
+							<div class="row no-gutters mt-0">
+								<div class="col-sm-12">									
+									<div class="description">											
+											<span class="icon">
+												<svg version="1.1" width="16" height="16" class="octicon octicon-description" aria-hidden="true" viewBox="0 0 24 24"><path d="M 4 3 A 1.0001 1.0001 0 1 0 4 5 L 20 5 A 1.0001 1.0001 0 1 0 20 3 L 4 3 z M 4 7 A 1.0001 1.0001 0 1 0 4 9 L 15 9 A 1.0001 1.0001 0 1 0 15 7 L 4 7 z M 4 11 A 1.0001 1.0001 0 1 0 4 13 L 20 13 A 1.0001 1.0001 0 1 0 20 11 L 4 11 z M 4 15 A 1.0001 1.0001 0 1 0 4 17 L 15 17 A 1.0001 1.0001 0 1 0 15 15 L 4 15 z M 4 19 A 1.0001 1.0001 0 1 0 4 21 L 20 21 A 1.0001 1.0001 0 1 0 20 19 L 4 19 z"></path>
+												</svg>
+											</span>											
+										{{{text}}}				
+									</div>				 									
+								</div>
+							</div>
+						{{/if}}
 					{{/if}}
-					<div class="row no-gutters {{#if isIssue}}mt-0{{else}}mt-1{{/if}}">
-						<div class="col-sm-12">
-							{{#if text}}
-								<div class="description">
-									{{#if isIssue}}
-										<span class="icon">
-											<svg version="1.1" width="16" height="16" class="octicon octicon-description" aria-hidden="true" viewBox="0 0 24 24"><path d="M 4 3 A 1.0001 1.0001 0 1 0 4 5 L 20 5 A 1.0001 1.0001 0 1 0 20 3 L 4 3 z M 4 7 A 1.0001 1.0001 0 1 0 4 9 L 15 9 A 1.0001 1.0001 0 1 0 15 7 L 4 7 z M 4 11 A 1.0001 1.0001 0 1 0 4 13 L 20 13 A 1.0001 1.0001 0 1 0 20 11 L 4 11 z M 4 15 A 1.0001 1.0001 0 1 0 4 17 L 15 17 A 1.0001 1.0001 0 1 0 15 15 L 4 15 z M 4 19 A 1.0001 1.0001 0 1 0 4 21 L 20 21 A 1.0001 1.0001 0 1 0 20 19 L 4 19 z"></path>
-											</svg>
-										</span>
-									{{/if}}
-									{{{text}}}				
-								</div>				 
-							{{/if}}
-						</div>
-					</div>
-
 						{{#if externalProvider}}
 						<div class="row no-gutters mt-3">
 							<div class="col-sm-12">

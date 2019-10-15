@@ -306,6 +306,7 @@ a.related-codemark-link:hover .related-codemark-file {
 .title {
 	padding-top: 5px;
 	color: #c7c7c6;
+	display: inline-block;
 }
 
 .code-control,
