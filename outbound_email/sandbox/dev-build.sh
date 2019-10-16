@@ -2,6 +2,7 @@
 # sandbox configuration for building development asset
 
 export CS_OUTBOUND_EMAIL_ASSET_ENV=dev
+export CS_OUTBOUND_EMAIL_ENV=ci
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-CI_Keyset"
 export CS_OUTBOUND_EMAIL_SQS=ci_outboundEmail
 

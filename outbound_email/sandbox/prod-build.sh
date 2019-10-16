@@ -2,6 +2,7 @@
 # sandbox configuration for building production asset
 
 export CS_OUTBOUND_EMAIL_ASSET_ENV=prod
+export CS_OUTBOUND_EMAIL_ENV=pi
 PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-CI_Keyset"
 export CS_OUTBOUND_EMAIL_SQS=ci_outboundEmail
 

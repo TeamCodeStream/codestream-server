@@ -38,7 +38,8 @@ if not build:
 	su.printErr("could not get a build object")
 	exit(1)
 
-print(f"CS_OUTBOUND_EMAIL_ENV={su.someValueOrNone(os.environ, 'CS_OUTBOUND_EMAIL_ENV')}" or "")
+runTimeEnvironment = su.someValueOrNone(os.environ, 'CS_OUTBOUND_EMAIL_ENV')
+print(f"CS_OUTBOUND_EMAIL_ENV={runTimeEnvironment}" or "")
 
 # 5. Make sure the default actions apply, if not make changes as necessary.
 #    Use 'build.execCmd("command string")' to execute custom actions.
@@ -60,8 +61,12 @@ elif args.action == 'pack':
 	build.getMD5SumsForAssets()
 	build.writeAssetInfo()
 elif args.action == 'publish':
-	# lambda assets (only ones published) are published under their runTimeEnvironment
-	build.publish(publishToRTE=True)          # publish assets for distribution
+	if runTimeEnvironment in ['ci', 'pi']:
+		# we publish the vanilla asset (w/out a codestream or lambda config files) for CI and PI builds
+		build.publish()
+	else:
+		# lambda assets (only ones published) are published under their runTimeEnvironment
+		build.publish(publishToRTE=True)          # publish assets for distribution
 elif args.action == 'tag':
 	build.tag()                               # update version info and apply tags
 elif args.action == 'release':
