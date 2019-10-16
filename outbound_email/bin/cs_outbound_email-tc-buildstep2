@@ -38,6 +38,8 @@ if not build:
 	su.printErr("could not get a build object")
 	exit(1)
 
+print(f"CS_OUTBOUND_EMAIL_ENV={su.someValueOrNone(os.environ, 'CS_OUTBOUND_EMAIL_ENV') or ""}")
+
 # 5. Make sure the default actions apply, if not make changes as necessary.
 #    Use 'build.execCmd("command string")' to execute custom actions.
 #    https://github.com/TeamCodeStream/teamcity_tools/blob/master/README.project-build-types.md
@@ -67,7 +69,7 @@ elif args.action == 'release':
 elif args.action == 'awsLambda':
 	if su.someValueOrNone(os.environ, 'CSSVC_CFG_FILE'):
 		# add a codestream config file to the zip file to create a new zip file
-		print("updating codestream config file in zip asset")
+		print("CSSVC_CFG_FILE is defined. Updating codestream config file in zip asset")
 		fullName = build.getDisplayVersion("full")           # [prefix-]outbound-email-1.2.3+1000
 		tmpDir = f"{os.environ['CS_OUTBOUND_EMAIL_TMP']}/zip{str(os.getpid())}"
 		os.mkdir(tmpDir)
