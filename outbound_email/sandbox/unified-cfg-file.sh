@@ -10,12 +10,9 @@ export PATH=$CS_OUTBOUND_EMAIL_SANDBOX/node/bin:$CS_OUTBOUND_EMAIL_TOP/node_modu
 # sandbox bin directory is at front of search path
 export PATH=$CS_OUTBOUND_EMAIL_TOP/bin:$PATH
 
-
 [ -n "$CSSVC_ENV" ] && export CS_OUTBOUND_EMAIL_ENV=$CSSVC_ENV
-[ -n "$CSSVC_ENV" ] && [ ! -f $CS_OUTBOUND_EMAIL_TOP/sandbox/lambda-configs/$CSSVC_ENV.sh ] && lambdaCfgFile=dev.sh
 [ -n "$CS_OUTBOUND_EMAIL_CFG_FILE" ] && configParm=$CS_OUTBOUND_EMAIL_CFG_FILE || configParm="$CSSVC_CONFIGURATION"
 sandutil_get_codestream_cfg_file "$CS_OUTBOUND_EMAIL_SANDBOX" "$configParm" "$CSSVC_ENV"
-
 
 # env vars required for scripts that don't load the config file
 [ -z "$CS_OUTBOUND_EMAIL_ENV" ] && export CS_OUTBOUND_EMAIL_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p outboundEmailServer.runTimeEnvironment)`
@@ -23,28 +20,3 @@ export CS_OUTBOUND_EMAIL_LOGS=`eval echo $(get-json-property -j $CSSVC_CFG_FILE 
 export CS_OUTBOUND_EMAIL_TMP=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p outboundEmailServer.tmpDirectory)`
 export CS_OUTBOUND_EMAIL_ASSET_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p outboundEmailServer.assetEnvironment)`
 export CS_OUTBOUND_EMAIL_SQS=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p queuingEngine.awsSQS.outboundEmailQueueName)`
-[ -z "$CS_OUTBOUND_EMAIL_SQS" ] && echo "AWS SQS is not configured as the queing engine. AWS lambda functions will not be supported." && export CS_OUTBOUND_EMAIL_NO_LAMBDA=1
-
-# For local sandboxes, print a helpful message on how to switch
-# between running as a lambda function vs. a local node process.
-if [ "$CS_OUTBOUND_EMAIL_ENV" == local ]; then
-	if [ -z "$CS_OUTBOUND_EMAIL_NO_LAMBDA" ]; then
-		echo "
-Your sandbox is configured for deployment as a lambda function.
-If you want to run it as a node service on this computer run this
-command, kill this shell and re-load your sandbox.
-
-$ echo CS_OUTBOUND_EMAIL_NO_LAMBDA=1 >> $CS_OUTBOUND_EMAIL_SANDBOX/sb.options
-"
-	else
-		echo "
-Your sandbox is configured to run as a node service on this host. If
-you want to run it as a lambda function, remove the setting line
-from $CS_OUTBOUND_EMAIL_SANDBOX/sb.options, kill the shell and reload
-the sandbox.
-"
-	fi
-fi
-
-[ -z "$lambdaCfgFile" ] && lambdaCfgFile=$CS_OUTBOUND_EMAIL_ENV.sh
-[ -n "$CS_OUTBOUND_EMAIL_SQS" -a -z "$CS_OUTBOUND_EMAIL_NO_LAMBDA" ] && . $CS_OUTBOUND_EMAIL_TOP/sandbox/lambda-configs/$lambdaCfgFile

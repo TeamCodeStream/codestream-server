@@ -41,9 +41,9 @@ install the lambda function and trigger.
 1. Build and bundle the outgoing mail service and install the lambda function and trigger.
 ```
 $ cd src
-$ npm run build           # create the code and zip it to ../out/outbound-email.zip
-$ npm run lambda:config   # create the lambda function config file in ../out/outbound-email.lambda.json
-$ npm run lambda:install  # create the lambda function and trigger
+$ npm run pack                # create the code and zip it to ../out/outbound-email.zip
+$ npm run lambda:config       # create the lambda function config file in ../out/outbound-email.lambda.json
+$ npm run lambda:install      # create the lambda function and trigger
 ```
 
 ## Development Lifecycle
@@ -72,7 +72,7 @@ Use the npm scripts below to do the work of installing, uninstalling, updating, 
 ## NPM scripts
 Build / Create asset (../out/outbound-email.zip)
 ```
-$ cd src && npm run build
+$ cd src && npm run pack
 ```
 
 Update the Lambda function in AWS with the latest build

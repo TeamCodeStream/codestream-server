@@ -40,6 +40,8 @@ if not build:
 
 runTimeEnvironment = su.someValueOrNone(os.environ, 'CS_OUTBOUND_EMAIL_ENV')
 print(f"CS_OUTBOUND_EMAIL_ENV={runTimeEnvironment}" or "")
+cssvcEnvironment = su.someValueOrNone(os.environ, 'CSSVC_ENV')
+print(f"CSSVC_ENV={cssvcEnvironment}" or "")
 
 # 5. Make sure the default actions apply, if not make changes as necessary.
 #    Use 'build.execCmd("command string")' to execute custom actions.
@@ -56,17 +58,14 @@ elif args.action == 'pack':
 	# build.pack()                              # create asset info file and package assets
 	buildName = build.getDisplayVersion("name")          # outbound-email
 	fullName = build.getDisplayVersion("full")           # [prefix-]outbound-email-1.2.3+1000
-	build.execCmd("npm run pack")
+	build.execCmd(f"npm run {'pack' if su.someValueOrNone(os.environ, 'CSSVC_CFG_FILE') else 'pack_without_config'}")
 	os.rename(f"./out/{buildName}.zip", f"{fullName}.zip")
 	build.getMD5SumsForAssets()
 	build.writeAssetInfo()
 elif args.action == 'publish':
-	if runTimeEnvironment in ['ci', 'pi']:
-		# we publish the vanilla asset (w/out a codestream or lambda config files) for CI and PI builds
-		build.publish()
-	else:
-		# lambda assets (only ones published) are published under their runTimeEnvironment
-		build.publish(publishToRTE=True)          # publish assets for distribution
+	# we publish the vanilla asset (w/out a codestream or lambda config files) for CI and PI builds
+	# while lambda assets are published under their runTimeEnvironment
+	build.publish(publishToRTE=False if runTimeEnvironment in ['ci', 'pi'] else True)
 elif args.action == 'tag':
 	build.tag()                               # update version info and apply tags
 elif args.action == 'release':
