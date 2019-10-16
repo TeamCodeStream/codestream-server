@@ -67,15 +67,15 @@ elif args.action == 'release':
 	build.release(releaseToRTE=True)          # release assets to the general public
 elif args.action == 'awsLambda':
 	# create a lambda function definition for the currently loaded environment
-	if su.someValueOrNone(os.environ, 'CSSVC_CFG_FILE'):
-		# replace codestream config file inside of zip file with environment-specific version
-		fullName = build.getDisplayVersion("full")           # [prefix-]outbound-email-1.2.3+1000
-		tmpDir = f"{os.environ['CS_OUTBOUND_EMAIL_TMP']}/zip{str(os.getpid())}"
-		os.mkdir(tmpDir)
-		build.execCmd(f"cd {tmpDir} && unzip -q {os.environ['CS_OUTBOUND_EMAIL_TOP']}/{fullName}.zip")
-		build.execCmd(f"cd {tmpDir} && /bin/cp {os.environ['CSSVC_CFG_FILE']} {os.environ['CS_OUTBOUND_EMAIL_CFG_FILE']}")
-		build.execCmd(f"cd {tmpDir} && zip --quiet -r {os.environ['CS_OUTBOUND_EMAIL_TOP']}/out/outbound-email.zip node_modules src package.json package-lock.json codestream-services-config.json")
-		os.rename(f"./out/{buildName}.zip", f"{fullName}.zip")
+	# if su.someValueOrNone(os.environ, 'CSSVC_CFG_FILE'):
+	# 	# replace codestream config file inside of zip file with environment-specific version
+	# 	fullName = build.getDisplayVersion("full")           # [prefix-]outbound-email-1.2.3+1000
+	# 	tmpDir = f"{os.environ['CS_OUTBOUND_EMAIL_TMP']}/zip{str(os.getpid())}"
+	# 	os.mkdir(tmpDir)
+	# 	build.execCmd(f"cd {tmpDir} && unzip -q {os.environ['CS_OUTBOUND_EMAIL_TOP']}/{fullName}.zip")
+	# 	build.execCmd(f"cd {tmpDir} && /bin/cp {os.environ['CSSVC_CFG_FILE']} {os.environ['CS_OUTBOUND_EMAIL_CFG_FILE']}")
+	# 	build.execCmd(f"cd {tmpDir} && zip --quiet -r {os.environ['CS_OUTBOUND_EMAIL_TOP']}/out/outbound-email.zip node_modules src package.json package-lock.json codestream-services-config.json")
+	# 	os.rename(f"./out/{buildName}.zip", f"{fullName}.zip")
 	build.awsLambda(lambdaConfig='./out/')   # create lambda config
 elif args.action == 'update':
 	build.update()                            # update existing asset to create a new one
