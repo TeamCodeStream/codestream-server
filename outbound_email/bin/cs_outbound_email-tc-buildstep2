@@ -6,6 +6,7 @@
 
 import os
 import sys
+import shutil
 
 sys.path.append(os.environ['DT_TOP'] + "/lib")
 import sysUtils as su
@@ -80,6 +81,7 @@ elif args.action == 'awsLambda':
 	# add a codestream config file to the zip file to create a new zip file
 	print(f"updating asset to include lambda & codestream configs for {runTimeEnvironment} run-time environment")
 	# add the codestream config file to the zip file asset
+	shutil.copyfile(f"{os.environ['CS_OUTBOUND_EMAIL_TOP']}/{fullName}.lambda.json", f"{os.environ['CS_OUTBOUND_EMAIL_TOP']}/out/{buildName}.lambda.json")
 	tmpDir = f"{os.environ['CS_OUTBOUND_EMAIL_TMP']}/zip{str(os.getpid())}"
 	os.mkdir(tmpDir)
 	build.execCmd(f"cd {tmpDir} && unzip -q {os.environ['CS_OUTBOUND_EMAIL_TOP']}/{fullName}.zip")
