@@ -85,7 +85,7 @@ elif args.action == 'awsLambda':
 	build.execCmd(f"cd {tmpDir} && unzip -q {os.environ['CS_OUTBOUND_EMAIL_TOP']}/{fullName}.zip")
 	os.environ['CS_OUTBOUND_EMAIL_REPACK_DIR'] = tmpDir
 	build.execCmd("npm run repack")
-	os.rename(f"./out/{buildName}.zip", f"{fullName}.zip")
+	os.rename(f"{tmpDir}/out/{buildName}.zip", f"{fullName}.zip")
 	# create the lambda config and update the asset info file
 	build.awsLambda(lambdaConfig='./out/')   # create lambda config
 else:
