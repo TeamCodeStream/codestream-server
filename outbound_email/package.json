@@ -21,6 +21,7 @@
 		"_make_out_dir": "[ ! -d ./out ] && mkdir ./out || /bin/echo -n",
 		"_copy_cfg_file": "cp $CSSVC_CFG_FILE codestream-services-config.json",
 		"pack": "npm run _make_out_dir; npm run _copy_cfg_file && zip --quiet -r ./out/outbound-email.zip node_modules src package.json package-lock.json codestream-services-config.json",
+		"repack": "cd $CS_OUTBOUND_EMAIL_REPACK_DIR && npm run pack",
 		"pack_without_config": "npm run _make_out_dir; zip --quiet -r ./out/outbound-email.zip node_modules src package.json package-lock.json bin sandbox",
 		"build": "npm run pack",
 		"lambda:config": ". $CS_OUTBOUND_EMAIL_TOP/sandbox/lambda-configs/lambda-defaults.sh && npm run _make_out_dir; create-file-from-template.py -t ./sandbox/lambda-configs/$CS_OUTBOUND_EMAIL_LAMBDA_TEMPLATE -o ./out/outbound-email.lambda.json -j --kvpair ALL_ENV_VARS_PAIRS_STRING:CS_OUTBOUND_EMAIL_",
