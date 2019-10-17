@@ -13,6 +13,7 @@
 			// CS_LAMBDA_* variables required for management with dt-aws-lambda tool
 			"CS_LAMBDA_VERSION": "{{ CS_LAMBDA_VERSION }}",
 			"CS_LAMBDA_EVENT_SRC_ARN": "{{ CS_OUTBOUND_EMAIL_SQS_ARN }}",
+			"CSSVC_ENV": "{{ CSSVC_ENV }}",
 			{{ ALL_ENV_VARS_PAIRS_STRING }}
 		}
 	},
