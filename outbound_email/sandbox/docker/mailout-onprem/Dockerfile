@@ -10,6 +10,7 @@ RUN mkdir log tmp pid
 WORKDIR /opt/mailout/outbound_email
 
 ADD src /opt/mailout/outbound_email/src
+ADD package.json package-lock.json /opt/mailout/outbound_email/
 ADD bin/outbound_email_server.js /opt/mailout/outbound_email/bin/outbound_email_server.js
 
 RUN npm install --no-save
