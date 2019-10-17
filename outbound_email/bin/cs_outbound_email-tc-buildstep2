@@ -43,6 +43,9 @@ print(f"CS_OUTBOUND_EMAIL_ENV={runTimeEnvironment}" or "")
 cssvcEnvironment = su.someValueOrNone(os.environ, 'CSSVC_ENV')
 print(f"CSSVC_ENV={cssvcEnvironment}" or "")
 
+buildName = build.getDisplayVersion("name")          # outbound-email
+fullName = build.getDisplayVersion("full")           # [prefix-]outbound-email-1.2.3+1000
+
 # 5. Make sure the default actions apply, if not make changes as necessary.
 #    Use 'build.execCmd("command string")' to execute custom actions.
 #    https://github.com/TeamCodeStream/teamcity_tools/blob/master/README.project-build-types.md
@@ -56,8 +59,6 @@ elif args.action == 'citest':
 	print("testing not configured")
 elif args.action == 'pack':
 	# build.pack()                              # create asset info file and package assets
-	buildName = build.getDisplayVersion("name")          # outbound-email
-	fullName = build.getDisplayVersion("full")           # [prefix-]outbound-email-1.2.3+1000
 	build.execCmd(f"npm run {'pack' if su.someValueOrNone(os.environ, 'CSSVC_CFG_FILE') else 'pack_without_config'}")
 	os.rename(f"./out/{buildName}.zip", f"{fullName}.zip")
 	build.getMD5SumsForAssets()
@@ -79,7 +80,6 @@ elif args.action == 'awsLambda':
 	# add a codestream config file to the zip file to create a new zip file
 	print(f"updating asset to include lambda & codestream configs for {runTimeEnvironment} run-time environment")
 	# add the codestream config file to the zip file asset
-	fullName = build.getDisplayVersion("full")           # [prefix-]outbound-email-1.2.3+1000
 	tmpDir = f"{os.environ['CS_OUTBOUND_EMAIL_TMP']}/zip{str(os.getpid())}"
 	os.mkdir(tmpDir)
 	build.execCmd(f"cd {tmpDir} && unzip -q {os.environ['CS_OUTBOUND_EMAIL_TOP']}/{fullName}.zip")
