@@ -84,6 +84,7 @@
 			"supportEmail": "ci_support@codestream.com"
 		},
 		"defaultEnv": {
+			"emailTo": null,
 			"replyToDomain": "${CSSVC_ENV}.codestream.com",
 			"senderEmail": "${CSSVC_ENV}_alerts@codestream.com",
 			"supportEmail": "${CSSVC_ENV}_support@codestream.com",
@@ -91,6 +92,7 @@
 		},
 		"local": {},
 		"pd": {
+			"emailTo": null,
 			"replyToDomain": "pd.codestream.com",
 			"senderEmail": "pd_alerts@codestream.com",
 			"supportEmail": "pd_support@codestream.com",
@@ -102,12 +104,14 @@
 			"supportEmail": "pi_support@codestream.com"
 		},
 		"prod": {
+			"emailTo": null,
 			"replyToDomain": "prod.codestream.com",
 			"senderEmail": "alerts@codestream.com",
 			"supportEmail": "support@codestream.com",
 			"suppressEmails": false
 		},
 		"qa": {
+			"emailTo": null,
 			"replyToDomain": "qa.codestream.com",
 			"senderEmail": "qa_alerts@codestream.com",
 			"supportEmail": "qa_support@codestream.com",
