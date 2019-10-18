@@ -584,7 +584,7 @@
 			window.protocolCheck(protocol,
 				function () {
 					//fail
-					console.log(`CodeStream: failed for Moniker=${moniker} Path=${protocol} `);
+					console.log(`CodeStream: failed for Moniker=${moniker} Path=${protocol}`);
 					window.analytics.track("Opened in IDE", { IDE: moniker, "Protocol Handled": false });
 				}, function () {
 					//success
@@ -664,7 +664,7 @@
 				else {
 					item = launcher;
 				}
-				var u = $('[data-element-ide-list]').find('[data-ide-moniker="' + item + '"]');
+				var u = $('[data-list-items="{{queryString.marker}}"]').find('[data-ide-moniker="' + item + '"]');
 				if (u && u.length){
 					u.click();
 				}
