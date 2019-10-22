@@ -60,7 +60,7 @@ elif args.action == 'citest':
 	print("testing not configured")
 elif args.action == 'pack':
 	# build.pack()                              # create asset info file and package assets
-	build.execCmd(f"npm run {'pack' if su.someValueOrNone(os.environ, 'CSSVC_CFG_FILE') else 'pack_without_config'}")
+	build.execCmd(f"npm run {'pack' if runTimeEnvironment in ['ci', 'pi'] else 'pack_without_config'}")
 	os.rename(f"./out/{buildName}.zip", f"{fullName}.zip")
 	build.getMD5SumsForAssets()
 	build.writeAssetInfo()
