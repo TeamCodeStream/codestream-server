@@ -307,8 +307,11 @@
 						window.location = uri;
 					}
 
-					function openUriUsingFirefox(uri, failCb, successCb) {
-						openUriUsingIE10InWindows7(uri, failCb, successCb);
+					function openUriUsingFirefox(uri, failCb, successCb) {						
+						openUriWithTimeoutHack(uri, failCb, successCb);
+						//openUriUsingIE10InWindows7(uri, failCb, successCb);
+						//openUriUsingWickedInsaneHackery(uri, failCb, successCb);
+						/*
 						return;
 						var iframe = document.querySelector("#hiddenIframe");
 
@@ -324,52 +327,9 @@
 								failCb();
 							}
 						}
+						*/
 					}
-
-					function openUriUsingFirefox2(uri, failCb, successCb) {
-						var worked;
-						var iframe = document.querySelector("#hiddenDetachedIframe");
-						var attached;
-						if (iframe) {
-							iframe.remove();
-						}
-						iframe = _createDetachedHiddenIframe(uri);
-						iframe.style.width = "333px";
-						iframe.style.height = "333px";
-						iframe.src = "about:blank";
-						try {
-
-							var onblur = function () {
-								worked = true;
-								console.log('blurred');
-								iframe.removeEventListener('blur', onblur, false);
-							}
-
-							iframe.addEventListener("blur", onblur, false);
-							document.body.appendChild(iframe);
-							var i = 0;
-							var interval = setInterval(function () {
-								console.log(document.activeElement);
-								if (i === 39) {
-									console.log('stopping');
-									clearInterval(interval);
-									failCb();
-									return;
-								}
-								if (worked) {
-									console.log('worked');
-									clearInterval(interval);
-									successCb();
-								}
-								i++;
-							}, 100);
-
-
-							iframe.contentWindow.location.href = uri;
-						} catch (e) {
-							failCb();
-						}
-					}
+					
 
 					function openUriUsingIEInOlderWindows(uri, failCb, successCb) {
 						if (getInternetExplorerVersion() === 10) {
@@ -379,6 +339,60 @@
 						} else {
 							openUriInNewWindowHack(uri, failCb, successCb);
 						}
+					}
+
+					function openUriUsingWickedInsaneHackery(uri, failCb, successCb) {
+						var succeded = false;
+ 						var timeout;						
+
+						var handler = function () {
+								console.log('blurred -- success')
+								window.removeEventListener("blur", handler);
+								if (timeout) {
+									clearTimeout(timeout);
+								}
+								succeded = true
+								successCb();								
+						};
+						 
+						var inner = function() {							
+							if (timeout) {
+								clearTimeout(timeout);
+							}
+							timeout = setTimeout(function() {
+									window.removeEventListener("blur", handler);
+									failCb();
+							}, 5000);
+							
+							window.removeEventListener("blur", handler);
+							window.addEventListener("blur", handler);
+							
+							var iframe = document.querySelector("#hiddenIframe");							
+							
+							if (!iframe) {
+								iframe = _createHiddenIframe(document.body, "about:blank");								
+							}							
+							try {																
+								iframe.contentWindow.location.href = uri;																
+							} catch (e) {								
+								window.removeEventListener("blur", handler);								
+								failCb();
+								clearTimeout(timeout);								
+							}		
+						}	
+						var i = 0;
+						var foo = function() {
+							if (!succeded) {
+								inner();
+							}
+							if (succeded) {
+								clearInterval(poop);
+								return;
+							}
+							i++;
+							console.log(i);
+						}
+						var poop = setInterval(foo, 250);						 			
 					}
 
 					function openUriUsingIE10InWindows7(uri, failCb, successCb) {
@@ -404,7 +418,7 @@
 							window.removeEventListener("blur", handler);
 							failCb();
 							clearTimeout(timeout);
-						}						
+						}						 			
 					}
 
 					function openUriInNewWindowHack(uri, failCb, successCb) {
@@ -549,13 +563,13 @@
 				}						 
 			}
 
-		window.CODESTREAM.openEditor = function(e, $el, markerId) {			
+		window.CODESTREAM.openEditor = function(e, $el, markerId) {				
 			e.preventDefault();
 			
 			if (!markerId) {
 				console.error('missing markerId');
 				return;
-			}
+			}			
 
 			var protocolStart = $el.attr('data-ide-protocol');
 			var ideName = $el.attr('data-ide-name');
@@ -579,19 +593,18 @@
 
 			var timeout = setTimeout(function () {
 				createBanner(ideName, protocolStart, downloadUrl);
-			}, 200);
-
+			}, 1000);
+			var startTime = new Date();
 			window.protocolCheck(protocol,
 				function () {
-					//fail
-					console.log(`CodeStream: failed for Moniker=${moniker} Path=${protocol}`);
+					//fail					
 					window.analytics.track("Opened in IDE", { IDE: moniker, "Protocol Handled": false });
+					console.log(`CodeStream: failed in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol}`);
 				}, function () {
-					//success
-					console.log(`CodeStream: success for Moniker=${moniker} Path=${protocol}`);
+					//success					
 					clearTimeout(timeout);
-
 					window.analytics.track("Opened in IDE", { IDE: moniker, "Protocol Handled": true });
+					console.log(`CodeStream: success in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol}`);
 			});
 		}
 
@@ -664,16 +677,35 @@
 				else {
 					item = launcher;
 				}
-				var u = $('[data-list-items="{{queryString.marker}}"]').find('[data-ide-moniker="' + item + '"]');
-				if (u && u.length){
-					u.click();
+				var markerId = '{{queryString.marker}}';
+				var triggered = false;
+				var u;
+				if (markerId) {
+					u = $('[data-list-items="{{queryString.marker}}"]').find('[data-ide-moniker="' + item + '"]');
+					if (u && u.length) {	
+						var $item = $(u[0]);	
+						$item.click();
+
+						triggered = true;
+						console.log('clicked w/markerId', $item );
+					}
 				}
-				else if (isDefault) {
-					createMessage("To open this codemark in your IDE, please select from the list below");
+				else {
+					u = $('[data-list-items]').find('[data-ide-moniker="' + item + '"]');
+					if (u && u.length) {						
+						var $item = $(u[0]);			
+						$item.click();
+
+						triggered = true;
+						console.log('clicked wo/markerId', $item);
+					}
+				}
+				
+				 if (!triggered && isDefault) {
+					createMessage("To open this codemark in your IDE, please select from the list below");					 
 				}
 			}
 		})
-	</script>
+	</script>	
 </body>
-
 </html>
