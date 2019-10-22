@@ -25,6 +25,7 @@ abort_on_fail=1
 # environment is set
 
 cd $CS_OUTBOUND_EMAIL_TOP || exit 1
+[ ! -d .git ] && echo "nothing to configure for a pre-built asset sandbox" && exit 0
 
 # Install git submodules
 [ $mode != "no_build" -a -f .gitmodules ] && git submodule update --init --recursive
