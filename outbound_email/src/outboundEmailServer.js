@@ -51,11 +51,12 @@ class OutboundEmailServer {
 
 	// start listening for messages
 	async startListening () {
-		this.log(`Listening to ${this.config.outboundEmailQueueName}...`);
+		this.log(`Trying to listening to ${this.config.outboundEmailQueueName}...`);
 		await this.queuer.listen({
 			name: this.config.outboundEmailQueueName,
 			handler: (this.config.messageHandler || this.processMessage).bind(this)
 		});
+		this.log(`Successfully listening to ${this.config.outboundEmailQueueName}...`);
 	}
 
 	// stop listening for messages
@@ -137,8 +138,10 @@ class OutboundEmailServer {
 			this.openBroadcasterClient,
 			this.openQueuer
 		], this);
+		this.log('Service connections successful');
 		this.makeEmailSender();
 		this.makeHandlers();
+		this.log('Initialization complete');
 	}
 	
 	async openMongoClient () {
@@ -155,6 +158,7 @@ class OutboundEmailServer {
 			process.exit();
 		}
 		this.data = this.mongo.mongoCollections;
+		this.log('Successfully connected to mongo');
 	}
 	
 	async openBroadcasterClient () {
@@ -175,6 +179,7 @@ class OutboundEmailServer {
 			await pubnub.publish({ message: 'test', channel: 'test' });
 		}, 1000, this, 'Unable to connect to PubNub, retrying...');
 		this.broadcaster = new PubNubClient({ pubnub });
+		this.log('Successfully connected to Pubnub');
 	}
 	
 	async openSocketClusterClient () {
@@ -189,6 +194,7 @@ class OutboundEmailServer {
 			await this.broadcaster.init();
 			await this.broadcaster.publish('test', 'test');
 		}, 1000, this, 'Unable to connect to SocketCluster, retrying...');
+		this.log('Successfully connected to SocketCluster');
 	}
 		
 	async openQueuer () {
@@ -214,6 +220,7 @@ class OutboundEmailServer {
 			await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
 		}, 1000, this, 'Unable to connect to RabbitMQ, retrying...');
 		this.queuerIsRabbitMQ = true;
+		this.log('Successfully connected to RabbitMQ');
 	}
 
 	async openSQS () {
@@ -223,6 +230,7 @@ class OutboundEmailServer {
 		await TryIndefinitely(async () => {
 			await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
 		}, 1000, this, 'Unable to connect to SQS, retrying...');
+		this.log('Successfully connected to SQS');
 	}
 
 	makeEmailSender () {
