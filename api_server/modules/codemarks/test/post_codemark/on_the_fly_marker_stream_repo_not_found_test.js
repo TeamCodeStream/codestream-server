@@ -6,7 +6,7 @@ const ObjectID = require('mongodb').ObjectID;
 class OnTheFlyMarkerStreamRepoNotFoundTest extends MarkerStreamOnTheFlyTest {
 
 	get description () {
-		return 'should return an error when attempting to create an codemark with a marker with an on-the-fly stream with an invalid repo id';
+		return 'should return an error when attempting to create a codemark with a marker with an on-the-fly stream with an invalid repo id';
 	}
 
 	getExpectedError () {

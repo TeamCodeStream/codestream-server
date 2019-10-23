@@ -7,6 +7,11 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 
 class RelatedCodemarksTest extends MarkerTest {
 
+	constructor (options) {
+		super(options);
+		this.expectedRepoVersion = 5;
+	}
+	
 	get description () {
 		return 'should allow related codemarks when creating a codemark, and should update the related codemarks to be related to the created codemark';
 	}

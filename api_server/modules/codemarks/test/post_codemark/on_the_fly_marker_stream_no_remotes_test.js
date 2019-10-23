@@ -15,7 +15,7 @@ class OnTheFlyMarkerStreamNoRemotesTest extends MarkerStreamOnTheFlyTest {
 	}
 
 	get description () {
-		return 'should be ok when creating a post and codemark with a marker with an on-the-fly stream without providing a repo ID';
+		return 'should be ok when creating a post and codemark with a marker with an on-the-fly stream without providing remotes';
 	}
 
 	// before the test runs...

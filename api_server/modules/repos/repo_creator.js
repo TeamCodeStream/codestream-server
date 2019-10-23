@@ -38,14 +38,14 @@ class RepoCreator extends ModelCreator {
 			},
 			optional: {
 				'string': ['name'],
-				'array(string)': ['remotes']
+				'array(string)': ['remotes', 'knownCommitHashes']
 			}
 		};
 	}
 
 	// validate attributes for the repo we are creating
 	async validateAttributes () {
-		if (this.attributes.remotes.length === 0) {
+		if (!this.attributes.remotes || this.attributes.remotes.length === 0) {
 			throw this.errorHandler.error('oneRemoteRequired');
 		}
 		// enforce URL normalization and company identifier on all passed remotes

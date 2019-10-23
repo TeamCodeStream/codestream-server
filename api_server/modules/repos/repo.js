@@ -29,7 +29,7 @@ class Repo extends CodeStreamModel {
 	}
 
 	// check if the passed commit hash is a known commit hash for this repo
-	haveKnownCommitHash (commitHashes) {
+	haveKnownCommitHashes (commitHashes) {
 		let knownCommitHashes = [...(this.get('knownCommitHashes') || [])];
 		knownCommitHashes.push(this.get('firstCommitHash'));
 		return ArrayUtilities.intersection(knownCommitHashes, commitHashes).length > 0;

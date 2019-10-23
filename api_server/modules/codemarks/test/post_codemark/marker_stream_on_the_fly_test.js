@@ -24,7 +24,8 @@ class MarkerStreamOnTheFly extends MarkerTest {
 				delete marker.fileStreamId;
 				Object.assign(marker, {
 					file: this.streamFactory.randomFile(),
-					remotes: this.useRemotes || [this.repoFactory.randomUrl()]
+					remotes: this.useRemotes || [this.repoFactory.randomUrl()],
+					knownCommitHashes: this.useKnownCommitHashes
 				});
 			}
 			callback();

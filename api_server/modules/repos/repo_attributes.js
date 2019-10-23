@@ -35,8 +35,8 @@ module.exports = {
 	},
 	knownCommitHashes: {
 		type: 'arrayOfStrings',
-		maxLength: 100,
-		description: 'Any additional known commit hashes to be tracked for this repo (soon to be deprecated)'
+		maxLength: 1000,
+		description: 'Any additional known commit hashes to be tracked for this repo'
 	},
 	remotes: {
 		type: 'arrayOfObjects',

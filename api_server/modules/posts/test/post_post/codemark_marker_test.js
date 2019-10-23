@@ -16,7 +16,13 @@ class CodemarkMarkerTest extends CodemarkTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.codemark.markers = this.markerFactory.createRandomMarkers(this.expectMarkers, { fileStreamId: this.repoStreams[0].id });
+			this.data.codemark.markers = this.markerFactory.createRandomMarkers(
+				this.expectMarkers,
+				{
+					fileStreamId: this.repoStreams[0].id,
+					commitHash: this.useCommitHash
+				}
+			);
 			callback();
 		});
 	}

@@ -2,6 +2,7 @@
 
 const Assert = require('assert');
 const NormalizeURL = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
+const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');
 const CodemarkTestConstants = require('../codemark_test_constants');
 const Path = require('path');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
@@ -17,6 +18,7 @@ class CodemarkValidator {
 	validateCodemark (data) {
 		// verify we got back an codemark with the attributes we specified
 		const codemark = data.codemark;
+		const inputMarker = this.inputCodemark.markers && this.inputCodemark.markers[0];
 		const expectedOrigin = this.expectedOrigin || '';
 		let errors = [];
 		let result = (
@@ -75,16 +77,19 @@ class CodemarkValidator {
 		if (this.test.streamOnTheFly) {
 			this.validateStream(data);
 		}
-		else {
-			if (!this.test.streamUpdatesOk) {
-				Assert(typeof data.streams === 'undefined', 'streams array should not be defined');
-			}
-			Assert(typeof data.repos === 'undefined', 'repos array should not be defined');
+		else if (!this.test.streamUpdatesOk) {
+			Assert(typeof data.streams === 'undefined', 'streams array should not be defined');
 		}
 
 		// if we created a repo, validate it
 		if (this.test.repoOnTheFly) {
 			this.validateRepo(data);
+		}
+		else if (inputMarker && (inputMarker.repoId || inputMarker.fileStreamId || (inputMarker.commitHash && inputMarker.remotes))) {
+			this.validateRepoUpdatedWithCommitHash(data);
+		}
+		else {
+			Assert(data.repos === undefined, 'repos should be undefined');
 		}
 	}
 
@@ -330,8 +335,71 @@ class CodemarkValidator {
 			Assert.equal(repo.name, expectedName, 'repo name does not match the expected name');
 		}
 
+		// verify the known commit hashes match up
+		if (inputMarker.knownCommitHashes) {
+			const repoHashes = [...repo.knownCommitHashes];
+			repoHashes.sort();
+			const sentHashes = inputMarker.knownCommitHashes.map(hash => hash.toLowerCase());
+			sentHashes.push(inputMarker.commitHash.toLowerCase());
+			sentHashes.sort();
+			Assert.deepEqual(repoHashes, sentHashes, 'known commit hashes in returned repo do not match commit hashes sent with the marker');
+		}
+
 		// verify the repo has no attributes that should not go to clients
 		this.test.validateSanitized(repo, CodemarkTestConstants.UNSANITIZED_REPO_ATTRIBUTES);
+	}
+
+	// validate that the repo was updated with the marker's commit hash as a known commit hash
+	validateRepoUpdatedWithCommitHash (data) {
+		const repo = data.repos[0];
+		const inputMarker = this.inputCodemark.markers[0];
+		const expectedVersion = this.test.expectedRepoVersion || 2;
+		const expectedRepo = {
+			id: this.test.repo.id,
+			_id: this.test.repo.id, // DEPRECATE ME
+			$set: {
+				modifiedAt: Date.now(),
+				version: expectedVersion
+			},
+			$version: {
+				before: expectedVersion - 1,
+				after: expectedVersion
+			}
+		};
+		if (!this.test.expectMatchByCommitHash) {
+			expectedRepo.$addToSet = {
+				knownCommitHashes: this.inputCodemark.markers.map(marker => marker.commitHash.toLowerCase())
+			};
+		}
+		if (this.test.expectMatchByKnownCommitHashes) {
+			const normalizedRemote = NormalizeURL(inputMarker.remotes[0]);
+			const companyIdentifier = ExtractCompanyIdentifier.getCompanyIdentifier(normalizedRemote);
+			expectedRepo.$push = expectedRepo.$push || {};
+			expectedRepo.$push.remotes = [
+				{
+					url: normalizedRemote,
+					normalizedUrl: normalizedRemote,
+					companyIdentifier
+				}
+			];
+		}
+		if (this.test.remotesAdded) {
+			expectedRepo.$push = expectedRepo.$push || {};
+			expectedRepo.$push.remotes = expectedRepo.$push.remotes || [];
+			for (let remote of this.test.remotesAdded) {
+				const normalizedRemote = NormalizeURL(remote);
+				const companyIdentifier = ExtractCompanyIdentifier.getCompanyIdentifier(normalizedRemote);
+				expectedRepo.$push.remotes.push({
+					url: normalizedRemote,
+					normalizedUrl: normalizedRemote,
+					companyIdentifier
+				});
+			}
+		}
+		Assert(repo.$set.modifiedAt >= this.test.codemarkCreatedAfter || this.test.postCreatedAfter, 'modifiedAt of repo should be set to timestamp greater than or equal to the creation time of the codemark');
+		expectedRepo.$set.modifiedAt = repo.$set.modifiedAt;
+		Assert.deepEqual(repo, expectedRepo, 'repo in response is not correct');
+		this.test.validateSanitized(repo.$set, CodemarkTestConstants.UNSANITIZED_REPO_ATTRIBUTES);
 	}
 
 	// validate the returned permalink URL is correct

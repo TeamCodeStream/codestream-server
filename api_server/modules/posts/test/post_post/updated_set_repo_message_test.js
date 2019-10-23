@@ -67,6 +67,11 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 								companyIdentifier
 							}]
 						},
+						$addToSet: {
+							knownCommitHashes: [
+								this.data.codemark.markers[0].commitHash.toLowerCase()
+							]
+						},
 						$version: {
 							before: 1,
 							after: 2

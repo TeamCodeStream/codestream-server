@@ -4,14 +4,12 @@ const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation'
 const CommonInit = require('./common_init');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const MarkerTest = require('./marker_test');
-const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
-const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');
 const Assert = require('assert');
 
-class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit, MarkerTest) {
+class UpdatedKnownCommitHashesForRepoMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit, MarkerTest) {
 
 	get description () {
-		return 'members of the team should receive a message with a repo update when a codemark is posted with a marker and remotes are specified that were not known for the repo';
+		return 'members of the team should receive a message with a repo update when a codemark is posted with a marker and known commit hashes are specified that were not known for the repo';
 	}
 
 	// make the data that triggers the message to be received
@@ -25,8 +23,12 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 			const marker = this.data.markers[0];
 			marker.repoId = this.repo.id;
 			marker.file = this.repoStreams[0].file;
-			this.addedRemote = this.repoFactory.randomUrl();
-			marker.remotes = [this.addedRemote];
+			this.knownCommitHashes = [
+				this.markerFactory.randomCommitHash(),
+				this.markerFactory.randomCommitHash(),
+				this.markerFactory.randomCommitHash()
+			];
+			marker.knownCommitHashes = [...this.knownCommitHashes];
 			callback();
 		});
 	}
@@ -40,8 +42,6 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
-		const normalizedRemote = NormalizeUrl(this.addedRemote);
-		const companyIdentifier = ExtractCompanyIdentifier.getCompanyIdentifier(normalizedRemote);
 		this.updatedAt = Date.now();
 		this.doApiRequest(
 			{
@@ -56,15 +56,9 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 				this.reposMessage = [{
 					_id: this.repo.id,	// DEPRECATE ME
 					id: this.repo.id,
-					$push: {
-						remotes: [{
-							url: normalizedRemote,
-							normalizedUrl: normalizedRemote,
-							companyIdentifier
-						}]
-					},
 					$addToSet: {
 						knownCommitHashes: [
+							...this.knownCommitHashes.map(hash => hash.toLowerCase()),
 							this.data.markers[0].commitHash.toLowerCase()
 						]
 					},
@@ -90,4 +84,4 @@ class UpdatedSetRepoMessageTest extends Aggregation(CodeStreamMessageTest, Commo
 	}
 }
 
-module.exports = UpdatedSetRepoMessageTest;
+module.exports = UpdatedKnownCommitHashesForRepoMessageTest;
