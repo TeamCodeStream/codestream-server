@@ -6,18 +6,22 @@ Because it changes over time, the schema and config files are versioned.
 
 ### CodeStream Configurations
 
-CodeStream's server-side services can be configured in different arrangements, reffered to as codestream configurations. The `dt-update-secrets` installs two configurations
-for local development:
+CodeStream's server-side services can be configured in different arrangements,
+referred to as codestream configurations. The `dt-update-secrets` command
+installs two configurations for local development:
 
 | config | desc |
 | --- | --- |
 | codestream-cloud | mongo, api, mailin, mailout (lambda or vm), AWS SQS. Can be used out of the box but suppresses email by default |
 | onprem-development | mongo, api, broadcaster, rabbitMQ, mailin, mailout. Deployed as a template, must be edited |
 
-You can create any configuration you want, starting with these or from scratch.
-What's important is that you know what configurations are available.
+You can create any configuration you want, derived from these or from scratch.
+What's important is that you know what configurations are available to you.
 
 ### Common Sandbox Environment Variables
+
+You shouldn't need to use these for local development, but you should be aware
+of them.
 
 | Env Var | Description |
 | --- | --- |
@@ -25,7 +29,7 @@ What's important is that you know what configurations are available.
 | CSSVC_ENV | environment (value must be consistent with configuration file value) |
 | CSSVC_CONFIGURATION | for determiniming configuration (eg. 'codestream-cloud', 'onprem-development', etc...) |
 
-### Setup your configurations
+### Setup your configurations and select one
 
 #### Out-of-the-box codestream-cloud configuration
 If you want to use the out-of-the-box **coudstream-cloud** configuration (note
@@ -38,9 +42,9 @@ $ echo codestream-cloud > codestream-cfg-default.local
 If you want to customize the out-of-the-box **codestream-cloud** (or any other)
 configuration, select a new configuration name and follow these directions:
 
-* Copy latest codestream-cloud_local_{N}_.json to {custom-name}_local_{N}_.json
+* Copy latest `codestream-cloud_local_{N}_.json` to `{custom-name}_local_{N}_.json`
 
-* Edit {custom-name}_local_{N}_.json to taste
+* Edit `{custom-name}_local_{N}_.json` to taste
 
 * Register your file so an update hook will carry your changes forward when new
   versions of the config file are downloaded (`dt-update-secrets`). The update
@@ -59,10 +63,10 @@ configuration, select a new configuration name and follow these directions:
 
 If you want to use the **onprem-development** cloud configuration:
 
-* Copy the latest onprem-development_local_{N}_.json.template to
-  onprem-development_local_{N}_.json
+* Copy the latest `onprem-development_local_{N}_.json.template` to
+  `onprem-development_local_{N}_.json`
 
-* Edit the onprem-development_local_{N}_.json to taste
+* Edit the `onprem-development_local_{N}_.json` to taste
 
 * Add the file to a hook that carries your changes forward when the config file
   is updated. The update hook is a list of configurations, not just one.
@@ -152,8 +156,8 @@ Files distributed via `dt-update-secrets`.
 
 ### Config file Version
 
-For non-local environments, config files are deployed according to a version
-number which is kept with the schema (in
+Config files are deployed according to a version number which is kept with the
+schema (in
 [codestream-configs](https://github.com/teamcodestream/codestream-configs)).
 This number must be bumped each time the schema is updated.
 
