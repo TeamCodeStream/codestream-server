@@ -7,7 +7,7 @@ Because it changes over time, the schema and config files are versioned.
 ### CodeStream Configurations
 
 CodeStream's server-side services can be configured in different arrangements,
-referred to as codestream configurations. The `dt-update-secrets` command
+referred to as _codestream configurations_. The `dt-update-secrets` command
 installs two configurations for local development. `codestream-cloud` is a ready
 to go, out-of-the-box, configuration that mimicks production with mongo, api
 (using pubnub) mailin, mailout (lambda or vm, using sendgrid) & AWS SQS services.

@@ -13,9 +13,9 @@ The CodeStream API Service is lovely.
    any version. Instructions for the mongo sandbox are
    [here](https://github.com/teamcodestream/mongodb_tools).
 1. Make sure you can access the CodeStream network via the VPN.
-1. Review the procedure for managing the [unified config
-   file](README.unified-cfg-file.md).
-
+1. Review how we manage our [server configurations](README.unified-cfg-file.md).
+   If you have any custom alterations to the standard configuration, you will
+   need to be familiar with the procedures in this document.
 
 ### Quick Start
 1. If you're using dev_tools on your own computer, bring it up to date
