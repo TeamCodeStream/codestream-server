@@ -35,15 +35,21 @@ You're also on your own to setup your shell's environment.
 
 
 ## Quick Start
-1. Make sure your API sandbox running on the default port (that includes mongo). The
-API service will create the outbound SQS mail queue so you must run it before you
-install the lambda function and trigger.
-1. Build and bundle the outgoing mail service and install the lambda function and trigger.
+1. Make sure your API and mongo sandboxes are running on their default ports.
+   The API service will create the outbound SQS mail queue so you must run it
+   before you install the lambda trigger.
+
+1. If you want to run the outbound email service locally as a node process,
+   start it up with `cs_outbound_email-service start`
+
+1. If you want to run it as a lambda function, make sure your VPN is up (the
+   lambda function will need to connect to mongo running on your computer), then
+   pack the outgoing mail sandbox and install the lambda function and sqs trigger.
 ```
-$ cd src
-$ npm run pack                # create the code and zip it to ../out/outbound-email.zip
-$ npm run lambda:config       # create the lambda function config file in ../out/outbound-email.lambda.json
-$ npm run lambda:install      # create the lambda function and trigger
+$ . sandbox/lambda-configs/lambda-defaults.sh   # prepare sandbox for lambda deployment
+$ npm run pack                # zip the sandbox & config to out/outbound-email.zip
+$ npm run lambda:config       # create the lambda function config file in out/outbound-email.lambda.json
+$ npm run lambda:install      # create the lambda function and sqs trigger
 ```
 
 ## Development Lifecycle
@@ -70,46 +76,46 @@ Use the npm scripts below to do the work of installing, uninstalling, updating, 
 
 
 ## NPM scripts
-Build / Create asset (../out/outbound-email.zip)
+Build / Create asset (out/outbound-email.zip)
 ```
-$ cd src && npm run pack
+$ npm run pack
 ```
 
 Update the Lambda function in AWS with the latest build
 ```
-$ cd src && npm run lambda:update
+$ npm run lambda:update
 ```
 
 Perform both abovemented tasks at once
 ```
-$ cd src && npm run reupdate
+$ npm run reupdate
 ```
 
 Create the Lamda function definition (../out/outbound-email.lambda.json)
 ```
-$ cd src && npm run lambda:config
+$ npm run lambda:config
 ```
 
 Install the lambda function and a trigger on the SQS queue
 ```
-$ cd src && npm run lambda:install
+$ npm run lambda:install
 ```
 
 Uninstall the lambda function and trigger (do this when you're done developing). Note
 that uninstalling a lambda function and its triggers takes time to completely flush
 in AWS so you should wait a little bit before you re-install it.
 ```
-$ cd src && npm run lambda:uninstall
+$ npm run lambda:uninstall
 ```
 
 Update the Lambda function environment variables (prerequisite - lamda:config)
 ```
-$ cd src && npm run lambda:update_env
+$ npm run lambda:update_env
 ```
 
 Clean the repo
 ```
-$ cd src && npm run clean
+$ npm run clean
 ```
 
 ## Testing
