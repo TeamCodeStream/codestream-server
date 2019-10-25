@@ -189,51 +189,33 @@ class PostUserRequest extends PostRequest {
 		if (this.dontSendEmail) {
 			return; // don't track invite email if we're not sending an email
 		}
-		// check if user has opted out
-		const preferences = this.user.get('preferences') || {};
-		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
-			return;
-		}
 
 		const company = await this.data.companies.getById(this.team.get('companyId'));
 		const invitingUser = this.user;
 		const invitedUser = this.transforms.createdUser;
-		const providerInfo = (this.team && this.team.get('providerInfo')) || {};
-		const provider = providerInfo.slack ? 'Slack' : (providerInfo.msteams ? 'MSTeams' : 'CodeStream');
 		const firstSessionStartedAt = invitingUser.get('firstSessionStartedAt');
 		const FIRST_SESSION_TIMEOUT = 12 * 60 * 60 * 1000;
 		const firstSession = firstSessionStartedAt && firstSessionStartedAt < Date.now() + FIRST_SESSION_TIMEOUT; 
-		const trackObject = {
-			'distinct_id': invitingUser.id,
-			'email': invitingUser.get('email'),
+		const trackData = {
 			'Invitee Email Address': invitedUser.get('email'),
 			'First Invite': !invitedUser.get('numInvites'),
 			'Registered': !!invitedUser.get('isRegistered'),
-			'Join Method': invitingUser.get('joinMethod'),
-			'Team ID': this.team.id,
-			'Team Size': this.team.get('memberIds').length,
-			'Team Name': this.team.get('name'),
-			'Reporting Group': this.team.get('reportingGroup') || '',
-			'Provider': provider,
-			'Company Name': company.get('name'),
 			'Endpoint': this.request.headers['x-cs-plugin-ide'] || 'Unknown IDE',
 			'Plugin Version': this.request.headers['x-cs-plugin-version'] || '',
 			'First Session': firstSession
 		};
-		if (invitingUser.get('registeredAt')) {
-			trackObject['createdAt'] = new Date(invitingUser.get('registeredAt')).toISOString();
-		}
-		if (invitingUser.get('lastPostCreatedAt')) {
-			trackObject['Date of Last Post'] = new Date(invitingUser.get('lastPostCreatedAt')).toISOString();
-		}
 
-		this.api.services.analytics.track(
+		const trackOptions = {
+			request: this,
+			user: invitingUser,
+			team: this.team,
+			company
+		};
+
+		this.api.services.analytics.trackWithSuperProperties(
 			'Team Member Invited',
-			trackObject,
-			{
-				request: this,
-				user: this.user
-			}
+			trackData,
+			trackOptions
 		);
 	}
 

@@ -130,35 +130,24 @@ class ProviderActionRequest extends RestfulRequest {
 
 		const provider = this.provider === 'slack' ? 'Slack' :
 			this.provider === 'msteams' ? 'MSTeams' : this.provider;
-		const trackObject = {
-			'distinct_id': this.user ? this.user.id : this.providerUserId,
-			'Team ID': this.team.id,
-			'Team Name': this.team.get('name'),
-			'Company Name': this.company ? this.company.get('name') : '',
-			'Team Size': this.team.get('memberIds').length,
-			'Provider': provider,
-			'Endpoint': provider
+		const trackData = {
+			Provider: provider,
+			Endpoint: provider
 		};
-		if (this.user) {
-			Object.assign(trackObject, {
-				'email': this.user.get('email'),
-				'Join Method': this.user.get('joinMethod')
-			});
-			if (this.user.get('registeredAt')) {
-				trackObject['createdAt'] = new Date(this.user.get('registeredAt')).toISOString();
-			}
-			if (this.user.get('lastPostCreatedAt')) {
-				trackObject['Date of Last Post'] = new Date(this.user.get('lastPostCreatedAt')).toISOString();
-			}
+		if (!this.user) {
+			trackData.distinct_id = this.providerUserId;
 		}
-		Object.assign(trackObject, info.data);
 
-		this.api.services.analytics.track(
+		Object.assign(trackData, info.data);
+		this.api.services.analytics.trackWithSuperProperties(
 			info.event,
-			trackObject,
-			{
+			trackData,
+			{ 
 				request: this,
-				user: this.user || { id: this.providerUserId }
+				user: this.user,
+				team: this.team,
+				company: this.company,
+				userId: !this.user && this.providerUserId
 			}
 		);
 	}

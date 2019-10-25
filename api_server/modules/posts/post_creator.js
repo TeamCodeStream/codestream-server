@@ -414,59 +414,39 @@ class PostCreator extends ModelCreator {
 
 	// track this post for analytics, with the possibility that the user may have opted out
 	async trackPost () {
+		const { request, user, team, company, stream } = this;
+
 		// only track for inbound emails, client-originating posts are tracked by the client
 		if (!this.forInboundEmail) {
 			return;
 		}
-		// check if user has opted out
-		const preferences = this.user.get('preferences') || {};
-		if (preferences.telemetryConsent === false) { // note: undefined is not an opt-out, so it's opt-in by default
-			return ;
-		}
 
-		const endpoint = 'Email';
 		const categories = {
 			'channel': 'Private Channel',
 			'direct': 'Direct Message',
 			'file': 'Source File'
 		};
-		let category = categories[this.stream.get('type')] || '???';
-		if (this.stream.get('type') === 'channel' && this.stream.get('privacy') === 'public') {
+		let category = categories[stream.get('type')] || '???';
+		if (stream.get('type') === 'channel' && stream.get('privacy') === 'public') {
 			category = 'Public Channel';
 		}
-		const companyName = this.company ? this.company.get('name') : '???';
-		const providerInfo = (this.team && this.team.get('providerInfo')) || {};
-		const provider = providerInfo.slack ? 'Slack' : (providerInfo.msteams ? 'MSTeams' : 'CodeStream');
-		const trackObject = {
-			distinct_id: this.user.id,
+
+		const dateOfLastPost = new Date(this.model.get('createdAt')).toISOString();
+		const trackData = {
 			Type: 'Chat',
 			Thread: 'Parent',
 			Category: category,
-			'email': this.user.get('email'),
-			'Join Method': this.user.get('joinMethod'),
-			'Team ID': this.team ? this.team.id : undefined,
-			'Team Name': this.team ? this.team.get('name') : undefined,
-			'Team Size': this.team ? this.team.get('memberIds').length : undefined,
-			'Reporting Group': this.team ? (this.team.get('reportingGroup') || '') : undefined,
-			'Provider': provider,
-			'Company Name': companyName,
-			'Endpoint': endpoint,
-			'Date of Last Post': new Date(this.model.get('createdAt')).toISOString()
+			Endpoint: 'Email',
+			'Date of Last Post': dateOfLastPost
 		};
-		if (this.user.get('registeredAt')) {
-			trackObject['createdAt'] = new Date(this.user.get('registeredAt')).toISOString();
-		}
-		if (this.user.get('totalPosts') === 1) {
-			trackObject['First Post?'] = new Date(this.model.get('createdAt')).toISOString();
+		if (user.get('totalPosts') === 1) {
+			trackData['First Post?'] = new Date(this.model.get('createdAt')).toISOString();
 		}
 
-		this.api.services.analytics.track(
+		this.api.services.analytics.trackWithSuperProperties(
 			'Post Created',
-			trackObject,
-			{
-				request: this.request,
-				user: this.user
-			}
+			trackData,
+			{ request, user, team, company }
 		);
 	}
 

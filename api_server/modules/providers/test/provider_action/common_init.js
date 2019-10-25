@@ -104,14 +104,15 @@ class CommonInit {
 			'Team Name': this.team.name,
 			'Company Name': this.company.name,
 			'Team Size': 1,
+			'Reporting Group': '',
 			Provider: 'Slack',
 			Endpoint: 'Slack',
 		};
 		if (!this.dontCreateUser) {
 			Object.assign(properties, {
-				email: this.user.email,
+				'$email': this.user.email,
 				'Join Method': 'Created Team',
-				createdAt: new Date(this.user.registeredAt).toISOString()
+				'$createdAt': new Date(this.user.registeredAt).toISOString()
 			});
 		}
 

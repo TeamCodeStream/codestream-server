@@ -86,7 +86,7 @@ class TrackingTest extends InboundEmailMessageTest {
 			((properties.Type === 'Chat') || errors.push('Type not correct')) &&
 			((properties.Thread === 'Parent') || errors.push('Thread not correct')) &&
 			((properties.Category === category) || errors.push('Category not correct')) &&
-			((properties['email'] === this.users[1].user.email) || errors.push('email does not match post originator')) &&
+			((properties['$email'] === this.users[1].user.email) || errors.push('email does not match post originator')) &&
 			((properties['Join Method'] === this.users[1].user.joinMethod) || errors.push('Join Method does not match post originator')) &&
 			((properties['Team ID'] === this.team.id) || errors.push('Team ID does not match team')) &&
 			((properties['Team Name'] === this.team.name) || errors.push('Team Name does not match team')) &&
@@ -95,7 +95,7 @@ class TrackingTest extends InboundEmailMessageTest {
 			((properties['Company Name'] === this.company.name) || errors.push('Company Name does not match name of company')) &&
 			((properties.Endpoint === 'Email') || errors.push('Endpoint not correct')) &&
 			((properties['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct')) &&
-			((properties['createdAt'] === new Date(this.users[1].user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
+			((properties['$createdAt'] === new Date(this.users[1].user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
 			((properties['First Post?'] === new Date(this.post.createdAt).toISOString()) || errors.push('First Post not set to creation date of post')) &&
 			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string'))
 		);

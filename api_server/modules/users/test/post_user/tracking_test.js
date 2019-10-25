@@ -80,7 +80,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((properties.distinct_id === this.currentUser.user.id) || errors.push('distinct_id not set to request originator\'s ID')) &&
 			((properties['Invitee Email Address'] === this.createdUser.email) || errors.push('Email Address does not match request originator')) &&
 			((properties['First Invite'] === firstInvite) || errors.push('First Invite not correct')) &&
-			((properties['email'] === this.currentUser.user.email) || errors.push('email not correct')) && 
+			((properties['$email'] === this.currentUser.user.email) || errors.push('email not correct')) && 
 			((properties['Registered'] === registered) || errors.push('Registered not correct')) &&
 			((properties['Join Method'] === 'Created Team') || errors.push('Join Method not correct')) && 
 			((properties['Team ID'] === this.team.id) || errors.push('Team ID not correct')) &&
@@ -90,7 +90,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((properties['Company Name'] === this.company.name) || errors.push('incorrect company name')) &&
 			((properties['Endpoint'] === 'Unknown IDE') || errors.push('IDE should be unknown')) &&
 			((properties['Plugin Version'] === '') || errors.push('Plugin Version should be blank')) &&
-			((properties['createdAt'] === new Date(this.currentUser.user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
+			((properties['$createdAt'] === new Date(this.currentUser.user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
 			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string')) &&
 			((properties['First Session'] === true) || errors.push('First Session should be true'))
 		);
