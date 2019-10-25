@@ -1,42 +1,23 @@
 # Unified Config File
 
-We're moving our CodeStream sandbox configurations from setting configuration
-parameters via environment variables to reading them from a single configuration
-file shared by all CodeStream services (sandboxes).
+All CodeStream services share a single unified configuration file which obeys a
+schema ([defined here](https://github.com/TeamCodeStream/codestream-configs)).
+Because it changes over time, the schema and config files are versioned.
 
-During the migration, you should install (or reconfigure) your sandboxes to use
-the `unified-cfg-file.sh` sandbox configuration file. Once we are satisfied
-that all configurations work with the unified config file, this will become the
-new default sandbox configuration (`default.sh`) and you'll need to reconfigure
-your sandboxes to use that.
+### CodeStream Configurations
 
-Follow normal procedures to install your sandboxes but for now add this
-option when you execute the `db-sb-new-sandbox` command.
-```
--e unified-cfg-file.sh
-```
-Or if you are reconfiguring existing sandboxes, from with a shell
-that does *NOT* have any sandboxes loaded, run:
-```
-$ dt-sb-configure -R -n <sandbox-name> -e unified-cfg-file.sh
-```
+CodeStream's server-side services can be configured in different arrangements, reffered to as codestream configurations. The `dt-update-secrets` installs two configurations
+for local development:
 
-### TL;DR - Initial migration steps
-1. If you're using dev_tools on your own computer, bring it up to date
-   (`dt-selfupdate -y`). Always keep your dev_tools installation updated. This
-   does not apply to our managed EC2 instances, which are kept updated
-   automatically.
-1. Update your secrets (`dt-update-secrets`).
-1. Look in your _~/.codestream/config/_ directory. You'll see a **README**
-   file with instructions for different scenarios.
-1. Update your existing sandbox configurations to use, or install new sandboxes
-   configured with, the `unified-cfg-file.sh` configuration.  Use
-   `dt-sb-new-sandbox` to install the sandboxes or `dt-sb-configure` to change
-   an existing sandbox's config.
+| config | desc |
+| --- | --- |
+| codestream-cloud | mongo, api, mailin, mailout (lambda or vm), AWS SQS. Can be used out of the box but suppresses email by default |
+| onprem-development | mongo, api, broadcaster, rabbitMQ, mailin, mailout. Deployed as a template, must be edited |
+
+You can create any configuration you want, starting with these or from scratch.
+What's important is that you know what configurations are available.
 
 ### Common Sandbox Environment Variables
-
-These variables are optional
 
 | Env Var | Description |
 | --- | --- |
@@ -44,6 +25,60 @@ These variables are optional
 | CSSVC_ENV | environment (value must be consistent with configuration file value) |
 | CSSVC_CONFIGURATION | for determiniming configuration (eg. 'codestream-cloud', 'onprem-development', etc...) |
 
+### Setup your configurations
+
+#### Out-of-the-box codestream-cloud configuration
+If you want to use the out-of-the-box **coudstream-cloud** configuration (note
+that email is suppressed in this config) install it with:
+```
+$ echo codestream-cloud > codestream-cfg-default.local
+```
+
+#### Customized out-of-the-box codestream-cloud configuration
+If you want to customize the out-of-the-box **codestream-cloud** (or any other)
+configuration, select a new configuration name and follow these directions:
+
+* Copy latest codestream-cloud_local_{N}_.json to {custom-name}_local_{N}_.json
+
+* Edit {custom-name}_local_{N}_.json to taste
+
+* Register your file so an update hook will carry your changes forward when new
+  versions of the config file are downloaded (`dt-update-secrets`). The update
+  hook is a list of 'configuration_file -> custom_configuration_file' mappings.
+  This command appends your new mapping to it.
+	```
+	$ echo "codestream-cloud:{custom-name}" >> codestream-cfg-update-hook
+	```
+
+* Configure {custom-name} as your default codestream config
+	```
+	$ echo {custom-name} > codestream-cfg-default.local
+	```
+
+#### Customize the onprem-development configuration template
+
+If you want to use the **onprem-development** cloud configuration:
+
+* Copy the latest onprem-development_local_{N}_.json.template to
+  onprem-development_local_{N}_.json
+
+* Edit the onprem-development_local_{N}_.json to taste
+
+* Add the file to a hook that carries your changes forward when the config file
+  is updated. The update hook is a list of configurations, not just one.
+	```
+	$ echo onprem-development:onprem-development >> codestream-cfg-update-hook
+	```
+
+* Configure onprem-development as your default codestream config
+	```
+	$ echo onprem-development > codestream-cfg-default.local
+	```
+
+### Change your configuration:
+To change which configuration file your sandboxes use:
+
+	   $ echo {configuration-name} > codestream-cfg-default.local
 
 ### Managing the Configuration Files
 1. Look in your **~/.codestream/config/** directory. You'll find config files
@@ -133,3 +168,39 @@ codestream-config_qa_3_.json       # app schema 3 thru 5
 codestream-config_qa_6_.json       # app schema 6
 codestream-config_qa_7_.json       # app schema 7 and greater
 ```
+
+## Migration Notes
+
+We're moving our CodeStream sandbox configurations from setting configuration
+parameters via environment variables to reading them from a single configuration
+file shared by all CodeStream services (sandboxes).
+
+During the migration, you should install (or reconfigure) your sandboxes to use
+the `unified-cfg-file.sh` sandbox configuration file. Once we are satisfied
+that all configurations work with the unified config file, this will become the
+new default sandbox configuration (`default.sh`) and you'll need to reconfigure
+your sandboxes to use that.
+
+[Follow normal procedures](README.md#quick-start) to install your sandboxes but
+for now add this option when you execute the `db-sb-new-sandbox` command.
+```
+-e unified-cfg-file.sh
+```
+Or if you are reconfiguring existing sandboxes, from with a shell
+that does *NOT* have any sandboxes loaded, run:
+```
+$ dt-sb-configure -R -n <sandbox-name> -e unified-cfg-file.sh
+```
+
+### TL;DR - Initial migration steps
+1. If you're using dev_tools on your own computer, bring it up to date
+   (`dt-selfupdate -y`). Always keep your dev_tools installation updated. This
+   does not apply to our managed EC2 instances, which are kept updated
+   automatically.
+1. Update your secrets (`dt-update-secrets`).
+1. Look in your _~/.codestream/config/_ directory. You'll see a **README**
+   file with instructions for different scenarios.
+1. Update your existing sandbox configurations to use, or install new sandboxes
+   configured with, the `unified-cfg-file.sh` configuration.  Use
+   `dt-sb-new-sandbox` to install the sandboxes or `dt-sb-configure` to change
+   an existing sandbox's config.

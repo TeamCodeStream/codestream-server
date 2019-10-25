@@ -19,6 +19,15 @@ The CodeStream API Service is lovely.
 
 
 ### Quick Start
+1. If you're using dev_tools on your own computer, bring it up to date
+   (`dt-selfupdate -y`).
+1. Update your secrets (`dt-update-secrets`).
+1. Select a codestream configuration to use. This will select the out-of-the-box
+   codestream-cloud config.
+	```
+	$ cd ~/.codestream/config
+	$ echo codestream-cloud > codestream-cfg-default.local
+	```
 1. Open a new terminal window
 1. Load your dev_tools mongo sandbox if you're using one and start the mongo service.
 	```
@@ -31,7 +40,7 @@ The CodeStream API Service is lovely.
    loaded a dev_tools mongo sandbox). We're migrating to a new unified config
    file format so for now include the `-e` and `-b` options.
 	```
-	dt-sb-new-sandbox -yCD [-I] -t cs_api -n <your-api-sandbox-name> -e unified-cfg-file.sh -b config_update
+	dt-sb-new-sandbox -yCD [-I] -t cs_api -n <your-api-sandbox-name> -e unified-cfg-file.sh
 	```
 1. Load your api sandbox:
 	```
