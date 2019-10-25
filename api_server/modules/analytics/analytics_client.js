@@ -88,7 +88,9 @@ class AnalyticsClient {
 				'Team ID': team.id,
 				'Team Name': team.get('name'),
 				'Team Size': (team.get('memberIds') || []).length,
-				'Reporting Group': team.get('reportingGroup') || ''
+				'Team Created Date': new Date(team.get('createdAt')).toISOString(),
+				'Reporting Group': team.get('reportingGroup') || '',
+				'Plan': team.get('plan')
 			});
 		}
 

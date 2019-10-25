@@ -86,6 +86,8 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((properties['Team ID'] === this.team.id) || errors.push('Team ID not correct')) &&
 			((properties['Team Size'] === this.team.memberIds.length + 1) || errors.push('Team Size not correct')) &&
 			((properties['Team Name'] === this.team.name) || errors.push('Team Name not correct')) &&
+			((properties['Team Created Date'] === new Date(this.team.createdAt).toISOString()) || errors.push('Team Created Date not correct')) &&
+			((properties['Plan'] === '30DAYTRIAL') || errors.push('Plan not equal to 30DAYTRIAL')) &&
 			((properties['Provider'] === provider) || errors.push(`Provider not set to ${provider}`)) && 
 			((properties['Company Name'] === this.company.name) || errors.push('incorrect company name')) &&
 			((properties['Endpoint'] === 'Unknown IDE') || errors.push('IDE should be unknown')) &&

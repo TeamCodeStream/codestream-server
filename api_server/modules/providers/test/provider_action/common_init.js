@@ -104,6 +104,8 @@ class CommonInit {
 			'Team Name': this.team.name,
 			'Company Name': this.company.name,
 			'Team Size': 1,
+			'Team Created Date': new Date(this.team.createdAt).toISOString(),
+			'Plan': '30DAYTRIAL',
 			'Reporting Group': '',
 			Provider: 'Slack',
 			Endpoint: 'Slack',
