@@ -14,19 +14,18 @@ The CodeStream API Service is lovely.
    [here](https://github.com/teamcodestream/mongodb_tools).
 1. Make sure you can access the CodeStream network via the VPN.
 1. Review the procedure for managing the [unified config
-   file](README.unified-cfg-file.md) and set your config to
-   **local-cloud-development.json**
+   file](README.unified-cfg-file.md).
 
 
 ### Quick Start
 1. If you're using dev_tools on your own computer, bring it up to date
    (`dt-selfupdate -y`).
 1. Update your secrets (`dt-update-secrets`).
-1. Select a codestream configuration to use. This will select the out-of-the-box
-   codestream-cloud config.
+1. Select a codestream configuration to use (details documented
+   [here](README.unified-cfg-file.md)). To get up and running quickly, this will
+   select out-of-the-box 'codestream-cloud' as your configuration.
 	```
-	$ cd ~/.codestream/config
-	$ echo codestream-cloud > codestream-cfg-default.local
+	$ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
 	```
 1. Open a new terminal window
 1. Load your dev_tools mongo sandbox if you're using one and start the mongo service.

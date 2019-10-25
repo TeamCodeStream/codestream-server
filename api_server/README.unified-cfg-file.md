@@ -8,81 +8,111 @@ Because it changes over time, the schema and config files are versioned.
 
 CodeStream's server-side services can be configured in different arrangements,
 referred to as codestream configurations. The `dt-update-secrets` command
-installs two configurations for local development:
-
-| config | desc |
-| --- | --- |
-| codestream-cloud | mongo, api, mailin, mailout (lambda or vm), AWS SQS. Can be used out of the box but suppresses email by default |
-| onprem-development | mongo, api, broadcaster, rabbitMQ, mailin, mailout. Deployed as a template, must be edited |
+installs two configurations for local development. `codestream-cloud` is a ready
+to go, out-of-the-box, configuration that mimicks production with mongo, api
+(using pubnub) mailin, mailout (lambda or vm, using sendgrid) & AWS SQS services.
+`onprem-development` is a template for the arrangement we use for onprem which
+includes mongo, api (using braodcaster), mailin, mailout (using NodeMail), the
+broadcaster & rabbitMQ.
 
 You can create any configuration you want, derived from these or from scratch.
 What's important is that you know what configurations are available to you.
 
-### Common Sandbox Environment Variables
+#### The configuration file directory (~/.codestream/config)
 
-You shouldn't need to use these for local development, but you should be aware
-of them.
+Config files, templates and control files all reside in _~/.codestream/config_.
+The config files and templates are versioned so you'll see the number of files
+increase over time. You can delete the old ones but remember that if you
+checkout an old version of a sandbox, it may want a configuration file from
+days past.
 
-| Env Var | Description |
-| --- | --- |
-| CSSVC_CFG_FILE | configuration file and path |
-| CSSVC_ENV | environment (value must be consistent with configuration file value) |
-| CSSVC_CONFIGURATION | for determiniming configuration (eg. 'codestream-cloud', 'onprem-development', etc...) |
+Configuration files match the pattern
+`<configuration-name>_<env>_<version>_.json`. Templates are similarly
+named `<configuration-name>_<env>_<version>_.json.template`.
 
-### Setup your configurations and select one
+There are two special files in this directory that you will create
+and maintain. `codestream-cfg-default.local` will contain the
+name of the configuration you want to use when your sandboxes
+are loaded (eg. **codestream-cloud** or **onprem-development**).
+`codestream-cfg-update-hook` is a list of mappings that the
+`dt-update-secrets` command will use to maintain versions of your
+custom configurations over time.
+
+#### Select a configuration
+To select which configuration file your sandboxes use for local development,
+update `codestream-cfg-default.local`. This command indicates you
+want the _out-of-the-box_ `codestream-cloud` config.
+```
+$ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
+```
+
+
+### Stting up your configurations
 
 #### Out-of-the-box codestream-cloud configuration
 If you want to use the out-of-the-box **coudstream-cloud** configuration (note
-that email is suppressed in this config) install it with:
+that email is suppressed in this config), you don't have to do anything. Just
+install it with:
 ```
-$ echo codestream-cloud > codestream-cfg-default.local
+$ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
 ```
 
 #### Customized out-of-the-box codestream-cloud configuration
 If you want to customize the out-of-the-box **codestream-cloud** (or any other)
-configuration, select a new configuration name and follow these directions:
+configuration, choose a configuration name for it (_my-cs-config_ for example)
+and follow these directions:
 
-* Copy latest `codestream-cloud_local_{N}_.json` to `{custom-name}_local_{N}_.json`
+* Change to the config file directory: `cd ~/.codestream/config`
 
-* Edit `{custom-name}_local_{N}_.json` to taste
+* Copy latest `codestream-cloud_local_{N}_.json` to `my-cs-config_local_{N}_.json`
+    ```
+    $ latestFile=`ls ~/.codestream/config/codestream-cloud_local_*_.json|tail -1`
+    $ latestVersion=`basename $latestFile | cut -f3 -d_`
+    $ # remember to substitute your config name for 'my-cs-config'
+    $ cp $latestFile ~/.codestream/config/my-cs-config_local_${latestVersion}_.json
+    ```
+
+* Edit `~/.codestream/config/my-cs-config_local_${latestVersion}_.json` to taste
 
 * Register your file so an update hook will carry your changes forward when new
   versions of the config file are downloaded (`dt-update-secrets`). The update
   hook is a list of 'configuration_file -> custom_configuration_file' mappings.
   This command appends your new mapping to it.
 	```
-	$ echo "codestream-cloud:{custom-name}" >> codestream-cfg-update-hook
+	$ echo "codestream-cloud:my-cs-config" >> ~/.codestream/config/codestream-cfg-update-hook
 	```
 
-* Configure {custom-name} as your default codestream config
+* Configure my-cs-config as your default codestream config
 	```
-	$ echo {custom-name} > codestream-cfg-default.local
+	$ echo my-cs-config > ~/.codestream/config/codestream-cfg-default.local
 	```
 
 #### Customize the onprem-development configuration template
 
 If you want to use the **onprem-development** cloud configuration:
 
+* Change to the config file directory: `cd ~/.codestream/config`
+
 * Copy the latest `onprem-development_local_{N}_.json.template` to
   `onprem-development_local_{N}_.json`
+    ```
+    $ latestFile=`ls ~/.codestream/config/onprem-development_local_*_.json.template|tail -1`
+    $ latestVersion=`basename $latestFile | cut -f3 -d_`
+    $ cp $latestFile ~/.codestream/config/onprem-development_local_${latestVersion}_.json
+    ```
 
-* Edit the `onprem-development_local_{N}_.json` to taste
+* Edit the `~/.codestream/config/onprem-development_local_${latestVersion}_.json` to taste
 
 * Add the file to a hook that carries your changes forward when the config file
   is updated. The update hook is a list of configurations, not just one.
 	```
-	$ echo onprem-development:onprem-development >> codestream-cfg-update-hook
+	$ echo onprem-development:onprem-development >> ~/.codestream/config/codestream-cfg-update-hook
 	```
 
 * Configure onprem-development as your default codestream config
 	```
-	$ echo onprem-development > codestream-cfg-default.local
+	$ echo onprem-development > ~/.codestream/config/codestream-cfg-default.local
 	```
-
-### Change your configuration:
-To change which configuration file your sandboxes use:
-
-	   $ echo {configuration-name} > codestream-cfg-default.local
 
 ### Managing the Configuration Files
 1. Look in your **~/.codestream/config/** directory. You'll find config files
@@ -162,7 +192,7 @@ schema (in
 This number must be bumped each time the schema is updated.
 
 When config files are deployed, they are deployed as
-`config-file-name_<env>_<version>_.json`. WHen a sandbox is loaded, it will
+`<configuration-name>_<env>_<version>_.json`. WHen a sandbox is loaded, it will
 locate the most recent config file for the sandbox's environment on the system
 whose version is `<=` the schema version of the sandbox.
 
@@ -172,6 +202,18 @@ codestream-config_qa_3_.json       # app schema 3 thru 5
 codestream-config_qa_6_.json       # app schema 6
 codestream-config_qa_7_.json       # app schema 7 and greater
 ```
+
+### Common Sandbox Environment Variables
+
+You shouldn't need to use these for local development, but you should be aware
+of them.
+
+| Env Var | Description |
+| --- | --- |
+| CSSVC_CFG_FILE | configuration file and path |
+| CSSVC_ENV | environment (value must be consistent with configuration file value) |
+| CSSVC_CONFIGURATION | for determiniming configuration (eg. 'codestream-cloud', 'onprem-development', etc...) |
+
 
 ## Migration Notes
 
