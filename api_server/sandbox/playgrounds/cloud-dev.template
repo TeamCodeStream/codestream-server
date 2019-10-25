@@ -9,7 +9,7 @@
 # node_modules/.bin/ from whichever node-based sandbox
 # was loaded last.
 
-#playgroundName# cloud-dev
+#playgroundName# cs
 #sandboxTypes# mongo,cs_api,cs_mailout,cs_mailin
 #sandboxes# {{SBNAME_mongo}},{{SBNAME_cs_api}},{{SBNAME_cs_mailout}},{{SBNAME_cs_mailin}}
 #environment# local
