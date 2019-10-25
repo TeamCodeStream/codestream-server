@@ -112,7 +112,7 @@ class CommonInit {
 			Object.assign(properties, {
 				'$email': this.user.email,
 				'Join Method': 'Created Team',
-				'$createdAt': new Date(this.user.registeredAt).toISOString()
+				'$created': new Date(this.user.registeredAt).toISOString()
 			});
 		}
 

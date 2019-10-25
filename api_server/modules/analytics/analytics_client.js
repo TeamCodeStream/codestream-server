@@ -75,7 +75,7 @@ class AnalyticsClient {
 				'Join Method': user.get('joinMethod')
 			});
 			if (user.get('registeredAt')) {
-				trackObject['$createdAt'] = new Date(user.get('registeredAt')).toISOString();
+				trackObject['$created'] = new Date(user.get('registeredAt')).toISOString();
 			}
 			if (user.get('lastPostCreatedAt')) {
 				trackObject['Date of Last Post'] = new Date(user.get('lastPostCreatedAt')).toISOString();

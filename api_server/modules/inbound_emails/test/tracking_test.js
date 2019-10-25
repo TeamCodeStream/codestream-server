@@ -95,7 +95,7 @@ class TrackingTest extends InboundEmailMessageTest {
 			((properties['Company Name'] === this.company.name) || errors.push('Company Name does not match name of company')) &&
 			((properties.Endpoint === 'Email') || errors.push('Endpoint not correct')) &&
 			((properties['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct')) &&
-			((properties['$createdAt'] === new Date(this.users[1].user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
+			((properties['$created'] === new Date(this.users[1].user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
 			((properties['First Post?'] === new Date(this.post.createdAt).toISOString()) || errors.push('First Post not set to creation date of post')) &&
 			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string'))
 		);
