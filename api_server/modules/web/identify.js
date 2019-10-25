@@ -13,6 +13,9 @@ module.exports = function(options) {
 	const teamId = team && team.id;
 	const teamName = team && team.get('name');
 	const teamSize = team && team.get('memberIds').length;
+	const teamCreatedAt = team && new Date(team.get('createdAt')).toISOString();
+	const teamPlan = team && team.get('plan');
+	const reportingGroup = team && team.get('reportingGroup');
 	const companyName = company && company.get('name');
 
 	const props = {
@@ -26,6 +29,9 @@ module.exports = function(options) {
 		teamId,
 		teamName,
 		teamSize,
+		teamCreatedAt,
+		teamPlan,
+		reportingGroup,
 		companyName
 	};
 	return module.evalTemplateNoSend('identify_script', props);
