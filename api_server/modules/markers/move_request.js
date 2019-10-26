@@ -20,25 +20,10 @@ class MoveRequest extends RestfulRequest {
 
 	// process the request...
 	async process () {
-		await this.requireAndAllow();	// require certain parameters, discard unknown ones
 		await this.getTeamRepos();		// get all the repos for a team, required for marker creation
 		await this.createNewMarker();	// create a new marker, this supersedes the previous marker
 		await this.updateMarker();		// update the superseded marker with the new marker
 		await this.updateCodemark();	// update the markers pointed to by the codemark
-	}
-
-	// require certain parameters, and discard unknown parameters
-	async requireAndAllow () {
-		if (!this.request.body.location) {
-			throw this.errorHandler.error('parameterRequired', { info: 'location' });
-		}
-		const result = MarkerCreator.validateLocation(this.request.body.location);
-		if (result) {
-			throw this.errorHandler.error('validation', { info: `invalid location: ${result} ` });
-		}
-		if (!this.request.body.code) {
-			throw this.errorHandler.error('parameterRequired', { info: 'code' });
-		}
 	}
 
 	// get all the repos known to this team, we'll try to match the repo that any

@@ -32,6 +32,21 @@ class CommonInit {
 	// form the data for the marker update
 	makeMarkerData (callback) {
 		this.data = this.markerFactory.getRandomMarkerData();
+		this.data.referenceLocations = [
+			{
+				commitHash: this.data.commitHash,
+				location: this.data.location
+			},
+			{
+				commitHash: this.markerFactory.randomCommitHash(),
+				location: this.markerFactory.randomLocation()
+			},
+			{
+				commitHash: this.markerFactory.randomCommitHash(),
+				location: this.markerFactory.randomLocation()
+			}
+		];
+		delete this.data.location;
 		Object.assign(this.data, {
 			file: this.streamFactory.randomFile(),
 			remotes: [this.repoFactory.randomUrl()]

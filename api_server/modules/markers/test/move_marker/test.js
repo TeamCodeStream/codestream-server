@@ -28,7 +28,7 @@ class MoveRequestTester {
 		new ACLTest().test();
 		new MarkerNotFoundTest().test();
 		new ParameterRequiredTest({ parameter: 'code' }).test();
-		new ParameterRequiredTest({ parameter: 'location' }).test();
+		//new ParameterRequiredTest({ parameter: 'location' }).test();
 		new CommitHashRequiredTest().test();
 		new InvalidLocation().test();
 		new NoSetAttributeTest({ attribute: 'teamId' }).test();

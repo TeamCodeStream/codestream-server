@@ -19,7 +19,7 @@ class InvalidLocationTest extends MoveTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.location = 'x';
+			this.data.referenceLocations[0].location = 'x';
 			callback();
 		});
 	}

@@ -83,11 +83,12 @@ class MoveTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			code: this.data.code,
 			postStreamId: this.marker.postStreamId,
 			postId: this.marker.postId,
-			locationWhenCreated: this.data.location,
-			referenceLocations: [{
-				commitHash: this.data.commitHash.toLowerCase(),
-				location: this.data.location
-			}],
+			referenceLocations: this.data.referenceLocations.map(referenceLocation => {
+				return {
+					commitHash: referenceLocation.commitHash.toLowerCase(),
+					location: referenceLocation.location
+				};
+			}),
 			supersedesMarkerId: this.marker.id
 		};
 	}
@@ -134,14 +135,32 @@ class MoveTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	getExpectedMarkerLocations (data) {
 		const createdMarker = data.markers[0];
-		return [{
-			teamId: this.team.id,
-			streamId: createdMarker.fileStreamId,
-			commitHash: this.data.commitHash.toLowerCase(),
-			locations: {
-				[createdMarker.id]: [ ...this.data.location ]
+		return [
+			{
+				teamId: this.team.id,
+				streamId: createdMarker.fileStreamId,
+				commitHash: this.data.referenceLocations[0].commitHash.toLowerCase(),
+				locations: {
+					[createdMarker.id]: [ ...this.data.referenceLocations[0].location ]
+				}
+			},
+			{
+				teamId: this.team.id,
+				streamId: createdMarker.fileStreamId,
+				commitHash: this.data.referenceLocations[1].commitHash.toLowerCase(),
+				locations: {
+					[createdMarker.id]: [ ...this.data.referenceLocations[1].location ]
+				}
+			},
+			{
+				teamId: this.team.id,
+				streamId: createdMarker.fileStreamId,
+				commitHash: this.data.referenceLocations[2].commitHash.toLowerCase(),
+				locations: {
+					[createdMarker.id]: [ ...this.data.referenceLocations[2].location ]
+				}
 			}
-		}];
+		];
 	}
 }
 
