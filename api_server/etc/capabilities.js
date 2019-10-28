@@ -12,5 +12,9 @@ module.exports = {
 	'moveMarkers': {
 		description: 'Ability to change the location of code blocks pointed to by codemarks',
 		version: '1.21.20'
+	},
+	'moveMarkers2': {
+		description: 'Ability to change the location of code blocks pointed to by codemarks, with essential API server fix',
+		version: '1.21.23'
 	}
 };
