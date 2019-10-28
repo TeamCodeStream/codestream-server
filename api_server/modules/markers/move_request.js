@@ -7,6 +7,7 @@ const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restf
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
+const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
 
 class MoveRequest extends RestfulRequest {
 
@@ -37,6 +38,11 @@ class MoveRequest extends RestfulRequest {
 				hint: RepoIndexes.byTeamId 
 			}
 		);
+		this.repoMatcher = new RepoMatcher({
+			request: this,
+			teamId: this.marker.get('teamId'),
+			teamRepos: this.teamRepo
+		});
 	}
 
 	// moving a marker actually entails creating a new one, and then referencing the old one
@@ -58,7 +64,8 @@ class MoveRequest extends RestfulRequest {
 			request: this,
 			supersedesMarkerId: this.marker.id,
 			codemarkId: this.marker.get('codemarkId'),
-			teamRepos: this.teamRepos
+			teamRepos: this.teamRepos,
+			repoMatcher: this.repoMatcher
 		}).createMarker(markerInfo);
 	}
 

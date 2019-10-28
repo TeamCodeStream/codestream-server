@@ -6,6 +6,7 @@
 /* globals describe */
 
 const ReposRequestTester = require('./repos_request_tester');
+const MatchReposRequestTester = require('./match_repos/test');
 
 const reposRequestTester = new ReposRequestTester();
 
@@ -16,4 +17,5 @@ describe('repo requests', function() {
 	describe('GET /repos/:id', reposRequestTester.getRepoTest);
 	describe('GET /repos', reposRequestTester.getReposTest);
 	describe('url normalizer', require('./normalize_url/test'));
+	describe('PUT /repos/match/:teamId', MatchReposRequestTester.test);
 });

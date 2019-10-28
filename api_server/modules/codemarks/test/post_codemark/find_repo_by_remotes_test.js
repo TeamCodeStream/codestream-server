@@ -22,7 +22,7 @@ class FindRepoByRemotesTest extends MarkerStreamOnTheFlyTest {
 	}
 
 	get description () {
-		return 'should return a valid post and match with the appropriate repo when creating a post and codemark with a marker and specifying remotes';
+		return 'should return a valid codemark and match with the appropriate repo when creating a codemark with a marker and specifying remotes';
 	}
 }
 

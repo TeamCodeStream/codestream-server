@@ -307,7 +307,7 @@ class DataCollection {
 		);
 		const model = this.models[id];
 		if (model) {
-			ModelOps.applyOp(model, updateOp);		
+			ModelOps.applyOp(model, updateOp);	
 		}
 		delete this.modelOps[id];	// we've applied the ops, no longer needed
 	}

@@ -19,13 +19,20 @@ class DataCollectionFetcher {
 	}
 
 	// get several documents according to their IDs
-	async getByIds (ids, options) {
+	async getByIds (ids, options = {}) {
 		this.options = Object.assign({}, options || {}, { requestId: this.requestId });	// these options go to the database layer
 		this.ids = ids;
-		await this.getFromCache();
+		if (!options.ignoreCache) {
+			await this.getFromCache();
+		}
+		else {
+			this.notFound = [...ids];
+		}
 		await this.fetch();
 		await this.modelize();
-		await this.add();
+		if (!options.noCache) {
+			await this.add();
+		}
 		const models = [...(this.cachedModels || []), ...(this.fetchedModels || [])]; // combine cached and fetched models to return
 		if (this.options.sortInOrder) {
 			return this.sortByIds(ids, models);

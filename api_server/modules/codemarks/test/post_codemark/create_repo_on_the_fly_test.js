@@ -15,7 +15,7 @@ class CreateRepoOnTheFlyTest extends MarkerStreamOnTheFlyTest {
 	}
 
 	get description () {
-		return 'should return a valid post and create a repo on the fly when creating a post and codemark with a marker and specifying remotes that do not match an existing repo';
+		return 'should return a valid codemark and create a repo on the fly when creating a codemark with a marker and specifying remotes that do not match an existing repo';
 	}
 }
 

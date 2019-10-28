@@ -19,6 +19,11 @@ const REPOS_STANDARD_ROUTES = {
 
 // expose additional routes
 const REPOS_ADDITIONAL_ROUTES = [
+	{
+		method: 'put',
+		path: 'repos/match/:teamId',
+		requestClass: require('./match_repos_request')
+	}
 ];
 
 class Repos extends Restful {

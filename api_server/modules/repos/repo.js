@@ -41,7 +41,8 @@ class Repo extends CodeStreamModel {
 		// match on either the old single url, or on the new-style multiple remotes
 		const myRemotes = this.getRemotes();
 		// we match if any of our remotes match any of the passed remotes
-		return ArrayUtilities.intersection(myRemotes, remotes).length > 0;
+		const i = ArrayUtilities.intersection(myRemotes, remotes).length > 0;
+		return i;
 	}
 
 	getRemotes () {

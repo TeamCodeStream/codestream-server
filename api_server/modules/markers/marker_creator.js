@@ -5,11 +5,7 @@
 const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 const Marker = require('./marker');
 const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
-const RepoCreator = require(process.env.CS_API_TOP + '/modules/repos/repo_creator');
 const StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
-const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class MarkerCreator extends ModelCreator {
 
@@ -241,7 +237,13 @@ class MarkerCreator extends ModelCreator {
 			await this.getRepo();
 		}
 		else if (this.attributes.remotes || this.attributes.knownCommitHashes) {
-			await this.findMatchingRepoOrCreate();
+			if (!this.repoMatcher) {
+				throw 'must provider a repoMatcher if there are markers with no repoId';
+			}
+			this.repo = await this.repoMatcher.findOrCreateRepo({
+				remotes: this.attributes.remotes,
+				knownCommitHashes: this.attributes.knownCommitHashes
+			});
 			if (this.repo) {
 				this.attributes.repoId = this.repo.id;
 			}
@@ -275,115 +277,8 @@ class MarkerCreator extends ModelCreator {
 		}
 
 		if (this.attributes.remotes || this.attributes.knownCommitHashes) {
-			await this.updateRepoWithNewInfo(this.repo, this.attributes.remotes, this.attributes.knownCommitHashes);
+			await this.repoMatcher.updateRepoWithNewInfo(this.repo, this.attributes.remotes, this.attributes.knownCommitHashes);
 		}
-	}
-
-	// given a set of remotes in the given marker attributes, and/or known commit hashes,
-	// try to find a repo owned by the team that matches, and if no match is found, create a new repo
-	async findMatchingRepoOrCreate () {
-		const matchingRepos = this.teamRepos.filter(repo => {
-			return (
-				(this.attributes.remotes && repo.matchesRemotes(this.attributes.remotes)) ||
-				(this.attributes.knownCommitHashes && repo.haveKnownCommitHashes(this.attributes.knownCommitHashes))
-			);
-		});
-		if (matchingRepos.length === 0) {
-			if (this.attributes.remotes) {
-				await this.createRepo();
-			}
-		}
-		else {
-			this.repo = matchingRepos[0];
-			if (matchingRepos.length === 1) {
-				await this.updateRepoWithNewInfo(this.repo, this.attributes.remotes, this.attributes.knownCommitHashes);
-			}
-		}
-	}
-
-	// if we found a matching repo for the remotes or commit hashes passed in, check to see if all
-	// the remotes passed in are known for this repo; if not, update the repo with
-	// any unknown remotes
-	async updateRepoWithNewInfo (repo, remotes, knownCommitHashes) {
-		const updateRepoInfo = this.getUpdateRepoInfo(repo, remotes, knownCommitHashes);
-		const { newRemotes, newCommitHashes, existingRepoUpdateOp } = updateRepoInfo;
-		if (newRemotes.length === 0 && newCommitHashes.length === 0) {
-			return;
-		}
-
-		// now we have a definitive list of remotes and/or commit hashes to add to the repo
-		const remotesToPush = newRemotes.map(remote => {
-			return {
-				url: remote,
-				normalizedUrl: remote,
-				companyIdentifier: ExtractCompanyIdentifier.getCompanyIdentifier(remote)
-			};
-		});
-		const op = existingRepoUpdateOp || {
-			$set: {
-				modifiedAt: Date.now()
-			}
-		};
-		if (remotesToPush.length > 0) {
-			op.$push = op.$push || {};
-			op.$push.remotes = op.$push.remotes || [];
-			op.$push.remotes = [...op.$push.remotes, ...remotesToPush];
-		}
-		if (newCommitHashes.length > 0) {
-			op.$addToSet = op.$addToSet || {};
-			op.$addToSet.knownCommitHashes = op.$addToSet.knownCommitHashes || [];
-			op.$addToSet.knownCommitHashes = [...op.$addToSet.knownCommitHashes, ...newCommitHashes];
-		}
-
-		if (!existingRepoUpdateOp) {
-			const repoUpdateOp = await new ModelSaver({
-				request: this.request,
-				collection: this.request.data.repos,
-				id: repo.id
-			}).save(op);
-			this.transforms.repoUpdates = this.transforms.repoUpdates || [];
-			this.transforms.repoUpdates.push(repoUpdateOp);
-		}
-	}
-
-	getUpdateRepoInfo (repo, remotes, knownCommitHashes) {
-		// compare the existing repo's remotes and known commit hashes with those associated with the new marker
-		const repoRemotes = repo.getRemotes() || [];
-		const alreadyKnownCommitHashes = repo.get('knownCommitHashes') || [];
-		const existingRepoUpdateOp = (this.transforms.repoUpdates || []).find(repoUpdate => repoUpdate.id === repo.id);
-		let newRemotes = ArrayUtilities.difference(remotes || [], repoRemotes);
-		let newCommitHashes = ArrayUtilities.difference(knownCommitHashes || [], alreadyKnownCommitHashes);
-
-		// first see if we've already seen these same remotes and commit hashes, in the case of multiple markers
-		if (existingRepoUpdateOp) {
-			if (existingRepoUpdateOp.$push && existingRepoUpdateOp.$push.remotes) {
-				const remotesAlreadyBeingUpdated = existingRepoUpdateOp.$push.remotes.map(r => r.normalizedUrl);
-				newRemotes = ArrayUtilities.difference(newRemotes, remotesAlreadyBeingUpdated);
-			}
-			if (existingRepoUpdateOp.$addToSet && existingRepoUpdateOp.$addToSet.knownCommitHashes) {
-				newCommitHashes = ArrayUtilities.difference(newCommitHashes, existingRepoUpdateOp.$addToSet.knownCommitHashes);
-			}
-		}
-		return { newRemotes, newCommitHashes, existingRepoUpdateOp };
-	}
-
-	// create a new repo with the given remotes
-	async createRepo () {
-		const repoInfo = {
-			teamId: this.team.id
-		};
-		if (this.attributes.remotes) {
-			repoInfo.remotes = this.attributes.remotes;
-		}
-		if (this.attributes.knownCommitHashes) {
-			repoInfo.knownCommitHashes = this.attributes.knownCommitHashes;
-		}
-		this.repo = await new RepoCreator({
-			request: this.request
-		}).createRepo(repoInfo);
-		this.transforms.createdRepos = this.transforms.createdRepos || [];
-		this.transforms.createdRepos.push(this.repo);
-		this.teamRepos.push(this.repo);
 	}
 
 	// get the file stream for which the marker is being created
