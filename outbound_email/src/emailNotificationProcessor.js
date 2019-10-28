@@ -261,6 +261,8 @@ class EmailNotificationProcessor {
 			return;
 		}
 		this.markers = await this.data.markers.getByIds(markerIds);
+		this.markers = this.markers.filter(marker => !marker.get('supersededByMarkerId'));
+		return this.markers;
 	}
 
 	// characterize the posts we have by determining whether we have multiple authors represented, 
