@@ -10,7 +10,7 @@
 	"apiServer": {
 		"defaultEnv": {
 			"assetEnvironment": "onprem",
-			"authOrigin": "https://my-codestream-proxy.my-company.com/no-auth",
+			"authOrigin": "https://{{FQHN}}/no-auth",
 			"callbackEnvironment": "onprem",
 			"dontWantAWS": true,
 			"logger": {
