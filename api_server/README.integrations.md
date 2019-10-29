@@ -1,5 +1,8 @@
 # Integrations
 
+A good read on OAuth 2: https://aaronparecki.com/oauth-2-simplified/
+
+
 ### Scenario: Slack Authentication
 
 1. clientIDE: Generates a signup token (unique code), constructs a request to
@@ -37,9 +40,9 @@
 9. Finally, the API sends a redirect back to the clientBrowser to a page that
    says **All Set**.
 
-10. All the while, the clientIDE has been polling the API waiting for auth
-    approval and the **slack access token**. Once step 8 complets, the request
-    returns the **slack access token** and the process is complete.
-
+10. All the while, the clientIDE has been polling the API using the signup token
+    generated in step 1, and waiting for auth approval and the **slack access
+    token**. Once step 8 complets, the clientIDE polling request returns the
+    **slack access token** and the process is complete.
 
 
