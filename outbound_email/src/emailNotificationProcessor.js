@@ -261,7 +261,7 @@ class EmailNotificationProcessor {
 			return;
 		}
 		this.markers = await this.data.markers.getByIds(markerIds);
-		this.markers = this.markers.filter(marker => !marker.get('supersededByMarkerId'));
+		this.markers = this.markers.filter(marker => !marker.supersededByMarkerId);
 		return this.markers;
 	}
 
