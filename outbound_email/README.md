@@ -1,50 +1,57 @@
 
 # Outbound Email Service
 
-This service generation and sending of outbound emails. It is meant to be run using
-the AWS Lambda service. This service is triggered by SQS events.
+The outbound email service de-queues requests made by the API and sends email
+notifications.
 
-## Installation
-Many of the build, setup and tear down functions depend on the
-[dev_tools](https://github.com/teamcodestream/dev_tools) toolkit so it's
-strongly advised you install it as a prerequisite.
+* It can be installed as either a lambda function or sandbox
+* It can send email using the [sendgrid](https://sendgrid.com) service or the
+  [NodeMailer](https://www.npmjs.com/package/nodemailer) npm module.
+* It supports [AWS SQS](https://aws.amazon.com/sqs/) and
+  [RabbitMQ](https://www.rabbitmq.com).
 
-You can run this service directly via node using the `cs_outbound_email-service`
-script to control it, or it can run as an AWS Lambda function (instructions
-below).
 
-If running as a lambda function in development, your VPN connection must be up
-as the service connects directly to mongo.
-
-### Local Sandbox
-#### With dev_tools
-If you are using the dev_tools toolkit, install the sandbox with this command. Once
-you do, it's recommended that you copy the playground template file to your **$DT_PLAYGROUNDS**
-directory and edit it accordingly.
-```
-$ dt-new-sandbox -yCD -t cs_mailout -n $sandbox_name
-$ dt-load $sandbox_name
-$ cp $CS_OUTBOUND_EMAIL_TOP/sandbox/playground.template $DT_PLAYGROUNDS/$playground_name
-```
-#### Without dev_tools
-You're on your own to supply node & npm. Recommended versions are node 10.15.3 and npm 6.4.1.
-You're also on your own to setup your shell's environment.
-1. `$ git clone git@github.com:teamcodestream/outbound_email`
-1. `$ cd outbound_email && npm install --no-save`
-1. Use **sandbox/defaults.sh** as a guide for setting up your environment variables.
-
+## Prerequisites
+1. Install the dev_tools tookkit
+   [here](https://github.com/teamcodestream/dev_tools).
+1. Make sure you can access the CodeStream network via the VPN.
+1. Review how we manage our [server
+   configurations](https://github.com/TeamCodeStream/api_server/blob/develop/README.unified-cfg-file.md).
+1. Make sure your API and mongo sandboxes are running on their default
+   development ports.
 
 ## Quick Start
-1. Make sure your API and mongo sandboxes are running on their default ports.
-   The API service will create the outbound SQS mail queue so you must run it
-   before you install the lambda trigger.
+1. The default configuration will use AWS SQS, sendgrid and run as as node
+   sandbox.
+1. Choose a _sandbox name_ (for exmaple, **mailout**) and install the sandbox:
+    ```
+    $ dt-new-sandbox -yCD -t cs_mailout -n mailout
+    ```
+1. Load your sandbox
+    ```
+    $ dt-load mailout
+    ```
+1. Create a playground named **mailout** (different than the sandbox):
+    ```
+    $ dt-sb-create-playground -t $CS_OUTBOUND_EMAIL_TOP/sandbox/playgrounds/default.template
+    ```
+1. Kill your shell and start a new one. Load your playground and start up your service
+    ```
+    $ dt-load-playground mailout
+    $ cs_outbound_email-service start
+    ```
+1. To start in the foreground without clustering:
+    ```
+    $ $CS_OUTBOUND_EMAIL_TOP/bin/outbound_email_server.js --one_worker
+    ```
 
-1. If you want to run the outbound email service locally as a node process,
-   start it up with `cs_outbound_email-service start`
+## Running as a lambda function
 
-1. If you want to run it as a lambda function, make sure your VPN is up (the
-   lambda function will need to connect to mongo running on your computer), then
-   pack the outgoing mail sandbox and install the lambda function and sqs trigger.
+If you run the service as a lambda function, _**make sure your VPN is up**_.
+The lambda function needs to connect to your mongo db.
+
+Execute these commands in your sandbox to install a lambda function
+called **local_{DT_USER}_outboundEmail**.
 ```
 $ . sandbox/lambda-configs/lambda-defaults.sh   # prepare sandbox for lambda deployment
 $ npm run pack                # zip the sandbox & config to out/outbound-email.zip
@@ -52,7 +59,8 @@ $ npm run lambda:config       # create the lambda function config file in out/ou
 $ npm run lambda:install      # create the lambda function and sqs trigger
 ```
 
-## Development Lifecycle
+### Development Lifecycle with Lambda
+
 As the outbound_email sandbox will change over time, as may your VPN connection, it is not
 wise to keep your lambda development function up and running indefinitely. It will eventually
 stop working properly and costs money. So when you're done doing your scope of work,
