@@ -25,6 +25,14 @@ class SimpleFileLogger {
 		else {
 			this.retentionPeriod = this.retentionPeriod || (7 * 24 * 60 * 60 * 1000); // one week by default
 		}
+
+		// For json logging:
+		//     globalLogProperties persist for the life of the logger object (same for all log records)
+		//     defaultLogProperties are standard fields included in all log records
+		//     customLogProperties are passed in when sending individual log events
+		this.logJson = options.logJsonToo || process.env.SIMPLE_FILE_LOGGER_JSON_TOO || false;
+		this.globalLogProperties = options.globalLogProperties || {};
+
 		// the log files will have a date stamp associated with them, but there will
 		// always be "today's" log file with no date stamp, it is a symbolic link to the log file for today
 		this.linkName = this.getLinkName();
@@ -48,6 +56,14 @@ class SimpleFileLogger {
 		}
 		catch (error) {
 			throw `unable to open log file ${this.currentFilename}: ${error}`;
+		}
+		if (this.logJson) {
+			try {
+				this.fdJson = FS.createWriteStream(this.currentFilename + '.json', { flags: 'a' });
+			}
+			catch (error) {
+				throw `unable to open log file ${this.currentFilename}.json: ${error}`;
+			}
 		}
 		this.lastWritten = now;
 	}
@@ -78,49 +94,76 @@ class SimpleFileLogger {
 		);
 	}
 
-	// log something, with an optional request ID
-	async log (text, requestId) {
+	_severityFormat(text, severity) {
+		// pretty colors...
+		if (severity == 'critial') {
+			return '\x1b[35mCRITICAL: ' + text + '\x1b[0m';
+		}
+		if (severity == 'error') {
+			return '\x1b[31mERROR: ' + text + '\x1b[0m';
+		}
+		if (severity == 'warn') {
+			return '\x1b[33mWARNING: ' + text + '\x1b[0m';
+		}
+		if (severity == 'debug') {
+			return '\x1b[36mDEBUG: ' + text + '\x1b[0m';
+		}
+		// ...or not
+		return text;
+	}
+
+	// log something, with an optional request ID, severity (default is 'info')
+	// and custom log properties for json log format only
+	async log (text, requestId, severity, customLogProperties) {
 		// the first logged message triggers initialization
 		if (!this.startedOn) {
 			await this.initialize();
-			this.logAfterInitialized(text, requestId);
+			this.logAfterInitialized(text, requestId, severity, customLogProperties);
 		}
 		else {
-			this.logAfterInitialized(text, requestId);
+			this.logAfterInitialized(text, requestId, severity, customLogProperties);
 		}
 	}
 
-	critical (text, requestId) {
-		this.log('\x1b[35mCRITICAL: ' + text + '\x1b[0m', requestId);
+	critical(text, requestId, customLogProperties) {
+		this.log(text, requestId, 'critical', customLogProperties);
 	}
 
-	error (text, requestId) {
-		this.log('\x1b[31mERROR: ' + text + '\x1b[0m', requestId);
+	error(text, requestId, customLogProperties) {
+		this.log(text, requestId, 'error', customLogProperties);
 	}
 
-	warn (text, requestId) {
-		this.log('\x1b[33mWARNING: ' + text + '\x1b[0m', requestId);
+	warn(text, requestId, customLogProperties) {
+		this.log(text, requestId, 'warn', customLogProperties);
 	}
 
-	debug (text, requestId) {
+	debug(text, requestId, customLogProperties) {
 		if (this.debugOk) {
-			this.log('\x1b[36mDEBUG: ' +  text + '\x1b[0m', requestId);
+			this.log(text, requestId, 'debug', customLogProperties);
 		}
 	}
 
 	// after initialization, we're assured of a log file to write to
-	async logAfterInitialized (text, requestId) {
+	async logAfterInitialized(text, requestId, severity, customLogProperties) {
 		// check if we've reached the threshold time (midnight) and rotate as needed
 		await this.maybeRotate();
 		// and now finally, we can output our text
-		this.out(text, requestId);
+		this.out(text, requestId, severity, customLogProperties);
 	}
 
-	// output text to the current log file
-	out (text, requestId) {
+	// output text to the current log file(s)
+	out(unformattedText, requestId, severity = 'info', customLogProperties = {}) {
 		const now = Date.now() + this.timezoneOffset;
 		const date = new Date(now);
 		let fullText = Strftime('%Y-%m-%d %H:%M:%S.%LZ', date);
+		const text = this._severityFormat(unformattedText, severity);
+		const defaultLogProperties = {
+			datetime: fullText,
+			severity: severity,
+			requestId: requestId || this.requestId,
+			loggerId: this.loggerId,
+			text: unformattedText
+		};
 		if (this.loggerId) {
 			fullText += ' ' + this.loggerId;
 		}
@@ -135,6 +178,18 @@ class SimpleFileLogger {
 		if (this.consoleOk) {
 			// we can also output to the console
 			console.log(fullText); // eslint-disable-line no-console
+		}
+
+		if (this.fdJson) {
+			// write our json log record
+			let logData = {
+				...defaultLogProperties,
+				...this.globalLogProperties,
+				...customLogProperties
+			};
+			// this sort only supports a flat structure; all values are scalars; no nested data.
+			// https://stackoverflow.com/questions/16167581/sort-object-properties-and-json-stringify
+			this.fdJson.write(JSON.stringify(logData, Object.keys(logData).sort()) + '\n', 'utf8');
 		}
 		this.lastWritten = Date.now();
 	}
@@ -162,7 +217,13 @@ class SimpleFileLogger {
 		if (this.fd) {
 			this.fd.end();
 		}
+		if (this.fdJson) {
+			this.fdJson.end();
+		}
 		this.fd = null;
+		if (this.logJson) {
+			this.fdJson = null;
+		}
 		await this.openNextLogFile(); 	// open the next one
 		await this.removeOldLink();		// remove the link to the last one
 		await this.makeNewLink();		// make a link to the new one
@@ -176,6 +237,12 @@ class SimpleFileLogger {
 				FS.unlink,
 				this.linkName
 			);
+			if (this.logJson) {
+				await callbackWrap(
+					FS.unlink,
+					this.linkName + '.json'
+				);
+			}
 		}
 		catch (error) {
 			if (error.code !== 'ENOENT') {
@@ -192,6 +259,13 @@ class SimpleFileLogger {
 				this.currentFilename,
 				this.linkName
 			);
+			if (this.logJson) {
+				await callbackWrap(
+					FS.link,
+					this.currentFilename + '.json',
+					this.linkName + '.json'
+				);
+			}
 		}
 		catch (error) {
 			if (error.code !== 'EEXIST') {
@@ -219,6 +293,9 @@ class SimpleFileLogger {
 		const filename = this.getLogFileName(day);
 		try {
 			await callbackWrap(FS.unlink, filename);
+			if (this.logJson) {
+				await callbackWrap(FS.unlink, filename + '.json');
+			}
 		}
 		catch (error) {
 			if (error.code !== 'ENOENT') {
