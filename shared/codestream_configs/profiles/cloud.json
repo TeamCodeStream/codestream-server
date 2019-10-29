@@ -262,7 +262,12 @@
 		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
-			"runTimeEnvironment": "${CSSVC_ENV}"
+			"runTimeEnvironment": "${CSSVC_ENV}",
+			"storage": {
+				"mongo": {
+					"url": "mongodb://${CSSVC_ENV}-api.codestream.us/codestream"
+				}
+			}
 		},
 		"local": {},
 		"pd": {
