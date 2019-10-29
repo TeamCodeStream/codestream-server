@@ -14,6 +14,10 @@ if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	ShowCfg = CfgData.getProperty('apiServer.showConfig');
 	LoggerCfg = CfgData.getSection('apiServer.logger');
+	LoggerCfg.globalLogProperties = {
+		environment: CfgData.getProperty('apiServer.runTimeEnvironment'),
+		service: 'api'
+	};
 }
 else {
 	LoggerCfg.directory = process.env.CS_API_LOGS;            // put log files in this directory
