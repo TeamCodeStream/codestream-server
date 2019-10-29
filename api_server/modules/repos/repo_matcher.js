@@ -36,10 +36,10 @@ class RepoMatcher {
 			throw this.errorHandler.error('invalidParameter', { info: 'knownCommitHashes must be an array' });
 		}
 
-		const remotes = repoInfo.remotes
+		const remotes = (repoInfo.remotes || [])
 			.filter(remote => typeof remote === 'string')
 			.map(remote => NormalizeURL(remote));
-		const knownCommitHashes = repoInfo.knownCommitHashes
+		const knownCommitHashes = (repoInfo.knownCommitHashes || [])
 			.filter(commitHash => typeof commitHash === 'string')
 			.map(commitHash => commitHash.toLowerCase());
 		const matchingRepos = this.teamRepos.filter(repo => {
