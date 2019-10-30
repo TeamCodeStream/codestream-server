@@ -3,9 +3,8 @@ const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 const ObjectID = require('mongodb').ObjectID;
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
-const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
 
-const COLLECTIONS = ['companies', 'teams', 'repos', 'users', 'streams', 'posts', 'markers', 'markerLocations'];
+const COLLECTIONS = ['companies', 'teams', 'repos', 'users', 'streams', 'posts', 'codemarks', 'markers', 'markerLocations'];
 
 
 class Deleter {
@@ -16,14 +15,13 @@ class Deleter {
 		await this.openMongoClient();
 		await this.getTargetObject();
 		await this.getUsers();
-		await this.getRepos();
-		await this.getStreams();
 		await this.deleteRepos();
 		await this.deleteTeam();
 		await this.deleteCompany();
 		await this.deleteUsers();
 		await this.deleteStreams();
 		await this.deletePosts();
+		await this.deleteCodemarks();
 		await this.deleteMarkers();
 		await this.deleteMarkerLocations();
 	}
@@ -44,14 +42,11 @@ class Deleter {
 		if (this.teamIdOrName) {
 			await this.getTeam();
 		}
-		else if (this.repoId) {
-			await this.getRepo();
-		}
 		else if (this.userIdOrEmail) {
 			await this.getUser();
 		}
 		else {
-			throw 'must provide team, repo, or user';
+			throw 'must provide team or user';
 		}
 	}
 
@@ -101,18 +96,6 @@ class Deleter {
 		}
 		this.team = teams[0];
 		this.teamId = this.team.id;
-	}
-
-	async getRepo () {
-		try {
-			this.repo = this.mongoClient.mongoCollections.repos.getById(this.repoId);
-		}
-		catch (error) {
-			throw `unable to fetch repo: ${JSON.stringify(error)}`;
-		}
-		if (!this.repo) {
-			throw `repo not found: ${this.repoId}`;
-		}
 	}
 
 	async getUser () {
@@ -201,46 +184,7 @@ class Deleter {
 		this.repoIds = repos.map(repo => repo.id);
 	}
 
-	async getStreams () {
-		let query, hint;
-		if (this.teamId) {
-			query = { teamId: this.teamId };
-			hint = StreamIndexes.byName;
-		}
-		else {
-			if (!this.repoIds && !this.repoId) {
-				return;
-			}
-			this.repoIds = this.repoIds || [this.repoId];
-			query = { repoId: { $in: this.repoIds } };
-			hint = StreamIndexes.byFile;
-		}
-		let streams;
-		try {
-			streams = await this.mongoClient.mongoCollections.streams.getByQuery(
-				query,
-				{
-					fields: ['id'],
-					hint: hint
-				}
-			);
-		}
-		catch (error) {
-			throw `unable to fetch streams by repo: ${JSON.stringify(error)}`;
-		}
-		this.streamIds = streams.map(stream => stream.id);
-	}
-
 	async deleteRepos () {
-		if (this.teamId) {
-			await this.deleteReposByTeamId();
-		}
-		else if (this.repoId) {
-			await this.deleteRepoById();
-		}
-	}
-
-	async deleteReposByTeamId () {
 		this.logger.log(`Deleting repos in team ${this.teamId}...`);
 		try {
 			await this.mongoClient.mongoCollections.repos.deleteByQuery(
@@ -249,18 +193,7 @@ class Deleter {
 			);
 		}
 		catch (error) {
-			throw `unable to delete repo: ${JSON.stringify(error)}`;
-		}
-	}
-
-	async deleteRepoById () {
-		const repoId = this.repoId.toLowerCase();
-		this.logger.log(`Deleting repo ${repoId}...`);
-		try {
-			await this.mongoClient.mongoCollections.repos.deleteById(repoId, { overrideHintRequired: true });
-		}
-		catch (error) {
-			throw `unable to delete repo: ${JSON.stringify(error)}`;
+			throw `unable to delete repos: ${JSON.stringify(error)}`;
 		}
 	}
 
@@ -351,13 +284,14 @@ class Deleter {
 		}
 	}
 
+	
 	async deleteStreams () {
-		if (!this.streamIds || this.streamIds.length === 0) {
-			return;
-		}
-		this.logger.log(`Deleting ${this.streamIds.length} streams...`);
+		this.logger.log(`Deleting streams in team ${this.teamId}...`);
 		try {
-			await this.mongoClient.mongoCollections.streams.deleteByIds(this.streamIds, { overrideHintRequired: true });
+			await this.mongoClient.mongoCollections.streams.deleteByQuery(
+				{ teamId: this.teamId },
+				{ overrideHintRequired: true }
+			);
 		}
 		catch (error) {
 			throw `unable to delete streams: ${JSON.stringify(error)}`;
@@ -365,13 +299,10 @@ class Deleter {
 	}
 
 	async deletePosts () {
-		if (!this.streamIds || this.streamIds.length === 0) {
-			return ;
-		}
-		this.logger.log(`Deleting posts in ${this.streamIds.length} streams...`);
+		this.logger.log(`Deleting posts in team ${this.teamId}...`);
 		try {
 			await this.mongoClient.mongoCollections.posts.deleteByQuery(
-				{ streamId: { $in: this.streamIds } },
+				{ teamId: this.teamId },
 				{ overrideHintRequired: true }
 			);
 		}
@@ -380,14 +311,24 @@ class Deleter {
 		}
 	}
 
-	async deleteMarkers () {
-		if (!this.streamIds || this.streamIds.length === 0) {
-			return;
+	async deleteCodemarks () {
+		this.logger.log(`Deleting codemarks in team ${this.teamId}...`);
+		try {
+			await this.mongoClient.mongoCollections.codemarks.deleteByQuery(
+				{ teamId: this.teamId },
+				{ overrideHintRequired: true }
+			);
 		}
-		this.logger.log(`Deleting markers in ${this.streamIds.length} streams...`);
+		catch (error) {
+			throw `unable to delete codemarks: ${JSON.stringify(error)}`;
+		}
+	}
+
+	async deleteMarkers () {
+		this.logger.log(`Deleting markers in team ${this.teamId}...`);
 		try {
 			await this.mongoClient.mongoCollections.markers.deleteByQuery(
-				{ streamId: { $in: this.streamIds } },
+				{ teamId: this.teamId },
 				{ overrideHintRequired: true }
 			);
 		}
@@ -397,13 +338,10 @@ class Deleter {
 	}
 
 	async deleteMarkerLocations () {
-		if (!this.streamIds || this.streamIds.length === 0) {
-			return ;
-		}
-		this.logger.log(`Deleting marker locations in ${this.streamIds.length} streams...`);
+		this.logger.log(`Deleting marker locations in team ${this.teamId}...`);
 		try {
 			await this.mongoClient.mongoCollections.markerLocations.deleteByQuery(
-				{ streamId: { $in: this.streamIds } },
+				{ teamId: this.teamId },
 				{ overrideHintRequired: true }
 			);
 		}

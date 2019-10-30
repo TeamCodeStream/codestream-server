@@ -18,10 +18,14 @@ if (!Commander.team && !Commander.repo && !Commander.user) {
 	console.warn('team, repo, or user required');
 	process.exit();
 }
+if (Commander.repo) {
+	console.warn('Deleting by repo is no longer supported');
+	process.exit();
+}
 
 let options = {
 	teamIdOrName: Commander.team,
-	repoId: Commander.repo,
+	//repoId: Commander.repo,
 	userIdOrEmail: Commander.user,
 	deleteTeamlessUsers: Commander.deleteTeamlessUsers
 };
