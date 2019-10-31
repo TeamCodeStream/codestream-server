@@ -87,7 +87,7 @@ class CodemarkCreator extends ModelCreator {
 				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderHost', 'externalProviderUrl', 'createPermalink'],
 				object: ['remoteCodeUrl', 'threadUrl'],
 				'array(object)': ['markers', 'externalAssignees'],
-				'array(string)': ['assignees', 'relatedCodemarkIds', 'tags']
+				'array(string)': ['assignees', 'relatedCodemarkIds', 'tags', 'followerIds']
 			}
 		};
 	}
@@ -163,6 +163,9 @@ class CodemarkCreator extends ModelCreator {
 
 		// validate assignees, for issues
 		await this.codemarkHelper.validateAssignees({}, this.attributes);
+
+		// handle followers, either passed in or default for the given situation
+		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(this.attributes, this.mentionedUserIds);
 
 		// create a permalink to this codemark, as needed
 		if (!this.dontCreatePermalink) {

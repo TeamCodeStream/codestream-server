@@ -145,5 +145,10 @@ module.exports = {
 		type: 'string',
 		maxLength: 1000,
 		description: 'Private permalink URL for this codemark'
+	},
+	followerIds: {
+		type: 'arrayOfIds',
+		maxLength: 1000,
+		description: 'Array of user IDs representing followers of this codemark; followers receive notifications when the codemark is created and when there are replies'
 	}
 };

@@ -91,6 +91,13 @@ class CodemarkValidator {
 		else {
 			Assert(data.repos === undefined, 'repos should be undefined');
 		}
+
+		// validate the array of followers
+		const expectedFollowerIds = this.test.expectedFollowerIds || [this.test.currentUser.user.id];
+		expectedFollowerIds.sort();
+		const gotFollowerIds = [...(codemark.followerIds || [])];
+		gotFollowerIds.sort();
+		Assert.deepEqual(gotFollowerIds, expectedFollowerIds, 'codemark does not have correct followerIds');
 	}
 
 	// validate the markers created as a result of the codemark with markers

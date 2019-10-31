@@ -147,7 +147,8 @@ class PostCodemarkRequest extends PostRequest {
 				'threadUrl': '<Object referencing a link to the thread this codemark was created in, comtains "name" and "url">',
 				'relatedCodemarkIds': '<Array of IDs that are to be related to this codemark, the link will be made bi-directional>',
 				'tags': '<Array of tag IDs representing tags to be associated with this codemark, the tags must be owned by the team>',
-				'createPermalink': '<If set, create a permalink to the codemark, and return it>' 
+				'createPermalink': '<If set, create a permalink to the codemark, and return it>',
+				'followerIds': '<IDs of users to follow this codemark, in addition to the defaults>'
 			}
 		};
 		description.returns.summary = 'An codemark object, plus any markers created, plus streams and/or repos created for markers';

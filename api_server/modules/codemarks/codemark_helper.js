@@ -126,6 +126,52 @@ class CodemarkHelper {
 		}).save(op);
 		this.request.transforms.updatedCodemarks.push(updateOp);
 	}
+
+	// handle followers added to a codemark
+	async handleFollowers (attributes, mentionedUserIds, existingAttributes) {
+		// for any users passed in and any mentioned users, verify that they are actually on the team
+		let followerIds = ArrayUtilities.union(mentionedUserIds || [], attributes.followerIds || []);
+		if (followerIds.length > 0) {
+			await this.validateFollowers(followerIds, attributes.teamId);
+		}
+
+		// ensure codemark creator is a follower
+		if (attributes.creatorId && followerIds.indexOf(attributes.creatorId) === -1) {
+			followerIds.push(attributes.creatorId);
+		}
+
+		// if the stream is a DM, everyone in the DM is a follower
+		const providerType = (existingAttributes && existingAttributes.providerType) || attributes.providerType;
+		const streamId = (existingAttributes && existingAttributes.streamId) || attributes.streamId;
+		if (!providerType && streamId) {
+			const stream = await this.request.data.streams.getById(streamId);
+			if (stream && stream.get('type') === 'direct') {
+				followerIds = ArrayUtilities.union(followerIds, stream.get('memberIds'));
+			}
+		}
+
+		// new followers are given by the difference with the existing followers (if any)
+		const existingFollowerIds = (existingAttributes && existingAttributes.followerIds) || [];
+		return ArrayUtilities.difference(followerIds, existingFollowerIds);
+	}
+
+	// validate the followers of a codemark
+	async validateFollowers (followerIds, teamId) {
+		// get the users and make sure they're on the same team
+		const users = await this.request.data.users.getByIds(
+			followerIds,
+			{
+				fields: ['id', 'teamIds'],
+				noCache: true
+			}
+		);
+		if (
+			users.length !== followerIds.length ||
+			users.find(user => !user.hasTeam(teamId))
+		) {
+			throw this.request.errorHandler.error('validation', { info: 'followers must contain only users on the team' });
+		}
+	}
 }
 
 module.exports = CodemarkHelper;

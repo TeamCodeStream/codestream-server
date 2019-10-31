@@ -78,6 +78,10 @@ const NoLocationInReferenceLocationTest = require('./no_location_in_reference_lo
 const InvalidLocationInReferenceLocationTest = require('./invalid_location_in_reference_location_test');
 const MultipleMarkersTest = require('./multiple_markers_test');
 const MultipleMarkersStreamOnTheFlyTest = require('./multiple_markers_stream_on_the_fly_test');
+const AddFollowersTest = require('./add_followers_test');
+const AddCreatorAsFollowerTest = require('./add_creator_as_follower_test');
+const InvalidFollowerTest = require('./invalid_follower_test');
+const FollowerNotOnTeamTest = require('./follower_not_on_team_test');
 
 class PostCodemarkRequestTester {
 
@@ -174,6 +178,10 @@ class PostCodemarkRequestTester {
 		new InvalidLocationInReferenceLocationTest().test();
 		new MultipleMarkersTest().test();
 		new MultipleMarkersStreamOnTheFlyTest().test();
+		new AddFollowersTest().test();
+		new AddCreatorAsFollowerTest().test();
+		new InvalidFollowerTest().test();
+		new FollowerNotOnTeamTest().test();
 	}
 }
 
