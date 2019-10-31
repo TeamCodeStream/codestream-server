@@ -16,5 +16,9 @@ module.exports = {
 	'moveMarkers2': {
 		description: 'Ability to change the location of code blocks pointed to by codemarks, with essential API server fix',
 		version: '1.21.23'
+	},
+	'repoCommitMatching': {
+		description: 'Supports the /repos/match/:teamId call, which allows matches to be found for repos by remotes and known commit hashes',
+		version: '1.21.24'
 	}
 };
