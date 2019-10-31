@@ -59,7 +59,9 @@ class VersionRequestTest extends CodeStreamAPITest {
 	}
 
 	after (callback) {
-		this.mongoClient.close();
+		if (this.mongoClient) {
+			this.mongoClient.close();
+		}
 		super.after(callback);
 	}
 

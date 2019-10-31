@@ -11,7 +11,7 @@ const ConflictingUsernameTest = require('./conflicting_username_test');
 const NoCodestreamUsernameTest = require('./no_codestream_username_test');
 const UserMessageToTeamTest = require('./user_message_to_team_test');
 const ConfirmationEmailTest = require('./confirmation_email_test');
-const ConfirmationEmailWithLinkTest = require('./confirmation_email_with_link_test');
+// const ConfirmationEmailWithLinkTest = require('./confirmation_email_with_link_test');
 const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
 const PreferencesTest = require('./preferences_test');
 const SpecialCharactersUsernameTest = require('./special_characters_username_test');
@@ -47,7 +47,7 @@ class RegistrationRequestTester {
 		// if they are run in parallel
 		SerializeTests([
 			ConfirmationEmailTest,
-			ConfirmationEmailWithLinkTest,
+			// ConfirmationEmailWithLinkTest,
 			AlreadyRegisteredEmailTest
 		]);
 		new PreferencesTest().test();

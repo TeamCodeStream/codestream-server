@@ -343,7 +343,9 @@ class RegisterRequest extends RestfulRequest {
 		// otherwise if the client wants a confirmation email with a link
 		// (soon to be deprecated), send that...
 		else if (this.wantLink) {
-
+			// CONFIRMATION EMAILS WITH LINKS TO THE OLD WEB APP ARE NOW DEPRECATED
+			throw 'deprecated';
+			/*
 			// generate the url and queue the email send with the outbound email service
 			const host = this.api.config.webclient.host;
 			const url = `${host}/confirm-email/${encodeURIComponent(this.token)}`;
@@ -359,6 +361,7 @@ class RegisterRequest extends RestfulRequest {
 					user: this.user
 				}
 			);
+			*/
 		}
 
 		// othwerwise we're sending an old-style (and now new-style) confirmation email with a 

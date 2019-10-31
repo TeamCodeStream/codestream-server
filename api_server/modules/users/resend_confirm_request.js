@@ -13,6 +13,9 @@ class ResendConfirmRequest extends RestfulRequest {
 
 	// process the request...
 	async process () {
+		// This request is deprecated since confirmation emails now have the confirmation code
+		throw 'deprecated';
+		/*
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
 		if (!await this.getUser()) {		// get the user associated with this email
 			// no user, we just silently drop to the floor, no email harvesting!
@@ -26,6 +29,7 @@ class ResendConfirmRequest extends RestfulRequest {
 			this.log('Confirmation cheat detected, hopefully this was called by test code');
 			this.responseData.confirmationToken = this.token;
 		}
+		*/
 	}
 
 	// require certain parameters, discard unknown parameters

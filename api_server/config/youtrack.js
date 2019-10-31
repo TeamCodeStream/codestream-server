@@ -21,10 +21,9 @@ if (CfgFileName) {
 		YouTrackCfg = YouTrackProviders['jetbrains.com'];
 	}
 }
-else {
-	// this is needed to be non-null to return provider data to the client, but is not actually used
-	YouTrackCfg.appClientId = 'placeholder';
-}
+
+// this is needed to be non-null to return provider data to the client, but is not actually used
+YouTrackCfg.appClientId = 'placeholder';
 
 if (ShowCfg) console.log('Config[youtrack]:', JSON.stringify(YouTrackCfg, undefined, 10));
 module.exports = YouTrackCfg;

@@ -17,7 +17,7 @@ const ProviderHostRequestTester = require('./provider_host/test');
 const DeleteProviderHostRequestTester = require('./delete_provider_host/test');
 const ProviderActionRequestTester = require('./provider_action/test');
 
-describe('user requests', function() {
+describe('provider requests', function() {
 
 	this.timeout(20000);
 

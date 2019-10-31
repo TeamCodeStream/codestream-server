@@ -3,6 +3,7 @@
 
 'use strict';
 
+/*
 const ResendConfirmTest = require('./resend_confirm_test');
 const RequiredParameterTest = require('./required_parameter_test');
 const UnknownEmailTest = require('./unknown_email_test');
@@ -11,10 +12,13 @@ const OriginalTokenDeprecatedTest = require('./original_token_deprecated_test');
 const ResendConfirmEmailTest = require('./resend_confirm_email_test');
 const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
+*/
 
 class ResendConfirmRequestTester {
 
 	test () {
+		// THESE TESTS ARE DEPRECATED NOW THAT CONFIRMATION EMAILS HAVE A CODE AND NOT A LINK
+		/*
 		new ResendConfirmTest().test();
 		new RequiredParameterTest({ parameter: 'email' }).test();
 		new UnknownEmailTest().test();
@@ -27,6 +31,7 @@ class ResendConfirmRequestTester {
 			ResendConfirmEmailTest,
 			AlreadyRegisteredEmailTest
 		]);
+		*/
 	}
 }
 

@@ -61,6 +61,9 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 	validateMessage (message) {
 		const gotMessage = message.message;
 
+		// THIS TEST IS DISABLED PENDING SUPPORT FOR CHANGING EMAIL IN THE EXTENSION,
+		// WE DON'T HAVE THE WEB APP SO WE CAN'T GENERATE THIS LINK...
+		
 		// verify a match to the url
 		const host = WebClientConfig.host.replace(/\//g, '\\/');
 		const shouldMatch = new RegExp(`^${host}\\/a\\/settings\\?confirm_email_token=(.*)$`);
