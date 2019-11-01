@@ -21,11 +21,15 @@ class ChangeEmailConfirmRequest extends RestfulRequest {
 
 	// process the request....
 	async process () {
+		// DEPRECATED UNTIL CHANGE EMAIL IS SUPPORTED IN THE IDE
+		throw ('deprecated');
+		/*
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
 		await this.verifyToken();       // make sure the token is valid, and parse the payload
 		await this.getUser();           // get the user associated with the ID in the token
 		await this.validateToken();     // verify the token is not expired, per the most recently issued token
 		await this.updateUser();		// update the user object with the new email
+		*/
 	}
 
 	// require these parameters, and discard any unknown parameters
