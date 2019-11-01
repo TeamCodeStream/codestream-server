@@ -28,6 +28,13 @@ class MarkerStreamOnTheFlyTest extends CodemarkMarkerTest {
 					knownCommitHashes: this.useKnownCommitHashes
 				});
 			}
+			if (this.streamType === 'direct') {
+				this.expectedFollowerIds = [
+					this.currentUser.user.id, 
+					this.users[1].user.id,
+					this.users[2].user.id
+				];
+			}
 			callback();
 		});
 	}

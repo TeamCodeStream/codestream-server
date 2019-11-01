@@ -108,6 +108,14 @@ const CodemarkWithNoLocationInReferenceLocationTest = require('./codemark_with_n
 const CodemarkWithInvalidLocationInReferenceLocationTest = require('./codemark_with_invalid_location_in_reference_location_test');
 const MultipleMarkersTest = require('./multiple_markers_test');
 const MultipleMarkersStreamOnTheFlyTest = require('./multiple_markers_stream_on_the_fly_test');
+const AddFollowersTest = require('./add_followers_test');
+const AddCreatorAsFollowerTest = require('./add_creator_as_follower_test');
+const InvalidFollowerTest = require('./invalid_follower_test');
+const FollowerNotOnTeamTest = require('./follower_not_on_team_test');
+const FollowersFromDirectStreamTest = require('./followers_from_direct_stream_test');
+const FollowersMentionedTest = require('./followers_mentioned_test');
+const InvalidMentionTest = require('./invalid_mention_test');
+const MentionedNotOnTeamTest = require('./mentioned_not_on_team_test');
 
 class PostPostRequestTester {
 
@@ -235,6 +243,14 @@ class PostPostRequestTester {
 		new CodemarkWithInvalidLocationInReferenceLocationTest().test();
 		new MultipleMarkersTest().test();
 		new MultipleMarkersStreamOnTheFlyTest().test();
+		new AddFollowersTest().test();
+		new AddCreatorAsFollowerTest().test();
+		new InvalidFollowerTest().test();
+		new FollowerNotOnTeamTest().test();
+		new FollowersFromDirectStreamTest().test();
+		new FollowersMentionedTest().test();
+		new InvalidMentionTest().test();
+		new MentionedNotOnTeamTest().test();
 	}
 }
 
