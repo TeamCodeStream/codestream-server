@@ -9,6 +9,7 @@ Read the [Build Overview](https://teamcodestream.atlassian.net/wiki/x/04BID) pag
 
 | Asset Env | Asset | Location |
 | --- | --- | --- |
+| dev | tgz | [Asset server (dev/broadcaster)](http://assets.codestream.us/artifacts/dev/api-server/) |
 | onprem | docker image | Published to docker hub as [teamcodestream/broadcaster-onprem](https://cloud.docker.com/u/teamcodestream/repository/docker/teamcodestream/broadcaster-onprem) |
 
 ## Builds

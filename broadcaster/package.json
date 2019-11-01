@@ -1,5 +1,5 @@
 {
-  "name": "socketcluster-sample",
+  "name": "broadcaster",
   "description": "A sample SocketCluster app",
   "version": "1.0.1",
   "contributors": [

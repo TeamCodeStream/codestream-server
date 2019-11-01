@@ -1,3 +1,7 @@
+# build assets
+*broadcaster-*.info
+*broadcaster-*.tgz
+
 # Logs
 logs
 *.log

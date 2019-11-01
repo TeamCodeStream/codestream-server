@@ -12,7 +12,7 @@ import sysUtils as su
 import buildUtils
 
 # 1. add filename extensions for all assets created (tgz, vsix, zip, ...)
-assetExtensionList = []
+assetExtensionList = ['tgz']
 
 # 2. add any additional repos to be included (do not include primary repo)
 additionalRepos = []
@@ -51,11 +51,9 @@ elif args.action == 'citest':
 	print("nothing to test")
 	# build.citest()                            # run the continuous integration test suite
 elif args.action == 'pack':
-	print("nothing to pack")
-	# build.pack()                              # create asset info file and package assets
+	build.pack()                              # create asset info file and package assets
 elif args.action == 'publish':
-	print("nothing to publish")
-	# build.publish()                           # publish assets for distribution
+	build.publish()                           # publish assets for distribution
 elif args.action == 'tag':
 	print("nothing to tag")
 	# build.tag()                               # update version info and apply tags
