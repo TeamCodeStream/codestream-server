@@ -1,6 +1,7 @@
 
 #desc# broadcaster playground
 
+#playgroundName# bc
 #sandboxTypes# broadcast
 #sandboxes# {{SBNAME_broadcast}}
 #environment# local
