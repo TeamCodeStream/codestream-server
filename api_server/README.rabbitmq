@@ -11,7 +11,7 @@ Notes
 
 Native installation via MacPorts
 --------------------------------
-- sudo port install rabbitmq-server (make not of version - 3.7.9 at time of documentation)
+- sudo port install rabbitmq-server (make note of version - 3.7.9 at time of documentation)
 - copy rabbitmq_delayed_message_exchange-20171201-3.7.x.ez /opt/local/lib/rabbitmq/lib/rabbitmq_server-3.7.9/plugins/rabbitmq_delayed_message_exchange-20171201-3.7.9.ez
   (note how the copied filename reflects the complete rabbitmq-server version number)
 - To start rabbitMQ: sudo port load rabbitmq-server

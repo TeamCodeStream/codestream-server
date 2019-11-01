@@ -28,40 +28,51 @@ The CodeStream API Service is lovely.
 	$ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
 	```
 1. Open a new terminal window
-1. Load your dev_tools mongo sandbox if you're using one and start the mongo service.
+1. Choose a name for your mongo sandbox. The default is `mongo` (which this
+   documentation will assume). Load your dev_tools mongo sandbox if you're using
+   one and start the mongo service.
 	```
-	$ dt-load <my-mongo-sandbox-name>
+	$ dt-load mongo
 	$ mdb-service start
 	```
-    If using your own mongo installation, make sure it's running and accessible
-    without credentials on **localhost**.
+   If using your own mongo installation, make sure it's running and accessible
+   without credentials on **localhost** (the default mongo connect url is
+   `mongodb://localhost/codestream`).
 1. Install the api sandbox (only specify `-I` if you are *not* using or have not
    loaded a dev_tools mongo sandbox). We're migrating to a new unified config
-   file format so for now include the `-e` and `-b` options.
+   file format so for now include the `-e` option. The default api sandbox name
+   is `api` so that will be assumed in this documentation:
 	```
-	dt-sb-new-sandbox -yCD [-I] -t cs_api -n <your-api-sandbox-name> -e unified-cfg-file.sh
+	dt-sb-new-sandbox -yCD [-I] -t cs_api -n api -e unified-cfg-file.sh
 	```
 1. Load your api sandbox:
 	```
-	$ dt-load <your-api-sandbox-name>
+	$ dt-load api
 	```
 1. Create a playground for setting up future terminals with your mongo + api
-   sandboxes:
+   sandboxes. This will create one called `api`.
 	```
 	$ dt-sb-create-playground -t $CS_API_TOP/sandbox/playgrounds/default.template
 	```
-	or
+1. If you haven't already, install the
+   [mailin](https://github.com/teamcodestream/inbound_email) and
+   [mailout](https://github.com/teamcodestream/outbound_email) sandboxes.
+1. Load all of your sandboxes into one shell and create a `cs` playground for
+   your codestream-cloud configuration.
 	```
-	$ dt-sb-create-playground -n <custom-playground-name> -t $CS_API_TOP/sandbox/playgrounds/default.template
+	$ dt-load mongo
+	$ dt-load api
+	$ dt-load mailin
+	$ dt-load mailout
+	$ dt-sb-create-playground -t $CS_API_TOP/sandbox/playgrounds/cloud-dev.template
 	```
-   There are other playground templates you may find useful in $CS_API_TOP/sandbox/playgrounds/.
 
 
 ## Common Commands
 
 - To setup a new terminal's environment for the API
     ```
-    $ dt-load-playground <your-api-playground-name> [--start | --stop]
+    $ dt-load-playground api [--start | --stop]
     ```
     optional **--start** will load the sandboxes and start the services.
 	

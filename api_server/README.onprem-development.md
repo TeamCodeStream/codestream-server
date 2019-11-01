@@ -1,68 +1,53 @@
-# OnPrem Development Configuration
+# On-Prem Development Configuration
 
-## Create (and maintain) your config file
-A config file template,
-**~/.codestream/config/local-onprem-development.json.template**, is deployed via
-the `dt-update-secrets` command. You should copy it to
-**local-onprem-development.json** in the same directory and edit it by filling
-all the template variables (search of '{{' inside the file).
+If you [followed the directions](README.md) in the main API README, you already
+have an On-Prem Development configuration template in your ~/.codestream/config/
+directory.
 
-You should also review it and make any other changes you require.
-
-As new templates are deployed over time you will need a reliable, repeatable way
-to merge the new template version with your manually created config file. For
-now, you're on your own. Keep your json files sorted and use diff.
-```
-$ codestream-configs/bin/process-profile --sort-json <json-file>
-```
-
-## Install the sandboxes
-1. [mongo](https://github.com/teamcodestream/mongodb_tools) or provide your own.
-1. [api](README.md)
-1. [broadcaster](https://github.com/teamcodestream/broadcaster)
-1. [outbound-email](https://github.com/teamcodestream/outbound_email)
-
-## Create a consolidated playground file for OnPrem development
-
-_NOTE:_ Consolidating multiple node-based sandboxes into one playground may
-cause issues since all services will find **node, npm, globally installed npm
-modules** and **node_modules/.bin/** from whichever node-based sandbox was loaded
-last.
-
-1. Start with a new terminal and load all the sandboxes
+1. Copy the latest config template to `onprem-development_local_*.json.template`
+   so you can edit it.
 	```
-	$ dt-load <mongo-sandbox-name>
-	$ dt-load <api-sandbox-name>
-	$ dt-load <broadcaster-sandbox-name>
-	$ dt-load <outbound-email-sandbox-name>
+	$ cd ~/.codestream/config
+	$ latestTemplate=`ls onprem-development_local_*.json.template|tail -1`
+	$ latestBase=`echo $latestTemplate | sed -e 's/\.template$//'`
+	$ cp $latestTemplate $latestBase
 	```
 
-1. Create your playground file (**$DT_PLAYGROUNDS/\<onprem-playground-filename\>**) from this template.
-	```
-	$ dt-sb-create-playground -t $CS_API_TOP/sandbox/playgrounds/consolidated-onprem.template
-	```
-	or
-	```
-	$ dt-sb-create-playground -n <custom-playground-name> -t $CS_API_TOP/sandbox/playgrounds/consolidated-onprem.template
-	```
+1. Edit `$latestBase` and fill in any required template fields (search for `{{`
+   in the file).  While this is technically optional, our on-prem deployment
+   uses NodeMailer in lieu of SendGrid. Update your config file accordingly.
 
-
-1. When loading your playground in future shells, you can use the optional
-   **--start** and **--stop** parameters. The default start/stop behavior
-   includes controlling the rabbitmq docker service (see below for more info).
+1. Select this configuration as the default for local development.
 	```
-	$ dt-load-playground <onprem-playground-file-name> [--start | --stop]
+	$ echo onprem-development > ~/.codestream/config/codestream-cfg-default.local
 	```
 
-## Install RabbitMQ
+1. Add this config to the _dt-update-secrets hooks file_ if it isn't already in
+   there; check first, you don't want it in there twice.
+	```
+	$ echo onprem-development > ~/.codestream/config/codestream-cfg-update-hook
+	```
 
-The onprem configuration requires RabbitMQ for message queuing so you need to
-provide that. You can either install and configure it on your own ([there are
-some notes here](README.rabbitmq)) or you can run a preconfigured docker
-container.
+1. The broadcaster service replaces PubNub. [Install a broadcaster
+   sandbox](https://github.com/teamcodestream/broadcaster).
 
-On a mac (with docker installed):
-```
-$ docker run -d -p 5672:5672 --name csrabbitmq teamcodestream/rabbitmq-onprem:0.0.0
-```
+1. Load all of your sandboxes and create an on-prem playground file for
+   yourself.
+	```
+	$ dt-load mongo
+	$ dt-load api
+	$ dt-load mailin
+	$ dt-load mailout
+	$ dt-load bc
+	$ dt-sb-create-playground -t $CS_API_TOP/sandbox/playgrounds/onprem.template
+	```
+	From now on, simply load the onprem playground with `dt-load-playground onprem`
 
+1. RabbitMQ replaces AWS SQS. You can install RabbitMQ natively on your system
+   ([notes here](README.rabbitmq)) or you can use our pre-configured docker
+   image.
+
+   With Docker installed and running on your development host:
+	```
+	$ docker run -d -p 5672:5672 --name csrabbitmq teamcodestream/rabbitmq-onprem:0.0.0
+	```
