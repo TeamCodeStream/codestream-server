@@ -1,13 +1,13 @@
 # CodeStream Inbound Email Gateway Service
 
-This service processes replies to CodeStream generated emails and injects them
-back into the system. This service expects the inbound emails to be dropped
-into a designated directory by a standard email service (such as postfix).
+This service processes CodeStream email replies, injecting them into the
+system. It polls a directory so it relies on the email delivery agent
+(eg. postfix) to save emails as individual files in a pre-determined location.
 
-Full instructions for setting this sandbox up, along with others needed to
-complete the codestream development environment can be found with the API
-service documentation.
-
+For local development, email is routed to a designated AWS instance and you must
+run a script which will poll that instance and move the email to your local
+sandbox. Two developers working on inbound email processing at the same time
+would be stepping on one another.
 
 ## Installation for local cloud development using dev_tools
 
@@ -15,23 +15,23 @@ service documentation.
 1. Install the dev_tools tookkit
    [here](https://github.com/teamcodestream/dev_tools).
 1. Install the [API service](https://github.com/teamcodestream/api_service).
-1. Review the procedure for managing the [unified config
-   file](README.unified-cfg-file.md) and set your config to
-   **local-cloud-development.json**
+1. Review how we manage our [server configurations](README.unified-cfg-file.md).
 
 ### Quick Start
 1. Open a new terminal window
-1. Install the inbound email service
+1. Choose a sandbox name and install the inbound email service (the default
+   sandbox name we use here is `mailin`).
     ```
-    $ dt-sb-new-sandbox -yCD -t cs_mailin -n <sandbox-name>
+    $ dt-sb-new-sandbox -yCD -t cs_mailin -n mailin -e unified-cfg-file.sh
     ```
 1. Load your sandbox
     ```
-    $ dt-load <sandbox-name>
+    $ dt-load mailin
     ```
-1. Create a playground for your inbound mail service
+1. Create a playground for your inbound mail service. This creates a
+   playground called `mailin` which loads only the `mailin` sandbox.
     ```
-    $ dt-sb-create-playground -n <mailin-playground-name> -t $CS_MAILIN_TOP/sandbox/playgrounds/default.template
+    $ dt-sb-create-playground -t $CS_MAILIN_TOP/sandbox/playgrounds/default.template
 
 Sandbox commands:
 
