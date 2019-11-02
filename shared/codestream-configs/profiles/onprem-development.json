@@ -17,19 +17,34 @@
 
 {
 	"apiServer": {
-		"defaultEnv": {},
+		"defaultEnv": {
+			"dontWantAWS": true
+		},
 		"local": {
 			"dontWantAWS": true
 		}
 	},
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
-			"defaultEnv": {},
+			"ci": {
+				"assetEnvironment": "dev",
+				"logger": {},
+				"runTimeEnvironment": "ci",
+				"secrets": {
+					"_loadSecretsFile": "codestream/ci-bcast-secrets.cfg"
+				}
+			},
+			"defaultEnv": {
+				"assetEnvironment": "dev",
+				"logger": {},
+				"runTimeEnvironment": "${CSSVC_ENV}",
+				"secrets": {
+					"_loadSecretsFile": "codestream/dev-bcast-secrets.cfg"
+				}
+			},
 			"local": {
 				"assetEnvironment": "local",
-				"logger": {
-					"directory": "${CS_BROADCASTER_SANDBOX}/log"
-				},
+				"logger": {},
 				"runTimeEnvironment": "local",
 				"secrets": {
 					"_loadSecretsFile": "codestream/local-bcast-secrets.cfg"
@@ -38,23 +53,38 @@
 		}
 	},
 	"email": {
-		"defaultEnv": {},
+		"ci": {
+			"replyToDomain": "ci.codestream.com",
+			"senderEmail": "ci_alerts@codestream.com",
+			"supportEmail": "ci_support@codestream.com"
+		},
+		"defaultEnv": {
+			"emailTo": null,
+			"replyToDomain": "${CSSVC_ENV}.codestream.com",
+			"senderEmail": "${CSSVC_ENV}_alerts@codestream.com",
+			"supportEmail": "${CSSVC_ENV}_support@codestream.com",
+			"suppressEmails": false
+		},
 		"local": {}
 	},
 	"emailDeliveryService": {
-		"defaultEnv": {},
-		"local": {
+		"defaultEnv": {
 			"NodeMailer": {
-				"host": "smtp.gmail.com",
-				"password": "{{GMAIL_ACCOUNT_PASSWORD_PLAIN_TEXT}}",
-				"port": 587,
-				"service": "gmail",
-				"username": "${DT_USER}@codestream.com"
+				"host": "mail-relay.codestream.us",
+				"port": 25,
+				"secure": false
 			}
 		}
 	},
 	"inboundEmailServer": {
-		"defaultEnv": {},
+		"ci": {
+			"assetEnvironment": "dev",
+			"runTimeEnvironment": "ci"
+		},
+		"defaultEnv": {
+			"assetEnvironment": "dev",
+			"runTimeEnvironment": "${CSSVC_ENV}"
+		},
 		"local": {}
 	},
 	"integrations": {
@@ -152,18 +182,40 @@
 		}
 	},
 	"outboundEmailServer": {
-		"defaultEnv": {},
+		"ci": {
+			"assetEnvironment": "dev",
+			"runTimeEnvironment": "ci"
+		},
+		"defaultEnv": {
+			"assetEnvironment": "dev",
+			"runTimeEnvironment": "${CSSVC_ENV}",
+			"storage": {
+				"mongo": {
+					"url": "mongodb://${CSSVC_ENV}-api.codestream.us/codestream"
+				}
+			}
+		},
 		"local": {}
 	},
 	"queuingEngine": {
+		"ci": {
+			"awsSQS": {
+				"outboundEmailQueueName": "ci_outboundEmail"
+			}
+		},
 		"defaultEnv": {
-			"awsSQS": {}
+			"awsSQS": {
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
+			}
 		},
 		"local": {
 			"rabbitmq": {}
 		}
 	},
 	"sharedSecrets": {
+		"ci": {
+			"_loadSecretsFile": "codestream/ci-secrets.cfg"
+		},
 		"defaultEnv": {
 			"_loadSecretsFile": "codestream/dev-secrets.cfg"
 		},

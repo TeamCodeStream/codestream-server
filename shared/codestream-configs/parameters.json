@@ -438,11 +438,27 @@
 				"appSharingClientSecret": {
 					"desc": "Slack sharing app secret"
 				},
+				"appSharingSigningSecret": {
+					"default": null,
+					"desc": "Slack sharing app signing secret"
+				},
+				"appSigningSecret": {
+					"default": null,
+					"desc": "Slack app signing secret (legacy scopes)"
+				},
 				"appStrictClientId": {
 					"desc": "Slack strict app client Id"
 				},
 				"appStrictClientSecret": {
 					"desc": "Slack strict app secret"
+				},
+				"appStrictSigningSecret": {
+					"default": null,
+					"desc": "Slack strict app signing secret"
+				},
+				"interactiveComponentsEnabled": {
+					"default": false,
+					"desc": "enable interactive component callbacks"
 				}
 			}
 		},

@@ -51,14 +51,23 @@ def blockKey(schema, spaces):
 	return None
 
 
-def loadSecretsFile(secretsFile, schema, repeatingBlockKey, spaces):
+# load the secrets file and set defaults from schema
+def loadSecretsFile(profile, schema, repeatingBlockKey, spaces):
+	secretsFile = profile['_loadSecretsFile']
 	debugMsg(f"{spaces}loading {args.secrets}/{secretsFile}")
 	secretsData = su.readKeyValueFile(f"{args.secrets}/{secretsFile}")
 	block = {}
+	# lowest precedence: schema defaults
 	if repeatingBlockKey:
 		getSectionDefaultsFromSchema(schema[repeatingBlockKey], block, spaces)
 	else:
 		getSectionDefaultsFromSchema(schema, block, spaces)
+	# next prcedence: any values specified in profile
+	for k in profile.keys():
+		if k == '_loadSecretsFile':
+			continue
+		block[k] = profile[k]
+	# highest precedence: fields in secrets file
 	for sProp in list(block.keys()):
 		if sProp in secretsData:
 			block[sProp] = secretsData[sProp]
@@ -76,7 +85,7 @@ def buildCfgFile(cfg, schema, profile, spaces=''):
 			return
 
 		if '_loadSecretsFile' in profile:
-			profile = loadSecretsFile(profile['_loadSecretsFile'], schema, None, spaces)
+			profile = loadSecretsFile(profile, schema, None, spaces)
 			debugMsg(f"{spaces}secrets loaded from file. block keys are {list(profile.keys())}")
 			buildCfgFile(cfg, schema, profile, f"{spaces}  ")
 			return

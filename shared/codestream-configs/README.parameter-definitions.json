@@ -142,8 +142,12 @@
 				"appClientSecret": "Slack app secret (legacy scopes)",
 				"appSharingClientId": "Slack sharing app client Id",
 				"appSharingClientSecret": "Slack sharing app secret",
+				"appSharingSigningSecret": "Slack sharing app signing secret",
+				"appSigningSecret": "Slack app signing secret (legacy scopes)",
 				"appStrictClientId": "Slack strict app client Id",
-				"appStrictClientSecret": "Slack strict app secret"
+				"appStrictClientSecret": "Slack strict app secret",
+				"appStrictSigningSecret": "Slack strict app signing secret",
+				"interactiveComponentsEnabled": "enable interactive component callbacks"
 			}
 		},
 		"trello": {
