@@ -157,7 +157,6 @@ class StructuredConfigFile {
 
 	// public method to get a fully populated section of the configuration file
 	getSection(section = '') {
-		// console.log(`>>>>>>>>>>>>>>>>> GET SECTION ${section}`);
 		let schema = this._getSection(this.schema, section);
 		let data = this._getSection(this.config, section);
 		let sectionData = {};
