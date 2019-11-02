@@ -33,10 +33,12 @@ binDir=`dirname $0`
 repoRoot=$(cd $binDir/.. && pwd)
 srcDir=`dirname $repoRoot`
 schemaVersion=`cat $repoRoot/parameters.version`
+# verbose=1
 
 for p in `/bin/ls $repoRoot/profiles/*.json $repoRoot/parameters.json`
 do
 	echo "sorting $p"
+	[ -n "$verbose" ] && echo $binDir/process-profile --sort-json $p
 	$binDir/process-profile --sort-json $p
 done
 
@@ -49,19 +51,27 @@ if [ "$ans" == y -o "$ans" == yes ]; then
 fi
 
 [ ! -d $repoRoot/../onprem-install ] && echo "$repoRoot/../onprem-install not found (pwd=`pwd`)" >&2 && exit 1
+[ -n "$verbose" ] && echo $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
 $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
 diff_notify $repoRoot/README.parameter-definitions.json "$yes"
 
 # create the config template for on-prem single host preview (beta version)
+[ -n "$verbose" ] && echo $binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta.x
 $binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta.x
 diff_notify $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta "$yes"
 
 # cloud configuration, all environments (consumed by developers via dt-update-secrets)
-for csEnv in local ci pi pd qa prod dev
+for csEnv in "local" ci pi pd qa prod dev
 do
+	[ -n "$verbose" ] && echo $binDir/process-profile --profile $repoRoot/profiles/cloud.json --env $csEnv --out $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json.x
 	$binDir/process-profile --profile $repoRoot/profiles/cloud.json --env $csEnv --out $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json.x || exit 1
 	diff_notify $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json "$yes"
 done
 
-$binDir/process-profile --profile $repoRoot/profiles/onprem-development.json --env local --out $KM_PKI/secrets/config/onprem-development_local_${schemaVersion}_.json.template.x
-diff_notify $KM_PKI/secrets/config/onprem-development_local_${schemaVersion}_.json.template "$yes"
+# onprem development configurations
+for csEnv in "local" ci dev
+do
+	[ -n "$verbose" ] && echo $binDir/process-profile --profile $repoRoot/profiles/onprem-development.json --env $csEnv --out $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json.x
+	$binDir/process-profile --profile $repoRoot/profiles/onprem-development.json --env $csEnv --out $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json.x
+	diff_notify $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json "$yes"
+done

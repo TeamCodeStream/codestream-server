@@ -237,6 +237,10 @@
 				"local": {
 					"_loadSecretsFile": "slack/local-combined.cfg"
 				},
+				"pd": {
+					"_loadSecretsFile": "slack/dev-combined.cfg",
+					"interactiveComponentsEnabled": true
+				},
 				"prod": {
 					"_loadSecretsFile": "slack/prod-combined.cfg"
 				}
