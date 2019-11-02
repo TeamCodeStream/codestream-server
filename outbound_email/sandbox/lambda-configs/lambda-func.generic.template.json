@@ -24,7 +24,8 @@
 	// "MemorySize": Integer,
 	"Role": "arn:aws:iam::{{ CS_OUTBOUND_EMAIL_AWS_ACCOUNT }}:role/{{ CS_OUTBOUND_EMAIL_LAMBDA_IAM_ROLE }}",
 	"Runtime": "{{ CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME }}",
-	"Timeout": 60,
+	// raising timeout caused err: "Queue visibility timeout: 30 seconds is less than Function timeout: 60 seconds"
+	"Timeout": 30,
 	// "TracingConfig": TracingConfig,
 	"VpcConfig": {
 		"SubnetIds": [
