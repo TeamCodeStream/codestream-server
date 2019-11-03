@@ -23,16 +23,16 @@ export CS_API_ASSET_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p api
 # this sets CS_API_CALLBACK_ENV
 set_callback_env
 
-# meh. not sure where this should go.
+# not sure where this should go.
 #
 # local development on ec2 instances (remote hosts) should reference their
-# hostname and not 'localhost' in URL's
+# hostname and not 'localhost' so we override the value from the config file
 if [ "$CS_API_ENV" == "local" ]; then
 	[ `cat /etc/system-release 2>/dev/null | grep -i "Amazon Linux"|wc -l` -eq 1 ] && ec2Instance=1 || ec2Instance=0
 	if [ $ec2Instance -eq 1 ]; then
 		apiPort=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.port)`
 		export CS_API_PUBLIC_URL="https://`hostname`:$apiPort"
-		echo "publicApiUrl = $CS_API_PUBLIC_URL (setting remote development host override)"
+		echo "publicApiUrl (CS_API_PUBLIC_URL) = $CS_API_PUBLIC_URL [this is a remote development host]"
 	fi
 fi
 

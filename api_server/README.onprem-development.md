@@ -1,38 +1,36 @@
 # On-Prem Development Configuration
 
 If you [followed the directions](README.md) in the main API README, you already
-have an On-Prem Development configuration template in your ~/.codestream/config/
+have an On-Prem Development configuration file in your ~/.codestream/config/
 directory.
 
-1. Copy the latest config template to `onprem-development_local_*.json.template`
-   so you can edit it.
+1. Make sure you have the **onprem-development** codestream configuration file.
+   If this command doesn't indicate any files, try running `dt-update-secrets`.
 	```
-	$ cd ~/.codestream/config
-	$ latestTemplate=`ls onprem-development_local_*.json.template|tail -1`
-	$ latestBase=`echo $latestTemplate | sed -e 's/\.template$//'`
-	$ cp $latestTemplate $latestBase
+	$ ls ~/.codestream/config/onprem-development_local_*_.json
 	```
 
-1. Edit `$latestBase` and fill in any required template fields (search for `{{`
-   in the file).  While this is technically optional, our on-prem deployment
-   uses NodeMailer in lieu of SendGrid. Update your config file accordingly.
+1. _Complete this step only if you want to customize your configuration._ If you
+   want to edit the configuration, you need to choose a name and copy the most
+   recent onprem-development config to a file with the same format. For example,
+   `onprem-custom-config_local_N_.json`. Then edit that file to taste. You'll
+   also want to add the file to the update hook so it gets maintained
+   automatically as new config file versions are downloaded.
+   ```
+   $ echo onprem-development:onprem-custom-config >> ~/.codestream/config/codestream-cfg-update-hook
+   ```
 
-1. Select this configuration as the default for local development.
+1. Select this configuration as the default for local development (if you made a
+   custom config file, use its name in lieu of **onprem-development**).
 	```
 	$ echo onprem-development > ~/.codestream/config/codestream-cfg-default.local
-	```
-
-1. Add this config to the _dt-update-secrets hooks file_ if it isn't already in
-   there; check first, you don't want it in there twice.
-	```
-	$ echo onprem-development > ~/.codestream/config/codestream-cfg-update-hook
 	```
 
 1. The broadcaster service replaces PubNub. [Install a broadcaster
    sandbox](https://github.com/teamcodestream/broadcaster).
 
-1. Load all of your sandboxes and create an on-prem playground file for
-   yourself.
+1. Load all of your sandboxes into the same shell and create an on-prem
+   playground file for yourself.
 	```
 	$ dt-load mongo
 	$ dt-load api

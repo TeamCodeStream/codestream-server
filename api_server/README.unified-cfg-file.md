@@ -10,17 +10,19 @@ CodeStream's server-side services can be configured in different arrangements,
 referred to as _codestream configurations_. The `dt-update-secrets` command
 installs two configurations for local development. `codestream-cloud` is a ready
 to go, out-of-the-box, configuration that mimicks production with mongo, api
-(using pubnub) mailin, mailout (lambda or vm, using sendgrid) & AWS SQS services.
-`onprem-development` is a template for the arrangement we use for onprem which
-includes mongo, api (using braodcaster), mailin, mailout (using NodeMail), the
-broadcaster & rabbitMQ.
+(using pubnub) mailin, mailout (lambda or vm, using sendgrid) & AWS SQS
+services. `onprem-development` is also runnable out-of-the-box and sets the
+arrangement we use for onprem which includes mongo, api (using braodcaster),
+mailin, mailout (using NodeMail), the broadcaster & rabbitMQ. Templates are also
+supported. They are like configuration files but you need to copy and edit them
+prior to use.
 
 You can create any configuration you want, derived from these or from scratch.
 What's important is that you know what configurations are available to you.
 
 #### The configuration file directory (~/.codestream/config)
 
-Config files, templates and control files all reside in _~/.codestream/config_.
+Config files, templates and control files all reside in _~/.codestream/config/_.
 The config files and templates are versioned so you'll see the number of files
 increase over time. You can delete the old ones but remember that if you
 checkout an old version of a sandbox, it may want a configuration file from
@@ -41,7 +43,7 @@ custom configurations over time.
 #### Select a configuration
 To select which configuration file your sandboxes use for local development,
 update `codestream-cfg-default.local`. This command indicates you
-want the _out-of-the-box_ `codestream-cloud` config.
+want the `codestream-cloud` config.
 ```
 $ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
 ```
@@ -50,17 +52,16 @@ $ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
 ### Stting up your configurations
 
 #### Out-of-the-box codestream-cloud configuration
-If you want to use the out-of-the-box **coudstream-cloud** configuration (note
-that email is suppressed in this config), you don't have to do anything. Just
-install it with:
+If you want to use the **coudstream-cloud** configuration (note that email is
+suppressed in this config), simply install it with:
 ```
 $ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
 ```
 
-#### Customized out-of-the-box codestream-cloud configuration
-If you want to customize the out-of-the-box **codestream-cloud** (or any other)
-configuration, choose a configuration name for it (_my-cs-config_ for example)
-and follow these directions:
+#### Customized codestream-cloud configuration
+If you want to customize the **codestream-cloud** (or any other) configuration,
+choose a configuration name for it (eg. _my-cs-config_) and follow these
+directions:
 
 * Change to the config file directory: `cd ~/.codestream/config`
 
@@ -87,34 +88,45 @@ and follow these directions:
 	$ echo my-cs-config > ~/.codestream/config/codestream-cfg-default.local
 	```
 
-#### Customize the onprem-development configuration template
+#### Utilizing a template
 
-If you want to use the **onprem-development** cloud configuration:
+For distributed templates (there are none at the moment, but for this example
+we'll call the configuration, _new-config_ which would be distributed as
+_new-config_local_{N}.json.template), do the following:
 
 * Change to the config file directory: `cd ~/.codestream/config`
 
-* Copy the latest `onprem-development_local_{N}_.json.template` to
-  `onprem-development_local_{N}_.json`
+* Copy the latest `new-config_local_{N}_.json.template` to
+  `new-config_local_{N}_.json`
     ```
-    $ latestFile=`ls ~/.codestream/config/onprem-development_local_*_.json.template|tail -1`
+    $ latestFile=`ls ~/.codestream/config/new-config_local_*_.json.template|tail -1`
     $ latestVersion=`basename $latestFile | cut -f3 -d_`
-    $ cp $latestFile ~/.codestream/config/onprem-development_local_${latestVersion}_.json
+    $ cp $latestFile ~/.codestream/config/new-config_local_${latestVersion}_.json
     ```
 
-* Edit the `~/.codestream/config/onprem-development_local_${latestVersion}_.json` to taste
+* Edit the `~/.codestream/config/new-config_local_${latestVersion}_.json` to taste
 
 * Add the file to a hook that carries your changes forward when the config file
   is updated. The update hook is a list of configurations, not just one.
 	```
-	$ echo onprem-development:onprem-development >> ~/.codestream/config/codestream-cfg-update-hook
+	$ echo new-config >> ~/.codestream/config/codestream-cfg-update-hook
 	```
+  If, instead of using the config name associated with the template, you called
+  it something else (for example, _new-custom-config_), you would add this to
+  the hook:
+    ```
+    $ echo new-config:new-custom-config >> ~/.codestream/config/codestream-cfg-update-hook
+    ```
+  which tells the hook to update the _new-custom-config_ from changes to the
+  _new-config_ template.
 
-* Configure onprem-development as your default codestream config
+* Configure new-config as your default codestream config
 	```
-	$ echo onprem-development > ~/.codestream/config/codestream-cfg-default.local
+	$ echo new-config > ~/.codestream/config/codestream-cfg-default.local
 	```
 
 ### Managing the Configuration Files
+
 1. Look in your **~/.codestream/config/** directory. You'll find config files
    (ending in `.json`) and templates (ending in `.json.template`). The list of
    config files and templates will grow over time. Consider these read-only.
@@ -149,24 +161,20 @@ If you want to use the **onprem-development** cloud configuration:
    This value will change over time and you will end up with numerious
    `codestream-cloud_local_*_json` (eg) files. That's normal.
 
-1. The `unified-cfg-file.sh` sandbox configuration will look for a configuration
-   file called **~/.codestream/config/codestream-services-config.json** as a
-   last resort. One option for maintaining your config file is to manage this
-   symbolic link yourself.
-   ```
-   $ cd ~/.codestream/config
-   $ ln -snf <the-config-file-you-want.json> codestream-services-config.json
-   $ ls -l
-   ```
-   You must set the link **_before_** loading any sandboxes.  If they're already
-   loaded, kill those terminals and fire up new ones and reload after you've set
-   the link.
+1. When a codestream sandbox is loaded using the **unified-cfg-file.sh** sandbox
+   configuration, it will locate the best matching version of the config file
+   that corressponds to the schema version in the git repo. If no environment is
+   specified (`CSSVC_ENV`), it assumes _**local**_. If no configuration is
+   specified (`CSSVC_CONFIGURATION`) it uses whatever is set in
+   `~/.codestream/config/codestream-cfg-default.{env}`
 
-1. Alternatively you can create this special file to indicate that you want the
-   _proper_ config schema version for a particular configuration. For example,
-   if you're running the `codestream-cloud` config on your development computer,
-   this will tell the sandboxes to look for the most recent schema version
-   config for a given repo.
+   You can override this by setting `CSSVC_CFG_FILE` to the actual config file
+   you want to use before loading the sandboxes.
+
+1. To set your default codestream configuration for the local environment,
+   update the default configuration file. For example, if you want the
+   **codestream-cloud** _codestream configuration_ as the default for the
+   _local_ environment, run:
    ```
    $ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
    ```
@@ -203,7 +211,7 @@ codestream-config_qa_6_.json       # app schema 6
 codestream-config_qa_7_.json       # app schema 7 and greater
 ```
 
-### Common Sandbox Environment Variables
+### Environment Variables
 
 You shouldn't need to use these for local development, but you should be aware
 of them.
