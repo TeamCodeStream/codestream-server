@@ -138,11 +138,13 @@
 		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
+			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new",
 			"runTimeEnvironment": "${CSSVC_ENV}"
 		},
 		"local": {},
 		"pd": {
 			"assetEnvironment": "dev",
+			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new",
 			"runTimeEnvironment": "pd"
 		},
 		"pi": {
@@ -151,10 +153,12 @@
 		},
 		"prod": {
 			"assetEnvironment": "prod",
+			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new",
 			"runTimeEnvironment": "prod"
 		},
 		"qa": {
 			"assetEnvironment": "prod",
+			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new",
 			"runTimeEnvironment": "qa"
 		}
 	},
