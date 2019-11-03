@@ -18,7 +18,7 @@ let WebAppCfg = {
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	ShowCfg = CfgData.getProperty('apiServer.showConfig');
-
+	WebAppCfg.marketingHost = CfgData.getProperty('apiServer.marketingSiteUrl');
 }
 else {
 	WebAppCfg.host = process.env.CS_API_WEB_CLIENT_ORIGIN || 'http://localhost:1380';
