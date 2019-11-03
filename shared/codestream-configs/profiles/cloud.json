@@ -41,6 +41,7 @@
 			"logger": {
 				"consoleOk": false
 			},
+			"marketingSiteUrl": "https://www.codestream.com",
 			"port": 8443,
 			"publicApiUrl": "https://api.codestream.com",
 			"runTimeEnvironment": "prod"
@@ -50,6 +51,7 @@
 			"logger": {
 				"consoleOk": false
 			},
+			"marketingSiteUrl": "https://www.codestream.com",
 			"port": 8443,
 			"publicApiUrl": "https://qa-api.codestream.us",
 			"runTimeEnvironment": "qa"

@@ -15,6 +15,7 @@
 			"debugOk": "more verbose logging (debug level) [CS_API_DEBUG_OK]",
 			"directory": "directory for api server logs [CS_API_LOGS]"
 		},
+		"marketingSiteUrl": "marketing site; used for redirects [CS_API_MARKETING_SITE_URL]",
 		"mockMode": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC [CS_API_MOCK_MODE]",
 		"port": "Network port for the api service [CS_API_PORT]",
 		"publicApiUrl": "public url to access the API server from beyond [CS_API_PUBLIC_URL]",
