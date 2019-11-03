@@ -91,6 +91,11 @@
 				"envRequired": true
 			}
 		},
+		"marketingSiteUrl": {
+			"default": "https://teamcodestream.webflow.io",
+			"desc": "marketing site; used for redirects",
+			"env": "CS_API_MARKETING_SITE_URL"
+		},
 		"mockMode": {
 			"default": false,
 			"desc": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC",

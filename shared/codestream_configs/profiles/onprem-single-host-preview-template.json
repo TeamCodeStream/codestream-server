@@ -16,6 +16,7 @@
 			"logger": {
 				"directory": "/opt/api/log"
 			},
+			"marketingSiteUrl": "https://www.codestream.com",
 			"port": 443,
 			"publicApiUrl": "https://{{FQHN}}",
 			"runTimeEnvironment": "onprem",
