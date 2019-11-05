@@ -68,6 +68,16 @@ const CODEMARK_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'codemarks/:id/remove-tag',
 		requestClass: require('./remove_tag_request')
+	},
+	{
+		method: 'put',
+		path: 'codemarks/follow/:id',
+		requestClass: require('./follow_codemark_request')
+	},
+	{
+		method: 'put',
+		path: 'codemarks/unfollow/:id',
+		requestClass: require('./unfollow_codemark_request')
 	}
 ];
 

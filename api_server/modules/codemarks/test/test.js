@@ -19,6 +19,8 @@ const RelateCodemarkRequestTester = require('./relate_codemark/test');
 const UnrelateCodemarkRequestTester = require('./unrelate_codemark/test');
 const AddTagRequestTester = require('./add_tag/test');
 const RemoveTagRequestTester = require('./remove_tag/test');
+const FollowRequestTester = require('./follow/test');
+const UnfollowRequestTester = require('./unfollow/test');
 
 describe('codemark requests', function() {
 
@@ -38,4 +40,6 @@ describe('codemark requests', function() {
 	describe('PUT /unrelate-codemark/:id1/:id2', UnrelateCodemarkRequestTester.test);
 	describe('PUT /codemarks/:id/add-tag', AddTagRequestTester.test);
 	describe('PUT /codemarks/:id/remove-tag', RemoveTagRequestTester.test);
+	describe('PUT /codemarks/follow/:id', FollowRequestTester.test);
+	describe('PUT /codemarks/unfollow/:id', UnfollowRequestTester.test);
 });
