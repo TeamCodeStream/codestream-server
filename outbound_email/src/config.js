@@ -30,7 +30,8 @@ if (CfgFileName) {
 	Cfg.pubnub.uuid = 'OutboundEmailServer';
 	Cfg.socketCluster = CfgData.getSection('broadcastEngine.codestreamBroadcaster');
 	Cfg.socketCluster.broadcasterSecret = CfgData.getProperty('broadcastEngine.codestreamBroadcaster.secrets.api');
-
+	Cfg.socketCluster.strictSSL = CfgData.getProperty('ssl.requireStrictSSL');
+	
 	Cfg.sendgrid = CfgData.getSection('emailDeliveryService.sendgrid');
 	Cfg.sendgrid.emailTo = CfgData.getProperty('email.emailTo');
 
