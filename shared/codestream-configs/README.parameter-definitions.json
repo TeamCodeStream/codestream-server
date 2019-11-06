@@ -203,7 +203,8 @@
 	"ssl": {
 		"cafile": "SSL certificate authority bundle (chain) file [CSSVC_SSL_CAFILE]",
 		"certfile": "SSL certificate [CSSVC_SSL_CERTFILE]",
-		"keyfile": "SSL private key file [CSSVC_SSL_KEYFILE]"
+		"keyfile": "SSL private key file [CSSVC_SSL_KEYFILE]",
+		"requireStrictSSL": "require client-side strict SSL certificate verification"
 	},
 	"storage": {
 		"mongo": {
