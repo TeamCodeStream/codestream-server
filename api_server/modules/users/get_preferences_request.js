@@ -14,6 +14,15 @@ class GetPreferencesRequest extends RestfulRequest {
 	async process () {
 		// just return the preferences in the response
 		this.responseData.preferences = this.request.user.get('preferences') || {};
+
+		// set defaults for notifications
+		if (!this.responseData.preferences.notifications) {
+			this.responseData.preferences.notifications = {
+				created: true,
+				mentions: true,
+				replies: true
+			};
+		}
 	}
 
 	// describe this route for help
