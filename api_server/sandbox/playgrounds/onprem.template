@@ -38,5 +38,7 @@ cd $CS_API_TOP
 
 echo "
 For a pre-configured rabbitMQ docker container, run:
-docker run -d -p 5672:5672 --name csrabbitmq teamcodestream/rabbitmq-onprem:0.0.0
+   docker run -d -p 5672:5672 -p 15672:15672--name csrabbitmq teamcodestream/rabbitmq-onprem:0.0.0
+
+RabbitMQ Admin UI is http://localhost:15672/ ; User: 'code'  Pass: 'stream'
 "
