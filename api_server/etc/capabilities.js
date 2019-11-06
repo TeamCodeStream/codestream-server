@@ -20,5 +20,9 @@ module.exports = {
 	'repoCommitMatching': {
 		description: 'Supports the /repos/match/:teamId call, which allows matches to be found for repos by remotes and known commit hashes',
 		version: '1.21.24'
+	},
+	'follow': {
+		description: 'Ability to follow or unfollow a codemark',
+		version: '1.21.25'
 	}
 };
