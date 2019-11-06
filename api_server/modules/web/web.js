@@ -97,6 +97,11 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: 'web/unfollow-error',
+		requestClass: require('./web_unfollow_error_request')
+	},
+	{
+		method: 'get',
 		path: 'no-auth/web/styles/web.css',
 		requestClass: require('./web_style')
 	},

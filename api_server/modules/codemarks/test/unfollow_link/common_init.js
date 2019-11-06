@@ -1,10 +1,12 @@
-// base class for many tests of the "PUT /codemarks/unfollow/:id" requests
+// base class for many tests of the "GET /no-auth/unfollow-link/:id" requests
 
 'use strict';
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
 
 class CommonInit {
 
@@ -43,28 +45,47 @@ class CommonInit {
 
 	// make the data to use when issuing the test request
 	makeTestData (callback) {
-		this.expectedResponse = {
+		const expectedVersion = 3;
+		const expiresIn = this.expiresIn || 3 * 30 * 24 * 60 * 60 * 1000; // three months
+		const expiresAt = Date.now() + expiresIn;
+		this.token = new TokenHandler(SecretsConfig.auth).generate(
+			{
+				uid: this.tokenUserId || this.currentUser.user.id
+			},
+			this.tokenType || 'unf',
+			{
+				expiresAt
+			}
+		);
+
+
+		this.message = {
 			codemark: {
 				_id: this.codemark.id,	// DEPRECATE ME
 				id: this.codemark.id,
 				$set: {
-					version: this.expectedVersion,
+					version: expectedVersion,
 					modifiedAt: Date.now() // placeholder
 				},
 				$pull: {
 					followerIds: this.currentUser.user.id
 				},
+				$addToSet: {
+					unfollowerIds: this.currentUser.user.id
+				},
 				$version: {
-					before: this.expectedVersion - 1,
-					after: this.expectedVersion
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};
+
 		this.modifiedAfter = Date.now();
-		this.path = `/codemarks/unfollow/${this.codemark.id}`;
+		this.path = `/no-auth/unfollow-link/${this.codemark.id}?t=${this.token}`;
 		this.expectedCodemark = DeepClone(this.codemark);
-		Object.assign(this.expectedCodemark, this.expectedResponse.codemark.$set);
+		Object.assign(this.expectedCodemark, this.message.codemark.$set);
 		this.expectedCodemark.followerIds = [];
+		this.expectedCodemark.unfollowerIds = [this.currentUser.user.id];
 		callback();
 	}
 
@@ -72,15 +93,14 @@ class CommonInit {
 	unfollowCodemark (callback) {
 		this.doApiRequest(
 			{
-				method: 'put',
-				path: `/codemarks/unfollow/${this.codemark.id}`,
-				token: this.currentUser.accessToken
+				method: 'get',
+				path: this.path,
+				requestOptions: {
+					noJsonInResponse: true,
+					expectRedirect: true
+				}
 			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.message = response;
-				callback();
-			}
+			callback
 		);
 	}
 }

@@ -78,6 +78,11 @@ const CODEMARK_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'codemarks/unfollow/:id',
 		requestClass: require('./unfollow_codemark_request')
+	},
+	{
+		method: 'get',
+		path: 'no-auth/unfollow-link/:id',
+		requestClass: require('./unfollow_link_request')
 	}
 ];
 
