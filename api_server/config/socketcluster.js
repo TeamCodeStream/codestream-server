@@ -18,11 +18,13 @@ if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	ShowCfg = CfgData.getProperty('apiServer.showConfig');
 	let BroadcastCfg = CfgData.getSection('broadcastEngine.codestreamBroadcaster');
+	const strictSSL = CfgData.getProperty('ssl.requireStrictSSL');
 	if (Object.keys(BroadcastCfg).length != 0) {
 		ClusterCfg = {
 			host: BroadcastCfg.host,
 			port: BroadcastCfg.port,
-			authKey: BroadcastCfg.secrets.api
+			authKey: BroadcastCfg.secrets.api,
+			strictSSL 
 		};
 	}
 }
