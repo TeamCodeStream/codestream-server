@@ -622,6 +622,10 @@
 			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-key",
 			"desc": "SSL private key file",
 			"env": "CSSVC_SSL_KEYFILE"
+		},
+		"requireStrictSSL": {
+			"default": true,
+			"desc": "require client-side strict SSL certificate verification"
 		}
 	},
 	"storage": {
