@@ -20,7 +20,7 @@ class SocketClusterClient {
 				hostname: this.config.host,
 				port: this.config.port,
 				multiplex: false,	// don't allow reusing connections
-				rejectUnauthorized: !this.config.dontRejectUnauthorized,
+				rejectUnauthorized: this.config.strictSSL,
 				secure: true
 			}); 
 			this.socket.on('connect', () => {
