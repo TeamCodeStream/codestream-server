@@ -45,7 +45,7 @@ class CommonInit {
 
 	// make the data to use when issuing the test request
 	makeTestData (callback) {
-		const expectedVersion = 3;
+		const expectedVersion = this.streamType === 'direct' ? 2 : 3;
 		const expiresIn = this.expiresIn || 3 * 30 * 24 * 60 * 60 * 1000; // three months
 		const expiresAt = Date.now() + expiresIn;
 		this.token = new TokenHandler(SecretsConfig.auth).generate(
@@ -70,9 +70,6 @@ class CommonInit {
 				$pull: {
 					followerIds: this.currentUser.user.id
 				},
-				$addToSet: {
-					unfollowerIds: this.currentUser.user.id
-				},
 				$version: {
 					before: expectedVersion - 1,
 					after: expectedVersion
@@ -84,8 +81,7 @@ class CommonInit {
 		this.path = `/no-auth/unfollow-link/${this.codemark.id}?t=${this.token}`;
 		this.expectedCodemark = DeepClone(this.codemark);
 		Object.assign(this.expectedCodemark, this.message.codemark.$set);
-		this.expectedCodemark.followerIds = [];
-		this.expectedCodemark.unfollowerIds = [this.currentUser.user.id];
+		this.expectedCodemark.followerIds = [this.users[1].user.id];
 		callback();
 	}
 

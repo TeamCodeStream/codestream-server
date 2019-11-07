@@ -15,6 +15,10 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// make the data that triggers the message to be received
 	makeData (callback) {
+		if (this.streamType === 'direct') {
+			this.skipFollow = true;
+			this.expectedVersion = 2;
+		}
 		this.init(callback);
 	}
 

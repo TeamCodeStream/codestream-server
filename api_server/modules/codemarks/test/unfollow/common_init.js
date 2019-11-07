@@ -64,7 +64,7 @@ class CommonInit {
 		this.path = `/codemarks/unfollow/${this.codemark.id}`;
 		this.expectedCodemark = DeepClone(this.codemark);
 		Object.assign(this.expectedCodemark, this.expectedResponse.codemark.$set);
-		this.expectedCodemark.followerIds = [];
+		this.expectedCodemark.followerIds = [this.users[1].user.id];
 		callback();
 	}
 
