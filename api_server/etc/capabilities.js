@@ -20,9 +20,11 @@ module.exports = {
 	'repoCommitMatching': {
 		description: 'Supports the /repos/match/:teamId call, which allows matches to be found for repos by remotes and known commit hashes',
 		version: '1.21.24'
-	},
+	}/*,
+	// When we're ready to support the "sharing" model, this will display Follow/Unfollow in the codemark menu
 	'follow': {
 		description: 'Ability to follow or unfollow a codemark',
 		version: '1.21.25'
 	}
+	*/
 };
