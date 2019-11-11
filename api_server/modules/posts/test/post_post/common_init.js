@@ -35,6 +35,21 @@ class CommonInit {
 			}
 		);
 	}
+	
+	// set the current user's preference for notifications
+	setNotificationPreference (preference, userIndex, callback) {
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/preferences',
+				data: {
+					notifications: preference
+				},
+				token: this.users[userIndex].accessToken
+			},
+			callback
+		);
+	}
 }
 
 module.exports = CommonInit;

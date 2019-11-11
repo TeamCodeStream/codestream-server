@@ -128,31 +128,46 @@ class CodemarkHelper {
 	}
 
 	// handle followers added to a codemark
-	async handleFollowers (attributes, mentionedUserIds, existingAttributes) {
-		// for any users passed in and any mentioned users, verify that they are actually on the team
-		let followerIds = ArrayUtilities.union(mentionedUserIds || [], attributes.followerIds || []);
-		if (followerIds.length > 0) {
-			await this.validateFollowers(followerIds, attributes.teamId);
+	async handleFollowers (attributes, options) {
+		// get the stream, if this is a codemark for a CodeStream team
+		let stream;
+		if (!attributes.providerType && attributes.streamId) {
+			stream = await this.request.data.streams.getById(attributes.streamId);
 		}
 
-		// ensure codemark creator is a follower
-		if (attributes.creatorId && followerIds.indexOf(attributes.creatorId) === -1) {
+		// get user preferences of all users who can see this codemark
+		const preferences = await this.getUserFollowPreferences(stream, options.team);
+
+		// add as followers any users who choose to follow all codemarks
+		let followerIds = [...preferences.all];
+
+		// ensure codemark creator is a follower if they want to be
+		if (
+			attributes.creatorId &&
+			followerIds.indexOf(attributes.creatorId) === -1 &&
+			preferences.involveMe.indexOf(attributes.creatorId) !== -1
+		) {
 			followerIds.push(attributes.creatorId);
 		}
 
-		// if the stream is a DM, everyone in the DM is a follower
-		const providerType = (existingAttributes && existingAttributes.providerType) || attributes.providerType;
-		const streamId = (existingAttributes && existingAttributes.streamId) || attributes.streamId;
-		if (!providerType && streamId) {
-			const stream = await this.request.data.streams.getById(streamId);
-			if (stream && stream.get('type') === 'direct') {
-				followerIds = ArrayUtilities.union(followerIds, stream.get('memberIds'));
-			}
+		// if the stream is a DM, everyone in the DM is a follower who wants to be
+		if (stream && stream.get('type') === 'direct') {
+			const membersWhoWantToFollow = ArrayUtilities.intersection(preferences.involveMe, stream.get('memberIds') || []);
+			followerIds = ArrayUtilities.union(followerIds, membersWhoWantToFollow);
 		}
 
-		// new followers are given by the difference with the existing followers (if any)
-		const existingFollowerIds = (existingAttributes && existingAttributes.followerIds) || [];
-		return ArrayUtilities.difference(followerIds, existingFollowerIds);
+		// must validate mentioned users and explicit followers, since these come directly from the request
+		const validateUserIds = ArrayUtilities.union(options.mentionedUserIds || [], attributes.followerIds || []);
+		await this.validateFollowers(validateUserIds, attributes.teamId);
+
+		// any mentioned users are followers if they want to be
+		const mentionedWhoWantToFollow = ArrayUtilities.intersection(preferences.involveMe, options.mentionedUserIds || []);
+		followerIds = ArrayUtilities.union(followerIds, mentionedWhoWantToFollow);
+
+		// users passed in a explicitly followers, overriding other rules
+		followerIds = ArrayUtilities.union(followerIds, attributes.followerIds || []);
+
+		return followerIds;
 	}
 
 	// validate the followers of a codemark
@@ -171,6 +186,58 @@ class CodemarkHelper {
 		) {
 			throw this.request.errorHandler.error('validation', { info: 'followers must contain only users on the team' });
 		}
+	}
+
+	// get user preferences of all users who can see this codemark, so we can determine who should follow a codemark
+	async getUserFollowPreferences (stream, team) {
+		if (!team && !stream) {
+			throw 'must provide stream or team';
+		}
+		let memberIds;
+		if (stream && (!stream.get('isTeamStream') || stream.get('type') !== 'file')) {
+			// members come from the stream
+			memberIds = stream.get('memberIds') || [];
+		}
+		else {
+			// members come from the team
+			memberIds = team.get('memberIds') || [];
+		}
+		if (memberIds.length === 0) {
+			return { all: [], involveMe: [] };
+		}
+
+		// fetch preferences for the members
+		const users = await this.request.data.users.getByIds(
+			memberIds,
+			{
+				fields: ['id', 'preferences'],
+				noCache: true,
+				ignoreCache: true
+			}
+		);
+
+		// categorize users according to whether they want notifications for all codemarks,
+		// or only those that involve them (meaning they are creator or mentioned)
+		const categorizedPreferences = {
+			all: [],
+			involveMe: []
+		};
+		users.forEach(user => {
+			if (!user.get('deactivated')) {
+				const preferences = user.get('preferences');
+				if (
+					!preferences ||
+					!preferences.notifications ||
+					preferences.notifications === 'involveMe'
+				) {
+					categorizedPreferences.involveMe.push(user.id);
+				}
+				else if (preferences.notifications === 'all') {
+					categorizedPreferences.all.push(user.id);
+				}
+			}
+		});
+		return categorizedPreferences;
 	}
 }
 

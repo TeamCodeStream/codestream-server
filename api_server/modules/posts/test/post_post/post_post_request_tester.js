@@ -114,8 +114,19 @@ const InvalidFollowerTest = require('./invalid_follower_test');
 const FollowerNotOnTeamTest = require('./follower_not_on_team_test');
 const FollowersFromDirectStreamTest = require('./followers_from_direct_stream_test');
 const FollowersMentionedTest = require('./followers_mentioned_test');
+const FollowingFromReplyTest = require('./following_from_reply_test');
 const InvalidMentionTest = require('./invalid_mention_test');
 const MentionedNotOnTeamTest = require('./mentioned_not_on_team_test');
+const FollowByPreferenceAllTest = require('./follow_by_preference_all_test');
+const FollowByPreferenceCreationTest = require('./follow_by_preference_creation_test');
+const FollowByPreferenceMentionTest = require('./follow_by_preference_mention_test');
+const FollowByPreferenceDirectStreamTest = require('./follow_by_preference_direct_stream_test');
+const FollowByPreferenceRepliesTest = require('./follow_by_preference_replies_test');
+const NoFollowAllByPreference = require('./no_follow_all_by_preference_test');
+const NoFollowCreationByPreferenceTest = require('./no_follow_creation_by_preference_test');
+const NoFollowDirectStreamByPreferenceTest = require('./no_follow_direct_stream_by_preference_test');
+const NoFollowMentionByPreferenceTest = require('./no_follow_mention_by_preference_test');
+const NoFollowRepliesByPreferenceTest = require('./no_follow_replies_by_preference_test');
 
 class PostPostRequestTester {
 
@@ -249,8 +260,19 @@ class PostPostRequestTester {
 		new FollowerNotOnTeamTest().test();
 		new FollowersFromDirectStreamTest().test();
 		new FollowersMentionedTest().test();
+		new FollowingFromReplyTest().test();
 		new InvalidMentionTest().test();
 		new MentionedNotOnTeamTest().test();
+		new FollowByPreferenceAllTest().test();
+		new FollowByPreferenceCreationTest().test();
+		new FollowByPreferenceMentionTest().test();
+		new FollowByPreferenceDirectStreamTest().test();
+		new FollowByPreferenceRepliesTest().test();
+		new NoFollowAllByPreference().test();
+		new NoFollowCreationByPreferenceTest().test();
+		new NoFollowDirectStreamByPreferenceTest().test();
+		new NoFollowMentionByPreferenceTest().test();
+		new NoFollowRepliesByPreferenceTest().test();
 	}
 }
 

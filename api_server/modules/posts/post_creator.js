@@ -236,6 +236,14 @@ class PostCreator extends ModelCreator {
 				modifiedAt: Date.now()
 			}
 		};
+
+		// also add this user as a follower if they have that preference, and are not a follower already
+		const userNotificationPreference = (this.user.get('preferences') || {}).notifications || 'involveMe';
+		const followerIds = codemark.get('followerIds') || [];
+		if (userNotificationPreference === 'involveMe' && followerIds.indexOf(this.user.id) === -1) {
+			op.$push = { followerIds: this.user.id };
+		}
+
 		this.transforms.updatedCodemarks = this.transforms.updatedCodemarks || [];
 		const codemarkUpdate = await new ModelSaver({
 			request: this.request,

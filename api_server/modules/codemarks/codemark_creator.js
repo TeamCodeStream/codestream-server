@@ -165,7 +165,13 @@ class CodemarkCreator extends ModelCreator {
 		await this.codemarkHelper.validateAssignees({}, this.attributes);
 
 		// handle followers, either passed in or default for the given situation
-		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(this.attributes, this.mentionedUserIds);
+		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(
+			this.attributes,
+			{
+				mentionedUserIds: this.mentionedUserIds,
+				team: this.team
+			}
+		);
 
 		// create a permalink to this codemark, as needed
 		if (!this.dontCreatePermalink) {

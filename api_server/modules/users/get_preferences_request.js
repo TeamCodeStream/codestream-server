@@ -17,11 +17,7 @@ class GetPreferencesRequest extends RestfulRequest {
 
 		// set defaults for notifications
 		if (!this.responseData.preferences.notifications) {
-			this.responseData.preferences.notifications = {
-				created: true,
-				mentions: true,
-				replies: true
-			};
+			this.responseData.preferences.notifications = 'involveMe';
 		}
 	}
 
