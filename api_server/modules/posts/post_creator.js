@@ -6,6 +6,7 @@ const Post = require('./post');
 const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 const LastReadsUpdater = require('./last_reads_updater');
 const PostPublisher = require('./post_publisher');
+const EmailNotificationQueue = require('./email_notification_queue');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
@@ -408,12 +409,32 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 
-		const message = {
-			type: 'notification_v2',
-			postId: this.model.id
-		};
-		this.request.log(`Triggering email notifications for post ${this.model.id}...`);
-		this.request.api.services.email.queueEmailSend(message, { request: this.request });
+		// here we are paving the way for v2 email notifications, meaning those that base email notifications
+		// off of codemarks, rather than posts in the stream (part of the "sharing" model) ... until we are
+		// ready to turn that paradigm on, we stick with the old...
+		if (!process.env.CS_API_V2_EMAIL_NOTIFICATIONS) {
+			const queue = new EmailNotificationQueue({
+				request: this.request,
+				fromSeqNum: this.model.get('seqNum'),
+				initialTriggerTime: this.model.get('createdAt'),
+				stream: this.stream
+			});
+			try {
+				this.request.log(`Queuing email notifications for post ${this.model.id}...`);
+				await queue.initiateEmailNotifications();
+			}
+			catch (error) {
+				this.request.warn(`Unable to queue email notifications for stream ${this.stream.id} and post ${this.model.id}: ${error.toString()}`);
+			}
+		}
+		else {			
+			const message = {
+				type: 'notification_v2',
+				postId: this.model.id
+			};
+			this.request.log(`Triggering email notifications for post ${this.model.id}...`);
+			this.request.api.services.email.queueEmailSend(message, { request: this.request });
+		}
 	}
 
 	// publish a message reflecting this post to the post's author
