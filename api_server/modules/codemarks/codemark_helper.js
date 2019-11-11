@@ -2,6 +2,7 @@
 
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const PostIndexes = require(process.env.CS_API_TOP + '/modules/posts/indexes');
 
 class CodemarkHelper {
 
@@ -132,7 +133,7 @@ class CodemarkHelper {
 		// get the stream, if this is a codemark for a CodeStream team
 		let stream;
 		if (!attributes.providerType && attributes.streamId) {
-			stream = await this.request.data.streams.getById(attributes.streamId);
+			stream = options.stream || await this.request.data.streams.getById(attributes.streamId);
 		}
 
 		// get user preferences of all users who can see this codemark
@@ -164,7 +165,14 @@ class CodemarkHelper {
 		const mentionedWhoWantToFollow = ArrayUtilities.intersection(preferences.involveMe, options.mentionedUserIds || []);
 		followerIds = ArrayUtilities.union(followerIds, mentionedWhoWantToFollow);
 
-		// users passed in a explicitly followers, overriding other rules
+		// users who have replied to this codemark are followers, if they want to be
+		if (options.parentPost) {
+			const repliers = await this.getPostRepliers(options.parentPost.id, options.team.id, stream.id);
+			const repliersWhoWantToFollow = ArrayUtilities.intersection(preferences.involveMe, repliers);
+			followerIds = ArrayUtilities.union(followerIds, repliersWhoWantToFollow);
+		}
+
+		// users passed in are explicitly followers, overriding other rules
 		followerIds = ArrayUtilities.union(followerIds, attributes.followerIds || []);
 
 		return followerIds;
@@ -194,7 +202,7 @@ class CodemarkHelper {
 			throw 'must provide stream or team';
 		}
 		let memberIds;
-		if (stream && (!stream.get('isTeamStream') || stream.get('type') !== 'file')) {
+		if (stream && !stream.get('isTeamStream') && stream.get('type') !== 'file') {
 			// members come from the stream
 			memberIds = stream.get('memberIds') || [];
 		}
@@ -238,6 +246,24 @@ class CodemarkHelper {
 			}
 		});
 		return categorizedPreferences;
+	}
+
+	// get users who have replied to a post 
+	async getPostRepliers (postId, teamId, streamId) {
+		const replyPosts = await this.request.data.posts.getByQuery(
+			{
+				teamId,
+				streamId,
+				parentPostId: postId
+			},
+			{
+				hint: PostIndexes.byParentPostId,
+				fields: ['creatorId'],
+				noCache: true,
+				ignoreCache: true
+			}
+		);
+		return replyPosts.map(post => post.creatorId);
 	}
 }
 

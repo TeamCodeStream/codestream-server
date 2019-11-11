@@ -10,6 +10,7 @@ const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_
 const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const CodemarkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_creator');
+const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_helper');
 const Errors = require('./errors');
 
 class PostCreator extends ModelCreator {
@@ -237,11 +238,34 @@ class PostCreator extends ModelCreator {
 			}
 		};
 
+		// if this is a legacy codemark, created before codemark following was introduced per the "sharing" model,
+		// we need to fill its followerIds array with the appropriate users
+		if (codemark.get('followerIds') === undefined) {
+			op.$set.followerIds = await new CodemarkHelper({ request: this.request }).handleFollowers(
+				codemark.attributes,
+				{
+					mentionedUserIds: this.parentPost.get('mentionedUserIds'),
+					team: this.team,
+					stream: this.stream,
+					parentPost: this.parentPost
+				}
+			);
+		}
+
 		// also add this user as a follower if they have that preference, and are not a follower already
 		const userNotificationPreference = (this.user.get('preferences') || {}).notifications || 'involveMe';
 		const followerIds = codemark.get('followerIds') || [];
 		if (userNotificationPreference === 'involveMe' && followerIds.indexOf(this.user.id) === -1) {
-			op.$push = { followerIds: this.user.id };
+			if (op.$set.followerIds) {
+				// here we're just adding the replying user to the followerIds array for the legacy codemark,
+				// described above
+				if (op.$set.followerIds.indexOf(this.user.id) === -1) {
+					op.$set.followerIds.push(this.user.id);
+				}
+			}
+			else {
+				op.$push = { followerIds: this.user.id };
+			}
 		}
 
 		this.transforms.updatedCodemarks = this.transforms.updatedCodemarks || [];
