@@ -24,13 +24,6 @@
 		"local": {
 			"helpIsAvailable": true
 		},
-		"pd": {
-			"assetEnvironment": "dev",
-			"helpIsAvailable": true,
-			"port": 9443,
-			"publicApiUrl": "https://pd-api.codestream.us:9443",
-			"runTimeEnvironment": "pd"
-		},
 		"pi": {
 			"assetEnvironment": "prod",
 			"runTimeEnvironment": "pi"
@@ -93,13 +86,6 @@
 			"suppressEmails": false
 		},
 		"local": {},
-		"pd": {
-			"emailTo": null,
-			"replyToDomain": "pd.codestream.com",
-			"senderEmail": "pd_alerts@codestream.com",
-			"supportEmail": "pd_support@codestream.com",
-			"suppressEmails": false
-		},
 		"pi": {
 			"replyToDomain": "pi.codestream.com",
 			"senderEmail": "pi_alerts@codestream.com",
@@ -144,11 +130,6 @@
 			"runTimeEnvironment": "${CSSVC_ENV}"
 		},
 		"local": {},
-		"pd": {
-			"assetEnvironment": "dev",
-			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new",
-			"runTimeEnvironment": "pd"
-		},
 		"pi": {
 			"assetEnvironment": "prod",
 			"runTimeEnvironment": "pi"
@@ -280,10 +261,6 @@
 			}
 		},
 		"local": {},
-		"pd": {
-			"assetEnvironment": "dev",
-			"runTimeEnvironment": "pd"
-		},
 		"pi": {
 			"assetEnvironment": "prod",
 			"runTimeEnvironment": "pi"
@@ -306,9 +283,6 @@
 				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
 			},
 			"local": {},
-			"pd": {
-				"outboundEmailQueueName": "pd_outboundEmail"
-			},
 			"pi": {
 				"outboundEmailQueueName": "ci_outboundEmail"
 			},
@@ -353,9 +327,6 @@
 	"storage": {
 		"mongo": {
 			"defaultEnv": {},
-			"pd": {
-				"url": "mongodb://localhost:47017/codestream"
-			},
 			"prod": {
 				"_loadSecretsFile": "mongo/prod.cfg"
 			},
