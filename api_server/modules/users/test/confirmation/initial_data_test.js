@@ -44,7 +44,7 @@ class InitialDataTest extends ConfirmationTest {
 		this.validateMatchingObject(this.team.id, data.teams[0], 'team');
 		Assert(data.repos.length === 1, 'no repo in response');
 		this.validateMatchingObject(this.repo.id, data.repos[0], 'repo');
-		Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct\n\nGOT:\n' + JSON.stringify(data.teams[0].providerHosts, undefined, 5) + '\n\nEXPECTED:\n' + JSON.stringify(STANDARD_PROVIDER_HOSTS, undefined, 5));
+		Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');
 		super.validateResponse(data);
 	}
 }
