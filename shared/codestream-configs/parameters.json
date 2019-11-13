@@ -437,11 +437,17 @@
 				"appClientSecret": {
 					"desc": "Slack app secret (legacy scopes)"
 				},
+				"appId": {
+					"desc": "Slack app Id (legacy scopes)"
+				},
 				"appSharingClientId": {
 					"desc": "Slack sharing app client Id"
 				},
 				"appSharingClientSecret": {
 					"desc": "Slack sharing app secret"
+				},
+				"appSharingId": {
+					"desc": "Slack sharing app Id"
 				},
 				"appSharingSigningSecret": {
 					"default": null,
@@ -456,6 +462,9 @@
 				},
 				"appStrictClientSecret": {
 					"desc": "Slack strict app secret"
+				},
+				"appStrictId": {
+					"desc": "Slack strict app Id"
 				},
 				"appStrictSigningSecret": {
 					"default": null,

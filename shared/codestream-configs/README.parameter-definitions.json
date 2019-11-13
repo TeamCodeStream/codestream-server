@@ -141,12 +141,15 @@
 			"<appProvider>": {
 				"appClientId": "Slack app client Id (legacy scopes)",
 				"appClientSecret": "Slack app secret (legacy scopes)",
+				"appId": "Slack app Id (legacy scopes)",
 				"appSharingClientId": "Slack sharing app client Id",
 				"appSharingClientSecret": "Slack sharing app secret",
+				"appSharingId": "Slack sharing app Id",
 				"appSharingSigningSecret": "Slack sharing app signing secret",
 				"appSigningSecret": "Slack app signing secret (legacy scopes)",
 				"appStrictClientId": "Slack strict app client Id",
 				"appStrictClientSecret": "Slack strict app secret",
+				"appStrictId": "Slack strict app Id",
 				"appStrictSigningSecret": "Slack strict app signing secret",
 				"interactiveComponentsEnabled": "enable interactive component callbacks"
 			}
