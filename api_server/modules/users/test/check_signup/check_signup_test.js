@@ -59,7 +59,7 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(data.broadcasterToken, 'no broadcaster token');
 		Assert.deepEqual(data.capabilities, UserTestConstants.API_CAPABILITIES, 'capabilities are incorrect');
 		Assert(data.teams.length === 1, 'no team in response');
-		Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');
+		Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct\n\nGOT:\n' + JSON.stringify(data.teams[0].providerHosts, undefined, 5) + '\n\nEXPECTED:\n' + JSON.stringify(STANDARD_PROVIDER_HOSTS, undefined, 5));
 		this.validateMatchingObject(this.team.id, data.teams[0], 'team');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
