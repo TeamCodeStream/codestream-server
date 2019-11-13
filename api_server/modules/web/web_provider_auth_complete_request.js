@@ -137,9 +137,11 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 			return this.loginError(WebErrors.userNotRegistered);
 		}
 
+		const twentyYears = 20 * 365 * 24 * 60 * 60 * 1000;
 		this.response.cookie(this.api.config.api.identityCookie, this.token, {
 			secure: true,
-			signed: true
+			signed: true,
+			expires: new Date(Date.now() + twentyYears)
 		});
 		return true;
 	}
