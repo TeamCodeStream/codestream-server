@@ -99,7 +99,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		name: 'slack',
 		isEnterprise: false,
 		host: 'slack.com',
-		apiHost: 'slack.com/api' 
+		apiHost: 'slack.com/api',
+		hasSharing: true
 	}
 };
 

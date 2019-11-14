@@ -90,6 +90,7 @@ class CommonInit {
 		}
 
 		this.data = {
+			type: 'block_actions',
 			user: {
 				id: this.mockUserId
 			},

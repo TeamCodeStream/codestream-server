@@ -41,18 +41,15 @@ class SlackInteractiveComponentsHandler {
 
 	async handleBlockActionGeneric() {
 		const payloadActionUser = await this.getUser(this.payload.user.id);
-		if (payloadActionUser) {
-			const team = await this.getTeam(
-				payloadActionUser,
-				this.actionPayload.teamId
-			);
-			return {
-				actionUser: payloadActionUser,
-				actionTeam: team,
-				payloadUserId: this.payload.user.id
-			};
-		}
-		return undefined;
+		const team = await this.getTeam(
+			payloadActionUser,
+			this.actionPayload.teamId
+		);
+		return {
+			actionUser: payloadActionUser,
+			actionTeam: team,
+			payloadUserId: this.payload.user.id
+		};
 	}
 
 	async handleViewSubmission() {

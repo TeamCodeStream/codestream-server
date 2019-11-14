@@ -38,7 +38,7 @@ class ProviderActionRequest extends RestfulRequest {
 					if (results.responseData) {
 						this.responseData = results.responseData;
 					}
-					if (results.actionUser && results.actionTeam) {
+					if (results.actionTeam) {
 						const company = await this.getCompany(
 							results.actionTeam
 						);
@@ -108,7 +108,7 @@ class ProviderActionRequest extends RestfulRequest {
 
 	// send telemetry event associated with this action
 	async sendTelemetry(actionPayload, user, providerUserId, team, company) {
-		if (!actionPayload || !user || !team) return;
+		if (!actionPayload || (!user && !providerUserId) || !team) return;
 
 		const info = this.getTrackingInfo(actionPayload);
 		if (!info) {
