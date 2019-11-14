@@ -28,11 +28,21 @@ if (CfgFileName) {
 else {
 	SlackCfg.appClientId = process.env.CS_API_SLACK_CLIENT_ID;
 	SlackCfg.appClientSecret = process.env.CS_API_SLACK_CLIENT_SECRET;
+	SlackCfg.appSigningSecret = process.env.CS_API_SLACK_SIGNING_SECRET;
+
 	SlackCfg.appStrictClientId = process.env.CS_API_SLACK_STRICT_CLIENT_ID;
 	SlackCfg.appStrictClientSecret = process.env.CS_API_SLACK_STRICT_CLIENT_SECRET;
+	SlackCfg.appStrictSigningSecret = process.env.CS_API_SLACK_STRICT_SIGNING_SECRET;
+
 	SlackCfg.appSharingClientId = process.env.CS_API_SLACK_SHARING_CLIENT_ID;
 	SlackCfg.appSharingClientSecret = process.env.CS_API_SLACK_SHARING_CLIENT_SECRET;
+	SlackCfg.appSharingSigningSecret = process.env.CS_API_SLACK_SHARING_SIGNING_SECRET;
 }
+
+SlackCfg.signingSecretsByAppIds = {};
+SlackCfg.signingSecretsByAppIds[SlackCfg.appId] = SlackCfg.appSigningSecret;
+SlackCfg.signingSecretsByAppIds[SlackCfg.appStrictId] = SlackCfg.appStrictSigningSecret;
+SlackCfg.signingSecretsByAppIds[SlackCfg.appSharingId] = SlackCfg.appSharingSigningSecret;
 
 if (ShowCfg) console.log('Config[slack]:', JSON.stringify(SlackCfg, undefined, 10));
 module.exports = SlackCfg;
