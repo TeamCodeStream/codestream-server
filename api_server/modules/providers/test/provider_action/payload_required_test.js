@@ -21,7 +21,7 @@ class PayloadRequiredTest extends ProviderActionTest {
 			this.data = { };
 		}
 		else {
-			this.data = 'payload=';
+			this.data = '';
 		}
 		callback();
 	}
