@@ -73,6 +73,7 @@ class GetPreferencesTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
+		this.expectData.notifications = 'involveMe'; // a default 
 		// validate that we got back the data we wrote
 		Assert.deepEqual(data.preferences, this.expectData, 'returned preference data does not match');
 	}
