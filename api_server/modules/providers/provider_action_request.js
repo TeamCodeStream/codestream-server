@@ -3,9 +3,11 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
-const ProviderDisplayNames = require(process.env.CS_API_TOP + '/modules/web/provider_display_names');
-const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
+const RestfulRequest = require(process.env.CS_API_TOP +
+	'/lib/util/restful/restful_request.js');
+const ProviderDisplayNames = require(process.env.CS_API_TOP +
+	'/modules/web/provider_display_names');
+const SlackInteractiveComponentsHandler = require('./slack_interactive_components_handler');
 
 const CODE_PROVIDERS = {
 	github: 'GitHub',
@@ -14,170 +16,165 @@ const CODE_PROVIDERS = {
 	'azure-devops': 'Azure DevOps',
 	vsts: 'Azure DevOps'
 };
-	
-class ProviderActionRequest extends RestfulRequest {
 
-	async authorize () {
+class ProviderActionRequest extends RestfulRequest {
+	async authorize() {
 		// no authorization necessary, authorization is handled by the processing logic
 	}
 
 	// process the request...
-	async process () {
+	async process() {
 		this.provider = this.request.params.provider.toLowerCase();
-
-		await this.requireAndAllow();	// require certain parameters, discard unknown parameters
-
-		this.parseActionInfo() && 	// parse the action info within the payload
-		await this.getUser() &&		// get the user that initiated this action
-		await this.getTeam() &&		// get the team the user is on, matching the identity
-		await this.getCompany() &&	// get the company the team belongs to
-		await this.sendTelemetry();	// send telemetry for this action
+		if (this.provider === 'slack') {
+			await this.requireAndAllow(); // require certain parameters, discard unknown parameters
+			const data = this.parseSlackActionInfo();
+			if (data) {
+				const handler = new SlackInteractiveComponentsHandler(
+					this,
+					data
+				);
+				const results = await handler.process();
+				if (results) {
+					if (results.responseData) {
+						this.responseData = results.responseData;
+					}
+					if (results.actionUser && results.actionTeam) {
+						const company = await this.getCompany(
+							results.actionTeam
+						);
+						await this.sendTelemetry(
+							data.actionPayload,
+							results.actionUser,
+							results.payloadUserId,
+							results.actionTeam,
+							company
+						);
+					}
+				}
+			}
+		}
+		// else if (this.provider === 'msteams') {
+		// }
 	}
 
 	// require certain parameters, discard unknown parameters
-	async requireAndAllow () {
-		await this.requireAllowParameters(
-			'body',
-			{
-				required: {
-					object: ['payload']
-				}
+	async requireAndAllow() {
+		await this.requireAllowParameters('body', {
+			required: {
+				object: ['payload']
 			}
-		);
+		});
 	}
 
 	// parse the action info within the given payload
-	parseActionInfo () {
-		const action_id = this.request.body.payload.actions &&
-			this.request.body.payload.actions[0] &&
-			this.request.body.payload.actions[0].action_id;
-		if (!action_id) {
-			this.log(`Could not find action_id within the ${this.provider} payload`);
-			return false;
+	parseSlackActionInfo() {
+		const payload = this.request.body.payload;
+
+		let actionPayload;
+		let actionOrCallbackId =
+			payload.actions &&
+			payload.actions[0] &&
+			payload.actions[0].action_id;
+		if (!actionOrCallbackId) {
+			actionOrCallbackId = payload.view && payload.view.private_metadata;
+		}
+		if (!actionOrCallbackId) {
+			this.log(
+				`Could not find action_id within the ${this.provider} payload`
+			);
+			return undefined;
 		}
 
 		try {
-			this.actionPayload = JSON.parse(action_id);
+			actionPayload = JSON.parse(actionOrCallbackId);
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : JSON.stringify(error);
+			this.log(
+				`Unable to parse action_id sent with ${this.provider} payload: ${message}`
+			);
+			return undefined;
 		}
-		catch (error) {
-			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			this.log(`Unable to parse action_id sent with ${this.provider} payload: ${message}`);
-			return false;
-		}
-		return true;
-	}
-
-	// get the user that initiated this action
-	async getUser () {
-		this.providerUserId = this.request.body.payload.user &&
-			this.request.body.payload.user.id;
-		if (!this.providerUserId) {
-			this.log(`${this.provider} did not give a user ID in action payload`);
-			return false;
-		}
-
-		const users = await this.data.users.getByQuery(
-			{
-				providerIdentities: `${this.provider}::${this.providerUserId}`,
-				deactivated: false
-			},
-			{ hint: UserIndexes.byProviderIdentities } 
-		);
-
-		if (users.length > 1) {
-			// this shouldn't really happen
-			this.log(`Multiple CodeStream users found matching ${this.provider} identity ${this.providerUserId}`);
-			return false;
-		}
-		if (users.length === 1) {
-			this.user = users[0];
-		}
-		return true;
-	}
-
-	// get the team the user is on, matching the identity
-	async getTeam () {
-		const teamId = this.actionPayload.teamId;
-		if (!teamId) {
-			this.log(`Could not find teamId within the ${this.provider} action payload`);
-			return false;
-		} 
-		if (this.user && !this.user.hasTeam(teamId)) {
-			this.log(`User is not a member of the team provided in ${this.provider} action payload`);
-			return false;
-		}
-		this.team = await this.data.teams.getById(teamId);
-		if (!this.team) {
-			this.log(`Team not found, as provided in ${this.provider} action payload`);
-			return false;
-		}
-		return true;
+		return {
+			payload: payload,
+			actionPayload: actionPayload
+		};
 	}
 
 	// get the company that owns the team
-	async getCompany () {
-		this.company = await this.data.companies.getById(this.team.get('companyId'));
-		return true;	// we'll tolerate not being able to find the company, though it would be weird....
+	async getCompany(team) {
+		return await this.data.companies.getById(team.get('companyId'));
 	}
 
 	// send telemetry event associated with this action
-	async sendTelemetry () {
-		const info = this.getTrackingInfo();
+	async sendTelemetry(actionPayload, user, providerUserId, team, company) {
+		if (!actionPayload || !user || !team) return;
+
+		const info = this.getTrackingInfo(actionPayload);
 		if (!info) {
-			this.log(`Could not get tracking info from ${this.provider} payload`);
+			this.log(
+				`Could not get tracking info from ${this.provider} payload`
+			);
 			return false;
 		}
 
-		const provider = this.provider === 'slack' ? 'Slack' :
-			this.provider === 'msteams' ? 'MSTeams' : this.provider;
+		const provider =
+			this.provider === 'slack'
+				? 'Slack'
+				: this.provider === 'msteams'
+					? 'MSTeams'
+					: this.provider;
 		const trackData = {
 			Provider: provider,
 			Endpoint: provider
 		};
-		if (!this.user) {
-			trackData.distinct_id = this.providerUserId;
+		if (!user) {
+			trackData.distinct_id = providerUserId;
 		}
 
 		Object.assign(trackData, info.data);
 		this.api.services.analytics.trackWithSuperProperties(
 			info.event,
 			trackData,
-			{ 
+			{
 				request: this,
-				user: this.user,
-				team: this.team,
-				company: this.company,
-				userId: !this.user && this.providerUserId
+				user: user,
+				team: team,
+				company: company,
+				userId: !user && providerUserId
 			}
 		);
 	}
 
-	// get the tracking info associated with this requset 
-	getTrackingInfo () {
-		if (this.actionPayload.linkType === 'web') {
+	// get the tracking info associated with this requset
+	getTrackingInfo(actionPayload) {
+		if (actionPayload.linkType === 'web') {
 			return {
 				event: 'Opened on Web'
 			};
-		} 
-		else if (this.actionPayload.linkType === 'ide') {
+		} else if (actionPayload.linkType === 'ide') {
 			return {
 				event: 'Opened in IDE'
 			};
-		}
-		else if (this.actionPayload.linkType === 'external') {
-			if (this.actionPayload.externalType === 'code') {
+		} else if (actionPayload.linkType === 'reply') {
+			return {
+				event: 'Replied'
+			};
+		} else if (actionPayload.linkType === 'external') {
+			if (actionPayload.externalType === 'code') {
 				return {
 					event: 'Opened Code',
 					data: {
-						Host: CODE_PROVIDERS[this.actionPayload.externalProvider] || ''
+						Host:
+							CODE_PROVIDERS[actionPayload.externalProvider] || ''
 					}
 				};
-			}
-			else if (this.actionPayload.externalType === 'issue') {
+			} else if (actionPayload.externalType === 'issue') {
 				return {
 					event: 'Opened Issue',
 					data: {
-						Service: ProviderDisplayNames[this.actionPayload.externalProvider] || ''
+						Service:
+							ProviderDisplayNames[actionPayload.externalProvider] || ''
 					}
 				};
 			}
@@ -185,10 +182,11 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	// describe this route for help
-	static describe () {
+	static describe() {
 		return {
 			tag: 'provider-action',
-			summary: 'Callback indicating a user action within a provider rendering of a post',
+			summary:
+				'Callback indicating a user action within a provider rendering of a post',
 			access: 'No authorization needed',
 			description: 'Provides a callback for whenever a user takes an action within a provider\'s rich rendering of a post',
 			input: {
@@ -198,9 +196,7 @@ class ProviderActionRequest extends RestfulRequest {
 				}
 			},
 			returns: 'Empty object',
-			errors: [
-				'parameterRequired',
-			]
+			errors: ['parameterRequired']
 		};
 	}
 }

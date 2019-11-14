@@ -29,9 +29,11 @@ class WebProviderAuthRequest extends APIRequest {
 			url: `${this.api.config.api.publicApiUrl}/web/provider-auth-complete/${this.provider}`,
 			end: this.request.query.url || '',
 			st: this.request.query.signupToken || '',
-			access: this.request.query.access || '',
-			sm: !!this.request.query.sharing
+			access: this.request.query.access || ''
 		};
+		if (this.request.query.noSignup) {
+			payload.noSU = true;
+		}
 		const code = this.api.services.tokenHandler.generate(
 			payload,
 			'pauth',

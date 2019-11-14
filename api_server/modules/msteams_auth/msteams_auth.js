@@ -36,6 +36,11 @@ class MSTeamsAuth extends OAuthModule {
 		const authorizer = new MSTeamsAuthorizer({ options });
 		return await authorizer.getMSTeamsIdentity(options.accessToken, options.providerInfo);
 	}
+
+	// an access token can be maintained for each MS Teams org
+	getMultiAuthKey (info) {
+		return info && info.data && info.data.teamId;
+	}
 }
 
 module.exports = MSTeamsAuth;

@@ -67,7 +67,7 @@ class ProviderAuthRequest extends RestfulRequest {
 					string: ['code']
 				},
 				optional: {
-					string: ['host', '_mockToken', '_mockTokenSecret']
+					string: ['host', '_mockToken', '_mockTokenSecret', 'sharing']
 				}
 			}
 		);
@@ -117,7 +117,7 @@ class ProviderAuthRequest extends RestfulRequest {
 
 		// set up options for initiating a redirect for the particular service
 		let { host } = this.request.query;
-		const { code } = this.request.query;
+		const { code, access, sharing } = this.request.query;
 		const { callbackEnvironment } = this.api.config.api;
 		let { authOrigin } = this.api.config.api;
 
@@ -140,7 +140,9 @@ class ProviderAuthRequest extends RestfulRequest {
 			request: this,
 			redirectUri,
 			host,
-			team: this.team
+			team: this.team,
+			access: access,
+			sharing: sharing
 		};
 
 		// get the specific query data to use in the redirect, and response with the redirect url

@@ -2,12 +2,17 @@
 
 'use strict';
 
-const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
-const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const APIServerModule = require(process.env.CS_API_TOP +
+	'/lib/api_server/api_server_module.js');
+const ErrorHandler = require(process.env.CS_API_TOP +
+	'/server_utils/error_handler');
 const Errors = require('./errors');
-const RestfulErrors = require(process.env.CS_API_TOP + '/lib/util/restful/errors');
-const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
+const RestfulErrors = require(process.env.CS_API_TOP +
+	'/lib/util/restful/errors');
+const AuthErrors = require(process.env.CS_API_TOP +
+	'/modules/authenticator/errors');
 const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
+const qs = require('querystring');
 
 const ROUTES = [
 	{
@@ -68,43 +73,59 @@ const ROUTES = [
 ];
 
 class Providers extends APIServerModule {
-
-	constructor (options) {
+	constructor(options) {
 		super(options);
 		this.errorHandler = new ErrorHandler(Errors);
 		this.errorHandler.add(RestfulErrors);
 		this.errorHandler.add(UserErrors);
-		this.errorHandler.add(AuthErrors);		
+		this.errorHandler.add(AuthErrors);
 	}
 
-	getRoutes () {
+	getRoutes() {
 		return ROUTES;
 	}
 
-	middlewares () {
+	middlewares() {
 		return (request, response, next) => {
 			if (this.api.config.api.mockMode) {
 				return next();
 			}
 
-			// HACK: the provider-action request (coming from slack) is form data with a value that is 
+			// HACK: the provider-action request (coming from slack) is form data with a value that is
 			// encoded JSON data ... monumentally stupid
-			if (!request.path.match(/^\/no-auth\/provider-action/)) {
+			const match = request.path.match(
+				/^\/no-auth\/provider-action\/(.+)/
+			);
+			if (!match) {
 				return next();
 			}
 
 			let data = '';
-			request.on('data', chunk => { 
+			request.on('data', chunk => {
 				data += chunk;
 			});
 			request.on('end', () => {
-				const [ key, value ] = data.split('=');
-				if (key === 'payload') {
-					try {
-						request.body = { payload: JSON.parse(decodeURIComponent(value)) };
+				if (match[1] === 'slack') {
+					if (data.indexOf('payload=') === 0) {
+						let jsonPayload;
+						try {
+							// sadly, we have to parse the payload before verifying as we 
+							// need the appId
+							jsonPayload = JSON.parse(qs.parse(data).payload);
+						}
+						catch (ex) {
+							return response.status(404).send('Not Found');
+						}
+						request.body = {
+							payload: jsonPayload
+						};
+						return next();
 					}
-					catch (error) {
-						request.body = { };
+				} else {
+					try {
+						request.body = JSON.parse(data);
+					} catch (error) {
+						request.body = {};
 					}
 				}
 				next();
@@ -113,9 +134,9 @@ class Providers extends APIServerModule {
 	}
 
 	// describe any errors associated with this module, for help
-	describeErrors () {
+	describeErrors() {
 		return {
-			'Provider': Errors
+			Provider: Errors
 		};
 	}
 }

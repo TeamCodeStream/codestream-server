@@ -78,13 +78,11 @@ class OAuthModule extends APIServerModule {
 			clientInfo = this.apiConfig;
 		}
 
-		const clientId = options.sharing ? clientInfo.appSharingClientId : clientInfo.appClientId;
-		const clientSecret = options.sharing ? clientInfo.appSharingClientSecret : clientInfo.appClientSecret;
 		return {
 			host: host || `https://${this.oauthConfig.host}`,
 			oauthData: clientInfo.oauthData,
-			clientId,
-			clientSecret,
+			clientId: clientInfo.appClientId,
+			clientSecret: clientInfo.appClientSecret,
 		};
 	}
 
@@ -408,7 +406,8 @@ class OAuthModule extends APIServerModule {
 			hasIssues,
 			forEnterprise,
 			needsConfigure,
-			disabled
+			disabled,
+			hasSharing
 		} = this.oauthConfig;
 		const { appClientId, apiKey } = this.apiConfig;
 		const hasKey = appClientId || apiKey;
@@ -422,7 +421,8 @@ class OAuthModule extends APIServerModule {
 				needsConfigure,
 				host: host.toLowerCase(),
 				apiHost: apiHost ? apiHost.toLowerCase() : undefined,
-				hasIssues: hasIssues
+				hasIssues: hasIssues,
+				hasSharing: hasSharing
 			};
 		}
 	}
@@ -525,6 +525,11 @@ class OAuthModule extends APIServerModule {
 			null,
 			null
 		);
+	}
+
+	// if provider supports multiple authorizations (multiple access tokens), override this
+	getMultiAuthKey () {
+		return false;
 	}
 }
 

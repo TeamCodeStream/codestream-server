@@ -39,7 +39,7 @@ class ProviderAuthCodeRequest extends RestfulRequest {
 					string: ['teamId']
 				},
 				optional: {
-					string: ['expiresIn']
+					string: ['expiresIn', 'sharing']
 				}
 			}
 		);
@@ -51,6 +51,9 @@ class ProviderAuthCodeRequest extends RestfulRequest {
 			userId: this.request.user.id,
 			teamId: this.request.query.teamId
 		};
+		if (this.request.query.sharing) {
+			state.sm = true;
+		}
 		const stateToken = await this.generateStateToken(state);
 		this.responseData = {
 			code: stateToken

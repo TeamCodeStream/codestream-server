@@ -151,10 +151,12 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (this.tokenPayload.type !== 'pauth') {
 			throw this.errorHandler.error('tokenInvalid', { reason: 'not a provider authorization token' });
 		}
+
 		this.userId = this.tokenPayload.userId;
 		this.teamId = this.tokenPayload.teamId;
 		this.providerAccess = this.tokenPayload.access;
 		this.sharing = this.tokenPayload.sm;
+		this.noAllowSignup = this.tokenPayload.noSU;
 
 		if (this.serviceAuth.usesOauth1()) {
 			let secretPayload;
@@ -177,8 +179,8 @@ class ProviderTokenRequest extends RestfulRequest {
 	// handle any error sent by the provider
 	handleError () {
 		if (!this.request.query.error) { return; }
-		this.errorCode = this.sharing ? this.errorHandler.error('providerLoginFailed').code : this.request.query.error;
-		this.providerError = this.sharing && this.request.query.error;
+		this.errorCode = this.noAllowSignup ? this.errorHandler.error('providerLoginFailed').code : this.request.query.error;
+		this.providerError = this.noAllowSignup && this.request.query.error;
 		this.saveSignupToken();
 		let url = `/web/error?code=${this.errorCode}&provider=${this.provider}`;
 		if (this.providerError) {
@@ -265,10 +267,21 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.tokenData = this.tokenData || { accessToken: token };
 		const modifiedAt = Date.now();
 		let setKey = `providerInfo.${this.team.id}.${this.provider}`;
+
+		// add sub-keys for enterprise hosts
 		if (this.host) {
 			const host = this.host.replace(/\./g, '*');
 			setKey += `.hosts.${host}`;
 		}
+
+		// add sub-keys for providers that support multiple access tokens, only allowed in sharing model
+		if (this.sharing) {
+			const multiAuthKey = this.serviceAuth.getMultiAuthKey(this.tokenData);
+			if (multiAuthKey) {
+				setKey += `.multiple.${multiAuthKey}`;
+			}
+		}
+
 		const op = {};
 		delete op.id;
 		delete op._id;
@@ -320,8 +333,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			request: this,
 			provider: this.provider,
 			okToCreateUser: this.userId === 'anon',
-			okToCreateTeam: !this.sharing && this.userId === 'anon',
-			okToFindExistingUserByEmail: !this.sharing,
+			okToCreateTeam: !this.noAllowSignup && this.userId === 'anon',
+			okToFindExistingUserByEmail: !this.noAllowSignup,
 			tokenData: this.tokenData
 		});
 		await this.connector.connectIdentity(userIdentity);

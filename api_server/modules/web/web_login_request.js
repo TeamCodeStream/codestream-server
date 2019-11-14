@@ -15,7 +15,11 @@ class WebLoginRequest extends APIRequest {
 		const url = this.request.query.url ? decodeURIComponent(this.request.query.url) : '';
 		const email = this.request.query.email ? decodeURIComponent(this.request.query.email) : '';
 		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
-		const linkQuery = `url=${encodeURIComponent(url)}&teamId=${teamId}&access=strict`;
+		let linkQuery = `url=${encodeURIComponent(url)}&teamId=${teamId}&access=strict`;
+		const preventSignup = false; // set this to true, or just combine this with the above line, when we're ready
+		if (preventSignup) {
+			linkQuery += '&noSignup=1';
+		}
 		const slackLink = `/web/provider-auth/slack?${linkQuery}`;
 		const msteamsLink = `/web/provider-auth/msteams?${linkQuery}`;
 		const error = this.request.query.error ? this.handleError() : '';
