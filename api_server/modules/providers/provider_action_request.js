@@ -8,6 +8,8 @@ const RestfulRequest = require(process.env.CS_API_TOP +
 const ProviderDisplayNames = require(process.env.CS_API_TOP +
 	'/modules/web/provider_display_names');
 const SlackInteractiveComponentsHandler = require('./slack_interactive_components_handler');
+const SlackCfg = require(process.env.CS_API_TOP + '/config/slack');
+const crypto = require('crypto');
 
 const CODE_PROVIDERS = {
 	github: 'GitHub',
@@ -19,7 +21,20 @@ const CODE_PROVIDERS = {
 
 class ProviderActionRequest extends RestfulRequest {
 	async authorize() {
-		// no authorization necessary, authorization is handled by the processing logic
+		if (!this.verifySlackRequest(this.request, this.request.body.payloadRaw)) {
+			throw this.errorHandler.error('notFound');
+		}
+		// in the success case we don't need this anymore and requireAndAllow will warn for it
+		delete this.request.body.payloadRaw;
+	}
+
+	// require certain parameters, discard unknown parameters
+	async requireAndAllow() {
+		await this.requireAllowParameters('body', {
+			required: {
+				object: ['payload']
+			}
+		});
 	}
 
 	// process the request...
@@ -57,13 +72,41 @@ class ProviderActionRequest extends RestfulRequest {
 		// }
 	}
 
-	// require certain parameters, discard unknown parameters
-	async requireAndAllow() {
-		await this.requireAllowParameters('body', {
-			required: {
-				object: ['payload']
+	verifySlackRequest(request, rawBody) {
+		// mainly snagged from https://medium.com/@rajat_sriv/verifying-requests-from-slack-using-node-js-69a8b771b704
+		try {
+			if (!request.body || !rawBody || !request.body.payload) return false;
+
+			const apiAppId = request.body.payload.api_app_id;
+			if (!apiAppId) return false;
+
+			const slackSigningSecret = SlackCfg.signingSecretsByAppIds[apiAppId];
+			if (!slackSigningSecret) {
+				this.api.log(`Could not find signingSecret for appId=${apiAppId}`);
+				return false;
 			}
-		});
+
+			const slackSignature = request.headers['x-slack-signature'];
+			const timestamp = request.headers['x-slack-request-timestamp'];
+			if (!slackSignature || !timestamp) return false;
+
+			// protect against replay attacks
+			const time = Math.floor(new Date().getTime() / 1000);
+			if (Math.abs(time - timestamp) > 300) return false;
+
+			const mySignature = 'v0=' +
+				crypto.createHmac('sha256', slackSigningSecret)
+					.update('v0:' + timestamp + ':' + rawBody, 'utf8')
+					.digest('hex');
+
+			return crypto.timingSafeEqual(
+				Buffer.from(mySignature, 'utf8'),
+				Buffer.from(slackSignature, 'utf8'));
+		}
+		catch (ex) {
+			this.api.log(`verifySlackRequest error. ${ex}`);
+		}
+		return false;
 	}
 
 	// parse the action info within the given payload

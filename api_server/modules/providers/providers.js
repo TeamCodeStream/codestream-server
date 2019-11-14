@@ -3,7 +3,6 @@
 'use strict';
 
 const qs = require('querystring');
-const crypto = require('crypto');
 const APIServerModule = require(process.env.CS_API_TOP +
 	'/lib/api_server/api_server_module.js');
 const ErrorHandler = require(process.env.CS_API_TOP +
@@ -14,8 +13,6 @@ const RestfulErrors = require(process.env.CS_API_TOP +
 const AuthErrors = require(process.env.CS_API_TOP +
 	'/modules/authenticator/errors');
 const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
-const SlackCfg = require(process.env.CS_API_TOP + '/config/slack');
-
 const ROUTES = [
 	{
 		method: 'put',
@@ -119,13 +116,10 @@ class Providers extends APIServerModule {
 							return response.status(404).send('Not Found');
 						}
 						request.body = {
-							payload: jsonPayload
+							payload: jsonPayload,
+							payloadRaw: data
 						};
-						if (this.verifySlackRequest(request, data)) {
-							return next();
-						}
 					}
-					return response.status(404).send('Not Found');
 				} else {
 					try {
 						request.body = JSON.parse(data);
@@ -136,43 +130,6 @@ class Providers extends APIServerModule {
 				next();
 			});
 		};
-	}
-
-	verifySlackRequest(request, rawBody) {
-		// mainly snagged from https://medium.com/@rajat_sriv/verifying-requests-from-slack-using-node-js-69a8b771b704
-		try {
-			if (!request.body || !rawBody || !request.body.payload) return false;
-
-			const apiAppId = request.body.payload.api_app_id;
-			if (!apiAppId) return false;
-
-			const slackSigningSecret = SlackCfg.signingSecretsByAppIds[apiAppId];
-			if (!slackSigningSecret) {
-				this.api.log(`Could not find signingSecret for appId=${apiAppId}`);
-				return false;
-			}
-
-			const slackSignature = request.headers['x-slack-signature'];
-			const timestamp = request.headers['x-slack-request-timestamp'];
-			if (!slackSignature || !timestamp) return false;
-
-			// protect against replay attacks
-			const time = Math.floor(new Date().getTime() / 1000);
-			if (Math.abs(time - timestamp) > 300) return false;
-
-			const mySignature = 'v0=' +
-				crypto.createHmac('sha256', slackSigningSecret)
-					.update('v0:' + timestamp + ':' + rawBody, 'utf8')
-					.digest('hex');
-
-			return crypto.timingSafeEqual(
-				Buffer.from(mySignature, 'utf8'),
-				Buffer.from(slackSignature, 'utf8'));
-		}
-		catch (ex) {
-			this.api.log(`verifySlackRequest error. ${ex}`);
-		}
-		return false;
 	}
 
 	// describe any errors associated with this module, for help
