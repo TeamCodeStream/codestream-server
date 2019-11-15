@@ -150,5 +150,13 @@ module.exports = {
 		type: 'arrayOfIds',
 		maxLength: 1000,
 		description: 'Array of user IDs representing followers of this codemark; followers receive notifications when the codemark is created and when there are replies'
+	},
+	lastReplyAt: {
+		type: 'timestamp',
+		description: 'Timestamp of the last reply to this codemark, if any'
+	},
+	lastActivityAt: {
+		type: 'timestamp',
+		description: 'If the codemark has replies, same as lastReplyAt, otherwise same as createdAt'
 	}
 };

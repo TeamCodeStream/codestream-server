@@ -78,6 +78,7 @@ class CommonInit {
 
 	// make the post that will be a reply to the codemark
 	createReply (callback) {
+		this.replyCreatedAfter = Date.now();
 		if (this.goPostless) { 
 			return callback();	// doesn't apply to third-party provider posts
 		}

@@ -21,5 +21,9 @@ module.exports = {
 		teamId: 1,
 		fileStreamIds: 1,
 		createdAt: -1
+	},
+	byLastActivityAt: {
+		teamId: 1,
+		lastActivityAt: -1
 	}
 };

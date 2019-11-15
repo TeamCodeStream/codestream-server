@@ -20,7 +20,8 @@ const EXPECTED_BASE_CODEMARK_FIELDS = [
 	'type',
 	'status',
 	'numReplies',
-	'permalink'
+	'permalink',
+	'lastActivityAt'
 ];
 
 const EXPECTED_CODEMARK_FIELDS = EXPECTED_BASE_CODEMARK_FIELDS.concat([

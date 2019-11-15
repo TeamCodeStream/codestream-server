@@ -42,8 +42,15 @@ class NumRepliesToCodemarkMessageTest extends NumRepliesMessageToStreamTest {
 		if (!message.message.post || !message.message.post.$set) {
 			return false;
 		}
-		Assert(message.message.codemarks[0].$set.modifiedAt >= this.postCreatedAt, 'modifiedAt for codemark not changed');
-		this.message.codemarks[0].$set.modifiedAt = message.message.codemarks[0].$set.modifiedAt;
+		const codemark = message.message.codemarks[0];
+		Assert(codemark.$set.modifiedAt >= this.postCreatedAt, 'modifiedAt for codemark not changed');
+		Assert(codemark.$set.lastReplyAt === codemark.$set.modifiedAt, 'lastReplyAt should be equal to modifiedAt');
+		Assert(codemark.$set.lastActivityAt === codemark.$set.modifiedAt, 'lastReplyAt should be equal to modifiedAt');
+		Object.assign(this.message.codemarks[0].$set, {
+			modifiedAt: codemark.$set.modifiedAt,
+			lastReplyAt: codemark.$set.lastReplyAt,
+			lastActivityAt: codemark.$set.lastActivityAt
+		});
 		return super.validateMessage(message);
 	}
 }

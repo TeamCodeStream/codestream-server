@@ -36,6 +36,9 @@ class GetCodemarksRequest extends GetManyRequest {
 		if (numParameters > 1) {
 			return 'can not query on more than one of: type, fileStreamId, and streamId';
 		}
+		if (numParameters === 1 && this.request.query.byLastActivityAt) {
+			return 'can not query on type, fileStreamId, and streamId and also on lastActivityAt';
+		}
 		const query = {
 			teamId: this.teamId
 		};
@@ -48,6 +51,7 @@ class GetCodemarksRequest extends GetManyRequest {
 		else if (this.request.query.type) {
 			query.type = this.request.query.type;
 		}
+		const indexAttribute = this.request.query.byLastActivityAt ? 'lastActivityAt' : 'createdAt';
 		let { before, after, inclusive } = this.request.query;
 		inclusive = inclusive !== undefined;
 		if (before !== undefined) {
@@ -55,12 +59,12 @@ class GetCodemarksRequest extends GetManyRequest {
 			if (!before) {
 				return 'before must be a number';
 			}
-			query.createdAt = query.createdAt || {};
+			query[indexAttribute] = query[indexAttribute] || {};
 			if (inclusive) {
-				query.createdAt.$lte = before;
+				query[indexAttribute].$lte = before;
 			}
 			else {
-				query.createdAt.$lt = before;
+				query[indexAttribute].$lt = before;
 			}
 		}
 		if (after !== undefined) {
@@ -68,12 +72,12 @@ class GetCodemarksRequest extends GetManyRequest {
 			if (!after) {
 				return 'after must be a number';
 			}
-			query.createdAt = query.createdAt || {};
+			query[indexAttribute] = query[indexAttribute] || {};
 			if (inclusive) {
-				query.createdAt.$gte = after;
+				query[indexAttribute].$gte = after;
 			}
 			else {
-				query.createdAt.$gt = after;
+				query[indexAttribute].$gt = after;
 			}
 		}
 		return query;
@@ -91,12 +95,16 @@ class GetCodemarksRequest extends GetManyRequest {
 		else if (this.request.query.streamId) {
 			hint = Indexes.byStreamId;
 		}
+		else if (this.request.query.byLastActivityAt) {
+			hint = Indexes.byLastActivityAt;
+		}
 		else {
 			hint = Indexes.byTeamId;
 		}
+		const sortAttribute = this.request.query.byLastActivityAt ? 'lastActivityAt' : 'createdAt';
 		return {
 			hint,
-			sort: { createdAt: -1 }
+			sort: { [sortAttribute]: -1 }
 		};
 	}
 
@@ -135,6 +143,7 @@ class GetCodemarksRequest extends GetManyRequest {
 			'type': '<Type of codemarks to fetch>',
 			'fileStreamId': '<ID of the file stream for which knowledge base codemarks with attached markers should be fetched>',
 			'streamId': '<ID of the stream for which codemarks should be fetched>',
+			'byLastActivityAt': '<boolean indicates to fetch and sort by lastActivityAt, instead of createdAt>',
 			'before': '<Fetch codemarks created before this timestamp, inclusive if "inclusive" is set>',
 			'after': '<Fetch codemarks created after this timestamp, inclusive if "inclusive" is set>',
 			'inclusive': '<If before or after or both are set, indicates to include any codemarks with a timestamp exactly matching the before or after vaue (or both)>'

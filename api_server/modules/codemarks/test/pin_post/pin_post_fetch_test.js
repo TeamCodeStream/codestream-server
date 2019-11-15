@@ -36,7 +36,11 @@ class PinPostFetchTest extends PinPostTest {
 	// validate that the response is correct
 	validateResponse (data) {
 		Assert(data.codemark.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the codemark was updated');
+		Assert(data.codemark.lastActivityAt >= this.replyCreatedAfter, 'lastActivityAt should be greater than before the reply was posted');
+		Assert(data.codemark.lastReplyAt === data.codemark.lastActivityAt, 'lastReplyAt should be equal to lastActivityAt');
 		this.expectedCodemark.modifiedAt = data.codemark.modifiedAt;
+		this.expectedCodemark.lastActivityAt = data.codemark.lastActivityAt;
+		this.expectedCodemark.lastReplyAt = data.codemark.lastReplyAt;
 		// verify what we fetch is what we got back in the response
 		Assert.deepEqual(data.codemark, this.expectedCodemark, 'fetched codemark does not match');
 	}

@@ -26,6 +26,7 @@ class CodemarkValidator {
 			((codemark.teamId === this.test.team.id) || errors.push('teamId does not match the team')) &&
 			((codemark.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof codemark.createdAt === 'number') || errors.push('createdAt not number')) &&
+			((codemark.lastActivityAt === codemark.createdAt) || errors.push('lastActivityAt should be set to createdAt')) &&
 			((codemark.modifiedAt >= codemark.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((codemark.creatorId === this.test.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
 			((codemark.type === this.inputCodemark.type) || errors.push('type does not match')) &&

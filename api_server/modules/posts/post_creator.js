@@ -232,10 +232,13 @@ class PostCreator extends ModelCreator {
 		const codemark = await this.request.data.codemarks.getById(this.parentPost.get('codemarkId'));
 		if (!codemark) { return; }
 
+		const now = Date.now();
 		const op = { 
 			$set: {
 				numReplies: (codemark.get('numReplies') || 0) + 1,
-				modifiedAt: Date.now()
+				lastReplyAt: now,
+				lastActivityAt: now,
+				modifiedAt: now
 			}
 		};
 

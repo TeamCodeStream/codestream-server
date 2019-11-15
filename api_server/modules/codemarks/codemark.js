@@ -12,6 +12,12 @@ class Codemark extends CodeStreamModel {
 		return new CodemarkValidator(CodemarkAttributes);
 	}
 
+	// set default attributes
+	setDefaults () {
+		super.setDefaults();
+		this.attributes.lastActivityAt = this.attributes.createdAt;
+	}
+
 	// called right before we save...
 	async preSave (options) {
 		// ensure all native IDs are lowercase
