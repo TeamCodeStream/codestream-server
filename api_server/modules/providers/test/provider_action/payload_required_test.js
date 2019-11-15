@@ -10,8 +10,7 @@ class PayloadRequiredTest extends ProviderActionTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1001',
-			info: 'payload'
+			code: 'RAPI-1003'
 		};
 	}
 

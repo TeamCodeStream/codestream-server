@@ -14,6 +14,8 @@ const NoTeamIdTest = require('./no_team_id_test');
 const UserNotOnTeamTest = require('./user_not_on_team_test');
 const TeamNotFoundTest = require('./team_not_found_test');
 const UnknownLinkTypeTest = require('./unknown_link_type_test');
+const InvalidSignatureTest = require('./invalid_signature_test');
+const ImproperSignatureTest = require('./improper_signature_test');
 
 const PROVIDERS = [
 	'slack'
@@ -40,6 +42,8 @@ class ProviderActionRequestTester {
 			new UserNotOnTeamTest({ provider }).test();
 			new TeamNotFoundTest({ provider }).test();
 			new UnknownLinkTypeTest({ provider }).test();
+			new InvalidSignatureTest({ provider }).test();
+			new ImproperSignatureTest({ provider }).test();
 		});
 	}
 }

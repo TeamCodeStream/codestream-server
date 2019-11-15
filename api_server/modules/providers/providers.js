@@ -86,9 +86,6 @@ class Providers extends APIServerModule {
 
 	middlewares() {
 		return (request, response, next) => {
-			if (this.api.config.api.mockMode) {
-				return next();
-			}
 
 			// HACK: the provider-action request (coming from slack) is form data with a value that is
 			// encoded JSON data ... monumentally stupid
@@ -96,6 +93,25 @@ class Providers extends APIServerModule {
 				/^\/no-auth\/provider-action\/(.+)/
 			);
 			if (!match) {
+				return next();
+			}
+
+			if (this.api.config.api.mockMode) {
+				if (!request.body.payload) {
+					request.body = {};
+					return next();
+				}
+				let jsonPayload;
+				try {
+					jsonPayload = JSON.parse(decodeURIComponent(request.body.payload));
+				}
+				catch (ex) {
+					return response.status(404).send('Not Found');
+				}
+				request.body = {
+					payload: jsonPayload,
+					payloadRaw: `payload=${request.body.payload}`
+				};
 				return next();
 			}
 

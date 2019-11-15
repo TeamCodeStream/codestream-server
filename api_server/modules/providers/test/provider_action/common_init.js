@@ -6,6 +6,8 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 const UUID = require('uuid/v4');
 const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const Crypto = require('crypto');
+const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 
 const LINK_TYPES_TO_ACTION = {
 	'web': 'Opened on Web',
@@ -96,7 +98,8 @@ class CommonInit {
 			},
 			actions: [{
 				action_id: JSON.stringify(actionPayload)
-			}]
+			}],
+			api_app_id: SlackConfig.appSharingId			
 		};
 
 		const properties = {
@@ -147,12 +150,28 @@ class CommonInit {
 	// this is because in mock mode, we don't support non-json data, so it needs to
 	// be formed in the url encoded data that the server is ready for
 	prepareData (callback) {
+		const rawData = encodeURIComponent(JSON.stringify(this.data));
 		if (this.mockMode) {
-			this.data = { payload: this.data };
+			this.data = { payload: rawData };
 		}
 		else {
-			this.data = `payload=${encodeURIComponent(JSON.stringify(this.data))}`;
+			this.data = `payload=${rawData}`;
 		}
+
+		// sign the request, simulating slack
+		const now = Math.floor(Date.now() / 1000);
+		this.rawBody=`payload=${rawData}`;
+		const mySignature = 'v0=' +
+			Crypto.createHmac('sha256', SlackConfig.appSharingSigningSecret)
+				.update(`v0:${now}:${this.rawBody}`, 'utf8')
+				.digest('hex');
+		this.apiRequestOptions = this.apiRequestOptions || {};
+		this.apiRequestOptions.headers = this.apiRequestOptions.headers || {};
+		Object.assign(this.apiRequestOptions.headers, {
+			'x-slack-request-timestamp': now,
+			'x-slack-signature': mySignature
+		});
+
 		callback();
 	}
 }
