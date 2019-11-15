@@ -143,6 +143,10 @@ class SimpleFileLogger {
 		}
 	}
 
+	info(text, requestId, customLogProperties) {
+		this.log(text, requestId, 'info', customLogProperties);
+	}
+
 	// after initialization, we're assured of a log file to write to
 	async logAfterInitialized(text, requestId, severity, customLogProperties) {
 		// check if we've reached the threshold time (midnight) and rotate as needed
