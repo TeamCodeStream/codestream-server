@@ -90,7 +90,8 @@ class SlackInteractiveComponentBlocks {
 				streamId: actionPayload.streamId,
 				teamId: actionPayload.teamId,
 				userId: payload.user.id,
-				codemarkId: actionPayload.codemarkId
+				codemarkId: actionPayload.codemarkId,
+				parentPostId: actionPayload.parentPostId
 			}),
 			type: 'modal',
 			callback_id: JSON.stringify({

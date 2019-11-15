@@ -58,12 +58,13 @@ class SlackInteractiveComponentsHandler {
 		let team;
 		try {
 			privateMetadata = JSON.parse(this.payload.view.private_metadata);
+			this.log('could not parse private_metadata');
 		} catch (ex) {
 			return undefined;
 		}
 		try {
-			if (!privateMetadata.codemarkId) {
-				this.log('codemarkId is missing');
+			if (!privateMetadata.parentPostId) {
+				this.log('parentPostId is missing');
 				return undefined;
 			}
 			// this userId is the person who clicked
@@ -81,8 +82,7 @@ class SlackInteractiveComponentsHandler {
 				text: text,
 				// TODO what goes here?
 				origin: 'Slack',
-				// TODO implement this
-				parentCodemarkId: privateMetadata.codemarkId
+				parentPostId: privateMetadata.parentPostId
 			});
 			this.request.responseData = this.request.responseData || {};
 			this.request.responseData['post'] = postCreator.model.getSanitizedObject({
@@ -119,6 +119,8 @@ class SlackInteractiveComponentsHandler {
 
 		// the user that clicked on the thing
 		payloadActionUser = users.find(_ => {
+			if (!_) return undefined;
+
 			const providerIdentities = _.get('providerIdentities');
 			if (providerIdentities &&
 				providerIdentities.indexOf(`slack::${this.payload.user.id}`) > -1
@@ -160,38 +162,38 @@ class SlackInteractiveComponentsHandler {
 		for (let i = 0; i < users.length; i++) {
 			hasError = false;
 			const user = users[0];
-			if (user) {
-				client = await this.tryCreateClient(user, this.payload.user);
-				if (client) {
-					let modalResponse;
-					try {
-						modalResponse = await client.views.open({
-							trigger_id: this.payload.trigger_id,
-							view: SlackInteractiveComponentBlocks.createModalView(
-								this.payload,
-								this.actionPayload,
-								blocks
-							)
-						});
-						if (modalResponse && modalResponse.ok) {
-							success = true;
-							// note, this message assumes that the first user is the creator
-							this.log(
-								`Using token from the user that ${i == 0 ? 'created' : 'clicked'} the button. userId=${user.get('_id')}`
-							);
+			if (!user) continue;
 
-							break;
-						}
-					} catch (ex) {
-						this.log(ex);
-						hasError = true;
-						if (ex.data) {
-							try {
-								this.log(JSON.stringify(ex.data));
-							} catch (x) {
-								// suffer
-							}
-						}
+			client = await this.tryCreateClient(user, this.payload.user);
+			if (!client) continue;
+
+			let modalResponse;
+			try {
+				modalResponse = await client.views.open({
+					trigger_id: this.payload.trigger_id,
+					view: SlackInteractiveComponentBlocks.createModalView(
+						this.payload,
+						this.actionPayload,
+						blocks
+					)
+				});
+				if (modalResponse && modalResponse.ok) {
+					success = true;
+					// note, this message assumes that the first user is the creator
+					this.log(
+						`Using token from the user that ${i == 0 ? 'created' : 'clicked'} the button. userId=${user.get('_id')}`
+					);
+
+					break;
+				}
+			} catch (ex) {
+				this.log(ex);
+				hasError = true;
+				if (ex.data) {
+					try {
+						this.log(JSON.stringify(ex.data));
+					} catch (x) {
+						// suffer
 					}
 				}
 			}
@@ -316,9 +318,9 @@ class SlackInteractiveComponentsHandler {
 		let replies;
 		let postUsers;
 		let userIds = [];
-		if (this.actionPayload.codemarkId) {
+		if (this.actionPayload.parentPostId) {
 			replies = await this.data.posts.getByQuery(
-				{ codemarkId: this.actionPayload.codemarkId },
+				{ parentPostId: this.actionPayload.parentPostId },
 				{ overrideHintRequired: true, sort: { createdAt: -1 } }
 			);
 			// get uniques
@@ -447,7 +449,11 @@ class SlackInteractiveComponentsHandler {
 				timeZone = 'Etc/GMT';
 			}
 		}
-		return MomentTimezone.tz(timeStamp, timeZone).format(format);
+		let value = MomentTimezone.tz(timeStamp, timeZone).format(format);
+		if (timeZone === 'Etc/GMT') {
+			return `${value} UTC`;
+		}
+		return value;
 	}
 }
 
