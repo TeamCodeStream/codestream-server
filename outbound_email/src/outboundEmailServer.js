@@ -8,6 +8,7 @@ const SQSClient = require('./server_utils/aws/sqs_client');
 const RabbitMQClient = require('./server_utils/rabbitmq');
 const MongoClient = require('./server_utils/mongo/mongo_client.js');
 const EmailNotificationHandler = require('./emailNotificationHandler');
+const EmailNotificationV2Handler = require('./emailNotificationV2Handler');
 const OS = require('os');
 const PubNub = require('pubnub');
 const PubNubClient = require('./server_utils/pubnub/pubnub_client_async');
@@ -255,7 +256,8 @@ class OutboundEmailServer {
 			invite: new InviteEmailHandler(handlerOptions),
 			resetPassword: new ResetPasswordEmailHandler(handlerOptions),
 			teamCreated: new TeamCreatedEmailHandler(handlerOptions),
-			notification: new EmailNotificationHandler(handlerOptions)
+			notification: new EmailNotificationHandler(handlerOptions),
+			notification_v2: new EmailNotificationV2Handler(handlerOptions)
 		};
 	}
 
