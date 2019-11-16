@@ -415,8 +415,8 @@ class PostCreator extends ModelCreator {
 		// here we are paving the way for v2 email notifications, meaning those that base email notifications
 		// off of codemarks, rather than posts in the stream (part of the "sharing" model) ... until we are
 		// ready to turn that paradigm on, we stick with the old...
-		const useCodemarkBasedEmailNotifications = false;
-		if (useCodemarkBasedEmailNotifications) { // turn on when ready
+		const useV2EmailNotifications = false;
+		if (!useV2EmailNotifications) { // turn on when ready
 			const queue = new EmailNotificationQueue({
 				request: this.request,
 				fromSeqNum: this.model.get('seqNum'),
@@ -433,10 +433,10 @@ class PostCreator extends ModelCreator {
 		}
 		else {			
 			const message = {
-				type: 'codemarkBasedNotification',
+				type: 'notification_v2',
 				postId: this.model.id
 			};
-			this.request.log(`Triggering codemark-based email notifications for post ${this.model.id}...`);
+			this.request.log(`Triggering V2 email notifications for post ${this.model.id}...`);
 			this.request.api.services.email.queueEmailSend(message, { request: this.request });
 		}
 	}
