@@ -34,9 +34,14 @@ class SlackInteractiveComponentBlocks {
 	}
 
 	static getReplyText(viewState) {
-		return viewState.values['block__text_input--message'][
-			'action__text_input--message'
-		].value;
+		try {
+			return viewState.values['block__text_input--message'][
+				'action__text_input--message'
+			].value;
+		}
+		catch (ex) {
+			return undefined;
+		}
 	}
 
 	static createModalReply() {

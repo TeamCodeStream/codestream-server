@@ -56,6 +56,7 @@ class SlackInteractiveComponentsHandler {
 		let privateMetadata;
 		let user;
 		let team;
+		let postProcessAwaitable;
 		try {
 			privateMetadata = JSON.parse(this.payload.view.private_metadata);
 			this.log('could not parse private_metadata');
@@ -63,18 +64,43 @@ class SlackInteractiveComponentsHandler {
 			return undefined;
 		}
 		try {
+
+			// this userId is the person who clicked
+			user = await this.getUser(this.payload.user.id);
+			team = await this.getTeam(user, privateMetadata.teamId);
 			if (!privateMetadata.parentPostId) {
 				this.log('parentPostId is missing');
-				return undefined;
+				return {
+					actionUser: user,
+					payloadUserId: this.payload.user.id,
+					actionTeam: team
+				};
 			}
-			// this userId is the person who clicked
-			user = await this.getUser(privateMetadata.userId);
-			team = await this.getTeam(user, privateMetadata.teamId);
+			if (!user) {
+				this.log('user is missing');
+				return {
+					actionUser: user,
+					payloadUserId: this.payload.user.id,
+					actionTeam: team
+				};
+			}
+
 			const text = SlackInteractiveComponentBlocks.getReplyText(
 				this.payload.view.state
 			);
+			if (!text) {
+				this.log('text is missing');
+				return {
+					actionUser: user,
+					payloadUserId: this.payload.user.id,
+					actionTeam: team
+				};
+			}
+
+			this.user = user;
+			this.team = team;
 			const postCreator = new PostCreator({
-				request: { ...this, user: user, team: team }
+				request: this
 			});
 
 			await postCreator.createPost({
@@ -88,15 +114,17 @@ class SlackInteractiveComponentsHandler {
 			this.request.responseData['post'] = postCreator.model.getSanitizedObject({
 				request: this
 			});
-			await postCreator.postCreate();
+
+			postProcessAwaitable = postCreator.postCreate.bind(postCreator);
 		} catch (error) {
 			this.log(error);
 		}
 
 		return {
 			actionUser: user,
-			payloadUserId: privateMetadata.userId,
+			payloadUserId: this.payload.user.id,
 			actionTeam: team,
+			postProcessAwaitable: postProcessAwaitable,
 			responseData: {
 				response_action: 'update',
 				view: SlackInteractiveComponentBlocks.createModalUpdatedView()
@@ -118,14 +146,14 @@ class SlackInteractiveComponentsHandler {
 		}
 
 		// the user that clicked on the thing
-		payloadActionUser = users.find(_ => {
-			if (!_) return undefined;
+		payloadActionUser = users.find(user => {
+			if (!user) return undefined;
 
-			const providerIdentities = _.get('providerIdentities');
+			const providerIdentities = user.get('providerIdentities');
 			if (providerIdentities &&
 				providerIdentities.indexOf(`slack::${this.payload.user.id}`) > -1
 			) {
-				return _;
+				return user;
 			}
 			return undefined;
 		});

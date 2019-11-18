@@ -51,6 +51,9 @@ class ProviderActionRequest extends RestfulRequest {
 				);
 				const results = await handler.process();
 				if (results) {
+					if (results.postProcessFn) {
+						this.postProcessAwaitable = results.postProcessFn;
+					}
 					if (results.responseData) {
 						this.responseData = results.responseData;
 					}
@@ -222,6 +225,12 @@ class ProviderActionRequest extends RestfulRequest {
 					}
 				};
 			}
+		}
+	}
+	
+	async postProcess () {
+		if (this.postProcessAwaitable) {
+			await this.postProcessAwaitable();
 		}
 	}
 
