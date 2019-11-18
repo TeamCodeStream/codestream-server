@@ -17,7 +17,7 @@ const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
 const RandomString = require('randomstring');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
-const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
+const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 
 class ProviderAuthTest extends CodeStreamAPITest {
 

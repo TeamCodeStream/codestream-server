@@ -6,7 +6,7 @@ const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async')
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
-const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
+const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 
 class CommonInit {
 

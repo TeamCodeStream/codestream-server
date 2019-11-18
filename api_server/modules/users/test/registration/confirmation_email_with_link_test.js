@@ -3,7 +3,7 @@
 const ConfirmationEmailTest = require('./confirmation_email_test');
 const Assert = require('assert');
 const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
-const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
+const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
 class ConfirmationEmailWithLinkTest extends ConfirmationEmailTest {

@@ -1,7 +1,7 @@
 'use strict';
 
 const ChangeEmailConfirmTest = require('./change_email_confirm_test');
-const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
+const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 const ObjectID = require('mongodb').ObjectID;
 

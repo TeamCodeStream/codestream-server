@@ -4,7 +4,7 @@
 
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 const TokenAuthenticator = require('./token_authenticator');
-const TokenHandler = require('./token_handler');
+const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 const User = require(process.env.CS_API_TOP + '/modules/users/user');
 const Errors = require('./errors');
 

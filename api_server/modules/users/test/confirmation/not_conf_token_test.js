@@ -1,7 +1,7 @@
 'use strict';
 
 const ConfirmationWithLinkTest = require('./confirmation_with_link_test');
-const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
+const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 
 class NotConfTokenTest extends ConfirmationWithLinkTest {

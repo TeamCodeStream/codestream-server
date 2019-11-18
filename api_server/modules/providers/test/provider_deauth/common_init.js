@@ -7,7 +7,7 @@ const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
-const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
+const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 
 class CommonInit {
 

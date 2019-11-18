@@ -3,7 +3,7 @@
 const Assert = require('assert');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
-const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
+const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
 
 class ConfirmationEmailTest extends CodeStreamMessageTest {

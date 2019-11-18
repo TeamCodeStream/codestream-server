@@ -7,7 +7,7 @@ const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadca
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
-const TokenHandler = require(process.env.CS_API_TOP + '/modules/authenticator/token_handler');
+const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 
 class ResendConfirmEmailTest extends CodeStreamMessageTest {
 
