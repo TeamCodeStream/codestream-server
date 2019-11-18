@@ -16,7 +16,11 @@ const STANDARD_PAGES = [
 		route: 'web/example',
 		template: 'example'
 	},
-	 */
+	*/
+	{
+		route: 'web/unfollow-complete',
+		template: 'unfollow_complete'
+	}
 ];
 
 const ROUTES = [
