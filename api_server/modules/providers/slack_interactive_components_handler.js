@@ -242,7 +242,7 @@ class SlackInteractiveComponentsHandler {
 				if (hasError) {
 					await this.postEphemeralMessage(
 						this.payload.response_url,
-						SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. ')
+						SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. Please try again. ')
 					);
 					this.log('Oops, something happened.');
 				}
@@ -370,12 +370,19 @@ class SlackInteractiveComponentsHandler {
 		const markerMarkdown = await this.createMarkerMarkup(codemark);
 		let blocks = [
 			{
-				type: 'section',
-				text: {
+				type: 'context',
+				elements: [{
 					type: 'mrkdwn',
 					text: `*${codemarkUser.get('fullName')}* ${this.formatTime(
 						codemark.get('createdAt')
-					)}\n${codemark.get('text')}${markerMarkdown}`
+					)}`
+				}]
+			},
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: `${codemark.get('text')}${markerMarkdown}`
 				}
 			}
 		];
@@ -395,15 +402,23 @@ class SlackInteractiveComponentsHandler {
 			for (let i = 0; i < replies.length; i++) {
 				const reply = replies[i];
 				const replyUser = usersById[reply.get('creatorId')];
-				blocks.push({
-					type: 'section',
-					text: {
-						type: 'mrkdwn',
-						text: `*${replyUser.get('fullName')}* ${this.formatTime(
-							reply.get('createdAt')
-						)}\n${reply.get('text')}`
-					}
-				});
+				blocks.push(
+					{
+						type: 'context',
+						elements: [{
+							type: 'mrkdwn',
+							text: `*${replyUser.get('fullName')}* ${this.formatTime(
+								reply.get('createdAt')
+							)}`
+						}]
+					},
+					{
+						type: 'section',
+						text: {
+							type: 'mrkdwn',
+							text: `${reply.get('text')}`
+						}
+					});
 				if (i < replies.length - 1) {
 					blocks.push({
 						type: 'divider'
