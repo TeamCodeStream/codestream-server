@@ -12,6 +12,7 @@ class CodemarkRenderer {
 	render (options) {
 		const authorDiv = this.renderAuthorDiv(options);
 		const titleDiv = this.renderTitleDiv(options);
+		const visibleToDiv = this.renderVisibleToDiv(options);
 		const tagsAssigneesDiv = this.renderTagsAssigneesDiv(options);
 		const descriptionDiv = this.renderDescriptionDiv(options);
 		const relatedDiv = this.renderRelatedDiv(options);
@@ -21,6 +22,7 @@ class CodemarkRenderer {
 <div class="codemarkWrapper">
 	${authorDiv}
 	${titleDiv}
+	${visibleToDiv}
 	${tagsAssigneesDiv}
 	${descriptionDiv}
 	${relatedDiv}
@@ -56,6 +58,50 @@ class CodemarkRenderer {
 	<br>
 </div>
 `;
+	}
+
+	// render the div for whom the codemark is visible, if a private codemark
+	renderVisibleToDiv (options) {
+		const { stream } = options;
+		if (stream.privacy === 'public') {
+			return '';
+		}
+
+		let names;
+		if (stream.type === 'channel') {
+			names = stream.channel;
+		}
+		else {
+			names = '{{{usernames}}}';	// will do per-user substitution later
+		}
+		return `
+<div class="sectionHeader">VISIBLE TO</div>
+<div class="visibleTo">${names}</div>
+`;
+	}
+
+	// get the label to use for "visible to"
+	getVisibleTo (stream, options) {
+		const { members, creator } = options;
+		if (stream.type === 'channel') {
+			return stream.name;
+		}
+		const streamMembers = [...stream.memberIds || []];
+		const creatorIndex = creator && streamMembers.findIndex(id => creator && id === creator.id);
+		if (creatorIndex !== -1) {
+			streamMembers.splice(creatorIndex, 1);
+		}
+		if (streamMembers.length === 0) {
+			return 'yourself';
+		}
+		const usernames = [];
+		for (let memberId of streamMembers) {
+			const member = members.find(member => member.id === memberId);
+			if (member) {
+				usernames.push(member.username);
+			}
+		}
+		return usernames.join(', ');
 	}
 
 	// render the div for the tags and assignees, which are displayed side-by-side
@@ -122,7 +168,7 @@ class CodemarkRenderer {
 			if (relatedCodemark) {
 				const relatedTitle = Utils.cleanForEmail(relatedCodemark.title || relatedCodemark.text);
 				relatedDivs += `
-<div class="related">${relatedTitle}</div>
+<div class="related"><a clicktracking="off" href="${relatedCodemark.permalink}">${relatedTitle}</a></div>
 `;
 			}
 		}

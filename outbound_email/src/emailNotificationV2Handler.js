@@ -6,6 +6,7 @@ const CodemarkRenderer = require('./codemarkRenderer');
 const EmailNotificationV2Renderer = require('./emailNotificationV2Renderer');
 const EmailNotificationV2Sender = require('./emailNotificationV2Sender');
 const Utils = require('./utils');
+const TokenHandler = require('./server_utils/token_handler');
 
 const DEFAULT_TIME_ZONE = 'America/New_York';
 
@@ -290,6 +291,7 @@ class EmailNotificationV2Handler {
 			codemark: this.postData.codemark,
 			creator,
 			timeZone,
+			stream: this.stream,
 			markers: this.postData.markers,
 			fileStreams: this.fileStreams,
 			members: this.allMembers,
@@ -302,7 +304,7 @@ class EmailNotificationV2Handler {
 	// personalized if the users are in different time zones
 	async personalizePerUser () {
 		this.renderedPostPerUser = {};
-		if (!this.hasMultipleTimeZones) {
+		if (!this.hasMultipleTimeZones && this.stream.type !== 'direct') {
 			return;
 		}
 		for (let user of this.toReceiveEmails) {
@@ -314,9 +316,44 @@ class EmailNotificationV2Handler {
 	// rendered html, and doing field substitution of timestamp as needed
 	async personalizeRenderedPostPerUser (user) {
 		const { post } = this.postData;
+
 		// format the timestamp of this post with timezone dependency
 		const datetime = Utils.formatTime(post.createdAt, user.timeZone || DEFAULT_TIME_ZONE);
 		this.renderedPostPerUser[user.id] = this.renderedHtml.replace(/\{\{\{datetime\}\}\}/g, datetime);
+
+		// for DMs, the list of usernames who can "see" the codemark excludes the user 
+		if (this.stream.type === 'direct') {
+			const visibleTo = this.getVisibleTo(user);
+			this.renderedPostPerUser[user.id] = this.renderedHtml.replace(/\{\{\{usernames\}\}\}/g, visibleTo);
+		}
+	}
+
+	// get the list of usernames in a DM who can see the codemark, excluding current user
+	getVisibleTo (user) {
+		const streamMembers = [...(this.stream.memberIds || [])];
+		const userIndex = streamMembers.findIndex(id => user && id === user.id);
+		if (userIndex !== -1) {
+			streamMembers.splice(userIndex, 1);
+		}
+		if (streamMembers.length === 0) {
+			return 'yourself';
+		}
+
+		const usernames = [];
+		for (let memberId of streamMembers) {
+			const member = this.allMembers.find(member => member.id === memberId);
+			if (member) {
+				usernames.push(member.username);
+			}
+		}
+
+		if (usernames.length > 3) {
+			const nOthers = usernames.length - 2;
+			return `${usernames.slice(0, 2).join(', ')} & ${nOthers} others`;
+		}
+		else {
+			return usernames.join(', ');
+		}
 	}
 
 	// render each user's email in html
@@ -330,13 +367,32 @@ class EmailNotificationV2Handler {
 	// render a single email for the given user
 	async renderEmailForUser (user) {
 		const renderedHtml = this.renderedPostPerUser[user.id] || this.renderedHtml;
+		const codemark = this.postData.codemark || (this.parentPostData && this.parentPostData.codemark);
+		const unfollowLink = this.getUnfollowLink(user, codemark);
 		let html = new EmailNotificationV2Renderer().render({
+			codemark,
 			content: renderedHtml,
-			unfollowLink: 'http://cnn.com',
+			unfollowLink,
 			inboundEmailDisabled: Config.inboundEmailDisabled
 		});
 		html = html.replace(/[\t\n]/g, '');
 		this.renderedEmails.push({ user, html });
+	}
+
+	// get the "unfollow" codemark link for a given user and codemark
+	getUnfollowLink (user, codemark) {
+		const expiresIn = this.expiresIn || 30 * 24 * 60 * 60 * 1000; // one month
+		const expiresAt = Date.now() + expiresIn;
+		const token = new TokenHandler(Config.tokenSecret).generate(
+			{
+				uid: user.id
+			},
+			'unf',
+			{
+				expiresAt
+			}
+		);
+		return `${Config.apiUrl}/no-auth/unfollow-link/${codemark.id}?t=${token}`;
 	}
 
 	// send all the email notifications 

@@ -47,6 +47,8 @@ if (CfgFileName) {
 	Cfg.supportEmail = CfgData.getProperty('email.supportEmail');
 	Cfg.sessionAwayTimeout = CfgData.getProperty('apiServer.sessionAwayTimeout');
 	Cfg.inboundEmailDisabled = CfgData.getProperty('inboundEmailServer.inboundEmailDisabled');
+	Cfg.tokenSecret = CfgData.getProperty('sharedSecrets.auth');
+	Cfg.apiUrl = CfgData.getProperty('apiServer.publicApiUrl');
 }
 else {
 	// mongo url can come from either a raw supplied url or from individual components,

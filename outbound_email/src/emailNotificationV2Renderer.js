@@ -2,11 +2,41 @@
 
 'use strict';
 
+const CODE_PROVIDERS = {
+	github: 'GitHub',
+	gitlab: 'GitLab',
+	bitBucket: 'Bitbucket',
+	'azure-devops': 'Azure DevOps',
+	vsts: 'Azure DevOps'
+};
+
+const BUTTON_TEMPLATE = `
+<table width="100%" cellspacing="0" cellpadding="0">
+	<tr>
+		<td>
+			<table cellspacing="0" cellpadding="0">
+				<tr>
+					<td class=”button”>
+						<a clicktracking="off" href="{{{link}}}" target="_blank">
+							{{{text}}}
+						</a>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+`;
+
+const MakeButton = (text, link) => {
+	return BUTTON_TEMPLATE.replace('{{{link}}}', link).replace('{{{text}}}', text);
+};
+
 class EmailNotificationV2Renderer {
 
 	// render an email notification for a codemark or reply and for a given user
 	render (options) {
-		const { content, unfollowLink, inboundEmailDisabled } = options;
+		const { content, unfollowLink, inboundEmailDisabled, codemark } = options;
 		let tipDiv = '';
 		if (!inboundEmailDisabled) {
 			tipDiv = `
@@ -16,6 +46,19 @@ class EmailNotificationV2Renderer {
 `;
 		}
 
+		let ideButton = '';
+		if (codemark && codemark.permalink) {
+			ideButton = MakeButton('Open in IDE', `${codemark.permalink}?ide=default`);
+		}
+
+		let remoteCodeButton = '';
+		if (codemark && codemark.remoteCodeUrl) {
+			const name = CODE_PROVIDERS[codemark.remoteCodeUrl.name];
+			const url = codemark.remoteCodeUrl.url;
+			if (name && url) {
+				remoteCodeButton = MakeButton(`Open on ${name}`, url);
+			}
+		}
 		return `
 <head>
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
@@ -112,10 +155,10 @@ class EmailNotificationV2Renderer {
 		<div class=content>
 			${content}
 		</div>
-		<button>Open in IDE</button>
-		<button>Open on GitHub</button>
+		${ideButton}
+		${remoteCodeButton}
 		<div class=followingLine>
-			<span class=following>You are following this codemark.&nbsp;</span><a href="${unfollowLink}">Unfollow</a>
+			<span class=following>You are following this codemark.&nbsp;</span><a clicktracking="off" href="${unfollowLink}">Unfollow</a>
 		</div>
 		${tipDiv}
 	</div>
