@@ -30,7 +30,9 @@ class MatchReposRequest extends RestfulRequest {
 				remotes: repo.remotes || [],
 				knownCommitHashes: repo.knownCommitHashes || []
 			});
-			this.repoIds.push(matchedRepo.id);
+			if (matchedRepo) {
+				this.repoIds.push(matchedRepo.id);
+			}
 		}
 	}
 
@@ -51,15 +53,18 @@ class MatchReposRequest extends RestfulRequest {
 		if (this.gotError) {
 			return await super.handleResponse();
 		}
-	
-		const repos = await this.data.repos.getByIds(
-			this.repoIds,
-			{
-				ignoreCache: true,
-				noCache: true,
-				sortInOrder: true
-			}
-		);
+		
+		let repos = [];
+		if (this.repoIds.length > 0) {
+			repos = await this.data.repos.getByIds(
+				this.repoIds,
+				{
+					ignoreCache: true,
+					noCache: true,
+					sortInOrder: true
+				}
+			);
+		}
 		this.responseData = { repos: repos.map(repo => repo.getSanitizedObject()) };
 		return await super.handleResponse();
 	}

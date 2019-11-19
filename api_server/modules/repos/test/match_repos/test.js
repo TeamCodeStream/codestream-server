@@ -16,6 +16,7 @@ const CreateRepoMessageTest = require('./create_repo_message_test');
 const ACLTest = require('./acl_test');
 const ReposRequiredTest = require('./repos_required_test');
 const MustByArrayTest = require('./must_by_array_test');
+const NoRemotesTest = require('./no_remotes_test');
 
 class MatchReposRequestTester {
 
@@ -34,6 +35,7 @@ class MatchReposRequestTester {
 		new ReposRequiredTest().test();
 		new MustByArrayTest({ parameter: 'remotes' }).test();
 		new MustByArrayTest({ parameter: 'knownCommitHashes' }).test();
+		new NoRemotesTest().test();
 	}
 }
 
