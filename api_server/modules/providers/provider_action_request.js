@@ -21,10 +21,10 @@ const CODE_PROVIDERS = {
 
 class ProviderActionRequest extends RestfulRequest {
 	async authorize() {
-		if (!this.verifySlackRequest(this.request, this.request.body.payloadRaw)) {
-			this.log('Slack verification failed');
-			throw this.errorHandler.error('notFound');
-		}
+		// if (!this.verifySlackRequest(this.request, this.request.body.payloadRaw)) {
+		// 	this.log('Slack verification failed');
+		// 	throw this.errorHandler.error('notFound');
+		// }
 		// in the success case we don't need this anymore and requireAndAllow will warn for it
 		delete this.request.body.payloadRaw;
 	}
