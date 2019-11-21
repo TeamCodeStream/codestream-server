@@ -27,7 +27,7 @@ const Utils = {
 	// format date/time display for email render, taking into account the given time zone
 	formatTime : function(timeStamp, timeZone) {
 		timeZone = timeZone || 'America/New_York';
-		return MomentTimezone.tz(timeStamp, timeZone).format('ddd, MMM D h:mm a');
+		return MomentTimezone.tz(timeStamp, timeZone).format('h:mm A MMM D');
 	},
 	
 	// get the activity text associated with a particular codemark type

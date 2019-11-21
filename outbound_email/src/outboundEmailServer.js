@@ -22,8 +22,20 @@ const ResetPasswordEmailHandler = require('./resetPasswordEmailHandler');
 const TeamCreatedEmailHandler = require('./teamCreatedEmailHandler');
 const TryIndefinitely = require('./server_utils/try_indefinitely');
 const { awaitParallel } = require('./server_utils/await_utils');
+const FS = require('fs');
 
 const MONGO_COLLECTIONS = ['users', 'teams', 'repos', 'streams', 'posts', 'codemarks', 'markers'];
+
+const HANDLERS = {
+	confirm: ConfirmationEmailHandler,
+	alreadyRegistered: AlreadyRegisteredEmailHandler,
+	changeEmail: ChangeEmailConfirmationHandler,
+	invite: InviteEmailHandler,
+	resetPassword: ResetPasswordEmailHandler,
+	teamCreated: TeamCreatedEmailHandler,
+	notification: EmailNotificationHandler,
+	notification_v2: EmailNotificationV2Handler
+};
 
 class OutboundEmailServer {
 
@@ -120,12 +132,21 @@ class OutboundEmailServer {
 			callback(true);
 		}
 		await this.initAsNeeded();
-		if (!this.handlers[message.type]) {
+		const emailHandlerClass = HANDLERS[message.type];
+		if (!emailHandlerClass) {
 			this.warn(`No email handler for type ${message.type}`);
 			return;
 		}
 		this.numOpenTasks++;
-		await this.handlers[message.type].handleMessage(message);
+		const handlerOptions = {
+			logger: this.logger,
+			data: this.data,
+			broadcaster: this.broadcaster,
+			queuer: this.queuer,
+			sender: this.emailSender,
+			styles: this.styles
+		};
+		await new emailHandlerClass(handlerOptions).handleMessage(message);
 		this.numOpenTasks--;
 		if (this.numOpenTasks === 0 && this.killReceived) {
 			this.shutdown();
@@ -133,15 +154,16 @@ class OutboundEmailServer {
 	}
 	
 	async initAsNeeded () {
-		if (this.handlers) { return; }
+		if (this.inited) { return; }
 		await awaitParallel([
 			this.openMongoClient,
 			this.openBroadcasterClient,
-			this.openQueuer
+			this.openQueuer,
+			this.readStyles
 		], this);
 		this.log('Service connections successful');
 		this.makeEmailSender();
-		this.makeHandlers();
+		this.inited = true;
 		this.log('Initialization complete');
 	}
 	
@@ -234,6 +256,15 @@ class OutboundEmailServer {
 		this.log('Successfully connected to SQS');
 	}
 
+	async readStyles () {
+		this.styles = await new Promise((resolve, reject) => {
+			FS.readFile(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/styles.css', 'utf8', (error, data) => {
+				if (error) reject(error);
+				else resolve(data);
+			});
+		});
+	}
+
 	makeEmailSender () {
 		this.emailSender = new EmailSender({
 			logger: this.logger,
@@ -241,26 +272,6 @@ class OutboundEmailServer {
 		});
 	}
 	
-	async makeHandlers () {
-		const handlerOptions = {
-			logger: this.logger,
-			data: this.data,
-			broadcaster: this.broadcaster,
-			queuer: this.queuer,
-			sender: this.emailSender
-		};
-		this.handlers = {
-			confirm: new ConfirmationEmailHandler(handlerOptions),
-			alreadyRegistered: new AlreadyRegisteredEmailHandler(handlerOptions),
-			changeEmail: new ChangeEmailConfirmationHandler(handlerOptions),
-			invite: new InviteEmailHandler(handlerOptions),
-			resetPassword: new ResetPasswordEmailHandler(handlerOptions),
-			teamCreated: new TeamCreatedEmailHandler(handlerOptions),
-			notification: new EmailNotificationHandler(handlerOptions),
-			notification_v2: new EmailNotificationV2Handler(handlerOptions)
-		};
-	}
-
 	// forced shutdown ... boom!
 	shutdown () {
 		if (this.shuttingDown) { return; }

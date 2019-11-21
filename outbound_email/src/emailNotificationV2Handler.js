@@ -22,8 +22,13 @@ class EmailNotificationV2Handler {
 		this.log(`Processing an email notification request: ${JSON.stringify(this.message)}`);
 		this.processingStartedAt = Date.now();
 		try {
-			await this.getPostData();				// get the triggering post, codemark, and markers
-			await this.getParentPostData();			// if this is a reply, get the parent post, codemark, and markers
+			await this.getPost();					// get the triggering post
+			await this.getParentPost();				// get the parent post to the triggering post, if needed
+			await this.getCodemark();				// get the codemark for the triggering post
+			await this.getRelatedCodemarks();		// get any codemarks related to this one
+			await this.getMarkers();				// get markers associated with all codemarks
+			await this.getRepos();					// get repos associated with all markers
+			await this.getFileStreams();			// get file streams associated with all markers
 			await this.getStream();					// get the stream the post belongs to
 			await this.getTeam();					// get the team that owns the stream that owns the post
 			await this.getAllMembers();				// get all members of the team
@@ -33,8 +38,6 @@ class EmailNotificationV2Handler {
 			if (await this.filterByActivity()) {	// filter to those who may have activity that keeps them from getting notifications
 				return; // indicates no emails will be sent, so just abort
 			}
-			await this.getFileStreams();			// get the file-streams representing the markers
-			await this.getRelatedCodemarks();		// get any codemarks related to this one
 			if (await this.renderPost()) {			// render the HTML for the reply or codemark represented by this post
 				return; // indicates no emails will be sent, so just abort
 			}				
@@ -56,63 +59,110 @@ class EmailNotificationV2Handler {
 		this.log(`Successfully processed an email notification request: ${JSON.stringify(this.message)}`);
 	}
 
-	// get post, codemark, and markers for a given post ID
-	async getPostDataById (postId) {
-		const postData = { 
-			post: null,
-			codemark: null,
-			markers: []
-		};
-		
-		// get post
-		postData.post = await this.data.posts.getById(postId);
-		if (!postData.post) {
-			throw `post ${postId} not found`;
+	// get the triggering post, and the parent post if needed
+	async getPost () {
+		this.post = await this.data.posts.getById(this.message.postId);
+		if (!this.post) {
+			throw `post ${this.message.postId} not found`;
 		}
-		else if (postData.post.deactivated) {
-			throw `post ${postId} has been deactivated`;
-		}
-
-		// get codemark
-		if (!postData.post.codemarkId) {
-			return postData;
-		}
-		postData.codemark = await this.data.codemarks.getById(postData.post.codemarkId);
-		if (!postData.codemark) {
-			throw `codemark ${postData.post.codemarkId} not found`;
-		}
-
-		// get markers
-		if (!postData.codemark.markerIds || postData.codemark.markerIds.length === 0) {
-			return postData;
-		}
-		postData.markers = await this.data.markers.getByIds(postData.codemark.markerIds);
-		if (postData.markers.length !== postData.codemark.markerIds.length) {
-			throw `not all markers of ${postData.codemark.markerIds} found`;
-		}
-		// filter out any markers that have been "moved"
-		postData.markers = postData.markers.filter(marker => !marker.supersededByMarkerId);
-
-		return postData;
 	}
 
-	// get post, codemark, and markers of the triggering post
-	async getPostData () {
-		this.postData = await this.getPostDataById(this.message.postId);
+	// get the parent post to the triggering post, if needed
+	async getParentPost () {
+		if (!this.post.parentPostId) { return; }
+		this.parentPost = await this.data.posts.getById(this.post.parentPostId);
+		if (!this.post) {
+			throw `parent post ${this.post.parentPostId} not found`;
+		}
 	}
 
-	// get post, codemark, and markers of the parent post if the triggering post is a reply
-	async getParentPostData () {
-		if (this.postData.post.parentPostId) {
-			this.parentPostData = await this.getPostDataById(this.postData.post.parentPostId);
+	// get the codemark associated with the triggering post, as needed
+	async getCodemark () {
+		if (!this.post.codemarkId) {
+			return;
 		}
+		this.codemark = await this.data.codemarks.getById(this.post.codemarkId);
+		if (!this.codemark) {
+			throw `codemark ${this.post.codemarkId} not found`;
+		}
+	}
+
+	// get the related codemarks, including the parent codemark, as needed
+	async getRelatedCodemarks () {
+		let codemarkIds = [];
+		if (this.parentPost && this.parentPost.codemarkId) {
+			codemarkIds.push(this.parentPost.codemarkId);
+		}
+		if (this.codemark.relatedCodemarkIds) {
+			codemarkIds = [...codemarkIds, ...this.codemark.relatedCodemarkIds];
+		}
+		this.relatedCodemarks = await this.data.codemarks.getByIds(codemarkIds);
+		if (this.relatedCodemarks.length !== codemarkIds.length) {
+			throw `unable to find all related codemarks to ${this.post.id}`;
+		}
+		if (this.parentPost && this.parentPost.codemarkId) {
+			const index = this.relatedCodemarks.findIndex(relatedCodemark => {
+				return relatedCodemark.id === this.parentPost.codemarkId;
+			});
+			if (index === -1) {
+				throw `unable to find parent codemark ${this.parentPost.codemarkId}`;
+			}
+			this.parentCodemark = this.relatedCodemarks[index];
+			this.relatedCodemarks.splice(index, 1);
+		}
+	}
+
+	// get the markers associated with all the codemarks
+	async getMarkers () {
+		const allCodemarks = (this.codemark && this.relatedCodemarks) || [];
+		if (this.codemark) {
+			allCodemarks.push(this.codemark);
+		}
+		if (this.parentCodemark) {
+			allCodemarks.push(this.parentCodemark);
+		}
+
+		let markerIds = [];
+		for (let codemark of allCodemarks) {
+			markerIds = [...markerIds, ...(codemark.markerIds || [])];
+		}
+
+		this.markers = await this.data.markers.getByIds(markerIds);
+	}
+
+	// get the repos associated with all the markers
+	async getRepos () {
+		const repoIds = this.markers.reduce((repoIds, marker) => {
+			if (marker.repoId && !repoIds.includes(marker.repoId)) {
+				repoIds.push(marker.repoId);
+			}
+			return repoIds;
+		}, []);
+		if (repoIds.length === 0) {
+			return;
+		}
+		this.repos = await this.data.streams.getByIds(repoIds);
+	}
+
+	// get the file-streams representing all the code blocks of all the codemarks
+	async getFileStreams () {
+		const fileStreamIds = this.markers.reduce((streamIds, marker) => {
+			if (marker.fileStreamId && !streamIds.includes(marker.fileStreamId)) {
+				streamIds.push(marker.fileStreamId);
+			}
+			return streamIds;
+		}, []);
+		if (fileStreamIds.length === 0) {
+			return;
+		}
+		this.fileStreams = await this.data.streams.getByIds(fileStreamIds);
 	}
 
 	// get the stream associated with ths post
 	async getStream () {
-		this.stream = await this.data.streams.getById(this.postData.post.streamId);
+		this.stream = await this.data.streams.getById(this.post.streamId);
 		if (!this.stream) {
-			throw `stream ${this.postData.post.streamId} not found`;
+			throw `stream ${this.post.streamId} not found`;
 		}
 	}
 
@@ -124,21 +174,22 @@ class EmailNotificationV2Handler {
 		}
 	}
 
-	// get all members of the team
+	// get all members of the team, and all members of the stream as warranted
 	async getAllMembers () {
-		let memberIds;
+		this.teamMembers = await this.data.users.getByIds(this.team.memberIds);
 		if (this.stream.type === 'file' || this.stream.isTeamStream) {
-			memberIds = this.team.memberIds;
+			this.streamMembers = this.teamMembers;
 		}
 		else {
-			memberIds = this.stream.memberIds;
+			this.streamMembers = this.teamMembers.filter(member => {
+				return this.stream.memberIds.indexOf(member.id) !== -1;
+			});
 		}
-		this.allMembers = await this.data.users.getByIds(memberIds);
 	}
 
 	// filter the offline members to those who haven't turned email notifications off
 	async filterByPreference () {
-		this.toReceiveEmails = this.allMembers.filter(user => this.userToReceiveEmail(user));
+		this.toReceiveEmails = this.streamMembers.filter(user => this.userToReceiveEmail(user));
 		if (this.toReceiveEmails.length === 0) {
 			return true; // short-circuit the flow
 		}
@@ -160,7 +211,7 @@ class EmailNotificationV2Handler {
 		}
 
 		// first, if this user is not yet registered, we only send emails if they are mentioned
-		const mentionedUserIds = this.postData.post.mentionedUserIds || [];
+		const mentionedUserIds = this.post.mentionedUserIds || [];
 		const mentioned = this.stream.type === 'direct' || mentionedUserIds.indexOf(user.id) !== -1;
 		if (!user.isRegistered && !mentioned) {
 			this.log(`User ${user.id}:${user.email} is not yet registered and is not mentioned so will not receive an email notification`);
@@ -168,7 +219,7 @@ class EmailNotificationV2Handler {
 		}
 
 		// then, only if they're following
-		const codemark = this.postData.post.parentPostId ? this.parentPostData.codemark : this.postData.codemark;
+		const codemark = this.post.parentPostId ? this.parentCodemark : this.codemark;
 		const followerIds = (codemark && codemark.followerIds) || [];
 		if (followerIds.indexOf(user.id) === -1) {
 			this.log(`User ${user.id}:${user.email} is not following the associated codemark so will not receive an email notification`);
@@ -180,7 +231,6 @@ class EmailNotificationV2Handler {
 
 	// based on when last emails were sent, last activity, etc., determine which users may not get an email notification
 	async filterByActivity () {
-		const { post } = this.postData;
 		this.toReceiveEmails = this.toReceiveEmails.filter(user => {
 			const lastReads = user.lastReads || {};
 			const lastReadSeqNum = lastReads[this.stream.id] || 0;
@@ -189,13 +239,13 @@ class EmailNotificationV2Handler {
 			const lastEmailSent = lastEmailsSent[this.stream.id] || 0;
 	
 			// post creator should never receive a notification
-			if (post.creatorId === user.id) {
+			if (this.post.creatorId === user.id) {
 				this.log(`User ${user.id}:${user.email} is the post creator so will not receive an email notification`);
 				return false;
 			}
 
 			// guard against the user already having been sent an email notification for this post
-			else if (post.seqNum <= lastEmailSent) {
+			else if (this.post.seqNum <= lastEmailSent) {
 				this.log(`User ${user.id}:${user.email} is caught up on email notifications for this stream so will not receive an email notification`);
 				return false;
 			}
@@ -204,7 +254,7 @@ class EmailNotificationV2Handler {
 			// or because they haven't logged on since we started saving activity ... in either case,
 			// send posts through the last sequence number they've read
 			else if (lastActivityAt === null) {
-				if (post.seqNum <= lastReadSeqNum) {
+				if (this.post.seqNum <= lastReadSeqNum) {
 					this.log(`User ${user.id}:${user.email} has read all the posts in this stream so will not receive an email notification`);
 					return false;
 				}
@@ -214,7 +264,7 @@ class EmailNotificationV2Handler {
 			}
 
 			// otherwise, send since the user's last activity
-			else if (post.createdAt < lastActivityAt) {
+			else if (this.post.createdAt < lastActivityAt) {
 				this.log(`User ${user.id}:${user.email} has activity since this post was created so will not receive an email notification`);
 				return false;
 			}
@@ -227,76 +277,53 @@ class EmailNotificationV2Handler {
 		}
 	}
 
-	// get the streams representing the code blocks of the posts
-	async getFileStreams () {
-		const parentMarkers = this.parentPostData && this.parentPostData.markers;
-		const markers = [...this.postData.markers, ...(parentMarkers || [])];
-		const fileStreamIds = markers.reduce((streamIds, marker) => {
-			if (!streamIds.includes(marker.streamId)) {
-				streamIds.push(marker.streamId);
-			}
-			return streamIds;
-		}, []);
-		if (fileStreamIds.length === 0) {
-			return;
-		}
-		this.fileStreams = await this.data.streams.getByIds(fileStreamIds);
-	}
-
-	// get any codemarks related to the codemark associated with this post
-	async getRelatedCodemarks () {
-		const { codemark } = this.postData;
-		if (!codemark || !codemark.relatedCodemarkIds || codemark.relatedCodemarkIds.length === 0) {
-			return;
-		}
-		this.relatedCodemarks = await this.data.codemarks.getByIds(codemark.relatedCodemarkIds);
-	}
-
 	// render the HTML needed for an individual post
 	async renderPost () {
-		if (this.postData.post.parentPostId) {
+		if (this.post.parentPostId) {
 			return this.renderReply();
 		}
-		else if (this.postData.codemark) {
+		else if (this.codemark) {
 			return this.renderCodemark();
 		}
 		else {
-			this.warn(`Post ${this.postData.post.id} is not a reply and does not refer to a codemark; email notifications for plain posts are no longer supported; how the F did we get here?`);
+			this.warn(`Post ${this.post.id} is not a reply and does not refer to a codemark; email notifications for plain posts are no longer supported; how the F did we get here?`);
 			return true;
 		}
 	}
 
 	// render the HTML needed for a reply
 	async renderReply () {
-		const creator = this.allMembers.find(member => member.id === this.postData.post.creatorId);
+		const creator = this.teamMembers.find(member => member.id === this.post.creatorId);
 		const firstUserTimeZone = this.toReceiveEmails[0].timeZone || DEFAULT_TIME_ZONE;
 		// if all users have the same timezone, use the first one
 		const timeZone = this.hasMultipleTimeZones ? null : firstUserTimeZone;
 		this.renderedHtml = new ReplyRenderer().render({
-			post: this.postData.post,
+			post: this.post,
 			creator,
 			timeZone,
-			members: this.allMembers,
-			mentionedUserIds: this.postData.post.mentionedUserIds || []
+			members: this.teamMembers,
+			mentionedUserIds: this.post.mentionedUserIds || []
 		});
 	}
 
 	// render the HTML needed for a codemark
 	async renderCodemark () {
-		const creator = this.allMembers.find(member => member.id === this.postData.post.creatorId);
+		const creator = this.teamMembers.find(member => member.id === this.post.creatorId);
 		const firstUserTimeZone = this.toReceiveEmails[0].timeZone || DEFAULT_TIME_ZONE;
 		// if all users have the same timezone, use the first one
 		const timeZone = this.hasMultipleTimeZones ? null : firstUserTimeZone;
 		this.renderedHtml = new CodemarkRenderer().render({
-			codemark: this.postData.codemark,
+			codemark: this.codemark,
 			creator,
 			timeZone,
 			stream: this.stream,
-			markers: this.postData.markers,
+			team: this.team,
+			markers: this.markers,
 			fileStreams: this.fileStreams,
-			members: this.allMembers,
+			repos: this.repos,
+			members: this.teamMembers,
 			relatedCodemarks: this.relatedCodemarks,
-			mentionedUserIds: this.postData.post.mentionedUserIds || []
+			mentionedUserIds: this.post.mentionedUserIds || []
 		});
 	}
 
@@ -315,19 +342,20 @@ class EmailNotificationV2Handler {
 	// personalize the rendered post for the given user, by making a copy of the
 	// rendered html, and doing field substitution of timestamp as needed
 	async personalizeRenderedPostPerUser (user) {
-		const { post } = this.postData;
-
 		// format the timestamp of this post with timezone dependency
-		const datetime = Utils.formatTime(post.createdAt, user.timeZone || DEFAULT_TIME_ZONE);
+		const datetime = Utils.formatTime(this.post.createdAt, user.timeZone || DEFAULT_TIME_ZONE);
 		this.renderedPostPerUser[user.id] = this.renderedHtml.replace(/\{\{\{datetime\}\}\}/g, datetime);
 
+		/*
 		// for DMs, the list of usernames who can "see" the codemark excludes the user 
 		if (this.stream.type === 'direct') {
 			const visibleTo = this.getVisibleTo(user);
 			this.renderedPostPerUser[user.id] = this.renderedHtml.replace(/\{\{\{usernames\}\}\}/g, visibleTo);
 		}
+		*/
 	}
 
+	/*
 	// get the list of usernames in a DM who can see the codemark, excluding current user
 	getVisibleTo (user) {
 		const streamMembers = [...(this.stream.memberIds || [])];
@@ -355,6 +383,7 @@ class EmailNotificationV2Handler {
 			return usernames.join(', ');
 		}
 	}
+	*/
 
 	// render each user's email in html
 	async renderPerUser () {
@@ -367,13 +396,14 @@ class EmailNotificationV2Handler {
 	// render a single email for the given user
 	async renderEmailForUser (user) {
 		const renderedHtml = this.renderedPostPerUser[user.id] || this.renderedHtml;
-		const codemark = this.postData.codemark || (this.parentPostData && this.parentPostData.codemark);
+		const codemark = this.codemark || this.parentCodemark;
 		const unfollowLink = this.getUnfollowLink(user, codemark);
 		let html = new EmailNotificationV2Renderer().render({
 			codemark,
 			content: renderedHtml,
 			unfollowLink,
-			inboundEmailDisabled: Config.inboundEmailDisabled
+			inboundEmailDisabled: Config.inboundEmailDisabled,
+			styles: this.styles
 		});
 		html = html.replace(/[\t\n]/g, '');
 		this.renderedEmails.push({ user, html });
@@ -405,10 +435,9 @@ class EmailNotificationV2Handler {
 	// send an email notification to the given user
 	async sendNotificationToUser (userAndHtml) {
 		const { user, html } = userAndHtml;
-		const { post } = this.postData;
-		const isReply = !!this.postData.post.parentPostId;
-		const codemark = isReply ? (this.parentPostData && this.parentPostData.codemark) : this.postData.codemark;
-		const creator = this.allMembers.find(member => member.id === codemark.creatorId);
+		const isReply = !!this.post.parentPostId;
+		const codemark = isReply ? this.parentCodemark : this.codemark;
+		const creator = this.teamMembers.find(member => member.id === codemark.creatorId);
 		const options = {
 			sender: this.sender,
 			content: html,
@@ -420,7 +449,7 @@ class EmailNotificationV2Handler {
 			isReply
 		};
 		try {
-			this.logger.log(`Sending codemark-based email notification to ${user.email}, post ${post.id}, isReply=${isReply}...`);
+			this.logger.log(`Sending codemark-based email notification to ${user.email}, post ${this.post.id}, isReply=${isReply}...`);
 			await new EmailNotificationV2Sender().sendEmailNotification(options);
 		}
 		catch (error) {
@@ -446,10 +475,9 @@ class EmailNotificationV2Handler {
 	}
 
 	async updateUser (user) {
-		const { post } = this.postData;
 		const op = { 
 			$set: {
-				[`lastEmailsSent.${this.stream.id}`]: post.seqNum
+				[`lastEmailsSent.${this.stream.id}`]: this.post.seqNum
 			} 
 		};
 		if (!user.hasReceivedFirstEmail) {
