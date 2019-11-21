@@ -1,6 +1,6 @@
 {
   "name": "api-server",
-  "version": "1.21.26",
+  "version": "1.21.27",
   "dependencies": {
     "@microsoft/microsoft-graph-client": "1.7.0",
     "@slack/client": "5.0.1",
