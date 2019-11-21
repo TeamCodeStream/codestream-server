@@ -13,7 +13,7 @@ const GetPostsDefaultSortTest = require('./get_posts_default_sort_test');
 const PaginationTest = require('./pagination_test');
 const InvalidParameterTest = require('./invalid_parameter_test');
 const TeamIDRequiredTest = require('./team_id_required_test');
-const StreamIDRequiredTest = require('./stream_id_required_test');
+// const StreamIDRequiredTest = require('./stream_id_required_test');
 const ACLTeamTest = require('./acl_team_test');
 const ACLStreamTest = require('./acl_stream_test');
 const StreamNotFoundTest = require('./stream_not_found_test');
@@ -45,7 +45,7 @@ class GetPostsRequestTester {
 		new PaginationTest({defaultPagination: true, tryOverLimit: true}).test();
 		new InvalidParameterTest().test();
 		new TeamIDRequiredTest().test();
-		new StreamIDRequiredTest().test();
+		// new StreamIDRequiredTest().test();
 		new ACLTeamTest().test();
 		new ACLStreamTest().test();
 		new StreamNotFoundTest().test();

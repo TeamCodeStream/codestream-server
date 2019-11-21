@@ -8,6 +8,8 @@ class GetManyRequest extends RestfulRequest {
 
 	// process the request...
 	async process () {
+		await this.preQueryHook();
+
 		// let the derived class provide the details of the query based on the request parameters
 		this.queryAndOptions = this.makeQueryAndOptions();
 		if (!this.queryAndOptions.fetchNothing && !this.queryAndOptions.query) {
@@ -29,6 +31,9 @@ class GetManyRequest extends RestfulRequest {
 		this.responseData[collectionName] = sanitizedObjects;
 	}
 
+	// override to do stuff before the query is built
+	async preQueryHook () {		
+	}
 
 	// form a query and query options based on information the client gleans from the request parameters
 	formQuery (callback) {
@@ -38,8 +43,6 @@ class GetManyRequest extends RestfulRequest {
 		}
 		process.nextTick(callback);
 	}
-
-
 
 	// override to do stuff right before we fetch
 	async preFetchHook () {

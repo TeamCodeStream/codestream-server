@@ -5,6 +5,8 @@
 const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 const PostErrors = require('./errors.js');
+const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
 
 // these parameters essentially get passed verbatim to the query
 const BASIC_QUERY_PARAMETERS = [
@@ -34,16 +36,72 @@ class GetPostsRequest extends GetManyRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		const info = await this.user.authorizeFromTeamIdAndStreamId(
-			this.request.query,
-			this
-		);
-		Object.assign(this, info);
+		let info;
+		if (this.request.query.streamId) {
+			info = await this.user.authorizeFromTeamIdAndStreamId(
+				this.request.query,
+				this
+			);
+			Object.assign(this, info);
+		}
+		else {
+			await this.user.authorizeFromTeamId(
+				this.request.query,
+				this
+			);
+		}
+	}
+
+	// called before the actual fetch operation, here we fetch the streams the user is 
+	// a member of if posts for a particular stream are not being fetched
+	async preQueryHook () {
+		if (this.request.query.streamId) { return; }
+		
+		// if no stream ID is given, we'll fetch for all streams the user is a member of...
+		// this includes any "team streams" and channels/DMs they are explicit members of
+		this.byId = true;
+		const teamId = this.request.query.teamId.toLowerCase();
+		const results = await awaitParallel([
+			async () => {
+				return this.data.streams.getByQuery(
+					{
+						teamId,
+						memberIds: this.user.id
+					},
+					{
+						hint: StreamIndexes.byMembers,
+						fields: ['id'],
+						noCache: true
+					}
+				);
+			},
+			async () => {
+				return this.data.streams.getByQuery(
+					{
+						teamId,
+						isTeamStream: true
+					},
+					{
+						hint: StreamIndexes.byIsTeamStream,
+						fields: ['id'],
+						noCache: true
+					}
+				);
+			}
+		], this);
+		this.streamIds = [...results[0], ...results[1]].map(stream => stream.id);
 	}
 
 	// build the query to use for fetching posts (used by the base class GetManyRequest)
 	buildQuery () {
 		const query = {};
+
+		// if no stream ID given, then query on all streams the user is a member of,
+		// as determined in preQueryHook(), above
+		if (!this.request.query.streamId) {
+			query.streamId = { $in: this.streamIds };
+		}
+
 		// process each parameter in turn
 		for (let parameter in this.request.query || {}) {
 			if (this.request.query.hasOwnProperty(parameter)) {
@@ -86,12 +144,16 @@ class GetPostsRequest extends GetManyRequest {
 
 	// process a relational parameter for seqnums (before, after, inclusive) ... for fetching in pages by seqnum
 	processRelationalParameter (parameter, value) {
-		this.bySeqNum = true;
 		this.relationals = this.relationals || {};
 		if (parameter === 'inclusive') {
 			this.relationals.inclusive = true;
 		}
-		else {
+		else if (this.byId) {
+			// sorting by ID, not seqnum, only when not fetching by stream
+			this.relationals[parameter] = value;
+		}
+		else 
+		{
 			const seqNum = parseInt(value, 10);
 			if (isNaN(seqNum) || seqNum.toString() !== value) {
 				return 'invalid seqnum: ' + value;
@@ -104,21 +166,24 @@ class GetPostsRequest extends GetManyRequest {
 	handleRelationals (query) {
 		if (!this.relationals) { return; }
 		const { before, after, inclusive } = this.relationals;
-		query.seqNum = {};
+		const queryField = this.byId ? 'id' : 'seqNum';
+		const beforeSafe = this.byId ? this.data.posts.objectIdSafe(before) : before;
+		const afterSafe = this.byId ? this.data.posts.objectIdSafe(after) : after;
+		query[queryField] = {};
 		if (before !== undefined) {
 			if (inclusive) {
-				query.seqNum.$lte = before;
+				query[queryField].$lte = beforeSafe;
 			}
 			else {
-				query.seqNum.$lt = before;
+				query[queryField].$lt = beforeSafe;
 			}
 		}
 		if (after !== undefined) {
 			if (inclusive) {
-				query.seqNum.$gte = after;
+				query[queryField].$gte = afterSafe;
 			}
 			else {
-				query.seqNum.$gt = after;
+				query[queryField].$gt = afterSafe;
 			}
 		}
 	}
@@ -150,18 +215,22 @@ class GetPostsRequest extends GetManyRequest {
 	setSort () {
 		// posts are sorted in descending order by ID unless otherwise specified
 		let sort;
+		const sortField = this.byId ? 'id' : 'seqNum';
 		if (this.request.query.sort && this.request.query.sort.toLowerCase() === 'asc') {
-			sort = { seqNum: 1 };
+			sort = { [sortField]: 1 };
 		}
 		else {
-			sort = { seqNum: -1 };
+			sort = { [sortField]: -1 };
 		}
 		return sort;
 	}
 
 	// set the indexing hint to use in the fetch query
 	setHint () {
-		if (this.request.query.parentPostId) {
+		if (this.byId) {
+			return Indexes.byId;
+		}
+		else if (this.request.query.parentPostId) {
 			return Indexes.byParentPostId;
 		}
 		else {

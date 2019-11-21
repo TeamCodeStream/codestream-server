@@ -4,11 +4,6 @@
 'use strict';
 
 module.exports = {
-	byMemberIds: {	// this one is getting deprecated, use byMembers instead
-		teamId: 1,
-		memberIds: 1,
-		sortId: -1
-	},
 	byName: {
 		teamId: 1,
 		name: 1,
@@ -28,6 +23,11 @@ module.exports = {
 		teamId: 1,
 		memberIds: 1,
 		privacy: 1,
+		sortId: -1
+	},
+	byIsTeamStream: {
+		teamId: 1,
+		isTeamStream: 1,
 		sortId: -1
 	}
 };
