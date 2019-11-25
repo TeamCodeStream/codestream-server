@@ -178,6 +178,9 @@ class CodemarkCreator extends ModelCreator {
 			await this.createPermalink();
 		}
 
+		// pre-set createdAt and lastActivityAt attributes
+		this.attributes.createdAt = this.attributes.lastActivityAt = Date.now();
+		
 		// proceed with the save...
 		await super.preSave();
 	}
