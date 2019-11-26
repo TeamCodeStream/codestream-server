@@ -258,7 +258,7 @@ class OutboundEmailServer {
 
 	async readStyles () {
 		this.styles = await new Promise((resolve, reject) => {
-			FS.readFile('./styles.css', 'utf8', (error, data) => {
+			FS.readFile('./src/styles.css', 'utf8', (error, data) => {
 				if (error) reject(error);
 				else resolve(data);
 			});
