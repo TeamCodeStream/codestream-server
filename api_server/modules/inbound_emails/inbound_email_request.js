@@ -105,7 +105,7 @@ class InboundEmailRequest extends RestfulRequest {
 		// not interested!
 		const regexp = new RegExp(this.api.config.email.replyToDomain + '$', 'i');
 		if (!regexp.test(email)) {
-			return this.log(`Email ${email} does not match the reply-to domain`);
+			return this.log(`Email ${email} does not match the reply-to domain of ${this.api.config.email.replyToDomain}`);
 		}
 
 		// extract the first part of the email, this should be our stream ID
