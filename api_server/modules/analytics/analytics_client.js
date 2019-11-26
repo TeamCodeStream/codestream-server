@@ -47,7 +47,7 @@ class AnalyticsClient {
 		}
 
 		this.segment.track({
-			userId: options.user && options.user.id,
+			userId: trackData.userId,
 			event,
 			properties: data
 		});
