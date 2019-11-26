@@ -62,18 +62,20 @@ class ProviderActionRequest extends RestfulRequest {
 							results.actionTeam
 						);
 						await this.sendTelemetry(
-							data.actionPayload,
+							data,
 							results.actionUser,
 							results.payloadUserId,
 							results.actionTeam,
-							company
+							company,
+							results.hasError
 						);
 					}
 				}
 			}
 		}
-		// else if (this.provider === 'msteams') {
-		// }
+		else if (this.provider === 'msteams') {
+			// this.responseData = { 'ok': true };
+		}
 	}
 
 	verifySlackRequest(request, rawBody) {
@@ -154,10 +156,16 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	// send telemetry event associated with this action
-	async sendTelemetry(actionPayload, user, providerUserId, team, company) {
-		if (!actionPayload || (!user && !providerUserId) || !team) return;
+	async sendTelemetry(data, user, providerUserId, team, company, hasError) {
+		if (!data || !data.actionPayload || (!user && !providerUserId) || !team) return;
+		const provider =
+			this.provider === 'slack'
+				? 'Slack'
+				: this.provider === 'msteams'
+					? 'MSTeams'
+					: this.provider;
 
-		const info = this.getTrackingInfo(actionPayload);
+		const info = this.getTrackingInfo(data.payload, data.actionPayload, provider, hasError);
 		if (!info) {
 			this.log(
 				`Could not get tracking info from ${this.provider} payload`
@@ -165,12 +173,6 @@ class ProviderActionRequest extends RestfulRequest {
 			return false;
 		}
 
-		const provider =
-			this.provider === 'slack'
-				? 'Slack'
-				: this.provider === 'msteams'
-					? 'MSTeams'
-					: this.provider;
 		const trackData = {
 			Provider: provider,
 			Endpoint: provider
@@ -194,8 +196,25 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	// get the tracking info associated with this requset
-	getTrackingInfo(actionPayload) {
-		if (actionPayload.linkType === 'web') {
+	getTrackingInfo(payload, actionPayload, provider, hasError) {
+		if (hasError) {
+			return {
+				event: 'Provider Reply Denied',
+				data: {
+					Endpoint: provider || ''
+				}
+			};
+		}
+		else if (payload && payload.type === 'view_submission') {
+			return {
+				event: 'Replied to Codemark',
+				data: {
+					CodemarkId: actionPayload && actionPayload.codemarkId,
+					Endpoint: provider || ''
+				}
+			};
+		}
+		else if (actionPayload.linkType === 'web') {
 			return {
 				event: 'Opened on Web'
 			};
@@ -205,7 +224,10 @@ class ProviderActionRequest extends RestfulRequest {
 			};
 		} else if (actionPayload.linkType === 'reply') {
 			return {
-				event: 'Replied'
+				event: 'View Discussion & Reply',
+				data: {
+					Endpoint: provider || ''
+				}
 			};
 		} else if (actionPayload.linkType === 'external') {
 			if (actionPayload.externalType === 'code') {
@@ -227,8 +249,8 @@ class ProviderActionRequest extends RestfulRequest {
 			}
 		}
 	}
-	
-	async postProcess () {
+
+	async postProcess() {
 		if (this.postProcessAwaitable) {
 			await this.postProcessAwaitable();
 		}

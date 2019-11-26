@@ -59,18 +59,18 @@ class SlackInteractiveComponentsHandler {
 		let postProcessAwaitable;
 		try {
 			privateMetadata = JSON.parse(this.payload.view.private_metadata);
-			this.log('could not parse private_metadata');
 		} catch (ex) {
+			this.log('could not parse private_metadata');
 			return undefined;
 		}
 		try {
-
 			// this userId is the person who clicked
 			user = await this.getUser(this.payload.user.id);
 			team = await this.getTeam(user, privateMetadata.teamId);
 			if (!privateMetadata.parentPostId) {
 				this.log('parentPostId is missing');
 				return {
+					hasError: true,
 					actionUser: user,
 					payloadUserId: this.payload.user.id,
 					actionTeam: team
@@ -79,6 +79,7 @@ class SlackInteractiveComponentsHandler {
 			if (!user) {
 				this.log('user is missing');
 				return {
+					hasError: true,
 					actionUser: user,
 					payloadUserId: this.payload.user.id,
 					actionTeam: team
@@ -91,6 +92,7 @@ class SlackInteractiveComponentsHandler {
 			if (!text) {
 				this.log('text is missing');
 				return {
+					hasError: true,
 					actionUser: user,
 					payloadUserId: this.payload.user.id,
 					actionTeam: team
@@ -186,9 +188,9 @@ class SlackInteractiveComponentsHandler {
 		}
 
 		const blocks = await this.createModalBlocks(user, codemark);
-		let hasError = false;
+		let hasCaughtError = false;
 		for (let i = 0; i < users.length; i++) {
-			hasError = false;
+			hasCaughtError = false;
 			const user = users[0];
 			if (!user) continue;
 
@@ -216,7 +218,7 @@ class SlackInteractiveComponentsHandler {
 				}
 			} catch (ex) {
 				this.log(ex);
-				hasError = true;
+				hasCaughtError = true;
 				if (ex.data) {
 					try {
 						this.log(JSON.stringify(ex.data));
@@ -239,7 +241,7 @@ class SlackInteractiveComponentsHandler {
 				this.log(`Took too long to respond (${secondsBetween} seconds)`);
 			}
 			else {
-				if (hasError) {
+				if (hasCaughtError) {
 					await this.postEphemeralMessage(
 						this.payload.response_url,
 						SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. Please try again. ')
@@ -258,7 +260,8 @@ class SlackInteractiveComponentsHandler {
 			return {
 				actionUser: payloadActionUser,
 				actionTeam: team,
-				payloadUserId: this.payload.user.id
+				hasError: true,
+				payloadUserId: this.payload.user.id				
 			};
 		}
 
