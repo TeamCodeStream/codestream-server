@@ -33,7 +33,7 @@ class ProviderDeauthRequest extends RestfulRequest {
 					string: ['teamId']
 				},
 				optional: {
-					string: ['host']
+					string: ['host', 'subId']
 				}
 			}
 		);
@@ -45,11 +45,14 @@ class ProviderDeauthRequest extends RestfulRequest {
 		// remove credentials for the given provider and team ID in the user object
 		const teamId = this.request.body.teamId.toLowerCase();
 		const provider = this.request.params.provider.toLowerCase();
-		let host = this.request.body.host;
+		let { host, subId } = this.request.body;
 		let key = `providerInfo.${teamId}.${provider}`;
 		if (host) {
 			host = host.toLowerCase().replace(/\./g, '*');
 			key += `.hosts.${host}`;
+		}
+		if (subId) {
+			key += `.multiple.${subId}`;
 		}
 		const existingProviderInfo = this.user.getProviderInfo(provider, teamId);
 		if (
@@ -115,7 +118,8 @@ class ProviderDeauthRequest extends RestfulRequest {
 				summary: 'Specify the teamId in the body',
 				looksLike: {
 					'teamId*': '<ID of team for which to clear credentials>',
-					'host': '<For enterprise providers, specify the specific host credentials to clear>'
+					'host': '<For enterprise providers, specify the specific host credentials to clear>',
+					'subId': '<For credentials issued per workspace or organziation, remove only credentials for this ID>'
 				},
 			},
 			returns: 'Directive to remove credentials'
