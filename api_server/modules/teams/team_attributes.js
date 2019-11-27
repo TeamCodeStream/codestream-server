@@ -48,8 +48,7 @@ module.exports = {
 	},
 	reportingGroup: {
 		type: 'string',
-		maxLength: 20,
-		serverOnly: true
+		maxLength: 20
 	},
 	providerHosts: {
 		type: 'object',
