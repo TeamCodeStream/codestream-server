@@ -14,6 +14,8 @@ const CodemarkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/cod
 const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_helper');
 const Errors = require('./errors');
 
+const USE_V2_EMAIL_NOTIFICATIONS = false;
+
 class PostCreator extends ModelCreator {
 
 	constructor (options) {
@@ -415,8 +417,7 @@ class PostCreator extends ModelCreator {
 		// here we are paving the way for v2 email notifications, meaning those that base email notifications
 		// off of codemarks, rather than posts in the stream (part of the "sharing" model) ... until we are
 		// ready to turn that paradigm on, we stick with the old...
-		const useV2EmailNotifications = false;
-		if (!useV2EmailNotifications) { // turn on when ready
+		if (!USE_V2_EMAIL_NOTIFICATIONS) { // turn on when ready
 			const queue = new EmailNotificationQueue({
 				request: this.request,
 				fromSeqNum: this.model.get('seqNum'),
@@ -488,14 +489,16 @@ class PostCreator extends ModelCreator {
 			Thread: 'Parent',
 			Category: category,
 			Endpoint: 'Email',
-			'Date of Last Post': dateOfLastPost
+			'Date of Last Post': dateOfLastPost,
+			'Codemark ID': this.model.get('codemarkId')
 		};
 		if (user.get('totalPosts') === 1) {
 			trackData['First Post?'] = new Date(this.model.get('createdAt')).toISOString();
 		}
 
+		const eventName = USE_V2_EMAIL_NOTIFICATIONS && this.model.get('codemarkId') ? 'Replied to Codemark' : 'Post Created';
 		this.api.services.analytics.trackWithSuperProperties(
-			'Post Created',
+			eventName,
 			trackData,
 			{ request, user, team, company }
 		);

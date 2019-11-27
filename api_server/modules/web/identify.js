@@ -21,6 +21,7 @@ module.exports = function(options) {
 	const teamPlan = team && team.get('plan');
 	const reportingGroup = team && team.get('reportingGroup');
 	const companyName = company && company.get('name');
+	const companyId = company && company.id;
 
 	const props = {
 		provider,
@@ -36,7 +37,8 @@ module.exports = function(options) {
 		teamCreatedAt,
 		teamPlan,
 		reportingGroup,
-		companyName
+		companyName,
+		companyId
 	};
 	return module.evalTemplateNoSend('identify_script', props);
 };

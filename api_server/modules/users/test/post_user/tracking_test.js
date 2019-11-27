@@ -90,6 +90,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((properties['Plan'] === '30DAYTRIAL') || errors.push('Plan not equal to 30DAYTRIAL')) &&
 			((properties['Provider'] === provider) || errors.push(`Provider not set to ${provider}`)) && 
 			((properties['Company Name'] === this.company.name) || errors.push('incorrect company name')) &&
+			((properties['Company ID'] === this.company.id) || errors.push('incorrect company ID')) &&
 			((properties['Endpoint'] === 'Unknown IDE') || errors.push('IDE should be unknown')) &&
 			((properties['Plugin Version'] === '') || errors.push('Plugin Version should be blank')) &&
 			((properties['$created'] === new Date(this.currentUser.user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&

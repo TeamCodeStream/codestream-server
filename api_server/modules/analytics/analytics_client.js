@@ -96,6 +96,7 @@ class AnalyticsClient {
 
 		if (company) {
 			trackObject['Company Name'] = company.get('name');
+			trackObject['Company ID'] = company.id;
 		}
 
 		Object.assign(trackObject, data);

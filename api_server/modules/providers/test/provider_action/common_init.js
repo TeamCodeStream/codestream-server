@@ -107,6 +107,7 @@ class CommonInit {
 			'Team ID': this.team.id,
 			'Team Name': this.team.name,
 			'Company Name': this.company.name,
+			'Company ID': this.company.id,
 			'Team Size': 1,
 			'Team Created Date': new Date(this.team.createdAt).toISOString(),
 			'Plan': '30DAYTRIAL',
