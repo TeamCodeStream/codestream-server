@@ -1,5 +1,5 @@
 .master {
-	padding: 20px;
+	padding: 12px;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI',
 		'Ubuntu', 'Droid Sans', ans-serif;
 	font-size: 12px;
@@ -10,7 +10,7 @@
 .logo {
 	width: 200px;
 	height: 30px;
-	margin: 5px;
+	margin: 12px;
 }
 
 .codemark-wrapper {
@@ -19,8 +19,10 @@
 	background-color: #282828;
 	border: 1px solid #383838;
 	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-	margin: 50px 180px 50px 180px;
-	padding: 11px;
+	/* margin: 50px 180px 50px 180px; */
+	margin: 5px 2px 5px 2px;
+	/* padding: 11px; */
+	padding: 8px;
 }
 
 .headshot {
@@ -139,7 +141,7 @@
 }
 
 .icon {
-	margin-right: 2px;
+	margin-right: 5px;
 }
 
 .icon svg {
@@ -162,7 +164,7 @@
 .codeblock-text {
 	color: #898f9e;
 	font-size: 12px;
-	margin-right: 25px;
+	margin-right: 15px;
 	padding-bottom: 7px;
 }
 

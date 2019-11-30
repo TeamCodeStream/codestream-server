@@ -28,8 +28,6 @@ class EmailNotificationV2Renderer {
 		<a class="brand" href="https://codestream.com">
 			<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
 		</a>
-		<br/>
-		<br/>
 		<div class="content">
 			${content}
 		</div>

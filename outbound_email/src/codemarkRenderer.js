@@ -41,6 +41,26 @@ const PROVIDER_DISPLAY_NAMES = {
 	'vsts': 'Visual Studio Team Services'
 };
 
+const PROVIDER_ICONS = {
+	slack: 'slack',
+	msteams: 'msteams',
+	jira: 'jira',
+	jiraserver: 'jira',
+	trello: 'trello',
+	asana: 'asana',
+	gitlab: 'gitlab',
+	youtrack: 'youtrack',
+	bitbucket: 'bitbucket',
+	azuredevops: 'azuredevops',
+	comment: 'comment',
+	issue: 'issue',
+	question: 'question',
+	trap: 'trap',
+	bookmark: 'bookmark'
+};
+
+const ICONS_ROOT = 'https://images.codestream.com/email_icons';
+
 class CodemarkRenderer {
 
 	/* eslint complexity: 0 */
@@ -246,9 +266,8 @@ class CodemarkRenderer {
 <div class="section">DESCRIPTION</div>
 <div class="text">
 	<span class="icon">
-		<svg version="1.1" width="16" height="16" class="octicon octicon-description" aria-hidden="true" viewBox="0 0 24 24"><path d="M 4 3 A 1.0001 1.0001 0 1 0 4 5 L 20 5 A 1.0001 1.0001 0 1 0 20 3 L 4 3 z M 4 7 A 1.0001 1.0001 0 1 0 4 9 L 15 9 A 1.0001 1.0001 0 1 0 15 7 L 4 7 z M 4 11 A 1.0001 1.0001 0 1 0 4 13 L 20 13 A 1.0001 1.0001 0 1 0 20 11 L 4 11 z M 4 15 A 1.0001 1.0001 0 1 0 4 17 L 15 17 A 1.0001 1.0001 0 1 0 15 15 L 4 15 z M 4 19 A 1.0001 1.0001 0 1 0 4 21 L 20 21 A 1.0001 1.0001 0 1 0 20 19 L 4 19 z"></path>
-		</svg>
-	</span>
+		<img width="16" height="16" class="octicon" src="${ICONS_ROOT}/description.png" />
+	</span><br/>
 	${text}
 </div>
 `;
@@ -264,9 +283,19 @@ class CodemarkRenderer {
 		if (!codemark.externalProvider) { return; }
 		const providerName = PROVIDER_DISPLAY_NAMES[codemark.externalProvider] || codemark.externalProvider;
 		const providerUrl = codemark.externalProviderUrl;
+		const icon = PROVIDER_ICONS[codemark.externalProvider];
+		let iconHtml;
+		if (icon) {
+			iconHtml = `
+<span class="icon">
+	<img width="16" height="16" class="octicon" src="${ICONS_ROOT}/${icon}.png" />
+</span>
+`;
+		}
 		return `
 <div class="section">LINKED ISSUES</div>
 <div class="issue hover-underline">
+	${iconHtml}
 	<a clicktracking="off" href="${providerUrl}">${providerName} ${providerUrl}</a>
 </div>
 `;
@@ -307,8 +336,18 @@ ${relatedDivs}
 		}
 
 		const relatedTitle = Utils.cleanForEmail(codemark.title || codemark.text);
+		const icon = PROVIDER_ICONS[codemark.type];
+		let iconHtml;
+		if (icon) {
+			iconHtml = `
+<span class="icon">
+	<img width="16" height="16" class="octicon" src="${ICONS_ROOT}/${icon}.png" />
+</span>
+`;		
+		}
 		return `
 <div class="text">
+	${iconHtml}
 	<a clicktracking="off" href="${codemark.permalink}">
 		<span class="related-codemark-text">${relatedTitle}</span><span class="related-codemark-file hover-underline">${path}</span>
 	</a>
