@@ -93,9 +93,13 @@ class EmailNotificationV2Handler {
 		if (this.parentPost && this.parentPost.codemarkId) {
 			codemarkIds.push(this.parentPost.codemarkId);
 		}
-		if (this.codemark.relatedCodemarkIds) {
+		if (this.codemark && this.codemark.relatedCodemarkIds) {
 			codemarkIds = [...codemarkIds, ...this.codemark.relatedCodemarkIds];
 		}
+		if (codemarkIds.length === 0) {
+			return;
+		}
+
 		this.relatedCodemarks = await this.data.codemarks.getByIds(codemarkIds);
 		if (this.relatedCodemarks.length !== codemarkIds.length) {
 			throw `unable to find all related codemarks to ${this.post.id}`;
@@ -299,6 +303,8 @@ class EmailNotificationV2Handler {
 		const timeZone = this.hasMultipleTimeZones ? null : firstUserTimeZone;
 		this.renderedHtml = new ReplyRenderer().render({
 			post: this.post,
+			codemark: this.parentCodemark,
+			markers: this.markers,
 			creator,
 			timeZone,
 			members: this.teamMembers,

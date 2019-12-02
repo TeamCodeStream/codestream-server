@@ -4,6 +4,15 @@ const MomentTimezone = require('moment-timezone');
 const EmailUtilities = require('./server_utils/email_utilities');
 const HtmlEscape = require('./server_utils/html_escape');
 const HLJS = require('highlight.js');
+const Crypto = require('crypto');
+
+const CODE_PROVIDERS = {
+	github: 'GitHub',
+	gitlab: 'GitLab',
+	bitBucket: 'Bitbucket',
+	'azure-devops': 'Azure DevOps',
+	vsts: 'Azure DevOps'
+};
 
 const Utils = {
 
@@ -86,7 +95,79 @@ const Utils = {
 	prepareForEmail: function(text, mentionedUserIds, members) {
 		text = Utils.cleanForEmail(text);
 		return Utils.handleMentions(text, mentionedUserIds, members);
+	},
+
+	// get appropriate avatar information for displaying a user
+	getAvatar: function(user) {
+		const { email, fullName, displayName, username } = user;
+		let emailHash = '-';
+		let authorInitials;
+		if (email) {
+			emailHash = Crypto.createHash('md5')
+				.update(email.trim().toLowerCase())
+				.digest('hex');
+			authorInitials = email.charAt(0) || '';
+		}
+
+		const name = displayName || fullName;
+		if (name) {
+			authorInitials = name
+				.replace(/(\w)\w*/g, '$1')
+				.replace(/\s/g, '');
+			if (authorInitials.length > 2) {
+				authorInitials = authorInitials.substring(0, 2);
+			}
+		}
+		else if (username) {
+			authorInitials = username.charAt(0);
+		}
+		return {
+			authorInitials,
+			emailHash
+		};
+	},
+
+	// get buttons to display associated with a codemark
+	getButtons: function(options, marker) {
+		const { codemark } = options;
+
+		let ideButton = '';
+		if (codemark.permalink) {
+			const url = `${codemark.permalink}?ide=default&markerId=${marker.id}`;
+			ideButton = `
+<div class="button">
+	<a clicktracking="off" href="${url}" target="_blank">Open in IDE</a>
+</div>
+`;
+		}
+
+		let remoteCodeButton = '';
+		const remoteCodeUrl = marker.remoteCodeUrl || codemark.remoteCodeUrl;
+		if (remoteCodeUrl) {
+			const name = CODE_PROVIDERS[codemark.remoteCodeUrl.name];
+			const url = codemark.remoteCodeUrl.url;
+			if (name && url) {
+				remoteCodeButton = `
+<div class="button">
+<a clicktracking="off" href="${url}" target="_blank">Open on ${name}</a>
+</div>
+`;
+			}
+		}
+
+		let buttons = '';
+		if (ideButton || remoteCodeButton) {
+			buttons = `
+<div class="code-buttons">
+	${ideButton}
+	${remoteCodeButton}
+</div>
+`;
+		}
+
+		return buttons;
 	}
 };
+
 
 module.exports = Utils;

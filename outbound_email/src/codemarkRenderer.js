@@ -4,7 +4,6 @@
 
 const EmailUtilities = require('./server_utils/email_utilities');
 const Utils = require('./utils');
-const Crypto = require('crypto');
 const Path = require('path');
 
 const TAG_MAP = {
@@ -16,14 +15,6 @@ const TAG_MAP = {
 	purple: '#b87cda',
 	aqua: '#5abfdc',
 	gray: '#888888'
-};
-
-const CODE_PROVIDERS = {
-	github: 'GitHub',
-	gitlab: 'GitLab',
-	bitBucket: 'Bitbucket',
-	'azure-devops': 'Azure DevOps',
-	vsts: 'Azure DevOps'
 };
 
 const PROVIDER_DISPLAY_NAMES = {
@@ -97,7 +88,7 @@ class CodemarkRenderer {
 		const datetime = timeZone ? Utils.formatTime(codemark.createdAt, timeZone) : '{{{datetime}}}';
 
 		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
-		const avatar = this.getAvatar(creator);
+		const avatar = Utils.getAvatar(creator);
 		return `
 <div class="authorLine">
 	<div style="max-height:0;max-width:0">
@@ -245,7 +236,7 @@ class CodemarkRenderer {
 
 	// render a single task assignee
 	renderAssignee (assignee) {
-		const avatar = this.getAvatar(assignee);
+		const avatar = Utils.getAvatar(assignee);
 		const assigneeDisplay = assignee.fullName || assignee.displayName || assignee.username || assignee.email;
 		return `
 <div style="max-height:0;max-width:0">
@@ -422,46 +413,15 @@ ${relatedDivs}
 
 	// render a single code block
 	renderCodeBlock (marker, options) {
-		const { codemark } = options;
 		const { branchWhenCreated, commitHashWhenCreated } = marker;
 		const path = this.getPathForMarker(marker, options);
 		const branch = branchWhenCreated || '';
 		const commitHash = commitHashWhenCreated ? commitHashWhenCreated.slice(0, 7) : '';
 
-		let ideButton = '';
-		if (codemark.permalink) {
-			const url = `${codemark.permalink}?ide=default&markerId=${marker.id}`;
-			ideButton = `
-<div class="button">
-	<a clicktracking="off" href="${url}" target="_blank">Open in IDE</a>
-</div>
-`;
-		}
+		// get buttons to display
+		let buttons = Utils.getButtons(options, marker);
 
-		let remoteCodeButton = '';
-		const remoteCodeUrl = marker.remoteCodeUrl || codemark.remoteCodeUrl;
-		if (remoteCodeUrl) {
-			const name = CODE_PROVIDERS[codemark.remoteCodeUrl.name];
-			const url = codemark.remoteCodeUrl.url;
-			if (name && url) {
-				remoteCodeButton = `
-<div class="button">
-<a clicktracking="off" href="${url}" target="_blank">Open on ${name}</a>
-</div>
-`;
-			}
-		}
-
-		let buttons = '';
-		if (ideButton || remoteCodeButton) {
-			buttons = `
-<div class="code-buttons">
-	${ideButton}
-	${remoteCodeButton}
-</div>
-`;
-		}
-
+		// get code for the given marker
 		let code = (marker.code || '').trimEnd();
 
 		// setup line numbering
@@ -509,35 +469,6 @@ ${relatedDivs}
 </table>
 ${buttons}
 `;
-	}
-
-	getAvatar (user) {
-		const { email, fullName, displayName, username } = user;
-		let emailHash = '-';
-		let authorInitials;
-		if (email) {
-			emailHash = Crypto.createHash('md5')
-				.update(email.trim().toLowerCase())
-				.digest('hex');
-			authorInitials = email.charAt(0) || '';
-		}
-
-		const name = displayName || fullName;
-		if (name) {
-			authorInitials = name
-				.replace(/(\w)\w*/g, '$1')
-				.replace(/\s/g, '');
-			if (authorInitials.length > 2) {
-				authorInitials = authorInitials.substring(0, 2);
-			}
-		}
-		else if (username) {
-			authorInitials = username.charAt(0);
-		}
-		return {
-			authorInitials,
-			emailHash
-		};
 	}
 }
 

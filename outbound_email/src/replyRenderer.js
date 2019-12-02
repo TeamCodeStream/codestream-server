@@ -12,11 +12,15 @@ class ReplyRenderer {
 
 		const authorDiv = this.renderAuthorDiv(options);
 		const textDiv = this.renderTextDiv(options);
+		const buttons = this.renderButtons(options);
 
 		return `
-<div class="replyWrapper">
+<div class="codemark-wrapper">
 	${authorDiv}
 	${textDiv}
+</div>
+<div class="reply-buttons-wrapper">
+	${buttons}
 </div>
 `;
 	}
@@ -30,11 +34,16 @@ class ReplyRenderer {
 		const datetime = timeZone ? Utils.formatTime(post.createdAt, timeZone) : '{{{datetime}}}';
 
 		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
+		const avatar = Utils.getAvatar(creator);
 		return `
 <div class="authorLine">
-	<span class="author">${author}</span>&nbsp;<span class="datetime">${datetime}</span>
+	<div style="max-height:0;max-width:0">
+		<span class="headshot-initials">${avatar.authorInitials}</span>
+	</div>
+	<img class="headshot-image" src="https://www.gravatar.com/avatar/${avatar.emailHash}?s=20&d=blank" />
+	<span class="author">${author}</span><span class="datetime">${datetime}</span>
 </div>
-`;
+	`;
 	}
 
 	// render the div for the post text
@@ -42,11 +51,20 @@ class ReplyRenderer {
 		const { post, mentionedUserIds, members } = options;
 		const text = Utils.prepareForEmail(post.text, mentionedUserIds, members);
 		return `
-<div class="title">
+<div class="text">
 	${text}
 	<br>
 </div>
 `;
+	}
+
+	// render buttons to display, associated with the parent codemark
+	renderButtons (options) {
+		const { codemark, markers } = options;
+		const markerId = codemark && codemark.markerIds[0];
+		const marker = markerId && markers.find(marker => marker.id === markerId);
+		if (!marker) { return ''; }
+		return Utils.getButtons(options, marker);
 	}
 }
 
