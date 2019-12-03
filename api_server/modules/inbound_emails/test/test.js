@@ -28,6 +28,7 @@ const InvalidCodemarkIdTest = require('./invalid_codemark_id_test');
 const CodemarkNotFoundTest = require('./codemark_not_found_test');
 const CodemarkNoMatchTeamTest = require('./codemark_no_match_team_test');
 const CodemarkNoMatchStreamTest = require('./codemark_no_match_stream_test');
+const TrackingWithCodemarkTest = require('./tracking_with_codemark_test');
 
 describe('inbound emails', function() {
 
@@ -68,4 +69,7 @@ describe('inbound emails', function() {
 	new CodemarkNotFoundTest().test();
 	new CodemarkNoMatchTeamTest().test();
 	new CodemarkNoMatchStreamTest().test();
+	new TrackingWithCodemarkTest({ type: 'channel' }).test();
+	new TrackingWithCodemarkTest({ type: 'channel', makePublic: true }).test();
+	new TrackingWithCodemarkTest({ type: 'direct' }).test();
 });

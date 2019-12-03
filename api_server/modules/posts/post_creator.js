@@ -14,7 +14,7 @@ const CodemarkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/cod
 const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_helper');
 const Errors = require('./errors');
 
-const USE_V2_EMAIL_NOTIFICATIONS = false;
+const USE_V2_EMAIL_NOTIFICATIONS = true;
 
 class PostCreator extends ModelCreator {
 
@@ -489,14 +489,16 @@ class PostCreator extends ModelCreator {
 			Thread: 'Parent',
 			Category: category,
 			Endpoint: 'Email',
-			'Date of Last Post': dateOfLastPost,
-			'Codemark ID': this.model.get('codemarkId')
+			'Date of Last Post': dateOfLastPost
 		};
+		if (this.parentPost && this.parentPost.get('codemarkId')) {
+			trackData['Codemark ID'] = this.parentPost.get('codemarkId');
+		}
 		if (user.get('totalPosts') === 1) {
 			trackData['First Post?'] = new Date(this.model.get('createdAt')).toISOString();
 		}
 
-		const eventName = USE_V2_EMAIL_NOTIFICATIONS && this.model.get('codemarkId') ? 'Replied to Codemark' : 'Post Created';
+		const eventName = USE_V2_EMAIL_NOTIFICATIONS && trackData['Codemark ID'] ? 'Replied to Codemark' : 'Post Created';
 		this.api.services.analytics.trackWithSuperProperties(
 			eventName,
 			trackData,

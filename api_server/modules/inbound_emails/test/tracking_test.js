@@ -79,9 +79,10 @@ class TrackingTest extends InboundEmailMessageTest {
 		if (this.makePublic) {
 			category = 'Public Channel';
 		}
+		const event = this.expectedEvent || 'Post Created';
 		const result = (
 			((data.userId === this.users[1].user.id) || errors.push('userId not set to post originator\'s ID')) && 
-			((data.event === 'Post Created') || errors.push('event not correct')) &&
+			((data.event === event) || errors.push('event not correct')) &&
 			((properties.distinct_id === this.users[1].user.id) || errors.push('distinct_id not set to post originator\'s ID')) &&
 			((properties.Type === 'Chat') || errors.push('Type not correct')) &&
 			((properties.Thread === 'Parent') || errors.push('Thread not correct')) &&
