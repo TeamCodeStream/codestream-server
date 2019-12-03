@@ -22,6 +22,12 @@ const StreamNoMatchTeamTest = require('./stream_no_match_team_test');
 const OriginatorNotInTeamTest = require('./originator_not_in_team_test');
 const TrackingTest = require('./tracking_test');
 const NoTrackingTest = require('./no_tracking_test');
+const CodemarkReplyTest = require('./codemark_reply_test');
+const CodemarkReplyMessageTest = require('./codemark_reply_message_test');
+const InvalidCodemarkIdTest = require('./invalid_codemark_id_test');
+const CodemarkNotFoundTest = require('./codemark_not_found_test');
+const CodemarkNoMatchTeamTest = require('./codemark_no_match_team_test');
+const CodemarkNoMatchStreamTest = require('./codemark_no_match_stream_test');
 
 describe('inbound emails', function() {
 
@@ -52,4 +58,14 @@ describe('inbound emails', function() {
 	new TrackingTest({ type: 'channel', makePublic: true }).test();
 	new TrackingTest({ type: 'direct' }).test();
 	new NoTrackingTest().test(); 
+	new CodemarkReplyTest({ type: 'channel' }).test();
+	new CodemarkReplyTest({ type: 'direct' }).test();
+	new CodemarkReplyTest({ type: 'channel', isTeamStream: true }).test();
+	new CodemarkReplyMessageTest({ type: 'channel' }).test();
+	new CodemarkReplyMessageTest({ type: 'direct' }).test();
+	new CodemarkReplyMessageTest({ type: 'channel', isTeamStream: true }).test();
+	new InvalidCodemarkIdTest().test();
+	new CodemarkNotFoundTest().test();
+	new CodemarkNoMatchTeamTest().test();
+	new CodemarkNoMatchStreamTest().test();
 });

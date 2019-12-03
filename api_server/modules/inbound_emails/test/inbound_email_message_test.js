@@ -7,11 +7,8 @@ const CommonInit = require('./common_init');
 class InboundEmailMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		let desc = `should create and publish a post when an inbound email call is made in a ${this.type} stream`;
-		if (this.isTeamStream) {
-			desc += ' and the stream is a team stream';
-		}
-		return desc;
+		const type = this.isTeamStream ? 'team' : this.type;
+		return `should create and publish a post when an inbound email call is made in a ${type} stream`;
 	}
 
 	// make the data that triggers the message to be received

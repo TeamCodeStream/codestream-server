@@ -36,6 +36,7 @@ class InboundEmailRequest extends RestfulRequest {
 		await this.getCreator();
 		await this.parseToAddresses();
 		await this.getStream();
+		await this.getCodemark();
 		await this.validate();
 		await this.handleAttachments();
 		await this.getTeam();
@@ -115,22 +116,26 @@ class InboundEmailRequest extends RestfulRequest {
 		}
 
 		// split the first part by '.', this separates the team ID and the stream ID
-		const idParts = addressParts[0].split('.');
-		if (idParts.length !== 2) {
+		const idParts = addressParts[0].split('.').reverse();
+		if (idParts.length < 2 || idParts.length > 3) {
 			return this.log(`Email ${email} does not conform to the correct format for ingestion`);
 		}
 
 		// check that the IDs are valid
 		if (!this.data.streams.objectIdSafe(idParts[0])) {
-			return this.log(`Email ${email} does not reference a valid stream ID`);
+			return this.log(`Email ${email} does not reference a valid team ID`);
 		}
 		if (!this.data.teams.objectIdSafe(idParts[1])) {
-			return this.log(`Email ${email} does not reference a valid team ID`);
+			return this.log(`Email ${email} does not reference a valid stream ID`);
+		}
+		if (idParts[2] && !this.data.teams.objectIdSafe(idParts[2])) {
+			return this.log(`Email ${email} does not reference a valid codemark ID`);
 		}
 
 		// good to go
-		this.streamId = idParts[0];
-		this.teamId = idParts[1];
+		this.teamId = idParts[0];
+		this.streamId = idParts[1];
+		this.codemarkId = idParts[2];
 	}
 
 	// get the stream associated with the IDs we found
@@ -149,6 +154,22 @@ class InboundEmailRequest extends RestfulRequest {
 		}
 	}
 
+	// get the codemark associated with the original email notification
+	async getCodemark () {
+		if (!this.codemarkId) {
+			return;
+		}
+		try {
+			this.codemark = await this.data.codemarks.getById(this.codemarkId);
+		}
+		catch (error) {
+			throw this.errorHandler.error('internal', { reason: error });
+		}
+		if (!this.codemark) {
+			throw this.errorHandler.error('codemarkNotFound', { info: this.codemarkId });
+		}
+	}
+
 	// validate the stream: the stream must be owned by the correct team, and the
 	// user originating the email must be on the team
 	async validate () {
@@ -158,6 +179,12 @@ class InboundEmailRequest extends RestfulRequest {
 		if (!this.fromUser.hasTeam(this.teamId)) {
 			this.log(`User ${this.fromUser.id} is not on team ${this.teamId}`);
 			throw this.errorHandler.error('unauthorized');
+		}
+		if (this.codemark && this.codemark.get('teamId') !== this.teamId) {
+			throw this.errorHandler.error('codemarkNoMatchTeam', { info: this.codemarkId });
+		}
+		if (this.codemark && this.codemark.get('streamId') !== this.streamId) {
+			throw this.errorHandler.error('codemarkNoMatchStream', { info: this.codemarkId });
 		}
 	}
 
@@ -180,11 +207,15 @@ class InboundEmailRequest extends RestfulRequest {
 			forInboundEmail: true,
 			origin: 'email'
 		});
+		const postData = {
+			streamId: this.streamId,
+			text: this.request.body.text
+		};
+		if (this.codemark) {
+			postData.parentPostId = this.codemark.get('postId');
+		}
 		try {
-			await this.postCreator.createPost({
-				streamId: this.streamId,
-				text: this.request.body.text
-			});
+			await this.postCreator.createPost(postData);
 		}
 		catch (error) {
 			throw this.errorHandler.error('internal', { reason: error });

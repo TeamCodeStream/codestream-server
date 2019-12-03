@@ -42,5 +42,20 @@ module.exports = {
 		code: 'INBE-1007',
 		message: 'Inbound emails are not supported for this installation',
 		internal: true 
+	},
+	'codemarkNotFound': {
+		code: 'INBE-1008',
+		message: 'Codemark not found',
+		internal: true
+	},
+	'codemarkNoMatchTeam': {
+		code: 'INBE-1009',
+		message: 'The codemark is not owned by this team',
+		internal: true
+	},
+	'codemarkNoMatchStream': {
+		code: 'INBE-1010',
+		message: 'The codemark does not belong to this stream',
+		internal: true
 	}
 };
