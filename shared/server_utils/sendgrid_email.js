@@ -41,6 +41,9 @@ class SendGridEmail {
 				continue;
 			}
 			if (response.statusCode >= 300) {
+				if (options.logger) {
+					options.logger.log(`Got status ${response.statusCode} sending email to ${email}`);
+				}
 				throw `got status ${response.statusCode} calling sendgrid API`;
 			}
 			else {
@@ -50,6 +53,11 @@ class SendGridEmail {
 		if (i < 3) {
 			if (options.logger) {
 				options.logger.log(`Successfully sent email to ${email}`);
+			}
+		}
+		else {
+			if (options.logger) {
+				options.logger.log(`Failed to send email to ${email} after 3 tries`);
 			}
 		}
 	}
