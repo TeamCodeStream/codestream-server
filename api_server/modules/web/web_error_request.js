@@ -37,7 +37,7 @@ class WebErrorRequest extends WebRequestBase {
 				title: 'Multiple Workspaces',
 				body: `Unfortunately, at this time, you can only be a member of one ${connectedTeam} team on CodeStream. <a href="mailto:support@codestream.com">Contact support</a> and we'll let you know as soon as support for multiple ${connectedTeam} teams is ready.`
 			};
-		
+
 		case 'PRVD-1005':
 			return {
 				title: 'Account Not Found',
@@ -47,7 +47,7 @@ class WebErrorRequest extends WebRequestBase {
 		case 'PRVD-1006':
 			return {
 				title: 'Invalid Credentials',
-				body: 'Please return to your IDE and sign in using your email address and CodeStream password.'
+				body: 'Please sign in using your email address and CodeStream password.'
 			};
 		}
 	}
