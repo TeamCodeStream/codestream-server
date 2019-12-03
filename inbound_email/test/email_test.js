@@ -71,7 +71,8 @@ class EmailTest {
 			this.createUsers,	// create a couple users, one will originate the post (the email is "from" that user), the other will listen
 			this.createTeam,	// create a team 
 			this.inviteOtherUser,	// invite the second user to the team
-			this.createStream	// create a channel stream in the team
+			this.createStream,	// create a channel stream in the team
+			this.createCodemark // create a codemark for the inbound email to be a reply to
 		], callback);
 	}
 
@@ -201,6 +202,42 @@ class EmailTest {
 		);
 	}
 
+	// create a codemark for the inbound email to be a reply to
+	createCodemark (callback) {
+		let data = {
+			streamId: this.stream.id,
+			codemark: {
+				type: 'comment',
+				text: RandomString.generate(100),
+				markers: [{
+					code: RandomString.generate(100),
+					file: RandomString.generate(20),
+					remotes: [RandomString.generate(10)],
+					commitHash: RandomString.generate(40),
+					referenceLocations: [{
+						commitHash: RandomString.generate(40),
+						location: [0, 0, 10, 20]
+					}],
+					branchWhenCreated: RandomString.generate(10)
+				}]
+			}
+		};
+		this.apiRequest(
+			{
+				method: 'post',
+				path: '/posts',
+				data: data,
+				token: this.userData[0].accessToken
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.codemark = response.codemark;
+				this.parentPost = response.post;
+				callback();
+			}
+		);
+	}
+
 	// set up a pubnub client to listen for messages
 	makePubNubClient (callback) {
 		// the "second" user will listen for the post that should result from
@@ -239,7 +276,7 @@ class EmailTest {
 	makeSubstitutions (callback) {
 		this.emailData = this.emailData.replace(/@@@from@@@/g, this.userData[0].user.email);
 		this.emailData = this.emailData.replace(/@@@sender@@@/g, InboundEmailConfig.senderEmail);
-		let to = `${this.stream.id}.${this.team.id}@${InboundEmailConfig.replyToDomain}`;
+		let to = `${this.codemark.id}.${this.stream.id}.${this.team.id}@${InboundEmailConfig.replyToDomain}`;
 		['to', 'cc', 'bcc', 'x-original-to', 'delivered-to'].forEach(field => {
 			let regEx = new RegExp(`@@@${field}@@@`, 'g');
 			this.emailData = this.emailData.replace(regEx, to);
@@ -304,11 +341,13 @@ class EmailTest {
 
 	// validate the message received against expectations
 	validateMessage (message) {
+		if (message.post.$set) { return false; }
 		Assert.ifError(this.shouldFail);	// if this test should fail, we should not have recieved a message
 		Assert(message.requestId, 'received message has no requestId');
 		let post = message.post;
 		Assert.equal(post.teamId, this.team.id, 'incorrect team ID');
 		Assert.equal(post.streamId, this.stream.id, 'incorrect stream ID');
+		Assert.equal(post.parentPostId, this.parentPost.id, 'incorrect parent post ID');
 		Assert.equal(post.text, this.expectedText, 'text does not match');
 		Assert.equal(post.creatorId, this.userData[0].user.id, 'creatorId is not the expected user');
 		return true;
