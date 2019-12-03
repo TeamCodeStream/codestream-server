@@ -271,7 +271,7 @@ class CodemarkRenderer {
 	// render any linked issues
 	renderLinkedIssuesDiv (options) {
 		const { codemark } = options;
-		if (!codemark.externalProvider) { return; }
+		if (!codemark.externalProvider) { return ''; }
 		const providerName = PROVIDER_DISPLAY_NAMES[codemark.externalProvider] || codemark.externalProvider;
 		const providerUrl = codemark.externalProviderUrl;
 		const icon = PROVIDER_ICONS[codemark.externalProvider];
