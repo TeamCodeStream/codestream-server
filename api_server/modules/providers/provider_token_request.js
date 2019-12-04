@@ -93,7 +93,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			'query',
 			{
 				optional: {
-					string: ['state', 'token', 'code', 'token_type', 'expires_in' ,'scope', 'error', 'oauth_token', '_mockToken', '_mockEmail']
+					string: ['state', 'token', 'code', 'token_type', 'expires_in', 'scope', 'error', 'oauth_token', '_mockToken', '_mockEmail']
 				}
 			}
 		);
@@ -108,15 +108,15 @@ class ProviderTokenRequest extends RestfulRequest {
 			request: this,
 			mockToken: this.request.query._mockToken
 		};
-		const result = await this.serviceAuth.extractTokenFromFragment(options); 
+		const result = await this.serviceAuth.extractTokenFromFragment(options);
 		if (typeof result === 'object') {
 			Object.assign(result, this.request.query);
 			delete result.state;
 			this.tokenData = this.serviceAuth.normalizeTokenDataResponse(result);
 			return false;
 		}
-		else if (result) { 
-			return false;	
+		else if (result) {
+			return false;
 		}
 		else {
 			return true;	// indicates to stop further processing
@@ -204,7 +204,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		const options = {
 			code: this.request.query.code || '',
 			state: this.request.query.state,
-			redirectUri, 
+			redirectUri,
 			request: this,
 			mockToken: this.request.query._mockToken,
 			host: this.host,
@@ -250,7 +250,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	// get the team the user is authed with
 	async getTeam () {
 		if (!this.user.hasTeam(this.teamId)) {
-			throw this.errorHandler.error('updateAuth', { reason: 'user is not on the indicated team' });			
+			throw this.errorHandler.error('updateAuth', { reason: 'user is not on the indicated team' });
 		}
 		this.team = await this.data.teams.getById(this.teamId);
 		if (!this.team || this.team.get('deactivated')) {
@@ -267,31 +267,37 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.tokenData = this.tokenData || { accessToken: token };
 		const modifiedAt = Date.now();
 		let setKey = `providerInfo.${this.team.id}.${this.provider}`;
-
 		// add sub-keys for enterprise hosts
 		if (this.host) {
 			const host = this.host.replace(/\./g, '*');
 			setKey += `.hosts.${host}`;
-		}
-
+		}		
 		// add sub-keys for providers that support multiple access tokens, only allowed in sharing model
+		let multiKeys = {};		
 		if (this.sharing) {
-			const multiAuthKey = this.serviceAuth.getMultiAuthKey(this.tokenData);
-			if (multiAuthKey) {
-				setKey += `.multiple.${multiAuthKey}`;
+			const multiAuthExtraData = await this.serviceAuth.getMultiAuthExtraData(this.tokenData, { request: this});
+			if (multiAuthExtraData) {
+				const multiAuthKeyExtraDataBySetKey = Object.keys(multiAuthExtraData).reduce(function (map, key) {
+					map[`${setKey}.multiple.${key}`] = multiAuthExtraData[key];
+					return map;
+				}, {});
+				multiKeys = {...multiAuthKeyExtraDataBySetKey };
 			}
 		}
-
-		const op = {};
-		delete op.id;
-		delete op._id;
-		op.$set = op.$set || {};
-		for (let key of Object.keys(this.tokenData)) {
-			const dataKey = `${setKey}.${key}`;
-			op.$set[dataKey] = this.tokenData[key];
+		else {
+			multiKeys[setKey] = undefined;
+		}
+		const op = { $set: {} };
+		for (let multiKey of Object.keys(multiKeys)) {				
+			for (let key of Object.keys(this.tokenData)) {
+				const dataKey = `${multiKey}.${key}`;
+				op.$set[dataKey] = this.tokenData[key];
+			}
+			if (multiKeys[multiKey]) {
+				op.$set[`${multiKey}.extra`] = Object.assign({}, op.$set[`${multiKey}.extra`] || {}, multiKeys[multiKey]);
+			}
 		}
 		op.$set.modifiedAt = modifiedAt;
-
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this,
 			collection: this.data.users,
@@ -316,7 +322,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.userIdentity = await this.serviceAuth.getUserIdentity({
 			accessToken: token,
 			apiConfig: this.api.config[this.provider],
-			providerInfo: { 
+			providerInfo: {
 				code: this.request.query.code,
 				mockEmail: this.request.query._mockEmail
 			},
@@ -324,9 +330,9 @@ class ProviderTokenRequest extends RestfulRequest {
 		});
 
 		// now attempt to match the identifying info with an existing user
-		await this.matchUser(this.userIdentity); 
+		await this.matchUser(this.userIdentity);
 	}
-	
+
 	// match the identifying information with an existing CodeStream user
 	async matchUser (userIdentity) {
 		this.connector = new ProviderIdentityConnector({
@@ -360,7 +366,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		await this.api.services.signupTokens.insert(
 			token,
 			this.user ? this.user.id : null,
-			{ 
+			{
 				requestId: this.request.id,
 				more: {
 					signupStatus: this.signupStatus,
@@ -379,7 +385,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	async sendResponse () {
 		const host = this.api.config.webclient && this.api.config.webclient.marketingHost;
 		const authCompletePage = this.serviceAuth.getAuthCompletePage();
-		const redirect = this.tokenPayload && this.tokenPayload.url ? 
+		const redirect = this.tokenPayload && this.tokenPayload.url ?
 			`${decodeURIComponent(this.tokenPayload.url)}?state=${this.request.query.state}` :
 			`${host}/auth-complete/${authCompletePage}`;
 		this.response.redirect(redirect);

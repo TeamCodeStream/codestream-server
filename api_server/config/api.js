@@ -22,13 +22,13 @@ else {
 		confirmationNotRequired: process.env.CS_API_CONFIRMATION_NOT_REQUIRED,
 
 		// how long before we call a user "away" from keyboard
-		sessionAwayTimeout: parseInt(process.env.CS_API_SESSION_AWAY_TIMEOUT || 10 * 60 * 1000, 10),	
+		sessionAwayTimeout: parseInt(process.env.CS_API_SESSION_AWAY_TIMEOUT || 10 * 60 * 1000, 10),
 
 		// if this is set, API server /help is available
 		helpIsAvailable: process.env.CS_API_HELP_AVAILABLE,
 
 		// how long a token for forgot-password remains valid
-		forgotPasswordExpiration: parseInt(process.env.CS_API_FORGOT_PASSWORD_EXPIRATION || 24 * 60 * 60 * 1000, 10),	
+		forgotPasswordExpiration: parseInt(process.env.CS_API_FORGOT_PASSWORD_EXPIRATION || 24 * 60 * 60 * 1000, 10),
 
 		// how long a token for email confirmation remains valid
 		confirmationExpiration: parseInt(process.env.CS_API_CONFIRMATION_EXPIRATION || 24 * 60 * 60 * 1000, 10),
@@ -80,6 +80,7 @@ ApiCfg.thirdPartyProviders = [
 	'gitlab_enterprise',
 	'jira',
 	'jiraserver',
+	'msteams',
 	'slack',
 	'trello',
 	'youtrack'

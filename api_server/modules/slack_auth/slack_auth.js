@@ -2,6 +2,7 @@
 
 'use strict';
 
+const Fetch = require('node-fetch');
 const OAuthModule = require(process.env.CS_API_TOP +
 	'/lib/oauth/oauth_module.js');
 const SlackAuthorizer = require('./slack_authorizer');
@@ -48,12 +49,12 @@ const SHARING_SCOPES = [
 ];
 
 class SlackAuth extends OAuthModule {
-	constructor(config) {
+	constructor (config) {
 		super(config);
 		this.oauthConfig = OAUTH_CONFIG;
 	}
 
-	async authorizeProviderInfo(providerInfo, options) {
+	async authorizeProviderInfo (providerInfo, options) {
 		return await new SlackAuthorizer({
 			providerInfo,
 			options
@@ -62,7 +63,7 @@ class SlackAuth extends OAuthModule {
 
 	// overrides OAuthModule.getRedirectData to allow for "slack-lite", slack without the
 	// scary "client" scope
-	getRedirectData(options) {
+	getRedirectData (options) {
 		const data = super.getRedirectData(options);
 		if (options.access === 'strict') {
 			data.parameters.scope = STRICT_SCOPES.join(' ');
@@ -74,7 +75,7 @@ class SlackAuth extends OAuthModule {
 
 	// overrides OAuthModule.getClientInfo to allow for "slack-lite", slack without the
 	// scary "client" scope ... in this case, we use different client ID and secret
-	getClientInfo(options) {
+	getClientInfo (options) {
 		const info = super.getClientInfo(options);
 		if (options.access === 'strict') {
 			info.clientId = this.apiConfig.appStrictClientId;
@@ -86,7 +87,7 @@ class SlackAuth extends OAuthModule {
 		return info;
 	}
 
-	validateChannelName(name) {
+	validateChannelName (name) {
 		if (name.match(/[^a-z0-9-_[\]{}\\/]/)) {
 			return 'illegal characters in channel name';
 		}
@@ -96,7 +97,7 @@ class SlackAuth extends OAuthModule {
 	}
 
 	// match the given slack identity to a CodeStream identity
-	async getUserIdentity(options) {
+	async getUserIdentity (options) {
 		const authorizer = new SlackAuthorizer({ options });
 		return await authorizer.getSlackIdentity(
 			options.accessToken,
@@ -105,8 +106,38 @@ class SlackAuth extends OAuthModule {
 	}
 
 	// an access token can be maintained for each slack workspace
-	getMultiAuthKey (info) {
-		return info && info.data && info.data.team_id;
+	async getMultiAuthExtraData (info, options) {
+		const data = {};
+		try {
+			const request = await Fetch(
+				`https://slack.com/api/users.info?user=${info.data.user_id}&include_locale=true`,
+				{
+					method: 'get',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${info.accessToken}`
+					}
+				}
+			);
+
+			const response = await request.json();
+			if (!response.ok) {
+				options.request.warn('Error obtaining slack user info', response.error);
+				throw options.request.errorHandler.error('providerDataRequestFailed');
+			}
+
+			data[info.data.team_id] = {
+				locale: response.user.locale,
+				tz: response.user.tz,
+				tz_label: response.user.tz_label
+			};
+		}
+		catch (error) {
+			options.request.warn('Request to Slack API failed: ' + error.message);
+			throw error;
+		}
+
+		return data;
 	}
 }
 

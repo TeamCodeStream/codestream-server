@@ -528,8 +528,8 @@ class OAuthModule extends APIServerModule {
 	}
 
 	// if provider supports multiple authorizations (multiple access tokens), override this
-	getMultiAuthKey () {
-		return false;
+	async getMultiAuthExtraData () {
+		return undefined;
 	}
 }
 

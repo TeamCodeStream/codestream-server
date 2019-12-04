@@ -37,5 +37,10 @@ module.exports = {
 		code: 'PRVD-1006',
 		message: 'Third-party authentication is not allowed for this user',
 		description: 'Users that are already registered on CodeStream are not allowed to authenticate with a third-party provider; they must sign in with their CodeStream credentials'
+	},
+	'providerDataRequestFailed': {
+		code: 'PRVD-1007',
+		message: 'A request for additional third-party provider data failed',
+		description: 'Certain third-party providers require additional data after a user has authenticated'
 	}
 };

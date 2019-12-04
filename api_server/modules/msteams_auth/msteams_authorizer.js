@@ -42,14 +42,48 @@ class MSTeamsAuthorizer {
 		};
 	}
 
+	async getMSTeamsJoinedTeams (accessToken, providerInfo) {
+		this.token = accessToken;
+		this.providerInfo = this.providerInfo || providerInfo;
+		const teamInfo = await this.graphApiRequest('/me/joinedTeams?$select=id,displayName');
+		if (!teamInfo || teamInfo.error) {
+			if (teamInfo.error) {
+				this.request.warn('Error obtaining team info', JSON.stringify(teamInfo, undefined, 5));
+			}
+			throw this.request.errorHandler.error('providerDataRequestFailed');
+		}
+		this.request.log('teamInfo: ' + JSON.stringify(teamInfo, undefined, 5));
+
+		return {
+			teams: teamInfo.value
+		};
+	}
+
+	async getMSTeamsMeData (accessToken, providerInfo) {
+		this.token = accessToken;
+		this.providerInfo = this.providerInfo || providerInfo;
+		const meInfo = await this.graphApiRequest('/me?$select=id');
+		if (!meInfo || meInfo.error) {
+			if (meInfo.error) {
+				this.request.warn('Error obtaining meInfo', JSON.stringify(meInfo, undefined, 5));
+			}
+			throw this.request.errorHandler.error('providerDataRequestFailed');
+		}
+		this.request.log('meInfo: ' + JSON.stringify(meInfo, undefined, 5));
+
+		return {
+			me: meInfo
+		};
+	}
+
 	// make an Graph API request
 	async graphApiRequest (method) {
 		if (this.token === 'invalid-token') { // for testing
-			throw this.request.errorHandler.error('invalidProviderCredentials', { reason: 'invalid token' });		
+			throw this.request.errorHandler.error('invalidProviderCredentials', { reason: 'invalid token' });
 		}
 		const mockCode = (
 			this.providerInfo &&
-			this.providerInfo.code && 
+			this.providerInfo.code &&
 			this.providerInfo.code.match(/^mock.*-(.+)-(.+)$/)
 		);
 		if (mockCode && mockCode.length >= 3) {

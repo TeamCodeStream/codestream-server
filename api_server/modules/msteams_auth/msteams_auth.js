@@ -21,7 +21,8 @@ const OAUTH_CONFIG = {
 		response_mode: 'query'
 	},
 	supportsRefresh: true,
-	mockAccessTokenExpiresIn: 3600
+	mockAccessTokenExpiresIn: 3600,
+	hasSharing: true
 };
 
 class MSTeamsAuth extends OAuthModule {
@@ -31,15 +32,36 @@ class MSTeamsAuth extends OAuthModule {
 		this.oauthConfig = OAUTH_CONFIG;
 	}
 
-	// match the given slack identity to a CodeStream identity
+	// match the given MS Teams identity to a CodeStream identity
 	async getUserIdentity (options) {
 		const authorizer = new MSTeamsAuthorizer({ options });
 		return await authorizer.getMSTeamsIdentity(options.accessToken, options.providerInfo);
 	}
 
 	// an access token can be maintained for each MS Teams org
-	getMultiAuthKey (info) {
-		return info && info.data && info.data.teamId;
+	async getMultiAuthExtraData (info, options) {
+		let result;
+		try {
+			const authorizer = new MSTeamsAuthorizer({ options });
+			const joinedTeamsData = await authorizer.getMSTeamsJoinedTeams(info.accessToken, info);
+			const meData = await authorizer.getMSTeamsMeData(info.accessToken, info);
+			if (meData && joinedTeamsData && joinedTeamsData.teams && joinedTeamsData.teams.length) {
+				result = joinedTeamsData.teams.reduce(function (map, obj) {
+					map[obj.id] = {
+						team_name: obj.displayName,
+						team_id: obj.id,
+						user_id: meData.me && meData.me.id
+					};
+					return map;
+				}, {});
+			}
+		}
+		catch (error) {
+			options.request.warn('Request to MSTeams API failed: ' + error.message);
+			throw error;
+		}
+
+		return result;
 	}
 }
 
