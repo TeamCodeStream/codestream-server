@@ -26,7 +26,7 @@ class TokenExpiredTest extends ProviderTokenTest {
 	}
 
 	validateResponse (data) {
-		Assert.equal(data, `/web/error?code=AUTH-1005&provider=${this.provider}`, `redirect url not correct for ${this.provider}`);
+		Assert(data.match(`\\/web\\/error\\?state=.+&code=AUTH-1005&provider=${this.provider}`), `redirect url not correct for ${this.provider}`);
 	}
 }
 

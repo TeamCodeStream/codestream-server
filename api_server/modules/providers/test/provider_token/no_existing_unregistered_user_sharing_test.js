@@ -24,7 +24,7 @@ class NoExistingUnregisteredUserSharingTest extends IdentityMatchErrorTest {
 	getProviderAuthParameters () {
 		const parameters = super.getProviderAuthParameters();
 		this.sharing = true;
-		parameters.sharing = true;
+		parameters.noSignup = true;
 		return parameters;
 	}
 

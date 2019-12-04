@@ -25,7 +25,7 @@ class NoTokenTest extends ProviderTokenTest {
 	}
 
 	validateResponse (data) {
-		Assert.equal(data, `/web/error?code=RAPI-1010&provider=${this.provider}`, `redirect url not correct for ${this.provider}`);
+		Assert(data.match(`\\/web\\/error\\?state=.+&code=RAPI-1010&provider=${this.provider}`), `redirect url not correct for ${this.provider}`);
 	}
 }
 

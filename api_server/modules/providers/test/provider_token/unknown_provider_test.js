@@ -20,7 +20,7 @@ class UnknownProviderTest extends ProviderTokenTest {
 	}
 
 	validateResponse (data) {
-		Assert.equal(data, '/web/error?code=PRVD-1000&provider=blahblah', `redirect url not correct for ${this.provider}`);
+		Assert(data.match(/\/web\/error\?state=.+&code=PRVD-1000&provider=blahblah/), `redirect url not correct for ${this.provider}`);
 	}
 }
 

@@ -17,12 +17,10 @@ const IdentityMatchTest = require('./identity_match_test');
 const InvalidIdentityTokenTest = require('./invalid_identity_token_test');
 const BadProviderIdentityMatchTest = require('./bad_provider_identity_match_test');
 const NoIdentityMatchTokenTest = require('./no_identity_match_token_test');
-/*
-ADD THESE WHEN SHARING MODEL IS READY TO GO
 const NoSignUpInSharingTest = require('./no_signup_in_sharing_test');
 const NoExistingUnregisteredUserSharingTest = require('./no_existing_unregistered_user_sharing_test');
 const NoExistingRegisteredUserSharingTest = require('./no_existing_registered_user_sharing_test');
-*/
+
 const PROVIDERS = [
 	'trello',
 	'github',
@@ -65,12 +63,9 @@ class ProviderTokenRequestTester {
 			new InvalidIdentityTokenTest({ provider }).test();
 			new BadProviderIdentityMatchTest({ provider }).test();
 			new NoIdentityMatchTokenTest({ provider }).test();
-			/*
-			ADD THESE WHEN SHARING MODEL IS READY TO GO
 			new NoSignUpInSharingTest({ provider }).test();
 			new NoExistingUnregisteredUserSharingTest({ provider }).test();
 			new NoExistingRegisteredUserSharingTest({ provider }).test();
-			*/
 		});
 		new UnknownProviderTest().test();
 		new StateRequiredTest({ provider: 'trello' }).test();
