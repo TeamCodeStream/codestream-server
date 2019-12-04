@@ -101,6 +101,14 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'slack.com',
 		apiHost: 'slack.com/api',
 		hasSharing: true
+	},
+	'login*microsoftonline*com': {
+		id: 'login*microsoftonline*com',
+		name: 'msteams',
+		isEnterprise: false,
+		host: 'login.microsoftonline.com',
+		apiHost: 'graph.microsoft.com/v1.0',
+		hasSharing: true
 	}
 };
 
