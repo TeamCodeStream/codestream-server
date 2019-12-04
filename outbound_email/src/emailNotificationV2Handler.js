@@ -443,7 +443,8 @@ class EmailNotificationV2Handler {
 		const { user, html } = userAndHtml;
 		const isReply = !!this.post.parentPostId;
 		const codemark = isReply ? this.parentCodemark : this.codemark;
-		const creator = this.teamMembers.find(member => member.id === codemark.creatorId);
+		const creatorId = isReply ? this.post.creatorId : codemark.creatorId;
+		const creator = this.teamMembers.find(member => member.id === creatorId);
 		const options = {
 			sender: this.sender,
 			content: html,
