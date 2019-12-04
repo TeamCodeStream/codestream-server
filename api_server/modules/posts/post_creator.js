@@ -485,9 +485,6 @@ class PostCreator extends ModelCreator {
 
 		const dateOfLastPost = new Date(this.model.get('createdAt')).toISOString();
 		const trackData = {
-			Type: 'Chat',
-			Thread: 'Parent',
-			Category: category,
 			Endpoint: 'Email',
 			'Date of Last Post': dateOfLastPost
 		};
@@ -498,7 +495,19 @@ class PostCreator extends ModelCreator {
 			trackData['First Post?'] = new Date(this.model.get('createdAt')).toISOString();
 		}
 
-		const eventName = USE_V2_EMAIL_NOTIFICATIONS && trackData['Codemark ID'] ? 'Replied to Codemark' : 'Post Created';
+		let eventName;
+		if (USE_V2_EMAIL_NOTIFICATIONS && trackData['Codemark ID']) {
+			eventName = 'Replied to Codemark';
+		}
+		else {
+			eventName = 'Post Created';
+			Object.assign(trackData, {
+				Type: 'Chat',
+				Thread: 'Parent',
+				Category: category
+			});
+		}
+
 		this.api.services.analytics.trackWithSuperProperties(
 			eventName,
 			trackData,

@@ -33,7 +33,7 @@ class TrackingWithCodemarkTest extends TrackingTest {
 		if (message.message.type !== 'track') {
 			return false;
 		}
-		this.expectedEvent = 'Replied to Codemark';
+		this.forReplyToCodemark = true;
 		Assert.equal(message.message.data.properties['Codemark ID'], this.postData[0].codemark.id, 'Codemark ID not correct in tracking data');
 		return super.validateMessage(message);
 	}

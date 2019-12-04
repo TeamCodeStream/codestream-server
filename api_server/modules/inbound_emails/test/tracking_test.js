@@ -79,14 +79,11 @@ class TrackingTest extends InboundEmailMessageTest {
 		if (this.makePublic) {
 			category = 'Public Channel';
 		}
-		const event = this.expectedEvent || 'Post Created';
-		const result = (
+		const event = this.forReplyToCodemark ? 'Replied to Codemark' : 'Post Created';
+		let result = (
 			((data.userId === this.users[1].user.id) || errors.push('userId not set to post originator\'s ID')) && 
 			((data.event === event) || errors.push('event not correct')) &&
 			((properties.distinct_id === this.users[1].user.id) || errors.push('distinct_id not set to post originator\'s ID')) &&
-			((properties.Type === 'Chat') || errors.push('Type not correct')) &&
-			((properties.Thread === 'Parent') || errors.push('Thread not correct')) &&
-			((properties.Category === category) || errors.push('Category not correct')) &&
 			((properties['$email'] === this.users[1].user.email) || errors.push('email does not match post originator')) &&
 			((properties['Join Method'] === this.users[1].user.joinMethod) || errors.push('Join Method does not match post originator')) &&
 			((properties['Team ID'] === this.team.id) || errors.push('Team ID does not match team')) &&
@@ -103,6 +100,13 @@ class TrackingTest extends InboundEmailMessageTest {
 			((properties['First Post?'] === new Date(this.post.createdAt).toISOString()) || errors.push('First Post not set to creation date of post')) &&
 			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string'))
 		);
+		if (!this.forReplyToCodemark) {
+			result = result && (
+				((properties.Type === 'Chat') || errors.push('Type not correct')) &&
+				((properties.Thread === 'Parent') || errors.push('Thread not correct')) &&
+				((properties.Category === category) || errors.push('Category not correct'))
+			);
+		}
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;
 	}
