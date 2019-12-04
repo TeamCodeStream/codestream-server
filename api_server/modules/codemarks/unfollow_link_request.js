@@ -86,8 +86,30 @@ class UnfollowLinkRequest extends UnfollowCodemarkRequest {
 	async postProcess () {
 		if (!this.gotError) {
 			this.responseData = { codemark: this.updateOp };
+			await this.trackUnfollow();
 			return super.postProcess();
 		}
+	}
+
+	// track an event indicating the user unfollowed
+	async trackUnfollow () {
+		const team = await this.data.teams.getById(this.codemark.get('teamId'));
+		const company = team && await this.data.companies.getById(team.get('companyId'));
+		const trackObject = {
+			Change: 'Codemark Unfollowed',
+			'Source of Change': 'Email link'
+		};
+		this.api.services.analytics.trackWithSuperProperties(
+			'Notification Change',
+			trackObject,
+			{
+				request: this,
+				user: this.user,
+				team,
+				company
+			}
+		);
+
 	}
 
 	// describe this route for help

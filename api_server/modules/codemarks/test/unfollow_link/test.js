@@ -14,6 +14,7 @@ const TokenExpiredTest = require('./token_expired_test');
 const InvalidTokenTest = require('./invalid_token_test');
 const NotUnfollowTokenTest = require('./not_unfollow_token_test');
 const UserNotFoundTest = require('./user_not_found_test');
+const TrackingTest = require('./tracking_test');
 
 class FollowRequestTester {
 
@@ -32,6 +33,7 @@ class FollowRequestTester {
 		new InvalidTokenTest().test();
 		new NotUnfollowTokenTest().test();
 		new UserNotFoundTest().test();
+		new TrackingTest().test();
 	}
 }
 
