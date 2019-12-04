@@ -17,25 +17,27 @@ class EmailNotificationV2Renderer {
 		}
 
 		return `
-<head>
-	<link href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css">
-	<style>
-		${options.styles}
-	</style>
-</head>
 <html>
-	<div class=master>
-		<a class="brand" href="https://codestream.com">
-			<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
-		</a>
-		<div class="content">
-			${content}
+	<head>
+		<link href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css">
+		<style>
+			${options.styles}
+		</style>
+	</head>
+	<body>
+		<div class=master>
+			<a class="brand" href="https://codestream.com">
+				<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
+			</a>
+			<div class="content">
+				${content}
+			</div>
+			<div class="following">
+				<span class="text">You are following this codemark.&nbsp;</span><span class="unfollow hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
+			</div>
+			${tipDiv}
 		</div>
-		<div class="following">
-			<span class="text">You are following this codemark.&nbsp;</span><span class="unfollow hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
-		</div>
-		${tipDiv}
-	</div>
+	</body>
 </html>
 `;
 	}
