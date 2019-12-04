@@ -62,7 +62,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				this.tokenPayload &&
 				this.tokenPayload.url
 			) {
-				let url = `${this.tokenPayload.url}?error=${this.errorCode}&state=${this.request.query.state}`;
+				let url = `${this.tokenPayload.url}?state=${this.request.query.state}&error=${this.errorCode}`;
 				if (this.userIdentity && this.userIdentity.email) {
 					url += `&email=${encodeURIComponent(this.userIdentity.email)}`;
 				}
@@ -71,7 +71,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			else {
 				const message = error instanceof Error ? error.message : JSON.stringify(error);
 				this.warn('Error handling provider token request: ' + message);
-				let url = `/web/error?code=${this.errorCode}&provider=${this.provider}`;
+				let url = `/web/error?state=${this.request.query.state}&code=${this.errorCode}&provider=${this.provider}`;
 				this.response.redirect(url);
 			}
 			await this.saveSignupToken();
@@ -182,7 +182,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.errorCode = this.noAllowSignup ? this.errorHandler.error('providerLoginFailed').code : this.request.query.error;
 		this.providerError = this.noAllowSignup && this.request.query.error;
 		this.saveSignupToken();
-		let url = `/web/error?code=${this.errorCode}&provider=${this.provider}`;
+		let url = `/web/error?state=${this.request.query.state}&code=${this.errorCode}&provider=${this.provider}`;
 		if (this.providerError) {
 			url += `&providerError=${this.providerError}`;
 		}
