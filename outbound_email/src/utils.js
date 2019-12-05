@@ -135,8 +135,8 @@ const Utils = {
 		if (codemark.permalink) {
 			const url = `${codemark.permalink}?ide=default&marker=${marker.id}`;
 			ideButton = `
-<div class="button">
-	<a clicktracking="off" href="${url}" target="_blank">Open in IDE</a>
+<div class="button hover-button">
+	<a clicktracking="off" href="${url}" target="_blank"><span class="hover-underline">Open in IDE</span></a>
 </div>
 `;
 		}
@@ -148,8 +148,8 @@ const Utils = {
 			const url = remoteCodeUrl.url;
 			if (name && url) {
 				remoteCodeButton = `
-<div class="button">
-<a clicktracking="off" href="${url}" target="_blank">Open on ${name}</a>
+<div class="button hover-button">
+	<a clicktracking="off" href="${url}" target="_blank"><span class="hover-underline">Open on ${name}</span></a>
 </div>
 `;
 			}

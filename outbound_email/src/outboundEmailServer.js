@@ -144,7 +144,8 @@ class OutboundEmailServer {
 			broadcaster: this.broadcaster,
 			queuer: this.queuer,
 			sender: this.emailSender,
-			styles: this.styles
+			styles: this.styles,
+			pseudoStyles: this.pseudoStyles
 		};
 		await new emailHandlerClass(handlerOptions).handleMessage(message);
 		this.numOpenTasks--;
@@ -259,6 +260,12 @@ class OutboundEmailServer {
 	async readStyles () {
 		this.styles = await new Promise((resolve, reject) => {
 			FS.readFile('./src/styles.css', 'utf8', (error, data) => {
+				if (error) reject(error);
+				else resolve(data);
+			});
+		});
+		this.pseudoStyles = await new Promise((resolve, reject) => {
+			FS.readFile('./src/pseudoStyles.css', 'utf8', (error, data) => {
 				if (error) reject(error);
 				else resolve(data);
 			});

@@ -1,0 +1,12 @@
+.hover-button:active,
+.hover-button:hover,
+.hover-button:focus {
+	background-color: #009aef;
+}
+
+.hover-underline:active,
+.hover-underline:hover,
+.hover-underline:focus {
+	text-decoration: underline;
+}
+

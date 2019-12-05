@@ -7,6 +7,7 @@ const EmailNotificationV2Renderer = require('./emailNotificationV2Renderer');
 const EmailNotificationV2Sender = require('./emailNotificationV2Sender');
 const Utils = require('./utils');
 const TokenHandler = require('./server_utils/token_handler');
+const Juice = require('juice');
 
 const DEFAULT_TIME_ZONE = 'America/New_York';
 
@@ -409,9 +410,13 @@ class EmailNotificationV2Handler {
 			content: renderedHtml,
 			unfollowLink,
 			inboundEmailDisabled: Config.inboundEmailDisabled,
-			styles: this.styles
+			styles: this.pseudoStyles	// only pseudo-styles go in the <head>
 		});
 		html = html.replace(/[\t\n]/g, '');
+
+		// this puts our styles inline, which is needed for gmail's display of larger emails
+		html = Juice(`<style>${this.styles}</style>${html}`);
+
 		this.renderedEmails.push({ user, html });
 	}
 
