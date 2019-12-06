@@ -48,11 +48,13 @@ class ProviderRefreshRequest extends RestfulRequest {
 					string: ['refreshToken', 'teamId']
 				},
 				optional: {
-					string: ['_mockToken', 'host']
+					string: ['_mockToken', 'host', 'sharing', 'subId']
 				}
 			}
 		);
 		this.refreshToken = decodeURIComponent(this.request.query.refreshToken);
+		this.sharing = this.request.query.sharing;
+		this.subId = this.request.query.subId;
 	}
 
 	// get the team the user is authed with
@@ -76,7 +78,7 @@ class ProviderRefreshRequest extends RestfulRequest {
 		const options = {
 			refreshToken: this.refreshToken,
 			provider: this.provider,
-			redirectUri, 
+			redirectUri,
 			request: this,
 			mockToken: this.request.query._mockToken,
 			team: this.team,
@@ -104,13 +106,26 @@ class ProviderRefreshRequest extends RestfulRequest {
 			providerInfoKey += `.hosts.${starredHost}`;
 			existingProviderInfo = (existingProviderInfo.hosts || {})[starredHost] || {};
 		}
-		const newProviderInfo = Object.assign({}, existingProviderInfo, this.tokenData);
-		const op = {
-			$set: {
-				[providerInfoKey]: newProviderInfo,
-				modifiedAt
-			}
-		};
+		let op;
+		if (this.sharing) {			
+			if (!this.subId)
+				throw this.errorHandler.error('parameterRequired', { info: 'subId' });
+
+			op = { $set: {} };
+			const existingData = existingProviderInfo.multiple[this.subId];
+			const extra = existingData && existingData.extra;
+			op.$set[`${providerInfoKey}.multiple.${this.subId}`] = { ...this.tokenData, extra: extra };
+			op.$set.modifiedAt = modifiedAt;
+		}
+		else {
+			const newProviderInfo = Object.assign({}, existingProviderInfo, this.tokenData);
+			op = {
+				$set: {
+					[providerInfoKey]: newProviderInfo,
+					modifiedAt
+				}
+			};
+		}
 
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this,
