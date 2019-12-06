@@ -108,7 +108,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		host: 'login.microsoftonline.com',
 		apiHost: 'graph.microsoft.com/v1.0',
-		hasSharing: true
+		hasSharing: false
 	}
 };
 

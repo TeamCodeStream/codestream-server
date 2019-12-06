@@ -23,5 +23,4 @@ describe('team requests', function() {
 	describe('POST /team-tags/:id', CreateTagRequestTester.test);
 	describe('PUT /team-tags/:teamId/:id', UpdateTagRequestTester.test);
 	describe('DELETE /team-tags/:teamId/:id', DeleteTagRequestTester.test);
-
 });
