@@ -22,7 +22,7 @@ const OAUTH_CONFIG = {
 	},
 	supportsRefresh: true,
 	mockAccessTokenExpiresIn: 3600,
-	hasSharing: true
+	hasSharing: false
 };
 
 class MSTeamsAuth extends OAuthModule {
