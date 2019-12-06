@@ -1,4 +1,5 @@
 const { WebClient } = require('@slack/web-api');
+const Fetch = require('node-fetch');
 const url = require('url');
 const PostCreator = require(process.env.CS_API_TOP +
 	'/modules/posts/post_creator');
@@ -9,7 +10,7 @@ const { keyBy } = require('lodash');
 const MomentTimezone = require('moment-timezone');
 
 class SlackInteractiveComponentsHandler {
-	constructor(request, payloadData) {
+	constructor (request, payloadData) {
 		Object.assign(this, request);
 
 		this.log = request.api.log;
@@ -19,7 +20,7 @@ class SlackInteractiveComponentsHandler {
 		this.actionPayload = payloadData.actionPayload;
 	}
 
-	async process() {
+	async process () {
 		// this.log(JSON.stringify(this.payload, null, 4));
 		this.log(
 			`Processing payload.type=${this.payload.type}, actionPayload.linkType=${this.actionPayload.linkType}`
@@ -39,11 +40,11 @@ class SlackInteractiveComponentsHandler {
 		return undefined;
 	}
 
-	async handleBlockActionGeneric() {
-		const payloadActionUser = await this.getUser(this.payload.user.id);
+	async handleBlockActionGeneric () {
+		const payloadActionUser = await this.getUser(this.actionPayload.tId, this.payload.user.team_id, this.payload.user.id);
 		const team = await this.getTeam(
 			payloadActionUser,
-			this.actionPayload.teamId
+			this.actionPayload.tId
 		);
 		return {
 			actionUser: payloadActionUser,
@@ -52,9 +53,10 @@ class SlackInteractiveComponentsHandler {
 		};
 	}
 
-	async handleViewSubmission() {
+	async handleViewSubmission () {
 		let privateMetadata;
-		let user;
+		let userThatClicked;
+
 		let team;
 		let postProcessAwaitable;
 		try {
@@ -64,23 +66,25 @@ class SlackInteractiveComponentsHandler {
 			return undefined;
 		}
 		try {
-			// this userId is the person who clicked
-			user = await this.getUser(this.payload.user.id);
-			team = await this.getTeam(user, privateMetadata.teamId);
-			if (!privateMetadata.parentPostId) {
+			const users = await this.getUsers();
+			userThatClicked = users[1];
+
+			team = await this.getTeam(userThatClicked, privateMetadata.tId);
+			if (!privateMetadata.ppId) {
 				this.log('parentPostId is missing');
 				return {
 					hasError: true,
-					actionUser: user,
+					actionUser: userThatClicked,
 					payloadUserId: this.payload.user.id,
 					actionTeam: team
 				};
 			}
-			if (!user) {
+			if (!userThatClicked) {
+				// note, once we have faux users, this shouldn't be possible
 				this.log('user is missing');
 				return {
 					hasError: true,
-					actionUser: user,
+					actionUser: userThatClicked,
 					payloadUserId: this.payload.user.id,
 					actionTeam: team
 				};
@@ -93,24 +97,24 @@ class SlackInteractiveComponentsHandler {
 				this.log('text is missing');
 				return {
 					hasError: true,
-					actionUser: user,
+					actionUser: userThatClicked,
 					payloadUserId: this.payload.user.id,
 					actionTeam: team
 				};
 			}
 
-			this.user = user;
+			this.user = userThatClicked;
 			this.team = team;
 			const postCreator = new PostCreator({
 				request: this
 			});
 
 			await postCreator.createPost({
-				streamId: privateMetadata.streamId,
+				streamId: privateMetadata.sId,
 				text: text,
 				// TODO what goes here?
 				origin: 'Slack',
-				parentPostId: privateMetadata.parentPostId
+				parentPostId: privateMetadata.ppId
 			});
 			this.request.responseData = this.request.responseData || {};
 			this.request.responseData['post'] = postCreator.model.getSanitizedObject({
@@ -123,7 +127,7 @@ class SlackInteractiveComponentsHandler {
 		}
 
 		return {
-			actionUser: user,
+			actionUser: userThatClicked,
 			payloadUserId: this.payload.user.id,
 			actionTeam: team,
 			postProcessAwaitable: postProcessAwaitable,
@@ -134,8 +138,13 @@ class SlackInteractiveComponentsHandler {
 		};
 	}
 
-	async handleBlockActionReply() {
-		let user;
+	getSlackExtraData (user) {
+		const providerInfo = user && user.get('providerInfo');
+		const slackProviderInfo = providerInfo && providerInfo[`${this.actionPayload.tId}`].slack.multiple[this.payload.user.team_id];
+		return slackProviderInfo && slackProviderInfo.extra;
+	}
+
+	async handleBlockActionReply () {
 		let client;
 		let payloadActionUser;
 		let success = false;
@@ -146,26 +155,17 @@ class SlackInteractiveComponentsHandler {
 		if (!users || !users.length) {
 			return undefined;
 		}
+		const userThatCreated = users[0];
+		const userThatClicked = users[1];
 
-		// the user that clicked on the thing
-		payloadActionUser = users.find(user => {
-			if (!user) return undefined;
-
-			const providerIdentities = user.get('providerIdentities');
-			if (providerIdentities &&
-				providerIdentities.indexOf(`slack::${this.payload.user.id}`) > -1
-			) {
-				return user;
-			}
-			return undefined;
-		});
+		payloadActionUser = userThatClicked;
 
 		const codemarks = await this.data.codemarks.getByQuery(
-			{ id: this.data.codemarks.objectIdSafe(this.actionPayload.codemarkId), deactivated: false },
+			{ id: this.data.codemarks.objectIdSafe(this.actionPayload.cId), deactivated: false },
 			{ overrideHintRequired: true }
 		);
 
-		const team = await this.getTeam(user, this.actionPayload.teamId);
+		const team = await this.getTeam(userThatClicked || userThatCreated, this.actionPayload.tId);
 		if (!codemarks || !codemarks.length || !codemarks[0]) {
 			await this.postEphemeralMessage(
 				this.payload.response_url,
@@ -187,7 +187,7 @@ class SlackInteractiveComponentsHandler {
 			return undefined;
 		}
 
-		const blocks = await this.createModalBlocks(user, codemark);
+		const blocks = await this.createModalBlocks(codemark, this.getSlackExtraData(userThatClicked));
 		let hasCaughtError = false;
 		for (let i = 0; i < users.length; i++) {
 			hasCaughtError = false;
@@ -261,7 +261,7 @@ class SlackInteractiveComponentsHandler {
 				actionUser: payloadActionUser,
 				actionTeam: team,
 				hasError: true,
-				payloadUserId: this.payload.user.id				
+				payloadUserId: this.payload.user.id
 			};
 		}
 
@@ -272,19 +272,17 @@ class SlackInteractiveComponentsHandler {
 		};
 	}
 
-	async getUser(userId) {
-		if (!userId) return undefined;
-		const users = await this.data.users.getByQuery(
-			{
-				providerIdentities: `slack::${userId}`,
-				deactivated: false
-			},
-			{ hint: UserIndexes.byProviderIdentities }
-		);
+	async getUser (codestreamTeamId, slackWorkspaceId, slackUserId) {
+		if (!codestreamTeamId || !slackWorkspaceId || !slackUserId) return undefined;
+
+		const query = { deactivated: false };
+		query[`providerInfo.${codestreamTeamId}.slack.multiple.${slackWorkspaceId}.data.user_id`] = slackUserId;
+
+		const users = await this.data.users.getByQuery(query, { overrideHintRequired: true });
 
 		if (users.length > 1) {
 			// this shouldn't really happen
-			this.log(`Multiple CodeStream users found matching identity ${userId}`);
+			this.log(`Multiple CodeStream users found matching identity slack workspaceId=${slackWorkspaceId} userId=${slackUserId} on codestream team=${codestreamTeamId}`);
 			return undefined;
 		}
 		if (users.length === 1) {
@@ -293,12 +291,51 @@ class SlackInteractiveComponentsHandler {
 		return undefined;
 	}
 
-	async getCodeStreamUser(codeStreamUserId) {
+	async getUserFromSlack (userId, accessToken) {
+		const request = await Fetch(
+			`https://slack.com/api/users.info?user=${userId}`,
+			{
+				method: 'get',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${accessToken}`
+				}
+			}
+		);
+
+		const response = await request.json();
+		if (!response.ok) {
+			return undefined;
+		}
+		return response;
+	}
+
+	async getUserByEmail (emailAddress) {
+		if (!emailAddress) return undefined;
+
+		const users = await this.data.users.getByQuery(
+			{ searchableEmail: emailAddress.toLowerCase() },
+			{ hint: UserIndexes.bySearchableEmail }
+		);
+
+		if (users.length > 1) {
+			// this shouldn't really happen
+			this.log(`Multiple CodeStream users found matching email ${emailAddress}`);
+			return undefined;
+		}
+		if (users.length === 1) {
+			return users[0];
+		}
+		return undefined;
+	}
+
+
+	async getCodeStreamUser (codeStreamUserId) {
 		return this.data.users.getById(codeStreamUserId);
 	}
 
 	// get the team the user is on, matching the identity
-	async getTeam(user, teamId) {
+	async getTeam (user, teamId) {
 		if (!teamId) {
 			this.log('Could not find teamId within the  action payload');
 			return undefined;
@@ -312,7 +349,7 @@ class SlackInteractiveComponentsHandler {
 		return this.data.teams.getById(teamId);
 	}
 
-	async tryCreateClient(user, slackUser) {
+	async tryCreateClient (user, slackUser) {
 		if (!user || !slackUser.team_id) {
 			this.log('Missing user or slack user');
 			return undefined;
@@ -321,7 +358,7 @@ class SlackInteractiveComponentsHandler {
 		const providerInfo = user.get('providerInfo');
 		if (!providerInfo) return undefined;
 
-		const teamId = this.actionPayload.teamId;
+		const teamId = this.actionPayload.tId;
 		const teamProviderInfo = providerInfo[teamId];
 		if (!teamProviderInfo) return undefined;
 
@@ -345,13 +382,13 @@ class SlackInteractiveComponentsHandler {
 		}
 	}
 
-	async createModalBlocks(user, codemark) {
+	async createModalBlocks (codemark, slackUserExtra) {
 		let replies;
 		let postUsers;
 		let userIds = [];
-		if (this.actionPayload.parentPostId) {
+		if (this.actionPayload.ppId) {
 			replies = await this.data.posts.getByQuery(
-				{ parentPostId: this.actionPayload.parentPostId },
+				{ parentPostId: this.actionPayload.ppId },
 				{ overrideHintRequired: true, sort: { createdAt: -1 } }
 			);
 			// get uniques
@@ -377,7 +414,8 @@ class SlackInteractiveComponentsHandler {
 				elements: [{
 					type: 'mrkdwn',
 					text: `*${codemarkUser.get('fullName')}* ${this.formatTime(
-						codemark.get('createdAt')
+						codemark.get('createdAt'),
+						slackUserExtra && slackUserExtra.tz
 					)}`
 				}]
 			},
@@ -392,14 +430,14 @@ class SlackInteractiveComponentsHandler {
 
 		blocks.push(SlackInteractiveComponentBlocks.createModalReply());
 
-		const replyBlocks = this.createReplyBlocks(replies, usersById);
+		const replyBlocks = this.createReplyBlocks(replies, usersById, slackUserExtra);
 		if (replyBlocks && replyBlocks.length) {
 			blocks = blocks.concat(replyBlocks);
 		}
 		return blocks;
 	}
 
-	createReplyBlocks(replies, usersById) {
+	createReplyBlocks (replies, usersById, slackUserExtra) {
 		if (replies && replies.length) {
 			const blocks = [];
 			for (let i = 0; i < replies.length; i++) {
@@ -411,7 +449,8 @@ class SlackInteractiveComponentsHandler {
 						elements: [{
 							type: 'mrkdwn',
 							text: `*${replyUser.get('fullName')}* ${this.formatTime(
-								reply.get('createdAt')
+								reply.get('createdAt'),
+								slackUserExtra && slackUserExtra.tz
 							)}`
 						}]
 					},
@@ -433,7 +472,7 @@ class SlackInteractiveComponentsHandler {
 		return undefined;
 	}
 
-	async createMarkerMarkup(codemark) {
+	async createMarkerMarkup (codemark) {
 		let markers;
 		let markerMarkdown = '';
 		if (codemark.get('markerIds') && codemark.get('markerIds').length) {
@@ -448,24 +487,63 @@ class SlackInteractiveComponentsHandler {
 		return markerMarkdown;
 	}
 
-	async getUsers() {
-		return Promise.all([
-			// user that created the post (codestream userId)
-			this.actionPayload.creatorId
-				? new Promise(async resolve => {
-					resolve(await this.getCodeStreamUser(this.actionPayload.creatorId));
-				})
-				: undefined,
-			//user that clicked on the button
-			this.payload.user.id
-				? new Promise(async resolve => {
-					resolve(await this.getUser(this.payload.user.id));
-				})
-				: undefined
-		]);
+	async getUsers () {
+		// this assumes 2 possible users
+		// 0: user that created the post
+		// 1: user that clicked on the post
+		// it's possible that they're the same
+
+		let users = [];
+		// if the user that created is the same as the user that clicked, we only need 1 lookup
+		if (this.actionPayload.pcuId === this.payload.user.id) {
+			let user = await this.getCodeStreamUser(this.actionPayload.crId);
+			if (user) {
+				users.push(user);
+				users.push(user);
+			}
+			else {
+				this.log(`could not find user crId=${this.actionPayload.crId}`);
+			}
+		}
+		else {
+			users = await Promise.all([
+				// user that created the post (codestream userId)
+				this.actionPayload.crId
+					? new Promise(async resolve => {
+						resolve(await this.getCodeStreamUser(this.actionPayload.crId));
+					})
+					: undefined,
+				//user that clicked on the button
+				this.payload.user.id
+					? new Promise(async resolve => {
+						resolve(await this.getUser(this.actionPayload.tId, this.payload.user.team_id, this.payload.user.id));
+					})
+					: undefined
+			]);
+			if (users[0] && !users[1]) {
+				// see if we can map the user that clicked by email address
+				try {
+					const slackProviderInfo = users[0].get('providerInfo')[this.actionPayload.tId].slack.multiple[this.payload.user.team_id];
+					if (slackProviderInfo) {
+						const slackUser = await this.getUserFromSlack(this.payload.user.id, slackProviderInfo.accessToken);
+						if (slackUser) {
+							const userThatClicked = slackUser.user && slackUser.user.profile && await this.getUserByEmail(slackUser.user.profile.email);
+							if (userThatClicked) {
+								users[1] = userThatClicked;
+							}
+						}
+					}
+				}
+				catch (ex) {
+					this.log(ex.message);
+				}
+			}
+		}
+
+		return users;
 	}
 
-	async postEphemeralMessage(responseUrl, blocks, message) {
+	async postEphemeralMessage (responseUrl, blocks, message) {
 		const uri = url.parse(responseUrl);
 		return new Promise(resolve => {
 			post(
@@ -486,17 +564,16 @@ class SlackInteractiveComponentsHandler {
 		});
 	}
 
-	formatTime(timeStamp) {
+	formatTime (timeStamp, timeZone) {
 		const format = 'h:mm A MMM D';
-		let timeZone = this.user && this.user.get('timeZone');
 		if (!timeZone) {
-			timeZone = this.creator && this.creator.get('timeZone');
+			let timeZone = this.user && this.user.get('timeZone');
 			if (!timeZone) {
-				timeZone = 'Etc/GMT';
+				timeZone = this.creator && this.creator.get('timeZone');
 			}
 		}
-		let value = MomentTimezone.tz(timeStamp, timeZone).format(format);
-		if (timeZone === 'Etc/GMT') {
+		let value = MomentTimezone.tz(timeStamp, timeZone || 'Etc/GMT').format(format);
+		if (!timeZone || timeZone === 'Etc/GMT') {
 			return `${value} UTC`;
 		}
 		return value;

@@ -209,7 +209,7 @@ class ProviderActionRequest extends RestfulRequest {
 			return {
 				event: 'Replied to Codemark',
 				data: {
-					CodemarkId: actionPayload && actionPayload.codemarkId,
+					CodemarkId: actionPayload && actionPayload.cId,
 					Endpoint: provider || ''
 				}
 			};
@@ -235,7 +235,7 @@ class ProviderActionRequest extends RestfulRequest {
 					event: 'Opened Code',
 					data: {
 						Host:
-							CODE_PROVIDERS[actionPayload.externalProvider] || ''
+							CODE_PROVIDERS[actionPayload.externalProvider || actionPayload.eP] || ''
 					}
 				};
 			} else if (actionPayload.externalType === 'issue') {
@@ -243,7 +243,7 @@ class ProviderActionRequest extends RestfulRequest {
 					event: 'Opened Issue',
 					data: {
 						Service:
-							ProviderDisplayNames[actionPayload.externalProvider] || ''
+							ProviderDisplayNames[actionPayload.externalProvider || actionPayload.eP] || ''
 					}
 				};
 			}

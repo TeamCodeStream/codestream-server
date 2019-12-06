@@ -82,9 +82,18 @@ class SlackInteractiveComponentBlocks {
 					text: {
 						type: 'plain_text',
 						text:
-							'Thanks, we got your reply!'
+							'Reply posted to CodeStream!'
 					}
 				}
+				// TODO once we have faux users, need to add a custom message if user is not officially signed up after replying
+				// ,{
+				// 	type: 'section',
+				// 	text: {
+				// 		type: 'plain_text',
+				// 		text:
+				// 			'Have XXX invite you to CodeStream so that you can discuss code right inside your IDE.'
+				// 	}
+				// }				
 			]
 		};
 	}
@@ -92,17 +101,19 @@ class SlackInteractiveComponentBlocks {
 	static createModalView(payload, actionPayload, blocks) {
 		return {
 			private_metadata: JSON.stringify({
-				streamId: actionPayload.streamId,
-				teamId: actionPayload.teamId,
-				userId: payload.user.id,
-				codemarkId: actionPayload.codemarkId,
-				parentPostId: actionPayload.parentPostId
+				crId: actionPayload.crId,
+				sId: actionPayload.sId,
+				tId: actionPayload.tId,
+				uId: payload.user.id,
+				cId: actionPayload.cId,
+				ppId: actionPayload.ppId,
+				pcuId: actionPayload.pcuId
 			}),
 			type: 'modal',
 			callback_id: JSON.stringify({
 				id: actionPayload.id,
-				codemarkId: actionPayload.codemarkId,
-				markerId: actionPayload.markerId
+				cId: actionPayload.cId,
+				mId: actionPayload.mId
 			}),
 			title: {
 				type: 'plain_text',
