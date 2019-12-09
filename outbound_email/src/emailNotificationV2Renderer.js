@@ -32,6 +32,7 @@ class EmailNotificationV2Renderer {
 			<div class="content">
 				${content}
 			</div>
+			<br/>
 			<div class="following">
 				<span class="text">You received this email because you are following this codemark.&nbsp;</span><span class="unfollow hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
 			</div>
