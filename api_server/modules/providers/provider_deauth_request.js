@@ -56,7 +56,7 @@ class ProviderDeauthRequest extends RestfulRequest {
 		}
 		const existingProviderInfo = this.user.getProviderInfo(provider, teamId);
 		if (
-			!host && 
+			!host &&
 			existingProviderInfo &&
 			existingProviderInfo.hosts &&
 			Object.keys(existingProviderInfo.hosts).length > 0
@@ -72,6 +72,20 @@ class ProviderDeauthRequest extends RestfulRequest {
 				modifiedAt: Date.now()
 			}
 		};
+		// this is really only for "sharing model" chat providers, which will provide a subId
+		if (subId && existingProviderInfo && existingProviderInfo.multiple) {
+			const serviceAuth = this.api.services[`${provider}Auth`];
+			if (serviceAuth) {
+				const providerUserId = await serviceAuth.getUserId(existingProviderInfo.multiple[subId]);
+				if (providerUserId) {
+					const identity = `${provider}::${providerUserId}`;
+					if ((this.user.get('providerIdentities') || []).find(id => id === identity)) {
+						op.$pull = { providerIdentities: identity };
+					}
+				}
+			}
+		}
+
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this,
 			collection: this.data.users,

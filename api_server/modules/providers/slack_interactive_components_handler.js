@@ -42,10 +42,11 @@ class SlackInteractiveComponentsHandler {
 	}
 
 	async handleBlockActionGeneric () {
-		const payloadActionUser = await this.getUser(this.actionPayload.tId, this.payload.user.team_id, this.payload.user.id);
+		const teamId = this.actionPayload.teamId || this.actionPayload.tId;
+		const payloadActionUser = await this.getUser(this.payload.user.id);
 		const team = await this.getTeam(
 			payloadActionUser,
-			this.actionPayload.tId
+			teamId
 		);
 		return {
 			actionUser: payloadActionUser,
@@ -273,17 +274,20 @@ class SlackInteractiveComponentsHandler {
 		};
 	}
 
-	async getUser (codestreamTeamId, slackWorkspaceId, slackUserId) {
-		if (!codestreamTeamId || !slackWorkspaceId || !slackUserId) return undefined;
+	async getUser (slackUserId) {
+		if (!slackUserId) return undefined;
 
-		const query = { deactivated: false };
-		query[`providerInfo.${codestreamTeamId}.slack.multiple.${slackWorkspaceId}.data.user_id`] = slackUserId;
-
-		const users = await this.data.users.getByQuery(query, { overrideHintRequired: true });
+		const users = await this.data.users.getByQuery(
+			{
+				providerIdentities: `slack::${slackUserId}`,
+				deactivated: false
+			},
+			{ hint: UserIndexes.byProviderIdentities }
+		);
 
 		if (users.length > 1) {
 			// this shouldn't really happen
-			this.log(`Multiple CodeStream users found matching identity slack workspaceId=${slackWorkspaceId} userId=${slackUserId} on codestream team=${codestreamTeamId}`);
+			this.log(`Multiple CodeStream users found matching identity ${slackUserId}`);
 			return undefined;
 		}
 		if (users.length === 1) {
@@ -517,7 +521,7 @@ class SlackInteractiveComponentsHandler {
 				//user that clicked on the button
 				this.payload.user.id
 					? new Promise(async resolve => {
-						resolve(await this.getUser(this.actionPayload.tId, this.payload.user.team_id, this.payload.user.id));
+						resolve(await this.getUser(this.payload.user.id));
 					})
 					: undefined
 			]);

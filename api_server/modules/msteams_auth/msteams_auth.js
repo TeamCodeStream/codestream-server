@@ -63,6 +63,10 @@ class MSTeamsAuth extends OAuthModule {
 
 		return result;
 	}
+
+	async getUserId () {
+		return undefined;
+	}
 }
 
 module.exports = MSTeamsAuth;

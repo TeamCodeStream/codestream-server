@@ -139,6 +139,10 @@ class SlackAuth extends OAuthModule {
 
 		return data;
 	}
+
+	async getUserId(info) {
+		return info && info.data ? info.data.user_id : undefined;
+	}
 }
 
 module.exports = SlackAuth;

@@ -271,24 +271,33 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (this.host) {
 			const host = this.host.replace(/\./g, '*');
 			setKey += `.hosts.${host}`;
-		}		
+		}
 		// add sub-keys for providers that support multiple access tokens, only allowed in sharing model
-		let multiKeys = {};		
+		let multiKeys = {};
+		const op = { $set: {} };
 		if (this.sharing) {
-			const multiAuthExtraData = await this.serviceAuth.getMultiAuthExtraData(this.tokenData, { request: this});
+			const multiAuthExtraData = await this.serviceAuth.getMultiAuthExtraData(this.tokenData, { request: this });
 			if (multiAuthExtraData) {
 				const multiAuthKeyExtraDataBySetKey = Object.keys(multiAuthExtraData).reduce(function (map, key) {
 					map[`${setKey}.multiple.${key}`] = multiAuthExtraData[key];
 					return map;
 				}, {});
-				multiKeys = {...multiAuthKeyExtraDataBySetKey };
+				multiKeys = { ...multiAuthKeyExtraDataBySetKey };
+			}
+
+			const providerUserId = await this.serviceAuth.getUserId(this.tokenData);
+			if (providerUserId) {
+				const identity = `${this.provider}::${providerUserId}`;
+				if (!(this.user.get('providerIdentities') || []).find(id => id === identity)) {
+					op.$addToSet = { providerIdentities: identity };
+				}
 			}
 		}
 		else {
 			multiKeys[setKey] = undefined;
 		}
-		const op = { $set: {} };
-		for (let multiKey of Object.keys(multiKeys)) {				
+
+		for (let multiKey of Object.keys(multiKeys)) {
 			for (let key of Object.keys(this.tokenData)) {
 				const dataKey = `${multiKey}.${key}`;
 				op.$set[dataKey] = this.tokenData[key];
@@ -297,6 +306,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				op.$set[`${multiKey}.extra`] = Object.assign({}, op.$set[`${multiKey}.extra`] || {}, multiKeys[multiKey]);
 			}
 		}
+
 		op.$set.modifiedAt = modifiedAt;
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this,

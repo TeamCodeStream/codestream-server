@@ -531,6 +531,10 @@ class OAuthModule extends APIServerModule {
 	async getMultiAuthExtraData () {
 		return undefined;
 	}
+
+	async getUserId () {
+		return undefined;
+	}
 }
 
 module.exports = OAuthModule;
