@@ -4,6 +4,7 @@ const url = require('url');
 const PostCreator = require(process.env.CS_API_TOP +
 	'/modules/posts/post_creator');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
+const PostIndexes = require(process.env.CS_API_TOP + '/modules/posts/indexes');
 const { post } = require(process.env.CS_API_TOP + '/server_utils/https_bot');
 const SlackInteractiveComponentBlocks = require('./slack_interactive_component_blocks');
 const { keyBy } = require('lodash');
@@ -389,7 +390,7 @@ class SlackInteractiveComponentsHandler {
 		if (this.actionPayload.ppId) {
 			replies = await this.data.posts.getByQuery(
 				{ parentPostId: this.actionPayload.ppId },
-				{ overrideHintRequired: true, sort: { createdAt: -1 } }
+				{ hint: PostIndexes.byParentPostId, sort: { seqNum: -1 } }
 			);
 			// get uniques
 			userIds = [
