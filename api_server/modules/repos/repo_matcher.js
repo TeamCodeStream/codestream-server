@@ -50,14 +50,20 @@ class RepoMatcher {
 		});
 
 		let repo;
+		const passedRemotes = JSON.stringify(remotes);
+		const passedHashes = JSON.stringify(knownCommitHashes);
 		if (matchingRepos.length === 0) {
 			if (remotes.length > 0) {
+				this.request.log(`No match found for remotes:\n${passedRemotes}\nor known commit hashes:\n${passedHashes}\nwill create repo instead...`);
 				repo = await this.createRepo({ remotes, knownCommitHashes });
 			}
 		}
 		else {
 			repo = matchingRepos[0];
+			const matchedRemotes = JSON.stringify((repo.get('remotes') || []).map(r => r.normalizedUrl));
+			const matchedHashes = JSON.stringify((repo.get('knownCommitHashes') || []));
 			if (matchingRepos.length === 1) {
+				this.request.log(`Match found for repo on remotes:\n${matchedRemotes}\nor on commit hashes:\n${matchedHashes}\n, from passed remotes:\n${passedRemotes}\nor passed commit hashes:\n${passedHashes}`);
 				await this.updateRepoWithNewInfo(repo, remotes, knownCommitHashes);
 			}
 		}

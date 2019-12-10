@@ -31,8 +31,10 @@ class Repo extends CodeStreamModel {
 	// check if the passed commit hash is a known commit hash for this repo
 	haveKnownCommitHashes (commitHashes) {
 		let knownCommitHashes = [...(this.get('knownCommitHashes') || [])];
-		knownCommitHashes.push(this.get('firstCommitHash'));
-		return ArrayUtilities.intersection(knownCommitHashes, commitHashes).length > 0;
+		if (this.get('firstCommitHash')) {
+			knownCommitHashes.push(this.get('firstCommitHash'));
+		}
+		return ArrayUtilities.intersection(knownCommitHashes, commitHashes).filter(hash => !!hash).length > 0;
 	}
 
 	// check if this repo matches any of the passed remote urls,
