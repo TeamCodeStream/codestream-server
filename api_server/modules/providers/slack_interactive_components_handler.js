@@ -162,13 +162,9 @@ class SlackInteractiveComponentsHandler {
 
 		payloadActionUser = userThatClicked;
 
-		const codemarks = await this.data.codemarks.getByQuery(
-			{ id: this.data.codemarks.objectIdSafe(this.actionPayload.cId), deactivated: false },
-			{ overrideHintRequired: true }
-		);
-
+		const codemark = await this.data.codemarks.getById(this.actionPayload.cId);
 		const team = await this.getTeam(userThatClicked || userThatCreated, this.actionPayload.tId);
-		if (!codemarks || !codemarks.length || !codemarks[0]) {
+		if (!codemark || codemark.get('deactivated')) {
 			await this.postEphemeralMessage(
 				this.payload.response_url,
 				SlackInteractiveComponentBlocks.createMarkdownBlocks('Sorry, we couldn\'t find that codemark')
@@ -178,8 +174,7 @@ class SlackInteractiveComponentsHandler {
 				actionTeam: team,
 				payloadUserId: this.payload.user.id
 			};
-		}
-		const codemark = codemarks[0];
+		}		
 
 		if (!team) {
 			await this.postEphemeralMessage(
