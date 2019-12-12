@@ -126,12 +126,14 @@ class PermalinkTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		const marker = this.codemarkResponse.markers[0];
 		const repoPath = this.repo.remotes[0].normalizedUrl.split('/').slice(1).join('/');
-		const expectedFile = `${repoPath}${marker.file}`;
+		const expectedFile = `${marker.file.replace(/^\/+/, '')}`;		
+		const expectedRepo = `${repoPath}`;
 		const expectedCodeRegEx = new RegExp('<code.*?>(.*)<\\/code>');
 		const match = data.match(expectedCodeRegEx);
 		Assert(match, 'did not get expected code in the html response');
 		Assert.equal(match[1], this.expectedCode || marker.code);
-		Assert.notEqual(data.indexOf(expectedFile), -1, 'did not get expected file in the html response');
+		Assert.notEqual(data.indexOf(expectedRepo), -1, `did not get expected repo in the html response (${expectedRepo})`);
+		Assert.notEqual(data.indexOf(expectedFile), -1, `did not get expected file in the html response (${expectedFile})`);
 	}
 }
 

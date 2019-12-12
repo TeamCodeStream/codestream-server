@@ -114,13 +114,13 @@ const ides = [
 ];
 
 class LinkCodemarkRequest extends WebRequestBase {
-	async authorize() {
+	async authorize () {
 		// we'll handle authorization in the process phase,
 		// but ascertain whether this is a public link
 		this.isPublic = this.request.path.startsWith('/p/');
 	}
 
-	async process() {
+	async process () {
 		this.teamId = this.decodeLinkId(this.request.params.teamId);
 		(await this.checkAuthentication()) &&
 			(await this.getCodemarkLink()) &&
@@ -129,7 +129,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 			(await this.showCodemark());
 	}
 
-	async checkAuthentication() {
+	async checkAuthentication () {
 		// if no identity, redirect to the login page
 		if (!this.isPublic && !this.user) {
 			this.log(
@@ -151,14 +151,14 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return true;
 	}
 
-	decodeLinkId(linkId, pad) {
+	decodeLinkId (linkId, pad) {
 		linkId = linkId.replace(/-/g, '+').replace(/_/g, '/');
 		const padding = '='.repeat(pad);
 		linkId = `${linkId}${padding}`;
 		return Buffer.from(linkId, 'base64').toString('hex');
 	}
 
-	async getCodemarkLink() {
+	async getCodemarkLink () {
 		// check if the user is on the indicated team
 		if (!this.isPublic && !this.user.hasTeam(this.teamId)) {
 			this.warn(
@@ -180,7 +180,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return true;
 	}
 
-	async getCodemark() {
+	async getCodemark () {
 		// get the codemark
 		const codemarkId = this.codemarkLink.get('codemarkId');
 		this.codemark = await this.data.codemarks.getById(codemarkId);
@@ -199,7 +199,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return true;
 	}
 
-	async getIdentifyingInfo() {
+	async getIdentifyingInfo () {
 		this.team = await this.data.teams.getById(this.teamId);
 		if (this.request.query.identify) {
 			if (this.team) {
@@ -211,7 +211,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return true;
 	}
 
-	getAvatar(showComment, username) {
+	getAvatar (showComment, username) {
 		let authorInitials;
 		let email;
 		let emailHash;
@@ -241,7 +241,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		};
 	}
 
-	getAvatarForAssignee(fullName) {
+	getAvatarForAssignee (fullName) {
 		let authorInitials;
 		if (fullName) {
 			authorInitials = fullName
@@ -256,7 +256,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return authorInitials;
 	}
 
-	createTags(teamTags, rawTags) {
+	createTags (teamTags, rawTags) {
 		let tags = [];
 		if (!teamTags) {
 			return tags;
@@ -284,7 +284,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return tags;
 	}
 
-	async createAssignees() {
+	async createAssignees () {
 		let assignees = [];
 		const csAssigneeIds = this.codemark.get('assignees');
 		if (csAssigneeIds && csAssigneeIds.length) {
@@ -324,7 +324,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return assignees;
 	}
 
-	async createRelatedCodemarks() {
+	async createRelatedCodemarks () {
 		const relatedCodemarkIds = this.codemark.get('relatedCodemarkIds');
 		if (!relatedCodemarkIds || relatedCodemarkIds.length == 0)
 			return undefined;
@@ -369,8 +369,8 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return relatedCodemarks;
 	}
 
- 
-	async getMarkers(markerIds) {
+
+	async getMarkers (markerIds) {
 		let markers = [];
 		if (markerIds && markerIds.length) {
 			markers = await this.data.markers.getByIds(markerIds, {
@@ -381,7 +381,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return markers;
 	}
 
-	async getMarkersInfo(options) {
+	async getMarkersInfo (options) {
 		let repoId;
 		const markers = await this.getMarkers(this.codemark.get('markerIds'));
 		let codeStartingLineNumber = 0;
@@ -407,7 +407,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 				branchWhenCreated: marker.get('branchWhenCreated')
 			};
 			repoId = marker.get('repoId');
-			const locationWhenCreated = marker.get('locationWhenCreated');		
+			const locationWhenCreated = marker.get('locationWhenCreated');
 			if (locationWhenCreated && locationWhenCreated.length) {
 				codeStartingLineNumber = locationWhenCreated[0];
 			}
@@ -434,7 +434,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 			const fileInfo = fileStreamInfosByMarkerId[marker.get('id')];
 			results.push({
 				repoId,
-
+				repoName: fileInfo && fileInfo.repo,
 				selectedMarker: options && options.selectedMarker,
 				showComment: options && options.showComment,
 				debug: options && options.debug,
@@ -457,7 +457,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return results;
 	}
 
-	getCode(marker) {
+	getCode (marker) {
 		let code = marker.get('code') || '';
 		if (code) {
 			code = code.replace(/>/g, '&gt;').replace(/</g, '&lt;');
@@ -466,7 +466,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return code;
 	}
 
-	async showCodemark() {
+	async showCodemark () {
 		this.creator = await this.data.users.getById(
 			this.codemark.get('creatorId')
 		);
@@ -518,14 +518,14 @@ class LinkCodemarkRequest extends WebRequestBase {
 				this.request.query.ide === ''
 					? 'default'
 					: this.request.query.ide,
-			markers: await this.getMarkersInfo({selectedMarker, showComment, debug}),
+			markers: await this.getMarkersInfo({ selectedMarker, showComment, debug }),
 			queryString: {
 				marker: selectedMarker,
 				ide:
 					this.request.query.ide === ''
 						? 'default'
 						: this.request.query.ide,
-				debug: debug						 
+				debug: debug
 			},
 			showComment,
 			icons: {},
@@ -557,7 +557,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		await super.render('codemark', templateProps);
 	}
 
-	async getMarkerInfoByMarkerId(markerId) {
+	async getMarkerInfoByMarkerId (markerId) {
 		let marker, file;
 
 		if (markerId) {
@@ -579,13 +579,13 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return { marker, file };
 	}
 
-	async getFileInfosByMarkerIds(markerIds) {
+	async getFileInfosByMarkerIds (markerIds) {
 		return await this.getFileInfosByMarkers(
 			await this.data.markers.getByIds(markerIds, { sortInOrder: true })
 		);
 	}
 
-	async getFileInfosByMarkers(markers) {
+	async getFileInfosByMarkers (markers) {
 		const fileStreamIds = markers.map(_ => _.get('fileStreamId'));
 		let marker, file;
 		let result = {};
@@ -597,14 +597,13 @@ class LinkCodemarkRequest extends WebRequestBase {
 			);
 			if (!fileStreamData || !fileStreamData.length) return result;
 
-			const fileStreamsByFileStreamId = fileStreamData.reduce(function(
+			const fileStreamsByFileStreamId = fileStreamData.reduce(function (
 				map,
 				fileStream
 			) {
 				map[fileStream.get('id')] = fileStream;
 				return map;
-			},
-			{});
+			}, {});
 
 			for (marker of markers) {
 				const fileStream =
@@ -619,7 +618,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 
 				let repo = marker.get('repo') || '';
 				repo = this.bareRepo(repo);
-				file = `${repo}/${file}`;
+				file = `${file}`;
 
 				result[marker.get('id')] = {
 					repo: repo,
@@ -630,14 +629,14 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return result;
 	}
 
-	createIcon(icon) {
+	createIcon (icon) {
 		const viewBox = icon.viewBox || '0 0 ' + icon.width + ' ' + icon.height;
 		return `<span class="icon">
 		<svg version="1.1" width="16" height="16" class="octicon octicon-${icon.name}" aria-hidden="true" viewBox="${viewBox}">
 		${icon.path}</svg></span>`;
 	}
 
-	bareRepo(repo) {
+	bareRepo (repo) {
 		if (repo.match(/^(bitbucket\.org|github\.com)\/(.+)\//)) {
 			repo = repo
 				.split('/')
@@ -652,7 +651,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return repo;
 	}
 
-	addIdentifyScript(props) {
+	addIdentifyScript (props) {
 		const identifyOptions = {
 			provider:
 				ProviderDisplayNames[this.request.query.provider] ||
@@ -665,7 +664,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		props.identifyScript = Identify(identifyOptions);
 	}
 
-	formatTime(timeStamp) {
+	formatTime (timeStamp) {
 		const format = 'h:mm A MMM D';
 		let timeZone = this.user && this.user.get('timeZone');
 		if (!timeZone) {
@@ -677,7 +676,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return MomentTimezone.tz(timeStamp, timeZone).format(format);
 	}
 
-	whiteSpaceToHtml(text) {
+	whiteSpaceToHtml (text) {
 		return text
 			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
 			.replace(/^ +/gm, match => {
@@ -686,7 +685,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 			.replace(/\n/g, '<br/>');
 	}
 
-	redirect404(teamId) {
+	redirect404 (teamId) {
 		let url = '/web/404';
 		if (teamId) {
 			url += `?teamId=${teamId}`;
