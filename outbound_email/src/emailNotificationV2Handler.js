@@ -299,16 +299,21 @@ class EmailNotificationV2Handler {
 	// render the HTML needed for a reply
 	async renderReply () {
 		const creator = this.teamMembers.find(member => member.id === this.post.creatorId);
+		const codemarkCreator = this.teamMembers.find(member => member.id === this.parentCodemark.creatorId);
 		const firstUserTimeZone = this.toReceiveEmails[0].timeZone || DEFAULT_TIME_ZONE;
+
 		// if all users have the same timezone, use the first one
 		const timeZone = this.hasMultipleTimeZones ? null : firstUserTimeZone;
+
 		this.renderedHtml = new ReplyRenderer().render({
 			post: this.post,
 			codemark: this.parentCodemark,
 			markers: this.markers,
 			creator,
+			codemarkCreator,
 			timeZone,
 			members: this.teamMembers,
+			team: this.team,
 			mentionedUserIds: this.post.mentionedUserIds || []
 		});
 	}
@@ -352,6 +357,12 @@ class EmailNotificationV2Handler {
 		// format the timestamp of this post with timezone dependency
 		const datetime = Utils.formatTime(this.post.createdAt, user.timeZone || DEFAULT_TIME_ZONE);
 		this.renderedPostPerUser[user.id] = this.renderedHtml.replace(/\{\{\{datetime\}\}\}/g, datetime);
+
+		// also format the timestamp of the parent codemark as needed
+		if (this.parentCodemark) {
+			const codemarkDatetime = Utils.formatTime(this.parentCodemark.createdAt, user.timeZone || DEFAULT_TIME_ZONE);
+			this.renderedPostPuerUser[user.id] = this.renderedHtml.replace(/\{\{\{codemarkDatetime\}\}\}/g, codemarkDatetime);
+		}
 
 		/*
 		// for DMs, the list of usernames who can "see" the codemark excludes the user 

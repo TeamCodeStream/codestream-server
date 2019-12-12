@@ -2,20 +2,8 @@
 
 'use strict';
 
-const EmailUtilities = require('./server_utils/email_utilities');
 const Utils = require('./utils');
 const Path = require('path');
-
-const TAG_MAP = {
-	blue: '#3578ba',
-	green: '#7aba5d',
-	yellow: '#edd648',
-	orange: '#f1a340',
-	red: '#d9634f',
-	purple: '#b87cda',
-	aqua: '#5abfdc',
-	gray: '#888888'
-};
 
 const PROVIDER_DISPLAY_NAMES = {
 	'github': 'GitHub',
@@ -32,26 +20,6 @@ const PROVIDER_DISPLAY_NAMES = {
 	'vsts': 'Visual Studio Team Services'
 };
 
-const PROVIDER_ICONS = {
-	slack: 'slack',
-	msteams: 'msteams',
-	jira: 'jira',
-	jiraserver: 'jira',
-	trello: 'trello',
-	asana: 'asana',
-	gitlab: 'gitlab',
-	youtrack: 'youtrack',
-	bitbucket: 'bitbucket',
-	azuredevops: 'azuredevops',
-	comment: 'comment',
-	issue: 'issue',
-	question: 'question',
-	trap: 'trap',
-	bookmark: 'bookmark'
-};
-
-const ICONS_ROOT = 'https://images.codestream.com/email_icons';
-
 class CodemarkRenderer {
 
 	/* eslint complexity: 0 */
@@ -66,7 +34,7 @@ class CodemarkRenderer {
 		const codeBlockDivs = this.renderCodeBlockDivs(options);
 
 		return `
-<div class="codemark-wrapper">
+<div>
 	${authorDiv}
 	${titleDiv}
 	${visibleToDiv}
@@ -82,22 +50,13 @@ class CodemarkRenderer {
 	// render the author line
 	renderAuthorDiv (options) {
 		const { codemark, creator, timeZone } = options;
-		// the timestamp is dependent on the user's timezone, but if all users are from the same
-		// timezone, we can format the timestamp here and fully render the email; otherwise we
-		// have to do field substitution when we send the email to each user
-		const datetime = timeZone ? Utils.formatTime(codemark.createdAt, timeZone) : '{{{datetime}}}';
-
-		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
-		const avatar = Utils.getAvatar(creator);
-		return `
-<div class="authorLine">
-	<div style="max-height:0;max-width:0">
-		<span class="headshot-initials">${avatar.authorInitials}</span>
-	</div>
-	<img class="headshot-image" src="https://www.gravatar.com/avatar/${avatar.emailHash}?s=20&d=blank" />
-	<span class="author">${author}</span><span class="datetime">${datetime}</span>
-</div>
-`;
+		const authorOptions = {
+			time: codemark.createdAt,
+			creator,
+			timeZone,
+			datetimeField: 'datetime'
+		};
+		return Utils.renderAuthorDiv(authorOptions);
 	}
 
 	// render the div for the title
@@ -106,7 +65,7 @@ class CodemarkRenderer {
 		// display title: the codemark title if there is one, or just the codemark text
 		const title = Utils.prepareForEmail(codemark.title || codemark.text, mentionedUserIds, members);
 		return `
-<div class="text">
+<div class="title">
 	${title}
 	<br>
 </div>
@@ -122,8 +81,8 @@ class CodemarkRenderer {
 
 		let usernames = this.getVisibleTo(options);
 		return `
-<div class="section" >VISIBLE TO</div>
-<div class="text">${usernames}</div>
+<div class="section nice-gray section-text" >VISIBLE TO</div>
+<div>${usernames}</div>
 `;
 	}
 
@@ -178,29 +137,29 @@ class CodemarkRenderer {
 
 		let tagsAssigneesTable = '';
 		if (tagsHeader || assigneesHeader) {
-			tagsAssigneesTable = '<table class="tagsAssigneesTable"><tbody><tr class="section">';
+			tagsAssigneesTable = '<table class="section"><tbody><tr>';
 			if (tagsHeader) {
-				tagsAssigneesTable += `<td width=300px class="tagsAssignees">${tagsHeader}</td>`;
+				tagsAssigneesTable += `<td width=300px class="nice-gray section-text">${tagsHeader}</td>`;
 			}
 			if (assigneesHeader) {
-				tagsAssigneesTable += `<td width=300px class="tagsAssignees">${assigneesHeader}</td>`;
+				tagsAssigneesTable += `<td width=300px class="nice-gray section-text">${assigneesHeader}</td>`;
 			}
 
 			const numRows = assigneesHeader ? assignees.length : 1;
 			for (let nRow = 0; nRow < numRows; nRow++) {
-				tagsAssigneesTable += '</tr><tr class="text">';
+				tagsAssigneesTable += '</tr><tr>';
 				if (tagsHeader) {
 					if (nRow === 0) {
-						const tags = this.renderTags(options);
-						tagsAssigneesTable += `<td width=300px class="tagsAssignees">${tags}</td>`;
+						const tags = Utils.renderTags(options);
+						tagsAssigneesTable += `<td width=300px">${tags}</td>`;
 					}
 					else {
-						tagsAssigneesTable += '<td width=300px class="tagsAssignees">&nbsp;</td>';
+						tagsAssigneesTable += '<td width=300px>&nbsp;</td>';
 					}
 				}
 				if (assigneesHeader) {
 					const assignee = this.renderAssignee(assignees[nRow]);
-					tagsAssigneesTable += `<td width=300px class="tagsAssignees">${assignee}</id>`;
+					tagsAssigneesTable += `<td width=300px>${assignee}</id>`;
 				}
 				tagsAssigneesTable += '</tr>';
 			}
@@ -211,54 +170,27 @@ class CodemarkRenderer {
 		return tagsAssigneesTable;
 	}
 
-	// render the set of tags
-	renderTags (options) {
-		const { codemark, team } = options;
-		const tags = codemark.tags || [];
-		const teamTags = team.tags || [];
-		let tagsHtml = '';
-		for (let tag of tags) {
-			const teamTag = teamTags[tag];
-			if (teamTag) {
-				tagsHtml += this.renderTag(teamTag);
-			}
-		}
-		return tagsHtml;
-	}
-
-	// render a single tag
-	renderTag (teamTag) {
-		const tagEmptyClass = teamTag.label ? '' : 'tag-empty';
-		const label = teamTag.label || '&#8291;';
-		const color = TAG_MAP[teamTag.color] || teamTag.color;
-		return `<span class="tag ${tagEmptyClass}" style="background-color:${color};">${label}</span>`;
-	}
-
 	// render a single task assignee
 	renderAssignee (assignee) {
-		const avatar = Utils.getAvatar(assignee);
 		const assigneeDisplay = assignee.fullName || assignee.displayName || assignee.username || assignee.email;
+		const assigneeHeadshot = Utils.renderUserHeadshot(assignee);
 		return `
-<div style="max-height:0;max-width:0">
-	<span class="headshot-initials">${avatar.authorInitials}</span>
-</div>
-<img class="headshot-image" src="https://www.gravatar.com/avatar/${avatar.emailHash}?s=20&d=blank" />
+			${assigneeHeadshot}
 <span class="assignee">${assigneeDisplay}</span>
 `;
-
 	}
+
 	// render the description div, as needed
 	renderDescriptionDiv (options) {
 		const { codemark, mentionedUserIds, members } = options;
 		// there is a description if there is both a title and text, in which case it's the text
 		if (codemark.title && codemark.text) {
 			const text = Utils.prepareForEmail(codemark.text, mentionedUserIds, members);
+			const iconHtml = Utils.renderIcon('description');
 			return `
-<div class="section">DESCRIPTION</div>
-<div class="text">
-	<span class="icon">
-		<img width="16" height="16" class="octicon" src="${ICONS_ROOT}/description.png" />
-	</span><br/>
+<div class="section nice-gray section-text">DESCRIPTION</div>
+<div>
+	${iconHtml}<br/>
 	${text}
 </div>
 `;
@@ -274,20 +206,12 @@ class CodemarkRenderer {
 		if (!codemark.externalProvider) { return ''; }
 		const providerName = PROVIDER_DISPLAY_NAMES[codemark.externalProvider] || codemark.externalProvider;
 		const providerUrl = codemark.externalProviderUrl;
-		const icon = PROVIDER_ICONS[codemark.externalProvider];
-		let iconHtml;
-		if (icon) {
-			iconHtml = `
-<span class="icon">
-	<img width="16" height="16" class="octicon" src="${ICONS_ROOT}/${icon}.png" />
-</span>
-`;
-		}
+		let iconHtml = Utils.renderIcon(codemark.externalProvider);
 		return `
-<div class="section">LINKED ISSUES</div>
+<div class="section nice-gray section-text">LINKED ISSUES</div>
 <div class="issue hover-underline">
 	${iconHtml}
-	<a clicktracking="off" href="${providerUrl}">${providerName} ${providerUrl}</a>
+	<a clicktracking="off" href="${providerUrl}" class="space-left">${providerName} ${providerUrl}</a>
 </div>
 `;
 	}
@@ -305,7 +229,7 @@ class CodemarkRenderer {
 		}
 		if (relatedDivs) {
 			return `
-<div class="section">RELATED</div>
+<div class="section nice-gray section-text">RELATED</div>
 ${relatedDivs}
 `;
 		}
@@ -327,20 +251,12 @@ ${relatedDivs}
 		}
 
 		const relatedTitle = Utils.cleanForEmail(codemark.title || codemark.text);
-		const icon = PROVIDER_ICONS[codemark.type];
-		let iconHtml;
-		if (icon) {
-			iconHtml = `
-<span class="icon">
-	<img width="16" height="16" class="octicon" src="${ICONS_ROOT}/${icon}.png" />
-</span>
-`;		
-		}
+		const iconHtml = Utils.renderIcon(codemark.type);
 		return `
-<div class="text">
+<div class="related">
 	${iconHtml}
 	<a clicktracking="off" href="${codemark.permalink}">
-		<span class="related-codemark-text">${relatedTitle}</span><span class="related-codemark-file hover-underline">${path}</span>
+		<span class="related-title space-left">${relatedTitle}</span><span class="nice-gray space-left hover-underline">${path}</span>
 	</a>
 </div>
 `;
@@ -419,7 +335,7 @@ ${relatedDivs}
 		const commitHash = commitHashWhenCreated ? commitHashWhenCreated.slice(0, 7) : '';
 
 		// get buttons to display
-		let buttons = Utils.getButtons(options, marker);
+		let buttons = Utils.renderCodemarkButtons(options, marker);
 
 		// get code for the given marker
 		let code = (marker.code || '').trimEnd();
@@ -430,7 +346,7 @@ ${relatedDivs}
 		const locationWhenCreated = marker.locationWhenCreated || (marker.referenceLocations && marker.referenceLocations[0]);
 		const startLine = (locationWhenCreated && locationWhenCreated.location && locationWhenCreated.location[0]) || 0;
 		for (let i = 0; i < numLines; i++) {
-			lineNumbers += `<span class="line-number">${startLine + 1 + i}.&nbsp;</span><br/>`;
+			lineNumbers += `<span>${startLine + 1 + i}.&nbsp;</span><br/>`;
 		}
 
 		let codeWidth = '100%';
@@ -438,7 +354,7 @@ ${relatedDivs}
 			codeWidth = '90%';
 			lineNumbers = `
 <td width=10%>
-	<div class="line-number-wrapper monospace">
+	<div class="line-numbers monospace">
 		${lineNumbers}
 	</div>
 </td>
@@ -453,11 +369,18 @@ ${relatedDivs}
 			code = Utils.highlightCode(code, extension);
 		}
 
+		const fileIcon = Utils.renderIcon('file');
+		const branchIcon = Utils.renderIcon('git-branch');
+		const commitIcon = Utils.renderIcon('git-commit');
+
 		return `
-<div class="codeblock">
-	<span class="codeblock-text monospace">${path}</span>
-	<span class="codeblock-text monospace">${branch}</span>
-	<span class="codeblock-text monospace">${commitHash}</span>
+<div class="codeblock-text monospace">
+	${fileIcon}
+	<span class="space-left codeblock-heading">${path}</span>
+	${branchIcon}
+	<span class="space-left monospace codeblock-heading">${branch}</span>
+	${commitIcon}
+	<span class="space-left monospace codeblock-heading">${commitHash}</span>
 </div>
 <table cellspacing="0" cellpadding="0">
 	<tr>

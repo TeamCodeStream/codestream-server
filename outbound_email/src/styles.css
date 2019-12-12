@@ -2,9 +2,11 @@
 	padding: 12px;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI',
 		'Ubuntu', 'Droid Sans', ans-serif;
-	font-size: 12px;
+	font-size: 14px;
 	background-color: #1e1e1e;
+	color: #c7c7c6;
 	max-width: 1200px;
+	line-height: 1.5;
 }
 
 .logo {
@@ -13,60 +15,22 @@
 	margin: 12px;
 }
 
-.codemark-wrapper {
-	color: #c7c7c6;
-	font-size: 14px;
+.content {
 	background-color: #282828;
 	border: 1px solid #383838;
 	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-	/* margin: 50px 180px 50px 180px; */
 	margin: 5px 2px 5px 2px;
-	/* padding: 11px; */
 	padding: 8px;
 }
 
-.reply-buttons-wrapper {
-	margin-bottom: 10px;
-}
-
-.headshot {
-	margin-right: 5px;
-}
-
-.headshot-image {
-	border-radius: 3px;
-	height: 21px;
-	width: 21px;
-	display: inline-block;
-}
-
-.headshot-initials {
-	background: #678;
-	border-radius: 3px;
-	color: #1e1e1e;
-	height: 20px;
-	text-align: center;
-	text-transform: capitalize;
-	margin-right: 5px;
-	width: 20px;
-	display: inline-block;
-	margin-left: 0px;
-	font-size: 13px;
+.title {
+	margin-top: 8px;
 }
 
 .author {
 	margin-right: 5px;
 	margin-left: 5px;
-	font-size: 14px;
 	font-weight: 700;
-	vertical-align: text-bottom;
-}
-
-.assignee {
-	margin-left: 5px;
-	font-size: 14px;
-	font-weight: 400;
-	color: #898f9e;
 	vertical-align: text-bottom;
 }
 
@@ -76,34 +40,54 @@
 	vertical-align: text-bottom;
 }
 
-.text {
-	padding-top: 2px;
-	color: #c7c7c6;
-	font-size: 14px;
-}
-
-.issue {
-	padding-top: 2px;
-	font-size: 14px;
-}
-
-.issue a {
-	color: #009aef !important;
+.following a {
+	color: white !important;
 	text-decoration: none !important;
 }
 
+img {
+	vertical-align: middle;
+}
+
+.headshot-initials {
+	background: #678;
+	border-radius: 3px;
+	color: #1e1e1e;
+	height: 20px;
+	width: 20px;
+	text-align: center;
+	text-transform: capitalize;
+	margin-left: 2px;
+	margin-right: 2px;
+	display: inline-block;
+	font-size: 13px;
+}
+
+.headshot-image {
+	border-radius: 3px;
+	height: 21px;
+	width: 21px;
+	display: inline-block;
+	vertical-align: middle;
+	margin-left: 2px;
+	margin-right: 2px;
+}
+
 .section {
-	color: #898f9e;
+	margin-top: 22px;
+	margin-bottom: 4px;
+}
+
+.nice-gray {
+	color: #898f9e !important;
+}
+
+.section-text {
 	font-weight: 700;
 	font-size: 11px;
-	margin: 22px 0px 0px 0px;
 }
 
-.tagsAssigneesTable {
-	margin-top: 22px;
-}
-
-.tagsAssignees {
+td {
 	border: 0;
 	padding: 0;
 }
@@ -119,7 +103,6 @@
 	color: #fff;
 	text-align: center;
 	white-space: nowrap;
-	vertical-align: baseline;
 	border-radius: 3px;
 	margin: 2px;
 	padding: 5px 4px 5px 4px;
@@ -129,25 +112,38 @@
 	width: 12px;
 }
 
-.related-codemark-text {
-	margin-right: 5px;
-	color: #c7c7c6;
+.space-left {
+	margin-left: 5px;
 }
 
-.related-codemark-file {
+.assignee {
+	font-weight: 400;
 	color: #898f9e;
 }
 
-.icon {
-	margin-right: 5px;
+.issue a {
+	color: #009aef !important;
+	text-decoration: none !important;
 }
 
-.icon svg {
-	fill: rgb(137, 143, 158);
+.related-title {
+	color: #c7c7c6 !important;
 }
 
-.octicon {
-	fill: rgb(137, 143, 158);
+.related a {
+	color: #c7c7c6 !important;
+	text-decoration: none !important;
+}
+
+.line-numbers {
+	background: rgba(0, 0, 0, 0.1);
+	padding: 5px 5px 5px 10px;
+	border-left: 1px solid #383838;
+	border-top: 1px solid #383838;
+	border-bottom: 1px solid #383838;
+	overflow-x: auto;
+	font-size: 12px;
+	color: #606060;
 }
 
 .monospace {
@@ -155,15 +151,14 @@
 	white-space: nowrap;
 }
 
-.codeblock {
-	margin-top: 22px;
-}
-
 .codeblock-text {
+	margin: 22px 0px 7px 2px;
 	color: #898f9e;
 	font-size: 12px;
+}
+
+.codeblock-heading {
 	margin-right: 15px;
-	padding-bottom: 7px;
 }
 
 .code-wrapper {
@@ -175,17 +170,6 @@
 	overflow-x: auto;
 	font-size: 12px;
 	color: #c7c7c6;
-}
-
-.line-number-wrapper {
-	background: rgba(0, 0, 0, 0.1);
-	padding: 5px 5px 5px 10px;
-	border-left: 1px solid #383838;
-	border-top: 1px solid #383838;
-	border-bottom: 1px solid #383838;
-	overflow-x: auto;
-	font-size: 12px;
-	color: #606060;
 }
 
 .button {
@@ -204,15 +188,36 @@
 	text-decoration: none !important;
 }
 
-.following a {
-	color: white !important;
-	text-decoration: none !important;
-	font-size: 14px;
+.reply-icons {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	vertical-align: middle;
 }
 
-.text a {
+.reply-icon {
+	margin-left: 12px;
+}
+
+.reply-icon a {
 	text-decoration: none !important;
+}
+
+.reply {
+	border-left: 3px solid #009aef;
+	padding-left: 6px;
+	margin-bottom: 10px;
+}
+
+.reply-tags {
+	margin-left: 12px;
+}
+
+.icon-spaced {
+	margin-left: 3px; 
 }
 
 .hljs{display:block;overflow-x:auto;padding:0.5em;color:#383a42;background:#fafafa}.hljs-comment,.hljs-quote{color:#a0a1a7;font-style:italic}.hljs-doctag,.hljs-keyword,.hljs-formula{color:#a626a4}.hljs-section,.hljs-name,.hljs-selector-tag,.hljs-deletion,.hljs-subst{color:#e45649}.hljs-literal{color:#0184bb}.hljs-string,.hljs-regexp,.hljs-addition,.hljs-attribute,.hljs-meta-string{color:#50a14f}.hljs-built_in,.hljs-class .hljs-title{color:#c18401}.hljs-attr,.hljs-variable,.hljs-template-variable,.hljs-type,.hljs-selector-class,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-number{color:#986801}.hljs-symbol,.hljs-bullet,.hljs-link,.hljs-meta,.hljs-selector-id,.hljs-title{color:#4078f2}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:bold}.hljs-link{text-decoration:underline}
 
+.im {
+	color: #c7c7c6 !important;
+}

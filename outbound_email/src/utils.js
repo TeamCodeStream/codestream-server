@@ -14,6 +14,23 @@ const CODE_PROVIDERS = {
 	vsts: 'Azure DevOps'
 };
 
+const TAG_MAP = {
+	blue: '#3578ba',
+	green: '#7aba5d',
+	yellow: '#edd648',
+	orange: '#f1a340',
+	red: '#d9634f',
+	purple: '#b87cda',
+	aqua: '#5abfdc',
+	gray: '#888888'
+};
+
+const ICON_MAP = {
+	jiraserver: 'jira',
+};
+
+const ICONS_ROOT = 'https://images.codestream.com/email_icons';
+
 const Utils = {
 
 	// render the author span portion of an email post
@@ -128,12 +145,12 @@ const Utils = {
 	},
 
 	// get buttons to display associated with a codemark
-	getButtons: function(options, marker) {
+	renderCodemarkButtons: function(options, marker) {
 		const { codemark } = options;
 
 		let ideButton = '';
 		if (codemark.permalink) {
-			const url = `${codemark.permalink}?ide=default&marker=${marker.id}`;
+			const url = Utils.getIDEUrl(options, marker.id);
 			ideButton = `
 <div class="button hover-button">
 	<a clicktracking="off" href="${url}" target="_blank"><span class="hover-underline">Open in IDE</span></a>
@@ -166,6 +183,85 @@ const Utils = {
 		}
 
 		return buttons;
+	},
+ 
+	// get the url for opening the codemark in IDE
+	getIDEUrl: function(options, markerId) {
+		const { codemark } = options;
+		if (!codemark.permalink) {
+			return '';
+		}
+		markerId = markerId || (codemark.markerIds || [])[0];
+		let url = `${codemark.permalink}?ide=default`;
+		if (markerId) {
+			url += `&marker=${markerId}`;
+		}
+		return url;
+	},
+
+	// render an author line, with timestamp
+	renderAuthorDiv: function(options) {
+		const { time, creator, datetimeField, timeZone } = options;
+		// the timestamp is dependent on the user's timezone, but if all users are from the same
+		// timezone, we can format the timestamp here and fully render the email; otherwise we
+		// have to do field substitution when we send the email to each user
+		const datetime = timeZone ? Utils.formatTime(time, timeZone) : `{{{${datetimeField}}}}`;
+
+		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
+		const headshot = Utils.renderUserHeadshot(creator);
+		return `
+<div>
+	${headshot}
+	<span class="author">${author}</span><span class="datetime">${datetime}</span>
+</div>
+`;
+	},
+
+	// render a gravatar headshot with initials as backup
+	renderHeadshot: function(avatar) {
+		return `
+<div style="max-height:0;max-width:0;display:inline-block;">
+	<span class="headshot-initials">${avatar.authorInitials}</span>
+</div>
+<div style="display:inline-block;">
+	<img class="headshot-image" style="display:inline-block"src="https://www.gravatar.com/avatar/${avatar.emailHash}?s=20&d=blank" />
+</div>
+`;	
+	},
+
+	// render the set of tags
+	renderTags: function(options) {
+		const { codemark, team } = options;
+		const tags = codemark.tags || [];
+		const teamTags = team.tags || [];
+		let tagsHtml = '';
+		for (let tag of tags) {
+			const teamTag = teamTags[tag];
+			if (teamTag) {
+				tagsHtml += Utils.renderTag(teamTag);
+			}
+		}
+		return tagsHtml;
+	},
+
+	// render a single tag
+	renderTag: function(teamTag) {
+		const tagEmptyClass = teamTag.label ? '' : 'tag-empty';
+		const label = teamTag.label || '&#8291;';
+		const color = TAG_MAP[teamTag.color] || teamTag.color;
+		return `<span class="tag ${tagEmptyClass}" style="background-color:${color};">${label}</span>`;
+	},
+
+	// render the headshot or initials for a single task assignee
+	renderUserHeadshot: function(user) {
+		const avatar = Utils.getAvatar(user);
+		return Utils.renderHeadshot(avatar);
+	},
+
+	// render the icon for a third-party provider
+	renderIcon: function(name) {
+		const icon = ICON_MAP[name] || name;
+		return `<img width="16" height="16" src="${ICONS_ROOT}/${icon}.png" />`;
 	}
 };
 

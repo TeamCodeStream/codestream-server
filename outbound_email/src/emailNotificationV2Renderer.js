@@ -10,7 +10,7 @@ class EmailNotificationV2Renderer {
 		let tipDiv = '';
 		if (!inboundEmailDisabled) {
 			tipDiv = `
-<div class="text">
+<div>
 	Tip: post a reply to this codemark by replying to this email directly.
 </div>
 `;
@@ -25,8 +25,8 @@ class EmailNotificationV2Renderer {
 		</style>
 	</head>
 	<body>
-		<div class=master>
-			<a class="brand" href="https://codestream.com">
+		<div class="master">
+			<a href="https://codestream.com">
 				<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
 			</a>
 			<div class="content">
@@ -34,7 +34,7 @@ class EmailNotificationV2Renderer {
 			</div>
 			<br/>
 			<div class="following">
-				<span class="text">You received this email because you are following this codemark.&nbsp;</span><span class="unfollow hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
+				<span>You received this email because you are following this codemark.&nbsp;</span><span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
 			</div>
 			${tipDiv}
 		</div>

@@ -2,7 +2,6 @@
 
 'use strict';
 
-const EmailUtilities = require('./server_utils/email_utilities');
 const Utils = require('./utils');
 
 class ReplyRenderer {
@@ -10,40 +9,207 @@ class ReplyRenderer {
 	/* eslint complexity: 0 */
 	render (options) {
 
+		options.clickUrl = Utils.getIDEUrl(options);
+
+		const codemarkAuthorDiv = this.renderCodemarkAuthorDiv(options);
+		const titleDiv = this.renderTitleDiv(options);
+		const iconsDiv = this.renderIconsDiv(options);
 		const authorDiv = this.renderAuthorDiv(options);
 		const textDiv = this.renderTextDiv(options);
 		const buttons = this.renderButtons(options);
 
 		return `
-<div class="codemark-wrapper">
-	${authorDiv}
-	${textDiv}
+<div>
+	${codemarkAuthorDiv}
+	${titleDiv}
+	${iconsDiv}
+	<div class="reply">
+		${authorDiv}
+		${textDiv}
+	</div>
 </div>
-<div class="reply-buttons-wrapper">
-	${buttons}
+${buttons}
+`;
+	}
+
+	// render the author line with timestamp for the codemark creator
+	renderCodemarkAuthorDiv (options) {
+		const { codemark, codemarkCreator, timeZone } = options;
+		const authorOptions = {
+			time: codemark.createdAt,
+			creator: codemarkCreator,
+			timeZone,
+			datetimeField: 'codemarkDatetime'
+		};
+		return Utils.renderAuthorDiv(authorOptions);
+	}
+
+	// render the div for the title of the codemark
+	renderTitleDiv (options) {
+		const { codemark, mentionedUserIds, members } = options;
+		// display title: the codemark title if there is one, or just the codemark text
+		const title = Utils.prepareForEmail(codemark.title || codemark.text, mentionedUserIds, members);
+		return `
+<div class="title">
+	${title}
+	<br>
 </div>
 `;
 	}
 
-	// render the author line
+	// render the associated icons
+	renderIconsDiv (options) {
+		const watching = this.renderWatching(options);
+		const tagsAssignees = this.renderTagsAndAssignees(options);
+		const linkedIssue = this.renderLinkedIssue(options);
+		const description = this.renderDescription(options);
+		const codeBlocks = this.renderCodeBlocks(options);
+		const related = this.renderRelatedCodemarks(options);
+		const replies = this.renderReplies(options);
+		const html = [
+			watching,
+			tagsAssignees,
+			linkedIssue,
+			description,
+			codeBlocks,
+			related,
+			replies
+		].join('');
+		return `<div class="reply-icons">${html}</div>`;
+	}
+
+	// render the watching icon
+	renderWatching (options) {
+		return `
+<span>
+	<a clicktracking="off" href="${options.clickUrl}">
+		${Utils.renderIcon('eye')}
+	</a>
+</span>
+`;
+	}
+
+	// render tags and assignees
+	renderTagsAndAssignees (options) {
+		const tags = Utils.renderTags(options);
+		const assignees = this.renderAssignees(options);
+		return `
+<a class="reply-tags" clicktracking="off" href="${options.clickUrl}">${tags}${assignees}</a>
+`;
+	}
+
+	// render the headshots or initials of assignees
+	renderAssignees (options) {
+		const { codemark, members } = options;
+
+		let assignees = [];
+		(codemark.assignees || []).forEach(assigneeId => {
+			const user = members.find(member => member.id === assigneeId);
+			if (user) {
+				assignees.push(user);
+			}
+		});
+		assignees = [...assignees, ...(codemark.externalAssignees || [])];
+
+		return assignees.map(assignee => {
+			return Utils.renderUserHeadshot(assignee);
+		}).join('');
+	}
+
+	// render the author line with timestamp
 	renderAuthorDiv (options) {
 		const { post, creator, timeZone } = options;
-		// the timestamp is dependent on the user's timezone, but if all users are from the same
-		// timezone, we can format the timestamp here and fully render the email; otherwise we
-		// have to do field substitution when we send the email to each user
-		const datetime = timeZone ? Utils.formatTime(post.createdAt, timeZone) : '{{{datetime}}}';
+		const authorOptions = {
+			time: post.createdAt,
+			creator,
+			timeZone,
+			datetimeField: 'datetime'
+		};
+		return Utils.renderAuthorDiv(authorOptions);
+	}
 
-		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
-		const avatar = Utils.getAvatar(creator);
+	// render a linked issue icon as needed
+	renderLinkedIssue (options) {
+		const { codemark } = options;
+		if (!codemark.externalProvider) { return ''; }
+		const providerUrl = codemark.externalProviderUrl;
+		const iconHtml = Utils.renderIcon(codemark.externalProvider);
 		return `
-<div class="authorLine">
-	<div style="max-height:0;max-width:0">
-		<span class="headshot-initials">${avatar.authorInitials}</span>
-	</div>
-	<img class="headshot-image" src="https://www.gravatar.com/avatar/${avatar.emailHash}?s=20&d=blank" />
-	<span class="author">${author}</span><span class="datetime">${datetime}</span>
-</div>
-	`;
+<span class="reply-icon">
+	<a clicktracking="off" href="${providerUrl}">${iconHtml}</a>
+</span>
+`;
+	}
+
+	// render the description icon
+	renderDescription (options) {
+		return `
+<span class="reply-icon">
+	<a clicktracking="off" href="${options.clickUrl}">
+		${Utils.renderIcon('description')}
+	</a>
+</span>
+`;
+	}
+
+	// render the icon for code blocks, and their number
+	renderCodeBlocks (options) {
+		const { codemark, clickUrl } = options;
+		const numMarkers = (codemark.markerIds || []).length;
+		if (numMarkers > 1) {
+			const iconHtml = Utils.renderIcon('code');
+			return `
+<span class="reply-icon">
+	<a clicktracking="off" href="${clickUrl}">
+		${iconHtml}
+		<span class="icon-spaced nice-gray">${numMarkers}</span>
+	</a>
+</span>
+`;
+		}
+		else {
+			return '';
+		}
+	}
+
+	// render the icon for related codemarks, and their number
+	renderRelatedCodemarks (options) {
+		const { codemark, clickUrl } = options;
+		const numRelated = (codemark.relatedCodemarkIds || []).length;
+		if (numRelated) {
+			const iconHtml = Utils.renderIcon('codestream');
+			return `
+<span class="reply-icon">
+	<a clicktracking="off" href="${clickUrl}">
+		${iconHtml}
+		<span class="icon-spaced nice-gray">${numRelated}</span>
+	</a>
+</span>
+`;
+		}
+		else {
+			return '';
+		}
+	}
+
+	// render the icon for codemark replies, if any, and their number
+	renderReplies (options) {
+		const { codemark, clickUrl } = options;
+		const numReplies = codemark.numReplies || 0;
+		if (numReplies) {
+			const iconHtml = Utils.renderIcon('comment');
+			return `
+<span class="reply-icon">
+	<a clicktracking="off" href="${clickUrl}">
+		${iconHtml}
+		<span class="icon-spaced nice-gray">${numReplies}</span>
+	</a>
+</span>
+`;
+		}
+		else {
+			return '';
+		}
 	}
 
 	// render the div for the post text
@@ -51,7 +217,7 @@ class ReplyRenderer {
 		const { post, mentionedUserIds, members } = options;
 		const text = Utils.prepareForEmail(post.text, mentionedUserIds, members);
 		return `
-<div class="text">
+<div>
 	${text}
 	<br>
 </div>
@@ -64,7 +230,7 @@ class ReplyRenderer {
 		const markerId = codemark && codemark.markerIds[0];
 		const marker = markerId && markers.find(marker => marker.id === markerId);
 		if (!marker) { return ''; }
-		return Utils.getButtons(options, marker);
+		return Utils.renderCodemarkButtons(options, marker);
 	}
 }
 
