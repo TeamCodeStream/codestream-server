@@ -20,7 +20,7 @@ const CODE_PROVIDERS = {
 };
 
 class ProviderActionRequest extends RestfulRequest {
-	async authorize() {
+	async authorize () {
 		if (!this.verifySlackRequest(this.request, this.request.body.payloadRaw)) {
 			this.log('Slack verification failed');
 			throw this.errorHandler.error('notFound');
@@ -30,7 +30,7 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	// require certain parameters, discard unknown parameters
-	async requireAndAllow() {
+	async requireAndAllow () {
 		await this.requireAllowParameters('body', {
 			required: {
 				object: ['payload']
@@ -39,22 +39,20 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	// process the request...
-	async process() {
+	async process () {
 		this.provider = this.request.params.provider.toLowerCase();
 		if (this.provider === 'slack') {
 			await this.requireAndAllow(); // require certain parameters, discard unknown parameters
 			const data = this.parseSlackActionInfo();
 			if (data) {
-				const handler = new SlackInteractiveComponentsHandler(
+				this.handler = new SlackInteractiveComponentsHandler(
 					this,
 					data
 				);
-				const results = await handler.process();
+				const results = await this.handler.process();
 				if (results) {
-					if (results.postProcessFn) {
-						this.postProcessAwaitable = results.postProcessFn;
-					}
 					if (results.responseData) {
+						// if we have data that we need to send back to the provider...
 						this.responseData = results.responseData;
 					}
 					if (results.actionTeam) {
@@ -78,7 +76,7 @@ class ProviderActionRequest extends RestfulRequest {
 		}
 	}
 
-	verifySlackRequest(request, rawBody) {
+	verifySlackRequest (request, rawBody) {
 		// mainly snagged from https://medium.com/@rajat_sriv/verifying-requests-from-slack-using-node-js-69a8b771b704
 		try {
 			if (!request.body || !rawBody || !request.body.payload) return false;
@@ -116,7 +114,7 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	// parse the action info within the given payload
-	parseSlackActionInfo() {
+	parseSlackActionInfo () {
 		const payload = this.request.body.payload;
 
 		let actionPayload;
@@ -151,12 +149,12 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	// get the company that owns the team
-	async getCompany(team) {
+	async getCompany (team) {
 		return await this.data.companies.getById(team.get('companyId'));
 	}
 
 	// send telemetry event associated with this action
-	async sendTelemetry(data, user, providerUserId, team, company, hasError) {
+	async sendTelemetry (data, user, providerUserId, team, company, hasError) {
 		if (!data || !data.actionPayload || (!user && !providerUserId) || !team) return;
 		const provider =
 			this.provider === 'slack'
@@ -196,7 +194,7 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	// get the tracking info associated with this requset
-	getTrackingInfo(payload, actionPayload, provider, hasError) {
+	getTrackingInfo (payload, actionPayload, provider, hasError) {
 		if (hasError) {
 			return {
 				event: 'Provider Reply Denied',
@@ -250,14 +248,14 @@ class ProviderActionRequest extends RestfulRequest {
 		}
 	}
 
-	async postProcess() {
-		if (this.postProcessAwaitable) {
-			await this.postProcessAwaitable();
+	async postProcess () {
+		if (this.handler && this.handler.postCreator && this.postPublishData) {
+			await this.handler.postCreator.postCreate({ postPublishData: this.postPublishData });
 		}
 	}
 
 	// describe this route for help
-	static describe() {
+	static describe () {
 		return {
 			tag: 'provider-action',
 			summary:
@@ -273,6 +271,41 @@ class ProviderActionRequest extends RestfulRequest {
 			returns: 'Empty object',
 			errors: ['parameterRequired']
 		};
+	}	
+
+	async handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
+
+		// handle various data transforms that may have occurred as a result of creating the post,
+		// adding objects to the response returned
+		const { transforms } = this;
+		this.postPublishData = this.postPublishData || {};
+
+		if (transforms.streamUpdateForPost) {
+			this.postPublishData.streams = [
+				...(this.postPublishData.streams || []),
+				transforms.streamUpdateForPost
+			];
+		}
+
+		if (transforms.postUpdate) {
+			this.postPublishData.posts = [transforms.postUpdate];
+		}
+
+		// if there are other codemarks updated, add them
+		if (transforms.updatedCodemarks) {
+			this.postPublishData.codemarks = transforms.updatedCodemarks;
+		}
+
+		if (this.handler.postCreator) {
+			this.postPublishData.post = this.handler.postCreator.model.getSanitizedObject({
+				request: this
+			});
+		}
+
+		await super.handleResponse();
 	}
 }
 

@@ -302,12 +302,12 @@ class PostCreator extends ModelCreator {
 	}
 
 	// after the post was created...
-	async postCreate () {
+	async postCreate (options) {
 		// all these operations are independent and can happen in parallel
 		await awaitParallel([
 			this.publishCreatedStreamsForMarkers,	// publish any streams created on-the-fly for the markers, as needed
 			this.publishRepos,					// publish any created or updated repos to the team
-			this.publishPost,					// publish the actual post to members of the team or stream
+			this.publishPost.bind(this, options && options.postPublishData), // publish the actual post to members of the team or stream
 			this.publishParentPost,				// if this post was a reply and we updated the parent post, publish that
 			this.triggerNotificationEmails,		// trigger email notifications to members who should receive them
 			this.publishToAuthor,				// publish directives to the author's me-channel
@@ -378,10 +378,10 @@ class PostCreator extends ModelCreator {
 	}
 	
 	// publish the post to the appropriate broadcaster channel
-	async publishPost () {
+	async publishPost (customData) {
 		await new PostPublisher({
 			request: this.request,
-			data: this.request.responseData,
+			data: customData || this.request.responseData,
 			broadcaster: this.api.services.broadcaster,
 			stream: this.stream.attributes
 		}).publishPost();

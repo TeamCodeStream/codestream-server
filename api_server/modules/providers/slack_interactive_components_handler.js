@@ -58,9 +58,7 @@ class SlackInteractiveComponentsHandler {
 	async handleViewSubmission () {
 		let privateMetadata;
 		let userThatClicked;
-
 		let team;
-		let postProcessAwaitable;
 		try {
 			privateMetadata = JSON.parse(this.payload.view.private_metadata);
 		} catch (ex) {
@@ -107,23 +105,17 @@ class SlackInteractiveComponentsHandler {
 
 			this.user = userThatClicked;
 			this.team = team;
-			const postCreator = new PostCreator({
+			this.postCreator = new PostCreator({
 				request: this
 			});
 
-			await postCreator.createPost({
+			await this.postCreator.createPost({
 				streamId: privateMetadata.sId,
 				text: text,
 				// TODO what goes here?
 				origin: 'Slack',
 				parentPostId: privateMetadata.ppId
-			});
-			this.request.responseData = this.request.responseData || {};
-			this.request.responseData['post'] = postCreator.model.getSanitizedObject({
-				request: this
-			});
-
-			postProcessAwaitable = postCreator.postCreate.bind(postCreator);
+			});			
 		} catch (error) {
 			this.log(error);
 		}
@@ -132,9 +124,10 @@ class SlackInteractiveComponentsHandler {
 			actionUser: userThatClicked,
 			payloadUserId: this.payload.user.id,
 			actionTeam: team,
-			postProcessAwaitable: postProcessAwaitable,
+			// this is the responseData that we'll send back to slack
+			// NOTE it cannot contain any other extra properties, only what Slack expects
 			responseData: {
-				response_action: 'update',
+				response_action: 'update',				
 				view: SlackInteractiveComponentBlocks.createModalUpdatedView()
 			}
 		};
@@ -389,7 +382,7 @@ class SlackInteractiveComponentsHandler {
 		if (this.actionPayload.ppId) {
 			replies = await this.data.posts.getByQuery(
 				{ parentPostId: this.actionPayload.ppId },
-				{ hint: PostIndexes.byParentPostId, sort: { seqNum: -1 } }
+				{ hint: PostIndexes.byParentPostId, sort: { seqNum: -1 }, limit: 30 }
 			);
 			// get uniques
 			userIds = [
