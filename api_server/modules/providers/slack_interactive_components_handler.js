@@ -406,7 +406,7 @@ class SlackInteractiveComponentsHandler {
 				type: 'context',
 				elements: [{
 					type: 'mrkdwn',
-					text: `*${codemarkUser.get('fullName')}* ${this.formatTime(
+					text: `*${(codemarkUser && codemarkUser.get('username')) || 'Unknown User'}* ${this.formatTime(
 						codemark.get('createdAt'),
 						slackUserExtra && slackUserExtra.tz
 					)}`
@@ -441,7 +441,7 @@ class SlackInteractiveComponentsHandler {
 						type: 'context',
 						elements: [{
 							type: 'mrkdwn',
-							text: `*${replyUser.get('fullName')}* ${this.formatTime(
+							text: `*${(replyUser && replyUser.get('username')) || 'Unknown User'}* ${this.formatTime(
 								reply.get('createdAt'),
 								slackUserExtra && slackUserExtra.tz
 							)}`
