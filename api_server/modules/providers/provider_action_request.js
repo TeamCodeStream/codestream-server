@@ -299,7 +299,7 @@ class ProviderActionRequest extends RestfulRequest {
 			this.postPublishData.codemarks = transforms.updatedCodemarks;
 		}
 
-		if (this.handler.postCreator) {
+		if (this.handler && this.handler.postCreator) {
 			this.postPublishData.post = this.handler.postCreator.model.getSanitizedObject({
 				request: this
 			});
