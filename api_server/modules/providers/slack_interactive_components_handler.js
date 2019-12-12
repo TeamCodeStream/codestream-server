@@ -69,7 +69,7 @@ class SlackInteractiveComponentsHandler {
 			const users = await this.getUsers();
 			userThatClicked = users[1];
 
-			team = await this.getTeam(userThatClicked, privateMetadata.tId);
+			team = await this.getTeamById(privateMetadata.tId);
 			if (!privateMetadata.ppId) {
 				this.log('parentPostId is missing');
 				return {
@@ -149,14 +149,13 @@ class SlackInteractiveComponentsHandler {
 		const users = await this.getUsers();
 		if (!users || !users.length) {
 			return undefined;
-		}
-		const userThatCreated = users[0];
+		}		
 		const userThatClicked = users[1];
 
 		payloadActionUser = userThatClicked;
 
 		const codemark = await this.data.codemarks.getById(this.actionPayload.cId);
-		const team = await this.getTeam(userThatClicked || userThatCreated, this.actionPayload.tId);
+		const team = await this.getTeamById(this.actionPayload.tId);
 		if (!codemark || codemark.get('deactivated')) {
 			await this.postEphemeralMessage(
 				this.payload.response_url,
@@ -339,6 +338,14 @@ class SlackInteractiveComponentsHandler {
 			);
 			return undefined;
 		}
+		return this.data.teams.getById(teamId);
+	}
+
+	async getTeamById (teamId) {
+		if (!teamId) {
+			this.log('Could not find teamId within the  action payload');
+			return undefined;
+		}		
 		return this.data.teams.getById(teamId);
 	}
 
