@@ -246,7 +246,14 @@ ${relatedDivs}
 			const markerId = codemark.markerIds[0];
 			const marker = markers.find(marker => marker.id === markerId);
 			if (marker) {
-				path = this.getPathForMarker(marker, options);
+				const repo = this.getRepoForMarker(marker, options);
+				const file = this.getFileForMarker(marker, options);
+				if (repo) {
+					path += `[${repo}] `;
+				}
+				if (file) {
+					path += file;
+				}
 			}
 		}
 
@@ -263,20 +270,9 @@ ${relatedDivs}
 
 	}
 
-	// get appropriate path to display for a marker
-	getPathForMarker (marker, options) {
-		const { fileStreams, repos } = options;
-		let file = marker.file || '';
-		if (marker.fileStreamId) {
-			const fileStream = fileStreams.find(fileStream => fileStream.id === marker.fileStreamId);
-			if (fileStream) {
-				file = fileStream.file;
-			}
-		}
-		if (file.startsWith('/')) {
-			file = file.slice(1);
-		}
-
+	// get repo name appropriate to display a marker
+	getRepoForMarker (marker, options) {
+		const { repos } = options;
 		let repoUrl = marker.repo || '';
 		if (!repoUrl && marker.repoId) {
 			const repo = repos.find(repo => repo.id === marker.repoId);
@@ -287,15 +283,23 @@ ${relatedDivs}
 		if (repoUrl) {
 			repoUrl = this.bareRepo(repoUrl);
 		}
+		return repoUrl;
+	}
 
-		let path = '';
-		if (file) {
-			if (repoUrl) {
-				path += `${repoUrl}/`;
+	// get file name appropriate to display for a marker
+	getFileForMarker (marker, options) {
+		const { fileStreams } = options;
+		let file = marker.file || '';
+		if (marker.fileStreamId) {
+			const fileStream = fileStreams.find(fileStream => fileStream.id === marker.fileStreamId);
+			if (fileStream) {
+				file = fileStream.file;
 			}
-			path += file;
 		}
-		return path;
+		if (file.startsWith('/')) {
+			file = file.slice(1);
+		}
+		return file;
 	}
 
 	bareRepo (repo) {
@@ -330,7 +334,8 @@ ${relatedDivs}
 	// render a single code block
 	renderCodeBlock (marker, options) {
 		const { branchWhenCreated, commitHashWhenCreated } = marker;
-		const path = this.getPathForMarker(marker, options);
+		const repo = this.getRepoForMarker(marker, options);
+		const file = this.getFileForMarker(marker, options);
 		const branch = branchWhenCreated || '';
 		const commitHash = commitHashWhenCreated ? commitHashWhenCreated.slice(0, 7) : '';
 
@@ -360,23 +365,26 @@ ${relatedDivs}
 </td>
 `;
 		}
-		if (path) {
+		if (file) {
 			// do syntax highlighting for the code, based on the file extension
-			let extension = Path.extname(path).toLowerCase();
+			let extension = Path.extname(file).toLowerCase();
 			if (extension.startsWith('.')) {
 				extension = extension.substring(1);
 			}
 			code = Utils.highlightCode(code, extension);
 		}
 
+		const repoIcon = Utils.renderIcon('repo');
 		const fileIcon = Utils.renderIcon('file');
 		const branchIcon = Utils.renderIcon('git-branch');
 		const commitIcon = Utils.renderIcon('git-commit');
 
 		return `
 <div class="codeblock-text monospace">
+	${repoIcon}
+	<span class="space-left codeblock-heading">${repo}</span>
 	${fileIcon}
-	<span class="space-left codeblock-heading">${path}</span>
+	<span class="space-left codeblock-heading">${file}</span>
 	${branchIcon}
 	<span class="space-left monospace codeblock-heading">${branch}</span>
 	${commitIcon}
