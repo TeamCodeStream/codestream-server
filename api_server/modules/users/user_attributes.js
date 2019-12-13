@@ -16,13 +16,13 @@ module.exports = {
 	email: {
 		type: 'email',
 		maxLength: 256,
-		required: true,
+		required: false,
 		description: 'The user\'s email'
 	},
 	searchableEmail: {
 		type: 'email',
 		maxLength: 256,
-		required: true,
+		required: false,
 		serverOnly: true
 	},
 	secondaryEmails: {
@@ -236,5 +236,10 @@ module.exports = {
 		serverOnly: true,
 		maxLength: 100,
 		description: 'Temporary holding place for the company name, until the user actually creates a team'
-	}
+	},
+	externalUserId: {
+		type: 'string',
+		maxLength: 100,
+		description: 'The id of a "faux" user'
+	},
 };

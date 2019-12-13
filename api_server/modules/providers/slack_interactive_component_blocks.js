@@ -1,5 +1,5 @@
 class SlackInteractiveComponentBlocks {
-	static createRequiresAccess() {
+	static createRequiresAccess () {
 		return [
 			{
 				type: 'section',
@@ -21,7 +21,7 @@ class SlackInteractiveComponentBlocks {
 		];
 	}
 
-	static createMarkdownBlocks(message) {
+	static createMarkdownBlocks (message) {
 		return [
 			{
 				type: 'section',
@@ -33,7 +33,7 @@ class SlackInteractiveComponentBlocks {
 		];
 	}
 
-	static getReplyText(viewState) {
+	static getReplyText (viewState) {
 		try {
 			return viewState.values['block__text_input--message'][
 				'action__text_input--message'
@@ -44,7 +44,7 @@ class SlackInteractiveComponentBlocks {
 		}
 	}
 
-	static createModalReply() {
+	static createModalReply () {
 		return {
 			block_id: 'block__text_input--message',
 			type: 'input',
@@ -64,8 +64,8 @@ class SlackInteractiveComponentBlocks {
 		};
 	}
 
-	static createModalUpdatedView() {
-		return {
+	static createModalUpdatedView (userThatCreated, userThatClickedIsFauxUser) {
+		const blocks = {
 			type: 'modal',
 			title: {
 				type: 'plain_text',
@@ -85,20 +85,22 @@ class SlackInteractiveComponentBlocks {
 							'Reply posted to CodeStream!'
 					}
 				}
-				// TODO once we have faux users, need to add a custom message if user is not officially signed up after replying
-				// ,{
-				// 	type: 'section',
-				// 	text: {
-				// 		type: 'plain_text',
-				// 		text:
-				// 			'Have XXX invite you to CodeStream so that you can discuss code right inside your IDE.'
-				// 	}
-				// }				
 			]
 		};
+		if (userThatClickedIsFauxUser) {
+			blocks.blocks.push({
+				type: 'section',
+				text: {
+					type: 'plain_text',
+					text:
+						`Have ${(userThatCreated && userThatCreated.get('fullName')) || 'your teammate'} invite you to CodeStream so that you can discuss code right inside your IDE.`
+				}
+			});
+		}
+		return blocks;
 	}
 
-	static createModalView(payload, actionPayload, blocks) {
+	static createModalView (payload, actionPayload, blocks) {
 		return {
 			private_metadata: JSON.stringify({
 				crId: actionPayload.crId,

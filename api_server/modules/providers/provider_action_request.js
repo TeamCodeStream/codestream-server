@@ -10,6 +10,7 @@ const ProviderDisplayNames = require(process.env.CS_API_TOP +
 const SlackInteractiveComponentsHandler = require('./slack_interactive_components_handler');
 const SlackCfg = require(process.env.CS_API_TOP + '/config/slack');
 const crypto = require('crypto');
+const AddTeamPublisher = require(process.env.CS_API_TOP + '/modules/users/add_team_publisher');
 
 const CODE_PROVIDERS = {
 	github: 'GitHub',
@@ -49,23 +50,23 @@ class ProviderActionRequest extends RestfulRequest {
 					this,
 					data
 				);
-				const results = await this.handler.process();
-				if (results) {
-					if (results.responseData) {
+				this.results = await this.handler.process();
+				if (this.results) {
+					if (this.results.responseData) {
 						// if we have data that we need to send back to the provider...
-						this.responseData = results.responseData;
+						this.responseData = this.results.responseData;
 					}
-					if (results.actionTeam) {
+					if (this.results.actionTeam) {
 						const company = await this.getCompany(
-							results.actionTeam
+							this.results.actionTeam
 						);
 						await this.sendTelemetry(
 							data,
-							results.actionUser,
-							results.payloadUserId,
-							results.actionTeam,
+							this.results.actionUser,
+							this.results.payloadUserId,
+							this.results.actionTeam,
 							company,
-							results.hasError
+							this.results.hasError
 						);
 					}
 				}
@@ -249,9 +250,30 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	async postProcess () {
-		if (this.handler && this.handler.postCreator && this.postPublishData) {
-			await this.handler.postCreator.postCreate({ postPublishData: this.postPublishData });
+		if (this.handler) {
+			if (this.handler.postCreator && this.postPublishData) {
+				await this.handler.postCreator.postCreate({ postPublishData: this.postPublishData });
+			}
+			if (this.handler.createdUser && this.results.actionTeam) {
+				await this.publishAddToTeam(this.results.actionTeam.get('id'));
+			}
 		}
+	}
+
+	// publish to the team that the user has been added,
+	// and publish to the user that they've been added to the team
+	async publishAddToTeam (teamId) {
+		// get the team again since the team object has been modified,
+		// this should just fetch from the cache, not from the database
+		const team = await this.data.teams.getById(teamId);
+		await new AddTeamPublisher({
+			request: this,
+			broadcaster: this.api.services.broadcaster,
+			user: this.transforms.createdUser,
+			team: team,
+			teamUpdate: this.transforms.teamUpdate,
+			userUpdate: this.transforms.userUpdate
+		}).publishAddedUser();
 	}
 
 	// describe this route for help
@@ -271,7 +293,7 @@ class ProviderActionRequest extends RestfulRequest {
 			returns: 'Empty object',
 			errors: ['parameterRequired']
 		};
-	}	
+	}
 
 	async handleResponse () {
 		if (this.gotError) {
@@ -303,6 +325,10 @@ class ProviderActionRequest extends RestfulRequest {
 			this.postPublishData.post = this.handler.postCreator.model.getSanitizedObject({
 				request: this
 			});
+		}
+
+		if (this.handler && this.handler.createdUser) {
+			this.transforms.createdUser = this.handler.createdUser;
 		}
 
 		await super.handleResponse();

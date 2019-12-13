@@ -21,6 +21,7 @@ class UserCreator extends ModelCreator {
 
 	constructor (options) {
 		super(options);
+		this.options = options;
 		this.errorHandler.add(TeamErrors);
 	}
 
@@ -41,11 +42,8 @@ class UserCreator extends ModelCreator {
 	// along with their types
 	getRequiredAndOptionalAttributes () {
 		return {
-			required: {
-				string: ['email']
-			},
 			optional: {
-				string: ['password', 'username', 'fullName', 'companyName', 'timeZone', 'confirmationCode', '_pubnubUuid', 'phoneNumber', 'iWorkOn'], 
+				string: ['email', 'password', 'username', 'fullName', 'companyName', 'timeZone', 'confirmationCode', '_pubnubUuid', 'phoneNumber', 'iWorkOn'],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
 				boolean: ['isRegistered'],
 				'array(string)': ['secondaryEmails', 'providerIdentities'],
@@ -64,6 +62,7 @@ class UserCreator extends ModelCreator {
 
 	// validate the given email
 	validateEmail () {
+		if (!this.attributes.email) { return; }
 		let error = this.userValidator.validateEmail(this.attributes.email);
 		if (error) {
 			return { email: error };
@@ -107,6 +106,8 @@ class UserCreator extends ModelCreator {
 
 	// return database query to check if a matching user already exists
 	checkExistingQuery () {
+		if (!this.attributes.email) return undefined;
+
 		// look for matching email (case-insensitive)
 		return {
 			query: {
@@ -118,7 +119,7 @@ class UserCreator extends ModelCreator {
 
 	// called before the user is actually saved
 	async preSave () {
-		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
+		if (typeof this.request.isForTesting === 'function' && this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
 		if (this.attributes._pubnubUuid) {
@@ -135,14 +136,21 @@ class UserCreator extends ModelCreator {
 		}
 
 		// if username not provided, generate it from email
-		if (!this.notSaving && !this.attributes.username) { 
+		if (!this.notSaving && !this.attributes.username) {
 			this.attributes.username = UsernameValidator.normalize(
 				EmailUtilities.parseEmail(this.attributes.email).name
 			);
 			this.usernameCameFromEmail = true;	// this will force a resolution of uniqueness conflict, rather than an error
 		}
 
-		this.setInviteCode();				// set an invite code for the user to accept an invite
+		if (this.options && this.options.externalUserId) {
+			this.attributes.externalUserId = this.options.externalUserId;
+		}
+
+		if (!this.options || !this.options.dontSetInviteCode) {
+			this.setInviteCode();				// set an invite code for the user to accept an invite
+		}
+
 		await this.hashPassword();			// hash the user's password, if given
 		await this.checkUsernameUnique();	// check if the user's username will be unique for the teams they are on
 		await super.preSave();
@@ -171,7 +179,7 @@ class UserCreator extends ModelCreator {
 		}).hashPassword();
 		delete this.attributes.password;
 	}
-	
+
 	// check if the user's username will be unique for the teams they are on
 	async checkUsernameUnique () {
 		if (this.notSaving && !this.teamIds) {
@@ -181,7 +189,7 @@ class UserCreator extends ModelCreator {
 		let teamIds = this.teamIds || [];
 		if (this.existingModel) {
 			const existingUserTeams = this.existingModel.get('teamIds') || [];
-			if (ArrayUtilities.difference(existingUserTeams, teamIds).length === 0) { 
+			if (ArrayUtilities.difference(existingUserTeams, teamIds).length === 0) {
 				return;
 			}
 			teamIds = [...teamIds, ...this.existingModel.get('teamIds') || []];
@@ -189,7 +197,7 @@ class UserCreator extends ModelCreator {
 		const username = this.attributes.username || (this.existingModel ? this.existingModel.get('username') : null);
 		if (!username) {
 			// username not provided === no worries
-			return ;
+			return;
 		}
 		// check against all teams ... the username must be unique for each
 		const userId = this.existingModel ? this.existingModel.id : null;
@@ -248,6 +256,14 @@ class UserCreator extends ModelCreator {
 		await super.create();
 	}
 
+	async determineChanges () {
+		super.determineChanges();
+		if (this.existingModel && this.existingModel.get('externalUserId') &&
+			this.attributes.externalUserId) {
+			this.changes.externalUserId = null;
+		}
+	}
+
 	// after the user object is saved...
 	async postSave () {
 		// save an invite code as a signup token for this user
@@ -271,7 +287,7 @@ class UserCreator extends ModelCreator {
 			[this.model.id],
 			`user-${this.model.id}`,
 			() => {},
-			{ request: this.request	}
+			{ request: this.request }
 		);
 	}
 
@@ -287,7 +303,7 @@ class UserCreator extends ModelCreator {
 		await this.api.services.signupTokens.insert(
 			this.inviteCode,
 			this.model.id,
-			{ 
+			{
 				requestId: this.request.request.id,
 				secureExpiresIn: expiresIn,
 				isInviteCode: true,

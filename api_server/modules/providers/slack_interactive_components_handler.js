@@ -1,6 +1,9 @@
 const { WebClient } = require('@slack/web-api');
 const Fetch = require('node-fetch');
 const url = require('url');
+const AddTeamMember = require(process.env.CS_API_TOP + '/modules/teams/add_team_member');
+const UserCreator = require(process.env.CS_API_TOP +
+	'/modules/users/user_creator');
 const PostCreator = require(process.env.CS_API_TOP +
 	'/modules/posts/post_creator');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
@@ -57,7 +60,9 @@ class SlackInteractiveComponentsHandler {
 
 	async handleViewSubmission () {
 		let privateMetadata;
+		let userThatCreated;
 		let userThatClicked;
+		let userThatClickedIsFauxUser;
 		let team;
 		try {
 			privateMetadata = JSON.parse(this.payload.view.private_metadata);
@@ -67,7 +72,9 @@ class SlackInteractiveComponentsHandler {
 		}
 		try {
 			const users = await this.getUsers();
-			userThatClicked = users[1];
+			userThatClicked = users.userThatClicked;
+			userThatCreated = users.userThatCreated;
+			userThatClickedIsFauxUser = !!users.userThatClickedIsFauxUser;
 
 			team = await this.getTeamById(privateMetadata.tId);
 			if (!privateMetadata.ppId) {
@@ -79,15 +86,23 @@ class SlackInteractiveComponentsHandler {
 					actionTeam: team
 				};
 			}
+
 			if (!userThatClicked) {
-				// note, once we have faux users, this shouldn't be possible
-				this.log('user is missing');
-				return {
-					hasError: true,
-					actionUser: userThatClicked,
-					payloadUserId: this.payload.user.id,
-					actionTeam: team
-				};
+				const user = await this.createFauxUser(team, this.getAccessToken(userThatCreated || userThatClicked, privateMetadata.tId, this.payload.user.team_id));
+				if (user) {
+					userThatClicked = user;
+					userThatClickedIsFauxUser = true;
+					this.createdUser = user;
+				}
+				else {
+					this.log('User is missing / could not create faux user');
+					return {
+						hasError: true,
+						actionUser: userThatClicked,
+						payloadUserId: this.payload.user.id,
+						actionTeam: team
+					};
+				}
 			}
 
 			const text = SlackInteractiveComponentBlocks.getReplyText(
@@ -115,7 +130,7 @@ class SlackInteractiveComponentsHandler {
 				// TODO what goes here?
 				origin: 'Slack',
 				parentPostId: privateMetadata.ppId
-			});			
+			});
 		} catch (error) {
 			this.log(error);
 		}
@@ -127,10 +142,55 @@ class SlackInteractiveComponentsHandler {
 			// this is the responseData that we'll send back to slack
 			// NOTE it cannot contain any other extra properties, only what Slack expects
 			responseData: {
-				response_action: 'update',				
-				view: SlackInteractiveComponentBlocks.createModalUpdatedView()
+				response_action: 'update',
+				view: SlackInteractiveComponentBlocks.createModalUpdatedView(userThatCreated, userThatClickedIsFauxUser)
 			}
 		};
+	}
+
+	async createFauxUser (team, accessToken) {
+		let response;
+		try {
+			try {
+				response = await this.getUserFromSlack(this.payload.user.id, accessToken);
+			}
+			catch (ex) {
+				this.log(ex);
+			}
+			const userData = {
+				username: this.payload.user.name,
+				fullName: this.payload.user.name
+			};
+
+			if (response && response.ok) {
+				userData.email = response.user.profile.email;
+				userData.username = response.user.name;
+				userData.fullName = response.user.profile.real_name;
+				userData.timeZone = response.user.tz;
+			}
+
+			this.userCreator = new UserCreator({
+				request: this,
+				teamIds: [team.get('id')],
+				userBeingAddedToTeamId: team.get('id'),
+				externalUserId: `slack::${team.get('id')}::${this.payload.user.team_id}::${this.payload.user.id}`,
+				dontSetInviteCode: true,
+				ignoreUsernameOnConflict: true
+			});
+			let user = await this.userCreator.createUser(userData);
+			await new AddTeamMember({
+				request: this,
+				addUser: user,
+				team: team
+			}).addTeamMember();
+
+			user = await this.data.users.getById(user.id);
+			return user;
+		}
+		catch (ex) {
+			this.log(ex);
+		}
+		return undefined;
 	}
 
 	getSlackExtraData (user) {
@@ -146,11 +206,10 @@ class SlackInteractiveComponentsHandler {
 		const timeStart = new Date();
 		// we are getting two users, but only using one of their accessTokens.
 		// this is to allow non Slack authed users to reply from slack wo/having CS
-		const users = await this.getUsers();
-		if (!users || !users.length) {
+		const { userThatCreated, userThatClicked } = await this.getUsers();
+		if (!userThatCreated && !userThatClicked) {
 			return undefined;
-		}		
-		const userThatClicked = users[1];
+		}
 
 		payloadActionUser = userThatClicked;
 
@@ -166,7 +225,7 @@ class SlackInteractiveComponentsHandler {
 				actionTeam: team,
 				payloadUserId: this.payload.user.id
 			};
-		}		
+		}
 
 		if (!team) {
 			await this.postEphemeralMessage(
@@ -176,8 +235,9 @@ class SlackInteractiveComponentsHandler {
 			return undefined;
 		}
 
-		const blocks = await this.createModalBlocks(codemark, this.getSlackExtraData(userThatClicked));
+		const blocks = await this.createModalBlocks(codemark, userThatClicked);
 		let hasCaughtError = false;
+		const users = [userThatCreated, userThatClicked];
 		for (let i = 0; i < users.length; i++) {
 			hasCaughtError = false;
 			const user = users[0];
@@ -283,9 +343,27 @@ class SlackInteractiveComponentsHandler {
 		return undefined;
 	}
 
+	async getFauxUser (codestreamTeamId, slackWorkspaceId, slackUserId) {
+		if (!codestreamTeamId || !slackWorkspaceId || !slackUserId) return undefined;
+
+		const query = { deactivated: false, externalUserId: `slack::${codestreamTeamId}::${slackWorkspaceId}::${slackUserId}`, teamId: codestreamTeamId };
+		const users = await this.data.users.getByQuery(query,
+			{ hint: UserIndexes.byExternalUserId }
+		);
+
+		if (users.length > 1) {
+			// this shouldn't really happen
+			this.log(`Multiple CodeStream users found matching identity slack workspaceId=${slackWorkspaceId} userId=${slackUserId} on codestream team=${codestreamTeamId}`);
+			return undefined;
+		}
+		if (users.length === 1) {
+			return users[0];
+		}
+		return undefined;
+	}
+
 	async getUserFromSlack (userId, accessToken) {
-		const request = await Fetch(
-			`https://slack.com/api/users.info?user=${userId}`,
+		const request = await Fetch(`https://slack.com/api/users.info?user=${userId}`,
 			{
 				method: 'get',
 				headers: {
@@ -294,9 +372,9 @@ class SlackInteractiveComponentsHandler {
 				}
 			}
 		);
-
 		const response = await request.json();
 		if (!response.ok) {
+			this.log(`getUserFromSlack error=${response.error}`);
 			return undefined;
 		}
 		return response;
@@ -345,7 +423,7 @@ class SlackInteractiveComponentsHandler {
 		if (!teamId) {
 			this.log('Could not find teamId within the  action payload');
 			return undefined;
-		}		
+		}
 		return this.data.teams.getById(teamId);
 	}
 
@@ -382,11 +460,13 @@ class SlackInteractiveComponentsHandler {
 		}
 	}
 
-	async createModalBlocks (codemark, slackUserExtra) {
+	async createModalBlocks (codemark, userThatClicked) {
+		const slackUserExtra = userThatClicked && this.getSlackExtraData(userThatClicked);
 		let replies;
 		let postUsers;
 		let userIds = [];
 		if (this.actionPayload.ppId) {
+			// slack blocks have a limit of 100, but we have 3 blocks for each reply...
 			replies = await this.data.posts.getByQuery(
 				{ parentPostId: this.actionPayload.ppId },
 				{ hint: PostIndexes.byParentPostId, sort: { seqNum: -1 }, limit: 30 }
@@ -414,6 +494,7 @@ class SlackInteractiveComponentsHandler {
 				elements: [{
 					type: 'mrkdwn',
 					text: `*${(codemarkUser && codemarkUser.get('username')) || 'Unknown User'}* ${this.formatTime(
+						userThatClicked,
 						codemark.get('createdAt'),
 						slackUserExtra && slackUserExtra.tz
 					)}`
@@ -430,14 +511,14 @@ class SlackInteractiveComponentsHandler {
 
 		blocks.push(SlackInteractiveComponentBlocks.createModalReply());
 
-		const replyBlocks = this.createReplyBlocks(replies, usersById, slackUserExtra);
+		const replyBlocks = this.createReplyBlocks(replies, usersById, userThatClicked, slackUserExtra);
 		if (replyBlocks && replyBlocks.length) {
 			blocks = blocks.concat(replyBlocks);
 		}
 		return blocks;
 	}
 
-	createReplyBlocks (replies, usersById, slackUserExtra) {
+	createReplyBlocks (replies, usersById, userThatClicked, slackUserExtra) {
 		if (replies && replies.length) {
 			const blocks = [];
 			for (let i = 0; i < replies.length; i++) {
@@ -449,6 +530,7 @@ class SlackInteractiveComponentsHandler {
 						elements: [{
 							type: 'mrkdwn',
 							text: `*${(replyUser && replyUser.get('username')) || 'Unknown User'}* ${this.formatTime(
+								userThatClicked,
 								reply.get('createdAt'),
 								slackUserExtra && slackUserExtra.tz
 							)}`
@@ -489,24 +571,24 @@ class SlackInteractiveComponentsHandler {
 
 	async getUsers () {
 		// this assumes 2 possible users
-		// 0: user that created the post
-		// 1: user that clicked on the post
-		// it's possible that they're the same
+		// userThatCreated: user that created the post
+		// userThatClicked: user that clicked on the post
+		// it's possible that they're the same user
 
-		let users = [];
+		let results = {};
 		// if the user that created is the same as the user that clicked, we only need 1 lookup
 		if (this.actionPayload.pcuId === this.payload.user.id) {
 			let user = await this.getCodeStreamUser(this.actionPayload.crId);
 			if (user) {
-				users.push(user);
-				users.push(user);
+				results.userThatCreated = user;
+				results.userThatClicked = user;
 			}
 			else {
 				this.log(`could not find user crId=${this.actionPayload.crId}`);
 			}
 		}
 		else {
-			users = await Promise.all([
+			const users = await Promise.all([
 				// user that created the post (codestream userId)
 				this.actionPayload.crId
 					? new Promise(async resolve => {
@@ -520,16 +602,27 @@ class SlackInteractiveComponentsHandler {
 					})
 					: undefined
 			]);
-			if (users[0] && !users[1]) {
-				// see if we can map the user that clicked by email address
+			results.userThatCreated = users[0];
+			results.userThatClicked = users[1];
+			if (results.userThatCreated && !results.userThatClicked) {
+				// didn't find a user that clicked on the post... do we have a faux user for them?
+				const fauxUser = await this.getFauxUser(this.actionPayload.tId, this.payload.user.team_id, this.payload.user.id);
+				if (fauxUser) {
+					results.userThatClicked = fauxUser;
+					results.userThatClickedIsFauxUser = true;
+					return results;
+				}
+
+				// if we still don't have a user that clicked, 
+				// see if we can map the user that clicked by email address to someone already in codestream
 				try {
-					const slackProviderInfo = users[0].get('providerInfo')[this.actionPayload.tId].slack.multiple[this.payload.user.team_id];
-					if (slackProviderInfo) {
-						const slackUser = await this.getUserFromSlack(this.payload.user.id, slackProviderInfo.accessToken);
+					const accessToken = this.getAccessToken(results.userThatCreated, this.actionPayload.tId, this.payload.user.team_id);
+					if (accessToken) {
+						const slackUser = await this.getUserFromSlack(this.payload.user.id, accessToken);
 						if (slackUser) {
 							const userThatClicked = slackUser.user && slackUser.user.profile && await this.getUserByEmail(slackUser.user.profile.email);
 							if (userThatClicked) {
-								users[1] = userThatClicked;
+								results.userThatClicked = userThatClicked;
 							}
 						}
 					}
@@ -540,7 +633,16 @@ class SlackInteractiveComponentsHandler {
 			}
 		}
 
-		return users;
+		return results;
+	}
+
+	getAccessToken (user, codestreamTeamId, slackWorkspaceId) {
+		if (!user) return undefined;
+		const slackProviderInfo = user.get('providerInfo')[codestreamTeamId].slack.multiple[slackWorkspaceId];
+		if (slackProviderInfo) {
+			return slackProviderInfo.accessToken;
+		}
+		return undefined;
 	}
 
 	async postEphemeralMessage (responseUrl, blocks, message) {
@@ -564,15 +666,15 @@ class SlackInteractiveComponentsHandler {
 		});
 	}
 
-	formatTime (timeStamp, timeZone) {
+	formatTime (user, timeStamp, timeZone) {
 		const format = 'h:mm A MMM D';
 		if (!timeZone) {
-			let timeZone = this.user && this.user.get('timeZone');
+			timeZone = user && user.get('timeZone');
 			if (!timeZone) {
-				timeZone = this.creator && this.creator.get('timeZone');
+				timeZone = 'Etc/GMT';
 			}
 		}
-		let value = MomentTimezone.tz(timeStamp, timeZone || 'Etc/GMT').format(format);
+		let value = MomentTimezone.tz(timeStamp, timeZone).format(format);
 		if (!timeZone || timeZone === 'Etc/GMT') {
 			return `${value} UTC`;
 		}

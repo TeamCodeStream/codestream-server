@@ -308,7 +308,7 @@ class RegisterRequest extends RestfulRequest {
 		if (!this.invitedUser) { return; }
 		await this.data.users.updateDirect(
 			{ id: this.data.users.objectIdSafe(this.invitedUser.id) },
-			{ $unset: { inviteCode: true } }
+			{ $unset: { inviteCode: true, externalUserId: true } }
 		);
 		await this.api.services.signupTokens.remove(this.inviteCode);
 	}

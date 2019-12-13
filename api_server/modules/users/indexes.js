@@ -12,5 +12,8 @@ module.exports = {
 	},
 	byProviderIdentities: {
 		providerIdentities: 1
+	},
+	byExternalUserId: {
+		externalUserId: 1
 	}
 };
