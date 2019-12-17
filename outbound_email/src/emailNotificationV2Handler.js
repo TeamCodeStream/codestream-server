@@ -8,6 +8,7 @@ const EmailNotificationV2Sender = require('./emailNotificationV2Sender');
 const Utils = require('./utils');
 const TokenHandler = require('./server_utils/token_handler');
 const Juice = require('juice');
+const ArrayUtilities = require('./server_utils/array_utilities');
 
 const DEFAULT_TIME_ZONE = 'America/New_York';
 
@@ -284,6 +285,9 @@ class EmailNotificationV2Handler {
 
 	// render the HTML needed for an individual post
 	async renderPost () {
+		const userIds = this.toReceiveEmails.map(user => user.id);
+		this.recipientIsMentioned = ArrayUtilities.intersection(userIds, this.post.mentionedUserIds || []).length > 0;
+
 		if (this.post.parentPostId) {
 			return this.renderReply();
 		}
@@ -309,12 +313,15 @@ class EmailNotificationV2Handler {
 			post: this.post,
 			codemark: this.parentCodemark,
 			markers: this.markers,
+			fileStreams: this.fileStreams,
+			repos: this.repos,
 			creator,
 			codemarkCreator,
 			timeZone,
 			members: this.teamMembers,
 			team: this.team,
-			mentionedUserIds: this.post.mentionedUserIds || []
+			mentionedUserIds: this.post.mentionedUserIds || [],
+			recipientIsMentioned: this.recipientIsMentioned
 		});
 	}
 
@@ -335,7 +342,8 @@ class EmailNotificationV2Handler {
 			repos: this.repos,
 			members: this.teamMembers,
 			relatedCodemarks: this.relatedCodemarks,
-			mentionedUserIds: this.post.mentionedUserIds || []
+			mentionedUserIds: this.post.mentionedUserIds || [],
+			recipientIsMentioned: this.recipientIsMentioned
 		});
 	}
 
@@ -343,7 +351,7 @@ class EmailNotificationV2Handler {
 	// personalized if the users are in different time zones
 	async personalizePerUser () {
 		this.renderedPostPerUser = {};
-		if (!this.hasMultipleTimeZones && this.stream.type !== 'direct') {
+		if (!this.recipientIsMentioned && !this.hasMultipleTimeZones && this.stream.type !== 'direct') {
 			return;
 		}
 		for (let user of this.toReceiveEmails) {
@@ -361,8 +369,13 @@ class EmailNotificationV2Handler {
 		// also format the timestamp of the parent codemark as needed
 		if (this.parentCodemark) {
 			const codemarkDatetime = Utils.formatTime(this.parentCodemark.createdAt, user.timeZone || DEFAULT_TIME_ZONE);
-			this.renderedPostPuerUser[user.id] = this.renderedHtml.replace(/\{\{\{codemarkDatetime\}\}\}/g, codemarkDatetime);
+			this.renderedPostPerUser[user.id] = this.renderedHtml.replace(/\{\{\{codemarkDatetime\}\}\}/g, codemarkDatetime);
 		}
+
+		// for users who are mentioned, special formatting applies to the user receiving the email
+		const regExp = new RegExp(`\\{\\{\\{mention${user.id}\\}\\}\\}`, 'g');
+		this.renderedPostPerUser[user.id] = this.renderedHtml.replace(regExp, 'mention-me');
+		this.renderedPostPerUser[user.id] = this.renderedPostPerUser[user.id].replace(/\{\{\{mention.+\}\}\}/g, 'mention');
 
 		/*
 		// for DMs, the list of usernames who can "see" the codemark excludes the user 
@@ -418,10 +431,14 @@ class EmailNotificationV2Handler {
 		const unfollowLink = this.getUnfollowLink(user, codemark);
 		let html = new EmailNotificationV2Renderer().render({
 			codemark,
+			markers: this.markers,
+			fileStreams: this.fileStreams,
+			repos: this.repos,
 			content: renderedHtml,
 			unfollowLink,
 			inboundEmailDisabled: Config.inboundEmailDisabled,
-			styles: this.pseudoStyles	// only pseudo-styles go in the <head>
+			styles: this.pseudoStyles,	// only pseudo-styles go in the <head>
+			needButtons: !!this.parentPost || (codemark.markerIds || []).length === 1
 		});
 		html = html.replace(/[\t\n]/g, '');
 

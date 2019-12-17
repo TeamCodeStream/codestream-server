@@ -24,6 +24,9 @@ class CodemarkRenderer {
 
 	/* eslint complexity: 0 */
 	render (options) {
+	
+		options.extension = Utils.getExtension(options);
+
 		const authorDiv = this.renderAuthorDiv(options);
 		const titleDiv = this.renderTitleDiv(options);
 		const visibleToDiv = this.renderVisibleToDiv(options);
@@ -61,9 +64,9 @@ class CodemarkRenderer {
 
 	// render the div for the title
 	renderTitleDiv (options) {
-		const { codemark, mentionedUserIds, members } = options;
+		const { codemark } = options;
 		// display title: the codemark title if there is one, or just the codemark text
-		const title = Utils.prepareForEmail(codemark.title || codemark.text, mentionedUserIds, members);
+		const title = Utils.prepareForEmail(codemark.title || codemark.text, options);
 		return `
 <div class="title">
 	${title}
@@ -182,16 +185,16 @@ class CodemarkRenderer {
 
 	// render the description div, as needed
 	renderDescriptionDiv (options) {
-		const { codemark, mentionedUserIds, members } = options;
+		const { codemark } = options;
 		// there is a description if there is both a title and text, in which case it's the text
 		if (codemark.title && codemark.text) {
-			const text = Utils.prepareForEmail(codemark.text, mentionedUserIds, members);
+			const text = Utils.prepareForEmail(codemark.text, options);
 			const iconHtml = Utils.renderIcon('description');
 			return `
 <div class="section nice-gray section-text">DESCRIPTION</div>
 <div>
 	${iconHtml}<br/>
-	${text}
+	<span class="text">${text}</span>
 </div>
 `;
 		}
@@ -246,8 +249,8 @@ ${relatedDivs}
 			const markerId = codemark.markerIds[0];
 			const marker = markers.find(marker => marker.id === markerId);
 			if (marker) {
-				const repo = this.getRepoForMarker(marker, options);
-				const file = this.getFileForMarker(marker, options);
+				const repo = Utils.getRepoForMarker(marker, options);
+				const file = Utils.getFileForMarker(marker, options);
 				if (repo) {
 					path += `[${repo}] `;
 				}
@@ -270,53 +273,6 @@ ${relatedDivs}
 
 	}
 
-	// get repo name appropriate to display a marker
-	getRepoForMarker (marker, options) {
-		const { repos } = options;
-		let repoUrl = marker.repo || '';
-		if (!repoUrl && marker.repoId) {
-			const repo = repos.find(repo => repo.id === marker.repoId);
-			if (repo && repo.remotes && repo.remotes.length > 0) {
-				repoUrl = repo.remotes[0].normalizedUrl;
-			}
-		}
-		if (repoUrl) {
-			repoUrl = this.bareRepo(repoUrl);
-		}
-		return repoUrl;
-	}
-
-	// get file name appropriate to display for a marker
-	getFileForMarker (marker, options) {
-		const { fileStreams } = options;
-		let file = marker.file || '';
-		if (marker.fileStreamId) {
-			const fileStream = fileStreams.find(fileStream => fileStream.id === marker.fileStreamId);
-			if (fileStream) {
-				file = fileStream.file;
-			}
-		}
-		if (file.startsWith('/')) {
-			file = file.slice(1);
-		}
-		return file;
-	}
-
-	bareRepo (repo) {
-		if (repo.match(/^(bitbucket\.org|github\.com)\/(.+)\//)) {
-			repo = repo
-				.split('/')
-				.splice(2)
-				.join('/');
-		} else if (repo.indexOf('/') !== -1) {
-			repo = repo
-				.split('/')
-				.splice(1)
-				.join('/');
-		}
-		return repo;
-	}
-
 	// render the code block divs, if any
 	renderCodeBlockDivs (options) {
 		const { codemark, markers } = options;
@@ -334,39 +290,20 @@ ${relatedDivs}
 	// render a single code block
 	renderCodeBlock (marker, options) {
 		const { branchWhenCreated, commitHashWhenCreated } = marker;
-		const repo = this.getRepoForMarker(marker, options);
-		const file = this.getFileForMarker(marker, options);
+		const repo = Utils.getRepoForMarker(marker, options);
+		const file = Utils.getFileForMarker(marker, options);
 		const branch = branchWhenCreated || '';
 		const commitHash = commitHashWhenCreated ? commitHashWhenCreated.slice(0, 7) : '';
-
-		// get buttons to display
-		let buttons = Utils.renderCodemarkButtons(options, marker);
-
-		// get code for the given marker
 		let code = (marker.code || '').trimEnd();
 
-		// setup line numbering
-		const numLines = code.split('\n').length;
-		let lineNumbers = '';
-		const locationWhenCreated = marker.locationWhenCreated || (marker.referenceLocations && marker.referenceLocations[0]);
-		const startLine = (locationWhenCreated && locationWhenCreated.location && locationWhenCreated.location[0]) || 0;
-		for (let i = 0; i < numLines; i++) {
-			lineNumbers += `<span>${startLine + 1 + i}.&nbsp;</span><br/>`;
+		// get buttons to display
+		let buttons = '';
+		if ((options.codemark.markerIds || []).length > 1) {
+			buttons = Utils.renderMarkerButtons(options, marker);
 		}
-
-		let codeWidth = '100%';
-		if (lineNumbers) {
-			codeWidth = '90%';
-			lineNumbers = `
-<td width=10%>
-	<div class="line-numbers monospace">
-		${lineNumbers}
-	</div>
-</td>
-`;
-		}
+		
+		// do syntax highlighting for the code, based on the file extension
 		if (file) {
-			// do syntax highlighting for the code, based on the file extension
 			let extension = Path.extname(file).toLowerCase();
 			if (extension.startsWith('.')) {
 				extension = extension.substring(1);
@@ -374,6 +311,12 @@ ${relatedDivs}
 			code = Utils.highlightCode(code, extension);
 		}
 
+		// get code for the given marker, render into a table with line numbering
+		const locationWhenCreated = marker.locationWhenCreated || (marker.referenceLocations && marker.referenceLocations[0]);
+		const startLine = (locationWhenCreated && locationWhenCreated.location && locationWhenCreated.location[0]) || 0;
+		const codeHtml = Utils.renderCode(code, startLine);
+
+		// get icons for heading
 		const repoIcon = Utils.renderIcon('repo');
 		const fileIcon = Utils.renderIcon('file');
 		const branchIcon = Utils.renderIcon('git-branch');
@@ -390,14 +333,9 @@ ${relatedDivs}
 	${commitIcon}
 	<span class="space-left monospace codeblock-heading">${commitHash}</span>
 </div>
-<table cellspacing="0" cellpadding="0">
-	<tr>
-		${lineNumbers}
-		<td width=${codeWidth}>
-			<div class="code-wrapper monospace">${code}</div>
-		</td>
-	<tr>
-</table>
+<div class="code">
+	${codeHtml}
+</div>
 ${buttons}
 `;
 	}

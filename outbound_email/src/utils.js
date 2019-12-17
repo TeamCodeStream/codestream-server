@@ -5,6 +5,8 @@ const EmailUtilities = require('./server_utils/email_utilities');
 const HtmlEscape = require('./server_utils/html_escape');
 const HLJS = require('highlight.js');
 const Crypto = require('crypto');
+const Markdowner = require('./server_utils/markdowner');
+const Path = require('path');
 
 const CODE_PROVIDERS = {
 	github: 'GitHub',
@@ -89,29 +91,106 @@ const Utils = {
 	whiteSpaceToHtml: function(text) {
 		return text
 			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
-			.replace(/^ +/gm, match => { return match.replace(/ /g, '&nbsp;'); })
-			.replace(/\n/g, '<br/>');
+			.replace(/^ +/gm, match => { return match.replace(/ /g, '&nbsp;'); });
 	},
 
 	// handle mentions in the post text, for any string starting with '@', look for a matching
 	// user in the list of mentioned users in the post ... if we find one, put styling on 
 	// the mention
-	handleMentions: function(text, mentionedUserIds, members) {
+	handleMentions: function(text, options) {
+		const { mentionedUserIds, members, recipientIsMentioned } = options;
 		mentionedUserIds.forEach(userId => {
 			const user = members.find(user => user.id === userId);
 			if (user) {
 				const username = user.username || EmailUtilities.parseEmail(user.email).name;
-				const regexp = new RegExp(`@${username}`, 'g');
-				text = text.replace(regexp, `<span class=mention>@${username}</span>`);
+				const escapedUsername = username.replace(/(\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\))/g, (match, char) => {
+					return `\\${char}`;
+				});
+				const regexp = new RegExp(`@${escapedUsername}`, 'g');
+				const mentionClass = recipientIsMentioned ? `{{{mention${user.id}}}}` : 'mention';
+				text = text.replace(regexp, `<span class="${mentionClass}">@${username}</span>`);
 			}
 		});
 		return text;
 	},
 
+	// get the default extension for displaying code
+	getExtension: function(options) {
+		const { codemark, markers } = options;
+		const markerId = (codemark.markerIds || [])[0];
+		if (!markerId) { return; }
+		const marker = markers.find(marker => marker.id === markerId);
+		if (!marker) { return; }
+		const file = Utils.getFileForMarker(marker, options);
+		if (!file) { return; }
+		let extension = Path.extname(file).toLowerCase();
+		if (extension.startsWith('.')) {
+			extension = extension.substring(1);
+		}
+		return extension;
+	},
+
+	// get repo name appropriate to display a marker
+	getRepoForMarker: function(marker, options) {
+		const { repos } = options;
+		let repoUrl = marker.repo || '';
+		if (!repoUrl && marker.repoId) {
+			const repo = repos.find(repo => repo.id === marker.repoId);
+			if (repo && repo.remotes && repo.remotes.length > 0) {
+				repoUrl = repo.remotes[0].normalizedUrl;
+			}
+		}
+		if (repoUrl) {
+			repoUrl = this.bareRepo(repoUrl);
+		}
+		return repoUrl;
+	},
+
+	// return the repo name for a given repo url
+	bareRepo: function(repo) {
+		if (repo.match(/^(bitbucket\.org|github\.com)\/(.+)\//)) {
+			repo = repo
+				.split('/')
+				.splice(2)
+				.join('/');
+		} else if (repo.indexOf('/') !== -1) {
+			repo = repo
+				.split('/')
+				.splice(1)
+				.join('/');
+		}
+		return repo;
+	},
+
+	// get file name appropriate to display for a marker
+	getFileForMarker: function(marker, options) {
+		const { fileStreams } = options;
+		let file = marker.file || '';
+		if (marker.fileStreamId) {
+			const fileStream = fileStreams.find(fileStream => fileStream.id === marker.fileStreamId);
+			if (fileStream) {
+				file = fileStream.file;
+			}
+		}
+		if (file.startsWith('/')) {
+			file = file.slice(1);
+		}
+		return file;
+	},
+
 	// prepare text for email by cleaning and apply mention replacement
-	prepareForEmail: function(text, mentionedUserIds, members) {
-		text = Utils.cleanForEmail(text);
-		return Utils.handleMentions(text, mentionedUserIds, members);
+	prepareForEmail: function(text, options) {
+		const { extension } = options;
+		// text = Utils.cleanForEmail(text);
+		text = new Markdowner().markdownify(text);
+		text = text.replace(/\n/g, '<br/>');
+		text = text.replace(/<pre.*?>([\s\S]*)<\/pre>/gm, (match, code) => {
+			code = code.replace(/<br\/>/g, '\n');
+			code = Utils.highlightCode(code, extension);
+			code = Utils.renderCode(code);
+			return `<div class="code">${code}</div>`;
+		});
+		return Utils.handleMentions(text, options);
 	},
 
 	// get appropriate avatar information for displaying a user
@@ -144,8 +223,17 @@ const Utils = {
 		};
 	},
 
+	// render buttons to display, associated with a codemark
+	renderButtons: function(options) {
+		const { codemark, markers } = options;
+		const markerId = codemark && codemark.markerIds[0];
+		const marker = markerId && markers.find(marker => marker.id === markerId);
+		if (!marker) { return ''; }
+		return Utils.renderMarkerButtons(options, marker);
+	},
+
 	// get buttons to display associated with a codemark
-	renderCodemarkButtons: function(options, marker) {
+	renderMarkerButtons: function(options, marker) {
 		const { codemark } = options;
 
 		let ideButton = '';
@@ -262,6 +350,34 @@ const Utils = {
 	renderIcon: function(name) {
 		const icon = ICON_MAP[name] || name;
 		return `<img width="16" height="16" src="${ICONS_ROOT}/${icon}.png" />`;
+	},
+
+	// turn code into an html table with line numbering
+	renderCode: function(code, startLine = 0) {
+		// setup line numbering
+		const lines = code.trimEnd().split('\n');
+		const numLines = lines.length;
+
+		let codeHtml = '<table cellspacing="0" cellpadding="0">';
+		for (let i = 0; i < numLines; i++) {
+			const lineNumber = `
+<td width=10%>
+	<div class="line-numbers monospace">
+		${startLine + i + 1}.&nbsp;
+	</div>
+</td>
+`;
+			const codeLine = `
+<td width=90%>
+	<div class="monospace">
+		${lines[i]}
+	</div>
+</td>
+`;
+			codeHtml += `<tr>${lineNumber}${codeLine}</tr>`;
+		}
+		codeHtml += '</table>';
+		return codeHtml;
 	}
 };
 

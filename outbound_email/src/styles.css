@@ -4,7 +4,7 @@
 		'Ubuntu', 'Droid Sans', ans-serif;
 	font-size: 14px;
 	background-color: #1e1e1e;
-	color: #c7c7c6;
+	color: #c7c7c6 !important;
 	max-width: 1200px;
 	line-height: 1.5;
 }
@@ -23,8 +23,13 @@
 	padding: 8px;
 }
 
+.text {
+	color: #c6c6c7 !important;
+}
+
 .title {
 	margin-top: 8px;
+	color: #c6c6c7 !important;
 }
 
 .author {
@@ -138,9 +143,6 @@ td {
 .line-numbers {
 	background: rgba(0, 0, 0, 0.1);
 	padding: 5px 5px 5px 10px;
-	border-left: 1px solid #383838;
-	border-top: 1px solid #383838;
-	border-bottom: 1px solid #383838;
 	overflow-x: auto;
 	font-size: 12px;
 	color: #606060;
@@ -190,7 +192,7 @@ td {
 
 .reply-icons {
 	margin-top: 10px;
-	margin-bottom: 10px;
+	margin-bottom: 40px;
 	vertical-align: middle;
 }
 
@@ -216,8 +218,50 @@ td {
 	margin-left: 3px; 
 }
 
+.mention {
+	color: #009aef;
+	font-weight: 400;
+}
+
+.mention-me {
+	background: #009aef;
+	color: #efefef;
+	border-radius: 8px;
+	padding: 1px 4px 1px 4px;
+}
+
+p {
+	display: inline-block !important;
+	color: #c7c7c6 !important;
+}
+
+code {
+	color: #e83e8c !important;
+}
+
+.code {
+	color: #dfdfdf !important;
+	border: 1px solid #383838;
+	border-radius: 3px;
+	white-space: pre;
+	font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+	background:rgb(0, 0, 0, 0.1);
+	padding: 2px 5px;
+	line-height: 1;
+}
+
+blockquote {
+	margin: 10px;
+	border-left: 5px solid #606060;
+	padding-left: 10px;
+}
+
 .hljs{display:block;overflow-x:auto;padding:0.5em;color:#383a42;background:#fafafa}.hljs-comment,.hljs-quote{color:#a0a1a7;font-style:italic}.hljs-doctag,.hljs-keyword,.hljs-formula{color:#a626a4}.hljs-section,.hljs-name,.hljs-selector-tag,.hljs-deletion,.hljs-subst{color:#e45649}.hljs-literal{color:#0184bb}.hljs-string,.hljs-regexp,.hljs-addition,.hljs-attribute,.hljs-meta-string{color:#50a14f}.hljs-built_in,.hljs-class .hljs-title{color:#c18401}.hljs-attr,.hljs-variable,.hljs-template-variable,.hljs-type,.hljs-selector-class,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-number{color:#986801}.hljs-symbol,.hljs-bullet,.hljs-link,.hljs-meta,.hljs-selector-id,.hljs-title{color:#4078f2}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:bold}.hljs-link{text-decoration:underline}
 
 .im {
+	color: #c7c7c6 !important;
+}
+
+.ensure-white {
 	color: #c7c7c6 !important;
 }

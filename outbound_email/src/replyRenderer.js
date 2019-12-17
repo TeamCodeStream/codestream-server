@@ -10,13 +10,13 @@ class ReplyRenderer {
 	render (options) {
 
 		options.clickUrl = Utils.getIDEUrl(options);
+		options.extension = Utils.getExtension(options);
 
 		const codemarkAuthorDiv = this.renderCodemarkAuthorDiv(options);
 		const titleDiv = this.renderTitleDiv(options);
 		const iconsDiv = this.renderIconsDiv(options);
 		const authorDiv = this.renderAuthorDiv(options);
 		const textDiv = this.renderTextDiv(options);
-		const buttons = this.renderButtons(options);
 
 		return `
 <div>
@@ -28,7 +28,6 @@ class ReplyRenderer {
 		${textDiv}
 	</div>
 </div>
-${buttons}
 `;
 	}
 
@@ -46,9 +45,9 @@ ${buttons}
 
 	// render the div for the title of the codemark
 	renderTitleDiv (options) {
-		const { codemark, mentionedUserIds, members } = options;
+		const { codemark } = options;
 		// display title: the codemark title if there is one, or just the codemark text
-		const title = Utils.prepareForEmail(codemark.title || codemark.text, mentionedUserIds, members);
+		const title = Utils.prepareForEmail(codemark.title || codemark.text, options);
 		return `
 <div class="title">
 	${title}
@@ -214,23 +213,14 @@ ${buttons}
 
 	// render the div for the post text
 	renderTextDiv (options) {
-		const { post, mentionedUserIds, members } = options;
-		const text = Utils.prepareForEmail(post.text, mentionedUserIds, members);
+		const { post } = options;
+		const text = Utils.prepareForEmail(post.text, options);
 		return `
 <div>
 	${text}
 	<br>
 </div>
 `;
-	}
-
-	// render buttons to display, associated with the parent codemark
-	renderButtons (options) {
-		const { codemark, markers } = options;
-		const markerId = codemark && codemark.markerIds[0];
-		const marker = markerId && markers.find(marker => marker.id === markerId);
-		if (!marker) { return ''; }
-		return Utils.renderCodemarkButtons(options, marker);
 	}
 }
 
