@@ -64,6 +64,7 @@ class SlackInteractiveComponentsHandler {
 		let userThatClicked;
 		let userThatClickedIsFauxUser;
 		let team;
+		let error;
 		try {
 			privateMetadata = JSON.parse(this.payload.view.private_metadata);
 		} catch (ex) {
@@ -80,10 +81,13 @@ class SlackInteractiveComponentsHandler {
 			if (!privateMetadata.ppId) {
 				this.log('parentPostId is missing');
 				return {
-					hasError: true,
-					actionUser: userThatClicked,
-					payloadUserId: this.payload.user.id,
-					actionTeam: team
+					actionUser: userThatClicked,					
+					actionTeam: team,
+					error: {
+						eventName: 'Provider Reply Denied',
+						reason: 'ReplySubmissionParentPostIdMissing'
+					},
+					payloadUserId: this.payload.user.id
 				};
 			}
 
@@ -97,7 +101,10 @@ class SlackInteractiveComponentsHandler {
 				else {
 					this.log('User is missing / could not create faux user');
 					return {
-						hasError: true,
+						error: {
+							eventName: 'Provider Reply Denied',
+							reason: 'ReplySubmissionUserMissing'
+						},
 						actionUser: userThatClicked,
 						payloadUserId: this.payload.user.id,
 						actionTeam: team
@@ -111,7 +118,10 @@ class SlackInteractiveComponentsHandler {
 			if (!text) {
 				this.log('text is missing');
 				return {
-					hasError: true,
+					error: {
+						eventName: 'Provider Reply Denied',
+						reason: 'ReplySubmissionTextMissing'
+					},
 					actionUser: userThatClicked,
 					payloadUserId: this.payload.user.id,
 					actionTeam: team
@@ -131,14 +141,19 @@ class SlackInteractiveComponentsHandler {
 				origin: 'Slack',
 				parentPostId: privateMetadata.ppId
 			});
-		} catch (error) {
-			this.log(error);
+		} catch (err) {
+			this.log(err);
+			error = {
+				eventName: 'Provider Reply Denied',
+				reason: 'ReplySubmissionGenericError'
+			};
 		}
 
 		return {
 			actionUser: userThatClicked,
 			payloadUserId: this.payload.user.id,
 			actionTeam: team,
+			error: error,
 			// this is the responseData that we'll send back to slack
 			// NOTE it cannot contain any other extra properties, only what Slack expects
 			responseData: {
@@ -223,6 +238,10 @@ class SlackInteractiveComponentsHandler {
 			return {
 				actionUser: payloadActionUser,
 				actionTeam: team,
+				error: {
+					eventName: 'Provider Reply Denied',
+					reason: 'OpenCodemarkCodemarkNotFound'
+				},
 				payloadUserId: this.payload.user.id
 			};
 		}
@@ -236,10 +255,10 @@ class SlackInteractiveComponentsHandler {
 		}
 
 		const blocks = await this.createModalBlocks(codemark, userThatClicked);
-		let hasCaughtError = false;
+		let caughtSlackError = undefined;
 		const users = [userThatCreated, userThatClicked];
 		for (let i = 0; i < users.length; i++) {
-			hasCaughtError = false;
+			caughtSlackError = false;
 			const user = users[0];
 			if (!user) continue;
 
@@ -267,7 +286,7 @@ class SlackInteractiveComponentsHandler {
 				}
 			} catch (ex) {
 				this.log(ex);
-				hasCaughtError = true;
+				caughtSlackError = ex;
 				if (ex.data) {
 					try {
 						this.log(JSON.stringify(ex.data));
@@ -282,20 +301,23 @@ class SlackInteractiveComponentsHandler {
 			const timeEnd = new Date();
 			const timeDiff = timeStart.getTime() - timeEnd.getTime();
 			const secondsBetween = Math.abs(timeDiff / 1000);
+			let errorReason;
 			if (secondsBetween >= 3) {
 				await this.postEphemeralMessage(
 					this.payload.response_url,
 					SlackInteractiveComponentBlocks.createMarkdownBlocks('We took too long to respond, please try again. ')
 				);
 				this.log(`Took too long to respond (${secondsBetween} seconds)`);
+				errorReason = 'OpenCodemarkResponseTooSlow';
 			}
 			else {
-				if (hasCaughtError) {
+				if (caughtSlackError) {
 					await this.postEphemeralMessage(
 						this.payload.response_url,
 						SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. Please try again. ')
 					);
-					this.log('Oops, something happened.');
+					this.log(`Oops, something happened. ${caughtSlackError}`);
+					errorReason = 'OpenCodemarkGenericInternalError';
 				}
 				else {
 					await this.postEphemeralMessage(
@@ -303,13 +325,17 @@ class SlackInteractiveComponentsHandler {
 						SlackInteractiveComponentBlocks.createRequiresAccess()
 					);
 					this.log('Was not able to show a modal (generic)');
+					errorReason = 'OpenCodemarkGenericError';
 				}
 			}
 
 			return {
 				actionUser: payloadActionUser,
 				actionTeam: team,
-				hasError: true,
+				error: {
+					eventName: 'Provider Reply Denied',
+					reason: errorReason
+				},
 				payloadUserId: this.payload.user.id
 			};
 		}

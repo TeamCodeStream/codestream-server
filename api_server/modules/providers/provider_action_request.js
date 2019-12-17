@@ -66,7 +66,7 @@ class ProviderActionRequest extends RestfulRequest {
 							this.results.payloadUserId,
 							this.results.actionTeam,
 							company,
-							this.results.hasError
+							this.results.error
 						);
 					}
 				}
@@ -155,7 +155,7 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	// send telemetry event associated with this action
-	async sendTelemetry (data, user, providerUserId, team, company, hasError) {
+	async sendTelemetry (data, user, providerUserId, team, company, error) {
 		if (!data || !data.actionPayload || (!user && !providerUserId) || !team) return;
 		const provider =
 			this.provider === 'slack'
@@ -164,7 +164,7 @@ class ProviderActionRequest extends RestfulRequest {
 					? 'MSTeams'
 					: this.provider;
 
-		const info = this.getTrackingInfo(data.payload, data.actionPayload, provider, hasError);
+		const info = this.getTrackingInfo(data.payload, data.actionPayload, provider, error);
 		if (!info) {
 			this.log(
 				`Could not get tracking info from ${this.provider} payload`
@@ -195,11 +195,12 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	// get the tracking info associated with this requset
-	getTrackingInfo (payload, actionPayload, provider, hasError) {
-		if (hasError) {
+	getTrackingInfo (payload, actionPayload, provider, error) {
+		if (error && error.eventName) {
 			return {
-				event: 'Provider Reply Denied',
+				event: error.eventName,
 				data: {
+					Error: error.reason,
 					Endpoint: provider || ''
 				}
 			};
