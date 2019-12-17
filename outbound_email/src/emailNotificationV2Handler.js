@@ -8,7 +8,6 @@ const EmailNotificationV2Sender = require('./emailNotificationV2Sender');
 const Utils = require('./utils');
 const TokenHandler = require('./server_utils/token_handler');
 const Juice = require('juice');
-const ArrayUtilities = require('./server_utils/array_utilities');
 
 const DEFAULT_TIME_ZONE = 'America/New_York';
 
@@ -199,13 +198,6 @@ class EmailNotificationV2Handler {
 		if (this.toReceiveEmails.length === 0) {
 			return true; // short-circuit the flow
 		}
-
-		// record whether all the users to receive emails are in the same timezone,
-		// if they are, then we don't need to personalize the rendering of each email,
-		// since we can make all the timestamps the same
-		const firstUser = this.toReceiveEmails[0];
-		const firstUserTimeZone = firstUser.timeZone || DEFAULT_TIME_ZONE;
-		this.hasMultipleTimeZones = this.toReceiveEmails.find(user => (user.timeZone || DEFAULT_TIME_ZONE) !== firstUserTimeZone);
 	}
 
 	// determine whether the given user wants an email notification for the current post
@@ -285,8 +277,20 @@ class EmailNotificationV2Handler {
 
 	// render the HTML needed for an individual post
 	async renderPost () {
-		const userIds = this.toReceiveEmails.map(user => user.id);
-		this.recipientIsMentioned = ArrayUtilities.intersection(userIds, this.post.mentionedUserIds || []).length > 0;
+		const creator = this.teamMembers.find(member => member.id === this.post.creatorId);
+		this.renderOptions = {
+			post: this.post,
+			codemark: this.parentCodemark || this.codemark,
+			markers: this.markers,
+			fileStreams: this.fileStreams,
+			repos: this.repos,
+			members: this.teamMembers,
+			team: this.team,
+			stream: this.stream,
+			mentionedUserIds: this.post.mentionedUserIds || [],
+			relatedCodemarks: this.relatedCodemarks,
+			creator
+		};
 
 		if (this.post.parentPostId) {
 			return this.renderReply();
@@ -302,58 +306,19 @@ class EmailNotificationV2Handler {
 
 	// render the HTML needed for a reply
 	async renderReply () {
-		const creator = this.teamMembers.find(member => member.id === this.post.creatorId);
-		const codemarkCreator = this.teamMembers.find(member => member.id === this.parentCodemark.creatorId);
-		const firstUserTimeZone = this.toReceiveEmails[0].timeZone || DEFAULT_TIME_ZONE;
-
-		// if all users have the same timezone, use the first one
-		const timeZone = this.hasMultipleTimeZones ? null : firstUserTimeZone;
-
-		this.renderedHtml = new ReplyRenderer().render({
-			post: this.post,
-			codemark: this.parentCodemark,
-			markers: this.markers,
-			fileStreams: this.fileStreams,
-			repos: this.repos,
-			creator,
-			codemarkCreator,
-			timeZone,
-			members: this.teamMembers,
-			team: this.team,
-			mentionedUserIds: this.post.mentionedUserIds || [],
-			recipientIsMentioned: this.recipientIsMentioned
-		});
+		this.renderOptions.codemarkCreator = this.teamMembers.find(member => member.id === this.parentCodemark.creatorId);
+		this.renderedHtml = new ReplyRenderer().render(this.renderOptions);
 	}
 
 	// render the HTML needed for a codemark
 	async renderCodemark () {
-		const creator = this.teamMembers.find(member => member.id === this.post.creatorId);
-		const firstUserTimeZone = this.toReceiveEmails[0].timeZone || DEFAULT_TIME_ZONE;
-		// if all users have the same timezone, use the first one
-		const timeZone = this.hasMultipleTimeZones ? null : firstUserTimeZone;
-		this.renderedHtml = new CodemarkRenderer().render({
-			codemark: this.codemark,
-			creator,
-			timeZone,
-			stream: this.stream,
-			team: this.team,
-			markers: this.markers,
-			fileStreams: this.fileStreams,
-			repos: this.repos,
-			members: this.teamMembers,
-			relatedCodemarks: this.relatedCodemarks,
-			mentionedUserIds: this.post.mentionedUserIds || [],
-			recipientIsMentioned: this.recipientIsMentioned
-		});
+		this.renderedHtml = new CodemarkRenderer().render(this.renderOptions);
 	}
 
 	// personalize each user's rendered post as needed ... the rendered post needs to be
 	// personalized if the users are in different time zones
 	async personalizePerUser () {
 		this.renderedPostPerUser = {};
-		if (!this.recipientIsMentioned && !this.hasMultipleTimeZones && this.stream.type !== 'direct') {
-			return;
-		}
 		for (let user of this.toReceiveEmails) {
 			await this.personalizeRenderedPostPerUser(user);
 		}
@@ -362,28 +327,32 @@ class EmailNotificationV2Handler {
 	// personalize the rendered post for the given user, by making a copy of the
 	// rendered html, and doing field substitution of timestamp as needed
 	async personalizeRenderedPostPerUser (user) {
+		let renderedHtmlForUser = this.renderedHtml;
+
 		// format the timestamp of this post with timezone dependency
 		const datetime = Utils.formatTime(this.post.createdAt, user.timeZone || DEFAULT_TIME_ZONE);
-		this.renderedPostPerUser[user.id] = this.renderedHtml.replace(/\{\{\{datetime\}\}\}/g, datetime);
+		renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{datetime\}\}\}/g, datetime);
 
 		// also format the timestamp of the parent codemark as needed
 		if (this.parentCodemark) {
 			const codemarkDatetime = Utils.formatTime(this.parentCodemark.createdAt, user.timeZone || DEFAULT_TIME_ZONE);
-			this.renderedPostPerUser[user.id] = this.renderedHtml.replace(/\{\{\{codemarkDatetime\}\}\}/g, codemarkDatetime);
+			renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{codemarkDatetime\}\}\}/g, codemarkDatetime);
 		}
 
 		// for users who are mentioned, special formatting applies to the user receiving the email
 		const regExp = new RegExp(`\\{\\{\\{mention${user.id}\\}\\}\\}`, 'g');
-		this.renderedPostPerUser[user.id] = this.renderedHtml.replace(regExp, 'mention-me');
-		this.renderedPostPerUser[user.id] = this.renderedPostPerUser[user.id].replace(/\{\{\{mention.+\}\}\}/g, 'mention');
+		renderedHtmlForUser = renderedHtmlForUser.replace(regExp, 'mention-me');
+		renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{mention.+?\}\}\}/g, 'mention');
 
 		/*
 		// for DMs, the list of usernames who can "see" the codemark excludes the user 
 		if (this.stream.type === 'direct') {
 			const visibleTo = this.getVisibleTo(user);
-			this.renderedPostPerUser[user.id] = this.renderedHtml.replace(/\{\{\{usernames\}\}\}/g, visibleTo);
+			renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{usernames\}\}\}/g, visibleTo);
 		}
 		*/
+
+		this.renderedPostPerUser[user.id] = renderedHtmlForUser;
 	}
 
 	/*
@@ -426,20 +395,16 @@ class EmailNotificationV2Handler {
 
 	// render a single email for the given user
 	async renderEmailForUser (user) {
-		const renderedHtml = this.renderedPostPerUser[user.id] || this.renderedHtml;
-		const codemark = this.codemark || this.parentCodemark;
-		const unfollowLink = this.getUnfollowLink(user, codemark);
-		let html = new EmailNotificationV2Renderer().render({
-			codemark,
-			markers: this.markers,
-			fileStreams: this.fileStreams,
-			repos: this.repos,
-			content: renderedHtml,
+		const { codemark } = this.renderOptions;
+		const unfollowLink = this.getUnfollowLink(user, this.renderOptions.codemark);
+		Object.assign(this.renderOptions, {
+			content: this.renderedPostPerUser[user.id],
 			unfollowLink,
 			inboundEmailDisabled: Config.inboundEmailDisabled,
 			styles: this.pseudoStyles,	// only pseudo-styles go in the <head>
 			needButtons: !!this.parentPost || (codemark.markerIds || []).length === 1
 		});
+		let html = new EmailNotificationV2Renderer().render(this.renderOptions);
 		html = html.replace(/[\t\n]/g, '');
 
 		// this puts our styles inline, which is needed for gmail's display of larger emails

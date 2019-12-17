@@ -50,7 +50,7 @@ class ReplyRenderer {
 		const title = Utils.prepareForEmail(codemark.title || codemark.text, options);
 		return `
 <div class="title">
-	${title}
+	<span class="ensure-white">${title}</span>
 	<br>
 </div>
 `;
@@ -217,7 +217,7 @@ class ReplyRenderer {
 		const text = Utils.prepareForEmail(post.text, options);
 		return `
 <div>
-	${text}
+	<span class="ensure-white">${text}</span>
 	<br>
 </div>
 `;

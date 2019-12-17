@@ -98,7 +98,7 @@ const Utils = {
 	// user in the list of mentioned users in the post ... if we find one, put styling on 
 	// the mention
 	handleMentions: function(text, options) {
-		const { mentionedUserIds, members, recipientIsMentioned } = options;
+		const { mentionedUserIds, members } = options;
 		mentionedUserIds.forEach(userId => {
 			const user = members.find(user => user.id === userId);
 			if (user) {
@@ -107,7 +107,7 @@ const Utils = {
 					return `\\${char}`;
 				});
 				const regexp = new RegExp(`@${escapedUsername}`, 'g');
-				const mentionClass = recipientIsMentioned ? `{{{mention${user.id}}}}` : 'mention';
+				const mentionClass = `{{{mention${user.id}}}}`;
 				text = text.replace(regexp, `<span class="${mentionClass}">@${username}</span>`);
 			}
 		});
@@ -289,18 +289,13 @@ const Utils = {
 
 	// render an author line, with timestamp
 	renderAuthorDiv: function(options) {
-		const { time, creator, datetimeField, timeZone } = options;
-		// the timestamp is dependent on the user's timezone, but if all users are from the same
-		// timezone, we can format the timestamp here and fully render the email; otherwise we
-		// have to do field substitution when we send the email to each user
-		const datetime = timeZone ? Utils.formatTime(time, timeZone) : `{{{${datetimeField}}}}`;
-
+		const { creator, datetimeField } = options;
 		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
 		const headshot = Utils.renderUserHeadshot(creator);
 		return `
 <div>
 	${headshot}
-	<span class="author">${author}</span><span class="datetime">${datetime}</span>
+	<span class="author">${author}</span><span class="datetime">{{{${datetimeField}}}}</span>
 </div>
 `;
 	},

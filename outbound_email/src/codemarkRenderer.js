@@ -69,8 +69,8 @@ class CodemarkRenderer {
 		const title = Utils.prepareForEmail(codemark.title || codemark.text, options);
 		return `
 <div class="title">
-	${title}
-	<br>
+	<span class="ensure-white">${title}</span>
+	<br/>
 </div>
 `;
 	}
@@ -194,7 +194,7 @@ class CodemarkRenderer {
 <div class="section nice-gray section-text">DESCRIPTION</div>
 <div>
 	${iconHtml}<br/>
-	<span class="text">${text}</span>
+	<span class="ensure-white">${text}</span>
 </div>
 `;
 		}
