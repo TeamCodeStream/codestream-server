@@ -93,7 +93,7 @@ class RepoMerger {
 		}
 
 		let toRemotes = this.toRepo.remotes || [];
-		if (this.toRepo.url && this.toepo.normalizedUrl && this.toRepo.companyIdentifier) {
+		if (this.toRepo.url && this.toRepo.normalizedUrl && this.toRepo.companyIdentifier) {
 			toRemotes.push({
 				url: this.toRepo.url,
 				normalizedUrl: this.toRepo.normalizedUrl,
