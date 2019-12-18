@@ -233,7 +233,7 @@ const Utils = {
 	},
 
 	// get buttons to display associated with a codemark
-	renderMarkerButtons: function(options, marker) {
+	renderMarkerButtons: function(options, marker, inline) {
 		const { codemark } = options;
 
 		let ideButton = '';
@@ -261,9 +261,10 @@ const Utils = {
 		}
 
 		let buttons = '';
+		const buttonDivClass = inline ? 'inline-buttons' : 'code-buttons';
 		if (ideButton || remoteCodeButton) {
 			buttons = `
-<div class="code-buttons">
+<div class="${buttonDivClass}">
 	${ideButton}
 	${remoteCodeButton}
 </div>

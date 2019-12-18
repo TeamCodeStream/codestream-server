@@ -19,14 +19,14 @@ class ReplyRenderer {
 		const textDiv = this.renderTextDiv(options);
 
 		return `
-<div>
+<div class="inner-content">
 	${codemarkAuthorDiv}
 	${titleDiv}
 	${iconsDiv}
-	<div class="reply">
-		${authorDiv}
-		${textDiv}
-	</div>
+</div>
+<div class="reply">
+	${authorDiv}
+	${textDiv}
 </div>
 `;
 	}
@@ -92,6 +92,7 @@ class ReplyRenderer {
 	renderTagsAndAssignees (options) {
 		const tags = Utils.renderTags(options);
 		const assignees = this.renderAssignees(options);
+		if (!tags && !assignees) { return ''; }
 		return `
 <a class="reply-tags" clicktracking="off" href="${options.clickUrl}">${tags}${assignees}</a>
 `;

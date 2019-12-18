@@ -37,7 +37,7 @@ class CodemarkRenderer {
 		const codeBlockDivs = this.renderCodeBlockDivs(options);
 
 		return `
-<div>
+<div class="inner-content">
 	${authorDiv}
 	${titleDiv}
 	${visibleToDiv}
@@ -299,7 +299,7 @@ ${relatedDivs}
 		// get buttons to display
 		let buttons = '';
 		if ((options.codemark.markerIds || []).length > 1) {
-			buttons = Utils.renderMarkerButtons(options, marker);
+			buttons = Utils.renderMarkerButtons(options, marker, true);
 		}
 		
 		// do syntax highlighting for the code, based on the file extension

@@ -20,7 +20,11 @@
 	border: 1px solid #383838;
 	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 	margin: 5px 2px 5px 2px;
-	padding: 8px;
+	padding: 9px 9px 9px 0px;
+}
+
+.inner-content {
+	padding-left: 9px;
 }
 
 .title {
@@ -175,7 +179,7 @@ td {
 	display: inline-block;
 	border-radius: 3px;
 	text-align: center;
-	padding: 8px;
+	padding: 10px 16px 10px 16px;
 	margin-top: 4px;
 	margin-right: 6px;
 }
@@ -183,6 +187,16 @@ td {
 .button a {
 	color: white !important;
 	text-decoration: none !important;
+}
+
+.code-buttons {
+	margin-top: 15px;
+	margin-bottom: 10px;
+}
+
+.inline-buttons {
+	margin-top: 2px;
+	margin-bottom: 10px;
 }
 
 .reply-icons {
