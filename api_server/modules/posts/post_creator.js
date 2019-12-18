@@ -13,6 +13,7 @@ const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_sav
 const CodemarkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_creator');
 const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_helper');
 const Errors = require('./errors');
+const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
 const USE_V2_EMAIL_NOTIFICATIONS = true;
 
@@ -244,6 +245,20 @@ class PostCreator extends ModelCreator {
 			}
 		};
 
+		// handle any followers that need to be added to the codemark, as needed
+		await this.handleFollowers(codemark, op);
+
+		this.transforms.updatedCodemarks = this.transforms.updatedCodemarks || [];
+		const codemarkUpdate = await new ModelSaver({
+			request: this.request,
+			collection: this.data.codemarks,
+			id: codemark.id
+		}).save(op);
+		this.transforms.updatedCodemarks.push(codemarkUpdate);
+	}
+
+	// handle followers to parent codemark as needed
+	async handleFollowers (codemark, op) {
 		// if this is a legacy codemark, created before codemark following was introduced per the "sharing" model,
 		// we need to fill its followerIds array with the appropriate users
 		if (codemark.get('followerIds') === undefined) {
@@ -274,13 +289,41 @@ class PostCreator extends ModelCreator {
 			}
 		}
 
-		this.transforms.updatedCodemarks = this.transforms.updatedCodemarks || [];
-		const codemarkUpdate = await new ModelSaver({
-			request: this.request,
-			collection: this.data.codemarks,
-			id: codemark.id
-		}).save(op);
-		this.transforms.updatedCodemarks.push(codemarkUpdate);
+		// if a user is mentioned that is not following the codemark, and they have the preference to
+		// follow codemarks they are mentioned in, then we'll presume to make them a follower
+		// fetch preferences for the members
+		const mentionedUserIds = this.attributes.mentionedUserIds || [];
+		let newFollowerIds = ArrayUtilities.difference(mentionedUserIds, followerIds);
+		if (newFollowerIds.length === 0) { return; }
+		let newFollowers = await this.request.data.users.getByIds(
+			newFollowerIds,
+			{
+				fields: ['id', 'preferences'],
+				noCache: true,
+				ignoreCache: true
+			}
+		);
+		newFollowers = newFollowers.filter(user => {
+			const preferences = user.get('preferences') || {};
+			const notificationPreference = preferences.notifications || 'involveMe';
+			return (
+				!user.get('deactivated') && 
+				(
+					notificationPreference === 'all' ||
+					notificationPreference === 'involveMe'
+				)
+			);
+		});
+		newFollowerIds = newFollowers.map(follower => follower.id);
+		if (newFollowerIds.length > 0) {
+			if (op.$set.followerIds) {
+				op.$set.followerIds = ArrayUtilities.union(op.$set.followerIds, newFollowerIds);
+			}
+			else {
+				op.$push = op.$push || { followerIds: [] };
+				op.$push.followerIds = ArrayUtilities.union(op.$push.followerIds, newFollowerIds);
+			}
+		}
 	}
 
 	// update the total post count for the author of the post, along with the date/time of last post,
