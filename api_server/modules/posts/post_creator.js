@@ -69,7 +69,7 @@ class PostCreator extends ModelCreator {
 		await super.preSave();			// base-class preSave
 		await this.updateStream();		// update the stream as needed
 		await this.updateLastReads();	// update lastReads attributes for affected users
-		await this.updateNumReplies();	// update numReplies for the parent post, and codemark if applicable
+		await this.updateParents();		// update the parent post and codemark if applicable
 		await this.updatePostCount();	// update the post count for the author of the post
 	}
 
@@ -200,7 +200,7 @@ class PostCreator extends ModelCreator {
 	}
 
 	// if this is a reply, update the numReplies attribute for the parent post and/or parent codemark
-	async updateNumReplies () {
+	async updateParents () {
 		if (!this.model.get('parentPostId')) {
 			return;
 		}
@@ -285,7 +285,7 @@ class PostCreator extends ModelCreator {
 				}
 			}
 			else {
-				op.$push = { followerIds: this.user.id };
+				op.$addToSet = { followerIds: this.user.id };
 			}
 		}
 
@@ -320,8 +320,8 @@ class PostCreator extends ModelCreator {
 				op.$set.followerIds = ArrayUtilities.union(op.$set.followerIds, newFollowerIds);
 			}
 			else {
-				op.$push = op.$push || { followerIds: [] };
-				op.$push.followerIds = ArrayUtilities.union(op.$push.followerIds, newFollowerIds);
+				op.$addToSet = op.$addToSet || { followerIds: [] };
+				op.$addToSet.followerIds = ArrayUtilities.union(op.$addToSet.followerIds, newFollowerIds);
 			}
 		}
 	}
@@ -351,7 +351,7 @@ class PostCreator extends ModelCreator {
 			this.publishCreatedStreamsForMarkers,	// publish any streams created on-the-fly for the markers, as needed
 			this.publishRepos,					// publish any created or updated repos to the team
 			this.publishPost.bind(this, options && options.postPublishData), // publish the actual post to members of the team or stream
-			this.publishParentPost,				// if this post was a reply and we updated the parent post, publish that
+			this.publishParents,				// if this post was a reply and we updated the parent post or codemark, publish that
 			this.triggerNotificationEmails,		// trigger email notifications to members who should receive them
 			this.publishToAuthor,				// publish directives to the author's me-channel
 			this.trackPost,						// for server-generated posts, send analytics info
@@ -430,14 +430,15 @@ class PostCreator extends ModelCreator {
 		}).publishPost();
 	}
 
-	// if the parent post was updated, publish the parent post
-	async publishParentPost () {
-		if (!this.transforms.postUpdate) {
+	// if the parent post or codemark was updated, publish the parent post or codemark
+	async publishParents () {
+		if (!this.transforms.postUpdate && (this.transforms.updatedCodemarks || []).length === 0) {
 			return;
 		}
-		const data = {
-			post: this.transforms.postUpdate
-		};
+		const data = {};
+		if (this.transforms.postUpdate) {
+			data.post = this.transforms.postUpdate;
+		}
 		if (this.transforms.updatedCodemarks) {
 			data.codemarks = this.transforms.updatedCodemarks;
 		}
