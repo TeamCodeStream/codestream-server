@@ -46,7 +46,11 @@ class SlackInteractiveComponentsHandler {
 
 	async handleBlockActionGeneric () {
 		const teamId = this.actionPayload.teamId || this.actionPayload.tId;
-		const payloadActionUser = await this.getUser(this.payload.user.id);
+		let payloadActionUser = await this.getUser(this.payload.user.id);
+		if (!payloadActionUser) {
+			// if we can't find a user that has auth'd with slack, try to find a matching faux user
+			payloadActionUser = await this.getFauxUser(teamId, this.payload.user.team_id, this.payload.user.id);
+		}
 		const team = await this.getTeam(
 			payloadActionUser,
 			teamId
@@ -81,7 +85,7 @@ class SlackInteractiveComponentsHandler {
 			if (!privateMetadata.ppId) {
 				this.log('parentPostId is missing');
 				return {
-					actionUser: userThatClicked,					
+					actionUser: userThatClicked,
 					actionTeam: team,
 					error: {
 						eventName: 'Provider Reply Denied',
@@ -92,7 +96,8 @@ class SlackInteractiveComponentsHandler {
 			}
 
 			if (!userThatClicked) {
-				const user = await this.createFauxUser(team, this.getAccessToken(userThatCreated || userThatClicked, privateMetadata.tId, this.payload.user.team_id));
+				const user = await this.createFauxUser(team,
+					this.getAccessToken(userThatCreated || userThatClicked, privateMetadata.tId, this.payload.user.team_id));
 				if (user) {
 					userThatClicked = user;
 					userThatClickedIsFauxUser = true;
@@ -214,11 +219,40 @@ class SlackInteractiveComponentsHandler {
 		return slackProviderInfo && slackProviderInfo.extra;
 	}
 
+	mergeActionPayloadData (codemark) {
+		if (!codemark) return;
+
+		// hydrate this object with some additional properties taken from the codemark
+		this.actionPayload = {
+			...this.actionPayload,
+			sId: codemark.get('streamId'),
+			tId: codemark.get('teamId'),
+			crId: codemark.get('creatorId'),
+			ppId: codemark.get('postId')
+		};
+	}
+
 	async handleBlockActionReply () {
 		let client;
 		let payloadActionUser;
 		let success = false;
 		const timeStart = new Date();
+		const codemark = await this.data.codemarks.getById(this.actionPayload.cId);
+		this.mergeActionPayloadData(codemark);
+
+		const team = await this.getTeamById(this.actionPayload.tId);
+		if (!codemark || codemark.get('deactivated')) {
+			await this.postEphemeralMessage(
+				this.payload.response_url,
+				SlackInteractiveComponentBlocks.createMarkdownBlocks('Sorry, we couldn\'t find that codemark')
+			);
+			return {
+				error: {
+					eventName: 'Provider Reply Denied',
+					reason: 'OpenCodemarkCodemarkNotFound'
+				}
+			};
+		}
 		// we are getting two users, but only using one of their accessTokens.
 		// this is to allow non Slack authed users to reply from slack wo/having CS
 		const { userThatCreated, userThatClicked } = await this.getUsers();
@@ -227,24 +261,6 @@ class SlackInteractiveComponentsHandler {
 		}
 
 		payloadActionUser = userThatClicked;
-
-		const codemark = await this.data.codemarks.getById(this.actionPayload.cId);
-		const team = await this.getTeamById(this.actionPayload.tId);
-		if (!codemark || codemark.get('deactivated')) {
-			await this.postEphemeralMessage(
-				this.payload.response_url,
-				SlackInteractiveComponentBlocks.createMarkdownBlocks('Sorry, we couldn\'t find that codemark')
-			);
-			return {
-				actionUser: payloadActionUser,
-				actionTeam: team,
-				error: {
-					eventName: 'Provider Reply Denied',
-					reason: 'OpenCodemarkCodemarkNotFound'
-				},
-				payloadUserId: this.payload.user.id
-			};
-		}
 
 		if (!team) {
 			await this.postEphemeralMessage(
@@ -259,7 +275,7 @@ class SlackInteractiveComponentsHandler {
 		const users = [userThatCreated, userThatClicked];
 		for (let i = 0; i < users.length; i++) {
 			caughtSlackError = false;
-			const user = users[0];
+			const user = users[i];
 			if (!user) continue;
 
 			client = await this.tryCreateClient(user, this.payload.user);
@@ -372,7 +388,7 @@ class SlackInteractiveComponentsHandler {
 	async getFauxUser (codestreamTeamId, slackWorkspaceId, slackUserId) {
 		if (!codestreamTeamId || !slackWorkspaceId || !slackUserId) return undefined;
 
-		const query = { deactivated: false, externalUserId: `slack::${codestreamTeamId}::${slackWorkspaceId}::${slackUserId}`, teamId: codestreamTeamId };
+		const query = { externalUserId: `slack::${codestreamTeamId}::${slackWorkspaceId}::${slackUserId}` };
 		const users = await this.data.users.getByQuery(query,
 			{ hint: UserIndexes.byExternalUserId }
 		);
@@ -383,7 +399,10 @@ class SlackInteractiveComponentsHandler {
 			return undefined;
 		}
 		if (users.length === 1) {
-			return users[0];
+			const user = users[0];
+			if (user.get('deactivated')) return undefined;
+
+			return user;
 		}
 		return undefined;
 	}
@@ -602,18 +621,23 @@ class SlackInteractiveComponentsHandler {
 		// it's possible that they're the same user
 
 		let results = {};
+		let found = false;
 		// if the user that created is the same as the user that clicked, we only need 1 lookup
 		if (this.actionPayload.pcuId === this.payload.user.id) {
 			let user = await this.getCodeStreamUser(this.actionPayload.crId);
 			if (user) {
-				results.userThatCreated = user;
-				results.userThatClicked = user;
+				const accessToken = this.getAccessToken(user, this.actionPayload.tId, this.payload.user.team_id);
+				if (accessToken) {
+					results.userThatCreated = user;
+					results.userThatClicked = user;
+					found = true;
+				}
 			}
 			else {
 				this.log(`could not find user crId=${this.actionPayload.crId}`);
 			}
 		}
-		else {
+		if (!found) {
 			const users = await Promise.all([
 				// user that created the post (codestream userId)
 				this.actionPayload.crId
@@ -630,6 +654,9 @@ class SlackInteractiveComponentsHandler {
 			]);
 			results.userThatCreated = users[0];
 			results.userThatClicked = users[1];
+			if (results.userThatClicked && results.userThatClicked.get('externalUserId')) {
+				results.userThatClickedIsFauxUser = true;
+			}
 			if (results.userThatCreated && !results.userThatClicked) {
 				// didn't find a user that clicked on the post... do we have a faux user for them?
 				const fauxUser = await this.getFauxUser(this.actionPayload.tId, this.payload.user.team_id, this.payload.user.id);
