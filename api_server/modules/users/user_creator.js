@@ -106,7 +106,8 @@ class UserCreator extends ModelCreator {
 
 	// return database query to check if a matching user already exists
 	checkExistingQuery () {
-		if (!this.attributes.email) return undefined;
+		// allow faux users to create a user (even if their email matches)
+		if (!this.attributes.email || (this.options && this.options.externalUserId)) return undefined;
 
 		// look for matching email (case-insensitive)
 		return {

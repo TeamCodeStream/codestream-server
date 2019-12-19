@@ -425,22 +425,19 @@ class SlackInteractiveComponentsHandler {
 		return response;
 	}
 
-	async getUserByEmail (emailAddress) {
+	async getUserByEmail (emailAddress, codestreamTeamId) {
 		if (!emailAddress) return undefined;
 
 		const users = await this.data.users.getByQuery(
 			{ searchableEmail: emailAddress.toLowerCase() },
 			{ hint: UserIndexes.bySearchableEmail }
 		);
+		// faux users and real users might match on email address -- only return real users
+		// that are on the team.
+		for (const user of users) {
+			if (!user.get('externalUserId') && user.hasTeam(codestreamTeamId)) return user;
+		}
 
-		if (users.length > 1) {
-			// this shouldn't really happen
-			this.log(`Multiple CodeStream users found matching email ${emailAddress}`);
-			return undefined;
-		}
-		if (users.length === 1) {
-			return users[0];
-		}
 		return undefined;
 	}
 
@@ -645,7 +642,7 @@ class SlackInteractiveComponentsHandler {
 						resolve(await this.getCodeStreamUser(this.actionPayload.crId));
 					})
 					: undefined,
-				//user that clicked on the button
+				//user that clicked on the button, based upon their slack id (aka have they authed with slack)
 				this.payload.user.id
 					? new Promise(async resolve => {
 						resolve(await this.getUser(this.payload.user.id));
@@ -658,13 +655,7 @@ class SlackInteractiveComponentsHandler {
 				results.userThatClickedIsFauxUser = true;
 			}
 			if (results.userThatCreated && !results.userThatClicked) {
-				// didn't find a user that clicked on the post... do we have a faux user for them?
-				const fauxUser = await this.getFauxUser(this.actionPayload.tId, this.payload.user.team_id, this.payload.user.id);
-				if (fauxUser) {
-					results.userThatClicked = fauxUser;
-					results.userThatClickedIsFauxUser = true;
-					return results;
-				}
+
 
 				// if we still don't have a user that clicked, 
 				// see if we can map the user that clicked by email address to someone already in codestream
@@ -673,15 +664,26 @@ class SlackInteractiveComponentsHandler {
 					if (accessToken) {
 						const slackUser = await this.getUserFromSlack(this.payload.user.id, accessToken);
 						if (slackUser) {
-							const userThatClicked = slackUser.user && slackUser.user.profile && await this.getUserByEmail(slackUser.user.profile.email);
+							// this is a user that, at one time was on another team, but got invited to this team -- try to look them up via email
+							const userThatClicked = slackUser.user && slackUser.user.profile && await this.getUserByEmail(slackUser.user.profile.email, this.actionPayload.tId);
 							if (userThatClicked) {
 								results.userThatClicked = userThatClicked;
+								found = true;
 							}
 						}
 					}
 				}
 				catch (ex) {
 					this.log(ex.message);
+				}
+				if (!found) {
+					// didn't find a user that clicked on the post... do we have a faux user for them?
+					const fauxUser = await this.getFauxUser(this.actionPayload.tId, this.payload.user.team_id, this.payload.user.id);
+					if (fauxUser) {
+						results.userThatClicked = fauxUser;
+						results.userThatClickedIsFauxUser = true;
+						return results;
+					}
 				}
 			}
 		}
