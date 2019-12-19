@@ -513,6 +513,10 @@ class SlackInteractiveComponentsHandler {
 				{ parentPostId: this.actionPayload.ppId },
 				{ hint: PostIndexes.byParentPostId, sort: { seqNum: -1 }, limit: 30 }
 			);
+			//  don't show replies that have been deleted
+			if (replies && replies.length) {
+				replies = replies.filter(_ => !_.get('deactivated'));
+			}
 			// get uniques
 			userIds = [
 				...new Set([
