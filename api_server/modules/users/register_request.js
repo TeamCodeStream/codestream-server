@@ -7,6 +7,7 @@ const UserCreator = require('./user_creator');
 const ConfirmCode = require('./confirm_code');
 const UserPublisher = require('./user_publisher');
 const Errors = require('./errors');
+const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
 const Indexes = require('./indexes');
 const ConfirmHelper = require('./confirm_helper');
 
@@ -21,6 +22,7 @@ class RegisterRequest extends RestfulRequest {
 		this.confirmationRequired = !this.api.config.api.confirmationNotRequired || this.request.body._forceConfirmation;
 		delete this.request.body._forceConfirmation;
 		this.errorHandler.add(Errors);
+		this.errorHandler.add(AuthErrors);
 	}
 
 	async authorize () {
