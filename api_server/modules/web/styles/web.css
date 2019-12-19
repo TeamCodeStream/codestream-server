@@ -271,10 +271,18 @@ a.related-codemark-link:hover .related-codemark-file {
 	color: #009aef !important;
 	text-decoration: none;
 }
-.file {
+.file, .repo {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+.fileName {
+	max-width: 95%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    vertical-align: middle;
 }
 .at-mention {
 	color: #009aef;

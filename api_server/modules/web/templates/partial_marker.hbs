@@ -2,13 +2,13 @@
 <div class="row no-gutters {{#if showComment}}mt-4{{else}}mt-1{{/if}}" id="marker-{{markerId}}">
     <div class="col-sm-12">
         <div class="row no-gutters">
-            <div class="col-sm-11 pb-2">  
+            <div class="col-sm-11 pb-2">
                 {{#if debug}}
                     <b>{{markerId}}</b>
                 {{/if}}
                   {{#if repoName}}
                     <span class="pr-2">							
-                        <span class="monospace file" title="{{repoName}} repo">
+                        <span class="monospace repo" title="{{repoName}} repo">
                             <span class="icon">
                                 <svg version="1.1" width="12" height="16" viewBox="0 0 12 16" class="octicon octicon-repo" aria-hidden="true">
                                     <path fill-rule="evenodd" 
@@ -17,8 +17,7 @@
                                     </svg>
                             </span>
                             {{repoName}}
-                            </span>                      
-                        </span>
+                            </span>                        
                     </span>
                 {{/if}}
                 {{#if file}}
@@ -31,8 +30,9 @@
                                     </path>
                                 </svg>
                             </span>
+                            <span class="fileName">
                             {{file}}
-                            </span>                      
+                            </span>
                         </span>
                     </span>
                 {{/if}}
@@ -60,8 +60,7 @@
                             </span>
                         {{/if}}										
                 {{/whenCreated}}
-                {{/if}}
-               
+                {{/if}}               
             </div>
 
             <div class="col-sm-1">
