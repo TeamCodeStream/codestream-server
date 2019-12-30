@@ -15,7 +15,15 @@ class WebLoginRequest extends APIRequest {
 		const url = this.request.query.url ? decodeURIComponent(this.request.query.url) : '';
 		const email = this.request.query.email ? decodeURIComponent(this.request.query.email) : '';
 		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
-		const linkQuery = `url=${encodeURIComponent(url)}&teamId=${teamId}&access=strict&noSignup=1`;
+		let noSignup = '';
+		if (teamId) {
+			this.team = await this.data.teams.getById(teamId);
+			const teamSettings = (this.team && this.team.get('settings')) || {};
+			if (teamSettings.sharingModelEnabled) {
+				noSignup = '&noSignup=1';
+			}
+		}
+		const linkQuery = `url=${encodeURIComponent(url)}&teamId=${teamId}&access=strict${noSignup}`;
 		const slackLink = `/web/provider-auth/slack?${linkQuery}`;
 		const msteamsLink = `/web/provider-auth/msteams?${linkQuery}`;
 		const error = this.request.query.error ? this.handleError() : '';

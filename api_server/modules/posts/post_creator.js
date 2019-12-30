@@ -15,8 +15,6 @@ const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/code
 const Errors = require('./errors');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
-const USE_V2_EMAIL_NOTIFICATIONS = true;
-
 class PostCreator extends ModelCreator {
 
 	constructor (options) {
@@ -461,7 +459,8 @@ class PostCreator extends ModelCreator {
 		// here we are paving the way for v2 email notifications, meaning those that base email notifications
 		// off of codemarks, rather than posts in the stream (part of the "sharing" model) ... until we are
 		// ready to turn that paradigm on, we stick with the old...
-		if (!USE_V2_EMAIL_NOTIFICATIONS) { // turn on when ready
+		const teamHasSharingModel = (this.team.get('settings') || {}).sharingModelEnabled;
+		if (!teamHasSharingModel) { // eventually ALL teams will have this
 			const queue = new EmailNotificationQueue({
 				request: this.request,
 				fromSeqNum: this.model.get('seqNum'),
@@ -540,7 +539,8 @@ class PostCreator extends ModelCreator {
 		}
 
 		let eventName;
-		if (USE_V2_EMAIL_NOTIFICATIONS && trackData['Codemark ID']) {
+		const teamHasSharingModel = (this.team.get('settings') || {}).sharingModelEnabled;
+		if (teamHasSharingModel && trackData['Codemark ID']) {
 			eventName = 'Replied to Codemark';
 		}
 		else {
