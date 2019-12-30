@@ -89,7 +89,8 @@ class MoveTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 					location: referenceLocation.location
 				};
 			}),
-			supersedesMarkerId: this.marker.id
+			supersedesMarkerId: this.marker.id,
+			remotesWhenCreated: this.data.remotes
 		};
 	}
 
