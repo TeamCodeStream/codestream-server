@@ -85,5 +85,11 @@ module.exports = {
 		type: 'object',
 		maxLength: 500,
 		description: 'Object referencing a link to the code block references by this codemark in an external provider, contains "name" and "url"'
-	}	
+	},
+	remotesWhenCreated: {
+		type: 'arrayOfStrings',
+		maxLength: 50,
+		maxStringLength: 1000,
+		description: 'The remotes that were sent with the codemark on marker creation'
+	}
 };

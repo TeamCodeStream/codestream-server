@@ -160,6 +160,9 @@ class CodemarkValidator {
 		Assert.deepEqual(marker.locationWhenCreated, inputMarker.location, 'marker location does not match the given location');
 		Assert.equal(codemark.markerIds[n], marker.id, `codemark ${n}th element of markerIds does not match the ${n}th marker`);
 		Assert.equal(codemark.fileStreamIds[n], marker.fileStreamId || null, `codemark ${n}th element of fileStreamIds does not match the file streams of the ${n}th marker`);
+		if (inputMarker.remotes) {
+			Assert.deepEqual(marker.remotesWhenCreated, inputMarker.remotes, 'remotesWhenCreated should be equal to the remotes passed in');
+		}
 
 		// validate the reference locations, containing the commit hash and location plus
 		// any other additional commit hashes and locations supplied at post creation time

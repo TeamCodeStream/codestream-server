@@ -92,7 +92,7 @@ class MarkerCreator extends ModelCreator {
 
 		// normalize the remotes
 		if (this.attributes.remotes) {
-			this.attributes.remotes = this.attributes.remotes.map(remote => NormalizeUrl(remote));
+			this.normalizedRemotes = this.attributes.remotes.map(remote => NormalizeUrl(remote));
 		}
 
 		// enforce lowercase on commit hashes, and include the given commit hash as a "known" commit hash for the repo
@@ -236,12 +236,12 @@ class MarkerCreator extends ModelCreator {
 		if (this.attributes.repoId) {
 			await this.getRepo();
 		}
-		else if (this.attributes.remotes || this.attributes.knownCommitHashes) {
+		else if (this.normalizedRemotes || this.attributes.knownCommitHashes) {
 			if (!this.repoMatcher) {
 				throw 'must provider a repoMatcher if there are markers with no repoId';
 			}
 			this.repo = await this.repoMatcher.findOrCreateRepo({
-				remotes: this.attributes.remotes,
+				remotes: this.normalizedRemotes,
 				knownCommitHashes: this.attributes.knownCommitHashes
 			});
 			if (this.repo) {
@@ -260,8 +260,12 @@ class MarkerCreator extends ModelCreator {
 			}
 		}
 
-		// now that we have a repo, remove any reference in the marker to the remotes and known commit hashes
-		delete this.attributes.remotes;
+		// now that we have a repo, remove any reference in the marker to the remotes and known commit hashes,
+		// and save the remotes sent so we can at least track any problems with repo matching
+		if (this.attributes.remotes) {
+			this.attributes.remotesWhenCreated = this.attributes.remotes;
+			delete this.attributes.remotes;
+		}
 		delete this.attributes.knownCommitHashes;
 	}
 
@@ -276,8 +280,8 @@ class MarkerCreator extends ModelCreator {
 			this.teamRepos.push(this.repo);
 		}
 
-		if (this.attributes.remotes || this.attributes.knownCommitHashes) {
-			await this.repoMatcher.updateRepoWithNewInfo(this.repo, this.attributes.remotes, this.attributes.knownCommitHashes);
+		if (this.normalizedRemotes || this.attributes.knownCommitHashes) {
+			await this.repoMatcher.updateRepoWithNewInfo(this.repo, this.normalizedRemotes, this.attributes.knownCommitHashes);
 		}
 	}
 

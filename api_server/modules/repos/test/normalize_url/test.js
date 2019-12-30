@@ -28,7 +28,8 @@ var TestCases = [
 	[ 'hTtPs://uSer@giTHub.cOm/oWnEr/pAth/To/REpo.GIt', 'github.com/owner/path/to/repo' ],
 	[ 'user@github.com/owner/path.git', 'github.com/owner/path'],
 	[ 'user@github.com/owner/path/to/repo.git', 'github.com/owner/path/to/repo'],
-	[ 'USer@gITHub.coM/oWnER/pATh/TO/rEpo.GIT', 'github.com/owner/path/to/repo']
+	[ 'USer@gITHub.coM/oWnER/pATh/TO/rEpo.GIT', 'github.com/owner/path/to/repo'],
+	[ 'github.com/owner/path', 'github.com/owner/path' ],
 ];
 
 module.exports = function() {
