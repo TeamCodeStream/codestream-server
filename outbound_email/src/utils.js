@@ -354,7 +354,7 @@ const Utils = {
 		const lines = code.trimEnd().split('\n');
 		const numLines = lines.length;
 
-		let codeHtml = '<table cellspacing="0" cellpadding="0">';
+		let codeHtml = '<table width="100%" cellspacing="0" cellpadding="0">';
 		for (let i = 0; i < numLines; i++) {
 			const lineNumber = `
 <td width=10%>
