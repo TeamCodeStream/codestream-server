@@ -26,23 +26,31 @@ class SlackInteractiveComponentsHandler {
 
 	async process () {
 		// this.log(JSON.stringify(this.payload, null, 4));
+		const teamId = this.actionPayload.teamId || this.actionPayload.tId;
+		const userId = this.payload && this.payload.user && this.payload.user.id;
 		this.log(
-			`Processing payload.type=${this.payload.type}, actionPayload.linkType=${this.actionPayload.linkType}`
+			`Processing payload.type=${this.payload.type}, actionPayload.linkType=${this.actionPayload.linkType} userId=${userId} teamId=${teamId}`
 		);
-
-		if (this.payload.type === 'block_actions') {
-			if (this.actionPayload.linkType === 'reply') {
-				return this.handleBlockActionReply();
+		try {
+			if (this.payload.type === 'block_actions') {
+				if (this.actionPayload.linkType === 'reply') {
+					return await this.handleBlockActionReply();
+				} else {
+					return await this.handleBlockActionGeneric();
+				}
+			} else if (this.payload.type === 'view_submission') {
+				return await this.handleViewSubmission();
 			} else {
-				return this.handleBlockActionGeneric();
+				this.log(`payload.type=${this.payload.type} cannot be handled.`);
 			}
-		} else if (this.payload.type === 'view_submission') {
-			return this.handleViewSubmission();
-		} else {
-			this.log(`payload.type=${this.payload.type} cannot be handled.`);
+		}
+		catch (error) {
+			this.log(`${error && error.message}. actionPayload=${JSON.stringify(this.actionPayload)} user=${JSON.stringify(this.payload.user)}`);
+			throw error;
 		}
 		return undefined;
 	}
+
 
 	async handleBlockActionGeneric () {
 		const teamId = this.actionPayload.teamId || this.actionPayload.tId;
@@ -215,7 +223,14 @@ class SlackInteractiveComponentsHandler {
 
 	getSlackExtraData (user) {
 		const providerInfo = user && user.get('providerInfo');
-		const slackProviderInfo = providerInfo && providerInfo[`${this.actionPayload.tId}`].slack.multiple[this.payload.user.team_id];
+		if (!providerInfo) return undefined;
+
+		const providerInfoByTeam = providerInfo[this.actionPayload.tId];
+		if (!providerInfoByTeam) return undefined;
+
+		const slackProviderInfo = providerInfoByTeam.slack &&
+			providerInfoByTeam.slack.multiple &&
+			providerInfoByTeam.slack.multiple[this.payload.user.team_id];
 		return slackProviderInfo && slackProviderInfo.extra;
 	}
 
