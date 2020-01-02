@@ -365,7 +365,7 @@ const Utils = {
 `;
 			const codeLine = `
 <td width=90%>
-	<div class="monospace">
+	<div class="monospace code-line">
 		${lines[i]}
 	</div>
 </td>

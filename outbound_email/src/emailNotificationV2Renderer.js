@@ -31,21 +31,27 @@ class EmailNotificationV2Renderer {
 			${options.styles}
 		</style>
 	</head>
-	<body>
-		<div class="master">
-			<a href="https://codestream.com">
-				<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
-			</a>
-			<div class="content">
-				${content}
-			</div>
-			${buttons}
-			<br/>
-			<div class="following ensure-white">
-				<span>You received this email because you are following this codemark.&nbsp;</span><span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
-			</div>
-			${tipDiv}
-		</div>
+	<body width="100%" style="margin: 0; mso-line-height-rule: exactly;">
+		<table border="0" cellspacing="1" cellpadding="1" bgcolor="#1e1e1e" width="100%">
+			<tr>
+				<td bgcolor="#1e1e1e"> 
+					<div class="master">				 
+						<a href="https://codestream.com">
+							<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
+						</a>
+						<div class="content">
+							${content}
+						</div>
+						${buttons}
+						<br/>
+						<div class="following ensure-white">
+							<span>You received this email because you are following this codemark.&nbsp;</span><span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
+						</div>
+						${tipDiv}
+					</div>			 
+				</td>
+			</tr>
+		</table>
 	</body>
 </html>
 `;

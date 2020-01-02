@@ -1,7 +1,7 @@
 .master {
 	padding: 12px;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI',
-		'Ubuntu', 'Droid Sans', ans-serif;
+		'Ubuntu', 'Droid Sans', sans-serif;
 	font-size: 14px;
 	background-color: #1e1e1e;
 	color: #c7c7c6 !important;
@@ -32,6 +32,7 @@
 }
 
 .author {
+	color: #c7c7c6;
 	margin-right: 5px;
 	margin-left: 5px;
 	font-weight: 700;
@@ -249,7 +250,7 @@ code {
 }
 
 .code {
-	color: #dfdfdf !important;
+	color: #c7c7c6 !important;
 	border: 1px solid #383838;
 	border-radius: 3px;
 	white-space: pre;
@@ -257,6 +258,10 @@ code {
 	background:rgb(0, 0, 0, 0.1);
 	padding: 2px 5px;
 	line-height: 1;
+}
+
+.code-line {
+	color: #c7c7c6 !important;
 }
 
 blockquote {
