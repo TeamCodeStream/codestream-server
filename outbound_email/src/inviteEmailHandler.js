@@ -51,7 +51,7 @@ CodeStream's cloud-based service and IDE plugins help dev teams discuss, review,
 <br/>
 1. Download CodeStream for ${allLinks}.<br/>
 <br/>
-2. Click “Join a Team” and paste in your invitation code:<br/>
+2. Click “Find your team" and paste in your invitation code:<br/>
 <b>${this.user.inviteCode}</b><br/>
 <br/>
 Team CodeStream<br/>
