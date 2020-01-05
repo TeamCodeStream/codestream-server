@@ -173,6 +173,9 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "microsoft/devops-prod.cfg"
+				},
+				"qa": {
+					"_loadSecretsFile": "microsoft/devops-qa.cfg"
 				}
 			}
 		},
@@ -213,6 +216,9 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "microsoft/teams-prod.cfg"
+				},
+				"qa": {
+					"_loadSecretsFile": "microsoft/teams-qa.cfg"
 				}
 			}
 		},
@@ -230,6 +236,10 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "slack/prod-combined.cfg"
+				},
+				"qa": {
+					"_loadSecretsFile": "slack/qa-combined.cfg",
+					"interactiveComponentsEnabled": true
 				}
 			}
 		},

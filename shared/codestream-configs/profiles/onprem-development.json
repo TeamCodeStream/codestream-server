@@ -92,9 +92,6 @@
 			"asana.com": {
 				"defaultEnv": {
 					"_loadSecretsFile": "asana/dev.cfg"
-				},
-				"prod": {
-					"_loadSecretsFile": "asana/prod.cfg"
 				}
 			}
 		},
@@ -102,9 +99,6 @@
 			"bitbucket.com": {
 				"defaultEnv": {
 					"_loadSecretsFile": "bitbucket/dev.cfg"
-				},
-				"prod": {
-					"_loadSecretsFile": "bitbucket/prod.cfg"
 				}
 			}
 		},
@@ -112,9 +106,6 @@
 			"microsoft.com": {
 				"defaultEnv": {
 					"_loadSecretsFile": "microsoft/devops-dev.cfg"
-				},
-				"prod": {
-					"_loadSecretsFile": "microsoft/devops-prod.cfg"
 				}
 			}
 		},
@@ -122,9 +113,6 @@
 			"github.com": {
 				"defaultEnv": {
 					"_loadSecretsFile": "github/dev.cfg"
-				},
-				"prod": {
-					"_loadSecretsFile": "github/prod.cfg"
 				}
 			}
 		},
@@ -132,9 +120,6 @@
 			"gitlab.com": {
 				"defaultEnv": {
 					"_loadSecretsFile": "gitlab/dev.cfg"
-				},
-				"prod": {
-					"_loadSecretsFile": "gitlab/prod.cfg"
 				}
 			}
 		},
@@ -142,9 +127,6 @@
 			"atlassian.net": {
 				"defaultEnv": {
 					"_loadSecretsFile": "atlassian/dev.cfg"
-				},
-				"prod": {
-					"_loadSecretsFile": "atlassian/prod.cfg"
 				}
 			}
 		},
@@ -152,9 +134,6 @@
 			"microsoft.com": {
 				"defaultEnv": {
 					"_loadSecretsFile": "microsoft/teams-dev.cfg"
-				},
-				"prod": {
-					"_loadSecretsFile": "microsoft/teams-prod.cfg"
 				}
 			}
 		},
@@ -162,9 +141,6 @@
 			"slack.com": {
 				"defaultEnv": {
 					"_loadSecretsFile": "slack/dev-combined.cfg"
-				},
-				"prod": {
-					"_loadSecretsFile": "slack/prod-combined.cfg"
 				}
 			}
 		},
@@ -229,12 +205,7 @@
 			"certfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt",
 			"keyfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-key"
 		},
-		"local": {},
-		"prod": {
-			"cafile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-ca",
-			"certfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-crt",
-			"keyfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-key"
-		}
+		"local": {}
 	},
 	"storage": {
 		"mongo": {
