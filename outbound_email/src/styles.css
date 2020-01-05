@@ -220,6 +220,16 @@ td {
 	margin-bottom: 10px;
 }
 
+.replies-earlier {
+	text-align: center;
+	padding: 4px;
+}
+
+.replies-earlier a {
+	color: #c7c7c6 !important;
+	text-decoration: none;
+}
+
 .reply-tags {
 	margin-left: 12px;
 }

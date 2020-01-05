@@ -17,6 +17,7 @@ class ReplyRenderer {
 		const iconsDiv = this.renderIconsDiv(options);
 		const authorDiv = this.renderAuthorDiv(options);
 		const textDiv = this.renderTextDiv(options);
+		const earlierReplies = this.renderEarlierReplies(options);
 
 		return `
 <div class="inner-content">
@@ -28,6 +29,7 @@ class ReplyRenderer {
 	${authorDiv}
 	${textDiv}
 </div>
+${earlierReplies}
 `;
 	}
 
@@ -222,6 +224,18 @@ class ReplyRenderer {
 	<br>
 </div>
 `;
+	}
+
+	renderEarlierReplies(options) {
+		if (!options || !options.codemark || options.codemark.numReplies < 2) {
+			return '';
+		}
+
+		if (options.codemark.permalink) {
+			const url = `${options.codemark.permalink}?ide=default`;
+			return `<div class="replies-earlier"><a href="${url}">See earlier replies</a></div>`;
+		}
+		return '<div class="replies-earlier">See earlier replies</div>';
 	}
 }
 
