@@ -469,10 +469,6 @@
 				"appStrictSigningSecret": {
 					"default": null,
 					"desc": "Slack strict app signing secret"
-				},
-				"interactiveComponentsEnabled": {
-					"default": false,
-					"desc": "enable interactive component callbacks"
 				}
 			}
 		},
