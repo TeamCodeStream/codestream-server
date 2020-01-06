@@ -147,7 +147,7 @@ class CodemarkRenderer {
 		if (tagsHeader || assigneesHeader) {
 			tagsAssigneesTable = '<table class="section"><tbody><tr>';
 			if (tagsHeader) {
-				tagsAssigneesTable += `<td width=300px class="nice-gray section-text">${tagsHeader}</td>`;
+				tagsAssigneesTable += `<td width=300px class="nice-gray section-text">${tagsHeader}</td>`;				
 			}
 			if (assigneesHeader) {
 				tagsAssigneesTable += `<td width=300px class="nice-gray section-text">${assigneesHeader}</td>`;
@@ -168,11 +168,10 @@ class CodemarkRenderer {
 				if (assigneesHeader) {
 					const assignee = this.renderAssignee(assignees[nRow]);
 					tagsAssigneesTable += `<td width=300px>${assignee}</id>`;
-				}
-				tagsAssigneesTable += '</tr>';
+				}				
 			}
 			
-			tagsAssigneesTable += '</tbody></table>';
+			tagsAssigneesTable += '</tr></tbody></table>';
 		}
 
 		return tagsAssigneesTable;
