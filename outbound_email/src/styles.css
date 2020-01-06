@@ -276,6 +276,10 @@ code {
 	color: #c7c7c6 !important;
 }
 
+.description-wrapper .description p {
+	margin-top: 0px;
+}
+
 blockquote {
 	margin: 10px;
 	border-left: 5px solid #606060;

@@ -196,9 +196,9 @@ class CodemarkRenderer {
 			const iconHtml = Utils.renderIcon('description');
 			return `
 <div class="section nice-gray section-text">DESCRIPTION</div>
-<div>
-	${iconHtml}<br/>
-	<span class="ensure-white">${text}</span>
+<div class="description-wrapper">
+	${iconHtml}&nbsp;
+	<span class="ensure-white description">${text}</span>
 </div>
 `;
 		}
