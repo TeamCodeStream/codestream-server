@@ -37,7 +37,7 @@ class CodemarkRenderer {
 		const codeBlockDivs = this.renderCodeBlockDivs(options);
 
 		return `
-<div class="inner-content">
+<div class="inner-content new-content">
 	${authorDiv}
 	${titleDiv}
 	${visibleToDiv}

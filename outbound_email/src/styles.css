@@ -23,8 +23,11 @@
 }
 
 .inner-content {
-	border-left: 3px solid #009aef;
 	padding: 9px;
+}
+
+.new-content {
+	border-left: 3px solid #009aef;
 }
 
 .title {
@@ -215,7 +218,6 @@ td {
 }
 
 .reply {
-	border-left: 3px solid #009aef;
 	padding-left: 6px;
 	margin-bottom: 10px;
 }

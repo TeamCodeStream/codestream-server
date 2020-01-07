@@ -25,7 +25,7 @@ class ReplyRenderer {
 	${titleDiv}
 	${iconsDiv}
 </div>
-<div class="reply">
+<div class="reply new-content">
 	${authorDiv}
 	${textDiv}
 </div>
