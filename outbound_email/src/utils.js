@@ -77,7 +77,12 @@ const Utils = {
 	// do syntax highlighting on a code block
 	highlightCode: function(code, extension) {
 		if (extension) {
-			code = HLJS.highlight(extension, code).value;
+			try {
+				code = HLJS.highlight(extension, code).value;
+			}
+			catch (error) {
+				error;
+			}
 		}
 		return Utils.whiteSpaceToHtml(code);
 	},
