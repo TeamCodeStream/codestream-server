@@ -34,6 +34,7 @@ class GenericTest {
 
 	// do the test
 	test () {
+		this.timeout(10000);
 
 		if (typeof this.authenticate === 'function') {
 			before((callback) => {
