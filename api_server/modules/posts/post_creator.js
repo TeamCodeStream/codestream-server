@@ -45,6 +45,7 @@ class PostCreator extends ModelCreator {
 			optional: {
 				string: ['text', 'parentPostId'],
 				object: ['codemark'],
+				boolean: ['dontSendEmail'],
 				'array(string)': ['mentionedUserIds']
 			}
 		};
@@ -52,6 +53,8 @@ class PostCreator extends ModelCreator {
 
 	// called before the post is actually saved
 	async preSave () {
+		this.dontSendEmailNotification = this.attributes.dontSendEmail;
+		delete this.attributes.dontSendEmail;
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.creatorId = this.user.id;
 		this.attributes.createdAt = Date.now();
@@ -453,6 +456,10 @@ class PostCreator extends ModelCreator {
 		if (this.requestSaysToBlockEmails()) {
 			// don't do email notifications for unit tests, unless asked
 			this.request.log('Would have triggered email notifications for stream ' + this.stream.id);
+			return;
+		}
+		if (this.dontSendEmailNotification) {
+			this.request.log('Email notification trigger blocked by caller for stream ' + this.stream.id);
 			return;
 		}
 

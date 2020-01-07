@@ -49,6 +49,13 @@ class PutCodemarkRequest extends PutRequest {
 		}
 	}
 
+	// process the request itself...
+	async process () {
+		this.wantEmailNotification = this.request.body.wantEmailNotification;
+		delete this.request.body.wantEmailNotification;
+		return super.process();
+	}
+
 	// handle response to the request
 	async handleResponse () {
 		if (this.gotError) {
@@ -76,6 +83,9 @@ class PutCodemarkRequest extends PutRequest {
 	// after the codemark is updated...
 	async postProcess () {
 		await this.publishCodemark();
+		if (this.wantEmailNotification) {
+			this.sendEmailNotification();
+		}
 	}
 
 	// publish the codemark to the appropriate broadcaster channel(s)
@@ -85,6 +95,21 @@ class PutCodemarkRequest extends PutRequest {
 			request: this,
 			data: this.responseData
 		}).publishCodemark();
+	}
+
+	// for issue codemarks linked to a third-party provider, we only send the email notification 
+	// triggered by the codemark creation when we have the third-party provider info
+	sendEmailNotification () {
+		const teamHasSharingModel = (this.updater.team.get('settings') || {}).sharingModelEnabled;
+		if (teamHasSharingModel) { // eventually ALL teams will have this
+			const postId = this.updater.codemark.get('postId');
+			const message = {
+				type: 'notification_v2',
+				postId
+			};
+			this.log(`Triggering V2 email notifications for post ${postId}...`);
+			this.api.services.email.queueEmailSend(message, { request: this.request });
+		}
 	}
 
 	// describe this route for help
