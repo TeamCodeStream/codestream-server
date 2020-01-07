@@ -135,7 +135,12 @@ class CodemarkRenderer {
 					assignees.push(user);
 				}
 			});
-			assignees = [...assignees, ...(codemark.externalAssignees || [])];
+			const externalAssignees = (codemark.externalAssignees || []).filter(externalAssignee => {
+				return !assignees.find(existingAssignee => {
+					return existingAssignee.fullName === externalAssignee.displayName;
+				});
+			});
+			assignees = [...assignees, ...externalAssignees];
 		}
 
 		let tagsAssigneesTable = '';
@@ -150,7 +155,7 @@ class CodemarkRenderer {
 
 			const numRows = assigneesHeader ? assignees.length : 1;
 			for (let nRow = 0; nRow < numRows; nRow++) {
-				tagsAssigneesTable += '</tr><tr>';
+				tagsAssigneesTable += '<tr>';
 				if (tagsHeader) {
 					if (nRow === 0) {
 						const tags = Utils.renderTags(options);
