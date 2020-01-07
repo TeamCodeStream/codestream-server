@@ -21,6 +21,7 @@
 	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 	margin: 5px 2px 5px 2px;
 	padding: 9px 9px 9px 0px;
+	border-left: 3px solid #009aef;
 }
 
 .inner-content {
