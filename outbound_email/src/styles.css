@@ -67,6 +67,7 @@ img {
 	margin-right: 2px;
 	display: inline-block;
 	font-size: 13px;
+	white-space: nowrap;
 }
 
 .headshot-image {
