@@ -412,7 +412,7 @@ const Utils = {
 			const codeLine = `
 <td width=90%>
 	<div class="monospace code-line">
-		${lines[i]}
+		${lines[i].replace(/>/g,'&gt;').replace(/</g,'&lt;')}
 	</div>
 </td>
 `;
