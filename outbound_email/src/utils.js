@@ -36,7 +36,7 @@ const ICONS_ROOT = 'https://images.codestream.com/email_icons';
 const Utils = {
 
 	// render the author span portion of an email post
-	renderAuthorSpan: function(creator, codemark, emote) {
+	renderAuthorSpan: function (creator, codemark, emote) {
 		const author = creator.username || EmailUtilities.parseEmail(creator.email).name;
 		let text = `<span class="author">${author}&nbsp;</span>`;
 		if (codemark) {
@@ -53,19 +53,19 @@ const Utils = {
 	},
 
 	// format date/time display for email render, taking into account the given time zone
-	formatTime : function(timeStamp, timeZone) {
+	formatTime: function (timeStamp, timeZone) {
 		timeZone = timeZone || 'America/New_York';
 		return MomentTimezone.tz(timeStamp, timeZone).format('h:mm A MMM D');
 	},
-	
+
 	// get the activity text associated with a particular codemark type
-	getCodemarkActivity: function(codemark) {
+	getCodemarkActivity: function (codemark) {
 		switch (codemark.type) {
-		case 'question': 
+		case 'question':
 			return 'has a question';
-		case 'issue': 
+		case 'issue':
 			return 'posted an issue';
-		case 'bookmark': 
+		case 'bookmark':
 			return 'set a bookmark';
 		case 'trap':
 			return 'created a code trap';
@@ -75,7 +75,7 @@ const Utils = {
 	},
 
 	// do syntax highlighting on a code block
-	highlightCode: function(code, extension) {
+	highlightCode: function (code, extension) {
 		if (extension) {
 			try {
 				code = HLJS.highlight(extension, code).value;
@@ -88,12 +88,12 @@ const Utils = {
 	},
 
 	// clean this text for email
-	cleanForEmail: function(text) {
+	cleanForEmail: function (text) {
 		return Utils.whiteSpaceToHtml(HtmlEscape.escapeHtml(text));
 	},
 
 	// convert whitespace in the passed text to html characters
-	whiteSpaceToHtml: function(text) {
+	whiteSpaceToHtml: function (text) {
 		return text
 			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
 			.replace(/^ +/gm, match => { return match.replace(/ /g, '&nbsp;'); });
@@ -102,7 +102,7 @@ const Utils = {
 	// handle mentions in the post text, for any string starting with '@', look for a matching
 	// user in the list of mentioned users in the post ... if we find one, put styling on 
 	// the mention
-	handleMentions: function(text, options) {
+	handleMentions: function (text, options) {
 		const { mentionedUserIds, members } = options;
 		mentionedUserIds.forEach(userId => {
 			const user = members.find(user => user.id === userId);
@@ -120,7 +120,7 @@ const Utils = {
 	},
 
 	// get the default extension for displaying code
-	getExtension: function(options) {
+	getExtension: function (options) {
 		const { codemark, markers } = options;
 		const markerId = (codemark.markerIds || [])[0];
 		if (!markerId) { return; }
@@ -136,7 +136,7 @@ const Utils = {
 	},
 
 	// get repo name appropriate to display a marker
-	getRepoForMarker: function(marker, options) {
+	getRepoForMarker: function (marker, options) {
 		const { repos } = options;
 		let repoUrl = marker.repo || '';
 		if (!repoUrl && marker.repoId) {
@@ -152,7 +152,7 @@ const Utils = {
 	},
 
 	// return the repo name for a given repo url
-	bareRepo: function(repo) {
+	bareRepo: function (repo) {
 		if (repo.match(/^(bitbucket\.org|github\.com)\/(.+)\//)) {
 			repo = repo
 				.split('/')
@@ -168,7 +168,7 @@ const Utils = {
 	},
 
 	// get file name appropriate to display for a marker
-	getFileForMarker: function(marker, options) {
+	getFileForMarker: function (marker, options) {
 		const { fileStreams } = options;
 		let file = marker.file || '';
 		if (marker.fileStreamId) {
@@ -184,7 +184,7 @@ const Utils = {
 	},
 
 	// prepare text for email by cleaning and apply mention replacement
-	prepareForEmail: function(text, options) {
+	prepareForEmail: function (text, options) {
 		const { extension } = options;
 		// text = Utils.cleanForEmail(text);
 		text = new Markdowner().markdownify(text);
@@ -199,7 +199,7 @@ const Utils = {
 	},
 
 	// get appropriate avatar information for displaying a user
-	getAvatar: function(user) {
+	getAvatar: function (user) {
 		const { email, fullName, displayName, username } = user;
 		let emailHash = '-';
 		let authorInitials;
@@ -229,7 +229,7 @@ const Utils = {
 	},
 
 	// render buttons to display, associated with a codemark
-	renderButtons: function(options) {
+	renderButtons: function (options) {
 		const { codemark, markers } = options;
 		const markerId = codemark && codemark.markerIds[0];
 		const marker = markerId && markers.find(marker => marker.id === markerId);
@@ -238,49 +238,68 @@ const Utils = {
 	},
 
 	// get buttons to display associated with a codemark
-	renderMarkerButtons: function(options, marker, inline) {
+	renderMarkerButtons: function (options, marker) {
 		const { codemark } = options;
-
-		let ideButton = '';
+		let ideUrl;
+		let remoteCodeUrl;
 		if (codemark.permalink) {
-			const url = Utils.getIDEUrl(options, marker.id);
-			ideButton = `
-<div class="button hover-button">
-	<a clicktracking="off" href="${url}" target="_blank"><span class="hover-underline">Open in IDE</span></a>
-</div>
-`;
+			ideUrl = Utils.getIDEUrl(options, marker.id);
 		}
 
-		let remoteCodeButton = '';
-		const remoteCodeUrl = marker.remoteCodeUrl || codemark.remoteCodeUrl;
-		if (remoteCodeUrl) {
-			const name = CODE_PROVIDERS[codemark.remoteCodeUrl.name];
-			const url = remoteCodeUrl.url;
-			if (name && url) {
-				remoteCodeButton = `
-<div class="button hover-button">
-	<a clicktracking="off" href="${url}" target="_blank"><span class="hover-underline">Open on ${name}</span></a>
-</div>
-`;
+		let hasRemoteCodeUrl = true;
+		let remoteCodeProviderName = '';
+		const remoteCodeUrlObject = marker.remoteCodeUrl || codemark.remoteCodeUrl;
+		if (remoteCodeUrlObject) {
+			remoteCodeProviderName = CODE_PROVIDERS[codemark.remoteCodeUrl.name];
+			remoteCodeUrl = remoteCodeUrlObject.url;
+			if (remoteCodeProviderName && remoteCodeUrl) {
+				hasRemoteCodeUrl = true;
 			}
 		}
 
-		let buttons = '';
-		const buttonDivClass = inline ? 'inline-buttons' : 'code-buttons';
-		if (ideButton || remoteCodeButton) {
-			buttons = `
-<div class="${buttonDivClass}">
-	${ideButton}
-	${remoteCodeButton}
-</div>
-`;
+		let markup = '';
+		if (ideUrl || hasRemoteCodeUrl) {
+			// need a table for MS Mail (desktop) or Outlook (desktop) as inline-block and/or max-width aren't supported			
+			// using an empty row as a divider -- css margins don't work well
+			let cellCount = 0;
+			markup = `<table border="0" cellspacing="0" cellpadding="0">
+			<tr>
+			  <td>
+				<table border="0" cellspacing="2" cellpadding="2">
+				  <tr>`;
+			if (ideUrl) {
+				cellCount++;
+				markup += `<td>
+					  <a clicktracking="off" href="${ideUrl}" target="_blank" class="button"><span class="hover-underline">Open in IDE</span></a>
+					</td>`;
+			}
+			if (hasRemoteCodeUrl) {
+				if (ideUrl) {
+					cellCount++;
+					markup += '<td>&nbsp;</td>';
+				}
+				cellCount++;
+				markup += `<td>
+					  <a clicktracking="off" href="${remoteCodeUrl}" target="_blank" class="button"><span class="hover-underline">Open on ${remoteCodeProviderName}</span></a>
+					</td>`;
+			}
+			markup += ` 
+				  </tr>
+				</table>
+			  </td>
+			</tr>`;
+			if (cellCount > 0) {
+				// add a buffer / separator to the bottom
+				markup += '<tr><td>&nbsp;</td></tr>';
+			}
+			markup += '</table>';
 		}
 
-		return buttons;
+		return markup;
 	},
- 
+
 	// get the url for opening the codemark in IDE
-	getIDEUrl: function(options, markerId) {
+	getIDEUrl: function (options, markerId) {
 		const { codemark } = options;
 		if (!codemark.permalink) {
 			return '';
@@ -293,68 +312,90 @@ const Utils = {
 		return url;
 	},
 
+
 	// render an author line, with timestamp
-	renderAuthorDiv: function(options) {
+	renderAuthorDiv: function (options) {
 		const { creator, datetimeField } = options;
 		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
 		const headshot = Utils.renderUserHeadshot(creator);
 		return `
 <div>
 	${headshot}
-	<span class="author">${author}</span><span class="datetime">{{{${datetimeField}}}}</span>
+	<span class="author">${author}</span>&nbsp;<span class="datetime">{{{${datetimeField}}}}</span>
 </div>
 `;
 	},
 
 	// render a gravatar headshot with initials as backup
-	renderHeadshot: function(avatar) {
+	renderHeadshot: function (avatar) {
+		// class doesn't seem to work in the `if mso` comment... inline the style.
+		// whole lot of crap to make MS clients look nice...
 		return `
-<div style="max-height:0;max-width:0;display:inline-block;">
-	<span class="headshot-initials">${avatar.authorInitials}</span>
-</div>
-<div style="display:inline-block;">
-	<img class="headshot-image" style="display:inline-block"src="https://www.gravatar.com/avatar/${avatar.emailHash}?s=20&d=blank" />
-</div>
-`;	
+		<!--[if mso]>
+			<span style="background-color:#678;color:#1e1e1e;padding:2px;">${avatar.authorInitials.toUpperCase()}</span>&nbsp;
+		<![endif]-->
+		<!--[if !mso]> <!-->
+		<div style="max-height:0;max-width:0;display:inline-block;">
+			<span class="headshot-initials">${avatar.authorInitials}</span>
+		</div>
+		<div style="display:inline-block;">
+			<img class="headshot-image" style="display:inline-block" src="https://www.gravatar.com/avatar/${avatar.emailHash}?s=20&d=blank" />
+		</div>
+		<!-- <![endif]-->
+		`;
 	},
 
 	// render the set of tags
-	renderTags: function(options) {
+	renderTags: function (options) {
 		const { codemark, team } = options;
 		const tags = codemark.tags || [];
 		const teamTags = team.tags || [];
-		let tagsHtml = '';
+		let tagsHtml = '<table cellpadding=1 cellspacing=1 border=0><tr>';
 		for (let tag of tags) {
 			const teamTag = teamTags[tag];
 			if (teamTag) {
 				tagsHtml += Utils.renderTag(teamTag);
 			}
 		}
-		return tagsHtml;
+		return tagsHtml + '</tr></table>';
 	},
 
 	// render a single tag
-	renderTag: function(teamTag) {
+	renderTag: function (teamTag) {
 		const tagEmptyClass = teamTag.label ? '' : 'tag-empty';
-		const label = teamTag.label || '&#8291;';
+		const label = teamTag.label || '&nbsp;';
 		const color = TAG_MAP[teamTag.color] || teamTag.color;
-		return `<span class="tag ${tagEmptyClass}" style="background-color:${color};">${label}</span>`;
+		// insane width calc, because buttons as "roundrect"s need an actual width. hate.
+		const msWidthBS = teamTag.label ? `width:${Math.max(teamTag.label.length * 9, 25)}px` : 'width:25px;';
+		return `<td valign=top>
+		<!--[if mso]>
+		<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" style="height:23px;${msWidthBS}v-text-anchor:middle;padding:0px;margin:0px" arcsize="10%" stroke="f" fillcolor="${color}">
+			<w:anchorlock/>
+			<center style="padding:0px;margin:0px;font-size:12px;">
+				${label}
+			</center>
+		</v:roundrect>
+		<![endif]-->
+		<!--[if !mso]> <!-->
+			<span class="tag ${tagEmptyClass}" style="background-color:${color};">${label}</span>
+		<!-- <![endif]-->
+		 </td>`;
 	},
 
 	// render the headshot or initials for a single task assignee
-	renderUserHeadshot: function(user) {
+	renderUserHeadshot: function (user) {
 		const avatar = Utils.getAvatar(user);
 		return Utils.renderHeadshot(avatar);
 	},
 
 	// render the icon for a third-party provider
-	renderIcon: function(name) {
+	renderIcon: function (name) {
 		const icon = ICON_MAP[name] || name;
-		return `<img width="16" height="16" src="${ICONS_ROOT}/${icon}.png" />`;
+		return `<img width="21" height="21" src="${ICONS_ROOT}/${icon}.png" />`;
 	},
 
 	// turn code into an html table with line numbering
-	renderCode: function(code, startLine = 0) {
+	renderCode: function (code, startLine = 0) {
 		// setup line numbering
 		const lines = code.trimEnd().split('\n');
 		const numLines = lines.length;

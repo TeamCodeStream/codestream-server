@@ -12,14 +12,15 @@
 .logo {
 	width: 200px;
 	height: 30px;
-	margin: 12px;
+	margin-bottom: 10px;
 }
 
 .content {
 	background-color: #282828;
 	border: 1px solid #383838;
 	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-	margin: 5px 2px 5px 2px;
+	margin: 5px 2px 5px 0px;
+	padding: 9px 9px 9px 0px;
 }
 
 .inner-content {
@@ -36,16 +37,13 @@
 
 .author {
 	color: #c7c7c6;
-	margin-right: 5px;
 	margin-left: 5px;
 	font-weight: 700;
-	vertical-align: text-bottom;
 }
 
 .datetime {
-	opacity: 0.5;
+	color: #c7c7c6;
 	font-size: 13px;
-	vertical-align: text-bottom;
 }
 
 .following a {
@@ -58,11 +56,11 @@ img {
 }
 
 .headshot-initials {
-	background: #678;
+	background-color: #678;
 	border-radius: 3px;
 	color: #1e1e1e;
-	height: 20px;
-	width: 20px;
+	height: 21px;
+	width: 21px;
 	text-align: center;
 	text-transform: capitalize;
 	margin-left: 2px;
@@ -82,8 +80,8 @@ img {
 }
 
 .section {
-	margin-top: 22px;
-	margin-bottom: 4px;
+	margin-top: 15px;
+	margin-bottom: 2px;
 }
 
 .nice-gray {
@@ -101,23 +99,23 @@ td {
 }
 
 .tag {
-	min-width: 12px;
-	min-height: 12px;
+	min-width: 21px;
+	min-height: 20px;
 	display: inline-block;
-	padding: 4px 6px 4px 6px;
 	font-size: 12px;
 	font-weight: 700;
-	line-height: 1;
 	color: #fff;
 	text-align: center;
 	white-space: nowrap;
 	border-radius: 3px;
-	margin: 2px;
-	padding: 5px 4px 5px 4px;
+	margin: 3px 2px 2px 2px;
+	height: 20px;
+	padding: 1px 6px 1px 6px;
 }
 
 .tag-empty {
-	width: 12px;
+	width: 21px;
+	padding: 1px;
 }
 
 .space-left {
@@ -157,13 +155,24 @@ td {
 }
 
 .codeblock-text {
-	margin: 22px 0px 7px 2px;
+	margin: 15px 0px 7px 0px;
 	color: #898f9e;
 	font-size: 12px;
 }
 
+.pr-2 {
+	padding-right: 2px;
+}
+
+.pr-8 {
+	padding-right: 8px;
+}
+
 .codeblock-heading {
-	margin-right: 15px;
+	color: #898f9e;
+	font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+	white-space: nowrap;
+	font-size: 12px;
 }
 
 .code-wrapper {
@@ -180,27 +189,21 @@ td {
 .button {
 	cursor: pointer;
 	background-color: #007bcb;
-	display: inline-block;
+	/*these borders mimic rounded bgs*/
+	border-top: 5px solid #007bcb;
+	border-bottom: 5px solid #007bcb;
+	border-right: 12px solid #007bcb;
+	border-left: 12px solid #007bcb;
 	border-radius: 3px;
-	text-align: center;
-	padding: 5px 10px 5px 10px;
+	color: #ffffff;
+	display: inline-block;
+	font-size: 12px;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI',
+		'Ubuntu', 'Droid Sans', sans-serif;
 	margin-top: 4px;
 	margin-right: 6px;
-}
-
-.button a {
-	color: white !important;
-	text-decoration: none !important;
-}
-
-.code-buttons {
-	margin-top: 15px;
-	margin-bottom: 10px;
-}
-
-.inline-buttons {
-	margin-top: 2px;
-	margin-bottom: 10px;
+	text-align: center;
+	text-decoration: none;
 }
 
 .reply-icons {
@@ -209,9 +212,7 @@ td {
 	vertical-align: middle;
 }
 
-.reply-icon {
-	margin-left: 12px;
-}
+
 
 .reply-icon a {
 	text-decoration: none !important;
@@ -232,12 +233,9 @@ td {
 	text-decoration: none;
 }
 
-.reply-tags {
-	margin-left: 12px;
-}
 
 .icon-spaced {
-	margin-left: 3px; 
+	margin-left: 3px;
 }
 
 .mention {
@@ -267,9 +265,9 @@ code {
 	border-radius: 3px;
 	white-space: pre;
 	font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
-	background:rgb(0, 0, 0, 0.1);
-	padding: 2px 5px;
+	background: rgb(0, 0, 0, 0.1);
 	line-height: 1;
+	font-size: 12px;
 }
 
 .code-line {
@@ -285,7 +283,6 @@ blockquote {
 	border-left: 5px solid #606060;
 	padding-left: 10px;
 }
-
 .hljs{display:block;overflow-x:auto;padding:0.5em;color:#383a42;background:#fafafa}.hljs-comment,.hljs-quote{color:#a0a1a7;font-style:italic}.hljs-doctag,.hljs-keyword,.hljs-formula{color:#a626a4}.hljs-section,.hljs-name,.hljs-selector-tag,.hljs-deletion,.hljs-subst{color:#e45649}.hljs-literal{color:#0184bb}.hljs-string,.hljs-regexp,.hljs-addition,.hljs-attribute,.hljs-meta-string{color:#50a14f}.hljs-built_in,.hljs-class .hljs-title{color:#c18401}.hljs-attr,.hljs-variable,.hljs-template-variable,.hljs-type,.hljs-selector-class,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-number{color:#986801}.hljs-symbol,.hljs-bullet,.hljs-link,.hljs-meta,.hljs-selector-id,.hljs-title{color:#4078f2}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:bold}.hljs-link{text-decoration:underline}
 
 .im {

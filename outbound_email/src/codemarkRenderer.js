@@ -145,33 +145,27 @@ class CodemarkRenderer {
 
 		let tagsAssigneesTable = '';
 		if (tagsHeader || assigneesHeader) {
-			tagsAssigneesTable = '<table class="section"><tbody><tr>';
+			tagsAssigneesTable = '<table class="section" cellpadding=0 cellspacing=0 border=0><tbody><tr>';
 			if (tagsHeader) {
-				tagsAssigneesTable += `<td width=300px class="nice-gray section-text">${tagsHeader}</td>`;				
+				tagsAssigneesTable += `<td width="300" style="width:300px;" class="nice-gray section-text">${tagsHeader}</td>`;				
 			}
 			if (assigneesHeader) {
-				tagsAssigneesTable += `<td width=300px class="nice-gray section-text">${assigneesHeader}</td>`;
+				tagsAssigneesTable += `<td width="300" style="width:300px;" class="nice-gray section-text">${assigneesHeader}</td>`;
 			}
-
-			const numRows = assigneesHeader ? assignees.length : 1;
-			for (let nRow = 0; nRow < numRows; nRow++) {
-				tagsAssigneesTable += '<tr>';
-				if (tagsHeader) {
-					if (nRow === 0) {
-						const tags = Utils.renderTags(options);
-						tagsAssigneesTable += `<td width=300px">${tags}</td>`;
-					}
-					else {
-						tagsAssigneesTable += '<td width=300px>&nbsp;</td>';
-					}
+			tagsAssigneesTable+='</tr><tr>';
+			if (tagsHeader) {				
+				const tags = Utils.renderTags(options);
+				tagsAssigneesTable += `<td width="300" style="width:300px;" valign="top">${tags}</td>`;				
+			}
+			if (assigneesHeader) {
+				tagsAssigneesTable += '<td width="300" style="width:300px;" valign=top><table>';
+				for (let nRow = 0; nRow < assignees.length; nRow++) {							
+					tagsAssigneesTable += `<tr><td>${this.renderAssignee(assignees[nRow])}</td></tr>`;												
 				}
-				if (assigneesHeader) {
-					const assignee = this.renderAssignee(assignees[nRow]);
-					tagsAssigneesTable += `<td width=300px>${assignee}</id>`;
-				}				
-			}
+				tagsAssigneesTable+='</table></td>';
+			}		
 			
-			tagsAssigneesTable += '</tr></tbody></table>';
+			tagsAssigneesTable += '</tr></tbody></table><br>';
 		}
 
 		return tagsAssigneesTable;
@@ -194,10 +188,11 @@ class CodemarkRenderer {
 		if (codemark.title && codemark.text) {
 			const text = Utils.prepareForEmail(codemark.text, options);
 			const iconHtml = Utils.renderIcon('description');
+			// F MS -- can't even get an icon on a single line... just hide it for those fools
 			return `
 <div class="section nice-gray section-text">DESCRIPTION</div>
 <div class="description-wrapper">
-	${iconHtml}&nbsp;
+	<!--[if !mso]> <!-->${iconHtml}&nbsp;<!-- <![endif]-->
 	<span class="ensure-white description">${text}</span>
 </div>
 `;
@@ -220,6 +215,7 @@ class CodemarkRenderer {
 	${iconHtml}
 	<a clicktracking="off" href="${providerUrl}" class="space-left">${providerName} ${providerUrl}</a>
 </div>
+<br>
 `;
 	}
 
@@ -238,6 +234,7 @@ class CodemarkRenderer {
 			return `
 <div class="section nice-gray section-text">RELATED</div>
 ${relatedDivs}
+<br>
 `;
 		}
 		else {
@@ -268,9 +265,9 @@ ${relatedDivs}
 		const iconHtml = Utils.renderIcon(codemark.type);
 		return `
 <div class="related">
-	${iconHtml}
+	${iconHtml}&nbsp;
 	<a clicktracking="off" href="${codemark.permalink}">
-		<span class="related-title space-left">${relatedTitle}</span><span class="nice-gray space-left hover-underline">${path}</span>
+		<span class="related-title">${relatedTitle}</span>&nbsp;<span class="nice-gray hover-underline">${path}</span>
 	</a>
 </div>
 `;
@@ -325,20 +322,29 @@ ${relatedDivs}
 		const fileIcon = Utils.renderIcon('file');
 		const branchIcon = Utils.renderIcon('git-branch');
 		const commitIcon = Utils.renderIcon('git-commit');
-
+		// need to use <td> padding for the spacing to work correctly since
+		// margin doesn't work on all clients
 		return `
-<div class="codeblock-text monospace">
-	${repoIcon}
-	<span class="space-left codeblock-heading">${repo}</span>
-	${fileIcon}
-	<span class="space-left codeblock-heading">${file}</span>
-	${branchIcon}
-	<span class="space-left monospace codeblock-heading">${branch}</span>
-	${commitIcon}
-	<span class="space-left monospace codeblock-heading">${commitHash}</span>
+<div class="codeblock-text">
+	<table cellpadding=0 cellspacing=0 border=0>
+		<tr>
+			<td class="pr-2">${repoIcon}</td>
+			<td class="pr-8"><span class="codeblock-heading">${repo}</span></td>
+			<td class="pr-2">${fileIcon}</td>
+			<td class="pr-8"><span class="codeblock-heading">${file}</span></td>
+			<td class="pr-2">${branchIcon}</td>
+			<td class="pr-8"><span class="codeblock-heading">${branch}</span></td>
+			<td class="pr-2">${commitIcon}</td>
+			<td class="pr-8"><span class="codeblock-heading">${commitHash}</span></td>
+		</tr>
+	</table>
 </div>
 <div class="code">
-	${codeHtml}
+	<table border="0" cellspacing="2" cellpadding="2" bgcolor="#000000" width="100%">
+		<tr>
+			<td bgcolor="#000000">${codeHtml}</td>
+		</tr>
+	</table>
 </div>
 ${buttons}
 `;

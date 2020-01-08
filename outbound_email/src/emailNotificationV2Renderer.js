@@ -30,28 +30,40 @@ class EmailNotificationV2Renderer {
 		<style>
 			${options.styles}
 		</style>
+	<!--[if mso]>
+		<style type="text/css">	
+			.content {border:0px !important;}
+			.code {border:0px !important;}
+		</style>
+	<![endif]-->
 	</head>
-	<body width="100%" style="margin: 0; mso-line-height-rule: exactly;">
-		<table border="0" cellspacing="1" cellpadding="1" bgcolor="#1e1e1e" width="100%">
+	<body width="100%" style="margin: 0; mso-line-height-rule: exactly;">	
+		<table border="0" cellspacing="8" cellpadding="8" bgcolor="#1e1e1e" width="100%">
 			<tr>
 				<td bgcolor="#1e1e1e"> 
 					<div class="master">				 
-						<a href="https://codestream.com">
-							<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
+						<a href="https://codestream.com" clicktracking="off">
+							<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-400x60.png" />
 						</a>
-						<div class="content">
-							${content}
+						<!--[if mso]><br><br><![endif]-->
+						<div class="content">						 
+							<table border="0" cellspacing="5" cellpadding="5" bordercolor="#282828" bgcolor="#282828" width="100%">
+								<tr>
+									<td bgcolor="#282828"> 						
+										${content}														
+									</td>
+								</tr>
+							</table>						 
 						</div>
-						${buttons}
-						<br/>
+						${buttons}						
 						<div class="following ensure-white">
 							<span>You received this email because you are following this codemark.&nbsp;</span><span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
 						</div>
 						${tipDiv}
-					</div>			 
+					</div>				 			 
 				</td>
 			</tr>
-		</table>
+		</table>	 
 	</body>
 </html>
 `;

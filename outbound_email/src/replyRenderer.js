@@ -61,7 +61,8 @@ ${earlierReplies}
 	// render the associated icons
 	renderIconsDiv (options) {
 		const watching = this.renderWatching(options);
-		const tagsAssignees = this.renderTagsAndAssignees(options);
+		const tags = this.renderTags(options);
+		const assignees = this.renderAssignees(options);
 		const linkedIssue = this.renderLinkedIssue(options);
 		const description = this.renderDescription(options);
 		const codeBlocks = this.renderCodeBlocks(options);
@@ -69,39 +70,37 @@ ${earlierReplies}
 		const replies = this.renderReplies(options);
 		const html = [
 			watching,
-			tagsAssignees,
+			tags,
+			assignees,
 			linkedIssue,
 			description,
 			codeBlocks,
 			related,
 			replies
-		].join('');
-		return `<div class="reply-icons">${html}</div>`;
+		].join('</td><td valign=middle>');
+		return `<div class="reply-icons"><table cellpadding=0 cellspacing=0 border=0><tr><td valign=middle>${html}</td></tr></table></div>`;
 	}
 
 	// render the watching icon
 	renderWatching (options) {
-		return `
-<span>
-	<a clicktracking="off" href="${options.clickUrl}">
-		${Utils.renderIcon('eye')}
-	</a>
-</span>
-`;
+		return `<span><a clicktracking="off" href="${options.clickUrl}">${Utils.renderIcon('eye')}</a></span>`;
 	}
 
 	// render tags and assignees
-	renderTagsAndAssignees (options) {
-		const tags = Utils.renderTags(options);
-		const assignees = this.renderAssignees(options);
-		if (!tags && !assignees) { return ''; }
-		return `
-<a class="reply-tags" clicktracking="off" href="${options.clickUrl}">${tags}${assignees}</a>
-`;
+	renderTags (options) {
+		const tags = Utils.renderTags(options);		
+		if (!tags) { return ''; }
+		return `<span class="reply-tags">${tags}</span>`;
+	}
+
+	renderAssignees (options) {		
+		const assignees = this.renderAssigneesCore(options);
+		if (!assignees) { return ''; }
+		return `<span class="reply-tags">${assignees}</span>`;
 	}
 
 	// render the headshots or initials of assignees
-	renderAssignees (options) {
+	renderAssigneesCore (options) {
 		const { codemark, members } = options;
 
 		let assignees = [];
@@ -146,12 +145,12 @@ ${earlierReplies}
 	// render the description icon
 	renderDescription (options) {
 		return `
-<span class="reply-icon">
-	<a clicktracking="off" href="${options.clickUrl}">
-		${Utils.renderIcon('description')}
-	</a>
-</span>
-`;
+		<span class="reply-icon">
+			<a clicktracking="off" href="${options.clickUrl}">
+				${Utils.renderIcon('description')}
+			</a>
+		</span>
+		`;
 	}
 
 	// render the icon for code blocks, and their number
@@ -221,7 +220,6 @@ ${earlierReplies}
 		return `
 <div>
 	<span class="ensure-white">${text}</span>
-	<br>
 </div>
 `;
 	}
@@ -233,7 +231,7 @@ ${earlierReplies}
 
 		if (options.codemark.permalink) {
 			const url = `${options.codemark.permalink}?ide=default`;
-			return `<div class="replies-earlier"><a href="${url}">See earlier replies</a></div>`;
+			return `<div class="replies-earlier"><a href="${url}" clicktracking="off">See earlier replies</a></div>`;
 		}
 		return '<div class="replies-earlier">See earlier replies</div>';
 	}
