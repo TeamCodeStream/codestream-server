@@ -171,6 +171,10 @@ class MongoCollection {
 			// be responsible for iterating
 			return {
 				cursor: cursor,
+				next: async () => {
+					const result = await cursor.next();
+					return this._idStringify(result);
+				},
 				done: (error, results) => {
 					logQuery(error, results);
 				}
@@ -233,7 +237,7 @@ class MongoCollection {
 	}
 
 	// create a document
-	async create (document, options) {
+	async create (document, options = {}) {
 		// get an ID in mongo ID form, or generate one
 		if (document.id) {
 			document._id = options.overrideId ? document.id : this.objectIdSafe(document.id);
