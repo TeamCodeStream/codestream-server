@@ -7,7 +7,7 @@ module.exports = {
 	byProviderIdentities: {
 		providerIdentities: 1
 	},
-	byPlan: {
+	byPlan: { // this index is deprecated in favor of companies collection
 		plan: 1,
 		deactivated: 1
 	}

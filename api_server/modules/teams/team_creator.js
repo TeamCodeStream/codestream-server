@@ -16,8 +16,6 @@ const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_sav
 const DefaultTags = require('./default_tags');
 const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
 
-const TRIAL_PERIOD_FOR_30_DAY_TRIAL = 36 * 24 * 60 * 60 * 1000;	// NOTE - this is 36 days, which gives breathing room
-
 class TeamCreator extends ModelCreator {
 
 	constructor (options) {
@@ -74,12 +72,6 @@ class TeamCreator extends ModelCreator {
 		this.attributes.memberIds = [this.user.id];	// user creating the team should always be a member
 		this.attributes.adminIds = [this.user.id];	// user creating the team becomes its administrator
 		this.attributes.tags = DeepClone(DefaultTags);	// default tags for codemarks
-
-		// default this team to a 30-day trial
-		// now that we have createdAt, start the trial ticket from that time forward
-		this.attributes.plan = '30DAYTRIAL';
-		this.attributes.trialStartDate = this.attributes.createdAt;
-		this.attributes.trialEndDate = this.attributes.trialStartDate + TRIAL_PERIOD_FOR_30_DAY_TRIAL;
 
 		// allow third-party provider related attributes to be set by caller
 		['providerInfo', 'providerIdentities'].forEach(attribute => {

@@ -9,13 +9,13 @@
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
 const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 const Intercom = require('intercom-client');
-const Indexes = require(process.env.CS_API_TOP + '/modules/teams/indexes');
+const Indexes = require(process.env.CS_API_TOP + '/modules/companies/indexes');
 const Strftime = require('strftime');
 const ACCESS_TOKEN = require(process.env.CS_API_TOP + '/config/intercom').accessToken;
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 
 // need these collections from mongo
-const COLLECTIONS = ['teams', 'users', 'updatePlanLastRunAt'];
+const COLLECTIONS = ['companies', 'teams', 'users', 'updatePlanLastRunAt'];
 
 // throttle the updates so we don't stress mongo or intercom
 const NO_UPDATE_THROTTLE_TIME = 10;
@@ -70,9 +70,9 @@ class PlanUpdater {
 		this.intercomClient = new Intercom.Client({ token: ACCESS_TOKEN });
 	}
 
-	// look for all teams that are in trial, and for each one, change its plan as needed
+	// look for all companies that are in trial, and for each one, change its plan as needed
 	async process () {
-		const result = await this.data.teams.getByQuery(
+		const result = await this.data.companies.getByQuery(
 			{
 				plan: '30DAYTRIAL',
 				deactivated: false
@@ -83,39 +83,41 @@ class PlanUpdater {
 			}
 		);
 
-		let team;
+		let company;
 		do {
-			team = await result.cursor.next();
-			if (team) {
-				await this.processTeam(team);
+			company = await result.cursor.next();
+			if (company) {
+				await this.processCompany(company);
 			}
-		} while (team);
+		} while (company);
 		result.done();
 	}
 
-	// for this team, see if its trial is expired, if so, put it on either:
+	// for this company, see if its trial is expired, if so, put it on either:
 	// TRIALEXPIRED, if it has more than 5 members, of FREEPLAN if 5 or fewer members
-	async processTeam (team) {
+	async processCompany (company) {
 		const now = Date.now();
 		const date = Strftime('%Y-%m-%d %H:%M:%S.%L');
-		if (team.trialEndDate > now) {
-			this.logger.log(`${date}: team ${team._id} ("${team.name}") is still in trial`);
+		if (company.trialEndDate > now) {
+			this.logger.log(`${date}: Company ${company._id} ("${company.name}") is still in trial`);
 			return await this.wait(NO_UPDATE_THROTTLE_TIME);
 		}
 
-		const users = await this.getRegisteredUsers(team);
+		const users = await this.getRegisteredUsers(company);
 		let newPlan = users.length > 5 ? 'TRIALEXPIRED' : 'FREEPLAN';
-		this.logger.log(`${date}: Updating team ${team._id} ("${team.name}") to ${newPlan}`);
-		await this.updateIntercom(team, newPlan);
-		await this.updateMongo(team, newPlan);
+		this.logger.log(`${date}: Updating company ${company._id} ("${company.name}") to ${newPlan}`);
+		await this.updateIntercom(company, newPlan);
+		await this.updateMongo(company, newPlan);
 		await this.wait(UPDATE_THROTTLE_TIME);
 	}
 
-	// get the registered users on a team
-	async getRegisteredUsers (team) {
+	// get the registered users in a company
+	async getRegisteredUsers (company) {
+		const teams = await this.data.teams.getByIds(company.teamIds);
+		const teamIds = teams.map(team => team._id.toString());
 		return await this.data.users.getByQuery(
 			{ 
-				teamIds: team._id.toString(),
+				teamIds: {$in: teamIds},
 				isRegistered: true,
 				deactivated: false
 			},
@@ -127,27 +129,27 @@ class PlanUpdater {
 	}
 
 	// update the plan in mongo
-	async updateMongo (team, newPlan) {
+	async updateMongo (company, newPlan) {
 		try {
-			await this.data.teams.updateDirect(
-				{ _id: this.data.teams.objectIdSafe(team._id) },
+			await this.data.companies.updateDirect(
+				{ _id: this.data.companies.objectIdSafe(company._id) },
 				{ $set: { plan: newPlan } }
 			);
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			this.logger.warn(`Update to team ${team._id} failed: ${message}`);
+			this.logger.warn(`Update to company ${company._id} failed: ${message}`);
 		}
 	}
 	
 	// update the plan in intercom, we'll make sure the trial dates are updated as well
-	async updateIntercom (team, plan) {
+	async updateIntercom (company, plan) {
 		const update = {
-			company_id: team._id,
+			company_id: company._id,
 			plan,
 			custom_attributes: {
-				trialStart_at: Math.floor(team.trialStartDate/1000),
-				trialEnd_at: Math.floor(team.trialEndDate/1000)
+				trialStart_at: Math.floor(company.trialStartDate/1000),
+				trialEnd_at: Math.floor(company.trialEndDate/1000)
 			}
 		};
 		try {
@@ -155,7 +157,7 @@ class PlanUpdater {
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message: JSON.stringify(error);
-			this.logger.error(`Unable to update team ${team._id} on Intercom: ${message}`);
+			this.logger.error(`Unable to update company ${company._id} on Intercom: ${message}`);
 		}
 	}
 

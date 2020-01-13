@@ -53,7 +53,6 @@ class PostTeamTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		const team = data.team;
 		const errors = [];
-		const n36Days = 36 * 24 * 60 * 60 * 1000;
 		const result = (
 			((team.id === team._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((team.name === this.data.name) || errors.push('name does not match')) &&
@@ -63,10 +62,7 @@ class PostTeamTest extends CodeStreamAPITest {
 			((team.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
 			((team.memberIds.length === 1 && team.memberIds[0] === this.currentUser.user.id) || errors.push('current user is not the only member')) &&
 			((team.adminIds.length === 1 && team.adminIds[0] === this.currentUser.user.id) || errors.push('current user was not made an admin')) &&
-			((team.primaryReferral === (this.teamReferral || 'external')) || errors.push('primaryReferral is incorrect')) &&
-			((team.plan === '30DAYTRIAL') || errors.push('team plan should be set to 30DAYTRIAL')) &&
-			((team.trialStartDate === team.createdAt) || errors.push('trialStartDate not set to createdAt')) &&
-			((team.trialEndDate === team.createdAt + n36Days) || errors.push('trialEndDate not set to trialStartDate plus 36 days'))
+			((team.primaryReferral === (this.teamReferral || 'external')) || errors.push('primaryReferral is incorrect'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(team.tags, DefaultTags, 'tags not set to defaults');
@@ -102,7 +98,10 @@ class PostTeamTest extends CodeStreamAPITest {
 			((company.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof company.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((company.modifiedAt >= company.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((company.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id'))
+			((company.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
+			((company.plan === '30DAYTRIAL') || errors.push('company plan should be set to 30DAYTRIAL')) &&
+			((company.trialStartDate === company.createdAt) || errors.push('trialStartDate not set to createdAt')) &&
+			((company.trialEndDate === company.createdAt + n36Days) || errors.push('trialEndDate not set to trialStartDate plus 36 days'))
 		);
 		Assert.deepEqual(company.teamIds, [team.id], 'company teamIds is not equal to the array of teams');
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));

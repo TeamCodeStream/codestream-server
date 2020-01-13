@@ -6,6 +6,8 @@ const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_c
 const Company = require('./company');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
+const TRIAL_PERIOD_FOR_30_DAY_TRIAL = 36 * 24 * 60 * 60 * 1000;	// NOTE - this is 36 days, which gives breathing room
+
 class CompanyCreator extends ModelCreator {
 
 	get modelClass () {
@@ -33,8 +35,16 @@ class CompanyCreator extends ModelCreator {
 
 	// right before saving...
 	async preSave () {
+		this.attributes.createdAt = Date.now();
 		this.attributes.creatorId = this.user.id;	// creator is the user making the request
 		this.attributes.teamIds = this.teamIds || [];
+
+		// default this team to a 30-day trial
+		// now that we have createdAt, start the trial ticket from that time forward
+		this.attributes.plan = '30DAYTRIAL';
+		this.attributes.trialStartDate = this.attributes.createdAt;
+		this.attributes.trialEndDate = this.attributes.trialStartDate + TRIAL_PERIOD_FOR_30_DAY_TRIAL;
+
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}

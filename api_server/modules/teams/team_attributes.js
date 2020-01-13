@@ -55,20 +55,20 @@ module.exports = {
 		maxLength: 10000,
 		serverOnly: true
 	},
-	plan: {
+	plan: { // deprecated, now in company object
 		type: 'string',
 		maxLength: 20,
 		description: 'Current payment plan for this team'
 	},
-	trialStartDate: {
+	trialStartDate: { // deprecated, now in company object
 		type: 'timestamp',
 		description: 'Date/time this team\'s trial started' 
 	},
-	trialEndDate: {
+	trialEndDate: { // deprecated, now in company object
 		type: 'timestamp',
 		description: 'Date/time this team\'s trial will end'
 	},
-	planStartDate: {
+	planStartDate: { // deprecated, now in company object
 		type: 'timestamp',
 		description: 'Date/time this team was converted from trial to a paid plan'
 	},

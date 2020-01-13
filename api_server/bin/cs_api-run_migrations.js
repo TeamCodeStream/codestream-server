@@ -41,7 +41,6 @@ class MigrationRunner {
 		}
 	}
 
-	// look for all teams that are in trial, and for each one, change its plan as needed
 	async process () {
 		await new MigrationsHelper({
 			data: this.data,

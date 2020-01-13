@@ -18,10 +18,10 @@ module.exports = function(options) {
 	const teamName = team && team.get('name');
 	const teamSize = team && team.get('memberIds').length;
 	const teamCreatedAt = team && new Date(team.get('createdAt')).toISOString();
-	const teamPlan = team && team.get('plan');
 	const reportingGroup = team && team.get('reportingGroup');
 	const companyName = company && company.get('name');
 	const companyId = company && company.id;
+	const companyPlan = company && company.get('plan');
 
 	const props = {
 		provider,
@@ -35,7 +35,7 @@ module.exports = function(options) {
 		teamName,
 		teamSize,
 		teamCreatedAt,
-		teamPlan,
+		companyPlan,
 		reportingGroup,
 		companyName,
 		companyId

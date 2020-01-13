@@ -14,6 +14,7 @@
 /* eslint no-console: 0 */
 
 const AllModuleIndexes = {
+	companies: require(process.env.CS_API_TOP + '/modules/companies/indexes'),
 	teams: require(process.env.CS_API_TOP + '/modules/teams/indexes'),
 	repos: require(process.env.CS_API_TOP + '/modules/repos/indexes'),
 	streams: require(process.env.CS_API_TOP + '/modules/streams/indexes'),

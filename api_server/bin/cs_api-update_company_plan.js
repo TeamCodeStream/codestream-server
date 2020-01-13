@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-//desc// manually set a payment plan for a team in mongo and on Intercom
+//desc// manually set a payment plan for a company in mongo and on Intercom
 
 /* eslint no-console: 0 */
 
@@ -13,7 +13,7 @@ const Commander = require('commander');
 const ACCESS_TOKEN = require(process.env.CS_API_TOP + '/config/intercom').accessToken;
 
 // need these collections from mongo
-const COLLECTIONS = ['teams'];
+const COLLECTIONS = ['companies'];
 
 const parseDate = function(date) {
 	const timestamp = Date.parse(date);
@@ -25,12 +25,12 @@ const parseDate = function(date) {
 };
 
 Commander
-	.option('-t, --teamId <teamId>', 'CodeStream ID of the team whose plan to change')
+	.option('-c, --companyId <companyId>', 'CodeStream ID of the company whose plan to change')
 	.option('-p, --plan <plan>', 'Name of plan to change to')
 	.option('-s, --start <date>', 'Set planStartDate to this date (best to put the date in quotes)', parseDate)
 	.parse(process.argv);
 
-if (!Commander.teamId || !Commander.plan) {
+if (!Commander.companyId || !Commander.plan) {
 	Commander.help();
 }
 
@@ -72,7 +72,7 @@ class PlanUpdater {
 		this.intercomClient = new Intercom.Client({ token: ACCESS_TOKEN });
 	}
 
-	// look for all teams that are in trial, and for each one, change its plan as needed
+	// change the company's plan in both mongo and on Intercom
 	async process () {
 		await this.updateMongo();
 		await this.updateIntercom();
@@ -87,21 +87,21 @@ class PlanUpdater {
 			set.planStartDate = Commander.start;
 		}
 		try {
-			await this.data.teams.updateDirect(
-				{ _id: this.data.teams.objectIdSafe(this.teamId) },
+			await this.data.companies.updateDirect(
+				{ _id: this.data.companies.objectIdSafe(this.companyId) },
 				{ $set: set }
 			);
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			console.warn(`Update to team ${this.teamId} failed: ${message}`);
+			console.warn(`Update to company ${this.companyId} failed: ${message}`);
 		}
 	}
 	
 	// update the plan in intercom, we'll make sure the trial dates are updated as well
 	async updateIntercom () {
 		const update = {
-			company_id: this.teamId,
+			company_id: this.companyId,
 			plan: this.plan
 		};
 		try {
@@ -109,7 +109,7 @@ class PlanUpdater {
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message: JSON.stringify(error);
-			console.error(`Unable to update team ${this.teamId} on Intercom: ${message}`);
+			console.error(`Unable to update company ${this.companyId} on Intercom: ${message}`);
 		}
 	}
 }
@@ -117,7 +117,7 @@ class PlanUpdater {
 (async function() {
 	try {
 		await new PlanUpdater().go({
-			teamId: Commander.teamId,
+			companyId: Commander.companyId,
 			plan: Commander.plan
 		});
 	}
