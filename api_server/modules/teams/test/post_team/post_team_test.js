@@ -68,7 +68,6 @@ class PostTeamTest extends CodeStreamAPITest {
 			((team.plan === '30DAYTRIAL') || errors.push('team plan should be set to 30DAYTRIAL')) &&
 			((team.trialStartDate === company.createdAt) || errors.push('trialStartDate not set to createdAt')) &&
 			((team.trialEndDate === company.createdAt + n36Days) || errors.push('trialEndDate not set to trialStartDate plus 36 days'))
-
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(team.tags, DefaultTags, 'tags not set to defaults');
@@ -83,6 +82,7 @@ class PostTeamTest extends CodeStreamAPITest {
 		if (this.attachToCompany) {
 			return this.validateAttachToCompany(data);
 		}
+		const n36Days = 36 * 24 * 60 * 60 * 1000;
 		const team = data.team;
 		const company = data.company;
 		const companyName = 
