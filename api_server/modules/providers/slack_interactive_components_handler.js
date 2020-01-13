@@ -54,7 +54,7 @@ class SlackInteractiveComponentsHandler {
 
 	async handleBlockActionGeneric () {
 		const teamId = this.actionPayload.teamId || this.actionPayload.tId;
-		let payloadActionUser = await this.getUser(this.payload.user.id);
+		let payloadActionUser = await this.getUserWithoutTeam(this.payload.user.id);
 		if (!payloadActionUser) {
 			// if we can't find a user that has auth'd with slack, try to find a matching faux user
 			payloadActionUser = await this.getFauxUser(teamId, this.payload.user.team_id, this.payload.user.id);
@@ -378,7 +378,7 @@ class SlackInteractiveComponentsHandler {
 		};
 	}
 
-	async getUser (slackUserId) {
+	async getUserWithoutTeam (slackUserId) {
 		if (!slackUserId) return undefined;
 
 		const users = await this.data.users.getByQuery(
@@ -395,8 +395,18 @@ class SlackInteractiveComponentsHandler {
 			return undefined;
 		}
 		if (users.length === 1) {
-			return users[0];
+			return users[0];			
 		}
+		return undefined;
+	}
+
+	async getUser (slackUserId, codestreamTeamId) {
+		if (!slackUserId || !codestreamTeamId) return undefined;
+
+		const user = await this.getUserWithoutTeam(slackUserId);
+
+		if (user && user.hasTeam(codestreamTeamId)) return user;			
+		
 		return undefined;
 	}
 
@@ -638,6 +648,7 @@ class SlackInteractiveComponentsHandler {
 
 		let results = {};
 		let found = false;
+		const teamId = this.actionPayload.tId || this.actionPayload.teamId;
 		// if the user that created is the same as the user that clicked, we only need 1 lookup
 		if (this.actionPayload.pcuId === this.payload.user.id) {
 			let user = await this.getCodeStreamUser(this.actionPayload.crId);
@@ -664,7 +675,7 @@ class SlackInteractiveComponentsHandler {
 				//user that clicked on the button, based upon their slack id (aka have they authed with slack)
 				this.payload.user.id
 					? new Promise(async resolve => {
-						resolve(await this.getUser(this.payload.user.id));
+						resolve(await this.getUser(teamId, this.payload.user.id));
 					})
 					: undefined
 			]);
@@ -674,8 +685,6 @@ class SlackInteractiveComponentsHandler {
 				results.userThatClickedIsFauxUser = true;
 			}
 			if (results.userThatCreated && !results.userThatClicked) {
-
-
 				// if we still don't have a user that clicked, 
 				// see if we can map the user that clicked by email address to someone already in codestream
 				try {
