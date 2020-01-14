@@ -68,6 +68,7 @@ ${earlierReplies}
 		const codeBlocks = this.renderCodeBlocks(options);
 		const related = this.renderRelatedCodemarks(options);
 		const replies = this.renderReplies(options);
+		// use .filter to remove any empties
 		const html = [
 			watching,
 			tags,
@@ -77,8 +78,8 @@ ${earlierReplies}
 			codeBlocks,
 			related,
 			replies
-		].join('</td><td valign=middle>');
-		return `<div class="reply-icons"><table cellpadding=0 cellspacing=0 border=0><tr><td valign=middle>${html}</td></tr></table></div>`;
+		].filter(Boolean).join('</td><td valign=middle class="pr-10">');
+		return `<div class="reply-icons"><table cellpadding=0 cellspacing=0 border=0><tr><td valign=middle class="pr-10">${html}</td></tr></table></div>`;
 	}
 
 	// render the watching icon

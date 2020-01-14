@@ -350,24 +350,31 @@ const Utils = {
 		const { codemark, team } = options;
 		const tags = codemark.tags || [];
 		const teamTags = team.tags || [];
+		let hasTags = false;
 		let tagsHtml = '<table cellpadding=1 cellspacing=1 border=0><tr>';
+		const length = tags.length;
+		let i = 1;
 		for (let tag of tags) {
+			hasTags = true;
 			const teamTag = teamTags[tag];
 			if (teamTag) {
-				tagsHtml += Utils.renderTag(teamTag);
+				tagsHtml += Utils.renderTag(teamTag, i === length);
 			}
+			i++;
 		}
+		if (!hasTags) return '';
+
 		return tagsHtml + '</tr></table>';
 	},
 
 	// render a single tag
-	renderTag: function (teamTag) {
+	renderTag: function (teamTag, isLast) {
 		const tagEmptyClass = teamTag.label ? '' : 'tag-empty';
 		const label = teamTag.label || '&nbsp;';
 		const color = TAG_MAP[teamTag.color] || teamTag.color;
 		// insane width calc, because buttons as "roundrect"s need an actual width. hate.
 		const msWidthBS = teamTag.label ? `width:${Math.max(teamTag.label.length * 9, 25)}px` : 'width:25px;';
-		return `<td valign=top>
+		return `<td valign=top class="${isLast ? '' : 'pr-4'}">
 		<!--[if mso]>
 		<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" style="height:23px;${msWidthBS}v-text-anchor:middle;padding:0px;margin:0px" arcsize="10%" stroke="f" fillcolor="${color}">
 			<w:anchorlock/>

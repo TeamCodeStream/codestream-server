@@ -46,8 +46,9 @@ class EmailNotificationV2Renderer {
 							<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-400x60.png" />
 						</a>
 						<!--[if mso]><br><br><![endif]-->
-						<div class="content">						 
-							<table border="0" cellspacing="5" cellpadding="5" bordercolor="#282828" bgcolor="#282828" width="100%">
+						<div class="content">	
+						<!--[if mso]><table border="0" cellspacing="5" cellpadding="5" bordercolor="#282828" bgcolor="#282828" width="100%"><![endif]-->							
+						<!--[if !mso]> <!--><table border="0" cellspacing="0" cellpadding="0" bordercolor="#282828" bgcolor="#282828" width="100%"><!-- <![endif]-->
 								<tr>
 									<td bgcolor="#282828"> 						
 										${content}														

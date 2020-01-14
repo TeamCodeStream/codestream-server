@@ -165,8 +165,16 @@ td {
 	padding-right: 2px;
 }
 
+.pr-4 {
+	padding-right: 4px;
+}
+
 .pr-8 {
 	padding-right: 8px;
+}
+
+.pr-10 {
+	padding-right: 10px;
 }
 
 .codeblock-heading {
