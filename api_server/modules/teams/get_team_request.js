@@ -12,6 +12,19 @@ class GetTeamRequest extends GetRequest {
 		description.access = 'User must be a member of the team';
 		return description;
 	}
+
+	async handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
+		const company = await this.data.companies.getById(this.responseData.team.companyId);
+		if (company) {
+			['plan', 'trialStartDate', 'trialEndDate', 'planStartDate'].forEach(attribute => {
+				this.responseData.team[attribute] = company.get(attribute);
+			});
+		}
+		return super.handleResponse();
+	}
 }
 
 module.exports = GetTeamRequest;

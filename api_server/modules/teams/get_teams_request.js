@@ -32,6 +32,26 @@ class GetTeamsRequest extends GetManyRequest {
 		await super.process();
 	}
 
+	// handle the response to the request
+	async handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
+
+		// company company plan attributes to the team attributes
+		const companyIds = this.responseData.teams.map(team => team.companyId);
+		const companies = await this.data.companies.getByIds(companyIds);
+		for (let team of this.responseData.teams) {
+			const company = companies.find(company => company.id === team.companyId);
+			if (company) {
+				['plan', 'trialStartDate', 'trialEndDate', 'planStartDate'].forEach(attribute => {
+					team[attribute] = company.get(attribute);
+				});
+			}
+		}
+		return super.handleResponse();
+	}
+
 	// describe this route for help
 	static describe (module) {
 		const description = GetManyRequest.describe(module);

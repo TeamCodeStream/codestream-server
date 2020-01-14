@@ -28,6 +28,9 @@ class PostTeamRequest extends PostRequest {
 		this.responseData.streams = [
 			this.transforms.createdTeamStream.getSanitizedObject({ request: this })
 		];
+		['plan', 'trialStartDate', 'trialEndDate', 'planStartDate'].forEach(attribute => {
+			this.responseData.team[attribute] = this.responseData.company[attribute];
+		});
 		super.handleResponse();
 	}
 

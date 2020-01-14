@@ -18,6 +18,7 @@ class InitialDataFetcher  {
 		this.initialData = {};
 		await this.getTeams();			// get the teams they are a member of
 		await this.getCompanies();		// get the companies associated with these teams
+		this.updateTeamPlans();			// copy company plan info to their teams
 		await this.getRepos();			// get the repos owned by their teams
 		return this.initialData;
 	}
@@ -42,10 +43,25 @@ class InitialDataFetcher  {
 			this.initialData.companies = [];
 			return;
 		}
-		const companies = await this.request.data.companies.getByIds(companyIds);
-		this.initialData.companies = await this.request.sanitizeModels(companies);
+		this.companies = await this.request.data.companies.getByIds(companyIds);
+		this.initialData.companies = await this.request.sanitizeModels(this.companies);
 	}
 	
+	// copy company plan info to their teams ... we've moved plan info from the team to
+	// the company object, but since the client is looking for it in the team object,
+	// we'll copy it here in the returned data ... at some point, we may modify the
+	// client to actually look for it in the company object, but this is a cheat for now
+	updateTeamPlans () {
+		for (let team of this.initialData.teams) {
+			const company = this.companies.find(company => company.id === team.companyId);
+			if (company) {
+				['plan', 'trialStartDate', 'trialEndDate', 'planStartDate'].forEach(attribute => {
+					team[attribute] = company.get(attribute);
+				});
+			}
+		}
+	}
+
 	// get the repos owned by the teams the user is a member of
 	async getRepos () {
 		const teamIds = this.user.get('teamIds') || [];
