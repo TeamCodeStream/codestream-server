@@ -1,7 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var DataCollectionTest = require('./data_collection_test');
+const DataCollectionTest = require('./data_collection_test');
 
 class UpdateToCacheTest extends DataCollectionTest {
 
@@ -10,29 +9,19 @@ class UpdateToCacheTest extends DataCollectionTest {
 	}
 
 	// before the test...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,				// set up mongo client
-			this.createTestModel,		// create our test model (not persisted)
-			this.updateTestModel,		// update our test model (still not persisted)
-			this.confirmNotPersisted	// confirm our model has not been persisted to the database
-		], callback);
+	async before () {
+		await super.before();				// set up mongo client
+		await this.createTestModel();		// create our test model (not persisted)
+		await this.updateTestModel();		// update our test model (still not persisted)
+		await this.confirmNotPersisted();	// confirm our model has not been persisted to the database
 	}
 
 	// run test test...
-	run (callback) {
-		(async () => {
-			// ensure we can get our test model, even though it has not been persisted to the database
-			// this tests that caching is working properly
-			let response;
-			try {
-				response = await this.data.test.getById(this.testModel.id);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.checkResponse(null, response, callback);
-		})();
+	async run () {
+		// ensure we can get our test model, even though it has not been persisted to the database
+		// this tests that caching is working properly
+		const response = await this.data.test.getById(this.testModel.id);
+		await this.checkResponse(null, response);
 	}
 
 	validateResponse () {

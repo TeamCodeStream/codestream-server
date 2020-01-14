@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateToDatabaseTest = require('./update_to_database_test');
+const UpdateToDatabaseTest = require('./update_to_database_test');
 
 class ApplyNoAddToDatabaseTest extends UpdateToDatabaseTest {
 
@@ -8,7 +8,7 @@ class ApplyNoAddToDatabaseTest extends UpdateToDatabaseTest {
 		return 'should get an unchanged model after applying a no-op add update and persisting';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel () {
 		// this element is already in the array, so check that the document is not changed at all by this op
 		const update = {
 			array: 4
@@ -17,18 +17,10 @@ class ApplyNoAddToDatabaseTest extends UpdateToDatabaseTest {
 			'$addToSet': update
 		};
 
-		(async () => {
-			try {
-				this.actualOp = await this.data.test.applyOpById(
-					this.testModel.id,
-					this.expectedOp
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			callback();
-		})();
+		this.actualOp = await this.data.test.applyOpById(
+			this.testModel.id,
+			this.expectedOp
+		);
 	}
 }
 

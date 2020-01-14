@@ -1,7 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var DataCollectionTest = require('./data_collection_test');
+const DataCollectionTest = require('./data_collection_test');
 
 class UpdateToDatabaseTest extends DataCollectionTest {
 
@@ -10,32 +9,22 @@ class UpdateToDatabaseTest extends DataCollectionTest {
 	}
 
 	// before the test...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,			// set up mongo client
-			this.createTestModel,	// create a test model
-			this.persist,			// persist the model to the database
-			this.clearCache,		// clear the cache
-			this.updateTestModel,	// update the test model
-			this.persist			// persist the update
-		], callback);
+	async before () {
+		await super.before();			// set up mongo client
+		await this.createTestModel();	// create a test model
+		await this.persist();			// persist the model to the database
+		await this.clearCache();		// clear the cache
+		await this.updateTestModel();	// update the test model
+		await this.persist();			// persist the update
 	}
 
 	// run the test...
-	run (callback) {
-		(async () => {
-			// fetch our test model directly from the database, the change should be reflected
-			// because we persisted the update ... since our test model has the update already,
-			// it should match the object returned
-			let response;
-			try {
-				response = await this.mongoData.test.getById(this.testModel.id);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.checkResponse(null, response, callback);
-		})();
+	async run () {
+		// fetch our test model directly from the database, the change should be reflected
+		// because we persisted the update ... since our test model has the update already,
+		// it should match the object returned
+		const response = await this.mongoData.test.getById(this.testModel.id);
+		await this.checkResponse(null, response);
 	}
 
 	validateResponse () {

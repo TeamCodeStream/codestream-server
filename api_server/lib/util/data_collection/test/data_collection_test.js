@@ -3,19 +3,18 @@
 
 'use strict';
 
-var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
-var MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client.js');
-var MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
-var RandomString = require('randomstring');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
-var DataCollection = require('../data_collection');
-var DataModel = require('../data_model');
+const BaseTest = require(process.env.CS_API_TOP + '/lib/test_base/base_test');
+const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client.js');
+const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
+const RandomString = require('randomstring');
+const Assert = require('assert');
+const DataCollection = require('../data_collection');
+const DataModel = require('../data_model');
 
-class DataCollectionTest extends GenericTest {
+class DataCollectionTest extends BaseTest {
 
 	// before the test runs...
-	before (callback) {
+	async before () {
 		// set up the mongo client, and open it against a test collection
 		this.mongoClientFactory = new MongoClient();
 		const mongoConfig = Object.assign({}, MongoConfig, { collections: ['test'] });
@@ -25,43 +24,30 @@ class DataCollectionTest extends GenericTest {
 			mongoConfig.mockMode = true;
 		}
 
-		(async () => {
-			try {
-				this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.mongoData = this.mongoClient.mongoCollections;
-			this.dataCollection = new DataCollection({
-				databaseCollection: this.mongoData.test,
-				modelClass: DataModel
-			});
-			this.data = { test: this.dataCollection };
-			callback();
-		})();
+		this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
+		this.mongoData = this.mongoClient.mongoCollections;
+		this.dataCollection = new DataCollection({
+			databaseCollection: this.mongoData.test,
+			modelClass: DataModel
+		});
+		this.data = { test: this.dataCollection };
 	}
 
-	after (callback) {
-		(async () => {
-			if (this.mongoClient) {
-				await this.mongoClient.close();
-			}
-			callback();
-		})();
+	async after () {
+		if (this.mongoClient) {
+			await this.mongoClient.close();
+		}
 	}
 
 	// create a test model which we'll manipulate and a control model which we won't touch
-	createTestAndControlModel (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.createTestModel,
-			this.createControlModel
-		], callback);
+	async createTestAndControlModel () {
+		await super.before();
+		await this.createTestModel();
+		await this.createControlModel();
 	}
 
 	// create a simple test model with a variety of attributes to be used in various derived tests
-	createTestModel (callback) {
+	async createTestModel () {
 		this.testModel = new DataModel({
 			text: 'hello',
 			number: 12345,
@@ -73,22 +59,13 @@ class DataCollectionTest extends GenericTest {
 			}
 		});
 
-		(async () => {
-			let createdModel;
-			try {
-				createdModel = await this.data.test.create(this.testModel.attributes);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.testModel.id = this.testModel.attributes.id = createdModel.id;
-			this.testModel.attributes.version = 1;
-			callback();
-		})();
+		const createdModel = await this.data.test.create(this.testModel.attributes);
+		this.testModel.id = this.testModel.attributes.id = createdModel.id;
+		this.testModel.attributes.version = 1;
 	}
 
 	// create a simple control model, distinct from the test model, we should never see this model again
-	createControlModel (callback) {
+	async createControlModel () {
 		this.controlModel = new DataModel({
 			text: 'goodbye',
 			number: 54321,
@@ -100,49 +77,28 @@ class DataCollectionTest extends GenericTest {
 			}
 		});
 
-		(async () => {
-			let createdModel;
-			try {
-				createdModel = await this.data.test.create(this.controlModel.attributes);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.controlModel.id = this.controlModel.attributes.id = createdModel.id;
-			callback();
-		})();
+		const createdModel = await this.data.test.create(this.controlModel.attributes);
+		this.controlModel.id = this.controlModel.attributes.id = createdModel.id;
 	}
 
 	// for tests that test the caching ability, we want to ensure that a document has not yet
 	// been persisted to the database, so try to fetch it from the database, which should
 	// return nothing
-	confirmNotPersisted (callback) {
-		(async () => {
-			let response;
-			try {
-				response = await this.mongoData.test.getById(this.testModel.id);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			if (response !== null) {
-				return callback('model that should have gone to cache seems to have persisted');
-			}
-			callback();
-		})();
+	async confirmNotPersisted () {
+		const response = await this.mongoData.test.getById(this.testModel.id);
+		if (response !== null) {
+			throw 'model that should have gone to cache seems to have persisted';
+		}
 	}
 
 	// create a bunch of random models
-	createRandomModels (callback) {
+	async createRandomModels () {
 		this.models = new Array(10);
 		// the randomizer ensures we don't pick up data that has been put in the database by other tests
 		this.randomizer = RandomString.generate(20);
-		BoundAsync.times(
-			this,
-			10,
-			this.createOneRandomModel,
-			callback
-		);
+		for (let i = 0; i < 10; i++) {
+			await this.createOneRandomModel(i);
+		}
 	}
 
 	// with random models, we'll establish that we only want certain ones when
@@ -153,7 +109,7 @@ class DataCollectionTest extends GenericTest {
 	}
 
 	// create a single random model, varying depending upon which model we are creating in order
-	createOneRandomModel (n, callback) {
+	async createOneRandomModel (n) {
 		let flag = this.randomizer + (this.wantN(n) ? 'yes' : 'no');	// tells us which ones we want in test results
 		this.models[n] = new DataModel({
 			text: 'hello' + n,
@@ -161,22 +117,13 @@ class DataCollectionTest extends GenericTest {
 			flag: flag
 		});
 
-		(async () => {
-			let createdModel;
-			try {
-				createdModel = await this.data.test.create(this.models[n].attributes);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.models[n].id = this.models[n].attributes.id = createdModel.id;
-			this.models[n].attributes.version = 1;
-			callback();
-		})();
+		const createdModel = await this.data.test.create(this.models[n].attributes);
+		this.models[n].id = this.models[n].attributes.id = createdModel.id;
+		this.models[n].attributes.version = 1;
 	}
 
 	// filter the test models down to only the ones we want in our test results
-	filterTestModels (callback) {
+	async filterTestModels () {
 		this.testModels = this.models.filter(model => {
 			return this.wantN(model.get('number'));
 		});
@@ -185,11 +132,10 @@ class DataCollectionTest extends GenericTest {
 		this.testModels.sort((a, b) => {
 			return a.get('number') - b.get('number');
 		});
-		callback();
 	}
 
 	// do an established update of the test model
-	updateTestModel (callback) {
+	async updateTestModel () {
 		const update = {
 			id: this.testModel.id,
 			text: 'replaced!',
@@ -199,16 +145,8 @@ class DataCollectionTest extends GenericTest {
 			$set: update
 		};
 
-		(async () => {
-			try {
-				this.actualOp = await this.data.test.update(update);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			Object.assign(this.testModel.attributes, update);
-			callback();
-		})();
+		this.actualOp = await this.data.test.update(update);
+		Object.assign(this.testModel.attributes, update);
 	}
 
 	// validate that we got back the model that exactly matches the test model
@@ -242,22 +180,13 @@ class DataCollectionTest extends GenericTest {
 	}
 
 	// persist whatever is in the cache to the database
-	persist (callback) {
-		(async () => {
-			try {
-				await this.data.test.persist();
-			}
-			catch (error) {
-				return callback(error);
-			}
-			callback();
-		})();
+	async persist () {
+		return this.data.test.persist();
 	}
 
 	// clear the collection cache
-	clearCache (callback) {
+	async clearCache () {
 		this.data.test.clear();
-		callback();
 	}
 }
 

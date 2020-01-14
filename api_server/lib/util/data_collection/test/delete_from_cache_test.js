@@ -1,7 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var DataCollectionTest = require('./data_collection_test');
+const DataCollectionTest = require('./data_collection_test');
 
 class DeleteFromCacheTest extends DataCollectionTest {
 
@@ -10,43 +9,25 @@ class DeleteFromCacheTest extends DataCollectionTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,					// set up mongo client
-			this.createTestAndControlModel,	// create a test model and a control model that we won't touch
-			this.deleteModel				// delete the test model
-		], callback);
+	async before () {
+		await super.before();					// set up mongo client
+		await this.createTestAndControlModel();	// create a test model and a control model that we won't touch
+		await this.deleteModel();				// delete the test model
 	}
 
-	deleteModel (callback) {
-		(async () => {
-			try {
-				await this.data.test.deleteById(this.testModel.id);
-			}
-			catch (error) {
-				callback(error);
-			}
-			callback();
-		})();
+	async deleteModel () {
+		await this.data.test.deleteById(this.testModel.id);
 	}
 
 	// run the test...
-	run (callback) {
-		(async () => {
-			// we'll fetch the test model and control model, but since the test model has been deleted,
-			// we should only get the control model
-			this.testModels = [this.controlModel];
-			let response;
-			try {
-				response = await this.data.test.getByIds(
-					[this.testModel.id, this.controlModel.id]
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.checkResponse(null, response, callback);
-		})();
+	async run () {
+		// we'll fetch the test model and control model, but since the test model has been deleted,
+		// we should only get the control model
+		this.testModels = [this.controlModel];
+		const response = await this.data.test.getByIds(
+			[this.testModel.id, this.controlModel.id]
+		);
+		await this.checkResponse(null, response);
 	}
 
 	validateResponse () {

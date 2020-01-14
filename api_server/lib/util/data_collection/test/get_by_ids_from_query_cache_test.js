@@ -1,7 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var DataCollectionTest = require('./data_collection_test');
+const DataCollectionTest = require('./data_collection_test');
 
 class GetByIdsFromQueryCacheTest extends DataCollectionTest {
 
@@ -10,68 +9,41 @@ class GetByIdsFromQueryCacheTest extends DataCollectionTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,				// set up model client
-			this.createRandomModels,	// create a series of random models
-			this.filterTestModels,		// filter then down to the ones we've decided we want
-			this.persist,				// persist all models to the database
-			this.clearCache,			// clear the local cache
-			this.queryModels,			// query for the models we want
-			this.deleteModels			// delete the models in the database, but they'll stay in the cache
-		], callback);
+	async before () {
+		await super.before();				// set up model client
+		await this.createRandomModels();	// create a series of random models
+		await this.filterTestModels();		// filter then down to the ones we've decided we want
+		await this.persist();				// persist all models to the database
+		await this.clearCache();			// clear the local cache
+		await this.queryModels();			// query for the models we want
+		await this.deleteModels();			// delete the models in the database, but they'll stay in the cache
 	}
 
-	queryModels (callback) {
-		(async () => {
-			// query for the models we want, this should put them in the cache for us to retrieve later
-			let response;
-			try {
-				response = await this.data.test.getByQuery(
-					{ flag: this.randomizer + 'yes' }
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			if (!(response instanceof Array || response.length !== this.testModels.length)) {
-				return callback('models that should have been fetched were not');
-			}
-			callback();
-		})();
+	async queryModels () {
+		// query for the models we want, this should put them in the cache for us to retrieve later
+		const response = await this.data.test.getByQuery(
+			{ flag: this.randomizer + 'yes' }
+		);
+		if (!(response instanceof Array || response.length !== this.testModels.length)) {
+			throw 'models that should have been fetched were not';
+		}
 	}
 
-	deleteModels (callback) {
-		(async () => {
-			// delete the models from the underlying database (note use of this.mongoData, not this.data)
-			// this ensure that when we fetch them, we're fetching from the cache
-			const ids = this.testModels.map(model => { return model.id; });
-			try {
-				await this.mongoData.test.deleteByIds(ids);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			callback();
-		})();
+	async deleteModels () {
+		// delete the models from the underlying database (note use of this.mongoData, not this.data)
+		// this ensure that when we fetch them, we're fetching from the cache
+		const ids = this.testModels.map(model => { return model.id; });
+		await this.mongoData.test.deleteByIds(ids);
 	}
 
 	// run the test...
-	run (callback) {
-		(async () => {
-			// now that we've decided on the models we want, since we queried for them using a query,
-			// this should have put them in the cache ... so even though they've been deleted from the
-			// database, we should still be able to fetch them
-			const ids = this.testModels.map(model => { return model.id; });
-			let response;
-			try {
-				response = await this.data.test.getByIds(ids);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.checkResponse(null, response, callback);
-		})();
+	async run () {
+		// now that we've decided on the models we want, since we queried for them using a query,
+		// this should have put them in the cache ... so even though they've been deleted from the
+		// database, we should still be able to fetch them
+		const ids = this.testModels.map(model => { return model.id; });
+		const response = await this.data.test.getByIds(ids);
+		await this.checkResponse(null, response);
 	}
 
 	validateResponse () {

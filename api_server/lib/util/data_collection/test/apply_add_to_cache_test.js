@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateToCacheTest = require('./update_to_cache_test');
+const UpdateToCacheTest = require('./update_to_cache_test');
 
 class ApplyAddToCacheTest extends UpdateToCacheTest {
 
@@ -8,7 +8,7 @@ class ApplyAddToCacheTest extends UpdateToCacheTest {
 		return 'should get the correct model after applying an add update to a cached model';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel () {
 		// add an element to the array, make sure it gets added
 		const update = {
 			array: 7
@@ -17,19 +17,11 @@ class ApplyAddToCacheTest extends UpdateToCacheTest {
 			'$addToSet': update 
 		};
 
-		(async () => {
-			try {
-				this.actualOp = await this.data.test.applyOpById(
-					this.testModel.id,
-					this.expectedOp
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.testModel.attributes.array.push(7);
-			callback();
-		})();
+		this.actualOp = await this.data.test.applyOpById(
+			this.testModel.id,
+			this.expectedOp
+		);
+		this.testModel.attributes.array.push(7);
 	}
 }
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateToDatabaseTest = require('./update_to_database_test');
+const UpdateToDatabaseTest = require('./update_to_database_test');
 
 class ApplyUnsetToDatabaseTest extends UpdateToDatabaseTest {
 
@@ -8,7 +8,7 @@ class ApplyUnsetToDatabaseTest extends UpdateToDatabaseTest {
 		return 'should get the correct model after applying an unset update and persisting';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel () {
 		// unset a value and verify it is unset
 		const unset = {
 			text: 1,
@@ -17,19 +17,11 @@ class ApplyUnsetToDatabaseTest extends UpdateToDatabaseTest {
 			'$unset': unset
 		};
 
-		(async () => {
-			try {
-				this.actualOp = await this.data.test.applyOpById(
-					this.testModel.id,
-					this.expectedOp
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			delete this.testModel.attributes.text;
-			callback();
-		})();
+		this.actualOp = await this.data.test.applyOpById(
+			this.testModel.id,
+			this.expectedOp
+		);
+		delete this.testModel.attributes.text;
 	}
 }
 

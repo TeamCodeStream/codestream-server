@@ -1,7 +1,6 @@
 'use strict';
 
-var DataCollectionTest = require('./data_collection_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const DataCollectionTest = require('./data_collection_test');
 
 class CreateAndPersistTest extends DataCollectionTest {
 
@@ -10,28 +9,18 @@ class CreateAndPersistTest extends DataCollectionTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,						// set up mongo client
-			this.createTestAndControlModel,		// create a test model and a control model that won't be touched
-			this.persist,						// persist the model to the database
-			this.clearCache						// clear the cache, to make sure the document gets read from the database
-		], callback);
+	async before () {
+		await super.before();						// set up mongo client
+		await this.createTestAndControlModel();		// create a test model and a control model that won't be touched
+		await this.persist();						// persist the model to the database
+		await this.clearCache();					// clear the cache, to make sure the document gets read from the database
 	}
 
 	// run the test...
-	run (callback) {
-		(async () => {
-			// fetch the document from the collection
-			let response;
-			try {
-				response = await this.mongoData.test.getById(this.testModel.id);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.checkResponse(null, response, callback);
-		})();
+	async run () {
+		// fetch the document from the collection
+		const response = await this.mongoData.test.getById(this.testModel.id);
+		await this.checkResponse(null, response);
 	}
 
 	validateResponse () {

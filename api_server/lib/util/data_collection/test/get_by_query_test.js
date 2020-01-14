@@ -1,7 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var DataCollectionTest = require('./data_collection_test');
+const DataCollectionTest = require('./data_collection_test');
 
 class GetByQueryTest extends DataCollectionTest {
 
@@ -10,30 +9,20 @@ class GetByQueryTest extends DataCollectionTest {
 	}
 
 	// before the test...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,				// set up mongo client
-			this.createRandomModels,	// create a series of random models
-			this.persist,				// persist those models to the database
-			this.filterTestModels		// filter our test models to the ones we want
-		], callback);
+	async before () {
+		await super.before();				// set up mongo client
+		await this.createRandomModels();	// create a series of random models
+		await this.persist();				// persist those models to the database
+		await this.filterTestModels();		// filter our test models to the ones we want
 	}
 
 	// run the test...
-	run (callback) {
-		(async () => {
-			// do the query
-			let response;
-			try {
-				response = await this.data.test.getByQuery(
-					{ flag: this.randomizer + 'yes' }
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.checkResponse(null, response, callback);
-		})();
+	async run () {
+		// do the query
+		const response = await this.data.test.getByQuery(
+			{ flag: this.randomizer + 'yes' }
+		);
+		await this.checkResponse(null, response);
 	}
 
 	validateResponse () {

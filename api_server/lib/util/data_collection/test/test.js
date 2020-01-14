@@ -56,7 +56,7 @@ const VersionMismatchTest = require('./version_mismatch_test');
 describe('dataCollection', function() {
 
 	this.timeout(10000);
-	
+
 	new GetByIdFromCacheTest().test();
 	new GetByIdFromDatabaseTest().test();
 	new GetByIdFromCacheAfterDeletedTest().test();

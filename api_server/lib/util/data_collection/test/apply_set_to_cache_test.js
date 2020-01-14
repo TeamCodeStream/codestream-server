@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateToCacheTest = require('./update_to_cache_test');
+const UpdateToCacheTest = require('./update_to_cache_test');
 
 class ApplySetToCacheTest extends UpdateToCacheTest {
 
@@ -8,7 +8,7 @@ class ApplySetToCacheTest extends UpdateToCacheTest {
 		return 'should get the correct model after applying a set update to a cached model';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel () {
 		// set some values and verify they are set
 		const set = {
 			text: 'replaced!',
@@ -18,19 +18,11 @@ class ApplySetToCacheTest extends UpdateToCacheTest {
 			'$set': set
 		};
 
-		(async () => {
-			try {
-				this.actualOp = await this.data.test.applyOpById(
-					this.testModel.id,
-					this.expectedOp
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			Object.assign(this.testModel.attributes, set);
-			callback();
-		})();
+		this.actualOp = await this.data.test.applyOpById(
+			this.testModel.id,
+			this.expectedOp
+		);
+		Object.assign(this.testModel.attributes, set);
 	}
 }
 

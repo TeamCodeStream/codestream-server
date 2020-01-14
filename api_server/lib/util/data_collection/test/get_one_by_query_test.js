@@ -1,7 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var DataCollectionTest = require('./data_collection_test');
+const DataCollectionTest = require('./data_collection_test');
 
 class GetOneByQueryTest extends DataCollectionTest {
 
@@ -10,35 +9,25 @@ class GetOneByQueryTest extends DataCollectionTest {
 	}
 
 	// before the test...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,				// set up mongo client
-			this.createRandomModels,	// create a series of random models
-			this.persist,				// persist those models to the database
-			this.clearCache				// clear the local cache
-		], callback);
+	async before () {
+		await super.before();				// set up mongo client
+		await this.createRandomModels();	// create a series of random models
+		await this.persist();				// persist those models to the database
+		await this.clearCache();			// clear the local cache
 	}
 
 	// run the test...
-	run (callback) {
-		(async () => {
-			// the cache has been cleared, but we should be able to get a model by query,
-			// since the DataCollection should go out to the database for the model
-			this.testModel = this.models[4];
-			let response;
-			try {
-				response = await this.data.test.getOneByQuery(
-					{
-						text: this.testModel.get('text'),
-						flag: this.testModel.get('flag')
-					}
-				);
+	async run () {
+		// the cache has been cleared, but we should be able to get a model by query,
+		// since the DataCollection should go out to the database for the model
+		this.testModel = this.models[4];
+		const response = await this.data.test.getOneByQuery(
+			{
+				text: this.testModel.get('text'),
+				flag: this.testModel.get('flag')
 			}
-			catch (error) {
-				return callback(error);
-			}
-			this.checkResponse(null, response, callback);
-		})();
+		);
+		await this.checkResponse(null, response);
 	}
 
 	validateResponse () {

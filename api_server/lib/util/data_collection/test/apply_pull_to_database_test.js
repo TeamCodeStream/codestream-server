@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateToDatabaseTest = require('./update_to_database_test');
+const UpdateToDatabaseTest = require('./update_to_database_test');
 
 class ApplyPullToDatabaseTest extends UpdateToDatabaseTest {
 
@@ -8,7 +8,7 @@ class ApplyPullToDatabaseTest extends UpdateToDatabaseTest {
 		return 'should get the correct model after applying a pull update and persisting';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel () {
 		// pull this element from the array, and check that it's gone
 		const update = {
 			array: 4
@@ -17,20 +17,12 @@ class ApplyPullToDatabaseTest extends UpdateToDatabaseTest {
 			'$pull': update
 		};
 		
-		(async () => {
-			try {
-				this.actualOp = await this.data.test.applyOpById(
-					this.testModel.id,
-					this.expectedOp
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			const index = this.testModel.attributes.array.indexOf(4);
-			this.testModel.attributes.array.splice(index, 1);
-			callback();
-		})();
+		this.actualOp = await this.data.test.applyOpById(
+			this.testModel.id,
+			this.expectedOp
+		);
+		const index = this.testModel.attributes.array.indexOf(4);
+		this.testModel.attributes.array.splice(index, 1);
 	}
 }
 

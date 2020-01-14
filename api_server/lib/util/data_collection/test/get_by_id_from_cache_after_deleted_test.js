@@ -1,7 +1,6 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var DataCollectionTest = require('./data_collection_test');
+const DataCollectionTest = require('./data_collection_test');
 
 class GetByIdFromCacheAfterDeletedTest extends DataCollectionTest {
 
@@ -10,56 +9,29 @@ class GetByIdFromCacheAfterDeletedTest extends DataCollectionTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,			// set up mongo client
-			this.createTestModel,	// create the test model
-			this.persist,			// persist it to the database
-			this.clearCache,		// clear the cache
-			this.getModel,			// get the model, since cache was cleared, this will come from the database
-			this.deleteModel		// delete the model directly in the database, but it's still in the cache
-		], callback);
+	async before () {
+		await super.before();			// set up mongo client
+		await this.createTestModel();	// create the test model
+		await this.persist();			// persist it to the database
+		await this.clearCache();		// clear the cache
+		await this.getModel();			// get the model, since cache was cleared, this will come from the database
+		await this.deleteModel();		// delete the model directly in the database, but it's still in the cache
 	}
 
-	getModel (callback) {
-		(async () => {
-			// we get the model from the cache
-			try {
-				await this.data.test.getById(this.testModel.id);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			callback();
-		})();
+	async getModel () {
+		await this.data.test.getById(this.testModel.id);
 	}
 
-	deleteModel (callback) {
-		(async () => {
-			// we delete the model from the database (pulling the run out from under the cache)
-			try {
-				await this.mongoData.test.deleteById(this.testModel.id);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			callback();
-		})();
+	async deleteModel () {
+		// we delete the model from the database (pulling the run out from under the cache)
+		await this.mongoData.test.deleteById(this.testModel.id);
 	}
 
 	// run the test...
-	run (callback) {
-		(async () => {
-			// this should fetch the model from the cache, even though we've deleted it in the database
-			let response;
-			try {
-				response = await this.data.test.getById(this.testModel.id);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.checkResponse(null, response, callback);
-		})();
+	async run () {
+		// this should fetch the model from the cache, even though we've deleted it in the database
+		const response = await this.data.test.getById(this.testModel.id);
+		await this.checkResponse(null, response);
 	}
 
 	validateResponse () {

@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateToDatabaseTest = require('./update_to_database_test');
+const UpdateToDatabaseTest = require('./update_to_database_test');
 
 class ApplyIncToDatabaseTest extends UpdateToDatabaseTest {
 
@@ -8,7 +8,7 @@ class ApplyIncToDatabaseTest extends UpdateToDatabaseTest {
 		return 'should get the correct model after applying an increment update and persisting';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel () {
 		// increment a numeric field, make sure it gets incremented
 		const update = {
 			number: 5
@@ -17,19 +17,11 @@ class ApplyIncToDatabaseTest extends UpdateToDatabaseTest {
 			'$inc': update
 		};
 
-		(async () => {
-			try {
-				this.actualOp = await this.data.test.applyOpById(
-					this.testModel.id,
-					this.expectedOp
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.testModel.attributes.number += 5;
-			callback();
-		})();
+		this.actualOp = await this.data.test.applyOpById(
+			this.testModel.id,
+			this.expectedOp
+		);
+		this.testModel.attributes.number += 5;
 	}
 }
 

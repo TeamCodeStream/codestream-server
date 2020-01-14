@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateToCacheTest = require('./update_to_cache_test');
+const UpdateToCacheTest = require('./update_to_cache_test');
 
 class ApplyUnsetToCacheTest extends UpdateToCacheTest {
 
@@ -8,7 +8,7 @@ class ApplyUnsetToCacheTest extends UpdateToCacheTest {
 		return 'should get the correct model after applying an unset update to a cached model';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel () {
 		// unset a value and verify it is unset
 		const unset = {
 			text: 1,
@@ -17,19 +17,11 @@ class ApplyUnsetToCacheTest extends UpdateToCacheTest {
 			'$unset': unset
 		};
 		
-		(async () => {
-			try {
-				this.actualOp = await this.data.test.applyOpById(
-					this.testModel.id,
-					this.expectedOp
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			delete this.testModel.attributes.text;
-			callback();
-		})();
+		this.actualOp = await this.data.test.applyOpById(
+			this.testModel.id,
+			this.expectedOp
+		);
+		delete this.testModel.attributes.text;
 	}
 }
 

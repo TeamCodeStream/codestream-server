@@ -1,7 +1,7 @@
 'use strict';
 
-var DataCollectionTest = require('./data_collection_test');
-var Assert = require('assert');
+const DataCollectionTest = require('./data_collection_test');
+const Assert = require('assert');
 
 class GetByIdNotFoundTest extends DataCollectionTest {
 
@@ -9,19 +9,11 @@ class GetByIdNotFoundTest extends DataCollectionTest {
 		return 'should get null when getting model that does not exist';
 	}
 
-	run (callback) {
-		(async () => {
-			// fetch a new ID (not yet assigned to a document) and try to fetch
-			let nextId = this.data.test.createId();
-			let response;
-			try {
-				response = await this.data.test.getById(nextId);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.checkResponse(null, response, callback);
-		})();
+	async run () {
+		// fetch a new ID (not yet assigned to a document) and try to fetch
+		const nextId = this.data.test.createId();
+		const response = await this.data.test.getById(nextId);
+		await this.checkResponse(null, response);
 	}
 
 	validateResponse () {

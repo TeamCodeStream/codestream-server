@@ -1,6 +1,6 @@
 'use strict';
 
-var UpdateToDatabaseTest = require('./update_to_database_test');
+const UpdateToDatabaseTest = require('./update_to_database_test');
 
 class ApplySetToDatabaseTest extends UpdateToDatabaseTest {
 
@@ -8,7 +8,7 @@ class ApplySetToDatabaseTest extends UpdateToDatabaseTest {
 		return 'should get the correct model after applying a set update and persisting';
 	}
 
-	updateTestModel (callback) {
+	async updateTestModel () {
 		// set some values and verify they are set
 		const set = {
 			text: 'replaced!',
@@ -18,19 +18,11 @@ class ApplySetToDatabaseTest extends UpdateToDatabaseTest {
 			'$set': set
 		};
 
-		(async () => {
-			try {
-				this.actualOp = await this.data.test.applyOpById(
-					this.testModel.id,
-					this.expectedOp
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			Object.assign(this.testModel.attributes, set);
-			callback();
-		})();
+		this.actualOp = await this.data.test.applyOpById(
+			this.testModel.id,
+			this.expectedOp
+		);
+		Object.assign(this.testModel.attributes, set);
 	}
 }
 

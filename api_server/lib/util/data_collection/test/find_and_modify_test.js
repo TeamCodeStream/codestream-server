@@ -1,8 +1,7 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var GetByIdFromDatabaseTest = require('./get_by_id_from_database_test');
-var Assert = require('assert');
+const GetByIdFromDatabaseTest = require('./get_by_id_from_database_test');
+const Assert = require('assert');
 
 class FindAndModifyTest extends GetByIdFromDatabaseTest {
 
@@ -11,22 +10,18 @@ class FindAndModifyTest extends GetByIdFromDatabaseTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,		// set up mongo client and create a document directly in the database
-			this.updateDocument	// do the find-and-modify update
-		], callback);
+	async before () {
+		await super.before();		// set up mongo client and create a document directly in the database
+		await this.updateDocument();	// do the find-and-modify update
 	}
 
 	// run the test...
-	run (callback) {
-		BoundAsync.series(this, [
-			this.checkFetchedDocument,	// we should get the document as it looks after the update
-			super.run					// do the overall check of the document
-		], callback);
+	async run () {
+		await this.checkFetchedDocument();	// we should get the document as it looks after the update
+		await super.run();					// do the overall check of the document
 	}
 
-	updateDocument (callback) {
+	async updateDocument () {
 		// here we're incrementing the number field in the document, but the document we get back
 		// from the operation should NOT show the increment ... note that this is a direct-to-database
 		// operation, the operation is immediately persisted
@@ -34,30 +29,20 @@ class FindAndModifyTest extends GetByIdFromDatabaseTest {
 			number: 5
 		};
 		
-		(async () => {
-			let document;
-			try {
-				document = await this.data.test.findAndModify(
-					{ id: this.data.test.objectIdSafe(this.testModel.id) },
-					{ '$inc': update }
-				);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.fetchedDocument = document;	 // this is our fetched document, without the increment
-			callback();
-		})();
+		const document = await this.data.test.findAndModify(
+			{ id: this.data.test.objectIdSafe(this.testModel.id) },
+			{ '$inc': update }
+		);
+		this.fetchedDocument = document;	 // this is our fetched document, without the increment
 	}
 
-	checkFetchedDocument (callback) {
+	checkFetchedDocument () {
 		// first make sure the find-and-modify returned the document without the increment,
 		// then run the base-class validation WITH the increment ... this will retrieve the document
 		// again, now showing the increment
 		this.testModel.attributes.id = this.testModel.attributes.id;
 		Assert.deepEqual(this.testModel.attributes, this.fetchedDocument, 'fetched document not equal to test model attributes');
 		this.testModel.attributes.number += 5;
-		callback();
 	}
 }
 

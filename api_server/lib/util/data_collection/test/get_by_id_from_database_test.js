@@ -1,8 +1,7 @@
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var DataCollectionTest = require('./data_collection_test');
-var DataModel = require('../data_model');
+const DataCollectionTest = require('./data_collection_test');
+const DataModel = require('../data_model');
 
 class GetByIdFromDatabaseTest extends DataCollectionTest {
 
@@ -11,47 +10,28 @@ class GetByIdFromDatabaseTest extends DataCollectionTest {
 	}
 
 	// before the test runs...
-	before (callback) {
-		BoundAsync.series(this, [
-			super.before,			// set up mongo client
-			this.createModelDirect	// create a model directly in the database (bypassing cache)
-		], callback);
+	async before () {
+		await super.before();			// set up mongo client
+		await this.createModelDirect();	// create a model directly in the database (bypassing cache)
 	}
 
-	createModelDirect (callback) {
+	async createModelDirect () {
 		this.testModel = new DataModel({
 			text: 'hello',
 			number: 12345,
 			array: [1, 2, 3, 4, 5]
 		});
 		
-		(async () => {
-			// note that we're calling this.mongoData.test.create, not this.data.test.create
-			// this creates the document in the database directly, bypassing the cache
-			let createdDocument;
-			try {
-				createdDocument = await this.mongoData.test.create(this.testModel.attributes);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.testModel.id = this.testModel.attributes.id = createdDocument.id;
-			callback();
-		})();
+		// note that we're calling this.mongoData.test.create, not this.data.test.create
+		// this creates the document in the database directly, bypassing the cache
+		const createdDocument = await this.mongoData.test.create(this.testModel.attributes);
+		this.testModel.id = this.testModel.attributes.id = createdDocument.id;
 	}
 
-	run (callback) {
-		(async () => {
-			// this should fetch the document from the database, since it was never cached
-			let response;
-			try {
-				response = await this.data.test.getById(this.testModel.id);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.checkResponse(null, response, callback);
-		})();
+	async run () {
+		// this should fetch the document from the database, since it was never cached
+		const response = await this.data.test.getById(this.testModel.id);
+		await this.checkResponse(null, response);
 	}
 
 	validateResponse () {
