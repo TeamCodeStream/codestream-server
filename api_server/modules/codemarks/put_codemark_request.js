@@ -100,16 +100,13 @@ class PutCodemarkRequest extends PutRequest {
 	// for issue codemarks linked to a third-party provider, we only send the email notification 
 	// triggered by the codemark creation when we have the third-party provider info
 	sendEmailNotification () {
-		const teamHasSharingModel = (this.updater.team.get('settings') || {}).sharingModelEnabled;
-		if (teamHasSharingModel) { // eventually ALL teams will have this
-			const postId = this.updater.codemark.get('postId');
-			const message = {
-				type: 'notification_v2',
-				postId
-			};
-			this.log(`Triggering V2 email notifications for post ${postId}...`);
-			this.api.services.email.queueEmailSend(message, { request: this.request });
-		}
+		const postId = this.updater.codemark.get('postId');
+		const message = {
+			type: 'notification_v2',
+			postId
+		};
+		this.log(`Triggering V2 email notifications for post ${postId}...`);
+		this.api.services.email.queueEmailSend(message, { request: this.request });
 	}
 
 	// describe this route for help

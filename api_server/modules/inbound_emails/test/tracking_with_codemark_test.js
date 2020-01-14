@@ -25,23 +25,8 @@ class TrackingWithCodemarkTest extends TrackingTest {
 	makePostData (callback) {
 		super.makePostData(() => {
 			this.data.to[0].address = `${this.postData[0].codemark.id}.${this.data.to[0].address}`;
-			this.makeTeamUseSharingModel(callback);
+			callback();
 		});
-	}
-
-	// make the team use the sharing model, ensuring new-style codemark notifications
-	makeTeamUseSharingModel (callback) {
-		this.doApiRequest(
-			{
-				method: 'put',
-				path: '/team-settings/' + this.team.id,
-				data: {
-					sharingModelEnabled: true
-				},
-				token: this.token,
-			},
-			callback
-		);
 	}
 
 	validateMessage (message) {
