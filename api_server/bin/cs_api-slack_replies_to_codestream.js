@@ -20,6 +20,9 @@ Commander
 	.option('--throttle <throttle>', 'Pause this number of milliseconds between teams')
 	.option('--verbose', 'Verbose output')
 	.option('--debug', 'Debug output')
+	.option('--dieonwarn <dieonwarn>', 'Die on a warning', parseInt)
+	.option('--ignorestreams <ignorestreams>', 'Ignore the given comma-separated list of stream IDs')
+	.option('--ignoreusers <ignoreusers>', 'Ignore codemarks authored by the given comma-separated list of user IDs')
 	.parse(process.argv);
 
 const COLLECTIONS = ['teams', 'posts', 'codemarks', 'users', 'streams', 'teams'];
@@ -27,6 +30,8 @@ const DEFAULT_THROTTLE_TIME = 1000;
 
 const Logger = console;
 const ThrottleTime = Commander.throttle ? parseInt(Commander.throttle) : DEFAULT_THROTTLE_TIME;
+const IgnoreStreams = Commander.ignorestreams ? Commander.ignorestreams.split(',') : [];
+const IgnoreUsers = Commander.ignoreusers ? Commander.ignoreusers.split(',') : [];
 
 // for paginated requests, we'll throttle repeated requested according to the tier
 // the Slack API request is on for rate limiting
@@ -52,18 +57,23 @@ class TeamReplyFetcher {
 		this.streamSeqNums = {};
 		this.slackStreams = {};
 		this.streams = {};
+		this.warnCount = 0;
 	}
 
 	// fetch all the replies to codemarks for a team and turn them into posts
 	async fetchRepliesForTeam (team) {
 		this.team = team;
+		this.totalCodemarks = 0;
 		this.totalReplies = 0;
 		await this.getTeamUsers();
 		await this.ensureTeamStream();
 		await this.processCodemarks();
 		await this.updateTeam();
 		await this.setUserPasswords();
-		Logger.log(`\tTOTAL REPLIES FOR TEAM: ${this.totalReplies}`);
+		this.log(`\tCODEMARKS: ${this.totalCodemarks}`);
+		this.log(`\tREPLIES: ${this.totalReplies}`);
+		this.log(`\tWARNINGS: ${this.warnCount}`);
+		this.log('==============================================================');
 	}
 
 	// get all the users on the given team
@@ -120,11 +130,11 @@ class TeamReplyFetcher {
 			nextSeqNum: 1
 		};
 		if (Commander.dryrun) {
-			Logger.log(`\tWould have created team stream for team ${this.team.id}`);
+			this.log(`\tWould have created team stream for team ${this.team.id}`);
 			this.teamStream = stream;
 		}
 		else {
-			Logger.log(`\tCreating team stream for team ${this.team.id}...`);
+			this.log(`\tCreating team stream for team ${this.team.id}...`);
 			this.teamStream = await this.data.streams.create(stream);
 		}
 		this.verbose(stream);
@@ -152,7 +162,7 @@ class TeamReplyFetcher {
 					await this.processCodemark(codemark);
 				}
 				catch (error) {
-					Logger.warn(`Error thrown processing codemark ${codemark.id}, ignoring: ${error}`);
+					this.warn(`WARNING: Error thrown processing codemark ${codemark.id}, ignoring: ${error}`);
 				}
 				await Wait(ThrottleTime);
 			}
@@ -162,27 +172,35 @@ class TeamReplyFetcher {
 
 	// process a single codemark for a team
 	async processCodemark (codemark) {
-		Logger.log(`\tProcessing codemark ${codemark.id}...`);
+		this.totalCodemarks++;
+		this.log(`\tProcessing codemark #{this.totalCodemarks}: ${codemark.id}...`);
 
 		// for each codemark, we'll use the slack access token of the codemark creator to make our slack API calls
 		this.debug(`\t\tGetting user slack client for creator of codemark, ${codemark.creatorId}...`);
 		const slackClient = await this.getUserSlackClient(this.team, codemark);
+		if (!slackClient) {
+			return;
+		}
 		if (typeof slackClient === 'string') {
-			Logger.warn(`WARNING: Could not connect to slack on behalf of codemark ${codemark.id} creator ${codemark.creatorId}, skipping this codemark: ${slackClient}`);
+			this.warn(`WARNING: Could not connect to slack on behalf of codemark ${codemark.id} creator ${codemark.creatorId}, skipping this codemark: ${slackClient}`);
 			return;
 		}
 
 		// get the Slack stream for this codemark's post on Slack
 		this.debug('\t\tGetting the Slack stream...');
 		const slackStream = await this.getSlackStream(codemark, slackClient);
+		if (IgnoreStreams.includes(slackStream.id)) {
+			this.debug(`\t\tIgnoring stream ${slackStream.id} per instruction`);
+			return;
+		}
 
 		// ensure we have the appropriate stream for this codemark
-		this.debug('\t\tEnsuring stream for this codemark...');
+		this.debug(`\t\tEnsuring stream for this codemark, slack stream ${slackStream.id}...`);
 		const stream = await this.ensureStream(slackStream, slackClient, codemark);
 
 		// create a post pointing to this codemark on CodeStream, and then handle the actual replies
 		const postId = this.data.posts.createId().toString();
-		const numReplies = await this.processCodemarkReplies(codemark, postId, stream, slackClient);
+		const numReplies = await this.processCodemarkReplies(codemark, postId, stream, slackClient, slackStream);
 		const post = await this.createCodemarkPost(codemark, postId, stream, numReplies);
 
 		// update the codemark to actually point to the post
@@ -210,11 +228,11 @@ class TeamReplyFetcher {
 
 		let post;
 		if (Commander.dryrun) {
-			Logger.log('\t\tWould have created post for codemark');
+			this.log('\t\tWould have created post for codemark');
 			post = postData;
 		}
 		else {
-			Logger.log('\t\tCreating post for codemark...');
+			this.log('\t\tCreating post for codemark...');
 			post = await this.data.posts.create(postData);
 		}
 		this.verbose(postData);
@@ -225,7 +243,7 @@ class TeamReplyFetcher {
 	async ensureStream (slackStream, slackClient, codemark) {
 		// cache the codemark stream for each Slack stream
 		if (this.streams[slackStream.id]) {
-			this.debug(`\t\tFound stream ${this.streams[slackStream.id]} for Slack stream ${slackStream.id}`);
+			this.debug(`\t\tFound stream ${this.streams[slackStream.id].id} for Slack stream ${slackStream.id}`);
 			return this.streams[slackStream.id];
 		}
 
@@ -268,14 +286,15 @@ class TeamReplyFetcher {
 			'members',
 			4
 		);
-		
+		this.debug(`\t\tMembers are: ${memberIds}`);
+	
 		// for each member of the Slack stream, ensure we have a corresponding CodeStream user
 		this.debug(`\t\tEnsuring ${memberIds.length} users...`);
 		const members = [];
 		for (let memberId of memberIds) {
 			const slackUser = this.slackUsers[memberId];
 			if (!slackUser) {
-				Logger.warn(`Slack user ${memberId} not found among slack users for workspace, will not be a member of stream created for ${slackStream.id}`);
+				this.warn(`WARNING: Slack user ${memberId} not found among slack users for workspace, will not be a member of stream created for ${slackStream.id}`);
 				return;
 			}
 			const user = await this.ensureUser(slackUser);
@@ -338,11 +357,11 @@ class TeamReplyFetcher {
 
 		let user;
 		if (Commander.dryrun) {
-			Logger.log(`\t\t\tWould have created faux user for slack user ${slackUser.id}`);
+			this.log(`\t\t\tWould have created faux user for slack user ${slackUser.id}`);
 			user = userData;
 		}
 		else {
-			Logger.log(`\t\t\tCreating faux user for slack user ${slackUser.id}...`);
+			this.log(`\t\t\tCreating faux user for slack user ${slackUser.id}...`);
 			user = await this.data.users.create(userData);
 		}
 		this.verbose(userData);
@@ -393,11 +412,11 @@ class TeamReplyFetcher {
 		}	
 
 		if (Commander.dryrun) {
-			Logger.log(`\t\tWould have created ${type} stream for codemark ${codemark.id}`);
+			this.log(`\t\tWould have created ${type} stream for codemark ${codemark.id}`);
 			stream = streamData;
 		}
 		else {
-			Logger.log(`\tCreating ${type} stream for codemark ${codemark.id}...`);
+			this.log(`\tCreating ${type} stream for codemark ${codemark.id}...`);
 			stream = await this.data.streams.create(streamData);
 		}
 		this.verbose(streamData);
@@ -457,7 +476,7 @@ class TeamReplyFetcher {
 	}
 
 	// process all the replies to a given codemark, creating CodeStream posts as needed
-	async processCodemarkReplies (codemark, postId, stream, slackClient) {
+	async processCodemarkReplies (codemark, postId, stream, slackClient, slackStream) {
 		this.debug('\t\tProcessing codemark replies...');
 		try {
 			let numReplies = 0;
@@ -482,7 +501,7 @@ class TeamReplyFetcher {
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			Logger.warn(`WARNING: Error getting replies to codemark ${codemark.id}, skipping this codemark: ${message}`);
+			this.warn(`WARNING: Error getting replies to codemark ${codemark.id}, slack post ID ${codemark.postId}, slack stream ID ${slackStream.id}, skipping this codemark: ${message}\nSLACK STREAM:\n${JSON.stringify(slackStream, undefined, 5)}`);
 		}
 	}
 
@@ -492,15 +511,20 @@ class TeamReplyFetcher {
 		await this.ensureSlackUsers(slackClient);
 
 		// make sure we have an author for the reply
-		const slackUser = this.slackUsers[message.user];
+		const slackUserId = message.user || (message.root && message.root.user);
+		if (!slackUserId) {
+			this.warn(`WARNING: Message ${message.ts} has no slack ser ID, cannot create reply`);
+			return;
+		}
+		const slackUser = this.slackUsers[slackUserId];
 		if (!slackUser) {
-			Logger.warn(`Slack user ${message.user} not found among slack users for workspace, cannot create reply for message ${message.ts}`);
+			this.warn(`WARNING: Slack user ${slackUserId} not found among slack users for workspace, cannot create reply for message ${message.ts}`);
 			return;
 		}
 		const user = await this.ensureUser(slackUser);
 
 		// create a post for the reply
-		Logger.log(`\t\t\tProcessing reply ${message.ts} to codemark ${codemark.id}...`);
+		this.log(`\t\t\tProcessing reply ${message.ts} to codemark ${codemark.id}...`);
 		const id = this.data.posts.createId().toString();
 		const now = Date.now();
 		const seqNum = this.bumpSeqNum(stream);
@@ -521,11 +545,11 @@ class TeamReplyFetcher {
 
 		let reply;
 		if (Commander.dryrun) {
-			Logger.log('\t\t\tWould have created reply post to codemark');
+			this.log('\t\t\tWould have created reply post to codemark');
 			reply = postData;
 		}
 		else {
-			Logger.log('\t\t\tCreating reply post to codemark...');
+			this.log('\t\t\tCreating reply post to codemark...');
 			reply = await this.data.posts.create(postData);
 		}
 		this.verbose(postData);
@@ -545,11 +569,11 @@ class TeamReplyFetcher {
 			}
 		};
 		if (Commander.dryrun) {
-			Logger.log('\t\tWould have updated codemark');
+			this.log('\t\tWould have updated codemark');
 		}
 		else {
 			await this.data.codemarks.applyOpById(codemark.id, op);
-			Logger.log('\t\tUpdating codemark...');
+			this.log('\t\tUpdating codemark...');
 		}
 		this.verbose(op);
 		Object.assign(codemark, op.$set);
@@ -568,11 +592,11 @@ class TeamReplyFetcher {
 			}
 		};
 		if (Commander.dryrun) {
-			Logger.log('\tWould have updated team');
+			this.log('\tWould have updated team');
 		}
 		else {
 			await this.data.teams.applyOpById(this.team.id, op);
-			Logger.log(`\tUpdating team ${this.team.id}...`);
+			this.log(`\tUpdating team ${this.team.id}...`);
 		}
 		this.verbose(op);
 		Object.assign(this.team, op.$set);
@@ -596,11 +620,11 @@ class TeamReplyFetcher {
 		}).hashPassword();
 		const updateData = { passwordHash };
 		if (Commander.dryrun) {
-			Logger.log(`\t\tWould have set temporary password for user ${user.id}:${user.email}`);
+			this.log(`\t\tWould have set temporary password for user ${user.id}:${user.email}`);
 		}
 		else {
 			await this.data.users.updateById(user.id, updateData);
-			Logger.log('\t\tSetting temporary password for user ${user.id}:${user.email}...');
+			this.log('\t\tSetting temporary password for user ${user.id}:${user.email}...');
 		}
 		this.verbose(updateData);
 		Object.assign(user, updateData);
@@ -609,6 +633,11 @@ class TeamReplyFetcher {
 	// get a slack client object used to call out to the Slack API, we use the creator of the codemark
 	// for the access token for the slack client
 	async getUserSlackClient (team, codemark) {
+		if (IgnoreUsers.includes(codemark.creatorId)) {
+			this.log(`\t\tIgnoring user ${codemark.creatorId} by instruction`);
+			return;
+		}
+	
 		// do we already have a slack client for this codemark's creator?
 		if (this.slackClients[codemark.creatorId]) {
 			this.debug(`\t\tAlready have Slack client for ${codemark.creatorId}`);
@@ -620,6 +649,9 @@ class TeamReplyFetcher {
 		if (this.users[codemark.creatorId]) {
 			this.debug(`\t\tAlready have user ${codemark.creatorId}`);
 			user = this.users[codemark.creatorId];
+			if (user.deactivated) {
+				this.debug('\t\tNOTE: this user is deactivated');
+			}
 		}
 
 		// but just in case, find it in the database
@@ -700,6 +732,20 @@ class TeamReplyFetcher {
 			}
 		} while (data.cursor);
 		return responses;
+	}
+
+	log (msg) {
+		Logger.log(msg);
+	}
+
+	warn (msg) {
+		Logger.warn(msg);
+		if (Commander.dieonwarn) {
+			this.warnCount++;
+			if (this.warnCount === Commander.dieonwarn) {
+				process.exit();
+			}
+		}
 	}
 
 	debug (msg) {
