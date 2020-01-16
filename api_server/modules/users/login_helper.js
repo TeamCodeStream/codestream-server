@@ -7,16 +7,21 @@ const UserSubscriptionGranter = require('./user_subscription_granter');
 const UUID = require('uuid/v4');
 const ProviderFetcher = require(process.env.CS_API_TOP + '/modules/providers/provider_fetcher');
 const APICapabilities = require(process.env.CS_API_TOP + '/etc/capabilities');
+const VersionErrors = require(process.env.CS_API_TOP + '/modules/versioner/errors');
 
 class LoginHelper {
 
 	constructor (options) {
 		Object.assign(this, options);
 		this.loginType = this.loginType || 'web';
+		this.request.errorHandler.add(VersionErrors);
 	}
 
 	// perform a true login for the user, including returning full response data
 	async login () {
+		if (this.user.get('inMaintenanceMode')) {
+			throw this.request.errorHandler.error('inMaintenanceMode');
+		}
 		await this.getInitialData();
 		await this.generateAccessToken();
 		await this.updateLastLogin();
