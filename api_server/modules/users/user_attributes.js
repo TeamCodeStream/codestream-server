@@ -242,4 +242,14 @@ module.exports = {
 		maxLength: 100,
 		description: 'The id of a "faux" user'
 	},
+	inMaintenanceMode: {
+		type: 'boolean',
+		description: 'Indicates user should be road-blocked for account maintenance',
+		serverOnly: true
+	},
+	mustSetPassword: {
+		type: 'boolean',
+		description: 'Indicates user should be road-blocked until they set a password',
+		serverOnly: true
+	}
 };

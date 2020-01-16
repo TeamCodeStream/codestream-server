@@ -17,5 +17,10 @@ module.exports = {
 		code: 'VERS-1002',
 		message: 'User is in maintenance mode',
 		description: 'The user\'s account has been set for maintenance mode'
+	},
+	'mustSetPassword': {
+		code: 'VERS-1003',
+		message: 'User must set a password',
+		description: 'The user cannot continue to use this account until they set a password'
 	}
 };

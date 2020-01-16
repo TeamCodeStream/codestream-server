@@ -75,6 +75,15 @@ class Versioner extends APIServerModule {
 				};
 			}
 
+			// for users for whom a password set is required, set header and return error
+			if (request.user && request.user.get('mustSetPassword')) {
+				response.set('X-CS-API-Must-Set-Password', 1);
+				request.abortWith = {
+					status: 403,
+					error: this.errorHandler.error('mustSetPassword')
+				};
+			}
+			
 			next();
 		};
 	}
