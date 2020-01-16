@@ -9,6 +9,11 @@ const Errors = require('./errors');
 const VersionInfo = require('./version_info');
 const ReadPackageJson = require('read-package-json');
 
+const DEPENDENCIES = [
+	'authenticator'	// need the user
+];
+
+
 const ROUTES = [
 	{
 		method: 'get',
@@ -42,6 +47,10 @@ class Versioner extends APIServerModule {
 		return ROUTES;
 	}
 	
+	getDependencies () {
+		return DEPENDENCIES;
+	}
+
 	middlewares () {
 		// return a middleware function that will examine the plugin version info associated
 		// with the request, and determine disposition based on our internal version information
@@ -56,6 +65,16 @@ class Versioner extends APIServerModule {
 					error
 				};
 			}
+
+			// for users in "maintenance mode", set header and return error
+			if (request.user && request.user.get('inMaintenanceMode')) {
+				response.set('X-CS-API-Maintenance-Mode', 1);
+				request.abortWith = {
+					status: 403,
+					error: this.errorHandler.error('inMaintenanceMode') 
+				};
+			}
+
 			next();
 		};
 	}

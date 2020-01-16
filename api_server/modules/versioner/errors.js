@@ -12,5 +12,10 @@ module.exports = {
 		code: 'VERS-1001',
 		message: 'Version not supported',
 		description: 'This version of the IDE plugin is no longer supported'
+	},
+	'inMaintenanceMode': {
+		code: 'VERS-1002',
+		message: 'User is in maintenance mode',
+		description: 'The user\'s account has been set for maintenance mode'
 	}
 };
