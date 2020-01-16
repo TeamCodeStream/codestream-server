@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env n
 
 /* eslint no-console: 0 */
 
@@ -58,19 +58,23 @@ class TeamReplyFetcher {
 		this.slackStreams = {};
 		this.streams = {};
 		this.warnCount = 0;
+		this.totalCodemarks = 0;
+		this.totalReplies = 0;
+		this.numSkipped = 0;
+		this.codemarksConverted = 0;
 	}
 
 	// fetch all the replies to codemarks for a team and turn them into posts
 	async fetchRepliesForTeam (team) {
 		this.team = team;
-		this.totalCodemarks = 0;
-		this.totalReplies = 0;
 		await this.getTeamUsers();
 		await this.ensureTeamStream();
 		await this.processCodemarks();
 		await this.updateTeam();
 		await this.setUserPasswords();
 		this.log(`\tCODEMARKS: ${this.totalCodemarks}`);
+		this.log(`\tSKIPPED: ${this.numSkipped}`);
+		this.log(`\tCONVERTED: ${this.codemarksConverted}`);
 		this.log(`\tREPLIES: ${this.totalReplies}`);
 		this.log(`\tWARNINGS: ${this.warnCount}`);
 		this.log('==============================================================');
@@ -143,46 +147,64 @@ class TeamReplyFetcher {
 	// process all the codemarks for the team, looking for replies to convert into CodeStream posts
 	async processCodemarks () {
 		this.debug('\tProcessing codemarks...');
-		const result = await this.data.codemarks.getByQuery(
-			{
-				teamId: this.team.id
-			},
-			{
-				stream: true,
-				hint: CodemarkIndexes.byTeamId,
-				sort: { createdAt: 1 }
-			}
-		);
-
 		let codemark;
 		do {
-			codemark = await result.next();
+			let n = 0;
+			const query = {
+				teamId: this.team.id
+			};
 			if (codemark) {
-				try {
-					await this.processCodemark(codemark);
-				}
-				catch (error) {
-					this.warn(`WARNING: Error thrown processing codemark ${codemark.id}, ignoring: ${error}`);
-				}
-				await Wait(ThrottleTime);
+				query.createdAt = { $gt: codemark.createdAt };
 			}
+			this.debug(`\tInitiating new query: ${JSON.stringify(query)}...`);
+			const result = await this.data.codemarks.getByQuery(
+				query,
+				{
+					stream: true,
+					hint: CodemarkIndexes.byTeamId,
+					sort: { createdAt: 1 }
+				}
+			);
+
+			do {
+				codemark = await result.next();
+				if (codemark) {
+					try {
+						await this.processCodemark(codemark);
+					}
+					catch (error) {
+						this.warn(`WARNING: Error thrown processing codemark ${codemark.id}, ignoring: ${error}`);
+					}
+					await Wait(ThrottleTime);
+					n++;
+				}
+			} while (codemark && n < 500);
+			result.done();
 		} while (codemark);
-		result.done();
 	}
 
 	// process a single codemark for a team
 	async processCodemark (codemark) {
 		this.totalCodemarks++;
-		this.log(`\tProcessing codemark #{this.totalCodemarks}: ${codemark.id}...`);
+		this.log(`\tProcessing codemark #${this.totalCodemarks}: ${codemark.id}...`);
+
+		// link-type codemarks are not posted on slack
+		if (codemark.type === 'link') {
+			this.log(`\t\tSkipping link-type codemark ${codemark.id}`);
+			this.numSkipped++;
+			return;
+		}
 
 		// for each codemark, we'll use the slack access token of the codemark creator to make our slack API calls
 		this.debug(`\t\tGetting user slack client for creator of codemark, ${codemark.creatorId}...`);
 		const slackClient = await this.getUserSlackClient(this.team, codemark);
 		if (!slackClient) {
+			this.numSkipped++;
 			return;
 		}
 		if (typeof slackClient === 'string') {
 			this.warn(`WARNING: Could not connect to slack on behalf of codemark ${codemark.id} creator ${codemark.creatorId}, skipping this codemark: ${slackClient}`);
+			this.numSkipped++;
 			return;
 		}
 
@@ -191,6 +213,14 @@ class TeamReplyFetcher {
 		const slackStream = await this.getSlackStream(codemark, slackClient);
 		if (IgnoreStreams.includes(slackStream.id)) {
 			this.debug(`\t\tIgnoring stream ${slackStream.id} per instruction`);
+			this.numSkipped++;
+			return;
+		}
+
+		// don't bother for slack streams that are archived
+		if (slackStream.is_archived) {
+			this.log('\t\tStream is archived, ignoring codemark');
+			this.numSkipped++;
 			return;
 		}
 
@@ -205,8 +235,9 @@ class TeamReplyFetcher {
 
 		// update the codemark to actually point to the post
 		await this.updateCodemark(codemark, post, numReplies);
-
-		this.totalReplies += numReplies;
+		
+		this.codemarksConverted++;
+		this.totalReplies += (numReplies || 0);
 	}
 
 	// create a post pointing to a given codemark, possibly also creating a stream for the post to go in
@@ -241,14 +272,16 @@ class TeamReplyFetcher {
 
 	// ensure we have an appropriate CodeStream stream for a codemark
 	async ensureStream (slackStream, slackClient, codemark) {
+		let stream;
+
 		// cache the codemark stream for each Slack stream
 		if (this.streams[slackStream.id]) {
-			this.debug(`\t\tFound stream ${this.streams[slackStream.id].id} for Slack stream ${slackStream.id}`);
-			return this.streams[slackStream.id];
+			stream = this.streams[slackStream.id];
+			this.debug(`\t\tFound stream ${stream.id} for Slack stream ${slackStream.id}`);
+			return stream;
 		}
 
 		// for public channels on Slack, we'll just use the team stream on CodeStream
-		let stream;
 		if (slackStream.id.startsWith('C') && !slackStream.is_private) {
 			this.debug(`\t\tWill use team stream ${this.teamStream.id} for Slack stream ${slackStream.id}`);
 			this.streams[slackStream.id] = this.teamStream;
@@ -457,7 +490,7 @@ class TeamReplyFetcher {
 	async getSlackStream (codemark, slackClient) {
 		// first check our cache
 		if (this.slackStreams[codemark.streamId]) {
-			this.debug(`\t\tFound stream ${this.slackStreams[codemark.streamId].id} for Slack stream ${codemark.streamId}`);
+			this.debug(`\t\tFound Slack stream ${codemark.streamId}`);
 			return this.slackStreams[codemark.streamId];
 		}
 
@@ -470,9 +503,8 @@ class TeamReplyFetcher {
 				channel: codemark.streamId
 			}
 		);
-		const stream = response.channel;
-		this.slackStreams[codemark.streamId] = stream;
-		return stream;
+		this.slackStreams[codemark.streamId] = response.channel;
+		return response.channel;
 	}
 
 	// process all the replies to a given codemark, creating CodeStream posts as needed
@@ -501,7 +533,19 @@ class TeamReplyFetcher {
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			this.warn(`WARNING: Error getting replies to codemark ${codemark.id}, slack post ID ${codemark.postId}, slack stream ID ${slackStream.id}, skipping this codemark: ${message}\nSLACK STREAM:\n${JSON.stringify(slackStream, undefined, 5)}`);
+			if (error.endsWith('thread_not_found') && slackStream.latest && slackStream.latest.text === 'This content can\'t be displayed.') {
+				this.log(`\t\tSkipping codemark ${codemark.id}, appears to have been deleted`);
+				return;
+			}
+			const slackStreamInfo = {
+				id: slackStream.id,
+				name: slackStream.name,
+				latestText: slackStream.latest && slackStream.latest.text,
+				creator: slackStream.creator,
+				archived: slackStream.is_archived
+			};
+			this.warn(`WARNING: Error getting replies to codemark ${codemark.id}, slack post ID ${codemark.postId}, slack stream ID ${slackStream.id}:${slackStream.name}, skipping this codemark: ${message}\nSLACK STREAM:\n${JSON.stringify(slackStreamInfo, undefined, 5)}`);
+			//this.warn(JSON.stringify(slackStream, undefined, 5));
 		}
 	}
 
@@ -610,6 +654,12 @@ class TeamReplyFetcher {
 			if (user.isRegistered && !user.passwordHash) {
 				await this.setUserPassword(user);
 			}
+			else if (!user.isRegistered) {
+				this.debug(`\t\tNOTE: user ${user.id}:${user.email} is not registered`);
+			}
+			else if (user.passwordHash) {
+				this.debug(`\t\tNOTE: user ${user.id}:${user.email} has a password`);
+			}
 		}
 	}
 
@@ -695,7 +745,7 @@ class TeamReplyFetcher {
 			}
 		}
 		catch (error) {
-			return `error testing access token: ${error}`;
+			return `error testing access token to user ${user.email}: ${error}`;
 		}
 	}
 
@@ -740,11 +790,9 @@ class TeamReplyFetcher {
 
 	warn (msg) {
 		Logger.warn(msg);
-		if (Commander.dieonwarn) {
-			this.warnCount++;
-			if (this.warnCount === Commander.dieonwarn) {
-				process.exit();
-			}
+		this.warnCount++;
+		if (Commander.dieonwarn && this.warnCount === Commander.dieonwarn) {
+			process.exit();
 		}
 	}
 
