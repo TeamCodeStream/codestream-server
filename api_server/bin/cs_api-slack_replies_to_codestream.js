@@ -216,7 +216,15 @@ class TeamReplyFetcher {
 			this.numSkipped++;
 			return;
 		}
-
+		const slackStreamInfo = {
+			id: slackStream.id,
+			name: slackStream.name,
+			latestText: slackStream.latest && slackStream.latest.text,
+			creator: slackStream.creator,
+			archived: slackStream.is_archived
+		};
+		this.debug(`\t\tSlack stream: ${JSON.stringify(slackStreamInfo, undefined, 5)}`);
+		
 		// don't bother for slack streams that are archived
 		if (slackStream.is_archived) {
 			this.log('\t\tStream is archived, ignoring codemark');
@@ -450,7 +458,7 @@ class TeamReplyFetcher {
 			stream = streamData;
 		}
 		else {
-			this.log(`\tCreating ${type} stream for codemark ${codemark.id}...`);
+			this.log(`\t\tCreating ${type} stream for codemark ${codemark.id}...`);
 			stream = await this.data.streams.create(streamData);
 		}
 		this.verbose(streamData);
