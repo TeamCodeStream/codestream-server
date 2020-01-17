@@ -221,10 +221,11 @@ class TeamReplyFetcher {
 			name: slackStream.name,
 			latestText: slackStream.latest && slackStream.latest.text,
 			creator: slackStream.creator,
-			archived: slackStream.is_archived
+			archived: slackStream.is_archived,
+			private: slackStream.is_private
 		};
 		this.debug(`\t\tSlack stream: ${JSON.stringify(slackStreamInfo, undefined, 5)}`);
-		
+
 		// don't bother for slack streams that are archived
 		if (slackStream.is_archived) {
 			this.log('\t\tStream is archived, ignoring codemark');
@@ -290,7 +291,7 @@ class TeamReplyFetcher {
 		}
 
 		// for public channels on Slack, we'll just use the team stream on CodeStream
-		if (slackStream.id.startsWith('C') && !slackStream.is_private) {
+		if ((slackStream.id.startsWith('C') || slackStream.id.startsWith('G')) && !slackStream.is_private) {
 			this.debug(`\t\tWill use team stream ${this.teamStream.id} for Slack stream ${slackStream.id}`);
 			this.streams[slackStream.id] = this.teamStream;
 			return this.teamStream;
@@ -304,7 +305,7 @@ class TeamReplyFetcher {
 		// create the stream we need ... note that if it's a CodeStream DM, there might already be a 
 		// stream with the necessary membership
 		const memberIds = members.map(m => m.id);
-		const type = slackStream.id.startsWith('C') ? 'channel' : 'direct';
+		const type = slackStream.id.startsWith('D') ? 'direct' : 'channel';
 		this.debug(`\t\tCreating ${type} stream with ${memberIds.length} members...`);
 		stream = await this.createStream(type, memberIds, slackStream.name, slackStream, codemark);
 		this.streams[slackStream.id] = stream;
