@@ -435,6 +435,7 @@ class TeamReplyFetcher {
 			modifiedAt: now,
 			teamId: this.team.id,
 			type,
+			memberIds,
 			privacy: 'private',
 			creatorId: codemark.creatorId,
 			nextSeqNum: 1,
