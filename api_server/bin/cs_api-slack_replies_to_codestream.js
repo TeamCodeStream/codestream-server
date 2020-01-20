@@ -1,4 +1,4 @@
-#!/usr/bin/env n
+#!/usr/bin/env node
 
 /* eslint no-console: 0 */
 
@@ -151,7 +151,8 @@ class TeamReplyFetcher {
 		do {
 			let n = 0;
 			const query = {
-				teamId: this.team.id
+				teamId: this.team.id,
+				deactivated: false
 			};
 			if (codemark) {
 				query.createdAt = { $gt: codemark.createdAt };
@@ -216,13 +217,17 @@ class TeamReplyFetcher {
 			this.numSkipped++;
 			return;
 		}
+
 		const slackStreamInfo = {
 			id: slackStream.id,
 			name: slackStream.name,
 			latestText: slackStream.latest && slackStream.latest.text,
 			creator: slackStream.creator,
 			archived: slackStream.is_archived,
-			private: slackStream.is_private
+			private: slackStream.is_private,
+			channel: slackStream.is_channel,
+			im: slackStream.is_im,
+			mpim: slackStream.is_mpim
 		};
 		this.debug(`\t\tSlack stream: ${JSON.stringify(slackStreamInfo, undefined, 5)}`);
 
@@ -291,7 +296,7 @@ class TeamReplyFetcher {
 		}
 
 		// for public channels on Slack, we'll just use the team stream on CodeStream
-		if ((slackStream.id.startsWith('C') || slackStream.id.startsWith('G')) && !slackStream.is_private) {
+		if (!slackStream.is_im && !slackStream.is_mpim && !slackStream.is_private) {
 			this.debug(`\t\tWill use team stream ${this.teamStream.id} for Slack stream ${slackStream.id}`);
 			this.streams[slackStream.id] = this.teamStream;
 			return this.teamStream;
@@ -305,7 +310,7 @@ class TeamReplyFetcher {
 		// create the stream we need ... note that if it's a CodeStream DM, there might already be a 
 		// stream with the necessary membership
 		const memberIds = members.map(m => m.id);
-		const type = slackStream.id.startsWith('D') ? 'direct' : 'channel';
+		const type =  (slackStream.is_im || slackStream.is_mpim) ? 'direct' : 'channel';
 		this.debug(`\t\tCreating ${type} stream with ${memberIds.length} members...`);
 		stream = await this.createStream(type, memberIds, slackStream.name, slackStream, codemark);
 		this.streams[slackStream.id] = stream;
