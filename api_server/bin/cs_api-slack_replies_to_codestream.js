@@ -71,7 +71,7 @@ class TeamReplyFetcher {
 		await this.ensureTeamStream();
 		await this.processCodemarks();
 		await this.updateTeam();
-		await this.setUserPasswords();
+		//await this.setUserPasswords();
 		this.log(`\tCODEMARKS: ${this.totalCodemarks}`);
 		this.log(`\tSKIPPED: ${this.numSkipped}`);
 		this.log(`\tCONVERTED: ${this.codemarksConverted}`);
@@ -669,6 +669,9 @@ class TeamReplyFetcher {
 			if (user.isRegistered && !user.passwordHash) {
 				await this.setUserPassword(user);
 			}
+			else if (user.externalUserId) {
+				this.debug(`\t\tNOTE: user ${user.id} is "faux" user ${user.externalUserId}`);
+			}
 			else if (!user.isRegistered) {
 				this.debug(`\t\tNOTE: user ${user.id}:${user.email} is not registered`);
 			}
@@ -689,7 +692,7 @@ class TeamReplyFetcher {
 		}
 		else {
 			await this.data.users.updateById(user.id, updateData);
-			this.log('\t\tSetting temporary password for user ${user.id}:${user.email}...');
+			this.log(`\t\tSetting temporary password for user ${user.id}:${user.email}...`);
 		}
 		this.verbose(updateData);
 		Object.assign(user, updateData);
