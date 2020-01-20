@@ -11,6 +11,8 @@ ADD etc/capabilities.js /opt/api/api_server/etc/capabilities.js
 ADD bin/api_server.js /opt/api/api_server/bin/api_server.js
 ADD bin/cs_api-start-docker /opt/api/api_server/bin/cs_api-start-docker
 ADD bin/ensure-indexes.js /opt/api/api_server/bin/ensure-indexes.js
+ADD bin/cs_deactivate.js /opt/api/api_server/bin/cs_deactivate.js
+ADD bin/cs_api-slack_replies_to_codestream.js /opt/api/api_server/bin/cs_api-slack_replies_to_codestream.js
 ADD package.json /opt/api/api_server/package.json
 ADD package-lock.json /opt/api/api_server/package-lock.json
 
