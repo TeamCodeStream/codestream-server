@@ -23,6 +23,8 @@ Commander
 	.option('--dieonwarn <dieonwarn>', 'Die on a warning', parseInt)
 	.option('--ignorestreams <ignorestreams>', 'Ignore the given comma-separated list of stream IDs')
 	.option('--ignoreusers <ignoreusers>', 'Ignore codemarks authored by the given comma-separated list of user IDs')
+	.option('--setpasswords', 'Set temporary passwords for users who don\t have one after migration is complete')
+	.option('--clearslackcreds', 'Clear Slack credentials for all users on each team after migration is complete')
 	.parse(process.argv);
 
 const COLLECTIONS = ['teams', 'posts', 'codemarks', 'users', 'streams', 'teams'];
@@ -71,7 +73,12 @@ class TeamReplyFetcher {
 		await this.ensureTeamStream();
 		await this.processCodemarks();
 		await this.updateTeam();
-		//await this.setUserPasswords();
+		if (Commander.setpasswords) {
+			await this.setUserPasswords();
+		}
+		if (Commander.clearslackcreds) {
+			await this.clearSlackCredentials();
+		}
 		this.log(`\tCODEMARKS: ${this.totalCodemarks}`);
 		this.log(`\tSKIPPED: ${this.numSkipped}`);
 		this.log(`\tCONVERTED: ${this.codemarksConverted}`);
@@ -244,11 +251,12 @@ class TeamReplyFetcher {
 
 		// create a post pointing to this codemark on CodeStream, and then handle the actual replies
 		const postId = this.data.posts.createId().toString();
-		const numReplies = await this.processCodemarkReplies(codemark, postId, stream, slackClient, slackStream);
+		const replies = await this.processCodemarkReplies(codemark, postId, stream, slackClient, slackStream);
+		const numReplies = Object.keys(replies).length;
 		const post = await this.createCodemarkPost(codemark, postId, stream, numReplies);
 
 		// update the codemark to actually point to the post
-		await this.updateCodemark(codemark, post, numReplies);
+		await this.updateCodemark(codemark, post, replies);
 		
 		this.codemarksConverted++;
 		this.totalReplies += (numReplies || 0);
@@ -526,7 +534,7 @@ class TeamReplyFetcher {
 	async processCodemarkReplies (codemark, postId, stream, slackClient, slackStream) {
 		this.debug('\t\tProcessing codemark replies...');
 		try {
-			let numReplies = 0;
+			const replies = {};
 			const threadTs = codemark.postId.split('|')[1];
 			const messages = await this.slackApiPaginated(
 				slackClient,
@@ -540,11 +548,11 @@ class TeamReplyFetcher {
 			);
 			for (let message of messages) {
 				if (message.ts !== threadTs) {
-					await this.processCodemarkReply(codemark, message, postId, stream, slackClient);
-					numReplies++;
+					const reply = await this.processCodemarkReply(codemark, message, postId, stream, slackClient);
+					replies[`${codemark.streamId}|${message.ts}`] = reply.id;
 				}
 			}
-			return numReplies;
+			return replies;
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -616,7 +624,8 @@ class TeamReplyFetcher {
 	}
 
 	// update the codemark to point to the created post
-	async updateCodemark (codemark, post, numReplies) {
+	async updateCodemark (codemark, post, replies) {
+		const numReplies = Object.keys(replies).length;
 		const op = {
 			$unset: {
 				providerType: true
@@ -627,6 +636,16 @@ class TeamReplyFetcher {
 				numReplies
 			}
 		};
+		if (codemark.pinnedReplies) {
+			op.$set.pinnedReplies = [];
+			for (let i = 0; i < (codemark.pinnedReplies || []).length; i++) {
+				const replyId = replies[codemark.pinnedReplies[i]];
+				if (replyId) {
+					op.$set.pinnedReplies.push(replyId);
+				}
+			}
+		}
+
 		if (Commander.dryrun) {
 			this.log('\t\tWould have updated codemark');
 		}
@@ -664,19 +683,20 @@ class TeamReplyFetcher {
 
 	// update the users on the given team by giving them a temporary password so they can sign in
 	async setUserPasswords () {
+		this.log('\t\tSetting temporary passwords...');
 		for (let userId in this.users) {
 			const user = this.users[userId];
 			if (user.isRegistered && !user.passwordHash) {
 				await this.setUserPassword(user);
 			}
 			else if (user.externalUserId) {
-				this.debug(`\t\tNOTE: user ${user.id} is "faux" user ${user.externalUserId}`);
+				this.debug(`\t\t\tNOTE: user ${user.id} is "faux" user ${user.externalUserId}`);
 			}
 			else if (!user.isRegistered) {
-				this.debug(`\t\tNOTE: user ${user.id}:${user.email} is not registered`);
+				this.debug(`\t\t\tNOTE: user ${user.id}:${user.email} is not registered`);
 			}
 			else if (user.passwordHash) {
-				this.debug(`\t\tNOTE: user ${user.id}:${user.email} has a password`);
+				this.debug(`\t\t\tNOTE: user ${user.id}:${user.email} has a password`);
 			}
 		}
 	}
@@ -698,6 +718,23 @@ class TeamReplyFetcher {
 		Object.assign(user, updateData);
 	}
 
+	// clear the slack credentials for all users on the team
+	async clearSlackCredentials () {
+		if (Commander.dryrun) {
+			this.log('\t\tWould have cleared all Slack credentials');
+		}
+		else {
+			this.log('\t\tClearing all Slack credentials');
+		}
+		this.data.users.updateDirect(
+			{},
+			{
+				$unset: { 
+					[`providerInfo.${this.team.id}.slack`]: true
+				}
+			}
+		);
+	}
 	// get a slack client object used to call out to the Slack API, we use the creator of the codemark
 	// for the access token for the slack client
 	async getUserSlackClient (team, codemark) {
