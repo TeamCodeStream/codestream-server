@@ -938,6 +938,9 @@ class SlackReplyFetcher {
 	// process a single Slack team, as given by team ID
 	async processSingleTeam () {
 		const team = await this.data.teams.getById(this.teamId);
+		if (!team) {
+			throw 'team not found: ' + this.teamId;
+		}
 		return this.processTeam(team);
 	}
 
