@@ -27,7 +27,7 @@ Commander
 	.option('--clearslackcreds', 'Clear Slack credentials for all users on each team after migration is complete')
 	.parse(process.argv);
 
-const COLLECTIONS = ['teams', 'posts', 'codemarks', 'users', 'streams', 'teams'];
+const COLLECTIONS = ['teams', 'posts', 'codemarks', 'users', 'streams', 'teams', 'markers'];
 const DEFAULT_THROTTLE_TIME = 1000;
 
 const Logger = console;
@@ -255,9 +255,10 @@ class TeamReplyFetcher {
 		const numReplies = Object.keys(replies).length;
 		const post = await this.createCodemarkPost(codemark, postId, stream, numReplies);
 
-		// update the codemark to actually point to the post
+		// update the codemark and markers to actually point to the post
 		await this.updateCodemark(codemark, post, replies);
-		
+		await this.updateMarkers(codemark, post);
+
 		this.codemarksConverted++;
 		this.totalReplies += (numReplies || 0);
 	}
@@ -658,6 +659,30 @@ class TeamReplyFetcher {
 		delete codemark.providerType;
 	}
 
+	// update markers associated with the codemark to point to the codemark's post and stream
+	async updateMarkers (codemark, post) {
+		const query = {
+			teamId: this.team.id,
+			codemarkId: codemark.id
+		};
+		const op = {
+			$set: {
+				postStreamId: post.streamId,
+				postId: post.id
+			}
+		};
+
+		if (Commander.dryrun) {
+			this.log('\t\tWould have updated markers');
+		}
+		else {
+			this.log('\t\tUpdating markers...');
+			await this.data.markers.updateDirect(query, op);
+		}
+		this.verbose(query);
+		this.verbose(op);
+	}
+
 	// update the team to no longer be a slack team
 	async updateTeam () {
 		const providerIdentities = this.team.providerIdentities.filter(pi => !pi.startsWith('slack'));
@@ -720,21 +745,25 @@ class TeamReplyFetcher {
 
 	// clear the slack credentials for all users on the team
 	async clearSlackCredentials () {
+		const query = {
+			teamIds: this.team.id
+		};
+		const op = {
+			$unset: {
+				[`providerInfo.${this.team.id}.slack`]: true
+			}
+		};
 		if (Commander.dryrun) {
 			this.log('\t\tWould have cleared all Slack credentials');
 		}
 		else {
 			this.log('\t\tClearing all Slack credentials');
+			await this.data.users.updateDirect(query, op);
 		}
-		this.data.users.updateDirect(
-			{},
-			{
-				$unset: { 
-					[`providerInfo.${this.team.id}.slack`]: true
-				}
-			}
-		);
+		this.verbose(query);
+		this.verbose(op);
 	}
+
 	// get a slack client object used to call out to the Slack API, we use the creator of the codemark
 	// for the access token for the slack client
 	async getUserSlackClient (team, codemark) {
