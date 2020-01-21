@@ -22,9 +22,6 @@ class LoginHelper {
 		if (this.user.get('inMaintenanceMode')) {
 			throw this.request.errorHandler.error('inMaintenanceMode');
 		}
-		if (this.user.get('mustSetPassword')) {
-			throw this.request.errorHandler.error('mustSetPassword');
-		}
 		await this.getInitialData();
 		await this.generateAccessToken();
 		await this.updateLastLogin();

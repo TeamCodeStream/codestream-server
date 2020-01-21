@@ -5,6 +5,7 @@
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const ChangePasswordCore = require(process.env.CS_API_TOP + '/modules/users/change_password_core');
 const Errors = require('./errors');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class ChangePasswordRequest extends RestfulRequest {
 
@@ -20,11 +21,23 @@ class ChangePasswordRequest extends RestfulRequest {
 	// process the request....
 	async process () {
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
-		
+
+		// only allow setting password and not providing existing password if the user's
+		// mustSetPassword flag is set, forcing the user to set their password, 
+		// which could mean the user is coming from being a Slack or MSTeams user
+		if (!this.user.get('mustSetPassword') && !this.request.body.existingPassword) {
+			throw this.errorHandler.error('parameterRequired', { info: 'existingPassword' });
+		}
+
 		const changePasswordCore = new ChangePasswordCore({
 			request: this			
 		});
-		await changePasswordCore.changePassword(this.user, this.request.body.newPassword, this.request.body.existingPassword);
+		if (this.request.body.existingPassword) {
+			await changePasswordCore.changePassword(this.user, this.request.body.newPassword, this.request.body.existingPassword);
+		} 
+		else {
+			await changePasswordCore.setPassword(this.user, this.request.body.newPassword);
+		}
 
 		this.responseData = {
 			accessToken: changePasswordCore.accessToken
@@ -37,10 +50,81 @@ class ChangePasswordRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['newPassword', 'existingPassword']
+					string: ['newPassword']
+				},
+				optional: {
+					string: ['existingPassword']
 				}
 			}
 		);
+	}
+
+	// after the response is sent...
+	async postProcess () {
+		
+		// for users with a mustSetPassword, clear the mustSetPassword flag 
+		// along with providerInfo as needed ... this needs to all happen
+		// in postProcess to avoid the user update getting conflated with the
+		// user update that actually updates the password
+		if (!this.user.get('mustSetPassword')) {
+			return;
+
+		}
+		await this.updateUser();
+
+		// publish the update message
+		const channel = 'user-' + this.user.id;
+		const message = Object.assign({}, this.userUpdateOp, { requestId: this.request.id });
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this	}
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate
+			this.warn(`Unable to publish clear providerInfo message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
+	}
+
+	// for users with a mustSetPassword, clear the mustSetPassword flag 
+	// along with providerInfo as needed
+	async updateUser () {
+		// clear the mustSetPassword flag
+		const op = {
+			$unset: {
+				mustSetPassword: true
+			}
+		};
+
+		// clear any provider info associated with slack or msteams,
+		// the sharing model will require authenticating against a new app
+		if (this.user.get('clearProviderInfo')) {
+			this.clearProviderInfo(op);
+		}
+
+		this.userUpdateOp = await new ModelSaver({
+			request: this.request,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
+	}
+
+	// clear provider info associated with slack and msteams for user who has mustSetPassword flag set
+	async clearProviderInfo (op) {
+		const providerInfo = this.user.get('providerInfo') || {};
+		Object.keys(providerInfo).forEach(teamId => {
+			if (teamId === 'slack' || teamId === 'msteams') {
+				op.$unset[`providerInfo.${teamId}`] = true;
+			}
+			else if (providerInfo[teamId].slack) {
+				op.$unset[`providerInfo.${teamId}.slack`] = true;
+			}
+			else if (providerInfo[teamId].msteams) {
+				op.$unset[`providerInfo.${teamId}.msteams`] = true;
+			}
+		});
 	}
 
 	// describe this route for help

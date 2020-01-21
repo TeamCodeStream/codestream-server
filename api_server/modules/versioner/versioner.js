@@ -9,11 +9,6 @@ const Errors = require('./errors');
 const VersionInfo = require('./version_info');
 const ReadPackageJson = require('read-package-json');
 
-const DEPENDENCIES = [
-	'authenticator'	// need the user
-];
-
-
 const ROUTES = [
 	{
 		method: 'get',
@@ -47,10 +42,6 @@ class Versioner extends APIServerModule {
 		return ROUTES;
 	}
 	
-	getDependencies () {
-		return DEPENDENCIES;
-	}
-
 	middlewares () {
 		// return a middleware function that will examine the plugin version info associated
 		// with the request, and determine disposition based on our internal version information
@@ -76,7 +67,14 @@ class Versioner extends APIServerModule {
 			}
 
 			// for users for whom a password set is required, set header and return error
-			if (request.user && request.user.get('mustSetPassword')) {
+			if (
+				request.user && 
+				request.user.get('mustSetPassword') && 
+				(
+					request.path !== '/password' ||
+					request.method !== 'put'
+				)
+			) {
 				response.set('X-CS-API-Must-Set-Password', 1);
 				request.abortWith = {
 					status: 403,

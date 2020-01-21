@@ -9,6 +9,11 @@ const UserDeleter = require('./user_deleter');
 const SignupTokens = require('./signup_tokens');
 const User = require('./user');
 const Errors = require('./errors');
+const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+
+const DEPENDENCIES = [
+	'authenticator'	// need the user
+];
 
 // expose these restful routes
 const USERS_STANDARD_ROUTES = {
@@ -129,6 +134,11 @@ const USERS_ADDITIONAL_ROUTES = [
 
 class Users extends Restful {
 
+	constructor (options) {
+		super(options);
+		this.errorHandler = new ErrorHandler(Errors);
+	}
+
 	get collectionName () {
 		return 'users';	// name of the data collection
 	}
@@ -171,6 +181,43 @@ class Users extends Restful {
 			return { signupTokens: this.signupTokens };
 		};
 	}
+
+	getDependencies () {
+		return DEPENDENCIES;
+	}
+
+	middlewares () {
+		return async (request, response, next) => {
+
+			// for users in "maintenance mode", set header and return error
+			if (request.user && request.user.get('inMaintenanceMode')) {
+				response.set('X-CS-API-Maintenance-Mode', 1);
+				request.abortWith = {
+					status: 403,
+					error: this.errorHandler.error('inMaintenanceMode') 
+				};
+			}
+
+			// for users for whom a password set is required, return error unless it is the
+			// actual call to set their password
+			if (
+				request.user && 
+				request.user.get('mustSetPassword') && 
+				(
+					request.path.toLowerCase() !== '/password' ||
+					request.method.toLowerCase() !== 'put'
+				)
+			) {
+				request.abortWith = {
+					status: 403,
+					error: this.errorHandler.error('mustSetPassword')
+				};
+			}
+
+			next();
+		};
+	}
+
 
 	initialize () {
 		this.signupTokens.initialize();

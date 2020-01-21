@@ -122,5 +122,15 @@ module.exports = {
 		code: 'USRC-1022',
 		message: 'The attempt to sign-in with a given third-party provider failed',
 		description: 'The attempt to sign-in with a given third-party provider failed'
+	},
+	'inMaintenanceMode': {
+		code: 'USRC-1023',
+		message: 'User is in maintenance mode',
+		description: 'The user\'s account has been set for maintenance mode'
+	},
+	'mustSetPassword': {
+		code: 'USRC-1024',
+		message: 'User must set a password',
+		description: 'The user cannot continue to use this account until they set a password'
 	}
 };
