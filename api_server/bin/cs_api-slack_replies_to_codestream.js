@@ -251,7 +251,7 @@ class TeamReplyFetcher {
 
 		// create a post pointing to this codemark on CodeStream, and then handle the actual replies
 		const postId = this.data.posts.createId().toString();
-		const replies = await this.processCodemarkReplies(codemark, postId, stream, slackClient, slackStream);
+		const replies = await this.processCodemarkReplies(codemark, postId, stream, slackClient, slackStream) || {};
 		const numReplies = Object.keys(replies).length;
 		const post = await this.createCodemarkPost(codemark, postId, stream, numReplies);
 
