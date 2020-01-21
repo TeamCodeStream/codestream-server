@@ -245,11 +245,13 @@ module.exports = {
 	inMaintenanceMode: {
 		type: 'boolean',
 		description: 'Indicates user should be road-blocked for account maintenance',
-		serverOnly: true
+		serverOnly: true,
+		forMe: true
 	},
 	mustSetPassword: {
 		type: 'boolean',
 		description: 'Indicates user should be road-blocked until they set a password',
-		serverOnly: true
+		serverOnly: true,
+		forMe: true
 	}
 };
