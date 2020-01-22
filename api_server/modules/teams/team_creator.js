@@ -44,6 +44,10 @@ class TeamCreator extends ModelCreator {
 		return {
 			required: {
 				string: ['name']
+			},
+			optional: {
+				string: ['companyId'],
+				object: ['company']
 			}
 		};
 	}
@@ -92,25 +96,59 @@ class TeamCreator extends ModelCreator {
 			this.attributes._forTesting = true;
 		}
 
-		// TODO: deprecate all user adding/creation once we are fully migrated to sign-up on the web
-		await this.createCompany();			// create a company along with the team, as needed
+		await this.createOrAttachToCompany();	// create a company along with the team, or attach to an existing company
 		await this.createTeamStream();		// create a stream for the entire team
 		await super.preSave();
 	}
 
-	// create a company document for the team ... for now there is a 1-1 relationship between companies and teams,
-	// until we support the notion of multiple teams in a company
-	async createCompany () {
+	// create a company document for the team, or if the company ID is provided, update the company
+	async createOrAttachToCompany () {
 		if (this.attributes.companyId) {
-			return;
+			return this.attachToCompany();
 		}
-		let company = this.attributes.company || {};
-		company.name = this.determineCompanyName();	// company name is determined from the user's email
-		company.teamIds = [this.attributes.id];
+		else {
+			return this.createCompany();
+		}
+	}
+
+	// attach the team to an existing company 
+	async attachToCompany () {
+		// get the company
+		this.company = await this.data.companies.getById(this.attributes.companyId);
+		if (!this.company || this.company.get('deactivated')) {
+			throw this.errorHandler.error('notFound', { info: 'company' });
+		} 
+
+		// can only attach to a company that was created by the same user creating the team
+		if (!(this.user.get('companyIds') || []).includes(this.company.id)) {
+			throw this.errorHandler.error('updateAuth', { reason: 'user can only attach a team to a company they are a member of' });
+		}
+
+		const op = {
+			$addToSet: {
+				teamIds: this.attributes.id
+			},
+			$set: {
+				modifiedAt: Date.now()
+			}
+		};
+		this.transforms.companyUpdate = await new ModelSaver({
+			request: this.request,
+			collection: this.data.companies,
+			id: this.company.id
+		}).save(op);
+	}
+
+	// create a company for the team
+	async createCompany () {
+		const company = this.attributes.company || {};
+		company.name = company.name || this.determineCompanyName();	// company name is determined from the user's email
 		this.transforms.createdCompany = await new CompanyCreator({
-			request: this.request
+			request: this.request,
+			teamIds: [this.attributes.id]
 		}).createCompany(company);
 		this.attributes.companyId = this.transforms.createdCompany.id;
+		delete this.attributes.company;
 	}
 
 	// create a stream for the entire team, everyone on the team is always a member of this stream
@@ -159,6 +197,9 @@ class TeamCreator extends ModelCreator {
 			$addToSet: {
 				companyIds: this.attributes.companyId,
 				teamIds: this.model.id
+			},
+			$unset: {
+				companyName: true
 			},
 			$set: {
 				modifiedAt: Date.now()

@@ -15,12 +15,30 @@ class PostTeamRequest extends PostRequest {
 		await this.publishUserUpdate();
 	}
 
+	async handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
+		if (this.transforms.companyUpdate) {
+			this.responseData.company = this.transforms.companyUpdate;
+		}
+		else {
+			this.responseData.company = this.transforms.createdCompany.getSanitizedObject({ request: this });
+		}
+		this.responseData.streams = [
+			this.transforms.createdTeamStream.getSanitizedObject({ request: this })
+		];
+		super.handleResponse();
+	}
+
 	// publish a joinMethod update if the joinMethod attribute was changed for the user as
 	// a result of fulfilling this request
 	async publishUserUpdate () {
 		const message = {
 			requestId: this.request.id,
-			user: this.transforms.userUpdate
+			user: this.transforms.userUpdate,
+			team: this.responseData.team,
+			company: this.responseData.company
 		};
 		const channel = `user-${this.user.id}`;
 		try {
@@ -36,26 +54,16 @@ class PostTeamRequest extends PostRequest {
 		}
 	}
 
-	async handleResponse () {
-		if (this.gotError) {
-			return super.handleResponse();
-		}
-		this.responseData.company = this.transforms.createdCompany.getSanitizedObject({ request: this });
-		this.responseData.streams = [
-			this.transforms.createdTeamStream.getSanitizedObject({ request: this })
-		];
-		super.handleResponse();
-	}
-
 	// describe this route for help
 	static describe (module) {
 		const description = PostRequest.describe(module);
-		description.description = 'Creates a new team';
-		description.access = 'No access rules; anyone can create a new team at any time.';
+		description.description = 'Creates a new team, which creates an owning company unless a company to attach to is specified';
+		description.access = 'No access rules; anyone can create a new team at any time. However, if you attach the team to a company, you must be a member of the company.';
 		description.input = {
 			summary: description.input,
 			looksLike: {
-				'name*': '<Name of the team>'
+				'name*': '<Name of the team>',
+				'companyId': '<Attach team to this company>'
 			}
 		};
 		description.returns.summary = 'The created team object';

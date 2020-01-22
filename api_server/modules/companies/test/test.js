@@ -5,9 +5,10 @@
 // make eslint happy
 /* globals describe */
 
-var CompaniesRequestTester = require('./companies_request_tester');
+const CompaniesRequestTester = require('./companies_request_tester');
+const PostCompanyRequestTester = require('./post_company/test');
 
-var companiesRequestTester = new CompaniesRequestTester();
+const companiesRequestTester = new CompaniesRequestTester();
 
 describe('company requests', function() {
 
@@ -15,5 +16,5 @@ describe('company requests', function() {
 
 	describe('GET /companies/:id', companiesRequestTester.getCompanyTest);
 	describe('GET /companies', companiesRequestTester.getCompaniesTest);
-
+	describe('POST /companies', PostCompanyRequestTester.test);
 });

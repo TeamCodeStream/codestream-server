@@ -7,11 +7,12 @@ const Company = require('./company');
 
 // we'll expose only these routes
 const COMPANY_STANDARD_ROUTES = {
-	want: ['get', 'getMany'],
+	want: ['get', 'getMany', 'post'],
 	baseRouteName: 'companies',
 	requestClasses: {
 		'get': require('./get_company_request'),
-		'getMany': require('./get_companies_request')
+		'getMany': require('./get_companies_request'),
+		'post': require('./post_company_request')
 	}
 };
 

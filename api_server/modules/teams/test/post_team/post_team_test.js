@@ -41,6 +41,7 @@ class PostTeamTest extends CodeStreamAPITest {
 
 	// make the data to use when issuing the request
 	makeTeamData (callback) {
+		this.userCompanyName = this.currentUser.companyName;
 		this.data = {
 			name: this.teamFactory.randomName()
 		};
@@ -76,9 +77,18 @@ class PostTeamTest extends CodeStreamAPITest {
     
 	// validate the company part of the response
 	validateCompany (data) {
+		if (this.attachToCompany) {
+			return this.validateAttachToCompany(data);
+		}
 		const team = data.team;
 		const company = data.company;
-		const companyName = this.currentUser.companyName ||
+		const companyName = 
+			(
+				this.data && this.data.company && this.data.company.name
+			) ||
+			(
+				!this.teamReferral && this.currentUser.companyName
+			) ||
 			(
 				this.userOptions && this.userOptions.wantWebmail ?
 					this.currentUser.user.email :
@@ -92,12 +102,33 @@ class PostTeamTest extends CodeStreamAPITest {
 			((company.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof company.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((company.modifiedAt >= company.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-            ((company.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id'))
+			((company.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id'))
 		);
 		Assert.deepEqual(company.teamIds, [team.id], 'company teamIds is not equal to the array of teams');
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		this.validateSanitized(company, TeamTestConstants.UNSANITIZED_COMPANY_ATTRIBUTES);
 	}
+
+	// in the case of attaching the created team to a company, validate the company update
+	validateAttachToCompany (data) {
+		Assert(data.company.$set.modifiedAt >= this.attachToCompany.createdAt, 'modifiedAt in updated company should be greater than or equal to the creation date of the company');
+		const expectedUpdate = {
+			id: this.attachToCompany.id,
+			_id: this.attachToCompany._id,
+			$set: {
+				modifiedAt: data.company.$set.modifiedAt,
+				version: 2
+			},
+			$addToSet: {
+				teamIds: data.team.id
+			},
+			$version: {
+				before: 1,
+				after: 2
+			}
+		};
+		Assert.deepEqual(data.company, expectedUpdate, 'update to company not correct');
+	} 
 
 	// validate the stream part of the response (the team stream created for the team)
 	validateTeamStream (data) {

@@ -2,8 +2,9 @@
 
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const Assert = require('assert');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
-class MessageToUserTest extends CodeStreamMessageTest {
+class AttachToCompanyMessageToUserTest extends CodeStreamMessageTest {
 
 	constructor (options) {
 		super(options);
@@ -11,7 +12,7 @@ class MessageToUserTest extends CodeStreamMessageTest {
 	}
 
 	get description () {
-		return 'when a user creates a team, they should get a message that they have been added to this team, as well as analytics updates';
+		return 'when a user creates a team attached to an existing company, they should get a message that they have been added to this team, as well as analytics updates';
 	}
 
 	// set the name of the channel on which to listen for messages
@@ -20,12 +21,49 @@ class MessageToUserTest extends CodeStreamMessageTest {
 		callback();
 	}
 
+	// before the test runs...
+	before (callback) {
+		BoundAsync.series(this, [
+			super.before,
+			this.createCompany
+		], callback);
+	}
+
+	// create a second company to attach the team too
+	createCompany (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/companies',
+				data: {
+					name: this.companyFactory.randomName()
+				},
+				token: this.token
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.attachToCompany = response.company;
+				callback();
+			}
+		);
+	}
+
 	// issue the request that will generate the message we want to listen for
 	generateMessage (callback) {
 		// create a new team, this should trigger a message
 		// to the user that their "joinMethod" attribute has been set
 		this.updatedAt = Date.now();
-		this.teamFactory.createRandomTeam(
+		const data = {
+			name: this.teamFactory.randomName(),
+			companyId: this.attachToCompany.id
+		};
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/teams',
+				data,
+				token: this.token
+			},
 			(error, response) => {
 				if (error) { return callback(error); }
 				// this is the message we expect to see
@@ -37,18 +75,18 @@ class MessageToUserTest extends CodeStreamMessageTest {
 							joinMethod: 'Created Team',
 							primaryReferral: 'external',
 							originTeamId: response.team.id,
-							version: 3
+							version: 4
 						},
 						$addToSet: {
 							teamIds: response.team.id,
-							companyIds: response.company.id
+							companyIds: this.attachToCompany.id
 						},
 						$unset: {
 							companyName: true
 						},
 						$version: {
-							before: 2,
-							after: 3
+							before: 3,
+							after: 4
 						}
 					},
 					team: response.team,
@@ -75,4 +113,4 @@ class MessageToUserTest extends CodeStreamMessageTest {
 	}
 }
 
-module.exports = MessageToUserTest;
+module.exports = AttachToCompanyMessageToUserTest;

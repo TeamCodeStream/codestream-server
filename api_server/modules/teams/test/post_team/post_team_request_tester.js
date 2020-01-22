@@ -11,6 +11,11 @@ const MessageToUserTest = require('./message_to_user_test');
 const AlreadyOnTeamNoCreatedTeamJoinMethodTest = require('./already_on_team_no_created_team_join_method_test');
 const CreateSecondTeamTest = require('./create_second_team_test');
 const SubscriptionTest = require('./subscription_test');
+const CompanyOnTheFlyTest = require('./company_on_the_fly_test');
+const AttachToCompanyTest = require('./attach_to_company_test');
+const AttachToCompanyMessageToUserTest = require('./attach_to_company_message_to_user_test');
+const AttachToCompanyNotFoundTest = require('./attach_to_company_not_found_test');
+const AttachToCompanyACLTest = require('./attach_to_company_acl_test');
 
 class PostTeamRequestTester {
 
@@ -24,6 +29,11 @@ class PostTeamRequestTester {
 		new AlreadyOnTeamNoCreatedTeamJoinMethodTest().test();
 		new CreateSecondTeamTest().test();
 		new SubscriptionTest().test();
+		new CompanyOnTheFlyTest().test();
+		new AttachToCompanyTest().test();
+		new AttachToCompanyMessageToUserTest().test();
+		new AttachToCompanyNotFoundTest().test();
+		new AttachToCompanyACLTest().test();
 	}
 }
 

@@ -5,6 +5,7 @@
 'use strict';
 
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
+const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
 class InitialDataFetcher  {
 
@@ -34,7 +35,9 @@ class InitialDataFetcher  {
 
 	// get the companies that own the teams
 	async getCompanies () {
-		const companyIds = this.initialData.teams.map(team => team.companyId);
+		const userCompanyIds = this.user.get('companyIds') || [];
+		const teamCompanyIds = this.initialData.teams.map(team => team.companyId);
+		const companyIds = ArrayUtilities.union(userCompanyIds, teamCompanyIds);
 		if (companyIds.length === 0) {
 			this.initialData.companies = [];
 			return;

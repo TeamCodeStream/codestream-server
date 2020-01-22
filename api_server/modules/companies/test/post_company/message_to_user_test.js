@@ -5,13 +5,8 @@ const Assert = require('assert');
 
 class MessageToUserTest extends CodeStreamMessageTest {
 
-	constructor (options) {
-		super(options);
-		delete this.teamOptions.creatorIndex;
-	}
-
 	get description () {
-		return 'when a user creates a team, they should get a message that they have been added to this team, as well as analytics updates';
+		return 'when a user creates a company, they should get a message that they have been added to this company';
 	}
 
 	// set the name of the channel on which to listen for messages
@@ -22,10 +17,9 @@ class MessageToUserTest extends CodeStreamMessageTest {
 
 	// issue the request that will generate the message we want to listen for
 	generateMessage (callback) {
-		// create a new team, this should trigger a message
-		// to the user that their "joinMethod" attribute has been set
+		// create a new cmpany, this should trigger a message to the user
 		this.updatedAt = Date.now();
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				// this is the message we expect to see
@@ -34,24 +28,16 @@ class MessageToUserTest extends CodeStreamMessageTest {
 						_id: this.currentUser.user.id,	// DEPRECATE ME
 						id: this.currentUser.user.id,
 						$set: {
-							joinMethod: 'Created Team',
-							primaryReferral: 'external',
-							originTeamId: response.team.id,
-							version: 3
+							version: 4
 						},
 						$addToSet: {
-							teamIds: response.team.id,
 							companyIds: response.company.id
 						},
-						$unset: {
-							companyName: true
-						},
 						$version: {
-							before: 2,
-							after: 3
+							before: 3,
+							after: 4
 						}
 					},
-					team: response.team,
 					company: response.company
 				};
 				callback();
