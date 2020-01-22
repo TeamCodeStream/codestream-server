@@ -46,7 +46,7 @@ module.exports = {
 		type: 'arrayOfStrings',
 		serverOnly: true
 	},
-	reportingGroup: {
+	reportingGroup: { // deprecated, now in company object
 		type: 'string',
 		maxLength: 20
 	},

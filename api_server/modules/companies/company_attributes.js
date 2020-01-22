@@ -29,5 +29,9 @@ module.exports = {
 	planStartDate: {
 		type: 'timestamp',
 		description: 'Date/time this team was converted from trial to a paid plan'
+	},
+	reportingGroup: {
+		type: 'string',
+		maxLength: 20
 	}
 };

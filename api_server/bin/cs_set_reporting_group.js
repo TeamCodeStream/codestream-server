@@ -3,7 +3,7 @@
 'use strict';
 
 // set, update or delete the reportingGroup attribute of
-// a team
+// a company
 
 /* eslint no-console: 0 */
 const ConfigDirectory = process.env.CS_API_TOP + '/config';
@@ -13,15 +13,15 @@ const MongoClient = Mongodb.MongoClient;
 const Commander = require('commander');
 Commander
 	.option('-n, --dryrun', 'dry run only')
-	.option('-t, --team <teamName>', 'Team Name')
-	.option('-i, --team-id <teamId>', 'Team ID')
-	.option('-r, --report', 'Report team, don\'t change DB')
-	.option('-g, --group <reportingGroup>', 'string used to group teams for reporting or "null" to remove the attribute')
+	.option('-c, --company <companyName>', 'Company Name')
+	.option('-i, --company-id <companyId>', 'Company ID')
+	.option('-r, --report', 'Report company, don\'t change DB')
+	.option('-g, --group <reportingGroup>', 'string used to group companies for reporting or "null" to remove the attribute')
 	.parse(process.argv);
 
-if ((!Commander.team && !Commander.teamId) ||
-    (Commander.team && Commander.teamId)) {
-	console.log('Only one value, Team or Team ID is required');
+if ((!Commander.company && !Commander.companyId) ||
+    (Commander.company && Commander.companyId)) {
+	console.log('Only one value, Company or Company ID is required');
 	Commander.outputHelp();
 	process.exit(1);
 }
@@ -61,26 +61,26 @@ const queryCollection = async function(csDb, collection, query) {
 	}
 	let csDb = db.db(MongoConfig.database);
 
-	// find matching teams
-	let query = Commander.teamId ?
-		{ _id : new Mongodb.ObjectID(Commander.teamId) } :
-		{ name : Commander.team };
-	let teams = await queryCollection(csDb, 'teams', query);
+	// find matching companies
+	let query = Commander.companyId ?
+		{ _id : new Mongodb.ObjectID(Commander.companyId) } :
+		{ name : Commander.company };
+	let companies = await queryCollection(csDb, 'companies', query);
 
-	// no teams found
-	if(teams.length === 0) {
-		console.log('no matching teams found');
+	// no companies found
+	if(companies.length === 0) {
+		console.log('no matching companies found');
 		process.exit(1);
 	}
 
-	// multiple teams found - give useful feedback
-	if(teams.length > 1 || Commander.report) {
-		if(teams.length > 1)
-			console.log('multiple teams found');
-		for (let teamIdx in teams) {
-			let thisTeam = teams[teamIdx];
+	// multiple companies found - give useful feedback
+	if(companies.length > 1 || Commander.report) {
+		if(companies.length > 1)
+			console.log('multiple companies found');
+		for (let companyIdx in companies) {
+			let thisCompany = companies[companyIdx];
 
-			let memberOIDs = thisTeam.memberIds.map(function(id) { return Mongodb.ObjectID(id);});
+			let memberOIDs = thisCompany.memberIds.map(function(id) { return Mongodb.ObjectID(id);});
 			let members = await queryCollection(csDb, 'users', {_id: {$in: memberOIDs}});
 
 			let membersToDisplay = [];
@@ -89,29 +89,29 @@ const queryCollection = async function(csDb, collection, query) {
 				let displayString = thisMember.fullName + ' (' + thisMember.searchableEmail + ')';
 				membersToDisplay.push(displayString);
 			}
-			let teamDisplayObject = {
-				Name: thisTeam.name,
-				TeamId: thisTeam._id,
-				reportingGroup: thisTeam.reportingGroup,
+			let companyDisplayObject = {
+				Name: thisCompany.name,
+				CompanyId: thisCompany._id,
+				reportingGroup: thisCompany.reportingGroup,
 				Members: membersToDisplay
 			};
-			console.log('Team', teamIdx, ':', teamDisplayObject, '\n');
+			console.log('Company', companyIdx, ':', companyDisplayObject, '\n');
 		}
-		console.log('select a unique TeamId and rerun the script with -i');
+		console.log('select a unique CompanyId and rerun the script with -i');
 		process.exit(1);
 	}
 
-	// one team found
+	// one company found
 	let operation = Commander.group === 'null' ?
 		{ $unset: { reportingGroup: '' } }:
 		{ $set: { reportingGroup: Commander.group.toLowerCase() } };
-	console.log('updating team', teams[0].name, 'with ID', teams[0]._id, 'using', operation);
+	console.log('updating company', companies[0].name, 'with ID', companies[0]._id, 'using', operation);
 	if (Commander.dryrun) {
 		process.exit(0);
 	}
 	try {
-		await csDb.collection('teams').updateOne(
-			{_id: Mongodb.ObjectID(teams[0]._id)},
+		await csDb.collection('companies').updateOne(
+			{_id: Mongodb.ObjectID(companies[0]._id)},
 			operation);
 	}
 	catch(error) {

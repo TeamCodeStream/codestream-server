@@ -88,8 +88,7 @@ class AnalyticsClient {
 				'Team ID': team.id,
 				'Team Name': team.get('name'),
 				'Team Size': (team.get('memberIds') || []).length,
-				'Team Created Date': new Date(team.get('createdAt')).toISOString(),
-				'Reporting Group': team.get('reportingGroup') || ''
+				'Team Created Date': new Date(team.get('createdAt')).toISOString()
 			});
 		}
 
@@ -97,6 +96,7 @@ class AnalyticsClient {
 			trackObject['Company Name'] = company.get('name');
 			trackObject['Company ID'] = company.id;
 			trackObject['Plan'] = company.get('plan');
+			trackObject['Reporting Group'] = company.get('reportingGroup');
 		}
 
 		Object.assign(trackObject, data);
