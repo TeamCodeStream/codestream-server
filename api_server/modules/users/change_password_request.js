@@ -98,12 +98,14 @@ class ChangePasswordRequest extends RestfulRequest {
 			}
 		};
 
+		this.log('clearProviderInfo? ' + this.user.get('clearProviderInfo'));
 		// clear any provider info associated with slack or msteams,
 		// the sharing model will require authenticating against a new app
 		if (this.user.get('clearProviderInfo')) {
 			this.clearProviderInfo(op);
 		}
 
+		this.log('OP: ' + JSON.stringify(op, undefined, 5));
 		this.userUpdateOp = await new ModelSaver({
 			request: this.request,
 			collection: this.data.users,
@@ -115,11 +117,13 @@ class ChangePasswordRequest extends RestfulRequest {
 	async clearProviderInfo (op) {
 		const providerInfo = this.user.get('providerInfo') || {};
 		Object.keys(providerInfo).forEach(teamId => {
+			this.log('teamId? ' + teamId);
 			if (teamId === 'slack' || teamId === 'msteams') {
 				op.$unset[`providerInfo.${teamId}`] = true;
 			}
 			else if (providerInfo[teamId].slack) {
 				op.$unset[`providerInfo.${teamId}.slack`] = true;
+				this.log('clearing providerInfo for slack team ' + teamId);
 			}
 			else if (providerInfo[teamId].msteams) {
 				op.$unset[`providerInfo.${teamId}.msteams`] = true;
