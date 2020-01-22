@@ -45,6 +45,7 @@ class CompanyCreator extends ModelCreator {
 		this.attributes.trialStartDate = this.attributes.createdAt;
 		this.attributes.trialEndDate = this.attributes.trialStartDate + TRIAL_PERIOD_FOR_30_DAY_TRIAL;
 
+		this.attributes.teamIds = this.teamIds || [];
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}

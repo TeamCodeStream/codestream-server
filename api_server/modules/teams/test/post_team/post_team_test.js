@@ -79,6 +79,7 @@ class PostTeamTest extends CodeStreamAPITest {
     
 	// validate the company part of the response
 	validateCompany (data) {
+		const n36Days = 36 * 24 * 60 * 60 * 1000;
 		if (this.attachToCompany) {
 			return this.validateAttachToCompany(data);
 		}
