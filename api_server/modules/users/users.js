@@ -204,13 +204,17 @@ class Users extends Restful {
 				request.user && 
 				request.user.get('mustSetPassword') && 
 				(
-					(
-						request.path.toLowerCase() !== '/password' ||
+					!(
+						request.path.toLowerCase() === '/password' &&
+						request.method.toLowerCase() === 'put'
+					) &&
+					!(
+						request.path.toLowerCase() === '/login' &&
 						request.method.toLowerCase() !== 'put'
 					) &&
-					(
-						request.path.toLowerCase() !== '/login' ||
-						request.method.toLowerCase() !== 'put'
+					!(
+						request.path.match(/\/web/i) &&
+						request.method.toLowerCase() === 'get'
 					)
 				)
 			) {

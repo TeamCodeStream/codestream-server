@@ -212,7 +212,16 @@ class ProviderIdentityConnector {
 		if (this.team) {
 			return;
 		}
-
+		if (!this.okToCreateTeam) {
+			if (this.user.get('mustSetPassword')) {
+				this.request.log(`Match found to ${this.provider} user, but user must set a password, allowing no match to team`);
+				return;
+			}
+			// we don't allow a new user to be created with a new team in the "sharing model"
+			this.request.log('No match to user, in sharing model they must sign up first');
+			throw this.errorHandler.error('noIdentityMatch');
+		}
+		
 		this.request.log('No match to team, will create...');
 		const teamData = {
 			name: this.providerInfo.teamName
@@ -232,6 +241,7 @@ class ProviderIdentityConnector {
 	// one way or the other the user will be added to a team ... if there was no team identified
 	// with the provider credentials, create one, and if there was one, add the user to it
 	async addUserToTeamAsNeeded () {
+		if (!this.team) { return; }
 		if (this.team.get('memberIds').includes(this.user.id)) {
 			return;
 		}
@@ -246,6 +256,7 @@ class ProviderIdentityConnector {
 	// might need to update the user object, either because we had to create it before we had to create or team,
 	// or because we found an existing user object, and its identity information from the provider has changed
 	async setUserProviderInfo () {
+		if (this.user.get('mustSetPassword')) { return; }
 		let mustUpdate = false;
 
 		// if the key provider info (userId or accessToken) has changed, we need to update
