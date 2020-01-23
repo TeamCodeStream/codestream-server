@@ -200,7 +200,7 @@ class Users extends Restful {
 
 			// for users for whom a password set is required, return error unless it is the
 			// actual call to set their password
-			if (
+			else if (
 				request.user && 
 				request.user.get('mustSetPassword') && 
 				(
@@ -210,7 +210,7 @@ class Users extends Restful {
 					) &&
 					!(
 						request.path.toLowerCase() === '/login' &&
-						request.method.toLowerCase() !== 'put'
+						request.method.toLowerCase() === 'put'
 					) &&
 					!(
 						request.path.match(/\/web/i) &&
