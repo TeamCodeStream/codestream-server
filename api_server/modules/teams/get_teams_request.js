@@ -8,7 +8,7 @@ class GetTeamsRequest extends GetManyRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		if (this.request.query.mine) {
+		if (this.request.query.mine !== undefined) {
 			// user has access to their own teams by definition
 			return;
 		}
@@ -26,7 +26,7 @@ class GetTeamsRequest extends GetManyRequest {
 	// process the request (override base class)
 	async process () {
 		// if "mine" specified, fetch the teams in my teamIds array
-		if (this.request.query.mine) {
+		if (this.request.query.mine !== undefined) {
 			this.ids = this.user.get('teamIds') || [];
 		}
 		await super.process();

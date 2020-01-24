@@ -36,7 +36,7 @@ class GetMyselfNoMeAttributesTest extends GetMyselfTest {
 		let foundMeAttributes = [];
 		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
 		meAttributes.forEach(attribute => {
-			if (user[attribute]) {
+			if (user[attribute] !== undefined) {
 				foundMeAttributes.push(attribute);
 			}
 		});

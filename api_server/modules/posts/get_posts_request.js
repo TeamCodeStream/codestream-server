@@ -104,13 +104,11 @@ class GetPostsRequest extends GetManyRequest {
 
 		// process each parameter in turn
 		for (let parameter in this.request.query || {}) {
-			if (this.request.query[parameter]) {
-				const value = decodeURIComponent(this.request.query[parameter]);
-				parameter = decodeURIComponent(parameter);
-				const error = this.processQueryParameter(parameter, value, query);
-				if (error) {
-					return error;
-				}
+			const value = decodeURIComponent(this.request.query[parameter]);
+			parameter = decodeURIComponent(parameter);
+			const error = this.processQueryParameter(parameter, value, query);
+			if (error) {
+				return error;
 			}
 		}
 		this.handleRelationals(query);

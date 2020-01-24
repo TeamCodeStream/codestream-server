@@ -8,7 +8,7 @@ class GetCompaniesRequest extends GetManyRequest {
 
 	// authorize this request according to the current user
 	async authorize () {
-		if (this.request.query.mine) {
+		if (this.request.query.mine !== undefined) {
 			// you always have permission to get companies you are a part of
 			return;
 		}
@@ -25,7 +25,7 @@ class GetCompaniesRequest extends GetManyRequest {
 
 	// process the request
 	async process () {
-		if (this.request.query.mine) {
+		if (this.request.query.mine !== undefined) {
 			// get companies i am in, the GetManyRequest class knows to look at this.ids
 			this.ids = this.user.get('companyIds') || [];
 		}

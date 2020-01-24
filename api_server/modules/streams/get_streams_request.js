@@ -57,17 +57,15 @@ class GetStreamsRequest extends GetManyRequest {
 		this.haveRelational = false;
 		// process each parameter in turn
 		for (let parameter in this.request.query || {}) {
-			if (this.request.query[parameter]) {
-				let value = decodeURIComponent(this.request.query[parameter]).toLowerCase();
-				parameter = decodeURIComponent(parameter);
-				let error = this.processQueryParameter(parameter, value, query);
-				if (error) {
-					return error;
-				}
-				else if (error === false) {
-					// query returns nothing
-					return false;
-				}
+			let value = decodeURIComponent(this.request.query[parameter]).toLowerCase();
+			parameter = decodeURIComponent(parameter);
+			let error = this.processQueryParameter(parameter, value, query);
+			if (error) {
+				return error;
+			}
+			else if (error === false) {
+				// query returns nothing
+				return false;
 			}
 		}
 		return query;
