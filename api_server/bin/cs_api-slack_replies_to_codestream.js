@@ -915,7 +915,7 @@ class SlackReplyFetcher {
 	async processAllTeams () {
 		const result = await this.data.teams.getByQuery(
 			{
-				'providerInfo.slack': {$exists: true},
+				'providerIdentities': /slack::/,
 				deactivated: false
 			},
 			{
