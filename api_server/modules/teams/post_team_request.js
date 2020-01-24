@@ -15,6 +15,7 @@ class PostTeamRequest extends PostRequest {
 		await this.publishUserUpdate();
 	}
 
+	// handle returning the response to the client
 	async handleResponse () {
 		if (this.gotError) {
 			return super.handleResponse();
@@ -29,7 +30,7 @@ class PostTeamRequest extends PostRequest {
 			this.transforms.createdTeamStream.getSanitizedObject({ request: this })
 		];
 		['plan', 'trialStartDate', 'trialEndDate', 'planStartDate'].forEach(attribute => {
-			this.responseData.team[attribute] = this.responseData.company[attribute];
+			this.responseData.team[attribute] = this.creator.company.get(attribute);
 		});
 		super.handleResponse();
 	}

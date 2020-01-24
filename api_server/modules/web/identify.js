@@ -1,5 +1,6 @@
 'use strict';
 
+/* eslint complexity: 0 */
 module.exports = function(options) {
 
 	const { user, team, company, module } = options;
@@ -22,6 +23,14 @@ module.exports = function(options) {
 	const companyName = company && company.get('name');
 	const companyId = company && company.id;
 	const companyPlan = company && company.get('plan');
+	const companyCreatedAt = company && new Date(company.get('createdAt')).toISOString();
+	let trialStartAt, trialEndAt;
+	if (company && company.get('trialStartDate')) {
+		trialStartAt = new Date(company.get('trialStartDate')).toISOString();
+	}
+	if (company && company.get('trialEndDate')) {
+		trialEndAt = new Date(company.get('trialEndDate')).toISOString();
+	}
 
 	const props = {
 		provider,
@@ -38,7 +47,10 @@ module.exports = function(options) {
 		companyPlan,
 		reportingGroup,
 		companyName,
-		companyId
+		companyId,
+		companyCreatedAt,
+		trialStartAt,
+		trialEndAt
 	};
 	return module.evalTemplateNoSend('identify_script', props);
 };

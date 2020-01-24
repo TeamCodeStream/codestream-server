@@ -72,6 +72,7 @@ class AnalyticsClient {
 			Object.assign(trackObject, {
 				distinct_id: user.id,
 				'$email': user.get('email'),
+				name: user.get('fullName'),
 				'Join Method': user.get('joinMethod')
 			});
 			if (user.get('registeredAt')) {
@@ -97,6 +98,18 @@ class AnalyticsClient {
 			trackObject['Company ID'] = company.id;
 			trackObject['Plan'] = company.get('plan');
 			trackObject['Reporting Group'] = company.get('reportingGroup');
+			trackObject.company = {
+				id: company.id,
+				name: company.get('name'),
+				plan: company.get('plan'),
+				createdAt: new Date(company.get('createdAt')).toISOString()
+			};
+			if (company.get('trialStartDate')) {
+				trackObject.company.trialStart_at = new Date(company.get('trialStartDate')).toISOString();
+			}
+			if (company.get('trialEndDate')) {
+				trackObject.company.trialEnd_at = new Date(company.get('trialEndDate')).toISOString();
+			}
 		}
 
 		Object.assign(trackObject, data);
