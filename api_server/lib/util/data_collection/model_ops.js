@@ -110,25 +110,23 @@ var _documentOpsHelper = function(opType, document, op) {
 var _flattenOp = function(opData, value, rootKey) {
 	let op = {};
 	for (let key in value) {
-		if (value.hasOwnProperty(key)) {
-			opData.totalKeys++;
-			if (opData.totalKeys === opData.maxKeys) {
-				// we have a limit on the number of keys that can be updated in one
-				// request, just as a safeguard
-				return 'too many keys';
+		opData.totalKeys++;
+		if (opData.totalKeys === opData.maxKeys) {
+			// we have a limit on the number of keys that can be updated in one
+			// request, just as a safeguard
+			return 'too many keys';
+		}
+		const subValue = value[key];
+		if (typeof subValue === 'object') {
+			const subRoot = `${rootKey}${key}.`;
+			const subOp = _flattenOp(opData, subValue, subRoot);
+			if (typeof subOp === 'string') {
+				return subOp;	// error
 			}
-			const subValue = value[key];
-			if (typeof subValue === 'object') {
-				const subRoot = `${rootKey}${key}.`;
-				const subOp = _flattenOp(opData, subValue, subRoot);
-				if (typeof subOp === 'string') {
-					return subOp;	// error
-				}
-				Object.assign(op, subOp);
-			}
-			else {
-				op[rootKey + key] = subValue;
-			}
+			Object.assign(op, subOp);
+		}
+		else {
+			op[rootKey + key] = subValue;
 		}
 	}
 	return op;
@@ -208,10 +206,8 @@ module.exports = {
 			totalKeys: 0
 		};
 		for (let key in hash) {
-			if (hash.hasOwnProperty(key)) {
-				const error = _handleTopLevelKey(opData, key);
-				if (error) { return error; }
-			}
+			const error = _handleTopLevelKey(opData, key);
+			if (error) { return error; }
 		}
 		return opData.op;
 	},

@@ -51,46 +51,40 @@ class IntercomUpdater {
 		this.intercomClient = new Intercom.Client({ token: ACCESS_TOKEN });
 	}
 
-	process () {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const result = await this.data.teams.getByQuery({deactivated: false}, { stream: true, overrideHintRequired: true, sort: { _id: -1 } });
-				let team;
-				do {
-					team = await result.cursor.next();
-					if (team && team.plan) {
-						await this.processTeam(team);
-					}
-				} while (team);
-				result.done();
-				resolve();
+	async process () {
+		const result = await this.data.teams.getByQuery({deactivated: false}, { stream: true, overrideHintRequired: true, sort: { _id: -1 } });
+		let team;
+		do {
+			team = await result.cursor.next();
+			if (team && team.plan) {
+				await this.processTeam(team);
 			}
-			catch (error) {
-				reject(error);
-			}
-		});
+		} while (team);
+		result.done();
 	}
 
-	processTeam (team) {
-		return new Promise(async resolve => {
-			const update = {
-				company_id: team._id,
-				plan: team.plan,
-				custom_attributes: {
-					trialStart_at: Math.floor(team.trialStartDate/1000),
-					trialEnd_at: Math.floor(team.trialEndDate/1000)
-				}
-			};
-			console.log(`Updating team ${team._id}:"${team.name}" with`, update);
-			try {
-				await this.intercomClient.companies.update(update);
+	async processTeam (team) {
+		const update = {
+			company_id: team._id,
+			plan: team.plan,
+			custom_attributes: {
+				trialStart_at: Math.floor(team.trialStartDate/1000),
+				trialEnd_at: Math.floor(team.trialEndDate/1000)
+			}
+		};
+		console.log(`Updating team ${team._id}:"${team.name}" with`, update);
+		try {
+			await this.intercomClient.companies.update(update);
+			await new Promise(resolve => {
 				setTimeout(resolve, 300);
-			}
-			catch (error) {
-				console.warn('****** UNABLE TO UPDATE TEAM ' + team._id, error);
+			});
+		}
+		catch (error) {
+			console.warn('****** UNABLE TO UPDATE TEAM ' + team._id, error);
+			await new Promise(resolve => {
 				setTimeout(resolve, 100);
-			}
-		});
+			});
+		}
 	}
 }
 
