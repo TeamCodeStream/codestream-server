@@ -97,7 +97,7 @@ class AnalyticsClient {
 			trackObject['Company Name'] = company.get('name');
 			trackObject['Company ID'] = company.id;
 			trackObject['Plan'] = company.get('plan');
-			trackObject['Reporting Group'] = company.get('reportingGroup');
+			trackObject['Reporting Group'] = company.get('reportingGroup') || '';
 			trackObject.company = {
 				id: company.id,
 				name: company.get('name'),

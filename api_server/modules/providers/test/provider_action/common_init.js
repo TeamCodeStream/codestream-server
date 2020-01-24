@@ -114,10 +114,19 @@ class CommonInit {
 			'Reporting Group': '',
 			Provider: 'Slack',
 			Endpoint: 'Slack',
+			company: {
+				id: this.company.id,
+				name: this.company.name,
+				createdAt: new Date(this.company.createdAt).toISOString(),
+				plan: '30DAYTRIAL',
+				trialStart_at: new Date(this.company.trialStartDate).toISOString(),
+				trialEnd_at: new Date(this.company.trialEndDate).toISOString()
+			}
 		};
 		if (!this.dontCreateUser) {
 			Object.assign(properties, {
 				'$email': this.user.email,
+				name: this.user.fullName,
 				'Join Method': 'Created Team',
 				'$created': new Date(this.user.registeredAt).toISOString()
 			});

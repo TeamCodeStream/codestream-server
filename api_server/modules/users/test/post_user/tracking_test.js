@@ -81,6 +81,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((properties['Invitee Email Address'] === this.createdUser.email) || errors.push('Email Address does not match request originator')) &&
 			((properties['First Invite'] === firstInvite) || errors.push('First Invite not correct')) &&
 			((properties['$email'] === this.currentUser.user.email) || errors.push('email not correct')) && 
+			((properties['name'] === this.currentUser.user.fullName) || errors.push('name not correct')) && 
 			((properties['Registered'] === registered) || errors.push('Registered not correct')) &&
 			((properties['Join Method'] === 'Created Team') || errors.push('Join Method not correct')) && 
 			((properties['Team ID'] === this.team.id) || errors.push('Team ID not correct')) &&
@@ -95,7 +96,14 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((properties['Plugin Version'] === '') || errors.push('Plugin Version should be blank')) &&
 			((properties['$created'] === new Date(this.currentUser.user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
 			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string')) &&
-			((properties['First Session'] === true) || errors.push('First Session should be true'))
+			((properties['First Session'] === true) || errors.push('First Session should be true')) &&
+			((properties.company.id === this.company.id) || errors.push('company.id not correct')) &&
+			((properties.company.name === this.company.name) || errors.push('company.name not correct')) &&
+			((properties.company.createdAt === new Date(this.company.createdAt).toISOString()) || errors.push('company.createdAt not correct')) &&
+			((properties.company.plan === '30DAYTRIAL') || errors.push('company.plan not correct')) &&
+			((properties.company.trialStart_at === new Date(this.company.trialStartDate).toISOString()) || errors.push('company.trialStart_at not correct')) &&
+			((properties.company.trialEnd_at === new Date(this.company.trialEndDate).toISOString()) || errors.push('company.trialEnd_at not correct'))
+
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;

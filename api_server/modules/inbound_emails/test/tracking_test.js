@@ -85,6 +85,7 @@ class TrackingTest extends InboundEmailMessageTest {
 			((data.event === event) || errors.push('event not correct')) &&
 			((properties.distinct_id === this.users[1].user.id) || errors.push('distinct_id not set to post originator\'s ID')) &&
 			((properties['$email'] === this.users[1].user.email) || errors.push('email does not match post originator')) &&
+			((properties['name'] === this.users[1].user.fullName) || errors.push('name does not match post originator')) &&
 			((properties['Join Method'] === this.users[1].user.joinMethod) || errors.push('Join Method does not match post originator')) &&
 			((properties['Team ID'] === this.team.id) || errors.push('Team ID does not match team')) &&
 			((properties['Team Name'] === this.team.name) || errors.push('Team Name does not match team')) &&
@@ -98,7 +99,13 @@ class TrackingTest extends InboundEmailMessageTest {
 			((properties['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct')) &&
 			((properties['$created'] === new Date(this.users[1].user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
 			((properties['First Post?'] === new Date(this.post.createdAt).toISOString()) || errors.push('First Post not set to creation date of post')) &&
-			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string'))
+			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string')) &&
+			((properties.company.id === this.company.id) || errors.push('company.id not correct')) &&
+			((properties.company.name === this.company.name) || errors.push('company.name not correct')) &&
+			((properties.company.createdAt === new Date(this.company.createdAt).toISOString()) || errors.push('company.createdAt not correct')) &&
+			((properties.company.plan === '30DAYTRIAL') || errors.push('company.plan not correct')) &&
+			((properties.company.trialStart_at === new Date(this.company.trialStartDate).toISOString()) || errors.push('company.trialStart_at not correct')) &&
+			((properties.company.trialEnd_at === new Date(this.company.trialEndDate).toISOString()) || errors.push('company.trialEnd_at not correct'))
 		);
 		if (!this.forReplyToCodemark) {
 			result = result && (

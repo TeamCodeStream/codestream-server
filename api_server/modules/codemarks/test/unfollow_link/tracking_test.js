@@ -55,6 +55,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			properties: {
 				$created: new Date(this.currentUser.user.registeredAt).toISOString(),
 				$email: this.currentUser.user.email,
+				name: this.currentUser.user.fullName,
 				'Join Method': 'Added to Team',
 				'Team ID': this.team.id,
 				'Team Size': 3,
@@ -67,7 +68,15 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				'Reporting Group': '',
 				distinct_id: this.currentUser.user.id,
 				Change: 'Codemark Unfollowed',
-				'Source of Change': 'Email link'
+				'Source of Change': 'Email link',
+				company: {
+					id: this.company.id,
+					name: this.company.name,
+					createdAt: new Date(this.company.createdAt).toISOString(),
+					plan: '30DAYTRIAL',
+					trialStart_at: new Date(this.company.trialStartDate).toISOString(),
+					trialEnd_at: new Date(this.company.trialEndDate).toISOString()
+				}
 			}
 		};
 		Assert.deepEqual(data, expectedMessage, 'tracking data not correct');
