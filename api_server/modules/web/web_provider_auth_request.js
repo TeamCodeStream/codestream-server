@@ -31,8 +31,8 @@ class WebProviderAuthRequest extends APIRequest {
 			st: this.request.query.signupToken || '',
 			access: this.request.query.access || ''
 		};
-		if (this.request.query.noSignup) {
-			payload.noSU = true;
+		if (this.request.query._allowSignupForTesting) {
+			payload.suok = true;
 		}
 		const code = this.api.services.tokenHandler.generate(
 			payload,

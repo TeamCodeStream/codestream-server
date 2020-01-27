@@ -156,7 +156,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.teamId = this.tokenPayload.teamId;
 		this.providerAccess = this.tokenPayload.access;
 		this.sharing = this.tokenPayload.sm;
-		this.noAllowSignup = this.tokenPayload.noSU;
+		this.noAllowSignup = !this.tokenPayload.suok;
 
 		if (this.serviceAuth.usesOauth1()) {
 			let secretPayload;

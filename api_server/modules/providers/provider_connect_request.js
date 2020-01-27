@@ -69,7 +69,7 @@ class ProviderConnectRequest extends RestfulRequest {
 			request: this,
 			provider: this.provider,
 			okToCreateUser: true,
-			okToCreateTeam: true,
+			okToCreateTeam: false, // i don't think this code is called anymore at all, but team creation is no longer allowed in any case
 			okToFindExistingUserByEmail: true,
 			_pubnubUuid: this.request.body._pubnubUuid,
 			_subscriptionCheat: this.request.body._subscriptionCheat
