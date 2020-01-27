@@ -43,11 +43,11 @@ const ArchiveClearUnreadsTest = require('./archive_clear_unreads_test');
 const ArchiveClearUnreadsForTeamStreamTest = require('./archive_clear_unreads_for_team_stream_test');
 const ArchiveClearUnreadsMessageTest = require('./archive_clear_unreads_message_test');
 const ArchiveClearUnreadsForTeamStreamMessageTest = require('./archive_clear_unreads_for_team_stream_message_test');
-const IllegalSlackChannelNameTest = require('./illegal_slack_channel_name_test');
-const SlackChannelNameTooLongTest = require('./slack_channel_name_too_long_test');
+//const IllegalSlackChannelNameTest = require('./illegal_slack_channel_name_test');
+//const SlackChannelNameTooLongTest = require('./slack_channel_name_too_long_test');
 
 const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/<>?|\'".,';
-const ILLEGAL_SLACK_CHANNEL_NAME_CHARACTERS = 'A@%*Z';
+//const ILLEGAL_SLACK_CHANNEL_NAME_CHARACTERS = 'A@%*Z';
 
 class PutStreamRequestTester {
 
@@ -98,10 +98,12 @@ class PutStreamRequestTester {
 		for (let char of ILLEGAL_CHANNEL_NAME_CHARACTERS) {
 			new InvalidChannelNameTest({ illegalCharacter: char }).test();
 		}
+		/*
 		for (let char of ILLEGAL_SLACK_CHANNEL_NAME_CHARACTERS) {
 			new IllegalSlackChannelNameTest({ illegalCharacter: char }).test();
 		}
 		new SlackChannelNameTooLongTest().test();
+		*/
 		new NoDuplicateNameTest().test();
 		new UsersNotFound().test();
 		new UsersNotOnTeamTest().test();
