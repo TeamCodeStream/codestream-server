@@ -668,15 +668,11 @@ class SlackInteractiveComponentsHandler {
 			const users = await Promise.all([
 				// user that created the post (codestream userId)
 				this.actionPayload.crId
-					? async () => {
-						await this.getCodeStreamUser(this.actionPayload.crId);
-					}
+					? this.getCodeStreamUser(this.actionPayload.crId)
 					: undefined,
 				//user that clicked on the button, based upon their slack id (aka have they authed with slack)
 				this.payload.user.id
-					? async () => { 
-						await this.getUser(teamId, this.payload.user.id);
-					}
+					? this.getUser(teamId, this.payload.user.id)
 					: undefined
 			]);
 			results.userThatCreated = users[0];
