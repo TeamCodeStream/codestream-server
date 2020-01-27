@@ -14,13 +14,11 @@ const AuthErrors = require(process.env.CS_API_TOP +
 	'/modules/authenticator/errors');
 const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
 const ROUTES = [
-	/* This call is now deprecated
 	{
 		method: 'put',
 		path: '/no-auth/provider-connect/:provider',
 		requestClass: require('./provider_connect_request')
 	},
-	*/
 	{
 		method: 'get',
 		path: '/no-auth/provider-auth/:provider',

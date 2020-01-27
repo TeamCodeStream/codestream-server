@@ -13,7 +13,7 @@ const WrongTokenTypeTest = require('./wrong_token_type_test');
 const UserNotFoundTest = require('./user_not_found_test');
 const UserNotOnTeamTest = require('./user_not_on_team_test');
 const MessageTest = require('./message_test');
-const IdentityMatchTest = require('./identity_match_test');
+//const IdentityMatchTest = require('./identity_match_test');
 const InvalidIdentityTokenTest = require('./invalid_identity_token_test');
 const BadProviderIdentityMatchTest = require('./bad_provider_identity_match_test');
 const NoIdentityMatchTokenTest = require('./no_identity_match_token_test');
@@ -59,7 +59,7 @@ class ProviderTokenRequestTester {
 			new MessageTest({ provider, testHost }).test();
 		});
 		AUTH_PROVIDERS.forEach(provider => {
-			new IdentityMatchTest({ provider }).test();
+			// new IdentityMatchTest({ provider }).test();
 			new InvalidIdentityTokenTest({ provider }).test();
 			new BadProviderIdentityMatchTest({ provider }).test();
 			new NoIdentityMatchTokenTest({ provider }).test();
