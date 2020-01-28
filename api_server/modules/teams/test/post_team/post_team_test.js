@@ -53,7 +53,7 @@ class PostTeamTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		const n36Days = 36 * 24 * 60 * 60 * 1000;
 		const team = data.team;
-		const company = data.company;
+		const trialStartDate = this.attachToCompany ? this.attachToCompany.createdAt : data.company.createdAt;
 		const errors = [];
 		const result = (
 			((team.id === team._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
@@ -66,8 +66,8 @@ class PostTeamTest extends CodeStreamAPITest {
 			((team.adminIds.length === 1 && team.adminIds[0] === this.currentUser.user.id) || errors.push('current user was not made an admin')) &&
 			((team.primaryReferral === (this.teamReferral || 'external')) || errors.push('primaryReferral is incorrect')) &&
 			((team.plan === '30DAYTRIAL') || errors.push('team plan should be set to 30DAYTRIAL')) &&
-			((team.trialStartDate === company.createdAt) || errors.push(`trialStartDate ${team.trialStartDate} not set to createdAt ${company.createdAt}`)) &&
-			((team.trialEndDate === company.createdAt + n36Days) || errors.push(`trialEndDate ${team.trialEndDate} not set to trialStartDate plus 36 days (${company.createdAt + n36Days})`))
+			((team.trialStartDate === trialStartDate) || errors.push(`trialStartDate ${team.trialStartDate} not set to createdAt ${trialStartDate}`)) &&
+			((team.trialEndDate === trialStartDate + n36Days) || errors.push(`trialEndDate ${team.trialEndDate} not set to trialStartDate plus 36 days (${trialStartDate + n36Days})`))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(team.tags, DefaultTags, 'tags not set to defaults');
