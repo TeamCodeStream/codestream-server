@@ -3,20 +3,19 @@
 	"version": "1.5.6",
 	"dependencies": {
 		"async": "2.6.2",
-		"commander": "2.20.0",
-		"hjson": "^3.1.2",
+		"commander": "4.1.0",
+		"hjson": "3.2.1",
 		"html-entities": "1.2.1",
-		"mailparser": "2.7.1",
-		"pubnub": "4.23.0",
+		"mailparser": "2.7.7",
+		"pubnub": "4.27.3",
 		"randomstring": "1.1.5",
 		"strftime": "0.10.0",
-		"uuid": "3.3.2",
-		"watchr": "4.1.0"
+		"uuid": "3.4.0"
 	},
 	"devDependencies": {
-		"mocha": "6.1.4",
+		"mocha": "7.0.1",
 		"mocha-teamcity-reporter": "3.0.0",
-		"eslint": "5.16.0",
+		"eslint": "6.8.0",
 		"pre-commit": "1.2.2"
 	},
 	"scripts": {
