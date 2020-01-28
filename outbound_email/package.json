@@ -2,23 +2,23 @@
 	"name": "outbound-email",
 	"version": "0.5.9",
 	"dependencies": {
-		"amqplib": "0.5.3",
-		"deep-equal": "1.0.1",
-		"highlight.js": "9.15.6",
-		"hjson": "3.1.2",
+		"amqplib": "0.5.5",
+		"deep-equal": "2.0.1",
+		"highlight.js": "9.18.0",
+		"hjson": "3.2.1",
 		"jsonwebtoken": "8.5.1",
 		"juice": "6.0.0",
 		"markdown-it": "10.0.0",
 		"markdown-it-emoji-mart": "0.1.1",
 		"markdown-it-slack": "1.2.0",
-		"moment-timezone": "0.5.25",
-		"mongodb": "3.2.4",
-		"nodemailer": "6.1.1",
-		"pubnub": "4.23.0",
+		"moment-timezone": "0.5.27",
+		"mongodb": "3.5.2",
+		"nodemailer": "6.4.2",
+		"pubnub": "4.27.3",
 		"sendgrid": "5.2.3",
-		"socketcluster-client": "14.2.2",
+		"socketcluster-client": "15.1.0",
 		"strftime": "0.10.0",
-		"uuid": "3.3.2"
+		"uuid": "3.4.0"
 	},
 	"scripts": {
 		"eslint": "eslint ./src",
@@ -43,9 +43,9 @@
 		"eslint"
 	],
 	"devDependencies": {
-		"eslint": "5.16.0",
-		"lambda-local": "1.6.2",
-		"nodemon": "1.19.1",
+		"eslint": "6.8.0",
+		"lambda-local": "1.7.1",
+		"nodemon": "2.0.2",
 		"pre-commit": "1.2.2"
 	}
 }
