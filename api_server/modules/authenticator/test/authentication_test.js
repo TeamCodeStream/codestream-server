@@ -1,6 +1,6 @@
 'use strict';
 
-const CodeStreamAPIBaseTest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_base_test');
+var CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 /*
 CodeStreamAPITest handles setting up a user with a valid access token, and by default
@@ -8,11 +8,12 @@ sends the access token with the request ... we'll just issue a request for the u
 own user object (/users/me) and confirm it works
 */
 
-class AuthenticationTest extends CodeStreamAPIBaseTest {
+class AuthenticationTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.currentUserIndex = 0;
+		this.userOptions.numRegistered = 1;
+		delete this.teamOptions.creatorIndex;
 	}
 
 	get description () {

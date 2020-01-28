@@ -1,6 +1,6 @@
 'use strict';
 
-const AuthenticationTest = require('./authentication_test');
+var AuthenticationTest = require('./authentication_test');
 
 class AuthenticationInvalidTokenTest extends AuthenticationTest {
 
@@ -14,9 +14,12 @@ class AuthenticationInvalidTokenTest extends AuthenticationTest {
 		};
 	}
 
-	async before () {
-		await super.before();
-		this.token += 'x';	// bad token ... bad, bad token
+	before (callback) {
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.token += 'x';	// bad token ... bad, bad token
+			callback();
+		});
 	}
 }
 

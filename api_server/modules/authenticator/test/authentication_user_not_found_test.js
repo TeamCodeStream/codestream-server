@@ -1,7 +1,7 @@
 'use strict';
 
-const AuthenticationTest = require('./authentication_test');
-const JSONWebToken = require('jsonwebtoken');
+var AuthenticationTest = require('./authentication_test');
+var JSONWebToken = require('jsonwebtoken');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 
 class AuthenticationUserNotFoundTest extends AuthenticationTest {
@@ -17,24 +17,27 @@ class AuthenticationUserNotFoundTest extends AuthenticationTest {
 	}
 
 	// before the test runs...
-	async before () {
-		await super.before();
-		await this.alterUserIdInToken();
+	before (callback) {
+		super.before(error => {
+			if (error) { return callback(error); }
+			this.alterUserIdInToken(callback);
+		});
 	}
 
-	async alterUserIdInToken () {
+	alterUserIdInToken (callback) {
 		// decrypt the token to get payload
 		let payload;
 		const secret = SecretsConfig.auth;
 		try {
 			payload = JSONWebToken.verify(this.token, secret);
 		}
-		catch (error) {
-			throw 'invalid token: ' + error;
+		catch(error) {
+			return callback('invalid token: ' + error);
 		}
 		// change the user ID and regenerate the token
 		payload.uid = 'xxx';
 		this.token = JSONWebToken.sign(payload, secret);
+		callback();
 	}
 }
 
