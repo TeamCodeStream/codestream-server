@@ -219,7 +219,9 @@ class CodemarkCreator extends ModelCreator {
 		}
 		if (!this.trialRun) {
 			this.attributes.markerIds = this.transforms.createdMarkers.map(marker => marker.id);
-			this.attributes.fileStreamIds = this.transforms.createdMarkers.map(marker => (marker.get('fileStreamId') || null));
+			this.attributes.fileStreamIds = this.transforms.createdMarkers.
+				filter(marker => marker.get('fileStreamId')).
+				map(marker => marker.get('fileStreamId'));
 			delete this.attributes.markers;
 		}
 	}
