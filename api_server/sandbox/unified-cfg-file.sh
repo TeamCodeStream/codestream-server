@@ -5,7 +5,7 @@
 sandutil_load_options $CS_API_SANDBOX || { echo "failed to load options" >&2 && return 1; }
 
 # node
-[ -z "$CS_API_NODE_VER" ] && export CS_API_NODE_VER=10.15.3
+[ -z "$CS_API_NODE_VER" ] && export CS_API_NODE_VER=12.14.1
 export PATH=$CS_API_SANDBOX/node/bin:$CS_API_TOP/node_modules/.bin:$PATH
 
 export PATH=$CS_API_TOP/bin:$PATH

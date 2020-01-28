@@ -24,7 +24,7 @@ sandutil_load_options $CS_API_SANDBOX || { echo "failed to load options" >&2 && 
 # Uncomment and setup if node is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/node-$DT_OS_TYPE-*
-export CS_API_NODE_VER=10.15.3
+export CS_API_NODE_VER=12.14.1
 export PATH=$CS_API_SANDBOX/node/bin:$CS_API_TOP/bin:$CS_API_TOP/node_modules/.bin:$PATH
 
 # Set this variable if you require additional options when doing npm installs
