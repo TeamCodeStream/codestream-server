@@ -28,7 +28,7 @@ sandutil_load_options $CS_OUTBOUND_EMAIL_SANDBOX || { echo "failed to load optio
 # Uncomment and setup if node is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/node-$DT_OS_TYPE-*
-export CS_OUTBOUND_EMAIL_NODE_VER=10.15.3
+export CS_OUTBOUND_EMAIL_NODE_VER=12.14.1
 export PATH=$CS_OUTBOUND_EMAIL_SANDBOX/node/bin:$CS_OUTBOUND_EMAIL_TOP/node_modules/.bin:$PATH
 # export CS_OUTBOUND_EMAIL_NPM_INSTALL_XTRA_OPTS=
 
