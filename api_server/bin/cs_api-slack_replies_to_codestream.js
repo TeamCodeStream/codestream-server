@@ -351,10 +351,11 @@ class TeamReplyFetcher {
 			const slackUser = this.slackUsers[memberId];
 			if (!slackUser) {
 				this.warn(`WARNING: Slack user ${memberId} not found among slack users for workspace, will not be a member of stream created for ${slackStream.id}`);
-				return;
 			}
-			const user = await this.ensureUser(slackUser);
-			members.push(user);
+			else {
+				const user = await this.ensureUser(slackUser);
+				members.push(user);
+			}
 		}
 		return members;
 	}
@@ -594,15 +595,15 @@ class TeamReplyFetcher {
 		// create a post for the reply
 		this.log(`\t\t\tProcessing reply ${message.ts} to codemark ${codemark.id}...`);
 		const id = this.data.posts.createId().toString();
-		const now = Date.now();
+		const createdAt = parseInt(message.ts.split('.')[0], 10) * 1000;
 		const seqNum = this.bumpSeqNum(stream);
 		const postData = {
 			id,
 			version: 1,
 			deactivated: false,
 			numReplies: 0,
-			createdAt: now,
-			modifiedAt: now,
+			createdAt,
+			modifiedAt: createdAt,
 			streamId: stream.id,
 			parentPostId: postId,
 			teamId: this.team.id,
