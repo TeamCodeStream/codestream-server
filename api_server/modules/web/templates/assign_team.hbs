@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>CodeStream</title>
+	{{> partial_html_head partial_html_head_model}}
+	<script>
+		history.pushState(null, "CodeStream", location.href.split("?")[0]);
+	</script>
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<a class="navbar-brand" href="https://codestream.com">
+			<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
+		</a>
+	</nav>
+	<div class="container mt-5">
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3">
+				<h1 class="text-center">Choose a team to use with </h1>				
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+				<div class="box-content box-border">
+					<form action="/web/assign/team" method="post">					
+						<div class="form-group">
+								{{#if error}}
+								<div class="error text-center" style="width:100%;">
+									{{error}}
+								</div>
+								{{/if}}
+								<input type="hidden" name="finishUrl" value="{{finishUrl}}">								
+								<input type="hidden" name="_csrf" value="{{csrf}}" />
+								<input type="hidden" name="tenantId" value="{{tenantId}}" />
+								<div class="form-group">
+                                    <label for="teamId">Team</label>
+                                    <select class="form-control bg-dark" id="teamId" name="teamId">
+                                        {{#teams}}
+                                            <option value="{{id}}">{{name}}</option>
+                                        {{/teams}}
+                                    </select>
+                                </div>								 
+								<div class="form-group">
+									<input type="submit" value="Submit" class="btn" />
+								</div>
+							</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

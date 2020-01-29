@@ -11,6 +11,11 @@ const SlackInteractiveComponentsHandler = require('./slack_interactive_component
 const SlackCfg = require(process.env.CS_API_TOP + '/config/slack');
 const crypto = require('crypto');
 const AddTeamPublisher = require(process.env.CS_API_TOP + '/modules/users/add_team_publisher');
+const { ActionTypes, BotFrameworkAdapter, CardFactory } = require('botbuilder');
+const MSTeamsConversationBot = require('./msteams_conversation_bot');
+const MSTeamsCallbackHandler = require('./msteams_callback_handler');
+const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
+const MSTeamsBotFrameworkAdapter = require('./msteams_bot_framework_adapter');
 
 const CODE_PROVIDERS = {
 	github: 'GitHub',
@@ -20,14 +25,31 @@ const CODE_PROVIDERS = {
 	vsts: 'Azure DevOps'
 };
 
+// const adapter = new BotFrameworkAdapter({
+// 	appId: MSTeamsConfig.appClientId,
+// 	appPassword: MSTeamsConfig.appClientSecret // process.env.MicrosoftAppPassword
+// });
+
+let bot;
+// we want this to be a singleton
+
 class ProviderActionRequest extends RestfulRequest {
-	async authorize () {
-		if (!this.verifySlackRequest(this.request, this.request.body.payloadRaw)) {
-			this.log('Slack verification failed');
-			throw this.errorHandler.error('notFound');
+	constructor (options) {
+		super(options);
+		if (!bot) {
+			bot = new MSTeamsConversationBot();
 		}
-		// in the success case we don't need this anymore and requireAndAllow will warn for it
-		delete this.request.body.payloadRaw;
+	}
+
+	async authorize () {
+		if (this.request.params.provider.toLowerCase() === 'slack') {
+			if (!this.verifySlackRequest(this.request, this.request.body.payloadRaw)) {
+				this.log('Slack verification failed');
+				throw this.errorHandler.error('notFound');
+			}
+			// in the success case we don't need this anymore and requireAndAllow will warn for it
+			delete this.request.body.payloadRaw;
+		}
 	}
 
 	// require certain parameters, discard unknown parameters
@@ -39,10 +61,85 @@ class ProviderActionRequest extends RestfulRequest {
 		});
 	}
 
+	createCodemarkHeroCard (codemark) {
+		return CardFactory.heroCard('Codemark', codemark.get('text'), null, // No images
+			[
+				{
+					type: 'invoke',
+					title: 'View Discussion & Reply',
+					value: {
+						type: 'task/fetch',
+						data: { codemark: codemark.attributes }
+					}
+				},
+				{
+					type: ActionTypes.OpenUrl,
+					title: 'Open in IDE',
+					value: 'https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0'
+				},
+				{
+					type: ActionTypes.OpenUrl,
+					title: 'Open on GitHub',
+					value: 'https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0'
+				}
+			]);
+	}
+
 	// process the request...
 	async process () {
 		this.provider = this.request.params.provider.toLowerCase();
-		if (this.provider === 'slack') {
+		if (this.provider === 'msteams') {
+			this.handler = new MSTeamsCallbackHandler(this);
+			this.handler.attachData(this.data);
+			bot.attachHandler(this.handler);
+
+			await MSTeamsBotFrameworkAdapter.instance().processActivity(this.request, this.response, async (context) => {
+				await bot.run(context);
+			});
+
+			// const foo = this.data.users;				 
+			// does this stop the persisting of the data???
+			this.responseHandled = true;
+			// await adapter.processActivity(this.request, this.response, async (context) => {
+			// 	await bot.run(context);
+			// 	for (const conversationReference of Object.values(conversationReferences)) {
+			// 		const foo = conversationReference.conversation.conversation.id.split(';');
+			// 		const exists = await this.data.foos.getByQuery(
+			// 			{ conversationId: foo[0] },
+			// 			{
+			// 				overrideHintRequired: true,
+			// 				noCache: true,
+			// 				ignoreCache: true
+			// 			});
+			// 		if (!exists || !exists.length) {
+			// 			//var copy = JSON.parse(JSON.stringify(conversationReference));
+			// 			//copy.conversation.id = foo[0];
+			// 			var bar = await this.data.bars.getByQuery({
+			// 				tenantId: conversationReference.tenantId
+			// 			}, {
+			// 				overrideHintRequired: true,
+			// 				noCache: true,
+			// 				ignoreCache: true
+			// 			}
+			// 			)
+			// 			if (bar && bar.length) {
+			// 				bar = bar[0];
+			// 				await this.data.foos.create({
+			// 					monkey: conversationReference,
+			// 					conversationId: foo[0],
+			// 					teamId: bar.teamId,
+			// 					name: conversationReference.team.name
+			// 				});
+			// 			}
+			// 			else {
+			// 				console.log('no reference')
+			// 			}
+			// 		}
+			// 	}
+			// });
+
+		}
+		else if (this.provider === 'slack') {
 			await this.requireAndAllow(); // require certain parameters, discard unknown parameters
 			const data = this.parseSlackActionInfo();
 			if (data) {
@@ -50,30 +147,30 @@ class ProviderActionRequest extends RestfulRequest {
 					this,
 					data
 				);
-				this.results = await this.handler.process();
-				if (this.results) {
-					if (this.results.responseData) {
-						// if we have data that we need to send back to the provider...
-						this.responseData = this.results.responseData;
-					}
-					if (this.results.actionTeam) {
-						const company = await this.getCompany(
-							this.results.actionTeam
-						);
-						await this.sendTelemetry(
-							data,
-							this.results.actionUser,
-							this.results.payloadUserId,
-							this.results.actionTeam,
-							company,
-							this.results.error
-						);
-					}
-				}
 			}
 		}
-		else if (this.provider === 'msteams') {
-			// this.responseData = { 'ok': true };
+
+		if (this.handler) {
+			this.results = await this.handler.process();
+			if (this.results) {
+				if (this.results.responseData) {
+					// if we have data that we need to send back to the provider...
+					this.responseData = this.results.responseData;
+				}
+				if (this.results.actionTeam) {
+					const company = await this.getCompany(
+						this.results.actionTeam
+					);
+					await this.sendTelemetry(
+						data,
+						this.results.actionUser,
+						this.results.payloadUserId,
+						this.results.actionTeam,
+						company,
+						this.results.error
+					);
+				}
+			}
 		}
 	}
 
@@ -301,6 +398,7 @@ class ProviderActionRequest extends RestfulRequest {
 			return super.handleResponse();
 		}
 
+
 		// handle various data transforms that may have occurred as a result of creating the post,
 		// adding objects to the response returned
 		const { transforms } = this;
@@ -322,14 +420,63 @@ class ProviderActionRequest extends RestfulRequest {
 			this.postPublishData.codemarks = transforms.updatedCodemarks;
 		}
 
+		// if (transforms.teamUpdate) {
+		// 	const teamId = transforms.teamUpdate.id;
+		// 	const channel = 'team-' + teamId;
+		// 	const message = {
+		// 		team: transforms.teamUpdate,
+		// 		requestId: this.request.id
+		// 	};
+		// 	try {
+		// 		await this.api.services.broadcaster.publish(
+		// 			message,
+		// 			channel,
+		// 			{ request: this }
+		// 		);
+		// 	}
+		// 	catch (error) {
+		// 		// this doesn't break the chain, but it is unfortunate...
+		// 		this.warn(`Could not publish updated team message to team ${teamId}: ${JSON.stringify(error)}`);
+		// 	}
+		// }
+
 		if (this.handler && this.handler.postCreator) {
 			this.postPublishData.post = this.handler.postCreator.model.getSanitizedObject({
 				request: this
 			});
 		}
 
+		if(transforms.userUpdates){
+			for(const user of transforms.userUpdates) {
+			const message = {
+				requestId: this.request.id,
+				user: user
+			};
+			const channel = `user-${user.id}`;
+			try {
+				await this.api.services.broadcaster.publish(
+					message,
+					channel,
+					{ request: this	}
+				);
+			}
+			catch (error) {
+				// this doesn't break the chain, but it is unfortunate...
+				this.warn(`Could not publish company creation message to user ${user.id}: ${JSON.stringify(error)}`);
+			}}
+
+		}
+		// if (this.handler && this.handler.createdUser) {
+		// 	this.transforms.createdUser = this.handler.createdUser;
+		// }
+
 		if (this.handler && this.handler.createdUser) {
 			this.transforms.createdUser = this.handler.createdUser;
+		}
+
+		// TOOD need this or what?
+		if (this.responseHandled) {
+			return;
 		}
 
 		await super.handleResponse();

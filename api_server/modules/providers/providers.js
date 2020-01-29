@@ -72,7 +72,7 @@ const ROUTES = [
 ];
 
 class Providers extends APIServerModule {
-	constructor(options) {
+	constructor (options) {
 		super(options);
 		this.errorHandler = new ErrorHandler(Errors);
 		this.errorHandler.add(RestfulErrors);
@@ -80,11 +80,11 @@ class Providers extends APIServerModule {
 		this.errorHandler.add(AuthErrors);
 	}
 
-	getRoutes() {
+	getRoutes () {
 		return ROUTES;
 	}
 
-	middlewares() {
+	middlewares () {
 		return (request, response, next) => {
 
 			// HACK: the provider-action request (coming from slack) is form data with a value that is
@@ -93,6 +93,11 @@ class Providers extends APIServerModule {
 				/^\/no-auth\/provider-action\/(.+)/
 			);
 			if (!match) {
+				return next();
+			}
+
+			if (match[1] === 'msteams') {	
+				// msteams can bypass all the madness below
 				return next();
 			}
 
@@ -149,7 +154,7 @@ class Providers extends APIServerModule {
 	}
 
 	// describe any errors associated with this module, for help
-	describeErrors() {
+	describeErrors () {
 		return {
 			Provider: Errors
 		};

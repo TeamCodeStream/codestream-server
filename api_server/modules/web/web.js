@@ -56,6 +56,16 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: 'web/assign/team',
+		requestClass: require('./web_assign_team_request')
+	},
+	{
+		method: 'post',
+		path: 'web/assign/team',
+		requestClass: require('./assign_team_request')
+	},
+	{
+		method: 'get',
 		path: 'web/login',
 		requestClass: require('./web_login_request')
 	},

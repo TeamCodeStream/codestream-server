@@ -61,7 +61,8 @@ const DataCollections = {
 	reviews: require(ModuleDirectory + '/reviews/review'),
 	markerLocations: require(ModuleDirectory + '/marker_locations/marker_locations'),
 	providerPosts: require(ModuleDirectory + '/provider_posts/provider_post'),
-	codemarkLinks: require(ModuleDirectory + '/codemarks/codemark_link')
+	codemarkLinks: require(ModuleDirectory + '/codemarks/codemark_link'),
+	msteams_conversations: require(ModuleDirectory + '/msteams_conversations/msteams_conversation')
 };
 
 // establish our mongo collections, these include our DataCollections, but 

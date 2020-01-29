@@ -2,6 +2,8 @@
 
 const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 const LoginCore = require(process.env.CS_API_TOP + '/modules/users/login_core');
+const SignupTokens = require(process.env.CS_API_TOP + '/modules/users/signup_tokens');
+const SigninFlowUtils = require('./signin_flow_utils');
 const WebErrors = require('./errors');
 
 class WebSigninRequest extends APIRequest {
@@ -21,6 +23,10 @@ class WebSigninRequest extends APIRequest {
 			this.user = await new LoginCore({
 				request: this
 			}).login(email, password);
+
+			if (this.request.body.tenantId) {
+					this.interstitial = '/web/assign/team?tenantId=' + this.request.body.tenantId;
+			}
 		}
 		catch (error) {
 			return this.loginError();
@@ -39,13 +45,16 @@ class WebSigninRequest extends APIRequest {
 		const error = WebErrors.invalidLogin.code;
 		const email = encodeURIComponent(this.request.body.email || '');
 		const url = encodeURIComponent(this.request.body.finishUrl || '');
-		const redirect = `/web/login?error=${error}&email=${email}&url=${url}`;
+		let redirect = `/web/login?error=${error}&email=${email}&url=${url}`;
+		if (this.request.body.tenantId) {
+			redirect += '&tenantId=' + encodeURIComponent(this.request.body.tenantId || '');
+		}
 		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}
 
 	issueCookie () {
-		this.token = 
+		this.token =
 			(this.user.get('accessTokens') || {}) &&
 			(this.user.get('accessTokens').web || {}) &&
 			this.user.get('accessTokens').web.token;
@@ -61,10 +70,13 @@ class WebSigninRequest extends APIRequest {
 	}
 
 	finishFlow () {
-		const finishUrl = this.request.body.finishUrl || '/web/finish';
-		const redirect = `${finishUrl}?identify=true&provider=CodeStream`;
-		this.response.redirect(redirect);
-		this.responseHandled = true;
+		if (this.interstitial) {
+			this.response.redirect(this.interstitial);
+			this.responseHandled = true;
+		}
+		else {
+			this.responseHandled = new SigninFlowUtils(this).finish();
+		}
 	}
 }
 

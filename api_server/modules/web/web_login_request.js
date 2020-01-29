@@ -24,6 +24,7 @@ class WebLoginRequest extends APIRequest {
 			email,
 			teamId,
 			finishUrl: decodeURIComponent(this.request.query.url || ''),
+			tenantId:  decodeURIComponent(this.request.query.tenantId || ''),
 			slackLink,
 			msteamsLink,
 			version: this.module.versionInfo(),
