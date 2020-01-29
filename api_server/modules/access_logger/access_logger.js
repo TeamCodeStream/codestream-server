@@ -27,13 +27,13 @@ class AccessLogger extends APIServerModule {
 				// when the response is sent to the client
 				this.logRequest(request, response, 'RESPONDED', startTimer);
 			});
-			response.on('close', () => {
-				// an abnormal finish, like an uncaught or express error
-				this.logRequest(request, response, 'ABORTED', startTimer);
-			});
 			response.on('complete', () => {
 				// fully done, no more work to do at all
 				this.logRequest(request, response, 'DONE', startTimer);
+			});
+			response.on('timeout', () => {
+				// an abnormal finish, like an uncaught or express error
+				this.logRequest(request, response, 'TIMEOUT', startTimer);
 			});
 			process.nextTick(next);
 		};
