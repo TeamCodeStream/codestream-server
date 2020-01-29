@@ -78,7 +78,7 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 			company: this.company,
 			team: this.team,
 			repos: [],
-			users: [teamCreatorData.user, this.currentUser]
+			users: [teamCreatorData.user, this.currentUser.user]
 		};
 		this.message.users.sort((a, b) => {
 			return a.id.localeCompare(b.id);
