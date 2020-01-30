@@ -33,6 +33,7 @@ class PutTeamFetchTest extends PutTeamTest {
 		const expectedTeam = Object.assign({}, this.team, this.updateTeamResponse.team.$set);
 		data.team.memberIds.sort();
 		expectedTeam.memberIds.sort();
+		expectedTeam.companyMemberCount = expectedTeam.memberIds.length;
 		Assert.deepEqual(data.team, expectedTeam, 'fetched team does not match');
 	}
 }

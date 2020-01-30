@@ -67,7 +67,8 @@ class PostTeamTest extends CodeStreamAPITest {
 			((team.primaryReferral === (this.teamReferral || 'external')) || errors.push('primaryReferral is incorrect')) &&
 			((team.plan === '30DAYTRIAL') || errors.push('team plan should be set to 30DAYTRIAL')) &&
 			((team.trialStartDate === trialStartDate) || errors.push(`trialStartDate ${team.trialStartDate} not set to createdAt ${trialStartDate}`)) &&
-			((team.trialEndDate === trialStartDate + n36Days) || errors.push(`trialEndDate ${team.trialEndDate} not set to trialStartDate plus 36 days (${trialStartDate + n36Days})`))
+			((team.trialEndDate === trialStartDate + n36Days) || errors.push(`trialEndDate ${team.trialEndDate} not set to trialStartDate plus 36 days (${trialStartDate + n36Days})`)) &&
+			((team.companyMemberCount === 1) || errors.push('companyMemberCount should be 1'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(team.tags, DefaultTags, 'tags not set to defaults');

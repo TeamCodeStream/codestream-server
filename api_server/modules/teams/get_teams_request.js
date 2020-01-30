@@ -3,6 +3,7 @@
 'use strict';
 
 const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
 class GetTeamsRequest extends GetManyRequest {
 
@@ -41,6 +42,7 @@ class GetTeamsRequest extends GetManyRequest {
 		// company company plan attributes to the team attributes
 		const companyIds = this.responseData.teams.map(team => team.companyId);
 		const companies = await this.data.companies.getByIds(companyIds);
+		await this.getCompanyMemberCount(companies);
 		for (let team of this.responseData.teams) {
 			const company = companies.find(company => company.id === team.companyId);
 			if (company) {
@@ -48,8 +50,32 @@ class GetTeamsRequest extends GetManyRequest {
 					team[attribute] = company.get(attribute);
 				});
 			}
+			team.companyMemberCount = (this.memberIdsByCompany[team.companyId] || []).length;
 		}
 		return super.handleResponse();
+	}
+
+	async getCompanyMemberCount (companies) {
+		const teamIds = companies.reduce((teamIds, company) => {
+			teamIds = [...teamIds, ...(company.get('teamIds') || [])];
+			return teamIds;
+		}, []);
+		const haveTeamIds = this.responseData.teams.map(team => team.id);
+		const needTeamIds = ArrayUtilities.difference(teamIds, haveTeamIds);
+		let otherTeams = [];
+		if (needTeamIds.length > 0) {
+			otherTeams = await this.data.teams.getByIds(needTeamIds);
+			otherTeams = otherTeams.map(team => team.attributes);
+		}
+		
+		const teams = [...this.responseData.teams, ...otherTeams];
+		this.memberIdsByCompany = {};
+		for (let team of teams) {
+			this.memberIdsByCompany[team.companyId] = ArrayUtilities.union(
+				this.memberIdsByCompany[team.companyId] || [],
+				team.memberIds || []
+			);
+		}
 	}
 
 	// describe this route for help
