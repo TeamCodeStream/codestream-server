@@ -1,11 +1,5 @@
 
-export CS_OUTBOUND_EMAIL_ASSET_ENV=dev
-export CS_OUTBOUND_EMAIL_ENV=pd
-export CS_OUTBOUND_EMAIL_SQS=pd_outboundEmail
-export CS_OUTBOUND_EMAIL_REPLY_TO_DOMAIN=pd.codestream.com
-PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-PD_Keyset"
-MONGO_ACCESS_FILE="$HOME/.codestream/mongo/pd-codestream-api"
-
+# use for persistent development
+export CSSVC_ENV=pd
+export CSSVC_CONFIGURATION=codestream-cloud
 . $CS_OUTBOUND_EMAIL_TOP/sandbox/defaults.sh
-
-unset CS_OUTBOUND_EMAIL_TO
