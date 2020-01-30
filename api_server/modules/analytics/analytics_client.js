@@ -102,7 +102,7 @@ class AnalyticsClient {
 				id: company.id,
 				name: company.get('name'),
 				plan: company.get('plan'),
-				createdAt: new Date(company.get('createdAt')).toISOString()
+				created_at: new Date(company.get('createdAt')).toISOString()
 			};
 			if (company.get('trialStartDate')) {
 				trackObject.company.trialStart_at = new Date(company.get('trialStartDate')).toISOString();

@@ -99,7 +99,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((properties['First Session'] === true) || errors.push('First Session should be true')) &&
 			((properties.company.id === this.company.id) || errors.push('company.id not correct')) &&
 			((properties.company.name === this.company.name) || errors.push('company.name not correct')) &&
-			((properties.company.createdAt === new Date(this.company.createdAt).toISOString()) || errors.push('company.createdAt not correct')) &&
+			((properties.company.created_at === new Date(this.company.createdAt).toISOString()) || errors.push('company.createdAt not correct')) &&
 			((properties.company.plan === '30DAYTRIAL') || errors.push('company.plan not correct')) &&
 			((properties.company.trialStart_at === new Date(this.company.trialStartDate).toISOString()) || errors.push('company.trialStart_at not correct')) &&
 			((properties.company.trialEnd_at === new Date(this.company.trialEndDate).toISOString()) || errors.push('company.trialEnd_at not correct'))
