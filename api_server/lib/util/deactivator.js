@@ -169,7 +169,7 @@ class Deleter {
 					teamIds: this.teamId
 				},
 				{
-					fields: ['id', 'teamIds'],
+					fields: ['id', 'teamIds', 'email'],
 					hint: UserIndexes.byTeamIds
 				}
 			);
@@ -303,7 +303,7 @@ class Deleter {
 	async deleteUsers () {
 		if (this.teamId) {
 			await this.removeUsersFromTeam();
-			if (this.deleteTeamlessUsers) {
+			if (this.deactivateTeamlessUsers) {
 				await this.deleteWouldBeTeamlessUsers();
 			}
 		}
@@ -313,27 +313,33 @@ class Deleter {
 	}
 
 	async deleteWouldBeTeamlessUsers () {
-		const userIdsToDelete = this.users
+		const usersToDelete = this.users
 			.filter(user => {
 				return (
 					(user.teamIds || []).length === 1 &&
 					user.teamIds[0] === this.teamId
 				);
-			})
-			.map(user => user.id);
+			});
 
-		if (userIdsToDelete.length === 0) {
+		if (usersToDelete.length === 0) {
 			return;
 		}
-		this.logger.log(`Deactivating ${userIdsToDelete.length} users...`);
+		this.logger.log(`Deactivating ${usersToDelete.length} users...`);
 		try {
-			await this.mongoClient.mongoCollections.users.updateDirect(
-				{ id: this.mongoClient.mongoCollections.users.inQuerySafe(userIdsToDelete) },
-				{ $set: { deactivated: true, searchableEmail: 'deactivated' + Date.now() } }
-			);
+			await Promise.all(usersToDelete.map(async user => {
+				const emailParts = user.email.split('@');
+				const now = Date.now();
+				const newEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
+				await this.mongoClient.mongoCollections.users.updateDirect(
+					{ id: this.mongoClient.mongoCollections.users.objectIdSafe(user.id) },
+					{ $set: { deactivated: true, email: newEmail, searchableEmail: newEmail.toLowerCase() } }
+				);
+			}));
 		}
 		catch (error) {
-			throw `unable to delete users: ${JSON.stringify(error)}`;
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			console.trace();
+			throw `unable to delete users: ${message}`;
 		}
 	}
 
@@ -342,7 +348,7 @@ class Deleter {
 		try {
 			await this.mongoClient.mongoCollections.users.updateDirect(
 				{ teamIds: this.teamId },
-				{ $pull: { teamIds: this.teamId } },
+				{ $pull: { teamIds: this.teamId, companyIds: this.team.companyId } },
 			);
 		}
 		catch (error) {
