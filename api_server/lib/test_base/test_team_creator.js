@@ -179,6 +179,7 @@ class TestTeamCreator {
 					this.users.push({ user: response.user });
 				}
 				this.team.memberIds.push(response.user.id);
+				this.team.companyMemberCount++;
 				callback();
 			}
 		);
