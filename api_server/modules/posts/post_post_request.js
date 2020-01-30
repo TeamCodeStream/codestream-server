@@ -73,9 +73,14 @@ class PostPostRequest extends PostRequest {
 			responseData.markerLocations = transforms.markerLocations;
 		}
 
-		// a knowledge base codemark might have been created with the post, add it
+		// a codemark might have been created with the post, add it
 		if (transforms.createdCodemark) {
 			responseData.codemark = transforms.createdCodemark.getSanitizedObject({ request: this });
+		}
+
+		// a code review might have been created with the post, add it
+		if (transforms.createdReview) {
+			responseData.review = transforms.createdReview.getSanitizedObject({ request: this });
 		}
 
 		// if there is a parent post update, add it
@@ -103,6 +108,7 @@ class PostPostRequest extends PostRequest {
 				'text': '<Text of the post>',
 				'parentPostId': '<For replies, the ID of the parent post>',
 				'codemark': '<Single @@#codemark#codemark@@ object, for creating a codemark referenced by the post>',
+				'review': '<Single @@review@review@@ object, for creating a code review referenced by the post>',
 				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>'
 			}
 		};
@@ -131,6 +137,8 @@ class PostPostRequest extends PostRequest {
 			looksLike: '(same as response)'
 		};
 		description.errors.push('noReplyToReply');
+		description.errors.push('noReplyWithReview');
+		description.errors.push('noCodemarkAndReview');
 		return description;
 	}
 }

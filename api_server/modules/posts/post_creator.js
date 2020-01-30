@@ -11,6 +11,7 @@ const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_
 const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const CodemarkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_creator');
+const ReviewCreator = require(process.env.CS_API_TOP + '/modules/reviews/review_creator');
 const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_helper');
 const Errors = require('./errors');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
@@ -44,7 +45,7 @@ class PostCreator extends ModelCreator {
 			},
 			optional: {
 				string: ['text', 'parentPostId'],
-				object: ['codemark'],
+				object: ['codemark', 'review'],
 				boolean: ['dontSendEmail'],
 				'array(string)': ['mentionedUserIds']
 			}
@@ -53,6 +54,13 @@ class PostCreator extends ModelCreator {
 
 	// called before the post is actually saved
 	async preSave () {
+		if (this.attributes.codemark && this.attributes.review) {
+			throw this.errorHandler.error('noCodemarkAndReview');
+		}
+		if (this.attributes.parentPostId && this.attributes.review) {
+			throw this.errorHandler.error('noReplyWithReview');
+		}
+
 		this.dontSendEmailNotification = this.attributes.dontSendEmail;
 		delete this.attributes.dontSendEmail;
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
@@ -65,7 +73,8 @@ class PostCreator extends ModelCreator {
 		await this.getStream();			// get the stream for the post
 		await this.getTeam();			// get the team that owns the stream
 		await this.getCompany();		// get the company that owns the team
-		await this.createCodemark();		// create the associated knowledge-base codemarks, if any
+		await this.createCodemark();	// create the associated codemark, if any
+		await this.createReview();		// create the associated review, if any
 		await this.getSeqNum();			// requisition a sequence number for the post
 		await super.preSave();			// base-class preSave
 		await this.updateStream();		// update the stream as needed
@@ -105,7 +114,7 @@ class PostCreator extends ModelCreator {
 		this.company = await this.data.companies.getById(this.team.get('companyId'));
 	}
 
-	// create an associated knowledge base codemark, if applicable
+	// create an associated codemark, if applicable
 	async createCodemark () {
 		if (!this.attributes.codemark) {
 			return;
@@ -125,6 +134,28 @@ class PostCreator extends ModelCreator {
 		}).createCodemark(codemarkAttributes);
 		delete this.attributes.codemark;
 		this.attributes.codemarkId = this.transforms.createdCodemark.id;
+	}
+
+	// create an associated code review, if applicable
+	async createReview () {
+		if (!this.attributes.review) {
+			return;
+		}
+		const reviewAttributes = Object.assign({}, this.attributes.review, {
+			teamId: this.team.id,
+			streamId: this.stream.id,
+			postId: this.attributes.id
+		});
+		if (this.attributes.parentPostId) {
+			reviewAttributes.parentPostId = this.attributes.parentPostId;
+		}
+		this.transforms.createdReview = await new ReviewCreator({
+			request: this.request,
+			origin: this.attributes.origin,
+			mentionedUserIds: this.attributes.mentionedUserIds || []
+		}).createReview(reviewAttributes);
+		delete this.attributes.review;
+		this.attributes.reviewId = this.transforms.createdReview.id;
 	}
 
 	// requisition a sequence number for this post
@@ -460,6 +491,10 @@ class PostCreator extends ModelCreator {
 		}
 		if (this.dontSendEmailNotification) {
 			this.request.log('Email notification trigger blocked by caller for stream ' + this.stream.id);
+			return;
+		}
+		if (this.transforms.createdReview) {
+			this.request.log('Email notifications for code reviews not yet supported');
 			return;
 		}
 

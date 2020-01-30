@@ -28,22 +28,27 @@ class CodemarkHelper {
 			return;
 		}
 
-		// get the users and make sure they're on the same team
+		// get the assignees and make sure they're on the same team
+		await this.validateUsersOnTeam(newAttributes.assignees, teamId, 'assignees');
+	}
+
+	// validate the given users are all on the same team
+	async validateUsersOnTeam (userIds, teamId, name) {
 		const users = await this.request.data.users.getByIds(
-			newAttributes.assignees,
+			userIds,
 			{
 				fields: ['id', 'teamIds'],
 				noCache: true
 			}
 		);
 		if (
-			users.length !== newAttributes.assignees.length ||
+			users.length !== userIds.length ||
 			users.find(user => !user.hasTeam(teamId))
 		) {
-			throw this.request.errorHandler.error('validation', { info: 'assignees must contain only users on the team' });
+			throw this.request.errorHandler.error('validation', { info: `${name} must contain only users on the team` });
 		}
 	}
-
+	
 	// if there are tags, each tag must be known to the team
 	async validateTags (tags, team) {
 		if (!tags) {

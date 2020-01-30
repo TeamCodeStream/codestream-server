@@ -59,5 +59,9 @@ module.exports = {
 	codemarkId: {
 		type: 'id',
 		description: 'ID of the knowledge base codemark attached to this post, if any'
+	},
+	reviewId: {
+		type: 'id',
+		description: 'ID of the code review attached to this post, if any'
 	}
 };
