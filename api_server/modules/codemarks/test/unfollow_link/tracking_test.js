@@ -72,7 +72,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				company: {
 					id: this.company.id,
 					name: this.company.name,
-					createdAt: new Date(this.company.createdAt).toISOString(),
+					created_at: new Date(this.company.createdAt).toISOString(),
 					plan: '30DAYTRIAL',
 					trialStart_at: new Date(this.company.trialStartDate).toISOString(),
 					trialEnd_at: new Date(this.company.trialEndDate).toISOString()
