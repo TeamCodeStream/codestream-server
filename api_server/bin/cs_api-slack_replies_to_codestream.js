@@ -11,6 +11,11 @@ const CodemarkIndexes = require(process.env.CS_API_TOP + '/modules/codemarks/ind
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
 const PasswordHasher = require(process.env.CS_API_TOP + '/modules/users/password_hasher');
+const PubNub = require('pubnub');
+const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
+const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
+const UUID = require('uuid/v4');
+const OS = require('os');
 
 const { WebClient } = require('@slack/web-api');
 
@@ -70,6 +75,7 @@ class TeamReplyFetcher {
 	async fetchRepliesForTeam (team) {
 		this.team = team;
 		await this.getTeamUsers();
+		await this.setUserFlags();
 		await this.ensureTeamStream();
 		await this.processCodemarks();
 		await this.updateTeam();
@@ -79,6 +85,7 @@ class TeamReplyFetcher {
 		if (Commander.clearslackcreds) {
 			await this.clearSlackCredentials();
 		}
+		await this.clearUserFlags();
 		this.log(`\tCODEMARKS: ${this.totalCodemarks}`);
 		this.log(`\tSKIPPED: ${this.numSkipped}`);
 		this.log(`\tCONVERTED: ${this.codemarksConverted}`);
@@ -103,6 +110,56 @@ class TeamReplyFetcher {
 			return usersHash;
 		}, {});
 		this.debug(`\t${Object.keys(this.users).length} users found on team`);
+	}
+
+	// set maintenance mode, must set password, and clear provider info flags for all users on the team
+	async setUserFlags () {
+		if (Commander.dryrun) {
+			this.log('\tWould have set user flags');
+			return;
+		}
+		else {
+			this.log('\tSetting user flags...');
+		}
+		const op = {
+			$set: {
+				inMaintenanceMode: true,
+				mustSetPassword: true,
+				clearProviderInfo: true
+			}
+		};
+
+		await this.data.users.updateDirect({ teamIds: this.team.id }, op);
+		await this.sendOpsToUsers(op);
+	}
+
+	// send pubnub message for all users on team
+	async sendOpsToUsers (op) {
+		const requestId = UUID();
+		this.log(`\tSending Pubnub op to ${Object.keys(this.users).length} users, reqid=${requestId}...`);
+		await Promise.all(Object.keys(this.users).map(async userId => {
+			await this.sendUserOp(userId, op, requestId);
+		}));
+	}
+
+	// send pubnub message for user
+	async sendUserOp (userId, op, requestId) {
+		// send pubnub update on user's me-channel
+		const message = {
+			user: Object.assign(op, { id: userId }),
+			requestId
+		};
+		const channel = `user-${userId}`;
+		try {
+			await this.pubnub.publish(
+				message,
+				channel
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate
+			this.warn(`WARNING: Unable to publish user op to channel ${channel}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// make sure we have a team stream for the given team
@@ -765,6 +822,26 @@ class TeamReplyFetcher {
 		this.verbose(op);
 	}
 
+	// clear maintenance mode flags for all users on the team
+	async clearUserFlags () {
+		if (Commander.dryrun) {
+			this.log('\tWould have cleared user maintenance mode flags');
+			return;
+		}
+		else {
+			this.log('\tClearing user maintenance mode flags...');
+		}
+
+		const op = { 
+			$unset: {
+				inMaintenanceMode: true 
+			}
+		};
+
+		await this.data.users.updateDirect({ teamIds: this.team.id }, op);
+		await this.sendOpsToUsers(op);
+	}
+
 	// get a slack client object used to call out to the Slack API, we use the creator of the codemark
 	// for the access token for the slack client
 	async getUserSlackClient (team, codemark) {
@@ -897,6 +974,7 @@ class SlackReplyFetcher {
 		try {
 			Object.assign(this, options);
 			await this.openMongoClient();
+			await this.openPubnubClient();
 
 			if (this.teamId === 'all') {
 				await this.processAllTeams();
@@ -921,7 +999,8 @@ class SlackReplyFetcher {
 			},
 			{
 				stream: true,
-				overrideHintRequired: true
+				overrideHintRequired: true,
+				sort: { _id: -1 }
 			}
 		);
 
@@ -948,7 +1027,7 @@ class SlackReplyFetcher {
 	// process a single Slack team
 	async processTeam (team) {
 		Logger.log(`Processing team ${team.id}...`);
-		await new TeamReplyFetcher({ data: this.data }).fetchRepliesForTeam(team);
+		await new TeamReplyFetcher({ data: this.data, pubnub: this.pubnubClient }).fetchRepliesForTeam(team);
 	}
 
 	// open a mongo client to do the dirty work
@@ -963,6 +1042,17 @@ class SlackReplyFetcher {
 		catch (error) {
 			throw `unable to open mongo client: ${JSON.stringify(error)}`;
 		}
+	}
+
+	// open a Pubnub client for broadcasting the changes
+	async openPubnubClient () {
+		let config = Object.assign({}, PubNubConfig);
+		config.uuid = 'API-' + OS.hostname();
+		this.pubnub = new PubNub(config);
+		this.pubnubClient = new PubNubClient({
+			pubnub: this.pubnub
+		});
+		this.pubnubClient.init();
 	}
 }
 
