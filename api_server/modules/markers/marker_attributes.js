@@ -26,8 +26,11 @@ module.exports = {
 	},
 	codemarkId: {
 		type: 'id',
-		required: true,
 		description: 'ID of the @@#codemark#codemark@@ that references this marker'
+	},
+	reviewId: {
+		type: 'id',
+		description: 'ID of the @@#code review#review@@ that references this marker'
 	},
 	providerType: {
 		type: 'string',

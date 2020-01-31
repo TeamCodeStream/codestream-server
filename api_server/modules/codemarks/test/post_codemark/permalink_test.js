@@ -1,7 +1,7 @@
 'use strict';
 
 const MarkerTest = require('./marker_test');
-const CodemarkValidator = require('./codemark_validator');
+const CodemarkValidator = require('../codemark_validator');
 
 class PermalinkTest extends MarkerTest {
 

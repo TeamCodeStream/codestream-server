@@ -3,76 +3,25 @@
 const Assert = require('assert');
 const NormalizeURL = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
 const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');
-const CodemarkTestConstants = require('../codemark_test_constants');
 const Path = require('path');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
+const MarkerTestConstants = require('./marker_test_constants');
+const StreamTestConstants = require(process.env.CS_API_TOP + '/modules/streams/test/stream_test_constants');
+const RepoTestConstants = require(process.env.CS_API_TOP + '/modules/repos/test/repo_test_constants');
 
-class CodemarkValidator {
+class MarkerValidator {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
 	/* eslint complexity: 0 */
-	// validate the response to the test request
-	validateCodemark (data) {
-		// verify we got back an codemark with the attributes we specified
-		const codemark = data.codemark;
-		const inputMarker = this.inputCodemark.markers && this.inputCodemark.markers[0];
-		const expectedOrigin = this.expectedOrigin || '';
-		let errors = [];
-		let result = (
-			((codemark.id === codemark._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
-			((codemark.teamId === this.test.team.id) || errors.push('teamId does not match the team')) &&
-			((codemark.deactivated === false) || errors.push('deactivated not false')) &&
-			((typeof codemark.createdAt === 'number') || errors.push('createdAt not number')) &&
-			((codemark.lastActivityAt === codemark.createdAt) || errors.push('lastActivityAt should be set to createdAt')) &&
-			((codemark.modifiedAt >= codemark.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((codemark.creatorId === this.test.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
-			((codemark.type === this.inputCodemark.type) || errors.push('type does not match')) &&
-			((codemark.status === this.inputCodemark.status) || errors.push('status does not match')) &&
-			((codemark.color === this.inputCodemark.color) || errors.push('color does not match')) &&
-			((codemark.text === this.inputCodemark.text) || errors.push('text does not match')) &&
-			((codemark.title === this.inputCodemark.title) || errors.push('title does not match')) &&
-			((codemark.numReplies === 0) || errors.push('codemark should have 0 replies')) &&
-			((codemark.origin === expectedOrigin) || errors.push('origin not equal to expected origin'))
-		);
-		if (this.inputCodemark.providerType || this.usingCodeStreamChannels) {
-			result = result && (
-				((codemark.streamId === (this.inputCodemark.streamId || '')) || errors.push('streamId does not match the stream')) &&
-				((codemark.postId === (this.inputCodemark.postId || '')) || errors.push('postId does not match the post'))
-			);
-		}
-		else {
-			result = result && (
-				((codemark.streamId === '') || errors.push('streamId is not empty')) &&
-				((codemark.postId === '') || errors.push('postId is not empty'))
-			);
-		}
-		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-
-		// verify the codemark in the response has no attributes that should not go to clients
-		this.test.validateSanitized(codemark, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
-
-		// validate the codemark's permalink
-		this.validatePermalink(codemark.permalink);
-
-		// if we are expecting a provider type, check it now
-		if (this.test.expectProviderType) {
-			Assert.equal(codemark.providerType, this.inputCodemark.providerType, 'providerType is not equal to the given providerType');
-		}
-		else {
-			Assert.equal(typeof codemark.providerType, 'undefined', 'codemark providerType should be undefined');
-		}
-
-		// if we are expecting a marker with the codemark, validate it
-		if (this.test.expectMarkers) {
-			this.validateMarkers(data);
-			this.validateMarkerLocations(data);
-		}
-		else {
-			Assert(typeof data.markers === 'undefined', 'markers array should not be defined');
-		}
+	// validate markers created in association with a codemark or a code review
+	validateMarkers (data) {
+		const outputObject = data[this.objectName];
+		const inputMarker = this.inputObject.markers && this.inputObject.markers[0];
+		this.validateEachMarker(data);
+		this.validateMarkerLocations(data);
 
 		// if we created a file stream, validate it
 		if (this.test.streamOnTheFly) {
@@ -96,13 +45,13 @@ class CodemarkValidator {
 		// validate the array of followers
 		const expectedFollowerIds = this.test.expectedFollowerIds || [this.test.currentUser.user.id];
 		expectedFollowerIds.sort();
-		const gotFollowerIds = [...(codemark.followerIds || [])];
+		const gotFollowerIds = [...(outputObject.followerIds || [])];
 		gotFollowerIds.sort();
 		Assert.deepEqual(gotFollowerIds, expectedFollowerIds, 'codemark does not have correct followerIds');
 	}
 
-	// validate the markers created as a result of the codemark with markers
-	validateMarkers (data) {
+	// validate the markers created as a result of the codemark or review with markers
+	validateEachMarker (data) {
 		Assert(data.markers instanceof Array, 'markers is not an array');
 		Assert.equal(data.markers.length, this.test.expectMarkers, 'length of markers array should be ' + this.test.expectMarkers);
 		for (let i = 0; i < this.test.expectMarkers; i++) {
@@ -110,12 +59,12 @@ class CodemarkValidator {
 		}
 	}
 
-	// validate the nth marker created as a result of the codemark with markers
+	// validate the nth marker created as a result of the codemark or review with markers
 	validateMarker (data, n) {
 		let errors = [];
-		const codemark = data.codemark;
+		const outputObject = data[this.objectName];
 		const marker = data.markers[n];
-		const inputMarker = this.inputCodemark.markers[n];
+		const inputMarker = this.inputObject.markers[n];
 		const repoUrl = this.getExpectedRepoUrl(inputMarker);
 		const file = this.getExpectedFile(inputMarker);
 		const repoId = this.getExpectedRepoId(data, n);
@@ -129,17 +78,17 @@ class CodemarkValidator {
 			((typeof marker.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((marker.modifiedAt >= marker.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((marker.creatorId === this.test.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
-			((marker.codemarkId === codemark.id) || errors.push('codemarkId does not match the codemark')) && 
+			((marker[`${this.objectName}Id`] === outputObject.id) || errors.push(`${this.objectName}Id does not match the ${this.objectName}`)) && 
 			((marker.commitHashWhenCreated === commitHash) || errors.push('marker commit hash does not match the expected commit hash')) &&
 			((marker.file === file) || errors.push('marker file does not match the expected file')) &&
 			((marker.repo === repoUrl) || errors.push('marker repo does not match the expected remote')) &&
 			((marker.repoId === repoId) || errors.push('repoId does not match the expected repo ID')) &&
 			((marker.code === inputMarker.code) || errors.push('marker code does not match the given code'))
 		);
-		if (this.inputCodemark.providerType || this.usingCodeStreamChannels) {
+		if (this.inputObject.providerType || this.usingCodeStreamChannels) {
 			result = result && (
-				((marker.postStreamId === codemark.streamId) || errors.push('postStreamId does not match the codemark stream')) &&
-				((marker.postId === codemark.postId) || errors.push('postId does not match the codemark post'))
+				((marker.postStreamId === outputObject.streamId) || errors.push(`postStreamId does not match the ${this.objectName} stream`)) &&
+				((marker.postId === outputObject.postId) || errors.push(`postId does not match the ${this.objectName} post`))
 			);
 		}
 		else {
@@ -151,15 +100,15 @@ class CodemarkValidator {
 		Assert(result === true && errors.length === 0, `returned marker ${n} not valid: ${errors.join(', ')}`);
 
 		if (this.test.expectProviderType) {
-			Assert.equal(marker.providerType, codemark.providerType, 'marker providerType not equal to codemark providerType');
+			Assert.equal(marker.providerType, outputObject.providerType, `marker providerType not equal to ${this.objectName} providerType`);
 		}
 		else {
 			Assert.equal(typeof marker.providerType, 'undefined', 'marker providerType should be undefined');
 		}
 
 		Assert.deepEqual(marker.locationWhenCreated, inputMarker.location, 'marker location does not match the given location');
-		Assert.equal(codemark.markerIds[n], marker.id, `codemark ${n}th element of markerIds does not match the ${n}th marker`);
-		Assert.equal(codemark.fileStreamIds[n], marker.fileStreamId || null, `codemark ${n}th element of fileStreamIds does not match the file streams of the ${n}th marker`);
+		Assert.equal(outputObject.markerIds[n], marker.id, `${this.objectName} ${n}th element of markerIds does not match the ${n}th marker`);
+		Assert.equal(outputObject.fileStreamIds[n], marker.fileStreamId || null, `${this.objectName} ${n}th element of fileStreamIds does not match the file streams of the ${n}th marker`);
 		if (inputMarker.remotes) {
 			Assert.deepEqual(marker.remotesWhenCreated, inputMarker.remotes, 'remotesWhenCreated should be equal to the remotes passed in');
 		}
@@ -169,13 +118,13 @@ class CodemarkValidator {
 		this.validateReferenceLocations(marker, n);
 
 		// verify the marker has no attributes that should not go to clients
-		this.test.validateSanitized(marker, CodemarkTestConstants.UNSANITIZED_MARKER_ATTRIBUTES);
+		this.test.validateSanitized(marker, MarkerTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 
 	// validate the reference locations, containing the commit hash and location plus
 	// any other additional commit hashes and locations supplied at post creation time
 	validateReferenceLocations (marker, n) {
-		const markerData = this.inputCodemark.markers[n];
+		const markerData = this.inputObject.markers[n];
 		const expectedReferenceLocations = (markerData.referenceLocations || []).map(rl => {
 			return {
 				...rl,
@@ -260,7 +209,7 @@ class CodemarkValidator {
 
 	// validate that the marker locations structure matches expectations for a created marker
 	validateMarkerLocations (data) {
-		const noCommitHashOrLocations = !this.inputCodemark.markers.find(inputMarker => {
+		const noCommitHashOrLocations = !this.inputObject.markers.find(inputMarker => {
 			return inputMarker.commitHash && inputMarker.location;
 		});
 		if (this.test.dontExpectMarkerLocations || noCommitHashOrLocations) { 
@@ -270,7 +219,7 @@ class CodemarkValidator {
 		const expectedMarkerLocations = [];
 		for (let i = 0; i < this.test.expectMarkers; i++) {
 			const marker = data.markers[i];
-			const inputMarker = this.inputCodemark.markers[i];
+			const inputMarker = this.inputObject.markers[i];
 			if (!inputMarker.commitHash || !inputMarker.location) { 
 				continue;
 			}
@@ -305,7 +254,7 @@ class CodemarkValidator {
 		const stream = data.streams.find(stream => stream.createdAt);
 		const repo = this.test.repoOnTheFly ? data.repos[0] : this.test.repo;
 		const marker = data.markers[0];
-		const inputMarker = this.inputCodemark.markers[0];
+		const inputMarker = this.inputObject.markers[0];
 		const file = this.test.streamOnTheFly ? inputMarker.file : this.test.repoStreams[0].file;
 		let result = (
 			((stream.teamId === this.test.team.id) || errors.push('stream teamId does not match')) &&
@@ -317,7 +266,7 @@ class CodemarkValidator {
 		Assert(result === true && errors.length === 0, 'returned stream not valid: ' + errors.join(', '));
 
 		// verify the stream has no attributes that should not go to clients
-		this.test.validateSanitized(stream, CodemarkTestConstants.UNSANITIZED_STREAM_ATTRIBUTES);
+		this.test.validateSanitized(stream, StreamTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 
 	// validate that the created repo matches expectations
@@ -326,7 +275,7 @@ class CodemarkValidator {
 		const repo = data.repos[0];
 		const stream = this.test.streamOnTheFly ? data.streams[0] : this.repoStreams[0];
 		const marker = data.markers[0];
-		const inputMarker = this.inputCodemark.markers[0];
+		const inputMarker = this.inputObject.markers[0];
 		let result = (
 			((repo.teamId === this.test.team.id) || errors.push('repo teamId does not match')) &&
 			((repo.id === marker.repoId) || errors.push('marker repoId does not match the created repo')) &&
@@ -357,13 +306,13 @@ class CodemarkValidator {
 		}
 
 		// verify the repo has no attributes that should not go to clients
-		this.test.validateSanitized(repo, CodemarkTestConstants.UNSANITIZED_REPO_ATTRIBUTES);
+		this.test.validateSanitized(repo, RepoTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 
 	// validate that the repo was updated with the marker's commit hash as a known commit hash
 	validateRepoUpdatedWithCommitHash (data) {
 		const repo = data.repos[0];
-		const inputMarker = this.inputCodemark.markers[0];
+		const inputMarker = this.inputObject.markers[0];
 		const expectedVersion = this.test.expectedRepoVersion || 2;
 		const expectedRepo = {
 			id: this.test.repo.id,
@@ -379,7 +328,7 @@ class CodemarkValidator {
 		};
 		if (!this.test.expectMatchByCommitHash) {
 			expectedRepo.$addToSet = {
-				knownCommitHashes: this.inputCodemark.markers.map(marker => marker.commitHash.toLowerCase())
+				knownCommitHashes: this.inputObject.markers.map(marker => marker.commitHash.toLowerCase())
 			};
 		}
 		if (this.test.expectMatchByKnownCommitHashes) {
@@ -407,10 +356,11 @@ class CodemarkValidator {
 				});
 			}
 		}
-		Assert(repo.$set.modifiedAt >= this.test.codemarkCreatedAfter || this.test.postCreatedAfter, 'modifiedAt of repo should be set to timestamp greater than or equal to the creation time of the codemark');
+		const outputObjectCreated = this.test.codemarkCreatedAfter || this.test.reviewCreatedAfter || this.test.postCreatedAfter;
+		Assert(repo.$set.modifiedAt >= outputObjectCreated, `modifiedAt of repo should be set to timestamp greater than or equal to the creation time of the ${this.objectName}`);
 		expectedRepo.$set.modifiedAt = repo.$set.modifiedAt;
 		Assert.deepEqual(repo, expectedRepo, 'repo in response is not correct');
-		this.test.validateSanitized(repo.$set, CodemarkTestConstants.UNSANITIZED_REPO_ATTRIBUTES);
+		this.test.validateSanitized(repo.$set, RepoTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 
 	// validate the returned permalink URL is correct
@@ -433,4 +383,4 @@ class CodemarkValidator {
 	}
 }
 
-module.exports = CodemarkValidator;
+module.exports = MarkerValidator;

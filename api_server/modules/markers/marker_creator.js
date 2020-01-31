@@ -200,6 +200,9 @@ class MarkerCreator extends ModelCreator {
 		if (this.codemarkId) {
 			this.attributes.codemarkId = this.codemarkId;
 		}
+		if (this.reviewId) {
+			this.attributes.reviewId = this.reviewId;
+		}
 		if (this.supersedesMarkerId) {
 			this.attributes.supersedesMarkerId = this.supersedesMarkerId;
 		}

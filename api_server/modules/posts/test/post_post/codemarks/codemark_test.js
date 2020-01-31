@@ -2,7 +2,7 @@
 
 const PostPostTest = require('../post_post_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const CodemarkValidator = require(process.env.CS_API_TOP + '/modules/codemarks/test/post_codemark/codemark_validator');
+const CodemarkValidator = require(process.env.CS_API_TOP + '/modules/codemarks/test/codemark_validator');
 
 class CodemarkTest extends PostPostTest {
 

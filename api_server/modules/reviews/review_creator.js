@@ -4,8 +4,11 @@
 
 const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
 const Review = require('./review');
+const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_helper');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
+const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 
 class ReviewCreator extends ModelCreator {
 
@@ -35,10 +38,37 @@ class ReviewCreator extends ModelCreator {
 			},
 			optional: {
 				string: ['text', 'status'],
+				object: ['repoChangeset'],
 				'array(string)': ['reviewers', 'followerIds', 'fileStreamIds', 'tags'],
-				object: ['repoChangeset']
+				'array(object)': ['markers']
 			}
 		};
+	}
+
+	// normalize post creation operation (pre-save)
+	async normalize () {
+		// if we have markers, preemptively make sure they are valid, 
+		// we are strict about markers, and don't let them just get dropped if
+		// they aren't correct
+		if (this.attributes.markers) {
+			await this.validateMarkers();
+		}
+	}
+
+	// validate the markers sent with the review creation, this is too important to just drop,
+	// so we return an error instead
+	async validateMarkers () {
+		const result = new Review().validator.validateArrayOfObjects(
+			this.attributes.markers,
+			{
+				type: 'array(object)',
+				maxLength: 1000,
+				maxObjectLength: 1000000
+			}
+		);
+		if (result) {	// really an error
+			throw this.errorHandler.error('validation', { info: `markers: ${result}` });
+		}
 	}
 
 	// right before the document is saved...
@@ -61,6 +91,20 @@ class ReviewCreator extends ModelCreator {
 		// if we have tags, make sure they are all valid
 		await this.codemarkHelper.validateTags(this.attributes.tags, this.team);
 
+		// we'll need all the repos for the team if there are markers, and we'll use a "RepoMatcher" 
+		// to match the marker attributes to a repo if needed
+		if (this.attributes.markers && this.attributes.markers.length > 0) {
+			await this.getTeamRepos();
+			this.repoMatcher = new RepoMatcher({
+				request: this.request,
+				teamId: this.team.id,
+				teamRepos: this.teamRepos
+			});
+		}
+
+		// handle any markers that come with this review
+		await this.handleMarkers();
+
 		// validate reviewers
 		await this.validateReviewers();
 
@@ -81,6 +125,55 @@ class ReviewCreator extends ModelCreator {
 			throw this.errorHandler.error('notFound', { info: 'team'});
 		}
 		this.attributes.teamId = this.team.id;	
+	}
+
+	// get all the repos known to this team
+	async getTeamRepos () {
+		this.teamRepos = await this.data.repos.getByQuery(
+			{ 
+				teamId: this.team.id
+			},
+			{ 
+				hint: RepoIndexes.byTeamId 
+			}
+		);
+	}
+
+	// handle any markers tied to the codemark
+	async handleMarkers () {
+		if (!this.attributes.markers || !this.attributes.markers.length) {
+			return;
+		}
+		for (let marker of this.attributes.markers) {
+			await this.handleMarker(marker);
+		}
+		this.attributes.markerIds = this.transforms.createdMarkers.map(marker => marker.id);
+		this.attributes.fileStreamIds = this.transforms.createdMarkers.
+			filter(marker => marker.get('fileStreamId')).
+			map(marker => marker.get('fileStreamId'));
+		delete this.attributes.markers;
+	}
+
+	// handle a single marker attached to the codemark
+	async handleMarker (markerInfo) {
+		// handle the marker itself separately
+		Object.assign(markerInfo, {
+			teamId: this.team.id
+		});
+		if (this.attributes.streamId) {
+			markerInfo.postStreamId = this.attributes.streamId;
+		}
+		if (this.attributes.postId) {
+			markerInfo.postId = this.attributes.postId;
+		}
+		const marker = await new MarkerCreator({
+			request: this.request,
+			reviewId: this.attributes.id,
+			repoMatcher: this.repoMatcher,
+			teamRepos: this.teamRepos
+		}).createMarker(markerInfo);
+		this.transforms.createdMarkers = this.transforms.createdMarkers || [];
+		this.transforms.createdMarkers.push(marker);
 	}
 
 	// validate the reviewers ... all users must be on the same team

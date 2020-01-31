@@ -30,6 +30,11 @@ module.exports = {
 		maxLength: 100,
 		description: 'The IDs of any @@#codemarks#codemark@@ associated with this code review'
 	},
+	markerIds: {
+		type: 'arrayOfIds',
+		maxLength: 500,
+		description: 'The IDs of any @@#markers#marker@@ associated with this code review'
+	},
 	title: {
 		type: 'string',
 		maxLength: 1000,

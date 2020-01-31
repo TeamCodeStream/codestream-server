@@ -4,9 +4,38 @@
 
 const PostToChannelTest = require('./post_to_channel_test');
 const PostToDirectTest = require('./post_to_direct_test');
+const PostToFileStreamTest = require('./post_to_file_stream_test');
+const PostReplyTest = require('./post_reply_test');
+const NoStreamIdTest = require('./no_stream_id_test');
+const InvalidStreamIdTest = require('./invalid_stream_id_test');
+const DuplicateFileStreamTest = require('./codemarks/duplicate_file_stream_test');
+const ACLTeamTest = require('./acl_team_test');
+const ACLStreamTest = require('./acl_stream_test');
+const NewPostMessageToTeamStreamTest = require('./new_post_message_to_team_stream_test');
+const NewPostMessageToChannelTest = require('./new_post_message_to_channel_test');
+const NewPostMessageToDirectTest = require('./new_post_message_to_direct_test');
+const NewPostNoMessageToChannelTest = require('./new_post_no_message_to_channel_test');
+const NewPostNoMessageToDirectTest = require('./new_post_no_message_to_direct_test');
+const NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_test');
+const NewMarkerStreamMessageToTeamTest = require('./new_marker_stream_message_to_team_test');
+const MostRecentPostTest = require('./most_recent_post_test');
+const LastReadsNoneTest = require('./last_reads_none_test');
+const NoLastReadsForAuthorTest = require('./no_last_reads_for_author_test');
+const LastReadsPreviousPostTest = require('./last_reads_previous_post_test');
+const NoLastReadsUpdateTest = require('./no_last_reads_update_test');
+const SeqNumTest = require('./seqnum_test');
+const NumRepliesTest = require('./num_replies_test');
+const SecondReplyTest = require('./second_reply_test');
+const NumRepliesMessageToStreamTest = require('./num_replies_message_to_stream_test');
+const MentionTest = require('./mention_test');
+const UnregisteredMentionTest = require('./unregistered_mention_test');
+const MessageToAuthor = require('./message_to_author_test');
+const OriginFromPluginTest = require('./origin_from_plugin_test');
+const NoReplyToReplyTest = require('./no_reply_to_reply_test');
+
+// concerning codemarks...
 const CodemarkTest = require('./codemarks/codemark_test');
 const CodemarkMarkerTest = require('./codemarks/codemark_marker_test');
-const PostToFileStreamTest = require('./post_to_file_stream_test');
 const NoCodemarkTypeTest = require('./codemarks/no_codemark_type_test');
 const NoCommitHashTest = require('./codemarks/no_commit_hash_test');
 const NoCommitHashWithFileTest = require('./codemarks/no_commit_hash_with_file_test');
@@ -39,42 +68,16 @@ const UpdateMatchedRepoWithRemotesTest = require('./codemarks/update_matched_rep
 const UpdateSetRepoWithRemotesTest = require('./codemarks/update_set_repo_with_remotes_test');
 const CreateRepoOnTheFlyTest = require('./codemarks/create_repo_on_the_fly_test');
 const CreateRepoOnTheFlyWithCommitHashesTest = require('./codemarks/create_repo_on_the_fly_with_commit_hashes_test');
-const PostReplyTest = require('./post_reply_test');
-const NoStreamIdTest = require('./no_stream_id_test');
-const InvalidStreamIdTest = require('./invalid_stream_id_test');
-const DuplicateFileStreamTest = require('./codemarks/duplicate_file_stream_test');
-const ACLTeamTest = require('./acl_team_test');
-const ACLStreamTest = require('./acl_stream_test');
-const NewPostMessageToTeamStreamTest = require('./new_post_message_to_team_stream_test');
-const NewPostMessageToChannelTest = require('./new_post_message_to_channel_test');
-const NewPostMessageToDirectTest = require('./new_post_message_to_direct_test');
-const NewPostNoMessageToChannelTest = require('./new_post_no_message_to_channel_test');
-const NewPostNoMessageToDirectTest = require('./new_post_no_message_to_direct_test');
-const NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_test');
-const NewMarkerStreamMessageToTeamTest = require('./new_marker_stream_message_to_team_test');
 const NewRepoMessageToTeamTest = require('./codemarks/new_repo_message_to_team_test');
 const UpdatedSetRepoMessageTest = require('./codemarks/updated_set_repo_message_test');
 const UpdatedMatchedRepoMessageTest = require('./codemarks/updated_matched_repo_message_test');
-const MostRecentPostTest = require('./most_recent_post_test');
-const LastReadsNoneTest = require('./last_reads_none_test');
-const NoLastReadsForAuthorTest = require('./no_last_reads_for_author_test');
-const LastReadsPreviousPostTest = require('./last_reads_previous_post_test');
-const NoLastReadsUpdateTest = require('./no_last_reads_update_test');
-const SeqNumTest = require('./seqnum_test');
-const NumRepliesTest = require('./num_replies_test');
-const SecondReplyTest = require('./second_reply_test');
 const CodemarkNumRepliesTest = require('./codemarks/codemark_num_replies_test');
 const CodemarkSecondReplyTest = require('./codemarks/codemark_second_reply_test');
-const NumRepliesMessageToStreamTest = require('./num_replies_message_to_stream_test');
 const NumRepliesToCodemarkMessageTest = require('./codemarks/num_replies_to_codemark_message_test');
-const MentionTest = require('./mention_test');
-const UnregisteredMentionTest = require('./unregistered_mention_test');
-const MessageToAuthor = require('./message_to_author_test');
 const OnTheFlyMarkerStreamFromDifferentTeamTest = require('./codemarks/on_the_fly_marker_stream_from_different_team_test');
 const OnTheFlyMarkerStreamRepoNotFoundTest = require('./codemarks/on_the_fly_marker_stream_repo_not_found_test');
 const OnTheFlyMarkerStreamNoRemotesTest = require('./codemarks/on_the_fly_marker_stream_no_remotes_test');
 const OnTheFlyMarkerStreamInvalidRepoIdTest = require('./codemarks/on_the_fly_marker_stream_invalid_repo_id_test');
-const OriginFromPluginTest = require('./origin_from_plugin_test');
 const InvalidCodemarkTypeTest = require('./codemarks/invalid_codemark_type_test');
 const ValidCodemarkTypeTest = require('./codemarks/valid_codemark_type_test');
 const ValidCodemarkTypeWithMarkerTest = require('./codemarks/valid_codemark_type_with_marker_test');
@@ -86,7 +89,6 @@ const IssueWithAssigneesTest = require('./codemarks/issue_with_assignees_test');
 const InvalidAssigneeTest = require('./codemarks/invalid_assignee_test');
 const AssigneeNotOnTeamTest = require('./codemarks/assignee_not_on_team_test');
 const AssigneesIgnoredTest = require('./codemarks/assignees_ignored_test');
-const NoReplyToReplyTest = require('./no_reply_to_reply_test');
 const ParentPostIdTest = require('./codemarks/parent_post_id_test');
 const CodemarkOriginTest = require('./codemarks/codemark_origin_test');
 const PermalinkTest = require('./codemarks/permalink_test');
@@ -128,14 +130,54 @@ const NoFollowDirectStreamByPreferenceTest = require('./codemarks/no_follow_dire
 const NoFollowMentionByPreferenceTest = require('./codemarks/no_follow_mention_by_preference_test');
 const NoFollowRepliesByPreferenceTest = require('./codemarks/no_follow_replies_by_preference_test');
 
+// concerning reviews...
+const ReviewTest = require('./reviews/review_test');
+const ReviewMarkersTest = require('./reviews/review_markers_test');
+
 class PostPostRequestTester {
 
 	postPostTest () {
 		new PostToChannelTest().test();
 		new PostToDirectTest().test();
+		new PostToFileStreamTest().test();	
+		new PostReplyTest().test();
+		new NoStreamIdTest().test();
+		new InvalidStreamIdTest().test();
+		new DuplicateFileStreamTest().test();
+		new ACLStreamTest().test();
+		new ACLTeamTest().test();
+		new NewPostMessageToTeamStreamTest().test();
+		new NewPostMessageToChannelTest().test();
+		new NewPostMessageToDirectTest().test();
+		new NewPostNoMessageToChannelTest().test();
+		new NewPostNoMessageToDirectTest().test();
+		new NewFileStreamMessageToTeamTest().test();
+		new NewMarkerStreamMessageToTeamTest().test();
+		new MostRecentPostTest().test();
+		new LastReadsNoneTest({ type: 'direct' }).test();
+		new LastReadsNoneTest({ type: 'channel' }).test();
+		new NoLastReadsForAuthorTest().test();
+		new LastReadsPreviousPostTest({ type: 'direct' }).test();
+		new LastReadsPreviousPostTest({ type: 'channel' }).test();
+		new NoLastReadsUpdateTest().test();
+		new SeqNumTest().test();
+		new NumRepliesTest().test();
+		new SecondReplyTest().test();
+		new NumRepliesMessageToStreamTest({ type: 'direct' }).test();
+		new NumRepliesMessageToStreamTest({ type: 'channel' }).test();
+		new NumRepliesToCodemarkMessageTest({ type: 'direct' }).test();
+		new NumRepliesToCodemarkMessageTest({ type: 'channel' }).test();
+		new MentionTest().test();
+		new UnregisteredMentionTest().test();
+		new MessageToAuthor().test();
+		new OriginFromPluginTest().test();
+		new NoReplyToReplyTest().test();
+		new InvalidMentionTest().test();
+		new MentionedNotOnTeamTest().test();
+
+		// concerning codemarks...
 		new CodemarkTest().test();
 		new CodemarkMarkerTest().test();
-		new PostToFileStreamTest().test();	
 		new NoCodemarkTypeTest().test();
 		new NoCommitHashTest().test();
 		new NoCommitHashWithFileTest().test();
@@ -170,46 +212,15 @@ class PostPostRequestTester {
 		new UpdateSetRepoWithRemotesTest().test();
 		new CreateRepoOnTheFlyTest().test();
 		new CreateRepoOnTheFlyWithCommitHashesTest().test();
-		new PostReplyTest().test();
-		new NoStreamIdTest().test();
-		new InvalidStreamIdTest().test();
-		new DuplicateFileStreamTest().test();
-		new ACLStreamTest().test();
-		new ACLTeamTest().test();
-		new NewPostMessageToTeamStreamTest().test();
-		new NewPostMessageToChannelTest().test();
-		new NewPostMessageToDirectTest().test();
-		new NewPostNoMessageToChannelTest().test();
-		new NewPostNoMessageToDirectTest().test();
-		new NewFileStreamMessageToTeamTest().test();
-		new NewMarkerStreamMessageToTeamTest().test();
 		new NewRepoMessageToTeamTest().test();
 		new UpdatedSetRepoMessageTest().test();
 		new UpdatedMatchedRepoMessageTest().test();
-		new MostRecentPostTest().test();
-		new LastReadsNoneTest({ type: 'direct' }).test();
-		new LastReadsNoneTest({ type: 'channel' }).test();
-		new NoLastReadsForAuthorTest().test();
-		new LastReadsPreviousPostTest({ type: 'direct' }).test();
-		new LastReadsPreviousPostTest({ type: 'channel' }).test();
-		new NoLastReadsUpdateTest().test();
-		new SeqNumTest().test();
-		new NumRepliesTest().test();
-		new SecondReplyTest().test();
 		new CodemarkNumRepliesTest().test();
 		new CodemarkSecondReplyTest().test();
-		new NumRepliesMessageToStreamTest({ type: 'direct' }).test();
-		new NumRepliesMessageToStreamTest({ type: 'channel' }).test();
-		new NumRepliesToCodemarkMessageTest({ type: 'direct' }).test();
-		new NumRepliesToCodemarkMessageTest({ type: 'channel' }).test();
-		new MentionTest().test();
-		new UnregisteredMentionTest().test();
-		new MessageToAuthor().test();
 		new OnTheFlyMarkerStreamFromDifferentTeamTest().test();
 		new OnTheFlyMarkerStreamRepoNotFoundTest().test();
 		new OnTheFlyMarkerStreamNoRemotesTest().test();
 		new OnTheFlyMarkerStreamInvalidRepoIdTest().test();
-		new OriginFromPluginTest().test();
 		new InvalidCodemarkTypeTest().test();
 		new ValidCodemarkTypeTest({ codemarkType: 'issue' }).test();
 		new ValidCodemarkTypeTest({ codemarkType: 'question' }).test();
@@ -230,7 +241,6 @@ class PostPostRequestTester {
 		new InvalidAssigneeTest().test();
 		new AssigneeNotOnTeamTest().test();
 		new AssigneesIgnoredTest().test();
-		new NoReplyToReplyTest().test();
 		new ParentPostIdTest().test();
 		new CodemarkOriginTest().test();
 		new PermalinkTest({ permalinkType: 'public' }).test();
@@ -261,8 +271,6 @@ class PostPostRequestTester {
 		new FollowersFromDirectStreamTest().test();
 		new FollowersMentionedTest().test();
 		new FollowingFromReplyTest().test();
-		new InvalidMentionTest().test();
-		new MentionedNotOnTeamTest().test();
 		new FollowByPreferenceAllTest().test();
 		new FollowByPreferenceCreationTest().test();
 		new FollowByPreferenceMentionTest().test();
@@ -273,6 +281,11 @@ class PostPostRequestTester {
 		new NoFollowDirectStreamByPreferenceTest().test();
 		new NoFollowMentionByPreferenceTest().test();
 		new NoFollowRepliesByPreferenceTest().test();
+		
+		// concerning reviews...
+		new ReviewTest().test();
+		new ReviewMarkersTest().test();
+
 	}
 }
 

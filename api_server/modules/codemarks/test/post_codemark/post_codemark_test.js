@@ -6,7 +6,7 @@ const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation'
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const CodemarkTestConstants = require('../codemark_test_constants');
 const CommonInit = require('./common_init');
-const CodemarkValidator = require('./codemark_validator');
+const CodemarkValidator = require('../codemark_validator');
 
 class PostCodemarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
