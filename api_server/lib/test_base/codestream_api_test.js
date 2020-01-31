@@ -58,7 +58,8 @@ class CodeStreamAPITest extends APIRequestTest {
 			apiRequester: this,
 			streamFactory: this.streamFactory,
 			repoFactory: this.repoFactory,
-			codemarkFactory: this.codemarkFactory
+			codemarkFactory: this.codemarkFactory,
+			reviewFactory: this.reviewFactory
 		});
 
 		this.userOptions = {

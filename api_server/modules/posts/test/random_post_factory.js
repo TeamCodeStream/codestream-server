@@ -42,6 +42,9 @@ class RandomPostFactory {
 		if (options.wantCodemark) {
 			data.codemark = this.codemarkFactory.getRandomCodemarkData(options);
 		}
+		if (options.wantReview) {
+			data.review = this.reviewFactory.getRandomReviewData(options);
+		}
 		if (options.parentPostId) {
 			// for replies
 			data.parentPostId = options.parentPostId;

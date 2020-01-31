@@ -25,6 +25,7 @@ const GetPostsAfterInclusiveTest = require('./get_posts_after_inclusive_test');
 const GetPostsBeforeAfterTest = require('./get_posts_before_after_test');
 const GetPostsBeforeAfterInclusiveTest = require('./get_posts_before_after_inclusive_test');
 const InvalidSeqNumTest = require('./invalid_seqnum_test');
+const GetPostsWithReviewsTest = require('./get_posts_with_reviews_test');
 
 class GetPostsRequestTester {
 
@@ -57,6 +58,7 @@ class GetPostsRequestTester {
 		new GetPostsBeforeAfterTest().test();
 		new GetPostsBeforeAfterInclusiveTest().test();
 		new InvalidSeqNumTest().test();
+		new GetPostsWithReviewsTest().test();
 	}
 }
 

@@ -102,6 +102,21 @@ class TestStreamCreator {
 			}
 		}
 
+		if (
+			this.postOptions.wantReview ||
+			(
+				this.postOptions.postData && 
+				this.postOptions.postData[n] && 
+				this.postOptions.postData[n].wantReview
+			)
+		) {
+			postOptions.wantMarkers = this.postOptions.wantMarkers;
+			this.setReviewOptions(postOptions, n);	
+			if (this.postOptions.postData && this.postOptions.postData[n]) {
+				delete this.postOptions.postData[n].wantReview;
+			}
+		}
+	
 		if (this.postOptions.postData && this.postOptions.postData[n]) {
 			const postData = this.postOptions.postData[n];
 			if (typeof postData.replyTo !== 'undefined') {
@@ -148,8 +163,17 @@ class TestStreamCreator {
 		}
 	}
 
+	setReviewOptions (options, n) {
+		options.wantReview = true;
+
+		if (this.postOptions.wantMarkers || 
+			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantMarkers)) {
+			this.setMarkerOptions(options);
+		}
+	}
+
 	setMarkerOptions (options) {
-		options.wantMarkers = 1;
+		options.wantMarkers = options.wantMarkers || 1;
 		if (typeof this.postOptions.markerStreamId !== 'undefined') {
 			if (
 				typeof this.postOptions.markerStreamId === 'number' &&

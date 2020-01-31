@@ -7,6 +7,7 @@ const NotFoundTest = require('./not_found_test');
 const ACLTest = require('./acl_test');
 const GetPostWithMarkerTest = require('./get_post_with_marker_test');
 const GetPostWithCodemarkTest = require('./get_post_with_codemark_test');
+const GetPostWithReviewTest = require('./get_post_with_review_test');
 
 class GetPostRequestTester {
 
@@ -20,6 +21,7 @@ class GetPostRequestTester {
 		new ACLTest({ type: 'channel' }).test();
 		new GetPostWithCodemarkTest().test();
 		new GetPostWithMarkerTest().test();
+		new GetPostWithReviewTest().test();
 	}
 }
 
