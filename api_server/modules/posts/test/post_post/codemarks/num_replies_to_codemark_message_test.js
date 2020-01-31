@@ -1,6 +1,6 @@
 'use strict';
 
-const NumRepliesMessageToStreamTest = require('./num_replies_message_to_stream_test');
+const NumRepliesMessageToStreamTest = require('../num_replies_message_to_stream_test');
 const Assert = require('assert');
 
 class NumRepliesToCodemarkMessageTest extends NumRepliesMessageToStreamTest {

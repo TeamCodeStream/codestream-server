@@ -1,6 +1,6 @@
 'use strict';
 
-const PostReplyTest = require('./post_reply_test');
+const PostReplyTest = require('../post_reply_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
 
