@@ -9,6 +9,7 @@ class GetReviewRequest extends GetRequest {
 	async process () {
 		await super.process();
 		await this.getPost();		// get the post pointing to this review, if any
+		await this.getMarkers();	// get the markers referenced by this reivew, if any
 	}
 
 	// get the post pointing to this review, if any
@@ -20,6 +21,14 @@ class GetReviewRequest extends GetRequest {
 			throw this.errorHandler.error('notFound', { info: 'post' });
 		}
 		this.responseData.post = post.getSanitizedObject({ request: this });
+	}
+
+	// get the markers referenced by this codemark, if any
+	async getMarkers () {
+		const markerIds = this.model.get('markerIds') || [];
+		if (markerIds.length === 0) { return; }
+		const markers = await this.data.markers.getByIds(markerIds);
+		this.responseData.markers = markers.map(marker => marker.getSanitizedObject({ request: this }));
 	}
 
 	// describe this route for help

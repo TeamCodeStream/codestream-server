@@ -69,6 +69,8 @@ class User extends CodeStreamModel {
 			return await this.authorizeMarker(id, request);
 		case 'codemark': 
 			return await this.authorizeCodemark(id, request);
+		case 'review': 
+			return await this.authorizeReview(id, request);
 		case 'user':
 			return await this.authorizeUser(id, request);
 		default:
@@ -168,7 +170,7 @@ class User extends CodeStreamModel {
 		return authorized ? marker : false;
 	}
 
-	// authorize the user to "access" an codemark model, based on ID
+	// authorize the user to "access" a codemark model, based on ID
 	async authorizeCodemark (id, request) {
 		// to access a codemark, the user must have access to the stream it belongs to
 		// (for read access)
@@ -196,6 +198,21 @@ class User extends CodeStreamModel {
 			);
 		}
 		return authorized ? codemark : false;
+	}
+
+	// authorize the user to "access" a review model, based on ID
+	async authorizeReview (id, request) {
+		// to access a review, the user must have access to the stream it belongs to
+		// (for read access)
+		const review = await request.data.reviews.getById(id);
+		if (!review) {
+			throw request.errorHandler.error('notFound', { info: 'review' });
+		}
+		const authorized = await this.authorizeStream(
+			review.get('streamId'),
+			request
+		);
+		return authorized ? review : false;
 	}
 
 	// authorize the user to "access" a user model, based on ID

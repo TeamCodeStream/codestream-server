@@ -22,6 +22,7 @@ const AllModuleIndexes = {
 	markers: require(process.env.CS_API_TOP + '/modules/markers/indexes'),
 	codemarks: require(process.env.CS_API_TOP + '/modules/codemarks/indexes'),
 	codemarkLinks: require(process.env.CS_API_TOP + '/modules/codemarks/codemark_link_indexes'),
+	reviews: require(process.env.CS_API_TOP + '/modules/reviews/indexes'),
 	users: require(process.env.CS_API_TOP + '/modules/users/indexes'),
 	signupTokens: require(process.env.CS_API_TOP + '/modules/users/signup_token_indexes'),
 	versionMatrix: require(process.env.CS_API_TOP + '/modules/versioner/indexes'),

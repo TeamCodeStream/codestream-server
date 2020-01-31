@@ -25,6 +25,7 @@ class GetReviewsRequest extends GetManyRequest {
 	async process () {
 		await super.process();	// do the usual "get-many" processing
 		await this.getPosts();	// get associated posts, as needed
+		await this.getMarkers();	// get associated markers, as needed
 	}
 
 	// build the database query to use to fetch the reviews
@@ -103,6 +104,19 @@ class GetReviewsRequest extends GetManyRequest {
 		}
 		this.posts = await this.data.posts.getByIds(postIds);
 		this.responseData.posts = this.posts.map(post => post.getSanitizedObject({ request: this }));
+	}
+
+	// get the markers associated with the fetched codemarks, as needed
+	async getMarkers () {
+		const markerIds = this.models.reduce((markerIds, review) => {
+			markerIds.push(...(review.get('markerIds') || []));
+			return markerIds;
+		}, []);
+		if (markerIds.length === 0) {
+			return;
+		}
+		this.markers = await this.data.markers.getByIds(markerIds);
+		this.responseData.markers = this.markers.map(marker => marker.getSanitizedObject({ request: this }));
 	}
 
 	// describe this route for help
