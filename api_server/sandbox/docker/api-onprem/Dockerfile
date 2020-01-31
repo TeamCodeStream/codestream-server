@@ -1,5 +1,5 @@
 
-FROM node:10.15.3
+FROM node:12.14.1
 
 ADD config /opt/api/api_server/config
 ADD lib /opt/api/api_server/lib
