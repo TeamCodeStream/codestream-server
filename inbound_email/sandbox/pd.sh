@@ -1,9 +1,5 @@
 
-PUBNUB_KEY_FILE="$HOME/.codestream/pubnub/CodeStream-Development-PD_Keyset"
-
+# use for the Persistent Development environment
+export CSSVC_ENV=pd
+export CSSVC_CONFIGURATION=codestream-cloud
 . $CS_MAILIN_TOP/sandbox/defaults.sh
-
-export CS_MAILIN_REPLY_TO_DOMAIN=pd.codestream.com
-export CS_MAILIN_API_HOST=pd-api.codestream.us
-export CS_MAILIN_API_PORT=9443
-export CS_MAILIN_DIRECTORY=$HOME/codestream-mail/inbound/web/new
