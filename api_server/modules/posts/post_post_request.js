@@ -8,6 +8,7 @@ class PostPostRequest extends PostRequest {
 
 	// authorize the request for the current user
 	async authorize () {
+		this.warn('BODY', JSON.stringify(this.request.body, undefined, 5));
 		const streamId = this.request.body.streamId;
 		if (!streamId) {
 			return this.errorHandler.error('parameterRequired', { info: 'streamId' });

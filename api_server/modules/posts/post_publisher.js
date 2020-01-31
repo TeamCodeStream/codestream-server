@@ -29,6 +29,7 @@ class PostPublisher {
 			requestId: this.request.request.id
 		});
 		try {
+			this.request.warn('PUBLISHING TO ' + channel, JSON.stringify(message, undefined, 5));
 			await this.broadcaster.publish(
 				message,
 				channel,
