@@ -240,6 +240,7 @@ class GetPostsRequest extends GetManyRequest {
 	async process () {
 		await super.process();	// do the usual "get-many" processing
 		await this.getCodemarks();	// get associated codemarks, as needed
+		await this.getReviews();	// get associated reviews, as needed
 		await this.getMarkers();	// get associated markers, as needed
 
 		// add the "more" flag as needed, if there are more posts to fetch ...
@@ -265,11 +266,27 @@ class GetPostsRequest extends GetManyRequest {
 		this.responseData.codemarks = this.codemarks.map(codemark => codemark.getSanitizedObject({ request: this }));
 	}
 
+	// get the reviews associated with the fetched posts, as needed
+	async getReviews () {
+		const reviewIds = this.models.reduce((reviewIds, post) => {
+			if (post.get('reviewId')) {
+				reviewIds.push(post.get('reviewId'));
+			}
+			return reviewIds;
+		}, []);
+		if (reviewIds.length === 0) {
+			return;
+		}
+		this.reviews = await this.data.reviews.getByIds(reviewIds);
+		this.responseData.reviews = this.reviews.map(review => review.getSanitizedObject({ request: this }));
+	}
+
 	// get the markers associated with the fetched posts, as needed
 	async getMarkers () {
-		if (!this.codemarks) { return; }
-		const markerIds = this.codemarks.reduce((markerIds, post) => {
-			markerIds.push(...(post.get('markerIds') || []));
+		if (!this.codemarks && !this.reviews) { return; }
+		const thingsWithMarkers = [...(this.codemarks || []), ...(this.reviews || [])];
+		const markerIds = thingsWithMarkers.reduce((markerIds, thing) => {
+			markerIds.push(...(thing.get('markerIds') || []));
 			return markerIds;
 		}, []);
 		if (markerIds.length === 0) {
@@ -298,6 +315,7 @@ class GetPostsRequest extends GetManyRequest {
 		Object.assign(description.returns.looksLike, {
 			posts: '<@@#post objects#codemark@@ fetched>',
 			codemarks: '<associated @@#codemark objects#codemark@@>',
+			reviews: '<associated @@#review objects#review@@>',
 			markers: '<associated @@#markers#markers@@>',
 			more: '<will be set to true if more posts are available, see the description, above>'
 		});

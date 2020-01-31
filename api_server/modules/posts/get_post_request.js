@@ -8,7 +8,8 @@ class GetPostRequest extends GetRequest {
 
 	async process () {
 		await super.process();
-		await this.getCodemark();		// get the knowledge base codemark referenced by this post, if any
+		await this.getCodemark();	// get the knowledge base codemark referenced by this post, if any
+		await this.getReview();		// get the code review object referenced by this post, if any
 		await this.getMarkers();	// get the markers referenced by this post, if any
 	}
 
@@ -21,10 +22,26 @@ class GetPostRequest extends GetRequest {
 		this.responseData.codemark = this.codemark.getSanitizedObject({ request: this });
 	}
 
+	// get the code review referenced by this post, if any
+	async getReview () {
+		const reviewId = this.model.get('reviewId');
+		if (!reviewId) { return; }
+		this.review = await this.data.reviews.getById(reviewId);
+		if (!this.review) { return; }
+		this.responseData.review = this.review.getSanitizedObject({ request: this });
+	}
+
 	// get the markers referenced by this post, if any
 	async getMarkers () {
-		if (!this.codemark) { return; }
-		const markerIds = this.codemark.get('markerIds') || [];
+		let codemarkMarkerIds = [];
+		let reviewMarkerIds = [];
+		if (this.codemark) {
+			codemarkMarkerIds = this.codemark.get('markerIds') || [];
+		}
+		if (this.review) {
+			reviewMarkerIds = this.review.get('markerIds') || [];
+		}
+		const markerIds = [...codemarkMarkerIds, ...reviewMarkerIds];
 		if (markerIds.length === 0) { return; }
 		const markers = await this.data.markers.getByIds(markerIds);
 		this.responseData.markers = markers.map(marker => marker.getSanitizedObject({ request: this }));
@@ -40,6 +57,7 @@ class GetPostRequest extends GetRequest {
 		Object.assign(description.returns.looksLike, {
 			post: '<the fetched @@#post object#post@@>',
 			codemark: '<the @@#codemark object#codemark@@ referenced by this post, if any>',
+			review: '<the @@#code review object#review@@ referenced by this post, if any>',
 			markers: '<any code @@#markers#markers@@ referenced by the codemark>'
 		});
 		return description;
