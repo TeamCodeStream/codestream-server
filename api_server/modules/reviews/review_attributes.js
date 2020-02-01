@@ -32,7 +32,7 @@ module.exports = {
 	},
 	markerIds: {
 		type: 'arrayOfIds',
-		maxLength: 500,
+		maxLength: 1000,
 		description: 'The IDs of any @@#markers#marker@@ associated with this code review'
 	},
 	title: {

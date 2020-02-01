@@ -146,9 +146,6 @@ class PostCreator extends ModelCreator {
 			streamId: this.stream.id,
 			postId: this.attributes.id
 		});
-		if (this.attributes.parentPostId) {
-			reviewAttributes.parentPostId = this.attributes.parentPostId;
-		}
 		this.transforms.createdReview = await new ReviewCreator({
 			request: this.request,
 			origin: this.attributes.origin,
@@ -242,6 +239,7 @@ class PostCreator extends ModelCreator {
 		}
 		await this.updateParentPost();
 		await this.updateParentCodemark();
+		await this.updateParentReview();
 	}
 
 	// update numReplies for a parent post to this post
@@ -289,13 +287,43 @@ class PostCreator extends ModelCreator {
 		this.transforms.updatedCodemarks.push(codemarkUpdate);
 	}
 
-	// handle followers to parent codemark as needed
-	async handleFollowers (codemark, op) {
+	// update numReplies for the parent post's review, if any
+	async updateParentReview () {
+		if (!this.parentPost.get('reviewId')) {
+			return;
+		}
+		const review = await this.request.data.reviews.getById(this.parentPost.get('reviewId'));
+		if (!review) { return; }
+
+		const now = Date.now();
+		const op = { 
+			$set: {
+				numReplies: (review.get('numReplies') || 0) + 1,
+				lastReplyAt: now,
+				lastActivityAt: now,
+				modifiedAt: now
+			}
+		};
+
+		// handle any followers that need to be added to the review, as needed
+		await this.handleFollowers(review, op);
+
+		this.transforms.updatedReviews = this.transforms.updatedReviews || [];
+		const reviewUpdate = await new ModelSaver({
+			request: this.request,
+			collection: this.data.reviews,
+			id: review.id
+		}).save(op);
+		this.transforms.updatedReviews.push(reviewUpdate);
+	}
+
+	// handle followers to parent codemark or review as needed
+	async handleFollowers (codemarkOrReview, op) {
 		// if this is a legacy codemark, created before codemark following was introduced per the "sharing" model,
 		// we need to fill its followerIds array with the appropriate users
-		if (codemark.get('followerIds') === undefined) {
+		if (codemarkOrReview.get('followerIds') === undefined) {
 			op.$set.followerIds = await new CodemarkHelper({ request: this.request }).handleFollowers(
-				codemark.attributes,
+				codemarkOrReview.attributes,
 				{
 					mentionedUserIds: this.parentPost.get('mentionedUserIds'),
 					team: this.team,
@@ -307,7 +335,7 @@ class PostCreator extends ModelCreator {
 
 		// also add this user as a follower if they have that preference, and are not a follower already
 		const userNotificationPreference = (this.user.get('preferences') || {}).notifications || 'involveMe';
-		const followerIds = codemark.get('followerIds') || [];
+		const followerIds = codemarkOrReview.get('followerIds') || [];
 		if (userNotificationPreference === 'involveMe' && followerIds.indexOf(this.user.id) === -1) {
 			if (op.$set.followerIds) {
 				// here we're just adding the replying user to the followerIds array for the legacy codemark,
@@ -321,8 +349,8 @@ class PostCreator extends ModelCreator {
 			}
 		}
 
-		// if a user is mentioned that is not following the codemark, and they have the preference to
-		// follow codemarks they are mentioned in, then we'll presume to make them a follower
+		// if a user is mentioned that is not following the codemark/review, and they have the preference to
+		// follow codemarks/reviews they are mentioned in, then we'll presume to make them a follower
 		// fetch preferences for the members
 		const mentionedUserIds = this.attributes.mentionedUserIds || [];
 		let newFollowerIds = ArrayUtilities.difference(mentionedUserIds, followerIds);

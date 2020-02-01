@@ -6,7 +6,6 @@ const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_c
 const Review = require('./review');
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_helper');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 
@@ -109,7 +108,13 @@ class ReviewCreator extends ModelCreator {
 		await this.validateReviewers();
 
 		// handle followers, either passed in or default for the given situation
-		this.attributes.followerIds = await this.handleFollowers();
+		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(
+			this.attributes,
+			{
+				mentionedUserIds: this.mentionedUserIds,
+				team: this.team
+			}
+		);
 
 		// pre-set createdAt and lastActivityAt attributes
 		this.attributes.createdAt = this.attributes.lastActivityAt = Date.now();
@@ -183,38 +188,7 @@ class ReviewCreator extends ModelCreator {
 		}
 
 		// get the users and make sure they're on the same team
-		this.codemarkHelper.validateUsersOnTeam(this.attributes.reviewers, this.team.id, 'reviewers');
-	}
-
-	// handle followers added to a code review
-	async handleFollowers () {
-		// get the stream, if this is a review for a CodeStream team
-		let stream;
-		if (this.attributes.streamId) {
-			stream = await this.request.data.streams.getById(this.attributes.streamId);
-		}
-
-		// ensure review creator is a follower if they want to be
-		let followerIds = [];
-		if (
-			this.attributes.creatorId &&
-			followerIds.indexOf(this.attributes.creatorId) === -1
-		) {
-			followerIds.push(this.attributes.creatorId);
-		}
-
-		// if the stream is a DM, everyone in the DM is a follower
-		if (stream && stream.get('type') === 'direct') {
-			followerIds = ArrayUtilities.union(followerIds, stream.get('memberIds'));
-		}
-
-		// reviewers are followers
-		followerIds = ArrayUtilities.union(followerIds, this.attributes.reviewers || []);
-
-		// users passed in are explicitly followers, overriding other rules
-		followerIds = ArrayUtilities.union(followerIds, this.attributes.followerIds || []);
-
-		return followerIds;
+		await this.codemarkHelper.validateUsersOnTeam(this.attributes.reviewers, this.team.id, 'reviewers');
 	}
 }
 
