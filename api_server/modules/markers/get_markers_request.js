@@ -21,6 +21,7 @@ class GetMarkersRequest extends GetManyRequest {
 	async process () {
 		await super.process();				// do the usual "get-many" processing
 		await this.getCodemarks();	// get associated codemarks, as needed
+		await this.getReviews();	// get associated reviews, as needed
 		await this.getPosts();	// get associated posts, as needed
 		await this.fetchMarkerLocations();	// if the user passes a commit hash, we give them whatever marker locations we have for that commit
 	}
@@ -87,12 +88,23 @@ class GetMarkersRequest extends GetManyRequest {
 		this.responseData.codemarks = this.codemarks.map(codemark => codemark.getSanitizedObject({ request: this }));
 	}
 
+	// get the reviews associated with the fetched markers, as needed
+	async getReviews () {
+		const reviewIds = this.models.map(marker => marker.get('reviewId'));
+		if (reviewIds.length === 0) {
+			return;
+		}
+		this.reviews = await this.data.reviews.getByIds(reviewIds);
+		this.responseData.reviews = this.reviews.map(review => review.getSanitizedObject({ request: this }));
+	}
+
 	// get the posts pointing to the fetched markers, as needed
 	async getPosts () {
-		if (!this.codemarks) { return; }
-		const postIds = this.codemarks
-			.filter(codemark => !codemark.get('providerType'))
-			.map(codemark => codemark.get('postId'));
+		if (!this.codemarks && !this.reviews) { return; }
+		const allThings = [...(this.codemarks || []), ...(this.reviews || [])];
+		const postIds = allThings
+			.filter(thing => !thing.get('providerType'))
+			.map(thing => thing.get('postId'));
 		if (postIds.length === 0) {
 			return;
 		}
