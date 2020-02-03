@@ -8,6 +8,7 @@ const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_
 const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_helper');
 const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
+const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
 class ReviewCreator extends ModelCreator {
 
@@ -108,6 +109,10 @@ class ReviewCreator extends ModelCreator {
 		await this.validateReviewers();
 
 		// handle followers, either passed in or default for the given situation
+		this.attributes.followerIds = ArrayUtilities.union(
+			this.attributes.reviewers || [],
+			this.attributes.followerIds || []
+		);
 		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(
 			this.attributes,
 			{

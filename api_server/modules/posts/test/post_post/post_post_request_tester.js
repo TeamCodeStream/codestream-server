@@ -326,7 +326,7 @@ class PostPostRequestTester {
 		new NoFollowDirectStreamByPreferenceTest().test();
 		new NoFollowMentionByPreferenceTest().test();
 		new NoFollowRepliesByPreferenceTest().test();
-		
+
 		// concerning reviews...
 		// we do a subset of the tests for codemarks, assuming that marker validation 
 		// between the two API calls is basically the same
