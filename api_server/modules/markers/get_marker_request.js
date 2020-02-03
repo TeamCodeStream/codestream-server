@@ -8,7 +8,8 @@ class GetMarkerRequest extends GetRequest {
 
 	async process () {
 		await super.process();
-		await this.getCodemark();	// get the parent codemark
+		await this.getCodemark();	// get the parent codemark, if any
+		await this.getReview();		// get the parent review, if any
 		await this.getPost();	// get the referencing post, if any
 	}
 
@@ -20,12 +21,24 @@ class GetMarkerRequest extends GetRequest {
 		this.responseData.codemark = this.codemark.getSanitizedObject({ request: this });
 	}
 
+	// get the parent review to this marker
+	async getReview () {
+		const reviewId = this.model.get('reviewId');
+		this.review = await this.data.reviews.getById(reviewId);
+		if (!this.review) { return; } // shouldn't happen
+		this.responseData.review = this.review.getSanitizedObject({ request: this });
+	}
+
 	// get the post referencing the codemark that is the parent to this marker, if any
 	async getPost () {
 		if (this.model.get('providerType')) {
 			return;	// only applies to CodeStream posts
 		}
-		const postId = this.codemark.get('postId');
+		const postId = (
+			(this.codemark && this.codemark.get('postId')) ||
+			(this.review && this.review.get('postId'))
+		);
+		if (!postId) { return; } // shouldn't happen
 		this.post = await this.data.posts.getById(postId);
 		if (!this.post) { return; } // shouldn't happen
 		this.responseData.post = this.post.getSanitizedObject({ request: this });
