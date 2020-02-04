@@ -33,5 +33,14 @@ module.exports = {
 	// but avoid redundancies
 	union: function(array1, array2) {
 		return array1.concat(array2.filter(elem => !array1.includes(elem)));
+	},
+
+	unique: function(arr) {
+		return arr.reduce((a, elem) => {
+			if (a.indexOf(elem) === -1) {
+				a.push(elem);
+			}
+			return a;
+		}, []);
 	}
 };
