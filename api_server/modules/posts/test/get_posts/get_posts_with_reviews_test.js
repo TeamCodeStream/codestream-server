@@ -7,11 +7,11 @@ class GetPostsWithReviewsTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
+		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			wantReview: true,
 			wantMarkers: 5,
-			numChanges: 2,
-			changesetRepoId: this.repo.id
+			numChanges: 2
 		});
 	}
 

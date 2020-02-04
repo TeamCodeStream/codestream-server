@@ -178,6 +178,8 @@ const NoFollowReviewMentionByPreferenceTest = require('./reviews/no_follow_revie
 const NoFollowReviewRepliesByPreferenceTest = require('./reviews/no_follow_review_replies_by_preference_test');
 const NoReviewAndCodemarkTest = require('./reviews/no_review_and_codemark_test');
 const NoReplyWithReviewTest = require('./reviews/no_reply_with_review_test');
+const InvalidRepoIdInChangeSetTest = require('./reviews/invalid_repo_id_in_change_set_test');
+const RepoFromWrongTeamInChangeSetTest = require('./reviews/repo_from_wrong_team_in_change_set_test');
 
 class PostPostRequestTester {
 
@@ -378,6 +380,8 @@ class PostPostRequestTester {
 		new NoFollowReviewRepliesByPreferenceTest().test();
 		new NoReviewAndCodemarkTest().test();
 		new NoReplyWithReviewTest().test();
+		new InvalidRepoIdInChangeSetTest().test();
+		new RepoFromWrongTeamInChangeSetTest().test();
 	}
 }
 
