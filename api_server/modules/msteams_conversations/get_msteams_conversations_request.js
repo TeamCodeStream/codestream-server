@@ -1,8 +1,9 @@
-// handle the "GET /users" request to fetch several users
+// handle the "GET /msteams_conversations" request to fetch several users
 
 'use strict';
 
 const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const MSTeamsTeamsIndexes = require(process.env.CS_API_TOP + '/modules/msteams_teams/indexes');
 const Indexes = require('./indexes');
 
 class GetMSTeamsConversationsRequest extends GetManyRequest {
@@ -23,7 +24,7 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 		if (!tenantId) {
 			return this.errorHandler.error('parameterRequired', { info: 'tenantId' });
 		}
-		
+
 		const team = await this.data.teams.getById(this.teamId);
 		this.tenantId = this.isConnected(team, tenantId);
 	}
@@ -37,6 +38,21 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 			tenantId: this.tenantId
 		};
 		return query;
+	}
+
+	async postFetchHook () {	
+		// we need to mixin the name of the team to each of the conversations	
+		const msTeamsTeams = await this.data.msteams_teams.getByQuery({ tenantId: this.tenantId }, {
+			hint: MSTeamsTeamsIndexes.byTenantId
+		});
+		// convert to hash for lookup
+		const idHash = msTeamsTeams.reduce(function (map, msTeamsTeam) {
+			map[msTeamsTeam.get('msTeamsTeamId')] = msTeamsTeam;
+			return map;
+		}, {});
+		for (const model of this.models) {
+			model.attributes.teamName = idHash[model.get('msTeamsTeamId')].get('name');
+		}		
 	}
 
 	// get options to use in the query to fetch users
@@ -67,7 +83,7 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 		}
 		return undefined;
 	}
-	
+
 	// describe this route for help
 	static describe (module) {
 		const description = GetManyRequest.describe(module);
@@ -75,7 +91,7 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 		description.description = 'Fetch the MS Teams teams/conversations for a CodeStream team',
 		Object.assign(description.input.looksLike, {
 			'teamId*': '<ID of the CodeStream team for which MS Teams teams/conversations are being fetched>',
-			'tenantId*': '<ID of the MS Teams tenant (organization)>'			
+			'tenantId*': '<ID of the MS Teams tenant (organization)>'
 		});
 
 		return description;

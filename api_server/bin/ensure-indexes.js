@@ -28,6 +28,7 @@ const AllModuleIndexes = {
 	versionMatrix: require(process.env.CS_API_TOP + '/modules/versioner/indexes'),
 	messages: require(process.env.CS_API_TOP + '/modules/broadcaster/indexes'),
 	msteams_conversations: require(process.env.CS_API_TOP + '/modules/msteams_conversations/indexes'),
+	msteams_teams: require(process.env.CS_API_TOP + '/modules/msteams_teams/indexes'),
 };
 
 const AllFinished = {

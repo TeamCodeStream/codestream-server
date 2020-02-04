@@ -1,5 +1,10 @@
+'use strict';
+
+/*eslint complexity: ["error", 666]*/
+
 const SignupTokens = require(process.env.CS_API_TOP + '/modules/users/signup_tokens');
 const TeamIndexes = require(process.env.CS_API_TOP + '/modules/teams/indexes');
+const MSTeamsTeamsIndexes = require(process.env.CS_API_TOP + '/modules/msteams_teams/indexes');
 const MSTeamsConversationIndexes = require(process.env.CS_API_TOP + '/modules/msteams_conversations/indexes');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
@@ -7,10 +12,6 @@ const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 class MSTeamsCallbackHandler {
 	constructor (options) {
 		Object.assign(this, options);
-	}
-
-	attachData (data) {
-		this.data = data;
 	}
 
 	async getTeamByTenant (tenantId) {
@@ -52,57 +53,80 @@ class MSTeamsCallbackHandler {
 		return false;
 	}
 
-	async disconnect (data) {
-		// todo
+	async disconnect (conversationReference) {
+		try {
+			this.api.log('disconnecting...');
+			const conversationIdString = conversationReference.conversation.conversation.id.split(';');
 
-		return true;
+			const conversationId = conversationIdString[0];
+			const query = {
+				conversationId: conversationId
+			};
+			const conversation = await this.data.msteams_conversations.getOneByQuery(
+				query,
+				{
+					hint: MSTeamsConversationIndexes.byConversationIds
+				}
+			);
+			if (conversation) {
+				await this.data.msteams_conversations.deleteById(conversation.id);
+				this.api.log(`tenantId=${conversationReference.tenantId} conversationId=${conversationId} already stored`);
+				return true;
+			}
+
+			return true;
+		}
+		catch (ex) {
+			this.api.log(ex);
+			return false;
+		}
 	}
 
-	async signout (data) {
-		// todo
+	async disconnectAll (data) {
+		try {
+			this.api.log('disconnecting all...');
+			const query = {
+				tenantId: data.tenantId,
+				msTeamsTeamId: data.teamId
+			};
+			const conversations = await this.data.msteams_conversations.getByQuery(
+				query,
+				{
+					hint: MSTeamsConversationIndexes.byTenantIdMsTeamsTeamIds
+				}
+			);
+			if (conversations && conversations.length) {
+				// can this be done as a set?
+				for (const id of conversations.map(_ => _.id)) {
+					await this.data.msteams_conversations.deleteById(id);
+				}
+				return true;
+			}
 
-		// console.log(`MSTeamsCallbackHandler disconnect`);
-		// var bars = await this.data.bars.getByQuery({
-		// 	tenantId: data.tenantId
-		// }, {
-		// 	overrideHintRequired: true,
-		// 	noCache: true,
-		// 	ignoreCache: true
-		// }
-		// )
-		// if (!bars || !bars.length || bars.length !== 1) {
-		// 	return false;
-		// }
+			return true;
+		}
+		catch (ex) {
+			this.api.log(ex);
+			return false;
+		}
+	}
 
-		// const bar = bars[0];
-		// await this.data.bars.updateDirect(
-		// 	{
-		// 		id: this.data.bars.objectIdSafe(bar.id)
-		// 	},
-		// 	{
-		// 		$set: {
-		// 			connected: false,
-		// 			token: undefined
-		// 		}
-
-		// 	});
+	async signout (/*data*/) {
+		this.api.log('signing out...');
+		// TODO not really much to do here		
 		return true;
 	}
 
 	// compare the user's token with what is stored	
 	async complete (data) {
-		console.log(`MSTeamsCallbackHandler complete`);
+		this.api.log('completing...');
 		try {
 			const signupTokenService = new SignupTokens({ api: this.api });
 			signupTokenService.initialize();
 			const signupToken = await signupTokenService.find(data.token);
 			if (signupToken && signupToken.token === data.token) {
 				const team = await this.data.teams.getById(signupToken.teamId);
-				if (!team || team.get('deactivated')) {
-					return {
-						success: false
-					}
-				}
+				if (!team || team.get('deactivated')) return false;
 
 				let op = {
 					$set: {
@@ -132,10 +156,9 @@ class MSTeamsCallbackHandler {
 				}
 
 				if (addToSet) {
-					// opposite is $pull
 					op.$addToSet = {
 						providerIdentities: `msteams::${data.tenantId}`
-					}
+					};
 				}
 
 				this.transforms.teamUpdate = await new ModelSaver({
@@ -143,92 +166,23 @@ class MSTeamsCallbackHandler {
 					collection: this.data.teams,
 					id: team.id
 				}).save(op);
-
-				// const op2 = {
-				// 	$set: {}
-				// };
-
-				// const user = await this.data.users.getById(signupToken.userId);
-
-				// let existingProviderInfo = ((user.get('providerInfo') || {})[team.id] || {})['msteams'] || {};
-				// let providerInfoKey = `providerInfo.${team.id}.msteams`;
-				// op2.$set[`${providerInfoKey}.multiple.${data.tenantId}`] = {
-				// 	...{
-				// 		accessToken: "a"
-				// 	}, extra: {
-				// 		cheese: true
-				// 	}
-				// };
-				// op2.$set.modifiedAt = Date.now();
-
-				// this.transforms.userUpdate = await new ModelSaver({
-				// 	request: this,
-				// 	collection: this.data.users,
-				// 	id: user.id
-				// }).save(op2);
-
-				// const identity = `msteams::${data.tenantId}`;
-				// if (!(user.get('providerIdentities') || []).find(id => id === identity)) {
-
-				// }
-
-
-				//this.cheese = op;
-				return {
-					success: true
-				}
-
+				return true;
 			}
-			return {
-				success: false
-			}
-
-
-			// TODO example code to nuke
-
-			// 	await this.data.bars.updateById(bar.id, {						 
-			// 			connected: true
-			// 		})
-
-			// 		await this.data.bars.applyOpById(bar.id, {
-			// 			$set: {
-			// 				connected: true							
-			// 			},
-			// 			$unset: {							
-			// 				token: true
-			// 			}
-			// 		})
-
-			// 	*/
-			// 	await this.data.bars.updateDirect(
-			// 		{
-			// 			id: this.data.bars.objectIdSafe(bar.id)
-			// 		},
-			// 		{
-			// 			$set: {
-			// 				connected: true,
-			// 				token: undefined
-			// 			}
-
-			// 		});
-			// 	await this.data.persist();
-			// 	return true;
-			// }
+			return false;
 		}
 		catch (ex) {
-			console.log(ex);
+			this.api.log(ex);
 		}
 		return false;
 	}
 
-	async merge (conversationReference) {
-		// todo this needs cleanup
+	async connect (conversationReference) {
 		try {
-			console.log(`MSTeamsCallbackHandler merge`);
+			this.api.log('connecting...');
 			const team = await this.getTeamByTenant(conversationReference.tenantId);
-			const isConnected = await this.isTeamConnected(conversationReference.tenantId, team)
+			const isConnected = await this.isTeamConnected(conversationReference.tenantId, team);
 			if (isConnected) {
-				console.log(`tenantId=${conversationReference.tenantId} is not connected`);
+				this.api.log(`tenantId=${conversationReference.tenantId} is not connected`);
 				return false;
 			}
 			// the conversationId comes in as a two part string like...
@@ -250,8 +204,9 @@ class MSTeamsCallbackHandler {
 				}
 			);
 			if (conversation) {
-				console.log(`tenantId=${conversationReference.tenantId} conversationId=${conversationId} already stored`);
-				return false;
+				await this.updateUsers(team, conversationReference);
+				this.api.log(`tenantId=${conversationReference.tenantId} conversationId=${conversationId} already stored`);
+				return true;
 			}
 
 			let channelName = undefined;
@@ -262,10 +217,25 @@ class MSTeamsCallbackHandler {
 				channelName = teamChannel.name || 'General';
 			}
 			if (!channelName) {
-				console.log('cannot merge, no channel name');
+				this.api.log('cannot merge, no channel name');
 				return false;
 			}
 
+			let msTeamsTeam = await this.data.msteams_teams.getByQuery({
+				teamId: conversationReference.team.id
+			}, {
+				hint: MSTeamsTeamsIndexes.byTeamId,
+				noCache: true,
+				ignoreCache: true
+			});
+			if (!msTeamsTeam || !msTeamsTeam.length) {
+				await this.data.msteams_teams.create({
+					// id of the ms teams team
+					msTeamsTeamId: conversationReference.team.id,
+					name: conversationReference.team.name,
+					tenantId: conversationReference.tenantId
+				});
+			}
 			// note, we are adjusting this object by only storing the "channel" part of the message
 			// we will store the actual messageId just in case we ever need it
 			conversationReference.conversation.conversation.id = conversationId;
@@ -277,60 +247,63 @@ class MSTeamsCallbackHandler {
 				msTeamsTeamId: conversationReference.team.id,
 				conversation: conversationReference.conversation,
 				tenantId: conversationReference.tenantId,
-				teamName: conversationReference.team.name,
 				channelName: channelName,
 				messageId: messageId
 			});
 
-			const users = await this.data.users.getByQuery({
-				teamIds: [team.id],
-				isRegistered: true,
-				deactivated: false
-			}, { hint: UserIndexes.byTeamIds }
-			);
-			this.transforms.userUpdates = [];
-			for (const user of users) {
-				const op2 = {
-					$set: {}
+			this.updateUsers(team, conversationReference);
+			return true;
+		}
+		catch (ex) {
+			this.api.log(ex);
+			return false;
+		}
+	}
+
+	async updateUsers (team, conversationReference) {
+		const users = await this.data.users.getByQuery({
+			teamIds: team.id,
+			isRegistered: true,
+			deactivated: false
+		}, {
+			hint: UserIndexes.byTeamIds
+		}
+		);
+		this.transforms.userUpdates = [];
+		for (const user of users) {
+			const op2 = {
+				$set: {}
+			};
+			// NOTE: these accessTokens can be anything that isn't empty
+			let existingProviderInfo = ((user.get('providerInfo') || {})[team.id] || {})['msteams'] || {};
+			if (existingProviderInfo && Object.keys(existingProviderInfo).length) {
+				let providerInfoKey = `providerInfo.${team.id}.msteams`;
+				op2.$set[`${providerInfoKey}.multiple.${conversationReference.tenantId}`] = {
+					...{
+						accessToken: 'MSTEAMS'
+					}, extra: {
+						connected: true
+					}
 				};
-				let existingProviderInfo = ((user.get('providerInfo') || {})[team.id] || {})['msteams'] || {};
-				if (existingProviderInfo && Object.keys(existingProviderInfo).length) {
-					let providerInfoKey = `providerInfo.${team.id}.msteams`;
-					op2.$set[`${providerInfoKey}.multiple.${conversationReference.tenantId}`] = {
+			}
+			else {
+				if (!user.get('providerInfo')) {
+					op2.$set[`providerInfo.${team.id}.msteams.multiple.${conversationReference.tenantId}`] = {
 						...{
-							accessToken: "yush"
+							accessToken: 'MSTEAMS'
 						}, extra: {
-							cheese: true
+							connected: true
 						}
 					};
 				}
-				else {
-					if (!user.get('providerInfo')) {
-						op2.$set.providerInfo = {}
-						op2.$set.providerInfo[team.id] = {};
-						op2.$set.providerInfo[team.id].msteams = {};
-						op2.$set.providerInfo[team.id].msteams.multiple = {};
-						op2.$set.providerInfo[team.id].msteams.multiple[conversationReference.tenantId] = {
-							...{
-								accessToken: "yush"
-							}, extra: {
-								cheese: true
-							}
-						};
-					}
-				}
-
-				op2.$set.modifiedAt = Date.now();
-
-				this.transforms.userUpdates.push(await new ModelSaver({
-					request: this,
-					collection: this.data.users,
-					id: user.id
-				}).save(op2));
 			}
-		}
-		catch (ex) {
-			console.log(ex);
+
+			op2.$set.modifiedAt = Date.now();
+			this.transforms.userUpdates.push(await new ModelSaver({
+				request: this.request,
+				collection: this.data.users,
+				id: user.id
+			}).save(op2));
 		}
 	}
 }

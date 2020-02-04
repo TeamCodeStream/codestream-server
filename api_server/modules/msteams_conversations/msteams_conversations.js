@@ -47,8 +47,8 @@ class MSTeamsConversations extends Restful {
 
 	// get all routes exposed by this module
 	getRoutes () {
-         let standardRoutes = super.getRoutes(STANDARD_ROUTES);
-         return standardRoutes;
+		let standardRoutes = super.getRoutes(STANDARD_ROUTES);
+		return standardRoutes;
 	}
 
 	initialize () {		

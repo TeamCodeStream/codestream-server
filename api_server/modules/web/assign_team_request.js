@@ -36,13 +36,13 @@ class AssignTeamRequest extends WebRequestBase {
 		await this.requireAndAllow();
 
 		let { tenantId, teamId } = this.request.body;
-		tenantId = decodeURIComponent(tenantId || '')
+		tenantId = decodeURIComponent(tenantId || '');
 		if (!tenantId) {
 			this.warn('No tenantId found in request');
 			this.redirectError();
 			return;
 		}
-		teamId = decodeURIComponent(teamId || '')
+		teamId = decodeURIComponent(teamId || '');
 		if (!teamId) {
 			this.warn('No teamId found in request');
 			this.redirectError();
@@ -59,9 +59,7 @@ class AssignTeamRequest extends WebRequestBase {
 		catch (error) {
 			if (typeof error === 'object' && error.code === 'RAPI-1005') {
 				this.render({
-					error: error.info || 'something unexpected happened',
-					email: user.get('email'),
-					token: token
+					error: error.info || 'something unexpected happened'					
 				});
 				return;
 			}

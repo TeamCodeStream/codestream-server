@@ -2,7 +2,6 @@
 
 const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 const LoginCore = require(process.env.CS_API_TOP + '/modules/users/login_core');
-const SignupTokens = require(process.env.CS_API_TOP + '/modules/users/signup_tokens');
 const SigninFlowUtils = require('./signin_flow_utils');
 const WebErrors = require('./errors');
 
@@ -25,7 +24,7 @@ class WebSigninRequest extends APIRequest {
 			}).login(email, password);
 
 			if (this.request.body.tenantId) {
-					this.interstitial = '/web/assign/team?tenantId=' + this.request.body.tenantId;
+				this.interstitial = '/web/assign/team?tenantId=' + this.request.body.tenantId;
 			}
 		}
 		catch (error) {

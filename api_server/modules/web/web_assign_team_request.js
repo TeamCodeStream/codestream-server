@@ -35,7 +35,7 @@ class WebAssignTeamRequest extends WebRequestBase {
 					return {
 						id: _.id,
 						name: _.get('name')
-					}
+					};
 				}),
 				tenantId: tenantId,
 				csrf: this.request.csrfToken()

@@ -11,10 +11,8 @@ const SlackInteractiveComponentsHandler = require('./slack_interactive_component
 const SlackCfg = require(process.env.CS_API_TOP + '/config/slack');
 const crypto = require('crypto');
 const AddTeamPublisher = require(process.env.CS_API_TOP + '/modules/users/add_team_publisher');
-const { ActionTypes, BotFrameworkAdapter, CardFactory } = require('botbuilder');
 const MSTeamsConversationBot = require('./msteams_conversation_bot');
 const MSTeamsCallbackHandler = require('./msteams_callback_handler');
-const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const MSTeamsBotFrameworkAdapter = require('./msteams_bot_framework_adapter');
 
 const CODE_PROVIDERS = {
@@ -25,20 +23,12 @@ const CODE_PROVIDERS = {
 	vsts: 'Azure DevOps'
 };
 
-// const adapter = new BotFrameworkAdapter({
-// 	appId: MSTeamsConfig.appClientId,
-// 	appPassword: MSTeamsConfig.appClientSecret // process.env.MicrosoftAppPassword
-// });
-
-let bot;
 // we want this to be a singleton
+let msTeamsBot;
 
 class ProviderActionRequest extends RestfulRequest {
 	constructor (options) {
 		super(options);
-		if (!bot) {
-			bot = new MSTeamsConversationBot();
-		}
 	}
 
 	async authorize () {
@@ -61,87 +51,26 @@ class ProviderActionRequest extends RestfulRequest {
 		});
 	}
 
-	createCodemarkHeroCard (codemark) {
-		return CardFactory.heroCard('Codemark', codemark.get('text'), null, // No images
-			[
-				{
-					type: 'invoke',
-					title: 'View Discussion & Reply',
-					value: {
-						type: 'task/fetch',
-						data: { codemark: codemark.attributes }
-					}
-				},
-				{
-					type: ActionTypes.OpenUrl,
-					title: 'Open in IDE',
-					value: 'https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0'
-				},
-				{
-					type: ActionTypes.OpenUrl,
-					title: 'Open on GitHub',
-					value: 'https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0'
-				}
-			]);
-	}
-
 	// process the request...
 	async process () {
+		let data;
 		this.provider = this.request.params.provider.toLowerCase();
 		if (this.provider === 'msteams') {
+			if (!msTeamsBot) {
+				msTeamsBot = new MSTeamsConversationBot();
+			}
 			this.handler = new MSTeamsCallbackHandler(this);
-			this.handler.attachData(this.data);
-			bot.attachHandler(this.handler);
+			msTeamsBot.attachHandler(this.handler, this);
 
 			await MSTeamsBotFrameworkAdapter.instance().processActivity(this.request, this.response, async (context) => {
-				await bot.run(context);
+				await msTeamsBot.run(context);
 			});
-
-			// const foo = this.data.users;				 
-			// does this stop the persisting of the data???
+			// we need the response to go back to MS
 			this.responseHandled = true;
-			// await adapter.processActivity(this.request, this.response, async (context) => {
-			// 	await bot.run(context);
-			// 	for (const conversationReference of Object.values(conversationReferences)) {
-			// 		const foo = conversationReference.conversation.conversation.id.split(';');
-			// 		const exists = await this.data.foos.getByQuery(
-			// 			{ conversationId: foo[0] },
-			// 			{
-			// 				overrideHintRequired: true,
-			// 				noCache: true,
-			// 				ignoreCache: true
-			// 			});
-			// 		if (!exists || !exists.length) {
-			// 			//var copy = JSON.parse(JSON.stringify(conversationReference));
-			// 			//copy.conversation.id = foo[0];
-			// 			var bar = await this.data.bars.getByQuery({
-			// 				tenantId: conversationReference.tenantId
-			// 			}, {
-			// 				overrideHintRequired: true,
-			// 				noCache: true,
-			// 				ignoreCache: true
-			// 			}
-			// 			)
-			// 			if (bar && bar.length) {
-			// 				bar = bar[0];
-			// 				await this.data.foos.create({
-			// 					monkey: conversationReference,
-			// 					conversationId: foo[0],
-			// 					teamId: bar.teamId,
-			// 					name: conversationReference.team.name
-			// 				});
-			// 			}
-			// 			else {
-			// 				console.log('no reference')
-			// 			}
-			// 		}
-			// 	}
-			// });
-
 		}
 		else if (this.provider === 'slack') {
 			await this.requireAndAllow(); // require certain parameters, discard unknown parameters
-			const data = this.parseSlackActionInfo();
+			data = this.parseSlackActionInfo();
 			if (data) {
 				this.handler = new SlackInteractiveComponentsHandler(
 					this,
@@ -446,24 +375,25 @@ class ProviderActionRequest extends RestfulRequest {
 			});
 		}
 
-		if(transforms.userUpdates){
-			for(const user of transforms.userUpdates) {
-			const message = {
-				requestId: this.request.id,
-				user: user
-			};
-			const channel = `user-${user.id}`;
-			try {
-				await this.api.services.broadcaster.publish(
-					message,
-					channel,
-					{ request: this	}
-				);
+		if (transforms.userUpdates) {
+			for (const user of transforms.userUpdates) {
+				const message = {
+					requestId: this.request.id,
+					user: user
+				};
+				const channel = `user-${user.id}`;
+				try {
+					await this.api.services.broadcaster.publish(
+						message,
+						channel,
+						{ request: this }
+					);
+				}
+				catch (error) {
+					// this doesn't break the chain, but it is unfortunate...
+					this.warn(`Could not publish company creation message to user ${user.id}: ${JSON.stringify(error)}`);
+				}
 			}
-			catch (error) {
-				// this doesn't break the chain, but it is unfortunate...
-				this.warn(`Could not publish company creation message to user ${user.id}: ${JSON.stringify(error)}`);
-			}}
 
 		}
 		// if (this.handler && this.handler.createdUser) {

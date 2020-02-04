@@ -10,5 +10,9 @@ module.exports = {
 	byTeamIdTenantIds: {
 		teamId: 1,
 		tenantId: 1
+	},
+	byTenantIdMsTeamsTeamIds: {		
+		tenantId: 1,
+		msTeamsTeamId: 1
 	}
 };

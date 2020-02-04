@@ -1,18 +1,19 @@
 // handle the "POST /msteams_conversations" request to initiate a proactive message to an MS Teams bot
+/*eslint complexity: ["error", 666]*/
 
 'use strict';
 
 const PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
-const { BotFrameworkAdapter, CardFactory, ActionTypes } = require('botbuilder');
+const { CardFactory, ActionTypes } = require('botbuilder');
 const ProviderDisplayNames = require(process.env.CS_API_TOP + '/modules/web/provider_display_names');
 const { MicrosoftAppCredentials } = require('botframework-connector');
 const MSTeamsConversationIndexes = require(process.env.CS_API_TOP + '/modules/msteams_conversations/indexes');
-const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
+const MSTeamsBotFrameworkAdapter = require(process.env.CS_API_TOP + '/modules/providers/msteams_bot_framework_adapter');
 
 class PostMSTeamsConversationRequest extends PostRequest {
 	// authorize the request for the current user
 	async authorize () {
-		this.codemarkId = decodeURIComponent(this.request.body.codemarkId || '')
+		this.codemarkId = decodeURIComponent(this.request.body.codemarkId || '');
 		if (!this.codemarkId) {
 			throw this.errorHandler.error('parameterRequired', { info: 'codemarkId' });
 		}
@@ -26,6 +27,7 @@ class PostMSTeamsConversationRequest extends PostRequest {
 		if (!this.teamId) {
 			throw this.errorHandler.error('parameterRequired', { info: 'teamId' });
 		}
+
 		const authorized = await this.user.authorizeTeam(this.teamId, this);
 		if (!authorized) {
 			throw this.errorHandler.error('createAuth', { reason: 'user not on team' });
@@ -33,6 +35,7 @@ class PostMSTeamsConversationRequest extends PostRequest {
 	}
 
 	async createCodemarkHeroCard (codemark) {
+		// This example shows how to create a "task" aka button for triggering a model for our replies
 		// return [CardFactory.heroCard('Codemark', codemark.get('text'), null, // No images
 		// 	[
 		// 		// {
@@ -67,11 +70,10 @@ class PostMSTeamsConversationRequest extends PostRequest {
 			if (assignees && assignees.length) {
 				assignees = assignees.map(_ => {
 					return _.get('fullName');
-				})
+				});
 			}
 		}
-		if (markerIds && markerIds.length) {
-			markerId = markerIds[0];
+		if (markerIds && markerIds.length) {			
 			markers = await this.data.markers.getByIds(markerIds);
 			repos = await this.data.repos.getByIds(markers.map(_ => _.get('repoId')));
 			reposById = repos.reduce(function (map, repo) {
@@ -147,23 +149,25 @@ class PostMSTeamsConversationRequest extends PostRequest {
 				});
 			}
 
+			// this is actually "small", but there's no where to put it after the buttons
+			//	<br><small>Posted via CodeStream</small>
 			const repoName = (reposById[marker.get('repoId')] || {}).name;
 			const card = CardFactory.heroCard('',
 				`${titleAndOrText}<br><br>
 				${assigneesOrEmpty}
 				[${repoName}] ${marker.get('file')} ${line}<br><br>
-				<code>
-				${this.whiteSpaceToHtml(marker.get('code'))}
+				<code style="">
+				${marker.get('code')}
 				</code>`,
 				null,
 				buttons
 			);
 			attachments.push(card);
-		}
-		//	<br><small>Posted via CodeStream</small>
+		}		
 		return attachments;
 	}
 
+	// unused, but might be required if we change how the text is formatted
 	whiteSpaceToHtml (text) {
 		return text
 			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
@@ -173,11 +177,9 @@ class PostMSTeamsConversationRequest extends PostRequest {
 			.replace(/\n/g, '<br/>');
 	}
 
-	async process () {
-		const adapter = new BotFrameworkAdapter({
-			appId: MSTeamsConfig.appClientId,
-			appPassword: MSTeamsConfig.appClientSecret
-		});
+	async process () {		
+		const adapter = MSTeamsBotFrameworkAdapter.instance();
+
 		const conversations = await this.data.msteams_conversations.getByQuery({
 			conversationId: this.channelId
 		}, {
