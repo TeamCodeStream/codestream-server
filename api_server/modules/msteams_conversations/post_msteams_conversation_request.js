@@ -46,16 +46,6 @@ class PostMSTeamsConversationRequest extends PostRequest {
 		// 		// 		data: { codemark: codemark.attributes }
 		// 		// 	}
 		// 		// },
-		// 		{
-		// 			type: ActionTypes.OpenUrl,
-		// 			title: 'Open in IDE',
-		// 			value: 'https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0'
-		// 		},
-		// 		{
-		// 			type: ActionTypes.OpenUrl,
-		// 			title: 'Open on GitHub',
-		// 			value: 'https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0'
-		// 		}
 		// 	])];
 
 		let attachments = [];
@@ -156,15 +146,23 @@ class PostMSTeamsConversationRequest extends PostRequest {
 				`${titleAndOrText}<br><br>
 				${assigneesOrEmpty}
 				[${repoName}] ${marker.get('file')} ${line}<br><br>
-				<code style="">
-				${marker.get('code')}
-				</code>`,
+				<code style="font-size:.9em;white-space:pre;display:block;overflow:auto;">${this.escapeHtml(marker.get('code'))}</code>`,
 				null,
 				buttons
 			);
 			attachments.push(card);
 		}		
 		return attachments;
+	}
+
+
+	escapeHtml(s) {
+		return s
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#039;');
 	}
 
 	// unused, but might be required if we change how the text is formatted

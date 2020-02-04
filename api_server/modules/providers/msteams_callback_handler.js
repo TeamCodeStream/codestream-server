@@ -70,7 +70,7 @@ class MSTeamsCallbackHandler {
 			);
 			if (conversation) {
 				await this.data.msteams_conversations.deleteById(conversation.id);
-				this.api.log(`tenantId=${conversationReference.tenantId} conversationId=${conversationId} already stored`);
+				this.api.log(`tenantId=${conversationReference.tenantId} conversationId=${conversationId} deleted`);
 				return true;
 			}
 
@@ -100,6 +100,7 @@ class MSTeamsCallbackHandler {
 				for (const id of conversations.map(_ => _.id)) {
 					await this.data.msteams_conversations.deleteById(id);
 				}
+				this.api.log(`${conversations.length} tenantId=${data.tenantId} msTeamsTeamId=${data.teamId} conversations deleted`);
 				return true;
 			}
 

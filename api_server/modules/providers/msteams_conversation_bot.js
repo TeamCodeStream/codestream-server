@@ -206,8 +206,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			teamChannels: teamChannels
 		});
 		if (result) {
-
-			await context.sendActivity('Your team is now ready to receive messages from CodeStream.');
+			await context.sendActivity('This channel is now ready to receive messages from CodeStream.');
 		}
 		else {
 			await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream from this conversation. Please try again.'));
@@ -226,7 +225,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		if (result) {
-			await context.sendActivity(MessageFactory.text('CodeStream has been disconnected from this conversation.'));
+			await context.sendActivity(MessageFactory.text('CodeStream has been disconnected from this channel.'));
 		}
 		else {
 			await context.sendActivity(MessageFactory.text('Oops, we had a problem disconnecting CodeStream from this conversation. Please try again.'));
