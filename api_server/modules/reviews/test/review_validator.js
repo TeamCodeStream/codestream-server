@@ -3,6 +3,7 @@
 const Assert = require('assert');
 const ReviewTestConstants = require('./review_test_constants');
 const MarkerValidator = require(process.env.CS_API_TOP + '/modules/markers/test/marker_validator');
+const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
 class ReviewValidator {
 
@@ -36,7 +37,20 @@ class ReviewValidator {
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 
 		// verify the repo change set is the same as what was passed in
-		Assert.deepEqual(review.repoChangesets, this.test.data.review.repoChangesets, 'repoChangesets not the same as what was passed in');
+		const expectedRepoIds = ArrayUtilities.unique(
+			this.test.data.review.repoChangesets.map(changeset => changeset.repoId)
+		);
+		expectedRepoIds.sort();
+		const actualRepoIds = [...review.changesetRepoIds];
+		actualRepoIds.sort();
+		Assert.deepEqual(actualRepoIds, expectedRepoIds, 'review repo IDs not correct according to repos passed in');
+
+		// verify that we got changesets that correspond to the changesets passed in
+		const expectedChangesetIds = data.repoChangesets.map(changeset => changeset.id);
+		expectedChangesetIds.sort();
+		const actualChangesetIds = review.repoChangesetIds;
+		actualChangesetIds.sort();
+		Assert.deepEqual(actualChangesetIds, expectedChangesetIds, 'repoChangesetIds in review do not match the the repoChangesets in the response');
 
 		// verify the review in the response has no attributes that should not go to clients
 		this.test.validateSanitized(review, ReviewTestConstants.UNSANITIZED_ATTRIBUTES);
