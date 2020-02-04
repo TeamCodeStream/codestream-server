@@ -99,7 +99,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
                     // replyActivity.entities = [mention];
                     // await context.sendActivity(replyActivity);
 
-                    await context.sendActivity(`Ok, now one more step. Type \`@Codestream connect\` in any channel where you'd like to use CodeStream.`);
+                    await context.sendActivity(`Ok, now one more step. Mention the CodeStream bot with the \`connect\` command in any team channel where you'd like to use CodeStream.`);
                 }
                 else {
                     await context.sendActivity(`Oops, we hit a snag trying to connect to CodeStream. Please try signing in again!`);
