@@ -71,6 +71,8 @@ class User extends CodeStreamModel {
 			return await this.authorizeCodemark(id, request);
 		case 'review': 
 			return await this.authorizeReview(id, request);
+		case 'changeset': 
+			return await this.authorizeChangeset(id, request);
 		case 'user':
 			return await this.authorizeUser(id, request);
 		default:
@@ -168,6 +170,17 @@ class User extends CodeStreamModel {
 			);
 		}
 		return authorized ? marker : false;
+	}
+
+	// authorize the user to "access" a changeset model, based on ID
+	async authorizeChangeset (id, request) {
+		// to access a changeset, the user must have access to the review it belongs to
+		const changeset = await request.data.changesets.getById(id);
+		if (!changeset) {
+			throw request.errorHandler.error('notFound', { info: 'changeset' });
+		}
+		const authorized = this.authorizeReview(id, request);
+		return authorized ? changeset : false;
 	}
 
 	// authorize the user to "access" a codemark model, based on ID

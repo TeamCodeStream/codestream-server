@@ -59,6 +59,7 @@ const DataCollections = {
 	markers: require(ModuleDirectory + '/markers/marker'),
 	codemarks: require(ModuleDirectory + '/codemarks/codemark'),
 	reviews: require(ModuleDirectory + '/reviews/review'),
+	changesets: require(ModuleDirectory + '/changesets/changeset'),
 	markerLocations: require(ModuleDirectory + '/marker_locations/marker_locations'),
 	providerPosts: require(ModuleDirectory + '/provider_posts/provider_post'),
 	codemarkLinks: require(ModuleDirectory + '/codemarks/codemark_link')

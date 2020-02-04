@@ -83,10 +83,14 @@ module.exports = {
 		maxLength: 50,
 		description: 'The IDs of any tags associated with this codemark'
 	},
-	repoChangeset: {
-		type: 'arrayOfObjects',
+	repoChangesetIds: {
+		type: 'arrayOfIds',
 		maxLength: 1000,
-		maxObjectLength: 100000,
-		description: 'Object indicating changes to the repo covered by this code review'
+		description: 'The IDs of changesets associated with this code review'
+	},
+	changesetRepoIds: {
+		type: 'arrayOfIds',
+		maxLength: 100,
+		description: 'The IDs of repos corresponding to the changesets associated with this code review'
 	}
 };

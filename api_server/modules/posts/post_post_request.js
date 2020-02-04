@@ -68,6 +68,14 @@ class PostPostRequest extends PostRequest {
 			];
 		}
 
+		// add any changesets created 
+		if (transforms.createdChangesets && transforms.createdChangesets.length > 0) {
+			responseData.repoChangesets = [
+				...(responseData.repoChangesets || []),
+				...transforms.createdChangesets.map(changeset => changeset.getSanitizedObject({ request: this }))
+			];
+		}
+
 		// markers with locations will have a separate markerLocations object
 		if (transforms.markerLocations && transforms.markerLocations.length > 0) {
 			responseData.markerLocations = transforms.markerLocations;

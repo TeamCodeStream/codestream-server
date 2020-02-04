@@ -22,7 +22,7 @@ class ReviewNewRepoMessageToTeamTest extends Aggregation(CodeStreamMessageTest, 
 			// add review and marker data to the post
 			this.data.review = this.reviewFactory.getRandomReviewData({
 				numChanges: 2,
-				changesetRepoId: this.repo.id
+				changeSetRepoId: this.repo.id
 			});
 			this.data.review.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
 			callback();

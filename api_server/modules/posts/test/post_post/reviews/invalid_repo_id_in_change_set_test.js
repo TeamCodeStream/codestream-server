@@ -18,7 +18,7 @@ class InvalidRepoIdInChangeSetTest extends ReviewTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.review.repoChangeset[0].repoId = ObjectID();
+			this.data.review.repoChangesets[0].repoId = ObjectID();
 			callback();
 		});
 	}

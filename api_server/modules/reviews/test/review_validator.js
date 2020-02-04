@@ -36,7 +36,7 @@ class ReviewValidator {
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 
 		// verify the repo change set is the same as what was passed in
-		Assert.deepEqual(review.repoChangeset, this.test.data.review.repoChangeset, 'repoChangeset not the same as what was passed in');
+		Assert.deepEqual(review.repoChangesets, this.test.data.review.repoChangesets, 'repoChangesets not the same as what was passed in');
 
 		// verify the review in the response has no attributes that should not go to clients
 		this.test.validateSanitized(review, ReviewTestConstants.UNSANITIZED_ATTRIBUTES);

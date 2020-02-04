@@ -16,7 +16,7 @@ class RandomReviewFactory {
 			title: RandomString.generate(50),
 			status: RandomString.generate(10),
 			text: RandomString.generate(100),
-			repoChangeset: this.getRandomChangeset(options)
+			repoChangesets: this.getRandomChangesets(options)
 		};
 		if (options.wantMarkers) {
 			data.markers = this.markerFactory.createRandomMarkers(options.wantMarkers, options);
@@ -25,7 +25,7 @@ class RandomReviewFactory {
 	}
 
 	// get a random change set for a code review
-	getRandomChangeset (options = {}) {
+	getRandomChangesets (options = {}) {
 		const numChanges = options.numChanges || 1;
 		const changes = [];
 		for (let i = 0; i < numChanges; i++) {
