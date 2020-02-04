@@ -15,12 +15,27 @@ class RandomReviewFactory {
 		const data = {
 			title: RandomString.generate(50),
 			status: RandomString.generate(10),
-			text: RandomString.generate(100)
+			text: RandomString.generate(100),
+			repoChangeset: this.getRandomChangeset(options)
 		};
 		if (options.wantMarkers) {
 			data.markers = this.markerFactory.createRandomMarkers(options.wantMarkers, options);
 		}
 		return data;
+	}
+
+	// get a random change set for a code review
+	getRandomChangeset (options = {}) {
+		const numChanges = options.numChanges || 1;
+		const changes = [];
+		for (let i = 0; i < numChanges; i++) {
+			const repoId = options.changesetRepoIds ? options.changesetRepoIds[i] : options.changesetRepoId;
+			changes.push({
+				repoId,
+				branch: RandomString.generate(20)
+			});
+		}
+		return changes;
 	}
 }
 

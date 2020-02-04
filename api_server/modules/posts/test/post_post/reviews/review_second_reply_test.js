@@ -12,7 +12,12 @@ class ReviewSecondReplyTest extends PostReplyTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.postOptions.wantReview = true;
+			this.repoOptions.creatorIndex = 1;
+			Object.assign(this.postOptions, {
+				wantReview: true,
+				wantMarkers: 5,
+				numChanges: 2
+			});
 			callback();
 		});
 	}

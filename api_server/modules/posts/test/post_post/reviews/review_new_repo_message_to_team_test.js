@@ -13,13 +13,17 @@ class ReviewNewRepoMessageToTeamTest extends Aggregation(CodeStreamMessageTest, 
 
 	// make the data that triggers the message to be received
 	makeData (callback) {
+		this.repoOptions.creatorIndex = 1;
 		this.init(callback);
 	}
 
 	makePostData (callback) {
 		super.makePostData (() => {
 			// add review and marker data to the post
-			this.data.review = this.reviewFactory.getRandomReviewData();
+			this.data.review = this.reviewFactory.getRandomReviewData({
+				numChanges: 2,
+				changesetRepoId: this.repo.id
+			});
 			this.data.review.markers = this.markerFactory.createRandomMarkers(1, { withRandomStream: true });
 			callback();
 		});

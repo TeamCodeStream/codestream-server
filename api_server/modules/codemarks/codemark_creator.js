@@ -6,6 +6,7 @@ const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_c
 const Codemark = require('./codemark');
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const CodemarkTypes = require('./codemark_types');
+const CodemarkAttributes = require('./codemark_attributes');
 const CodemarkLinkCreator = require('./codemark_link_creator');
 const CodemarkHelper = require('./codemark_helper');
 const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
@@ -56,7 +57,7 @@ class CodemarkCreator extends ModelCreator {
 			this.attributes.markers,
 			{
 				type: 'array(object)',
-				maxLength: 100,
+				maxLength: CodemarkAttributes.markerIds.maxLength,
 				maxObjectLength: 100000
 			}
 		);

@@ -7,7 +7,6 @@ class ReviewMarkersTest extends ReviewTest {
 	constructor (options) {
 		super(options);
 		this.expectMarkers = 5;
-		this.repoOptions.creatorIndex = 1;
 	}
 
 	get description () {

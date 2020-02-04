@@ -111,6 +111,8 @@ class TestStreamCreator {
 			)
 		) {
 			postOptions.wantMarkers = this.postOptions.wantMarkers;
+			postOptions.numChanges = this.postOptions.numChanges;
+			postOptions.changesetRepoId = this.postOptions.changesetRepoId || (this.repo && this.repo.id);
 			this.setReviewOptions(postOptions, n);	
 			if (this.postOptions.postData && this.postOptions.postData[n]) {
 				delete this.postOptions.postData[n].wantReview;
@@ -165,7 +167,13 @@ class TestStreamCreator {
 
 	setReviewOptions (options, n) {
 		options.wantReview = true;
-
+		if (
+			!this.postOptions.changesetRepoId &&
+			!this.postOptions.changesetRepoIds &&
+			this.repo
+		) {
+			this.postOptions.changesetRepoId = this.repo.id;
+		}
 		if (this.postOptions.wantMarkers || 
 			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantMarkers)) {
 			this.setMarkerOptions(options);

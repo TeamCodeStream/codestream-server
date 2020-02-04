@@ -8,11 +8,13 @@ class ReviewNumMarkersTest extends CodeStreamAPITest {
 	constructor (options) {
 		super(options);
 		this.streamOptions.creatorIndex = 1;
+		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			creatorIndex: 0,
 			numPosts: 3,
 			wantReview: true,
-			wantMarkers: 1
+			wantMarkers: 1,
+			numChanges: 2
 		});
 	}
 

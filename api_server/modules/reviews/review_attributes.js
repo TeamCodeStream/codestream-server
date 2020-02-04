@@ -84,8 +84,9 @@ module.exports = {
 		description: 'The IDs of any tags associated with this codemark'
 	},
 	repoChangeset: {
-		type: 'object',
-		maxLength: 10000,
+		type: 'arrayOfObjects',
+		maxLength: 1000,
+		maxObjectLength: 100000,
 		description: 'Object indicating changes to the repo covered by this code review'
 	}
 };

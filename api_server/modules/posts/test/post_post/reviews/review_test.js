@@ -9,6 +9,7 @@ class ReviewTest extends PostPostTest {
 	constructor (options) {
 		super(options);
 		this.streamUpdatesOk = true;
+		this.repoOptions.creatorIndex = 1;
 	}
 
 	get description () {
@@ -23,7 +24,10 @@ class ReviewTest extends PostPostTest {
 	}
 
 	addReviewData (callback) {
-		this.data.review = this.reviewFactory.getRandomReviewData();
+		this.data.review = this.reviewFactory.getRandomReviewData({
+			numChanges: 2,
+			changesetRepoId: this.repo.id
+		});
 		callback();
 	}
 

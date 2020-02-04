@@ -6,6 +6,7 @@ const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_c
 const Review = require('./review');
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_helper');
+const ReviewAttributes = require('./review_attributes');
 const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
@@ -38,9 +39,8 @@ class ReviewCreator extends ModelCreator {
 			},
 			optional: {
 				string: ['text', 'status'],
-				object: ['repoChangeset'],
 				'array(string)': ['reviewers', 'followerIds', 'fileStreamIds', 'tags'],
-				'array(object)': ['markers']
+				'array(object)': ['repoChangeset', 'markers']
 			}
 		};
 	}
@@ -53,6 +53,11 @@ class ReviewCreator extends ModelCreator {
 		if (this.attributes.markers) {
 			await this.validateMarkers();
 		}
+
+		// same for the repo change-set, preemptively validate
+		if (this.attributes.repoChangeset) {
+			await this.validateRepoChangeset();
+		}
 	}
 
 	// validate the markers sent with the review creation, this is too important to just drop,
@@ -62,12 +67,28 @@ class ReviewCreator extends ModelCreator {
 			this.attributes.markers,
 			{
 				type: 'array(object)',
-				maxLength: 1000,
-				maxObjectLength: 1000000
+				maxLength: ReviewAttributes.markerIds.maxLength,
+				maxObjectLength: 100000
 			}
 		);
 		if (result) {	// really an error
 			throw this.errorHandler.error('validation', { info: `markers: ${result}` });
+		}
+	}
+
+	// validate the repo change-sets sent with the review creation, this is too important to just drop,
+	// so we return an error instead
+	async validateRepoChangeset () {
+		const result = new Review().validator.validateArrayOfObjects(
+			this.attributes.repoChangeset,
+			{
+				type: 'array(object)',
+				maxLength: ReviewAttributes.repoChangeset.maxLength,
+				maxObjectLength: ReviewAttributes.repoChangeset.maxObjectLength
+			}
+		);
+		if (result) {	// really an error
+			throw this.errorHandler.error('validation', { info: `repoChangeset: ${result}` });
 		}
 	}
 
@@ -93,14 +114,15 @@ class ReviewCreator extends ModelCreator {
 
 		// we'll need all the repos for the team if there are markers, and we'll use a "RepoMatcher" 
 		// to match the marker attributes to a repo if needed
-		if (this.attributes.markers && this.attributes.markers.length > 0) {
-			await this.getTeamRepos();
-			this.repoMatcher = new RepoMatcher({
-				request: this.request,
-				teamId: this.team.id,
-				teamRepos: this.teamRepos
-			});
-		}
+		await this.getTeamRepos();
+		this.repoMatcher = new RepoMatcher({
+			request: this.request,
+			teamId: this.team.id,
+			teamRepos: this.teamRepos
+		});
+
+		// validate the repo change-sets against the team repos
+		await this.validateRepoChangesetForTeamRepos();
 
 		// handle any markers that come with this review
 		await this.handleMarkers();
@@ -147,6 +169,18 @@ class ReviewCreator extends ModelCreator {
 				hint: RepoIndexes.byTeamId 
 			}
 		);
+	}
+
+	// validate the repo change-sets sent with the review creation, this is too important to just drop,
+	// so we return an error instead
+	async validateRepoChangesetForTeamRepos () {
+		// check that all repo IDs are valid and owned by the team
+		const teamRepoIds = this.teamRepos.map(repo => repo.id);
+		const repoIds = this.attributes.repoChangeset.map(set => set.repoId);
+		const nonTeamRepoIds = ArrayUtilities.difference(repoIds, teamRepoIds);
+		if (nonTeamRepoIds.length > 0) {
+			throw this.errorHandler.error('notFound', { info: `repo(s) ${nonTeamRepoIds.join(',')}`});
+		}
 	}
 
 	// handle any markers tied to the codemark

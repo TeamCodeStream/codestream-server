@@ -7,8 +7,12 @@ class GetPostWithReviewTest extends GetPostTest {
 
 	constructor (options) {
 		super(options);
-		this.postOptions.wantReview = true;
-		this.postOptions.wantMarkers = 5;
+		Object.assign(this.postOptions, {
+			wantReview: true,
+			wantMarkers: 5,
+			numChanges: 2,
+			changesetRepoId: this.repo.id
+		});
 	}
 
 	get description () {

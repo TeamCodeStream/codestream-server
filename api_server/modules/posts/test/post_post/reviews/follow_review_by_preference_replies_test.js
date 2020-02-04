@@ -12,10 +12,13 @@ class FollowReviewByPreferenceRepliesTest extends ReviewTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
+			this.repoOptions.creatorIndex = 1;
 			Object.assign(this.postOptions, {
 				creatorIndex: 1,
 				numPosts: 1,
-				wantReview: true
+				wantReview: true,
+				wantMarkers: 2,
+				numChanges: 2
 			});
 			callback();
 		});
