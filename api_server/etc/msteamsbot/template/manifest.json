@@ -2,7 +2,7 @@
     "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.5/MicrosoftTeams.schema.json",
     "manifestVersion": "1.5",
     "version": "1.0.0",
-    "id": "7bce9cff-9fd1-4e05-b7b5-5638ec468880",
+    "id": "{{botId}}",
     "packageName": "codestream.codestream",
     "developer": {
         "name": "CodeStream",
@@ -20,12 +20,12 @@
     },
     "description": {
         "short": "CodeStream",
-        "full": "CodeStream"
+        "full": "The world's best code discussion tool! A code discussion tool is the foundation that streamlines your existing workflows and development activity. Take the pain out of code reviews, resolve issues faster, and dramatically improve code quality by increasing communication between the developers on your team."
     },
     "accentColor": "#009AEF",
     "bots": [
         {
-            "botId": "7bce9cff-9fd1-4e05-b7b5-5638ec468880",
+            "botId": "{{botId}}",
             "scopes": [
                 "personal",
                 "groupchat",
@@ -101,7 +101,6 @@
     "validDomains": [
         "csaction.codestream.us",
         "www.codestream.com",
-        "*.codestream.us",
-        "slayer.codestream.us"
+        "*.codestream.us"
     ]
 }

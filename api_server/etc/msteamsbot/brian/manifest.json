@@ -1,0 +1,106 @@
+{
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.5/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.5",
+    "version": "1.0.0",
+    "id": "7bce9cff-9fd1-4e05-b7b5-5638ec468880",
+    "packageName": "codestream.codestream",
+    "developer": {
+        "name": "CodeStream",
+        "websiteUrl": "https://www.codestream.com",
+        "privacyUrl": "https://www.codestream.com/privacy",
+        "termsOfUseUrl": "https://www.codestream.com/terms"
+    },
+    "icons": {
+        "color": "color.png",
+        "outline": "outline.png"
+    },
+    "name": {
+        "short": "CodeStream",
+        "full": "CodeStream"
+    },
+    "description": {
+        "short": "CodeStream",
+        "full": "The world's best code discussion tool! A code discussion tool is the foundation that streamlines your existing workflows and development activity. Take the pain out of code reviews, resolve issues faster, and dramatically improve code quality by increasing communication between the developers on your team."
+    },
+    "accentColor": "#009AEF",
+    "bots": [
+        {
+            "botId": "7bce9cff-9fd1-4e05-b7b5-5638ec468880",
+            "scopes": [
+                "personal",
+                "groupchat",
+                "team"
+            ],
+            "commandLists": [
+                {
+                    "scopes": [
+                        "personal"
+                    ],
+                    "commands": [
+                        {
+                            "title": "help",
+                            "description": "Get help using CodeStream"
+                        },
+                        {
+                            "title": "signin",
+                            "description": "Sign in to CodeStream"
+                        },
+                        {
+                            "title": "signout",
+                            "description": "Sign out from CodeStream"
+                        }
+                    ]
+                },
+                {
+                    "scopes": [
+                        "team"
+                    ],
+                    "commands": [
+                        {
+                            "title": "help",
+                            "description": "Get help using CodeStream"
+                        },
+                        {
+                            "title": "connect",
+                            "description": "Connect this channel to CodeStream"
+                        },
+                        {
+                            "title": "disconnect",
+                            "description": "Disconnect this channel from CodeStream"
+                        }
+                    ]
+                },
+                {
+                    "scopes": [
+                        "groupchat"
+                    ],
+                    "commands": [
+                        {
+                            "title": "help",
+                            "description": "Get help using CodeStream"
+                        },
+                        {
+                            "title": "connect",
+                            "description": "Connect this channel to CodeStream"
+                        },
+                        {
+                            "title": "disconnect",
+                            "description": "Disconnect this channel from CodeStream"
+                        }
+                    ]
+                }
+            ],
+            "supportsFiles": false,
+            "isNotificationOnly": false
+        }
+    ],
+    "permissions": [
+        "identity",
+        "messageTeamMembers"
+    ],
+    "validDomains": [
+        "csaction.codestream.us",
+        "www.codestream.com",
+        "*.codestream.us"
+    ]
+}
