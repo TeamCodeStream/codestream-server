@@ -14,6 +14,7 @@ class GetCodemarksAfterInclusiveTest extends GetCodemarksTest {
 		// and specify the after parameter to fetch based on the pivot
 		const pivot = this.codemarks[5].createdAt;
 		this.expectedCodemarks = this.codemarks.filter(codemark => codemark.createdAt >= pivot);
+		this.expectedCodemarks.reverse();
 		this.path = `/codemarks?teamId=${this.team.id}&after=${pivot}&inclusive`;
 		callback();
 	}

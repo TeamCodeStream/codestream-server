@@ -38,14 +38,15 @@ class GetCodemarksTest extends CodeStreamAPITest {
 	setCodemarks (callback) {
 		this.codemarks = this.postData.map(postData => postData.codemark);
 		if (this.repoCodemark) {
-			this.codemarks.push(this.repoCodemark);
+			this.codemarks.unshift(this.repoCodemark);
 		}
 		callback();
 	}
 
 	// set the path to use for the request
 	setPath (callback) {
-		this.expectedCodemarks = this.codemarks;
+		this.expectedCodemarks = [...this.codemarks];
+		this.expectedCodemarks.reverse();
 		this.path = `/codemarks?teamId=${this.team.id}`;
 		callback();
 	}
@@ -53,7 +54,7 @@ class GetCodemarksTest extends CodeStreamAPITest {
 	// validate correct response
 	validateResponse (data) {
 		// validate we got the correct codemarks, and that they are sanitized (free of attributes we don't want the client to see)
-		this.validateMatchingObjects(data.codemarks, this.expectedCodemarks, 'codemarks');
+		this.validateMatchingObjectsSorted(data.codemarks, this.expectedCodemarks, 'codemarks');
 		this.validateSanitizedObjects(data.codemarks, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// make sure we got a post with each codemark that matches the post to which the codemark belongs

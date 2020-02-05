@@ -225,17 +225,18 @@ class APIRequestTest extends GenericTest {
 		let objectIds_1 = objects1.map(object => object.id).sort();
 		let objectIds_2 = objects2.map(object => object.id).sort();
 		Assert.deepEqual(objectIds_2, objectIds_1, `${name} returned don't match`);
-		objects1.forEach(object => {
-			Assert.equal(object._id, object.id, 'an object\'s _id is not set to id');	// DEPRECATE ME
-		});
+	}
+
+	// check that the objects we got back match expections, sorted by ID
+	validateMatchingObjectsSorted (objects1, objects2, name) {
+		let objectIds_1 = objects1.map(object => object.id);
+		let objectIds_2 = objects2.map(object => object.id);
+		Assert.deepEqual(objectIds_2, objectIds_1, `${name} returned don't match`);
 	}
 
 	// check that the objects we got back exactly match expectations
 	validateSortedMatchingObjects(objects1, objects2, name) {
 		Assert.deepEqual(objects2, objects1, `${name} returned don't match`);
-		objects1.forEach(object => {
-			Assert.equal(object._id, object.id, 'an object\'s _id is not set to id');	// DEPRECATE ME
-		});
 	}
 }
 

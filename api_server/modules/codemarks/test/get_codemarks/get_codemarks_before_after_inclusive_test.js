@@ -15,6 +15,7 @@ class GetCodemarksBeforeAfterInclusiveTest extends GetCodemarksTest {
 		const beforePivot = this.codemarks[7].createdAt;
 		const afterPivot = this.codemarks[3].createdAt;
 		this.expectedCodemarks = this.codemarks.filter(codemark => codemark.createdAt <= beforePivot && codemark.createdAt >= afterPivot);
+		this.expectedCodemarks.reverse();
 		this.path = `/codemarks?teamId=${this.team.id}&before=${beforePivot}&after=${afterPivot}&inclusive`;
 		callback();
 	}

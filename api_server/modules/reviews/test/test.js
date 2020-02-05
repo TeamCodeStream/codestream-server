@@ -6,7 +6,7 @@
 /* globals describe */
 
 const GetReviewRequestTester = require('./get_review/test');
-//const GetReviewsRequestTester = require('./get_reviews/test');
+const GetReviewsRequestTester = require('./get_reviews/test');
 //const PutReviewRequestTester = require('./put_review/test');
 //const DeleteReviewRequestTester = require('./delete_review/test');
 //const AddReviewTagRequestTester = require('./add_review_tag/test');
@@ -20,7 +20,7 @@ describe('review requests', function() {
 	this.timeout(20000);
 
 	describe('GET /reviews/:id', GetReviewRequestTester.test);
-	//describe('GET /reviews', GetReviewsRequestTester.test);
+	describe('GET /reviews', GetReviewsRequestTester.test);
 	//describe('PUT /reviews/:id', PutReviewRequestTester.test);
 	//describe('DELETE /reviews/:id', DeleteReviewRequestTester.test);
 	//describe('PUT /reviews/:id/add-tag', AddTagRequestTester.test);

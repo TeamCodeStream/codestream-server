@@ -12,6 +12,7 @@ class GetCodemarksByTypeTest extends GetCodemarksTest {
 	setPath (callback) {
 		this.type = this.postOptions.codemarkTypes[1];
 		this.expectedCodemarks = this.codemarks.filter(codemark => codemark.type === this.type);
+		this.expectedCodemarks.reverse();
 		this.path = `/codemarks?teamId=${this.team.id}&type=${this.type}`;
 		callback();
 	}

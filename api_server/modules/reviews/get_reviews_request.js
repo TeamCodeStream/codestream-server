@@ -30,13 +30,7 @@ class GetReviewsRequest extends GetManyRequest {
 
 	// build the database query to use to fetch the reviews
 	buildQuery () {
-		let numParameters = ['streamId'].reduce((numParameters, parameter) => {
-			return numParameters + (this.request.query[parameter] ? 1 : 0);
-		}, 0);
-		if (numParameters > 1) {
-			return 'can not query on more than one of: streamId';
-		}
-		if (numParameters === 1 && this.request.query.byLastActivityAt) {
+		if (this.request.query.streamId && this.request.query.byLastActivityAt) {
 			return 'can not query on streamId and also on lastActivityAt';
 		}
 		const query = {

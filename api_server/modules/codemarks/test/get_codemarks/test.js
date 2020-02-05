@@ -22,6 +22,13 @@ const NoFileStreamIdAndTypeTest = require('./no_file_stream_id_and_type_test');
 const NoStreamIdAndFileStreamIdTest = require('./no_stream_id_and_file_stream_id_test');
 const GetCodemarksByStreamIdTest = require('./get_codemarks_by_stream_id_test');
 const GetCodemarksByFileStreamIdTest = require('./get_codemarks_by_file_stream_id_test');
+const GetCodemarksByLastActivityTest = require('./get_codemarks_by_last_activity_test');
+const GetCodemarksBeforeLastActivityTest = require('./get_codemarks_before_last_activity_test');
+const GetCodemarksAfterLastActivityTest = require('./get_codemarks_after_last_activity_test');
+const GetCodemarksBeforeLastActivityInclusiveTest = require('./get_codemarks_before_last_activity_inclusive_test');
+const GetCodemarksAfterLastActivityInclusiveTest = require('./get_codemarks_after_last_activity_inclusive_test');
+const GetCodemarksBeforeAfterLastActivityTest = require('./get_codemarks_before_after_last_activity_test');
+const GetCodemarksBeforeAfterLastActivityInclusiveTest = require('./get_codemarks_before_after_last_activity_inclusive_test');
 
 class GetCodemarksRequestTester {
 
@@ -46,6 +53,13 @@ class GetCodemarksRequestTester {
 		new NoStreamIdAndFileStreamIdTest().test();
 		new GetCodemarksByStreamIdTest().test();
 		new GetCodemarksByFileStreamIdTest().test();
+		new GetCodemarksByLastActivityTest().test();
+		new GetCodemarksBeforeLastActivityTest().test();
+		new GetCodemarksAfterLastActivityTest().test();
+		new GetCodemarksBeforeLastActivityInclusiveTest().test();
+		new GetCodemarksAfterLastActivityInclusiveTest().test();
+		new GetCodemarksBeforeAfterLastActivityTest().test();
+		new GetCodemarksBeforeAfterLastActivityInclusiveTest().test();
 	}
 }
 
