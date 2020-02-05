@@ -16,7 +16,7 @@ class RandomReviewFactory {
 			title: RandomString.generate(50),
 			status: RandomString.generate(10),
 			text: RandomString.generate(100),
-			repoChangesets: this.getRandomChangesets(options)
+			reviewChangesets: this.getRandomChangesets(options)
 		};
 		if (options.wantMarkers) {
 			data.markers = this.markerFactory.createRandomMarkers(options.wantMarkers, options);

@@ -70,8 +70,8 @@ class PostPostRequest extends PostRequest {
 
 		// add any changesets created 
 		if (transforms.createdChangesets && transforms.createdChangesets.length > 0) {
-			responseData.repoChangesets = [
-				...(responseData.repoChangesets || []),
+			responseData.reviewChangesets = [
+				...(responseData.reviewChangesets || []),
 				...transforms.createdChangesets.map(changeset => changeset.getSanitizedObject({ request: this }))
 			];
 		}

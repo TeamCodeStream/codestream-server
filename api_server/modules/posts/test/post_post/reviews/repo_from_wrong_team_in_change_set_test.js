@@ -39,7 +39,7 @@ class RepoFromWrongTeamInChangesetTest extends ReviewTest {
 			}
 		}).create((error, response) => {
 			if (error) { return callback(error); }
-			this.data.review.repoChangesets[0].repoId = response.repo.id;
+			this.data.review.reviewChangesets[0].repoId = response.repo.id;
 			callback();
 		});
 	}

@@ -42,7 +42,7 @@ class ReviewCreator extends ModelCreator {
 				string: ['text', 'status'],
 				object: ['authorsById'],
 				'array(string)': ['reviewers', 'followerIds', 'fileStreamIds', 'tags'],
-				'array(object)': ['repoChangesets', 'markers']
+				'array(object)': ['reviewChangesets', 'markers']
 			}
 		};
 	}
@@ -57,8 +57,8 @@ class ReviewCreator extends ModelCreator {
 		}
 
 		// same for the repo change-set, preemptively validate
-		if (this.attributes.repoChangesets) {
-			await this.validateRepoChangesets();
+		if (this.attributes.reviewChangesets) {
+			await this.validateReviewChangesets();
 		}
 	}
 
@@ -80,17 +80,17 @@ class ReviewCreator extends ModelCreator {
 
 	// validate the repo change-sets sent with the review creation, this is too important to just drop,
 	// so we return an error instead
-	async validateRepoChangesets () {
+	async validateReviewChangesets () {
 		const result = new Review().validator.validateArrayOfObjects(
-			this.attributes.repoChangesets,
+			this.attributes.reviewChangesets,
 			{
 				type: 'array(object)',
-				maxLength: ReviewAttributes.repoChangesetIds.maxLength,
+				maxLength: ReviewAttributes.reviewChangesetIds.maxLength,
 				maxObjectLength: 1000000
 			}
 		);
 		if (result) {	// really an error
-			throw this.errorHandler.error('validation', { info: `repoChangesets: ${result}` });
+			throw this.errorHandler.error('validation', { info: `reviewChangesets: ${result}` });
 		}
 	}
 
@@ -124,13 +124,13 @@ class ReviewCreator extends ModelCreator {
 		});
 
 		// validate the repo change-sets against the team repos
-		await this.validateRepoChangesetsForTeamRepos();
+		await this.validateReviewChangesetsForTeamRepos();
 
 		// handle any markers that come with this review
 		await this.handleMarkers();
 
 		// handle any change sets that come with this review
-		await this.handleRepoChangesets();
+		await this.handleReviewChangesets();
 
 		// validate reviewers
 		await this.validateReviewersAndAuthors();
@@ -178,10 +178,10 @@ class ReviewCreator extends ModelCreator {
 
 	// validate the repo change-sets sent with the review creation, this is too important to just drop,
 	// so we return an error instead
-	async validateRepoChangesetsForTeamRepos () {
+	async validateReviewChangesetsForTeamRepos () {
 		// check that all repo IDs are valid and owned by the team
 		const teamRepoIds = this.teamRepos.map(repo => repo.id);
-		const repoIds = this.attributes.repoChangesets.map(set => set.repoId);
+		const repoIds = this.attributes.reviewChangesets.map(set => set.repoId);
 		const nonTeamRepoIds = ArrayUtilities.difference(repoIds, teamRepoIds);
 		if (nonTeamRepoIds.length > 0) {
 			throw this.errorHandler.error('notFound', { info: `repo(s) ${nonTeamRepoIds.join(',')}`});
@@ -226,18 +226,18 @@ class ReviewCreator extends ModelCreator {
 	}
 
 	// handle any change sets tied to the code review
-	async handleRepoChangesets () {
-		if (!this.attributes.repoChangesets || !this.attributes.repoChangesets.length) {
+	async handleReviewChangesets () {
+		if (!this.attributes.reviewChangesets || !this.attributes.reviewChangesets.length) {
 			return;
 		}
-		for (let changeset of this.attributes.repoChangesets) {
+		for (let changeset of this.attributes.reviewChangesets) {
 			await this.handleChangeset(changeset);
 		}
-		this.attributes.repoChangesetIds = this.transforms.createdChangesets.map(changeset => changeset.id);
+		this.attributes.reviewChangesetIds = this.transforms.createdChangesets.map(changeset => changeset.id);
 		this.attributes.changesetRepoIds = ArrayUtilities.unique(
 			this.transforms.createdChangesets.map(changeset => changeset.get('repoId'))
 		);
-		delete this.attributes.repoChangesets;
+		delete this.attributes.reviewChangesets;
 	}
 
 	// handle a single changeSet attached to the review

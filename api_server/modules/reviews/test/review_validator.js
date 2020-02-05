@@ -38,7 +38,7 @@ class ReviewValidator {
 
 		// verify the repo change set is the same as what was passed in
 		const expectedRepoIds = ArrayUtilities.unique(
-			this.test.data.review.repoChangesets.map(changeset => changeset.repoId)
+			this.test.data.review.reviewChangesets.map(changeset => changeset.repoId)
 		);
 		expectedRepoIds.sort();
 		const actualRepoIds = [...review.changesetRepoIds];
@@ -46,11 +46,11 @@ class ReviewValidator {
 		Assert.deepEqual(actualRepoIds, expectedRepoIds, 'review repo IDs not correct according to repos passed in');
 
 		// verify that we got changesets that correspond to the changesets passed in
-		const expectedChangesetIds = data.repoChangesets.map(changeset => changeset.id);
+		const expectedChangesetIds = data.reviewChangesets.map(changeset => changeset.id);
 		expectedChangesetIds.sort();
-		const actualChangesetIds = review.repoChangesetIds;
+		const actualChangesetIds = review.reviewChangesetIds;
 		actualChangesetIds.sort();
-		Assert.deepEqual(actualChangesetIds, expectedChangesetIds, 'repoChangesetIds in review do not match the the repoChangesets in the response');
+		Assert.deepEqual(actualChangesetIds, expectedChangesetIds, 'reviewChangesetIds in review do not match the the reviewChangesets in the response');
 
 		// verify the review in the response has no attributes that should not go to clients
 		this.test.validateSanitized(review, ReviewTestConstants.UNSANITIZED_ATTRIBUTES);
