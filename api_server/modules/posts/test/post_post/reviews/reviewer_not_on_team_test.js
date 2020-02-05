@@ -11,7 +11,7 @@ class ReviewerNotOnTeamTest extends ReviewersTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'must contain only users on the team'
+			info: 'reviewers must contain only users on the team'
 		};
 	}
 
