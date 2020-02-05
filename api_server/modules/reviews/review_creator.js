@@ -85,7 +85,7 @@ class ReviewCreator extends ModelCreator {
 			{
 				type: 'array(object)',
 				maxLength: ReviewAttributes.repoChangesetIds.maxLength,
-				maxObjectLength: 100000
+				maxObjectLength: 1000000
 			}
 		);
 		if (result) {	// really an error
