@@ -40,6 +40,7 @@ class ReviewCreator extends ModelCreator {
 			},
 			optional: {
 				string: ['text', 'status'],
+				object: ['authorsById'],
 				'array(string)': ['reviewers', 'followerIds', 'fileStreamIds', 'tags'],
 				'array(object)': ['repoChangesets', 'markers']
 			}
@@ -132,7 +133,7 @@ class ReviewCreator extends ModelCreator {
 		await this.handleRepoChangesets();
 
 		// validate reviewers
-		await this.validateReviewers();
+		await this.validateReviewersAndAuthors();
 
 		// handle followers, either passed in or default for the given situation
 		this.attributes.followerIds = ArrayUtilities.union(
@@ -254,13 +255,17 @@ class ReviewCreator extends ModelCreator {
 	}
 
 	// validate the reviewers ... all users must be on the same team
-	async validateReviewers () {
-		if (!this.attributes.reviewers || this.attributes.reviewers.length === 0) {
+	async validateReviewersAndAuthors () {
+		const userIds = ArrayUtilities.union(
+			this.attributes.reviewers || [],
+			Object.keys(this.attributes.authorsById || {})
+		);
+		if (userIds.length === 0) {
 			return;
 		}
 
 		// get the users and make sure they're on the same team
-		await this.codemarkHelper.validateUsersOnTeam(this.attributes.reviewers, this.team.id, 'reviewers');
+		await this.codemarkHelper.validateUsersOnTeam(userIds, this.team.id, 'reviewers or authors');
 	}
 }
 

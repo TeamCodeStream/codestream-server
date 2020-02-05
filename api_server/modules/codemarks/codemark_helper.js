@@ -164,7 +164,7 @@ class CodemarkHelper {
 
 		// must validate mentioned users and explicit followers, since these come directly from the request
 		const validateUserIds = ArrayUtilities.union(options.mentionedUserIds || [], attributes.followerIds || []);
-		await this.validateFollowers(validateUserIds, attributes.teamId);
+		await this.validateUsersOnTeam(validateUserIds, attributes.teamId, 'followers');
 
 		// any mentioned users are followers if they want to be
 		const mentionedWhoWantToFollow = ArrayUtilities.intersection(preferences.involveMe, options.mentionedUserIds || []);
@@ -181,24 +181,6 @@ class CodemarkHelper {
 		followerIds = ArrayUtilities.union(followerIds, attributes.followerIds || []);
 
 		return followerIds;
-	}
-
-	// validate the followers of a codemark
-	async validateFollowers (followerIds, teamId) {
-		// get the users and make sure they're on the same team
-		const users = await this.request.data.users.getByIds(
-			followerIds,
-			{
-				fields: ['id', 'teamIds'],
-				noCache: true
-			}
-		);
-		if (
-			users.length !== followerIds.length ||
-			users.find(user => !user.hasTeam(teamId))
-		) {
-			throw this.request.errorHandler.error('validation', { info: 'followers must contain only users on the team' });
-		}
 	}
 
 	// get user preferences of all users who can see this codemark, so we can determine who should follow a codemark

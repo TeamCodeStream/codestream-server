@@ -12,7 +12,7 @@ class InvalidReviewerTest extends ReviewersTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'reviewers must contain only users on the team'
+			info: 'must contain only users on the team'
 		};
 	}
 

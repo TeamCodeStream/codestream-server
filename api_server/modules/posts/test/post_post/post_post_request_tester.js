@@ -180,6 +180,9 @@ const NoReviewAndCodemarkTest = require('./reviews/no_review_and_codemark_test')
 const NoReplyWithReviewTest = require('./reviews/no_reply_with_review_test');
 const InvalidRepoIdInChangesetTest = require('./reviews/invalid_repo_id_in_change_set_test');
 const RepoFromWrongTeamInChangesetTest = require('./reviews/repo_from_wrong_team_in_change_set_test');
+const AuthorsTest = require('./reviews/authors_test');
+const InvalidAuthorTest = require('./reviews/invalid_author_test');
+const AuthorNotOnTeamTest = require('./reviews/author_not_on_team_test');
 
 class PostPostRequestTester {
 
@@ -382,6 +385,9 @@ class PostPostRequestTester {
 		new NoReplyWithReviewTest().test();
 		new InvalidRepoIdInChangesetTest().test();
 		new RepoFromWrongTeamInChangesetTest().test();
+		new AuthorsTest().test();
+		new InvalidAuthorTest().test();
+		new AuthorNotOnTeamTest().test();
 	}
 }
 
