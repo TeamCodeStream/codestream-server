@@ -1,4 +1,4 @@
-// provides the User model for handling users
+// provides the msteams_conversation model for handling msteams_conversations
 
 'use strict';
 

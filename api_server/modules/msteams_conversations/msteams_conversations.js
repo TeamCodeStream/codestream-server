@@ -1,9 +1,10 @@
-// provide a module to handle requests associated with users
+// provide a module to handle requests associated with msteams_conversations
 
 'use strict';
 
 const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const Errors = require('./errors');
+const MSTeamsConversation = require('./msteams_conversation');
 
 // // expose these restful routes
 const STANDARD_ROUTES = {
@@ -26,11 +27,12 @@ class MSTeamsConversations extends Restful {
 	}
 
 	get creatorClass () {
+		// there is no way via the API to create these (they're only done internally)
 		return null;
 	}
 
 	get modelClass () {
-		return null;	// use this class for the data model
+		return MSTeamsConversation;	// use this class for the data model
 	}
 
 	get modelDescription () {
@@ -38,11 +40,13 @@ class MSTeamsConversations extends Restful {
 	}
 
 	get updaterClass () {
-		return null;	// use this class to update users
+		// there is no way via the API to update these (they're only done internally)
+		return null;
 	}
 
 	get deleterClass () {
-		return null;	// user this class to delete users
+		// there is no way via the API to delete these (they're only done internally)
+		return null;
 	}
 
 	// get all routes exposed by this module
@@ -51,8 +55,7 @@ class MSTeamsConversations extends Restful {
 		return standardRoutes;
 	}
 
-	initialize () {		
-	}
+	initialize () {	}
 
 	describeErrors () {
 		return {

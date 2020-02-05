@@ -1,4 +1,7 @@
-// provide a module to handle requests associated with users
+// provide a module to handle requests associated with msteams_teams
+
+// NOTE: there are no outward facing Restful calls for this collection
+// all operations are internal
 
 'use strict';
 

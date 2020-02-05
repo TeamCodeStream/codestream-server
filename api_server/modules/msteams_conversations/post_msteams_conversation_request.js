@@ -1,4 +1,7 @@
-// handle the "POST /msteams_conversations" request to initiate a proactive message to an MS Teams bot
+// handle the "POST /msteams_conversations" request to initiate a 
+// "proactive" message to an MS Teams bot
+// see: https://docs.microsoft.com/en-us/graph/teams-proactive-messaging
+
 /*eslint complexity: ["error", 666]*/
 
 'use strict';
@@ -11,7 +14,7 @@ const MSTeamsConversationIndexes = require(process.env.CS_API_TOP + '/modules/ms
 const MSTeamsBotFrameworkAdapter = require(process.env.CS_API_TOP + '/modules/providers/msteams_bot_framework_adapter');
 
 class PostMSTeamsConversationRequest extends PostRequest {
-	// authorize the request for the current user
+	// authorize the request for the current user	
 	async authorize () {
 		this.codemarkId = decodeURIComponent(this.request.body.codemarkId || '');
 		if (!this.codemarkId) {
@@ -34,8 +37,14 @@ class PostMSTeamsConversationRequest extends PostRequest {
 		}
 	}
 
+	async postProcess () {		
+		// since there's no creator class here (we're not actually creating antything via this POST [just triggering])...
+		// override the base so we have a noop				
+	}
+
 	async createCodemarkHeroCard (codemark) {
 		// This example shows how to create a "task" aka button for triggering a model for our replies
+
 		// return [CardFactory.heroCard('Codemark', codemark.get('text'), null, // No images
 		// 	[
 		// 		// {
@@ -93,6 +102,7 @@ class PostMSTeamsConversationRequest extends PostRequest {
 				});
 			}
 
+			// make the line numbers
 			const locationWhenCreated = marker.get('locationWhenCreated');
 			let codeStartingLineNumber;
 			let codeEndingLineNumber;
@@ -110,7 +120,6 @@ class PostMSTeamsConversationRequest extends PostRequest {
 					}
 				}
 			}
-
 			let line = codeStartingLineNumber && codeEndingLineNumber &&
 				codeStartingLineNumber === codeEndingLineNumber ? `(Line ${codeStartingLineNumber})` :
 				`(Lines ${codeStartingLineNumber}-${codeEndingLineNumber})`;
@@ -139,8 +148,8 @@ class PostMSTeamsConversationRequest extends PostRequest {
 				});
 			}
 
-			// this is actually "small", but there's no where to put it after the buttons
-			//	<br><small>Posted via CodeStream</small>
+			// TODO: this is actually "small", but there's no where to put it after the buttons
+			// <br><small>Posted via CodeStream</small>
 			const repoName = (reposById[marker.get('repoId')] || {}).name;
 			const card = CardFactory.heroCard('',
 				`${titleAndOrText}<br><br>
@@ -155,7 +164,6 @@ class PostMSTeamsConversationRequest extends PostRequest {
 		return attachments;
 	}
 
-
 	escapeHtml(s) {
 		return s
 			.replace(/&/g, '&amp;')
@@ -165,7 +173,7 @@ class PostMSTeamsConversationRequest extends PostRequest {
 			.replace(/'/g, '&#039;');
 	}
 
-	// unused, but might be required if we change how the text is formatted
+	// unused, but might be required if we change how the text is later formatted
 	whiteSpaceToHtml (text) {
 		return text
 			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
@@ -175,9 +183,8 @@ class PostMSTeamsConversationRequest extends PostRequest {
 			.replace(/\n/g, '<br/>');
 	}
 
-	async process () {		
-		const adapter = MSTeamsBotFrameworkAdapter.instance();
-
+	async process () {
+		// we generically call channels what Microsoft refers to as conversations
 		const conversations = await this.data.msteams_conversations.getByQuery({
 			conversationId: this.channelId
 		}, {
@@ -215,7 +222,7 @@ class PostMSTeamsConversationRequest extends PostRequest {
 
 		// we send a "proactive" message by calling the continueConversation function
 		// passing in the stored conversation reference.
-		await adapter.continueConversation(conversation, async turnContext => {
+		await MSTeamsBotFrameworkAdapter.continueConversation(conversation, async turnContext => {
 			await turnContext.sendActivity({
 				attachments: attachments,
 				attachmentLayout: 'carousel'

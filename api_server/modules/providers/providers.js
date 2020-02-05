@@ -13,6 +13,8 @@ const RestfulErrors = require(process.env.CS_API_TOP +
 const AuthErrors = require(process.env.CS_API_TOP +
 	'/modules/authenticator/errors');
 const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
+const MSTeamsConversationBot = require('./msteams_conversation_bot');
+
 const ROUTES = [
 	{
 		method: 'put',
@@ -151,6 +153,12 @@ class Providers extends APIServerModule {
 				next();
 			});
 		};
+	}
+
+	initialize () {
+		MSTeamsConversationBot.initialize({
+			publicApiUrl: this.api.config.api.publicApiUrl
+		});		 
 	}
 
 	// describe any errors associated with this module, for help

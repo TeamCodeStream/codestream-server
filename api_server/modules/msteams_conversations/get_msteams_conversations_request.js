@@ -1,4 +1,5 @@
-// handle the "GET /msteams_conversations" request to fetch several users
+// handle the "GET /msteams_conversations" request to fetch several ms teams conversations
+// that were stored by the MS Teams bot in mongo
 
 'use strict';
 
@@ -20,7 +21,8 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 		if (!this.teamId) {
 			return this.errorHandler.error('parameterRequired', { info: 'teamId' });
 		}
-		// tenantId is the id that MS assigns the organization
+		// tenantId is the id that MS assigns the entire organization 
+		// (where an organization is a collection of teams)
 		if (!tenantId) {
 			return this.errorHandler.error('parameterRequired', { info: 'tenantId' });
 		}
@@ -30,7 +32,7 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 	}
 
 	buildQuery () {
-		// if we don't have a tenantId based on this team, then we aren't connected
+		// if we don't have a tenantId based on this team, then we aren't connected -- kick out
 		if (!this.tenantId) return null;
 
 		const query = {
@@ -40,7 +42,7 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 		return query;
 	}
 
-	async postFetchHook () {	
+	async postFetchHook () {
 		// we need to mixin the name of the team to each of the conversations	
 		const msTeamsTeams = await this.data.msteams_teams.getByQuery({ tenantId: this.tenantId }, {
 			hint: MSTeamsTeamsIndexes.byTenantId
@@ -51,11 +53,13 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 			return map;
 		}, {});
 		for (const model of this.models) {
-			model.attributes.teamName = idHash[model.get('msTeamsTeamId')].get('name');
-		}		
+			const team = idHash[model.get('msTeamsTeamId')];
+			if (!team) continue;
+
+			model.attributes.teamName = team.get('name');
+		}
 	}
 
-	// get options to use in the query to fetch users
 	getQueryOptions () {
 		// provide appropriate index, by teamId & tenantId
 		return {
@@ -63,7 +67,7 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 		};
 	}
 
-	// is this team and tenant connected?
+	// is this CS team and MS tenant connected?
 	isConnected (team, tenantId) {
 		if (!team || team.get('deactivated')) return undefined;
 
@@ -76,9 +80,11 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 		const providerInfo = team.get('providerBotInfo');
 		if (!providerInfo) return undefined;
 
-		if (providerInfo.msteams.tenantId &&
+		if (providerInfo.msteams &&
+			providerInfo.msteams.tenantId &&
 			providerInfo.msteams.data &&
 			providerInfo.msteams.data.connected) {
+			// we need to make sure it's connected before returning the tenantId
 			return providerInfo.msteams.tenantId;
 		}
 		return undefined;

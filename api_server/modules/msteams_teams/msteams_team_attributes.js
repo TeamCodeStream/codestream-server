@@ -16,6 +16,6 @@ module.exports = {
 	tenantId: {
 		type: 'string',
 		maxLength: 100,
-		description: 'The id of the MS tenant'
+		description: 'The id of the MS tenant (organization)'
 	}
 };

@@ -1,3 +1,10 @@
+// this is the actual MS Teams bot implementation
+// it handles messages with the onMessage handler, passing any data-oriented
+// operations to a database adapter, then finally posting a message back to the user via sendActivity
+
+// certain commands only work in certain instances (personal bot channel vs. a "public" channel) -- they are grouped
+// in the switch statement
+
 /*eslint complexity: ["error", 666]*/
 const {
 	TurnContext,
@@ -12,6 +19,7 @@ const PERSONAL_BOT_MESSAGE = 'Please run this command from your personal bot cha
 const TEAM_BOT_MESSAGE = 'Please run this command from a team channel.';
 
 class MSTeamsConversationBot extends TeamsActivityHandler {
+	// note this is a singleton, and no instance members should be used
 	constructor () {
 		super();
 
@@ -89,7 +97,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			const text = context.activity.text.trim();
 			// if this looks like a guid without hypens (aka a signup token...)
 			if (text.match(/^[0-9a-f]{8}[0-9a-f]{4}[0-5][0-9a-f]{3}[089ab][0-9a-f]{3}[0-9a-f]{12}$/i)) {
-				const result = await this.databaseAdapter.complete({
+				const result = await context.turnState.get('cs_databaseAdapter').complete({
 					tenantId: channelData.tenant.id,
 					token: text
 				});
@@ -111,10 +119,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			}
 			else {
 				switch (text) {
-				case 'Help':
-				case 'help':
-					await this.help(context);
-					break;
+				// start secret commands
 				case 'EasterEgg':
 				case 'easterEgg':
 				case 'easteregg':
@@ -127,26 +132,9 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 						await this.disconnectAll(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
 					}
 					break;
-				case 'disconnect':
-				case 'Disconnect':
-					if (teamId) {
-						await this.disconnect(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
-					}
-					else {
-						await context.sendActivity(TEAM_BOT_MESSAGE);
-					}
-					break;
-				case 'logout':
-				case 'Logout':
-				case 'signout':
-				case 'Signout':
-					if (teamId) {
-						await context.sendActivity(PERSONAL_BOT_MESSAGE);
-					}
-					else {
-						await this.signout(context);
-					}
-					break;
+					// end secret commands
+
+				// start personal commands
 				case 'Login':
 				case 'login':
 				case 'Signin':
@@ -167,6 +155,20 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 						await this.signup(context);
 					}
 					break;
+				case 'logout':
+				case 'Logout':
+				case 'signout':
+				case 'Signout':
+					if (teamId) {
+						await context.sendActivity(PERSONAL_BOT_MESSAGE);
+					}
+					else {
+						await this.signout(context);
+					}
+					break;
+					// end personal commands
+
+				// start commands that work in public chats/teams
 				case 'connect':
 				case 'Connect':
 					if (teamId) {
@@ -176,30 +178,41 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 						await context.sendActivity(TEAM_BOT_MESSAGE);
 					}
 					break;
+				case 'disconnect':
+				case 'Disconnect':
+					if (teamId) {
+						await this.disconnect(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
+					}
+					else {
+						await context.sendActivity(TEAM_BOT_MESSAGE);
+					}
+					break;
+				// start commands that work everywhere
+				case 'Help':
+				case 'help':
+					await this.help(context);
+					break;
 				case 'Welcome':
 				default:
 					await context.sendActivity('I\'m not sure about that command, but thanks for checking out CodeStream. Type the `help` if you need anything.');
 					break;
+				// end commands that work everywhere
 				}
 			}
 			await next();
 		});
 	}
 
-	attachHandler (handler, options) {
-		this.databaseAdapter = handler;
+	// assign any request-specific data on the first instance
+	initialize (options) {
 		Object.assign(this, options);
 	}
 
-	async process () {
-		// this will be a way to capture any state for this request
-		return await this.databaseAdapter.process();
-	}
-
+	// connects the channel to CodeStream
 	async connect (context, activity, teamDetails, teamChannels, tenantId) {
 		const conversationReference = TurnContext.getConversationReference(activity);
 
-		const result = await this.databaseAdapter.connect({
+		const result = await context.turnState.get('cs_databaseAdapter').connect({
 			conversation: conversationReference,
 			team: teamDetails,
 			tenantId: tenantId,
@@ -214,10 +227,11 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		return result;
 	}
 
+	// disconnects the channel from CodeStream
 	async disconnect (context, activity, teamDetails, teamChannels, tenantId) {
 		const conversationReference = TurnContext.getConversationReference(activity);
 
-		const result = await this.databaseAdapter.disconnect({
+		const result = await context.turnState.get('cs_databaseAdapter').disconnect({
 			conversation: conversationReference,
 			team: teamDetails,
 			tenantId: tenantId,
@@ -233,8 +247,9 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		return result;
 	}
 
+	// secret command: disconnects all the teams, aka removes them from msteams_team collection
 	async disconnectAll (context, activity, teamDetails, teamChannels, tenantId) {
-		const result = await this.databaseAdapter.disconnectAll({
+		const result = await context.turnState.get('cs_databaseAdapter').disconnectAll({
 			teamId: teamDetails.id,
 			tenantId: tenantId
 		});
@@ -248,8 +263,9 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		return result;
 	}
 
+	// signs the user out of CodeStream (is pretty much a noop)
 	async signout (context) {
-		const result = await this.databaseAdapter.signout({
+		const result = await context.turnState.get('cs_databaseAdapter').signout({
 			tenantId: context.activity.channelData.tenant.id
 		});
 		if (result) {
@@ -260,12 +276,14 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		}
 	}
 
+	// secret command: you're awesome!
 	async easterEgg (context) {
 		await context.sendActivity(MessageFactory.text('You\'re awesome!'));
 	}
 
+	// returns a way for a user to signin if their team is not connected
 	async signin (context) {
-		const result = await this.databaseAdapter.isTeamConnected({
+		const result = await context.turnState.get('cs_databaseAdapter').isTeamConnected({
 			tenantId: context.activity.channelData.tenant.id
 		});
 		if (result === 'Already connected') {
@@ -280,7 +298,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					{
 						type: ActionTypes.OpenUrl,
 						title: 'Sign in',
-						value: `${this.api.config.api.publicApiUrl}/web/login?tenantId=` + context.activity.channelData.tenant.id
+						value: `${this.publicApiUrl}/web/login?tenantId=` + context.activity.channelData.tenant.id
 					}
 				]);
 
@@ -291,6 +309,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		}
 	}
 
+	// provides a way for a user to signup
 	async signup (context) {
 		const card = CardFactory.heroCard('', 'Download the CodeStream IDE extension to get started!', null,
 			[
@@ -305,6 +324,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 	}
 
+	// returns a link for help
 	async help (context) {
 		const card = CardFactory.heroCard('', 'CodeStream help is just a click away!', null,
 			[
@@ -433,4 +453,4 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	/* modal end */
 }
 
-module.exports = MSTeamsConversationBot;
+module.exports = new MSTeamsConversationBot();

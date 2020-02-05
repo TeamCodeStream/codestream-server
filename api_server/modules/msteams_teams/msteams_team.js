@@ -1,4 +1,4 @@
-// provides the User model for handling users
+// provides the MSTeamsTeam model for handling MS Teams teams
 
 'use strict';
 

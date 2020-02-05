@@ -1,4 +1,4 @@
-// Errors related to the users module
+// Errors related to the ms teams conversation module
 
 'use strict';
 

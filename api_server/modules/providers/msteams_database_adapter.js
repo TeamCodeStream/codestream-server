@@ -1,3 +1,7 @@
+// This is the bridge between an ms teams bot and the CodeStream backend
+// They both roughly have the same method surface.
+// This class should be instantiated for each request that the ms teams bot handles
+
 'use strict';
 
 /*eslint complexity: ["error", 666]*/
@@ -9,47 +13,13 @@ const MSTeamsConversationIndexes = require(process.env.CS_API_TOP + '/modules/ms
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 
-class MSTeamsCallbackHandler {
+class MSTeamsDatabaseAdapter {
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	async getTeamByTenant (tenantId) {
-		const query = {
-			providerIdentities: `msteams::${tenantId}`,
-			deactivated: false
-		};
-		const team = await this.data.teams.getOneByQuery(
-			query,
-			{ hint: TeamIndexes.byProviderIdentities }
-		);
-		return team;
-	}
-
-	async isTeamConnected (tenantId, team) {
-		if (!team) {
-			team = await this.getTeamByTenant(tenantId);
-		}
-		if (!team || team.get('deactivated')) return false;
-
-		const providerIdentities = team.get('providerIdentities');
-		if (!providerIdentities) return false;
-
-		const msteam = providerIdentities.find(_ => _ === `msteams::${tenantId}`);
-		if (!msteam) return false;
-
-		const providerInfo = team.get('providerBotInfo');
-		if (!providerInfo) return false;
-
-		if (providerInfo.tenantId === tenantId &&
-			providerInfo.data &&
-			providerInfo.data.connected) {
-			return true;
-		}
-		return false;
-	}
-
 	async process () {
+		// eventually this will need to capture state for replies / telemetry
 		return false;
 	}
 
@@ -148,9 +118,6 @@ class MSTeamsCallbackHandler {
 					if (!msteam) {
 						addToSet = true;
 					}
-					else {
-						// exists
-					}
 				}
 				else {
 					addToSet = true;
@@ -163,7 +130,7 @@ class MSTeamsCallbackHandler {
 				}
 
 				this.transforms.teamUpdate = await new ModelSaver({
-					request: this,
+					request: this.request,
 					collection: this.data.teams,
 					id: team.id
 				}).save(op);
@@ -179,11 +146,11 @@ class MSTeamsCallbackHandler {
 
 	async connect (conversationReference) {
 		try {
-			this.api.log('connecting...');
+			this.api.log(`connecting tenantId=${conversationReference.tenantId}...`);
 			const team = await this.getTeamByTenant(conversationReference.tenantId);
 			const isConnected = await this.isTeamConnected(conversationReference.tenantId, team);
 			if (isConnected) {
-				this.api.log(`tenantId=${conversationReference.tenantId} is not connected`);
+				this.api.log(`tenantId=${conversationReference.tenantId} is already connected`);
 				return false;
 			}
 			// the conversationId comes in as a two part string like...
@@ -223,9 +190,9 @@ class MSTeamsCallbackHandler {
 			}
 
 			let msTeamsTeam = await this.data.msteams_teams.getByQuery({
-				teamId: conversationReference.team.id
+				msTeamsTeamId: conversationReference.team.id
 			}, {
-				hint: MSTeamsTeamsIndexes.byTeamId,
+				hint: MSTeamsTeamsIndexes.byMSTeamsTeamId,
 				noCache: true,
 				ignoreCache: true
 			});
@@ -261,6 +228,41 @@ class MSTeamsCallbackHandler {
 		}
 	}
 
+	async getTeamByTenant (tenantId) {
+		const query = {
+			providerIdentities: `msteams::${tenantId}`,
+			deactivated: false
+		};
+		const team = await this.data.teams.getOneByQuery(
+			query,
+			{ hint: TeamIndexes.byProviderIdentities }
+		);
+		return team;
+	}
+
+	async isTeamConnected (tenantId, team) {
+		if (!team) {
+			team = await this.getTeamByTenant(tenantId);
+		}
+		if (!team || team.get('deactivated')) return false;
+
+		const providerIdentities = team.get('providerIdentities');
+		if (!providerIdentities) return false;
+
+		const msteam = providerIdentities.find(_ => _ === `msteams::${tenantId}`);
+		if (!msteam) return false;
+
+		const providerInfo = team.get('providerBotInfo');
+		if (!providerInfo) return false;
+
+		if (providerInfo.tenantId === tenantId &&
+			providerInfo.data &&
+			providerInfo.data.connected) {
+			return true;
+		}
+		return false;
+	}
+
 	async updateUsers (team, conversationReference) {
 		const users = await this.data.users.getByQuery({
 			teamIds: team.id,
@@ -272,14 +274,16 @@ class MSTeamsCallbackHandler {
 		);
 		this.transforms.userUpdates = [];
 		for (const user of users) {
-			const op2 = {
+			const op = {
 				$set: {}
 			};
 			// NOTE: these accessTokens can be anything that isn't empty
+			// just the existence of these objects along with an msteams_conversation
+			// is enough to post to their tenant/team
 			let existingProviderInfo = ((user.get('providerInfo') || {})[team.id] || {})['msteams'] || {};
 			if (existingProviderInfo && Object.keys(existingProviderInfo).length) {
 				let providerInfoKey = `providerInfo.${team.id}.msteams`;
-				op2.$set[`${providerInfoKey}.multiple.${conversationReference.tenantId}`] = {
+				op.$set[`${providerInfoKey}.multiple.${conversationReference.tenantId}`] = {
 					...{
 						accessToken: 'MSTEAMS'
 					}, extra: {
@@ -289,7 +293,7 @@ class MSTeamsCallbackHandler {
 			}
 			else {
 				if (!user.get('providerInfo')) {
-					op2.$set[`providerInfo.${team.id}.msteams.multiple.${conversationReference.tenantId}`] = {
+					op.$set[`providerInfo.${team.id}.msteams.multiple.${conversationReference.tenantId}`] = {
 						...{
 							accessToken: 'MSTEAMS'
 						}, extra: {
@@ -299,13 +303,13 @@ class MSTeamsCallbackHandler {
 				}
 			}
 
-			op2.$set.modifiedAt = Date.now();
+			op.$set.modifiedAt = Date.now();
 			this.transforms.userUpdates.push(await new ModelSaver({
 				request: this.request,
 				collection: this.data.users,
 				id: user.id
-			}).save(op2));
+			}).save(op));
 		}
 	}
 }
-module.exports = MSTeamsCallbackHandler;
+module.exports = MSTeamsDatabaseAdapter;

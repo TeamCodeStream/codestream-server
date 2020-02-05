@@ -25,8 +25,6 @@ class PostRequest extends RestfulRequest {
 
 	// after the request has been processed and response returned to the client....
 	async postProcess () {
-		if (!this.creator) return;
-		
 		await this.creator.postCreate();		
 	}
 

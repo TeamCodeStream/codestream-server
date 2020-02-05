@@ -12,8 +12,8 @@ const SlackCfg = require(process.env.CS_API_TOP + '/config/slack');
 const crypto = require('crypto');
 const AddTeamPublisher = require(process.env.CS_API_TOP + '/modules/users/add_team_publisher');
 const MSTeamsConversationBot = require('./msteams_conversation_bot');
-const MSTeamsCallbackHandler = require('./msteams_callback_handler');
 const MSTeamsBotFrameworkAdapter = require('./msteams_bot_framework_adapter');
+const MSTeamsDatabaseAdapter = require('./msteams_database_adapter');
 
 const CODE_PROVIDERS = {
 	github: 'GitHub',
@@ -22,9 +22,6 @@ const CODE_PROVIDERS = {
 	'azure-devops': 'Azure DevOps',
 	vsts: 'Azure DevOps'
 };
-
-// we want this to be a singleton
-let msTeamsBot;
 
 class ProviderActionRequest extends RestfulRequest {
 	constructor (options) {
@@ -56,14 +53,11 @@ class ProviderActionRequest extends RestfulRequest {
 		let data;
 		this.provider = this.request.params.provider.toLowerCase();
 		if (this.provider === 'msteams') {
-			if (!msTeamsBot) {
-				msTeamsBot = new MSTeamsConversationBot();
-			}
-			this.handler = new MSTeamsCallbackHandler(this);
-			msTeamsBot.attachHandler(this.handler, this);
-
-			await MSTeamsBotFrameworkAdapter.instance().processActivity(this.request, this.response, async (context) => {
-				await msTeamsBot.run(context);
+			await MSTeamsBotFrameworkAdapter.processActivity(this.request, this.response, async (context) => {
+				// we MUST instantiate this adapter for each request
+				this.handler = new MSTeamsDatabaseAdapter(this);
+				context.turnState.set('cs_databaseAdapter', this.handler);
+				await MSTeamsConversationBot.run(context);				
 			});
 			// we need the response to go back to MS
 			this.responseHandled = true;
@@ -327,7 +321,6 @@ class ProviderActionRequest extends RestfulRequest {
 			return super.handleResponse();
 		}
 
-
 		// handle various data transforms that may have occurred as a result of creating the post,
 		// adding objects to the response returned
 		const { transforms } = this;
@@ -348,26 +341,6 @@ class ProviderActionRequest extends RestfulRequest {
 		if (transforms.updatedCodemarks) {
 			this.postPublishData.codemarks = transforms.updatedCodemarks;
 		}
-
-		// if (transforms.teamUpdate) {
-		// 	const teamId = transforms.teamUpdate.id;
-		// 	const channel = 'team-' + teamId;
-		// 	const message = {
-		// 		team: transforms.teamUpdate,
-		// 		requestId: this.request.id
-		// 	};
-		// 	try {
-		// 		await this.api.services.broadcaster.publish(
-		// 			message,
-		// 			channel,
-		// 			{ request: this }
-		// 		);
-		// 	}
-		// 	catch (error) {
-		// 		// this doesn't break the chain, but it is unfortunate...
-		// 		this.warn(`Could not publish updated team message to team ${teamId}: ${JSON.stringify(error)}`);
-		// 	}
-		// }
 
 		if (this.handler && this.handler.postCreator) {
 			this.postPublishData.post = this.handler.postCreator.model.getSanitizedObject({
@@ -396,9 +369,6 @@ class ProviderActionRequest extends RestfulRequest {
 			}
 
 		}
-		// if (this.handler && this.handler.createdUser) {
-		// 	this.transforms.createdUser = this.handler.createdUser;
-		// }
 
 		if (this.handler && this.handler.createdUser) {
 			this.transforms.createdUser = this.handler.createdUser;
