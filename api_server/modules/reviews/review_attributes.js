@@ -92,5 +92,10 @@ module.exports = {
 		type: 'arrayOfIds',
 		maxLength: 100,
 		description: 'The IDs of repos corresponding to the changesets associated with this code review'
+	},
+	authorsById: {
+		type: 'object',
+		maxLength: 1000,
+		description: 'Hash where user IDs are keys, indicating the authors of code referenced by this code review'
 	}
 };
