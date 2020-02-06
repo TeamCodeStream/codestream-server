@@ -134,7 +134,9 @@
 		"msteams": {
 			"<appProvider>": {
 				"appClientId": "MS Teams API client Id [CSSVC_MSTEAMS_CLIENT_ID]",
-				"appClientSecret": "MS Teams API secret [CSSVC_MSTEAMS_CLIENT_SECRET]"
+				"appClientSecret": "MS Teams API secret [CSSVC_MSTEAMS_CLIENT_SECRET]",
+				"botAppId": "Sharing MS Teams Bot App Id [CSSVC_MSTEAMS_BOT_APP_ID]",
+				"botAppPassword": "Sharing MS Teams Bot App Password [CSSVC_MSTEAMS_BOT_APP_PASS]"
 			}
 		},
 		"slack": {
@@ -151,7 +153,7 @@
 				"appStrictClientSecret": "Slack strict app secret",
 				"appStrictId": "Slack strict app Id",
 				"appStrictSigningSecret": "Slack strict app signing secret",
-				"interactiveComponentsEnabled": "enable interactive component callbacks"
+				"interactiveComponentsEnabled": "configures Slack app interactive callback capabilities"
 			}
 		},
 		"trello": {

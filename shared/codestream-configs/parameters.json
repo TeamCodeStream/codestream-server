@@ -426,6 +426,14 @@
 				"appClientSecret": {
 					"desc": "MS Teams API secret",
 					"env": "CSSVC_MSTEAMS_CLIENT_SECRET"
+				},
+				"botAppId": {
+					"desc": "Sharing MS Teams Bot App Id",
+					"env": "CSSVC_MSTEAMS_BOT_APP_ID"
+				},
+				"botAppPassword": {
+					"desc": "Sharing MS Teams Bot App Password",
+					"env": "CSSVC_MSTEAMS_BOT_APP_PASS"
 				}
 			}
 		},
@@ -469,6 +477,10 @@
 				"appStrictSigningSecret": {
 					"default": null,
 					"desc": "Slack strict app signing secret"
+				},
+				"interactiveComponentsEnabled": {
+					"default": false,
+					"desc": "configures Slack app interactive callback capabilities"
 				}
 			}
 		},
