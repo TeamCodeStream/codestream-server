@@ -133,7 +133,7 @@
 		"msteams": {
 			"microsoft.com": {
 				"defaultEnv": {
-					"_loadSecretsFile": "microsoft/teams-dev.cfg"
+					"_loadSecretsFile": "microsoft/teams-local.cfg"
 				}
 			}
 		},
