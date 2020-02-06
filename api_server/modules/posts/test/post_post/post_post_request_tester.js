@@ -129,6 +129,12 @@ const NoFollowCreationByPreferenceTest = require('./codemarks/no_follow_creation
 const NoFollowDirectStreamByPreferenceTest = require('./codemarks/no_follow_direct_stream_by_preference_test');
 const NoFollowMentionByPreferenceTest = require('./codemarks/no_follow_mention_by_preference_test');
 const NoFollowRepliesByPreferenceTest = require('./codemarks/no_follow_replies_by_preference_test');
+const AttachToReviewTest = require('./codemarks/attach_to_review_test');
+const ReviewNotFoundTest = require('./codemarks/review_not_found_test');
+const ReviewACLTest = require('./codemarks/review_acl_test');
+const ReviewACLTeamTest = require('./codemarks/review_acl_team_test');
+const ReviewOnDifferentTeamTest = require('./codemarks/review_on_different_team_test');
+const ChangeRequestTest = require('./codemarks/change_request_test');
 
 // concerning reviews...
 const ReviewTest = require('./reviews/review_test');
@@ -331,6 +337,12 @@ class PostPostRequestTester {
 		new NoFollowDirectStreamByPreferenceTest().test();
 		new NoFollowMentionByPreferenceTest().test();
 		new NoFollowRepliesByPreferenceTest().test();
+		new AttachToReviewTest().test();
+		new ReviewNotFoundTest().test();
+		new ReviewACLTest().test();
+		new ReviewACLTeamTest().test();
+		new ReviewOnDifferentTeamTest().test();
+		new ChangeRequestTest().test();
 
 		// concerning reviews...
 		// we do a subset of the tests for codemarks, assuming that marker validation 

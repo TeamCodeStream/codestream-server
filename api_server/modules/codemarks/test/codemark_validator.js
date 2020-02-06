@@ -17,6 +17,7 @@ class CodemarkValidator {
 		// verify we got back an codemark with the attributes we specified
 		const codemark = data.codemark;
 		const expectedOrigin = this.expectedOrigin || '';
+		const status = this.test.expectedStatus || this.inputCodemark.status;
 		let errors = [];
 		let result = (
 			((codemark.id === codemark._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
@@ -27,7 +28,7 @@ class CodemarkValidator {
 			((codemark.modifiedAt >= codemark.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((codemark.creatorId === this.test.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
 			((codemark.type === this.inputCodemark.type) || errors.push('type does not match')) &&
-			((codemark.status === this.inputCodemark.status) || errors.push('status does not match')) &&
+			((codemark.status === status) || errors.push('status does not match')) &&
 			((codemark.color === this.inputCodemark.color) || errors.push('color does not match')) &&
 			((codemark.text === this.inputCodemark.text) || errors.push('text does not match')) &&
 			((codemark.title === this.inputCodemark.title) || errors.push('title does not match')) &&

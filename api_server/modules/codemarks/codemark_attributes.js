@@ -158,5 +158,13 @@ module.exports = {
 	lastActivityAt: {
 		type: 'timestamp',
 		description: 'If the codemark has replies, same as lastReplyAt, otherwise same as createdAt'
+	},
+	reviewId: {
+		type: 'id',
+		description: 'The code review this codemark is attached to, if any'
+	},
+	isChangeRequest: {
+		type: 'boolean',
+		description: 'Whether this codemark represents a change request against its attached code review'
 	}
 };

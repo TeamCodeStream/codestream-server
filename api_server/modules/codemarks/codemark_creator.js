@@ -84,8 +84,8 @@ class CodemarkCreator extends ModelCreator {
 				string: ['teamId', 'type']
 			},
 			optional: {
-				boolean: ['_dontCreatePermalink'],
-				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderHost', 'externalProviderUrl', 'createPermalink'],
+				boolean: ['isChangeRequest', '_dontCreatePermalink'],
+				string: ['postId', 'streamId', 'parentPostId', 'reviewId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderHost', 'externalProviderUrl', 'createPermalink'],
 				object: ['remoteCodeUrl', 'threadUrl'],
 				'array(object)': ['markers', 'externalAssignees'],
 				'array(string)': ['assignees', 'relatedCodemarkIds', 'tags', 'followerIds']
@@ -164,6 +164,14 @@ class CodemarkCreator extends ModelCreator {
 
 		// validate assignees, for issues
 		await this.codemarkHelper.validateAssignees({}, this.attributes);
+
+		// handle this codemark as attached to a review, if applicable
+		if (this.attributes.reviewId) {
+			await this.handleReviewCodemark();
+		}
+		else {
+			delete this.attributes.isChangeRequest; // not applicable outside of a code review codemark
+		}
 
 		// handle followers, either passed in or default for the given situation
 		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(
@@ -255,6 +263,24 @@ class CodemarkCreator extends ModelCreator {
 		else {
 			this.transforms.createdMarkers = this.transforms.createdMarkers || [];
 			this.transforms.createdMarkers.push(marker);
+		}
+	}
+
+	// handle a codemark created as part of a code review
+	async handleReviewCodemark () {
+		// first make sure the user has access to the review, and that it belongs to the same team
+		this.attributes.reviewId = this.attributes.reviewId.toLowerCase();
+		this.review = await this.user.authorizeReview(this.attributes.reviewId, this.request);
+		if (!this.review) {
+			throw this.errorHandler.error('createAuth', { reason: 'user does not have access to the review' });
+		}
+		if (this.review.get('teamId') !== this.attributes.teamId) {
+			throw this.errorHandler.error('createAuth', { reason: 'review does not belong to the team that would own the codemark' });
+		}
+
+		// if this is a change request, set the codemark change request status to "open"
+		if (this.attributes.isChangeRequest) {
+			this.attributes.status = 'open';
 		}
 	}
 
