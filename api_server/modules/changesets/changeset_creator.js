@@ -26,6 +26,7 @@ class ChangesetCreator extends ModelCreator {
 			this.attributes._forTesting = true;
 		}
 		this.attributes.reviewId = this.reviewId;
+		this.attributes.creatorId = this.request.user.id;
 		await super.preSave();	// proceed with the save...
 	}
 }

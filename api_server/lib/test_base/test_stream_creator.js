@@ -172,7 +172,7 @@ class TestStreamCreator {
 			!this.postOptions.changesetRepoIds &&
 			this.repo
 		) {
-			this.postOptions.changSetRepoId = this.repo.id;
+			this.postOptions.changesetRepoId = this.repo.id;
 		}
 		if (this.postOptions.wantMarkers || 
 			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantMarkers)) {

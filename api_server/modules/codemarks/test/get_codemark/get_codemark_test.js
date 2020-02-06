@@ -9,7 +9,10 @@ class GetCodemarkTest extends CodeStreamAPITest {
 	constructor (options) {
 		super(options);
 		this.teamOptions.creatorIndex = 1;
-		this.streamOptions.creatorIndex = 1;
+		Object.assign(this.streamOptions, {
+			type: this.type || 'channel',
+			creatorIndex: 1
+		});
 		Object.assign(this.postOptions, {
 			creatorIndex: 1,
 			wantCodemark: true

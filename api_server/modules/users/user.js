@@ -179,7 +179,7 @@ class User extends CodeStreamModel {
 		if (!changeset) {
 			throw request.errorHandler.error('notFound', { info: 'changeset' });
 		}
-		const authorized = this.authorizeReview(id, request);
+		const authorized = await this.authorizeReview(changeset.get('reviewId'), request);
 		return authorized ? changeset : false;
 	}
 

@@ -14,28 +14,14 @@ class RandomReviewFactory {
 	getRandomReviewData (options = {}) {
 		const data = {
 			title: RandomString.generate(50),
-			status: RandomString.generate(10),
+			status: 'open',
 			text: RandomString.generate(100),
-			reviewChangesets: this.getRandomChangesets(options)
+			reviewChangesets: this.changesetFactory.getRandomChangesets(options.numChanges, options)
 		};
 		if (options.wantMarkers) {
 			data.markers = this.markerFactory.createRandomMarkers(options.wantMarkers, options);
 		}
 		return data;
-	}
-
-	// get a random change set for a code review
-	getRandomChangesets (options = {}) {
-		const numChanges = options.numChanges || 1;
-		const changes = [];
-		for (let i = 0; i < numChanges; i++) {
-			const repoId = options.changesetRepoIds ? options.changesetRepoIds[i] : options.changesetRepoId;
-			changes.push({
-				repoId,
-				branch: RandomString.generate(20)
-			});
-		}
-		return changes;
 	}
 }
 
