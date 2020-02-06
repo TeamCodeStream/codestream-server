@@ -214,6 +214,9 @@
 				"defaultEnv": {
 					"_loadSecretsFile": "microsoft/teams-dev.cfg"
 				},
+				"local": {
+					"_loadSecretsFile": "microsoft/teams-local.cfg"
+				},
 				"prod": {
 					"_loadSecretsFile": "microsoft/teams-prod.cfg"
 				},
