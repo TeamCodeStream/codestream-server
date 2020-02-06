@@ -16,6 +16,7 @@ const EXPECTED_CHANGESET_FIELDS = [
 	'branch',
 	'commits',
 	'diffs',
+	'diffStart',
 	'modifiedFiles',
 	'includeSaved',
 	'includeStaged'

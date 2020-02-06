@@ -111,6 +111,7 @@ class RandomChangesetFactory {
 		const data = {
 			repoId: options.changesetRepoId,
 			branch: this.markerFactory.randomBranch(),
+			diffStart: this.repoFactory.randomCommitHash(),
 			commits: [
 				{ ...SAMPLE_COMMIT1 },
 				{ ...SAMPLE_COMMIT2 }

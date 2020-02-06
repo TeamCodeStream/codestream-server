@@ -32,6 +32,11 @@ module.exports = {
 		maxObjectLength: 10000,
 		description: 'diff info associated with this changeset'
 	},
+	diffStart: {
+		type: 'string',
+		maxLength: 40,
+		description: 'Commit hash from which the diff was made when this code review was started'
+	},
 	modifiedFiles: {
 		type: 'arrayOfObjects',
 		maxLength: 1000,

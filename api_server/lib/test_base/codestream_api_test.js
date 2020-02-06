@@ -53,7 +53,8 @@ class CodeStreamAPITest extends APIRequestTest {
 		});
 		this.changesetFactory = new RandomChangesetFactory({
 			apiRequester: this,
-			markerFactory: this.markerFactory
+			markerFactory: this.markerFactory,
+			repoFactory: this.repoFactory
 		});
 		this.reviewFactory = new RandomReviewFactory({
 			apiRequester: this,
