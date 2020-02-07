@@ -183,6 +183,12 @@ class CodemarkCreator extends ModelCreator {
 		}
 
 		// handle followers, either passed in or default for the given situation
+		// if this codemark is being attached to a review, make sure the creator of the review is
+		// added as a follower of the codemark 
+		this.attributes.followerIds = this.attributes.followerIds || [];
+		if (this.review && !this.attributes.followerIds.includes(this.review.get('creatorId'))) {
+			this.attributes.followerIds.push(this.review.get('creatorId'));
+		}
 		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(
 			this.attributes,
 			{
