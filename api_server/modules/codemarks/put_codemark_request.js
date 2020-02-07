@@ -26,6 +26,11 @@ class PutCodemarkRequest extends PutRequest {
 			}
 		}
 
+		// only issues or change requests can have status change
+		if (this.request.body.status && this.codemark.get('type') !== 'issue' && !this.codemark.get('isChangeRequest')) {
+			throw this.errorHandler.error('updateAuth', { reason: 'can not change the status of a codemark type that is not an issue or a change request' });
+		}
+
 		// in the most general case, the author can edit anything they want about a codemark
 		if (this.codemark.get('creatorId') === this.user.id) {
 			return;
@@ -41,11 +46,6 @@ class PutCodemarkRequest extends PutRequest {
 			return ['tags', 'status'].indexOf(attribute) === -1;
 		})) {
 			throw this.errorHandler.error('updateAuth', { reason: 'only the creator of the codemark can make this update' });
-		}
-
-		// only issues can have status change
-		if (this.request.body.status && this.codemark.get('type') !== 'issue') {
-			throw this.errorHandler.error('updateAuth', { reason: 'can not change the status of a codemark type that is not an issue' });
 		}
 	}
 

@@ -166,7 +166,7 @@ class CodemarkCreator extends ModelCreator {
 		await this.codemarkHelper.validateAssignees({}, this.attributes);
 
 		// handle this codemark as attached to a review, if applicable
-		if (this.attributes.parentPostId) {
+		if (this.attributes.parentPostId && !this.attributes.providerType) {
 			this.parentPost = await this.data.posts.getById(this.attributes.parentPostId);
 			if (!this.parentPost) {
 				throw this.errorHandler.error('notFound', { info: 'parent post' });
@@ -285,6 +285,11 @@ class CodemarkCreator extends ModelCreator {
 		}
 		if (this.review.get('teamId') !== this.attributes.teamId) {
 			throw this.errorHandler.error('createAuth', { reason: 'review does not belong to the team that would own the codemark' });
+		}
+
+		// allow only comment type codemarks
+		if (this.attributes.type !== 'comment') {
+			throw this.errorHandler.error('validation', { reason: 'codemarks attached to reviews can only be comment-type codemarks' });
 		}
 
 		// if this is a change request, set the codemark change request status to "open"

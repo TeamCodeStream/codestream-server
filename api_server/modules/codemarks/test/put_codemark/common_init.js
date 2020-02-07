@@ -82,7 +82,6 @@ class CommonInit {
 	// get the data to use when issuing the test request	
 	getCodemarkUpdateData () {
 		const data = {
-			status: RandomString.generate(8),
 			title: RandomString.generate(100),
 			text: RandomString.generate(100)
 		};
