@@ -25,5 +25,10 @@ module.exports = {
 	byLastActivityAt: {
 		teamId: 1,
 		lastActivityAt: -1
+	},
+	byReviewId: {
+		teamId: 1,
+		reviewId: 1,
+		lastActivityAt: -1
 	}
 };

@@ -30,14 +30,14 @@ class GetCodemarksRequest extends GetManyRequest {
 
 	// build the database query to use to fetch the markers
 	buildQuery () {
-		let numParameters = ['type', 'fileStreamId', 'streamId'].reduce((numParameters, parameter) => {
+		let numParameters = ['type', 'fileStreamId', 'streamId', 'reviewId'].reduce((numParameters, parameter) => {
 			return numParameters + (this.request.query[parameter] ? 1 : 0);
 		}, 0);
 		if (numParameters > 1) {
-			return 'can not query on more than one of: type, fileStreamId, and streamId';
+			return 'can not query on more than one of: type, fileStreamId, streamId, and reviewId';
 		}
-		if (numParameters === 1 && this.request.query.byLastActivityAt) {
-			return 'can not query on type, fileStreamId, and streamId and also on lastActivityAt';
+		if (numParameters === 1 && !this.request.query.reviewId && this.request.query.byLastActivityAt) {
+			return 'can not query on type, fileStreamId, or streamId and also on lastActivityAt';
 		}
 		const query = {
 			teamId: this.teamId
@@ -51,7 +51,11 @@ class GetCodemarksRequest extends GetManyRequest {
 		else if (this.request.query.type) {
 			query.type = this.request.query.type;
 		}
-		const indexAttribute = this.request.query.byLastActivityAt ? 'lastActivityAt' : 'createdAt';
+		else if (this.request.query.reviewId) {
+			query.reviewId = this.request.query.reviewId;
+		}
+
+		const indexAttribute = (this.request.query.byLastActivityAt || this.request.query.reviewId) ? 'lastActivityAt' : 'createdAt';
 		let { before, after, inclusive } = this.request.query;
 		inclusive = inclusive !== undefined;
 		if (before !== undefined) {
@@ -95,13 +99,16 @@ class GetCodemarksRequest extends GetManyRequest {
 		else if (this.request.query.streamId) {
 			hint = Indexes.byStreamId;
 		}
+		else if (this.request.query.reviewId) {
+			hint = Indexes.byReviewId;
+		}
 		else if (this.request.query.byLastActivityAt) {
 			hint = Indexes.byLastActivityAt;
 		}
 		else {
 			hint = Indexes.byTeamId;
 		}
-		const sortAttribute = this.request.query.byLastActivityAt ? 'lastActivityAt' : 'createdAt';
+		const sortAttribute = (this.request.query.byLastActivityAt || this.request.query.reviewId) ? 'lastActivityAt' : 'createdAt';
 		return {
 			hint,
 			sort: { [sortAttribute]: -1 }
