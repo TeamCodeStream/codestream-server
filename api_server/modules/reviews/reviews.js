@@ -27,7 +27,17 @@ const REVIEW_ADDITIONAL_ROUTES = [
 		method: 'get',
 		path: 'reviews/diffs/:reviewId',
 		requestClass: require('./get_review_diffs_request')
-	}
+	},
+	{
+		method: 'put',
+		path: 'reviews/add-reviewer/:id',
+		requestClass: require('./add_reviewer_request')
+	},
+	{
+		method: 'put',
+		path: 'reviews/remove-reviewer/:id',
+		requestClass: require('./remove_reviewer_request')
+	},
 	/*
 	{
 		method: 'put',
