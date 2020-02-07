@@ -85,7 +85,7 @@ class CodemarkCreator extends ModelCreator {
 			},
 			optional: {
 				boolean: ['isChangeRequest', '_dontCreatePermalink'],
-				string: ['postId', 'streamId', 'parentPostId', 'reviewId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderHost', 'externalProviderUrl', 'createPermalink'],
+				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderHost', 'externalProviderUrl', 'createPermalink'],
 				object: ['remoteCodeUrl', 'threadUrl'],
 				'array(object)': ['markers', 'externalAssignees'],
 				'array(string)': ['assignees', 'relatedCodemarkIds', 'tags', 'followerIds']
@@ -166,8 +166,17 @@ class CodemarkCreator extends ModelCreator {
 		await this.codemarkHelper.validateAssignees({}, this.attributes);
 
 		// handle this codemark as attached to a review, if applicable
-		if (this.attributes.reviewId) {
-			await this.handleReviewCodemark();
+		if (this.attributes.parentPostId) {
+			this.parentPost = await this.data.posts.getById(this.attributes.parentPostId);
+			if (!this.parentPost) {
+				throw this.errorHandler.error('notFound', { info: 'parent post' });
+			}
+			if (this.parentPost.get('reviewId')) {
+				await this.handleReviewCodemark();
+			}
+			else {
+				delete this.attributes.isChangeRequest; // not applicable outside of a code review codemark
+			}
 		}
 		else {
 			delete this.attributes.isChangeRequest; // not applicable outside of a code review codemark
@@ -269,7 +278,7 @@ class CodemarkCreator extends ModelCreator {
 	// handle a codemark created as part of a code review
 	async handleReviewCodemark () {
 		// first make sure the user has access to the review, and that it belongs to the same team
-		this.attributes.reviewId = this.attributes.reviewId.toLowerCase();
+		this.attributes.reviewId = this.parentPost.get('reviewId');
 		this.review = await this.user.authorizeReview(this.attributes.reviewId, this.request, { excludeFields: ['reviewDiffs'] });
 		if (!this.review) {
 			throw this.errorHandler.error('createAuth', { reason: 'user does not have access to the review' });

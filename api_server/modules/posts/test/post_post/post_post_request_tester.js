@@ -130,7 +130,6 @@ const NoFollowDirectStreamByPreferenceTest = require('./codemarks/no_follow_dire
 const NoFollowMentionByPreferenceTest = require('./codemarks/no_follow_mention_by_preference_test');
 const NoFollowRepliesByPreferenceTest = require('./codemarks/no_follow_replies_by_preference_test');
 const AttachToReviewTest = require('./codemarks/attach_to_review_test');
-const ReviewNotFoundTest = require('./codemarks/review_not_found_test');
 const ReviewACLTest = require('./codemarks/review_acl_test');
 const ReviewACLTeamTest = require('./codemarks/review_acl_team_test');
 const ReviewOnDifferentTeamTest = require('./codemarks/review_on_different_team_test');
@@ -338,7 +337,6 @@ class PostPostRequestTester {
 		new NoFollowMentionByPreferenceTest().test();
 		new NoFollowRepliesByPreferenceTest().test();
 		new AttachToReviewTest().test();
-		new ReviewNotFoundTest().test();
 		new ReviewACLTest().test();
 		new ReviewACLTeamTest().test();
 		new ReviewOnDifferentTeamTest().test();

@@ -234,8 +234,16 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 		this.parentPost = await this.data.posts.getById(this.model.get('parentPostId'));
+		if (!this.parentPost) { 
+			throw this.errorHandler.error('notFound', { info: 'parent post' });
+		}
+
 		if (this.parentPost.get('parentPostId')) {
-			throw this.errorHandler.error('noReplyToReply');
+			// the only reply to a reply we allow is if the parent post of the post we are replying to is a review post
+			const grandParentPost = await this.data.posts.getById(this.parentPost.get('parentPostId'));
+			if (grandParentPost && !grandParentPost.get('reviewId')) {
+				throw this.errorHandler.error('noReplyToReply');
+			}
 		}
 		await this.updateParentPost();
 		await this.updateParentCodemark();

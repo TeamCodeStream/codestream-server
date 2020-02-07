@@ -31,7 +31,7 @@ class AttachToReviewTest extends CodemarkMarkerTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.codemark.reviewId = this.postData[0].review.id;
+			this.data.parentPostId = this.postData[0].post.id;
 			callback();
 		});
 	}
@@ -39,7 +39,8 @@ class AttachToReviewTest extends CodemarkMarkerTest {
 	/* eslint complexity: 0 */
 	// validate the response to the post request
 	validateResponse (data) {
-		Assert.equal(data.codemark.reviewId, this.data.codemark.reviewId, 'codemark\'s reviewId not set to id of the review');
+		Assert.equal(data.codemark.parentPostId, this.postData[0].post.id, 'codemark\'s parentPostId not set to the id of the review post');
+		Assert.equal(data.codemark.reviewId, this.postData[0].review.id, 'codemark\'s reviewId not set to id of the review');
 		super.validateResponse(data);
 	}
 }
