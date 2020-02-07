@@ -32,6 +32,10 @@ class AttachToReviewTest extends CodemarkMarkerTest {
 	makePostData (callback) {
 		super.makePostData(() => {
 			this.data.parentPostId = this.postData[0].post.id;
+			this.expectedFollowerIds = [
+				this.users[1].user.id,
+				this.users[0].user.id
+			];
 			callback();
 		});
 	}
