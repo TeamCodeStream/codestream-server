@@ -66,10 +66,7 @@ class MSTeamsDatabaseAdapter {
 				}
 			);
 			if (conversations && conversations.length) {
-				// can this be done as a set?
-				for (const id of conversations.map(_ => _.id)) {
-					await this.data.msteams_conversations.deleteById(id);
-				}
+				await this.data.msteams_conversations.deleteByIds(conversations.map(_ => _.id));
 				this.api.log(`${conversations.length} tenantId=${data.tenantId} msTeamsTeamId=${data.teamId} conversations deleted`);
 				return true;
 			}
@@ -150,8 +147,7 @@ class MSTeamsDatabaseAdapter {
 			const team = await this.getTeamByTenant(conversationReference.tenantId);
 			const isConnected = await this.isTeamConnected(conversationReference.tenantId, team);
 			if (isConnected) {
-				this.api.log(`tenantId=${conversationReference.tenantId} is already connected`);
-				return false;
+				this.api.log(`tenantId=${conversationReference.tenantId} is already connected, but we'll go ahead`);
 			}
 			// the conversationId comes in as a two part string like...
 			// 19:d2a0123443734813413414@thread.skype;messageid=184127312832193
@@ -185,7 +181,7 @@ class MSTeamsDatabaseAdapter {
 				channelName = teamChannel.name || 'General';
 			}
 			if (!channelName) {
-				this.api.log('cannot merge, no channel name');
+				this.api.log('cannot go ahead, there is no channel name');
 				return false;
 			}
 
@@ -228,16 +224,94 @@ class MSTeamsDatabaseAdapter {
 		}
 	}
 
+	async uninstall (conversationReference) {
+		let tenantId;
+		try {
+			tenantId = conversationReference.tenantId;
+			const team = await this.getTeamByTenant(tenantId);
+			if (team) {
+				const providerIdentities = team.get('providerIdentities');
+
+				if (providerIdentities) {
+					const op = {
+						$set: {
+							modifiedAt: Date.now()
+						},
+						$pull: {
+							providerIdentities: `msteams::${tenantId}`
+						},
+						$unset: {
+							providerBotInfo: 'msteams'
+						}
+					};
+					this.transforms.teamUpdate = await new ModelSaver({
+						request: this.request,
+						collection: this.data.teams,
+						id: team.id
+					}).save(op);
+				}
+			}
+		}
+		catch (ex) {
+			this.api.log(`uninstalling tenantId=${tenantId}...`, ex);
+			return false;
+		}
+		return true;
+	}
+
+	async debug (conversationReference) {
+		const tenantId = conversationReference.tenantId;
+		this.api.log(`debugging tenantId=${tenantId}...`);
+
+		let isTeamConnected = false;
+		let conversationsCount = -1;
+		let team;
+		let error;
+
+		try {
+			team = await this.getTeamByTenant(tenantId);
+			if (team) {
+				isTeamConnected = await this.isTeamConnected(tenantId, team);
+				const conversations = await this.data.msteams_conversations.getByQuery(
+					{
+						teamId: team.id,
+						tenantId: tenantId
+					},
+					{
+						hint: MSTeamsConversationIndexes.byTeamIdTenantIds
+					}
+				);
+				conversationsCount = conversations.length;
+			}
+
+		}
+		catch (ex) {
+			this.api.log(`debugging tenantId=${tenantId}...`, ex);
+			error = ex.message;
+		}
+		return {
+			csTeamId: team && team.id,
+			isTeamConnected: isTeamConnected,
+			conversationsCount: conversationsCount,
+			error: error
+		};
+	}
+
 	async getTeamByTenant (tenantId) {
 		const query = {
 			providerIdentities: `msteams::${tenantId}`,
 			deactivated: false
 		};
-		const team = await this.data.teams.getOneByQuery(
+		const teams = await this.data.teams.getByQuery(
 			query,
 			{ hint: TeamIndexes.byProviderIdentities }
 		);
-		return team;
+
+		if (teams && teams.length != 1) {
+			this.api.log(`multiple teams for this tenantId=${tenantId}...`);
+			return undefined;
+		}
+		return teams[0];
 	}
 
 	async isTeamConnected (tenantId, team) {
@@ -255,9 +329,12 @@ class MSTeamsDatabaseAdapter {
 		const providerInfo = team.get('providerBotInfo');
 		if (!providerInfo) return false;
 
-		if (providerInfo.tenantId === tenantId &&
-			providerInfo.data &&
-			providerInfo.data.connected) {
+		const providerMsTeams = providerInfo.msteams;
+		if (!providerMsTeams) return false;
+
+		if (providerMsTeams.tenantId === tenantId &&
+			providerMsTeams.data &&
+			providerMsTeams.data.connected) {
 			return true;
 		}
 		return false;

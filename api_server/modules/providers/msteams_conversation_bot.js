@@ -17,6 +17,7 @@ const {
 
 const PERSONAL_BOT_MESSAGE = 'Please run this command from your personal bot chat.';
 const TEAM_BOT_MESSAGE = 'Please run this command from a team channel.';
+const HELP_URL = 'https://github.com/TeamCodeStream/CodeStream/wiki/Microsoft-Teams-Integration';
 
 class MSTeamsConversationBot extends TeamsActivityHandler {
 	// note this is a singleton, and no instance members should be used
@@ -125,6 +126,12 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				case 'easteregg':
 					await this.easterEgg(context);
 					break;
+				case 'debug':
+					await this.debug(context);
+					break;
+				case 'uninstall':
+					await this.uninstall(context);
+					break;
 				case 'disconnectall':
 				case 'disconnect-all':
 				case 'DisconnectAll':
@@ -187,12 +194,23 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 						await context.sendActivity(TEAM_BOT_MESSAGE);
 					}
 					break;
-				// start commands that work everywhere
+					// end commands that work in public chats/teams
+				
+				// start commands that work everywhere			
+				case 'Welcome':
+				case 'welcome':
+				case 'start':
+				case 'init':
+				case 'initialize':
+				case 'ok':
+				case 'go':
+				case 'getstarted':
+					await this.start(context);
+					break;
 				case 'Help':
 				case 'help':
 					await this.help(context);
-					break;
-				case 'Welcome':
+					break;				
 				default:
 					await context.sendActivity('I\'m not sure about that command, but thanks for checking out CodeStream. Type the `help` if you need anything.');
 					break;
@@ -281,6 +299,29 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		await context.sendActivity(MessageFactory.text('You\'re awesome!'));
 	}
 
+	// sends out some debugging info
+	async debug (context) {
+		const tenantId = context.activity.channelData.tenant.id;
+		const serverDebug = await context.turnState.get('cs_databaseAdapter').debug({
+			tenantId: tenantId
+		});
+		const debug = {
+			api: this.publicApiUrl,
+			tenantId: tenantId
+		};
+		await context.sendActivity(MessageFactory.text(JSON.stringify({ ...serverDebug, ...debug }, null, 4)));
+	}
+
+	// uninstalls the app from the CS team based on the tenantId
+	// will only work if there is 1 CS team attached
+	async uninstall (context) {
+		const result = await context.turnState.get('cs_databaseAdapter').uninstall({
+			tenantId: context.activity.channelData.tenant.id
+		});
+
+		await context.sendActivity(MessageFactory.text(`Uninstall ${result ? 'succeeded' : 'failed'}`));
+	}
+
 	// returns a way for a user to signin if their team is not connected
 	async signin (context) {
 		const result = await context.turnState.get('cs_databaseAdapter').isTeamConnected({
@@ -324,6 +365,21 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 	}
 
+	// returns a link for getting started
+	async start (context) {
+		const card = CardFactory.heroCard('', 'Need help getting started? CodeStream help is just a click away!', null,
+			[
+				{
+					type: ActionTypes.OpenUrl,
+					title: 'Get Started',
+					value: HELP_URL
+				}
+			]);
+		await context.sendActivity({
+			attachments: [card]
+		});
+	}
+
 	// returns a link for help
 	async help (context) {
 		const card = CardFactory.heroCard('', 'CodeStream help is just a click away!', null,
@@ -331,7 +387,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				{
 					type: ActionTypes.OpenUrl,
 					title: 'Help',
-					value: 'https://github.com/TeamCodeStream/CodeStream/wiki/Participating-from-MS-Teams'
+					value: HELP_URL
 				}
 			]);
 		await context.sendActivity({
