@@ -143,6 +143,13 @@ class DataCollection {
 		this.toDeleteIds[id] = true;
 	}
 
+	// delete a set of models by ID
+	async deleteByIds (ids) {
+		ids.forEach(id => {
+			this.deleteById(id);
+		});
+	}
+
 	// perform a direct update operation, this essentially passes through to the database layer,
 	// no interaction with the cache at all, so should be used with caution to avoid sync problems
 	// between cache and database
