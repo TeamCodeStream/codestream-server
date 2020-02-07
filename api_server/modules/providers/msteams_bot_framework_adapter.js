@@ -11,8 +11,8 @@ const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 // using a single pattern for this class
 
 const MSTeamsBotFrameworkAdapter = new BotFrameworkAdapter({
-	appId: MSTeamsConfig.appClientId,
-	appPassword: MSTeamsConfig.appClientSecret
+	appId: MSTeamsConfig.botAppId,
+	appPassword: MSTeamsConfig.botAppPassword
 });
 MSTeamsBotFrameworkAdapter.onTurnError = async (context /*, error*/) => {
 	// This check writes out errors to console log .vs. app insights.
