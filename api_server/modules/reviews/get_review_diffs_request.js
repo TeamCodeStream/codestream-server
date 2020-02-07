@@ -4,7 +4,7 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 
-class GetReviewRequest extends RestfulRequest {
+class GetReviewDiffsRequest extends RestfulRequest {
 
 	async authorize () {
 		const reviewId = this.request.params.reviewId.toLowerCase();
@@ -34,4 +34,4 @@ class GetReviewRequest extends RestfulRequest {
 	}
 }
 
-module.exports = GetReviewRequest;
+module.exports = GetReviewDiffsRequest;

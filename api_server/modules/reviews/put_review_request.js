@@ -10,11 +10,11 @@ class PutReviewRequest extends PutRequest {
 	// authorize the request for the current user
 	async authorize () {
 		// first get the review
-		this.review = await this.data.reviews.getById(this.request.params.id);
+		const reviewId = this.request.params.id.toLowerCase();
+		this.review = await this.data.reviews.getById(reviewId, { excludeFields: ['reviewDiff'] });
 		if (!this.review) {
 			throw this.errorHandler.error('notFound', { info: 'codemark' });
 		}
-		delete this.review.attributes.reviewDiffs; // FIXMENOW
 
 		// in the most general case, the author can edit anything they want about a review
 		if (this.review.get('creatorId') === this.user.id) {

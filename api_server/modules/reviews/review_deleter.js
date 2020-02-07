@@ -31,11 +31,10 @@ class ReviewDeleter extends ModelDeleter {
 
 	// get the review
 	async getReview () {
-		this.review = await this.request.data.reviews.getById(this.id);
+		this.review = await this.request.data.reviews.getById(this.id, { excludeFields: ['reviewDiffs'] });
 		if (!this.review) {
 			throw this.errorHandler.error('notFound', { info: 'review' });
 		}
-		delete this.review.attritbutes.reviewDiffs; // FIXMENOW
 		if (this.review.get('deactivated')) {
 			throw this.errorHandler.error('alreadyDeleted');
 		}

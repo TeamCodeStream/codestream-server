@@ -22,7 +22,8 @@ class GetRequest extends RestfulRequest {
 	async process() {
 		// fetch the document by ID
 		let id = this.request.params.id;
-		this.model = await this.data[this.module.collectionName].getById(id);
+		const queryOptions = this.getQueryOptions();
+		this.model = await this.data[this.module.collectionName].getById(id, queryOptions);
 		const modelName = this.module.modelName || 'model';
 		if (!this.model) {
 			throw this.errorHandler.error('notFound', { info: modelName });
@@ -30,6 +31,11 @@ class GetRequest extends RestfulRequest {
 		this.responseData = this.responseData || {};
 		// sanitize it for returning to client (eliminate any attributes we don't want the client to see)
 		this.responseData[modelName] = this.model.getSanitizedObject({ request: this });
+	}
+
+	// return query options when fetching the document, override to actually provide options
+	getQueryOptions () {
+		return {};
 	}
 
 	// describe this route for help

@@ -6,11 +6,25 @@ const GetRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_reque
 
 class GetReviewRequest extends GetRequest {
 
+	async authorize () {
+		const reviewId = this.request.params.id.toLowerCase();
+		this.review = await this.user.authorizeReview(reviewId, this, { excludeFields: ['reviewDiffs'] });
+		if (!this.review) {
+			throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this review' });
+		}
+	}
+
 	async process () {
 		await super.process();
 		await this.getPost();		// get the post pointing to this review, if any
 		await this.getMarkers();	// get the markers referenced by this reivew, if any
-		delete this.responseData.review.reviewDiffs; // FIXMENOW
+	}
+
+	// get database options to associate with the database fetch request
+	getQueryOptions () {
+		return {
+			excludeFields: ['reviewDiffs']
+		};
 	}
 
 	// get the post pointing to this review, if any

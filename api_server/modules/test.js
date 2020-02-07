@@ -18,6 +18,7 @@ describe ('modules', () => {
 	require('./streams/test/test.js');
 	require('./posts/test/test.js');
 	require('./codemarks/test/test.js');
+	require('./reviews/test/test.js');
 	require('./markers/test/test.js');
 	require('./web/test/test.js');
 	require('./inbound_emails/test/test.js');

@@ -50,17 +50,10 @@ class CodeStreamAPITest extends APIRequestTest {
 			apiRequester: this,
 			markerFactory: this.markerFactory
 		});
-		/* FIXMENOW
-		this.changesetFactory = new RandomChangesetFactory({
-			apiRequester: this,
-			markerFactory: this.markerFactory,
-			repoFactory: this.repoFactory
-		});
-		*/
 		this.reviewFactory = new RandomReviewFactory({
 			apiRequester: this,
 			markerFactory: this.markerFactory,
-			changesetFactory: this.changesetFactory
+			repoFactory: this.repoFactory,
 		});
 		this.postFactory = new RandomPostFactory({
 			apiRequester: this,

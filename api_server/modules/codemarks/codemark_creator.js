@@ -270,7 +270,7 @@ class CodemarkCreator extends ModelCreator {
 	async handleReviewCodemark () {
 		// first make sure the user has access to the review, and that it belongs to the same team
 		this.attributes.reviewId = this.attributes.reviewId.toLowerCase();
-		this.review = await this.user.authorizeReview(this.attributes.reviewId, this.request);
+		this.review = await this.user.authorizeReview(this.attributes.reviewId, this.request, { excludeFields: ['reviewDiffs'] });
 		if (!this.review) {
 			throw this.errorHandler.error('createAuth', { reason: 'user does not have access to the review' });
 		}

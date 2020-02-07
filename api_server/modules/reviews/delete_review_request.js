@@ -12,11 +12,10 @@ class DeleteReviewRequest extends DeleteRequest {
 	async authorize () {
 		// get the review, only the author or the team admin can delete it
 		const reviewId = this.request.params.id.toLowerCase();
-		this.review = await this.data.reviews.getById(reviewId);
+		this.review = await this.data.reviews.getById(reviewId, { excludeFields: ['reviewDiffs'] });
 		if (!this.review) {
 			throw this.errorHandler.error('notFound', { info: 'review' });
 		}
-		delete this.review.attributesreviewDiffs; // FIXMENOW
 		this.team = await this.data.teams.getById(this.codemark.get('teamId'));
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team' });	// really shouldn't happen

@@ -94,10 +94,7 @@ class GetMarkersRequest extends GetManyRequest {
 		if (reviewIds.length === 0) {
 			return;
 		}
-		this.reviews = await this.data.reviews.getByIds(reviewIds);
-		this.reviews.forEach(r => {
-			delete r.attributes.reviewDiffs; // FIXMENOW
-		});
+		this.reviews = await this.data.reviews.getByIds(reviewIds, { excludeFields: ['reviewDiffs'] });
 		this.responseData.reviews = this.reviews.map(review => review.getSanitizedObject({ request: this }));
 	}
 

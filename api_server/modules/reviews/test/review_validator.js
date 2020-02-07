@@ -3,7 +3,6 @@
 const Assert = require('assert');
 const ReviewTestConstants = require('./review_test_constants');
 const MarkerValidator = require(process.env.CS_API_TOP + '/modules/markers/test/marker_validator');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
 class ReviewValidator {
 
@@ -36,24 +35,13 @@ class ReviewValidator {
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 
-		// verify the repo change set is the same as what was passed in
-		const expectedRepoIds = ArrayUtilities.unique(
-			this.test.data.review.reviewChangesets.map(changeset => changeset.repoId)
-		);
-		expectedRepoIds.sort();
-		const actualRepoIds = [...review.changesetRepoIds];
-		actualRepoIds.sort();
-		Assert.deepEqual(actualRepoIds, expectedRepoIds, 'review repo IDs not correct according to repos passed in');
-
-		// verify that we got changesets that correspond to the changesets passed in
-		const expectedChangesetIds = data.reviewChangesets.map(changeset => changeset.id);
-		expectedChangesetIds.sort();
-		const actualChangesetIds = review.reviewChangesetIds;
-		actualChangesetIds.sort();
-		Assert.deepEqual(actualChangesetIds, expectedChangesetIds, 'reviewChangesetIds in review do not match the the reviewChangesets in the response');
-
 		// verify the review in the response has no attributes that should not go to clients
-		this.test.validateSanitized(review, ReviewTestConstants.UNSANITIZED_ATTRIBUTES);
+		// in response to the POST request, we allow reviewDiffs, but it is normally not allowed to
+		// be returned to the client in any other fetch
+		const unsanitizedAttributes = [...ReviewTestConstants.UNSANITIZED_ATTRIBUTES];
+		const index = unsanitizedAttributes.indexOf('reviewDiffs');
+		unsanitizedAttributes.splice(index, 1);
+		this.test.validateSanitized(review, unsanitizedAttributes);
 
 		// if we are expecting a marker with the review, validate it
 		if (this.test.expectMarkers) {

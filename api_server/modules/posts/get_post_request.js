@@ -26,9 +26,8 @@ class GetPostRequest extends GetRequest {
 	async getReview () {
 		const reviewId = this.model.get('reviewId');
 		if (!reviewId) { return; }
-		this.review = await this.data.reviews.getById(reviewId);
+		this.review = await this.data.reviews.getById(reviewId, { excludeFields: ['reviewDiffs'] });
 		if (!this.review) { return; }
-		delete this.review.attributes.reviewDiffs; // FIXMENOW
 		this.responseData.review = this.review.getSanitizedObject({ request: this });
 	}
 

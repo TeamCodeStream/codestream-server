@@ -53,26 +53,26 @@ class User extends CodeStreamModel {
 	}
 
 	// authorize the user to "access" the given model, based on type
-	async authorizeModel (modelName, id, request) {
+	async authorizeModel (modelName, id, request, options = {}) {
 		switch (modelName) {
 		case 'company':
-			return await this.authorizeCompany(id, request);
+			return await this.authorizeCompany(id, request, options);
 		case 'team':
-			return await this.authorizeTeam(id, request);
+			return await this.authorizeTeam(id, request, options);
 		case 'repo':
-			return await this.authorizeRepo(id, request);
+			return await this.authorizeRepo(id, request, options);
 		case 'stream':
-			return await this.authorizeStream(id, request);
+			return await this.authorizeStream(id, request, options);
 		case 'post':
-			return await this.authorizePost(id, request);
+			return await this.authorizePost(id, request, options);
 		case 'marker':
-			return await this.authorizeMarker(id, request);
+			return await this.authorizeMarker(id, request, options);
 		case 'codemark': 
-			return await this.authorizeCodemark(id, request);
+			return await this.authorizeCodemark(id, request, options);
 		case 'review': 
-			return await this.authorizeReview(id, request);
+			return await this.authorizeReview(id, request, options);
 		case 'user':
-			return await this.authorizeUser(id, request);
+			return await this.authorizeUser(id, request, options);
 		default:
 			return false;
 		}
@@ -201,10 +201,10 @@ class User extends CodeStreamModel {
 	}
 
 	// authorize the user to "access" a review model, based on ID
-	async authorizeReview (id, request) {
+	async authorizeReview (id, request, options) {
 		// to access a review, the user must have access to the stream it belongs to
 		// (for read access)
-		const review = await request.data.reviews.getById(id);
+		const review = await request.data.reviews.getById(id, options);
 		if (!review) {
 			throw request.errorHandler.error('notFound', { info: 'review' });
 		}
