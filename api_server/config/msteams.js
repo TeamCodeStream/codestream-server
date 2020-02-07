@@ -10,8 +10,8 @@ let ShowCfg = process.env.CS_API_SHOW_CFG || false;
 let MsTeamsCfg = {
 	appClientId: null,
 	appClientSecret: null,
-	appSharingClientId: null,
-	appSharingClientSecret: null
+	botAppId: null,
+	botAppPassword: null
 };
 
 let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
