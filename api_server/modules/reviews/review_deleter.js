@@ -35,6 +35,7 @@ class ReviewDeleter extends ModelDeleter {
 		if (!this.review) {
 			throw this.errorHandler.error('notFound', { info: 'review' });
 		}
+		delete this.review.attritbutes.reviewDiffs; // FIXMENOW
 		if (this.review.get('deactivated')) {
 			throw this.errorHandler.error('alreadyDeleted');
 		}

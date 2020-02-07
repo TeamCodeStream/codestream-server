@@ -10,7 +10,6 @@ const ReviewAttributes = require('./review_attributes');
 const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
-const ChangesetCreator = require(process.env.CS_API_TOP + '/modules/changesets/changeset_creator');
 
 class ReviewCreator extends ModelCreator {
 
@@ -55,11 +54,6 @@ class ReviewCreator extends ModelCreator {
 		if (this.attributes.markers) {
 			await this.validateMarkers();
 		}
-
-		// same for the repo change-set, preemptively validate
-		if (this.attributes.reviewChangesets) {
-			await this.validateReviewChangesets();
-		}
 	}
 
 	// validate the markers sent with the review creation, this is too important to just drop,
@@ -75,22 +69,6 @@ class ReviewCreator extends ModelCreator {
 		);
 		if (result) {	// really an error
 			throw this.errorHandler.error('validation', { info: `markers: ${result}` });
-		}
-	}
-
-	// validate the repo change-sets sent with the review creation, this is too important to just drop,
-	// so we return an error instead
-	async validateReviewChangesets () {
-		const result = new Review().validator.validateArrayOfObjects(
-			this.attributes.reviewChangesets,
-			{
-				type: 'array(object)',
-				maxLength: ReviewAttributes.reviewChangesetIds.maxLength,
-				maxObjectLength: 1000000
-			}
-		);
-		if (result) {	// really an error
-			throw this.errorHandler.error('validation', { info: `reviewChangesets: ${result}` });
 		}
 	}
 
@@ -230,28 +208,11 @@ class ReviewCreator extends ModelCreator {
 		if (!this.attributes.reviewChangesets || !this.attributes.reviewChangesets.length) {
 			return;
 		}
+		this.attributes.reviewDiffs = {};
 		for (let changeset of this.attributes.reviewChangesets) {
-			await this.handleChangeset(changeset);
+			this.attributes.reviewDiffs[changeset.repoId] = changeset.diffs;
+			delete changeset.diffs;
 		}
-		this.attributes.reviewChangesetIds = this.transforms.createdChangesets.map(changeset => changeset.id);
-		this.attributes.changesetRepoIds = ArrayUtilities.unique(
-			this.transforms.createdChangesets.map(changeset => changeset.get('repoId'))
-		);
-		delete this.attributes.reviewChangesets;
-	}
-
-	// handle a single changeSet attached to the review
-	async handleChangeset (changesetInfo) {
-		// handle the change set itself separately
-		Object.assign(changesetInfo, {
-			teamId: this.team.id
-		});
-		const changeset = await new ChangesetCreator({
-			request: this.request,
-			reviewId: this.attributes.id
-		}).createChangeset(changesetInfo);
-		this.transforms.createdChangesets = this.transforms.createdChangesets || [];
-		this.transforms.createdChangesets.push(changeset);
 	}
 
 	// validate the reviewers ... all users must be on the same team

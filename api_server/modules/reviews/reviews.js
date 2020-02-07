@@ -23,6 +23,11 @@ const REVIEW_STANDARD_ROUTES = {
 
 // additional routes for this module
 const REVIEW_ADDITIONAL_ROUTES = [
+	{
+		method: 'get',
+		path: 'reviews/diffs/:reviewId',
+		requestClass: require('./get_review_diffs_request')
+	}
 	/*
 	{
 		method: 'put',

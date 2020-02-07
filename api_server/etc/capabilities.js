@@ -24,5 +24,9 @@ module.exports = {
 	'follow': {
 		description: 'Ability to follow or unfollow a codemark',
 		version: '1.21.27'
+	},
+	'lightningCodeReviews': {
+		description: 'Support for lightning code reviews',
+		version: '1.21.31'
 	}
 };

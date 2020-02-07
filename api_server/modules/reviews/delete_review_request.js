@@ -16,6 +16,7 @@ class DeleteReviewRequest extends DeleteRequest {
 		if (!this.review) {
 			throw this.errorHandler.error('notFound', { info: 'review' });
 		}
+		delete this.review.attributesreviewDiffs; // FIXMENOW
 		this.team = await this.data.teams.getById(this.codemark.get('teamId'));
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team' });	// really shouldn't happen

@@ -28,6 +28,7 @@ class GetPostRequest extends GetRequest {
 		if (!reviewId) { return; }
 		this.review = await this.data.reviews.getById(reviewId);
 		if (!this.review) { return; }
+		delete this.review.attributes.reviewDiffs; // FIXMENOW
 		this.responseData.review = this.review.getSanitizedObject({ request: this });
 	}
 

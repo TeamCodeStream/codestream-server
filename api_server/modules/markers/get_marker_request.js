@@ -26,6 +26,7 @@ class GetMarkerRequest extends GetRequest {
 		const reviewId = this.model.get('reviewId');
 		this.review = await this.data.reviews.getById(reviewId);
 		if (!this.review) { return; } // shouldn't happen
+		delete this.review.attributes.reviewDiffs; // FIXMENOW
 		this.responseData.review = this.review.getSanitizedObject({ request: this });
 	}
 

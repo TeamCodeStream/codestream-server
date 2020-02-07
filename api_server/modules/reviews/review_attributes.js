@@ -83,15 +83,15 @@ module.exports = {
 		maxLength: 50,
 		description: 'The IDs of any tags associated with this codemark'
 	},
-	reviewChangesetIds: {
-		type: 'arrayOfIds',
-		maxLength: 1000,
-		description: 'The IDs of changesets associated with this code review'
+	reviewChangesets: {
+		type: 'arrayOfObjects',
+		maxLength: 50,
+		maxObjectLength: 10000
 	},
-	changesetRepoIds: {
-		type: 'arrayOfIds',
-		maxLength: 100,
-		description: 'The IDs of repos corresponding to the changesets associated with this code review'
+	reviewDiffs: {
+		type: 'arrayOfObjects',
+		maxLength: 50,
+		maxObjectLength: 100000
 	},
 	authorsById: {
 		type: 'object',

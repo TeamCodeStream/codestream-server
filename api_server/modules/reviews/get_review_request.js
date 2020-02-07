@@ -10,6 +10,7 @@ class GetReviewRequest extends GetRequest {
 		await super.process();
 		await this.getPost();		// get the post pointing to this review, if any
 		await this.getMarkers();	// get the markers referenced by this reivew, if any
+		delete this.responseData.review.reviewDiffs; // FIXMENOW
 	}
 
 	// get the post pointing to this review, if any

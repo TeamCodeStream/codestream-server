@@ -14,6 +14,7 @@ class PutReviewRequest extends PutRequest {
 		if (!this.review) {
 			throw this.errorHandler.error('notFound', { info: 'codemark' });
 		}
+		delete this.review.attributes.reviewDiffs; // FIXMENOW
 
 		// in the most general case, the author can edit anything they want about a review
 		if (this.review.get('creatorId') === this.user.id) {

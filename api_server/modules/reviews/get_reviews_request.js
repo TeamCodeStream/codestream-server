@@ -26,6 +26,9 @@ class GetReviewsRequest extends GetManyRequest {
 		await super.process();	// do the usual "get-many" processing
 		await this.getPosts();	// get associated posts, as needed
 		await this.getMarkers();	// get associated markers, as needed
+		this.responseData.reviews.forEach(r => {
+			delete r.reviewDiffs;	// FIXMENOW
+		});
 	}
 
 	// build the database query to use to fetch the reviews

@@ -294,6 +294,7 @@ class PostCreator extends ModelCreator {
 		}
 		const review = await this.request.data.reviews.getById(this.parentPost.get('reviewId'));
 		if (!review) { return; }
+		delete review.attributes.reviewDiffs; // FIXMENOW
 
 		const now = Date.now();
 		const op = { 

@@ -278,6 +278,9 @@ class GetPostsRequest extends GetManyRequest {
 			return;
 		}
 		this.reviews = await this.data.reviews.getByIds(reviewIds);
+		this.reviews.forEach(r => {
+			delete r.attributes.reviewDiffs; // FIXMENOW
+		});
 		this.responseData.reviews = this.reviews.map(review => review.getSanitizedObject({ request: this }));
 	}
 
