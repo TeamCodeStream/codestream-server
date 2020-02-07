@@ -4,6 +4,35 @@ const DeepEqual = require('deep-equal');
 const DeepClone = require('../deep_clone');
 const ObjectID = require('mongodb').ObjectID;
 
+const ApplyProjection = function(document, projection) {
+	let isExclude = null;
+	const newDocument = {
+		_id: document._id
+	};
+	Object.keys(projection).forEach(key => {
+		if (projection[key]) {
+			if (isExclude === true) {
+				throw 'cannot have include and exclude field projection';
+			}
+			newDocument[key] = document[key];
+			isExclude = false;
+		}
+		else {
+			if (isExclude === false) {
+				throw 'cannot have exclude and include field projection';
+			}
+			delete document[key];
+			isExclude = true;
+		}
+	});
+	if (isExclude) {
+		return document;
+	}
+	else {
+		return newDocument;
+	}
+};
+
 class MockMongoCollection {
 
 	constructor (options) {
@@ -15,10 +44,14 @@ class MockMongoCollection {
 		this.collection = [];
 	}
 
-	async findOne (query) {
-		return this.collection.find(item => {
+	async findOne (query, options = {}) {
+		let document = this.collection.find(item => {
 			return this._itemMatchesQuery(item, query);
 		}) || null;
+		if (document && options.projection) {
+			document = ApplyProjection(document, options.projection);
+		}
+		return document;
 	}
 
 	find (query) {
@@ -472,7 +505,9 @@ class MockMongoCursor {
 
 	project (project) {
 		if (project && Object.keys(project).length > 0) {
-			this.documents = this._pruneDocuments(this.documents, project);
+			this.documents = this.documents.map(document => {
+				return ApplyProjection(document, project);
+			});
 		}
 		return this;
 	}
@@ -518,24 +553,6 @@ class MockMongoCursor {
 		if (a > b) return 1;
 		else if (a < b) return -1;
 		else return 0;
-	}
-
-	_pruneDocuments (documents, fields) {
-		return documents.map(document => {
-			return this._pruneDocument(document, fields);
-		});
-	}
-
-	_pruneDocument (document, fields) {
-		const resultDocument = {
-			_id: document._id
-		};
-		Object.keys(fields).forEach(field => {
-			if (fields[field]) {
-				resultDocument[field] = DeepClone(document[field]);
-			}
-		});
-		return resultDocument;
 	}
 }
 

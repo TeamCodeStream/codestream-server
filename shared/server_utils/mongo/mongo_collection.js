@@ -98,12 +98,19 @@ class MongoCollection {
 
 	// get a document by its ID, we'll shield the caller from having to maintain
 	// a mongo ID; they can use a simple string instead
-	async getById (id, options) {
+	async getById (id, options = {}) {
 		id = this.objectIdSafe(id);	// convert to mongo ID
 		if (!id) {
 			// no document if no ID!
 			return null;
 		}
+
+		const project = {};
+		this._normalizeFieldsOptions(options, project);
+		if (Object.keys(project).length > 0) {
+			options.projection = project;
+		}
+
 		let result = await this._runQuery(
 			'findOne',
 			{ _id: id },
@@ -220,6 +227,13 @@ class MongoCollection {
 			delete options.sort.id;
 		}
 
+		this._normalizeFieldsOptions(options, project);
+
+		return query;
+	}
+
+	// normalize fields options into a projection
+	_normalizeFieldsOptions (options, project) {
 		// turn id into _id in fields
 		if (options.fields) {
 			const index = options.fields.indexOf('id');
@@ -232,8 +246,15 @@ class MongoCollection {
 			});
 			delete options.fields;
 		}
-
-		return query;
+		else if (options.excludeFields) {
+			if (options.excludeFields.includes('id') || options.excludeFields.includes['_id']) {
+				throw 'cannot exclude ID field';
+			}
+			options.excludeFields.forEach(field => {
+				project[field] = 0;
+			});
+			delete options.excludeFields;
+		}
 	}
 
 	// create a document

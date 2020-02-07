@@ -37,6 +37,12 @@ const ApplyUpsertOpTest = require('./apply_upsert_op_test');
 const FindAndModifyTest = require('./find_and_modify_test');
 const ApplyWithVersionTest = require('./apply_with_version_test');
 const VersionMismatchTest = require('./version_mismatch_test');
+const GetByIdFieldsTest = require('./get_by_id_fields_test');
+const GetByIdExcludeFieldsTest = require('./get_by_id_exclude_fields_test');
+const GetByIdsFieldsTest = require('./get_by_ids_fields_test');
+const GetByIdsExcludeFieldsTest = require('./get_by_ids_exclude_fields_test');
+const GetByQueryFieldsTest = require('./get_by_query_fields_test');
+const GetByQueryExcludeFieldsTest = require('./get_by_query_exclude_fields_test');
 
 describe('mongo', function() {
 
@@ -74,4 +80,10 @@ describe('mongo', function() {
 	new FindAndModifyTest().test();
 	new ApplyWithVersionTest().test();
 	new VersionMismatchTest().test();
+	new GetByIdFieldsTest().test();
+	new GetByIdExcludeFieldsTest().test();
+	new GetByIdsFieldsTest().test();
+	new GetByIdsExcludeFieldsTest().test();
+	new GetByQueryFieldsTest().test();
+	new GetByQueryExcludeFieldsTest().test();
 });
