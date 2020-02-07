@@ -5,10 +5,12 @@ the logic surrounding it in the api_server. Unlike most 3rd party api flows, wit
 ## App/Bot Registration
 
 There is a 2-step process for creating bots in the Microsoft world:
-1 - first, create the bot in the botframework.com site (https://dev.botframework.com/bots)
-    - https://dev.botframework.com/bots/new
-2 - then create an 'app' for it in Azure 
-    - Go to https://portal.azure.com
+
+1 - first, create the bot here https://dev.botframework.com/bots
+- To create a new bot: https://dev.botframework.com/bots/new
+
+2 - Then create an 'app' for it in Azure 
+- Go to https://portal.azure.com
     - Go to `App registrations`
     - (or just go here, which might not work: https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps)
 
@@ -41,12 +43,15 @@ https://aka.ms/InstallTeamsAppStudio
 ## Manifest
 
 run the following commands to generate the env=specific manifest file(s)
-
+```
 node bin/cs_msteams_bot_manifest_creator.js -b 7bce9cff-9fd1-4e05-b7b5-5638ec468880 -e brian
-node bin/cs_msteams_bot_manifest_creator.js -b 1a08df08-b652-464a-bac3-bfa386dcfa6d -e pd
-node bin/cs_msteams_bot_manifest_creator.js -b XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -e qa
-node bin/cs_msteams_bot_manifest_creator.js -b 7cf49ab7-8b65-4407-b494-f02b525eef2b -e prod
 
+node bin/cs_msteams_bot_manifest_creator.js -b 1a08df08-b652-464a-bac3-bfa386dcfa6d -e pd
+
+node bin/cs_msteams_bot_manifest_creator.js -b XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -e qa
+
+node bin/cs_msteams_bot_manifest_creator.js -b 7cf49ab7-8b65-4407-b494-f02b525eef2b -e prod
+```
 
 ## Publishing
 
@@ -73,6 +78,57 @@ When a CS team gets associated, we store on `team` an entry in `providerIdentiti
 Once a user has signed in, they can connect the bot to any team channel on any team in any 
 of the teams for that tenant. Upon connecting, we store a reference to the MS Teams team in `msteams_team`,
 along with the _conversation_ (aka channel) and store that in `msteams_conversations`. Once this happens we update all the users on the team, giving them a `providerInfo.<teamId>.msteams.multiple.<tenantId>` object. Here, the accessToken doesn't matter, it just needs to be a string. We don't actually need an accessToken, as we will be querying teams/conversations that are gathered from the MS Teams CodeStream bot.
+
+## Bot Commands
+These are the commands that you can issue the CodeStream bot for msteams
+
+### secret commands
+These are unlisted commands. There's nothing "secret" about that, just that they're more intended for debugging rather than for the MS Teams user
+
+```easteregg```
+You'll just have to find out
+
+```debug```
+Returns some debugging info
+
+```uninstall```
+Removes the data attached to the CS team
+
+```disconnectall```
+Removes all the channels from this MS Teams team that are mapped in `msteams_conversations` (slightly descructive as it could affect other team members, but it's a way to start "fresh")
+
+
+### personal channels
+These commands can only be used when communicated 1-on-1 with the CodeStream bot:
+
+```signin (alias: login)```
+Returns a link for a user to begin the auth flow
+
+```signup```
+Returns a link for a user to signup
+
+```signout (alias: logout)```
+Doesn't really do anything
+
+### public channels
+These commands only work in public channels:
+
+```connect```
+Adds this channel as a possible target for codemark sharing
+
+```disconnect```
+Removes this channel as a possible target for codemark charing
+
+### any channel
+These commands work anywhere: 
+
+```help``` shows a help link
+
+```start (aliased: welcome, init, initialize)```
+Shows a message about getting started
+
+
+every other command just else shows a generic message asking the user if they need help.
 
 ### CodeStream IDE
 When a user begins creating a codemark, we attempt to `GET` all the conversations that they've

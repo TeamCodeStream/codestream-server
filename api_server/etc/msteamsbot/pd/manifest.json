@@ -3,9 +3,9 @@
     "manifestVersion": "1.5",
     "version": "1.0.0",
     "id": "1a08df08-b652-464a-bac3-bfa386dcfa6d",
-    "packageName": "codestream.codestream",
+    "packageName": "codestream.codestream-pd",
     "developer": {
-        "name": "CodeStream",
+        "name": "CodeStream-pd",
         "websiteUrl": "https://www.codestream.com",
         "privacyUrl": "https://www.codestream.com/privacy",
         "termsOfUseUrl": "https://www.codestream.com/terms"
@@ -15,11 +15,11 @@
         "outline": "outline.png"
     },
     "name": {
-        "short": "CodeStream",
-        "full": "CodeStream"
+        "short": "CodeStream-pd",
+        "full": "CodeStream-pd"
     },
     "description": {
-        "short": "CodeStream",
+        "short": "CodeStream-pd",
         "full": "The world's best code discussion tool! A code discussion tool is the foundation that streamlines your existing workflows and development activity. Take the pain out of code reviews, resolve issues faster, and dramatically improve code quality by increasing communication between the developers on your team."
     },
     "accentColor": "#009AEF",

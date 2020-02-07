@@ -23,6 +23,13 @@ if (!Commander.botId && !Commander.env) {
 	try {
 		var text = fs.readFileSync(process.env.CS_API_TOP + '/etc/msteamsbot/template/manifest.json', 'utf8');
 		text = text.replace(/{{botId}}/g, Commander.botId);
+		if (Commander.env === 'prod') {
+			// don't put any env for prod
+			text = text.replace(/{{env}}/g, '');
+		}
+		else {
+			text = text.replace(/{{env}}/g, `-${Commander.env}`);
+		}
 		let json = JSON.parse(text);
 		fs.writeFileSync(`${process.env.CS_API_TOP}/etc/msteamsbot/${Commander.env}/manifest.json`, JSON.stringify(json, null, 4));
 		process.exit();
