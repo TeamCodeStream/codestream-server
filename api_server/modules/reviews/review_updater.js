@@ -23,7 +23,7 @@ class ReviewUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['title', 'description']
+			string: ['title', 'text', 'status']
 		};
 	}
 

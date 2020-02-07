@@ -13,7 +13,7 @@ class PutReviewRequest extends PutRequest {
 		const reviewId = this.request.params.id.toLowerCase();
 		this.review = await this.data.reviews.getById(reviewId, { excludeFields: ['reviewDiff'] });
 		if (!this.review) {
-			throw this.errorHandler.error('notFound', { info: 'codemark' });
+			throw this.errorHandler.error('notFound', { info: 'review' });
 		}
 
 		// in the most general case, the author can edit anything they want about a review
@@ -22,26 +22,21 @@ class PutReviewRequest extends PutRequest {
 		}
 
 		// the rest can only be done by other members of the team
-		if (!this.user.hasTeam(this.codemark.get('teamId'))) {
+		if (!this.user.hasTeam(this.review.get('teamId'))) {
 			throw this.errorHandler.error('updateAuth', { reason: 'user must be on the team that owns the review' });
 		}
 
-		// TODO: 
-	}
-
-	// process the request itself...
-	async process () {
-		this.wantEmailNotification = this.request.body.wantEmailNotification;
-		delete this.request.body.wantEmailNotification;
-		return super.process();
+		// team members can only change a review's status
+		if (Object.keys(this.request.body).find(attribute => {
+			return ['status'].indexOf(attribute) === -1;
+		})) {
+			throw this.errorHandler.error('updateAuth', { reason: 'only the creator of the review can make this update' });
+		}
 	}
 
 	// after the review is updated...
 	async postProcess () {
 		await this.publishReview();
-		if (this.wantEmailNotification) {
-			this.sendEmailNotification();
-		}
 	}
 
 	// publish the review to the appropriate broadcaster channel(s)
@@ -53,26 +48,16 @@ class PutReviewRequest extends PutRequest {
 		}).publishReview();
 	}
 
-	// send email notifications to followers of the review
-	sendEmailNotification () {
-		const postId = this.updater.review.get('postId');
-		const message = {
-			type: 'notification_v2',
-			postId
-		};
-		this.log(`Triggering V2 email notifications for post ${postId}...`);
-		this.api.services.email.queueEmailSend(message, { request: this.request });
-	}
-
 	// describe this route for help
 	static describe (module) {
 		const description = PutRequest.describe(module);
-		description.access = 'Only the creator of a review can update it <TBD>';
+		description.access = 'Only the creator of a review can update it, with the exception of status';
 		description.input = {
 			summary: description.input,
 			looksLike: {
 				'title': '<Change the title of the review>',
-				'description': '<Change the description of the review>'
+				'text': '<Change the text of the review>',
+				'status': '<Change the status of the review>'
 			}
 		};
 		description.publishes = {

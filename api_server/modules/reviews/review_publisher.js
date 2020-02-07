@@ -10,10 +10,10 @@ class ReviewPublisher {
 
 	async publishReview () {
 		let channel;
-		const stream = this.stream || await this.request.data.streams.getById(this.codemark.get('streamId'));
+		const stream = this.stream || await this.request.data.streams.getById(this.review.get('streamId'));
 		if (!stream) { return; } // sanity
 		channel = stream.get('isTeamStream') ? 
-			`team-${this.codemark.get('teamId')}` : 
+			`team-${this.review.get('teamId')}` : 
 			`stream-${stream.id}`;
 		const message = Object.assign({}, this.data, {
 			requestId: this.request.request.id
