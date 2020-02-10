@@ -200,7 +200,15 @@ class OutboundEmailServer {
 		pubnubOptions.uuid = 'OutboundEmail-' + OS.hostname();
 		const pubnub = new PubNub(pubnubOptions);
 		await TryIndefinitely(async () => {
-			await pubnub.publish({ message: 'test', channel: 'test' });
+			try {
+				await pubnub.publish({ message: 'test', channel: 'test' });
+			}
+			catch (error) {
+				const msg = error instanceof Error ? error.message : JSON.stringify(error);
+				const stat = typeof error === 'object' ? error.status : '';
+				this.warn(`Failed to connect to PubNub: ${msg}\n${JSON.stringify(stat)}`);
+				throw error;
+			}
 		}, 1000, this, 'Unable to connect to PubNub, retrying...');
 		this.broadcaster = new PubNubClient({ pubnub });
 		this.log('Successfully connected to Pubnub');
