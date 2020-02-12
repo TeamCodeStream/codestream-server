@@ -37,7 +37,7 @@ class PostMSTeamsConversationRequest extends PostRequest {
 		}
 	}
 
-	async postProcess () {		
+	async postProcess () {
 		// since there's no creator class here (we're not actually creating antything via this POST [just triggering])...
 		// override the base so we have a noop				
 	}
@@ -72,7 +72,7 @@ class PostMSTeamsConversationRequest extends PostRequest {
 				});
 			}
 		}
-		if (markerIds && markerIds.length) {			
+		if (markerIds && markerIds.length) {
 			markers = await this.data.markers.getByIds(markerIds);
 			repos = await this.data.repos.getByIds(markers.map(_ => _.get('repoId')));
 			reposById = repos.reduce(function (map, repo) {
@@ -80,6 +80,12 @@ class PostMSTeamsConversationRequest extends PostRequest {
 				return map;
 			}, {});
 		}
+		const creator = await this.data.users.getById(codemark.get('creatorId'));
+		let author;
+		if (creator) {
+			author = creator.get('fullName');
+		}
+
 
 		for (const marker of markers) {
 			let buttons = [];
@@ -124,15 +130,21 @@ class PostMSTeamsConversationRequest extends PostRequest {
 				codeStartingLineNumber === codeEndingLineNumber ? `(Line ${codeStartingLineNumber})` :
 				`(Lines ${codeStartingLineNumber}-${codeEndingLineNumber})`;
 
-			let titleAndOrText;
+			let titleAndOrText = '';
 			if (codemark.get('type') === 'issue') {
-				titleAndOrText = `<b>${codemark.get('title')}</b>`;
+				if (author) {
+					titleAndOrText += `<small><b>${author}</b> created an issue</small><br><br>`;
+				}
+				titleAndOrText += `<b>${codemark.get('title')}</b>`;
 				if (codemark.get('text')) {
 					titleAndOrText += '<br>' + codemark.get('text');
 				}
 			}
 			else {
-				titleAndOrText = `${codemark.get('text')}`;
+				if (author) {
+					titleAndOrText += `<small><b>${author}</b> commented on code</small><br><br>`;
+				}
+				titleAndOrText += `${codemark.get('text')}`;
 			}
 
 			let assigneesOrEmpty = '';
@@ -160,11 +172,11 @@ class PostMSTeamsConversationRequest extends PostRequest {
 				buttons
 			);
 			attachments.push(card);
-		}		
+		}
 		return attachments;
 	}
 
-	escapeHtml(s) {
+	escapeHtml (s) {
 		return s
 			.replace(/&/g, '&amp;')
 			.replace(/</g, '&lt;')
