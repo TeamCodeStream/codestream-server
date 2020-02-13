@@ -57,7 +57,7 @@ class ProviderActionRequest extends RestfulRequest {
 				// we MUST instantiate this adapter for each request
 				this.handler = new MSTeamsDatabaseAdapter(this);
 				context.turnState.set('cs_databaseAdapter', this.handler);
-				await MSTeamsConversationBot.run(context);				
+				await MSTeamsConversationBot.run(context);
 			});
 			// we need the response to go back to MS
 			this.responseHandled = true;
@@ -92,6 +92,11 @@ class ProviderActionRequest extends RestfulRequest {
 						company,
 						this.results.error
 					);
+				}
+				if (this.results.error) {
+					// if we got an error -- re-throw it to prevent any postProcessing
+					// or data saving from happening (like posts getting saved)
+					throw new Error(this.results.error.reason || 'GenericError');
 				}
 			}
 		}

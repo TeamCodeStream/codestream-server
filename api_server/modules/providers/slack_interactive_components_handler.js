@@ -13,6 +13,11 @@ const SlackInteractiveComponentBlocks = require('./slack_interactive_component_b
 const { keyBy } = require('lodash');
 const MomentTimezone = require('moment-timezone');
 
+// if we don't respond in this many seconds, Slack will treat the request
+// as a failed request
+const SLACK_TIMEOUT_SECONDS = 3;
+const REPLY_SUBMISSION_TOO_SLOW = 'ReplySubmissionTooSlow';
+
 class SlackInteractiveComponentsHandler {
 	constructor (request, payloadData) {
 		Object.assign(this, request);
@@ -71,12 +76,14 @@ class SlackInteractiveComponentsHandler {
 	}
 
 	async handleViewSubmission () {
+		const timeStart = new Date();
 		let privateMetadata;
 		let userThatCreated;
 		let userThatClicked;
 		let userThatClickedIsFauxUser;
 		let team;
 		let error;
+		let reason = 'ReplySubmissionGenericError';
 		try {
 			privateMetadata = JSON.parse(this.payload.view.private_metadata);
 		} catch (ex) {
@@ -154,11 +161,18 @@ class SlackInteractiveComponentsHandler {
 				origin: 'Slack',
 				parentPostId: privateMetadata.ppId
 			});
+			const timeEnd = new Date();
+			const timeDiff = timeStart.getTime() - timeEnd.getTime();
+			const secondsBetween = Math.abs(timeDiff / 1000);			
+			if (secondsBetween >= SLACK_TIMEOUT_SECONDS) { 
+				throw new Error(REPLY_SUBMISSION_TOO_SLOW);
+			}
 		} catch (err) {
 			this.log(err);
 			error = {
 				eventName: 'Provider Reply Denied',
-				reason: 'ReplySubmissionGenericError'
+				reason: err.message === REPLY_SUBMISSION_TOO_SLOW ?
+					REPLY_SUBMISSION_TOO_SLOW: reason
 			};
 		}
 
@@ -333,7 +347,7 @@ class SlackInteractiveComponentsHandler {
 			const timeDiff = timeStart.getTime() - timeEnd.getTime();
 			const secondsBetween = Math.abs(timeDiff / 1000);
 			let errorReason;
-			if (secondsBetween >= 3) {
+			if (secondsBetween >= SLACK_TIMEOUT_SECONDS) {
 				await this.postEphemeralMessage(
 					this.payload.response_url,
 					SlackInteractiveComponentBlocks.createMarkdownBlocks('We took too long to respond, please try again. ')
