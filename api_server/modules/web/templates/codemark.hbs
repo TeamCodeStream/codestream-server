@@ -578,8 +578,7 @@
 			var repoId = $el.attr('data-repo-id');				
 			var protocol = protocolStart + 'codemark/{{codemarkId}}/open?repoId='+repoId+'&marker='+markerId;
 
-			setSelected($el);
-			setCookie('cs__ide-mru--{{repoId}}', moniker);
+			setSelected($el);			
 
 			if (moniker.indexOf('jb-') === 0) {
 				var fileName = '{{rawFileName}}';
@@ -595,17 +594,21 @@
 				createBanner(ideName, protocolStart, downloadUrl);
 			}, 1000);
 			var startTime = new Date();
+			// set the cookie inside both of the callbacks -- in the case of firefox, neither will get hit, but 
+			// rather, will throw an exception that is un-recoverable (so we don't want to set the cookie in that case)
 			window.protocolCheck(protocol,
 				function () {
 					//fail					
+					setCookie('cs__ide-mru--{{repoId}}', moniker);
 					window.analytics.track("Opened in IDE", { IDE: moniker, "Protocol Handled": false });
 					console.log(`CodeStream: failed in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol}`);
 				}, function () {
 					//success					
 					clearTimeout(timeout);
+					setCookie('cs__ide-mru--{{repoId}}', moniker);
 					window.analytics.track("Opened in IDE", { IDE: moniker, "Protocol Handled": true });
 					console.log(`CodeStream: success in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol}`);
-			});
+			});			
 		}
 
 			function createBanner(ide, protocol, downloadUrl) {
@@ -621,13 +624,28 @@
 				message += ' try again';
 
 				var $alert = $(`<div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
-				${message}
-				<button type = "button" class="close" data-dismiss="alert" aria-label="Close" >
-					<span aria-hidden="true">&times;</span>
-				</button >
-			</div>`);
+					<span class="alert-text">
+						${message}
+					</span>
+					<button type = "button" class="close" data-dismiss="alert" aria-label="Close" >
+						<span aria-hidden="true">&times;</span>
+					</button >
+				</div>`);
 				$('#alert-wrapper').append($alert);
 				$alert.show();
+			}
+
+			function createInstallBanner() {
+				var text = 'Ensure the <a href="https://www.codestream.com/roadmap" target="_blank">CodeStream extension</a> for your IDE is installed. Jetbrains users also need the <a href="https://www.jetbrains.com/toolbox/app/" target="_blank">Jetbrains Toolbox App</a>. ';	
+				if (!$('.alert').length) {
+					createMessage(text);
+					$('#alert-wrapper').append($alert);										
+				}
+				else {
+					// already a banner there? append the text
+					var innerHtml = $('.alert .alert-text').html();
+					$('.alert .alert-text').html(innerHtml + '<br>' + text);				 
+				}
 			}
 
 			function createMessage(message) {
@@ -637,11 +655,13 @@
 				}
 
 				var $alert = $(`<div class="alert alert-info alert-dismissible fade show text-center" role="alert">
-				${message}
-				<button type = "button" class="close" data-dismiss="alert" aria-label="Close" >
-					<span aria-hidden="true">&times;</span>
-				</button >
-			</div>`);
+						<span class="alert-text">
+						${message}
+						</span>
+						<button type = "button" class="close" data-dismiss="alert" aria-label="Close" >
+							<span aria-hidden="true">&times;</span>
+						</button >
+					</div>`);
 				$('#alert-wrapper').append($alert);
 				$alert.show();
 			}			
@@ -702,7 +722,15 @@
 				}
 				
 				 if (!triggered && isDefault) {
-					createMessage("To open this codemark in your IDE, please select from the list below");					 
+					createMessage("To open this codemark in your IDE, please select from the list below. ");					 
+				}
+			}
+			
+			if (!mru) {
+				var isFirefox = typeof InstallTrigger !== 'undefined';
+				if (isFirefox) {
+					// only firefox has issues with non-install custom protocols
+					createInstallBanner();
 				}
 			}
 		})
