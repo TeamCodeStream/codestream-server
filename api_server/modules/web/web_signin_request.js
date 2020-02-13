@@ -74,7 +74,7 @@ class WebSigninRequest extends APIRequest {
 			this.responseHandled = true;
 		}
 		else {
-			this.responseHandled = new SigninFlowUtils(this).finish();
+			this.responseHandled = new SigninFlowUtils(this).finish(this.request.body.finishUrl);
 		}
 	}
 }
