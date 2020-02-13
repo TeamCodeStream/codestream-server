@@ -13,11 +13,6 @@ module.exports = {
 		maxLength: 100,
 		description: 'The name of an MS Teams team channel'
 	},
-	teamId: {
-		type: 'id',
-		maxLength: 100,
-		description: 'The CodeStream teamId'
-	},
 	conversationId: {
 		type: 'string',
 		maxLength: 100,

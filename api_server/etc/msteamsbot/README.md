@@ -20,7 +20,7 @@ We have a few bots/apps that have been created in the botframework site, they ar
 7cf49ab7-8b65-4407-b494-f02b525eef2b
 
 #### CodeStream-QA
-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+a0b30480-2944-46a6-97ca-192a655cdb62
 
 #### CodeStream-PD
 1a08df08-b652-464a-bac3-bfa386dcfa6d
@@ -48,7 +48,7 @@ node bin/cs_msteams_bot_manifest_creator.js -b 7bce9cff-9fd1-4e05-b7b5-5638ec468
 
 node bin/cs_msteams_bot_manifest_creator.js -b 1a08df08-b652-464a-bac3-bfa386dcfa6d -e pd
 
-node bin/cs_msteams_bot_manifest_creator.js -b XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -e qa
+node bin/cs_msteams_bot_manifest_creator.js -b a0b30480-2944-46a6-97ca-192a655cdb62 -e qa
 
 node bin/cs_msteams_bot_manifest_creator.js -b 7cf49ab7-8b65-4407-b494-f02b525eef2b -e prod
 ```
@@ -91,11 +91,14 @@ You'll just have to find out
 ```debug```
 Returns some debugging info
 
+```status```
+Returns some info about what CS teams are connected to this tenant (we could allow our users to use this)
+
 ```uninstall```
-Removes the data attached to the CS team
+Removes the data attached to the CS team, this prohibits users on any teams attached to this tenant from using the MS Teams integration until a `signin` happens again
 
 ```disconnectall```
-Removes all the channels from this MS Teams team that are mapped in `msteams_conversations` (slightly descructive as it could affect other team members, but it's a way to start "fresh")
+Removes all the channels from this MS Teams team that are mapped in `msteams_conversations` (slightly descructive as it could affect other team members, but it's a way to start "fresh" if a conversation was removed or renamed)
 
 
 ### personal channels

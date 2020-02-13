@@ -18,29 +18,31 @@ class WebAssignTeamRequest extends WebRequestBase {
 			this.redirectError();
 			return;
 		}
-		
-		const teamIds = this.user.get('teamIds');		
-		if (teamIds && teamIds.length === 1) {
-			// if there is only 1 team that this user is assigned to, we're done.
-			const flow = new SigninFlowUtils(this);
-			const token = await flow.insertToken(teamIds[0], tenantId);
-			this.responseHandled = flow.finish(null, {
-				tenantToken: token.token
-			});
-		}
-		else {
-			const teams = await this.data.teams.getByIds(teamIds);
-			return super.render('assign_team', {
-				teams: teams.map(_ => {
-					return {
-						id: _.id,
-						name: _.get('name')
-					};
-				}),
-				tenantId: tenantId,
-				csrf: this.request.csrfToken()
-			});
-		}
+
+		const teamIds = this.user.get('teamIds');
+		// if we ever want to show a UI here, we can uncomment this
+		// and reander the UI for the user to choose a team
+
+		// if (teamIds && teamIds.length === 1) {			
+		const flow = new SigninFlowUtils(this);
+		const token = await flow.insertToken(teamIds, tenantId);
+		this.responseHandled = flow.finish(null, {
+			tenantToken: token.token
+		});
+		// }
+		// else {
+		// 	const teams = await this.data.teams.getByIds(teamIds);
+		// 	return super.render('assign_team', {
+		// 		teams: teams.map(_ => {
+		// 			return {
+		// 				id: _.id,
+		// 				name: _.get('name')
+		// 			};
+		// 		}),
+		// 		tenantId: tenantId,
+		// 		csrf: this.request.csrfToken()
+		// 	});
+		// }
 	}
 
 	redirectError () {

@@ -17,7 +17,7 @@ class AssignTeamRequest extends WebRequestBase {
 	async authorize () {
 		if (!this.user) {
 			return super.authorize();
-		}		
+		}
 	}
 
 	async requireAndAllow () {
@@ -47,11 +47,11 @@ class AssignTeamRequest extends WebRequestBase {
 			this.warn('No teamId found in request');
 			this.redirectError();
 			return;
-		}		
+		}
 
 		try {
 			const flow = new SigninFlowUtils(this);
-			const token = await flow.insertToken(teamId, tenantId);
+			const token = await flow.insertToken([teamId], tenantId);
 			this.responseHandled = flow.finish(null, {
 				tenantToken: token.token
 			});
@@ -59,7 +59,7 @@ class AssignTeamRequest extends WebRequestBase {
 		catch (error) {
 			if (typeof error === 'object' && error.code === 'RAPI-1005') {
 				this.render({
-					error: error.info || 'something unexpected happened'					
+					error: error.info || 'something unexpected happened'
 				});
 				return;
 			}

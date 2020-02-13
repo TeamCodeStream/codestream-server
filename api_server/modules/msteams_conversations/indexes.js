@@ -9,9 +9,7 @@ module.exports = {
 	byConversationIds: {
 		conversationId: 1
 	},
-	// lookup based on the MS Teams tenantId (organization) AND the CodeStream teamId
-	byTeamIdTenantIds: {
-		teamId: 1,
+	byTenantIds: {
 		tenantId: 1
 	},
 	// lookup based on the MS Teams tenantId (organization) AND the MS Teams teamId

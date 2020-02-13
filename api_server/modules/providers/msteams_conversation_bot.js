@@ -129,6 +129,9 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				case 'debug':
 					await this.debug(context);
 					break;
+				case 'status':
+					await this.status(context);
+					break;
 				case 'uninstall':
 					await this.uninstall(context);
 					break;
@@ -195,7 +198,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					}
 					break;
 					// end commands that work in public chats/teams
-				
+
 				// start commands that work everywhere			
 				case 'Welcome':
 				case 'welcome':
@@ -210,11 +213,11 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				case 'Help':
 				case 'help':
 					await this.help(context);
-					break;				
+					break;
 				default:
 					await context.sendActivity('I\'m not sure about that command, but thanks for checking out CodeStream. Type the `help` if you need anything.');
 					break;
-				// end commands that work everywhere
+					// end commands that work everywhere
 				}
 			}
 			await next();
@@ -237,10 +240,20 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			teamChannels: teamChannels
 		});
 		if (result) {
-			await context.sendActivity('This channel is now ready to receive messages from CodeStream.');
+			if (result.success) {
+				await context.sendActivity('This channel is now ready to receive messages from CodeStream.');
+			}
+			else {
+				if (result.reason === 'signin') {
+					await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream to this conversation. Have you issued the `signin` command from the bot chat yet?'));
+				}
+				else {
+					await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream to this conversation. Please try again.'));
+				}
+			}
 		}
 		else {
-			await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream from this conversation. Please try again.'));
+			await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream to this conversation. Please try again.'));
 		}
 		return result;
 	}
@@ -312,6 +325,56 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		await context.sendActivity(MessageFactory.text(JSON.stringify({ ...serverDebug, ...debug }, null, 4)));
 	}
 
+	async status (context) {
+		const tenantId = context.activity.channelData.tenant.id;
+		const results = await context.turnState.get('cs_databaseAdapter').status({
+			tenantId: tenantId
+		});
+		if (results && results.teams) {
+			const facts = results.teams.map(_ => {
+				return {
+					title: _.get('name'),
+					value: 'connected'
+				};
+			});
+			const payload = {
+				type: 'AdaptiveCard',
+				body: [
+					{
+						type: 'TextBlock',
+						size: 'Medium',
+						weight: 'Bolder',
+						text: 'CodeStream Teams'
+					},
+					{
+						type: 'ColumnSet',
+						columns: [
+							{
+								type: 'Column',
+								items: [
+									{
+										type: 'FactSet',
+										facts: facts
+									}
+								],
+								width: 'stretch'
+							}
+						]
+					}
+				],
+				'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
+				version: '1.0'
+			};
+
+			await context.sendActivity({
+				attachments: [CardFactory.adaptiveCard(payload)]
+			});
+		}
+		else {
+			await context.sendActivity(MessageFactory.text('unknown'));
+		}
+	}
+
 	// uninstalls the app from the CS team based on the tenantId
 	// will only work if there is 1 CS team attached
 	async uninstall (context) {
@@ -324,30 +387,22 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 
 	// returns a way for a user to signin if their team is not connected
 	async signin (context) {
-		const result = await context.turnState.get('cs_databaseAdapter').isTeamConnected({
-			tenantId: context.activity.channelData.tenant.id
+		// NOTE this can also work, but it's styling is a little chunky
+		// const card = CardFactory.signinCard("Sign in", `${this.api.config.api.publicApiUrl}/web/login?tenantId=` + context.activity.channelData.tenant.id, "Sign in to CodeStream to get started!");
+
+		const card = CardFactory.heroCard('', 'Sign in to CodeStream to get started!', null,
+			[
+				{
+					type: ActionTypes.OpenUrl,
+					title: 'Sign in',
+					value: `${this.publicApiUrl}/web/login?tenantId=` + context.activity.channelData.tenant.id
+				}
+			]);
+
+		await context.sendActivity({
+			attachments: [card]
 		});
-		if (result === 'Already connected') {
-			await context.sendActivity(MessageFactory.text('Your team is already connected to CodeStream!'));
-		}
-		else {
-			// NOTE this can also work, but it's styling is a little chunky
-			// const card = CardFactory.signinCard("Sign in", `${this.api.config.api.publicApiUrl}/web/login?tenantId=` + context.activity.channelData.tenant.id, "Sign in to CodeStream to get started!");
-
-			const card = CardFactory.heroCard('', 'Sign in to CodeStream to get started!', null,
-				[
-					{
-						type: ActionTypes.OpenUrl,
-						title: 'Sign in',
-						value: `${this.publicApiUrl}/web/login?tenantId=` + context.activity.channelData.tenant.id
-					}
-				]);
-
-			await context.sendActivity({
-				attachments: [card]
-			});
-			await context.sendActivity(MessageFactory.text('After signing in, please copy the code shown on your screen and paste it here.'));
-		}
+		await context.sendActivity(MessageFactory.text('After signing in, please copy the code shown on your screen and paste it here.'));
 	}
 
 	// provides a way for a user to signup

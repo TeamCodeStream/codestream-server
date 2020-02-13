@@ -4,8 +4,9 @@
 'use strict';
 
 const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
-const MSTeamsTeamsIndexes = require(process.env.CS_API_TOP + '/modules/msteams_teams/indexes');
 const Indexes = require('./indexes');
+const MSTeamsTeamsIndexes = require(process.env.CS_API_TOP + '/modules/msteams_teams/indexes');
+const MSTeamsUtils = require(process.env.CS_API_TOP + '/modules/providers/msteams_utils');
 
 class GetMSTeamsConversationsRequest extends GetManyRequest {
 
@@ -28,7 +29,7 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 		}
 
 		const team = await this.data.teams.getById(this.teamId);
-		this.tenantId = this.isConnected(team, tenantId);
+		this.tenantId = MSTeamsUtils.isTeamConnected(team, tenantId);
 	}
 
 	buildQuery () {
@@ -36,7 +37,6 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 		if (!this.tenantId) return null;
 
 		const query = {
-			teamId: this.teamId.toLowerCase(),
 			tenantId: this.tenantId
 		};
 		return query;
@@ -63,31 +63,8 @@ class GetMSTeamsConversationsRequest extends GetManyRequest {
 	getQueryOptions () {
 		// provide appropriate index, by teamId & tenantId
 		return {
-			hint: Indexes.byTeamIdTenantIds
+			hint: Indexes.byTenantIds
 		};
-	}
-
-	// is this CS team and MS tenant connected?
-	isConnected (team, tenantId) {
-		if (!team || team.get('deactivated')) return undefined;
-
-		const providerIdentities = team.get('providerIdentities');
-		if (!providerIdentities) return undefined;
-
-		const msteam = providerIdentities.find(_ => _ === `msteams::${tenantId}`);
-		if (!msteam) return undefined;
-
-		const providerInfo = team.get('providerBotInfo');
-		if (!providerInfo) return undefined;
-
-		if (providerInfo.msteams &&
-			providerInfo.msteams.tenantId &&
-			providerInfo.msteams.data &&
-			providerInfo.msteams.data.connected) {
-			// we need to make sure it's connected before returning the tenantId
-			return providerInfo.msteams.tenantId;
-		}
-		return undefined;
 	}
 
 	// describe this route for help

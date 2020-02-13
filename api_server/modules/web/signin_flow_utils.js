@@ -6,7 +6,7 @@ class SigninFlowUtils {
 		Object.assign(this, options);
 	}
 
-	async insertToken (teamId, tenantId) {
+	async insertToken (teamIds, tenantId) {
 		const signupTokens = new SignupTokens({ api: this.api });
 		signupTokens.initialize();
 		// replace the hyphens with nothing as it makes copy/pasting easier
@@ -14,7 +14,7 @@ class SigninFlowUtils {
 		const result = await signupTokens.insert(tenantToken, this.user.id, {
 			expiresIn: 600000,
 			more: {
-				teamId: teamId,
+				teamIds: teamIds,
 				tenantId: tenantId
 			}
 		});
