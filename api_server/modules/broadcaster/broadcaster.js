@@ -37,9 +37,16 @@ class Broadcaster extends APIServerModule {
 		});
 		this.socketClusterClient = new SocketClusterClient(config);
 		await TryIndefinitely(async () => {
-			await this.socketClusterClient.init();
-			if (!this.api.config.api.mockMode) {
-				await this.socketClusterClient.publish('test', 'test');
+			try {
+				await this.socketClusterClient.init();
+				if (!this.api.config.api.mockMode) {
+					await this.socketClusterClient.publish('test', 'test');
+				}
+			}
+			catch (error) {
+				const msg = error instanceof Error ? error.message : JSON.stringify(error);
+				this.api.warn(`Could not connect to SocketCluster: ${msg}`);
+				throw error;
 			}
 		}, 5000, this.api, 'Unable to connect to SocketCluster, retrying...');
 		return { broadcaster: this.socketClusterClient };
@@ -54,7 +61,7 @@ class Broadcaster extends APIServerModule {
 			pubnub: this.pubnub
 		});
 		if (!this.api.config.api.mockMode) {
-			this.pubnubClient.init();
+			await this.pubnubClient.init();
 			await TryIndefinitely(async () => {
 				await this.pubnubClient.publish('test', 'test');
 			}, 5000, this.api, 'Unable to connect to PubNub, retrying...');
@@ -64,11 +71,11 @@ class Broadcaster extends APIServerModule {
 
 	async initialize () {
 		if (this.api.config.api.mockMode) {
-			this.connectToMockPubnub();
+			await this.connectToMockPubnub();
 		}
 	}
 
-	connectToMockPubnub () {
+	async connectToMockPubnub () {
 		if (!this.api.services.ipc) {
 			this.api.warn('No IPC service is available in mock mode');
 			return;
@@ -79,7 +86,7 @@ class Broadcaster extends APIServerModule {
 			ipc: this.api.services.ipc,
 			serverId: this.api.config.ipc.serverId
 		});
-		this.pubnubClient.init();
+		await this.pubnubClient.init();
 	}
 }
 

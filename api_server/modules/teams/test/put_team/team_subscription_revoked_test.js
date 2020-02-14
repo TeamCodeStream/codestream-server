@@ -42,8 +42,10 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 	makeBroadcasterClient (callback) {
 		// create a pubnub client and attempt to subscribe to the team channel
 		this.broadcasterClient = this.createBroadcasterClient();
-		this.broadcasterClient.init();
-		callback();
+		(async () => {
+			await this.broadcasterClient.init();
+			callback();
+		})();
 	}
 
 	createBroadcasterClient () {

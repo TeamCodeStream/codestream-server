@@ -70,7 +70,7 @@ class SubscriptionTest extends LoginTest {
 		(async () => {
 			// create a pubnub client and attempt to subscribe to the channel of interest
 			this.broadcasterClient = this.createBroadcasterClient();
-			this.broadcasterClient.init();
+			await this.broadcasterClient.init();
 			let channel = `${this.which}-${this[this.which].id}`;
 			try {
 				await this.broadcasterClient.subscribe(

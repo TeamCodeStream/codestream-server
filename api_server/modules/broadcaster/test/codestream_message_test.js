@@ -45,10 +45,12 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		Object.keys(this.broadcasterClientsForUser || []).forEach(userId => {
 			this.broadcasterClientsForUser[userId].unsubscribeAll();
 			this.broadcasterClientsForUser[userId].disconnect();
+			delete this.broadcasterClientsForUser[userId];
 		});
 		if (this.broadcasterForServer) {
 			this.broadcasterForServer.unsubscribeAll();
 			this.broadcasterForServer.disconnect();
+			delete this.broadcasterForServer;
 		}
 		super.after(callback);
 	}
@@ -92,7 +94,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	makeSocketClusterClientForServer (callback) {
 		(async () => {
-			const config = Object.assign({}, SocketClusterConfig);
+			const config = Object.assign({}, SocketClusterConfig, { uid: 'API' });
 			this.broadcasterForServer = new SocketClusterClient(config);
 			try {
 				await this.broadcasterForServer.init();

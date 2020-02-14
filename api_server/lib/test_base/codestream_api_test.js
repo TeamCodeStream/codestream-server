@@ -17,6 +17,7 @@ const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const TestTeamCreator = require('./test_team_creator');
 const TestStreamCreator = require('./test_stream_creator');
+const SocketClusterConfig = require(process.env.CS_API_TOP + '/config/socketcluster');
 
 class CodeStreamAPITest extends APIRequestTest {
 
@@ -89,6 +90,7 @@ class CodeStreamAPITest extends APIRequestTest {
 			postData: []
 		};
 		this.users = [];
+		this.usingSocketCluster = SocketClusterConfig.port;
 	}
 
 	// validate that the object passed is sanitized of server-only attributes,

@@ -61,7 +61,7 @@ class InviteCodeTest extends RegistrationTest {
 		Assert(data.user._id === data.user.id, 'id not set to _id');	// DEPRECATE ME
 		Assert(data.user.email === this.data.email, 'email doesn\'t match');
 		Assert(data.accessToken, 'no access token');
-		Assert(data.pubnubKey, 'no pubnub key');
+		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(data.broadcasterToken, 'no broadcaster token');
 		Assert.deepEqual(data.capabilities, UserTestConstants.API_CAPABILITIES, 'capabilities are incorrect');
 

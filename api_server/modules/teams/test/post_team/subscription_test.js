@@ -34,7 +34,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 		(async () => {
 			// create a pubnub client and attempt to subscribe to the team channel
 			this.broadcasterClient = this.createBroadcasterClient();
-			this.broadcasterClient.init();
+			await this.broadcasterClient.init();
 			const channel = `team-${this.team.id}`;
 			try {
 				await this.broadcasterClient.subscribe(

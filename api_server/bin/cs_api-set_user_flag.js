@@ -70,7 +70,7 @@ class SetFlag {
 		this.pubnubClient = new PubNubClient({
 			pubnub: this.pubnub
 		});
-		this.pubnubClient.init();
+		await this.pubnubClient.init();
 	}
 
 	// set flag for the given user or all the users in the given team

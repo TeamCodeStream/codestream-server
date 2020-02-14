@@ -49,7 +49,7 @@ class SubscriptionTest extends AddUserTest {
 		(async () => {
 			// create a broadcaster client and attempt to subscribe to whichever channel
 			this.broadcasterClient = this.createBroadcasterClient();
-			this.broadcasterClient.init();
+			await this.broadcasterClient.init();
 			const channel = `stream-${this.stream.id}`;
 			try {
 				await this.broadcasterClient.subscribe(

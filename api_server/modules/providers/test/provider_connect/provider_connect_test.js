@@ -94,7 +94,7 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert.deepEqual(user.companyIds, [company.id], 'companyIds not set to company created');
 		Assert.deepEqual(user.providerIdentities, [`${this.provider}::${providerInfo[team.id][this.provider].userId}`], 'providerIdentities is not correct');
 		Assert(data.accessToken, 'no access token');
-		Assert(data.pubnubKey, 'no pubnub key');
+		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
 		Assert.deepEqual(data.capabilities, UserTestConstants.API_CAPABILITIES, 'capabilities are incorrect');

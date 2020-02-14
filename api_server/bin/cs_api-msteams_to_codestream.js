@@ -476,7 +476,7 @@ class MSTeamsConverter {
 		this.pubnubClient = new PubNubClient({
 			pubnub: this.pubnub
 		});
-		this.pubnubClient.init();
+		await this.pubnubClient.init();
 	}
 }
 

@@ -2,6 +2,7 @@
 
 const UserAttributes = require(process.env.CS_API_TOP + '/modules/users/user_attributes');
 const APICapabilities = require(process.env.CS_API_TOP + '/etc/capabilities');
+const SocketClusterConfig = require(process.env.CS_API_TOP + '/config/socketcluster');
 
 // we expect to see these fields for users who are not yet confirmed
 const EXPECTED_UNREGISTERED_USER_FIELDS = [
@@ -55,6 +56,10 @@ const EXPECTED_LOGIN_RESPONSE = {
 	teams: true,
 	repos: true
 };
+
+if (SocketClusterConfig.port) {
+	delete EXPECTED_LOGIN_RESPONSE.pubnubKey;
+}
 
 // these attributes should not be seen by the client
 const UNSANITIZED_ATTRIBUTES = Object.keys(UserAttributes).filter(attribute => {
