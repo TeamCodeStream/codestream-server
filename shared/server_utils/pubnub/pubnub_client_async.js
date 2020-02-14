@@ -13,7 +13,7 @@ class PubNubClient {
 		this.statusTimeouts = {};		// timeouts for attempts to subscribe
 	}
 
-	init () {
+	async init () {
 		this.pubnub.addListener({
 			message: this._handleMessage.bind(this),
 			presence: this._handleMessage.bind(this),

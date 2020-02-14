@@ -11,47 +11,40 @@ class SocketClusterClient {
 		this.config = config;
 		this.messageListeners = {};		// callbacks for each channel when message is received
 		this.channelPromises = {};		// promises for channel subscriptions
-		this.subscribedUserPromises = {};	// promises for requests to know subscribed users
 	}
 
-	init () {
-		return new Promise((resolve, reject) => {
-			this.socket = SocketCluster.create({ 
-				hostname: this.config.host,
-				port: this.config.port,
-				multiplex: false,	// don't allow reusing connections
-				rejectUnauthorized: this.config.strictSSL,
-				secure: true
-			}); 
-			this.socket.on('connect', () => {
-				if (this._connected) {
-					return;
-				}
-				this._connected = true;
-				resolve();
+	async init () {
+		this.socket = SocketCluster.create({ 
+			hostname: this.config.host,
+			port: this.config.port,
+			multiplex: false,	// don't allow reusing connections
+			rejectUnauthorized: this.config.strictSSL,
+			secure: true
+		}); 
 
-				this._log('SENDING AUTH: ' + this.config.authKey);
-				this.socket.emit('auth', {
-					token: this.config.authKey,
-					uid: this.config.uid,
-					subscriptionCheat: this.config.subscriptionCheat
-				});
-			});
-			this.socket.on('error', error => {
-				if (!this._connected) {
-					reject(error);
-				}
-				this._warn('SOCKET ERROR: ', JSON.stringify(error));
-			});
-			this.socket.on('subscribe', this._handleSubscribe.bind(this));
+		await this.authorizeConnection();
+	}
 
-			this.socket.on('authed', this._handleAuthed.bind(this));
-			this.socket.on('subscribedUsers', this._handleSubscribedUsers.bind(this));
-		});
+	// authorize the connection with the socketcluster server
+	async authorizeConnection () {
+		this._log('Authorizing socketcluster connection...');
+		try {
+			await this.socket.invoke('auth', {
+				token: this.config.authKey,
+				uid: this.config.uid,
+				subscriptionCheat: this.config.subscriptionCheat
+			});
+			this._log('Socketcluster connection authorized');
+			this._authed = true;
+		}
+		catch (error) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			throw `Socketcluster authorization error: ${message}`;
+		}
 	}
 
 	// publish a message to the specified channel
-	publish (message, channel, options = {}) {
+	async publish (message, channel, options = {}) {
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
 			this._log('Would have sent PubNub message to ' + channel, options);
@@ -60,12 +53,7 @@ class SocketClusterClient {
 		if (typeof message === 'object') {
 			message.messageId = message.messageId || UUID();
 		}
-		return new Promise((resolve, reject) => {
-			this.socket.publish(channel, message, error => {
-				if (error) reject(error);
-				else resolve();
-			});
-		});
+		await this.socket.transmit('message', { channel, message });
 	}
 
 	// subscribe to the specified channel, providing a listener callback for the
@@ -87,16 +75,26 @@ class SocketClusterClient {
 	}
 
 	_subscribeHelper (channel) {
-		const channelObject = this.socket.subscribe(channel);
-		channelObject.watch(message => {
-			this._handleMessage({
-				channel: channel,
-				message
-			});
-		});
-		channelObject.on('subscribeFail', error => {
-			this._handleSubscribeFail(error, channel);
-		});
+		(async () => {
+			this.chs = this.chs || [];
+			const ch = this.socket.subscribe(channel);
+			this.chs.push(ch);
+			for await (
+				let message of ch
+			) {
+				this._handleMessage({ channel, message });
+			}
+		})();
+		(async () => {
+			for await (let data of this.socket.listener('subscribeFail')) {
+				this._handleSubscribeFail(data, channel);
+			}
+		})();
+		(async () => {
+			for await (let data of this.socket.listener('subscribe')) {
+				this._handleSubscribe(data.channel);
+			}
+		})();
 	}
 
 	// unsubscribe from the specified channel
@@ -109,6 +107,12 @@ class SocketClusterClient {
 		Object.keys(this.messageListeners).forEach(channel => {
 			this.unsubscribe(channel);
 		});
+
+		this.chs = this.chs || [];
+		for (let ch of this.chs) {
+			ch.unsubscribe();
+			ch.close();
+		}
 	}
 
 	// remove a listener for messages from a particular channel
@@ -166,32 +170,31 @@ class SocketClusterClient {
 			return;
 		}
 		this._log(`Revoking access for ${userId} to ${channel}`, options);
-		this.socket.emit('desubscribe', { userId, channel });
+		try {
+			await this.socket.invoke('desubscribe', { userId, channel });
+		}
+		catch (error) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this._warn(`Failed to desubscribe: ${message}`);
+		}
 	}
 
 	// get list of users (by ID) currently subscribed to the passed channel
-	getSubscribedUsers (channel) {
+	async getSubscribedUsers (channel) {
 		const requestId = UUID();
-		const promise = new Promise((resolve, reject) => {
-			this.subscribedUserPromises[requestId] = { resolve, reject };
-		});
-		this.socket.emit('getSubscribedUsers', { requestId, channel });
-		return promise;
-	}
-
-	_handleSubscribedUsers (data) {
-		const promise = this.subscribedUserPromises[data.requestId];
-		if (!promise) { return; }
-		if (data.error) {
-			promise.reject(data.error);
+		try {
+			return await this.socket.invoke('getSubscribedUsers', { requestId, channel });
 		}
-		else {
-			promise.resolve(data.userIds);
+		catch (error) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this._warn(`Failed to get subscribed users: ${message}`);
 		}
-		delete this.subscribedUserPromises[data.requestId];
 	}
 
 	disconnect () {
+		this.socket.killAllListeners();
+		this.socket.killAllReceivers();
+		this.socket.killAllProcedures();
 		this.socket.disconnect();
 	}
 
