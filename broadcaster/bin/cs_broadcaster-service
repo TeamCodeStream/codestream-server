@@ -5,7 +5,7 @@ function usage {
     exit 1
 }
 
-service_name=bin/server.js
+service_name=bin/broadcaster.js
 [ -z "$1" ] && usage
 [ -z "$CS_BROADCASTER_SANDBOX" ] && echo "sandbox not loaded">&2 && exit 1
 . $DT_TOP/lib/init_funcs.sh
@@ -15,7 +15,7 @@ case "$1" in
 	start)
 		# start the service here
         cd $CS_BROADCASTER_TOP
-        nohup $CS_BROADCASTER_TOP/bin/server.js >>$CS_BROADCASTER_LOGS/init.log 2>&1 </dev/null &
+        nohup $CS_BROADCASTER_TOP/bin/broadcaster.js >>$CS_BROADCASTER_LOGS/init.log 2>&1 </dev/null &
         sleep 1
 		service_status $service_name
 		ec=$?

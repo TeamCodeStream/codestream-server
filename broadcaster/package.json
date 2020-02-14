@@ -1,48 +1,17 @@
 {
   "name": "broadcaster",
-  "description": "A sample SocketCluster app",
-  "version": "1.0.1",
-  "contributors": [
-    {
-      "name": "Jonathan Gros-Dubois",
-      "email": "grosjona@yahoo.com.au"
-    }
-  ],
+  "description": "CodeStream broadcaster service",
+  "version": "1.0.0",
   "dependencies": {
+    "commander": "4.1.1",
     "connect": "3.7.0",
-    "deep-equal": "1.0.1",
+    "deep-equal": "2.0.1",
     "express": "4.17.1",
-    "hjson": "^3.1.2",
-    "minimist": "1.2.0",
-    "mongodb": "3.2.7",
-    "morgan": "1.9.1",
-    "sc-errors": "2.0.0",
-    "sc-framework-health-check": "2.0.0",
-    "sc-hot-reboot": "1.0.0",
-    "scc-broker-client": "6.1.0",
-    "serve-static": "1.14.1",
-    "socketcluster": "14.3.5",
-    "socketcluster-client": "14.2.2",
-    "strftime": "0.10.0"
+    "hjson": "3.2.1",
+    "mongodb": "3.5.3",
+    "socketcluster-server": "16.0.0",
+    "strftime": "0.10.0",
+    "uuid": "3.4.0"
   },
-  "devDependencies": {
-    "eslint": "5.16.0",
-    "pre-commit": "1.2.2"
-  },
-  "keywords": [
-    "websocket",
-    "server",
-    "realtime",
-    "cluster",
-    "scalable"
-  ],
-  "readmeFilename": "README.md",
-  "scripts": {
-    "start": "node server.js",
-    "start:docker": "node dockerwait.js && node ${SOCKETCLUSTER_MASTER_CONTROLLER:-server.js}",
-    "eslint": "eslint ./codestream"
-  },
-  "pre-commit": [
-    "eslint"
-  ]
+  "scripts": {}
 }
