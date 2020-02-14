@@ -43,8 +43,8 @@ class SimpleFileLogger {
 
 	// initialize logging
 	async initialize () {
-		this.startedOn = Date.now();
 		await this.rotate();
+		this.startedOn = Date.now();
 	}
 
 	// open the next log file in the rotation (it must be midnight)
@@ -114,49 +114,65 @@ class SimpleFileLogger {
 
 	// log something, with an optional request ID, severity (default is 'info')
 	// and custom log properties for json log format only
-	async log (text, requestId, severity, customLogProperties) {
+	log (text, requestId, severity, customLogProperties) {
 		// the first logged message triggers initialization
 		if (!this.startedOn) {
-			await this.initialize();
-			this.logAfterInitialized(text, requestId, severity, customLogProperties);
+			(async () => {
+				// await initialization before logging
+				await this.initialize();
+				this.logAfterInitialized(text, requestId, severity, customLogProperties);				
+			})();
 		}
 		else {
+			// go ahead and log, ok to do it synchronously
 			this.logAfterInitialized(text, requestId, severity, customLogProperties);
 		}
 	}
 
-	critical(text, requestId, customLogProperties) {
+	critical (text, requestId, customLogProperties) {
 		this.log(text, requestId, 'critical', customLogProperties);
 	}
 
-	error(text, requestId, customLogProperties) {
+	error (text, requestId, customLogProperties) {
 		this.log(text, requestId, 'error', customLogProperties);
 	}
 
-	warn(text, requestId, customLogProperties) {
+	warn (text, requestId, customLogProperties) {
 		this.log(text, requestId, 'warn', customLogProperties);
 	}
 
-	debug(text, requestId, customLogProperties) {
+	debug (text, requestId, customLogProperties) {
 		if (this.debugOk) {
 			this.log(text, requestId, 'debug', customLogProperties);
 		}
 	}
 
-	info(text, requestId, customLogProperties) {
+	info (text, requestId, customLogProperties) {
 		this.log(text, requestId, 'info', customLogProperties);
 	}
 
 	// after initialization, we're assured of a log file to write to
-	async logAfterInitialized(text, requestId, severity, customLogProperties) {
+	logAfterInitialized (text, requestId, severity, customLogProperties) {
 		// check if we've reached the threshold time (midnight) and rotate as needed
-		await this.maybeRotate();
-		// and now finally, we can output our text
-		this.out(text, requestId, severity, customLogProperties);
+		const now = Date.now();
+		const nowMidnight = this.midnight(now);
+		const lastWrittenMidnight = this.midnight(this.lastWritten);
+		if (nowMidnight > lastWrittenMidnight) {
+			// yep, time to rotate, we've passed midnight
+			(async () => {
+				await this.rotate();
+				// output our text only after awaiting rotation
+				this.out(text, requestId, severity, customLogProperties);
+			});
+		}
+		else {
+			// otherwise ok to write synchronously
+			this.out(text, requestId, severity, customLogProperties);
+		}
 	}
 
 	// output text to the current log file(s)
-	out(unformattedText, requestId, severity = 'info', customLogProperties = {}) {
+	out (unformattedText, requestId, severity = 'info', customLogProperties = {}) {
 		const now = Date.now() + this.timezoneOffset;
 		const date = new Date(now);
 		let fullText = Strftime('%Y-%m-%d %H:%M:%S.%LZ', date);
@@ -196,17 +212,6 @@ class SimpleFileLogger {
 			this.fdJson.write(JSON.stringify(logData, Object.keys(logData).sort()) + '\n', 'utf8');
 		}
 		this.lastWritten = Date.now();
-	}
-
-	// rotate the log file to the next date, as needed
-	async maybeRotate () {
-		const now = Date.now();
-		const nowMidnight = this.midnight(now);
-		const lastWrittenMidnight = this.midnight(this.lastWritten);
-		if (nowMidnight > lastWrittenMidnight) {
-			// yep, time to rotate, we've passed midnight
-			await this.rotate();
-		}
 	}
 
 	// what is the previous timezone-aware midnight for the passed timestamp?
