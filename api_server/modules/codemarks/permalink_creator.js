@@ -1,5 +1,4 @@
-// handle creating a new codemark link, representing a mapping of IDs to codemark IDs 
-// for permalinks
+// handle creating a new permalink, representing a mapping of IDs to codemark or review IDs 
 
 'use strict';
 
@@ -7,14 +6,14 @@ const UUID = require('uuid/v4');
 const Crypto = require('crypto');
 const CodemarkLinkIndexes = require('./codemark_link_indexes');
 
-class CodemarkLinkCreator {
+class PermalinkCreator {
 
 	constructor (options) {
 		Object.assign(this, options);
 	}
 
-	// create a codemark link for a codemark
-	async createCodemarkLink () {
+	// create a permalink for a codemark or review
+	async createPermalink () {
 		await this.createLink();	// create the link as needed
 		await this.updateCodemark();	// update the codemark as needed
 		return this.url;
@@ -23,18 +22,24 @@ class CodemarkLinkCreator {
 	// create the link by assigning a UUID, combining it with the team ID
 	// link may be public or private
 	async createLink () {
+		const teamId = this.codemark ? this.codemark.teamId : this.review.teamId;
 		const linkId = UUID().replace(/-/g, '');
-		this.url = this.makePermalink(linkId, this.isPublic, this.codemark.teamId);
-		const hash = this.hashCodemark(this.codemark, this.markers, this.isPublic);
+		this.url = this.makePermalink(linkId, this.isPublic, teamId, !!this.review);
+		const hash = this.makeHash(this.codemark || this.review, this.markers, this.isPublic, !!this.review);
 
 		// upsert the link, which should be collision free
 		const update = {
 			$set: {
-				teamId: this.codemark.teamId,
-				codemarkId: this.codemark.id,
+				teamId,
 				md5Hash: hash
 			}
 		};
+		if (this.codemark) {
+			update.$set.codemarkId = this.codemark.id;
+		}
+		else {
+			update.$set.reviewId = this.review.id;
+		}
 		const func = this.request.data.codemarkLinks.updateDirectWhenPersist ||
 			this.request.data.codemarkLinks.updateDirect;	// allows for migration script
 		await func.call(
@@ -55,9 +60,9 @@ class CodemarkLinkCreator {
 	}
 
 	// make the actual permalink
-	makePermalink (linkId, isPublic, teamId) {
+	makePermalink (linkId, isPublic, teamId, isReview) {
 		const origin = this.origin || this.request.api.config.api.publicApiUrl;
-		const linkType = isPublic ? 'p' : 'c';
+		const linkType = isReview ? 'r' : (isPublic ? 'p' : 'c');
 		linkId = this.encodeLinkId(linkId);
 		teamId = this.encodeLinkId(teamId);
 		return `${origin}/${linkType}/${teamId}/${linkId}`;
@@ -67,7 +72,7 @@ class CodemarkLinkCreator {
 	async updateCodemark () {
 		// if this was a public permalink, and the codemark doesn't yet have a public permalink,
 		// indicate that it now has one
-		if (this.isPublic && !this.codemark.hasPublicPermalink) {
+		if (this.isPublic && this.codemark && !this.codemark.hasPublicPermalink) {
 			await this.request.data.codemarks.updateDirectWhenPersist(
 				{ id: this.request.data.codemarks.objectIdSafe(this.codemark.id) },
 				{ $set: { hasPublicPermalink: true } }
@@ -78,9 +83,9 @@ class CodemarkLinkCreator {
 	// given codemark attributes and markers, determine if a link-type codemark has already
 	// been created with these exact attributes, as determiend by an MD5 hash ... if we find
 	// one, just return it, we won't create a duplicate 
-	async findCodemarkLink (attributes, markers, isPublic) {
+	async findPermalink (attributes, markers, isPublic) {
 		// hash the relevant codemark attributes
-		const hash = this.hashCodemark(attributes, markers, isPublic);
+		const hash = this.makeHash(attributes, markers, isPublic);
 
 		// look for a link that matches this hash exactly
 		const codemarkLink = await this.request.data.codemarkLinks.getOneByQuery(
@@ -105,20 +110,37 @@ class CodemarkLinkCreator {
 		}
 		const teamId = codemark.get ? codemark.get('teamId') : codemark.teamId;
 		const url = this.makePermalink(codemarkLink.id, isPublic, teamId);
-		return { codemarkLink, codemark, url };
+		return { permalink: codemarkLink, codemark, url };
 	}
 
-	// hash the distinguishing codemark attributes
-	hashCodemark (attributes, markers, isPublic) {
-		const hashText = this.makeHashText(attributes, markers, isPublic);
+	// hash the distinguishing attributes
+	makeHash (attributes, markers, isPublic, isReview) {
+		const hashText = isReview ?
+			this.makeReviewHashText(attributes, markers) :
+			this.makeCodemarkHashText(attributes, markers, isPublic);
 		return Crypto.createHash('md5').update(hashText).digest('hex');		
 	}
 
 	// make the text that reflects the distinguishing characteristics of a codemark,
 	// a combination of team, code, repo, file, commit hash, and location
 	// if all of these are the same, we should get the same MD5 hash
-	makeHashText (attributes, markers, isPublic) {
-		const markerText = (markers || [])
+	makeCodemarkHashText (attributes, markers, isPublic) {
+		const markerText = this.makeMarkerHashText(markers);
+		const type = attributes.type !== 'link' ? attributes.type : '';
+		return `${attributes.teamId}${type}${markerText}${isPublic ? 1 : 0}`;
+	}
+
+	// make the text that reflects the distinguishing characteristics of a review,
+	// a combination of team, code, repo, file, commit hash, and location
+	// if all of these are the same, we should get the same MD5 hash
+	makeReviewHashText (attributes, markers) {
+		const markerText = this.makeMarkerHashText(markers);
+		const reviewText = JSON.stringify(attributes.reviewDiffs || {});
+		return `${attributes.teamId}${markerText}${reviewText}`;
+	}
+
+	makeMarkerHashText (markers) {
+		return (markers || [])
 			.map(marker => {
 				return [
 					marker.get('code'),
@@ -129,9 +151,7 @@ class CodemarkLinkCreator {
 				].join('');
 			})
 			.join('');
-		const type = attributes.type !== 'link' ? attributes.type : '';
-		return `${attributes.teamId}${type}${markerText}${isPublic ? 1 : 0}`;
 	}
 }
 
-module.exports = CodemarkLinkCreator;
+module.exports = PermalinkCreator;

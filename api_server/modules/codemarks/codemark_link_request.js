@@ -3,7 +3,7 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const CodemarkLinkCreator = require('./codemark_link_creator');
+const PermalinkCreator = require('./permalink_creator');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class CodemarkLinkRequest extends RestfulRequest {
@@ -54,9 +54,9 @@ class CodemarkLinkRequest extends RestfulRequest {
 
 	// find a possible existing codemark link for this same codemark
 	async findExisting () {
-		const info = await new CodemarkLinkCreator({
+		const info = await new PermalinkCreator({
 			request: this
-		}).findCodemarkLink(
+		}).findPermalink(
 			this.codemark.attributes,
 			this.markers,
 			this.request.body.isPublic
@@ -70,12 +70,12 @@ class CodemarkLinkRequest extends RestfulRequest {
 
 	// create the link to the codemark
 	async makeLink () {
-		this.responseData.permalink = await new CodemarkLinkCreator({
+		this.responseData.permalink = await new PermalinkCreator({
 			request: this,
 			codemark: this.codemark.attributes,
 			markers: this.markers,
 			isPublic: this.request.body.isPublic
-		}).createCodemarkLink();
+		}).createPermalink();
 	}
 
 	// save the permalink with the codemark as needed

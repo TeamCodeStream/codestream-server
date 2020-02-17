@@ -7,7 +7,7 @@ const Codemark = require('./codemark');
 const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
 const CodemarkTypes = require('./codemark_types');
 const CodemarkAttributes = require('./codemark_attributes');
-const CodemarkLinkCreator = require('./codemark_link_creator');
+const PermalinkCreator = require('./permalink_creator');
 const CodemarkHelper = require('./codemark_helper');
 const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
@@ -310,12 +310,12 @@ class CodemarkCreator extends ModelCreator {
 			this.attributes.permalink = this.existingPermalink;
 		}
 		else {
-			this.attributes.permalink = await new CodemarkLinkCreator({
+			this.attributes.permalink = await new PermalinkCreator({
 				request: this.request,
 				codemark: this.attributes,
 				markers: this.transforms.createdMarkers || [],
 				isPublic: this.permalinkType === 'public'
-			}).createCodemarkLink();
+			}).createPermalink();
 		}
 		this.transforms.permalink = this.attributes.permalink;
 	}
@@ -327,9 +327,9 @@ class CodemarkCreator extends ModelCreator {
 		if (this.attributes.type !== 'link') {
 			return;
 		}
-		const info = await new CodemarkLinkCreator({
+		const info = await new PermalinkCreator({
 			request: this.request
-		}).findCodemarkLink(
+		}).findPermalink(
 			this.attributes,
 			this.trialRunMarkers || this.transforms.createdMarkers,
 			this.permalinkType === 'public'

@@ -10,6 +10,7 @@ const ReviewAttributes = require('./review_attributes');
 const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const PermalinkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/permalink_creator');
 
 class ReviewCreator extends ModelCreator {
 
@@ -40,6 +41,7 @@ class ReviewCreator extends ModelCreator {
 			optional: {
 				string: ['text', 'status'],
 				object: ['authorsById'],
+				boolean: ['_dontCreatePermalink'],
 				'array(string)': ['reviewers', 'followerIds', 'fileStreamIds', 'tags'],
 				'array(object)': ['reviewChangesets', 'markers']
 			}
@@ -82,6 +84,10 @@ class ReviewCreator extends ModelCreator {
 		// establish some default attributes
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.creatorId = this.request.user.id;
+
+		// this is just for testing
+		this.dontCreatePermalink = this.attributes._dontCreatePermalink;
+		delete this.attributes._dontCreatePermalink;
 
 		// pre-allocate an ID
 		this.createId();
@@ -126,6 +132,11 @@ class ReviewCreator extends ModelCreator {
 			}
 		);
 
+		// create a permalink to this codemark, as needed
+		if (!this.dontCreatePermalink) {
+			await this.createPermalink();
+		}
+
 		// pre-set createdAt and lastActivityAt attributes
 		this.attributes.createdAt = this.attributes.lastActivityAt = Date.now();
 		
@@ -164,6 +175,15 @@ class ReviewCreator extends ModelCreator {
 		if (nonTeamRepoIds.length > 0) {
 			throw this.errorHandler.error('notFound', { info: `repo(s) ${nonTeamRepoIds.join(',')}`});
 		}
+	}
+
+	// create a permalink url to the codemark
+	async createPermalink () {
+		this.attributes.permalink = await new PermalinkCreator({
+			request: this.request,
+			review: this.attributes,
+			markers: this.transforms.createdMarkers || []
+		}).createPermalink();
 	}
 
 	// handle any markers tied to the codemark

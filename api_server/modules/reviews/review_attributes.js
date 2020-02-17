@@ -98,5 +98,10 @@ module.exports = {
 		type: 'object',
 		maxLength: 1000,
 		description: 'Hash where user IDs are keys, indicating the authors of code referenced by this code review'
+	},
+	permalink: {
+		type: 'string',
+		maxLength: 1000,
+		description: 'Private permalink URL for this review'
 	}
 };
