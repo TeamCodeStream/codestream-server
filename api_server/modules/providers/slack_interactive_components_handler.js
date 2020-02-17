@@ -37,10 +37,16 @@ class SlackInteractiveComponentsHandler {
 			`Processing payload.type=${this.payload.type}, actionPayload.linkType=${this.actionPayload.linkType} userId=${userId} teamId=${teamId}`
 		);
 		try {
-			if (this.payload.type === 'block_actions') {
+			if (this.payload.type === 'block_actions') {				
 				if (this.actionPayload.linkType === 'reply') {
+					// codemark
 					return await this.handleBlockActionReply();
-				} else {
+				} 				
+				else if (this.actionPayload.linkType === 'review-reply') {
+					// review
+					return await this.handleBlockActionReviewReply();
+				} 
+				else {
 					return await this.handleBlockActionGeneric();
 				}
 			} else if (this.payload.type === 'view_submission') {
@@ -261,6 +267,20 @@ class SlackInteractiveComponentsHandler {
 		};
 	}
 
+	
+	mergeReviewActionPayloadData (review) {
+		if (!review) return;
+
+		// hydrate this object with some additional properties taken from the codemark
+		this.actionPayload = {
+			...this.actionPayload,
+			sId: review.get('streamId'),
+			tId: review.get('teamId'),
+			crId: review.get('creatorId'),
+			ppId: review.get('postId')
+		};
+	}
+
 	async handleBlockActionReply () {
 		let client;
 		let payloadActionUser;
@@ -314,7 +334,7 @@ class SlackInteractiveComponentsHandler {
 			try {
 				modalResponse = await client.views.open({
 					trigger_id: this.payload.trigger_id,
-					view: SlackInteractiveComponentBlocks.createModalView(
+					view: SlackInteractiveComponentBlocks.createCodemarkModalView(
 						this.payload,
 						this.actionPayload,
 						blocks
@@ -371,6 +391,137 @@ class SlackInteractiveComponentsHandler {
 					);
 					this.log('Was not able to show a modal (generic)');
 					errorReason = 'OpenCodemarkGenericError';
+				}
+			}
+
+			return {
+				actionUser: payloadActionUser,
+				actionTeam: team,
+				error: {
+					eventName: 'Provider Reply Denied',
+					reason: errorReason
+				},
+				payloadUserId: this.payload.user.id
+			};
+		}
+
+		return {
+			actionUser: payloadActionUser,
+			actionTeam: team,
+			payloadUserId: this.payload.user.id
+		};
+	}
+
+	async handleBlockActionReviewReply () {
+		let client;
+		let payloadActionUser;
+		let success = false;
+		const timeStart = new Date();
+		const review = await this.data.reviews.getById(this.actionPayload.rId);
+		this.mergeReviewActionPayloadData(review);
+
+		const team = await this.getTeamById(this.actionPayload.tId);
+		if (!review) {
+			await this.postEphemeralMessage(
+				this.payload.response_url,
+				SlackInteractiveComponentBlocks.createMarkdownBlocks('Sorry, we couldn\'t find that review')
+			);
+			return {
+				error: {
+					eventName: 'Provider Reply Denied',
+					reason: 'OpenReviewReviewNotFound'
+				}
+			};
+		}
+		// we are getting two users, but only using one of their accessTokens.
+		// this is to allow non Slack authed users to reply from slack wo/having CS
+		const { userThatCreated, userThatClicked } = await this.getUsers();
+		if (!userThatCreated && !userThatClicked) {
+			return undefined;
+		}
+
+		payloadActionUser = userThatClicked;
+
+		if (!team) {
+			await this.postEphemeralMessage(
+				this.payload.response_url,
+				SlackInteractiveComponentBlocks.createMarkdownBlocks('Sorry, we couldn\'t find your team')
+			);
+			return undefined;
+		}
+
+		const blocks = await this.createModalBlocks(review, userThatClicked);
+		let caughtSlackError = undefined;
+		const users = [userThatCreated, userThatClicked];
+		for (let i = 0; i < users.length; i++) {
+			caughtSlackError = false;
+			const user = users[i];
+			if (!user) continue;
+
+			client = await this.tryCreateClient(user, this.payload.user);
+			if (!client) continue;
+
+			let modalResponse;
+			try {
+				modalResponse = await client.views.open({
+					trigger_id: this.payload.trigger_id,
+					view: SlackInteractiveComponentBlocks.createReviewModalView(
+						this.payload,
+						this.actionPayload,
+						blocks
+					)
+				});
+				if (modalResponse && modalResponse.ok) {
+					success = true;
+					// note, this message assumes that the first user is the creator
+					this.log(
+						`Using token from the user that ${i == 0 ? 'created' : 'clicked'} the button. userId=${user.get('_id')}`
+					);
+
+					break;
+				}
+			} catch (ex) {
+				this.log(ex);
+				caughtSlackError = ex;
+				if (ex.data) {
+					try {
+						this.log(JSON.stringify(ex.data));
+					} catch (x) {
+						// suffer
+					}
+				}
+			}
+		}
+
+		if (!success) {
+			const timeEnd = new Date();
+			const timeDiff = timeStart.getTime() - timeEnd.getTime();
+			const secondsBetween = Math.abs(timeDiff / 1000);
+			let errorReason;
+			if (secondsBetween >= SLACK_TIMEOUT_SECONDS) {
+				await this.postEphemeralMessage(
+					this.payload.response_url,
+					SlackInteractiveComponentBlocks.createMarkdownBlocks('We took too long to respond, please try again. ')
+				);
+				this.log(`Took too long to respond (${secondsBetween} seconds)`);
+				errorReason = 'OpenReviewResponseTooSlow';
+			}
+			else {
+				if (caughtSlackError) {
+					await this.postEphemeralMessage(
+						this.payload.response_url,
+						SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. Please try again. ')
+					);
+					this.log(`Oops, something happened. ${caughtSlackError}`);
+					errorReason = 'OpenReviewGenericInternalError';
+				}
+				else {
+					await this.postEphemeralMessage(
+						this.payload.response_url,
+						SlackInteractiveComponentBlocks.createRequiresAccess()
+					);
+					this.log('Was not able to show a modal (generic)');
+					errorReason = 'OpenReviewGenericError';
 				}
 			}
 
@@ -594,7 +745,68 @@ class SlackInteractiveComponentsHandler {
 			}
 		];
 
-		blocks.push(SlackInteractiveComponentBlocks.createModalReply());
+		blocks.push(SlackInteractiveComponentBlocks.createModalReplyBlock());
+
+		const replyBlocks = this.createReplyBlocks(replies, usersById, userThatClicked, slackUserExtra);
+		if (replyBlocks && replyBlocks.length) {
+			blocks = blocks.concat(replyBlocks);
+		}
+		return blocks;
+	}
+
+	async createReviewModalBlocks (review, userThatClicked) {
+		const slackUserExtra = userThatClicked && this.getSlackExtraData(userThatClicked);
+		let replies;
+		let postUsers;
+		let userIds = [];
+		if (this.actionPayload.ppId) {
+			// slack blocks have a limit of 100, but we have 3 blocks for each reply...
+			replies = await this.data.posts.getByQuery(
+				{ parentPostId: this.actionPayload.ppId },
+				{ hint: PostIndexes.byParentPostId, sort: { seqNum: -1 }, limit: 30 }
+			);
+			//  don't show replies that have been deleted
+			if (replies && replies.length) {
+				replies = replies.filter(_ => !_.get('deactivated'));
+			}
+			// get uniques
+			userIds = [
+				...new Set([
+					...replies.map(_ => _.get('creatorId')),
+					review.get('creatorId')
+				])
+			];
+		} else {
+			userIds = [review.get('creatorId')];
+		}
+
+		postUsers = await this.data.users.getByIds(userIds);
+		const usersById = keyBy(postUsers, function (u) {
+			return u.get('_id');
+		});
+		const codemarkUser = usersById[review.get('creatorId')];
+		let blocks = [
+			{
+				type: 'context',
+				elements: [{
+					type: 'mrkdwn',
+					text: `*${(codemarkUser && codemarkUser.get('username')) || 'Unknown User'}* ${this.formatTime(
+						userThatClicked,
+						review.get('createdAt'),
+						slackUserExtra && slackUserExtra.tz
+					)}`
+				}]
+			},
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: `${review.get('text')}`
+				}
+			}
+		];
+
+		blocks.push(SlackInteractiveComponentBlocks.createModalReplyBlock());
 
 		const replyBlocks = this.createReplyBlocks(replies, usersById, userThatClicked, slackUserExtra);
 		if (replyBlocks && replyBlocks.length) {

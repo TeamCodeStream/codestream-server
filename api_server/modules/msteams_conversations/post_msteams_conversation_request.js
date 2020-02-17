@@ -17,8 +17,9 @@ class PostMSTeamsConversationRequest extends PostRequest {
 	// authorize the request for the current user	
 	async authorize () {
 		this.codemarkId = decodeURIComponent(this.request.body.codemarkId || '');
-		if (!this.codemarkId) {
-			throw this.errorHandler.error('parameterRequired', { info: 'codemarkId' });
+		this.reviewId = decodeURIComponent(this.request.body.reviewId || '');
+		if (!this.codemarkId && !this.reviewId) {
+			throw this.errorHandler.error('parameterRequired', { info: 'codemarkId or reviewId' });
 		}
 
 		this.channelId = decodeURIComponent(this.request.body.channelId || '');
@@ -176,6 +177,90 @@ class PostMSTeamsConversationRequest extends PostRequest {
 		return attachments;
 	}
 
+	async createReviewHeroCard (review) {
+		let repos;
+		let reposById;
+		const buttons = [];
+		const modifiedFiles = [];
+		const modifiedReposBranches = [];
+		if (review.get('deactivated')) {
+			return [CardFactory.heroCard('',
+				'<i>This review has been deactivated</i>',
+				null,
+				null
+			)];
+		}
+
+		const reviewChangesets = review.get('reviewChangesets');
+		if (reviewChangesets && reviewChangesets.length) {
+			repos = await this.data.repos.getByIds(reviewChangesets.map(_ => _.repoId));
+			reposById = repos.reduce(function (map, repo) {
+				map[repo.id] = repo.attributes;
+				return map;
+			}, {});
+
+			for (const changeSet of reviewChangesets) {
+				for (const modifiedFile of changeSet.modifiedFiles) {
+					const added = modifiedFile.linesAdded > 0 ? ` +${modifiedFile.linesAdded}` : '';
+					const removed = modifiedFile.linesRemoved > 0 ? ` -${modifiedFile.linesRemoved}` : '';
+					modifiedFiles.push(`${modifiedFile.file}${added}${removed}`);
+				}
+
+				const repo = reposById[changeSet.repoId];
+				let repoName = 'a repo';
+				if (repo) {
+					repoName = repo.name;
+				}
+				modifiedReposBranches.push(`${changeSet.modifiedFiles.length} files on <b>${changeSet.branch}</b> from <b>${repoName}</b>`);
+			}
+		}
+		const creator = await this.data.users.getById(review.get('creatorId'));
+		let author;
+		if (creator) {
+			author = creator.get('fullName');
+		}
+		
+		let permalink = review.get('permalink');
+		if (permalink) {
+			buttons.push({
+				type: ActionTypes.OpenUrl,
+				title: 'Open in IDE',
+				value: `${permalink}?ide=default`
+			});
+		}
+
+		let titleAndOrText = '';
+		if (author) {
+			titleAndOrText += `<small><b>${author}</b> wants a review of changes to ${modifiedReposBranches.join(', ')}</small><br><br>`;
+		}
+		titleAndOrText += `<b>${review.get('title')}</b>`;
+		if (review.get('text')) {
+			titleAndOrText += '<br>' + review.get('text');
+		}
+
+		let assigneesOrEmpty = '';
+		let assigneeIds = review.get('reviewers');
+		if (assigneeIds && assigneeIds.length) {
+			const assignees = await this.data.users.getByIds(assigneeIds);
+			if (assignees && assignees.length) {
+				assigneesOrEmpty = `<b>Assignees</b><br>${assignees.map(_ => {
+					return _.get('fullName');
+				}).join(', ')}<br><br>`;
+			}
+		}
+
+		// TODO: this is actually "small", but there's no where to put it after the buttons
+		// <br><small>Posted via CodeStream</small>
+
+		return [CardFactory.heroCard('',
+			`${titleAndOrText}<br><br>
+				${assigneesOrEmpty}				
+				<code style="font-size:.9em;white-space:pre;display:block;overflow:auto;">${modifiedFiles.join('\n')}</code>`,
+			null,
+			buttons
+		)];
+	}
+
 	escapeHtml (s) {
 		return s
 			.replace(/&/g, '&amp;')
@@ -204,25 +289,36 @@ class PostMSTeamsConversationRequest extends PostRequest {
 		});
 
 		if (!conversations || !conversations.length) {
-			this.warn(`No conversations found for conversationId=${this.channelId}`);
+			this.warn(`No conversations found for conversationId/channelId=${this.channelId}`);
 			return;
 		}
 		if (conversations.length != 1) {
-			this.warn(`There are ${conversations.length} conversations found for counversationId=${this.channelId}`);
+			this.warn(`There are ${conversations.length} conversations found for conversationId/channelId=${this.channelId}`);
 		}
 
 		const conversationWrapper = conversations[0];
 		const conversation = conversationWrapper.get('conversation');
 		if (!conversation) {
-			this.warn(`There is no conversation object found for counversationId=${this.channelId}`);
+			this.warn(`There is no conversation object found for conversationId/channelId=${this.channelId}`);
 			return;
 		}
-		const codemark = await this.data.codemarks.getById(this.request.body.codemarkId);
-		if (!codemark) {
-			this.warn(`No codemark for counversationId=${this.channelId}`);
-			return;
+		let attachments = [];
+		if (this.codemarkId) {
+			const codemark = await this.data.codemarks.getById(this.codemarkId);
+			if (!codemark) {
+				this.warn(`No codemark for conversationId=${this.channelId} codemarkId=${this.codemarkId}`);
+				return;
+			}
+			attachments = await this.createCodemarkHeroCard(codemark);
 		}
-		const attachments = await this.createCodemarkHeroCard(codemark);
+		else if (this.reviewId) {
+			const review = await this.data.reviews.getById(this.reviewId);
+			if (!review) {
+				this.warn(`No review for conversationId=${this.channelId} reviewId=${this.reviewId}`);
+				return;
+			}
+			attachments = await this.createReviewHeroCard(review);
+		}
 
 		// By default, the BotBuilder SDK adds a serviceUrl to the list of trusted host names 
 		// if the incoming request is authenticated by BotAuthentication. 

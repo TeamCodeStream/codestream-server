@@ -44,7 +44,7 @@ class SlackInteractiveComponentBlocks {
 		}
 	}
 
-	static createModalReply () {
+	static createModalReplyBlock () {
 		return {
 			block_id: 'block__text_input--message',
 			type: 'input',
@@ -100,22 +100,76 @@ class SlackInteractiveComponentBlocks {
 		return blocks;
 	}
 
-	static createModalView (payload, actionPayload, blocks) {
+	static createCodemarkModalView (payload, actionPayload, blocks) {
 		return {
 			private_metadata: JSON.stringify({
+				// creatorId
 				crId: actionPayload.crId,
+				// streamId
 				sId: actionPayload.sId,
+				// teamId
 				tId: actionPayload.tId,
+				// slack userId
 				uId: payload.user.id,
-				cId: actionPayload.cId,
+				// codemarkId
+				cId: actionPayload.cId,				
+				// parentPostId
 				ppId: actionPayload.ppId,
+				// provider creator user id, a slack userId, for example
 				pcuId: actionPayload.pcuId
 			}),
 			type: 'modal',
 			callback_id: JSON.stringify({
-				id: actionPayload.id,
+				// slack actionId
+				id: actionPayload.id,				
+				// codemarkId
 				cId: actionPayload.cId,
+				// markerId
 				mId: actionPayload.mId
+			}),
+			title: {
+				type: 'plain_text',
+				text: 'Post a Reply',
+				emoji: true
+			},
+			submit: {
+				type: 'plain_text',
+				text: 'Reply',
+				emoji: true
+			},
+			close: {
+				type: 'plain_text',
+				text: 'Cancel',
+				emoji: true
+			},
+			blocks: blocks
+		};
+	}
+
+	static createReviewModalView (payload, actionPayload, blocks) {
+		return {
+			private_metadata: JSON.stringify({
+				// creatorId
+				crId: actionPayload.crId,
+				// streamId
+				sId: actionPayload.sId,
+				// teamId
+				tId: actionPayload.tId,
+				// slack userId
+				uId: payload.user.id,				
+				// reviewId
+				rId: actionPayload.rId,
+				// parentPostId
+				ppId: actionPayload.ppId,
+				// provider creator user id, a slack userId, for example
+				pcuId: actionPayload.pcuId
+			}),
+			type: 'modal',
+			callback_id: JSON.stringify({
+				// id of this slack action
+				id: actionPayload.id,
+				// reviewId
+				rId: actionPayload.rId				
 			}),
 			title: {
 				type: 'plain_text',
