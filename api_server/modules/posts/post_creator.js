@@ -529,10 +529,6 @@ class PostCreator extends ModelCreator {
 			this.request.log('Email notification trigger blocked by caller for stream ' + this.stream.id);
 			return;
 		}
-		if (this.transforms.createdReview) {
-			this.request.log('Email notifications for code reviews not yet supported');
-			return;
-		}
 
 		// here we are paving the way for v2 email notifications, meaning those that base email notifications
 		// off of codemarks, rather than posts in the stream (part of the "sharing" model) ... until we are

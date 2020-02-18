@@ -162,8 +162,10 @@ class CodemarkHelper {
 			followerIds = ArrayUtilities.union(followerIds, membersWhoWantToFollow);
 		}
 
+
 		// must validate mentioned users and explicit followers, since these come directly from the request
-		const validateUserIds = ArrayUtilities.union(options.mentionedUserIds || [], attributes.followerIds || []);
+		let validateUserIds = ArrayUtilities.union(options.mentionedUserIds || [], attributes.followerIds || []);
+		validateUserIds = ArrayUtilities.unique(validateUserIds);
 		await this.validateUsersOnTeam(validateUserIds, attributes.teamId, 'followers');
 
 		// any mentioned users are followers if they want to be
