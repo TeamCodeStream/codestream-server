@@ -253,5 +253,15 @@ module.exports = {
 		description: 'Indicates user should be road-blocked until they set a password',
 		serverOnly: true,
 		forMe: true
+	},
+	modifiedRepos: {
+		type: 'object',
+		description: 'Files the user has made local modifications to, by repo',
+		maxLength: 10000
+	},
+	status: {
+		type: 'object',
+		description: 'User settable status that other team members can see',
+		maxLength: 200
 	}
 };

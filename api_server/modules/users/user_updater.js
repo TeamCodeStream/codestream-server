@@ -30,7 +30,8 @@ class UserUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn']
+			string: ['username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn'],
+			object: ['modifiedRepos', 'status']
 		};
 	}
 
