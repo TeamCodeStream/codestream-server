@@ -3,6 +3,7 @@
 const Config = require('./config');
 const ReplyRenderer = require('./replyRenderer');
 const CodemarkRenderer = require('./codemarkRenderer');
+const ReviewRenderer = require('./reviewRenderer');
 const EmailNotificationV2Renderer = require('./emailNotificationV2Renderer');
 const EmailNotificationV2Sender = require('./emailNotificationV2Sender');
 const Utils = require('./utils');
@@ -25,7 +26,7 @@ class EmailNotificationV2Handler {
 		try {
 			await this.getPost();					// get the triggering post
 			await this.getParentPost();				// get the parent post to the triggering post, if needed
-			await this.getCodemark();				// get the codemark for the triggering post
+			await this.getCodemarkOrReview();		// get the codemark or review for the triggering post
 			await this.getRelatedCodemarks();		// get any codemarks related to this one
 			await this.getMarkers();				// get markers associated with all codemarks
 			await this.getRepos();					// get repos associated with all markers
@@ -39,7 +40,7 @@ class EmailNotificationV2Handler {
 			if (await this.filterByActivity()) {	// filter to those who may have activity that keeps them from getting notifications
 				return; // indicates no emails will be sent, so just abort
 			}
-			if (await this.renderPost()) {			// render the HTML for the reply or codemark represented by this post
+			if (await this.renderPost()) {			// render the HTML for the reply, codemark, or review represented by this post
 				return; // indicates no emails will be sent, so just abort
 			}				
 			await this.personalizePerUser();		// personalize the rendered post as needed
@@ -77,14 +78,19 @@ class EmailNotificationV2Handler {
 		}
 	}
 
-	// get the codemark associated with the triggering post, as needed
-	async getCodemark () {
-		if (!this.post.codemarkId) {
-			return;
+	// get the codemark or review associated with the triggering post, as needed
+	async getCodemarkOrReview () {
+		if (this.post.codemarkId) {
+			this.codemark = await this.data.codemarks.getById(this.post.codemarkId);
+			if (!this.codemark) {
+				throw `codemark ${this.post.codemarkId} not found`;
+			}
 		}
-		this.codemark = await this.data.codemarks.getById(this.post.codemarkId);
-		if (!this.codemark) {
-			throw `codemark ${this.post.codemarkId} not found`;
+		else if (this.post.reviewId) {
+			this.review = await this.data.reviews.getById(this.post.reviewId);
+			if (!this.review) {
+				throw `review ${this.post.reviewId} not found`;
+			}
 		}
 	}
 
@@ -117,7 +123,7 @@ class EmailNotificationV2Handler {
 		}
 	}
 
-	// get the markers associated with all the codemarks
+	// get the markers associated with all the codemarks or the review
 	async getMarkers () {
 		const allCodemarks = (this.codemark && this.relatedCodemarks) || [];
 		if (this.codemark) {
@@ -126,7 +132,9 @@ class EmailNotificationV2Handler {
 		if (this.parentCodemark) {
 			allCodemarks.push(this.parentCodemark);
 		}
-
+		if (this.review) {
+			allCodemarks.push(this.review); // not a codemark, but still has markerIds
+		}
 		let markerIds = [];
 		for (let codemark of allCodemarks) {
 			markerIds = [...markerIds, ...(codemark.markerIds || [])];
@@ -217,10 +225,10 @@ class EmailNotificationV2Handler {
 		}
 
 		// then, only if they're following
-		const codemark = this.post.parentPostId ? this.parentCodemark : this.codemark;
-		const followerIds = (codemark && codemark.followerIds) || [];
+		const thingToFollow = this.post.parentPostId ? this.parentCodemark : (this.codemark || this.review);
+		const followerIds = (thingToFollow && thingToFollow.followerIds) || [];
 		if (followerIds.indexOf(user.id) === -1) {
-			this.log(`User ${user.id}:${user.email} is not following the associated codemark so will not receive an email notification`);
+			this.log(`User ${user.id}:${user.email} is not following the associated object so will not receive an email notification`);
 			return false;
 		}
 
@@ -281,6 +289,7 @@ class EmailNotificationV2Handler {
 		this.renderOptions = {
 			post: this.post,
 			codemark: this.parentCodemark || this.codemark,
+			review: this.review,
 			markers: this.markers,
 			fileStreams: this.fileStreams,
 			repos: this.repos,
@@ -298,6 +307,9 @@ class EmailNotificationV2Handler {
 		else if (this.codemark) {
 			return this.renderCodemark();
 		}
+		else if (this.review) {
+			return this.renderReview();
+		}
 		else {
 			this.warn(`Post ${this.post.id} is not a reply and does not refer to a codemark; email notifications for plain posts are no longer supported; how the F did we get here?`);
 			return true;
@@ -313,6 +325,11 @@ class EmailNotificationV2Handler {
 	// render the HTML needed for a codemark
 	async renderCodemark () {
 		this.renderedHtml = new CodemarkRenderer().render(this.renderOptions);
+	}
+
+	// render the HTML needed for a review
+	async renderReview () {
+		this.renderedHtml = new ReviewRenderer().render(this.renderOptions);
 	}
 
 	// personalize each user's rendered post as needed ... the rendered post needs to be
@@ -395,14 +412,14 @@ class EmailNotificationV2Handler {
 
 	// render a single email for the given user
 	async renderEmailForUser (user) {
-		const { codemark } = this.renderOptions;
-		const unfollowLink = this.getUnfollowLink(user, this.renderOptions.codemark);
+		const { codemark, review } = this.renderOptions;
+		const unfollowLink = this.getUnfollowLink(user, codemark || review);
 		Object.assign(this.renderOptions, {
 			content: this.renderedPostPerUser[user.id],
 			unfollowLink,
 			inboundEmailDisabled: Config.inboundEmailDisabled,
 			styles: this.pseudoStyles,	// only pseudo-styles go in the <head>
-			needButtons: !!this.parentPost || (codemark.markerIds || []).length === 1
+			needButtons: !!this.parentPost || ((codemark || review).markerIds || []).length === 1
 		});
 		let html = new EmailNotificationV2Renderer().render(this.renderOptions);
 		html = html.replace(/[\t\n]/g, '');
@@ -413,8 +430,8 @@ class EmailNotificationV2Handler {
 		this.renderedEmails.push({ user, html });
 	}
 
-	// get the "unfollow" codemark link for a given user and codemark
-	getUnfollowLink (user, codemark) {
+	// get the "unfollow" link for a given user and codemark or review
+	getUnfollowLink (user, thingToUnfollow) {
 		const expiresIn = this.expiresIn || 30 * 24 * 60 * 60 * 1000; // one month
 		const expiresAt = Date.now() + expiresIn;
 		const token = new TokenHandler(Config.tokenSecret).generate(
@@ -426,7 +443,7 @@ class EmailNotificationV2Handler {
 				expiresAt
 			}
 		);
-		return `${Config.apiUrl}/no-auth/unfollow-link/${codemark.id}?t=${token}`;
+		return `${Config.apiUrl}/no-auth/unfollow-link/${thingToUnfollow.id}?t=${token}`;
 	}
 
 	// send all the email notifications 
@@ -441,7 +458,8 @@ class EmailNotificationV2Handler {
 		const { user, html } = userAndHtml;
 		const isReply = !!this.post.parentPostId;
 		const codemark = isReply ? this.parentCodemark : this.codemark;
-		const creatorId = isReply ? this.post.creatorId : codemark.creatorId;
+		const review = this.review;
+		const creatorId = isReply ? this.post.creatorId : (codemark || review).creatorId;
 		const creator = this.teamMembers.find(member => member.id === creatorId);
 		const options = {
 			sender: this.sender,
@@ -449,12 +467,14 @@ class EmailNotificationV2Handler {
 			user,
 			creator,
 			codemark,
+			review,
 			stream: this.stream,
 			team: this.team,
 			isReply
 		};
+		const which = review ? 'review' : 'codemark';
 		try {
-			this.logger.log(`Sending codemark-based email notification to ${user.email}, post ${this.post.id}, isReply=${isReply}...`);
+			this.logger.log(`Sending ${which}-based email notification to ${user.email}, post ${this.post.id}, isReply=${isReply}...`);
 			await new EmailNotificationV2Sender().sendEmailNotification(options);
 		}
 		catch (error) {
@@ -465,7 +485,7 @@ class EmailNotificationV2Handler {
 			else {
 				message = JSON.stringify(error);
 			}
-			this.logger.warn(`Unable to send codemark-based email notification to ${user.email}: ${message}`);
+			this.logger.warn(`Unable to send ${which}-based email notification to ${user.email}: ${message}`);
 		}
 	}
 

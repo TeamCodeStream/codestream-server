@@ -3,7 +3,6 @@
 'use strict';
 
 const Utils = require('./utils');
-const Path = require('path');
 
 const PROVIDER_DISPLAY_NAMES = {
 	'github': 'GitHub',
@@ -65,14 +64,7 @@ class CodemarkRenderer {
 	// render the div for the title
 	renderTitleDiv (options) {
 		const { codemark } = options;
-		// display title: the codemark title if there is one, or just the codemark text
-		const title = Utils.prepareForEmail(codemark.title || codemark.text, options);
-		return `
-<div class="title">
-	<span class="ensure-white">${title}</span>
-	<br/>
-</div>
-`;
+		return Utils.renderTitleDiv(codemark.title, options);
 	}
 
 	// render the div for whom the codemark is visible, if a private codemark
@@ -116,90 +108,20 @@ class CodemarkRenderer {
 	// render the table for the tags and assignees, which are displayed side-by-side
 	renderTagsAssigneesTable (options) {
 		const { codemark, members } = options;
-
-		let tagsHeader = '';
-		if (codemark.tags && codemark.tags.length > 0) {
-			tagsHeader = 'TAGS';
-		}
-
-		let assigneesHeader = '';
-		let assignees = [];
-		if (
-			(codemark.assignees && codemark.assignees.length > 0) ||
-			(codemark.externalAssignees && codemark.externalAssignees.length > 0)
-		) {
-			assigneesHeader = 'ASSIGNEES';
-			(codemark.assignees || []).forEach(assigneeId => {
-				const user = members.find(member => member.id === assigneeId);
-				if (user) {
-					assignees.push(user);
-				}
-			});
-			const externalAssignees = (codemark.externalAssignees || []).filter(externalAssignee => {
-				return !assignees.find(existingAssignee => {
-					return existingAssignee.fullName === externalAssignee.displayName;
-				});
-			});
-			assignees = [...assignees, ...externalAssignees];
-		}
-
-		let tagsAssigneesTable = '';
-		if (tagsHeader || assigneesHeader) {
-			tagsAssigneesTable = '<table class="section" cellpadding=0 cellspacing=0 border=0><tbody><tr>';
-			if (tagsHeader) {
-				tagsAssigneesTable += `<td width="300" style="width:300px;" class="nice-gray section-text">${tagsHeader}</td>`;				
-			}
-			if (assigneesHeader) {
-				tagsAssigneesTable += `<td width="300" style="width:300px;" class="nice-gray section-text">${assigneesHeader}</td>`;
-			}
-			tagsAssigneesTable+='</tr><tr>';
-			if (tagsHeader) {				
-				const tags = Utils.renderTags(options);
-				tagsAssigneesTable += `<td width="300" style="width:300px;" valign="top">${tags}</td>`;				
-			}
-			if (assigneesHeader) {
-				tagsAssigneesTable += '<td width="300" style="width:300px;" valign=top><table>';
-				for (let nRow = 0; nRow < assignees.length; nRow++) {							
-					tagsAssigneesTable += `<tr><td>${this.renderAssignee(assignees[nRow])}</td></tr>`;												
-				}
-				tagsAssigneesTable+='</table></td>';
-			}		
-			
-			tagsAssigneesTable += '</tr></tbody></table><br>';
-		}
-
-		return tagsAssigneesTable;
-	}
-
-	// render a single task assignee
-	renderAssignee (assignee) {
-		const assigneeDisplay = assignee.fullName || assignee.displayName || assignee.username || assignee.email;
-		const assigneeHeadshot = Utils.renderUserHeadshot(assignee);
-		return `
-			${assigneeHeadshot}
-<span class="assignee">${assigneeDisplay}</span>
-`;
+		return Utils.renderTagsAssigneesTable({
+			assignees: codemark.assignees,
+			externalAssignees: codemark.externalAssignees,
+			tags: codemark.tags,
+			header: 'ASSIGNEES',
+			members,
+			team: options.team
+		});
 	}
 
 	// render the description div, as needed
 	renderDescriptionDiv (options) {
 		const { codemark } = options;
-		// there is a description if there is both a title and text, in which case it's the text
-		if (codemark.title && codemark.text) {
-			const text = Utils.prepareForEmail(codemark.text, options);
-			const iconHtml = Utils.renderIcon('description');
-			// F MS -- can't even get an icon on a single line... just hide it for those fools
-			return `
-<div class="section nice-gray section-text">DESCRIPTION</div>
-<div class="description-wrapper">
-	<!--[if !mso]> <!-->${iconHtml}&nbsp;<!-- <![endif]-->
-	<span class="ensure-white description">${text}</span>
-</div>
-`;
-		}
-		else {
-			return '';
-		}
+		return Utils.renderDescriptionDiv(codemark.text, options);
 	}
 
 	// render any linked issues
@@ -274,80 +196,12 @@ ${relatedDivs}
 
 	}
 
-	// render the code block divs, if any
+	// render the code block divs for the codemark, if any
 	renderCodeBlockDivs (options) {
-		const { codemark, markers } = options;
-		// display code blocks
-		let codeBlockDivs = '';
-		for (let markerId of codemark.markerIds || []) {
-			const marker = markers.find(marker => marker.id === markerId);
-			if (marker && marker.code) {
-				codeBlockDivs += this.renderCodeBlock(marker, options);
-			}
-		}
-		return codeBlockDivs;
-	}
-
-	// render a single code block
-	renderCodeBlock (marker, options) {
-		const { branchWhenCreated, commitHashWhenCreated } = marker;
-		const repo = Utils.getRepoForMarker(marker, options);
-		const file = Utils.getFileForMarker(marker, options);
-		const branch = branchWhenCreated || '';
-		const commitHash = commitHashWhenCreated ? commitHashWhenCreated.slice(0, 7) : '';
-		let code = (marker.code || '').trimEnd();
-
-		// get buttons to display
-		let buttons = '';
-		if ((options.codemark.markerIds || []).length > 1) {
-			buttons = Utils.renderMarkerButtons(options, marker, true);
-		}
-		
-		// do syntax highlighting for the code, based on the file extension
-		if (file) {
-			let extension = Path.extname(file).toLowerCase();
-			if (extension.startsWith('.')) {
-				extension = extension.substring(1);
-			}
-			code = Utils.highlightCode(code, extension);
-		}
-
-		// get code for the given marker, render into a table with line numbering
-		const locationWhenCreated = marker.locationWhenCreated || (marker.referenceLocations && marker.referenceLocations[0]);
-		const startLine = (locationWhenCreated && locationWhenCreated.location && locationWhenCreated.location[0]) || 0;
-		const codeHtml = Utils.renderCode(code, startLine);
-
-		// get icons for heading
-		const repoIcon = Utils.renderIcon('repo');
-		const fileIcon = Utils.renderIcon('file');
-		const branchIcon = Utils.renderIcon('git-branch');
-		const commitIcon = Utils.renderIcon('git-commit');
-		// need to use <td> padding for the spacing to work correctly since
-		// margin doesn't work on all clients
-		return `
-<div class="codeblock-text">
-	<table cellpadding=0 cellspacing=0 border=0>
-		<tr>
-			<td class="pr-2">${repoIcon}</td>
-			<td class="pr-8"><span class="codeblock-heading">${repo}</span></td>
-			<td class="pr-2">${fileIcon}</td>
-			<td class="pr-8"><span class="codeblock-heading">${file}</span></td>
-			<td class="pr-2">${branchIcon}</td>
-			<td class="pr-8"><span class="codeblock-heading">${branch}</span></td>
-			<td class="pr-2">${commitIcon}</td>
-			<td class="pr-8"><span class="codeblock-heading">${commitHash}</span></td>
-		</tr>
-	</table>
-</div>
-<div class="code">
-	<table border="0" cellspacing="2" cellpadding="2" bgcolor="#000000" width="100%">
-		<tr>
-			<td bgcolor="#000000">${codeHtml}</td>
-		</tr>
-	</table>
-</div>
-${buttons}
-`;
+		return Utils.renderCodeBlockDivs({
+			...options,
+			markerIds: options.codemark.markerIds
+		});
 	}
 }
 

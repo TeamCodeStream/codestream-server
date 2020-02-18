@@ -24,7 +24,7 @@ const TryIndefinitely = require('./server_utils/try_indefinitely');
 const { awaitParallel } = require('./server_utils/await_utils');
 const FS = require('fs');
 
-const MONGO_COLLECTIONS = ['users', 'teams', 'repos', 'streams', 'posts', 'codemarks', 'markers'];
+const MONGO_COLLECTIONS = ['users', 'teams', 'repos', 'streams', 'posts', 'codemarks', 'reviews', 'markers'];
 
 const HANDLERS = {
 	confirm: ConfirmationEmailHandler,

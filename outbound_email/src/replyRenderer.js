@@ -48,14 +48,7 @@ ${earlierReplies}
 	// render the div for the title of the codemark
 	renderTitleDiv (options) {
 		const { codemark } = options;
-		// display title: the codemark title if there is one, or just the codemark text
-		const title = Utils.prepareForEmail(codemark.title || codemark.text, options);
-		return `
-<div class="title">
-	<span class="ensure-white">${title}</span>
-	<br>
-</div>
-`;
+		return Utils.renderTitleDiv(codemark.title, options);
 	}
 
 	// render the associated icons

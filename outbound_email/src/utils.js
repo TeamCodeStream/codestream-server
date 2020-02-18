@@ -35,6 +35,36 @@ const ICONS_ROOT = 'https://images.codestream.com/email_icons';
 
 const Utils = {
 
+	// render the div for the title
+	renderTitleDiv: function (title, options) {
+		title = Utils.prepareForEmail(title, options);
+		return `
+<div class="title">
+	<span class="ensure-white">${title}</span>
+	<br/>
+</div>
+`;
+	},
+
+	// render the description div, as needed
+	renderDescriptionDiv: function (text, options) {
+		if (text) {
+			text = Utils.prepareForEmail(text, options);
+			const iconHtml = Utils.renderIcon('description');
+			// F MS -- can't even get an icon on a single line... just hide it for those fools
+			return `
+<div class="section nice-gray section-text">DESCRIPTION</div>
+<div class="description-wrapper">
+<!--[if !mso]> <!-->${iconHtml}&nbsp;<!-- <![endif]-->
+<span class="ensure-white description">${text}</span>
+</div>
+`;
+		}
+		else {
+			return '';
+		}
+	},
+
 	// render the author span portion of an email post
 	renderAuthorSpan: function (creator, codemark, emote) {
 		const author = creator.username || EmailUtilities.parseEmail(creator.email).name;
@@ -72,6 +102,75 @@ const Utils = {
 		default:
 			return 'commented on code';	// shouldn't happen, just a failsafe
 		}
+	},
+
+	// render the table for the tags and assignees, which are displayed side-by-side
+	renderTagsAssigneesTable: function (options) {
+		const { assignees, tags, members, header } = options;
+		let { externalAssignees } = options;
+
+		let tagsHeader = '';
+		if (tags && tags.length > 0) {
+			tagsHeader = 'TAGS';
+		}
+
+		let assigneesHeader = '';
+		let allAssignees = [];
+		if (
+			(assignees && assignees.length > 0) ||
+			(externalAssignees && externalAssignees.length > 0)
+		) {
+			assigneesHeader = header;
+			(assignees || []).forEach(assigneeId => {
+				const user = members.find(member => member.id === assigneeId);
+				if (user) {
+					allAssignees.push(user);
+				}
+			});
+			externalAssignees = (externalAssignees || []).filter(externalAssignee => {
+				return !assignees.find(existingAssignee => {
+					return existingAssignee.fullName === externalAssignee.displayName;
+				});
+			});
+			allAssignees = [...allAssignees, ...externalAssignees];
+		}
+
+		let tagsAssigneesTable = '';
+		if (tagsHeader || assigneesHeader) {
+			tagsAssigneesTable = '<table class="section" cellpadding=0 cellspacing=0 border=0><tbody><tr>';
+			if (tagsHeader) {
+				tagsAssigneesTable += `<td width="300" style="width:300px;" class="nice-gray section-text">${tagsHeader}</td>`;				
+			}
+			if (assigneesHeader) {
+				tagsAssigneesTable += `<td width="300" style="width:300px;" class="nice-gray section-text">${assigneesHeader}</td>`;
+			}
+			tagsAssigneesTable+='</tr><tr>';
+			if (tagsHeader) {				
+				const tags = Utils.renderTags(options);
+				tagsAssigneesTable += `<td width="300" style="width:300px;" valign="top">${tags}</td>`;				
+			}
+			if (assigneesHeader) {
+				tagsAssigneesTable += '<td width="300" style="width:300px;" valign=top><table>';
+				for (let nRow = 0; nRow < allAssignees.length; nRow++) {							
+					tagsAssigneesTable += `<tr><td>${this.renderAssignee(allAssignees[nRow])}</td></tr>`;												
+				}
+				tagsAssigneesTable+='</table></td>';
+			}		
+			
+			tagsAssigneesTable += '</tr></tbody></table><br>';
+		}
+
+		return tagsAssigneesTable;
+	},
+
+	// render a single task assignee
+	renderAssignee (assignee) {
+		const assigneeDisplay = assignee.fullName || assignee.displayName || assignee.username || assignee.email;
+		const assigneeHeadshot = Utils.renderUserHeadshot(assignee);
+		return `
+			${assigneeHeadshot}
+<span class="assignee">${assigneeDisplay}</span>
+`;
 	},
 
 	// do syntax highlighting on a code block
@@ -347,8 +446,7 @@ const Utils = {
 
 	// render the set of tags
 	renderTags: function (options) {
-		const { codemark, team } = options;
-		const tags = codemark.tags || [];
+		const { tags, team } = options;
 		const teamTags = team.tags || [];
 		let hasTags = false;
 		let tagsHtml = '<table cellpadding=1 cellspacing=1 border=0><tr>';
@@ -427,8 +525,83 @@ const Utils = {
 		}
 		codeHtml += '</table>';
 		return codeHtml;
+	},
+
+	// render the code block divs, if any
+	renderCodeBlockDivs: function (options) {
+		const { markerIds, markers } = options;
+		// display code blocks
+		let codeBlockDivs = '';
+		for (let markerId of markerIds || []) {
+			const marker = markers.find(marker => marker.id === markerId);
+			if (marker && marker.code) {
+				codeBlockDivs += this.renderCodeBlock(marker, options);
+			}
+		}
+		return codeBlockDivs;
+	},
+
+	// render a single code block
+	renderCodeBlock: function (marker, options) {
+		const { branchWhenCreated, commitHashWhenCreated } = marker;
+		const repo = Utils.getRepoForMarker(marker, options);
+		const file = Utils.getFileForMarker(marker, options);
+		const branch = branchWhenCreated || '';
+		const commitHash = commitHashWhenCreated ? commitHashWhenCreated.slice(0, 7) : '';
+		let code = (marker.code || '').trimEnd();
+
+		// get buttons to display
+		let buttons = '';
+		if ((options.markerIds || []).length > 1) {
+			buttons = Utils.renderMarkerButtons(options, marker, true);
+		}
+		
+		// do syntax highlighting for the code, based on the file extension
+		if (file) {
+			let extension = Path.extname(file).toLowerCase();
+			if (extension.startsWith('.')) {
+				extension = extension.substring(1);
+			}
+			code = Utils.highlightCode(code, extension);
+		}
+
+		// get code for the given marker, render into a table with line numbering
+		const locationWhenCreated = marker.locationWhenCreated || (marker.referenceLocations && marker.referenceLocations[0]);
+		const startLine = (locationWhenCreated && locationWhenCreated.location && locationWhenCreated.location[0]) || 0;
+		const codeHtml = Utils.renderCode(code, startLine);
+
+		// get icons for heading
+		const repoIcon = Utils.renderIcon('repo');
+		const fileIcon = Utils.renderIcon('file');
+		const branchIcon = Utils.renderIcon('git-branch');
+		const commitIcon = Utils.renderIcon('git-commit');
+		// need to use <td> padding for the spacing to work correctly since
+		// margin doesn't work on all clients
+		return `
+<div class="codeblock-text">
+	<table cellpadding=0 cellspacing=0 border=0>
+		<tr>
+			<td class="pr-2">${repoIcon}</td>
+			<td class="pr-8"><span class="codeblock-heading">${repo}</span></td>
+			<td class="pr-2">${fileIcon}</td>
+			<td class="pr-8"><span class="codeblock-heading">${file}</span></td>
+			<td class="pr-2">${branchIcon}</td>
+			<td class="pr-8"><span class="codeblock-heading">${branch}</span></td>
+			<td class="pr-2">${commitIcon}</td>
+			<td class="pr-8"><span class="codeblock-heading">${commitHash}</span></td>
+		</tr>
+	</table>
+</div>
+<div class="code">
+	<table border="0" cellspacing="2" cellpadding="2" bgcolor="#000000" width="100%">
+		<tr>
+			<td bgcolor="#000000">${codeHtml}</td>
+		</tr>
+	</table>
+</div>
+${buttons}
+`;
 	}
 };
-
 
 module.exports = Utils;
