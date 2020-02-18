@@ -90,10 +90,10 @@ ApiCfg.thirdPartyProviders = [
 ApiCfg.unauthenticatedPaths = ['^\\/no-auth\\/', '^\\/robots\\.txt$'];
 
 // matching these paths means Authorization header is optional, behavior may vary
-ApiCfg.optionalAuthenticatedPaths = ['^\\/help(\\/|$)', '^\\/c\\/', '^\\/p\\/', '^\\/web\\/'];
+ApiCfg.optionalAuthenticatedPaths = ['^\\/help(\\/|$)', '^\\/c\\/', '^\\/p\\/', '^\\/r\\/', '^\\/web\\/'];
 
 // matching these paths means cookie authentication is required
-ApiCfg.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/web\\/'];
+ApiCfg.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/r\\/', '^\\/web\\/'];
 
 // server will use this cookie to store identity token
 ApiCfg.identityCookie = 'tcs';

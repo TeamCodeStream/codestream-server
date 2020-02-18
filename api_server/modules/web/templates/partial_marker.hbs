@@ -131,7 +131,11 @@
         $('[data-ide=""]').on('click', function(e) {
             if ($(this).attr('data-marker-id') !== '{{markerId}}') return;
 
-            window.CODESTREAM.openEditor(e, $(this), '{{markerId}}');
+            window.CODESTREAM.openEditor(e, $(this), 'codemark', 
+                {
+                    id: '{{codemarkId}}',
+                    markerId : '{{markerId}}' 
+                });
         });
 
         $('[data-code-provider="{{markerId}}"]').click(function(e) {
