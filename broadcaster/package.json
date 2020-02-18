@@ -9,6 +9,7 @@
     "express": "4.17.1",
     "hjson": "3.2.1",
     "mongodb": "3.5.3",
+    "pre-commit": "^1.2.2",
     "socketcluster-server": "16.0.0",
     "strftime": "0.10.0",
     "uuid": "3.4.0"
