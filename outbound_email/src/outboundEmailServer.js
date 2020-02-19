@@ -209,7 +209,7 @@ class OutboundEmailServer {
 				this.warn(`Failed to connect to PubNub: ${msg}\n${JSON.stringify(stat)}`);
 				throw error;
 			}
-		}, 1000, this, 'Unable to connect to PubNub, retrying...');
+		}, 5000, this, 'Unable to connect to PubNub, retrying...');
 		this.broadcaster = new PubNubClient({ pubnub });
 		this.log('Successfully connected to Pubnub');
 	}
@@ -225,7 +225,7 @@ class OutboundEmailServer {
 		await TryIndefinitely(async () => {
 			await this.broadcaster.init();
 			await this.broadcaster.publish('test', 'test');
-		}, 1000, this, 'Unable to connect to SocketCluster, retrying...');
+		}, 5000, this, 'Unable to connect to SocketCluster, retrying...');
 		this.log('Successfully connected to SocketCluster');
 	}
 		
