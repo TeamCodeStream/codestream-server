@@ -9,7 +9,8 @@ RUN mkdir log tmp pid
 
 WORKDIR /opt/broadcaster/broadcaster
 
-ADD *.js *.json *.infox /opt/broadcaster/broadcaster/
+ADD *.js *.json *.info /opt/broadcaster/broadcaster/
+ADD lib /opt/broadcaster/broadcaster/lib
 ADD server_utils /opt/broadcaster/broadcaster/server_utils
 ADD codestream-configs /opt/broadcaster/broadcaster/codestream-configs
 ADD bin/broadcaster.js /opt/broadcaster/broadcaster/bin/broadcaster.js
