@@ -39,6 +39,8 @@ class SocketClusterClient {
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.socket.disconnect();
+			delete this.socket;
 			throw `Socketcluster authorization error: ${message}`;
 		}
 	}
