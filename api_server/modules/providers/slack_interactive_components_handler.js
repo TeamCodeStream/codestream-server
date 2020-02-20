@@ -37,15 +37,15 @@ class SlackInteractiveComponentsHandler {
 			`Processing payload.type=${this.payload.type}, actionPayload.linkType=${this.actionPayload.linkType} userId=${userId} teamId=${teamId}`
 		);
 		try {
-			if (this.payload.type === 'block_actions') {				
+			if (this.payload.type === 'block_actions') {
 				if (this.actionPayload.linkType === 'reply') {
 					// codemark
 					return await this.handleBlockActionReply();
-				} 				
+				}
 				else if (this.actionPayload.linkType === 'review-reply') {
 					// review
 					return await this.handleBlockActionReviewReply();
-				} 
+				}
 				else {
 					return await this.handleBlockActionGeneric();
 				}
@@ -169,8 +169,8 @@ class SlackInteractiveComponentsHandler {
 			});
 			const timeEnd = new Date();
 			const timeDiff = timeStart.getTime() - timeEnd.getTime();
-			const secondsBetween = Math.abs(timeDiff / 1000);			
-			if (secondsBetween >= SLACK_TIMEOUT_SECONDS) { 
+			const secondsBetween = Math.abs(timeDiff / 1000);
+			if (secondsBetween >= SLACK_TIMEOUT_SECONDS) {
 				throw new Error(REPLY_SUBMISSION_TOO_SLOW);
 			}
 		} catch (err) {
@@ -178,7 +178,7 @@ class SlackInteractiveComponentsHandler {
 			error = {
 				eventName: 'Provider Reply Denied',
 				reason: err.message === REPLY_SUBMISSION_TOO_SLOW ?
-					REPLY_SUBMISSION_TOO_SLOW: reason
+					REPLY_SUBMISSION_TOO_SLOW : reason
 			};
 		}
 
@@ -267,7 +267,6 @@ class SlackInteractiveComponentsHandler {
 		};
 	}
 
-	
 	mergeReviewActionPayloadData (review) {
 		if (!review) return;
 
@@ -560,7 +559,7 @@ class SlackInteractiveComponentsHandler {
 			return undefined;
 		}
 		if (users.length === 1) {
-			return users[0];			
+			return users[0];
 		}
 		return undefined;
 	}
@@ -570,8 +569,8 @@ class SlackInteractiveComponentsHandler {
 
 		const user = await this.getUserWithoutTeam(slackUserId);
 
-		if (user && user.hasTeam(codestreamTeamId)) return user;			
-		
+		if (user && user.hasTeam(codestreamTeamId)) return user;
+
 		return undefined;
 	}
 
@@ -821,25 +820,51 @@ class SlackInteractiveComponentsHandler {
 			for (let i = 0; i < replies.length; i++) {
 				const reply = replies[i];
 				const replyUser = usersById[reply.get('creatorId')];
-				blocks.push(
-					{
-						type: 'context',
-						elements: [{
-							type: 'mrkdwn',
-							text: `*${(replyUser && replyUser.get('username')) || 'Unknown User'}* ${this.formatTime(
-								userThatClicked,
-								reply.get('createdAt'),
-								slackUserExtra && slackUserExtra.tz
-							)}`
-						}]
-					},
-					{
-						type: 'section',
-						text: {
-							type: 'mrkdwn',
-							text: `${reply.get('text')}`
-						}
-					});
+				const user = (replyUser && replyUser.get('username')) || 'An unknown user';
+				let text = reply.get('text');
+
+				if (text.startsWith('/me ')) {
+					// if this was a "me message" -- treat it slightly differently 
+					// (the webview treats these like a "system" message -- styled as inline)
+					text = text.substring(4);					
+					blocks.push(
+						{
+							type: 'context',
+							elements: [
+								{
+									type: 'mrkdwn',
+									text: `*${user} ${text}* ${this.formatTime(
+										userThatClicked,
+										reply.get('createdAt'),
+										slackUserExtra && slackUserExtra.tz
+									)}`
+								},
+							]
+						},
+					);
+				}
+				else {
+					blocks.push(
+						{
+							type: 'context',
+							elements: [{
+								type: 'mrkdwn',
+								text: `*${user}* ${this.formatTime(
+									userThatClicked,
+									reply.get('createdAt'),
+									slackUserExtra && slackUserExtra.tz
+								)}`
+							}]
+						},
+						{
+							type: 'section',
+							text: {
+								type: 'mrkdwn',
+								text: `${text}`
+							}
+						});
+				}
+
 				if (i < replies.length - 1) {
 					blocks.push({
 						type: 'divider'
