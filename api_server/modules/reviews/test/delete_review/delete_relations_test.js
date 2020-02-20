@@ -23,7 +23,12 @@ class DeleteRelationsTest extends DeleteRepliesTest {
 			this,
 			2,
 			this.makeRelatedCodemark,
-			callback
+			() => {
+				this.expectedData.codemarks.sort((a, b) => {
+					return a.id.localeCompare(b.id);
+				});
+				callback();
+			}
 		);
 	}
 
