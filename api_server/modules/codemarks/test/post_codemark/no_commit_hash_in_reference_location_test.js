@@ -5,14 +5,7 @@ const ReferenceLocationsTest = require('./reference_locations_test');
 class NoCommitHashInReferenceLocation extends ReferenceLocationsTest {
 
 	get description () {
-		return 'should return an error when attempting to create a codemark with a marker that has additional reference locations, but one of the reference locations does not have a commit hash';
-	}
-
-	getExpectedError () {
-		return {
-			code: 'RAPI-1005',
-			info: 'locations must have commitHash which must be a string'
-		};
+		return 'should be ok to create a codemark with a marker that has additional reference locations, but one of the reference locations does not have a commit hash, but that reference location does not get saved with marker locations';
 	}
 
 	// form the data to use in trying to create the codemark

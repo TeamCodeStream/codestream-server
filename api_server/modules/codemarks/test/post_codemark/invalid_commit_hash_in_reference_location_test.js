@@ -11,7 +11,7 @@ class InvalidCommitHashInReferenceLocation extends ReferenceLocationsTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'locations must have commitHash which must be a string'
+			info: 'location commitHash but be a string'
 		};
 	}
 

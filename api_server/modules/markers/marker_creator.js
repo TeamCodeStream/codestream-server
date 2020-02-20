@@ -151,17 +151,19 @@ class MarkerCreator extends ModelCreator {
 		// make sure all the location objects are validated, including their actual location coordinates
 		this.attributes.referenceLocations = [];
 		for (let location of unvalidatedLocations) {
-			if (typeof location.commitHash !== 'string' || location.commitHash.length === 0) {
-				return 'locations must have commitHash which must be a string';
+			if (location.commitHash !== undefined && typeof location.commitHash !== 'string') {
+				return 'location commitHash but be a string';
 			}
 			const result = MarkerCreator.validateLocation(location.location);
 			if (result) {
 				return `invalid location ${location.location}: ${result}`;
 			}
 			const validatedLocation = {
-				commitHash: location.commitHash.toLowerCase(),
 				location: location.location
 			};
+			if (location.commitHash) {
+				validatedLocation.commitHash = location.commitHash.toLowerCase();
+			}
 			if (typeof location.flags === 'object') {
 				validatedLocation.flags = location.flags;
 			}
@@ -348,6 +350,9 @@ class MarkerCreator extends ModelCreator {
 	}
 
 	async updateMarkerLocationsByCommitHash (location) {
+		if (!location.commitHash) {
+			return;
+		}
 		const id = `${this.attributes.fileStreamId}|${location.commitHash}`.toLowerCase();
 		let op = {
 			$set: {

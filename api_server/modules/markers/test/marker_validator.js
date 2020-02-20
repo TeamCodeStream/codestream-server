@@ -126,10 +126,16 @@ class MarkerValidator {
 	validateReferenceLocations (marker, n) {
 		const markerData = this.inputObject.markers[n];
 		const expectedReferenceLocations = (markerData.referenceLocations || []).map(rl => {
-			return {
-				...rl,
-				commitHash: rl.commitHash.toLowerCase()
+			const expected = {
+				...rl
 			};
+			if (rl.commitHash) {
+				expected.commitHash = rl.commitHash.toLowerCase();
+			}
+			else {
+				delete expected.commitHash;
+			}
+			return expected;
 		});
 		if (markerData.commitHash && markerData.location) {
 			expectedReferenceLocations.unshift(
@@ -234,14 +240,16 @@ class MarkerValidator {
 			});
 	
 			(inputMarker.referenceLocations || []).forEach(rl => {
-				expectedMarkerLocations.push({
-					teamId: this.test.team.id,
-					streamId: marker.fileStreamId,
-					commitHash: rl.commitHash.toLowerCase(),
-					locations: {
-						[marker.id]: rl.location
-					}
-				});
+				if (rl.commitHash) {
+					expectedMarkerLocations.push({
+						teamId: this.test.team.id,
+						streamId: marker.fileStreamId,
+						commitHash: rl.commitHash.toLowerCase(),
+						locations: {
+							[marker.id]: rl.location
+						}
+					});
+				}
 			});
 		}
 
