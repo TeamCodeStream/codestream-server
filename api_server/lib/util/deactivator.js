@@ -5,8 +5,8 @@ const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
 
-const COLLECTIONS = ['companies', 'teams', 'repos', 'users', 'streams', 'posts', 'markers', 'markerLocations'];
-
+const COLLECTIONS = ['companies', 'teams', 'repos', 'users', 'streams', 'posts', 'codemarks', 'reviews', 'markers', 'markerLocations'];
+const COLLECTIONS_FOR_TEAM = ['streams', 'posts', 'codemarks', 'reviews', 'markers', 'markerLocations'];
 
 class Deleter {
 
@@ -16,16 +16,17 @@ class Deleter {
 		await this.openMongoClient();
 		await this.getTargetObject();
 		await this.getUsers();
-		await this.getRepos();
-		await this.getStreams();
 		await this.deleteRepos();
 		await this.deleteTeam();
 		await this.deleteCompany();
 		await this.deleteUsers();
-		await this.deleteStreams();
-		await this.deletePosts();
-		await this.deleteMarkers();
-		await this.deleteMarkerLocations();
+		if (this.teamId) {
+			await Promise.all(
+				COLLECTIONS_FOR_TEAM.map(async collection => {
+					await this.deleteCollection(collection);
+				})
+			);
+		}
 	}
 
 	async openMongoClient () {
@@ -72,7 +73,7 @@ class Deleter {
 		try {
 			this.team = await this.mongoClient.mongoCollections.teams.getById(
 				this.teamId,
-				{ fields: ['id', 'companyId'] }
+				{ fields: ['id', 'companyId', 'name'] }
 			);
 		}
 		catch (error) {
@@ -233,23 +234,10 @@ class Deleter {
 
 	async deleteRepos () {
 		if (this.teamId) {
-			await this.deleteReposByTeamId();
+			await this.deleteCollection('repos');
 		}
 		else if (this.repoId) {
 			await this.deleteRepoById();
-		}
-	}
-
-	async deleteReposByTeamId () {
-		this.logger.log(`Deactivating repos in team ${this.teamId}...`);
-		try {
-			await this.mongoClient.mongoCollections.repos.updateDirect(
-				{ teamId: this.teamId },
-				{ $set: { deactivated: true } }
-			);
-		}
-		catch (error) {
-			throw `unable to delete repo: ${JSON.stringify(error)}`;
 		}
 	}
 
@@ -274,9 +262,11 @@ class Deleter {
 		const teamId = this.teamId.toLowerCase();
 		this.logger.log(`Deactivating team ${teamId}...`);
 		try {
+			const now = Date.now();
+			const newName = `${this.team.name}-deactivated${now}`;
 			await this.mongoClient.mongoCollections.teams.updateDirect(
 				{ id: this.mongoClient.mongoCollections.teams.objectIdSafe(teamId) },
-				{ $set: { deactivated: true } }
+				{ $set: { deactivated: true, name: newName } }
 			);
 		}
 		catch (error) {
@@ -372,67 +362,17 @@ class Deleter {
 		}
 	}
 
-	async deleteStreams () {
-		if (!this.streamIds || this.streamIds.length === 0) {
-			return;
-		}
-		this.logger.log(`Deactivating ${this.streamIds.length} streams...`);
+	async deleteCollection (collection) {
+		this.logger.log(`Deactivating ${collection}...`);
 		try {
-			await this.mongoClient.mongoCollections.streams.updateDirect(
-				{ id: this.mongoClient.mongoCollections.streams.inQuerySafe(this.streamIds) },
+			await this.mongoClient.mongoCollections[collection].updateDirect(
+				{ teamId: this.teamId },
 				{ $set: { deactivated: true } }
 			);
 		}
 		catch (error) {
-			throw `unable to delete streams: ${JSON.stringify(error)}`;
-		}
-	}
-
-	async deletePosts () {
-		if (!this.streamIds || this.streamIds.length === 0) {
-			return ;
-		}
-		this.logger.log(`Deactivating posts in ${this.streamIds.length} streams...`);
-		try {
-			await this.mongoClient.mongoCollections.posts.updateDirect(
-				{ streamId: { $in: this.streamIds } },
-				{ $set: { deactivated: true } }
-			);
-		}
-		catch (error) {
-			throw `unable to delete posts: ${JSON.stringify(error)}`;
-		}
-	}
-
-	async deleteMarkers () {
-		if (!this.streamIds || this.streamIds.length === 0) {
-			return;
-		}
-		this.logger.log(`Deactivating markers in ${this.streamIds.length} streams...`);
-		try {
-			await this.mongoClient.mongoCollections.markers.updateDirect(
-				{ streamId: { $in: this.streamIds } },
-				{ $set: { deactivated: true } }
-			);
-		}
-		catch (error) {
-			throw `unable to delete markers: ${JSON.stringify(error)}`;
-		}
-	}
-
-	async deleteMarkerLocations () {
-		if (!this.streamIds || this.streamIds.length === 0) {
-			return ;
-		}
-		this.logger.log(`Deactivating marker locations in ${this.streamIds.length} streams...`);
-		try {
-			await this.mongoClient.mongoCollections.markerLocations.updateDirect(
-				{ streamId: { $in: this.streamIds } },
-				{ $set: { deactivated: true } }
-			);
-		}
-		catch (error) {
-			throw `unable to delete marker locations: ${JSON.stringify(error)}`;
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			throw `unable to delete ${collection}: ${message}`;
 		}
 	}
 }
