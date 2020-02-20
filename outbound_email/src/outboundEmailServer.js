@@ -187,7 +187,10 @@ class OutboundEmailServer {
 	
 	async openBroadcasterClient () {
 		if (this.config.socketCluster.port) {
-			return await this.openSocketClusterClient();
+			this.log('Open SC client...');
+			const p = await this.openSocketClusterClient();
+			this.log('Opened SC client');
+			return p;
 		}
 		else {
 			return await this.openPubnubClient();
@@ -221,10 +224,16 @@ class OutboundEmailServer {
 			uid: 'API',
 			authKey: this.config.socketCluster.broadcasterSecret
 		});
+		this.log('Creating SC client...');
 		this.broadcaster = new SocketClusterClient(config);
+		this.log('Created SC client');
 		await TryIndefinitely(async () => {
+			this.log('Initing broadcaster...');
 			await this.broadcaster.init();
+			this.log('Inited broadcaster');
+			this.log('Publishing test message...');
 			await this.broadcaster.publish('test', 'test');
+			this.log('Published test message');
 		}, 5000, this, 'Unable to connect to SocketCluster, retrying...');
 		this.log('Successfully connected to SocketCluster');
 	}
