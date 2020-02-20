@@ -200,10 +200,16 @@ class PostMSTeamsConversationRequest extends PostRequest {
 			}, {});
 
 			for (const changeSet of reviewChangesets) {
-				for (const modifiedFile of changeSet.modifiedFiles) {
-					const added = modifiedFile.linesAdded > 0 ? ` +${modifiedFile.linesAdded}` : '';
-					const removed = modifiedFile.linesRemoved > 0 ? ` -${modifiedFile.linesRemoved}` : '';
-					modifiedFiles.push(`${modifiedFile.file}${added}${removed}`);
+				let file = 'files';
+				if (changeSet.modifiedFiles) {
+					for (const modifiedFile of changeSet.modifiedFiles) {
+						const added = modifiedFile.linesAdded > 0 ? ` +${modifiedFile.linesAdded}` : '';
+						const removed = modifiedFile.linesRemoved > 0 ? ` -${modifiedFile.linesRemoved}` : '';
+						modifiedFiles.push(`${modifiedFile.file}${added}${removed}`);
+					}
+					if (changeSet.modifiedFiles.length === 1) {
+						file = 'file';
+					}
 				}
 
 				const repo = reposById[changeSet.repoId];
@@ -211,7 +217,7 @@ class PostMSTeamsConversationRequest extends PostRequest {
 				if (repo) {
 					repoName = repo.name;
 				}
-				modifiedReposBranches.push(`${changeSet.modifiedFiles.length} files on <b>${changeSet.branch}</b> from <b>${repoName}</b>`);
+				modifiedReposBranches.push(`${changeSet.modifiedFiles.length} ${file} on <b>${changeSet.branch}</b> from <b>${repoName}</b>`);
 			}
 		}
 		const creator = await this.data.users.getById(review.get('creatorId'));
