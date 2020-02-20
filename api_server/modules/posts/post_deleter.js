@@ -110,7 +110,7 @@ class PostDeleter extends ModelDeleter {
 		}
 		const replies = await this.data.posts.getByQuery(
 			{
-				parentPostId: this.data.posts.inQuerySafe(postIds),
+				parentPostId: this.data.posts.inQuery(postIds),
 				deactivated: false
 			},
 			{
