@@ -1,4 +1,4 @@
-// base class for many tests of the "PUT /posts" requests
+// base class for many tests of the "DELETE /codemarks/:id" requests
 
 'use strict';
 
@@ -22,16 +22,20 @@ class DeleteCodemarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	before (callback) {
 		this.init(callback);
 	}
-
+	
 	// validate the response to the test request
 	validateResponse (data) {
 		const codemark = data.codemarks[0];
+		const post = data.posts[0];
 		// verify modifiedAt was updated, and then set it so the deepEqual works
 		Assert(codemark.$set.modifiedAt >= this.modifiedAfter, 'modifiedAt for the codemark is not greater than before the codemark was deleted');
+		Assert(post.$set.modifiedAt >= this.modifiedAfter, 'codemark modifiedAt is not greater than before the post was deleted');
 		this.expectedData.codemarks[0].$set.modifiedAt = codemark.$set.modifiedAt;
+		this.expectedData.posts[0].$set.modifiedAt = post.$set.modifiedAt;
 		// verify we got back the proper response
 		Assert.deepEqual(data, this.expectedData, 'response data is not correct');
 		// verify the post and codemark in the response has no attributes that should not go to clients
+		this.validateSanitized(post.$set, CodemarkTestConstants.UNSANITIZED_POST_ATTRIBUTES);
 		this.validateSanitized(codemark.$set, CodemarkTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }

@@ -5,7 +5,6 @@
 const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const ReviewCreator = require('./review_creator');
 const ReviewUpdater = require('./review_updater');
-const ReviewDeleter = require('./review_deleter');
 
 const Review = require('./review');
 
@@ -83,10 +82,6 @@ class Reviews extends Restful {
 		return ReviewUpdater;
 	}
 
-	get deleterClass () {
-		return ReviewDeleter;
-	}
-	
 	// get all routes exposed by this module
 	getRoutes () {
 		let standardRoutes = super.getRoutes(REVIEW_STANDARD_ROUTES);

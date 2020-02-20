@@ -9,7 +9,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	get description () {
 		const type = this.streamType === 'team stream' ? 'team' : this.streamType;
 		const on = this.streamType === 'team stream' ? 'team' : 'stream';
-		return `members of the ${on} should receive a message with the deactivated codemark when a codemark is deleted from a ${type} stream`;
+		return `members of the ${on} should receive a message with the deactivated review when a review is deleted from a ${type} stream`;
 	}
 
 	// make the data that triggers the message to be received
@@ -31,8 +31,8 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	// generate the message by issuing a request
 	generateMessage (callback) {
 		// do the delete, this should trigger a message to the team channel
-		// with the deleted codemark
-		this.deleteCodemark(callback);
+		// with the deleted review
+		this.deleteReview(callback);
 	}
 }
 

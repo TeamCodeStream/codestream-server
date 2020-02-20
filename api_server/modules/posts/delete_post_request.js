@@ -3,7 +3,6 @@
 'use strict';
 
 const DeleteRequest = require(process.env.CS_API_TOP + '/lib/util/restful/delete_request');
-const PostPublisher = require('./post_publisher');
 
 class DeletePostRequest extends DeleteRequest {
 
@@ -31,109 +30,13 @@ class DeletePostRequest extends DeleteRequest {
 			return super.handleResponse();
 		}
 
-		// put the deleted post into posts instead
-		this.responseData.posts = [this.responseData.post];
-		delete this.responseData.post;
-
-		// add any deleted codemark to the response
-		if (this.transforms.deletedCodemark) {
-			this.responseData.codemarks = this.responseData.codemarks || [];
-			this.responseData.codemarks.push(this.transforms.deletedCodemark);
-		}
-
-		// add any deleted markers to the response
-		if (this.transforms.deletedMarkers) {
-			this.responseData.markers = this.transforms.deletedMarkers;
-		}
-		
-		// if a parent post was updated, add that to the response
-		if (this.transforms.updatedParentCodemark) {
-			this.responseData.codemarks = this.responseData.codemarks || [];
-			this.responseData.codemarks.push(this.transforms.updatedParentCodemark);
-		}
-
-		// if a parent post has a codemark that was updated, add that to the response
-		if (this.transforms.updatedParentPost) {
-			this.responseData.posts.push(this.transforms.updatedParentPost);
-		}
-		
-		// if any related codemarks were touched, add that to the response
-		if (this.transforms.unrelatedCodemarks) {
-			this.responseData.codemarks = [...this.responseData.codemarks, ...this.transforms.unrelatedCodemarks];
-		}
-
+		await this.deleter.handleResponse(this.responseData);
 		await super.handleResponse();
 	}
 
 	// after the post is deleted...
 	async postProcess () {
-		// need the stream for publishing
-		this.stream = await this.data.streams.getById(this.post.get('streamId'));
-		await this.publishPost();
-		await this.publishMarkers();
-		await this.publishUnrelatedCodemarks();
-	}
-
-	// publish the post to the appropriate broadcaster channel
-	async publishPost () {
-		await new PostPublisher({
-			data: this.responseData,
-			request: this,
-			broadcaster: this.api.services.broadcaster,
-			stream: this.stream.attributes
-		}).publishPost();
-	}
-
-	// deleted markers always go out to the team channel, even if they are in a private stream
-	async publishMarkers () {
-		if (!this.responseData.markers || this.stream.get('isTeamStream')) {
-			return;
-		}
-		const message = {
-			markers: this.responseData.markers,
-			requestId: this.request.id
-		};
-		const channel = `team-${this.team.id}`;
-		try {
-			await this.api.services.broadcaster.publish(
-				message,
-				channel,
-				{ request: this.request }
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish markers message to channel ${channel}: ${JSON.stringify(error)}`);
-		}
-	}
-
-	// any codemarks that were related to the codemark owend by this post, but are now unrelated, need to be published
-	// to the team channel, if the codemark itself didn't already go out to the team channel
-	async publishUnrelatedCodemarks () {
-		// we only need to publish these codemarks if the deleted codemark was in a private CodeStream channel,
-		// otherwise, the message went out to the team channel anyway
-		if (
-			!this.transforms.unrelatedCodemarks ||
-			this.stream.get('isTeamStream')
-		) {
-			return;
-		}
-		const message = {
-			codemarks: this.responseData.codemarks,
-			requestId: this.request.id
-		};
-		const channel = `team-${this.team.id}`;
-		try {
-			await this.api.services.broadcaster.publish(
-				message,
-				channel,
-				{ request: this.request }
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish unrelated codemarks message to channel ${channel}: ${JSON.stringify(error)}`);
-		}
+		return this.deleter.postProcess();
 	}
 
 	// describe this route for help

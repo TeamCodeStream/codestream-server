@@ -12,7 +12,8 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 	
 	get description () {
-		return 'members of the team should receive a message with the unrelated codemarks when a codemark linked to other codemarks is deleted';
+		const type = this.streamType === 'team stream' ? 'team' : this.streamType;
+		return `members of the team should receive a message with the unrelated codemarks when a codemark linked to other codemarks is deleted in a ${type} stream`;
 	}
 
 	// make the data that triggers the message to be received
@@ -31,6 +32,21 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		// do the delete, this should trigger a message to the team channel
 		// with the deleted codemark
 		this.deleteCodemark(callback);
+	}
+
+	deleteCodemark (callback) {
+		super.deleteCodemark(error => {
+			if (error) { return callback(error); }
+			if (this.streamType !== 'team stream') {
+				// for streams, the message received on the team channel should be limited to the codemarks affected 
+				const relatedCodemarkIds = this.relatedCodemarks.map(relatedCodemark => relatedCodemark.id);
+				const expectedCodemarks = this.message.codemarks.filter(codemark => relatedCodemarkIds.includes(codemark.id));
+				this.message = {
+					codemarks: expectedCodemarks
+				};
+			}
+			callback();
+		});
 	}
 }
 

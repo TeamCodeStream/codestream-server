@@ -1,10 +1,10 @@
 'use strict';
 
 const MessageTest = require('./message_test');
-const DeleteMarkerTest = require('./delete_marker_test');
+const DeleteMarkersTest = require('./delete_markers_test');
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 
-class MarkerToTeamMessageTest extends Aggregation(MessageTest, DeleteMarkerTest) {
+class MarkersToTeamMessageTest extends Aggregation(MessageTest, DeleteMarkersTest) {
 
 	constructor (options) {
 		super(options);
@@ -13,7 +13,7 @@ class MarkerToTeamMessageTest extends Aggregation(MessageTest, DeleteMarkerTest)
 
 	get description () {
 		const type = this.streamType === 'team stream' ? 'team' : this.streamType;
-		return `members of the team should receive a message with the deactivated marker when a codemark with markers is deleted in a ${type} stream`;
+		return `members of the team should receive a message with the deactivated markers when a review with markers is deleted in a ${type} stream`;
 	}
 
 	// set the name of the channel we expect to receive a message on
@@ -23,8 +23,8 @@ class MarkerToTeamMessageTest extends Aggregation(MessageTest, DeleteMarkerTest)
 		callback();
 	}
 
-	deleteCodemark (callback) {
-		super.deleteCodemark(error => {
+	deleteReview (callback) {
+		super.deleteReview(error => {
 			if (error) { return callback(error); }
 			if (this.streamType !== 'team stream') {
 				// for streams, the message received on the team channel should be limited to the markers 
@@ -37,4 +37,4 @@ class MarkerToTeamMessageTest extends Aggregation(MessageTest, DeleteMarkerTest)
 	}
 }
 
-module.exports = MarkerToTeamMessageTest;
+module.exports = MarkersToTeamMessageTest;

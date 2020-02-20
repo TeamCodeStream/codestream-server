@@ -19,6 +19,14 @@ const MessageTest = require('./message_test');
 const CodemarkMessageTest = require('./codemark_message_test');
 const MarkerMessageTest = require('./marker_message_test');
 const DeleteRelationsTest = require('./delete_relations_test');
+const DeleteReviewTest = require('./delete_review_test');
+const DeleteReviewFetchTest = require('./delete_review_fetch_test');
+const ReviewMessageTest = require('./review_message_test');
+const NumRepliesReviewTest = require('./num_replies_review_test');
+const DeleteReviewMarkersTest = require('./delete_review_markers_test');
+const DeleteReviewMarkersFetchTest = require('./delete_review_markers_fetch_test');
+const ReviewMarkersMessageTest = require('./review_markers_message_test');
+const DeleteReviewRepliesTest = require('./delete_review_replies_test');
 
 class DeletePostRequestTester {
 
@@ -45,6 +53,17 @@ class DeletePostRequestTester {
 		new MarkerMessageTest({ streamType: 'channel' }).test();
 		new MarkerMessageTest({ streamType: 'direct' }).test();
 		new DeleteRelationsTest().test();
+		new DeleteReviewTest().test();
+		new DeleteReviewFetchTest().test();
+		new ReviewMessageTest({ streamType: 'channel' }).test();
+		new ReviewMessageTest({ streamType: 'direct' }).test();
+		new ReviewMessageTest({ streamType: 'team stream' }).test();
+		new NumRepliesReviewTest().test();
+		new DeleteReviewMarkersTest().test();
+		new DeleteReviewMarkersFetchTest().test();
+		new ReviewMarkersMessageTest({ streamType: 'channel'}).test();
+		new ReviewMarkersMessageTest({ streamType: 'direct'}).test();
+		new DeleteReviewRepliesTest().test();
 	}
 }
 

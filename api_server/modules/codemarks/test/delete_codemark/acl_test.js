@@ -17,7 +17,7 @@ class ACLTest extends DeleteCodemarkTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.codemarkCreator = 1;
+			this.postOptions.creatorIndex = 1;
 			callback();
 		});
 	}

@@ -1,17 +1,17 @@
 'use strict';
 
-const DeleteCodemarkTest = require('./delete_codemark_test');
+const DeleteReviewTest = require('./delete_review_test');
 
-class ACLTeamTest extends DeleteCodemarkTest {
+class ACLTeamTest extends DeleteReviewTest {
 
 	get description () {
-		return 'should return an error when someone who is not on the team tries to delete a codemark';
+		return 'should return an error when someone who is not on the team tries to delete a review';
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1013',
-			reason: 'only the author or a team admin can delete the codemark'
+			reason: 'only the author or a team admin can delete the review'
 		};
 	}
 

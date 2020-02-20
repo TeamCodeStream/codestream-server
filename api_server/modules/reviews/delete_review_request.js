@@ -16,7 +16,7 @@ class DeleteReviewRequest extends DeleteRequest {
 		if (!this.review) {
 			throw this.errorHandler.error('notFound', { info: 'review' });
 		}
-		this.team = await this.data.teams.getById(this.codemark.get('teamId'));
+		this.team = await this.data.teams.getById(this.review.get('teamId'));
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team' });	// really shouldn't happen
 		}
@@ -29,13 +29,13 @@ class DeleteReviewRequest extends DeleteRequest {
 	}
 
 	async process () {
-		// establish a post deleter here, rather than in the ReviewDeleter,
-		// to avoid a circular require
+		// use a post deleter to delete the review's referencing post
+		// this will end up deleting the review and all its replies and codemarks and markers,
+		// the whole shebang!
 		this.postDeleter = new PostDeleter({
-			request: this,
-			dontDeleteReview: true
+			request: this
 		});
-		await super.process();
+		await this.postDeleter.deletePost(this.review.get('postId'));
 	}
 
 	async handleResponse () {
@@ -43,50 +43,13 @@ class DeleteReviewRequest extends DeleteRequest {
 			return super.handleResponse();
 		}
 
-		// put the deleted post into posts instead
-		this.responseData.reviews = [this.responseData.review];
-		delete this.responseData.review;
-
-		// add any deleted post to the response
-		if (this.transforms.deletedPost) {
-			this.responseData.posts = this.responseData.posts || [];
-			this.responseData.posts.push(this.transforms.deletedPost);
-		}
-
+		await this.postDeleter.handleResponse(this.responseData);
 		await super.handleResponse();
 	}
 
 	// after the review is deleted...
 	async postProcess () {
-		// need the stream for publishing
-		this.stream = await this.data.streams.getById(this.review.get('streamId'));
-		await this.publishReview();
-	}
-
-	// publish the review to the appropriate broadcaster channel
-	async publishCodemark () {
-		const message = Object.assign({}, this.responseData, {
-			requestId: this.request.id
-		});
-
-		let channel;
-		if (!this.stream || this.stream.get('isTeamStream')) {
-			channel = `team-${this.team.id}`;
-		}
-		else {
-			channel = `stream-${this.stream.id}`;
-		}
-		try {
-			await this.api.services.broadcaster.publish(
-				message,
-				channel,
-				{ request: this }
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish review delete message to channel ${channel}: ${JSON.stringify(error)}`);
-		}
+		return await this.postDeleter.postProcess();
 	}
 
 	// describe this route for help

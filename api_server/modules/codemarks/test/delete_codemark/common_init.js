@@ -11,11 +11,12 @@ class CommonInit {
 
 	init (callback) {
 		this.testPost = 0;
+		this.wantPost = true;
 		this.expectedVersion = 2;
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
-			this.makePostlessCodemark,
+			this.makeCodemark,
 			this.makeRelatedCodemarks,
 			this.setExpectedData,
 			this.setPath
@@ -24,11 +25,28 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
+		this.streamOptions.creatorIndex = 1;
+		if (this.streamType === 'team stream') {
+			Object.assign(this.streamOptions, {
+				type: 'channel',
+				isTeamStream: true
+			});
+		}
+		else {
+			this.streamOptions.type = this.streamType || 'channel';
+		}
+		if (this.wantPost) {
+			this.postOptions.creatorIndex = 0;
+			this.postOptions.wantCodemark = true;
+			if (this.wantMarker) {
+				this.postOptions.wantMarker = true;
+			}
+		}
 		callback();
 	}
 
-	// make a postless codemark, as needed for the test
-	makePostlessCodemark (callback) {
+	// make a codemark, as needed for the test
+	makeCodemark (callback) {
 		if (this.wantPost) {
 			// only need to make a postless codemark if we're not creating it
 			// by creating a post
@@ -122,6 +140,7 @@ class CommonInit {
 				}
 			}]
 		};
+
 		(this.relatedCodemarks || []).forEach(relatedCodemark => {
 			this.expectedData.codemarks.push({
 				id: relatedCodemark.id,
@@ -139,8 +158,30 @@ class CommonInit {
 				}
 			});
 		});
+
 		this.expectedCodemark = DeepClone(this.codemark);
 		Object.assign(this.expectedCodemark, this.expectedData.codemarks[0].$set);
+
+		if (this.wantPost) {
+			const postData = this.postData[this.testPost];
+			this.expectedData.posts = [{
+				_id: postData.post.id,	// DEPRECATE ME
+				id: postData.post.id,
+				$set: {
+					deactivated: true,
+					text: 'this post has been deleted',
+					modifiedAt: Date.now(),	// placeholder
+					version: 2
+				},
+				$version: {
+					before: 1,
+					after: 2
+				}
+			}];
+			this.expectedPost = DeepClone(postData.post);
+			Object.assign(this.expectedPost, this.expectedData.posts[0].$set);
+		}
+
 		this.modifiedAfter = Date.now();
 		callback();
 	}

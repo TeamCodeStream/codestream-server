@@ -5,7 +5,6 @@
 const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
 const CodemarkCreator = require('./codemark_creator');
 const CodemarkUpdater = require('./codemark_updater');
-const CodemarkDeleter = require('./codemark_deleter');
 
 const Codemark = require('./codemark');
 
@@ -112,10 +111,6 @@ class Codemarks extends Restful {
 		return CodemarkUpdater;
 	}
 
-	get deleterClass () {
-		return CodemarkDeleter;
-	}
-	
 	// get all routes exposed by this module
 	getRoutes () {
 		let standardRoutes = super.getRoutes(CODEMARK_STANDARD_ROUTES);
