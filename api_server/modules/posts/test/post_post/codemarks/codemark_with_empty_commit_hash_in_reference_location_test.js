@@ -5,14 +5,7 @@ const CodemarkWithReferenceLocationsTest = require('./codemark_with_reference_lo
 class CodemarkWithEmptyCommitHashInReferenceLocation extends CodemarkWithReferenceLocationsTest {
 
 	get description () {
-		return 'should return an error when attempting to create a post with a codemark with a marker that has additional reference locations, but one of the reference locations has a zero-length commit hash';
-	}
-
-	getExpectedError () {
-		return {
-			code: 'RAPI-1005',
-			info: 'locations must have commitHash which must be a string'
-		};
+		return 'should be ok to create a post with a codemark with a marker that has additional reference locations, but one of the reference locations has a zero-length commit hash, the marker location will not be saved';
 	}
 
 	// form the data to use in trying to create the post
