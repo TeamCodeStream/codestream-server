@@ -8,6 +8,7 @@ const FS = require('fs');
 const SocketClusterServer = require('socketcluster-server');
 const UUID = require('uuid/v4');
 const MongoClient = require(process.env.CS_BROADCASTER_TOP + '/server_utils/mongo/mongo_client');
+const OS = require('os');
 
 class BroadcasterServer {
 
@@ -69,7 +70,7 @@ class BroadcasterServer {
 		(async () => {
 			for await (let { socket } of this.scServer.listener('connection')) {
 				const requestId = UUID();
-				this.log(`Client connected`, socket, requestId);
+				this.log('Client connected', socket, requestId);
 				this.addSocketProc('auth', this.handleAuth, socket);
 				this.addSocketListener('disconnect', this.handleDisconnect, socket);
 				this.addSocketListener('error', this.handleError, socket);
@@ -112,15 +113,16 @@ class BroadcasterServer {
 				}
 				catch (error) {
 					this.debumpRequests();
+					let requestError;
 					if (error instanceof Error) {
 						this.warn(`socket proc error: ${error.message}\n${error.stack}`, socket, requestId);
-						error = new Error('internal error');
+						requestError = new Error('internal error');
 					}
 					else {
-						error = new Error(error);
+						requestError = new Error(error);
 					}
-					this.warn(`${error.message}`, socket, requestId);
-					request.error(error);
+					this.warn(`${requestError.message}`, socket, requestId);
+					request.error(requestError);
 				}
 			}
 		})();
@@ -464,7 +466,7 @@ class BroadcasterServer {
 		// authorize fetching this history
 		const error = await this.authChannelsHistory(socket, channels);
 		if (error) {
-			throw `history request ${requestId} not authorized: ${error}`
+			throw `history request ${requestId} not authorized: ${error}`;
 		}
 
 		// get messages since the cutoff
@@ -483,7 +485,7 @@ class BroadcasterServer {
 
 		// denormalize the messages and return them as a history message
 		this.denormalizeMessages(messages);
-		this.log(`${messages.length} messages returned for history of ${channels}`, socket, requestId)
+		this.log(`${messages.length} messages returned for history of ${channels}`, socket, requestId);
 		return {
 			requestId,
 			channels,
