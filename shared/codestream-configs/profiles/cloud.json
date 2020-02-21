@@ -238,7 +238,8 @@
 					"interactiveComponentsEnabled": true
 				},
 				"prod": {
-					"_loadSecretsFile": "slack/prod-combined.cfg"
+					"_loadSecretsFile": "slack/prod-combined.cfg",
+					"interactiveComponentsEnabled": true
 				},
 				"qa": {
 					"_loadSecretsFile": "slack/qa-combined.cfg",
