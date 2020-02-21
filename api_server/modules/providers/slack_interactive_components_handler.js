@@ -449,7 +449,7 @@ class SlackInteractiveComponentsHandler {
 			return undefined;
 		}
 
-		const blocks = await this.createModalBlocks(review, userThatClicked);
+		const blocks = await this.createReviewModalBlocks(review, userThatClicked);
 		let caughtSlackError = undefined;
 		const users = [userThatCreated, userThatClicked];
 		for (let i = 0; i < users.length; i++) {
@@ -795,16 +795,19 @@ class SlackInteractiveComponentsHandler {
 						slackUserExtra && slackUserExtra.tz
 					)}`
 				}]
-			},
-			{
-				type: 'section',
-				text: {
-					type: 'mrkdwn',
-					text: `${review.get('text')}`
-				}
 			}
 		];
 
+		const text = review.get('text');
+		if (text) {
+			blocks.push({
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: `${text}`
+				}
+			});
+		}
 		blocks.push(SlackInteractiveComponentBlocks.createModalReplyBlock());
 
 		const replyBlocks = this.createReplyBlocks(replies, usersById, userThatClicked, slackUserExtra);
