@@ -37,23 +37,16 @@ const REVIEW_ADDITIONAL_ROUTES = [
 		path: 'reviews/remove-reviewer/:id',
 		requestClass: require('./remove_reviewer_request')
 	},
-	/*
 	{
 		method: 'put',
-		path: 'reviews/follow/:id',
-		requestClass: require('./follow_review_request')
+		path: 'reviews/:id/add-tag',
+		requestClass: require('./add_tag_request')
 	},
 	{
 		method: 'put',
-		path: 'reviews/unfollow/:id',
-		requestClass: require('./unfollow_review_request')
-	},
-	{
-		method: 'get',
-		path: 'no-auth/unfollow-link/:id',
-		requestClass: require('./unfollow_link_request')
+		path: 'reviews/:id/remove-tag',
+		requestClass: require('./remove_tag_request')
 	}
-	*/
 ];
 
 class Reviews extends Restful {
