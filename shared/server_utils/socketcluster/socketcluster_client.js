@@ -9,14 +9,11 @@ class SocketClusterClient {
 
 	constructor (config = {}) {
 		this.config = config;
-		this._log('In SCClient ctor');
 		this.messageListeners = {};		// callbacks for each channel when message is received
 		this.channelPromises = {};		// promises for channel subscriptions
 	}
 
 	async init () {
-		this._log('In SC client init');
-		this._log('Creating SC...');
 		this.socket = SocketCluster.create({ 
 			hostname: this.config.host,
 			port: this.config.port,
@@ -24,30 +21,24 @@ class SocketClusterClient {
 			rejectUnauthorized: this.config.strictSSL,
 			secure: true
 		}); 
-		this._log('Created SC');
 
-		this._log('Authorizing connection...');
 		await this.authorizeConnection();
-		this._log('Authorized connection');
 	}
 
 	// authorize the connection with the socketcluster server
 	async authorizeConnection () {
 		this._log('Authorizing socketcluster connection...');
 		try {
-			this._log('Invoking auth...');
 			await this.socket.invoke('auth', {
 				token: this.config.authKey,
 				uid: this.config.uid,
 				subscriptionCheat: this.config.subscriptionCheat
 			});
-			this._log('Invoked auth');
 			this._log('Socketcluster connection authorized');
 			this._authed = true;
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			this._log('Caught error invoking auth: ' + message);
 			this.socket.disconnect();
 			delete this.socket;
 			throw `Socketcluster authorization error: ${message}`;
@@ -56,7 +47,6 @@ class SocketClusterClient {
 
 	// publish a message to the specified channel
 	async publish (message, channel, options = {}) {
-		this._log('Request to publish on ' + channel);
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
 			this._log('Would have sent PubNub message to ' + channel, options);
@@ -65,9 +55,7 @@ class SocketClusterClient {
 		if (typeof message === 'object') {
 			message.messageId = message.messageId || UUID();
 		}
-		this._log('Transmitting message...');
 		await this.socket.transmit('message', { channel, message });
-		this._log('Transmitted message');
 	}
 
 	// subscribe to the specified channel, providing a listener callback for the
