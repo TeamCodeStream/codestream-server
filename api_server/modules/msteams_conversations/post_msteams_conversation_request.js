@@ -98,7 +98,7 @@ class PostMSTeamsConversationRequest extends PostRequest {
 					value: url
 				});
 			}
-			const remoteCodeUrl = marker.get('remoteCodeUrl') || this.codemark.get('remoteCodeUrl');
+			const remoteCodeUrl = marker.get('remoteCodeUrl') || codemark.get('remoteCodeUrl');
 			if (remoteCodeUrl) {
 				const codeProvider = ProviderDisplayNames[remoteCodeUrl.name] || remoteCodeUrl.name;
 				const codeProviderUrl = remoteCodeUrl.url;
