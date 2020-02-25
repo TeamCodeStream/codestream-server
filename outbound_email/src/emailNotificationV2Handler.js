@@ -145,16 +145,29 @@ class EmailNotificationV2Handler {
 
 	// get the repos associated with all the markers
 	async getRepos () {
-		const repoIds = this.markers.reduce((repoIds, marker) => {
-			if (marker.repoId && !repoIds.includes(marker.repoId)) {
-				repoIds.push(marker.repoId);
-			}
-			return repoIds;
-		}, []);
+		let repoIds;
+		if (this.post.codemarkId) {
+			repoIds = this.markers.reduce((repoIds, marker) => {
+				if (marker.repoId && !repoIds.includes(marker.repoId)) {
+					repoIds.push(marker.repoId);
+				}
+				return repoIds;
+			}, []);		
+		}
+		else if (this.post.reviewId) {
+			repoIds = this.review.reviewChangesets.reduce((repoIds, reviewChangeset) => {
+				if (reviewChangeset.repoId && !repoIds.includes(reviewChangeset.repoId)) {
+					repoIds.push(reviewChangeset.repoId);
+				}
+				return repoIds;
+			}, []);	
+		}
+
 		if (repoIds.length === 0) {
 			return;
 		}
-		this.repos = await this.data.streams.getByIds(repoIds);
+		
+		this.repos = await this.data.repos.getByIds(repoIds);
 	}
 
 	// get the file-streams representing all the code blocks of all the codemarks

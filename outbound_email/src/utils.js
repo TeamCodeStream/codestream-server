@@ -53,11 +53,11 @@ const Utils = {
 			const iconHtml = Utils.renderIcon('description');
 			// F MS -- can't even get an icon on a single line... just hide it for those fools
 			return `
-<div class="section nice-gray section-text">DESCRIPTION</div>
+<div class="nice-gray section-text">DESCRIPTION</div>
 <div class="description-wrapper">
 <!--[if !mso]> <!-->${iconHtml}&nbsp;<!-- <![endif]-->
 <span class="ensure-white description">${text}</span>
-</div>
+</div><br>
 `;
 		}
 		else {
@@ -161,6 +161,58 @@ const Utils = {
 		}
 
 		return tagsAssigneesTable;
+	},
+
+	renderReviewStatus: function (options) {
+		const { review } = options;
+
+		let status = review.status;
+		if (!status) return '';
+
+		status = status.charAt(0).toUpperCase() + status.slice(1);		
+		return `
+			<div class="section-slim nice-gray section-text">STATUS</div>
+			<div class="description-wrapper">
+				<span class="ensure-white description">${status}</span>
+			</div><br>`;		
+	},
+
+	renderReviewReposAndFiles: function (options) {
+		const { review, repos } = options;
+		const reviewChangesets = review.reviewChangesets;
+		if (!reviewChangesets || !reviewChangesets.length) return '';
+
+		let reposAndBranches = `<table class="section-slim" cellpadding=0 cellspacing=0 border=0><tr><td>
+					<span class="section nice-gray section-text">REPOSITORIES</span>
+		</td></tr><tr><td>
+		<table cellpadding=0 cellspacing=0 border=0><tr>`;
+		for (const rc of reviewChangesets) {
+			const repo = repos.find(_ => _.id === rc.repoId);
+			if (repo) {
+				reposAndBranches += `<tr><td class="pr-2">${Utils.renderIcon('repo')}</td>
+				<td class="pr-8"><span class="ensure-white">${repo.name}</span></td></tr>`;
+			}
+			reposAndBranches += `<tr>
+				<td class="pr-2">${Utils.renderIcon('git-branch')}</td>
+				<td class="pr-8"><span class="ensure-white">${rc.branch}</span></td>
+			</tr>`;
+		}
+		reposAndBranches+='</table></td></tr></table><br>';
+
+		reposAndBranches += `<table class="section-slim" cellpadding=0 cellspacing=0 border=0>
+				<tr><td><span class="section nice-gray section-text">CHANGED FILES</span></td></tr>`;
+		for (const rc of reviewChangesets) {
+			if (!rc.modifiedFiles) continue;
+			
+			for(const modifiedFile of rc.modifiedFiles) {
+				const added = modifiedFile.linesAdded > 0 ? ` <span class="lines-added pr-4">+${modifiedFile.linesAdded}</span>`: '';
+				const deleted = modifiedFile.linesRemoved > 0 ? ` <span class="lines-deleted">-${modifiedFile.linesRemoved}</span>`: '';
+				reposAndBranches += `<tr><td><span class="monospace"><span class="ensure-white description pr-14">${modifiedFile.file}</span>${added}${deleted}</span></td></tr>`;
+			}		 
+		}
+		reposAndBranches += '</table><br>';
+		return reposAndBranches;
+
 	},
 
 	// render a single task assignee
@@ -412,7 +464,18 @@ const Utils = {
 	},
 
 
-	// render an author line, with timestamp
+	// render a review or codemark (issue) title and author, with timestamp
+	renderAuthorTitleDiv: function (options) {
+		const { creator, datetimeField, title, icon } = options;
+		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';		
+		return `<table border=0 cellspacing=0 cellpadding=0>
+					<tr><td title="${icon}">${Utils.renderIcon(icon, { height: 25, width: 25})}&nbsp;</td>
+						<td><span class="title-large ensure-white">${title}</span></td>
+					</tr>
+					<tr><td>&nbsp;</td><td><span class="sub-title ensure-white">Opened by ${author} on {{{${datetimeField}}}}</span></td></tr></table>
+		`;
+	},
+
 	renderAuthorDiv: function (options) {
 		const { creator, datetimeField } = options;
 		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
@@ -494,9 +557,12 @@ const Utils = {
 	},
 
 	// render the icon for a third-party provider
-	renderIcon: function (name) {
+	renderIcon: function (name, options) {
 		const icon = ICON_MAP[name] || name;
-		return `<img width="21" height="21" src="${ICONS_ROOT}/${icon}.png" />`;
+		const {width, height} = options && options.width && options.height 
+			? options 
+			: {width: 19, height: 19};
+		return `<img width="${width}" height="${height}" src="${ICONS_ROOT}/${icon}.png" />`;
 	},
 
 	// turn code into an html table with line numbering

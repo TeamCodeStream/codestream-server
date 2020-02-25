@@ -23,11 +23,15 @@ class CodemarkRenderer {
 
 	/* eslint complexity: 0 */
 	render (options) {
-	
+		const { codemark } = options;
 		options.extension = Utils.getExtension(options);
-
-		const authorDiv = this.renderAuthorDiv(options);
-		const titleDiv = this.renderTitleDiv(options);
+		let titleAuthorDiv = '';
+		if (codemark.type === 'issue') {
+			titleAuthorDiv = this.renderTitleAuthorDiv(options);			
+		}
+		else {
+			titleAuthorDiv = this.renderAuthorDiv(options) + this.renderTitleDiv(options);
+		}
 		const visibleToDiv = this.renderVisibleToDiv(options);
 		const tagsAssigneesTable = this.renderTagsAssigneesTable(options);
 		const descriptionDiv = this.renderDescriptionDiv(options);
@@ -37,8 +41,7 @@ class CodemarkRenderer {
 
 		return `
 <div class="inner-content new-content">
-	${authorDiv}
-	${titleDiv}
+	${titleAuthorDiv}
 	${visibleToDiv}
 	${tagsAssigneesTable}
 	${descriptionDiv}
@@ -47,6 +50,19 @@ class CodemarkRenderer {
 	${codeBlockDivs}
 </div>
 `;
+	}
+
+	renderTitleAuthorDiv (options) {
+		const { codemark, creator, timeZone } = options;
+		const authorOptions = {
+			time: codemark.createdAt,
+			creator,
+			timeZone,
+			datetimeField: 'datetime',
+			title: codemark.title,
+			icon: 'issue',
+		};
+		return Utils.renderAuthorTitleDiv(authorOptions);
 	}
 
 	// render the author line
@@ -64,7 +80,8 @@ class CodemarkRenderer {
 	// render the div for the title
 	renderTitleDiv (options) {
 		const { codemark } = options;
-		return Utils.renderTitleDiv(codemark.title, options);
+		const title = codemark.type === 'issue' ? codemark.title : codemark.text;
+		return Utils.renderTitleDiv(title, options);
 	}
 
 	// render the div for whom the codemark is visible, if a private codemark
@@ -76,7 +93,7 @@ class CodemarkRenderer {
 
 		let usernames = this.getVisibleTo(options);
 		return `
-<div class="section nice-gray section-text" >VISIBLE TO</div>
+<div class="section nice-gray section-text">VISIBLE TO</div>
 <div>${usernames}</div>
 `;
 	}
@@ -121,6 +138,8 @@ class CodemarkRenderer {
 	// render the description div, as needed
 	renderDescriptionDiv (options) {
 		const { codemark } = options;
+		if (codemark.type !== 'issue') return '';
+		
 		return Utils.renderDescriptionDiv(codemark.text, options);
 	}
 

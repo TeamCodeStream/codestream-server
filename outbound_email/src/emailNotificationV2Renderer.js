@@ -8,12 +8,13 @@ class EmailNotificationV2Renderer {
 
 	// render an email notification for a codemark or reply and for a given user
 	render (options) {
-		const { content, unfollowLink, inboundEmailDisabled, needButtons } = options;
-		let tipDiv = '';
+		const { content, unfollowLink, inboundEmailDisabled, needButtons, review } = options;
+		const what = review ? 'review' : 'codemark';
+		let tipDiv = '';		
 		if (!inboundEmailDisabled) {
 			tipDiv = `
 <div class="ensure-white">
-	Tip: post a reply to this codemark by replying to this email directly.
+	Tip: post a reply to this ${what} by replying to this email directly.
 </div>
 `;
 		}
@@ -58,7 +59,7 @@ class EmailNotificationV2Renderer {
 						</div>
 						${buttons}						
 						<div class="following ensure-white">
-							<span>You received this email because you are following this codemark.&nbsp;</span><span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
+							<span>You received this email because you are following this ${what}.&nbsp;</span><span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
 						</div>
 						${tipDiv}
 					</div>				 			 
