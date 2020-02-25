@@ -27,6 +27,7 @@ module.exports = {
 	},
 	'lightningCodeReviews': {
 		description: 'Support for lightning code reviews',
-		version: '1.21.31'
+		version: '1.21.31',
+		restricted: true
 	}
 };
