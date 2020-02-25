@@ -238,10 +238,13 @@ class LinkReviewRequest extends WebRequestBase {
 			if (csReviewers && csReviewers.length) {
 				csReviewers.forEach(_ => {
 					const fullName = _.get('fullName');
+					const username = _.get('username');
+					const email = _.get('email');
+					const label = fullName || username || email;
 					reviewers.push({
-						initials: this.getAvatarForAssignee(fullName, _.get('username')),
-						label: fullName,
-						tooltip: fullName
+						initials: this.getAvatarForAssignee(fullName, username),
+						label: label,
+						tooltip: label
 					});
 				});
 			} else {
@@ -265,7 +268,8 @@ class LinkReviewRequest extends WebRequestBase {
 
 		const username = this.creator && this.creator.get('username');
 		const { authorInitials, emailHash } = this.getAvatar(username);
-		const createdAt = this.formatTime(this.review.get('createdAt'));
+		const createdAtRaw = this.review.get('createdAt');
+		const createdAt = this.formatTime(createdAtRaw);
 		const title = this.review.get('title');
 		const text = this.review.get('text');
 
@@ -312,16 +316,23 @@ class LinkReviewRequest extends WebRequestBase {
 			icons: {},
 			ides: ides,
 			reviewers: reviewers,			
-			username,
-			emailHash,
-			createdAt,
-			authorInitials,
-			hasEmailHashOrAuthorInitials: emailHash || authorInitials,
-			title,
 			text: descriptionAsHtml,
 			tags: tags,
 			hasTagsOrReviewers:
 				(reviewers && reviewers.length) || (tags && tags.length),
+			partial_title_model: {	
+				v2: true,
+				isReview: true,
+				showComment: true,
+				username: username,
+				createdAt: createdAt,
+				authorInitials: authorInitials,
+				emailHash: emailHash,
+				hasEmailHashOrAuthorInitials: emailHash || authorInitials,				
+				title: title,
+				addendum: status,
+				createdAtIso: new Date(createdAtRaw).toISOString()				
+			},
 			segmentKey: this.api.config.segment.webToken
 		};
 
@@ -330,13 +341,6 @@ class LinkReviewRequest extends WebRequestBase {
 		}
 
 		await super.render('review', templateProps);
-	}
-
-	createIcon (icon) {
-		const viewBox = icon.viewBox || '0 0 ' + icon.width + ' ' + icon.height;
-		return `<span class="icon">
-		<svg version="1.1" width="16" height="16" class="octicon octicon-${icon.name}" aria-hidden="true" viewBox="${viewBox}">
-		${icon.path}</svg></span>`;
 	}
 
 	addIdentifyScript (props) {

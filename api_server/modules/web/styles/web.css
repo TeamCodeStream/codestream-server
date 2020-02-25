@@ -77,6 +77,10 @@ h6 {
 .icon svg {
 	fill: rgb(137, 143, 158);
 }
+.icon-large {
+	display: inline-block;
+	transform: scale(1.25)
+}
 
 .octicon {
 	fill: rgb(137, 143, 158);
@@ -316,7 +320,12 @@ a.related-codemark-link:hover .related-codemark-file {
 	color: #c7c7c6;
 	display: inline-block;
 }
-
+.subtitle {
+	font-size:.9em;
+}
+.group-group {
+	margin-left: 20px;
+}
 .code-control,
 .code-control:hover,
 .code-control:active,

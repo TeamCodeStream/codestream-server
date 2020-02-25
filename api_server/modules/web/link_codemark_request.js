@@ -139,7 +139,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 		};
 	}
 
-	getAvatarForAssignee (fullName) {
+	getAvatarForAssignee (fullName, username) {
 		let authorInitials;
 		if (fullName) {
 			authorInitials = fullName
@@ -148,9 +148,9 @@ class LinkCodemarkRequest extends WebRequestBase {
 			if (authorInitials.length > 2)
 				authorInitials = authorInitials.substring(0, 2);
 		}
-		//  else if (username) {
-		// 	authorInitials = username.charAt(0);
-		// }
+		else if (username) {
+			authorInitials = username.charAt(0);
+		}
 		return authorInitials;
 	}
 
@@ -192,10 +192,13 @@ class LinkCodemarkRequest extends WebRequestBase {
 			if (csAssignees && csAssignees.length) {
 				csAssignees.forEach(_ => {
 					const fullName = _.get('fullName');
+					const username = _.get('username');
+					const email = _.get('email');
+					const label = fullName || username || email;
 					assignees.push({
-						initials: this.getAvatarForAssignee(fullName),
-						label: fullName,
-						tooltip: fullName
+						initials: this.getAvatarForAssignee(fullName, username),
+						label: label,
+						tooltip: label
 					});
 				});
 			} else {
@@ -375,7 +378,8 @@ class LinkCodemarkRequest extends WebRequestBase {
 			showComment,
 			username
 		);
-		const createdAt = this.formatTime(this.codemark.get('createdAt'));
+		const createdAtRaw = this.codemark.get('createdAt');
+		const createdAt = this.formatTime(createdAtRaw);
 		const title = this.codemark.get('title');
 		const text = this.codemark.get('text');
 
@@ -430,13 +434,6 @@ class LinkCodemarkRequest extends WebRequestBase {
 			assignees: assignees,
 			isIssue: codemarkType === 'issue',
 			codemarkType: codemarkType === 'link' ? 'Permalink' : 'Codemark',
-			username,
-			emailHash,
-			createdAt,
-			authorInitials,
-			hasEmailHashOrAuthorInitials: emailHash || authorInitials,
-			title,
-			text: descriptionAsHtml,
 			relatedCodemarks: await this.createRelatedCodemarks(),
 			tags: tags,
 			hasTagsOrAssignees:
@@ -445,6 +442,20 @@ class LinkCodemarkRequest extends WebRequestBase {
 				icon && icon.path ? this.createIcon(icon) : undefined,
 			externalProvider,
 			externalProviderUrl,
+			partial_title_model: {					
+				v2: codemarkType === 'issue',
+				showComment: showComment,
+				username: username,
+				createdAt: createdAt,
+				authorInitials: authorInitials,
+				emailHash: emailHash,
+				text: descriptionAsHtml,
+				hasEmailHashOrAuthorInitials: emailHash || authorInitials,		
+				isIssue: codemarkType === 'issue',
+				title: title,
+				createdAtRaw: createdAtRaw,	
+				createdAtIso: new Date(createdAtRaw).toISOString()				
+			},
 			segmentKey: this.api.config.segment.webToken
 		};
 

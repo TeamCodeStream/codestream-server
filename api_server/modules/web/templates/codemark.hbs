@@ -33,31 +33,8 @@
 		<div class="row">
 			<div class="col-sm-8 offset-sm-2">
 				<div class="box-content box-border box-border-sm">
-					 
+					{{> partial_title partial_title_model}}					
 					{{#if showComment}}
-					<div class="flex">
-						{{#if hasEmailHashOrAuthorInitials}}
-						<div class="headshot">
-							<img style="position:absolute; z-index:2;" class="headshot-image"
-								src="https://www.gravatar.com/avatar/{{emailHash}}?s=20&d=blank" />
-							<span class="headshot-initials">{{authorInitials}}</span>
-						</div>
-						{{/if}}
-						<div>
-							<div class="posted-on">
-								<span class="author">{{username}}</span>
-								<span class="time">{{createdAt}}</span>
-							</div>
-						</div>
-					</div>
-					{{/if}}
-					{{#if showComment}}
-						{{#if isIssue}}							
-							<span class="title">{{title}}</span>							
-						{{else}}
-							<span class="title">{{{text}}}</span>
-						{{/if}}
-
 					{{#if hasTagsOrAssignees}}
 					<div class="row no-gutters mt-4">
 						{{#if tags}}

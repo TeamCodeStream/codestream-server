@@ -56,48 +56,30 @@
 	<div class="container-fluid" id="root">
 		<div class="row">
 			<div class="col-sm-8 offset-sm-2">
-				<div class="box-content box-border box-border-sm">				 
-					<div class="flex">
-						{{#if hasEmailHashOrAuthorInitials}}
-						<div class="headshot">
-							<img style="position:absolute; z-index:2;" class="headshot-image"
-								src="https://www.gravatar.com/avatar/{{emailHash}}?s=20&d=blank" />
-							<span class="headshot-initials">{{authorInitials}}</span>
-						</div>
-						{{/if}}
-						<div>
-							<div class="posted-on">
-								<span class="author">{{username}}</span>
-								<span class="time">{{createdAt}}</span>
-							</div>
-						</div>
-					</div>				 
-                     
-                    <span class="title">{{title}}</span>
-                    <br><br>
+				<div class="box-content box-border box-border-sm">				
+                    {{> partial_title partial_title_model}}
+
                     <div class="group">
                         <div class="hdr">Description</div>                         
                         <span class="icon"><svg version="1.1" width="16" height="16" class="octicon octicon-description" aria-hidden="true" viewBox="0 0 24 24"><path d="M 4 3 A 1.0001 1.0001 0 1 0 4 5 L 20 5 A 1.0001 1.0001 0 1 0 20 3 L 4 3 z M 4 7 A 1.0001 1.0001 0 1 0 4 9 L 15 9 A 1.0001 1.0001 0 1 0 15 7 L 4 7 z M 4 11 A 1.0001 1.0001 0 1 0 4 13 L 20 13 A 1.0001 1.0001 0 1 0 20 11 L 4 11 z M 4 15 A 1.0001 1.0001 0 1 0 4 17 L 15 17 A 1.0001 1.0001 0 1 0 15 15 L 4 15 z M 4 19 A 1.0001 1.0001 0 1 0 4 21 L 20 21 A 1.0001 1.0001 0 1 0 20 19 L 4 19 z"></path></svg></span>
                         <span class="text">{{{text}}}</span>
                     </div>
-                     <div class="group">
+                    <div class="group">
                         <div class="hdr">Status</div>
                         <span class="text">{{status}}</span>                    
                     </div>
-
-                     {{#if hasTagsOrReviewers}}
+                    {{#if hasTagsOrReviewers}}
                     <div class="row no-gutters mt-4">
                         {{#if tags}}
-                        <div class="col-sm-6">
-                           <div class="hdr">Tags</div>
-                        </div>
-                        {{/if}}
-                        {{#if reviewers}}
-                        <div class="col-sm-6">
-                           <div class="hdr">Reviewers</div>
-                        </div>
-                        {{/if}}
+                    <div class="col-sm-6">
+                        <div class="hdr">Tags</div>
                     </div>
+                    {{/if}}
+                    {{#if reviewers}}
+                    <div class="col-sm-6">
+                        <div class="hdr">Reviewers</div>
+                    </div>
+                    {{/if}}
                     <div class="row no-gutters mt-1">
                         {{#if tags}}
                             <div class="col-sm-6">
@@ -176,7 +158,7 @@
                             </ul>
                         </div>
                     {{/if}}
-
+                </div>
                     <div class="row no-gutters mt-1 {{#if isLast}}mb-1{{else}}mb-3{{/if}}">      
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">     
                             <div class="float-lg-right float-xl-right">                            
@@ -215,7 +197,7 @@
                                 });
                             });                                                                            
                         });
-                    </script>									 
+                    </script>
 				</div>
 			</div>
 		</div>
