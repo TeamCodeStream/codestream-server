@@ -174,25 +174,33 @@ class LinkReviewRequest extends WebRequestBase {
 		return tags;
 	}
 
-	async getChangeSetInfo (review, options) {
+	async getChangeSetInfo () {
 		let repoId;
-		let results = [];
 		let isLast = false;
 		let i = 0;
+		const repoResults = [];
+		const fileResults = [];
+		const reviewChangesets = this.review.get('reviewChangesets');
+		if (!reviewChangesets || !reviewChangesets.length) {
+			return {
+				repos: repoResults,
+				files: fileResults
+			};
+		}
 
-		let repos = await this.data.repos.getByIds(review.get('reviewChangesets')
-			.map(_ => _.repoId));
+		const repos = await this.data.repos.getByIds(reviewChangesets.map(_ => _.repoId));
 
-		let repoHash = repos.reduce(function (map, fileStream) {
-			map[fileStream.get('id')] = fileStream.attributes;
+		const repoHash = repos.reduce(function (map, obj) {
+			map[obj.get('id')] = obj.attributes;
 			return map;
 		}, {});
 
-		let markersLength = review.get('reviewChangesets').length;
-		for (let reviewChangeset of review.get('reviewChangesets')) {
+		const reviewChangsetsLength = reviewChangesets.length;
+		
+		for (let reviewChangeset of reviewChangesets) {
 			repoId = reviewChangeset.repoId;
 			i++;
-			if (i === markersLength) {
+			if (i === reviewChangsetsLength) {
 				isLast = true;
 			}
 			let repoName = '';
@@ -200,20 +208,24 @@ class LinkReviewRequest extends WebRequestBase {
 				let repo = repoHash[repoId];
 				if (repo) {
 					repoName = repo.name;
+					repoResults.push({
+						id: repoId,
+						repoName: repoName,
+						branchName: reviewChangeset.branch
+					});
 				}
 			}
-			results.push({
-				repoId,
-				repoName: repoName,
-				branchName: reviewChangeset.branch,
+			fileResults.push({
 				files: reviewChangeset.modifiedFiles,
-				debug: options && options.debug,
 				isLast: isLast,
 				ides: ides
 			});
 		}
 
-		return results;
+		return {
+			repos: repoResults,
+			files: fileResults
+		};
 	}
 
 	async createReviewers () {
@@ -278,7 +290,8 @@ class LinkReviewRequest extends WebRequestBase {
 		}		 
 
 		const status = this.review.get('status');
-		
+		const changes = await this.getChangeSetInfo();
+
 		const templateProps = {
 			reviewId: this.review.get('id'),
 			status: status ? status[0].toUpperCase() + status.slice(1) : '',
@@ -287,7 +300,8 @@ class LinkReviewRequest extends WebRequestBase {
 				this.request.query.ide === ''
 					? 'default'
 					: this.request.query.ide,
-			reviewChangesets: await this.getChangeSetInfo(this.review, {}),
+			repos: changes.repos,
+			changes: changes.files,
 			queryString: {
 				ide:
 					this.request.query.ide === ''

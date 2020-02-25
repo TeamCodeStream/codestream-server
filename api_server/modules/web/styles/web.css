@@ -467,7 +467,12 @@ span.dropdown-item:hover {
 .form-control {
 	border: 1px solid #383838 !important;
 }
-
+.lines-added {
+	color: #66aa66;
+}
+.lines-deleted {
+	color: #cc3366;
+}
 
 @-webkit-keyframes color-change-2x {
   0% {
