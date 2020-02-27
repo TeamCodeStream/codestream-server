@@ -145,7 +145,7 @@ class EmailNotificationV2Handler {
 
 	// get the repos associated with all the markers
 	async getRepos () {
-		let repoIds;
+		let repoIds = [];
 		if (this.post.codemarkId) {
 			repoIds = this.markers.reduce((repoIds, marker) => {
 				if (marker.repoId && !repoIds.includes(marker.repoId)) {
