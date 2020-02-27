@@ -15,8 +15,7 @@
         "outline": "outline.png"
     },
     "name": {
-        "short": "CodeStream{{env}}",
-        "full": "CodeStream{{env}}"
+        "short": "CodeStream{{env}}"
     },
     "description": {
         "short": "CodeStream{{env}}",
