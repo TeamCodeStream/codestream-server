@@ -16,7 +16,7 @@ class UserNotFoundTest extends UnfollowTest {
 	}
 
 	validateResponse (data) {
-		Assert.equal(data, '/web/unfollow-error?error=RAPI-1003', 'improper redirect');
+		Assert.equal(data, '/web/unfollow-review-error?error=RAPI-1003', 'improper redirect');
 	}
 }
 

@@ -75,10 +75,10 @@ class UnfollowLinkRequest extends UnfollowReviewRequest {
 		if (this.gotError) {
 			this.warn(ErrorHandler.log(this.gotError));
 			const errorCode = typeof this.gotError === 'object' && this.gotError.code ? this.gotError.code : WebErrors['unknownError'].code;
-			this.response.redirect(`/web/unfollow-error?error=${errorCode}`);
+			this.response.redirect(`/web/unfollow-review-error?error=${errorCode}`);
 		}
 		else {
-			this.response.redirect('/web/unfollow-complete');
+			this.response.redirect('/web/unfollow-review-complete');
 		}
 	}
 
@@ -120,7 +120,7 @@ class UnfollowLinkRequest extends UnfollowReviewRequest {
 			access: 'User must be a member of the team that owns the review, or if the review is within a private channel or DM, user must be a member of that stream.',
 			description: 'Remove the current user as a follower of the review specified.',
 			input: 'A "t" parameter must be present in the query parameters, interpreted as a JSONWebToken which identifies the user',
-			returns: 'Redirects to /web/unfollow-complete',
+			returns: 'Redirects to /web/unfollow-review-complete',
 			publishes: 'The response data will be published on the team channel for the team that owns the reviews'
 		};
 	}

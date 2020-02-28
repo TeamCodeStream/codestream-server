@@ -14,13 +14,13 @@ class NoTokenTest extends UnfollowTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// change path to have no token
-			this.path = `/no-auth/unfollow-link/${this.review.id}`;
+			this.path = `/no-auth/unfollow-link/review/${this.review.id}`;
 			callback();
 		});
 	}
 
 	validateResponse (data) {
-		Assert.equal(data, '/web/unfollow-error?error=AUTH-1001', 'improper redirect');
+		Assert.equal(data, '/web/unfollow-review-error?error=AUTH-1001', 'improper redirect');
 	}
 }
 

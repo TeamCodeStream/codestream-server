@@ -15,7 +15,7 @@ class NotUnfollowTokenTest extends UnfollowTest {
 	}
 
 	validateResponse (data) {
-		Assert.equal(data, '/web/unfollow-error?error=AUTH-1002', 'improper redirect');
+		Assert.equal(data, '/web/unfollow-review-error?error=AUTH-1002', 'improper redirect');
 	}
 }
 

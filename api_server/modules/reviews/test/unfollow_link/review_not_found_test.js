@@ -15,13 +15,13 @@ class ReviewNotFoundTest extends UnfollowTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// substitute an ID for a non-existent review
-			this.path = `/no-auth/unfollow-link/${ObjectID()}?t=${this.token}`;
+			this.path = `/no-auth/unfollow-link/review/${ObjectID()}?t=${this.token}`;
 			callback();
 		});
 	}
 
 	validateResponse (data) {
-		Assert.equal(data, '/web/unfollow-error?error=RAPI-1003', 'improper redirect');
+		Assert.equal(data, '/web/unfollow-review-error?error=RAPI-1003', 'improper redirect');
 	}
 }
 

@@ -20,6 +20,10 @@ const STANDARD_PAGES = [
 	{
 		route: 'web/unfollow-complete',
 		template: 'unfollow_complete'
+	},
+	{
+		route: 'web/unfollow-review-complete',
+		template: 'unfollow_review_complete'
 	}
 ];
 
@@ -118,6 +122,11 @@ const ROUTES = [
 		method: 'get',
 		path: 'web/unfollow-error',
 		requestClass: require('./web_unfollow_error_request')
+	},
+	{
+		method: 'get',
+		path: 'web/unfollow-review-error',
+		requestClass: require('./web_unfollow_review_error_request')
 	},
 	{
 		method: 'get',

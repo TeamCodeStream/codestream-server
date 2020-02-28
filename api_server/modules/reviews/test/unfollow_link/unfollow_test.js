@@ -31,7 +31,7 @@ class UnfollowTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert.equal(data, '/web/unfollow-complete', 'improper redirect');
+		Assert.equal(data, '/web/unfollow-review-complete', 'improper redirect');
 	}
 }
 

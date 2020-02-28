@@ -1,4 +1,4 @@
-// base class for many tests of the "GET /no-auth/unfollow-link/:id" requests
+// base class for many tests of the "GET /no-auth/unfollow-link/review/:id" requests
 
 'use strict';
 

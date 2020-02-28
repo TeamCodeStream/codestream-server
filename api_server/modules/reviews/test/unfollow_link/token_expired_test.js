@@ -11,7 +11,7 @@ class TokenExpiredTest extends UnfollowTest {
 	}
 
 	get description () {
-		return 'should redirect to an error page when trying to unfollow a codemark by clicking an email link, but with an expired token';
+		return 'should redirect to an error page when trying to unfollow a review by clicking an email link, but with an expired token';
 	}
 
 	// before the test runs...
@@ -23,7 +23,7 @@ class TokenExpiredTest extends UnfollowTest {
 	}
 
 	validateResponse (data) {
-		Assert.equal(data, '/web/unfollow-error?error=AUTH-1005', 'improper redirect');
+		Assert.equal(data, '/web/unfollow-review-error?error=AUTH-1005', 'improper redirect');
 	}
 }
 
