@@ -33,10 +33,10 @@ class ReplyRenderer {
 	${titleDiv}
 	${iconsDiv}
 </div>
+${earlierReplies}
 <div class="reply new-content${newContentClasses}">
 	${authorTextDiv}
 </div>
-${earlierReplies}
 `;
 	}
 
