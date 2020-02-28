@@ -238,8 +238,6 @@ td {
 	vertical-align: middle;
 }
 
-
-
 .reply-icon a {
 	text-decoration: none !important;
 }
@@ -247,6 +245,10 @@ td {
 .reply {
 	padding-left: 6px;
 	margin-bottom: 10px;
+}
+
+.me-reply {
+	padding: 13px 0px 13px 6px;	
 }
 
 .replies-earlier {

@@ -493,6 +493,18 @@ const Utils = {
 `;
 	},
 
+	renderMeMessageDiv: function (options) {
+		const { creator, datetimeField, meMessage } = options;
+		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
+		const headshot = Utils.renderUserHeadshot(creator);
+		return `
+<div>
+	${headshot}
+	<span class="author">${author}</span>&nbsp;${meMessage}&nbsp;<span class="datetime">{{{${datetimeField}}}}</span>
+</div>
+`;
+	},
+
 	// render a gravatar headshot with initials as backup
 	renderHeadshot: function (avatar) {
 		// class doesn't seem to work in the `if mso` comment... inline the style.

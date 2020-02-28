@@ -15,8 +15,16 @@ class ReplyRenderer {
 		const codemarkAuthorDiv = this.renderCodemarkAuthorDiv(options);
 		const titleDiv = this.renderTitleDiv(options);
 		const iconsDiv = this.renderIconsDiv(options);
-		const authorDiv = this.renderAuthorDiv(options);
-		const textDiv = this.renderTextDiv(options);
+		let authorTextDiv = '';
+		let newContentClasses = '';
+		if (this.isMeMessage(options)) {
+			authorTextDiv = this.renderMeMessageText(options);
+			newContentClasses = ' me-reply';
+		}
+		else {
+			authorTextDiv = `${this.renderAuthorDiv(options)}${this.renderTextDiv(options)}`;
+		}
+		
 		const earlierReplies = this.renderEarlierReplies(options);
 
 		return `
@@ -25,12 +33,16 @@ class ReplyRenderer {
 	${titleDiv}
 	${iconsDiv}
 </div>
-<div class="reply new-content">
-	${authorDiv}
-	${textDiv}
+<div class="reply new-content${newContentClasses}">
+	${authorTextDiv}
 </div>
 ${earlierReplies}
 `;
+	}
+
+	isMeMessage(options) {
+		const { post } = options;
+		return post.text && post.text.indexOf('/me ') === 0;
 	}
 
 	// render the author line with timestamp for the codemark creator
@@ -223,6 +235,18 @@ ${earlierReplies}
 	<span class="ensure-white">${text}</span>
 </div>
 `;
+	}
+
+	renderMeMessageText (options) {		
+		const { post, creator, timeZone } = options;
+		const meMessageOptions = {			
+			creator,
+			timeZone,
+			datetimeField: 'datetime',
+			// remove the `/me ` part
+			meMessage: post.text.substring(4),
+		};
+		return Utils.renderMeMessageDiv(meMessageOptions);
 	}
 
 	renderEarlierReplies(options) {
