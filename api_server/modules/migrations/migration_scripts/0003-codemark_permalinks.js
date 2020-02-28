@@ -1,11 +1,11 @@
 'use strict';
 
 const Migration = require('./migration');
-const CodemarkLinkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_link_creator');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
-const Marker = require(process.env.CS_API_TOP + '/modules/markers/marker');
+//const CodemarkLinkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_link_creator');
+//const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
+//const Marker = require(process.env.CS_API_TOP + '/modules/markers/marker');
 
-const THROTTLE_TIME = 333;
+//const THROTTLE_TIME = 333;
 
 class CodemarkPermalinks extends Migration {
 
@@ -14,6 +14,8 @@ class CodemarkPermalinks extends Migration {
 	}
 
 	async execute () {
+		return;
+		/*
 		const startDate = new Date('2/1/2018').getTime();
 		const now = Date.now();
 		const oneMonth = 30*24*60*60*1000;
@@ -39,6 +41,7 @@ class CodemarkPermalinks extends Migration {
 			}
 			currentDate += oneMonth;
 		}
+		*/
 	}
 
 	async setPermalink (codemark) {
@@ -59,7 +62,8 @@ class CodemarkPermalinks extends Migration {
 		}
 	}
 
-	async findExisting (codemark, markers) {
+	async findExisting (/*codemark, markers*/) {
+		/*
 		const info = await new CodemarkLinkCreator({
 			request: this,
 			origin: ApiConfig.publicApiUrl
@@ -68,15 +72,18 @@ class CodemarkPermalinks extends Migration {
 			markers.map(m => new Marker(m))
 		);
 		return info && info.url;
+		*/
 	}
 
-	async makeLink (codemark, markers) {
+	async makeLink (/*codemark, markers*/) {
+		/*
 		return await new CodemarkLinkCreator({
 			request: this,
 			codemark: codemark,
 			markers: markers.map(m => new Marker(m)),
 			origin: ApiConfig.publicApiUrl
 		}).createCodemarkLink();
+		*/
 	}
 
 	async saveToCodemark (codemark, permalink) {
