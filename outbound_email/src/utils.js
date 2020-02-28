@@ -272,8 +272,9 @@ const Utils = {
 
 	// get the default extension for displaying code
 	getExtension: function (options) {
-		const { codemark, markers } = options;
-		const markerId = (codemark.markerIds || [])[0];
+		const { codemark, review, markers } = options;
+		const parentObject = codemark || review;
+		const markerId = (parentObject.markerIds || [])[0];
 		if (!markerId) { return; }
 		const marker = markers.find(marker => marker.id === markerId);
 		if (!marker) { return; }
@@ -379,29 +380,32 @@ const Utils = {
 		};
 	},
 
-	// render buttons to display, associated with a codemark
+	// render buttons to display, associated with a codemark or a review
 	renderButtons: function (options) {
-		const { codemark, markers } = options;
-		const markerId = codemark && codemark.markerIds[0];
+		const { codemark, review, markers } = options;
+		const parentObject = codemark || review;
+		if (!parentObject.markerIds) { return ''; }
+		const markerId = parentObject && parentObject.markerIds[0];
 		const marker = markerId && markers.find(marker => marker.id === markerId);
 		if (!marker) { return ''; }
 		return Utils.renderMarkerButtons(options, marker);
 	},
 
-	// get buttons to display associated with a codemark
+	// get buttons to display associated with a codemark or a review
 	renderMarkerButtons: function (options, marker) {
-		const { codemark } = options;
+		const { codemark, review } = options;
+		const parentObject = codemark || review;
 		let ideUrl;
 		let remoteCodeUrl;
-		if (codemark.permalink) {
+		if (parentObject.permalink) {
 			ideUrl = Utils.getIDEUrl(options, marker.id);
 		}
 
 		let hasRemoteCodeUrl = true;
 		let remoteCodeProviderName = '';
-		const remoteCodeUrlObject = marker.remoteCodeUrl || codemark.remoteCodeUrl;
+		const remoteCodeUrlObject = marker.remoteCodeUrl || parentObject.remoteCodeUrl;
 		if (remoteCodeUrlObject) {
-			remoteCodeProviderName = CODE_PROVIDERS[codemark.remoteCodeUrl.name];
+			remoteCodeProviderName = CODE_PROVIDERS[remoteCodeUrlObject.name];
 			remoteCodeUrl = remoteCodeUrlObject.url;
 			if (remoteCodeProviderName && remoteCodeUrl) {
 				hasRemoteCodeUrl = true;
@@ -449,14 +453,15 @@ const Utils = {
 		return markup;
 	},
 
-	// get the url for opening the codemark in IDE
+	// get the url for opening the codemark or review in IDE
 	getIDEUrl: function (options, markerId) {
-		const { codemark } = options;
-		if (!codemark.permalink) {
+		const { codemark, review } = options;
+		const parentObject = codemark || review;
+		if (!parentObject.permalink) {
 			return '';
 		}
-		markerId = markerId || (codemark.markerIds || [])[0];
-		let url = `${codemark.permalink}?ide=default`;
+		markerId = markerId || (parentObject.markerIds || [])[0];
+		let url = `${parentObject.permalink}?ide=default`;
 		if (markerId) {
 			url += `&marker=${markerId}`;
 		}
@@ -509,7 +514,7 @@ const Utils = {
 
 	// render the set of tags
 	renderTags: function (options) {
-		const { tags, team } = options;
+		const { tags = [], team } = options;
 		const teamTags = team.tags || [];
 		let hasTags = false;
 		let tagsHtml = '<table cellpadding=1 cellspacing=1 border=0><tr>';

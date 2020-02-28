@@ -92,6 +92,10 @@ class EmailNotificationV2Handler {
 				throw `review ${this.post.reviewId} not found`;
 			}
 		}
+		
+		if (this.parentPost && this.parentPost.reviewId) {
+			this.parentReview = await this.data.reviews.getById(this.parentPost.reviewId);
+		}
 	}
 
 	// get the related codemarks, including the parent codemark, as needed
@@ -238,7 +242,9 @@ class EmailNotificationV2Handler {
 		}
 
 		// then, only if they're following
-		const thingToFollow = this.post.parentPostId ? this.parentCodemark : (this.codemark || this.review);
+		const thingToFollow = this.post.parentPostId ?
+			(this.parentReview || this.parentCodemark) :
+			(this.review || this.codemark);
 		const followerIds = (thingToFollow && thingToFollow.followerIds) || [];
 		if (followerIds.indexOf(user.id) === -1) {
 			this.log(`User ${user.id}:${user.email} is not following the associated object so will not receive an email notification`);
@@ -302,7 +308,7 @@ class EmailNotificationV2Handler {
 		this.renderOptions = {
 			post: this.post,
 			codemark: this.parentCodemark || this.codemark,
-			review: this.review,
+			review: this.parentReview || this.review,
 			markers: this.markers,
 			fileStreams: this.fileStreams,
 			repos: this.repos,
@@ -314,7 +320,8 @@ class EmailNotificationV2Handler {
 			creator
 		};
 
-		if (this.post.parentPostId) {
+		// note that if the reply has a codemark, we render as if a codemark, not as a normal reply
+		if (this.post.parentPostId && !this.post.codemarkId) {
 			return this.renderReply();
 		}
 		else if (this.codemark) {
@@ -331,7 +338,11 @@ class EmailNotificationV2Handler {
 
 	// render the HTML needed for a reply
 	async renderReply () {
-		this.renderOptions.codemarkCreator = this.teamMembers.find(member => member.id === this.parentCodemark.creatorId);
+		if (!this.parentCodemark && !this.parentReview) {
+			throw `Post ${this.post.id} is a reply, but there is no parent object, WTF?`;
+		}
+		const creatorId = (this.parentCodemark || this.parentReview).creatorId;
+		this.renderOptions.parentObjectCreator = this.teamMembers.find(member => member.id === creatorId);
 		this.renderedHtml = new ReplyRenderer().render(this.renderOptions);
 	}
 
@@ -364,9 +375,10 @@ class EmailNotificationV2Handler {
 		renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{datetime\}\}\}/g, datetime);
 
 		// also format the timestamp of the parent codemark as needed
-		if (this.parentCodemark) {
-			const codemarkDatetime = Utils.formatTime(this.parentCodemark.createdAt, user.timeZone || DEFAULT_TIME_ZONE);
-			renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{codemarkDatetime\}\}\}/g, codemarkDatetime);
+		if (this.parentCodemark || this.parentReview) {
+			const createdAt = (this.parentCodemark || this.parentReview).createdAt;
+			const parentObjectDatetime = Utils.formatTime(createdAt, user.timeZone || DEFAULT_TIME_ZONE);
+			renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{parentObjectDatetime\}\}\}/g, parentObjectDatetime);
 		}
 
 		// for users who are mentioned, special formatting applies to the user receiving the email
@@ -471,7 +483,7 @@ class EmailNotificationV2Handler {
 		const { user, html } = userAndHtml;
 		const isReply = !!this.post.parentPostId;
 		const codemark = isReply ? this.parentCodemark : this.codemark;
-		const review = this.review;
+		const review = isReply ? this.parentReview : this.review;
 		const creatorId = isReply ? this.post.creatorId : (codemark || review).creatorId;
 		const creator = this.teamMembers.find(member => member.id === creatorId);
 		const options = {

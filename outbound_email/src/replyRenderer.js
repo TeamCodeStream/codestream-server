@@ -35,20 +35,22 @@ ${earlierReplies}
 
 	// render the author line with timestamp for the codemark creator
 	renderCodemarkAuthorDiv (options) {
-		const { codemark, codemarkCreator, timeZone } = options;
+		const { codemark, review, parentObjectCreator, timeZone } = options;
+		const parentObject = codemark || review;
 		const authorOptions = {
-			time: codemark.createdAt,
-			creator: codemarkCreator,
+			time: parentObject.createdAt,
+			creator: parentObjectCreator,
 			timeZone,
-			datetimeField: 'codemarkDatetime'
+			datetimeField: 'parentObjectDatetime'
 		};
 		return Utils.renderAuthorDiv(authorOptions);
 	}
 
 	// render the div for the title of the codemark
 	renderTitleDiv (options) {
-		const { codemark } = options;
-		return Utils.renderTitleDiv(codemark.title, options);
+		const { codemark, review } = options;
+		const parentObject = codemark || review;
+		return Utils.renderTitleDiv(parentObject.title, options);
 	}
 
 	// render the associated icons
@@ -95,16 +97,18 @@ ${earlierReplies}
 
 	// render the headshots or initials of assignees
 	renderAssigneesCore (options) {
-		const { codemark, members } = options;
+		const { codemark, review, members } = options;
 
 		let assignees = [];
-		(codemark.assignees || []).forEach(assigneeId => {
+		const parentObjectAssignees = codemark ? codemark.assignees : review.reviewers;
+		const externalAssignees = codemark && codemark.externalAssignees;
+		(parentObjectAssignees || []).forEach(assigneeId => {
 			const user = members.find(member => member.id === assigneeId);
 			if (user) {
 				assignees.push(user);
 			}
 		});
-		assignees = [...assignees, ...(codemark.externalAssignees || [])];
+		assignees = [...assignees, ...(externalAssignees || [])];
 
 		return assignees.map(assignee => {
 			return Utils.renderUserHeadshot(assignee);
@@ -126,7 +130,7 @@ ${earlierReplies}
 	// render a linked issue icon as needed
 	renderLinkedIssue (options) {
 		const { codemark } = options;
-		if (!codemark.externalProvider) { return ''; }
+		if (!codemark || !codemark.externalProvider) { return ''; }
 		const providerUrl = codemark.externalProviderUrl;
 		const iconHtml = Utils.renderIcon(codemark.externalProvider);
 		return `
@@ -149,8 +153,9 @@ ${earlierReplies}
 
 	// render the icon for code blocks, and their number
 	renderCodeBlocks (options) {
-		const { codemark, clickUrl } = options;
-		const numMarkers = (codemark.markerIds || []).length;
+		const { codemark, review, clickUrl } = options;
+		const parentObject = codemark || review;
+		const numMarkers = (parentObject.markerIds || []).length;
 		if (numMarkers > 1) {
 			const iconHtml = Utils.renderIcon('code');
 			return `
@@ -170,6 +175,7 @@ ${earlierReplies}
 	// render the icon for related codemarks, and their number
 	renderRelatedCodemarks (options) {
 		const { codemark, clickUrl } = options;
+		if (!codemark) { return ''; }
 		const numRelated = (codemark.relatedCodemarkIds || []).length;
 		if (numRelated) {
 			const iconHtml = Utils.renderIcon('codestream');
@@ -189,8 +195,9 @@ ${earlierReplies}
 
 	// render the icon for codemark replies, if any, and their number
 	renderReplies (options) {
-		const { codemark, clickUrl } = options;
-		const numReplies = codemark.numReplies || 0;
+		const { codemark, review, clickUrl } = options;
+		const parentObject = codemark || review;
+		const numReplies = parentObject.numReplies || 0;
 		if (numReplies) {
 			const iconHtml = Utils.renderIcon('comment');
 			return `
@@ -219,12 +226,14 @@ ${earlierReplies}
 	}
 
 	renderEarlierReplies(options) {
-		if (!options || !options.codemark || options.codemark.numReplies < 2) {
+		const { codemark, review } = options;
+		const parentObject = codemark || review;
+		if (parentObject.numReplies < 2) {
 			return '';
 		}
 
-		if (options.codemark.permalink) {
-			const url = `${options.codemark.permalink}?ide=default`;
+		if (parentObject.permalink) {
+			const url = `${parentObject.permalink}?ide=default`;
 			return `<div class="replies-earlier"><a href="${url}" clicktracking="off">See earlier replies</a></div>`;
 		}
 		return '<div class="replies-earlier">See earlier replies</div>';
