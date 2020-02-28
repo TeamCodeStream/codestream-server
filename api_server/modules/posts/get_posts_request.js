@@ -55,6 +55,13 @@ class GetPostsRequest extends GetManyRequest {
 	// called before the actual fetch operation, here we fetch the streams the user is 
 	// a member of if posts for a particular stream are not being fetched
 	async preQueryHook () {
+		// we'll give the caller the benefit of figuring out the stream ID if they're looking for replies to a post
+		if (this.request.query.parentPostId && !this.request.query.streamId) {
+			const parentPost = await this.data.posts.getById(this.request.query.parentPostId.toLowerCase());
+			if (parentPost) {
+				this.request.query.streamId = parentPost.get('streamId');
+			}
+		}
 		if (this.request.query.streamId) { return; }
 		
 		// if no stream ID is given, we'll fetch for all streams the user is a member of...
@@ -242,6 +249,7 @@ class GetPostsRequest extends GetManyRequest {
 		await this.getCodemarks();	// get associated codemarks, as needed
 		await this.getReviews();	// get associated reviews, as needed
 		await this.getMarkers();	// get associated markers, as needed
+		await this.getReplies();	// get nested replies, if this is a query for replies
 
 		// add the "more" flag as needed, if there are more posts to fetch ...
 		// we always fetch one more than the page requested, so we can set that flag
@@ -294,6 +302,48 @@ class GetPostsRequest extends GetManyRequest {
 		}
 		const markers = await this.data.markers.getByIds(markerIds);
 		this.responseData.markers = markers.map(marker => marker.getSanitizedObject({ request: this }));
+	}
+
+	// get nested replies, if this is a query for replies
+	async getReplies () {
+		// only applies to fetching replies to begin with
+		if (!this.request.query.parentPostId) {
+			return;
+		}
+		const postIds = this.responseData.posts.map(post => post.id);
+		let replies = await this.data.posts.getByQuery(
+			{
+				parentPostId: this.data.posts.inQuery(postIds),
+				streamId: this.request.query.streamId.toLowerCase(),
+				teamId: this.request.query.teamId.toLowerCase()
+			},
+			{
+				hint: Indexes.byParentPostId
+			}
+		);
+		if (replies.length === 0) { return; }
+		this.responseData.posts.push(...replies.map(reply => reply.getSanitizedObject({ request: true })));
+
+		// need to sort them if we found nested replies, since they are promised sorted but 
+		// the database layer couldn't sort them since they were fetched separately
+		this.responseData.posts.sort((a, b) => {
+			if (this.byId) {
+				if ((this.request.query.sort || '').toLowerCase() === 'asc') {
+					return a.id.localeCompare(b.id);
+				}
+				else {
+					return b.id.localeCompare(a.id);
+				}
+			}
+			else {
+				if ((this.request.query.sort || '').toLowerCase() === 'asc') {
+					return a.seqNum - b.seqNum;
+				}
+				else {
+					return b.seqNum - a.seqNum;
+				}
+			}
+		});
 	}
 
 	// describe this route for help
