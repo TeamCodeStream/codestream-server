@@ -11,6 +11,9 @@ const PutReviewRequestTester = require('./put_review/test');
 const DeleteReviewRequestTester = require('./delete_review/test');
 const AddTagRequestTester = require('./add_tag/test');
 const RemoveTagRequestTester = require('./remove_tag/test');
+const FollowRequestTester = require('./follow/test');
+const UnfollowRequestTester = require('./unfollow/test');
+const UnfollowLinkRequestTester = require('./unfollow_link/test');
 
 describe('review requests', function() {
 
@@ -22,4 +25,7 @@ describe('review requests', function() {
 	describe('DELETE /reviews/:id', DeleteReviewRequestTester.test);
 	describe('PUT /reviews/:id/add-tag', AddTagRequestTester.test);
 	describe('PUT /reviews/:id/remove-tag', RemoveTagRequestTester.test);
+	describe('PUT /reviews/follow/:id', FollowRequestTester.test);
+	describe('PUT /reviews/unfollow/:id', UnfollowRequestTester.test);
+	describe('GET /no-auth/unfollow-link/review/:id', UnfollowLinkRequestTester.test);
 });

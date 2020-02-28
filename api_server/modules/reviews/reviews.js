@@ -46,6 +46,21 @@ const REVIEW_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'reviews/:id/remove-tag',
 		requestClass: require('./remove_tag_request')
+	},
+	{
+		method: 'put',
+		path: 'reviews/follow/:id',
+		requestClass: require('./follow_review_request')
+	},
+	{
+		method: 'put',
+		path: 'reviews/unfollow/:id',
+		requestClass: require('./unfollow_review_request')
+	},
+	{
+		method: 'get',
+		path: 'no-auth/unfollow-link/review/:id',
+		requestClass: require('./unfollow_link_request')
 	}
 ];
 
