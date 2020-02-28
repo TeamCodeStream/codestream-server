@@ -125,6 +125,10 @@ class EmailNotificationV2Handler {
 			this.parentCodemark = this.relatedCodemarks[index];
 			this.relatedCodemarks.splice(index, 1);
 		}
+
+		if (this.parentCodemark && this.parentCodemark.reviewId) {
+			this.parentReview = await this.data.reviews.getById(this.parentCodemark.reviewId);
+		}
 	}
 
 	// get the markers associated with all the codemarks or the review
@@ -438,7 +442,9 @@ class EmailNotificationV2Handler {
 	// render a single email for the given user
 	async renderEmailForUser (user) {
 		const { codemark, review } = this.renderOptions;
-		const unfollowLink = this.getUnfollowLink(user, codemark || review);
+		const thingToUnfollow = this.parentReview || codemark || review;
+		const isReview = !!(this.parentReview || review);
+		const unfollowLink = this.getUnfollowLink(user, thingToUnfollow, isReview);
 		Object.assign(this.renderOptions, {
 			content: this.renderedPostPerUser[user.id],
 			unfollowLink,
@@ -456,7 +462,7 @@ class EmailNotificationV2Handler {
 	}
 
 	// get the "unfollow" link for a given user and codemark or review
-	getUnfollowLink (user, thingToUnfollow) {
+	getUnfollowLink (user, thingToUnfollow, isReview) {
 		const expiresIn = this.expiresIn || 30 * 24 * 60 * 60 * 1000; // one month
 		const expiresAt = Date.now() + expiresIn;
 		const token = new TokenHandler(Config.tokenSecret).generate(
@@ -468,7 +474,8 @@ class EmailNotificationV2Handler {
 				expiresAt
 			}
 		);
-		return `${Config.apiUrl}/no-auth/unfollow-link/${thingToUnfollow.id}?t=${token}`;
+		const reviewPathPart = isReview ? 'review/' : '';
+		return `${Config.apiUrl}/no-auth/unfollow-link/${reviewPathPart}${thingToUnfollow.id}?t=${token}`;
 	}
 
 	// send all the email notifications 
