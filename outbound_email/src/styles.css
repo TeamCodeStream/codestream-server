@@ -33,6 +33,7 @@
 .title {
 	margin-top: 8px;
 }
+
 .title-large {
 	font-size: 16px;
 }
@@ -48,12 +49,18 @@
 	font-size: 13px;
 	opacity: .6;
 }
+
 .sub-title {
 	font-size: 13px;
 }
 
 .following a {
 	color: white !important;
+	text-decoration: none !important;
+}
+
+.review-link {
+	color: 	#c7c7c6 !important;
 	text-decoration: none !important;
 }
 

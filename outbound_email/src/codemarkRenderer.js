@@ -35,6 +35,7 @@ class CodemarkRenderer {
 		const visibleToDiv = this.renderVisibleToDiv(options);
 		const tagsAssigneesTable = this.renderTagsAssigneesTable(options);
 		const descriptionDiv = this.renderDescriptionDiv(options);
+		const parentReviewDiv = this.renderParentReviewDiv(options);
 		const linkedIssuesDiv = this.renderLinkedIssuesDiv(options);
 		const relatedDiv = this.renderRelatedDiv(options);
 		const codeBlockDivs = this.renderCodeBlockDivs(options);
@@ -45,6 +46,7 @@ class CodemarkRenderer {
 	${visibleToDiv}
 	${tagsAssigneesTable}
 	${descriptionDiv}
+	${parentReviewDiv}
 	${linkedIssuesDiv}
 	${relatedDiv}
 	${codeBlockDivs}
@@ -182,6 +184,21 @@ ${relatedDivs}
 			return '';
 		}
 	}
+
+		// render the parent review, if any
+		renderParentReviewDiv (options) {
+			const { review } = options;
+			if (review) {
+				return `
+	<div class="section nice-gray section-text">REVIEW</div>
+	${review.permalink ? `<a href="${review.permalink}" class="review-link" clicktracking="off">${review.title}</a>` : review.title}
+	<br>
+	`;
+			}
+			else {
+				return '';
+			}
+		}
 
 	// render a related codemark
 	renderRelatedCodemark (codemark, options) {
