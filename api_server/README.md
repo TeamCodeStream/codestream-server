@@ -43,7 +43,7 @@ The CodeStream API Service is lovely.
    file format so for now include the `-e` option. The default api sandbox name
    is `api` so that will be assumed in this documentation:
 	```
-	dt-sb-new-sandbox -yCD [-I] -t cs_api -n api -e unified-cfg-file.sh
+	dt-sb-new-sandbox -yCD [-I] -t cs_api -n api
 	```
 1. Load your api sandbox:
 	```
