@@ -1,73 +1,122 @@
 # MS Teams app / bot 
-The following describes how to setup an MS Teams bot/app along with 
-the logic surrounding it in the api_server. Unlike most 3rd party api flows, with this integration, we are not getting an accessToken and querying a 3rd party api, but rather, we are gathering information from MS Teams teams, storing that in mongo, then querying it from the lsp agent.
-
-## App/Bot Registration
-
-There is a 2-step process for creating bots in the Microsoft world:
-
-1 - first, create the bot here https://dev.botframework.com/bots
-- To create a new bot: https://dev.botframework.com/bots/new
-
-2 - Then create an 'app' for it in Azure 
-- Go to https://portal.azure.com
-    - Go to `App registrations`
-    - (or just go here, which might not work: https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps)
-
-We have a few bots/apps that have been created in the botframework site, they are:
-
-#### CodeStream (prod)
-7cf49ab7-8b65-4407-b494-f02b525eef2b
-
-#### CodeStream-QA
-a0b30480-2944-46a6-97ca-192a655cdb62
-
-#### CodeStream-PD
-1a08df08-b652-464a-bac3-bfa386dcfa6d
-
-#### CodeStream-Brian
-7bce9cff-9fd1-4e05-b7b5-5638ec468880
-
-Note: these GUIDs are created via Azure (step 2 above)
-
-MS Teams apps are essentially just a manifest.json file that dictates its various configuration settings and features. Bots are 
-optional and are part of the app's manifest. You will need to set a username/password (via azure) for these bots, the api_server will require them.
+The following describes how to setup an MS Teams bot/app along with the logic
+surrounding it in the api_server. Unlike most 3rd party api flows, with this
+integration, we are not getting an accessToken and querying a 3rd party api, but
+rather, we are gathering information from MS Teams teams, storing that in mongo,
+then querying it from the lsp agent.
 
 
-## Developing
-Use the App Studio app from within the Teams app to test your app's manifest, as well as serve as a UI for editing it. From here, you can attach the bot, as well as install it locally for testing
+## Create the bot channel registration resource in Azure
 
-https://aka.ms/InstallTeamsAppStudio
+To link MS Teams to the CodeStream bots (our API services which run in our AWS
+account) you must create _Bot Channels Registration_ resources (one per
+environment) in the Azure Portal.
+
+1.  Login to the [Azure Portal](https://portal.azure.com)
+1.  Hamburger Menu (upper left) > '+ Create a resource'
+1.  Search for the **bot channels registration** resource and create one. 
+    <image src="screens/01-find-bot-service.png" width="400">
+    <br>
+    <image src="screens/02-create-bot-channel-reg.png" width="400">
+1.  Submit the **bot channels registration** form and wait for the resource to
+    become available.
+    <image src="screens/03-bot-channel-reg-form.png" width="400">
+    <br>
+    1.  **Bot handles** are globally unique. Our standard is `codestreambot-<env>`
+    1.  An Azure Subscription - use `R&D`
+    1.  A Resource Group - create a dedicated one or use `codestream-core`
+    1.  Location - use `East US`
+    1.  Pricing Tier - Use `S1`
+    1.  Messaging Endpoint - For developer local environments, use
+        `https://csaction.codestream.us/no-auth/provider-action/msteams/<your-host>/development`
+        which will forward to port 12079 on `<your-host>`. For other
+        environments have operations edit and deploy
+        **ops_tools/etc/nginx/proxy/codestream-csaction.conf.template**
+        accordingly.
+    1.  Turn **Application Insights** off
+    1.  Submit the form - **Create** button on the bottom - to submit the
+        request to Azure. You'll be notified via the Azure Portal dashboard when
+        your resource is ready (2-5 minutes).
+1.  Hamburger Menu > Azure Active Directory > App Registrations > _select your app_
+1.  Select _Certificates & Secrets_ under the _Manage_ section and create a new
+    client secret. <image src="screens/04-generate-new-client-secret.png"
+    width="400"><br>_**Make sure you save the secret and add it to your API
+    server's configuration file.**_
+1.  Delete the secret that was automtically created with the resource. Since you
+    don't know its value, it is of no use.
+1.  Finally, in the branding section, you can add an icon, links, etc...
+    <image src="screens/05-complete-branding-data.png" width="400"><br>
 
 
-## Manifest
+## Creating the MS Teams App Packages
 
-run the following commands to generate the env=specific manifest file(s)
+MST App Packages are zip files containing a manifest and some icons. App
+packages are then loaded into your MS Teams account in order to connect it to
+your CodeStream bot apps (backend api server).
+
+The App packages can be distributed to _side load_ them into MS Teams. The
+production app package is submitted to the Microsoft AppSource (formerly MST App
+Marketplace) for review and approval.
+
+To create app packages you'll need the environment you're creating a package for
+as well as the _Application (client) ID_ associated with the bot channels
+resource you just created. You can see it on the **Overview** blade of your App
+registration.
+
+### Environments & App IDs (aka botIds)
+
+For operations-managed environments (prod, qa, pd, ...) the Application IDs are
+read from the Secrets database. Personal and other Application IDs can be saved
+here.
+
+| Env | Application (client) ID - aka botId |
+| --- | --- |
+| prod | 7cf49ab7-8b65-4407-b494-f02b525eef2b (source of truth is the secrets database) |
+| pd | 1a08df08-b652-464a-bac3-bfa386dcfa6d (source of truth is the secrets database) | 
+| qa | a0b30480-2944-46a6-97ca-192a655cdb62 (source of truth is the secrets database) |
+| brian | 7bce9cff-9fd1-4e05-b7b5-5638ec468880 |
+
+### Package Creation Commands
+To create an App Package using dev_tools:
 ```
-node bin/cs_msteams_bot_manifest_creator.js -b 7bce9cff-9fd1-4e05-b7b5-5638ec468880 -e brian
-
-node bin/cs_msteams_bot_manifest_creator.js -b 1a08df08-b652-464a-bac3-bfa386dcfa6d -e pd
-
-node bin/cs_msteams_bot_manifest_creator.js -b a0b30480-2944-46a6-97ca-192a655cdb62 -e qa
-
-node bin/cs_msteams_bot_manifest_creator.js -b 7cf49ab7-8b65-4407-b494-f02b525eef2b -e prod
+$ cs_api-msteams_bot_app_pkg_creator -e <env> -b <bot-application-id>
 ```
+Create a manifest file only (does not require dev_tools):
+```
+$ cd $CS_API_TOP
+$ node bin/cs_msteams_bot_manifest_creator.js -e <env> -b <bot-application-id>
+```
+Create App Packages for all managed environments and optionally distribute them
+to our CDN (you must have access to the secrets database and S3 asset
+distribution tree).
+```
+$ cs_api-msteams_bot_app_pkg_creator --use-keydb [--distribute]
+```
+Once distributed, you can fetch the packages (except production) with:
+`https://assets.codestream.com/mstbot/codestream-msteamsbot-<env>-<version>.zip`
 
-## Publishing
+For production, use:
+`https://assets.codestream.com/mstbot/codestream-msteamsbot-<version>.zip`
 
-Zip the inner contents of the environment you're targetting (should be 3 files: 1 manifest, 2 images)
 
+### Additional Publishing Documentation
 https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/appsource/publish
 
 https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/appsource/prepare/overview
 
-## Dev logic
+
+## Developing
+
+Use the App Studio app from within the Teams app to test your app's manifest, as
+well as serve as a UI for editing it. From here, you can attach the bot, as well
+as install it locally for testing
+
+https://aka.ms/InstallTeamsAppStudio
+
+### Dev logic
 
 the `hasSharing` flag is enabled for `modules/msteams_auth/msteams_auth.js`. While MS Teams does not follow the same flow
 as Slack, it does share a lot of the glue that makes it work -- as it follows the notion of it being a `provider`. As user triggers this flow in the IDE by attempting to add an `MS Teams Organization` from the codemark sharing dropdown.
-
-### Installation
-One of the users in the MS Teams organization will have to install the CodeStream for MS Teams app. At this point, it will be available for the entire team, though one of the users (that is also a CodeStream user) will have to link their MS Teams organization (known as a tenant) to a CodeStream user/team.
 
 ### SignIn
 A user gets associated with CodeStream by signing into CodeStream via the web by issuing the `signin` command from the personal CodeStream bot chat. This eventually creates a `signinToken` which is tied to the CS `userId`, CS `teamId` and the MS Teams `tenantId`. If a user is on > 1 team, they will be prompted with a team selector. 

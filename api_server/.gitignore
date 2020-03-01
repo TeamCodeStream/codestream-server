@@ -9,3 +9,4 @@ api-server-*.info
 sandbox/docker/extras/
 sandbox/docker/Dockerfile
 sandbox/docker/runtime.env
+etc/msteamsbot/dist/

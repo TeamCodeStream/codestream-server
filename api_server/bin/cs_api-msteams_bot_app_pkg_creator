@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+
+# desc# create the app packages for integrating codestream to msteams
+
+import os
+import sys
+import argparse
+import shutil
+import glob
+import re
+import json
+
+sys.path.append(os.environ['DT_TOP'] + "/lib")
+import sysUtils as su
+import awsCS
+
+
+# create the app package (zip file) for the specified env & botId
+# and optionally distribute it
+def makeAppPackage(globalData, env, botId, manifestTemplate):
+	outDir = f"{globalData['distRoot']}/{env}"
+	if not os.path.exists(outDir):
+		os.mkdir(outDir)
+	# create the manifest
+	manifest = su.expandTemplate(manifestTemplate, {'env': env, 'botId': botId})
+	manifestData = json.loads(manifest)
+	outFile = open(f"{outDir}/manifest.json", "w")
+	outFile.write(manifest)
+	outFile.close()
+	# copy additional resource files
+	for f in ['color.png', 'outline.png']:
+		shutil.copyfile(f"{globalData['templateDir']}/{f}", f"{outDir}/{f}")
+	# create the zip file named based on env and version
+	envString = "" if env == "prod" else f"-{env}"
+	zipName = f"codestream-msteamsbot{envString}-{manifestData['version']}.zip"
+	su.shellExecNoBuffer(f"zip -q ../{zipName} *", workingDir=outDir, abortOnFail=True, printCmd=True)
+	# distribute the zip file via S3
+	if globalData['args'].distribute:
+		cmd = f"aws s3 cp {globalData['distRoot']}/{zipName} {globalData['distributionKeyPrefix']}/{zipName} --sse"
+		su.shellExecNoBuffer(cmd, abortOnFail=True, printCmd=True)
+
+
+# create the package contents from a key management database config file
+def makeAppPackageFromEnvFile(globalData, manifestTemplate, envFile):
+	rc = 0
+	match = re.search(r'.*\/teams-(.+).cfg$', envFile)
+	if match:
+		env = "pd" if match.group(1) == "dev" else match.group(1)
+		envData = su.readKeyValueFile(envFile)
+		# su.dumpDict(envData)
+		if 'botAppId' in envData:
+			makeAppPackage(globalData, env, envData['botAppId'], manifestTemplate)
+		else:
+			print(f"botAppId not defined for {env} environment")
+	else:
+		su.printErr(f"could not determine env from {envFile}")
+		rc = 1
+	return rc
+
+
+globalData = {
+	'distributionKeyPrefix': f"{awsCS.awsCS().getCloudFrontProperty('assets', 's3BucketPrefix')}/mstbot",
+	'botDir': f"{os.environ['CS_API_TOP']}/etc/msteamsbot",
+	'templateDir': f"{os.environ['CS_API_TOP']}/etc/msteamsbot/template",
+	'distRoot': f"{os.environ['CS_API_TOP']}/etc/msteamsbot/dist",
+}
+
+parser = argparse.ArgumentParser(description="msteams bot app package creator")
+parser.add_argument('--debug', action='store_true', default=False, help='show debugging output')
+parser.add_argument('--verbose', action='store_true', default=False, help='show verbose output')
+parser.add_argument('-e', '--env', type=str, help="environment")
+parser.add_argument('-b', '--botId', type=str, help="bot registration app ID")
+parser.add_argument('--use-keydb', action='store_true', default=False, help="get app IDs from key management DB")
+parser.add_argument('--distribute', action='store_true', default=False, help="copy zips to S3 using the AWS CLI")
+args = parser.parse_args()
+
+ec = 0
+globalData['args'] = args
+if args.debug:
+	su.dumpDict(globalData, None, "globalData:")
+manifestTemplate = su.readFileIgnoreComments(f"{globalData['templateDir']}/manifest.json")
+
+if not os.path.exists(globalData['distRoot']):
+	print(f"creating {globalData['distRoot']}")
+	os.mkdir(globalData['distRoot'])
+
+if args.env and args.botId:
+	makeAppPackage(globalData, args.env, args.botId, manifestTemplate)
+elif args.use_keydb:
+	if not os.environ['KM_PKI']:
+		su.printErr("where is the key management database (KM_PKI is not defined)?")
+		exit(1)
+	# read environments & botIds from the secrets database
+	for envFile in glob.glob(f"{os.environ['KM_PKI']}/secrets/microsoft/teams-*.cfg"):
+		ec += makeAppPackageFromEnvFile(globalData, manifestTemplate, envFile)
+else:
+	parser.print_help()
+	exit(1)
+exit(ec)
