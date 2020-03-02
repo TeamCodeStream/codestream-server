@@ -185,20 +185,20 @@ ${relatedDivs}
 		}
 	}
 
-		// render the parent review, if any
-		renderParentReviewDiv (options) {
-			const { review } = options;
-			if (review) {
-				return `
-	<div class="section nice-gray section-text">REVIEW</div>
-	${review.permalink ? `<a href="${review.permalink}" class="review-link" clicktracking="off">${review.title}</a>` : review.title}
-	<br>
-	`;
-			}
-			else {
-				return '';
-			}
+	// render the parent review, if any
+	renderParentReviewDiv (options) {
+		const { review } = options;
+		if (review) {
+			return `
+<div class="section nice-gray section-text">REVIEW</div>
+${review.permalink ? `<a href="${review.permalink}" class="review-link" clicktracking="off">${review.title}</a>` : review.title}
+<br>
+`;
 		}
+		else {
+			return '';
+		}
+	}
 
 	// render a related codemark
 	renderRelatedCodemark (codemark, options) {

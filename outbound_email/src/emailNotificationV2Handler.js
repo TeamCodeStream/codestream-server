@@ -96,6 +96,12 @@ class EmailNotificationV2Handler {
 		if (this.parentPost && this.parentPost.reviewId) {
 			this.parentReview = await this.data.reviews.getById(this.parentPost.reviewId);
 		}
+		else if (this.parentPost && this.parentPost.parentPostId) {
+			this.grandparentPost = await this.data.posts.getById(this.parentPost.parentPostId);
+			if (this.grandparentPost.reviewId) {
+				this.parentReview = await this.data.reviews.getById(this.grandparentPost.reviewId);
+			}
+		}
 	}
 
 	// get the related codemarks, including the parent codemark, as needed
