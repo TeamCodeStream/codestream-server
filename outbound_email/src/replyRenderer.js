@@ -58,11 +58,25 @@ ${earlierReplies}
 		return Utils.renderAuthorDiv(authorOptions);
 	}
 
-	// render the div for the title of the codemark
+	// render the div for the title of the codemark or review
 	renderTitleDiv (options) {
 		const { codemark, review } = options;
-		const parentObject = codemark || review;
-		return Utils.renderTitleDiv(parentObject.title, options);
+		let title;
+		if (review && codemark) {
+			// is a reply to a codemark that is in a review
+			title = codemark.title || codemark.text;
+		}
+		else {
+			if (review) {
+				// replying directly to review
+				title = review.title;
+			}
+			else {
+				// replying to a regular codemark
+				title = codemark.title || codemark.text;
+			}	
+		}	
+		return Utils.renderTitleDiv(title, options);
 	}
 
 	// render the associated icons
