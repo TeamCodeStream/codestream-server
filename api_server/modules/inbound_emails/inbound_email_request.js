@@ -216,7 +216,7 @@ class InboundEmailRequest extends RestfulRequest {
 			text: this.request.body.text
 		};
 		if (this.codemark || this.review) {
-			postData.parentPostId = this.codemark ? this.codemark.get('postId') : this.review.get();
+			postData.parentPostId = this.codemark ? this.codemark.get('postId') : this.review.get('postId');
 		}
 		try {
 			await this.postCreator.createPost(postData);
