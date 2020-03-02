@@ -22,7 +22,7 @@ def makeAppPackage(globalData, env, botId, manifestTemplate):
 	if not os.path.exists(outDir):
 		os.mkdir(outDir)
 	# create the manifest
-	manifest = su.expandTemplate(manifestTemplate, {'env': env, 'botId': botId})
+	manifest = su.expandTemplate(manifestTemplate, {'env': env if env != "prod" else "", 'botId': botId})
 	manifestData = json.loads(manifest)
 	outFile = open(f"{outDir}/manifest.json", "w")
 	outFile.write(manifest)
@@ -91,7 +91,8 @@ elif args.use_keydb:
 		su.printErr("where is the key management database (KM_PKI is not defined)?")
 		exit(1)
 	# read environments & botIds from the secrets database
-	for envFile in glob.glob(f"{os.environ['KM_PKI']}/secrets/microsoft/teams-*.cfg"):
+	globString = f"teams-{args.env}.cfg" if args.env else "teams-*.cfg"
+	for envFile in glob.glob(f"{os.environ['KM_PKI']}/secrets/microsoft/{globString}"):
 		ec += makeAppPackageFromEnvFile(globalData, manifestTemplate, envFile)
 else:
 	parser.print_help()
