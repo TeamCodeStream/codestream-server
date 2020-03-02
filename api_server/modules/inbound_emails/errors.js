@@ -45,17 +45,17 @@ module.exports = {
 	},
 	'codemarkNotFound': {
 		code: 'INBE-1008',
-		message: 'Codemark not found',
+		message: 'Codemark or review not found',
 		internal: true
 	},
 	'codemarkNoMatchTeam': {
 		code: 'INBE-1009',
-		message: 'The codemark is not owned by this team',
+		message: 'The codemark or review is not owned by this team',
 		internal: true
 	},
 	'codemarkNoMatchStream': {
 		code: 'INBE-1010',
-		message: 'The codemark does not belong to this stream',
+		message: 'The codemark or review does not belong to this stream',
 		internal: true
 	}
 };
