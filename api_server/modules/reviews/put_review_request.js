@@ -34,8 +34,22 @@ class PutReviewRequest extends PutRequest {
 		}
 	}
 
+	// handle sending the response
+	async handleResponse () {
+		if (this.gotError) {
+			return await super.handleResponse();
+		}
+
+		// need to special case the situation where reviewers are being both added and removed,
+		// since mongo won't let us do this in a single operation
+		await this.updater.handleAddRemove();
+
+		return super.handleResponse();
+	}
+	
 	// after the review is updated...
 	async postProcess () {
+		await this.updater.handleAddRemove();
 		await this.publishReview();
 	}
 

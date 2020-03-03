@@ -22,11 +22,13 @@ const RemoveReviewersFetchTest = require('./remove_reviewers_fetch_test');
 const RemoveReviewerFetchTest = require('./remove_reviewer_fetch_test');
 const PushBecomesAddToSetTest = require('./push_becomes_addtoset_test');
 const PushMergesToAddToSetTest = require('./push_merges_to_addtoset_test');
-const NoPushPullTest = require('./no_push_pull_test');
 const ReviewersNotArrayTest = require('./reviewers_not_array_test');
 const RemoveReviewerMessageTest = require('./remove_reviewer_message_test');
 const ReviewersNotFound = require('./reviewers_not_found_test');
 const ReviewersNotOnTeamTest = require('./reviewers_not_on_team_test');
+const AddRemoveReviewersTest = require('./add_remove_reviewers_test');
+const AddRemoveReviewersFetchTest = require('./add_remove_reviewers_fetch_test');
+const NoAddRemoveSameReviewerTest = require('./no_add_remove_same_reviewer_test');
 
 class PutReviewRequestTester {
 
@@ -59,13 +61,15 @@ class PutReviewRequestTester {
 		new RemoveReviewerFetchTest().test();
 		new PushBecomesAddToSetTest().test();
 		new PushMergesToAddToSetTest().test();
-		new NoPushPullTest().test();
 		new ReviewersNotArrayTest().test();
 		new RemoveReviewerMessageTest({ streamType: 'channel' }).test();
 		new RemoveReviewerMessageTest({ streamType: 'direct' }).test();
 		new RemoveReviewerMessageTest({ streamType: 'team stream' }).test();
 		new ReviewersNotFound().test();
 		new ReviewersNotOnTeamTest().test();
+		new AddRemoveReviewersTest().test();
+		new AddRemoveReviewersFetchTest().test();
+		new NoAddRemoveSameReviewerTest().test();
 	}
 }
 
