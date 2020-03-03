@@ -11,6 +11,22 @@ const NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
 const MessageTest = require('./message_test');
 const TeamMemberUpdateIssueStatusTest = require('./team_member_update_issue_status_test');
 const UpdateStatusACLTest = require('./update_status_acl_test');
+const AddReviewerTest = require('./add_reviewer_test');
+const AddReviewersTest = require('./add_reviewers_test');
+const AddReviewersFetchTest = require('./add_reviewers_fetch_test');
+const AddReviewerFetchTest = require('./add_reviewer_fetch_test');
+const AddReviewerMessageTest = require('./add_reviewer_message_test');
+const RemoveReviewerTest = require('./remove_reviewer_test');
+const RemoveReviewersTest = require('./remove_reviewers_test');
+const RemoveReviewersFetchTest = require('./remove_reviewers_fetch_test');
+const RemoveReviewerFetchTest = require('./remove_reviewer_fetch_test');
+const PushBecomesAddToSetTest = require('./push_becomes_addtoset_test');
+const PushMergesToAddToSetTest = require('./push_merges_to_addtoset_test');
+const NoPushPullTest = require('./no_push_pull_test');
+const ReviewersNotArrayTest = require('./reviewers_not_array_test');
+const RemoveReviewerMessageTest = require('./remove_reviewer_message_test');
+const ReviewersNotFound = require('./reviewers_not_found_test');
+const ReviewersNotOnTeamTest = require('./reviewers_not_on_team_test');
 
 class PutReviewRequestTester {
 
@@ -30,6 +46,26 @@ class PutReviewRequestTester {
 		new MessageTest({ streamType: 'team stream' }).test();
 		new TeamMemberUpdateIssueStatusTest().test();
 		new UpdateStatusACLTest().test();
+		new AddReviewerTest().test();
+		new AddReviewersTest().test();
+		new AddReviewersFetchTest().test();
+		new AddReviewerFetchTest().test();
+		new AddReviewerMessageTest({ streamType: 'channel' }).test();
+		new AddReviewerMessageTest({ streamType: 'direct' }).test();
+		new AddReviewerMessageTest({ streamType: 'team stream' }).test();
+		new RemoveReviewerTest().test();
+		new RemoveReviewersTest().test();
+		new RemoveReviewersFetchTest().test();
+		new RemoveReviewerFetchTest().test();
+		new PushBecomesAddToSetTest().test();
+		new PushMergesToAddToSetTest().test();
+		new NoPushPullTest().test();
+		new ReviewersNotArrayTest().test();
+		new RemoveReviewerMessageTest({ streamType: 'channel' }).test();
+		new RemoveReviewerMessageTest({ streamType: 'direct' }).test();
+		new RemoveReviewerMessageTest({ streamType: 'team stream' }).test();
+		new ReviewersNotFound().test();
+		new ReviewersNotOnTeamTest().test();
 	}
 }
 

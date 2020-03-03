@@ -22,6 +22,7 @@ class CommonInit {
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
 		this.streamOptions.creatorIndex = 1;
+		this.userOptions.numRegistered = 3;
 		if (this.streamType === 'team stream') {
 			Object.assign(this.streamOptions, {
 				type: 'channel',
@@ -87,6 +88,7 @@ class CommonInit {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
+				this.requestData = this.data;
 				this.message = response;
 				delete this.data;	// don't need this anymore
 				callback();

@@ -57,7 +57,13 @@ class PutReviewRequest extends PutRequest {
 			looksLike: {
 				'title': '<Change the title of the review>',
 				'text': '<Change the text of the review>',
-				'status': '<Change the status of the review>'
+				'status': '<Change the status of the review>',
+				'$push': {
+					reviewers: '<Array of IDs representing users to add as reviewers to the review>'
+				},
+				'$pull': {
+					reviewers: '<Array of IDs representing users to remove as reviewers of the review>'
+				}
 			}
 		};
 		description.publishes = {
