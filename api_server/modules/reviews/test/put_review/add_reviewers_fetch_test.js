@@ -26,6 +26,11 @@ class AddReviewersFetchTest extends Aggregation(AddReviewersTest, PutReviewFetch
 			callback();
 		});
 	}
+
+	validateResponse (data) {
+		data.review.reviewers.sort();
+		super.validateResponse(data);
+	}
 }
 
 module.exports = AddReviewersFetchTest;

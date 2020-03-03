@@ -24,6 +24,11 @@ class RemoveReviewersFetchTest extends Aggregation(RemoveReviewersTest, PutRevie
 			callback();
 		});
 	}
+
+	validateResponse (data) {
+		data.review.reviewers.sort();
+		super.validateResponse(data);
+	}
 }
 
 module.exports = RemoveReviewersFetchTest;
