@@ -505,6 +505,20 @@ const Utils = {
 `;
 	},
 
+	renderParentReviewDiv (options) {
+		const { review } = options;
+		if (review) {
+			return `
+	<div class="section nice-gray section-text">REVIEW</div>
+	${review.permalink ? `<a href="${review.permalink}" class="review-link" clicktracking="off">${review.title}</a>` : review.title}
+	<br>
+	`;
+		}
+		else {
+			return '';
+		}
+	},
+
 	// render a gravatar headshot with initials as backup
 	renderHeadshot: function (avatar) {
 		// class doesn't seem to work in the `if mso` comment... inline the style.

@@ -26,11 +26,13 @@ class ReplyRenderer {
 		}
 		
 		const earlierReplies = this.renderEarlierReplies(options);
+		const parentReviewDiv = this.renderParentReviewDiv(options);
 
 		return `
 <div class="inner-content">
 	${codemarkAuthorDiv}
 	${titleDiv}
+	${parentReviewDiv}
 	${iconsDiv}
 </div>
 ${earlierReplies}
@@ -261,6 +263,19 @@ ${earlierReplies}
 			meMessage: post.text.substring(4),
 		};
 		return Utils.renderMeMessageDiv(meMessageOptions);
+	}
+
+	// render the parent review, if any
+	renderParentReviewDiv (options) {
+		const { review, codemark } = options;
+		if (review && codemark) {
+			// check for both review and codemark as replies
+			// to normal codemarks don't necessarily have a parent review
+			return Utils.renderParentReviewDiv(options);
+		}
+		else {
+			return '';
+		}
 	}
 
 	renderEarlierReplies(options) {
