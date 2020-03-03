@@ -71,15 +71,16 @@
                     {{#if hasTagsOrReviewers}}
                     <div class="row no-gutters mt-4">
                         {{#if tags}}
-                    <div class="col-sm-6">
-                        <div class="hdr">Tags</div>
+                        <div class="col-sm-6">
+                            <div class="hdr">Tags</div>
+                        </div>
+                        {{/if}}
+                        {{#if reviewers}}
+                            <div class="col-sm-16">
+                                <div class="hdr">Reviewers</div>
+                            </div>
+                        {{/if}}
                     </div>
-                    {{/if}}
-                    {{#if reviewers}}
-                    <div class="col-sm-6">
-                        <div class="hdr">Reviewers</div>
-                    </div>
-                    {{/if}}
                     <div class="row no-gutters mt-1">
                         {{#if tags}}
                             <div class="col-sm-6">
@@ -158,7 +159,7 @@
                             </ul>
                         </div>
                     {{/if}}
-                </div>
+              
                     <div class="row no-gutters mt-1 {{#if isLast}}mb-1{{else}}mb-3{{/if}}">      
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">     
                             <div class="float-lg-right float-xl-right">                            
@@ -188,7 +189,7 @@
                             </div>
                         </div>
                     </div>
-
+                </div>
                     <script>
                         $(function () {
                             $('[data-ide=""]').on('click', function(e) {           
