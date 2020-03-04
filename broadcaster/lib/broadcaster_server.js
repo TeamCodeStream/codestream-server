@@ -219,7 +219,7 @@ class BroadcasterServer {
 			await this.validateToken(token, uid, subscriptionCheat);
 			this.log(`User ${uid} authorized`, socket, requestId);
 			socket.setAuthToken({ uid });
-
+			this.addSocketListener('disconnect', this.handleDisconnect, socket);
 			if (this.isServerSocket(socket)) {
 				// when this socket is the API server, respond to these things
 				this.addSocketReceiver('message', this.handleMessage, socket);
