@@ -27,14 +27,13 @@ module.exports = {
 	},
 	'lightningCodeReviews': {
 		description: 'Support for lightning code reviews',
-		version: '1.21.31',
-		restricted: true
+		version: '1.21.33',
+		restricted: true,
+		supportedIdes: ['VS Code']
 	},
 	'xray': {
 		description: 'Support for feature x-ray, to monitor what co-workers are actively working on',
 		version: '1.21.33',
 		restricted: true
 	}
-
-	
 };
