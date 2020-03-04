@@ -94,10 +94,10 @@ class CodemarkRenderer {
 		}
 
 		let usernames = this.getVisibleTo(options);
-		return `
-<div class="section nice-gray section-text">VISIBLE TO</div>
+		return Utils.renderSection(`
+<div class="nice-gray section-text">VISIBLE TO</div>
 <div>${usernames}</div>
-`;
+`);
 	}
 
 	// get the label to use for "visible to"
@@ -152,14 +152,12 @@ class CodemarkRenderer {
 		const providerName = PROVIDER_DISPLAY_NAMES[codemark.externalProvider] || codemark.externalProvider;
 		const providerUrl = codemark.externalProviderUrl;
 		let iconHtml = Utils.renderIcon(codemark.externalProvider);
-		return `
-<div class="section nice-gray section-text">LINKED ISSUES</div>
+		return Utils.renderSection(`
+		<div class="nice-gray section-text">LINKED ISSUES</div>
 <div class="issue hover-underline">
 	${iconHtml}
 	<a clicktracking="off" href="${providerUrl}" class="space-left">${providerName} ${providerUrl}</a>
-</div>
-<br>
-`;
+</div>`);
 	}
 
 	// render the related codemarks, if any
@@ -174,11 +172,7 @@ class CodemarkRenderer {
 			}
 		}
 		if (relatedDivs) {
-			return `
-<div class="section nice-gray section-text">RELATED</div>
-${relatedDivs}
-<br>
-`;
+			return Utils.renderSection(`<div class="nice-gray section-text">RELATED</div>${relatedDivs}`);
 		}
 		else {
 			return '';

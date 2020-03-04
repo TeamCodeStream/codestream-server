@@ -34,6 +34,14 @@ const ICON_MAP = {
 const ICONS_ROOT = 'https://images.codestream.com/email_icons';
 
 const Utils = {
+	
+	// This provides a unified spot to wrap content in a "section.
+	// All "sections" should have "padding" on the bottom (not top!)
+	// Since padding does not work across all email clients, we resort to <br>
+	// for certain clients
+	renderSection(content) {
+		return `<div class="section">${content}</div><!--[if mso]><br><![endif]-->`;
+	},
 
 	// render the div for the title
 	renderTitleDiv: function (title, options) {
@@ -52,13 +60,12 @@ const Utils = {
 			text = Utils.prepareForEmail(text, options);
 			const iconHtml = Utils.renderIcon('description');
 			// F MS -- can't even get an icon on a single line... just hide it for those fools
-			return `
+			return this.renderSection(`
 <div class="nice-gray section-text">DESCRIPTION</div>
 <div class="description-wrapper">
 <!--[if !mso]> <!-->${iconHtml}&nbsp;<!-- <![endif]-->
 <span class="ensure-white description">${text}</span>
-</div><br>
-`;
+</div>`);
 		}
 		else {
 			return '';
@@ -137,7 +144,7 @@ const Utils = {
 
 		let tagsAssigneesTable = '';
 		if (tagsHeader || assigneesHeader) {
-			tagsAssigneesTable = '<table class="section" cellpadding=0 cellspacing=0 border=0><tbody><tr>';
+			tagsAssigneesTable = '<table cellpadding=0 cellspacing=0 border=0><tbody><tr>';
 			if (tagsHeader) {
 				tagsAssigneesTable += `<td width="300" style="width:300px;" class="nice-gray section-text">${tagsHeader}</td>`;				
 			}
@@ -157,9 +164,11 @@ const Utils = {
 				tagsAssigneesTable+='</table></td>';
 			}		
 			
-			tagsAssigneesTable += '</tr></tbody></table><br>';
+			tagsAssigneesTable += '</tr></tbody></table>';
 		}
-
+		if (tagsAssigneesTable) {
+			return this.renderSection(tagsAssigneesTable);
+		}
 		return tagsAssigneesTable;
 	},
 
@@ -170,11 +179,10 @@ const Utils = {
 		if (!status) return '';
 
 		status = status.charAt(0).toUpperCase() + status.slice(1);		
-		return `
-			<div class="section-slim nice-gray section-text">STATUS</div>
+		return this.renderSection(`<div class="nice-gray section-text">STATUS</div>
 			<div class="description-wrapper">
 				<span class="ensure-white description">${status}</span>
-			</div><br>`;		
+			</div>`);		
 	},
 
 	renderReviewReposAndFiles: function (options) {
@@ -182,8 +190,8 @@ const Utils = {
 		const reviewChangesets = review.reviewChangesets;
 		if (!reviewChangesets || !reviewChangesets.length) return '';
 
-		let reposAndBranches = `<table class="section-slim" cellpadding=0 cellspacing=0 border=0><tr><td>
-					<span class="section nice-gray section-text">REPOSITORIES</span>
+		let reposAndBranches = `<table cellpadding=0 cellspacing=0 border=0><tr><td>
+					<span class="nice-gray section-text">REPOSITORIES</span>
 		</td></tr><tr><td>
 		<table cellpadding=0 cellspacing=0 border=0><tr>`;
 		for (const rc of reviewChangesets) {
@@ -199,8 +207,8 @@ const Utils = {
 		}
 		reposAndBranches+='</table></td></tr></table><br>';
 
-		reposAndBranches += `<table class="section-slim" cellpadding=0 cellspacing=0 border=0>
-				<tr><td><span class="section nice-gray section-text">CHANGED FILES</span></td></tr>`;
+		reposAndBranches += `<table cellpadding=0 cellspacing=0 border=0>
+				<tr><td><span class="nice-gray section-text">CHANGED FILES</span></td></tr>`;
 		for (const rc of reviewChangesets) {
 			if (!rc.modifiedFiles) continue;
 			
@@ -210,8 +218,8 @@ const Utils = {
 				reposAndBranches += `<tr><td><span class="monospace"><span class="ensure-white description pr-14">${modifiedFile.file}</span>${added}${deleted}</span></td></tr>`;
 			}		 
 		}
-		reposAndBranches += '</table><br>';
-		return reposAndBranches;
+		reposAndBranches += '</table>';
+		return this.renderSection(reposAndBranches);
 
 	},
 
@@ -472,14 +480,14 @@ const Utils = {
 	// render a review or codemark (issue) title and author, with timestamp
 	renderTitleAuthorDiv: function (options) {
 		const { creator, datetimeField, title, icon } = options;
-		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';		
-		return `<table border="0" cellspacing="0" cellpadding="0" width="100%">
-					<tr><td title="${icon}" width="25" style="width:25px;">${Utils.renderIcon(icon, { height: 25, width: 25})}</td>
-						<td align="left" style="text-align:left;padding:0px;margin:0px;"><span class="title-large ensure-white">${title}</span></td>
+		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
+		// the width="100%" is intended, and is a hack to ensure the first <td> only takes up 
+		// the space that it needs and no more.
+		return this.renderSection(`<table border="0" cellspacing="0" cellpadding="0" width="100%">
+					<tr><td title="${icon}">${Utils.renderIcon(icon, { height: 25, width: 25})}</td>
+						<td align="left" width="100%" style="text-align:left;padding:0px;margin:0px;"><span class="title-large ensure-white">${title}</span></td>
 					</tr>
-					<tr><td colspan="2"><span class="sub-title ensure-white">Opened by ${author} on {{{${datetimeField}}}}</span></td></tr></table>
-					<!--[if mso]><br><![endif]-->
-		`;
+					<tr><td colspan="2"><span class="sub-title ensure-white">Opened by ${author} on {{{${datetimeField}}}}</span></td></tr></table>`);
 	},
 
 	renderAuthorDiv: function (options) {
@@ -509,11 +517,9 @@ const Utils = {
 	renderParentReviewDiv (options) {
 		const { review } = options;
 		if (review) {
-			return `
-	<div class="section nice-gray section-text">REVIEW</div>
+			return this.renderSection(`<div class="nice-gray section-text">REVIEW</div>
 	${review.permalink ? `<a href="${review.permalink}" class="review-link" clicktracking="off">${review.title}</a>` : review.title}
-	<br>
-	`;
+	`);
 		}
 		else {
 			return '';
