@@ -470,14 +470,15 @@ const Utils = {
 
 
 	// render a review or codemark (issue) title and author, with timestamp
-	renderAuthorTitleDiv: function (options) {
+	renderTitleAuthorDiv: function (options) {
 		const { creator, datetimeField, title, icon } = options;
 		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';		
-		return `<table border=0 cellspacing=0 cellpadding=0>
-					<tr><td title="${icon}">${Utils.renderIcon(icon, { height: 25, width: 25})}&nbsp;</td>
-						<td><span class="title-large ensure-white">${title}</span></td>
+		return `<table border="0" cellspacing="0" cellpadding="0" width="100%">
+					<tr><td title="${icon}" width="25" style="width:25px;">${Utils.renderIcon(icon, { height: 25, width: 25})}</td>
+						<td align="left" style="text-align:left;padding:0px;margin:0px;"><span class="title-large ensure-white">${title}</span></td>
 					</tr>
-					<tr><td>&nbsp;</td><td><span class="sub-title ensure-white">Opened by ${author} on {{{${datetimeField}}}}</span></td></tr></table>
+					<tr><td colspan="2"><span class="sub-title ensure-white">Opened by ${author} on {{{${datetimeField}}}}</span></td></tr></table>
+					<!--[if mso]><br><![endif]-->
 		`;
 	},
 

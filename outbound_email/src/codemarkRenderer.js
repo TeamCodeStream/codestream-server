@@ -64,7 +64,7 @@ class CodemarkRenderer {
 			title: codemark.title,
 			icon: 'issue',
 		};
-		return Utils.renderAuthorTitleDiv(authorOptions);
+		return Utils.renderTitleAuthorDiv(authorOptions);
 	}
 
 	// render the author line

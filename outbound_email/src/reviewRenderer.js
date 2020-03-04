@@ -37,7 +37,7 @@ class ReviewRenderer {
 			title: review.title,
 			icon: 'review',
 		};
-		return Utils.renderAuthorTitleDiv(authorOptions);
+		return Utils.renderTitleAuthorDiv(authorOptions);
 	}
 
 	// render the table for the tags and reviewers, which are displayed side-by-side
