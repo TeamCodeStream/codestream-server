@@ -500,7 +500,7 @@ const Utils = {
 		return `
 <div>
 	${headshot}
-	<span class="author">${author}</span>&nbsp;${meMessage}&nbsp;<span class="datetime">{{{${datetimeField}}}}</span>
+	<span class="author">${author}</span>&nbsp;<span class="me-text">${meMessage}</span>&nbsp;<span class="datetime">{{{${datetimeField}}}}</span>
 </div>
 `;
 	},

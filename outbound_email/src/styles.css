@@ -259,6 +259,10 @@ td {
 	padding: 13px 0px 13px 6px;	
 }
 
+.me-text {
+	color: #c7c7c6;
+}
+
 .replies-earlier {
 	text-align: center;
 	padding: 4px;
