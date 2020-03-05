@@ -2,28 +2,9 @@
 
 'use strict';
 
-const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
-let ShowCfg = process.env.CS_API_SHOW_CFG || false;
-
-/* eslint no-console: 0 */
-
-let MongoCfg = {
-	url: null,
-	database: null
-};
-
-let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
-if(CfgFileName) {
-	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
-	ShowCfg = CfgData.getProperty('apiServer.showConfig');
-	MongoCfg = CfgData.getSection('storage.mongo');
-	let MongoParsed = CfgData._mongoUrlParse(MongoCfg.url);
-	MongoCfg.database = MongoParsed.database;
-}
-else {
-	MongoCfg.database = process.env.CS_API_MONGO_DATABASE;
-	MongoCfg.url = process.env.CS_API_MONGO_URL;
-}
+const CfgData = require('./structuredCfgLoader');
+const MongoCfg = CfgData.getSection('storage.mongo');
+MongoCfg.database = CfgData._mongoUrlParse(MongoCfg.url).database;
 MongoCfg.hintsRequired = true;
 MongoCfg.queryLogging = { // we write a separate log file for mongo queries, and for slow and "really slow" queries so we can look for problems
 	basename: 'mongo-query',
@@ -55,5 +36,6 @@ MongoCfg.queryLogging = { // we write a separate log file for mongo queries, and
 	]
 };
 
-if (ShowCfg) console.log('Config[mongo]:', JSON.stringify(MongoCfg, undefined, 10));
+if (CfgData.getProperty('apiServer.showConfig'))
+	console.log('Config[mongo]:', JSON.stringify(MongoCfg, undefined, 10));
 module.exports = MongoCfg;

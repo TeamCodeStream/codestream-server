@@ -4,26 +4,9 @@
 
 /* eslint no-console: 0 */
 
-const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
-let ShowCfg = process.env.CS_API_SHOW_CFG || false;
+const CfgData = require('./structuredCfgLoader');
+const DevOpsCfg = CfgData.getSection('integrations.devops.cloud') || {appClientId: null, appClientSecret: null};
 
-let DevOpsCfg = {
-	appClientId: null,
-	appClientSecret: null
-};
-
-let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
-if (CfgFileName) {
-	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
-	ShowCfg = CfgData.getProperty('apiServer.showConfig');
-	DevOpsCfg = CfgData.getSection('integrations.devops.cloud');
-}
-else {
-	DevOpsCfg = {
-		appClientId: process.env.CS_API_AZUREDEVOPS_CLIENT_ID,
-		appClientSecret: process.env.CS_API_AZUREDEVOPS_CLIENT_SECRET
-	};
-}
-
-if (ShowCfg) console.log('Config[azuredevops]:', JSON.stringify(DevOpsCfg, undefined, 10));
+if (CfgData.getProperty('apiServer.showConfig'))
+	console.log('Config[azuredevops]:', JSON.stringify(DevOpsCfg, undefined, 10));
 module.exports = DevOpsCfg;

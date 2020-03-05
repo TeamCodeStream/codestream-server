@@ -6,24 +6,12 @@
 
 /* eslint no-console: 0 */
 
-const StructuredCfgFile = require('../codestream-configs/lib/structured_config');
-let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
-let ShowCfg = process.env.CS_API_SHOW_CFG || false;
-
-let WebAppCfg = {
+const CfgData = require('./structuredCfgLoader');
+const WebAppCfg = {
 	host: null,
-	marketingHost: null
+	marketingHost: CfgData.getProperty('apiServer.marketingSiteUrl')
 };
 
-if (CfgFileName) {
-	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
-	ShowCfg = CfgData.getProperty('apiServer.showConfig');
-	WebAppCfg.marketingHost = CfgData.getProperty('apiServer.marketingSiteUrl');
-}
-else {
-	WebAppCfg.host = process.env.CS_API_WEB_CLIENT_ORIGIN || 'http://localhost:1380';
-	WebAppCfg.marketingHost = process.env.CS_API_MARKETING_SITE_URL || 'https://teamcodestream.webflow.io';
-}
-
-if (ShowCfg) console.log('Config[webclient]:', JSON.stringify(WebAppCfg, undefined, 10));
+if (CfgData.getProperty('apiServer.showConfig'))
+	console.log('Config[webclient]:', JSON.stringify(WebAppCfg, undefined, 10));
 module.exports = WebAppCfg;

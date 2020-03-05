@@ -66,11 +66,6 @@ do
 done
 shift `expr $OPTIND - 1`
 
-stopOptions=""
-notifyMsg=""
-[ "$CS_API_ENV" == prod ] && stopOptions="useForce" && notifyMsg="had to send SIGKILL to api service"
-[ "$CS_API_ENV" == qa ] && stopOptions="useForce"
-
 ec=0
 server_args="$server_args $*"
 case "$action" in
@@ -78,7 +73,7 @@ case "$action" in
 		startup
 		;;
     stop)
-        service_stop $CS_API_TOP/bin/api_server.js "$stopOptions" "$notifyMsg"
+        service_stop $CS_API_TOP/bin/api_server.js "$CS_API_INIT_STOP_OPTS" "$CS_API_INIT_FAIL_MSG"
         ec=$?
         sleep 5
         service_status $CS_API_TOP/bin/api_server.js
@@ -87,7 +82,7 @@ case "$action" in
         service_status $CS_API_TOP/bin/api_server.js
         ;;
 	restart)
-		service_stop $CS_API_TOP/bin/api_server.js "$stopOptions" "$notifyMsg"
+		service_stop $CS_API_TOP/bin/api_server.js "$CS_API_INIT_STOP_OPTS" "$CS_API_INIT_FAIL_MSG"
 		if [ $ec -ne 0 ]; then
 			echo "error stopping service"
 		else
