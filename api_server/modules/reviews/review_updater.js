@@ -31,36 +31,55 @@ class ReviewUpdater extends ModelUpdater {
 
 	// validate the input attributes
 	validateAttributes () {
-		// we restrict only to $addToSet.memberIds and $pull.memberIds
-		for (let attribute of ['$addToSet', '$push', '$pull']) {
-			if (this.attributes[attribute]) {
-				const value = this.attributes[attribute];
-				delete this.attributes[attribute];
-				if (value.reviewers) {
-					if (typeof value.reviewers === 'string') {
-						value.reviewers = [value.reviewers];
+		const addRemoveAttributes = ['reviewers', 'tags'];
+		
+		// we restrict directives only to certain attributes
+		for (let directive of ['$addToSet', '$push', '$pull']) {
+			if (this.attributes[directive]) {
+				const value = this.attributes[directive];
+				delete this.attributes[directive];
+				for (let attribute of addRemoveAttributes) {
+					if (value[attribute]) {
+						if (typeof value[attribute] === 'string') {
+							value[attribute] = [value[attribute]];
+						}
+						else if (!(value[attribute] instanceof Array)) {
+							return `${attribute} must be array`;
+						}
+						this.attributes[directive] = this.attributes[directive] || {};
+						this.attributes[directive][attribute] = value[attribute];
 					}
-					else if (!(value.reviewers instanceof Array)) {
-						return 'reviewers must be array';
-					}
-					this.attributes[attribute] = { reviewers: value.reviewers };
 				}
 			}
 		}
-		if (this.attributes.$push) {
-			// $push is made equivalent to $addToSet
-			this.attributes.$addToSet = this.attributes.$addToSet || {};
-			this.attributes.$addToSet.reviewers = ((this.attributes.$addToSet || {}).reviewers || []).concat(this.attributes.$push.reviewers);
-			delete this.attributes.$push;
-		}
 
-		if (this.attributes.$addToSet && this.attributes.$pull) {
-			const offendingReviewers = ArrayUtilities.intersection(this.attributes.$addToSet.reviewers || [], this.attributes.$pull.reviewers || []);
-			if (offendingReviewers.length > 0) {
-				return `can not add and remove reviewers at the same time: ${offendingReviewers}`;
+		this.haveAddAndRemove = {};
+		for (let attribute of addRemoveAttributes) {
+			// $push is made equivalent to $addToSet
+			if (this.attributes.$push && this.attributes.$push[attribute]) {
+				this.attributes.$addToSet = this.attributes.$addToSet || {};
+				this.attributes.$addToSet[attribute] = [
+					...(this.attributes.$addToSet[attribute] || []),
+					...this.attributes.$push[attribute]
+				];
+				delete this.attributes.$push[attribute];
 			}
-			this.haveAddAndRemove = true;
+			
+			// can't add and remove the same thing
+			if (
+				this.attributes.$addToSet &&
+				this.attributes.$pull &&
+				this.attributes.$addToSet[attribute] &&
+				this.attributes.$pull[attribute]
+			) {
+				const offendingElements = ArrayUtilities.intersection(this.attributes.$addToSet[attribute], this.attributes.$pull[attribute]);
+				if (offendingElements.length > 0) {
+					return `can not add and remove ${attribute} at the same time: ${offendingElements}`;
+				}
+				this.haveAddAndRemove[attribute] = true;
+			}
 		}
+		delete this.attributes.$push;
 	}
 
 	// called before the review is actually saved
@@ -72,15 +91,38 @@ class ReviewUpdater extends ModelUpdater {
 		// confirm that users being added or removed as reviewers are legit
 		await this.confirmUsers();
 
-		// we have to special case adding and removing reviewers at the same time, since
+		// validate any change in tags
+		await this.validateTags();
+
+		// we have to special case adding and removing array attributes at the same time, since
 		// mongo won't allow us to $addToSet and $pull the same attribute ... in this case,
 		// we'll treat the $pull part after the $addToSet part with a separate operation
-		if (this.haveAddAndRemove) {
-			this.pullReviewers = this.attributes.$pull.reviewers;
-			delete this.attributes.$pull;
+		this.pullOps = {};
+		for (let attribute in this.haveAddAndRemove) {
+			this.pullOps[attribute] = this.attributes.$pull[attribute];
+			delete this.attributes.$pull[attribute];
 		}
 
 		await super.preSave();
+	}
+
+	// validate any tags being added (we don't really care about ones being removed)
+	async validateTags () {
+		if (!this.attributes.$addToSet || !this.attributes.$addToSet.tags) {
+			return;
+		}
+		if (!this.team) {
+			this.team = await this.data.teams.getById(this.review.get('teamId'));
+		}
+		for (let tag of this.attributes.$addToSet.tags) {
+			const teamTags = this.team.get('tags') || {};
+			const teamTag = Object.keys(teamTags).find(id => {
+				return id === tag && !teamTags[id].deactivated;
+			});
+			if (!teamTag) {
+				throw this.errorHandler.error('notFound', { info: 'tag' });
+			}
+		}
 	}
 
 	// confirm that the IDs for the users being added or removed as reviewers are valid
@@ -111,26 +153,24 @@ class ReviewUpdater extends ModelUpdater {
 	}
 
 
-	// we have to special case adding and removing reviewers at the same time, since
+	// we have to special case adding and removing array attributes at the same time, since
 	// mongo won't allow us to $addToSet and $pull the same attribute
 	async handleAddRemove () {
-		if (!this.pullReviewers) {
-			return;
-		}
-
 		// so here we are being called right before the response is returned to the server,
 		// the add part of the operation has happened successfully and persisted to the database,
 		// so we need to "cheat" and do the remove part ... we'll do a direct-to-database operation,
 		// then return the operation in the response as if it was atomic
-		const op = {
-			$pull: {
-				reviewers: { 
-					$in: this.pullReviewers
-				}
-			}
-		};
-		await this.data.reviews.updateDirect({ id: this.data.reviews.objectIdSafe(this.review.id) }, op);
-		this.request.responseData.review.$pull = { reviewers: this.pullReviewers };
+		const op = {};
+		for (let attribute in this.pullOps) {
+			op.$pull = op.$pull || {};
+			op.$pull[attribute] = { $in: this.pullOps[attribute] };
+			this.request.responseData.review.$pull = this.request.responseData.review.$pull || {};
+			this.request.responseData.review.$pull = { [attribute]: this.pullOps[attribute] };
+		}
+
+		if (op.$pull) {
+			await this.data.reviews.updateDirect({ id: this.data.reviews.objectIdSafe(this.review.id) }, op);
+		}
 	}
 }
 

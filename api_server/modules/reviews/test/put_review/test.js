@@ -29,6 +29,22 @@ const ReviewersNotOnTeamTest = require('./reviewers_not_on_team_test');
 const AddRemoveReviewersTest = require('./add_remove_reviewers_test');
 const AddRemoveReviewersFetchTest = require('./add_remove_reviewers_fetch_test');
 const NoAddRemoveSameReviewerTest = require('./no_add_remove_same_reviewer_test');
+const AddTagTest = require('./add_tag_test');
+const AddTagsTest = require('./add_tags_test');
+const AddTagsFetchTest = require('./add_tags_fetch_test');
+const AddTagFetchTest = require('./add_tag_fetch_test');
+const AddTagMessageTest = require('./add_tag_message_test');
+const RemoveTagTest = require('./remove_tag_test');
+const RemoveTagsTest = require('./remove_tags_test');
+const RemoveTagsFetchTest = require('./remove_tags_fetch_test');
+const PushBecomesAddToSetTagsTest = require('./push_becomes_addtoset_tags_test');
+const PushMergesToAddToSetTagsTest = require('./push_merges_to_addtoset_tags_test');
+const TagsNotArrayTest = require('./tags_not_array_test');
+const RemoveTagMessageTest = require('./remove_tag_message_test');
+const TagsNotFoundTest = require('./tags_not_found_test');
+const AddRemoveTagsTest = require('./add_remove_tags_test');
+const AddRemoveTagsFetchTest = require('./add_remove_tags_fetch_test');
+const NoAddRemoveSameTagTest = require('./no_add_remove_same_tag_test');
 
 class PutReviewRequestTester {
 
@@ -70,6 +86,26 @@ class PutReviewRequestTester {
 		new AddRemoveReviewersTest().test();
 		new AddRemoveReviewersFetchTest().test();
 		new NoAddRemoveSameReviewerTest().test();
+		new AddTagTest().test();
+		new AddTagsTest().test();
+		new AddTagsFetchTest().test();
+		new AddTagFetchTest().test();
+		new AddTagMessageTest({ streamType: 'channel' }).test();
+		new AddTagMessageTest({ streamType: 'direct' }).test();
+		new AddTagMessageTest({ streamType: 'team stream' }).test();
+		new RemoveTagTest().test();
+		new RemoveTagsTest().test();
+		new RemoveTagsFetchTest().test();
+		new PushBecomesAddToSetTagsTest().test();
+		new PushMergesToAddToSetTagsTest().test();
+		new TagsNotArrayTest().test();
+		new RemoveTagMessageTest({ streamType: 'channel' }).test();
+		new RemoveTagMessageTest({ streamType: 'direct' }).test();
+		new RemoveTagMessageTest({ streamType: 'team stream' }).test();
+		new TagsNotFoundTest().test();
+		new AddRemoveTagsTest().test();
+		new AddRemoveTagsFetchTest().test();
+		new NoAddRemoveSameTagTest().test();
 	}
 }
 
