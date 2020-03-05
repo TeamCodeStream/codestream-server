@@ -1,0 +1,40 @@
+
+#desc# All services for codestream backend development
+
+# IMPORTANT - READ THIS!!!
+#
+# consolidating different node-based sandboxes into one
+# playground may cause issues since all services will find
+# node, npm, globally installed npm modules and 
+# node_modules/.bin/ from whichever node-based sandbox
+# was loaded last.
+
+#playgroundName# cs
+#sandboxTypes# mongo,cs_api,cs_mailout,cs_mailin,broadcast
+#sandboxes# {{SBNAME_mongo}},{{SBNAME_cs_api}},{{SBNAME_cs_mailout}},{{SBNAME_cs_mailin}},{{SBNAME__broadcast}}
+#environment# local
+
+dt_load {{SBNAME_mongo}} --quiet
+dt_load {{SBNAME_cs_mailout}} --quiet
+dt_load {{SBNAME_cs_mailin}} --quiet
+dt_load {{SBNAME_broadcast}} --quiet
+dt_load {{SBNAME_cs_api}}
+if [ "$1" == start ]; then
+	cs_api-cloud-services start
+elif [ "$1" == stop ]; then
+	cs_api-cloud-services stop
+fi
+cd $CS_API_TOP
+
+# uncomment these if you use iterm2 and want to colorize your tabs
+# . $DT_TOP/lib/iterm2-utils.sh
+# it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 88 45
+
+echo "
+Use the 'cs_api-cloud-services' init script to control all services at once.
+
+If you're developing for onprem with rabbitmq, you can run a preconfigured
+service using docker:
+
+    docker run -d -p 5672:5672 -p 15672:15672 --name csrabbitmq teamcodestream/rabbitmq-onprem:0.0.0
+"

@@ -10,13 +10,18 @@ function usage {
 function signal_services {
 	local action=$1
 	cs_api-service $action
+	cs_broadcaster-service $action
 	cs_mailin-service $action
 	cs_outbound_email-service $action
+	[ "$action" == status ] && mdb-service status || echo "skippign mongo (mdb-service $action)"
 }
 
+mongoRunning=`mdb-service status|wc -l`
 case "$1" in
 	start)
+		[ $mongoRunning -eq 0 ] && mdb-service start && sleep 1
 		cs_api-service start -- --one_worker
+		cs_broadcaster-service start -- --one_worker
 		cs_mailin-service start -- --one_worker
 		cs_outbound_email-service start -- --one_worker
 		sleep 1
