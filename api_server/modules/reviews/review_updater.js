@@ -114,8 +114,8 @@ class ReviewUpdater extends ModelUpdater {
 		if (!this.team) {
 			this.team = await this.data.teams.getById(this.review.get('teamId'));
 		}
+		const teamTags = this.team.get('tags') || {};
 		for (let tag of this.attributes.$addToSet.tags) {
-			const teamTags = this.team.get('tags') || {};
 			const teamTag = Object.keys(teamTags).find(id => {
 				return id === tag && !teamTags[id].deactivated;
 			});
