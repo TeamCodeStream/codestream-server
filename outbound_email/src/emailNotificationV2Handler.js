@@ -463,7 +463,7 @@ class EmailNotificationV2Handler {
 			unfollowLink,
 			inboundEmailDisabled: Config.inboundEmailDisabled,
 			styles: this.pseudoStyles,	// only pseudo-styles go in the <head>
-			needButtons: !!this.parentPost || ((codemark || review).markerIds || []).length === 1
+			needButtons: !!this.parentPost || review || (codemark.markerIds || []).length === 1
 		});
 		let html = new EmailNotificationV2Renderer().render(this.renderOptions);
 		html = html.replace(/[\t\n]/g, '');

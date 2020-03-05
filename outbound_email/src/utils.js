@@ -391,27 +391,32 @@ const Utils = {
 	// render buttons to display, associated with a codemark or a review
 	renderButtons: function (options) {
 		const { codemark, review, markers } = options;
-		const parentObject = codemark || review;
-		if (!parentObject.markerIds) { return ''; }
-		const markerId = parentObject && parentObject.markerIds[0];
-		const marker = markerId && markers.find(marker => marker.id === markerId);
-		if (!marker) { return ''; }
-		return Utils.renderMarkerButtons(options, marker);
+		// in this case, we would have already rendered the buttons next to the codeblocks		
+		if (codemark && codemark.markerIds && codemark.markerIds.length > 1) return '';
+
+		if (review) {
+			// if there's some kind of parented review, we use that
+			return Utils.renderReviewButtons(options);
+		}
+		else if (codemark) {
+			const markerId = codemark.markerIds[0];
+			const marker = markerId && markers.find(marker => marker.id === markerId);
+			return Utils.renderMarkerButtons(options, marker);
+		}
+
+		return '';
 	},
 
 	// get buttons to display associated with a codemark or a review
 	renderMarkerButtons: function (options, marker) {
-		const { codemark, review } = options;
-		const parentObject = codemark || review;
-		let ideUrl;
-		let remoteCodeUrl;
-		if (parentObject.permalink) {
-			ideUrl = Utils.getIDEUrl(options, marker.id);
-		}
+		const { codemark } = options;		
+		
+		let remoteCodeUrl;		
+		let ideUrl = Utils.getIDEUrl(codemark.permalink, { marker : marker.id });		
 
 		let hasRemoteCodeUrl = true;
 		let remoteCodeProviderName = '';
-		const remoteCodeUrlObject = marker.remoteCodeUrl || parentObject.remoteCodeUrl;
+		const remoteCodeUrlObject = marker.remoteCodeUrl || codemark.remoteCodeUrl;
 		if (remoteCodeUrlObject) {
 			remoteCodeProviderName = CODE_PROVIDERS[remoteCodeUrlObject.name];
 			remoteCodeUrl = remoteCodeUrlObject.url;
@@ -461,21 +466,40 @@ const Utils = {
 		return markup;
 	},
 
-	// get the url for opening the codemark or review in IDE
-	getIDEUrl: function (options, markerId) {
-		const { codemark, review } = options;
-		const parentObject = codemark || review;
-		if (!parentObject.permalink) {
+	renderReviewButtons: function (options) {
+		const { review } = options;	
+		if (!review) return '';
+
+		const ideUrl = Utils.getIDEUrl(review.permalink, null);
+		if (!ideUrl) return '';		
+		
+		let markup = `<table border="0" cellspacing="0" cellpadding="0">
+		<tr>
+			<td>
+			<table border="0" cellspacing="2" cellpadding="2">
+				<tr><td>
+					<a clicktracking="off" href="${ideUrl}" target="_blank" class="button"><span class="hover-underline">Open in IDE</span></a>
+				</td></tr>
+			</table>
+			</td>
+		</tr></table>`;		
+
+		return markup;
+	},
+
+	// get the url for opening the entity that has a permalink in IDE
+	getIDEUrl: function (permalink, additional) {		
+		if (!permalink) {
 			return '';
-		}
-		markerId = markerId || (parentObject.markerIds || [])[0];
-		let url = `${parentObject.permalink}?ide=default`;
-		if (markerId) {
-			url += `&marker=${markerId}`;
+		}		
+		let url = `${permalink}?ide=default`;
+		if (additional) {
+			for (const k of Object.keys(additional)) {
+				url +=`&${k}=${additional[k]}`;
+			}
 		}
 		return url;
 	},
-
 
 	// render a review or codemark (issue) title and author, with timestamp
 	renderTitleAuthorDiv: function (options) {
