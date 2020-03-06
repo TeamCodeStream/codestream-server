@@ -22,13 +22,19 @@ class AddReviewersFetchTest extends Aggregation(AddReviewersTest, PutReviewFetch
 				...(this.review.reviewers || []),
 				...reviewers
 			];
+			this.expectedReview.followerIds = [
+				...(this.review.followerIds || []),
+				...reviewers
+			];
 			this.expectedReview.reviewers.sort();
+			this.expectedReview.followerIds.sort();
 			callback();
 		});
 	}
 
 	validateResponse (data) {
 		data.review.reviewers.sort();
+		data.review.followerIds.sort();
 		super.validateResponse(data);
 	}
 }

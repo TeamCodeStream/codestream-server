@@ -11,7 +11,7 @@ class AddRemoveReviewersTest extends PutReviewTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.userOptions.numRegistered = 6;
+			this.userOptions.numRegistered = 7;
 			callback();
 		});
 	}
@@ -28,7 +28,7 @@ class AddRemoveReviewersTest extends PutReviewTest {
 
 	addReviewers (callback) {
 		// add the first three users
-		const addedUserIds = this.users.slice(0, 3).map(user => user.user.id);
+		const addedUserIds = this.users.slice(1, 4).map(user => user.user.id);
 		this.doApiRequest(
 			{
 				method: 'put',
@@ -43,16 +43,20 @@ class AddRemoveReviewersTest extends PutReviewTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.review.reviewers = response.review.$addToSet.reviewers;
+				this.review.followerIds = [this.review.creatorId, ...response.review.$addToSet.followerIds];
 				callback();
 			}
 		);
 	}
 
 	setReviewersToAddAndRemove (callback) {
-		this.addUserIds = [this.users[3].user.id, this.users[5].user.id];
+		this.addUserIds = [this.users[4].user.id, this.users[6].user.id];
 		this.data.$addToSet = { reviewers: this.addUserIds };
-		this.expectedData.review.$addToSet = { reviewers: this.addUserIds };
-		this.removeUserIds = [this.users[0].user.id, this.users[2].user.id];
+		this.expectedData.review.$addToSet = { 
+			reviewers: this.addUserIds,
+			followerIds: this.addUserIds
+		};
+		this.removeUserIds = [this.users[1].user.id, this.users[3].user.id];
 		this.data.$pull = { reviewers: this.removeUserIds };
 		this.expectedData.review.$pull = { reviewers: this.removeUserIds };
 		callback();

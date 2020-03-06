@@ -106,6 +106,15 @@ class ReviewUpdater extends ModelUpdater {
 			delete this.attributes.$pull;
 		}
 
+		// if we are adding reviewers, make sure they are followers
+		if (this.attributes.$addToSet && this.attributes.$addToSet.reviewers) {
+			const currentFollowerIds = this.review.get('followerIds') || [];
+			const newFollowerIds = ArrayUtilities.difference(this.attributes.$addToSet.reviewers, currentFollowerIds);
+			if (newFollowerIds.length > 0) {
+				this.attributes.$addToSet.followerIds = newFollowerIds;
+			}
+		}
+
 		await super.preSave();
 	}
 

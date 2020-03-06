@@ -168,6 +168,7 @@ class ReviewCreator extends ModelCreator {
 	// validate the repo change-sets sent with the review creation, this is too important to just drop,
 	// so we return an error instead
 	async validateReviewChangesetsForTeamRepos () {
+		if (!this.attributes.reviewChangesets) { return; }
 		// check that all repo IDs are valid and owned by the team
 		const teamRepoIds = this.teamRepos.map(repo => repo.id);
 		const repoIds = this.attributes.reviewChangesets.map(set => set.repoId);

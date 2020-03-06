@@ -20,13 +20,16 @@ class RemoveReviewersFetchTest extends Aggregation(RemoveReviewersTest, PutRevie
 				reviewers = [reviewers];
 			}
 			this.expectedReview.reviewers = ArrayUtilities.difference(this.review.reviewers, reviewers);
+			this.expectedReview.followerIds = [...this.review.reviewers];
 			this.expectedReview.reviewers.sort();
+			this.expectedReview.followerIds.sort();
 			callback();
 		});
 	}
 
 	validateResponse (data) {
 		data.review.reviewers.sort();
+		data.review.followerIds.sort();
 		super.validateResponse(data);
 	}
 }

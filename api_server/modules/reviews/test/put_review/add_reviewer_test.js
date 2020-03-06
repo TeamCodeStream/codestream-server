@@ -19,13 +19,16 @@ class AddReviewerTest extends PutReviewTest {
 				const addedUser = this.addedUsers[0];
 				this.data.$addToSet = { reviewers: addedUser.id };
 				this.expectedData.review.$addToSet.reviewers = [addedUser.id];
+				this.expectedData.review.$addToSet.followerIds = [addedUser.id];
 			}
 			else {
 				const addedUserIds = this.addedUsers.map(user => user.id);
 				this.data.$addToSet = { reviewers: addedUserIds };
 				this.expectedData.review.$addToSet.reviewers = [...addedUserIds];
+				this.expectedData.review.$addToSet.followerIds = [...addedUserIds];
 			}
 			this.expectedData.review.$addToSet.reviewers.sort();
+			this.expectedData.review.$addToSet.followerIds.sort();
 			callback();
 		});
 	}
@@ -38,6 +41,7 @@ class AddReviewerTest extends PutReviewTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		data.review.$addToSet.reviewers.sort();
+		data.review.$addToSet.followerIds.sort();
 		super.validateResponse(data);
 	}
 }
