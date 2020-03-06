@@ -188,7 +188,8 @@ const RepoFromWrongTeamInChangesetTest = require('./reviews/repo_from_wrong_team
 const AuthorsTest = require('./reviews/authors_test');
 const InvalidAuthorTest = require('./reviews/invalid_author_test');
 const AuthorNotOnTeamTest = require('./reviews/author_not_on_team_test');
-
+const ReplyToAttachedCodemarkTest = require('./reviews/reply_to_attached_codemark_test');
+const ReplyToAttachedCodemarkNumRepliesTest = require('./reviews/reply_to_attached_codemark_num_replies_test');
 class PostPostRequestTester {
 
 	postPostTest () {
@@ -398,6 +399,8 @@ class PostPostRequestTester {
 		new AuthorsTest().test();
 		new InvalidAuthorTest().test();
 		new AuthorNotOnTeamTest().test();
+		new ReplyToAttachedCodemarkTest().test();
+		new ReplyToAttachedCodemarkNumRepliesTest().test();
 	}
 }
 

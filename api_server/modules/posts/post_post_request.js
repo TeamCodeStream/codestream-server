@@ -88,7 +88,11 @@ class PostPostRequest extends PostRequest {
 		if (transforms.postUpdate) {
 			responseData.posts = [transforms.postUpdate];
 		}
-
+		if (transforms.grandParentPostUpdate) {
+			responseData.posts = responseData.posts || [];
+			responseData.posts.push(transforms.grandParentPostUpdate);
+		}
+		
 		// if there are other codemarks updated, add them
 		if (transforms.updatedCodemarks) {
 			responseData.codemarks = transforms.updatedCodemarks;

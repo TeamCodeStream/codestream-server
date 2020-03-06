@@ -240,12 +240,13 @@ class PostCreator extends ModelCreator {
 
 		if (this.parentPost.get('parentPostId')) {
 			// the only reply to a reply we allow is if the parent post of the post we are replying to is a review post
-			const grandParentPost = await this.data.posts.getById(this.parentPost.get('parentPostId'));
-			if (grandParentPost && !grandParentPost.get('reviewId')) {
+			this.grandParentPost = await this.data.posts.getById(this.parentPost.get('parentPostId'));
+			if (this.grandParentPost && !this.grandParentPost.get('reviewId')) {
 				throw this.errorHandler.error('noReplyToReply');
 			}
 		}
 		await this.updateParentPost();
+		await this.updateGrandParentPost();
 		await this.updateParentCodemark();
 		await this.updateParentReview();
 	}
@@ -262,6 +263,22 @@ class PostCreator extends ModelCreator {
 			request: this.request,
 			collection: this.data.posts,
 			id: this.parentPost.id
+		}).save(op);
+	}
+	
+	// update numReplies for a grandparent post to this post
+	async updateGrandParentPost () {
+		if (!this.grandParentPost) { return; }
+		const op = { 
+			$set: {
+				numReplies: (this.grandParentPost.get('numReplies') || 0) + 1,
+				modifiedAt: Date.now()
+			} 
+		};
+		this.transforms.grandParentPostUpdate = await new ModelSaver({
+			request: this.request,
+			collection: this.data.posts,
+			id: this.grandParentPost.id
 		}).save(op);
 	}
 	
@@ -297,10 +314,11 @@ class PostCreator extends ModelCreator {
 
 	// update numReplies for the parent post's review, if any
 	async updateParentReview () {
-		if (!this.parentPost.get('reviewId')) {
+		if (!this.parentPost.get('reviewId') && !this.grandParentPost) {
 			return;
 		}
-		const review = await this.request.data.reviews.getById(this.parentPost.get('reviewId'), { excludeFields: ['reviewDiffs'] });
+		const reviewId = this.parentPost.get('reviewId') || this.grandParentPost.get('reviewId');
+		const review = await this.request.data.reviews.getById(reviewId, { excludeFields: ['reviewDiffs'] });
 		if (!review) { return; }
 
 		const now = Date.now();
