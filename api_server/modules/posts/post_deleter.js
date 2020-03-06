@@ -44,7 +44,8 @@ class PostDeleter extends ModelDeleter {
 			await this.collectObjectsToDeleteFromReplies([this.post]);
 		}
 
-		// if this is a reply, decrement the numReplies for its parent post, codemark, and review
+		// if this is a reply, decrement the numReplies for its parent post, codemark, and review,
+		// and maybe its grandparent post!
 		await this.updateParents();
 
 		// for any codemarks we are deleting, break the link to related codemarks
@@ -182,15 +183,21 @@ class PostDeleter extends ModelDeleter {
 		}
 		const parentPost = await this.data.posts.getById(this.post.get('parentPostId'));
 		if (!parentPost) { return; } // sanity, shouldn't happen
+		const grandParentPost = parentPost.get('parentPostId') && await this.data.posts.getById(parentPost.get('parentPostId'));
 		this.transforms.updatedPost = await this.decrementNumReplies(parentPost, 'posts');
+		if (grandParentPost) {
+			this.transforms.updatedGrandParentPost = await this.decrementNumReplies(grandParentPost, 'posts');
+		}
 		if (parentPost.get('codemarkId')) {
 			const codemark = await this.data.codemarks.getById(parentPost.get('codemarkId'));
 			if (codemark) {
 				this.transforms.updatedCodemark = await this.decrementNumReplies(codemark, 'codemarks');
 			}
 		}
-		if (parentPost.get('reviewId')) {
-			const review = await this.data.reviews.getById(parentPost.get('reviewId'));
+
+		const reviewId = parentPost.get('reviewId') || (grandParentPost && grandParentPost.get('reviewId'));
+		if (reviewId) {
+			const review = await this.data.reviews.getById(reviewId);
 			if (review) {
 				this.transforms.updatedReview = await this.decrementNumReplies(review, 'reviews');
 			}
@@ -276,6 +283,9 @@ class PostDeleter extends ModelDeleter {
 		// if a parent post, codemark, and/or review were touched, put those in the response
 		if (this.transforms.updatedPost) {
 			responseData.posts.push(this.transforms.updatedPost);
+		}
+		if (this.transforms.updatedGrandParentPost) {
+			responseData.posts.push(this.transforms.updatedGrandParentPost);
 		}
 		if (this.transforms.updatedCodemark) {
 			responseData.codemarks = responseData.codemarks || [];

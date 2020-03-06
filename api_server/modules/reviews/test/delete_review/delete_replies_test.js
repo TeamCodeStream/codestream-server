@@ -91,10 +91,10 @@ class DeleteRepliesTest extends DeleteMarkersTest {
 		super.setExpectedData(() => {
 			if (!this.replyToCodemarkResponse) { return callback(); }
 
-			this.expectedData.posts[0].$set.version = 4;
-			this.expectedData.posts[0].$version = { before: 3, after: 4 };
-			this.expectedData.reviews[0].$set.version = 4;
-			this.expectedData.reviews[0].$version = { before: 3, after: 4 };
+			this.expectedData.posts[0].$set.version = 5;
+			this.expectedData.posts[0].$version = { before: 4, after: 5 };
+			this.expectedData.reviews[0].$set.version = 5;
+			this.expectedData.reviews[0].$version = { before: 4, after: 5 };
 			for (let i = 0; i < this.replyCodemarkResponse.markers.length; i++) {
 				this.expectedData.markers.push({
 					_id: this.replyCodemarkResponse.markers[i].id,	// DEPRECATE ME
