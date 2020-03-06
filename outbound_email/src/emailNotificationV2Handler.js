@@ -243,6 +243,13 @@ class EmailNotificationV2Handler {
 			return false;
 		}
 
+		// first, if the user has emails turned off as delivery preference, don't send an email
+		const preferences = user.preferences || {};
+		if (preferences.notificationDelivery === 'off' || preferences.notificationDelivery === 'toastOnly') {
+			this.log(`User ${user.id}:${user.email} has notification delivery of emails turned off`);
+			return false;
+		}
+		
 		// first, if this user is not yet registered, we only send emails if they are mentioned
 		const mentionedUserIds = this.post.mentionedUserIds || [];
 		const mentioned = this.stream.type === 'direct' || mentionedUserIds.indexOf(user.id) !== -1;
