@@ -29,26 +29,6 @@ const REVIEW_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'put',
-		path: 'reviews/add-reviewer/:id',
-		requestClass: require('./add_reviewer_request')
-	},
-	{
-		method: 'put',
-		path: 'reviews/remove-reviewer/:id',
-		requestClass: require('./remove_reviewer_request')
-	},
-	{
-		method: 'put',
-		path: 'reviews/:id/add-tag',
-		requestClass: require('./add_tag_request')
-	},
-	{
-		method: 'put',
-		path: 'reviews/:id/remove-tag',
-		requestClass: require('./remove_tag_request')
-	},
-	{
-		method: 'put',
 		path: 'reviews/follow/:id',
 		requestClass: require('./follow_review_request')
 	},
