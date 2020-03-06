@@ -12,12 +12,8 @@ class WebLoginRequest extends APIRequest {
 
 	async process () {
 		const csrf = this.request.csrfToken();
-		const url = this.request.query.url ? decodeURIComponent(this.request.query.url) : '';
 		const email = this.request.query.email ? decodeURIComponent(this.request.query.email) : '';
 		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
-		const linkQuery = `url=${encodeURIComponent(url)}&teamId=${teamId}&access=strict&noSignup=1`;
-		const slackLink = `/web/provider-auth/slack?${linkQuery}`;
-		const msteamsLink = `/web/provider-auth/msteams?${linkQuery}`;
 		const error = this.request.query.error ? this.handleError() : '';
 		this.module.evalTemplate(this, 'login', { 
 			error,
@@ -25,8 +21,6 @@ class WebLoginRequest extends APIRequest {
 			teamId,
 			finishUrl: decodeURIComponent(this.request.query.url || ''),
 			tenantId:  decodeURIComponent(this.request.query.tenantId || ''),
-			slackLink,
-			msteamsLink,
 			version: this.module.versionInfo(),
 			csrf
 		});
