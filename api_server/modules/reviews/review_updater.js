@@ -102,6 +102,9 @@ class ReviewUpdater extends ModelUpdater {
 			this.pullOps[attribute] = this.attributes.$pull[attribute];
 			delete this.attributes.$pull[attribute];
 		}
+		if (Object.keys(this.haveAddAndRemove).length > 0) {
+			delete this.attributes.$pull;
+		}
 
 		await super.preSave();
 	}
