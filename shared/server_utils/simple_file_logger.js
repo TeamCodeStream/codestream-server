@@ -17,7 +17,15 @@ class SimpleFileLogger {
 		if (!options.basename) {
 			throw 'SimpleFileLogger needs a basename option';
 		}
+		if (options.debugOk && options.consoleOk) {
+			console.log('new SimpleFileLogger(options)', options);
+		}
+
 		Object.assign(this, options);
+
+		// allow changing log state dynically with an environment variable
+		this.logJson = options.logJsonToo || process.env.SIMPLE_FILE_LOGGER_JSON_TOO || false;
+
 		// how long will these log files stick around?
 		if (typeof options.retentionPeriod !== 'undefined') {
 			this.retentionPeriod = options.retentionPeriod;
@@ -25,13 +33,6 @@ class SimpleFileLogger {
 		else {
 			this.retentionPeriod = this.retentionPeriod || (7 * 24 * 60 * 60 * 1000); // one week by default
 		}
-
-		// For json logging:
-		//     globalLogProperties persist for the life of the logger object (same for all log records)
-		//     defaultLogProperties are standard fields included in all log records
-		//     customLogProperties are passed in when sending individual log events
-		this.logJson = options.logJsonToo || process.env.SIMPLE_FILE_LOGGER_JSON_TOO || false;
-		this.globalLogProperties = options.globalLogProperties || {};
 
 		// the log files will have a date stamp associated with them, but there will
 		// always be "today's" log file with no date stamp, it is a symbolic link to the log file for today
@@ -177,17 +178,20 @@ class SimpleFileLogger {
 		const date = new Date(now);
 		let fullText = Strftime('%Y-%m-%d %H:%M:%S.%LZ', date);
 		const text = this._severityFormat(unformattedText, severity);
+		if (!requestId) {
+			requestId = this.requestId;
+		}
 		const defaultLogProperties = {
+			service: this.basename,
 			datetime: fullText,
 			severity: severity,
-			requestId: requestId || this.requestId,
+			requestId: requestId,
 			loggerId: this.loggerId,
 			text: unformattedText
 		};
 		if (this.loggerId) {
 			fullText += ' ' + this.loggerId;
 		}
-		requestId = requestId || this.requestId;
 		if (requestId) {
 			fullText += ' ' + requestId;
 		}
@@ -198,15 +202,19 @@ class SimpleFileLogger {
 		if (this.consoleOk) {
 			// we can also output to the console
 			console.log(fullText); // eslint-disable-line no-console
+			if (Object.keys(customLogProperties).length) {
+				console.log(customLogProperties);
+			}
 		}
-
 		if (this.fdJson) {
 			// write our json log record
 			let logData = {
 				...defaultLogProperties,
-				...this.globalLogProperties,
-				...customLogProperties
+				...this.globalLogProperties
 			};
+			if (Object.keys(customLogProperties).length) {
+				logData.customData = JSON.stringify(customLogProperties);
+			}
 			// this sort only supports a flat structure; all values are scalars; no nested data.
 			// https://stackoverflow.com/questions/16167581/sort-object-properties-and-json-stringify
 			this.fdJson.write(JSON.stringify(logData, Object.keys(logData).sort()) + '\n', 'utf8');
