@@ -8,7 +8,8 @@ class EmailHandler {
 
 	async handleMessage (message) {
 		this.message = message;
-		this.logger.log(`Processing a ${this.message.type} email request: ${JSON.stringify(this.message)}`);
+		this.request_id = 'null-request-id';
+		this.logger.log(`EmailHandler.handleMessage(): Processing a ${this.message.type} email request: ${JSON.stringify(this.message)}`, this.request_id);
 		try {
 			await this.getUser();	
 			await this.renderEmail();
@@ -24,12 +25,13 @@ class EmailHandler {
 			}
 			return this.logger.warn(`Email handling for ${this.message.type} email failed: ${message}`);
 		}
-		this.logger.log(`Successfully processed a ${this.message.type} email request: ${JSON.stringify(this.message)}`);
+		this.logger.log(`EmailHandler.handleMessage(): Successfully processed a ${this.message.type} email request: ${JSON.stringify(this.message)}`, this.request_id);
 	}
 
 	// get the user associated with the email
 	async getUser () {
 		this.user = await this.data.users.getById(this.message.userId);
+		this.logger.debug(`EmailHandler.getUser() getById(${this.message.userId} returned this.user:`, this.request_id, this.user);
 		if (!this.user) {
 			throw 'user not found:' + this.message.userId;
 		}
@@ -50,6 +52,7 @@ class EmailHandler {
 		if (this.message.testing) {
 			options.testCallback = this.testCallback.bind(this);
 		}
+		this.logger.debug('EmailHandler.getSendOptions() returns options:', this.request_id, options);
 		return options;
 	}
 

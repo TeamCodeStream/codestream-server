@@ -19,6 +19,7 @@ class EmailSender {
 	}
 
 	async sendEmail (options) {
+		this.logger.debug('EmailSender.sendEmail()', this.request_id);
 		if (this.smtpMailer) {
 			return await this.sendSmtpEmail(options);
 		}
@@ -27,59 +28,57 @@ class EmailSender {
 		}
 	}
 
-	async sendSendgridEmail (options) {
-		const { user, to, from, sender, replyTo, subject, content, type, testCallback } = options;
-		const email = to ? to.email : user.email;
-		const name = to ? to.name : this.getUserDisplayName(user);
-		const senderEmail = from ? from.email : 
-			(sender ? sender.email : Config.supportEmail);
-		const senderName = from ? from.name :
-			(sender ? this.getUserDisplayName(sender) : 'CodeStream');
-		const mailOptions = {
-			from: { email: senderEmail, name: senderName },
-			to: { email, name },
+	// given a user, figure out a full display name to use in the subject
+	getUserDisplayName(user) {
+		return user.fullName || user.email;
+	}
+
+	// mailer options common to all mailers
+	getCommonMailOptions(options) {
+		const { user, to, from, sender, subject, content, testCallback } = options;
+		const envelope = {
+			email: to ? to.email : user.email,
+			name: to ? to.name : this.getUserDisplayName(user),
+			senderEmail: from ? from.email : Config.senderEmail,
+			// senderEmail: from ? from.email : 
+			// 	(sender ? sender.email : Config.supportEmail),
+			senderName: from ? from.name :
+				(sender ? this.getUserDisplayName(sender) : 'CodeStream'),
 			subject,
 			content,
 			testCallback,
 			testOptions: { user },
 			logger: this.logger
 		};
+		return envelope;
+	}
+
+	async sendSendgridEmail (options) {
+		this.logger.debug('EmailSender.sendSendgridEmail(options):', this.request_id, options);
+		const { replyTo, type } = options;
+		const mailOptions = this.getCommonMailOptions(options);
+		mailOptions.from = { email: mailOptions.senderEmail, name: mailOptions.senderName };
+		mailOptions.to = { email: mailOptions.email, name: mailOptions.name };
 		if (replyTo) {
 			mailOptions.replyTo = { email: replyTo, name: 'CodeStream' };
 		}
-
-		this.logger.log(`Sending ${type} email through SendGrid to ${email}`);
+		this.logger.debug('EmailSender.sendSendgridEmail(mailOptions):', this.request_id, mailOptions);
+		this.logger.log(`Sending ${type} email through SendGrid to ${mailOptions.email}`);
 		await this.sendgridEmail.sendEmail(mailOptions);
 	}
 
 	async sendSmtpEmail (options) {
-		const { user, to, from, sender, replyTo, subject, content, type, testCallback } = options;
-		const email = to ? to.email : user.email;
-		const name = to ? to.name : this.getUserDisplayName(user);
-		const senderEmail = from ? from.email : 
-			(sender ? sender.email : Config.supportEmail);
-		const senderName = from ? from.name :
-			(sender ? this.getUserDisplayName(sender) : 'CodeStream');
-		const mailOptions = {
-			from: `"${senderName}" <${senderEmail}>`,
-			to: `"${name}" <${email}>`,
-			subject,
-			content,
-			testCallback,
-			testOptions: { user },
-			logger: this.logger
-		};
+		this.logger.debug('EmailSender.sendSmtpEmail(options):', this.request_id, options);
+		const { replyTo, type } = options;
+		const mailOptions = this.getCommonMailOptions(options);
+		mailOptions.from = `"${mailOptions.senderName}" <${mailOptions.senderEmail}>`;
+		mailOptions.to = `"${mailOptions.name}" <${mailOptions.email}>`;
 		if (replyTo) {
 			mailOptions.replyTo = `"CodeStream" <${replyTo}>`;
 		}
-
-		this.logger.log(`Sending ${type} email through SMTP to ${email}`);
+		this.logger.debug('EmailSender.sendSmtpEmail(mailOptions):', this.request_id, mailOptions);
+		this.logger.log(`Sending ${type} email through SMTP to ${mailOptions.email}`);
 		await this.smtpMailer.sendEmail(mailOptions);
-	}
-
-	// given a user, figure out a full display name to use in the subject
-	getUserDisplayName (user) {
-		return user.fullName || user.email;
 	}
 }
 
