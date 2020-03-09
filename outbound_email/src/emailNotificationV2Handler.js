@@ -504,6 +504,9 @@ class EmailNotificationV2Handler {
 		const isReply = !!this.post.parentPostId;
 		const codemark = isReply ? this.parentCodemark : this.codemark;
 		const review = isReply ? this.parentReview : this.review;
+		const replyToPostId = isReply ?
+			(this.codemark || this.parentCodemark || this.parentReview).postId :
+			(this.codemark || this.review).postId;
 		const creatorId = isReply ? this.post.creatorId : (codemark || review).creatorId;
 		const creator = this.teamMembers.find(member => member.id === creatorId);
 		const options = {
@@ -515,6 +518,7 @@ class EmailNotificationV2Handler {
 			review,
 			stream: this.stream,
 			team: this.team,
+			replyToPostId,
 			isReply
 		};
 		const which = review ? 'review' : 'codemark';
