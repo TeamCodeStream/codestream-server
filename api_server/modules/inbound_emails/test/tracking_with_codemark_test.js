@@ -24,7 +24,7 @@ class TrackingWithCodemarkTest extends TrackingTest {
 	// make the data to be used in the request that triggers the message
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.to[0].address = `${this.postData[0].codemark.id}.${this.data.to[0].address}`;
+			this.data.to[0].address = `${this.postData[0].post.id}.${this.data.to[0].address}`;
 			callback();
 		});
 	}

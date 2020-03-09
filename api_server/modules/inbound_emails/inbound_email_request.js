@@ -36,7 +36,7 @@ class InboundEmailRequest extends RestfulRequest {
 		await this.getCreator();
 		await this.parseToAddresses();
 		await this.getStream();
-		await this.getCodemarkOrReview();
+		await this.getParentPost();
 		await this.validate();
 		await this.handleAttachments();
 		await this.getTeam();
@@ -129,13 +129,13 @@ class InboundEmailRequest extends RestfulRequest {
 			return this.log(`Email ${email} does not reference a valid stream ID`);
 		}
 		if (idParts[2] && !this.data.teams.objectIdSafe(idParts[2])) {
-			return this.log(`Email ${email} does not reference a valid codemark or review ID`);
+			return this.log(`Email ${email} does not reference a valid parent post ID`);
 		}
 
 		// good to go
 		this.teamId = idParts[0];
 		this.streamId = idParts[1];
-		this.codemarkOrReviewId = idParts[2];
+		this.parentPostId = idParts[2];
 	}
 
 	// get the stream associated with the IDs we found
@@ -154,22 +154,19 @@ class InboundEmailRequest extends RestfulRequest {
 		}
 	}
 
-	// get the codemark or review associated with the original email notification
-	async getCodemarkOrReview () {
-		if (!this.codemarkOrReviewId) {
+	// get the parent post associated with the original email notification
+	async getParentPost () {
+		if (!this.parentPostId) {
 			return;
 		}
 		try {
-			this.codemark = await this.data.codemarks.getById(this.codemarkOrReviewId);
-			if (!this.codemark) {
-				this.review = await this.data.reviews.getById(this.codemarkOrReviewId);
-			}
+			this.parentPost = await this.data.posts.getById(this.parentPostId);
 		}
 		catch (error) {
 			throw this.errorHandler.error('internal', { reason: error });
 		}
-		if (!this.codemark && !this.review) {
-			throw this.errorHandler.error('codemarkNotFound', { info: this.codemarkOrReviewId });
+		if (!this.parentPost) {
+			throw this.errorHandler.error('parentPostNotFound', { info: this.parentPostId });
 		}
 	}
 
@@ -183,12 +180,11 @@ class InboundEmailRequest extends RestfulRequest {
 			this.log(`User ${this.fromUser.id} is not on team ${this.teamId}`);
 			throw this.errorHandler.error('unauthorized');
 		}
-		const codemarkOrReview = this.codemark || this.review;
-		if (codemarkOrReview && codemarkOrReview.get('teamId') !== this.teamId) {
-			throw this.errorHandler.error('codemarkNoMatchTeam', { info: this.codemarkOrReviewId });
+		if (this.parentPost && this.parentPost.get('teamId') !== this.teamId) {
+			throw this.errorHandler.error('parentPostNoMatchTeam', { info: this.parentPostId });
 		}
-		if (codemarkOrReview && codemarkOrReview.get('streamId') !== this.streamId) {
-			throw this.errorHandler.error('codemarkNoMatchStream', { info: this.codemarkOrReviewId });
+		if (this.parentPost && this.parentPost.get('streamId') !== this.streamId) {
+			throw this.errorHandler.error('parentPostNoMatchStream', { info: this.parentPostId });
 		}
 	}
 
@@ -215,8 +211,8 @@ class InboundEmailRequest extends RestfulRequest {
 			streamId: this.streamId,
 			text: this.request.body.text
 		};
-		if (this.codemark || this.review) {
-			postData.parentPostId = this.codemark ? this.codemark.get('postId') : this.review.get('postId');
+		if (this.parentPostId) {
+			postData.parentPostId = this.parentPostId;
 		}
 		try {
 			await this.postCreator.createPost(postData);

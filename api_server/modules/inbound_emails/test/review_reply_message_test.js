@@ -5,19 +5,19 @@ const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadca
 const CommonInit = require('./common_init');
 const Assert = require('assert');
 
-class CodemarkReplyMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
+class ReviewReplyMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
 		const type = this.isTeamStream ? 'team' : this.type;
-		return `should create and publish a post as a reply to the codemark when an inbound email call is made for a codemark created in a ${type} stream`;
+		return `should create and publish a post as a reply to the review when an inbound email call is made for a review created in a ${type} stream`;
 	}
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
 			Object.assign(this.postOptions, {
 				creatorIndex: 0,
-				wantCodemark: true,
-				wantMarkers: true
+				wantReview: true,
+				wantMarkers: 1
 			});
 			callback();
 		});
@@ -77,9 +77,9 @@ class CodemarkReplyMessageTest extends Aggregation(CodeStreamMessageTest, Common
 							after: 2
 						}
 					},
-					codemarks: [{
-						id: this.postData[0].codemark.id,
-						_id: this.postData[0].codemark.id, // DEPRECATE ME
+					reviews: [{
+						id: this.postData[0].review.id,
+						_id: this.postData[0].review.id, // DEPRECATE ME
 						$set: {
 							numReplies: 1,
 							lastReplyAt: Date.now(), // placeholder
@@ -94,7 +94,7 @@ class CodemarkReplyMessageTest extends Aggregation(CodeStreamMessageTest, Common
 					}]
 				};
 				if (this.type !== 'direct') {
-					this.updateMessage.codemarks[0].$addToSet = { followerIds: this.users[1].user.id };
+					this.updateMessage.reviews[0].$addToSet = { followerIds: this.users[1].user.id };
 				}
 				callback();
 			}
@@ -111,18 +111,18 @@ class CodemarkReplyMessageTest extends Aggregation(CodeStreamMessageTest, Common
 			}
 		}
 
-		// ...and the other is for the update to the parent post and codemark
+		// ...and the other is for the update to the parent post and review
 		const post = message.message.post;
-		const codemark = message.message.codemarks[0];
+		const review = message.message.reviews[0];
 		Assert(post.$set.modifiedAt >= this.requestSentAt, 'post modifiedAt should be set to after the request was sent');
 		this.updateMessage.post.$set.modifiedAt = post.$set.modifiedAt;
-		Assert(codemark.$set.modifiedAt >= this.requestSentAt, 'codemark modifiedAt should be set to after the request was sent');
-		Assert(codemark.$set.lastReplyAt >= this.requestSentAt, 'codemark modifiedAt should be set to after the request was sent');
-		Assert(codemark.$set.lastActivityAt >= this.requestSentAt, 'codemark modifiedAt should be set to after the request was sent');
-		Object.assign(this.updateMessage.codemarks[0].$set, {
-			modifiedAt: codemark.$set.modifiedAt,
-			lastReplyAt: codemark.$set.lastReplyAt,
-			lastActivityAt: codemark.$set.lastActivityAt
+		Assert(review.$set.modifiedAt >= this.requestSentAt, 'review modifiedAt should be set to after the request was sent');
+		Assert(review.$set.lastReplyAt >= this.requestSentAt, 'review modifiedAt should be set to after the request was sent');
+		Assert(review.$set.lastActivityAt >= this.requestSentAt, 'review modifiedAt should be set to after the request was sent');
+		Object.assign(this.updateMessage.reviews[0].$set, {
+			modifiedAt: review.$set.modifiedAt,
+			lastReplyAt: review.$set.lastReplyAt,
+			lastActivityAt: review.$set.lastActivityAt
 		});
 		this.message = this.updateMessage;
 		if (super.validateMessage(message)) {
@@ -132,4 +132,4 @@ class CodemarkReplyMessageTest extends Aggregation(CodeStreamMessageTest, Common
 	}
 }
 
-module.exports = CodemarkReplyMessageTest;
+module.exports = ReviewReplyMessageTest;

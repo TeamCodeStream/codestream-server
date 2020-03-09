@@ -43,19 +43,19 @@ module.exports = {
 		message: 'Inbound emails are not supported for this installation',
 		internal: true 
 	},
-	'codemarkNotFound': {
+	'parentPostNotFound': {
 		code: 'INBE-1008',
-		message: 'Codemark or review not found',
+		message: 'Parent post not found',
 		internal: true
 	},
-	'codemarkNoMatchTeam': {
+	'parentPostNoMatchTeam': {
 		code: 'INBE-1009',
-		message: 'The codemark or review is not owned by this team',
+		message: 'The parent post is not owned by this team',
 		internal: true
 	},
-	'codemarkNoMatchStream': {
+	'parentPostNoMatchStream': {
 		code: 'INBE-1010',
-		message: 'The codemark or review does not belong to this stream',
+		message: 'The parent post does not belong to this stream',
 		internal: true
 	}
 };

@@ -528,6 +528,9 @@ class PostCreator extends ModelCreator {
 		if (this.transforms.updatedCodemarks) {
 			data.codemarks = this.transforms.updatedCodemarks;
 		}
+		if (this.transforms.updatedReviews) {
+			data.reviews = this.transforms.updatedReviews;
+		}
 		await new PostPublisher({
 			request: this.request,
 			data,

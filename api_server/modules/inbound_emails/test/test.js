@@ -29,6 +29,12 @@ const CodemarkNotFoundTest = require('./codemark_not_found_test');
 const CodemarkNoMatchTeamTest = require('./codemark_no_match_team_test');
 const CodemarkNoMatchStreamTest = require('./codemark_no_match_stream_test');
 const TrackingWithCodemarkTest = require('./tracking_with_codemark_test');
+const ReviewReplyTest = require('./review_reply_test');
+const ReviewReplyMessageTest = require('./review_reply_message_test');
+const InvalidReviewIdTest = require('./invalid_review_id_test');
+const ReviewNotFoundTest = require('./review_not_found_test');
+const ReviewNoMatchTeamTest = require('./review_no_match_team_test');
+const ReviewNoMatchStreamTest = require('./review_no_match_stream_test');
 
 describe('inbound emails', function() {
 
@@ -72,4 +78,14 @@ describe('inbound emails', function() {
 	new TrackingWithCodemarkTest({ type: 'channel' }).test();
 	new TrackingWithCodemarkTest({ type: 'channel', makePublic: true }).test();
 	new TrackingWithCodemarkTest({ type: 'direct' }).test();
+	new ReviewReplyTest({ type: 'channel' }).test();
+	new ReviewReplyTest({ type: 'direct' }).test();
+	new ReviewReplyTest({ type: 'channel', isTeamStream: true }).test();
+	new ReviewReplyMessageTest({ type: 'channel' }).test();
+	new ReviewReplyMessageTest({ type: 'direct' }).test();
+	new ReviewReplyMessageTest({ type: 'channel', isTeamStream: true }).test();
+	new InvalidReviewIdTest().test();
+	new ReviewNotFoundTest().test();
+	new ReviewNoMatchTeamTest().test();
+	new ReviewNoMatchStreamTest().test();
 });
