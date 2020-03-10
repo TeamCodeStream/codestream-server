@@ -504,9 +504,27 @@ class EmailNotificationV2Handler {
 		const isReply = !!this.post.parentPostId;
 		const codemark = isReply ? this.parentCodemark : this.codemark;
 		const review = isReply ? this.parentReview : this.review;
-		const replyToPostId = isReply ?
-			(this.codemark || this.parentCodemark || this.parentReview).postId :
-			(this.codemark || this.review).postId;
+
+		// figure out the post that a reply to the email will be a child of, this is pretty complicated logic
+		// and should be altered very carefully
+		let replyToPostId;
+		if (this.parentReview && !this.codemark) {
+			// this is for a reply to a reply to a review, where the reply to the review has no codemark
+			replyToPostId = this.post.id;
+		}
+		else if (isReply) {
+			// this is for a reply to a review or a codemark, or a reply to a codemark that is itself a reply to a review
+			replyToPostId = (this.codemark || this.parentCodemark || this.parentReview).postId;
+		}
+		else if (this.codemark || this.review) {
+			// this is for a reply to a codemark or review
+			replyToPostId = (this.codemark || this.review).postId;
+		}
+		else {
+			// this is for a reply to a top-level post, which shouldn't really happen in practice
+			replyToPostId = this.post.id;
+		}
+
 		const creatorId = isReply ? this.post.creatorId : (codemark || review).creatorId;
 		const creator = this.teamMembers.find(member => member.id === creatorId);
 		const options = {
