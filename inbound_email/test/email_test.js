@@ -276,7 +276,7 @@ class EmailTest {
 	makeSubstitutions (callback) {
 		this.emailData = this.emailData.replace(/@@@from@@@/g, this.userData[0].user.email);
 		this.emailData = this.emailData.replace(/@@@sender@@@/g, InboundEmailConfig.senderEmail);
-		let to = `${this.codemark.id}.${this.stream.id}.${this.team.id}@${InboundEmailConfig.replyToDomain}`;
+		let to = `${this.parentPost.id}.${this.stream.id}.${this.team.id}@${InboundEmailConfig.replyToDomain}`;
 		['to', 'cc', 'bcc', 'x-original-to', 'delivered-to'].forEach(field => {
 			let regEx = new RegExp(`@@@${field}@@@`, 'g');
 			this.emailData = this.emailData.replace(regEx, to);
