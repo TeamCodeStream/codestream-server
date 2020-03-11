@@ -508,20 +508,26 @@ class EmailNotificationV2Handler {
 		// figure out the post that a reply to the email will be a child of, this is pretty complicated logic
 		// and should be altered very carefully
 		let replyToPostId;
-		if (this.parentReview && !this.codemark) {
-			// this is for a reply to a reply to a review, where the reply to the review has no codemark
-			replyToPostId = this.post.id;
-		}
-		else if (isReply) {
-			// this is for a reply to a review or a codemark, or a reply to a codemark that is itself a reply to a review
-			replyToPostId = (this.codemark || this.parentCodemark || this.parentReview).postId;
+		if (isReply) {
+			if (this.codemark) {
+				// if the reply has a codemark, then replies to this post should be to the codemark, 
+				// in other words, they would create a new thread of nested replies
+				replyToPostId = this.codemark.postId;
+			}
+			else {
+				// otherwise the reply should go to the same parent as the post that is generating the 
+				// notifications, in other words, it adds to the existing thread
+				replyToPostId = this.post.parentPostId;
+			}
 		}
 		else if (this.codemark || this.review) {
-			// this is for a reply to a codemark or review
+			// for non-replies, replies via email get attached to the codemark or review that is
+			// generating the email notification
 			replyToPostId = (this.codemark || this.review).postId;
 		}
 		else {
-			// this is for a reply to a top-level post, which shouldn't really happen in practice
+			// this shouldn't really happen since it's not really possible to create a post without a 
+			// codemark or review, but we put it here for posterity and sanity
 			replyToPostId = this.post.id;
 		}
 
