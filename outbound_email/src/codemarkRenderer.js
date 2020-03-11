@@ -3,6 +3,7 @@
 'use strict';
 
 const Utils = require('./utils');
+const RendererBase = require('./rendererBase');
 
 const PROVIDER_DISPLAY_NAMES = {
 	'github': 'GitHub',
@@ -19,12 +20,16 @@ const PROVIDER_DISPLAY_NAMES = {
 	'vsts': 'Visual Studio Team Services'
 };
 
-class CodemarkRenderer {
+class CodemarkRenderer extends RendererBase {
+
+	constructor() {
+		super();
+	}
 
 	/* eslint complexity: 0 */
 	render (options) {
-		const { codemark } = options;
-		options.extension = Utils.getExtension(options);
+		const { codemark, suppressNewContent, includeReviewSection, includeActivity } = options;
+		
 		let titleAuthorDiv = '';
 		if (codemark.type === 'issue') {
 			titleAuthorDiv = this.renderTitleAuthorDiv(options);			
@@ -35,13 +40,23 @@ class CodemarkRenderer {
 		const visibleToDiv = this.renderVisibleToDiv(options);
 		const tagsAssigneesTable = this.renderTagsAssigneesTable(options);
 		const descriptionDiv = this.renderDescriptionDiv(options);
-		const parentReviewDiv = this.renderParentReviewDiv(options);
+		let parentReviewDiv = '';
+		if (includeReviewSection) {
+			parentReviewDiv = this.renderParentReviewDiv(options);		 
+		}
+		let activityDiv = '';
+		if (includeActivity) {
+			activityDiv = this.renderActivityDiv(options);
+		}
 		const linkedIssuesDiv = this.renderLinkedIssuesDiv(options);
 		const relatedDiv = this.renderRelatedDiv(options);
 		const codeBlockDivs = this.renderCodeBlockDivs(options);
-
+		let cssClasses =' inner-content';
+		if (!suppressNewContent) {
+			cssClasses += ' new-content';
+		}
 		return `
-<div class="inner-content new-content">
+<div class="inner-content${cssClasses}">
 	${titleAuthorDiv}
 	${visibleToDiv}
 	${tagsAssigneesTable}
@@ -50,8 +65,30 @@ class CodemarkRenderer {
 	${linkedIssuesDiv}
 	${relatedDiv}
 	${codeBlockDivs}
+	${activityDiv}
 </div>
 `;
+	}
+
+	renderCollapsed (options) {
+		const { includeActivity } = options;
+		
+		const codemarkAuthorDiv = this.renderCodemarkAuthorDiv(options);
+		const titleDiv = this.renderTitleDiv(options);		
+		const codeBlockDivs = this.renderCodeBlockDivs(options);
+		let activityDiv = '';
+		if (includeActivity) {
+			activityDiv = this.renderActivityDiv(options);
+		}
+
+		return `
+		<div class="inner-content">
+			${codemarkAuthorDiv}
+			${titleDiv}
+			${codeBlockDivs}
+			${activityDiv}
+		</div>
+		`;
 	}
 
 	renderTitleAuthorDiv (options) {
@@ -84,6 +121,11 @@ class CodemarkRenderer {
 		const { codemark } = options;
 		const title = codemark.type === 'issue' ? codemark.title : codemark.text;
 		return Utils.renderTitleDiv(title, options);
+	}
+
+	renderReplies (options) {
+		const { codemark } = options;
+		return super.renderReplies(codemark, options);
 	}
 
 	// render the div for whom the codemark is visible, if a private codemark
@@ -180,7 +222,7 @@ class CodemarkRenderer {
 	}
 
 	// render the parent review, if any
-	renderParentReviewDiv (options) {
+	renderParentReviewDiv (options) {		
 		const { review } = options;
 		if (review) {
 			return Utils.renderParentReviewDiv(options);

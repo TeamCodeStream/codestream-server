@@ -279,21 +279,21 @@ const Utils = {
 	},
 
 	// get the default extension for displaying code
-	getExtension: function (options) {
-		const { codemark, review, markers } = options;
-		const parentObject = codemark || review;
-		const markerId = (parentObject.markerIds || [])[0];
-		if (!markerId) { return; }
-		const marker = markers.find(marker => marker.id === markerId);
-		if (!marker) { return; }
-		const file = Utils.getFileForMarker(marker, options);
-		if (!file) { return; }
-		let extension = Path.extname(file).toLowerCase();
-		if (extension.startsWith('.')) {
-			extension = extension.substring(1);
-		}
-		return extension;
-	},
+	// getExtension: function (options) {
+	// 	const { codemark, review, markers } = options;
+	// 	const parentObject = codemark || review;
+	// 	const markerId = (parentObject.markerIds || [])[0];
+	// 	if (!markerId) { return; }
+	// 	const marker = markers.find(marker => marker.id === markerId);
+	// 	if (!marker) { return; }
+	// 	const file = Utils.getFileForMarker(marker, options);
+	// 	if (!file) { return; }
+	// 	let extension = Path.extname(file).toLowerCase();
+	// 	if (extension.startsWith('.')) {
+	// 		extension = extension.substring(1);
+	// 	}
+	// 	return extension;
+	// },
 
 	// get repo name appropriate to display a marker
 	getRepoForMarker: function (marker, options) {

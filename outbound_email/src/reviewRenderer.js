@@ -3,27 +3,64 @@
 'use strict';
 
 const Utils = require('./utils');
+const RendererBase = require('./rendererBase');
 
-class ReviewRenderer {
+class ReviewRenderer extends RendererBase {
+	
+	constructor() {
+		super();
+	}
 
 	/* eslint complexity: 0 */
+	// renders a large version of the review
 	render (options) {
-	
-		const titleAuthorDiv = this.renderTitleAuthorDiv(options);
-		const tagsReviewersTable = this.renderTagsReviewersTable(options);
-		const descriptionDiv = this.renderDescriptionDiv(options);
-		const status = this.renderStatus(options);
-		const repoAndFiles = this.renderReposAndFiles(options);
-
 		return `
 <div class="inner-content new-content">
-	${titleAuthorDiv}
-	${tagsReviewersTable}
-	${descriptionDiv}
-	${status}
-	${repoAndFiles}
+	${this.renderTitleAuthorDiv(options)}
+	${this.renderTagsReviewersTable(options)}
+	${this.renderDescriptionDiv(options)}
+	${this.renderStatus(options)}
+	${this.renderReposAndFiles(options)}
 </div>
 `;
+	}
+
+	// renders a smaller (collapsed) version of the review
+	renderCollapsed (options) {
+		const codemarkAuthorDiv = this.renderReviewAuthorDiv(options);
+		const titleDiv = this.renderTitleDiv(options);
+		const activityDiv = this.renderActivityDiv(options);
+		return `
+		<div class="inner-content">
+			${codemarkAuthorDiv}
+			${titleDiv}
+			${activityDiv}
+		</div>`;
+	}
+
+	renderReplies (options) {
+		const { review } = options;
+		return super.renderReplies(review, options);
+	}
+
+	renderParentPost (options) {
+		const { parentPost, creator, timeZone } = options;
+		const authorOptions = {
+			time: parentPost.createdAt,
+			creator,
+			timeZone,
+			datetimeField: 'datetime'
+		};
+		const authorDiv = Utils.renderAuthorDiv(authorOptions);
+		const text = Utils.prepareForEmail(parentPost.text, options);
+		const textDiv = `<div><span class="ensure-white">${text}</span></div>`;
+		return authorDiv + textDiv;
+	}
+
+	// render the div for the title of the review
+	renderTitleDiv (options) {
+		const { review } = options;
+		return Utils.renderTitleDiv(review.title, options);
 	}
 
 	// render the author line

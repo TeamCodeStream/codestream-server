@@ -5,142 +5,43 @@
 const Utils = require('./utils');
 
 class ReplyRenderer {
-
 	/* eslint complexity: 0 */
-	render (options) {
-
-		options.clickUrl = Utils.getIDEUrl(options);
-		options.extension = Utils.getExtension(options);
-
-		const codemarkAuthorDiv = this.renderCodemarkAuthorDiv(options);
-		const titleDiv = this.renderTitleDiv(options);
-		const iconsDiv = this.renderIconsDiv(options);
-		let authorTextDiv = '';
-		let newContentClasses = '';
-		if (this.isMeMessage(options)) {
-			authorTextDiv = this.renderMeMessageText(options);
+	// renders a post reply
+	render (options, preContent) {		
+		let contentDiv = '';
+		let newContentClasses = '';	 
+		if (this.isMeMessage(options.post ? options.post.text : null)) {
+			contentDiv = this.renderMeMessageText(options);
 			newContentClasses = ' me-reply';
 		}
 		else {
-			authorTextDiv = `${this.renderAuthorDiv(options)}${this.renderTextDiv(options)}`;
+			contentDiv = `${this.renderAuthorDiv(options)}${this.renderTextDiv(options)}`;
 		}
-		
 		const earlierReplies = this.renderEarlierReplies(options);
-		const parentReviewDiv = this.renderParentReviewDiv(options);
 
 		return `
-<div class="inner-content">
-	${codemarkAuthorDiv}
-	${titleDiv}
-	${parentReviewDiv}
-	${iconsDiv}
-</div>
+${preContent}
 ${earlierReplies}
 <div class="reply new-content${newContentClasses}">
-	${authorTextDiv}
+	${contentDiv}
 </div>
 `;
 	}
 
-	isMeMessage(options) {
-		const { post } = options;
-		return post.text && post.text.indexOf('/me ') === 0;
+	// renders any content in the style of a reply
+	renderContentAsReply (options, preContent, content) {
+		const earlierReplies = this.renderEarlierReplies(options);
+		return `
+			${preContent || ''}
+			${earlierReplies}
+			<div class="reply new-content">
+				${content}
+			</div>
+			`;	
 	}
 
-	// render the author line with timestamp for the codemark creator
-	renderCodemarkAuthorDiv (options) {
-		const { codemark, review, parentObjectCreator, timeZone } = options;
-		const parentObject = codemark || review;
-		const authorOptions = {
-			time: parentObject.createdAt,
-			creator: parentObjectCreator,
-			timeZone,
-			datetimeField: 'parentObjectDatetime'
-		};
-		return Utils.renderAuthorDiv(authorOptions);
-	}
-
-	// render the div for the title of the codemark or review
-	renderTitleDiv (options) {
-		const { codemark, review } = options;
-		let title;
-		if (review && codemark) {
-			// is a reply to a codemark that is in a review
-			title = codemark.title || codemark.text;
-		}
-		else {
-			if (review) {
-				// replying directly to review
-				title = review.title;
-			}
-			else {
-				// replying to a regular codemark
-				title = codemark.title || codemark.text;
-			}	
-		}	
-		return Utils.renderTitleDiv(title, options);
-	}
-
-	// render the associated icons
-	renderIconsDiv (options) {
-		const watching = this.renderWatching(options);
-		const tags = this.renderTags(options);
-		const assignees = this.renderAssignees(options);
-		const linkedIssue = this.renderLinkedIssue(options);
-		const description = this.renderDescription(options);
-		const codeBlocks = this.renderCodeBlocks(options);
-		const related = this.renderRelatedCodemarks(options);
-		const replies = this.renderReplies(options);
-		// use .filter to remove any empties
-		const html = [
-			watching,
-			tags,
-			assignees,
-			linkedIssue,
-			description,
-			codeBlocks,
-			related,
-			replies
-		].filter(Boolean).join('</td><td valign=middle class="pr-10">');
-		return `<div class="reply-icons"><table cellpadding=0 cellspacing=0 border=0><tr><td valign=middle class="pr-10">${html}</td></tr></table></div>`;
-	}
-
-	// render the watching icon
-	renderWatching (options) {
-		return `<span><a clicktracking="off" href="${options.clickUrl}">${Utils.renderIcon('eye')}</a></span>`;
-	}
-
-	// render tags and assignees
-	renderTags (options) {
-		const tags = Utils.renderTags(options);		
-		if (!tags) { return ''; }
-		return `<span class="reply-tags">${tags}</span>`;
-	}
-
-	renderAssignees (options) {		
-		const assignees = this.renderAssigneesCore(options);
-		if (!assignees) { return ''; }
-		return `<span class="reply-tags">${assignees}</span>`;
-	}
-
-	// render the headshots or initials of assignees
-	renderAssigneesCore (options) {
-		const { codemark, review, members } = options;
-
-		let assignees = [];
-		const parentObjectAssignees = codemark ? codemark.assignees : review.reviewers;
-		const externalAssignees = codemark && codemark.externalAssignees;
-		(parentObjectAssignees || []).forEach(assigneeId => {
-			const user = members.find(member => member.id === assigneeId);
-			if (user) {
-				assignees.push(user);
-			}
-		});
-		assignees = [...assignees, ...(externalAssignees || [])];
-
-		return assignees.map(assignee => {
-			return Utils.renderUserHeadshot(assignee);
-		}).join('');
+	isMeMessage (text) {
+		return text && text.indexOf('/me ') === 0;
 	}
 
 	// render the author line with timestamp
@@ -155,93 +56,6 @@ ${earlierReplies}
 		return Utils.renderAuthorDiv(authorOptions);
 	}
 
-	// render a linked issue icon as needed
-	renderLinkedIssue (options) {
-		const { codemark } = options;
-		if (!codemark || !codemark.externalProvider) { return ''; }
-		const providerUrl = codemark.externalProviderUrl;
-		const iconHtml = Utils.renderIcon(codemark.externalProvider);
-		return `
-<span class="reply-icon">
-	<a clicktracking="off" href="${providerUrl}">${iconHtml}</a>
-</span>
-`;
-	}
-
-	// render the description icon
-	renderDescription (options) {
-		return `
-		<span class="reply-icon">
-			<a clicktracking="off" href="${options.clickUrl}">
-				${Utils.renderIcon('description')}
-			</a>
-		</span>
-		`;
-	}
-
-	// render the icon for code blocks, and their number
-	renderCodeBlocks (options) {
-		const { codemark, review, clickUrl } = options;
-		const parentObject = codemark || review;
-		const numMarkers = (parentObject.markerIds || []).length;
-		if (numMarkers > 1) {
-			const iconHtml = Utils.renderIcon('code');
-			return `
-<span class="reply-icon">
-	<a clicktracking="off" href="${clickUrl}">
-		${iconHtml}
-		<span class="icon-spaced nice-gray">${numMarkers}</span>
-	</a>
-</span>
-`;
-		}
-		else {
-			return '';
-		}
-	}
-
-	// render the icon for related codemarks, and their number
-	renderRelatedCodemarks (options) {
-		const { codemark, clickUrl } = options;
-		if (!codemark) { return ''; }
-		const numRelated = (codemark.relatedCodemarkIds || []).length;
-		if (numRelated) {
-			const iconHtml = Utils.renderIcon('codestream');
-			return `
-<span class="reply-icon">
-	<a clicktracking="off" href="${clickUrl}">
-		${iconHtml}
-		<span class="icon-spaced nice-gray">${numRelated}</span>
-	</a>
-</span>
-`;
-		}
-		else {
-			return '';
-		}
-	}
-
-	// render the icon for codemark replies, if any, and their number
-	renderReplies (options) {
-		const { codemark, review, clickUrl } = options;
-		const parentObject = codemark || review;
-		const numReplies = parentObject.numReplies || 0;
-		if (numReplies) {
-			const iconHtml = Utils.renderIcon('comment');
-			return `
-<span class="reply-icon">
-	<a clicktracking="off" href="${clickUrl}">
-		${iconHtml}
-		<span class="icon-spaced nice-gray">${numReplies}</span>
-	</a>
-</span>
-`;
-		}
-		else {
-			return '';
-		}
-	}
-
 	// render the div for the post text
 	renderTextDiv (options) {
 		const { post } = options;
@@ -253,9 +67,9 @@ ${earlierReplies}
 `;
 	}
 
-	renderMeMessageText (options) {		
+	renderMeMessageText (options) {
 		const { post, creator, timeZone } = options;
-		const meMessageOptions = {			
+		const meMessageOptions = {
 			creator,
 			timeZone,
 			datetimeField: 'datetime',
@@ -265,23 +79,13 @@ ${earlierReplies}
 		return Utils.renderMeMessageDiv(meMessageOptions);
 	}
 
-	// render the parent review, if any
-	renderParentReviewDiv (options) {
-		const { review, codemark } = options;
-		if (review && codemark) {
-			// check for both review and codemark as replies
-			// to normal codemarks don't necessarily have a parent review
-			return Utils.renderParentReviewDiv(options);
-		}
-		else {
-			return '';
-		}
-	}
-
-	renderEarlierReplies(options) {
-		const { codemark, review } = options;
-		const parentObject = codemark || review;
-		if (parentObject.numReplies < 2) {
+	renderEarlierReplies (options) {
+		const { parentObject} = options;		
+		if (!parentObject) return '';
+		const numRepliesParsed = !isNaN(parentObject.numReplies) ? 
+			parseInt(parentObject.numReplies, 10) :
+			0;
+		if (numRepliesParsed < 2) {
 			return '';
 		}
 

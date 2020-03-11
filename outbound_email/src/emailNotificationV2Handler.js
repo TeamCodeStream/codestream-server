@@ -42,7 +42,7 @@ class EmailNotificationV2Handler {
 			}
 			if (await this.renderPost()) {			// render the HTML for the reply, codemark, or review represented by this post
 				return; // indicates no emails will be sent, so just abort
-			}				
+			}
 			await this.personalizePerUser();		// personalize the rendered post as needed
 			await this.renderPerUser();				// render each user's email
 			await this.sendNotifications();			// send out the notifications
@@ -51,7 +51,7 @@ class EmailNotificationV2Handler {
 		catch (error) {
 			let message;
 			if (error instanceof Error) {
-				message = `${error.message}\n${error.stack}`; 
+				message = `${error.message}\n${error.stack}`;
 			}
 			else {
 				message = JSON.stringify(error);
@@ -92,7 +92,7 @@ class EmailNotificationV2Handler {
 				throw `review ${this.post.reviewId} not found`;
 			}
 		}
-		
+
 		if (this.parentPost && this.parentPost.reviewId) {
 			this.parentReview = await this.data.reviews.getById(this.parentPost.reviewId);
 		}
@@ -166,7 +166,7 @@ class EmailNotificationV2Handler {
 					repoIds.push(marker.repoId);
 				}
 				return repoIds;
-			}, []);		
+			}, []);
 		}
 		else if (this.post.reviewId) {
 			repoIds = this.review.reviewChangesets.reduce((repoIds, reviewChangeset) => {
@@ -174,13 +174,21 @@ class EmailNotificationV2Handler {
 					repoIds.push(reviewChangeset.repoId);
 				}
 				return repoIds;
-			}, []);	
+			}, []);
+		}
+		else if (this.parentReview) {
+			repoIds = this.parentReview.reviewChangesets.reduce((repoIds, reviewChangeset) => {
+				if (reviewChangeset.repoId && !repoIds.includes(reviewChangeset.repoId)) {
+					repoIds.push(reviewChangeset.repoId);
+				}
+				return repoIds;
+			}, []);
 		}
 
 		if (repoIds.length === 0) {
 			return;
 		}
-		
+
 		this.repos = await this.data.repos.getByIds(repoIds);
 	}
 
@@ -279,7 +287,7 @@ class EmailNotificationV2Handler {
 			const lastActivityAt = user.lastActivityAt || null;
 			const lastEmailsSent = user.lastEmailsSent || {};
 			const lastEmailSent = lastEmailsSent[this.stream.id] || 0;
-	
+
 			// post creator should never receive a notification
 			if (this.post.creatorId === user.id) {
 				this.log(`User ${user.id}:${user.email} is the post creator so will not receive an email notification`);
@@ -324,6 +332,7 @@ class EmailNotificationV2Handler {
 		const creator = this.teamMembers.find(member => member.id === this.post.creatorId);
 		this.renderOptions = {
 			post: this.post,
+			parentPost: this.parentPost,
 			codemark: this.parentCodemark || this.codemark,
 			review: this.parentReview || this.review,
 			markers: this.markers,
@@ -336,41 +345,65 @@ class EmailNotificationV2Handler {
 			relatedCodemarks: this.relatedCodemarks,
 			creator
 		};
+		// HACK ugh, don't want to do this here...	
+		this.renderOptions.clickUrl = Utils.getIDEUrl(((this.renderOptions.review || this.renderOptions.codemark) || {}).permalink, null);
+		if (this.post.parentPostId) {
+			const creatorId = (this.parentCodemark || this.parentReview).creatorId;
+			this.renderOptions.parentObjectCreator = this.teamMembers.find(member => member.id === creatorId);
 
-		// note that if the reply has a codemark, we render as if a codemark, not as a normal reply
-		if (this.post.parentPostId && !this.post.codemarkId) {
-			return this.renderReply();
+			if (this.parentReview) {
+				if (this.codemark) {
+					// new codemark for a review
+					this.renderOptions.parentObject = this.parentReview;
+					const reviewContent = new ReviewRenderer().renderCollapsed(this.renderOptions);
+					const codemarkContent = new CodemarkRenderer().render({ ...this.renderOptions, 
+						suppressNewContent: true 
+					});					
+					this.renderedHtml = new ReplyRenderer().renderContentAsReply(this.renderOptions, reviewContent, codemarkContent);
+					return;
+				}
+				else if (this.parentCodemark) {
+					// new reply to a codemark in a review
+					// here, we aren't showing the full review object, just the review header in the codemark
+					this.renderOptions.parentObject = this.parentCodemark;					
+					const parentCodemark = new CodemarkRenderer().render({ ...this.renderOptions, 
+						includeActivity: true,
+						suppressNewContent: true, 
+						includeReviewSection: true
+					});
+					this.renderedHtml = new ReplyRenderer().render(this.renderOptions, parentCodemark);					
+					return;
+				}
+				else {
+					// new reply to a review
+					this.renderOptions.parentObject = this.parentReview;
+					const reviewContent = new ReviewRenderer().renderCollapsed(this.renderOptions);
+					this.renderedHtml = new ReplyRenderer().render(this.renderOptions, reviewContent);
+					return;
+				}
+			}			
+			else if (this.parentCodemark) {
+				// new reply to a codemark
+				this.renderOptions.parentObject = this.parentCodemark;
+				const codemarkContent = new CodemarkRenderer().renderCollapsed({...this.renderOptions, includeActivity: true});
+				this.renderedHtml = new ReplyRenderer().render(this.renderOptions, codemarkContent);
+				return;
+			}
 		}
 		else if (this.codemark) {
-			return this.renderCodemark();
+			// new codemark
+			this.renderedHtml = new CodemarkRenderer().render(this.renderOptions);
+			return;
 		}
 		else if (this.review) {
-			return this.renderReview();
+			// new review
+			this.renderedHtml = new ReviewRenderer().render(this.renderOptions);
+			return;
 		}
 		else {
 			this.warn(`Post ${this.post.id} is not a reply and does not refer to a codemark; email notifications for plain posts are no longer supported; how the F did we get here?`);
 			return true;
 		}
-	}
-
-	// render the HTML needed for a reply
-	async renderReply () {
-		if (!this.parentCodemark && !this.parentReview) {
-			throw `Post ${this.post.id} is a reply, but there is no parent object, WTF?`;
-		}
-		const creatorId = (this.parentCodemark || this.parentReview).creatorId;
-		this.renderOptions.parentObjectCreator = this.teamMembers.find(member => member.id === creatorId);
-		this.renderedHtml = new ReplyRenderer().render(this.renderOptions);
-	}
-
-	// render the HTML needed for a codemark
-	async renderCodemark () {
-		this.renderedHtml = new CodemarkRenderer().render(this.renderOptions);
-	}
-
-	// render the HTML needed for a review
-	async renderReview () {
-		this.renderedHtml = new ReviewRenderer().render(this.renderOptions);
 	}
 
 	// personalize each user's rendered post as needed ... the rendered post needs to be
@@ -553,7 +586,7 @@ class EmailNotificationV2Handler {
 		catch (error) {
 			let message;
 			if (error instanceof Error) {
-				message = `${error.message}\n${error.stack}`; 
+				message = `${error.message}\n${error.stack}`;
 			}
 			else {
 				message = JSON.stringify(error);
@@ -573,13 +606,13 @@ class EmailNotificationV2Handler {
 	}
 
 	async updateUser (user) {
-		const op = { 
+		const op = {
 			$set: {
 				[`lastEmailsSent.${this.stream.id}`]: this.post.seqNum
-			} 
+			}
 		};
 		if (!user.hasReceivedFirstEmail) {
-			op.$set.hasReceivedFirstEmail = true; 
+			op.$set.hasReceivedFirstEmail = true;
 		}
 		try {
 			await this.data.users.updateDirect(
