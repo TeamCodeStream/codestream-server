@@ -43,6 +43,7 @@ class FetchTest extends ProviderHostTest {
 		expectedTeam.providerHosts[starredHost] = this.providerHostData;
 		data.team.memberIds.sort();
 		expectedTeam.memberIds.sort();
+		expectedTeam.companyMemberCount = 2;
 		Assert.deepEqual(data.team, expectedTeam, 'fetched team does not match');
 	}
 }
