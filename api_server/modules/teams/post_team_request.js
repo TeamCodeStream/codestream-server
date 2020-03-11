@@ -3,7 +3,6 @@
 'use strict';
 
 const PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
 class PostTeamRequest extends PostRequest {
 
@@ -33,18 +32,8 @@ class PostTeamRequest extends PostRequest {
 		['plan', 'trialStartDate', 'trialEndDate', 'planStartDate'].forEach(attribute => {
 			this.responseData.team[attribute] = this.creator.company.get(attribute);
 		});
-		this.responseData.team.companyMemberCount = await this.getCompanyMemberCount(this.creator.company);
+		this.responseData.team.companyMemberCount = await this.creator.company.getCompanyMemberCount(this.data);
 		super.handleResponse();
-	}
-
-	// get the number of members across the whole company, which we return with the team
-	async getCompanyMemberCount (company) {
-		const teams = await this.data.teams.getByIds(company.get('teamIds') || []);
-		const memberIds = teams.reduce((memberIds, team) => {
-			memberIds = ArrayUtilities.union(memberIds, team.get('memberIds') || []);
-			return memberIds;
-		}, [this.user.id]);
-		return memberIds.length;
 	}
 
 	// publish a joinMethod update if the joinMethod attribute was changed for the user as
