@@ -586,50 +586,46 @@ class PostCreator extends ModelCreator {
 
 	// track this post for analytics, with the possibility that the user may have opted out
 	async trackPost () {
-		const { request, user, team, company, stream } = this;
+		const { request, user, team, company } = this;
 
-		// only track for inbound emails, client-originating posts are tracked by the client
-		if (!this.forInboundEmail) {
+		// only track for email replies, client-originating posts are tracked by the client
+		if (!this.forInboundEmail || !this.parentPost) {
 			return;
-		}
-
-		const categories = {
-			'channel': 'Private Channel',
-			'direct': 'Direct Message',
-			'file': 'Source File'
-		};
-		let category = categories[stream.get('type')] || '???';
-		if (stream.get('type') === 'channel' && stream.get('privacy') === 'public') {
-			category = 'Public Channel';
 		}
 
 		const dateOfLastPost = new Date(this.model.get('createdAt')).toISOString();
 		const trackData = {
+			'Parent ID': this.parentPost.get('codemarkId') || this.parentPost.get('reviewId') || 
+				(this.grandParentPost && this.grandParentPost.get('reviewId')),
 			Endpoint: 'Email',
 			'Date of Last Post': dateOfLastPost
 		};
-		if (this.parentPost && this.parentPost.get('codemarkId')) {
-			trackData['Codemark ID'] = this.parentPost.get('codemarkId');
-		}
 		if (user.get('totalPosts') === 1) {
 			trackData['First Post?'] = new Date(this.model.get('createdAt')).toISOString();
 		}
 
-		let eventName;
-		if (trackData['Codemark ID']) {
-			eventName = 'Replied to Codemark';
+		let parentType;
+		if (this.parentPost.get('reviewId')) {
+			parentType = 'Review';
+		}
+		else if (this.parentPost.get('codemarkId')) {
+			if (this.grandParentPost) {
+				parentType = 'Review.Codemark';
+			}
+			else {
+				parentType = 'Codemark';
+			}
+		}
+		else if (this.grandParentPost) {
+			parentType = 'Review.Reply';
 		}
 		else {
-			eventName = 'Post Created';
-			Object.assign(trackData, {
-				Type: 'Chat',
-				Thread: 'Parent',
-				Category: category
-			});
+			parentType = 'Post'; // but should never happen
 		}
+		trackData['Parent Type'] = parentType;
 
 		this.api.services.analytics.trackWithSuperProperties(
-			eventName,
+			'Reply Created',
 			trackData,
 			{ request, user, team, company }
 		);

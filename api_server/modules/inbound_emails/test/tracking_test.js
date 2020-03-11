@@ -6,14 +6,18 @@ const Assert = require('assert');
 class TrackingTest extends InboundEmailMessageTest {
 
 	get description () {
-		const privacy = this.makePublic ? 'public ' : '';
-		return `should send a Post Created event for tracking purposes when handling a post via email for a ${privacy}${this.type} stream`;
+		return 'should send a Reply Created event for tracking purposes when handling a reply to a codemark via email';
 	}
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
 			this.teamOptions.creatorIndex = 0;
 			this.repoOptions.creatorIndex = 0;
+			Object.assign(this.postOptions, {
+				creatorIndex: 0,
+				wantCodemark: true,
+				wantMarkers: true
+			});
 			callback();
 		});
 	}
@@ -26,6 +30,14 @@ class TrackingTest extends InboundEmailMessageTest {
 			this.users[1].user.joinMethod = 'Added to Team';
 			this.currentUser = this.users[1];
 			this.broadcasterToken = this.users[1].broadcasterToken;
+			callback();
+		});
+	}
+
+	// make the data to be used in the request that triggers the message
+	makePostData (callback) {
+		super.makePostData(() => {
+			this.data.to[0].address = `${this.postData[0].post.id}.${this.data.to[0].address}`;
 			callback();
 		});
 	}
@@ -68,21 +80,15 @@ class TrackingTest extends InboundEmailMessageTest {
 		if (type !== 'track') {
 			return false;
 		}
+		const parentId = this.expectedParentId || this.postData[0].codemark.id;
+		const parentType = this.expectedParentType || 'Codemark';
 		const { properties } = data;
 		const errors = [];
-		const categories = {
-			'channel': 'Private Channel',
-			'direct': 'Direct Message',
-			'file': 'Source File'
-		};
-		let category = categories[this.stream.type];
-		if (this.makePublic) {
-			category = 'Public Channel';
-		}
-		const event = this.forReplyToCodemark ? 'Replied to Codemark' : 'Post Created';
 		let result = (
 			((data.userId === this.users[1].user.id) || errors.push('userId not set to post originator\'s ID')) && 
-			((data.event === event) || errors.push('event not correct')) &&
+			((data.event === 'Reply Created') || errors.push('event not correct')) &&
+			((properties['Parent ID'] === parentId) || errors.push('Parent ID not set to codemark or review ID')) &&
+			((properties['Parent Type'] === parentType) || errors.push('Parent Type not correct')) && 
 			((properties.distinct_id === this.users[1].user.id) || errors.push('distinct_id not set to post originator\'s ID')) &&
 			((properties['$email'] === this.users[1].user.email) || errors.push('email does not match post originator')) &&
 			((properties['name'] === this.users[1].user.fullName) || errors.push('name does not match post originator')) &&
@@ -107,13 +113,6 @@ class TrackingTest extends InboundEmailMessageTest {
 			((properties.company.trialStart_at === new Date(this.company.trialStartDate).toISOString()) || errors.push('company.trialStart_at not correct')) &&
 			((properties.company.trialEnd_at === new Date(this.company.trialEndDate).toISOString()) || errors.push('company.trialEnd_at not correct'))
 		);
-		if (!this.forReplyToCodemark) {
-			result = result && (
-				((properties.Type === 'Chat') || errors.push('Type not correct')) &&
-				((properties.Thread === 'Parent') || errors.push('Thread not correct')) &&
-				((properties.Category === category) || errors.push('Category not correct'))
-			);
-		}
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;
 	}
