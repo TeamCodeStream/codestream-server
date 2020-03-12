@@ -393,12 +393,8 @@
 		options = (options || {});
 	
 		if (type === 'codemark') {
-			if (!options.markerId) {
-				console.error('missing markerId');
-				return;
-			}
 			if (!options.id) {
-				console.error('missing markerId');
+				console.error('missing codemarkId');
 				return;		
 			}	
 		}	

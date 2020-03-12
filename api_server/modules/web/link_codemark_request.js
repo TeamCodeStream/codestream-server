@@ -336,6 +336,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 			results.push({
 				repoId,
 				repoName: fileInfo && fileInfo.repo,
+				codemarkId: this.codemark.get('id'),
 				selectedMarker: options && options.selectedMarker,
 				showComment: options && options.showComment,
 				debug: options && options.debug,
