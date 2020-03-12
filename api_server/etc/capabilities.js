@@ -38,7 +38,6 @@ module.exports = {
 	},
 	'notificationDeliveryPreference': {
 		description: 'Support for displaying the email/desktop delivery notification preference',
-		version: '1.21.33',
-		restricted: true
+		version: '1.21.33'
 	}
 };
