@@ -38,6 +38,7 @@ class FetchTest extends DeleteProviderHostTest {
 		// verify what we fetch is what we got back in the response
 		this.expectedTeam.modifiedAt = this.deleteProviderHostResponse.team.$set.modifiedAt;
 		this.expectedTeam.version = this.deleteProviderHostResponse.team.$set.version;
+		this.expectedTeam.companyMemberCount = 2;
 		Assert.deepEqual(data.team, this.expectedTeam, 'fetched team does not match');
 	}
 }
