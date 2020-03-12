@@ -2,6 +2,8 @@
 
 const PutUserTest = require('./put_user_test');
 const Assert = require('assert');
+const ObjectID = require('mongodb').ObjectID;
+const RandomString = require('randomstring');
 
 class NoUpdateOtherAttributeTest extends PutUserTest {
 
@@ -10,9 +12,38 @@ class NoUpdateOtherAttributeTest extends PutUserTest {
 	}
 
 	// form the data for the post update
-	makePostData (callback) {
+	makeUserData (callback) {
 		super.makeUserData(() => {
-			this.data[this.otherAttribute] = 'x'; // set bogus value for the attribute, it shouldn't matter
+			let otherAttributeValue;
+			switch (this.otherAttributeType) {
+			default:
+			case 'string': 
+			case 'email': 
+			case 'username':
+				otherAttributeValue = RandomString.generate(10); 
+				break;
+			case 'id':
+				otherAttributeValue = ObjectID();
+				break;
+			case 'object': 
+				otherAttributeValue = { x: 1, y: 'two' }; 
+				break;
+			case 'arrayOfIds':
+				otherAttributeValue = [ObjectID(), ObjectID()];
+				break;
+			case 'arrayOfEmails':
+			case 'arrayOfStrings':
+				otherAttributeValue = ['x', 'y'];
+				break;
+			case 'boolean':
+				otherAttributeValue = true;
+				break;
+			case 'number':
+			case 'timestamp':
+				otherAttributeValue = Date.now();
+				break;
+			}
+			this.data[this.otherAttribute] = otherAttributeValue;
 			callback();
 		});
 	}
@@ -21,6 +52,7 @@ class NoUpdateOtherAttributeTest extends PutUserTest {
 	validateResponse (data) {
 		const setData = data.user.$set;
 		Assert(setData[this.otherAttribute] === undefined, 'attribute appears in the response');
+		delete this.data[this.otherAttribute];
 		super.validateResponse(data);
 	}
 }

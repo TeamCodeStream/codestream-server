@@ -39,10 +39,8 @@ class UserUpdater extends ModelUpdater {
 	async preSave () {
 		await this.getUser();
 		await this.checkUsernameUnique();
+		await this.handleModifiedRepos();
 		this.attributes.modifiedAt = Date.now();
-		if (this.attributes.modifiedRepos) {
-			this.attributes.modifiedRepos.modifiedAt = this.attributes.modifiedAt;
-		}
 		await super.preSave();
 	}
 
@@ -56,6 +54,24 @@ class UserUpdater extends ModelUpdater {
 		if (!this.user) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
+	}
+
+	// if the user is sending modifiedRepos, this is per-team
+	async handleModifiedRepos () {
+		if (!this.attributes.modifiedRepos) {
+			return;
+		}
+
+		const now = Date.now();
+		this.attributes.$set = {};
+		Object.keys(this.attributes.modifiedRepos).forEach(teamId => {
+			if (!this.user.hasTeam(teamId)) {
+				throw this.errorHandler.error('updateAuth', { reason: `user can not set modifiedRepos for team ${teamId} since they are not a member` });
+			}
+			this.attributes.$set[`modifiedRepos.${teamId}`] = this.attributes.modifiedRepos[teamId];
+			this.attributes.$set[`modifiedReposModifiedAt.${teamId}`] = now;
+		});
+		delete this.attributes.modifiedRepos;
 	}
 
 	// if the user is changing their username, we need to check if the name is unique

@@ -256,8 +256,13 @@ module.exports = {
 	},
 	modifiedRepos: {
 		type: 'object',
-		description: 'Files the user has made local modifications to, by repo',
+		description: 'Files the user has made local modifications to, by team',
 		maxLength: 10000
+	},
+	modifiedReposModifiedAt: {
+		type: 'object',
+		description: 'Last modified timestamp for modifiedRepos, by team',
+		maxLength: 1000
 	},
 	status: {
 		type: 'object',

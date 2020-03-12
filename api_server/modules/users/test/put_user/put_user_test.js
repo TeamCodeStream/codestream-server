@@ -29,7 +29,6 @@ class PutUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Object.assign(this.expectedData.user.$set, this.data);
 		Assert(data.user.$set.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the user was updated');
 		this.expectedData.user.$set.modifiedAt = data.user.$set.modifiedAt;
 		Assert.deepEqual(data, this.expectedData, 'response is not correct');

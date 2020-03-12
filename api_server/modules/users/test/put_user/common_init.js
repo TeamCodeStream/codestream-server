@@ -29,7 +29,9 @@ class CommonInit {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
 				id: this.currentUser.user.id,
 				$set: {
-					version: 4
+					version: 4,
+					modifiedAt: Date.now(), // placeholder
+					...this.data
 				},
 				$version: {
 					before: 3,
@@ -44,7 +46,17 @@ class CommonInit {
 	setTestData () {
 		this.data = {};
 		this.attributes.forEach(attribute => {
-			this.data[attribute] = RandomString.generate(10);
+			let value;
+			const type = this.attributeType || 'string';
+			switch (type) {
+			default:
+				value = RandomString.generate(10);
+				break;
+			case 'object':
+				value = { x: 1, y: 'two' };
+				break;
+			}
+			this.data[attribute] = value;
 		});
 	}
 
