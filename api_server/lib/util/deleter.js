@@ -215,6 +215,11 @@ class Deleter {
 		if (!this.team) {
 			return;
 		}
+		this.company = await this.mongoClient.mongoCollections.companies.getById(this.team.companyId);
+		if (!this.company || this.company.teamIds.length !== 1 || this.company.teamIds[0] !== this.team.id) {
+			return;
+		}
+		
 		this.logger.log(`Deleting company ${this.team.companyId}...`);
 		try {
 			await this.mongoClient.mongoCollections.companies.deleteById(
