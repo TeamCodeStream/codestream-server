@@ -541,7 +541,7 @@ const Utils = {
 	renderParentReviewDiv (options) {
 		const { review } = options;
 		if (review) {
-			return this.renderSection(`<div class="nice-gray section-text">REVIEW</div>
+			return this.renderSection(`<div class="nice-gray section-text">CODE REVIEW</div>
 	${review.permalink ? `<a href="${review.permalink}" class="review-link" clicktracking="off">${review.title}</a>` : review.title}
 	`);
 		}
