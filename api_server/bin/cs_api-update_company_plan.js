@@ -28,9 +28,11 @@ Commander
 	.option('-c, --companyId <companyId>', 'CodeStream ID of the company whose plan to change')
 	.option('-p, --plan <plan>', 'Name of plan to change to')
 	.option('-s, --start <date>', 'Set planStartDate to this date (best to put the date in quotes)', parseDate)
+	.option('-t, --trial-start-date <date>', 'Set trialStartDate to this date (best to put the date in quotes)', parseDate)
+	.option('-e, --trial-end-date <date>', 'Set trialEndDate to this date (best to put the date in quotes)', parseDate)
 	.parse(process.argv);
 
-if (!Commander.companyId || !Commander.plan) {
+if (!Commander.companyId) {
 	Commander.help();
 }
 
@@ -80,11 +82,18 @@ class PlanUpdater {
 
 	// update the plan in mongo
 	async updateMongo () {
-		const set = {
-			plan: this.plan,
-		};
+		const set = {};
+		if (Commander.plan) {
+			set.plan = Commander.plan;
+		}
 		if (Commander.start) {
 			set.planStartDate = Commander.start;
+		}
+		if (Commander.trialStartDate) {
+			set.trialStartDate = Commander.trialStartDate;
+		}
+		if (Commander.trialEndDate) {
+			set.trialEndDate = Commander.trialEndDate;
 		}
 		try {
 			await this.data.companies.updateDirect(
