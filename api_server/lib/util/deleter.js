@@ -216,19 +216,31 @@ class Deleter {
 			return;
 		}
 		this.company = await this.mongoClient.mongoCollections.companies.getById(this.team.companyId);
-		if (!this.company || this.company.teamIds.length !== 1 || this.company.teamIds[0] !== this.team.id) {
-			return;
-		}
+		if (!this.company) { return; }
 		
-		this.logger.log(`Deleting company ${this.team.companyId}...`);
-		try {
-			await this.mongoClient.mongoCollections.companies.deleteById(
-				this.team.companyId,
-				{ overrideHintRequired: true }
-			);
-		}
-		catch (error) {
-			throw `unable to delete company: ${JSON.stringify(error)}`;
+		if ((this.company.teamIds || []).length === 1 && this.company.teamIds[0] === this.team.id) {
+			this.logger.log(`Deleting company ${this.team.companyId}...`);
+			try {
+				await this.mongoClient.mongoCollections.companies.deleteById(
+					this.team.companyId,
+					{ overrideHintRequired: true }
+				);
+			}
+			catch (error) {
+				throw `unable to delete company: ${JSON.stringify(error)}`;
+			}
+		} 
+		else {
+			try {
+				this.logger.log(`Removing team from company ${this.team.companyId}...`);
+				await this.mongoClient.mongoCollections.companies.updateDirect(
+					{ id: this.mongoClient.mongoCollections.companies.objectIdSafe(this.team.companyId) },
+					{ $pull: { teamIds: this.team.id } }
+				);
+			}
+			catch (error) {
+				throw `unable to remove team from company: ${JSON.stringify(error)}`;
+			}
 		}
 	}
 
