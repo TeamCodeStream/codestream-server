@@ -40,6 +40,9 @@ class UserUpdater extends ModelUpdater {
 		await this.getUser();
 		await this.checkUsernameUnique();
 		this.attributes.modifiedAt = Date.now();
+		if (this.attributes.modifiedRepos) {
+			this.attributes.modifiedRepos.modifiedAt = this.attributes.modifiedAt;
+		}
 		await super.preSave();
 	}
 
