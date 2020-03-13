@@ -1,0 +1,22 @@
+{
+  "name": "emailgen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "emailgen.js",
+  "scripts": {
+    "start": "node ./node_modules/ts-node/dist/bin.js emailgen.ts",
+    "slayer": "node ./node_modules/ts-node/dist/bin.js emailgen.ts --serverUrl https://slayer.codestream.us:12079",
+    "pd": "node ./node_modules/ts-node/dist/bin.js emailgen.ts --serverUrl https://pd-api.codestream.us"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ts-node": "8.6.2",
+    "typed-rest-client": "1.0.3",
+    "typescript": "3.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "13.9.0",
+    "commander": "4.1.1"
+  }
+}
