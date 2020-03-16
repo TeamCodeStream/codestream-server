@@ -20,8 +20,12 @@ class SocketClusterClient {
 			multiplex: false,	// don't allow reusing connections
 			rejectUnauthorized: this.config.strictSSL,
 			secure: true
-		}); 
-
+		});
+		(async () => {
+			for await (let data of this.socket.listener('connectAbort')) {
+				this._warn('SocketCluster connection aborted: ' + JSON.stringify(data));
+			}
+		})();
 		await this.authorizeConnection();
 	}
 
