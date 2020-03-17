@@ -700,7 +700,7 @@ class SlackInteractiveComponentsHandler {
 			// slack blocks have a limit of 100, but we have 3 blocks for each reply...
 			replies = await this.data.posts.getByQuery(
 				{ parentPostId: this.actionPayload.ppId },
-				{ hint: PostIndexes.byParentPostId, sort: { seqNum: -1 }, limit: 30 }
+				{ hint: PostIndexes.byParentPostId, sort: { seqNum: 1 }, limit: 30 }
 			);
 			//  don't show replies that have been deleted
 			if (replies && replies.length) {
@@ -746,10 +746,7 @@ class SlackInteractiveComponentsHandler {
 
 		blocks.push(SlackInteractiveComponentBlocks.createModalReplyBlock());
 
-		const replyBlocks = this.createReplyBlocks(replies, usersById, userThatClicked, slackUserExtra);
-		if (replyBlocks && replyBlocks.length) {
-			blocks = blocks.concat(replyBlocks);
-		}
+		this.createReplyBlocks(replies, usersById, userThatClicked, slackUserExtra, blocks, 0);
 		return blocks;
 	}
 
@@ -759,14 +756,38 @@ class SlackInteractiveComponentsHandler {
 		let postUsers;
 		let userIds = [];
 		if (this.actionPayload.ppId) {
-			// slack blocks have a limit of 100, but we have 3 blocks for each reply...
+			// slack blocks have a limit of 100, but we have 5 blocks for each reply...
 			replies = await this.data.posts.getByQuery(
 				{ parentPostId: this.actionPayload.ppId },
-				{ hint: PostIndexes.byParentPostId, sort: { seqNum: -1 }, limit: 30 }
+				{ hint: PostIndexes.byParentPostId, sort: { seqNum: 1 }, limit: 20 }
 			);
+			let postIds;
+			let repliesToReplies;
 			//  don't show replies that have been deleted
 			if (replies && replies.length) {
 				replies = replies.filter(_ => !_.get('deactivated'));
+				postIds = replies.map(post => post.id);
+				repliesToReplies = await this.data.posts.getByQuery(
+					{
+						parentPostId: this.data.posts.inQuery(postIds),
+						streamId: review.get('streamId').toLowerCase(),
+						teamId: review.get('teamId').toLowerCase()
+					},
+					{
+						hint: PostIndexes.byParentPostId
+					}
+				);
+				replies.sort((a, b) => a.id.localeCompare(b.id));
+				repliesToReplies.sort((a, b) => a.id.localeCompare(b.id));
+			}
+			if (repliesToReplies && repliesToReplies.length) {
+				for (let i = 0; i < replies.length; i++) {
+					const reply = replies[i];
+					var children = repliesToReplies.filter(rtr => rtr.attributes.parentPostId == reply.id);
+					if (children.length) {
+						reply.attributes.children = children;
+					}
+				}
 			}
 			// get uniques
 			userIds = [
@@ -810,73 +831,102 @@ class SlackInteractiveComponentsHandler {
 		}
 		blocks.push(SlackInteractiveComponentBlocks.createModalReplyBlock());
 
-		const replyBlocks = this.createReplyBlocks(replies, usersById, userThatClicked, slackUserExtra);
-		if (replyBlocks && replyBlocks.length) {
-			blocks = blocks.concat(replyBlocks);
-		}
+		this.createReplyBlocks(replies, usersById, userThatClicked, slackUserExtra, blocks, 0);
 		return blocks;
 	}
 
-	createReplyBlocks (replies, usersById, userThatClicked, slackUserExtra) {
-		if (replies && replies.length) {
-			const blocks = [];
-			for (let i = 0; i < replies.length; i++) {
-				const reply = replies[i];
-				const replyUser = usersById[reply.get('creatorId')];
-				const user = (replyUser && replyUser.get('username')) || 'An unknown user';
-				let text = reply.get('text');
+	createIndent (indent) {
+		if (indent <= 0) return '';
+		// this is an empty/whitespace character, we're going to use it 
+		// to fool Slack into creating an empty space
+		const char = ' ';
+		let result = '';
+		for (let i = 0; i < indent * 5; i++) {
+			result += char;
+		}
+		return result;
+	}
 
-				if (text.startsWith('/me ')) {
-					// if this was a "me message" -- treat it slightly differently 
-					// (the webview treats these like a "system" message -- styled as inline)
-					text = text.substring(4);					
-					blocks.push(
-						{
-							type: 'context',
-							elements: [
-								{
-									type: 'mrkdwn',
-									text: `*${user} ${text}* ${this.formatTime(
-										userThatClicked,
-										reply.get('createdAt'),
-										slackUserExtra && slackUserExtra.tz
-									)}`
-								},
-							]
-						},
-					);
-				}
-				else {
-					blocks.push(
-						{
-							type: 'context',
-							elements: [{
+	createReplyBlocks (replies, usersById, userThatClicked, slackUserExtra, blocks, indent) {
+		if (!replies || !replies.length) return;
+	
+		const indentString = this.createIndent(indent);
+		for (let i = 0; i < replies.length; i++) {
+			const reply = replies[i];
+			const replyUser = usersById[reply.get('creatorId')];
+			const user = (replyUser && replyUser.get('username')) || 'An unknown user';
+			let text = reply.get('text');
+
+			if (text.startsWith('/me ')) {
+				// if this was a "me message" -- treat it slightly differently 
+				// (the webview treats these like a "system" message -- styled as inline)
+				text = text.substring(4);
+				blocks.push(
+					{
+						type: 'context',
+						elements: [
+							{
 								type: 'mrkdwn',
-								text: `*${user}* ${this.formatTime(
+								text: `*${user} ${text}* ${this.formatTime(
 									userThatClicked,
 									reply.get('createdAt'),
 									slackUserExtra && slackUserExtra.tz
 								)}`
-							}]
-						},
-						{
-							type: 'section',
-							text: {
-								type: 'mrkdwn',
-								text: `${text}`
-							}
-						});
-				}
-
-				if (i < replies.length - 1) {
-					blocks.push({
-						type: 'divider'
-					});
-				}
+							},
+						]
+					},
+				);
 			}
-			return blocks;
+			else {
+				blocks.push(
+					{
+						type: 'context',
+						elements: [{
+							type: 'mrkdwn',
+							text: `${indentString}*${user}* ${this.formatTime(
+								userThatClicked,
+								reply.get('createdAt'),
+								slackUserExtra && slackUserExtra.tz
+							)}`
+						}]
+					},
+					{
+						type: 'section',
+						text: {
+							type: 'mrkdwn',
+							text: `${indentString}${text}`
+						}
+					});
+			}
+			
+			if (reply.attributes.children && reply.attributes.children.length) {
+				indent++;
+				this.createReplyBlocks(reply.attributes.children, usersById, userThatClicked, slackUserExtra, blocks, indent);
+				indent--;
+			} 
+			
+			if (i < replies.length - 1) {
+				blocks.push(
+					{
+						type: 'section',
+						text: {
+							type: 'mrkdwn',
+							text: ' '
+						}
+					},
+					{
+						type: 'divider'
+					},
+					{
+						type: 'section',
+						text: {
+							type: 'mrkdwn',
+							text: ' '
+						}
+					}
+				);
+			}
 		}
-		return undefined;
 	}
 
 	async createMarkerMarkup (codemark) {
