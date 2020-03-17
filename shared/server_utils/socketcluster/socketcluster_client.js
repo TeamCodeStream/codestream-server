@@ -14,12 +14,15 @@ class SocketClusterClient {
 	}
 
 	async init () {
+		if (this.config.ignoreHttps) {
+			this._log('NOTE: SocketCluster connection using http, will not be secure');
+		}
 		this.socket = SocketCluster.create({ 
 			hostname: this.config.host,
 			port: this.config.port,
 			multiplex: false,	// don't allow reusing connections
 			rejectUnauthorized: this.config.strictSSL,
-			secure: true
+			secure: !this.config.ignoreHttps
 		});
 		(async () => {
 			for await (let data of this.socket.listener('connectAbort')) {
