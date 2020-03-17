@@ -399,8 +399,13 @@ const Utils = {
 			return Utils.renderReviewButtons(options);
 		}
 		else if (codemark) {
-			const markerId = codemark.markerIds[0];
-			const marker = markerId && markers.find(marker => marker.id === markerId);
+			let marker;
+			if (codemark.markerIds && codemark.markerIds.length) {
+				const markerId = codemark.markerIds[0];
+				if (markerId) {
+					marker = markers.find(marker => marker.id === markerId);
+				}
+			}
 			return Utils.renderMarkerButtons(options, marker);
 		}
 
@@ -412,16 +417,18 @@ const Utils = {
 		const { codemark } = options;		
 		
 		let remoteCodeUrl;		
-		let ideUrl = Utils.getIDEUrl(codemark.permalink, { marker : marker.id });		
+		let ideUrl = Utils.getIDEUrl(codemark.permalink, marker ? { marker : marker.id } : undefined);		
 
-		let hasRemoteCodeUrl = true;
+		let hasRemoteCodeUrl = false;
 		let remoteCodeProviderName = '';
-		const remoteCodeUrlObject = marker.remoteCodeUrl || codemark.remoteCodeUrl;
-		if (remoteCodeUrlObject) {
-			remoteCodeProviderName = CODE_PROVIDERS[remoteCodeUrlObject.name];
-			remoteCodeUrl = remoteCodeUrlObject.url;
-			if (remoteCodeProviderName && remoteCodeUrl) {
-				hasRemoteCodeUrl = true;
+		if (marker) {
+			const remoteCodeUrlObject = marker.remoteCodeUrl || codemark.remoteCodeUrl;
+			if (remoteCodeUrlObject) {
+				remoteCodeProviderName = CODE_PROVIDERS[remoteCodeUrlObject.name];
+				remoteCodeUrl = remoteCodeUrlObject.url;
+				if (remoteCodeProviderName && remoteCodeUrl) {
+					hasRemoteCodeUrl = true;
+				}
 			}
 		}
 
