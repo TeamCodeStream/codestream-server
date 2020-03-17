@@ -9,11 +9,11 @@ import * as fs from 'fs';
 //https://galdin.dev/blog/writing-a-node-console-app-in-typescript/
 
 (async () => {
-    const main = async function () { 
-        let program; 
+    const main = async function () {
+        let program;
         const argv = process.execArgv.join();
         const isDebug = argv.includes('inspect') || argv.includes('debug');
-        if (!isDebug) {            
+        if (!isDebug) {
             // if we're not debugging, assume command line
             program = new Command();
             program
@@ -23,28 +23,33 @@ import * as fs from 'fs';
                 .parse(process.argv);
 
             if (!program.config) {
-                program = new Command();
-                program
-                    .version('0.1.0')
-                    .requiredOption('-e, --email [email]', 'CodeStream email')
-                    .requiredOption('-p, --password [password]', 'CodeStream password')
-                    .requiredOption('-s, --serverUrl [url]', 'CodeStream api_server url')
-                    .requiredOption('-t, --team [id]', 'CodeStream teamId')
-                    .option('-o, --other [email]', 'Email of another user on the team you\'d like to annoy with emails ;)')
-                    .option('-ff, --fail-fast', 'if true, stops on the first failure')
-                    .option('-v, --verbose', 'enables additional logging')
-                    .parse(process.argv);
+                if (fs.existsSync('.emailgen.json')) {
+                    program = JSON.parse(fs.readFileSync('.emailgen.json', 'utf8'));
+                }
+                else {
+                    program = new Command();
+                    program
+                        .version('0.1.0')
+                        .requiredOption('-e, --email [email]', 'CodeStream email')
+                        .requiredOption('-p, --password [password]', 'CodeStream password')
+                        .requiredOption('-s, --serverUrl [url]', 'CodeStream api_server url')
+                        .requiredOption('-t, --team [id]', 'CodeStream teamId')
+                        .option('-o, --other [email]', 'Email of another user on the team you\'d like to annoy with emails ;)')
+                        .option('-ff, --fail-fast', 'if true, stops on the first failure')
+                        .option('-v, --verbose', 'enables additional logging')
+                        .parse(process.argv);
+                }
             }
             else {
-                log.debug(`config=${program.config}`);
-                program = JSON.parse(fs.readFileSync(program.config, 'utf8'));
+                program = JSON.parse(fs.readFileSync('.emailgen.json', 'utf8'));
             }
         }
         else {
             program = JSON.parse(fs.readFileSync('.emailgen.json', 'utf8'));
         }
-        log.isVerbose = program.verbose; 
-        log.info(`Using serverUrl=${program.serverUrl} with email=${program.email}`);        
+
+        log.isVerbose = program.verbose;
+        log.info(`Using serverUrl=${program.serverUrl} with email=${program.email}`);
 
         const flow = (await new Flow(program.serverUrl)
             .login(program.email, program.password, { teamId: program.teamId, otherEmail: program.otherEmail }))
