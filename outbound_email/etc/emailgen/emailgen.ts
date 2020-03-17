@@ -62,6 +62,10 @@ import * as fs from 'fs';
                 'codemark. without markers {{atUser}}'
             ),
 
+            async () => (await flow.createCodemarkWithoutMarkers(
+                'codemark. without markers 2 {{atUser}}'
+            )).reply(new Reply('reply. codemark. without markers 2 {{atUser}}')),
+
             async () => flow.createCodemarkWithMarker(
                 'codemark. single marker'
             ),
@@ -84,7 +88,7 @@ import * as fs from 'fs';
                 null,
                 ['_green', '_red']
             )).reply(new Reply('/me approved this review')),
-            
+
             async () => {
                 const review = await flow.createReview(
                     'review. title 2.5 (reviewers, tags, multi-marker)',
