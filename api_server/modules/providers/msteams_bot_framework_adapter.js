@@ -14,7 +14,7 @@ const MSTeamsBotFrameworkAdapter = new BotFrameworkAdapter({
 	appId: MSTeamsConfig.botAppId,
 	appPassword: MSTeamsConfig.botAppPassword
 });
-MSTeamsBotFrameworkAdapter.onTurnError = async (context /*, error*/) => {
+MSTeamsBotFrameworkAdapter.onTurnError = async (context/*, error*/) => {
 	// This check writes out errors to console log .vs. app insights.
 	// NOTE: In production environment, you should consider logging this to Azure
 	//       application insights.

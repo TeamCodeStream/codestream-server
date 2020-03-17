@@ -63,6 +63,7 @@ const DataCollections = {
 	providerPosts: require(ModuleDirectory + '/provider_posts/provider_post'),
 	codemarkLinks: require(ModuleDirectory + '/codemarks/codemark_link'),
 	msteams_conversations: require(ModuleDirectory + '/msteams_conversations/msteams_conversation'),
+	msteams_states: require(ModuleDirectory + '/msteams_states/msteams_state'),
 	msteams_teams: require(ModuleDirectory + '/msteams_teams/msteams_team'),
 };
 

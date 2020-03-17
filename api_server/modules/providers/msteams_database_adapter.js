@@ -41,14 +41,20 @@ class MSTeamsDatabaseAdapter {
 			if (conversation) {
 				await this.data.msteams_conversations.deleteById(conversation.id);
 				this.api.log(`tenantId=${conversationReference.tenantId} conversationId=${conversationId} deleted`);
-				return true;
+				return {
+					success: true
+				};
 			}
 
-			return true;
+			return {
+				success: true
+			};
 		}
 		catch (ex) {
 			this.api.log(ex);
-			return false;
+			return {
+				success: false
+			};
 		}
 	}
 
@@ -68,21 +74,77 @@ class MSTeamsDatabaseAdapter {
 			if (conversations && conversations.length) {
 				await this.data.msteams_conversations.deleteByIds(conversations.map(_ => _.id));
 				this.api.log(`${conversations.length} tenantId=${data.tenantId} msTeamsTeamId=${data.teamId} conversations deleted`);
-				return true;
+				return {
+					success: true
+				};
 			}
 
-			return true;
+			return {
+				success: true
+			};
 		}
 		catch (ex) {
 			this.api.log(ex);
-			return false;
+			return {
+				success: false
+			};
 		}
 	}
 
 	async signout (data) {
-		this.api.log(`signing out for tenantId=${data.tenantId}...`);
-		// TODO not really much to do here		
-		return true;
+		const userId = data.codeStreamUserId;
+		if (!userId) {
+			this.api.log('Cannot signout, missing codeStreamUserId');
+			return {
+				reason: 'userId',
+				success: false
+			};
+		}
+		try {
+			this.api.log(`signing out for tenantId=${data.tenantId}...`);
+			const user = await this.data.users.getById(userId);
+			if (!user) {
+				return {
+					reason: 'user',
+					success: false
+				};
+			}
+			const subId = data.tenantId;
+			const teamIds = user.get('teamIds');
+			let provider = 'msteams';
+
+			const op = {
+				$unset: {},
+				$set: {
+					modifiedAt: Date.now()
+				}
+			};
+			for (const teamId of teamIds) {
+				const existingProviderInfo = user.getProviderInfo(provider, teamId);
+				if (subId && existingProviderInfo && existingProviderInfo.multiple) {
+					let key = `providerInfo.${teamId}.${provider}`;
+					op.$unset[key] = true;
+				}
+			}
+			if (Object.keys(op.$unset).length) {
+				this.transforms.userUpdates = [
+					await new ModelSaver({
+						request: this,
+						collection: this.data.users,
+						id: user.id
+					}).save(op)
+				];				 
+			}
+			return {
+				success: true
+			};
+		}
+		catch (ex) {
+			this.api.log(ex);
+			return {
+				success: false
+			};
+		}
 	}
 
 	// compare the user's token with what is stored	
@@ -93,55 +155,65 @@ class MSTeamsDatabaseAdapter {
 			signupTokenService.initialize();
 
 			const signupToken = await signupTokenService.find(data.token);
-			if (signupToken && signupToken.token === data.token) {
-				// allow all the teams that this user is part of to use MST
-				// these are stored on the signup token when issued
-				const teams = await this.data.teams.getByIds(signupToken.teamIds);
-				for (const team of teams) {
-					if (!team || team.get('deactivated')) return false;
+			if (!signupToken || signupToken.token !== data.token) {
+				this.api.log('Invalid signup token');
+				return {
+					reason: 'generic',
+					success: false
+				};
+			}
+			// allow all the teams that this user is part of to use MST
+			// these are stored on the signup token when issued
+			const teams = await this.data.teams.getByIds(signupToken.teamIds);
+			for (const team of teams) {
+				if (!team || team.get('deactivated')) return false;
 
-					let op = {
-						$set: {}
-					};
-					op.$set[`providerBotInfo.msteams.${data.tenantId}`] = {
-						data: {
-							connected: true
-						}
-					};
-
-					const providerIdentities = team.get('providerIdentities');
-					let addToSet = false;
-					if (providerIdentities) {
-						// we have providerIdentities but not this one...
-						const msteam = providerIdentities.find(_ => _ === `msteams::${data.tenantId}`);
-						if (!msteam) {
-							addToSet = true;
-						}
+				let op = {
+					$set: {}
+				};
+				op.$set[`providerBotInfo.msteams.${data.tenantId}`] = {
+					data: {
+						connected: true
 					}
-					else {
+				};
+
+				const providerIdentities = team.get('providerIdentities');
+				let addToSet = false;
+				if (providerIdentities) {
+					// we have providerIdentities but not this one...
+					const msteam = providerIdentities.find(_ => _ === `msteams::${data.tenantId}`);
+					if (!msteam) {
 						addToSet = true;
 					}
-
-					if (addToSet) {
-						op.$addToSet = {
-							providerIdentities: `msteams::${data.tenantId}`
-						};
-					}
-
-					this.transforms.teamUpdate = await new ModelSaver({
-						request: this.request,
-						collection: this.data.teams,
-						id: team.id
-					}).save(op);
 				}
-				return true;
+				else {
+					addToSet = true;
+				}
+
+				if (addToSet) {
+					op.$addToSet = {
+						providerIdentities: `msteams::${data.tenantId}`
+					};
+				}
+
+				this.transforms.teamUpdate = await new ModelSaver({
+					request: this.request,
+					collection: this.data.teams,
+					id: team.id
+				}).save(op);
 			}
-			return false;
+			return {
+				success: true,
+				codeStreamUserId: signupToken.userId
+			};
 		}
 		catch (ex) {
 			this.api.log(ex);
+			return {
+				reason: 'error',
+				success: false
+			};
 		}
-		return false;
 	}
 
 	async connect (conversationReference) {
@@ -167,13 +239,12 @@ class MSTeamsDatabaseAdapter {
 				};
 			}
 
-			this.transforms.userUpdates = [];
 
-			const query = {
-				conversationId: conversationId
-			};
+			this.transforms.userUpdates = [];
 			const conversation = await this.data.msteams_conversations.getOneByQuery(
-				query,
+				{
+					conversationId: conversationId
+				},
 				{
 					hint: MSTeamsConversationIndexes.byConversationIds,
 					noCache: true,

@@ -2,7 +2,7 @@
 // initiated for a particular provider
 
 'use strict';
-
+const { UserState } = require('botbuilder');
 const RestfulRequest = require(process.env.CS_API_TOP +
 	'/lib/util/restful/restful_request.js');
 const ProviderDisplayNames = require(process.env.CS_API_TOP +
@@ -14,6 +14,7 @@ const AddTeamPublisher = require(process.env.CS_API_TOP + '/modules/users/add_te
 const MSTeamsConversationBot = require('./msteams_conversation_bot');
 const MSTeamsBotFrameworkAdapter = require('./msteams_bot_framework_adapter');
 const MSTeamsDatabaseAdapter = require('./msteams_database_adapter');
+const MSTeamsStateAdapter = require('./msteams_state_adapter');
 
 const CODE_PROVIDERS = {
 	github: 'GitHub',
@@ -57,6 +58,8 @@ class ProviderActionRequest extends RestfulRequest {
 				// we MUST instantiate this adapter for each request
 				this.handler = new MSTeamsDatabaseAdapter(this);
 				context.turnState.set('cs_databaseAdapter', this.handler);
+				context.turnState.set('cs_logger', this.api.logger);
+				context.turnState.set('cs_stateAdapter', new UserState(new MSTeamsStateAdapter(this)));
 				await MSTeamsConversationBot.run(context);
 			});
 			// we need the response to go back to MS

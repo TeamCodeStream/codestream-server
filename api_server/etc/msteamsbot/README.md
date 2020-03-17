@@ -115,24 +115,30 @@ https://aka.ms/InstallTeamsAppStudio
 
 ### Dev logic
 
-the `hasSharing` flag is enabled for `modules/msteams_auth/msteams_auth.js`. While MS Teams does not follow the same flow
-as Slack, it does share a lot of the glue that makes it work -- as it follows the notion of it being a `provider`. As user triggers this flow in the IDE by attempting to add an `MS Teams Organization` from the codemark sharing dropdown.
+the `hasSharing` flag is enabled for `modules/msteams_auth/msteams_auth.js`. While MS Teams does not follow the same flow as Slack, it does share a lot of the glue that makes it work -- as it follows the notion of it being a `provider`. As user triggers this flow in the IDE by attempting to add an `MS Teams Organization` from the codemark sharing dropdown.
+
+### Installing
+Upon installing the CodeStream bot, users in the team/channel for which the bot was installed to will receive a personal greeting message
+ about what CodeStream offers. If the first command a user issues the bot in the personal channel is any thing other than `signin` they 
+ will get an even more customized/personal message telling them to issue the `signin` command to get started.
 
 ### SignIn
-A user gets associated with CodeStream by signing into CodeStream via the web by issuing the `signin` command from the personal CodeStream bot chat. This eventually creates a `signinToken` which is tied to the CS `userId`, CS `teamId` and the MS Teams `tenantId`. If a user is on > 1 team, they will be prompted with a team selector. 
+A user gets associated with CodeStream by signing into CodeStream via the web by issuing the `signin` command from the personal CodeStream bot chat. This eventually creates a `signinToken` which is tied to the CS `userId`, CS `teamId` and the MS Teams `tenantId`. If a user is on > 1 team, they will be able to able to connect all the teams. 
 
 When a CS team gets associated, we store on `team` an entry in `providerIdentities` in the format of `msteams::<tenantId>` and we store info about that connection in `providerBotInfo` (not to be confused with `providerInfo` which deals with a team's auth/chat provider)
+
+A reference to their CodeSteam userId is also stored in msteams_state, the key/value store for MST data
 
 ### Connecting
 Once a user has signed in, they can connect the bot to any team channel on any team in any 
 of the teams for that tenant. Upon connecting, we store a reference to the MS Teams team in `msteams_team`,
-along with the _conversation_ (aka channel) and store that in `msteams_conversations`. Once this happens we update all the users on the team, giving them a `providerInfo.<teamId>.msteams.multiple.<tenantId>` object. Here, the accessToken doesn't matter, it just needs to be a string. We don't actually need an accessToken, as we will be querying teams/conversations that are gathered from the MS Teams CodeStream bot.
+along with the _conversation_ (aka channel) and store that in `msteams_conversations`. Once this happens we update that user's data, giving them a `providerInfo.<teamId>.msteams.multiple.<tenantId>` object. Here, the accessToken doesn't matter, it just needs to be a string. We don't actually need an accessToken, as we will be querying teams/conversations that are gathered from the MS Teams CodeStream bot.
 
 ## Bot Commands
 These are the commands that you can issue the CodeStream bot for msteams
 
 ### secret commands
-These are unlisted commands. There's nothing "secret" about that, just that they're more intended for debugging rather than for the MS Teams user
+These are unlisted commands. There's nothing "secret" about that, just that they're more intended for debugging rather than for a normal MS Teams user
 
 ```easteregg```
 You'll just have to find out
@@ -160,25 +166,24 @@ Returns a link for a user to begin the auth flow
 Returns a link for a user to signup
 
 ```signout (alias: logout)```
-Doesn't really do anything
+Removes the CodeStream `msteams` provider from the user that ran the command. This is the same as using the `Disconnect <Provider>` from the UI.
 
 ### public channels
 These commands only work in public channels:
 
 ```connect```
-Adds this channel as a possible target for codemark sharing
+Adds this channel as a possible target for codemark sharing.
 
 ```disconnect```
-Removes this channel as a possible target for codemark charing
+Removes this channel as a possible target for codemark sharing.
 
 ### any channel
 These commands work anywhere: 
 
-```help``` shows a help link
+```help``` shows a help screen
 
 ```start (aliased: welcome, init, initialize)```
 Shows a message about getting started
-
 
 every other command just else shows a generic message asking the user if they need help.
 
