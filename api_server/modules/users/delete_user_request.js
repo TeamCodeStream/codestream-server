@@ -10,6 +10,11 @@ class DeleteUserRequest extends DeleteRequest {
 
 	// authorize the request for the current user
 	async authorize () {
+		// if secret passed, anyone can delete this user
+		if (this.request.headers['x-delete-user-secret'] !== SecretsConfig.confirmationCheat) {
+			return;
+		}
+
 		// get the user to delete
 		this.userToDelete = await this.data.users.getById(this.request.params.id.toLowerCase());
 		if (!this.userToDelete) {
@@ -24,15 +29,14 @@ class DeleteUserRequest extends DeleteRequest {
 		// find common teams between the user to delete, and the user doing the deletion
 		// only if the user doing the deletion is an admin on one of their common teams, can the user be deleted
 		const userTeams = await this.data.teams.getByIds(this.user.get('teamIds') || []);
-		if (userTeams.filter(team => {
+		const commonAdminTeams = userTeams.filter(team => {
 			return (
 				(this.userToDelete.get('teamIds') || []).includes(team.id) &&
 				(team.get('adminIds') || []).includes(this.user.id)
 			);
-		}).length === 0) {
-			if (this.request.headers['x-delete-user-secret'] !== SecretsConfig.confirmationCheat) {
-				throw this.errorHandler.error('deleteAuth', { reason: 'only the user or an admin can delete a user' });
-			}
+		});
+		if (commonAdminTeams.length === 0) {
+			throw this.errorHandler.error('deleteAuth', { reason: 'only the user or an admin can delete a user' });
 		}
 	}
 
