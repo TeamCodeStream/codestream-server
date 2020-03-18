@@ -105,9 +105,17 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			const text = context.activity.text.trim();
 
 			try {
+				let teamDetails;
+				let teamChannels;
+				const channelData = context.activity.channelData;
+				const team = channelData && channelData.team ? channelData.team : undefined;
+				const teamId = team && typeof (team.id) === 'string' ? team.id : undefined;
+				const isPersonalChat = teamId === undefined;
+
 				// not checking type since this can return undefined
-				if (!didBotWelcomeUser) {
+				if (!didBotWelcomeUser && isPersonalChat) {
 					// if we haven't welcomed this user AND their first command isn't signin, 
+					// AND they're in a personal chat
 					// give them some additional info
 					if (text !== 'signin') {
 						const userName = context.activity.from.name;
@@ -120,11 +128,6 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					await this.setState(context, STATE_PROPERTY_WELCOMED_USER, true);
 				}
 
-				let teamDetails;
-				let teamChannels;
-				const channelData = context.activity.channelData;
-				const team = channelData && channelData.team ? channelData.team : undefined;
-				const teamId = team && typeof (team.id) === 'string' ? team.id : undefined;
 				if (teamId) {
 					teamDetails = await TeamsInfo.getTeamDetails(context);
 					teamChannels = await TeamsInfo.getTeamChannels(context);
