@@ -33,7 +33,13 @@ class AnalyticsClient {
 			event,
 			properties: data
 		};
-		trackData.userId = options.user ? options.user.id : options.userId;
+		const userId = options.user ? options.user.id : options.userId;		
+		if (userId) {
+			trackData.userId = userId;
+		}
+		if (options.anonymousId) {
+			trackData.anonymousId = options.anonymousId;
+		}		
 
 		if (this._requestSaysToTestTracking(options)) {
 			// we received a header in the request asking us to divert this tracking event
@@ -46,11 +52,7 @@ class AnalyticsClient {
 			return;
 		}
 
-		this.segment.track({
-			userId: trackData.userId,
-			event,
-			properties: data
-		});
+		this.segment.track(trackData);
 	}
 
 	// track an analytics event, extracting super-properties
