@@ -54,10 +54,35 @@ const sendTelemetry = async function (context, errorString, options = {}) {
 			TenantId: tenantId,
 			Destination: 'MSTeams',
 			Error: errorString,
-			RequestId: options.requestId
+			RequestId: options.requestId,
+			CommandText: options.commandText
 		}, trackOptions);
 	}
 };
+
+const commandWhiteList = new Set([
+	'easteregg',
+	'debug',
+	'status',
+	'uninstall',
+	'disconnectall',
+	'disconnect-all',
+	'login',
+	'signin',
+	'signup',
+	'logout',
+	'signout',
+	'connect',
+	'disconnect',
+	'welcome',
+	'start',
+	'init',
+	'initialize',
+	'ok',
+	'go',
+	'getstarted',
+	'help'
+]);
 
 MSTeamsBotFrameworkAdapter.onTurnError = async (context, error) => {
 	// This check writes out errors to console log .vs. app insights.
@@ -76,6 +101,14 @@ MSTeamsBotFrameworkAdapter.onTurnError = async (context, error) => {
 	try {
 		if (error) {
 			logger = await context.turnState.get('cs_logger');
+			let commandText = await context.turnState.get('cs_bot_text');
+			// only show commands that we know about, just for a bit of user privacy
+			if (commandText && !commandWhiteList.has(commandText.toLowerCase())) {
+				commandText = 'unknown';				
+			}
+			if (!commandText) {
+				commandText = 'unknown';
+			}
 
 			let errorAsString = error.toString();
 			if (errorAsString && errorAsString.indexOf('Error: ') === 0) {
@@ -95,7 +128,10 @@ MSTeamsBotFrameworkAdapter.onTurnError = async (context, error) => {
 			await context.sendActivity(`Oops, the bot encountered an issue. ${errorMessage ? `\n\n${errorMessage}` : ''}`);
 			try {
 				// try to send telemetry about this error
-				await sendTelemetry(context, errorAsString, { requestId: requestId});
+				await sendTelemetry(context, errorAsString, { 
+					requestId: requestId,
+					commandText: commandText
+				});
 			}
 			catch (ex) {
 				if (logger) {

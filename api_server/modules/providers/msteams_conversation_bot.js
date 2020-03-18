@@ -105,7 +105,9 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			const text = context.activity.text.trim();
 
 			try {
-				let teamDetails;
+				// store this for possible error logging later
+				await context.turnState.set('cs_bot_text', text);				
+				let teamDetails;				
 				let teamChannels;
 				const channelData = context.activity.channelData;
 				const team = channelData && channelData.team ? channelData.team : undefined;
@@ -266,13 +268,10 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					}
 				}
 			}
-			catch (ex) {
-				const logger = await context.turnState.get('cs_logger');
-				if (logger) {
-					logger.log(ex);
-				}			 
-			}
 			finally {
+				// we don't need a catch here since the global
+				// error handler in MSTeamsBotFrameworkAdapter will capture it
+
 				// Save state changes
 				await this.saveState(context);
 				await next();
