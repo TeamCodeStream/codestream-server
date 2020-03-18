@@ -23,6 +23,11 @@ class UserDeleter extends ModelDeleter {
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
 
+		// check if already deleted
+		if (this.userToDelete.get('deactivated')) {
+			throw this.errorHandler.error('alreadyDeleted');
+		}
+
 		// change the user's email to indicate this is a deactivated user
 		super.setOpForDelete();
 		const email = this.userToDelete.get('email');

@@ -17,6 +17,7 @@ const ChangeEmailRequestTester = require('./change_email/test');
 const ChangeEmailConfirmRequestTester = require('./change_email_confirm/test');
 const BumpPostsRequestTester = require('./bump_posts/test');
 const InviteInfoRequestTester = require('./invite_info/test');
+const DeleteUserRequestTester = require('./delete_user/test');
 
 const userRequestTester = new UserRequestTester();
 
@@ -48,4 +49,5 @@ describe('user requests', function() {
 	describe('PUT /no-auth/change-email-confirm', ChangeEmailConfirmRequestTester.test);
 	describe('PUT /bump-posts', BumpPostsRequestTester.test);
 	describe('GET /no-auth/invite-info', InviteInfoRequestTester.test);
+	describe('DELETE /users/:id', DeleteUserRequestTester.test);
 });
