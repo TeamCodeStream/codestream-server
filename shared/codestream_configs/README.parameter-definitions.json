@@ -29,6 +29,7 @@
 		"codestreamBroadcaster": {
 			"assetEnvironment": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod) [CS_BROADCASTER_ASSET_ENV]",
 			"host": "hostname of the broadcaster service (from client point-of-view)",
+			"ignoreHttps": "set to true to respond to http instead of https [CS_BROADCASTER_IGNORE_HTTPS]",
 			"logger": {
 				"consoleOk": "allow logging to the console [CS_BROADCASTER_LOG_CONSOLE_OK]",
 				"debugOk": "more verbose logging (debug level) [CS_BROADCASTER_DEBUG_OK]",
