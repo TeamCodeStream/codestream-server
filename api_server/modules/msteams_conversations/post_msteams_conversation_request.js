@@ -6,12 +6,14 @@
 
 'use strict';
 
+const { UserState } = require('botbuilder');
 const PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
 const { CardFactory, ActionTypes } = require('botbuilder');
 const ProviderDisplayNames = require(process.env.CS_API_TOP + '/modules/web/provider_display_names');
 const { MicrosoftAppCredentials } = require('botframework-connector');
 const MSTeamsConversationIndexes = require(process.env.CS_API_TOP + '/modules/msteams_conversations/indexes');
 const MSTeamsBotFrameworkAdapter = require(process.env.CS_API_TOP + '/modules/providers/msteams_bot_framework_adapter');
+const MSTeamsStateAdapter = require(process.env.CS_API_TOP + '/modules/providers/msteams_state_adapter');
 
 class PostMSTeamsConversationRequest extends PostRequest {
 	// authorize the request for the current user	
@@ -336,8 +338,17 @@ class PostMSTeamsConversationRequest extends PostRequest {
 
 		// we send a "proactive" message by calling the continueConversation function
 		// passing in the stored conversation reference.
-		await MSTeamsBotFrameworkAdapter.continueConversation(conversation, async turnContext => {
-			await turnContext.sendActivity({
+		await MSTeamsBotFrameworkAdapter.continueConversation(conversation, async context => {
+			// since we know the userId, pass it in
+			context.turnState.set('cs_userId', this.user.id);
+			context.turnState.set('cs_analytics', this.api.services.analytics);
+			context.turnState.set('cs_logger', this.api.logger);
+			context.turnState.set('cs_requestId', this.request.id);
+			context.turnState.set('cs_stateAdapter', new UserState(new MSTeamsStateAdapter(this)));
+			// if this fails, we want to bubble the error up
+			context.turnState.set('cs_throwOnError', true);			
+			
+			await context.sendActivity({
 				attachments: attachments,
 				attachmentLayout: 'carousel'
 			});

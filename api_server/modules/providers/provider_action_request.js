@@ -57,8 +57,10 @@ class ProviderActionRequest extends RestfulRequest {
 			await MSTeamsBotFrameworkAdapter.processActivity(this.request, this.response, async (context) => {
 				// we MUST instantiate this adapter for each request
 				this.handler = new MSTeamsDatabaseAdapter(this);
+				context.turnState.set('cs_analytics', this.api.services.analytics);
 				context.turnState.set('cs_databaseAdapter', this.handler);
 				context.turnState.set('cs_logger', this.api.logger);
+				context.turnState.set('cs_requestId', this.request.id);
 				context.turnState.set('cs_stateAdapter', new UserState(new MSTeamsStateAdapter(this)));
 				await MSTeamsConversationBot.run(context);
 			});
