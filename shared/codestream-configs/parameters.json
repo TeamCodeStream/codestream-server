@@ -148,6 +148,11 @@
 				"default": "localhost.codestream.us",
 				"desc": "hostname of the broadcaster service (from client point-of-view)"
 			},
+			"ignoreHttps": {
+				"default": false,
+				"desc": "set to true to respond to http instead of https",
+				"env": "CS_BROADCASTER_IGNORE_HTTPS"
+			},
 			"logger": {
 				"consoleOk": {
 					"default": true,

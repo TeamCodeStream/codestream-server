@@ -1,0 +1,15 @@
+# used for automatic spin up of onprem environments
+FQHN={{hostName}}.codestream.us
+SSL_CERT_FILE=wildcard.codestream.us-crt
+SSL_KEY_FILE=wildcard.codestream.us-key
+SSL_CA_FILE=wildcard.codestream.us-ca
+SECRET_AUTH=SecretAuthCode
+SECRET_COOKIE=SecretCookie
+SECRET_CONFIRMATION_CHEAT=SecretConfCheatCode
+SECRET_SUBSCRIPTION_CHEAT=SecretSubscriptionCheatCode
+SECRET_MAIL=SecretMail
+SECRET_TELEMETRY=SecretTelemetry
+SECRET_BROADCAST_API=SecretBroadcastApi
+SECRET_BROADCAST_AUTH=SecretBroadcastAuth
+SENDER_EMAIL=codestream_{{hostName}}_alerts@codestream.com
+SUPPORT_EMAIL=codestream_{{hostName}}_support@codestream.com

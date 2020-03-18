@@ -2,31 +2,6 @@
 
 # re-generate codestream config files and config templates for distribution
 
-function diff_notify {
-	local file=$1 ask=$2
-	local ans
-	if [ ! -f $file ]; then
-		echo "$file is new"
-		# echo mv $file.x $file
-		mv $file.x $file
-		return
-	fi
-	x=`diff $file $file.x|wc -l`
-	if [ $x -gt 0 ]; then
-		echo "$file has changed"
-		if [ -n "$ask" ]; then
-			echo -n "update it (y/N)? "
-			read ans
-			[ "$ans" != y ] && /bin/rm $file.x && echo "skipped" && return
-		fi
-		# echo mv $file.x $file
-		mv $file.x $file
-	else
-		# echo "$file did not change"
-		/bin/rm $file.x
-	fi
-}
-
 [ -z "$KM_PKI" ] && echo "Set KM_PKI to the location of the PKI database (use -y to bypass prompts)" && exit 1
 [ "$1" == "-y" ] && yes="" || yes=y
 binDir=`dirname $0`
@@ -34,6 +9,8 @@ repoRoot=$(cd $binDir/.. && pwd)
 srcDir=`dirname $repoRoot`
 schemaVersion=`cat $repoRoot/parameters.version`
 # verbose=1
+
+. $repoRoot/lib/update_funcs.sh
 
 for p in `/bin/ls $repoRoot/profiles/*.json $repoRoot/parameters.json`
 do
@@ -50,6 +27,7 @@ if [ "$ans" == y -o "$ans" == yes ]; then
 	echo "Schema version is now: $schemaVersion"
 fi
 
+# create the README.parameter-definitions file for documentation
 [ ! -d $repoRoot/../onprem-install ] && echo "$repoRoot/../onprem-install not found (pwd=`pwd`)" >&2 && exit 1
 [ -n "$verbose" ] && echo $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
 $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
@@ -60,7 +38,7 @@ diff_notify $repoRoot/README.parameter-definitions.json "$yes"
 $binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta.x
 diff_notify $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta "$yes"
 
-# cloud configuration, all environments (consumed by developers via dt-update-secrets)
+# cloud configuration files, all environments (consumed by developers via dt-update-secrets)
 for csEnv in "local" ci pi pd qa prod dev
 do
 	[ -n "$verbose" ] && echo $binDir/process-profile --profile $repoRoot/profiles/cloud.json --env $csEnv --out $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json.x
@@ -75,3 +53,5 @@ do
 	$binDir/process-profile --profile $repoRoot/profiles/onprem-development.json --env $csEnv --out $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json.x
 	diff_notify $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json "$yes"
 done
+
+$binDir/update-onprem-bootstraps
