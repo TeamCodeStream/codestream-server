@@ -434,6 +434,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 			icons: {},
 			assignees: assignees,
 			isIssue: codemarkType === 'issue',
+			text: descriptionAsHtml,
 			codemarkType: codemarkType === 'link' ? 'Permalink' : 'Codemark',
 			relatedCodemarks: await this.createRelatedCodemarks(),
 			tags: tags,
