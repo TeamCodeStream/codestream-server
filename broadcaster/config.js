@@ -28,6 +28,7 @@ Secrets.subscriptionCheat = CfgData.getProperty('sharedSecrets.subscriptionCheat
 
 HttpsCfg = CfgData.getSection('ssl');
 HttpsCfg.port = CfgData.getProperty('broadcastEngine.codestreamBroadcaster.port').toString();
+HttpsCfg.ignoreHttps = CfgData.getProperty('broadcastEngine.codestreamBroadcaster.ignoreHttps');
 
 const Cfg = {
 	mongo: MongoCfg,
