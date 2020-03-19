@@ -330,7 +330,6 @@ class LinkReviewRequest extends WebRequestBase {
 				emailHash: emailHash,
 				hasEmailHashOrAuthorInitials: emailHash || authorInitials,				
 				title: title,
-				addendum: status,
 				createdAtIso: new Date(createdAtRaw).toISOString()				
 			},
 			segmentKey: this.api.config.segment.webToken
