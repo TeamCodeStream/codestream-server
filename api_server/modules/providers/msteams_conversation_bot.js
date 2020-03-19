@@ -106,8 +106,8 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 
 			try {
 				// store this for possible error logging later
-				await context.turnState.set('cs_bot_text', text);				
-				let teamDetails;				
+				await context.turnState.set('cs_bot_text', text);
+				let teamDetails;
 				let teamChannels;
 				const channelData = context.activity.channelData;
 				const team = channelData && channelData.team ? channelData.team : undefined;
@@ -328,7 +328,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	async deleteState (context) {
 		const userState = await context.turnState.get('cs_stateAdapter');
 		if (!userState) return false;
-		
+
 		await userState.delete(context);
 		return true;
 	}
@@ -347,61 +347,76 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 
 	// connects the channel to CodeStream
 	async connect (context, activity, teamDetails, teamChannels, tenantId) {
-		const conversationReference = TurnContext.getConversationReference(activity);
-		const result = await context.turnState.get('cs_databaseAdapter').connect({
-			conversation: conversationReference,
-			team: teamDetails,
-			tenantId: tenantId,
-			teamChannels: teamChannels
-		});
-		if (result) {
-			if (result.success) {
-				await context.sendActivity('This channel is now ready to receive messages from CodeStream.');
-			}
-			else {
-				if (result.reason === 'signin') {
-					await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream to this conversation. Have you issued the `signin` command from the personal bot chat yet?'));
+		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
+		if (!codeStreamUserId) {
+			await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting to CodeStream. Have you signed in before?'));
+		} else {
+			const conversationReference = TurnContext.getConversationReference(activity);
+			const result = await context.turnState.get('cs_databaseAdapter').connect({
+				conversation: conversationReference,
+				team: teamDetails,
+				tenantId: tenantId,
+				teamChannels: teamChannels
+			});
+			if (result) {
+				if (result.success) {
+					await context.sendActivity('This channel is now ready to receive messages from CodeStream.');
 				}
 				else {
-					await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream to this conversation. Please try again.'));
+					if (result.reason === 'signin') {
+						await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream to this conversation. Have you issued the `signin` command from the personal bot chat yet?'));
+					}
+					else {
+						await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream to this conversation. Please try again.'));
+					}
 				}
 			}
-		}
-		else {
-			await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream to this conversation. Please try again.'));
+			else {
+				await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream to this conversation. Please try again.'));
+			}
 		}
 	}
 
 	// disconnects the channel from CodeStream
 	async disconnect (context, activity, teamDetails, teamChannels, tenantId) {
-		const conversationReference = TurnContext.getConversationReference(activity);
-		const result = await context.turnState.get('cs_databaseAdapter').disconnect({
-			conversation: conversationReference,
-			team: teamDetails,
-			tenantId: tenantId,
-			teamChannels: teamChannels
-		});
+		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
+		if (!codeStreamUserId) {
+			await context.sendActivity(MessageFactory.text('Oops, we had a problem disconnecting from CodeStream. Have you signed in before?'));
+		} else {
+			const conversationReference = TurnContext.getConversationReference(activity);
+			const result = await context.turnState.get('cs_databaseAdapter').disconnect({
+				conversation: conversationReference,
+				team: teamDetails,
+				tenantId: tenantId,
+				teamChannels: teamChannels
+			});
 
-		if (result && result.success) {
-			await context.sendActivity(MessageFactory.text('CodeStream has been disconnected from this channel.'));
-		}
-		else {
-			await context.sendActivity(MessageFactory.text('Oops, we had a problem disconnecting CodeStream from this conversation. Please try again.'));
+			if (result && result.success) {
+				await context.sendActivity(MessageFactory.text('CodeStream has been disconnected from this channel.'));
+			}
+			else {
+				await context.sendActivity(MessageFactory.text('Oops, we had a problem disconnecting CodeStream from this conversation. Please try again.'));
+			}
 		}
 	}
 
 	// secret command: disconnects all the teams, aka removes them from msteams_team collection
 	async disconnectAll (context, activity, teamDetails, teamChannels, tenantId) {
-		const result = await context.turnState.get('cs_databaseAdapter').disconnectAll({
-			teamId: teamDetails.id,
-			tenantId: tenantId
-		});
+		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
+		if (!codeStreamUserId) {
+			await context.sendActivity(MessageFactory.text('Oops, we had a problem disconnecting all from CodeStream. Have you signed in before?'));
+		} else {
+			const result = await context.turnState.get('cs_databaseAdapter').disconnectAll({
+				teamId: teamDetails.id,
+				tenantId: tenantId
+			});
 
-		if (result && result.success) {
-			await context.sendActivity(MessageFactory.text('CodeStream has been disconnected from all conversations.'));
-		}
-		else {
-			await context.sendActivity(MessageFactory.text('Oops, we had a problem disconnecting CodeStream from all conversations. Please try again.'));
+			if (result && result.success) {
+				await context.sendActivity(MessageFactory.text('CodeStream has been disconnected from all conversations.'));
+			}
+			else {
+				await context.sendActivity(MessageFactory.text('Oops, we had a problem disconnecting CodeStream from all conversations. Please try again.'));
+			}
 		}
 	}
 
