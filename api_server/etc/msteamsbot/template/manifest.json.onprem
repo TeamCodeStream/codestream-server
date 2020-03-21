@@ -1,7 +1,7 @@
 {
     "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.5/MicrosoftTeams.schema.json",
     "manifestVersion": "1.5",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "id": "{{botId}}",
     "packageName": "codestream.codestreamOnPrem",
     "developer": {
@@ -27,7 +27,6 @@
             "botId": "{{botId}}",
             "scopes": [
                 "personal",
-                "groupchat",
                 "team"
             ],
             "commandLists": [
@@ -53,25 +52,6 @@
                 {
                     "scopes": [
                         "team"
-                    ],
-                    "commands": [
-                        {
-                            "title": "help",
-                            "description": "Get help using CodeStream"
-                        },
-                        {
-                            "title": "connect",
-                            "description": "Connect this channel to CodeStream"
-                        },
-                        {
-                            "title": "disconnect",
-                            "description": "Disconnect this channel from CodeStream"
-                        }
-                    ]
-                },
-                {
-                    "scopes": [
-                        "groupchat"
                     ],
                     "commands": [
                         {
