@@ -6,12 +6,10 @@ function usage {
 	local c=`basename $0`
 	echo "
 usage:
-	$c --git-status
-	$c --git-status-sub <module> <git-branch>
-	$c --git-checkout <git-branch>
-	$c --git-checkout-sub <module> <git-branch>
-	$c --git-pull-origin | --gpo
-	$c --git-pull-origin-sub | --gpos <module>
+	$c --status
+	$c --sub-status <module> <git-branch>
+	$c --checkout <git-branch>
+	$c --pull | --git-pull-origin | --gpo
 "
 	exit 1
 }
@@ -48,14 +46,14 @@ function git_checkout {
 }
 
 function git_pull_origin {
-	for r in $allRepos; do (echo -e "\n===== `basename $r` =====" && cd $r && git pull origin); done
+	for r in $allRepos; do (echo -e "\n===== `basename $r` =====" && cd $r && git pull origin && git submodule update); done
 }
 
 allRepos="$CS_API_TOP $CS_BROADCASTER_TOP $CS_MAILIN_TOP $CS_OUTBOUND_EMAIL_TOP"
 
 [ -z "$1" ] && usage
-[ "$1" == "--git-status" ] && { git_status; exit; }
-[ "$1" == "--git-status-sub" ] && { git_status_sub $2; exit; }
-[ "$1" == "--git-checkout" ] && { git_checkout $2; exit; }
-[ "$1" == "--git-pull-origin" -o "$1" == "--gpo" ] && { git_pull_origin; exit; }
+[ "$1" == "--status" ] && { git_status; exit; }
+[ "$1" == "--sub-status" ] && { git_status_sub $2; exit; }
+[ "$1" == "--checkout" ] && { git_checkout $2; exit; }
+[ "$1" == "--pull" -o "$1" == "--git-pull-origin" -o "$1" == "--gpo" ] && { git_pull_origin; exit; }
 usage
