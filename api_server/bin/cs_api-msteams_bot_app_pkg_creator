@@ -74,6 +74,10 @@ parser.add_argument('--use-keydb', action='store_true', default=False, help="get
 parser.add_argument('--distribute', action='store_true', default=False, help="copy zips to S3 using the AWS CLI")
 args = parser.parse_args()
 
+if args.env == "pd" and args.use_keydb:
+	args.env = "dev"
+	print("key-db secrets for 'pd' are stored as 'dev'. Resetting environment to 'dev'")
+
 ec = 0
 globalData['args'] = args
 if args.debug:
@@ -92,6 +96,8 @@ elif args.use_keydb:
 		exit(1)
 	# read environments & botIds from the secrets database
 	globString = f"teams-{args.env}.cfg" if args.env else "teams-*.cfg"
+	if args.debug:
+		print(f"globString = {globString}")
 	for envFile in glob.glob(f"{os.environ['KM_PKI']}/secrets/microsoft/{globString}"):
 		ec += makeAppPackageFromEnvFile(globalData, manifestTemplate, envFile)
 else:
