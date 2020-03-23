@@ -17,11 +17,14 @@ class SocketClusterClient {
 		if (this.config.ignoreHttps) {
 			this._log('NOTE: SocketCluster connection using http, will not be secure');
 		}
+		if (!this.config.strictSSL) {
+			this._log('NOTE: SocketCluster connection not using strict SSL, self-signed certificates will be allowed');
+		}
 		this.socket = SocketCluster.create({ 
 			hostname: this.config.host,
 			port: this.config.port,
 			multiplex: false,	// don't allow reusing connections
-			rejectUnauthorized: this.config.strictSSL,
+			wsOptions: { rejectUnauthorized: this.config.strictSSL },
 			secure: !this.config.ignoreHttps
 		});
 		(async () => {
