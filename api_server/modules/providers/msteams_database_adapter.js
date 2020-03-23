@@ -239,7 +239,6 @@ class MSTeamsDatabaseAdapter {
 				};
 			}
 
-
 			this.transforms.userUpdates = [];
 			const conversation = await this.data.msteams_conversations.getOneByQuery(
 				{
@@ -438,6 +437,17 @@ class MSTeamsDatabaseAdapter {
 		);
 
 		for (const user of users) {
+			let email = user.get('email');
+			if (!email) continue;
+
+			email = email.toLowerCase();
+			if (!conversationReference.teamMembers || 
+				!conversationReference.teamMembers.length || 
+				!conversationReference.teamMembers.find(_ => _.email && _.email.toLowerCase() === email)) {
+				// ignore any CS users that are not part of this MST team/channel
+				continue;
+			}
+			this.api.log(`updating user for userId=${user.id}...`);
 			const op = {
 				$set: {}
 			};

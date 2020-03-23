@@ -108,7 +108,8 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				// store this for possible error logging later
 				await context.turnState.set('cs_bot_text', text);
 				let teamDetails;
-				let teamChannels;
+				let teamChannels;				
+				let teamMembers;
 				const channelData = context.activity.channelData;
 				const team = channelData && channelData.team ? channelData.team : undefined;
 				const teamId = team && typeof (team.id) === 'string' ? team.id : undefined;
@@ -135,7 +136,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					teamChannels = await TeamsInfo.getTeamChannels(context);
 					// NOTE: "members" works without a teamId
 					// members = await TeamsInfo.getMembers(context);
-					// teamMembers = await TeamsInfo.getTeamMembers(context);
+					teamMembers = await TeamsInfo.getTeamMembers(context);
 				}
 
 				// if this looks like a guid without hypens (aka a signup token...)
@@ -226,7 +227,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					case 'connect':
 					case 'Connect':
 						if (teamId) {
-							await this.connect(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
+							await this.connect(context, context.activity, teamDetails, teamChannels, teamMembers, channelData.tenant.id);
 						}
 						else {
 							await context.sendActivity(TEAM_BOT_MESSAGE);
@@ -346,7 +347,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	}
 
 	// connects the channel to CodeStream
-	async connect (context, activity, teamDetails, teamChannels, tenantId) {
+	async connect (context, activity, teamDetails, teamChannels, teamMembers, tenantId) {
 		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
 		if (!codeStreamUserId) {
 			await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting to CodeStream. Have you signed in before?'));
@@ -356,7 +357,8 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				conversation: conversationReference,
 				team: teamDetails,
 				tenantId: tenantId,
-				teamChannels: teamChannels
+				teamChannels: teamChannels,
+				teamMembers: teamMembers
 			});
 			if (result) {
 				if (result.success) {
