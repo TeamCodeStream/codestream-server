@@ -358,7 +358,8 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				team: teamDetails,
 				tenantId: tenantId,
 				teamChannels: teamChannels,
-				teamMembers: teamMembers
+				teamMembers: teamMembers,
+				codeStreamUserId: codeStreamUserId
 			});
 			if (result) {
 				if (result.success) {

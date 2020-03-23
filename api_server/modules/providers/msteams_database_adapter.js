@@ -133,7 +133,7 @@ class MSTeamsDatabaseAdapter {
 						collection: this.data.users,
 						id: user.id
 					}).save(op)
-				];				 
+				];
 			}
 			return {
 				success: true
@@ -295,14 +295,14 @@ class MSTeamsDatabaseAdapter {
 
 			for (const team of teams) {
 				// if this team has been marked by a user issuing the `signin` command, exclude it
-				const isConnected = this.isTeamConnected(team, tenantId);
+				const isConnected = await this.isTeamConnected(team, tenantId);
 				if (!isConnected) {
 					this.api.log(`teamId=${team.id} is not connected`);
 					continue;
 				}
 
 				this.api.log(`updating users for CS team=${team.id} to tenantId=${tenantId}`);
-				this.updateUsers(team, conversationReference);
+				await this.updateUsers(team, conversationReference);
 			}
 			return {
 				success: true
@@ -428,7 +428,7 @@ class MSTeamsDatabaseAdapter {
 	async updateUsers (team, conversationReference) {
 		this.api.log(`updating users for teamId=${team.id}...`);
 		const users = await this.data.users.getByQuery({
-			teamIds: team.id,
+			teamIds: { $in: [team.id] },
 			isRegistered: true,
 			deactivated: false
 		}, {
@@ -437,15 +437,19 @@ class MSTeamsDatabaseAdapter {
 		);
 
 		for (const user of users) {
-			let email = user.get('email');
-			if (!email) continue;
+			// if this isn't the user that ran the command, do additional
+			// processing to assert they're in the CS team AND the MST team/channel
+			if (user.id !== conversationReference.codeStreamUserId) {
+				let email = user.get('email');
+				if (!email) continue;
 
-			email = email.toLowerCase();
-			if (!conversationReference.teamMembers || 
-				!conversationReference.teamMembers.length || 
-				!conversationReference.teamMembers.find(_ => _.email && _.email.toLowerCase() === email)) {
-				// ignore any CS users that are not part of this MST team/channel
-				continue;
+				email = email.toLowerCase();
+				if (!conversationReference.teamMembers ||
+					!conversationReference.teamMembers.length ||
+					!conversationReference.teamMembers.find(_ => _.email && _.email.toLowerCase() === email)) {
+					// ignore any CS users that are not part of this MST team/channel
+					continue;
+				}
 			}
 			this.api.log(`updating user for userId=${user.id}...`);
 			const op = {
