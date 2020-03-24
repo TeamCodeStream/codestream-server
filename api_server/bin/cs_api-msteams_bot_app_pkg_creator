@@ -22,7 +22,8 @@ def makeAppPackage(globalData, env, botId, manifestTemplate):
 	if not os.path.exists(outDir):
 		os.mkdir(outDir)
 	# create the manifest
-	manifest = su.expandTemplate(manifestTemplate, {'env': env if env != "prod" else "", 'botId': botId})
+	envString = "" if env == "prod" else f"-{env}"
+	manifest = su.expandTemplate(manifestTemplate, {'env': envString, 'botId': botId})
 	manifestData = json.loads(manifest)
 	outFile = open(f"{outDir}/manifest.json", "w")
 	outFile.write(manifest)
@@ -31,7 +32,6 @@ def makeAppPackage(globalData, env, botId, manifestTemplate):
 	for f in ['color.png', 'outline.png']:
 		shutil.copyfile(f"{globalData['templateDir']}/{f}", f"{outDir}/{f}")
 	# create the zip file named based on env and version
-	envString = "" if env == "prod" else f"-{env}"
 	zipName = f"codestream-msteamsbot{envString}-{manifestData['version']}.zip"
 	su.shellExecNoBuffer(f"zip -q ../{zipName} *", workingDir=outDir, abortOnFail=True, printCmd=True)
 	# distribute the zip file via S3
