@@ -98,15 +98,16 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		// });
 
 		this.onMessage(async (context, next) => {
-			const didBotWelcomeUser = await this.getState(context, STATE_PROPERTY_WELCOMED_USER, false);
-			// this needs to be run before we access the text as it 
-			// removes the <at>CodeStream</at> part of 
-			TurnContext.removeRecipientMention(context.activity);
-			const text = context.activity.text.trim();
-
 			try {
+				// this needs to be run before we access the text as it 
+				// removes the <at>CodeStream</at> part of 
+				TurnContext.removeRecipientMention(context.activity);
+				const text = context.activity.text.trim();
+
 				// store this for possible error logging later
 				await context.turnState.set('cs_bot_text', text);
+				const didBotWelcomeUser = await this.getState(context, STATE_PROPERTY_WELCOMED_USER, false);
+			
 				let teamDetails;
 				let teamChannels;				
 				let teamMembers;
@@ -157,7 +158,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 						// await context.sendActivity(replyActivity);
 
 						await this.setState(context, STATE_PROPERTY_CODESTREAM_USER_ID, result.codeStreamUserId);
-						await context.sendActivity('Ok, now one more step. Mention the CodeStream bot with the `connect` command in any team channel where you\'d like to use CodeStream.');
+						await context.sendActivity('Next step, go to any channel where you\'d like to use CodeStream, type `@`, select `Get bots` and then select the CodeStream bot. Once you\'ve added the bot, mention it with the `connect` command.');
 					}
 					else {
 						await context.sendActivity('Oops, we hit a snag trying to connect to CodeStream. Please try signing in again!');
@@ -175,7 +176,12 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 						await this.debug(context);
 						break;
 					case 'status':
-						await this.status(context);
+						if (teamId) {
+							await this.status(context);
+						}
+						else {
+							await this.statusPersonal(context);
+						}
 						break;
 					case 'uninstall':
 						await this.uninstall(context);
@@ -428,7 +434,6 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
 		if (!codeStreamUserId) {
 			await context.sendActivity(MessageFactory.text('Oops, we had a problem signing you out of CodeStream. Have you signed in before?'));
-
 		} else {
 			const result = await context.turnState.get('cs_databaseAdapter').signout({
 				tenantId: context.activity.channelData.tenant.id,
@@ -451,13 +456,15 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 
 	// sends out some debugging info
 	async debug (context) {
+		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
 		const tenantId = context.activity.channelData.tenant.id;
 		const serverDebug = await context.turnState.get('cs_databaseAdapter').debug({
 			tenantId: tenantId
 		});
 		const debug = {
 			api: this.publicApiUrl,
-			tenantId: tenantId
+			tenantId: tenantId,
+			codeStreamUserId: codeStreamUserId
 		};
 		await context.sendActivity(MessageFactory.text(JSON.stringify({ ...serverDebug, ...debug }, null, 4)));
 	}
@@ -512,14 +519,76 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		}
 	}
 
+	async statusPersonal (context) {
+		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
+		const tenantId = context.activity.channelData.tenant.id;
+		const results = await context.turnState.get('cs_databaseAdapter').status({
+			tenantId: tenantId
+		});
+		if (results && results.teams) {
+			const facts = results.teams.map(_ => {
+				return {
+					title: _.get('name'),
+					value: 'connected'
+				};
+			});
+			const payload = {
+				type: 'AdaptiveCard',
+				body: [
+					{
+						type: 'TextBlock',
+						size: 'Medium',
+						weight: 'Bolder',
+						text: 'CodeStream Teams'
+					},
+					{
+						type: 'ColumnSet',
+						columns: [
+							{
+								type: 'Column',
+								items: [
+									{
+										type: 'FactSet',
+										facts: facts
+									}
+								],
+								width: 'stretch'
+							}
+						]
+					},
+					{
+						type: 'TextBlock',
+						size: 'Medium',
+						weight: 'Bolder',
+						text: `Your CodeStream userId: ${codeStreamUserId}`
+					},
+				],
+				'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
+				version: '1.0'
+			};
+
+			await context.sendActivity({
+				attachments: [CardFactory.adaptiveCard(payload)]
+			});
+		}
+		else {
+			await context.sendActivity(MessageFactory.text('Status Unknown'));
+		}
+	}
+
 	// uninstalls the app from the CS team based on the tenantId
 	// will only work if there is 1 CS team attached
 	async uninstall (context) {
-		const result = await context.turnState.get('cs_databaseAdapter').uninstall({
-			tenantId: context.activity.channelData.tenant.id
-		});
+		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
+		if (!codeStreamUserId) {
+			await context.sendActivity(MessageFactory.text('Oops, we had a problem uninstalling. Have you signed in before?'));
+		} else {
+			const result = await context.turnState.get('cs_databaseAdapter').uninstall({
+				tenantId: context.activity.channelData.tenant.id
+			});
 
-		await context.sendActivity(MessageFactory.text(`Uninstall ${result ? 'succeeded' : 'failed'}`));
+			await context.sendActivity(MessageFactory.text(`Uninstall ${result ? 'succeeded' : 'failed'}`));
+		}
 	}
 
 	// returns a way for a user to signin if their team is not connected

@@ -5,6 +5,8 @@
 
 'use strict';
 
+/* eslint no-empty: 0 */
+
 const { BotFrameworkAdapter } = require('botbuilder');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 
@@ -33,13 +35,17 @@ const sendTelemetry = async function (context, errorString, options = {}) {
 	if (!codeStreamUserId) {
 		// if not, try to get it from the state object (this would be a user
 		// that has auth'd with CS from the bot)
-		const userState = await context.turnState.get('cs_stateAdapter');
-		if (userState) {
-			const property = userState.createProperty('codestreamUserId');
-			if (property) {
-				codeStreamUserId = await property.get(context);
+		try {
+			const userState = await context.turnState.get('cs_stateAdapter');
+			if (userState) {
+				const property = userState.createProperty('codestreamUserId');
+				if (property) {
+					// this can throw if there's a db issue
+					codeStreamUserId = await property.get(context);
+				}
 			}
 		}
+		catch (ex) {}
 	}
 
 	let trackOptions = {};
@@ -100,6 +106,16 @@ MSTeamsBotFrameworkAdapter.onTurnError = async (context, error) => {
 	let logger;
 	try {
 		if (error) {
+			let originalError;
+			let isApiError = false;
+			let errorAsString;
+			//check if the error is an api_server error
+			if (error.code && error.description) {
+				isApiError = true;
+				originalError = error;
+				// replace the error with one in a format we're expecting
+				error = new Error(`${error.code} ${error.description}`);
+			}
 			logger = await context.turnState.get('cs_logger');
 			let commandText = await context.turnState.get('cs_bot_text');
 			// only show commands that we know about, just for a bit of user privacy
@@ -110,22 +126,27 @@ MSTeamsBotFrameworkAdapter.onTurnError = async (context, error) => {
 				commandText = 'unknown';
 			}
 
-			let errorAsString = error.toString();
+			errorAsString = error.toString();
 			if (errorAsString && errorAsString.indexOf('Error: ') === 0) {
 				errorAsString = errorAsString.substring(7);
 			}
-			let errorMessage;
+			let userErrorMessage;
 			const requestId = await context.turnState.get('cs_requestId');
 			if (requestId) {
-				errorMessage = `${errorAsString}. requestId=${requestId}`;
+				userErrorMessage = `${errorAsString}. requestId=${requestId}`;
 			}
 			
 			if (logger) {
 				// log it internally
-				logger.error(errorAsString);
+				if (isApiError && originalError) {
+					logger.error(JSON.stringify(originalError));
+				}
+				else {
+					logger.error(errorAsString);
+				}
 			}
 			// send back the message to the user
-			await context.sendActivity(`Oops, the bot encountered an issue. ${errorMessage ? `\n\n${errorMessage}` : ''}`);
+			await context.sendActivity(`Oops, the bot encountered an issue. ${userErrorMessage ? `\n\n${userErrorMessage}` : ''}`);
 			try {
 				// try to send telemetry about this error
 				await sendTelemetry(context, errorAsString, { 
