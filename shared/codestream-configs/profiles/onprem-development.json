@@ -49,6 +49,14 @@
 				"secrets": {
 					"_loadSecretsFile": "codestream/local-bcast-secrets.cfg"
 				}
+			},
+			"pi": {
+				"assetEnvironment": "prod",
+				"logger": {},
+				"runTimeEnvironment": "pi",
+				"secrets": {
+					"_loadSecretsFile": "codestream/ci-bcast-secrets.cfg"
+				}
 			}
 		}
 	},
