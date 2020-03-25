@@ -4,6 +4,7 @@
 'use strict';
 
 const HTTPS = require('https');
+const HTTP = require('http');
 const FS = require('fs');
 const SocketClusterServer = require('socketcluster-server');
 const UUID = require('uuid/v4');
@@ -56,13 +57,18 @@ class BroadcasterServer {
 
 	// start listening for messages
 	async startListening () {
+		const { ignoreHttps } = this.config.https;
 		const socketClusterOptions = {
 			authKey: this.config.secrets.auth
 		};
-		const options = this.makeHttpsOptions();
-		const httpsServer = HTTPS.createServer(options);
+		const options = ignoreHttps ? {} : this.makeHttpsOptions();
+		const protocol = ignoreHttps ? HTTP : HTTPS;
+		const httpsServer = protocol.createServer(options);
 		this.scServer = SocketClusterServer.attach(httpsServer, socketClusterOptions);
 
+		if (ignoreHttps) {
+			this.log('Broadcaster not using SSL');
+		}
 		this.log(`Broadcaster listening on port ${this.config.https.port}`);
 		httpsServer.listen(this.config.https.port);
 
