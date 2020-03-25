@@ -23,6 +23,7 @@ if (CfgFileName) {
 		ClusterCfg = {
 			host: BroadcastCfg.host,
 			port: BroadcastCfg.port,
+			ignoreHttps: BroadcastCfg.ignoreHttps,
 			authKey: BroadcastCfg.secrets.api,
 			strictSSL 
 		};
