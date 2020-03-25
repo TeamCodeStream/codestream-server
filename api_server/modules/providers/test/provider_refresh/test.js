@@ -19,7 +19,6 @@ const PROVIDERS = [
 	'gitlab',
 	'azuredevops',
 	'msteams'
-	//'glip'
 ];
 
 const UNSUPPORTED_PROVIDERS = [

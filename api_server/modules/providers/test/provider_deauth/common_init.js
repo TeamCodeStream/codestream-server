@@ -106,18 +106,21 @@ class CommonInit {
 		this.data = {
 			teamId: this.team.id
 		};
-		let key = `providerInfo.${this.team.id}.${this.provider}`;
+		let userKey = `providerInfo.${this.provider}`;
+		let teamKey = `providerInfo.${this.team.id}.${this.provider}`;
 		if (this.testHost) {
 			const host = this.testHost.replace(/\./g, '*');
 			this.data.host = host;
-			key += `.hosts.${host}`;
+			userKey += `.hosts.${host}`;
+			teamKey += `.hosts.${host}`;
 		}
 		this.message = this.expectedResponse = {
 			user: {
 				_id: this.currentUser.user.id, 	// DEPRECATE ME
 				id: this.currentUser.user.id,
 				$unset: {
-					[key]: true
+					[userKey]: true,
+					[teamKey]: true
 				},
 				$set: {
 					version: 5,

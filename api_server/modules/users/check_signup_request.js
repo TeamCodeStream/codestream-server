@@ -86,9 +86,6 @@ class CheckSignupRequest extends RestfulRequest {
 		else if (!this.user.get('isRegistered')) {
 			throw this.errorHandler.error('noLoginUnregistered');
 		}
-		else if ((this.user.get('teamIds') || []).length === 0) {
-			throw this.errorHandler.error('userNotOnTeam');
-		}
 	}
 
 	// return login data (initial data, access token) for this user, so the IDE can jump in immediately

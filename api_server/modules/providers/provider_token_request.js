@@ -156,7 +156,9 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.teamId = this.tokenPayload.teamId;
 		this.providerAccess = this.tokenPayload.access;
 		this.sharing = this.tokenPayload.sm;
-		this.noAllowSignup = !this.tokenPayload.suok;
+		this.noAllowSignup = !this.tokenPayload.suok && !this.serviceAuth.supportsSignup();
+		this.inviteCode = this.tokenPayload.ic;
+		this.noSignup = this.tokenPayload.nosu;
 
 		if (this.serviceAuth.usesOauth1()) {
 			let secretPayload;
@@ -348,9 +350,8 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.connector = new ProviderIdentityConnector({
 			request: this,
 			provider: this.provider,
-			okToCreateUser: this.userId === 'anon',
-			okToCreateTeam: !this.noAllowSignup && this.userId === 'anon',
-			okToFindExistingUserByEmail: !this.noAllowSignup,
+			okToCreateUser: this.userId === 'anon' && !this.noSignup,
+			inviteCode: this.inviteCode,
 			tokenData: this.tokenData
 		});
 		await this.connector.connectIdentity(userIdentity);

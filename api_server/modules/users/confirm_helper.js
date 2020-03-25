@@ -125,11 +125,14 @@ class ConfirmHelper {
 			op.$set.passwordHash = this.passwordHash;
 		}
 
-		['username', 'fullName', 'timeZone'].forEach(attribute => {
+		['email', 'username', 'fullName', 'timeZone'].forEach(attribute => {
 			if (this.data[attribute]) {
 				op.$set[attribute] = this.data[attribute];
 			}
 		});
+		if (this.data.email) {
+			op.$set.searchableEmail = this.data.email.toLowerCase();
+		}
 
 		if ((this.user.get('teamIds') || []).length > 0) {
 			if (!this.user.get('joinMethod')) {

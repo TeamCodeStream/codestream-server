@@ -19,7 +19,6 @@ const PROVIDERS = [
 	'azuredevops',
 	'slack',
 	'msteams'
-	//'glip'
 ];
 
 const ENTERPRISE_PROVIDERS = {

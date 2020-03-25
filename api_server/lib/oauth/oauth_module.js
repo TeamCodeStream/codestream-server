@@ -116,6 +116,11 @@ class OAuthModule extends APIServerModule {
 		return !!this.oauthConfig.tokenFromFragment;
 	}
 
+	// does this provider support signup?
+	supportsSignup () {
+		return this.oauthConfig.supportsSignup;
+	}
+	
 	// extract the access token from a fragment sent to the browser
 	extractTokenFromFragment (options) {
 		// special allowance for token in the fragment, which we can't access,

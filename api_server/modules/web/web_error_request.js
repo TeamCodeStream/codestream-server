@@ -38,6 +38,11 @@ class WebErrorRequest extends WebRequestBase {
 				body: `Unfortunately, at this time, you can only be a member of one ${connectedTeam} team on CodeStream. <a href="mailto:support@codestream.com">Contact support</a> and we'll let you know as soon as support for multiple ${connectedTeam} teams is ready.`
 			};
 
+		case 'USRC-1020':
+			return {
+				title: 'Invitation conflict.',
+				body: '<a href="mailto:support@codestream.com">Contact support</a>.'
+			};
 		case 'PRVD-1005':
 			return {
 				title: 'Account Not Found',

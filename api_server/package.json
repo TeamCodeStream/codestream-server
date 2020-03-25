@@ -3,6 +3,7 @@
   "version": "6.4.1",
   "dependencies": {
     "@microsoft/microsoft-graph-client": "2.0.0",
+    "@octokit/rest": "17.1.0",
     "@slack/client": "5.0.2",
     "@slack/web-api": "5.7.0",
     "amqplib": "0.5.5",

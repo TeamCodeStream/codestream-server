@@ -26,18 +26,8 @@ class IdentityMatchTest extends Aggregation(CodeStreamAPITest, IdentityMatchComm
 		const { user } = data;
 		const expectedProviderIdentities = [ `${this.provider}::${this.providerUserId}` ];
 		Assert.deepEqual(user.providerIdentities, expectedProviderIdentities, 'providerIdentities not connect');
-		const teamId = this.signupResponse.teams[0].id;
-		const providerInfo = user.providerInfo[teamId][this.provider];
+		const providerInfo = user.providerInfo[this.provider];
 		Assert.equal(providerInfo.userId, this.providerUserId, 'provider userId does not match expected userId');
-		Assert.equal(providerInfo.teamId, this.providerTeamId, 'provider teamId does not match expected teamId');
-
-		// verify that the correct provider info made its way into the team object created
-		const expectedTeamProviderInfo = {
-			[this.provider]: {
-				teamId: this.providerTeamId
-			}
-		};
-		Assert.deepEqual(this.signupResponse.teams[0].providerInfo, expectedTeamProviderInfo, 'team providerInfo not correct');
 	}
 }
 

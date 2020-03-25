@@ -46,42 +46,63 @@ class ProviderDeauthRequest extends RestfulRequest {
 		const teamId = this.request.body.teamId.toLowerCase();
 		const provider = this.request.params.provider.toLowerCase();
 		let { host, subId } = this.request.body;
-		let key = `providerInfo.${teamId}.${provider}`;
+		let userKey = `providerInfo.${provider}`;
+		let teamKey = `providerInfo.${teamId}.${provider}`;
 		if (host) {
 			host = host.toLowerCase().replace(/\./g, '*');
-			key += `.hosts.${host}`;
+			userKey += `.hosts.${host}`;
+			teamKey += `.hosts.${host}`;
 		}
 		if (subId) {
-			key += `.multiple.${subId}`;
+			userKey += `.multiple.${subId}`;
+			teamKey += `.multiple.${subId}`;
 		}
-		const existingProviderInfo = this.user.getProviderInfo(provider, teamId);
+
+		const existingUserProviderInfo = this.user.getProviderInfo(provider);
 		if (
 			!host &&
-			existingProviderInfo &&
-			existingProviderInfo.hosts &&
-			Object.keys(existingProviderInfo.hosts).length > 0
+			existingUserProviderInfo &&
+			existingUserProviderInfo.hosts &&
+			Object.keys(existingUserProviderInfo.hosts).length > 0
 		) {
 			// if we have enterprise hosts for this provider, don't stomp on them
-			key += '.accessToken';
+			userKey += '.accessToken';
 		}
+
+		const existingTeamProviderInfo = this.user.getProviderInfo(provider, teamId);
+		if (
+			!host &&
+			existingTeamProviderInfo &&
+			existingTeamProviderInfo.hosts &&
+			Object.keys(existingTeamProviderInfo.hosts).length > 0
+		) {
+			// if we have enterprise hosts for this provider, don't stomp on them
+			teamKey += '.accessToken';
+		}
+
 		const op = {
 			$unset: {
-				[key]: true
+				[userKey]: true,
+				[teamKey]: true
 			},
 			$set: {
 				modifiedAt: Date.now()
 			}
 		};
+
 		// this is really only for "sharing model" chat providers, which will provide a subId
-		if (subId && existingProviderInfo && existingProviderInfo.multiple) {
-			const serviceAuth = this.api.services[`${provider}Auth`];
-			if (serviceAuth) {
-				const providerUserId = await serviceAuth.getUserId(existingProviderInfo.multiple[subId]);
-				if (providerUserId) {
-					const identity = `${provider}::${providerUserId}`;
-					if ((this.user.get('providerIdentities') || []).find(id => id === identity)) {
-						op.$pull = { providerIdentities: identity };
-					}
+		const serviceAuth = this.api.services[`${provider}Auth`];
+		if (
+			serviceAuth &&
+			subId &&
+			existingTeamProviderInfo &&
+			existingTeamProviderInfo.multiple
+		) {
+			const providerUserId = await serviceAuth.getUserId(existingTeamProviderInfo.multiple[subId]);
+			if (providerUserId) {
+				const identity = `${provider}::${providerUserId}`;
+				if ((this.user.get('providerIdentities') || []).find(id => id === identity)) {
+					op.$pull = { providerIdentities: identity };
 				}
 			}
 		}
