@@ -7,9 +7,11 @@
 function parseUrl(url) {
 	let parsed = url.match(/^http(s)?:\/\/([\w\d-.]+)(:(\d+))?\/?/);
 	let protocolPort = parsed[1] ? '443' : '80';
+	let secure = !!parsed[1];
 	return {
 		host: parsed[2],
-		port: parseInt(parsed[4] || protocolPort, 10)
+		port: parseInt(parsed[4] || protocolPort, 10),
+		secure
 	};
 }
 

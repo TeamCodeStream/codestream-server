@@ -7,6 +7,7 @@ const FS = require('fs');
 const URL = require('url');
 const MailParser = require('mailparser').MailParser;
 const Path = require('path');
+const HTTP = require('http');
 const HTTPS = require('https');
 const HtmlEntities = require('html-entities').AllHtmlEntities;
 const { callbackWrap } = require(process.env.CS_MAILIN_TOP + '/server_utils/await_utils');
@@ -482,7 +483,9 @@ class FileHandler {
 		this.log(`Sending email (${data.mailFile}) from ${JSON.stringify(data.from)} to ${JSON.stringify(data.to)} to API server...`);
 		const host = this.inboundEmailServer.config.api.host;
 		const port = this.inboundEmailServer.config.api.port;
-		const url = `https://${host}:${port}`;
+		const protocol = this.inboundEmailServer.config.api.secure ? 'https' : 'http';
+		const netClient = this.inboundEmailServer.config.api.secure ? HTTPS : HTTP;
+		const url = `${protocol}://${host}:${port}`;
 		const urlObject = URL.parse(url);
 		const payload = JSON.stringify(data);
 		const headers = {
@@ -497,11 +500,11 @@ class FileHandler {
 			headers: headers
 		};
 		return new Promise((resolve, reject) => {
-			let request = HTTPS.request(
+			let request = netClient.request(
 				requestOptions,
 				response => {
 					if (response.statusCode < 200 || response.statusCode >= 300) {
-						return reject(`https request to API server failed with status code: ${response.statusCode}`);
+						return reject(`http(s) request to API server failed with status code: ${response.statusCode}`);
 					}
 					else {
 						resolve();
@@ -509,7 +512,7 @@ class FileHandler {
 				}
 			);
 			request.on('error', function(error) {
-				return reject(`https request to ${urlObject.hostname}:${urlObject.port} failed: ${error}`);
+				return reject(`http(s) request to ${urlObject.hostname}:${urlObject.port} failed: ${error}`);
 			});
 			request.write(payload);
 			request.end();
