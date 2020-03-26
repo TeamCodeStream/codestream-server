@@ -42,7 +42,8 @@ export class PostFlow {
     }
 
     async reply(reply: ReplyBase) {
-        reply.text = this.state.buildText(reply.text);            
+        const mentionedUserIds = this.state.getMentionedUsers([reply.text]);
+        reply.text = this.state.buildText(reply.text);
 
         if (reply instanceof Reply) {
             //let codemarkWithMarkersPost = codemarkWithMarker.result.post;
@@ -52,8 +53,9 @@ export class PostFlow {
                 codemarkId: this.codemark ? this.codemark.id : undefined,
                 reviewId: this.review ? this.review.id : undefined,
                 parentPostId: this.post ? this.post.id : undefined,
-                mentionedUserIds: this.state.otherUser ? [this.state.otherUser.id] : undefined,
+                mentionedUserIds: mentionedUserIds,
             }, { additionalHeaders: { 'Authorization': `Bearer ${this.accessToken}` } });
+           
             return new PostFlow(this.restClient, this.state, replyResult.result);
         }
         else if (reply instanceof CodemarkReply) {
@@ -96,7 +98,7 @@ This should not be red <a href="#">This should not be clickable</a>
                 text: reply.text,
                 parentPostId: this.post ? this.post.id : undefined,
                 reviewId: this.review ? this.review.id : undefined,
-                mentionedUserIds: this.state.otherUser ? [this.state.otherUser.id] : undefined,
+                mentionedUserIds: mentionedUserIds,
                 codemark: {
                     type: 'comment',
                     text: reply.text,
@@ -191,6 +193,7 @@ export class LoggedInFlow {
     }
 
     async createCodemarkWithoutMarkers(text: string = 'codemark without markers', type: string = 'comment') {
+        const mentionedUserIds = this.state.getMentionedUsers([text]);
         text = this.state.buildText(text);
         let codemarkWithoutMarkers: rm.IRestResponse<PostResult> = await this.restClient.post<PostResult>('/posts', {
             streamId: this.state.streamId,
@@ -198,18 +201,22 @@ export class LoggedInFlow {
                 type: type,
                 text: text,
             },
+            mentionedUserIds: mentionedUserIds
         }, {
             additionalHeaders: {
                 'Authorization': `Bearer ${this.accessToken}`
             }
         });
+        console.log(JSON.stringify(codemarkWithoutMarkers, null, 4));
         return new PostFlow(this.restClient, this.state, codemarkWithoutMarkers.result);
     }
 
     async createCodemarkWithMarker(text: string = 'codemark with marker', type: string = 'comment', code: string = '') {
-        text = this.state.buildText(text);    
-    let codemarkWithMarker: rm.IRestResponse<PostResult> = await this.restClient.post<PostResult>('/posts', {
+        const mentionedUserIds = this.state.getMentionedUsers([text]);
+        text = this.state.buildText(text);
+        let codemarkWithMarker: rm.IRestResponse<PostResult> = await this.restClient.post<PostResult>('/posts', {
             streamId: this.state.streamId,
+            mentionedUserIds: mentionedUserIds,
             codemark: {
                 type: type,
                 text: text,
@@ -243,9 +250,11 @@ export class LoggedInFlow {
     }
 
     async createCodemarkWithMarkers(text: string = 'codemark with markers', type: string = 'comment', code: string = '//comment') {
-        text = this.state.buildText(text);   
-    let codemarkWithMarkers: rm.IRestResponse<PostResult> = await this.restClient.post<PostResult>('/posts', {
+        const mentionedUserIds = this.state.getMentionedUsers([text]);
+        text = this.state.buildText(text);
+        let codemarkWithMarkers: rm.IRestResponse<PostResult> = await this.restClient.post<PostResult>('/posts', {
             streamId: this.state.streamId,
+            mentionedUserIds: mentionedUserIds,
             codemark: {
                 type: type,
                 text: text,
@@ -292,6 +301,7 @@ export class LoggedInFlow {
         reviewers: string[] = ['{{atOtherUser}}'],
         tags: string[] = [],
     ) {
+        const mentionedUserIds = this.state.getMentionedUsers([title, text]);
         title = this.state.buildText(title);
         text = this.state.buildText(text);
         if (reviewers && reviewers.length == 1 && reviewers[0] === '{{atOtherUser}}' && this.state.otherUser) {
@@ -299,6 +309,7 @@ export class LoggedInFlow {
         }
         let reviewNoTags: rm.IRestResponse<PostResult> = await this.restClient.post<PostResult>('/posts', {
             streamId: this.state.streamId,
+            mentionedUserIds: mentionedUserIds,
             review: {
                 streamId: this.state.streamId,
                 title: title,

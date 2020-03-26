@@ -14,7 +14,7 @@ export class State {
         id: string;
         username: string;
     };
-    
+
     // function to replace text tokens
     buildText(text: string) {
         if (!text)
@@ -26,5 +26,21 @@ export class State {
             .replace(/{{atUser}}/g, `@${this.loginResult.user.username}`)
             .replace(/{{atOtherUser}}/g, this.otherUser ? `@${this.otherUser.username}` : '<NA>');
         return text;
+    }
+
+    getMentionedUsers(textBlocks: string[]) {
+        let mentionedUserIds = [];
+        let found = {};
+        for (let textBlock of textBlocks) {
+            if (textBlock.indexOf('{{atUser}}') > -1 && !found[this.loginResult.user.id]) {
+                mentionedUserIds.push(this.loginResult.user.id);
+                found[this.loginResult.user.id] = true;
+            }
+            if (textBlock.indexOf('{{atOtherUser}}') > -1 && !found[this.otherUser.id]) {
+                mentionedUserIds.push(this.otherUser.id);
+                found[this.otherUser.id] = true;
+            }
+        }
+        return mentionedUserIds;
     }
 }

@@ -59,56 +59,57 @@ import * as fs from 'fs';
                 'codemark. without markers {{atUser}} {{atOtherUser}}'
             ),
 
-            // async () => flow.createCodemarkWithMarker(
-            //     'codemark. single marker'
-            // ),
+            async () => flow.createCodemarkWithMarker(
+                'codemark. single marker'
+            ),
 
-            // async () => (await flow.createCodemarkWithMarker('codemark. with single marker 2'))
-            //     .reply(new Reply('reply. codemark. with single marker 2 {{atUser}}')),
+            async () => (await flow.createCodemarkWithMarker('codemark. with single marker 2'))
+                .reply(new Reply('reply. codemark. with single marker 2 {{atUser}}')),
 
-            // async () => (await flow.createCodemarkWithMarkers('codemark. multi markers'))
-            //     .reply(new Reply('reply. codemark. multi markers')),
+            async () => (await flow.createCodemarkWithMarkers('codemark. multi markers'))
+                .reply(new Reply('reply. codemark. multi markers {{atUser}} {{atOtherUser}}')),
 
-            // async () => (await flow.createReview(
-            //     'review. title 1 (no reviewers, no tags)',
-            //     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper neque at erat aliquam luctus. Donec a viverra sapien, a facilisis arcu. Aenean eu metus vel leo suscipit suscipit a a nibh. ',
-            //     null
-            // )),
+            async () => (await flow.createReview(
+                'review. title 1 (no reviewers, no tags)',
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper neque at erat aliquam luctus. Donec a viverra sapien, a facilisis arcu. Aenean eu metus vel leo suscipit suscipit a a nibh. ',
+                null
+            )),
 
-            // async () => (await flow.createReview(
-            //     'review. title 2 (no reviewers, 2 tags. will have /me message reply)',
-            //     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper neque at erat aliquam luctus. Donec a viverra sapien, a facilisis arcu. Aenean eu metus vel leo suscipit suscipit a a nibh. ',
-            //     null,
-            //     ['_green', '_red']
-            // )).reply(new Reply('/me approved this review')),
+            async () => (await flow.createReview(
+                'review. title 2 (no reviewers, 2 tags. will have /me message reply)',
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper neque at erat aliquam luctus. Donec a viverra sapien, a facilisis arcu. Aenean eu metus vel leo suscipit suscipit a a nibh. ',
+                null,
+                ['_green', '_red']
+            )).reply(new Reply('/me approved this review')),
             
-            // async () => {
-            //     const review = await flow.createReview(
-            //         'review. title 2.5 (reviewers, tags, multi-marker)',
-            //         'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper neque at erat aliquam luctus. Donec a viverra sapien, a facilisis arcu. Aenean eu metus vel leo suscipit suscipit a a nibh.',
-            //         ['{{atOtherUser}}'],
-            //         ['_blue', '_red', '_green', '_yellow']
-            //     )
-            //     const reply2 = await review.reply(new CodemarkReply('codemark as reply. review. title 2.5. {{atOtherUser}} {{atUser}} (first reply, 1st codemark)', 3));
-            //     reply2.reply(new Reply('reply. codemark. review. title 2.5. {{atOtherUser}} {{atUser}} (second reply, 1st codemark reply)'));
-            // },
+            async () => {
+                const review = await flow.createReview(
+                    'review. title 2.5 (reviewers, tags, multi-marker)',
+                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper neque at erat aliquam luctus. Donec a viverra sapien, a facilisis arcu. Aenean eu metus vel leo suscipit suscipit a a nibh.',
+                    ['{{atOtherUser}}'],
+                    ['_blue', '_red', '_green', '_yellow']
+                )
+                const reply2 = await review.reply(new CodemarkReply('codemark as reply. review. title 2.5. {{atOtherUser}} {{atUser}} (first reply, 1st codemark)', 3));
+                await review.reply(new Reply("/me added {{atOtherUser}} {{atUser}} to this review"));
+                reply2.reply(new Reply('reply. codemark. review. title 2.5. {{atOtherUser}} {{atUser}} (second reply, 1st codemark reply)'));
+            },
 
-            // async () => {
-            //     const review = await flow.createReview(
-            //         'review. title 3 (reviewers, tags)',
-            //         'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper neque at erat aliquam luctus. Donec a viverra sapien, a facilisis arcu. Aenean eu metus vel leo suscipit suscipit a a nibh.',
-            //         ['{{atOtherUser}}'],
-            //         ['_blue', '_red', '_green', '_yellow']
-            //     )
-            //     const reply0 = await review.reply(new Reply('reply. review. title 3. {{atOtherUser}} {{atUser}} (first reply)'));
-            //     await reply0.reply(new Reply('replying to reply. title 3. {{atOtherUser}} {{atUser}} (second reply)'));
+            async () => {
+                const review = await flow.createReview(
+                    'review. title 3 (reviewers, tags)',
+                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper neque at erat aliquam luctus. Donec a viverra sapien, a facilisis arcu. Aenean eu metus vel leo suscipit suscipit a a nibh.',
+                    ['{{atOtherUser}}'],
+                    ['_blue', '_red', '_green', '_yellow']
+                )
+                const reply0 = await review.reply(new Reply('reply. review. title 3. {{atOtherUser}} {{atUser}} (first reply)'));
+                await reply0.reply(new Reply('replying to reply. title 3. {{atOtherUser}} {{atUser}} (second reply)'));
 
-            //     await review.reply(new Reply('reply. review. title 3. 1 {{atOtherUser}} {{atUser}} (third reply)'));
-            //     await review.reply(new Reply('reply. review. title 3. 2 {{atOtherUser}} {{atUser}} (fourth reply)'));
+                await review.reply(new Reply('reply. review. title 3. 1 {{atOtherUser}} {{atUser}} (third reply)'));
+                await review.reply(new Reply('reply. review. title 3. 2 {{atOtherUser}} {{atUser}} (fourth reply)'));
 
-            //     const reply2 = await review.reply(new CodemarkReply('codemark as reply. review. title 3. {{atOtherUser}} {{atUser}} (fifth reply, 1st codemark)'));
-            //     reply2.reply(new Reply('reply. codemark. review. title 3. {{atOtherUser}} {{atUser}} (sixth reply, 1st codemark reply)'));
-            // }
+                const reply2 = await review.reply(new CodemarkReply('codemark as reply. review. title 3. {{atOtherUser}} {{atUser}} (fifth reply, 1st codemark)'));
+                reply2.reply(new Reply('reply. codemark. review. title 3. {{atOtherUser}} {{atUser}} (sixth reply, 1st codemark reply)'));
+            }
         ];
 
         log.info(`There are ${operations.length} operations:`);
