@@ -13,7 +13,9 @@ describe('modules', () => {
 	/*
 	require('./analytics/test/test.js');
 	require('./broadcaster/test/test.js');
+	*/
 	require('./users/test/test.js');
+	/*
 	require('./providers/test/test.js');
 	require('./repos/test/test.js');
 	require('./companies/test/test.js');
