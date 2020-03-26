@@ -216,6 +216,32 @@ h3 {
 	padding-right: 10px;
 }
 
+.btn-with-icon {
+	text-align: left;
+	vertical-align: middle;
+}
+
+.btn-with-icon .icon {
+    margin: 0px 5px 5px 5px;
+	transform: scale(1.6);
+	vertical-align: middle;
+}
+
+.btn-with-icon .icon .octicon {
+	fill:#fff;
+}
+
+.btn-with-icon .copy {
+    padding: 0px 10px;
+    flex-basis: 100%;
+    font-size: 14px !important;
+    font-weight: 500;
+    text-align: left;
+    white-space: normal;
+	line-height: 1.42857143;
+	vertical-align: middle
+}
+
 input.bg-dark:-webkit-autofill {
 	-webkit-box-shadow: 0 0 0 50px #1e1e1e inset; /* Change the color to your own background color */
 	-webkit-text-fill-color: rgb(220, 223, 228);

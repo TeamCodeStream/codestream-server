@@ -3,6 +3,7 @@
 const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 const WebErrors = require('./errors');
 const Handlebars = require('handlebars');
+const Icons = require('./icons.json');
 
 class WebLoginRequest extends APIRequest {
 
@@ -15,6 +16,7 @@ class WebLoginRequest extends APIRequest {
 		const email = this.request.query.email ? decodeURIComponent(this.request.query.email) : '';
 		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
 		const error = this.request.query.error ? this.handleError() : '';
+		const gitHubLink = '/web/provider-auth/github?noSignup=1';
 		this.module.evalTemplate(this, 'login', { 
 			error,
 			email,
@@ -22,6 +24,9 @@ class WebLoginRequest extends APIRequest {
 			finishUrl: decodeURIComponent(this.request.query.url || ''),
 			tenantId:  decodeURIComponent(this.request.query.tenantId || ''),
 			version: this.module.versionInfo(),
+			codeStreamIcon: Icons['codestream'],
+			gitHubLink,
+			gitHubIcon: Icons['github'],
 			csrf
 		});
 	}
