@@ -74,7 +74,7 @@ ${earlierReplies}
 			timeZone,
 			datetimeField: 'datetime',
 			// remove the `/me ` part
-			meMessage: post.text.substring(4),
+			meMessage: Utils.prepareForEmail(post.text.substring(4), options),
 		};
 		return Utils.renderMeMessageDiv(meMessageOptions);
 	}
