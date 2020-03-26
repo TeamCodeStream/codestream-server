@@ -237,11 +237,17 @@ const Utils = {
 	highlightCode: function (code, extension) {
 		if (extension) {
 			try {
+				// this highlights and encodes html
 				code = HLJS.highlight(extension, code).value;
 			}
 			catch (error) {
 				error;
+				// fallback on any error, including extensions that are not supported
+				code = HtmlEscape.escapeHtml(code);
 			}
+		}
+		else {
+			code = HtmlEscape.escapeHtml(code);
 		}
 		return Utils.whiteSpaceToHtml(code);
 	},

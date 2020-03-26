@@ -60,11 +60,28 @@ export class PostFlow {
             if (!this.review) throw new Error('Codemark replies only work reviews');
 
             let markers = [];
+            let extensions = {
+                0: '.html',
+                1: '.tsx',
+                2: '',
+                3: '.js'
+            }
             for (let i = 0; i < reply.markerCount; i++) {
                 markers.push({
-                    code: `//comment${i}`,
+                    code: `<script>
+// this is a js comment ${i}
+</script>
+
+<div className="footer">
+broken html...
+<p style="color:red;">
+This should not be red <a href="#">This should not be clickable</a>
+</p>
+
+<!-- another comment ${i} -->
+<marquee>this should have syntax highlighting if file extension is html or js</marquee>`,
                     streamId: this.state.streamId,
-                    file: `cheeses/swiss${i}.js`,
+                    file: `cheeses/swiss${i}${extensions[i]}`,
                     repoId: this.state.repoId,
                     branchWhenCreated: 'feature/cheeses',
                     commitHashWhenCreated: 'b47c390c7c5cf58b4a9cc6e7e5d874eecc23b5fq',
@@ -189,7 +206,7 @@ export class LoggedInFlow {
         return new PostFlow(this.restClient, this.state, codemarkWithoutMarkers.result);
     }
 
-    async createCodemarkWithMarker(text: string = 'codemark with marker', type: string = 'comment', code: string = '//comment') {
+    async createCodemarkWithMarker(text: string = 'codemark with marker', type: string = 'comment', code: string = '') {
         text = this.state.buildText(text);    
     let codemarkWithMarker: rm.IRestResponse<PostResult> = await this.restClient.post<PostResult>('/posts', {
             streamId: this.state.streamId,
@@ -198,9 +215,20 @@ export class LoggedInFlow {
                 text: text,
                 streamId: this.state.streamId,
                 markers: [{
-                    code: code,
+                    code: code ? code : `<script>
+                    // this is a js comment
+                    </script>
+                    
+                    <div className="footer">
+                    broken html...
+                    <p style="color:red;">
+                    This should not be red <a href="#">This should not be clickable</a>
+                    </p>
+                    
+                    <!-- another comment -->
+                    <marquee>this should have syntax highlighting</marquee>`,
                     streamId: this.state.streamId,
-                    file: 'cheeses/swiss.js',
+                    file: 'cheeses/swiss.html',
                     repoId: this.state.repoId,
                     branchWhenCreated: 'feature/cheeses',
                     commitHashWhenCreated: 'b47c390c7c5cf58b4a9cc6e7e5d874eecc23b5fq',
