@@ -58,9 +58,14 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
 		Assert.deepEqual(data.capabilities, UserTestConstants.API_CAPABILITIES, 'capabilities are incorrect');
-		Assert(data.teams.length === 1, 'no team in response');
-		Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');
-		this.validateMatchingObject(this.team.id, data.teams[0], 'team');
+		if (!this.dontCreateTeam) {
+			Assert(data.teams.length === 1, 'no team in response');
+			Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');
+			this.validateMatchingObject(this.team.id, data.teams[0], 'team');
+		}
+		else {
+			Assert(data.teams.length === 0, 'team in response');
+		}
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }

@@ -10,13 +10,7 @@ class NoTeamsTest extends CheckSignupTest {
 	}
 
 	get description () {
-		return 'should return an error when sending a check signup request for a user that is not on any teams';
-	}
-
-	getExpectedError () {
-		return {
-			code: 'USRC-1012'
-		};
+		return 'should be ok to issue a check signup request for a user that is not on any teams';
 	}
 }
 
