@@ -356,7 +356,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	async connect (context, activity, teamDetails, teamChannels, teamMembers, tenantId) {
 		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
 		if (!codeStreamUserId) {
-			await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting to CodeStream. Have you signed in before?'));
+			await context.sendActivity(MessageFactory.text('Please run the `signin` command from the personal CodeStream bot chat before connecting.'));
 		} else {
 			const conversationReference = TurnContext.getConversationReference(activity);
 			const result = await context.turnState.get('cs_databaseAdapter').connect({
@@ -373,7 +373,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				}
 				else {
 					if (result.reason === 'signin') {
-						await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream to this conversation. Have you issued the `signin` command from the personal bot chat yet?'));
+						await context.sendActivity(MessageFactory.text('Please run the `signin` command from the personal CodeStream bot chat before connecting.'));
 					}
 					else {
 						await context.sendActivity(MessageFactory.text('Oops, we had a problem connecting CodeStream to this conversation. Please try again.'));
@@ -390,7 +390,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	async disconnect (context, activity, teamDetails, teamChannels, tenantId) {
 		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
 		if (!codeStreamUserId) {
-			await context.sendActivity(MessageFactory.text('Oops, we had a problem disconnecting from CodeStream. Have you signed in before?'));
+			await context.sendActivity(MessageFactory.text('Please run the `signin` command from the personal CodeStream bot chat before disconnecting.'));
 		} else {
 			const conversationReference = TurnContext.getConversationReference(activity);
 			const result = await context.turnState.get('cs_databaseAdapter').disconnect({
@@ -413,7 +413,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	async disconnectAll (context, activity, teamDetails, teamChannels, tenantId) {
 		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
 		if (!codeStreamUserId) {
-			await context.sendActivity(MessageFactory.text('Oops, we had a problem disconnecting all from CodeStream. Have you signed in before?'));
+			await context.sendActivity(MessageFactory.text('Please run the `signin` command from the personal CodeStream bot chat before disconnecting all.'));
 		} else {
 			const result = await context.turnState.get('cs_databaseAdapter').disconnectAll({
 				teamId: teamDetails.id,
@@ -433,7 +433,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	async signout (context) {
 		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
 		if (!codeStreamUserId) {
-			await context.sendActivity(MessageFactory.text('Oops, we had a problem signing you out of CodeStream. Have you signed in before?'));
+			await context.sendActivity(MessageFactory.text('Please run the `signin` command from the personal CodeStream bot chat before signing out.'));
 		} else {
 			const result = await context.turnState.get('cs_databaseAdapter').signout({
 				tenantId: context.activity.channelData.tenant.id,
@@ -581,7 +581,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	async uninstall (context) {
 		const codeStreamUserId = await this.getState(context, STATE_PROPERTY_CODESTREAM_USER_ID);
 		if (!codeStreamUserId) {
-			await context.sendActivity(MessageFactory.text('Oops, we had a problem uninstalling. Have you signed in before?'));
+			await context.sendActivity(MessageFactory.text('Please run the `signin` command from the personal CodeStream bot chat before uninstalling.'));
 		} else {
 			const result = await context.turnState.get('cs_databaseAdapter').uninstall({
 				tenantId: context.activity.channelData.tenant.id
