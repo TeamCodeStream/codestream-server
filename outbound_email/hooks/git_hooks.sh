@@ -34,7 +34,7 @@ githook_reconfigure_sandbox() {
     local call_sandbox_config=0
     githook_module_is_modified && call_sandbox_config=1
     [ $call_sandbox_config -eq 0  -a  -f package.json ] && githook_file_has_changed package.json && call_sandbox_config=1
-	[ $call_sandbox_config -eq 0  -a  -f package-lock.json && githook_file_has_changed package-lock.json && call_sandbox_config=1
+	[ $call_sandbox_config -eq 0  -a  -f package-lock.json ] && githook_file_has_changed package-lock.json && call_sandbox_config=1
     [ $call_sandbox_config -eq 0  -a  \( "$CS_OUTBOUND_EMAIL_YARN" == "true"  -o  "$CS_OUTBOUND_EMAIL_YARN" == "1" \) ] && githook_file_has_changed yarn.lock && call_sandbox_config=1
     [ $call_sandbox_config -eq 1 ] && echo "executing sandbox/configure-sandbox git-hook" && sandbox/configure-sandbox git-hook
 }
