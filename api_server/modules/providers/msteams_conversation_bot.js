@@ -122,7 +122,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					// give them some additional info
 					if (text !== 'signin') {
 						const userName = context.activity.from.name;
-						await this.firstRunPersonal(context, userName);
+						await this.helpPersonal(context, userName);
 						await this.setState(context, STATE_PROPERTY_WELCOMED_USER, true);
 						return;
 					}
@@ -633,18 +633,13 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		{
 			type: 'TextBlock',
 			size: 'Medium',
-			text: 'If you already have a CodeStream account, issue the "signin" command to get started. If you need a CodeStream account, download the CodeStream IDE extension to get started.',
+			text: 'If you already have a CodeStream account, issue the "signin" command to get started. If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
 			wrap: true
 		}];
 
 		const payload = {
 			type: 'AdaptiveCard',
 			body: body,
-			actions: [{
-				type: 'Action.OpenUrl',
-				title: 'Sign up',
-				url: 'https://www.codestream.com'
-			}],
 			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
 			version: '1.0'
 		};
@@ -654,39 +649,6 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 	}
 
-	async firstRunPersonal (context, userName) {
-		let body = [];
-		if (userName) {
-			body.push({
-				type: 'TextBlock',
-				size: 'Medium',
-				text: `Hey ${userName}, welcome to CodeStream!`,
-				wrap: true
-			});
-		}
-		body.push({
-			type: 'TextBlock',
-			size: 'Medium',
-			text: 'If you already have a CodeStream account, issue the "signin" command to get started. If you need a CodeStream account, download the CodeStream IDE extension to get started.',
-			wrap: true
-		});
-
-		const payload = {
-			type: 'AdaptiveCard',
-			body: body,
-			actions: [{
-				type: 'Action.OpenUrl',
-				title: 'Sign up',
-				url: 'https://www.codestream.com'
-			}],
-			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
-			version: '1.0'
-		};
-
-		await context.sendActivity({
-			attachments: [CardFactory.adaptiveCard(payload)]
-		});
-	}
 
 	// returns a link for help
 	async help (context) {
@@ -732,15 +694,8 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				{
 					type: 'TextBlock',
 					size: 'Medium',
-					text: 'If you need a CodeStream account, download the CodeStream IDE extension to get started.',
+					text: 'If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
 					wrap: true
-				}
-			],
-			actions: [
-				{
-					type: 'Action.OpenUrl',
-					title: 'Sign up',
-					url: 'https://www.codestream.com'
 				}
 			],
 			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
@@ -752,58 +707,62 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 	}
 
-	async helpPersonal (context) {
+	async helpPersonal (context, userName) {
+		let body = [];
+		if (userName) {
+			body.push({
+				type: 'TextBlock',
+				size: 'Medium',
+				text: `Hey ${userName}, welcome to CodeStream!`,
+				wrap: true
+			});
+		}
+		body.push({
+			type: 'TextBlock',
+			size: 'Medium',
+			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. You can use any of the following commands:',
+			wrap: true
+		},
+		{
+			type: 'ColumnSet',
+			columns: [
+				{
+					type: 'Column',
+					items: [
+						{
+							type: 'FactSet',
+							facts: [
+								{
+									title: 'signin',
+									value: 'Sign in to start using CodeStream.'
+								},
+								{
+									title: 'signout',
+									value: 'Sign out of CodeStream.'
+								}
+							]
+						}
+					],
+					width: 'stretch'
+				}
+			]
+		},
+		{
+			type: 'TextBlock',
+			size: 'Medium',
+			text: 'If you already have a CodeStream account, issue the "signin" command here to get started. ',
+			wrap: true
+		},
+		{
+			type: 'TextBlock',
+			size: 'Medium',
+			text: 'If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
+			wrap: true
+		});
+
 		const payload = {
 			type: 'AdaptiveCard',
-			body: [
-				{
-					type: 'TextBlock',
-					size: 'Medium',
-					text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. You can use any of the following commands:',
-					wrap: true
-				},
-				{
-					type: 'ColumnSet',
-					columns: [
-						{
-							type: 'Column',
-							items: [
-								{
-									type: 'FactSet',
-									facts: [
-										{
-											title: 'signin',
-											value: 'Sign in to start using CodeStream.'
-										},
-										{
-											title: 'signout',
-											value: 'Sign out of CodeStream.'
-										}
-									]
-								}
-							],
-							width: 'stretch'
-						}
-					]
-				},
-				{
-					type: 'TextBlock',
-					size: 'Medium',
-					text: 'If you already have a CodeStream account, issue the "signin" command here to get started. ',
-					wrap: true
-				},
-				{
-					type: 'TextBlock',
-					size: 'Medium',
-					text: 'If you need a CodeStream account, download the CodeStream IDE extension to get started.',
-					wrap: true
-				}
-			],
-			actions: [{
-				type: 'Action.OpenUrl',
-				title: 'Sign up',
-				url: 'https://www.codestream.com'
-			}],
+			body: body,
 			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
 			version: '1.0'
 		};
