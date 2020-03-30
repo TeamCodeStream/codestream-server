@@ -54,8 +54,14 @@ class ProviderIdentityConnector {
 		);
 		if (this.user) {
 			this.request.log(`Matched user ${this.user.id} by email`);
+			if (this.user.get('isRegistered')) {
+				return;
+			}
 		}
-		else if (!this.okToCreateUser) {
+		if (!this.okToCreateUser) {
+			if (this.user) {
+				this.request.log('Unregistered user must create an account first');
+			}
 			throw this.errorHandler.error('noIdentityMatch');
 		}
 	}
