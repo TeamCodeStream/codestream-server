@@ -45,7 +45,7 @@ class TeamUpdater extends ModelUpdater {
 		for (let directive of ['$push', '$pull', '$addToSet']) {
 			const directiveTarget = this.attributes[directive];
 			delete this.attributes[directive];	// essentially remove any non-matching directives 
-			for (let attribute of ['memberIds', 'adminIds']) {
+			for (let attribute of ['removedMemberIds', 'adminIds']) {
 				if (directiveTarget && directiveTarget[attribute]) {
 					if (finalDirective) {
 						return 'can only update one ID array at once and with a single directive';
@@ -54,9 +54,9 @@ class TeamUpdater extends ModelUpdater {
 						// substitute $addToSet for $push, tolerating the looser $push as synonymous
 						directive = '$addToSet';
 					}
-					if (directive === '$addToSet' && attribute === 'memberIds') {
+					if (directive === '$pull' && attribute === 'removedMemberIds') {
 						// POST /users is the proper way to add a user to the team
-						return 'can not add users directly to the team, use POST /users with email';
+						return 'can not remove users from removedMemberIds, use POST /users with email to add them back to the team';
 					}
 					// the value can be a single ID or an array, if a single ID, turn it into an array
 					let value = directiveTarget[attribute];
@@ -75,18 +75,18 @@ class TeamUpdater extends ModelUpdater {
 		if (finalDirective) {
 			Object.assign(this.attributes, finalDirective);
 			if (
-				finalDirective.$pull &&
-				finalDirective.$pull.memberIds && 
-				finalDirective.$pull.memberIds.includes(this.user.id)
+				finalDirective.$addToSet &&
+				finalDirective.$addToSet.removedMemberIds && 
+				finalDirective.$addToSet.removedMemberIds.includes(this.user.id)
 			) {
 				return 'can not remove yourself as a member of the team';
 			}
 			if (
-				finalDirective.$pull &&
-				finalDirective.$pull.memberIds
+				finalDirective.$addToSet &&
+				finalDirective.$addToSet.removedMemberIds
 			) {
 				// if removing users from the team, also remove them as admins
-				finalDirective.$pull.adminIds = finalDirective.$pull.memberIds;
+				this.attributes.$pull = { adminIds: finalDirective.$addToSet.removedMemberIds };
 			}
 		}
 	}
@@ -120,8 +120,8 @@ class TeamUpdater extends ModelUpdater {
 			this.attributes.$pull.adminIds
 		) || 
 		(
-			this.attributes.$pull &&
-			this.attributes.$pull.memberIds
+			this.attributes.$addToSet &&
+			this.attributes.$addToSet.removedMemberIds
 		) || 
 		[];
 		if (memberIds.length === 0) {
@@ -130,7 +130,21 @@ class TeamUpdater extends ModelUpdater {
 
 		// only admins can perform these operations
 		if (!(this.team.get('adminIds') || []).includes(this.user.id)) {
-			throw this.errorHandler.error('adminsOnly');
+			// the one exception is a user removing themselves from a team
+			if (
+				this.attributes.$pull ||
+				(
+					this.attributes.$addToSet &&
+					this.attributes.$addToSet.adminIds
+				) ||
+				(
+					this.attributes.$addToSet &&
+					this.attributes.$addToSet.removedMemberIds &&
+					this.attributes.$addToSet.removedMemberIds.find(id => id !== this.user.id)
+				)
+			) {
+				throw this.errorHandler.error('adminsOnly');
+			}
 		}
 
 		// all users must actually exist
@@ -148,8 +162,8 @@ class TeamUpdater extends ModelUpdater {
 
 		// save removed users for later use
 		if (
-			this.attributes.$pull &&
-			this.attributes.$pull.memberIds
+			this.attributes.$addToSet &&
+			this.attributes.$addToSet.removedMemberIds
 		) {
 			this.transforms.removedUsers = users;
 		}

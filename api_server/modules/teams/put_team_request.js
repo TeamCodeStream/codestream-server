@@ -57,6 +57,9 @@ class PutTeamRequest extends PutRequest {
 			team: this.updateOp,
 			requestId: this.request.id
 		};
+		if (this.transforms.userUpdates && this.transforms.userUpdates.length > 0) {
+			message.users = this.transforms.userUpdates;
+		}
 		try {
 			await this.api.services.broadcaster.publish(
 				message,

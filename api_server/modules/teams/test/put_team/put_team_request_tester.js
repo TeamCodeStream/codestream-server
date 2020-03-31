@@ -18,11 +18,11 @@ const NoRemoveUserAndAddAdminTest = require('./no_remove_user_and_add_admin_test
 const AddAdminTest = require('./add_admin_test');
 const AddAdminsTest = require('./add_admins_test');
 const PushBecomesAddToSetTest = require('./push_becomes_add_to_set_test');
-const NoPushUsersTest = require('./no_push_users_test');
 const NoAddUsersTest = require('./no_add_users_test');
-const MemberIdsNotArrayTest = require('./member_ids_not_array_test');
+const RemovedMemberIdsNotArrayTest = require('./removed_member_ids_not_array_test');
 const AdminIdsNotArrayTest = require('./admin_ids_not_array_test');
 const AddAdminIdsNotArrayTest = require('./add_admin_ids_not_array_test');
+/*
 const NoRemoveSelfTest = require('./no_remove_self_test');
 const AdminAddAdminsTest = require('./admin_add_admins_test');
 const AdminRemoveAdminsTest = require('./admin_remove_admins_test');
@@ -34,6 +34,7 @@ const TeamSubscriptionRevokedTest = require('./team_subscription_revoked_test');
 //const NoMoreTeamMessagesTest = require('./no_more_team_messages_test');
 const RemovalMessageToUserTest = require('./removal_message_to_user_test');
 const UninvitedUserCanRegisterTest = require('./uninvited_user_can_register_test');
+*/
 
 class PutTeamRequestTester {
 
@@ -57,12 +58,12 @@ class PutTeamRequestTester {
 		new AddAdminTest().test();
 		new AddAdminsTest().test();
 		new PushBecomesAddToSetTest().test();
-		new NoPushUsersTest().test();
 		new NoAddUsersTest().test();
-		new MemberIdsNotArrayTest().test();
+		new RemovedMemberIdsNotArrayTest().test();
 		new AdminIdsNotArrayTest().test();
 		new AddAdminIdsNotArrayTest().test();
-		new NoRemoveSelfTest().test();
+		//new NoRemoveSelfTest().test();
+		/*
 		new AdminAddAdminsTest().test();
 		new AdminRemoveAdminsTest().test();
 		new AdminRemoveUsersTest().test();
@@ -73,6 +74,7 @@ class PutTeamRequestTester {
 		// new NoMoreTeamMessagesTest().test(); // Disabled pending resolution of https://support.pubnub.com/support/tickets/7939 (>sigh<)
 		new RemovalMessageToUserTest().test();
 		new UninvitedUserCanRegisterTest().test();
+		*/
 	}
 }
 

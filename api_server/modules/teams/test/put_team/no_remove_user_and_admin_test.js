@@ -17,7 +17,7 @@ class NoRemoveUserAndAdminTest extends RemoveAdminsTest {
 	// before the test runs...
 	makeTeamData (callback) {
 		super.makeTeamData(() => {
-			this.data.$pull.memberIds = this.users[2].user.id;
+			this.data.$addToSet = { removedMemberIds: this.users[2].user.id };
 			callback();
 		});
 	}
