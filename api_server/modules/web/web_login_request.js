@@ -16,12 +16,17 @@ class WebLoginRequest extends APIRequest {
 		const email = this.request.query.email ? decodeURIComponent(this.request.query.email) : '';
 		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
 		const error = this.request.query.error ? this.handleError() : '';
-		const gitHubLink = '/web/provider-auth/github?noSignup=1';
+		const finishUrl = decodeURIComponent(this.request.query.url || '');
+		let gitHubLink = '/web/provider-auth/github?noSignup=1';
+		if (finishUrl) {
+			// since GitHub isn't POSTed, we attach the finishUrl here
+			gitHubLink += `&url=${finishUrl}`;
+		}
 		this.module.evalTemplate(this, 'login', { 
 			error,
 			email,
 			teamId,
-			finishUrl: decodeURIComponent(this.request.query.url || ''),
+			finishUrl: finishUrl,
 			tenantId:  decodeURIComponent(this.request.query.tenantId || ''),
 			version: this.module.versionInfo(),
 			codeStreamIcon: Icons['codestream'],
