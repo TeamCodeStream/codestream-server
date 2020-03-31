@@ -1,5 +1,6 @@
 const SignupTokens = require(process.env.CS_API_TOP + '/modules/users/signup_tokens');
 const UUID = require('uuid/v4');
+const URL = require('url');
 
 class SigninFlowUtils {
 	constructor (options) {
@@ -21,13 +22,35 @@ class SigninFlowUtils {
 		return result;
 	}
 
-	finish (finishUrl, additional) {
-		let redirect = `${(finishUrl || '/web/finish')}?identify=true&provider=CodeStream`;
-		if (additional) {
-			redirect += '&' + Object.keys(additional).map((key) => {
-				return encodeURIComponent(key) + '=' + encodeURIComponent(additional[key]);
-			}).join('&');
+	finish (finishUrl, additionalParameters) {
+		if (finishUrl) {
+			try {
+				// if this is a full url, aka https://example.com/foo/bar
+				// this will return just the /foo/bar portion
+				finishUrl = URL.parse(finishUrl).pathname;
+				// we will get '/' if a fully qualified url is passed in...
+				// change it to empty to get the default value below
+				if (finishUrl === '/') {
+					finishUrl = '';
+				}
+			}
+			catch (error) {
+				error;
+				finishUrl = '';
+			}
 		}
+		let redirect = `${(finishUrl || '/web/finish')}?identify=true`;
+		if (!additionalParameters) {
+			additionalParameters = {};
+		}
+		if (!additionalParameters.provider) {
+			additionalParameters.provider = 'CodeStream';
+		}
+
+		redirect += '&' + Object.keys(additionalParameters).map((key) => {
+			return encodeURIComponent(key) + '=' + encodeURIComponent(additionalParameters[key]);
+		}).join('&');
+
 		this.response.redirect(redirect);
 		return true;
 	}

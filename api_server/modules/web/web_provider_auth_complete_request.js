@@ -3,6 +3,7 @@
 const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
 const WebErrors = require('./errors');
+const SigninFlowUtils = require('./signin_flow_utils');
 
 class WebProviderAuthCompleteRequest extends APIRequest {
 
@@ -147,10 +148,9 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 	}
 
 	finishFlow () {
-		const finishUrl = this.payload.end || '/web/finish';
-		const redirect = `${finishUrl}?identify=true&provider=${this.provider}`;
-		this.response.redirect(redirect);
-		this.responseHandled = true;
+		this.responseHandled = new SigninFlowUtils(this).finish(this.payload.end, {
+			provider: this.provider
+		});
 	}
 
 	badError (errorCode) {
