@@ -16,6 +16,20 @@ class PutTeamRequest extends PutRequest {
 		}
 	}
 
+	// handle the response to the client
+	async handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
+
+		// add any users updated (members removed)
+		if (this.transforms.userUpdates && this.transforms.userUpdates.length > 0) {
+			this.responseData.users = this.transforms.userUpdates;
+		}
+
+		return super.handleResponse();
+	}
+
 	// after the team is updated...
 	async postProcess () {
 		// revoke permissions for all users removed from the team to subscribe to the team channel,
@@ -53,13 +67,7 @@ class PutTeamRequest extends PutRequest {
 	async publishTeam () {
 		const teamId = this.updater.team.id;
 		const channel = 'team-' + teamId;
-		const message = {
-			team: this.updateOp,
-			requestId: this.request.id
-		};
-		if (this.transforms.userUpdates && this.transforms.userUpdates.length > 0) {
-			message.users = this.transforms.userUpdates;
-		}
+		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
 		try {
 			await this.api.services.broadcaster.publish(
 				message,

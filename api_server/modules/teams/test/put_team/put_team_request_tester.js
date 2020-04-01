@@ -22,8 +22,6 @@ const NoAddUsersTest = require('./no_add_users_test');
 const RemovedMemberIdsNotArrayTest = require('./removed_member_ids_not_array_test');
 const AdminIdsNotArrayTest = require('./admin_ids_not_array_test');
 const AddAdminIdsNotArrayTest = require('./add_admin_ids_not_array_test');
-/*
-const NoRemoveSelfTest = require('./no_remove_self_test');
 const AdminAddAdminsTest = require('./admin_add_admins_test');
 const AdminRemoveAdminsTest = require('./admin_remove_admins_test');
 const AdminRemoveUsersTest = require('./admin_remove_users_test');
@@ -34,7 +32,9 @@ const TeamSubscriptionRevokedTest = require('./team_subscription_revoked_test');
 //const NoMoreTeamMessagesTest = require('./no_more_team_messages_test');
 const RemovalMessageToUserTest = require('./removal_message_to_user_test');
 const UninvitedUserCanRegisterTest = require('./uninvited_user_can_register_test');
-*/
+const RemoveSelfTest = require('./remove_self_test');
+const RemoveUserMessageToTeamTest = require('./remove_user_message_to_team_test');
+const ReinviteRemovedUserTest = require('./reinvite_removed_user_test');
 
 class PutTeamRequestTester {
 
@@ -62,8 +62,6 @@ class PutTeamRequestTester {
 		new RemovedMemberIdsNotArrayTest().test();
 		new AdminIdsNotArrayTest().test();
 		new AddAdminIdsNotArrayTest().test();
-		//new NoRemoveSelfTest().test();
-		/*
 		new AdminAddAdminsTest().test();
 		new AdminRemoveAdminsTest().test();
 		new AdminRemoveUsersTest().test();
@@ -74,7 +72,9 @@ class PutTeamRequestTester {
 		// new NoMoreTeamMessagesTest().test(); // Disabled pending resolution of https://support.pubnub.com/support/tickets/7939 (>sigh<)
 		new RemovalMessageToUserTest().test();
 		new UninvitedUserCanRegisterTest().test();
-		*/
+		new RemoveSelfTest().test();
+		new RemoveUserMessageToTeamTest().test();
+		new ReinviteRemovedUserTest().test();
 	}
 }
 

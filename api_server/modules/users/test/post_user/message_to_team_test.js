@@ -44,6 +44,9 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					$addToSet: {
 						memberIds: response.user.id
 					},
+					$pull: {
+						removedMemberIds: response.user.id,
+					},
 					$set: {
 						version: 6
 					},

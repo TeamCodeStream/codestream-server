@@ -1,6 +1,6 @@
 'use strict';
 
-const PutTeamTest = require('./put_team_test');
+const RemoveUserTest = require('./remove_user_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
 const PubNub = require('pubnub');
@@ -11,7 +11,7 @@ const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubn
 const SocketClusterConfig = require(process.env.CS_API_TOP + '/config/socketcluster');
 const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
 
-class TeamSubscriptionRevokedTest extends PutTeamTest {
+class TeamSubscriptionRevokedTest extends RemoveUserTest {
 
 	constructor (options) {
 		super(options);
@@ -79,21 +79,6 @@ class TeamSubscriptionRevokedTest extends PutTeamTest {
 		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		return new PubNubClient({
 			pubnub: client
-		});
-	}
-
-	// form the data for the team update
-	makeTeamData (callback) {
-		// remove another user from the team, that user will then try to subscribe
-		super.makeTeamData(() => {
-			this.data.$pull = {
-				memberIds: this.users[1].user.id
-			};
-			this.expectedData.team.$pull = {
-				memberIds: [this.users[1].user.id],
-				adminIds: [this.users[1].user.id]
-			};
-			callback();
 		});
 	}
 

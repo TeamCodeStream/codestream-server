@@ -5,10 +5,10 @@ const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadca
 const CommonInit = require('./common_init');
 const Assert = require('assert');
 
-class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
+class RemoveUserMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return 'members of the team who are removed should receive a message on their me-channel that they have been removed from the team';
+		return 'when a user is removed from a team, members of the team should get a message from the team indicating the users have been removed from the team';
 	}
 
 	// make the data that triggers the message to be received
@@ -29,43 +29,26 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		this.channelName = `user-${this.currentUser.user.id}`;
+		this.channelName = `team-${this.team.id}`;
 		callback();
 	}
 
-	// generate the message by issuing a request
+	// generate the message by issuing a request to update the team
 	generateMessage (callback) {
-		// do the update, this should trigger a message to the
-		// user with the team removed from their teamIds
 		this.otherUserUpdatesTeam = true;
 		this.updatedAt = Date.now();
 		this.updateTeam(error => {
 			if (error) { return callback(error); }
-			this.message = {
-				user: {
-					_id: this.currentUser.user.id,	// DEPRECATE ME
-					id: this.currentUser.user.id,
-					$pull: {
-						teamIds: this.team.id
-					},
-					$set: {
-						version: 4
-					},
-					$version: {
-						before: 3,
-						after: 4
-					}
-				}
-			};
+			this.message = this.updateTeamResponse;
 			callback();
 		});
 	}
 
 	validateMessage (message) {
-		Assert(message.message.user.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
-		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
+		Assert(message.message.team.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
+		this.message.team.$set.modifiedAt = message.message.team.$set.modifiedAt;
 		return super.validateMessage(message);
 	}
 }
 
-module.exports = RemovalMessageToUserTest;
+module.exports = RemoveUserMessageToTeamTest;

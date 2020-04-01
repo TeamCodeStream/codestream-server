@@ -45,6 +45,9 @@ class AddTeamMember  {
 			$addToSet: { 
 				memberIds: this.addUser.id 
 			},
+			$pull: {
+				removedMemberIds: this.addUser.id
+			},
 			$set: {
 				modifiedAt: Date.now()
 			}

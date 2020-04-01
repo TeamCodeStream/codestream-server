@@ -76,16 +76,10 @@ class TeamUpdater extends ModelUpdater {
 			Object.assign(this.attributes, finalDirective);
 			if (
 				finalDirective.$addToSet &&
-				finalDirective.$addToSet.removedMemberIds && 
-				finalDirective.$addToSet.removedMemberIds.includes(this.user.id)
-			) {
-				return 'can not remove yourself as a member of the team';
-			}
-			if (
-				finalDirective.$addToSet &&
 				finalDirective.$addToSet.removedMemberIds
 			) {
 				// if removing users from the team, also remove them as admins
+				this.removingUserIds = finalDirective.$addToSet.removedMemberIds;
 				this.attributes.$pull = { adminIds: finalDirective.$addToSet.removedMemberIds };
 			}
 		}
@@ -132,16 +126,8 @@ class TeamUpdater extends ModelUpdater {
 		if (!(this.team.get('adminIds') || []).includes(this.user.id)) {
 			// the one exception is a user removing themselves from a team
 			if (
-				this.attributes.$pull ||
-				(
-					this.attributes.$addToSet &&
-					this.attributes.$addToSet.adminIds
-				) ||
-				(
-					this.attributes.$addToSet &&
-					this.attributes.$addToSet.removedMemberIds &&
-					this.attributes.$addToSet.removedMemberIds.find(id => id !== this.user.id)
-				)
+				!this.removingUserIds || 
+				this.removingUserIds.find(id => id !== this.user.id)
 			) {
 				throw this.errorHandler.error('adminsOnly');
 			}

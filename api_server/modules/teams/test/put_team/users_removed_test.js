@@ -31,8 +31,8 @@ class UsersRemovedTest extends PutTeamTest {
 	makeTeamData (callback) {
 		// remove the current user from the team, this will be done by the "other" user
 		super.makeTeamData(() => {
-			this.data.$pull = {
-				memberIds: this.currentUser.user.id
+			this.data.$addToSet = {
+				removedMemberIds: this.currentUser.user.id
 			};
 			this.path = '/users/me';
 			callback();

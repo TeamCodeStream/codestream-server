@@ -28,8 +28,8 @@ class UninvitedUserCanRegisterTest extends PutTeamTest {
 				method: 'put',
 				path: '/teams/' + this.team.id,
 				data: {
-					$pull: {
-						memberIds: this.unregisteredUser.user.id
+					$addToSet: {
+						removedMemberIds: this.unregisteredUser.user.id
 					}
 				},
 				token: this.users[1].accessToken
