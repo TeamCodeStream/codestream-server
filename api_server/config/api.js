@@ -47,7 +47,7 @@ else {
 		publicApiUrl: process.env.CS_API_PUBLIC_URL || 'https://api.codestream.com',
 
 		// origin to use for third-party auth callbacks
-		authOrigin: process.env.CS_API_AUTH_ORIGIN || 'https://auth.codestream.com/no-auth/prod',
+		authOrigin: process.env.CS_API_AUTH_ORIGIN,
 
 		// environment, please use this configuration value sparingly, really anything that depends 
 		// on environment should have its own environment variable instead
@@ -65,6 +65,10 @@ else {
 		// API server will not use any AWS services (on-prem mode)
 		dontWantAWS: process.env.CS_API_DONT_WANT_AWS || false
 	};
+}
+
+if (!ApiCfg.authOrigin) {
+	ApiCfg.authOrigin = `${ApiCfg.publicApiUrl}/no-auth`;
 }
 
 // list of third-party providers available for integrations
