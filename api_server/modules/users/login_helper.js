@@ -169,7 +169,8 @@ class LoginHelper {
 		if (socketCluster && socketCluster.host && socketCluster.port) {
 			this.responseData.socketCluster = {
 				host: socketCluster.host,
-				port: socketCluster.port
+				port: socketCluster.port,
+				ignoreHttps: socketCluster.ignoreHttps
 			};
 		}
 		Object.assign(this.responseData, this.initialData);
