@@ -1,6 +1,12 @@
 # Change Log
+ 
+## [6.4.2] - 2020-4-1
 
-## [6.5.0] - 2020-3-31
+### Fixed
+
+- Raises the page size on stream fetches to fix an issue with codemarks not rendering in spatial view
+
+## [6.4.1] - 2020-3-31
 
 ### Added
 
