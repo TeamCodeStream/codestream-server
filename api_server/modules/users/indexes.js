@@ -4,6 +4,9 @@
 'use strict';
 
 module.exports = {
+	byId: {
+		_id: 1
+	},
 	byTeamIds: {
 		teamIds: 1
 	},

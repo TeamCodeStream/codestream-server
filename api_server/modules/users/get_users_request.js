@@ -4,6 +4,7 @@
 
 const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
+const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 
 class GetUsersRequest extends GetManyRequest {
 
@@ -12,27 +13,35 @@ class GetUsersRequest extends GetManyRequest {
 		await this.user.authorizeFromTeamId(this.request.query, this);
 	}
 
+	// called before the fetch query
+	async preQueryHook () {
+		// we need the members of the team, since this includes removed users who would otherwise not
+		// show up as on the team at all
+		this.team = await this.data.teams.getById(this.request.query.teamId.toLowerCase());
+		if (!this.team) {
+			// shouldn't really happen, as we would have already authorized against the team
+			throw this.errorHandler.error('notFound', { info: 'team' });
+		}
+	}
+
 	// build the query for fetching the users, based on input parameters
 	buildQuery () {
-		// must have a team ID
-		if (!this.request.query.teamId) {
-			return this.errorHandler.error('parameterRequired', { info: 'teamId' });
-		}
-		let query = {
-			teamIds: decodeURIComponent(this.request.query.teamId).toLowerCase()
-		};
-		// can also specify individual IDs
+		// we'll get all the team members
+		let ids = this.team.get('memberIds') || [];
+
+		// can also specify individual IDs as a subset
 		if (this.request.query.ids) {
-			let ids = decodeURIComponent(this.request.query.ids).toLowerCase().split(',');
-			query.id = this.data.users.inQuerySafe(ids);
+			const queryIds = decodeURIComponent(this.request.query.ids).toLowerCase().split(',');
+			ids = ArrayUtilities.intersection(ids, queryIds);
 		}
-		return query;
+		
+		return { id: this.data.users.inQuerySafe(ids) };
 	}
 
 	// get options to use in the query to fetch users
 	getQueryOptions () {
 		// provide appropriate index, by team
-		return { hint: Indexes.byTeamIds };
+		return { hint: Indexes.byId };
 	}
 
 	// describe this route for help
