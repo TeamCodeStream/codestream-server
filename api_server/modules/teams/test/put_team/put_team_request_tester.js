@@ -35,6 +35,7 @@ const UninvitedUserCanRegisterTest = require('./uninvited_user_can_register_test
 const RemoveSelfTest = require('./remove_self_test');
 const RemoveUserMessageToTeamTest = require('./remove_user_message_to_team_test');
 const ReinviteRemovedUserTest = require('./reinvite_removed_user_test');
+const RemovedUsersNotInCompanyMemberCountTest = require('./removed_users_not_in_company_member_count_test');
 
 class PutTeamRequestTester {
 
@@ -75,6 +76,7 @@ class PutTeamRequestTester {
 		new RemoveSelfTest().test();
 		new RemoveUserMessageToTeamTest().test();
 		new ReinviteRemovedUserTest().test();
+		new RemovedUsersNotInCompanyMemberCountTest().test();
 	}
 }
 
