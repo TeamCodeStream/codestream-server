@@ -28,7 +28,6 @@ module.exports = {
 	'lightningCodeReviews': {
 		description: 'Support for lightning code reviews',
 		version: '1.21.33',
-		restricted: true,
 		supportedIdes: ['VS Code', 'JetBrains']
 	},
 	'xray': {
