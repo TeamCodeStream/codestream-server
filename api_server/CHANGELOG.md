@@ -1,5 +1,16 @@
 # Change Log
 
+## [7.0.0] - 2020-4-3
+
+### Changed
+
+- Turns on code review functionality for all teams
+- Minor change to logic for creating callback URLs in the API
+
+### Fixed
+
+- Fixes an issue with removed users being included in count of team members
+
 ## [6.4.3] - 2020-4-1
 
 ### Fixed
