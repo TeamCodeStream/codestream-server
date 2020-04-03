@@ -1,5 +1,9 @@
 # Change Log
 
+## [7.0.0] - 2020-4-3
+
+### Updated to support 7.0.0 release
+
 ## [6.4.0] - 2020-3-27
 
 ### Changed
