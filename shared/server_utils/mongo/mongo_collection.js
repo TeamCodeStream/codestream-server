@@ -677,6 +677,9 @@ class MongoCollection {
 		else if (typeof obj[field] === 'string') {
 			obj[field] = '*'.repeat(obj[field].length);
 		}
+		else if (typeof obj[field] === 'object') {
+			obj[field] = {'*': '*'};
+		}
 	}
 }
 
