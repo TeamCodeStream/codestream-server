@@ -136,17 +136,6 @@ class ProviderIdentityConnector {
 			}
 		});
 		this.user = this.createdUser = await this.userCreator.createUser(userData);
-		this.request.api.services.analytics.trackWithSuperProperties(
-			'Account Created',
-			{
-				email: this.user.get('email')
-			},
-			{
-				request: this,
-				user: this.user
-			}
-		);
-
 	}
 
 	// if user was invited to a team, add them to that team
