@@ -97,70 +97,70 @@
 	},
 	"integrations": {
 		"asana": {
-			"asana.com": {
+			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "asana/dev.cfg"
 				}
 			}
 		},
 		"bitbucket": {
-			"bitbucket.com": {
+			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "bitbucket/dev.cfg"
 				}
 			}
 		},
 		"devops": {
-			"microsoft.com": {
+			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "microsoft/devops-dev.cfg"
 				}
 			}
 		},
 		"github": {
-			"github.com": {
+			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "github/dev.cfg"
 				}
 			}
 		},
 		"gitlab": {
-			"gitlab.com": {
+			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "gitlab/dev.cfg"
 				}
 			}
 		},
 		"jira": {
-			"atlassian.net": {
+			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "atlassian/dev.cfg"
 				}
 			}
 		},
 		"msteams": {
-			"microsoft.com": {
+			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "microsoft/teams-local.cfg"
 				}
 			}
 		},
 		"slack": {
-			"slack.com": {
+			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "slack/dev-combined.cfg"
 				}
 			}
 		},
 		"trello": {
-			"trello.com": {
+			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "trello/codestreamops.cfg"
 				}
 			}
 		},
 		"youtrack": {
-			"jetbrains.com": {
+			"cloud": {
 				"defaultEnv": {}
 			}
 		}

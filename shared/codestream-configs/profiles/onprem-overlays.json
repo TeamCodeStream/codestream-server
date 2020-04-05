@@ -19,7 +19,7 @@
 	},
 	"integrations": {
 		"msteams": {
-			"microsoft.com": {
+			"cloud": {
 				"avs": {
 					"_loadSecretsFile": "microsoft/teams-avs.cfg"
 				},
