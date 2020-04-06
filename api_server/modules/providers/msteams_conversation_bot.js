@@ -633,7 +633,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		{
 			type: 'TextBlock',
 			size: 'Medium',
-			text: 'If you already have a CodeStream account, issue the "signin" command to get started. If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
+			text: 'If you already have a CodeStream account, issue the "signin" command to get started ([click here for detailed instructions](https://github.com/TeamCodeStream/CodeStream/wiki/Microsoft-Teams-Integration)). If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
 			wrap: true
 		}];
 
@@ -688,7 +688,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				{
 					type: 'TextBlock',
 					size: 'Medium',
-					text: 'If you already have a CodeStream account, issue the "signin" command from the personal CodeStream bot to get started.',
+					text: 'If you already have a CodeStream account, issue the "signin" command from the personal CodeStream bot to get started ([click here for detailed instructions](https://github.com/TeamCodeStream/CodeStream/wiki/Microsoft-Teams-Integration)).',
 					wrap: true
 				},
 				{
@@ -750,7 +750,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		{
 			type: 'TextBlock',
 			size: 'Medium',
-			text: 'If you already have a CodeStream account, issue the "signin" command here to get started. ',
+			text: 'If you already have a CodeStream account, issue the "signin" command here to get started ([click here for detailed instructions](https://github.com/TeamCodeStream/CodeStream/wiki/Microsoft-Teams-Integration)). ',
 			wrap: true
 		},
 		{
