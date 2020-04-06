@@ -43,16 +43,24 @@ class StructuredConfigFile {
 			return p;
 		}
 		for(let prop of propList) {
+			// console.log(`_getSection() processing ${prop}`);
+			// console.log(util.inspect(p, false, null, true /* enable colors */));
 			if(p[prop]) {
 				p = p[prop];
+			}
+			else if (this._isRepeatingBlockKey(p)) {
+				// this is a repeating block which means we're looking at the schema
+				// so we add a section to it with the key being the property sought
+				let repeatingBlockKey = Object.keys(p)[0];
+				// console.log(`repeating block for prop ${prop} with key = ${repeatingBlockKey}`);
+				return p[repeatingBlockKey];
 			}
 			else {
 				// console.error(`property ${prop} not found`);
 				return;
 			}
-			// console.log(prop);
 		}
-		// console.log(p);
+		// console.log('_getSection() is done');
 		return p;
 	}
 
@@ -157,6 +165,7 @@ class StructuredConfigFile {
 
 	// public method to get a fully populated section of the configuration file
 	getSection(section = '') {
+		// console.log(util.inspect(section, false, null, true /* enable colors */));
 		let schema = this._getSection(this.schema, section);
 		let data = this._getSection(this.config, section);
 		let sectionData = {};
