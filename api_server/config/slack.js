@@ -20,10 +20,7 @@ let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	ShowCfg = CfgData.getProperty('apiServer.showConfig');
-	let slackProviders = CfgData.getSection('integrations.slack');
-	if (slackProviders['slack.com']) {
-		SlackCfg = slackProviders['slack.com'];
-	}
+	SlackCfg = CfgData.getSection('integrations.slack.cloud');
 }
 else {
 	SlackCfg.appClientId = process.env.CS_API_SLACK_CLIENT_ID;
@@ -38,6 +35,7 @@ else {
 	SlackCfg.appSharingClientSecret = process.env.CS_API_SLACK_SHARING_CLIENT_SECRET;
 	SlackCfg.appSharingSigningSecret = process.env.CS_API_SLACK_SHARING_SIGNING_SECRET;
 }
+
 
 SlackCfg.signingSecretsByAppIds = {};
 SlackCfg.signingSecretsByAppIds[SlackCfg.appId] = SlackCfg.appSigningSecret;

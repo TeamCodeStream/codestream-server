@@ -15,10 +15,7 @@ let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	ShowCfg = CfgData.getProperty('apiServer.showConfig');
-	let trelloProviders = CfgData.getSection('integrations.trello');
-	if (trelloProviders['trello.com']) {
-		TrelloCfg.apiKey = trelloProviders['trello.com'].apiKey;
-	}
+	TrelloCfg.apiKey = CfgData.getProperty('integrations.trello.cloud.apiKey');
 }
 else {
 	TrelloCfg.apiKey = process.env.CS_API_TRELLO_API_KEY;

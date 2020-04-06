@@ -19,9 +19,9 @@ if (CfgFileName) {
 	ShowCfg = CfgData.getProperty('apiServer.showConfig');
 	let jiraProviders = CfgData.getSection('integrations.jira');
 	Object.keys(jiraProviders).forEach(provider => {
-		if (provider == 'atlassian.net') {
-			JiraCfg.appClientId = jiraProviders['atlassian.net'].appClientId;
-			JiraCfg.appClientSecret = jiraProviders['atlassian.net'].appClientSecret;
+		if (provider == 'cloud') {
+			JiraCfg.appClientId = jiraProviders.cloud.appClientId;
+			JiraCfg.appClientSecret = jiraProviders.cloud.appClientSecret;
 		}
 		else {
 			JiraCfg.localProviders[provider] = jiraProviders[provider];

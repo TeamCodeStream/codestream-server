@@ -19,9 +19,9 @@ if (CfgFileName) {
 	ShowCfg = CfgData.getProperty('apiServer.showConfig');
 	let githubProviders = CfgData.getSection('integrations.github');
 	Object.keys(githubProviders).forEach(provider => {
-		if (provider == 'github.com') {
-			GitHubCfg.appClientId = githubProviders['github.com'].appClientId;
-			GitHubCfg.appClientSecret = githubProviders['github.com'].appClientSecret;
+		if (provider == 'cloud') {
+			GitHubCfg.appClientId = githubProviders.cloud.appClientId;
+			GitHubCfg.appClientSecret = githubProviders.cloud.appClientSecret;
 		}
 		else {
 			GitHubCfg.localProviders[provider] = githubProviders[provider];

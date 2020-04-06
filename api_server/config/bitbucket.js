@@ -17,10 +17,7 @@ let BitBucketCfg = {
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	ShowCfg = CfgData.getProperty('apiServer.showConfig');
-	let bitbucketProviders = CfgData.getSection('integrations.bitbucket');
-	if (bitbucketProviders['bitbucket.com']) {
-		BitBucketCfg = bitbucketProviders['bitbucket.com'];
-	}
+	BitBucketCfg = CfgData.getSection('integrations.bitbucket.cloud');
 }
 else {
 	BitBucketCfg.appClientId = process.env.CS_API_BITBUCKET_CLIENT_ID;

@@ -16,10 +16,7 @@ let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	ShowCfg = CfgData.getProperty('apiServer.showConfig');
-	let glipProviders = CfgData.getSection('integrations.glip');
-	if (glipProviders['glip.com']) {
-		GlipCfg = glipProviders['glip.com'];
-	}
+	GlipCfg = CfgData.getSection('integrations.glip.cloud');
 }
 else {
 	GlipCfg.appClientId = process.env.CS_API_GLIP_CLIENT_ID;

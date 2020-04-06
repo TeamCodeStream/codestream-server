@@ -18,10 +18,7 @@ let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile( {configFile: CfgFileName});
 	ShowCfg = CfgData.getProperty('apiServer.showConfig');
-	let msteamsProviders = CfgData.getSection('integrations.msteams');
-	if (msteamsProviders['microsoft.com']) {
-		MsTeamsCfg = msteamsProviders['microsoft.com'];
-	}
+	MsTeamsCfg = CfgData.getSection('integrations.msteams.cloud');
 }
 else {
 	MsTeamsCfg.appClientId = process.env.CS_API_MSTEAMS_CLIENT_ID;

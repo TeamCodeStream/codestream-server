@@ -16,10 +16,7 @@ let CfgFileName = process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE;
 if (CfgFileName) {
 	const CfgData = new StructuredCfgFile({ configFile: CfgFileName });
 	ShowCfg = CfgData.getProperty('apiServer.showConfig');
-	let YouTrackProviders = CfgData.getSection('integrations.youtrack');
-	if (YouTrackProviders['jetbrains.com']) {
-		YouTrackCfg = YouTrackProviders['jetbrains.com'];
-	}
+	YouTrackCfg = CfgData.getSection('integrations.youtrack.cloud');
 }
 
 // this is needed to be non-null to return provider data to the client, but is not actually used
