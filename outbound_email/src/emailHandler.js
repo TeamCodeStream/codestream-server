@@ -1,5 +1,7 @@
 'use strict';
 
+const Config = require('./config');
+
 class EmailHandler {
 
 	constructor (options) {
@@ -46,11 +48,15 @@ class EmailHandler {
 		const options = {
 			type: this.message.type,
 			user: this.user,
+			email: this.message.email || this.user.email,
 			subject: this.subject,
 			content: this.content
 		};
 		if (this.message.testing) {
 			options.testCallback = this.testCallback.bind(this);
+		}
+		if (this.message.fromSupport) {
+			options.from = { email: Config.supportEmail };
 		}
 		this.logger.debug('EmailHandler.getSendOptions() returns options:', this.request_id, options);
 		return options;

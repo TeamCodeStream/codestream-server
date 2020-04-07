@@ -35,9 +35,9 @@ class EmailSender {
 
 	// mailer options common to all mailers
 	getCommonMailOptions(options) {
-		const { user, to, from, sender, subject, content, testCallback } = options;
+		const { user, email, to, from, sender, subject, content, testCallback } = options;
 		const envelope = {
-			email: to ? to.email : user.email,
+			email: to ? to.email : (email || user.email),
 			name: to ? to.name : this.getUserDisplayName(user),
 			senderEmail: from ? from.email : Config.senderEmail,
 			// senderEmail: from ? from.email : 
