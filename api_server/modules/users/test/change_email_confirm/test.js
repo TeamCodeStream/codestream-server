@@ -3,7 +3,6 @@
  
 'use strict';
 
-/*
 const ChangeEmailConfirmTest = require('./change_email_confirm_test');
 const ChangeEmailConfirmFetchTest = require('./change_email_confirm_fetch_test');
 const TokenRequiredTest = require('./token_required_test');
@@ -15,13 +14,10 @@ const UserNotFoundTest = require('./user_not_found_test');
 const NoIssuanceTest = require('./no_issuance_test');
 const TokenDeprecatedTest = require('./token_deprecated_test');
 const MessageToTeamTest = require('./message_to_team_test');
-*/
 
 class ChangeEmailConfirmRequestTester {
 
 	test () {
-		// DEPRECATED UNTIL CHANGE EMAIL SUPPORTED IN IDE
-		/*
 		new ChangeEmailConfirmTest().test();
 		new ChangeEmailConfirmFetchTest().test();
 		new TokenRequiredTest().test();
@@ -34,7 +30,6 @@ class ChangeEmailConfirmRequestTester {
 		new NoIssuanceTest().test();
 		new TokenDeprecatedTest().test();
 		new MessageToTeamTest().test();
-		*/
 	}
 }
 

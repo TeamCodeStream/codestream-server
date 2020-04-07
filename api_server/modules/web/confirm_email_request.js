@@ -3,16 +3,21 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const UserPublisher = require('./user_publisher');
+const WebRequestBase = require('./web_request_base');
+const UserPublisher = require(process.env.CS_API_TOP + '/modules/users/user_publisher');
 const AuthenticatorErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const WebErrors = require(process.env.CS_API_TOP + '/modules/web/errors');
+const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
+const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 
-class ChangeEmailConfirmRequest extends RestfulRequest {
+class ConfirmEmailRequest extends WebRequestBase {
 
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(AuthenticatorErrors);
+		this.errorHandler.add(UserErrors);
 	}
 
 	async authorize () {
@@ -21,28 +26,25 @@ class ChangeEmailConfirmRequest extends RestfulRequest {
 
 	// process the request....
 	async process () {
-		// DEPRECATED UNTIL CHANGE EMAIL IS SUPPORTED IN THE IDE
-		throw ('deprecated');
-		/*
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
-		await this.verifyToken();       // make sure the token is valid, and parse the payload
-		await this.getUser();           // get the user associated with the ID in the token
-		await this.validateToken();     // verify the token is not expired, per the most recently issued token
+		await this.verifyToken();		// make sure the token is valid, and parse the payload
+		await this.getUser();			// get the user associated with the ID in the token
+		await this.validateToken();		// verify the token is not expired, per the most recently issued token
+		await this.ensureUnique();		// ensure the email isn't already taken
 		await this.updateUser();		// update the user object with the new email
-		*/
 	}
 
 	// require these parameters, and discard any unknown parameters
 	async requireAndAllow () {
 		await this.requireAllowParameters(
-			'body',
+			'query',
 			{
 				required: {
-					string: ['token']
+					string: ['t']
 				}
 			}
 		);
-		this.token = this.request.body.token;
+		this.token = this.request.query.t;
 	}
 
 	// parse and verify the passed token
@@ -90,11 +92,23 @@ class ChangeEmailConfirmRequest extends RestfulRequest {
 		}
 	}
 
+	// ensure the email that the user is changing to is not already an email in our system
+	async ensureUnique () {
+		const existingUser = await this.data.users.getOneByQuery(
+			{ searchableEmail: this.payload.email.toLowerCase() },
+			{ hint: UserIndexes.bySearchableEmail }
+		);
+		if (existingUser) {
+			throw this.errorHandler.error('emailTaken', { info: this.payload.email });
+		}
+	}
+
 	// update the user in the database with new email
 	async updateUser () {
 		const op = {
 			$set: {
 				email: this.payload.email,
+				searchableEmail: this.payload.email.toLowerCase(),
 				modifiedAt: Date.now()
 			}
 		};
@@ -105,12 +119,16 @@ class ChangeEmailConfirmRequest extends RestfulRequest {
 		}).save(op);
 	}
 
+	// handle the response to the request, overriding the base response to do a redirect
 	async handleResponse () {
 		if (this.gotError) {
-			return await super.handleResponse();
+			this.warn(ErrorHandler.log(this.gotError));
+			const errorCode = typeof this.gotError === 'object' && this.gotError.code ? this.gotError.code : WebErrors['unknownError'].code;
+			this.response.redirect(`/web/confirm-email-error?error=${errorCode}`);
 		}
-		this.responseData = { user: this.updateOp };
-		super.handleResponse();
+		else {
+			this.response.redirect('/web/confirm-email-complete');
+		}
 	}
 
 	// after the request returns a response....
@@ -122,45 +140,14 @@ class ChangeEmailConfirmRequest extends RestfulRequest {
 	// publish the updated user directive to all the team members,
 	// over the team channel
 	async publishUserToTeams () {
+		delete this.updateOp.$set.searchableEmail;
 		await new UserPublisher({
 			user: this.user,
-			data: this.responseData.user,
+			data: this.updateOp,
 			request: this,
 			broadcaster: this.api.services.broadcaster
 		}).publishUserToTeams();
 	}
-
-	// describe this route for help
-	static describe () {
-		return {
-			tag: 'change-email-confirm',
-			summary: 'Confirm a user changing their email',
-			access: 'Must provide the token from the email issued in the @@#change-email#change-email@@ request',
-			description: 'Given the token issued in the email sent by a @@#change-email#change-email@@ request, assume the email has been confirmed and change it',
-			input: {
-				summary: 'Specify the token in the request body',
-				looksLike: {
-					'token*': '<Token from change-email confirmation email>'
-				}
-			},
-			returns: {
-				summary: 'Directive to set the user\'s new email',
-				looksLike: {
-					user: {
-						id: '<ID of the user>',
-						$set: {
-							email: '<New email>'
-						}
-					}
-				}
-			},
-			errors: [
-				'parameterRequired',
-				'tokenInvalid',
-				'tokenExpired'
-			]
-		};
-	}
 }
 
-module.exports = ChangeEmailConfirmRequest;
+module.exports = ConfirmEmailRequest;

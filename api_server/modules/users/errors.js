@@ -132,5 +132,10 @@ module.exports = {
 		code: 'USRC-1024',
 		message: 'User must set a password',
 		description: 'The user cannot continue to use this account until they set a password'
+	},
+	'emailTaken': {
+		code: 'USRC-1025',
+		message: 'The email is already taken',
+		description: 'The user is trying to change their email, but that email is already taken'
 	}
 };

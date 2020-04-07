@@ -24,6 +24,10 @@ const STANDARD_PAGES = [
 	{
 		route: 'web/unfollow-review-complete',
 		template: 'unfollow_review_complete'
+	},
+	{
+		route: 'web/confirm-email-complete',
+		template: 'email_confirmed'
 	}
 ];
 
@@ -127,6 +131,16 @@ const ROUTES = [
 		method: 'get',
 		path: 'web/unfollow-review-error',
 		requestClass: require('./web_unfollow_review_error_request')
+	},
+	{
+		method: 'get',
+		path: 'web/confirm-email',
+		requestClass: require('./confirm_email_request')
+	},
+	{
+		method: 'get',
+		path: 'web/confirm-email-error',
+		requestClass: require('./web_confirm_email_failed_request')
 	},
 	{
 		method: 'get',

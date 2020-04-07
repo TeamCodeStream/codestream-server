@@ -4,7 +4,7 @@ const Assert = require('assert');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
 
 class ConfirmationEmailTest extends CodeStreamMessageTest {
 
@@ -42,7 +42,9 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		// this is the message we expect to see
 		this.message = {
 			type: 'changeEmail',
-			userId: this.currentUser.user.id
+			userId: this.currentUser.user.id,
+			email: this.data.email,
+			fromSupport: true
 		};
 		// send the request to initiate chaning email
 		this.doApiRequest(
@@ -61,12 +63,9 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 	validateMessage (message) {
 		const gotMessage = message.message;
 
-		// THIS TEST IS DISABLED PENDING SUPPORT FOR CHANGING EMAIL IN THE EXTENSION,
-		// WE DON'T HAVE THE WEB APP SO WE CAN'T GENERATE THIS LINK...
-		
 		// verify a match to the url
-		const host = WebClientConfig.host.replace(/\//g, '\\/');
-		const shouldMatch = new RegExp(`^${host}\\/a\\/settings\\?confirm_email_token=(.*)$`);
+		const host = ApiConfig.publicApiUrl.replace(/\//g, '\\/');
+		const shouldMatch = new RegExp(`^${host}\\/web\\/confirm-email\\?t=(.+)$`);
 		const match = gotMessage.url.match(shouldMatch);
 		Assert(match && match.length === 2, 'confirmation link url is not correct');
 

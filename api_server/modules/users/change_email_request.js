@@ -5,8 +5,15 @@
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
 const UserValidator = require('./user_validator');
+const UserErrors = require('./errors');
+const UserIndexes = require('./indexes');
 
 class ChangeEmailRequest extends RestfulRequest {
+
+	constructor (options) {
+		super(options);
+		this.errorHandler.add(UserErrors);
+	}
 
 	async authorize () {
 		// only applies to current user, no authorization required
@@ -14,15 +21,12 @@ class ChangeEmailRequest extends RestfulRequest {
 
 	// process the request....
 	async process () {
-		// this request is deprecated until we support email change from the IDE
-		throw 'deprecated';
-		/*
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
 		await this.validateEmail();		// make sure the new email is valid
+		await this.ensureUnique();		// ensure the email is not already taken
 		await this.generateToken();		// generate a token for the email
 		await this.saveTokenInfo();		// save the token info
 		await this.sendEmail();			// send the confirmation email
-		*/
 	}
 
 	// require these parameters, and discard any unknown parameters
@@ -46,6 +50,17 @@ class ChangeEmailRequest extends RestfulRequest {
 		const error = new UserValidator().validateEmail(this.request.body.email);
 		if (error) {
 			throw this.errorHandler.error('validation', { info: `email ${error}` });
+		}
+	}
+
+	// ensure the email that the user is changing to is not already an email in our system
+	async ensureUnique () {
+		const existingUser = await this.data.users.getOneByQuery(
+			{ searchableEmail: this.request.body.email.toLowerCase() },
+			{ hint: UserIndexes.bySearchableEmail }
+		);
+		if (existingUser) {
+			throw this.errorHandler.error('emailTaken', { info: this.request.body.email });
 		}
 	}
 
@@ -101,13 +116,15 @@ class ChangeEmailRequest extends RestfulRequest {
 		}
 
 		// generate the url and send the email
-		const host = this.api.config.webclient.host;
-		const url = `${host}/a/settings?confirm_email_token=${encodeURIComponent(this.token)}`;
+		const host = this.api.config.api.publicApiUrl;
+		const url = `${host}/web/confirm-email?t=${encodeURIComponent(this.token)}`;
 		this.log(`Triggering change-email confirmation email to ${this.user.get('email')}...`);
 		await this.api.services.email.queueEmailSend(
 			{
 				type: 'changeEmail',
 				userId: this.user.id,
+				email: this.request.body.email,
+				fromSupport: true,
 				url
 			},
 			{
