@@ -44,7 +44,12 @@ class PutUserRequest extends PutRequest {
 			looksLike: {
 				'username': '<Updated username for the user, must be unique for any teams the user is on>',
 				'fullName': '<User\'s full name>',
-				'timeZone': '<User\'s time zone (eg. America/New_York)>'
+				'timeZone': '<User\'s time zone (eg. America/New_York)>',
+				'phoneNumber': '<User\'s phone number>',
+				'iWorkOn': '<What ths user works on>',
+				'status': '<User\'s status object, defined by client>',
+				'avatar': '<User\'s headshot or avatar object, as defined by client>',
+				'modifiedRepos': '<Object describing what the user is current working on by repo, object defined by client>'
 			}
 		};
 		description.publishes = {

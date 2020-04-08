@@ -268,5 +268,10 @@ module.exports = {
 		type: 'object',
 		description: 'User settable status that other team members can see',
 		maxLength: 200
+	},
+	avatar: {
+		type: 'object',
+		description: 'Object describing user\'s headshot or avatar',
+		maxLength: 300
 	}
 };

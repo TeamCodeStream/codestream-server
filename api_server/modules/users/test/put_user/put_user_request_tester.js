@@ -18,7 +18,7 @@ const ModifiedReposACLTest = require('./modified_repos_acl_test');
 const ModifiedReposInvalidTeamTest = require('./modified_repos_invalid_team_test');
 
 const UserAttributes = require('../../user_attributes');
-const CAN_UPDATE_ATTRIBUTES = ['username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn', 'status'];
+const CAN_UPDATE_ATTRIBUTES = ['username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn', 'status', 'avatar'];
 
 class PutUserRequestTester {
 
