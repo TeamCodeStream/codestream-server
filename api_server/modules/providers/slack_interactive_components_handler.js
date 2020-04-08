@@ -722,7 +722,6 @@ class SlackInteractiveComponentsHandler {
 			return u.get('_id');
 		});
 		const codemarkUser = usersById[codemark.get('creatorId')];
-		const markerMarkdown = await this.createMarkerMarkup(codemark);
 		let blocks = [
 			{
 				type: 'context',
@@ -734,15 +733,50 @@ class SlackInteractiveComponentsHandler {
 						slackUserExtra && slackUserExtra.tz
 					)}`
 				}]
-			},
-			{
+			}
+		];
+
+		let codemarkText = codemark.get('text');
+		let isTruncated = false;
+		if (codemarkText && codemarkText.length) {
+			isTruncated = codemarkText.length > 3000;
+			codemarkText = codemarkText.substring(0, 2997) + '...';
+		}
+		if (codemarkText) {
+			blocks.push({
 				type: 'section',
 				text: {
 					type: 'mrkdwn',
-					text: `${codemark.get('text')}${markerMarkdown}`
+					text: codemarkText
+				}
+			});
+			if (isTruncated) {
+				blocks.push({
+					type: 'context',
+					elements: [{
+						type: 'mrkdwn',
+						text: 'This was partially truncated. Open in IDE to view it in full.'
+					}]
+				});
+			}
+		}
+		if (codemark.get('markerIds') && codemark.get('markerIds').length) {
+			const markers = await this.data.markers.getByIds(codemark.get('markerIds'));
+			if (markers && markers.length) {
+				for (const m of markers) {
+					const file = m.get('file');
+					// +1 for the newline
+					const fileLength = file ? file.length + 1 : 0;
+					blocks.push({
+						type: 'section',
+						text: {
+							type: 'mrkdwn',
+							text: `${file}\n\`\`\`${(m.get('code') || '').substring(0, 2994 - fileLength)}}\`\`\``
+						}
+					});
 				}
 			}
-		];
+		}
 
 		blocks.push(SlackInteractiveComponentBlocks.createModalReplyBlock());
 
@@ -927,21 +961,6 @@ class SlackInteractiveComponentsHandler {
 				);
 			}
 		}
-	}
-
-	async createMarkerMarkup (codemark) {
-		let markers;
-		let markerMarkdown = '';
-		if (codemark.get('markerIds') && codemark.get('markerIds').length) {
-			markers = await this.data.markers.getByIds(codemark.get('markerIds'));
-			if (markers && markers.length) {
-				markerMarkdown += '\n';
-				for (const m of markers) {
-					markerMarkdown += `\n${m.get('file')}\n\`\`\`${m.get('code')}}\`\`\``;
-				}
-			}
-		}
-		return markerMarkdown;
 	}
 
 	async getUsers () {
