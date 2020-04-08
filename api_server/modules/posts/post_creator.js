@@ -423,6 +423,9 @@ class PostCreator extends ModelCreator {
 			},
 			$unset: { [`lastReads.${this.stream.id}`]: true }
 		};
+		if (this.createdReview) {
+			op.$set.totalReviews = (this.user.get('totalReviews') || 0) + 1;
+		}
 		this.transforms.updatePostCountOp = await new ModelSaver({
 			request: this.request,
 			collection: this.data.users,

@@ -141,6 +141,12 @@ module.exports = {
 		forMe: true,
 		description: 'UNIX timestamp of the last post this user authored'
 	},
+	totalReviews: {
+		type: 'number',
+		serverOnly: true,
+		forMe: true,
+		description: 'Total number of reviews this user has requested'
+	},
 	timeZone: {
 		type: 'string',
 		maxLength: 50,

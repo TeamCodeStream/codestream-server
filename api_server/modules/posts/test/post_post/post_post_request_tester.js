@@ -190,6 +190,8 @@ const InvalidAuthorTest = require('./reviews/invalid_author_test');
 const AuthorNotOnTeamTest = require('./reviews/author_not_on_team_test');
 const ReplyToAttachedCodemarkTest = require('./reviews/reply_to_attached_codemark_test');
 const ReplyToAttachedCodemarkNumRepliesTest = require('./reviews/reply_to_attached_codemark_num_replies_test');
+const TotalReviewsTest = require('./reviews/total_reviews_test');
+
 class PostPostRequestTester {
 
 	postPostTest () {
@@ -401,6 +403,7 @@ class PostPostRequestTester {
 		new AuthorNotOnTeamTest().test();
 		new ReplyToAttachedCodemarkTest().test();
 		new ReplyToAttachedCodemarkNumRepliesTest().test();
+		new TotalReviewsTest().test();
 	}
 }
 
