@@ -45,6 +45,7 @@ const TagsNotFoundTest = require('./tags_not_found_test');
 const AddRemoveTagsTest = require('./add_remove_tags_test');
 const AddRemoveTagsFetchTest = require('./add_remove_tags_fetch_test');
 const NoAddRemoveSameTagTest = require('./no_add_remove_same_tag_test');
+const ApprovedAtTest = require('./approved_at_test');
 
 class PutReviewRequestTester {
 
@@ -106,6 +107,7 @@ class PutReviewRequestTester {
 		new AddRemoveTagsTest().test();
 		new AddRemoveTagsFetchTest().test();
 		new NoAddRemoveSameTagTest().test();
+		new ApprovedAtTest().test();
 	}
 }
 

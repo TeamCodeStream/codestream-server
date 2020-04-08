@@ -115,6 +115,11 @@ class ReviewUpdater extends ModelUpdater {
 			}
 		}
 
+		// if we're updating to approved, set the approvedAt attribute
+		if (this.attributes.status === 'approved') {
+			this.attributes.approvedAt = this.attributes.modifiedAt;
+		}
+		
 		await super.preSave();
 	}
 
