@@ -29,7 +29,7 @@ const SecondReplyTest = require('./second_reply_test');
 const NumRepliesMessageToStreamTest = require('./num_replies_message_to_stream_test');
 const MentionTest = require('./mention_test');
 const UnregisteredMentionTest = require('./unregistered_mention_test');
-const MessageToAuthor = require('./message_to_author_test');
+const MessageToAuthorTest = require('./message_to_author_test');
 const OriginFromPluginTest = require('./origin_from_plugin_test');
 const NoReplyToReplyTest = require('./no_reply_to_reply_test');
 
@@ -227,7 +227,7 @@ class PostPostRequestTester {
 		new NumRepliesToCodemarkMessageTest({ type: 'channel' }).test();
 		new MentionTest().test();
 		new UnregisteredMentionTest().test();
-		new MessageToAuthor().test();
+		new MessageToAuthorTest().test();
 		new OriginFromPluginTest().test();
 		new NoReplyToReplyTest().test();
 		new InvalidMentionTest().test();

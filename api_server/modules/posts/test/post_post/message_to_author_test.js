@@ -13,11 +13,37 @@ class MessageToAuthorTest extends NewPostMessageToChannelTest {
 	makeData (callback) {
 		// perform a little trickery here ... set the current user to the creator of the post,
 		// since the update message will come back on the creator's me-channel
-		super.makeData(() => {
+		super.makeData(error => {
+			if (error) { return callback(error); }
 			this.currentUser = this.users[1];
 			this.broadcasterToken = this.users[1].broadcasterToken;
 			this.useToken = this.users[1].accessToken;
 			this.updatedAt = Date.now();
+			callback();
+		});
+	}
+
+	makePostData (callback) {
+		super.makePostData(error => {
+			if (error) { return callback(error); }
+			this.expectedMessage = {
+				user: {
+					_id: this.users[1].user.id,	// DEPRECATE ME
+					id: this.users[1].user.id,
+					$set: {
+						version: 4,
+						totalPosts: 1,
+						lastPostCreatedAt: this.timeBeforePost
+					},	// this is a placeholder, it should be some time greater than this
+					$unset: {
+						[`lastReads.${this.stream.id}`]: true
+					},
+					$version: {
+						before: 3,
+						after: 4
+					}
+				}
+			};
 			callback();
 		});
 	}
@@ -32,24 +58,7 @@ class MessageToAuthorTest extends NewPostMessageToChannelTest {
 	}
 
 	validateMessage (message) {
-		this.message = {
-			user: {
-				_id: this.users[1].user.id,	// DEPRECATE ME
-				id: this.users[1].user.id,
-				$set: {
-					version: 4,
-					totalPosts: 1,
-					lastPostCreatedAt: this.timeBeforePost
-				},	// this is a placeholder, it should be some time greater than this
-				$unset: {
-					[`lastReads.${this.stream.id}`]: true
-				},
-				$version: {
-					before: 3,
-					after: 4
-				}
-			}
-		};
+		this.message = this.expectedMessage;
 		const lastPostCreatedAt = message.message.user.$set.lastPostCreatedAt;
 		Assert(typeof lastPostCreatedAt === 'number' && lastPostCreatedAt > this.timeBeforePost, 'lastPostCreatedAt is not set or not greater than the time before the post');
 		this.message.user.$set.lastPostCreatedAt = lastPostCreatedAt;	// to pass the base-class validation
