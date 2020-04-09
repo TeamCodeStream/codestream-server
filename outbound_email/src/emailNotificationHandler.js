@@ -2,7 +2,6 @@
 
 const EmailNotificationProcessor = require('./emailNotificationProcessor');
 const Index = require('./postIndex');
-const Config = require('./config');
 
 class EmailNotificationHandler {
 
@@ -62,7 +61,8 @@ class EmailNotificationHandler {
 			stream: this.stream,
 			seqNum: this.message.seqNum,
 			broadcaster: this.broadcaster,
-			sender: this.sender
+			sender: this.sender,
+			outboundEmailServer: {config: this.outboundEmailHander.config}
 		}).sendEmailNotifications();
 	}
 
@@ -111,7 +111,7 @@ class EmailNotificationHandler {
 		// interval has passed since the post's creation
 		else {
 			const timeSinceTriggerTime = this.processingStartedAt - this.message.initialTriggerTime;
-			if (timeSinceTriggerTime <= Config.sessionAwayTimeout) {
+			if (timeSinceTriggerTime <= this.outboundEmailServer.config.sessionAwayTimeout) {
 				this.log(`Mopping up offline users for stream ${this.stream._id}...`);
 				this.fromSeqNum = this.message.seqNum;
 				initialTriggerTime = this.message.initialTriggerTime;
@@ -127,11 +127,11 @@ class EmailNotificationHandler {
 			seqNum: this.fromSeqNum,
 			initialTriggerTime
 		};
-		const delay = Math.floor(Config.notificationInterval / 1000);
+		const delay = Math.floor(this.outboundEmailServer.config.notificationInterval / 1000);
 		this.log(`Triggering email notifications for stream ${this.stream.id} in ${delay} seconds...`);
 		try {
 			await this.queuer.sendMessage(
-				Config.outboundEmailQueueName,
+				this.outboundEmailServer.config.outboundEmailQueueName,
 				message,
 				{ delay: delay }
 			);

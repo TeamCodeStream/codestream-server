@@ -1,6 +1,5 @@
 'use strict';
 
-const Config = require('./config');
 const ReplyRenderer = require('./replyRenderer');
 const CodemarkRenderer = require('./codemarkRenderer');
 const ReviewRenderer = require('./reviewRenderer');
@@ -494,7 +493,7 @@ class EmailNotificationV2Handler {
 		Object.assign(this.renderOptions, {
 			content: this.renderedPostPerUser[user.id],
 			unfollowLink,
-			inboundEmailDisabled: Config.inboundEmailDisabled,
+			inboundEmailDisabled: this.outboundEmailServer.config.inboundEmailDisabled,
 			styles: this.pseudoStyles,	// only pseudo-styles go in the <head>
 			needButtons: !!this.parentPost || review || (codemark.markerIds || []).length === 1
 		});
@@ -511,7 +510,7 @@ class EmailNotificationV2Handler {
 	getUnfollowLink (user, thingToUnfollow, isReview) {
 		const expiresIn = this.expiresIn || 30 * 24 * 60 * 60 * 1000; // one month
 		const expiresAt = Date.now() + expiresIn;
-		const token = new TokenHandler(Config.tokenSecret).generate(
+		const token = new TokenHandler(this.outboundEmailServer.config.tokenSecret).generate(
 			{
 				uid: user.id
 			},
@@ -521,7 +520,7 @@ class EmailNotificationV2Handler {
 			}
 		);
 		const reviewPathPart = isReview ? 'review/' : '';
-		return `${Config.apiUrl}/no-auth/unfollow-link/${reviewPathPart}${thingToUnfollow.id}?t=${token}`;
+		return `${this.outboundEmailServer.config.apiUrl}/no-auth/unfollow-link/${reviewPathPart}${thingToUnfollow.id}?t=${token}`;
 	}
 
 	// send all the email notifications 
@@ -581,7 +580,7 @@ class EmailNotificationV2Handler {
 		const which = review ? 'review' : 'codemark';
 		try {
 			this.logger.log(`Sending ${which}-based email notification to ${user.email}, post ${this.post.id}, isReply=${isReply}...`);
-			await new EmailNotificationV2Sender().sendEmailNotification(options);
+			await new EmailNotificationV2Sender().sendEmailNotification(options, this.outboundEmailServer.config);
 		}
 		catch (error) {
 			let message;

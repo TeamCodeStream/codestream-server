@@ -58,12 +58,9 @@ const Utils = {
 	renderDescriptionDiv: function (text, options) {
 		if (text) {
 			text = Utils.prepareForEmail(text, options);
-			const iconHtml = Utils.renderIcon('description');
-			// F MS -- can't even get an icon on a single line... just hide it for those fools
 			return this.renderSection(`
 <div class="nice-gray section-text">DESCRIPTION</div>
 <div class="description-wrapper">
-<!--[if !mso]> <!-->${iconHtml}&nbsp;<!-- <![endif]-->
 <span class="ensure-white description">${text}</span>
 </div>`);
 		}

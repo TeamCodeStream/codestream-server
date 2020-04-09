@@ -4,17 +4,16 @@
 
 const SendGridEmail = require('./server_utils/sendgrid_email');
 const SMTPEmail = require('./server_utils/smtp_email');
-const Config = require('./config');
 
 class EmailSender {
 
 	constructor (options) {
 		Object.assign(this, options);
-		if (Config.smtp && (Config.smtp.host || Config.smtp.service)) {
-			this.smtpMailer = new SMTPEmail(Config.smtp);
+		if (this.outboundEmailServer.config.smtp && (this.outboundEmailServer.config.smtp.host || this.outboundEmailServer.config.smtp.service)) {
+			this.smtpMailer = new SMTPEmail(this.outboundEmailServer.config.smtp);
 		}
 		else {
-			this.sendgridEmail = new SendGridEmail(Config.sendgrid);
+			this.sendgridEmail = new SendGridEmail(this.outboundEmailServer.config.sendgrid);
 		}
 	}
 
@@ -39,9 +38,9 @@ class EmailSender {
 		const envelope = {
 			email: to ? to.email : (email || user.email),
 			name: to ? to.name : this.getUserDisplayName(user),
-			senderEmail: from ? from.email : Config.senderEmail,
+			senderEmail: from ? from.email : this.outboundEmailServer.config.senderEmail,
 			// senderEmail: from ? from.email : 
-			// 	(sender ? sender.email : Config.supportEmail),
+			// 	(sender ? sender.email : this.outboundEmailServer.config.supportEmail),
 			senderName: from ? from.name :
 				(sender ? this.getUserDisplayName(sender) : 'CodeStream'),
 			subject,

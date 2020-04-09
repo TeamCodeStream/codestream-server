@@ -2,19 +2,17 @@
 
 'use strict';
 
-const Config = require('./config');
-
 class EmailNotificationV2Sender {
 
 	// send an email notification to the user specified
-	async sendEmailNotification (options) {
+	async sendEmailNotification (options, outboundEmailServerConfig) {
 		const { user, creator, team, stream, replyToPostId, content, sender } = options;
 		const fromName = creator ? `${sender.getUserDisplayName(creator)} (via CodeStream)` : 'CodeStream';
 		const subject = this.getNotificationSubject(options);
-		const replyTo = Config.inboundEmailDisabled ? '' : `${replyToPostId}.${stream.id}.${team.id}@${Config.replyToDomain}`;
+		const replyTo = outboundEmailServerConfig.inboundEmailDisabled ? '' : `${replyToPostId}.${stream.id}.${team.id}@${outboundEmailServerConfig.replyToDomain}`;
 		await sender.sendEmail({
 			type: 'notification',
-			from: { email: Config.senderEmail, name: fromName },
+			from: { email: outboundEmailServerConfig.senderEmail, name: fromName },
 			user,
 			replyTo,
 			subject,

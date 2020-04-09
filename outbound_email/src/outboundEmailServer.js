@@ -3,6 +3,7 @@
 
 'use strict';
 
+const OutboundEmailServerConfig = require('./config');  // structured config object
 const AWS = require('./server_utils/aws/aws');
 const SQSClient = require('./server_utils/aws/sqs_client');
 const RabbitMQClient = require('./server_utils/rabbitmq');
@@ -126,7 +127,13 @@ class OutboundEmailServer {
 		}
 	}
 
-	// process an incoming message
+
+	/**
+	 * process an incoming message
+	 * 
+	 * @param {object} message    - message to be processed
+	 * @param {func} callback     - callback functionnode-osx-latest
+	 */
 	async processMessage (message, callback) {
 		if (callback) { 
 			callback(true);
@@ -138,6 +145,14 @@ class OutboundEmailServer {
 			return;
 		}
 		this.numOpenTasks++;
+		if(await OutboundEmailServerConfig.isDirty()) {
+			this.log('reloading config data - cache is dirty');
+			this.config = await OutboundEmailServerConfig.loadConfig({custom: true});
+			if (OutboundEmailServerConfig.restartRequired()) {
+				this.log('new config requires a restart or full re-initialization');
+				// uh oh!
+			}
+		}
 		const handlerOptions = {
 			logger: this.logger,
 			data: this.data,
@@ -145,7 +160,8 @@ class OutboundEmailServer {
 			queuer: this.queuer,
 			sender: this.emailSender,
 			styles: this.styles,
-			pseudoStyles: this.pseudoStyles
+			pseudoStyles: this.pseudoStyles,
+			outboundEmailServer: this
 		};
 		await new emailHandlerClass(handlerOptions).handleMessage(message);
 		this.numOpenTasks--;
@@ -283,7 +299,8 @@ class OutboundEmailServer {
 	makeEmailSender () {
 		this.emailSender = new EmailSender({
 			logger: this.logger,
-			broadcaster: this.broadcaster
+			broadcaster: this.broadcaster,
+			outboundEmailServer: this
 		});
 	}
 	

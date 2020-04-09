@@ -15,7 +15,7 @@ export PATH=$CS_OUTBOUND_EMAIL_TOP/bin:$PATH
 sandutil_get_codestream_cfg_file "$CS_OUTBOUND_EMAIL_SANDBOX" "$configParm" "$CSSVC_ENV"
 
 # env vars required for scripts that don't load the config file
-[ -z "$CS_OUTBOUND_EMAIL_ENV" ] && export CS_OUTBOUND_EMAIL_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p outboundEmailServer.runTimeEnvironment)`
+[ -z "$CS_OUTBOUND_EMAIL_ENV" ] && export CS_OUTBOUND_EMAIL_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p sharedGeneral.runTimeEnvironment)`
 export CS_OUTBOUND_EMAIL_LOGS=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p outboundEmailServer.logger.directory)`
 export CS_OUTBOUND_EMAIL_TMP=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p outboundEmailServer.tmpDirectory)`
 export CS_OUTBOUND_EMAIL_ASSET_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p outboundEmailServer.assetEnvironment)`

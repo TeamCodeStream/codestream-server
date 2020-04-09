@@ -5,12 +5,14 @@
 'use strict';
 
 const LambdaLocal = require('lambda-local');
-const Config = require('./config');
+const OutboundEmailServerConfig = require('./config');
 const OutboundEmailServer = require('./outboundEmailServer');
 
 var OutboundEmailService;
+var Config;
 
 (async function() {
+	let Config = await OutboundEmailServerConfig.loadConfig({custom: true});
 	Config.messageHandler = HandleMessage;
 	OutboundEmailService = new OutboundEmailServer(Config);
 	OutboundEmailService.start((error) => {
@@ -23,6 +25,9 @@ var OutboundEmailService;
 
 async function HandleMessage (message, releaseCallback) {
 	releaseCallback(true); // this releases the message from the queue
+	// NOTE: This is the only place we expect the config data to be available
+	//       from a global source
+	Config = await OutboundEmailServerConfig.loadConfig({custom: true});
 	try {
 		await LambdaLocal.execute({
 			event: message,

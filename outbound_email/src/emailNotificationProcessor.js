@@ -6,7 +6,6 @@ const Index = require('./postIndex');
 const PostRenderer = require('./postRenderer');
 const EmailNotificationRenderer = require('./emailNotificationRenderer');
 const Path = require('path');
-const Config = require('./config');
 const EmailNotificationSender = require('./emailNotificationSender');
 
 const DEFAULT_TIME_ZONE = 'America/New_York';
@@ -164,7 +163,7 @@ class EmailNotificationProcessor {
 			query,
 			{
 				sort: { seqNum: -1 },
-				limit: Config.maxPostsPerEmail,
+				limit: this.outboundEmailServer.config.maxPostsPerEmail,
 				hint: Index.bySeqNum
 			}
 		);
@@ -175,7 +174,7 @@ class EmailNotificationProcessor {
 	// having gone "away" between the triggering post and their last read post
 	async getEarlierPosts () {
 		// no need to get earlier posts if we've already reached maximum
-		if (this.posts.length === Config.maxPostsPerEmail) {
+		if (this.posts.length === this.outboundEmailServer.config.maxPostsPerEmail) {
 			return;
 		}
 
@@ -217,7 +216,7 @@ class EmailNotificationProcessor {
 			query,
 			{
 				sort: { seqNum: -1 },
-				limit: Config.maxPostsPerEmail - this.posts.length,
+				limit: this.outboundEmailServer.config.maxPostsPerEmail - this.posts.length,
 				hint: Index.bySeqNum
 			}
 		);
@@ -571,8 +570,8 @@ class EmailNotificationProcessor {
 			team: this.team,
 			stream: this.stream,
 			mentioned: !!this.mentionsPerUser[user.id],
-			supportEmail: Config.supportEmail,
-			inboundEmailDisabled: Config.inboundEmailDisabled
+			supportEmail: this.outboundEmailServer.config.supportEmail,
+			inboundEmailDisabled: this.outboundEmailServer.config.inboundEmailDisabled
 		});
 		html = html.replace(/[\t\n]/g, '');
 		this.renderedEmails.push({ user, html });
@@ -610,7 +609,7 @@ class EmailNotificationProcessor {
 		};
 		try {
 			this.logger.log(`Sending email notification to ${user.email}, posts from ${posts[0].id} to ${posts[posts.length-1].id}`);
-			await new EmailNotificationSender().sendEmailNotification(options);
+			await new EmailNotificationSender().sendEmailNotification(options, this.outboundEmailServer.config);
 		}
 		catch (error) {
 			let message;
@@ -670,7 +669,7 @@ class EmailNotificationProcessor {
 			const now = Date.now();
 			return (
 				session.status === 'online' &&
-				session.updatedAt > now - Config.sessionAwayTimeout
+				session.updatedAt > now - this.outboundEmailServer.config.sessionAwayTimeout
 			);
 		});
 	}

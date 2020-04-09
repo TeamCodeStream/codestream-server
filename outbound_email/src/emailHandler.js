@@ -1,7 +1,5 @@
 'use strict';
 
-const Config = require('./config');
-
 class EmailHandler {
 
 	constructor (options) {
@@ -56,7 +54,7 @@ class EmailHandler {
 			options.testCallback = this.testCallback.bind(this);
 		}
 		if (this.message.fromSupport) {
-			options.from = { email: Config.supportEmail, name: 'CodeStream' };
+			options.from = { email: this.outboundEmailHander.config.supportEmail, name: 'CodeStream' };
 		}
 		this.logger.debug('EmailHandler.getSendOptions() returns options:', this.request_id, options);
 		return options;

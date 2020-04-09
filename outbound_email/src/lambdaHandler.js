@@ -2,14 +2,15 @@
 
 /* eslint no-console: 0 */
 
-const Config = require('./config');
+const OutboundEmailServerConfig = require('./config');
 const OutboundEmailServer = require('./outboundEmailServer');
 
 var OutboundEmailService;
 
 exports.handler = async function(event) {
 	try {
-		const config = Object.assign({}, Config, { dontListen: true });
+		let config = await OutboundEmailServerConfig.loadConfig({custom: true, reload: true});
+		config = Object.assign({}, config, { dontListen: true });
 		if (!OutboundEmailService) {
 			OutboundEmailService = new OutboundEmailServer(config);
 			try {
@@ -28,4 +29,3 @@ exports.handler = async function(event) {
 		throw error;
 	}
 };
- 

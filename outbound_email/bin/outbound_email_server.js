@@ -5,16 +5,15 @@
 
 'use strict';
 
-// load configurations
-const ConfigLoader = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/config');
+const OutboundEmailServerConfig = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/config');
 const SimpleFileLogger = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/server_utils/simple_file_logger');
 const ClusterWrapper = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/server_utils/cluster_wrapper');
 
 // start up the master, this will launch workers to really get down to work
 (async function() {
-	// establish our logger
-	let Config = await ConfigLoader.loadConfig();
+	let Config = await OutboundEmailServerConfig.loadConfig({custom: true});
 
+	// establish our logger
 	var Logger = new SimpleFileLogger(Config.logging);
 	Config.logger = Logger;
 
