@@ -93,13 +93,13 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				id: this.currentUser.user.id,
 				_id: this.currentUser.user.id, // DEPRECATE ME
 				$set: {
-					version: 5,
+					version: 6,
 					modifiedAt: Date.now(),
 					[key]: expectedData
 				},
 				$version: {
-					before: 4,
-					after: 5
+					before: 5,
+					after: 6
 				}
 			}
 		};

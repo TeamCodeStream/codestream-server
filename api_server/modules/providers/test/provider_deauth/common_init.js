@@ -123,12 +123,12 @@ class CommonInit {
 					[teamKey]: true
 				},
 				$set: {
-					version: 5,
+					version: 6,
 					modifiedAt: Date.now()
 				},
 				$version: {
-					before: 4,
-					after: 5
+					before: 5,
+					after: 6
 				}
 			}
 		};

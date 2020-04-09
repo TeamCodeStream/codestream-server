@@ -25,6 +25,7 @@ class CommonInit {
 			this.data.host = this.testHost;
 		}
 		this.expectedUser = Object.assign({}, this.currentUser.user);
+		this.expectedUser.numUsersInvited = 2;
 		this.expectedUser.providerInfo = {
 			[this.team.id]: {
 				[this.provider]: {
@@ -40,11 +41,11 @@ class CommonInit {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
 				$set: {
 					modifiedAt: this.modifiedAfter,
-					version: 4
+					version: 6
 				},
 				$version: {
-					before: 3,
-					after: 4
+					before: 5,
+					after: 6
 				}
 			}
 		};
