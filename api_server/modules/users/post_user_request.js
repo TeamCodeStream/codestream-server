@@ -9,6 +9,7 @@ const AddTeamPublisher = require('./add_team_publisher');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const UserCreator = require(process.env.CS_API_TOP + '/modules/users/user_creator');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class PostUserRequest extends PostRequest {
 
@@ -38,6 +39,7 @@ class PostUserRequest extends PostRequest {
 		await this.requireAndAllow();
 		await this.createUser();
 		await this.addToTeam();
+		await this.setNumInvited();
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -81,7 +83,7 @@ class PostUserRequest extends PostRequest {
 			}
 		});
 		this.transforms.createdUser = await this.userCreator.createUser(userData);
-		this.wasOnTeam = this.transforms.createdUser.hasTeam(this.team.id);
+		this.wasOnTeam = this.userCreator.existingModel && this.userCreator.existingModel.hasTeam(this.team.id);
 	}
 
 	// add the passed user to the team indicated, this will create the user as needed
@@ -99,6 +101,22 @@ class PostUserRequest extends PostRequest {
 		}).addTeamMember();
 		// refetch the user since they changed when added to team
 		this.transforms.createdUser = await this.data.users.getById(this.transforms.createdUser.id);
+	}
+
+	// track the number of users the inviting user has invited
+	async setNumInvited () {
+		if (this.wasOnTeam) { return; } // don't bother if the user was already invited
+		const op = {
+			$set: {
+				numUsersInvited: (this.user.get('numUsersInvited') || 0) + 1,
+				modifiedAt: Date.now()
+			}
+		};
+		this.transforms.invitingUserUpdateOp = await new ModelSaver({
+			request: this,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
 	}
 
 	// form the response to the request
@@ -124,7 +142,8 @@ class PostUserRequest extends PostRequest {
 			this.publishAddToTeam,
 			this.sendInviteEmail,
 			this.trackInvite,
-			this.updateInvites
+			this.updateInvites,
+			this.publishNumUsersInvited
 		], this);
 	}
 
@@ -162,12 +181,6 @@ class PostUserRequest extends PostRequest {
 		}
 
 		// queue invite email for send by outbound email service
-		/*
-		const email = user.get('email');
-		const numInvites = user.get('numInvites') || 0;
-		const campaign = numInvites > 0 ? 'reinvite_email' : 'invitation_email';
-		const checkOutLink = `${this.api.config.webclient.host}/signup?email=${encodeURIComponent(email)}&utm_medium=email&utm_source=product&utm_campaign=${campaign}&force_auth=true`;
-		*/
 		this.log(`Triggering invite email to ${user.get('email')}...`);
 		await this.api.services.email.queueEmailSend(
 			{
@@ -242,6 +255,27 @@ class PostUserRequest extends PostRequest {
 			{ id: this.data.users.objectIdSafe(user.id) },
 			update
 		);
+	}
+
+	// if inviting user has numUsersInvited incremented, publish it
+	async publishNumUsersInvited () {
+		if (!this.transforms.invitingUserUpdateOp) { return; }
+		const channel = 'user-' + this.user.id;
+		const message = {
+			user: this.transforms.invitingUserUpdateOp,
+			requestId: this.request.id
+		};
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate
+			this.warn(`Unable to publish inviting user update message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// describe this route for help

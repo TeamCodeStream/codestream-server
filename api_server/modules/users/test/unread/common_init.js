@@ -42,11 +42,11 @@ class CommonInit {
 				id: this.currentUser.user.id,
 				$set: {
 					[`lastReads.${this.stream.id}`]: this.lastReadPost.seqNum,
-					version: 5
+					version: 7
 				},
 				$version: {
-					before: 4,
-					after: 5
+					before: 6,
+					after: 7
 				}
 			}
 		};

@@ -38,6 +38,7 @@ const OnlyAdminsTest = require('./only_admins_test');
 const AdminsCanInviteTest = require('./admins_can_invite_test');
 //const UniqueUsernameTest = require('./unique_username_test');
 const DuplicateUsernameOkTest = require('./duplicate_username_ok_test');
+const NumUsersInvitedTest = require('./num_users_invited_test');
 
 const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
 
@@ -86,6 +87,7 @@ class PostUserRequestTester {
 		new AdminsCanInviteTest().test();
 		// new UniqueUsernameTest().test();	// not an error anymore
 		new DuplicateUsernameOkTest().test();
+		new NumUsersInvitedTest().test();
 	}
 }
 
