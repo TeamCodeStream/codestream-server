@@ -1,5 +1,13 @@
 # Change Log
 
+## [7.0.1] - 2020-4-10
+
+### Added
+
+- Adds support for users changing their own email addresses
+- Adds support for users adding profile photos
+- Adds support for new guided tour for new users
+
 ## [7.0.0] - 2020-4-3
 
 ### Changed
