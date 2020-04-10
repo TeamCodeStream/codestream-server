@@ -40,7 +40,7 @@ class CommonInit {
 
 	setPath (callback) {
 		this.path = `/open/${this.stream.id}`;
-		const version = this.expectedUserVersion || 5;
+		const version = this.expectedUserVersion || 6;
 		this.expectedResponse = {
 			user: {
 				_id: this.currentUser.user.id,	// DEPRECATE ME

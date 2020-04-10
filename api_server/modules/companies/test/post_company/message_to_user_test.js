@@ -28,14 +28,14 @@ class MessageToUserTest extends CodeStreamMessageTest {
 						_id: this.currentUser.user.id,	// DEPRECATE ME
 						id: this.currentUser.user.id,
 						$set: {
-							version: 4
+							version: 6
 						},
 						$addToSet: {
 							companyIds: response.company.id
 						},
 						$version: {
-							before: 3,
-							after: 4
+							before: 5,
+							after: 6
 						}
 					},
 					company: response.company

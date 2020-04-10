@@ -31,7 +31,7 @@ class MessageToAuthorTest extends NewPostMessageToChannelTest {
 					_id: this.users[1].user.id,	// DEPRECATE ME
 					id: this.users[1].user.id,
 					$set: {
-						version: 4,
+						version: 6,
 						totalPosts: 1,
 						lastPostCreatedAt: this.timeBeforePost
 					},	// this is a placeholder, it should be some time greater than this
@@ -39,8 +39,8 @@ class MessageToAuthorTest extends NewPostMessageToChannelTest {
 						[`lastReads.${this.stream.id}`]: true
 					},
 					$version: {
-						before: 3,
-						after: 4
+						before: 5,
+						after: 6
 					}
 				}
 			};

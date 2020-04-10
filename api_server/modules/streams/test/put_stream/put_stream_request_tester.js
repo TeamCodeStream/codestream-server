@@ -98,12 +98,10 @@ class PutStreamRequestTester {
 		for (let char of ILLEGAL_CHANNEL_NAME_CHARACTERS) {
 			new InvalidChannelNameTest({ illegalCharacter: char }).test();
 		}
-		/*
-		for (let char of ILLEGAL_SLACK_CHANNEL_NAME_CHARACTERS) {
-			new IllegalSlackChannelNameTest({ illegalCharacter: char }).test();
-		}
-		new SlackChannelNameTooLongTest().test();
-		*/
+		//for (let char of ILLEGAL_SLACK_CHANNEL_NAME_CHARACTERS) {
+		//	new IllegalSlackChannelNameTest({ illegalCharacter: char }).test();
+		//}
+		//new SlackChannelNameTooLongTest().test();
 		new NoDuplicateNameTest().test();
 		new UsersNotFound().test();
 		new UsersNotOnTeamTest().test();

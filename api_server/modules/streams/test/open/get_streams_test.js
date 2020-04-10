@@ -9,7 +9,7 @@ class GetStreamsTest extends OpenTest {
 
 	constructor (options) {
 		super(options);
-		this.expectedUserVersion = 6;
+		this.expectedUserVersion = 10;
 	}
 
 	get description () {

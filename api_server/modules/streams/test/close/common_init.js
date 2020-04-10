@@ -24,17 +24,18 @@ class CommonInit {
 
 	setPath (callback) {
 		this.path = `/close/${this.stream.id}`;
+		const expectedVersion = this.expectedVersion || 5;
 		this.expectedResponse = {
 			user: {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
 				id: this.currentUser.user.id,
 				$set: {
 					[`preferences.closedStreams.${this.stream.id}`]: true,
-					version: 4
+					version: expectedVersion
 				},
 				$version: {
-					before: 3,
-					after: 4
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			},
 			stream: {

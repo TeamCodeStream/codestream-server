@@ -40,7 +40,7 @@ class RemoveUserTest extends PutTeamTest {
 			for (let i = 0; i < this.removedUsers.length; i++) {
 				let version = this.removedUsers[i].version;
 				if (this.removedUsers[i].id === this.users[this.teamOptions.creatorIndex].user.id) {
-					version++;
+					version += 5;
 				}
 				const userUpdate = {
 					_id: this.removedUsers[i].id, // DEPRECATE ME

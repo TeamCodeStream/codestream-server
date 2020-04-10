@@ -12,6 +12,7 @@ class GetStreamsTest extends CloseTest {
 	}
 
 	setTestOptions (callback) {
+		this.expectedVersion = 8;
 		super.setTestOptions(() => {
 			this.userOptions.numRegistered = 4;
 			callback();

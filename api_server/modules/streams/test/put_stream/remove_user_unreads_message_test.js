@@ -51,11 +51,11 @@ class RemoveUserUnreadsMessageTest extends Aggregation(CodeStreamMessageTest, Co
 						[`lastReads.${this.stream.id}`]: true
 					},
 					$set: {
-						version: 4
+						version: 7
 					},
 					$version: {
-						before: 3,
-						after: 4
+						before: 6,
+						after: 7
 					}
 				}
 			};

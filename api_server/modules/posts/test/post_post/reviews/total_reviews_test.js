@@ -24,6 +24,9 @@ class TotalReviewsTest extends MessageToAuthorTest {
 				changesetRepoId: this.repo.id
 			});
 			this.expectedMessage.user.$set.totalReviews = 1;
+			this.expectedMessage.user.$set.version++;
+			this.expectedMessage.user.$version.before++;
+			this.expectedMessage.user.$version.after++;
 			callback();
 		});
 	}
