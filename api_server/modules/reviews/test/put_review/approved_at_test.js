@@ -16,7 +16,7 @@ class ApprovedAtTest extends PutReviewTest {
 	}
 
 	validateResponse (data) {
-		Assert.equal(data.review.$set.approvedAt, data.review.$set.modifiedAt, 'approvedAt should be equal to modifiedAt');
+		Assert(data.review.$set.approvedAt >= this.modifiedAfter, 'approvedAt is not greater than before the before was updated');
 		this.expectedData.review.$set.approvedAt = data.review.$set.approvedAt;
 		super.validateResponse(data);
 	}

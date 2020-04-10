@@ -103,5 +103,9 @@ module.exports = {
 		type: 'string',
 		maxLength: 1000,
 		description: 'Private permalink URL for this review'
+	},
+	approvedAt: {
+		type: 'timestamp',
+		description: 'When this review was approved'
 	}
 };
