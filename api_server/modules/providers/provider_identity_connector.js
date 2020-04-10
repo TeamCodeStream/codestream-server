@@ -135,6 +135,11 @@ class ProviderIdentityConnector {
 				userData[attribute] = this.providerInfo[attribute] || '';
 			}
 		});
+		if (this.providerInfo.avatarUrl) {
+			userData.avatar = {
+				image: this.providerInfo.avatarUrl
+			};
+		}
 		this.user = this.createdUser = await this.userCreator.createUser(userData);
 	}
 

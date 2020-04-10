@@ -34,7 +34,8 @@ class GithubAuthorizer {
 			accessToken,
 			username: userData.login,
 			fullName: userData.name,
-			email: primaryEmail ? primaryEmail.email : null
+			email: primaryEmail ? primaryEmail.email : null,
+			avatarUrl: userData.avatar_url
 		};
 	}
 
