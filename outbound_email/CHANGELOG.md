@@ -1,10 +1,20 @@
 # Change Log
 
+<<<<<<< Updated upstream
 ## [7.0.0] - 2020-4-3
 
 ### Updated to support 7.0.0 release
 
 ## [6.4.0] - 2020-3-27
+=======
+## [7.0.1] - 2020-4-10
+
+### Added
+
+- Adds support for users confirming new email addresses
+
+## [6.4.0] - 2020-3-27 
+>>>>>>> Stashed changes
 
 ### Changed
 
