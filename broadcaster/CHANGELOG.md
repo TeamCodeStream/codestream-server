@@ -1,5 +1,9 @@
 # Change Log
 
+## [7.0.1] - 2020-4-10
+
+### Configuration schema update
+
 ## [7.0.0] - 2020-4-3
 
 ### Updated to support 7.0.0 release
