@@ -26,11 +26,13 @@ const ExistingRegisteredOnTeamInviteEmailTest = require('./existing_registered_o
 const ExistingUnregisteredOnTeamInviteEmailTest = require('./existing_unregistered_on_team_invite_email_test');
 const ExistingUnregisteredAlreadyOnTeamInviteEmailTest = require('./existing_unregistered_already_on_team_invite_email_test');
 const ExistingRegisteredAlreadyOnTeamInviteEmailTest = require('./existing_registered_already_on_team_invite_email_test');
+/* deprecated per https://trello.com/c/nwBGfpDG
 const TrackingTest = require('./tracking_test');
 const TrackingRegisteredTest = require('./tracking_registered_test');
 const TrackingAlreadyInvitedTest = require('./tracking_already_invited_test');
 //const ProviderTrackingTest = require('./provider_tracking_test');
 const NoTrackingTest = require('./no_tracking_test');
+*/
 const UsernameResolutionTest = require('./username_resolution_test');
 const ExtendedUsernameResolutionTest = require('./extended_username_resolution_test');
 const UsernameResolutionWithIllegalCharactersTest = require('./username_resolution_with_illegal_characters_test');
@@ -75,11 +77,13 @@ class PostUserRequestTester {
 			ExistingUnregisteredAlreadyOnTeamInviteEmailTest,
 			ExistingRegisteredAlreadyOnTeamInviteEmailTest
 		]);
+		/* deprecated per https://trello.com/c/nwBGfpDG
 		new TrackingTest().test();
 		new TrackingRegisteredTest().test();
 		new TrackingAlreadyInvitedTest().test();
 		new NoTrackingTest().test();
 		// ProviderTrackingTest().test();
+		*/
 		new UsernameResolutionTest().test();
 		new ExtendedUsernameResolutionTest().test();
 		new UsernameResolutionWithIllegalCharactersTest().test();

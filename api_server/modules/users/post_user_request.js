@@ -141,7 +141,7 @@ class PostUserRequest extends PostRequest {
 		await awaitParallel([
 			this.publishAddToTeam,
 			this.sendInviteEmail,
-			this.trackInvite,
+			//this.trackInvite,
 			this.updateInvites,
 			this.publishNumUsersInvited
 		], this);
