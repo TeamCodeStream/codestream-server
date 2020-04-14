@@ -74,6 +74,13 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');
+		if (!this.existingUserIsRegistered) {
+			Assert(user.inviteCode, 'user does not have an invite code');
+		}
+		else {
+			Assert(!user.inviteCode, 'user has an invite code but there should not be one');
+		}
+
 		// verify the user in the response has no attributes that should not go to clients
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

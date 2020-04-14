@@ -233,7 +233,6 @@ module.exports = {
 	},
 	inviteCode: {
 		type: 'string',
-		serverOnly: true,
 		maxLength: 40,
 		description: 'Code used to match a team invite with a given user'
 	},
