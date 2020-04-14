@@ -33,7 +33,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		forEnterprise: true,
 		host: 'github/enterprise',
-		hasIssues: true
+		hasIssues: true,
+		scopes: ['repo', 'read:user', 'user:email']
 	},
 	'gitlab*com': {
 		id: 'gitlab*com',
@@ -50,7 +51,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		forEnterprise: true,
 		host: 'gitlab/enterprise',
 		apiHost: 'gitlab.com/api/v4',
-		hasIssues: true
+		hasIssues: true,
+		scopes: ['api']
 	},
 	'auth*atlassian*com': {
 		id: 'auth*atlassian*com',

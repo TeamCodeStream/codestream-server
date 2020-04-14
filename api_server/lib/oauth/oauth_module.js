@@ -419,7 +419,7 @@ class OAuthModule extends APIServerModule {
 		const hasKey = appClientId || apiKey;
 		if (!disabled && host && hasKey) {
 			const starredHost = host.toLowerCase().replace(/\./g, '*');
-			return {
+			const info = {
 				id: starredHost,
 				name: provider,
 				isEnterprise: false,
@@ -428,9 +428,12 @@ class OAuthModule extends APIServerModule {
 				host: host.toLowerCase(),
 				apiHost: apiHost ? apiHost.toLowerCase() : undefined,
 				hasIssues: hasIssues,
-				hasSharing: hasSharing,
-				scopes: scopes ? scopes.split(',') : []
+				hasSharing: hasSharing
 			};
+			if (forEnterprise && scopes) {
+				info.scopes = scopes.split(',');
+			}
+			return info;
 		}
 	}
 
