@@ -28,6 +28,7 @@ class ProviderHostRequest extends RestfulRequest {
 	async process () {
 		await this.requireAndAllow();	// require parameters, and filter out unknown parameters
 		await this.setProviderHost();	// set the provider host for the team
+		await this.setUserAccessToken();	// set user's access token to this host, if provided
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -39,7 +40,7 @@ class ProviderHostRequest extends RestfulRequest {
 					string: ['host']
 				},
 				optional: {
-					string: ['appClientId', 'appClientSecret', 'apiKey'],
+					string: ['appClientId', 'appClientSecret', 'apiKey', 'token'],
 					object: ['oauthData']
 				}
 			}
@@ -49,10 +50,10 @@ class ProviderHostRequest extends RestfulRequest {
 	// process the request...
 	async setProviderHost () {
 		// make sure we know about this provider
-		const provider = this.request.params.provider.toLowerCase();
-		const serviceAuth = this.api.services[`${provider}Auth`];
+		this.provider = this.request.params.provider.toLowerCase();
+		const serviceAuth = this.api.services[`${this.provider}Auth`];
 		if (!serviceAuth) {
-			throw this.errorHandler.error('unknownProvider', { info: provider });
+			throw this.errorHandler.error('unknownProvider', { info: this.provider });
 		}
 
 		const now = Date.now();
@@ -60,7 +61,8 @@ class ProviderHostRequest extends RestfulRequest {
 		const starredHost = host.replace(/\./g, '*');
 		const data = Object.assign({}, this.request.body);
 		delete data.host;
-		const setKey = `providerHosts.${provider}.${starredHost}`;
+		delete data.token;
+		const setKey = `providerHosts.${this.provider}.${starredHost}`;
 		const op = {
 			$set: {
 				modifiedAt: now,
@@ -92,6 +94,25 @@ class ProviderHostRequest extends RestfulRequest {
 		};
 	}
 
+	async setUserAccessToken () {
+		if (!this.request.body.token) { return; }
+		const modifiedAt = Date.now();
+		const host = this.request.body.host.toLowerCase();
+		const starredHost = host.replace(/\./g, '*');
+		const key = `providerInfo.${this.team.id}.${this.provider}.hosts.${starredHost}.accessToken`;
+		const op = {
+			$set: {
+				modifiedAt,
+				[key]: this.request.body.token
+			}
+		};
+		this.transforms.userUpdate = await new ModelSaver({
+			request: this,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
+	}
+
 	// handle returning the response
 	async handleResponse () {
 		if (this.gotError) {
@@ -104,6 +125,11 @@ class ProviderHostRequest extends RestfulRequest {
 
 	// after the response is returned....
 	async postProcess () {
+		await this.publishToTeam();
+		await this.publishToUser();
+	}
+
+	async publishToTeam () {
 		// send the message to the team channel
 		const channel = 'team-' + this.team.id;
 		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
@@ -117,6 +143,27 @@ class ProviderHostRequest extends RestfulRequest {
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate
 			this.warn(`Unable to publish provider host message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
+	}
+
+	// if the user had a token, send a message to the user
+	async publishToUser () {
+		if (!this.transforms.userUpdate) { return; }
+		const channel = 'user-' + this.user.id;
+		const message = {
+			user: this.transforms.userUpdate,
+			requestId: this.request.id
+		};
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate
+			this.warn(`Unable to publish provider info message to channel ${channel}: ${JSON.stringify(error)}`);
 		}
 	}
 

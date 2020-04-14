@@ -412,7 +412,8 @@ class OAuthModule extends APIServerModule {
 			forEnterprise,
 			needsConfigure,
 			disabled,
-			hasSharing
+			hasSharing,
+			scopes
 		} = this.oauthConfig;
 		const { appClientId, apiKey } = this.apiConfig;
 		const hasKey = appClientId || apiKey;
@@ -427,7 +428,8 @@ class OAuthModule extends APIServerModule {
 				host: host.toLowerCase(),
 				apiHost: apiHost ? apiHost.toLowerCase() : undefined,
 				hasIssues: hasIssues,
-				hasSharing: hasSharing
+				hasSharing: hasSharing,
+				scopes: scopes ? scopes.split(',') : []
 			};
 		}
 	}
