@@ -3,6 +3,7 @@
 'use strict';
 
 const LoginTest = require('./login_test');
+/*
 const InvalidPasswordTest = require('./invalid_password_test');
 const InvalidEmailTest = require('./invalid_email_test');
 const NoAttributeTest = require('./no_attribute_test');
@@ -16,11 +17,12 @@ const TokenIsValidTest = require('./token_is_valid_test');
 const SubscriptionTest = require('./subscription_test');
 const DontUpdateLastLoginFromWebTest = require('./dont_update_last_login_from_web_test');
 const ClearFirstSessionTest = require('./clear_first_session_test');
-
+*/
 class LoginRequestTester {
 
 	loginTest () {
 		new LoginTest().test();
+		/*
 		new NoAttributeTest({ attribute: 'email' }).test();
 		new NoAttributeTest({ attribute: 'password' }).test();
 		new InvalidPasswordTest().test();
@@ -37,6 +39,7 @@ class LoginRequestTester {
 		new SubscriptionTest({ which: 'stream' }).test();
 		new DontUpdateLastLoginFromWebTest().test();
 		new ClearFirstSessionTest().test();
+		*/
 	}
 }
 

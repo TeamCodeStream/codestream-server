@@ -74,6 +74,7 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 			originTeamId: this.team.id,
 			version: 3
 		});
+		delete userObject.inviteCode;
 		this.message = {
 			users: [userObject]
 		};
