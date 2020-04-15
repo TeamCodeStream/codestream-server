@@ -423,8 +423,14 @@
 		else if (type ==='review') {			
 			route = { controller: 'review', action: 'open', id: options.id, query: [] }
 		}
-		else if (type === 'search') {
-			route = { controller: 'search', action: 'open', query: [ { key: 'q', value: options.q } ]}
+		else if (type === 'navigate') {
+			if (options.action === 'search') {
+				// special handler for search
+				route = { controller: 'search', action: 'open', query: [ { key: 'q', value: options.q } ]}
+			}
+			else {
+				route = { controller: 'navigate', action: options.action, query: [ { key: 'q', value: options.q } ]}
+			}
 		}
 		else {
 			console.error(`unknown type=${type}`);

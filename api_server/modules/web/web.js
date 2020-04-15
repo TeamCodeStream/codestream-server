@@ -104,6 +104,11 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: 'web/ext/:navigate',
+		requestClass: require('./link_ext_navigate_request')
+	},
+	{
+		method: 'get',
 		path: 'no-auth/web/error',
 		requestClass: require('./web_error_request')
 	},
