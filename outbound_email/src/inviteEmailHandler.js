@@ -27,6 +27,8 @@ class InviteEmailHandler extends EmailHandler {
 		this.content = `
 <html>
 I've added you to the ${this.message.teamName} team on CodeStream so that we can discuss code.<br/>
+<br/>
+In the CodeStream extension, select “Switch Teams” under the ellipses menu to check out discussions in the ${this.message.teamName} team.<br/>
 </html>
 `;
 	}
