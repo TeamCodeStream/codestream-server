@@ -94,7 +94,7 @@ class CheckSignupRequest extends RestfulRequest {
 			request: this,
 			user: this.user,
 			loginType: this.loginType,
-			trueLogin: true
+			trueLogin: !this.signupToken.provider
 		}).login();
 		this.responseData.signupStatus = this.signupToken.signupStatus;
 		this.responseData.provider = this.signupToken.provider;
