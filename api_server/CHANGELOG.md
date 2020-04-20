@@ -1,5 +1,13 @@
 # Change Log
 
+## [7.1.0] - 2020-4-20
+
+### Added
+
+- Adds support for new personal-access-token based GitHub Enterprise and GitLab Self-Managed integrations
+- Adds support for deep linking to specific pages within the CodeStream extension
+- Adds support for baking a CodeStream on-prem server URL into invitation codes
+
 ## [7.0.1] - 2020-4-10
 
 ### Added
