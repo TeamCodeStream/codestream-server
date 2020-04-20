@@ -1,5 +1,11 @@
 # Change Log
 
+## [7.1.0] - 2020-4-20
+
+### Changed
+
+- Update email copy when inviting someone already on CodeStream
+
 ## [7.0.1] - 2020-4-10
 
 ### Added
@@ -8,7 +14,7 @@
 
 ## [7.0.0] - 2020-4-3
 
-### Updated to support 7.0.0 release
+- Updated to support 7.0.0 release
 
 ## [6.4.0] - 2020-3-27 
 
