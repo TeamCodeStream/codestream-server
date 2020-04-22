@@ -180,7 +180,7 @@ class UserCreator extends ModelCreator {
 			const { serverUrl, disableStrictSSL } = this.options.inviteInfo;
 			const uuid = inviteCode.substring(0, 8);
 			const inviteInfo = `${uuid}${disableStrictSSL ? '1' : '0'}${serverUrl}`;
-			inviteCode = 'O' + Base64.encode(inviteInfo);
+			inviteCode = '$01$' + Base64.encode(inviteInfo);
 		}
 		return inviteCode;
 	}
