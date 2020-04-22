@@ -161,7 +161,8 @@ class LoginHelper {
 				slack: {
 					interactiveComponentsEnabled: SlackCfg.interactiveComponentsEnabled
 				}
-			}
+			},
+			runTimeEnvironment: this.request.api.config.api.runTimeEnvironment
 		};
 
 		// if using socketcluster for messaging (for on-prem installations), return host info

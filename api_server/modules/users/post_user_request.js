@@ -58,11 +58,13 @@ class PostUserRequest extends PostRequest {
 				},
 				optional: {
 					string: ['_pubnubUuid', 'fullName'],
+					object: ['inviteInfo'],
 					boolean: ['dontSendEmail']
 				}
 			}
 		);
 		this.dontSendEmail = !!this.request.body.dontSendEmail;
+		this.inviteInfo = this.request.body.inviteInfo;
 	}
 
 	// create the user, if needed
@@ -72,7 +74,8 @@ class PostUserRequest extends PostRequest {
 			teamIds: [this.team.id],
 			subscriptionCheat: this._subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
 			userBeingAddedToTeamId: this.team.id,
-			inviteCodeExpiresIn: this._inviteCodeExpiresIn
+			inviteCodeExpiresIn: this._inviteCodeExpiresIn,
+			inviteInfo: this.inviteInfo
 		});
 		const userData = {
 			email: this.request.body.email

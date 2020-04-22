@@ -13,6 +13,7 @@ const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_uti
 const UsernameValidator = require('./username_validator');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 const UUID = require('uuid/v4');
+const Base64 = require('base-64');
 
 // how long an invite code remains valid
 const INVITE_CODE_EXPIRATION = 365 * 24 * 60 * 60 * 1000;
@@ -167,8 +168,21 @@ class UserCreator extends ModelCreator {
 				!this.existingModel.get('inviteCode')
 			)
 		) {
-			this.inviteCode = this.attributes.inviteCode = UUID();
+			this.inviteCode = this.attributes.inviteCode = this.generateInviteCode();
 		}
+	}
+
+	// generate an invite code ... this might be a simple GUID, or it might have baked-in
+	// data for on-prem usage
+	generateInviteCode () {
+		let inviteCode = UUID();
+		if (this.options.inviteInfo) {
+			const { serverUrl, disableStrictSSL } = this.options.inviteInfo;
+			const uuid = inviteCode.substring(0, 8);
+			const inviteInfo = `${uuid}${disableStrictSSL ? '1' : '0'}${serverUrl}`;
+			inviteCode = 'O' + Base64.encode(inviteInfo);
+		}
+		return inviteCode;
 	}
 
 	// hash the given password, as needed
