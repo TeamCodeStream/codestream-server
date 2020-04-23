@@ -25,6 +25,9 @@ class ReopenReviewRequest extends RestfulRequest {
 			$set: {
 				modifiedAt: now,
 				status: 'open'
+			},
+			$unset: {
+				[`approvedBy.${this.user.id}`]: true
 			}
 		};
 

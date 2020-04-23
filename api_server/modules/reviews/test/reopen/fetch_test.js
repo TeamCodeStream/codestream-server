@@ -31,15 +31,6 @@ class FetchTest extends ReopenTest {
 				const { review } = response;
 				Assert(review.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the review was updated');
 				this.expectedReview.modifiedAt = review.modifiedAt;
-				if (!this.rejectToClose) {
-					const userId = this.users[1].user.id;
-					Assert(response.review.approvedBy[userId].approvedAt >= this.review.createdAt, 'approvedAt should be greater than or equal to when the review was created');
-					this.expectedReview.approvedBy = {
-						[this.users[1].user.id]: {
-							approvedAt: response.review.approvedBy[this.users[1].user.id].approvedAt
-						}
-					};
-				}
 				Assert.deepEqual(response.review, this.expectedReview, 'fetched review does not have the correct approvals');
 				callback();
 			}

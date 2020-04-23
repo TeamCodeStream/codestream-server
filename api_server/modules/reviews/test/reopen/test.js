@@ -3,6 +3,7 @@
 'use strict';
 
 const ReopenTest = require('./reopen_test');
+const ReopenAfterRejectTest = require('./reopen_after_reject_test');
 const FetchTest = require('./fetch_test');
 const MessageTest = require('./message_test');
 const ReviewNotFoundTest = require('./review_not_found_test');
@@ -13,6 +14,7 @@ class RejectRequestTester {
 
 	test () {
 		new ReopenTest().test();
+		new ReopenAfterRejectTest().test();
 		new FetchTest().test();
 		new MessageTest({ isTeamStream: true }).test();
 		new MessageTest({ streamType: 'channel' }).test();

@@ -66,12 +66,15 @@ class CommonInit {
 
 	// close the review, either approving or rejecting as needed
 	closeReview (callback) {
+		const currentUserHasAcl = this.team.memberIds.includes(this.currentUser.user.id) &&
+			(!this.stream || !this.stream.memberIds || this.stream.memberIds.includes(this.currentUser.user.id));
+		this.closingUser = currentUserHasAcl ? this.currentUser : this.users[1];
 		const which = this.rejectToClose ? 'reject' : 'approve';
 		this.doApiRequest(
 			{
 				method: 'put',
 				path: `/reviews/${which}/${this.review.id}`,
-				token: this.users[1].accessToken
+				token: this.closingUser.accessToken
 			},
 			callback
 		);
@@ -88,6 +91,9 @@ class CommonInit {
 					modifiedAt: Date.now(), // placeholder
 					status: 'open'
 				},
+				$unset: {
+					[`approvedBy.${this.currentUser.user.id}`]: true
+				},
 				$version: {
 					before: this.expectedVersion - 1,
 					after: this.expectedVersion
@@ -99,6 +105,9 @@ class CommonInit {
 		this.path = `/reviews/reopen/${this.review.id}`;
 		this.expectedReview = DeepClone(this.review);
 		this.expectedReview.status = 'open';
+		if (!this.rejectToClose) {
+			this.expectedReview.approvedBy = {};
+		}
 		this.expectedReview.version = this.expectedVersion;
 		callback();
 	}
