@@ -107,5 +107,14 @@ module.exports = {
 	approvedAt: {
 		type: 'timestamp',
 		description: 'When this review was approved'
+	},
+	allReviewersMustApprove: {
+		type: 'boolean',
+		description: 'All reviews must approve this review for it to be approved, otherwise any of the reviewers can'
+	},
+	approvedBy: {
+		type: 'object',
+		maxLength: 10000,
+		description: 'Hash representing people who have approved the review, keys are the user IDs, and values are objects containing additional information: for now just approvedAt, the timestamp of the approval'
 	}
 };

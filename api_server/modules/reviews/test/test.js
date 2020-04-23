@@ -12,6 +12,9 @@ const DeleteReviewRequestTester = require('./delete_review/test');
 const FollowRequestTester = require('./follow/test');
 const UnfollowRequestTester = require('./unfollow/test');
 const UnfollowLinkRequestTester = require('./unfollow_link/test');
+const ApproveRequestTester = require('./approve/test');
+const RejectRequestTester = require('./reject/test');
+const ReopenRequestTester = require('./reopen/test');
 
 describe('review requests', function() {
 
@@ -24,4 +27,7 @@ describe('review requests', function() {
 	describe('PUT /reviews/follow/:id', FollowRequestTester.test);
 	describe('PUT /reviews/unfollow/:id', UnfollowRequestTester.test);
 	describe('GET /no-auth/unfollow-link/review/:id', UnfollowLinkRequestTester.test);
+	describe('PUT /reviews/approve/:id', ApproveRequestTester.test);
+	describe('PUT /reviews/reject/:id', RejectRequestTester.test);
+	describe('PUT /reviews/reopen/:id', ReopenRequestTester.test);
 });

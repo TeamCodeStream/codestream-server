@@ -13,7 +13,7 @@ class AlreadyNotFollowingTest extends UnfollowTest {
 		super.run(error => {
 			if (error) { return callback(error); }
 			this.secondRun = true;
-			callback();
+			super.run(callback);
 		});
 	}
 

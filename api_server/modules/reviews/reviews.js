@@ -41,6 +41,21 @@ const REVIEW_ADDITIONAL_ROUTES = [
 		method: 'get',
 		path: 'no-auth/unfollow-link/review/:id',
 		requestClass: require('./unfollow_link_request')
+	},
+	{
+		method: 'put',
+		path: 'reviews/approve/:id',
+		requestClass: require('./approve_review_request')
+	},
+	{
+		method: 'put',
+		path: 'reviews/reject/:id',
+		requestClass: require('./reject_review_request')
+	},
+	{
+		method: 'put',
+		path: 'reviews/reopen/:id',
+		requestClass: require('./reopen_review_request')
 	}
 ];
 
