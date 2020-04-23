@@ -148,9 +148,17 @@ class WebProviderAuthCompleteRequest extends APIRequest {
 	}
 
 	finishFlow () {
-		this.responseHandled = new SigninFlowUtils(this).finish(this.payload.end, {
+		const queryStringParams = {
 			provider: this.provider
-		});
+		};
+		let finishUrl = this.payload.end;
+		if (this.payload.tid) {
+			// override the finishUrl if we have a tenantId (tid) -- so we can complete
+			// the auth flow
+			finishUrl = '/web/assign/team';
+			queryStringParams.tenantId = this.payload.tid;
+		}
+		this.responseHandled = new SigninFlowUtils(this).finish(finishUrl, queryStringParams);
 	}
 
 	badError (errorCode) {

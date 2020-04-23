@@ -46,6 +46,10 @@ class WebProviderAuthRequest extends APIRequest {
 		if (this.request.query.noSignup) {
 			payload.nosu = 1;
 		}
+		if (this.request.query.tenantId) {
+			// tenantId comes from MSFT teams
+			payload.tid = this.request.query.tenantId;
+		}
 		const code = this.api.services.tokenHandler.generate(
 			payload,
 			'pauth',

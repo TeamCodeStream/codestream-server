@@ -17,8 +17,13 @@ class WebLoginRequest extends APIRequest {
 		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
 		const error = this.request.query.error ? this.handleError() : '';
 		const finishUrl = decodeURIComponent(this.request.query.url || '');
+		const tenantId = decodeURIComponent(this.request.query.tenantId || '');
 		let gitHubLink = '/web/provider-auth/github?noSignup=1';
-		if (finishUrl) {
+		if (tenantId) {
+			// if you have a tenantId, you cannot redirect elsewhere
+			gitHubLink += `&tenantId=${tenantId}`;
+		}
+		else if (finishUrl) {
 			// since GitHub isn't POSTed, we attach the finishUrl here
 			gitHubLink += `&url=${finishUrl}`;
 		}
@@ -27,7 +32,7 @@ class WebLoginRequest extends APIRequest {
 			email,
 			teamId,
 			finishUrl: finishUrl,
-			tenantId:  decodeURIComponent(this.request.query.tenantId || ''),
+			tenantId:  tenantId,
 			version: this.module.versionInfo(),
 			codeStreamIcon: Icons['codestream'],
 			gitHubLink,
