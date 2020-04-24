@@ -125,7 +125,6 @@ class RegisterRequest extends RestfulRequest {
 		if (!this.confirmationRequired) {
 			this.log('Note: confirmation not required in environment - THIS SHOULD NOT BE PRODUCTION - email will be automatically confirmed');
 			this.request.body.isRegistered = true;
-			this.request.body.registeredAt = Date.now();
 			return;
 		}
 		if (this.wantLink) {
