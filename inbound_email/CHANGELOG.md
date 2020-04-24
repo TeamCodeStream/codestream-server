@@ -1,10 +1,16 @@
 # Change Log
 
+## [7.2.0] - 2020-4-24
+
+### Changed
+
+- Release bump to support latest API
+
 ## [7.1.0] - 2020-4-20
 
 ### Changed
 
-- Minor release bump to support latest API
+- Release bump to support latest API
 
 ## [7.0.1] - 2020-4-10
 
@@ -22,4 +28,4 @@
 
 ### Changed
 
-- Minor release bump to support latest API
+- Release bump to support latest API
