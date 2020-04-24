@@ -10,6 +10,7 @@ const Path = require('path');
 const HTTP = require('http');
 const HTTPS = require('https');
 const HtmlEntities = require('html-entities').AllHtmlEntities;
+const InboundEmailServerConfig = require(process.env.CS_MAILIN_TOP + '/config/config');
 const { callbackWrap } = require(process.env.CS_MAILIN_TOP + '/server_utils/await_utils');
 
 class FileHandler {
@@ -24,6 +25,7 @@ class FileHandler {
 	async handle () {
 		let gotError;
 		try {
+			await this.refreshConfig();				// update configuration data
 			await this.waitTillCopyComplete();		// wait till the copy to the new directory is complete
 			await this.moveToProcessDirectory();	// move the email file to the "processing" directory
 			await this.createTempDirectoryForAttachments(); // create a temporary directory to hold attachment files
@@ -38,6 +40,18 @@ class FileHandler {
 			gotError = error;
 		}
 		this.finish(gotError);
+	}
+
+	// Load any configuration changes
+	async refreshConfig () {
+		if(await InboundEmailServerConfig.isDirty()) {
+			this.log('reloading config data - cache is dirty');
+			this.inboundEmailServer.config = await InboundEmailServerConfig.loadConfig();
+			if (InboundEmailServerConfig.restartRequired()) {
+				this.log('new config requires a restart or full re-initialization');
+				// uh oh!
+			}
+		}
 	}
 
 	// wait till the copy of the file into the new directory is complete, since watcher alerts us

@@ -15,7 +15,7 @@ export PATH=$CS_MAILIN_TOP/bin:$PATH
 sandutil_get_codestream_cfg_file "$CS_MAILIN_SANDBOX" "$configParm" "$CSSVC_ENV"
 
 # env vars required for aux scripts that don't load the config file directly
-[ -z "$CS_MAILIN_ENV" ] && export CS_MAILIN_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.runTimeEnvironment)`
+[ -z "$CS_MAILIN_ENV" ] && export CS_MAILIN_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p sharedGeneral.runTimeEnvironment)`
 export CS_MAILIN_LOGS=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.logger.directory)`
 export CS_MAILIN_TMP=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.tmpDirectory)`
 export CS_MAILIN_ASSET_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.assetEnvironment)`

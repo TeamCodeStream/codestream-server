@@ -4,36 +4,28 @@
 
 'use strict';
 
-// load configurations
-const ConfigDirectory = process.env.CS_MAILIN_TOP + '/config';
-const InboundEmailConfig = require(ConfigDirectory + '/inbound_email');
-const LoggerConfig = require(ConfigDirectory + '/logger');
-const SecretsConfig = require(ConfigDirectory + '/secrets');
-const ApiConfig = require(ConfigDirectory + '/api');
+const InboundEmailServerConfig = require(process.env.CS_MAILIN_TOP + '/config/config');
 const SimpleFileLogger = require(process.env.CS_MAILIN_TOP + '/server_utils/simple_file_logger');
 const ClusterWrapper = require(process.env.CS_MAILIN_TOP + '/server_utils/cluster_wrapper');
+const ServerClass = require(process.env.CS_MAILIN_TOP + '/lib/inbound_email_server');
 
-// establish our logger
-var Logger = new SimpleFileLogger(LoggerConfig);
-
-// invoke a node cluster master with our configurations provided
-var ServerClass = require(process.env.CS_MAILIN_TOP + '/lib/inbound_email_server');
-var MyClusterWrapper = new ClusterWrapper(
-	ServerClass,
-	{
-		inboundEmail: InboundEmailConfig,
-		api: ApiConfig,
-		secrets: SecretsConfig,
-		logger: Logger
-	},
-	Logger,
-	{
-		oneWorker: true
-	}
-);
-
-// start up the master, this will launch workers to really get down to work
 (async function() {
+	const Config = await InboundEmailServerConfig.loadConfig();
+
+	// establish our logger
+	var Logger = new SimpleFileLogger(Config.logger);
+
+	// invoke a node cluster master with our configurations provided
+	var MyClusterWrapper = new ClusterWrapper(
+		ServerClass,
+		Config,
+		Logger,
+		{
+			oneWorker: true
+		}
+	);
+
+	// start up the master, this will launch workers to really get down to work
 	try {
 		await MyClusterWrapper.start();
 	}

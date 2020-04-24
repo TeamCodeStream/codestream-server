@@ -2,11 +2,9 @@
 
 const BoundAsync = require(process.env.CS_MAILIN_TOP +'/server_utils/bound_async');
 const RandomString = require('randomstring');
-const Secrets = require(process.env.CS_MAILIN_TOP + '/config/secrets');
+
+const InboundEmailServerConfig = require(process.env.CS_MAILIN_TOP + '/config/config');
 const HTTPSBot = require(process.env.CS_MAILIN_TOP + '/server_utils/https_bot');
-const APIConfig = require(process.env.CS_MAILIN_TOP + '/config/api');
-const InboundEmailConfig = require(process.env.CS_MAILIN_TOP + '/config/inbound_email');
-const PubNubConfig = require(process.env.CS_MAILIN_TOP + '/config/pubnub');
 const PubNub = require('pubnub');
 const PubNubClient = require(process.env.CS_MAILIN_TOP + '/server_utils/pubnub/pubnub_client_async');
 const FS = require('fs');
@@ -23,6 +21,7 @@ class EmailTest {
 
 	constructor (options) {
 		Object.assign(this, options);
+		this.config = InboundEmailServerConfig.getConfig();
 	}
 
 	get it () {
@@ -102,7 +101,7 @@ class EmailTest {
 			email: this.randomEmail(),
 			password: RandomString.generate(8),
 			username: RandomString.generate(8),
-			_confirmationCheat: Secrets.confirmationCheat
+			_confirmationCheat: this.config.secrets.confirmationCheat
 		};
 		_NextPubnubUuid = (_NextPubnubUuid + 1) % 100;
 		data._pubnubUuid = `TEST-UUID-${_NextPubnubUuid}`;
@@ -242,7 +241,7 @@ class EmailTest {
 	makePubNubClient (callback) {
 		// the "second" user will listen for the post that should result from
 		// processing the inbound email
-		let clientConfig = Object.assign({}, PubNubConfig);
+		let clientConfig = Object.assign({}, this.config.pubnub);
 		let user = this.userData[1].user;
 		clientConfig.uuid = user._pubnubUuid || user.id;
 		clientConfig.authKey = this.userData[1].pubnubToken;
@@ -275,8 +274,8 @@ class EmailTest {
 	// "reply-to" address for the stream and team
 	makeSubstitutions (callback) {
 		this.emailData = this.emailData.replace(/@@@from@@@/g, this.userData[0].user.email);
-		this.emailData = this.emailData.replace(/@@@sender@@@/g, InboundEmailConfig.senderEmail);
-		let to = `${this.parentPost.id}.${this.stream.id}.${this.team.id}@${InboundEmailConfig.replyToDomain}`;
+		this.emailData = this.emailData.replace(/@@@sender@@@/g, this.config.inboundEmail.senderEmail);
+		let to = `${this.parentPost.id}.${this.stream.id}.${this.team.id}@${this.config.inboundEmail.replyToDomain}`;
 		['to', 'cc', 'bcc', 'x-original-to', 'delivered-to'].forEach(field => {
 			let regEx = new RegExp(`@@@${field}@@@`, 'g');
 			this.emailData = this.emailData.replace(regEx, to);
@@ -357,7 +356,7 @@ class EmailTest {
 	// made field substitutions on it ... this should trigger the post getting created
 	writeEmailFile (callback) {
 		const outputFile = `${this.emailFile}-${Math.random()}.eml`;
-		let path = Path.join(InboundEmailConfig.inboundEmailDirectory, outputFile);
+		let path = Path.join(this.config.inboundEmail.inboundEmailDirectory, outputFile);
 		if (FS.existsSync(path)) {
 			FS.unlinkSync(path);
 		}
@@ -414,8 +413,8 @@ class EmailTest {
 		const path = options.path || '/';
 		const data = options.data || null;
 		HTTPSBot[method](
-			APIConfig.host,
-			APIConfig.port,
+			this.config.api.host,
+			this.config.api.port,
 			path,
 			data,
 			options,
