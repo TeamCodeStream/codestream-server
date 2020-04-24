@@ -28,7 +28,7 @@ class ChangeEmailRequest extends RestfulRequest {
 		await this.ensureUnique();		// ensure the email is not already taken
 
 		// in an environment where confirmation is not required (on-prem), we just change the user's email
-		if (this.api.config.api.confirmationRequired) {
+		if (!this.api.config.api.confirmationNotRequired) {
 			await this.generateToken();		// generate a token for the email
 			await this.saveTokenInfo();		// save the token info
 			await this.sendEmail();			// send the confirmation email
