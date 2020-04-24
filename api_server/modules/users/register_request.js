@@ -41,8 +41,12 @@ class RegisterRequest extends RestfulRequest {
 		await this.saveUser();				// save user to database
 		await this.generateLinkToken();		// generate a token for the confirm link, as requested
 		await this.saveTokenInfo();			// save the token info to the user object, if we're doing a confirm link
-		await this.generateAccessToken();	// generate an access token, as needed (if confirmation not required)
 		await this.saveSignupToken();		// save the signup token so we can identify this user with an IDE session
+
+		// if confirmation is not required (for instance, on-prem without email), skip straight to login
+		if (!this.confirmationRequired) {
+			await this.doUnconfirmedLogin();
+		}
 	}
 
 	// require certain parameters, discard unknown parameters
@@ -97,11 +101,11 @@ class RegisterRequest extends RestfulRequest {
 
 	// under some circumstances, we allow the user to skip confirmation and go right to login
 	async doLogin () {
-		// sometimes confirmation is not required (development environment, or test environment),
-		// or, if the user has an invite code and is registering with the same email that the invite was sent to
+		// email confirmation is not required if the user was invited, and they are registering with the same
+		// email that the invite was sent to
 		this.invitedUserWithSameEmail = this.invitedUser && 
 			this.invitedUser.get('email').toLowerCase() === this.request.body.email.toLowerCase();
-		if (this.confirmationRequired && !this.invitedUserWithSameEmail) {
+		if (!this.invitedUserWithSameEmail) {
 			return;
 		}
 
@@ -121,6 +125,7 @@ class RegisterRequest extends RestfulRequest {
 		if (!this.confirmationRequired) {
 			this.log('Note: confirmation not required in environment - THIS SHOULD NOT BE PRODUCTION - email will be automatically confirmed');
 			this.request.body.isRegistered = true;
+			this.request.body.registeredAt = Date.now();
 			return;
 		}
 		if (this.wantLink) {
@@ -218,30 +223,6 @@ class RegisterRequest extends RestfulRequest {
 		await this.data.users.applyOpById(this.user.id, op);
 	}
 
-	// generate an access token for the user, but only if confirmation is not required
-	// (otherwise they don't get an access token yet!)
-	async generateAccessToken () {
-		if (this.confirmationRequired || (this.userCreator.existingModel && this.user.get('isRegistered'))) {
-			return;
-		}
-		let token, minIssuance;
-		try {
-			token = this.api.services.tokenHandler.generate({ uid: this.user.id });
-			minIssuance = this.api.services.tokenHandler.decode(token).iat * 1000;
-		}
-		catch (error) {
-			const message = typeof error === 'object' ? error.message : error;
-			throw this.errorHandler.error('token', { reason: message });
-		}
-		this.accessToken = token;
-		this.request.body.accessTokens = { 
-			web: {
-				token,
-				minIssuance: minIssuance
-			}
-		};
-	}
-
 	// if a signup token is provided, this allows a client IDE session to identify the user ID that was eventually
 	// signed up as it originated from the IDE
 	async saveSignupToken () {
@@ -256,6 +237,16 @@ class RegisterRequest extends RestfulRequest {
 				expiresIn: this.expiresIn
 			}
 		);
+	}
+
+	// if email confirmation is not required, we go right to login
+	async doUnconfirmedLogin () {
+		this.responseData = await new ConfirmHelper({
+			request: this,
+			user: this.user
+		}).confirm(this.request.body);
+		this.userLoggedIn = true;
+		return true;
 	}
 
 	// handle the response to the request

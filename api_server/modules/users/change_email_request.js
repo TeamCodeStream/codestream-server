@@ -7,6 +7,8 @@ const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restf
 const UserValidator = require('./user_validator');
 const UserErrors = require('./errors');
 const UserIndexes = require('./indexes');
+const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const UserPublisher = require(process.env.CS_API_TOP + '/modules/users/user_publisher');
 
 class ChangeEmailRequest extends RestfulRequest {
 
@@ -24,9 +26,16 @@ class ChangeEmailRequest extends RestfulRequest {
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
 		await this.validateEmail();		// make sure the new email is valid
 		await this.ensureUnique();		// ensure the email is not already taken
-		await this.generateToken();		// generate a token for the email
-		await this.saveTokenInfo();		// save the token info
-		await this.sendEmail();			// send the confirmation email
+
+		// in an environment where confirmation is not required (on-prem), we just change the user's email
+		if (this.api.config.api.confirmationRequired) {
+			await this.generateToken();		// generate a token for the email
+			await this.saveTokenInfo();		// save the token info
+			await this.sendEmail();			// send the confirmation email
+		}
+		else {
+			await this.updateUser();
+		}
 	}
 
 	// require these parameters, and discard any unknown parameters
@@ -132,6 +141,50 @@ class ChangeEmailRequest extends RestfulRequest {
 				user: this.user
 			}
 		);
+	}
+
+	// update the user in the database with new email
+	async updateUser () {
+		const op = {
+			$set: {
+				email: this.request.body.email,
+				searchableEmail: this.request.body.email.toLowerCase(),
+				modifiedAt: Date.now()
+			}
+		};
+		this.updateOp = await new ModelSaver({
+			request: this,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
+	}
+
+	// handle the response to the request, overriding the base response to do a redirect
+	async handleResponse () {
+		if (!this.gotError && this.updateOp) {
+			this.responseData = { user: this.updateOp };
+		}
+		super.handleResponse();
+	}
+
+	// after the request returns a response....
+	async postProcess () {
+		if (this.updateOp) {
+			// publish the updated user directive to all the team members
+			await this.publishUserToTeams();
+		}
+	}
+
+	// publish the updated user directive to all the team members,
+	// over the team channel
+	async publishUserToTeams () {
+		delete this.updateOp.$set.searchableEmail;
+		await new UserPublisher({
+			user: this.user,
+			data: this.updateOp,
+			request: this,
+			broadcaster: this.api.services.broadcaster
+		}).publishUserToTeams();
 	}
 
 	// describe this route for help
