@@ -1,5 +1,15 @@
 # Change Log
 
+## [7.1.1] - 2020-4-24
+
+### Added
+
+- Adds support for multiple approvers per code review
+
+### Fixed
+
+- Fixes [#179](https://github.com/TeamCodeStream/CodeStream/issues/179) &mdash; Can't use GH auth in MS Teams signin flow
+
 ## [7.1.0] - 2020-4-20
 
 ### Added
