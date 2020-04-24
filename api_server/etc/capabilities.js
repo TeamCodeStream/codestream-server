@@ -38,9 +38,9 @@ module.exports = {
 	'notificationDeliveryPreference': {
 		description: 'Support for displaying the email/desktop delivery notification preference',
 		version: '1.21.33'
-	},
+	}/*,
 	'multipleReviewersApprove': {
 		description: 'Support for multiple reviewers being required to approve a review',
 		version: '7.1.1'
-	}
+	}*/
 };
