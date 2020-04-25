@@ -1,71 +1,34 @@
 #!/bin/bash
 
-#desc# various shortcuts for working with standard development playgrounds
+#desc# playground utility tool
+
+. $DT_TOP/lib/sandbox_release_tool.sh || exit 1
 
 function usage {
 	local c=`basename $0`
 	echo "
 usage:
-	$c --status
-	$c --sub-status <module> <git-branch>
-	$c --checkout <git-branch>
-	$c --pull | --git-pull-origin | --gpo
-	$c --report-version
-	$c --git-diff
+    Backend services playground utility. Commands are executed across all 4 projects.
+
+    $(sandtool_help_common_args)
+    $c --report                              # reports version from package.json and head changelog
+    $c --set-version {version}               # update changelog and version for all repos
 "
 	exit 1
 }
 
-function get_submodule_basedir {
-	local repoDir=$1
-	repo=`basename $repoDir`
-	case $repo in
-		api_server|broadcaster|inbound_email) echo $repoDir;;
-		outbound_email) echo $repoDir/src;;
-		*) echo "unknown repo $repo"; exit;;
-	esac
-}
-
-function git_status {
-	for r in $allRepos; do (echo -e "\n===== `basename $r` =====" && cd $r && git status); done
-}
-
-function git_diff {
-	for r in $allRepos; do (echo -e "\n===== `basename $r` =====" && cd $r && git diff "$@"); done
-}
-
-function report_version {
-	for r in $allRepos; do (echo -e "\n===== `basename $r` =====" && cd $r && grep '"version"' package.json); done
-}
-
-function git_status_sub {
-	local module=$1
-	local dir
-	[ -z "$module" ] && echo "module required" && return
-	for r in $allRepos; do
-		dir="`get_submodule_basedir $r`/$module"
-		(echo -e "\n===== $dir =====" && cd $dir && git status)
-	done
-	return
-}
-
-function git_checkout {
-	local branch=$1
-	[ -z "$branch" ] && echo "git ref required" && return
-	for r in $allRepos; do (echo -e "\n===== `basename $r` =====" && cd $r && git checkout $branch); done
-}
-
-function git_pull_origin {
-	for r in $allRepos; do (echo -e "\n===== `basename $r` =====" && cd $r && git pull origin && git submodule update); done
-}
-
-allRepos="$CS_API_TOP $CS_BROADCASTER_TOP $CS_MAILIN_TOP $CS_OUTBOUND_EMAIL_TOP"
-
 [ -z "$1" ] && usage
-[ "$1" == "--status" ] && { git_status; exit; }
-[ "$1" == "--sub-status" ] && { git_status_sub $2; exit; }
-[ "$1" == "--checkout" ] && { git_checkout $2; exit; }
-[ "$1" == "--pull" -o "$1" == "--git-pull-origin" -o "$1" == "--gpo" ] && { git_pull_origin; exit; }
-[ "$1" == "--report-version" ] && { report_version; exit; }
-[ "$1" == "--git-diff" ] && shift && { git_diff "$@"; exit; }
+
+ec=0
+[ -z "$CS_API_TOP" ] && echo "api sandbox not loaded" && ec=1
+[ -z "$CS_BROADCASTER_TOP" ] && echo "broadcaster sandbox not loaded" && ec=1
+[ -z "$CS_MAILIN_TOP" ] && echo "inbound email sandbox not loaded" && ec=1
+[ -z "$CS_OUTBOUND_EMAIL_TOP" ] && echo "outbound email sandbox not loaded" && ec=1
+[ $ec -eq 1 ] && exit 1
+
+SANDTOOL_REPO_LIST="$CS_API_TOP $CS_BROADCASTER_TOP $CS_MAILIN_TOP $CS_OUTBOUND_EMAIL_TOP"
+
+sandtool_process_common_args "$@" && exit
+[ "$1" == "--report" ] && { sandtool_report_pkgver_and_chlog; exit; }
+[ "$1" == "--set-version" ] && { sandtool_update_chlog_and_pkgver $2; exit; }
 usage
