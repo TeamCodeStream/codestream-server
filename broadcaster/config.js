@@ -4,50 +4,53 @@
 
 /* eslint no-console: 0 */
 
-const StructuredCfgFile = require('./codestream-configs/lib/structured_config');
+const ServiceConfig = require('./server_utils/service_config');
+const MongoUrlParser = require('./codestream-configs/lib/mongo_url_parser');
 
-let CfgOpts;
-if (process.env.CS_BROADCASTER_CFG_FILE || process.env.CSSVC_CFG_FILE) {
-	CfgOpts = { configFile: process.env.CS_BROADCASTER_CFG_FILE || process.env.CSSVC_CFG_FILE };
-}
-else if (process.env.CSSVC_CFG_URL) {
-	CfgOpts = { mongoUrl: process.env.CSSVC_CFG_URL };
-}
-else {
-	console.log('no configuration provided. Set CSSVC_CFG_FILE or CSSVC_CFG_URL.');
-	process.exit(1);
-}
-const CfgData = new StructuredCfgFile(CfgOpts);
-
-let MongoCfg = CfgData.getSection('storage.mongo');
-MongoCfg.database = CfgData._mongoUrlParse(MongoCfg.url).database;
-
-let LoggerCfg = { 
-	basename: 'broadcaster',								// use this for the basename of the log file
-	retentionPeriod: 30 * 24 * 60 * 60 * 1000,				// retain log files for this many milliseconds
-	...CfgData.getSection('broadcastEngine.codestreamBroadcaster.logger')
-};
-
-let Secrets = CfgData.getSection('broadcastEngine.codestreamBroadcaster.secrets');
-Secrets.subscriptionCheat = CfgData.getProperty('sharedSecrets.subscriptionCheat');
-
-let HttpsCfg = CfgData.getSection('ssl');
-HttpsCfg.port = CfgData.getProperty('broadcastEngine.codestreamBroadcaster.port').toString();
-HttpsCfg.ignoreHttps = CfgData.getProperty('broadcastEngine.codestreamBroadcaster.ignoreHttps');
-
-const Cfg = {
-	mongo: MongoCfg,
-	logger: LoggerCfg,
-	secrets: Secrets,
-	https: HttpsCfg,
-	history: {
-		retentionPeriod: 30 * 24 * 60 * 60 * 1000,
-		sweepPeriod: 60 * 60 * 1000
+class BroadcastServerConfig extends ServiceConfig {
+	constructor() {
+		super({
+			// only one of these should be defined
+			configFile: process.env.CS_MAILIN_CFG_FILE || process.env.CSSVC_CFG_FILE,
+			mongoUrl: process.env.CSSVC_CFG_URL
+		});
 	}
-};
 
-if (CfgData.getSection('broadcastEngine.codestreamBroadcaster.showConfig')) {
-	console.log('Config[broadcaster]:', JSON.stringify(Cfg, undefined, 10));
+	// creates a custom config object derived from the loaded native config
+	_customizeConfig(nativeCfg) {
+		const broadcasterCfg = {
+			showConfig: nativeCfg.broadcastEngine.codestreamBroadcaster.showConfig,
+			history: {
+				retentionPeriod: 30 * 24 * 60 * 60 * 1000,
+				sweepPeriod: 60 * 60 * 1000
+			},
+			mongo: {
+				...nativeCfg.storage.mongo
+			},
+			logger: {
+				basename: 'broadcaster',						// use this for the basename of the log file
+				retentionPeriod: 30 * 24 * 60 * 60 * 1000,		// retain log files for this many milliseconds
+				...nativeCfg.broadcastEngine.codestreamBroadcaster.logger
+			},
+			secrets: {
+				...nativeCfg.broadcastEngine.codestreamBroadcaster.secrets,
+				subscriptionCheat: nativeCfg.sharedSecrets.subscriptionCheat
+			},
+			https: {
+				...nativeCfg.ssl,
+				port: nativeCfg.broadcastEngine.codestreamBroadcaster.port.toString(),
+				ignoreHttps: nativeCfg.broadcastEngine.codestreamBroadcaster.ignoreHttps
+			}
+		};
+		broadcasterCfg.database = MongoUrlParser(broadcasterCfg.mongo.url).database;
+
+		return broadcasterCfg;
+	}
+
+	// compare this.config and this.lastConfig to determine if a restart or re-initialization is needed
+	// restartRequired() {
+	// 	return false; // if restart is not required, true otherwise.
+	// }
 }
 
-module.exports = Cfg;
+module.exports = new BroadcastServerConfig();
