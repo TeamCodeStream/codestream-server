@@ -18,6 +18,8 @@ class ServiceConfig {
 		this.config = null;
 		this.lastConfig = null;
 		this.showConfig = false;
+		// specify a property in dotted notation for showConfig to set it upon loading
+		this.showConfigProperty = options.showConfigProperty;
 	}
 
 	// creates a custom config object derived from the loaded native config
@@ -44,6 +46,9 @@ class ServiceConfig {
 			this.lastConfig = JSON.parse(JSON.stringify(this.config));  // poor-man's deep copy
 		}
 		this.config = this.cfgData.getCustomConfig(this._customizeConfig);
+		if (this.showConfigProperty) {
+			this.showConfig = this.cfgData.getProperty(this.showConfigProperty);
+		}
 		if (this.showConfig) {
 			console.log('Config:', JSON.stringify(this.config, undefined, 10));
 		}
