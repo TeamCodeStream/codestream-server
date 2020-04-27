@@ -22,6 +22,7 @@ class EmailTest {
 	constructor (options) {
 		Object.assign(this, options);
 		this.config = InboundEmailServerConfig.getConfig();
+		console.log('EmailTest constructor (email_test.js):', this.config);
 	}
 
 	get it () {
