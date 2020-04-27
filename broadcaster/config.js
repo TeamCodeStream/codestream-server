@@ -11,7 +11,7 @@ class BroadcastServerConfig extends ServiceConfig {
 	constructor() {
 		super({
 			// only one of these should be defined
-			configFile: process.env.CS_MAILIN_CFG_FILE || process.env.CSSVC_CFG_FILE,
+			configFile: process.env.CS_BROADCASTER_CFG_FILE || process.env.CSSVC_CFG_FILE,
 			mongoUrl: process.env.CSSVC_CFG_URL
 		});
 	}
