@@ -17,7 +17,7 @@ const {
 
 const PERSONAL_BOT_MESSAGE = 'Please run this command from your personal bot chat.';
 const TEAM_BOT_MESSAGE = 'Please run this command from a team channel.';
-// const HELP_URL = 'https://github.com/TeamCodeStream/CodeStream/wiki/Microsoft-Teams-Integration';
+// const HELP_URL = 'https://docs.codestream.com/userguide/features/msteams-integration/';
 // Keys of properties used to store 
 const STATE_PROPERTY_WELCOMED_USER = 'welcomedUser';
 const STATE_PROPERTY_CODESTREAM_USER_ID = 'codestreamUserId';
@@ -633,7 +633,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		{
 			type: 'TextBlock',
 			size: 'Medium',
-			text: 'If you already have a CodeStream account, issue the "signin" command to get started ([click here for detailed instructions](https://github.com/TeamCodeStream/CodeStream/wiki/Microsoft-Teams-Integration)). If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
+			text: 'If you already have a CodeStream account, issue the "signin" command to get started ([click here for detailed instructions](https://docs.codestream.com/userguide/features/msteams-integration/)). If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
 			wrap: true
 		}];
 
@@ -688,7 +688,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				{
 					type: 'TextBlock',
 					size: 'Medium',
-					text: 'If you already have a CodeStream account, issue the "signin" command from the personal CodeStream bot to get started ([click here for detailed instructions](https://github.com/TeamCodeStream/CodeStream/wiki/Microsoft-Teams-Integration)).',
+					text: 'If you already have a CodeStream account, issue the "signin" command from the personal CodeStream bot to get started ([click here for detailed instructions](https://docs.codestream.com/userguide/features/msteams-integration/)).',
 					wrap: true
 				},
 				{
@@ -750,7 +750,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		{
 			type: 'TextBlock',
 			size: 'Medium',
-			text: 'If you already have a CodeStream account, issue the "signin" command here to get started ([click here for detailed instructions](https://github.com/TeamCodeStream/CodeStream/wiki/Microsoft-Teams-Integration)). ',
+			text: 'If you already have a CodeStream account, issue the "signin" command here to get started ([click here for detailed instructions](https://docs.codestream.com/userguide/features/msteams-integration/)). ',
 			wrap: true
 		},
 		{
