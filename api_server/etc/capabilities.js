@@ -42,5 +42,9 @@ module.exports = {
 	'multipleReviewersApprove': {
 		description: 'Support for multiple reviewers being required to approve a review',
 		version: '7.1.1'
+	},
+	'emailSupport': {
+		description: 'Whether outbound emails are supported, value actually comes from configuration',
+		version: '1.0.0'
 	}
 };
