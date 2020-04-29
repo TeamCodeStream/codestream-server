@@ -33,10 +33,13 @@ fi
 $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
 diff_notify $repoRoot/README.parameter-definitions.json "$yes"
 
-# create the config template for on-prem single host preview (beta version)
-[ -n "$verbose" ] && echo $binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta.x
-$binDir/process-profile --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta.x
-diff_notify $srcDir/onprem-install/config-templates/single-host-preview-minimal-cfg.json.template.beta "$yes"
+# create the config templates for on-prem single host preview (beta version only)
+for onpremConfig in minimal quickstart
+do
+	[ -n "$verbose" ] && echo $binDir/process-profile --env $onpremConfig --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
+	$binDir/process-profile --env $onpremConfig --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
+	diff_notify $srcDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template "$yes"
+done
 
 # cloud configuration files, all environments (consumed by developers via dt-update-secrets)
 for csEnv in "local" ci pi pd qa prod dev

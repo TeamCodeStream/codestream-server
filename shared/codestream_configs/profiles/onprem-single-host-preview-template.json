@@ -5,12 +5,14 @@
 // - Queuing:        rabbitMQ
 // - Outbound SMTP:  NodeMailer
 // - Telemetry:      Segment production
+//
+// - environments (profiles):  default=minimal, quickstart
 
 {
 	"apiServer": {
 		"defaultEnv": {
 			"assetEnvironment": "onprem",
-			"authOrigin": "https://{{FQHN}}/no-auth",
+			"authOrigin": null,
 			"callbackEnvironment": "onprem",
 			"dontWantAWS": true,
 			"logger": {
@@ -19,6 +21,22 @@
 			"marketingSiteUrl": "https://www.codestream.com",
 			"port": 443,
 			"publicApiUrl": "https://{{FQHN}}",
+			"runTimeEnvironment": "onprem",
+			"tmpDirectory": "/opt/api/tmp"
+		},
+		"quickstart": {
+			"assetEnvironment": "onprem",
+			"authOrigin": null,
+			"callbackEnvironment": "onprem",
+			"confirmationNotRequired": true,
+			"dontWantAWS": true,
+			"ignoreHttps": true,
+			"logger": {
+				"directory": "/opt/api/log"
+			},
+			"marketingSiteUrl": "https://www.codestream.com",
+			"port": 80,
+			"publicApiUrl": "http://{{FQHN}}",
 			"runTimeEnvironment": "onprem",
 			"tmpDirectory": "/opt/api/tmp"
 		}
@@ -30,6 +48,19 @@
 				"logger": {
 					"directory": "/opt/broadcaster/log"
 				},
+				"port": 12443,
+				"secrets": {
+					"api": "{{SECRET_BROADCAST_API}}",
+					"auth": "{{SECRET_BROADCAST_AUTH}}"
+				}
+			},
+			"quickstart": {
+				"host": "{{FQHN}}",
+				"ignoreHttps": true,
+				"logger": {
+					"directory": "/opt/broadcaster/log"
+				},
+				"port": 12080,
 				"secrets": {
 					"api": "{{SECRET_BROADCAST_API}}",
 					"auth": "{{SECRET_BROADCAST_AUTH}}"
@@ -44,6 +75,13 @@
 			"senderEmail": "{{SENDER_EMAIL}}",
 			"supportEmail": "{{SUPPORT_EMAIL}}",
 			"suppressEmails": false
+		},
+		"quickstart": {
+			"emailTo": null,
+			"replyToDomain": "{{FQHN}}",
+			"senderEmail": "{{SENDER_EMAIL}}",
+			"supportEmail": "{{SUPPORT_EMAIL}}",
+			"suppressEmails": true
 		}
 	},
 	"emailDeliveryService": {
@@ -80,6 +118,12 @@
 			"cafile": "/opt/config/{{SSL_CA_FILE}}",
 			"certfile": "/opt/config/{{SSL_CERT_FILE}}",
 			"keyfile": "/opt/config/{{SSL_KEY_FILE}}",
+			"requireStrictSSL": false
+		},
+		"quickstart": {
+			"cafile": null,
+			"certfile": null,
+			"keyfile": null,
 			"requireStrictSSL": false
 		}
 	},
