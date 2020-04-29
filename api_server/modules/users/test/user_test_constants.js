@@ -3,6 +3,7 @@
 const UserAttributes = require(process.env.CS_API_TOP + '/modules/users/user_attributes');
 const APICapabilities = require(process.env.CS_API_TOP + '/etc/capabilities');
 const SocketClusterConfig = require(process.env.CS_API_TOP + '/config/socketcluster');
+const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
 
 // we expect to see these fields for users who are not yet confirmed
 const EXPECTED_UNREGISTERED_USER_FIELDS = [
@@ -74,6 +75,9 @@ const UNSANITIZED_ATTRIBUTES_FOR_ME = Object.keys(UserAttributes).filter(attribu
 const API_CAPABILITIES = {
 	...APICapabilities
 };
+if (EmailConfig.suppressEmails) {
+	delete API_CAPABILITIES.emailSupport;
+}
 
 module.exports = {
 	EXPECTED_USER_RESPONSE,
