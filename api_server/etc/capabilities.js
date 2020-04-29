@@ -46,5 +46,9 @@ module.exports = {
 	'emailSupport': {
 		description: 'Whether outbound emails are supported, value actually comes from configuration',
 		version: '1.0.0'
+	},
+	'multiCheckpointReviews': {
+		description: 'Reviews supporting multiple checkpoints',
+		version: '7.2.0'
 	}
 };
