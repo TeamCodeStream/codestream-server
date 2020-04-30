@@ -7,47 +7,11 @@
 'use strict';
 
 // load configurations
-const ConfigDirectory = process.env.CS_API_TOP + '/config';
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const ModuleDirectory = process.env.CS_API_TOP + '/modules';
-const ApiConfig = require(ConfigDirectory + '/api');
-const ExpressConfig = require(ConfigDirectory + '/express');
-const MongoConfig = require(ConfigDirectory + '/mongo');
-const SecretsConfig = require(ConfigDirectory + '/secrets');
-const PubNubConfig = require(ConfigDirectory + '/pubnub');
-const SocketClusterConfig = require(ConfigDirectory + '/socketcluster');
-const IpcConfig = require(ConfigDirectory + '/ipc');
-const SegmentConfig = require(ConfigDirectory + '/segment');
-const SlackConfig = require(ConfigDirectory + '/slack');
-const MSTeamsConfig = require(ConfigDirectory + '/msteams');
-const GlipConfig = require(ConfigDirectory + '/glip');
-const GithubConfig = require(ConfigDirectory + '/github');
-const GithubEnterpriseConfig = require(ConfigDirectory + '/github_enterprise');
-const GitlabEnterpriseConfig = require(ConfigDirectory + '/gitlab_enterprise');
-const AsanaConfig = require(ConfigDirectory + '/asana');
-const TrelloConfig = require(ConfigDirectory + '/trello');
-const JiraConfig = require(ConfigDirectory + '/jira');
-const JiraServerConfig = require(ConfigDirectory + '/jiraserver');
-const BitbucketConfig = require(ConfigDirectory + '/bitbucket');
-const GitlabConfig = require(ConfigDirectory + '/gitlab');
-const YouTrackConfig = require(ConfigDirectory + '/youtrack');
-const OktaConfig = require(ConfigDirectory + '/okta');
-const AzureDevOpsConfig = require(ConfigDirectory + '/azuredevops');
-const LoggerConfig = require(ConfigDirectory + '/logger');
-const EmailConfig = require(ConfigDirectory + '/email');
-const AWSConfig = require(ConfigDirectory + '/aws');
-const RabbitMQConfig = require(ConfigDirectory + '/rabbitmq');
-const WebClientConfig = require(ConfigDirectory + '/webclient');
-const Limits = require(ConfigDirectory + '/limits');
 const SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
 const ClusterWrapper = require(process.env.CS_API_TOP + '/server_utils/cluster_wrapper');
-
-// establish our logger
-const Logger = new SimpleFileLogger(LoggerConfig);
-
-if (MongoConfig.queryLogging) {
-	// we maintain a separate log file for mongo queries
-	Object.assign(MongoConfig.queryLogging, LoggerConfig, MongoConfig.queryLogging);
-}
+const ServerClass = require(process.env.CS_API_TOP + '/lib/api_server/api_server');
 
 // establish our data collections
 const DataCollections = {
@@ -77,51 +41,33 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	'migrationVersion'
 ]);
 
-// invoke a node cluster master with our configurations provided
-const ServerClass = require(process.env.CS_API_TOP + '/lib/api_server/api_server');
-const MyAPICluster = new ClusterWrapper(
-	ServerClass,
-	{
-		moduleDirectory: ModuleDirectory,
-		api: ApiConfig,
-		secrets: SecretsConfig,
-		express: ExpressConfig,
-		mongo: Object.assign(MongoConfig, {
-			collections: MongoCollections,
-			logger: Logger
-		}),
-		pubnub: PubNubConfig,
-		socketCluster: SocketClusterConfig,
-		ipc: IpcConfig,
-		segment: SegmentConfig,
-		slack: SlackConfig,
-		msteams: MSTeamsConfig,
-		glip: GlipConfig,
-		github: GithubConfig,
-		github_enterprise: GithubEnterpriseConfig,
-		gitlab_enterprise: GitlabEnterpriseConfig,
-		asana: AsanaConfig,
-		trello: TrelloConfig,
-		jira: JiraConfig,
-		jiraserver: JiraServerConfig,
-		bitbucket: BitbucketConfig,
-		gitlab: GitlabConfig,
-		youtrack: YouTrackConfig,
-		okta: OktaConfig,
-		azuredevops: AzureDevOpsConfig,
-		email: EmailConfig,
-		aws: AWSConfig,
-		rabbitmq: RabbitMQConfig,
-		webclient: WebClientConfig,
-		limits: Limits,
-		dataCollections: DataCollections,
-		logger: Logger
-	},
-	Logger
-);
-
 
 (async function() {
+	const Config = await ApiConfig.loadConfig({custom: true});
+
+	// establish our logger
+	const Logger = new SimpleFileLogger(Config.loggerConfig);
+
+	// add a little extra mongo config data
+	Config.mongo.collections = MongoCollections;
+	Config.mongo.logger = Logger;
+
+	// moved to ApiConfig class, but not sure why we need this.
+	// if (Config.mongo.queryLogging) {
+	// 	// we maintain a separate log file for mongo queries
+	// 	Object.assign(MongoConfig.queryLogging, LoggerConfig, MongoConfig.queryLogging);
+	// }
+
+	// invoke a node cluster master with our configurations provided
+	const MyAPICluster = new ClusterWrapper(
+		ServerClass,
+		{
+			...Config,
+			moduleDirectory: ModuleDirectory,
+			dataCollections: DataCollections
+		},
+		Logger
+	);
 	try {
 		await MyAPICluster.start();
 	}

@@ -7,7 +7,7 @@
 'use strict';
 
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
-const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const MigrationsHelper = require(process.env.CS_API_TOP + '/modules/migrations/migrations_helper');
 
 class MigrationRunner {
@@ -29,7 +29,7 @@ class MigrationRunner {
 	// open a mongo client to read from
 	async openMongoClient () {
 		this.mongoClient = new MongoClient();
-		let mongoConfig = Object.assign({}, MongoConfig, { collections: ['__all', 'migrationVersion'] });
+		let mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: ['__all', 'migrationVersion'] });
 		delete mongoConfig.queryLogging;
 		try {
 			await this.mongoClient.openMongoClient(mongoConfig);
@@ -52,6 +52,7 @@ class MigrationRunner {
 
 (async function() {
 	try {
+		await ApiConfig.loadConfig({custom: true});
 		await new MigrationRunner().go();
 	}
 	catch (error) {

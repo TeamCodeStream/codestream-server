@@ -1,5 +1,5 @@
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
-const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const ObjectID = require('mongodb').ObjectID;
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
@@ -28,7 +28,7 @@ class Deleter {
 
 	async openMongoClient () {
 		this.mongoClient = new MongoClient();
-		let mongoConfig = Object.assign({}, MongoConfig, { collections: COLLECTIONS });
+		let mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: COLLECTIONS });
 		delete mongoConfig.queryLogging;
 		try {
 			await this.mongoClient.openMongoClient(mongoConfig);

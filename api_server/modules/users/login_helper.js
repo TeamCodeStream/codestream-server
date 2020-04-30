@@ -7,7 +7,7 @@ const UserSubscriptionGranter = require('./user_subscription_granter');
 const UUID = require('uuid/v4');
 const ProviderFetcher = require(process.env.CS_API_TOP + '/modules/providers/provider_fetcher');
 const APICapabilities = require(process.env.CS_API_TOP + '/etc/capabilities');
-const SlackCfg = require(process.env.CS_API_TOP + '/config/slack');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const VersionErrors = require(process.env.CS_API_TOP + '/modules/versioner/errors');
 
 class LoginHelper {
@@ -163,7 +163,7 @@ class LoginHelper {
 			capabilities: { ...APICapabilities }, // capabilities served by this API server
 			features: {
 				slack: {
-					interactiveComponentsEnabled: SlackCfg.interactiveComponentsEnabled
+					interactiveComponentsEnabled: ApiConfig.getPreferredConfig().slack.interactiveComponentsEnabled
 				}
 			},
 			runTimeEnvironment: this.request.api.config.api.runTimeEnvironment

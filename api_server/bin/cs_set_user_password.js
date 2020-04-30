@@ -10,7 +10,7 @@ const PasswordHasher = require(process.env.CS_API_TOP + '/modules/users/password
 const Email = process.argv[2];
 const Password = process.argv[3];
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
-const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
 
 if (!Email || !Password) {
@@ -20,8 +20,10 @@ if (!Email || !Password) {
 
 (async function() {
 
+	const Config = await ApiConfig.loadConfig({custom: true});
+
 	const mongoClient = new MongoClient();
-	const mongoConfig = Object.assign({}, MongoConfig, { collections: ['users'] });
+	const mongoConfig = Object.assign({}, Config.mongo, { collections: ['users'] });
 	delete mongoConfig.queryLogging;
 	try {
 		await mongoClient.openMongoClient(mongoConfig);

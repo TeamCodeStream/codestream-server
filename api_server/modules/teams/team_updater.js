@@ -6,7 +6,7 @@ const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_u
 const Team = require('./team');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class TeamUpdater extends ModelUpdater {
 
@@ -35,7 +35,7 @@ class TeamUpdater extends ModelUpdater {
 	validateAttributes () {
 		if (
 			this.attributes.providerHosts &&
-			this.attributes._confirmationCheat !== SecretsConfig._confirmationCheat
+			this.attributes._confirmationCheat !== ApiConfig.getPreferredConfig().secrets.confirmationCheat
 		) {
 			// this is only for test purposes, for now, so can only be done with cheat code
 			delete this.attributes.providerHosts;

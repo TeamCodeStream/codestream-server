@@ -7,7 +7,7 @@
 'use strict';
 
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
-const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Commander = require(process.env.CS_API_TOP + '/node_modules/commander');
 
 // need these collections from mongo
@@ -44,7 +44,7 @@ class RepoMerger {
 	// open a mongo client to read from
 	async openMongoClient () {
 		this.mongoClient = new MongoClient();
-		let mongoConfig = Object.assign({}, MongoConfig, { collections: COLLECTIONS });
+		let mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: COLLECTIONS });
 		delete mongoConfig.queryLogging;
 		try {
 			await this.mongoClient.openMongoClient(mongoConfig);
@@ -141,6 +141,7 @@ class RepoMerger {
 
 (async function() {
 	try {
+		await ApiConfig.loadConfig({custom: true});
 		await new RepoMerger().go({
 			fromRepoId: Commander.fromRepo,
 			toRepoId: Commander.toRepo,

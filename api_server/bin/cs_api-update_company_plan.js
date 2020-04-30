@@ -7,10 +7,9 @@
 'use strict';
 
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
-const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Intercom = require('intercom-client');
 const Commander = require('commander');
-const ACCESS_TOKEN = require(process.env.CS_API_TOP + '/config/intercom').accessToken;
 
 // need these collections from mongo
 const COLLECTIONS = ['companies'];
@@ -58,7 +57,7 @@ class PlanUpdater {
 	// open a mongo client to read from
 	async openMongoClient () {
 		this.mongoClient = new MongoClient();
-		let mongoConfig = Object.assign({}, MongoConfig, { collections: COLLECTIONS });
+		let mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: COLLECTIONS });
 		delete mongoConfig.queryLogging;
 		try {
 			await this.mongoClient.openMongoClient(mongoConfig);
@@ -71,7 +70,7 @@ class PlanUpdater {
 
 	// open an Intercom client to write to
 	async openIntercomClient () {
-		this.intercomClient = new Intercom.Client({ token: ACCESS_TOKEN });
+		this.intercomClient = new Intercom.Client({ token: ApiConfig.getPreferredConfig().telemetry.intercom.token });
 	}
 
 	// change the company's plan in both mongo and on Intercom
@@ -125,6 +124,7 @@ class PlanUpdater {
 
 (async function() {
 	try {
+		await ApiConfig.loadConfig({custom: true});
 		await new PlanUpdater().go({
 			companyId: Commander.companyId,
 			plan: Commander.plan

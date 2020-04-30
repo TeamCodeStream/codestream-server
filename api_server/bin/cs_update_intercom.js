@@ -7,9 +7,8 @@
 'use strict';
 
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
-const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Intercom = require('intercom-client');
-const ACCESS_TOKEN = require(process.env.CS_API_TOP + '/config/intercom').accessToken;
 
 const COLLECTIONS = ['teams'];
 
@@ -35,7 +34,7 @@ class IntercomUpdater {
 	// open a mongo client to read from
 	async openMongoClient () {
 		this.mongoClient = new MongoClient();
-		let mongoConfig = Object.assign({}, MongoConfig, { collections: COLLECTIONS });
+		let mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: COLLECTIONS });
 		delete mongoConfig.queryLogging;
 		try {
 			await this.mongoClient.openMongoClient(mongoConfig);
@@ -48,7 +47,7 @@ class IntercomUpdater {
 
 	// open an Intercom client to write to
 	async openIntercomClient () {
-		this.intercomClient = new Intercom.Client({ token: ACCESS_TOKEN });
+		this.intercomClient = new Intercom.Client({ token: ApiConfig.getPreferredConfig().intercom.accessToken });
 	}
 
 	async process () {
@@ -90,6 +89,7 @@ class IntercomUpdater {
 
 (async function() {
 	try {
+		await ApiConfig.loadConfig({custom: true});
 		await new IntercomUpdater().go();
 	}
 	catch (error) {

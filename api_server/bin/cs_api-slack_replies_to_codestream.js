@@ -5,7 +5,7 @@
 'use strict';
 
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
-const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Commander = require('commander');
 const CodemarkIndexes = require(process.env.CS_API_TOP + '/modules/codemarks/indexes');
 const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
@@ -13,7 +13,6 @@ const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes
 const PasswordHasher = require(process.env.CS_API_TOP + '/modules/users/password_hasher');
 const PubNub = require('pubnub');
 const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
-const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 const UUID = require('uuid/v4');
 const OS = require('os');
 
@@ -1033,7 +1032,7 @@ class SlackReplyFetcher {
 	// open a mongo client to do the dirty work
 	async openMongoClient () {
 		this.mongoClient = new MongoClient();
-		let mongoConfig = Object.assign({}, MongoConfig, { collections: COLLECTIONS });
+		let mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: COLLECTIONS });
 		delete mongoConfig.queryLogging;
 		try {
 			await this.mongoClient.openMongoClient(mongoConfig);
@@ -1046,7 +1045,7 @@ class SlackReplyFetcher {
 
 	// open a Pubnub client for broadcasting the changes
 	async openPubnubClient () {
-		let config = Object.assign({}, PubNubConfig);
+		let config = Object.assign({}, ApiConfig.getPreferredConfig().pubnub);
 		config.uuid = 'API-' + OS.hostname();
 		this.pubnub = new PubNub(config);
 		this.pubnubClient = new PubNubClient({
@@ -1062,6 +1061,7 @@ class SlackReplyFetcher {
 		if (!teamId) {
 			throw 'must provide teamId or all';
 		}
+		await ApiConfig.loadConfig({custom: true});
 		await new SlackReplyFetcher().go({ teamId });
 	}
 	catch (error) {

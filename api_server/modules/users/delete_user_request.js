@@ -3,7 +3,7 @@
 'use strict';
 
 const DeleteRequest = require(process.env.CS_API_TOP + '/lib/util/restful/delete_request');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const UserPublisher = require('./user_publisher');
 
 class DeleteUserRequest extends DeleteRequest {
@@ -11,7 +11,7 @@ class DeleteUserRequest extends DeleteRequest {
 	// authorize the request for the current user
 	async authorize () {
 		// if secret passed, anyone can delete this user
-		if (this.request.headers['x-delete-user-secret'] === SecretsConfig.confirmationCheat) {
+		if (this.request.headers['x-delete-user-secret'] === ApiConfig.getPreferredConfig().secrets.confirmationCheat) {
 			return;
 		}
 
