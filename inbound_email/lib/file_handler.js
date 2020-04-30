@@ -46,7 +46,7 @@ class FileHandler {
 	async refreshConfig () {
 		if(await InboundEmailServerConfig.isDirty()) {
 			this.log('reloading config data - cache is dirty');
-			this.inboundEmailServer.config = await InboundEmailServerConfig.loadConfig();
+			this.inboundEmailServer.config = await InboundEmailServerConfig.loadConfig({custom: true});
 			if (InboundEmailServerConfig.restartRequired()) {
 				this.log('new config requires a restart or full re-initialization');
 				// uh oh!
