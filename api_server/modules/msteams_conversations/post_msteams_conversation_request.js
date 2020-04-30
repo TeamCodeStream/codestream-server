@@ -12,7 +12,7 @@ const { CardFactory, ActionTypes } = require('botbuilder');
 const ProviderDisplayNames = require(process.env.CS_API_TOP + '/modules/web/provider_display_names');
 const { MicrosoftAppCredentials } = require('botframework-connector');
 const MSTeamsConversationIndexes = require(process.env.CS_API_TOP + '/modules/msteams_conversations/indexes');
-const MSTeamsBotFrameworkAdapter = require(process.env.CS_API_TOP + '/modules/providers/msteams_bot_framework_adapter');
+const { createMSTeamsBotFrameworkAdapter } = require(process.env.CS_API_TOP + '/modules/providers/msteams_bot_framework_adapter');
 const MSTeamsStateAdapter = require(process.env.CS_API_TOP + '/modules/providers/msteams_state_adapter');
 
 class PostMSTeamsConversationRequest extends PostRequest {
@@ -336,9 +336,10 @@ class PostMSTeamsConversationRequest extends PostRequest {
 		// see: https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-proactive-message?view=azure-bot-service-4.0&tabs=javascript#avoiding-401-unauthorized-errors
 		MicrosoftAppCredentials.trustServiceUrl(conversation.serviceUrl);
 
+		const msTeamsBotFrameworkAdapter = await createMSTeamsBotFrameworkAdapter(this.request);
 		// we send a "proactive" message by calling the continueConversation function
 		// passing in the stored conversation reference.
-		await MSTeamsBotFrameworkAdapter.continueConversation(conversation, async context => {
+		await msTeamsBotFrameworkAdapter.continueConversation(conversation, async context => {
 			// since we know the userId, pass it in
 			context.turnState.set('cs_userId', this.user.id);
 			context.turnState.set('cs_analytics', this.api.services.analytics);

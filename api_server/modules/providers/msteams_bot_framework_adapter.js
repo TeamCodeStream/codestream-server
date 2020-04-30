@@ -6,16 +6,12 @@
 'use strict';
 
 /* eslint no-empty: 0 */
-
 const { BotFrameworkAdapter } = require('botbuilder');
-const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
+
+let initialized = undefined;
 
 // using a single pattern for this class
-
-const MSTeamsBotFrameworkAdapter = new BotFrameworkAdapter({
-	appId: MSTeamsConfig.botAppId,
-	appPassword: MSTeamsConfig.botAppPassword
-});
+let msTeamsBotFrameworkAdapter;
 
 const sendTelemetry = async function (context, errorString, options = {}) {
 	const analytics = await context.turnState.get('cs_analytics');
@@ -45,7 +41,7 @@ const sendTelemetry = async function (context, errorString, options = {}) {
 				}
 			}
 		}
-		catch (ex) {}
+		catch (ex) { }
 	}
 
 	let trackOptions = {};
@@ -66,6 +62,7 @@ const sendTelemetry = async function (context, errorString, options = {}) {
 	}
 };
 
+// list of commands that we care about seeing in logs/telemetry
 const commandWhiteList = new Set([
 	'easteregg',
 	'debug',
@@ -90,90 +87,90 @@ const commandWhiteList = new Set([
 	'help'
 ]);
 
-MSTeamsBotFrameworkAdapter.onTurnError = async (context, error) => {
-	// This check writes out errors to console log .vs. app insights.
-	// NOTE: In production environment, you should consider logging this to Azure
-	//       application insights.
-	//console.error(`\n [onTurnError] unhandled error: ${ error }`);
+module.exports.createMSTeamsBotFrameworkAdapter = async (request) => {
+	if (initialized) return msTeamsBotFrameworkAdapter;
 
-	// // Send a trace activity, which will be displayed in Bot Framework Emulator
-	// await context.sendTraceActivity(
-	//     'OnTurnError Trace',
-	//     `${ error }`,
-	//     'https://www.botframework.com/schemas/error',
-	//     'TurnError'
-	// );
-	let logger;
-	try {
-		if (error) {
-			let originalError;
-			let isApiError = false;
-			let errorAsString;
-			//check if the error is an api_server error
-			if (error.code && error.description) {
-				isApiError = true;
-				originalError = error;
-				// replace the error with one in a format we're expecting
-				error = new Error(`${error.code} ${error.description}`);
-			}
-			logger = await context.turnState.get('cs_logger');
-			let commandText = await context.turnState.get('cs_bot_text');
-			// only show commands that we know about, just for a bit of user privacy
-			if (commandText && !commandWhiteList.has(commandText.toLowerCase())) {
-				commandText = 'unknown';				
-			}
-			if (!commandText) {
-				commandText = 'unknown';
-			}
+	// cheese pizza @jj need the correct path to MSTteams here!!!!
+	msTeamsBotFrameworkAdapter = new BotFrameworkAdapter({
+		appId: request.api.config.teams.botAppId,
+		appPassword: request.api.config.teams.botAppPassword
+	});
 
-			errorAsString = error.toString();
-			if (errorAsString && errorAsString.indexOf('Error: ') === 0) {
-				errorAsString = errorAsString.substring(7);
-			}
-			let userErrorMessage;
-			const requestId = await context.turnState.get('cs_requestId');
-			if (requestId) {
-				userErrorMessage = `${errorAsString}. requestId=${requestId}`;
-			}
-			
-			if (logger) {
-				// log it internally
-				if (isApiError && originalError) {
-					logger.error(JSON.stringify(originalError));
+	msTeamsBotFrameworkAdapter.onTurnError = async (context, error) => {
+		let logger;
+		try {
+			if (error) {
+				let originalError;
+				let isApiError = false;
+				let errorAsString;
+				//check if the error is an api_server error
+				if (error.code && error.description) {
+					isApiError = true;
+					originalError = error;
+					// replace the error with one in a format we're expecting
+					error = new Error(`${error.code} ${error.description}`);
 				}
-				else {
-					logger.error(errorAsString);
+				logger = await context.turnState.get('cs_logger');
+				let commandText = await context.turnState.get('cs_bot_text');
+				// only show commands that we know about, just for a bit of user privacy
+				if (commandText && !commandWhiteList.has(commandText.toLowerCase())) {
+					commandText = 'unknown';
 				}
-			}
-			// send back the message to the user
-			await context.sendActivity(`Oops, the bot encountered an issue. ${userErrorMessage ? `\n\n${userErrorMessage}` : ''}`);
-			try {
-				// try to send telemetry about this error
-				await sendTelemetry(context, errorAsString, { 
-					requestId: requestId,
-					commandText: commandText
-				});
-			}
-			catch (ex) {
+				if (!commandText) {
+					commandText = 'unknown';
+				}
+
+				errorAsString = error.toString();
+				if (errorAsString && errorAsString.indexOf('Error: ') === 0) {
+					errorAsString = errorAsString.substring(7);
+				}
+				let userErrorMessage;
+				const requestId = await context.turnState.get('cs_requestId');
+				if (requestId) {
+					userErrorMessage = `${errorAsString}. requestId=${requestId}`;
+				}
+
 				if (logger) {
-					logger.error(ex.toString());
+					// log it internally
+					if (isApiError && originalError) {
+						logger.error(JSON.stringify(originalError));
+					}
+					else {
+						logger.error(errorAsString);
+					}
+				}
+				// send back the message to the user
+				await context.sendActivity(`Oops, the bot encountered an issue. ${userErrorMessage ? `\n\n${userErrorMessage}` : ''}`);
+				try {
+					// try to send telemetry about this error
+					await sendTelemetry(context, errorAsString, {
+						requestId: requestId,
+						commandText: commandText
+					});
+				}
+				catch (ex) {
+					if (logger) {
+						logger.error(ex.toString());
+					}
+				}
+
+				// when we continueConversation (share a codemark), and we end up here, 
+				// we need to re-throw this error so that it ends up with a 4XX response
+				// in the agent
+				const throwOnError = await context.turnState.get('cs_throwOnError');
+				if (throwOnError) {
+					throw error;
 				}
 			}
-
-			// when we continueConversation (share a codemark), and we end up here, 
-			// we need to re-throw this error so that it ends up with a 4XX response
-			// in the agent
-			const throwOnError = await context.turnState.get('cs_throwOnError');
-			if (throwOnError) {
-				throw error;
+		}
+		catch (ex) {
+			if (logger) {
+				logger.error(ex.toString());
 			}
 		}
-	}
-	catch (ex) {
-		if (logger) {
-			logger.error(ex.toString());
-		}
-	}
-};
+	};
 
-module.exports = MSTeamsBotFrameworkAdapter;
+	initialized = true;
+
+	return msTeamsBotFrameworkAdapter;
+};

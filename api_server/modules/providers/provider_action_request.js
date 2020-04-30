@@ -12,7 +12,7 @@ const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const crypto = require('crypto');
 const AddTeamPublisher = require(process.env.CS_API_TOP + '/modules/users/add_team_publisher');
 const MSTeamsConversationBot = require('./msteams_conversation_bot');
-const MSTeamsBotFrameworkAdapter = require('./msteams_bot_framework_adapter');
+const { createMSTeamsBotFrameworkAdapter } = require('./msteams_bot_framework_adapter');
 const MSTeamsDatabaseAdapter = require('./msteams_database_adapter');
 const MSTeamsStateAdapter = require('./msteams_state_adapter');
 
@@ -54,7 +54,8 @@ class ProviderActionRequest extends RestfulRequest {
 		let data;
 		this.provider = this.request.params.provider.toLowerCase();
 		if (this.provider === 'msteams') {
-			await MSTeamsBotFrameworkAdapter.processActivity(this.request, this.response, async (context) => {
+			const msTeamsBotFrameworkAdapter = await createMSTeamsBotFrameworkAdapter(this.request);
+			await msTeamsBotFrameworkAdapter.processActivity(this.request, this.response, async (context) => {
 				// we MUST instantiate this adapter for each request
 				this.handler = new MSTeamsDatabaseAdapter(this);
 				context.turnState.set('cs_analytics', this.api.services.analytics);
