@@ -4,8 +4,8 @@
 
 /* eslint no-console: 0 */
 
-const StructuredConfigFactory = require('./codestream-configs/lib/structured_config'); 
-const MongoUrlParser = require('./codestream-configs/lib/mongo_url_parser');
+const StructuredConfigFactory = require('../codestream-configs/lib/structured_config'); 
+const MongoUrlParser = require('../codestream-configs/lib/mongo_url_parser');
 
 function customConfigFunc(nativeCfg) {
 	// creates a custom config object derived from the loaded native config
@@ -66,7 +66,7 @@ function customConfigFunc(nativeCfg) {
 		trello: nativeCfg.integrations.trello.cloud || {},
 		bitbucket: nativeCfg.integrations.bitbucket.cloud || {},
 		gitlab: nativeCfg.integrations.gitlab.cloud || {},
-		azuredevops: nativeCfg.integrations.azuredevops.cloud || {},
+		azuredevops: nativeCfg.integrations.devops.cloud || {},
 		github_enterprise: {
 			// this is needed to be non-null to return provider data to the
 			// client, but is not actually used
@@ -154,10 +154,10 @@ function customConfigFunc(nativeCfg) {
 	// Broadcaster: socketCluster gets populated when using the broadcaster
 	if (Object.keys(nativeCfg.broadcastEngine.codestreamBroadcaster).length != 0) {
 		apiCfg.socketCluster = {
-			host: nativeCfg.roadcastEngine.codestreamBroadcaster.host,
-			port: nativeCfg.roadcastEngine.codestreamBroadcaster.port,
-			authKey: nativeCfg.roadcastEngine.codestreamBroadcaster.secrets.api,
-			ignoreHttps: nativeCfg.roadcastEngine.codestreamBroadcaster.ignoreHttps,
+			host: nativeCfg.broadcastEngine.codestreamBroadcaster.host,
+			port: nativeCfg.broadcastEngine.codestreamBroadcaster.port,
+			authKey: nativeCfg.broadcastEngine.codestreamBroadcaster.secrets.api,
+			ignoreHttps: nativeCfg.broadcastEngine.codestreamBroadcaster.ignoreHttps,
 			strictSSL: nativeCfg.ssl.requireStrictSSL
 		};
 	}
@@ -192,7 +192,7 @@ function customConfigFunc(nativeCfg) {
 	}
 
 	// AWS [SQS or Rabbit]:
-	if (Object.keys(nativeCfg.queuingEngine.awsSQS).length > 0) {
+	if (nativeCfg.queuingEngine.awsSQS) {
 		if (nativeCfg.queuingEngine.awsSQS.region) {
 			apiCfg.aws.region = nativeCfg.queuingEngine.awsSQS.region;
 		}
@@ -200,7 +200,7 @@ function customConfigFunc(nativeCfg) {
 	}
 	else {
 		// FIXME api configured to use rabbit but there's no queue name in the rabbit section
-		apiCfg.aws.sqs.outboundEmailQueueName = nativeCfg.ueuingEngine.rabbitmq.outboundEmailQueueName;
+		apiCfg.aws.sqs.outboundEmailQueueName = nativeCfg.queuingEngine.rabbitmq.outboundEmailQueueName;
 	}
 
 	// FIXME

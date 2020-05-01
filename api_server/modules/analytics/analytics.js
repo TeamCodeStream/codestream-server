@@ -25,6 +25,8 @@ class Analytics extends APIServerModule {
 		// segment analytics client as the analytics service
 		return async () => {
 			this.api.log('Connecting to Segment Analytics...');
+			console.log(this.api);
+			// process.exit(1);
 			const config = Object.assign({}, this.api.config.segment, {
 				testCallback: this.testCallback.bind(this),
 				logger: this.api

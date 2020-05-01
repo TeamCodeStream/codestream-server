@@ -90,10 +90,9 @@ const commandWhiteList = new Set([
 module.exports.createMSTeamsBotFrameworkAdapter = async (request) => {
 	if (initialized) return msTeamsBotFrameworkAdapter;
 
-	// cheese pizza @jj need the correct path to MSTteams here!!!!
 	msTeamsBotFrameworkAdapter = new BotFrameworkAdapter({
-		appId: request.api.config.teams.botAppId,
-		appPassword: request.api.config.teams.botAppPassword
+		appId: request.api.config.msteams.botAppId,
+		appPassword: request.api.config.msteams.botAppPassword
 	});
 
 	msTeamsBotFrameworkAdapter.onTurnError = async (context, error) => {
