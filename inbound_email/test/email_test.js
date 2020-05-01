@@ -22,7 +22,7 @@ class EmailTest {
 	constructor (options) {
 		Object.assign(this, options);
 		// console.log('THIS', this);
-		this.econfig = InboundEmailServerConfig.getConfig();
+		this.econfig = InboundEmailServerConfig.loadConfig();
 		// console.log('EmailTest constructor (email_test.js):', this.econfig);
 	}
 
