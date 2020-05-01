@@ -3,7 +3,7 @@
 const BoundAsync = require(process.env.CS_MAILIN_TOP +'/server_utils/bound_async');
 const RandomString = require('randomstring');
 
-const InboundEmailServerConfig = require(process.env.CS_MAILIN_TOP + '/config/config');
+//const InboundEmailServerConfig = require(process.env.CS_MAILIN_TOP + '/config/config');
 const HTTPSBot = require(process.env.CS_MAILIN_TOP + '/server_utils/https_bot');
 const PubNub = require('pubnub');
 const PubNubClient = require(process.env.CS_MAILIN_TOP + '/server_utils/pubnub/pubnub_client_async');
@@ -22,8 +22,12 @@ class EmailTest {
 	constructor (options) {
 		Object.assign(this, options);
 		// console.log('THIS', this);
-		this.econfig = InboundEmailServerConfig.loadConfig();
+		//this.econfig = InboundEmailServerConfig.loadConfig();
 		// console.log('EmailTest constructor (email_test.js):', this.econfig);
+	}
+
+	setConfig (config) {
+		this.econfig = config;
 	}
 
 	get it () {
