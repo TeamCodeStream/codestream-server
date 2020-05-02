@@ -11,7 +11,6 @@ const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
 const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
 const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
 const AzureDevOpsConfig = require(process.env.CS_API_TOP + '/config/azuredevops');
-const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const Base64 = require('base-64');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
@@ -257,18 +256,6 @@ class CommonInit {
 			redirect_uri: this.redirectUri
 		};
 		const url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
-		return { url, parameters };
-	}
-
-	getExpectedGlipTestCallData () {
-		const parameters = {
-			refresh_token: this.refreshToken,
-			grant_type: 'refresh_token',
-			client_id: GlipConfig.appClientId,
-			client_secret: GlipConfig.appClientSecret,
-			redirect_uri: this.redirectUri
-		};
-		const url = 'https://api.ringcentral.com/restapi/oauth/token';
 		return { url, parameters };
 	}
 }

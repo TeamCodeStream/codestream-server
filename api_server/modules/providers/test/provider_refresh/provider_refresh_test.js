@@ -52,9 +52,6 @@ class ProviderRefreshTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		case 'msteams':
 			expectedData = this.getExpectedMSTeamsTestCallData();
 			break;
-		case 'glip':
-			expectedData = this.getExpectedGlipTestCallData();
-			break;
 		default:
 			throw `unknown provider ${this.provider}`;
 		}

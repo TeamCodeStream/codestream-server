@@ -5,7 +5,7 @@
 'use strict';
 
 const APIServerModules = require('./api_server_modules.js');
-const ApiServerConfig = require(process.env.CS_API_TOP + '/config/config');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Express = require('express');
 const HTTPS = require('https');
 const HTTP = require('http');
@@ -120,9 +120,9 @@ class APIServer {
 			return next(new Error('shutdown pending'));
 		}
 		(async function() {
-			if (await ApiServerConfig.isDirty()) {
-				this.config = await ApiServerConfig.loadConfig({custom: true});
-				if (ApiServerConfig.restartRequired()) {
+			if (await ApiConfig.isDirty()) {
+				this.config = await ApiConfig.loadConfig({custom: true});
+				if (ApiConfig.restartRequired()) {
 					this.log('new config requires a restart or full re-initialization');
 					// uh oh!
 				}

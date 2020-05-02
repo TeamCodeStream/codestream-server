@@ -146,7 +146,7 @@ class Versioner extends APIServerModule {
 
 	// initialize this module
 	async initialize () {
-		if (this.api.config.api.runtimeEnvironment !== 'prod') {
+		if (this.api.config.api.runTimeEnvironment !== 'prod') {
 			const apiTestVersion = await this.api.data.versionMatrix.getOneByQuery(
 				{ apiTestVersion: { $exists: true } },
 				{ overrideHintRequired: true }

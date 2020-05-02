@@ -3,7 +3,7 @@
 'use strict';
 
 // make eslint happy
-/* globals describe */
+/* globals describe, before */
 
 const GetByIdFromCacheTest = require('./get_by_id_from_cache_test');
 const GetByIdFromDatabaseTest = require('./get_by_id_from_database_test');
@@ -52,10 +52,20 @@ const DeleteFromDatabaseTest = require('./delete_from_database_test');
 const FindAndModifyTest = require('./find_and_modify_test');
 const VersionUpdateTest = require('./version_update_test');
 const VersionMismatchTest = require('./version_mismatch_test');
+const WritableApiConfig = require(process.env.CS_API_TOP + '/config/writable');
 
 describe('dataCollection', function() {
 
-	this.timeout(10000);
+	this.timeout(20000);
+
+	before(async () => {
+		console.log('dataCollection (before) test.js');
+		await WritableApiConfig.loadConfig({custom: true});
+		// console.log('config: ', c);
+		await new Promise(resolve => {
+			setTimeout(resolve, 10000);
+		});
+	});
 
 	new GetByIdFromCacheTest().test();
 	new GetByIdFromDatabaseTest().test();

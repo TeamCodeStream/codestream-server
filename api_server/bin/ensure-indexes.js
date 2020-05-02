@@ -39,9 +39,7 @@ const AllFinished = {
 	dropped: 0
 };
 
-const ConfigDirectory = process.env.CS_API_TOP + '/config';
-const MongoConfig = require(ConfigDirectory + '/mongo.js');
-
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const MongoClient = require('mongodb').MongoClient;
 
 const Drop = process.argv.find(arg => arg === 'drop');
@@ -99,7 +97,8 @@ function WaitUntilFinished() {
 (async function() {
 	let mongoClient, db;
 	try {
-		mongoClient = await MongoClient.connect(MongoConfig.url, { useNewUrlParser: true });
+		const config = await ApiConfig.loadConfig({custom: true});
+		mongoClient = await MongoClient.connect(config.mongo.url, { useNewUrlParser: true });
 		db = mongoClient.db();
 	}
 	catch (error) {

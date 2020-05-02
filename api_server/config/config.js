@@ -59,7 +59,6 @@ function customConfigFunc(nativeCfg) {
 		segment: nativeCfg.telemetry.segment,
 		slack: nativeCfg.integrations.slack.cloud || {},
 		msteams: nativeCfg.integrations.msteams.cloud || {},
-		glip: nativeCfg.integrations.msteams.cloud || {},
 		github: nativeCfg.integrations.github.cloud || {},
 		jira: nativeCfg.integrations.jira.cloud || {},
 		asana: nativeCfg.integrations.asana.cloud || {},
@@ -201,12 +200,6 @@ function customConfigFunc(nativeCfg) {
 	else {
 		// FIXME api configured to use rabbit but there's no queue name in the rabbit section
 		apiCfg.aws.sqs.outboundEmailQueueName = nativeCfg.queuingEngine.rabbitmq.outboundEmailQueueName;
-	}
-
-	// FIXME
-	if (apiCfg.mongo.queryLogging) {
-		// we maintain a separate log file for mongo queries
-		Object.assign(apiCfg.mongo.queryLogging, apiCfg.mongo.loggerConfig, apiCfg.mongo.queryLogging);
 	}
 
 	return apiCfg;

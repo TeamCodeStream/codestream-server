@@ -7,7 +7,7 @@
 'use strict';
 
 // load configurations
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const WritableApiConfig = require(process.env.CS_API_TOP + '/config/writable');
 const ModuleDirectory = process.env.CS_API_TOP + '/modules';
 const SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
 const ClusterWrapper = require(process.env.CS_API_TOP + '/server_utils/cluster_wrapper');
@@ -41,22 +41,21 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	'migrationVersion'
 ]);
 
-
 (async function() {
-	const Config = await ApiConfig.loadConfig({custom: true});
+	// changes to Config will be available globally via the /config/writeable.js module
+	const Config = await WritableApiConfig.loadConfig({custom: true});
 
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.loggerConfig);
 
-	// add a little extra mongo config data
+	// FIXME: this copies the initial config into a new structure so it won't be
+	//        in sync with any config refreshes that happen further down the
+	//        road nor will you be able to fetch it by requring '/config/config'.
+	if (Config.mongo.queryLogging) {
+		Object.assign(Config.mongo.queryLogging, Config.loggerConfig, Config.mongo.queryLogging);
+	}
 	Config.mongo.collections = MongoCollections;
 	Config.mongo.logger = Logger;
-
-	// moved to ApiConfig class, but not sure why we need this.
-	// if (Config.mongo.queryLogging) {
-	// 	// we maintain a separate log file for mongo queries
-	// 	Object.assign(MongoConfig.queryLogging, LoggerConfig, MongoConfig.queryLogging);
-	// }
 
 	// invoke a node cluster master with our configurations provided
 	const MyAPICluster = new ClusterWrapper(
