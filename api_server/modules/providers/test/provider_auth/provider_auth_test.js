@@ -3,21 +3,9 @@
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
-const TrelloConfig = require(process.env.CS_API_TOP + '/config/trello');
-const GithubConfig = require(process.env.CS_API_TOP + '/config/github');
-const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
-const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
-const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
-const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
-const AzureDevOpsConfig = require(process.env.CS_API_TOP + '/config/azuredevops');
-const YouTrackConfig = require(process.env.CS_API_TOP + '/config/youtrack');
-const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
-const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
-const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
 const OktaConfig = require(process.env.CS_API_TOP + '/config/okta');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const RandomString = require('randomstring');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 
 class ProviderAuthTest extends CodeStreamAPITest {
@@ -93,11 +81,11 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				if (this.provider === 'jiraserver') {
 					this.mockToken = RandomString.generate(12);
 					this.mockTokenSecret = RandomString.generate(12);
-					this.path += `&_mockToken=${this.mockToken}&_mockTokenSecret=${this.mockTokenSecret}&_secret=${encodeURIComponent(SecretsConfig.confirmationCheat)}`;
+					this.path += `&_mockToken=${this.mockToken}&_mockTokenSecret=${this.mockTokenSecret}&_secret=${encodeURIComponent(ApiConfig.getPreferredConfig().secrets.confirmationCheat)}`;
 				}
-				const authOrigin = this.provider === 'youtrack' ? `${ApiConfig.publicApiUrl}/no-auth` : ApiConfig.authOrigin;
+				const authOrigin = this.provider === 'youtrack' ? `${ApiConfig.getPreferredConfig().api.publicApiUrl}/no-auth` : ApiConfig.getPreferredConfig().api.authOrigin;
 				this.redirectUri = `${authOrigin}/provider-token/${this.provider}`;
-				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
+				this.state = `${ApiConfig.getPreferredConfig().api.callbackEnvironment}!${this.authCode}`;
 				const testHost = this.testRequestHost || this.testHost;
 				if (testHost) {
 					this.path += `&host=${testHost}`;
@@ -172,14 +160,14 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			name: 'CodeStream',
 			callback_method: 'fragment',
 			return_url: this.redirectUri,
-			key: TrelloConfig.apiKey
+			key: ApiConfig.getPreferredConfig().trello.apiKey
 		};
 		const url = 'https://trello.com/1/authorize';
 		return { url, parameters };
 	}
 
 	getGithubRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : GithubConfig.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : ApiConfig.getPreferredConfig().github.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
@@ -194,7 +182,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getAsanaRedirectData () {
 		const parameters = {
-			client_id: AsanaConfig.appClientId,
+			client_id: ApiConfig.getPreferredConfig().asana.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state
@@ -204,7 +192,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getJiraRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : JiraConfig.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : ApiConfig.getPreferredConfig().jira.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
@@ -220,8 +208,8 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getJiraServerRedirectData () {
-		const encodedSecret = new TokenHandler(SecretsConfig.auth).generate({ sec: this.mockTokenSecret }, 'oasec');
-		const callback = `${ApiConfig.publicApiUrl}/no-auth/provider-token/${this.provider}?state=${this.state}!${encodedSecret}`;
+		const encodedSecret = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth).generate({ sec: this.mockTokenSecret }, 'oasec');
+		const callback = `${ApiConfig.getPreferredConfig().api.publicApiUrl}/no-auth/provider-token/${this.provider}?state=${this.state}!${encodedSecret}`;
 		const parameters = {
 			oauth_token: this.mockToken,
 			oauth_callback: callback
@@ -231,7 +219,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getGitlabRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : GitlabConfig.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : ApiConfig.getPreferredConfig().gitlab.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: `${this.redirectUri}`,
@@ -248,7 +236,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getBitbucketRedirectData () {
 		const parameters = {
-			client_id: BitbucketConfig.appClientId,
+			client_id: ApiConfig.getPreferredConfig().bitbucket.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
@@ -259,7 +247,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getYouTrackRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : YouTrackConfig.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : ApiConfig.getPreferredConfig().youtrack.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
@@ -275,7 +263,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getAzureDevOpsRedirectData () {
 		const parameters = {
-			client_id: AzureDevOpsConfig.appClientId,
+			client_id: ApiConfig.getPreferredConfig().devops.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'Assertion',
 			state: this.state,
@@ -287,7 +275,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getSlackRedirectData () {
 		const parameters = {
-			client_id: SlackConfig.appClientId,
+			client_id: ApiConfig.getPreferredConfig().slack.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
@@ -299,7 +287,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getMSTeamsRedirectData () {
 		const parameters = {
-			client_id: MSTeamsConfig.appClientId,
+			client_id: ApiConfig.getPreferredConfig().msteams.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
@@ -307,17 +295,6 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			response_mode: 'query'
 		};
 		const url = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
-		return { url, parameters };
-	}
-
-	getGlipRedirectData () {
-		const parameters = {
-			client_id: GlipConfig.appClientId,
-			redirect_uri: this.redirectUri,
-			response_type: 'code',
-			state: this.state
-		};
-		const url = 'https://api.ringcentral.com/restapi/oauth/authorize';
 		return { url, parameters };
 	}
 

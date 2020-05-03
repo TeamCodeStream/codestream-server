@@ -7,7 +7,7 @@ const UUID = require('uuid/v4');
 const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const Crypto = require('crypto');
-const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 const LINK_TYPES_TO_ACTION = {
 	'web': 'Opened on Web',
@@ -99,7 +99,7 @@ class CommonInit {
 			actions: [{
 				action_id: JSON.stringify(actionPayload)
 			}],
-			api_app_id: SlackConfig.appSharingId			
+			api_app_id: ApiConfig.getPreferredConfig().slack.appSharingId			
 		};
 
 		const properties = {
@@ -171,7 +171,7 @@ class CommonInit {
 		const now = Math.floor(Date.now() / 1000);
 		this.rawBody=`payload=${rawData}`;
 		const mySignature = 'v0=' +
-			Crypto.createHmac('sha256', SlackConfig.appSharingSigningSecret)
+			Crypto.createHmac('sha256', ApiConfig.getPreferredConfig().slack.appSharingSigningSecret)
 				.update(`v0:${now}:${this.rawBody}`, 'utf8')
 				.digest('hex');
 		this.apiRequestOptions = this.apiRequestOptions || {};

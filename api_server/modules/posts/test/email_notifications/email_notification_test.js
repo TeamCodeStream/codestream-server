@@ -6,7 +6,7 @@ var Assert = require('assert');
 var CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 var Path = require('path');
-const EmailConfig = require(process.env.CS_API_TOP + '/config/email');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 
 class EmailNotificationTest extends CodeStreamMessageTest {
@@ -301,7 +301,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 
 	// validate the template is correct for an email notification
 	validateTemplateId (message) {
-		Assert.equal(message.templateId, EmailConfig.notificationEmailTemplateId, 'incorrect templateId');
+		Assert.equal(message.templateId, ApiConfig.getPreferredConfig().email.notificationEmailTemplateId, 'incorrect templateId');
 	}
 
 	// validate that the creator name is correct by looking at the "from" field in the email data
@@ -326,7 +326,7 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 	validateReplyTo (message) {
 		// it should be set to the stream ID ... this is how we identify where the reply
 		// goes if the user replies to the email
-		let replyTo = `${this.stream.id}.${this.team.id}@${EmailConfig.replyToDomain}`;
+		let replyTo = `${this.stream.id}.${this.team.id}@${ApiConfig.getPreferredConfig().email.replyToDomain}`;
 		Assert.equal(message.reply_to.email, replyTo, 'incorrect reply_to');
 		Assert.equal(message.reply_to.name, 'CodeStream', 'incorrect reply_to name');
 	}

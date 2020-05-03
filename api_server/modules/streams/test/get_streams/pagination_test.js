@@ -3,15 +3,15 @@
 const GetStreamsTest = require('./get_streams_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
-const Limits = require(process.env.CS_API_TOP + '/config/limits');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class PaginationTest extends GetStreamsTest {
 
 	constructor (options) {
 		super(options);
 		// set up additional pagination options
-		this.numStreams = this.defaultPagination ? Math.floor(Limits.maxStreamsPerRequest * 2.5) : 17;
-		this.streamsPerPage = this.defaultPagination ? Limits.maxStreamsPerRequest : 5;
+		this.numStreams = this.defaultPagination ? Math.floor(ApiConfig.getPreferredConfig().limits.maxStreamsPerRequest * 2.5) : 17;
+		this.streamsPerPage = this.defaultPagination ? ApiConfig.getPreferredConfig().limits.maxStreamsPerRequest : 5;
 		this.dontDoForeign = true;
 		this.dontDoFileStreams = true;
 		this.dontDoDirectStreams = true;
@@ -23,7 +23,7 @@ class PaginationTest extends GetStreamsTest {
 		const type = this.defaultPagination ? 'default' : 'custom';
 		let description = `should return the correct streams in correct ${order} order when requesting streams in ${type} pages`;
 		if (this.tryOverLimit) {
-			description += `, and should limit page size to ${Limits.maxStreamsPerRequest}`;
+			description += `, and should limit page size to ${ApiConfig.getPreferredConfig().limits.maxStreamsPerRequest}`;
 		}
 		return description;
 	}
@@ -69,7 +69,7 @@ class PaginationTest extends GetStreamsTest {
 		if (this.tryOverLimit) {
 			// we'll try to fetch more than the server's limit, we should still get back
 			// the maximum number of streams allowed in a page
-			const limit = Limits.maxStreamsPerRequest * 2;
+			const limit = ApiConfig.getPreferredConfig().limits.maxStreamsPerRequest * 2;
 			this.path += `&limit=${limit}`;
 		}
 		else if (!this.defaultPagination) {

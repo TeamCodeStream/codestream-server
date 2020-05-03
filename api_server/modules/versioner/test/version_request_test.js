@@ -4,11 +4,10 @@
 
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client.js');
-const MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
 const RandomString = require('randomstring');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class VersionRequestTest extends CodeStreamAPITest {
 
@@ -73,7 +72,7 @@ class VersionRequestTest extends CodeStreamAPITest {
 
 		// set up the mongo client, and open it against the versionMatrix collection
 		this.mongoClientFactory = new MongoClient();
-		const mongoConfig = Object.assign({}, MongoConfig, { collections: ['versionMatrix'] });
+		const mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: ['versionMatrix'] });
 		delete mongoConfig.queryLogging;
 		delete mongoConfig.hintsRequired;
 
@@ -173,7 +172,7 @@ class VersionRequestTest extends CodeStreamAPITest {
 	// validate the asset URL, which tells us where the latest extension lives
 	// (this needs to be updated when we support multiple IDEs)
 	validateAssetUrl (data) {
-		const assetEnv = ApiConfig.assetEnvironment;
+		const assetEnv = ApiConfig.getPreferredConfig().api.assetEnvironment;
 		const pluginName = this.pluginName.replace(/ /g, '').toLowerCase();
 		Assert.equal(
 			data.latestAssetUrl, 

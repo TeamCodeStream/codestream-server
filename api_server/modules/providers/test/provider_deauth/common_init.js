@@ -5,8 +5,7 @@
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 
 class CommonInit {
@@ -66,14 +65,14 @@ class CommonInit {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.authCode = response.code;
-				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
-				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
+				this.redirectUri = `${ApiConfig.getPreferredConfig().api.authOrigin}/provider-token/${this.provider}`;
+				this.state = `${ApiConfig.getPreferredConfig().api.callbackEnvironment}!${this.authCode}`;
 				if (this.testHost) {
 					this.state += `!${this.testHost}`;
 				}
 				if (this.provider === 'jiraserver') {
 					this.oauthTokenSecret = RandomString.generate(10);
-					const encodedSecret = new TokenHandler(SecretsConfig.auth).generate({ sec: this.oauthTokenSecret }, 'oasec');
+					const encodedSecret = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth).generate({ sec: this.oauthTokenSecret }, 'oasec');
 					this.state += `!${encodedSecret}`;
 				}
 				callback();
@@ -150,7 +149,7 @@ class CommonInit {
 			code: this.code,
 			state: this.state,
 			_mockToken: this.mockToken,
-			_secret: SecretsConfig.confirmationCheat
+			_secret: ApiConfig.getPreferredConfig().secrets.confirmationCheat
 		};
 	}
 }

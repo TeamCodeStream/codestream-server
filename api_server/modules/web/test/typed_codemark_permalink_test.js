@@ -2,7 +2,7 @@
 
 const PrivatePermalinkTest = require('./private_permalink_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Assert = require('assert');
 
 class TypedCodemarkPermalinkTest extends PrivatePermalinkTest {
@@ -35,7 +35,7 @@ class TypedCodemarkPermalinkTest extends PrivatePermalinkTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.path = response.permalink.split(ApiConfig.publicApiUrl)[1];
+				this.path = response.permalink.split(ApiConfig.getPreferredConfig().api.publicApiUrl)[1];
 				callback();
 			}
 		);

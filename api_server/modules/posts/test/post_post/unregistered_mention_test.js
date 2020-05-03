@@ -4,7 +4,7 @@ const PostToChannelTest = require('./post_to_channel_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const RandomString = require('randomstring');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class UnregisteredMentionTest extends PostToChannelTest {
 
@@ -44,7 +44,7 @@ class UnregisteredMentionTest extends PostToChannelTest {
 				email: this.mentionedUser.email,
 				username: RandomString.generate(12),
 				password: RandomString.generate(12),
-				_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response
+				_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat,	// gives us the confirmation code in the response
 				_forceConfirmation: true								// this forces confirmation even if not enforced in environment
 			}
 		}, (error, response) => {

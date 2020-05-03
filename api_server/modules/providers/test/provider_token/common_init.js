@@ -5,17 +5,8 @@
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
-const GithubConfig = require(process.env.CS_API_TOP + '/config/github');
-const AsanaConfig = require(process.env.CS_API_TOP + '/config/asana');
-const JiraConfig = require(process.env.CS_API_TOP + '/config/jira');
-const GitlabConfig = require(process.env.CS_API_TOP + '/config/gitlab');
-const BitbucketConfig = require(process.env.CS_API_TOP + '/config/bitbucket');
-const AzureDevOpsConfig = require(process.env.CS_API_TOP + '/config/azuredevops');
-const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
-const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Base64 = require('base-64');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 
 class CommonInit {
@@ -77,14 +68,14 @@ class CommonInit {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.authCode = response.code;
-				this.redirectUri = `${ApiConfig.authOrigin}/provider-token/${this.provider}`;
-				this.state = `${ApiConfig.callbackEnvironment}!${this.authCode}`;
+				this.redirectUri = `${ApiConfig.getPreferredConfig().api.authOrigin}/provider-token/${this.provider}`;
+				this.state = `${ApiConfig.getPreferredConfig().api.callbackEnvironment}!${this.authCode}`;
 				if (this.testHost) {
 					this.state += `!${this.testHost}`;
 				}
 				if (this.provider === 'jiraserver') {
 					this.oauthTokenSecret = RandomString.generate(10);
-					const encodedSecret = new TokenHandler(SecretsConfig.auth).generate({ sec: this.oauthTokenSecret }, 'oasec');
+					const encodedSecret = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth).generate({ sec: this.oauthTokenSecret }, 'oasec');
 					this.state += `!${encodedSecret}`;
 				}
 				callback();
@@ -133,13 +124,13 @@ class CommonInit {
 			code: this.code,
 			state: this.state,
 			_mockToken: this.mockToken,
-			_secret: SecretsConfig.confirmationCheat
+			_secret: ApiConfig.getPreferredConfig().secrets.confirmationCheat
 		};
 	}
 
 	getExpectedGithubTestCallData () {
-		const appClientId = this.testHost ? 'testClientId' : GithubConfig.appClientId;
-		const appClientSecret = this.testHost ? 'testClientSecret' : GithubConfig.appClientSecret;
+		const appClientId = this.testHost ? 'testClientId' : ApiConfig.getPreferredConfig().github.appClientId;
+		const appClientSecret = this.testHost ? 'testClientSecret' : ApiConfig.getPreferredConfig().github.appClientSecret;
 		const parameters = {
 			redirect_uri: this.redirectUri,
 			client_id: appClientId,
@@ -158,8 +149,8 @@ class CommonInit {
 	getExpectedAsanaTestCallData () {
 		const parameters = {
 			grant_type: 'authorization_code',
-			client_id: AsanaConfig.appClientId,
-			client_secret: AsanaConfig.appClientSecret,
+			client_id: ApiConfig.getPreferredConfig().asana.appClientId,
+			client_secret: ApiConfig.getPreferredConfig().asana.appClientSecret,
 			code: this.code,
 			redirect_uri: this.redirectUri,
 			state: this.state
@@ -169,8 +160,8 @@ class CommonInit {
 	}
 
 	getExpectedJiraTestCallData () {
-		const appClientId = this.testHost ? 'testClientId' : JiraConfig.appClientId;
-		const appClientSecret = this.testHost ? 'testClientSecret' : JiraConfig.appClientSecret;
+		const appClientId = this.testHost ? 'testClientId' : ApiConfig.getPreferredConfig().jira.appClientId;
+		const appClientSecret = this.testHost ? 'testClientSecret' : ApiConfig.getPreferredConfig().jira.appClientSecret;
 		const parameters = {
 			grant_type: 'authorization_code',
 			client_id: appClientId,
@@ -189,8 +180,8 @@ class CommonInit {
 	}
 
 	getExpectedGitlabTestCallData () {
-		const appClientId = this.testHost ? 'testClientId' : GitlabConfig.appClientId;
-		const appClientSecret = this.testHost ? 'testClientSecret' : GitlabConfig.appClientSecret;
+		const appClientId = this.testHost ? 'testClientId' : ApiConfig.getPreferredConfig().gitlab.appClientId;
+		const appClientSecret = this.testHost ? 'testClientSecret' : ApiConfig.getPreferredConfig().gitlab.appClientSecret;
 		const parameters = {
 			redirect_uri: this.redirectUri,
 			grant_type: 'authorization_code',
@@ -214,7 +205,7 @@ class CommonInit {
 			redirect_uri: this.redirectUri,
 			state: this.state
 		};
-		const userAuth = Base64.encode(`${BitbucketConfig.appClientId}:${BitbucketConfig.appClientSecret}`);
+		const userAuth = Base64.encode(`${ApiConfig.getPreferredConfig().bitbucket.appClientId}:${ApiConfig.getPreferredConfig().bitbucket.appClientSecret}`);
 		const url = 'https://bitbucket.org/site/oauth2/access_token';
 		return { url, parameters, userAuth };
 	}
@@ -223,8 +214,8 @@ class CommonInit {
 		const parameters = {
 			redirect_uri: this.redirectUri,
 			grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-			client_id: AzureDevOpsConfig.appClientId,
-			client_assertion: AzureDevOpsConfig.appClientSecret,
+			client_id: ApiConfig.getPreferredConfig().devops.appClientId,
+			client_assertion: ApiConfig.getPreferredConfig().devops.appClientSecret,
 			assertion: this.code,
 			state: this.state,
 			client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
@@ -237,8 +228,8 @@ class CommonInit {
 		const parameters = {
 			code: this.code,
 			grant_type: 'authorization_code',
-			client_id: SlackConfig.appClientId,
-			client_secret: SlackConfig.appClientSecret,
+			client_id: ApiConfig.getPreferredConfig().slack.appClientId,
+			client_secret: ApiConfig.getPreferredConfig().slack.appClientSecret,
 			redirect_uri: this.redirectUri,
 			state: this.state
 		};
@@ -250,8 +241,8 @@ class CommonInit {
 		const parameters = {
 			code: this.code,
 			grant_type: 'authorization_code',
-			client_id: MSTeamsConfig.appClientId,
-			client_secret: MSTeamsConfig.appClientSecret,
+			client_id: ApiConfig.getPreferredConfig().msteams.appClientId,
+			client_secret: ApiConfig.getPreferredConfig().msteams.appClientSecret,
 			redirect_uri: this.redirectUri,
 			state: this.state
 		};

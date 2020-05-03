@@ -59,9 +59,9 @@ describe('dataCollection', function() {
 	this.timeout(20000);
 
 	before(async () => {
-		console.log('dataCollection (before) test.js');
+		// FIXME: we have to use WritableApiConfig because the DataCollectionTest
+		//        objects write to the configuration.
 		await WritableApiConfig.loadConfig({custom: true});
-		// console.log('config: ', c);
 		await new Promise(resolve => {
 			setTimeout(resolve, 10000);
 		});

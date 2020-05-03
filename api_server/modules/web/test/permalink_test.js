@@ -3,9 +3,8 @@
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const RandomString = require('randomstring');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Assert = require('assert');
-const Secrets = require(process.env.CS_API_TOP + '/config/secrets');
 
 class PermalinkTest extends CodeStreamAPITest {
 
@@ -71,7 +70,7 @@ class PermalinkTest extends CodeStreamAPITest {
 				if (error) { return callback(error); }
 				this.codemarkResponse = response;
 				if (!this.dontWantPermalinkYet) {
-					this.path = response.permalink.split(ApiConfig.publicApiUrl)[1];
+					this.path = response.permalink.split(ApiConfig.getPreferredConfig().api.publicApiUrl)[1];
 				}
 				callback();
 			}
@@ -93,7 +92,7 @@ class PermalinkTest extends CodeStreamAPITest {
 					noJsonInResponse: true,
 					expectRedirect: true,
 					headers: {
-						'x-csrf-bypass-secret': Secrets.confirmationCheat
+						'x-csrf-bypass-secret': ApiConfig.getPreferredConfig().secrets.confirmationCheat
 					}
 				}
 			},

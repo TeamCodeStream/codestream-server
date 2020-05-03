@@ -4,9 +4,8 @@
 
 const GenericTest = require('./generic_test');
 const HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
-const ExpressConfig = require(process.env.CS_API_TOP + '/config/express');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Assert = require('assert');
-const IpcConfig = require(process.env.CS_API_TOP + '/config/ipc');
 const IPC = require('node-ipc');
 const UUID = require('uuid/v4');
 
@@ -44,17 +43,17 @@ class APIRequestTest extends GenericTest {
 
 	after (callback) {
 		if (this.ipc) {
-			this.ipc.disconnect(IpcConfig.serverId);
+			this.ipc.disconnect(ApiConfig.getPreferredConfig().ipc.serverId);
 		}
 		super.after(callback);
 	}
 
 	// connect to IPC in mock mode
 	connectToIpc (callback) {
-		IPC.config.id = IpcConfig.clientId;
+		IPC.config.id = ApiConfig.getPreferredConfig().ipc.clientId;
 		IPC.config.silent = true;
-		IPC.connectTo(IpcConfig.serverId, () => {
-			IPC.of[IpcConfig.serverId].on('response', this.handleIpcResponse.bind(this));
+		IPC.connectTo(ApiConfig.getPreferredConfig().ipc.serverId, () => {
+			IPC.of[ApiConfig.getPreferredConfig().ipc.serverId].on('response', this.handleIpcResponse.bind(this));
 		});
 		this.ipc = IPC;
 		callback();
@@ -64,7 +63,7 @@ class APIRequestTest extends GenericTest {
 	connectedToIpc () {
 		return (
 			this.ipc &&
-			this.ipc.of[IpcConfig.serverId]
+			this.ipc.of[ApiConfig.getPreferredConfig().ipc.serverId]
 		);
 	}
 
@@ -88,8 +87,8 @@ class APIRequestTest extends GenericTest {
 		}
 		else {
 			HTTPSBot[method](
-				ExpressConfig.host,
-				ExpressConfig.port,
+				ApiConfig.getPreferredConfig().express.host,
+				ApiConfig.getPreferredConfig().express.port,
 				path,
 				data,
 				requestOptions,
@@ -117,7 +116,7 @@ class APIRequestTest extends GenericTest {
 			callback,
 			options: requestOptions
 		};
-		this.ipc.of[IpcConfig.serverId].emit('request', message);
+		this.ipc.of[ApiConfig.getPreferredConfig().ipc.serverId].emit('request', message);
 	}
 
 	// handle a request response over IPC, for mock mode

@@ -2,7 +2,7 @@
 
 const Assert = require('assert');
 const CodemarkTestConstants = require('./codemark_test_constants');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const MarkerValidator = require(process.env.CS_API_TOP + '/modules/markers/test/marker_validator');
 
 class CodemarkValidator {
@@ -82,7 +82,7 @@ class CodemarkValidator {
 	// validate the returned permalink URL is correct
 	validatePermalink (permalink) {
 		const type = this.test.permalinkType === 'public' ? 'p' : 'c';
-		const origin = ApiConfig.publicApiUrl.replace(/\//g, '\\/');
+		const origin = ApiConfig.getPreferredConfig().api.publicApiUrl.replace(/\//g, '\\/');
 		const regex = `^${origin}\\/${type}\\/([A-Za-z0-9_-]+)\\/([A-Za-z0-9_-]+)$`;
 		const match = permalink.match(new RegExp(regex));
 		Assert(match, `returned permalink "${permalink}" does not match /${regex}/`);

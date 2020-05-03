@@ -5,7 +5,7 @@
 
 const Assert = require('assert');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class ResetPasswordEmailTest extends CodeStreamMessageTest {
 
@@ -68,7 +68,7 @@ class ResetPasswordEmailTest extends CodeStreamMessageTest {
 		if (!gotMessage.type) { return false; }	// ignore anything not matching
 
 		// verify a match to the url
-		const host = ApiConfig.publicApiUrl.replace(/\//g, '\\/');
+		const host = ApiConfig.getPreferredConfig().api.publicApiUrl.replace(/\//g, '\\/');
 		const shouldMatch = `${host}\\/web\\/user\\/password\\?token=(.*)$`;
 		const regex = new RegExp(shouldMatch);
 		const match = gotMessage.url.match(regex);

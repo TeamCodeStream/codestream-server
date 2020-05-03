@@ -3,7 +3,7 @@
 const GetPostsTest = require('./get_posts_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
-const Limits = require(process.env.CS_API_TOP + '/config/limits');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class PaginationTest extends GetPostsTest {
 
@@ -11,8 +11,8 @@ class PaginationTest extends GetPostsTest {
 		super(options);
 		// for default pagination, we'll create "2.5 times the page size" posts,
 		// otherwise we'll do 17 posts in pages of 5
-		this.postOptions.numPosts = this.defaultPagination ? Math.floor(Limits.maxPostsPerRequest * 2.5) : 17;
-		this.postsPerPage = this.defaultPagination ? Limits.maxPostsPerRequest : 5;
+		this.postOptions.numPosts = this.defaultPagination ? Math.floor(ApiConfig.getPreferredConfig().limits.maxPostsPerRequest * 2.5) : 17;
+		this.postsPerPage = this.defaultPagination ? ApiConfig.getPreferredConfig().limits.maxPostsPerRequest : 5;
 		this.postOptions.postCreateThrottle = this.mockMode ? 0 : 200;	// slow things down, pubnub gets overwhelmed
 		this.testTimeout = this.postOptions.numPosts * 500 + 20000;
 	}
@@ -22,7 +22,7 @@ class PaginationTest extends GetPostsTest {
 		let type = this.defaultPagination ? 'default' : 'custom';
 		let description = `should return the correct posts in correct ${order} order when requesting posts in ${type} pages`;
 		if (this.tryOverLimit) {
-			description += `, and should limit page size to ${Limits.maxPostsPerRequest}`;
+			description += `, and should limit page size to ${ApiConfig.getPreferredConfig().limits.maxPostsPerRequest}`;
 		}
 		return description;
 	}
@@ -59,7 +59,7 @@ class PaginationTest extends GetPostsTest {
 		this.path = `/posts?teamId=${this.team.id}&streamId=${this.stream.id}`;
 		if (this.tryOverLimit) {
 			// we should get limited to maxPostsPerRequest
-			let limit = Limits.maxPostsPerRequest * 2;
+			let limit = ApiConfig.getPreferredConfig().limits.maxPostsPerRequest * 2;
 			this.path += `&limit=${limit}`;
 		}
 		else if (!this.defaultPagination) {

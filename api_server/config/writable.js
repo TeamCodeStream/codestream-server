@@ -26,8 +26,6 @@ class WritableConfig {
 		if (!this.writableConfig) {
 			this.writableConfig = JSON.parse(JSON.stringify(await ApiConfig.loadConfig(options)));  // poor-man's deep copy
 		}
-		// console.log('writable returning', this.writableConfig);
-		// process.exit(1);
 		return this.writableConfig;
 	}
 	getConfig() {

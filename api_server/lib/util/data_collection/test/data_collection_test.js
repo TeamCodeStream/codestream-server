@@ -6,7 +6,6 @@
 const BaseTest = require(process.env.CS_API_TOP + '/lib/test_base/base_test');
 const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client.js');
 const WritableApiConfig = require(process.env.CS_API_TOP + '/config/writable');
-// const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const RandomString = require('randomstring');
 const Assert = require('assert');
 const DataCollection = require('../data_collection');
@@ -20,9 +19,7 @@ class DataCollectionTest extends BaseTest {
 		this.mongoClientFactory = new MongoClient();
 
 		// it is expected that the WritableApiConfig has been loaded already
-		// const mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig(), { collections: ['test'] });
 		const mongoConfig = Object.assign(WritableApiConfig.getConfig().mongo, { collections: ['test'] });
-		console.log(mongoConfig);
 		delete mongoConfig.queryLogging;
 		delete mongoConfig.hintsRequired;
 		if (this.mockMode) {

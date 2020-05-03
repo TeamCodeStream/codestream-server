@@ -3,7 +3,7 @@
 'use strict';
 
 var RandomString = require('randomstring');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class RandomRepoFactory {
 
@@ -67,7 +67,7 @@ class RandomRepoFactory {
 		}
 		if (options.subscriptionCheat) {
 			// allows unregistered users to subscribe to me-channel, needed for mock email testing
-			data._subscriptionCheat = SecretsConfig.subscriptionCheat;
+			data._subscriptionCheat = ApiConfig.getPreferredConfig().secrets.subscriptionCheat;
 		}
 		if (options.teamId) {
 			// add the repo to a pre-existing team

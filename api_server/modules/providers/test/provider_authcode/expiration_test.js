@@ -2,7 +2,7 @@
 
 const ProviderAuthCodeTest = require('./provider_authcode_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Assert = require('assert');
 
 class ExpirationTest extends ProviderAuthCodeTest {
@@ -29,7 +29,7 @@ class ExpirationTest extends ProviderAuthCodeTest {
 			if (error) { return callback(error); }
 			setTimeout(() => {
 				try {
-					new TokenHandler(SecretsConfig.auth).verify(this.response.code);
+					new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth).verify(this.response.code);
 				}
 				catch (error) {
 					Assert.equal(error.name, 'TokenExpiredError', 'did not receive expiration error');

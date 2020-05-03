@@ -8,7 +8,7 @@
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const UUID = require('uuid/v4');
 
 class IdentityMatchCommonInit {
@@ -114,7 +114,7 @@ class IdentityMatchCommonInit {
 			code: this.code,
 			state: this.state,
 			_mockToken: this.mockToken,
-			_secret: SecretsConfig.confirmationCheat
+			_secret: ApiConfig.getPreferredConfig().secrets.confirmationCheat
 		};
 	}
 

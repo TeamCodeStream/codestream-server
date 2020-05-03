@@ -2,7 +2,7 @@
 
 const ProviderTokenTest = require('./provider_token_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Assert = require('assert');
 
 class UserNotFoundTest extends ProviderTokenTest {
@@ -22,7 +22,7 @@ class UserNotFoundTest extends ProviderTokenTest {
 
 	getQueryParameters () {
 		const parameters = super.getQueryParameters();
-		const tokenHandler = new TokenHandler(SecretsConfig.auth);
+		const tokenHandler = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth);
 		const delimited = this.state.split('!');
 		const payload = tokenHandler.decode(delimited[1]);
 		payload.userId = 'x';
