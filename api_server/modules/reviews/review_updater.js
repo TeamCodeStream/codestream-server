@@ -25,6 +25,7 @@ class ReviewUpdater extends ModelUpdater {
 	getAllowedAttributes () {
 		return {
 			string: ['title', 'text', 'status'],
+			boolean: ['allReviewersMustApprove'],
 			object: ['$addToSet', '$push', '$pull']
 		};
 	}

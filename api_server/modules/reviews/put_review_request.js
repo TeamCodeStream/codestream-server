@@ -72,6 +72,7 @@ class PutReviewRequest extends PutRequest {
 				'title': '<Change the title of the review>',
 				'text': '<Change the text of the review>',
 				'status': '<Change the status of the review>',
+				'allReviewersMustApprove': '<Change whether all reviewers must approve the review>',
 				'$push': {
 					reviewers: '<Array of IDs representing users to add as reviewers to the review>'
 				},

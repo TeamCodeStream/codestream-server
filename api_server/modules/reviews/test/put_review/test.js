@@ -46,6 +46,7 @@ const AddRemoveTagsTest = require('./add_remove_tags_test');
 const AddRemoveTagsFetchTest = require('./add_remove_tags_fetch_test');
 const NoAddRemoveSameTagTest = require('./no_add_remove_same_tag_test');
 const ApprovedAtTest = require('./approved_at_test');
+const AllReviewersMustApproveTest = require('./all_reviewers_must_approve_test');
 
 class PutReviewRequestTester {
 
@@ -108,6 +109,7 @@ class PutReviewRequestTester {
 		new AddRemoveTagsFetchTest().test();
 		new NoAddRemoveSameTagTest().test();
 		new ApprovedAtTest().test();
+		new AllReviewersMustApproveTest().test();
 	}
 }
 

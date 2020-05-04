@@ -89,9 +89,6 @@ class CommonInit {
 			title: RandomString.generate(100),
 			text: RandomString.generate(100)
 		};
-		if (this.updateStatus) {
-			data.status = RandomString.generate(10);
-		}
 		return data;
 	}
 
