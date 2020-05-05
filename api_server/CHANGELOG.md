@@ -1,5 +1,13 @@
 # Change Log
 
+## [7.2.1] - 2020-5-5
+
+### Added
+
+- Adds support for bypassing email confirmation if outbound email isn't configured in on-prem installation
+- Adds support for additional copy on the Notifications page when outbound email isn't configured in on-prem installation
+- Adds support for editing the approval policy for a code review
+
 ## [7.2.0] - 2020-4-24
 
 ### Added
