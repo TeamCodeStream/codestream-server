@@ -37,7 +37,10 @@ class ReviewUpdater extends ModelUpdater {
 		const addRemoveAttributes = ['reviewers', 'tags', 'reviewChangesets'];
 		
 		// we restrict directives only to certain attributes
-		this.normalizeDirectives(addRemoveAttributes);
+		const error = this.normalizeDirectives(addRemoveAttributes);
+		if (error) { 
+			return error;
+		}
 
 		this.haveAddAndRemove = {};
 		for (let attribute of addRemoveAttributes) {
