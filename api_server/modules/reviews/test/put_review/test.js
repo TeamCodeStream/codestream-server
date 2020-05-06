@@ -47,6 +47,10 @@ const AddRemoveTagsFetchTest = require('./add_remove_tags_fetch_test');
 const NoAddRemoveSameTagTest = require('./no_add_remove_same_tag_test');
 const ApprovedAtTest = require('./approved_at_test');
 const AllReviewersMustApproveTest = require('./all_reviewers_must_approve_test');
+const AmendReviewTest = require('./amend_review_test');
+const AmendPushBecomesAddToSetTest = require('./amend_push_becomes_addtoset_test');
+const NoAmendPullTest = require('./no_amend_pull_test');
+const ACLRepoTest = require('./acl_repo_test');
 
 class PutReviewRequestTester {
 
@@ -110,6 +114,10 @@ class PutReviewRequestTester {
 		new NoAddRemoveSameTagTest().test();
 		new ApprovedAtTest().test();
 		new AllReviewersMustApproveTest().test();
+		new AmendReviewTest().test();
+		new AmendPushBecomesAddToSetTest().test();
+		new NoAmendPullTest().test();
+		new ACLRepoTest().test();
 	}
 }
 

@@ -2,6 +2,8 @@
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
+/* eslint complexity: 0 */
+
 class TestStreamCreator {
 
 	constructor (options) {
@@ -16,7 +18,8 @@ class TestStreamCreator {
 			if (error) { return callback(error); }
 			callback(null, {
 				stream: this.stream,
-				postData: this.postData
+				postData: this.postData,
+				inputPostData: this.inputPostData
 			});
 		});
 	}
@@ -66,6 +69,7 @@ class TestStreamCreator {
 
 	createPosts (callback) {
 		this.postData = [];
+		this.inputPostData = [];
 		if (
 			!this.postOptions || 
 			(
@@ -112,7 +116,12 @@ class TestStreamCreator {
 		) {
 			postOptions.wantMarkers = this.postOptions.wantMarkers;
 			postOptions.numChanges = this.postOptions.numChanges;
-			postOptions.changesetRepoId = this.postOptions.changesetRepoId || (this.repo && this.repo.id);
+			if (this.repos.length > 1) {
+				postOptions.changesetRepoIds = this.repos.map(repo => repo.id);
+			}
+			else {
+				postOptions.changesetRepoId = this.postOptions.changesetRepoId || (this.repo && this.repo.id);
+			}
 			this.setReviewOptions(postOptions, n);	
 			if (this.postOptions.postData && this.postOptions.postData[n]) {
 				delete this.postOptions.postData[n].wantReview;
@@ -135,6 +144,7 @@ class TestStreamCreator {
 		this.test.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
+				this.inputPostData.push(this.test.postFactory.lastInputData);
 				this.postData.push(response);
 				const wait = this.postOptions.postCreateThrottle || 0;
 				setTimeout(callback, wait);

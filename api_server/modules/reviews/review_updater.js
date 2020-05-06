@@ -5,6 +5,8 @@
 const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
 const Review = require('./review');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const ReviewHelper = require('./review_helper');
+const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 
 class ReviewUpdater extends ModelUpdater {
 
@@ -32,27 +34,10 @@ class ReviewUpdater extends ModelUpdater {
 
 	// validate the input attributes
 	validateAttributes () {
-		const addRemoveAttributes = ['reviewers', 'tags'];
+		const addRemoveAttributes = ['reviewers', 'tags', 'reviewChangesets'];
 		
 		// we restrict directives only to certain attributes
-		for (let directive of ['$addToSet', '$push', '$pull']) {
-			if (this.attributes[directive]) {
-				const value = this.attributes[directive];
-				delete this.attributes[directive];
-				for (let attribute of addRemoveAttributes) {
-					if (value[attribute]) {
-						if (typeof value[attribute] === 'string') {
-							value[attribute] = [value[attribute]];
-						}
-						else if (!(value[attribute] instanceof Array)) {
-							return `${attribute} must be array`;
-						}
-						this.attributes[directive] = this.attributes[directive] || {};
-						this.attributes[directive][attribute] = value[attribute];
-					}
-				}
-			}
-		}
+		this.normalizeDirectives(addRemoveAttributes);
 
 		this.haveAddAndRemove = {};
 		for (let attribute of addRemoveAttributes) {
@@ -83,6 +68,34 @@ class ReviewUpdater extends ModelUpdater {
 		delete this.attributes.$push;
 	}
 
+	normalizeDirectives (addRemoveAttributes) {
+		for (let directive of ['$addToSet', '$push', '$pull']) {
+			if (this.attributes[directive]) {
+				const value = this.attributes[directive];
+				delete this.attributes[directive];
+				for (let attribute of addRemoveAttributes) {
+					if (value[attribute]) {
+						if (directive === '$pull' && attribute === 'reviewChangesets') {
+							// can't remove changesets, only add them
+							return `cannot $pull ${attribute}`;
+						}
+						if (attribute === 'reviewChangesets' && !(value[attribute] instanceof Array)) {
+							value[attribute] = [value[attribute]];
+						}
+						else if (attribute !== 'reviewChangesets' && typeof value[attribute] === 'string') {
+							value[attribute] = [value[attribute]];
+						}
+						else if (!(value[attribute] instanceof Array)) {
+							return `${attribute} must be array`;
+						}
+						this.attributes[directive] = this.attributes[directive] || {};
+						this.attributes[directive][attribute] = value[attribute];
+					}
+				}
+			}
+		}
+	}
+
 	// called before the review is actually saved
 	async preSave () {
 		// proceed with the save...
@@ -94,6 +107,10 @@ class ReviewUpdater extends ModelUpdater {
 
 		// validate any change in tags
 		await this.validateTags();
+
+		// if we're adding changesets, validate the repo IDs, and extract any diffs, since
+		// these are stored separately
+		await this.handleChangesets();
 
 		// we have to special case adding and removing array attributes at the same time, since
 		// mongo won't allow us to $addToSet and $pull the same attribute ... in this case,
@@ -108,13 +125,7 @@ class ReviewUpdater extends ModelUpdater {
 		}
 
 		// if we are adding reviewers, make sure they are followers
-		if (this.attributes.$addToSet && this.attributes.$addToSet.reviewers) {
-			const currentFollowerIds = this.review.get('followerIds') || [];
-			const newFollowerIds = ArrayUtilities.difference(this.attributes.$addToSet.reviewers, currentFollowerIds);
-			if (newFollowerIds.length > 0) {
-				this.attributes.$addToSet.followerIds = newFollowerIds;
-			}
-		}
+		this.handleReviewers();
 
 		// if we're updating to approved, set the approvedAt attribute
 		if (this.attributes.status === 'approved') {
@@ -122,6 +133,23 @@ class ReviewUpdater extends ModelUpdater {
 		}
 		
 		await super.preSave();
+	}
+
+	// get all the repos known to this team
+	async getTeamRepos () {
+		this.team = await this.data.teams.getById(this.review.get('teamId'));
+		if (!this.team) {
+			this.teamRepos = []; // shouldn't happen
+			return;
+		}
+		this.teamRepos = await this.data.repos.getByQuery(
+			{ 
+				teamId: this.team.id
+			},
+			{ 
+				hint: RepoIndexes.byTeamId 
+			}
+		);
 	}
 
 	// validate any tags being added (we don't really care about ones being removed)
@@ -139,6 +167,30 @@ class ReviewUpdater extends ModelUpdater {
 			});
 			if (!teamTag) {
 				throw this.errorHandler.error('notFound', { info: 'tag' });
+			}
+		}
+	}
+
+	// handle the changesets the come in with the review
+	async handleChangesets () {
+		if (this.attributes.$addToSet && this.attributes.$addToSet.reviewChangesets) {
+			await this.getTeamRepos();
+			await ReviewHelper.validateReviewChangesetsForTeamRepos(
+				this.attributes.$addToSet.reviewChangesets,
+				this.teamRepos,
+				this.request
+			);
+			await ReviewHelper.handleReviewChangesets(this.attributes.$addToSet, true);
+		}
+	}
+
+	// handle any reviewers being added or removed
+	async handleReviewers () {
+		if (this.attributes.$addToSet && this.attributes.$addToSet.reviewers) {
+			const currentFollowerIds = this.review.get('followerIds') || [];
+			const newFollowerIds = ArrayUtilities.difference(this.attributes.$addToSet.reviewers, currentFollowerIds);
+			if (newFollowerIds.length > 0) {
+				this.attributes.$addToSet.followerIds = newFollowerIds;
 			}
 		}
 	}

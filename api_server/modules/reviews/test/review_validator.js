@@ -37,12 +37,7 @@ class ReviewValidator {
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 
 		// verify the review in the response has no attributes that should not go to clients
-		// in response to the POST request, we allow reviewDiffs, but it is normally not allowed to
-		// be returned to the client in any other fetch
-		const unsanitizedAttributes = [...ReviewTestConstants.UNSANITIZED_ATTRIBUTES];
-		const index = unsanitizedAttributes.indexOf('reviewDiffs');
-		unsanitizedAttributes.splice(index, 1);
-		this.test.validateSanitized(review, unsanitizedAttributes);
+		this.test.validateSanitized(review, ReviewTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// if we are expecting a marker with the review, validate it
 		if (this.test.expectMarkers) {

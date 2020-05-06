@@ -24,7 +24,7 @@ class GetMarkerRequest extends GetRequest {
 	// get the parent review to this marker
 	async getReview () {
 		const reviewId = this.model.get('reviewId');
-		this.review = await this.data.reviews.getById(reviewId, { excludeFields: ['reviewDiffs'] });
+		this.review = await this.data.reviews.getById(reviewId, { excludeFields: ['reviewDiffs', 'checkpointReviewDiffs'] });
 		if (!this.review) { return; } // shouldn't happen
 		this.responseData.review = this.review.getSanitizedObject({ request: this });
 	}

@@ -87,7 +87,7 @@ class GetReviewsRequest extends GetManyRequest {
 		return {
 			hint,
 			sort: { [sortAttribute]: -1 },
-			excludeFields: ['reviewDiffs']
+			excludeFields: ['reviewDiffs', 'checkpointReviewDiffs']
 		};
 	}
 

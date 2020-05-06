@@ -12,6 +12,7 @@ class RandomPostFactory {
 
 	// create the post by submitting a request to the server
 	createPost (data, token, callback) {
+		this.lastInputData = data;
 		this.apiRequester.doApiRequest({
 			method: 'post',
 			path: '/posts',

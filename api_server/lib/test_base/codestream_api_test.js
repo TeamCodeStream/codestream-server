@@ -169,6 +169,7 @@ class CodeStreamAPITest extends APIRequestTest {
 			postOptions: this.postOptions,
 			team: this.team,
 			repo: this.repo,
+			repos: this.repos,
 			repoStreams: this.repoStreams,
 			users: this.users
 		}).create((error, data) => {

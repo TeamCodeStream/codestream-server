@@ -81,7 +81,9 @@ class PostPostRequest extends PostRequest {
 		// a code review might have been created with the post, add it
 		if (transforms.createdReview) {
 			responseData.review = transforms.createdReview.getSanitizedObject({ request: this });
-			delete responseData.review.reviewDiffs; // don't send this back, or broadcast
+			// don't send these back, or broadcast
+			delete responseData.review.reviewDiffs; 
+			delete responseData.review.checkpointReviewDiffs;
 		}
 
 		// if there is a parent post update, add it

@@ -318,7 +318,7 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 		const reviewId = this.parentPost.get('reviewId') || this.grandParentPost.get('reviewId');
-		const review = await this.request.data.reviews.getById(reviewId, { excludeFields: ['reviewDiffs'] });
+		const review = await this.request.data.reviews.getById(reviewId, { excludeFields: ['reviewDiffs', 'checkpointReviewDiffs'] });
 		if (!review) { return; }
 
 		const now = Date.now();

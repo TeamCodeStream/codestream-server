@@ -50,7 +50,7 @@ MongoCfg.queryLogging = { // we write a separate log file for mongo queries, and
 		},
 		{
 			collection: 'reviews',
-			fields: ['reviewChangesets', 'reviewDiffs']
+			fields: ['reviewChangesets', 'reviewDiffs', 'checkpointReviewDiffs']
 		}
 	]
 };

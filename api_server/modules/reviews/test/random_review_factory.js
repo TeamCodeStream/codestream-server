@@ -123,9 +123,10 @@ class RandomReviewFactory {
 	}
 
 	// get some random marker data
-	getRandomChangesetData (options = {}) {
+	getRandomChangesetData (options = {}, n) {
+		const repoId = options.changesetRepoIds ? options.changesetRepoIds[n] : options.changesetRepoId;
 		const data = {
-			repoId: options.changesetRepoId,
+			repoId,
 			branch: this.markerFactory.randomBranch(),
 			diffStart: this.repoFactory.randomCommitHash(),
 			commits: [
@@ -148,11 +149,9 @@ class RandomReviewFactory {
 
 	// create a given number of random changesets, with options provided
 	getRandomChangesets (n, options = {}) {
-		// for markers, we'll generate some random text for the code and a random
-		// location structure, not a very accurate representation of real code
 		const changesets = [];
 		for (let i = 0; i < n; i++) {
-			const changesetInfo = this.getRandomChangesetData(options);
+			const changesetInfo = this.getRandomChangesetData(options, i);
 			changesets.push(changesetInfo);
 		}
 		return changesets;

@@ -19,18 +19,24 @@ class GetReviewDiffsRequest extends RestfulRequest {
 	}
 
 	// describe this route for help
-	static describe (/*module*/) {
-		/*
-		const description = Restful.describe(module);
-		description.description = 'Returns the review; also returns the referencing post, if any';
-		description.access = 'User must be a member of the stream that owns the review';
-		description.returns.summary = 'A review object, along with any referencing post',
-		Object.assign(description.returns.looksLike, {
-			review: '<the fetched @@#review object#review@@>',
-			post: '<the @@#post object#post@@ that references this review, if any>'
-		});
-		return description;
-		*/
+	static describe () {
+		return {
+			tag: 'review-diffs',
+			summary: 'Return diffs associated with a review',
+			access: 'Current user must be a member of the team that owns the review',
+			description: 'Given a review ID, returns the set of diffs associated with that review.',
+			input: 'Specify the review ID in the url',
+			returns: {
+				summary: 'Returns the diffs object, which has keys that are repo ID, representing the set of diffs for each repo',
+				looksLike: {
+					'<repoId>': '<diffs associated with the repo'
+				}
+			},
+			errors: [
+				'readAuth',
+				'notFound'
+			]
+		};
 	}
 }
 

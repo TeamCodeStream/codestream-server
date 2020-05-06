@@ -28,6 +28,11 @@ const REVIEW_ADDITIONAL_ROUTES = [
 		requestClass: require('./get_review_diffs_request')
 	},
 	{
+		method: 'get',
+		path: 'reviews/checkpoint-diffs/:reviewId',
+		requestClass: require('./get_checkpoint_review_diffs_request')
+	},
+	{
 		method: 'put',
 		path: 'reviews/follow/:id',
 		requestClass: require('./follow_review_request')

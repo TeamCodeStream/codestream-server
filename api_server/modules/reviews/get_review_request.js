@@ -8,7 +8,7 @@ class GetReviewRequest extends GetRequest {
 
 	async authorize () {
 		const reviewId = this.request.params.id.toLowerCase();
-		this.review = await this.user.authorizeReview(reviewId, this, { excludeFields: ['reviewDiffs'] });
+		this.review = await this.user.authorizeReview(reviewId, this, { excludeFields: ['reviewDiffs', 'checkpointReviewDiffs'] });
 		if (!this.review) {
 			throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this review' });
 		}
@@ -23,7 +23,7 @@ class GetReviewRequest extends GetRequest {
 	// get database options to associate with the database fetch request
 	getQueryOptions () {
 		return {
-			excludeFields: ['reviewDiffs']
+			excludeFields: ['reviewDiffs', 'checkpointReviewDiffs']
 		};
 	}
 

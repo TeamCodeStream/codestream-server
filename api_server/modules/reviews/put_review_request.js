@@ -44,6 +44,11 @@ class PutReviewRequest extends PutRequest {
 		// since mongo won't let us do this in a single operation
 		await this.updater.handleAddRemove();
 
+		// remove checkpointReviewDiffs from information returned to the client
+		if (this.responseData.review.$addToSet) {
+			delete this.responseData.review.$addToSet.checkpointReviewDiffs;
+		}
+		
 		return super.handleResponse();
 	}
 	

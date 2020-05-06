@@ -12,7 +12,7 @@ class DeleteReviewRequest extends DeleteRequest {
 	async authorize () {
 		// get the review, only the author or the team admin can delete it
 		const reviewId = this.request.params.id.toLowerCase();
-		this.review = await this.data.reviews.getById(reviewId, { excludeFields: ['reviewDiffs'] });
+		this.review = await this.data.reviews.getById(reviewId, { excludeFields: ['reviewDiffs', 'checkpointReviewDiffs'] });
 		if (!this.review) {
 			throw this.errorHandler.error('notFound', { info: 'review' });
 		}

@@ -26,7 +26,10 @@ const EXPECTED_REVIEW_FIELDS = EXPECTED_BASE_REVIEW_FIELDS.concat([
 const UNSANITIZED_ATTRIBUTES = Object.keys(ReviewAttributes).filter(attribute => {
 	return ReviewAttributes[attribute].serverOnly;
 });
-UNSANITIZED_ATTRIBUTES.push('reviewDiffs'); // these should not be served with review objects, must be obtained separately
+
+// these should not be served with review objects, must be obtained separately
+UNSANITIZED_ATTRIBUTES.push('reviewDiffs'); 
+UNSANITIZED_ATTRIBUTES.push('checkpointReviewDiffs'); 
 
 module.exports = {
 	EXPECTED_BASE_REVIEW_FIELDS,

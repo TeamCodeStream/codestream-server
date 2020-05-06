@@ -85,7 +85,7 @@ module.exports = {
 	},
 	reviewChangesets: {
 		type: 'arrayOfObjects',
-		maxLength: 50,
+		maxLength: 100,
 		maxObjectLength: 10000,
 		description: 'Array of changesets associated with this review, one per repo'
 	},
@@ -93,6 +93,12 @@ module.exports = {
 		type: 'object',
 		maxObjectLength: 10000000,
 		description: 'Keys are repo IDs, values are the diff sets corresponding to the changesets that were passed in when the review was created'
+	},
+	checkpointReviewDiffs: {
+		type: 'arrayOfObjects',
+		maxLength: 100,
+		maxObjectLength: 10000000,
+		description: 'Array of diff sets corresponding to the diffs characterized in reviewChangesets'
 	},
 	authorsById: {
 		type: 'object',

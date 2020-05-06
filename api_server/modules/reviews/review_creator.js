@@ -11,6 +11,7 @@ const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matche
 const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
 const PermalinkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/permalink_creator');
+const ReviewHelper = require('./review_helper');
 
 class ReviewCreator extends ModelCreator {
 
@@ -108,13 +109,17 @@ class ReviewCreator extends ModelCreator {
 		});
 
 		// validate the repo change-sets against the team repos
-		await this.validateReviewChangesetsForTeamRepos();
+		await ReviewHelper.validateReviewChangesetsForTeamRepos(
+			this.attributes.reviewChangesets,
+			this.teamRepos,
+			this.request
+		);
 
 		// handle any markers that come with this review
 		await this.handleMarkers();
 
 		// handle any change sets that come with this review
-		await this.handleReviewChangesets();
+		await ReviewHelper.handleReviewChangesets(this.attributes);
 
 		// validate reviewers
 		await this.validateReviewersAndAuthors();
@@ -142,6 +147,7 @@ class ReviewCreator extends ModelCreator {
 		
 		// proceed with the save...
 		await super.preSave();
+
 	}
 
 	// get the team that will own this review
@@ -163,19 +169,6 @@ class ReviewCreator extends ModelCreator {
 				hint: RepoIndexes.byTeamId 
 			}
 		);
-	}
-
-	// validate the repo change-sets sent with the review creation, this is too important to just drop,
-	// so we return an error instead
-	async validateReviewChangesetsForTeamRepos () {
-		if (!this.attributes.reviewChangesets) { return; }
-		// check that all repo IDs are valid and owned by the team
-		const teamRepoIds = this.teamRepos.map(repo => repo.id);
-		const repoIds = this.attributes.reviewChangesets.map(set => set.repoId);
-		const nonTeamRepoIds = ArrayUtilities.difference(repoIds, teamRepoIds);
-		if (nonTeamRepoIds.length > 0) {
-			throw this.errorHandler.error('notFound', { info: `repo(s) ${nonTeamRepoIds.join(',')}`});
-		}
 	}
 
 	// create a permalink url to the codemark
@@ -222,18 +215,6 @@ class ReviewCreator extends ModelCreator {
 		}).createMarker(markerInfo);
 		this.transforms.createdMarkers = this.transforms.createdMarkers || [];
 		this.transforms.createdMarkers.push(marker);
-	}
-
-	// handle any change sets tied to the code review
-	async handleReviewChangesets () {
-		if (!this.attributes.reviewChangesets || !this.attributes.reviewChangesets.length) {
-			return;
-		}
-		this.attributes.reviewDiffs = {};
-		for (let changeset of this.attributes.reviewChangesets) {
-			this.attributes.reviewDiffs[changeset.repoId] = changeset.diffs;
-			delete changeset.diffs;
-		}
 	}
 
 	// validate the reviewers ... all users must be on the same team

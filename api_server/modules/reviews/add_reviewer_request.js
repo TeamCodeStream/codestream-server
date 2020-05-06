@@ -11,7 +11,7 @@ class AddReviewerRequest extends RestfulRequest {
 	// authorize the request for the current user
 	async authorize () {
 		const reviewId = this.request.params.id.toLowerCase();
-		this.review = await this.user.authorizeReview(reviewId, this, { excludeFields: ['reviewDiffs'] });
+		this.review = await this.user.authorizeReview(reviewId, this, { excludeFields: ['reviewDiffs', 'checkpointReviewDiffs'] });
 		if (!this.review) {
 			throw this.errorHandler.error('updateAuth', { reason: 'user is not authorized to add a reviewer to this review' });
 		}

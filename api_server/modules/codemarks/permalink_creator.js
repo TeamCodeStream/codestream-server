@@ -135,7 +135,7 @@ class PermalinkCreator {
 	// if all of these are the same, we should get the same MD5 hash
 	makeReviewHashText (attributes, markers) {
 		const markerText = this.makeMarkerHashText(markers);
-		const reviewText = JSON.stringify(attributes.reviewDiffs || {});
+		const reviewText = JSON.stringify(attributes.reviewDiffs || {}) + JSON.stringify(attributes.checkpointReviewDiffs || []);
 		return `${attributes.teamId}${markerText}${reviewText}`;
 	}
 

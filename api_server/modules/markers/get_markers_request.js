@@ -94,7 +94,7 @@ class GetMarkersRequest extends GetManyRequest {
 		if (reviewIds.length === 0) {
 			return;
 		}
-		this.reviews = await this.data.reviews.getByIds(reviewIds, { excludeFields: ['reviewDiffs'] });
+		this.reviews = await this.data.reviews.getByIds(reviewIds, { excludeFields: ['reviewDiffs', 'checkpointReviewDiffs'] });
 		this.responseData.reviews = this.reviews.map(review => review.getSanitizedObject({ request: this }));
 	}
 

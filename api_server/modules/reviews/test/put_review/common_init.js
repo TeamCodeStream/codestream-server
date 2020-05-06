@@ -25,6 +25,8 @@ class CommonInit {
 		this.teamOptions.creatorIndex = 1;
 		this.streamOptions.creatorIndex = 1;
 		this.userOptions.numRegistered = 3;
+		this.repoOptions.creatorIndex = 1;
+		this.repoOptions.numRepos = 2;
 		if (this.streamType === 'team stream') {
 			Object.assign(this.streamOptions, {
 				type: 'channel',

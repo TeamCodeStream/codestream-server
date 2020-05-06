@@ -16,7 +16,7 @@ class TestTeamCreator {
 			this.preCreateTeam,
 			this.createTeam,
 			this.inviteUsers,
-			this.createRepo
+			this.createRepos
 		], error => {
 			if (error) { return callback(error); }
 			callback(null, {
@@ -24,6 +24,7 @@ class TestTeamCreator {
 				company: this.company,
 				teamStream: this.teamStream,
 				repo: this.repo,
+				repos: this.repos,
 				repoStreams: this.repoStreams,
 				repoPost: this.repoPost,
 				repoCodemark: this.repoCodemark,
@@ -185,7 +186,19 @@ class TestTeamCreator {
 		);
 	}
 
-	createRepo (callback) {
+	createRepos (callback) {
+		const numRepos = this.repoOptions ? (this.repoOptions.numRepos || 1) : 0;
+		if (!numRepos) { return callback(); }
+		this.repos = [];
+		BoundAsync.timesSeries(
+			this,
+			numRepos,
+			this.createRepo,
+			callback
+		);
+	}
+
+	createRepo (n, callback) {
 		if (
 			!this.repoOptions || 
 			(
@@ -199,11 +212,14 @@ class TestTeamCreator {
 		this.test.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.repo = response.repos[0];
-				this.repoStreams = response.streams;
-				this.repoPost = response.post;
-				this.repoCodemark = response.codemark;
-				this.repoMarker = response.markers[0];
+				this.repos.push(response.repos[0]);
+				if (n === 0) {
+					this.repo = response.repos[0];
+					this.repoStreams = response.streams;
+					this.repoPost = response.post;
+					this.repoCodemark = response.codemark;
+					this.repoMarker = response.markers[0];
+				}
 				callback();
 			},
 			{
