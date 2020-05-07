@@ -90,7 +90,19 @@ class WebProviderAuthRequest extends APIRequest {
 			this.responseHandled = true;
 		}
 		catch (error) {
-			this.redirectError(error);
+			if (
+				this.provider === 'okta' &&
+				this.request.query.url &&
+				typeof error === 'object' &&
+				error.code === 'PRVD-1008'
+			) {
+				const errorMessage = encodeURIComponent('Organization required');
+				this.response.redirect(`/web/configure-okta?url=${this.request.query.url}&error=${errorMessage}`);
+				this.responseHandled = true;
+			}
+			else {
+				this.redirectError(error);
+			}
 		}
 	}
 

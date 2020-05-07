@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>CodeStream</title>
+	{{> partial_html_head partial_html_head_model}}
+</head>
+
+<body>
+	{{> partial_menu partial_menu_model}}
+	<div class="container-fluid" id="root">
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3">
+				<div class="box-content box-border box-border-sm">
+					<h1>Organization</h1>
+					<div class="form-group">
+						<p>
+							Enter the name of your Okta organization. For example, if you access Okta at https://
+							<strong>myorg</strong>.okta.com, you would supply "<strong>myorg</strong>" here.
+						</p>
+					</div>
+					<br />
+					<div class="form-wrapper">
+						<form action="/web/provider-auth/okta">
+							{{#if error}}
+							<div class="form-group">
+								<div class="error" style="width:100%;">{{error}}</div>
+							</div>
+							{{/if}}
+
+							<input type="hidden" name="_csrf" value="{{csrf}}" />
+							<input type="hidden" name="url" value="{{url}}" />
+							<div class="form-group">
+								<label class="label">Organization</label>
+								<input class="form-control bg-dark" name="orgId"
+									placeholder="myorg" autocomplete="off" autofocus />
+							</div>
+							<div class="form-group">
+								<input type="submit" value="OK" class="btn" />
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

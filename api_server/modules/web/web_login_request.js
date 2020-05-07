@@ -27,6 +27,7 @@ class WebLoginRequest extends APIRequest {
 			// since GitHub isn't POSTed, we attach the finishUrl here
 			gitHubLink += `&url=${finishUrl}`;
 		}
+		const oktaLink = `/web/configure-okta?url=${finishUrl}`;
 		this.module.evalTemplate(this, 'login', { 
 			error,
 			email,
@@ -36,7 +37,9 @@ class WebLoginRequest extends APIRequest {
 			version: this.module.versionInfo(),
 			codeStreamIcon: Icons['codestream'],
 			gitHubLink,
+			oktaLink,
 			gitHubIcon: Icons['github'],
+			oktaIcon: Icons['okta'],
 			csrf
 		});
 	}

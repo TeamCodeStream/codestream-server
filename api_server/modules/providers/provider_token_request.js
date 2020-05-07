@@ -403,8 +403,25 @@ class ProviderTokenRequest extends RestfulRequest {
 		const redirect = this.tokenPayload && this.tokenPayload.url ?
 			`${decodeURIComponent(this.tokenPayload.url)}?state=${this.request.query.state}` :
 			`${host}/auth-complete/${authCompletePage}`;
+		if (this.tokenPayload.url) {
+			this.issueCookie();			
+		}
 		this.response.redirect(redirect);
 		this.responseHandled = true;
+	}
+
+	// issue a cookie for web login
+	issueCookie () {
+		const token =
+			(this.user.get('accessTokens') || {}) &&
+			(this.user.get('accessTokens').web || {}) &&
+			this.user.get('accessTokens').web.token;
+		if (!token) { return; }
+
+		this.response.cookie(this.api.config.api.identityCookie, token, {
+			secure: true,
+			signed: true
+		});
 	}
 
 	// after a response is returned....

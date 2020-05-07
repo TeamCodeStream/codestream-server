@@ -154,6 +154,11 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: 'web/configure-okta',
+		requestClass: require('./web_configure_okta_request')
+	},
+	{
+		method: 'get',
 		path: 'robots.txt',
 		requestClass: require('./web_robots_request')
 	}
