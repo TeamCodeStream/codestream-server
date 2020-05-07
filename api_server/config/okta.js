@@ -4,6 +4,7 @@
 
 /* eslint no-console: 0 */
 
+// TEMPORARY SHAMLESS HARD-CODING
 module.exports = {
 	appClientId: '0oaaml9cakUVZevmy4x6',
 	appClientSecret: 'MXFlwnTBDCkNrLPJ-4C4mJUvgS8OkTnciyn-5BNh'
