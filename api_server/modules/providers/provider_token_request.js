@@ -159,6 +159,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.noAllowSignup = !this.tokenPayload.suok && !this.serviceAuth.supportsSignup();
 		this.inviteCode = this.tokenPayload.ic;
 		this.noSignup = this.tokenPayload.nosu;
+		this.orgId = this.tokenPayload.oid;
 
 		if (this.serviceAuth.usesOauth1()) {
 			let secretPayload;
@@ -212,7 +213,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			host: this.host,
 			team: this.team,
 			access: this.providerAccess,
-			sharing: this.sharing
+			sharing: this.sharing,
+			orgId: this.orgId
 		};
 		try {
 			this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
@@ -264,7 +266,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	async saveToken () {
 		const token = (this.tokenData && this.tokenData.accessToken) || this.request.query.token;
 		if (!token) {
-			throw this.errorHandler.error('updateAuth', { reason: 'token not returned from provider' });
+			throw this.errorHandler.error('updateAuth', { reason: 'token not returned from provider, tokenData is ' + JSON.stringify(this.tokenData) });
 		}
 		this.tokenData = this.tokenData || { accessToken: token };
 		const modifiedAt = Date.now();
@@ -323,7 +325,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		// get access token
 		const token = (this.tokenData && this.tokenData.accessToken) || this.request.query.token;
 		if (!token) {
-			throw this.errorHandler.error('updateAuth', { reason: 'token not returned from provider' });
+			throw this.errorHandler.error('updateAuth', { reason: 'token not returned from provider, tokenData is ' + JSON.stringify(this.tokenData) });
 		}
 
 		// check that the third-party auth provider supports identity matching,
@@ -338,6 +340,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				code: this.request.query.code,
 				mockEmail: this.request.query._mockEmail
 			},
+			orgId: this.orgId,
 			request: this
 		});
 
@@ -352,7 +355,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			provider: this.provider,
 			okToCreateUser: this.userId === 'anon' && !this.noSignup,
 			inviteCode: this.inviteCode,
-			tokenData: this.tokenData
+			tokenData: this.tokenData,
+			orgId: this.orgId
 		});
 		await this.connector.connectIdentity(userIdentity);
 		this.user = this.connector.user;

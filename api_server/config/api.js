@@ -87,7 +87,8 @@ ApiCfg.thirdPartyProviders = [
 	'msteams',
 	'slack',
 	'trello',
-	'youtrack'
+	'youtrack',
+	'okta'
 ];
 
 // matching these paths means Authorization header is not required

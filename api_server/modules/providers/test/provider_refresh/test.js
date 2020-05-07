@@ -25,7 +25,8 @@ const UNSUPPORTED_PROVIDERS = [
 	'trello',
 	'github',
 	'youtrack',
-	'slack'
+	'slack',
+	'okta'
 ];
 
 const ENTERPRISE_PROVIDERS = {

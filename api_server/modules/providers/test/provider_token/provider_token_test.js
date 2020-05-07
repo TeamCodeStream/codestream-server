@@ -74,6 +74,9 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		case 'glip':
 			expectedData = this.getExpectedGlipTestCallData();
 			break;
+		case 'okta':
+			expectedData = this.getExpectedOktaTestCallData();
+			break;
 		default:
 			throw `unknown provider ${this.provider}`;
 		}

@@ -18,6 +18,7 @@ const PROVIDERS = [
 	'azuredevops',
 	'slack',
 	'msteams'
+	//'okta' TODO
 ];
 
 const ENTERPRISE_PROVIDERS = {

@@ -15,6 +15,7 @@ const YouTrackConfig = require(process.env.CS_API_TOP + '/config/youtrack');
 const SlackConfig = require(process.env.CS_API_TOP + '/config/slack');
 const MSTeamsConfig = require(process.env.CS_API_TOP + '/config/msteams');
 const GlipConfig = require(process.env.CS_API_TOP + '/config/glip');
+const OktaConfig = require(process.env.CS_API_TOP + '/config/okta');
 const RandomString = require('randomstring');
 const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
@@ -147,6 +148,9 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			break;
 		case 'glip':
 			redirectData = this.getGlipRedirectData();
+			break;
+		case 'okta':
+			redirectData = this.getOktaRedirectData();
 			break;
 		default:
 			throw `unknown provider ${this.provider}`;
@@ -314,6 +318,17 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			state: this.state
 		};
 		const url = 'https://api.ringcentral.com/restapi/oauth/authorize';
+		return { url, parameters };
+	}
+
+	getOktaRedirectData () {
+		const parameters = {
+			client_id: OktaConfig.appClientId,
+			redirect_uri: this.redirectUri,
+			response_type: 'code',
+			state: this.state
+		};
+		const url = 'https://codestream.okta.com/oauth2/v1/authorize';
 		return { url, parameters };
 	}
 }

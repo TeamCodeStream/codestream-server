@@ -203,7 +203,8 @@ class ProviderIdentityConnector {
 		};
 		const providerInfoData = Object.assign({
 			userId: this.providerInfo.userId,
-			accessToken: this.providerInfo.accessToken
+			accessToken: this.providerInfo.accessToken,
+			orgId: this.providerInfo.orgId
 		}, this.tokenData || {});
 		Object.assign(op.$set, {
 			providerIdentities: identities,

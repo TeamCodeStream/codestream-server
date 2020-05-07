@@ -78,8 +78,13 @@ class OAuthModule extends APIServerModule {
 			clientInfo = this.apiConfig;
 		}
 
+		if (!host) {
+			const subDomain = options.orgId ? `${options.orgId}.` : '';
+			host = `https://${subDomain}${this.oauthConfig.host}`;
+		}
+
 		return {
-			host: host || `https://${this.oauthConfig.host}`,
+			host,
 			oauthData: clientInfo.oauthData,
 			clientId: clientInfo.appClientId,
 			clientSecret: clientInfo.appClientSecret,
@@ -206,6 +211,9 @@ class OAuthModule extends APIServerModule {
 		}
 		else if (exchangeFormat === 'query') {
 			response = await this.fetchAccessTokenWithQuery(url, parameters);
+		}
+		else if (exchangeFormat === 'formQuery') {
+			response = await this.fetchAccessTokenWithFormQueryData(url, parameters);
 		}
 		else if (exchangeFormat === 'json') {
 			response = await this.fetchAccessTokenWithJson(url, parameters);
@@ -348,6 +356,25 @@ class OAuthModule extends APIServerModule {
 		return await fetch(url, fetchOptions);
 	}
 
+	// fetch access token data by submitting form data in a POST request, with the data as a query string
+	async fetchAccessTokenWithFormQueryData (url, parameters) {
+		const { __userAuth } = parameters;
+		delete parameters.__userAuth;
+
+		const body = Object.keys(parameters).map(key => `${key}=${encodeURIComponent(parameters[key])}`).join('&');
+		const fetchOptions = {
+			method: 'post',
+			body
+		};
+		fetchOptions.headers = {
+			'Content-type': 'application/x-www-form-urlencoded'
+		};
+		if (__userAuth) {
+			fetchOptions.headers['Authorization'] = `Basic ${__userAuth}`;
+		}
+		return await fetch(url, fetchOptions);
+	}
+
 	// fetch access token data by submitting a POST request with a query
 	async fetchAccessTokenWithQuery (url, parameters) {
 		const query = Object.keys(parameters)
@@ -371,6 +398,7 @@ class OAuthModule extends APIServerModule {
 				method: 'post',
 				body: JSON.stringify(parameters),
 				headers: {
+					'Accept': 'application/json',
 					'Content-Type': 'application/json'
 				}
 			}

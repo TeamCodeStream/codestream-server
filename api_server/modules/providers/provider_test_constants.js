@@ -111,6 +111,13 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'login.microsoftonline.com',
 		apiHost: 'graph.microsoft.com/v1.0',
 		hasSharing: true
+	},
+	'okta*com': {
+		id: 'okta*com',
+		name: 'okta',
+		isEnterprise: false,
+		host: 'okta.com',
+		apiHost: 'okta.com'
 	}
 };
 

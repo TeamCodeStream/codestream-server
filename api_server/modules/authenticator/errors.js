@@ -31,5 +31,10 @@ module.exports = {
 		code: 'AUTH-1005',
 		message: 'Token expired',
 		description: 'The credentials passed are expired or have been deprecated'
+	},
+	'tokenNotFound': {
+		code: 'AUTH-1006',
+		message: 'The passed signup token was not found',
+		description: 'The signup token associated with this login was not found, usually means the authorization flow has not yet completed'
 	}
 };

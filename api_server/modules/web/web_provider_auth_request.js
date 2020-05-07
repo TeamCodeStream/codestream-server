@@ -2,8 +2,15 @@
 
 const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
 const WebErrors = require('./errors');
+const ProviderErrors = require(process.env.CS_API_TOP + '/modules/providers/errors');
+const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 
 class WebProviderAuthRequest extends APIRequest {
+
+	constructor (options) {
+		super(options);
+		this.errorHandler = new ErrorHandler(ProviderErrors);
+	}
 
 	async authorize () {
 	}
@@ -25,31 +32,24 @@ class WebProviderAuthRequest extends APIRequest {
 		const expiresAt = Date.now() + expiresIn;
 		const payload = {
 			userId: 'anon',
-			teamId: this.request.query.teamId || '',
-			url: `${this.api.config.api.publicApiUrl}/web/provider-auth-complete/${this.provider}`,
-			end: this.request.query.url || '',
-			st: this.request.query.signupToken || '',
-			access: this.request.query.access || ''
+			url: `${this.api.config.api.publicApiUrl}/web/provider-auth-complete/${this.provider}`
 		};
-		if (this.request.query._allowSignupForTesting) {
-			payload.suok = true;
-		}
-		if (this.request.query.signupToken) {
-			payload.st = this.request.query.signupToken;
-		}
-		if (this.request.query.access) {
-			payload.access = this.request.query.access;
-		}
-		if (this.request.query.inviteCode) {
-			payload.ic = this.request.query.inviteCode;
-		}
-		if (this.request.query.noSignup) {
-			payload.nosu = 1;
-		}
-		if (this.request.query.tenantId) {
-			// tenantId comes from MSFT teams
-			payload.tid = this.request.query.tenantId;
-		}
+		const payloadMappings = {
+			teamId: 'teamId',
+			url: 'url',
+			signupToken: 'st',
+			access: 'access',
+			inviteCode: 'ic',
+			noSignup: 'nosu',
+			tenantId: 'tid',
+			orgId: 'oid'
+		};
+		Object.keys(payloadMappings).forEach(mapping => {
+			if (this.request.query[mapping]) {
+				payload[payloadMappings[mapping]] = decodeURIComponent(this.request.query[mapping]);
+			}
+		});
+
 		const code = this.api.services.tokenHandler.generate(
 			payload,
 			'pauth',
@@ -70,7 +70,8 @@ class WebProviderAuthRequest extends APIRequest {
 			request: this,
 			redirectUri,
 			access: this.request.query.access,
-			sharing: !!this.request.query.sharing
+			sharing: !!this.request.query.sharing,
+			orgId: this.orgId || payload.oid
 		};
 
 		// test mode to just return the generated state variable
@@ -80,17 +81,31 @@ class WebProviderAuthRequest extends APIRequest {
 		}
 
 		// get the specific query data to use in the redirect, and respond with the redirect url
-		const { parameters, url } = this.serviceAuth.getRedirectData(options); 
-		const query = Object.keys(parameters)
-			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
-			.join('&');
-		this.response.redirect(`${url}?${query}`);
-		this.responseHandled = true;
+		try {
+			const { parameters, url } = this.serviceAuth.getRedirectData(options); 
+			const query = Object.keys(parameters)
+				.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
+				.join('&');
+			this.response.redirect(`${url}?${query}`);
+			this.responseHandled = true;
+		}
+		catch (error) {
+			this.redirectError(error);
+		}
 	}
 
 	redirectLogin (error) {
 		const url = encodeURIComponent(this.request.query.url);
 		this.response.redirect(`/web/login?error=${error}&url=${url}`);
+		this.responseHandled = true;
+	}
+
+	redirectError (error) {
+		const message = error instanceof Error ? error.message : JSON.stringify(error);
+		const errorCode = typeof error === 'object' ? error.code : '';
+		this.warn('Error handling provider token request: ' + message);
+		let url = `/web/error?code=${errorCode}&provider=${this.provider}`;
+		this.response.redirect(url);
 		this.responseHandled = true;
 	}
 }

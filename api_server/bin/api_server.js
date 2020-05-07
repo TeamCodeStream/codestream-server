@@ -30,6 +30,7 @@ const JiraServerConfig = require(ConfigDirectory + '/jiraserver');
 const BitbucketConfig = require(ConfigDirectory + '/bitbucket');
 const GitlabConfig = require(ConfigDirectory + '/gitlab');
 const YouTrackConfig = require(ConfigDirectory + '/youtrack');
+const OktaConfig = require(ConfigDirectory + '/okta');
 const AzureDevOpsConfig = require(ConfigDirectory + '/azuredevops');
 const LoggerConfig = require(ConfigDirectory + '/logger');
 const EmailConfig = require(ConfigDirectory + '/email');
@@ -106,6 +107,7 @@ const MyAPICluster = new ClusterWrapper(
 		bitbucket: BitbucketConfig,
 		gitlab: GitlabConfig,
 		youtrack: YouTrackConfig,
+		okta: OktaConfig,
 		azuredevops: AzureDevOpsConfig,
 		email: EmailConfig,
 		aws: AWSConfig,

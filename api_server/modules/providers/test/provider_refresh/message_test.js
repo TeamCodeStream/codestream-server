@@ -75,6 +75,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		case 'glip':
 			expectedTestCallData = this.getExpectedGlipTestCallData();
 			break;
+		case 'okta':
+			expectedTestCallData = this.getExpectedOktaTestCallData();
+			break;
 		default:
 			throw `unknown provider ${this.provider}`;
 		}

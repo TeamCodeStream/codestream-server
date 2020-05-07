@@ -42,6 +42,7 @@ const ENTERPRISE_PROVIDERS = {
 
 const AUTH_PROVIDERS = [
 	'github'
+	// TODO: 'okta'
 ];
 
 class ProviderTokenRequestTester {

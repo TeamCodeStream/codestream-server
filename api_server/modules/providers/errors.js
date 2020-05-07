@@ -42,5 +42,10 @@ module.exports = {
 		code: 'PRVD-1007',
 		message: 'A request for additional third-party provider data failed',
 		description: 'Certain third-party providers require additional data after a user has authenticated'
+	},
+	'orgIdRequired': {
+		code: 'PRVD-1008',
+		message: 'An org ID is required for this provider',
+		description: 'Certain third-party providers require an org ID from which to form a sub-domain for the authorization and resource server'
 	}
 };

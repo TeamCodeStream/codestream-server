@@ -11,7 +11,7 @@ class NoReuseTokenTest extends CheckSignupTest {
 	getExpectedError () {
 		if (this.secondTime) {
 			return {
-				code: 'AUTH-1003'
+				code: 'AUTH-1006'
 			};
 		}
 		else {

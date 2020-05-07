@@ -56,7 +56,7 @@ class CheckSignupRequest extends RestfulRequest {
 			{ requestId: this.request.id }
 		);
 		if (!this.signupToken) {
-			throw this.errorHandler.error('noUserId');
+			throw this.errorHandler.error('tokenNotFound');
 		}
 		else if (this.signupToken.error) {
 			if (this.signupToken.sharing) {
