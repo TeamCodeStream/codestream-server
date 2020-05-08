@@ -54,6 +54,12 @@ class WebErrorRequest extends WebRequestBase {
 				title: 'Invalid Credentials',
 				body: 'Please sign in using your email address and CodeStream password.'
 			};
+
+		case 'PRVD-1009':
+			return {
+				title: 'Application Missing',
+				body: 'An application for this provider has not been configured. Please refer this issue to your CodeStream administrator.'
+			};
 		}
 	}
 }

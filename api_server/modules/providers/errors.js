@@ -47,5 +47,10 @@ module.exports = {
 		code: 'PRVD-1008',
 		message: 'An org ID is required for this provider',
 		description: 'Certain third-party providers require an org ID from which to form a sub-domain for the authorization and resource server'
+	},
+	'providerNotConfigured': {
+		code: 'PRVD-1009',
+		message: 'This provider is not configured for this environment',
+		description: 'No tokens or credentials exist for this provider'
 	}
 };

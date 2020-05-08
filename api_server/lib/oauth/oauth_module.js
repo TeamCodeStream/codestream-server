@@ -83,6 +83,9 @@ class OAuthModule extends APIServerModule {
 			host = `https://${subDomain}${this.oauthConfig.host}`;
 		}
 
+		if (!clientInfo.appClientId || !clientInfo.appClientSecret) {
+			throw options.request.errorHandler.error('providerNotConfigured');
+		}
 		return {
 			host,
 			oauthData: clientInfo.oauthData,
