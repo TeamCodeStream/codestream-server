@@ -17,7 +17,8 @@ const OAUTH_CONFIG = {
 	tokenFromFragment: 'access_token',
 	hasIssues: true,
 	needsConfigure: true,
-	acceptsUserDefinedToken: true
+	acceptsUserDefinedToken: true,
+	noClientIdOk: true
 };
 
 class YouTrackAuth extends OAuthModule {

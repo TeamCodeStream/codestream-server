@@ -19,7 +19,8 @@ const OAUTH_CONFIG = {
 	noExchange: true,
 	tokenFromFragment: 'token',
 	additionalTokenValues: ['apiKey'],
-	hasIssues: true
+	hasIssues: true,
+	noClientIdOk: true
 };
 
 class TrelloAuth extends OAuthModule {

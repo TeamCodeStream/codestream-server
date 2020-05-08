@@ -51,7 +51,7 @@ class OAuthModule extends APIServerModule {
 	// get client info according to options and configuration, might be for the cloud-based
 	// host, or for an enterprise on-premise instance
 	getClientInfo (options) {
-		const { provider } = this.oauthConfig;
+		const { provider, noClientIdOk } = this.oauthConfig;
 		let { host } = options;
 		let clientInfo;
 		if (host) {
@@ -83,7 +83,7 @@ class OAuthModule extends APIServerModule {
 			host = `https://${subDomain}${this.oauthConfig.host}`;
 		}
 
-		if (!clientInfo.appClientId || !clientInfo.appClientSecret) {
+		if (!noClientIdOk && (!clientInfo.appClientId || !clientInfo.appClientSecret)) {
 			throw options.request.errorHandler.error('providerNotConfigured');
 		}
 		return {
