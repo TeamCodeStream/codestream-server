@@ -8,6 +8,7 @@ const ConfirmCode = require('./confirm_code');
 const UserPublisher = require('./user_publisher');
 const Errors = require('./errors');
 const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
+const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors');
 const Indexes = require('./indexes');
 const ConfirmHelper = require('./confirm_helper');
 
@@ -23,6 +24,7 @@ class RegisterRequest extends RestfulRequest {
 		delete this.request.body._forceConfirmation;
 		this.errorHandler.add(Errors);
 		this.errorHandler.add(AuthErrors);
+		this.errorHandler.add(TeamErrors);
 	}
 
 	async authorize () {
@@ -113,7 +115,6 @@ class RegisterRequest extends RestfulRequest {
 			request: this,
 			user: this.invitedUser
 		}).confirm(this.request.body);
-
 		this.api.services.signupTokens.removeInviteCodesByUserId(this.invitedUser.id);
 		this.userLoggedIn = true;
 		return true;
@@ -281,7 +282,7 @@ class RegisterRequest extends RestfulRequest {
 		await this.removeInviteCode();
 
 		// send the confirmation email with the confirmation code
-		await this.sendConfirmationEmail();				
+		await this.sendConfirmationEmail();
 	}
 
 	// publish the new user to the team channel
