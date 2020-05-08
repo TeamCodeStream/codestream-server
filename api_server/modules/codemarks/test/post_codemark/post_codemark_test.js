@@ -50,7 +50,8 @@ class PostCodemarkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		new CodemarkValidator({
 			test: this,
 			inputCodemark: this.data,
-			expectedOrigin: this.expectedOrigin
+			expectedOrigin: this.expectedOrigin,
+			expectedOriginDetail: this.expectedOriginDetail,
 		}).validateCodemark(data);
 	}
 }

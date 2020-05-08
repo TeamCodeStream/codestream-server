@@ -44,6 +44,7 @@ class CodemarkTest extends PostPostTest {
 			test: this,
 			inputCodemark,
 			expectedOrigin: this.expectedOrigin,
+			expectedOriginDetail: this.expectedOriginDetail,
 			usingCodeStreamChannels: true
 		}).validateCodemark(data);
 		super.validateResponse(data);

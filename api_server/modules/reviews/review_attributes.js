@@ -55,6 +55,11 @@ module.exports = {
 		maxLength: 20,
 		description: 'Origin of the review, usually the IDE'
 	},
+	originDetail: {
+		type: 'string',
+		maxLength: 40,
+		description: 'Origin detail of the review, usually the IDE'
+	},
 	status: {
 		type: 'string',
 		maxLength: 20,

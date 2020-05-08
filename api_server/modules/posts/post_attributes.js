@@ -50,6 +50,11 @@ module.exports = {
 		maxLength: 20,
 		description: 'Origin of the post: "email" for an email reply, "slack" for a reply from Slack, "teams" for a reply from MSTeams'
 	},
+	originDetail: {
+		type: 'string',
+		maxLength: 40,
+		description: 'Origin detail of the post'
+	},
 	reactions: {
 		type: 'object',
 		maxLength: 5000,

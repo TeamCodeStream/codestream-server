@@ -122,6 +122,10 @@ class LoginHelper {
 		};
 		if (origin) {
 			op.$set.lastOrigin = origin;
+			const originDetail = this.request.request.headers['x-cs-plugin-ide-detail'];
+			if (originDetail) {
+				op.$set.lastOriginDetail = originDetail;
+			}
 		}
 		if (this.trueLogin) {
 			op.$set.firstSessionStartedAt = this.user.get('firstSessionStartedAt') === undefined ? Date.now() : 0;

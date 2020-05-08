@@ -91,6 +91,11 @@ module.exports = {
 		maxLength: 20,
 		description: 'Origin of the codemark, usually the IDE'
 	},
+	originDetail: {
+		type: 'string',
+		maxLength: 40,
+		description: 'Origin detail of the codemark, usually the IDE'
+	},
 	externalAssignees: {
 		type: 'arrayOfObjects',
 		maxLength: 50,

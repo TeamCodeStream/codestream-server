@@ -41,7 +41,8 @@ class ReviewTest extends PostPostTest {
 		new ReviewValidator({
 			test: this,
 			inputReview,
-			expectedOrigin: this.expectedOrigin
+			expectedOrigin: this.expectedOrigin,
+			expectedOriginDetail: this.expectedOriginDetail,
 		}).validateReview(data);
 		super.validateResponse(data);
 	}

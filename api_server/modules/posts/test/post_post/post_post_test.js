@@ -44,6 +44,7 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const errors = [];
 		const expectedSeqNum = this.expectedSeqNum || 1;
 		const expectedOrigin = this.expectedOrigin || '';
+		const expectedOriginDetail = this.expectedOriginDetail || '';
 		const result = (
 			((post.id === post._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((post.text === this.data.text) || errors.push('text does not match')) &&
@@ -55,6 +56,7 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((post.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
 			((post.seqNum === expectedSeqNum) || errors.push('seqNum not equal to expected seqNum')) &&
 			((post.origin === expectedOrigin) || errors.push('origin not equal to expected origin')) &&
+			((post.originDetail === expectedOriginDetail) || errors.push('origin detail not equal to expected origin detail')) &&
 			((post.numReplies === 0) || errors.push('numReplies should be 0'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));

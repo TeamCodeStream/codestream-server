@@ -13,9 +13,11 @@ class LoginTest extends CodeStreamAPITest {
 	constructor (options) {
 		super(options);
 		this.expectedOrigin = 'VS Code';
+		this.expectedOriginDetail = 'VS Code Insiders';
 		this.apiRequestOptions = {
 			headers: {
-				'X-CS-Plugin-IDE': 'VS Code'
+				'X-CS-Plugin-IDE': 'VS Code',
+				'X-CS-Plugin-IDE-Detail': 'VS Code Insiders'
 			}
 		};
 		this.userOptions.numRegistered = 1;

@@ -84,6 +84,7 @@ class ReviewCreator extends ModelCreator {
 
 		// establish some default attributes
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
+		this.attributes.originDetail = this.originDetail || this.request.request.headers['x-cs-plugin-ide-detail'] || '';
 		this.attributes.creatorId = this.request.user.id;
 
 		// this is just for testing

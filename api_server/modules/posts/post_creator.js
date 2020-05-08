@@ -64,6 +64,7 @@ class PostCreator extends ModelCreator {
 		this.dontSendEmailNotification = this.attributes.dontSendEmail;
 		delete this.attributes.dontSendEmail;
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
+		this.attributes.originDetail = this.originDetail || this.request.request.headers['x-cs-plugin-ide-detail'] || '';
 		this.attributes.creatorId = this.user.id;
 		this.attributes.createdAt = Date.now();
 		if (this.request.isForTesting && this.request.isForTesting()) { // special for-testing header for easy wiping of test data

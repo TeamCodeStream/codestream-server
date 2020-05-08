@@ -31,6 +31,7 @@ const MentionTest = require('./mention_test');
 const UnregisteredMentionTest = require('./unregistered_mention_test');
 const MessageToAuthorTest = require('./message_to_author_test');
 const OriginFromPluginTest = require('./origin_from_plugin_test');
+const OriginDetailFromPluginTest = require('./origin_detail_from_plugin_test');
 const NoReplyToReplyTest = require('./no_reply_to_reply_test');
 
 // concerning codemarks...
@@ -91,6 +92,7 @@ const AssigneeNotOnTeamTest = require('./codemarks/assignee_not_on_team_test');
 const AssigneesIgnoredTest = require('./codemarks/assignees_ignored_test');
 const ParentPostIdTest = require('./codemarks/parent_post_id_test');
 const CodemarkOriginTest = require('./codemarks/codemark_origin_test');
+const CodemarkOriginDetailTest = require('./codemarks/codemark_origin_detail_test');
 const PermalinkTest = require('./codemarks/permalink_test');
 const DuplicateLinkTest = require('./codemarks/duplicate_link_test');
 const RelatedCodemarksTest = require('./codemarks/related_codemarks_test');
@@ -158,6 +160,7 @@ const ReviewersTest = require('./reviews/reviewers_test');
 const InvalidReviewerTest = require('./reviews/invalid_reviewer_test');
 const ReviewerNotOnTeamTest = require('./reviews/reviewer_not_on_team_test');
 const ReviewOriginTest = require('./reviews/review_origin_test');
+const ReviewOriginDetailTest = require('./reviews/review_origin_detail_test');
 const ReviewTagsTest = require('./reviews/review_tags_test');
 const ReviewTagNotFoundTest = require('./reviews/review_tag_not_found_test');
 const ReviewDeactivatedTagTest = require('./reviews/review_deactivated_tag_test');
@@ -230,6 +233,7 @@ class PostPostRequestTester {
 		new UnregisteredMentionTest().test();
 		new MessageToAuthorTest().test();
 		new OriginFromPluginTest().test();
+		new OriginDetailFromPluginTest().test();
 		new NoReplyToReplyTest().test();
 		new InvalidMentionTest().test();
 		new MentionedNotOnTeamTest().test();
@@ -302,6 +306,7 @@ class PostPostRequestTester {
 		new AssigneesIgnoredTest().test();
 		new ParentPostIdTest().test();
 		new CodemarkOriginTest().test();
+		new CodemarkOriginDetailTest().test();
 		new PermalinkTest({ permalinkType: 'public' }).test();
 		new PermalinkTest({ permalinkType: 'private' }).test();
 		new DuplicateLinkTest({ permalinkType: 'public' }).test();
@@ -372,6 +377,7 @@ class PostPostRequestTester {
 		new InvalidReviewerTest().test();
 		new ReviewerNotOnTeamTest().test();
 		new ReviewOriginTest().test();
+		new ReviewOriginDetailTest().test();
 		new ReviewTagsTest().test();
 		new ReviewTagNotFoundTest().test();
 		new ReviewDeactivatedTagTest().test();

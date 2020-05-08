@@ -93,6 +93,7 @@ class CodemarkCreator extends ModelCreator {
 		};
 	}
 
+	/* eslint complexity: ["error", 21] */
 	// right before the document is saved...
 	async preSave () {
 		// special for-testing header for easy wiping of test data
@@ -102,6 +103,7 @@ class CodemarkCreator extends ModelCreator {
 
 		// establish some default attributes
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
+		this.attributes.originDetail = this.originDetail || this.request.request.headers['x-cs-plugin-ide-detail'] || '';
 		this.attributes.creatorId = this.request.user.id;
 		if (CodemarkTypes.INVISIBLE_TYPES.includes(this.attributes.type)) {
 			this.attributes.invisible = true;

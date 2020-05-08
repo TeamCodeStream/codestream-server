@@ -17,6 +17,7 @@ class CodemarkValidator {
 		// verify we got back an codemark with the attributes we specified
 		const codemark = data.codemark;
 		const expectedOrigin = this.expectedOrigin || '';
+		const expectedOriginDetail = this.expectedOriginDetail || '';
 		const status = this.test.expectedStatus || this.inputCodemark.status;
 		let errors = [];
 		let result = (
@@ -33,7 +34,8 @@ class CodemarkValidator {
 			((codemark.text === this.inputCodemark.text) || errors.push('text does not match')) &&
 			((codemark.title === this.inputCodemark.title) || errors.push('title does not match')) &&
 			((codemark.numReplies === 0) || errors.push('codemark should have 0 replies')) &&
-			((codemark.origin === expectedOrigin) || errors.push('origin not equal to expected origin'))
+			((codemark.origin === expectedOrigin) || errors.push('origin not equal to expected origin')) &&
+			((codemark.originDetail === expectedOriginDetail) || errors.push('origin detail not equal to expected origin detail'))
 		);
 		if (this.inputCodemark.providerType || this.usingCodeStreamChannels) {
 			result = result && (

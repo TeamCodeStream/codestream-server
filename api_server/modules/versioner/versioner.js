@@ -96,6 +96,8 @@ class Versioner extends APIServerModule {
 		// determine version disposition, based on version information passed from the extension
 		const versionCompatibility = await this.versionInfo.handleVersionCompatibility({
 			pluginIDE: request.headers['x-cs-plugin-ide'],
+			// available, but not required
+			// pluginIDEDetail: request.headers['x-cs-plugin-ide-detail'],
 			pluginVersion: request.headers['x-cs-plugin-version'],
 		});
 		response.set('X-CS-Version-Disposition', versionCompatibility.versionDisposition);

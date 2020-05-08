@@ -217,6 +217,7 @@ class PostUserRequest extends PostRequest {
 			'First Invite': !invitedUser.get('numInvites'),
 			'Registered': !!invitedUser.get('isRegistered'),
 			'Endpoint': this.request.headers['x-cs-plugin-ide'] || 'Unknown IDE',
+			'Endpoint Detail': this.request.headers['x-cs-plugin-ide-detail'] || 'Unknown IDE Detail',
 			'Plugin Version': this.request.headers['x-cs-plugin-version'] || '',
 			'First Session': firstSession
 		};

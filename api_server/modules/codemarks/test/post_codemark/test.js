@@ -56,6 +56,7 @@ const IssueWithAssigneesTest = require('./issue_with_assignees_test');
 const AssigneesIgnoredTest = require('./assignees_ignored_test');
 const ParentPostIdTest = require('./parent_post_id_test');
 const OriginFromPluginTest = require('./origin_from_plugin_test');
+const OriginDetailFromPluginTest = require('./origin_detail_from_plugin_test');
 const ExternalIssueProviderTest = require('./external_issue_provider_test');
 const NoProviderTypeWithLinkTest = require('./no_provider_type_with_link_test');
 const PermalinkTest = require('./permalink_test');
@@ -154,6 +155,7 @@ class PostCodemarkRequestTester {
 		new AssigneesIgnoredTest().test();
 		new ParentPostIdTest().test();
 		new OriginFromPluginTest().test();
+		new OriginDetailFromPluginTest().test();
 		new ExternalIssueProviderTest().test();
 		new NoProviderTypeWithLinkTest().test();
 		new PermalinkTest({ permalinkType: 'public' }).test();

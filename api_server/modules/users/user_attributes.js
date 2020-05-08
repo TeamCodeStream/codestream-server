@@ -225,6 +225,11 @@ module.exports = {
 		maxLength: 20,
 		description: 'Plugin IDE user was using when they last logged in'
 	},
+	lastOriginDetail: {
+		type: 'string',
+		maxLength: 40,
+		description: 'Detail of plugin IDE user was using when they last logged in'
+	},
 	firstSessionStartedAt: {
 		type: 'number',
 		serverOnly: true,
