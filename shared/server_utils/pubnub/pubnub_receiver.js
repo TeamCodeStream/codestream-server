@@ -5,11 +5,10 @@
 'use strict';
 
 /* eslint no-console: 0 */
-
-const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub.js');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const PubNubClient = require('pubnub');
 
-const pubnub = new PubNubClient(PubNubConfig);
+const pubnub = new PubNubClient(ApiConfig.getPreferredConfig().pubnub);
 
 var channels;
 if (process.argv[2]) {

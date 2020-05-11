@@ -5,9 +5,9 @@
 
 const GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
 const MongoClient = require('../mongo_client.js');
-const  MongoConfig = require(process.env.CS_API_TOP + '/config/mongo');
-const  RandomString = require('randomstring');
-const  Assert = require('assert');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const RandomString = require('randomstring');
+const Assert = require('assert');
 
 class MongoTest extends GenericTest {
 
@@ -20,7 +20,7 @@ class MongoTest extends GenericTest {
 	before (callback) {
 		// set up the mongo client, and open it against a test collection
 		this.mongoClientFactory = new MongoClient();
-		const mongoConfig = Object.assign({}, MongoConfig, { collections: ['test'] });
+		const mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: ['test'] });
 		delete mongoConfig.queryLogging;
 		delete mongoConfig.hintsRequired;
 		if (this.mockMode) {

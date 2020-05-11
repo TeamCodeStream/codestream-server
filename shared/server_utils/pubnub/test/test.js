@@ -10,15 +10,14 @@ const UnsubscribeTest = require('./unsubscribe_test');
 //const MultipleHistoryTest = require('./multiple_history_test');
 const PresenceTest = require('./presence_test');
 const LeaveTest = require('./leave_test');
-
-const SocketClusterConfig = require(process.env.CS_API_TOP + '/config/socketcluster');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 // make eslint happy
 /* globals describe */
 
 describe('pubnub', function() {
 
-	if (SocketClusterConfig.port) {
+	if (ApiConfig.getPreferredConfig().socketCluster.port) {
 		console.log('NOTE - Pubnub tests cannot pass if SocketCluster is enabled, ignoring');
 		return;
 	}
