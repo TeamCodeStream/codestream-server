@@ -8,13 +8,19 @@ binDir=`dirname $0`
 repoRoot=$(cd $binDir/.. && pwd)
 srcDir=`dirname $repoRoot`
 schemaVersion=`cat $repoRoot/parameters.version`
+onpremInstallDir=""
+[ -d "$repoRoot/../onprem-install" ] && onpremInstallDir=$(cd $repoRoot/.. && pwd)
+[ -z "$onpremInstallDir" -a -d "$HOME/src/onprem-install" ] && onpremInstallDir=$(cd $HOME/src && pwd)
+[ -z "$onpremInstallDir" ] && echo "cannot find onprem-install repo" && exit
+echo -e "I found onprem-install in $onpremInstallDir"
 # verbose=1
 
 . $repoRoot/lib/update_funcs.sh
 
+# keep our json files sorted
 for p in `/bin/ls $repoRoot/profiles/*.json $repoRoot/parameters.json`
 do
-	echo "sorting $p"
+	# echo "sorting $p"
 	[ -n "$verbose" ] && echo $binDir/process-profile --sort-json $p
 	$binDir/process-profile --sort-json $p
 done
@@ -28,7 +34,6 @@ if [ "$ans" == y -o "$ans" == yes ]; then
 fi
 
 # create the README.parameter-definitions file for documentation
-[ ! -d $repoRoot/../onprem-install ] && echo "$repoRoot/../onprem-install not found (pwd=`pwd`)" >&2 && exit 1
 [ -n "$verbose" ] && echo $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
 $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
 diff_notify $repoRoot/README.parameter-definitions.json "$yes"
@@ -36,9 +41,9 @@ diff_notify $repoRoot/README.parameter-definitions.json "$yes"
 # create the config templates for on-prem single host preview (beta version only)
 for onpremConfig in minimal quickstart
 do
-	[ -n "$verbose" ] && echo $binDir/process-profile --env $onpremConfig --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
-	$binDir/process-profile --env $onpremConfig --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $srcDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
-	diff_notify $srcDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template "$yes"
+	[ -n "$verbose" ] && echo $binDir/process-profile --env $onpremConfig --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
+	$binDir/process-profile --env $onpremConfig --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
+	diff_notify $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template "$yes"
 done
 
 # cloud configuration files, all environments (consumed by developers via dt-update-secrets)

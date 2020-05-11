@@ -442,6 +442,16 @@
 				}
 			}
 		},
+		"okta": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "Okta API client Id"
+				},
+				"appClientSecret": {
+					"desc": "Okta API secret"
+				}
+			}
+		},
 		"slack": {
 			"<appProvider>": {
 				"appClientId": {

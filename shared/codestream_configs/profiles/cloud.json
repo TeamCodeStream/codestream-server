@@ -225,6 +225,13 @@
 				}
 			}
 		},
+		"okta": {
+			"localInstallation": {
+				"defaultEnv": {
+					"_loadSecretsFile": "okta/dev.cfg"
+				}
+			}
+		},
 		"slack": {
 			"cloud": {
 				"defaultEnv": {

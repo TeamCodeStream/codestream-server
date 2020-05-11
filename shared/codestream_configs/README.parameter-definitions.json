@@ -140,6 +140,12 @@
 				"botAppPassword": "Sharing MS Teams Bot App Password [CSSVC_MSTEAMS_BOT_APP_PASS]"
 			}
 		},
+		"okta": {
+			"<appProvider>": {
+				"appClientId": "Okta API client Id",
+				"appClientSecret": "Okta API secret"
+			}
+		},
 		"slack": {
 			"<appProvider>": {
 				"appClientId": "Slack app client Id (legacy scopes)",
