@@ -2,7 +2,7 @@
 
 const ConfirmationWithLinkTest = require('./confirmation_with_link_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class NoIssuanceTest extends ConfirmationWithLinkTest {
@@ -37,7 +37,7 @@ class NoIssuanceTest extends ConfirmationWithLinkTest {
 
 	// change the token to reference the other user
 	changeToken (callback) {
-		const tokenHandler = new TokenHandler(SecretsConfig.auth);
+		const tokenHandler = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth);
 		const payload = tokenHandler.decode(this.data.token);
 		payload.uid = this.otherUser.id;
 		this.data.token = tokenHandler.generate(payload, 'conf');

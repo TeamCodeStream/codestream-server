@@ -6,8 +6,7 @@
 // a company
 
 /* eslint no-console: 0 */
-const ConfigDirectory = process.env.CS_API_TOP + '/config';
-const MongoConfig = require(ConfigDirectory + '/mongo.js');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Mongodb = require('mongodb');
 const MongoClient = Mongodb.MongoClient;
 const Commander = require('commander');
@@ -53,13 +52,13 @@ const queryCollection = async function(csDb, collection, query) {
 	// connect to mongo
 	// console.log('connecting...');
 	try {
-		db = await MongoClient.connect(MongoConfig.url);
+		db = await MongoClient.connect(ApiConfig.getPreferredConfig().mongo.url);
 	}
 	catch (error) {
 		console.log('mongo connect error', error);
 		process.exit(1);
 	}
-	let csDb = db.db(MongoConfig.database);
+	let csDb = db.db(ApiConfig.getPreferredConfig().mongo.database);
 
 	// find matching companies
 	let query = Commander.companyId ?

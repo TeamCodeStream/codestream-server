@@ -2,9 +2,8 @@
 
 const ConfirmationEmailTest = require('./confirmation_email_test');
 const Assert = require('assert');
-const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class ConfirmationEmailWithLinkTest extends ConfirmationEmailTest {
 
@@ -21,14 +20,14 @@ class ConfirmationEmailWithLinkTest extends ConfirmationEmailTest {
 		const gotMessage = message.message;
 
 		// verify a match to the url
-		const host = WebClientConfig.host.replace(/\//g, '\\/');
+		const host = ApiConfig.getPreferredConfig().webclient.host.replace(/\//g, '\\/');
 		const shouldMatch = new RegExp(`${host}\\/confirm-email\\/(.*)$`);
 		const match = gotMessage.url.match(shouldMatch);
 		Assert(match && match.length === 2, 'confirmation link url is not correct');
 
 		// verify correct payload
 		const token = match[1];
-		const payload = new TokenHandler(SecretsConfig.auth).verify(token);
+		const payload = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth).verify(token);
 		Assert.equal(payload.iss, 'CodeStream', 'token payload issuer is not CodeStream');
 		Assert.equal(payload.alg, 'HS256', 'token payload algortihm is not HS256');
 		Assert.equal(payload.type, 'conf', 'token payload type should be conf');

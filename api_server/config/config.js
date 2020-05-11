@@ -7,6 +7,24 @@
 const StructuredConfigFactory = require('../codestream-configs/lib/structured_config'); 
 const MongoUrlParser = require('../codestream-configs/lib/mongo_url_parser');
 
+// list of third-party providers available for integrations. Provider availability depends
+// on the running configuration. Per-integration modules loaded as needed.
+const ThirdPartyProviders = [
+	'asana',
+	'azuredevops',
+	'bitbucket',
+	'github',
+	'github_enterprise',
+	'gitlab',
+	'gitlab_enterprise',
+	'jira',
+	'jiraserver',
+	'msteams',
+	'slack',
+	'trello',
+	'youtrack'
+];
+
 function customConfigFunc(nativeCfg) {
 	// creates a custom config object derived from the loaded native config
 	const apiCfg = {
@@ -14,24 +32,7 @@ function customConfigFunc(nativeCfg) {
 			...nativeCfg.apiServer,
 			runTimeEnvironment: nativeCfg.sharedGeneral.runTimeEnvironment,
 			authOrigin: nativeCfg.apiServer.authOrigin || `${nativeCfg.apiServer.publicApiUrl}/no-auth`,
-			// list of third-party providers available for integrations
-			// this is a superset of what may actually be available in a given installation, given which
-			// providers represent services that are enabled by configuration of the individual modules
-			thirdPartyProviders: [
-				'asana',
-				'azuredevops',
-				'bitbucket',
-				'github',
-				'github_enterprise',
-				'gitlab',
-				'gitlab_enterprise',
-				'jira',
-				'jiraserver',
-				'msteams',
-				'slack',
-				'trello',
-				'youtrack'
-			],
+			thirdPartyProviders: ThirdPartyProviders,
 			// matching these paths means Authorization header is not required
 			unauthenticatedPaths: ['^\\/no-auth\\/', '^\\/robots\\.txt$'],
 			// matching these paths means Authorization header is optional, behavior may vary

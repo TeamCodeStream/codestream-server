@@ -1,7 +1,7 @@
 'use strict';
 
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
@@ -33,7 +33,7 @@ class CheckResetTest extends CodeStreamAPITest {
 		const data = {
 			email: this.useEmail || this.currentUser.user.email,
 			expiresIn: this.expiresIn,
-			_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the token in the response
+			_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat,	// gives us the token in the response
 		};
 		// issue a forgot-password request, with a secret to allow use to receive the token
 		// in the response, rather than having to go through email

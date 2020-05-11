@@ -2,7 +2,7 @@
 
 const CheckResetTest = require('./check_reset_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class NotRstTokenTest extends CheckResetTest {
 
@@ -20,7 +20,7 @@ class NotRstTokenTest extends CheckResetTest {
 	makeQueryData () {
 		// replace the token with a non-reset token
 		const queryData = super.makeQueryData();
-		queryData.token = new TokenHandler(SecretsConfig.auth).generate({email: this.currentUser.email}, 'xyz');
+		queryData.token = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth).generate({email: this.currentUser.email}, 'xyz');
 		return queryData;
 	}
 }

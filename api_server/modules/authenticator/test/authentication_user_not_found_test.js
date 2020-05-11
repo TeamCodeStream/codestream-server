@@ -2,7 +2,7 @@
 
 var AuthenticationTest = require('./authentication_test');
 var JSONWebToken = require('jsonwebtoken');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class AuthenticationUserNotFoundTest extends AuthenticationTest {
 
@@ -27,7 +27,7 @@ class AuthenticationUserNotFoundTest extends AuthenticationTest {
 	alterUserIdInToken (callback) {
 		// decrypt the token to get payload
 		let payload;
-		const secret = SecretsConfig.auth;
+		const secret = ApiConfig.getPreferredConfig().secrets.auth;
 		try {
 			payload = JSONWebToken.verify(this.token, secret);
 		}

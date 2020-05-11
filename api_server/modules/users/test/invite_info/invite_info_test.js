@@ -3,7 +3,7 @@
 'use strict';
 
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
@@ -51,7 +51,7 @@ class InviteInfoTest extends CodeStreamAPITest {
 			email: this.userFactory.randomEmail(),
 			// indicates to send back invite code with the response, 
 			// instead of just using it in an email
-			_confirmationCheat: SecretsConfig.confirmationCheat	
+			_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat	
 		};
 	}
 

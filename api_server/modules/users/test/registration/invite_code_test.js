@@ -2,7 +2,7 @@
 
 const RegistrationTest = require('./registration_test');
 const Assert = require('assert');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const UserTestConstants = require('../user_test_constants');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
@@ -42,7 +42,7 @@ class InviteCodeTest extends RegistrationTest {
 					teamId: this.team.id,
 					email: this.data.email,
 					_pubnubUuid: this.data._pubnubUuid,
-					_confirmationCheat: SecretsConfig.confirmationCheat,
+					_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat,
 					_inviteCodeExpiresIn: this.inviteCodeExpiresIn
 				},
 				token: this.token

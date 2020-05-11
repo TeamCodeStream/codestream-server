@@ -3,7 +3,7 @@
 const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const UserAttributes = require('../../user_attributes');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
@@ -42,7 +42,7 @@ class ConfirmationTest extends CodeStreamAPITest {
 	registerUser (callback) {
 		const data = this.getUserData();
 		Object.assign(data, {
-			_confirmationCheat: SecretsConfig.confirmationCheat, // gives us the confirmation code in the response
+			_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat, // gives us the confirmation code in the response
 			_forceConfirmation: true // overrides developer environment, where confirmation might be turned off
 		});
 		if (this.userOptions.wantLink) {

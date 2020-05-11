@@ -1,21 +1,19 @@
 'use strict';
 
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const RemoveUserTest = require('./remove_user_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
 const PubNub = require('pubnub');
 const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
-const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
-const IpcConfig = require(process.env.CS_API_TOP + '/config/ipc');
 const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
-const SocketClusterConfig = require(process.env.CS_API_TOP + '/config/socketcluster');
 const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
 
 class TeamSubscriptionRevokedTest extends RemoveUserTest {
 
 	constructor (options) {
 		super(options);
-		this.usingSocketCluster = SocketClusterConfig.port;
+		this.usingSocketCluster = ApiConfig.getPreferredConfig().socketCluster.port;
 	}
 
 	get description () {
@@ -58,7 +56,7 @@ class TeamSubscriptionRevokedTest extends RemoveUserTest {
 	}
 
 	createSocketClusterClient () {
-		const config = Object.assign({}, SocketClusterConfig, {
+		const config = Object.assign({}, ApiConfig.getPreferredConfig().socketCluster, {
 			uid: this.users[1].user.id,
 			authKey: this.users[1].broadcasterToken 
 		});
@@ -67,14 +65,14 @@ class TeamSubscriptionRevokedTest extends RemoveUserTest {
 
 	createPubnubClient () { 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
-		const clientConfig = Object.assign({}, PubNubConfig);
+		const clientConfig = Object.assign({}, ApiConfig.getPreferredConfig().pubnub);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.users[1].user._pubnubUuid || this.users[1].user.id;
 		clientConfig.authKey = this.users[1].broadcasterToken;
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
-			clientConfig.serverId = IpcConfig.serverId;
+			clientConfig.serverId = ApiConfig.getPreferredConfig().ipc.serverId;
 		}
 		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		return new PubNubClient({

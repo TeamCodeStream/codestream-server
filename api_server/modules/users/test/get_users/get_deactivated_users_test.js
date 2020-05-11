@@ -1,7 +1,7 @@
 'use strict';
 
 const GetUsersByTeamIdTest = require('./get_users_by_team_id_test');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Assert = require('assert');
 
 class GetDeactivatedUsersTest extends GetUsersByTeamIdTest {
@@ -27,7 +27,7 @@ class GetDeactivatedUsersTest extends GetUsersByTeamIdTest {
 				path: '/users/' + this.deactivatedUser.id,
 				token: this.token,
 				headers: {
-					'x-delete-user-secret': SecretsConfig.confirmationCheat
+					'x-delete-user-secret': ApiConfig.getPreferredConfig().secrets.confirmationCheat
 				}
 			},
 			callback

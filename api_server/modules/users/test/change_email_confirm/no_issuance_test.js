@@ -2,7 +2,7 @@
 
 const ChangeEmailConfirmTest = require('./change_email_confirm_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class NoIssuanceTest extends ChangeEmailConfirmTest {
 
@@ -25,7 +25,7 @@ class NoIssuanceTest extends ChangeEmailConfirmTest {
 	setData (callback) {
 		// replace the token with an email token that has the other user's ID in it
 		super.setData(() => {
-			const tokenHandler = new TokenHandler(SecretsConfig.auth);
+			const tokenHandler = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth);
 			const payload = tokenHandler.decode(this.data.token);
 			payload.uid = this.users[1].user.id;
 			this.data.token = tokenHandler.generate(payload, 'email');

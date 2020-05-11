@@ -2,7 +2,7 @@
 
 const ChangeEmailConfirmTest = require('./change_email_confirm_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class MissingInPayloadTest extends ChangeEmailConfirmTest {
 
@@ -20,7 +20,7 @@ class MissingInPayloadTest extends ChangeEmailConfirmTest {
 	setData (callback) {
 		// replace the token with a token that has no email in it
 		super.setData(() => {
-			const tokenHandler = new TokenHandler(SecretsConfig.auth);
+			const tokenHandler = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth);
 			const payload = tokenHandler.decode(this.data.token);
 			delete payload[this.parameter];
 			this.data.token = tokenHandler.generate(payload, 'email');

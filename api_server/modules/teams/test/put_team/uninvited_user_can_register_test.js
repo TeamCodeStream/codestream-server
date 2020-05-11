@@ -2,7 +2,7 @@
 
 const PutTeamTest = require('./put_team_test');
 const RandomString = require('randomstring');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
 
@@ -56,7 +56,7 @@ class UninvitedUserCanRegisterTest extends PutTeamTest {
 			email: this.unregisteredUser.user.email,
 			username: RandomString.generate(8),
 			password: RandomString.generate(8),
-			_confirmationCheat: SecretsConfig.confirmationCheat
+			_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat
 		};
 		this.doApiRequest(
 			{

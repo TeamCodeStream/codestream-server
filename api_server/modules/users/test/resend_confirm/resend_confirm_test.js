@@ -1,7 +1,7 @@
 'use strict';
 
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class ResendConfirmTest extends CodeStreamAPITest {
@@ -37,7 +37,7 @@ class ResendConfirmTest extends CodeStreamAPITest {
 			this.userId = data.user.id;
 			this.data = { 
 				email: data.user.email,
-				_confirmationCheat: SecretsConfig.confirmationCheat
+				_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat
 			};
 			this.originalToken = data.user.confirmationToken;    // returns by providing the confirmation cheat code
 			setTimeout(callback, 2000); // wait a bit for the issuance time to change

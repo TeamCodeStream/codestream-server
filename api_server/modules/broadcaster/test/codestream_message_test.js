@@ -5,14 +5,11 @@ const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codes
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const PubNub = require('pubnub');
 const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
-const PubNubConfig = require(process.env.CS_API_TOP + '/config/pubnub');
 const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
-const SocketClusterConfig = require(process.env.CS_API_TOP + '/config/socketcluster');
 const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
-const IpcConfig = require(process.env.CS_API_TOP + '/config/ipc');
 const RandomString = require('randomstring');
 const OS = require('os');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 /* eslint no-console: 0 */
 
@@ -21,7 +18,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	constructor (options) {
 		super(options);
 		this.reallySendMessages = true;	// we suppress messages ordinarily, but since we're actually testing them...
-		this.usingSocketCluster = SocketClusterConfig.port;
+		this.usingSocketCluster = ApiConfig.getPreferredConfig().socketCluster.port;
 	}
 
 	// before the test, set up messaging clients and start listening
@@ -79,7 +76,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			return this.makeSocketClusterClientForServer(callback);
 		}
 		// all we have to do here is provide the full config, which includes the secretKey
-		let config = Object.assign({}, PubNubConfig);
+		let config = Object.assign({}, ApiConfig.getPreferredConfig().pubnub);
 		config.uuid = `API-${OS.hostname()}-${this.testNum}`;
 		if (this.mockMode) {
 			throw 'test client can not be a server in mock mode';
@@ -94,7 +91,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	makeSocketClusterClientForServer (callback) {
 		(async () => {
-			const config = Object.assign({}, SocketClusterConfig, { uid: 'API' });
+			const config = Object.assign({}, ApiConfig.getPreferredConfig().socketCluster, { uid: 'API' });
 			this.broadcasterForServer = new SocketClusterClient(config);
 			try {
 				await this.broadcasterForServer.init();
@@ -114,14 +111,14 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
 		const token = this.currentUser.broadcasterToken;
 		const user = this.currentUser.user;
-		let clientConfig = Object.assign({}, PubNubConfig);
+		let clientConfig = Object.assign({}, ApiConfig.getPreferredConfig().pubnub);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = user._pubnubUuid || user.id;
 		clientConfig.authKey = token;
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
-			clientConfig.serverId = IpcConfig.serverId;
+			clientConfig.serverId = ApiConfig.getPreferredConfig().ipc.serverId;
 		}
 		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		this.broadcasterClientsForUser[user.id] = new PubNubClient({
@@ -133,12 +130,12 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	makeSocketClusterClientForClient (callback) {
 		const { user, broadcasterToken } = this.currentUser;
-		const config = Object.assign({}, SocketClusterConfig, {
+		const config = Object.assign({}, ApiConfig.getPreferredConfig().socketCluster, {
 			uid: user.id,
 			authKey: broadcasterToken,
 		});
 		if (this.cheatOnSubscription) {
-			config.subscriptionCheat = SecretsConfig.subscriptionCheat;
+			config.subscriptionCheat = ApiConfig.getPreferredConfig().secrets.subscriptionCheat;
 		}
 
 		(async () => {

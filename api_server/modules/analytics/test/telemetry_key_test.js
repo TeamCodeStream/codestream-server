@@ -4,8 +4,7 @@
 
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const Assert = require('assert');
-const SegmentConfig = require(process.env.CS_API_TOP + '/config/segment');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class TelemetryKeyTest extends CodeStreamAPITest {
 
@@ -24,12 +23,12 @@ class TelemetryKeyTest extends CodeStreamAPITest {
 	}
 
 	get path () {
-		return `/no-auth/telemetry-key?secret=${encodeURIComponent(SecretsConfig.telemetry)}`;
+		return `/no-auth/telemetry-key?secret=${encodeURIComponent(ApiConfig.getPreferredConfig().secrets.telemetry)}`;
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert.equal(data.key, SegmentConfig.token, 'returned token is not correct');
+		Assert.equal(data.key, ApiConfig.getPreferredConfig().segment.token, 'returned token is not correct');
 	}
 }
 

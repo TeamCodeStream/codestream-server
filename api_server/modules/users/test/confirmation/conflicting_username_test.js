@@ -1,7 +1,7 @@
 'use strict';
 
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const SecretsConfig = require(process.env.CS_API_TOP + '/config/secrets.js');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class ConflictingUsernameTest extends CodeStreamAPITest {
 
@@ -52,7 +52,7 @@ class ConflictingUsernameTest extends CodeStreamAPITest {
 					email,
 					username: 'someuser',
 					password: 'blahblahblah',
-					_confirmationCheat: SecretsConfig.confirmationCheat,	// gives us the confirmation code in the response
+					_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat,	// gives us the confirmation code in the response
 					_forceConfirmation: true // overrides developer environment, where confirmation might be turned off
 				}
 			},
