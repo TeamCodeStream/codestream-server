@@ -1,5 +1,11 @@
 # Change Log
 
+## [7.2.2] - 2020-5-11
+
+### Added
+
+- Adds support for adding new changesets to a code review
+
 ## [7.2.1] - 2020-5-5
 
 ### Added
