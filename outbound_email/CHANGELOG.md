@@ -1,5 +1,11 @@
 # Change Log
 
+## [7.2.1] - 2020-5-8
+
+### Changed
+
+- Updated config schema
+
 ## [7.2.0] - 2020-4-24
 
 ### Changed
