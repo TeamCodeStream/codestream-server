@@ -15,6 +15,7 @@ class AlreadyApprovedTest extends ApproveTest {
 			this.secondRun = true;
 			delete this.expectedResponse.review.$set[`approvedBy.${this.currentUser.user.id}`];
 			this.expectedResponse.review.$set[`approvedBy.${this.currentUser.user.id}.approvedAt`] = Date.now();
+			this.expectedResponse.review.$set.approvedAt = Date.now();
 			this.expectedResponse.review.$set.version = 3;
 			this.expectedResponse.review.$version = {
 				before: 2,
@@ -36,6 +37,8 @@ class AlreadyApprovedTest extends ApproveTest {
 		this.expectedResponse.review.$set.modifiedAt = review.$set.modifiedAt;
 		Assert(review.$set[key] >= this.modifiedAfter, 'approvedAt is not greater than before the review was updated');
 		this.expectedResponse.review.$set[key] = review.$set[key];
+		Assert(review.$set.approvedAt >= this.modifiedAfter, 'approvedAt is not greater than before the review was updated');
+		this.expectedResponse.review.$set.approvedAt = review.$set.approvedAt;
 		Assert.deepEqual(data, this.expectedResponse, 'response data is not correct');
 	}
 }

@@ -42,10 +42,12 @@ class ApproveReviewRequest extends RestfulRequest {
 			usersWhoApproved.push(this.user.id);
 			if (ArrayUtilities.difference(this.review.get('reviewers') || [], usersWhoApproved).length === 0) {
 				op.$set.status = 'approved';
+				op.$set.approvedAt = now;
 			}
 		}
 		else {
 			op.$set.status = 'approved';
+			op.$set.approvedAt = now;
 		}
 
 		this.updateOp = await new ModelSaver({

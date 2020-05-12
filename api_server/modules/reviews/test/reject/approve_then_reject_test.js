@@ -20,7 +20,8 @@ class ApproveThenRejectTest extends RejectTest {
 				error => {
 					if (error) { return callback(error); }
 					this.expectedResponse.review.$unset = {
-						[`approvedBy.${this.currentUser.user.id}`]: true
+						[`approvedBy.${this.currentUser.user.id}`]: true,
+						approvedAt: true
 					};
 					this.expectedResponse.review.$set.version = 3;
 					this.expectedResponse.review.$version = {
@@ -28,6 +29,7 @@ class ApproveThenRejectTest extends RejectTest {
 						after: 3
 					};
 					this.expectedReview.approvedBy = {};
+					delete this.expectedReview.approvedAt;
 					callback();
 				}
 			);

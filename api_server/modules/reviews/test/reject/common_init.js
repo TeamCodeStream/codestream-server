@@ -74,7 +74,8 @@ class CommonInit {
 					status: 'rejected'
 				},
 				$unset: {
-					[`approvedBy.${this.currentUser.user.id}`]: true
+					[`approvedBy.${this.currentUser.user.id}`]: true,
+					approvedAt: true
 				},
 				$version: {
 					before: this.expectedVersion - 1,
@@ -87,6 +88,7 @@ class CommonInit {
 		this.path = `/reviews/reject/${this.review.id}`;
 		this.expectedReview = DeepClone(this.review);
 		this.expectedReview.status = 'rejected';
+		delete this.expectedReview.approvedAt;
 		this.expectedReview.version = this.expectedVersion;
 		callback();
 	}

@@ -31,6 +31,8 @@ class FetchTest extends ApproveTest {
 				const { review } = response;
 				Assert(review.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the review was updated');
 				this.expectedReview.modifiedAt = review.modifiedAt;
+				Assert(review.approvedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the review was updated');
+				this.expectedReview.approvedAt = review.approvedAt;
 				Assert(review.approvedBy[this.currentUser.user.id].approvedAt >= this.modifiedAfter, 'approvedAt is not greater than before the review was updated');
 				this.expectedReview.approvedBy[this.currentUser.user.id].approvedAt = review.approvedBy[this.currentUser.user.id].approvedAt;
 				Assert.deepEqual(response.review, this.expectedReview, 'fetched review does not have the correct approvals');

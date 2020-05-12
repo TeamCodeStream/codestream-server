@@ -27,7 +27,8 @@ class ReopenReviewRequest extends RestfulRequest {
 				status: 'open'
 			},
 			$unset: {
-				[`approvedBy.${this.user.id}`]: true
+				[`approvedBy.${this.user.id}`]: true,
+				approvedAt: true
 			}
 		};
 

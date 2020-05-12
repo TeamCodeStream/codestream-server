@@ -92,7 +92,8 @@ class CommonInit {
 					status: 'open'
 				},
 				$unset: {
-					[`approvedBy.${this.currentUser.user.id}`]: true
+					[`approvedBy.${this.currentUser.user.id}`]: true,
+					approvedAt: true
 				},
 				$version: {
 					before: this.expectedVersion - 1,
@@ -108,6 +109,7 @@ class CommonInit {
 		if (!this.rejectToClose) {
 			this.expectedReview.approvedBy = {};
 		}
+		delete this.expectedReview.approvedAt;
 		this.expectedReview.version = this.expectedVersion;
 		callback();
 	}

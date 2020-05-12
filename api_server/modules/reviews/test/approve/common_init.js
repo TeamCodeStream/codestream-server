@@ -83,6 +83,7 @@ class CommonInit {
 		};
 		if (!this.allReviewersMustApprove || this.expectApproval) {
 			this.expectedResponse.review.$set.status = 'approved';
+			this.expectedResponse.review.$set.approvedAt = Date.now(); // placeholder
 		}
 
 		this.modifiedAfter = Date.now();
@@ -95,6 +96,7 @@ class CommonInit {
 				approvedAt: Date.now() // placeholder
 			}
 		};
+		this.expectedReview.approvedAt = Date.now(); // placeholder
 		callback();
 	}
 

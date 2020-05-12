@@ -27,7 +27,8 @@ class RejectReviewRequest extends RestfulRequest {
 				status: 'rejected'
 			},
 			$unset: {
-				[`approvedBy.${this.user.id}`]: true
+				[`approvedBy.${this.user.id}`]: true,
+				approvedAt: true
 			}
 		};
 
