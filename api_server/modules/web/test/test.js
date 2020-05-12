@@ -58,6 +58,8 @@ describe('web', function() {
 	new IdentifyScriptTest().test();
 	//new UrlButtonsTest().test();
 	new WhitespaceReplaceTest().test();
+
+	describe('launcher tests', require('./launcher_test'));
 	/*
 	new TypedCodemarkPermalinkTest({ codemarkType: 'comment' }).test();
 	new TypedCodemarkPermalinkTest({ codemarkType: 'issue' }).test();

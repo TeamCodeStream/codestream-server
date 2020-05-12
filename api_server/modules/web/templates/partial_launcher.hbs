@@ -1,0 +1,559 @@
+<script>
+		(function (f) { if (typeof exports === "object" && typeof module !== "undefined") { module.exports = f() } else if (typeof define === "function" && define.amd) { define([], f) } else { var g; if (typeof window !== "undefined") { g = window } else if (typeof global !== "undefined") { g = global } else if (typeof self !== "undefined") { g = self } else { g = this } g.protocolCheck = f() } })(function () {
+			var define, module, exports; return (function e(t, n, r) { function s(o, u) { if (!n[o]) { if (!t[o]) { var a = typeof require == "function" && require; if (!u && a) return a(o, !0); if (i) return i(o, !0); var f = new Error("Cannot find module '" + o + "'"); throw f.code = "MODULE_NOT_FOUND", f } var l = n[o] = { exports: {} }; t[o][0].call(l.exports, function (e) { var n = t[o][1][e]; return s(n ? n : e) }, l, l.exports, e, t, n, r) } return n[o].exports } var i = typeof require == "function" && require; for (var o = 0; o < r.length; o++)s(r[o]); return s })({
+				1: [function (require, module, exports) {
+					function _registerEvent(target, eventType, cb) {
+						if (target.addEventListener) {
+							target.addEventListener(eventType, cb);
+							return {
+								remove: function () {
+									target.removeEventListener(eventType, cb);
+								}
+							};
+						} else {
+							target.attachEvent(eventType, cb);
+							return {
+								remove: function () {
+									target.detachEvent(eventType, cb);
+								}
+							};
+						}
+					}
+
+					function _createHiddenIframe(target, uri) {
+						var iframe = document.createElement("iframe");
+						iframe.src = uri;
+						iframe.id = "hiddenIframe";
+						iframe.style.display = "none";
+						target.appendChild(iframe);
+
+						return iframe;
+					}
+
+					function _createDetachedHiddenIframe() {
+						var iframe = document.createElement("iframe");
+						iframe.id = "hiddenDetachedIframe";
+						iframe.style.display = "none";
+						return iframe;
+					}
+
+					function openUriWithHiddenFrame(uri, failCb, successCb) {
+
+						var timeout = setTimeout(function () {
+							failCb();
+							handler.remove();
+						}, 1000);
+
+						var iframe = document.querySelector("#hiddenIframe");
+						if (!iframe) {
+							iframe = _createHiddenIframe(document.body, "about:blank");
+						}
+
+						var handler = _registerEvent(window, "blur", onBlur);
+
+						function onBlur() {
+							clearTimeout(timeout);
+							handler.remove();
+							successCb();
+						}
+
+						iframe.contentWindow.location.href = uri;
+					}
+
+					function openUriWithTimeoutHack(uri, failCb, successCb) {
+
+						var timeout = setTimeout(function () {
+							failCb();
+							handler.remove();
+						}, 1000);
+
+						//handle page running in an iframe (blur must be registered with top level window)
+						var target = window;
+						while (target != target.parent) {
+							target = target.parent;
+						}
+
+						var handler = _registerEvent(target, "blur", onBlur);
+
+						function onBlur() {
+							clearTimeout(timeout);
+							handler.remove();
+							successCb();
+						}
+
+						window.location = uri;
+					}
+
+					function openUriUsingFirefox(uri, failCb, successCb) {						
+						openUriWithTimeoutHack(uri, failCb, successCb);
+						//openUriUsingIE10InWindows7(uri, failCb, successCb);
+						//openUriUsingWickedInsaneHackery(uri, failCb, successCb);
+						/*
+						return;
+						var iframe = document.querySelector("#hiddenIframe");
+
+						if (!iframe) {
+							iframe = _createHiddenIframe(document.body, "about:blank");
+						}
+
+						try {
+							iframe.contentWindow.location.href = uri;
+							successCb();
+						} catch (e) {
+							if (e.name == "NS_ERROR_UNKNOWN_PROTOCOL") {
+								failCb();
+							}
+						}
+						*/
+					}
+					
+
+					function openUriUsingIEInOlderWindows(uri, failCb, successCb) {
+						if (getInternetExplorerVersion() === 10) {
+							openUriUsingIE10InWindows7(uri, failCb, successCb);
+						} else if (getInternetExplorerVersion() === 9 || getInternetExplorerVersion() === 11) {
+							openUriWithHiddenFrame(uri, failCb, successCb);
+						} else {
+							openUriInNewWindowHack(uri, failCb, successCb);
+						}
+					}
+
+					function openUriUsingWickedInsaneHackery(uri, failCb, successCb) {
+						var succeded = false;
+ 						var timeout;						
+
+						var handler = function () {
+								console.log('blurred -- success')
+								window.removeEventListener("blur", handler);
+								if (timeout) {
+									clearTimeout(timeout);
+								}
+								succeded = true
+								successCb();								
+						};
+						 
+						var inner = function() {							
+							if (timeout) {
+								clearTimeout(timeout);
+							}
+							timeout = setTimeout(function() {
+									window.removeEventListener("blur", handler);
+									failCb();
+							}, 5000);
+							
+							window.removeEventListener("blur", handler);
+							window.addEventListener("blur", handler);
+							
+							var iframe = document.querySelector("#hiddenIframe");							
+							
+							if (!iframe) {
+								iframe = _createHiddenIframe(document.body, "about:blank");								
+							}							
+							try {																
+								iframe.contentWindow.location.href = uri;																
+							} catch (e) {								
+								window.removeEventListener("blur", handler);								
+								failCb();
+								clearTimeout(timeout);								
+							}		
+						}	
+						var i = 0;
+						var foo = function() {
+							if (!succeded) {
+								inner();
+							}
+							if (succeded) {
+								clearInterval(poop);
+								return;
+							}
+							i++;
+							console.log(i);
+						}
+						var poop = setInterval(foo, 250);						 			
+					}
+
+					function openUriUsingIE10InWindows7(uri, failCb, successCb) {
+						var timeout = setTimeout(function() {
+							window.removeEventListener("blur", handler);
+							failCb();
+						}, 2000);
+						
+						var handler = function () {
+							window.removeEventListener("blur", handler);
+							clearTimeout(timeout);
+							successCb();
+						};
+						window.addEventListener("blur", handler);
+
+						var iframe = document.querySelector("#hiddenIframe");
+						if (!iframe) {
+							iframe = _createHiddenIframe(document.body, "about:blank");
+						}
+						try {
+							iframe.contentWindow.location.href = uri;
+						} catch (e) {
+							window.removeEventListener("blur", handler);
+							failCb();
+							clearTimeout(timeout);
+						}						 			
+					}
+
+					function openUriInNewWindowHack(uri, failCb, successCb) {
+						var myWindow = window.open('', '', 'width=0,height=0');
+
+						myWindow.document.write("<iframe src='" + uri + "'></iframe>");
+
+						setTimeout(function () {
+							try {
+								myWindow.location.href;
+								myWindow.setTimeout("window.close()", 1000);
+								successCb();
+							} catch (e) {
+								myWindow.close();
+								failCb();
+							}
+						}, 1000);
+					}
+
+					function openUriWithMsLaunchUri(uri, failCb, successCb) {
+						navigator.msLaunchUri(uri,
+							successCb,
+							failCb
+						);
+					}
+
+					function checkBrowser() {
+						var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+						var ua = navigator.userAgent.toLowerCase();
+						return {
+							isOpera: isOpera,
+							isFirefox: typeof InstallTrigger !== 'undefined',
+							isSafari: (~ua.indexOf('safari') && !~ua.indexOf('chrome')) || Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0,
+							isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
+							isChrome: !!window.chrome && !isOpera,
+							isIE: /*@cc_on!@*/false || !!document.documentMode // At least IE6
+						}
+					}
+
+					function getInternetExplorerVersion() {
+						var rv = -1;
+						if (navigator.appName === "Microsoft Internet Explorer") {
+							var ua = navigator.userAgent;
+							var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+							if (re.exec(ua) != null)
+								rv = parseFloat(RegExp.$1);
+						}
+						else if (navigator.appName === "Netscape") {
+							var ua = navigator.userAgent;
+							var re = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+							if (re.exec(ua) != null) {
+								rv = parseFloat(RegExp.$1);
+							}
+						}
+						return rv;
+					}
+
+					module.exports = function (uri, failCb, successCb, unsupportedCb) {
+						function failCallback() {
+							failCb && failCb();
+						}
+
+						function successCallback() {
+							successCb && successCb();
+						}
+
+						if (navigator.msLaunchUri) { //for IE and Edge in Win 8 and Win 10
+							openUriWithMsLaunchUri(uri, failCb, successCb);
+						} else {
+							var browser = checkBrowser();
+
+							if (browser.isFirefox) {
+								openUriUsingFirefox(uri, failCallback, successCallback);
+							} else if (browser.isChrome || browser.isIOS) {
+								openUriWithTimeoutHack(uri, failCallback, successCallback);
+							} else if (browser.isIE) {
+								openUriUsingIEInOlderWindows(uri, failCallback, successCallback);
+							} else if (browser.isSafari) {
+								openUriWithHiddenFrame(uri, failCallback, successCallback);
+							} else {
+								unsupportedCb();
+								//not supported, implement please
+							}
+						}
+					}
+
+				}, {}]
+			}, {}, [1])(1)
+		});
+	</script>
+<script> 
+ 
+var ides = {{{toJSON ides}}};
+window.CODESTREAM = window.CODESTREAM || {};
+window.CODESTREAM._state = {	
+	MRU: String('{{isMru}}') === 'true',
+	lastOriginDetail: String('{{isLastOriginDetail}}') === 'true',
+	isSpecificIde: String('{{isSpecificIde}}') === 'true'
+};
+window.CODESTREAM.openEditor = function(ide) {
+		if (!ide) {
+			console.warn('missing ide');
+			return;
+		}
+		var page = window.CODESTREAM.page;
+		if (!page) {
+			console.error('missing page');
+			return;
+		}
+		var type = page.type;
+		var options = page.data || {};    
+	
+		if (type === 'codemark' && !options.id) {
+			console.error('missing codemark id');
+			return;				
+		}	
+		else if (type === 'review' && !options.id)	{
+			console.error('missing review id');
+			return;			
+		}
+		 
+		var protocolStart = ide.protocol;
+		var { ideName, moniker, downloadUrl } = ide;
+		var repoId; 
+		var protocol;
+		var route;
+		if (type === 'codemark') {									
+			route = { controller: 'codemark', action: 'open', id: options.id };
+			if (options.repoId) {
+				route.query = [{key: 'repoId', value: options.repoId}]
+			}
+		}
+		else if (type ==='review') {			
+			route = { controller: 'review', action: 'open', id: options.id, query: [] }
+		}
+		else if (type === 'navigate') {
+			if (options.action === 'search') {
+				// special handler for search
+				route = { controller: 'search', action: 'open', query: [ { key: 'q', value: options.q } ]}
+			}
+			else {
+				route = { controller: 'navigate', action: options.action, query: [ { key: 'q', value: options.q } ]}
+			}
+		}
+		else {
+			console.error(`unknown type=${type}`);
+			return;
+		}
+
+		if (moniker.indexOf('jb-') === 0) {
+			// jetbrains requires to pass the controller/action/ids as queryString params
+			if (route && route.query) {
+				route.query.push({key: 'controller', value: route.controller});
+				if (route.action) {
+					route.query.push({key: 'action', value: route.action});
+				}
+				if (route.id) {
+					route.query.push({key: 'id', value: route.id});
+				}
+				if (options.file) {
+				// var fileName = '{{rawFileName}}';
+				 	route.query.push({key:'file', value: encodeURIComponent(options.file)  });
+				}
+			}
+		}
+		if (route) {
+			protocol = `${protocolStart}${route.controller}`;
+			if (route.id) {
+				protocol += `/${route.id}`
+			}
+			if (route.action) {
+				protocol += `/${route.action}`
+			}
+			if (route.query && route.query.length) {				
+				protocol += '?1=1&';
+				var len = route.query.length;
+				for (var i = 0; i < len; i++) {
+					var query = route.query[i];
+					protocol += `${query.key}=${query.value}`;
+					if (i + 1 < len) {
+						protocol += `&`;
+					}
+				}
+			}
+		}
+		else {
+			console.warn('no route');
+			return;
+		}	 
+		console.log(protocol);
+
+		var startTime = new Date();
+		var ideSelection;
+		if (window.CODESTREAM._state) {
+			if (window.CODESTREAM._state.MRU === true) {
+				ideSelection = "MRU";
+			}
+			else if (window.CODESTREAM._state.lastOriginDetail === true) {
+				ideSelection = "lastOriginDetail";
+			}
+			else {
+				ideSelection = "User Selected";
+			}
+		}
+		if (!ideSelection) {
+			ideSelection = "User Selected";
+		}
+		
+		window.protocolCheck(protocol,
+			function () {
+				//fail				
+				window.analytics.track("Opened in IDE Failed", { 
+					Source: "{{src}}" || "Shared Link",
+					IDE: moniker, 
+					"IDE Selection": ideSelection,
+					"Protocol Handled": false
+				});
+				console.log(`CodeStream: failed in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
+			}, function () {
+				//success			
+				window.analytics.track("Opened in IDE", { 
+					Source: "{{src}}" || "Shared Link",
+					IDE: moniker, 
+					"IDE Selection": ideSelection,
+					"Protocol Handled": true 
+				});
+				console.log(`CodeStream: success in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
+		});	
+}
+ 
+function _openEditor(ide) {
+	var onAnyComplete = function() {
+		$("#notification-title").html("Opening link in CodeStream...");		
+		$('#notification-area-jb').toggle(ide.protocol.indexOf("jetbrains") > -1);
+
+		window.CODESTREAM.openEditor(ide);
+
+		// nuke the initial state
+		delete window.CODESTREAM._state;
+	};
+
+	try {
+		if (window.CODESTREAM._state && window.CODESTREAM._state.isSpecificIde) {
+			// don't set the cookie if we're opening an ide with a 1-time queryString
+			onAnyComplete();
+		}
+		else {
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '/web/ide/mru', true);
+			xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+			xhr.send(JSON.stringify({
+				ide: ide.moniker, 
+				repoId: "{{uniqueRepoId}}",
+				_csrf: "{{csrf}}"}
+			))
+			xhr.onload = function() {
+				onAnyComplete();
+			};
+			xhr.onerror = function() {
+				onAnyComplete();
+			};
+		}
+	}
+	catch (x) {
+		console.error(x);
+		onAnyComplete();
+	}
+}
+
+// clicked the already-selected-button
+function onIdeClick(e) {
+	e.preventDefault();	
+	var moniker = $('#selected-ide').attr("data-ide-moniker");
+	_openEditor(ides.find(_ => _.moniker === moniker))
+}
+
+// clicked from the "dropdown"
+function onIdeSelected(e, moniker) {
+	e.preventDefault();
+	var ide = ides.find(_ => _.moniker === moniker);
+	try {
+		$('#selected-ide')
+			.addClass("selected-ide btn btn-sm btn-block form-control btn-open-in")
+			.attr("data-ide-moniker", ide.moniker)
+			.attr('title', `Open with ${ide.ideName}`);
+
+		$('#selected-ide-name').html(`Open in ${ide.ideName}`);
+		$('#selected-ide-icon').attr('src', `https://images.codestream.com/ides/128/${ide.moniker}.png`);
+		
+		_openEditor(ides.find(_ => _.moniker === ide.moniker));
+	}
+	catch (e) {
+		console.error(e);
+	}
+} 
+</script> 
+ <div class="row" style="margin-bottom:30px;">
+	 <div class="col-xl-4 offset-xl-4 col-lg-6 offset-lg-3 col-md-6 offset-md-3 col-sm-6 offset-sm-3 col-xs-12 offset-xs-0">
+		 <div class="box-content box-content-inverse box-border box-border-sm">  
+			<div class="row"> 
+				<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 col-fluid box-content-inverse-text">
+					<strong> 
+						<span id="notification-title">
+						{{#if autoOpen}} 
+							Opening link in CodeStream...							
+						{{else}}
+							Choose an IDE to open this link
+						{{/if}}
+						</span>
+					</strong>				
+				</div>
+				<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 col-fluid">
+					<div class="float-lg-right float-xl-right">
+						<div class="btn-group ide-list btn-block-wrap" style="white-space:nowrap;">
+							{{#lastOrigin}}		 
+								<a id="selected-ide" 
+									class="selected-ide btn btn-sm btn-block form-control btn-open-in" 
+									title="Open with {{ideName}}"
+									href="#" 
+									onclick="(function(e){onIdeClick(e);})(event)"
+									data-ide-moniker="{{moniker}}">
+									<img src="https://images.codestream.com/ides/128/{{moniker}}.png" id="selected-ide-icon" class="icon-ide" />
+									<span id="selected-ide-name">Open in {{ideName}}</span>
+								</a>									  
+							{{/lastOrigin}}							
+							<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
+								data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<span class="sr-only">Toggle Dropdown</span>
+							</a>
+							<div class="dropdown-menu dropdown-menu-right ide-list-items" data-element-ide-list="">
+								{{#ides}}
+									{{#if ideName}}
+										<a class="dropdown-item" onclick="(function(e){onIdeSelected(e,'{{moniker}}');})(event)" href="#">
+											<img src="https://images.codestream.com/ides/128/{{moniker}}.png" class="icon-ide" />{{ideName}}</a>
+									{{/if}}
+									{{^ideName}}
+										<div class="dropdown-divider"></div>
+									{{/ideName}}
+								{{/ides}}
+							</div>
+						</div>						 							 
+					</div>
+				</div>					
+			</div>   
+			<div class="row" id="notification-area-jb" style="display:{{#if isDefaultJetBrains}}block{{else}}none{{/if}};">
+				<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 col-fluid">
+					<div class="box-content-inverse-text">
+					JetBrains users must also install the <a href="https://www.jetbrains.com/toolbox/app/" target="_blank">JetBrains Toolbox App</a>
+					</div> 
+				</div>	
+			</div>
+		</div>
+	 </div> 
+ </div>
+<script>
+$(function() {	
+	if (String("{{autoOpen}}") == "true") {
+		$('#selected-ide').click();
+	}
+});
+</script>

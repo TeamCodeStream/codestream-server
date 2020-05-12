@@ -1,3 +1,7 @@
+// handle the "GET /c" request to show a codemark
+
+/*eslint complexity: ["error", 666]*/
+
 'use strict';
 
 const CodemarkLinkIndexes = require(process.env.CS_API_TOP +
@@ -414,6 +418,20 @@ class LinkCodemarkRequest extends WebRequestBase {
 
 		const selectedMarker = this.request.query.marker;
 		const debug = this.request.query.debug === 'true';
+		const markers = await this.getMarkersInfo({ selectedMarker, showComment, debug });
+		let uniqueRepoId;
+		let uniqueFileName;
+		if (markers && markers.length) {
+			// see if there's 1 unique repo
+			const repoIds = [...new Set(markers.map(_ => _.repoId))];		
+			if (repoIds && repoIds.length === 1) {
+				uniqueRepoId = repoIds[0];
+			}
+			const fileNames = [...new Set(markers.map(_ => _.rawFileName))];		
+			if (fileNames && fileNames.length === 1) {
+				uniqueFileName = fileNames[0];
+			}
+		}
 		const templateProps = {
 			codemarkId: this.codemark.get('id'),
 			teamName: this.team.get('name'),
@@ -421,7 +439,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 				this.request.query.ide === ''
 					? 'default'
 					: this.request.query.ide,
-			markers: await this.getMarkersInfo({ selectedMarker, showComment, debug }),
+			markers: markers,
 			queryString: {
 				marker: selectedMarker,
 				ide:
@@ -438,12 +456,15 @@ class LinkCodemarkRequest extends WebRequestBase {
 			codemarkType: codemarkType === 'link' ? 'Permalink' : 'Codemark',
 			relatedCodemarks: await this.createRelatedCodemarks(),
 			tags: tags,
+			uniqueRepoId: uniqueRepoId,
+			uniqueFileName: encodeURI(uniqueFileName),
 			hasTagsOrAssignees:
 				(assignees && assignees.length) || (tags && tags.length),
 			externalProviderIcon:
 				icon && icon.path ? this.createIcon(icon) : undefined,
 			externalProvider,
 			externalProviderUrl,
+			partial_launcher_model: this.createLauncherModel(uniqueRepoId),
 			partial_title_model: {					
 				v2: codemarkType === 'issue',
 				showComment: showComment,

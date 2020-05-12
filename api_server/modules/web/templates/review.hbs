@@ -20,17 +20,16 @@
             border:0px !important;
         }
         .list-group-item { 
-        padding: 0;    
-        background-color: transparent;
-        border: 0px}
-
+        	padding: 0;
+        	background-color: transparent;
+        	border: 0px;
+		}
         .hdr {
             text-transform: uppercase;
-    font-weight: 800;
-    opacity: 0.5;
-    font-size: 11px;
+    		font-weight: 800;
+    		opacity: 0.5;
+    		font-size: 11px;
         }
-
         .group {
             margin-bottom:10px;
         }
@@ -39,21 +38,29 @@
             display: inline-block;
         }
     </style>
+	<script>		 
+		window.CODESTREAM = window.CODESTREAM || {};
+		window.CODESTREAM.page = {
+			type: 'review',
+			what: 'Review',
+			data: {
+			 	id: '{{reviewId}}',
+				repoId: '{{uniqueRepoId}}'		 
+			}
+		}
+	</script>
 </head>
 
 <body>
 	{{{identifyScript}}}
     <script>
 		window.analytics.track('Page Viewed', { 'Page Name': 'Review' });
-	</script> 
-	{{!-- <script>
-		history.pushState(null, "CodeStream", location.href.split("?")[0]);
-	</script> --}}
+	</script>
 
 	{{> partial_menu partial_menu_model}}
 
-	<div id="alert-wrapper"></div>
 	<div class="container-fluid" id="root">
+		{{> partial_launcher partial_launcher_model}}
 		<div class="row">
 			<div class="col-sm-8 offset-sm-2">
 				<div class="box-content box-border box-border-sm">				
@@ -160,117 +167,10 @@
                         </div>
                     {{/if}}
               
-                    <div class="row no-gutters mt-1 {{#if isLast}}mb-1{{else}}mb-3{{/if}}">      
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">     
-                            <div class="float-lg-right float-xl-right">                            
-                                <div class="btn-group ide-list btn-block-wrap" style="white-space:nowrap;">
-                                    <a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <span class="sr-only">Toggle Dropdown</span>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right ide-list-items" data-list-items="" data-element-ide-list="">
-                                        {{#ides}}
-                                            {{#if ideName}}
-                                            <a class="dropdown-item" href="#"
-                                                data-ide="" 
-                                                data-ide-name="{{ideName}}"
-                                                data-ide-moniker="{{moniker}}" 
-                                                data-ide-protocol="{{protocol}}"
-                                                data-ide-download-url="{{downloadUrl}}"
-                                                data-repo-id="{{repoId}}"
-                                                >{{ideName}}</a>
-                                            {{/if}}
-                                            {{^ideName}}
-                                            <div class="dropdown-divider"></div>
-                                            {{/ideName}}
-                                        {{/ides}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-                    <script>
-                        $(function () {
-                            $('[data-ide=""]').on('click', function(e) {           
-                                window.CODESTREAM.openEditor(e, $(this), 'review', {
-                                      id: '{{reviewId}}'
-                                });
-                            });                                                                            
-                        });
-                    </script>
-				</div>
 			</div>
 		</div>
 	</div>
-	</div>
- 
- 	{{> partial_scripts_footer}}
- 
-	<script>
-		$(function () {						 
-			window.CODESTREAM.createSelected = function(el) {
-				var $thing = $(el.outerHTML).removeClass('dropdown-item')
-				.addClass('selected-ide btn btn-sm btn-block form-control btn-open-in')
-				.on('click', function(e) {					
-					window.CODESTREAM.openEditor(e, $thing, 'review', {
-                        id: '{{reviewId}}'
-					});
-				});
-				var html = $thing.html();
-				if (html.indexOf('Open in') === -1) {
-					html = 'Open in '+html;
-				}
-				$thing.html(html);
-				return $thing;
-			}
-
-			window.CODESTREAM.setSelected = function($el) {								 
-				$('.ide-list .selected-ide').remove();
-				for(var i = 0; i< $('.ide-list').length; i++){
-					var $item = $($('.ide-list')[i]);
-					$item.prepend(
-						window.CODESTREAM.createSelected($el[0])
-					)
-				}						 
-			}          
-
-            var mru = setSelectedFromCookie();			
-
-            var isDefault;
-            var launcher = encodeURIComponent('{{queryString.ide}}').replace(/'/g, "''");
-            if (launcher) {
-                var item;
-                if (launcher === "default") {
-                    item = mru;
-                    isDefault = true;
-                }
-                else {
-                    item = launcher;
-                }
-                
-                var triggered = false;				
-                var u = $('[data-list-items]').find('[data-ide-moniker="' + item + '"]');
-                if (u && u.length) {						
-                    var $item = $(u[0]);			
-                    $item.click();
-
-                    triggered = true;
-                    console.log('clicked', $item);
-                }            
-                
-                if (!triggered && isDefault) {
-                    createMessage("To open this codemark in your IDE, please select from the list below");					 
-                }
-            }
-			if (!mru) {
-				var isFirefox = typeof InstallTrigger !== 'undefined';
-				if (isFirefox) {
-					// only firefox has issues with non-install custom protocols
-					createInstallBanner();
-				}
-			}
-		})
-	</script>	
+ 	{{> partial_scripts_footer}}	
 </body>
 </html>

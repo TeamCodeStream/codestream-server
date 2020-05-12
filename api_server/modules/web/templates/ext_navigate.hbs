@@ -15,111 +15,26 @@
 			}
 		}();
 	</script> 
+	<script>		 
+		window.CODESTREAM = window.CODESTREAM || {};
+		window.CODESTREAM.page = {
+			type: "navigate",
+			what: "Link",
+			data: {
+				action: "{{navigate}}",
+				q: "{{queryString.q}}"
+			}
+		}
+	</script>
 </head>
 <body>	
 	<script>
 		window.analytics.track('Deep Link', { 'Page Name': '{{navigate}}' });
 	</script>
-
 	{{> partial_menu partial_menu_model}}
-
-	<div id="alert-wrapper"></div>
 	<div class="container-fluid" id="root">
-		<div class="row">
-			<div class="col-sm-8 offset-sm-2">
-				<div class="box-content box-border box-border-sm">		
-                    <div class="flex"> 
-						<b>Opening link in CodeStream...</b>
-                    </div>   
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">     
-							<div class="float-lg-right float-xl-right">		 				 
-								<div class="btn-group ide-list btn-block-wrap" style="white-space:nowrap;" data-marker-id="">
-									<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
-										data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-										<span class="sr-only">Toggle Dropdown</span>
-									</a>
-									<div class="dropdown-menu dropdown-menu-right ide-list-items" data-list-items="" data-element-ide-list="">
-										{{#ides}}
-											{{#if ideName}}
-											<a class="dropdown-item" href="#"
-												data-ide="" 
-												data-ide-name="{{ideName}}"
-												data-ide-moniker="{{moniker}}" 
-												data-ide-protocol="{{protocol}}"
-												data-ide-download-url="{{downloadUrl}}"
-												>{{ideName}}</a>
-											{{/if}}
-											{{^ideName}}
-											<div class="dropdown-divider"></div>
-											{{/ideName}}
-										{{/ides}}
-									</div>
-            					</div>
-               				</div>
-            			</div>  
-                    </div>                  
-                </div>
-			</div>         
-		</div>
+		{{> partial_launcher partial_launcher_model}}
 	</div>
-	 {{> partial_scripts_footer}}
-	<script>
-		$(function () {
-			window.CODESTREAM.createSelected = function createSelected(el, markerId){
-				var $thing = $(el.outerHTML)				
-				.attr('data-marker-id', markerId).removeClass('dropdown-item')
-				.addClass('selected-ide btn btn-sm btn-block form-control btn-open-in')
-				.on('click', function(e) {					
-					window.CODESTREAM.openEditor(e, $thing, 'navigate', {
-								action: "{{navigate}}",
-						 		q: "{{queryString.q}}"
-						});
-				});
-				var html = $thing.html();
-				if (html.indexOf('Open in') === -1) {
-					html = 'Open in '+html;
-				}
-				$thing.html(html);
-				return $thing;
-			}
-
-			window.CODESTREAM.setSelected = function setSelected($el) {								 
-				$('.ide-list .selected-ide').remove();
-				for(var i = 0; i< $('.ide-list').length; i++){
-					var $item = $($('.ide-list')[i]);
-					$item.prepend(
-						  window.CODESTREAM.createSelected($el[0], $item.attr('data-marker-id'))
-					)
-				}						 
-			}
-			$('[data-ide=""]').on('click', function(e) {
-				window.CODESTREAM.openEditor(e, $(this), 'navigate', {
-					action: "{{navigate}}",
-					q: "{{queryString.q}}"
-				});
-        	});
-			var mru = setSelectedFromCookie();	
-			var triggered = false;
-			if (mru) {
-				var u = $('[data-list-items]').find('[data-ide-moniker="' + mru + '"]');
-				if (u && u.length) {						
-					var $item = $(u[0]);			
-					$item.click();
-					triggered = true;
-				}
-			}
-			else {
- 				if (!triggered) {
-					createMessage("To open CodeStream, please select your IDE from the list below. ");					 
-				}
-				var isFirefox = typeof InstallTrigger !== 'undefined';
-				if (isFirefox) {
-					// only firefox has issues with non-install custom protocols
-					createInstallBanner();
-				}
-			}
-		})
-	</script>
+	{{> partial_scripts_footer}}
 </body>
 </html>

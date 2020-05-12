@@ -296,6 +296,12 @@ class LinkReviewRequest extends WebRequestBase {
 		const status = this.review.get('status');
 		const changes = await this.getChangeSetInfo();
 
+		let uniqueRepoId;
+		const repoIds = changes && changes.repos ? [...new Set(changes.repos.map(_ => _.id))] : undefined;		
+		if (repoIds && repoIds.length === 1) {
+			uniqueRepoId = repoIds[0];
+		}
+
 		const templateProps = {
 			reviewId: this.review.get('id'),
 			status: status ? status[0].toUpperCase() + status.slice(1) : '',
@@ -305,6 +311,7 @@ class LinkReviewRequest extends WebRequestBase {
 					? 'default'
 					: this.request.query.ide,
 			repos: changes.repos,
+			uniqueRepoId: uniqueRepoId,
 			changes: changes.files,
 			queryString: {
 				ide:
@@ -320,6 +327,7 @@ class LinkReviewRequest extends WebRequestBase {
 			tags: tags,
 			hasTagsOrReviewers:
 				(reviewers && reviewers.length) || (tags && tags.length),
+			partial_launcher_model: this.createLauncherModel(uniqueRepoId),
 			partial_title_model: {	
 				v2: true,
 				isReview: true,

@@ -148,6 +148,11 @@ const ROUTES = [
 		requestClass: require('./web_confirm_email_failed_request')
 	},
 	{
+		method: 'post',
+		path: 'web/ide/mru',
+		requestClass: require('./set_ide_mru_request')
+	},
+	{
 		method: 'get',
 		path: 'no-auth/web/styles/web.css',
 		requestClass: require('./web_style')
@@ -194,6 +199,32 @@ class Web extends APIServerModule {
 		await Promise.all(files.map(async file => {
 			await this.readAndCompileTemplate(file);
 		}));
+
+		Handlebars.registerHelper('toJSON', function(obj) {
+			return JSON.stringify(obj);
+		});
+
+		// Not in use, but might be useful in the future
+		/**
+		 * Format string with data
+		 * argument[0] "fo{0}ar{1}" (the string with the replacement)
+		 * argument[1] "ob"
+		 * argument[2] "666"
+		 * returns "foobar666"
+		 */
+		// Handlebars.registerHelper('formatWith', function() {
+		// 	try {
+		// 		if (!arguments) return undefined;
+		// 		var str = arguments[0];
+		// 		for (let i = 1; i < arguments.length; i++) {					
+		// 			str = str.replace(new RegExp('\\{' + [i - 1] + '\\}', "g"), arguments[i]);
+		// 		}
+		// 		return str;
+		// 	}
+		// 	catch (x) {
+		// 		return undefined;
+		// 	}
+		// });
 
 		await this.readVersionInfo();
 		await this.readStylesheet();

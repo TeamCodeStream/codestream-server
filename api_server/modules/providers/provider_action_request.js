@@ -248,11 +248,8 @@ class ProviderActionRequest extends RestfulRequest {
 			return {
 				event: 'Opened on Web'
 			};
-		} else if (actionPayload.linkType === 'ide') {
-			return {
-				event: 'Opened in IDE'
-			};
-		} else if (actionPayload.linkType === 'reply') {
+		}
+		else if (actionPayload.linkType === 'reply') {
 			return {
 				event: 'View Discussion & Reply',
 				data: {

@@ -96,48 +96,12 @@
             target="_blank" class="btn btn-sm btn-block-wrap form-control btn-open-in">Open
                 on {{codeProvider}}</a>
             {{/if}}
-            <div class="btn-group ide-list btn-block-wrap" style="white-space:nowrap;" data-marker-id="{{markerId}}">
-                <a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="sr-only">Toggle Dropdown</span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right ide-list-items" data-list-items="{{markerId}}" data-element-ide-list="">
-                    {{#ides}}
-                        {{#if ideName}}
-                        <a class="dropdown-item" href="#"
-                            data-ide="" 
-                            data-ide-name="{{ideName}}"
-                            data-ide-moniker="{{moniker}}" 
-                            data-ide-protocol="{{protocol}}"
-                            data-ide-download-url="{{downloadUrl}}"
-                            data-repo-id="{{../repoId}}"
-                            data-marker-id="{{../markerId}}"
-                            >{{ideName}}</a>
-                        {{/if}}
-                        {{^ideName}}
-                        <div class="dropdown-divider"></div>
-                        {{/ideName}}
-                    {{/ides}}
-                </div>
-            </div>
         </div>
-      
     </div>
 </div>
 
 <script>
     $(function () {
-
-        $('[data-ide=""]').on('click', function(e) {
-            if ($(this).attr('data-marker-id') !== '{{markerId}}') return;
-
-            window.CODESTREAM.openEditor(e, $(this), 'codemark', 
-                {
-                    id: '{{codemarkId}}',
-                    markerId : '{{markerId}}' 
-                });
-        });
-
         $('[data-code-provider="{{markerId}}"]').click(function(e) {
             window.analytics.track("Opened Code", { Host: "{{codeProvider}}" })
         });
@@ -205,6 +169,6 @@
                 }            
             }
         }, 200);
-        
+		      
     });
 </script>

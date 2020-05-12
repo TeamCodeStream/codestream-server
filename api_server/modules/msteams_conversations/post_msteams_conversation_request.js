@@ -93,7 +93,7 @@ class PostMSTeamsConversationRequest extends PostRequest {
 		for (const marker of markers) {
 			let buttons = [];
 			if (codemark.get('permalink')) {
-				const url = `${codemark.get('permalink')}?ide=default&markerId=${marker.id}`;
+				const url = `${codemark.get('permalink')}?ide=default&markerId=${marker.id}&src=Microsoft+Teams`;
 				buttons.push({
 					type: ActionTypes.OpenUrl,
 					title: 'Open in IDE',
