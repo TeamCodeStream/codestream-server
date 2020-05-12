@@ -1,7 +1,7 @@
 {
   "name": "broadcaster",
   "description": "CodeStream broadcaster service",
-  "version": "7.2.1",
+  "version": "7.2.2",
   "dependencies": {
     "commander": "4.1.1",
     "connect": "3.7.0",
