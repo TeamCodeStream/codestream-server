@@ -99,6 +99,7 @@ ApiCfg.optionalAuthenticatedPaths = ['^\\/help(\\/|$)', '^\\/c\\/', '^\\/p\\/', 
 
 // matching these paths means cookie authentication is required
 ApiCfg.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/r\\/', '^\\/web\\/'];
+ApiCfg.requiresCsrfProtectionPaths = [...ApiCfg.cookieAuthenticatedPaths, '^\\/p\\/'];
 
 // server will use this cookie to store identity token
 ApiCfg.identityCookie = 'tcs';
