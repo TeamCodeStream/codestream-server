@@ -24,10 +24,10 @@ class OktaAuth extends OAuthModule {
 		this.oauthConfig = OAUTH_CONFIG;
 	}
 
-	// override OAuthModule getClientInfo to require an orgId
+	// override OAuthModule getClientInfo to require a host URL
 	getClientInfo (options) {
-		if (!options.orgId) {
-			throw options.request.errorHandler.error('orgIdRequired');
+		if (!options.hostUrl) {
+			throw options.request.errorHandler.error('hostUrlRequired');
 		}
 		return super.getClientInfo(options);
 	}

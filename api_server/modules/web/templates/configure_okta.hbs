@@ -12,11 +12,10 @@
 		<div class="row">
 			<div class="col-sm-6 offset-sm-3">
 				<div class="box-content box-border box-border-sm">
-					<h1>Organization</h1>
+					<h1>Host URL</h1>
 					<div class="form-group">
 						<p>
-							Enter the name of your Okta organization. For example, if you access Okta at https://
-							<strong>myorg</strong>.okta.com, you would supply "<strong>myorg</strong>" here.
+							Enter the URL you use to access your Okta account.
 						</p>
 					</div>
 					<br />
@@ -31,9 +30,9 @@
 							<input type="hidden" name="_csrf" value="{{csrf}}" />
 							<input type="hidden" name="url" value="{{url}}" />
 							<div class="form-group">
-								<label class="label">Organization</label>
-								<input class="form-control bg-dark" name="orgId"
-									placeholder="myorg" autocomplete="off" autofocus />
+								<label class="label">Host URL</label>
+								<input class="form-control bg-dark" name="hostUrl"
+									placeholder="https://myorg.okta.com" autocomplete="off" autofocus />
 							</div>
 							<div class="form-group">
 								<input type="submit" value="OK" class="btn" />

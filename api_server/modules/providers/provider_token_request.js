@@ -159,7 +159,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.noAllowSignup = !this.tokenPayload.suok && !this.serviceAuth.supportsSignup();
 		this.inviteCode = this.tokenPayload.ic;
 		this.noSignup = this.tokenPayload.nosu;
-		this.orgId = this.tokenPayload.oid;
+		this.hostUrl = this.tokenPayload.hu;
 
 		if (this.serviceAuth.usesOauth1()) {
 			let secretPayload;
@@ -214,7 +214,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			team: this.team,
 			access: this.providerAccess,
 			sharing: this.sharing,
-			orgId: this.orgId
+			hostUrl: this.hostUrl
 		};
 		try {
 			this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
@@ -340,7 +340,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				code: this.request.query.code,
 				mockEmail: this.request.query._mockEmail
 			},
-			orgId: this.orgId,
+			hostUrl: this.hostUrl,
 			request: this
 		});
 
@@ -356,7 +356,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			okToCreateUser: this.userId === 'anon' && !this.noSignup,
 			inviteCode: this.inviteCode,
 			tokenData: this.tokenData,
-			orgId: this.orgId
+			hostUrl: this.hostUrl
 		});
 		await this.connector.connectIdentity(userIdentity);
 		this.user = this.connector.user;

@@ -79,8 +79,7 @@ class OAuthModule extends APIServerModule {
 		}
 
 		if (!host) {
-			const subDomain = options.orgId ? `${options.orgId}.` : '';
-			host = `https://${subDomain}${this.oauthConfig.host}`;
+			host = options.hostUrl || `https://${this.oauthConfig.host}`; 
 		}
 
 		if (!noClientIdOk && (!clientInfo.appClientId || !clientInfo.appClientSecret)) {

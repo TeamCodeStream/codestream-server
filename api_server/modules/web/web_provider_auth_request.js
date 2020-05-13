@@ -42,7 +42,7 @@ class WebProviderAuthRequest extends APIRequest {
 			inviteCode: 'ic',
 			noSignup: 'nosu',
 			tenantId: 'tid',
-			orgId: 'oid'
+			hostUrl: 'hu'
 		};
 		Object.keys(payloadMappings).forEach(mapping => {
 			if (this.request.query[mapping]) {
@@ -71,7 +71,7 @@ class WebProviderAuthRequest extends APIRequest {
 			redirectUri,
 			access: this.request.query.access,
 			sharing: !!this.request.query.sharing,
-			orgId: this.orgId || payload.oid
+			hostUrl: this.hostUrl || payload.hu
 		};
 
 		// test mode to just return the generated state variable
@@ -96,7 +96,7 @@ class WebProviderAuthRequest extends APIRequest {
 				typeof error === 'object' &&
 				error.code === 'PRVD-1008'
 			) {
-				const errorMessage = encodeURIComponent('Organization required');
+				const errorMessage = encodeURIComponent('Host URL required');
 				this.response.redirect(`/web/configure-okta?url=${this.request.query.url}&error=${errorMessage}`);
 				this.responseHandled = true;
 			}

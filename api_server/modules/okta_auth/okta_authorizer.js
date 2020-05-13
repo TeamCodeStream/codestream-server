@@ -18,9 +18,9 @@ class OktaAuthorizer {
 	async getOktaIdentity (accessToken, providerInfo) {
 		this.accessToken = accessToken;
 		this.providerInfo = this.providerInfo || providerInfo;
-		const subDomain = this.options.orgId ? `${this.options.orgId}.` : '';
+		const host = this.options.hostUrl || `https://${this.options.config.apiHost}`;
 		const response = await Fetch(
-			`https://${subDomain}${this.options.config.apiHost}/oauth2/v1/userinfo`,
+			`${host}/oauth2/v1/userinfo`,
 			{ 
 				headers: {
 					Accept: 'application/json',
@@ -44,7 +44,7 @@ class OktaAuthorizer {
 			email: userData.email,
 			timeZone: userData.zoneinfo,
 			phoneNumber: userData.phone_number,
-			orgId: this.options.orgId
+			hostUrl: this.options.hostUrl
 		};
 	}
 
