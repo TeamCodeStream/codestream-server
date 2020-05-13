@@ -89,6 +89,9 @@
 			"defaultEnv": {}
 		}
 	},
+	"inboundEmailServer": {
+		"inboundEmailDisabled": true
+	},
 	"outboundEmailServer": {
 		"defaultEnv": {
 			"logger": {
