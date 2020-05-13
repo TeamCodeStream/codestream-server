@@ -17,7 +17,8 @@ class GetAmendedCheckpointReviewDiffsTest extends GetCheckpointReviewDiffsTest {
 	
 	amendReview (callback) {
 		const changesetRepoIds = this.repos.map(repo => repo.id);
-		const changesets = this.reviewFactory.getRandomChangesets(2, { changesetRepoIds });
+		const options = { changesetRepoIds, whichChangesets: 2 };
+		const changesets = this.reviewFactory.getRandomChangesets(2, options);
 		for (let changeset of changesets) {
 			this.expectedData.push({
 				repoId: changeset.repoId,
