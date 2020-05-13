@@ -410,8 +410,7 @@ window.CODESTREAM.openEditor = function(ide) {
 				window.analytics.track("Opened in IDE Failed", { 
 					Source: "{{src}}" || "Shared Link",
 					IDE: moniker, 
-					"IDE Selection": ideSelection,
-					"Protocol Handled": false
+					"IDE Selection": ideSelection
 				});
 				console.log(`CodeStream: failed in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
 			}, function () {
@@ -419,8 +418,7 @@ window.CODESTREAM.openEditor = function(ide) {
 				window.analytics.track("Opened in IDE", { 
 					Source: "{{src}}" || "Shared Link",
 					IDE: moniker, 
-					"IDE Selection": ideSelection,
-					"Protocol Handled": true 
+					"IDE Selection": ideSelection
 				});
 				console.log(`CodeStream: success in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
 		});	
@@ -492,9 +490,11 @@ function onIdeSelected(e, moniker) {
 	}
 } 
 </script> 
- <div class="row" style="margin-bottom:30px;">
-	 <div class="col-xl-4 offset-xl-4 col-lg-6 offset-lg-3 col-md-6 offset-md-3 col-sm-6 offset-sm-3 col-xs-12 offset-xs-0">
-		 <div class="box-content box-content-inverse box-border box-border-sm">  
+ 
+<div class="container" style="margin-bottom:35px;">
+ <div class="row">
+	 <div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0">
+		 <div class="box-content box-content-inverse box-border box-border-sm mt-0">  
 			<div class="row"> 
 				<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 col-fluid box-content-inverse-text">
 					<strong> 
@@ -549,7 +549,7 @@ function onIdeSelected(e, moniker) {
 			</div>
 		</div>
 	 </div> 
- </div>
+ </div></div>
 <script>
 $(function() {	
 	if (String("{{autoOpen}}") == "true") {
