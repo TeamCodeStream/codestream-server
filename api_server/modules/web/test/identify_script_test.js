@@ -21,12 +21,10 @@ class IdentifyScriptTest extends PrivatePermalinkTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		const emailProp = `email: '${this.currentUser.user.email}'`;
-		const providerProp = `Provider: '${this.provider}'`;
+		const emailProp = `email: '${this.currentUser.user.email}'`;		
 		const teamProp = `'Team Name': '${this.team.name}'`;
 		const identifyCall = 'window.analytics.identify';
-		Assert.notEqual(data.indexOf(emailProp), -1, 'did not get expected email in the html response');
-		Assert.notEqual(data.indexOf(providerProp), -1, 'did not get expected provider in the html response');
+		Assert.notEqual(data.indexOf(emailProp), -1, 'did not get expected email in the html response');		
 		Assert.notEqual(data.indexOf(teamProp), -1, 'did not get expected team name in the html response');
 		Assert.notEqual(data.indexOf(identifyCall), -1, 'did not get expected identify call in the html response');
 		super.validateResponse(data);

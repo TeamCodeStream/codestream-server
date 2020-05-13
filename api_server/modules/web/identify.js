@@ -4,10 +4,6 @@
 module.exports = function(options) {
 
 	const { user, team, company, module } = options;
-	let { provider } = options;
-	if (provider === 'Microsoft Teams') {
-		provider = 'MSTeams';
-	}
 	const userId = user && user.id;
 	const email = user && user.get('email');
 	const joinMethod = user && user.get('joinMethod');
@@ -33,7 +29,6 @@ module.exports = function(options) {
 	}
 
 	const props = {
-		provider,
 		userId,
 		email,
 		joinMethod,

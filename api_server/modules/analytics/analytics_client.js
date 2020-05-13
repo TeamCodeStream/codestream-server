@@ -64,11 +64,7 @@ class AnalyticsClient {
 			return ;
 		}
 
-		const providerInfo = (team && team.get('providerInfo')) || {};
-		const provider = providerInfo.slack ? 'Slack' : (providerInfo.msteams ? 'MSTeams' : 'CodeStream');
-		const trackObject = {
-			Provider: provider
-		};
+		const trackObject = { };
 
 		if (user) {
 			Object.assign(trackObject, {

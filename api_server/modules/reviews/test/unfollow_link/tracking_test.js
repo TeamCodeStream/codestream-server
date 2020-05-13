@@ -62,7 +62,6 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				'Team Name': this.team.name,
 				'Team Created Date': new Date(this.team.createdAt).toISOString(),
 				Plan: '30DAYTRIAL',
-				Provider: 'CodeStream',
 				'Company Name': this.company.name,
 				'Company ID': this.company.id,
 				'Reporting Group': '',

@@ -112,7 +112,6 @@ class CommonInit {
 			'Team Created Date': new Date(this.team.createdAt).toISOString(),
 			'Plan': '30DAYTRIAL',
 			'Reporting Group': '',
-			Provider: 'Slack',
 			Endpoint: 'Slack',
 			company: {
 				id: this.company.id,

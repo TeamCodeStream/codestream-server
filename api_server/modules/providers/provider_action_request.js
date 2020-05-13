@@ -187,24 +187,23 @@ class ProviderActionRequest extends RestfulRequest {
 	// send telemetry event associated with this action
 	async sendTelemetry (data, user, providerUserId, team, company, error) {
 		if (!data || !data.actionPayload || (!user && !providerUserId) || !team) return;
-		const provider =
+		const endpoint =
 			this.provider === 'slack'
 				? 'Slack'
 				: this.provider === 'msteams'
 					? 'MSTeams'
 					: this.provider;
 
-		const info = this.getTrackingInfo(data.payload, data.actionPayload, provider, error);
+		const info = this.getTrackingInfo(data.payload, data.actionPayload, endpoint, error);
 		if (!info) {
 			this.log(
-				`Could not get tracking info from ${this.provider} payload`
+				`Could not get tracking info from ${endpoint} payload`
 			);
 			return false;
 		}
 
 		const trackData = {
-			Provider: provider,
-			Endpoint: provider
+			Endpoint: endpoint
 		};
 		if (!user) {
 			trackData.distinct_id = providerUserId;
@@ -225,13 +224,13 @@ class ProviderActionRequest extends RestfulRequest {
 	}
 
 	// get the tracking info associated with this requset
-	getTrackingInfo (payload, actionPayload, provider, error) {
+	getTrackingInfo (payload, actionPayload, endpoint, error) {
 		if (error && error.eventName) {
 			return {
 				event: error.eventName,
 				data: {
 					Error: error.reason,
-					Endpoint: provider || ''
+					Endpoint: endpoint || ''
 				}
 			};
 		}
@@ -240,7 +239,7 @@ class ProviderActionRequest extends RestfulRequest {
 				event: 'Replied to Codemark',
 				data: {
 					CodemarkId: actionPayload && actionPayload.cId,
-					Endpoint: provider || ''
+					Endpoint: endpoint || ''
 				}
 			};
 		}
@@ -253,7 +252,7 @@ class ProviderActionRequest extends RestfulRequest {
 			return {
 				event: 'View Discussion & Reply',
 				data: {
-					Endpoint: provider || ''
+					Endpoint: endpoint || ''
 				}
 			};
 		} else if (actionPayload.linkType === 'external') {

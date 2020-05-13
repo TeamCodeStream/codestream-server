@@ -52,7 +52,6 @@ class ProviderTrackingTest extends TrackingTest {
 					user: response.user,
 					broadcasterToken: response.broadcasterToken
 				};
-				this.expectedProvider = 'Slack';
 				callback();
 			}
 		);

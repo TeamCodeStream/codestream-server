@@ -72,7 +72,6 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const { properties } = data;
 		const registered = !!this.existingUserIsRegistered;
 		const firstInvite = !this.subsequentInvite;
-		const provider = this.expectedProvider || 'CodeStream';
 		const errors = [];
 		const result = (
 			((data.userId === this.currentUser.user.id) || errors.push('userId not correct')) &&
@@ -88,8 +87,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((properties['Team Size'] === this.team.memberIds.length + 1) || errors.push('Team Size not correct')) &&
 			((properties['Team Name'] === this.team.name) || errors.push('Team Name not correct')) &&
 			((properties['Team Created Date'] === new Date(this.team.createdAt).toISOString()) || errors.push('Team Created Date not correct')) &&
-			((properties['Plan'] === '30DAYTRIAL') || errors.push('Plan not equal to 30DAYTRIAL')) &&
-			((properties['Provider'] === provider) || errors.push(`Provider not set to ${provider}`)) && 
+			((properties['Plan'] === '30DAYTRIAL') || errors.push('Plan not equal to 30DAYTRIAL')) &&			
 			((properties['Company Name'] === this.company.name) || errors.push('incorrect company name')) &&
 			((properties['Company ID'] === this.company.id) || errors.push('incorrect company ID')) &&
 			((properties['Endpoint'] === 'Unknown IDE') || errors.push('IDE should be unknown')) &&
