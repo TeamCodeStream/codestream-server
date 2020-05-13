@@ -22,7 +22,7 @@ class GetAmendedCheckpointReviewDiffsTest extends GetCheckpointReviewDiffsTest {
 		for (let changeset of changesets) {
 			this.expectedData.push({
 				repoId: changeset.repoId,
-				checkpoint: 0,
+				checkpoint: changeset.checkpoint || 0,
 				diffs: changeset.diffs
 			});
 		}

@@ -43,7 +43,7 @@ class GetCheckpointReviewDiffsTest extends CodeStreamAPITest {
 		for (let changeset of inputReview.reviewChangesets || []) {
 			this.expectedData.push({
 				repoId: changeset.repoId,
-				checkpoint: 0,
+				checkpoint: changeset.checkpoint || 0,
 				diffs: changeset.diffs
 			});
 		}

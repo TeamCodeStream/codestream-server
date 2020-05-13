@@ -37,7 +37,7 @@ class ReviewHelper {
 			}
 			attributes.checkpointReviewDiffs.push({
 				repoId: changeset.repoId,
-				checkpoint: 0,
+				checkpoint: changeset.checkpoint || 0,
 				diffs: changeset.diffs
 			});
 			delete changeset.diffs;
