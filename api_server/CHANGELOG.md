@@ -1,5 +1,16 @@
 # Change Log
 
+## [7.2.3] - 2020-5-14
+
+### Added
+
+- Adds support for automatically redirecting you to your IDE when clicking on a permalink or an "Open in IDE" button
+- Adds support for authentication via Okta
+
+### Fixed
+
+- Fixes [#148](https://github.com/TeamCodeStream/CodeStream/issues/148) &mdash; Web dropdown menu is misaligned
+
 ## [7.2.2] - 2020-5-11
 
 ### Added
