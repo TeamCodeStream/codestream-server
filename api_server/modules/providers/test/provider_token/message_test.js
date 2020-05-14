@@ -82,9 +82,6 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		case 'msteams':
 			expectedTestCallData = this.getExpectedMSTeamsTestCallData();
 			break;
-		case 'glip':
-			expectedTestCallData = this.getExpectedGlipTestCallData();
-			break;
 		case 'okta':
 			expectedTestCallData = this.getExpectedOktaTestCallData();
 			break;

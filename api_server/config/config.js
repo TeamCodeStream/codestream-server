@@ -22,7 +22,8 @@ const ThirdPartyProviders = [
 	'msteams',
 	'slack',
 	'trello',
-	'youtrack'
+	'youtrack',
+	'okta'
 ];
 
 function customConfigFunc(nativeCfg) {
@@ -67,6 +68,7 @@ function customConfigFunc(nativeCfg) {
 		bitbucket: nativeCfg.integrations.bitbucket.cloud || {},
 		gitlab: nativeCfg.integrations.gitlab.cloud || {},
 		azuredevops: nativeCfg.integrations.devops.cloud || {},
+		okta: nativeCfg.integrations.okta.localInstallion || {},
 		github_enterprise: {
 			// this is needed to be non-null to return provider data to the
 			// client, but is not actually used
@@ -183,6 +185,14 @@ function customConfigFunc(nativeCfg) {
 	Object.keys(nativeCfg.integrations.jira).forEach(provider => {
 		if (provider != 'cloud') {
 			apiCfg.jira.localProviders[provider] = nativeCfg.itegrations.jira[provider];
+		}
+	});
+
+	// Okta: additional providers
+	apiCfg.okta.providers = {};
+	Object.keys(nativeCfg.integrations.okta).forEach(provider => {
+		if (provider != 'localInstallation') {
+			apiCfg.okta.providers[provider] = nativeCfg.itegrations.okta[provider];
 		}
 	});
 

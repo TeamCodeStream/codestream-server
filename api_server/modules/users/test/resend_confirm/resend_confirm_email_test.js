@@ -6,7 +6,6 @@ const Assert = require('assert');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const WebClientConfig = require(process.env.CS_API_TOP + '/config/webclient');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 
 class ResendConfirmEmailTest extends CodeStreamMessageTest {
@@ -104,7 +103,8 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 		if (!gotMessage.type) { return false; }	// ignore anything not matching
 
 		// verify a match to the url
-		const host = WebClientConfig.host.replace(/\//g, '\\/');
+		// Note: there is no 'webclient.host' property anymore. Expectation is this test is disabled
+		const host = ApiConfig.getPreferredConfig().webclient.host.replace(/\//g, '\\/');
 		const shouldMatch = new RegExp(`${host}\\/confirm-email\\/(.*)$`);
 		const match = gotMessage.url.match(shouldMatch);
 		Assert(match && match.length === 2, 'confirmation link url is not correct');

@@ -71,9 +71,6 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		case 'msteams':
 			expectedData = this.getExpectedMSTeamsTestCallData();
 			break;
-		case 'glip':
-			expectedData = this.getExpectedGlipTestCallData();
-			break;
 		case 'okta':
 			expectedData = this.getExpectedOktaTestCallData();
 			break;

@@ -3,7 +3,6 @@
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
-const OktaConfig = require(process.env.CS_API_TOP + '/config/okta');
 const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const RandomString = require('randomstring');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
@@ -133,9 +132,6 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			break;
 		case 'msteams':
 			redirectData = this.getMSTeamsRedirectData();
-			break;
-		case 'glip':
-			redirectData = this.getGlipRedirectData();
 			break;
 		case 'okta':
 			redirectData = this.getOktaRedirectData();
@@ -300,7 +296,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getOktaRedirectData () {
 		const parameters = {
-			client_id: OktaConfig.appClientId,
+			client_id: ApiConfig.getPreferredConfig().okta.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state
