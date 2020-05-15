@@ -14,7 +14,7 @@ export PATH=$CS_BROADCASTER_TOP/bin:$PATH
 sandutil_get_codestream_cfg_file "$CS_BROADCASTER_SANDBOX" "$configParm" "$CSSVC_ENV"
 
 # These variables are used by shell scripts
-export CS_BROADCASTER_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.runTimeEnvironment 2>/dev/null)`
+export CS_BROADCASTER_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p sharedGeneral.runTimeEnvironment 2>/dev/null)`
 export CS_BROADCASTER_LOGS=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.logger.directory 2>/dev/null)`
 export CS_BROADCASTER_ASSET_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.assetEnvironment 2>/dev/null)`
 [ -z "$CS_BROADCASTER_ENV" ] && echo "The config file does not support the codestream broadcaster as a broadcastEngine. This sandbox is DOA."

@@ -11,7 +11,7 @@ const ClusterWrapper = require(process.env.CS_BROADCASTER_TOP + '/server_utils/c
 
 // start up the master, this will launch workers to really get down to work
 (async function() {
-	const Config = await BroadcasterConfig.loadConfig();
+	const Config = await BroadcasterConfig.loadConfig({custom: true});
 
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.logger);
