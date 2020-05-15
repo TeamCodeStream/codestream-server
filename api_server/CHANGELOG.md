@@ -1,5 +1,11 @@
 # Change Log
 
+## [7.2.4] - 2020-5-15
+
+### Changed
+
+- Suppress button to sign in with Okta until feature is ready to launch
+
 ## [7.2.3] - 2020-5-14
 
 ### Added
