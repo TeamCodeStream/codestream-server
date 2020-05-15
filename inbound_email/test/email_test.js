@@ -24,10 +24,10 @@ class EmailTest {
 		this.econfig = config;
 	}
 
-	// setConfig (config) {
-	// 	console.log('NO NO NOEmailTest config', config);
-	// 	this.econfig = config;
-	// }
+	setConfig (config) {
+		console.log('NO NO NOEmailTest config', config);
+		this.econfig = config;
+	}
 
 	get it () {
 		if (this.shouldFail) {
@@ -109,7 +109,7 @@ class EmailTest {
 			email: this.randomEmail(),
 			password: RandomString.generate(8),
 			username: RandomString.generate(8),
-			_confirmationCheat: this.econfig.secrets.confirmationCheat
+			_confirmationCheat: this.econfig.sharedSecrets.confirmationCheat
 			// _confirmationCheat: this.config.secrets.confirmationCheat
 		};
 		_NextPubnubUuid = (_NextPubnubUuid + 1) % 100;
@@ -422,8 +422,8 @@ class EmailTest {
 		const path = options.path || '/';
 		const data = options.data || null;
 		HTTPSBot[method](
-			this.econfig.api.host,
-			this.econfig.api.port,
+			this.econfig.apiServer.host,
+			this.econfig.apiServer.port,
 			path,
 			data,
 			options,
