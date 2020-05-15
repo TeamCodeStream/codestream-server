@@ -26,7 +26,6 @@ class GetCheckpointReviewDiffsRequest extends RestfulRequest {
 		this.responseData = Object.keys(reviewDiffs).map(repoId => {
 			return {
 				repoId,
-				checkpoint: 0,
 				diffs: reviewDiffs[repoId]
 			};
 		});
