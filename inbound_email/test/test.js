@@ -22,7 +22,7 @@ describe('Inbound Email', function() {
 	this.timeout(10000);
 
 	before(async () => {
-		Config = await InboundEmailServerConfig.loadConfig();
+		Config = await InboundEmailServerConfig.loadPreferredConfig();
 		await new Promise(resolve => {
 			setTimeout(resolve, 5000);
 		});
@@ -34,18 +34,13 @@ describe('Inbound Email', function() {
 			// invoke an instance of the test class, define before callback,
 			// and then define the actual test
 			let emailTest = new EmailTest(test, Config);
-			console.log('describing', emailTest.description);
 			describe(emailTest.description, () => {
-				// emailTest.setConfig(Config);
 				before(callback => {
 					emailTest.setConfig(Config);
 					emailTest.before(callback);
 				});
 				after(emailTest.after.bind(emailTest));
-
-				console.log('yo');
 				it(emailTest.it, itCallback => {
-					console.log('buddy');
 					emailTest.run(itCallback);
 				});
 			});

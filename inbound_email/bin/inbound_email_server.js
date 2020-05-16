@@ -10,7 +10,7 @@ const ClusterWrapper = require(process.env.CS_MAILIN_TOP + '/server_utils/cluste
 const ServerClass = require(process.env.CS_MAILIN_TOP + '/lib/inbound_email_server');
 
 (async function() {
-	const Config = await InboundEmailServerConfig.loadConfig({custom: true});
+	const Config = await InboundEmailServerConfig.loadPreferredConfig();
 
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.logger);

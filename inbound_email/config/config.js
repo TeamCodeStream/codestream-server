@@ -4,6 +4,17 @@
 
 const StructuredConfigFactory = require('../codestream-configs/lib/structured_config');
 
+function parseUrl(url) {
+	let parsed = url.match(/^http(s)?:\/\/([\w\d-.]+)(:(\d+))?\/?/);
+	let protocolPort = parsed[1] ? '443' : '80';
+	let secure = !!parsed[1];
+	return {
+		host: parsed[2],
+		port: parseInt(parsed[4] || protocolPort, 10),
+		secure
+	};
+}
+
 function customConfigFunc(nativeCfg) {
 	const inboundEmailCfg = {
 		api: nativeCfg.apiServer.publicApiUrl,
@@ -16,6 +27,8 @@ function customConfigFunc(nativeCfg) {
 		// for testing
 		pubnub: nativeCfg.broadcastEngine.pubnub
 	};
+
+	inboundEmailCfg.apiServer = parseUrl(inboundEmailCfg.api);
 
 	inboundEmailCfg.inboundEmail.replyToDomain = nativeCfg.email.senderEmail;
 	inboundEmailCfg.inboundEmail.senderEmail = nativeCfg.email.senderEmail;

@@ -19,14 +19,12 @@ let _NextPubnubUuid = 0;
 
 class EmailTest {
 
-	constructor (options, config) {
+	constructor (options) {
 		Object.assign(this, options);
-		this.econfig = config;
 	}
 
 	setConfig (config) {
-		console.log('NO NO NOEmailTest config', config);
-		this.econfig = config;
+		this.config = config;
 	}
 
 	get it () {
@@ -109,7 +107,7 @@ class EmailTest {
 			email: this.randomEmail(),
 			password: RandomString.generate(8),
 			username: RandomString.generate(8),
-			_confirmationCheat: this.econfig.sharedSecrets.confirmationCheat
+			_confirmationCheat: this.config.secrets.confirmationCheat
 			// _confirmationCheat: this.config.secrets.confirmationCheat
 		};
 		_NextPubnubUuid = (_NextPubnubUuid + 1) % 100;
@@ -250,7 +248,7 @@ class EmailTest {
 	makePubNubClient (callback) {
 		// the "second" user will listen for the post that should result from
 		// processing the inbound email
-		let clientConfig = Object.assign({}, this.econfig.pubnub);
+		let clientConfig = Object.assign({}, this.config.pubnub);
 		let user = this.userData[1].user;
 		clientConfig.uuid = user._pubnubUuid || user.id;
 		clientConfig.authKey = this.userData[1].pubnubToken;
@@ -283,8 +281,8 @@ class EmailTest {
 	// "reply-to" address for the stream and team
 	makeSubstitutions (callback) {
 		this.emailData = this.emailData.replace(/@@@from@@@/g, this.userData[0].user.email);
-		this.emailData = this.emailData.replace(/@@@sender@@@/g, this.econfig.inboundEmail.senderEmail);
-		let to = `${this.parentPost.id}.${this.stream.id}.${this.team.id}@${this.econfig.inboundEmail.replyToDomain}`;
+		this.emailData = this.emailData.replace(/@@@sender@@@/g, this.config.inboundEmail.senderEmail);
+		let to = `${this.parentPost.id}.${this.stream.id}.${this.team.id}@${this.config.inboundEmail.replyToDomain}`;
 		['to', 'cc', 'bcc', 'x-original-to', 'delivered-to'].forEach(field => {
 			let regEx = new RegExp(`@@@${field}@@@`, 'g');
 			this.emailData = this.emailData.replace(regEx, to);
@@ -365,7 +363,7 @@ class EmailTest {
 	// made field substitutions on it ... this should trigger the post getting created
 	writeEmailFile (callback) {
 		const outputFile = `${this.emailFile}-${Math.random()}.eml`;
-		let path = Path.join(this.econfig.inboundEmail.inboundEmailDirectory, outputFile);
+		let path = Path.join(this.config.inboundEmail.inboundEmailDirectory, outputFile);
 		if (FS.existsSync(path)) {
 			FS.unlinkSync(path);
 		}
@@ -422,8 +420,8 @@ class EmailTest {
 		const path = options.path || '/';
 		const data = options.data || null;
 		HTTPSBot[method](
-			this.econfig.apiServer.host,
-			this.econfig.apiServer.port,
+			this.config.apiServer.host,
+			this.config.apiServer.port,
 			path,
 			data,
 			options,
