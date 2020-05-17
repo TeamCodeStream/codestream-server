@@ -7,6 +7,55 @@
 const StructuredConfigFactory = require('../codestream-configs/lib/structured_config'); 
 const MongoUrlParser = require('../codestream-configs/lib/mongo_url_parser');
 
+/*
+	Returns: c = {
+		whichBroadcastEngine: config section name of broadcast engine to use (string)
+		pubnub: pubnub config taken directly from the config file (object)
+		codestreamBroadcaster: config taken directly from the config file (object)
+		socketCluster: broadcaster configuration derived from the config file (object)
+	}
+*/
+function selectBroadcastEngine (nativeCfg) {
+	const c = {
+		whichBroadcastEngine: nativeCfg.broadcastEngine.selected,
+		pubnub: nativeCfg.broadcastEngine.pubnub,
+		codestreamBroadcaster: nativeCfg.broadcastEngine.codestreamBroadcaster,
+		socketCluster: {}
+	};
+	if (!c.whichBroadcastEngine) {
+		if (c.pubnub) {
+			c.whichBroadcastEngine = 'pubnub';
+		} else if (Object.keys(nativeCfg.broadcastEngine.codestreamBroadcaster).length != 0) {
+			c.whichBroadcastEngine = 'codestreamBroadcaster';
+		}
+		else {
+			console.error('cannot determine which broadcast engine to use');
+			process.exit(1);
+		}
+	}
+	else if (!nativeCfg.broadcastEngine[c.whichBroadcastEngine]) {
+		console.error(`no config data for broadcast engine ${c.whichBroadcastEngine}`);
+		process.exit(1);
+	}
+
+	if (c.whichBroadcastEngine === 'codestreamBroadcaster') {
+		c.socketCluster = {
+			host: nativeCfg.broadcastEngine.codestreamBroadcaster.host,
+			port: nativeCfg.broadcastEngine.codestreamBroadcaster.port,
+			authKey: nativeCfg.broadcastEngine.codestreamBroadcaster.secrets.api,
+			ignoreHttps: nativeCfg.broadcastEngine.codestreamBroadcaster.ignoreHttps,
+			strictSSL: nativeCfg.ssl.requireStrictSSL,
+			apiSecret: nativeCfg.broadcastEngine.codestreamBroadcaster.secrets.api
+		};
+		Object.assign(c, {
+			secrets: {
+				broadcaster: nativeCfg.broadcastEngine.codestreamBroadcaster.secrets.api
+			}
+		});
+	}
+	return c;
+}
+
 // list of third-party providers available for integrations. Provider availability depends
 // on the running configuration. Per-integration modules loaded as needed.
 const ThirdPartyProviders = [
@@ -26,6 +75,7 @@ const ThirdPartyProviders = [
 	'okta'
 ];
 
+// eslint-disable-next-line complexity
 function customConfigFunc(nativeCfg) {
 	// creates a custom config object derived from the loaded native config
 	const apiCfg = {
@@ -44,16 +94,13 @@ function customConfigFunc(nativeCfg) {
 			identityCookie: 'tcs',
 		},
 		secrets: {
-			...nativeCfg.sharedSecrets,
-			broadcaster: nativeCfg.broadcastEngine.codestreamBroadcaster.secrets.api
+			...nativeCfg.sharedSecrets
 		},
 		express: {
 			port: nativeCfg.apiServer.port,
 			ignoreHttps: nativeCfg.apiServer.ignoreHttps,
 			https: nativeCfg.ssl
 		},
-		pubnub: nativeCfg.broadcastEngine.pubnub,
-		socketCluster: {},
 		ipc: {
 			serverId: 'codestream_api_ipc_server',
 			clientId: 'codestream_ipc_client'
@@ -153,16 +200,9 @@ function customConfigFunc(nativeCfg) {
 		}
 	};
 
-	// Broadcaster: socketCluster gets populated when using the broadcaster
-	if (Object.keys(nativeCfg.broadcastEngine.codestreamBroadcaster).length != 0) {
-		apiCfg.socketCluster = {
-			host: nativeCfg.broadcastEngine.codestreamBroadcaster.host,
-			port: nativeCfg.broadcastEngine.codestreamBroadcaster.port,
-			authKey: nativeCfg.broadcastEngine.codestreamBroadcaster.secrets.api,
-			ignoreHttps: nativeCfg.broadcastEngine.codestreamBroadcaster.ignoreHttps,
-			strictSSL: nativeCfg.ssl.requireStrictSSL
-		};
-	}
+	// broadcast engine config properties
+	Object.assign(apiCfg, selectBroadcastEngine(nativeCfg));
+	apiCfg.secrets.broadcaster = apiCfg.socketCluster.apiSecret;
 
 	// Slack: for use with signing secrets
 	if(nativeCfg.integrations.slack.cloud) {
