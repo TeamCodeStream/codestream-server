@@ -14,6 +14,7 @@ const ServerClass = require(process.env.CS_MAILIN_TOP + '/lib/inbound_email_serv
 
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.logger);
+	Config.logger = Logger;
 
 	// invoke a node cluster master with our configurations provided
 	const MyClusterWrapper = new ClusterWrapper(

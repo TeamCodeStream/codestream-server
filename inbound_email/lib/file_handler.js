@@ -495,10 +495,10 @@ class FileHandler {
 	// to the stream for which it is intended
 	async sendDataToApiServer (data) {
 		this.log(`Sending email (${data.mailFile}) from ${JSON.stringify(data.from)} to ${JSON.stringify(data.to)} to API server...`);
-		const host = this.inboundEmailServer.config.api.host;
-		const port = this.inboundEmailServer.config.api.port;
-		const protocol = this.inboundEmailServer.config.api.secure ? 'https' : 'http';
-		const netClient = this.inboundEmailServer.config.api.secure ? HTTPS : HTTP;
+		const host = this.inboundEmailServer.config.apiServer.host;
+		const port = this.inboundEmailServer.config.apiServer.port;
+		const protocol = this.inboundEmailServer.config.apiServer.secure ? 'https' : 'http';
+		const netClient = this.inboundEmailServer.config.apiServer.secure ? HTTPS : HTTP;
 		const url = `${protocol}://${host}:${port}`;
 		const urlObject = URL.parse(url);
 		const payload = JSON.stringify(data);

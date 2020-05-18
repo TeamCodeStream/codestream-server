@@ -30,7 +30,7 @@ function customConfigFunc(nativeCfg) {
 
 	inboundEmailCfg.apiServer = parseUrl(inboundEmailCfg.api);
 
-	inboundEmailCfg.inboundEmail.replyToDomain = nativeCfg.email.senderEmail;
+	inboundEmailCfg.inboundEmail.replyToDomain = nativeCfg.email.replyToDomain;
 	inboundEmailCfg.inboundEmail.senderEmail = nativeCfg.email.senderEmail;
 	inboundEmailCfg.inboundEmail.runTimeEnvironment = nativeCfg.sharedGeneral.runTimeEnvironment;
 
