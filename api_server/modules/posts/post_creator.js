@@ -47,6 +47,7 @@ class PostCreator extends ModelCreator {
 				string: ['text', 'parentPostId'],
 				object: ['codemark', 'review'],
 				boolean: ['dontSendEmail'],
+				number: ['reviewCheckpoint'],
 				'array(string)': ['mentionedUserIds']
 			}
 		};

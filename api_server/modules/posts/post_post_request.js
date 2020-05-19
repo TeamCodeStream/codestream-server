@@ -121,7 +121,8 @@ class PostPostRequest extends PostRequest {
 				'parentPostId': '<For replies, the ID of the parent post>',
 				'codemark': '<Single @@#codemark#codemark@@ object, for creating a codemark referenced by the post>',
 				'review': '<Single @@review@review@@ object, for creating a code review referenced by the post>',
-				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>'
+				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>',
+				'reviewCheckpoint': '<Checkpoint number of the review this post is associated with>'
 			}
 		};
 		description.returns.summary = 'A post object, plus additional objects that may have been created on-the-fly, marker objects and marker locations for any markers';

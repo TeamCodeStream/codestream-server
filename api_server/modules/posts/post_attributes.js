@@ -68,5 +68,9 @@ module.exports = {
 	reviewId: {
 		type: 'id',
 		description: 'ID of the code review attached to this post, if any'
+	},
+	reviewCheckpoint: {
+		type: 'number',
+		description: 'Checkpoint number of the review this post is associated with'
 	}
 };

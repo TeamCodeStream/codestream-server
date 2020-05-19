@@ -33,6 +33,7 @@ const MessageToAuthorTest = require('./message_to_author_test');
 const OriginFromPluginTest = require('./origin_from_plugin_test');
 const OriginDetailFromPluginTest = require('./origin_detail_from_plugin_test');
 const NoReplyToReplyTest = require('./no_reply_to_reply_test');
+const ReviewCheckpointTest = require('./review_checkpoint_test');
 
 // concerning codemarks...
 const CodemarkTest = require('./codemarks/codemark_test');
@@ -237,6 +238,7 @@ class PostPostRequestTester {
 		new NoReplyToReplyTest().test();
 		new InvalidMentionTest().test();
 		new MentionedNotOnTeamTest().test();
+		new ReviewCheckpointTest().test();
 
 		// concerning codemarks...
 		new CodemarkTest().test();
