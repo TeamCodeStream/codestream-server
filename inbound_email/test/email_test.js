@@ -38,7 +38,6 @@ class EmailTest {
 
 	// before the test runs...
 	before (callback) {
-		console.log('before');
 		BoundAsync.series(this, [
 			this.makeData,			// make some API calls to set up the data to use in the test
 			this.makePubNubClient,	// make a pubnub client to listen for the post that should result
@@ -50,7 +49,6 @@ class EmailTest {
 
 	// after the test runs, unsubscribe from all channels
 	after (callback) {
-		console.log('after');
 		if (this.pubNubClient) {
 			this.pubNubClient.unsubscribeAll();
 			this.pubNubClient.disconnect();
@@ -61,7 +59,6 @@ class EmailTest {
 		
 	// run the actual test...
 	run (callback) {
-		console.log('running test');
 		BoundAsync.series(this, [
 			this.listenOnClient,	// start listening first, expecting a post
 			this.writeEmailFile,	// write the email file, this will trigger the message
