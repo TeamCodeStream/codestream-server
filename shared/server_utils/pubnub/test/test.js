@@ -10,12 +10,9 @@ const UnsubscribeTest = require('./unsubscribe_test');
 //const MultipleHistoryTest = require('./multiple_history_test');
 const PresenceTest = require('./presence_test');
 const LeaveTest = require('./leave_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
-
-var Config;
 
 // make eslint happy
-/* globals describe, before */
+/* globals describe */
 
 describe('pubnub', function() {
 
