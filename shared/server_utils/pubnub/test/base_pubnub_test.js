@@ -17,13 +17,27 @@ class BasePubNubTest extends GenericTest {
 	}
 
 	// called before the actual test
-	before (callback) {
+	async before (callback) {
+		this.config = await ApiConfig.loadPreferredConfig();
+		if (this.config.whichBroadcastEngine !== 'pubnub') {
+			console.log('NOTE - Pubnub tests cannot pass if pubnub is not enabled, ignoring');
+			return callback();
+		}
+
 		this.channelName = RandomString.generate(12);
 		this.message = RandomString.generate(100);
 		BoundAsync.series(this, [
 			this.setClients,	// set up the pubnub clients (one will act like our server, others will act like our clients)
 			this.grantAccess	// grant access to the client pubnubs
 		], callback);
+	}
+
+	// run the test itself
+	run (callback) {
+		if (this.config.whichBroadcastEngine !== 'pubnub') {
+			return callback();
+		}
+		super.run(callback);
 	}
 
 	// after the test runs, unsubscribe from all channels

@@ -19,27 +19,14 @@ var Config;
 
 describe('pubnub', function() {
 
-	before(async () => {
-		Config = await ApiConfig.loadPreferredConfig();
-		console.log('WE ARE HERE');
-		await new Promise(resolve => {
-			setTimeout(resolve, 5000);
-		});
-	});
-
-	if (Config.whichBroadcastEngine !== 'pubnub') {
-		console.log('NOTE - Pubnub tests cannot pass if pubnub is not enabled, ignoring');
-		return;
-	}
-
 	this.timeout(30000);
 
 	new PubNubTest().test();
-	// new NoAccessTest().test();
-	// // new RevokeAccessTest().test();	// Disabled pending resolution of COD-64
-	// new UnsubscribeTest().test();
-	// // new HistoryTest().test();
-	// // new MultipleHistoryTest().test();	// Disabled pending resolution of COD-135
-	// new PresenceTest().test();
-	// new LeaveTest().test();
+	new NoAccessTest().test();
+	// new RevokeAccessTest().test();	// Disabled pending resolution of COD-64
+	new UnsubscribeTest().test();
+	// new HistoryTest().test();
+	// new MultipleHistoryTest().test();	// Disabled pending resolution of COD-135
+	new PresenceTest().test();
+	new LeaveTest().test();
 });
