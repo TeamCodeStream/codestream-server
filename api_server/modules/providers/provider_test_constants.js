@@ -111,7 +111,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'login.microsoftonline.com',
 		apiHost: 'graph.microsoft.com/v1.0',
 		hasSharing: true
-	},
+	}
+	/*
 	'okta*com': {
 		id: 'okta*com',
 		name: 'okta',
@@ -119,6 +120,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'okta.com',
 		apiHost: 'okta.com'
 	}
+	*/
 };
 
 module.exports = {
