@@ -26,12 +26,12 @@ do
 done
 
 echo "Current schema version is: $schemaVersion"
-echo -n "Do you want to bump it for these latest writes (y/N)? "; read ans
-if [ "$ans" == y -o "$ans" == yes ]; then
-	expr $schemaVersion + 1 >$repoRoot/parameters.version
-	schemaVersion=`cat $repoRoot/parameters.version`
-	echo "Schema version is now: $schemaVersion"
-fi
+# echo -n "Do you want to bump it for these latest writes (y/N)? "; read ans
+# if [ "$ans" == y -o "$ans" == yes ]; then
+# 	expr $schemaVersion + 1 >$repoRoot/parameters.version
+# 	schemaVersion=`cat $repoRoot/parameters.version`
+# 	echo "Schema version is now: $schemaVersion"
+# fi
 
 # create the README.parameter-definitions file for documentation
 [ -n "$verbose" ] && echo $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x

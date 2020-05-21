@@ -90,7 +90,9 @@
 		}
 	},
 	"inboundEmailServer": {
-		"inboundEmailDisabled": true
+		"assetEnvironment": "onprem",
+		"inboundEmailDisabled": true,
+		"runTimeEnvironment": "onprem"
 	},
 	"outboundEmailServer": {
 		"defaultEnv": {
