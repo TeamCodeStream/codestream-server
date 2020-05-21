@@ -1,5 +1,11 @@
 # Change Log
 
+## [7.2.5] - 2020-5-21
+
+### Added
+
+- Adds support for authentication with Okta for CodeStream On-Prem installations
+
 ## [7.2.4] - 2020-5-15
 
 ### Changed
@@ -11,7 +17,7 @@
 ### Added
 
 - Adds support for automatically redirecting you to your IDE when clicking on a permalink or an "Open in IDE" button
-- Adds support for authentication via Okta
+- Adds backend support for authentication via Okta
 
 ### Fixed
 
