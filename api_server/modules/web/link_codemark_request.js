@@ -385,8 +385,8 @@ class LinkCodemarkRequest extends WebRequestBase {
 		);
 		const createdAtRaw = this.codemark.get('createdAt');
 		const createdAt = this.formatTime(createdAtRaw);
-		const title = this.codemark.get('title');
-		const text = this.codemark.get('text');
+		const title = this.codemark.get('title') || '';
+		const text = this.codemark.get('text') || '';
 
 		const ep = this.codemark.get('externalProvider');
 		const externalProvider = ProviderDisplayNames[ep] || ep;
@@ -402,7 +402,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 
 		let descriptionAsHtml;
 		try {
-			const me = this.user.get('username').toLowerCase();
+			const me = this.user && this.user.get('username').toLowerCase();
 			descriptionAsHtml = new Markdowner({ logger: this.api.logger })
 				.markdownify(text)
 				.replace(/@(\w+)/g, (match, name) => {
