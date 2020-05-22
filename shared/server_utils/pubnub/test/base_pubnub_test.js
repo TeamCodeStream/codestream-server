@@ -20,7 +20,7 @@ class BasePubNubTest extends GenericTest {
 	async before (callback) {
 		this.config = await ApiConfig.loadPreferredConfig();
 		if (this.config.whichBroadcastEngine !== 'pubnub') {
-			console.log('NOTE - Pubnub tests cannot pass if pubnub is not enabled, ignoring');
+			console.log('NOTE - Pubnub tests cannot pass if pubnub is not enabled, test will pass superficially');
 			return callback();
 		}
 
@@ -42,12 +42,16 @@ class BasePubNubTest extends GenericTest {
 
 	// after the test runs, unsubscribe from all channels
 	after (callback) {
-		this.pubnubForClients.forEach(pubnub => {
-			pubnub.unsubscribeAll();
-			pubnub.disconnect();
-		});
-		this.pubnubForServer.unsubscribeAll();
-		this.pubnubForServer.disconnect();
+		if (this.pubnubForClients) {
+			this.pubnubForClients.forEach(pubnub => {
+				pubnub.unsubscribeAll();
+				pubnub.disconnect();
+			});
+		}
+		if (this.pubnubForServer) {
+			this.pubnubForServer.unsubscribeAll();
+			this.pubnubForServer.disconnect();
+		}
 		super.after(callback);
 	}
 

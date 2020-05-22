@@ -18,6 +18,9 @@ class PresenceTest extends BasePubNubTest {
 
 	// the actual test execution
 	run (callback) {
+		if (this.config.whichBroadcastEngine !== 'pubnub') {
+			return callback();
+		}
 		BoundAsync.series(this, [
 			this.listenOnClient,		// listen on one client pubnub for the presence message
 			this.waitForJoin,			// wait a bit for the join message for the first client to pass

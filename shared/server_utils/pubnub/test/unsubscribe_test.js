@@ -12,6 +12,9 @@ class UnsubscribeTest extends PubNubTest {
 
 	// run the test...
 	run (callback) {
+		if (this.config.whichBroadcastEngine !== 'pubnub') {
+			return callback();
+		}
 		BoundAsync.series(this, [
 			super.run,				// run the standard send/receive test
 			this.unsubscribe,		// now unsubscribe

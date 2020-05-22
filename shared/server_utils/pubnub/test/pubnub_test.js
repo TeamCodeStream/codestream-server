@@ -12,6 +12,9 @@ class PubNubTest extends BasePubNubTest {
 
 	// the actual test execution
 	run (callback) {
+		if (this.config.whichBroadcastEngine !== 'pubnub') {
+			return callback();
+		}
 		BoundAsync.series(this, [
 			this.listenOnClient,		// listen on the client pubnub for the message we're going to send
 			this.sendRandomFromServer,	// send a random message, simulating a message sent from the server

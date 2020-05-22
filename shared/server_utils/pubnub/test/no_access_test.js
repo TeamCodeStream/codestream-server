@@ -16,6 +16,9 @@ class NoAccessTest extends PubNubTest {
 
 	// run the test
 	run (callback) {
+		if (this.config.whichBroadcastEngine !== 'pubnub') {
+			return callback();
+		}
 		// our attempt to listen should get rejected
 		this.listenOnClient(error => {
 			Assert(error.error, 'error expected');
