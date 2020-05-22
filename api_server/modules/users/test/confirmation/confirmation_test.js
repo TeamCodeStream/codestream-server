@@ -27,7 +27,12 @@ class ConfirmationTest extends CodeStreamAPITest {
 	}
 
 	getExpectedFields () {
-		return UserTestConstants.EXPECTED_LOGIN_RESPONSE;
+		const expectedResponse = { ...UserTestConstants.EXPECTED_LOGIN_RESPONSE };
+		if (this.usingSocketCluster) {
+			delete expectedResponse.pubnubKey;
+			delete expectedResponse.pubnubToken;
+		}
+		return expectedResponse;
 	}
 
 	// before the test runs...
@@ -99,7 +104,7 @@ class ConfirmationTest extends CodeStreamAPITest {
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert(data.accessToken, 'no access token');
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
-		Assert(data.pubnubToken, 'no pubnub token');
+		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
 		const expectedCapabilities = { ...UserTestConstants.API_CAPABILITIES };
 		if (this.apiConfig.email.suppressEmails) {

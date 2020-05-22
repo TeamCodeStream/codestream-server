@@ -157,8 +157,6 @@ class LoginHelper {
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
-			pubnubKey: this.apiConfig.pubnub.subscribeKey,	// give them the subscribe key for pubnub
-			pubnubToken: this.pubnubToken,	// token used to subscribe to PubNub channels
 			broadcasterToken: this.broadcasterToken, // more generic "broadcaster" token, for broadcaster solutions other than PubNub
 			capabilities: { ...APICapabilities }, // capabilities served by this API server
 			features: {
@@ -168,6 +166,10 @@ class LoginHelper {
 			},
 			runTimeEnvironment: this.apiConfig.api.runTimeEnvironment
 		};
+		if (this.apiConfig.pubnub && this.apiConfig.pubnub.subscribeKey) {
+			this.responseData.pubnubKey = this.apiConfig.pubnub.subscribeKey;	// give them the subscribe key for pubnub
+			this.responseData.pubnubToken = this.pubnubToken;	// token used to subscribe to PubNub channels
+		}
 		if (this.apiConfig.email.suppressEmails) {
 			delete this.responseData.capabilities.emailSupport;
 		}

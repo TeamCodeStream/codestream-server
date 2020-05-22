@@ -47,11 +47,6 @@ function selectBroadcastEngine (nativeCfg) {
 			strictSSL: nativeCfg.ssl.requireStrictSSL,
 			apiSecret: nativeCfg.broadcastEngine.codestreamBroadcaster.secrets.api
 		};
-		Object.assign(c, {
-			secrets: {
-				broadcaster: nativeCfg.broadcastEngine.codestreamBroadcaster.secrets.api
-			}
-		});
 	}
 	return c;
 }

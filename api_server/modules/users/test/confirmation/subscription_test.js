@@ -101,7 +101,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 	}
 
 	createSocketClusterClient () {
-		const config = Object.assign({}, this.apiConfig.broadcastEngine.socketCluster, {
+		const config = Object.assign({}, this.apiConfig.socketCluster, {
 			uid: this.user.id,
 			authKey: this.broadcasterToken 
 		});

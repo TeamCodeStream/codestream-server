@@ -59,7 +59,7 @@ class APIRequestTest extends GenericTest {
 				CodeStreamApiConfig = await ApiConfig.loadPreferredConfig();
 			}
 			this.apiConfig = CodeStreamApiConfig;
-			this.usingSocketCluster = this.apiConfig.whichBroadcasterEngine === 'codestreamBroadcaster';
+			this.usingSocketCluster = this.apiConfig.whichBroadcastEngine === 'codestreamBroadcaster';
 			callback();
 		})();
 	}

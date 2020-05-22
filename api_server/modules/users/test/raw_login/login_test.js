@@ -37,7 +37,12 @@ class LoginTest extends CodeStreamAPITest {
 	}
 
 	getExpectedFields () {
-		return UserTestConstants.EXPECTED_LOGIN_RESPONSE;
+		const expectedResponse = { ...UserTestConstants.EXPECTED_LOGIN_RESPONSE };
+		if (this.usingSocketCluster) {
+			delete expectedResponse.pubnubKey;
+			delete expectedResponse.pubnubToken;
+		}
+		return expectedResponse;
 	}
 
 	before (callback) {
@@ -58,7 +63,7 @@ class LoginTest extends CodeStreamAPITest {
 		Assert.equal(data.user.lastOrigin, this.expectedOrigin, 'lastOrigin not set to plugin IDE');
 		Assert(data.accessToken, 'no access token');
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
-		Assert(data.pubnubToken, 'no pubnub token');
+		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
 		const expectedCapabilities = { ...UserTestConstants.API_CAPABILITIES };
 		if (this.apiConfig.email.suppressEmails) {

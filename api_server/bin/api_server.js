@@ -7,7 +7,7 @@
 'use strict';
 
 // load configurations
-const WritableApiConfig = require(process.env.CS_API_TOP + '/config/writable');
+const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const ModuleDirectory = process.env.CS_API_TOP + '/modules';
 const SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
 const ClusterWrapper = require(process.env.CS_API_TOP + '/server_utils/cluster_wrapper');
@@ -38,12 +38,13 @@ const DataCollections = {
 const MongoCollections = Object.keys(DataCollections).concat([
 	'signupTokens',
 	'versionMatrix',
-	'migrationVersion'
+	'migrationVersion',
+	'test'
 ]);
 
 (async function() {
 	// changes to Config will be available globally via the /config/writeable.js module
-	const Config = await WritableApiConfig.loadConfig({custom: true});
+	const Config = await ApiConfig.loadConfig({custom: true});
 
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.loggerConfig);
