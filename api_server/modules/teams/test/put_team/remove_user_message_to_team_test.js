@@ -44,6 +44,10 @@ class RemoveUserMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Com
 		});
 	}
 
+	waitForSubscribe (callback) {
+		setTimeout(callback, 500);
+	}
+
 	validateMessage (message) {
 		Assert(message.message.team.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		this.message.team.$set.modifiedAt = message.message.team.$set.modifiedAt;
