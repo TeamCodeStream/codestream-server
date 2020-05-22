@@ -3,7 +3,6 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
 
 class ProviderAuthRequest extends RestfulRequest {
@@ -53,7 +52,7 @@ class ProviderAuthRequest extends RestfulRequest {
 	async requireAndAllow () {
 		// mock token must be accompanied by secret
 		if (this.request.query._mockToken && this.request.query._mockTokenSecret &&
-			decodeURIComponent(this.request.query._secret || '') !== ApiConfig.getPreferredConfig().confirmationCheat) {
+			decodeURIComponent(this.request.query._secret || '') !== this.api.config.secrets.confirmationCheat) {
 			this.warn('Deleting mock token because incorrect secret sent');
 			delete this.request.query._mockToken;
 			delete this.request.query._mockTokenSecret;

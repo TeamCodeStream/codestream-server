@@ -5,7 +5,6 @@
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 const CookieParser = require('cookie-parser');
 const CSurf = require('csurf');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 const DEPENDENCIES = [
 	'body_parser'
@@ -31,7 +30,7 @@ class CookieParserModule extends APIServerModule {
 				if (!this.pathRequiresCsrfProtection(request)) {
 					return next();
 				}
-				if (request.headers['x-csrf-bypass-secret'] === ApiConfig.getPreferredConfig().secrets.confirmationCheat) {
+				if (request.headers['x-csrf-bypass-secret'] === this.api.config.secrets.confirmationCheat) {
 					this.api.warn('Bypassing CSRF check, this has better be a test!');
 					return next();
 				}

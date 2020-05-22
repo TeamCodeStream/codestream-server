@@ -3,28 +3,33 @@
 const GetPostsTest = require('./get_posts_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class PaginationTest extends GetPostsTest {
-
-	constructor (options) {
-		super(options);
-		// for default pagination, we'll create "2.5 times the page size" posts,
-		// otherwise we'll do 17 posts in pages of 5
-		this.postOptions.numPosts = this.defaultPagination ? Math.floor(ApiConfig.getPreferredConfig().limits.maxPostsPerRequest * 2.5) : 17;
-		this.postsPerPage = this.defaultPagination ? ApiConfig.getPreferredConfig().limits.maxPostsPerRequest : 5;
-		this.postOptions.postCreateThrottle = this.mockMode ? 0 : 200;	// slow things down, pubnub gets overwhelmed
-		this.testTimeout = this.postOptions.numPosts * 500 + 20000;
-	}
 
 	get description () {
 		let order = this.ascending ? 'ascending' : 'descending';
 		let type = this.defaultPagination ? 'default' : 'custom';
 		let description = `should return the correct posts in correct ${order} order when requesting posts in ${type} pages`;
 		if (this.tryOverLimit) {
-			description += `, and should limit page size to ${ApiConfig.getPreferredConfig().limits.maxPostsPerRequest}`;
+			description += ', and should limit page size to the maximum allowed posts per page';
 		}
 		return description;
+	}
+
+	// override readConfig because immediately after we read the config file, but before we do setup for the test,
+	// we need to set some values that are dependent upon the config
+	readConfig (callback) {
+		super.readConfig(error => {
+			if (error) { return callback(error); }
+
+			// for default pagination, we'll create "2.5 times the page size" posts,
+			// otherwise we'll do 17 posts in pages of 5
+			this.postOptions.numPosts = this.defaultPagination ? Math.floor(this.apiConfig.limits.maxPostsPerRequest * 2.5) : 17;
+			this.postsPerPage = this.defaultPagination ? this.apiConfig.limits.maxPostsPerRequest : 5;
+			this.postOptions.postCreateThrottle = this.mockMode ? 0 : 200;	// slow things down, pubnub gets overwhelmed
+			this.testTimeout = this.postOptions.numPosts * 500 + 20000;
+			callback();
+		});
 	}
 
 	// run the test, this overrides the normal run of GetPostsTest
@@ -59,7 +64,7 @@ class PaginationTest extends GetPostsTest {
 		this.path = `/posts?teamId=${this.team.id}&streamId=${this.stream.id}`;
 		if (this.tryOverLimit) {
 			// we should get limited to maxPostsPerRequest
-			let limit = ApiConfig.getPreferredConfig().limits.maxPostsPerRequest * 2;
+			let limit = this.apiConfig.limits.maxPostsPerRequest * 2;
 			this.path += `&limit=${limit}`;
 		}
 		else if (!this.defaultPagination) {

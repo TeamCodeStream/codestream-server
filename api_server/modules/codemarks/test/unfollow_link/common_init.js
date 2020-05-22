@@ -5,7 +5,6 @@
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 
 class CommonInit {
@@ -48,7 +47,7 @@ class CommonInit {
 		const expectedVersion = this.streamType === 'direct' ? 2 : 3;
 		const expiresIn = this.expiresIn || 3 * 30 * 24 * 60 * 60 * 1000; // three months
 		const expiresAt = Date.now() + expiresIn;
-		this.token = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth).generate(
+		this.token = new TokenHandler(this.apiConfig.secrets.auth).generate(
 			{
 				uid: this.tokenUserId || this.currentUser.user.id
 			},

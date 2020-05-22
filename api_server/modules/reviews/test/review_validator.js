@@ -3,7 +3,6 @@
 const Assert = require('assert');
 const ReviewTestConstants = require('./review_test_constants');
 const MarkerValidator = require(process.env.CS_API_TOP + '/modules/markers/test/marker_validator');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class ReviewValidator {
 
@@ -59,7 +58,7 @@ class ReviewValidator {
 	// validate the returned permalink URL is correct
 	validatePermalink (permalink) {
 		const type = 'r';
-		const origin = ApiConfig.getPreferredConfig().api.publicApiUrl.replace(/\//g, '\\/');
+		const origin = this.test.apiConfig.api.publicApiUrl.replace(/\//g, '\\/');
 		const regex = `^${origin}\\/${type}\\/([A-Za-z0-9_-]+)\\/([A-Za-z0-9_-]+)$`;
 		const match = permalink.match(new RegExp(regex));
 		Assert(match, `returned permalink "${permalink}" does not match /${regex}/`);

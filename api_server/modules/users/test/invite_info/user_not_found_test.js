@@ -1,7 +1,6 @@
 'use strict';
 
 const InviteInfoTest = require('./invite_info_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class UserNotFoundTest extends InviteInfoTest {
 
@@ -27,7 +26,7 @@ class UserNotFoundTest extends InviteInfoTest {
 					path: '/users/' + this.invitedUser.id,
 					requestOptions: {
 						headers: {
-							'X-Delete-User-Secret': ApiConfig.getPreferredConfig().secrets.confirmationCheat
+							'X-Delete-User-Secret': this.apiConfig.secrets.confirmationCheat
 						}
 					},
 					token: this.token

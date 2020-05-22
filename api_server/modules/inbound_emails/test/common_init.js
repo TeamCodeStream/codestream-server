@@ -3,7 +3,6 @@
 'use strict';
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class CommonInit {
@@ -34,13 +33,13 @@ class CommonInit {
 
 	// make the data to be used in the request that triggers the message
 	makePostData (callback) {
-		const toEmail = `${this.stream.id}.${this.team.id}@${ApiConfig.getPreferredConfig().email.replyToDomain}`;
+		const toEmail = `${this.stream.id}.${this.team.id}@${this.apiConfig.email.replyToDomain}`;
 		this.data = {
 			to: [{ address: toEmail }],
 			from: { address: this.users[1].user.email },
 			text: this.postFactory.randomText(),
 			mailFile: 'somefile',	// doesn't really matter
-			secret: ApiConfig.getPreferredConfig().secrets.mail,
+			secret: this.apiConfig.secrets.mail,
 			attachments: []
 		};
 		callback();

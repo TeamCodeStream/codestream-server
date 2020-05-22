@@ -18,7 +18,7 @@ const NoRepoIDTest = require('./no_repo_id_test');
 const TeamIDRequiredTest = require('./team_id_required_test');
 const GetUnreadStreamsTest = require('./get_unread_streams_test');
 const GetNoUnreadStreamsTest = require('./get_no_unread_streams_test');
-//const PaginationTest = require('./pagination_test');
+const PaginationTest = require('./pagination_test');
 const GetStreamsDefaultSortTest = require('./get_streams_default_sort_test');
 const GetStreamsGreaterThanEqualTest = require('./get_streams_greater_than_equal_test');
 const GetStreamsGreaterThanTest = require('./get_streams_greater_than_test');
@@ -50,13 +50,11 @@ class GetStreamsRequestTester {
 		new TeamIDRequiredTest().test();
 		new GetUnreadStreamsTest().test();
 		new GetNoUnreadStreamsTest().test();
-		/*
 		new PaginationTest().test();
 		new PaginationTest({ascending: true}).test();
 		new PaginationTest({defaultPagination: true}).test();
 		new PaginationTest({defaultPagination: true, ascending: true}).test();
 		new PaginationTest({defaultPagination: true, tryOverLimit: 150}).test();
-		*/
 		new GetStreamsDefaultSortTest().test();
 		new GetStreamsGreaterThanEqualTest().test();
 		new GetStreamsGreaterThanTest().test();

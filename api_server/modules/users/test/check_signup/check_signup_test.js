@@ -57,7 +57,11 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
-		Assert.deepEqual(data.capabilities, UserTestConstants.API_CAPABILITIES, 'capabilities are incorrect');
+		const expectedCapabilities = { ...UserTestConstants.API_CAPABILITIES };
+		if (this.apiConfig.email.suppressEmails) {
+			delete expectedCapabilities.emailSupport;
+		}
+		Assert.deepEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
 		if (!this.dontCreateTeam) {
 			Assert(data.teams.length === 1, 'no team in response');
 			Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');

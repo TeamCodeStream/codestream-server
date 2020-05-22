@@ -6,7 +6,6 @@ const ProviderTokenTest = require('./provider_token_test');
 const CommonInit = require('./common_init');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -141,9 +140,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		}
 
 		if (this.provider === 'trello') {
-			expectedProviderSet[`${key}.apiKey`] = ApiConfig.getPreferredConfig().trello.apiKey;
+			expectedProviderSet[`${key}.apiKey`] = this.apiConfig.trello.apiKey;
 			expectedProviderSet[`${key}.data`] = {
-				apiKey: ApiConfig.getPreferredConfig().trello.apiKey
+				apiKey: this.apiConfig.trello.apiKey
 			};
 		}
 

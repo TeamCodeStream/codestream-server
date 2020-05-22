@@ -3,7 +3,6 @@
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const RandomString = require('randomstring');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 
@@ -57,7 +56,8 @@ class ProviderAuthTest extends CodeStreamAPITest {
 								appClientSecret: 'testClientSecret'
 							}
 						}
-					}
+					},
+					_confirmationCheat: this.apiConfig.secrets.confirmationCheat
 				},
 				token: this.token
 			},
@@ -80,11 +80,11 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				if (this.provider === 'jiraserver') {
 					this.mockToken = RandomString.generate(12);
 					this.mockTokenSecret = RandomString.generate(12);
-					this.path += `&_mockToken=${this.mockToken}&_mockTokenSecret=${this.mockTokenSecret}&_secret=${encodeURIComponent(ApiConfig.getPreferredConfig().secrets.confirmationCheat)}`;
+					this.path += `&_mockToken=${this.mockToken}&_mockTokenSecret=${this.mockTokenSecret}&_secret=${encodeURIComponent(this.apiConfig.secrets.confirmationCheat)}`;
 				}
-				const authOrigin = this.provider === 'youtrack' ? `${ApiConfig.getPreferredConfig().api.publicApiUrl}/no-auth` : ApiConfig.getPreferredConfig().api.authOrigin;
+				const authOrigin = this.provider === 'youtrack' ? `${this.apiConfig.api.publicApiUrl}/no-auth` : this.apiConfig.api.authOrigin;
 				this.redirectUri = `${authOrigin}/provider-token/${this.provider}`;
-				this.state = `${ApiConfig.getPreferredConfig().api.callbackEnvironment}!${this.authCode}`;
+				this.state = `${this.apiConfig.api.callbackEnvironment}!${this.authCode}`;
 				const testHost = this.testRequestHost || this.testHost;
 				if (testHost) {
 					this.path += `&host=${testHost}`;
@@ -156,14 +156,14 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			name: 'CodeStream',
 			callback_method: 'fragment',
 			return_url: this.redirectUri,
-			key: ApiConfig.getPreferredConfig().trello.apiKey
+			key: this.apiConfig.trello.apiKey
 		};
 		const url = 'https://trello.com/1/authorize';
 		return { url, parameters };
 	}
 
 	getGithubRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : ApiConfig.getPreferredConfig().github.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.github.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
@@ -178,7 +178,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getAsanaRedirectData () {
 		const parameters = {
-			client_id: ApiConfig.getPreferredConfig().asana.appClientId,
+			client_id: this.apiConfig.asana.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state
@@ -188,7 +188,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getJiraRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : ApiConfig.getPreferredConfig().jira.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.jira.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
@@ -204,8 +204,8 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getJiraServerRedirectData () {
-		const encodedSecret = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth).generate({ sec: this.mockTokenSecret }, 'oasec');
-		const callback = `${ApiConfig.getPreferredConfig().api.publicApiUrl}/no-auth/provider-token/${this.provider}?state=${this.state}!${encodedSecret}`;
+		const encodedSecret = new TokenHandler(this.apiConfig.secrets.auth).generate({ sec: this.mockTokenSecret }, 'oasec');
+		const callback = `${this.apiConfig.api.publicApiUrl}/no-auth/provider-token/${this.provider}?state=${this.state}!${encodedSecret}`;
 		const parameters = {
 			oauth_token: this.mockToken,
 			oauth_callback: callback
@@ -215,7 +215,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getGitlabRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : ApiConfig.getPreferredConfig().gitlab.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.gitlab.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: `${this.redirectUri}`,
@@ -232,7 +232,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getBitbucketRedirectData () {
 		const parameters = {
-			client_id: ApiConfig.getPreferredConfig().bitbucket.appClientId,
+			client_id: this.apiConfig.bitbucket.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
@@ -243,7 +243,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getYouTrackRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : ApiConfig.getPreferredConfig().youtrack.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.youtrack.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
@@ -259,7 +259,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getAzureDevOpsRedirectData () {
 		const parameters = {
-			client_id: ApiConfig.getPreferredConfig().devops.appClientId,
+			client_id: this.apiConfig.azuredevops.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'Assertion',
 			state: this.state,
@@ -271,7 +271,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getSlackRedirectData () {
 		const parameters = {
-			client_id: ApiConfig.getPreferredConfig().slack.appClientId,
+			client_id: this.apiConfig.slack.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
@@ -283,7 +283,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getMSTeamsRedirectData () {
 		const parameters = {
-			client_id: ApiConfig.getPreferredConfig().msteams.appClientId,
+			client_id: this.apiConfig.msteams.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
@@ -296,7 +296,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getOktaRedirectData () {
 		const parameters = {
-			client_id: ApiConfig.getPreferredConfig().okta.appClientId,
+			client_id: this.apiConfig.okta.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state

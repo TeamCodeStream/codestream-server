@@ -1,7 +1,6 @@
 'use strict';
 
 const CodemarkMarkerTest = require('./codemark_marker_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Assert = require('assert');
 
 class PermalinkTest extends CodemarkMarkerTest {
@@ -25,7 +24,7 @@ class PermalinkTest extends CodemarkMarkerTest {
 	validateResponse (data) {
 		const { permalink } = data;
 		const type = this.permalinkType === 'public' ? 'p' : 'c';
-		const origin = ApiConfig.getPreferredConfig().api.publicApiUrl.replace(/\//g, '\\/');
+		const origin = this.apiConfig.api.publicApiUrl.replace(/\//g, '\\/');
 		const regex = `^${origin}\\/${type}\\/([A-Za-z0-9_-]+)\\/([A-Za-z0-9_-]+)$`;
 		const match = permalink.match(new RegExp(regex));
 		Assert(match, `returned permalink "${permalink}" does not match /${regex}/`);

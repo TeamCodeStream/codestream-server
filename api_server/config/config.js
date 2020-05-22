@@ -90,6 +90,8 @@ function customConfigFunc(nativeCfg) {
 			optionalAuthenticatedPaths: ['^\\/help(\\/|$)', '^\\/c\\/', '^\\/p\\/', '^\\/r\\/', '^\\/web\\/'],
 			// matching these paths means cookie authentication is required
 			cookieAuthenticatedPaths: ['^\\/c\\/', '^\\/r\\/', '^\\/web\\/'],
+			// matching these paths means csrf protection is required
+			requiresCsrfProtectionPaths: ['^\\/c\\/', '^\\/p\\/', '^\\/r\\/', '^\\/web\\/'],
 			// server will use this cookie to store identity token
 			identityCookie: 'tcs',
 		},
@@ -145,7 +147,7 @@ function customConfigFunc(nativeCfg) {
 		},
 		limits: {
 			maxPostsPerRequest: 100,    // never serve more than this many posts in a page
-			maxStreamsPerRequest: 500,  // never serve more than this many streams in a page
+			maxStreamsPerRequest: 100,  // never serve more than this many streams in a page
 			maxMarkersPerRequest: 100   // never serve more than this many markers in a page (not currently used)
 		},
 		loggerConfig: {
@@ -210,6 +212,12 @@ function customConfigFunc(nativeCfg) {
 		apiCfg.slack.signingSecretsByAppIds[apiCfg.slack.appId] = apiCfg.slack.appSigningSecret;
 		apiCfg.slack.signingSecretsByAppIds[apiCfg.slack.appStrictId] = apiCfg.slack.appStrictSigningSecret;
 		apiCfg.slack.signingSecretsByAppIds[apiCfg.slack.appSharingId] = apiCfg.slack.appSharingSigningSecret;
+	}
+
+	if (!apiCfg.youtrack.appClientId) {
+		// this is needed to be non-null to return provider data to the
+		// client, but is not actually used
+		apiCfg.youtrack.appClientId = 'placeholder';
 	}
 
 	// Github: additional providers

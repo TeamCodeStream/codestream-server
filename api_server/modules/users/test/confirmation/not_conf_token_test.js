@@ -2,7 +2,6 @@
 
 const ConfirmationWithLinkTest = require('./confirmation_with_link_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class NotConfTokenTest extends ConfirmationWithLinkTest {
 
@@ -21,7 +20,7 @@ class NotConfTokenTest extends ConfirmationWithLinkTest {
 		// run the standard setup for a confirmation, but change the type of the token
 		super.before(error => {
 			if (error) { return callback(error); }
-			const tokenHandler = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth);
+			const tokenHandler = new TokenHandler(this.apiConfig.secrets.auth);
 			const payload = tokenHandler.decode(this.data.token);
 			payload.type = 'xyz';
 			this.data.token = tokenHandler.generate(payload, 'xyz');

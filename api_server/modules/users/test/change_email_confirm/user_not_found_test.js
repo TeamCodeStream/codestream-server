@@ -2,7 +2,6 @@
 
 const ChangeEmailConfirmTest = require('./change_email_confirm_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const ObjectID = require('mongodb').ObjectID;
 
 class UserNotFoundTest extends ChangeEmailConfirmTest {
@@ -21,7 +20,7 @@ class UserNotFoundTest extends ChangeEmailConfirmTest {
 	setData (callback) {
 		// replace the token with a token with a bogus user ID
 		super.setData(() => {
-			const tokenHandler = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth);
+			const tokenHandler = new TokenHandler(this.apiConfig.secrets.auth);
 			const payload = tokenHandler.decode(this.data.token);
 			payload.uid = ObjectID();
 			this.data.token = tokenHandler.generate(payload, 'email');

@@ -1,7 +1,6 @@
 'use strict';
 
 const RegistrationTest = require('./registration_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
 
@@ -36,7 +35,7 @@ class InviteCodeDifferentEmailTest extends RegistrationTest {
 					teamId: this.team.id,
 					email: this.data.email,
 					_pubnubUuid: this.data._pubnubUuid,
-					_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat
+					_confirmationCheat: this.apiConfig.secrets.confirmationCheat
 				},
 				token: this.token
 			},

@@ -2,7 +2,6 @@
 
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const RandomString = require('randomstring');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const User = require(process.env.CS_API_TOP + '/modules/users/user');
 
@@ -34,7 +33,7 @@ class InvitedUserMessageToTeamTest extends CodeStreamMessageTest {
 					email: data.email,
 					fullName: data.fullName,
 					_pubnubUuid: data._pubnubUuid,
-					_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat
+					_confirmationCheat: this.apiConfig.secrets.confirmationCheat
 				},
 				token: this.token
 			},

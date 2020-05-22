@@ -5,7 +5,6 @@
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CommonInit = require('./common_init');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -23,7 +22,7 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	makeData (callback) {
 		this.init(error => {
 			if (error) { return callback(error); }
-			this.data._subscriptionCheat = ApiConfig.getPreferredConfig().secrets.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
+			this.data._subscriptionCheat = this.apiConfig.secrets.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
 			this.data._delayEmail = this.usingSocketCluster ? 1000 : (this.mockMode ? 500 : 10000);	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
 			// we'll do the triggering request here, but with a delay for when the
 			// email goes out ... this is because we need to know which pubnub channel

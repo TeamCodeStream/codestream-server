@@ -2,7 +2,6 @@
 
 const ConfirmationWithLinkTest = require('./confirmation_with_link_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class NoIssuanceTest extends ConfirmationWithLinkTest {
@@ -32,12 +31,12 @@ class NoIssuanceTest extends ConfirmationWithLinkTest {
 			if (error) { return callback(error); }
 			this.otherUser = response.user;
 			callback();
-		});
+		}, { confirmationCheat: this.apiConfig.secrets.confirmationCheat });
 	}
 
 	// change the token to reference the other user
 	changeToken (callback) {
-		const tokenHandler = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth);
+		const tokenHandler = new TokenHandler(this.apiConfig.secrets.auth);
 		const payload = tokenHandler.decode(this.data.token);
 		payload.uid = this.otherUser.id;
 		this.data.token = tokenHandler.generate(payload, 'conf');

@@ -8,7 +8,6 @@ const AddTeamMember = require(process.env.CS_API_TOP + '/modules/teams/add_team_
 const AddTeamPublisher = require('./add_team_publisher');
 const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
 const UserCreator = require(process.env.CS_API_TOP + '/modules/users/user_creator');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 
 class PostUserRequest extends PostRequest {
@@ -133,7 +132,7 @@ class PostUserRequest extends PostRequest {
 		this.responseData = { user: user.getSanitizedObject() };
 
 		// send invite code in the response, for testing purposes
-		if (this._confirmationCheat === ApiConfig.getPreferredConfig().secrets.confirmationCheat) {
+		if (this._confirmationCheat === this.api.config.secrets.confirmationCheat) {
 			this.responseData.inviteCode = this.userCreator.inviteCode;
 		}
 		await super.handleResponse();

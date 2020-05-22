@@ -1,8 +1,7 @@
 'use strict';
 
-var AuthenticationTest = require('./authentication_test');
-var JSONWebToken = require('jsonwebtoken');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const AuthenticationTest = require('./authentication_test');
+const JSONWebToken = require('jsonwebtoken');
 
 class MinIssuanceTest extends AuthenticationTest {
 
@@ -27,7 +26,7 @@ class MinIssuanceTest extends AuthenticationTest {
 	alterIssuanceTimeInToken (callback) {
 		// decrypt the token to get payload
 		let payload;
-		const secret = ApiConfig.getPreferredConfig().secrets.auth;
+		const secret = this.apiConfig.secrets.auth;
 		try {
 			payload = JSONWebToken.verify(this.token, secret);
 		}

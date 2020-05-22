@@ -2,7 +2,6 @@
 
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const Assert = require('assert');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
 class TrackCodeExpiredTest extends CodeStreamMessageTest {
@@ -28,8 +27,8 @@ class TrackCodeExpiredTest extends CodeStreamMessageTest {
 	registerUser (callback) {
 		const data = this.userFactory.getRandomUserData();
 		Object.assign(data, {
-			_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat, // gives us the confirmation code in the response
-			_subscriptionCheat: ApiConfig.getPreferredConfig().secrets.subscriptionCheat, // lets us listen on this user's me-channel
+			_confirmationCheat: this.apiConfig.secrets.confirmationCheat, // gives us the confirmation code in the response
+			_subscriptionCheat: this.apiConfig.secrets.subscriptionCheat, // lets us listen on this user's me-channel
 			_forceConfirmation: true, // overrides developer environment, where confirmation might be turned off
 			timeout: 100
 		});

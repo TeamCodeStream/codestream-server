@@ -3,7 +3,6 @@
 const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const UserAttributes = require('../../user_attributes');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
@@ -42,7 +41,7 @@ class ConfirmationTest extends CodeStreamAPITest {
 	registerUser (callback) {
 		const data = this.getUserData();
 		Object.assign(data, {
-			_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat, // gives us the confirmation code in the response
+			_confirmationCheat: this.apiConfig.secrets.confirmationCheat, // gives us the confirmation code in the response
 			_forceConfirmation: true // overrides developer environment, where confirmation might be turned off
 		});
 		if (this.userOptions.wantLink) {
@@ -102,7 +101,11 @@ class ConfirmationTest extends CodeStreamAPITest {
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
-		Assert.deepEqual(data.capabilities, UserTestConstants.API_CAPABILITIES, 'capabilities are incorrect');
+		const expectedCapabilities = { ...UserTestConstants.API_CAPABILITIES };
+		if (this.apiConfig.email.suppressEmails) {
+			delete expectedCapabilities.emailSupport;
+		}
+		Assert.deepEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
 
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}

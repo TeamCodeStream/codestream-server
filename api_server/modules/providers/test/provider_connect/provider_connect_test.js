@@ -97,7 +97,11 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
-		Assert.deepEqual(data.capabilities, UserTestConstants.API_CAPABILITIES, 'capabilities are incorrect');
+		const expectedCapabilities = { ...UserTestConstants.API_CAPABILITIES };
+		if (this.apiConfig.email.suppressEmails) {
+			delete expectedCapabilities.emailSupport;
+		}
+		Assert.deepEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
 		if (this.preExistingUnconnectedUser) {
 			Assert(!user.phoneNumber, 'phone number is set');
 			Assert(!user.iWorkOn, 'iWorkOn is set');

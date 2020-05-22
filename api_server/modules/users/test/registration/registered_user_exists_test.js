@@ -1,7 +1,6 @@
 'use strict';
 
-var RegistrationTest = require('./registration_test');
-//const ApiConfig = require(process.env.CS_API_TOP + '/config/api.js');
+const RegistrationTest = require('./registration_test');
 
 class RegisteredUserExistsTest extends RegistrationTest {
 

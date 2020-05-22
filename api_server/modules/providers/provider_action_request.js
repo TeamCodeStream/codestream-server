@@ -8,7 +8,6 @@ const RestfulRequest = require(process.env.CS_API_TOP +
 const ProviderDisplayNames = require(process.env.CS_API_TOP +
 	'/modules/web/provider_display_names');
 const SlackInteractiveComponentsHandler = require('./slack_interactive_components_handler');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const crypto = require('crypto');
 const AddTeamPublisher = require(process.env.CS_API_TOP + '/modules/users/add_team_publisher');
 const MSTeamsConversationBot = require('./msteams_conversation_bot');
@@ -116,7 +115,7 @@ class ProviderActionRequest extends RestfulRequest {
 			const apiAppId = request.body.payload.api_app_id;
 			if (!apiAppId) return false;
 
-			const slackSigningSecret = ApiConfig.getPreferredConfig().slack.signingSecretsByAppIds[apiAppId];
+			const slackSigningSecret = this.apiConfig.slack.signingSecretsByAppIds[apiAppId];
 			if (!slackSigningSecret) {
 				this.api.log(`Could not find signingSecret for appId=${apiAppId}`);
 				return false;

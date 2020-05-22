@@ -4,7 +4,6 @@
 
 const Assert = require('assert');
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
 
@@ -34,8 +33,8 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 	registerUser (callback) {
 		this.data = this.userFactory.getRandomUserData();
 		this.data.email = this.useEmail || this.data.email; // allow sub-class override
-		this.data._subscriptionCheat = ApiConfig.getPreferredConfig().secrets.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
-		this.data._confirmationCheat = ApiConfig.getPreferredConfig().secrets.confirmationCheat; // to get the confirmation token back in the response
+		this.data._subscriptionCheat = this.apiConfig.secrets.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
+		this.data._confirmationCheat = this.apiConfig.secrets.confirmationCheat; // to get the confirmation token back in the response
 		this.data.wantLink = true;
 		// register a random user
 		this.doApiRequest(
@@ -104,14 +103,14 @@ class ResendConfirmEmailTest extends CodeStreamMessageTest {
 
 		// verify a match to the url
 		// Note: there is no 'webclient.host' property anymore. Expectation is this test is disabled
-		const host = ApiConfig.getPreferredConfig().webclient.host.replace(/\//g, '\\/');
+		const host = this.apiConfig.webclient.host.replace(/\//g, '\\/');
 		const shouldMatch = new RegExp(`${host}\\/confirm-email\\/(.*)$`);
 		const match = gotMessage.url.match(shouldMatch);
 		Assert(match && match.length === 2, 'confirmation link url is not correct');
 
 		// verify correct payload
 		const token = match[1];
-		const payload = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth).verify(token);
+		const payload = new TokenHandler(this.apiConfig.secrets.auth).verify(token);
 		Assert.equal(payload.iss, 'CodeStream', 'token payload issuer is not CodeStream');
 		Assert.equal(payload.alg, 'HS256', 'token payload algortihm is not HS256');
 		Assert.equal(payload.type, 'conf', 'token payload type should be conf');

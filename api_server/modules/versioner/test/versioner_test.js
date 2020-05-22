@@ -7,7 +7,6 @@ const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_
 const RandomString = require('randomstring');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 /*
 CodeStreamAPITest handles setting up a user with a valid access token, and by default sends
@@ -81,7 +80,7 @@ class VersionerTest extends CodeStreamAPITest {
 
 		// set up the mongo client, and open it against the versionMatrix collection
 		this.mongoClientFactory = new MongoClient();
-		const mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: ['versionMatrix'] });
+		const mongoConfig = Object.assign({}, this.apiConfig.mongo, { collections: ['versionMatrix'] });
 		delete mongoConfig.queryLogging;
 		delete mongoConfig.hintsRequired;
 
@@ -175,7 +174,7 @@ class VersionerTest extends CodeStreamAPITest {
 	// validate the asset URL, which tells us where the latest extension lives
 	// (this needs to be updated when we support multiple IDEs)
 	validateAssetUrl () {
-		const assetEnv = ApiConfig.getPreferredConfig().api.assetEnvironment;
+		const assetEnv = this.apiConfig.api.assetEnvironment;
 		const pluginName = this.pluginName.replace(/ /g, '').toLowerCase();
 		Assert.equal(
 			this.httpResponse.headers['x-cs-latest-asset-url'], 

@@ -3,7 +3,6 @@
 'use strict';
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const UUID = require('uuid/v4');
 
 class CommonInit {
@@ -24,8 +23,8 @@ class CommonInit {
 		this.signupToken = UUID();
 		const userData = this.userFactory.getRandomUserData();
 		userData.wantLink = true;   // we'll get back a confirmation link 
-		userData._confirmationCheat = ApiConfig.getPreferredConfig().secrets.confirmationCheat;  // cheat code to get back the confirmation link 
-		userData._subscriptionCheat = ApiConfig.getPreferredConfig().secrets.subscriptionCheat;
+		userData._confirmationCheat = this.apiConfig.secrets.confirmationCheat;  // cheat code to get back the confirmation link 
+		userData._subscriptionCheat = this.apiConfig.secrets.subscriptionCheat;
 		userData.signupToken = this.signupToken;
 		userData.expiresIn = this.expiresIn;
 		this.data = { token: this.signupToken };

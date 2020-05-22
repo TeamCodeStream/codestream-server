@@ -7,7 +7,6 @@ const UserSubscriptionGranter = require('./user_subscription_granter');
 const UUID = require('uuid/v4');
 const ProviderFetcher = require(process.env.CS_API_TOP + '/modules/providers/provider_fetcher');
 const APICapabilities = require(process.env.CS_API_TOP + '/etc/capabilities');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const VersionErrors = require(process.env.CS_API_TOP + '/modules/versioner/errors');
 
 class LoginHelper {
@@ -16,6 +15,8 @@ class LoginHelper {
 		Object.assign(this, options);
 		this.loginType = this.loginType || 'web';
 		this.request.errorHandler.add(VersionErrors);
+		this.api = this.request.api;
+		this.apiConfig = this.api.config;
 	}
 
 	// perform a true login for the user, including returning full response data
@@ -77,15 +78,15 @@ class LoginHelper {
 			const minIssuance = typeof currentTokenInfo === 'object' ? (currentTokenInfo.minIssuance || null) : null;
 			this.accessToken = typeof currentTokenInfo === 'object' ? currentTokenInfo.token : this.user.get('accessToken');
 			const tokenPayload = (!force && this.accessToken) ? 
-				this.request.api.services.tokenHandler.verify(this.accessToken) : 
+				this.api.services.tokenHandler.verify(this.accessToken) : 
 				null;
 			if (
 				force ||
 				!minIssuance ||
 				minIssuance > (tokenPayload.iat * 1000)
 			) {
-				this.accessToken = this.request.api.services.tokenHandler.generate({ uid: this.user.id });
-				const minIssuance = this.request.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
+				this.accessToken = this.api.services.tokenHandler.generate({ uid: this.user.id });
+				const minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
 				set = set || {};
 				set[`accessTokens.${this.loginType}`] = {
 					token: this.accessToken,
@@ -140,7 +141,6 @@ class LoginHelper {
 			request: this.request,
 			teams: this.initialDataFetcher.teams
 		}).getThirdPartyProviders();
-
 		(this.initialDataFetcher.teams || []).forEach(team => {
 			const responseTeam = this.initialDataFetcher.initialData.teams.find(t => t.id === team.id);
 			if (responseTeam) {
@@ -157,23 +157,23 @@ class LoginHelper {
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
-			pubnubKey: this.request.api.config.pubnub.subscribeKey,	// give them the subscribe key for pubnub
+			pubnubKey: this.apiConfig.pubnub.subscribeKey,	// give them the subscribe key for pubnub
 			pubnubToken: this.pubnubToken,	// token used to subscribe to PubNub channels
 			broadcasterToken: this.broadcasterToken, // more generic "broadcaster" token, for broadcaster solutions other than PubNub
 			capabilities: { ...APICapabilities }, // capabilities served by this API server
 			features: {
 				slack: {
-					interactiveComponentsEnabled: ApiConfig.getPreferredConfig().slack.interactiveComponentsEnabled
+					interactiveComponentsEnabled: this.api.config.slack.interactiveComponentsEnabled
 				}
 			},
-			runTimeEnvironment: this.request.api.config.api.runTimeEnvironment
+			runTimeEnvironment: this.apiConfig.api.runTimeEnvironment
 		};
-		if (this.request.api.config.email.suppressEmails) {
+		if (this.apiConfig.email.suppressEmails) {
 			delete this.responseData.capabilities.emailSupport;
 		}
 		
 		// if using socketcluster for messaging (for on-prem installations), return host info
-		const { socketCluster } = this.request.api.config; 
+		const { socketCluster } = this.apiConfig; 
 		if (socketCluster && socketCluster.host && socketCluster.port) {
 			this.responseData.socketCluster = {
 				host: socketCluster.host,
@@ -193,7 +193,7 @@ class LoginHelper {
 		try {
 			await new UserSubscriptionGranter({
 				data: this.request.data,
-				broadcaster: this.request.api.services.broadcaster,
+				broadcaster: this.api.services.broadcaster,
 				user: this.user,
 				request: this.request
 			}).grantAll();

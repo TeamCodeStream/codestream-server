@@ -3,15 +3,11 @@
 const GetStreamsTest = require('./get_streams_test');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 const Assert = require('assert');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class PaginationTest extends GetStreamsTest {
 
 	constructor (options) {
 		super(options);
-		// set up additional pagination options
-		this.numStreams = this.defaultPagination ? Math.floor(ApiConfig.getPreferredConfig().limits.maxStreamsPerRequest * 2.5) : 17;
-		this.streamsPerPage = this.defaultPagination ? ApiConfig.getPreferredConfig().limits.maxStreamsPerRequest : 5;
 		this.dontDoForeign = true;
 		this.dontDoFileStreams = true;
 		this.dontDoDirectStreams = true;
@@ -23,9 +19,22 @@ class PaginationTest extends GetStreamsTest {
 		const type = this.defaultPagination ? 'default' : 'custom';
 		let description = `should return the correct streams in correct ${order} order when requesting streams in ${type} pages`;
 		if (this.tryOverLimit) {
-			description += `, and should limit page size to ${ApiConfig.getPreferredConfig().limits.maxStreamsPerRequest}`;
+			description += ', and should limit page size to the maximum allowed';
 		}
 		return description;
+	}
+
+	// override readConfig because immediately after we read the config file, but before we do setup for the test,
+	// we need to set some values that are dependent upon the config
+	readConfig (callback) {
+		super.readConfig(error => {
+			if (error) { return callback(error); }
+
+			// set up additional pagination options
+			this.numStreams = this.defaultPagination ? Math.floor(this.apiConfig.limits.maxStreamsPerRequest * 2.5) : 17;
+			this.streamsPerPage = this.defaultPagination ? this.apiConfig.limits.maxStreamsPerRequest : 5;
+			callback();
+		});
 	}
 
 	// set the path to use when issuing the test request
@@ -69,7 +78,7 @@ class PaginationTest extends GetStreamsTest {
 		if (this.tryOverLimit) {
 			// we'll try to fetch more than the server's limit, we should still get back
 			// the maximum number of streams allowed in a page
-			const limit = ApiConfig.getPreferredConfig().limits.maxStreamsPerRequest * 2;
+			const limit = this.apiConfig.limits.maxStreamsPerRequest * 2;
 			this.path += `&limit=${limit}`;
 		}
 		else if (!this.defaultPagination) {

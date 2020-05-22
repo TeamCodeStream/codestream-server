@@ -8,7 +8,6 @@ const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_sav
 const ProviderIdentityConnector = require('./provider_identity_connector');
 const UserPublisher = require('../users/user_publisher');
 const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class ProviderTokenRequest extends RestfulRequest {
 
@@ -82,7 +81,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
 		// mock token must be accompanied by secret
-		if (this.request.query._mockToken && decodeURIComponent(this.request.query._secret || '') !== ApiConfig.getPreferredConfig().confirmationCheat) {
+		if (this.request.query._mockToken && decodeURIComponent(this.request.query._secret || '') !== this.api.config.secrets.confirmationCheat) {
 			this.warn('Deleting mock token because incorrect secret sent');
 			delete this.request.query._mockToken;
 			delete this.request.query._mockEmail;

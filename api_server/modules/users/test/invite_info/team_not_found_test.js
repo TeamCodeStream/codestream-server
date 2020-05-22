@@ -1,7 +1,6 @@
 'use strict';
 
 const InviteInfoTest = require('./invite_info_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class TeamNotFoundTest extends InviteInfoTest {
 
@@ -27,7 +26,7 @@ class TeamNotFoundTest extends InviteInfoTest {
 					path: '/teams/' + this.team.id,
 					requestOptions: {
 						headers: {
-							'X-Delete-Team-Secret': ApiConfig.getPreferredConfig().secrets.confirmationCheat
+							'X-Delete-Team-Secret': this.apiConfig.secrets.confirmationCheat
 						}
 					},
 					token: this.token

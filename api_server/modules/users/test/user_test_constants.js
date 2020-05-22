@@ -2,7 +2,7 @@
 
 const UserAttributes = require(process.env.CS_API_TOP + '/modules/users/user_attributes');
 const APICapabilities = require(process.env.CS_API_TOP + '/etc/capabilities');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+//const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 // we expect to see these fields for users who are not yet confirmed
 const EXPECTED_UNREGISTERED_USER_FIELDS = [
@@ -57,10 +57,6 @@ const EXPECTED_LOGIN_RESPONSE = {
 	repos: true
 };
 
-if (ApiConfig.getPreferredConfig().socketCluster.port) {
-	delete EXPECTED_LOGIN_RESPONSE.pubnubKey;
-}
-
 // these attributes should not be seen by the client
 const UNSANITIZED_ATTRIBUTES = Object.keys(UserAttributes).filter(attribute => {
 	return UserAttributes[attribute].serverOnly;
@@ -74,9 +70,6 @@ const UNSANITIZED_ATTRIBUTES_FOR_ME = Object.keys(UserAttributes).filter(attribu
 const API_CAPABILITIES = {
 	...APICapabilities
 };
-if (ApiConfig.getPreferredConfig().email.suppressEmails) {
-	delete API_CAPABILITIES.emailSupport;
-}
 
 module.exports = {
 	EXPECTED_USER_RESPONSE,

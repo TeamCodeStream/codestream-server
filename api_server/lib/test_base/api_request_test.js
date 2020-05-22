@@ -9,6 +9,8 @@ const Assert = require('assert');
 const IPC = require('node-ipc');
 const UUID = require('uuid/v4');
 
+var CodeStreamApiConfig;
+
 class APIRequestTest extends GenericTest {
 
 	constructor (options) {
@@ -33,27 +35,41 @@ class APIRequestTest extends GenericTest {
 	}
 
 	before (callback) {
-		if (this.mockMode) {
-			this.connectToIpc(callback);
-		}
-		else {
-			callback();
-		}
+		this.readConfig(error => {
+			if (error) { return callback(error); }
+			if (this.mockMode) {
+				this.connectToIpc(callback);
+			}
+			else {
+				callback();
+			}
+		});
 	}
 
 	after (callback) {
 		if (this.ipc) {
-			this.ipc.disconnect(ApiConfig.getPreferredConfig().ipc.serverId);
+			this.ipc.disconnect(this.apiConfig.ipc.serverId);
 		}
 		super.after(callback);
 	}
 
+	readConfig (callback) {
+		(async () => {
+			if (!CodeStreamApiConfig) {
+				CodeStreamApiConfig = await ApiConfig.loadPreferredConfig();
+			}
+			this.apiConfig = CodeStreamApiConfig;
+			this.usingSocketCluster = this.apiConfig.whichBroadcasterEngine === 'codestreamBroadcaster';
+			callback();
+		})();
+	}
+
 	// connect to IPC in mock mode
 	connectToIpc (callback) {
-		IPC.config.id = ApiConfig.getPreferredConfig().ipc.clientId;
+		IPC.config.id = this.apiConfig.ipc.clientId;
 		IPC.config.silent = true;
-		IPC.connectTo(ApiConfig.getPreferredConfig().ipc.serverId, () => {
-			IPC.of[ApiConfig.getPreferredConfig().ipc.serverId].on('response', this.handleIpcResponse.bind(this));
+		IPC.connectTo(this.apiConfig.ipc.serverId, () => {
+			IPC.of[this.apiConfig.ipc.serverId].on('response', this.handleIpcResponse.bind(this));
 		});
 		this.ipc = IPC;
 		callback();
@@ -63,7 +79,7 @@ class APIRequestTest extends GenericTest {
 	connectedToIpc () {
 		return (
 			this.ipc &&
-			this.ipc.of[ApiConfig.getPreferredConfig().ipc.serverId]
+			this.ipc.of[this.apiConfig.ipc.serverId]
 		);
 	}
 
@@ -87,8 +103,8 @@ class APIRequestTest extends GenericTest {
 		}
 		else {
 			HTTPSBot[method](
-				ApiConfig.getPreferredConfig().express.host,
-				ApiConfig.getPreferredConfig().express.port,
+				this.apiConfig.express.host,
+				this.apiConfig.express.port,
 				path,
 				data,
 				requestOptions,
@@ -116,7 +132,7 @@ class APIRequestTest extends GenericTest {
 			callback,
 			options: requestOptions
 		};
-		this.ipc.of[ApiConfig.getPreferredConfig().ipc.serverId].emit('request', message);
+		this.ipc.of[this.apiConfig.ipc.serverId].emit('request', message);
 	}
 
 	// handle a request response over IPC, for mock mode

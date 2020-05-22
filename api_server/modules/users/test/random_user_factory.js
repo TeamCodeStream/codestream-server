@@ -2,9 +2,8 @@
 
 'use strict';
 
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var RandomString = require('randomstring');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const RandomString = require('randomstring');
 
 // utility class to actually handle the registration and confirmation as needed
 class _UserCreator {
@@ -134,9 +133,8 @@ class RandomUserFactory {
 		let fullName = this.randomFullName();
 		let timeZone = 'America/New_York';
 		let companyName = this.randomCompanyName();
-		let _confirmationCheat = ApiConfig.getPreferredConfig().secrets.confirmationCheat;	// have the server give us the confirmation code, avoiding email
-		let _forceConfirmation = 1;									// force confirmation, even if environment settings have it turned off
-		let data = { email, secondaryEmails, fullName, companyName, timeZone, _confirmationCheat, _forceConfirmation };
+		let _forceConfirmation = 1;	// force confirmation, even if environment settings have it turned off
+		let data = { email, secondaryEmails, fullName, companyName, timeZone, _forceConfirmation, _confirmationCheat: options.confirmationCheat };
 		if (options.timeout) {
 			data.timeout = options.timeout;
 		}

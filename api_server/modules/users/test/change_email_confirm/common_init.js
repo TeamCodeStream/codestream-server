@@ -3,7 +3,6 @@
 'use strict';
 
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 
 class CommonInit {
@@ -27,7 +26,7 @@ class CommonInit {
 		const data = {
 			email: this.newEmail,
 			expiresIn: this.expiresIn,
-			_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat,	// gives us the token in the response
+			_confirmationCheat: this.apiConfig.secrets.confirmationCheat,	// gives us the token in the response
 		};
 
 		// issue a forgot-password request, with a secret to allow use to receive the token

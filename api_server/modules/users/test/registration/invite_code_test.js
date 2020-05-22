@@ -2,7 +2,6 @@
 
 const RegistrationTest = require('./registration_test');
 const Assert = require('assert');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const UserTestConstants = require('../user_test_constants');
 const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
 
@@ -19,7 +18,11 @@ class InviteCodeTest extends RegistrationTest {
 	}
 
 	getExpectedFields () {
-		return UserTestConstants.EXPECTED_LOGIN_RESPONSE;
+		const expectedResponse = { ...UserTestConstants.EXPECTED_LOGIN_RESPONSE };
+		if (this.apiConfig.usingSocketCluster) {
+			delete expectedResponse.pubnubKey;
+		}
+		return expectedResponse;
 	}
 
 	// before the test runs...
@@ -42,7 +45,7 @@ class InviteCodeTest extends RegistrationTest {
 					teamId: this.team.id,
 					email: this.data.email,
 					_pubnubUuid: this.data._pubnubUuid,
-					_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat,
+					_confirmationCheat: this.apiConfig.secrets.confirmationCheat,
 					_inviteCodeExpiresIn: this.inviteCodeExpiresIn
 				},
 				token: this.token
@@ -63,7 +66,11 @@ class InviteCodeTest extends RegistrationTest {
 		Assert(data.accessToken, 'no access token');
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(data.broadcasterToken, 'no broadcaster token');
-		Assert.deepEqual(data.capabilities, UserTestConstants.API_CAPABILITIES, 'capabilities are incorrect');
+		const expectedCapabilities = { ...UserTestConstants.API_CAPABILITIES };
+		if (this.apiConfig.email.suppressEmails) {
+			delete expectedCapabilities.emailSupport;
+		}
+		Assert.deepEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
 
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}

@@ -4,7 +4,6 @@
 
 const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Assert = require('assert');
 const CommonInit = require('./common_init');
 
@@ -34,7 +33,7 @@ class CodemarkLinkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const { permalink } = data;
 		this.permalink = permalink;
 		const type = this.permalinkType === 'public' ? 'p' : 'c';
-		const origin = ApiConfig.getPreferredConfig().api.publicApiUrl.replace(/\//g, '\\/');
+		const origin = this.apiConfig.api.publicApiUrl.replace(/\//g, '\\/');
 		const regex = `^${origin}\\/${type}\\/([A-Za-z0-9_-]+)\\/([A-Za-z0-9_-]+)$`;
 		const match = permalink.match(new RegExp(regex));
 		Assert(match, `returned permalink "${permalink}" does not match /${regex}/`);

@@ -2,7 +2,6 @@
 
 const CheckResetTest = require('./check_reset_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class NoEmailTest extends CheckResetTest {
 
@@ -20,7 +19,7 @@ class NoEmailTest extends CheckResetTest {
 	makeQueryData () {
 		// replace the token with a reset token that has no email in it
 		const queryData = super.makeQueryData();
-		queryData.token = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth).generate({}, 'rst');
+		queryData.token = new TokenHandler(this.apiConfig.secrets.auth).generate({}, 'rst');
 		return queryData;
 	}
 }

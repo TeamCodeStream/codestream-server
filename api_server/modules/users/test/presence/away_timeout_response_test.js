@@ -1,7 +1,6 @@
 'use strict';
 
 const PresenceTest = require('./presence_test');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const Assert = require('assert');
 
 class AwayTimeoutResponseTest extends PresenceTest {
@@ -20,7 +19,7 @@ class AwayTimeoutResponseTest extends PresenceTest {
 	validateResponse (data) {
 		// verify we got an awayTimeout ... this is important for the client to know
 		// what the value is for continuing confirmation of their online status
-		Assert.equal(data.awayTimeout, ApiConfig.getPreferredConfig().api.sessionAwayTimeout, 'returned away timeout not correct');
+		Assert.equal(data.awayTimeout, this.apiConfig.api.sessionAwayTimeout, 'returned away timeout not correct');
 	}
 }
 

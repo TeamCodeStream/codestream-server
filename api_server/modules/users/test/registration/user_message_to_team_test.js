@@ -3,7 +3,6 @@
 const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
 const RandomString = require('randomstring');
 const User = require(process.env.CS_API_TOP + '/modules/users/user');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class UserMessageToTeamTest extends CodeStreamMessageTest {
 
@@ -43,7 +42,7 @@ class UserMessageToTeamTest extends CodeStreamMessageTest {
 		Object.assign(data, {
 			email: this.registeringUser.email,
 			password: RandomString.generate(12),
-			_confirmationCheat: ApiConfig.getPreferredConfig().secrets.confirmationCheat,	// gives us the confirmation code in the response
+			_confirmationCheat: this.apiConfig.secrets.confirmationCheat,	// gives us the confirmation code in the response
 			_forceConfirmation: true								// this forces confirmation even if not enforced in environment
 		});
 		this.userFactory.registerUser(data, callback);

@@ -5,7 +5,6 @@ const PubNub = require('pubnub');
 const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
 const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
 const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 const JoinTest = require('./join_test');
 const Assert = require('assert');
 
@@ -14,7 +13,6 @@ class SubscriptionTest extends JoinTest {
 	constructor (options) {
 		super(options);
 		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
-		this.usingSocketCluster = ApiConfig.getPreferredConfig().socketCluster.port;
 	}
 
 	get description () {
@@ -73,7 +71,7 @@ class SubscriptionTest extends JoinTest {
 
 	createSocketClusterClient () {
 		const { user, broadcasterToken } = this.currentUser;
-		const config = Object.assign({}, ApiConfig.getPreferredConfig().socketCluster, {
+		const config = Object.assign({}, this.apiConfig.socketCluster, {
 			uid: user.id,
 			authKey: broadcasterToken 
 		});
@@ -82,14 +80,14 @@ class SubscriptionTest extends JoinTest {
 
 	createPubnubClient () { 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
-		const clientConfig = Object.assign({}, ApiConfig.getPreferredConfig().pubnub);
+		const clientConfig = Object.assign({}, this.apiConfig.pubnub);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser.user.id;
 		clientConfig.authKey = this.currentUser.broadcasterToken;
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
-			clientConfig.serverId = ApiConfig.getPreferredConfig().ipc.serverId;
+			clientConfig.serverId = this.apiConfig.ipc.serverId;
 		}
 		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		return new PubNubClient({

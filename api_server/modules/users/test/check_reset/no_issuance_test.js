@@ -2,7 +2,6 @@
 
 const CheckResetTest = require('./check_reset_test');
 const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class NoIssuanceTest extends CheckResetTest {
 
@@ -25,7 +24,7 @@ class NoIssuanceTest extends CheckResetTest {
 	makeQueryData () {
 		// replace the token with a reset token that has the other user's email in it
 		const queryData = super.makeQueryData();
-		queryData.token = new TokenHandler(ApiConfig.getPreferredConfig().secrets.auth).generate({ email: this.users[1].email }, 'rst');
+		queryData.token = new TokenHandler(this.apiConfig.secrets.auth).generate({ email: this.users[1].email }, 'rst');
 		return queryData;
 	}
 }

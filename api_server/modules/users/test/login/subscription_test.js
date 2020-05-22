@@ -7,7 +7,6 @@ const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubn
 const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
 const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
 const Assert = require('assert');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
 
 class SubscriptionTest extends CodeStreamAPITest {
 
@@ -17,7 +16,6 @@ class SubscriptionTest extends CodeStreamAPITest {
 		this.teamOptions.numRegistered = 2;
 		this.teamOptions.creatorIndex = 1;
 		this.streamOptions.creatorIndex = 1;
-		this.usingSocketCluster = ApiConfig.getPreferredConfig().socketCluster.port;
 	}
 
 	get description () {
@@ -96,7 +94,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 	}
 
 	createSocketClusterClient () {
-		const config = Object.assign({}, ApiConfig.getPreferredConfig().socketCluster, {
+		const config = Object.assign({}, this.apiConfig.socketCluster, {
 			uid: this.user.id,
 			authKey: this.broadcasterToken 
 		});
@@ -105,14 +103,14 @@ class SubscriptionTest extends CodeStreamAPITest {
 
 	createPubnubClient () { 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
-		const clientConfig = Object.assign({}, ApiConfig.getPreferredConfig().pubnub);
+		const clientConfig = Object.assign({}, this.apiConfig.pubnub);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.user._pubnubUuid || this.user.id;
 		clientConfig.authKey = this.broadcasterToken;	// the PubNub token is the auth key for the subscription
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
-			clientConfig.serverId = ApiConfig.getPreferredConfig().ipc.serverId;
+			clientConfig.serverId = this.apiConfig.ipc.serverId;
 		}
 		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		return new PubNubClient({
