@@ -49,22 +49,14 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.loggerConfig);
 
-	// FIXME: this copies the initial config into a new structure so it won't be
-	//        in sync with any config refreshes that happen further down the
-	//        road nor will you be able to fetch it by requring '/config/config'.
-	if (Config.mongo.queryLogging) {
-		Object.assign(Config.mongo.queryLogging, Config.loggerConfig, Config.mongo.queryLogging);
-	}
-	Config.mongo.collections = MongoCollections;
-	Config.mongo.logger = Logger;
-
 	// invoke a node cluster master with our configurations provided
 	const MyAPICluster = new ClusterWrapper(
 		ServerClass,
 		{
 			...Config,
 			moduleDirectory: ModuleDirectory,
-			dataCollections: DataCollections
+			dataCollections: DataCollections,
+			rawCollections: MongoCollections
 		},
 		Logger
 	);

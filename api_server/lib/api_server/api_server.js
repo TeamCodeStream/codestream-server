@@ -15,10 +15,10 @@ const IPCResponse = require('./ipc_response');
 
 class APIServer {
 
-	constructor (config) {
+	constructor (config, logger) {
 		this.config = config;
 		if (!config.noLogging) {
-			this.logger = this.config.logger || console;
+			this.logger = logger || console;
 		}
 		this.express = Express();
 		this.services = {};
@@ -260,9 +260,8 @@ class APIServer {
 			// master is telling us our worker ID and helping us identify ourselves in the logs
 			this.workerId = message.youAre;
 			this.amFirstWorker = message.firstWorker;
-			if (this.config.logger) {
-				this.loggerId = 'W' + this.workerId;
-				this.config.logger.loggerId = this.loggerId;
+			if (this.logger && this.logger.setLoggerId) {
+				this.logger.setLoggerId('W' + this.workerId);
 			}
 		}
 	}

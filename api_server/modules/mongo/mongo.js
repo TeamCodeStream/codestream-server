@@ -20,11 +20,6 @@ const ROUTES = [
 
 class Mongo extends APIServerModule {
 
-	constructor (config) {
-		super(config);
-		this.mongoClientFactory = new MongoClient({ tryIndefinitely: true });
-	}
-
 	getDependencies () {
 		return DEPENDENCIES;
 	}
@@ -41,16 +36,14 @@ class Mongo extends APIServerModule {
 				this.api.warn('Will not connect to mongo, no mongo configuration supplied');
 				return;
 			}
-			const mongoOptions = Object.assign({}, this.api.config.mongo, {
-				logger: this.api
+			this.mongoClientFactory = new MongoClient({
+				tryIndefinitely: true,
+				mockMode: this.api.config.api.mockMode,
+				logger: this.api.logger,
+				queryLogging: this.api.config.mongo.queryLogging,
+				collections: this.api.config.rawCollections
 			});
-			if (mongoOptions.queryLogging && this.api.loggerId) {
-				mongoOptions.queryLogging.loggerId = this.api.loggerId;
-			}
-			if (this.api.config.api.mockMode) {
-				mongoOptions.mockMode = true;
-			}
-			this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoOptions);
+			this.mongoClient = await this.mongoClientFactory.openMongoClient(this.api.config.mongo);
 			return { mongoClient: this.mongoClient };
 		};
 	}

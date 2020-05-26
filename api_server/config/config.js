@@ -89,6 +89,8 @@ function customConfigFunc(nativeCfg) {
 			requiresCsrfProtectionPaths: ['^\\/c\\/', '^\\/p\\/', '^\\/r\\/', '^\\/web\\/'],
 			// server will use this cookie to store identity token
 			identityCookie: 'tcs',
+			// mock mode skips mongo and pubnub in testing, uses ipc instead of http, makes tests run faster
+			mockMode: process.env.CS_API_MOCK_MODE || nativeCfg.apiServer.mockMode
 		},
 		secrets: {
 			...nativeCfg.sharedSecrets
@@ -161,12 +163,14 @@ function customConfigFunc(nativeCfg) {
 			// we write a separate log file for mongo queries, and for slow
 			// and "really slow" queries so we can look for problems
 			queryLogging: {
-				disabled: false,            // set to true to disable query logging
+				disabled: false, // set to true to disable query logging
+				/*
 				basename: 'mongo-query',
 				slowBasename: 'slow-mongo-query',
 				reallySlowBasename: 'really-slow-mongo-query',
 				slowThreshold: 100,         // queries that take longer than this go to the slow query log
 				reallySlowThreshold: 1000,  // queries that take longer than this go to the "really slow" query log
+				*/
 				// remove the fields below from query logging, replace with '*'
 				noLogData: [
 					{

@@ -23,17 +23,12 @@ class DataCollectionTest extends BaseTest {
 		this.apiConfig = CodeStreamApiConfig;
 
 		// set up the mongo client, and open it against a test collection
-		this.mongoClientFactory = new MongoClient();
+		this.mongoClientFactory = new MongoClient({
+			collections: ['test'],
+			mockMode: this.mockMode
+		});
 
-		// it is expected that the WritableApiConfig has been loaded already
-		const mongoConfig = Object.assign(this.apiConfig.mongo, { collections: ['test'] });
-		delete mongoConfig.queryLogging;
-		delete mongoConfig.hintsRequired;
-		if (this.mockMode) {
-			mongoConfig.mockMode = true;
-		}
-
-		this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
+		this.mongoClient = await this.mongoClientFactory.openMongoClient(this.apiConfig.mongo);
 		this.mongoData = this.mongoClient.mongoCollections;
 		this.dataCollection = new DataCollection({
 			databaseCollection: this.mongoData.test,
