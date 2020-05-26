@@ -8,7 +8,7 @@
 const MongoDbClient = require('mongodb').MongoClient;
 const MongoCollection = require('./mongo_collection');
 const MockMongoCollection = require('./mock_mongo_collection');
-const SimpleFileLogger = require('../simple_file_logger');
+//const SimpleFileLogger = require('../simple_file_logger');
 const TryIndefinitely = require('../try_indefinitely');
 
 class MongoClient {
@@ -22,11 +22,9 @@ class MongoClient {
 	// open and initialize the mongo client
 	async openMongoClient (config) {
 		this.config = config;
-		if (this.config.queryLogging) {				// establish query logging if requested
-			this.establishQueryLogger();
-		}
-		await this.connectToMongo();				// connect to the mongo service
-		await this.makeCollections();				// make our collection mappings
+		this.establishQueryLogger();	// establish query logging if requested
+		await this.connectToMongo();	// connect to the mongo service
+		await this.makeCollections();	// make our collection mappings
 		return this;
 	}
 
@@ -39,21 +37,30 @@ class MongoClient {
 	// establish the query logger ... in addition to logging all queries, we can also
 	// log slow queries and really slow queries according to threshold settings
 	establishQueryLogger () {
-		this.config.queryLogger = new SimpleFileLogger(this.config.queryLogging);
-		if (this.config.queryLogging.slowBasename) {
-			const slowConfig = Object.assign(this.config.queryLogging, {
-				basename: this.config.queryLogging.slowBasename,
-				slowThreshold: this.config.queryLogging.slowThreshold || 100
-			});
-			this.config.slowLogger = new SimpleFileLogger(slowConfig);
+		if (!this.options.queryLogging || this.options.queryLogging.disabled) {
+			return;
 		}
-		if (this.config.queryLogging.reallySlowBasename) {
-			const reallySlowConfig = Object.assign(this.config.queryLogging, {
-				basename: this.config.queryLogging.reallySlowBasename,
-				slowThreshold: this.config.queryLogging.reallySlowThreshold || 1000
+		this.queryLogger = this.options.logger;
+
+		/*
+		this.queryLogger = new SimpleFileLogger({ ...this.options.queryLogging, loggerId });
+		if (this.options.queryLogging.slowBasename) {
+			const slowConfig = Object.assign(this.options.queryLogging, {
+				basename: this.options.queryLogging.slowBasename,
+				slowThreshold: this.options.queryLogging.slowThreshold || 100,
+				loggerId
 			});
-			this.config.reallySlowLogger = new SimpleFileLogger(reallySlowConfig);
+			this.slowLogger = new SimpleFileLogger(slowConfig);
 		}
+		if (this.options.queryLogging.reallySlowBasename) {
+			const reallySlowConfig = Object.assign(this.options.queryLogging, {
+				basename: this.options.queryLogging.reallySlowBasename,
+				slowThreshold: this.options.queryLogging.reallySlowThreshold || 1000,
+				loggerId
+			});
+			this.reallySlowLogger = new SimpleFileLogger(reallySlowConfig);
+		}
+		*/
 	}
 
 	// connect to the mongo service according to configuration
@@ -61,9 +68,9 @@ class MongoClient {
 		if (!this.config) {
 			throw 'mongo configuration required';
 		}
-		if (this.config.mockMode) {
-			if (this.config.logger) {
-				this.config.logger.log('Note - mongo client has been opened in mock mode');
+		if (this.options.mockMode) {
+			if (this.options.logger) {
+				this.options.logger.log('Note - mongo client has been opened in mock mode');
 			}
 			return;
 		}
@@ -77,8 +84,8 @@ class MongoClient {
 		}
 
 		try {
-			if (this.config.logger) {
-				this.config.logger.log(`Connecting to mongo: ${this.config.url}`);
+			if (this.options.logger) {
+				this.options.logger.log(`Connecting to mongo: ${this.config.url}`);
 			}
 			const settings = Object.assign({}, this.config.settings, {
 				useNewUrlParser: true,
@@ -90,7 +97,7 @@ class MongoClient {
 						this.config.url,
 						settings
 					);
-				}, 5000, this.config.logger, 'Unable to connect to Mongo, retrying...');
+				}, 5000, this.options.logger, 'Unable to connect to Mongo, retrying...');
 			}
 			else {
 				this.mongoClient = await MongoDbClient.connect(
@@ -107,12 +114,12 @@ class MongoClient {
 	// for each desired database collection, create a MongoCollection object as a bridge
 	async makeCollections () {
 		let collections = [];
-		if (this.config.collections === 'all') {
+		if (!this.options.collections || this.options.collections === 'all') {
 			collections = await this.mongoClient.db().listCollections().toArray();
 			collections = collections.map(c => c.name);
 		}
-		else if (this.config.collections instanceof Array) {
-			let configCollections = [...this.config.collections];
+		else if (this.options.collections instanceof Array) {
+			let configCollections = [...this.options.collections];
 			const allIndex = configCollections.indexOf('__all');
 			if (allIndex !== -1) {
 				configCollections.splice(allIndex, 1);
@@ -133,7 +140,7 @@ class MongoClient {
 	// create a single MongoCollection object as a bridge to the mongo driver's Collection object
 	async makeCollection (collection) {
 		if (typeof collection !== 'string') { return; }
-		if (this.config.mockMode) {
+		if (this.options.mockMode) {
 			this.dbCollections[collection] = new MockMongoCollection({ collectionName: collection });
 		}
 		else {
@@ -141,16 +148,18 @@ class MongoClient {
 		}
 		this.mongoCollections[collection] = new MongoCollection({
 			dbCollection: this.dbCollections[collection],
-			queryLogger: this.config.queryLogger,
-			slowLogger: this.config.slowLogger,
-			reallySlowLogger: this.config.reallySlowLogger,
-			hintsRequired: this.config.hintsRequired,
-			noLogData: (this.config.queryLogging || {}).noLogData
+			queryLogger: this.queryLogger,
+			/*
+			slowLogger: this.slowLogger,
+			reallySlowLogger: this.reallySlowLogger,
+			*/
+			hintsRequired: this.options.hintsRequired,
+			noLogData: (this.options.queryLogging || {}).noLogData
 		});
 	}
 
 	clearMockCache () {
-		if (this.config.mockMode) {
+		if (this.options.mockMode) {
 			for (let dbCollection in this.dbCollections) {
 				this.dbCollections[dbCollection].clearCache();
 			}

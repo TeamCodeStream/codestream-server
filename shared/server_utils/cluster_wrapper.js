@@ -169,7 +169,7 @@ class ClusterWrapper {
 		// start up the worker thread by invoking an object of the provided serverClass
 		// and kicking things off
 		this.config.cluster = { workerId: Cluster.worker.id };
-		global.ServerObject = new this.serverClass(this.config);
+		global.ServerObject = new this.serverClass(this.config, this.logger);
 		global.ServerObject.start((error) => {
 			if (error) {
 				console.error('server worker failed to start: ' + error); // eslint-disable-line no-console

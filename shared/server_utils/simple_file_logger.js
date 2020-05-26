@@ -42,6 +42,10 @@ class SimpleFileLogger {
 		this.timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
 	}
 
+	setLoggerId (loggerId) {
+		this.loggerId = loggerId;
+	}
+
 	// initialize logging
 	async initialize () {
 		this.startedOn = Date.now();
