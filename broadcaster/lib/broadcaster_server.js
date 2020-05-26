@@ -13,10 +13,10 @@ const OS = require('os');
 
 class BroadcasterServer {
 
-	constructor(config) {
+	constructor (config, logger) {
 		this.config = config;
 		if (!config.noLogging) {
-			this.logger = this.config.logger || console;
+			this.logger = logger || console;
 		}
 		this.socketsByUserId = {};
 		this.userIdsByTeamChannel = {};
