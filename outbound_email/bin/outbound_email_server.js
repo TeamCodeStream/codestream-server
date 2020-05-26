@@ -11,7 +11,7 @@ const ClusterWrapper = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/server_
 
 // start up the master, this will launch workers to really get down to work
 (async function() {
-	let Config = await OutboundEmailServerConfig.loadConfig({custom: true});
+	let Config = await OutboundEmailServerConfig.loadPreferredConfig();
 
 	// establish our logger
 	var Logger = new SimpleFileLogger(Config.logging);

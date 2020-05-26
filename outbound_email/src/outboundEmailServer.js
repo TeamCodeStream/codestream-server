@@ -147,7 +147,7 @@ class OutboundEmailServer {
 		this.numOpenTasks++;
 		if(await OutboundEmailServerConfig.isDirty()) {
 			this.log('reloading config data - cache is dirty');
-			this.config = await OutboundEmailServerConfig.loadConfig({custom: true});
+			this.config = await OutboundEmailServerConfig.loadPreferredConfig();
 			if (OutboundEmailServerConfig.restartRequired()) {
 				this.log('new config requires a restart or full re-initialization');
 				// uh oh!

@@ -12,7 +12,7 @@ var OutboundEmailService;
 var Config;
 
 (async function() {
-	let Config = await OutboundEmailServerConfig.loadConfig({custom: true});
+	let Config = await OutboundEmailServerConfig.loadPreferredConfig();
 	Config.messageHandler = HandleMessage;
 	OutboundEmailService = new OutboundEmailServer(Config);
 	OutboundEmailService.start((error) => {
@@ -27,7 +27,7 @@ async function HandleMessage (message, releaseCallback) {
 	releaseCallback(true); // this releases the message from the queue
 	// NOTE: This is the only place we expect the config data to be available
 	//       from a global source
-	Config = await OutboundEmailServerConfig.loadConfig({custom: true});
+	Config = await OutboundEmailServerConfig.loadPreferredConfig();
 	try {
 		await LambdaLocal.execute({
 			event: message,
