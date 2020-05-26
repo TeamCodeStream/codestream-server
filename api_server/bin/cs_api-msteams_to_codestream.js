@@ -484,7 +484,7 @@ class MSTeamsConverter {
 		if (!teamId) {
 			throw 'must provide teamId or all';
 		}
-		await ApiConfig.loadConfig({custom: true});
+		await ApiConfig.loadPreferredConfig();
 		await new MSTeamsConverter().go({ teamId });
 	}
 	catch (error) {

@@ -126,7 +126,7 @@ class SetFlag {
 
 (async function() {
 	try {
-		await ApiConfig.loadConfig({custom: true});
+		await ApiConfig.loadPreferredConfig();
 		await new SetFlag().go({
 			teamId: Commander.teamId,
 			userId: Commander.userId,

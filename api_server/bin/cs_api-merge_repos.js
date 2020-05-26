@@ -141,7 +141,7 @@ class RepoMerger {
 
 (async function() {
 	try {
-		await ApiConfig.loadConfig({custom: true});
+		await ApiConfig.loadPreferredConfig();
 		await new RepoMerger().go({
 			fromRepoId: Commander.fromRepo,
 			toRepoId: Commander.toRepo,

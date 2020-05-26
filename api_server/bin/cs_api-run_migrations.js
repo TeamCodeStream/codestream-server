@@ -52,7 +52,7 @@ class MigrationRunner {
 
 (async function() {
 	try {
-		await ApiConfig.loadConfig({custom: true});
+		await ApiConfig.loadPreferredConfig();
 		await new MigrationRunner().go();
 	}
 	catch (error) {

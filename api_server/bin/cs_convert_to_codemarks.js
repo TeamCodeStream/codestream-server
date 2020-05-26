@@ -172,7 +172,7 @@ class Converter {
 
 (async function() {
 	try {
-		await ApiConfig.loadConfig({custom: true});
+		await ApiConfig.loadPreferredConfig();
 		await new Converter().go();
 	}
 	catch (error) {

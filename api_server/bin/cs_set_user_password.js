@@ -20,7 +20,7 @@ if (!Email || !Password) {
 
 (async function() {
 
-	const Config = await ApiConfig.loadConfig({custom: true});
+	const Config = await ApiConfig.loadPreferredConfig();
 
 	const mongoClient = new MongoClient();
 	const mongoConfig = Object.assign({}, Config.mongo, { collections: ['users'] });

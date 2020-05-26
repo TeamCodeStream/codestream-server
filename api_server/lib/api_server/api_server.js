@@ -121,7 +121,7 @@ class APIServer {
 		}
 		(async function() {
 			if (await ApiConfig.isDirty()) {
-				this.config = await ApiConfig.loadConfig({custom: true});
+				this.config = await ApiConfig.loadPreferredConfig();
 				if (ApiConfig.restartRequired()) {
 					this.log('new config requires a restart or full re-initialization');
 					// uh oh!

@@ -179,7 +179,7 @@ class PlanUpdater {
 
 (async function() {
 	try {
-		await ApiConfig.loadConfig({custom: true});
+		await ApiConfig.loadPreferredConfig();
 		await new PlanUpdater().go();
 	}
 	catch (error) {

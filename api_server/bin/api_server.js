@@ -44,7 +44,7 @@ const MongoCollections = Object.keys(DataCollections).concat([
 
 (async function() {
 	// changes to Config will be available globally via the /config/writeable.js module
-	const Config = await ApiConfig.loadConfig({custom: true});
+	const Config = await ApiConfig.loadPreferredConfig();
 
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.loggerConfig);

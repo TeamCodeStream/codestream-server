@@ -1061,7 +1061,7 @@ class SlackReplyFetcher {
 		if (!teamId) {
 			throw 'must provide teamId or all';
 		}
-		await ApiConfig.loadConfig({custom: true});
+		await ApiConfig.loadPreferredConfig();
 		await new SlackReplyFetcher().go({ teamId });
 	}
 	catch (error) {

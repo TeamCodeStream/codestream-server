@@ -89,7 +89,7 @@ class IntercomUpdater {
 
 (async function() {
 	try {
-		await ApiConfig.loadConfig({custom: true});
+		await ApiConfig.loadPreferredConfig();
 		await new IntercomUpdater().go();
 	}
 	catch (error) {
