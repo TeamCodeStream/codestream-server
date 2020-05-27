@@ -1,5 +1,8 @@
 # determine where onprem bootstrap files are distributed
 
-# profile/env : boot strap file name
-onprem-overlays_avs:onprem-avs.tgz
-onprem-overlays_mailonly:onprem-fresh-install.tgz
+# env : fileName : config-group
+
+avs:onprem-avs.tgz:default
+mailonly:onprem-fresh-install.tgz:default
+oppr:onprem-oppr.tgz:default
+opbeta:onprem-opbeta.tgz:default

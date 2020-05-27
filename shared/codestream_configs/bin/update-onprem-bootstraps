@@ -8,12 +8,15 @@ function usage {
     --yes | -y    automatically answer 'yes' to all interactive prompts (batch mode)
     --force-pkg   force creation of and upload overlay packages regardless if the configs have changed
 
-    This script creates the onprem overlay config files (which are ultimately added on top of the
-    codestream config templates for onprem installs) to setup a pre-canned onprem configuration
-    used in R&D and testing.
+    This script creates the onprem overlay config files (to be overlayed on top of codestream configs
+    used for on-prem installations) in order to create pre-canned onprem configurations.
 
     First it creates the overlay files from the profiles and secrets data and deposits them in
-    the $KM
+    the \$KM_PKI/secrets/config/ directory.
+
+    Next it optionally creates tarballs containing the overlays and other supplemental data files
+    used for onprem installations, depositing them in the S3 configuration buckets. See the
+    'etc/onprem-bootstrap-distribution' file for details.
 "
 	exit 1
 }
@@ -43,31 +46,40 @@ schemaVersion=`cat $repoRoot/parameters.version`
 
 tmpDir=/tmp/x$$
 mkdir $tmpDir
-cp $repoRoot/etc/config-cache.template $tmpDir
+targetCacheFile=config-cache.template
 
 # specialized overlay config files used for custom codestream configurations
-for csEnv in avs mailonly
+for csEnv in avs oppr opbeta
 do
+	# generate the overlay file and save it with the rest of the codestream configs as onprem-overlays_*
 	[ -n "$verbose" ] && echo $binDir/process-profile --profile $repoRoot/profiles/onprem-overlays.json --env $csEnv --out $KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json.x
 	$binDir/process-profile --profile $repoRoot/profiles/onprem-overlays.json --env $csEnv --out $KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json.x
 	diff_notify $KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json "$yes"
 	if [ $? -eq 0 -o $forcePkg -eq 1 ]; then
-		pkgName=`grep ^onprem-overlays_${csEnv}: $repoRoot/etc/onprem-bootstrap-distribution | head -1 | cut -f2 -d:`
+		pkgName=`grep ^${csEnv}: $repoRoot/etc/onprem-bootstrap-distribution | head -1 | cut -f2 -d:`
 		if [ -z "$pkgName" ]; then
 			echo "No bootstrap file name associated with this file"
 		else
+			# create the onprem package and distribute it to S3
 			echo -n "create and upload $pkgName (y/N)? "
 			[ $answerYes -eq 0 ] && read ans || { echo "Y"; ans=y; }
 			if [ "$ans" == y ]; then
+				[ -f $repoRoot/etc/$srcCacheFile.$csEnv ] && srcCacheFile="$targetCacheFile.$csEnv" || srcCacheFile=$targetCacheFile
+				echo cp $repoRoot/etc/$srcCacheFile $tmpDir/$targetCacheFile
+				cp $repoRoot/etc/$srcCacheFile $tmpDir/$targetCacheFile
+
 				cp $KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json $tmpDir/custom-config-options.json
 				if [ $? -eq 0 ]; then
 					(cd $tmpDir && tar czpvf $pkgName custom-config-options.json config-cache.template)
 					if [ $? -eq 0 ]; then
-						echo aws s3 cp $tmpDir/$pkgName s3://codestream-ops/vmcfg/default/$pkgName --sse
-						aws s3 cp $tmpDir/$pkgName s3://codestream-ops/vmcfg/default/$pkgName --sse
+						cfgGroup=`grep ^${csEnv}: $repoRoot/etc/onprem-bootstrap-distribution | head -1 | cut -f3 -d:`
+						[ -z "$cfgGroup" ] && echo "config group $cfgGroup for env $csEnv not found" && exit 1
+						echo aws s3 cp $tmpDir/$pkgName s3://codestream-ops/vmcfg/$cfgGroup/$pkgName --sse
+						aws s3 cp $tmpDir/$pkgName s3://codestream-ops/vmcfg/$cfgGroup/$pkgName --sse
 					fi
 				fi
-				/bin/rm $tmpDir/custom-config-options.json $tmpDir/$pkgName
+				/bin/rm $tmpDir/*
+				echo
 			fi
 		fi
 	fi
