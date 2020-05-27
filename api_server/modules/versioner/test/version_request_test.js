@@ -70,14 +70,11 @@ class VersionRequestTest extends CodeStreamAPITest {
 		}
 
 		// set up the mongo client, and open it against the versionMatrix collection
-		this.mongoClientFactory = new MongoClient();
-		const mongoConfig = Object.assign({}, this.apiConfig.mongo, { collections: ['versionMatrix'] });
-		delete mongoConfig.queryLogging;
-		delete mongoConfig.hintsRequired;
+		this.mongoClientFactory = new MongoClient({ collections: ['versionMatrix'] });
 
 		(async () => {
 			try {
-				this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
+				this.mongoClient = await this.mongoClientFactory.openMongoClient(this.apiConfig.mongo);
 			}
 			catch (error) {
 				return callback(error);

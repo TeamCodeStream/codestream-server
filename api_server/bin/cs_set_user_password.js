@@ -20,13 +20,11 @@ if (!Email || !Password) {
 
 (async function() {
 
-	const Config = await ApiConfig.loadPreferredConfig();
+	await ApiConfig.loadPreferredConfig();
 
-	const mongoClient = new MongoClient();
-	const mongoConfig = Object.assign({}, Config.mongo, { collections: ['users'] });
-	delete mongoConfig.queryLogging;
+	const mongoClient = new MongoClient({ collections: ['users'] });
 	try {
-		await mongoClient.openMongoClient(mongoConfig);
+		await mongoClient.openMongoClient(ApiConfig.getPreferredConfig().mongo);
 	}
 	catch (error) {
 		console.error(`unable to open mongo client: ${JSON.stringify(error)}`);

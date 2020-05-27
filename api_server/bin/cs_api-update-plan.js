@@ -44,11 +44,9 @@ class PlanUpdater {
 
 	// open a mongo client to read from
 	async openMongoClient () {
-		this.mongoClient = new MongoClient();
-		let mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: COLLECTIONS });
-		delete mongoConfig.queryLogging;
+		this.mongoClient = new MongoClient({ collections: COLLECTIONS });
 		try {
-			await this.mongoClient.openMongoClient(mongoConfig);
+			await this.mongoClient.openMongoClient(ApiConfig.getPreferredConfig().mongo);
 			this.data = this.mongoClient.mongoCollections;
 		}
 		catch (error) {
@@ -66,7 +64,7 @@ class PlanUpdater {
 
 	// open an Intercom client to write to
 	async openIntercomClient () {
-		this.intercomClient = new Intercom.Client({ token: ApiConfig.getPreferredConfig().telemetry.intercom.token });
+		this.intercomClient = new Intercom.Client({ token: ApiConfig.getPreferredConfig().intercom.accessToken });
 	}
 
 	// look for all companies that are in trial, and for each one, change its plan as needed

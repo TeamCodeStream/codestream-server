@@ -454,11 +454,9 @@ class MSTeamsConverter {
 
 	// open a mongo client to do the dirty work
 	async openMongoClient () {
-		this.mongoClient = new MongoClient();
-		let mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: COLLECTIONS });
-		delete mongoConfig.queryLogging;
+		this.mongoClient = new MongoClient({ collections: COLLECTIONS });
 		try {
-			await this.mongoClient.openMongoClient(mongoConfig);
+			await this.mongoClient.openMongoClient(ApiConfig.getPreferredConfig().mongo);
 			this.data = this.mongoClient.mongoCollections;
 		}
 		catch (error) {

@@ -9,6 +9,7 @@ class TeamMerger {
 	async go (options) {
 		Object.assign(this, options);
 		this.logger = this.logger || console;
+		await ApiConfig.loadPreferredConfig();
 		await this.openMongoClient();
 		await this.getToTeam();
 		await this.getToUsers();
@@ -27,11 +28,9 @@ class TeamMerger {
 	}
 
 	async openMongoClient () {
-		this.mongoClient = new MongoClient();
-		let mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: COLLECTIONS });
-		delete mongoConfig.queryLogging;
+		this.mongoClient = new MongoClient({ collections: COLLECTIONS });
 		try {
-			await this.mongoClient.openMongoClient(mongoConfig);
+			await this.mongoClient.openMongoClient(ApiConfig.getPreferredConfig().mongo);
 		}
 		catch (error) {
 			throw `unable to open mongo client: ${JSON.stringify(error)}`;
