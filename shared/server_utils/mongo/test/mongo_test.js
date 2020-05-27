@@ -19,17 +19,12 @@ class MongoTest extends GenericTest {
 	// before the test runs...
 	before (callback) {
 		// set up the mongo client, and open it against a test collection
-		this.mongoClientFactory = new MongoClient();
-		const mongoConfig = Object.assign({}, ApiConfig.getPreferredConfig().mongo, { collections: ['test'] });
-		delete mongoConfig.queryLogging;
-		delete mongoConfig.hintsRequired;
-		if (this.mockMode) {
-			mongoConfig.mockMode = true;
-		}
+		this.mongoClientFactory = new MongoClient({ collections: ['test'], mockMode: this.mockMode });
 
 		(async () => {
 			try {
-				this.mongoClient = await this.mongoClientFactory.openMongoClient(mongoConfig);
+				await ApiConfig.loadPreferredConfig();
+				this.mongoClient = await this.mongoClientFactory.openMongoClient(ApiConfig.getPreferredConfig().mongo);
 			}
 			catch (error) {
 				return callback(error);
