@@ -40,10 +40,10 @@ const HANDLERS = {
 
 class OutboundEmailServer {
 
-	constructor(config) {
+	constructor (config, logger) {
 		this.config = config;
 		if (!config.noLogging) {
-			this.logger = this.config.logger || console;
+			this.logger = logger || console;
 		}
 	}
 
