@@ -1,0 +1,14 @@
+FQHN={{hostName}}.codestream.us
+SSL_CERT_FILE=wildcard.codestream.us-crt
+SSL_KEY_FILE=wildcard.codestream.us-key
+SSL_CA_FILE=wildcard.codestream.us-ca
+SECRET_AUTH=SecretAuthCodeForOpOppr
+SECRET_COOKIE=SecretCookieForOpOppr
+SECRET_CONFIRMATION_CHEAT=SecretConfCheatCodeForOpOppr
+SECRET_SUBSCRIPTION_CHEAT=SecretSubscriptionCheatCodeForOpOppr
+SECRET_MAIL=SecretMailForOpOppr
+SECRET_TELEMETRY=SecretTelemetryForOpOppr
+SECRET_BROADCAST_API=SecretBroadcastApiForOpOppr
+SECRET_BROADCAST_AUTH=SecretBroadcastAuthForOpOppr
+SENDER_EMAIL=codestream_{{hostName}}_alerts@codestream.com
+SUPPORT_EMAIL=codestream_{{hostName}}_support@codestream.com

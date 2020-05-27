@@ -6,8 +6,9 @@
 //   - Outbound mail:  NodeMailer/smtp via mail-relay.codestream.us
 //
 //   environments:
-//        default: mail only
-//        avs:     mail, integrations for AcmeVideoServices
+//        opbeta:   
+//        oppr:   
+//        avs:      AcmeVideoServices
 
 {
 	"emailDeliveryService": {
@@ -18,6 +19,72 @@
 		}
 	},
 	"integrations": {
+		"asana": {
+			"cloud": {
+				"defaultEnv": {},
+				"opbeta": {
+					"_loadSecretsFile": "asana/dev.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "asana/dev.cfg"
+				}
+			}
+		},
+		"bitbucket": {
+			"cloud": {
+				"defaultEnv": {},
+				"opbeta": {
+					"_loadSecretsFile": "bitbucket/dev.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "bitbucket/dev.cfg"
+				}
+			}
+		},
+		"devops": {
+			"cloud": {
+				"defaultEnv": {},
+				"opbeta": {
+					"_loadSecretsFile": "microsoft/devops-dev.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "microsoft/devops-dev.cfg"
+				}
+			}
+		},
+		"github": {
+			"cloud": {
+				"defaultEnv": {},
+				"opbeta": {
+					"_loadSecretsFile": "github/dev.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "github/dev.cfg"
+				}
+			}
+		},
+		"gitlab": {
+			"cloud": {
+				"defaultEnv": {},
+				"opbeta": {
+					"_loadSecretsFile": "gitlab/dev.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "gitlab/dev.cfg"
+				}
+			}
+		},
+		"jira": {
+			"cloud": {
+				"defaultEnv": {},
+				"opbeta": {
+					"_loadSecretsFile": "atlassian/dev.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "atlassian/dev.cfg"
+				}
+			}
+		},
 		"msteams": {
 			"cloud": {
 				"avs": {
@@ -25,6 +92,33 @@
 				},
 				"defaultEnv": {}
 			}
+		},
+		"slack": {
+			"cloud": {
+				"defaultEnv": {},
+				"opbeta": {
+					"_loadSecretsFile": "slack/opbeta-combined.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "slack/oppr-combined.cfg"
+				}
+			}
+		},
+		"trello": {
+			"cloud": {
+				"defaultEnv": {},
+				"opbeta": {
+					"_loadSecretsFile": "trello/codestreamops.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "trello/codestreamops.cfg"
+				}
+			}
 		}
+	},
+	"ssl": {
+		"cafile": "/opt/config/wildcard.codestream.us-ca",
+		"certfile": "/opt/config/wildcard.codestream.us-crt",
+		"keyfile": "/opt/config/wildcard.codestream.us-key"
 	}
 }

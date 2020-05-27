@@ -344,7 +344,7 @@
 			"desc": "attachments in incoming emails will be stored temporarily here"
 		},
 		"tmpDirectory": {
-			"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/tmp",
+			"default": "${CS_MAILIN_SANDBOX}/tmp",
 			"desc": "temp directory",
 			"env": "CS_MAILIN_TMP"
 		}
