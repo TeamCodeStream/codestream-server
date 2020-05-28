@@ -22,7 +22,7 @@ class ClusterWrapper {
 		this.serverClass = serverClass;
 		this.serverOptions = serverOptions;
 		this.options = options;
-		this.logger = this.options.logger || console;
+		this.logger = this.serverOptions.logger || console;
 		this.workers = {};
 	}
 
