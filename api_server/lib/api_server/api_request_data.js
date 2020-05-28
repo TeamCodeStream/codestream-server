@@ -27,7 +27,7 @@ class APIRequestData {
 	async addDataCollection (collectionName) {
 		// create a DataCollection instance for this collection, this will manage our local cache
 		const options = this[OptionsSymbol];
-		const modelClass = this[OptionsSymbol].api.config.dataCollections[collectionName];
+		const modelClass = this[OptionsSymbol].api.serverOptions.dataCollections[collectionName];
 		if (!modelClass) { return; }
 		let collection = new DataCollection({
 			databaseCollection: options.api.data[collectionName], // the collection in the master DataSource

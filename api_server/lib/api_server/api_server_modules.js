@@ -36,10 +36,10 @@ class APIServerModules {
 
 	// read the modules directory, see what we find...
 	readModuleDirectory () {
-		if (!this.config.moduleDirectory) {
+		if (!this.api.serverOptions.moduleDirectory) {
 			return;
 		}
-		this.moduleFiles = FS.readdirSync(this.config.moduleDirectory);
+		this.moduleFiles = FS.readdirSync(this.api.serverOptions.moduleDirectory);
 	}
 
 	// process whatever directories we find in the modules directory
@@ -49,7 +49,7 @@ class APIServerModules {
 
 	// process a file or directory in the modules directory (but we're just looking for directories)
 	processModuleFile (moduleFile) {
-		const modulePath = Path.join(this.config.moduleDirectory, moduleFile);
+		const modulePath = Path.join(this.api.serverOptions.moduleDirectory, moduleFile);
 		let stats;
 		try {
 			stats = FS.statSync(modulePath);

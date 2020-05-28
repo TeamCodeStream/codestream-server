@@ -41,7 +41,7 @@ class Mongo extends APIServerModule {
 				mockMode: this.api.config.api.mockMode,
 				logger: this.api.logger,
 				queryLogging: this.api.config.mongo.queryLogging,
-				collections: this.api.config.rawCollections
+				collections: this.api.serverOptions.rawCollections
 			});
 			this.mongoClient = await this.mongoClientFactory.openMongoClient(this.api.config.mongo);
 			return { mongoClient: this.mongoClient };

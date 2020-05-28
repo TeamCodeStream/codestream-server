@@ -53,12 +53,12 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	const MyAPICluster = new ClusterWrapper(
 		ServerClass,
 		{
-			...Config,
+			config: Config,
+			logger: Logger,
 			moduleDirectory: ModuleDirectory,
 			dataCollections: DataCollections,
 			rawCollections: MongoCollections
-		},
-		Logger
+		}
 	);
 	try {
 		await MyAPICluster.start();
