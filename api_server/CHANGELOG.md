@@ -1,5 +1,11 @@
 # Change Log
 
+## [7.2.6] - 2020-5-28
+
+### Changed
+
+- Bump API server payload limit to 20MB
+
 ## [7.2.5] - 2020-5-21
 
 ### Added
