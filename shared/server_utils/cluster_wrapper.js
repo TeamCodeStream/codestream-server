@@ -15,15 +15,15 @@ Program
 
 class ClusterWrapper {
 
-	constructor (serverClass, config, logger, options = {}) {
-		this.config = config;
-		this.options = options;
-		this.logger = logger || console;
-		this.workers = {};
+	constructor (serverClass, serverOptions = {}, options = {}) {
 		if (!serverClass) {
 			throw new Error('serverClass must be provided in ClusterWrapper constructor');
 		}
 		this.serverClass = serverClass;
+		this.serverOptions = serverOptions;
+		this.options = options;
+		this.logger = this.options.logger || console;
+		this.workers = {};
 	}
 
 	async start () {
@@ -51,7 +51,7 @@ class ClusterWrapper {
 
 	testPorts (callback) {
 		// here we test our listen port for availability, before we actually start spawning workers to listen
-		const port = this.config.express && this.config.express.port;
+		const port = this.serverOptions.config && this.serverOptions.config.express && this.serverOptions.config.express.port;
 		if (!port) { return callback(); }
 		const testSocket = Net.connect(port);
 
@@ -168,8 +168,7 @@ class ClusterWrapper {
 	startWorker () {
 		// start up the worker thread by invoking an object of the provided serverClass
 		// and kicking things off
-		this.config.cluster = { workerId: Cluster.worker.id };
-		global.ServerObject = new this.serverClass(this.config, this.logger);
+		global.ServerObject = new this.serverClass(this.serverOptions);
 		global.ServerObject.start((error) => {
 			if (error) {
 				console.error('server worker failed to start: ' + error); // eslint-disable-line no-console
