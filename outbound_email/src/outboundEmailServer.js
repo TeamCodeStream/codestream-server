@@ -40,10 +40,11 @@ const HANDLERS = {
 
 class OutboundEmailServer {
 
-	constructor (config, logger) {
-		this.config = config;
-		if (!config.noLogging) {
-			this.logger = logger || console;
+	constructor (options = {}) {
+		this.serverOptions = options;
+		this.config = options.config || {};
+		if (!this.config.noLogging) {
+			this.logger = options.logger || console;
 		}
 	}
 
@@ -202,7 +203,7 @@ class OutboundEmailServer {
 	}
 	
 	async openBroadcasterClient () {
-		if (this.config.socketCluster.port) {
+		if (this.config.socketCluster && this.config.socketCluster.port) {
 			return await this.openSocketClusterClient();
 		}
 		else {

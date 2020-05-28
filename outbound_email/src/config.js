@@ -63,7 +63,7 @@ function customConfigFunc(nativeCfg) {
 	// Queuing Service
 	// FIXME - ambiguous. Are we using rabbit or aws?
 	outboundEmailCfg.rabbitmq = nativeCfg.queuingEngine.rabbitmq;
-	outboundEmailCfg.outboundEmailQueueName = (Object.keys(outboundEmailCfg.rabbitmq).length > 0) ? outboundEmailCfg.rabbitmq.outboundEmailQueueName : nativeCfg.queuingEngine.awsSQS.outboundEmailQueueName;
+	outboundEmailCfg.outboundEmailQueueName = (Object.keys(outboundEmailCfg.rabbitmq || {}).length > 0) ? outboundEmailCfg.rabbitmq.outboundEmailQueueName : nativeCfg.queuingEngine.awsSQS.outboundEmailQueueName;
 
 	return outboundEmailCfg;
 }

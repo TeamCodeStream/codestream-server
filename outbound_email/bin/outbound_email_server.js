@@ -11,18 +11,19 @@ const ClusterWrapper = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/server_
 
 // start up the master, this will launch workers to really get down to work
 (async function() {
-	let Config = await OutboundEmailServerConfig.loadPreferredConfig();
+	const Config = await OutboundEmailServerConfig.loadPreferredConfig();
 
 	// establish our logger
-	var Logger = new SimpleFileLogger(Config.logging);
-	Config.logger = Logger;
+	const Logger = new SimpleFileLogger(Config.logging);
 
 	// invoke a node cluster master with our configurations provided
-	var ServerClass = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/outboundEmailServer');
-	var MyClusterWrapper = new ClusterWrapper(
+	const ServerClass = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/outboundEmailServer');
+	const MyClusterWrapper = new ClusterWrapper(
 		ServerClass,
-		Config,
-		Logger
+		{
+			config: Config,
+			logger: Logger
+		}
 	);
 
 	try {
