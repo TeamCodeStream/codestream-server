@@ -18,13 +18,12 @@ const ClusterWrapper = require(process.env.CS_BROADCASTER_TOP + '/server_utils/c
 
 	// invoke a node cluster master with our configurations provided
 	const ServerClass = require(process.env.CS_BROADCASTER_TOP + '/lib/broadcaster_server');
-	var MyClusterWrapper = new ClusterWrapper(
+	const MyClusterWrapper = new ClusterWrapper(
 		ServerClass,
 		{
-			...Config,
-			logger: Logger  // FIXME? this overwrites the logger property defined in config.js
+			config: Config,
+			logger: Logger
 		},
-		Logger,
 		{
 			oneWorker: true
 		}
