@@ -17,10 +17,11 @@ const { callbackWrap } = require(process.env.CS_MAILIN_TOP + '/server_utils/awai
 
 class InboundEmailServer {
 
-	constructor (config, logger) {
-		this.config = config;
-		if (!config.noLogging) {
-			this.logger = logger || console;
+	constructor (options = {}) {
+		this.serverOptions = options;
+		this.config = options.config || {};
+		if (!this.config.noLogging) {
+			this.logger = options.logger || console;
 		}
 		this.inProcess = {};
 	}
