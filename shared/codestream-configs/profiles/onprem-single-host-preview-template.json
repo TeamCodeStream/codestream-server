@@ -14,6 +14,7 @@
 			"assetEnvironment": "onprem",
 			"authOrigin": null,
 			"callbackEnvironment": "onprem",
+			"disablePhoneHome": false,
 			"dontWantAWS": true,
 			"logger": {
 				"directory": "/opt/api/log"
@@ -28,6 +29,7 @@
 			"authOrigin": null,
 			"callbackEnvironment": "onprem",
 			"confirmationNotRequired": true,
+			"disablePhoneHome": false,
 			"dontWantAWS": true,
 			"ignoreHttps": true,
 			"logger": {
@@ -106,6 +108,7 @@
 		}
 	},
 	"sharedGeneral": {
+		"installationId": "{{INSTALLATION_UUID}}",
 		"runTimeEnvironment": "onprem"
 	},
 	"sharedSecrets": {
