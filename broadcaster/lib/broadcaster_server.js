@@ -346,12 +346,14 @@ class BroadcasterServer {
 		}
 		const { uid } = authToken;
 
-		// authorize the subscription, fail out if an error string is returned
-		const reason = await this.authorizeSubscribe(uid, channel);
-		if (reason) {
-			const error = new Error(`not authorized for channel ${channel}: ${reason}`);
-			this.log(`Request blocked: ${error.message}`, socket, requestId);
-			return action.block(error);
+		if (!this.isServerSocket(socket)) {
+			// authorize the subscription, fail out if an error string is returned
+			const reason = await this.authorizeSubscribe(uid, channel);
+			if (reason) {
+				const error = new Error(`not authorized for channel ${channel}: ${reason}`);
+				this.log(`Request blocked: ${error.message}`, socket, requestId);
+				return action.block(error);
+			}
 		}
 
 		// keep track of mappings between channels and user IDs
