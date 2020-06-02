@@ -3,6 +3,6 @@
 # env : fileName : config-group
 
 avs:onprem-avs.tgz:default
-mailonly:onprem-fresh-install.tgz:default
+spin-up-dev:onprem-spin-up-dev.tgz:default
 oppr:onprem-oppr.tgz:default
 opbeta:onprem-opbeta.tgz:default

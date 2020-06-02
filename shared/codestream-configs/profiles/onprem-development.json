@@ -21,7 +21,8 @@
 			"dontWantAWS": true
 		},
 		"local": {
-			"dontWantAWS": true
+			"dontWantAWS": true,
+			"helpIsAvailable": true
 		}
 	},
 	"broadcastEngine": {
@@ -29,7 +30,6 @@
 			"ci": {
 				"assetEnvironment": "dev",
 				"logger": {},
-				"runTimeEnvironment": "ci",
 				"secrets": {
 					"_loadSecretsFile": "codestream/ci-bcast-secrets.cfg"
 				}
@@ -37,7 +37,6 @@
 			"defaultEnv": {
 				"assetEnvironment": "dev",
 				"logger": {},
-				"runTimeEnvironment": "${CSSVC_ENV}",
 				"secrets": {
 					"_loadSecretsFile": "codestream/dev-bcast-secrets.cfg"
 				}
@@ -45,7 +44,6 @@
 			"local": {
 				"assetEnvironment": "local",
 				"logger": {},
-				"runTimeEnvironment": "local",
 				"secrets": {
 					"_loadSecretsFile": "codestream/local-bcast-secrets.cfg"
 				}
@@ -53,7 +51,6 @@
 			"pi": {
 				"assetEnvironment": "prod",
 				"logger": {},
-				"runTimeEnvironment": "pi",
 				"secrets": {
 					"_loadSecretsFile": "codestream/ci-bcast-secrets.cfg"
 				}
@@ -86,12 +83,10 @@
 	},
 	"inboundEmailServer": {
 		"ci": {
-			"assetEnvironment": "dev",
-			"runTimeEnvironment": "ci"
+			"assetEnvironment": "dev"
 		},
 		"defaultEnv": {
-			"assetEnvironment": "dev",
-			"runTimeEnvironment": "${CSSVC_ENV}"
+			"assetEnvironment": "dev"
 		},
 		"local": {}
 	},
@@ -174,12 +169,10 @@
 	},
 	"outboundEmailServer": {
 		"ci": {
-			"assetEnvironment": "dev",
-			"runTimeEnvironment": "ci"
+			"assetEnvironment": "dev"
 		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
-			"runTimeEnvironment": "${CSSVC_ENV}",
 			"storage": {
 				"mongo": {
 					"url": "mongodb://${CSSVC_ENV}-api.codestream.us/codestream"
@@ -201,6 +194,21 @@
 		},
 		"local": {
 			"rabbitmq": {}
+		}
+	},
+	"sharedGeneral": {
+		"ci": {
+			"runTimeEnvironment": "ci"
+		},
+		"defaultEnv": {},
+		"dev": {
+			"runTimeEnvironment": "dev"
+		},
+		"local": {
+			"runTimeEnvironment": "local"
+		},
+		"pi": {
+			"runTimeEnvironment": "pi"
 		}
 	},
 	"sharedSecrets": {

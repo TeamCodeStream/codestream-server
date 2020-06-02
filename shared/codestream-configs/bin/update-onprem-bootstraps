@@ -49,7 +49,7 @@ mkdir $tmpDir
 targetCacheFile=config-cache.template
 
 # specialized overlay config files used for custom codestream configurations
-for csEnv in avs oppr opbeta
+for csEnv in avs oppr opbeta spin-up-dev
 do
 	# generate the overlay file and save it with the rest of the codestream configs as onprem-overlays_*
 	[ -n "$verbose" ] && echo $binDir/process-profile --profile $repoRoot/profiles/onprem-overlays.json --env $csEnv --out $KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json.x
@@ -64,7 +64,7 @@ do
 			echo -n "create and upload $pkgName (y/N)? "
 			[ $answerYes -eq 0 ] && read ans || { echo "Y"; ans=y; }
 			if [ "$ans" == y ]; then
-				[ -f $repoRoot/etc/$srcCacheFile.$csEnv ] && srcCacheFile="$targetCacheFile.$csEnv" || srcCacheFile=$targetCacheFile
+				[ -f $repoRoot/etc/$targetCacheFile.$csEnv ] && srcCacheFile="$targetCacheFile.$csEnv" || srcCacheFile=$targetCacheFile
 				echo cp $repoRoot/etc/$srcCacheFile $tmpDir/$targetCacheFile
 				cp $repoRoot/etc/$srcCacheFile $tmpDir/$targetCacheFile
 

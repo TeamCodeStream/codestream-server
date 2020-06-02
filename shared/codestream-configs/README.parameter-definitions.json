@@ -19,7 +19,6 @@
 		"mockMode": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC [CS_API_MOCK_MODE]",
 		"port": "Network port for the api service [CS_API_PORT]",
 		"publicApiUrl": "public url to access the API server from beyond [CS_API_PUBLIC_URL]",
-		"runTimeEnvironment": "API run-time environment; use sparingly with preference for more specific params [CS_API_ENV]",
 		"sessionAwayTimeout": "how long before we call a user 'away' from keyboard (in millisecs) [CS_API_SESSION_AWAY_TIMEOUT]",
 		"showConfig": "print exported api configuration data to console [CS_API_SHOW_CFG]",
 		"signupTokenExpiration": "how long a signup token issued by the IDE for a user to signup on web remains valid (in millisecs, default = 10 min) [CS_API_SIGNUP_TOKEN_EXPIRATION]",
@@ -36,7 +35,6 @@
 				"directory": "directory for broadcaster logs [CS_BROADCASTER_LOGS]"
 			},
 			"port": "Network port for the broadcaster service [CSSVC_BROADCASTER_PORT]",
-			"runTimeEnvironment": "Broadcaster run-time environment; use sparingly with preference for more specific params [CS_BROADCASTER_ENV]",
 			"secrets": {
 				"api": "used to generate json web tokens for authentication tokens passed to the client [CSSVC_BROADCASTER_API_SECRET]",
 				"auth": "used to privilege certain api server requests to the broadcaster service [CSSVC_BROADCASTER_AUTH_SECRET]"
@@ -50,7 +48,8 @@
 			"ssl": "use SSL for pubnub communications",
 			"subscribeKey": "pubnub subscription key [CSSVC_PUBNUB_SUBSCRIBE_KEY]",
 			"uuid": "description needed"
-		}
+		},
+		"selected": "chosen broadcast engine (pubnub or codestreamBroadcaster) [CSSVC_BROADCAST_ENGINE]"
 	},
 	"email": {
 		"emailTo": "Divert all email to this address",
@@ -84,7 +83,6 @@
 			"directory": "directory for inbound email logs [CS_MAILIN_LOGS]"
 		},
 		"processDirectory": "email files will be moved to this directory for processing",
-		"runTimeEnvironment": "Inbound email service run-time environment; use sparingly with preference for more specific params [CS_MAILIN_ENV]",
 		"showConfig": "print exported inbound email configuration data to console [CS_MAILIN_SHOW_CFG]",
 		"tempAttachmentDirectory": "attachments in incoming emails will be stored temporarily here",
 		"tmpDirectory": "temp directory [CS_MAILIN_TMP]"
@@ -182,7 +180,6 @@
 			"debugOk": "more verbose logging (debug level) [CS_OUTBOUND_EMAIL_DEBUG_OK]",
 			"directory": "directory for outbound email logs [CS_OUTBOUND_EMAIL_LOGS]"
 		},
-		"runTimeEnvironment": "Outbound email run-time environment; use sparingly with preference for more specific params [CS_OUTBOUND_EMAIL_ENV]",
 		"showConfig": "print exported outbound email configuration data to console [CS_OUTBOUND_EMAIL_SHOW_CFG]",
 		"storage": {
 			"mongo": {
@@ -203,6 +200,9 @@
 			"port": "network port for rabbitmq service [CSSVC_RABBITMQ_PORT]",
 			"user": "rabbitmq user for authentication [CSSVC_RABBITMQ_USER]"
 		}
+	},
+	"sharedGeneral": {
+		"runTimeEnvironment": "run-time environment (local, prod, qa, pd, ...) [CSSVC_ENV]"
 	},
 	"sharedSecrets": {
 		"auth": "secret used for authentication [CSSVC_AUTH_SECRET]",

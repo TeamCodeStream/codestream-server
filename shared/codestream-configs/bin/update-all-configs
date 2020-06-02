@@ -3,7 +3,17 @@
 # re-generate codestream config files and config templates for distribution
 
 [ -z "$KM_PKI" ] && echo "Set KM_PKI to the location of the PKI database (use -y to bypass prompts)" && exit 1
-[ "$1" == "-y" ] && yes="" || yes=y
+yes=""
+verbose=""
+while getopts "yv" arg
+do
+	case $arg in
+	y) yes=y;;
+	v) verbose=1;;
+	*) echo "usage: $0 [-yv]"; exit 1;;
+	esac
+done
+shift `expr $OPTIND - 1`
 binDir=`dirname $0`
 repoRoot=$(cd $binDir/.. && pwd)
 srcDir=`dirname $repoRoot`

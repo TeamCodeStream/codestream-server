@@ -21,7 +21,6 @@
 			"marketingSiteUrl": "https://www.codestream.com",
 			"port": 443,
 			"publicApiUrl": "https://{{FQHN}}",
-			"runTimeEnvironment": "onprem",
 			"tmpDirectory": "/opt/api/tmp"
 		},
 		"quickstart": {
@@ -37,7 +36,6 @@
 			"marketingSiteUrl": "https://www.codestream.com",
 			"port": 80,
 			"publicApiUrl": "http://{{FQHN}}",
-			"runTimeEnvironment": "onprem",
 			"tmpDirectory": "/opt/api/tmp"
 		}
 	},
@@ -91,8 +89,7 @@
 	},
 	"inboundEmailServer": {
 		"assetEnvironment": "onprem",
-		"inboundEmailDisabled": true,
-		"runTimeEnvironment": "onprem"
+		"inboundEmailDisabled": true
 	},
 	"outboundEmailServer": {
 		"defaultEnv": {
@@ -107,6 +104,9 @@
 				"host": "{{FQHN}}"
 			}
 		}
+	},
+	"sharedGeneral": {
+		"runTimeEnvironment": "onprem"
 	},
 	"sharedSecrets": {
 		"defaultEnv": {
