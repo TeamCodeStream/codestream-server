@@ -267,7 +267,7 @@ class MongoCollection {
 		else {
 			document._id = ObjectID();
 		}
-		if (document.version === undefined) {
+		if (document.version === undefined && !options.noVersion) {
 			document.version = 1;
 		}
 
