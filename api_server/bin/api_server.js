@@ -12,6 +12,7 @@ const ModuleDirectory = process.env.CS_API_TOP + '/modules';
 const SimpleFileLogger = require(process.env.CS_API_TOP + '/server_utils/simple_file_logger');
 const ClusterWrapper = require(process.env.CS_API_TOP + '/server_utils/cluster_wrapper');
 const ServerClass = require(process.env.CS_API_TOP + '/lib/api_server/api_server');
+const getOnPremSupportData = require(process.env.CS_API_TOP + '/server_utils/get_onprem_support_data');
 
 // establish our data collections
 const DataCollections = {
@@ -51,6 +52,13 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.loggerConfig);
 
+	// onprem support data (service versions, docker registry info, on-prem version)
+	let OnPremSupportData;
+	if (Config.api.runTimeEnvironment === 'onprem' || (Config.whichBroadcastEngine === 'codestreamBroadcaster' && Config.api.runTimeEnvironment === 'local')) {
+		OnPremSupportData = await getOnPremSupportData();
+		console.info('OnPrem Config:', JSON.stringify(OnPremSupportData, undefined, 10));
+	}
+
 	// invoke a node cluster master with our configurations provided
 	const MyAPICluster = new ClusterWrapper(
 		ServerClass,
@@ -59,7 +67,8 @@ const MongoCollections = Object.keys(DataCollections).concat([
 			logger: Logger,
 			moduleDirectory: ModuleDirectory,
 			dataCollections: DataCollections,
-			rawCollections: MongoCollections
+			rawCollections: MongoCollections,
+			onprem: OnPremSupportData
 		}
 	);
 	try {
