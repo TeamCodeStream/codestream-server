@@ -28,15 +28,13 @@
 			"env": "CS_API_ASSET_ENV"
 		},
 		"authOrigin": {
-			"default": "https://auth.codestream.us/no-auth",
 			"desc": "origin to use for third-party auth callbacks",
 			"env": "CS_API_AUTH_ORIGIN"
 		},
 		"callbackEnvironment": {
 			"default": "${CS_API_CALLBACK_ENV}",
 			"desc": "allows for callbacks through VPN to developers' local servers",
-			"env": "CS_API_CALLBACK_ENV",
-			"required": true
+			"env": "CS_API_CALLBACK_ENV"
 		},
 		"confirmCodeExpiration": {
 			"default": 604800000,
@@ -85,7 +83,7 @@
 				"env": "CS_API_DEBUG_OK"
 			},
 			"directory": {
-				"default": "${CS_API_SANDBOX}/log",
+				"default": "${CS_API_LOGS}",
 				"desc": "directory for api server logs",
 				"env": "CS_API_LOGS",
 				"envRequired": true
@@ -111,11 +109,6 @@
 			"desc": "public url to access the API server from beyond",
 			"env": "CS_API_PUBLIC_URL"
 		},
-		"runTimeEnvironment": {
-			"default": "local",
-			"desc": "API run-time environment; use sparingly with preference for more specific params",
-			"env": "CS_API_ENV"
-		},
 		"sessionAwayTimeout": {
 			"default": 600000,
 			"desc": "how long before we call a user 'away' from keyboard (in millisecs)",
@@ -134,7 +127,8 @@
 		"tmpDirectory": {
 			"default": "${CS_API_SANDBOX}/tmp",
 			"desc": "temp directory",
-			"env": "CS_API_TMP"
+			"env": "CS_API_TMP",
+			"required": true
 		}
 	},
 	"broadcastEngine": {
@@ -175,11 +169,6 @@
 				"default": 12443,
 				"desc": "Network port for the broadcaster service",
 				"env": "CSSVC_BROADCASTER_PORT"
-			},
-			"runTimeEnvironment": {
-				"default": "local",
-				"desc": "Broadcaster run-time environment; use sparingly with preference for more specific params",
-				"env": "CS_BROADCASTER_ENV"
 			},
 			"secrets": {
 				"api": {
@@ -227,6 +216,10 @@
 				"default": "CodeStreamServer",
 				"desc": "description needed"
 			}
+		},
+		"selected": {
+			"desc": "chosen broadcast engine (pubnub or codestreamBroadcaster)",
+			"env": "CSSVC_BROADCAST_ENGINE"
 		}
 	},
 	"email": {
@@ -328,11 +321,6 @@
 		"processDirectory": {
 			"default": "${CS_MAILIN_SANDBOX}/mailq/process",
 			"desc": "email files will be moved to this directory for processing"
-		},
-		"runTimeEnvironment": {
-			"default": "local",
-			"desc": "Inbound email service run-time environment; use sparingly with preference for more specific params",
-			"env": "CS_MAILIN_ENV"
 		},
 		"showConfig": {
 			"default": false,
@@ -541,11 +529,6 @@
 				"envRequired": true
 			}
 		},
-		"runTimeEnvironment": {
-			"default": "local",
-			"desc": "Outbound email run-time environment; use sparingly with preference for more specific params",
-			"env": "CS_OUTBOUND_EMAIL_ENV"
-		},
 		"showConfig": {
 			"default": false,
 			"desc": "print exported outbound email configuration data to console",
@@ -605,6 +588,14 @@
 				"desc": "rabbitmq user for authentication",
 				"env": "CSSVC_RABBITMQ_USER"
 			}
+		}
+	},
+	"sharedGeneral": {
+		"runTimeEnvironment": {
+			"default": "${CSSVC_ENV}",
+			"desc": "run-time environment (local, prod, qa, pd, ...)",
+			"env": "CSSVC_ENV",
+			"required": true
 		}
 	},
 	"sharedSecrets": {

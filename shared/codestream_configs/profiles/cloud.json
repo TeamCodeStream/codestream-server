@@ -11,22 +11,20 @@
 {
 	"apiServer": {
 		"ci": {
-			"assetEnvironment": "dev",
-			"runTimeEnvironment": "ci"
+			"assetEnvironment": "dev"
 		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
 			"helpIsAvailable": true,
 			"port": 8443,
-			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us",
-			"runTimeEnvironment": "${CSSVC_ENV}"
+			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us"
 		},
 		"local": {
+			"assetEnvironment": "local",
 			"helpIsAvailable": true
 		},
 		"pi": {
-			"assetEnvironment": "prod",
-			"runTimeEnvironment": "pi"
+			"assetEnvironment": "prod"
 		},
 		"prod": {
 			"assetEnvironment": "prod",
@@ -36,8 +34,7 @@
 			},
 			"marketingSiteUrl": "https://www.codestream.com",
 			"port": 8443,
-			"publicApiUrl": "https://api.codestream.com",
-			"runTimeEnvironment": "prod"
+			"publicApiUrl": "https://api.codestream.com"
 		},
 		"qa": {
 			"assetEnvironment": "prod",
@@ -46,8 +43,7 @@
 			},
 			"marketingSiteUrl": "https://www.codestream.com",
 			"port": 8443,
-			"publicApiUrl": "https://qa-api.codestream.us",
-			"runTimeEnvironment": "qa"
+			"publicApiUrl": "https://qa-api.codestream.us"
 		}
 	},
 	"broadcastEngine": {
@@ -121,28 +117,23 @@
 	},
 	"inboundEmailServer": {
 		"ci": {
-			"assetEnvironment": "dev",
-			"runTimeEnvironment": "ci"
+			"assetEnvironment": "dev"
 		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
-			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new",
-			"runTimeEnvironment": "${CSSVC_ENV}"
+			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
 		},
 		"local": {},
 		"pi": {
-			"assetEnvironment": "prod",
-			"runTimeEnvironment": "pi"
+			"assetEnvironment": "prod"
 		},
 		"prod": {
 			"assetEnvironment": "prod",
-			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new",
-			"runTimeEnvironment": "prod"
+			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
 		},
 		"qa": {
 			"assetEnvironment": "prod",
-			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new",
-			"runTimeEnvironment": "qa"
+			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
 		}
 	},
 	"integrations": {
@@ -225,6 +216,11 @@
 				}
 			}
 		},
+		"okta": {
+			"localInstallation": {
+				"defaultEnv": {}
+			}
+		},
 		"slack": {
 			"cloud": {
 				"defaultEnv": {
@@ -262,12 +258,10 @@
 	},
 	"outboundEmailServer": {
 		"ci": {
-			"assetEnvironment": "dev",
-			"runTimeEnvironment": "ci"
+			"assetEnvironment": "dev"
 		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
-			"runTimeEnvironment": "${CSSVC_ENV}",
 			"storage": {
 				"mongo": {
 					"url": "mongodb://${CSSVC_ENV}-api.codestream.us/codestream"
@@ -276,16 +270,13 @@
 		},
 		"local": {},
 		"pi": {
-			"assetEnvironment": "prod",
-			"runTimeEnvironment": "pi"
+			"assetEnvironment": "prod"
 		},
 		"prod": {
-			"assetEnvironment": "prod",
-			"runTimeEnvironment": "prod"
+			"assetEnvironment": "prod"
 		},
 		"qa": {
-			"assetEnvironment": "prod",
-			"runTimeEnvironment": "qa"
+			"assetEnvironment": "prod"
 		}
 	},
 	"queuingEngine": {
@@ -306,6 +297,24 @@
 			"qa": {
 				"outboundEmailQueueName": "qa_outboundEmail"
 			}
+		}
+	},
+	"sharedGeneral": {
+		"ci": {
+			"runTimeEnvironment": "ci"
+		},
+		"defaultEnv": {},
+		"local": {
+			"runTimeEnvironment": "local"
+		},
+		"pi": {
+			"runTimeEnvironment": "pi"
+		},
+		"prod": {
+			"runTimeEnvironment": "prod"
+		},
+		"qa": {
+			"runTimeEnvironment": "qa"
 		}
 	},
 	"sharedSecrets": {

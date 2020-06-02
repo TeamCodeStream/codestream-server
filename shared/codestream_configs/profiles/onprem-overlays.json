@@ -6,9 +6,10 @@
 //   - Outbound mail:  NodeMailer/smtp via mail-relay.codestream.us
 //
 //   environments:
-//        opbeta:   
-//        oppr:   
-//        avs:      AcmeVideoServices
+//        default:  development integrations (used for spin-up-development)
+//        oppr:     development integrations + slack + msteams
+//        opbeta:   development integrations + slack + msteams
+//        avs:      integrations specific to AcmeVideoServices test env
 
 {
 	"emailDeliveryService": {
@@ -21,66 +22,42 @@
 	"integrations": {
 		"asana": {
 			"cloud": {
-				"defaultEnv": {},
-				"opbeta": {
-					"_loadSecretsFile": "asana/dev.cfg"
-				},
-				"oppr": {
+				"defaultEnv": {
 					"_loadSecretsFile": "asana/dev.cfg"
 				}
 			}
 		},
 		"bitbucket": {
 			"cloud": {
-				"defaultEnv": {},
-				"opbeta": {
-					"_loadSecretsFile": "bitbucket/dev.cfg"
-				},
-				"oppr": {
+				"defaultEnv": {
 					"_loadSecretsFile": "bitbucket/dev.cfg"
 				}
 			}
 		},
 		"devops": {
 			"cloud": {
-				"defaultEnv": {},
-				"opbeta": {
-					"_loadSecretsFile": "microsoft/devops-dev.cfg"
-				},
-				"oppr": {
+				"defaultEnv": {
 					"_loadSecretsFile": "microsoft/devops-dev.cfg"
 				}
 			}
 		},
 		"github": {
 			"cloud": {
-				"defaultEnv": {},
-				"opbeta": {
-					"_loadSecretsFile": "github/dev.cfg"
-				},
-				"oppr": {
+				"defaultEnv": {
 					"_loadSecretsFile": "github/dev.cfg"
 				}
 			}
 		},
 		"gitlab": {
 			"cloud": {
-				"defaultEnv": {},
-				"opbeta": {
-					"_loadSecretsFile": "gitlab/dev.cfg"
-				},
-				"oppr": {
+				"defaultEnv": {
 					"_loadSecretsFile": "gitlab/dev.cfg"
 				}
 			}
 		},
 		"jira": {
 			"cloud": {
-				"defaultEnv": {},
-				"opbeta": {
-					"_loadSecretsFile": "atlassian/dev.cfg"
-				},
-				"oppr": {
+				"defaultEnv": {
 					"_loadSecretsFile": "atlassian/dev.cfg"
 				}
 			}
@@ -91,6 +68,13 @@
 					"_loadSecretsFile": "microsoft/teams-avs.cfg"
 				},
 				"defaultEnv": {}
+			}
+		},
+		"okta": {
+			"localInstallation": {
+				"defaultEnv": {
+					"_loadSecretsFile": "okta/dev.cfg"
+				}
 			}
 		},
 		"slack": {
@@ -106,11 +90,7 @@
 		},
 		"trello": {
 			"cloud": {
-				"defaultEnv": {},
-				"opbeta": {
-					"_loadSecretsFile": "trello/codestreamops.cfg"
-				},
-				"oppr": {
+				"defaultEnv": {
 					"_loadSecretsFile": "trello/codestreamops.cfg"
 				}
 			}
