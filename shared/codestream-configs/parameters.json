@@ -51,6 +51,11 @@
 			"desc": "set to true to disable email confirmation",
 			"env": "CS_API_CONFIRMATION_NOT_REQUIRED"
 		},
+		"disablePhoneHome": {
+			"default": true,
+			"desc": "set to false to disable phone home reporting (license permitting)",
+			"env": "CS_API_PHONE_HOME"
+		},
 		"dontWantAWS": {
 			"default": false,
 			"desc": "set to true so API server will not use any AWS services",
@@ -591,6 +596,10 @@
 		}
 	},
 	"sharedGeneral": {
+		"installationId": {
+			"desc": "unique identifier for the onprem installation",
+			"env": "CSSVC_INSTALLATION_ID"
+		},
 		"runTimeEnvironment": {
 			"default": "${CSSVC_ENV}",
 			"desc": "run-time environment (local, prod, qa, pd, ...)",
