@@ -6,6 +6,7 @@
 		"confirmCodeExpiration": "how long a confirmation code remains valid (in millisecs, default = 1 week) [CS_API_CONFIRM_CODE_EXPIRATION]",
 		"confirmationExpiration": "how long a token for email confirmation remains valid (in millisecs, default = 1 day) [CS_API_CONFIRMATION_EXPIRATION]",
 		"confirmationNotRequired": "set to true to disable email confirmation [CS_API_CONFIRMATION_NOT_REQUIRED]",
+		"disablePhoneHome": "set to false to disable phone home reporting (license permitting) [CS_API_PHONE_HOME]",
 		"dontWantAWS": "set to true so API server will not use any AWS services [CS_API_DONT_WANT_AWS]",
 		"forgotPasswordExpiration": "how long a token for forgot-password remains valid (in millisecs, default = 1 day) [CS_API_FORGOT_PASSWORD_EXPIRATION]",
 		"helpIsAvailable": "set to true enable API /help [CS_API_HELP_AVAILABLE]",
@@ -202,6 +203,7 @@
 		}
 	},
 	"sharedGeneral": {
+		"installationId": "unique identifier for the onprem installation [CSSVC_INSTALLATION_ID]",
 		"runTimeEnvironment": "run-time environment (local, prod, qa, pd, ...) [CSSVC_ENV]"
 	},
 	"sharedSecrets": {
