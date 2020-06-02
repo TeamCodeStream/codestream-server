@@ -77,6 +77,7 @@ function customConfigFunc(nativeCfg) {
 		api: {
 			...nativeCfg.apiServer,
 			runTimeEnvironment: nativeCfg.sharedGeneral.runTimeEnvironment,
+			installationId: nativeCfg.sharedGeneral.installationId,
 			authOrigin: nativeCfg.apiServer.authOrigin || `${nativeCfg.apiServer.publicApiUrl}/no-auth`,
 			thirdPartyProviders: ThirdPartyProviders,
 			// matching these paths means Authorization header is not required

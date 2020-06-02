@@ -39,7 +39,9 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	'signupTokens',
 	'versionMatrix',
 	'migrationVersion',
-	'test'
+	'test',
+	'phoneHomeJobs',
+	'phoneHomeStats'
 ]);
 
 (async function() {
