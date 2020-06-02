@@ -104,6 +104,11 @@
 			"desc": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC",
 			"env": "CS_API_MOCK_MODE"
 		},
+		"phoneHomeUrl": {
+			"default": "http://localhost.codestream.us:12089",
+			"desc": "server-side endpoint for phone home data collection",
+			"env": "CS_API_PHONE_HOME_URL"
+		},
 		"port": {
 			"default": 12079,
 			"desc": "Network port for the api service",

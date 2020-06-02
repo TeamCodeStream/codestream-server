@@ -18,6 +18,7 @@
 		},
 		"marketingSiteUrl": "marketing site; used for redirects [CS_API_MARKETING_SITE_URL]",
 		"mockMode": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC [CS_API_MOCK_MODE]",
+		"phoneHomeUrl": "server-side endpoint for phone home data collection [CS_API_PHONE_HOME_URL]",
 		"port": "Network port for the api service [CS_API_PORT]",
 		"publicApiUrl": "public url to access the API server from beyond [CS_API_PUBLIC_URL]",
 		"sessionAwayTimeout": "how long before we call a user 'away' from keyboard (in millisecs) [CS_API_SESSION_AWAY_TIMEOUT]",
