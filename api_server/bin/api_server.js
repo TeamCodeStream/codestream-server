@@ -52,6 +52,7 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.loggerConfig);
 
+	Logger.log('Config.api: ' + JSON.stringify(Config.api, 0, 5));
 	// onprem support data (service versions, docker registry info, on-prem version)
 	let onPremSupportData;
 	if (Config.api.runTimeEnvironment === 'onprem' || (Config.whichBroadcastEngine === 'codestreamBroadcaster' && Config.api.runTimeEnvironment === 'local')) {
