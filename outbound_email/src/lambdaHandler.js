@@ -10,7 +10,6 @@ var OutboundEmailService;
 exports.handler = async function(event) {
 	try {
 		let config = await OutboundEmailServerConfig.loadPreferredConfig();
-		console.log('config:', JSON.stringify(config, 0, 5));
 		if (!OutboundEmailService) {
 			OutboundEmailService = new OutboundEmailServer({ config, dontListen: true });
 			try {
