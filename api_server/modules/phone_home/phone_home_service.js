@@ -119,11 +119,15 @@ class PhoneHomeService {
 		this.api.log(`Transmitting ${phoneHomeData.length} phone home records: ${phoneHomeData.map(phd => phd.date)}`);
 		const statsData = phoneHomeData.map(phd => phd.stats);
 		const url = `${this.api.config.api.phoneHomeUrl}/phone-home`;
+		const phoneHomeKey = this.api.config.secrets.telemetry;
 		try {
 			const response = await Fetch(url, {
 				method: 'post',
 				body: JSON.stringify(statsData),
-				headers: { 'Content-Type': 'application/json' },
+				headers: { 
+					'Content-Type': 'application/json',
+					'X-CS-Phone-Home-Key': phoneHomeKey
+				},
 			});
 			if (response.status !== 200) {
 				throw 'invalid response: ' + response.status;
