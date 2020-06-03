@@ -9,12 +9,11 @@ var OutboundEmailService;
 
 exports.handler = async function(event) {
 	try {
-		let config = await OutboundEmailServerConfig.loadConfig({custom: true, reload: true});
-		config = Object.assign({}, config, { dontListen: true });
+		let config = await OutboundEmailServerConfig.loadPreferredConfig();
 		if (!OutboundEmailService) {
-			OutboundEmailService = new OutboundEmailServer(config);
+			OutboundEmailService = new OutboundEmailServer({ config });
 			try {
-				await OutboundEmailService.start();
+				await OutboundEmailService.start(true);
 			}
 			catch (error) {
 				const msg = error instanceof Error ? error.message : JSON.stringify(error);

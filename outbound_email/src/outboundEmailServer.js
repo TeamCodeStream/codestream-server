@@ -49,12 +49,12 @@ class OutboundEmailServer {
 	}
 
 	// start 'er up
-	async start () {
+	async start (dontListen = false) {
 		this.workerId = 1;
 		this.numOpenTasks = 0;
 		await this.setListeners();
 		await this.initAsNeeded();
-		if (!this.config.dontListen) {
+		if (!dontListen) {
 			await this.startListening();
 		}
 	}
