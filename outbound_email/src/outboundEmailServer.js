@@ -218,7 +218,7 @@ class OutboundEmailServer {
 		this.log('Opening connection to Pubnub...');
 		const pubnubOptions = Object.assign({}, this.config.pubnub);
 		pubnubOptions.uuid = 'OutboundEmail-' + OS.hostname();
-		this.log('pubnub options:', JSON.stringify(pubnubOptions, 0, 5));
+		this.log('pubnub options: ' + JSON.stringify(pubnubOptions, 0, 5));
 		const pubnub = new PubNub(pubnubOptions);
 		await TryIndefinitely(async () => {
 			try {
