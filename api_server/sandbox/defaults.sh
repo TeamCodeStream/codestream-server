@@ -37,7 +37,10 @@ if [ "$CSSVC_ENV" == local  -a  -z "$CS_API_CALLBACK_ENV" ]; then
 	TUNNEL_IP=$(sandutil_get_tunnel_ip fallbackLocalIp,useHyphens)
 	[ -n "$TUNNEL_IP" ] && export CS_API_CALLBACK_ENV="local-$TUNNEL_IP" || echo "could not detect your vpn ip - callbacks won't work" >&2
 	[ -n "$CS_API_CALLBACK_ENV" ] && echo "CS_API_CALLBACK_ENV = $CS_API_CALLBACK_ENV"
+elif [ -z "$CS_API_CALLBACK_ENV" ]; then
+	export CS_API_CALLBACK_ENV=$CSSVC_ENV
 fi
+
 
 # local development on ec2 instances (remote hosts) should reference their
 # hostname and not 'localhost' when constructing URLs so we set
