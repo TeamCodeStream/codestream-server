@@ -46,7 +46,7 @@ class PhoneHomeStatsCollector {
 		this.stats = {
 			date: date,
 			installationId: this.api.config.api.installationId,
-			installationVersion: 'temp', //this.api.config.installation.version,
+			installationVersion: this.api.serverOptions.onprem.onPremVersion,
 			companies: [],
 			teams: [],
 			users: [],
