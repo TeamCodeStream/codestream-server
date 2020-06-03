@@ -49,12 +49,14 @@ class OutboundEmailServer {
 	}
 
 	// start 'er up
-	async start (dontListen = false) {
+	async start () {
+		this.log('starting, dontListen=' + this.serverOptions.dontListen);
 		this.workerId = 1;
 		this.numOpenTasks = 0;
 		await this.setListeners();
 		await this.initAsNeeded();
-		if (!dontListen) {
+		if (!this.serverOptions.dontListen) {
+			this.log('starting to listen');
 			await this.startListening();
 		}
 	}
@@ -106,6 +108,7 @@ class OutboundEmailServer {
 	// respond to lambda function call
 	async lambda (event) {
 		try {
+			this.log('lambda event:', JSON.stringify(event, 0, 5));
 			if (event.Records instanceof Array) {
 				await Promise.all(event.Records.map(async record => {
 					let body;
@@ -215,10 +218,13 @@ class OutboundEmailServer {
 		this.log('Opening connection to Pubnub...');
 		const pubnubOptions = Object.assign({}, this.config.pubnub);
 		pubnubOptions.uuid = 'OutboundEmail-' + OS.hostname();
+		this.log('pubnub options:', JSON.stringify(pubnubOptions, 0, 5));
 		const pubnub = new PubNub(pubnubOptions);
 		await TryIndefinitely(async () => {
 			try {
+				this.log('trying to publish test message...');
 				await pubnub.publish({ message: 'test', channel: 'test' });
+				this.log('published test message');
 			}
 			catch (error) {
 				const msg = error instanceof Error ? error.message : JSON.stringify(error);
