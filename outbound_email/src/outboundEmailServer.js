@@ -178,7 +178,8 @@ class OutboundEmailServer {
 		if (this.inited) { return; }
 		await awaitParallel([
 			this.openMongoClient,
-			this.openBroadcasterClient,
+			// use of broadcaster is disabled for now, it is not current needed
+			// this.openBroadcasterClient, 
 			this.openQueuer,
 			this.readStyles
 		], this);
