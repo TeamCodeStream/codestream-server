@@ -15,33 +15,40 @@
 		},
 		"defaultEnv": {
 			"assetEnvironment": "dev",
+			"authOrigin": "https://auth.codestream.us/no-auth",
 			"helpIsAvailable": true,
+			"phoneHomeUrl": null,
 			"port": 8443,
 			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us"
 		},
 		"local": {
 			"assetEnvironment": "local",
+			"authOrigin": "https://auth.codestream.us/no-auth",
 			"helpIsAvailable": true
 		},
 		"pi": {
-			"assetEnvironment": "prod"
+			"assetEnvironment": "prod",
+			"authOrigin": "https://auth.codestream.us/no-auth",
+			"phoneHomeUrl": null
 		},
 		"prod": {
 			"assetEnvironment": "prod",
-			"authOrigin": "https://api.codestream.com/no-auth",
 			"logger": {
 				"consoleOk": false
 			},
 			"marketingSiteUrl": "https://www.codestream.com",
+			"phoneHomeUrl": null,
 			"port": 8443,
 			"publicApiUrl": "https://api.codestream.com"
 		},
 		"qa": {
 			"assetEnvironment": "prod",
+			"authOrigin": "https://auth.codestream.us/no-auth",
 			"logger": {
 				"consoleOk": false
 			},
 			"marketingSiteUrl": "https://www.codestream.com",
+			"phoneHomeUrl": null,
 			"port": 8443,
 			"publicApiUrl": "https://qa-api.codestream.us"
 		}
