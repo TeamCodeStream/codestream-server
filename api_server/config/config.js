@@ -259,11 +259,11 @@ function customConfigFunc(nativeCfg) {
 		}
 	}
 
-	// if (!apiCfg.youtrack.appClientId) {
-	// 	// this is needed to be non-null to return provider data to the
-	// 	// client, but is not actually used
-	// 	apiCfg.youtrack.appClientId = 'placeholder';
-	// }
+	if (!apiCfg.youtrack.appClientId) {
+		// this is needed to be non-null to return provider data to the
+		// client, but is not actually used
+		apiCfg.youtrack.appClientId = 'placeholder';
+	}
 
 	// Github: additional providers
 	apiCfg.github.localProviders = {};
