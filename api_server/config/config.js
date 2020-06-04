@@ -121,8 +121,14 @@ function customConfigFunc(nativeCfg) {
 			// client, but is not actually used
 			appClientId: 'placeholder'
 		},
-		// gitlab_enterprise: nativeCfg.integrations.gitlab.cloud || {},
+		gitlab_enterprise: {
+			// this is needed to be non-null to return provider data to the
+			// client, but is not actually used
+			appClientId: 'placeholder'
+		},
 		jiraserver: {
+			// this is needed to be non-null to return provider data to the
+			// client, but is not actually used
 			appClientId: 'placeholder'
 		},
 		youtrack: {
@@ -267,7 +273,8 @@ function customConfigFunc(nativeCfg) {
 
 	// Github: additional providers
 	apiCfg.github.localProviders = {};
-	Object.keys(nativeCfg.integrations.github).forEach(provider => {
+	const nativeIntegrations = nativeCfg || {};
+	Object.keys(nativeIntegrations.github || {}).forEach(provider => {
 		if (provider != 'cloud') {
 			apiCfg.github.localProviders[provider] = nativeCfg.itegrations.github[provider];
 		}
@@ -275,7 +282,7 @@ function customConfigFunc(nativeCfg) {
 
 	// Jira: additional providers
 	apiCfg.jira.localProviders = {};
-	Object.keys(nativeCfg.integrations.jira).forEach(provider => {
+	Object.keys(nativeIntegrations.jira || {}).forEach(provider => {
 		if (provider != 'cloud') {
 			apiCfg.jira.localProviders[provider] = nativeCfg.itegrations.jira[provider];
 		}
@@ -283,7 +290,7 @@ function customConfigFunc(nativeCfg) {
 
 	// Okta: additional providers
 	apiCfg.okta.providers = {};
-	Object.keys(nativeCfg.integrations.okta).forEach(provider => {
+	Object.keys(nativeIntegrations.okta || {}).forEach(provider => {
 		if (provider != 'localInstallation') {
 			apiCfg.okta.providers[provider] = nativeCfg.itegrations.okta[provider];
 		}

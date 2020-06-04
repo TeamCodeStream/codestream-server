@@ -24,7 +24,9 @@ class OAuthModule extends APIServerModule {
 	}
 
 	async initialize () {
-		this.enterpriseConfig = this.apiConfig.localProviders;
+		if (this.apiConfig) {
+			this.enterpriseConfig = this.apiConfig.localProviders;
+		}
 	}
 
 	// get redirect parameters and url to use in the redirect response

@@ -16,7 +16,7 @@ class Broadcaster extends APIServerModule {
 		// return a function that, when invoked, returns a service structure with the pubnub client as
 		// the broadcaster service
 		return async () => {
-			if (this.api.config.socketCluster && this.api.config.socketCluster.port) {
+			if (this.api.config.whichBroadcastEngine === 'codestreamBroadcaster') {
 				return await this.connectToSocketCluster();
 			}
 			else if (this.api.config.pubnub) {
@@ -78,6 +78,10 @@ class Broadcaster extends APIServerModule {
 	async connectToMockPubnub () {
 		if (!this.api.services.ipc) {
 			this.api.warn('No IPC service is available in mock mode');
+			return;
+		}
+		if (!this.pubnub) {
+			this.api.warn('Mock Pubnub not available, tests cannot be run against this instance');
 			return;
 		}
 		this.api.log('Note - Pubnub service was started in mock mode');
