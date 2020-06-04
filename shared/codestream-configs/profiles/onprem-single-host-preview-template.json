@@ -97,7 +97,8 @@
 		"defaultEnv": {
 			"logger": {
 				"directory": "/opt/mailout/log"
-			}
+			},
+			"showConfig": false
 		}
 	},
 	"queuingEngine": {
