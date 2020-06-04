@@ -106,16 +106,16 @@ function customConfigFunc(nativeCfg) {
 			clientId: 'codestream_ipc_client'
 		},
 		segment: nativeCfg.telemetry.segment,
-		// slack: nativeCfg.integrations.slack.cloud || {},
-		// msteams: nativeCfg.integrations.msteams.cloud || {},
-		// github: nativeCfg.integrations.github.cloud || {},
-		// jira: nativeCfg.integrations.jira.cloud || {},
-		// asana: nativeCfg.integrations.asana.cloud || {},
-		// trello: nativeCfg.integrations.trello.cloud || {},
-		// bitbucket: nativeCfg.integrations.bitbucket.cloud || {},
-		// gitlab: nativeCfg.integrations.gitlab.cloud || {},
-		// azuredevops: nativeCfg.integrations.devops.cloud || {},
-		// okta: nativeCfg.integrations.okta.localInstallion || {},
+		slack: {},
+		msteams: {},
+		github: {},
+		jira: {},
+		asana: {},
+		trello: {},
+		bitbucket: {},
+		gitlab: {},
+		azuredevops: {},
+		okta: {},
 		github_enterprise: {
 			// this is needed to be non-null to return provider data to the
 			// client, but is not actually used
@@ -125,9 +125,9 @@ function customConfigFunc(nativeCfg) {
 		jiraserver: {
 			appClientId: 'placeholder'
 		},
-		// youtrack: nativeCfg.integrations.youtrack.cloud || {
-		// 	appClientId: 'placeholder'
-		// },
+		youtrack: {
+			appClientId: 'placeholder'
+		},
 		email: {
 			...nativeCfg.email,
 			inboundEmailDisabled: nativeCfg.inboundEmailServer.inboundEmailDisabled
@@ -198,9 +198,15 @@ function customConfigFunc(nativeCfg) {
 			}
 		},
 		intercom: {
-			accessToken: nativeCfg.telemetry.intercom.token
+			accessToken: null
 		}
 	};
+
+	if (nativeCfg.telemetry) {
+		if (nativeCfg.telemetry.intercom) {
+			apiCfg.intercom.accessToken = nativeCfg.telemetry.intercom.token;
+		}
+	}
 
 	// broadcast engine config properties
 	Object.assign(apiCfg, selectBroadcastEngine(nativeCfg));
@@ -253,11 +259,11 @@ function customConfigFunc(nativeCfg) {
 		}
 	}
 
-	if (!apiCfg.youtrack.appClientId) {
-		// this is needed to be non-null to return provider data to the
-		// client, but is not actually used
-		apiCfg.youtrack.appClientId = 'placeholder';
-	}
+	// if (!apiCfg.youtrack.appClientId) {
+	// 	// this is needed to be non-null to return provider data to the
+	// 	// client, but is not actually used
+	// 	apiCfg.youtrack.appClientId = 'placeholder';
+	// }
 
 	// Github: additional providers
 	apiCfg.github.localProviders = {};
