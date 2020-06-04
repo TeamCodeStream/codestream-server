@@ -119,7 +119,6 @@ class ProviderAuthRequest extends RestfulRequest {
 		const { code, access, sharing } = this.request.query;
 		const { callbackEnvironment } = this.api.config.api;
 		let { authOrigin } = this.api.config.api;
-		this.log('authOrigin=' + authOrigin);
 
 		// HACK - youtrack won't give us the state as a query parameter in the callback, it puts it in the fragment,
 		// this means we can't proxy to the api server appropriate to the environment ... so bypass the proxy
@@ -146,12 +145,10 @@ class ProviderAuthRequest extends RestfulRequest {
 		};
 
 		// get the specific query data to use in the redirect, and response with the redirect url
-		this.log('redirectUri=' + options.redirectUri);
 		const { parameters, url } = this.serviceAuth.getRedirectData(options); 
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
-		this.log('redirecting to ' + `${url}?${query}`);
 		this.response.redirect(`${url}?${query}`);
 		this.responseHandled = true;
 	}
