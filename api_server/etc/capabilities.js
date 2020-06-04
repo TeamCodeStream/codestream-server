@@ -50,5 +50,9 @@ module.exports = {
 	'multiCheckpointReviews': {
 		description: 'Reviews supporting multiple checkpoints',
 		version: '7.2.0'
+	},
+	'inviteUsersOnTheFly': {
+		description: 'Users can be invited on-the-fly in codemarks and reviews',
+		version: '7.2.7'
 	}
 };
