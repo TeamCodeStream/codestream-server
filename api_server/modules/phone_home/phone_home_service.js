@@ -23,8 +23,17 @@ class PhoneHomeService {
 		this.setNextTimer();
 	}
 
+	// run the phone-home right now, for testing
+	async run () {
+		delete this.error;
+		await this.setNextTimer(true);
+		if (this.error) {
+			throw this.error;
+		}
+	}
+
 	// set next timer for phone home
-	setNextTimer () {
+	async setNextTimer (isOnDemand) {
 		const runEveryMinute = process.env.CS_API_PHONE_HOME_EVERY_MINUTE;
 
 		// we'll do it at 6ish AM GMT, which corresponds to 2 AM ET or 1 AM ET, depending on DST,
@@ -36,6 +45,11 @@ class PhoneHomeService {
 		const intervalText = runEveryMinute ? 'minute' : 'day';
 		const thisDayBegin = now - (now % interval);
 		const thisDayOffset = thisDayBegin + offset;
+		const intervalBegin = thisDayBegin - interval; // dumping stats for the day BEFORE this one
+		if (isOnDemand) {
+			return await this.phoneHome(intervalBegin, interval, intervalText, true);
+		}
+
 		let tillNext;
 		if (thisDayOffset > now) {
 			tillNext = thisDayOffset - now;
@@ -45,18 +59,17 @@ class PhoneHomeService {
 		}
 		const randomizeInterval = runEveryMinute ? SIX_SECONDS : ONE_HOUR;
 		let timerInterval = tillNext + Math.floor(Math.random() * randomizeInterval); // randomize to avoid contention
-		const intervalBegin = thisDayBegin - interval; // dumping stats for the day BEFORE this one
-		this.api.log(`Will attempt to phone home for ${intervalText} of ${intervalBegin} in ${timerInterval} ms...`);
 		if (timerInterval < SIX_SECONDS) {
 			timerInterval = SIX_SECONDS;	// give at least six seconds for any initialization to happen
 		}
-		this.nextTimer = setTimeout(this.phoneHome.bind(this), timerInterval, intervalBegin, interval, intervalText);
+		this.api.log(`Will attempt to phone home for ${intervalText} of ${intervalBegin} in ${timerInterval} ms...`);
+		this.nextTimer = setTimeout(this.phoneHome.bind(this), timerInterval, intervalBegin, interval, intervalText, isOnDemand);
 	}
 
 	// phone home has been triggered, collect and dump the stats, then transmit
-	async phoneHome (intervalBegin, interval, intervalText) {
+	async phoneHome (intervalBegin, interval, intervalText, isOnDemand) {
 		this.api.log(`Attempting to phone home for ${intervalText} of ${intervalBegin}...`);
-		if (!await this.grabJob(intervalBegin)) { // make sure we are the only worker doing this job
+		if (!isOnDemand && !await this.grabJob(intervalBegin)) { // make sure we are the only worker doing this job
 			this.api.log('Will not phone home, another worker got this job');
 			return this.setNextTimer();
 		}
@@ -65,7 +78,11 @@ class PhoneHomeService {
 			await this.removeData();
 		}
 		await this.removeOldJobs();
-		this.setNextTimer();
+		if (!isOnDemand) {
+			this.setNextTimer();
+		} else {
+			this.api.log('Phone home was triggered on-demand, will not set next timer');
+		}
 	}
 
 	// grab the job to handle stats for this day, otherwise another worker grabbed it and we should back off
@@ -80,7 +97,8 @@ class PhoneHomeService {
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			this.api.warn(`Caught error trying to claim phone-home job: ${message}`);
+			this.error = `Caught error trying to claim phone-home job: ${message}`;
+			this.api.warn(this.error);
 			return false;
 		}
 
@@ -98,7 +116,8 @@ class PhoneHomeService {
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			this.api.warn(`Caught error collecting and dumping stats for phone-home: ${message}`);
+			this.error = `Caught error collecting and dumping stats for phone-home: ${message}`;
+			this.api.warn(this.error);
 		}
 	}
 
@@ -137,7 +156,8 @@ class PhoneHomeService {
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			this.api.warn(`Error transmitting phone home data: ${message}`);
+			this.error = `Error transmitting phone home data: ${message}`;
+			this.api.warn(this.error);
 			return false;
 		}
 	}

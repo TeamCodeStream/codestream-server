@@ -5,6 +5,14 @@
 const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
 const PhoneHomeService = require('./phone_home_service');
 
+const ROUTES = [
+	{
+		method: 'get',
+		path: 'no-auth/phone-home',
+		func: 'handlePhoneHome' 
+	}
+];
+
 class PhoneHome extends APIServerModule {
 
 	services () {
@@ -22,6 +30,26 @@ class PhoneHome extends APIServerModule {
 			this.phoneHome.initiate();
 			return { phoneHome: this.phoneHome };
 		};
+	}
+
+	getRoutes () {
+		return ROUTES;
+	}
+
+	handlePhoneHome (request, response) {
+		(async () => {
+			try {
+				if (!this.phoneHome || this.api.config.api.disablePhoneHome) {
+					return response.status(401).send('Not Authorized');
+				}
+				await this.phoneHome.run();
+				return response.status(200).send('OK');
+			}
+			catch (error) {
+				const message = error instanceof Error ? error.message : JSON.stringify(error);
+				return response.status(403).send(message);
+			}
+		})();
 	}
 }
 

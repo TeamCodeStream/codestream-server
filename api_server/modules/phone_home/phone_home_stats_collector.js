@@ -43,10 +43,11 @@ class PhoneHomeStatsCollector {
 	// collect all the stats for the given companies
 	async collectStats () {
 		const date = this.intervalBegin;
+		const onPremVersion = this.api.serverOptions.onPrem && this.apiServerOptions.onprem.onPremVersion;
 		this.stats = {
 			date: date,
-			installationId: this.api.config.api.installationId,
-			installationVersion: this.api.serverOptions.onprem.onPremVersion,
+			installationId: this.api.config.api.installationId || 'N/A',
+			installationVersion: onPremVersion || 'N/A',
 			companies: [],
 			teams: [],
 			users: [],
