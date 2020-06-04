@@ -106,28 +106,28 @@ function customConfigFunc(nativeCfg) {
 			clientId: 'codestream_ipc_client'
 		},
 		segment: nativeCfg.telemetry.segment,
-		// slack: nativeCfg.integrations.slack.cloud || {},
-		// msteams: nativeCfg.integrations.msteams.cloud || {},
-		// github: nativeCfg.integrations.github.cloud || {},
-		// jira: nativeCfg.integrations.jira.cloud || {},
-		// asana: nativeCfg.integrations.asana.cloud || {},
-		// trello: nativeCfg.integrations.trello.cloud || {},
-		// bitbucket: nativeCfg.integrations.bitbucket.cloud || {},
-		// gitlab: nativeCfg.integrations.gitlab.cloud || {},
-		// azuredevops: nativeCfg.integrations.devops.cloud || {},
-		// okta: nativeCfg.integrations.okta.localInstallion || {},
+		slack: nativeCfg.integrations.slack.cloud || {},
+		msteams: nativeCfg.integrations.msteams.cloud || {},
+		github: nativeCfg.integrations.github.cloud || {},
+		jira: nativeCfg.integrations.jira.cloud || {},
+		asana: nativeCfg.integrations.asana.cloud || {},
+		trello: nativeCfg.integrations.trello.cloud || {},
+		bitbucket: nativeCfg.integrations.bitbucket.cloud || {},
+		gitlab: nativeCfg.integrations.gitlab.cloud || {},
+		azuredevops: nativeCfg.integrations.devops.cloud || {},
+		okta: nativeCfg.integrations.okta.localInstallion || {},
 		github_enterprise: {
 			// this is needed to be non-null to return provider data to the
 			// client, but is not actually used
 			appClientId: 'placeholder'
 		},
-		// gitlab_enterprise: nativeCfg.integrations.gitlab.cloud || {},
+		gitlab_enterprise: nativeCfg.integrations.gitlab.cloud || {},
 		jiraserver: {
 			appClientId: 'placeholder'
 		},
-		// youtrack: nativeCfg.integrations.youtrack.cloud || {
-		// 	appClientId: 'placeholder'
-		// },
+		youtrack: nativeCfg.integrations.youtrack.cloud || {
+			appClientId: 'placeholder'
+		},
 		email: {
 			...nativeCfg.email,
 			inboundEmailDisabled: nativeCfg.inboundEmailServer.inboundEmailDisabled
@@ -206,50 +206,12 @@ function customConfigFunc(nativeCfg) {
 	Object.assign(apiCfg, selectBroadcastEngine(nativeCfg));
 	apiCfg.secrets.broadcaster = apiCfg.socketCluster.apiSecret;
 
-	if (nativeCfg.integrations) {
-		if (nativeCfg.integrations.slack) {
-			apiCfg.slack = nativeCfg.integrations.slack.cloud || {};
-			// Slack: for use with signing secrets
-			if (nativeCfg.integrations.slack.cloud) {
-				apiCfg.slack.signingSecretsByAppIds = {};
-				apiCfg.slack.signingSecretsByAppIds[apiCfg.slack.appId] = apiCfg.slack.appSigningSecret;
-				apiCfg.slack.signingSecretsByAppIds[apiCfg.slack.appStrictId] = apiCfg.slack.appStrictSigningSecret;
-				apiCfg.slack.signingSecretsByAppIds[apiCfg.slack.appSharingId] = apiCfg.slack.appSharingSigningSecret;
-			}
-		}
-		if (nativeCfg.integrations.msteams) {
-			apiCfg.msteams = nativeCfg.integrations.msteams.cloud || {};
-		}
-		if (nativeCfg.integrations.github) {
-			apiCfg.github = nativeCfg.integrations.github.cloud || {};
-		}
-		if (nativeCfg.integrations.jira) {
-			apiCfg.jira = nativeCfg.integrations.jira.cloud || {};
-		}
-		if (nativeCfg.integrations.asana) {
-			apiCfg.asana = nativeCfg.integrations.asana.cloud || {};
-		}
-		if (nativeCfg.integrations.trello) {
-			apiCfg.trello = nativeCfg.integrations.trello.cloud || {};
-		}	
-		if (nativeCfg.integrations.bitbucket) {
-			apiCfg.bitbucket = nativeCfg.integrations.bitbucket.cloud || {};
-		}
-		if (nativeCfg.integrations.gitlab) {
-			apiCfg.gitlab = nativeCfg.integrations.gitlab.cloud || {};
-		}
-		if (nativeCfg.integrations.devops) {
-			apiCfg.azuredevops = nativeCfg.integrations.devops.cloud || {};
-		}
-		if (nativeCfg.integrations.okta) {
-			apiCfg.okta = nativeCfg.integrations.okta.localInstallation || {};
-		}
-		if (nativeCfg.integrations.gitlab_enterprise) {
-			apiCfg.gitlab_enterprise = nativeCfg.integrations.gitlab.cloud || {};
-		}
-		if (nativeCfg.integrations.youtrack) {
-			apiCfg.youtrack = nativeCfg.integrations.youtrack.cloud || {appClientId: 'placeholder'};
-		}
+	// Slack: for use with signing secrets
+	if(nativeCfg.integrations.slack.cloud) {
+		apiCfg.slack.signingSecretsByAppIds = {};
+		apiCfg.slack.signingSecretsByAppIds[apiCfg.slack.appId] = apiCfg.slack.appSigningSecret;
+		apiCfg.slack.signingSecretsByAppIds[apiCfg.slack.appStrictId] = apiCfg.slack.appStrictSigningSecret;
+		apiCfg.slack.signingSecretsByAppIds[apiCfg.slack.appSharingId] = apiCfg.slack.appSharingSigningSecret;
 	}
 
 	if (!apiCfg.youtrack.appClientId) {
