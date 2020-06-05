@@ -198,7 +198,7 @@ class PhoneHomeStatsCollector {
 			this.codemarks = [];
 			return;
 		}
-		this.codemarks = await this.data.codemarks.getByIds(codemarkIds);
+		this.codemarks = await this.api.data.codemarks.getByIds(codemarkIds);
 	}
 
 	// get the codemarks created according to the posts
@@ -213,7 +213,7 @@ class PhoneHomeStatsCollector {
 			this.reviews = [];
 			return;
 		}
-		this.reviews = await this.data.reviews.getByIds(reviewIds);
+		this.reviews = await this.api.data.reviews.getByIds(reviewIds);
 	}
 	
 	// get count of posts, codemarks, reviews authored by each user
