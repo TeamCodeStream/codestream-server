@@ -45,9 +45,12 @@ class PhoneHomeService {
 		const intervalText = runEveryMinute ? 'minute' : 'day';
 		const thisDayBegin = now - (now % interval);
 		const thisDayOffset = thisDayBegin + offset;
-		const intervalBegin = thisDayBegin - interval; // dumping stats for the day BEFORE this one
+
+		// if we're doing on-demand, we dump stats for "today", otherwise for "yesterday"
+		const intervalBegin = isOnDemand ? thisDayBegin : thisDayBegin - interval;
 		if (isOnDemand) {
-			return await this.phoneHome(intervalBegin, interval, intervalText, true);
+			this.api.log(`Phoning home on-demand for ${intervalText} of ${intervalBegin}...`);
+			return await this.dumpAndTransmitStats(intervalBegin, interval, intervalText, true);
 		}
 
 		let tillNext;
@@ -67,21 +70,22 @@ class PhoneHomeService {
 	}
 
 	// phone home has been triggered, collect and dump the stats, then transmit
-	async phoneHome (intervalBegin, interval, intervalText, isOnDemand) {
+	async phoneHome (intervalBegin, interval, intervalText) {
 		this.api.log(`Attempting to phone home for ${intervalText} of ${intervalBegin}...`);
-		if (!isOnDemand && !await this.grabJob(intervalBegin)) { // make sure we are the only worker doing this job
+		if (!await this.grabJob(intervalBegin)) { // make sure we are the only worker doing this job
 			this.api.log('Will not phone home, another worker got this job');
 			return this.setNextTimer();
 		}
+		await this.dumpAndTransmitStats(intervalBegin, interval);
+		await this.removeOldJobs();
+		this.setNextTimer();
+	}
+
+	// do the actual work of dumping and transmitting stats
+	async dumpAndTransmitStats (intervalBegin, interval) {
 		await this.dumpStats(intervalBegin, interval);
 		if (await this.transmit()) {
 			await this.removeData();
-		}
-		await this.removeOldJobs();
-		if (!isOnDemand) {
-			this.setNextTimer();
-		} else {
-			this.api.log('Phone home was triggered on-demand, will not set next timer');
 		}
 	}
 
