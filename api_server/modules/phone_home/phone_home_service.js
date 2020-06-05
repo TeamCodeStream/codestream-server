@@ -122,6 +122,9 @@ class PhoneHomeService {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this.error = `Caught error collecting and dumping stats for phone-home: ${message}`;
 			this.api.warn(this.error);
+			if (error instanceof Error) {
+				this.api.warn(error.stack);
+			}
 		}
 	}
 
