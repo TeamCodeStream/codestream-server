@@ -226,10 +226,10 @@ class PhoneHomeStatsCollector {
 
 	// count this post toward user count for reviews, codemarks, and/or replies
 	async countPost (post) {
-		const creatorId = this.post.creatorId;
+		const creatorId = post.creatorId;
 		this.userCounts[creatorId] = this.userCounts[creatorId] || {
 			reviews: 0,
-			codemarksInReview: 0,
+			codemarksInReviews: 0,
 			codemarks: 0,
 			replies: 0
 		};
@@ -243,7 +243,7 @@ class PhoneHomeStatsCollector {
 			}
 			if (codemark) {
 				if (codemark.reviewId) {
-					this.userCounts[creatorId].codemarksInReview++;
+					this.userCounts[creatorId].codemarksInReviews++;
 				}
 				else {
 					this.userCounts[creatorId].codemarks++;
@@ -251,7 +251,7 @@ class PhoneHomeStatsCollector {
 			}
 		}
 		else {
-			this.userCounts[creatorId].codemarks++;
+			this.userCounts[creatorId].replies++;
 		}
 	}
 
