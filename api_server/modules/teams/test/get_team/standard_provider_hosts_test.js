@@ -11,6 +11,8 @@ class StandardProviderHostsTest extends GetTeamTest {
 	}
 
 	validateResponse (data) {
+		console.warn('ACTUAL PROVIDER HOSTS:', JSON.stringify(data.team.providerHosts, 0, 5));
+		console.warn('EXPECTED PROVIDER HOSTS:', JSON.stringify(STANDARD_PROVIDER_HOSTS, 0, 5));
 		Assert.deepEqual(data.team.providerHosts, STANDARD_PROVIDER_HOSTS, 'returned providerHosts is not correct');
 		super.validateResponse(data);
 	}
