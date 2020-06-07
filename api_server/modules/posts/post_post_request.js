@@ -105,6 +105,13 @@ class PostPostRequest extends PostRequest {
 			responseData.reviews = transforms.updatedReviews;
 		}
 		
+		// handle users invited to the team, filter out any users that were already on the team
+		if (transforms.invitedUsers) {
+			const newUsers = transforms.invitedUsers.filter(userData => !userData.wasOnTeam);
+			responseData.users = [
+				...newUsers.map(userData => userData.user.getSanitizedObject({ request: this }))
+			];
+		}
 		await super.handleResponse();
 	}
 
@@ -122,7 +129,8 @@ class PostPostRequest extends PostRequest {
 				'codemark': '<Single @@#codemark#codemark@@ object, for creating a codemark referenced by the post>',
 				'review': '<Single @@review@review@@ object, for creating a code review referenced by the post>',
 				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>',
-				'reviewCheckpoint': '<Checkpoint number of the review this post is associated with>'
+				'reviewCheckpoint': '<Checkpoint number of the review this post is associated with>',
+				'addedUsers': '<Array of emails representing non-team users being implicitly invited and mentioned>'
 			}
 		};
 		description.returns.summary = 'A post object, plus additional objects that may have been created on-the-fly, marker objects and marker locations for any markers';

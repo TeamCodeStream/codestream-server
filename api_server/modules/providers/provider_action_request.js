@@ -296,11 +296,11 @@ class ProviderActionRequest extends RestfulRequest {
 		await new AddTeamPublisher({
 			request: this,
 			broadcaster: this.api.services.broadcaster,
-			user: this.transforms.createdUser,
+			users: [this.transforms.createdUser],
 			team: team,
 			teamUpdate: this.transforms.teamUpdate,
-			userUpdate: this.transforms.userUpdate
-		}).publishAddedUser();
+			userUpdates: this.transforms.userUpdates
+		}).publishAddedUsers();
 	}
 
 	// describe this route for help

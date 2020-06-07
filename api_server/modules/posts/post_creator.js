@@ -15,6 +15,7 @@ const ReviewCreator = require(process.env.CS_API_TOP + '/modules/reviews/review_
 const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_helper');
 const Errors = require('./errors');
 const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const UserInviter = require(process.env.CS_API_TOP + '/modules/users/user_inviter');
 
 class PostCreator extends ModelCreator {
 
@@ -44,11 +45,11 @@ class PostCreator extends ModelCreator {
 				string: ['streamId']
 			},
 			optional: {
-				string: ['text', 'parentPostId'],
-				object: ['codemark', 'review'],
+				string: ['text', 'parentPostId', '_subscriptionCheat'],
+				object: ['codemark', 'review', 'inviteInfo'],
 				boolean: ['dontSendEmail'],
-				number: ['reviewCheckpoint'],
-				'array(string)': ['mentionedUserIds']
+				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
+				'array(string)': ['mentionedUserIds', 'addedUsers']
 			}
 		};
 	}
@@ -62,8 +63,12 @@ class PostCreator extends ModelCreator {
 			throw this.errorHandler.error('noReplyWithReview');
 		}
 
-		this.dontSendEmailNotification = this.attributes.dontSendEmail;
-		delete this.attributes.dontSendEmail;
+		// many attributes that are allowed but don't become attributes of the created user
+		['dontSendEmail', 'addedUsers', 'inviteInfo', '_subscriptionCheat', '_delayEmail', '_inviteCodeExpiresIn'].forEach(parameter => {
+			this[parameter] = this.attributes[parameter];
+			delete this.attributes[parameter];
+		});
+		
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.originDetail = this.originDetail || this.request.request.headers['x-cs-plugin-ide-detail'] || '';
 		this.attributes.creatorId = this.user.id;
@@ -75,6 +80,7 @@ class PostCreator extends ModelCreator {
 		await this.getStream();			// get the stream for the post
 		await this.getTeam();			// get the team that owns the stream
 		await this.getCompany();		// get the company that owns the team
+		await this.createAddedUsers();	// create any unregistered users being mentioned
 		await this.createCodemark();	// create the associated codemark, if any
 		await this.createReview();		// create the associated review, if any
 		await this.getSeqNum();			// requisition a sequence number for the post
@@ -94,6 +100,9 @@ class PostCreator extends ModelCreator {
 		if (this.stream.get('type') === 'file') {
 			// creating posts in a file stream is no longer allowed
 			throw this.errorHandler.error('createAuth', { reason: 'can not post to a file stream' });
+		}
+		if (this.addedUsers && this.addedUsers.length && !this.stream.get('isTeamStream')) {
+			throw this.errorHandler.error('validation', { reason: 'cannot add users to a stream that is not a team stream' });
 		}
 	}
 
@@ -116,6 +125,29 @@ class PostCreator extends ModelCreator {
 		this.company = await this.data.companies.getById(this.team.get('companyId'));
 	}
 
+	// create any added users being mentioned, these users get invited "on-the-fly"
+	async createAddedUsers () {
+		if (!this.addedUsers || this.addedUsers.length === 0) {
+			return;
+		}
+		this.userInviter = new UserInviter({
+			request: this.request,
+			team: this.team,
+			subscriptionCheat: this._subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			inviteCodeExpiresIn: this._inviteCodeExpiresIn,
+			delayEmail: this._delayEmail,
+			inviteInfo: this.inviteInfo,
+			user: this.user,
+			dontSendInviteEmail: true, // we don't send invite emails when users are invited this way, they get extra copy in their notification email instead
+			dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
+		});
+
+		const userData = this.addedUsers.map(email => {
+			return { email };
+		});
+		this.transforms.invitedUsers = await this.userInviter.inviteUsers(userData);
+	}
+
 	// create an associated codemark, if applicable
 	async createCodemark () {
 		if (!this.attributes.codemark) {
@@ -129,10 +161,14 @@ class PostCreator extends ModelCreator {
 		if (this.attributes.parentPostId) {
 			codemarkAttributes.parentPostId = this.attributes.parentPostId;
 		}
+		const mentionedUserIds = this.attributes.mentionedUserIds || [];
+		const usersBeingAddedToTeam = (this.transforms.invitedUsers || []).map(userData => userData.user.id);
+		mentionedUserIds.push(...usersBeingAddedToTeam);
 		this.transforms.createdCodemark = await new CodemarkCreator({
 			request: this.request,
 			origin: this.attributes.origin,
-			mentionedUserIds: this.attributes.mentionedUserIds || []
+			mentionedUserIds,
+			usersBeingAddedToTeam
 		}).createCodemark(codemarkAttributes);
 		delete this.attributes.codemark;
 		this.attributes.codemarkId = this.transforms.createdCodemark.id;
@@ -148,10 +184,13 @@ class PostCreator extends ModelCreator {
 			streamId: this.stream.id,
 			postId: this.attributes.id
 		});
+		const usersBeingAddedToTeam = (this.transforms.invitedUsers || []).map(userData => userData.user.id);
+		reviewAttributes.reviewers = (reviewAttributes.reviewers || []).concat(usersBeingAddedToTeam);
 		this.transforms.createdReview = await new ReviewCreator({
 			request: this.request,
 			origin: this.attributes.origin,
-			mentionedUserIds: this.attributes.mentionedUserIds || []
+			mentionedUserIds: this.attributes.mentionedUserIds || [],
+			usersBeingAddedToTeam
 		}).createReview(reviewAttributes);
 		delete this.attributes.review;
 		this.attributes.reviewId = this.transforms.createdReview.id;
@@ -446,8 +485,17 @@ class PostCreator extends ModelCreator {
 			this.triggerNotificationEmails,		// trigger email notifications to members who should receive them
 			this.publishToAuthor,				// publish directives to the author's me-channel
 			this.trackPost,						// for server-generated posts, send analytics info
-			this.updateMentions					// for mentioned users, update their mentions count for analytics 
+			this.updateMentions					// for mentioned users, update their mentions count for analytics
 		], this);
+
+		await this.postProcessInvitedUsers();
+	}
+
+	// if we invited users, handle additional post-response processing
+	async postProcessInvitedUsers () {
+		if (this.userInviter) {
+			return this.userInviter.postProcess();
+		}
 	}
 
 	// if we created any streams on-the-fly for the markers, publish them as needed

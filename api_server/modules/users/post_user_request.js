@@ -4,11 +4,7 @@
 'use strict';
 
 const PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
-const AddTeamMember = require(process.env.CS_API_TOP + '/modules/teams/add_team_member');
-const AddTeamPublisher = require('./add_team_publisher');
-const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
-const UserCreator = require(process.env.CS_API_TOP + '/modules/users/user_creator');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const UserInviter = require('./user_inviter');
 
 class PostUserRequest extends PostRequest {
 
@@ -36,9 +32,7 @@ class PostUserRequest extends PostRequest {
 		// what we're doing here is adding them to a team, and that flow will actually
 		// create the user as needed
 		await this.requireAndAllow();
-		await this.createUser();
-		await this.addToTeam();
-		await this.setNumInvited();
+		await this.inviteUser();
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -63,19 +57,23 @@ class PostUserRequest extends PostRequest {
 			}
 		);
 		this.dontSendEmail = !!this.request.body.dontSendEmail;
+		delete this.request.body.dontSendEmail;
 		this.inviteInfo = this.request.body.inviteInfo;
 	}
 
-	// create the user, if needed
-	async createUser () {
-		this.userCreator = new UserCreator({
+	// invite the user, which will create them as needed, and add them to the team 
+	async inviteUser () {
+		this.userInviter = new UserInviter({
 			request: this,
-			teamIds: [this.team.id],
+			team: this.team,
 			subscriptionCheat: this._subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
-			userBeingAddedToTeamId: this.team.id,
 			inviteCodeExpiresIn: this._inviteCodeExpiresIn,
-			inviteInfo: this.inviteInfo
+			delayEmail: this._delayEmail,
+			inviteInfo: this.inviteInfo,
+			user: this.user,
+			dontSendEmail: this.dontSendEmail
 		});
+
 		const userData = {
 			email: this.request.body.email
 		};
@@ -84,41 +82,10 @@ class PostUserRequest extends PostRequest {
 				userData[attribute] = this.request.body[attribute];
 			}
 		});
-		this.transforms.createdUser = await this.userCreator.createUser(userData);
-		this.wasOnTeam = this.userCreator.existingModel && this.userCreator.existingModel.hasTeam(this.team.id);
-	}
-
-	// add the passed user to the team indicated, this will create the user as needed
-	async addToTeam () {
-		if (this.transforms.createdUser.hasTeam()) {
-			// don't send an invite email to a registered user who is already on the team
-			this.dontSendEmail = this.dontSendEmail || this.transforms.createdUser.get('isRegistered');
-			return;
-		}
-		await new AddTeamMember({
-			request: this,
-			addUser: this.transforms.createdUser,
-			team: this.team,
-			subscriptionCheat: this._subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
-		}).addTeamMember();
-		// refetch the user since they changed when added to team
-		this.transforms.createdUser = await this.data.users.getById(this.transforms.createdUser.id);
-	}
-
-	// track the number of users the inviting user has invited
-	async setNumInvited () {
-		if (this.wasOnTeam) { return; } // don't bother if the user was already invited
-		const op = {
-			$set: {
-				numUsersInvited: (this.user.get('numUsersInvited') || 0) + 1,
-				modifiedAt: Date.now()
-			}
-		};
-		this.transforms.invitingUserUpdateOp = await new ModelSaver({
-			request: this,
-			collection: this.data.users,
-			id: this.user.id
-		}).save(op);
+		this.invitedUsers = await this.userInviter.inviteUsers([userData]);
+		this.invitedUserData = this.invitedUsers[0];
+		this.transforms.createdUser = this.invitedUserData.user;
+		this.inviteCode = this.invitedUserData.inviteCode;
 	}
 
 	// form the response to the request
@@ -133,152 +100,14 @@ class PostUserRequest extends PostRequest {
 
 		// send invite code in the response, for testing purposes
 		if (this._confirmationCheat === this.api.config.secrets.confirmationCheat) {
-			this.responseData.inviteCode = this.userCreator.inviteCode;
+			this.responseData.inviteCode = this.inviteCode;
 		}
 		await super.handleResponse();
 	}
 
 	// after the response has been sent...
 	async postProcess () {
-		await awaitParallel([
-			this.publishAddToTeam,
-			this.sendInviteEmail,
-			//this.trackInvite,
-			this.updateInvites,
-			this.publishNumUsersInvited
-		], this);
-	}
-
-	// publish to the team that the user has been added,
-	// and publish to the user that they've been added to the team
-	async publishAddToTeam () {
-		// get the team again since the team object has been modified,
-		// this should just fetch from the cache, not from the database
-		const team = await this.data.teams.getById(this.team.id);
-		await new AddTeamPublisher({
-			request: this,
-			broadcaster: this.api.services.broadcaster,
-			user: this.transforms.createdUser,
-			team: team,
-			teamUpdate: this.transforms.teamUpdate,
-			userUpdate: this.transforms.userUpdate
-		}).publishAddedUser();
-	}
-
-	// send an invite email to the added user
-	async sendInviteEmail () {
-		if (this.dontSendEmail) {
-			return; // don't send email if this flag is set
-		}
-		if (this._delayEmail) {	// allow client to delay the email send, for testing purposes
-			setTimeout(this.sendInviteEmail.bind(this), this._delayEmail);
-			delete this._delayEmail;
-			return;
-		}
-
-		// don't send an email if invited user is already registered and already on a team
-		const user = this.transforms.createdUser;
-		if (user.get('isRegistered') && this.wasOnTeam) {
-			return;
-		}
-
-		// queue invite email for send by outbound email service
-		this.log(`Triggering invite email to ${user.get('email')}...`);
-		await this.api.services.email.queueEmailSend(
-			{
-				type: 'invite',
-				userId: user.id,
-				inviterId: this.user.id,
-				teamName: this.team.get('name'),
-				//checkOutLink
-			},
-			{
-				request: this,
-				user
-			}
-		);
-	}
-
-	// track this invite for analytics
-	async trackInvite () {
-		if (this.dontSendEmail) {
-			return; // don't track invite email if we're not sending an email
-		}
-
-		const company = await this.data.companies.getById(this.team.get('companyId'));
-		const invitingUser = this.user;
-		const invitedUser = this.transforms.createdUser;
-		const firstSessionStartedAt = invitingUser.get('firstSessionStartedAt');
-		const FIRST_SESSION_TIMEOUT = 12 * 60 * 60 * 1000;
-		const firstSession = firstSessionStartedAt && firstSessionStartedAt < Date.now() + FIRST_SESSION_TIMEOUT; 
-		const trackData = {
-			'Invitee Email Address': invitedUser.get('email'),
-			'First Invite': !invitedUser.get('numInvites'),
-			'Registered': !!invitedUser.get('isRegistered'),
-			'Endpoint': this.request.headers['x-cs-plugin-ide'] || 'Unknown IDE',
-			'Endpoint Detail': this.request.headers['x-cs-plugin-ide-detail'] || 'Unknown IDE Detail',
-			'Plugin Version': this.request.headers['x-cs-plugin-version'] || '',
-			'First Session': firstSession
-		};
-
-		const trackOptions = {
-			request: this,
-			user: invitingUser,
-			team: this.team,
-			company
-		};
-
-		this.api.services.analytics.trackWithSuperProperties(
-			'Team Member Invited',
-			trackData,
-			trackOptions
-		);
-	}
-
-	// for an unregistered user, we track that they've been invited
-	// and how many times for analytics purposes
-	async updateInvites () {
-		if (this.dontSendEmail) {
-			return; // don't update invites if this flag is set
-		}
-		const user = this.transforms.createdUser;
-		if (user.get('isRegistered')) {
-			return;	// we only do this for unregistered users
-		}
-		const update = {
-			$set: {
-				internalMethod: 'invitation',
-				internalMethodDetail: this.user.id
-			},
-			$inc: {
-				numInvites: 1
-			}
-		};
-		await this.data.users.updateDirect(
-			{ id: this.data.users.objectIdSafe(user.id) },
-			update
-		);
-	}
-
-	// if inviting user has numUsersInvited incremented, publish it
-	async publishNumUsersInvited () {
-		if (!this.transforms.invitingUserUpdateOp) { return; }
-		const channel = 'user-' + this.user.id;
-		const message = {
-			user: this.transforms.invitingUserUpdateOp,
-			requestId: this.request.id
-		};
-		try {
-			await this.api.services.broadcaster.publish(
-				message,
-				channel,
-				{ request: this }
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate
-			this.warn(`Unable to publish inviting user update message to channel ${channel}: ${JSON.stringify(error)}`);
-		}
+		return this.userInviter.postProcess();
 	}
 
 	// describe this route for help

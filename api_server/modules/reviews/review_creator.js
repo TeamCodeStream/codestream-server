@@ -134,7 +134,8 @@ class ReviewCreator extends ModelCreator {
 			this.attributes,
 			{
 				mentionedUserIds: this.mentionedUserIds,
-				team: this.team
+				team: this.team,
+				usersBeingAddedToTeam: this.usersBeingAddedToTeam
 			}
 		);
 
@@ -229,7 +230,7 @@ class ReviewCreator extends ModelCreator {
 		}
 
 		// get the users and make sure they're on the same team
-		await this.codemarkHelper.validateUsersOnTeam(userIds, this.team.id, 'reviewers or authors');
+		await this.codemarkHelper.validateUsersOnTeam(userIds, this.team.id, 'reviewers or authors', this.usersBeingAddedToTeam);
 	}
 }
 

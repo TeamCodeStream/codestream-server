@@ -1,7 +1,7 @@
 const { WebClient } = require('@slack/web-api');
 const Fetch = require('node-fetch');
 const url = require('url');
-const AddTeamMember = require(process.env.CS_API_TOP + '/modules/teams/add_team_member');
+const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
 const UserCreator = require(process.env.CS_API_TOP +
 	'/modules/users/user_creator');
 const PostCreator = require(process.env.CS_API_TOP +
@@ -226,11 +226,11 @@ class SlackInteractiveComponentsHandler {
 				ignoreUsernameOnConflict: true
 			});
 			let user = await this.userCreator.createUser(userData);
-			await new AddTeamMember({
+			await new AddTeamMembers({
 				request: this,
-				addUser: user,
+				addUsers: [user],
 				team: team
-			}).addTeamMember();
+			}).addTeamMembers();
 
 			user = await this.data.users.getById(user.id);
 			return user;

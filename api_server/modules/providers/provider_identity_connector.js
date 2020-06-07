@@ -6,7 +6,7 @@
 const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
 const UserCreator = require('../users/user_creator');
 const Indexes = require('../users/indexes');
-const AddTeamMember = require(process.env.CS_API_TOP + '/modules/teams/add_team_member');
+const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
 const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
 const ConfirmHelper = require('../users/confirm_helper');
 
@@ -153,11 +153,11 @@ class ProviderIdentityConnector {
 		if (this.team.get('memberIds').includes(this.user.id)) {
 			return;
 		}
-		await new AddTeamMember({
+		await new AddTeamMembers({
 			request: this.request,
-			addUser: this.user,
+			addUsers: [this.user],
 			team: this.team
-		}).addTeamMember();
+		}).addTeamMembers();
 		this.userWasAddedToTeam = true;
 	}
 

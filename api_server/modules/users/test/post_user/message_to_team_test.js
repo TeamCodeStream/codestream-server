@@ -38,14 +38,15 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.message = response;
+				this.message.users = [response.user];
 				this.message.team = {
 					_id: this.team.id,	// DEPRECATE ME
 					id: this.team.id,
 					$addToSet: {
-						memberIds: response.user.id
+						memberIds: [response.user.id]
 					},
 					$pull: {
-						removedMemberIds: response.user.id,
+						removedMemberIds: [response.user.id],
 					},
 					$set: {
 						version: 6
@@ -55,6 +56,7 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 						after: 6
 					}
 				};
+				delete this.message.user;
 				callback();
 			}
 		);

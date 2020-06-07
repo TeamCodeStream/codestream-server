@@ -10,26 +10,26 @@ class AddTeamPublisher {
 		Object.assign(this, options);
 	}
 
-	// publish to a team that a new user has been added,
+	// publish to a team that new users have been added,
 	// and for registered users, publish to them that they've been added to a team
-	async publishAddedUser () {
+	async publishAddedUsers () {
 		try {
-			await awaitParallel([
-				this.publishUserToTeam,
-				this.publishNewTeamToUser
-			], this);
+			await this.publishUsersToTeam();
+			await this.getTeamData();
+			await this.sanitizeTeamData();
+			await this.publishNewTeamToEachUser();
 		}
 		catch (error) {
-			this.request.warn(`Unable to publish added user ${this.user.id}: ${JSON.stringify(error)}`);
+			this.request.warn(`Unable to publish added users: ${JSON.stringify(error)}`);
 		}
 	}
 
 	// publish the user object to the team they've been added to
-	async publishUserToTeam () {
+	async publishUsersToTeam () {
 		const channel = `team-${this.team.id}`;
 		const message = {
 			requestId: this.request.request.id,
-			user: this.user.getSanitizedObject({ request: this.request }),
+			users: this.users.map(user => user.getSanitizedObject({ request: this.request })),
 			team: this.teamUpdate,
 		};
 		try {
@@ -41,19 +41,24 @@ class AddTeamPublisher {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish user message to team ${this.team.id}: ${JSON.stringify(error)}`);
+			this.request.warn(`Could not publish user added message to team ${this.team.id}: ${JSON.stringify(error)}`);
 		}
 	}
 
+	// publish to each new user that they've been added to a team
+	async publishNewTeamToEachUser () {
+		await Promise.all(this.users.map(async user => {
+			await this.publishNewTeamToUser(user);
+		}));
+	}
+
 	// publish to the user that they've been added to a team
-	async publishNewTeamToUser () {
+	async publishNewTeamToUser (user) {
 		// only publish to registered users
-		if (!this.user.get('isRegistered')) {
+		if (!user.get('isRegistered')) {
 			return;
 		}
-		await this.getTeamData();
-		await this.sanitizeTeamData();
-		await this.publishTeamData();
+		return this.publishTeamData(user);
 	}
 
 	// get the data that we send to the user when they've been added to a team
@@ -104,11 +109,13 @@ class AddTeamPublisher {
 	}
 
 	// publish the team data we've collected to the user that has been added
-	async publishTeamData () {
-		const channel = `user-${this.user.id}`;
+	async publishTeamData (user) {
+		const userUpdate = this.userUpdates.find(userUpdate => userUpdate.id === user.id);
+		if (!userUpdate) { return; }
+		const channel = `user-${user.id}`;
 		const message = {
 			requestId: this.request.request.id,
-			user: this.userUpdate
+			user: userUpdate
 		};
 		message.team = this.team.getSanitizedObject({ request: this.request });
 		message.company = this.company.getSanitizedObject({ request: this.request });
@@ -123,7 +130,7 @@ class AddTeamPublisher {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish team-add message to user ${this.user.id}: ${JSON.stringify(error)}`);
+			this.request.warn(`Could not publish team-add message to user ${user.id}: ${JSON.stringify(error)}`);
 		}
 	}
 }

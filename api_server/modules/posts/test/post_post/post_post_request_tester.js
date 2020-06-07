@@ -137,6 +137,17 @@ const ReviewACLTest = require('./codemarks/review_acl_test');
 const ReviewACLTeamTest = require('./codemarks/review_acl_team_test');
 const ReviewOnDifferentTeamTest = require('./codemarks/review_on_different_team_test');
 const ChangeRequestTest = require('./codemarks/change_request_test');
+const NewUsersOnTheFlyTest = require('./codemarks/new_users_on_the_fly_test');
+const NewUsersMustBeInTeamStreamTest = require('./codemarks/new_users_must_be_in_team_stream_test');
+const InvalidEmailTest = require('./codemarks/invalid_email_test');
+const NewUserUnregisteredTest = require('./codemarks/new_user_unregistered_test');
+const NewUserUnregisteredOnTeamTest = require('./codemarks/new_user_unregistered_on_team_test');
+const NewUserRegisteredTest = require('./codemarks/new_user_registered_test');
+const NewUserRegisteredOnTeamTest = require('./codemarks/new_user_registered_on_team_test');
+const NewUsersMessageToTeamTest = require('./codemarks/new_users_message_to_team_test');
+const NewUserMessageTest = require('./codemarks/new_user_message_test');
+const NewUserInvteTest = require('./codemarks/new_user_invite_test');
+const NumUsersInvitedTest = require('./codemarks/num_users_invited_test');
 
 // concerning reviews...
 const ReviewTest = require('./reviews/review_test');
@@ -196,6 +207,7 @@ const ReplyToAttachedCodemarkTest = require('./reviews/reply_to_attached_codemar
 const ReplyToAttachedCodemarkNumRepliesTest = require('./reviews/reply_to_attached_codemark_num_replies_test');
 const TotalReviewsTest = require('./reviews/total_reviews_test');
 const ACLRepoTest = require('./reviews/acl_repo_test');
+const NewUsersOnTheFlyForReviewTest = require('./reviews/new_users_on_the_fly_for_review_test');
 
 class PostPostRequestTester {
 
@@ -352,6 +364,18 @@ class PostPostRequestTester {
 		new ReviewACLTeamTest().test();
 		new ReviewOnDifferentTeamTest().test();
 		new ChangeRequestTest().test();
+		new NewUsersOnTheFlyTest().test();
+		new NewUsersMustBeInTeamStreamTest({ streamType: 'channel' }).test();
+		new NewUsersMustBeInTeamStreamTest({ streamType: 'direct' }).test();
+		new InvalidEmailTest().test();
+		new NewUserUnregisteredTest().test();
+		new NewUserUnregisteredOnTeamTest().test();
+		new NewUserRegisteredTest().test();
+		new NewUserRegisteredOnTeamTest().test();
+		new NewUsersMessageToTeamTest().test();
+		new NewUserMessageTest().test();
+		new NewUserInvteTest().test();
+		new NumUsersInvitedTest().test();
 
 		// concerning reviews...
 		// we do a subset of the tests for codemarks, assuming that marker validation 
@@ -414,6 +438,7 @@ class PostPostRequestTester {
 		new ReplyToAttachedCodemarkNumRepliesTest().test();
 		new TotalReviewsTest().test();
 		new ACLRepoTest().test();
+		new NewUsersOnTheFlyForReviewTest().test();
 	}
 }
 

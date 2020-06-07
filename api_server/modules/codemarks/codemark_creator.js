@@ -195,7 +195,8 @@ class CodemarkCreator extends ModelCreator {
 			this.attributes,
 			{
 				mentionedUserIds: this.mentionedUserIds,
-				team: this.team
+				team: this.team,
+				usersBeingAddedToTeam: this.usersBeingAddedToTeam
 			}
 		);
 

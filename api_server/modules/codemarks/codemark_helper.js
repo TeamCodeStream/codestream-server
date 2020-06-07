@@ -33,7 +33,8 @@ class CodemarkHelper {
 	}
 
 	// validate the given users are all on the same team
-	async validateUsersOnTeam (userIds, teamId, name) {
+	async validateUsersOnTeam (userIds, teamId, name, usersBeingAddedToTeam) {
+		userIds = ArrayUtilities.difference(userIds, usersBeingAddedToTeam || []);
 		const users = await this.request.data.users.getByIds(
 			userIds,
 			{
@@ -142,7 +143,7 @@ class CodemarkHelper {
 		}
 
 		// get user preferences of all users who can see this codemark
-		const preferences = await this.getUserFollowPreferences(stream, options.team);
+		const preferences = await this.getUserFollowPreferences(stream, options.team, options.usersBeingAddedToTeam || []);
 
 		// add as followers any users who choose to follow all codemarks
 		let followerIds = [...preferences.all];
@@ -162,11 +163,10 @@ class CodemarkHelper {
 			followerIds = ArrayUtilities.union(followerIds, membersWhoWantToFollow);
 		}
 
-
 		// must validate mentioned users and explicit followers, since these come directly from the request
 		let validateUserIds = ArrayUtilities.union(options.mentionedUserIds || [], attributes.followerIds || []);
 		validateUserIds = ArrayUtilities.unique(validateUserIds);
-		await this.validateUsersOnTeam(validateUserIds, attributes.teamId, 'followers');
+		await this.validateUsersOnTeam(validateUserIds, attributes.teamId, 'followers', options.usersBeingAddedToTeam);
 
 		// any mentioned users are followers if they want to be
 		const mentionedWhoWantToFollow = ArrayUtilities.intersection(preferences.involveMe, options.mentionedUserIds || []);
@@ -186,7 +186,7 @@ class CodemarkHelper {
 	}
 
 	// get user preferences of all users who can see this codemark, so we can determine who should follow a codemark
-	async getUserFollowPreferences (stream, team) {
+	async getUserFollowPreferences (stream, team, usersBeingAddedToTeam) {
 		if (!team && !stream) {
 			throw 'must provide stream or team';
 		}
@@ -234,6 +234,13 @@ class CodemarkHelper {
 				}
 			}
 		});
+		
+		// users being added to team are assumed to be following
+		categorizedPreferences.involveMe = ArrayUtilities.union(
+			categorizedPreferences.involveMe,
+			usersBeingAddedToTeam || []
+		);
+		
 		return categorizedPreferences;
 	}
 
