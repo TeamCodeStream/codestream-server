@@ -263,9 +263,9 @@ class PhoneHomeStatsCollector {
 				{ approvedAt: { $lt: this.intervalBegin + this.interval } }
 			]
 		}, { overrideHintRequired: true });
-
 		const allReviews = [...this.reviews, ...this.approvedReviews];
 		allReviews.forEach(review => {
+			if (this.stats.reviews.find(r => r.id === review.id)) { return; }
 			const reviewData = {
 				id: review.id,
 				teamId: review.teamId,
