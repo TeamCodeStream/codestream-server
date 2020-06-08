@@ -1,5 +1,12 @@
 # Change Log
 
+## [7.4.0] - 2020-6-8
+
+### Added
+
+- Adds support for a nightly phone-home for CodeStream On-Prem
+- Adds support for assigning code reviews or mentioning people in codemarks that aren't yet on your CodeStream team
+
 ## [7.2.6] - 2020-5-28
 
 ### Changed
