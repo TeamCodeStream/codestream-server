@@ -46,8 +46,8 @@ class PhoneHomeStatsCollector {
 		const onPremVersion = this.api.serverOptions.onprem && this.api.serverOptions.onprem.onPremVersion;
 		this.stats = {
 			date: date,
-			installationId: this.api.config.api.installationId || 'N/A',
-			installationVersion: onPremVersion || 'N/A',
+			installationId: this.api.config.api.installationId || 'NA',
+			installationVersion: onPremVersion || 'NA',
 			companies: [],
 			teams: [],
 			users: [],
