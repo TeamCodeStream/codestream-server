@@ -266,11 +266,11 @@ class EmailNotificationV2Handler {
 			return true;
 		}
 
-		// otherwise, if this user is not yet registered, we only send emails if they are mentioned
+		// otherwise, only send emails if they are mentioned
 		const mentionedUserIds = this.post.mentionedUserIds || [];
 		const mentioned = this.stream.type === 'direct' || mentionedUserIds.indexOf(user.id) !== -1;
-		if (!user.isRegistered && !mentioned) {
-			this.log(`User ${user.id}:${user.email} is not yet registered, is not following, and is not mentioned so will not receive an email notification`);
+		if (!mentioned) {
+			this.log(`User ${user.id}:${user.email} is not following and is not mentioned so will not receive an email notification`);
 			return false;
 		}
 
