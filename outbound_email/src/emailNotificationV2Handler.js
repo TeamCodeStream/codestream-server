@@ -257,21 +257,20 @@ class EmailNotificationV2Handler {
 			return false;
 		}
 		
-		// first, if this user is not yet registered, we only send emails if they are mentioned
-		const mentionedUserIds = this.post.mentionedUserIds || [];
-		const mentioned = this.stream.type === 'direct' || mentionedUserIds.indexOf(user.id) !== -1;
-		if (!user.isRegistered && !mentioned) {
-			this.log(`User ${user.id}:${user.email} is not yet registered and is not mentioned so will not receive an email notification`);
-			return false;
-		}
-
-		// then, only if they're following
+		// next, check if they're following the thing the post refers to
 		const thingToFollow = this.post.parentPostId ?
 			(this.parentReview || this.parentCodemark) :
 			(this.review || this.codemark);
 		const followerIds = (thingToFollow && thingToFollow.followerIds) || [];
-		if (followerIds.indexOf(user.id) === -1) {
-			this.log(`User ${user.id}:${user.email} is not following the associated object so will not receive an email notification`);
+		if (followerIds.indexOf(user.id) !== -1) {
+			return true;
+		}
+
+		// otherwise, if this user is not yet registered, we only send emails if they are mentioned
+		const mentionedUserIds = this.post.mentionedUserIds || [];
+		const mentioned = this.stream.type === 'direct' || mentionedUserIds.indexOf(user.id) !== -1;
+		if (!user.isRegistered && !mentioned) {
+			this.log(`User ${user.id}:${user.email} is not yet registered, is not following, and is not mentioned so will not receive an email notification`);
 			return false;
 		}
 
@@ -490,12 +489,19 @@ class EmailNotificationV2Handler {
 		const thingToUnfollow = this.parentReview || codemark || review;
 		const isReview = !!(this.parentReview || review);
 		const unfollowLink = this.getUnfollowLink(user, thingToUnfollow, isReview);
+		const userBeingAddedToTeam = (this.message.usersBeingAddedToTeam || []).includes(user.id);
 		Object.assign(this.renderOptions, {
 			content: this.renderedPostPerUser[user.id],
 			unfollowLink,
 			inboundEmailDisabled: this.outboundEmailServer.config.inboundEmailDisabled,
 			styles: this.pseudoStyles,	// only pseudo-styles go in the <head>
-			needButtons: !!this.parentPost || review || (codemark.markerIds || []).length === 1
+			needButtons: !!this.parentPost || review || (codemark.markerIds || []).length === 1,
+			isReply: !!this.post.parentPostId,
+			userIsRegistered: user.isRegistered,
+			inviteCode: user.inviteCode,
+			ideLinks: this.getIDELinks(),
+			userBeingAddedToTeam,
+			teamName: this.team.name
 		});
 		let html = new EmailNotificationV2Renderer().render(this.renderOptions);
 		html = html.replace(/[\t\n]/g, '');
@@ -504,6 +510,23 @@ class EmailNotificationV2Handler {
 		html = Juice(`<style>${this.styles}</style>${html}`);
 
 		this.renderedEmails.push({ user, html });
+	}
+
+	// get the links appropriate for each IDE the user might want to install
+	getIDELinks () {
+		const ideLinks = {
+			'VS Code': 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream',
+			'Visual Studio': 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs',
+			'JetBrains': 'https://plugins.jetbrains.com/plugin/12206-codestream',
+			'Atom': 'https://atom.io/packages/codestream'
+		};
+		const links = [];
+		for (let ide in ideLinks) {
+			const href = `<a clicktracking="off" href="${ideLinks[ide]}">${ide}</a>`;
+			links.push(href);
+		}
+		const allLinks = links.slice(0, links.length - 1).join(', ') + ' or ' + links[links.length - 1];
+		return allLinks;
 	}
 
 	// get the "unfollow" link for a given user and codemark or review
