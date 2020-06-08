@@ -10,6 +10,7 @@ const SocketClusterServer = require('socketcluster-server');
 const UUID = require('uuid/v4');
 const MongoClient = require(process.env.CS_BROADCASTER_TOP + '/server_utils/mongo/mongo_client');
 const OS = require('os');
+const Express = require('express');
 
 class BroadcasterServer {
 
@@ -22,6 +23,7 @@ class BroadcasterServer {
 		this.socketsByUserId = {};
 		this.userIdsByTeamChannel = {};
 		this.numOpenRequests = 0;
+		this.express = Express();
 	}
 
 	// start 'er up
@@ -64,7 +66,7 @@ class BroadcasterServer {
 		};
 		const options = ignoreHttps ? {} : this.makeHttpsOptions();
 		const protocol = ignoreHttps ? HTTP : HTTPS;
-		const httpsServer = protocol.createServer(options);
+		const httpsServer = protocol.createServer(options, this.express);
 		this.scServer = SocketClusterServer.attach(httpsServer, socketClusterOptions);
 
 		if (ignoreHttps) {
@@ -72,6 +74,10 @@ class BroadcasterServer {
 		}
 		this.log(`Broadcaster listening on port ${this.config.https.port}`);
 		httpsServer.listen(this.config.https.port);
+
+		this.express.get('/no-auth/status', ((req, res) => {
+			res.send('OK');
+		}));
 
 		// start listening for connections
 		(async () => {
