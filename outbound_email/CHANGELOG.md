@@ -1,5 +1,11 @@
 # Change Log
 
+## [7.4.0] - 2020-6-8
+
+### Added
+
+- Adds invitation copy to the footer of email notifications to unregistered users
+
 ## [7.2.1] - 2020-5-8
 
 ### Changed
