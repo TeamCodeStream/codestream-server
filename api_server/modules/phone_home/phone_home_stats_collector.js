@@ -94,6 +94,13 @@ class PhoneHomeStatsCollector {
 				if (providerInfo[teamId][integrationName].accessToken) {
 					userIntegrations.push(integrationName);
 				}
+				else if (providerInfo[teamId][integrationName].multiple) {
+					Object.keys(providerInfo[teamId][integrationName].multiple).forEach(workspaceId => {
+						if (providerInfo[teamId][integrationName].multiple[workspaceId].accessToken) {
+							userIntegrations.push(integrationName);
+						}
+					});
+				}
 			});
 		});
 		return userIntegrations;
