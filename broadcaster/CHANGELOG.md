@@ -1,5 +1,12 @@
 # Change Log
 
+## [7.4.0] - 2020-6-8
+
+### Changed
+
+- Cleanup of configuration data across all backend services
+- Release bump to support latest API
+
 ## [7.2.1] - 2020-5-8
 
 ### Changed
