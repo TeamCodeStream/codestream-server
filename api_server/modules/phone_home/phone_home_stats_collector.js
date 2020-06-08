@@ -125,7 +125,7 @@ class PhoneHomeStatsCollector {
 				companyId: team.companyId,
 				createdAt: team.createdAt,
 				creatorId: team.creatorId,
-				liveView: settings.xray || 'on',
+				liveView: settings.xray || 'user',
 				codeReviewApproval: settings.reviewApproval || 'user',
 				codeReviewAssignment: settings.reviewAssignment || 'authorship2'
 			});
