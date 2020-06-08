@@ -604,12 +604,14 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 
-		// here we are paving the way for v2 email notifications, meaning those that base email notifications
-		// off of codemarks, rather than posts in the stream (part of the "sharing" model) ... until we are
-		// ready to turn that paradigm on, we stick with the old...
+		// users being added to the team get special treatment in the notification
+		const newUsers = (this.transforms.invitedUsers || [])
+			.filter(userData => !userData.wasOnTeam)
+			.map(userData => userData.user.id);
 		const message = {
 			type: 'notification_v2',
-			postId: this.model.id
+			postId: this.model.id,
+			usersBeingAddedToTeam: newUsers
 		};
 		this.request.log(`Triggering V2 email notifications for post ${this.model.id}...`);
 		this.request.api.services.email.queueEmailSend(message, { request: this.request });
