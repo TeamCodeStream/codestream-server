@@ -26,7 +26,7 @@ class EmailNotificationV2Renderer {
 		const installWithInviteCode = `
 <br/>
 1. Install the extension for ${ideLinks}.<br/>
-2. Paste in your invitation code:</br>
+2. Paste in your invitation code:<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;<b>${inviteCode}</b><br/>
 `;
 
