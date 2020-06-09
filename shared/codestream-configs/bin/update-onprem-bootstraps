@@ -57,7 +57,8 @@ do
 	if [ -f $repoRoot/profiles/supplemental/onprem-overlays.$csEnv.json ]; then
 		# add optional env specific supplemental properties by overlaying them
 		# on top of the generated config.
-		dt-merge-json --existing-file  $KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json.1 --new-file $repoRoot/profiles/supplemental/onprem-overlays.$csEnv.json  --overwrite-from-new >$KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json.x
+		dt-merge-json --existing-file  $KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json.1 --new-file $repoRoot/profiles/supplemental/onprem-overlays.$csEnv.json  --overwrite-from-new >$KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json.x || exit 1
+		/bin/rm $KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json.1
 	else
 		mv $KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json.1 $KM_PKI/secrets/config/onprem-overlays_${csEnv}_${schemaVersion}_.json.x
 	fi
