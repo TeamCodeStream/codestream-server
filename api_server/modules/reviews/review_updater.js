@@ -184,6 +184,9 @@ class ReviewUpdater extends ModelUpdater {
 				this.request
 			);
 			await ReviewHelper.handleReviewChangesets(this.attributes.$addToSet, true);
+			this.attributes.$unset = this.attributes.$unset || {};
+			this.attributes.$unset.approvedBy = true;
+			this.attributes.$unset.approvedAt = true;
 		}
 	}
 

@@ -31,6 +31,10 @@ class AmendReviewTest extends PutReviewTest {
 			this.expectedData.review.$addToSet.reviewChangesets.forEach(rcs => {
 				delete rcs.diffs;
 			});
+			this.expectedData.review.$unset = {
+				approvedAt: true,
+				approvedBy: true
+			};
 			callback();
 		});
 	}
