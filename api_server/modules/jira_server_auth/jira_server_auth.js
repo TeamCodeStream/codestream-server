@@ -14,7 +14,8 @@ const OAUTH_CONFIG = {
 	hasIssues: true,
 	needsConfigure: true,
 	forEnterprise: true,
-	authCompletePage: 'jira'
+	authCompletePage: 'jira',
+	noClientIdOk: true
 };
 
 class JiraServerAuth extends OAuthModule {
