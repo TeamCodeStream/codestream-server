@@ -143,13 +143,16 @@ class ProviderAuthRequest extends RestfulRequest {
 			access: access,
 			sharing: sharing
 		};
+		this.log('redirectUri: ' + redirectUri);
 
 		// get the specific query data to use in the redirect, and response with the redirect url
 		const { parameters, url } = this.serviceAuth.getRedirectData(options); 
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
-		this.response.redirect(`${url}?${query}`);
+		const redirectTo = `${url}?${query}`;
+		this.log('Redirecting to: ' + redirectTo);
+		this.response.redirect(redirectTo);
 		this.responseHandled = true;
 	}
 

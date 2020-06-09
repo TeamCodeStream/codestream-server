@@ -73,6 +73,7 @@ class WebProviderAuthRequest extends APIRequest {
 			sharing: !!this.request.query.sharing,
 			hostUrl: this.hostUrl || payload.hu
 		};
+		this.log('redirectUri: ' + redirectUri);
 
 		// test mode to just return the generated state variable
 		if (this.request.query._returnState) {
@@ -86,7 +87,9 @@ class WebProviderAuthRequest extends APIRequest {
 			const query = Object.keys(parameters)
 				.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 				.join('&');
-			this.response.redirect(`${url}?${query}`);
+			const redirectTo = `${url}?${query}`;
+			this.log('Redirect to: ' + redirectTo);
+			this.response.redirect(redirectTo);
 			this.responseHandled = true;
 		}
 		catch (error) {
