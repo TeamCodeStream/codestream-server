@@ -82,7 +82,7 @@ class PhoneHomeStatsCollector {
 			const userIntegrations = await this.getIntegrationsForUser(user);
 			integrations = ArrayUtilities.union(integrations, userIntegrations);
 		}));
-		return integrations;
+		return ArrayUtilities.unique(integrations);
 	}
 
 	// collect the integerations used by a particular user (ones they have an access token for)
