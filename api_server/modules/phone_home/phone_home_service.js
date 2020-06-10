@@ -40,31 +40,25 @@ class PhoneHomeService {
 		// either one is good enough, note that we randomize on the Ginterval we wait to avoid
 		// contention with other workers
 		const now = Date.now();
-		const interval = runEveryMinute ? ONE_MINUTE : ONE_DAY;
-		const offset = runEveryMinute ? SIX_SECONDS : SIX_HOURS;
+		const runInterval = runEveryMinute ? ONE_MINUTE : ONE_DAY;
+		const runOffset = runEveryMinute ? SIX_SECONDS : SIX_HOURS;
 		const intervalText = runEveryMinute ? 'minute' : 'day';
-		const intervalBegin = now - (now % interval);
-		const intervalOffset = intervalBegin + offset;
+		const intervalBegin = now - (now % runInterval);
 
 		if (isOnDemand) {
 			this.api.log(`Phoning home on-demand for ${intervalText} of ${intervalBegin}...`);
-			return await this.dumpAndTransmitStats(intervalBegin, interval, intervalText, true);
+			return await this.dumpAndTransmitStats(intervalBegin, runInterval, intervalText, true);
 		}
 
-		let tillNext;
-		if (intervalOffset > now) {
-			tillNext = intervalOffset - now;
-		}
-		else {
-			tillNext = intervalOffset + interval - now;
-		}
+		const runAt = intervalBegin + runInterval + runOffset;
+		const tillNext = runAt - now;
 		const randomizeInterval = runEveryMinute ? SIX_SECONDS : ONE_HOUR;
 		let timerInterval = tillNext + Math.floor(Math.random() * randomizeInterval); // randomize to avoid contention
 		if (timerInterval < SIX_SECONDS) {
 			timerInterval = SIX_SECONDS;	// give at least six seconds for any initialization to happen
 		}
 		this.api.log(`Will attempt to phone home for ${intervalText} of ${intervalBegin} in ${timerInterval} ms...`);
-		this.nextTimer = setTimeout(this.phoneHome.bind(this), timerInterval, intervalBegin, interval, intervalText, isOnDemand);
+		this.nextTimer = setTimeout(this.phoneHome.bind(this), timerInterval, intervalBegin, runInterval, intervalText, isOnDemand);
 	}
 
 	// phone home has been triggered, collect and dump the stats, then transmit
