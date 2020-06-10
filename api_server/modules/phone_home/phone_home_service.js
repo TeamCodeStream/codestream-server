@@ -43,22 +43,20 @@ class PhoneHomeService {
 		const interval = runEveryMinute ? ONE_MINUTE : ONE_DAY;
 		const offset = runEveryMinute ? SIX_SECONDS : SIX_HOURS;
 		const intervalText = runEveryMinute ? 'minute' : 'day';
-		const thisDayBegin = now - (now % interval);
-		const thisDayOffset = thisDayBegin + offset;
+		const intervalBegin = now - (now % interval);
+		const intervalOffset = intervalBegin + offset;
 
-		// if we're doing on-demand, we dump stats for "today", otherwise for "yesterday"
-		const intervalBegin = isOnDemand ? thisDayBegin : thisDayBegin - interval;
 		if (isOnDemand) {
 			this.api.log(`Phoning home on-demand for ${intervalText} of ${intervalBegin}...`);
 			return await this.dumpAndTransmitStats(intervalBegin, interval, intervalText, true);
 		}
 
 		let tillNext;
-		if (thisDayOffset > now) {
-			tillNext = thisDayOffset - now;
+		if (intervalOffset > now) {
+			tillNext = intervalOffset - now;
 		}
 		else {
-			tillNext = thisDayOffset + interval - now;
+			tillNext = intervalOffset + interval - now;
 		}
 		const randomizeInterval = runEveryMinute ? SIX_SECONDS : ONE_HOUR;
 		let timerInterval = tillNext + Math.floor(Math.random() * randomizeInterval); // randomize to avoid contention
