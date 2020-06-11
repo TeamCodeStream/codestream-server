@@ -1,5 +1,15 @@
 # Change Log
 
+## [7.4.1] - 2020-6-11
+
+### Changed
+
+- When an approved code review is amended, all aprovals are cleared
+
+### Fixed
+
+- Fixes an "Application Missing" error when setting up Jira Server integration
+
 ## [7.4.0] - 2020-6-8
 
 ### Added
