@@ -1,12 +1,10 @@
 # Change Log
 
-## [7.4.1] - 2020-6-11
+## [7.4.0] - 2020-6-8
 
 ### Added
 
 - Add http/https health check route to the broadcaster
-
-## [7.4.0] - 2020-6-8
 
 ### Changed
 
