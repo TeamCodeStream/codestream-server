@@ -582,6 +582,9 @@ class BroadcasterServer {
 			timestamp: { $lt: cutoff }
 		};
 		if (!this.lastSweep || this.lastSweep < now - this.config.history.sweepPeriod) {
+			if (!this.data || !this.data.messages) {
+				return;
+			}
 			this.data.messages.deleteByQuery(query);
 		}
 		this.lastSweep = now;
