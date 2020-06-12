@@ -31,6 +31,12 @@
 			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "bitbucket/dev.cfg"
+				},
+				"opbeta": {
+					"_loadSecretsFile": "bitbucket/opbeta.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "bitbucket/oppr.cfg"
 				}
 			}
 		},
@@ -38,6 +44,12 @@
 			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "microsoft/devops-dev.cfg"
+				},
+				"opbeta": {
+					"_loadSecretsFile": "microsoft/devops-opbeta.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "microsoft/devops-oppr.cfg"
 				}
 			}
 		},
@@ -45,6 +57,12 @@
 			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "github/dev.cfg"
+				},
+				"opbeta": {
+					"_loadSecretsFile": "github/opbeta.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "github/oppr.cfg"
 				}
 			}
 		},
@@ -59,6 +77,12 @@
 			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "atlassian/dev.cfg"
+				},
+				"opbeta": {
+					"_loadSecretsFile": "atlassian/opbeta.cfg"
+				},
+				"oppr": {
+					"_loadSecretsFile": "atlassian/oppr.cfg"
 				}
 			}
 		},
@@ -81,10 +105,12 @@
 			"cloud": {
 				"defaultEnv": {},
 				"opbeta": {
-					"_loadSecretsFile": "slack/opbeta-combined.cfg"
+					"_loadSecretsFile": "slack/opbeta-combined.cfg",
+					"interactiveComponentsEnabled": true
 				},
 				"oppr": {
-					"_loadSecretsFile": "slack/oppr-combined.cfg"
+					"_loadSecretsFile": "slack/oppr-combined.cfg",
+					"interactiveComponentsEnabled": true
 				}
 			}
 		},

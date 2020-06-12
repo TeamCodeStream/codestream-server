@@ -1,14 +1,16 @@
 {
 	"apiServer": {
-		"authOrigin": "https://auth.codestream.us/no-auth",
-		"callbackEnvironment": "oppr",
-		"phoneHomeUrl": "http://opbeta.codestream.us:12089",
+		"callbackEnvironment": null,
+		"confirmationNotRequired": false,
 		"showConfig": true
 	},
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
 			"showConfig": true
 		}
+	},
+	"email": {
+		"suppressEmails": false
 	},
 	"inboundEmailServer": {
 		"showConfig": true
