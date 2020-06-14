@@ -12,7 +12,8 @@ export PATH=$CS_OUTBOUND_EMAIL_TOP/bin:$PATH
 
 [ -n "$CSSVC_ENV" ] && export CS_OUTBOUND_EMAIL_ENV=$CSSVC_ENV
 [ -n "$CS_OUTBOUND_EMAIL_CFG_FILE" ] && configParm=$CS_OUTBOUND_EMAIL_CFG_FILE || configParm="$CSSVC_CONFIGURATION"
-sandutil_get_codestream_cfg_file "$CS_OUTBOUND_EMAIL_SANDBOX" "$configParm" "$CSSVC_ENV"
+[ -z "$CSSVC_CFG_FILE" ] && sandutil_get_codestream_cfg_file "$CS_OUTBOUND_EMAIL_SANDBOX" "$configParm" "$CSSVC_ENV"
+[ -n "$CS_OUTBOUND_EMAIL_CFG_FILE" -a \( "$CSSVC_CFG_FILE" != "$CS_OUTBOUND_EMAIL_CFG_FILE" \) ] && echo "**** WARNING: CS_OUTBOUND_EMAIL_CFG_FILE != CSSVC_CFG_FILE"
 
 # env vars required for scripts that don't load the config file
 [ -z "$CS_OUTBOUND_EMAIL_ENV" ] && export CS_OUTBOUND_EMAIL_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p sharedGeneral.runTimeEnvironment)`
